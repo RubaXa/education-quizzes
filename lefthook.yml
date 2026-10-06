@@ -1,0 +1,19 @@
+pre-commit:
+  parallel: true
+  commands:
+    whitespace:
+      run: git diff --cached --check
+    lint:
+      glob: '*.{js,mjs,ts,tsx,css,json}'
+      run: npm run lint
+
+commit-msg:
+  commands:
+    conventional:
+      run: ./node_modules/.bin/commitlint --edit {1}
+
+pre-push:
+  commands:
+    check:
+      glob: '*.{js,mjs,ts,tsx,css,json,yml,yaml}'
+      run: npm run check
