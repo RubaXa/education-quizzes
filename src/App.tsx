@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { BookOpen, CheckCircle2, CircleHelp, Clock3, RefreshCw, Send, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { CodeBlock } from '@/components/CodeBlock'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -100,7 +101,7 @@ function QuestionCard({
         {question.topic && <CardDescription>Тема: {question.topic}</CardDescription>}
       </CardHeader>
       <CardContent className="space-y-4">
-        {question.code && <pre className="question-code"><code>{question.code}</code></pre>}
+        {question.code && <CodeBlock code={question.code} />}
         {question.imageUrl && <img className="question-image" src={question.imageUrl} alt={question.imageAlt ?? 'Иллюстрация к вопросу'} />}
         {(question.kind === 'single' || question.kind === 'figure') && (
           <RadioGroup value={asString} onValueChange={onAnswer} disabled={disabled} className="gap-3">
@@ -178,7 +179,7 @@ function ResultCard({ result, index }: { result: QuestionResult; index: number }
         <CardTitle className="text-lg leading-snug">{index + 1}. {result.question.prompt}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3 text-sm sm:text-base">
-        {result.question.code && <pre className="question-code"><code>{result.question.code}</code></pre>}
+        {result.question.code && <CodeBlock code={result.question.code} />}
         <p><span className="font-medium">Ваш ответ:</span> {answerText(result.question, result.answer)}</p>
         {!pending && wrong && result.correctAnswer !== undefined && (
           <p><span className="font-medium">Верный ответ:</span> {answerText(result.question, result.correctAnswer)}</p>
