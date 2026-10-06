@@ -1,5 +1,6 @@
 import { randomBytes } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
 import { initializeApp, applicationDefault } from 'firebase-admin/app'
 import { getFirestore, Timestamp } from 'firebase-admin/firestore'
@@ -8,6 +9,24 @@ const projectId = 'education-9d7c6'
 const site = 'https://rubaxa.github.io/education-quizzes/'
 const localDir = resolve('.local')
 const dashboardTokenFile = resolve(localDir, 'dashboard-token')
+
+function useLocalFirebaseLogin() {
+  if (process.env.GOOGLE_APPLICATION_CREDENTIALS) return
+  const loginFile = resolve(localDir, 'config/configstore/firebase-tools.json')
+  if (!existsSync(loginFile)) fail('Сначала выполните вход через Firebase CLI.')
+  const login = JSON.parse(readFileSync(loginFile, 'utf8'))
+  if (!login.tokens?.refresh_token) fail('Вход Firebase CLI устарел. Войдите снова.')
+  const require = createRequire(import.meta.url)
+  const { clientId, clientSecret } = require('firebase-tools/lib/api')
+  const credentialFile = resolve(localDir, 'adc.json')
+  writeFileSync(credentialFile, JSON.stringify({
+    type: 'authorized_user',
+    client_id: clientId(),
+    client_secret: clientSecret(),
+    refresh_token: login.tokens.refresh_token,
+  }), { mode: 0o600 })
+  process.env.GOOGLE_APPLICATION_CREDENTIALS = credentialFile
+}
 
 function token(bytes = 24) {
   return randomBytes(bytes).toString('base64url')
@@ -45,6 +64,7 @@ function validateSpec(spec) {
   }
 }
 
+useLocalFirebaseLogin()
 initializeApp({ credential: applicationDefault(), projectId })
 const db = getFirestore()
 const [command, first, second] = process.argv.slice(2)
