@@ -97,14 +97,40 @@ body {
 
 .question-card { overflow: hidden; }
 
-.question-code {
+.code-frame {
+  overflow: hidden;
+  border: 1px solid #dcd4ef;
+  border-radius: 1rem;
+  background: #1f1d29;
+}
+
+.code-caption {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  padding: .65rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, .12);
+  color: #ddd7f2;
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .02em;
+}
+
+.code-dot {
+  width: .55rem;
+  height: .55rem;
+  border-radius: 50%;
+  background: #8ce0a8;
+  box-shadow: 0 0 0 .2rem rgba(140, 224, 168, .12);
+}
+
+.question-code,
+.highlighted-code .shiki {
   overflow-x: auto;
   max-width: 100%;
   margin: 0;
   padding: 1rem;
-  border: 1px solid #e6e3ee;
-  border-radius: 1rem;
-  background: #262139;
+  background: #1f1d29;
   color: #f8f4ff;
   font-size: .9rem;
   line-height: 1.6;
