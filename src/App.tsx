@@ -8,20 +8,20 @@ import { Input } from '@/components/ui/input'
 import { Progress } from '@/components/ui/progress'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Textarea } from '@/components/ui/textarea'
-import {
-  loadAnswerKey,
-  loadAssignment,
-  loadDashboard,
-  loadPreview,
-  loadReview,
-  saveDraft,
-  submitAssignment,
-} from '@/lib/store'
 import { grade, summarize } from '@/lib/quiz'
 import type { Answer, AnswerKey, Assignment, ManualReview, QuizQuestion, QuestionResult } from '@/lib/quiz'
 import './App.css'
 
 type Route = { kind: 'test' | 'preview' | 'dashboard'; token: string } | { kind: 'home' }
+
+const storeModule = () => import('@/lib/store')
+const loadAssignment = async (token: string) => (await storeModule()).loadAssignment(token)
+const loadAnswerKey = async (token: string) => (await storeModule()).loadAnswerKey(token)
+const loadReview = async (token: string) => (await storeModule()).loadReview(token)
+const loadPreview = async (token: string) => (await storeModule()).loadPreview(token)
+const loadDashboard = async (token: string) => (await storeModule()).loadDashboard(token)
+const saveDraft = async (token: string, answers: Record<string, Answer>) => (await storeModule()).saveDraft(token, answers)
+const submitAssignment = async (token: string, answers: Record<string, Answer>) => (await storeModule()).submitAssignment(token, answers)
 
 function routeFromHash(): Route {
   const [, kind, raw = ''] = location.hash.split('/')
