@@ -42,6 +42,15 @@ function describeError(error: unknown): string {
   return 'Не удалось загрузить данные. Попробуйте ещё раз.'
 }
 
+function wordForm(count: number, one: string, few: string, many: string): string {
+  const n = Math.abs(count) % 100
+  const last = n % 10
+  if (!Number.isInteger(count) || (n >= 11 && n <= 14)) return many
+  if (last === 1) return one
+  if (last >= 2 && last <= 4) return few
+  return many
+}
+
 function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div className="app-shell">
@@ -85,7 +94,7 @@ function QuestionCard({
       <CardHeader className="gap-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <Badge variant="secondary">Вопрос {index + 1}</Badge>
-          <span className="text-sm text-muted-foreground">{question.points} {question.points === 1 ? 'балл' : 'баллов'}</span>
+          <span className="text-sm text-muted-foreground">{question.points} {wordForm(question.points, 'балл', 'балла', 'баллов')}</span>
         </div>
         <CardTitle className="text-xl leading-snug sm:text-2xl">{question.prompt}</CardTitle>
         {question.topic && <CardDescription>Тема: {question.topic}</CardDescription>}
@@ -155,12 +164,13 @@ function answerText(question: QuizQuestion, answer?: Answer): string {
 function ResultCard({ result, index }: { result: QuestionResult; index: number }) {
   const wrong = result.points === 0
   const pending = result.points === null
+  const partial = !pending && !wrong && result.points !== result.question.points
   return (
     <Card className="border-0 shadow-sm">
       <CardHeader className="gap-2">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <Badge variant={pending ? 'secondary' : wrong ? 'destructive' : 'default'}>
-            {pending ? 'Ждёт проверки' : wrong ? 'Стоит повторить' : 'Верно'}
+          <Badge variant={pending || partial ? 'secondary' : wrong ? 'destructive' : 'default'}>
+            {pending ? 'Ждёт проверки' : wrong ? 'Стоит повторить' : partial ? 'Частично верно' : 'Верно'}
           </Badge>
           <span className="text-sm text-muted-foreground">{pending ? '—' : result.points} / {result.question.points}</span>
         </div>
@@ -216,7 +226,7 @@ function ResultView({ assignment, token }: { assignment: Assignment; token: stri
           <p className="max-w-2xl text-white/85">{assignment.title}</p>
           <div className="score-panel">
             <strong className="text-4xl sm:text-5xl">{summary.earned}<span className="text-2xl font-normal text-white/70"> / {summary.possible}</span></strong>
-            <span>{summary.pending ? `Ещё ${summary.pending} ${summary.pending === 1 ? 'ответ ждёт' : 'ответа ждут'} проверки` : `${percentage}% правильных баллов`}</span>
+            <span>{summary.pending ? `Ещё ${summary.pending} ${wordForm(summary.pending, 'ответ ждёт', 'ответа ждут', 'ответов ждут')} проверки` : `${percentage}% правильных баллов`}</span>
           </div>
           <Progress value={percentage} className="bg-white/20" />
           {summary.pending > 0 && <p className="text-sm text-white/80">Итог предварительный. Полный разбор появится по этой же ссылке после проверки.</p>}
@@ -291,7 +301,7 @@ function QuizRunner({ token }: { token: string }) {
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">{assignment.title}</h1>
         {assignment.description && <p className="max-w-2xl text-muted-foreground">{assignment.description}</p>}
         <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-          <span className="flex items-center gap-2"><CircleHelp className="size-4" /> {assignment.questions.length} вопросов</span>
+          <span className="flex items-center gap-2"><CircleHelp className="size-4" /> {assignment.questions.length} {wordForm(assignment.questions.length, 'вопрос', 'вопроса', 'вопросов')}</span>
           <span className="flex items-center gap-2"><Clock3 className="size-4" /> Можно продолжить позже по этой ссылке</span>
         </div>
       </div>
