@@ -100,6 +100,7 @@ function QuestionCard({
         {question.topic && <CardDescription>Тема: {question.topic}</CardDescription>}
       </CardHeader>
       <CardContent className="space-y-4">
+        {question.code && <pre className="question-code"><code>{question.code}</code></pre>}
         {question.imageUrl && <img className="question-image" src={question.imageUrl} alt={question.imageAlt ?? 'Иллюстрация к вопросу'} />}
         {(question.kind === 'single' || question.kind === 'figure') && (
           <RadioGroup value={asString} onValueChange={onAnswer} disabled={disabled} className="gap-3">
@@ -177,6 +178,7 @@ function ResultCard({ result, index }: { result: QuestionResult; index: number }
         <CardTitle className="text-lg leading-snug">{index + 1}. {result.question.prompt}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3 text-sm sm:text-base">
+        {result.question.code && <pre className="question-code"><code>{result.question.code}</code></pre>}
         <p><span className="font-medium">Ваш ответ:</span> {answerText(result.question, result.answer)}</p>
         {!pending && wrong && result.correctAnswer !== undefined && (
           <p><span className="font-medium">Верный ответ:</span> {answerText(result.question, result.correctAnswer)}</p>

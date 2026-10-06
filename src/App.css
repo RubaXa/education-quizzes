@@ -97,6 +97,20 @@ body {
 
 .question-card { overflow: hidden; }
 
+.question-code {
+  overflow-x: auto;
+  max-width: 100%;
+  margin: 0;
+  padding: 1rem;
+  border: 1px solid #e6e3ee;
+  border-radius: 1rem;
+  background: #262139;
+  color: #f8f4ff;
+  font-size: .9rem;
+  line-height: 1.6;
+  tab-size: 4;
+}
+
 .question-image {
   max-width: 100%;
   max-height: 25rem;
