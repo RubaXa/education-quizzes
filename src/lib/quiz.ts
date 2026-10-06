@@ -11,6 +11,7 @@ export type QuizQuestion = {
   id: string
   kind: 'single' | 'multiple' | 'short' | 'number' | 'long' | 'figure'
   prompt: string
+  code?: string
   points: number
   options?: QuizOption[]
   imageUrl?: string
