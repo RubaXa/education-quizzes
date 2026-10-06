@@ -89,6 +89,159 @@ body {
 
 .intro-card > * { position: relative; z-index: 1; }
 
+/* Each assignment carries a subject preset and an optional topic scene. */
+.theme-frame {
+  --theme-deep: #403286;
+  --theme-mid: #7459c6;
+  --theme-accent: #e4b9fb;
+  --theme-paper: #f8f5ff;
+  --theme-border: #e7def6;
+  --art-sun: #ffe0ad;
+  --art-water: #77b7d9;
+  --art-wave: #d6f5ff;
+  --art-buildings: #bdc3ef;
+  --art-dome: #e0be83;
+  --art-window: #f5e4c1;
+  --art-bridge: #f2ceae;
+  --art-boat: #fff0cb;
+  --art-sail: #fff8e8;
+  --art-birds: #e1e8ff;
+  --art-orb: #ffffff19;
+  --art-panel: #e6dbff;
+  --art-ink: #c8b8ff;
+  --art-accent: #ffd5a7;
+  --primary: var(--theme-mid);
+  --ring: var(--theme-mid);
+  position: relative;
+  isolation: isolate;
+  padding: clamp(.35rem, 1.2vw, .75rem);
+  border-radius: 2rem;
+  background:
+    radial-gradient(circle at 2% 18%, color-mix(in srgb, var(--theme-accent) 32%, transparent), transparent 22rem),
+    radial-gradient(circle at 98% 75%, color-mix(in srgb, var(--theme-accent) 26%, transparent), transparent 24rem),
+    var(--theme-paper);
+}
+
+.theme-frame[data-preset='english'] {
+  --theme-deep: #12385f;
+  --theme-mid: #147ea5;
+  --theme-accent: #f5c56f;
+  --theme-paper: #f2f9fa;
+  --theme-border: #cfe7e8;
+  --art-sun: #ffd489;
+  --art-water: #397c9b;
+  --art-wave: #9cd9e7;
+  --art-buildings: #90b8ca;
+  --art-dome: #e9b870;
+  --art-window: #f9dfb2;
+  --art-bridge: #eed5b2;
+  --art-boat: #edb865;
+  --art-sail: #fff9e9;
+  --art-birds: #eaf9fd;
+  --art-panel: #fff5df;
+  --art-ink: #bcf0ed;
+  --art-accent: #ffd188;
+}
+
+.theme-frame[data-preset='informatics'] {
+  --theme-deep: #161d50; --theme-mid: #5b57c9; --theme-accent: #92ead5;
+  --theme-paper: #f4f5fe; --theme-border: #d6d9f1;
+  --art-panel: #222c65; --art-ink: #abfff0; --art-accent: #ffbb83;
+}
+.theme-frame[data-preset='biology'] {
+  --theme-deep: #174d42; --theme-mid: #328874; --theme-accent: #c8e38e;
+  --theme-paper: #f4faef; --theme-border: #d6e8d0;
+  --art-panel: #edf8cf; --art-ink: #c6edbb; --art-accent: #a2d580;
+}
+.theme-frame[data-preset='literature'] {
+  --theme-deep: #623046; --theme-mid: #a8566a; --theme-accent: #e9bd97;
+  --theme-paper: #fbf6f1; --theme-border: #ecdcd5;
+  --art-panel: #f8e6c9; --art-ink: #f1c8b1; --art-accent: #db8e8a;
+}
+.theme-frame[data-preset='history'] {
+  --theme-deep: #564127; --theme-mid: #a8733d; --theme-accent: #e6cd8d;
+  --theme-paper: #fbf8ef; --theme-border: #e9dfc4;
+  --art-panel: #e9d0a1; --art-ink: #f2ddb7; --art-accent: #b78347;
+}
+.theme-frame[data-preset='math'] {
+  --theme-deep: #423284; --theme-mid: #7457b9; --theme-accent: #b5dfee;
+  --theme-paper: #f7f6ff; --theme-border: #e4e0f3;
+  --art-panel: #c5ddf4; --art-ink: #e1d4ff; --art-accent: #f4c77d;
+}
+.theme-frame[data-preset='russian'] {
+  --theme-deep: #533f76; --theme-mid: #9276ae; --theme-accent: #e7b9a3;
+  --theme-paper: #fbf8fc; --theme-border: #e8dfed;
+  --art-panel: #f5dccc; --art-ink: #e9d3ef; --art-accent: #dbabb7;
+}
+.theme-frame[data-preset='geography'] {
+  --theme-deep: #1c5562; --theme-mid: #388996; --theme-accent: #e4ce8e;
+  --theme-paper: #f2f9f8; --theme-border: #d4e8e5;
+  --art-panel: #cce4dd; --art-ink: #d1f2e9; --art-accent: #eec078;
+}
+.theme-frame[data-preset='physics'] {
+  --theme-deep: #293d73; --theme-mid: #5878bb; --theme-accent: #c4e7f3;
+  --theme-paper: #f4f8fe; --theme-border: #dce5f4;
+  --art-panel: #bdd9ee; --art-ink: #d3e8ff; --art-accent: #f2c285;
+}
+.theme-frame[data-preset='chemistry'] {
+  --theme-deep: #31535e; --theme-mid: #5d919a; --theme-accent: #bde2d2;
+  --theme-paper: #f4faf9; --theme-border: #d7eae6;
+  --art-panel: #d6e7e1; --art-ink: #c9efe4; --art-accent: #efcf9a;
+}
+.theme-frame[data-preset='general'] {
+  --theme-deep: #403286; --theme-mid: #7459c6; --theme-accent: #e4b9fb;
+  --theme-paper: #f8f5ff; --theme-border: #e7def6;
+}
+
+.themed-hero {
+  min-height: 19rem;
+  padding: clamp(1.4rem, 4vw, 2.5rem);
+  border-radius: 1.7rem;
+  background:
+    radial-gradient(circle at 75% 15%, color-mix(in srgb, var(--theme-accent) 35%, transparent), transparent 17rem),
+    linear-gradient(125deg, var(--theme-deep), var(--theme-mid));
+  color: white;
+  box-shadow: 0 20px 45px color-mix(in srgb, var(--theme-deep) 17%, transparent);
+}
+.themed-hero::after { display: none; }
+.hero-copy { width: min(55%, 550px); display: flex; flex-direction: column; align-items: flex-start; gap: .9rem; }
+.hero-topline { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem 1rem; }
+.hero-kicker { display: inline-flex; align-items: center; gap: .45rem; color: var(--theme-accent); font-size: .78rem; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+.hero-preview { padding: .3rem .6rem; border: 1px solid #ffffff58; border-radius: 99px; color: #fff; font-size: .75rem; }
+.subject-chip { display: inline-flex; align-items: center; gap: .4rem; padding: .32rem .72rem; border-radius: 99px; background: #ffffff27; color: #fff; font-size: .82rem; }
+.themed-hero h1 { max-width: 15ch; font-size: clamp(2rem, 5vw, 3.35rem); line-height: 1.03; font-weight: 760; letter-spacing: -.055em; text-wrap: balance; }
+.theme-frame[data-preset='literature'] .themed-hero h1 { font-family: Georgia, serif; letter-spacing: -.035em; }
+.hero-description { max-width: 58ch; color: #f1f9ffdf; line-height: 1.5; font-size: .98rem; }
+.hero-caption { display: flex; align-items: center; gap: .5rem; color: var(--theme-accent); font-size: .86rem; font-weight: 650; }
+.hero-meta { padding-top: .4rem; color: #ffffffd9; }
+.hero-art-wrap { position: absolute; right: -.4rem; bottom: -.8rem; width: min(40%, 400px); pointer-events: none; }
+.scene-art { display: block; width: 100%; height: auto; filter: drop-shadow(0 18px 18px #071d2933); }
+.art-wave { animation: water-sway 6s ease-in-out infinite alternate; }
+.art-boat { animation: boat-bob 4s ease-in-out infinite; transform-origin: 185px 255px; }
+@keyframes water-sway { to { transform: translateX(-15px); } }
+@keyframes boat-bob { 50% { transform: translateY(-5px) rotate(2deg); } }
+
+.reading-card {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(1.2rem, 3vw, 2rem);
+  border: 1px solid var(--theme-border);
+  border-radius: 1.35rem;
+  background: #fffefa;
+  box-shadow: 0 7px 24px #1530490a;
+}
+.reading-card::before { content: ''; position: absolute; inset: 0 auto 0 0; width: .38rem; background: var(--theme-mid); }
+.reading-heading { display: flex; align-items: center; gap: .8rem; color: var(--theme-deep); }
+.reading-heading > svg { width: 2.4rem; height: 2.4rem; padding: .58rem; border-radius: .75rem; background: var(--theme-paper); }
+.reading-heading span { display: block; color: var(--theme-mid); font-size: .72rem; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+.reading-heading h2 { font-size: 1.25rem; font-weight: 750; }
+.reading-body { display: grid; gap: .9rem; max-width: 72ch; margin-top: 1.25rem; color: #263546; font-size: 1.05rem; line-height: 1.72; }
+.theme-frame .question-card { border: 1px solid var(--theme-border); background: #fff; }
+.theme-frame .option-tile:hover { border-color: var(--theme-mid); background: var(--theme-paper); }
+.theme-frame .option-tile:has([data-state='checked']) { border-color: var(--theme-mid); background: color-mix(in srgb, var(--theme-paper) 80%, white); }
+.theme-frame .sticky-progress { border: 1px solid var(--theme-border); }
+.theme-frame .result-hero { background: linear-gradient(125deg, var(--theme-deep), var(--theme-mid)); }
+
 .sticky-progress {
   position: sticky;
   top: .5rem;
@@ -226,6 +379,13 @@ body {
   .header-note { display: none; }
   .page-wrap { width: min(100% - 1rem, 920px); margin-top: .5rem; }
   .option-tile { padding: .85rem; }
+  .theme-frame { padding: .3rem; border-radius: 1.4rem; }
+  .themed-hero { min-height: 0; display: block; padding: 1.4rem 1.3rem 0; }
+  .hero-copy { width: 100%; }
+  .themed-hero h1 { max-width: 20ch; font-size: clamp(2rem, 9vw, 3rem); }
+  .hero-description { font-size: .92rem; }
+  .hero-art-wrap { position: relative; width: min(100%, 340px); margin: -.7rem 0 -.3rem auto; right: auto; bottom: auto; }
+  .reading-body { font-size: 1rem; line-height: 1.62; }
 }
 
 @media (prefers-reduced-motion: reduce) {

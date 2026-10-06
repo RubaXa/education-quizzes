@@ -52,6 +52,19 @@ function validateSpec(spec) {
   if (typeof spec.subject !== 'string' || !spec.subject.trim()) fail('Не указан предмет.')
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(spec.slug ?? '')) fail('slug должен содержать латинские буквы, цифры и дефисы.')
   if (!Array.isArray(spec.questions) || !spec.questions.length || spec.questions.length > 100) fail('Нужно от 1 до 100 вопросов.')
+  if (spec.visual !== undefined) {
+    if (!spec.visual || typeof spec.visual !== 'object' || Array.isArray(spec.visual)) fail('visual должен быть объектом.')
+    if (spec.visual.preset && !['english', 'informatics', 'biology', 'literature', 'history', 'math', 'russian', 'geography', 'physics', 'chemistry', 'general'].includes(spec.visual.preset)) fail('Неизвестный visual.preset.')
+    if (spec.visual.scene && !['city', 'language', 'code', 'nature', 'story', 'archive', 'shapes', 'atlas', 'lab'].includes(spec.visual.scene)) fail('Неизвестный visual.scene.')
+    for (const field of ['eyebrow', 'caption']) {
+      if (spec.visual[field] !== undefined && (typeof spec.visual[field] !== 'string' || spec.visual[field].length > 160)) fail(`Некорректный visual.${field}.`)
+    }
+  }
+  if (spec.reading !== undefined && (
+    !spec.reading || typeof spec.reading.heading !== 'string' || !spec.reading.heading.trim() ||
+    !Array.isArray(spec.reading.paragraphs) || !spec.reading.paragraphs.length ||
+    !spec.reading.paragraphs.every((paragraph) => typeof paragraph === 'string' && paragraph.trim() && paragraph.length <= 1200)
+  )) fail('Некорректный reading: нужны заголовок и непустые абзацы.')
   const ids = new Set()
   for (const question of spec.questions) {
     if (!question.id || ids.has(question.id)) fail('У каждого вопроса должен быть уникальный id.')
@@ -85,6 +98,8 @@ async function create(specPath) {
     title: spec.title,
     description: spec.description ?? '',
     subject: spec.subject,
+    visual: spec.visual ?? null,
+    reading: spec.reading ?? null,
     slug: spec.slug,
     linkedToTestId: spec.linkedToTestId ?? null,
     questions: publicQuestions,
@@ -103,6 +118,8 @@ async function create(specPath) {
     title: spec.title,
     description: spec.description ?? '',
     subject: spec.subject,
+    visual: spec.visual ?? null,
+    reading: spec.reading ?? null,
     questions: publicQuestions,
     createdAt,
   })

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { BookOpen, CheckCircle2, CircleHelp, Clock3, RefreshCw, Send, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { CodeBlock } from '@/components/CodeBlock'
+import { ReadingCard, ThemeFrame, ThemeHero } from '@/components/SubjectTheme'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -289,7 +290,7 @@ function QuizRunner({ token }: { token: string }) {
 
   if (error && !assignment) return <ErrorCard message={error} />
   if (!assignment) return <Card className="mx-auto max-w-xl"><CardContent className="py-10 text-center">Загружаем тест…</CardContent></Card>
-  if (assignment.status === 'submitted') return <ResultView assignment={assignment} token={token} />
+  if (assignment.status === 'submitted') return <ThemeFrame subject={assignment.subject} visual={assignment.visual}><ResultView assignment={assignment} token={token} /></ThemeFrame>
 
   const answered = assignment.questions.filter((question) => {
     const answer = answers[question.id]
@@ -298,16 +299,15 @@ function QuizRunner({ token }: { token: string }) {
   const progress = assignment.questions.length ? Math.round(100 * answered / assignment.questions.length) : 0
 
   return (
-    <div className="space-y-6">
-      <div className="intro-card">
-        <Badge variant="secondary" className="bg-white/80">{assignment.subject}</Badge>
-        <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">{assignment.title}</h1>
-        {assignment.description && <p className="max-w-2xl text-muted-foreground">{assignment.description}</p>}
-        <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+    <ThemeFrame subject={assignment.subject} visual={assignment.visual}>
+      <div className="space-y-6">
+      <ThemeHero subject={assignment.subject} visual={assignment.visual} title={assignment.title} description={assignment.description}>
+        <div className="flex flex-wrap items-center gap-4 text-sm">
           <span className="flex items-center gap-2"><CircleHelp className="size-4" /> {assignment.questions.length} {wordForm(assignment.questions.length, 'вопрос', 'вопроса', 'вопросов')}</span>
           <span className="flex items-center gap-2"><Clock3 className="size-4" /> Можно продолжить позже по этой ссылке</span>
         </div>
-      </div>
+      </ThemeHero>
+      <ReadingCard reading={assignment.reading} />
       <div className="sticky-progress rounded-2xl bg-white/95 px-5 py-3 shadow-sm backdrop-blur">
         <div className="mb-2 flex justify-between text-sm"><span>Ваш прогресс</span><strong>{answered} из {assignment.questions.length}</strong></div>
         <Progress value={progress} />
@@ -320,7 +320,8 @@ function QuizRunner({ token }: { token: string }) {
         <span className="text-sm text-muted-foreground">{saving ? 'Сохраняем ответы…' : 'Ответы сохраняются автоматически'}</span>
         <Button size="lg" disabled={submitting} onClick={submit}><Send /> {submitting ? 'Отправляем…' : 'Завершить тест'}</Button>
       </div>
-    </div>
+      </div>
+    </ThemeFrame>
   )
 }
 
@@ -331,14 +332,13 @@ function Preview({ token }: { token: string }) {
   if (error) return <ErrorCard message={error} />
   if (!preview) return <p>Загружаем предпросмотр…</p>
   return (
-    <div className="space-y-6">
-      <div className="intro-card">
-        <Badge variant="secondary" className="bg-white/80">Предпросмотр · только чтение</Badge>
-        <h1 className="text-3xl font-bold sm:text-5xl">{preview.title}</h1>
-        {preview.description && <p className="text-muted-foreground">{preview.description}</p>}
-      </div>
+    <ThemeFrame subject={preview.subject} visual={preview.visual}>
+      <div className="space-y-6">
+      <ThemeHero subject={preview.subject} visual={preview.visual} title={preview.title} description={preview.description} preview />
+      <ReadingCard reading={preview.reading} />
       {preview.questions.map((question, index) => <QuestionCard key={question.id} question={question} index={index} disabled onAnswer={() => {}} />)}
-    </div>
+      </div>
+    </ThemeFrame>
   )
 }
 

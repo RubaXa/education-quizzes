@@ -7,7 +7,7 @@ import {
   serverTimestamp,
 } from 'firebase/firestore'
 import { db } from './firebase'
-import type { Answer, AnswerKey, Assignment, ManualReview, QuizQuestion } from './quiz'
+import type { Answer, AnswerKey, Assignment, ManualReview, QuizQuestion, QuizReading, QuizVisual } from './quiz'
 
 export async function loadAssignment(token: string): Promise<Assignment> {
   const snapshot = await getDoc(doc(db, 'assignments', token))
@@ -62,6 +62,8 @@ export async function loadPreview(token: string): Promise<{
   title: string
   description?: string
   subject: string
+  visual?: QuizVisual
+  reading?: QuizReading
   questions: QuizQuestion[]
 }> {
   const snapshot = await getDoc(doc(db, 'previews', token))
@@ -70,6 +72,8 @@ export async function loadPreview(token: string): Promise<{
     title: string
     description?: string
     subject: string
+    visual?: QuizVisual
+    reading?: QuizReading
     questions: QuizQuestion[]
   }
 }

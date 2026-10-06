@@ -19,12 +19,26 @@ export type QuizQuestion = {
   topic?: string
 }
 
+export type QuizVisual = {
+  preset?: 'english' | 'informatics' | 'biology' | 'literature' | 'history' | 'math' | 'russian' | 'geography' | 'physics' | 'chemistry' | 'general'
+  scene?: 'city' | 'language' | 'code' | 'nature' | 'story' | 'archive' | 'shapes' | 'atlas' | 'lab'
+  eyebrow?: string
+  caption?: string
+}
+
+export type QuizReading = {
+  heading: string
+  paragraphs: string[]
+}
+
 export type Assignment = {
   schemaVersion: 1
   testId: string
   title: string
   description?: string
   subject: string
+  visual?: QuizVisual
+  reading?: QuizReading
   questions: QuizQuestion[]
   status: 'open' | 'submitted'
   answers: Record<string, Answer>
