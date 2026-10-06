@@ -32,4 +32,4 @@ npm run build
 
 ## Публикация
 
-GitHub Actions собирает сайт при изменении ветки `main` и публикует его на GitHub Pages. Сайт доступен по адресу https://rubaxa.github.io/education-quizzes/. Правила Firestore публикуются отдельно через Firebase CLI (`firebase deploy --only firestore:rules --project education-9d7c6`).
+Сайт доступен по адресу https://rubaxa.github.io/education-quizzes/. Команда `npm run publish:pages` собирает сайт и публикует результат в ветку `gh-pages` без GitHub Actions. Правила Firestore публикуются отдельно через Firebase CLI (`firebase deploy --only firestore:rules --project education-9d7c6`).
