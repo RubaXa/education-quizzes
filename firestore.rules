@@ -1,0 +1,56 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // A link's random document ID is its access key. Collection enumeration is
+    // never allowed from the browser. Administrative writes use IAM locally.
+    match /assignments/{linkToken} {
+      allow get: if true;
+      allow list, create, delete: if false;
+
+      allow update: if resource.data.status == 'open'
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['answers', 'status', 'startedAt', 'updatedAt', 'submittedAt'])
+        && request.resource.data.answers is map
+        && request.resource.data.answers.size() <= 100
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.startedAt is timestamp
+        && (resource.data.startedAt == null
+          ? request.resource.data.startedAt == request.time
+          : request.resource.data.startedAt == resource.data.startedAt)
+        && (
+          (request.resource.data.status == 'open'
+            && request.resource.data.submittedAt == null)
+          ||
+          (request.resource.data.status == 'submitted'
+            && request.resource.data.submittedAt == request.time)
+        );
+    }
+
+    match /answerKeys/{linkToken} {
+      allow get: if exists(/databases/$(database)/documents/assignments/$(linkToken))
+        && get(/databases/$(database)/documents/assignments/$(linkToken)).data.status == 'submitted';
+      allow list, write: if false;
+    }
+
+    match /reviews/{linkToken} {
+      allow get: if exists(/databases/$(database)/documents/assignments/$(linkToken))
+        && get(/databases/$(database)/documents/assignments/$(linkToken)).data.status == 'submitted';
+      allow list, write: if false;
+    }
+
+    match /previews/{previewToken} {
+      allow get: if true;
+      allow list, write: if false;
+    }
+
+    match /dashboard/{dashboardToken}/assignments/{assignmentId} {
+      allow get, list: if true;
+      allow write: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
