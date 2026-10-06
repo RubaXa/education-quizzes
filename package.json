@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "publish:pages": "npm run build && node scripts/publish-pages.mjs",
     "lint": "oxlint",
     "preview": "vite preview",
     "quiz": "node scripts/quiz.mjs"
