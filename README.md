@@ -32,4 +32,8 @@ npm run build
 
 ## Публикация
 
-Сайт доступен по адресу https://rubaxa.github.io/education-quizzes/. Команда `npm run publish:pages` собирает сайт и публикует результат в ветку `gh-pages` без GitHub Actions. Правила Firestore публикуются отдельно через Firebase CLI (`firebase deploy --only firestore:rules --project education-9d7c6`).
+Сайт доступен по адресу https://rubaxa.github.io/education-quizzes/. Команда `npm run publish:pages` собирает сайт и публикует результат в ветку `gh-pages` без GitHub Actions. Если исходники сайта не менялись с прошлого выпуска, сборка пропускается. `npm run publish:pages -- --dry-run` только сообщает, нужен ли выпуск. Для прямой отправки чистой ветки `main` и последующей публикации есть `npm run push:publish`. После слияния pull request нужно обновить `main` и выполнить `npm run publish:pages` отдельно. Правила Firestore публикуются отдельно через Firebase CLI (`firebase deploy --only firestore:rules --project education-9d7c6`).
+
+## Проверки
+
+`npm run check` запускает линтер, тесты и production-сборку. При установке зависимостей `prepare` устанавливает Lefthook; если npm заблокировал установочные скрипты, выполните `npm run prepare` вручную. Хуки проверяют пробелы и линтер перед коммитом, формат Conventional Commits в `commit-msg`, а полный набор проверок перед push.

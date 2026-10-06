@@ -64,7 +64,8 @@ function normalize(value: string): string {
 }
 
 function normalizeNumber(value: string): number {
-  return Number(value.trim().replace(',', '.'))
+  const trimmed = value.trim()
+  return trimmed ? Number(trimmed.replace(',', '.')) : Number.NaN
 }
 
 export function grade(
