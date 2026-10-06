@@ -10,7 +10,7 @@ const site = 'https://rubaxa.github.io/education-quizzes/'
 const localDir = resolve('.local')
 const dashboardTokenFile = resolve(localDir, 'dashboard-token')
 
-function useLocalFirebaseLogin() {
+function prepareLocalFirebaseLogin() {
   if (process.env.GOOGLE_APPLICATION_CREDENTIALS) return
   const loginFile = resolve(localDir, 'config/configstore/firebase-tools.json')
   if (!existsSync(loginFile)) fail('Сначала выполните вход через Firebase CLI.')
@@ -64,7 +64,7 @@ function validateSpec(spec) {
   }
 }
 
-useLocalFirebaseLogin()
+prepareLocalFirebaseLogin()
 initializeApp({ credential: applicationDefault(), projectId })
 const db = getFirestore()
 const [command, first, second] = process.argv.slice(2)
