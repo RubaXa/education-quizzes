@@ -64,6 +64,7 @@ function loadJson(path) {
 function validateSpec(spec) {
   if (typeof spec.title !== 'string' || !spec.title.trim()) fail('Не указано название теста.')
   if (typeof spec.description !== 'string' || !spec.description.trim()) fail('Нужно краткое описание теста для личного списка.')
+  validateBoardDetails(spec.board)
   if (typeof spec.subject !== 'string' || !spec.subject.trim()) fail('Не указан предмет.')
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(spec.slug ?? '')) fail('slug должен содержать латинские буквы, цифры и дефисы.')
   if (!Array.isArray(spec.questions) || !spec.questions.length || spec.questions.length > 100) fail('Нужно от 1 до 100 вопросов.')
@@ -108,6 +109,14 @@ function validateSpec(spec) {
         if (parsed.protocol !== 'https:' || !parsed.hostname) fail(`Ссылка answer.learning.${field} в ${question.id} должна быть HTTPS.`)
       }
     }
+  }
+}
+
+function validateBoardDetails(board) {
+  if (!board || typeof board !== 'object' || Array.isArray(board)) fail('Нужен board с материалами, темами повторения и целью теста.')
+  if (!Array.isArray(board.materials) || !board.materials.length || !board.materials.every((value) => typeof value === 'string' && value.trim())) fail('board.materials: укажите конкретные проверенные источники.')
+  for (const field of ['review', 'purpose']) {
+    if (typeof board[field] !== 'string' || !board[field].trim()) fail(`board.${field}: нужна непустая строка.`)
   }
 }
 
@@ -163,6 +172,7 @@ async function create(specPath) {
     testId,
     title: spec.title,
     description: spec.description ?? '',
+    board: spec.board,
     subject: spec.subject,
     slug: spec.slug,
     previewToken,
@@ -173,6 +183,7 @@ async function create(specPath) {
       testId,
       title: spec.title,
       description: spec.description ?? '',
+      board: spec.board,
       subject: spec.subject,
       slug: spec.slug,
       previewToken,
@@ -184,6 +195,7 @@ async function create(specPath) {
       testId,
       title: spec.title,
       description: spec.description ?? '',
+      board: spec.board,
       subject: spec.subject,
       slug: spec.slug,
       previewToken,
@@ -215,10 +227,12 @@ async function addToLearnerBoard(manifestPath) {
     const snapshot = await db.doc(`assignments/${item.token}`).get()
     if (!snapshot.exists) fail(`Назначение с позицией ${position + 1} не найдено.`)
     const assignment = snapshot.data()
+    validateBoardDetails(item.board)
     const indexEntry = {
       testId: assignment.testId,
       title: typeof item.title === 'string' && item.title.trim() ? item.title.trim() : assignment.title,
       description: typeof item.description === 'string' && item.description.trim() ? item.description.trim() : assignment.description ?? '',
+      board: item.board,
       subject: assignment.subject,
       slug: assignment.slug,
       previewToken: String(item.previewToken ?? ''),

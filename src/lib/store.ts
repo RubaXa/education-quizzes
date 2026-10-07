@@ -11,6 +11,20 @@ import {
 import { db } from './firebase'
 import type { Answer, AnswerKey, Assignment, ManualReview, QuizQuestion, QuizReading, QuizVisual } from './quiz'
 
+export type BoardDetails = {
+  materials: string[]
+  review: string
+  purpose: string
+}
+
+function readBoardDetails(value: unknown): BoardDetails | null {
+  if (!value || typeof value !== 'object') return null
+  const board = value as Partial<BoardDetails>
+  if (!Array.isArray(board.materials) || !board.materials.every((item) => typeof item === 'string')) return null
+  if (typeof board.review !== 'string' || typeof board.purpose !== 'string') return null
+  return { materials: board.materials, review: board.review, purpose: board.purpose }
+}
+
 export async function loadAssignment(token: string): Promise<Assignment> {
   const snapshot = await getDoc(doc(db, 'assignments', token))
   if (!snapshot.exists()) throw new Error('Ссылка не найдена или была отозвана.')
@@ -104,6 +118,7 @@ export async function loadDashboard(token: string) {
     token: item.id,
     title: String(item.data().title ?? 'Без названия'),
     description: String(item.data().description ?? ''),
+    board: readBoardDetails(item.data().board),
     subject: String(item.data().subject ?? ''),
     slug: String(item.data().slug ?? ''),
     previewToken: String(item.data().previewToken ?? ''),
@@ -118,6 +133,7 @@ export function watchDashboard(token: string, onChange: (items: Awaited<ReturnTy
       token: item.id,
       title: String(item.data().title ?? 'Без названия'),
       description: String(item.data().description ?? ''),
+      board: readBoardDetails(item.data().board),
       subject: String(item.data().subject ?? ''),
       slug: String(item.data().slug ?? ''),
       previewToken: String(item.data().previewToken ?? ''),

@@ -116,6 +116,7 @@ body {
 }
 .board-description summary::-webkit-details-marker { display: none; }
 .board-description summary span {
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -124,6 +125,18 @@ body {
 .board-description[open] summary svg { transform: rotate(180deg); }
 .board-description summary:hover { color: #403286; }
 .board-description summary:focus-visible { outline: 2px solid #7459c6; outline-offset: 4px; border-radius: .25rem; }
+.board-description-content {
+  display: grid;
+  gap: .85rem;
+  margin-top: .85rem;
+  padding: 1rem;
+  border: 1px solid #e8e3f2;
+  border-radius: .85rem;
+  background: #f9f7fd;
+}
+.board-description-content h4 { color: #30245b; font-weight: 700; }
+.board-description-content ul { margin: .3rem 0 0; padding-left: 1.2rem; list-style: disc; }
+.board-description-content p { margin-top: .3rem; }
 
 /* Each assignment carries a subject preset and an optional topic scene. */
 .theme-frame {

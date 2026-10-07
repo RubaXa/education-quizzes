@@ -14,6 +14,7 @@ import { countAnswered, grade, summarize } from '@/lib/quiz'
 import { buildFollowUpPrompt } from '@/lib/followup'
 import { WriteQueue } from '@/lib/writeQueue'
 import type { Answer, AnswerKey, Assignment, ManualReview, QuizQuestion, QuestionResult } from '@/lib/quiz'
+import type { BoardDetails } from '@/lib/store'
 import './App.css'
 
 type Route = { kind: 'test' | 'preview' | 'dashboard' | 'my' | 'review'; token: string } | { kind: 'home' }
@@ -395,6 +396,7 @@ type BoardItem = {
   token: string
   title: string
   description: string
+  board: BoardDetails | null
   subject: string
   slug: string
   previewToken: string
@@ -425,7 +427,14 @@ function BoardCard({ item, parent = false, unread = false, copied = false, onCop
         </div>
         {parent && <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{item.subject}</span>}
         <CardTitle className="text-xl font-semibold">{item.title}</CardTitle>
-        {item.description && <details className="board-description"><summary aria-label={`Описание теста «${item.title}». Нажмите, чтобы раскрыть или свернуть`}><span>{item.description}</span><ChevronDown className="size-4 shrink-0" aria-hidden="true" /></summary></details>}
+        {item.description && <details className="board-description">
+          <summary><span>{item.description}</span><ChevronDown className="size-4 shrink-0" aria-hidden="true" /></summary>
+          {item.board && <div className="board-description-content">
+            <div><h4>На основе материалов</h4><ul>{item.board.materials.map((material) => <li key={material}>{material}</li>)}</ul></div>
+            <div><h4>Что повторить</h4><p>{item.board.review}</p></div>
+            <div><h4>Зачем этот тест</h4><p>{item.board.purpose}</p></div>
+          </div>}
+        </details>}
       </CardHeader>
       <CardContent className="space-y-4">
         {!completed && <div className="space-y-2"><div className="flex justify-between gap-2 text-sm"><span>Отвечено: {item.answered}</span><strong>Осталось: {remaining}</strong></div><Progress value={item.total ? item.answered * 100 / item.total : 0} /></div>}
@@ -465,6 +474,7 @@ function Dashboard({ token, parent = false }: { token: string; parent?: boolean 
             ...item,
             title: item.title || assignment.title,
             description: item.description || assignment.description || '',
+            board: item.board,
             subject: item.subject || assignment.subject,
             status: assignment.status,
             answered: countAnswered(assignment),
