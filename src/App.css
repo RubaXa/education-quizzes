@@ -89,6 +89,42 @@ body {
 
 .intro-card > * { position: relative; z-index: 1; }
 
+.board-subject-title {
+  color: #30245b;
+  font-size: clamp(1.4rem, 4vw, 1.9rem);
+  font-weight: 750;
+  letter-spacing: -.025em;
+}
+
+.board-section-title {
+  color: #70698b;
+  font-size: .9rem;
+  font-weight: 700;
+}
+
+.board-card { border-radius: 1.35rem; }
+.board-description { min-width: 0; color: #605b70; }
+.board-description summary {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  width: fit-content;
+  max-width: 100%;
+  cursor: pointer;
+  list-style: none;
+  line-height: 1.45;
+}
+.board-description summary::-webkit-details-marker { display: none; }
+.board-description summary span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.board-description[open] summary span { overflow: visible; white-space: normal; }
+.board-description[open] summary svg { transform: rotate(180deg); }
+.board-description summary:hover { color: #403286; }
+.board-description summary:focus-visible { outline: 2px solid #7459c6; outline-offset: 4px; border-radius: .25rem; }
+
 /* Each assignment carries a subject preset and an optional topic scene. */
 .theme-frame {
   --theme-deep: #403286;

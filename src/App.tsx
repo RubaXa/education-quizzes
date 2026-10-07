@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { BookOpen, CheckCircle2, CircleHelp, Clock3, ExternalLink, RefreshCw, Send, Sparkles } from 'lucide-react'
+import { BookOpen, CheckCircle2, ChevronDown, CircleHelp, Clock3, ExternalLink, RefreshCw, Send, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { CodeBlock } from '@/components/CodeBlock'
 import { ReadingCard, ThemeFrame, ThemeHero } from '@/components/SubjectTheme'
@@ -10,11 +10,11 @@ import { Input } from '@/components/ui/input'
 import { Progress } from '@/components/ui/progress'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Textarea } from '@/components/ui/textarea'
-import { grade, summarize } from '@/lib/quiz'
+import { countAnswered, grade, summarize } from '@/lib/quiz'
 import type { Answer, AnswerKey, Assignment, ManualReview, QuizQuestion, QuestionResult } from '@/lib/quiz'
 import './App.css'
 
-type Route = { kind: 'test' | 'preview' | 'dashboard'; token: string } | { kind: 'home' }
+type Route = { kind: 'test' | 'preview' | 'dashboard' | 'my'; token: string } | { kind: 'home' }
 
 const storeModule = () => import('@/lib/store')
 const loadAssignment = async (token: string) => (await storeModule()).loadAssignment(token)
@@ -28,7 +28,7 @@ const submitAssignment = async (token: string, answers: Record<string, Answer>) 
 function routeFromHash(): Route {
   const [, kind, raw = ''] = location.hash.split('/')
   const token = raw.includes('~') ? raw.slice(raw.lastIndexOf('~') + 1) : raw
-  if ((kind === 't' || kind === 'preview' || kind === 'dashboard') && token) {
+  if ((kind === 't' || kind === 'preview' || kind === 'dashboard' || kind === 'my') && token) {
     return { kind: kind === 't' ? 'test' : kind, token }
   }
   return { kind: 'home' }
@@ -319,10 +319,7 @@ function QuizRunner({ token }: { token: string }) {
   if (!assignment) return <Card className="mx-auto max-w-xl"><CardContent className="py-10 text-center">Загружаем тест…</CardContent></Card>
   if (assignment.status === 'submitted') return <ThemeFrame subject={assignment.subject} visual={assignment.visual}><ResultView assignment={assignment} token={token} /></ThemeFrame>
 
-  const answered = assignment.questions.filter((question) => {
-    const answer = answers[question.id]
-    return typeof answer === 'string' ? answer.trim().length > 0 : Array.isArray(answer) && answer.length > 0
-  }).length
+  const answered = countAnswered({ ...assignment, answers })
   const progress = assignment.questions.length ? Math.round(100 * answered / assignment.questions.length) : 0
 
   return (
@@ -369,37 +366,96 @@ function Preview({ token }: { token: string }) {
   )
 }
 
+type BoardItem = {
+  token: string
+  title: string
+  description: string
+  subject: string
+  slug: string
+  previewToken: string
+  position: number | null
+  createdAt: { seconds?: number } | null
+  status: Assignment['status']
+  answered: number
+  total: number
+}
+
+function BoardCard({ item }: { item: BoardItem }) {
+  const completed = item.status === 'submitted'
+  const remaining = Math.max(0, item.total - item.answered)
+  return (
+    <Card className="board-card border-0 shadow-sm">
+      <CardHeader className="gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <Badge variant={completed ? 'secondary' : 'default'}>{completed ? 'Пройден' : item.answered ? 'В процессе' : 'Не начат'}</Badge>
+          <span className="text-sm text-muted-foreground">{item.answered} из {item.total}</span>
+        </div>
+        <CardTitle className="text-xl font-semibold">{item.title}</CardTitle>
+        {item.description && <details className="board-description"><summary aria-label={`Описание теста «${item.title}». Нажмите, чтобы раскрыть или свернуть`}><span>{item.description}</span><ChevronDown className="size-4 shrink-0" aria-hidden="true" /></summary></details>}
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {!completed && <div className="space-y-2"><div className="flex justify-between gap-2 text-sm"><span>Отвечено: {item.answered}</span><strong>Осталось: {remaining}</strong></div><Progress value={item.total ? item.answered * 100 / item.total : 0} /></div>}
+        <div className="flex flex-wrap gap-2">
+          <Button asChild><a href={`#/t/${item.slug}~${item.token}`}>{completed ? 'Посмотреть результат' : item.answered ? 'Продолжить тест' : 'Начать тест'}</a></Button>
+          {item.previewToken && <Button variant="outline" asChild><a href={`#/preview/${item.slug}~${item.previewToken}`}>Просмотреть без ответов</a></Button>}
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
 function Dashboard({ token }: { token: string }) {
-  const [items, setItems] = useState<Array<{ token: string; title: string; subject: string; slug: string; previewToken: string; status: string }>>()
+  const [items, setItems] = useState<BoardItem[]>()
   const [error, setError] = useState('')
-  useEffect(() => {
-    loadDashboard(token).then(async (index) => {
-      const rows = await Promise.all(index.map(async (item) => ({
-        ...item,
-        status: (await loadAssignment(item.token)).status,
-      })))
+  const [refreshing, setRefreshing] = useState(false)
+  async function refresh() {
+    setRefreshing(true)
+    try {
+      const index = await loadDashboard(token)
+      const rows = await Promise.all(index.map(async (item) => {
+        const assignment = await loadAssignment(item.token)
+        return {
+          ...item,
+          title: item.title || assignment.title,
+          description: item.description || assignment.description || '',
+          subject: item.subject || assignment.subject,
+          status: assignment.status,
+          answered: countAnswered(assignment),
+          total: assignment.questions.length,
+        }
+      }))
+      rows.sort((a, b) => (a.position ?? a.createdAt?.seconds ?? 0) - (b.position ?? b.createdAt?.seconds ?? 0))
       setItems(rows)
-    }).catch((cause) => setError(describeError(cause)))
-  }, [token])
-  if (error) return <ErrorCard message={error} />
+      setError('')
+    } catch (cause) { setError(describeError(cause)) }
+    finally { setRefreshing(false) }
+  }
+  useEffect(() => { void refresh() }, [token])
+  const subjects = [...new Set(items?.map((item) => item.subject) ?? [])]
+  const activeCount = items?.filter((item) => item.status !== 'submitted').length ?? 0
+  const completedCount = (items?.length ?? 0) - activeCount
   return (
     <div className="space-y-6">
       <div className="intro-card">
-        <Badge variant="secondary" className="bg-white/80">Кабинет взрослого</Badge>
-        <h1 className="text-3xl font-bold sm:text-5xl">Все самопроверки</h1>
-        <p className="text-muted-foreground">Эта ссылка даёт доступ к истории. Храните её только у себя.</p>
+        <Badge variant="secondary" className="bg-white/80">Личный список тестов</Badge>
+        <h1 className="text-3xl font-bold sm:text-5xl">Мои тесты</h1>
+        <p className="text-muted-foreground">Здесь видно, что ещё предстоит сделать и сколько вопросов осталось. Открывай тест, когда будешь готов.</p>
+        {items && <p className="font-medium">Активных: {activeCount} · Пройденных: {completedCount}</p>}
       </div>
+      <div className="flex items-center justify-between gap-3"><p className="text-sm text-muted-foreground">Список можно смотреть без изменения ответов.</p><Button variant="outline" size="sm" disabled={refreshing} onClick={refresh}><RefreshCw className={refreshing ? 'animate-spin' : ''} /> Обновить</Button></div>
+      {error && <ErrorCard message={error} onRetry={refresh} />}
       {!items && <p>Загружаем список…</p>}
       {items?.length === 0 && <Card><CardContent className="py-10 text-center">Тестов пока нет.</CardContent></Card>}
-      <div className="grid gap-4 sm:grid-cols-2">{items?.map((item) => (
-        <Card key={item.token} className="border-0 shadow-sm">
-          <CardHeader>
-            <div className="flex justify-between gap-2"><Badge variant="secondary">{item.subject}</Badge><span className="text-sm text-muted-foreground">{item.status === 'submitted' ? 'Отправлен' : 'Ожидает'}</span></div>
-            <CardTitle>{item.title}</CardTitle>
-          </CardHeader>
-          <CardContent><Button variant="outline" asChild><a href={item.status === 'submitted' ? `#/t/${item.slug}~${item.token}` : `#/preview/${item.slug}~${item.previewToken}`}>{item.status === 'submitted' ? 'Открыть результат' : 'Предпросмотр'}</a></Button></CardContent>
-        </Card>
-      ))}</div>
+      {subjects.map((subject) => {
+        const subjectItems = items?.filter((item) => item.subject === subject) ?? []
+        const active = subjectItems.filter((item) => item.status !== 'submitted')
+        const archived = subjectItems.filter((item) => item.status === 'submitted')
+        return <section key={subject} className="space-y-4" aria-label={subject}>
+          <h2 className="board-subject-title">{subject}</h2>
+          {active.length > 0 && <div className="space-y-3"><h3 className="board-section-title">Активные</h3>{active.map((item) => <BoardCard key={item.token} item={item} />)}</div>}
+          {archived.length > 0 && <div className="space-y-3"><h3 className="board-section-title">Пройденные · архив</h3>{archived.map((item) => <BoardCard key={item.token} item={item} />)}</div>}
+        </section>
+      })}
     </div>
   )
 }
@@ -423,7 +479,7 @@ function App() {
     window.addEventListener('hashchange', updateRoute)
     return () => window.removeEventListener('hashchange', updateRoute)
   }, [])
-  return <Shell>{route.kind === 'test' ? <QuizRunner token={route.token} /> : route.kind === 'preview' ? <Preview token={route.token} /> : route.kind === 'dashboard' ? <Dashboard token={route.token} /> : <Home />}</Shell>
+  return <Shell>{route.kind === 'test' ? <QuizRunner token={route.token} /> : route.kind === 'preview' ? <Preview token={route.token} /> : route.kind === 'dashboard' || route.kind === 'my' ? <Dashboard token={route.token} /> : <Home />}</Shell>
 }
 
 export default App

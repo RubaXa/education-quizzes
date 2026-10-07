@@ -9,6 +9,7 @@ const projectId = 'education-9d7c6'
 const site = 'https://rubaxa.github.io/education-quizzes/'
 const localDir = resolve('.local')
 const dashboardTokenFile = resolve(localDir, 'dashboard-token')
+const learnerBoardTokenFile = resolve(localDir, 'learner-board-token')
 
 function prepareLocalFirebaseLogin() {
   if (process.env.GOOGLE_APPLICATION_CREDENTIALS) return
@@ -38,6 +39,12 @@ function dashboardToken() {
   return readFileSync(dashboardTokenFile, 'utf8').trim()
 }
 
+function learnerBoardToken() {
+  mkdirSync(localDir, { recursive: true })
+  if (!existsSync(learnerBoardTokenFile)) writeFileSync(learnerBoardTokenFile, token(32), { mode: 0o600 })
+  return readFileSync(learnerBoardTokenFile, 'utf8').trim()
+}
+
 function fail(message) {
   throw new Error(message)
 }
@@ -49,6 +56,7 @@ function loadJson(path) {
 
 function validateSpec(spec) {
   if (typeof spec.title !== 'string' || !spec.title.trim()) fail('Не указано название теста.')
+  if (typeof spec.description !== 'string' || !spec.description.trim()) fail('Нужно краткое описание теста для личного списка.')
   if (typeof spec.subject !== 'string' || !spec.subject.trim()) fail('Не указан предмет.')
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(spec.slug ?? '')) fail('slug должен содержать латинские буквы, цифры и дефисы.')
   if (!Array.isArray(spec.questions) || !spec.questions.length || spec.questions.length > 100) fail('Нужно от 1 до 100 вопросов.')
@@ -147,18 +155,58 @@ async function create(specPath) {
   batch.create(db.doc(`dashboard/${ownerToken}/assignments/${learnerToken}`), {
     testId,
     title: spec.title,
+    description: spec.description ?? '',
     subject: spec.subject,
     slug: spec.slug,
     previewToken,
     createdAt,
   })
+  if (existsSync(learnerBoardTokenFile)) {
+    batch.create(db.doc(`dashboard/${learnerBoardToken()}/assignments/${learnerToken}`), {
+      testId,
+      title: spec.title,
+      description: spec.description ?? '',
+      subject: spec.subject,
+      slug: spec.slug,
+      previewToken,
+      createdAt,
+    })
+  }
   await batch.commit()
   console.log(JSON.stringify({
     testId,
     learner: `${site}#/t/${spec.slug}~${learnerToken}`,
     preview: `${site}#/preview/${spec.slug}~${previewToken}`,
     dashboard: `${site}#/dashboard/${ownerToken}`,
+    ...(existsSync(learnerBoardTokenFile) ? { learnerBoard: `${site}#/my/${learnerBoardToken()}` } : {}),
   }, null, 2))
+}
+
+async function addToLearnerBoard(manifestPath) {
+  const items = loadJson(manifestPath)
+  if (!Array.isArray(items) || !items.length) fail('В manifest нужен непустой массив тестов.')
+  const tokens = new Set()
+  const board = learnerBoardToken()
+  const batch = db.batch()
+  for (const [position, item] of items.entries()) {
+    if (typeof item.token !== 'string' || !/^[A-Za-z0-9_-]{24,}$/.test(item.token) || tokens.has(item.token)) fail('Некорректный или повторный token в manifest.')
+    tokens.add(item.token)
+    const snapshot = await db.doc(`assignments/${item.token}`).get()
+    if (!snapshot.exists) fail(`Назначение с позицией ${position + 1} не найдено.`)
+    const assignment = snapshot.data()
+    batch.set(db.doc(`dashboard/${board}/assignments/${item.token}`), {
+      testId: assignment.testId,
+      title: typeof item.title === 'string' && item.title.trim() ? item.title.trim() : assignment.title,
+      description: typeof item.description === 'string' && item.description.trim() ? item.description.trim() : assignment.description ?? '',
+      subject: assignment.subject,
+      slug: assignment.slug,
+      previewToken: String(item.previewToken ?? ''),
+      createdAt: assignment.createdAt ?? Timestamp.now(),
+      position: position + 1,
+    })
+  }
+  await batch.commit()
+  console.log(JSON.stringify({ learnerBoard: `${site}#/my/${board}`, count: items.length }, null, 2))
 }
 
 async function list() {
@@ -208,10 +256,11 @@ try {
     validateSpec(loadJson(first))
     console.log('Спецификация готова к созданию теста.')
   } else if (command === 'create') await create(first)
+  else if (command === 'board-add') await addToLearnerBoard(first)
   else if (command === 'list') await list()
   else if (command === 'export') await exportAttempt(first, second)
   else if (command === 'review') await reviewAttempt(first, second)
-  else fail('Команды: validate SPEC.json | create SPEC.json | list | export TOKEN OUTPUT.json | review TOKEN REVIEW.json')
+  else fail('Команды: validate SPEC.json | create SPEC.json | board-add MANIFEST.json | list | export TOKEN OUTPUT.json | review TOKEN REVIEW.json')
 } catch (error) {
   console.error(error instanceof Error ? error.message : error)
   process.exitCode = 1

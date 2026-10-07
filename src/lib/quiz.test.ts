@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { grade, summarize } from './quiz'
+import { countAnswered, grade, summarize } from './quiz'
 import type { AnswerKey, Assignment } from './quiz'
 
 const assignment: Assignment = {
@@ -30,6 +30,11 @@ const key: AnswerKey = {
 }
 
 describe('grading', () => {
+  it('counts only filled answers for the shared test list', () => {
+    expect(countAnswered(assignment)).toBe(2)
+    expect(countAnswered({ ...assignment, answers: { zero: '  ', many: [], reason: '' } })).toBe(0)
+  })
+
   it('does not accept a blank numeric answer as zero', () => {
     const results = grade(assignment, key)
     expect(results[0]).toMatchObject({ points: 0, explanation: 'Нужен ответ.', learning: { rule: 'Пустой ответ не равен нулю.' } })

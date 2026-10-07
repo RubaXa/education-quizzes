@@ -47,6 +47,13 @@ export type Assignment = {
   submittedAt: unknown | null
 }
 
+export function countAnswered(assignment: Assignment): number {
+  return assignment.questions.filter((question) => {
+    const answer = assignment.answers?.[question.id]
+    return typeof answer === 'string' ? answer.trim().length > 0 : Array.isArray(answer) && answer.length > 0
+  }).length
+}
+
 export type AnswerKey = {
   entries: Record<string, {
     correct?: Answer

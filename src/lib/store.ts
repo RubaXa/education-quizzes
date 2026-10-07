@@ -83,9 +83,11 @@ export async function loadDashboard(token: string) {
   return snapshot.docs.map((item) => ({
     token: item.id,
     title: String(item.data().title ?? 'Без названия'),
+    description: String(item.data().description ?? ''),
     subject: String(item.data().subject ?? ''),
     slug: String(item.data().slug ?? ''),
     previewToken: String(item.data().previewToken ?? ''),
     createdAt: item.data().createdAt,
+    position: typeof item.data().position === 'number' ? item.data().position as number : null,
   }))
 }
