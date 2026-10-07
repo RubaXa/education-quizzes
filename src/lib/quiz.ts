@@ -54,7 +54,18 @@ export type AnswerKey = {
     tolerance?: number
     explanation?: string
     source?: string
+    learning?: LearningGuide
   }>
+}
+
+export type LearningGuide = {
+  rule: string
+  why: string
+  textbook: string
+  nextStep: string
+  textbookUrl?: string
+  url?: string
+  urlLabel?: string
 }
 
 export type ManualReview = {
@@ -72,6 +83,7 @@ export type QuestionResult = {
   points: number | null
   explanation?: string
   source?: string
+  learning?: LearningGuide
 }
 
 function normalize(value: string): string {
@@ -101,6 +113,7 @@ export function grade(
         points: manual ? Math.max(0, Math.min(question.points, manual.points)) : null,
         explanation: manual?.explanation,
         source: manual?.source ?? expected?.source,
+        learning: manual ? undefined : expected?.learning,
       }
     }
 
@@ -132,6 +145,7 @@ export function grade(
       points: correct ? question.points : 0,
       explanation: correct ? undefined : expected.explanation,
       source: correct ? undefined : expected.source,
+      learning: correct ? undefined : expected.learning,
     }
   })
 }

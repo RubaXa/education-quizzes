@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { BookOpen, CheckCircle2, CircleHelp, Clock3, RefreshCw, Send, Sparkles } from 'lucide-react'
+import { BookOpen, CheckCircle2, CircleHelp, Clock3, ExternalLink, RefreshCw, Send, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { CodeBlock } from '@/components/CodeBlock'
 import { ReadingCard, ThemeFrame, ThemeHero } from '@/components/SubjectTheme'
@@ -173,21 +173,48 @@ function ResultCard({ result, index }: { result: QuestionResult; index: number }
       <CardHeader className="gap-2">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <Badge variant={pending || partial ? 'secondary' : wrong ? 'destructive' : 'default'}>
-            {pending ? 'Ждёт проверки' : wrong ? 'Стоит повторить' : partial ? 'Частично верно' : 'Верно'}
+            {pending ? 'Ждёт проверки' : wrong ? 'Неверно' : partial ? 'Частично верно' : 'Верно'}
           </Badge>
           <span className="text-sm text-muted-foreground">{pending ? '—' : result.points} / {result.question.points}</span>
         </div>
         <CardTitle className="text-lg leading-snug">{index + 1}. {result.question.prompt}</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3 text-sm sm:text-base">
+      <CardContent className="space-y-4 text-sm sm:text-base">
         {result.question.code && <CodeBlock code={result.question.code} />}
-        <p><span className="font-medium">Ваш ответ:</span> {answerText(result.question, result.answer)}</p>
-        {!pending && wrong && result.correctAnswer !== undefined && (
-          <p><span className="font-medium">Верный ответ:</span> {answerText(result.question, result.correctAnswer)}</p>
-        )}
+        <div className="result-answers">
+          <p className={wrong ? 'result-answer-wrong' : ''}><span>Ваш ответ</span><strong>{answerText(result.question, result.answer)}</strong></p>
+          {!pending && wrong && result.correctAnswer !== undefined && (
+            <p className="result-answer-correct"><span>Правильный ответ</span><strong>{answerText(result.question, result.correctAnswer)}</strong></p>
+          )}
+        </div>
         {pending && <p className="text-muted-foreground">Разбор появится здесь после проверки.</p>}
-        {result.explanation && <p className="rounded-xl bg-muted p-3">{result.explanation}</p>}
-        {result.source && <p className="flex items-start gap-2 text-muted-foreground"><BookOpen className="mt-0.5 size-4 shrink-0" /> {result.source}</p>}
+        {result.learning ? (
+          <section className="result-learning" aria-label="Разбор и материал">
+            <div className="result-rule">
+              <h3>Правило</h3>
+              <p>{result.learning.rule}</p>
+            </div>
+            <div className="result-why">
+              <h3>Почему здесь так</h3>
+              <p>{result.learning.why}</p>
+            </div>
+            <div className="result-material">
+              <BookOpen className="size-5 shrink-0" aria-hidden="true" />
+              <div>
+                <h3>Где читать в учебнике</h3>
+                <p>{result.learning.textbook}</p>
+                <p>{result.learning.nextStep}</p>
+                {result.learning.textbookUrl?.startsWith('https://') && <a href={result.learning.textbookUrl} target="_blank" rel="noopener noreferrer">Страница учебника у издателя <ExternalLink className="inline size-4" aria-hidden="true" /></a>}
+                {result.learning.url?.startsWith('https://') && <a href={result.learning.url} target="_blank" rel="noopener noreferrer">{result.learning.urlLabel ?? 'Открыть материал'} <ExternalLink className="inline size-4" aria-hidden="true" /></a>}
+              </div>
+            </div>
+          </section>
+        ) : (result.explanation || result.source) && (
+          <section className="result-learning" aria-label="Разбор и материал">
+            {result.explanation && <div className="result-rule"><h3>Объяснение</h3><p>{result.explanation}</p></div>}
+            {result.source && <div className="result-material"><BookOpen className="size-5 shrink-0" aria-hidden="true" /><div><h3>Где читать</h3><p>{result.source}</p></div></div>}
+          </section>
+        )}
       </CardContent>
     </Card>
   )

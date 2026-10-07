@@ -21,8 +21,10 @@ const assignment: Assignment = {
 
 const key: AnswerKey = {
   entries: {
-    zero: { correct: '0', explanation: 'Нужен ответ.', source: 'Тема: нуль' },
-    many: { correct: ['a', 'b'] },
+    zero: { correct: '0', explanation: 'Нужен ответ.', source: 'Тема: нуль', learning: {
+      rule: 'Пустой ответ не равен нулю.', why: 'Поле не заполнено.', textbook: 'Памятка, стр. 1.', nextStep: 'Прочитай пример.'
+    } },
+    many: { correct: ['a', 'b'], learning: { rule: 'Выбери два числа.', why: 'Оба нужны.', textbook: 'Памятка, стр. 2.', nextStep: 'Прочитай пример.' } },
     reason: {},
   },
 }
@@ -30,8 +32,9 @@ const key: AnswerKey = {
 describe('grading', () => {
   it('does not accept a blank numeric answer as zero', () => {
     const results = grade(assignment, key)
-    expect(results[0]).toMatchObject({ points: 0, explanation: 'Нужен ответ.' })
+    expect(results[0]).toMatchObject({ points: 0, explanation: 'Нужен ответ.', learning: { rule: 'Пустой ответ не равен нулю.' } })
     expect(results[1].points).toBe(2)
+    expect(results[1].learning).toBeUndefined()
   })
 
   it('keeps written answers pending until a manual review arrives', () => {

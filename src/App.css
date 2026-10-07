@@ -336,6 +336,43 @@ body {
   color: white;
 }
 
+.result-answers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: .75rem;
+}
+
+.result-answers p {
+  display: grid;
+  gap: .25rem;
+  padding: .9rem 1rem;
+  border-radius: 1rem;
+  background: #f6f5f8;
+}
+
+.result-answers span { color: #5f5a66; font-size: .86rem; }
+.result-answers strong { font-size: 1.15rem; line-height: 1.3; overflow-wrap: anywhere; }
+.result-answers .result-answer-wrong { background: #fff1f2; color: #a41d30; }
+.result-answers .result-answer-correct { background: #eaf9f1; color: #11633a; }
+
+.result-learning {
+  overflow: hidden;
+  border: 1px solid #c9dde6;
+  border-radius: 1.2rem;
+  background: #f7fcfe;
+}
+
+.result-learning > div { padding: 1rem 1.15rem; }
+.result-learning > div + div { border-top: 1px solid #dce9ee; }
+.result-learning h3 { margin: 0 0 .4rem; font-size: .95rem; font-weight: 750; color: #174b62; }
+.result-learning p { margin: 0; line-height: 1.55; }
+.result-learning p + p { margin-top: .55rem; }
+.result-rule p { font-size: 1.05rem; font-weight: 600; }
+.result-material { display: flex; align-items: flex-start; gap: .8rem; background: #eef8f8; }
+.result-material a { display: inline-flex; align-items: center; gap: .25rem; margin-top: .8rem; font-weight: 700; color: #075c72; text-decoration: underline; text-underline-offset: .2rem; }
+.result-material a + a { margin-left: 1rem; }
+.result-material a:hover { color: #063c4c; }
+
 .score-panel {
   display: flex;
   flex-wrap: wrap;
