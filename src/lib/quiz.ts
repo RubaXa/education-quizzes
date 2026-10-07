@@ -63,6 +63,7 @@ export type LearningGuide = {
   why: string
   textbook: string
   nextStep: string
+  sourceHeading?: string
   textbookUrl?: string
   url?: string
   urlLabel?: string
@@ -73,6 +74,7 @@ export type ManualReview = {
     points: number
     explanation: string
     source?: string
+    learning?: LearningGuide
   }>
 }
 
@@ -113,7 +115,7 @@ export function grade(
         points: manual ? Math.max(0, Math.min(question.points, manual.points)) : null,
         explanation: manual?.explanation,
         source: manual?.source ?? expected?.source,
-        learning: manual ? undefined : expected?.learning,
+        learning: manual ? manual.learning ?? expected?.learning : undefined,
       }
     }
 

@@ -201,7 +201,7 @@ function ResultCard({ result, index }: { result: QuestionResult; index: number }
             <div className="result-material">
               <BookOpen className="size-5 shrink-0" aria-hidden="true" />
               <div>
-                <h3>Где читать в учебнике</h3>
+                <h3>{result.learning.sourceHeading ?? 'Где читать в учебнике'}</h3>
                 <p>{result.learning.textbook}</p>
                 <p>{result.learning.nextStep}</p>
                 {result.learning.textbookUrl?.startsWith('https://') && <a href={result.learning.textbookUrl} target="_blank" rel="noopener noreferrer">Страница учебника у издателя <ExternalLink className="inline size-4" aria-hidden="true" /></a>}

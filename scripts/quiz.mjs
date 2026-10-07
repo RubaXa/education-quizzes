@@ -74,13 +74,34 @@ function validateSpec(spec) {
     if (!Number.isFinite(question.points) || question.points <= 0) fail(`Некорректные баллы вопроса ${question.id}.`)
     if (question.kind !== 'long' && question.answer?.correct === undefined) fail(`Нет ключа для вопроса ${question.id}.`)
     if (['single', 'multiple', 'figure'].includes(question.kind) && (!Array.isArray(question.options) || question.options.length < 2)) fail(`Нужно минимум два варианта в ${question.id}.`)
+    const answer = question.answer
+    if (!answer || typeof answer !== 'object' || Array.isArray(answer)) fail(`Нет разбора для вопроса ${question.id}.`)
+    for (const field of ['explanation', 'source']) {
+      if (typeof answer[field] !== 'string' || !answer[field].trim()) fail(`Нет answer.${field} для вопроса ${question.id}.`)
+    }
+    const learning = answer.learning
+    if (!learning || typeof learning !== 'object' || Array.isArray(learning)) fail(`Нет answer.learning для вопроса ${question.id}.`)
+    for (const field of ['rule', 'why', 'textbook', 'nextStep']) {
+      if (typeof learning[field] !== 'string' || !learning[field].trim()) fail(`Нет answer.learning.${field} для вопроса ${question.id}.`)
+    }
+    if (learning.sourceHeading !== undefined && (typeof learning.sourceHeading !== 'string' || !learning.sourceHeading.trim())) fail(`Некорректный answer.learning.sourceHeading в ${question.id}.`)
+    for (const field of ['textbookUrl', 'url']) {
+      if (learning[field] !== undefined) {
+        if (typeof learning[field] !== 'string') fail(`Некорректная ссылка answer.learning.${field} в ${question.id}.`)
+        let parsed
+        try { parsed = new URL(learning[field]) } catch { fail(`Некорректная ссылка answer.learning.${field} в ${question.id}.`) }
+        if (parsed.protocol !== 'https:' || !parsed.hostname) fail(`Ссылка answer.learning.${field} в ${question.id} должна быть HTTPS.`)
+      }
+    }
   }
 }
 
-prepareLocalFirebaseLogin()
-initializeApp({ credential: applicationDefault(), projectId })
-const db = getFirestore()
 const [command, first, second] = process.argv.slice(2)
+if (command !== 'validate') {
+  prepareLocalFirebaseLogin()
+  initializeApp({ credential: applicationDefault(), projectId })
+}
+const db = command === 'validate' ? null : getFirestore()
 
 async function create(specPath) {
   const spec = loadJson(specPath)
@@ -183,11 +204,14 @@ async function reviewAttempt(learnerToken, reviewPath) {
 }
 
 try {
-  if (command === 'create') await create(first)
+  if (command === 'validate') {
+    validateSpec(loadJson(first))
+    console.log('Спецификация готова к созданию теста.')
+  } else if (command === 'create') await create(first)
   else if (command === 'list') await list()
   else if (command === 'export') await exportAttempt(first, second)
   else if (command === 'review') await reviewAttempt(first, second)
-  else fail('Команды: create SPEC.json | list | export TOKEN OUTPUT.json | review TOKEN REVIEW.json')
+  else fail('Команды: validate SPEC.json | create SPEC.json | list | export TOKEN OUTPUT.json | review TOKEN REVIEW.json')
 } catch (error) {
   console.error(error instanceof Error ? error.message : error)
   process.exitCode = 1

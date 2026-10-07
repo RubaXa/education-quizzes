@@ -25,7 +25,7 @@ const key: AnswerKey = {
       rule: 'Пустой ответ не равен нулю.', why: 'Поле не заполнено.', textbook: 'Памятка, стр. 1.', nextStep: 'Прочитай пример.'
     } },
     many: { correct: ['a', 'b'], learning: { rule: 'Выбери два числа.', why: 'Оба нужны.', textbook: 'Памятка, стр. 2.', nextStep: 'Прочитай пример.' } },
-    reason: {},
+    reason: { learning: { rule: 'Сначала объясни ход.', why: 'Нужна причина.', textbook: 'Памятка, стр. 3.', nextStep: 'Прочитай пример.' } },
   },
 }
 
@@ -40,11 +40,13 @@ describe('grading', () => {
   it('keeps written answers pending until a manual review arrives', () => {
     const pending = grade(assignment, key)
     expect(summarize(pending)).toEqual({ earned: 2, possible: 6, pending: 1 })
+    expect(pending[2].learning).toBeUndefined()
 
     const reviewed = grade(assignment, key, {
       entries: { reason: { points: 2, explanation: 'Нужна точная запись.' } },
     })
     expect(summarize(reviewed)).toEqual({ earned: 4, possible: 6, pending: 0 })
     expect(reviewed[2].explanation).toBe('Нужна точная запись.')
+    expect(reviewed[2].learning?.rule).toBe('Сначала объясни ход.')
   })
 })
