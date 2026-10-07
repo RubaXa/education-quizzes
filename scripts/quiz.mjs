@@ -10,6 +10,7 @@ const site = 'https://rubaxa.github.io/education-quizzes/'
 const localDir = resolve('.local')
 const dashboardTokenFile = resolve(localDir, 'dashboard-token')
 const learnerBoardTokenFile = resolve(localDir, 'learner-board-token')
+const parentBoardTokenFile = resolve(localDir, 'parent-board-token')
 
 function prepareLocalFirebaseLogin() {
   if (process.env.GOOGLE_APPLICATION_CREDENTIALS) return
@@ -43,6 +44,12 @@ function learnerBoardToken() {
   mkdirSync(localDir, { recursive: true })
   if (!existsSync(learnerBoardTokenFile)) writeFileSync(learnerBoardTokenFile, token(32), { mode: 0o600 })
   return readFileSync(learnerBoardTokenFile, 'utf8').trim()
+}
+
+function parentBoardToken() {
+  mkdirSync(localDir, { recursive: true })
+  if (!existsSync(parentBoardTokenFile)) writeFileSync(parentBoardTokenFile, token(32), { mode: 0o600 })
+  return readFileSync(parentBoardTokenFile, 'utf8').trim()
 }
 
 function fail(message) {
@@ -172,6 +179,17 @@ async function create(specPath) {
       createdAt,
     })
   }
+  if (existsSync(parentBoardTokenFile)) {
+    batch.create(db.doc(`dashboard/${parentBoardToken()}/assignments/${learnerToken}`), {
+      testId,
+      title: spec.title,
+      description: spec.description ?? '',
+      subject: spec.subject,
+      slug: spec.slug,
+      previewToken,
+      createdAt,
+    })
+  }
   await batch.commit()
   console.log(JSON.stringify({
     testId,
@@ -179,6 +197,7 @@ async function create(specPath) {
     preview: `${site}#/preview/${spec.slug}~${previewToken}`,
     dashboard: `${site}#/dashboard/${ownerToken}`,
     ...(existsSync(learnerBoardTokenFile) ? { learnerBoard: `${site}#/my/${learnerBoardToken()}` } : {}),
+    ...(existsSync(parentBoardTokenFile) ? { parentBoard: `${site}#/review/${parentBoardToken()}` } : {}),
   }, null, 2))
 }
 
@@ -187,14 +206,16 @@ async function addToLearnerBoard(manifestPath) {
   if (!Array.isArray(items) || !items.length) fail('В manifest нужен непустой массив тестов.')
   const tokens = new Set()
   const board = learnerBoardToken()
+  const parentBoard = parentBoardToken()
   const batch = db.batch()
+  batch.set(db.doc(`dashboard/${parentBoard}`), { kind: 'parent' })
   for (const [position, item] of items.entries()) {
     if (typeof item.token !== 'string' || !/^[A-Za-z0-9_-]{24,}$/.test(item.token) || tokens.has(item.token)) fail('Некорректный или повторный token в manifest.')
     tokens.add(item.token)
     const snapshot = await db.doc(`assignments/${item.token}`).get()
     if (!snapshot.exists) fail(`Назначение с позицией ${position + 1} не найдено.`)
     const assignment = snapshot.data()
-    batch.set(db.doc(`dashboard/${board}/assignments/${item.token}`), {
+    const indexEntry = {
       testId: assignment.testId,
       title: typeof item.title === 'string' && item.title.trim() ? item.title.trim() : assignment.title,
       description: typeof item.description === 'string' && item.description.trim() ? item.description.trim() : assignment.description ?? '',
@@ -203,10 +224,12 @@ async function addToLearnerBoard(manifestPath) {
       previewToken: String(item.previewToken ?? ''),
       createdAt: assignment.createdAt ?? Timestamp.now(),
       position: position + 1,
-    })
+    }
+    batch.set(db.doc(`dashboard/${board}/assignments/${item.token}`), indexEntry)
+    batch.set(db.doc(`dashboard/${parentBoard}/assignments/${item.token}`), indexEntry)
   }
   await batch.commit()
-  console.log(JSON.stringify({ learnerBoard: `${site}#/my/${board}`, count: items.length }, null, 2))
+  console.log(JSON.stringify({ learnerBoard: `${site}#/my/${board}`, parentBoard: `${site}#/review/${parentBoard}`, count: items.length }, null, 2))
 }
 
 async function list() {

@@ -49,6 +49,16 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    match /dashboard/{dashboardToken}/seen/{assignmentId} {
+      allow get, list: if true;
+      allow create, update: if exists(/databases/$(database)/documents/dashboard/$(dashboardToken))
+        && get(/databases/$(database)/documents/dashboard/$(dashboardToken)).data.kind == 'parent'
+        && exists(/databases/$(database)/documents/dashboard/$(dashboardToken)/assignments/$(assignmentId))
+        && request.resource.data.keys().hasOnly(['seenAt'])
+        && request.resource.data.seenAt == request.time;
+      allow delete: if false;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

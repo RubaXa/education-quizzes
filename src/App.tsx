@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { BookOpen, CheckCircle2, ChevronDown, CircleHelp, Clock3, ExternalLink, RefreshCw, Send, Sparkles } from 'lucide-react'
+import { BookOpen, CheckCircle2, ChevronDown, CircleHelp, ClipboardCopy, Clock3, ExternalLink, RefreshCw, Send, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { CodeBlock } from '@/components/CodeBlock'
 import { ReadingCard, ThemeFrame, ThemeHero } from '@/components/SubjectTheme'
@@ -11,24 +11,28 @@ import { Progress } from '@/components/ui/progress'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Textarea } from '@/components/ui/textarea'
 import { countAnswered, grade, summarize } from '@/lib/quiz'
+import { buildFollowUpPrompt } from '@/lib/followup'
+import { WriteQueue } from '@/lib/writeQueue'
 import type { Answer, AnswerKey, Assignment, ManualReview, QuizQuestion, QuestionResult } from '@/lib/quiz'
 import './App.css'
 
-type Route = { kind: 'test' | 'preview' | 'dashboard' | 'my'; token: string } | { kind: 'home' }
+type Route = { kind: 'test' | 'preview' | 'dashboard' | 'my' | 'review'; token: string } | { kind: 'home' }
 
 const storeModule = () => import('@/lib/store')
-const loadAssignment = async (token: string) => (await storeModule()).loadAssignment(token)
-const loadAnswerKey = async (token: string) => (await storeModule()).loadAnswerKey(token)
-const loadReview = async (token: string) => (await storeModule()).loadReview(token)
 const loadPreview = async (token: string) => (await storeModule()).loadPreview(token)
-const loadDashboard = async (token: string) => (await storeModule()).loadDashboard(token)
-const saveDraft = async (token: string, answers: Record<string, Answer>) => (await storeModule()).saveDraft(token, answers)
-const submitAssignment = async (token: string, answers: Record<string, Answer>) => (await storeModule()).submitAssignment(token, answers)
+const watchAssignment = async (token: string, onChange: Parameters<Awaited<ReturnType<typeof storeModule>>['watchAssignment']>[1], onError: (error: Error) => void) => (await storeModule()).watchAssignment(token, onChange, onError)
+const watchAnswerKey = async (token: string, onChange: (key: AnswerKey) => void, onError: (error: Error) => void) => (await storeModule()).watchAnswerKey(token, onChange, onError)
+const watchReview = async (token: string, onChange: (review: ManualReview | undefined) => void, onError: (error: Error) => void) => (await storeModule()).watchReview(token, onChange, onError)
+const watchDashboard = async (token: string, onChange: Parameters<Awaited<ReturnType<typeof storeModule>>['watchDashboard']>[1], onError: (error: Error) => void) => (await storeModule()).watchDashboard(token, onChange, onError)
+const watchViewed = async (token: string, onChange: (ids: Set<string>) => void, onError: (error: Error) => void) => (await storeModule()).watchViewed(token, onChange, onError)
+const markViewed = async (boardToken: string, assignmentToken: string) => (await storeModule()).markViewed(boardToken, assignmentToken)
+const saveDraft = async (token: string, changedAnswers: Record<string, Answer>) => (await storeModule()).saveDraft(token, changedAnswers)
+const submitAssignment = async (token: string) => (await storeModule()).submitAssignment(token)
 
 function routeFromHash(): Route {
   const [, kind, raw = ''] = location.hash.split('/')
   const token = raw.includes('~') ? raw.slice(raw.lastIndexOf('~') + 1) : raw
-  if ((kind === 't' || kind === 'preview' || kind === 'dashboard' || kind === 'my') && token) {
+  if ((kind === 't' || kind === 'preview' || kind === 'dashboard' || kind === 'my' || kind === 'review') && token) {
     return { kind: kind === 't' ? 'test' : kind, token }
   }
   return { kind: 'home' }
@@ -224,25 +228,18 @@ function ResultView({ assignment, token }: { assignment: Assignment; token: stri
   const [key, setKey] = useState<AnswerKey>()
   const [review, setReview] = useState<ManualReview>()
   const [error, setError] = useState('')
-  const [refreshing, setRefreshing] = useState(false)
 
-  async function refresh() {
-    setRefreshing(true)
-    try {
-      const [nextKey, nextReview] = await Promise.all([loadAnswerKey(token), loadReview(token)])
-      setKey(nextKey)
-      setReview(nextReview)
-      setError('')
-    } catch (cause) {
-      setError(describeError(cause))
-    } finally {
-      setRefreshing(false)
-    }
-  }
+  useEffect(() => {
+    let active = true
+    let unsubscribers: Array<() => void> = []
+    void Promise.all([
+      watchAnswerKey(token, (nextKey) => { if (active) { setKey(nextKey); setError('') } }, (cause) => { if (active) setError(describeError(cause)) }),
+      watchReview(token, (nextReview) => { if (active) setReview(nextReview) }, (cause) => { if (active) setError(describeError(cause)) }),
+    ]).then((next) => { if (active) unsubscribers = next; else next.forEach((unsubscribe) => unsubscribe()) })
+    return () => { active = false; unsubscribers.forEach((unsubscribe) => unsubscribe()) }
+  }, [token])
 
-  useEffect(() => { void refresh() }, [token])
-
-  if (!key) return <ErrorCard message={error || 'Загружаем результат…'} onRetry={refresh} />
+  if (!key) return error ? <ErrorCard message={error} /> : <p>Загружаем результат…</p>
   const results = grade(assignment, key, review)
   const summary = summarize(results)
   const percentage = summary.possible ? Math.round(100 * summary.earned / summary.possible) : 0
@@ -263,10 +260,7 @@ function ResultView({ assignment, token }: { assignment: Assignment; token: stri
           {summary.pending > 0 && <p className="text-sm text-white/80">Итог предварительный. Полный разбор появится по этой же ссылке после проверки.</p>}
         </CardContent>
       </Card>
-      <div className="flex items-center justify-between gap-3">
-        <h2 className="text-xl font-semibold sm:text-2xl">Разбор по вопросам</h2>
-        <Button variant="outline" disabled={refreshing} onClick={refresh}><RefreshCw className={refreshing ? 'animate-spin' : ''} /> Обновить</Button>
-      </div>
+      <h2 className="text-xl font-semibold sm:text-2xl">Разбор по вопросам</h2>
       <div className="space-y-4">{results.map((result, index) => <ResultCard key={result.question.id} result={result} index={index} />)}</div>
     </div>
   )
@@ -278,35 +272,66 @@ function QuizRunner({ token }: { token: string }) {
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
   const [submitting, setSubmitting] = useState(false)
-  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const answersRef = useRef<Record<string, Answer>>({})
+  const serverAnswersRef = useRef<Record<string, Answer>>({})
+  const dirtyAnswers = useRef<Record<string, { value: Answer; revision: number }>>({})
+  const answerRevision = useRef(0)
+  const writeQueue = useRef(new WriteQueue())
+  const pendingWrites = useRef(0)
 
   useEffect(() => {
     let active = true
-    loadAssignment(token).then((data) => {
-      if (active) { setAssignment(data); setAnswers(data.answers ?? {}) }
+    let unsubscribe: (() => void) | undefined
+    void watchAssignment(token, (data) => {
+      if (!active) return
+      setAssignment(data)
+      serverAnswersRef.current = data.answers ?? {}
+      if (data.status === 'submitted' || pendingWrites.current === 0) {
+        answersRef.current = serverAnswersRef.current
+        setAnswers(answersRef.current)
+      }
+    }, (cause) => { if (active) setError(describeError(cause)) }).then((next) => {
+      if (active) unsubscribe = next
+      else next()
     }).catch((cause) => { if (active) setError(describeError(cause)) })
-    return () => { active = false; if (saveTimer.current) clearTimeout(saveTimer.current) }
+    return () => { active = false; unsubscribe?.() }
   }, [token])
 
   function updateAnswer(questionId: string, value: Answer) {
-    const next = { ...answers, [questionId]: value }
+    const next = { ...answersRef.current, [questionId]: value }
+    answersRef.current = next
+    dirtyAnswers.current[questionId] = { value, revision: ++answerRevision.current }
     setAnswers(next)
-    if (saveTimer.current) clearTimeout(saveTimer.current)
-    saveTimer.current = setTimeout(() => {
-      setSaving(true)
-      saveDraft(token, next)
-        .catch((cause) => setError(`Не удалось сохранить черновик: ${describeError(cause)}`))
-        .finally(() => setSaving(false))
-    }, 700)
+    setError('')
+    setSaving(true)
+    pendingWrites.current += 1
+    const write = writeQueue.current.add(async () => {
+      const pending = { ...dirtyAnswers.current }
+      const patch = Object.fromEntries(Object.entries(pending).map(([id, change]) => [id, change.value]))
+      if (Object.keys(patch).length === 0) return
+      await saveDraft(token, patch)
+      for (const [id, change] of Object.entries(pending)) {
+        if (dirtyAnswers.current[id]?.revision === change.revision) delete dirtyAnswers.current[id]
+      }
+    })
+    void write.catch((cause) => setError(`Не удалось сохранить ответ: ${describeError(cause)}`)).finally(() => {
+      pendingWrites.current -= 1
+      if (pendingWrites.current === 0) {
+        setSaving(false)
+        if (Object.keys(dirtyAnswers.current).length === 0) {
+          answersRef.current = serverAnswersRef.current
+          setAnswers(answersRef.current)
+        }
+      }
+    })
   }
 
   async function submit() {
     if (!assignment || !window.confirm('Отправить работу? После этого ответы нельзя будет изменить.')) return
-    if (saveTimer.current) clearTimeout(saveTimer.current)
     setSubmitting(true)
     try {
-      await submitAssignment(token, answers)
-      setAssignment(await loadAssignment(token))
+      await writeQueue.current.settled()
+      await submitAssignment(token)
       setError('')
     } catch (cause) {
       setError(describeError(cause))
@@ -341,7 +366,7 @@ function QuizRunner({ token }: { token: string }) {
       ))}</div>
       {error && <p className="rounded-xl bg-rose-50 p-3 text-sm text-rose-800">{error}</p>}
       <div className="flex flex-col items-start justify-between gap-3 rounded-2xl bg-white p-5 shadow-sm sm:flex-row sm:items-center">
-        <span className="text-sm text-muted-foreground">{saving ? 'Сохраняем ответы…' : 'Ответы сохраняются автоматически'}</span>
+        <span className="text-sm text-muted-foreground">{saving ? 'Сохраняем ответ в Firebase…' : 'Все выбранные ответы сохранены'}</span>
         <Button size="lg" disabled={submitting} onClick={submit}><Send /> {submitting ? 'Отправляем…' : 'Завершить тест'}</Button>
       </div>
       </div>
@@ -378,82 +403,147 @@ type BoardItem = {
   status: Assignment['status']
   answered: number
   total: number
+  submittedAt: { seconds?: number } | null
 }
 
-function BoardCard({ item }: { item: BoardItem }) {
+function BoardCard({ item, parent = false, unread = false, copied = false, onCopy, onMarkViewed }: {
+  item: BoardItem
+  parent?: boolean
+  unread?: boolean
+  copied?: boolean
+  onCopy?: (item: BoardItem) => void
+  onMarkViewed?: (token: string) => void
+}) {
   const completed = item.status === 'submitted'
   const remaining = Math.max(0, item.total - item.answered)
   return (
     <Card className="board-card border-0 shadow-sm">
       <CardHeader className="gap-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <Badge variant={completed ? 'secondary' : 'default'}>{completed ? 'Пройден' : item.answered ? 'В процессе' : 'Не начат'}</Badge>
+          <Badge variant={completed && !unread ? 'secondary' : 'default'}>{parent && completed ? unread ? 'Новый результат' : 'Просмотрен' : completed ? 'Пройден' : item.answered ? 'В процессе' : 'Не начат'}</Badge>
           <span className="text-sm text-muted-foreground">{item.answered} из {item.total}</span>
         </div>
+        {parent && <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{item.subject}</span>}
         <CardTitle className="text-xl font-semibold">{item.title}</CardTitle>
         {item.description && <details className="board-description"><summary aria-label={`Описание теста «${item.title}». Нажмите, чтобы раскрыть или свернуть`}><span>{item.description}</span><ChevronDown className="size-4 shrink-0" aria-hidden="true" /></summary></details>}
       </CardHeader>
       <CardContent className="space-y-4">
         {!completed && <div className="space-y-2"><div className="flex justify-between gap-2 text-sm"><span>Отвечено: {item.answered}</span><strong>Осталось: {remaining}</strong></div><Progress value={item.total ? item.answered * 100 / item.total : 0} /></div>}
         <div className="flex flex-wrap gap-2">
-          <Button asChild><a href={`#/t/${item.slug}~${item.token}`}>{completed ? 'Посмотреть результат' : item.answered ? 'Продолжить тест' : 'Начать тест'}</a></Button>
+          {(!parent || completed) && <Button asChild><a href={`#/t/${item.slug}~${item.token}`} onClick={() => { if (parent && unread) onMarkViewed?.(item.token) }}>{completed ? 'Посмотреть результат' : item.answered ? 'Продолжить тест' : 'Начать тест'}</a></Button>}
           {item.previewToken && <Button variant="outline" asChild><a href={`#/preview/${item.slug}~${item.previewToken}`}>Просмотреть без ответов</a></Button>}
+          {parent && completed && <Button variant="outline" onClick={() => onCopy?.(item)}><ClipboardCopy /> {copied ? 'Скопировано' : 'Скопировать задание агенту'}</Button>}
+          {parent && unread && <Button variant="ghost" onClick={() => onMarkViewed?.(item.token)}>Отметить просмотренным</Button>}
         </div>
       </CardContent>
     </Card>
   )
 }
 
-function Dashboard({ token }: { token: string }) {
+function Dashboard({ token, parent = false }: { token: string; parent?: boolean }) {
   const [items, setItems] = useState<BoardItem[]>()
+  const [seen, setSeen] = useState<Set<string> | undefined>(parent ? undefined : new Set())
   const [error, setError] = useState('')
-  const [refreshing, setRefreshing] = useState(false)
-  async function refresh() {
-    setRefreshing(true)
+  const [copied, setCopied] = useState('')
+
+  useEffect(() => {
+    let active = true
+    let generation = 0
+    let stopIndex: (() => void) | undefined
+    let stopAssignments: Array<() => void> = []
+    void watchDashboard(token, (index) => {
+      generation += 1
+      const currentGeneration = generation
+      stopAssignments.forEach((stop) => stop())
+      stopAssignments = []
+      const rows = new Map<string, BoardItem>()
+      if (index.length === 0) setItems([])
+      for (const item of index) {
+        void watchAssignment(item.token, (assignment) => {
+          if (!active || currentGeneration !== generation) return
+          rows.set(item.token, {
+            ...item,
+            title: item.title || assignment.title,
+            description: item.description || assignment.description || '',
+            subject: item.subject || assignment.subject,
+            status: assignment.status,
+            answered: countAnswered(assignment),
+            total: assignment.questions.length,
+            submittedAt: assignment.submittedAt as { seconds?: number } | null,
+          })
+          if (rows.size === index.length) {
+            const next = [...rows.values()].sort((a, b) => (a.position ?? a.createdAt?.seconds ?? 0) - (b.position ?? b.createdAt?.seconds ?? 0))
+            setItems(next)
+            setError('')
+          }
+        }, (cause) => { if (active) setError(describeError(cause)) }).then((stop) => {
+          if (active && currentGeneration === generation) stopAssignments.push(stop)
+          else stop()
+        }).catch((cause) => { if (active) setError(describeError(cause)) })
+      }
+    }, (cause) => { if (active) setError(describeError(cause)) }).then((stop) => {
+      if (active) stopIndex = stop
+      else stop()
+    }).catch((cause) => { if (active) setError(describeError(cause)) })
+
+    let stopViewed: (() => void) | undefined
+    if (parent) {
+      void watchViewed(token, (next) => { if (active) setSeen(next) }, (cause) => { if (active) setError(describeError(cause)) }).then((stop) => {
+        if (active) stopViewed = stop
+        else stop()
+      }).catch((cause) => { if (active) setError(describeError(cause)) })
+    }
+    return () => {
+      active = false
+      stopIndex?.()
+      stopViewed?.()
+      stopAssignments.forEach((stop) => stop())
+    }
+  }, [token, parent])
+
+  async function copyPrompt(item: BoardItem) {
     try {
-      const index = await loadDashboard(token)
-      const rows = await Promise.all(index.map(async (item) => {
-        const assignment = await loadAssignment(item.token)
-        return {
-          ...item,
-          title: item.title || assignment.title,
-          description: item.description || assignment.description || '',
-          subject: item.subject || assignment.subject,
-          status: assignment.status,
-          answered: countAnswered(assignment),
-          total: assignment.questions.length,
-        }
-      }))
-      rows.sort((a, b) => (a.position ?? a.createdAt?.seconds ?? 0) - (b.position ?? b.createdAt?.seconds ?? 0))
-      setItems(rows)
+      await navigator.clipboard.writeText(buildFollowUpPrompt(item))
+      setCopied(item.token)
       setError('')
-    } catch (cause) { setError(describeError(cause)) }
-    finally { setRefreshing(false) }
+    } catch (cause) { setError(`Не удалось скопировать: ${describeError(cause)}`) }
   }
-  useEffect(() => { void refresh() }, [token])
+
+  async function markResultViewed(assignmentToken: string) {
+    try { await markViewed(token, assignmentToken); setError('') }
+    catch (cause) { setError(`Не удалось отметить просмотр: ${describeError(cause)}`) }
+  }
+
   const subjects = [...new Set(items?.map((item) => item.subject) ?? [])]
   const activeCount = items?.filter((item) => item.status !== 'submitted').length ?? 0
   const completedCount = (items?.length ?? 0) - activeCount
+  const newResults = seen ? items?.filter((item) => item.status === 'submitted' && !seen.has(item.token))
+    .sort((a, b) => (b.submittedAt?.seconds ?? 0) - (a.submittedAt?.seconds ?? 0)) ?? []
+    : []
+  const seenResults = items?.filter((item) => item.status === 'submitted' && seen?.has(item.token)) ?? []
   return (
     <div className="space-y-6">
       <div className="intro-card">
-        <Badge variant="secondary" className="bg-white/80">Личный список тестов</Badge>
-        <h1 className="text-3xl font-bold sm:text-5xl">Мои тесты</h1>
-        <p className="text-muted-foreground">Здесь видно, что ещё предстоит сделать и сколько вопросов осталось. Открывай тест, когда будешь готов.</p>
-        {items && <p className="font-medium">Активных: {activeCount} · Пройденных: {completedCount}</p>}
+        <Badge variant="secondary" className="bg-white/80">{parent ? 'Для родителя · только просмотр' : 'Личный список тестов'}</Badge>
+        <h1 className="text-3xl font-bold sm:text-5xl">{parent ? 'Результаты ученик' : 'Мои тесты'}</h1>
+        <p className="text-muted-foreground">{parent ? 'Новые результаты появляются сразу после отправки теста. Ответы и прогресс обновляются без перезагрузки.' : 'Здесь видно, что ещё предстоит сделать и сколько вопросов осталось. Открывай тест, когда будешь готов.'}</p>
+        {items && <p className="font-medium">{parent ? seen ? `Новых результатов: ${newResults.length} · В работе: ${activeCount}` : 'Загружаем новые результаты…' : `Активных: ${activeCount} · Пройденных: ${completedCount}`}</p>}
       </div>
-      <div className="flex items-center justify-between gap-3"><p className="text-sm text-muted-foreground">Список можно смотреть без изменения ответов.</p><Button variant="outline" size="sm" disabled={refreshing} onClick={refresh}><RefreshCw className={refreshing ? 'animate-spin' : ''} /> Обновить</Button></div>
-      {error && <ErrorCard message={error} onRetry={refresh} />}
+      <p className="text-sm text-muted-foreground">Изменения в тестах появляются здесь автоматически. Просмотр списка не меняет ответы.</p>
+      {error && <ErrorCard message={error} />}
       {!items && <p>Загружаем список…</p>}
       {items?.length === 0 && <Card><CardContent className="py-10 text-center">Тестов пока нет.</CardContent></Card>}
+      {parent && newResults.length > 0 && <section className="space-y-3" aria-label="Новые результаты"><h2 className="board-subject-title">Новые результаты</h2>{newResults.map((item) => <BoardCard key={item.token} item={item} parent unread copied={copied === item.token} onCopy={copyPrompt} onMarkViewed={markResultViewed} />)}</section>}
       {subjects.map((subject) => {
         const subjectItems = items?.filter((item) => item.subject === subject) ?? []
         const active = subjectItems.filter((item) => item.status !== 'submitted')
         const archived = subjectItems.filter((item) => item.status === 'submitted')
+        const reviewed = seenResults.filter((item) => item.subject === subject)
+        if (parent && active.length === 0 && reviewed.length === 0) return null
         return <section key={subject} className="space-y-4" aria-label={subject}>
           <h2 className="board-subject-title">{subject}</h2>
-          {active.length > 0 && <div className="space-y-3"><h3 className="board-section-title">Активные</h3>{active.map((item) => <BoardCard key={item.token} item={item} />)}</div>}
-          {archived.length > 0 && <div className="space-y-3"><h3 className="board-section-title">Пройденные · архив</h3>{archived.map((item) => <BoardCard key={item.token} item={item} />)}</div>}
+          {active.length > 0 && <div className="space-y-3"><h3 className="board-section-title">{parent ? 'В работе' : 'Активные'}</h3>{active.map((item) => <BoardCard key={item.token} item={item} parent={parent} />)}</div>}
+          {(parent ? reviewed : archived).length > 0 && <div className="space-y-3"><h3 className="board-section-title">{parent ? 'Просмотренные результаты' : 'Пройденные · архив'}</h3>{(parent ? reviewed : archived).map((item) => <BoardCard key={item.token} item={item} parent={parent} copied={copied === item.token} onCopy={copyPrompt} onMarkViewed={markResultViewed} />)}</div>}
         </section>
       })}
     </div>
@@ -479,7 +569,7 @@ function App() {
     window.addEventListener('hashchange', updateRoute)
     return () => window.removeEventListener('hashchange', updateRoute)
   }, [])
-  return <Shell>{route.kind === 'test' ? <QuizRunner token={route.token} /> : route.kind === 'preview' ? <Preview token={route.token} /> : route.kind === 'dashboard' || route.kind === 'my' ? <Dashboard token={route.token} /> : <Home />}</Shell>
+  return <Shell>{route.kind === 'test' ? <QuizRunner key={route.token} token={route.token} /> : route.kind === 'preview' ? <Preview token={route.token} /> : route.kind === 'dashboard' || route.kind === 'my' || route.kind === 'review' ? <Dashboard key={`${route.kind}-${route.token}`} token={route.token} parent={route.kind === 'review'} /> : <Home />}</Shell>
 }
 
 export default App
