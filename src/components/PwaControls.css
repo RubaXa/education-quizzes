@@ -1,12 +1,14 @@
 .pwa-install{display:inline-flex;align-items:center;gap:7px;border:1px solid #d9cdeb;border-radius:999px;background:#fff;color:#4b398b;padding:8px 12px;font:inherit;font-size:.8rem;font-weight:750;cursor:pointer}
 .pwa-install:focus-visible,.pwa-update button:focus-visible,.pwa-help-close:focus-visible{outline:3px solid #a98be9;outline-offset:2px}
-.pwa-help-backdrop{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;background:#231a48a8;padding:16px}
-.pwa-help{position:relative;width:min(100%,430px);border-radius:22px;background:white;color:#34295c;padding:28px;box-shadow:0 20px 70px #1c123e55}
+.pwa-help-backdrop{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;background:#231a48a8;padding:max(16px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(16px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+.pwa-help{position:relative;width:min(100%,430px);max-height:calc(100svh - 32px - env(safe-area-inset-top) - env(safe-area-inset-bottom));overflow-y:auto;overscroll-behavior:contain;border-radius:22px;background:white;color:#34295c;padding:28px;box-shadow:0 20px 70px #1c123e55}
 .pwa-help h2{margin:0 32px 14px 0;font-size:1.35rem;font-weight:800}
-.pwa-help ol{margin:0;padding-left:22px;line-height:1.7}
+.pwa-help ol{margin:0;padding-left:22px;list-style:decimal;line-height:1.55}
+.pwa-help li+li{margin-top:.65rem}
 .pwa-help p{margin:16px 0 0;color:#695e7c;font-size:.88rem;line-height:1.5}
 .pwa-help-close{position:absolute;top:16px;right:16px;display:grid;place-items:center;border:0;background:transparent;color:#594786;cursor:pointer}
-.pwa-update{position:sticky;top:0;z-index:20;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px;background:#fff4d6;color:#4b398b;padding:10px 16px;text-align:center;font-size:.86rem;font-weight:650}
+.pwa-update{position:sticky;top:0;z-index:20;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px;background:#fff4d6;color:#4b398b;padding:calc(10px + env(safe-area-inset-top)) 16px 10px;text-align:center;font-size:.86rem;font-weight:650}
 .pwa-update button{display:inline-flex;align-items:center;gap:6px;border:0;border-radius:999px;background:#4b398b;color:white;padding:7px 12px;font:inherit;font-size:.83rem;cursor:pointer}
 .pwa-update small{width:100%;color:#9c3e3e}
-@media(max-width:540px){.pwa-install{font-size:0;padding:9px}.pwa-install svg{width:18px;height:18px}}
+.pwa-offline{position:sticky;top:0;z-index:19;padding:calc(10px + env(safe-area-inset-top)) 16px 10px;background:#fff4d6;color:#725621;text-align:center;font-size:.86rem;font-weight:650}
+@media(max-width:540px){.pwa-install{padding:8px 10px;font-size:.72rem;white-space:nowrap}.pwa-install svg{width:17px;height:17px;flex:none}}

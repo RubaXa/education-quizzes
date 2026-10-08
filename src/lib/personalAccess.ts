@@ -3,7 +3,7 @@ import { collection, doc, getDoc, getDocs, serverTimestamp, setDoc } from 'fireb
 import { db } from './firebase'
 
 /** @see ../../docs/architecture/family-data-model.md#link-login */
-export type PersonalSession = { personId: string; deviceUid: string }
+export type PersonalSession = { personId: string; deviceUid: string; linkToken: string }
 export type PersonalChild = {
   familyId: string
   childId: string
@@ -19,6 +19,7 @@ export type PersonalProfile = {
 }
 
 let activeSession: PersonalSession | null = null
+let pendingRedemption: { linkToken: string; promise: Promise<PersonalSession> } | null = null
 const secretPattern = /^[A-Za-z0-9_-]{43}$/
 
 export function currentEducationPersonId(): string {
@@ -52,22 +53,33 @@ async function sessionFromGrant(linkToken: string, deviceUid: string): Promise<P
   if (!grant.exists() || grant.data()?.active !== true || typeof personId !== 'string') {
     throw new Error('Личная ссылка закрыта. Попросите новую ссылку.')
   }
-  activeSession = { personId, deviceUid }
+  activeSession = { personId, deviceUid, linkToken }
   return activeSession
+}
+
+/** @see ../../docs/product/pwa.md#install */
+export function personalEntryUrl(session: PersonalSession): string {
+  return `${location.origin}${import.meta.env.BASE_URL}#/enter/${session.linkToken}`
 }
 
 /** A link is a bearer credential. Its grant is checked again by Firestore rules on every read. */
 export async function redeemPersonalLink(value: string): Promise<PersonalSession> {
   const linkToken = secretFromPersonalLink(value)
-  const deviceUid = await authUid()
-  const reference = doc(db, 'deviceSessions', deviceUid)
-  const previous = await getDoc(reference)
-  await setDoc(reference, {
-    linkToken,
-    createdAt: previous.exists() ? previous.data().createdAt : serverTimestamp(),
-    updatedAt: serverTimestamp(),
-  })
-  return sessionFromGrant(linkToken, deviceUid)
+  if (pendingRedemption?.linkToken === linkToken) return pendingRedemption.promise
+  const promise = (async () => {
+    const deviceUid = await authUid()
+    const reference = doc(db, 'deviceSessions', deviceUid)
+    const previous = await getDoc(reference)
+    await setDoc(reference, {
+      linkToken,
+      createdAt: previous.exists() ? previous.data().createdAt : serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    })
+    return sessionFromGrant(linkToken, deviceUid)
+  })()
+  pendingRedemption = { linkToken, promise }
+  try { return await promise }
+  finally { if (pendingRedemption?.promise === promise) pendingRedemption = null }
 }
 
 /** @see ../../docs/architecture/family-data-model.md#authorization */

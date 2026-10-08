@@ -36,8 +36,13 @@ export function PwaInstallButton() {
       <div className="pwa-help" role="dialog" aria-modal="true" aria-label="Как установить Education" onClick={(event) => event.stopPropagation()}>
         <button className="pwa-help-close" type="button" aria-label="Закрыть" onClick={() => setShowHelp(false)}><X size={20} /></button>
         <h2>Добавить Education на iPhone</h2>
-        <ol><li>Откройте эту страницу в Safari.</li><li>Нажмите «Поделиться».</li><li>Выберите «На экран „Домой“», затем «Добавить».</li></ol>
-        <p>После установки приложение откроется без панели браузера. Для личного стартового экрана понадобится вход в свой аккаунт Education.</p>
+        <ol>
+          <li>На личной странице нажмите «Скопировать личную ссылку» или скопируйте ссылку из сообщения.</li>
+          <li>Откройте Education в Safari и нажмите «Поделиться».</li>
+          <li>Выберите «На экран „Домой“» и «Добавить». Если появится переключатель «Открывать как приложение», оставьте его включённым.</li>
+          <li>Откройте Education с иконки и вставьте скопированную ссылку один раз.</li>
+        </ol>
+        <p>Приложение сохранит вход на этом iPhone. Если его данные будут очищены, откройте личную ссылку снова.</p>
       </div>
     </div>}
   </>
@@ -54,4 +59,21 @@ export function PwaUpdateNotice() {
     <button type="button" onClick={() => void activateEducationUpdate().catch((cause) => setError(cause instanceof Error ? cause.message : 'Не удалось обновить приложение.'))}><RefreshCw size={16} /> Обновить</button>
     {error && <small>{error}</small>}
   </div>
+}
+
+/** @see ../../docs/product/pwa.md#updates */
+export function PwaConnectionNotice() {
+  const [online, setOnline] = useState(navigator.onLine)
+  useEffect(() => {
+    const reconnect = () => setOnline(true)
+    const disconnect = () => setOnline(false)
+    window.addEventListener('online', reconnect)
+    window.addEventListener('offline', disconnect)
+    return () => {
+      window.removeEventListener('online', reconnect)
+      window.removeEventListener('offline', disconnect)
+    }
+  }, [])
+  if (online) return null
+  return <div className="pwa-offline" role="status">Нет сети. Показанные данные могут устареть; новые изменения появятся после подключения.</div>
 }

@@ -28,7 +28,7 @@ body {
   gap: 1rem;
   max-width: 1120px;
   margin: auto;
-  padding: 1.25rem 1.25rem;
+  padding: calc(1.25rem + env(safe-area-inset-top)) max(1.25rem, env(safe-area-inset-right)) 1.25rem max(1.25rem, env(safe-area-inset-left));
 }
 
 .brand {
@@ -38,13 +38,16 @@ body {
   color: #30245b;
   font-weight: 750;
   letter-spacing: -.02em;
+  text-decoration: none;
 }
+.brand-short{display:none}
 
 .brand-mark {
   display: grid;
   place-items: center;
   width: 2rem;
   height: 2rem;
+  flex: none;
   border-radius: .7rem;
   background: #7750e9;
   color: white;
@@ -61,7 +64,7 @@ body {
 .page-wrap {
   width: min(100% - 2rem, 920px);
   margin: 1.5rem auto 0;
-  padding-bottom: 5rem;
+  padding-bottom: calc(5rem + env(safe-area-inset-bottom));
 }
 
 .personal-entry{display:grid;gap:1.5rem}
@@ -73,6 +76,11 @@ body {
 .personal-login-form{display:flex;gap:.75rem;flex-wrap:wrap}
 .personal-login-form input{min-width:min(100%,19rem);flex:1}
 .personal-login-error{margin-top:1rem;color:#a52444}
+.personal-install-hint{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1rem 1.25rem;border:1px solid #ded5f1;border-radius:1.2rem;background:#fff}
+.personal-install-hint strong{color:#30245b}
+.personal-install-hint p{margin:.25rem 0 0;color:#70698b;line-height:1.45}
+.personal-install-hint button{flex:none}
+.personal-offline{margin-top:1rem;border-radius:.85rem;background:#fff4d6;padding:.85rem 1rem;color:#725621}
 
 .intro-card {
   position: relative;
@@ -483,6 +491,12 @@ body {
   .hero-description { font-size: .92rem; }
   .hero-art-wrap { position: relative; width: min(100%, 340px); margin: -.7rem 0 -.3rem auto; right: auto; bottom: auto; }
   .reading-body { font-size: 1rem; line-height: 1.62; }
+  .personal-install-hint{align-items:stretch;flex-direction:column}
+  .personal-install-hint button{justify-content:center}
+}
+@media (max-width: 540px) {
+  .brand-long{display:none}
+  .brand-short{display:inline}
 }
 
 @media (prefers-reduced-motion: reduce) {

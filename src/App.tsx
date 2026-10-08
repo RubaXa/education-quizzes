@@ -17,7 +17,7 @@ import type { Answer, AnswerKey, Assignment, ManualReview, QuizQuestion, Questio
 import type { BoardDetails } from '@/lib/store'
 import DayPage from './DayPage'
 import DayDashboard from './DayDashboard'
-import { PwaInstallButton, PwaUpdateNotice } from './components/PwaControls'
+import { PwaConnectionNotice, PwaInstallButton, PwaUpdateNotice } from './components/PwaControls'
 import { PersonalEntry } from './components/PersonalEntry'
 import './App.css'
 
@@ -70,8 +70,9 @@ function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div className="app-shell">
       <PwaUpdateNotice />
+      <PwaConnectionNotice />
       <header className="site-header">
-        <div className="brand"><span className="brand-mark">✳</span><span>Учусь и проверяю</span></div>
+        <a className="brand" href="#/" aria-label="Education — на главную"><span className="brand-mark">✳</span><span className="brand-long">Учусь и проверяю</span><span className="brand-short">Education</span></a>
         <div className="header-actions"><span className="header-note">Маленькие шаги. Большой прогресс.</span><PwaInstallButton /></div>
       </header>
       <main className="page-wrap">{children}</main>
