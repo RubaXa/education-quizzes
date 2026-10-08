@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { getAuth } from 'firebase/auth'
 import { ArrowLeft, ArrowRight, BookOpen, CalendarDays, CheckCircle2, Clock3, Sparkles } from 'lucide-react'
 import { watchDayPage, watchDayUploads } from '@/lib/dayStore'
 import type { DayPageData, DayTask, DayUpload } from '@/lib/dayStore'
@@ -62,11 +63,20 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
   const [error, setError] = useState('')
   const today = moscowToday()
 
-  useEffect(() => watchDayDashboard(token, (data) => {
-    if (data.kind !== (parent ? 'parent' : 'student')) { setError('Эта ссылка предназначена для другой страницы.'); return }
-    setIndex(data)
-    setError('')
-  }, (cause) => setError(cause.message)), [token, parent])
+  useEffect(() => {
+    let active = true
+    let stop: (() => void) | undefined
+    void getAuth().authStateReady().then(() => {
+      if (!active) return
+      if (!getAuth().currentUser) { setError('Откройте свою личную ссылку Education.'); return }
+      stop = watchDayDashboard(token, (data) => {
+        if (data.kind !== (parent ? 'parent' : 'student')) { setError('Эта ссылка предназначена для другой страницы.'); return }
+        setIndex(data)
+        setError('')
+      }, (cause) => setError(cause.message))
+    }).catch((cause) => { if (active) setError(cause instanceof Error ? cause.message : 'Не удалось восстановить вход.') })
+    return () => { active = false; stop?.() }
+  }, [token, parent])
 
   const todayEntry = index?.days.find((day) => day.date === today)
   const todayToken = todayEntry?.dayToken
