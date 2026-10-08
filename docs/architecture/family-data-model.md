@@ -24,6 +24,7 @@ Firestore хранит учебные факты, состояние работ�
 | `families/{familyId}/children/{childId}/days/{yyyy-mm-dd}` | Расписание, исходное ДЗ, версии задания, проверенный план | синхронизатор / агент |
 | `families/{familyId}/children/{childId}/tasks/{taskId}` | Стабильная задача, срок, статус публикации, ссылка на источник | синхронизатор / агент |
 | `families/{familyId}/children/{childId}/submissions/{submissionId}` | Фото/ответ, статус проверки, связь с задачей | пока сервер; запись из браузера откроется после безопасной загрузки на Диск |
+| `dayOwners/{studentToken}` | Закрытая переходная карта прежней страницы дня на `familyId` и `childId` для очереди разбора | агент через Admin SDK |
 | `families/{familyId}/children/{childId}/grades/{gradeId}` | Оценка, вес, предмет, дата, исходный идентификатор МЭШ | синхронизатор |
 | `families/{familyId}/ui/{viewId}` | Версионированная композиция экрана для роли | сервер |
 | `families/{familyId}/activity/{eventId}` | Действие участника; только добавление | клиент или сервер |

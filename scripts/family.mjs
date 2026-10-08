@@ -183,6 +183,26 @@ async function attachCurrentDay(familyId, childId) {
   if (!date) fail('Опубликованные страницы дня не найдены.')
   const links = days[date]
   const dashboards = existsSync(dashboardsPath) ? JSON.parse(readFileSync(dashboardsPath, 'utf8')) : {}
+  // The private owner map lets the agent discover submissions without guessing
+  // a child's day token. It is never readable from the public client.
+  // @see ../docs/product/storage-privacy.md#review-queue
+  const ownerEntries = []
+  for (const [dayDate, pair] of Object.entries(days)) {
+    if (!pair?.student) fail(`У страницы ${dayDate} нет ученического токена.`)
+    const [page, previous] = await Promise.all([
+      db.doc(`dayPages/${pair.student}`).get(),
+      db.doc(`dayOwners/${pair.student}`).get(),
+    ])
+    if (!page.exists || page.data().kind !== 'student' || page.data().date !== dayDate) fail(`Ученическая страница ${dayDate} не совпадает с реестром.`)
+    if (previous.exists && (previous.data().familyId !== familyId || previous.data().childId !== childId)) fail(`Страница ${dayDate} уже закреплена за другим ребёнком.`)
+    ownerEntries.push({ ref: db.doc(`dayOwners/${pair.student}`), date: dayDate, targetDate: page.data().targetDate })
+  }
+  const ownerBatch = db.batch()
+  for (const item of ownerEntries) ownerBatch.set(item.ref, {
+    schemaVersion: 1, familyId, childId, date: item.date, targetDate: item.targetDate, updatedAt: now,
+  }, { merge: true })
+  if (ownerEntries.length > 400) fail('Слишком много страниц для одной операции привязки.')
+  await ownerBatch.commit()
   const batch = db.batch()
   let count = 0
   for (const [personId, entry] of Object.entries(registry.people)) {
