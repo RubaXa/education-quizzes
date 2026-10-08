@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { getAuth } from 'firebase/auth'
-import { ArrowLeft, ArrowRight, BookOpen, CalendarDays, CheckCircle2, Clock3, Sparkles } from 'lucide-react'
+import { ArrowLeft, ArrowRight, BookOpen, CalendarDays, CheckCircle2, ChevronDown, Clock3, Sparkles } from 'lucide-react'
 import { watchDayPage, watchDayUploads } from '@/lib/dayStore'
 import type { DayPageData, DayTask, DayUpload } from '@/lib/dayStore'
 import { watchDayDashboard } from '@/lib/dayDashboardStore'
@@ -53,10 +53,12 @@ function taskState(task: DayTask, uploads: DayUpload[], tests: Record<string, As
  * что и страница дня. Ответы тестов и фото читаются из их живых документов.
  * @see ../docs/product/dashboard.md#firestore-model
  * @see ../docs/product/dashboard.md#day-navigation
+ * @see ../docs/product/grades.md#dashboard-grade-list
  */
 export default function DayDashboard({ token, parent }: { token: string; parent: boolean }) {
   const [index, setIndex] = useState<DayDashboardData>()
   const [page, setPage] = useState<DayPageData>()
+  const [gradePage, setGradePage] = useState<DayPageData>()
   const [uploads, setUploads] = useState<DayUpload[]>([])
   const [tests, setTests] = useState<Record<string, Assignment>>({})
   const [selected, setSelected] = useState<string>()
@@ -80,11 +82,17 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
 
   const todayEntry = index?.days.find((day) => day.date === today)
   const todayToken = todayEntry?.dayToken
+  const gradeToken = index?.days.filter((day) => day.date <= today && day.dayToken).sort((a, b) => b.date.localeCompare(a.date))[0]?.dayToken
   useEffect(() => {
     setPage(undefined)
     if (!todayToken) return
     return watchDayPage(todayToken, setPage, (cause) => setError(cause.message))
   }, [todayToken])
+  useEffect(() => {
+    setGradePage(undefined)
+    if (!gradeToken || gradeToken === todayToken) return
+    return watchDayPage(gradeToken, setGradePage, (cause) => setError(cause.message))
+  }, [gradeToken, todayToken])
   const studentToken = page ? (page.studentToken ?? todayToken) : undefined
   const evidenceTokens = useMemo(() => [...new Set([studentToken, ...(page?.evidenceDayTokens ?? [])].filter((value): value is string => Boolean(value)))], [studentToken, page])
   const evidenceKey = evidenceTokens.join('|')
@@ -104,7 +112,9 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
   const dueEntry = index?.days.find((day) => day.date === dueDate)
   const currentSubjects = page?.subjects.map((subject) => ({ ...subject, tasks: subject.tasks.filter((task) => (task.originDate ?? page.targetDate) === page.targetDate) })).filter((subject) => subject.tasks.length) ?? []
   const chosen = index?.days.find((day) => day.date === selected)
-  const gradePriorities = (page?.gradeSummary ?? []).filter((grade) => grade.watch).sort((a, b) => a.average - b.average).slice(0, 3)
+  const gradeSource = gradeToken === todayToken ? page : gradePage
+  const gradeRows = gradeSource?.gradeSummary ?? []
+  const gradeDetails = new Map((gradeSource?.grades ?? []).map((item) => [item.id, item]))
 
   function openDay(day: IndexedDay, tab?: 'homework') {
     if (!day.dayToken) { setSelected(day.date); return }
@@ -146,9 +156,14 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
         </button>)}</div> : dueEntry?.homework.length ? <div className="day-dashboard-mesh">{dueEntry.homework.map((item, index) => <p key={index}><strong>{item.subject}</strong><span>{item.text}</span></p>)}<small>Точный текст МЭШ · разбор страницы готовится</small></div> : <p className="day-dashboard-empty">ДЗ пока не опубликовано. Последняя проверка: {checkedLabel(dueEntry?.checkedAt ?? null)}.</p>}
       </section>
       <aside className="day-dashboard-side">
-        <section className="day-dashboard-card"><div className="day-dashboard-heading"><div><Sparkles size={20} /><h2>Оценки</h2></div></div>
-          {page?.gradeSummary?.length ? gradePriorities.length ? <ul className="day-dashboard-grades">{gradePriorities.map((grade) => <li key={grade.id}><span>{grade.name}</span><strong>{grade.average.toFixed(2).replace('.', ',')}</strong></li>)}</ul> : <p>По текущему срезу всё спокойно ✨</p> : <p>Срез оценок ещё не опубликован.</p>}
-          {page?.gradeAsOf && <small>Срез на {dateLabel(page.gradeAsOf.slice(0, 10))}. Условные сценарии — в странице дня.</small>}
+        <section className="day-dashboard-card" aria-label="Оценки по предметам"><div className="day-dashboard-heading"><div><Sparkles size={20} /><h2>Оценки</h2></div>{gradeRows.length > 0 && <small>{gradeRows.length} {word(gradeRows.length, 'предмет', 'предмета', 'предметов')}</small>}</div>
+          {gradeRows.length ? <div className="day-dashboard-grades">{gradeRows.map((grade) => {
+            const marks = gradeDetails.get(grade.id)?.grades ?? []
+            return <details key={grade.id} className="day-dashboard-grade"><summary><span>{grade.name}</span><strong className={grade.allFives ? 'excellent' : grade.watch ? 'watch' : ''}>{grade.allFives && '✨ '}{grade.average.toFixed(2).replace('.', ',')}</strong><ChevronDown size={16} aria-hidden="true" /></summary>
+              <div className="day-dashboard-grade-detail">{marks.length ? <><p>{marks.length} {word(marks.length, 'оценка', 'оценки', 'оценок')} в сохранённом срезе:</p><ul>{marks.map(({ mark, weight }, index) => <li key={`${index}-${mark}-${weight}`} className={`mark-${mark}`} aria-label={`Оценка ${mark}, вес ${weight}`}>{mark}{weight !== 1 && <small>вес {weight}</small>}</li>)}</ul><small>Даты и типы отдельных работ в этом срезе не сохранены.</small></> : <p>Список оценок для этого предмета пока не сохранён.</p>}</div>
+            </details>
+          })}</div> : <p>Срез оценок ещё не опубликован.</p>}
+          {gradeSource?.gradeAsOf && <p className="day-dashboard-grade-asof">Сохранённый срез МЭШ на {dateLabel(gradeSource.gradeAsOf.slice(0, 10))}. Новые оценки появятся после синхронизации, не при открытии страницы.</p>}
         </section>
         <section className="day-dashboard-card"><div className="day-dashboard-heading"><div><Clock3 size={20} /><h2>Синхронизация</h2></div></div>
           <p>МЭШ за сегодня: {checkedLabel(todayEntry?.checkedAt ?? null)}.</p>
