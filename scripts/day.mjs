@@ -5,7 +5,7 @@ import { resolve } from 'node:path'
 import { execFileSync } from 'node:child_process'
 import { applicationDefault, initializeApp } from 'firebase-admin/app'
 import { getFirestore, Timestamp } from 'firebase-admin/firestore'
-import { linksFile as pageLinksFile, materialLinks, materialPlan, taskPageRefs } from '../storage/material-pages.mjs'
+import { linksFile as pageLinksFile, materialLinks, materialPlan, preparePages, taskPageRefs } from '../storage/material-pages.mjs'
 import { buildDaySource } from '../day/build.mjs'
 import { buildDayDashboardIndex } from '../day/dashboard-index.mjs'
 import { mergeDayPage } from '../day/merge.mjs'
@@ -148,7 +148,10 @@ async function publish() {
   }
   const knownBefore = existsSync(pageLinksFile) ? json(pageLinksFile) : {}
   const neededPageIds = new Set(Object.keys(pageRefs).flatMap((taskId) => materialPlan.taskPages[taskId] || []))
-  if ([...neededPageIds].some((id) => !knownBefore[id]?.publicUrl)) runLocal('scripts/storage.mjs', ['sync-pages'])
+  const preparedPages = new Map(preparePages().map((entry) => [entry.id, entry]))
+  if ([...neededPageIds].some((id) => !knownBefore[id]?.publicUrl || knownBefore[id].imageSha256 !== preparedPages.get(id)?.imageSha256)) {
+    runLocal('scripts/storage.mjs', ['sync-pages'])
+  }
   const today = json(resolve(local, `diary/snapshot-${date}.json`))
   const target = json(resolve(local, `diary/snapshot-${source.targetDate}.json`))
   const gradeSnapshot = json(resolve('../learner/grade-snapshot.json'))
