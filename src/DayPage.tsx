@@ -320,7 +320,7 @@ export default function DayPage({ token, parent }: { token: string; parent: bool
                 <h3>{task.title}</h3><p>{task.detail}</p>
                 {!!task.steps?.length && <ol className="day-task-steps">{task.steps.map((step, index) => <li key={index}>{step}</li>)}</ol>}
                 {needsTextbook && <p className="day-material-warning">📖 {task.materialStatus?.message}</p>}
-                {task.materialStatus?.state === 'text-absent-from-textbook' && <p className="day-material-warning">📖 {task.materialStatus.message}</p>}
+                {(task.materialStatus?.state === 'text-absent-from-textbook' || task.materialStatus?.state === 'no-textbook') && <p className="day-material-warning">📖 {task.materialStatus.message}</p>}
                 {readerGroups.map((group) => <MaterialReader key={group[0].url} links={group} parent={parent} />)}
                 {otherLinks.length > 0 && <div className="day-material-links">{otherLinks.map((material) => <div className="day-material-source" key={material.url}><a href={material.url} target="_blank" rel="noopener noreferrer">{material.sourceType === 'textbook-page' ? 'Страница учебника' : material.sourceType === 'teacher-attachment' ? 'Файл учителя' : material.sourceType === 'external-text' ? 'Внешний текст, не из учебника' : 'Материал'}: {material.title} <ExternalLink size={13} aria-hidden="true" /></a>{material.reason && <small>{material.reason}</small>}{material.sourceQuote && <small>Из учебника: «{material.sourceQuote.trim()}»</small>}{parent && material.sourceRef && <small>{material.sourceRef} · PDF {material.pdfPage} · учебник {material.printedPage}</small>}</div>)}</div>}
                 {showSubmission && <div className="day-submission-instructions">
