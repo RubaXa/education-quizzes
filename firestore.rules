@@ -39,6 +39,13 @@ service cloud.firestore {
       return activeMember(familyId)
         && get(memberPath(familyId)).data.childIds.hasAny([childId]);
     }
+    function dayUploadOwner(studentToken) {
+      return activeSession()
+        && exists(/databases/$(database)/documents/dayOwners/$(studentToken))
+        && childMember(
+          get(/databases/$(database)/documents/dayOwners/$(studentToken)).data.familyId,
+          get(/databases/$(database)/documents/dayOwners/$(studentToken)).data.childId);
+    }
 
     match /accessLinks/{secret} {
       allow get: if activeSession()
@@ -275,7 +282,16 @@ service cloud.firestore {
         && request.resource.data.originalName.size() <= 120
         && request.resource.data.status == 'pending'
         && request.resource.data.createdAt == request.time;
-      allow update, delete: if false;
+      allow update: if dayUploadOwner(studentToken)
+        && exists(/databases/$(database)/documents/dayPages/$(studentToken))
+        && get(/databases/$(database)/documents/dayPages/$(studentToken)).data.kind == 'student'
+        && resource.data.status == 'pending'
+        && request.resource.data.status == 'deleted'
+        && request.resource.data.deletedAt == request.time
+        && request.resource.data.keys().hasAll(['taskId', 'status', 'deletedAt'])
+        && !request.resource.data.keys().hasAny(['dataUrl', 'originalName'])
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'deletedAt', 'dataUrl', 'originalName']);
+      allow delete: if false;
     }
 
     match /{document=**} {

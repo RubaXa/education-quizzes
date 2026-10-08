@@ -70,9 +70,10 @@ function testPng() {
 
 async function audit() {
   const snapshot = await uploads.get()
-  const result = { date, total: snapshot.size, pending: 0, onDisk: 0, waitingForDisk: 0, diskMatched: 0, diskMismatched: 0 }
+  const result = { date, total: snapshot.size, pending: 0, deleted: 0, onDisk: 0, waitingForDisk: 0, diskMatched: 0, diskMismatched: 0 }
   for (const item of snapshot.docs) {
     const upload = item.data()
+    if (upload.status === 'deleted') { result.deleted++; continue }
     if (upload.status === 'pending') result.pending++
     if (upload.storage?.state === 'stored') {
       result.onDisk++
@@ -92,7 +93,7 @@ async function cleanup(marker) {
     && /^[A-Za-z0-9]{20}$/.test(marker.id ?? '')
     && /^[a-f0-9]{64}$/.test(marker.sha256 ?? '')
     && marker.path?.startsWith(`app:/PETR/Работы/${date}/`)
-    && marker.path.endsWith(`/${marker.sha256}.png`), 'Маркер очистки не принадлежит этой проверке.')
+    && marker.path.endsWith(`/${studentToken}-${marker.id}.png`), 'Маркер очистки не принадлежит этой проверке.')
   const ref = uploads.doc(marker.id)
   const snapshot = await ref.get()
   if (snapshot.exists) {
@@ -129,18 +130,19 @@ if (exercise) {
   const subject = { en: 'Английский', math: 'Математика', ru: 'Русский-язык', sp: 'Спецкурс' }[taskId.split('-')[0]] ?? 'Прочее'
   const bytes = testPng()
   const sha256 = digest(bytes, 'sha256')
-  const path = `app:/PETR/Работы/${date}/${subject}/${sha256}.png`
-  check(!(await disk.head(path)), 'Тестовый путь уже занят; повторите проверку.')
-
   let testRef
   let clientDb
+  let path
   let temporaryDirectory
   let completed = false
   try {
     const { db: browserDb } = await import('../src/lib/firebase.ts')
-    const { addDoc, collection, serverTimestamp, terminate } = await import('firebase/firestore')
+    const { doc, collection, setDoc, serverTimestamp, terminate } = await import('firebase/firestore')
     clientDb = browserDb
-    testRef = await addDoc(collection(clientDb, 'dayUploads', studentToken, 'files'), {
+    testRef = doc(collection(clientDb, 'dayUploads', studentToken, 'files'))
+    path = `app:/PETR/Работы/${date}/${subject}/${studentToken}-${testRef.id}.png`
+    check(!(await disk.head(path)), 'Тестовый путь уже занят; повторите проверку.')
+    await setDoc(testRef, {
       taskId,
       dataUrl: `data:image/png;base64,${bytes.toString('base64')}`,
       originalName: 'integration-check.png',

@@ -127,6 +127,27 @@ export class YandexDiskStorage extends SubmissionStoragePort {
     return bytes
   }
 
+  /** @see ../docs/product/storage-privacy.md#photo-deletion */
+  async removeWorkAt(path, expectedMd5) {
+    if (!/^app:\/PETR\/Работы\/\d{4}-\d{2}-\d{2}\/[^/]+\/[A-Za-z0-9_-]{20,}\.(jpg|png|webp)$/.test(path)) {
+      throw new Error('Удалять можно только отдельный файл ученической работы.')
+    }
+    if (!/^[a-f0-9]{32}$/i.test(expectedMd5 ?? '')) throw new Error('Нельзя удалить файл без проверенной контрольной суммы.')
+    let remote = await this.head(path)
+    if (!remote) return
+    if (remote.type !== 'file' || remote.md5?.toLowerCase() !== expectedMd5.toLowerCase()) {
+      throw new Error(`Файл на Яндекс.Диске не совпадает с удаляемой работой: ${path}.`)
+    }
+    if (remote.public_url) await this.request('DELETE', 'resources/unpublish', path)
+    await this.request('DELETE', 'resources', path, { permanently: false, force_async: false })
+    for (let attempt = 0; attempt < 6; attempt += 1) {
+      remote = await this.head(path)
+      if (!remote) return
+      await new Promise((resolve) => setTimeout(resolve, 500 * (attempt + 1)))
+    }
+    throw new Error('Файл ещё виден на Яндекс.Диске; повторите синхронизацию.')
+  }
+
   verify(remote, bytes, expectedMd5, path) {
     if (remote.type !== 'file' || remote.size !== bytes.length || (remote.md5 && remote.md5.toLowerCase() !== expectedMd5)) {
       throw new Error(`Файл на Яндекс Диске не совпадает с локальным: ${path}.`)

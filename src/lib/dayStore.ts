@@ -1,4 +1,4 @@
-import { collection, doc, getDoc, getDocFromServer, onSnapshot, serverTimestamp, setDoc } from 'firebase/firestore'
+import { collection, deleteField, doc, getDoc, getDocFromServer, onSnapshot, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore'
 import { db } from './firebase'
 
 export type DayInstruction = string | { text: string; source: { kind: 'mesh' | 'textbook' | 'review' | 'teacher-file'; label: string; evidence: string; excerpt?: string; ref?: string; certainty: 'confirmed' | 'uncertain' } }
@@ -62,7 +62,7 @@ export function watchDayUploads(tokens: string[], onChange: (data: DayUpload[]) 
   const parts = new Map<string, DayUpload[]>()
   const unique = [...new Set(tokens)]
   const stops = unique.map((studentToken) => onSnapshot(collection(db, 'dayUploads', studentToken, 'files'), (snapshot) => {
-    parts.set(studentToken, snapshot.docs.map((item) => ({ id: `${studentToken}:${item.id}`, ...item.data() } as DayUpload)))
+    parts.set(studentToken, snapshot.docs.filter((item) => item.data().status !== 'deleted').map((item) => ({ id: `${studentToken}:${item.id}`, ...item.data() } as DayUpload)))
     onChange(unique.flatMap((token) => parts.get(token) || []))
   }, onError))
   return () => stops.forEach((stop) => stop())
@@ -104,4 +104,15 @@ export async function uploadDayPhoto(studentToken: string, taskId: string, file:
     throw cause
   }
   return uploadId
+}
+
+/** @see ../../docs/product/storage-privacy.md#photo-deletion */
+export async function removePendingDayPhoto(studentToken: string, uploadId: string) {
+  const ref = doc(db, 'dayUploads', studentToken, 'files', uploadId)
+  const current = await getDocFromServer(ref)
+  if (!current.exists() || current.data().status === 'deleted') return
+  if (current.data().status !== 'pending') throw new Error('Проверенную работу удалить нельзя.')
+  await updateDoc(ref, {
+    status: 'deleted', deletedAt: serverTimestamp(), dataUrl: deleteField(), originalName: deleteField(),
+  })
 }

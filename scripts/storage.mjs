@@ -130,9 +130,35 @@ async function sync() {
   let stored = 0
   let verified = 0
   let cleaned = 0
+  let deleted = 0
   const failures = []
+  const activePaths = new Set(snapshot.docs.filter((item) => item.data().status !== 'deleted')
+    .map((item) => item.data().storage?.path).filter(Boolean))
+  if (snapshot.docs.some((item) => item.data().status === 'deleted' && item.data().storage?.path)) {
+    const owners = await db.collection('dayOwners').get()
+    for (const owner of owners.docs) {
+      if (owner.id === student) continue
+      const otherFiles = await db.collection(`dayUploads/${owner.id}/files`).get()
+      for (const other of otherFiles.docs) {
+        const data = other.data()
+        if (data.status !== 'deleted' && data.storage?.path) activePaths.add(data.storage.path)
+      }
+    }
+  }
   for (const item of snapshot.docs) {
     const upload = item.data()
+    if (upload.status === 'deleted') {
+      try {
+        if (upload.storage?.path && !activePaths.has(upload.storage.path)) {
+          await storage.removeWorkAt(upload.storage.path, upload.storage.md5)
+        }
+        await item.ref.delete()
+        deleted += 1
+      } catch (error) {
+        failures.push(`${item.id}: не удалось удалить фото с Диска: ${error.message}`)
+      }
+      continue
+    }
     const photo = decodePhoto(upload.dataUrl)
     const onDisk = upload.storage?.provider === 'yandex-disk' && upload.storage?.state === 'stored' && upload.storage?.publicUrl
     if (!photo && !onDisk) { failures.push(`${item.id}: нет изображения или проверенной ссылки на Диск`); continue }
@@ -155,7 +181,7 @@ async function sync() {
       const sha256 = createHash('sha256').update(photo.bytes).digest('hex')
       const md5 = createHash('md5').update(photo.bytes).digest('hex')
       const subject = { en: 'Английский', math: 'Математика', ru: 'Русский-язык', sp: 'Спецкурс' }[upload.taskId?.split('-')[0]] ?? 'Прочее'
-      const path = upload.storage?.path ?? `app:/PETR/Работы/${date}/${subject}/${sha256}.${photo.extension}`
+      const path = upload.storage?.path ?? `app:/PETR/Работы/${date}/${subject}/${student}-${item.id}.${photo.extension}`
       const result = await storage.putAt(path, photo.bytes, md5)
       const publicUrl = await storage.publish(path)
       const remote = await storage.head(path)
@@ -172,7 +198,7 @@ async function sync() {
       failures.push(`${item.id}: ${error.message}`)
     }
   }
-  console.log(JSON.stringify({ date, total: snapshot.size, stored, verified, firestoreCopiesRemoved: cleaned, failed: failures.length }, null, 2))
+  console.log(JSON.stringify({ date, total: snapshot.size, stored, verified, deleted, firestoreCopiesRemoved: cleaned, failed: failures.length }, null, 2))
   if (failures.length) fail(`Не удалось перенести ${failures.length} вложений: ${failures.join('; ')}`)
 }
 
