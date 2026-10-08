@@ -101,3 +101,18 @@
 .day-upload-delete:hover{background:#fff1f2}.day-upload-delete:disabled{opacity:.65;cursor:wait}
 .day-upload-delete:focus-visible{outline:3px solid #ae91e8;outline-offset:2px}
 .day-task .day-upload-delete-error{margin-top:7px;color:#a23844;font-size:.76rem}
+
+/* @see ../docs/product/day-page.md#homework-review */
+.day-work-review{min-width:0;margin-top:15px;padding:14px 16px;border:1px solid #ead5ac;border-radius:13px;background:#fffbf4;color:#493d34}
+.day-work-review.verified{border-color:#bde4c9;background:#f6fff8}
+.day-work-review-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:7px}
+.day-work-review-heading strong{font-size:.91rem;color:#513b78}
+.day-work-review-heading span{font-size:.73rem;font-weight:800;color:#975c14}
+.day-work-review.verified .day-work-review-heading span{color:#277146}
+.day-task .day-work-review>p{color:#50465e}
+.day-work-review ol{display:grid;gap:7px;list-style:none;margin:11px 0;padding:0}
+.day-work-review li{display:grid;grid-template-columns:minmax(0,3.5rem) minmax(0,1fr);gap:2px 8px;padding:8px 0;border-top:1px solid #e9dfd7;font-size:.84rem;line-height:1.42;overflow-wrap:anywhere}
+.day-work-review li strong{color:#5a438f}.day-work-review li>span{color:#4e455b}
+.day-work-review li small{grid-column:2;color:#766b80;font-size:.77rem}
+.day-task .day-work-review-next{margin-top:10px;color:#483d5e}
+.day-work-review-source{display:block;margin-top:9px;color:#877c8c;font-size:.72rem;line-height:1.4}

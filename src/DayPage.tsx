@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { BookOpen, Camera, CheckCircle2, ChevronDown, CircleAlert, Clock3, ExternalLink, LoaderCircle, RotateCcw, Trash2, X } from 'lucide-react'
-import { removePendingDayPhoto, uploadDayPhoto, watchDayPage, watchDayUploads, watchMaterialPages } from '@/lib/dayStore'
-import type { DayInstruction, DayMaterialLink, DayPageData, DayTask, DayUpload } from '@/lib/dayStore'
+import { removePendingDayPhoto, uploadDayPhoto, watchDayPage, watchDayReviews, watchDayUploads, watchMaterialPages } from '@/lib/dayStore'
+import type { DayInstruction, DayMaterialLink, DayPageData, DayTask, DayUpload, DayWorkReview } from '@/lib/dayStore'
 import { loadAnswerKey, watchAssignment, watchDashboard } from '@/lib/store'
 import { grade } from '@/lib/quiz'
 import type { Assignment } from '@/lib/quiz'
@@ -85,6 +85,23 @@ function PhotoStrip({ taskTitle, studentToken, uploads, localPhotos, onRetry, on
       {deleteError && <p className="day-upload-delete-error" role="alert">{deleteError}</p>}
     </div>}
   </div>
+}
+
+/** @see ../docs/product/day-page.md#homework-review */
+function WorkReview({ review }: { review: DayWorkReview }) {
+  const status = review.status === 'verified' ? 'Работа проверена' : review.status === 'needs-fix' ? 'Нужно исправить' : review.status === 'partial' ? 'Нужно дополнить' : 'Пока нельзя проверить'
+  return <section className={`day-work-review ${review.status}`} aria-label="Разбор загруженной работы">
+    <div className="day-work-review-heading"><strong>Проверка работы</strong><span>{status}</span></div>
+    <p>{review.summary}</p>
+    <ol>{review.items.map((item) => <li key={item.label}>
+      <strong>{item.status === 'correct' ? '✓' : item.status === 'incorrect' ? '!' : '?'} {item.label}</strong>
+      <span>{item.note}</span>
+      {item.observed && <small>В работе: {item.observed}</small>}
+      {item.expected && <small>По учебнику: {item.expected}</small>}
+    </li>)}</ol>
+    <p className="day-work-review-next"><b>Что дальше:</b> {review.nextStep}</p>
+    <small className="day-work-review-source">Источник: {review.source}</small>
+  </section>
 }
 
 /**
@@ -205,6 +222,7 @@ export default function DayPage({ token, parent }: { token: string; parent: bool
   const studentToken = page?.studentToken ?? token
   const [catalogPages, setCatalogPages] = useState<Record<string, DayMaterialLink>>({})
   const [uploads, setUploads] = useState<DayUpload[]>([])
+  const [reviews, setReviews] = useState<DayWorkReview[]>([])
   const [tests, setTests] = useState<TestItem[]>([])
   const [view, setView] = useState<'homework' | 'school'>(requestedView === 'homework' ? 'homework' : 'school')
   const [manualView, setManualView] = useState(requestedView === 'homework' || requestedView === 'school')
@@ -280,6 +298,10 @@ export default function DayPage({ token, parent }: { token: string; parent: bool
   useEffect(() => {
     if (!hasPage) return
     return watchDayUploads(evidenceTokens.split('|'), setUploads, (cause) => setError(cause.message))
+  }, [evidenceTokens, hasPage])
+  useEffect(() => {
+    if (!hasPage) return
+    return watchDayReviews(evidenceTokens.split('|'), setReviews, (cause) => setError(cause.message))
   }, [evidenceTokens, hasPage])
   useEffect(() => {
     if (!page || manualView) return
@@ -415,23 +437,25 @@ export default function DayPage({ token, parent }: { token: string; parent: bool
               const otherLinks = taskLinks.filter((link) => !canReadInside(link))
               const needsTextbook = task.materialStatus?.state === 'textbook-page-needed' && !taskLinks.some((link) => link.sourceType === 'textbook-page')
               const taskUploads = uploads.filter((upload) => upload.taskId === task.id)
+              const review = reviews.find((item) => item.taskId === task.id)
+              const taskStatus = review?.status && review.status !== 'cannot-assess' ? review.status : task.status
               const localTaskPhotos = localPhotos.filter((photo) => photo.taskId === task.id)
               const priorWork = taskUploads.some((upload) => upload.status === 'reviewed')
               const newWork = taskUploads.some((upload) => upload.status === 'pending') || localTaskPhotos.some((photo) => photo.state === 'saved')
               const uploadingWork = localTaskPhotos.some((photo) => photo.state === 'uploading')
               const linkedTest = tests.find((item) => item.token === task.testToken)
               const readPassed = task.kind === 'read' && linkedTest?.status === 'submitted' && linkedTest.points != null && linkedTest.points >= (task.requiredPoints ?? linkedTest.maxPoints ?? 1)
-              const verified = task.status === 'verified' || readPassed
+              const verified = taskStatus === 'verified' || readPassed
               const submitted = task.kind === 'written' && newWork
               const state = task.kind === 'written'
-                ? task.status === 'verified' ? 'Готово · проверено' : newWork ? 'Новое фото · ждёт проверки' : uploadingWork ? 'Фото загружается' : priorWork ? task.status === 'needs-fix' ? 'Работа проверена · исправить' : task.status === 'partial' ? 'Работа проверена · дополнить' : 'Работа сохранена' : statusLabel(task.status)
-                : task.kind === 'read' ? readPassed ? `Тест пройден · ${linkedTest?.points}/${linkedTest?.maxPoints}` : linkedTest?.status === 'submitted' ? linkedTest.points == null ? 'Проверяем тест' : `Нужен разбор · ${linkedTest.points}/${linkedTest.maxPoints}` : 'Нужен тест' : statusLabel(task.status)
-              const uploadLabel = newWork || uploadingWork ? 'Добавить ещё фото' : priorWork ? task.status === 'needs-fix' ? 'Добавить фото исправления' : 'Добавить фото продолжения' : 'Добавить фото ответа'
-              const canUpload = !parent && task.kind === 'written' && task.status !== 'verified' && (!priorWork || newWork || uploadingWork || task.status === 'needs-fix' || task.status === 'partial')
-              const showSubmission = task.kind === 'written' && task.status !== 'verified' && (!priorWork || newWork || uploadingWork || task.status === 'needs-fix' || task.status === 'partial')
+                ? taskStatus === 'verified' ? 'Готово · проверено' : newWork ? 'Новое фото · ждёт проверки' : uploadingWork ? 'Фото загружается' : priorWork ? taskStatus === 'needs-fix' ? 'Работа проверена · исправить' : taskStatus === 'partial' ? 'Работа проверена · дополнить' : 'Работа сохранена' : statusLabel(taskStatus)
+                : task.kind === 'read' ? readPassed ? `Тест пройден · ${linkedTest?.points}/${linkedTest?.maxPoints}` : linkedTest?.status === 'submitted' ? linkedTest.points == null ? 'Проверяем тест' : `Нужен разбор · ${linkedTest.points}/${linkedTest.maxPoints}` : 'Нужен тест' : statusLabel(taskStatus)
+              const uploadLabel = newWork || uploadingWork ? 'Добавить ещё фото' : priorWork ? taskStatus === 'needs-fix' ? 'Добавить фото исправления' : 'Добавить фото продолжения' : 'Добавить фото ответа'
+              const canUpload = !parent && task.kind === 'written' && taskStatus !== 'verified' && (!priorWork || newWork || uploadingWork || taskStatus === 'needs-fix' || taskStatus === 'partial')
+              const showSubmission = task.kind === 'written' && taskStatus !== 'verified' && (!priorWork || newWork || uploadingWork || taskStatus === 'needs-fix' || taskStatus === 'partial')
               const submission = task.submission
               return <article className={`day-task ${verified ? 'done' : submitted ? 'submitted' : ''}`} key={task.id}>
-                <div className="day-task-row"><span className={`day-task-state ${verified ? 'verified' : submitted ? 'partial' : task.status}`}>{verified && <CheckCircle2 size={15} aria-hidden="true" />} {state}</span>{task.kind === 'written' && <span className="day-task-type">В тетради</span>}{task.originDate && task.originDate !== page.targetDate && <span className="day-task-type">Осталось с {dayMonth(task.originDate)}</span>}</div>
+                <div className="day-task-row"><span className={`day-task-state ${verified ? 'verified' : submitted ? 'partial' : taskStatus}`}>{verified && <CheckCircle2 size={15} aria-hidden="true" />} {state}</span>{task.kind === 'written' && <span className="day-task-type">В тетради</span>}{task.originDate && task.originDate !== page.targetDate && <span className="day-task-type">Осталось с {dayMonth(task.originDate)}</span>}</div>
                 <h3>{task.title}</h3><p>{task.detail}</p>
                 {!!task.steps?.length && <ol className="day-task-steps">{task.steps.map((step, index) => <Instruction key={index} item={step} index={index} />)}</ol>}
                 {needsTextbook && <p className="day-material-warning">📖 {task.materialStatus?.message}</p>}
@@ -439,16 +463,17 @@ export default function DayPage({ token, parent }: { token: string; parent: bool
                 {readerGroups.map((group) => <MaterialReader key={group[0].url} links={group} parent={parent} />)}
                 {otherLinks.length > 0 && <div className="day-material-links">{otherLinks.map((material) => <div className="day-material-source" key={material.url}><a href={material.url} target="_blank" rel="noopener noreferrer">{material.sourceType === 'textbook-page' ? 'Страница учебника' : material.sourceType === 'teacher-attachment' ? 'Файл учителя' : material.sourceType === 'external-text' ? 'Внешний текст, не из учебника' : 'Материал'}: {material.title} <ExternalLink size={13} aria-hidden="true" /></a>{material.reason && <small>{material.reason}</small>}{material.sourceQuote && <small>Из учебника: «{material.sourceQuote.trim()}»</small>}{parent && material.sourceRef && <small>{material.sourceRef} · PDF {material.pdfPage} · учебник {material.printedPage}</small>}</div>)}</div>}
                 {showSubmission && <div className="day-submission-instructions">
-                  <strong>{priorWork && (task.status === 'needs-fix' || task.status === 'partial') ? 'Что исправить и сфотографировать' : 'Что сфотографировать'}</strong>
+                  <strong>{priorWork && (taskStatus === 'needs-fix' || taskStatus === 'partial') ? 'Что исправить и сфотографировать' : 'Что сфотографировать'}</strong>
                   {submission?.lead && <p>{submission.lead}</p>}
                   {!!submission?.items?.length && <ol>{submission.items.map((item, index) => <Instruction key={index} item={item} index={index} />)}</ol>}
                   {submission?.photo && <p className="day-submission-photo"><b>На фото</b><span>{submission.photo}</span></p>}
                   {!submission?.lead && !submission?.items?.length && !submission?.photo && <p>{submission?.description ?? `Страница тетради с результатом задания «${task.title}». Номер и ответ должны читаться.`}</p>}
                 </div>}
+                {review && <WorkReview review={review} />}
                 <div className="day-task-actions">
                   {canUpload && <label className="day-upload"><Camera size={17} aria-hidden="true" /> {uploadLabel}<input type="file" accept="image/*" multiple onChange={(event) => { attach(task, Array.from(event.currentTarget.files ?? [])); event.currentTarget.value = '' }} /></label>}
                   {task.kind === 'read' && task.testToken && task.testSlug && <a className="day-quiz-link" href={`#/t/${task.testSlug}~${task.testToken}`}>{parent ? linkedTest?.status === 'submitted' ? 'Посмотреть результат' : 'Открыть тест' : linkedTest?.status === 'submitted' ? 'Посмотреть результат' : linkedTest?.answered ? 'Продолжить тест' : 'Пройти короткий тест'} <ExternalLink size={15} /></a>}
-                  {parent && <span className="day-parent-status">{task.kind === 'written' ? task.status === 'verified' ? 'Работа проверена' : newWork ? 'Новая загрузка ожидает проверки' : priorWork ? 'Исходная работа получена и разобрана; осталось действие выше' : 'Подтверждённого фото пока нет' : task.kind === 'read' ? readPassed ? 'Чтение подтверждено тестом' : 'Чтение тестом пока не подтверждено' : 'Статус сдачи не сообщён'}</span>}
+                  {parent && <span className="day-parent-status">{task.kind === 'written' ? taskStatus === 'verified' ? 'Работа проверена' : newWork ? 'Новая загрузка ожидает проверки' : priorWork ? 'Работа разобрана; подробности выше' : 'Подтверждённого фото пока нет' : task.kind === 'read' ? readPassed ? 'Чтение подтверждено тестом' : 'Чтение тестом пока не подтверждено' : 'Статус сдачи не сообщён'}</span>}
                 </div>
                 {task.kind === 'read' && linkedTest && <TestProgress test={linkedTest} />}
                 <PhotoStrip taskTitle={task.title} studentToken={studentToken} uploads={taskUploads} localPhotos={localTaskPhotos} onRetry={queuePhotoUpload} onDelete={deletePhoto} />

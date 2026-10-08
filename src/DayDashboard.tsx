@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { getAuth } from 'firebase/auth'
 import { ArrowLeft, ArrowRight, BookOpen, CalendarDays, CheckCircle2, ChevronDown, Clock3, Sparkles } from 'lucide-react'
-import { watchDayPage, watchDayUploads } from '@/lib/dayStore'
-import type { DayPageData, DayTask, DayUpload } from '@/lib/dayStore'
+import { watchDayPage, watchDayReviews, watchDayUploads } from '@/lib/dayStore'
+import type { DayPageData, DayTask, DayUpload, DayWorkReview } from '@/lib/dayStore'
 import { watchDayDashboard } from '@/lib/dayDashboardStore'
 import type { DayDashboardData, IndexedDay } from '@/lib/dayDashboardStore'
 import { watchAssignment } from '@/lib/store'
@@ -29,11 +29,15 @@ function lessonTime(iso: string) {
   const time = new Date(iso)
   return Number.isNaN(time.getTime()) ? '' : new Intl.DateTimeFormat('ru-RU', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Moscow' }).format(time)
 }
-function taskState(task: DayTask, uploads: DayUpload[], tests: Record<string, Assignment>) {
-  if (task.status === 'verified') return 'Проверено'
+function taskState(task: DayTask, uploads: DayUpload[], reviews: DayWorkReview[], tests: Record<string, Assignment>) {
+  const reviewed = reviews.find((item) => item.taskId === task.id)
+  if (task.status === 'verified' || reviewed?.status === 'verified') return 'Проверено'
   if (task.kind === 'written') {
     const photos = uploads.filter((upload) => upload.taskId === task.id)
     if (photos.some((upload) => upload.status === 'pending')) return 'Фото получено · ждёт проверки'
+    if (reviewed?.status === 'needs-fix') return 'Проверено · исправить'
+    if (reviewed?.status === 'partial') return 'Проверено · дополнить'
+    if (reviewed?.status === 'cannot-assess') return 'Фото нужно переснять'
     if (task.status === 'needs-fix') return 'Нужно исправить'
     if (task.status === 'partial') return 'Нужно дополнить'
     if (photos.length) return 'Работа загружена'
@@ -60,6 +64,7 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
   const [page, setPage] = useState<DayPageData>()
   const [gradePage, setGradePage] = useState<DayPageData>()
   const [uploads, setUploads] = useState<DayUpload[]>([])
+  const [reviews, setReviews] = useState<DayWorkReview[]>([])
   const [tests, setTests] = useState<Record<string, Assignment>>({})
   const [selected, setSelected] = useState<string>()
   const [error, setError] = useState('')
@@ -100,6 +105,11 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
     setUploads([])
     if (!evidenceKey) return
     return watchDayUploads(evidenceKey.split('|'), setUploads, (cause) => setError(cause.message))
+  }, [evidenceKey])
+  useEffect(() => {
+    setReviews([])
+    if (!evidenceKey) return
+    return watchDayReviews(evidenceKey.split('|'), setReviews, (cause) => setError(cause.message))
   }, [evidenceKey])
   const placementKey = (page?.testPlacements ?? []).filter((placement) => (placement.originDate ?? page?.targetDate) === page?.targetDate).map((placement) => placement.token).join('|')
   useEffect(() => {
@@ -152,7 +162,7 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
       <section className="day-dashboard-card" aria-label="Ближайшее домашнее задание">
         <div className="day-dashboard-heading"><div><BookOpen size={20} /><h2>Ближайшее ДЗ</h2></div>{dueDate && <small>К {dateLabel(dueDate)}</small>}</div>
         {page && currentSubjects.length ? <div className="day-dashboard-subjects">{currentSubjects.map((subject) => <button key={subject.id} type="button" onClick={() => todayEntry && openDay(todayEntry, 'homework')}>
-          <span className="day-dashboard-icon" aria-hidden="true">{subject.icon}</span><span><strong>{subject.name}</strong><small>{subject.tasks.map((task) => taskState(task, uploads, tests)).join(' · ')}</small></span><ArrowRight size={18} />
+          <span className="day-dashboard-icon" aria-hidden="true">{subject.icon}</span><span><strong>{subject.name}</strong><small>{subject.tasks.map((task) => taskState(task, uploads, reviews, tests)).join(' · ')}</small></span><ArrowRight size={18} />
         </button>)}</div> : dueEntry?.homework.length ? <div className="day-dashboard-mesh">{dueEntry.homework.map((item, index) => <p key={index}><strong>{item.subject}</strong><span>{item.text}</span></p>)}<small>Точный текст МЭШ · разбор страницы готовится</small></div> : <p className="day-dashboard-empty">ДЗ пока не опубликовано. Последняя проверка: {checkedLabel(dueEntry?.checkedAt ?? null)}.</p>}
       </section>
       <aside className="day-dashboard-side">

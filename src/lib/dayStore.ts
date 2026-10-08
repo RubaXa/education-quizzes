@@ -23,6 +23,11 @@ export type DayPageData = {
 }
 /** @see ../../docs/product/storage-privacy.md#upload-queue */
 export type DayUpload = { id: string; taskId: string; dataUrl?: string; originalName?: string; status: 'pending' | 'reviewed'; origin?: 'archive'; recordedDate?: string; storage?: { provider: 'yandex-disk'; state: 'stored'; path: string; size: number; md5?: string; syncedAt: unknown; publicUrl?: string } }
+export type DayWorkReview = {
+  id: string; taskId: string; status: 'verified' | 'needs-fix' | 'partial' | 'cannot-assess';
+  summary: string; nextStep: string; source: string; checkedAt: unknown; uploadIds: string[];
+  items: { label: string; status: 'correct' | 'incorrect' | 'partial' | 'cannot-assess'; observed: string; expected?: string; note: string }[];
+}
 
 export async function loadDayPage(token: string): Promise<DayPageData> {
   const snapshot = await getDoc(doc(db, 'dayPages', token))
@@ -63,6 +68,16 @@ export function watchDayUploads(tokens: string[], onChange: (data: DayUpload[]) 
   const unique = [...new Set(tokens)]
   const stops = unique.map((studentToken) => onSnapshot(collection(db, 'dayUploads', studentToken, 'files'), (snapshot) => {
     parts.set(studentToken, snapshot.docs.filter((item) => item.data().status !== 'deleted').map((item) => ({ id: `${studentToken}:${item.id}`, ...item.data() } as DayUpload)))
+    onChange(unique.flatMap((token) => parts.get(token) || []))
+  }, onError))
+  return () => stops.forEach((stop) => stop())
+}
+/** @see ../../docs/product/day-page.md#homework-review */
+export function watchDayReviews(tokens: string[], onChange: (data: DayWorkReview[]) => void, onError: (error: Error) => void) {
+  const parts = new Map<string, DayWorkReview[]>()
+  const unique = [...new Set(tokens)]
+  const stops = unique.map((studentToken) => onSnapshot(collection(db, 'dayProgress', studentToken, 'items'), (snapshot) => {
+    parts.set(studentToken, snapshot.docs.map((item) => ({ id: `${studentToken}:${item.id}`, ...item.data() } as DayWorkReview)))
     onChange(unique.flatMap((token) => parts.get(token) || []))
   }, onError))
   return () => stops.forEach((stop) => stop())
