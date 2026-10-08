@@ -87,9 +87,12 @@
 .day-upload-thumb-placeholder{display:grid!important;place-items:center;color:#796697;background:#ede8f4}
 .day-upload-thumb-placeholder svg{width:15px;height:15px}
 .day-upload-indicator{position:absolute;right:0;bottom:0;display:grid;place-items:center;width:15px;height:15px;border-radius:50%;background:#fff3d9;color:#99600d;box-shadow:0 1px 4px #2b204840}
-.day-upload-indicator.reviewed{background:#e6f7ed;color:#28764b}
+.day-upload-indicator.success{background:#dcf5e5;color:#17643c}
+.day-upload-indicator.partial{background:#fff0ca;color:#825008}
+.day-upload-indicator.error{background:#ffe1e4;color:#a52839}
+.day-upload-indicator.neutral{background:#eeebf4;color:#675977}
 .day-upload-indicator.failed{background:#fff0f0;color:#a23844}
-.day-upload-indicator.uploading svg{animation:day-photo-spin 1.1s linear infinite}
+.day-upload-indicator.uploading svg,.day-upload-indicator.processing svg{animation:day-photo-spin 1.1s linear infinite}
 .day-upload-indicator.deleting svg{animation:day-photo-spin 1.1s linear infinite}
 @keyframes day-photo-spin{to{transform:rotate(360deg)}}
 .day-upload-expanded{position:relative;margin-top:8px;padding:8px;border-top:1px solid #e5ddef}
@@ -103,16 +106,28 @@
 .day-task .day-upload-delete-error{margin-top:7px;color:#a23844;font-size:.76rem}
 
 /* @see ../docs/product/day-page.md#homework-review */
-.day-work-review{min-width:0;margin-top:15px;padding:14px 16px;border:1px solid #ead5ac;border-radius:13px;background:#fffbf4;color:#493d34}
-.day-work-review.verified{border-color:#bde4c9;background:#f6fff8}
-.day-work-review-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:7px}
-.day-work-review-heading strong{font-size:.91rem;color:#513b78}
-.day-work-review-heading span{font-size:.73rem;font-weight:800;color:#975c14}
-.day-work-review.verified .day-work-review-heading span{color:#277146}
-.day-task .day-work-review>p{color:#50465e}
-.day-work-review ol{display:grid;gap:7px;list-style:none;margin:11px 0;padding:0}
-.day-work-review li{display:grid;grid-template-columns:minmax(0,3.5rem) minmax(0,1fr);gap:2px 8px;padding:8px 0;border-top:1px solid #e9dfd7;font-size:.84rem;line-height:1.42;overflow-wrap:anywhere}
-.day-work-review li strong{color:#5a438f}.day-work-review li>span{color:#4e455b}
-.day-work-review li small{grid-column:2;color:#766b80;font-size:.77rem}
-.day-task .day-work-review-next{margin-top:10px;color:#483d5e}
-.day-work-review-source{display:block;margin-top:9px;color:#877c8c;font-size:.72rem;line-height:1.4}
+.day-review-stack{display:grid;gap:8px;min-width:0;margin:13px 0}
+.day-review-progress{display:flex;align-items:center;gap:10px;min-width:0;padding:10px 12px;border:1px solid #e3dbea;border-radius:12px;background:#f9f7fc;color:#5a4d6f}
+.day-review-progress.active{border-color:#cabbeb;background:#f5f0ff;color:#513985}
+.day-review-progress-icon{display:grid;place-items:center;flex:none;width:24px;height:24px;border-radius:50%;background:#eee7f9}
+.day-review-progress.active .day-review-progress-icon svg{animation:day-photo-spin 1.3s linear infinite}
+.day-review-progress-text{display:grid;gap:1px;min-width:0;line-height:1.25}.day-review-progress-text b{font-size:.82rem}.day-review-progress-text small{font-size:.72rem;color:#6f637f}
+.day-review-progress time{margin-left:auto;flex:none;font-variant-numeric:tabular-nums;font-size:.76rem;font-weight:750}
+.day-work-review{--review-bg:#f7f5fa;--review-border:#d9d1e3;--review-ink:#4f4265;--review-icon:#706180;min-width:0;border:1px solid var(--review-border);border-radius:13px;background:var(--review-bg);color:var(--review-ink);overflow:hidden}
+.day-work-review.success{--review-bg:#f0fbf3;--review-border:#9eddb6;--review-ink:#195f39;--review-icon:#19643c}
+.day-work-review.partial{--review-bg:#fff8e9;--review-border:#ebcd8d;--review-ink:#76500e;--review-icon:#89540a}
+.day-work-review.error{--review-bg:#fff0f1;--review-border:#eba5ae;--review-ink:#932c3a;--review-icon:#a52839}
+.day-work-review summary{display:flex;align-items:center;gap:10px;min-height:55px;padding:10px 12px;cursor:pointer;list-style:none}
+.day-work-review summary::-webkit-details-marker{display:none}
+.day-work-review summary:focus-visible{outline:3px solid #9d78da;outline-offset:-3px}
+.day-work-review-icon,.day-work-review-item-icon{display:grid;place-items:center;flex:none;border-radius:50%;background:var(--review-icon);color:#fff}
+.day-work-review-icon{width:27px;height:27px}.day-work-review-title{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap;min-width:0;line-height:1.3}.day-work-review-title b{font-size:.88rem}.day-work-review-title>span{font-size:.83rem;font-weight:750}
+.day-work-review-chevron{flex:none;margin-left:auto;transition:transform .15s ease}.day-work-review[open] .day-work-review-chevron{transform:rotate(180deg)}
+.day-work-review-body{padding:0 13px 13px;color:#493f58}.day-task .day-work-review-body>p{margin:4px 0 10px;color:#493f58;font-size:.83rem;line-height:1.5}
+.day-work-review ol{display:grid;gap:0;list-style:none;margin:10px 0;padding:0;border-top:1px solid #ddd5e3}
+.day-work-review-item{display:grid;grid-template-columns:22px minmax(0,1fr);align-items:start;gap:9px;padding:10px 0;border-bottom:1px solid #e5dee9;overflow-wrap:anywhere}
+.day-work-review-item-icon{width:20px;height:20px;margin-top:1px;background:#6c617c}
+.day-work-review-item.correct .day-work-review-item-icon{background:#247449}.day-work-review-item.partial .day-work-review-item-icon{background:#9b6613}.day-work-review-item.incorrect .day-work-review-item-icon{background:#a72e3d}
+.day-work-review-item strong{font-size:.82rem;color:#342851}.day-task .day-work-review-item p{margin:3px 0;color:#51485d;font-size:.8rem;line-height:1.45}.day-work-review-item small{display:block;margin-top:3px;color:#62576e;font-size:.75rem;line-height:1.4}
+.day-task .day-work-review-next{margin-top:11px;font-size:.81rem}.day-work-review-source{display:block;margin-top:7px;color:#746a7f;font-size:.72rem;line-height:1.4}
+@media (prefers-reduced-motion:reduce){.day-review-progress.active .day-review-progress-icon svg,.day-upload-indicator.processing svg{animation:none}.day-work-review-chevron{transition:none}}

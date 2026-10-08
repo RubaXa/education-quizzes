@@ -22,11 +22,12 @@ export type DayPageData = {
   workingThreshold?: number;
 }
 /** @see ../../docs/product/storage-privacy.md#upload-queue */
-export type DayUpload = { id: string; taskId: string; dataUrl?: string; originalName?: string; status: 'pending' | 'reviewed'; origin?: 'archive'; recordedDate?: string; storage?: { provider: 'yandex-disk'; state: 'stored'; path: string; size: number; md5?: string; syncedAt: unknown; publicUrl?: string } }
+export type DayUpload = { id: string; taskId: string; dataUrl?: string; originalName?: string; status: 'pending' | 'reviewed'; createdAt?: unknown; origin?: 'archive'; recordedDate?: string; storage?: { provider: 'yandex-disk'; state: 'stored'; path: string; size: number; md5?: string; syncedAt: unknown; publicUrl?: string } }
 export type DayWorkReview = {
-  id: string; taskId: string; status: 'verified' | 'needs-fix' | 'partial' | 'cannot-assess';
-  summary: string; nextStep: string; source: string; checkedAt: unknown; uploadIds: string[];
-  items: { label: string; status: 'correct' | 'incorrect' | 'partial' | 'cannot-assess'; observed: string; expected?: string; note: string }[];
+  id: string; taskId: string; status?: 'verified' | 'needs-fix' | 'partial' | 'cannot-assess';
+  summary?: string; nextStep?: string; source?: string; checkedAt?: unknown; uploadIds?: string[];
+  items?: { label: string; status: 'correct' | 'incorrect' | 'partial' | 'cannot-assess'; observed: string; expected?: string; note: string }[];
+  processing?: { phase: 'download' | 'source' | 'review' | 'publish' | 'paused'; label: string; uploadIds: string[]; startedAt: unknown; updatedAt: unknown };
 }
 
 export async function loadDayPage(token: string): Promise<DayPageData> {
