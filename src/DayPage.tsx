@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { BookOpen, Camera, CheckCircle2, ChevronDown, CircleAlert, Clock3, ExternalLink, LoaderCircle, RotateCcw, Trash2, X } from 'lucide-react'
 import { removePendingDayPhoto, uploadDayPhoto, watchDayPage, watchDayReviews, watchDayUploads, watchMaterialPages } from '@/lib/dayStore'
 import type { DayInstruction, DayMaterialLink, DayPageData, DayTask, DayUpload, DayWorkReview } from '@/lib/dayStore'
@@ -7,7 +8,7 @@ import { grade } from '@/lib/quiz'
 import type { Assignment } from '@/lib/quiz'
 import MaterialReader, { canReadInside } from '@/components/MaterialReader'
 import WorkReview from '@/components/WorkReview'
-import { activeProcessing, reviewTone } from '@/lib/reviewPresentation'
+import { activeProcessing } from '@/lib/reviewPresentation'
 import { publicImage } from '@/lib/yandexPublic'
 import './DayPage.css'
 
@@ -39,7 +40,15 @@ function WorkPhoto({ upload, title, index, compact = false }: { upload: DayUploa
   return <img src={src} alt={`Работа по заданию «${title}», фото ${index + 1}`} loading="lazy" referrerPolicy="no-referrer" onError={() => setFailed(true)} />
 }
 
-/** @see ../docs/product/day-page.md#multi-photo-upload */
+function isActivePhotoProcessing(review: DayWorkReview | undefined, upload: DayUpload) {
+  const processing = activeProcessing(review, [upload])
+  return !!processing && processing.phase !== 'paused'
+}
+
+/**
+ * Разделяет технический статус снимка и педагогический результат задания.
+ * @see ../docs/product/day-page.md#photo-status
+ */
 function PhotoStrip({ taskTitle, studentToken, uploads, localPhotos, review, onRetry, onDelete }: {
   taskTitle: string; studentToken: string; uploads: DayUpload[]; localPhotos: LocalPhoto[]; review?: DayWorkReview;
   onRetry: (photo: LocalPhoto) => void; onDelete: (uploadId: string) => Promise<void>
@@ -51,6 +60,13 @@ function PhotoStrip({ taskTitle, studentToken, uploads, localPhotos, review, onR
   const visibleUploads = uploads.filter((upload) => !removedIds.includes(upload.id))
   const localOnly = localPhotos.filter((photo) => !removedIds.includes(`${studentToken}:${photo.id}`) && !visibleUploads.some((upload) => upload.id === `${studentToken}:${photo.id}`))
   if (!visibleUploads.length && !localOnly.length) return null
+  const photoCount = visibleUploads.length + localOnly.length
+  const reviewedCount = visibleUploads.filter((upload) => upload.status === 'reviewed').length
+  const processingCount = visibleUploads.filter((upload) => upload.status === 'pending' && isActivePhotoProcessing(review, upload)).length
+  const waitingCount = visibleUploads.filter((upload) => upload.status === 'pending' && !isActivePhotoProcessing(review, upload)).length + localOnly.filter((photo) => photo.state === 'saved').length
+  const uploadingCount = localOnly.filter((photo) => photo.state === 'uploading').length
+  const failedCount = localOnly.filter((photo) => photo.state === 'failed').length
+  const summary = [processingCount && `${processingCount} в разборе`, waitingCount && `${waitingCount} ${waitingCount === 1 ? 'ждёт' : 'ждут'} проверки`, uploadingCount && `${uploadingCount} загружается`, failedCount && `${failedCount} не загрузилось`].filter(Boolean).join(' · ')
   const selectedUpload = visibleUploads.find((upload) => upload.id === selectedId)
   const selectedLocal = localOnly.find((photo) => `${studentToken}:${photo.id}` === selectedId)
   async function deletePhoto(id: string) {
@@ -68,15 +84,13 @@ function PhotoStrip({ taskTitle, studentToken, uploads, localPhotos, review, onR
     }
   }
   return <div className="day-upload-list" aria-label={`Фото задания «${taskTitle}»`}>
-    <strong>Фото работы</strong>
+    <div className="day-upload-head"><strong>Фото работы</strong><span>Проверено {reviewedCount} из {photoCount}</span></div>
     <div className="day-upload-strip">
       {visibleUploads.map((upload, index) => {
-        const belongsToReview = review?.uploadIds?.includes(upload.id.split(':').at(-1) ?? '')
-        const tone = belongsToReview && review?.status ? reviewTone(review) : 'neutral'
         const processing = activeProcessing(review, [upload])
-        const status = upload.status === 'pending' ? processing?.phase === 'paused' ? 'Проверка приостановлена' : processing ? 'Идёт проверка' : 'Ждёт разбора' : tone === 'success' ? 'Всё верно' : tone === 'partial' ? 'Частично верно' : tone === 'error' ? 'Есть ошибки' : 'Фото проверено'
-        const indicator = upload.status === 'pending' ? processing && processing.phase !== 'paused' ? 'processing' : 'waiting' : tone
-        return <button className="day-upload-chip" type="button" key={upload.id} title={`${upload.origin === 'archive' ? 'Ранее загруженная работа' : `Фото ${index + 1}`} · ${status}`} aria-label={`Открыть фото ${index + 1}: ${status}`} aria-expanded={selectedId === upload.id} onClick={() => setSelectedId(selectedId === upload.id ? null : upload.id)}><WorkPhoto upload={upload} title={taskTitle} index={index} compact /><span className={`day-upload-indicator ${indicator}`}>{indicator === 'processing' ? <LoaderCircle size={10} aria-hidden="true" /> : indicator === 'waiting' ? <Clock3 size={10} aria-hidden="true" /> : indicator === 'success' ? <CheckCircle2 size={10} aria-hidden="true" /> : indicator === 'partial' ? <CircleAlert size={10} aria-hidden="true" /> : indicator === 'error' ? <X size={10} aria-hidden="true" /> : <CheckCircle2 size={10} aria-hidden="true" />}</span></button>
+        const status = upload.status === 'reviewed' ? 'Проверено' : processing?.phase === 'paused' ? 'Проверка приостановлена' : processing ? 'Идёт разбор' : 'Ждёт проверки'
+        const indicator = upload.status === 'reviewed' ? 'reviewed' : processing && processing.phase !== 'paused' ? 'processing' : 'waiting'
+        return <button className="day-upload-chip" type="button" key={upload.id} title={`${upload.origin === 'archive' ? 'Ранее загруженная работа' : `Фото ${index + 1}`} · ${status}`} aria-label={`Открыть фото ${index + 1}: ${status}`} aria-expanded={selectedId === upload.id} onClick={() => setSelectedId(selectedId === upload.id ? null : upload.id)}><WorkPhoto upload={upload} title={taskTitle} index={index} compact /><span className={`day-upload-indicator ${indicator}`}>{indicator === 'processing' ? <LoaderCircle size={10} aria-hidden="true" /> : indicator === 'waiting' ? <Clock3 size={10} aria-hidden="true" /> : <CheckCircle2 size={10} aria-hidden="true" />}</span></button>
       })}
       {localOnly.map((photo, index) => {
         const id = `${studentToken}:${photo.id}`
@@ -84,6 +98,8 @@ function PhotoStrip({ taskTitle, studentToken, uploads, localPhotos, review, onR
         return <button className="day-upload-chip" type="button" key={photo.id} title={`Фото ${visibleUploads.length + index + 1} · ${status}`} aria-label={`Открыть фото ${visibleUploads.length + index + 1}: ${status}`} aria-expanded={selectedId === id} onClick={() => setSelectedId(selectedId === id ? null : id)}><img src={photo.previewUrl} alt="" /><span className={`day-upload-indicator ${photo.state}`}>{photo.state === 'failed' ? <CircleAlert size={10} aria-hidden="true" /> : photo.state === 'uploading' || photo.state === 'deleting' ? <LoaderCircle size={10} aria-hidden="true" /> : <Clock3 size={10} aria-hidden="true" />}</span></button>
       })}
     </div>
+    <div className="day-upload-progress" role="progressbar" aria-label="Проверенные фотографии" aria-valuemin={0} aria-valuemax={photoCount} aria-valuenow={reviewedCount}><span style={{ width: `${reviewedCount / photoCount * 100}%` }} /></div>
+    {summary && <small className="day-upload-summary">{summary}</small>}
     {(selectedUpload || selectedLocal) && <div className="day-upload-expanded"><button className="day-upload-close" type="button" aria-label="Закрыть фото" onClick={() => setSelectedId(null)}><X size={17} aria-hidden="true" /></button>
       {selectedUpload ? <><WorkPhoto upload={selectedUpload} title={taskTitle} index={visibleUploads.indexOf(selectedUpload)} /><p>{selectedUpload.status === 'reviewed' ? 'Разбор этого задания показан в блоке «Проверка работы».' : activeProcessing(review, [selectedUpload]) ? 'Сейчас проверяем фото.' : 'Фото ждёт разбора.'} {selectedUpload.storage?.state === 'stored' ? 'Файл на Яндекс.Диске.' : 'Перенос на Яндекс.Диск ещё не выполнен.'}</p>{selectedUpload.storage?.publicUrl && <a className="day-upload-original" href={selectedUpload.storage.publicUrl} target="_blank" rel="noopener noreferrer">Открыть на Яндекс.Диске <ExternalLink size={13} aria-hidden="true" /></a>}</>
         : selectedLocal && <><img src={selectedLocal.previewUrl} alt={`Новое фото по заданию «${taskTitle}»`} /><p>{selectedLocal.state === 'failed' ? selectedLocal.error ?? 'Не удалось загрузить фото.' : selectedLocal.state === 'saved' ? 'Фото сохранено и ждёт разбора.' : selectedLocal.state === 'deleting' ? 'Удаляем фото…' : 'Фото загружается…'}</p>{selectedLocal.state === 'failed' && removingId !== selectedId && <button type="button" className="day-upload-retry" onClick={() => onRetry(selectedLocal)}><RotateCcw size={14} aria-hidden="true" /> Повторить</button>}</>}
@@ -193,9 +209,10 @@ function GradeBadge({ summary, details, threshold, asOf }: { summary?: GradeSumm
 /**
  * Показывает план дня и связывает задания с фото, материалами и тестами.
  * @see ../docs/product/day-page.md#day-page
+ * @see ../docs/product/day-page.md#day-navigation
  * @see ../docs/product/access-and-state.md#state
  */
-export default function DayPage({ token, parent }: { token: string; parent: boolean }) {
+export default function DayPage({ token, parent, headerReturnTarget }: { token: string; parent: boolean; headerReturnTarget: HTMLElement | null }) {
   /** @see ../docs/product/dashboard.md#day-navigation */
   const [requestedView] = useState(() => {
     const query = new URLSearchParams(window.location.search).get('tab')
@@ -370,8 +387,8 @@ export default function DayPage({ token, parent }: { token: string; parent: bool
   const currentAdded = lastChange?.added.filter((id) => currentTaskIds.has(id)) ?? []
   const currentChanged = lastChange?.changed.filter((id) => currentTaskIds.has(id)) ?? []
 
-  return <div className={`day-page ${parent ? 'day-parent' : 'day-student'}`}>
-    <a className="day-return" href={returnToDashboard || '#/'}>← На главную</a>
+  return <>{headerReturnTarget && createPortal(<a className="day-return day-return-header" href={returnToDashboard || '#/'}>← На главную</a>, headerReturnTarget)}<div className={`day-page ${parent ? 'day-parent' : 'day-student'}`}>
+    <a className="day-return day-return-content" href={returnToDashboard || '#/'}>← На главную</a>
     <section className="day-hero">
       <div className="day-kicker">{parent ? 'Панель родителя' : 'Мой план'} · {shortDate(page.date)}</div>
       <h1>{parent ? 'Что требует внимания' : 'Сегодня справимся 👋'}</h1>
@@ -484,5 +501,5 @@ export default function DayPage({ token, parent }: { token: string; parent: bool
       {noSpecialHomework && <p className="day-no-homework">Спецкурс по математике: в МЭШ на {dayMonth(page.targetDate)} домашнее задание не указано.</p>}
     </>}
     <footer className="day-footer"><Clock3 size={15} /> МЭШ: снимок {new Date(page.meshFetchedAt).toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' })}. Работы и тесты обновляются при открытой странице.</footer>
-  </div>
+  </div></>
 }

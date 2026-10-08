@@ -66,13 +66,15 @@ function wordForm(count: number, one: string, few: string, many: string): string
   return many
 }
 
-function Shell({ children }: { children: React.ReactNode }) {
+/** @see ../docs/product/day-page.md#day-navigation */
+function Shell({ children, dayRoute = false, onHeaderTarget }: { children: React.ReactNode; dayRoute?: boolean; onHeaderTarget: (target: HTMLDivElement | null) => void }) {
   return (
-    <div className="app-shell">
+    <div className={`app-shell${dayRoute ? ' day-route' : ''}`}>
       <PwaUpdateNotice />
       <PwaConnectionNotice />
       <header className="site-header">
         <a className="brand" href="#/" aria-label="Education — на главную"><span className="brand-mark">✳</span><span className="brand-long">Учусь и проверяю</span><span className="brand-short">Education</span></a>
+        <div id="day-header-return" ref={onHeaderTarget} />
         <div className="header-actions"><span className="header-note">Маленькие шаги. Большой прогресс.</span><PwaInstallButton /></div>
       </header>
       <main className="page-wrap">{children}</main>
@@ -609,12 +611,13 @@ function Home() {
  */
 function App() {
   const [route, setRoute] = useState<Route>(routeFromHash)
+  const [headerReturnTarget, setHeaderReturnTarget] = useState<HTMLDivElement | null>(null)
   useEffect(() => {
     const updateRoute = () => setRoute(routeFromHash())
     window.addEventListener('hashchange', updateRoute)
     return () => window.removeEventListener('hashchange', updateRoute)
   }, [])
-  return <Shell>{route.kind === 'test' ? <QuizRunner key={route.token} token={route.token} /> : route.kind === 'preview' ? <Preview token={route.token} /> : route.kind === 'dashboard' || route.kind === 'my' || route.kind === 'review' ? <Dashboard key={`${route.kind}-${route.token}`} token={route.token} parent={route.kind === 'review'} /> : route.kind === 'days' || route.kind === 'days-parent' ? <DayDashboard key={`${route.kind}-${route.token}`} token={route.token} parent={route.kind === 'days-parent'} /> : route.kind === 'day' || route.kind === 'day-parent' ? <DayPage key={`${route.kind}-${route.token}`} token={route.token} parent={route.kind === 'day-parent'} /> : route.kind === 'enter' ? <PersonalEntry key={route.token} initialLink={route.token} /> : <Home />}</Shell>
+  return <Shell dayRoute={route.kind === 'day' || route.kind === 'day-parent'} onHeaderTarget={setHeaderReturnTarget}>{route.kind === 'test' ? <QuizRunner key={route.token} token={route.token} /> : route.kind === 'preview' ? <Preview token={route.token} /> : route.kind === 'dashboard' || route.kind === 'my' || route.kind === 'review' ? <Dashboard key={`${route.kind}-${route.token}`} token={route.token} parent={route.kind === 'review'} /> : route.kind === 'days' || route.kind === 'days-parent' ? <DayDashboard key={`${route.kind}-${route.token}`} token={route.token} parent={route.kind === 'days-parent'} /> : route.kind === 'day' || route.kind === 'day-parent' ? <DayPage key={`${route.kind}-${route.token}`} token={route.token} parent={route.kind === 'day-parent'} headerReturnTarget={headerReturnTarget} /> : route.kind === 'enter' ? <PersonalEntry key={route.token} initialLink={route.token} /> : <Home />}</Shell>
 }
 
 export default App
