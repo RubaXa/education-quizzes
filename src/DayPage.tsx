@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import type { ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { BookOpen, Camera, CheckCircle2, ChevronDown, CircleAlert, Clock3, ExternalLink, LoaderCircle, RotateCcw, Trash2, X } from 'lucide-react'
 import { removePendingDayPhoto, uploadDayPhoto, watchDayPage, watchDayReviews, watchDayUploads, watchMaterialPages } from '@/lib/dayStore'
@@ -143,22 +142,25 @@ function quizChain(root: TestItem | undefined, tests: TestItem[]): TestItem[] {
 }
 
 /** @see ../docs/product/day-page.md#quiz-lineage */
-function QuizAction({ test, parent, active = false }: { test: TestItem; parent: boolean; active?: boolean }) {
-  const href = parent && test.status !== 'submitted' && test.previewToken ? `#/preview/${test.slug}~${test.previewToken}` : `#/t/${test.slug}~${test.token}`
-  const label = parent ? test.status === 'submitted' ? 'Посмотреть результат' : 'Посмотреть вопросы' : test.status === 'submitted' ? 'Посмотреть результат' : test.answered ? 'Продолжить тест' : 'Пройти тест'
-  return <article className={`day-task day-quiz-task ${active ? 'day-quiz-active' : ''} ${test.status === 'submitted' ? 'done' : ''}`}>
-    <div className="day-task-row"><span className={`day-task-state ${test.status === 'submitted' ? 'verified' : ''}`}>{test.status === 'submitted' ? 'Тест завершён' : test.answered ? 'Тест в процессе' : 'Новый тест'}</span><span className="day-task-type">Самопроверка Education</span></div>
-    <h3>{test.title}</h3>{test.description && <p>{test.description}</p>}
-    <TestProgress test={test} /><a className="day-quiz-link" href={href}>{label} <ExternalLink size={15} aria-hidden="true" /></a>
-  </article>
-}
-
-/** @see ../docs/product/day-page.md#quiz-lineage */
-function QuizHistory({ tests, children }: { tests: TestItem[]; children?: ReactNode }) {
-  const graded = tests.filter((test) => test.status === 'submitted' && test.points != null && test.maxPoints != null)
+function QuizLineageCard({ chain, parent, task, materialLinks = [] }: { chain: TestItem[]; parent: boolean; task?: DayTask; materialLinks?: DayMaterialLink[] }) {
+  const latest = chain[chain.length - 1]
+  const earlier = chain.slice(0, -1)
+  const graded = earlier.filter((test) => test.status === 'submitted' && test.points != null && test.maxPoints != null)
   const points = graded.reduce((sum, test) => sum + (test.points ?? 0), 0)
   const max = graded.reduce((sum, test) => sum + (test.maxPoints ?? 0), 0)
-  return <details className="day-quiz-history"><summary><span><strong>Предыдущие тесты</strong><small>{tests.length} {tests.length === 1 ? 'тест' : tests.length < 5 ? 'теста' : 'тестов'}{max ? ` · ${points} из ${max} баллов` : ''}</small></span>{max > 0 && <span className="day-quiz-history-score" aria-label={`${Math.round(points / max * 100)} процентов набранных баллов`}><i style={{ width: `${Math.round(points / max * 100)}%` }} />{Math.round(points / max * 100)}%</span>}<ChevronDown size={18} aria-hidden="true" /></summary><div className="day-quiz-history-body">{children}{tests.slice(children ? 1 : 0).map((test) => <div className="day-quiz-history-row" key={test.token}><strong>{test.title}</strong><span>{test.status === 'submitted' ? test.points == null ? 'Отправлен · балл уточняется' : `${test.points} из ${test.maxPoints} баллов` : 'Не завершён'}</span><a href={`#/t/${test.slug}~${test.token}`}>Посмотреть результат <ExternalLink size={13} aria-hidden="true" /></a></div>)}</div></details>
+  const href = parent && latest.status !== 'submitted' && latest.previewToken ? `#/preview/${latest.slug}~${latest.previewToken}` : `#/t/${latest.slug}~${latest.token}`
+  const label = parent ? latest.status === 'submitted' ? 'Посмотреть результат' : 'Посмотреть вопросы' : latest.status === 'submitted' ? 'Посмотреть результат' : latest.answered ? 'Продолжить повторный тест' : 'Пройти повторный тест'
+  const context = task?.title.match(/Упр\.\s*\d+/i)?.[0] ?? task?.title ?? 'Самопроверка'
+  const readerLinks = materialLinks.filter(canReadInside)
+  const otherLinks = materialLinks.filter((link) => !canReadInside(link))
+  return <section className="day-quiz-lineage" aria-label={`Самопроверки: ${context}`}>
+    <div className="day-quiz-lineage-head"><strong>Самопроверка по {context.toLowerCase()}</strong><span>Продолжение</span></div>
+    <div className="day-quiz-lineage-current"><small>{latest.status === 'submitted' ? latest.points == null ? 'Последний тест · результат загружается' : `Последний тест · ${latest.points} из ${latest.maxPoints} баллов` : latest.answered ? 'Сейчас · в процессе' : 'Сейчас · закрепляем ошибку'}</small><h3>{latest.title}</h3>{latest.description && <p>{latest.description}</p>}
+      <div className="day-quiz-lineage-actions">{max > 0 && <span>Предыдущее: {points}/{max}</span>}<a className="day-quiz-link" href={href}>{label} <ExternalLink size={15} aria-hidden="true" /></a></div>
+      {task && <details className="day-quiz-materials"><summary>Условие и страницы учебника <ChevronDown size={15} aria-hidden="true" /></summary><div><p>{task.detail}</p>{!!task.steps?.length && <ol className="day-task-steps">{task.steps.map((step, index) => <Instruction key={index} item={step} index={index} />)}</ol>}{readerLinks.length > 0 && <MaterialReader links={readerLinks} parent={parent} />}{otherLinks.map((link) => <a key={link.url} href={link.url} target="_blank" rel="noopener noreferrer">{link.title} <ExternalLink size={13} aria-hidden="true" /></a>)}</div></details>}
+    </div>
+    <details className="day-quiz-history"><summary><span><strong>Предыдущие тесты</strong><small>{earlier.length} {earlier.length === 1 ? 'тест' : earlier.length < 5 ? 'теста' : 'тестов'}{max ? ` · ${points} из ${max} баллов` : ''}</small></span>{max > 0 && <span className={`day-quiz-history-score ${points === max ? 'complete' : ''}`} aria-label={`${Math.round(points / max * 100)} процентов набранных баллов`}><i style={{ width: `${Math.round(points / max * 100)}%` }} />{Math.round(points / max * 100)}%</span>}<ChevronDown size={18} aria-hidden="true" /></summary><div className="day-quiz-history-body">{earlier.map((test) => <div className="day-quiz-history-row" key={test.token}><strong>{test.title}</strong><span>{test.status === 'submitted' ? test.points == null ? 'Отправлен · балл уточняется' : `${test.points} из ${test.maxPoints} баллов` : 'Не завершён'}</span><a href={parent && test.status !== 'submitted' && test.previewToken ? `#/preview/${test.slug}~${test.previewToken}` : `#/t/${test.slug}~${test.token}`}>{test.status === 'submitted' ? 'Посмотреть результат' : 'Посмотреть вопросы'} <ExternalLink size={13} aria-hidden="true" /></a></div>)}</div></details>
+  </section>
 }
 
 /** @see ../docs/product/day-page.md#instruction-provenance */
@@ -464,8 +466,16 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
             <GradeBadge summary={summary} details={grade} threshold={page.workingThreshold} asOf={page.gradeAsOf} /></div>
           <div className="day-subject-content"><p className="day-subject-summary">{subject.summary}</p>
             {parent && <details className="day-mesh"><summary>Как записано в МЭШ</summary><p>{subject.mesh}</p></details>}
-            <div className="day-task-list">{lineages.map(({ placement, chain }) => <QuizAction key={`active-${placement.token}`} test={chain[chain.length - 1]} parent={parent} active />)}
+            <div className="day-task-list">{lineages.map(({ placement, chain }) => {
+              const task = subject.tasks.find((item) => item.testToken === placement.token)
+              const materialLinks = task ? [...new Map([
+                ...(page.materialLinks?.[task.id] ?? []),
+                ...(page.taskPageRefs?.[task.id] ?? []).map((ref) => catalogPages[ref]).filter((link): link is DayMaterialLink => Boolean(link)),
+              ].map((link) => [link.sourceRef || link.url, link])).values()] : []
+              return <QuizLineageCard key={`lineage-${placement.token}`} chain={chain} parent={parent} task={task} materialLinks={materialLinks} />
+            })}
             {subject.tasks.map((task) => {
+              if (task.testToken && lineageByToken.has(task.testToken)) return null
               const taskLinks = [...new Map([
                 ...(page.materialLinks?.[task.id] ?? []),
                 ...(page.taskPageRefs?.[task.id] ?? []).map((ref) => catalogPages[ref]).filter((link): link is DayMaterialLink => Boolean(link)),
@@ -525,13 +535,12 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
                 <PhotoStrip taskTitle={task.title} studentToken={studentToken} uploads={taskUploads} localPhotos={localTaskPhotos} review={review} onRetry={queuePhotoUpload} onDelete={deletePhoto} />
                 {parent && <small className="day-source"><BookOpen size={14} /> {task.source}</small>}
               </article>
-              const chain = task.testToken ? lineageByToken.get(task.testToken) : undefined
-              return chain ? <QuizHistory key={`history-${task.id}`} tests={chain.slice(0, -1)}>{taskCard}</QuizHistory> : taskCard
+              return taskCard
             })}
             {currentPlacements.filter((placement) => placement.subjectId === subject.id && !placement.taskId).map((placement) => {
               const test = tests.find((item) => item.token === placement.token)
               const chain = lineageByToken.get(placement.token)
-              if (chain) return <QuizHistory key={`history-${placement.token}`} tests={chain.slice(0, -1)} />
+              if (chain) return null
               return <article className={`day-task day-quiz-task ${test?.status === 'submitted' ? 'done' : ''}`} key={placement.token}>
                 <div className="day-task-row"><span className={`day-task-state ${test?.status === 'submitted' ? 'verified' : ''}`}>{test?.status === 'submitted' ? 'Тест завершён' : test?.answered ? 'Тест в процессе' : 'Тест не пройден'}</span><span className="day-task-type">Самопроверка</span></div>
                 <h3>{test?.title ?? 'Загружаем тест…'}</h3>
