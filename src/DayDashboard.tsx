@@ -66,7 +66,11 @@ function homeworkProgress(tasks: DayTask[], uploads: DayUpload[], reviews: DayWo
   const results = tasks.map((task) => ({ task, review: reviews.find((item) => item.taskId === task.id) }))
     .filter((entry): entry is { task: DayTask; review: DayWorkReview } => Boolean(entry.review?.status))
   const state = tasks.map((task) => taskState(task, uploads, reviews, tests, now)).join(' · ')
-  const evidence = photos.length ? `${photos.length} фото загружено · ${pending ? `${pending} ${pending === 1 ? 'ждёт' : 'ждут'} проверки` : `${checked} проверено`}` : ''
+  const evidence = photos.length ? [
+    `${photos.length} фото загружено`,
+    ...(pending ? [`${pending} ${pending === 1 ? 'ждёт' : 'ждут'} проверки`] : []),
+    ...(checked ? [`${checked} проверено`] : []),
+  ].join(' · ') : ''
   const outcomes = results.map(({ task, review }) => ({
     label: `${tasks.length > 1 ? `${task.title}: ` : ''}${photos.some((photo) => photo.taskId === task.id && photo.status === 'pending') ? 'Ранее: ' : ''}${reviewHeadline(review)}`,
     tone: reviewTone(review),
