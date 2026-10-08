@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Check, ClipboardPaste, Copy, KeyRound } from 'lucide-react'
 import { Button } from './ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card'
@@ -32,6 +32,7 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
   const [copied, setCopied] = useState(false)
   const [selectedChild, setSelectedChild] = useState<string | null>(null)
   const [manualEntry, setManualEntry] = useState(false)
+  const manualInput = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     const reconnect = () => { setOnline(true); if (!profile) setRetry((value) => value + 1) }
@@ -86,12 +87,28 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
     void openLink(link)
   }
 
+  const showNativePaste = () => {
+    setManualEntry(true)
+    // Safari does not grant persistent clipboard-read permission. Its native
+    // Paste action on an editable field is the reliable fallback on iPhone.
+    window.setTimeout(() => manualInput.current?.focus(), 0)
+  }
+
+  const pasteLink = (event: React.ClipboardEvent<HTMLInputElement>) => {
+    const pasted = event.clipboardData.getData('text/plain')
+    if (!pasted) return
+    event.preventDefault()
+    setLink(pasted)
+    void openLink(pasted)
+  }
+
   const openFromClipboard = async () => {
     setError('')
     setBusy(true)
     try {
       if (!navigator.clipboard?.readText) {
-        setError('Этот браузер не разрешает прочитать буфер. Нажмите «Вставить вручную» и выберите «Вставить».')
+        showNativePaste()
+        setError('iPhone не разрешил чтение буфера кнопкой. Нажмите «Вставить» в открывшемся поле — ссылка проверится сразу.')
         return
       }
       const text = await navigator.clipboard.readText()
@@ -101,7 +118,8 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
       }
       await openLink(text)
     } catch {
-      setError('Не удалось прочитать буфер обмена. Разрешите вставку или нажмите «Вставить вручную».')
+      showNativePaste()
+      setError('iPhone не разрешил чтение буфера кнопкой. Нажмите «Вставить» в открывшемся поле — ссылка проверится сразу.')
     } finally { setBusy(false) }
   }
 
@@ -139,9 +157,9 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
     </CardHeader>
     <CardContent>
       <Button type="button" className="personal-clipboard-button" disabled={busy} onClick={() => void openFromClipboard()}><ClipboardPaste />{busy ? 'Открываем…' : 'Войти по ссылке из буфера'}</Button>
-      <button type="button" className="personal-manual-toggle" onClick={() => setManualEntry((value) => !value)} aria-expanded={manualEntry}>{manualEntry ? 'Скрыть ручной ввод' : 'Вставить вручную'}</button>
+      <button type="button" className="personal-manual-toggle" onClick={() => { if (manualEntry) setManualEntry(false); else showNativePaste() }} aria-expanded={manualEntry}>{manualEntry ? 'Скрыть ручной ввод' : 'Вставить вручную'}</button>
       {manualEntry && <form onSubmit={submit} className="personal-login-form">
-        <Input aria-label="Личная ссылка Education" autoComplete="off" placeholder="https://…/#/enter/…" value={link} onChange={(event) => { setLink(event.target.value); setError('') }} />
+        <Input ref={manualInput} aria-label="Личная ссылка Education" autoComplete="off" placeholder="https://…/#/enter/…" value={link} onPaste={pasteLink} onChange={(event) => { setLink(event.target.value); setError('') }} />
         <Button type="submit" disabled={busy || !link.trim()}>{busy ? 'Открываем…' : 'Войти'}</Button>
       </form>}
       {busy && !link && <p className="text-muted-foreground">Проверяем доступ…</p>}

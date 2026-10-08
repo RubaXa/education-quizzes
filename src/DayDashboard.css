@@ -1,9 +1,10 @@
-.day-dashboard{max-width:1060px;margin:auto;color:#34295c}
+.day-dashboard{width:100%;min-width:0;max-width:100%;margin:auto;color:#34295c}
 .day-dashboard *{box-sizing:border-box}
+.day-dashboard>*,.day-dashboard-grid>*,.day-dashboard-side>*{min-width:0;max-width:100%}
 .day-dashboard-hero{border-radius:28px;background:linear-gradient(115deg,#493888,#765db4 70%,#9b84d0);color:white;padding:30px 34px;box-shadow:0 16px 40px #59478523}
 .day-dashboard-kicker{font-size:.78rem;font-weight:850;letter-spacing:.08em;text-transform:uppercase;color:#e9deff}
 .day-dashboard-hero h1{margin:8px 0;font-size:clamp(2rem,5vw,3rem);font-weight:850;letter-spacing:-.05em;line-height:1.1}
-.day-dashboard-hero p{margin:0;max-width:62ch;color:#f1eaff;line-height:1.55}
+.day-dashboard-hero p{margin:0;max-width:62ch;color:#f1eaff;line-height:1.55;overflow-wrap:anywhere}
 .day-dashboard-hero button{display:inline-flex;align-items:center;gap:8px;margin-top:20px;border:0;border-radius:999px;background:white;color:#493888;padding:10px 16px;font-weight:850;cursor:pointer}
 .day-dashboard-calendar,.day-dashboard-card{border:1px solid #e4ddef;border-radius:23px;background:#fff;box-shadow:0 10px 28px #3f306c0b}
 .day-dashboard-calendar{margin-top:22px;padding:19px}
@@ -11,7 +12,7 @@
 .day-dashboard-heading>div{display:flex;align-items:center;gap:8px;color:#6349a0}
 .day-dashboard-heading h2{margin:0;color:#34295c;font-size:1.3rem;font-weight:850;letter-spacing:-.035em}
 .day-dashboard-heading small{color:#817791;font-size:.78rem;text-align:right}
-.day-dashboard-dates{display:flex;gap:8px;overflow-x:auto;scrollbar-color:#cbbde2 transparent;overscroll-behavior-x:contain;padding:3px 3px 12px;-webkit-overflow-scrolling:touch}
+.day-dashboard-dates{display:flex;width:100%;min-width:0;max-width:100%;gap:8px;overflow-x:auto;scrollbar-color:#cbbde2 transparent;overscroll-behavior-x:contain;padding:3px 3px 12px;-webkit-overflow-scrolling:touch}
 .day-dashboard-date{flex:0 0 68px;min-height:76px;border:1px solid #e5deee;border-radius:15px;background:#fff;color:#655778;padding:8px 4px;text-align:center;cursor:pointer}
 .day-dashboard-date span,.day-dashboard-date small{display:block;font-size:.72rem;font-weight:750}
 .day-dashboard-date strong{display:block;margin:2px 0;font-size:1.3rem;line-height:1.15}
@@ -24,11 +25,11 @@
 .day-dashboard-selected>div{display:flex;justify-content:space-between;gap:10px;align-items:center}
 .day-dashboard-selected>div strong{text-transform:capitalize}
 .day-dashboard-selected>div button{border:0;background:transparent;color:#594587;font-size:1.5rem;cursor:pointer}
-.day-dashboard-selected p,.day-dashboard-selected li{color:#685d7b;font-size:.88rem;line-height:1.5}
+.day-dashboard-selected p,.day-dashboard-selected li{color:#685d7b;font-size:.88rem;line-height:1.5;overflow-wrap:anywhere}
 .day-dashboard-selected ul{margin:10px 0;padding-left:20px}
 .day-dashboard-selected h3{font-size:1rem;margin:15px 0 7px}
 .day-dashboard-unprepared{margin-bottom:0;font-weight:700}
-.day-dashboard-grid{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:18px;margin-top:20px;align-items:start}
+.day-dashboard-grid{display:grid;min-width:0;grid-template-columns:minmax(0,1fr) 290px;gap:18px;margin-top:20px;align-items:start}
 .day-dashboard-card{padding:20px}
 .day-dashboard-card p{margin:7px 0;color:#6c617d;font-size:.9rem;line-height:1.55}
 .day-dashboard-card small{color:#8a7f97;font-size:.73rem;line-height:1.45}
@@ -39,7 +40,7 @@
 .day-dashboard-subjects button:hover{background:#faf8fe}
 .day-dashboard-subjects button>span:nth-child(2){min-width:0}
 .day-dashboard-subjects strong,.day-dashboard-subjects small{display:block}
-.day-dashboard-subjects strong{font-size:.96rem}
+.day-dashboard-subjects strong{font-size:.96rem;overflow-wrap:anywhere}
 .day-dashboard-subjects small{margin-top:3px;color:#786e88}
 .day-dashboard-icon{display:grid;place-items:center;width:39px;height:39px;border-radius:12px;background:#f4edfc;font-size:1.1rem}
 .day-dashboard-mesh p{border-top:1px solid #eee9f3;padding:11px 0}

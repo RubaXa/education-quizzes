@@ -62,12 +62,14 @@ body {
 .header-actions{display:flex;align-items:center;gap:12px}
 
 .page-wrap {
+  box-sizing: border-box;
   width: min(100% - 2rem, 920px);
+  min-width: 0;
   margin: 1.5rem auto 0;
   padding-bottom: calc(5rem + env(safe-area-inset-bottom));
 }
 
-.personal-entry{display:grid;gap:1.5rem}
+.personal-entry{display:grid;grid-template-columns:minmax(0,1fr);gap:1.5rem;min-width:0;max-width:100%}
 .personal-entry-hero{display:flex;align-items:center;gap:1rem;padding:1.5rem;border-radius:1.5rem;background:#eee9fb;color:#30245b}
 .personal-entry-hero h1{margin:0;font-size:clamp(1.5rem,4vw,2rem);font-weight:800}
 .personal-entry-hero p{margin:.25rem 0 0;color:#70698b}
