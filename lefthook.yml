@@ -6,6 +6,8 @@ pre-commit:
     lint:
       glob: '*.{js,mjs,ts,tsx,css,json}'
       run: npm run lint
+    privacy:
+      run: node scripts/check-privacy.mjs
 
 commit-msg:
   commands:
@@ -14,6 +16,8 @@ commit-msg:
 
 pre-push:
   commands:
+    privacy-history:
+      run: node scripts/check-privacy.mjs --history
     check:
       glob: '*.{js,mjs,ts,tsx,css,json,yml,yaml}'
       run: npm run check

@@ -15,7 +15,11 @@
     "check": "npm run lint && npm run test && npm run build",
     "prepare": "lefthook install",
     "preview": "vite preview",
-    "quiz": "node scripts/quiz.mjs"
+    "quiz": "node scripts/quiz.mjs",
+    "day": "node scripts/day.mjs",
+    "storage": "node scripts/storage.mjs",
+    "archive:local": "node scripts/archive-local.mjs",
+    "diary": "node diary/cli.mjs"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.3.0",
@@ -26,6 +30,7 @@
     "cn": "^0.4.0",
     "firebase": "^12.19.0",
     "lucide-react": "^1.52.0",
+    "mesh-diary": "github:voenniy/mesh-diary#319c44ff25a156dacd3afdf2773959db31ca29dc",
     "radix-ui": "^1.7.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",

@@ -15,9 +15,10 @@ import { buildFollowUpPrompt } from '@/lib/followup'
 import { WriteQueue } from '@/lib/writeQueue'
 import type { Answer, AnswerKey, Assignment, ManualReview, QuizQuestion, QuestionResult } from '@/lib/quiz'
 import type { BoardDetails } from '@/lib/store'
+import DayPage from './DayPage'
 import './App.css'
 
-type Route = { kind: 'test' | 'preview' | 'dashboard' | 'my' | 'review'; token: string } | { kind: 'home' }
+type Route = { kind: 'test' | 'preview' | 'dashboard' | 'my' | 'review' | 'day' | 'day-parent'; token: string } | { kind: 'home' }
 
 const storeModule = () => import('@/lib/store')
 const loadPreview = async (token: string) => (await storeModule()).loadPreview(token)
@@ -30,10 +31,14 @@ const markViewed = async (boardToken: string, assignmentToken: string) => (await
 const saveDraft = async (token: string, changedAnswers: Record<string, Answer>) => (await storeModule()).saveDraft(token, changedAnswers)
 const submitAssignment = async (token: string) => (await storeModule()).submitAssignment(token)
 
+/**
+ * Выбирает страницу и представление по ссылке с отдельным токеном доступа.
+ * @see ../docs/product/access-and-state.md#routes
+ */
 function routeFromHash(): Route {
   const [, kind, raw = ''] = location.hash.split('/')
   const token = raw.includes('~') ? raw.slice(raw.lastIndexOf('~') + 1) : raw
-  if ((kind === 't' || kind === 'preview' || kind === 'dashboard' || kind === 'my' || kind === 'review') && token) {
+  if ((kind === 't' || kind === 'preview' || kind === 'dashboard' || kind === 'my' || kind === 'review' || kind === 'day' || kind === 'day-parent') && token) {
     return { kind: kind === 't' ? 'test' : kind, token }
   }
   return { kind: 'home' }
@@ -79,6 +84,10 @@ function ErrorCard({ message, onRetry }: { message: string; onRetry?: () => void
   )
 }
 
+/**
+ * Показывает один вопрос и редактируемый ответ в назначенном тесте.
+ * @see ../docs/product/quizzes.md#quiz-runner
+ */
 function QuestionCard({
   question,
   index,
@@ -169,6 +178,10 @@ function answerText(question: QuizQuestion, answer?: Answer): string {
   return question.options?.find((option) => option.id === answer)?.label ?? answer
 }
 
+/**
+ * Показывает разбор отдельного вопроса после отправки теста.
+ * @see ../docs/product/quizzes.md#quiz-results
+ */
 function ResultCard({ result, index }: { result: QuestionResult; index: number }) {
   const wrong = result.points === 0
   const pending = result.points === null
@@ -225,6 +238,10 @@ function ResultCard({ result, index }: { result: QuestionResult; index: number }
   )
 }
 
+/**
+ * Собирает результат из ответов, ключа и доступной ручной проверки.
+ * @see ../docs/product/quizzes.md#quiz-results
+ */
 function ResultView({ assignment, token }: { assignment: Assignment; token: string }) {
   const [key, setKey] = useState<AnswerKey>()
   const [review, setReview] = useState<ManualReview>()
@@ -267,6 +284,11 @@ function ResultView({ assignment, token }: { assignment: Assignment; token: stri
   )
 }
 
+/**
+ * Ведёт попытку, последовательное сохранение ответов и отправку теста.
+ * @see ../docs/product/quizzes.md#quiz-runner
+ * @see ../docs/product/day-page.md#test-progress
+ */
 function QuizRunner({ token }: { token: string }) {
   const [assignment, setAssignment] = useState<Assignment>()
   const [answers, setAnswers] = useState<Record<string, Answer>>({})
@@ -375,6 +397,10 @@ function QuizRunner({ token }: { token: string }) {
   )
 }
 
+/**
+ * Показывает вопросы родителю без записи ответов и создания попытки.
+ * @see ../docs/product/quizzes.md#test-lists
+ */
 function Preview({ token }: { token: string }) {
   const [preview, setPreview] = useState<Awaited<ReturnType<typeof loadPreview>>>()
   const [error, setError] = useState('')
@@ -408,6 +434,10 @@ type BoardItem = {
   submittedAt: { seconds?: number } | null
 }
 
+/**
+ * Карточка назначения в ученическом или родительском списке тестов.
+ * @see ../docs/product/quizzes.md#test-lists
+ */
 function BoardCard({ item, parent = false, unread = false, copied = false, onCopy, onMarkViewed }: {
   item: BoardItem
   parent?: boolean
@@ -449,6 +479,10 @@ function BoardCard({ item, parent = false, unread = false, copied = false, onCop
   )
 }
 
+/**
+ * Живой список назначений и результатов для соответствующей ссылки.
+ * @see ../docs/product/quizzes.md#test-lists
+ */
 function Dashboard({ token, parent = false }: { token: string; parent?: boolean }) {
   const [items, setItems] = useState<BoardItem[]>()
   const [seen, setSeen] = useState<Set<string> | undefined>(parent ? undefined : new Set())
@@ -535,7 +569,7 @@ function Dashboard({ token, parent = false }: { token: string; parent?: boolean 
     <div className="space-y-6">
       <div className="intro-card">
         <Badge variant="secondary" className="bg-white/80">{parent ? 'Для родителя · только просмотр' : 'Личный список тестов'}</Badge>
-        <h1 className="text-3xl font-bold sm:text-5xl">{parent ? 'Результаты ученик' : 'Мои тесты'}</h1>
+        <h1 className="text-3xl font-bold sm:text-5xl">{parent ? 'Результаты ученика' : 'Мои тесты'}</h1>
         <p className="text-muted-foreground">{parent ? 'Новые результаты появляются сразу после отправки теста. Ответы и прогресс обновляются без перезагрузки.' : 'Здесь видно, что ещё предстоит сделать и сколько вопросов осталось. Открывай тест, когда будешь готов.'}</p>
         {items && <p className="font-medium">{parent ? seen ? `Новых результатов: ${newResults.length} · В работе: ${activeCount}` : 'Загружаем новые результаты…' : `Активных: ${activeCount} · Пройденных: ${completedCount}`}</p>}
       </div>
@@ -572,6 +606,10 @@ function Home() {
   )
 }
 
+/**
+ * Связывает страницы дня, теста, предпросмотра и списков в одном приложении.
+ * @see ../docs/product/access-and-state.md#routes
+ */
 function App() {
   const [route, setRoute] = useState<Route>(routeFromHash)
   useEffect(() => {
@@ -579,7 +617,7 @@ function App() {
     window.addEventListener('hashchange', updateRoute)
     return () => window.removeEventListener('hashchange', updateRoute)
   }, [])
-  return <Shell>{route.kind === 'test' ? <QuizRunner key={route.token} token={route.token} /> : route.kind === 'preview' ? <Preview token={route.token} /> : route.kind === 'dashboard' || route.kind === 'my' || route.kind === 'review' ? <Dashboard key={`${route.kind}-${route.token}`} token={route.token} parent={route.kind === 'review'} /> : <Home />}</Shell>
+  return <Shell>{route.kind === 'test' ? <QuizRunner key={route.token} token={route.token} /> : route.kind === 'preview' ? <Preview token={route.token} /> : route.kind === 'dashboard' || route.kind === 'my' || route.kind === 'review' ? <Dashboard key={`${route.kind}-${route.token}`} token={route.token} parent={route.kind === 'review'} /> : route.kind === 'day' || route.kind === 'day-parent' ? <DayPage key={`${route.kind}-${route.token}`} token={route.token} parent={route.kind === 'day-parent'} /> : <Home />}</Shell>
 }
 
 export default App

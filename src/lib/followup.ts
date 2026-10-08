@@ -7,10 +7,10 @@ export type FollowUpSource = {
 
 export function buildFollowUpPrompt(item: FollowUpSource, site = 'https://rubaxa.github.io/education-quizzes/'): string {
   const resultUrl = `${site}#/t/${item.slug}~${item.token}`
-  return `Создай для ученик связанный онлайн-тест после работы «${item.title}» (${item.subject}).
+  return `Создай для ученика связанный онлайн-тест после работы «${item.title}» (${item.subject}).
 
 Результат: ${resultUrl}
-В проекте PETR используй skills/online-quiz/SKILL.md. Получи сохранённую попытку и ключ через Firebase API или командой из education-quizzes: npm run quiz -- export ${item.token} .local/follow-up-source.json. Не проси ученика переписывать ответы.
+В локальном учебном проекте используй skills/online-quiz/SKILL.md. Получи сохранённую попытку и ключ через Firebase API или командой из education-quizzes: npm run quiz -- export ${item.token} .local/follow-up-source.json. Не проси ученика переписывать ответы.
 
 Сначала отдели подтверждённые ошибки от верных ответов, пропусков и вопросов с ручной проверкой. Выдели правила и точные источники, на которые опирался разбор. Уровень самостоятельности считай неизвестным, если он не зафиксирован.
 

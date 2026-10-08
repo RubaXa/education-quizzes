@@ -13,6 +13,8 @@ dist-ssr
 *.local
 .local/
 service-account*.json
+# Textbook pages and work photos belong on Yandex Disk, never in either Git branch.
+public/materials/
 
 # Editor directories and files
 .vscode/*

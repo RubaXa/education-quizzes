@@ -8,6 +8,7 @@ const pagesDir = resolve('.local/pages')
 const distDir = resolve('dist')
 const buildMarker = resolve(pagesDir, '.build-inputs.sha256')
 const dryRun = process.argv.includes('--dry-run')
+const prepareOnly = process.argv.includes('--prepare-only')
 
 function git(...args) {
   return execFileSync('git', args, { cwd: pagesDir, stdio: 'inherit' })
@@ -46,6 +47,7 @@ if (dryRun) {
 
 execFileSync('npm', ['run', 'build'], { stdio: 'inherit' })
 if (!existsSync(resolve(distDir, 'index.html'))) throw new Error('Сборка не создала dist/index.html.')
+if (existsSync(resolve(distDir, 'materials'))) throw new Error('Сборка содержит страницы учебников: публикация остановлена.')
 
 for (const entry of readdirSync(pagesDir)) {
   if (entry !== '.git') rmSync(resolve(pagesDir, entry), { recursive: true, force: true })
@@ -60,6 +62,9 @@ git('add', '-A')
 const changed = execFileSync('git', ['diff', '--cached', '--name-only'], { cwd: pagesDir, encoding: 'utf8' }).trim()
 if (changed) {
   git('commit', '-m', 'Publish quiz site')
-  git('push', '-u', 'origin', 'gh-pages')
+  if (!prepareOnly) {
+    execFileSync('node', [resolve('scripts/check-privacy.mjs'), '--history'], { cwd: pagesDir, stdio: 'inherit' })
+    git('push', '-u', 'origin', 'gh-pages')
+  }
 }
-console.log('Сайт: https://rubaxa.github.io/education-quizzes/')
+console.log(prepareOnly ? 'Сборка сайта подготовлена локально; отправки в GitHub не было.' : 'Сайт: https://rubaxa.github.io/education-quizzes/')

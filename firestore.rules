@@ -59,6 +59,35 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    match /dayPages/{linkToken} {
+      allow get: if true;
+      allow list, write: if false;
+    }
+
+    match /dayProgress/{studentToken}/items/{taskId} {
+      allow get, list: if exists(/databases/$(database)/documents/dayPages/$(studentToken))
+        && get(/databases/$(database)/documents/dayPages/$(studentToken)).data.kind == 'student';
+      allow write: if false;
+    }
+
+    match /dayUploads/{studentToken}/files/{uploadId} {
+      allow get, list: if exists(/databases/$(database)/documents/dayPages/$(studentToken))
+        && get(/databases/$(database)/documents/dayPages/$(studentToken)).data.kind == 'student';
+      allow create: if exists(/databases/$(database)/documents/dayPages/$(studentToken))
+        && get(/databases/$(database)/documents/dayPages/$(studentToken)).data.kind == 'student'
+        && request.resource.data.keys().hasOnly(['taskId', 'dataUrl', 'originalName', 'status', 'createdAt'])
+        && request.resource.data.taskId is string
+        && request.resource.data.taskId in get(/databases/$(database)/documents/dayPages/$(studentToken)).data.taskIds
+        && request.resource.data.dataUrl is string
+        && request.resource.data.dataUrl.size() <= 750000
+        && request.resource.data.dataUrl.matches('data:image/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+')
+        && request.resource.data.originalName is string
+        && request.resource.data.originalName.size() <= 120
+        && request.resource.data.status == 'pending'
+        && request.resource.data.createdAt == request.time;
+      allow update, delete: if false;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

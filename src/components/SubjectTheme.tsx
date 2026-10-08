@@ -34,11 +34,19 @@ function SceneArt({ scene }: { scene: Scene }) {
   )
 }
 
+/**
+ * Применяет оформление предмета к прохождению и результату теста.
+ * @see ../../docs/product/quizzes.md#quiz-runner
+ */
 export function ThemeFrame({ subject, visual, children }: { subject: string; visual?: QuizVisual | null; children: ReactNode }) {
   const { preset, scene } = resolveVisual(subject, visual)
   return <div className="theme-frame" data-preset={preset} data-scene={scene}>{children}</div>
 }
 
+/**
+ * Показывает предмет, цель теста и признак родительского предпросмотра.
+ * @see ../../docs/product/quizzes.md#quiz-runner
+ */
 export function ThemeHero({ subject, visual, title, description, preview = false, children }: {
   subject: string
   visual?: QuizVisual | null
@@ -63,6 +71,10 @@ export function ThemeHero({ subject, visual, title, description, preview = false
   )
 }
 
+/**
+ * Показывает исходный текст перед вопросами теста на чтение.
+ * @see ../../docs/product/quizzes.md#quiz-runner
+ */
 export function ReadingCard({ reading }: { reading?: QuizReading | null }) {
   if (!reading) return null
   return (

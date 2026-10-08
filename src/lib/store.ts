@@ -31,6 +31,7 @@ export async function loadAssignment(token: string): Promise<Assignment> {
   return snapshot.data() as Assignment
 }
 
+/** @see ../../docs/product/quizzes.md#quiz-runner */
 export function watchAssignment(token: string, onChange: (assignment: Assignment) => void, onError: (error: Error) => void) {
   return onSnapshot(doc(db, 'assignments', token), (snapshot) => {
     if (!snapshot.exists()) { onError(new Error('Ссылка не найдена или была отозвана.')); return }
@@ -38,6 +39,7 @@ export function watchAssignment(token: string, onChange: (assignment: Assignment
   }, onError)
 }
 
+/** @see ../../docs/product/quizzes.md#quiz-runner */
 export async function saveDraft(token: string, changedAnswers: Record<string, Answer>) {
   const reference = doc(db, 'assignments', token)
   await runTransaction(db, async (transaction) => {
@@ -53,6 +55,7 @@ export async function saveDraft(token: string, changedAnswers: Record<string, An
   })
 }
 
+/** @see ../../docs/product/quizzes.md#quiz-runner */
 export async function submitAssignment(token: string) {
   const reference = doc(db, 'assignments', token)
   await runTransaction(db, async (transaction) => {
@@ -86,6 +89,7 @@ export async function loadReview(token: string): Promise<ManualReview | undefine
   return snapshot.exists() ? snapshot.data() as ManualReview : undefined
 }
 
+/** @see ../../docs/product/quizzes.md#quiz-results */
 export function watchReview(token: string, onChange: (review: ManualReview | undefined) => void, onError: (error: Error) => void) {
   return onSnapshot(doc(db, 'reviews', token), (snapshot) => {
     onChange(snapshot.exists() ? snapshot.data() as ManualReview : undefined)
@@ -127,6 +131,7 @@ export async function loadDashboard(token: string) {
   }))
 }
 
+/** @see ../../docs/product/quizzes.md#test-lists */
 export function watchDashboard(token: string, onChange: (items: Awaited<ReturnType<typeof loadDashboard>>) => void, onError: (error: Error) => void) {
   return onSnapshot(collection(db, 'dashboard', token, 'assignments'), (snapshot) => {
     onChange(snapshot.docs.map((item) => ({

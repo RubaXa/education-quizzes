@@ -262,6 +262,26 @@ async function list() {
   console.log(JSON.stringify(items, null, 2))
 }
 
+async function boardStatus() {
+  const board = learnerBoardToken()
+  const snapshot = await db.collection(`dashboard/${board}/assignments`).get()
+  const entries = await Promise.all(snapshot.docs.map(async (item) => {
+    const assignment = await db.doc(`assignments/${item.id}`).get()
+    const data = assignment.data() ?? {}
+    return {
+      position: item.data().position ?? null,
+      title: item.data().title ?? data.title ?? 'Без названия',
+      subject: item.data().subject ?? data.subject ?? null,
+      status: assignment.exists ? data.status : 'revoked',
+      answeredCount: data.answers && typeof data.answers === 'object' ? Object.keys(data.answers).length : 0,
+      totalQuestions: Array.isArray(data.questions) ? data.questions.length : 0,
+      submittedAt: data.submittedAt?.toDate?.()?.toISOString?.() ?? null,
+    }
+  }))
+  entries.sort((a, b) => (a.position ?? 9999) - (b.position ?? 9999))
+  console.log(JSON.stringify(entries, null, 2))
+}
+
 async function exportAttempt(learnerToken, outputPath) {
   if (!learnerToken || !outputPath) fail('Использование: npm run quiz -- export TOKEN путь/к/файлу.json')
   const [assignment, key, review] = await Promise.all([
@@ -295,9 +315,10 @@ try {
   } else if (command === 'create') await create(first)
   else if (command === 'board-add') await addToLearnerBoard(first)
   else if (command === 'list') await list()
+  else if (command === 'board-status') await boardStatus()
   else if (command === 'export') await exportAttempt(first, second)
   else if (command === 'review') await reviewAttempt(first, second)
-  else fail('Команды: validate SPEC.json | create SPEC.json | board-add MANIFEST.json | list | export TOKEN OUTPUT.json | review TOKEN REVIEW.json')
+  else fail('Команды: validate SPEC.json | create SPEC.json | board-add MANIFEST.json | board-status | list | export TOKEN OUTPUT.json | review TOKEN REVIEW.json')
 } catch (error) {
   console.error(error instanceof Error ? error.message : error)
   process.exitCode = 1
