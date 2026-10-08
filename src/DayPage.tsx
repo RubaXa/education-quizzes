@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { BookOpen, Camera, CheckCircle2, ChevronDown, Clock3, ExternalLink } from 'lucide-react'
 import { uploadDayPhoto, watchDayPage, watchDayUploads, watchMaterialPages } from '@/lib/dayStore'
-import type { DayMaterialLink, DayPageData, DayTask, DayUpload } from '@/lib/dayStore'
+import type { DayInstruction, DayMaterialLink, DayPageData, DayTask, DayUpload } from '@/lib/dayStore'
 import { loadAnswerKey, watchAssignment, watchDashboard } from '@/lib/store'
 import { grade } from '@/lib/quiz'
 import type { Assignment } from '@/lib/quiz'
@@ -52,6 +52,19 @@ function TestProgress({ test }: { test: TestItem }) {
       <span style={{ width: `${test.total ? answered / test.total * 100 : 0}%` }} />
     </div>
   </div>
+}
+
+/** @see ../docs/product/day-page.md#instruction-provenance */
+function Instruction({ item, index }: { item: DayInstruction; index: number }) {
+  const source = typeof item === 'string' ? undefined : item.source
+  const uncertain = !source || source.certainty === 'uncertain'
+  const text = typeof item === 'string' ? item : item.text
+  return <li><span>{text}</span>{' '}
+    <details className={`day-instruction-source${uncertain ? ' uncertain' : ''}`} open={uncertain}>
+      <summary title={`Откуда взят пункт ${index + 1}`} aria-label={`Откуда взят пункт ${index + 1}`}>?</summary>
+      <span className="day-instruction-source-body">{source ? <><b>{source.label}</b><span>{source.evidence}</span>{source.ref && <small>{source.ref}</small>}{uncertain && <em>Это не подтверждённое требование учителя.</em>}</> : <><b>Источник не указан</b><span>Не считай это дополнительным требованием учителя, пока источник не сверят.</span></>}</span>
+    </details>
+  </li>
 }
 
 function shortDate(date: string) { return new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long', weekday: 'long', timeZone: 'Europe/Moscow' }).format(new Date(`${date}T12:00:00+03:00`)) }
@@ -318,7 +331,7 @@ export default function DayPage({ token, parent }: { token: string; parent: bool
               return <article className={`day-task ${verified ? 'done' : submitted ? 'submitted' : ''}`} key={task.id}>
                 <div className="day-task-row"><span className={`day-task-state ${verified ? 'verified' : submitted ? 'partial' : task.status}`}>{verified && <CheckCircle2 size={15} aria-hidden="true" />} {state}</span>{task.kind === 'written' && <span className="day-task-type">В тетради</span>}{task.originDate && task.originDate !== page.targetDate && <span className="day-task-type">Осталось с {dayMonth(task.originDate)}</span>}</div>
                 <h3>{task.title}</h3><p>{task.detail}</p>
-                {!!task.steps?.length && <ol className="day-task-steps">{task.steps.map((step, index) => <li key={index}>{step}</li>)}</ol>}
+                {!!task.steps?.length && <ol className="day-task-steps">{task.steps.map((step, index) => <Instruction key={index} item={step} index={index} />)}</ol>}
                 {needsTextbook && <p className="day-material-warning">📖 {task.materialStatus?.message}</p>}
                 {(task.materialStatus?.state === 'text-absent-from-textbook' || task.materialStatus?.state === 'no-textbook') && <p className="day-material-warning">📖 {task.materialStatus.message}</p>}
                 {readerGroups.map((group) => <MaterialReader key={group[0].url} links={group} parent={parent} />)}
@@ -326,7 +339,7 @@ export default function DayPage({ token, parent }: { token: string; parent: bool
                 {showSubmission && <div className="day-submission-instructions">
                   <strong>{priorWork && (task.status === 'needs-fix' || task.status === 'partial') ? 'Что исправить и сфотографировать' : 'Что сфотографировать'}</strong>
                   {submission?.lead && <p>{submission.lead}</p>}
-                  {!!submission?.items?.length && <ol>{submission.items.map((item, index) => <li key={index}>{item}</li>)}</ol>}
+                  {!!submission?.items?.length && <ol>{submission.items.map((item, index) => <Instruction key={index} item={item} index={index} />)}</ol>}
                   {submission?.photo && <p className="day-submission-photo"><b>На фото</b><span>{submission.photo}</span></p>}
                   {!submission?.lead && !submission?.items?.length && !submission?.photo && <p>{submission?.description ?? `Страница тетради с результатом задания «${task.title}». Номер и ответ должны читаться.`}</p>}
                 </div>}

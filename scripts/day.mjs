@@ -100,6 +100,18 @@ function validate(source) {
     for (const task of subject.tasks) {
       if (!/^[a-z0-9-]+$/.test(task.id ?? '') || ids.has(task.id) || !task.title) fail('Нужны уникальные id и названия действий.')
       ids.add(task.id)
+      if (task.id.startsWith('mesh-')) {
+        for (const item of task.submission?.items ?? []) {
+          if (!item || typeof item !== 'object' || !item.text?.trim() || !item.source?.label?.trim() || !item.source?.evidence?.trim() || item.source.certainty !== 'confirmed') {
+            fail(`Обязательный пункт ${task.id} без подтверждённого источника. Не публикуйте домысел как ДЗ.`)
+          }
+          if (item.source.kind === 'mesh') {
+            if (!item.source.excerpt?.trim() || !task.meshText?.includes(item.source.excerpt) || item.source.evidence !== task.meshText) fail(`Для пункта ${task.id} нужна дословная опора в МЭШ.`)
+          } else if (item.source.kind === 'textbook') {
+            if (!materialPlan.taskPages[task.id]?.some((pageId) => item.source.ref?.startsWith(pageId))) fail(`Для пункта ${task.id} нужна сверенная страница учебника.`)
+          } else fail(`Пункт ${task.id} не может добавлять к заданию МЭШ обязательную работу от агента или прежнего разбора.`)
+        }
+      }
     }
   }
   for (const [taskId, links] of Object.entries(source.materialLinks ?? {})) {
