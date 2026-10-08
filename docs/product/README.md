@@ -30,7 +30,7 @@ flowchart LR
 |---|---|---|
 | [Доступ и состояние](access-and-state.md) | Маршруты, роли, документы Firestore, повторный выпуск | `src/App.tsx`, `src/lib/store.ts`, `src/lib/dayStore.ts`, `day/merge.mjs` |
 | [Страница дня](day-page.md) | Дата ДЗ, карточки, фото, связь теста с предметом | `src/DayPage.tsx`, `day/build.mjs`, `scripts/day.mjs` |
-| [Многодневный dashboard](dashboard.md) | Полоса дат, сводки, многодневная синхронизация и версии ДЗ | Компонент и индекс Firestore готовы локально; правило доступа и многодневная синхронизация ещё не включены |
+| [Многодневный dashboard](dashboard.md) | Полоса дат, сводки и контракт будущей многодневной синхронизации | `src/DayDashboard.tsx`, `src/lib/dayDashboardStore.ts`, `day/dashboard-index.mjs`; многодневная синхронизация и полная история версий ДЗ ещё не реализованы |
 | [Тесты](quizzes.md) | Попытка, сохранение, результат, списки | `src/App.tsx`, `src/components/SubjectTheme.tsx`, `src/lib/quiz.ts` |
 | [Материалы](materials.md) | Точный источник, страницы, ридер | `src/components/MaterialReader.tsx`, `src/lib/yandexPublic.ts`, `storage/material-pages.mjs` |
 | [Средний балл](grades.md) | Метка, условный сценарий и границы точности | `src/DayPage.tsx` |
