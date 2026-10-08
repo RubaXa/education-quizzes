@@ -19,7 +19,8 @@
     "day": "node scripts/day.mjs",
     "storage": "node scripts/storage.mjs",
     "archive:local": "node scripts/archive-local.mjs",
-    "diary": "node diary/cli.mjs"
+    "diary": "node diary/cli.mjs",
+    "family": "node scripts/family.mjs"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.3.0",

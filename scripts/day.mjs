@@ -253,6 +253,13 @@ if (command === 'publish' || command === 'refresh') await publish()
 else if (command === 'dashboard') await publishDashboard()
 else if (command === 'pull') await pull()
 else await seedEvidence()
+if ((command === 'publish' || command === 'refresh') && existsSync(resolve(local, 'family-access.json'))) {
+  const owner = json(resolve(local, 'family-access.json')).legacyDayOwner
+  if (owner) {
+    try { runLocal('scripts/family.mjs', ['attach-current-day', owner.familyId, owner.childId]) }
+    catch { console.warn('Личный переход к текущему дню не обновлён; сама страница дня опубликована.') }
+  }
+}
 if (command === 'refresh') {
   try { runLocal('scripts/storage.mjs', ['sync', date]) }
   catch { console.warn('Архив новых фото на Диске не завершён; фото остались в Education, повторите sync.') }

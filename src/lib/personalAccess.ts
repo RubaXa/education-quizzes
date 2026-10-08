@@ -1,0 +1,116 @@
+import { getAuth, signInAnonymously } from 'firebase/auth'
+import { collection, doc, getDoc, getDocs, serverTimestamp, setDoc } from 'firebase/firestore'
+import { db } from './firebase'
+
+/** @see ../../docs/architecture/family-data-model.md#link-login */
+export type PersonalSession = { personId: string; deviceUid: string }
+export type PersonalChild = {
+  familyId: string
+  childId: string
+  displayName: string
+  role: 'parent' | 'student'
+  dashboardToken?: string
+  dayToken?: string
+}
+export type PersonalProfile = {
+  personId: string
+  displayName: string
+  children: PersonalChild[]
+}
+
+let activeSession: PersonalSession | null = null
+const secretPattern = /^[A-Za-z0-9_-]{43}$/
+
+export function currentEducationPersonId(): string {
+  if (!activeSession || getAuth().currentUser?.uid !== activeSession.deviceUid) {
+    throw new Error('Откройте личную ссылку Education.')
+  }
+  return activeSession.personId
+}
+
+export function secretFromPersonalLink(value: string): string {
+  const trimmed = value.trim()
+  const secret = secretPattern.test(trimmed)
+    ? trimmed
+    : /^https:\/\//.test(trimmed)
+      ? new URL(trimmed).hash.match(/^#\/enter\/([A-Za-z0-9_-]{43})$/)?.[1]
+      : trimmed.match(/^#\/enter\/([A-Za-z0-9_-]{43})$/)?.[1]
+  if (!secret || !secretPattern.test(secret)) throw new Error('Нужна личная ссылка Education целиком.')
+  return secret
+}
+
+async function authUid(): Promise<string> {
+  const auth = getAuth()
+  await auth.authStateReady()
+  if (auth.currentUser) return auth.currentUser.uid
+  return (await signInAnonymously(auth)).user.uid
+}
+
+async function sessionFromGrant(linkToken: string, deviceUid: string): Promise<PersonalSession> {
+  const grant = await getDoc(doc(db, 'accessLinks', linkToken))
+  const personId = grant.data()?.personId
+  if (!grant.exists() || grant.data()?.active !== true || typeof personId !== 'string') {
+    throw new Error('Личная ссылка закрыта. Попросите новую ссылку.')
+  }
+  activeSession = { personId, deviceUid }
+  return activeSession
+}
+
+/** A link is a bearer credential. Its grant is checked again by Firestore rules on every read. */
+export async function redeemPersonalLink(value: string): Promise<PersonalSession> {
+  const linkToken = secretFromPersonalLink(value)
+  const deviceUid = await authUid()
+  const reference = doc(db, 'deviceSessions', deviceUid)
+  const previous = await getDoc(reference)
+  await setDoc(reference, {
+    linkToken,
+    createdAt: previous.exists() ? previous.data().createdAt : serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  })
+  return sessionFromGrant(linkToken, deviceUid)
+}
+
+/** @see ../../docs/architecture/family-data-model.md#authorization */
+export async function restorePersonalSession(): Promise<PersonalSession | null> {
+  const auth = getAuth()
+  await auth.authStateReady()
+  const deviceUid = auth.currentUser?.uid
+  if (!deviceUid) return null
+  const snapshot = await getDoc(doc(db, 'deviceSessions', deviceUid))
+  const linkToken = snapshot.data()?.linkToken
+  if (!snapshot.exists() || typeof linkToken !== 'string' || !secretPattern.test(linkToken)) return null
+  return sessionFromGrant(linkToken, deviceUid)
+}
+
+/** @see ../../docs/architecture/family-data-model.md#collections */
+export async function loadPersonalProfile(session: PersonalSession): Promise<PersonalProfile> {
+  const person = await getDoc(doc(db, 'users', session.personId))
+  if (!person.exists()) throw new Error('Профиль ещё не опубликован.')
+  const displayName = person.data().displayName
+  if (typeof displayName !== 'string') throw new Error('У профиля нет имени.')
+  const families = await getDocs(collection(db, 'users', session.personId, 'families'))
+  const children: PersonalChild[] = []
+  for (const family of families.docs) {
+    const familyId = family.id
+    const member = await getDoc(doc(db, 'families', familyId, 'members', session.personId))
+    const role = member.data()?.role
+    const childIds = member.data()?.childIds
+    if (!member.exists() || member.data()?.active !== true ||
+      (role !== 'parent' && role !== 'student') || !Array.isArray(childIds)) continue
+    for (const childId of childIds) {
+      if (typeof childId !== 'string') continue
+      const [child, shortcut] = await Promise.all([
+        getDoc(doc(db, 'families', familyId, 'children', childId)),
+        getDoc(doc(db, 'users', session.personId, 'families', familyId, 'shortcuts', childId)),
+      ])
+      if (!child.exists()) continue
+      children.push({
+        familyId, childId, role,
+        displayName: typeof child.data().displayName === 'string' ? child.data().displayName : 'Ученик',
+        dashboardToken: typeof shortcut.data()?.dashboardToken === 'string' ? shortcut.data()?.dashboardToken : undefined,
+        dayToken: typeof shortcut.data()?.dayToken === 'string' ? shortcut.data()?.dayToken : undefined,
+      })
+    }
+  }
+  return { personId: session.personId, displayName, children }
+}

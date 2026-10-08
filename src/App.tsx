@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { BookOpen, CheckCircle2, ChevronDown, CircleHelp, ClipboardCopy, Clock3, ExternalLink, RefreshCw, Send, Sparkles } from 'lucide-react'
+import { BookOpen, ChevronDown, CircleHelp, ClipboardCopy, Clock3, ExternalLink, RefreshCw, Send, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { CodeBlock } from '@/components/CodeBlock'
 import { ReadingCard, ThemeFrame, ThemeHero } from '@/components/SubjectTheme'
@@ -18,9 +18,10 @@ import type { BoardDetails } from '@/lib/store'
 import DayPage from './DayPage'
 import DayDashboard from './DayDashboard'
 import { PwaInstallButton, PwaUpdateNotice } from './components/PwaControls'
+import { PersonalEntry } from './components/PersonalEntry'
 import './App.css'
 
-type Route = { kind: 'test' | 'preview' | 'dashboard' | 'my' | 'review' | 'day' | 'day-parent' | 'days' | 'days-parent'; token: string } | { kind: 'home' }
+type Route = { kind: 'test' | 'preview' | 'dashboard' | 'my' | 'review' | 'day' | 'day-parent' | 'days' | 'days-parent' | 'enter'; token: string } | { kind: 'home' }
 
 const storeModule = () => import('@/lib/store')
 const loadPreview = async (token: string) => (await storeModule()).loadPreview(token)
@@ -40,7 +41,7 @@ const submitAssignment = async (token: string) => (await storeModule()).submitAs
 function routeFromHash(): Route {
   const [, kind, raw = ''] = location.hash.split('/')
   const token = raw.includes('~') ? raw.slice(raw.lastIndexOf('~') + 1) : raw
-  if ((kind === 't' || kind === 'preview' || kind === 'dashboard' || kind === 'my' || kind === 'review' || kind === 'day' || kind === 'day-parent' || kind === 'days' || kind === 'days-parent') && token) {
+  if ((kind === 't' || kind === 'preview' || kind === 'dashboard' || kind === 'my' || kind === 'review' || kind === 'day' || kind === 'day-parent' || kind === 'days' || kind === 'days-parent' || kind === 'enter') && token) {
     return { kind: kind === 't' ? 'test' : kind, token }
   }
   return { kind: 'home' }
@@ -598,15 +599,7 @@ function Dashboard({ token, parent = false }: { token: string; parent?: boolean 
 }
 
 function Home() {
-  return (
-    <Card className="mx-auto max-w-2xl border-0 shadow-sm">
-      <CardContent className="flex flex-col items-center gap-5 py-14 text-center">
-        <div className="home-icon"><CheckCircle2 className="size-10" /></div>
-        <h1 className="text-3xl font-bold sm:text-4xl">Здесь начинаются маленькие победы</h1>
-        <p className="max-w-lg text-muted-foreground">Чтобы открыть самопроверку, перейдите по личной ссылке, которую вам прислали.</p>
-      </CardContent>
-    </Card>
-  )
+  return <PersonalEntry />
 }
 
 /**
@@ -620,7 +613,7 @@ function App() {
     window.addEventListener('hashchange', updateRoute)
     return () => window.removeEventListener('hashchange', updateRoute)
   }, [])
-  return <Shell>{route.kind === 'test' ? <QuizRunner key={route.token} token={route.token} /> : route.kind === 'preview' ? <Preview token={route.token} /> : route.kind === 'dashboard' || route.kind === 'my' || route.kind === 'review' ? <Dashboard key={`${route.kind}-${route.token}`} token={route.token} parent={route.kind === 'review'} /> : route.kind === 'days' || route.kind === 'days-parent' ? <DayDashboard key={`${route.kind}-${route.token}`} token={route.token} parent={route.kind === 'days-parent'} /> : route.kind === 'day' || route.kind === 'day-parent' ? <DayPage key={`${route.kind}-${route.token}`} token={route.token} parent={route.kind === 'day-parent'} /> : <Home />}</Shell>
+  return <Shell>{route.kind === 'test' ? <QuizRunner key={route.token} token={route.token} /> : route.kind === 'preview' ? <Preview token={route.token} /> : route.kind === 'dashboard' || route.kind === 'my' || route.kind === 'review' ? <Dashboard key={`${route.kind}-${route.token}`} token={route.token} parent={route.kind === 'review'} /> : route.kind === 'days' || route.kind === 'days-parent' ? <DayDashboard key={`${route.kind}-${route.token}`} token={route.token} parent={route.kind === 'days-parent'} /> : route.kind === 'day' || route.kind === 'day-parent' ? <DayPage key={`${route.kind}-${route.token}`} token={route.token} parent={route.kind === 'day-parent'} /> : route.kind === 'enter' ? <PersonalEntry key={route.token} initialLink={route.token} /> : <Home />}</Shell>
 }
 
 export default App

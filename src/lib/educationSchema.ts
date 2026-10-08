@@ -40,7 +40,8 @@ export type EducationDay = {
 export type EducationSubmission = {
   taskId: string
   taskSourceRevision: number
-  actorUid: string
+  actorPersonId: string
+  deviceUid: string
   createdAt: unknown
   state: 'pending' | 'reviewed' | 'needs-fix' | 'verified'
   storageRef: string
@@ -132,7 +133,8 @@ export type ActivityType =
 /** @see ../../docs/architecture/activity-and-inbox.md#events */
 export type ActivityEvent = {
   schemaVersion: 1
-  actorUid: string
+  actorPersonId: string
+  deviceUid: string
   childId: string
   type: ActivityType
   viewId: ScreenView

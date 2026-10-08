@@ -64,6 +64,16 @@ body {
   padding-bottom: 5rem;
 }
 
+.personal-entry{display:grid;gap:1.5rem}
+.personal-entry-hero{display:flex;align-items:center;gap:1rem;padding:1.5rem;border-radius:1.5rem;background:#eee9fb;color:#30245b}
+.personal-entry-hero h1{margin:0;font-size:clamp(1.5rem,4vw,2rem);font-weight:800}
+.personal-entry-hero p{margin:.25rem 0 0;color:#70698b}
+.personal-entry-icon{display:grid;place-items:center;width:3rem;height:3rem;flex:none;border-radius:1rem;background:#e5dcfb;color:#563ca0;font-size:1.75rem}
+.personal-child-list{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(min(100%,17rem),1fr))}
+.personal-login-form{display:flex;gap:.75rem;flex-wrap:wrap}
+.personal-login-form input{min-width:min(100%,19rem);flex:1}
+.personal-login-error{margin-top:1rem;color:#a52444}
+
 .intro-card {
   position: relative;
   overflow: hidden;

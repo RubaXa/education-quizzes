@@ -2,41 +2,89 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Version 2: authenticated, family-scoped data. Existing link routes below
-    // remain a separate migration boundary until their contents are moved.
-    function activeMember(familyId) {
+    // Version 2: a long secret link identifies a person; Firebase anonymous Auth
+    // identifies the device. Neither role nor child access is client-writable.
+    function validLink(secret) {
+      return secret is string
+        && secret.matches('^[A-Za-z0-9_-]{43}$')
+        && exists(/databases/$(database)/documents/accessLinks/$(secret))
+        && get(/databases/$(database)/documents/accessLinks/$(secret)).data.active == true;
+    }
+    function linkPath() {
+      let secret = get(/databases/$(database)/documents/deviceSessions/$(request.auth.uid)).data.linkToken;
+      return /databases/$(database)/documents/accessLinks/$(secret);
+    }
+    function activeSession() {
       return request.auth != null
-        && exists(/databases/$(database)/documents/families/$(familyId)/members/$(request.auth.uid))
-        && get(/databases/$(database)/documents/families/$(familyId)/members/$(request.auth.uid)).data.active == true;
+        && exists(/databases/$(database)/documents/deviceSessions/$(request.auth.uid))
+        && get(linkPath()).data.active == true;
+    }
+    function currentPersonId() {
+      return get(linkPath()).data.personId;
+    }
+    function memberPath(familyId) {
+      let person = currentPersonId();
+      return /databases/$(database)/documents/families/$(familyId)/members/$(person);
+    }
+    function activeMember(familyId) {
+      return activeSession()
+        && exists(memberPath(familyId))
+        && get(memberPath(familyId)).data.active == true;
     }
     function parentMember(familyId) {
       return activeMember(familyId)
-        && get(/databases/$(database)/documents/families/$(familyId)/members/$(request.auth.uid)).data.role == 'parent';
+        && get(memberPath(familyId)).data.role == 'parent';
     }
     function childMember(familyId, childId) {
       return activeMember(familyId)
-        && (parentMember(familyId)
-          || get(/databases/$(database)/documents/families/$(familyId)/members/$(request.auth.uid)).data.childIds.hasAny([childId]));
+        && get(memberPath(familyId)).data.childIds.hasAny([childId]);
     }
 
-    match /users/{uid} {
-      allow get: if request.auth != null && request.auth.uid == uid;
+    match /accessLinks/{secret} {
+      allow get: if activeSession()
+        && get(/databases/$(database)/documents/deviceSessions/$(request.auth.uid)).data.linkToken == secret;
+      allow list, write: if false;
+    }
+    match /deviceSessions/{authUid} {
+      allow get: if request.auth != null && request.auth.uid == authUid;
+      allow list, delete: if false;
+      allow create: if request.auth != null && request.auth.uid == authUid
+        && request.resource.data.keys().hasOnly(['linkToken', 'createdAt', 'updatedAt'])
+        && request.resource.data.keys().hasAll(['linkToken', 'createdAt', 'updatedAt'])
+        && validLink(request.resource.data.linkToken)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+      allow update: if request.auth != null && request.auth.uid == authUid
+        && request.resource.data.keys().hasOnly(['linkToken', 'createdAt', 'updatedAt'])
+        && request.resource.data.keys().hasAll(['linkToken', 'createdAt', 'updatedAt'])
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.updatedAt == request.time
+        && validLink(request.resource.data.linkToken);
+    }
+
+    match /users/{personId} {
+      allow get: if activeSession() && currentPersonId() == personId;
       allow list, write: if false;
 
       match /families/{familyId} {
-        allow get, list: if request.auth != null && request.auth.uid == uid;
+        allow get, list: if activeSession() && currentPersonId() == personId;
         allow write: if false;
+        match /shortcuts/{childId} {
+          allow get, list: if activeSession() && currentPersonId() == personId
+            && childMember(familyId, childId);
+          allow write: if false;
+        }
       }
       match /inbox/{notificationId} {
-        allow get, list: if request.auth != null && request.auth.uid == uid;
+        allow get, list: if activeSession() && currentPersonId() == personId;
         allow create, delete: if false;
-        allow update: if request.auth != null && request.auth.uid == uid
+        allow update: if activeSession() && currentPersonId() == personId
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['readAt'])
           && request.resource.data.readAt == request.time;
       }
       match /views/{viewKey} {
-        allow get, list: if request.auth != null && request.auth.uid == uid;
-        allow create, update: if request.auth != null && request.auth.uid == uid
+        allow get, list: if activeSession() && currentPersonId() == personId;
+        allow create, update: if activeSession() && currentPersonId() == personId
           && request.resource.data.keys().hasOnly(['sourceRevision', 'seenAt'])
           && request.resource.data.keys().hasAll(['sourceRevision', 'seenAt'])
           && request.resource.data.sourceRevision is int
@@ -50,10 +98,10 @@ service cloud.firestore {
     match /families/{familyId} {
       allow read, write: if false;
 
-      match /members/{uid} {
+      match /members/{memberId} {
         allow get: if activeMember(familyId)
-          && (request.auth.uid == uid || parentMember(familyId));
-        allow list: if parentMember(familyId);
+          && currentPersonId() == memberId;
+        allow list: if false;
         allow write: if false;
       }
       match /ui/{viewId} {
@@ -65,7 +113,7 @@ service cloud.firestore {
       }
       match /children/{childId} {
         allow get: if childMember(familyId, childId);
-        allow list: if parentMember(familyId);
+        allow list: if false;
         allow write: if false;
 
         match /days/{dayId} {
@@ -88,20 +136,20 @@ service cloud.firestore {
         }
       }
       match /activity/{eventId} {
-        allow get: if parentMember(familyId)
-          || (activeMember(familyId) && resource.data.actorUid == request.auth.uid);
-        allow list: if parentMember(familyId);
+        allow get, list: if childMember(familyId, resource.data.childId)
+          && (parentMember(familyId) || resource.data.actorPersonId == currentPersonId());
         allow create: if activeMember(familyId)
           && request.resource.data.keys().hasOnly([
-            'schemaVersion', 'actorUid', 'childId', 'type', 'viewId',
+            'schemaVersion', 'actorPersonId', 'deviceUid', 'childId', 'type', 'viewId',
             'sectionId', 'entityId', 'sessionId', 'occurredAt'
           ])
           && request.resource.data.keys().hasAll([
-            'schemaVersion', 'actorUid', 'childId', 'type', 'viewId',
+            'schemaVersion', 'actorPersonId', 'deviceUid', 'childId', 'type', 'viewId',
             'sectionId', 'entityId', 'sessionId', 'occurredAt'
           ])
           && request.resource.data.schemaVersion == 1
-          && request.resource.data.actorUid == request.auth.uid
+          && request.resource.data.actorPersonId == currentPersonId()
+          && request.resource.data.deviceUid == request.auth.uid
           && childMember(familyId, request.resource.data.childId)
           && request.resource.data.type in [
             'page_opened', 'section_opened', 'day_opened', 'task_opened',
