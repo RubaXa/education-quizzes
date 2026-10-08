@@ -34,6 +34,7 @@ export type QuizReading = {
 export type Assignment = {
   schemaVersion: 1
   testId: string
+  linkedToTestId?: string | null
   title: string
   description?: string
   subject: string
