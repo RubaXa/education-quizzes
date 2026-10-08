@@ -60,9 +60,9 @@ function Instruction({ item, index }: { item: DayInstruction; index: number }) {
   const uncertain = !source || source.certainty === 'uncertain'
   const text = typeof item === 'string' ? item : item.text
   return <li><span>{text}</span>{' '}
-    <details className={`day-instruction-source${uncertain ? ' uncertain' : ''}`} open={uncertain}>
-      <summary title={`Откуда взят пункт ${index + 1}`} aria-label={`Откуда взят пункт ${index + 1}`}>?</summary>
-      <span className="day-instruction-source-body">{source ? <><b>{source.label}</b><span>{source.evidence}</span>{source.ref && <small>{source.ref}</small>}{uncertain && <em>Это не подтверждённое требование учителя.</em>}</> : <><b>Источник не указан</b><span>Не считай это дополнительным требованием учителя, пока источник не сверят.</span></>}</span>
+    <details className={`day-instruction-source${uncertain ? ' uncertain' : ''}`}>
+      <summary title={uncertain ? 'Источник не подтверждён. Показать пояснение' : `Откуда взят пункт ${index + 1}`} aria-label={uncertain ? `Источник пункта ${index + 1} не подтверждён. Показать пояснение` : `Откуда взят пункт ${index + 1}`}>?</summary>
+      <span className="day-instruction-source-body"><button className="day-instruction-source-close" type="button" aria-label="Закрыть пояснение" onClick={event => event.currentTarget.closest('details')?.removeAttribute('open')}>×</button>{source ? <><b>{source.label}</b><span>{source.evidence}</span>{source.ref && <small>{source.ref}</small>}{uncertain && <em>Это не подтверждённое требование учителя.</em>}</> : <><b>Источник не указан</b><span>Не считай это дополнительным требованием учителя, пока источник не сверят.</span></>}</span>
     </details>
   </li>
 }

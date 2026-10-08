@@ -64,10 +64,12 @@
 .day-instruction-source summary{display:inline-grid;place-items:center;width:1.2rem;height:1.2rem;border:1px solid #b9a8d8;border-radius:50%;color:#624a9a;background:#fff;font-size:.72rem;font-weight:800;line-height:1;cursor:pointer;list-style:none}
 .day-instruction-source summary::-webkit-details-marker{display:none}
 .day-instruction-source summary:focus-visible{outline:2px solid #624a9a;outline-offset:2px}
-.day-instruction-source-body{display:none;position:absolute;right:0;top:1.45rem;z-index:8;width:min(23rem,calc(100vw - 3rem));padding:.7rem .85rem;border:1px solid #d8ccef;border-radius:.75rem;background:#fff;box-shadow:0 10px 25px #31235727;color:#4c405e;font-size:.78rem;line-height:1.4}
-.day-instruction-source:is(:hover,[open])>.day-instruction-source-body{display:grid;gap:.3rem}
+.day-instruction-source-body{display:none;position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:1001;width:min(27rem,calc(100vw - 2rem));max-height:calc(100dvh - 2rem);overflow:auto;padding:.85rem 2.4rem .85rem 1rem;border:1px solid #d8ccef;border-radius:.75rem;background:#fff;box-shadow:0 18px 50px #31235740;color:#4c405e;font-size:.88rem;line-height:1.45;overflow-wrap:anywhere}
+.day-instruction-source[open]>.day-instruction-source-body,.day-instruction-source>summary:hover+.day-instruction-source-body{display:grid;gap:.3rem}
+.day-instruction-source-close{position:absolute;right:.45rem;top:.4rem;display:grid;place-items:center;width:1.6rem;height:1.6rem;border:0;border-radius:50%;background:transparent;color:#76678d;font:inherit;font-size:1.2rem;cursor:pointer}
+.day-instruction-source-close:hover,.day-instruction-source-close:focus-visible{background:#f0eaf7;color:#432f79}
 .day-instruction-source-body b{color:#432f79}
 .day-instruction-source-body small{color:#76678d}
 .day-instruction-source-body em{font-style:normal;color:#985a11}
-.day-instruction-source.uncertain{display:inline-block}
-.day-instruction-source.uncertain[open]>.day-instruction-source-body{position:static;margin:.35rem 0 .5rem;width:min(100%,28rem);background:#fff7e9;border-color:#efd8a7;box-shadow:none}
+.day-instruction-source.uncertain summary{border-color:#e6a84c;background:#fff0d9;color:#985a11}
+.day-instruction-source.uncertain>.day-instruction-source-body{background:#fff7e9;border-color:#efd8a7}
