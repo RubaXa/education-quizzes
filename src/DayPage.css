@@ -6,15 +6,16 @@
 .day-quiz-link{display:inline-flex;align-items:center;gap:7px;border-radius:10px;padding:9px 12px;background:#5c4798;color:white;font-size:.84rem;font-weight:800;text-decoration:none}.day-quiz-link:hover{background:#49387c;color:white}
 .day-quiz-task{background:#faf8ff;border-color:#e1d8f2}
 .day-quiz-lineage{min-width:0;border:1px solid #ded6eb;border-radius:17px;background:#fff;overflow:hidden}
-.day-quiz-lineage-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 16px;background:#f2ebfa}
+.day-quiz-lineage-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:10px 16px;background:#f2ebfa}
 .day-quiz-lineage-head strong{font-size:.84rem;line-height:1.3}
-.day-quiz-lineage-head span{border-radius:999px;background:#fff1dc;color:#905b1c;padding:4px 9px;font-size:.74rem;font-weight:800;white-space:nowrap}
+.day-quiz-lineage-score{border-radius:999px;background:#f4f0fa;color:#62517f;padding:4px 9px;font-size:.74rem;font-weight:800;white-space:nowrap}
+.day-quiz-lineage-score.complete{background:#e6f6eb;color:#216a3d}
+.day-quiz-lineage-score.partial{background:#fff1dc;color:#905b1c}
 .day-quiz-lineage-current{padding:13px 16px 15px}
 .day-quiz-lineage-current>small{color:#7355a3;font-size:.77rem;font-weight:800}
 .day-quiz-lineage-current h3{font-size:1.08rem;line-height:1.32;font-weight:850;margin:6px 0}
 .day-quiz-lineage-current>p{font-size:.88rem;line-height:1.46;color:#665d76;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.day-quiz-lineage-actions{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:11px}
-.day-quiz-lineage-actions>span{color:#885d21;font-size:.76rem;font-weight:800}
+.day-quiz-lineage-actions{display:flex;align-items:center;justify-content:center;margin-top:11px}
 .day-quiz-lineage-actions .day-quiz-link{margin:0}
 .day-quiz-materials{border-top:1px solid #eee8f3;margin-top:13px;padding-top:9px}
 .day-quiz-materials>summary{display:flex;align-items:center;gap:5px;color:#665686;font-size:.78rem;font-weight:750;cursor:pointer;list-style:none}
@@ -44,7 +45,7 @@
 .day-quiz-history-row strong{flex:1 1 180px}
 .day-quiz-history-row span{color:#756985}
 .day-quiz-history-row a{display:inline-flex;align-items:center;gap:4px;color:#5c4798;font-weight:750;white-space:nowrap}
-@media(max-width:640px){.day-quiz-lineage-actions{align-items:flex-start}.day-quiz-lineage-actions .day-quiz-link{font-size:.8rem}.day-quiz-lineage-head{padding:9px 13px}.day-quiz-lineage-current{padding:12px 13px 14px}}
+@media(max-width:640px){.day-quiz-lineage-actions .day-quiz-link{font-size:.8rem}.day-quiz-lineage-head{padding:9px 13px}.day-quiz-lineage-current{padding:12px 13px 14px}}
 .day-task .day-quiz-link{display:inline-flex;align-items:center;gap:6px;margin-top:12px;background:#5c4798;color:#fff;font-size:.9rem;font-weight:800;text-decoration:none}
 .day-task .day-quiz-link:hover{background:#49387c;color:#fff;text-decoration:none}
 .day-task .day-quiz-link:focus-visible,.day-upload:focus-within{outline:3px solid #ae91e8;outline-offset:3px}
