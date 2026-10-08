@@ -2,6 +2,127 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Version 2: authenticated, family-scoped data. Existing link routes below
+    // remain a separate migration boundary until their contents are moved.
+    function activeMember(familyId) {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/families/$(familyId)/members/$(request.auth.uid))
+        && get(/databases/$(database)/documents/families/$(familyId)/members/$(request.auth.uid)).data.active == true;
+    }
+    function parentMember(familyId) {
+      return activeMember(familyId)
+        && get(/databases/$(database)/documents/families/$(familyId)/members/$(request.auth.uid)).data.role == 'parent';
+    }
+    function childMember(familyId, childId) {
+      return activeMember(familyId)
+        && (parentMember(familyId)
+          || get(/databases/$(database)/documents/families/$(familyId)/members/$(request.auth.uid)).data.childIds.hasAny([childId]));
+    }
+
+    match /users/{uid} {
+      allow get: if request.auth != null && request.auth.uid == uid;
+      allow list, write: if false;
+
+      match /families/{familyId} {
+        allow get, list: if request.auth != null && request.auth.uid == uid;
+        allow write: if false;
+      }
+      match /inbox/{notificationId} {
+        allow get, list: if request.auth != null && request.auth.uid == uid;
+        allow create, delete: if false;
+        allow update: if request.auth != null && request.auth.uid == uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['readAt'])
+          && request.resource.data.readAt == request.time;
+      }
+      match /views/{viewKey} {
+        allow get, list: if request.auth != null && request.auth.uid == uid;
+        allow create, update: if request.auth != null && request.auth.uid == uid
+          && request.resource.data.keys().hasOnly(['sourceRevision', 'seenAt'])
+          && request.resource.data.keys().hasAll(['sourceRevision', 'seenAt'])
+          && request.resource.data.sourceRevision is int
+          && request.resource.data.sourceRevision >= 0
+          && request.resource.data.seenAt == request.time
+          && (resource == null || request.resource.data.sourceRevision >= resource.data.sourceRevision);
+        allow delete: if false;
+      }
+    }
+
+    match /families/{familyId} {
+      allow read, write: if false;
+
+      match /members/{uid} {
+        allow get: if activeMember(familyId)
+          && (request.auth.uid == uid || parentMember(familyId));
+        allow list: if parentMember(familyId);
+        allow write: if false;
+      }
+      match /ui/{viewId} {
+        allow get, list: if activeMember(familyId)
+          && ((resource.data.audience == 'parent' && parentMember(familyId))
+            || (resource.data.audience == 'student'
+              && (viewId == 'student-home' || viewId == 'student-day')));
+        allow write: if false;
+      }
+      match /children/{childId} {
+        allow get: if childMember(familyId, childId);
+        allow list: if parentMember(familyId);
+        allow write: if false;
+
+        match /days/{dayId} {
+          allow get, list: if childMember(familyId, childId);
+          allow write: if false;
+        }
+        match /tasks/{taskId} {
+          allow get, list: if childMember(familyId, childId);
+          allow write: if false;
+        }
+        match /grades/{gradeId} {
+          allow get, list: if childMember(familyId, childId);
+          allow write: if false;
+        }
+        match /submissions/{submissionId} {
+          allow get, list: if childMember(familyId, childId);
+          // The Yandex Disk upload flow needs a server-issued upload endpoint.
+          // Until it exists, do not accept client writes or image bytes here.
+          allow write: if false;
+        }
+      }
+      match /activity/{eventId} {
+        allow get: if parentMember(familyId)
+          || (activeMember(familyId) && resource.data.actorUid == request.auth.uid);
+        allow list: if parentMember(familyId);
+        allow create: if activeMember(familyId)
+          && request.resource.data.keys().hasOnly([
+            'schemaVersion', 'actorUid', 'childId', 'type', 'viewId',
+            'sectionId', 'entityId', 'sessionId', 'occurredAt'
+          ])
+          && request.resource.data.keys().hasAll([
+            'schemaVersion', 'actorUid', 'childId', 'type', 'viewId',
+            'sectionId', 'entityId', 'sessionId', 'occurredAt'
+          ])
+          && request.resource.data.schemaVersion == 1
+          && request.resource.data.actorUid == request.auth.uid
+          && childMember(familyId, request.resource.data.childId)
+          && request.resource.data.type in [
+            'page_opened', 'section_opened', 'day_opened', 'task_opened',
+            'test_started', 'test_submitted', 'submission_uploaded', 'notification_opened'
+          ]
+          && request.resource.data.viewId in [
+            'student-home', 'parent-home', 'student-day', 'parent-day'
+          ]
+          && (request.resource.data.viewId in ['student-home', 'student-day']
+            || parentMember(familyId))
+          && request.resource.data.sectionId is string
+          && request.resource.data.sectionId.size() <= 80
+          && request.resource.data.entityId is string
+          && request.resource.data.entityId.size() <= 120
+          && request.resource.data.sessionId is string
+          && request.resource.data.sessionId.size() <= 80
+          && request.resource.data.occurredAt == request.time;
+        allow update, delete: if false;
+      }
+    }
+
     // A link's random document ID is its access key. Collection enumeration is
     // never allowed from the browser. Administrative writes use IAM locally.
     match /assignments/{linkToken} {
@@ -61,6 +182,12 @@ service cloud.firestore {
 
     match /dayPages/{linkToken} {
       allow get: if true;
+      allow list, write: if false;
+    }
+
+    match /dayDashboards/{linkToken} {
+      // Включить чтение по токену только после решения о доступе к ролевому индексу.
+      allow get: if false;
       allow list, write: if false;
     }
 

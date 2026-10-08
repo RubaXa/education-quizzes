@@ -16,9 +16,11 @@ import { WriteQueue } from '@/lib/writeQueue'
 import type { Answer, AnswerKey, Assignment, ManualReview, QuizQuestion, QuestionResult } from '@/lib/quiz'
 import type { BoardDetails } from '@/lib/store'
 import DayPage from './DayPage'
+import DayDashboard from './DayDashboard'
+import { PwaInstallButton, PwaUpdateNotice } from './components/PwaControls'
 import './App.css'
 
-type Route = { kind: 'test' | 'preview' | 'dashboard' | 'my' | 'review' | 'day' | 'day-parent'; token: string } | { kind: 'home' }
+type Route = { kind: 'test' | 'preview' | 'dashboard' | 'my' | 'review' | 'day' | 'day-parent' | 'days' | 'days-parent'; token: string } | { kind: 'home' }
 
 const storeModule = () => import('@/lib/store')
 const loadPreview = async (token: string) => (await storeModule()).loadPreview(token)
@@ -38,7 +40,7 @@ const submitAssignment = async (token: string) => (await storeModule()).submitAs
 function routeFromHash(): Route {
   const [, kind, raw = ''] = location.hash.split('/')
   const token = raw.includes('~') ? raw.slice(raw.lastIndexOf('~') + 1) : raw
-  if ((kind === 't' || kind === 'preview' || kind === 'dashboard' || kind === 'my' || kind === 'review' || kind === 'day' || kind === 'day-parent') && token) {
+  if ((kind === 't' || kind === 'preview' || kind === 'dashboard' || kind === 'my' || kind === 'review' || kind === 'day' || kind === 'day-parent' || kind === 'days' || kind === 'days-parent') && token) {
     return { kind: kind === 't' ? 'test' : kind, token }
   }
   return { kind: 'home' }
@@ -66,9 +68,10 @@ function wordForm(count: number, one: string, few: string, many: string): string
 function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div className="app-shell">
+      <PwaUpdateNotice />
       <header className="site-header">
         <div className="brand"><span className="brand-mark">✳</span><span>Учусь и проверяю</span></div>
-        <span className="header-note">Маленькие шаги. Большой прогресс.</span>
+        <div className="header-actions"><span className="header-note">Маленькие шаги. Большой прогресс.</span><PwaInstallButton /></div>
       </header>
       <main className="page-wrap">{children}</main>
     </div>
@@ -617,7 +620,7 @@ function App() {
     window.addEventListener('hashchange', updateRoute)
     return () => window.removeEventListener('hashchange', updateRoute)
   }, [])
-  return <Shell>{route.kind === 'test' ? <QuizRunner key={route.token} token={route.token} /> : route.kind === 'preview' ? <Preview token={route.token} /> : route.kind === 'dashboard' || route.kind === 'my' || route.kind === 'review' ? <Dashboard key={`${route.kind}-${route.token}`} token={route.token} parent={route.kind === 'review'} /> : route.kind === 'day' || route.kind === 'day-parent' ? <DayPage key={`${route.kind}-${route.token}`} token={route.token} parent={route.kind === 'day-parent'} /> : <Home />}</Shell>
+  return <Shell>{route.kind === 'test' ? <QuizRunner key={route.token} token={route.token} /> : route.kind === 'preview' ? <Preview token={route.token} /> : route.kind === 'dashboard' || route.kind === 'my' || route.kind === 'review' ? <Dashboard key={`${route.kind}-${route.token}`} token={route.token} parent={route.kind === 'review'} /> : route.kind === 'days' || route.kind === 'days-parent' ? <DayDashboard key={`${route.kind}-${route.token}`} token={route.token} parent={route.kind === 'days-parent'} /> : route.kind === 'day' || route.kind === 'day-parent' ? <DayPage key={`${route.kind}-${route.token}`} token={route.token} parent={route.kind === 'day-parent'} /> : <Home />}</Shell>
 }
 
 export default App

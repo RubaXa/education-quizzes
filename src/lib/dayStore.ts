@@ -25,11 +25,13 @@ export type DayUpload = { id: string; taskId: string; dataUrl?: string; original
 export async function loadDayPage(token: string): Promise<DayPageData> {
   const snapshot = await getDoc(doc(db, 'dayPages', token))
   if (!snapshot.exists()) throw new Error('Страница дня не найдена.')
+  if (snapshot.data().schemaVersion !== 1) throw new Error('Данные дня обновились. Обновите приложение до новой версии.')
   return snapshot.data() as DayPageData
 }
 export function watchDayPage(token: string, onChange: (page: DayPageData) => void, onError: (error: Error) => void) {
   return onSnapshot(doc(db, 'dayPages', token), (snapshot) => {
     if (!snapshot.exists()) { onError(new Error('Страница дня не найдена.')); return }
+    if (snapshot.data().schemaVersion !== 1) { onError(new Error('Данные дня обновились. Обновите приложение до новой версии.')); return }
     onChange(snapshot.data() as DayPageData)
   }, onError)
 }

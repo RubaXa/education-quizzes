@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Education">
+  <rect width="512" height="512" rx="112" fill="#4b398b"/>
+  <circle cx="256" cy="256" r="164" fill="#604aaf"/>
+  <path d="m256 126 22 94 66-66-42 84 91 18-91 18 42 84-66-66-22 94-22-94-66 66 42-84-91-18 91-18-42-84 66 66 22-94Z" fill="#fff"/>
+  <path d="m339 339 18 36 36 18-36 18-18 36-18-36-36-18 36-18 18-36Z" fill="#ffda79"/>
+</svg>

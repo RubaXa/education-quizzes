@@ -1,6 +1,6 @@
 # Страница дня
 
-Связанные контракты: [маршруты и данные](access-and-state.md), [тесты](quizzes.md), [материалы](materials.md), [оценки](grades.md), [фото и Диск](storage-privacy.md). Карта: [README](README.md).
+Связанные контракты: [маршруты и данные](access-and-state.md), [многодневный dashboard](dashboard.md), [тесты](quizzes.md), [материалы](materials.md), [оценки](grades.md), [фото и Диск](storage-privacy.md). Карта: [README](README.md).
 
 <a id="day-page"></a>
 ## Дата и карточки ДЗ

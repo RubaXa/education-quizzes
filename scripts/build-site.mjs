@@ -15,5 +15,6 @@ if (existsSync(resolve('dist/index.html'))
 
 execFileSync('npm', ['run', 'typecheck'], { stdio: 'inherit' })
 execFileSync('npm', ['run', 'bundle'], { stdio: 'inherit' })
+execFileSync(process.execPath, ['scripts/generate-sw.mjs', fingerprint], { stdio: 'inherit' })
 mkdirSync(resolve('.local'), { recursive: true })
 writeFileSync(marker, `${fingerprint}\n`)

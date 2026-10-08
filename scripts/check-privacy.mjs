@@ -1,4 +1,5 @@
 import { execFileSync } from 'node:child_process'
+import { createHash } from 'node:crypto'
 
 /** @see ../docs/product/storage-privacy.md#privacy-boundary */
 const history = process.argv.includes('--history')
@@ -11,6 +12,13 @@ const committed = history ? execFileSync('git', ['rev-list', '--objects', 'HEAD'
   }) : []
 const changed = history ? committed : staged
 const forbiddenPath = /(^|\/)(\.local|public\/materials|materials|current-material-pages\.json|[^/]*\.(?:png|jpe?g|webp|gif|pdf|docx?|env(?:\.local)?))(?=\/|$)/i
+// These three generated, generic app icons are the only binary media allowed.
+// Exact hashes make it impossible to replace an icon with a personal image unnoticed.
+const publicIconHashes = {
+  'icons/education-180.png': 'c9b927decad18c5f2a4ea232c7c0cacc1c11060869f6f57031d7f1819b0ffd64',
+  'icons/education-192.png': '22c126087f6dd6c0c35118319b84de5ab70d5c7f7d5c3319d2fe0d26ff944733',
+  'icons/education-512.png': 'ca2de8f4f699520f8cf07a987d249bca21a5cc5f0dbcf617029f98126c909d57',
+}
 const forbiddenText = new RegExp([
   'Пет' + '(?:я|и|р|ька)',
   'Лебе' + 'дев',
@@ -21,6 +29,14 @@ const forbiddenText = new RegExp([
 const violations = []
 
 for (const { path, object } of changed) {
+  const iconHash = publicIconHashes[path.replace(/^public\//, '')]
+  if (iconHash) {
+    const bytes = history
+      ? execFileSync('git', ['cat-file', '-p', object], { maxBuffer: 20 * 1024 * 1024 })
+      : execFileSync('git', ['show', object], { maxBuffer: 20 * 1024 * 1024 })
+    if (createHash('sha256').update(bytes).digest('hex') !== iconHash) violations.push(`${path}: иконка не совпадает с проверенным файлом`)
+    continue
+  }
   if (forbiddenPath.test(path)) { violations.push(`${path}: закрытый файл или медиа`); continue }
   if (history && execFileSync('git', ['cat-file', '-t', object], { encoding: 'utf8' }).trim() !== 'blob') continue
   const content = history

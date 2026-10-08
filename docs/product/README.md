@@ -5,6 +5,9 @@
 ```mermaid
 flowchart LR
   Access[Доступ и состояние] --> Day[Страница дня]
+  Access --> Dashboard[Dashboard]
+  Dashboard --> Day
+  Dashboard --> Grades[Оценки]
   Access --> Quiz[Тесты]
   Day --> Quiz
   Day --> Materials[Материалы]
@@ -12,16 +15,30 @@ flowchart LR
   Materials --> Storage[Хранение и приватность]
   Day --> Storage
   Diary[Порт дневника] --> Day
+  Diary --> Dashboard
+  Family[Семья и доступ] --> Access
+  Family --> UI[Экраны из данных]
+  Family --> Activity[Действия и новое]
+  UI --> Dashboard
+  UI --> Day
+  Activity --> Dashboard
+  PWA[Приложение на телефоне] --> Access
+  PWA --> Activity
 ```
 
 | Контракт | Что определяет | Основные модули |
 |---|---|---|
 | [Доступ и состояние](access-and-state.md) | Маршруты, роли, документы Firestore, повторный выпуск | `src/App.tsx`, `src/lib/store.ts`, `src/lib/dayStore.ts`, `day/merge.mjs` |
 | [Страница дня](day-page.md) | Дата ДЗ, карточки, фото, связь теста с предметом | `src/DayPage.tsx`, `day/build.mjs`, `scripts/day.mjs` |
+| [Многодневный dashboard](dashboard.md) | Полоса дат, сводки, многодневная синхронизация и версии ДЗ | Компонент и индекс Firestore готовы локально; правило доступа и многодневная синхронизация ещё не включены |
 | [Тесты](quizzes.md) | Попытка, сохранение, результат, списки | `src/App.tsx`, `src/components/SubjectTheme.tsx`, `src/lib/quiz.ts` |
 | [Материалы](materials.md) | Точный источник, страницы, ридер | `src/components/MaterialReader.tsx`, `src/lib/yandexPublic.ts`, `storage/material-pages.mjs` |
 | [Средний балл](grades.md) | Метка, условный сценарий и границы точности | `src/DayPage.tsx` |
 | [Хранение и приватность](storage-privacy.md) | Яндекс.Диск, временная очередь, очистка копий | `scripts/storage.mjs`, `storage/yandex-disk.mjs`, `src/lib/dayStore.ts` |
 | [Порт дневника](../architecture/school-diary-port-adapter.md) | Изоляция МЭШ, семейные правила видимости | `diary/`, `scripts/day.mjs` |
+| [Семья и доступ](../architecture/family-data-model.md) | Семьи, роли, дети, источник истины и перенос ссылочной модели | `src/lib/educationSchema.ts`, `firestore.rules` |
+| [Экраны из данных](../architecture/backend-driven-ui.md) | Безопасный манифест и реестр блоков вместо статичного макета | `src/lib/educationSchema.ts`, `src/components/EducationScreen.tsx` |
+| [Действия и новое](../architecture/activity-and-inbox.md) | Журнал посещений, ревизии просмотра и адресные уведомления | `src/lib/educationStore.ts`, `firestore.rules` |
+| [Приложение на телефоне](pwa.md) | Установка на iPhone, обновление кода, кеш и граница push | `src/lib/pwa.ts`, `pwa/sw-template.js`, `scripts/generate-sw.mjs` |
 
 Семейные планы, токены, снимки дневника, фото работ и привязки конкретных учебников лежат в закрытом локальном проекте или на Яндекс.Диске; эта карта не содержит их. Публичный исходный репозиторий и ветка сайта не должны содержать сами изображения. Перед выпуском проверяются и текущие файлы, и история Git: удаление файла новым коммитом не удаляет его из старых коммитов.

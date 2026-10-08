@@ -56,6 +56,7 @@ body {
   color: #70698b;
   font-size: .85rem;
 }
+.header-actions{display:flex;align-items:center;gap:12px}
 
 .page-wrap {
   width: min(100% - 2rem, 920px);

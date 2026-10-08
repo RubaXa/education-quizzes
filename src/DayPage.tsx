@@ -125,11 +125,22 @@ function GradeBadge({ summary, details, threshold, asOf }: { summary?: GradeSumm
  * @see ../docs/product/access-and-state.md#state
  */
 export default function DayPage({ token, parent }: { token: string; parent: boolean }) {
+  /** @see ../docs/product/dashboard.md#day-navigation */
+  const [requestedView] = useState(() => {
+    const query = new URLSearchParams(window.location.search).get('tab')
+    const stored = sessionStorage.getItem('education-day-initial-tab')
+    sessionStorage.removeItem('education-day-initial-tab')
+    return query ?? stored
+  })
+  const [returnToDashboard] = useState(() => {
+    const saved = sessionStorage.getItem('education-day-dashboard-return') ?? ''
+    return new RegExp(`^#/${parent ? 'days-parent' : 'days'}/[A-Za-z0-9_-]{20,}$`).test(saved) ? saved : ''
+  })
   const [page, setPage] = useState<DayPageData>()
   const [uploads, setUploads] = useState<DayUpload[]>([])
   const [tests, setTests] = useState<TestItem[]>([])
-  const [view, setView] = useState<'homework' | 'school'>('school')
-  const [manualView, setManualView] = useState(false)
+  const [view, setView] = useState<'homework' | 'school'>(requestedView === 'homework' ? 'homework' : 'school')
+  const [manualView, setManualView] = useState(requestedView === 'homework' || requestedView === 'school')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState('')
 
@@ -228,6 +239,7 @@ export default function DayPage({ token, parent }: { token: string; parent: bool
   const currentChanged = lastChange?.changed.filter((id) => currentTaskIds.has(id)) ?? []
 
   return <div className={`day-page ${parent ? 'day-parent' : 'day-student'}`}>
+    {returnToDashboard && <a className="day-return" href={returnToDashboard}>← Назад к dashboard</a>}
     <section className="day-hero">
       <div className="day-kicker">{parent ? 'Панель родителя' : 'Мой план'} · {shortDate(page.date)}</div>
       <h1>{parent ? 'Что требует внимания' : 'Сегодня справимся 👋'}</h1>

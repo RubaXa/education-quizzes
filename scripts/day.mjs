@@ -7,6 +7,7 @@ import { applicationDefault, initializeApp } from 'firebase-admin/app'
 import { getFirestore, Timestamp } from 'firebase-admin/firestore'
 import { linksFile as pageLinksFile, materialLinks } from '../storage/material-pages.mjs'
 import { buildDaySource } from '../day/build.mjs'
+import { buildDayDashboardIndex } from '../day/dashboard-index.mjs'
 import { mergeDayPage } from '../day/merge.mjs'
 import { YandexDiskStorage } from '../storage/yandex-disk.mjs'
 import { lessonVisibility } from '../diary/application/lesson-visibility.mjs'
@@ -14,10 +15,25 @@ import { lessonVisibility } from '../diary/application/lesson-visibility.mjs'
 const local = resolve('.local')
 const site = 'https://rubaxa.github.io/education-quizzes/'
 const linksFile = resolve(local, 'day-links.json')
+const dashboardLinksFile = resolve(local, 'day-dashboard-links.json')
 const [command, date, third] = process.argv.slice(2)
 
 function fail(message) { throw new Error(message) }
 function json(path) { return JSON.parse(readFileSync(path, 'utf8')) }
+function dashboardLinks() {
+  return existsSync(dashboardLinksFile) ? json(dashboardLinksFile) : {
+    student: randomBytes(32).toString('base64url'),
+    parent: randomBytes(32).toString('base64url'),
+  }
+}
+/** @see ../docs/product/dashboard.md#firestore-model */
+function addDashboardDocuments(batch, links, tokens) {
+  for (const role of ['student', 'parent']) {
+    batch.set(db.doc(`dayDashboards/${tokens[role]}`), {
+      ...buildDayDashboardIndex(local, links, role), updatedAt: Timestamp.now(),
+    })
+  }
+}
 function nextCalendarDate(value, days) { const date = new Date(`${value}T12:00:00Z`); date.setUTCDate(date.getUTCDate() + days); return date.toISOString().slice(0, 10) }
 function runLocal(script, args) { execFileSync(process.execPath, [script, ...args], { cwd: resolve('.'), stdio: 'inherit' }) }
 function refresh() {
@@ -129,6 +145,7 @@ async function publish() {
   }
   if (!links[date]) links[date] = { student: randomBytes(32).toString('base64url'), parent: randomBytes(32).toString('base64url') }
   const pair = links[date]
+  const indexTokens = dashboardLinks()
   const base = {
     schemaVersion: 1, date, targetDate: source.targetDate, updatedAt: Timestamp.now(),
     meshFetchedAt: target.fetchedAt, todaySchedule: schedule(today), targetSchedule: schedule(target),
@@ -143,10 +160,22 @@ async function publish() {
   const [oldStudent, oldParent] = await Promise.all([db.doc(`dayPages/${pair.student}`).get(), db.doc(`dayPages/${pair.parent}`).get()])
   batch.set(db.doc(`dayPages/${pair.student}`), mergeDayPage(oldStudent.data(), { ...base, kind: 'student', boardToken: readFileSync(resolve(local, 'learner-board-token'), 'utf8').trim() }))
   batch.set(db.doc(`dayPages/${pair.parent}`), mergeDayPage(oldParent.data(), { ...base, kind: 'parent', studentToken: pair.student, boardToken: readFileSync(resolve(local, 'parent-board-token'), 'utf8').trim(), parentNotes: source.parentNotes ?? [] }))
+  addDashboardDocuments(batch, links, indexTokens)
   await batch.commit()
   mkdirSync(local, { recursive: true })
   writeFileSync(linksFile, JSON.stringify(links, null, 2), { mode: 0o600 })
+  writeFileSync(dashboardLinksFile, JSON.stringify(indexTokens, null, 2), { mode: 0o600 })
   console.log(JSON.stringify({ student: `${site}#/day/${pair.student}`, parent: `${site}#/day-parent/${pair.parent}`, tasks: taskIds.length }, null, 2))
+}
+
+async function publishDashboard() {
+  const links = existsSync(linksFile) ? json(linksFile) : {}
+  const indexTokens = dashboardLinks()
+  const batch = db.batch()
+  addDashboardDocuments(batch, links, indexTokens)
+  await batch.commit()
+  writeFileSync(dashboardLinksFile, JSON.stringify(indexTokens, null, 2), { mode: 0o600 })
+  console.log(JSON.stringify({ student: `${site}#/days/${indexTokens.student}`, parent: `${site}#/days-parent/${indexTokens.parent}` }, null, 2))
 }
 
 /** @see ../docs/product/storage-privacy.md#upload-queue */
@@ -211,7 +240,7 @@ async function seedEvidence() {
   console.log(JSON.stringify({ imported: added, alreadyPresent: existing, sourcePhotos: source.historicalUploads?.length ?? 0 }))
 }
 
-if (!['refresh', 'build', 'publish', 'pull', 'seed-evidence'].includes(command)) fail('Команды: refresh YYYY-MM-DD | build YYYY-MM-DD | publish YYYY-MM-DD | pull YYYY-MM-DD [папка] | seed-evidence YYYY-MM-DD')
+if (!['refresh', 'build', 'publish', 'dashboard', 'pull', 'seed-evidence'].includes(command)) fail('Команды: refresh YYYY-MM-DD | build YYYY-MM-DD | publish YYYY-MM-DD | dashboard | pull YYYY-MM-DD [папка] | seed-evidence YYYY-MM-DD')
 if (command === 'build') {
   console.log(JSON.stringify(buildDaySource(local, date), null, 2))
   process.exit(0)
@@ -221,6 +250,7 @@ prepareLogin()
 initializeApp({ credential: applicationDefault(), projectId: 'education-9d7c6' })
 const db = getFirestore()
 if (command === 'publish' || command === 'refresh') await publish()
+else if (command === 'dashboard') await publishDashboard()
 else if (command === 'pull') await pull()
 else await seedEvidence()
 if (command === 'refresh') {

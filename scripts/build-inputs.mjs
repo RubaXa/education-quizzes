@@ -4,7 +4,7 @@ import { join, relative, resolve } from 'node:path'
 
 const root = resolve('.')
 const inputs = [
-  'src', 'public', 'index.html', 'vite.config.ts', 'package.json',
+  'src', 'public', 'pwa', 'scripts/generate-sw.mjs', 'index.html', 'vite.config.ts', 'package.json',
   'package-lock.json', 'tsconfig.json', 'tsconfig.app.json', 'tsconfig.node.json',
 ]
 
