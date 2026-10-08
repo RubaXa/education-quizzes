@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Check, Copy, KeyRound, RefreshCw } from 'lucide-react'
+import { Check, ClipboardPaste, Copy, KeyRound } from 'lucide-react'
 import { Button } from './ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card'
 import { Input } from './ui/input'
-import { loadPersonalProfile, personalEntryUrl, redeemPersonalLink, restorePersonalSession } from '../lib/personalAccess'
+import { loadPersonalProfile, personalEntryUrl, redeemPersonalLink, restorePersonalSession, secretFromPastedPersonalLink } from '../lib/personalAccess'
 import type { PersonalProfile, PersonalSession } from '../lib/personalAccess'
 import DayDashboard from '../DayDashboard'
 
@@ -31,6 +31,7 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
   const [retry, setRetry] = useState(0)
   const [copied, setCopied] = useState(false)
   const [selectedChild, setSelectedChild] = useState<string | null>(null)
+  const [manualEntry, setManualEntry] = useState(false)
 
   useEffect(() => {
     const reconnect = () => { setOnline(true); if (!profile) setRetry((value) => value + 1) }
@@ -67,17 +68,40 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
     return () => { alive = false }
   }, [initialLink, retry])
 
-  const submit = async (event: React.FormEvent) => {
-    event.preventDefault()
+  const openLink = async (value: string) => {
     setBusy(true)
     setError('')
     try {
-      const redeemed = await redeemPersonalLink(link)
+      const redeemed = await redeemPersonalLink(secretFromPastedPersonalLink(value))
       setProfile(await loadPersonalProfile(redeemed))
       setSession(redeemed)
       setLink('')
     } catch (cause) {
       setError(accessError(cause))
+    } finally { setBusy(false) }
+  }
+
+  const submit = (event: React.FormEvent) => {
+    event.preventDefault()
+    void openLink(link)
+  }
+
+  const openFromClipboard = async () => {
+    setError('')
+    setBusy(true)
+    try {
+      if (!navigator.clipboard?.readText) {
+        setError('Этот браузер не разрешает прочитать буфер. Нажмите «Вставить вручную» и выберите «Вставить».')
+        return
+      }
+      const text = await navigator.clipboard.readText()
+      if (!text.trim()) {
+        setError('Буфер обмена пуст. Скопируйте личную ссылку профиля и нажмите кнопку ещё раз.')
+        return
+      }
+      await openLink(text)
+    } catch {
+      setError('Не удалось прочитать буфер обмена. Разрешите вставку или нажмите «Вставить вручную».')
     } finally { setBusy(false) }
   }
 
@@ -100,7 +124,7 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
       {child?.dashboardToken ? <DayDashboard key={child.dashboardToken} token={child.dashboardToken} parent={child.role === 'parent'} />
         : <Card><CardContent className="py-8">Dashboard для этого профиля ещё не опубликован.</CardContent></Card>}
       <details className="personal-install-hint"><summary>Личная ссылка для установки на iPhone</summary>
-        <p>Скопируйте ссылку перед добавлением сайта на экран «Домой». При первом запуске с иконки вставьте её один раз.</p>
+        <p>Скопируйте именно ссылку профиля перед добавлением сайта на экран «Домой». При первом запуске с иконки нажмите «Войти по ссылке из буфера».</p>
         <Button type="button" variant="outline" onClick={() => void copyPersonalLink()}>{copied ? <Check /> : <Copy />}{copied ? 'Ссылка скопирована' : 'Скопировать личную ссылку'}</Button>
       </details>
       {error && <p role="alert" className="personal-login-error">{error}</p>}
@@ -110,18 +134,19 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
   return <Card className="personal-login mx-auto max-w-2xl">
     <CardHeader>
       <div className="personal-entry-icon"><KeyRound /></div>
-      <CardTitle>Вход по личной ссылке</CardTitle>
-      <CardDescription>У каждого родителя и ребёнка своя ссылка. Вставьте её один раз на этом устройстве.</CardDescription>
+      <CardTitle>Войти в Education</CardTitle>
+      <CardDescription>Скопируйте личную ссылку профиля и нажмите кнопку. Это нужно один раз после установки приложения на телефон.</CardDescription>
     </CardHeader>
     <CardContent>
-      <form onSubmit={submit} className="personal-login-form">
-        <Input aria-label="Личная ссылка Education" autoComplete="off" placeholder="Личная ссылка Education" value={link} onChange={(event) => setLink(event.target.value)} />
-        <Button type="submit" disabled={busy || !link.trim()}>{busy ? 'Открываем…' : 'Открыть'}</Button>
-      </form>
+      <Button type="button" className="personal-clipboard-button" disabled={busy} onClick={() => void openFromClipboard()}><ClipboardPaste />{busy ? 'Открываем…' : 'Войти по ссылке из буфера'}</Button>
+      <button type="button" className="personal-manual-toggle" onClick={() => setManualEntry((value) => !value)} aria-expanded={manualEntry}>{manualEntry ? 'Скрыть ручной ввод' : 'Вставить вручную'}</button>
+      {manualEntry && <form onSubmit={submit} className="personal-login-form">
+        <Input aria-label="Личная ссылка Education" autoComplete="off" placeholder="https://…/#/enter/…" value={link} onChange={(event) => { setLink(event.target.value); setError('') }} />
+        <Button type="submit" disabled={busy || !link.trim()}>{busy ? 'Открываем…' : 'Войти'}</Button>
+      </form>}
       {busy && !link && <p className="text-muted-foreground">Проверяем доступ…</p>}
       {!online && <p role="status" className="personal-offline">Нет сети. Приложение открылось, но личный план загрузится после подключения.</p>}
       {error && <p role="alert" className="personal-login-error">{error}</p>}
-      {error && <Button type="button" variant="outline" className="mt-3" onClick={() => setRetry((value) => value + 1)} disabled={busy}><RefreshCw /> Повторить</Button>}
     </CardContent>
   </Card>
 }

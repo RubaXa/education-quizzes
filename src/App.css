@@ -75,6 +75,10 @@ body {
 .personal-child-list{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(min(100%,17rem),1fr))}
 .personal-login-form{display:flex;gap:.75rem;flex-wrap:wrap}
 .personal-login-form input{min-width:min(100%,19rem);flex:1}
+.personal-clipboard-button{width:100%;min-height:3rem;justify-content:center}
+.personal-manual-toggle{display:block;margin:.8rem auto 0;border:0;background:none;color:#604795;font:inherit;font-size:.9rem;font-weight:700;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.personal-manual-toggle:focus-visible{outline:2px solid #604795;outline-offset:3px}
+.personal-login-form{margin-top:.8rem}
 .personal-login-error{margin-top:1rem;color:#a52444}
 .personal-install-hint{padding:.75rem 1rem;border:1px solid #ded5f1;border-radius:1rem;background:#fff}
 .personal-install-hint summary{color:#55418d;font-weight:700;cursor:pointer}

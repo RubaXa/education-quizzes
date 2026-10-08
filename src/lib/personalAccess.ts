@@ -31,13 +31,36 @@ export function currentEducationPersonId(): string {
 
 export function secretFromPersonalLink(value: string): string {
   const trimmed = value.trim()
-  const secret = secretPattern.test(trimmed)
-    ? trimmed
-    : /^https:\/\//.test(trimmed)
-      ? new URL(trimmed).hash.match(/^#\/enter\/([A-Za-z0-9_-]{43})$/)?.[1]
-      : trimmed.match(/^#\/enter\/([A-Za-z0-9_-]{43})$/)?.[1]
-  if (!secret || !secretPattern.test(secret)) throw new Error('Нужна личная ссылка Education целиком.')
-  return secret
+  if (!trimmed) throw new Error('Ссылка не найдена. Скопируйте личную ссылку родителя или ребёнка и попробуйте снова.')
+  if (secretPattern.test(trimmed)) return trimmed
+  let hash = trimmed
+  if (/^https?:\/\//i.test(trimmed)) {
+    const url = new URL(trimmed)
+    const allowedOrigin = url.origin === 'https://rubaxa.github.io' || url.origin === location.origin
+    if (!allowedOrigin || !/^\/education-quizzes\/?$/.test(url.pathname)) {
+      throw new Error('Это ссылка на другой сайт. Нужна личная ссылка Education.')
+    }
+    hash = url.hash
+  }
+  const secret = hash.match(/^#\/enter\/([A-Za-z0-9_-]{43})$/)?.[1]
+  if (secret) return secret
+  if (/^#\/(day|day-parent|days|days-parent)\//.test(hash)) {
+    throw new Error('Это ссылка на учебный день, а для входа в приложение нужна личная ссылка профиля. Откройте личную ссылку родителя или ребёнка.')
+  }
+  if (/^#\/(t|preview|dashboard|my|review)\//.test(hash)) {
+    throw new Error('Это ссылка на тест или список заданий. Для входа в приложение нужна личная ссылка профиля.')
+  }
+  throw new Error('В ссылке нет личного входа Education. Она должна содержать #/enter/ после адреса сайта.')
+}
+
+/** A pasted value must be the complete personal URL, not an ambiguous bare token. */
+export function secretFromPastedPersonalLink(value: string): string {
+  const trimmed = value.trim()
+  if (secretPattern.test(trimmed)) throw new Error('В буфере только код ссылки. Скопируйте личную ссылку Education целиком.')
+  if (trimmed && !/^https?:\/\//i.test(trimmed) && !trimmed.startsWith('#/')) {
+    throw new Error('В буфере нет ссылки Education. Скопируйте личную ссылку профиля целиком.')
+  }
+  return secretFromPersonalLink(trimmed)
 }
 
 async function authUid(): Promise<string> {
