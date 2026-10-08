@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
-import { BookOpen, Camera, CheckCircle2, ChevronDown, Clock3, ExternalLink } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { BookOpen, Camera, CheckCircle2, ChevronDown, Clock3, ExternalLink, Images, RotateCcw } from 'lucide-react'
 import { uploadDayPhoto, watchDayPage, watchDayUploads, watchMaterialPages } from '@/lib/dayStore'
 import type { DayInstruction, DayMaterialLink, DayPageData, DayTask, DayUpload } from '@/lib/dayStore'
 import { loadAnswerKey, watchAssignment, watchDashboard } from '@/lib/store'
@@ -10,13 +10,14 @@ import { publicImage } from '@/lib/yandexPublic'
 import './DayPage.css'
 
 type TestItem = { token: string; title: string; subject: string; slug: string; status: Assignment['status']; answered: number; total: number; points?: number; maxPoints?: number }
+type LocalPhoto = { id: string; taskId: string; file: File; previewUrl: string; state: 'uploading' | 'saved' | 'failed'; error?: string }
 
 /**
  * Показывает работу из временной очереди или по ссылке на проверенный файл Диска.
  * @see ../docs/product/day-page.md#photo-preview
  * @see ../docs/product/storage-privacy.md#upload-queue
  */
-function WorkPhoto({ upload, title, index }: { upload: DayUpload; title: string; index: number }) {
+function WorkPhoto({ upload, title, index, compact = false }: { upload: DayUpload; title: string; index: number; compact?: boolean }) {
   const [src, setSrc] = useState(upload.dataUrl ?? '')
   const [failed, setFailed] = useState(false)
   useEffect(() => {
@@ -26,9 +27,10 @@ function WorkPhoto({ upload, title, index }: { upload: DayUpload; title: string;
     let active = true
     setSrc('')
     setFailed(false)
-    void publicImage(url).then((image) => { if (active) setSrc(image) }).catch(() => { if (active) setFailed(true) })
+    void publicImage(url, compact ? 'S' : 'XXXL').then((image) => { if (active) setSrc(image) }).catch(() => { if (active) setFailed(true) })
     return () => { active = false }
-  }, [upload.dataUrl, upload.storage?.publicUrl])
+  }, [upload.dataUrl, upload.storage?.publicUrl, compact])
+  if (compact && (failed || !src)) return <span className="day-upload-thumb-placeholder"><Camera size={23} aria-hidden="true" /></span>
   if (failed || !src) return upload.storage?.publicUrl
     ? <p><a href={upload.storage.publicUrl} target="_blank" rel="noopener noreferrer">Открыть фото на Яндекс.Диске</a></p>
     : <p>Фото ожидает переноса на Яндекс.Диск.</p>
@@ -150,13 +152,24 @@ export default function DayPage({ token, parent }: { token: string; parent: bool
     return new RegExp(`^#/${parent ? 'days-parent' : 'days'}/[A-Za-z0-9_-]{20,}$`).test(saved) ? saved : ''
   })
   const [page, setPage] = useState<DayPageData>()
+  const studentToken = page?.studentToken ?? token
   const [catalogPages, setCatalogPages] = useState<Record<string, DayMaterialLink>>({})
   const [uploads, setUploads] = useState<DayUpload[]>([])
   const [tests, setTests] = useState<TestItem[]>([])
   const [view, setView] = useState<'homework' | 'school'>(requestedView === 'homework' ? 'homework' : 'school')
   const [manualView, setManualView] = useState(requestedView === 'homework' || requestedView === 'school')
   const [error, setError] = useState('')
-  const [busy, setBusy] = useState('')
+  const [localPhotos, setLocalPhotos] = useState<LocalPhoto[]>([])
+  const photoUrls = useRef(new Set<string>())
+
+  useEffect(() => () => { for (const url of photoUrls.current) URL.revokeObjectURL(url) }, [])
+  useEffect(() => {
+    const saved = localPhotos.filter((item) => item.state === 'saved' && uploads.some((upload) => upload.id === `${studentToken}:${item.id}`))
+    if (!saved.length) return
+    for (const item of saved) { URL.revokeObjectURL(item.previewUrl); photoUrls.current.delete(item.previewUrl) }
+    const ids = new Set(saved.map((item) => item.id))
+    setLocalPhotos((current) => current.filter((item) => !ids.has(item.id)))
+  }, [localPhotos, uploads, studentToken])
 
   useEffect(() => {
     let active = true
@@ -211,7 +224,6 @@ export default function DayPage({ token, parent }: { token: string; parent: bool
     })
   }, [page?.taskPageRefs])
 
-  const studentToken = page?.studentToken ?? token
   const evidenceTokens = [...new Set([studentToken, ...(page?.evidenceDayTokens || [])])].join('|')
   const hasPage = Boolean(page)
   useEffect(() => {
@@ -232,20 +244,32 @@ export default function DayPage({ token, parent }: { token: string; parent: bool
     const taskPending = page.subjects.flatMap((subject) => subject.tasks).filter((task) => (task.originDate ?? page.targetDate) === page.targetDate).filter((task) => {
       if (task.status === 'verified') return false
       if (task.kind === 'written') return !uploads.some((upload) => upload.taskId === task.id && (upload.status === 'pending' || task.status === 'unknown'))
+        && !localPhotos.some((photo) => photo.taskId === task.id && photo.state === 'saved')
       if (task.kind === 'read') { const test = tests.find((item) => item.token === task.testToken); return !(test?.status === 'submitted' && test.points != null && test.points >= (task.requiredPoints ?? test.maxPoints ?? 1)) }
       return true
     }).length
     const testPending = currentPlacements.filter((placement) => !placement.taskId && tests.find((item) => item.token === placement.token)?.status !== 'submitted').length
     return taskPending + testPending
-  }, [page, uploads, tests, currentPlacements])
-  async function attach(task: DayTask, files: FileList | null) {
-    if (!files?.length) return
-    setBusy(task.id)
+  }, [page, uploads, localPhotos, tests, currentPlacements])
+  async function sendPhoto(photo: LocalPhoto) {
+    setLocalPhotos((current) => current.map((item) => item.id === photo.id ? { ...item, state: 'uploading', error: undefined } : item))
     try {
-      for (const file of Array.from(files)) await uploadDayPhoto(studentToken, task.id, file)
-      setError('')
-    } catch (cause) { setError(cause instanceof Error ? cause.message : 'Не удалось загрузить фото.') }
-    finally { setBusy('') }
+      await uploadDayPhoto(studentToken, photo.taskId, photo.file, photo.id)
+      setLocalPhotos((current) => current.map((item) => item.id === photo.id ? { ...item, state: 'saved' } : item))
+    } catch (cause) {
+      setLocalPhotos((current) => current.map((item) => item.id === photo.id
+        ? { ...item, state: 'failed', error: cause instanceof Error ? cause.message : 'Не удалось загрузить фото.' } : item))
+    }
+  }
+  function attach(task: DayTask, files: File[]) {
+    if (!files.length) return
+    const photos = files.map((file) => {
+      const previewUrl = URL.createObjectURL(file)
+      photoUrls.current.add(previewUrl)
+      return { id: crypto.randomUUID(), taskId: task.id, file, previewUrl, state: 'uploading' as const }
+    })
+    setLocalPhotos((current) => [...current, ...photos])
+    for (const photo of photos) void sendPhoto(photo)
   }
 
   if (error && !page) return <div className="day-error"><h1>Не получилось открыть страницу</h1><p>{error}</p></div>
@@ -315,18 +339,20 @@ export default function DayPage({ token, parent }: { token: string; parent: bool
               const otherLinks = taskLinks.filter((link) => !canReadInside(link))
               const needsTextbook = task.materialStatus?.state === 'textbook-page-needed' && !taskLinks.some((link) => link.sourceType === 'textbook-page')
               const taskUploads = uploads.filter((upload) => upload.taskId === task.id)
+              const localTaskPhotos = localPhotos.filter((photo) => photo.taskId === task.id)
               const priorWork = taskUploads.some((upload) => upload.status === 'reviewed')
-              const newWork = taskUploads.some((upload) => upload.status === 'pending')
+              const newWork = taskUploads.some((upload) => upload.status === 'pending') || localTaskPhotos.some((photo) => photo.state === 'saved')
+              const uploadingWork = localTaskPhotos.some((photo) => photo.state === 'uploading')
               const linkedTest = tests.find((item) => item.token === task.testToken)
               const readPassed = task.kind === 'read' && linkedTest?.status === 'submitted' && linkedTest.points != null && linkedTest.points >= (task.requiredPoints ?? linkedTest.maxPoints ?? 1)
               const verified = task.status === 'verified' || readPassed
               const submitted = task.kind === 'written' && newWork
               const state = task.kind === 'written'
-                ? task.status === 'verified' ? 'Готово · проверено' : newWork ? 'Новое фото · ждёт проверки' : priorWork ? task.status === 'needs-fix' ? 'Работа проверена · исправить' : task.status === 'partial' ? 'Работа проверена · дополнить' : 'Работа сохранена' : statusLabel(task.status)
+                ? task.status === 'verified' ? 'Готово · проверено' : newWork ? 'Новое фото · ждёт проверки' : uploadingWork ? 'Фото загружается' : priorWork ? task.status === 'needs-fix' ? 'Работа проверена · исправить' : task.status === 'partial' ? 'Работа проверена · дополнить' : 'Работа сохранена' : statusLabel(task.status)
                 : task.kind === 'read' ? readPassed ? `Тест пройден · ${linkedTest?.points}/${linkedTest?.maxPoints}` : linkedTest?.status === 'submitted' ? linkedTest.points == null ? 'Проверяем тест' : `Нужен разбор · ${linkedTest.points}/${linkedTest.maxPoints}` : 'Нужен тест' : statusLabel(task.status)
-              const uploadLabel = newWork ? 'Добавить ещё фото ответа' : priorWork ? task.status === 'needs-fix' ? 'Сфотографировать исправление' : 'Сфотографировать продолжение' : task.submission?.buttonLabel ?? 'Сфотографировать ответ'
-              const canUpload = !parent && task.kind === 'written' && task.status !== 'verified' && (!priorWork || newWork || task.status === 'needs-fix' || task.status === 'partial')
-              const showSubmission = task.kind === 'written' && task.status !== 'verified' && (!priorWork || newWork || task.status === 'needs-fix' || task.status === 'partial')
+              const uploadLabel = newWork || uploadingWork ? 'Сфотографировать ещё страницу' : priorWork ? task.status === 'needs-fix' ? 'Сфотографировать исправление' : 'Сфотографировать продолжение' : task.submission?.buttonLabel ?? 'Сфотографировать ответ'
+              const canUpload = !parent && task.kind === 'written' && task.status !== 'verified' && (!priorWork || newWork || uploadingWork || task.status === 'needs-fix' || task.status === 'partial')
+              const showSubmission = task.kind === 'written' && task.status !== 'verified' && (!priorWork || newWork || uploadingWork || task.status === 'needs-fix' || task.status === 'partial')
               const submission = task.submission
               return <article className={`day-task ${verified ? 'done' : submitted ? 'submitted' : ''}`} key={task.id}>
                 <div className="day-task-row"><span className={`day-task-state ${verified ? 'verified' : submitted ? 'partial' : task.status}`}>{verified && <CheckCircle2 size={15} aria-hidden="true" />} {state}</span>{task.kind === 'written' && <span className="day-task-type">В тетради</span>}{task.originDate && task.originDate !== page.targetDate && <span className="day-task-type">Осталось с {dayMonth(task.originDate)}</span>}</div>
@@ -344,12 +370,15 @@ export default function DayPage({ token, parent }: { token: string; parent: bool
                   {!submission?.lead && !submission?.items?.length && !submission?.photo && <p>{submission?.description ?? `Страница тетради с результатом задания «${task.title}». Номер и ответ должны читаться.`}</p>}
                 </div>}
                 <div className="day-task-actions">
-                  {canUpload && <label className="day-upload"><Camera size={17} /> {busy === task.id ? 'Загружаем…' : uploadLabel}<input type="file" accept="image/*" capture="environment" multiple disabled={busy === task.id} onChange={(event) => { void attach(task, event.target.files); event.target.value = '' }} /></label>}
+                  {canUpload && <><label className="day-upload"><Camera size={17} aria-hidden="true" /> {uploadLabel}<input type="file" accept="image/*" capture="environment" onChange={(event) => { attach(task, Array.from(event.currentTarget.files ?? [])); event.currentTarget.value = '' }} /></label><label className="day-upload day-upload-secondary"><Images size={17} aria-hidden="true" /> Выбрать несколько фото<input type="file" accept="image/*" multiple onChange={(event) => { attach(task, Array.from(event.currentTarget.files ?? [])); event.currentTarget.value = '' }} /></label></>}
                   {task.kind === 'read' && task.testToken && task.testSlug && <a className="day-quiz-link" href={`#/t/${task.testSlug}~${task.testToken}`}>{parent ? linkedTest?.status === 'submitted' ? 'Посмотреть результат' : 'Открыть тест' : linkedTest?.status === 'submitted' ? 'Посмотреть результат' : linkedTest?.answered ? 'Продолжить тест' : 'Пройти короткий тест'} <ExternalLink size={15} /></a>}
                   {parent && <span className="day-parent-status">{task.kind === 'written' ? task.status === 'verified' ? 'Работа проверена' : newWork ? 'Новая загрузка ожидает проверки' : priorWork ? 'Исходная работа получена и разобрана; осталось действие выше' : 'Подтверждённого фото пока нет' : task.kind === 'read' ? readPassed ? 'Чтение подтверждено тестом' : 'Чтение тестом пока не подтверждено' : 'Статус сдачи не сообщён'}</span>}
                 </div>
                 {task.kind === 'read' && linkedTest && <TestProgress test={linkedTest} />}
-                {taskUploads.length > 0 && <div className="day-upload-list">{taskUploads.map((upload, index) => <details className="day-upload-proof" key={upload.id}><summary>{upload.origin === 'archive' ? `Ранее загруженная работа${upload.recordedDate ? ` · ${upload.recordedDate.slice(8, 10)}.${upload.recordedDate.slice(5, 7)}` : ''}` : `Фото ${index + 1}`} · {upload.status === 'pending' ? 'ожидает разбора' : 'проверено'} · {upload.storage?.state === 'stored' ? 'на Яндекс.Диске' : 'ожидает переноса на Диск'}</summary><WorkPhoto upload={upload} title={task.title} index={index} />{upload.storage?.publicUrl && <a className="day-upload-original" href={upload.storage.publicUrl} target="_blank" rel="noopener noreferrer">Открыть на Яндекс.Диске <ExternalLink size={13} aria-hidden="true" /></a>}</details>)}</div>}
+                {(taskUploads.length > 0 || localTaskPhotos.length > 0) && <div className="day-upload-list" aria-label={`Фото задания «${task.title}»`}>
+                  {taskUploads.map((upload, index) => <details className="day-upload-proof" key={upload.id}><summary><span className="day-upload-thumb"><WorkPhoto upload={upload} title={task.title} index={index} compact /><span className={`day-upload-indicator ${upload.status === 'pending' ? 'waiting' : 'reviewed'}`}>{upload.status === 'pending' ? <Clock3 size={15} aria-hidden="true" /> : <CheckCircle2 size={15} aria-hidden="true" />}</span></span><span className="day-upload-caption"><b>{upload.origin === 'archive' ? 'Ранее загруженная работа' : `Фото ${index + 1}`}</b><small>{upload.status === 'pending' ? 'Ждёт разбора' : 'Проверено'}</small></span></summary><div className="day-upload-expanded"><WorkPhoto upload={upload} title={task.title} index={index} />{upload.storage?.publicUrl && <a className="day-upload-original" href={upload.storage.publicUrl} target="_blank" rel="noopener noreferrer">Открыть на Яндекс.Диске <ExternalLink size={13} aria-hidden="true" /></a>}{upload.status === 'pending' && <small>{upload.storage?.state === 'stored' ? 'Фото сохранено на Яндекс.Диске.' : 'Фото сохранено. Перенос на Яндекс.Диск ещё не выполнен.'}</small>}</div></details>)}
+                  {localTaskPhotos.filter((photo) => !uploads.some((upload) => upload.id === `${studentToken}:${photo.id}`)).map((photo, index) => <div className={`day-upload-proof day-upload-local ${photo.state}`} key={photo.id}><span className="day-upload-thumb"><img src={photo.previewUrl} alt={`Новое фото ${taskUploads.length + index + 1} по заданию «${task.title}»`} /><span className={`day-upload-indicator ${photo.state}`}>{photo.state === 'failed' ? <RotateCcw size={15} aria-hidden="true" /> : <Clock3 size={15} aria-hidden="true" />}</span></span><span className="day-upload-caption"><b>Фото {taskUploads.length + index + 1}</b><small>{photo.state === 'failed' ? 'Не загрузилось' : photo.state === 'saved' ? 'Ждёт разбора' : 'Загружается…'}</small></span>{photo.state === 'failed' && <button type="button" className="day-upload-retry" onClick={() => void sendPhoto(photo)}><RotateCcw size={14} aria-hidden="true" /> Повторить</button>}{photo.error && <small className="day-upload-error">{photo.error}</small>}</div>)}
+                </div>}
                 {parent && <small className="day-source"><BookOpen size={14} /> {task.source}</small>}
               </article>
             })}

@@ -1,4 +1,4 @@
-import { addDoc, collection, doc, getDoc, onSnapshot, serverTimestamp } from 'firebase/firestore'
+import { collection, doc, getDoc, getDocFromServer, onSnapshot, serverTimestamp, setDoc } from 'firebase/firestore'
 import { db } from './firebase'
 
 export type DayInstruction = string | { text: string; source: { kind: 'mesh' | 'textbook' | 'review' | 'teacher-file'; label: string; evidence: string; excerpt?: string; ref?: string; certainty: 'confirmed' | 'uncertain' } }
@@ -89,9 +89,19 @@ async function compressedImage(file: File): Promise<string> {
   throw new Error('Фото слишком велико. Сфотографируйте одну страницу ближе и повторите.')
 }
 /** @see ../../docs/product/storage-privacy.md#upload-queue */
-export async function uploadDayPhoto(studentToken: string, taskId: string, file: File) {
+export async function uploadDayPhoto(studentToken: string, taskId: string, file: File, uploadId: string = crypto.randomUUID()) {
   const dataUrl = await compressedImage(file)
-  await addDoc(collection(db, 'dayUploads', studentToken, 'files'), {
-    taskId, dataUrl, originalName: file.name.slice(0, 120), status: 'pending', createdAt: serverTimestamp(),
-  })
+  const ref = doc(db, 'dayUploads', studentToken, 'files', uploadId)
+  try {
+    await setDoc(ref, { taskId, dataUrl, originalName: file.name.slice(0, 120), status: 'pending', createdAt: serverTimestamp() })
+  } catch (cause) {
+    // A lost acknowledgement must not turn Retry into another photo or overwrite
+    // a record that the server has already accepted.
+    try {
+      const saved = await getDocFromServer(ref)
+      if (saved.exists() && saved.data().taskId === taskId && saved.data().status === 'pending') return uploadId
+    } catch { /* Keep the original upload error for the per-photo retry UI. */ }
+    throw cause
+  }
+  return uploadId
 }
