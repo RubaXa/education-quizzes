@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { BookOpen, Camera, CheckCircle2, ChevronDown, Clock3, ExternalLink, Images, RotateCcw } from 'lucide-react'
+import { BookOpen, Camera, CheckCircle2, ChevronDown, CircleAlert, Clock3, ExternalLink, Images, LoaderCircle, RotateCcw, X } from 'lucide-react'
 import { uploadDayPhoto, watchDayPage, watchDayUploads, watchMaterialPages } from '@/lib/dayStore'
 import type { DayInstruction, DayMaterialLink, DayPageData, DayTask, DayUpload } from '@/lib/dayStore'
 import { loadAnswerKey, watchAssignment, watchDashboard } from '@/lib/store'
@@ -35,6 +35,35 @@ function WorkPhoto({ upload, title, index, compact = false }: { upload: DayUploa
     ? <p><a href={upload.storage.publicUrl} target="_blank" rel="noopener noreferrer">Открыть фото на Яндекс.Диске</a></p>
     : <p>Фото ожидает переноса на Яндекс.Диск.</p>
   return <img src={src} alt={`Работа по заданию «${title}», фото ${index + 1}`} loading="lazy" referrerPolicy="no-referrer" onError={() => setFailed(true)} />
+}
+
+/** @see ../docs/product/day-page.md#multi-photo-upload */
+function PhotoStrip({ taskTitle, studentToken, uploads, localPhotos, onRetry }: {
+  taskTitle: string; studentToken: string; uploads: DayUpload[]; localPhotos: LocalPhoto[]; onRetry: (photo: LocalPhoto) => void
+}) {
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const localOnly = localPhotos.filter((photo) => !uploads.some((upload) => upload.id === `${studentToken}:${photo.id}`))
+  if (!uploads.length && !localOnly.length) return null
+  const selectedUpload = uploads.find((upload) => upload.id === selectedId)
+  const selectedLocal = localOnly.find((photo) => `${studentToken}:${photo.id}` === selectedId)
+  return <div className="day-upload-list" aria-label={`Фото задания «${taskTitle}»`}>
+    <strong>Фото работы</strong>
+    <div className="day-upload-strip">
+      {uploads.map((upload, index) => {
+        const status = upload.status === 'pending' ? 'Ждёт разбора' : 'Проверено'
+        return <button className="day-upload-chip" type="button" key={upload.id} title={`${upload.origin === 'archive' ? 'Ранее загруженная работа' : `Фото ${index + 1}`} · ${status}`} aria-label={`Открыть фото ${index + 1}: ${status}`} aria-expanded={selectedId === upload.id} onClick={() => setSelectedId(selectedId === upload.id ? null : upload.id)}><WorkPhoto upload={upload} title={taskTitle} index={index} compact /><span className={`day-upload-indicator ${upload.status === 'pending' ? 'waiting' : 'reviewed'}`}>{upload.status === 'pending' ? <Clock3 size={10} aria-hidden="true" /> : <CheckCircle2 size={10} aria-hidden="true" />}</span></button>
+      })}
+      {localOnly.map((photo, index) => {
+        const id = `${studentToken}:${photo.id}`
+        const status = photo.state === 'failed' ? 'Не загрузилось' : photo.state === 'saved' ? 'Ждёт разбора' : 'Загружается'
+        return <button className="day-upload-chip" type="button" key={photo.id} title={`Фото ${uploads.length + index + 1} · ${status}`} aria-label={`Открыть фото ${uploads.length + index + 1}: ${status}`} aria-expanded={selectedId === id} onClick={() => setSelectedId(selectedId === id ? null : id)}><img src={photo.previewUrl} alt="" /><span className={`day-upload-indicator ${photo.state}`}>{photo.state === 'failed' ? <CircleAlert size={10} aria-hidden="true" /> : photo.state === 'uploading' ? <LoaderCircle size={10} aria-hidden="true" /> : <Clock3 size={10} aria-hidden="true" />}</span></button>
+      })}
+    </div>
+    {(selectedUpload || selectedLocal) && <div className="day-upload-expanded"><button className="day-upload-close" type="button" aria-label="Закрыть фото" onClick={() => setSelectedId(null)}><X size={17} aria-hidden="true" /></button>
+      {selectedUpload ? <><WorkPhoto upload={selectedUpload} title={taskTitle} index={uploads.indexOf(selectedUpload)} /><p>{selectedUpload.status === 'reviewed' ? 'Работа проверена.' : 'Фото ждёт разбора.'} {selectedUpload.storage?.state === 'stored' ? 'Файл на Яндекс.Диске.' : 'Перенос на Яндекс.Диск ещё не выполнен.'}</p>{selectedUpload.storage?.publicUrl && <a className="day-upload-original" href={selectedUpload.storage.publicUrl} target="_blank" rel="noopener noreferrer">Открыть на Яндекс.Диске <ExternalLink size={13} aria-hidden="true" /></a>}</>
+        : selectedLocal && <><img src={selectedLocal.previewUrl} alt={`Новое фото по заданию «${taskTitle}»`} /><p>{selectedLocal.state === 'failed' ? selectedLocal.error ?? 'Не удалось загрузить фото.' : selectedLocal.state === 'saved' ? 'Фото сохранено и ждёт разбора.' : 'Фото загружается…'}</p>{selectedLocal.state === 'failed' && <button type="button" className="day-upload-retry" onClick={() => onRetry(selectedLocal)}><RotateCcw size={14} aria-hidden="true" /> Повторить</button>}</>}
+    </div>}
+  </div>
 }
 
 /**
@@ -375,10 +404,7 @@ export default function DayPage({ token, parent }: { token: string; parent: bool
                   {parent && <span className="day-parent-status">{task.kind === 'written' ? task.status === 'verified' ? 'Работа проверена' : newWork ? 'Новая загрузка ожидает проверки' : priorWork ? 'Исходная работа получена и разобрана; осталось действие выше' : 'Подтверждённого фото пока нет' : task.kind === 'read' ? readPassed ? 'Чтение подтверждено тестом' : 'Чтение тестом пока не подтверждено' : 'Статус сдачи не сообщён'}</span>}
                 </div>
                 {task.kind === 'read' && linkedTest && <TestProgress test={linkedTest} />}
-                {(taskUploads.length > 0 || localTaskPhotos.length > 0) && <div className="day-upload-list" aria-label={`Фото задания «${task.title}»`}>
-                  {taskUploads.map((upload, index) => <details className="day-upload-proof" key={upload.id}><summary><span className="day-upload-thumb"><WorkPhoto upload={upload} title={task.title} index={index} compact /><span className={`day-upload-indicator ${upload.status === 'pending' ? 'waiting' : 'reviewed'}`}>{upload.status === 'pending' ? <Clock3 size={15} aria-hidden="true" /> : <CheckCircle2 size={15} aria-hidden="true" />}</span></span><span className="day-upload-caption"><b>{upload.origin === 'archive' ? 'Ранее загруженная работа' : `Фото ${index + 1}`}</b><small>{upload.status === 'pending' ? 'Ждёт разбора' : 'Проверено'}</small></span></summary><div className="day-upload-expanded"><WorkPhoto upload={upload} title={task.title} index={index} />{upload.storage?.publicUrl && <a className="day-upload-original" href={upload.storage.publicUrl} target="_blank" rel="noopener noreferrer">Открыть на Яндекс.Диске <ExternalLink size={13} aria-hidden="true" /></a>}{upload.status === 'pending' && <small>{upload.storage?.state === 'stored' ? 'Фото сохранено на Яндекс.Диске.' : 'Фото сохранено. Перенос на Яндекс.Диск ещё не выполнен.'}</small>}</div></details>)}
-                  {localTaskPhotos.filter((photo) => !uploads.some((upload) => upload.id === `${studentToken}:${photo.id}`)).map((photo, index) => <div className={`day-upload-proof day-upload-local ${photo.state}`} key={photo.id}><span className="day-upload-thumb"><img src={photo.previewUrl} alt={`Новое фото ${taskUploads.length + index + 1} по заданию «${task.title}»`} /><span className={`day-upload-indicator ${photo.state}`}>{photo.state === 'failed' ? <RotateCcw size={15} aria-hidden="true" /> : <Clock3 size={15} aria-hidden="true" />}</span></span><span className="day-upload-caption"><b>Фото {taskUploads.length + index + 1}</b><small>{photo.state === 'failed' ? 'Не загрузилось' : photo.state === 'saved' ? 'Ждёт разбора' : 'Загружается…'}</small></span>{photo.state === 'failed' && <button type="button" className="day-upload-retry" onClick={() => void sendPhoto(photo)}><RotateCcw size={14} aria-hidden="true" /> Повторить</button>}{photo.error && <small className="day-upload-error">{photo.error}</small>}</div>)}
-                </div>}
+                <PhotoStrip taskTitle={task.title} studentToken={studentToken} uploads={taskUploads} localPhotos={localTaskPhotos} onRetry={(photo) => void sendPhoto(photo)} />
                 {parent && <small className="day-source"><BookOpen size={14} /> {task.source}</small>}
               </article>
             })}
