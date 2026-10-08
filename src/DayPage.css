@@ -59,6 +59,11 @@
 @media(max-width:640px){.day-grade{margin-left:0}.day-subject-head .day-grade-button{margin-left:auto}.day-grade-result{max-width:100%}.day-lesson .day-grade-expand{flex-basis:calc(100% + 84px);width:calc(100% + 84px);margin-left:-84px}}
 .day-task-steps{list-style:decimal;margin:12px 0 16px;padding-left:1.45em;max-width:72ch;line-height:1.55;color:#55496e}.day-task-steps li{display:list-item;margin:0 0 7px;padding-left:.2em}.day-task-steps li::marker{color:#654b9f;font-weight:800}
 
+/* Keep the source badge beside the first line, even when the instruction wraps. */
+.day-task-steps li,.day-submission-instructions li{position:relative;padding-left:1.65rem}
+.day-task-steps li>span:first-child,.day-submission-instructions li>span:first-child{display:block;min-width:0}
+.day-task-steps li>.day-instruction-source,.day-submission-instructions li>.day-instruction-source{position:absolute;left:.1rem;top:calc((1.55em - 1.2rem)/2);margin:0;vertical-align:baseline}
+
 /* @see ../docs/product/day-page.md#instruction-provenance */
 .day-instruction-source{display:inline-block;position:relative;vertical-align:middle;margin-left:.18rem}
 .day-instruction-source summary{display:inline-grid;place-items:center;width:1.2rem;height:1.2rem;border:1px solid #b9a8d8;border-radius:50%;color:#624a9a;background:#fff;font-size:.72rem;font-weight:800;line-height:1;cursor:pointer;list-style:none}
