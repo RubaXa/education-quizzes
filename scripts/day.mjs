@@ -133,6 +133,13 @@ function validate(source) {
       if (!task || task.testToken !== placement.token) fail('Тест внутри задания должен совпадать с testToken этого задания.')
     }
   }
+  // @see ../docs/product/day-page.md#test-progress
+  for (const subject of source.subjects) for (const task of subject.tasks) {
+    if (task.kind !== 'read') continue
+    if (!task.testToken || !task.testSlug || !(source.testPlacements ?? []).some((placement) => placement.taskId === task.id && placement.subjectId === subject.id && placement.token === task.testToken)) {
+      fail(`Устный пункт ${task.id} опубликован без связанной самопроверки Education.`)
+    }
+  }
   const evidenceIds = new Set()
   for (const evidence of source.historicalUploads ?? []) {
     if (!/^[a-z0-9-]+$/.test(evidence.id ?? '') || evidenceIds.has(evidence.id) || !Array.isArray(evidence.taskIds) || !evidence.taskIds.length || !evidence.taskIds.every((id) => ids.has(id))) fail('Архивному фото нужны уникальный id и существующие taskIds.')
