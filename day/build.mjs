@@ -101,10 +101,12 @@ export function buildDaySource(local, date) {
     }
   }
   const assigned = (target.assignments || []).filter((item) => (item.homeworkEntries?.length || item.descriptions?.length) > 0).length
-  const notices = [`МЭШ на ${targetDate}: сейчас ${assigned} ${assigned === 1 ? 'назначение' : 'назначения'} ДЗ. Учителя могут добавить задания позже; повторный запуск сохранит эту работу.`]
+  const assignmentWord = assigned % 10 === 1 && assigned % 100 !== 11 ? 'назначение'
+    : assigned % 10 >= 2 && assigned % 10 <= 4 && (assigned % 100 < 12 || assigned % 100 > 14) ? 'назначения' : 'назначений'
+  const notices = [`МЭШ на ${targetDate}: сейчас ${assigned} ${assignmentWord} ДЗ. Учителя могут добавить задания позже; повторный запуск сохранит эту работу.`]
   notices.push(...(current?.manualNotices || []))
   const parentNotes = [
-    `Снимок МЭШ на ${targetDate}: ${assigned} назначения; обновлён ${new Date(target.fetchedAt).toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' })}. Отсутствие другого ДЗ сейчас не означает, что его не появится позже.`,
+    `Снимок МЭШ на ${targetDate}: ${assigned} ${assignmentWord}; обновлён ${new Date(target.fetchedAt).toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' })}. Отсутствие другого ДЗ сейчас не означает, что его не появится позже.`,
     'Повторный выпуск сохраняет прежние действия, фотографии и ответы тестов. Новый материал учителя добавляется по устойчивому ID.',
   ]
   parentNotes.push(...(current?.manualParentNotes || []))
