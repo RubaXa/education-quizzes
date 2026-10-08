@@ -61,6 +61,8 @@ body {
 }
 .header-actions{display:flex;align-items:center;gap:12px}
 #day-header-return{display:none}
+.quiz-back-link{display:inline-flex;align-items:center;justify-content:center;gap:.35rem;margin-left:auto;padding:.45rem .7rem;border:1px solid #dcd3f2;border-radius:999px;background:white;color:#493582;font-weight:700;text-decoration:none;white-space:nowrap}
+.quiz-back-link:hover,.quiz-back-link:focus-visible{background:#f1edfb;border-color:#9b86d0}
 
 .page-wrap {
   box-sizing: border-box;
@@ -495,6 +497,7 @@ body {
   .day-route .site-header{gap:.5rem}
   .day-route #day-header-return{display:flex;align-items:center;margin-left:auto;min-width:0}
   .day-route .header-actions{display:none}
+  .quiz-back-link + .header-actions{display:none}
   .page-wrap { width: min(100% - 1rem, 920px); margin-top: .5rem; }
   .option-tile { padding: .85rem; }
   .theme-frame { padding: .3rem; border-radius: 1.4rem; }
