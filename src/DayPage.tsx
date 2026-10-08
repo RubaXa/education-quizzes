@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { BookOpen, Camera, CheckCircle2, ChevronDown, CircleAlert, Clock3, ExternalLink, Images, LoaderCircle, RotateCcw, X } from 'lucide-react'
+import { BookOpen, Camera, CheckCircle2, ChevronDown, CircleAlert, Clock3, ExternalLink, LoaderCircle, RotateCcw, X } from 'lucide-react'
 import { uploadDayPhoto, watchDayPage, watchDayUploads, watchMaterialPages } from '@/lib/dayStore'
 import type { DayInstruction, DayMaterialLink, DayPageData, DayTask, DayUpload } from '@/lib/dayStore'
 import { loadAnswerKey, watchAssignment, watchDashboard } from '@/lib/store'
@@ -379,7 +379,7 @@ export default function DayPage({ token, parent }: { token: string; parent: bool
               const state = task.kind === 'written'
                 ? task.status === 'verified' ? 'Готово · проверено' : newWork ? 'Новое фото · ждёт проверки' : uploadingWork ? 'Фото загружается' : priorWork ? task.status === 'needs-fix' ? 'Работа проверена · исправить' : task.status === 'partial' ? 'Работа проверена · дополнить' : 'Работа сохранена' : statusLabel(task.status)
                 : task.kind === 'read' ? readPassed ? `Тест пройден · ${linkedTest?.points}/${linkedTest?.maxPoints}` : linkedTest?.status === 'submitted' ? linkedTest.points == null ? 'Проверяем тест' : `Нужен разбор · ${linkedTest.points}/${linkedTest.maxPoints}` : 'Нужен тест' : statusLabel(task.status)
-              const uploadLabel = newWork || uploadingWork ? 'Сфотографировать ещё страницу' : priorWork ? task.status === 'needs-fix' ? 'Сфотографировать исправление' : 'Сфотографировать продолжение' : task.submission?.buttonLabel ?? 'Сфотографировать ответ'
+              const uploadLabel = newWork || uploadingWork ? 'Добавить ещё фото' : priorWork ? task.status === 'needs-fix' ? 'Добавить фото исправления' : 'Добавить фото продолжения' : 'Добавить фото ответа'
               const canUpload = !parent && task.kind === 'written' && task.status !== 'verified' && (!priorWork || newWork || uploadingWork || task.status === 'needs-fix' || task.status === 'partial')
               const showSubmission = task.kind === 'written' && task.status !== 'verified' && (!priorWork || newWork || uploadingWork || task.status === 'needs-fix' || task.status === 'partial')
               const submission = task.submission
@@ -399,7 +399,7 @@ export default function DayPage({ token, parent }: { token: string; parent: bool
                   {!submission?.lead && !submission?.items?.length && !submission?.photo && <p>{submission?.description ?? `Страница тетради с результатом задания «${task.title}». Номер и ответ должны читаться.`}</p>}
                 </div>}
                 <div className="day-task-actions">
-                  {canUpload && <><label className="day-upload"><Camera size={17} aria-hidden="true" /> {uploadLabel}<input type="file" accept="image/*" capture="environment" onChange={(event) => { attach(task, Array.from(event.currentTarget.files ?? [])); event.currentTarget.value = '' }} /></label><label className="day-upload day-upload-secondary"><Images size={17} aria-hidden="true" /> Выбрать несколько фото<input type="file" accept="image/*" multiple onChange={(event) => { attach(task, Array.from(event.currentTarget.files ?? [])); event.currentTarget.value = '' }} /></label></>}
+                  {canUpload && <label className="day-upload"><Camera size={17} aria-hidden="true" /> {uploadLabel}<input type="file" accept="image/*" multiple onChange={(event) => { attach(task, Array.from(event.currentTarget.files ?? [])); event.currentTarget.value = '' }} /></label>}
                   {task.kind === 'read' && task.testToken && task.testSlug && <a className="day-quiz-link" href={`#/t/${task.testSlug}~${task.testToken}`}>{parent ? linkedTest?.status === 'submitted' ? 'Посмотреть результат' : 'Открыть тест' : linkedTest?.status === 'submitted' ? 'Посмотреть результат' : linkedTest?.answered ? 'Продолжить тест' : 'Пройти короткий тест'} <ExternalLink size={15} /></a>}
                   {parent && <span className="day-parent-status">{task.kind === 'written' ? task.status === 'verified' ? 'Работа проверена' : newWork ? 'Новая загрузка ожидает проверки' : priorWork ? 'Исходная работа получена и разобрана; осталось действие выше' : 'Подтверждённого фото пока нет' : task.kind === 'read' ? readPassed ? 'Чтение подтверждено тестом' : 'Чтение тестом пока не подтверждено' : 'Статус сдачи не сообщён'}</span>}
                 </div>

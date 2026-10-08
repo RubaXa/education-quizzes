@@ -77,8 +77,6 @@
 .day-instruction-source.uncertain>.day-instruction-source-body{background:#fff7e9;border-color:#efd8a7}
 
 /* @see ../docs/product/day-page.md#multi-photo-upload */
-.day-upload-secondary{background:#f2edf9;color:#4f3b83;border:1px solid #d9cdeb}
-.day-upload-secondary:hover{background:#e8def5}
 .day-upload-list{display:block;min-width:0;margin-top:11px;padding:8px 10px;border:1px solid #e4dced;border-radius:11px;background:#faf8fe}
 .day-upload-list>strong{display:block;margin-bottom:6px;color:#5a4881;font-size:.76rem;font-weight:800}
 .day-upload-strip{display:flex;gap:6px;max-width:100%;overflow-x:auto;padding:1px 1px 4px;-webkit-overflow-scrolling:touch}
@@ -98,4 +96,3 @@
 .day-upload-expanded>img{display:block;max-width:100%;max-height:70vh;object-fit:contain;margin:10px auto 0;border-radius:8px}
 .day-task .day-upload-expanded>p{color:#746a83;font-size:.75rem;margin:8px 34px 0 0}
 .day-upload-retry{display:inline-flex;align-items:center;gap:4px;border:1px solid #d4bfdf;border-radius:8px;background:#fff;color:#654c8d;padding:5px 7px;font-size:.72rem;font-weight:750;cursor:pointer}
-@media(max-width:640px){.day-upload-secondary{width:100%}}
