@@ -85,7 +85,7 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
     if (!todayToken) return
     return watchDayPage(todayToken, setPage, (cause) => setError(cause.message))
   }, [todayToken])
-  const studentToken = page?.studentToken ?? todayToken
+  const studentToken = page ? (page.studentToken ?? todayToken) : undefined
   const evidenceTokens = useMemo(() => [...new Set([studentToken, ...(page?.evidenceDayTokens ?? [])].filter((value): value is string => Boolean(value)))], [studentToken, page])
   const evidenceKey = evidenceTokens.join('|')
   useEffect(() => {
