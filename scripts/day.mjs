@@ -5,7 +5,7 @@ import { resolve } from 'node:path'
 import { execFileSync } from 'node:child_process'
 import { applicationDefault, initializeApp } from 'firebase-admin/app'
 import { getFirestore, Timestamp } from 'firebase-admin/firestore'
-import { linksFile as pageLinksFile, materialLinks, taskPageRefs } from '../storage/material-pages.mjs'
+import { linksFile as pageLinksFile, materialLinks, materialPlan, taskPageRefs } from '../storage/material-pages.mjs'
 import { buildDaySource } from '../day/build.mjs'
 import { buildDayDashboardIndex } from '../day/dashboard-index.mjs'
 import { mergeDayPage } from '../day/merge.mjs'
@@ -133,15 +133,33 @@ async function publish() {
   if (!existsSync(sourceFile)) fail(`Нет ${sourceFile}`)
   const source = json(sourceFile)
   const taskIds = validate(source)
+  const pageRefs = Object.fromEntries(Object.entries(taskPageRefs()).filter(([taskId]) => taskIds.includes(taskId)))
+  // A newly synced assignment must never silently go live with an unchecked textbook source.
+  // @see ../docs/product/materials.md#mandatory-source-link
+  for (const task of source.subjects.flatMap((subject) => subject.tasks)) {
+    const state = task.materialStatus?.state
+    const hasPages = Boolean(pageRefs[task.id]?.length)
+    const hasTeacherFile = source.materialLinks?.[task.id]?.some((link) => link.sourceType === 'teacher-attachment')
+    if (state === 'textbook-page-needed' || (task.id.startsWith('mesh-') && !hasPages && !hasTeacherFile && !['no-textbook', 'text-absent-from-textbook'].includes(state))) {
+      fail(`Источник ${task.id} ещё не сверён с учебником. Укажите точные страницы в .local/material-pages.json или причину отсутствия учебника; день не опубликован.`)
+    }
+    if (state === 'textbook-page-linked' && !hasPages) fail(`Для ${task.id} нет привязки к индексированной странице учебника.`)
+    if (['no-textbook', 'text-absent-from-textbook'].includes(state) && !task.materialStatus?.message?.trim()) fail(`Для ${task.id} нужна причина отсутствия учебника.`)
+  }
+  const knownBefore = existsSync(pageLinksFile) ? json(pageLinksFile) : {}
+  const neededPageIds = new Set(Object.keys(pageRefs).flatMap((taskId) => materialPlan.taskPages[taskId] || []))
+  if ([...neededPageIds].some((id) => !knownBefore[id]?.publicUrl)) runLocal('scripts/storage.mjs', ['sync-pages'])
   const today = json(resolve(local, `diary/snapshot-${date}.json`))
   const target = json(resolve(local, `diary/snapshot-${source.targetDate}.json`))
   const gradeSnapshot = json(resolve('../learner/grade-snapshot.json'))
   const links = existsSync(linksFile) ? json(linksFile) : {}
   const publishedPageLinks = existsSync(pageLinksFile) ? materialLinks(json(pageLinksFile)) : {}
-  const pageRefs = Object.fromEntries(Object.entries(taskPageRefs()).filter(([taskId]) => taskIds.includes(taskId)))
   const allMaterialLinks = { ...(source.materialLinks || {}) }
   for (const [taskId, pageLinks] of Object.entries(publishedPageLinks)) allMaterialLinks[taskId] = [...pageLinks, ...(allMaterialLinks[taskId] || [])]
   for (const task of source.subjects.flatMap((subject) => subject.tasks)) {
+    if (pageRefs[task.id]?.length && (publishedPageLinks[task.id]?.length ?? 0) !== pageRefs[task.id].length) {
+      fail(`Для ${task.id} опубликованы не все страницы учебника: ${publishedPageLinks[task.id]?.length ?? 0} из ${pageRefs[task.id].length}.`)
+    }
     if (task.materialStatus?.state === 'textbook-page-linked' && !allMaterialLinks[task.id]?.some((link) => link.sourceType === 'textbook-page')) fail(`Для ${task.id} указан учебник, но ссылка на точную страницу пока не опубликована.`)
   }
   if (!links[date]) links[date] = { student: randomBytes(32).toString('base64url'), parent: randomBytes(32).toString('base64url') }

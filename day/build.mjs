@@ -74,10 +74,13 @@ export function buildDaySource(local, date) {
       const old = subject.tasks.find((task) => task.id === taskId)
       const description = entry.description.trim()
       if (old) {
-        if (old.meshText !== description && old.source?.startsWith('МЭШ,')) {
-          old.title = description.length > 105 ? `${description.slice(0, 102)}…` : description
-          old.detail = old.kind === 'written' ? `${description} Выполни в тетради и сфотографируй запись.` : description
-          if (old.kind === 'written' && !old.submission) old.submission = { lead: 'Выполни письменное задание по записи МЭШ выше.', photo: 'Страница тетради с номером задания и полным ответом.', buttonLabel: 'Сфотографировать ответ' }
+        if (old.meshText !== description) {
+          if (old.source?.startsWith('МЭШ,')) {
+            old.title = description.length > 105 ? `${description.slice(0, 102)}…` : description
+            old.detail = old.kind === 'written' ? `${description} Выполни в тетради и сфотографируй запись.` : description
+            if (old.kind === 'written' && !old.submission) old.submission = { lead: 'Выполни письменное задание по записи МЭШ выше.', photo: 'Страница тетради с номером задания и полным ответом.', buttonLabel: 'Сфотографировать ответ' }
+          }
+          old.materialStatus = { state: 'textbook-page-needed', message: 'Учитель изменил условие. Страницы и действия нужно сверить заново перед публикацией.' }
         }
         old.meshText = description
         if (assignment.teacherFiles?.length) materialLinks[taskId] = assignment.teacherFiles.map((item) => ({ title: item.title, url: item.url, sourceType: 'teacher-attachment' }))

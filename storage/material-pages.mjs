@@ -3,6 +3,7 @@ import { execFileSync } from 'node:child_process'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { indexedBooks } from './textbook-catalog.mjs'
 
 const projectRoot = fileURLToPath(new URL('../../', import.meta.url))
 const planFile = resolve(projectRoot, 'education-quizzes/.local/material-pages.json')
@@ -13,15 +14,44 @@ export const pagesDir = resolve(projectRoot, 'education-quizzes/.local/yandex-pa
 export const manifestFile = resolve(pagesDir, 'manifest.json')
 export const linksFile = resolve(pagesDir, 'links.json')
 
+function booksById() {
+  const books = new Map(indexedBooks().map(({ book, source, index }) => [book.id, {
+    id: book.id,
+    title: `${book.subject} ${book.grade}${/part-?(\d)/.test(book.id) ? ` · часть ${/part-?(\d)/.exec(book.id)[1]}` : ''} · ${book.id.match(/\d{4}$/)?.[0] || 'учебник'}`,
+    source,
+    folder: book.id, pdfPageOffset: -index.printed_page_offset,
+    index, sourceType: 'textbook-page',
+  }]))
+  for (const book of materialPlan.books) {
+    const indexed = books.get(book.id)
+    books.set(book.id, { ...indexed, ...book, source: indexed?.source || resolve(projectRoot, 'education-quizzes', book.source) })
+  }
+  return books
+}
+
+function selectedPages(books) {
+  const selected = new Map([...books].map(([id, book]) => [id, new Set(book.pages || [])]))
+  for (const ids of Object.values(materialPlan.taskPages)) for (const id of ids) {
+    const separator = id.lastIndexOf(':')
+    const bookId = id.slice(0, separator)
+    const printedPage = Number(id.slice(separator + 1))
+    if (!books.has(bookId) || !Number.isInteger(printedPage)) throw new Error(`Некорректная страница ${id}`)
+    selected.get(bookId).add(printedPage)
+  }
+  return selected
+}
+
 /** @see ../docs/product/materials.md#firestore-catalog */
 export function taskPageRefs() {
-  const books = new Map(materialPlan.books.map((book) => [book.id, book]))
+  const books = booksById()
   return Object.fromEntries(Object.entries(materialPlan.taskPages).map(([taskId, ids]) => [taskId, ids.map((id) => {
     const separator = id.lastIndexOf(':')
     const book = books.get(id.slice(0, separator))
     const printedPage = Number(id.slice(separator + 1))
     if (!book || !Number.isInteger(printedPage)) throw new Error(`Некорректная страница ${id}`)
-    return `${book.id}#${printedPage + book.pdfPageOffset}`
+    const page = book.index?.pages.find((item) => item.printed_page === printedPage)
+    if (book.index && !page) throw new Error(`В индексе ${book.id} нет печатной страницы ${printedPage}`)
+    return `${book.id}#${page?.pdf_page ?? printedPage + book.pdfPageOffset}`
   })]))
 }
 
@@ -35,19 +65,24 @@ function pdfPageCount(file) {
 
 /** @see ../docs/product/materials.md#page-publication */
 export function preparePages() {
-  if (!materialPlan.books.length) throw new Error('Нет локального .local/material-pages.json с привязками учебников.')
+  const books = booksById()
+  if (!books.size) throw new Error('Каталог учебников пуст.')
+  const selected = selectedPages(books)
   mkdirSync(pagesDir, { recursive: true })
   const previous = existsSync(manifestFile) ? JSON.parse(readFileSync(manifestFile, 'utf8')).entries : []
   const previousById = new Map(previous.map((entry) => [entry.id, entry]))
   const entries = []
-  for (const book of materialPlan.books) {
-    const source = resolve(projectRoot, 'education-quizzes', book.source)
-    const sourceSha256 = digest(readFileSync(source))
-    const count = pdfPageCount(source)
+  for (const book of books.values()) {
+    if (!selected.get(book.id)?.size) continue
+    const source = book.source
+    const sourceSha256 = book.index?.source_sha256 ?? digest(readFileSync(source))
+    const count = book.index?.pdf_page_count ?? pdfPageCount(source)
     const outputDir = resolve(pagesDir, book.id)
     mkdirSync(outputDir, { recursive: true })
-    for (const printedPage of book.pages) {
-      const pdfPage = printedPage + book.pdfPageOffset
+    for (const printedPage of [...selected.get(book.id)].sort((a, b) => a - b)) {
+      const indexedPage = book.index?.pages.find((item) => item.printed_page === printedPage)
+      if (book.index && !indexedPage) throw new Error(`В индексе ${book.id} нет печатной страницы ${printedPage}`)
+      const pdfPage = indexedPage?.pdf_page ?? printedPage + book.pdfPageOffset
       if (pdfPage < 1 || pdfPage > count) throw new Error(`Страница ${printedPage} вышла за границы PDF ${book.id}.`)
       const filename = `стр-${String(printedPage).padStart(4, '0')}.png`
       const image = resolve(outputDir, filename)
@@ -70,7 +105,7 @@ export function preparePages() {
 
 /** @see ../docs/product/materials.md#source-metadata */
 export function materialLinks(linkMap) {
-  const bookById = new Map(materialPlan.books.map((book) => [book.id, book]))
+  const bookById = booksById()
   const indexCache = new Map()
   const manifestEntries = existsSync(manifestFile) ? JSON.parse(readFileSync(manifestFile, 'utf8')).entries : []
   const manifestById = new Map(manifestEntries.map((entry) => [entry.id, entry]))
@@ -80,8 +115,8 @@ export function materialLinks(linkMap) {
   function pageMetadata(book, printedPage, evidence) {
     if (book.sourceType === 'teacher-attachment') return {}
     if (!indexCache.has(book.id)) {
-      const source = resolve(projectRoot, 'education-quizzes', book.source)
-      const index = JSON.parse(readFileSync(resolve(source, '../../search-index.json'), 'utf8'))
+      const source = book.source
+      const index = book.index || JSON.parse(readFileSync(resolve(source, '../../search-index.json'), 'utf8'))
       if (resolve(projectRoot, index.source_pdf) !== source || index.source_sha256 !== digest(readFileSync(source))) {
         throw new Error(`Поисковый индекс ${book.id} не соответствует оригиналу PDF. Запустите python3 tools/textbook_index.py build-all.`)
       }

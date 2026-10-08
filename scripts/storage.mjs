@@ -184,6 +184,7 @@ async function syncPages() {
   const failures = []
   let published = 0
   for (const entry of entries) {
+    if (known[entry.id]?.publicUrl && known[entry.id]?.imageSha256 === entry.imageSha256) continue
     try {
       const bytes = readFileSync(entry.image)
       const result = await storage.putAt(entry.diskPath, bytes)
