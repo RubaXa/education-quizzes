@@ -61,6 +61,18 @@ function loadJson(path) {
   return JSON.parse(readFileSync(resolve(path), 'utf8'))
 }
 
+function assignmentOwner(personId) {
+  const registryPath = resolve(localDir, 'family-access.json')
+  if (!existsSync(registryPath)) fail('Нет закрытого реестра семей для назначения теста.')
+  const people = JSON.parse(readFileSync(registryPath, 'utf8')).people ?? {}
+  const students = Object.entries(people).filter(([, value]) => value?.role === 'student')
+  const selected = personId ? people[personId] : students.length === 1 ? students[0][1] : null
+  if (!selected || selected.role !== 'student' || !selected.familyId || !selected.childId) {
+    fail('Укажите ID профиля ученика третьим аргументом create; профиль должен быть в закрытом реестре.')
+  }
+  return { familyId: selected.familyId, childId: selected.childId }
+}
+
 function validateSpec(spec) {
   if (typeof spec.title !== 'string' || !spec.title.trim()) fail('Не указано название теста.')
   if (typeof spec.description !== 'string' || !spec.description.trim()) fail('Нужно краткое описание теста для личного списка.')
@@ -127,9 +139,10 @@ if (command !== 'validate') {
 }
 const db = command === 'validate' ? null : getFirestore()
 
-async function create(specPath) {
+async function create(specPath, studentPersonId) {
   const spec = loadJson(specPath)
   validateSpec(spec)
+  const owner = assignmentOwner(studentPersonId)
   const learnerToken = token()
   const previewToken = token()
   const ownerToken = dashboardToken()
@@ -139,6 +152,7 @@ async function create(specPath) {
   const createdAt = Timestamp.now()
   const assignment = {
     schemaVersion: 1,
+    ...owner,
     testId,
     title: spec.title,
     description: spec.description ?? '',
@@ -312,7 +326,7 @@ try {
   if (command === 'validate') {
     validateSpec(loadJson(first))
     console.log('Спецификация готова к созданию теста.')
-  } else if (command === 'create') await create(first)
+  } else if (command === 'create') await create(first, second)
   else if (command === 'board-add') await addToLearnerBoard(first)
   else if (command === 'list') await list()
   else if (command === 'board-status') await boardStatus()

@@ -15,6 +15,7 @@ import { buildFollowUpPrompt } from '@/lib/followup'
 import { WriteQueue } from '@/lib/writeQueue'
 import type { Answer, AnswerKey, Assignment, ManualReview, QuizQuestion, QuestionResult } from '@/lib/quiz'
 import type { BoardDetails } from '@/lib/store'
+import { loadPersonalProfile, restorePersonalSession } from '@/lib/personalAccess'
 import DayPage from './DayPage'
 import DayDashboard from './DayDashboard'
 import { PwaConnectionNotice, PwaInstallButton, PwaUpdateNotice } from './components/PwaControls'
@@ -434,6 +435,45 @@ function Preview({ token }: { token: string }) {
   )
 }
 
+/** Parent links and direct student URLs share a read-only result surface. The
+ * actual permission to write is enforced by Firestore assignment ownership.
+ * @see ../docs/product/quizzes.md#parent-read-only
+ */
+function QuizAccess({ token }: { token: string }) {
+  const [student, setStudent] = useState<boolean | null>(null)
+  const [assignment, setAssignment] = useState<Assignment>()
+  const [error, setError] = useState('')
+  useEffect(() => {
+    let active = true
+    void (async () => {
+      try {
+        const session = await restorePersonalSession()
+        const profile = session ? await loadPersonalProfile(session) : null
+        if (active) setStudent(Boolean(profile?.children.some((child) => child.role === 'student')))
+      } catch (cause) { if (active) setError(describeError(cause)) }
+    })()
+    return () => { active = false }
+  }, [])
+  useEffect(() => {
+    if (student !== false) return
+    let active = true
+    let stop: (() => void) | undefined
+    void watchAssignment(token, (value) => { if (active) setAssignment(value) }, (cause) => { if (active) setError(describeError(cause)) }).then((unsubscribe) => { if (active) stop = unsubscribe; else unsubscribe() })
+    return () => { active = false; stop?.() }
+  }, [student, token])
+  if (error) return <ErrorCard message={error} />
+  if (student === null) return <p>Проверяем профиль…</p>
+  if (student) return <QuizRunner token={token} />
+  if (!assignment) return <p>Загружаем тест для просмотра…</p>
+  if (assignment.status === 'submitted') return <ThemeFrame subject={assignment.subject} visual={assignment.visual}><ResultView assignment={assignment} token={token} /></ThemeFrame>
+  return <ThemeFrame subject={assignment.subject} visual={assignment.visual}><div className="space-y-6">
+    <ThemeHero subject={assignment.subject} visual={assignment.visual} title={assignment.title} description={assignment.description} preview />
+    <ReadingCard reading={assignment.reading} />
+    <p className="text-sm text-muted-foreground">Только просмотр: ответы ученика здесь изменить нельзя.</p>
+    {assignment.questions.map((question, index) => <QuestionCard key={question.id} question={question} index={index} disabled onAnswer={() => {}} />)}
+  </div></ThemeFrame>
+}
+
 type BoardItem = {
   token: string
   title: string
@@ -485,8 +525,9 @@ function BoardCard({ item, parent = false, unread = false, copied = false, onCop
       <CardContent className="space-y-4">
         {!completed && <div className="space-y-2"><div className="flex justify-between gap-2 text-sm"><span>Отвечено: {item.answered}</span><strong>Осталось: {remaining}</strong></div><Progress value={item.total ? item.answered * 100 / item.total : 0} /></div>}
         <div className="flex flex-wrap gap-2">
-          {(!parent || completed) && <Button asChild><a href={`#/t/${item.slug}~${item.token}`} onClick={() => { if (parent && unread) onMarkViewed?.(item.token) }}>{completed ? 'Посмотреть результат' : item.answered ? 'Продолжить тест' : 'Начать тест'}</a></Button>}
-          {item.previewToken && <Button variant="outline" asChild><a href={`#/preview/${item.slug}~${item.previewToken}`}>Просмотреть без ответов</a></Button>}
+          {!parent && <Button asChild><a href={`#/t/${item.slug}~${item.token}`}>{completed ? 'Посмотреть результат' : item.answered ? 'Продолжить тест' : 'Начать тест'}</a></Button>}
+          {parent && completed && <Button asChild><a href={`#/t/${item.slug}~${item.token}`} onClick={() => { if (unread) onMarkViewed?.(item.token) }}>Посмотреть результат</a></Button>}
+          {item.previewToken && <Button variant="outline" asChild><a href={`#/preview/${item.slug}~${item.previewToken}`}>{parent ? 'Посмотреть вопросы' : 'Просмотреть без ответов'}</a></Button>}
           {parent && completed && <Button variant="outline" onClick={() => onCopy?.(item)}><ClipboardCopy /> {copied ? 'Скопировано' : 'Скопировать задание агенту'}</Button>}
           {parent && unread && <Button variant="ghost" onClick={() => onMarkViewed?.(item.token)}>Отметить просмотренным</Button>}
         </div>
@@ -641,7 +682,7 @@ function App() {
     window.addEventListener('hashchange', updateRoute)
     return () => window.removeEventListener('hashchange', updateRoute)
   }, [])
-  return <Shell dayRoute={route.kind === 'day' || route.kind === 'day-parent'} quizBack={route.kind === 'test' || route.kind === 'preview' ? testReturn : undefined} onHeaderTarget={setHeaderReturnTarget}>{route.kind === 'test' ? <QuizRunner key={route.token} token={route.token} /> : route.kind === 'preview' ? <Preview token={route.token} /> : route.kind === 'dashboard' || route.kind === 'my' || route.kind === 'review' ? <Dashboard key={`${route.kind}-${route.token}`} token={route.token} parent={route.kind === 'review'} /> : route.kind === 'days' || route.kind === 'days-parent' ? <DayDashboard key={`${route.kind}-${route.token}`} token={route.token} parent={route.kind === 'days-parent'} /> : route.kind === 'day' || route.kind === 'day-parent' ? <DayPage key={`${route.kind}-${route.token}`} token={route.token} parent={route.kind === 'day-parent'} headerReturnTarget={headerReturnTarget} /> : route.kind === 'enter' ? <PersonalEntry key={route.token} initialLink={route.token} /> : <Home />}</Shell>
+  return <Shell dayRoute={route.kind === 'day' || route.kind === 'day-parent'} quizBack={route.kind === 'test' || route.kind === 'preview' ? testReturn : undefined} onHeaderTarget={setHeaderReturnTarget}>{route.kind === 'test' ? <QuizAccess key={route.token} token={route.token} /> : route.kind === 'preview' ? <Preview token={route.token} /> : route.kind === 'dashboard' || route.kind === 'my' || route.kind === 'review' ? <Dashboard key={`${route.kind}-${route.token}`} token={route.token} parent={route.kind === 'review'} /> : route.kind === 'days' || route.kind === 'days-parent' ? <DayDashboard key={`${route.kind}-${route.token}`} token={route.token} parent={route.kind === 'days-parent'} /> : route.kind === 'day' || route.kind === 'day-parent' ? <DayPage key={`${route.kind}-${route.token}`} token={route.token} parent={route.kind === 'day-parent'} headerReturnTarget={headerReturnTarget} /> : route.kind === 'enter' ? <PersonalEntry key={route.token} initialLink={route.token} /> : <Home />}</Shell>
 }
 
 export default App

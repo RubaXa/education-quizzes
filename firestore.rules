@@ -39,6 +39,10 @@ service cloud.firestore {
       return activeMember(familyId)
         && get(memberPath(familyId)).data.childIds.hasAny([childId]);
     }
+    function quizStudent(familyId, childId) {
+      return childMember(familyId, childId)
+        && get(memberPath(familyId)).data.role == 'student';
+    }
     function dayUploadOwner(studentToken) {
       return activeSession()
         && exists(/databases/$(database)/documents/dayOwners/$(studentToken))
@@ -185,6 +189,9 @@ service cloud.firestore {
       allow list, create, delete: if false;
 
       allow update: if resource.data.status == 'open'
+        && resource.data.familyId is string
+        && resource.data.childId is string
+        && quizStudent(resource.data.familyId, resource.data.childId)
         && request.resource.data.diff(resource.data).affectedKeys()
           .hasOnly(['answers', 'status', 'startedAt', 'updatedAt', 'submittedAt'])
         && request.resource.data.answers is map

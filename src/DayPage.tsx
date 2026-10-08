@@ -12,7 +12,7 @@ import { activeProcessing } from '@/lib/reviewPresentation'
 import { publicImage } from '@/lib/yandexPublic'
 import './DayPage.css'
 
-type TestItem = { token: string; title: string; subject: string; slug: string; status: Assignment['status']; answered: number; total: number; points?: number; maxPoints?: number }
+type TestItem = { token: string; title: string; subject: string; slug: string; previewToken: string; status: Assignment['status']; answered: number; total: number; points?: number; maxPoints?: number }
 type LocalPhoto = { id: string; taskId: string; file: File; previewUrl: string; state: 'uploading' | 'saved' | 'failed' | 'deleting'; error?: string }
 
 /**
@@ -269,7 +269,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
           const stop = watchAssignment(item.token, (assignment) => {
             if (!active || generation !== current) return
             rows.set(item.token, {
-              token: item.token, title: item.title, subject: item.subject, slug: item.slug,
+              token: item.token, title: item.title, subject: item.subject, slug: item.slug, previewToken: item.previewToken,
               status: assignment.status, answered: Object.values(assignment.answers ?? {}).filter((answer) => answer !== '' && (!Array.isArray(answer) || answer.length > 0)).length,
               total: assignment.questions.length,
             })
@@ -479,7 +479,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
                 </div>}
                 <div className="day-task-actions">
                   {canUpload && <label className="day-upload"><Camera size={17} aria-hidden="true" /> {uploadLabel}<input type="file" accept="image/*" multiple onChange={(event) => { attach(task, Array.from(event.currentTarget.files ?? [])); event.currentTarget.value = '' }} /></label>}
-                  {task.kind === 'read' && task.testToken && task.testSlug && <a className="day-quiz-link" href={`#/t/${task.testSlug}~${task.testToken}`}>{parent ? linkedTest?.status === 'submitted' ? 'Посмотреть результат' : 'Открыть тест' : linkedTest?.status === 'submitted' ? 'Посмотреть результат' : linkedTest?.answered ? 'Продолжить тест' : 'Пройти короткий тест'} <ExternalLink size={15} /></a>}
+                  {task.kind === 'read' && task.testToken && task.testSlug && <a className="day-quiz-link" href={parent && linkedTest?.status !== 'submitted' && linkedTest?.previewToken ? `#/preview/${task.testSlug}~${linkedTest.previewToken}` : `#/t/${task.testSlug}~${task.testToken}`}>{parent ? linkedTest?.status === 'submitted' ? 'Посмотреть результат' : 'Посмотреть вопросы' : linkedTest?.status === 'submitted' ? 'Посмотреть результат' : linkedTest?.answered ? 'Продолжить тест' : 'Пройти короткий тест'} <ExternalLink size={15} /></a>}
                   {parent && <span className="day-parent-status">{task.kind === 'written' ? taskStatus === 'verified' ? 'Работа проверена' : newWork ? 'Новая загрузка ожидает проверки' : priorWork ? 'Работа разобрана; подробности выше' : 'Подтверждённого фото пока нет' : task.kind === 'read' ? readPassed ? 'Чтение подтверждено тестом' : 'Чтение тестом пока не подтверждено' : 'Статус сдачи не сообщён'}</span>}
                 </div>
                 {task.kind === 'read' && linkedTest && <TestProgress test={linkedTest} />}
@@ -492,7 +492,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
               return <article className={`day-task day-quiz-task ${test?.status === 'submitted' ? 'done' : ''}`} key={placement.token}>
                 <div className="day-task-row"><span className={`day-task-state ${test?.status === 'submitted' ? 'verified' : ''}`}>{test?.status === 'submitted' ? 'Тест завершён' : test?.answered ? 'Тест в процессе' : 'Тест не пройден'}</span><span className="day-task-type">Самопроверка</span></div>
                 <h3>{test?.title ?? 'Загружаем тест…'}</h3>
-                {test && <><TestProgress test={test} /><a className="day-quiz-link" href={`#/t/${test.slug}~${test.token}`}>{parent ? test.status === 'submitted' ? 'Посмотреть результат' : 'Открыть тест' : test.status === 'submitted' ? 'Мой результат' : test.answered ? 'Продолжить тест' : 'Пройти тест'} <ExternalLink size={15} /></a></>}
+                {test && <><TestProgress test={test} /><a className="day-quiz-link" href={parent && test.status !== 'submitted' && test.previewToken ? `#/preview/${test.slug}~${test.previewToken}` : `#/t/${test.slug}~${test.token}`}>{parent ? test.status === 'submitted' ? 'Посмотреть результат' : 'Посмотреть вопросы' : test.status === 'submitted' ? 'Мой результат' : test.answered ? 'Продолжить тест' : 'Пройти тест'} <ExternalLink size={15} /></a></>}
               </article>
             })}</div>
           </div>
