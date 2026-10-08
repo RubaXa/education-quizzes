@@ -76,7 +76,10 @@ body {
 .personal-login-form{display:flex;gap:.75rem;flex-wrap:wrap}
 .personal-login-form input{min-width:min(100%,19rem);flex:1}
 .personal-login-error{margin-top:1rem;color:#a52444}
-.personal-install-hint{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1rem 1.25rem;border:1px solid #ded5f1;border-radius:1.2rem;background:#fff}
+.personal-install-hint{padding:.75rem 1rem;border:1px solid #ded5f1;border-radius:1rem;background:#fff}
+.personal-install-hint summary{color:#55418d;font-weight:700;cursor:pointer}
+.personal-install-hint[open] p{margin:.75rem 0}
+.personal-child-picker{display:flex;gap:.5rem;flex-wrap:wrap}
 .personal-install-hint strong{color:#30245b}
 .personal-install-hint p{margin:.25rem 0 0;color:#70698b;line-height:1.45}
 .personal-install-hint button{flex:none}

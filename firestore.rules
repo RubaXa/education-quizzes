@@ -245,8 +245,12 @@ service cloud.firestore {
     }
 
     match /dayDashboards/{linkToken} {
-      // Включить чтение по токену только после решения о доступе к ролевому индексу.
-      allow get: if false;
+      allow get: if resource.data.familyId is string
+        && resource.data.childId is string
+        && childMember(resource.data.familyId, resource.data.childId)
+        && ((resource.data.kind == 'parent' && parentMember(resource.data.familyId))
+          || (resource.data.kind == 'student'
+            && get(memberPath(resource.data.familyId)).data.role == 'student'));
       allow list, write: if false;
     }
 

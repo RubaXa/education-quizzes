@@ -28,9 +28,13 @@ function dashboardLinks() {
 }
 /** @see ../docs/product/dashboard.md#firestore-model */
 function addDashboardDocuments(batch, links, tokens) {
+  const ownerFile = resolve(local, 'family-access.json')
+  const owner = existsSync(ownerFile) ? json(ownerFile).legacyDayOwner : null
+  if (!owner?.familyId || !owner?.childId) fail('Сначала привяжите страницы дня к ребёнку командой family attach-current-day.')
   for (const role of ['student', 'parent']) {
     batch.set(db.doc(`dayDashboards/${tokens[role]}`), {
-      ...buildDayDashboardIndex(local, links, role), updatedAt: Timestamp.now(),
+      ...buildDayDashboardIndex(local, links, role),
+      familyId: owner.familyId, childId: owner.childId, updatedAt: Timestamp.now(),
     })
   }
 }

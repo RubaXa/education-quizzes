@@ -247,7 +247,7 @@ export default function DayPage({ token, parent }: { token: string; parent: bool
   const currentChanged = lastChange?.changed.filter((id) => currentTaskIds.has(id)) ?? []
 
   return <div className={`day-page ${parent ? 'day-parent' : 'day-student'}`}>
-    {returnToDashboard && <a className="day-return" href={returnToDashboard}>← Назад к dashboard</a>}
+    <a className="day-return" href={returnToDashboard || '#/'}>← На главную</a>
     <section className="day-hero">
       <div className="day-kicker">{parent ? 'Панель родителя' : 'Мой план'} · {shortDate(page.date)}</div>
       <h1>{parent ? 'Что требует внимания' : 'Сегодня справимся 👋'}</h1>

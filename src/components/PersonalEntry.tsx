@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
-import { ArrowRight, Check, Copy, KeyRound, RefreshCw } from 'lucide-react'
+import { Check, Copy, KeyRound, RefreshCw } from 'lucide-react'
 import { Button } from './ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card'
 import { Input } from './ui/input'
 import { loadPersonalProfile, personalEntryUrl, redeemPersonalLink, restorePersonalSession } from '../lib/personalAccess'
 import type { PersonalProfile, PersonalSession } from '../lib/personalAccess'
+import DayDashboard from '../DayDashboard'
 
 function accessError(cause: unknown): string {
   if (cause && typeof cause === 'object' && 'code' in cause) {
@@ -29,6 +30,7 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
   const [online, setOnline] = useState(navigator.onLine)
   const [retry, setRetry] = useState(0)
   const [copied, setCopied] = useState(false)
+  const [selectedChild, setSelectedChild] = useState<string | null>(null)
 
   useEffect(() => {
     const reconnect = () => { setOnline(true); if (!profile) setRetry((value) => value + 1) }
@@ -90,25 +92,20 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
     }
   }
 
-  if (profile) return <div className="personal-entry">
-    <div className="personal-entry-hero">
-      <span className="personal-entry-icon">✳</span>
-      <div><h1>Здравствуйте, {profile.displayName}</h1><p>Ваши учебные страницы</p></div>
+  if (profile) {
+    const available = profile.children.filter((child) => child.dashboardToken)
+    const child = available.find((item) => `${item.familyId}/${item.childId}` === selectedChild) ?? available[0]
+    return <div className="personal-entry">
+      {available.length > 1 && <nav className="personal-child-picker" aria-label="Выбрать ребёнка">{available.map((item) => <Button key={`${item.familyId}/${item.childId}`} type="button" variant={item === child ? 'default' : 'outline'} onClick={() => setSelectedChild(`${item.familyId}/${item.childId}`)}>{item.displayName}</Button>)}</nav>}
+      {child?.dashboardToken ? <DayDashboard key={child.dashboardToken} token={child.dashboardToken} parent={child.role === 'parent'} />
+        : <Card><CardContent className="py-8">Dashboard для этого профиля ещё не опубликован.</CardContent></Card>}
+      <details className="personal-install-hint"><summary>Личная ссылка для установки на iPhone</summary>
+        <p>Скопируйте ссылку перед добавлением сайта на экран «Домой». При первом запуске с иконки вставьте её один раз.</p>
+        <Button type="button" variant="outline" onClick={() => void copyPersonalLink()}>{copied ? <Check /> : <Copy />}{copied ? 'Ссылка скопирована' : 'Скопировать личную ссылку'}</Button>
+      </details>
+      {error && <p role="alert" className="personal-login-error">{error}</p>}
     </div>
-    <div className="personal-install-hint">
-      <div><strong>Education на iPhone</strong><p>Перед добавлением на экран «Домой» скопируйте личную ссылку. При первом запуске с иконки вставьте её один раз.</p></div>
-      <Button type="button" variant="outline" onClick={() => void copyPersonalLink()}>{copied ? <Check /> : <Copy />}{copied ? 'Ссылка скопирована' : 'Скопировать личную ссылку'}</Button>
-    </div>
-    {error && <p role="alert" className="personal-login-error">{error}</p>}
-    {profile.children.length === 0 && <Card><CardContent className="py-8">Связь с учеником ещё не опубликована.</CardContent></Card>}
-    <div className="personal-child-list">{profile.children.map((child) => <Card key={`${child.familyId}-${child.childId}`}>
-      <CardHeader><CardTitle>{child.displayName}</CardTitle><CardDescription>{child.role === 'parent' ? 'Родительский доступ' : 'Ученический доступ'}</CardDescription></CardHeader>
-      <CardContent>{child.dayToken
-        ? <Button asChild><a href={`#/day${child.role === 'parent' ? '-parent' : ''}/${child.dayToken}`}>Открыть учебный день <ArrowRight /></a></Button>
-        : <p className="text-muted-foreground">Страницы ребёнка ещё переносятся в новый профиль.</p>}
-      </CardContent>
-    </Card>)}</div>
-  </div>
+  }
 
   return <Card className="personal-login mx-auto max-w-2xl">
     <CardHeader>
