@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { BookOpen, Camera, CheckCircle2, ChevronDown, Clock3, ExternalLink } from 'lucide-react'
-import { uploadDayPhoto, watchDayPage, watchDayUploads } from '@/lib/dayStore'
+import { uploadDayPhoto, watchDayPage, watchDayUploads, watchMaterialPages } from '@/lib/dayStore'
 import type { DayMaterialLink, DayPageData, DayTask, DayUpload } from '@/lib/dayStore'
 import { loadAnswerKey, watchAssignment, watchDashboard } from '@/lib/store'
 import { grade } from '@/lib/quiz'
@@ -137,6 +137,7 @@ export default function DayPage({ token, parent }: { token: string; parent: bool
     return new RegExp(`^#/${parent ? 'days-parent' : 'days'}/[A-Za-z0-9_-]{20,}$`).test(saved) ? saved : ''
   })
   const [page, setPage] = useState<DayPageData>()
+  const [catalogPages, setCatalogPages] = useState<Record<string, DayMaterialLink>>({})
   const [uploads, setUploads] = useState<DayUpload[]>([])
   const [tests, setTests] = useState<TestItem[]>([])
   const [view, setView] = useState<'homework' | 'school'>(requestedView === 'homework' ? 'homework' : 'school')
@@ -189,6 +190,13 @@ export default function DayPage({ token, parent }: { token: string; parent: bool
     }, (cause) => { if (active) setError(cause.message) }))
     return () => { active = false; stops.forEach((stop) => stop()) }
   }, [token, parent])
+  useEffect(() => {
+    const refs = Object.values(page?.taskPageRefs ?? {}).flat()
+    if (!refs.length) return
+    return watchMaterialPages(refs, setCatalogPages, () => {
+      // Legacy day links remain available while a device reconnects to its family session.
+    })
+  }, [page?.taskPageRefs])
 
   const studentToken = page?.studentToken ?? token
   const evidenceTokens = [...new Set([studentToken, ...(page?.evidenceDayTokens || [])])].join('|')
@@ -280,7 +288,10 @@ export default function DayPage({ token, parent }: { token: string; parent: bool
           <div className="day-subject-content"><p className="day-subject-summary">{subject.summary}</p>
             {parent && <details className="day-mesh"><summary>Как записано в МЭШ</summary><p>{subject.mesh}</p></details>}
             <div className="day-task-list">{subject.tasks.map((task) => {
-              const taskLinks = page.materialLinks?.[task.id] ?? []
+              const taskLinks = [...new Map([
+                ...(page.materialLinks?.[task.id] ?? []),
+                ...(page.taskPageRefs?.[task.id] ?? []).map((ref) => catalogPages[ref]).filter((link): link is DayMaterialLink => Boolean(link)),
+              ].map((link) => [link.sourceRef || link.url, link])).values()]
               const readerGroups = taskLinks.filter(canReadInside).reduce<DayMaterialLink[][]>((groups, link) => {
                 const key = `${link.sourceType}:${link.title.replace(/,\s*стр\.\s*\d+\s*$/, '')}`
                 const existing = groups.find((group) => `${group[0].sourceType}:${group[0].title.replace(/,\s*стр\.\s*\d+\s*$/, '')}` === key)
@@ -307,6 +318,7 @@ export default function DayPage({ token, parent }: { token: string; parent: bool
               return <article className={`day-task ${verified ? 'done' : submitted ? 'submitted' : ''}`} key={task.id}>
                 <div className="day-task-row"><span className={`day-task-state ${verified ? 'verified' : submitted ? 'partial' : task.status}`}>{verified && <CheckCircle2 size={15} aria-hidden="true" />} {state}</span>{task.kind === 'written' && <span className="day-task-type">В тетради</span>}{task.originDate && task.originDate !== page.targetDate && <span className="day-task-type">Осталось с {dayMonth(task.originDate)}</span>}</div>
                 <h3>{task.title}</h3><p>{task.detail}</p>
+                {!!task.steps?.length && <ol className="day-task-steps">{task.steps.map((step, index) => <li key={index}>{step}</li>)}</ol>}
                 {needsTextbook && <p className="day-material-warning">📖 {task.materialStatus?.message}</p>}
                 {task.materialStatus?.state === 'text-absent-from-textbook' && <p className="day-material-warning">📖 {task.materialStatus.message}</p>}
                 {readerGroups.map((group) => <MaterialReader key={group[0].url} links={group} parent={parent} />)}

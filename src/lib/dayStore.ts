@@ -2,7 +2,7 @@ import { addDoc, collection, doc, getDoc, onSnapshot, serverTimestamp } from 'fi
 import { db } from './firebase'
 
 export type DaySubmission = { buttonLabel: string; lead?: string; items?: string[]; photo?: string; description?: string }
-export type DayTask = { id: string; title: string; detail: string; status: 'verified' | 'needs-fix' | 'partial' | 'unknown'; kind: 'written' | 'read' | 'check'; source: string; submission?: DaySubmission; testToken?: string; testSlug?: string; requiredPoints?: number; originDate?: string; materialStatus?: { state: 'textbook-page-needed' | 'textbook-page-linked' | 'text-absent-from-textbook'; message: string } }
+export type DayTask = { id: string; title: string; detail: string; steps?: string[]; status: 'verified' | 'needs-fix' | 'partial' | 'unknown'; kind: 'written' | 'read' | 'check'; source: string; submission?: DaySubmission; testToken?: string; testSlug?: string; requiredPoints?: number; originDate?: string; materialStatus?: { state: 'textbook-page-needed' | 'textbook-page-linked' | 'text-absent-from-textbook'; message: string } }
 export type DayMaterialLink = { title: string; url: string; sourceType: 'textbook-page' | 'teacher-attachment' | 'external-text'; reason?: string; sourceRef?: string; pdfPage?: number; printedPage?: number; editionStatus?: string; extraction?: string; sourceSha256?: string; sourceQuote?: string }
 export type DaySubject = { id: string; name: string; icon: string; materials: string; mesh: string; summary: string; tasks: DayTask[] }
 export type DayTestPlacement = { token: string; subjectId: string; taskId?: string; originDate?: string }
@@ -14,6 +14,7 @@ export type DayPageData = {
   targetSchedule: { subject: string; start: string; end: string; homework: string }[];
   boardToken: string; studentToken?: string; parentNotes?: string[]; testPlacements?: DayTestPlacement[];
   materialLinks?: Record<string, DayMaterialLink[]>;
+  taskPageRefs?: Record<string, string[]>;
   evidenceDayTokens?: string[]; planRevision?: number;
   changes?: { at: unknown; added: string[]; changed: string[]; changedSubjects?: string[]; newLinks: boolean; changedSchedule?: boolean }[];
   grades?: { id: string; name: string; grades: { mark: number; weight: number }[]; displayed_average: number; scenario_verified?: boolean }[];
@@ -34,6 +35,26 @@ export function watchDayPage(token: string, onChange: (page: DayPageData) => voi
     if (snapshot.data().schemaVersion !== 1) { onError(new Error('Данные дня обновились. Обновите приложение до новой версии.')); return }
     onChange(snapshot.data() as DayPageData)
   }, onError)
+}
+/** @see ../../docs/product/materials.md#firestore-catalog */
+export function watchMaterialPages(refs: string[], onChange: (pages: Record<string, DayMaterialLink>) => void, onError: (error: Error) => void) {
+  const unique = [...new Set(refs)]
+  const pages: Record<string, DayMaterialLink> = {}
+  const stops = unique.map((ref) => {
+    const match = /^([a-z0-9-]+)#([1-9]\d*)$/.exec(ref)
+    if (!match) { onError(new Error(`Неизвестная страница учебника: ${ref}`)); return () => {} }
+    return onSnapshot(doc(db, 'materialBooks', match[1], 'pages', match[2]), (snapshot) => {
+      const data = snapshot.data()
+      if (data?.state === 'published' && typeof data.url === 'string' && data.url.startsWith('https://')) {
+        pages[ref] = { title: data.title || `${data.subject || 'Учебник'}, стр. ${data.printedPage}`,
+          url: data.url, sourceType: 'textbook-page', sourceRef: data.sourceRef,
+          pdfPage: data.pdfPage, printedPage: data.printedPage, editionStatus: data.editionStatus,
+          extraction: data.extraction, sourceSha256: data.sourceSha256 }
+      } else delete pages[ref]
+      onChange({ ...pages })
+    }, onError)
+  })
+  return () => stops.forEach((stop) => stop())
 }
 /** @see ../../docs/product/access-and-state.md#state */
 export function watchDayUploads(tokens: string[], onChange: (data: DayUpload[]) => void, onError: (error: Error) => void) {

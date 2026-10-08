@@ -57,3 +57,4 @@
 .day-grade-unavailable{font-size:.86rem;line-height:1.45;margin:0}
 .day-lesson .day-grade-expand{margin-top:4px}
 @media(max-width:640px){.day-grade{margin-left:0}.day-subject-head .day-grade-button{margin-left:auto}.day-grade-result{max-width:100%}.day-lesson .day-grade-expand{flex-basis:calc(100% + 84px);width:calc(100% + 84px);margin-left:-84px}}
+.day-task-steps{list-style:decimal;margin:12px 0 16px;padding-left:1.45em;max-width:72ch;line-height:1.55;color:#55496e}.day-task-steps li{display:list-item;margin:0 0 7px;padding-left:.2em}.day-task-steps li::marker{color:#654b9f;font-weight:800}

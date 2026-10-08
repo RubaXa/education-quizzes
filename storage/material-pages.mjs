@@ -13,6 +13,18 @@ export const pagesDir = resolve(projectRoot, 'education-quizzes/.local/yandex-pa
 export const manifestFile = resolve(pagesDir, 'manifest.json')
 export const linksFile = resolve(pagesDir, 'links.json')
 
+/** @see ../docs/product/materials.md#firestore-catalog */
+export function taskPageRefs() {
+  const books = new Map(materialPlan.books.map((book) => [book.id, book]))
+  return Object.fromEntries(Object.entries(materialPlan.taskPages).map(([taskId, ids]) => [taskId, ids.map((id) => {
+    const separator = id.lastIndexOf(':')
+    const book = books.get(id.slice(0, separator))
+    const printedPage = Number(id.slice(separator + 1))
+    if (!book || !Number.isInteger(printedPage)) throw new Error(`Некорректная страница ${id}`)
+    return `${book.id}#${printedPage + book.pdfPageOffset}`
+  })]))
+}
+
 function digest(bytes) { return createHash('sha256').update(bytes).digest('hex') }
 function pdfPageCount(file) {
   const info = execFileSync('pdfinfo', [file], { encoding: 'utf8' })

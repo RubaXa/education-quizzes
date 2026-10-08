@@ -5,7 +5,7 @@ import { resolve } from 'node:path'
 import { execFileSync } from 'node:child_process'
 import { applicationDefault, initializeApp } from 'firebase-admin/app'
 import { getFirestore, Timestamp } from 'firebase-admin/firestore'
-import { linksFile as pageLinksFile, materialLinks } from '../storage/material-pages.mjs'
+import { linksFile as pageLinksFile, materialLinks, taskPageRefs } from '../storage/material-pages.mjs'
 import { buildDaySource } from '../day/build.mjs'
 import { buildDayDashboardIndex } from '../day/dashboard-index.mjs'
 import { mergeDayPage } from '../day/merge.mjs'
@@ -138,6 +138,7 @@ async function publish() {
   const gradeSnapshot = json(resolve('../learner/grade-snapshot.json'))
   const links = existsSync(linksFile) ? json(linksFile) : {}
   const publishedPageLinks = existsSync(pageLinksFile) ? materialLinks(json(pageLinksFile)) : {}
+  const pageRefs = Object.fromEntries(Object.entries(taskPageRefs()).filter(([taskId]) => taskIds.includes(taskId)))
   const allMaterialLinks = { ...(source.materialLinks || {}) }
   for (const [taskId, pageLinks] of Object.entries(publishedPageLinks)) allMaterialLinks[taskId] = [...pageLinks, ...(allMaterialLinks[taskId] || [])]
   for (const task of source.subjects.flatMap((subject) => subject.tasks)) {
@@ -151,6 +152,7 @@ async function publish() {
     meshFetchedAt: target.fetchedAt, todaySchedule: schedule(today), targetSchedule: schedule(target),
     subjects: source.subjects, taskIds, testPlacements: source.testPlacements ?? [], notices: source.notices ?? [],
     materialLinks: allMaterialLinks, materialLinkReplacements: source.materialLinkReplacements ?? [],
+    taskPageRefs: pageRefs,
     evidenceDayTokens: [...new Set([pair.student, ...(source.evidenceDayTokens || [])])],
     gradeSummary: gradeSummary(gradeSnapshot), gradeAsOf: gradeSnapshot.observed_at,
     grades: gradeSnapshot.subjects.map((subject) => ({ id: subject.id, name: subject.name, displayed_average: subject.displayed_average, scenario_verified: gradeSnapshot.scenarios_verified === true, grades: subject.grades.map(([mark, weight]) => ({ mark, weight })) })),

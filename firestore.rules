@@ -233,6 +233,17 @@ service cloud.firestore {
       allow list, write: if false;
     }
 
+    // Shared textbook metadata is available only to a family device with an
+    // active personal link. Originals remain private on Yandex Disk.
+    match /materialBooks/{bookId} {
+      allow get: if activeSession();
+      allow list, write: if false;
+      match /pages/{pdfPage} {
+        allow get: if activeSession();
+        allow list, write: if false;
+      }
+    }
+
     match /dayDashboards/{linkToken} {
       // Включить чтение по токену только после решения о доступе к ролевому индексу.
       allow get: if false;

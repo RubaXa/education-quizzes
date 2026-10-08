@@ -2,16 +2,17 @@ import { createHash } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
-import { execFileSync } from 'node:child_process'
 import readline from 'node:readline'
 import { applicationDefault, initializeApp } from 'firebase-admin/app'
 import { FieldValue, getFirestore, Timestamp } from 'firebase-admin/firestore'
 import { YandexDiskStorage } from '../storage/yandex-disk.mjs'
 import { linksFile as pageLinksFile, materialLinks, pagesDir, preparePages } from '../storage/material-pages.mjs'
+import { indexedBooks, pageDocument } from '../storage/textbook-catalog.mjs'
 
 const local = resolve('.local')
 const tokenFile = resolve(local, 'yandex-disk-token')
 const linksFile = resolve(local, 'day-links.json')
+const libraryManifestFile = resolve(local, 'yandex-pages/library.json')
 const [command, date] = process.argv.slice(2)
 
 function fail(message) { throw new Error(message) }
@@ -32,6 +33,61 @@ function token() {
   const value = process.env.YANDEX_DISK_TOKEN || (existsSync(tokenFile) ? readFileSync(tokenFile, 'utf8').trim() : '')
   if (!value) fail('Яндекс Диск не подключён. Выполните npm run storage -- connect.')
   return value
+}
+function firestore() {
+  prepareFirebaseLogin()
+  initializeApp({ credential: applicationDefault(), projectId: 'education-9d7c6' })
+  return getFirestore()
+}
+
+/** @see ../docs/product/materials.md#firestore-catalog */
+async function syncCatalog() {
+  const db = firestore()
+  const books = indexedBooks()
+  const known = existsSync(pageLinksFile) ? json(pageLinksFile) : {}
+  const privateBooks = existsSync(libraryManifestFile) ? json(libraryManifestFile) : {}
+  let count = 0
+  let batch = db.batch()
+  for (const { book, index } of books) {
+    batch.set(db.doc(`materialBooks/${book.id}`), {
+      id: book.id, subject: book.subject, grade: book.grade, role: book.role,
+      editionStatus: index.edition_status, sourceSha256: index.source_sha256,
+      pdfPageCount: index.pdf_page_count, printedPageOffset: index.printed_page_offset,
+      indexedAt: Timestamp.now(),
+      ...(privateBooks[book.id]?.sourceSha256 === index.source_sha256
+        ? { privateDiskPath: privateBooks[book.id].path } : {}),
+    }, { merge: true })
+    count += 1
+    for (const page of index.pages) {
+      const published = known[`${book.id}:${page.printed_page}`]
+      batch.set(db.doc(`materialBooks/${book.id}/pages/${page.pdf_page}`), {
+        ...pageDocument(index, page),
+        ...(published ? { title: published.title, url: published.publicUrl,
+          imageSha256: published.imageSha256, state: 'published' } : {}),
+      }, { merge: true })
+      count += 1
+      if (count % 300 === 0) { await batch.commit(); batch = db.batch(); console.log(`Индекс Firestore: ${count} документов`) }
+    }
+  }
+  if (count % 300) await batch.commit()
+  console.log(JSON.stringify({ books: books.length, pages: count - books.length, publishedPages: Object.keys(known).length }))
+}
+
+/** @see ../docs/product/materials.md#private-originals */
+async function syncLibrary() {
+  const storage = new YandexDiskStorage(token())
+  mkdirSync(pagesDir, { recursive: true })
+  const known = existsSync(libraryManifestFile) ? json(libraryManifestFile) : {}
+  const books = indexedBooks()
+  for (const { book, source, index } of books) {
+    if (known[book.id]?.sourceSha256 === index.source_sha256) continue
+    const path = `app:/PETR/Учебники/Оригиналы/${book.id}/${index.source_sha256.slice(0, 16)}.pdf`
+    const result = await storage.putAt(path, readFileSync(source))
+    known[book.id] = { path: result.path, sourceSha256: index.source_sha256, size: result.size, md5: result.md5 }
+    writeFileSync(libraryManifestFile, `${JSON.stringify(known, null, 2)}\n`, { mode: 0o600 })
+    console.log(`Оригинал на Диске: ${Object.keys(known).length}/${books.length} · ${book.id}`)
+  }
+  console.log(JSON.stringify({ storedOriginals: Object.keys(known).length }))
 }
 function hiddenInput(prompt) {
   if (!process.stdin.isTTY) fail('Подключение Диска запустите в интерактивном терминале.')
@@ -141,6 +197,20 @@ async function syncPages() {
     }
   }
   if (failures.length) fail(`Не удалось опубликовать ${failures.length} страниц: ${failures.join('; ')}`)
+  const db = firestore()
+  for (let offset = 0; offset < entries.length; offset += 300) {
+    const batch = db.batch()
+    for (const entry of entries.slice(offset, offset + 300)) {
+      const link = known[entry.id]
+      batch.set(db.doc(`materialBooks/${entry.bookId}/pages/${entry.pdfPage}`), {
+        bookId: entry.bookId, title: entry.title, pdfPage: entry.pdfPage,
+        printedPage: entry.printedPage, sourceSha256: entry.sourceSha256,
+        imageSha256: entry.imageSha256, diskPath: entry.diskPath,
+        url: link.publicUrl, state: 'published',
+      }, { merge: true })
+    }
+    await batch.commit()
+  }
   const links = materialLinks(known)
   const index = ['# Страницы материалов на Яндекс.Диске', '', 'Ссылки относятся к отдельным изображениям, а не к полным PDF.', '']
   for (const entry of entries) {
@@ -149,9 +219,6 @@ async function syncPages() {
   }
   writeFileSync(resolve(pagesDir, 'index.md'), `${index.join('\n')}\n`, { mode: 0o600 })
   if (Object.values(links).some((items) => items.length)) {
-    prepareFirebaseLogin()
-    initializeApp({ credential: applicationDefault(), projectId: 'education-9d7c6' })
-    const db = getFirestore()
     const batch = db.batch()
     let changedPages = 0
     for (const pair of Object.values(json(linksFile))) {
@@ -183,4 +250,6 @@ if (command === 'connect') await connect()
 else if (command === 'sync') await sync()
 else if (command === 'prepare-pages') console.log(JSON.stringify({ prepared: preparePages().length, directory: '.local/yandex-pages' }))
 else if (command === 'sync-pages') await syncPages()
-else fail('Команды: connect | sync YYYY-MM-DD | prepare-pages | sync-pages')
+else if (command === 'sync-catalog') await syncCatalog()
+else if (command === 'sync-library') await syncLibrary()
+else fail('Команды: connect | sync YYYY-MM-DD | prepare-pages | sync-pages | sync-catalog | sync-library')
