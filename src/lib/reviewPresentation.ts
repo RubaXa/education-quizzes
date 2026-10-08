@@ -17,8 +17,10 @@ export function reviewHeadline(review: DayWorkReview): string {
   const items = review.items ?? []
   const correct = items.filter((item) => item.status === 'correct').length
   if (!items.length) return 'Проверка работы'
+  if (review.status === 'cannot-assess' && items.every((item) => item.status === 'cannot-assess')) return 'Не удалось проверить'
   if (review.status === 'verified' && correct === items.length) return `Всё верно · ${correct} из ${items.length}`
   const partial = items.filter((item) => item.status === 'partial').length
+  if (review.status === 'partial' && correct === items.length) return `${correct} из ${items.length} верно · работа не завершена`
   return `${correct} из ${items.length} верно${partial ? ` · ${partial} частично` : ''}`
 }
 

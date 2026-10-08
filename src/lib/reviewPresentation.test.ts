@@ -12,6 +12,7 @@ describe('collapsed homework review', () => {
     expect(reviewTone(done)).toBe('success')
     expect(reviewHeadline(done)).toBe('Всё верно · 2 из 2')
     expect(reviewTone(review('partial', ['correct', 'correct']))).toBe('partial')
+    expect(reviewHeadline(review('partial', ['correct', 'correct']))).toBe('2 из 2 верно · работа не завершена')
   })
 
   it('distinguishes mixed and wholly incorrect results', () => {

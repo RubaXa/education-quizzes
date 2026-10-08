@@ -3,7 +3,7 @@ import { getAuth } from 'firebase/auth'
 import { ArrowLeft, ArrowRight, BookOpen, CalendarDays, CheckCircle2, ChevronDown, Clock3, Sparkles } from 'lucide-react'
 import { watchDayPage, watchDayReviews, watchDayUploads } from '@/lib/dayStore'
 import type { DayPageData, DayTask, DayUpload, DayWorkReview } from '@/lib/dayStore'
-import { activeProcessing, elapsedLabel, reviewHeadline, timestampMillis } from '@/lib/reviewPresentation'
+import { activeProcessing, elapsedLabel, reviewHeadline, reviewTone, timestampMillis } from '@/lib/reviewPresentation'
 import { watchDayDashboard } from '@/lib/dayDashboardStore'
 import type { DayDashboardData, IndexedDay } from '@/lib/dayDashboardStore'
 import { watchAssignment } from '@/lib/store'
@@ -37,7 +37,9 @@ function taskState(task: DayTask, uploads: DayUpload[], reviews: DayWorkReview[]
     const processing = activeProcessing(reviewed, photos)
     if (processing) return processing.phase === 'paused' ? processing.label : now - (timestampMillis(processing.updatedAt) ?? now) > 30 * 60 * 1000 ? 'Проверка задерживается' : `${processing.label} · ${elapsedLabel(processing.startedAt, now)}`
     if (photos.some((upload) => upload.status === 'pending')) return 'Фото получено · ждёт проверки'
-    if (reviewed?.status && reviewed.items?.length) return reviewHeadline(reviewed)
+    if (reviewed?.status === 'verified') return 'Проверено'
+    if (reviewed?.status === 'partial') return 'Проверено · дополнить'
+    if (reviewed?.status === 'needs-fix') return 'Проверено · исправить'
     if (reviewed?.status === 'cannot-assess') return 'Фото нужно переснять'
     if (task.status === 'verified') return 'Проверено'
     if (task.status === 'needs-fix') return 'Нужно исправить'
@@ -53,6 +55,23 @@ function taskState(task: DayTask, uploads: DayUpload[], reviews: DayWorkReview[]
     return test.status === 'submitted' ? 'Тест отправлен' : answered ? `Тест: ${answered} из ${test.questions.length}` : 'Нужен тест'
   }
   return task.status === 'needs-fix' ? 'Нужно исправить' : 'Статус неизвестен'
+}
+
+/** @see ../docs/product/dashboard.md#homework-progress */
+function homeworkProgress(tasks: DayTask[], uploads: DayUpload[], reviews: DayWorkReview[], tests: Record<string, Assignment>, now: number) {
+  const taskIds = new Set(tasks.map((task) => task.id))
+  const photos = uploads.filter((upload) => taskIds.has(upload.taskId))
+  const pending = photos.filter((photo) => photo.status === 'pending').length
+  const checked = photos.filter((photo) => photo.status === 'reviewed').length
+  const results = tasks.map((task) => ({ task, review: reviews.find((item) => item.taskId === task.id) }))
+    .filter((entry): entry is { task: DayTask; review: DayWorkReview } => Boolean(entry.review?.status))
+  const state = tasks.map((task) => taskState(task, uploads, reviews, tests, now)).join(' · ')
+  const evidence = photos.length ? `${photos.length} фото загружено · ${pending ? `${pending} ${pending === 1 ? 'ждёт' : 'ждут'} проверки` : `${checked} проверено`}` : ''
+  const outcomes = results.map(({ task, review }) => ({
+    label: `${tasks.length > 1 ? `${task.title}: ` : ''}${photos.some((photo) => photo.taskId === task.id && photo.status === 'pending') ? 'Ранее: ' : ''}${reviewHeadline(review)}`,
+    tone: reviewTone(review),
+  }))
+  return { state, evidence, outcomes }
 }
 
 /**
@@ -170,9 +189,12 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
     <div className="day-dashboard-grid">
       <section className="day-dashboard-card" aria-label="Ближайшее домашнее задание">
         <div className="day-dashboard-heading"><div><BookOpen size={20} /><h2>Ближайшее ДЗ</h2></div>{dueDate && <small>К {dateLabel(dueDate)}</small>}</div>
-        {page && currentSubjects.length ? <div className="day-dashboard-subjects">{currentSubjects.map((subject) => <button key={subject.id} type="button" onClick={() => todayEntry && openDay(todayEntry, 'homework')}>
-          <span className="day-dashboard-icon" aria-hidden="true">{subject.icon}</span><span><strong>{subject.name}</strong><small>{subject.tasks.map((task) => taskState(task, uploads, reviews, tests, now)).join(' · ')}</small></span><ArrowRight size={18} />
-        </button>)}</div> : dueEntry?.homework.length ? <div className="day-dashboard-mesh">{dueEntry.homework.map((item, index) => <p key={index}><strong>{item.subject}</strong><span>{item.text}</span></p>)}<small>Точный текст МЭШ · разбор страницы готовится</small></div> : <p className="day-dashboard-empty">ДЗ пока не опубликовано. Последняя проверка: {checkedLabel(dueEntry?.checkedAt ?? null)}.</p>}
+        {page && currentSubjects.length ? <div className="day-dashboard-subjects">{currentSubjects.map((subject) => {
+          const progress = homeworkProgress(subject.tasks, uploads, reviews, tests, now)
+          return <button key={subject.id} type="button" onClick={() => todayEntry && openDay(todayEntry, 'homework')}>
+            <span className="day-dashboard-icon" aria-hidden="true">{subject.icon}</span><span className="day-dashboard-subject-body"><strong>{subject.name}</strong><small>{progress.state}</small>{(progress.evidence || progress.outcomes.length > 0) && <span className="day-dashboard-evidence">{progress.evidence && <span>{progress.evidence}</span>}{progress.outcomes.map((result, index) => <span className={`day-dashboard-outcome ${result.tone}`} key={`${index}-${result.label}`}>{result.label}</span>)}</span>}</span><ArrowRight size={18} />
+          </button>
+        })}</div> : dueEntry?.homework.length ? <div className="day-dashboard-mesh">{dueEntry.homework.map((item, index) => <p key={index}><strong>{item.subject}</strong><span>{item.text}</span></p>)}<small>Точный текст МЭШ · разбор страницы готовится</small></div> : <p className="day-dashboard-empty">ДЗ пока не опубликовано. Последняя проверка: {checkedLabel(dueEntry?.checkedAt ?? null)}.</p>}
       </section>
       <aside className="day-dashboard-side">
         <section className="day-dashboard-card" aria-label="Оценки по предметам"><div className="day-dashboard-heading"><div><Sparkles size={20} /><h2>Оценки</h2></div>{gradeRows.length > 0 && <small>{gradeRows.length} {word(gradeRows.length, 'предмет', 'предмета', 'предметов')}</small>}</div>
