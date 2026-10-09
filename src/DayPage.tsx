@@ -120,7 +120,7 @@ function TestProgress({ test }: { test: TestItem }) {
   const answered = Math.min(test.answered, test.total)
   const remaining = Math.max(0, test.total - answered)
   const label = test.status === 'submitted'
-    ? `Отправлен · ${answered} из ${test.total} вопросов с ответом`
+    ? test.points == null ? 'Тест отправлен · результат уточняется' : `Результат · ${test.points} из ${test.maxPoints} верно`
     : answered ? `В процессе · осталось ${remaining} из ${test.total} вопросов`
       : `Тест не начат · осталось ${remaining} из ${test.total} вопросов`
   return <div className="day-test-progress">
@@ -364,7 +364,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
       if (task.status === 'verified') return false
       if (task.kind === 'written') return !uploads.some((upload) => upload.taskId === task.id && (upload.status === 'pending' || task.status === 'unknown'))
         && !localPhotos.some((photo) => photo.taskId === task.id && photo.state === 'saved')
-      if (task.kind === 'read') { const chain = quizChain(tests.find((item) => item.token === task.testToken), tests); const test = chain[chain.length - 1]; return !(test?.status === 'submitted' && test.points != null && test.points >= (chain.length > 1 ? test.maxPoints ?? 1 : task.requiredPoints ?? test.maxPoints ?? 1)) }
+      if (task.kind === 'read') { const test = tests.find((item) => item.token === task.testToken); return !(test?.status === 'submitted' && test.points != null && test.points >= (task.requiredPoints ?? test.maxPoints ?? 1)) }
       return true
     }).length
     const testPending = currentPlacements.filter((placement) => !placement.taskId && quizChain(tests.find((item) => item.token === placement.token), tests).at(-1)?.status !== 'submitted').length
@@ -504,14 +504,12 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
               const newWork = taskUploads.some((upload) => upload.status === 'pending') || localTaskPhotos.some((photo) => photo.state === 'saved')
               const uploadingWork = localTaskPhotos.some((photo) => photo.state === 'uploading')
               const linkedTest = tests.find((item) => item.token === task.testToken)
-              const testLineage = quizChain(linkedTest, tests)
-              const currentTest = testLineage.at(-1)
-              const readPassed = task.kind === 'read' && currentTest?.status === 'submitted' && currentTest.points != null && currentTest.points >= (testLineage.length > 1 ? currentTest.maxPoints ?? 1 : task.requiredPoints ?? currentTest.maxPoints ?? 1)
+              const readPassed = task.kind === 'read' && linkedTest?.status === 'submitted' && linkedTest.points != null && linkedTest.points >= (task.requiredPoints ?? linkedTest.maxPoints ?? 1)
               const verified = taskStatus === 'verified' || readPassed
               const submitted = (task.kind === 'written' || task.kind === 'check') && newWork
               const state = task.kind === 'written'
                 ? taskStatus === 'verified' ? 'Готово · проверено' : processing ? 'Проверяем работу' : newWork ? 'Новое фото · ждёт проверки' : uploadingWork ? 'Фото загружается' : priorWork ? taskStatus === 'needs-fix' ? 'Работа проверена · исправить' : taskStatus === 'partial' ? 'Работа проверена · дополнить' : 'Работа сохранена' : statusLabel(taskStatus)
-                : task.kind === 'read' ? readPassed ? `Тест пройден · ${currentTest?.points}/${currentTest?.maxPoints}` : currentTest?.status === 'submitted' ? currentTest.points == null ? 'Проверяем тест' : `Нужен разбор · ${currentTest.points}/${currentTest.maxPoints}` : 'Нужен тест' : cdzTask ? task.platformResult?.state === 'completed' ? `ЦДЗ пройдено · ${task.platformResult.points}/${task.platformResult.maxPoints}` : processing ? 'Проверяем результат ЦДЗ' : newWork ? 'Результат ЦДЗ получен · ждёт проверки' : uploadingWork ? 'Фото загружается' : 'Ожидает результата ЦДЗ' : statusLabel(taskStatus)
+                : task.kind === 'read' ? readPassed ? `Чтение подтверждено · ${linkedTest?.points}/${linkedTest?.maxPoints} верно` : linkedTest?.status === 'submitted' ? linkedTest.points == null ? 'Проверяем тест' : `Нужен разбор · ${linkedTest.points}/${linkedTest.maxPoints}` : 'Нужен тест' : cdzTask ? task.platformResult?.state === 'completed' ? `ЦДЗ пройдено · ${task.platformResult.points}/${task.platformResult.maxPoints}` : processing ? 'Проверяем результат ЦДЗ' : newWork ? 'Результат ЦДЗ получен · ждёт проверки' : uploadingWork ? 'Фото загружается' : 'Ожидает результата ЦДЗ' : statusLabel(taskStatus)
               const uploadLabel = cdzTask ? newWork || uploadingWork ? 'Добавить ещё фото ЦДЗ' : 'Загрузить результат ЦДЗ' : newWork || uploadingWork ? 'Добавить ещё фото' : priorWork ? taskStatus === 'needs-fix' ? 'Добавить фото исправления' : 'Добавить фото продолжения' : 'Добавить фото ответа'
               const canUpload = !parent && (task.kind === 'written' && taskStatus !== 'verified' && (!priorWork || newWork || uploadingWork || taskStatus === 'needs-fix' || taskStatus === 'partial') || cdzTask && taskStatus !== 'verified')
               const showSubmission = task.kind === 'written' && taskStatus !== 'verified' && (!priorWork || newWork || uploadingWork || taskStatus === 'needs-fix' || taskStatus === 'partial')

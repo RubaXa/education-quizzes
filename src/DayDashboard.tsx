@@ -6,7 +6,8 @@ import type { DayPageData, DayTask, DayUpload, DayWorkReview } from '@/lib/daySt
 import { activeProcessing, elapsedLabel, reviewHeadline, reviewTone, timestampMillis } from '@/lib/reviewPresentation'
 import { watchDayDashboard } from '@/lib/dayDashboardStore'
 import type { DayDashboardData, IndexedDay } from '@/lib/dayDashboardStore'
-import { watchAssignment } from '@/lib/store'
+import { loadAnswerKey, watchAssignment } from '@/lib/store'
+import { grade } from '@/lib/quiz'
 import type { Assignment } from '@/lib/quiz'
 import './DayDashboard.css'
 
@@ -30,7 +31,8 @@ function lessonTime(iso: string) {
   const time = new Date(iso)
   return Number.isNaN(time.getTime()) ? '' : new Intl.DateTimeFormat('ru-RU', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Moscow' }).format(time)
 }
-function taskState(task: DayTask, uploads: DayUpload[], reviews: DayWorkReview[], tests: Record<string, Assignment>, now: number) {
+type QuizScore = { points: number; maxPoints: number }
+function taskState(task: DayTask, uploads: DayUpload[], reviews: DayWorkReview[], tests: Record<string, Assignment>, scores: Record<string, QuizScore>, now: number) {
   const reviewed = reviews.find((item) => item.taskId === task.id)
   if (task.kind === 'written') {
     const photos = uploads.filter((upload) => upload.taskId === task.id)
@@ -55,25 +57,27 @@ function taskState(task: DayTask, uploads: DayUpload[], reviews: DayWorkReview[]
     if (task.platformResult?.state === 'completed') return `ЦДЗ пройдено · ${task.platformResult.points}/${task.platformResult.maxPoints}`
     return 'Ожидает результата ЦДЗ'
   }
-  if (task.status === 'verified' || reviewed?.status === 'verified') return 'Проверено'
   if (task.kind === 'read' && task.testToken) {
     const test = tests[task.testToken]
-    if (!test) return 'Нужен тест'
+    const score = scores[task.testToken]
+    if (!test) return task.status === 'verified' ? 'Чтение подтверждено' : 'Нужен тест'
     const answered = Object.values(test.answers ?? {}).filter((answer) => answer !== '' && (!Array.isArray(answer) || answer.length > 0)).length
-    return test.status === 'submitted' ? 'Тест отправлен' : answered ? `Тест: ${answered} из ${test.questions.length}` : 'Нужен тест'
+    if (test.status === 'submitted') return score ? `${task.status === 'verified' || score.points >= (task.requiredPoints ?? score.maxPoints) ? 'Чтение подтверждено' : 'Нужен разбор'} · ${score.points} из ${score.maxPoints} верно` : 'Тест отправлен · результат уточняется'
+    return answered ? `Тест: ${answered} из ${test.questions.length} ответов` : 'Нужен тест'
   }
+  if (task.status === 'verified' || reviewed?.status === 'verified') return 'Проверено'
   return task.status === 'needs-fix' ? 'Нужно исправить' : 'Статус неизвестен'
 }
 
 /** @see ../docs/product/dashboard.md#homework-progress */
-function homeworkProgress(tasks: DayTask[], uploads: DayUpload[], reviews: DayWorkReview[], tests: Record<string, Assignment>, now: number) {
+function homeworkProgress(tasks: DayTask[], uploads: DayUpload[], reviews: DayWorkReview[], tests: Record<string, Assignment>, scores: Record<string, QuizScore>, now: number) {
   const taskIds = new Set(tasks.map((task) => task.id))
   const photos = uploads.filter((upload) => taskIds.has(upload.taskId))
   const pending = photos.filter((photo) => photo.status === 'pending').length
   const checked = photos.filter((photo) => photo.status === 'reviewed').length
   const results = tasks.map((task) => ({ task, review: reviews.find((item) => item.taskId === task.id) }))
     .filter((entry): entry is { task: DayTask; review: DayWorkReview } => Boolean(entry.review?.status))
-  const state = tasks.map((task) => taskState(task, uploads, reviews, tests, now)).join(' · ')
+  const state = tasks.map((task) => taskState(task, uploads, reviews, tests, scores, now)).join(' · ')
   const evidence = photos.length ? [
     `${photos.length} фото загружено`,
     ...(pending ? [`${pending} ${pending === 1 ? 'ждёт' : 'ждут'} проверки`] : []),
@@ -100,6 +104,7 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
   const [uploads, setUploads] = useState<DayUpload[]>([])
   const [reviews, setReviews] = useState<DayWorkReview[]>([])
   const [tests, setTests] = useState<Record<string, Assignment>>({})
+  const [scores, setScores] = useState<Record<string, QuizScore>>({})
   const [selected, setSelected] = useState<string>()
   const [error, setError] = useState('')
   const [now, setNow] = useState(() => Date.now())
@@ -154,8 +159,20 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
   const placementKey = (page?.testPlacements ?? []).filter((placement) => (placement.originDate ?? page?.targetDate) === page?.targetDate).map((placement) => placement.token).join('|')
   useEffect(() => {
     setTests({})
+    setScores({})
     if (!placementKey) return
-    return placementKey.split('|').map((testToken) => watchAssignment(testToken, (assignment) => setTests((prior) => ({ ...prior, [testToken]: assignment })), (cause) => setError(cause.message))).reduce<() => void>((stopAll, stop) => () => { stopAll(); stop() }, () => {})
+    let active = true
+    const stops = placementKey.split('|').map((testToken) => watchAssignment(testToken, (assignment) => {
+      setTests((prior) => ({ ...prior, [testToken]: assignment }))
+      if (assignment.status !== 'submitted') return
+      void loadAnswerKey(testToken).then((key) => {
+        if (!active) return
+        const results = grade(assignment, key)
+        if (results.some((result) => result.points == null)) return
+        setScores((prior) => ({ ...prior, [testToken]: { points: results.reduce((sum, result) => sum + (result.points ?? 0), 0), maxPoints: assignment.questions.reduce((sum, question) => sum + question.points, 0) } }))
+      }).catch((cause) => setError(cause instanceof Error ? cause.message : 'Не удалось получить результат теста.'))
+    }, (cause) => setError(cause.message)))
+    return () => { active = false; stops.forEach((stop) => stop()) }
   }, [placementKey])
 
   const dueDate = page?.targetDate ?? index?.days.find((day) => day.date > today && day.schedule.length)?.date
@@ -202,7 +219,7 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
       <section className="day-dashboard-card" aria-label="Ближайшее домашнее задание">
         <div className="day-dashboard-heading"><div><BookOpen size={20} /><h2>Ближайшее ДЗ</h2></div>{dueDate && <small>К {dateLabel(dueDate)}</small>}</div>
         {page && currentSubjects.length ? <div className="day-dashboard-subjects">{currentSubjects.map((subject) => {
-          const progress = homeworkProgress(subject.tasks, uploads, reviews, tests, now)
+          const progress = homeworkProgress(subject.tasks, uploads, reviews, tests, scores, now)
           return <button key={subject.id} type="button" onClick={() => todayEntry && openDay(todayEntry, 'homework')}>
             <span className="day-dashboard-icon" aria-hidden="true">{subject.icon}</span><span className="day-dashboard-subject-body"><strong>{subject.name}</strong><small>{progress.state}</small>{(progress.evidence || progress.outcomes.length > 0) && <span className="day-dashboard-evidence">{progress.evidence && <span>{progress.evidence}</span>}{progress.outcomes.map((result, index) => <span className={`day-dashboard-outcome ${result.tone}`} key={`${index}-${result.label}`}>{result.label}</span>)}</span>}</span><ArrowRight size={18} />
           </button>
