@@ -18,7 +18,8 @@ function mergeSubjects(existing = [], incoming = []) {
       if (position < 0) tasks.push(task)
       else {
         const old = tasks[position]
-        tasks[position] = { ...old, ...task, status: task.status === 'unknown' && old.status !== 'unknown' ? old.status : task.status }
+        const sameCondition = old.meshText === task.meshText
+        tasks[position] = { ...old, ...task, status: sameCondition && task.status === 'unknown' && old.status !== 'unknown' ? old.status : task.status }
       }
     }
     result[index] = { ...older, ...subject, tasks }

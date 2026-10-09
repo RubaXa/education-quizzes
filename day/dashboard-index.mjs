@@ -27,18 +27,31 @@ export function buildDayDashboardIndex(local, links, role, now = new Date()) {
     }
   }
   const dates = [...snapshots.keys()].sort()
-  const end = dates.at(-1) || addDays(weekStart, 6)
+  const lastScheduledDate = dates.filter((date) => {
+    const snapshot = snapshots.get(date)
+    return lessonVisibility(snapshot.schedule).conducted.some((item) => !item.cancelled)
+      || lessonVisibility(snapshot.assignments).conducted.some((item) => !item.cancelled)
+  }).at(-1)
+  const weekEnd = addDays(weekStart, 6)
+  const end = lastScheduledDate && lastScheduledDate > weekEnd ? lastScheduledDate : weekEnd
   const days = []
   for (let date = weekStart; date <= end; date = addDays(date, 1)) {
     const snapshot = snapshots.get(date)
     const schedule = lessonVisibility(snapshot?.schedule).conducted?.filter((item) => !item.cancelled) ?? []
     const assignments = lessonVisibility(snapshot?.assignments).conducted?.filter((item) => !item.cancelled) ?? []
-    const homework = assignments.flatMap((assignment) => {
+    const homeworkEntries = assignments.flatMap((assignment) => {
       const entries = assignment.homeworkEntries?.length
         ? assignment.homeworkEntries.map((entry) => entry.description)
         : assignment.descriptions || []
       return entries.filter((text) => typeof text === 'string' && text.trim()).map((text) => ({ subject: conciseSubject(assignment.subjectName || assignment.subject_name), text: text.trim() }))
     })
+    const homeworkBySubject = new Map()
+    for (const item of homeworkEntries) {
+      const texts = homeworkBySubject.get(item.subject) ?? []
+      if (!texts.includes(item.text)) texts.push(item.text)
+      homeworkBySubject.set(item.subject, texts)
+    }
+    const homework = [...homeworkBySubject].map(([subject, texts]) => ({ subject, text: texts.join('; ') }))
     const lessonList = schedule.map((lesson) => ({ subject: conciseSubject(lesson.subject_name), start: lesson.start_at ?? '', end: lesson.finish_at ?? '' }))
     days.push({
       date, checkedAt: snapshot?.fetchedAt ?? null, complete: Boolean(snapshot?.complete),

@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
+import { execFileSync } from 'node:child_process'
 import readline from 'node:readline'
 import { applicationDefault, initializeApp } from 'firebase-admin/app'
 import { FieldValue, getFirestore, Timestamp } from 'firebase-admin/firestore'
@@ -273,10 +274,68 @@ async function syncPages() {
   console.log(JSON.stringify({ pages: entries.length, published, failed: failures.length }, null, 2))
 }
 
+/** Preserve image attachments from MESH as viewable Education materials. */
+async function syncTeacher() {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date ?? '')) fail('Укажите дату задания YYYY-MM-DD.')
+  const folder = resolve(local, 'diary', 'files', date)
+  const manifestFile = resolve(folder, 'manifest.json')
+  if (!existsSync(manifestFile)) fail(`Сначала скачайте вложения МЭШ на ${date}.`)
+  const archivedFile = resolve(folder, 'yandex-links.json')
+  const archived = existsSync(archivedFile) ? json(archivedFile) : {}
+  const storage = new YandexDiskStorage(token())
+  let published = 0
+  for (const item of Object.values(json(manifestFile))) {
+    if (item.scope !== 'homework') continue
+    const isImage = /^image\/(png|jpeg|webp)$/.test(item.contentType ?? '')
+    const isPdf = item.contentType === 'application/pdf'
+    if (!isImage && !isPdf) continue
+    if (!/^\d+$/.test(String(item.id ?? '')) || !/^[A-Za-z0-9_-]+\.(png|jpg|jpeg|webp|pdf)$/.test(item.file ?? '')) fail('Некорректное имя файла вложения МЭШ.')
+    const bytes = readFileSync(resolve(folder, item.file))
+    const sha256 = createHash('sha256').update(bytes).digest('hex')
+    if (sha256 !== item.sha256 || bytes.length !== item.size) fail(`Вложение МЭШ ${item.id} не совпадает со скачанным оригиналом.`)
+    if (archived[item.id]?.sha256 === sha256 && (archived[item.id]?.publicUrl || archived[item.id]?.pages?.length)) continue
+    if (isPdf) {
+      const privatePath = `app:/PETR/Материалы/МЭШ/${date}/${item.id}-${sha256.slice(0, 16)}.pdf`
+      await storage.putAt(privatePath, bytes)
+      const info = execFileSync('pdfinfo', [resolve(folder, item.file)], { encoding: 'utf8' })
+      const pageCount = Number(/^Pages:\s+(\d+)$/m.exec(info)?.[1])
+      if (!Number.isInteger(pageCount) || pageCount < 1 || pageCount > 30) fail(`PDF учителя ${item.id}: неподдерживаемое число страниц.`)
+      const renderDir = resolve(folder, `rendered-${item.id}`)
+      mkdirSync(renderDir, { recursive: true, mode: 0o700 })
+      const prefix = resolve(renderDir, 'page')
+      execFileSync('pdftoppm', ['-f', '1', '-l', String(pageCount), '-r', '160', '-png', resolve(folder, item.file), prefix])
+      const pages = []
+      for (let number = 1; number <= pageCount; number += 1) {
+        const image = readFileSync(`${prefix}-${number}.png`)
+        const imageSha256 = createHash('sha256').update(image).digest('hex')
+        const diskPath = `app:/PETR/Материалы/МЭШ/${date}/${item.id}-${sha256.slice(0, 16)}-page-${number}.png`
+        await storage.putAt(diskPath, image)
+        const publicUrl = await storage.publish(diskPath)
+        pages.push({ number, publicUrl, diskPath, sha256: imageSha256 })
+        published += 1
+      }
+      archived[item.id] = { title: item.title, sourceUrl: item.url, sourceItemId: item.sourceItemId, privatePath, sha256, pages, publishedAt: new Date().toISOString() }
+      writeFileSync(archivedFile, `${JSON.stringify(archived, null, 2)}\n`, { mode: 0o600 })
+      continue
+    }
+    const extension = item.contentType === 'image/jpeg' ? 'jpg' : item.contentType.split('/')[1]
+    const diskPath = `app:/PETR/Материалы/МЭШ/${date}/${item.id}-${sha256.slice(0, 16)}.${extension}`
+    const result = await storage.putAt(diskPath, bytes)
+    const publicUrl = await storage.publish(result.path)
+    const remote = await storage.head(diskPath)
+    storage.verify(remote, bytes, createHash('md5').update(bytes).digest('hex'), diskPath)
+    archived[item.id] = { title: item.title, publicUrl, diskPath, sha256, sourceUrl: item.url, sourceItemId: item.sourceItemId, publishedAt: new Date().toISOString() }
+    writeFileSync(archivedFile, `${JSON.stringify(archived, null, 2)}\n`, { mode: 0o600 })
+    published += 1
+  }
+  console.log(JSON.stringify({ date, imageAttachments: Object.keys(archived).length, published }, null, 2))
+}
+
 if (command === 'connect') await connect()
 else if (command === 'sync') await sync()
+else if (command === 'sync-teacher') await syncTeacher()
 else if (command === 'prepare-pages') console.log(JSON.stringify({ prepared: preparePages().length, directory: '.local/yandex-pages' }))
 else if (command === 'sync-pages') await syncPages()
 else if (command === 'sync-catalog') await syncCatalog()
 else if (command === 'sync-library') await syncLibrary()
-else fail('Команды: connect | sync YYYY-MM-DD | prepare-pages | sync-pages | sync-catalog | sync-library')
+else fail('Команды: connect | sync YYYY-MM-DD | sync-teacher YYYY-MM-DD | prepare-pages | sync-pages | sync-catalog | sync-library')

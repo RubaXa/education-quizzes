@@ -55,6 +55,24 @@ function refresh() {
     try { runLocal('diary/cli.mjs', ['files', '--date', day]) }
     catch { console.warn(`Вложения МЭШ на ${day} скачаны не полностью; исходные ссылки останутся в плане.`) }
   }
+  const target = json(resolve(local, `diary/snapshot-${targetDate}.json`))
+  const teacherMaterials = (target.assignments || []).flatMap((item) => item.teacherFiles || [])
+    .filter((item) => /\.(png|jpe?g|webp|pdf)(?:\?|$)/i.test(item.title || item.url || ''))
+  if (teacherMaterials.length) runLocal('scripts/storage.mjs', ['sync-teacher', targetDate])
+  if (new Date(`${targetDate}T12:00:00Z`).getUTCDay() === 3) {
+    const followingDate = nextCalendarDate(targetDate, 1)
+    runLocal('diary/cli.mjs', ['sync', '--date', followingDate])
+    const following = json(resolve(local, `diary/snapshot-${followingDate}.json`))
+    if (!following.complete) fail(`Снимок МЭШ на ${followingDate} неполный; срок спецкурса к среде не проверен.`)
+    const specialFiles = (following.assignments || []).filter((item) =>
+      /Специальный курс по математике/.test(item.subjectName || '')
+      && (item.homeworkEntries || []).some((entry) => /сдать[^.]*в среду/i.test(entry.description || ''))
+    ).flatMap((item) => item.teacherFiles || [])
+    if (specialFiles.length) {
+      runLocal('diary/cli.mjs', ['files', '--date', followingDate])
+      runLocal('scripts/storage.mjs', ['sync-teacher', followingDate])
+    }
+  }
   console.log(JSON.stringify(buildDaySource(local, date), null, 2))
 }
 function prepareLogin() {
@@ -90,6 +108,21 @@ function gradeSummary(snapshot) {
     }
   })
 }
+/** @see ../docs/product/plan-generation.md#review-gate */
+function validateAssignedInstruction(item, task, sourceDocument) {
+  if (!item || typeof item !== 'object' || !item.text?.trim() || !item.source?.label?.trim() || !item.source?.evidence?.trim() || item.source.certainty !== 'confirmed') {
+    fail(`Обязательный пункт ${task.id} без подтверждённого источника. Не публикуйте домысел как ДЗ.`)
+  }
+  if (item.source.kind === 'mesh') {
+    if (!item.source.excerpt?.trim() || !task.meshText?.includes(item.source.excerpt) || item.source.evidence !== task.meshText) fail(`Для пункта ${task.id} нужна дословная опора в МЭШ.`)
+  } else if (item.source.kind === 'textbook') {
+    if (!materialPlan.taskPages[task.id]?.some((pageId) => item.source.ref?.startsWith(pageId))) fail(`Для пункта ${task.id} нужна сверенная страница учебника.`)
+  } else if (item.source.kind === 'teacher-file') {
+    if (!sourceDocument.materialLinks?.[task.id]?.some((link) => link.sourceType === 'teacher-attachment' && link.title === item.source.ref)) {
+      fail(`Для пункта ${task.id} нужен исходный файл учителя из МЭШ.`)
+    }
+  } else fail(`Пункт ${task.id} не может добавлять к заданию МЭШ обязательную работу от агента или прежнего разбора.`)
+}
 function validate(source) {
   if (!source || !Array.isArray(source.subjects) || !source.subjects.length) fail('В исходнике нужны subjects.')
   const ids = new Set()
@@ -101,16 +134,9 @@ function validate(source) {
       if (!/^[a-z0-9-]+$/.test(task.id ?? '') || ids.has(task.id) || !task.title) fail('Нужны уникальные id и названия действий.')
       ids.add(task.id)
       if (task.id.startsWith('mesh-')) {
-        for (const item of task.submission?.items ?? []) {
-          if (!item || typeof item !== 'object' || !item.text?.trim() || !item.source?.label?.trim() || !item.source?.evidence?.trim() || item.source.certainty !== 'confirmed') {
-            fail(`Обязательный пункт ${task.id} без подтверждённого источника. Не публикуйте домысел как ДЗ.`)
-          }
-          if (item.source.kind === 'mesh') {
-            if (!item.source.excerpt?.trim() || !task.meshText?.includes(item.source.excerpt) || item.source.evidence !== task.meshText) fail(`Для пункта ${task.id} нужна дословная опора в МЭШ.`)
-          } else if (item.source.kind === 'textbook') {
-            if (!materialPlan.taskPages[task.id]?.some((pageId) => item.source.ref?.startsWith(pageId))) fail(`Для пункта ${task.id} нужна сверенная страница учебника.`)
-          } else fail(`Пункт ${task.id} не может добавлять к заданию МЭШ обязательную работу от агента или прежнего разбора.`)
-        }
+        if (task.instructionStatus?.state === 'needs-review' && (task.detail !== task.meshText || task.kind !== 'check' || task.steps?.length || task.submission)) fail(`У ${task.id} разбор ещё не сверен: показывайте только точный текст МЭШ без добавленных действий и фото.`)
+        if (task.instructionStatus?.state === 'reviewed') for (const step of task.steps ?? []) validateAssignedInstruction(step, task, source)
+        for (const item of task.submission?.items ?? []) validateAssignedInstruction(item, task, source)
       }
     }
   }
@@ -119,6 +145,9 @@ function validate(source) {
     const task = source.subjects.flatMap((subject) => subject.tasks).find((item) => item.id === taskId)
     for (const link of links) {
       if (!link.title || !/^https:\/\//.test(link.url ?? '') || !['textbook-page', 'teacher-attachment', 'external-text'].includes(link.sourceType)) fail(`У ссылки ${taskId} нужны HTTPS, название и тип источника.`)
+      if (link.sourceType === 'teacher-attachment' && /\.(png|jpe?g|webp|pdf)(?:\?|$)/i.test(decodeURIComponent(new URL(link.url).pathname)) && new URL(link.url).hostname === 'school.mos.ru') {
+        fail(`Файл учителя для ${taskId} ещё не перенесён на Яндекс.Диск. Запустите storage sync-teacher и обновите исходник дня.`)
+      }
       if (link.sourceType === 'external-text' && (task.materialStatus?.state !== 'text-absent-from-textbook' || !link.reason)) fail(`Внешний текст для ${taskId} допустим только после подтверждения его отсутствия в учебнике и с объяснением.`)
     }
   }
