@@ -10,6 +10,7 @@ import {
 } from 'firebase/firestore'
 import { db } from './firebase'
 import type { Answer, AnswerKey, Assignment, ManualReview, QuizQuestion, QuizReading, QuizVisual } from './quiz'
+import { assertOpenAssignment } from './quizWrite'
 
 export type BoardDetails = {
   materials: string[]
@@ -44,11 +45,12 @@ export async function saveDraft(token: string, changedAnswers: Record<string, An
   const reference = doc(db, 'assignments', token)
   await runTransaction(db, async (transaction) => {
     const snapshot = await transaction.get(reference)
-    if (!snapshot.exists() || snapshot.data().status !== 'open') return
+    const current = snapshot.exists() ? snapshot.data() : undefined
+    assertOpenAssignment(current)
     transaction.update(reference, {
-      answers: { ...(snapshot.data().answers ?? {}), ...changedAnswers },
+      answers: { ...(current.answers ?? {}), ...changedAnswers },
       status: 'open',
-      ...(snapshot.data().startedAt == null ? { startedAt: serverTimestamp() } : {}),
+      ...(current.startedAt == null ? { startedAt: serverTimestamp() } : {}),
       updatedAt: serverTimestamp(),
       submittedAt: null,
     })

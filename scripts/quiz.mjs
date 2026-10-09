@@ -4,6 +4,7 @@ import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
 import { initializeApp, applicationDefault } from 'firebase-admin/app'
 import { getFirestore, Timestamp } from 'firebase-admin/firestore'
+import { assertQuizOwner } from './quiz-access.mjs'
 
 const projectId = 'education-9d7c6'
 const site = 'https://rubaxa.github.io/education-quizzes/'
@@ -132,7 +133,7 @@ function validateBoardDetails(board) {
   }
 }
 
-const [command, first, second] = process.argv.slice(2)
+const [command, first, second, third] = process.argv.slice(2)
 if (command !== 'validate') {
   prepareLocalFirebaseLogin()
   initializeApp({ credential: applicationDefault(), projectId })
@@ -169,6 +170,7 @@ async function create(specPath, studentPersonId) {
     submittedAt: null,
     createdAt,
   }
+  assertQuizOwner(assignment, owner)
   const batch = db.batch()
   batch.create(db.doc(`assignments/${learnerToken}`), assignment)
   batch.create(db.doc(`answerKeys/${learnerToken}`), { entries })
@@ -217,6 +219,9 @@ async function create(specPath, studentPersonId) {
     })
   }
   await batch.commit()
+  const published = await db.doc(`assignments/${learnerToken}`).get()
+  if (!published.exists) fail('Тест не найден после публикации.')
+  assertQuizOwner(published.data(), owner)
   console.log(JSON.stringify({
     testId,
     learner: `${site}#/t/${spec.slug}~${learnerToken}`,
@@ -241,6 +246,7 @@ async function addToLearnerBoard(manifestPath) {
     const snapshot = await db.doc(`assignments/${item.token}`).get()
     if (!snapshot.exists) fail(`Назначение с позицией ${position + 1} не найдено.`)
     const assignment = snapshot.data()
+    if (assignment.status === 'open') assertQuizOwner(assignment, assignmentOwner())
     validateBoardDetails(item.board)
     const indexEntry = {
       testId: assignment.testId,
@@ -296,6 +302,36 @@ async function boardStatus() {
   console.log(JSON.stringify(entries, null, 2))
 }
 
+async function auditAccess(studentPersonId) {
+  const owner = assignmentOwner(studentPersonId)
+  const board = await db.collection(`dashboard/${learnerBoardToken()}/assignments`).get()
+  const active = []
+  for (const item of board.docs) {
+    const assignment = await db.doc(`assignments/${item.id}`).get()
+    if (!assignment.exists || assignment.data().status !== 'open') continue
+    assertQuizOwner(assignment.data(), owner)
+    active.push({ title: assignment.data().title, status: 'open', familyLinked: true })
+  }
+  console.log(JSON.stringify({ checked: active.length, active }, null, 2))
+}
+
+async function bindFamily(sourcePath, taskId, studentPersonId) {
+  if (!sourcePath || !taskId) fail('Укажите исходник дня и точный taskId теста.')
+  const source = loadJson(sourcePath)
+  const placement = source.testPlacements?.find((item) => item.taskId === taskId)
+  if (!placement?.token) fail('Тест с указанным taskId не привязан к исходнику дня.')
+  const owner = assignmentOwner(studentPersonId)
+  const board = await db.doc(`dashboard/${learnerBoardToken()}/assignments/${placement.token}`).get()
+  if (!board.exists) fail('Тест отсутствует в ученическом списке; привязка остановлена.')
+  const ref = db.doc(`assignments/${placement.token}`)
+  const assignment = await ref.get()
+  if (!assignment.exists || assignment.data().status !== 'open') fail('Тест отсутствует или уже завершён.')
+  const data = assignment.data()
+  if (data.familyId && data.familyId !== owner.familyId || data.childId && data.childId !== owner.childId) fail('У теста другая семейная привязка; исправление остановлено.')
+  if (data.familyId !== owner.familyId || data.childId !== owner.childId) await ref.update(owner)
+  console.log(JSON.stringify({ taskId, status: 'open', familyLinked: true, answersCount: Object.keys(data.answers || {}).length }, null, 2))
+}
+
 async function exportAttempt(learnerToken, outputPath) {
   if (!learnerToken || !outputPath) fail('Использование: npm run quiz -- export TOKEN путь/к/файлу.json')
   const [assignment, key, review] = await Promise.all([
@@ -330,9 +366,11 @@ try {
   else if (command === 'board-add') await addToLearnerBoard(first)
   else if (command === 'list') await list()
   else if (command === 'board-status') await boardStatus()
+  else if (command === 'audit-access') await auditAccess(first)
+  else if (command === 'bind-family') await bindFamily(first, second, third)
   else if (command === 'export') await exportAttempt(first, second)
   else if (command === 'review') await reviewAttempt(first, second)
-  else fail('Команды: validate SPEC.json | create SPEC.json | board-add MANIFEST.json | board-status | list | export TOKEN OUTPUT.json | review TOKEN REVIEW.json')
+  else fail('Команды: validate SPEC.json | create SPEC.json | board-add MANIFEST.json | board-status | audit-access | list | export TOKEN OUTPUT.json | review TOKEN REVIEW.json')
 } catch (error) {
   console.error(error instanceof Error ? error.message : error)
   process.exitCode = 1

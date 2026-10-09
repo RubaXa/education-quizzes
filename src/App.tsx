@@ -311,6 +311,7 @@ function QuizRunner({ token }: { token: string }) {
   const [answers, setAnswers] = useState<Record<string, Answer>>({})
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
+  const [unsaved, setUnsaved] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const answersRef = useRef<Record<string, Answer>>({})
   const serverAnswersRef = useRef<Record<string, Answer>>({})
@@ -326,7 +327,7 @@ function QuizRunner({ token }: { token: string }) {
       if (!active) return
       setAssignment(data)
       serverAnswersRef.current = data.answers ?? {}
-      if (data.status === 'submitted' || pendingWrites.current === 0) {
+      if (data.status === 'submitted' || pendingWrites.current === 0 && Object.keys(dirtyAnswers.current).length === 0) {
         answersRef.current = serverAnswersRef.current
         setAnswers(answersRef.current)
       }
@@ -337,11 +338,7 @@ function QuizRunner({ token }: { token: string }) {
     return () => { active = false; unsubscribe?.() }
   }, [token])
 
-  function updateAnswer(questionId: string, value: Answer) {
-    const next = { ...answersRef.current, [questionId]: value }
-    answersRef.current = next
-    dirtyAnswers.current[questionId] = { value, revision: ++answerRevision.current }
-    setAnswers(next)
+  function queueSave() {
     setError('')
     setSaving(true)
     pendingWrites.current += 1
@@ -350,9 +347,12 @@ function QuizRunner({ token }: { token: string }) {
       const patch = Object.fromEntries(Object.entries(pending).map(([id, change]) => [id, change.value]))
       if (Object.keys(patch).length === 0) return
       await saveDraft(token, patch)
+      serverAnswersRef.current = { ...serverAnswersRef.current, ...patch }
       for (const [id, change] of Object.entries(pending)) {
         if (dirtyAnswers.current[id]?.revision === change.revision) delete dirtyAnswers.current[id]
       }
+      setUnsaved(Object.keys(dirtyAnswers.current).length > 0)
+      setError('')
     })
     void write.catch((cause) => setError(`Не удалось сохранить ответ: ${describeError(cause)}`)).finally(() => {
       pendingWrites.current -= 1
@@ -366,11 +366,21 @@ function QuizRunner({ token }: { token: string }) {
     })
   }
 
+  function updateAnswer(questionId: string, value: Answer) {
+    const next = { ...answersRef.current, [questionId]: value }
+    answersRef.current = next
+    dirtyAnswers.current[questionId] = { value, revision: ++answerRevision.current }
+    setAnswers(next)
+    setUnsaved(true)
+    queueSave()
+  }
+
   async function submit() {
     if (!assignment || !window.confirm('Отправить работу? После этого ответы нельзя будет изменить.')) return
     setSubmitting(true)
     try {
       await writeQueue.current.settled()
+      if (Object.keys(dirtyAnswers.current).length > 0) throw new Error('Сначала сохраните все ответы.')
       await submitAssignment(token)
       setError('')
     } catch (cause) {
@@ -406,8 +416,11 @@ function QuizRunner({ token }: { token: string }) {
       ))}</div>
       {error && <p className="rounded-xl bg-rose-50 p-3 text-sm text-rose-800">{error}</p>}
       <div className="flex flex-col items-start justify-between gap-3 rounded-2xl bg-white p-5 shadow-sm sm:flex-row sm:items-center">
-        <span className="text-sm text-muted-foreground">{saving ? 'Сохраняем ответ в Firebase…' : 'Все выбранные ответы сохранены'}</span>
-        <Button size="lg" disabled={submitting} onClick={submit}><Send /> {submitting ? 'Отправляем…' : 'Завершить тест'}</Button>
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="text-sm text-muted-foreground">{error ? 'Сохранение не подтверждено' : saving ? 'Сохраняем ответ в Firebase…' : unsaved ? 'Ответы ещё не сохранены' : 'Все выбранные ответы сохранены'}</span>
+          {unsaved && !saving && <Button variant="outline" onClick={queueSave}>Повторить сохранение</Button>}
+        </div>
+        <Button size="lg" disabled={submitting || saving || unsaved} onClick={submit}><Send /> {submitting ? 'Отправляем…' : 'Завершить тест'}</Button>
       </div>
       </div>
     </ThemeFrame>
