@@ -52,8 +52,8 @@ function isActivePhotoProcessing(review: DayWorkReview | undefined, upload: DayU
  * Разделяет технический статус снимка и педагогический результат задания.
  * @see ../docs/product/day-page.md#photo-status
  */
-function PhotoStrip({ taskTitle, studentToken, uploads, localPhotos, review, onRetry, onDelete }: {
-  taskTitle: string; studentToken: string; uploads: DayUpload[]; localPhotos: LocalPhoto[]; review?: DayWorkReview;
+function PhotoStrip({ taskTitle, evidenceLabel = 'Фото работы', studentToken, uploads, localPhotos, review, onRetry, onDelete }: {
+  taskTitle: string; evidenceLabel?: string; studentToken: string; uploads: DayUpload[]; localPhotos: LocalPhoto[]; review?: DayWorkReview;
   onRetry: (photo: LocalPhoto) => void; onDelete: (uploadId: string) => Promise<void>
 }) {
   const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -87,7 +87,7 @@ function PhotoStrip({ taskTitle, studentToken, uploads, localPhotos, review, onR
     }
   }
   return <div className="day-upload-list" aria-label={`Фото задания «${taskTitle}»`}>
-    <div className="day-upload-head"><strong>Фото работы</strong><span>Проверено {reviewedCount} из {photoCount}</span></div>
+    <div className="day-upload-head"><strong>{evidenceLabel}</strong><span>Проверено {reviewedCount} из {photoCount}</span></div>
     <div className="day-upload-strip">
       {visibleUploads.map((upload, index) => {
         const processing = activeProcessing(review, [upload])
@@ -104,7 +104,7 @@ function PhotoStrip({ taskTitle, studentToken, uploads, localPhotos, review, onR
     <div className="day-upload-progress" role="progressbar" aria-label="Проверенные фотографии" aria-valuemin={0} aria-valuemax={photoCount} aria-valuenow={reviewedCount}><span style={{ width: `${reviewedCount / photoCount * 100}%` }} /></div>
     {summary && <small className="day-upload-summary">{summary}</small>}
     {(selectedUpload || selectedLocal) && <div className="day-upload-expanded"><button className="day-upload-close" type="button" aria-label="Закрыть фото" onClick={() => setSelectedId(null)}><X size={17} aria-hidden="true" /></button>
-      {selectedUpload ? <><WorkPhoto upload={selectedUpload} title={taskTitle} index={visibleUploads.indexOf(selectedUpload)} /><p>{selectedUpload.status === 'reviewed' ? 'Разбор этого задания показан в блоке «Проверка работы».' : activeProcessing(review, [selectedUpload]) ? 'Сейчас проверяем фото.' : 'Фото ждёт разбора.'} {selectedUpload.storage?.state === 'stored' ? 'Файл на Яндекс.Диске.' : 'Перенос на Яндекс.Диск ещё не выполнен.'}</p>{selectedUpload.storage?.publicUrl && <a className="day-upload-original" href={selectedUpload.storage.publicUrl} target="_blank" rel="noopener noreferrer">Открыть на Яндекс.Диске <ExternalLink size={13} aria-hidden="true" /></a>}</>
+      {selectedUpload ? <><WorkPhoto upload={selectedUpload} title={taskTitle} index={visibleUploads.indexOf(selectedUpload)} /><p>{selectedUpload.status === 'reviewed' ? evidenceLabel === 'Подтверждение ЦДЗ' ? 'Результат ЦДЗ указан в карточке задания.' : 'Разбор этого задания показан в блоке «Проверка работы».' : activeProcessing(review, [selectedUpload]) ? 'Сейчас проверяем фото.' : 'Фото ждёт разбора.'} {selectedUpload.storage?.state === 'stored' ? 'Файл на Яндекс.Диске.' : 'Перенос на Яндекс.Диск ещё не выполнен.'}</p>{selectedUpload.storage?.publicUrl && <a className="day-upload-original" href={selectedUpload.storage.publicUrl} target="_blank" rel="noopener noreferrer">Открыть на Яндекс.Диске <ExternalLink size={13} aria-hidden="true" /></a>}</>
         : selectedLocal && <><img src={selectedLocal.previewUrl} alt={`Новое фото по заданию «${taskTitle}»`} /><p>{selectedLocal.state === 'failed' ? selectedLocal.error ?? 'Не удалось загрузить фото.' : selectedLocal.state === 'saved' ? 'Фото сохранено и ждёт разбора.' : selectedLocal.state === 'deleting' ? 'Удаляем фото…' : 'Фото загружается…'}</p>{selectedLocal.state === 'failed' && removingId !== selectedId && <button type="button" className="day-upload-retry" onClick={() => onRetry(selectedLocal)}><RotateCcw size={14} aria-hidden="true" /> Повторить</button>}</>}
       {(selectedUpload?.status === 'pending' || selectedLocal) && <button className="day-upload-delete" type="button" disabled={removingId === selectedId} onClick={() => selectedId && void deletePhoto(selectedId)}><Trash2 size={14} aria-hidden="true" /> {removingId === selectedId ? 'Удаляем…' : 'Удалить фото'}</button>}
       {deleteError && <p className="day-upload-delete-error" role="alert">{deleteError}</p>}
@@ -507,12 +507,12 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
               const currentTest = testLineage.at(-1)
               const readPassed = task.kind === 'read' && currentTest?.status === 'submitted' && currentTest.points != null && currentTest.points >= (testLineage.length > 1 ? currentTest.maxPoints ?? 1 : task.requiredPoints ?? currentTest.maxPoints ?? 1)
               const verified = taskStatus === 'verified' || readPassed
-              const submitted = task.kind === 'written' && newWork
+              const submitted = (task.kind === 'written' || task.kind === 'check') && newWork
               const state = task.kind === 'written'
                 ? taskStatus === 'verified' ? 'Готово · проверено' : processing ? 'Проверяем работу' : newWork ? 'Новое фото · ждёт проверки' : uploadingWork ? 'Фото загружается' : priorWork ? taskStatus === 'needs-fix' ? 'Работа проверена · исправить' : taskStatus === 'partial' ? 'Работа проверена · дополнить' : 'Работа сохранена' : statusLabel(taskStatus)
-                : task.kind === 'read' ? readPassed ? `Тест пройден · ${currentTest?.points}/${currentTest?.maxPoints}` : currentTest?.status === 'submitted' ? currentTest.points == null ? 'Проверяем тест' : `Нужен разбор · ${currentTest.points}/${currentTest.maxPoints}` : 'Нужен тест' : statusLabel(taskStatus)
-              const uploadLabel = newWork || uploadingWork ? 'Добавить ещё фото' : priorWork ? taskStatus === 'needs-fix' ? 'Добавить фото исправления' : 'Добавить фото продолжения' : 'Добавить фото ответа'
-              const canUpload = !parent && task.kind === 'written' && taskStatus !== 'verified' && (!priorWork || newWork || uploadingWork || taskStatus === 'needs-fix' || taskStatus === 'partial')
+                : task.kind === 'read' ? readPassed ? `Тест пройден · ${currentTest?.points}/${currentTest?.maxPoints}` : currentTest?.status === 'submitted' ? currentTest.points == null ? 'Проверяем тест' : `Нужен разбор · ${currentTest.points}/${currentTest.maxPoints}` : 'Нужен тест' : task.platformResult?.state === 'completed' ? `ЦДЗ пройдено · ${task.platformResult.points}/${task.platformResult.maxPoints}` : processing ? 'Проверяем результат ЦДЗ' : newWork ? 'Результат ЦДЗ получен · ждёт проверки' : uploadingWork ? 'Фото загружается' : 'Ожидает результата ЦДЗ'
+              const uploadLabel = task.kind === 'check' ? newWork || uploadingWork ? 'Добавить ещё фото ЦДЗ' : 'Загрузить результат ЦДЗ' : newWork || uploadingWork ? 'Добавить ещё фото' : priorWork ? taskStatus === 'needs-fix' ? 'Добавить фото исправления' : 'Добавить фото продолжения' : 'Добавить фото ответа'
+              const canUpload = !parent && (task.kind === 'written' && taskStatus !== 'verified' && (!priorWork || newWork || uploadingWork || taskStatus === 'needs-fix' || taskStatus === 'partial') || task.kind === 'check' && taskStatus !== 'verified')
               const showSubmission = task.kind === 'written' && taskStatus !== 'verified' && (!priorWork || newWork || uploadingWork || taskStatus === 'needs-fix' || taskStatus === 'partial')
               const submission = task.submission
               const taskCard = <article className={`day-task ${verified ? 'done' : submitted ? 'submitted' : ''}`} key={task.id}>
@@ -535,10 +535,10 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
                 <div className="day-task-actions">
                   {canUpload && <label className="day-upload"><Camera size={17} aria-hidden="true" /> {uploadLabel}<input type="file" accept="image/*" multiple onChange={(event) => { attach(task, Array.from(event.currentTarget.files ?? [])); event.currentTarget.value = '' }} /></label>}
                   {task.kind === 'read' && task.testToken && task.testSlug && <a className="day-quiz-link" href={parent && linkedTest?.status !== 'submitted' && linkedTest?.previewToken ? `#/preview/${task.testSlug}~${linkedTest.previewToken}` : `#/t/${task.testSlug}~${task.testToken}`}>{parent ? linkedTest?.status === 'submitted' ? 'Посмотреть результат' : 'Посмотреть вопросы' : linkedTest?.status === 'submitted' ? 'Посмотреть результат' : linkedTest?.answered ? 'Продолжить тест' : 'Пройти короткий тест'} <ExternalLink size={15} /></a>}
-                  {parent && <span className="day-parent-status">{task.kind === 'written' ? taskStatus === 'verified' ? 'Работа проверена' : newWork ? 'Новая загрузка ожидает проверки' : priorWork ? 'Работа разобрана; подробности выше' : 'Подтверждённого фото пока нет' : task.kind === 'read' ? readPassed ? 'Чтение подтверждено тестом' : 'Чтение тестом пока не подтверждено' : 'Статус сдачи не сообщён'}</span>}
+                  {parent && <span className="day-parent-status">{task.kind === 'written' ? taskStatus === 'verified' ? 'Работа проверена' : newWork ? 'Новая загрузка ожидает проверки' : priorWork ? 'Работа разобрана; подробности выше' : 'Подтверждённого фото пока нет' : task.kind === 'read' ? readPassed ? 'Чтение подтверждено тестом' : 'Чтение тестом пока не подтверждено' : task.platformResult?.state === 'completed' ? `Подтверждено результатом МЭШ: ${task.platformResult.points}/${task.platformResult.maxPoints} баллов` : newWork ? 'Результат ЦДЗ ожидает проверки' : 'Результат ЦДЗ пока не подтверждён'}</span>}
                 </div>
                 {task.kind === 'read' && linkedTest && <TestProgress test={linkedTest} />}
-                <PhotoStrip taskTitle={task.title} studentToken={studentToken} uploads={taskUploads} localPhotos={localTaskPhotos} review={review} onRetry={queuePhotoUpload} onDelete={deletePhoto} />
+                <PhotoStrip taskTitle={task.title} evidenceLabel={task.kind === 'check' ? 'Подтверждение ЦДЗ' : 'Фото работы'} studentToken={studentToken} uploads={taskUploads} localPhotos={localTaskPhotos} review={review} onRetry={queuePhotoUpload} onDelete={deletePhoto} />
                 {parent && <small className="day-source"><BookOpen size={14} /> {task.source}</small>}
               </article>
               return taskCard
