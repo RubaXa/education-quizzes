@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { ChevronLeft, ChevronRight, ExternalLink, X, ZoomIn, ZoomOut } from 'lucide-react'
 import type { DayMaterialLink } from '@/lib/dayStore'
-import { publicImage, publicResource } from '@/lib/yandexPublic'
+import { publicImage } from '@/lib/yandexPublic'
+import PublicThumbnail from '@/components/PublicThumbnail'
 
 async function fullImage(link: DayMaterialLink): Promise<string> {
   try { return await publicImage(link.url) }
@@ -32,7 +33,6 @@ export function canReadInside(link: DayMaterialLink) {
  * @see ../../docs/product/materials.md#material-reader
  */
 export default function MaterialReader({ links, parent }: { links: DayMaterialLink[]; parent: boolean }) {
-  const [thumbs, setThumbs] = useState<Record<string, string>>({})
   const [active, setActive] = useState<number | null>(null)
   const [imageUrl, setImageUrl] = useState('')
   const [imageError, setImageError] = useState(false)
@@ -44,16 +44,6 @@ export default function MaterialReader({ links, parent }: { links: DayMaterialLi
   const start = links[0].printedPage
   const end = links.at(-1)?.printedPage
   const range = start && end ? `стр. ${start}${start === end ? '' : `–${end}`}` : `${links.length} ${links.length === 1 ? 'лист' : 'листов'}`
-
-  useEffect(() => {
-    let mounted = true
-    for (const link of links) {
-      void publicResource(link.url, 'S').then((data) => {
-        if (mounted && data.preview) setThumbs((current) => ({ ...current, [link.url]: data.preview! }))
-      }).catch(() => undefined)
-    }
-    return () => { mounted = false }
-  }, [links])
 
   useEffect(() => {
     if (active === null) return
@@ -84,7 +74,7 @@ export default function MaterialReader({ links, parent }: { links: DayMaterialLi
     <div className="day-reader-heading"><strong>{first.sourceType === 'textbook-page' ? 'Страницы учебника' : 'Лист учителя'} · {range}</strong><span>{title}</span></div>
     <div className="day-reader-thumbs" aria-label={`Открыть страницы: ${range}`}>
       {links.map((link, index) => <button type="button" className="day-reader-thumb" key={link.url} onClick={() => setActive(index)} aria-label={`Открыть ${pageName(link, index)}`}>
-        {thumbs[link.url] ? <img src={thumbs[link.url]} alt="" loading="lazy" referrerPolicy="no-referrer" /> : <span className="day-reader-thumb-placeholder" aria-hidden="true">{link.printedPage ?? index + 1}</span>}
+        <PublicThumbnail url={link.url} alt="" fallback={<span className="day-reader-thumb-placeholder" aria-hidden="true">{link.printedPage ?? index + 1}</span>} />
         <small>{pageName(link, index)}</small>
       </button>)}
     </div>

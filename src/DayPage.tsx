@@ -7,6 +7,7 @@ import { loadAnswerKey, watchAssignment, watchDashboard } from '@/lib/store'
 import { grade } from '@/lib/quiz'
 import type { Assignment } from '@/lib/quiz'
 import MaterialReader, { canReadInside } from '@/components/MaterialReader'
+import PublicThumbnail from '@/components/PublicThumbnail'
 import WorkReview from '@/components/WorkReview'
 import { activeProcessing } from '@/lib/reviewPresentation'
 import { publicImage } from '@/lib/yandexPublic'
@@ -27,12 +28,14 @@ function WorkPhoto({ upload, title, index, compact = false }: { upload: DayUploa
     if (upload.dataUrl) { setSrc(upload.dataUrl); setFailed(false); return }
     const url = upload.storage?.publicUrl
     if (!url) { setSrc(''); return }
+    if (compact) return
     let active = true
     setSrc('')
     setFailed(false)
     void publicImage(url, compact ? 'S' : 'XXXL').then((image) => { if (active) setSrc(image) }).catch(() => { if (active) setFailed(true) })
     return () => { active = false }
   }, [upload.dataUrl, upload.storage?.publicUrl, compact])
+  if (compact && !upload.dataUrl && upload.storage?.publicUrl) return <PublicThumbnail url={upload.storage.publicUrl} alt={`Работа по заданию «${title}», фото ${index + 1}`} fallback={<span className="day-upload-thumb-placeholder"><Camera size={23} aria-hidden="true" /></span>} />
   if (compact && (failed || !src)) return <span className="day-upload-thumb-placeholder"><Camera size={23} aria-hidden="true" /></span>
   if (failed || !src) return upload.storage?.publicUrl
     ? <p><a href={upload.storage.publicUrl} target="_blank" rel="noopener noreferrer">Открыть фото на Яндекс.Диске</a></p>
