@@ -47,7 +47,7 @@ function taskState(task: DayTask, uploads: DayUpload[], reviews: DayWorkReview[]
     if (photos.length) return 'Работа загружена'
     return 'Нужно фото'
   }
-  if (task.kind === 'check') {
+  if (task.kind === 'check' && (task.id.endsWith('-cdz') || task.title.includes('ЦДЗ'))) {
     const photos = uploads.filter((upload) => upload.taskId === task.id)
     const processing = activeProcessing(reviewed, photos)
     if (processing && processing.phase !== 'paused') return `${processing.label} · ${elapsedLabel(processing.startedAt, now)}`
