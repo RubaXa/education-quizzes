@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { ArrowLeft, BookOpen, ChevronDown, CircleHelp, ClipboardCopy, Clock3, ExternalLink, RefreshCw, Send, Sparkles } from 'lucide-react'
+import { ArrowLeft, BookOpen, ChevronDown, CircleHelp, ClipboardCopy, Clock3, RefreshCw, Send, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { CodeBlock } from '@/components/CodeBlock'
 import { ReadingCard, ThemeFrame, ThemeHero } from '@/components/SubjectTheme'
@@ -203,6 +203,10 @@ function ResultCard({ result, index }: { result: QuestionResult; index: number }
   const wrong = result.points === 0
   const pending = result.points === null
   const partial = !pending && !wrong && result.points !== result.question.points
+  const needsReflection = wrong || partial
+  const reflectionQuestion = result.question.kind === 'single' || result.question.kind === 'multiple' || result.question.kind === 'figure'
+    ? 'Какой факт из задания подтверждает твой выбор? Найди его в назначенном материале и сравни со своим ответом.'
+    : 'На каком шаге твоя запись перестаёт следовать условию? Сверь этот шаг с назначенным материалом.'
   return (
     <Card className="border-0 shadow-sm">
       <CardHeader className="gap-2">
@@ -218,36 +222,21 @@ function ResultCard({ result, index }: { result: QuestionResult; index: number }
         {result.question.code && <CodeBlock code={result.question.code} />}
         <div className="result-answers">
           <p className={wrong ? 'result-answer-wrong' : ''}><span>Ваш ответ</span><strong>{answerText(result.question, result.answer)}</strong></p>
-          {!pending && wrong && result.correctAnswer !== undefined && (
-            <p className="result-answer-correct"><span>Правильный ответ</span><strong>{answerText(result.question, result.correctAnswer)}</strong></p>
-          )}
         </div>
         {pending && <p className="text-muted-foreground">Разбор появится здесь после проверки.</p>}
-        {result.learning ? (
-          <section className="result-learning" aria-label="Разбор и материал">
+        {needsReflection && (
+          <section className="result-learning" aria-label="Ориентир для самостоятельной проверки">
             <div className="result-rule">
-              <h3>Правило</h3>
-              <p>{result.learning.rule}</p>
-            </div>
-            <div className="result-why">
-              <h3>Почему здесь так</h3>
-              <p>{result.learning.why}</p>
+              <h3>Проверь свой ход</h3>
+              <p>{reflectionQuestion}</p>
             </div>
             <div className="result-material">
               <BookOpen className="size-5 shrink-0" aria-hidden="true" />
               <div>
-                <h3>{result.learning.sourceHeading ?? 'Где читать в учебнике'}</h3>
-                <p>{result.learning.textbook}</p>
-                <p>{result.learning.nextStep}</p>
-                {result.learning.textbookUrl?.startsWith('https://') && <a href={result.learning.textbookUrl} target="_blank" rel="noopener noreferrer">Страница учебника у издателя <ExternalLink className="inline size-4" aria-hidden="true" /></a>}
-                {result.learning.url?.startsWith('https://') && <a href={result.learning.url} target="_blank" rel="noopener noreferrer">{result.learning.urlLabel ?? 'Открыть материал'} <ExternalLink className="inline size-4" aria-hidden="true" /></a>}
+                <h3>Где искать</h3>
+                <p>Вернись к материалу, указанному в карточке теста. Он поможет проверить именно этот вопрос.</p>
               </div>
             </div>
-          </section>
-        ) : (result.explanation || result.source) && (
-          <section className="result-learning" aria-label="Разбор и материал">
-            {result.explanation && <div className="result-rule"><h3>Объяснение</h3><p>{result.explanation}</p></div>}
-            {result.source && <div className="result-material"><BookOpen className="size-5 shrink-0" aria-hidden="true" /><div><h3>Где читать</h3><p>{result.source}</p></div></div>}
           </section>
         )}
       </CardContent>

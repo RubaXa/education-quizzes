@@ -44,20 +44,17 @@ export default function WorkReview({ review, uploads }: { review?: DayWorkReview
         <ChevronDown className="day-work-review-chevron" size={18} aria-hidden="true" />
       </summary>
       <div className="day-work-review-body">
-        {review.summary && <p>{review.summary}</p>}
         {review.mathReasoning && <div className="day-work-review-reasoning">
           <p><b>Ответ:</b> {review.mathReasoning.answer === 'correct' ? 'верен' : review.mathReasoning.answer === 'incorrect' ? 'есть ошибка' : 'пока не установлен'}</p>
           <p><b>Ход решения:</b> {review.mathReasoning.argument === 'sufficient' ? 'достаточен для проверки' : review.mathReasoning.argument === 'incomplete' ? 'нужен один переход' : review.mathReasoning.argument === 'not-shown' ? 'на фото не показан' : review.mathReasoning.argument === 'not-required' ? 'не требовался в условии' : 'не удалось прочитать'}</p>
           <p><b>На фото:</b> {review.mathReasoning.observed}</p>
-          {review.mathReasoning.minimumNeeded && <p><b>Для проверки хода:</b> {review.mathReasoning.minimumNeeded}</p>}
         </div>}
         {items.length > 0 && <ol>{items.map((item, index) => <li className={`day-work-review-item ${item.status}`} key={`${item.label}-${index}`}>
           <span className="day-work-review-item-icon">{item.status === 'correct' ? <Check size={14} aria-hidden="true" /> : item.status === 'incorrect' ? <X size={14} aria-hidden="true" /> : item.status === 'partial' ? <Minus size={14} aria-hidden="true" /> : <CircleAlert size={14} aria-hidden="true" />}</span>
-          <div><strong>{item.label} · {itemLabels[item.status]}</strong><p>{item.note}</p>{item.observed && <small><b>В работе:</b> {item.observed}</small>}{item.expected && <small><b>По источнику:</b> {item.expected}</small>}</div>
+          <div><strong>{item.label} · {itemLabels[item.status]}</strong>{item.observed && <small><b>В работе:</b> {item.observed}</small>}</div>
         </li>)}</ol>}
-        {review.nextStep && <p className="day-work-review-next"><b>{review.status === 'verified' ? 'Что дальше:' : 'Подсказка к следующей попытке:'}</b> {review.nextStep}</p>}
-        {review.source && <small className="day-work-review-source">Источник: {review.source}</small>}
-        {!!review.history?.length && <details className="day-review-history"><summary>Предыдущие попытки · {review.history.length}</summary><ol>{[...review.history].reverse().map((entry, index) => <li key={index}><strong>{entry.status === 'verified' ? 'Верно' : entry.status === 'partial' ? 'Частично' : entry.status === 'needs-fix' ? 'Нужна правка' : 'Не удалось оценить'}</strong>{entry.summary && <span> · {entry.summary}</span>}{entry.nextStep && <p>{entry.nextStep}</p>}</li>)}</ol></details>}
+        {(review.status === 'partial' || review.status === 'needs-fix') && <p className="day-work-review-next"><b>Для новой попытки:</b> Начни с первого отмеченного пункта. Сравни свою запись с условием и найди, где связь между ними потерялась.</p>}
+        {!!review.history?.length && <details className="day-review-history"><summary>Предыдущие попытки · {review.history.length}</summary><ol>{[...review.history].reverse().map((entry, index) => <li key={index}><strong>{entry.status === 'verified' ? 'Верно' : entry.status === 'partial' ? 'Частично' : entry.status === 'needs-fix' ? 'Нужна правка' : 'Не удалось оценить'}</strong></li>)}</ol></details>}
       </div>
     </details>}
   </div>

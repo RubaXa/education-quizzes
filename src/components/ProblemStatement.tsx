@@ -18,7 +18,6 @@ export default function ProblemStatement({ problem, links, parent, help, review,
   const support = problem.support
   const opened = Boolean(support && help && help.revision >= support.revision)
   const finished = review?.status === 'verified'
-  const hasReviewGuidance = Boolean(review?.status && review.status !== 'verified' && review.nextStep)
 
   async function requestHelp() {
     if (!support || !onRequestHelp) return
@@ -51,8 +50,7 @@ export default function ProblemStatement({ problem, links, parent, help, review,
         <p className="problem-statement-rationale">{support.skill} · {support.evidence}</p>
         {opened && <small className="problem-statement-help-used">Ребёнок открыл первый ориентир.</small>}
       </> : finished ? <p className="problem-statement-rationale">Работа проверена. Подсказка к этому номеру больше не нужна.</p>
-        : hasReviewGuidance ? <p className="problem-statement-rationale">Следующий шаг по этой попытке показан в результате проверки.</p>
-          : opened ? <p className="problem-statement-question">{support.firstQuestion}</p>
+        : opened ? <p className="problem-statement-question">{support.firstQuestion}</p>
             : helpAccess === 'checking' ? <p className="problem-statement-rationale">Проверяем личный вход…</p>
               : helpAccess === 'login-required' ? <p className="problem-statement-rationale">Чтобы открыть ориентир, зайди по личной ссылке ученика Education.</p>
                 : <button type="button" className="problem-statement-help-button" onClick={() => void requestHelp()} disabled={requesting || !onRequestHelp}>{requesting ? 'Открываем…' : 'Открыть разбор условия'}</button>}

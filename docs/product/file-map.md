@@ -46,6 +46,7 @@
 | [docs/research/adaptive-problem-critical-review.md](../research/adaptive-problem-critical-review.md) | [Адаптивная карточка](adaptive-problem-card.md) | Критическая сверка педагогической модели | Агент при изменении помощи |
 | [docs/research/adaptive-problem-scaffolding.md](../research/adaptive-problem-scaffolding.md) | [Адаптивная карточка](adaptive-problem-card.md) | Исследование ступенчатой помощи | Агент при изменении помощи |
 | [docs/research/condition-transcript-and-scaffold.md](../research/condition-transcript-and-scaffold.md) | [Адаптивная карточка](adaptive-problem-card.md) | Основание показа точного условия | Агент при изменении карточки |
+| [docs/research/feedback-after-errors.md](../research/feedback-after-errors.md) | [Тесты](quizzes.md) | Основание и границы обратной связи без готового ответа | Агент; результат теста и проверки фото |
 | [docs/research/photo-math-solution-review.md](../research/photo-math-solution-review.md) | [Адаптивная карточка](adaptive-problem-card.md) | Основание проверки хода решения | Агент при изменении разбора |
 | [firebase.json](../../firebase.json) | [Семейная модель](../architecture/family-data-model.md) | Настройки публикации правил Firestore | Firebase CLI |
 | [firestore.rules](../../firestore.rules) | [Семейная модель](../architecture/family-data-model.md) | Права на семейные и переходные документы | Firebase; клиент |
