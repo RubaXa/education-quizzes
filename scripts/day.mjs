@@ -133,6 +133,17 @@ function validate(source) {
     for (const task of subject.tasks) {
       if (!/^[a-z0-9-]+$/.test(task.id ?? '') || ids.has(task.id) || !task.title) fail('Нужны уникальные id и названия действий.')
       ids.add(task.id)
+      if (task.problems != null) {
+        if (task.kind !== 'written' || !Array.isArray(task.problems) || !task.problems.length) fail(`У ${task.id} номера допустимы только для письменной работы.`)
+        const numbers = new Set()
+        for (const problem of task.problems) {
+          if (!/^[a-z0-9-]+$/.test(problem.id ?? '') || !problem.id.startsWith(`${task.id}-p`) || ids.has(problem.id)
+            || !Number.isInteger(problem.number) || numbers.has(problem.number)
+            || !problem.title?.trim() || !problem.detail?.trim() || !problem.source?.trim()) fail(`У ${task.id} каждый номер должен иметь устойчивый ID, условие и источник.`)
+          ids.add(problem.id)
+          numbers.add(problem.number)
+        }
+      }
       if (task.id.startsWith('mesh-')) {
         if (task.instructionStatus?.state === 'needs-review' && (task.detail !== task.meshText || task.kind !== 'check' || task.steps?.length || task.submission)) fail(`У ${task.id} разбор ещё не сверен: показывайте только точный текст МЭШ без добавленных действий и фото.`)
         if (task.instructionStatus?.state === 'reviewed') for (const step of task.steps ?? []) validateAssignedInstruction(step, task, source)

@@ -405,7 +405,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
       throw cause
     }
   }
-  function attach(task: DayTask, files: File[]) {
+  function attach(task: { id: string }, files: File[]) {
     if (!files.length) return
     const photos = files.map((file) => {
       const previewUrl = URL.createObjectURL(file)
@@ -507,12 +507,12 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
               const readPassed = task.kind === 'read' && linkedTest?.status === 'submitted' && linkedTest.points != null && linkedTest.points >= (task.requiredPoints ?? linkedTest.maxPoints ?? 1)
               const verified = taskStatus === 'verified' || readPassed
               const submitted = (task.kind === 'written' || task.kind === 'check') && newWork
-              const state = task.kind === 'written'
+              const state = task.problems?.length ? `${task.problems.length} задач · каждая проверяется отдельно` : task.kind === 'written'
                 ? taskStatus === 'verified' ? 'Готово · проверено' : processing ? 'Проверяем работу' : newWork ? 'Новое фото · ждёт проверки' : uploadingWork ? 'Фото загружается' : priorWork ? taskStatus === 'needs-fix' ? 'Работа проверена · исправить' : taskStatus === 'partial' ? 'Работа проверена · дополнить' : 'Работа сохранена' : statusLabel(taskStatus)
                 : task.kind === 'read' ? readPassed ? `Чтение подтверждено · ${linkedTest?.points}/${linkedTest?.maxPoints} верно` : linkedTest?.status === 'submitted' ? linkedTest.points == null ? 'Проверяем тест' : `Нужен разбор · ${linkedTest.points}/${linkedTest.maxPoints}` : 'Нужен тест' : cdzTask ? task.platformResult?.state === 'completed' ? `ЦДЗ пройдено · ${task.platformResult.points}/${task.platformResult.maxPoints}` : processing ? 'Проверяем результат ЦДЗ' : newWork ? 'Результат ЦДЗ получен · ждёт проверки' : uploadingWork ? 'Фото загружается' : 'Ожидает результата ЦДЗ' : statusLabel(taskStatus)
               const uploadLabel = cdzTask ? newWork || uploadingWork ? 'Добавить ещё фото ЦДЗ' : 'Загрузить результат ЦДЗ' : newWork || uploadingWork ? 'Добавить ещё фото' : priorWork ? taskStatus === 'needs-fix' ? 'Добавить фото исправления' : 'Добавить фото продолжения' : 'Добавить фото ответа'
-              const canUpload = !parent && (task.kind === 'written' && taskStatus !== 'verified' && (!priorWork || newWork || uploadingWork || taskStatus === 'needs-fix' || taskStatus === 'partial') || cdzTask && taskStatus !== 'verified')
-              const showSubmission = task.kind === 'written' && taskStatus !== 'verified' && (!priorWork || newWork || uploadingWork || taskStatus === 'needs-fix' || taskStatus === 'partial')
+              const canUpload = !task.problems?.length && !parent && (task.kind === 'written' && taskStatus !== 'verified' && (!priorWork || newWork || uploadingWork || taskStatus === 'needs-fix' || taskStatus === 'partial') || cdzTask && taskStatus !== 'verified')
+              const showSubmission = !task.problems?.length && task.kind === 'written' && taskStatus !== 'verified' && (!priorWork || newWork || uploadingWork || taskStatus === 'needs-fix' || taskStatus === 'partial')
               const submission = task.submission
               const taskCard = <article className={`day-task ${verified ? 'done' : submitted ? 'submitted' : ''}`} key={task.id}>
                 <div className="day-task-row"><span className={`day-task-state ${verified ? 'verified' : submitted ? 'partial' : taskStatus}`}>{verified && <CheckCircle2 size={15} aria-hidden="true" />} {state}</span>{task.kind === 'written' && <span className="day-task-type">В тетради</span>}{task.originDate && task.originDate !== page.targetDate && <span className="day-task-type">Осталось с {dayMonth(task.originDate)}</span>}</div>
@@ -524,6 +524,22 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
                 {(task.materialStatus?.state === 'text-absent-from-textbook' || task.materialStatus?.state === 'no-textbook') && <p className="day-material-warning">📖 {task.materialStatus.message}</p>}
                 {readerGroups.map((group) => <MaterialReader key={group[0].url} links={group} parent={parent} />)}
                 {otherLinks.length > 0 && <div className="day-material-links">{otherLinks.map((material) => <div className="day-material-source" key={material.url}><a href={material.url} target="_blank" rel="noopener noreferrer">{material.sourceType === 'textbook-page' ? 'Страница учебника' : material.sourceType === 'teacher-attachment' ? 'Файл учителя' : material.sourceType === 'external-text' ? 'Внешний текст, не из учебника' : 'Материал'}: {material.title} <ExternalLink size={13} aria-hidden="true" /></a>{material.reason && <small>{material.reason}</small>}{material.sourceQuote && <small>Из учебника: «{material.sourceQuote.trim()}»</small>}{parent && material.sourceRef && <small>{material.sourceRef} · PDF {material.pdfPage} · учебник {material.printedPage}</small>}</div>)}</div>}
+                {!!task.problems?.length && <div className="day-problem-list" aria-label={`Задачи: ${task.title}`}>
+                  {task.problems.map((problem) => {
+                    const problemUploads = uploads.filter((upload) => upload.taskId === problem.id)
+                    const problemPhotos = localPhotos.filter((photo) => photo.taskId === problem.id)
+                    const problemReview = reviews.find((item) => item.taskId === problem.id)
+                    const pending = problemUploads.some((upload) => upload.status === 'pending') || problemPhotos.some((photo) => photo.state === 'uploading' || photo.state === 'saved')
+                    const problemState = pending ? 'Фото получено · ждёт проверки' : problemReview?.status === 'verified' ? 'Проверено · верно' : problemReview?.status === 'needs-fix' ? 'Проверено · нужна новая попытка' : problemReview?.status === 'partial' ? 'Проверено · дополнить' : problemUploads.length ? 'Работа загружена' : 'Можно приступить'
+                    return <section className="day-problem" key={problem.id} id={problem.id}>
+                      <div className="day-problem-heading"><strong>№ {problem.number}. {problem.title}</strong><small>{problemState}</small></div>
+                      <details className="day-problem-condition"><summary>Условие и источник <ChevronDown size={15} aria-hidden="true" /></summary><p>{problem.detail}</p><small>{problem.source}</small></details>
+                      <WorkReview review={problemReview} uploads={problemUploads} />
+                      <div className="day-problem-actions">{!parent && <label className="day-upload"><Camera size={17} aria-hidden="true" /> {problemReview?.status === 'needs-fix' || problemReview?.status === 'partial' ? 'Загрузить исправление' : 'Загрузить материал'}<input type="file" accept="image/*" multiple onChange={(event) => { attach(problem, Array.from(event.currentTarget.files ?? [])); event.currentTarget.value = '' }} /></label>}{parent && !problemUploads.length && <small>Фото по этому номеру пока нет</small>}</div>
+                      <PhotoStrip taskTitle={`№ ${problem.number}. ${problem.title}`} studentToken={studentToken} uploads={problemUploads} localPhotos={problemPhotos} review={problemReview} onRetry={queuePhotoUpload} onDelete={deletePhoto} />
+                    </section>
+                  })}
+                </div>}
                 {showSubmission && <div className="day-submission-instructions">
                   <strong>{priorWork && (taskStatus === 'needs-fix' || taskStatus === 'partial') ? 'Что исправить и сфотографировать' : 'Что сфотографировать'}</strong>
                   {submission?.lead && <p>{submission.lead}</p>}
@@ -534,7 +550,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
                 <div className="day-task-actions">
                   {canUpload && <label className="day-upload"><Camera size={17} aria-hidden="true" /> {uploadLabel}<input type="file" accept="image/*" multiple onChange={(event) => { attach(task, Array.from(event.currentTarget.files ?? [])); event.currentTarget.value = '' }} /></label>}
                   {task.kind === 'read' && task.testToken && task.testSlug && <a className="day-quiz-link" href={parent && linkedTest?.status !== 'submitted' && linkedTest?.previewToken ? `#/preview/${task.testSlug}~${linkedTest.previewToken}` : `#/t/${task.testSlug}~${task.testToken}`}>{parent ? linkedTest?.status === 'submitted' ? 'Посмотреть результат' : 'Посмотреть вопросы' : linkedTest?.status === 'submitted' ? 'Посмотреть результат' : linkedTest?.answered ? 'Продолжить тест' : 'Пройти короткий тест'} <ExternalLink size={15} /></a>}
-                  {parent && <span className="day-parent-status">{task.kind === 'written' ? taskStatus === 'verified' ? 'Работа проверена' : newWork ? 'Новая загрузка ожидает проверки' : priorWork ? 'Работа разобрана; подробности выше' : 'Подтверждённого фото пока нет' : task.kind === 'read' ? readPassed ? 'Чтение подтверждено тестом' : 'Чтение тестом пока не подтверждено' : cdzTask ? task.platformResult?.state === 'completed' ? `Подтверждено результатом МЭШ: ${task.platformResult.points}/${task.platformResult.maxPoints} баллов` : newWork ? 'Результат ЦДЗ ожидает проверки' : 'Результат ЦДЗ пока не подтверждён' : 'Статус сдачи не сообщён'}</span>}
+                  {parent && !task.problems?.length && <span className="day-parent-status">{task.kind === 'written' ? taskStatus === 'verified' ? 'Работа проверена' : newWork ? 'Новая загрузка ожидает проверки' : priorWork ? 'Работа разобрана; подробности выше' : 'Подтверждённого фото пока нет' : task.kind === 'read' ? readPassed ? 'Чтение подтверждено тестом' : 'Чтение тестом пока не подтверждено' : cdzTask ? task.platformResult?.state === 'completed' ? `Подтверждено результатом МЭШ: ${task.platformResult.points}/${task.platformResult.maxPoints} баллов` : newWork ? 'Результат ЦДЗ ожидает проверки' : 'Результат ЦДЗ пока не подтверждён' : 'Статус сдачи не сообщён'}</span>}
                 </div>
                 {task.kind === 'read' && linkedTest && <TestProgress test={linkedTest} />}
                 <PhotoStrip taskTitle={task.title} evidenceLabel={cdzTask ? 'Подтверждение ЦДЗ' : 'Фото работы'} studentToken={studentToken} uploads={taskUploads} localPhotos={localTaskPhotos} review={review} onRetry={queuePhotoUpload} onDelete={deletePhoto} />

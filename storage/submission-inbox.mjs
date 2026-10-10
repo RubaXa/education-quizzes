@@ -13,8 +13,9 @@ function millis(value) {
  */
 export function resolveSubmission({ owner, page, childName, uploadId, upload }) {
   const contextValid = page?.kind === 'student' && page.date === owner.date
-  const subject = contextValid ? page.subjects?.find((item) => item.tasks?.some((task) => task.id === upload.taskId)) : null
-  const task = subject?.tasks.find((item) => item.id === upload.taskId)
+  const subject = contextValid ? page.subjects?.find((item) => item.tasks?.some((task) => task.id === upload.taskId || task.problems?.some((problem) => problem.id === upload.taskId))) : null
+  const task = subject?.tasks.find((item) => item.id === upload.taskId || item.problems?.some((problem) => problem.id === upload.taskId))
+  const problem = task?.problems?.find((item) => item.id === upload.taskId)
   const linked = Boolean(contextValid && page.taskIds?.includes(upload.taskId) && task)
   const createdAt = millis(upload.createdAt)
   const changedAfterUpload = Boolean(linked && createdAt != null && page.changes?.some((change) =>
@@ -34,9 +35,9 @@ export function resolveSubmission({ owner, page, childName, uploadId, upload }) 
     fileState,
     diskPath: fileState === 'on-disk' ? upload.storage.path : null,
     subject: linked ? subject.name : null,
-    taskTitle: linked ? task.title : null,
-    assignmentText: linked ? task.meshText ?? task.detail : null,
-    expectedPhoto: linked ? task.submission?.photo ?? task.submission?.description ?? null : null,
+    taskTitle: linked ? problem ? `${task.title} · № ${problem.number}: ${problem.title}` : task.title : null,
+    assignmentText: linked ? problem?.detail ?? task.meshText ?? task.detail : null,
+    expectedPhoto: linked ? problem ? `Решение задачи № ${problem.number}: номер, ход и ответ должны читаться.` : task.submission?.photo ?? task.submission?.description ?? null : null,
     planRevision: linked ? page.planRevision ?? null : null,
     conditionChangedAfterUpload: changedAfterUpload,
     resolution: linked ? 'linked' : 'needs-manual-link',

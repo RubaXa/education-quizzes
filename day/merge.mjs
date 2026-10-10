@@ -44,7 +44,7 @@ export function mergeDayPage(existing, incoming) {
   for (const taskId of replacements) if (!(taskId in (incoming.materialLinks || {}))) materialLinks[taskId] = []
   const merged = {
     ...existing, ...incoming, subjects,
-    taskIds: after.map((task) => task.id), materialLinks,
+    taskIds: after.flatMap((task) => [task.id, ...(task.problems || []).map((problem) => problem.id)]), materialLinks,
     testPlacements: uniqueBy([...(existing.testPlacements || []), ...(incoming.testPlacements || [])], (item) => item.token),
     evidenceDayTokens: [...new Set([...(existing.evidenceDayTokens || []), ...(incoming.evidenceDayTokens || [])])],
   }

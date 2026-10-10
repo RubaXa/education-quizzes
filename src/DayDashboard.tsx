@@ -9,6 +9,7 @@ import type { DayDashboardData, IndexedDay } from '@/lib/dayDashboardStore'
 import { loadAnswerKey, watchAssignment } from '@/lib/store'
 import { grade } from '@/lib/quiz'
 import type { Assignment } from '@/lib/quiz'
+import WeekendMathSlot from './WeekendMathSlot'
 import './DayDashboard.css'
 
 function moscowToday() {
@@ -33,6 +34,12 @@ function lessonTime(iso: string) {
 }
 type QuizScore = { points: number; maxPoints: number }
 function taskState(task: DayTask, uploads: DayUpload[], reviews: DayWorkReview[], tests: Record<string, Assignment>, scores: Record<string, QuizScore>, now: number) {
+  if (task.problems?.length) {
+    const ids = new Set(task.problems.map((problem) => problem.id))
+    const complete = task.problems.filter((problem) => reviews.find((review) => review.taskId === problem.id)?.status === 'verified').length
+    const pending = uploads.filter((upload) => ids.has(upload.taskId) && upload.status === 'pending').length
+    return `${complete} из ${task.problems.length} задач проверено${pending ? ` · ${pending} фото ждёт разбора` : ''}`
+  }
   const reviewed = reviews.find((item) => item.taskId === task.id)
   if (task.kind === 'written') {
     const photos = uploads.filter((upload) => upload.taskId === task.id)
@@ -71,11 +78,12 @@ function taskState(task: DayTask, uploads: DayUpload[], reviews: DayWorkReview[]
 
 /** @see ../docs/product/dashboard.md#homework-progress */
 function homeworkProgress(tasks: DayTask[], uploads: DayUpload[], reviews: DayWorkReview[], tests: Record<string, Assignment>, scores: Record<string, QuizScore>, now: number) {
-  const taskIds = new Set(tasks.map((task) => task.id))
+  const taskIds = new Set(tasks.flatMap((task) => [task.id, ...(task.problems ?? []).map((problem) => problem.id)]))
   const photos = uploads.filter((upload) => taskIds.has(upload.taskId))
   const pending = photos.filter((photo) => photo.status === 'pending').length
   const checked = photos.filter((photo) => photo.status === 'reviewed').length
-  const results = tasks.map((task) => ({ task, review: reviews.find((item) => item.taskId === task.id) }))
+  const results = tasks.flatMap((task) => [task, ...(task.problems ?? []).map((problem) => ({ ...task, id: problem.id, title: `№ ${problem.number}` }))])
+    .map((task) => ({ task, review: reviews.find((item) => item.taskId === task.id) }))
     .filter((entry): entry is { task: DayTask; review: DayWorkReview } => Boolean(entry.review?.status))
   const state = tasks.map((task) => taskState(task, uploads, reviews, tests, scores, now)).join(' · ')
   const evidence = photos.length ? [
@@ -176,6 +184,7 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
   }, [placementKey])
 
   const dueDate = page?.targetDate ?? index?.days.find((day) => day.date > today && day.schedule.length)?.date
+  const weekendWork = index?.weekendWork?.find((slot) => slot.dates.includes(today))
   const dueEntry = index?.days.find((day) => day.date === dueDate)
   const currentSubjects = page?.subjects.map((subject) => ({ ...subject, tasks: subject.tasks.filter((task) => (task.originDate ?? page.targetDate) === page.targetDate) })).filter((subject) => subject.tasks.length) ?? []
   const chosen = index?.days.find((day) => day.date === selected)
@@ -214,6 +223,8 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
         <p className="day-dashboard-unprepared">Подробная страница дня ещё не подготовлена. Показана только точная запись МЭШ.</p>
       </div>}
     </section>
+
+    {weekendWork && <WeekendMathSlot token={weekendWork.dayToken} parent={parent} dueDate={weekendWork.dueDate} title={weekendWork.title} />}
 
     <div className="day-dashboard-grid">
       <section className="day-dashboard-card" aria-label="Ближайшее домашнее задание">

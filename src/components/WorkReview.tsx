@@ -48,8 +48,9 @@ export default function WorkReview({ review, uploads }: { review?: DayWorkReview
           <span className="day-work-review-item-icon">{item.status === 'correct' ? <Check size={14} aria-hidden="true" /> : item.status === 'incorrect' ? <X size={14} aria-hidden="true" /> : item.status === 'partial' ? <Minus size={14} aria-hidden="true" /> : <CircleAlert size={14} aria-hidden="true" />}</span>
           <div><strong>{item.label} · {itemLabels[item.status]}</strong><p>{item.note}</p>{item.observed && <small><b>В работе:</b> {item.observed}</small>}{item.expected && <small><b>По источнику:</b> {item.expected}</small>}</div>
         </li>)}</ol>}
-        {review.nextStep && <p className="day-work-review-next"><b>Что дальше:</b> {review.nextStep}</p>}
+        {review.nextStep && <p className="day-work-review-next"><b>{review.status === 'verified' ? 'Что дальше:' : 'Подсказка к следующей попытке:'}</b> {review.nextStep}</p>}
         {review.source && <small className="day-work-review-source">Источник: {review.source}</small>}
+        {!!review.history?.length && <details className="day-review-history"><summary>Предыдущие попытки · {review.history.length}</summary><ol>{[...review.history].reverse().map((entry, index) => <li key={index}><strong>{entry.status === 'verified' ? 'Верно' : entry.status === 'partial' ? 'Частично' : entry.status === 'needs-fix' ? 'Нужна правка' : 'Не удалось оценить'}</strong>{entry.summary && <span> · {entry.summary}</span>}{entry.nextStep && <p>{entry.nextStep}</p>}</li>)}</ol></details>}
       </div>
     </details>}
   </div>

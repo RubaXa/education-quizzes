@@ -58,5 +58,13 @@ export function buildDayDashboardIndex(local, links, role, now = new Date()) {
       schedule: lessonList, homework, dayToken: links[date]?.[role] ?? null,
     })
   }
-  return { schemaVersion: 1, kind: role, today, timezone: 'Europe/Moscow', days }
+  const weekendWork = Object.entries(links).flatMap(([sourceDate, pair]) => {
+    const file = resolve(local, `day-source-${sourceDate}.json`)
+    if (!existsSync(file) || !pair?.[role]) return []
+    const source = readJson(file)
+    const dates = source.weekendSlot?.dates
+    if (!Array.isArray(dates) || !dates.some((date) => date >= weekStart && date <= end)) return []
+    return [{ dates, dayToken: pair[role], dueDate: source.targetDate, title: source.weekendSlot.title || 'Математика на выходных' }]
+  })
+  return { schemaVersion: 1, kind: role, today, timezone: 'Europe/Moscow', days, weekendWork }
 }
