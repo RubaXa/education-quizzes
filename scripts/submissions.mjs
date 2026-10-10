@@ -128,7 +128,7 @@ async function publishProgress(filename, phase) {
   const review = privateReviewFile(filename)
   const shared = Boolean(review.reviews)
   const { owner, refs: photoRefs } = await linkedReviewPhotos(review, shared)
-  const labels = { download: 'Готовим фотографии', source: 'Сверяем с учебником', review: 'Разбираем ответы', publish: 'Сохраняем результат', paused: 'Фото получено · техническая задержка' }
+  const labels = { download: 'Открываем фото для проверки', source: 'Сверяем с учебником', review: 'Разбираем ответы', publish: 'Сохраняем результат', paused: 'Фото получено · техническая задержка' }
   const entries = review.reviews ?? [review]
   const refs = entries.map((entry) => db.doc(`dayProgress/${owner.id}/items/${entry.taskId}`))
   const previous = await Promise.all(refs.map(async (ref) => (await ref.get()).data()?.processing))
