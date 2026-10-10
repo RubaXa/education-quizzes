@@ -148,11 +148,6 @@
 .day-problem-heading{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;color:#34295c}
 .day-problem-heading strong{font-size:.94rem;line-height:1.4}
 .day-problem-heading small{font-size:.75rem;color:#6a5d7d}
-.day-problem-condition{margin-top:7px;color:#55496e;font-size:.81rem;line-height:1.45}
-.day-problem-condition summary{display:inline-flex;align-items:center;gap:4px;color:#614d91;font-weight:750;cursor:pointer}
-.day-problem-condition[open] summary svg{transform:rotate(180deg)}
-.day-problem-condition p{margin:8px 0 3px!important;white-space:pre-line}
-.day-problem-condition small{color:#796c89}
 .day-problem-actions{margin-top:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .day-problem-actions .day-upload{margin:0}
 @keyframes day-photo-spin{to{transform:rotate(360deg)}}

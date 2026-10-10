@@ -1,14 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { BookOpen, Camera, CheckCircle2, ChevronDown, CircleAlert, Clock3, ExternalLink, LoaderCircle, RotateCcw, Trash2, X } from 'lucide-react'
-import { removePendingDayPhoto, uploadDayPhoto, watchDayPage, watchDayReviews, watchDayUploads, watchMaterialPages } from '@/lib/dayStore'
-import type { DayInstruction, DayMaterialLink, DayPageData, DayTask, DayUpload, DayWorkReview } from '@/lib/dayStore'
+import { removePendingDayPhoto, requestDayHelp, uploadDayPhoto, watchDayHelp, watchDayPage, watchDayReviews, watchDayUploads, watchMaterialPages } from '@/lib/dayStore'
+import type { DayHelp, DayInstruction, DayMaterialLink, DayPageData, DayTask, DayUpload, DayWorkReview } from '@/lib/dayStore'
 import { loadAnswerKey, watchAssignment, watchDashboard } from '@/lib/store'
 import { grade } from '@/lib/quiz'
 import type { Assignment } from '@/lib/quiz'
 import MaterialReader, { canReadInside } from '@/components/MaterialReader'
 import PublicThumbnail from '@/components/PublicThumbnail'
 import WorkReview from '@/components/WorkReview'
+import ProblemStatement from '@/components/ProblemStatement'
 import { activeProcessing } from '@/lib/reviewPresentation'
 import { publicImage } from '@/lib/yandexPublic'
 import './DayPage.css'
@@ -269,6 +270,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
   const [catalogPages, setCatalogPages] = useState<Record<string, DayMaterialLink>>({})
   const [uploads, setUploads] = useState<DayUpload[]>([])
   const [reviews, setReviews] = useState<DayWorkReview[]>([])
+  const [helpRequests, setHelpRequests] = useState<DayHelp[]>([])
   const [tests, setTests] = useState<TestItem[]>([])
   const [view, setView] = useState<'homework' | 'school'>(requestedView === 'homework' ? 'homework' : 'school')
   const [manualView, setManualView] = useState(requestedView === 'homework' || requestedView === 'school')
@@ -348,6 +350,10 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
   useEffect(() => {
     if (!hasPage) return
     return watchDayReviews(evidenceTokens.split('|'), setReviews, (cause) => setError(cause.message))
+  }, [evidenceTokens, hasPage])
+  useEffect(() => {
+    if (!hasPage) return
+    return watchDayHelp(evidenceTokens.split('|'), setHelpRequests, (cause) => setError(cause.message))
   }, [evidenceTokens, hasPage])
   useEffect(() => {
     if (!page || manualView) return
@@ -522,7 +528,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
                 {!!task.steps?.length && <ol className="day-task-steps">{task.steps.map((step, index) => <Instruction key={index} item={step} index={index} />)}</ol>}
                 {needsTextbook && <p className="day-material-warning">📖 {task.materialStatus?.message}</p>}
                 {(task.materialStatus?.state === 'text-absent-from-textbook' || task.materialStatus?.state === 'no-textbook') && <p className="day-material-warning">📖 {task.materialStatus.message}</p>}
-                {readerGroups.map((group) => <MaterialReader key={group[0].url} links={group} parent={parent} />)}
+                {readerGroups.filter((group) => !task.problems?.length || group[0].sourceType !== 'teacher-attachment').map((group) => <MaterialReader key={group[0].url} links={group} parent={parent} />)}
                 {otherLinks.length > 0 && <div className="day-material-links">{otherLinks.map((material) => <div className="day-material-source" key={material.url}><a href={material.url} target="_blank" rel="noopener noreferrer">{material.sourceType === 'textbook-page' ? 'Страница учебника' : material.sourceType === 'teacher-attachment' ? 'Файл учителя' : material.sourceType === 'external-text' ? 'Внешний текст, не из учебника' : 'Материал'}: {material.title} <ExternalLink size={13} aria-hidden="true" /></a>{material.reason && <small>{material.reason}</small>}{material.sourceQuote && <small>Из учебника: «{material.sourceQuote.trim()}»</small>}{parent && material.sourceRef && <small>{material.sourceRef} · PDF {material.pdfPage} · учебник {material.printedPage}</small>}</div>)}</div>}
                 {!!task.problems?.length && <div className="day-problem-list" aria-label={`Задачи: ${task.title}`}>
                   {task.problems.map((problem) => {
@@ -533,7 +539,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
                     const problemState = pending ? 'Фото получено · ждёт проверки' : problemReview?.status === 'verified' ? 'Проверено · верно' : problemReview?.status === 'needs-fix' ? 'Проверено · нужна новая попытка' : problemReview?.status === 'partial' ? 'Проверено · дополнить' : problemUploads.length ? 'Работа загружена' : 'Можно приступить'
                     return <section className="day-problem" key={problem.id} id={problem.id}>
                       <div className="day-problem-heading"><strong>№ {problem.number}. {problem.title}</strong><small>{problemState}</small></div>
-                      <details className="day-problem-condition"><summary>Условие и источник <ChevronDown size={15} aria-hidden="true" /></summary><p>{problem.detail}</p><small>{problem.source}</small></details>
+                      <ProblemStatement problem={problem} links={taskLinks} parent={parent} help={helpRequests.find((item) => item.taskId === problem.id)} review={problemReview} onRequestHelp={parent ? undefined : (taskId, revision) => requestDayHelp(studentToken, taskId, revision)} />
                       <WorkReview review={problemReview} uploads={problemUploads} />
                       <div className="day-problem-actions">{!parent && <label className="day-upload"><Camera size={17} aria-hidden="true" /> {problemReview?.status === 'needs-fix' || problemReview?.status === 'partial' ? 'Загрузить исправление' : 'Загрузить материал'}<input type="file" accept="image/*" multiple onChange={(event) => { attach(problem, Array.from(event.currentTarget.files ?? [])); event.currentTarget.value = '' }} /></label>}{parent && !problemUploads.length && <small>Фото по этому номеру пока нет</small>}</div>
                       <PhotoStrip taskTitle={`№ ${problem.number}. ${problem.title}`} studentToken={studentToken} uploads={problemUploads} localPhotos={problemPhotos} review={problemReview} onRetry={queuePhotoUpload} onDelete={deletePhoto} />

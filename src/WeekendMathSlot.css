@@ -11,9 +11,6 @@
 .weekend-math-problem-head strong{font-size:.88rem}
 .weekend-math-problem-head span{display:inline-flex;align-items:center;gap:4px;color:#776b85;font-size:.71rem;font-weight:700}
 .weekend-math-problem-head span.verified{color:#17643c}
-.weekend-math-problem details{margin-top:5px;font-size:.78rem;line-height:1.45}
-.weekend-math-problem details summary{color:#5d4791;cursor:pointer;font-weight:750}
-.weekend-math-problem details small{color:#817691}
 .weekend-math-feedback{margin-top:9px;padding:9px;border-radius:9px;background:#fff3da;color:#79551d;font-size:.77rem}
 .weekend-math-feedback.verified{background:#e7f6eb;color:#17643c}
 .weekend-math-feedback.needs-fix{background:#fff0ef;color:#983648}

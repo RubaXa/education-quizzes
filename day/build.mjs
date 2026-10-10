@@ -112,6 +112,7 @@ export function buildDaySource(local, date) {
           old.status = 'unknown'
           old.steps = []
           old.submission = null
+          delete old.problems // Old teacher sheet and personalized hints do not apply to a revised condition.
           old.instructionStatus = { state: 'needs-review', message: 'Учитель изменил условие. Сейчас показан точный текст МЭШ; прежний разбор не действует.' }
           subject.summary = 'Условие МЭШ изменилось. Подробный разбор готовится.'
           if (!assignment.teacherFiles?.length) subject.materials = 'Материалы изменённого задания уточняются'

@@ -32,7 +32,7 @@ export function canReadInside(link: DayMaterialLink) {
  * Открывает проверенные страницы задания внутри Education.
  * @see ../../docs/product/materials.md#material-reader
  */
-export default function MaterialReader({ links, parent }: { links: DayMaterialLink[]; parent: boolean }) {
+export default function MaterialReader({ links, parent, statement = false }: { links: DayMaterialLink[]; parent: boolean; statement?: boolean }) {
   const [active, setActive] = useState<number | null>(null)
   const [imageUrl, setImageUrl] = useState('')
   const [imageError, setImageError] = useState(false)
@@ -70,12 +70,12 @@ export default function MaterialReader({ links, parent }: { links: DayMaterialLi
   }, [active !== null, links.length])
 
   const quote = links.find((link) => link.sourceQuote)?.sourceQuote?.trim()
-  return <div className="day-reader">
+  return <div className={`day-reader ${statement ? 'day-reader-statement' : ''}`}>
     <div className="day-reader-heading"><strong>{first.sourceType === 'textbook-page' ? 'Страницы учебника' : 'Лист учителя'} · {range}</strong><span>{title}</span></div>
     <div className="day-reader-thumbs" aria-label={`Открыть страницы: ${range}`}>
       {links.map((link, index) => <button type="button" className="day-reader-thumb" key={link.url} onClick={() => setActive(index)} aria-label={`Открыть ${pageName(link, index)}`}>
         <PublicThumbnail url={link.url} alt="" fallback={<span className="day-reader-thumb-placeholder" aria-hidden="true">{link.printedPage ?? index + 1}</span>} />
-        <small>{pageName(link, index)}</small>
+        <small>{statement ? 'Открыть лист крупно' : pageName(link, index)}</small>
       </button>)}
     </div>
     {quote && <small className="day-reader-quote">Из учебника: «{quote}»</small>}

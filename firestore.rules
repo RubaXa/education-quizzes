@@ -274,6 +274,26 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // A learner can request one introductory prompt. The request is evidence of
+    // help usage, not a verdict about mastery or a client-written review.
+    match /dayHelp/{studentToken}/items/{taskId} {
+      allow get, list: if dayUploadOwner(studentToken);
+      allow create, update: if dayUploadOwner(studentToken)
+        && get(memberPath(get(/databases/$(database)/documents/dayOwners/$(studentToken)).data.familyId)).data.role == 'student'
+        && exists(/databases/$(database)/documents/dayPages/$(studentToken))
+        && taskId in get(/databases/$(database)/documents/dayPages/$(studentToken)).data.taskIds
+        && request.resource.data.keys().hasOnly(['taskId', 'revision', 'requestedAt'])
+        && request.resource.data.keys().hasAll(['taskId', 'revision', 'requestedAt'])
+        && request.resource.data.taskId == taskId
+        && request.resource.data.revision is int
+        && request.resource.data.revision >= 1
+        && request.resource.data.revision <= 100000
+        && request.resource.data.requestedAt == request.time
+        && (resource == null || (resource.data.taskId == taskId
+          && request.resource.data.revision >= resource.data.revision));
+      allow delete: if false;
+    }
+
     match /dayUploads/{studentToken}/files/{uploadId} {
       allow get, list: if exists(/databases/$(database)/documents/dayPages/$(studentToken))
         && get(/databases/$(database)/documents/dayPages/$(studentToken)).data.kind == 'student';

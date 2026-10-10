@@ -3,7 +3,12 @@ import { db } from './firebase'
 
 export type DayInstruction = string | { text: string; source: { kind: 'mesh' | 'textbook' | 'review' | 'teacher-file'; label: string; evidence: string; excerpt?: string; ref?: string; certainty: 'confirmed' | 'uncertain' } }
 export type DaySubmission = { buttonLabel: string; lead?: string; items?: DayInstruction[]; photo?: string; description?: string }
-export type DayProblem = { id: string; number: number; title: string; detail: string; source: string }
+/** @see ../../docs/product/adaptive-problem-card.md#слои */
+export type DayProblem = {
+  id: string; number: number; title: string; detail: string; source: string;
+  original?: { text: string; attachmentRef: string };
+  support?: { skill: string; state: 'unknown' | 'provisional' | 'practicing' | 'demonstrated'; evidence: string; evidenceRefs: string[]; facts: { label: string; value: string }[]; find: string; firstQuestion: string; revision: number };
+}
 export type DayTask = { id: string; title: string; detail: string; steps?: DayInstruction[]; problems?: DayProblem[]; status: 'verified' | 'needs-fix' | 'partial' | 'unknown'; kind: 'written' | 'read' | 'check'; source: string; submission?: DaySubmission | null; instructionStatus?: { state: 'needs-review' | 'reviewed'; message: string }; testToken?: string; testSlug?: string; requiredPoints?: number; originDate?: string; platformResult?: { state: 'completed'; points: number; maxPoints: number; durationMinutes?: number; observedDate?: string; source: string }; materialStatus?: { state: 'textbook-page-needed' | 'textbook-page-linked' | 'text-absent-from-textbook' | 'no-textbook'; message: string } }
 export type DayMaterialLink = { title: string; url: string; sourceType: 'textbook-page' | 'teacher-attachment' | 'external-text'; reason?: string; sourceRef?: string; pdfPage?: number; printedPage?: number; editionStatus?: string; extraction?: string; sourceSha256?: string; sourceQuote?: string }
 export type DaySubject = { id: string; name: string; icon: string; materials: string; mesh: string; summary: string; tasks: DayTask[] }
@@ -24,6 +29,7 @@ export type DayPageData = {
 }
 /** @see ../../docs/product/storage-privacy.md#upload-queue */
 export type DayUpload = { id: string; taskId: string; dataUrl?: string; originalName?: string; status: 'pending' | 'reviewed'; createdAt?: unknown; origin?: 'archive'; recordedDate?: string; storage?: { provider: 'yandex-disk'; state: 'stored'; path: string; size: number; md5?: string; syncedAt: unknown; publicUrl?: string } }
+export type DayHelp = { id: string; taskId: string; revision: number; requestedAt?: unknown }
 export type DayWorkReview = {
   id: string; taskId: string; status?: 'verified' | 'needs-fix' | 'partial' | 'cannot-assess';
   summary?: string; nextStep?: string; source?: string; checkedAt?: unknown; uploadIds?: string[];
@@ -84,6 +90,19 @@ export function watchDayReviews(tokens: string[], onChange: (data: DayWorkReview
     onChange(unique.flatMap((token) => parts.get(token) || []))
   }, onError))
   return () => stops.forEach((stop) => stop())
+}
+/** @see ../../docs/product/adaptive-problem-card.md#показ-ученику */
+export function watchDayHelp(tokens: string[], onChange: (data: DayHelp[]) => void, onError: (error: Error) => void) {
+  const parts = new Map<string, DayHelp[]>()
+  const unique = [...new Set(tokens)]
+  const stops = unique.map((studentToken) => onSnapshot(collection(db, 'dayHelp', studentToken, 'items'), (snapshot) => {
+    parts.set(studentToken, snapshot.docs.map((item) => ({ id: `${studentToken}:${item.id}`, ...item.data() } as DayHelp)))
+    onChange(unique.flatMap((token) => parts.get(token) || []))
+  }, onError))
+  return () => stops.forEach((stop) => stop())
+}
+export async function requestDayHelp(studentToken: string, taskId: string, revision: number) {
+  await setDoc(doc(db, 'dayHelp', studentToken, 'items', taskId), { taskId, revision, requestedAt: serverTimestamp() })
 }
 async function compressedImage(file: File): Promise<string> {
   if (!file.type.startsWith('image/')) throw new Error('Выберите фотографию или изображение.')

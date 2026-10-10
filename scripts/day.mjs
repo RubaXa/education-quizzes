@@ -140,6 +140,18 @@ function validate(source) {
           if (!/^[a-z0-9-]+$/.test(problem.id ?? '') || !problem.id.startsWith(`${task.id}-p`) || ids.has(problem.id)
             || !Number.isInteger(problem.number) || numbers.has(problem.number)
             || !problem.title?.trim() || !problem.detail?.trim() || !problem.source?.trim()) fail(`У ${task.id} каждый номер должен иметь устойчивый ID, условие и источник.`)
+          // @see ../docs/product/adaptive-problem-card.md#выпуск-и-безопасность
+          if (!problem.original?.text?.trim() || !problem.original?.attachmentRef?.trim()
+            || !source.materialLinks?.[task.id]?.some((link) => link.sourceType === 'teacher-attachment' && link.sourceRef === problem.original.attachmentRef)) {
+            fail(`У ${problem.id} нужен дословно сверенный текст и исходный лист учителя.`)
+          }
+          const support = problem.support
+          if (!support?.skill?.trim() || !['unknown', 'provisional', 'practicing', 'demonstrated'].includes(support.state)
+            || !support.evidence?.trim() || !Array.isArray(support.evidenceRefs) || !support.evidenceRefs.length
+            || !Array.isArray(support.facts) || support.facts.some((fact) => !fact.label?.trim() || !fact.value?.trim())
+            || !support.find?.trim() || !support.firstQuestion?.trim() || !Number.isInteger(support.revision) || support.revision < 1) {
+            fail(`У ${problem.id} нет проверяемого педагогического слоя с первым вопросом.`)
+          }
           ids.add(problem.id)
           numbers.add(problem.number)
         }
@@ -326,7 +338,59 @@ async function seedEvidence() {
   console.log(JSON.stringify({ imported: added, alreadyPresent: existing, sourcePhotos: source.historicalUploads?.length ?? 0 }))
 }
 
-if (!['refresh', 'build', 'publish', 'dashboard', 'pull', 'seed-evidence'].includes(command)) fail('Команды: refresh YYYY-MM-DD | build YYYY-MM-DD | publish YYYY-MM-DD | dashboard | pull YYYY-MM-DD [папка] | seed-evidence YYYY-MM-DD')
+/** Publish only source-faithful problem text and learner support; preserve live schedule, grades, uploads and reviews.
+ * @see ../docs/product/adaptive-problem-card.md#выпуск-и-безопасность
+ */
+async function publishProblemSupport() {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date ?? '')) fail('Укажите дату YYYY-MM-DD.')
+  const source = json(resolve(local, `day-source-${date}.json`))
+  validate(source)
+  const pair = json(linksFile)[date]
+  if (!pair?.student || !pair?.parent) fail('Страница дня ещё не опубликована для обеих ролей.')
+  const incoming = new Map(source.subjects.flatMap((subject) => subject.tasks)
+    .filter((task) => task.problems?.length).map((task) => [task.id, task]))
+  if (!incoming.size) fail('В исходнике нет нумерованных задач.')
+  const result = await db.runTransaction(async (transaction) => {
+    const refs = [db.doc(`dayPages/${pair.student}`), db.doc(`dayPages/${pair.parent}`)]
+    const snapshots = await Promise.all(refs.map((ref) => transaction.get(ref)))
+    if (snapshots.some((snapshot) => !snapshot.exists)) fail('Одна из страниц дня отсутствует. Сначала опубликуйте день.')
+    const counts = []
+    snapshots.forEach((snapshot, index) => {
+      const page = snapshot.data()
+      if (page.schemaVersion !== 1 || page.date !== date) fail('Ревизия или дата страницы не совпадает с исходником.')
+      const changed = []
+      const subjects = page.subjects.map((subject) => ({ ...subject, tasks: subject.tasks.map((task) => {
+        const sourceTask = incoming.get(task.id)
+        if (!sourceTask) return task
+        if (task.meshText !== sourceTask.meshText || !Array.isArray(task.problems)
+          || task.problems.length !== sourceTask.problems.length) fail(`Условия или число номеров ${task.id} изменились. Нужен полный разбор дня.`)
+        const sourceProblems = new Map(sourceTask.problems.map((problem) => [problem.id, problem]))
+        const links = page.materialLinks?.[task.id] || []
+        const problems = task.problems.map((problem) => {
+          const newer = sourceProblems.get(problem.id)
+          if (!newer || newer.number !== problem.number || newer.title !== problem.title
+            || !links.some((link) => link.sourceType === 'teacher-attachment' && link.sourceRef === newer.original.attachmentRef)) {
+            fail(`У ${problem.id} не совпали номер или исходное вложение в опубликованной странице.`)
+          }
+          const next = { ...problem, original: newer.original, support: newer.support }
+          if (JSON.stringify(next) !== JSON.stringify(problem)) changed.push(problem.id)
+          return next
+        })
+        return { ...task, problems }
+      }) }))
+      counts.push(changed.length)
+      if (changed.length) transaction.update(refs[index], {
+        subjects, updatedAt: Timestamp.now(),
+        problemSupportRevision: (page.problemSupportRevision || 0) + 1,
+        problemSupportChanges: [{ at: Timestamp.now(), problemIds: changed }, ...(page.problemSupportChanges || [])].slice(0, 20),
+      })
+    })
+    return counts
+  })
+  console.log(JSON.stringify({ studentProblemsChanged: result[0], parentProblemsChanged: result[1], siteReleaseNeeded: false }))
+}
+
+if (!['refresh', 'build', 'publish', 'problem-support', 'dashboard', 'pull', 'seed-evidence'].includes(command)) fail('Команды: refresh YYYY-MM-DD | build YYYY-MM-DD | publish YYYY-MM-DD | problem-support YYYY-MM-DD | dashboard | pull YYYY-MM-DD [папка] | seed-evidence YYYY-MM-DD')
 if (command === 'build') {
   console.log(JSON.stringify(buildDaySource(local, date), null, 2))
   process.exit(0)
@@ -338,6 +402,7 @@ const db = getFirestore()
 if (command === 'publish' || command === 'refresh') await publish()
 else if (command === 'dashboard') await publishDashboard()
 else if (command === 'pull') await pull()
+else if (command === 'problem-support') await publishProblemSupport()
 else await seedEvidence()
 if ((command === 'publish' || command === 'refresh') && existsSync(resolve(local, 'family-access.json'))) {
   const owner = json(resolve(local, 'family-access.json')).legacyDayOwner
