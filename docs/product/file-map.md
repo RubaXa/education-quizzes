@@ -83,9 +83,9 @@
 | [src/DayDashboard.css](../../src/DayDashboard.css) | [Dashboard](dashboard.md) | Оформление обзора дней | `src/DayDashboard.tsx` |
 | [src/DayDashboard.tsx](../../src/DayDashboard.tsx) | [Dashboard](dashboard.md) | Календарь, сводки и переходы к ДЗ | Ученик; родитель |
 | [src/DayPage.css](../../src/DayPage.css) | [Страница дня](day-page.md) | Оформление заданий, фото и результатов | `src/DayPage.tsx` |
-| [src/DayPage.tsx](../../src/DayPage.tsx) | [Страница дня](day-page.md) | Данные дня, загрузка и показ проверки | Ученик; родитель |
+| [src/DayPage.tsx](../../src/DayPage.tsx) | [Страница дня](day-page.md) | Данные дня, загрузка, проверка и сводка нумерованного листа | Ученик; родитель; `ProblemGroup` |
 | [src/WeekendMathSlot.css](../../src/WeekendMathSlot.css) | [Адаптивная карточка](adaptive-problem-card.md) | Оформление общего слота математики | `src/WeekendMathSlot.tsx` |
-| [src/WeekendMathSlot.tsx](../../src/WeekendMathSlot.tsx) | [Адаптивная карточка](adaptive-problem-card.md) | Номера спецкурса и фото по каждому | Ученик; родитель |
+| [src/WeekendMathSlot.tsx](../../src/WeekendMathSlot.tsx) | [Страница дня](day-page.md) | Номера спецкурса, фото и общая сводка листа | Ученик; родитель; `ProblemGroup` |
 | [src/components/ArtifactAvatar.css](../../src/components/ArtifactAvatar.css) | [Статусы фотографии](day-page.md) | Общая миниатюра и положение значка состояния | `src/components/ArtifactAvatar.tsx` |
 | [src/components/ArtifactAvatar.tsx](../../src/components/ArtifactAvatar.tsx) | [Статусы фотографии](day-page.md) | Общий аватар загруженного фото с одним значком состояния | День; слот выходных |
 | [src/components/CodeBlock.tsx](../../src/components/CodeBlock.tsx) | [Тесты](quizzes.md) | Показ исходного кода в вопросе | Страница теста |
@@ -94,6 +94,8 @@
 | [src/components/PersonalEntry.tsx](../../src/components/PersonalEntry.tsx) | [Семейная модель](../architecture/family-data-model.md) | Вход по личной ссылке | Личная стартовая страница |
 | [src/components/ProblemCard.css](../../src/components/ProblemCard.css) | [Адаптивная карточка](adaptive-problem-card.md) | Оформление свёрнутого номера | `src/components/ProblemCard.tsx` |
 | [src/components/ProblemCard.tsx](../../src/components/ProblemCard.tsx) | [Адаптивная карточка](adaptive-problem-card.md) | Номер, статус и кнопка фото | День; спецкурс |
+| [src/components/ProblemGroup.css](../../src/components/ProblemGroup.css) | [Страница дня](day-page.md) | Оформление общей сводки нумерованного листа | `src/components/ProblemGroup.tsx` |
+| [src/components/ProblemGroup.tsx](../../src/components/ProblemGroup.tsx) | [Страница дня](day-page.md) | Сворачивание всего листа по текущим разборам и фото | `src/DayPage.tsx`; `src/WeekendMathSlot.tsx` |
 | [src/components/ProblemStatement.css](../../src/components/ProblemStatement.css) | [Адаптивная карточка](adaptive-problem-card.md) | Типографика условия и ориентиров | `src/components/ProblemStatement.tsx` |
 | [src/components/ProblemStatement.tsx](../../src/components/ProblemStatement.tsx) | [Адаптивная карточка](adaptive-problem-card.md) | Точное условие и помощь по запросу | Карточка номера |
 | [src/components/PublicThumbnail.tsx](../../src/components/PublicThumbnail.tsx) | [Материалы](materials.md) | Повтор миниатюры при сетевом сбое | Фото и страницы |
@@ -122,6 +124,7 @@
 | [src/lib/highlight.ts](../../src/lib/highlight.ts) | [Тесты](quizzes.md) | Подсветка программного кода | `CodeBlock` |
 | [src/lib/personalAccess.ts](../../src/lib/personalAccess.ts) | [Семейная модель](../architecture/family-data-model.md) | Личная сессия и роли | Стартовая страница; день |
 | [src/lib/photoOutbox.ts](../../src/lib/photoOutbox.ts) | [Хранение и приватность](storage-privacy.md) | Локальное хранение фото до передачи | `dayStore`; устройство |
+| [src/lib/problemGroupSummary.ts](../../src/lib/problemGroupSummary.ts) | [Страница дня](day-page.md) | Проверяемая сводка номеров и уникальных фото | `src/components/ProblemGroup.tsx` |
 | [src/lib/pwa.ts](../../src/lib/pwa.ts) | [PWA](pwa.md) | Регистрация service worker | `PwaControls` |
 | [src/lib/quiz.test.ts](../../src/lib/quiz.test.ts) | [Тесты](quizzes.md) | Проверка оценивания вопросов | Vitest; разработчик |
 | [src/lib/quiz.ts](../../src/lib/quiz.ts) | [Тесты](quizzes.md) | Модель вопросов и оценивание | Тест; Quiz CLI |

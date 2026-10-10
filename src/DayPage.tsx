@@ -12,6 +12,7 @@ import PublicThumbnail from '@/components/PublicThumbnail'
 import ArtifactAvatar from '@/components/ArtifactAvatar'
 import WorkReview from '@/components/WorkReview'
 import ProblemStatement from '@/components/ProblemStatement'
+import ProblemGroup from '@/components/ProblemGroup'
 import { ProblemCard, ProblemUploadButton } from '@/components/ProblemCard'
 import { activeProcessing, artifactAvatarLabel, artifactAvatarState, localArtifactAvatarState, problemCardState } from '@/lib/reviewPresentation'
 import { publicImage } from '@/lib/yandexPublic'
@@ -280,6 +281,8 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
   const [catalogPages, setCatalogPages] = useState<Record<string, DayMaterialLink>>({})
   const [uploads, setUploads] = useState<DayUpload[]>([])
   const [reviews, setReviews] = useState<DayWorkReview[]>([])
+  const [uploadsReadyFor, setUploadsReadyFor] = useState('')
+  const [reviewsReadyFor, setReviewsReadyFor] = useState('')
   const [helpRequests, setHelpRequests] = useState<DayHelp[]>([])
   const [helpRole, setHelpRole] = useState<'checking' | 'student' | 'parent' | 'none'>('checking')
   const [tests, setTests] = useState<TestItem[]>([])
@@ -363,11 +366,11 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
   const hasPage = Boolean(page)
   useEffect(() => {
     if (!hasPage) return
-    return watchDayUploads(evidenceTokens.split('|'), setUploads, (cause) => setError(cause.message))
+    return watchDayUploads(evidenceTokens.split('|'), (items) => { setUploads(items); setUploadsReadyFor(evidenceTokens) }, (cause) => setError(cause.message))
   }, [evidenceTokens, hasPage])
   useEffect(() => {
     if (!hasPage) return
-    return watchDayReviews(evidenceTokens.split('|'), setReviews, (cause) => setError(cause.message))
+    return watchDayReviews(evidenceTokens.split('|'), (items) => { setReviews(items); setReviewsReadyFor(evidenceTokens) }, (cause) => setError(cause.message))
   }, [evidenceTokens, hasPage])
   useEffect(() => {
     let active = true
@@ -587,7 +590,12 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
                 <PhotoStrip taskTitle={task.title} evidenceLabel={cdzTask ? 'Подтверждение ЦДЗ' : 'Фото работы'} studentToken={studentToken} uploads={taskUploads} localPhotos={localTaskPhotos} review={review} now={statusNow} onRetry={queuePhotoUpload} onDelete={deletePhoto} />
                 {parent && <small className="day-source"><BookOpen size={14} /> {task.source}</small>}
               </article>
-              return taskCard
+              if (!task.problems?.length) return taskCard
+              /** @see ../docs/product/day-page.md#completed-problem-group */
+              const problemIds = new Set(task.problems.map((problem) => problem.id))
+              const localPendingCount = localPhotos.filter((photo) => problemIds.has(photo.taskId) && !uploads.some((upload) => upload.id === `${studentToken}:${photo.id}` && upload.status === 'reviewed')).length
+              const sourceCount = new Set(taskLinks.filter((link) => link.sourceType === 'teacher-attachment').map((link) => link.url)).size
+              return <ProblemGroup key={task.id} id={task.id} title={subject.name} problems={task.problems} uploads={uploads} reviews={reviews} localPendingCount={localPendingCount} sourceCount={sourceCount} ready={uploadsReadyFor === evidenceTokens && reviewsReadyFor === evidenceTokens}>{taskCard}</ProblemGroup>
             })}
             {currentPlacements.filter((placement) => placement.subjectId === subject.id && !placement.taskId).map((placement) => {
               const test = tests.find((item) => item.token === placement.token)
