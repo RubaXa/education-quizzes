@@ -21,6 +21,16 @@ describe('private submission inbox', () => {
     const result = resolveSubmission({ owner, page, uploadId: 'photo', upload: { ...upload, taskId: 'removed' } })
     expect(result).toMatchObject({ taskId: 'removed', resolution: 'needs-manual-link', taskTitle: null })
   })
+  it('shows sibling problem IDs without assuming they are on the photo', () => {
+    const withProblems = { ...page, taskIds: ['task-1', 'task-1-p01', 'task-1-p02'], subjects: [{ name: 'Математика', tasks: [{ ...page.subjects[0].tasks[0], problems: [
+      { id: 'task-1-p01', number: 1, title: 'Площадь' }, { id: 'task-1-p02', number: 2, title: 'Числа' },
+    ] }] }] }
+    const result = resolveSubmission({ owner, page: withProblems, uploadId: 'photo', upload: { ...upload, taskId: 'task-1-p01' } })
+    expect(result.relatedTasks).toEqual([
+      { taskId: 'task-1-p01', title: '№ 1. Площадь' },
+      { taskId: 'task-1-p02', title: '№ 2. Числа' },
+    ])
+  })
   it('flags a task condition changed after upload', () => {
     const changed = { ...page, changes: [{ at: '2026-10-08T15:00:00Z', changed: ['task-1'] }] }
     expect(resolveSubmission({ owner, page: changed, uploadId: 'photo', upload }).conditionChangedAfterUpload).toBe(true)

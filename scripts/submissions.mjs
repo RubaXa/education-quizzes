@@ -2,8 +2,9 @@ import { createHash } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { applicationDefault, initializeApp } from 'firebase-admin/app'
-import { getFirestore, Timestamp } from 'firebase-admin/firestore'
+import { FieldValue, getFirestore, Timestamp } from 'firebase-admin/firestore'
 import { resolveSubmission } from '../storage/submission-inbox.mjs'
+import { reviewCoverage } from '../storage/review-coverage.mjs'
 import { YandexDiskStorage } from '../storage/yandex-disk.mjs'
 
 /** Private agent inbox; file bytes stay on Yandex Disk or in ignored .local.
@@ -86,16 +87,18 @@ function privateReviewFile(filename) {
   const path = resolve(filename)
   if (!path.startsWith(`${local}/`) || !path.endsWith('.json')) throw new Error('Файл разбора должен лежать в закрытой папке .local/.')
   const review = JSON.parse(readFileSync(path, 'utf8'))
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(review.date ?? '') || !/^[a-z0-9-]+$/.test(review.taskId ?? '')
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(review.date ?? '')
     || !Number.isInteger(review.planRevision) || !Array.isArray(review.uploadIds) || !review.uploadIds.length
     || new Set(review.uploadIds).size !== review.uploadIds.length
     || !review.uploadIds.every((id) => /^[A-Za-z0-9_-]{20,}$/.test(id))) {
     throw new Error('Нужны дата, ID задания, ревизия плана и уникальные ID фотографий.')
   }
+  if (review.reviews) reviewCoverage(review)
+  else if (!/^[a-z0-9-]+$/.test(review.taskId ?? '')) throw new Error('Нужен ID задания.')
   return review
 }
 
-async function linkedReviewPhotos(review) {
+async function linkedReviewPhotos(review, shared = false) {
   const owners = (await db.collection('dayOwners').get()).docs.filter((item) => item.data().date === review.date)
   const matches = []
   for (const owner of owners) {
@@ -106,10 +109,15 @@ async function linkedReviewPhotos(review) {
   if (matches.length !== 1) throw new Error('Не удалось однозначно связать разбор с ребёнком и набором фотографий.')
   const { owner, refs, photos } = matches[0]
   const page = (await db.doc(`dayPages/${owner.id}`).get()).data()
-  if (page?.kind !== 'student' || page.planRevision !== review.planRevision || !page.taskIds?.includes(review.taskId)) {
+  const targets = shared ? review.reviews.map((item) => item.taskId) : [review.taskId]
+  if (page?.kind !== 'student' || page.planRevision !== review.planRevision || targets.some((id) => !page.taskIds?.includes(id))) {
     throw new Error('Задание изменилось после скачивания фото. Сначала сверяйте новый план.')
   }
-  if (photos.some((photo) => photo.data().status !== 'pending' || photo.data().taskId !== review.taskId)) {
+  if (shared && targets.some((id) => page.subjects?.some((subject) => subject.tasks?.some((task) => task.id === id && task.problems?.length)))) {
+    throw new Error('Лист с отдельными номерами разбирайте по ID каждого номера, а не по ID всего листа.')
+  }
+  if (photos.some((photo) => photo.data().status !== 'pending'
+    || (shared ? !page.taskIds?.includes(photo.data().taskId) : photo.data().taskId !== review.taskId))) {
     throw new Error('Фото уже удалено, проверено или не относится к заданию.')
   }
   return { owner, refs, photos, page }
@@ -118,20 +126,29 @@ async function linkedReviewPhotos(review) {
 /** @see ../docs/product/storage-privacy.md#review-publication */
 async function publishProgress(filename, phase) {
   const review = privateReviewFile(filename)
-  const { owner } = await linkedReviewPhotos(review)
+  const shared = Boolean(review.reviews)
+  const { owner, refs: photoRefs } = await linkedReviewPhotos(review, shared)
   const labels = { download: 'Готовим фотографии', source: 'Сверяем с учебником', review: 'Разбираем ответы', publish: 'Сохраняем результат', paused: 'Фото получено · техническая задержка' }
-  const reviewRef = db.doc(`dayProgress/${owner.id}/items/${review.taskId}`)
-  const previous = (await reviewRef.get()).data()?.processing
-  const samePhotos = previous?.uploadIds?.length === review.uploadIds.length && previous.uploadIds.every((id) => review.uploadIds.includes(id))
+  const entries = review.reviews ?? [review]
+  const refs = entries.map((entry) => db.doc(`dayProgress/${owner.id}/items/${entry.taskId}`))
+  const previous = await Promise.all(refs.map(async (ref) => (await ref.get()).data()?.processing))
   const now = Timestamp.now()
-  await reviewRef.set({ date: review.date, taskId: review.taskId, planRevision: review.planRevision,
-    processing: { phase, label: labels[phase], ...(phase === 'paused' ? { reason: review.pausedReason?.trim() || 'Причина остановки пока не указана. Фото получено; повторно загружать его не нужно.' } : {}), uploadIds: review.uploadIds, startedAt: samePhotos ? previous.startedAt : now, updatedAt: now } }, { merge: true })
+  const batch = db.batch()
+  entries.forEach((entry, index) => {
+    const old = previous[index]
+    const samePhotos = old?.uploadIds?.length === entry.uploadIds.length && old.uploadIds.every((id) => entry.uploadIds.includes(id))
+    batch.set(refs[index], { date: review.date, taskId: entry.taskId, planRevision: review.planRevision,
+      processing: { phase, label: labels[phase], ...(phase === 'paused' ? { reason: review.pausedReason?.trim() || 'Причина остановки пока не указана. Фото получено; повторно загружать его не нужно.' } : {}), uploadIds: entry.uploadIds, startedAt: samePhotos ? old.startedAt : now, updatedAt: now } }, { merge: true })
+  })
+  if (shared) {
+    const coverage = reviewCoverage(review)
+    photoRefs.forEach((ref, index) => batch.update(ref, { processingTaskIds: coverage.get(review.uploadIds[index]).taskIds }))
+  }
+  await batch.commit()
   console.log(JSON.stringify({ phase, publishedToFirebase: true }))
 }
 
-/** @see ../docs/product/storage-privacy.md#review-publication */
-async function publishReview(filename) {
-  const review = privateReviewFile(filename)
+function validateReviewResult(review, page) {
   const statuses = new Set(['verified', 'needs-fix', 'partial', 'cannot-assess'])
   const itemStatuses = new Set(['correct', 'incorrect', 'partial', 'cannot-assess'])
   if (!statuses.has(review.status)
@@ -143,7 +160,6 @@ async function publishReview(filename) {
   if (review.status === 'verified' && review.items.some((item) => item.status !== 'correct')) {
     throw new Error('Нельзя отметить всю работу проверенной при ошибке в подпункте.')
   }
-  const { owner, refs, photos, page } = await linkedReviewPhotos(review)
   const subject = page.subjects?.find((entry) => entry.tasks?.some((task) => task.id === review.taskId || task.problems?.some((problem) => problem.id === review.taskId)))
   const task = subject?.tasks?.find((entry) => entry.id === review.taskId || entry.problems?.some((problem) => problem.id === review.taskId))
   if (subject && ['math', 'special'].includes(subject.id) && task?.kind === 'written') {
@@ -163,19 +179,36 @@ async function publishReview(filename) {
       throw new Error('Верный ответ без достаточного хода отмечается отдельно как частичный результат, не как ошибка ответа.')
     }
   }
-  if (photos.some((photo) => photo.data().storage?.state !== 'stored')) throw new Error('Фото ещё не перенесено на Диск.')
-  const reviewRef = db.doc(`dayProgress/${owner.id}/items/${review.taskId}`)
-  const previous = (await reviewRef.get()).data()
+}
+
+function resultRecord(review, previous, now, date, planRevision) {
   const priorReviews = previous?.status ? [...(previous.history ?? []), Object.fromEntries(Object.entries(previous).filter(([key]) => key !== 'history' && key !== 'processing'))] : previous?.history ?? []
+  const { taskId, uploadIds, status, summary, nextStep, source, items, mathReasoning } = review
+  return { date, taskId, planRevision, uploadIds, status, summary, nextStep, source, items,
+    ...(mathReasoning ? { mathReasoning } : {}), checkedAt: now, history: priorReviews.slice(-20) }
+}
+
+/** @see ../docs/product/storage-privacy.md#multi-task-photo */
+async function publishReview(filename) {
+  const review = privateReviewFile(filename)
+  const shared = Boolean(review.reviews)
+  const coverage = shared ? reviewCoverage(review) : null
+  const { owner, refs, photos, page } = await linkedReviewPhotos(review, shared)
+  const entries = review.reviews ?? [review]
+  entries.forEach((entry) => validateReviewResult(entry, page))
+  if (photos.some((photo) => photo.data().storage?.state !== 'stored')) throw new Error('Фото ещё не перенесено на Диск.')
+  const reviewRefs = entries.map((entry) => db.doc(`dayProgress/${owner.id}/items/${entry.taskId}`))
+  const previous = await Promise.all(reviewRefs.map(async (ref) => (await ref.get()).data()))
   const now = Timestamp.now()
-  const { date, taskId, planRevision, uploadIds, status, summary, nextStep, source, items, mathReasoning } = review
   const batch = db.batch()
-  batch.set(reviewRef, { date, taskId, planRevision, uploadIds, status, summary, nextStep, source, items,
-    ...(mathReasoning ? { mathReasoning } : {}),
-    checkedAt: now, history: priorReviews.slice(-20) })
-  refs.forEach((ref) => batch.update(ref, { status: 'reviewed', reviewedAt: now }))
+  entries.forEach((entry, index) => batch.set(reviewRefs[index], resultRecord(entry, previous[index], now, review.date, review.planRevision)))
+  refs.forEach((ref, index) => {
+    const id = review.uploadIds[index]
+    batch.update(ref, { status: 'reviewed', reviewedAt: now, processingTaskIds: FieldValue.delete(),
+      ...(coverage ? { coveredTaskIds: coverage.get(id).taskIds, coverageNote: coverage.get(id).observed } : {}) })
+  })
   await batch.commit()
-  console.log(JSON.stringify({ reviewedPhotos: refs.length, taskStatus: status, publishedToFirebase: true }))
+  console.log(JSON.stringify({ reviewedPhotos: refs.length, taskStatuses: entries.map(({ taskId, status }) => ({ taskId, status })), publishedToFirebase: true }))
 }
 
 if (command === 'review') {

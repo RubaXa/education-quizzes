@@ -31,7 +31,12 @@ export type DayPageData = {
   workingThreshold?: number;
 }
 /** @see ../../docs/product/storage-privacy.md#upload-queue */
-export type DayUpload = { id: string; taskId: string; dataUrl?: string; originalName?: string; status: 'requested' | 'awaiting-upload' | 'uploaded' | 'upload-error' | 'pending' | 'reviewed'; error?: string; createdAt?: unknown; origin?: 'archive'; recordedDate?: string; upload?: { href: string }; storage?: { provider: 'yandex-disk'; state: 'stored'; path: string; size: number; md5?: string; sha256?: string; syncedAt: unknown; publicUrl?: string } }
+export type DayUpload = { id: string; taskId: string; coveredTaskIds?: string[]; processingTaskIds?: string[]; coverageNote?: string; dataUrl?: string; originalName?: string; status: 'requested' | 'awaiting-upload' | 'uploaded' | 'upload-error' | 'pending' | 'reviewed'; error?: string; createdAt?: unknown; origin?: 'archive'; recordedDate?: string; upload?: { href: string }; storage?: { provider: 'yandex-disk'; state: 'stored'; path: string; size: number; md5?: string; sha256?: string; syncedAt: unknown; publicUrl?: string } }
+/** Upload placement is a UI entry point; confirmed coverage can include other tasks. @see ../../docs/product/storage-privacy.md#multi-task-photo */
+export function uploadMatchesTask(upload: DayUpload, taskId: string) {
+  return upload.coveredTaskIds ? upload.coveredTaskIds.includes(taskId)
+    : upload.processingTaskIds ? upload.processingTaskIds.includes(taskId) : upload.taskId === taskId
+}
 export type DayHelp = { id: string; taskId: string; revision: number; requestedAt?: unknown }
 export type DayWorkReview = {
   id: string; taskId: string; status?: 'verified' | 'needs-fix' | 'partial' | 'cannot-assess';

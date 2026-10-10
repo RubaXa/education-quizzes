@@ -141,6 +141,8 @@
 | [storage/storage-pause.test.mjs](../../storage/storage-pause.test.mjs) | [Хранение и приватность](storage-privacy.md) | Проверка снятия паузы | Vitest; разработчик |
 | [storage/submission-inbox.mjs](../../storage/submission-inbox.mjs) | [Хранение и приватность](storage-privacy.md) | Группировка ожидающих работ | `scripts/submissions.mjs` |
 | [storage/submission-inbox.test.mjs](../../storage/submission-inbox.test.mjs) | [Хранение и приватность](storage-privacy.md) | Проверка состава очереди | Vitest; разработчик |
+| [storage/review-coverage.mjs](../../storage/review-coverage.mjs) | [Хранение и приватность](storage-privacy.md) | Сверка покрытия нескольких номеров одним оригиналом | `scripts/submissions.mjs` |
+| [storage/review-coverage.test.mjs](../../storage/review-coverage.test.mjs) | [Хранение и приватность](storage-privacy.md) | Проверка явной привязки фото к номерам | Vitest; разработчик |
 | [storage/submission-storage.mjs](../../storage/submission-storage.mjs) | [Хранение и приватность](storage-privacy.md) | Сверка старых файлов с Диском | `scripts/storage.mjs` |
 | [storage/textbook-catalog.mjs](../../storage/textbook-catalog.mjs) | [Материалы](materials.md) | Индекс страниц и учебников | `material-pages`; день |
 | [storage/yandex-disk.mjs](../../storage/yandex-disk.mjs) | [Хранение и приватность](storage-privacy.md) | Клиент API Яндекс.Диска | Worker; архив; страницы |

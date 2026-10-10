@@ -17,6 +17,8 @@ export function resolveSubmission({ owner, page, childName, uploadId, upload }) 
   const task = subject?.tasks.find((item) => item.id === upload.taskId || item.problems?.some((problem) => problem.id === upload.taskId))
   const problem = task?.problems?.find((item) => item.id === upload.taskId)
   const linked = Boolean(contextValid && page.taskIds?.includes(upload.taskId) && task)
+  const relatedTasks = linked ? (task.problems?.length ? task.problems.map((item) => ({ taskId: item.id, title: `№ ${item.number}. ${item.title}` }))
+    : subject.tasks.map((item) => ({ taskId: item.id, title: item.title }))) : []
   const createdAt = millis(upload.createdAt)
   const changedAfterUpload = Boolean(linked && createdAt != null && page.changes?.some((change) =>
     change.changed?.includes(upload.taskId) && millis(change.at) > createdAt))
@@ -37,6 +39,7 @@ export function resolveSubmission({ owner, page, childName, uploadId, upload }) 
     subject: linked ? subject.name : null,
     taskTitle: linked ? problem ? `${task.title} · № ${problem.number}: ${problem.title}` : task.title : null,
     assignmentText: linked ? problem?.detail ?? task.meshText ?? task.detail : null,
+    relatedTasks,
     expectedPhoto: linked ? problem ? `Решение задачи № ${problem.number}: номер, ход и ответ должны читаться.` : task.submission?.photo ?? task.submission?.description ?? null : null,
     planRevision: linked ? page.planRevision ?? null : null,
     conditionChangedAfterUpload: changedAfterUpload,

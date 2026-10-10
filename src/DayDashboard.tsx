@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { getAuth } from 'firebase/auth'
 import { ArrowLeft, ArrowRight, BookOpen, CalendarDays, CheckCircle2, ChevronDown, Clock3, Sparkles } from 'lucide-react'
-import { watchDayPage, watchDayReviews, watchDayUploads } from '@/lib/dayStore'
+import { uploadMatchesTask, watchDayPage, watchDayReviews, watchDayUploads } from '@/lib/dayStore'
 import type { DayPageData, DayTask, DayUpload, DayWorkReview } from '@/lib/dayStore'
 import { activeProcessing, elapsedLabel, reviewHeadline, reviewTone, timestampMillis } from '@/lib/reviewPresentation'
 import { watchDayDashboard } from '@/lib/dayDashboardStore'
@@ -37,12 +37,12 @@ function taskState(task: DayTask, uploads: DayUpload[], reviews: DayWorkReview[]
   if (task.problems?.length) {
     const ids = new Set(task.problems.map((problem) => problem.id))
     const complete = task.problems.filter((problem) => reviews.find((review) => review.taskId === problem.id)?.status === 'verified').length
-    const pending = uploads.filter((upload) => ids.has(upload.taskId) && upload.status === 'pending').length
+    const pending = uploads.filter((upload) => [...ids].some((id) => uploadMatchesTask(upload, id)) && upload.status === 'pending').length
     return `${complete} из ${task.problems.length} задач проверено${pending ? ` · ${pending} фото ждёт разбора` : ''}`
   }
   const reviewed = reviews.find((item) => item.taskId === task.id)
   if (task.kind === 'written') {
-    const photos = uploads.filter((upload) => upload.taskId === task.id)
+    const photos = uploads.filter((upload) => uploadMatchesTask(upload, task.id))
     const processing = activeProcessing(reviewed, photos)
     if (processing) return processing.phase === 'paused' ? 'Фото получено · проверка задержана' : now - (timestampMillis(processing.updatedAt) ?? now) > 30 * 60 * 1000 ? 'Проверка задерживается' : `${processing.label} · ${elapsedLabel(processing.startedAt, now)}`
     if (photos.some((upload) => upload.status === 'pending')) return 'Фото получено · ждёт проверки'
@@ -57,7 +57,7 @@ function taskState(task: DayTask, uploads: DayUpload[], reviews: DayWorkReview[]
     return 'Нужно фото'
   }
   if (task.kind === 'check' && (task.id.endsWith('-cdz') || task.title.includes('ЦДЗ'))) {
-    const photos = uploads.filter((upload) => upload.taskId === task.id)
+    const photos = uploads.filter((upload) => uploadMatchesTask(upload, task.id))
     const processing = activeProcessing(reviewed, photos)
     if (processing && processing.phase !== 'paused') return `${processing.label} · ${elapsedLabel(processing.startedAt, now)}`
     if (photos.some((upload) => upload.status === 'pending')) return 'Результат ЦДЗ получен · ждёт проверки'
@@ -79,7 +79,7 @@ function taskState(task: DayTask, uploads: DayUpload[], reviews: DayWorkReview[]
 /** @see ../docs/product/dashboard.md#homework-progress */
 function homeworkProgress(tasks: DayTask[], uploads: DayUpload[], reviews: DayWorkReview[], tests: Record<string, Assignment>, scores: Record<string, QuizScore>, now: number) {
   const taskIds = new Set(tasks.flatMap((task) => [task.id, ...(task.problems ?? []).map((problem) => problem.id)]))
-  const photos = uploads.filter((upload) => taskIds.has(upload.taskId))
+  const photos = uploads.filter((upload) => [...taskIds].some((id) => uploadMatchesTask(upload, id)))
   const pending = photos.filter((photo) => photo.status === 'pending').length
   const checked = photos.filter((photo) => photo.status === 'reviewed').length
   const results = tasks.flatMap((task) => [task, ...(task.problems ?? []).map((problem) => ({ ...task, id: problem.id, title: `№ ${problem.number}` }))])
@@ -92,7 +92,7 @@ function homeworkProgress(tasks: DayTask[], uploads: DayUpload[], reviews: DayWo
     ...(checked ? [`${checked} проверено`] : []),
   ].join(' · ') : ''
   const outcomes = results.map(({ task, review }) => ({
-    label: `${tasks.length > 1 ? `${task.title}: ` : ''}${photos.some((photo) => photo.taskId === task.id && photo.status === 'pending') ? 'Ранее: ' : ''}${reviewHeadline(review)}`,
+    label: `${tasks.length > 1 ? `${task.title}: ` : ''}${photos.some((photo) => uploadMatchesTask(photo, task.id) && photo.status === 'pending') ? 'Ранее: ' : ''}${reviewHeadline(review)}`,
     tone: reviewTone(review),
   }))
   return { state, evidence, outcomes }

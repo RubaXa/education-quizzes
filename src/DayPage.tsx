@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { BookOpen, Camera, CheckCircle2, ChevronDown, CircleAlert, Clock3, ExternalLink, LoaderCircle, RotateCcw, Trash2, X } from 'lucide-react'
-import { removePendingDayPhoto, requestDayHelp, uploadDayPhoto, watchDayHelp, watchDayPage, watchDayReviews, watchDayUploads, watchMaterialPages } from '@/lib/dayStore'
+import { removePendingDayPhoto, requestDayHelp, uploadDayPhoto, uploadMatchesTask, watchDayHelp, watchDayPage, watchDayReviews, watchDayUploads, watchMaterialPages } from '@/lib/dayStore'
 import type { DayHelp, DayInstruction, DayMaterialLink, DayPageData, DayTask, DayUpload, DayWorkReview } from '@/lib/dayStore'
 import { loadAnswerKey, watchAssignment, watchDashboard } from '@/lib/store'
 import { dayHelpSessionRole } from '@/lib/personalAccess'
@@ -388,7 +388,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
     if (!page) return 0
     const taskPending = page.subjects.flatMap((subject) => subject.tasks).filter((task) => (task.originDate ?? page.targetDate) === page.targetDate).filter((task) => {
       if (task.status === 'verified') return false
-      if (task.kind === 'written') return !uploads.some((upload) => upload.taskId === task.id && (upload.status === 'pending' || task.status === 'unknown'))
+      if (task.kind === 'written') return !uploads.some((upload) => uploadMatchesTask(upload, task.id) && (upload.status === 'pending' || task.status === 'unknown'))
         && !localPhotos.some((photo) => photo.taskId === task.id && photo.state === 'saved')
       if (task.kind === 'read') { const test = tests.find((item) => item.token === task.testToken); return !(test?.status === 'submitted' && test.points != null && test.points >= (task.requiredPoints ?? test.maxPoints ?? 1)) }
       return true
@@ -520,7 +520,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
               }, [])
               const otherLinks = taskLinks.filter((link) => !canReadInside(link))
               const needsTextbook = task.materialStatus?.state === 'textbook-page-needed' && !taskLinks.some((link) => link.sourceType === 'textbook-page')
-              const taskUploads = uploads.filter((upload) => upload.taskId === task.id)
+              const taskUploads = uploads.filter((upload) => uploadMatchesTask(upload, task.id))
               const cdzTask = task.kind === 'check' && (task.id.endsWith('-cdz') || task.title.includes('ЦДЗ'))
               const review = reviews.find((item) => item.taskId === task.id)
               const processing = activeProcessing(review, taskUploads)
@@ -553,7 +553,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
                 {!!task.problems?.length && <div className="day-problem-list" aria-label={`Задачи: ${task.title}`}>
                   <h4>Задания из листа · {task.problems.length}</h4>
                   {task.problems.map((problem) => {
-                    const problemUploads = uploads.filter((upload) => upload.taskId === problem.id)
+                    const problemUploads = uploads.filter((upload) => uploadMatchesTask(upload, problem.id))
                     const problemPhotos = localPhotos.filter((photo) => photo.taskId === problem.id)
                     const problemReview = reviews.find((item) => item.taskId === problem.id)
                     const state = problemCardState(problemUploads, problemReview, problemPhotos.some((photo) => photo.state === 'uploading'))

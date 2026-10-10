@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Camera, CheckCircle2, Clock3, LoaderCircle, X } from 'lucide-react'
-import { removePendingDayPhoto, requestDayHelp, uploadDayPhoto, watchDayHelp, watchDayPage, watchDayReviews, watchDayUploads } from '@/lib/dayStore'
+import { removePendingDayPhoto, requestDayHelp, uploadDayPhoto, uploadMatchesTask, watchDayHelp, watchDayPage, watchDayReviews, watchDayUploads } from '@/lib/dayStore'
 import type { DayHelp, DayPageData, DayUpload, DayWorkReview } from '@/lib/dayStore'
 import { dayHelpSessionRole } from '@/lib/personalAccess'
 import PublicThumbnail from '@/components/PublicThumbnail'
@@ -71,7 +71,7 @@ export default function WeekendMathSlot({ token, parent, dueDate, title }: { tok
       {teacherLinks.length > 0 && <MaterialReader links={teacherLinks} parent={parent} statement />}
       <h4 className="weekend-math-list-title">Задания из листа · {task.problems?.length}</h4>
       <div className="weekend-math-problems">{task.problems?.map((problem) => {
-        const photos = uploads.filter((upload) => upload.taskId === problem.id)
+        const photos = uploads.filter((upload) => uploadMatchesTask(upload, problem.id))
         const previews = local.filter((item) => item.taskId === problem.id && !photos.some((upload) => upload.id === `${studentToken}:${item.id}`))
         const review = reviews.find((item) => item.taskId === problem.id)
         const state = problemCardState(photos, review, previews.some((photo) => photo.state === 'uploading'))
