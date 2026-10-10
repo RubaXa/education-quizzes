@@ -1,6 +1,6 @@
 # Хранение медиа и приватность
 
-Связанные контракты: [материалы](materials.md), [страница дня](day-page.md#photo-preview), [владение состоянием](access-and-state.md#state). Карта: [README](README.md).
+Связанные контракты: [материалы](materials.md), [страница дня](day-page.md#photo-preview), [владение состоянием](access-and-state.md#state), [масштабирование ссылок и архива](../architecture/family-artifact-access.md). Карта: [README](README.md).
 
 <a id="privacy-boundary"></a>
 ## Граница публичного репозитория
