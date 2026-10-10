@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { getAuth } from 'firebase/auth'
-import { ArrowLeft, ArrowRight, BookOpen, CalendarDays, CheckCircle2, ChevronDown, Clock3, Sparkles } from 'lucide-react'
+import { ArrowRight, BookOpen, CalendarDays, CheckCircle2, ChevronDown, Clock3, Sparkles } from 'lucide-react'
 import { uploadMatchesTask, watchDayPage, watchDayReviews, watchDayUploads } from '@/lib/dayStore'
 import type { DayPageData, DayTask, DayUpload, DayWorkReview } from '@/lib/dayStore'
 import { activeProcessing, elapsedLabel, reviewHeadline, reviewTone, timestampMillis } from '@/lib/reviewPresentation'
 import { watchDayDashboard } from '@/lib/dayDashboardStore'
-import type { DayDashboardData, IndexedDay } from '@/lib/dayDashboardStore'
+import type { DayDashboardData } from '@/lib/dayDashboardStore'
 import { loadAnswerKey, watchAssignment } from '@/lib/store'
 import { grade } from '@/lib/quiz'
 import type { Assignment } from '@/lib/quiz'
@@ -113,9 +113,10 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
   const [reviews, setReviews] = useState<DayWorkReview[]>([])
   const [tests, setTests] = useState<Record<string, Assignment>>({})
   const [scores, setScores] = useState<Record<string, QuizScore>>({})
-  const [selected, setSelected] = useState<string>()
+  const [selected, setSelected] = useState(() => sessionStorage.getItem('education-dashboard-selection-day') === moscowToday() ? (sessionStorage.getItem('education-dashboard-selected-date') ?? moscowToday()) : moscowToday())
   const [error, setError] = useState('')
   const [now, setNow] = useState(() => Date.now())
+  const datesRef = useRef<HTMLDivElement>(null)
   const today = moscowToday()
 
   useEffect(() => {
@@ -133,21 +134,28 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
     return () => { active = false; stop?.() }
   }, [token, parent])
 
-  const todayEntry = index?.days.find((day) => day.date === today)
-  const todayToken = todayEntry?.dayToken
+  const selectedDate = index?.days.some((day) => day.date === selected) ? selected : index?.days.find((day) => day.date === today)?.date ?? index?.days.filter((day) => day.date < today).at(-1)?.date ?? index?.days[0]?.date ?? today
+  const selectedEntry = index?.days.find((day) => day.date === selectedDate)
+  useEffect(() => {
+    const strip = datesRef.current
+    const active = strip?.querySelector<HTMLElement>('[aria-pressed="true"]')
+    if (strip && active) strip.scrollLeft = active.offsetLeft - strip.offsetLeft - (strip.clientWidth - active.clientWidth) / 2
+  }, [index, selectedDate])
+  const homeworkToken = selectedEntry?.homeworkDayToken
   const gradeToken = index?.days.filter((day) => day.date <= today && day.dayToken).sort((a, b) => b.date.localeCompare(a.date))[0]?.dayToken
   useEffect(() => {
     setPage(undefined)
-    if (!todayToken) return
-    return watchDayPage(todayToken, setPage, (cause) => setError(cause.message))
-  }, [todayToken])
+    if (!homeworkToken) return
+    return watchDayPage(homeworkToken, setPage, (cause) => setError(cause.message))
+  }, [homeworkToken])
   useEffect(() => {
     setGradePage(undefined)
-    if (!gradeToken || gradeToken === todayToken) return
+    if (!gradeToken) return
     return watchDayPage(gradeToken, setGradePage, (cause) => setError(cause.message))
-  }, [gradeToken, todayToken])
-  const studentToken = page ? (page.studentToken ?? todayToken) : undefined
-  const evidenceTokens = useMemo(() => [...new Set([studentToken, ...(page?.evidenceDayTokens ?? [])].filter((value): value is string => Boolean(value)))], [studentToken, page])
+  }, [gradeToken])
+  const selectedPage = page?.targetDate === selectedDate ? page : undefined
+  const studentToken = selectedPage ? (selectedPage.studentToken ?? homeworkToken) : undefined
+  const evidenceTokens = useMemo(() => [...new Set([studentToken, ...(selectedPage?.evidenceDayTokens ?? [])].filter((value): value is string => Boolean(value)))], [studentToken, selectedPage])
   const evidenceKey = evidenceTokens.join('|')
   useEffect(() => {
     if (!reviews.some((review) => review.processing)) return
@@ -164,7 +172,7 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
     if (!evidenceKey) return
     return watchDayReviews(evidenceKey.split('|'), setReviews, (cause) => setError(cause.message))
   }, [evidenceKey])
-  const placementKey = (page?.testPlacements ?? []).filter((placement) => (placement.originDate ?? page?.targetDate) === page?.targetDate).map((placement) => placement.token).join('|')
+  const placementKey = (selectedPage?.testPlacements ?? []).filter((placement) => (placement.originDate ?? selectedDate) === selectedDate).map((placement) => placement.token).join('|')
   useEffect(() => {
     setTests({})
     setScores({})
@@ -183,59 +191,57 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
     return () => { active = false; stops.forEach((stop) => stop()) }
   }, [placementKey])
 
-  const dueDate = page?.targetDate ?? index?.days.find((day) => day.date > today && day.schedule.length)?.date
-  const weekendWork = index?.weekendWork?.find((slot) => slot.dates.includes(today))
-  const dueEntry = index?.days.find((day) => day.date === dueDate)
-  const currentSubjects = page?.subjects.map((subject) => ({ ...subject, tasks: subject.tasks.filter((task) => (task.originDate ?? page.targetDate) === page.targetDate) })).filter((subject) => subject.tasks.length) ?? []
-  const chosen = index?.days.find((day) => day.date === selected)
-  const gradeSource = gradeToken === todayToken ? page : gradePage
+  const weekendWork = index?.weekendWork?.find((slot) => slot.dates.includes(selectedDate))
+  const currentSubjects = selectedPage?.subjects.map((subject) => ({ ...subject, tasks: subject.tasks.filter((task) => (task.originDate ?? selectedDate) === selectedDate) })).filter((subject) => subject.tasks.length) ?? []
+  const gradeSource = gradePage
   const gradeRows = gradeSource?.gradeSummary ?? []
   const gradeDetails = new Map((gradeSource?.grades ?? []).map((item) => [item.id, item]))
 
-  function openDay(day: IndexedDay, tab?: 'homework') {
-    if (!day.dayToken) { setSelected(day.date); return }
+  function chooseDay(date: string) {
+    setSelected(date)
+    sessionStorage.setItem('education-dashboard-selected-date', date)
+    sessionStorage.setItem('education-dashboard-selection-day', today)
+  }
+  function openDay(dayToken: string, tab?: 'homework') {
     sessionStorage.setItem('education-day-dashboard-return', `#/${parent ? 'days-parent' : 'days'}/${token}`)
     if (tab) sessionStorage.setItem('education-day-initial-tab', tab)
     else sessionStorage.removeItem('education-day-initial-tab')
-    window.location.hash = `#/${parent ? 'day-parent' : 'day'}/${day.dayToken}`
+    window.location.hash = `#/${parent ? 'day-parent' : 'day'}/${dayToken}`
   }
 
   if (error && !index) return <div className="day-dashboard-error"><h1>Не получилось открыть dashboard</h1><p>{error}</p></div>
   if (!index) return <p className="day-dashboard-loading">Загружаем dashboard…</p>
   return <div className="day-dashboard">
     {error && <p className="day-dashboard-error" role="alert">{error}</p>}
-    <section className="day-dashboard-hero">
-      <div className="day-dashboard-kicker">{parent ? 'Панель родителя' : 'Мой план'} · {dateLabel(today, { weekday: 'long', day: 'numeric', month: 'long' })}</div>
-      <h1>{parent ? 'Что сейчас важно' : 'План на сегодня'}</h1>
-      <p>{dueDate ? `Ближайшее домашнее задание — к ${dateLabel(dueDate)}. Открой план, чтобы увидеть точные действия и уже загруженные работы.` : 'Ближайший учебный день пока не подтверждён в МЭШ.'}</p>
-      {todayEntry?.dayToken && <button type="button" onClick={() => openDay(todayEntry, 'homework')}>Открыть ДЗ {dueDate ? `к ${dateLabel(dueDate)}` : ''} <ArrowRight size={17} /></button>}
-    </section>
-
     <section className="day-dashboard-calendar" aria-label="Выбор дня">
-      <div className="day-dashboard-heading"><div><CalendarDays size={20} /><h2>Дни</h2></div><small>Сегодня выделено рамкой</small></div>
-      <div className="day-dashboard-dates">{index.days.map((day) => <button key={day.date} type="button" className={`day-dashboard-date ${day.date === today ? 'today' : ''} ${isWeekend(day.date) ? 'weekend' : ''}`} aria-current={day.date === today ? 'date' : undefined} onClick={() => openDay(day)}>
+      <div className="day-dashboard-heading"><div><CalendarDays size={20} /><h2>Выберите день</h2></div></div>
+      <div className="day-dashboard-dates" ref={datesRef}>{index.days.map((day) => <button key={day.date} type="button" className={`day-dashboard-date ${day.date === today ? 'today' : ''} ${day.date === selectedDate ? 'selected' : ''} ${isWeekend(day.date) ? 'weekend' : ''}`} aria-current={day.date === today ? 'date' : undefined} aria-pressed={day.date === selectedDate} onClick={() => chooseDay(day.date)}>
         <span>{dateLabel(day.date, { weekday: 'short' })}</span><strong>{dateLabel(day.date, { day: 'numeric' })}</strong><small>{day.homework.length ? `${day.homework.length} ДЗ` : day.schedule.length ? 'уроки' : '—'}</small>
       </button>)}</div>
-      {chosen && <div className="day-dashboard-selected"><div><strong>{dateLabel(chosen.date, { weekday: 'long', day: 'numeric', month: 'long' })}</strong><button type="button" onClick={() => setSelected(undefined)} aria-label="Закрыть выбранный день">×</button></div>
-        <p>{chosen.complete ? `${chosen.schedule.length} ${word(chosen.schedule.length, 'урок', 'урока', 'уроков')} по МЭШ. Проверено ${checkedLabel(chosen.checkedAt)}.` : 'МЭШ для этой даты ещё не проверен.'}</p>
-        {chosen.schedule.length > 0 && <ul>{chosen.schedule.map((lesson, index) => <li key={`${index}-${lesson.subject}`}>{lessonTime(lesson.start)} · {lesson.subject}</li>)}</ul>}
-        {chosen.homework.length ? <><h3>Опубликованное ДЗ</h3><ul>{chosen.homework.map((item, index) => <li key={index}><b>{item.subject}:</b> {item.text}</li>)}</ul></> : <p>ДЗ пока не опубликовано. Последняя проверка: {checkedLabel(chosen.checkedAt)}.</p>}
-        <p className="day-dashboard-unprepared">Подробная страница дня ещё не подготовлена. Показана только точная запись МЭШ.</p>
-      </div>}
     </section>
+
+    <div className="day-dashboard-selected-heading"><div className="day-dashboard-kicker">{parent ? 'Панель родителя' : 'Мой план'} · выбранный день</div><h1>{dateLabel(selectedDate, { weekday: 'long', day: 'numeric', month: 'long' })}</h1></div>
 
     {weekendWork && <WeekendMathSlot token={weekendWork.dayToken} parent={parent} dueDate={weekendWork.dueDate} title={weekendWork.title} />}
 
     <div className="day-dashboard-grid">
-      <section className="day-dashboard-card" aria-label="Ближайшее домашнее задание">
-        <div className="day-dashboard-heading"><div><BookOpen size={20} /><h2>Ближайшее ДЗ</h2></div>{dueDate && <small>К {dateLabel(dueDate)}</small>}</div>
-        {page && currentSubjects.length ? <div className="day-dashboard-subjects">{currentSubjects.map((subject) => {
-          const progress = homeworkProgress(subject.tasks, uploads, reviews, tests, scores, now)
-          return <button key={subject.id} type="button" onClick={() => todayEntry && openDay(todayEntry, 'homework')}>
-            <span className="day-dashboard-icon" aria-hidden="true">{subject.icon}</span><span className="day-dashboard-subject-body"><strong>{subject.name}</strong><small>{progress.state}</small>{(progress.evidence || progress.outcomes.length > 0) && <span className="day-dashboard-evidence">{progress.evidence && <span>{progress.evidence}</span>}{progress.outcomes.map((result, index) => <span className={`day-dashboard-outcome ${result.tone}`} key={`${index}-${result.label}`}>{result.label}</span>)}</span>}</span><ArrowRight size={18} />
-          </button>
-        })}</div> : dueEntry?.homework.length ? <div className="day-dashboard-mesh">{dueEntry.homework.map((item, index) => <p key={index}><strong>{item.subject}</strong><span>{item.text}</span></p>)}<small>Точный текст МЭШ · разбор страницы готовится</small></div> : <p className="day-dashboard-empty">ДЗ пока не опубликовано. Последняя проверка: {checkedLabel(dueEntry?.checkedAt ?? null)}.</p>}
+      <div className="day-dashboard-main">
+      <section className="day-dashboard-card" aria-label="Расписание выбранного дня">
+        <div className="day-dashboard-heading"><div><CalendarDays size={20} /><h2>Расписание</h2></div><small>{dateLabel(selectedDate)}</small></div>
+        {selectedEntry?.schedule.length ? <ul className="day-dashboard-lessons">{selectedEntry.schedule.map((lesson, index) => <li key={`${index}-${lesson.subject}`}><time>{lessonTime(lesson.start)}</time><span>{lesson.subject}</span></li>)}</ul> : <p className="day-dashboard-empty">{selectedEntry?.complete ? 'Уроков на эту дату нет.' : `Расписание ещё не подтверждено. Последняя проверка: ${checkedLabel(selectedEntry?.checkedAt ?? null)}.`}</p>}
+        {selectedEntry?.dayToken && <button className="day-dashboard-detail-link" type="button" onClick={() => openDay(selectedEntry.dayToken!)}>Открыть подробное расписание <ArrowRight size={17} /></button>}
       </section>
+      <section className="day-dashboard-card" aria-label="Домашнее задание выбранного дня">
+        <div className="day-dashboard-heading"><div><BookOpen size={20} /><h2>Домашнее задание</h2></div><small>К {dateLabel(selectedDate)}</small></div>
+        {selectedPage && currentSubjects.length ? <div className="day-dashboard-subjects">{currentSubjects.map((subject) => {
+          const progress = homeworkProgress(subject.tasks, uploads, reviews, tests, scores, now)
+          return <button key={subject.id} type="button" onClick={() => homeworkToken && openDay(homeworkToken, 'homework')}>
+            <span className="day-dashboard-icon" aria-hidden="true">{subject.icon}</span><span className="day-dashboard-subject-body"><strong>{subject.name}</strong><span className="day-dashboard-task-titles">{subject.tasks.map((task) => task.title).join(' · ')}</span><small>{progress.state}</small>{(progress.evidence || progress.outcomes.length > 0) && <span className="day-dashboard-evidence">{progress.evidence && <span>{progress.evidence}</span>}{progress.outcomes.map((result, index) => <span className={`day-dashboard-outcome ${result.tone}`} key={`${index}-${result.label}`}>{result.label}</span>)}</span>}</span><ArrowRight size={18} />
+          </button>
+        })}</div> : selectedEntry?.homework.length ? <div className="day-dashboard-mesh">{selectedEntry.homework.map((item, index) => <p key={index}><strong>{item.subject}</strong><span>{item.text}</span></p>)}<small>Точный текст МЭШ · разбор страницы готовится</small></div> : <p className="day-dashboard-empty">{selectedEntry?.complete ? 'По сохранённым данным МЭШ ДЗ на эту дату не опубликовано.' : 'ДЗ пока не опубликовано.'} Последняя проверка: {checkedLabel(selectedEntry?.checkedAt ?? null)}.</p>}
+        {homeworkToken && <button className="day-dashboard-detail-link" type="button" onClick={() => openDay(homeworkToken, 'homework')}>Открыть подробное ДЗ <ArrowRight size={17} /></button>}
+      </section>
+      </div>
       <aside className="day-dashboard-side">
         <section className="day-dashboard-card" aria-label="Оценки по предметам"><div className="day-dashboard-heading"><div><Sparkles size={20} /><h2>Оценки</h2></div>{gradeRows.length > 0 && <small>{gradeRows.length} {word(gradeRows.length, 'предмет', 'предмета', 'предметов')}</small>}</div>
           {gradeRows.length ? <div className="day-dashboard-grades">{gradeRows.map((grade) => {
@@ -247,13 +253,13 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
           {gradeSource?.gradeAsOf && <p className="day-dashboard-grade-asof">Сохранённый срез МЭШ на {dateLabel(gradeSource.gradeAsOf.slice(0, 10))}. Новые оценки появятся после синхронизации, не при открытии страницы.</p>}
         </section>
         <section className="day-dashboard-card"><div className="day-dashboard-heading"><div><Clock3 size={20} /><h2>Синхронизация</h2></div></div>
-          <p>МЭШ за сегодня: {checkedLabel(todayEntry?.checkedAt ?? null)}.</p>
-          {parent && page?.changes?.[0] && <p>В последнем обновлении: добавлено {page.changes[0].added.length}, уточнено {page.changes[0].changed.length}.</p>}
+          <p>МЭШ за {dateLabel(selectedDate)}: {checkedLabel(selectedEntry?.checkedAt ?? null)}.</p>
+          {parent && selectedPage?.changes?.[0] && <p>В последнем обновлении: добавлено {selectedPage.changes[0].added.length}, уточнено {selectedPage.changes[0].changed.length}.</p>}
           {uploads.some((upload) => upload.status === 'pending') && <p><CheckCircle2 size={15} /> Фото ожидают разбора: {uploads.filter((upload) => upload.status === 'pending').length}.</p>}
           <small>Данные обновляются из Firestore при открытой странице.</small>
         </section>
       </aside>
     </div>
-    <p className="day-dashboard-source"><ArrowLeft size={14} /> Страница дня, тесты и загруженные фото используют те же документы Firestore.</p>
+    <p className="day-dashboard-source">Расписание и ДЗ показаны для выбранной даты. Работы и тесты обновляются из Firestore.</p>
   </div>
 }

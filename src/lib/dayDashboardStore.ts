@@ -10,6 +10,7 @@ export type IndexedDay = {
   schedule: IndexedLesson[]
   homework: IndexedHomework[]
   dayToken: string | null
+  homeworkDayToken?: string | null
 }
 export type DayDashboardData = {
   schemaVersion: number

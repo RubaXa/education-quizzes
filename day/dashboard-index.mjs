@@ -21,9 +21,18 @@ export function buildDayDashboardIndex(local, links, role, now = new Date()) {
   if (existsSync(snapshotDir)) {
     for (const name of readdirSync(snapshotDir)) {
       const date = /^snapshot-(\d{4}-\d{2}-\d{2})\.json$/.exec(name)?.[1]
-      if (!date || date < weekStart) continue
+      if (!date) continue
       const snapshot = readJson(resolve(snapshotDir, name))
       if (snapshot.complete) snapshots.set(date, snapshot)
+    }
+  }
+  const homeworkSources = new Map()
+  for (const [sourceDate, pair] of Object.entries(links)) {
+    const file = resolve(local, `day-source-${sourceDate}.json`)
+    if (!pair?.[role] || !existsSync(file)) continue
+    const targetDate = readJson(file).targetDate
+    if (/^\d{4}-\d{2}-\d{2}$/.test(targetDate ?? '') && (!homeworkSources.has(targetDate) || sourceDate > homeworkSources.get(targetDate).sourceDate)) {
+      homeworkSources.set(targetDate, { sourceDate, token: pair[role] })
     }
   }
   const dates = [...snapshots.keys()].sort()
@@ -33,9 +42,12 @@ export function buildDayDashboardIndex(local, links, role, now = new Date()) {
       || lessonVisibility(snapshot.assignments).conducted.some((item) => !item.cancelled)
   }).at(-1)
   const weekEnd = addDays(weekStart, 6)
-  const end = lastScheduledDate && lastScheduledDate > weekEnd ? lastScheduledDate : weekEnd
+  const lastHomeworkDate = [...homeworkSources.keys()].sort().at(-1)
+  const end = [weekEnd, lastScheduledDate, lastHomeworkDate].filter(Boolean).sort().at(-1)
+  const firstSavedDate = [...dates, ...Object.keys(links), ...homeworkSources.keys()].sort()[0]
+  const start = firstSavedDate && firstSavedDate < weekStart ? firstSavedDate : weekStart
   const days = []
-  for (let date = weekStart; date <= end; date = addDays(date, 1)) {
+  for (let date = start; date <= end; date = addDays(date, 1)) {
     const snapshot = snapshots.get(date)
     const schedule = lessonVisibility(snapshot?.schedule).conducted?.filter((item) => !item.cancelled) ?? []
     const assignments = lessonVisibility(snapshot?.assignments).conducted?.filter((item) => !item.cancelled) ?? []
@@ -56,6 +68,7 @@ export function buildDayDashboardIndex(local, links, role, now = new Date()) {
     days.push({
       date, checkedAt: snapshot?.fetchedAt ?? null, complete: Boolean(snapshot?.complete),
       schedule: lessonList, homework, dayToken: links[date]?.[role] ?? null,
+      homeworkDayToken: homeworkSources.get(date)?.token ?? null,
     })
   }
   const weekendWork = Object.entries(links).flatMap(([sourceDate, pair]) => {
@@ -63,7 +76,7 @@ export function buildDayDashboardIndex(local, links, role, now = new Date()) {
     if (!existsSync(file) || !pair?.[role]) return []
     const source = readJson(file)
     const dates = source.weekendSlot?.dates
-    if (!Array.isArray(dates) || !dates.some((date) => date >= weekStart && date <= end)) return []
+    if (!Array.isArray(dates) || !dates.some((date) => date >= start && date <= end)) return []
     return [{ dates, dayToken: pair[role], dueDate: source.targetDate, title: source.weekendSlot.title || 'Математика на выходных' }]
   })
   return { schemaVersion: 1, kind: role, today, timezone: 'Europe/Moscow', days, weekendWork }

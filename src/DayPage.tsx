@@ -196,8 +196,10 @@ function fives(count: number) { return count === 1 ? 'пятёрка' : count >=
 function formatAverage(value: number) { return value.toFixed(2).replace('.', ',') }
 function formatChange(value: number) { return `${value >= 0 ? '+' : '−'}${formatAverage(Math.abs(value))}` }
 function localMinutes() { const parts = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone: 'Europe/Moscow' }).format(new Date()).split(':').map(Number); return parts[0] * 60 + parts[1] }
+function moscowToday() { return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Moscow', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date()) }
 /** @see ../docs/product/day-page.md#day-page */
 function activeView(page: DayPageData): 'homework' | 'school' {
+  if (page.date !== moscowToday()) return 'school'
   const last = page.todaySchedule.map((lesson) => lesson.end).sort().at(-1)
   if (!last) return 'homework'
   const [hour, minute] = last.split(':').map(Number)
@@ -461,7 +463,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
     <a className="day-return day-return-content" href={returnToDashboard || '#/'}>← На главную</a>
     <section className="day-hero">
       <div className="day-kicker">{parent ? 'Панель родителя' : 'Мой план'} · {shortDate(page.date)}</div>
-      <h1>{parent ? 'Что требует внимания' : 'Сегодня справимся 👋'}</h1>
+      <h1>{page.date === moscowToday() ? (parent ? 'Что требует внимания' : 'Сегодня справимся 👋') : `День · ${shortDate(page.date)}`}</h1>
       <p>{parent ? `Домашнее задание к ${dayMonth(page.targetDate)}: только назначения на эту дату. Выполненные заранее работы появятся у соответствующих заданий.` : `Домашнее задание к ${dayMonth(page.targetDate)}. Выполненное заранее уже будет видно у своего задания.`}</p>
       <div className="day-summary"><strong>{pending}</strong><span>{pending === 1 ? 'действие к этой дате осталось' : 'действий к этой дате осталось'}</span>{dayTests.length > 0 && <><span className="day-summary-separator">·</span><span>{dayTests.filter((test) => test.status === 'submitted').length} из {dayTests.length} тестов завершено</span></>}</div>
     </section>

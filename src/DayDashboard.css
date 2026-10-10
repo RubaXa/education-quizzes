@@ -1,13 +1,11 @@
 .day-dashboard{width:100%;min-width:0;max-width:100%;margin:auto;color:#34295c}
 .day-dashboard *{box-sizing:border-box}
 .day-dashboard>*,.day-dashboard-grid>*,.day-dashboard-side>*{min-width:0;max-width:100%}
-.day-dashboard-hero{border-radius:28px;background:linear-gradient(115deg,#493888,#765db4 70%,#9b84d0);color:white;padding:30px 34px;box-shadow:0 16px 40px #59478523}
-.day-dashboard-kicker{font-size:.78rem;font-weight:850;letter-spacing:.08em;text-transform:uppercase;color:#e9deff}
-.day-dashboard-hero h1{margin:8px 0;font-size:clamp(2rem,5vw,3rem);font-weight:850;letter-spacing:-.05em;line-height:1.1}
-.day-dashboard-hero p{margin:0;max-width:62ch;color:#f1eaff;line-height:1.55;overflow-wrap:anywhere}
-.day-dashboard-hero button{display:inline-flex;align-items:center;gap:8px;margin-top:20px;border:0;border-radius:999px;background:white;color:#493888;padding:10px 16px;font-weight:850;cursor:pointer}
+.day-dashboard-selected-heading{margin:22px 2px 0}
+.day-dashboard-kicker{font-size:.72rem;font-weight:850;letter-spacing:.08em;text-transform:uppercase;color:#766696}
+.day-dashboard-selected-heading h1{margin:5px 0 0;color:#34295c;font-size:clamp(1.5rem,4vw,2.25rem);font-weight:850;letter-spacing:-.04em;line-height:1.2;text-transform:capitalize}
 .day-dashboard-calendar,.day-dashboard-card{border:1px solid #e4ddef;border-radius:23px;background:#fff;box-shadow:0 10px 28px #3f306c0b}
-.day-dashboard-calendar{margin-top:22px;padding:19px}
+.day-dashboard-calendar{padding:19px}
 .day-dashboard-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
 .day-dashboard-heading>div{display:flex;align-items:center;gap:8px;color:#6349a0}
 .day-dashboard-heading h2{margin:0;color:#34295c;font-size:1.3rem;font-weight:850;letter-spacing:-.035em}
@@ -17,19 +15,14 @@
 .day-dashboard-date span,.day-dashboard-date small{display:block;font-size:.72rem;font-weight:750}
 .day-dashboard-date strong{display:block;margin:2px 0;font-size:1.3rem;line-height:1.15}
 .day-dashboard-date small{color:#8c799f;font-size:.67rem}
-.day-dashboard-date.today{border:2px solid #d7a752;box-shadow:0 0 0 3px #fff4d8;background:#5d459f;color:#fff}
-.day-dashboard-date.today small{color:#eaddff}
 .day-dashboard-date.weekend{background:#faf9fc;color:#a59bb2;border-style:dashed}
-.day-dashboard-date:focus-visible,.day-dashboard-hero button:focus-visible,.day-dashboard-subjects button:focus-visible{outline:3px solid #ad8ce5;outline-offset:3px}
-.day-dashboard-selected{margin-top:11px;padding:17px;border:1px solid #e9e1f2;border-radius:16px;background:#faf8fe}
-.day-dashboard-selected>div{display:flex;justify-content:space-between;gap:10px;align-items:center}
-.day-dashboard-selected>div strong{text-transform:capitalize}
-.day-dashboard-selected>div button{border:0;background:transparent;color:#594587;font-size:1.5rem;cursor:pointer}
-.day-dashboard-selected p,.day-dashboard-selected li{color:#685d7b;font-size:.88rem;line-height:1.5;overflow-wrap:anywhere}
-.day-dashboard-selected ul{margin:10px 0;padding-left:20px}
-.day-dashboard-selected h3{font-size:1rem;margin:15px 0 7px}
-.day-dashboard-unprepared{margin-bottom:0;font-weight:700}
+.day-dashboard-date.today{border-color:#d7a752;box-shadow:inset 0 0 0 1px #d7a752}
+.day-dashboard-date.selected{background:#5d459f;color:#fff;border-color:#5d459f}
+.day-dashboard-date.selected small{color:#efe7ff}
+.day-dashboard-date.today.selected{box-shadow:0 0 0 3px #fff0d1}
+.day-dashboard-date:focus-visible,.day-dashboard-detail-link:focus-visible,.day-dashboard-subjects button:focus-visible{outline:3px solid #ad8ce5;outline-offset:3px}
 .day-dashboard-grid{display:grid;min-width:0;grid-template-columns:minmax(0,1fr) 290px;gap:18px;margin-top:20px;align-items:start}
+.day-dashboard-main{display:grid;gap:16px;min-width:0}
 .day-dashboard-card{padding:20px}
 .day-dashboard-card p{margin:7px 0;color:#6c617d;font-size:.9rem;line-height:1.55}
 .day-dashboard-card small{color:#8a7f97;font-size:.73rem;line-height:1.45}
@@ -41,6 +34,7 @@
 .day-dashboard-subjects button>span:nth-child(2){min-width:0}
 .day-dashboard-subjects strong,.day-dashboard-subjects small{display:block}
 .day-dashboard-subjects strong{font-size:.96rem;overflow-wrap:anywhere}
+.day-dashboard-task-titles{display:block;margin-top:3px;color:#6d617f;font-size:.78rem;line-height:1.4;overflow-wrap:anywhere}
 .day-dashboard-subjects small{margin-top:3px;color:#786e88}
 .day-dashboard-subject-body{min-width:0}
 .day-dashboard-evidence{display:flex;flex-wrap:wrap;gap:2px 8px;margin-top:5px;color:#716684;font-size:.68rem;line-height:1.35}
@@ -55,6 +49,10 @@
 .day-dashboard-mesh strong,.day-dashboard-mesh span{display:block}
 .day-dashboard-mesh span{color:#716684}
 .day-dashboard-empty{padding:13px 0}
+.day-dashboard-lessons{list-style:none;margin:0;padding:0}
+.day-dashboard-lessons li{display:flex;gap:15px;align-items:baseline;padding:9px 0;border-top:1px solid #eee9f3;color:#34295c;font-size:.9rem}
+.day-dashboard-lessons time{min-width:42px;color:#756496;font-weight:750;font-variant-numeric:tabular-nums}
+.day-dashboard-detail-link{display:inline-flex;align-items:center;gap:7px;margin-top:13px;padding:8px 0;border:0;background:transparent;color:#5d459f;font-weight:800;cursor:pointer;text-align:left}
 .day-dashboard-grades{margin:0 -20px;border-top:1px solid #eee9f3}
 .day-dashboard-grade{border-bottom:1px solid #eee9f3}
 .day-dashboard-grade summary{display:grid;grid-template-columns:minmax(0,1fr) auto 16px;align-items:center;gap:8px;min-height:44px;padding:8px 20px;list-style:none;cursor:pointer;font-size:.87rem;font-weight:700}
@@ -78,4 +76,4 @@
 .day-dashboard-error{padding:18px 22px;border-radius:18px;background:#fff0f1;color:#a23844}
 .day-dashboard-loading{padding:30px;text-align:center}
 @media(max-width:760px){.day-dashboard-grid{grid-template-columns:1fr}.day-dashboard-side{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:560px){.day-dashboard-hero{padding:24px 21px;border-radius:22px}.day-dashboard-hero p{font-size:.9rem}.day-dashboard-calendar{padding:15px 12px}.day-dashboard-date{flex-basis:58px}.day-dashboard-side{grid-template-columns:1fr}.day-dashboard-heading h2{font-size:1.15rem}}
+@media(max-width:560px){.day-dashboard-calendar{padding:15px 12px}.day-dashboard-date{flex-basis:58px}.day-dashboard-side{grid-template-columns:1fr}.day-dashboard-heading h2{font-size:1.15rem}}
