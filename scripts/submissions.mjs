@@ -112,7 +112,7 @@ async function linkedReviewPhotos(review) {
   if (photos.some((photo) => photo.data().status !== 'pending' || photo.data().taskId !== review.taskId)) {
     throw new Error('Фото уже удалено, проверено или не относится к заданию.')
   }
-  return { owner, refs, photos }
+  return { owner, refs, photos, page }
 }
 
 /** @see ../docs/product/storage-privacy.md#review-publication */
@@ -143,15 +143,35 @@ async function publishReview(filename) {
   if (review.status === 'verified' && review.items.some((item) => item.status !== 'correct')) {
     throw new Error('Нельзя отметить всю работу проверенной при ошибке в подпункте.')
   }
-  const { owner, refs, photos } = await linkedReviewPhotos(review)
+  const { owner, refs, photos, page } = await linkedReviewPhotos(review)
+  const subject = page.subjects?.find((entry) => entry.tasks?.some((task) => task.id === review.taskId || task.problems?.some((problem) => problem.id === review.taskId)))
+  const task = subject?.tasks?.find((entry) => entry.id === review.taskId || entry.problems?.some((problem) => problem.id === review.taskId))
+  if (subject && ['math', 'special'].includes(subject.id) && task?.kind === 'written') {
+    const reasoning = review.mathReasoning
+    const answerStates = new Set(['correct', 'incorrect', 'uncertain'])
+    const argumentStates = new Set(['sufficient', 'incomplete', 'not-shown', 'unreadable', 'not-required'])
+    if (!reasoning || !answerStates.has(reasoning.answer) || !argumentStates.has(reasoning.argument)
+      || !reasoning.observed?.trim()
+      || ['incomplete', 'not-shown'].includes(reasoning.argument) && !reasoning.minimumNeeded?.trim()
+      || reasoning.argument === 'not-required' && !reasoning.criterionSource?.trim()) {
+      throw new Error('Для математического номера отдельно укажите ответ, видимый ход и один недостающий переход.')
+    }
+    if (review.status === 'verified' && (reasoning.answer !== 'correct' || !['sufficient', 'not-required'].includes(reasoning.argument))) {
+      throw new Error('Полная проверка математического номера требует верного ответа и достаточного хода.')
+    }
+    if (reasoning.answer === 'correct' && ['incomplete', 'not-shown'].includes(reasoning.argument) && review.status !== 'partial') {
+      throw new Error('Верный ответ без достаточного хода отмечается отдельно как частичный результат, не как ошибка ответа.')
+    }
+  }
   if (photos.some((photo) => photo.data().storage?.state !== 'stored')) throw new Error('Фото ещё не перенесено на Диск.')
   const reviewRef = db.doc(`dayProgress/${owner.id}/items/${review.taskId}`)
   const previous = (await reviewRef.get()).data()
   const priorReviews = previous?.status ? [...(previous.history ?? []), Object.fromEntries(Object.entries(previous).filter(([key]) => key !== 'history' && key !== 'processing'))] : previous?.history ?? []
   const now = Timestamp.now()
-  const { date, taskId, planRevision, uploadIds, status, summary, nextStep, source, items } = review
+  const { date, taskId, planRevision, uploadIds, status, summary, nextStep, source, items, mathReasoning } = review
   const batch = db.batch()
   batch.set(reviewRef, { date, taskId, planRevision, uploadIds, status, summary, nextStep, source, items,
+    ...(mathReasoning ? { mathReasoning } : {}),
     checkedAt: now, history: priorReviews.slice(-20) })
   refs.forEach((ref) => batch.update(ref, { status: 'reviewed', reviewedAt: now }))
   await batch.commit()

@@ -14,6 +14,16 @@ export function reviewTone(review: DayWorkReview): ReviewTone {
 
 /** @see ../../docs/product/day-page.md#homework-review */
 export function reviewHeadline(review: DayWorkReview): string {
+  if (review.mathReasoning) {
+    const { answer, argument } = review.mathReasoning
+    if (answer === 'correct' && argument === 'not-required') return 'Ответ верен'
+    if (answer === 'correct' && argument === 'sufficient') return 'Ответ и ход подтверждены'
+    if (answer === 'correct' && argument === 'unreadable') return 'Ответ верен · ход не читается'
+    if (answer === 'correct') return 'Ответ верен · покажи ход'
+    if (answer === 'incorrect' && argument === 'sufficient') return 'Ход виден · проверь ответ'
+    if (answer === 'incorrect') return 'Есть ошибка в решении'
+    return 'Решение пока не подтверждено'
+  }
   const items = review.items ?? []
   const correct = items.filter((item) => item.status === 'correct').length
   if (!items.length) return 'Проверка работы'

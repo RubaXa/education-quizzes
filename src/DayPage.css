@@ -173,6 +173,8 @@
 .day-work-review.success{--review-bg:#f0fbf3;--review-border:#9eddb6;--review-ink:#195f39;--review-icon:#19643c}
 .day-work-review.partial{--review-bg:#fff8e9;--review-border:#ebcd8d;--review-ink:#76500e;--review-icon:#89540a}
 .day-work-review.error{--review-bg:#fff0f1;--review-border:#eba5ae;--review-ink:#932c3a;--review-icon:#a52839}
+.day-work-review-reasoning{margin:10px 0;padding:9px 11px;border:1px solid var(--review-border);border-radius:9px;background:#ffffffa8}
+.day-work-review-reasoning p{margin:4px 0}
 .day-work-review summary{display:flex;align-items:center;gap:10px;min-height:55px;padding:10px 12px;cursor:pointer;list-style:none}
 .day-work-review summary::-webkit-details-marker{display:none}
 .day-work-review summary:focus-visible{outline:3px solid #9d78da;outline-offset:-3px}

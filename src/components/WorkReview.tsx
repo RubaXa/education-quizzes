@@ -44,6 +44,12 @@ export default function WorkReview({ review, uploads }: { review?: DayWorkReview
       </summary>
       <div className="day-work-review-body">
         {review.summary && <p>{review.summary}</p>}
+        {review.mathReasoning && <div className="day-work-review-reasoning">
+          <p><b>Ответ:</b> {review.mathReasoning.answer === 'correct' ? 'верен' : review.mathReasoning.answer === 'incorrect' ? 'есть ошибка' : 'пока не установлен'}</p>
+          <p><b>Ход решения:</b> {review.mathReasoning.argument === 'sufficient' ? 'достаточен для проверки' : review.mathReasoning.argument === 'incomplete' ? 'нужен один переход' : review.mathReasoning.argument === 'not-shown' ? 'на фото не показан' : review.mathReasoning.argument === 'not-required' ? 'не требовался в условии' : 'не удалось прочитать'}</p>
+          <p><b>На фото:</b> {review.mathReasoning.observed}</p>
+          {review.mathReasoning.minimumNeeded && <p><b>Для проверки хода:</b> {review.mathReasoning.minimumNeeded}</p>}
+        </div>}
         {items.length > 0 && <ol>{items.map((item, index) => <li className={`day-work-review-item ${item.status}`} key={`${item.label}-${index}`}>
           <span className="day-work-review-item-icon">{item.status === 'correct' ? <Check size={14} aria-hidden="true" /> : item.status === 'incorrect' ? <X size={14} aria-hidden="true" /> : item.status === 'partial' ? <Minus size={14} aria-hidden="true" /> : <CircleAlert size={14} aria-hidden="true" />}</span>
           <div><strong>{item.label} · {itemLabels[item.status]}</strong><p>{item.note}</p>{item.observed && <small><b>В работе:</b> {item.observed}</small>}{item.expected && <small><b>По источнику:</b> {item.expected}</small>}</div>

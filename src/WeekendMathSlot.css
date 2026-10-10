@@ -15,6 +15,7 @@
 .weekend-math-feedback.verified{background:#e7f6eb;color:#17643c}
 .weekend-math-feedback.needs-fix{background:#fff0ef;color:#983648}
 .weekend-math-feedback p{color:inherit;font-size:.77rem}
+.weekend-math-reasoning{margin-top:7px;padding-top:6px;border-top:1px solid currentColor}
 .weekend-math-actions{margin-top:9px}
 .weekend-math-actions label{display:inline-flex;align-items:center;gap:6px;padding:8px 11px;border-radius:9px;background:#5d459a;color:#fff;font-size:.79rem;font-weight:800;cursor:pointer}
 .weekend-math-actions label:focus-within{outline:3px solid #ae91e8;outline-offset:2px}
