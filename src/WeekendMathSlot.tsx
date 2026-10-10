@@ -1,14 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Camera, CheckCircle2, Clock3, LoaderCircle, X } from 'lucide-react'
+import { Camera, X } from 'lucide-react'
 import { removePendingDayPhoto, requestDayHelp, uploadDayPhoto, uploadMatchesTask, watchDayHelp, watchDayPage, watchDayReviews, watchDayUploads } from '@/lib/dayStore'
 import type { DayHelp, DayPageData, DayUpload, DayWorkReview } from '@/lib/dayStore'
 import { dayHelpSessionRole } from '@/lib/personalAccess'
 import PublicThumbnail from '@/components/PublicThumbnail'
+import ArtifactAvatar from '@/components/ArtifactAvatar'
 import ProblemStatement from '@/components/ProblemStatement'
 import MaterialReader, { canReadInside } from '@/components/MaterialReader'
 import WorkReview from '@/components/WorkReview'
 import { ProblemCard, ProblemUploadButton } from '@/components/ProblemCard'
-import { problemCardState } from '@/lib/reviewPresentation'
+import { artifactAvatarLabel, artifactAvatarState, localArtifactAvatarState, problemCardState } from '@/lib/reviewPresentation'
 import './WeekendMathSlot.css'
 
 type LocalPhoto = { id: string; taskId: string; url: string; state: 'uploading' | 'failed'; error?: string }
@@ -22,6 +23,7 @@ export default function WeekendMathSlot({ token, parent, dueDate, title }: { tok
   const [local, setLocal] = useState<LocalPhoto[]>([])
   const previewUrls = useRef(new Set<string>())
   const [error, setError] = useState('')
+  const [statusNow, setStatusNow] = useState(() => Date.now())
   const studentToken = page?.studentToken ?? token
   const evidenceTokens = useMemo(() => [...new Set([studentToken, ...(page?.evidenceDayTokens ?? [])])], [studentToken, page])
   useEffect(() => watchDayPage(token, (data) => { setPage(data); setError('') }, (cause) => setError(cause.message)), [token])
@@ -43,6 +45,12 @@ export default function WeekendMathSlot({ token, parent, dueDate, title }: { tok
     setLocal((current) => current.filter((item) => !saved.includes(item)))
   }, [local, uploads, studentToken])
   useEffect(() => () => { for (const url of previewUrls.current) URL.revokeObjectURL(url) }, [])
+  const hasPendingUploads = uploads.some((upload) => upload.status === 'pending')
+  useEffect(() => {
+    if (!hasPendingUploads) return
+    const timer = window.setInterval(() => setStatusNow(Date.now()), 15_000)
+    return () => window.clearInterval(timer)
+  }, [hasPendingUploads])
 
   function addPhotos(taskId: string, files: File[]) {
     for (const file of files) {
@@ -74,14 +82,21 @@ export default function WeekendMathSlot({ token, parent, dueDate, title }: { tok
         const photos = uploads.filter((upload) => uploadMatchesTask(upload, problem.id))
         const previews = local.filter((item) => item.taskId === problem.id && !photos.some((upload) => upload.id === `${studentToken}:${item.id}`))
         const review = reviews.find((item) => item.taskId === problem.id)
-        const state = problemCardState(photos, review, previews.some((photo) => photo.state === 'uploading'))
+        const state = problemCardState(photos, review, previews.some((photo) => photo.state === 'uploading'), statusNow)
         return <ProblemCard problem={problem} state={state} key={problem.id}>
           <ProblemStatement problem={problem} links={taskLinks} parent={parent} help={helpRequests.find((item) => item.taskId === problem.id)} review={review} helpAccess={helpRole === 'checking' ? 'checking' : helpRole === 'student' ? 'ready' : 'login-required'} onRequestHelp={!parent && helpRole === 'student' ? (taskId, revision) => requestDayHelp(studentToken, taskId, revision) : undefined} />
           <WorkReview review={review} uploads={photos} />
           <div className="problem-card-actions">{!parent && <ProblemUploadButton correction={review?.status === 'needs-fix' || review?.status === 'partial'} onPhotos={(files) => addPhotos(problem.id, files)} />}{parent && !photos.length && <small>Фото ещё нет</small>}</div>
           {(photos.length > 0 || previews.length > 0) && <div className="weekend-math-photos" aria-label={`Фото задачи № ${problem.number}`}>
-            {photos.map((photo, index) => { const localPhoto = local.find((item) => photo.id === `${studentToken}:${item.id}`); return <span key={photo.id} title={photo.status === 'reviewed' ? 'Фото проверено' : photo.status === 'pending' ? 'Ждёт проверки' : 'Передаём на Яндекс.Диск'}>{photo.dataUrl ? <img src={photo.dataUrl} alt={`Фото ${index + 1}`} /> : photo.storage?.publicUrl ? <PublicThumbnail url={photo.storage.publicUrl} alt={`Фото ${index + 1}`} fallback={<Camera size={15} />} /> : localPhoto ? <img src={localPhoto.url} alt={`Фото ${index + 1}`} /> : <Camera size={15} />}{photo.status === 'reviewed' ? <CheckCircle2 size={12} /> : photo.status === 'pending' ? <Clock3 size={12} /> : <LoaderCircle size={12} className="spinning" />}{!parent && photo.status !== 'reviewed' && <button type="button" aria-label={`Удалить фото ${index + 1}`} onClick={() => { void removePendingDayPhoto(photo.id.split(':')[0], photo.id.split(':')[1]).catch((cause) => setError(cause instanceof Error ? cause.message : 'Не удалось удалить фото.')) }}><X size={11} /></button>}</span> })}
-            {previews.map((photo) => <span key={photo.id} title={photo.error ?? 'Загружается'}><img src={photo.url} alt="Новое фото" />{photo.state === 'failed' ? '!' : <LoaderCircle size={12} className="spinning" />}</span>)}
+            {photos.map((photo, index) => {
+              const localPhoto = local.find((item) => photo.id === `${studentToken}:${item.id}`)
+              const state = artifactAvatarState(photo, review, statusNow)
+              return <span className="weekend-math-photo-item" key={photo.id} title={`Фото ${index + 1} · ${artifactAvatarLabel(state)}`}>
+                <ArtifactAvatar state={state}>{photo.dataUrl ? <img src={photo.dataUrl} alt={`Фото ${index + 1}`} /> : photo.storage?.publicUrl ? <PublicThumbnail url={photo.storage.publicUrl} alt={`Фото ${index + 1}`} fallback={<Camera size={15} />} /> : localPhoto ? <img src={localPhoto.url} alt={`Фото ${index + 1}`} /> : undefined}</ArtifactAvatar>
+                {!parent && photo.status !== 'reviewed' && <button type="button" aria-label={`Удалить фото ${index + 1}`} onClick={() => { void removePendingDayPhoto(photo.id.split(':')[0], photo.id.split(':')[1]).catch((cause) => setError(cause instanceof Error ? cause.message : 'Не удалось удалить фото.')) }}><X size={11} /></button>}
+              </span>
+            })}
+            {previews.map((photo) => <span className="weekend-math-photo-item" key={photo.id} title={photo.error ?? artifactAvatarLabel(localArtifactAvatarState(photo.state))}><ArtifactAvatar state={localArtifactAvatarState(photo.state)}><img src={photo.url} alt="Новое фото" /></ArtifactAvatar></span>)}
           </div>}
           {previews.some((photo) => photo.state === 'failed') && <small className="weekend-math-error">Фото не загрузилось. Выберите его ещё раз.</small>}
         </ProblemCard>

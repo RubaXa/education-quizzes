@@ -2,14 +2,39 @@ import type { DayUpload, DayWorkReview } from './dayStore'
 
 export type ReviewTone = 'success' | 'partial' | 'error' | 'neutral'
 export type ProblemCardState = { label: string; tone: 'ready' | 'uploading' | 'waiting' | 'processing' | 'verified' | 'partial' | 'error' }
+export type ArtifactAvatarState = 'uploading' | 'waiting' | 'processing' | 'reviewed' | 'failed' | 'paused'
+
+/** One file state drives the same avatar on the day page and in the weekend slot. */
+export function artifactAvatarState(upload: DayUpload, review?: DayWorkReview, now = Date.now()): ArtifactAvatarState {
+  if (upload.status === 'reviewed') return 'reviewed'
+  if (upload.status === 'upload-error') return 'failed'
+  if (upload.status !== 'pending') return 'uploading'
+  const processing = activeProcessing(review, [upload])
+  if (!processing) return 'waiting'
+  if (processing.phase === 'paused' || processingIsStale(processing, now)) return 'paused'
+  return 'processing'
+}
+
+export function localArtifactAvatarState(state: 'uploading' | 'saved' | 'failed' | 'deleting'): ArtifactAvatarState {
+  return state === 'failed' ? 'failed' : state === 'saved' ? 'waiting' : 'uploading'
+}
+
+export function artifactAvatarLabel(state: ArtifactAvatarState): string {
+  return ({ uploading: 'Передаём фото', waiting: 'Ждёт проверки', processing: 'Идёт разбор', reviewed: 'Проверено', failed: 'Не загрузилось', paused: 'Проверка задержана' })[state]
+}
+
+export function processingIsStale(processing: NonNullable<DayWorkReview['processing']>, now: number): boolean {
+  return now - (timestampMillis(processing.updatedAt) ?? now) > 30 * 60 * 1000
+}
 
 /** A file's progress and a solution's result remain separate Firestore facts. */
-export function problemCardState(uploads: DayUpload[], review?: DayWorkReview, uploading = false): ProblemCardState {
+export function problemCardState(uploads: DayUpload[], review?: DayWorkReview, uploading = false, now = Date.now()): ProblemCardState {
   if (uploading) return { label: 'Фото загружается', tone: 'uploading' }
+  if (uploads.some((upload) => artifactAvatarState(upload, review, now) === 'uploading')) return { label: 'Фото загружается', tone: 'uploading' }
   if (uploads.some((upload) => upload.status === 'pending')) {
     const processing = activeProcessing(review, uploads)
-    if (processing?.phase && processing.phase !== 'paused') return { label: processing.label || 'Проверяем работу', tone: 'processing' }
-    return { label: processing?.phase === 'paused' ? 'Фото получено · проверка задержана' : 'Фото получено · ждёт проверки', tone: 'waiting' }
+    if (uploads.some((upload) => artifactAvatarState(upload, review, now) === 'processing')) return { label: processing?.label || 'Проверяем работу', tone: 'processing' }
+    return { label: uploads.some((upload) => artifactAvatarState(upload, review, now) === 'paused') ? 'Фото получено · проверка задержана' : 'Фото получено · ждёт проверки', tone: 'waiting' }
   }
   if (review?.status === 'verified') return { label: reviewHeadline(review), tone: 'verified' }
   if (review?.status === 'partial') return { label: reviewHeadline(review), tone: 'partial' }

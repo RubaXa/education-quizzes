@@ -8,11 +8,7 @@
 .weekend-math-problems{display:grid;gap:8px;margin-top:12px}
 .weekend-math-list-title{margin:14px 0 4px;color:#49347e;font-size:.9rem}
 .weekend-math-photos{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
-.weekend-math-photos>span{position:relative;display:grid;place-items:center;width:38px;height:38px;padding:2px;border:1px solid #ddd4eb;border-radius:7px;background:#f7f4fb}
-.weekend-math-photos img{width:32px;height:32px;object-fit:cover;border-radius:4px}
-.weekend-math-photos>span>svg:last-child{position:absolute;right:0;bottom:0;border-radius:50%;background:#fff; color:#77539a}
+.weekend-math-photo-item{box-sizing:border-box;position:relative;display:block;width:38px;height:38px}
 .weekend-math-photos button{position:absolute;right:-4px;top:-5px;display:grid;place-items:center;width:16px;height:16px;padding:0;border:1px solid #ddcbd6;border-radius:50%;background:#fff;color:#933a50;cursor:pointer}
-.weekend-math-photos .spinning{animation:weekend-spin 1s linear infinite}
 .weekend-math-error{color:#9d3348!important}
-@keyframes weekend-spin{to{transform:rotate(360deg)}}
 @media(max-width:640px){.weekend-math-slot{padding:12px}.weekend-math-group{padding:10px}}

@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Check, ChevronDown, CircleAlert, Clock3, LoaderCircle, Minus, X } from 'lucide-react'
+import { Check, ChevronDown, CircleAlert, Minus, X } from 'lucide-react'
 import type { DayUpload, DayWorkReview } from '@/lib/dayStore'
-import { activeProcessing, elapsedLabel, reviewHeadline, reviewTone, timestampMillis } from '@/lib/reviewPresentation'
+import { activeProcessing, elapsedLabel, processingIsStale, reviewHeadline, reviewTone } from '@/lib/reviewPresentation'
+import { ArtifactStatusGlyph } from './ArtifactAvatar'
 
 const itemLabels = { correct: 'Верно', partial: 'Частично верно', incorrect: 'Неверно', 'cannot-assess': 'Не удалось проверить' }
 
@@ -15,7 +16,7 @@ export default function WorkReview({ review, uploads }: { review?: DayWorkReview
   const processing = activeProcessing(review, uploads)
   const [now, setNow] = useState(() => Date.now())
   const paused = processing?.phase === 'paused'
-  const stale = Boolean(processing && !paused && now - (timestampMillis(processing.updatedAt) ?? now) > 30 * 60 * 1000)
+  const stale = Boolean(processing && !paused && processingIsStale(processing, now))
   const running = Boolean(processing && processing.phase !== 'paused' && !stale)
   useEffect(() => {
     if (!pending.length) return
@@ -31,7 +32,7 @@ export default function WorkReview({ review, uploads }: { review?: DayWorkReview
 
   return <div className="day-review-stack">
     {pending.length > 0 && <div className={`day-review-progress${running ? ' active' : ''}`} role="status" aria-live="polite">
-      <span className="day-review-progress-icon">{running ? <LoaderCircle size={17} aria-hidden="true" /> : <Clock3 size={17} aria-hidden="true" />}</span>
+      <span className="day-review-progress-icon"><ArtifactStatusGlyph state={running ? 'processing' : paused || stale ? 'paused' : 'waiting'} size={17} /></span>
       <span className="day-review-progress-text"><b>{stale ? 'Проверка задерживается' : paused ? 'Фото получено · проверка задержана' : processing?.label ?? 'Фото получено · ждёт проверки'}</b><small>{paused ? processing?.reason ?? 'Причина остановки пока не указана. Фото получено; повторно загружать его не нужно.' : running ? 'Разбор идёт' : stale ? 'Последний этап давно не обновлялся' : 'Начнём после запуска проверки'}</small></span>
       {!paused && <time aria-hidden="true">{elapsed}</time>}
     </div>}

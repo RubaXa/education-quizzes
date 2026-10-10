@@ -85,6 +85,8 @@
 | [src/DayPage.tsx](../../src/DayPage.tsx) | [Страница дня](day-page.md) | Данные дня, загрузка и показ проверки | Ученик; родитель |
 | [src/WeekendMathSlot.css](../../src/WeekendMathSlot.css) | [Адаптивная карточка](adaptive-problem-card.md) | Оформление общего слота математики | `src/WeekendMathSlot.tsx` |
 | [src/WeekendMathSlot.tsx](../../src/WeekendMathSlot.tsx) | [Адаптивная карточка](adaptive-problem-card.md) | Номера спецкурса и фото по каждому | Ученик; родитель |
+| [src/components/ArtifactAvatar.css](../../src/components/ArtifactAvatar.css) | [Статусы фотографии](day-page.md) | Общая миниатюра и положение значка состояния | `src/components/ArtifactAvatar.tsx` |
+| [src/components/ArtifactAvatar.tsx](../../src/components/ArtifactAvatar.tsx) | [Статусы фотографии](day-page.md) | Общий аватар загруженного фото с одним значком состояния | День; слот выходных |
 | [src/components/CodeBlock.tsx](../../src/components/CodeBlock.tsx) | [Тесты](quizzes.md) | Показ исходного кода в вопросе | Страница теста |
 | [src/components/EducationScreen.tsx](../../src/components/EducationScreen.tsx) | [Экраны из данных](../architecture/backend-driven-ui.md) | Ограниченный реестр блоков манифеста | Будущий маршрут v2 |
 | [src/components/MaterialReader.tsx](../../src/components/MaterialReader.tsx) | [Материалы](materials.md) | Миниатюры и просмотр страниц | Страница дня |
