@@ -9,6 +9,7 @@ import { FieldValue, getFirestore, Timestamp } from 'firebase-admin/firestore'
 import { YandexDiskStorage } from '../storage/yandex-disk.mjs'
 import { linksFile as pageLinksFile, materialLinks, pagesDir, preparePages } from '../storage/material-pages.mjs'
 import { indexedBooks, pageDocument } from '../storage/textbook-catalog.mjs'
+import { resolvedStoragePause } from '../storage/storage-pause.mjs'
 
 const local = resolve('.local')
 const tokenFile = resolve(local, 'yandex-disk-token')
@@ -132,6 +133,7 @@ async function sync() {
   let verified = 0
   let cleaned = 0
   let deleted = 0
+  let storagePausesCleared = 0
   const failures = []
   const activePaths = new Set(snapshot.docs.filter((item) => item.data().status !== 'deleted')
     .map((item) => item.data().storage?.path).filter(Boolean))
@@ -199,7 +201,26 @@ async function sync() {
       failures.push(`${item.id}: ${error.message}`)
     }
   }
-  console.log(JSON.stringify({ date, total: snapshot.size, stored, verified, deleted, firestoreCopiesRemoved: cleaned, failed: failures.length }, null, 2))
+  for (const taskId of new Set(snapshot.docs.map((item) => item.data().taskId).filter(Boolean))) {
+    const reviewRef = db.doc(`dayProgress/${student}/items/${taskId}`)
+    try {
+      const cleared = await db.runTransaction(async (transaction) => {
+        const review = (await transaction.get(reviewRef)).data()
+        const processing = review?.processing
+        if (processing?.phase !== 'paused' || !Array.isArray(processing.uploadIds) || !processing.uploadIds.length) return false
+        const refs = processing.uploadIds.map((id) => db.doc(`dayUploads/${student}/files/${id}`))
+        const photos = await transaction.getAll(...refs)
+        const uploads = new Map(photos.map((photo) => [photo.id, photo.data()]))
+        if (!resolvedStoragePause(processing, uploads)) return false
+        transaction.update(reviewRef, { processing: FieldValue.delete() })
+        return true
+      })
+      if (cleared) storagePausesCleared += 1
+    } catch (error) {
+      failures.push(`${taskId}: не удалось обновить статус после переноса: ${error.message}`)
+    }
+  }
+  console.log(JSON.stringify({ date, total: snapshot.size, stored, verified, deleted, firestoreCopiesRemoved: cleaned, storagePausesCleared, failed: failures.length }, null, 2))
   if (failures.length) fail(`Не удалось перенести ${failures.length} вложений: ${failures.join('; ')}`)
 }
 
