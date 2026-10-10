@@ -80,6 +80,7 @@ function validateSpec(spec) {
   validateBoardDetails(spec.board)
   if (typeof spec.subject !== 'string' || !spec.subject.trim()) fail('Не указан предмет.')
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(spec.slug ?? '')) fail('slug должен содержать латинские буквы, цифры и дефисы.')
+  if (spec.linkedToTestId !== undefined && (typeof spec.linkedToTestId !== 'string' || !spec.linkedToTestId.trim())) fail('linkedToTestId должен содержать ID исходного теста, а не токен ссылки.')
   if (!Array.isArray(spec.questions) || !spec.questions.length || spec.questions.length > 100) fail('Нужно от 1 до 100 вопросов.')
   if (spec.visual !== undefined) {
     if (!spec.visual || typeof spec.visual !== 'object' || Array.isArray(spec.visual)) fail('visual должен быть объектом.')
@@ -144,6 +145,14 @@ async function create(specPath, studentPersonId) {
   const spec = loadJson(specPath)
   validateSpec(spec)
   const owner = assignmentOwner(studentPersonId)
+  if (spec.linkedToTestId) {
+    const parents = await db.collection('assignments').where('testId', '==', spec.linkedToTestId).get()
+    if (parents.size !== 1) fail('Исходный testId не найден однозначно. Не используйте токен ученической ссылки в linkedToTestId.')
+    const parent = parents.docs[0].data()
+    if (parent.familyId !== owner.familyId || parent.childId !== owner.childId || parent.status !== 'submitted') fail('Исходный тест не отправлен или принадлежит другому ученику.')
+    const continuations = await db.collection('assignments').where('linkedToTestId', '==', spec.linkedToTestId).get()
+    if (continuations.docs.some((item) => item.data().familyId === owner.familyId && item.data().childId === owner.childId)) fail('Связанное продолжение для этого теста уже существует.')
+  }
   const learnerToken = token()
   const previewToken = token()
   const ownerToken = dashboardToken()
