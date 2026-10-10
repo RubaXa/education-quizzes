@@ -60,6 +60,8 @@ async function pendingInbox() {
       const progress = snapshot.data()?.processing
       return progress ? {
         phase: progress.phase,
+        label: progress.label ?? null,
+        reason: progress.reason ?? null,
         uploadIds: progress.uploadIds ?? [],
         updatedAt: progress.updatedAt?.toDate?.().toISOString() ?? null,
       } : null
