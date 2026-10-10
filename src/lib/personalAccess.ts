@@ -117,6 +117,18 @@ export async function restorePersonalSession(): Promise<PersonalSession | null> 
   return sessionFromGrant(linkToken, deviceUid)
 }
 
+/** @see ../../docs/product/adaptive-problem-card.md#показ-ученику */
+export async function dayHelpSessionRole(): Promise<'student' | 'parent' | null> {
+  try {
+    const session = await restorePersonalSession()
+    if (!session) return null
+    const profile = await loadPersonalProfile(session)
+    return profile.children.find((child) => child.role === 'student')?.role
+      ?? profile.children.find((child) => child.role === 'parent')?.role
+      ?? null
+  } catch { return null }
+}
+
 /** @see ../../docs/architecture/family-data-model.md#collections */
 export async function loadPersonalProfile(session: PersonalSession): Promise<PersonalProfile> {
   const person = await getDoc(doc(db, 'users', session.personId))

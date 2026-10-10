@@ -3,6 +3,7 @@ import { Camera, CheckCircle2, Clock3, LoaderCircle, X } from 'lucide-react'
 import { removePendingDayPhoto, requestDayHelp, uploadDayPhoto, watchDayHelp, watchDayPage, watchDayReviews, watchDayUploads } from '@/lib/dayStore'
 import type { DayHelp, DayPageData, DayUpload, DayWorkReview } from '@/lib/dayStore'
 import { reviewHeadline } from '@/lib/reviewPresentation'
+import { dayHelpSessionRole } from '@/lib/personalAccess'
 import PublicThumbnail from '@/components/PublicThumbnail'
 import ProblemStatement from '@/components/ProblemStatement'
 import './WeekendMathSlot.css'
@@ -14,6 +15,7 @@ export default function WeekendMathSlot({ token, parent, dueDate, title }: { tok
   const [uploads, setUploads] = useState<DayUpload[]>([])
   const [reviews, setReviews] = useState<DayWorkReview[]>([])
   const [helpRequests, setHelpRequests] = useState<DayHelp[]>([])
+  const [helpRole, setHelpRole] = useState<'checking' | 'student' | 'parent' | 'none'>('checking')
   const [local, setLocal] = useState<LocalPhoto[]>([])
   const previewUrls = useRef(new Set<string>())
   const [error, setError] = useState('')
@@ -22,7 +24,15 @@ export default function WeekendMathSlot({ token, parent, dueDate, title }: { tok
   useEffect(() => watchDayPage(token, (data) => { setPage(data); setError('') }, (cause) => setError(cause.message)), [token])
   useEffect(() => page ? watchDayUploads(evidenceTokens, setUploads, (cause) => setError(cause.message)) : undefined, [page, evidenceTokens])
   useEffect(() => page ? watchDayReviews(evidenceTokens, setReviews, (cause) => setError(cause.message)) : undefined, [page, evidenceTokens])
-  useEffect(() => page ? watchDayHelp(evidenceTokens, setHelpRequests, (cause) => setError(cause.message)) : undefined, [page, evidenceTokens])
+  useEffect(() => {
+    let active = true
+    void dayHelpSessionRole().then((role) => { if (active) setHelpRole(role ?? 'none') })
+    return () => { active = false }
+  }, [])
+  useEffect(() => page && helpRole !== 'checking' && helpRole !== 'none' ? watchDayHelp(evidenceTokens, setHelpRequests, (cause) => {
+    if ((cause as Error & { code?: string }).code === 'permission-denied') { setHelpRole('none'); setHelpRequests([]) }
+    else setError(cause.message)
+  }) : undefined, [page, evidenceTokens, helpRole])
   useEffect(() => {
     const saved = local.filter((item) => uploads.some((upload) => upload.id === `${studentToken}:${item.id}`))
     if (!saved.length) return
@@ -60,7 +70,7 @@ export default function WeekendMathSlot({ token, parent, dueDate, title }: { tok
         const status = pending ? 'Ждёт проверки' : review?.status ? reviewHeadline(review) : photos.length ? 'Фото загружено' : 'Пока не загружено'
         return <article className="weekend-math-problem" key={problem.id}>
           <div className="weekend-math-problem-head"><strong>№ {problem.number}. {problem.title}</strong><span className={review?.status === 'verified' && !pending ? 'verified' : ''}>{pending ? <Clock3 size={13} /> : review?.status === 'verified' ? <CheckCircle2 size={13} /> : null}{status}</span></div>
-          <ProblemStatement problem={problem} links={page.materialLinks?.[task.id] ?? []} parent={parent} help={helpRequests.find((item) => item.taskId === problem.id)} review={review} onRequestHelp={parent ? undefined : (taskId, revision) => requestDayHelp(studentToken, taskId, revision)} />
+          <ProblemStatement problem={problem} links={page.materialLinks?.[task.id] ?? []} parent={parent} help={helpRequests.find((item) => item.taskId === problem.id)} review={review} helpAccess={helpRole === 'checking' ? 'checking' : helpRole === 'student' ? 'ready' : 'login-required'} onRequestHelp={!parent && helpRole === 'student' ? (taskId, revision) => requestDayHelp(studentToken, taskId, revision) : undefined} />
           {review?.status && <div className={`weekend-math-feedback ${review.status}`}><strong>{reviewHeadline(review)}</strong>{review.nextStep && <p>{review.status === 'verified' ? 'Что дальше' : 'Подсказка к следующей попытке'}: {review.nextStep}</p>}{!!review.history?.length && <small>Предыдущих попыток: {review.history.length}</small>}</div>}
           <div className="weekend-math-actions">{!parent && <label><Camera size={16} /> {review?.status === 'needs-fix' || review?.status === 'partial' ? 'Загрузить исправление' : 'Загрузить материал'}<input type="file" accept="image/*" multiple onChange={(event) => { addPhotos(problem.id, Array.from(event.currentTarget.files ?? [])); event.currentTarget.value = '' }} /></label>}{parent && !photos.length && <small>Фото ещё нет</small>}</div>
           {(photos.length > 0 || previews.length > 0) && <div className="weekend-math-photos" aria-label={`Фото задачи № ${problem.number}`}>

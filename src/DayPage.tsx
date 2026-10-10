@@ -4,6 +4,7 @@ import { BookOpen, Camera, CheckCircle2, ChevronDown, CircleAlert, Clock3, Exter
 import { removePendingDayPhoto, requestDayHelp, uploadDayPhoto, watchDayHelp, watchDayPage, watchDayReviews, watchDayUploads, watchMaterialPages } from '@/lib/dayStore'
 import type { DayHelp, DayInstruction, DayMaterialLink, DayPageData, DayTask, DayUpload, DayWorkReview } from '@/lib/dayStore'
 import { loadAnswerKey, watchAssignment, watchDashboard } from '@/lib/store'
+import { dayHelpSessionRole } from '@/lib/personalAccess'
 import { grade } from '@/lib/quiz'
 import type { Assignment } from '@/lib/quiz'
 import MaterialReader, { canReadInside } from '@/components/MaterialReader'
@@ -271,6 +272,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
   const [uploads, setUploads] = useState<DayUpload[]>([])
   const [reviews, setReviews] = useState<DayWorkReview[]>([])
   const [helpRequests, setHelpRequests] = useState<DayHelp[]>([])
+  const [helpRole, setHelpRole] = useState<'checking' | 'student' | 'parent' | 'none'>('checking')
   const [tests, setTests] = useState<TestItem[]>([])
   const [view, setView] = useState<'homework' | 'school'>(requestedView === 'homework' ? 'homework' : 'school')
   const [manualView, setManualView] = useState(requestedView === 'homework' || requestedView === 'school')
@@ -352,9 +354,17 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
     return watchDayReviews(evidenceTokens.split('|'), setReviews, (cause) => setError(cause.message))
   }, [evidenceTokens, hasPage])
   useEffect(() => {
-    if (!hasPage) return
-    return watchDayHelp(evidenceTokens.split('|'), setHelpRequests, (cause) => setError(cause.message))
-  }, [evidenceTokens, hasPage])
+    let active = true
+    void dayHelpSessionRole().then((role) => { if (active) setHelpRole(role ?? 'none') })
+    return () => { active = false }
+  }, [])
+  useEffect(() => {
+    if (!hasPage || helpRole === 'checking' || helpRole === 'none') return
+    return watchDayHelp(evidenceTokens.split('|'), setHelpRequests, (cause) => {
+      if ((cause as Error & { code?: string }).code === 'permission-denied') { setHelpRole('none'); setHelpRequests([]) }
+      else setError(cause.message)
+    })
+  }, [evidenceTokens, hasPage, helpRole])
   useEffect(() => {
     if (!page || manualView) return
     const update = () => setView(activeView(page))
@@ -539,7 +549,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
                     const problemState = pending ? 'Фото получено · ждёт проверки' : problemReview?.status === 'verified' ? 'Проверено · верно' : problemReview?.status === 'needs-fix' ? 'Проверено · нужна новая попытка' : problemReview?.status === 'partial' ? 'Проверено · дополнить' : problemUploads.length ? 'Работа загружена' : 'Можно приступить'
                     return <section className="day-problem" key={problem.id} id={problem.id}>
                       <div className="day-problem-heading"><strong>№ {problem.number}. {problem.title}</strong><small>{problemState}</small></div>
-                      <ProblemStatement problem={problem} links={taskLinks} parent={parent} help={helpRequests.find((item) => item.taskId === problem.id)} review={problemReview} onRequestHelp={parent ? undefined : (taskId, revision) => requestDayHelp(studentToken, taskId, revision)} />
+                      <ProblemStatement problem={problem} links={taskLinks} parent={parent} help={helpRequests.find((item) => item.taskId === problem.id)} review={problemReview} helpAccess={helpRole === 'checking' ? 'checking' : helpRole === 'student' ? 'ready' : 'login-required'} onRequestHelp={!parent && helpRole === 'student' ? (taskId, revision) => requestDayHelp(studentToken, taskId, revision) : undefined} />
                       <WorkReview review={problemReview} uploads={problemUploads} />
                       <div className="day-problem-actions">{!parent && <label className="day-upload"><Camera size={17} aria-hidden="true" /> {problemReview?.status === 'needs-fix' || problemReview?.status === 'partial' ? 'Загрузить исправление' : 'Загрузить материал'}<input type="file" accept="image/*" multiple onChange={(event) => { attach(problem, Array.from(event.currentTarget.files ?? [])); event.currentTarget.value = '' }} /></label>}{parent && !problemUploads.length && <small>Фото по этому номеру пока нет</small>}</div>
                       <PhotoStrip taskTitle={`№ ${problem.number}. ${problem.title}`} studentToken={studentToken} uploads={problemUploads} localPhotos={problemPhotos} review={problemReview} onRetry={queuePhotoUpload} onDelete={deletePhoto} />
