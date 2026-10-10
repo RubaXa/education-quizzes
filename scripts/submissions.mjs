@@ -50,6 +50,25 @@ async function pendingInbox() {
     }
   }
   rows.sort((a, b) => (a.context.uploadedAt ?? '').localeCompare(b.context.uploadedAt ?? ''))
+  const progressByTask = new Map()
+  for (const { context } of rows) {
+    const key = `${context.dayDate}:${context.taskId}:${context.childId}`
+    if (progressByTask.has(key)) continue
+    const owner = owners.docs.find((item) => item.data().date === context.dayDate && item.data().childId === context.childId)
+    if (!owner) continue
+    progressByTask.set(key, db.doc(`dayProgress/${owner.id}/items/${context.taskId}`).get().then((snapshot) => {
+      const progress = snapshot.data()?.processing
+      return progress ? {
+        phase: progress.phase,
+        uploadIds: progress.uploadIds ?? [],
+        updatedAt: progress.updatedAt?.toDate?.().toISOString() ?? null,
+      } : null
+    }))
+  }
+  await Promise.all(progressByTask.values())
+  for (const { context } of rows) {
+    context.processing = await progressByTask.get(`${context.dayDate}:${context.taskId}:${context.childId}`) ?? null
+  }
   return rows
 }
 
@@ -98,13 +117,13 @@ async function linkedReviewPhotos(review) {
 async function publishProgress(filename, phase) {
   const review = privateReviewFile(filename)
   const { owner } = await linkedReviewPhotos(review)
-  const labels = { download: 'Готовим фотографии', source: 'Сверяем с учебником', review: 'Разбираем ответы', publish: 'Сохраняем результат', paused: 'Проверка приостановлена' }
+  const labels = { download: 'Готовим фотографии', source: 'Сверяем с учебником', review: 'Разбираем ответы', publish: 'Сохраняем результат', paused: 'Фото получено · техническая задержка' }
   const reviewRef = db.doc(`dayProgress/${owner.id}/items/${review.taskId}`)
   const previous = (await reviewRef.get()).data()?.processing
   const samePhotos = previous?.uploadIds?.length === review.uploadIds.length && previous.uploadIds.every((id) => review.uploadIds.includes(id))
   const now = Timestamp.now()
   await reviewRef.set({ date: review.date, taskId: review.taskId, planRevision: review.planRevision,
-    processing: { phase, label: labels[phase], uploadIds: review.uploadIds, startedAt: samePhotos ? previous.startedAt : now, updatedAt: now } }, { merge: true })
+    processing: { phase, label: labels[phase], ...(phase === 'paused' ? { reason: review.pausedReason?.trim() || 'Причина остановки пока не указана. Фото получено; повторно загружать его не нужно.' } : {}), uploadIds: review.uploadIds, startedAt: samePhotos ? previous.startedAt : now, updatedAt: now } }, { merge: true })
   console.log(JSON.stringify({ phase, publishedToFirebase: true }))
 }
 

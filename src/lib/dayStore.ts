@@ -27,7 +27,7 @@ export type DayWorkReview = {
   id: string; taskId: string; status?: 'verified' | 'needs-fix' | 'partial' | 'cannot-assess';
   summary?: string; nextStep?: string; source?: string; checkedAt?: unknown; uploadIds?: string[];
   items?: { label: string; status: 'correct' | 'incorrect' | 'partial' | 'cannot-assess'; observed: string; expected?: string; note: string }[];
-  processing?: { phase: 'download' | 'source' | 'review' | 'publish' | 'paused'; label: string; uploadIds: string[]; startedAt: unknown; updatedAt: unknown };
+  processing?: { phase: 'download' | 'source' | 'review' | 'publish' | 'paused'; label: string; reason?: string; uploadIds: string[]; startedAt: unknown; updatedAt: unknown };
 }
 
 export async function loadDayPage(token: string): Promise<DayPageData> {

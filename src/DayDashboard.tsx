@@ -37,7 +37,7 @@ function taskState(task: DayTask, uploads: DayUpload[], reviews: DayWorkReview[]
   if (task.kind === 'written') {
     const photos = uploads.filter((upload) => upload.taskId === task.id)
     const processing = activeProcessing(reviewed, photos)
-    if (processing) return processing.phase === 'paused' ? processing.label : now - (timestampMillis(processing.updatedAt) ?? now) > 30 * 60 * 1000 ? 'Проверка задерживается' : `${processing.label} · ${elapsedLabel(processing.startedAt, now)}`
+    if (processing) return processing.phase === 'paused' ? 'Фото получено · проверка задержана' : now - (timestampMillis(processing.updatedAt) ?? now) > 30 * 60 * 1000 ? 'Проверка задерживается' : `${processing.label} · ${elapsedLabel(processing.startedAt, now)}`
     if (photos.some((upload) => upload.status === 'pending')) return 'Фото получено · ждёт проверки'
     if (reviewed?.status === 'verified') return 'Проверено'
     if (reviewed?.status === 'partial') return 'Проверено · дополнить'

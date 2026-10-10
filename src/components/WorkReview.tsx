@@ -14,7 +14,8 @@ export default function WorkReview({ review, uploads }: { review?: DayWorkReview
   const pending = uploads.filter((upload) => upload.status === 'pending')
   const processing = activeProcessing(review, uploads)
   const [now, setNow] = useState(() => Date.now())
-  const stale = Boolean(processing && now - (timestampMillis(processing.updatedAt) ?? now) > 30 * 60 * 1000)
+  const paused = processing?.phase === 'paused'
+  const stale = Boolean(processing && !paused && now - (timestampMillis(processing.updatedAt) ?? now) > 30 * 60 * 1000)
   const running = Boolean(processing && processing.phase !== 'paused' && !stale)
   useEffect(() => {
     if (!pending.length) return
@@ -26,13 +27,13 @@ export default function WorkReview({ review, uploads }: { review?: DayWorkReview
   const tone = review?.status ? reviewTone(review) : 'neutral'
   const items = review?.items ?? []
   const firstPending = pending.map((upload) => upload.createdAt).find(Boolean)
-  const elapsed = processing ? elapsedLabel(processing.startedAt, processing.phase === 'paused' ? timestampMillis(processing.updatedAt) ?? now : now) : elapsedLabel(firstPending, now)
+  const elapsed = processing ? elapsedLabel(processing.startedAt, now) : elapsedLabel(firstPending, now)
 
   return <div className="day-review-stack">
     {pending.length > 0 && <div className={`day-review-progress${running ? ' active' : ''}`} role="status" aria-live="polite">
       <span className="day-review-progress-icon">{running ? <LoaderCircle size={17} aria-hidden="true" /> : <Clock3 size={17} aria-hidden="true" />}</span>
-      <span className="day-review-progress-text"><b>{stale ? 'Проверка задерживается' : processing?.label ?? 'Фото получено · ждёт проверки'}</b><small>{running ? 'Разбор идёт' : stale ? 'Последний этап давно не обновлялся' : processing ? 'Продолжим после устранения причины' : 'Начнём после запуска проверки'}</small></span>
-      <time aria-hidden="true">{elapsed}</time>
+      <span className="day-review-progress-text"><b>{stale ? 'Проверка задерживается' : paused ? 'Фото получено · проверка задержана' : processing?.label ?? 'Фото получено · ждёт проверки'}</b><small>{paused ? processing?.reason ?? 'Причина остановки пока не указана. Фото получено; повторно загружать его не нужно.' : running ? 'Разбор идёт' : stale ? 'Последний этап давно не обновлялся' : 'Начнём после запуска проверки'}</small></span>
+      {!paused && <time aria-hidden="true">{elapsed}</time>}
     </div>}
 
     {review?.status && <details className={`day-work-review ${tone}`}>
