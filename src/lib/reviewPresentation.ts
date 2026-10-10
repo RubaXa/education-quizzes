@@ -1,6 +1,22 @@
 import type { DayUpload, DayWorkReview } from './dayStore'
 
 export type ReviewTone = 'success' | 'partial' | 'error' | 'neutral'
+export type ProblemCardState = { label: string; tone: 'ready' | 'uploading' | 'waiting' | 'processing' | 'verified' | 'partial' | 'error' }
+
+/** A file's progress and a solution's result remain separate Firestore facts. */
+export function problemCardState(uploads: DayUpload[], review?: DayWorkReview, uploading = false): ProblemCardState {
+  if (uploading) return { label: 'Фото загружается', tone: 'uploading' }
+  if (uploads.some((upload) => upload.status === 'pending')) {
+    const processing = activeProcessing(review, uploads)
+    if (processing?.phase && processing.phase !== 'paused') return { label: processing.label || 'Проверяем работу', tone: 'processing' }
+    return { label: processing?.phase === 'paused' ? 'Фото получено · проверка задержана' : 'Фото получено · ждёт проверки', tone: 'waiting' }
+  }
+  if (review?.status === 'verified') return { label: reviewHeadline(review), tone: 'verified' }
+  if (review?.status === 'partial') return { label: reviewHeadline(review), tone: 'partial' }
+  if (review?.status === 'needs-fix') return { label: reviewHeadline(review), tone: 'error' }
+  if (review?.status === 'cannot-assess') return { label: 'Не удалось проверить', tone: 'waiting' }
+  return uploads.length ? { label: 'Фото сохранено', tone: 'waiting' } : { label: 'Можно приступить', tone: 'ready' }
+}
 
 /** @see ../../docs/product/day-page.md#homework-review */
 export function reviewTone(review: DayWorkReview): ReviewTone {

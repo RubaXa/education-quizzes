@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { BookOpen, Lightbulb } from 'lucide-react'
 import type { DayHelp, DayMaterialLink, DayProblem, DayWorkReview } from '@/lib/dayStore'
-import MaterialReader from './MaterialReader'
 import SourceFragment from './SourceFragment'
 import './ProblemStatement.css'
 
@@ -15,6 +14,7 @@ export default function ProblemStatement({ problem, links, parent, help, review,
   const original = problem.original
   const attachment = links.find((link) => link.sourceType === 'teacher-attachment' && link.sourceRef === original?.attachmentRef)
     ?? (!original ? links.find((link) => link.sourceType === 'teacher-attachment') : undefined)
+  const hasFragment = Boolean(attachment && original?.crop && original.crop.sourceSha256 === attachment.sourceSha256)
   const support = problem.support
   const opened = Boolean(support && help && help.revision >= support.revision)
   const finished = review?.status === 'verified'
@@ -33,18 +33,21 @@ export default function ProblemStatement({ problem, links, parent, help, review,
 
   return <div className="problem-statement">
     <div className="problem-statement-original">
-      <div className="problem-statement-label"><BookOpen size={16} aria-hidden="true" /><strong>Оригинальное задание</strong><span>Лист учителя</span></div>
-      {attachment && (original?.crop && original.crop.sourceSha256 === attachment.sourceSha256 ? <SourceFragment link={attachment} crop={original.crop} number={problem.number} />
-        : <MaterialReader links={[attachment]} parent={parent} statement />)}
-      {original?.text ? <div className="problem-statement-text"><b>№ {problem.number}.</b> {original.text}</div>
+      <div className="problem-statement-label"><BookOpen size={16} aria-hidden="true" /><strong>Условие № {problem.number}</strong><span>Оригинал учителя</span></div>
+      {hasFragment && attachment && original?.crop && <SourceFragment link={attachment} crop={original.crop} number={problem.number} />}
+      {attachment && !hasFragment && <p className="problem-statement-missing">Точный фрагмент ещё не подготовлен. Полный лист учителя показан над списком заданий.</p>}
+      {original?.text ? hasFragment ? <details className="problem-statement-transcript"><summary>Условие текстом</summary><div className="problem-statement-text"><b>№ {problem.number}.</b> {original.text}</div></details>
+        : <div className="problem-statement-text"><b>№ {problem.number}.</b> {original.text}</div>
         : <p className="problem-statement-missing">Точная текстовая запись этого номера ещё не подготовлена. Полное условие и рисунок — в исходном листе выше.</p>}
       <small className="problem-statement-source">{problem.source}</small>
     </div>
     {support && <div className="problem-statement-education">
-      <div className="problem-statement-label"><Lightbulb size={16} aria-hidden="true" /><strong>{parent ? 'Как читать условие' : 'Помощь Education'}</strong></div>
-      {parent ? <>
+      <div className="problem-statement-label"><Lightbulb size={16} aria-hidden="true" /><strong>Как читать условие</strong></div>
+      {(parent || opened) && <>
         {!!support.facts.length && <div className="problem-statement-facts" aria-label="Дано">{support.facts.map((fact) => <div key={fact.label}><small>{fact.label}</small><strong>{fact.value}</strong></div>)}</div>}
         {support.find && <div className="problem-statement-find"><small>Найти</small><strong>{support.find}</strong></div>}
+      </>}
+      {parent ? <>
         <p className="problem-statement-rationale">{support.skill} · {support.evidence}</p>
         {opened && <small className="problem-statement-help-used">Ребёнок открыл первый ориентир.</small>}
       </> : finished ? <p className="problem-statement-rationale">Работа проверена. Подсказка к этому номеру больше не нужна.</p>
@@ -52,7 +55,7 @@ export default function ProblemStatement({ problem, links, parent, help, review,
           : opened ? <p className="problem-statement-question">{support.firstQuestion}</p>
             : helpAccess === 'checking' ? <p className="problem-statement-rationale">Проверяем личный вход…</p>
               : helpAccess === 'login-required' ? <p className="problem-statement-rationale">Чтобы открыть ориентир, зайди по личной ссылке ученика Education.</p>
-                : <button type="button" className="problem-statement-help-button" onClick={() => void requestHelp()} disabled={requesting || !onRequestHelp}>{requesting ? 'Открываем…' : 'Нужен ориентир'}</button>}
+                : <button type="button" className="problem-statement-help-button" onClick={() => void requestHelp()} disabled={requesting || !onRequestHelp}>{requesting ? 'Открываем…' : 'Открыть разбор условия'}</button>}
       {error && <p className="problem-statement-error" role="alert">{error}</p>}
     </div>}
   </div>

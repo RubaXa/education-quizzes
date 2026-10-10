@@ -7,7 +7,7 @@ import { publicImage } from '@/lib/yandexPublic'
  * @see ../../docs/product/materials.md#material-reader
  * @see ../../docs/product/day-page.md#photo-preview
  */
-export default function PublicThumbnail({ url, alt, fallback }: { url: string; alt: string; fallback: ReactNode }) {
+export default function PublicThumbnail({ url, alt, fallback, size = 'S' }: { url: string; alt: string; fallback: ReactNode; size?: 'S' | 'XXXL' }) {
   const [image, setImage] = useState({ url, src: '' })
   const retry = useRef<() => void>(() => {})
 
@@ -28,7 +28,7 @@ export default function PublicThumbnail({ url, alt, fallback }: { url: string; a
 
     function load() {
       attempts += 1
-      void publicImage(url, 'S', attempts > 1)
+      void publicImage(url, size, attempts > 1)
         .then((src) => { if (active) setImage({ url, src }) })
         .catch(scheduleRetry)
     }
@@ -53,7 +53,7 @@ export default function PublicThumbnail({ url, alt, fallback }: { url: string; a
       document.removeEventListener('visibilitychange', retryWhenVisible)
       retry.current = () => {}
     }
-  }, [url])
+  }, [url, size])
 
   return image.url === url && image.src
     ? <img src={image.src} alt={alt} loading="lazy" referrerPolicy="no-referrer" onError={() => retry.current()} />

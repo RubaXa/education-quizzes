@@ -6,20 +6,7 @@
 .weekend-math-slot p{margin:5px 0;color:#6c617d;font-size:.85rem;line-height:1.45}
 .weekend-math-group{margin-top:15px;padding:14px;border:1px solid #e8e1ef;border-radius:16px;background:#faf8fd}
 .weekend-math-problems{display:grid;gap:8px;margin-top:12px}
-.weekend-math-problem{min-width:0;padding:12px;border:1px solid #e5dded;border-radius:12px;background:#fff}
-.weekend-math-problem-head{display:flex;align-items:baseline;justify-content:space-between;gap:6px 12px;flex-wrap:wrap}
-.weekend-math-problem-head strong{font-size:.88rem}
-.weekend-math-problem-head span{display:inline-flex;align-items:center;gap:4px;color:#776b85;font-size:.71rem;font-weight:700}
-.weekend-math-problem-head span.verified{color:#17643c}
-.weekend-math-feedback{margin-top:9px;padding:9px;border-radius:9px;background:#fff3da;color:#79551d;font-size:.77rem}
-.weekend-math-feedback.verified{background:#e7f6eb;color:#17643c}
-.weekend-math-feedback.needs-fix{background:#fff0ef;color:#983648}
-.weekend-math-feedback p{color:inherit;font-size:.77rem}
-.weekend-math-reasoning{margin-top:7px;padding-top:6px;border-top:1px solid currentColor}
-.weekend-math-actions{margin-top:9px}
-.weekend-math-actions label{display:inline-flex;align-items:center;gap:6px;padding:8px 11px;border-radius:9px;background:#5d459a;color:#fff;font-size:.79rem;font-weight:800;cursor:pointer}
-.weekend-math-actions label:focus-within{outline:3px solid #ae91e8;outline-offset:2px}
-.weekend-math-actions input{position:absolute;width:1px;height:1px;opacity:0}
+.weekend-math-list-title{margin:14px 0 4px;color:#49347e;font-size:.9rem}
 .weekend-math-photos{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
 .weekend-math-photos>span{position:relative;display:grid;place-items:center;width:38px;height:38px;padding:2px;border:1px solid #ddd4eb;border-radius:7px;background:#f7f4fb}
 .weekend-math-photos img{width:32px;height:32px;object-fit:cover;border-radius:4px}
@@ -28,4 +15,4 @@
 .weekend-math-photos .spinning{animation:weekend-spin 1s linear infinite}
 .weekend-math-error{color:#9d3348!important}
 @keyframes weekend-spin{to{transform:rotate(360deg)}}
-@media(max-width:640px){.weekend-math-slot{padding:12px}.weekend-math-group{padding:10px}.weekend-math-problem{padding:10px}}
+@media(max-width:640px){.weekend-math-slot{padding:12px}.weekend-math-group{padding:10px}}

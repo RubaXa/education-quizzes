@@ -11,7 +11,8 @@ import MaterialReader, { canReadInside } from '@/components/MaterialReader'
 import PublicThumbnail from '@/components/PublicThumbnail'
 import WorkReview from '@/components/WorkReview'
 import ProblemStatement from '@/components/ProblemStatement'
-import { activeProcessing } from '@/lib/reviewPresentation'
+import { ProblemCard, ProblemUploadButton } from '@/components/ProblemCard'
+import { activeProcessing, problemCardState } from '@/lib/reviewPresentation'
 import { publicImage } from '@/lib/yandexPublic'
 import './DayPage.css'
 
@@ -538,22 +539,21 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
                 {!!task.steps?.length && <ol className="day-task-steps">{task.steps.map((step, index) => <Instruction key={index} item={step} index={index} />)}</ol>}
                 {needsTextbook && <p className="day-material-warning">📖 {task.materialStatus?.message}</p>}
                 {(task.materialStatus?.state === 'text-absent-from-textbook' || task.materialStatus?.state === 'no-textbook') && <p className="day-material-warning">📖 {task.materialStatus.message}</p>}
-                {readerGroups.filter((group) => !task.problems?.length || group[0].sourceType !== 'teacher-attachment').map((group) => <MaterialReader key={group[0].url} links={group} parent={parent} />)}
+                {readerGroups.map((group) => <MaterialReader key={group[0].url} links={group} parent={parent} statement={Boolean(task.problems?.length && group[0].sourceType === 'teacher-attachment')} />)}
                 {otherLinks.length > 0 && <div className="day-material-links">{otherLinks.map((material) => <div className="day-material-source" key={material.url}><a href={material.url} target="_blank" rel="noopener noreferrer">{material.sourceType === 'textbook-page' ? 'Страница учебника' : material.sourceType === 'teacher-attachment' ? 'Файл учителя' : material.sourceType === 'external-text' ? 'Внешний текст, не из учебника' : 'Материал'}: {material.title} <ExternalLink size={13} aria-hidden="true" /></a>{material.reason && <small>{material.reason}</small>}{material.sourceQuote && <small>Из учебника: «{material.sourceQuote.trim()}»</small>}{parent && material.sourceRef && <small>{material.sourceRef} · PDF {material.pdfPage} · учебник {material.printedPage}</small>}</div>)}</div>}
                 {!!task.problems?.length && <div className="day-problem-list" aria-label={`Задачи: ${task.title}`}>
+                  <h4>Задания из листа · {task.problems.length}</h4>
                   {task.problems.map((problem) => {
                     const problemUploads = uploads.filter((upload) => upload.taskId === problem.id)
                     const problemPhotos = localPhotos.filter((photo) => photo.taskId === problem.id)
                     const problemReview = reviews.find((item) => item.taskId === problem.id)
-                    const pending = problemUploads.some((upload) => upload.status === 'pending') || problemPhotos.some((photo) => photo.state === 'uploading' || photo.state === 'saved')
-                    const problemState = pending ? 'Фото получено · ждёт проверки' : problemReview?.status === 'verified' ? 'Проверено · верно' : problemReview?.status === 'needs-fix' ? 'Проверено · нужна новая попытка' : problemReview?.status === 'partial' ? 'Проверено · дополнить' : problemUploads.length ? 'Работа загружена' : 'Можно приступить'
-                    return <section className="day-problem" key={problem.id} id={problem.id}>
-                      <div className="day-problem-heading"><strong>№ {problem.number}. {problem.title}</strong><small>{problemState}</small></div>
+                    const state = problemCardState(problemUploads, problemReview, problemPhotos.some((photo) => photo.state === 'uploading'))
+                    return <ProblemCard problem={problem} state={state} key={problem.id}>
                       <ProblemStatement problem={problem} links={taskLinks} parent={parent} help={helpRequests.find((item) => item.taskId === problem.id)} review={problemReview} helpAccess={helpRole === 'checking' ? 'checking' : helpRole === 'student' ? 'ready' : 'login-required'} onRequestHelp={!parent && helpRole === 'student' ? (taskId, revision) => requestDayHelp(studentToken, taskId, revision) : undefined} />
                       <WorkReview review={problemReview} uploads={problemUploads} />
-                      <div className="day-problem-actions">{!parent && <label className="day-upload"><Camera size={17} aria-hidden="true" /> {problemReview?.status === 'needs-fix' || problemReview?.status === 'partial' ? 'Загрузить исправление' : 'Загрузить материал'}<input type="file" accept="image/*" multiple onChange={(event) => { attach(problem, Array.from(event.currentTarget.files ?? [])); event.currentTarget.value = '' }} /></label>}{parent && !problemUploads.length && <small>Фото по этому номеру пока нет</small>}</div>
+                      <div className="problem-card-actions">{!parent && <ProblemUploadButton correction={problemReview?.status === 'needs-fix' || problemReview?.status === 'partial'} onPhotos={(files) => attach(problem, files)} />}{parent && !problemUploads.length && <small>Фото по этому номеру пока нет</small>}</div>
                       <PhotoStrip taskTitle={`№ ${problem.number}. ${problem.title}`} studentToken={studentToken} uploads={problemUploads} localPhotos={problemPhotos} review={problemReview} onRetry={queuePhotoUpload} onDelete={deletePhoto} />
-                    </section>
+                    </ProblemCard>
                   })}
                 </div>}
                 {showSubmission && <div className="day-submission-instructions">
