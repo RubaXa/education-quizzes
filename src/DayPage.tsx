@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { BookOpen, Camera, CheckCircle2, ChevronDown, Clock3, ExternalLink, RotateCcw, Trash2, X } from 'lucide-react'
-import { removePendingDayPhoto, requestDayHelp, uploadDayPhoto, uploadMatchesTask, watchDayHelp, watchDayPage, watchDayReviews, watchDayUploads, watchMaterialPages } from '@/lib/dayStore'
+import { removePendingDayPhoto, requestDayHelp, uploadDayPhoto, uploadMatchesTask, watchDayHelp, watchDayPage, watchMaterialPages } from '@/lib/dayStore'
 import type { DayHelp, DayInstruction, DayMaterialLink, DayPageData, DayTask, DayUpload, DayWorkReview } from '@/lib/dayStore'
 import { loadAnswerKey, watchAssignment, watchDashboard } from '@/lib/store'
 import { dayHelpSessionRole } from '@/lib/personalAccess'
@@ -11,9 +11,9 @@ import MaterialReader, { canReadInside } from '@/components/MaterialReader'
 import PublicThumbnail from '@/components/PublicThumbnail'
 import ArtifactAvatar from '@/components/ArtifactAvatar'
 import WorkReview from '@/components/WorkReview'
-import ProblemStatement from '@/components/ProblemStatement'
 import ProblemGroup from '@/components/ProblemGroup'
-import { ProblemCard, ProblemUploadButton } from '@/components/ProblemCard'
+import ProblemTaskCard from '@/components/ProblemTaskCard'
+import { useDayEvidence } from '@/lib/useDayEvidence'
 import { activeProcessing, artifactAvatarLabel, artifactAvatarState, localArtifactAvatarState, problemCardState } from '@/lib/reviewPresentation'
 import { publicImage } from '@/lib/yandexPublic'
 import { localPhotoForTransfer } from '@/lib/photoOutbox'
@@ -277,18 +277,14 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
     return new RegExp(`^#/${parent ? 'days-parent' : 'days'}/[A-Za-z0-9_-]{20,}$`).test(saved) ? saved : ''
   })
   const [page, setPage] = useState<DayPageData>()
-  const studentToken = page?.studentToken ?? token
   const [catalogPages, setCatalogPages] = useState<Record<string, DayMaterialLink>>({})
-  const [uploads, setUploads] = useState<DayUpload[]>([])
-  const [reviews, setReviews] = useState<DayWorkReview[]>([])
-  const [uploadsReadyFor, setUploadsReadyFor] = useState('')
-  const [reviewsReadyFor, setReviewsReadyFor] = useState('')
   const [helpRequests, setHelpRequests] = useState<DayHelp[]>([])
   const [helpRole, setHelpRole] = useState<'checking' | 'student' | 'parent' | 'none'>('checking')
   const [tests, setTests] = useState<TestItem[]>([])
   const [view, setView] = useState<'homework' | 'school'>(requestedView === 'homework' ? 'homework' : 'school')
   const [manualView, setManualView] = useState(requestedView === 'homework' || requestedView === 'school')
   const [error, setError] = useState('')
+  const { studentToken, evidenceKey, uploads, reviews, ready: evidenceReady } = useDayEvidence(page, token, setError)
   const [localPhotos, setLocalPhotos] = useState<LocalPhoto[]>([])
   const [statusNow, setStatusNow] = useState(() => Date.now())
   const photoUrls = useRef(new Set<string>())
@@ -362,16 +358,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
     })
   }, [page?.taskPageRefs])
 
-  const evidenceTokens = [...new Set([studentToken, ...(page?.evidenceDayTokens || [])])].join('|')
   const hasPage = Boolean(page)
-  useEffect(() => {
-    if (!hasPage) return
-    return watchDayUploads(evidenceTokens.split('|'), (items) => { setUploads(items); setUploadsReadyFor(evidenceTokens) }, (cause) => setError(cause.message))
-  }, [evidenceTokens, hasPage])
-  useEffect(() => {
-    if (!hasPage) return
-    return watchDayReviews(evidenceTokens.split('|'), (items) => { setReviews(items); setReviewsReadyFor(evidenceTokens) }, (cause) => setError(cause.message))
-  }, [evidenceTokens, hasPage])
   useEffect(() => {
     let active = true
     void dayHelpSessionRole().then((role) => { if (active) setHelpRole(role ?? 'none') })
@@ -379,11 +366,11 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
   }, [])
   useEffect(() => {
     if (!hasPage || helpRole === 'checking' || helpRole === 'none') return
-    return watchDayHelp(evidenceTokens.split('|'), setHelpRequests, (cause) => {
+    return watchDayHelp(evidenceKey.split('|'), setHelpRequests, (cause) => {
       if ((cause as Error & { code?: string }).code === 'permission-denied') { setHelpRole('none'); setHelpRequests([]) }
       else setError(cause.message)
     })
-  }, [evidenceTokens, hasPage, helpRole])
+  }, [evidenceKey, hasPage, helpRole])
   useEffect(() => {
     if (!page || manualView) return
     const update = () => setView(activeView(page))
@@ -566,12 +553,9 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
                     const problemPhotos = localPhotos.filter((photo) => photo.taskId === problem.id)
                     const problemReview = reviews.find((item) => item.taskId === problem.id)
                     const state = problemCardState(problemUploads, problemReview, problemPhotos.some((photo) => photo.state === 'uploading'), statusNow)
-                    return <ProblemCard problem={problem} state={state} key={problem.id}>
-                      <ProblemStatement problem={problem} links={taskLinks} parent={parent} help={helpRequests.find((item) => item.taskId === problem.id)} review={problemReview} helpAccess={helpRole === 'checking' ? 'checking' : helpRole === 'student' ? 'ready' : 'login-required'} onRequestHelp={!parent && helpRole === 'student' ? (taskId, revision) => requestDayHelp(studentToken, taskId, revision) : undefined} />
-                      <WorkReview review={problemReview} uploads={problemUploads} />
-                      <div className="problem-card-actions">{!parent && <ProblemUploadButton correction={problemReview?.status === 'needs-fix' || problemReview?.status === 'partial'} onPhotos={(files) => attach(problem, files)} />}{parent && !problemUploads.length && <small>Фото по этому номеру пока нет</small>}</div>
+                    return <ProblemTaskCard problem={problem} state={state} key={problem.id} links={taskLinks} parent={parent} help={helpRequests.find((item) => item.taskId === problem.id)} review={problemReview} uploads={problemUploads} helpAccess={helpRole === 'checking' ? 'checking' : helpRole === 'student' ? 'ready' : 'login-required'} onRequestHelp={!parent && helpRole === 'student' ? (taskId, revision) => requestDayHelp(studentToken, taskId, revision) : undefined} onPhotos={(files) => attach(problem, files)}>
                       <PhotoStrip taskTitle={`№ ${problem.number}. ${problem.title}`} studentToken={studentToken} uploads={problemUploads} localPhotos={problemPhotos} review={problemReview} now={statusNow} onRetry={queuePhotoUpload} onDelete={deletePhoto} />
-                    </ProblemCard>
+                    </ProblemTaskCard>
                   })}
                 </div>}
                 {showSubmission && <div className="day-submission-instructions">
@@ -595,7 +579,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
               const problemIds = new Set(task.problems.map((problem) => problem.id))
               const localPendingCount = localPhotos.filter((photo) => problemIds.has(photo.taskId) && !uploads.some((upload) => upload.id === `${studentToken}:${photo.id}` && upload.status === 'reviewed')).length
               const sourceCount = new Set(taskLinks.filter((link) => link.sourceType === 'teacher-attachment').map((link) => link.url)).size
-              return <ProblemGroup key={task.id} id={task.id} title={subject.name} problems={task.problems} uploads={uploads} reviews={reviews} localPendingCount={localPendingCount} sourceCount={sourceCount} ready={uploadsReadyFor === evidenceTokens && reviewsReadyFor === evidenceTokens}>{taskCard}</ProblemGroup>
+              return <ProblemGroup key={task.id} id={task.id} title={subject.name} problems={task.problems} uploads={uploads} reviews={reviews} localPendingCount={localPendingCount} sourceCount={sourceCount} ready={evidenceReady}>{taskCard}</ProblemGroup>
             })}
             {currentPlacements.filter((placement) => placement.subjectId === subject.id && !placement.taskId).map((placement) => {
               const test = tests.find((item) => item.token === placement.token)

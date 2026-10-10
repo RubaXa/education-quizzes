@@ -83,9 +83,9 @@
 | [src/DayDashboard.css](../../src/DayDashboard.css) | [Dashboard](dashboard.md) | Оформление обзора дней | `src/DayDashboard.tsx` |
 | [src/DayDashboard.tsx](../../src/DayDashboard.tsx) | [Dashboard](dashboard.md) | Календарь, сводки и переходы к ДЗ | Ученик; родитель |
 | [src/DayPage.css](../../src/DayPage.css) | [Страница дня](day-page.md) | Оформление заданий, фото и результатов | `src/DayPage.tsx` |
-| [src/DayPage.tsx](../../src/DayPage.tsx) | [Страница дня](day-page.md) | Данные дня, загрузка, проверка и сводка нумерованного листа | Ученик; родитель; `ProblemGroup` |
+| [src/DayPage.tsx](../../src/DayPage.tsx) | [Экраны из данных](../architecture/backend-driven-ui.md) | Компоновка дня из Firestore через общие подписку и карточку номера | Ученик; родитель; `ProblemGroup` |
 | [src/WeekendMathSlot.css](../../src/WeekendMathSlot.css) | [Адаптивная карточка](adaptive-problem-card.md) | Оформление общего слота математики | `src/WeekendMathSlot.tsx` |
-| [src/WeekendMathSlot.tsx](../../src/WeekendMathSlot.tsx) | [Страница дня](day-page.md) | Номера спецкурса, фото и общая сводка листа | Ученик; родитель; `ProblemGroup` |
+| [src/WeekendMathSlot.tsx](../../src/WeekendMathSlot.tsx) | [Экраны из данных](../architecture/backend-driven-ui.md) | Слот из данных ребёнка и общей карточки номера | Ученик; родитель; `ProblemGroup` |
 | [src/components/ArtifactAvatar.css](../../src/components/ArtifactAvatar.css) | [Статусы фотографии](day-page.md) | Общая миниатюра и положение значка состояния | `src/components/ArtifactAvatar.tsx` |
 | [src/components/ArtifactAvatar.tsx](../../src/components/ArtifactAvatar.tsx) | [Статусы фотографии](day-page.md) | Общий аватар загруженного фото с одним значком состояния | День; слот выходных |
 | [src/components/CodeBlock.tsx](../../src/components/CodeBlock.tsx) | [Тесты](quizzes.md) | Показ исходного кода в вопросе | Страница теста |
@@ -98,6 +98,7 @@
 | [src/components/ProblemGroup.tsx](../../src/components/ProblemGroup.tsx) | [Страница дня](day-page.md) | Сворачивание всего листа по текущим разборам и фото | `src/DayPage.tsx`; `src/WeekendMathSlot.tsx` |
 | [src/components/ProblemStatement.css](../../src/components/ProblemStatement.css) | [Адаптивная карточка](adaptive-problem-card.md) | Типографика условия и ориентиров | `src/components/ProblemStatement.tsx` |
 | [src/components/ProblemStatement.tsx](../../src/components/ProblemStatement.tsx) | [Адаптивная карточка](adaptive-problem-card.md) | Точное условие и помощь по запросу | Карточка номера |
+| [src/components/ProblemTaskCard.tsx](../../src/components/ProblemTaskCard.tsx) | [Адаптивная карточка](adaptive-problem-card.md) | Общая композиция условия, разбора и загрузки для номера | `src/DayPage.tsx`; `src/WeekendMathSlot.tsx` |
 | [src/components/PublicThumbnail.tsx](../../src/components/PublicThumbnail.tsx) | [Материалы](materials.md) | Повтор миниатюры при сетевом сбое | Фото и страницы |
 | [src/components/PwaControls.css](../../src/components/PwaControls.css) | [PWA](pwa.md) | Оформление установки и обновления | `src/components/PwaControls.tsx` |
 | [src/components/PwaControls.tsx](../../src/components/PwaControls.tsx) | [PWA](pwa.md) | Управление обновлением приложения | Пользователь PWA |
@@ -132,6 +133,7 @@
 | [src/lib/quizWrite.ts](../../src/lib/quizWrite.ts) | [Тесты](quizzes.md) | Последовательная запись ответов | `src/lib/store.ts` |
 | [src/lib/reviewPresentation.test.ts](../../src/lib/reviewPresentation.test.ts) | [Страница дня](day-page.md) | Проверка понятных статусов работ | Vitest; разработчик |
 | [src/lib/reviewPresentation.ts](../../src/lib/reviewPresentation.ts) | [Страница дня](day-page.md) | Текст и цвет вердиктов | `WorkReview`; `ProblemCard` |
+| [src/lib/useDayEvidence.ts](../../src/lib/useDayEvidence.ts) | [Экраны из данных](../architecture/backend-driven-ui.md) | Одна подписка на фото и разборы выбранного дня | `src/DayPage.tsx`; `src/WeekendMathSlot.tsx` |
 | [src/lib/store.ts](../../src/lib/store.ts) | [Тесты](quizzes.md) | Подписки на попытки, ключи и списки | `src/App.tsx` |
 | [src/lib/utils.ts](../../src/lib/utils.ts) | [Экраны из данных](../architecture/backend-driven-ui.md) | Слияние классов UI | Базовые компоненты |
 | [src/lib/visual.test.ts](../../src/lib/visual.test.ts) | [Тесты](quizzes.md) | Проверка визуальных вопросов | Vitest; разработчик |

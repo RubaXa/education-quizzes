@@ -44,7 +44,7 @@ flowchart LR
 | [Доступ к архиву семей](../architecture/family-artifact-access.md) | Общие оригиналы, ссылки и будущий журнал всех открытий | `storage/yandex-disk.mjs`; постоянно доступный шлюз ещё не реализован |
 | [Порт дневника](../architecture/school-diary-port-adapter.md) | Изоляция МЭШ, семейные правила видимости | `diary/`, `scripts/day.mjs` |
 | [Семья и доступ](../architecture/family-data-model.md) | Семьи, роли, дети, источник истины и перенос ссылочной модели | `src/lib/educationSchema.ts`, `firestore.rules` |
-| [Экраны из данных](../architecture/backend-driven-ui.md) | Безопасный манифест и реестр блоков вместо статичного макета | `src/lib/educationSchema.ts`, `src/components/EducationScreen.tsx` |
+| [Экраны из данных](../architecture/backend-driven-ui.md) | Инвариант движка, общие подписки и будущий безопасный манифест | `src/lib/useDayEvidence.ts`, `src/components/ProblemTaskCard.tsx`, `src/lib/educationSchema.ts`, `src/components/EducationScreen.tsx` |
 | [Действия и новое](../architecture/activity-and-inbox.md) | Журнал посещений, ревизии просмотра и адресные уведомления | `src/lib/educationStore.ts`, `firestore.rules` |
 | [Приложение на телефоне](pwa.md) | Установка на iPhone, обновление кода, кеш и граница push | `src/lib/pwa.ts`, `pwa/sw-template.js`, `scripts/generate-sw.mjs` |
 | [Карта файлов](file-map.md) | Назначение, потребитель и контракт каждого файла | `scripts/check-spec-map.mjs` |
@@ -55,7 +55,7 @@ flowchart LR
 |---|---|---|
 | [День и тесты](day-page.md), [тесты](quizzes.md) | `dayPages`, фото, разбор и попытки читаются через `onSnapshot`; новое содержание приходит без выпуска PWA | Новые виды компонентов требуют выпуска движка |
 | [Фото и Диск](storage-privacy.md) | Новое фото идёт из IndexedDB прямо на Диск; Firestore хранит метаданные; локальный worker подтверждает файл | Реальная съёмка на iPhone ещё не проверена; без Mac передача ждёт его запуска и повторного открытия страницы |
-| [Нумерованные листы](adaptive-problem-card.md) | Исходный лист один, фрагменты по координатам и фото каждого номера работают в `DayPage` и `WeekendMathSlot` | Разметка следующего листа выполняется оператором как данные |
+| [Нумерованные листы](adaptive-problem-card.md) | Исходный лист один, фрагменты по координатам, общие фото, разбор и карточка номера работают в `DayPage` и `WeekendMathSlot`; текст листа берётся из Firestore | Разметка следующего листа выполняется оператором как данные |
 | [Семья](../architecture/family-data-model.md) | Личные ссылки, роли, начальный dashboard и переходные документы работают | Перенос дней, тестов и оценок в документы v2 ещё не завершён |
 | [Манифест экрана](../architecture/backend-driven-ui.md) | Типы, подписка и компонент подготовлены | Текущие маршруты дня и dashboard к нему не подключены |
 | [Действия и новое](../architecture/activity-and-inbox.md) | Типы и методы записи подготовлены | Страницы их не вызывают; уведомления и журнал навигации не работают |
