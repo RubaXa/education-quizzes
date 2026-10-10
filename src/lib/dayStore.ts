@@ -3,10 +3,11 @@ import { db } from './firebase'
 
 export type DayInstruction = string | { text: string; source: { kind: 'mesh' | 'textbook' | 'review' | 'teacher-file'; label: string; evidence: string; excerpt?: string; ref?: string; certainty: 'confirmed' | 'uncertain' } }
 export type DaySubmission = { buttonLabel: string; lead?: string; items?: DayInstruction[]; photo?: string; description?: string }
+export type DaySourceCrop = { x: number; y: number; width: number; height: number; sourceWidth: number; sourceHeight: number; sourceSha256: string }
 /** @see ../../docs/product/adaptive-problem-card.md#слои */
 export type DayProblem = {
   id: string; number: number; title: string; detail: string; source: string;
-  original?: { text: string; attachmentRef: string };
+  original?: { text: string; attachmentRef: string; crop?: DaySourceCrop };
   support?: { skill: string; state: 'unknown' | 'provisional' | 'practicing' | 'demonstrated'; evidence: string; evidenceRefs: string[]; facts: { label: string; value: string }[]; find: string; firstQuestion: string; revision: number };
 }
 export type DayTask = { id: string; title: string; detail: string; steps?: DayInstruction[]; problems?: DayProblem[]; status: 'verified' | 'needs-fix' | 'partial' | 'unknown'; kind: 'written' | 'read' | 'check'; source: string; submission?: DaySubmission | null; instructionStatus?: { state: 'needs-review' | 'reviewed'; message: string }; testToken?: string; testSlug?: string; requiredPoints?: number; originDate?: string; platformResult?: { state: 'completed'; points: number; maxPoints: number; durationMinutes?: number; observedDate?: string; source: string }; materialStatus?: { state: 'textbook-page-needed' | 'textbook-page-linked' | 'text-absent-from-textbook' | 'no-textbook'; message: string } }

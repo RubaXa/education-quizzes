@@ -123,6 +123,15 @@ function validateAssignedInstruction(item, task, sourceDocument) {
     }
   } else fail(`Пункт ${task.id} не может добавлять к заданию МЭШ обязательную работу от агента или прежнего разбора.`)
 }
+function validSourceCrop(crop, link) {
+  if (!crop || !link?.sourceSha256 || crop.sourceSha256 !== link.sourceSha256) return false
+  if (!/^[a-f0-9]{64}$/.test(crop.sourceSha256)) return false
+  if (!['x', 'y', 'width', 'height', 'sourceWidth', 'sourceHeight'].every((key) => Number.isInteger(crop[key]))) return false
+  return crop.x >= 0 && crop.y >= 0 && crop.width >= 10 && crop.height >= 10
+    && crop.sourceWidth > 0 && crop.sourceHeight > 0
+    && crop.x + crop.width <= crop.sourceWidth && crop.y + crop.height <= crop.sourceHeight
+}
+
 function validate(source) {
   if (!source || !Array.isArray(source.subjects) || !source.subjects.length) fail('В исходнике нужны subjects.')
   const ids = new Set()
@@ -135,15 +144,21 @@ function validate(source) {
       ids.add(task.id)
       if (task.problems != null) {
         if (task.kind !== 'written' || !Array.isArray(task.problems) || !task.problems.length) fail(`У ${task.id} номера допустимы только для письменной работы.`)
+        if (task.problems.some((problem) => problem.original?.crop) && task.problems.some((problem) => !problem.original?.crop)) {
+          fail(`У ${task.id} фрагменты исходного листа нужны для каждого номера.`)
+        }
         const numbers = new Set()
         for (const problem of task.problems) {
           if (!/^[a-z0-9-]+$/.test(problem.id ?? '') || !problem.id.startsWith(`${task.id}-p`) || ids.has(problem.id)
             || !Number.isInteger(problem.number) || numbers.has(problem.number)
             || !problem.title?.trim() || !problem.detail?.trim() || !problem.source?.trim()) fail(`У ${task.id} каждый номер должен иметь устойчивый ID, условие и источник.`)
           // @see ../docs/product/adaptive-problem-card.md#выпуск-и-безопасность
-          if (!problem.original?.text?.trim() || !problem.original?.attachmentRef?.trim()
-            || !source.materialLinks?.[task.id]?.some((link) => link.sourceType === 'teacher-attachment' && link.sourceRef === problem.original.attachmentRef)) {
+          const sourceLink = source.materialLinks?.[task.id]?.find((link) => link.sourceType === 'teacher-attachment' && link.sourceRef === problem.original?.attachmentRef)
+          if (!problem.original?.text?.trim() || !problem.original?.attachmentRef?.trim() || !sourceLink) {
             fail(`У ${problem.id} нужен дословно сверенный текст и исходный лист учителя.`)
+          }
+          if (problem.original.crop && !validSourceCrop(problem.original.crop, sourceLink)) {
+            fail(`У ${problem.id} неверные координаты фрагмента или хэш оригинального листа.`)
           }
           const support = problem.support
           if (!support?.skill?.trim() || !['unknown', 'provisional', 'practicing', 'demonstrated'].includes(support.state)
@@ -369,7 +384,8 @@ async function publishProblemSupport() {
         const problems = task.problems.map((problem) => {
           const newer = sourceProblems.get(problem.id)
           if (!newer || newer.number !== problem.number || newer.title !== problem.title
-            || !links.some((link) => link.sourceType === 'teacher-attachment' && link.sourceRef === newer.original.attachmentRef)) {
+            || !links.some((link) => link.sourceType === 'teacher-attachment' && link.sourceRef === newer.original.attachmentRef
+              && (!newer.original.crop || validSourceCrop(newer.original.crop, link)))) {
             fail(`У ${problem.id} не совпали номер или исходное вложение в опубликованной странице.`)
           }
           const next = { ...problem, original: newer.original, support: newer.support }

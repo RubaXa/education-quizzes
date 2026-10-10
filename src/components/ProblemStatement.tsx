@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { BookOpen, Lightbulb } from 'lucide-react'
 import type { DayHelp, DayMaterialLink, DayProblem, DayWorkReview } from '@/lib/dayStore'
 import MaterialReader from './MaterialReader'
+import SourceFragment from './SourceFragment'
 import './ProblemStatement.css'
 
 /** @see ../../docs/product/adaptive-problem-card.md#слои */
@@ -33,7 +34,8 @@ export default function ProblemStatement({ problem, links, parent, help, review,
   return <div className="problem-statement">
     <div className="problem-statement-original">
       <div className="problem-statement-label"><BookOpen size={16} aria-hidden="true" /><strong>Оригинальное задание</strong><span>Лист учителя</span></div>
-      {attachment && <MaterialReader links={[attachment]} parent={parent} statement />}
+      {attachment && (original?.crop && original.crop.sourceSha256 === attachment.sourceSha256 ? <SourceFragment link={attachment} crop={original.crop} number={problem.number} />
+        : <MaterialReader links={[attachment]} parent={parent} statement />)}
       {original?.text ? <div className="problem-statement-text"><b>№ {problem.number}.</b> {original.text}</div>
         : <p className="problem-statement-missing">Точная текстовая запись этого номера ещё не подготовлена. Полное условие и рисунок — в исходном листе выше.</p>}
       <small className="problem-statement-source">{problem.source}</small>
