@@ -1,7 +1,7 @@
 /* Education app shell. Generated at build time; no personal data is cached here. */
 const BASE = '/education-quizzes/'
-const CACHE = 'education-shell-ca95bdd0467f7f7c'
-const ASSETS = ["/education-quizzes/index.html","/education-quizzes/manifest.webmanifest","/education-quizzes/icons/education.svg","/education-quizzes/icons/education-180.png","/education-quizzes/icons/education-192.png","/education-quizzes/icons/education-512.png","/education-quizzes/assets/geist-cyrillic-ext-wght-normal-DjL33-gN.woff2","/education-quizzes/assets/geist-cyrillic-wght-normal-BEAKL7Jp.woff2","/education-quizzes/assets/geist-latin-ext-wght-normal-DC-KSUi6.woff2","/education-quizzes/assets/geist-latin-wght-normal-BgDaEnEv.woff2","/education-quizzes/assets/geist-vietnamese-wght-normal-6IgcOCM7.woff2","/education-quizzes/assets/highlight-TphcXDAh.js","/education-quizzes/assets/index-LvLOdIaO.css","/education-quizzes/assets/index-xFE1M8ZV.js"]
+const CACHE = 'education-shell-7a16f7c57465babf'
+const ASSETS = ["/education-quizzes/index.html","/education-quizzes/manifest.webmanifest","/education-quizzes/icons/education.svg","/education-quizzes/icons/education-180.png","/education-quizzes/icons/education-192.png","/education-quizzes/icons/education-512.png","/education-quizzes/assets/geist-cyrillic-ext-wght-normal-DjL33-gN.woff2","/education-quizzes/assets/geist-cyrillic-wght-normal-BEAKL7Jp.woff2","/education-quizzes/assets/geist-latin-ext-wght-normal-DC-KSUi6.woff2","/education-quizzes/assets/geist-latin-wght-normal-BgDaEnEv.woff2","/education-quizzes/assets/geist-vietnamese-wght-normal-6IgcOCM7.woff2","/education-quizzes/assets/highlight-BgDn8snn.js","/education-quizzes/assets/index-BDTytQtq.js","/education-quizzes/assets/index-LvLOdIaO.css"]
 const assetPaths = new Set(ASSETS.map((url) => new URL(url, self.location.origin).pathname))
 
 self.addEventListener('install', (event) => {
