@@ -138,7 +138,7 @@ export class YandexDiskStorage extends SubmissionStoragePort {
     if (remote.type !== 'file' || remote.md5?.toLowerCase() !== expectedMd5.toLowerCase()) {
       throw new Error(`Файл на Яндекс.Диске не совпадает с удаляемой работой: ${path}.`)
     }
-    if (remote.public_url) await this.request('DELETE', 'resources/unpublish', path)
+    if (remote.public_url) await this.request('PUT', 'resources/unpublish', path)
     await this.request('DELETE', 'resources', path, { permanently: false, force_async: false })
     for (let attempt = 0; attempt < 6; attempt += 1) {
       remote = await this.head(path)

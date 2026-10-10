@@ -141,7 +141,10 @@ export async function uploadDayPhoto(studentToken: string, taskId: string, file:
 export async function removePendingDayPhoto(studentToken: string, uploadId: string) {
   const ref = doc(db, 'dayUploads', studentToken, 'files', uploadId)
   const current = await getDocFromServer(ref)
-  if (!current.exists() || current.data().status === 'deleted') return
+  if (!current.exists() || current.data().status === 'deleted') {
+    await removePhotoFromOutbox(studentToken, uploadId)
+    return
+  }
   if (current.data().status === 'reviewed') throw new Error('Проверенную работу удалить нельзя.')
   await updateDoc(ref, { status: 'deleted', deletedAt: serverTimestamp() })
   await removePhotoFromOutbox(studentToken, uploadId)
