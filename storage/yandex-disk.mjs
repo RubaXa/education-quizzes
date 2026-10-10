@@ -129,7 +129,7 @@ export class YandexDiskStorage extends SubmissionStoragePort {
 
   /** @see ../docs/product/storage-privacy.md#photo-deletion */
   async removeWorkAt(path, expectedMd5) {
-    if (!/^app:\/PETR\/Работы\/\d{4}-\d{2}-\d{2}\/[^/]+\/[A-Za-z0-9_-]{20,}\.(jpg|png|webp)$/.test(path)) {
+    if (!/^app:\/PETR\/Работы\/\d{4}-\d{2}-\d{2}\/[^/]+\/[A-Za-z0-9_-]{20,}\.(jpg|png|webp|heic|heif)$/.test(path)) {
       throw new Error('Удалять можно только отдельный файл ученической работы.')
     }
     if (!/^[a-f0-9]{32}$/i.test(expectedMd5 ?? '')) throw new Error('Нельзя удалить файл без проверенной контрольной суммы.')

@@ -295,29 +295,38 @@ service cloud.firestore {
     }
 
     match /dayUploads/{studentToken}/files/{uploadId} {
-      allow get, list: if exists(/databases/$(database)/documents/dayPages/$(studentToken))
-        && get(/databases/$(database)/documents/dayPages/$(studentToken)).data.kind == 'student';
-      allow create: if exists(/databases/$(database)/documents/dayPages/$(studentToken))
+      allow get, list: if dayUploadOwner(studentToken);
+      allow create: if dayUploadOwner(studentToken)
+        && get(memberPath(get(/databases/$(database)/documents/dayOwners/$(studentToken)).data.familyId)).data.role == 'student'
+        && uploadId.matches('^[A-Za-z0-9_-]{20,80}$')
         && get(/databases/$(database)/documents/dayPages/$(studentToken)).data.kind == 'student'
-        && request.resource.data.keys().hasOnly(['taskId', 'dataUrl', 'originalName', 'status', 'createdAt'])
+        && request.resource.data.keys().hasOnly(['taskId', 'planRevision', 'deviceUid', 'contentType', 'size', 'sha256', 'status', 'createdAt'])
+        && request.resource.data.keys().hasAll(['taskId', 'planRevision', 'deviceUid', 'contentType', 'size', 'sha256', 'status', 'createdAt'])
         && request.resource.data.taskId is string
         && request.resource.data.taskId in get(/databases/$(database)/documents/dayPages/$(studentToken)).data.taskIds
-        && request.resource.data.dataUrl is string
-        && request.resource.data.dataUrl.size() <= 750000
-        && request.resource.data.dataUrl.matches('data:image/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+')
-        && request.resource.data.originalName is string
-        && request.resource.data.originalName.size() <= 120
-        && request.resource.data.status == 'pending'
+        && request.resource.data.planRevision == get(/databases/$(database)/documents/dayPages/$(studentToken)).data.planRevision
+        && request.resource.data.deviceUid == request.auth.uid
+        && request.resource.data.contentType in ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif']
+        && request.resource.data.size is int
+        && request.resource.data.size > 0
+        && request.resource.data.size <= 25000000
+        && request.resource.data.sha256 is string
+        && request.resource.data.sha256.matches('^[a-f0-9]{64}$')
+        && request.resource.data.status == 'requested'
         && request.resource.data.createdAt == request.time;
       allow update: if dayUploadOwner(studentToken)
         && exists(/databases/$(database)/documents/dayPages/$(studentToken))
         && get(/databases/$(database)/documents/dayPages/$(studentToken)).data.kind == 'student'
-        && resource.data.status == 'pending'
-        && request.resource.data.status == 'deleted'
-        && request.resource.data.deletedAt == request.time
-        && request.resource.data.keys().hasAll(['taskId', 'status', 'deletedAt'])
-        && !request.resource.data.keys().hasAny(['dataUrl', 'originalName'])
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'deletedAt', 'dataUrl', 'originalName']);
+        && (
+          (resource.data.status == 'awaiting-upload'
+            && resource.data.deviceUid == request.auth.uid
+            && request.resource.data.status == 'uploaded'
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']))
+          || (resource.data.status in ['requested', 'awaiting-upload', 'uploaded', 'upload-error', 'pending']
+            && request.resource.data.status == 'deleted'
+            && request.resource.data.deletedAt == request.time
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'deletedAt']))
+        );
       allow delete: if false;
     }
 

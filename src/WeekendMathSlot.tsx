@@ -37,7 +37,7 @@ export default function WeekendMathSlot({ token, parent, dueDate, title }: { tok
     else setError(cause.message)
   }) : undefined, [page, evidenceTokens, helpRole])
   useEffect(() => {
-    const saved = local.filter((item) => uploads.some((upload) => upload.id === `${studentToken}:${item.id}`))
+    const saved = local.filter((item) => uploads.some((upload) => upload.id === `${studentToken}:${item.id}` && (upload.status === 'pending' || upload.status === 'reviewed')))
     if (!saved.length) return
     saved.forEach((item) => { URL.revokeObjectURL(item.url); previewUrls.current.delete(item.url) })
     setLocal((current) => current.filter((item) => !saved.includes(item)))
@@ -50,7 +50,7 @@ export default function WeekendMathSlot({ token, parent, dueDate, title }: { tok
       const url = URL.createObjectURL(file)
       previewUrls.current.add(url)
       setLocal((current) => [...current, { id, taskId, url, state: 'uploading' }])
-      void uploadDayPhoto(studentToken, taskId, file, id).catch((cause) => {
+      void uploadDayPhoto(studentToken, taskId, file, id, page?.planRevision).catch((cause) => {
         setLocal((current) => current.map((item) => item.id === id ? { ...item, state: 'failed', error: cause instanceof Error ? cause.message : 'Фото не загрузилось.' } : item))
       })
     }
@@ -80,7 +80,7 @@ export default function WeekendMathSlot({ token, parent, dueDate, title }: { tok
           <WorkReview review={review} uploads={photos} />
           <div className="problem-card-actions">{!parent && <ProblemUploadButton correction={review?.status === 'needs-fix' || review?.status === 'partial'} onPhotos={(files) => addPhotos(problem.id, files)} />}{parent && !photos.length && <small>Фото ещё нет</small>}</div>
           {(photos.length > 0 || previews.length > 0) && <div className="weekend-math-photos" aria-label={`Фото задачи № ${problem.number}`}>
-            {photos.map((photo, index) => <span key={photo.id} title={photo.status === 'reviewed' ? 'Фото проверено' : 'Ждёт проверки'}>{photo.dataUrl ? <img src={photo.dataUrl} alt={`Фото ${index + 1}`} /> : photo.storage?.publicUrl ? <PublicThumbnail url={photo.storage.publicUrl} alt={`Фото ${index + 1}`} fallback={<Camera size={15} />} /> : <Camera size={15} />}{photo.status === 'reviewed' ? <CheckCircle2 size={12} /> : <Clock3 size={12} />}{!parent && photo.status === 'pending' && <button type="button" aria-label={`Удалить фото ${index + 1}`} onClick={() => { void removePendingDayPhoto(photo.id.split(':')[0], photo.id.split(':')[1]).catch((cause) => setError(cause instanceof Error ? cause.message : 'Не удалось удалить фото.')) }}><X size={11} /></button>}</span>)}
+            {photos.map((photo, index) => { const localPhoto = local.find((item) => photo.id === `${studentToken}:${item.id}`); return <span key={photo.id} title={photo.status === 'reviewed' ? 'Фото проверено' : photo.status === 'pending' ? 'Ждёт проверки' : 'Передаём на Яндекс.Диск'}>{photo.dataUrl ? <img src={photo.dataUrl} alt={`Фото ${index + 1}`} /> : photo.storage?.publicUrl ? <PublicThumbnail url={photo.storage.publicUrl} alt={`Фото ${index + 1}`} fallback={<Camera size={15} />} /> : localPhoto ? <img src={localPhoto.url} alt={`Фото ${index + 1}`} /> : <Camera size={15} />}{photo.status === 'reviewed' ? <CheckCircle2 size={12} /> : photo.status === 'pending' ? <Clock3 size={12} /> : <LoaderCircle size={12} className="spinning" />}{!parent && photo.status !== 'reviewed' && <button type="button" aria-label={`Удалить фото ${index + 1}`} onClick={() => { void removePendingDayPhoto(photo.id.split(':')[0], photo.id.split(':')[1]).catch((cause) => setError(cause instanceof Error ? cause.message : 'Не удалось удалить фото.')) }}><X size={11} /></button>}</span> })}
             {previews.map((photo) => <span key={photo.id} title={photo.error ?? 'Загружается'}><img src={photo.url} alt="Новое фото" />{photo.state === 'failed' ? '!' : <LoaderCircle size={12} className="spinning" />}</span>)}
           </div>}
           {previews.some((photo) => photo.state === 'failed') && <small className="weekend-math-error">Фото не загрузилось. Выберите его ещё раз.</small>}

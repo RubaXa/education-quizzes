@@ -1,5 +1,7 @@
-import { collection, deleteField, doc, getDoc, getDocFromServer, onSnapshot, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore'
+import { collection, doc, getDoc, getDocFromServer, onSnapshot, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore'
+import { getAuth } from 'firebase/auth'
 import { db } from './firebase'
+import { removePhotoFromOutbox, resumePhotoTransfer, savePhotoForTransfer } from './photoOutbox'
 
 export type DayInstruction = string | { text: string; source: { kind: 'mesh' | 'textbook' | 'review' | 'teacher-file'; label: string; evidence: string; excerpt?: string; ref?: string; certainty: 'confirmed' | 'uncertain' } }
 export type DaySubmission = { buttonLabel: string; lead?: string; items?: DayInstruction[]; photo?: string; description?: string }
@@ -29,7 +31,7 @@ export type DayPageData = {
   workingThreshold?: number;
 }
 /** @see ../../docs/product/storage-privacy.md#upload-queue */
-export type DayUpload = { id: string; taskId: string; dataUrl?: string; originalName?: string; status: 'pending' | 'reviewed'; createdAt?: unknown; origin?: 'archive'; recordedDate?: string; storage?: { provider: 'yandex-disk'; state: 'stored'; path: string; size: number; md5?: string; syncedAt: unknown; publicUrl?: string } }
+export type DayUpload = { id: string; taskId: string; dataUrl?: string; originalName?: string; status: 'requested' | 'awaiting-upload' | 'uploaded' | 'upload-error' | 'pending' | 'reviewed'; error?: string; createdAt?: unknown; origin?: 'archive'; recordedDate?: string; upload?: { href: string }; storage?: { provider: 'yandex-disk'; state: 'stored'; path: string; size: number; md5?: string; sha256?: string; syncedAt: unknown; publicUrl?: string } }
 export type DayHelp = { id: string; taskId: string; revision: number; requestedAt?: unknown }
 export type DayWorkReview = {
   id: string; taskId: string; status?: 'verified' | 'needs-fix' | 'partial' | 'cannot-assess';
@@ -79,7 +81,11 @@ export function watchDayUploads(tokens: string[], onChange: (data: DayUpload[]) 
   const parts = new Map<string, DayUpload[]>()
   const unique = [...new Set(tokens)]
   const stops = unique.map((studentToken) => onSnapshot(collection(db, 'dayUploads', studentToken, 'files'), (snapshot) => {
-    parts.set(studentToken, snapshot.docs.filter((item) => item.data().status !== 'deleted').map((item) => ({ id: `${studentToken}:${item.id}`, ...item.data() } as DayUpload)))
+    parts.set(studentToken, snapshot.docs.filter((item) => item.data().status !== 'deleted').map((item) => {
+      const data = item.data()
+      resumePhotoTransfer(studentToken, item.id, data as { status: string; upload?: { href: string }; deviceUid?: string })
+      return { id: `${studentToken}:${item.id}`, ...data } as DayUpload
+    }))
     onChange(unique.flatMap((token) => parts.get(token) || []))
   }, onError))
   return () => stops.forEach((stop) => stop())
@@ -107,39 +113,24 @@ export function watchDayHelp(tokens: string[], onChange: (data: DayHelp[]) => vo
 export async function requestDayHelp(studentToken: string, taskId: string, revision: number) {
   await setDoc(doc(db, 'dayHelp', studentToken, 'items', taskId), { taskId, revision, requestedAt: serverTimestamp() })
 }
-async function compressedImage(file: File): Promise<string> {
-  if (!file.type.startsWith('image/')) throw new Error('Выберите фотографию или изображение.')
-  const bitmap = await createImageBitmap(file)
-  const canvas = document.createElement('canvas')
-  const context = canvas.getContext('2d')
-  if (!context) throw new Error('Не удалось подготовить фото.')
-  for (const maxSide of [2000, 1700, 1400, 1100]) {
-    const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height))
-    canvas.width = Math.round(bitmap.width * scale)
-    canvas.height = Math.round(bitmap.height * scale)
-    context.fillStyle = 'white'
-    context.fillRect(0, 0, canvas.width, canvas.height)
-    context.drawImage(bitmap, 0, 0, canvas.width, canvas.height)
-    for (const quality of [0.84, 0.73, 0.62]) {
-      const dataUrl = canvas.toDataURL('image/jpeg', quality)
-      if (dataUrl.length <= 700000) { bitmap.close(); return dataUrl }
-    }
-  }
-  bitmap.close()
-  throw new Error('Фото слишком велико. Сфотографируйте одну страницу ближе и повторите.')
-}
+const photoTypes = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'])
 /** @see ../../docs/product/storage-privacy.md#upload-queue */
-export async function uploadDayPhoto(studentToken: string, taskId: string, file: File, uploadId: string = crypto.randomUUID()) {
-  const dataUrl = await compressedImage(file)
+export async function uploadDayPhoto(studentToken: string, taskId: string, file: File, uploadId: string = crypto.randomUUID(), planRevision?: number) {
+  if (!photoTypes.has(file.type) || !file.size || file.size > 25_000_000) throw new Error('Выберите фото JPEG, PNG, WebP или HEIC размером до 25 МБ.')
+  const deviceUid = getAuth().currentUser?.uid
+  if (!deviceUid) throw new Error('Сначала откройте личную ссылку Education.')
+  const revision = planRevision ?? (await getDocFromServer(doc(db, 'dayPages', studentToken))).data()?.planRevision
+  if (!Number.isInteger(revision)) throw new Error('Не найдена текущая версия задания. Обновите страницу.')
+  const sha256 = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', await file.arrayBuffer())), (byte) => byte.toString(16).padStart(2, '0')).join('')
+  await savePhotoForTransfer(studentToken, uploadId, file)
   const ref = doc(db, 'dayUploads', studentToken, 'files', uploadId)
   try {
-    await setDoc(ref, { taskId, dataUrl, originalName: file.name.slice(0, 120), status: 'pending', createdAt: serverTimestamp() })
+    await setDoc(ref, { taskId, planRevision: revision, deviceUid, contentType: file.type, size: file.size, sha256,
+      status: 'requested', createdAt: serverTimestamp() })
   } catch (cause) {
-    // A lost acknowledgement must not turn Retry into another photo or overwrite
-    // a record that the server has already accepted.
     try {
       const saved = await getDocFromServer(ref)
-      if (saved.exists() && saved.data().taskId === taskId && saved.data().status === 'pending') return uploadId
+      if (saved.exists() && saved.data().taskId === taskId && saved.data().sha256 === sha256) return uploadId
     } catch { /* Keep the original upload error for the per-photo retry UI. */ }
     throw cause
   }
@@ -151,8 +142,7 @@ export async function removePendingDayPhoto(studentToken: string, uploadId: stri
   const ref = doc(db, 'dayUploads', studentToken, 'files', uploadId)
   const current = await getDocFromServer(ref)
   if (!current.exists() || current.data().status === 'deleted') return
-  if (current.data().status !== 'pending') throw new Error('Проверенную работу удалить нельзя.')
-  await updateDoc(ref, {
-    status: 'deleted', deletedAt: serverTimestamp(), dataUrl: deleteField(), originalName: deleteField(),
-  })
+  if (current.data().status === 'reviewed') throw new Error('Проверенную работу удалить нельзя.')
+  await updateDoc(ref, { status: 'deleted', deletedAt: serverTimestamp() })
+  await removePhotoFromOutbox(studentToken, uploadId)
 }

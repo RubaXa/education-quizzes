@@ -18,6 +18,8 @@
     "quiz": "node scripts/quiz.mjs",
     "day": "node scripts/day.mjs",
     "storage": "node scripts/storage.mjs",
+    "storage:worker": "node scripts/direct-upload-worker.mjs",
+    "storage:install-worker": "node scripts/install-upload-worker.mjs",
     "archive:local": "node scripts/archive-local.mjs",
     "diary": "node diary/cli.mjs",
     "family": "node scripts/family.mjs",

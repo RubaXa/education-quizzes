@@ -14,6 +14,7 @@ import ProblemStatement from '@/components/ProblemStatement'
 import { ProblemCard, ProblemUploadButton } from '@/components/ProblemCard'
 import { activeProcessing, problemCardState } from '@/lib/reviewPresentation'
 import { publicImage } from '@/lib/yandexPublic'
+import { localPhotoForTransfer } from '@/lib/photoOutbox'
 import './DayPage.css'
 
 type TestItem = { token: string; testId: string; linkedToTestId?: string | null; title: string; description?: string; subject: string; slug: string; previewToken: string; status: Assignment['status']; answered: number; total: number; points?: number; maxPoints?: number }
@@ -30,19 +31,27 @@ function WorkPhoto({ upload, title, index, compact = false }: { upload: DayUploa
   useEffect(() => {
     if (upload.dataUrl) { setSrc(upload.dataUrl); setFailed(false); return }
     const url = upload.storage?.publicUrl
-    if (!url) { setSrc(''); return }
+    if (!url) {
+      const [studentToken, uploadId] = upload.id.split(':')
+      let active = true
+      let objectUrl = ''
+      void localPhotoForTransfer(studentToken, uploadId).then((blob) => {
+        if (active && blob) { objectUrl = URL.createObjectURL(blob); setSrc(objectUrl) }
+      }).catch(() => setSrc(''))
+      return () => { active = false; if (objectUrl) URL.revokeObjectURL(objectUrl) }
+    }
     if (compact) return
     let active = true
     setSrc('')
     setFailed(false)
     void publicImage(url, compact ? 'S' : 'XXXL').then((image) => { if (active) setSrc(image) }).catch(() => { if (active) setFailed(true) })
     return () => { active = false }
-  }, [upload.dataUrl, upload.storage?.publicUrl, compact])
+  }, [upload.id, upload.dataUrl, upload.storage?.publicUrl, compact])
   if (compact && !upload.dataUrl && upload.storage?.publicUrl) return <PublicThumbnail url={upload.storage.publicUrl} alt={`Работа по заданию «${title}», фото ${index + 1}`} fallback={<span className="day-upload-thumb-placeholder"><Camera size={23} aria-hidden="true" /></span>} />
   if (compact && (failed || !src)) return <span className="day-upload-thumb-placeholder"><Camera size={23} aria-hidden="true" /></span>
   if (failed || !src) return upload.storage?.publicUrl
     ? <p><a href={upload.storage.publicUrl} target="_blank" rel="noopener noreferrer">Открыть фото на Яндекс.Диске</a></p>
-    : <p>Фото ожидает переноса на Яндекс.Диск.</p>
+    : <p>Фото ожидает передачи на Яндекс.Диск.</p>
   return <img src={src} alt={`Работа по заданию «${title}», фото ${index + 1}`} loading="lazy" referrerPolicy="no-referrer" onError={() => setFailed(true)} />
 }
 
@@ -69,9 +78,9 @@ function PhotoStrip({ taskTitle, evidenceLabel = 'Фото работы', studen
   const photoCount = visibleUploads.length + localOnly.length
   const reviewedCount = visibleUploads.filter((upload) => upload.status === 'reviewed').length
   const processingCount = visibleUploads.filter((upload) => upload.status === 'pending' && isActivePhotoProcessing(review, upload)).length
-  const waitingCount = visibleUploads.filter((upload) => upload.status === 'pending' && !isActivePhotoProcessing(review, upload)).length + localOnly.filter((photo) => photo.state === 'saved').length
-  const uploadingCount = localOnly.filter((photo) => photo.state === 'uploading').length
-  const failedCount = localOnly.filter((photo) => photo.state === 'failed').length
+  const waitingCount = visibleUploads.filter((upload) => upload.status === 'pending' && !isActivePhotoProcessing(review, upload)).length
+  const uploadingCount = visibleUploads.filter((upload) => ['requested', 'awaiting-upload', 'uploaded'].includes(upload.status)).length + localOnly.filter((photo) => photo.state === 'uploading' || photo.state === 'saved').length
+  const failedCount = visibleUploads.filter((upload) => upload.status === 'upload-error').length + localOnly.filter((photo) => photo.state === 'failed').length
   const summary = [processingCount && `${processingCount} в разборе`, waitingCount && `${waitingCount} ${waitingCount === 1 ? 'ждёт' : 'ждут'} проверки`, uploadingCount && `${uploadingCount} загружается`, failedCount && `${failedCount} не загрузилось`].filter(Boolean).join(' · ')
   const selectedUpload = visibleUploads.find((upload) => upload.id === selectedId)
   const selectedLocal = localOnly.find((photo) => `${studentToken}:${photo.id}` === selectedId)
@@ -94,9 +103,9 @@ function PhotoStrip({ taskTitle, evidenceLabel = 'Фото работы', studen
     <div className="day-upload-strip">
       {visibleUploads.map((upload, index) => {
         const processing = activeProcessing(review, [upload])
-        const status = upload.status === 'reviewed' ? 'Проверено' : processing?.phase === 'paused' ? 'Проверка приостановлена' : processing ? 'Идёт разбор' : 'Ждёт проверки'
-        const indicator = upload.status === 'reviewed' ? 'reviewed' : processing && processing.phase !== 'paused' ? 'processing' : 'waiting'
-        return <button className="day-upload-chip" type="button" key={upload.id} title={`${upload.origin === 'archive' ? 'Ранее загруженная работа' : `Фото ${index + 1}`} · ${status}`} aria-label={`Открыть фото ${index + 1}: ${status}`} aria-expanded={selectedId === upload.id} onClick={() => setSelectedId(selectedId === upload.id ? null : upload.id)}><WorkPhoto upload={upload} title={taskTitle} index={index} compact /><span className={`day-upload-indicator ${indicator}`}>{indicator === 'processing' ? <LoaderCircle size={10} aria-hidden="true" /> : indicator === 'waiting' ? <Clock3 size={10} aria-hidden="true" /> : <CheckCircle2 size={10} aria-hidden="true" />}</span></button>
+        const status = upload.status === 'reviewed' ? 'Проверено' : upload.status === 'upload-error' ? 'Передача не удалась' : upload.status === 'requested' ? 'Ожидает связи с Диском' : upload.status === 'awaiting-upload' ? 'Передаём на Диск' : upload.status === 'uploaded' ? 'Подтверждаем файл' : processing?.phase === 'paused' ? 'Проверка приостановлена' : processing ? 'Идёт разбор' : 'Ждёт проверки'
+        const indicator = upload.status === 'reviewed' ? 'reviewed' : upload.status === 'upload-error' ? 'failed' : ['requested', 'awaiting-upload', 'uploaded'].includes(upload.status) ? 'uploading' : processing && processing.phase !== 'paused' ? 'processing' : 'waiting'
+        return <button className="day-upload-chip" type="button" key={upload.id} title={`${upload.origin === 'archive' ? 'Ранее загруженная работа' : `Фото ${index + 1}`} · ${status}`} aria-label={`Открыть фото ${index + 1}: ${status}`} aria-expanded={selectedId === upload.id} onClick={() => setSelectedId(selectedId === upload.id ? null : upload.id)}><WorkPhoto upload={upload} title={taskTitle} index={index} compact /><span className={`day-upload-indicator ${indicator}`}>{indicator === 'processing' || indicator === 'uploading' ? <LoaderCircle size={10} aria-hidden="true" /> : indicator === 'failed' ? <CircleAlert size={10} aria-hidden="true" /> : indicator === 'waiting' ? <Clock3 size={10} aria-hidden="true" /> : <CheckCircle2 size={10} aria-hidden="true" />}</span></button>
       })}
       {localOnly.map((photo, index) => {
         const id = `${studentToken}:${photo.id}`
@@ -107,9 +116,9 @@ function PhotoStrip({ taskTitle, evidenceLabel = 'Фото работы', studen
     <div className="day-upload-progress" role="progressbar" aria-label="Проверенные фотографии" aria-valuemin={0} aria-valuemax={photoCount} aria-valuenow={reviewedCount}><span style={{ width: `${reviewedCount / photoCount * 100}%` }} /></div>
     {summary && <small className="day-upload-summary">{summary}</small>}
     {(selectedUpload || selectedLocal) && <div className="day-upload-expanded"><button className="day-upload-close" type="button" aria-label="Закрыть фото" onClick={() => setSelectedId(null)}><X size={17} aria-hidden="true" /></button>
-      {selectedUpload ? <><WorkPhoto upload={selectedUpload} title={taskTitle} index={visibleUploads.indexOf(selectedUpload)} /><p>{selectedUpload.status === 'reviewed' ? evidenceLabel === 'Подтверждение ЦДЗ' ? 'Результат ЦДЗ указан в карточке задания.' : 'Разбор этого задания показан в блоке «Проверка работы».' : activeProcessing(review, [selectedUpload]) ? 'Сейчас проверяем фото.' : 'Фото ждёт разбора.'} {selectedUpload.storage?.state === 'stored' ? 'Файл на Яндекс.Диске.' : 'Перенос на Яндекс.Диск ещё не выполнен.'}</p>{selectedUpload.storage?.publicUrl && <a className="day-upload-original" href={selectedUpload.storage.publicUrl} target="_blank" rel="noopener noreferrer">Открыть на Яндекс.Диске <ExternalLink size={13} aria-hidden="true" /></a>}</>
+      {selectedUpload ? <><WorkPhoto upload={selectedUpload} title={taskTitle} index={visibleUploads.indexOf(selectedUpload)} /><p>{selectedUpload.status === 'reviewed' ? evidenceLabel === 'Подтверждение ЦДЗ' ? 'Результат ЦДЗ указан в карточке задания.' : 'Разбор этого задания показан в блоке «Проверка работы».' : selectedUpload.status === 'upload-error' ? selectedUpload.error ?? 'Не удалось передать фото. Удалите запись и загрузите снимок снова.' : selectedUpload.status === 'pending' ? activeProcessing(review, [selectedUpload]) ? 'Сейчас проверяем фото.' : 'Фото ждёт разбора.' : 'Исходное фото передаётся напрямую на Яндекс.Диск; дождитесь подтверждения.'} {selectedUpload.storage?.state === 'stored' ? 'Файл на Яндекс.Диске.' : 'Исходник остаётся на этом устройстве до передачи.'}</p>{selectedUpload.storage?.publicUrl && <a className="day-upload-original" href={selectedUpload.storage.publicUrl} target="_blank" rel="noopener noreferrer">Открыть на Яндекс.Диске <ExternalLink size={13} aria-hidden="true" /></a>}</>
         : selectedLocal && <><img src={selectedLocal.previewUrl} alt={`Новое фото по заданию «${taskTitle}»`} /><p>{selectedLocal.state === 'failed' ? selectedLocal.error ?? 'Не удалось загрузить фото.' : selectedLocal.state === 'saved' ? 'Фото сохранено и ждёт разбора.' : selectedLocal.state === 'deleting' ? 'Удаляем фото…' : 'Фото загружается…'}</p>{selectedLocal.state === 'failed' && removingId !== selectedId && <button type="button" className="day-upload-retry" onClick={() => onRetry(selectedLocal)}><RotateCcw size={14} aria-hidden="true" /> Повторить</button>}</>}
-      {(selectedUpload?.status === 'pending' || selectedLocal) && <button className="day-upload-delete" type="button" disabled={removingId === selectedId} onClick={() => selectedId && void deletePhoto(selectedId)}><Trash2 size={14} aria-hidden="true" /> {removingId === selectedId ? 'Удаляем…' : 'Удалить фото'}</button>}
+      {(selectedUpload && selectedUpload.status !== 'reviewed' || selectedLocal) && <button className="day-upload-delete" type="button" disabled={removingId === selectedId} onClick={() => selectedId && void deletePhoto(selectedId)}><Trash2 size={14} aria-hidden="true" /> {removingId === selectedId ? 'Удаляем…' : 'Удалить фото'}</button>}
       {deleteError && <p className="day-upload-delete-error" role="alert">{deleteError}</p>}
     </div>}
   </div>
@@ -284,7 +293,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
 
   useEffect(() => () => { for (const url of photoUrls.current) URL.revokeObjectURL(url) }, [])
   useEffect(() => {
-    const saved = localPhotos.filter((item) => item.state === 'saved' && uploads.some((upload) => upload.id === `${studentToken}:${item.id}`))
+    const saved = localPhotos.filter((item) => item.state === 'saved' && uploads.some((upload) => upload.id === `${studentToken}:${item.id}` && (upload.status === 'pending' || upload.status === 'reviewed')))
     if (!saved.length) return
     for (const item of saved) { URL.revokeObjectURL(item.previewUrl); photoUrls.current.delete(item.previewUrl) }
     const ids = new Set(saved.map((item) => item.id))
@@ -390,7 +399,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
   async function sendPhoto(photo: LocalPhoto) {
     setLocalPhotos((current) => current.map((item) => item.id === photo.id && item.state !== 'deleting' ? { ...item, state: 'uploading', error: undefined } : item))
     try {
-      await uploadDayPhoto(studentToken, photo.taskId, photo.file, photo.id)
+      await uploadDayPhoto(studentToken, photo.taskId, photo.file, photo.id, page?.planRevision)
       setLocalPhotos((current) => current.map((item) => item.id === photo.id && item.state !== 'deleting' ? { ...item, state: 'saved' } : item))
     } catch (cause) {
       setLocalPhotos((current) => current.map((item) => item.id === photo.id && item.state !== 'deleting'
@@ -518,8 +527,8 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
               const taskStatus = review?.status && review.status !== 'cannot-assess' ? review.status : task.status
               const localTaskPhotos = localPhotos.filter((photo) => photo.taskId === task.id)
               const priorWork = taskUploads.some((upload) => upload.status === 'reviewed')
-              const newWork = taskUploads.some((upload) => upload.status === 'pending') || localTaskPhotos.some((photo) => photo.state === 'saved')
-              const uploadingWork = localTaskPhotos.some((photo) => photo.state === 'uploading')
+              const newWork = taskUploads.some((upload) => upload.status === 'pending') || localTaskPhotos.some((photo) => photo.state === 'saved' && !taskUploads.some((upload) => upload.id === `${studentToken}:${photo.id}`))
+              const uploadingWork = taskUploads.some((upload) => ['requested', 'awaiting-upload', 'uploaded'].includes(upload.status)) || localTaskPhotos.some((photo) => photo.state === 'uploading')
               const linkedTest = tests.find((item) => item.token === task.testToken)
               const readPassed = task.kind === 'read' && linkedTest?.status === 'submitted' && linkedTest.points != null && linkedTest.points >= (task.requiredPoints ?? linkedTest.maxPoints ?? 1)
               const verified = taskStatus === 'verified' || readPassed
