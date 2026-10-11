@@ -11,7 +11,7 @@ if (!existsSync(file)) throw new Error('Локальный реестр семь
 const registry = JSON.parse(readFileSync(file, 'utf8'))
 const db = operatorFirestore()
 const failures = []
-const counts = { families: 0, children: 0, adults: 0, students: 0, links: 0, grants: 0, invites: 0, sourceIdentities: 0, sourceAccounts: 0, legacyDays: 0 }
+const counts = { families: 0, children: 0, adults: 0, students: 0, links: 0, grants: 0, invites: 0, booksConfirmed: 0, booksProvisional: 0, sourceIdentities: 0, sourceAccounts: 0, legacyDays: 0 }
 const check = (condition, message) => { if (!condition) failures.push(message) }
 const hash = (value) => createHash('sha256').update(value).digest('hex')
 
@@ -23,6 +23,15 @@ for (const [familyId, family] of Object.entries(registry.families)) {
   for (const childId of childIds) {
     const childDoc = await db.doc(`families/${familyId}/children/${childId}`).get()
     check(childDoc.exists, `Семья ${familyId}: нет ребёнка ${childId}`)
+    const books = await db.collection(`families/${familyId}/children/${childId}/books`).get()
+    for (const book of books.docs) {
+      const shared = await db.doc(`materialBooks/${book.id}`).get()
+      check(shared.exists && shared.data()?.sourceSha256 === book.data().sourceSha256,
+        `Семья ${familyId}: книга ${book.id} не совпадает с проверенным общим оригиналом`)
+      if (book.data().status === 'confirmed') counts.booksConfirmed++
+      else if (book.data().status === 'provisional') counts.booksProvisional++
+      else check(false, `Семья ${familyId}: у книги ${book.id} неизвестный статус`)
+    }
     counts.children++
   }
   for (const [personId, person] of Object.entries(registry.people)) {

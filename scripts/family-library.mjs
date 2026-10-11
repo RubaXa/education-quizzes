@@ -123,21 +123,48 @@ if (command === 'inbox') {
   }
   const indexed = new Map(indexedBooks().map((entry) => [entry.book.id, entry]))
   if (new Set(manifest.books.map((item) => item.bookId)).size !== manifest.books.length) throw new Error('В списке есть повтор издания.')
-  console.log(`Проверяем ${manifest.books.length} отдельно подтверждённых семейных PDF.`)
+  const verified = []
   for (const item of manifest.books) {
     const entry = indexed.get(item.bookId)
-    if (!entry || entry.book.edition_status !== 'family-supplied'
+    const bindingStatus = item.bindingStatus ?? 'confirmed'
+    const editionAllowed = bindingStatus === 'provisional'
+      ? entry?.book.edition_status === 'parallel-edition'
+      : ['family-supplied', 'family-page-matched', 'exact-edition-confirmed'].includes(entry?.book.edition_status)
+    if (!entry || !editionAllowed
       || entry.index.source_sha256 !== item.sourceSha256
       || typeof item.ownershipEvidence !== 'string' || item.ownershipEvidence.trim().length < 30) {
       throw new Error(`Нет точного доказательства семейного PDF для ${item.bookId}.`)
     }
+    if (entry.book.edition_status !== 'family-supplied' && !/event:2026-\d\d-\d\d-\d{3}/.test(item.ownershipEvidence)) {
+      throw new Error(`Для ${item.bookId} нужна отдельная запись о передаче полного PDF родителем.`)
+    }
     const { book, index } = entry
     const published = await db.doc(`materialBooks/${book.id}`).get()
     if (published.data()?.sourceSha256 !== index.source_sha256) throw new Error(`Общий каталог для ${book.id} не синхронизирован.`)
-    await link({ ...book, sourceSha256: index.source_sha256 }, {
-      kind: 'legacy-family-full-pdf', ownershipEvidence: item.ownershipEvidence.trim(),
-      sourceSha256: item.sourceSha256,
-    })
+    const destination = db.doc(`families/${familyId}/children/${childId}/books/${book.id}`)
+    const current = await destination.get()
+    if (current.exists && current.data()?.sourceSha256 !== item.sourceSha256) {
+      throw new Error(`У ребёнка уже связана другая версия ${book.id}; нужна ручная сверка.`)
+    }
+    verified.push({ book, item, destination, bindingStatus,
+      unchanged: current.data()?.status === bindingStatus && current.data()?.sourceSha256 === item.sourceSha256 })
+  }
+  if (process.argv.includes('--dry-run')) {
+    console.log(JSON.stringify({ familyId, childId, verifiedBooks: verified.map(({ book, unchanged }) => ({ bookId: book.id, unchanged })), writes: 0 }, null, 2))
+  } else {
+    const batch = db.batch()
+    const at = Timestamp.now()
+    for (const { book, item, destination, bindingStatus, unchanged } of verified) {
+      if (unchanged) continue
+      batch.set(destination, {
+      bookId: book.id, subjectKey: book.subject.toLocaleLowerCase('ru'),
+      title: bookDisplayTitle(book), status: bindingStatus, sourceSha256: item.sourceSha256,
+      evidence: { kind: 'legacy-family-full-pdf', ownershipEvidence: item.ownershipEvidence.trim(), sourceSha256: item.sourceSha256 },
+      confirmedAt: at,
+      }, { merge: true })
+    }
+    await batch.commit()
+    console.log(JSON.stringify({ familyId, childId, linkedBooks: verified.filter((item) => !item.unchanged).map(({ book }) => book.id), unchangedBooks: verified.filter((item) => item.unchanged).map(({ book }) => book.id) }, null, 2))
   }
 } else if (command === 'activate') {
   await childExists()

@@ -36,4 +36,6 @@
 .family-library-book-entry button:focus-visible{outline:3px solid var(--edu-focus);outline-offset:2px}
 .family-library-book-entry>.day-reader{width:100%;margin-top:10px}
 .family-library-list p{margin:0 0 15px;font-size:.83rem;color:var(--edu-muted);line-height:1.45}
+.family-library-provisional{border-top:1px solid #eee8f4;padding-top:12px;color:var(--edu-muted);font-size:.82rem}
+.family-library-provisional>strong{display:block;color:var(--edu-warning-ink);font-size:.83rem}
 @media(max-width:540px){.family-library-main{padding:16px}.family-library-row{align-items:stretch;flex-direction:column}.family-library-actions{justify-content:stretch}.family-library-actions button{flex:1}.family-library-list{padding:0 16px}}

@@ -56,6 +56,7 @@ export function FamilyLibrary({ familyId, familyChildren }: { familyId: string; 
   const fileInputs = useRef<Record<string, HTMLInputElement | null>>({})
   const needs = library.needs.filter((need) => need.state === 'missing' || need.state === 'pending' || need.state === 'review')
   const confirmed = library.books.filter((book) => book.status === 'confirmed')
+  const provisional = library.books.filter((book) => book.status === 'provisional')
   const missing = needs.filter((need) => need.state === 'missing')
   const unresolved = library.loading || Boolean(library.error) || library.observedDays === 0 || library.observedSubjects === 0 || library.unobservedChildren.length > 0 || needs.length > 0
 
@@ -83,7 +84,7 @@ export function FamilyLibrary({ familyId, familyChildren }: { familyId: string; 
             : <><p className="family-library-count">{missing.length ? `Не хватает по ${missing.length} ${missing.length === 1 ? 'предмету' : 'предметам'}.` : 'Переданные файлы обрабатываются или состав материалов уточняется.'}</p>
               {library.unobservedChildren.length > 0 && <p>Расписание пока не содержит предметы для: {library.unobservedChildren.join(', ')}. Комплект этого ребёнка ещё неизвестен.</p>}
               {needs.map((need) => { const id = `${need.childId}:${need.subjectKey}`; return <div className="family-library-row" key={id}>
-                <div><strong>{need.subject}</strong><span>{familyChildren.length > 1 ? `${need.childName} · ` : ''}{need.state === 'pending' || need.uploads.at(-1)?.status === 'upload-error' ? uploadLabel(need) : need.state === 'review' ? 'Уточните, используется ли учебник или материалы курса' : 'Учебник не подтверждён для этого ребёнка'}</span></div>
+                <div><strong>{need.subject}</strong><span>{familyChildren.length > 1 ? `${need.childName} · ` : ''}{need.state === 'pending' || need.uploads.at(-1)?.status === 'upload-error' ? uploadLabel(need) : need.state === 'review' ? 'Уточните, используется ли учебник или материалы курса' : need.books.some((book) => book.status === 'provisional') ? 'Передан PDF другого издания; точный учебник пока не подтверждён' : 'Учебник не подтверждён для этого ребёнка'}</span></div>
                 <div className="family-library-actions"><input ref={(element) => { fileInputs.current[id] = element }} type="file" accept=".pdf,application/pdf" aria-label={`Загрузить материал: ${need.subject}, ${need.childName}`} onChange={(event) => { const file = event.target.files?.[0]; if (file) void upload(need, file) }} hidden />
                   <button type="button" disabled={busy === id} onClick={() => fileInputs.current[id]?.click()}><Upload size={16} aria-hidden="true" /> {busy === id ? 'Сохраняем…' : need.state === 'pending' ? 'Другой PDF' : 'Загрузить PDF'}</button>
                   {need.state === 'review' && <button type="button" className="family-library-secondary" disabled={busy === id} onClick={() => void setPolicy(need, 'no-book')}>Учебника нет</button>}
@@ -93,10 +94,11 @@ export function FamilyLibrary({ familyId, familyChildren }: { familyId: string; 
               <small>Пока принимаем полный PDF учебника. Файл сверяется с общим архивом; новая книга попадёт в библиотеку после определения издания и индексации. Загрузка отдельных фотографий страниц запланирована отдельно.</small>
             </>}
     </div> : null}
-    <details className="family-library-list" open={!unresolved && confirmed.length === 0}>
-      <summary><BookOpen size={19} aria-hidden="true" /><span>Библиотека семьи · {confirmed.length} {confirmed.length === 1 ? 'книга' : 'книг'}</span><ChevronDown size={18} aria-hidden="true" /></summary>
+    <details className="family-library-list" open={!unresolved && confirmed.length + provisional.length === 0}>
+      <summary><BookOpen size={19} aria-hidden="true" /><span>Библиотека семьи · {confirmed.length + provisional.length} {confirmed.length + provisional.length === 1 ? 'книга' : 'книг'}</span><ChevronDown size={18} aria-hidden="true" /></summary>
       {confirmed.length ? <ul>{confirmed.map((book) => <FamilyBookEntry key={`${book.childId}:${book.bookId}`} familyId={familyId} childId={book.childId} childName={familyChildren.find((child) => child.childId === book.childId)?.displayName ?? 'Ребёнок'} bookId={book.bookId} title={book.title} multipleChildren={familyChildren.length > 1} />)}</ul>
         : <p>Подтверждённых книг пока нет. Общие документы других семей здесь не отображаются.</p>}
+      {provisional.length > 0 && <div className="family-library-provisional"><strong>Переданы, но издание ещё не подтверждено для уроков</strong><ul>{provisional.map((book) => <li key={`${book.childId}:${book.bookId}`}>{book.title}{familyChildren.length > 1 ? ` · ${familyChildren.find((child) => child.childId === book.childId)?.displayName ?? 'Ребёнок'}` : ''}</li>)}</ul></div>}
       {!unresolved && <p className="family-library-note">Комплект для известных предметов подтверждён. Если расписание изменится, нужные книги снова появятся наверху кабинета.</p>}
     </details>
   </section>
