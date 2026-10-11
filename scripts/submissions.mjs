@@ -10,6 +10,7 @@ import { YandexDiskStorage } from '../storage/yandex-disk.mjs'
 /** Private agent inbox; file bytes stay on Yandex Disk or in ignored .local.
  * @see ../docs/product/storage-privacy.md#review-queue
  * @see ../docs/product/adaptive-problem-card.md#слои
+ * @see ../docs/architecture/change-detection-and-reconciliation.md
  */
 const [command, argument, phase] = process.argv.slice(2)
 const reviewCommand = command === 'review' || command === 'progress' || command === 'feedback'
@@ -256,18 +257,20 @@ function validateReviewResult(review, page) {
 /** @see ../docs/product/review-criteria-provenance.md */
 function validateAssessmentBasis(review) {
   const basis = review.assessmentBasis
-  const sourceKinds = new Set(['teacher', 'mesh', 'textbook', 'method-guide', 'curriculum', 'official-key'])
+  // dayProgress is readable by the learner; answer keys belong in the private source pack.
+  // @see ../docs/product/review-criteria-provenance.md
+  const sourceKinds = new Set(['teacher', 'mesh', 'textbook', 'method-guide', 'curriculum'])
   if (!basis || !Number.isInteger(basis.grade) || basis.grade < 1 || basis.grade > 11
     || !/^20\d{2}\/\d{2}$/.test(basis.schoolYear)
     || !['requirement', 'observed', 'comparison'].every((key) => typeof basis[key] === 'string' && basis[key].trim().length >= 8)
     || !Array.isArray(basis.sources) || !basis.sources.length
     || !basis.sources.every((source) => sourceKinds.has(source.kind) && ['requirement', 'context'].includes(source.role)
       && source.ref?.trim() && source.excerpt?.trim() && source.excerpt.length <= 250)) {
-    throw new Error('Для неполного или спорного разбора нужен источник критерия: класс, учебный год, требование, запись, сопоставление и сверенные ссылки.')
+    throw new Error('Для разбора нужен безопасный для ученика источник требования: класс, учебный год, наблюдение и сверенные ссылки. Официальный ключ оставьте в закрытом источник-пакете.')
   }
   const expectedOutcome = review.status === 'verified' ? 'met' : review.status === 'cannot-assess' ? 'unresolved' : 'not-met'
   if (basis.outcome !== expectedOutcome) throw new Error('Вердикт и вывод из критерия противоречат друг другу.')
-  if (basis.outcome === 'not-met' && !basis.sources.some((source) => source.role === 'requirement' && ['teacher', 'mesh', 'textbook', 'official-key'].includes(source.kind))) {
+  if (basis.outcome === 'not-met' && !basis.sources.some((source) => source.role === 'requirement' && ['teacher', 'mesh', 'textbook'].includes(source.kind))) {
     throw new Error('Отрицательный вердикт нельзя основывать только на общей программе или методическом совете.')
   }
   if (basis.outcome === 'unresolved' && !basis.limitation?.trim()) throw new Error('При спорном критерии объясните, чего именно не хватает для вывода.')

@@ -28,6 +28,7 @@
 | [diary/local-store.mjs](../../diary/local-store.mjs) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Закрытые снимки дневника | Синхронизатор; план дня |
 | [docs/architecture/activity-and-inbox.md](../architecture/activity-and-inbox.md) | [Действия и новое](../architecture/activity-and-inbox.md) | Контракт событий и уведомлений | Агент; разработчик |
 | [docs/architecture/backend-driven-ui.md](../architecture/backend-driven-ui.md) | [Экраны из данных](../architecture/backend-driven-ui.md) | Контракт манифеста интерфейса | Агент; разработчик |
+| [docs/architecture/change-detection-and-reconciliation.md](../architecture/change-detection-and-reconciliation.md) | [Обнаружение и сверка изменений](../architecture/change-detection-and-reconciliation.md) | Ручная сверка и будущий наблюдатель изменений | Агент; разработчик |
 | [docs/architecture/family-artifact-access.md](../architecture/family-artifact-access.md) | [Архив семей](../architecture/family-artifact-access.md) | Будущий доступ к общим оригиналам | Агент; разработчик |
 | [docs/architecture/family-data-model.md](../architecture/family-data-model.md) | [Семейная модель](../architecture/family-data-model.md) | Роли, документы и этапы миграции | Агент; разработчик |
 | [docs/architecture/school-diary-port-adapter.md](../architecture/school-diary-port-adapter.md) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Граница получения данных МЭШ | Агент; разработчик |
@@ -41,6 +42,7 @@
 | [docs/product/grades.md](grades.md) | [Оценки](grades.md) | Показ оценок и границы расчёта | Агент; разработчик |
 | [docs/product/materials.md](materials.md) | [Материалы](materials.md) | Источники, страницы и ридер | Агент; разработчик |
 | [docs/product/plan-generation.md](plan-generation.md) | [Формирование плана](plan-generation.md) | Проверка происхождения пунктов ДЗ | Агент; разработчик |
+| [docs/product/protocol-audit-2026-10-11.md](protocol-audit-2026-10-11.md) | [Карта спецификаций](README.md) | Сверка договорённостей с навыками, кодом и пробелами | Следующая сессия; разработчик |
 | [docs/product/pwa.md](pwa.md) | [PWA](pwa.md) | Установка, кэш и выпуск приложения | Агент; разработчик |
 | [docs/product/quizzes.md](quizzes.md) | [Тесты](quizzes.md) | Попытки, ключи и результаты | Агент; разработчик |
 | [docs/product/storage-privacy.md](storage-privacy.md) | [Хранение и приватность](storage-privacy.md) | Фото, Диск и запрет бинарных данных в Firebase | Агент; разработчик |
@@ -86,7 +88,7 @@
 | [src/DayDashboard.css](../../src/DayDashboard.css) | [Dashboard](dashboard.md) | Оформление раскрываемого статуса каждого урока | `src/DayDashboard.tsx` |
 | [src/DayDashboard.tsx](../../src/DayDashboard.tsx) | [Dashboard](dashboard.md) | Календарь, живые статусы ДЗ и адресные переходы | Ученик; родитель; `src/DayPage.tsx` |
 | [src/DayPage.css](../../src/DayPage.css) | [Страница дня](day-page.md) | Оформление заданий и фокуса после перехода из расписания | `src/DayPage.tsx` |
-| [src/DayPage.tsx](../../src/DayPage.tsx) | [Экраны из данных](../architecture/backend-driven-ui.md) | Компоновка дня из Firestore и фокус конкретного задания | Ученик; родитель; `ProblemGroup` |
+| [src/DayPage.tsx](../../src/DayPage.tsx) | [Страница дня](day-page.md) | Компоновка дня из Firestore и фокус конкретного задания | Ученик; родитель; `ProblemGroup` |
 | [src/WeekendMathSlot.css](../../src/WeekendMathSlot.css) | [Адаптивная карточка](adaptive-problem-card.md) | Оформление общего слота математики | `src/WeekendMathSlot.tsx` |
 | [src/WeekendMathSlot.tsx](../../src/WeekendMathSlot.tsx) | [Экраны из данных](../architecture/backend-driven-ui.md) | Слот из данных ребёнка и общей карточки номера | Ученик; родитель; `ProblemGroup` |
 | [src/components/ArtifactAvatar.css](../../src/components/ArtifactAvatar.css) | [Статусы фотографии](day-page.md) | Общая миниатюра и положение значка состояния | `src/components/ArtifactAvatar.tsx` |
