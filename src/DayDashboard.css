@@ -20,30 +20,38 @@
 .day-dashboard-date.selected{background:#5d459f;color:#fff;border-color:#5d459f}
 .day-dashboard-date.selected small{color:#efe7ff}
 .day-dashboard-date.today.selected{box-shadow:0 0 0 3px #fff0d1}
-.day-dashboard-date:focus-visible,.day-dashboard-detail-link:focus-visible,.day-dashboard-subjects button:focus-visible{outline:3px solid #ad8ce5;outline-offset:3px}
+.day-dashboard-date:focus-visible,.day-dashboard-detail-link:focus-visible,.day-dashboard-homework-row:focus-visible,.day-dashboard-homework-complete summary:focus-visible{outline:3px solid #ad8ce5;outline-offset:3px}
 .day-dashboard-grid{display:grid;min-width:0;grid-template-columns:minmax(0,1fr) 290px;gap:18px;margin-top:20px;align-items:start}
 .day-dashboard-main{display:grid;gap:16px;min-width:0}
 .day-dashboard-card{padding:20px}
 .day-dashboard-card p{margin:7px 0;color:#6c617d;font-size:.9rem;line-height:1.55}
 .day-dashboard-card small{color:#8a7f97;font-size:.73rem;line-height:1.45}
 .day-dashboard-side{display:grid;gap:14px}
-.day-dashboard-subjects{margin:0 -20px -20px}
-.day-dashboard-subjects button{display:grid;grid-template-columns:39px minmax(0,1fr) 20px;align-items:center;gap:12px;width:100%;border:0;border-top:1px solid #eee9f3;background:white;color:#34295c;padding:15px 20px;text-align:left;cursor:pointer}
-.day-dashboard-subjects button:last-child{border-radius:0 0 23px 23px}
-.day-dashboard-subjects button:hover{background:#faf8fe}
-.day-dashboard-subjects button>span:nth-child(2){min-width:0}
-.day-dashboard-subjects strong,.day-dashboard-subjects small{display:block}
-.day-dashboard-subjects strong{font-size:.96rem;overflow-wrap:anywhere}
-.day-dashboard-task-titles{display:block;margin-top:3px;color:#6d617f;font-size:.78rem;line-height:1.4;overflow-wrap:anywhere}
-.day-dashboard-subjects small{margin-top:3px;color:#786e88}
-.day-dashboard-subject-body{min-width:0}
-.day-dashboard-evidence{display:flex;flex-wrap:wrap;gap:2px 8px;margin-top:5px;color:#716684;font-size:.68rem;line-height:1.35}
-.day-dashboard-evidence>span{display:inline-block;max-width:100%;overflow-wrap:anywhere}
-.day-dashboard-outcome{font-weight:750}
-.day-dashboard-outcome.success{color:#19643c}
-.day-dashboard-outcome.partial{color:#80520f}
-.day-dashboard-outcome.error{color:#a52839}
-.day-dashboard-outcome.neutral{color:#675977}
+/* @see ../docs/product/dashboard.md#homework-progress */
+.day-dashboard-homework-overview{display:grid;gap:12px}
+.day-dashboard-card .day-dashboard-homework-summary{margin:0;padding:10px 13px;border-radius:12px;font-size:.83rem;font-weight:800}
+.day-dashboard-homework-summary.action{background:#fff2dd;color:#865715}
+.day-dashboard-homework-summary.waiting{background:#eef5fd;color:#416b95}
+.day-dashboard-homework-summary.complete{background:#e8f6ed;color:#236b46}
+.day-dashboard-homework-group{display:grid;gap:6px}
+.day-dashboard-homework-group h3{margin:4px 0 2px;color:#6d617f;font-size:.76rem;font-weight:800}
+.day-dashboard-homework-row{display:grid;grid-template-columns:39px minmax(0,1fr) 18px;align-items:center;gap:11px;width:100%;border:1px solid #e5deed;border-radius:14px;background:#fff;color:#34295c;padding:11px;text-align:left;cursor:pointer}
+.day-dashboard-homework-row:hover{background:#faf8fe}
+.day-dashboard-homework-row.action{border-color:#edd7b4;background:#fffcf7}
+.day-dashboard-homework-row.waiting{border-color:#d9e5f3;background:#fbfdff}
+.day-dashboard-homework-row-body{display:grid;gap:3px;min-width:0}
+.day-dashboard-homework-row-body strong{font-size:.9rem;overflow-wrap:anywhere}
+.day-dashboard-homework-status{color:#80520f;font-size:.74rem;font-weight:800}
+.day-dashboard-homework-row.waiting .day-dashboard-homework-status{color:#426d98}
+.day-dashboard-homework-row.complete .day-dashboard-homework-status{color:#236b46}
+.day-dashboard-homework-next{color:#6f647f;font-size:.76rem;line-height:1.4;overflow-wrap:anywhere}
+.day-dashboard-homework-complete{border:1px solid #d8ebdf;border-radius:14px;overflow:hidden}
+.day-dashboard-homework-complete summary{display:flex;align-items:center;gap:9px;min-height:43px;padding:10px 12px;background:#f1faf4;color:#246847;font-size:.84rem;font-weight:800;list-style:none;cursor:pointer}
+.day-dashboard-homework-complete summary::-webkit-details-marker{display:none}
+.day-dashboard-homework-complete summary>span{flex:1}
+.day-dashboard-homework-complete summary>svg:last-child{transition:transform .18s ease}
+.day-dashboard-homework-complete[open] summary>svg:last-child{transform:rotate(180deg)}
+.day-dashboard-homework-complete>div{display:grid;gap:6px;padding:8px}
 .day-dashboard-icon{display:grid;place-items:center;width:39px;height:39px;border-radius:12px;background:#f4edfc;font-size:1.1rem}
 .day-dashboard-mesh p{border-top:1px solid #eee9f3;padding:11px 0}
 .day-dashboard-mesh strong,.day-dashboard-mesh span{display:block}

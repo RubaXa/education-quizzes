@@ -3,7 +3,7 @@ import { getAuth } from 'firebase/auth'
 import { ArrowRight, BookOpen, CalendarDays, CheckCircle2, ChevronDown, Clock3, Sparkles } from 'lucide-react'
 import { uploadMatchesTask, watchDayPage, watchDayReviews, watchDayUploads, watchEvidenceDayPages, withVerifiedPlatformResult } from '@/lib/dayStore'
 import type { DayPageData, DayTask, DayUpload, DayWorkReview } from '@/lib/dayStore'
-import { activeProcessing, elapsedLabel, reviewHeadline, reviewTone, timestampMillis } from '@/lib/reviewPresentation'
+import { activeProcessing } from '@/lib/reviewPresentation'
 import { watchDayDashboard } from '@/lib/dayDashboardStore'
 import type { DayDashboardData } from '@/lib/dayDashboardStore'
 import { loadAnswerKey, watchAssignment } from '@/lib/store'
@@ -77,71 +77,6 @@ function lessonWorkItems(tasks: DayTask[], uploads: DayUpload[], reviews: DayWor
             : task.kind === 'check' ? 'Ожидается результат ЦДЗ' : 'Нужно выполнить и загрузить работу'
     return [{ id: task.id, title: task.title, state, detail }]
   })
-}
-function taskState(task: DayTask, uploads: DayUpload[], reviews: DayWorkReview[], tests: Record<string, Assignment>, scores: Record<string, QuizScore>, now: number) {
-  if (task.problems?.length) {
-    const ids = new Set(task.problems.map((problem) => problem.id))
-    const complete = task.problems.filter((problem) => reviews.find((review) => review.taskId === problem.id)?.status === 'verified').length
-    const pending = uploads.filter((upload) => [...ids].some((id) => uploadMatchesTask(upload, id)) && upload.status === 'pending').length
-    return `${complete} из ${task.problems.length} задач проверено${pending ? ` · ${pending} фото ждёт разбора` : ''}`
-  }
-  const reviewed = reviews.find((item) => item.taskId === task.id)
-  if (task.kind === 'written') {
-    const photos = uploads.filter((upload) => uploadMatchesTask(upload, task.id))
-    const processing = activeProcessing(reviewed, photos)
-    if (processing) return processing.phase === 'paused' ? 'Фото получено · проверка задержана' : now - (timestampMillis(processing.updatedAt) ?? now) > 30 * 60 * 1000 ? 'Проверка задерживается' : `${processing.label} · ${elapsedLabel(processing.startedAt, now)}`
-    if (photos.some((upload) => upload.status === 'pending')) return 'Фото получено · ждёт проверки'
-    if (reviewed?.assessmentBasis?.outcome === 'unresolved') return 'Разобрано · критерий неясен'
-    if (reviewed?.status === 'verified') return 'Проверено'
-    if (reviewed?.status === 'partial') return 'Проверено · дополнить'
-    if (reviewed?.status === 'needs-fix') return 'Проверено · исправить'
-    if (reviewed?.status === 'cannot-assess') return 'Фото нужно переснять'
-    if (task.status === 'verified') return 'Проверено'
-    if (task.status === 'needs-fix') return 'Нужно исправить'
-    if (task.status === 'partial') return 'Нужно дополнить'
-    if (photos.length) return 'Работа загружена'
-    return 'Нужно фото'
-  }
-  if (task.kind === 'check' && (task.id.endsWith('-cdz') || task.title.includes('ЦДЗ'))) {
-    const photos = uploads.filter((upload) => uploadMatchesTask(upload, task.id))
-    const processing = activeProcessing(reviewed, photos)
-    if (processing && processing.phase !== 'paused') return `${processing.label} · ${elapsedLabel(processing.startedAt, now)}`
-    if (photos.some((upload) => upload.status === 'pending')) return 'Результат ЦДЗ получен · ждёт проверки'
-    if (task.platformResult?.state === 'completed') return `ЦДЗ пройдено · ${task.platformResult.points}/${task.platformResult.maxPoints}`
-    return 'Ожидает результата ЦДЗ'
-  }
-  if (task.kind === 'read' && task.testToken) {
-    const test = tests[task.testToken]
-    const score = scores[task.testToken]
-    if (!test) return task.status === 'verified' ? 'Чтение подтверждено' : 'Нужен тест'
-    const answered = Object.values(test.answers ?? {}).filter((answer) => answer !== '' && (!Array.isArray(answer) || answer.length > 0)).length
-    if (test.status === 'submitted') return score ? `${task.status === 'verified' || score.points >= (task.requiredPoints ?? score.maxPoints) ? 'Чтение подтверждено' : 'Нужен разбор'} · ${score.points} из ${score.maxPoints} верно` : 'Тест отправлен · результат уточняется'
-    return answered ? `Тест: ${answered} из ${test.questions.length} ответов` : 'Нужен тест'
-  }
-  if (task.status === 'verified' || reviewed?.status === 'verified') return 'Проверено'
-  return task.status === 'needs-fix' ? 'Нужно исправить' : 'Статус неизвестен'
-}
-
-/** @see ../docs/product/dashboard.md#homework-progress */
-function homeworkProgress(tasks: DayTask[], uploads: DayUpload[], reviews: DayWorkReview[], tests: Record<string, Assignment>, scores: Record<string, QuizScore>, now: number) {
-  const taskIds = new Set(tasks.flatMap((task) => [task.id, ...(task.problems ?? []).map((problem) => problem.id)]))
-  const photos = uploads.filter((upload) => [...taskIds].some((id) => uploadMatchesTask(upload, id)))
-  const pending = photos.filter((photo) => photo.status === 'pending').length
-  const checked = photos.filter((photo) => photo.status === 'reviewed').length
-  const results = tasks.flatMap((task) => [task, ...(task.problems ?? []).map((problem) => ({ ...task, id: problem.id, title: `№ ${problem.number}` }))])
-    .map((task) => ({ task, review: reviews.find((item) => item.taskId === task.id) }))
-    .filter((entry): entry is { task: DayTask; review: DayWorkReview } => Boolean(entry.review?.status))
-  const state = tasks.map((task) => taskState(task, uploads, reviews, tests, scores, now)).join(' · ')
-  const evidence = photos.length ? [
-    `${photos.length} фото загружено`,
-    ...(pending ? [`${pending} ${pending === 1 ? 'ждёт' : 'ждут'} проверки`] : []),
-    ...(checked ? [`${checked} проверено`] : []),
-  ].join(' · ') : ''
-  const outcomes = results.map(({ task, review }) => ({
-    label: `${tasks.length > 1 ? `${task.title}: ` : ''}${photos.some((photo) => uploadMatchesTask(photo, task.id) && photo.status === 'pending') ? 'Ранее: ' : ''}${reviewHeadline(review)}`,
-    tone: reviewTone(review),
-  }))
-  return { state, evidence, outcomes }
 }
 
 /**
@@ -268,6 +203,16 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
   const weekendWork = index?.weekendWork?.find((slot) => slot.dates.includes(selectedDate))
   const currentSubjects = selectedPage?.subjects.map((subject) => ({ ...subject, tasks: subject.tasks.filter((task) => (task.originDate ?? selectedDate) === selectedDate)
     .map((task) => withVerifiedPlatformResult(task, selectedDate, evidencePages)) })).filter((subject) => subject.tasks.length) ?? []
+  const homeworkRows = currentSubjects.map((subject) => {
+    const items = lessonWorkItems(subject.tasks, uploads, reviews, tests, scores)
+    const done = items.filter((item) => item.state === 'done').length
+    const next = items.find((item) => item.state === 'todo') ?? items.find((item) => item.state === 'checking') ?? items.find((item) => item.state === 'unclear')
+    const group = items.some((item) => item.state === 'todo') ? 'action' : items.some((item) => item.state === 'checking' || item.state === 'unclear') ? 'waiting' : 'complete'
+    return { subject, items, done, next, group }
+  })
+  const actionRows = homeworkRows.filter((row) => row.group === 'action')
+  const waitingRows = homeworkRows.filter((row) => row.group === 'waiting')
+  const completeRows = homeworkRows.filter((row) => row.group === 'complete')
   const gradeSource = gradePage
   const gradeRows = gradeSource?.gradeSummary ?? []
   const gradeDetails = new Map((gradeSource?.grades ?? []).map((item) => [item.id, item]))
@@ -286,6 +231,16 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
     if (taskId) sessionStorage.setItem('education-day-focus-task', JSON.stringify({ dayToken, taskId }))
     else sessionStorage.removeItem('education-day-focus-task')
     window.location.hash = `#/${parent ? 'day-parent' : 'day'}/${dayToken}`
+  }
+  /** @see ../docs/product/dashboard.md#homework-progress */
+  function homeworkRow(row: typeof homeworkRows[number]) {
+    const { subject, items, done, next, group } = row
+    const status = group === 'complete' ? 'Всё подтверждено' : next?.state === 'unclear' ? 'Критерий неясен' : next?.state === 'checking' ? 'Ждём проверки' : done ? `${done} из ${items.length} подтверждено` : 'Нужно сделать'
+    return <button className={`day-dashboard-homework-row ${group}`} key={subject.id} type="button" onClick={() => homeworkToken && openDay(homeworkToken, 'homework', next?.id)}>
+      <span className="day-dashboard-icon" aria-hidden="true">{subject.icon}</span>
+      <span className="day-dashboard-homework-row-body"><strong>{subject.name}</strong><span className="day-dashboard-homework-status">{status}</span>{next && <span className="day-dashboard-homework-next">{next.title} · {next.detail}</span>}{group === 'complete' && <span className="day-dashboard-homework-next">{subject.tasks.map((task) => task.title).join(' · ')}</span>}</span>
+      <ArrowRight size={18} aria-hidden="true" />
+    </button>
   }
 
   if (error && !index) return <div className="day-dashboard-error"><h1>Не получилось открыть dashboard</h1><p>{error}</p></div>
@@ -339,12 +294,12 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
       </section>
       <section className="day-dashboard-card" aria-label="Домашнее задание выбранного дня">
         <div className="day-dashboard-heading"><div><BookOpen size={20} /><h2>Домашнее задание</h2></div><small>К {dateLabel(selectedDate)}</small></div>
-        {selectedPage && currentSubjects.length ? <div className="day-dashboard-subjects">{currentSubjects.map((subject) => {
-          const progress = homeworkProgress(subject.tasks, uploads, reviews, tests, scores, now)
-          return <button key={subject.id} type="button" onClick={() => homeworkToken && openDay(homeworkToken, 'homework')}>
-            <span className="day-dashboard-icon" aria-hidden="true">{subject.icon}</span><span className="day-dashboard-subject-body"><strong>{subject.name}</strong><span className="day-dashboard-task-titles">{subject.tasks.map((task) => task.title).join(' · ')}</span><small>{progress.state}</small>{(progress.evidence || progress.outcomes.length > 0) && <span className="day-dashboard-evidence">{progress.evidence && <span>{progress.evidence}</span>}{progress.outcomes.map((result, index) => <span className={`day-dashboard-outcome ${result.tone}`} key={`${index}-${result.label}`}>{result.label}</span>)}</span>}</span><ArrowRight size={18} />
-          </button>
-        })}</div> : selectedEntry?.homework.length ? <div className="day-dashboard-mesh">{selectedEntry.homework.map((item, index) => <p key={index}><strong>{item.subject}</strong><span>{item.text}</span></p>)}<small>Точный текст МЭШ · разбор страницы готовится</small></div> : <p className="day-dashboard-empty">{selectedEntry?.complete ? 'По сохранённым данным МЭШ ДЗ на эту дату не опубликовано.' : 'ДЗ пока не опубликовано.'} Последняя проверка: {checkedLabel(selectedEntry?.checkedAt ?? null)}.</p>}
+        {selectedPage && currentSubjects.length ? <div className="day-dashboard-homework-overview">
+          <p className={`day-dashboard-homework-summary ${actionRows.length ? 'action' : waitingRows.length ? 'waiting' : 'complete'}`}>{actionRows.length ? `Требуют внимания: ${actionRows.length} ${word(actionRows.length, 'предмет', 'предмета', 'предметов')}` : waitingRows.length ? 'От ученика пока не требуется действий' : 'Всё заданное сделано'}</p>
+          {actionRows.length > 0 && <div className="day-dashboard-homework-group"><h3>Что сделать</h3>{actionRows.map(homeworkRow)}</div>}
+          {waitingRows.length > 0 && <div className="day-dashboard-homework-group"><h3>Ждём проверку или уточнение</h3>{waitingRows.map(homeworkRow)}</div>}
+          {completeRows.length > 0 && <details className="day-dashboard-homework-complete"><summary><CheckCircle2 size={18} aria-hidden="true" /><span>Сделано · {completeRows.length} {word(completeRows.length, 'предмет', 'предмета', 'предметов')}</span><ChevronDown size={17} aria-hidden="true" /></summary><div>{completeRows.map(homeworkRow)}</div></details>}
+        </div> : selectedEntry?.homework.length ? <div className="day-dashboard-mesh">{selectedEntry.homework.map((item, index) => <p key={index}><strong>{item.subject}</strong><span>{item.text}</span></p>)}<small>Точный текст МЭШ · разбор страницы готовится</small></div> : <p className="day-dashboard-empty">{selectedEntry?.complete ? 'По сохранённым данным МЭШ ДЗ на эту дату не опубликовано.' : 'ДЗ пока не опубликовано.'} Последняя проверка: {checkedLabel(selectedEntry?.checkedAt ?? null)}.</p>}
         {homeworkToken && <button className="day-dashboard-detail-link" type="button" onClick={() => openDay(homeworkToken, 'homework')}>Открыть подробное ДЗ <ArrowRight size={17} /></button>}
       </section>
       </div>
