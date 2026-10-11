@@ -12,13 +12,13 @@ import { YandexDiskStorage } from '../storage/yandex-disk.mjs'
  * @see ../docs/product/adaptive-problem-card.md#слои
  */
 const [command, argument, phase] = process.argv.slice(2)
-const reviewCommand = command === 'review' || command === 'progress'
+const reviewCommand = command === 'review' || command === 'progress' || command === 'feedback'
 const dateFilter = reviewCommand ? null : argument
-if (!['inbox', 'pull', 'review', 'progress', 'help'].includes(command)
+if (!['inbox', 'pull', 'review', 'progress', 'help', 'feedback', 'feedback-audit'].includes(command)
   || reviewCommand && !argument
   || command === 'progress' && !['download', 'source', 'review', 'publish', 'paused'].includes(phase)
   || dateFilter && !/^\d{4}-\d{2}-\d{2}$/.test(dateFilter)) {
-  throw new Error('Использование: npm run submissions -- inbox|pull|help [YYYY-MM-DD] | progress .local/review-....json download|source|review|publish|paused | review .local/review-....json')
+  throw new Error('Использование: npm run submissions -- inbox|pull|help|feedback-audit [YYYY-MM-DD] | progress .local/review-....json download|source|review|publish|paused | review|feedback .local/review-....json')
 }
 const local = resolve('.local')
 const adcFile = resolve(local, 'adc.json')
@@ -102,6 +102,27 @@ async function helpInbox() {
   }
   requests.sort((a, b) => (b.requestedAt ?? '').localeCompare(a.requestedAt ?? ''))
   return requests
+}
+
+async function feedbackAudit() {
+  const owners = await db.collection('dayOwners').get()
+  const missing = []
+  let checked = 0
+  for (const ownerDoc of owners.docs) {
+    const owner = ownerDoc.data()
+    if (dateFilter && owner.date !== dateFilter) continue
+    const page = (await db.doc(`dayPages/${ownerDoc.id}`).get()).data()
+    if (page?.kind !== 'student') continue
+    const progress = await db.collection(`dayProgress/${ownerDoc.id}/items`).get()
+    for (const item of progress.docs) {
+      if (!['needs-fix', 'partial'].includes(item.data().status)) continue
+      checked += 1
+      if (item.data().studentFeedback) continue
+      missing.push({ childId: owner.childId, dayDate: owner.date, taskId: item.id,
+        status: item.data().status, uploadIds: item.data().uploadIds ?? [] })
+    }
+  }
+  return { checked, missing }
 }
 
 function privatePhoto(upload) {
@@ -189,6 +210,10 @@ function validateReviewResult(review, page) {
   if (review.status === 'verified' && review.items.some((item) => item.status !== 'correct')) {
     throw new Error('Нельзя отметить всю работу проверенной при ошибке в подпункте.')
   }
+  if (review.items.some((item) => Object.hasOwn(item, 'expected'))) {
+    throw new Error('items.expected нельзя публиковать в ученический dayProgress; ключ храните в закрытом source-pack.')
+  }
+  if (['needs-fix', 'partial'].includes(review.status)) validateStudentFeedback(review)
   const subject = page.subjects?.find((entry) => entry.tasks?.some((task) => task.id === review.taskId || task.problems?.some((problem) => problem.id === review.taskId)))
   const task = subject?.tasks?.find((entry) => entry.id === review.taskId || entry.problems?.some((problem) => problem.id === review.taskId))
   if (subject && ['math', 'special'].includes(subject.id) && task?.kind === 'written') {
@@ -210,11 +235,62 @@ function validateReviewResult(review, page) {
   }
 }
 
+/** @see ../docs/product/adaptive-problem-card.md#адресный-разбор */
+function validateStudentFeedback(review) {
+  const feedback = review.studentFeedback
+  if (!feedback || !['title', 'confirmed', 'focus', 'question'].every((key) => typeof feedback[key] === 'string' && feedback[key].trim().length >= 8 && feedback[key].length <= 700)
+    || feedback.anchor && (!review.uploadIds?.includes(feedback.anchor.uploadId) || typeof feedback.anchor.location !== 'string' || !feedback.anchor.location.trim())) {
+    throw new Error('Нужны проверенные ученические фразы: что получилось, точное место, один вопрос и короткий заголовок. Привязка к фото должна входить в текущий набор.')
+  }
+}
+
 function resultRecord(review, previous, now, date, planRevision) {
   const priorReviews = previous?.status ? [...(previous.history ?? []), Object.fromEntries(Object.entries(previous).filter(([key]) => key !== 'history' && key !== 'processing'))] : previous?.history ?? []
-  const { taskId, uploadIds, status, summary, nextStep, source, items, mathReasoning } = review
+  const { taskId, uploadIds, status, summary, nextStep, source, items, mathReasoning, studentFeedback } = review
   return { date, taskId, planRevision, uploadIds, status, summary, nextStep, source, items,
-    ...(mathReasoning ? { mathReasoning } : {}), checkedAt: now, history: priorReviews.slice(-20) }
+    ...(mathReasoning ? { mathReasoning } : {}), ...(studentFeedback ? { studentFeedback } : {}), checkedAt: now, history: priorReviews.slice(-20) }
+}
+
+/** Correct a previously published explanation for the same reviewed photo without inventing a new learner attempt. */
+async function publishFeedbackCorrection(filename) {
+  const correction = privateReviewFile(filename)
+  if (correction.reviews || !correction.correctionReason?.trim()) throw new Error('Исправление одного номера требует correctionReason.')
+  validateStudentFeedback(correction)
+  const owners = (await db.collection('dayOwners').get()).docs.filter((item) => item.data().date === correction.date)
+  const matches = []
+  for (const owner of owners) {
+    const [pageDoc, progressDoc, ...photos] = await Promise.all([
+      db.doc(`dayPages/${owner.id}`).get(), db.doc(`dayProgress/${owner.id}/items/${correction.taskId}`).get(),
+      ...correction.uploadIds.map((id) => db.doc(`dayUploads/${owner.id}/files/${id}`).get()),
+    ])
+    if (pageDoc.data()?.kind === 'student' && progressDoc.exists && photos.every((photo) => photo.exists)) {
+      matches.push({ owner, page: pageDoc.data(), progressDoc, photos })
+    }
+  }
+  if (matches.length !== 1) throw new Error('Исправление не связано однозначно с одним ребёнком, заданием и набором фото.')
+  const { owner, page, progressDoc, photos } = matches[0]
+  const previous = progressDoc.data()
+  const currentTask = page.subjects?.flatMap((subject) => subject.tasks ?? []).find((task) => task.id === correction.taskId)
+  const sameAssignmentAfterPageUpdate = page.planRevision > correction.planRevision
+    && correction.meshText?.trim() && currentTask?.meshText === correction.meshText
+  if (page.planRevision !== correction.planRevision && !sameAssignmentAfterPageUpdate
+    || previous.planRevision !== correction.planRevision
+    || previous.status !== correction.status || !Array.isArray(previous.uploadIds) || previous.uploadIds.length !== correction.uploadIds.length
+    || !previous.uploadIds.every((id) => correction.uploadIds.includes(id))
+    || !page.taskIds?.includes(correction.taskId) || photos.some((photo) => photo.data().status !== 'reviewed')) {
+    throw new Error('После проверки изменились статус, ревизия, список фото или привязка задания; исправление остановлено.')
+  }
+  validateReviewResult(correction, page)
+  const now = Timestamp.now()
+  // This document is readable by the learner. Keep the fact of a correction,
+  // not old review prose or answer keys that may have appeared in legacy items.
+  const oldRecord = { at: now, reason: correction.correctionReason,
+    priorStatus: previous.status, priorFeedbackTitle: previous.studentFeedback?.title ?? null }
+  await progressDoc.ref.update({ summary: correction.summary, nextStep: correction.nextStep,
+    items: correction.items, ...(correction.mathReasoning ? { mathReasoning: correction.mathReasoning } : {}), studentFeedback: correction.studentFeedback,
+    correctedAt: now, feedbackCorrections: [...(previous.feedbackCorrections ?? []), oldRecord].slice(-10) })
+  console.log(JSON.stringify({ correctedTask: correction.taskId, childId: owner.data().childId,
+    preservedAttemptCount: previous.history?.length ?? 0, correctedLiveFeedback: true }))
 }
 
 /** @see ../docs/product/storage-privacy.md#multi-task-photo */
@@ -242,6 +318,8 @@ async function publishReview(filename) {
 
 if (command === 'review') {
   await publishReview(argument)
+} else if (command === 'feedback') {
+  await publishFeedbackCorrection(argument)
 } else if (command === 'progress') {
   await publishProgress(argument, phase)
 } else if (command === 'inbox') {
@@ -250,6 +328,9 @@ if (command === 'review') {
 } else if (command === 'help') {
   const requests = await helpInbox()
   console.log(JSON.stringify({ captured: requests.length, requests }, null, 2))
+} else if (command === 'feedback-audit') {
+  const audit = await feedbackAudit()
+  console.log(JSON.stringify({ reviewedWithOpenFix: audit.checked, missingAddressedFeedback: audit.missing.length, works: audit.missing }, null, 2))
 } else {
   const rows = await pendingInbox()
   const output = resolve(local, 'submission-inbox')
