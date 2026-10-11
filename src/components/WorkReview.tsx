@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Check, ChevronDown, CircleAlert, Minus, X } from 'lucide-react'
 import type { DayUpload, DayWorkReview } from '@/lib/dayStore'
+import { requirementChoice, requiredFamilyActions } from '@/lib/parentCompletion'
+import type { ParentCompletionEvent } from '@/lib/parentCompletion'
 import { activeProcessing, elapsedLabel, processingIsStale, reviewHeadline, reviewTone, workCoverageComplete } from '@/lib/reviewPresentation'
 import { ArtifactStatusGlyph } from './ArtifactAvatar'
 
@@ -11,8 +13,9 @@ const itemLabels = { correct: 'Верно', partial: 'Частично верн�
  * меняют только данные; открытая страница получает их через onSnapshot.
  * @see ../../docs/product/day-page.md#homework-review
  */
-export default function WorkReview({ review, uploads, accepted = false, canDecide = false, onDecision }: {
-  review?: DayWorkReview; uploads: DayUpload[]; accepted?: boolean; canDecide?: boolean; onDecision?: (action: 'accept' | 'reopen') => Promise<void>
+export default function WorkReview({ review, uploads, accepted = false, canDecide = false, onDecision, decisions = [], onRequirementChoice, parent = false }: {
+  review?: DayWorkReview; uploads: DayUpload[]; accepted?: boolean; canDecide?: boolean; onDecision?: (action: 'accept' | 'reopen') => Promise<void>;
+  decisions?: ParentCompletionEvent[]; onRequirementChoice?: (requirementId: string, action: 'require' | 'optional') => Promise<void>; parent?: boolean
 }) {
   const [saving, setSaving] = useState(false)
   const [decisionError, setDecisionError] = useState('')
@@ -29,7 +32,8 @@ export default function WorkReview({ review, uploads, accepted = false, canDecid
   }, [pending.length])
   if (!pending.length && !review?.status) return null
 
-  const tone = accepted ? 'success' : review?.status ? reviewTone(review) : 'neutral'
+  const requiredActions = requiredFamilyActions(review, decisions)
+  const tone = requiredActions.length ? 'partial' : accepted ? 'success' : review?.status ? reviewTone(review) : 'neutral'
   const items = review?.items ?? []
   const feedback = review?.studentFeedback
   const basis = review?.assessmentBasis
@@ -49,6 +53,14 @@ export default function WorkReview({ review, uploads, accepted = false, canDecid
     catch (cause) { setDecisionError(cause instanceof Error ? cause.message : 'Не удалось сохранить решение. Попробуйте ещё раз.') }
     finally { setSaving(false) }
   }
+  async function chooseRequirement(requirementId: string, action: 'require' | 'optional') {
+    if (!onRequirementChoice || saving) return
+    setSaving(true)
+    setDecisionError('')
+    try { await onRequirementChoice(requirementId, action) }
+    catch (cause) { setDecisionError(cause instanceof Error ? cause.message : 'Не удалось сохранить решение.') }
+    finally { setSaving(false) }
+  }
 
   return <div className="day-review-stack">
     {pending.length > 0 && <div className={`day-review-progress${running ? ' active' : ''}`} role="status" aria-live="polite">
@@ -60,7 +72,7 @@ export default function WorkReview({ review, uploads, accepted = false, canDecid
     {review?.status && <details className={`day-work-review ${tone}`}>
       <summary>
         <span className="day-work-review-icon">{tone === 'success' ? <Check size={17} aria-hidden="true" /> : tone === 'partial' ? <Minus size={17} aria-hidden="true" /> : tone === 'error' ? <X size={17} aria-hidden="true" /> : <CircleAlert size={17} aria-hidden="true" />}</span>
-        <span className="day-work-review-title"><b>{pending.length ? 'Предыдущая проверка' : 'Итог разбора'}</b><span>{accepted ? 'Засчитано родителем · ход неполон' : reviewHeadline(review)}</span></span>
+        <span className="day-work-review-title"><b>{pending.length ? 'Предыдущая проверка' : 'Итог разбора'}</b><span>{requiredActions.length ? 'Доработать по решению родителя' : accepted ? 'Засчитано родителем · ход неполон' : reviewHeadline(review)}</span></span>
         <ChevronDown className="day-work-review-chevron" size={18} aria-hidden="true" />
       </summary>
       <div className="day-work-review-body">
@@ -69,7 +81,18 @@ export default function WorkReview({ review, uploads, accepted = false, canDecid
           <span className={argument === 'sufficient' || argument === 'not-required' ? 'correct' : 'incomplete'}>{argument === 'sufficient' || argument === 'not-required' ? <Check size={16} aria-hidden="true" /> : <Minus size={16} aria-hidden="true" />}{argumentLabel}</span>
         </div>}
         {accepted && <p className="day-work-review-accepted">Задача завершена по решению родителя. Ответ верен; обоснование хода в работе осталось неполным.</p>}
-        {basis?.outcome === 'unresolved' && <p className="day-work-review-unprepared">{workCoverageComplete(review) ? `Работа предъявлена полностью: ${review.workCoverage?.note} ` : `Разбор фото завершён. ${review.summary} `}Критерий оценки пока не установлен; от ученика сейчас действий не требуется.</p>}
+        {basis?.outcome === 'unresolved' && <p className="day-work-review-unprepared">{workCoverageComplete(review) ? `Работа предъявлена полностью: ${review.workCoverage?.note} ` : `Разбор фото завершён. ${review.summary} `}{requiredActions.length ? 'Родитель назначил доработку для семейного плана; она указана ниже.' : 'Дополнительных действий от ученика сейчас не требуется.'}</p>}
+        {basis?.disputedRequirements?.map((item) => {
+          const choice = requirementChoice(review, item.id, decisions)
+          if (!parent && !choice) return null
+          return <section className="day-work-review-dispute" key={item.id}>
+            <strong>{parent ? item.action : choice === 'require' ? `Сделай по решению родителя: ${item.action}` : `Можно по желанию: ${item.action}`}</strong>
+            {parent && <><p><b>МЭШ:</b> «{item.meshExcerpt}»</p><p><b>{item.sourceKind === 'textbook' ? 'Учебник' : 'Предположение Education'}:</b> «{item.sourceExcerpt}»</p><p>{item.uncertainty}</p><small>{item.sourceRef}</small></>}
+            <p><b>Решение семьи:</b> {choice === 'require' ? 'обязательно доработать' : choice === 'optional' ? 'по желанию, не долг' : 'ещё не выбрано; от ученика действий не требуется'}</p>
+            {parent && <div className="day-work-review-dispute-actions"><button type="button" disabled={!canDecide || saving || choice === 'require'} onClick={() => void chooseRequirement(item.id, 'require')}>Сделать обязательным</button><button type="button" disabled={!canDecide || saving || choice === 'optional'} onClick={() => void chooseRequirement(item.id, 'optional')}>Оставить по желанию</button></div>}
+          </section>
+        })}
+        {decisionError && <small role="alert">{decisionError}</small>}
         {!accepted && feedback ? <div className="day-work-review-feedback">
           <p><b>Уже получилось</b><span>{feedback.confirmed}</span></p>
           <p><b>Проверь здесь</b><span>{feedback.focus}</span></p>

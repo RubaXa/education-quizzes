@@ -5,7 +5,7 @@ import { uploadMatchesTask, watchDayPage, watchDayReviews, watchDayUploads, watc
 import type { DayPageData, DayTask, DayUpload, DayWorkReview } from '@/lib/dayStore'
 import { activeProcessing, workCoverageComplete } from '@/lib/reviewPresentation'
 import { useParentCompletions } from '@/lib/useParentCompletions'
-import { parentAccepted } from '@/lib/parentCompletion'
+import { parentAccepted, requiredFamilyActions } from '@/lib/parentCompletion'
 import type { ParentCompletionEvent } from '@/lib/parentCompletion'
 import { watchDayDashboard } from '@/lib/dayDashboardStore'
 import type { DayDashboardData } from '@/lib/dayDashboardStore'
@@ -59,9 +59,10 @@ function lessonWorkItems(tasks: DayTask[], uploads: DayUpload[], reviews: DayWor
       const pending = uploads.some((upload) => uploadMatchesTask(upload, problem.id) && ['requested', 'awaiting-upload', 'uploaded', 'pending'].includes(upload.status))
       const criterionPending = review?.assessmentBasis?.outcome === 'unresolved'
       const accepted = parentAccepted(review, decisions)
-      const covered = workCoverageComplete(review) && !pending
-      const state: LessonWorkItem['state'] = pending ? 'checking' : criterionPending && !covered ? 'unclear' : review?.status === 'verified' || accepted || covered ? 'done' : 'todo'
-      return { id: problem.id, title: `№ ${problem.number}. ${problem.title}`, state, qualityOpen: covered, detail: state === 'unclear' ? `${review?.summary ?? 'Работа разобрана; критерий учителя не подтверждён.'} Новое фото не требуется.` : state === 'checking' ? 'Фото получено, ждём проверки' : state === 'done' ? covered ? 'Работа сдана; критерий оценки пока не установлен. Новых действий не требуется.' : accepted ? 'Засчитано родителем · ответ верен, ход неполон' : 'Решение проверено' : review?.status === 'needs-fix' ? 'Нужно исправить решение' : review?.status === 'partial' ? 'Нужно дополнить решение' : 'Нужно выполнить и загрузить решение' }
+      const familyActions = requiredFamilyActions(review, decisions)
+      const covered = workCoverageComplete(review) && !pending && !familyActions.length
+      const state: LessonWorkItem['state'] = pending ? 'checking' : familyActions.length ? 'todo' : criterionPending && !covered ? 'unclear' : review?.status === 'verified' || accepted || covered ? 'done' : 'todo'
+      return { id: problem.id, title: `№ ${problem.number}. ${problem.title}`, state, qualityOpen: covered, detail: familyActions.length ? `По решению родителя: ${familyActions.join('; ')}` : state === 'unclear' ? `${review?.summary ?? 'Работа разобрана; критерий не подтверждён.'} Новое фото не требуется.` : state === 'checking' ? 'Фото получено, ждём проверки' : state === 'done' ? covered ? 'Работа сдана; критерий оценки пока не установлен. Новых действий не требуется.' : accepted ? 'Засчитано родителем · ответ верен, ход неполон' : 'Решение проверено' : review?.status === 'needs-fix' ? 'Нужно исправить решение' : review?.status === 'partial' ? 'Нужно дополнить решение' : 'Нужно выполнить и загрузить решение' }
     })
     const review = reviews.find((item) => item.taskId === task.id)
     const pending = uploads.some((upload) => uploadMatchesTask(upload, task.id) && ['requested', 'awaiting-upload', 'uploaded', 'pending'].includes(upload.status))
@@ -70,15 +71,15 @@ function lessonWorkItems(tasks: DayTask[], uploads: DayUpload[], reviews: DayWor
     const readPassed = task.kind === 'read' && score && score.points >= (task.requiredPoints ?? score.maxPoints)
     const cdzPassed = task.platformResult?.state === 'completed'
     const accepted = parentAccepted(review, decisions)
-    const covered = workCoverageComplete(review) && !pending
-    const done = Boolean(readPassed || cdzPassed || review?.status === 'verified' || accepted || covered || !review && task.status === 'verified')
+    const familyActions = requiredFamilyActions(review, decisions)
+    const covered = workCoverageComplete(review) && !pending && !familyActions.length
+    const done = !familyActions.length && Boolean(readPassed || cdzPassed || review?.status === 'verified' || accepted || covered || !review && task.status === 'verified')
     const processing = activeProcessing(review, uploads.filter((upload) => uploadMatchesTask(upload, task.id)))
     const criterionPending = review?.assessmentBasis?.outcome === 'unresolved'
     const checking = !done && (pending || Boolean(processing && processing.phase !== 'paused') || task.kind === 'read' && test?.status === 'submitted' && !score)
-    const state: LessonWorkItem['state'] = done ? 'done' : checking ? 'checking' : criterionPending ? 'unclear' : 'todo'
-    const detail = state === 'done' ? covered ? 'Работа сдана; критерий оценки пока не установлен. Новых действий не требуется.' : accepted ? 'Засчитано родителем · ответ верен, ход неполон' : task.kind === 'read' && score ? `Тест: ${score.points} из ${score.maxPoints} верно` : cdzPassed ? `ЦДЗ пройдено: ${task.platformResult?.points} из ${task.platformResult?.maxPoints}` : 'Работа проверена'
+    const state: LessonWorkItem['state'] = pending ? 'checking' : familyActions.length ? 'todo' : done ? 'done' : checking ? 'checking' : criterionPending ? 'unclear' : 'todo'
+    const detail = state === 'checking' ? 'Работа получена, ждём результата проверки' : familyActions.length ? `По решению родителя: ${familyActions.join('; ')}` : state === 'done' ? covered ? 'Работа сдана; критерий оценки пока не установлен. Новых действий не требуется.' : accepted ? 'Засчитано родителем · ответ верен, ход неполон' : task.kind === 'read' && score ? `Тест: ${score.points} из ${score.maxPoints} верно` : cdzPassed ? `ЦДЗ пройдено: ${task.platformResult?.points} из ${task.platformResult?.maxPoints}` : 'Работа проверена'
       : state === 'unclear' ? `${review?.summary ?? 'Работа разобрана; критерий учителя не подтверждён.'} Новое фото не требуется.`
-        : state === 'checking' ? 'Работа получена, ждём результата проверки'
         : review?.status === 'needs-fix' ? 'Нужно исправить работу' : review?.status === 'partial' ? 'Нужно дополнить работу' : review?.status === 'cannot-assess' ? 'Фото нужно переснять'
           : task.kind === 'read' ? test?.status === 'submitted' ? 'Нужен разбор и повторная проверка' : 'Нужно пройти тест'
             : task.kind === 'check' ? 'Ожидается результат ЦДЗ' : 'Нужно выполнить и загрузить работу'

@@ -54,7 +54,7 @@
 | [docs/research/photo-math-solution-review.md](../research/photo-math-solution-review.md) | [Адаптивная карточка](adaptive-problem-card.md) | Основание проверки хода решения | Агент при изменении разбора |
 | [docs/research/special-course-source-provenance.md](../research/special-course-source-provenance.md) | [Адаптивная карточка](adaptive-problem-card.md) | Поиск прототипов, вариантов, ключей и критериев спецкурса | Агент подготовки; проверяющий; родительский обзор |
 | [firebase.json](../../firebase.json) | [Семейная модель](../architecture/family-data-model.md) | Настройки публикации правил Firestore | Firebase CLI |
-| [firestore.rules](../../firestore.rules) | [Страница дня](day-page.md) | Права на семейные и переходные документы, на решение родителя | Firebase; клиент |
+| [firestore.rules](../../firestore.rules) | [Страница дня](day-page.md) | Права на семейные и переходные документы, на выбор обязательности спорных требований | Firebase; клиент |
 | [index.html](../../index.html) | [PWA](pwa.md) | HTML-точка входа приложения | Браузер; Vite |
 | [lefthook.yml](../../lefthook.yml) | [Карта файлов](file-map.md) | Проверки перед коммитом и push | Git hooks |
 | [package-lock.json](../../package-lock.json) | [Карта файлов](file-map.md) | Фиксированные версии зависимостей | npm |
@@ -82,14 +82,14 @@
 | [scripts/quiz.mjs](../../scripts/quiz.mjs) | [Тесты](quizzes.md) | Создание тестов и публикация ключей | Агент; Firestore |
 | [scripts/storage.mjs](../../scripts/storage.mjs) | [Хранение и приватность](storage-privacy.md) | Перенос прежних фото и страниц | Оператор архива |
 | [scripts/notifications.mjs](../../scripts/notifications.mjs) | [Центр обновлений](../architecture/activity-and-inbox.md) | Выпуск изменений продукта и сверенный backfill результата/родительского решения | Оператор; Firestore; `NotificationBell` |
-| [scripts/submissions.mjs](../../scripts/submissions.mjs) | [Основания проверки](review-criteria-provenance.md) | Очередь, этапы, сверка критерия и запись разбора | Агент проверки; Firestore |
+| [scripts/submissions.mjs](../../scripts/submissions.mjs) | [Основания проверки](review-criteria-provenance.md) | Очередь, этапы, проверка происхождения спорных требований и запись разбора | Агент проверки; Firestore |
 | [scripts/verify-upload-flow.mjs](../../scripts/verify-upload-flow.mjs) | [Хранение и приватность](storage-privacy.md) | Аудит ранее перенесённых фото | Оператор; агент |
 | [src/App.css](../../src/App.css) | [Тесты](quizzes.md) | Оформление тестов и навигации | `src/App.tsx` |
 | [src/App.tsx](../../src/App.tsx) | [Доступ и состояние](access-and-state.md) | Маршруты, тесты, личный вход и общий колокольчик | Браузер |
 | [src/DayDashboard.css](../../src/DayDashboard.css) | [Dashboard](dashboard.md) | Оформление бейджей расписания и сгруппированного виджета ДЗ | `src/DayDashboard.tsx` |
-| [src/DayDashboard.tsx](../../src/DayDashboard.tsx) | [Dashboard](dashboard.md) | Календарь, живые статусы ДЗ и адресные переходы | Ученик; родитель; `src/DayPage.tsx` |
+| [src/DayDashboard.tsx](../../src/DayDashboard.tsx) | [Dashboard](dashboard.md) | Календарь, живые статусы ДЗ с семейными требованиями и адресные переходы | Ученик; родитель; `src/DayPage.tsx` |
 | [src/DayPage.css](../../src/DayPage.css) | [Страница дня](day-page.md) | Оформление заданий и фокуса после перехода из расписания | `src/DayPage.tsx` |
-| [src/DayPage.tsx](../../src/DayPage.tsx) | [Страница дня](day-page.md) | Компоновка дня из Firestore и фокус конкретного задания | Ученик; родитель; `ProblemGroup` |
+| [src/DayPage.tsx](../../src/DayPage.tsx) | [Страница дня](day-page.md) | Компоновка дня из Firestore, семейная доработка и фокус задания | Ученик; родитель; `ProblemGroup` |
 | [src/WeekendMathSlot.css](../../src/WeekendMathSlot.css) | [Адаптивная карточка](adaptive-problem-card.md) | Оформление общего слота математики | `src/WeekendMathSlot.tsx` |
 | [src/WeekendMathSlot.tsx](../../src/WeekendMathSlot.tsx) | [Экраны из данных](../architecture/backend-driven-ui.md) | Слот из данных ребёнка и общей карточки номера | Ученик; родитель; `ProblemGroup` |
 | [src/components/ArtifactAvatar.css](../../src/components/ArtifactAvatar.css) | [Статусы фотографии](day-page.md) | Общая миниатюра и положение значка состояния | `src/components/ArtifactAvatar.tsx` |
@@ -98,7 +98,7 @@
 | [src/components/EducationScreen.tsx](../../src/components/EducationScreen.tsx) | [Экраны из данных](../architecture/backend-driven-ui.md) | Ограниченный реестр блоков манифеста | Будущий маршрут v2 |
 | [src/components/MaterialReader.tsx](../../src/components/MaterialReader.tsx) | [Материалы](materials.md) | Миниатюры и просмотр страниц | Страница дня |
 | [src/components/PersonalEntry.tsx](../../src/components/PersonalEntry.tsx) | [Семейная модель](../architecture/family-data-model.md) | Вход по личной ссылке | Личная стартовая страница |
-| [src/components/NotificationBell.tsx](../../src/components/NotificationBell.tsx) | [Центр обновлений](../architecture/activity-and-inbox.md) | Живая личная очередь и переход к учебному дню | `src/App.tsx`; ученик; родитель |
+| [src/components/NotificationBell.tsx](../../src/components/NotificationBell.tsx) | [Центр обновлений](../architecture/activity-and-inbox.md) | Живая личная очередь, семейные решения и переход к учебному дню | `src/App.tsx`; ученик; родитель |
 | [src/components/NotificationBell.css](../../src/components/NotificationBell.css) | [Центр обновлений](../architecture/activity-and-inbox.md) | Компактный колокольчик и список обновлений | `NotificationBell` |
 | [src/components/ProblemCard.css](../../src/components/ProblemCard.css) | [Адаптивная карточка](adaptive-problem-card.md) | Оформление свёрнутого номера | `src/components/ProblemCard.tsx` |
 | [src/components/ProblemCard.tsx](../../src/components/ProblemCard.tsx) | [Адаптивная карточка](adaptive-problem-card.md) | Номер, статус и кнопка фото | День; спецкурс |
@@ -113,7 +113,7 @@
 | [src/components/SourceFragment.css](../../src/components/SourceFragment.css) | [Адаптивная карточка](adaptive-problem-card.md) | Оформление фрагмента оригинала | `src/components/SourceFragment.tsx` |
 | [src/components/SourceFragment.tsx](../../src/components/SourceFragment.tsx) | [Адаптивная карточка](adaptive-problem-card.md) | Кроп по координатам Firestore | Карточка номера |
 | [src/components/SubjectTheme.tsx](../../src/components/SubjectTheme.tsx) | [Страница дня](day-page.md) | Переиспользуемые темы предметов | День; dashboard |
-| [src/components/WorkReview.tsx](../../src/components/WorkReview.tsx) | [Основания проверки](review-criteria-provenance.md) | Общий источник и понятный результат проверки фото | День; спецкурс |
+| [src/components/WorkReview.tsx](../../src/components/WorkReview.tsx) | [Основания проверки](review-criteria-provenance.md) | Понятный результат проверки, происхождение спорных требований и выбор родителя | День; спецкурс |
 | [src/components/ui/badge.tsx](../../src/components/ui/badge.tsx) | [Экраны из данных](../architecture/backend-driven-ui.md) | Базовый badge | Компоненты интерфейса |
 | [src/components/ui/button.tsx](../../src/components/ui/button.tsx) | [Экраны из данных](../architecture/backend-driven-ui.md) | Базовая кнопка | Компоненты интерфейса |
 | [src/components/ui/card.tsx](../../src/components/ui/card.tsx) | [Экраны из данных](../architecture/backend-driven-ui.md) | Базовая карточка | Компоненты интерфейса |
@@ -134,7 +134,7 @@
 | [src/lib/personalAccess.ts](../../src/lib/personalAccess.ts) | [Семейная модель](../architecture/family-data-model.md) | Личная сессия и роли | Стартовая страница; день |
 | [src/lib/photoOutbox.ts](../../src/lib/photoOutbox.ts) | [Хранение и приватность](storage-privacy.md) | Локальное хранение фото до передачи | `dayStore`; устройство |
 | [src/lib/problemGroupSummary.ts](../../src/lib/problemGroupSummary.ts) | [Страница дня](day-page.md) | Проверяемая сводка номеров и уникальных фото | `src/components/ProblemGroup.tsx` |
-| [src/lib/parentCompletion.ts](../../src/lib/parentCompletion.ts) | [Страница дня](day-page.md) | Отдельные события решения, проверка версии разбора и действующего статуса | День; слот выходных; dashboard; `WorkReview` |
+| [src/lib/parentCompletion.ts](../../src/lib/parentCompletion.ts) | [Страница дня](day-page.md) | Отдельные события зачёта и выбора требований, проверка версии разбора | День; слот выходных; dashboard; `WorkReview` |
 | [src/lib/pwa.ts](../../src/lib/pwa.ts) | [PWA](pwa.md) | Регистрация service worker | `PwaControls` |
 | [src/lib/quiz.test.ts](../../src/lib/quiz.test.ts) | [Тесты](quizzes.md) | Проверка оценивания вопросов | Vitest; разработчик |
 | [src/lib/quiz.ts](../../src/lib/quiz.ts) | [Тесты](quizzes.md) | Модель вопросов и оценивание | Тест; Quiz CLI |

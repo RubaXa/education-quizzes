@@ -20,6 +20,8 @@ function title(notice: Notice) {
   if (notice.type === 'review_updated') return 'Результат работы уточнён'
   if (notice.type === 'parent_accepted') return 'Задача засчитана родителем'
   if (notice.type === 'parent_reopened') return 'Задача снова открыта'
+  if (notice.type === 'parent_requirement_mandatory') return 'Родитель назначил доработку'
+  if (notice.type === 'parent_requirement_optional') return 'Доработка теперь по желанию'
   if (notice.type === 'product_update') return 'Обновление Education'
   return 'Работа проверена'
 }
@@ -36,6 +38,8 @@ function detailBody(notice: Notice) {
   if (notice.body) return notice.body
   if (notice.type === 'parent_accepted') return 'Родитель засчитал верный ответ. Замечание к ходу решения остаётся в карточке.'
   if (notice.type === 'parent_reopened') return 'Родитель снова открыл задачу. Посмотри, что осталось сделать.'
+  if (notice.type === 'parent_requirement_mandatory') return 'Открой карточку: там указано, что именно родитель решил доработать.'
+  if (notice.type === 'parent_requirement_optional') return 'Родитель снял обязательную доработку. Задание уже предъявлено; можно вернуться к нему по желанию.'
   return ''
 }
 function noticeTime(value: unknown) {

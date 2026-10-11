@@ -318,6 +318,22 @@ function validateAssessmentBasis(review) {
     throw new Error('Отрицательный вердикт нельзя основывать только на общей программе или методическом совете.')
   }
   if (basis.outcome === 'unresolved' && !basis.limitation?.trim()) throw new Error('При спорном критерии объясните, чего именно не хватает для вывода.')
+  if (basis.disputedRequirements) {
+    const disputes = basis.disputedRequirements
+    if (basis.outcome !== 'unresolved' || !Array.isArray(disputes) || disputes.length < 1 || disputes.length > 10
+      || !Array.isArray(basis.disputedRequirementIds)
+      || JSON.stringify(basis.disputedRequirementIds) !== JSON.stringify(disputes.map((item) => item.id))
+      || new Set(basis.disputedRequirementIds).size !== disputes.length
+      || !disputes.every((item) => /^[a-z0-9-]{3,48}$/.test(item.id)
+        && typeof item.action === 'string' && item.action.trim().length >= 12 && item.action.length <= 180
+        && typeof item.meshExcerpt === 'string' && item.meshExcerpt.trim().length >= 4 && item.meshExcerpt.length <= 250
+        && ['textbook', 'model-inference'].includes(item.sourceKind)
+        && typeof item.sourceExcerpt === 'string' && item.sourceExcerpt.trim().length >= 4 && item.sourceExcerpt.length <= 250
+        && typeof item.sourceRef === 'string' && item.sourceRef.trim().length >= 4
+        && typeof item.uncertainty === 'string' && item.uncertainty.trim().length >= 12)) {
+      throw new Error('Спорные семейные действия требуют стабильных ID, точного происхождения и явной неопределённости.')
+    }
+  }
 }
 
 /** @see ../docs/product/adaptive-problem-card.md#адресный-разбор */

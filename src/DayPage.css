@@ -177,6 +177,9 @@
 .day-work-review-basis{display:grid;gap:7px;margin:10px 0;padding:10px 11px;border:1px solid var(--review-border);border-radius:9px;background:#ffffffc9;font-size:.85rem;line-height:1.45}
 .day-work-review-basis p{display:grid;gap:2px;margin:0}.day-work-review-basis p b{color:var(--review-ink)}
 .day-work-review-basis details{border-top:1px solid var(--review-border);padding-top:8px}.day-work-review-basis details summary{min-height:0;padding:0;display:list-item;font-size:.79rem;font-weight:700}.day-work-review-basis ul{margin:8px 0;padding-left:18px}.day-work-review-basis li{margin:4px 0}.day-work-review-basis li small{display:block;color:#6b6078}
+.day-work-review-dispute{margin:10px 0;padding:11px;border:1px solid #d5c9e8;border-radius:10px;background:#fff;display:grid;gap:7px;font-size:.82rem;line-height:1.4}
+.day-work-review-dispute strong{color:#3c2c65}.day-work-review-dispute p{margin:0}.day-work-review-dispute small{color:#746b82;overflow-wrap:anywhere}
+.day-work-review-dispute-actions{display:flex;flex-wrap:wrap;gap:7px}.day-work-review-dispute-actions button{border:1px solid #947dc0;border-radius:8px;padding:8px 10px;background:#f5f0fd;color:#4c347c;font:inherit;font-weight:700;cursor:pointer}.day-work-review-dispute-actions button:disabled{opacity:.5;cursor:default}
 .day-work-review summary{display:flex;align-items:center;gap:10px;min-height:55px;padding:10px 12px;cursor:pointer;list-style:none}
 .day-work-review summary::-webkit-details-marker{display:none}
 .day-work-review summary:focus-visible{outline:3px solid #9d78da;outline-offset:-3px}

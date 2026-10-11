@@ -50,6 +50,9 @@ export type DayWorkReview = {
     grade: number; schoolYear: string; requirement: string; observed: string; comparison: string;
     outcome: 'met' | 'not-met' | 'unresolved'; limitation?: string;
     sources: { kind: 'teacher' | 'mesh' | 'textbook' | 'method-guide' | 'curriculum' | 'official-key'; ref: string; excerpt: string; role: 'requirement' | 'context' }[];
+    disputedRequirementIds?: string[];
+    /** A proposed family action is not a teacher requirement. @see ../../docs/product/review-criteria-provenance.md#family-disputes */
+    disputedRequirements?: { id: string; action: string; meshExcerpt: string; sourceKind: 'textbook' | 'model-inference'; sourceExcerpt: string; sourceRef: string; uncertainty: string }[];
   };
   /** Operator-reviewed text safe for the student view; never generated from the private answer key in the client. */
   studentFeedback?: { title: string; confirmed: string; focus: string; question: string; anchor?: { uploadId: string; location: string } };

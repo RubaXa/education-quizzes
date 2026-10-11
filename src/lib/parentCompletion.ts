@@ -7,7 +7,8 @@ import type { DayWorkReview } from './dayStore'
 export type ParentCompletionEvent = {
   id: string
   taskId: string
-  action: 'accept' | 'reopen'
+  action: 'accept' | 'reopen' | 'require' | 'optional'
+  requirementId?: string
   reviewCheckedAt: unknown
   decidedAt: unknown
 }
@@ -37,6 +38,22 @@ export function parentAccepted(review: DayWorkReview | undefined, events: Parent
   return related[0]?.action === 'accept'
 }
 
+/** Only the latest choice for this exact review version and proposal applies. @see ../../docs/product/review-criteria-provenance.md#family-disputes */
+export function requirementChoice(review: DayWorkReview | undefined, requirementId: string, events: ParentCompletionEvent[]): 'require' | 'optional' | undefined {
+  if (!review?.assessmentBasis?.disputedRequirements?.some((item) => item.id === requirementId)) return undefined
+  const version = stamp(review.checkedAt)
+  const token = review.id.split(':')[0]
+  const related = events.filter((event) => event.id.startsWith(`${token}:`) && event.taskId === review.taskId
+    && event.requirementId === requirementId && ['require', 'optional'].includes(event.action)
+    && stamp(event.reviewCheckedAt) === version && stamp(event.decidedAt))
+    .sort((a, b) => stamp(b.decidedAt).localeCompare(stamp(a.decidedAt)) || b.id.localeCompare(a.id))
+  return related[0]?.action as 'require' | 'optional' | undefined
+}
+
+export function requiredFamilyActions(review: DayWorkReview | undefined, events: ParentCompletionEvent[]): string[] {
+  return review?.assessmentBasis?.disputedRequirements?.filter((item) => requirementChoice(review, item.id, events) === 'require').map((item) => item.action) ?? []
+}
+
 export function watchParentCompletions(tokens: string[], onChange: (events: ParentCompletionEvent[]) => void, onError: (error: Error) => void) {
   const unique = [...new Set(tokens)]
   const parts = new Map<string, ParentCompletionEvent[]>()
@@ -48,6 +65,7 @@ export function watchParentCompletions(tokens: string[], onChange: (events: Pare
 }
 
 export async function recordParentCompletion(review: DayWorkReview, action: ParentCompletionEvent['action']) {
+  if (action !== 'accept' && action !== 'reopen') throw new Error('Неверный тип решения родителя.')
   const actorPersonId = currentEducationPersonId()
   if (!canAcceptCorrectAnswer(review)) throw new Error('Верный ответ с неполным ходом не подтверждён в текущем разборе.')
   const studentToken = review.id.split(':')[0]
@@ -71,6 +89,36 @@ export async function recordParentCompletion(review: DayWorkReview, action: Pare
   })
   for (const learner of learners) batch.set(doc(db, 'users', learner.id, 'inbox', eventId), {
     familyId, childId, type: action === 'accept' ? 'parent_accepted' : 'parent_reopened',
+    entityId: review.taskId, taskId: review.taskId, studentToken, eventId, date,
+    sourceRevision: 1, createdAt: serverTimestamp(),
+  })
+  await batch.commit()
+}
+
+/** Parent sets a family requirement without changing the source review or attributing it to the teacher. */
+export async function recordRequirementChoice(review: DayWorkReview, requirementId: string, action: 'require' | 'optional') {
+  const proposal = review.assessmentBasis?.disputedRequirements?.find((item) => item.id === requirementId)
+  if (!proposal || review.assessmentBasis?.outcome !== 'unresolved' || !stamp(review.checkedAt)) throw new Error('Спорное требование не найдено в текущем разборе.')
+  const actorPersonId = currentEducationPersonId()
+  const studentToken = review.id.split(':')[0]
+  if (!studentToken || !review.id.includes(':')) throw new Error('Не найдена исходная страница проверки.')
+  const latest = await getDocFromServer(doc(db, 'dayProgress', studentToken, 'items', review.taskId))
+  if (!latest.exists() || latest.data().assessmentBasis?.outcome !== 'unresolved'
+    || stamp(latest.data().checkedAt) !== stamp(review.checkedAt)
+    || !latest.data().assessmentBasis?.disputedRequirements?.some((item: { id: string }) => item.id === requirementId)) throw new Error('Разбор изменился. Откройте свежую версию карточки.')
+  const owner = await getDocFromServer(doc(db, 'dayOwners', studentToken))
+  const { familyId, childId, targetDate: date } = owner.data() ?? {}
+  if (!owner.exists() || typeof familyId !== 'string' || typeof childId !== 'string' || typeof date !== 'string') throw new Error('Семейная привязка работы не найдена.')
+  const members = await getDocs(collection(db, 'families', familyId, 'members'))
+  const learners = members.docs.filter((member) => member.data().active === true && member.data().role === 'student' && member.data().childIds?.includes(childId))
+  if (!learners.length) throw new Error('Профиль ученика для уведомления не найден.')
+  const eventId = crypto.randomUUID()
+  const batch = writeBatch(db)
+  batch.set(doc(db, 'dayParentDecisions', studentToken, 'events', eventId), {
+    taskId: review.taskId, requirementId, action, reviewCheckedAt: review.checkedAt, actorPersonId, decidedAt: serverTimestamp(),
+  })
+  for (const learner of learners) batch.set(doc(db, 'users', learner.id, 'inbox', eventId), {
+    familyId, childId, type: action === 'require' ? 'parent_requirement_mandatory' : 'parent_requirement_optional',
     entityId: review.taskId, taskId: review.taskId, studentToken, eventId, date,
     sourceRevision: 1, createdAt: serverTimestamp(),
   })

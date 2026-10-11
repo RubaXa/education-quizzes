@@ -15,7 +15,7 @@ import ProblemGroup from '@/components/ProblemGroup'
 import ProblemTaskCard from '@/components/ProblemTaskCard'
 import { useDayEvidence } from '@/lib/useDayEvidence'
 import { useParentCompletions } from '@/lib/useParentCompletions'
-import { canAcceptCorrectAnswer, parentAccepted, recordParentCompletion } from '@/lib/parentCompletion'
+import { canAcceptCorrectAnswer, parentAccepted, recordParentCompletion, recordRequirementChoice, requiredFamilyActions, requirementChoice } from '@/lib/parentCompletion'
 import { activeProcessing, artifactAvatarLabel, artifactAvatarState, localArtifactAvatarState, problemCardState, workCoverageComplete } from '@/lib/reviewPresentation'
 import { publicImage } from '@/lib/yandexPublic'
 import { localPhotoForTransfer } from '@/lib/photoOutbox'
@@ -547,29 +547,32 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
               const review = reviews.find((item) => item.taskId === task.id)
               const accepted = parentAccepted(review, parentDecisions.events)
               const criterionPending = review?.assessmentBasis?.outcome === 'unresolved'
+              const familyActions = requiredFamilyActions(review, parentDecisions.events)
+              const familyOptional = review?.assessmentBasis?.disputedRequirements?.some((item) => requirementChoice(review, item.id, parentDecisions.events) === 'optional') ?? false
               const processing = activeProcessing(review, taskUploads)
               const taskStatus = criterionPending ? 'unknown' : accepted ? 'verified' : review?.status && review.status !== 'cannot-assess' ? review.status : task.status
               const localTaskPhotos = localPhotos.filter((photo) => photo.taskId === task.id)
               const priorWork = taskUploads.some((upload) => upload.status === 'reviewed')
               const newWork = taskUploads.some((upload) => upload.status === 'pending') || localTaskPhotos.some((photo) => photo.state === 'saved' && !taskUploads.some((upload) => upload.id === `${studentToken}:${photo.id}`))
               const uploadingWork = taskUploads.some((upload) => ['requested', 'awaiting-upload', 'uploaded'].includes(upload.status)) || localTaskPhotos.some((photo) => photo.state === 'uploading')
-              const workCovered = workCoverageComplete(review) && !newWork && !uploadingWork
+              const workCovered = workCoverageComplete(review) && !familyActions.length && !newWork && !uploadingWork
               const linkedTest = tests.find((item) => item.token === task.testToken)
               const readPassed = task.kind === 'read' && linkedTest?.status === 'submitted' && linkedTest.points != null && linkedTest.points >= (task.requiredPoints ?? linkedTest.maxPoints ?? 1)
               const verified = taskStatus === 'verified' || readPassed
               const submitted = (task.kind === 'written' || task.kind === 'check') && newWork
               const state = task.problems?.length ? `${task.problems.length} задач · каждая проверяется отдельно` : task.kind === 'written'
-                ? taskStatus === 'verified' ? 'Готово · проверено' : processing ? 'Проверяем работу' : newWork ? 'Новое фото · ждёт проверки' : uploadingWork ? 'Фото загружается' : workCovered ? 'Работа сдана · оценка неясна' : criterionPending ? 'Работа разобрана · критерий неясен' : priorWork ? taskStatus === 'needs-fix' ? 'Работа проверена · исправить' : taskStatus === 'partial' ? 'Работа проверена · дополнить' : 'Работа сохранена' : statusLabel(taskStatus)
+                ? taskStatus === 'verified' ? 'Готово · проверено' : processing ? 'Проверяем работу' : newWork ? 'Новое фото · ждёт проверки' : uploadingWork ? 'Фото загружается' : familyActions.length ? 'Доработать по решению родителя' : workCovered ? 'Работа сдана · оценка неясна' : criterionPending ? 'Работа разобрана · критерий неясен' : priorWork ? taskStatus === 'needs-fix' ? 'Работа проверена · исправить' : taskStatus === 'partial' ? 'Работа проверена · дополнить' : 'Работа сохранена' : statusLabel(taskStatus)
                 : task.kind === 'read' ? readPassed ? `Чтение подтверждено · ${linkedTest?.points}/${linkedTest?.maxPoints} верно` : linkedTest?.status === 'submitted' ? linkedTest.points == null ? 'Проверяем тест' : `Нужен разбор · ${linkedTest.points}/${linkedTest.maxPoints}` : 'Нужен тест' : cdzTask ? task.platformResult?.state === 'completed' ? `ЦДЗ пройдено · ${task.platformResult.points}/${task.platformResult.maxPoints}` : processing ? 'Проверяем результат ЦДЗ' : newWork ? 'Результат ЦДЗ получен · ждёт проверки' : uploadingWork ? 'Фото загружается' : 'Ожидает результата ЦДЗ' : statusLabel(taskStatus)
-              const uploadLabel = cdzTask ? newWork || uploadingWork ? 'Добавить ещё фото ЦДЗ' : 'Загрузить результат ЦДЗ' : newWork || uploadingWork ? 'Добавить ещё фото' : priorWork ? taskStatus === 'needs-fix' ? 'Добавить фото исправления' : 'Добавить фото продолжения' : 'Добавить фото ответа'
-              const canUpload = !task.problems?.length && !parent && !criterionPending && (task.kind === 'written' && taskStatus !== 'verified' && (!priorWork || newWork || uploadingWork || taskStatus === 'needs-fix' || taskStatus === 'partial') || cdzTask && taskStatus !== 'verified')
+              const uploadLabel = cdzTask ? newWork || uploadingWork ? 'Добавить ещё фото ЦДЗ' : 'Загрузить результат ЦДЗ' : newWork || uploadingWork ? 'Добавить ещё фото' : familyActions.length ? 'Загрузить фото доработки' : familyOptional && criterionPending ? 'Добавить фото по желанию' : priorWork ? taskStatus === 'needs-fix' ? 'Добавить фото исправления' : 'Добавить фото продолжения' : 'Добавить фото ответа'
+              const canUpload = !task.problems?.length && !parent && (criterionPending ? familyActions.length > 0 || familyOptional : (task.kind === 'written' && taskStatus !== 'verified' && (!priorWork || newWork || uploadingWork || taskStatus === 'needs-fix' || taskStatus === 'partial') || cdzTask && taskStatus !== 'verified'))
               const showSubmission = !task.problems?.length && task.kind === 'written' && !criterionPending && taskStatus !== 'verified' && (!priorWork || newWork || uploadingWork || taskStatus === 'needs-fix' || taskStatus === 'partial')
               const submission = task.submission
               const taskCard = <article className={`day-task ${verified || workCovered ? 'done' : submitted ? 'submitted' : ''}`} id={`day-task-${task.id}`} key={task.id}>
                 <div className="day-task-row"><span className={`day-task-state ${verified ? 'verified' : workCovered ? 'covered' : submitted ? 'partial' : taskStatus}`}>{verified && <CheckCircle2 size={15} aria-hidden="true" />} {state}</span>{task.kind === 'written' && <span className="day-task-type">В тетради</span>}{task.originDate && task.originDate !== page.targetDate && <span className="day-task-type">Осталось с {dayMonth(task.originDate)}</span>}</div>
                 <h3>{task.title}</h3><p>{task.detail}</p>
                 {task.instructionStatus?.state === 'needs-review' && <p className="day-material-warning">⚠️ {task.instructionStatus.message} Подтверждена только запись МЭШ выше; дополнительных пунктов нет.</p>}
-                <WorkReview review={review} uploads={taskUploads} accepted={accepted} canDecide={helpRole === 'parent' && !taskUploads.some((upload) => upload.status === 'pending')} onDecision={parent && canAcceptCorrectAnswer(review) && review ? (action) => recordParentCompletion(review, action) : undefined} />
+                <WorkReview review={review} uploads={taskUploads} accepted={accepted} canDecide={helpRole === 'parent' && !taskUploads.some((upload) => upload.status === 'pending')} onDecision={parent && canAcceptCorrectAnswer(review) && review ? (action) => recordParentCompletion(review, action) : undefined} decisions={parentDecisions.events} parent={parent} onRequirementChoice={parent && review?.assessmentBasis?.disputedRequirements?.length ? (id, action) => recordRequirementChoice(review, id, action) : undefined} />
+                {familyActions.length > 0 && <div className="day-submission-instructions"><strong>Доработка по решению родителя</strong><ol>{familyActions.map((action) => <li key={action}>{action}</li>)}</ol><p>Это семейное решение по спорному требованию. В МЭШ такого уточнения нет.</p></div>}
                 {!!task.steps?.length && <ol className="day-task-steps">{task.steps.map((step, index) => <Instruction key={index} item={step} index={index} />)}</ol>}
                 {needsTextbook && <p className="day-material-warning">📖 {task.materialStatus?.message}</p>}
                 {(task.materialStatus?.state === 'text-absent-from-textbook' || task.materialStatus?.state === 'no-textbook') && <p className="day-material-warning">📖 {task.materialStatus.message}</p>}

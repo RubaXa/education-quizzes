@@ -105,7 +105,7 @@ service cloud.firestore {
           && get(/databases/$(database)/documents/families/$(request.resource.data.familyId)/members/$(personId)).data.active == true
           && get(/databases/$(database)/documents/families/$(request.resource.data.familyId)/members/$(personId)).data.role == 'student'
           && get(/databases/$(database)/documents/families/$(request.resource.data.familyId)/members/$(personId)).data.childIds.hasAny([request.resource.data.childId])
-          && request.resource.data.type in ['parent_accepted', 'parent_reopened']
+          && request.resource.data.type in ['parent_accepted', 'parent_reopened', 'parent_requirement_mandatory', 'parent_requirement_optional']
           && request.resource.data.entityId == request.resource.data.taskId
           && request.resource.data.sourceRevision == 1
           && request.resource.data.createdAt == request.time
@@ -121,7 +121,11 @@ service cloud.firestore {
           && ((request.resource.data.type == 'parent_accepted'
               && getAfter(/databases/$(database)/documents/dayParentDecisions/$(request.resource.data.studentToken)/events/$(request.resource.data.eventId)).data.action == 'accept')
             || (request.resource.data.type == 'parent_reopened'
-              && getAfter(/databases/$(database)/documents/dayParentDecisions/$(request.resource.data.studentToken)/events/$(request.resource.data.eventId)).data.action == 'reopen'));
+              && getAfter(/databases/$(database)/documents/dayParentDecisions/$(request.resource.data.studentToken)/events/$(request.resource.data.eventId)).data.action == 'reopen')
+            || (request.resource.data.type == 'parent_requirement_mandatory'
+              && getAfter(/databases/$(database)/documents/dayParentDecisions/$(request.resource.data.studentToken)/events/$(request.resource.data.eventId)).data.action == 'require')
+            || (request.resource.data.type == 'parent_requirement_optional'
+              && getAfter(/databases/$(database)/documents/dayParentDecisions/$(request.resource.data.studentToken)/events/$(request.resource.data.eventId)).data.action == 'optional'));
         allow delete: if false;
         allow update: if activeSession() && currentPersonId() == personId
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['readAt'])
@@ -321,18 +325,26 @@ service cloud.firestore {
       allow create: if dayUploadOwner(studentToken)
         && parentMember(get(/databases/$(database)/documents/dayOwners/$(studentToken)).data.familyId)
         && eventId.matches('^[a-f0-9-]{36}$')
-        && request.resource.data.keys().hasOnly(['taskId', 'action', 'reviewCheckedAt', 'actorPersonId', 'decidedAt'])
+        && request.resource.data.keys().hasOnly(['taskId', 'action', 'requirementId', 'reviewCheckedAt', 'actorPersonId', 'decidedAt'])
         && request.resource.data.keys().hasAll(['taskId', 'action', 'reviewCheckedAt', 'actorPersonId', 'decidedAt'])
         && request.resource.data.taskId is string
         && request.resource.data.taskId in get(/databases/$(database)/documents/dayPages/$(studentToken)).data.taskIds
-        && request.resource.data.action in ['accept', 'reopen']
+        && request.resource.data.action in ['accept', 'reopen', 'require', 'optional']
         && request.resource.data.actorPersonId == currentPersonId()
         && request.resource.data.decidedAt == request.time
         && exists(/databases/$(database)/documents/dayProgress/$(studentToken)/items/$(request.resource.data.taskId))
-        && get(/databases/$(database)/documents/dayProgress/$(studentToken)/items/$(request.resource.data.taskId)).data.status == 'partial'
-        && get(/databases/$(database)/documents/dayProgress/$(studentToken)/items/$(request.resource.data.taskId)).data.assessmentBasis.outcome in ['met', 'not-met']
-        && get(/databases/$(database)/documents/dayProgress/$(studentToken)/items/$(request.resource.data.taskId)).data.mathReasoning.answer == 'correct'
-        && get(/databases/$(database)/documents/dayProgress/$(studentToken)/items/$(request.resource.data.taskId)).data.mathReasoning.argument in ['incomplete', 'not-shown', 'unreadable']
+        && ((request.resource.data.action in ['accept', 'reopen']
+            && !request.resource.data.keys().hasAny(['requirementId'])
+            && get(/databases/$(database)/documents/dayProgress/$(studentToken)/items/$(request.resource.data.taskId)).data.status == 'partial'
+            && get(/databases/$(database)/documents/dayProgress/$(studentToken)/items/$(request.resource.data.taskId)).data.assessmentBasis.outcome in ['met', 'not-met']
+            && get(/databases/$(database)/documents/dayProgress/$(studentToken)/items/$(request.resource.data.taskId)).data.mathReasoning.answer == 'correct'
+            && get(/databases/$(database)/documents/dayProgress/$(studentToken)/items/$(request.resource.data.taskId)).data.mathReasoning.argument in ['incomplete', 'not-shown', 'unreadable'])
+          || (request.resource.data.action in ['require', 'optional']
+            && request.resource.data.requirementId is string
+            && get(/databases/$(database)/documents/dayProgress/$(studentToken)/items/$(request.resource.data.taskId)).data.assessmentBasis.outcome == 'unresolved'
+            && get(/databases/$(database)/documents/dayProgress/$(studentToken)/items/$(request.resource.data.taskId)).data.assessmentBasis.disputedRequirements is list
+            && get(/databases/$(database)/documents/dayProgress/$(studentToken)/items/$(request.resource.data.taskId)).data.assessmentBasis.disputedRequirements.size() <= 10
+            && request.resource.data.requirementId in get(/databases/$(database)/documents/dayProgress/$(studentToken)/items/$(request.resource.data.taskId)).data.assessmentBasis.disputedRequirementIds))
         && request.resource.data.reviewCheckedAt == get(/databases/$(database)/documents/dayProgress/$(studentToken)/items/$(request.resource.data.taskId)).data.checkedAt;
       allow update, delete: if false;
     }
