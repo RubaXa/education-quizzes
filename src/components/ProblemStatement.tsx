@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { BookOpen, Lightbulb } from 'lucide-react'
 import type { DayHelp, DayMaterialLink, DayProblem, DayWorkReview } from '@/lib/dayStore'
+import { reportUiError } from '@/lib/uiErrors'
 import SourceFragment from './SourceFragment'
 import './ProblemStatement.css'
 
@@ -37,7 +38,7 @@ export default function ProblemStatement({ problem, links, parent, help, review,
     setRequesting(true)
     setError('')
     try { await onRequestHelp(problem.id, support.revision, kind, note) }
-    catch (cause) { setError((cause as Error & { code?: string })?.code === 'permission-denied'
+    catch (cause) { reportUiError(cause, 'Помощь по задаче'); setError((cause as Error & { code?: string })?.code === 'permission-denied'
       ? 'Открой личную ссылку ученика Education, чтобы отправить запрос.'
       : cause instanceof Error ? cause.message : 'Не удалось отправить запрос.') }
     finally { setRequesting(false) }

@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
-import { Camera, X } from 'lucide-react'
+import { X } from 'lucide-react'
 import { removePendingDayPhoto, requestDayHelp, uploadDayPhoto, uploadMatchesTask, watchDayHelp, watchDayPage } from '@/lib/dayStore'
 import type { DayHelp, DayPageData } from '@/lib/dayStore'
 import { dayHelpSessionRole } from '@/lib/personalAccess'
 import PublicThumbnail from '@/components/PublicThumbnail'
+import EducationImage from '@/components/EducationImage'
 import ArtifactAvatar from '@/components/ArtifactAvatar'
 import MaterialReader, { canReadInside } from '@/components/MaterialReader'
 import ProblemGroup from '@/components/ProblemGroup'
@@ -12,6 +13,7 @@ import { artifactAvatarLabel, artifactAvatarState, localArtifactAvatarState, pro
 import { useDayEvidence } from '@/lib/useDayEvidence'
 import { useParentCompletions } from '@/lib/useParentCompletions'
 import { canAcceptCorrectAnswer, parentAccepted, recordParentCompletion } from '@/lib/parentCompletion'
+import { reportUiError } from '@/lib/uiErrors'
 import './WeekendMathSlot.css'
 
 type LocalPhoto = { id: string; taskId: string; url: string; state: 'uploading' | 'failed'; error?: string }
@@ -27,7 +29,7 @@ export default function WeekendMathSlot({ token, taskIds, parent, lessonDate, du
   const { studentToken, evidenceKey, uploads, reviews, ready: evidenceReady } = useDayEvidence(page, token, setError)
   const parentDecisions = useParentCompletions(evidenceKey, Boolean(page) && helpRole !== 'checking' && helpRole !== 'none')
   const [statusNow, setStatusNow] = useState(() => Date.now())
-  useEffect(() => watchDayPage(token, (data) => { setPage(data); setError('') }, (cause) => setError(cause.message)), [token])
+  useEffect(() => watchDayPage(token, (data) => { setPage(data); setError('') }, (cause) => setError(reportUiError(cause, 'Задание на выходные'))), [token])
   useEffect(() => {
     let active = true
     void dayHelpSessionRole().then((role) => { if (active) setHelpRole(role ?? 'none') })
@@ -35,7 +37,7 @@ export default function WeekendMathSlot({ token, taskIds, parent, lessonDate, du
   }, [])
   useEffect(() => page && helpRole !== 'checking' && helpRole !== 'none' ? watchDayHelp(evidenceKey.split('|'), setHelpRequests, (cause) => {
     if ((cause as Error & { code?: string }).code === 'permission-denied') { setHelpRole('none'); setHelpRequests([]) }
-    else setError(cause.message)
+    else setError(reportUiError(cause, 'Задание на выходные'))
   }) : undefined, [page, evidenceKey, helpRole])
   useEffect(() => {
     const saved = local.filter((item) => uploads.some((upload) => upload.id === `${studentToken}:${item.id}` && (upload.status === 'pending' || upload.status === 'reviewed')))
@@ -58,6 +60,7 @@ export default function WeekendMathSlot({ token, taskIds, parent, lessonDate, du
       previewUrls.current.add(url)
       setLocal((current) => [...current, { id, taskId, url, state: 'uploading' }])
       void uploadDayPhoto(studentToken, taskId, file, id, page?.planRevision).catch((cause) => {
+        reportUiError(cause, 'Загрузка фото')
         setLocal((current) => current.map((item) => item.id === id ? { ...item, state: 'failed', error: cause instanceof Error ? cause.message : 'Фото не загрузилось.' } : item))
       })
     }
@@ -96,11 +99,11 @@ export default function WeekendMathSlot({ token, taskIds, parent, lessonDate, du
               const localPhoto = local.find((item) => photo.id === `${studentToken}:${item.id}`)
               const state = artifactAvatarState(photo, review, statusNow)
               return <span className="weekend-math-photo-item" key={photo.id} title={`Фото ${index + 1} · ${artifactAvatarLabel(state)}`}>
-                <ArtifactAvatar state={state}>{photo.dataUrl ? <img src={photo.dataUrl} alt={`Фото ${index + 1}`} /> : photo.storage?.publicUrl ? <PublicThumbnail url={photo.storage.publicUrl} alt={`Фото ${index + 1}`} fallback={<Camera size={15} />} /> : localPhoto ? <img src={localPhoto.url} alt={`Фото ${index + 1}`} /> : undefined}</ArtifactAvatar>
-                {!parent && photo.status !== 'reviewed' && <button type="button" aria-label={`Удалить фото ${index + 1}`} onClick={() => { void removePendingDayPhoto(photo.id.split(':')[0], photo.id.split(':')[1]).catch((cause) => setError(cause instanceof Error ? cause.message : 'Не удалось удалить фото.')) }}><X size={11} /></button>}
+                <ArtifactAvatar state={state}>{photo.dataUrl ? <EducationImage source={photo.dataUrl} alt={`Фото ${index + 1}`} compact /> : photo.storage?.publicUrl ? <PublicThumbnail url={photo.storage.publicUrl} alt={`Фото ${index + 1}`} retryControl /> : localPhoto ? <EducationImage source={localPhoto.url} alt={`Фото ${index + 1}`} compact /> : undefined}</ArtifactAvatar>
+                {!parent && photo.status !== 'reviewed' && <button type="button" aria-label={`Удалить фото ${index + 1}`} onClick={() => { void removePendingDayPhoto(photo.id.split(':')[0], photo.id.split(':')[1]).catch((cause) => setError(reportUiError(cause, 'Удаление фото'))) }}><X size={11} /></button>}
               </span>
             })}
-            {previews.map((photo) => <span className="weekend-math-photo-item" key={photo.id} title={photo.error ?? artifactAvatarLabel(localArtifactAvatarState(photo.state))}><ArtifactAvatar state={localArtifactAvatarState(photo.state)}><img src={photo.url} alt="Новое фото" /></ArtifactAvatar></span>)}
+            {previews.map((photo) => <span className="weekend-math-photo-item" key={photo.id} title={photo.error ?? artifactAvatarLabel(localArtifactAvatarState(photo.state))}><ArtifactAvatar state={localArtifactAvatarState(photo.state)}><EducationImage source={photo.url} alt="Новое фото" compact /></ArtifactAvatar></span>)}
           </div>}
           {previews.some((photo) => photo.state === 'failed') && <small className="weekend-math-error">Фото не загрузилось. Выберите его ещё раз.</small>}
         </ProblemTaskCard>

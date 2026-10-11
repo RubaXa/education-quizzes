@@ -3,6 +3,7 @@ import { collection, doc, limit, onSnapshot, orderBy, query, runTransaction, ser
 import { db } from './firebase'
 import { currentEducationPersonId, restorePersonalSession } from './personalAccess'
 import { parseScreenManifest } from './educationSchema'
+import { reportUiError } from './uiErrors'
 import type { ActivityType, EducationDay, EducationTask, InboxNotification, ScreenManifest, ScreenView, ViewReceipt } from './educationSchema'
 
 function segment(value: string): string {
@@ -20,8 +21,8 @@ function signedInUid(): string {
 export function watchEducationUser(onChange: (personId: string | null) => void) {
   return onAuthStateChanged(getAuth(), (user) => {
     if (!user) { onChange(null); return }
-    void restorePersonalSession().then((session) => onChange(session?.personId ?? null)).catch(() => onChange(null))
-  })
+    void restorePersonalSession().then((session) => onChange(session?.personId ?? null)).catch((cause) => { reportUiError(cause, 'Профиль Education'); onChange(null) })
+  }, (cause) => { reportUiError(cause, 'Профиль Education'); onChange(null) })
 }
 
 /** @see ../../docs/architecture/backend-driven-ui.md#manifest */

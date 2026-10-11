@@ -9,6 +9,7 @@ import type { PersonalChild } from '@/lib/personalAccess'
 import type { DayMaterialLink } from '@/lib/dayStore'
 import MaterialReader from './MaterialReader'
 import './FamilyLibrary.css'
+import { reportUiError } from '@/lib/uiErrors'
 
 function FamilyBookPages({ familyId, childId, bookId }: { familyId: string; childId: string; bookId: string }) {
   const [links, setLinks] = useState<DayMaterialLink[] | null>(null)
@@ -23,7 +24,7 @@ function FamilyBookPages({ familyId, childId, bookId }: { familyId: string; chil
       sourceSha256: item.data().sourceSha256,
     } as DayMaterialLink)).sort((a, b) => (a.pdfPage ?? 0) - (b.pdfPage ?? 0)))
     setError('')
-  }, (cause) => setError(cause.message)), [familyId, childId, bookId])
+  }, (cause) => setError(reportUiError(cause, 'Страницы учебника'))), [familyId, childId, bookId])
   if (error) return <p role="alert">Не удалось открыть страницы: {error}</p>
   if (!links) return <p>Загружаем страницы…</p>
   return links.length ? <MaterialReader links={links} parent /> : <p>Страницы этой книги ещё не опубликованы для просмотра. Сам PDF сохранён приватно.</p>
@@ -64,14 +65,14 @@ export function FamilyLibrary({ familyId, familyChildren }: { familyId: string; 
     const id = `${need.childId}:${need.subjectKey}`
     setBusy(id); setActionError('')
     try { await requestFamilyBookUpload(familyId, need.childId, need.subjectKey, file) }
-    catch (cause) { setActionError(cause instanceof Error ? cause.message : 'Не удалось передать учебник.') }
+    catch (cause) { setActionError(reportUiError(cause, 'Загрузка учебника')) }
     finally { setBusy(''); if (fileInputs.current[id]) fileInputs.current[id]!.value = '' }
   }
   async function setPolicy(need: BookNeed, policy: 'required' | 'no-book') {
     const id = `${need.childId}:${need.subjectKey}`
     setBusy(id); setActionError('')
     try { await setFamilyBookRequirement(familyId, need.childId, need.subjectKey, policy) }
-    catch (cause) { setActionError(cause instanceof Error ? cause.message : 'Не удалось записать правило семьи.') }
+    catch (cause) { setActionError(reportUiError(cause, 'Правило для учебника')) }
     finally { setBusy('') }
   }
 

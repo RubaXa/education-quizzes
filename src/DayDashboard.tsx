@@ -14,6 +14,7 @@ import type { LessonWorkItem, QuizScore } from '@/lib/homeworkStatus'
 import { currentEducationPersonId } from '@/lib/personalAccess'
 import WeekendMathSlot from './WeekendMathSlot'
 import './DayDashboard.css'
+import { reportUiError } from '@/lib/uiErrors'
 
 function moscowToday() {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Moscow', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
@@ -83,8 +84,8 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
         if (data.kind !== (parent ? 'parent' : 'student')) { setError('Эта ссылка предназначена для другой страницы.'); return }
         setIndex(data)
         setError('')
-      }, (cause) => setError(cause.message))
-    }).catch((cause) => { if (active) setError(cause instanceof Error ? cause.message : 'Не удалось восстановить вход.') })
+      }, (cause) => setError(reportUiError(cause, 'Учебный день')))
+    }).catch((cause) => { if (active) setError(reportUiError(cause, 'Учебный день')) })
     return () => { active = false; stop?.() }
   }, [token, parent])
 
@@ -111,12 +112,12 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
   useEffect(() => {
     setPage(undefined)
     if (!homeworkToken) return
-    return watchDayPage(homeworkToken, setPage, (cause) => setError(cause.message))
+    return watchDayPage(homeworkToken, setPage, (cause) => setError(reportUiError(cause, 'Учебный день')))
   }, [homeworkToken])
   useEffect(() => {
     setGradePage(undefined)
     if (!gradeToken) return
-    return watchDayPage(gradeToken, setGradePage, (cause) => setError(cause.message))
+    return watchDayPage(gradeToken, setGradePage, (cause) => setError(reportUiError(cause, 'Учебный день')))
   }, [gradeToken])
   const selectedPage = page?.targetDate === selectedDate ? page : undefined
   useEffect(() => {
@@ -140,17 +141,17 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
   useEffect(() => {
     setUploads([])
     if (!evidenceKey) return
-    return watchDayUploads(evidenceKey.split('|'), setUploads, (cause) => setError(cause.message))
+    return watchDayUploads(evidenceKey.split('|'), setUploads, (cause) => setError(reportUiError(cause, 'Учебный день')))
   }, [evidenceKey])
   useEffect(() => {
     setReviews([])
     if (!evidenceKey) return
-    return watchDayReviews(evidenceKey.split('|'), setReviews, (cause) => setError(cause.message), parent)
+    return watchDayReviews(evidenceKey.split('|'), setReviews, (cause) => setError(reportUiError(cause, 'Учебный день')), parent)
   }, [evidenceKey, parent])
   useEffect(() => {
     setEvidencePages([])
     if (!evidenceKey) return
-    return watchEvidenceDayPages(evidenceKey.split('|'), setEvidencePages, (cause) => setError(cause.message))
+    return watchEvidenceDayPages(evidenceKey.split('|'), setEvidencePages, (cause) => setError(reportUiError(cause, 'Учебный день')))
   }, [evidenceKey])
   const placementKey = (selectedPage?.testPlacements ?? []).filter((placement) => (placement.originDate ?? selectedDate) === selectedDate).map((placement) => placement.token).join('|')
   useEffect(() => {
@@ -166,8 +167,8 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
         const results = grade(assignment, key)
         if (results.some((result) => result.points == null)) return
         setScores((prior) => ({ ...prior, [testToken]: { points: results.reduce((sum, result) => sum + (result.points ?? 0), 0), maxPoints: assignment.questions.reduce((sum, question) => sum + question.points, 0) } }))
-      }).catch((cause) => setError(cause instanceof Error ? cause.message : 'Не удалось получить результат теста.'))
-    }, (cause) => setError(cause.message)))
+      }).catch((cause) => setError(reportUiError(cause, 'Учебный день')))
+    }, (cause) => setError(reportUiError(cause, 'Учебный день'))))
     return () => { active = false; stops.forEach((stop) => stop()) }
   }, [placementKey])
 

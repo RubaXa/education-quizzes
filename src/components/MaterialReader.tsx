@@ -4,12 +4,13 @@ import { ChevronLeft, ChevronRight, ExternalLink, X, ZoomIn, ZoomOut } from 'luc
 import type { DayMaterialLink } from '@/lib/dayStore'
 import { publicImage } from '@/lib/yandexPublic'
 import PublicThumbnail from '@/components/PublicThumbnail'
+import EducationImage from '@/components/EducationImage'
 
-async function fullImage(link: DayMaterialLink): Promise<string> {
-  try { return await publicImage(link.url) }
+async function fullImage(source: string, size: string, refresh: boolean): Promise<string> {
+  try { return await publicImage(source, size, refresh) }
   catch { /* Fall back to the public download endpoint. */ }
   const endpoint = new URL('https://cloud-api.yandex.net/v1/disk/public/resources/download')
-  endpoint.searchParams.set('public_key', link.url)
+  endpoint.searchParams.set('public_key', source)
   const response = await fetch(endpoint)
   if (response.ok) {
     const download = await response.json() as { href?: string }
@@ -31,11 +32,10 @@ export function canReadInside(link: DayMaterialLink) {
 /**
  * Открывает проверенные страницы задания внутри Education.
  * @see ../../docs/product/materials.md#material-reader
+ * @see ../../docs/product/design-system.md#images
  */
 export default function MaterialReader({ links, parent, statement = false }: { links: DayMaterialLink[]; parent: boolean; statement?: boolean }) {
   const [active, setActive] = useState<number | null>(null)
-  const [imageUrl, setImageUrl] = useState('')
-  const [imageError, setImageError] = useState(false)
   const [zoomed, setZoomed] = useState(false)
   const closeRef = useRef<HTMLButtonElement>(null)
   const touchStart = useRef<number | null>(null)
@@ -47,12 +47,7 @@ export default function MaterialReader({ links, parent, statement = false }: { l
 
   useEffect(() => {
     if (active === null) return
-    let mounted = true
-    setImageUrl('')
-    setImageError(false)
     setZoomed(false)
-    void fullImage(links[active]).then((url) => { if (mounted) setImageUrl(url) }).catch(() => { if (mounted) setImageError(true) })
-    return () => { mounted = false }
   }, [active, links])
 
   useEffect(() => {
@@ -74,7 +69,7 @@ export default function MaterialReader({ links, parent, statement = false }: { l
     <div className="day-reader-heading"><strong>{first.sourceType === 'textbook-page' ? 'Страницы учебника' : 'Лист учителя'} · {range}</strong><span>{title}</span></div>
     <div className="day-reader-thumbs" aria-label={`Открыть страницы: ${range}`}>
       {links.map((link, index) => <button type="button" className="day-reader-thumb" key={link.url} onClick={() => setActive(index)} aria-label={`Открыть ${pageName(link, index)}`}>
-        <PublicThumbnail url={link.url} alt="" size={statement ? 'XXXL' : 'S'} fallback={<span className="day-reader-thumb-placeholder" aria-hidden="true">{link.printedPage ?? index + 1}</span>} />
+        <PublicThumbnail url={link.url} alt="" size={statement ? 'XXXL' : 'S'} fit={statement ? 'contain' : 'cover'} />
         <small>{statement ? 'Открыть лист крупно' : pageName(link, index)}</small>
       </button>)}
     </div>
@@ -88,9 +83,7 @@ export default function MaterialReader({ links, parent, statement = false }: { l
           if (!zoomed && Math.abs(delta) > 55) setActive((value) => value === null ? null : Math.max(0, Math.min(links.length - 1, value + (delta < 0 ? 1 : -1))))
           touchStart.current = null
         }}>
-          {!imageError && !imageUrl && <p>Загружаем страницу…</p>}
-          {imageError && <p>Не удалось показать страницу внутри Education. Её можно открыть на Диске по ссылке ниже.</p>}
-          {imageUrl && !imageError && <img src={imageUrl} alt={`${title}, ${pageName(links[active], active)}`} referrerPolicy="no-referrer" onError={() => setImageError(true)} />}
+          <EducationImage source={links[active].url} resolver={fullImage} alt={`${title}, ${pageName(links[active], active)}`} className="day-reader-full-image" loading="eager" />
         </div>
         <footer><button type="button" onClick={() => setActive((value) => Math.max(0, (value ?? 0) - 1))} disabled={active === 0}><ChevronLeft size={20} /> Назад</button><span>{pageName(links[active], active)}{parent && links[active].sourceRef ? ` · ${links[active].sourceRef}` : ''}</span><button type="button" onClick={() => setActive((value) => Math.min(links.length - 1, (value ?? 0) + 1))} disabled={active === links.length - 1}>Дальше <ChevronRight size={20} /></button></footer>
         <a className="day-reader-external" href={links[active].url} target="_blank" rel="noopener noreferrer">Открыть оригинал на Яндекс.Диске <ExternalLink size={14} /></a>

@@ -4,6 +4,7 @@ import { db } from './firebase'
 import { watchDayDashboard } from './dayDashboardStore'
 import type { PersonalChild } from './personalAccess'
 import { resumeFamilyBookTransfer } from './familyBookUpload'
+import { reportUiError } from './uiErrors'
 
 /** @see ../../docs/product/family-library.md#coverage */
 export type FamilyBook = {
@@ -91,7 +92,8 @@ export function useFamilyLibrary(familyId: string, children: PersonalChild[]): L
         books: Object.values(bindings).flat(),
         needs: bookNeeds(children, schedules, Object.values(bindings).flat(), Object.values(uploads).flat(), Object.values(requirements).flat()) })
     }
-    const fail = (cause: Error) => { error = cause.message; emit() }
+    const fail = (cause: Error) => {
+      error = reportUiError(cause, 'Семейная библиотека'); emit() }
     const stops: (() => void)[] = []
     for (const child of children) {
       if (child.dashboardToken) stops.push(watchDayDashboard(child.dashboardToken, (index) => {

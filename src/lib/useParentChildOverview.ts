@@ -9,6 +9,7 @@ import type { LessonWorkItem, QuizScore } from './homeworkStatus'
 import { loadAnswerKey, watchAssignment } from './store'
 import { grade } from './quiz'
 import type { Assignment } from './quiz'
+import { reportUiError } from './uiErrors'
 
 export type ParentSubjectOverview = {
   id: string
@@ -69,7 +70,7 @@ export function useParentChildOverview(dashboardToken: string): ParentChildOverv
       setIndex(data)
       setIndexReady(true)
       setError('')
-    }, (cause) => { setError(cause.message); setIndexReady(true) })
+    }, (cause) => { setError(reportUiError(cause, 'Обзор ребёнка')); setIndexReady(true) })
   }, [dashboardToken])
 
   const day = nearestDay(index, today)
@@ -78,7 +79,7 @@ export function useParentChildOverview(dashboardToken: string): ParentChildOverv
   const [pageSnapshot, setPageSnapshot] = useState<{ token: string; page: DayPageData } | null>(null)
   useEffect(() => {
     if (!dayToken) return
-    return watchDayPage(dayToken, (page) => setPageSnapshot({ token: dayToken, page }), (cause) => setError(cause.message))
+    return watchDayPage(dayToken, (page) => setPageSnapshot({ token: dayToken, page }), (cause) => setError(reportUiError(cause, 'Обзор ребёнка')))
   }, [dayToken])
   const page = pageSnapshot?.token === dayToken && pageSnapshot.page.targetDate === day?.date && pageSnapshot.page.kind === 'parent' ? pageSnapshot.page : null
   const studentToken = page ? page.studentToken ?? dayToken : null
@@ -90,15 +91,15 @@ export function useParentChildOverview(dashboardToken: string): ParentChildOverv
   const decisions = useParentCompletions(evidenceKey, Boolean(page))
   useEffect(() => {
     if (!evidenceKey) return
-    return watchDayUploads(evidenceTokens, (items) => setUploadSnapshot({ key: evidenceKey, items }), (cause) => setError(cause.message))
+    return watchDayUploads(evidenceTokens, (items) => setUploadSnapshot({ key: evidenceKey, items }), (cause) => setError(reportUiError(cause, 'Обзор ребёнка')))
   }, [evidenceKey, evidenceTokens])
   useEffect(() => {
     if (!evidenceKey) return
-    return watchDayReviews(evidenceTokens, (items) => setReviewSnapshot({ key: evidenceKey, items }), (cause) => setError(cause.message), true)
+    return watchDayReviews(evidenceTokens, (items) => setReviewSnapshot({ key: evidenceKey, items }), (cause) => setError(reportUiError(cause, 'Обзор ребёнка')), true)
   }, [evidenceKey, evidenceTokens])
   useEffect(() => {
     if (!evidenceKey) return
-    return watchEvidenceDayPages(evidenceTokens, (pages) => setPageEvidenceSnapshot({ key: evidenceKey, pages }), (cause) => setError(cause.message))
+    return watchEvidenceDayPages(evidenceTokens, (pages) => setPageEvidenceSnapshot({ key: evidenceKey, pages }), (cause) => setError(reportUiError(cause, 'Обзор ребёнка')))
   }, [evidenceKey, evidenceTokens])
 
   const testTokens = useMemo(() => [...new Set([
@@ -132,8 +133,8 @@ export function useParentChildOverview(dashboardToken: string): ParentChildOverv
         }
         items[token] = { assignment, score, scoreReady: true }
         emit()
-      }).catch((cause) => { if (active) setError(cause instanceof Error ? cause.message : 'Не удалось прочитать результат теста.') })
-    }, (cause) => setError(cause.message)))
+      }).catch((cause) => { if (active) setError(reportUiError(cause, 'Обзор ребёнка')) })
+    }, (cause) => setError(reportUiError(cause, 'Обзор ребёнка'))))
     return () => { active = false; stops.forEach((stop) => stop()) }
   }, [testKey, testTokens])
 

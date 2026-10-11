@@ -22,6 +22,9 @@ import { PwaConnectionNotice, PwaInstallButton, PwaUpdateNotice } from './compon
 import { PersonalEntry } from './components/PersonalEntry'
 import NotificationBell from './components/NotificationBell'
 import { ConnectionInvite } from './components/ConnectionInvite'
+import EducationImage from './components/EducationImage'
+import ErrorToasts from './components/ErrorToasts'
+import { reportUiError } from '@/lib/uiErrors'
 import './App.css'
 
 type Route = { kind: 'test' | 'preview' | 'dashboard' | 'my' | 'review' | 'day' | 'day-parent' | 'days' | 'days-parent' | 'enter' | 'connect'; token: string } | { kind: 'home' }
@@ -60,11 +63,12 @@ function quizReturnHash(value: unknown): string {
 function describeError(error: unknown): string {
   if (error instanceof Error) {
     if ('code' in error && error.code === 'permission-denied') {
+      reportUiError(error, 'Доступ к странице')
       return 'Доступ к этой ссылке закрыт. Проверьте адрес или попросите новую ссылку.'
     }
-    return error.message
+    return reportUiError(error, 'Данные страницы')
   }
-  return 'Не удалось загрузить данные. Попробуйте ещё раз.'
+  return reportUiError(error, 'Данные страницы')
 }
 
 function wordForm(count: number, one: string, few: string, many: string): string {
@@ -84,6 +88,7 @@ function Shell({ children, dayRoute = false, quizBack, onHeaderTarget }: { child
     <div className={`app-shell${dayRoute ? ' day-route' : ''}`}>
       <PwaUpdateNotice />
       <PwaConnectionNotice />
+      <ErrorToasts />
       <header className="site-header">
         <a className="brand" href="#/" aria-label="Education — на главную"><span className="brand-mark">✳</span><span className="brand-long">Учусь и проверяю</span><span className="brand-short">Education</span></a>
         <div id="day-header-return" ref={onHeaderTarget} />
@@ -138,14 +143,14 @@ function QuestionCard({
       </CardHeader>
       <CardContent className="space-y-4">
         {question.code && <CodeBlock code={question.code} />}
-        {question.imageUrl && <img className="question-image" src={question.imageUrl} alt={question.imageAlt ?? 'Иллюстрация к вопросу'} />}
+        {question.imageUrl && <EducationImage className="question-image" source={question.imageUrl} alt={question.imageAlt ?? 'Иллюстрация к вопросу'} aspectRatio="16 / 9" />}
         {(question.kind === 'single' || question.kind === 'figure') && (
           <RadioGroup value={asString} onValueChange={onAnswer} disabled={disabled} className="gap-3">
             {optionList.map((option) => (
               <label key={option.id} className="option-tile">
                 <RadioGroupItem value={option.id} aria-label={option.label} />
                 <span className="min-w-0 flex-1">
-                  {option.imageUrl && <img className="option-image" src={option.imageUrl} alt={option.imageAlt ?? option.label} />}
+                  {option.imageUrl && <EducationImage className="option-image" source={option.imageUrl} alt={option.imageAlt ?? option.label} aspectRatio="4 / 3" />}
                   <span>{option.label}</span>
                 </span>
               </label>

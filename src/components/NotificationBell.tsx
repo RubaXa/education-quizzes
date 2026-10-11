@@ -4,8 +4,9 @@ import { markNotificationRead, watchEducationUser, watchInbox } from '@/lib/educ
 import type { InboxNotification } from '@/lib/educationSchema'
 import { loadPersonalProfile, restorePersonalSession } from '@/lib/personalAccess'
 import type { PersonalChild } from '@/lib/personalAccess'
-import { publicImage } from '@/lib/yandexPublic'
+import EducationImage from './EducationImage'
 import './NotificationBell.css'
+import { reportUiError } from '@/lib/uiErrors'
 
 type Notice = InboxNotification & { id: string }
 
@@ -27,13 +28,7 @@ function title(notice: Notice) {
   return 'Работа проверена'
 }
 function NoticeImage({ label, media }: { label: string; media: { publicUrl: string } }) {
-  const [src, setSrc] = useState('')
-  useEffect(() => {
-    let active = true
-    void publicImage(media.publicUrl, 'M').then((url) => { if (active) setSrc(url) }).catch(() => { if (active) setSrc('') })
-    return () => { active = false }
-  }, [media.publicUrl])
-  return src ? <figure><img src={src} alt={`${label} обновления`} /><figcaption>{label}</figcaption></figure> : null
+  return <figure><EducationImage source={media.publicUrl} mode="public" size="M" alt={`${label} обновления`} aspectRatio="16 / 9" /><figcaption>{label}</figcaption></figure>
 }
 function detailBody(notice: Notice) {
   if (notice.body) return notice.body
@@ -71,7 +66,7 @@ export default function NotificationBell({ routeKey }: { routeKey: string }) {
         if (!session) { setChildren([]); return }
         const profile = await loadPersonalProfile(session)
         if (active) setChildren(profile.children)
-      } catch { if (active) { setPersonId(null); setChildren([]) } }
+      } catch (cause) { if (active) { reportUiError(cause, 'Обновления'); setPersonId(null); setChildren([]) } }
     }
     const stop = watchEducationUser(() => { void refresh() })
     void refresh()
@@ -80,8 +75,8 @@ export default function NotificationBell({ routeKey }: { routeKey: string }) {
 
   useEffect(() => {
     if (!personId) { setItems([]); return }
-    try { return watchInbox(setItems, (cause) => setError(cause.message)) }
-    catch (cause) { setError(cause instanceof Error ? cause.message : 'Не удалось получить обновления.') }
+    try { return watchInbox(setItems, (cause) => setError(reportUiError(cause, 'Обновления'))) }
+    catch (cause) { setError(reportUiError(cause, 'Обновления')) }
   }, [personId])
 
   useEffect(() => {
@@ -96,7 +91,7 @@ export default function NotificationBell({ routeKey }: { routeKey: string }) {
 
   async function openNotice(item: Notice) {
     try { await markNotificationRead(item.id) }
-    catch (cause) { setError(cause instanceof Error ? cause.message : 'Не удалось отметить обновление прочитанным.') }
+    catch (cause) { setError(reportUiError(cause, 'Обновления')) }
     setExpanded((current) => current === item.id ? null : item.id)
   }
 

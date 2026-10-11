@@ -5,6 +5,7 @@ import { db } from '@/lib/firebase'
 import type { PersonalChild, PersonalProfile } from '@/lib/personalAccess'
 import { Button } from './ui/button'
 import './ParentHome.css'
+import { reportUiError } from '@/lib/uiErrors'
 
 type Member = { id: string; role: 'parent' | 'student'; displayName?: string; childIds: string[]; active: boolean; meshConnectedAt?: unknown; inviteUnlimited?: boolean; inviteQuota?: number }
 type Invite = { id: string; status: string; mode: string; delegateQuota: number; issuerPersonId?: string; originFamilyId?: string; createdAt?: { toDate(): Date }; expiresAt?: { toDate(): Date }; connectedAt?: { toDate(): Date }; connectedParentName?: string; connectedFamilyId?: string }
@@ -17,8 +18,9 @@ function date(value?: { toDate(): Date }) {
   return new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Europe/Moscow' }).format(value.toDate())
 }
 function readableError(cause: unknown) {
+  const detail = reportUiError(cause, 'Семья и доступ')
   if (cause && typeof cause === 'object' && 'code' in cause && cause.code === 'permission-denied') return 'Недостаточно прав. Обновите страницу или проверьте личную ссылку.'
-  return cause instanceof Error ? cause.message : 'Действие не выполнено.'
+  return detail
 }
 function useRecords<T>(path: string[]) {
   const [records, setRecords] = useState<T[] | null>(null)
@@ -46,7 +48,7 @@ function InviteRow({ item, nowMs, busy, revokePending, copy, revoke }: { item: I
   const [submitted, setSubmitted] = useState(false)
   useEffect(() => {
     if (item.status !== 'open') return
-    return onSnapshot(doc(db, 'connectionInvites', item.id, 'handoff', 'current'), (snapshot) => setSubmitted(snapshot.exists()), () => setSubmitted(false))
+    return onSnapshot(doc(db, 'connectionInvites', item.id, 'handoff', 'current'), (snapshot) => setSubmitted(snapshot.exists()), (cause) => { reportUiError(cause, 'Статус приглашения'); setSubmitted(false) })
   }, [item.id, item.status])
   const expired = item.status === 'open' && (item.expiresAt?.toDate().getTime() ?? 0) <= nowMs
   const label = expired ? 'Истёк срок' : item.status === 'open' && submitted ? 'Заявка получена' : item.status === 'open' ? 'Открыто'

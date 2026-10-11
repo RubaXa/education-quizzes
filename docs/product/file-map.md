@@ -119,6 +119,10 @@
 | [src/components/ArtifactAvatar.tsx](../../src/components/ArtifactAvatar.tsx) | [Статусы фотографии](day-page.md) | Общий аватар загруженного фото с одним значком состояния | День; слот выходных |
 | [src/components/CodeBlock.tsx](../../src/components/CodeBlock.tsx) | [Тесты](quizzes.md) | Показ исходного кода в вопросе | Страница теста |
 | [src/components/ConnectionInvite.tsx](../../src/components/ConnectionInvite.tsx) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Команда подключения и живой статус приглашения | `src/App.tsx`; приглашённый взрослый |
+| [src/components/EducationImage.tsx](../../src/components/EducationImage.tsx) | [Изображения](design-system.md) | Общий загрузчик, кроп, индикация, ошибка и повтор | Материалы; фото; тесты; уведомления |
+| [src/components/EducationImage.css](../../src/components/EducationImage.css) | [Изображения](design-system.md) | Оболочка изображения и состояния загрузки | `EducationImage.tsx` |
+| [src/components/ErrorToasts.tsx](../../src/components/ErrorToasts.tsx) | [Ошибки данных](design-system.md) | Краткие сообщения о сбоях загрузки и действий | `src/App.tsx` |
+| [src/components/ErrorToasts.css](../../src/components/ErrorToasts.css) | [Ошибки данных](design-system.md) | Оформление доступных всплывающих ошибок | `ErrorToasts.tsx` |
 | [src/components/EducationScreen.tsx](../../src/components/EducationScreen.tsx) | [Экраны из данных](../architecture/backend-driven-ui.md) | Ограниченный реестр блоков манифеста | Будущий маршрут v2 |
 | [src/components/MaterialReader.tsx](../../src/components/MaterialReader.tsx) | [Материалы](materials.md) | Миниатюры и просмотр страниц | Страница дня |
 | [src/components/PersonalEntry.tsx](../../src/components/PersonalEntry.tsx) | [Семейная модель](../architecture/family-data-model.md) | Вход по личной ссылке | Личная стартовая страница |
@@ -136,7 +140,7 @@
 | [src/components/ProblemStatement.css](../../src/components/ProblemStatement.css) | [Адаптивная карточка](adaptive-problem-card.md) | Типографика условия и ориентиров | `src/components/ProblemStatement.tsx` |
 | [src/components/ProblemStatement.tsx](../../src/components/ProblemStatement.tsx) | [Адаптивная карточка](adaptive-problem-card.md) | Точное условие и помощь по запросу | Карточка номера |
 | [src/components/ProblemTaskCard.tsx](../../src/components/ProblemTaskCard.tsx) | [Адаптивная карточка](adaptive-problem-card.md) | Общая композиция условия, разбора и загрузки для номера | `src/DayPage.tsx`; `src/WeekendMathSlot.tsx` |
-| [src/components/PublicThumbnail.tsx](../../src/components/PublicThumbnail.tsx) | [Материалы](materials.md) | Повтор миниатюры при сетевом сбое | Фото и страницы |
+| [src/components/PublicThumbnail.tsx](../../src/components/PublicThumbnail.tsx) | [Изображения](design-system.md) | Совместимый адаптер миниатюр к единому загрузчику | Фото и страницы |
 | [src/components/PwaControls.css](../../src/components/PwaControls.css) | [PWA](pwa.md) | Оформление установки и обновления | `src/components/PwaControls.tsx` |
 | [src/components/PwaControls.tsx](../../src/components/PwaControls.tsx) | [PWA](pwa.md) | Управление обновлением приложения | Пользователь PWA |
 | [src/components/SourceFragment.css](../../src/components/SourceFragment.css) | [Адаптивная карточка](adaptive-problem-card.md) | Оформление фрагмента оригинала | `src/components/SourceFragment.tsx` |
@@ -158,6 +162,7 @@
 | [src/lib/educationSchema.ts](../../src/lib/educationSchema.ts) | [Семейная модель](../architecture/family-data-model.md) | Типы семьи, манифеста и адресных событий | `educationStore`; `NotificationBell` |
 | [src/lib/educationStore.ts](../../src/lib/educationStore.ts) | [Действия и новое](../architecture/activity-and-inbox.md) | Подписка на inbox и команды отметки прочитанного; заготовки журнала | `NotificationBell`; будущий маршрут v2 |
 | [src/lib/firebase.ts](../../src/lib/firebase.ts) | [Доступ и состояние](access-and-state.md) | Подключение к Firestore | Клиентские хранилища |
+| [src/lib/uiErrors.ts](../../src/lib/uiErrors.ts) | [Ошибки данных](design-system.md) | Безопасное объяснение и дедубликация ошибок интерфейса | Подписки Firebase; `ErrorToasts` |
 | [src/lib/familyBookUpload.ts](../../src/lib/familyBookUpload.ts) | [Семейная библиотека](family-library.md) | Локальная очередь PDF и прямая передача через Яндекс.Диск | `FamilyLibrary`; локальный приёмник |
 | [src/lib/familyLibrary.ts](../../src/lib/familyLibrary.ts) | [Семейная библиотека](family-library.md) | Покрытие наблюдаемого расписания только семейными связями | `FamilyLibrary.tsx` |
 | [src/lib/followup.test.ts](../../src/lib/followup.test.ts) | [Тесты](quizzes.md) | Проверка формирования продолжений | Vitest; разработчик |

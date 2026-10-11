@@ -9,8 +9,10 @@ import type { PersonalProfile, PersonalSession } from '../lib/personalAccess'
 import { db } from '../lib/firebase'
 import DayDashboard from '../DayDashboard'
 import { ParentHome } from './ParentHome'
+import { reportUiError } from '@/lib/uiErrors'
 
 function accessError(cause: unknown): string {
+  const detail = reportUiError(cause, 'Личный вход')
   if (cause && typeof cause === 'object' && 'code' in cause) {
     if (cause.code === 'auth/operation-not-allowed' || cause.code === 'auth/configuration-not-found') {
       return 'Вход по личным ссылкам ещё не включён в Firebase.'
@@ -20,7 +22,7 @@ function accessError(cause: unknown): string {
       return 'Не удалось связаться с Firebase. Проверьте интернет и повторите вход.'
     }
   }
-  return cause instanceof Error ? cause.message : 'Не удалось открыть личный профиль.'
+  return cause instanceof Error && !('code' in cause) ? cause.message : detail
 }
 
 /** @see ../../docs/architecture/family-data-model.md#link-login

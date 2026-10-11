@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import type { Dispatch, SetStateAction } from 'react'
 import { watchDayReviews, watchDayUploads, watchEvidenceDayPages } from './dayStore'
 import type { DayPageData, DayUpload, DayWorkReview } from './dayStore'
+import { reportUiError } from './uiErrors'
 
 type Snapshot<T> = { key: string; items: T[] }
 
@@ -16,15 +17,15 @@ export function useDayEvidence(page: DayPageData | undefined, token: string, set
 
   useEffect(() => {
     if (!hasPage) return
-    return watchDayUploads(evidenceKey.split('|'), (items) => setUploadSnapshot({ key: evidenceKey, items }), (cause) => setError(cause.message))
+    return watchDayUploads(evidenceKey.split('|'), (items) => setUploadSnapshot({ key: evidenceKey, items }), (cause) => setError(reportUiError(cause, 'Фото и результаты')))
   }, [evidenceKey, hasPage, setError])
   useEffect(() => {
     if (!hasPage) return
-    return watchDayReviews(evidenceKey.split('|'), (items) => setReviewSnapshot({ key: evidenceKey, items }), (cause) => setError(cause.message), page?.kind === 'parent')
+    return watchDayReviews(evidenceKey.split('|'), (items) => setReviewSnapshot({ key: evidenceKey, items }), (cause) => setError(reportUiError(cause, 'Фото и результаты')), page?.kind === 'parent')
   }, [evidenceKey, hasPage, page?.kind, setError])
   useEffect(() => {
     if (!hasPage) return
-    return watchEvidenceDayPages(evidenceKey.split('|'), (items) => setPageSnapshot({ key: evidenceKey, items }), (cause) => setError(cause.message))
+    return watchEvidenceDayPages(evidenceKey.split('|'), (items) => setPageSnapshot({ key: evidenceKey, items }), (cause) => setError(reportUiError(cause, 'Фото и результаты')))
   }, [evidenceKey, hasPage, setError])
 
   return {

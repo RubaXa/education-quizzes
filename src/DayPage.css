@@ -81,6 +81,12 @@
 .day-reader-statement .day-reader-thumb{display:block;width:100%;min-height:0;padding:9px;text-align:center}
 .day-reader-statement .day-reader-thumb img,.day-reader-statement .day-reader-thumb-placeholder{width:100%;height:auto;max-height:350px;object-fit:contain;object-position:center;background:#fff}
 .day-reader-statement .day-reader-thumb-placeholder{min-height:130px}
+.day-reader-thumb .education-image{height:92px}
+.day-reader-statement .day-reader-thumb .education-image{height:auto;aspect-ratio:3 / 4}
+.day-reader-full-image{width:min(100%,1000px);flex:none}
+.day-reader-stage.zoomed .day-reader-full-image{width:180%;max-width:none}
+.day-reader-stage.zoomed .day-reader-full-image img{width:100%;max-width:100%}
+@media(max-width:640px){.day-reader-thumb .education-image{height:80px}.day-reader-statement .day-reader-thumb .education-image{height:auto}}
 @media(max-width:640px){.day-tabs{flex-wrap:wrap}.day-tabs button{max-width:100%;white-space:normal}}
 .day-subject-head{flex-wrap:wrap}
 .day-grade-button{display:inline-flex;align-items:center;justify-content:center;gap:4px;font-family:inherit;font-size:.86rem;font-weight:800;line-height:inherit;min-height:0;cursor:pointer;vertical-align:middle}
@@ -143,6 +149,8 @@
 .day-upload-expanded{position:relative;margin-top:8px;padding:8px;border-top:1px solid #e5ddef}
 .day-upload-close{position:absolute;right:8px;top:8px;display:grid;place-items:center;width:28px;height:28px;border:0;border-radius:50%;background:#f0eaf8;color:#4e3a83;cursor:pointer}
 .day-upload-expanded>img{display:block;max-width:100%;max-height:70vh;object-fit:contain;margin:10px auto 0;border-radius:8px}
+.day-upload-expanded>.day-upload-photo{width:min(100%,800px);min-height:170px;margin:10px auto 0;border-radius:8px}
+.day-upload-expanded>.day-upload-photo img{max-height:70vh;object-fit:contain}
 .day-task .day-upload-expanded>p{color:#746a83;font-size:.75rem;margin:8px 34px 0 0}
 .day-upload-retry{display:inline-flex;align-items:center;gap:4px;border:1px solid #d4bfdf;border-radius:8px;background:#fff;color:#654c8d;padding:5px 7px;font-size:.72rem;font-weight:750;cursor:pointer}
 .day-upload-delete{display:inline-flex;align-items:center;gap:5px;margin-top:9px;padding:6px 8px;border:1px solid #e5c8cf;border-radius:8px;background:#fff;color:#a23844;font-size:.75rem;font-weight:750;cursor:pointer}

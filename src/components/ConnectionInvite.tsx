@@ -5,6 +5,7 @@ import { Copy, Link2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { db } from '@/lib/firebase'
+import { reportUiError } from '@/lib/uiErrors'
 
 /** @see ../../docs/architecture/school-diary-port-adapter.md#family-onboarding-research */
 export function ConnectionInvite({ code }: { code: string }) {
@@ -29,12 +30,12 @@ export function ConnectionInvite({ code }: { code: string }) {
         if (!snapshot.exists() || data?.status === 'rejected' || data?.status === 'revoked' || data?.expiresAt?.toMillis?.() <= Date.now()) setState('closed')
         else if (data?.status === 'connected') setState('connected')
         else setState((current) => current === 'submitted' ? current : 'open')
-      }, () => setState('error'))
+      }, (cause) => { reportUiError(cause, 'Приглашение'); setState('error') })
       stopHandoff = onSnapshot(doc(db, 'connectionInvites', code, 'handoff', 'current'), (snapshot) => {
         setSubmitted(snapshot.exists())
-      }, () => setState('error'))
+      }, (cause) => { reportUiError(cause, 'Приглашение'); setState('error') })
     }
-    void watch().catch(() => setState('error'))
+    void watch().catch((cause) => { reportUiError(cause, 'Приглашение'); setState('error') })
     return () => { stopped = true; stopInvite?.(); stopHandoff?.() }
   }, [code, validCode])
 

@@ -8,7 +8,7 @@ import { dayHelpSessionRole } from '@/lib/personalAccess'
 import { grade } from '@/lib/quiz'
 import type { Assignment } from '@/lib/quiz'
 import MaterialReader, { canReadInside } from '@/components/MaterialReader'
-import PublicThumbnail from '@/components/PublicThumbnail'
+import EducationImage from '@/components/EducationImage'
 import ArtifactAvatar from '@/components/ArtifactAvatar'
 import WorkReview from '@/components/WorkReview'
 import ProblemGroup from '@/components/ProblemGroup'
@@ -17,9 +17,9 @@ import { useDayEvidence } from '@/lib/useDayEvidence'
 import { useParentCompletions } from '@/lib/useParentCompletions'
 import { canAcceptCorrectAnswer, parentAccepted, recordParentCompletion, recordRequirementChoice, requiredFamilyActions, requirementChoice } from '@/lib/parentCompletion'
 import { activeProcessing, artifactAvatarLabel, artifactAvatarState, localArtifactAvatarState, problemCardState, workCoverageComplete } from '@/lib/reviewPresentation'
-import { publicImage } from '@/lib/yandexPublic'
 import { localPhotoForTransfer } from '@/lib/photoOutbox'
 import './DayPage.css'
+import { reportUiError } from '@/lib/uiErrors'
 
 type TestItem = { token: string; testId: string; linkedToTestId?: string | null; title: string; description?: string; subject: string; slug: string; previewToken: string; status: Assignment['status']; answered: number; total: number; points?: number; maxPoints?: number }
 type LocalPhoto = { id: string; taskId: string; file: File; previewUrl: string; state: 'uploading' | 'saved' | 'failed' | 'deleting'; error?: string }
@@ -29,34 +29,19 @@ type LocalPhoto = { id: string; taskId: string; file: File; previewUrl: string; 
  * @see ../docs/product/day-page.md#photo-preview
  * @see ../docs/product/storage-privacy.md#upload-queue
  */
+async function localWorkImage(source: string): Promise<string> {
+  const [studentToken, uploadId] = source.split(':')
+  const blob = await localPhotoForTransfer(studentToken, uploadId)
+  if (!blob) throw new Error('Исходное фото не найдено на этом устройстве.')
+  return URL.createObjectURL(blob)
+}
+
 function WorkPhoto({ upload, title, index, compact = false }: { upload: DayUpload; title: string; index: number; compact?: boolean }) {
-  const [src, setSrc] = useState(upload.dataUrl ?? '')
-  const [failed, setFailed] = useState(false)
-  useEffect(() => {
-    if (upload.dataUrl) { setSrc(upload.dataUrl); setFailed(false); return }
-    const url = upload.storage?.publicUrl
-    if (!url) {
-      const [studentToken, uploadId] = upload.id.split(':')
-      let active = true
-      let objectUrl = ''
-      void localPhotoForTransfer(studentToken, uploadId).then((blob) => {
-        if (active && blob) { objectUrl = URL.createObjectURL(blob); setSrc(objectUrl) }
-      }).catch(() => setSrc(''))
-      return () => { active = false; if (objectUrl) URL.revokeObjectURL(objectUrl) }
-    }
-    if (compact) return
-    let active = true
-    setSrc('')
-    setFailed(false)
-    void publicImage(url, compact ? 'S' : 'XXXL').then((image) => { if (active) setSrc(image) }).catch(() => { if (active) setFailed(true) })
-    return () => { active = false }
-  }, [upload.id, upload.dataUrl, upload.storage?.publicUrl, compact])
-  if (compact && !upload.dataUrl && upload.storage?.publicUrl) return <PublicThumbnail url={upload.storage.publicUrl} alt={`Работа по заданию «${title}», фото ${index + 1}`} fallback={<span className="artifact-avatar-placeholder"><Camera size={15} aria-hidden="true" /></span>} />
-  if (compact && (failed || !src)) return <span className="artifact-avatar-placeholder"><Camera size={15} aria-hidden="true" /></span>
-  if (failed || !src) return upload.storage?.publicUrl
-    ? <p><a href={upload.storage.publicUrl} target="_blank" rel="noopener noreferrer">Открыть фото на Яндекс.Диске</a></p>
-    : <p>Фото ожидает передачи на Яндекс.Диск.</p>
-  return <img src={src} alt={`Работа по заданию «${title}», фото ${index + 1}`} loading="lazy" referrerPolicy="no-referrer" onError={() => setFailed(true)} />
+  const publicUrl = upload.storage?.publicUrl
+  const local = !upload.dataUrl && !publicUrl
+  return <EducationImage source={upload.dataUrl ?? publicUrl ?? upload.id} mode={publicUrl && !upload.dataUrl ? 'public' : 'direct'}
+    resolver={local ? localWorkImage : undefined} revokeResolvedUrl={local} size={compact ? 'S' : 'XXXL'}
+    alt={`Работа по заданию «${title}», фото ${index + 1}`} compact={compact} retryControl={!compact} className={compact ? '' : 'day-upload-photo'} />
 }
 
 /**
@@ -93,7 +78,7 @@ function PhotoStrip({ taskTitle, evidenceLabel = 'Фото работы', studen
       setRemovedIds((current) => [...current, id])
       setSelectedId(null)
     } catch (cause) {
-      setDeleteError(cause instanceof Error ? cause.message : 'Не удалось удалить фото. Повторите попытку.')
+      setDeleteError(reportUiError(cause, 'Удаление фото'))
     } finally {
       setRemovingId(null)
     }
@@ -110,14 +95,14 @@ function PhotoStrip({ taskTitle, evidenceLabel = 'Фото работы', studen
         const id = `${studentToken}:${photo.id}`
         const state = localArtifactAvatarState(photo.state)
         const status = artifactAvatarLabel(state)
-        return <button className="day-upload-chip" type="button" key={photo.id} title={`Фото ${visibleUploads.length + index + 1} · ${status}`} aria-label={`Открыть фото ${visibleUploads.length + index + 1}: ${status}`} aria-expanded={selectedId === id} onClick={() => setSelectedId(selectedId === id ? null : id)}><ArtifactAvatar state={state}><img src={photo.previewUrl} alt="" /></ArtifactAvatar></button>
+        return <button className="day-upload-chip" type="button" key={photo.id} title={`Фото ${visibleUploads.length + index + 1} · ${status}`} aria-label={`Открыть фото ${visibleUploads.length + index + 1}: ${status}`} aria-expanded={selectedId === id} onClick={() => setSelectedId(selectedId === id ? null : id)}><ArtifactAvatar state={state}><EducationImage source={photo.previewUrl} alt="" compact retryControl={false} /></ArtifactAvatar></button>
       })}
     </div>
     <div className="day-upload-progress" role="progressbar" aria-label="Проверенные фотографии" aria-valuemin={0} aria-valuemax={photoCount} aria-valuenow={reviewedCount}><span style={{ width: `${reviewedCount / photoCount * 100}%` }} /></div>
     {summary && <small className="day-upload-summary">{summary}</small>}
     {(selectedUpload || selectedLocal) && <div className="day-upload-expanded"><button className="day-upload-close" type="button" aria-label="Закрыть фото" onClick={() => setSelectedId(null)}><X size={17} aria-hidden="true" /></button>
       {selectedUpload ? <><WorkPhoto upload={selectedUpload} title={taskTitle} index={visibleUploads.indexOf(selectedUpload)} /><p>{selectedUpload.status === 'reviewed' ? evidenceLabel === 'Подтверждение ЦДЗ' ? 'Результат ЦДЗ указан в карточке задания.' : 'Разбор этого задания показан в блоке «Проверка работы».' : selectedUpload.status === 'upload-error' ? selectedUpload.error ?? 'Не удалось передать фото. Удалите запись и загрузите снимок снова.' : selectedUpload.status === 'pending' ? activeProcessing(review, [selectedUpload]) ? 'Сейчас проверяем фото.' : 'Фото ждёт разбора.' : 'Исходное фото передаётся напрямую на Яндекс.Диск; дождитесь подтверждения.'} {selectedUpload.storage?.state === 'stored' ? 'Файл на Яндекс.Диске.' : 'Исходник остаётся на этом устройстве до передачи.'}</p>{selectedUpload.storage?.publicUrl && <a className="day-upload-original" href={selectedUpload.storage.publicUrl} target="_blank" rel="noopener noreferrer">Открыть на Яндекс.Диске <ExternalLink size={13} aria-hidden="true" /></a>}</>
-        : selectedLocal && <><img src={selectedLocal.previewUrl} alt={`Новое фото по заданию «${taskTitle}»`} /><p>{selectedLocal.state === 'failed' ? selectedLocal.error ?? 'Не удалось загрузить фото.' : selectedLocal.state === 'saved' ? 'Фото сохранено и ждёт разбора.' : selectedLocal.state === 'deleting' ? 'Удаляем фото…' : 'Фото загружается…'}</p>{selectedLocal.state === 'failed' && removingId !== selectedId && <button type="button" className="day-upload-retry" onClick={() => onRetry(selectedLocal)}><RotateCcw size={14} aria-hidden="true" /> Повторить</button>}</>}
+        : selectedLocal && <><EducationImage source={selectedLocal.previewUrl} alt={`Новое фото по заданию «${taskTitle}»`} className="day-upload-photo" /><p>{selectedLocal.state === 'failed' ? selectedLocal.error ?? 'Не удалось загрузить фото.' : selectedLocal.state === 'saved' ? 'Фото сохранено и ждёт разбора.' : selectedLocal.state === 'deleting' ? 'Удаляем фото…' : 'Фото загружается…'}</p>{selectedLocal.state === 'failed' && removingId !== selectedId && <button type="button" className="day-upload-retry" onClick={() => onRetry(selectedLocal)}><RotateCcw size={14} aria-hidden="true" /> Повторить</button>}</>}
       {(selectedUpload && selectedUpload.status !== 'reviewed' || selectedLocal) && <button className="day-upload-delete" type="button" disabled={removingId === selectedId} onClick={() => selectedId && void deletePhoto(selectedId)}><Trash2 size={14} aria-hidden="true" /> {removingId === selectedId ? 'Удаляем…' : 'Удалить фото'}</button>}
       {deleteError && <p className="day-upload-delete-error" role="alert">{deleteError}</p>}
     </div>}
@@ -353,21 +338,21 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
                 const results = grade(assignment, key)
                 rows.set(item.token, { ...rows.get(item.token)!, points: results.reduce((sum, result) => sum + (result.points ?? 0), 0), maxPoints: assignment.questions.reduce((sum, question) => sum + question.points, 0) })
                 show()
-              }).catch((cause) => setError(cause instanceof Error ? cause.message : 'Не удалось получить результат теста.'))
+              }).catch((cause) => setError(reportUiError(cause, 'Страница задания')))
             }
-          }, (cause) => setError(cause.message))
+          }, (cause) => setError(reportUiError(cause, 'Страница задания')))
           assignmentStops.push(stop)
         }
-      }, (cause) => setError(cause.message)))
+      }, (cause) => setError(reportUiError(cause, 'Страница задания'))))
       stops.push(() => assignmentStops.forEach((stop) => stop()))
-    }, (cause) => { if (active) setError(cause.message) }))
+    }, (cause) => { if (active) setError(reportUiError(cause, 'Страница задания')) }))
     return () => { active = false; stops.forEach((stop) => stop()) }
   }, [token, parent])
   useEffect(() => {
     const refs = Object.values(page?.taskPageRefs ?? {}).flat()
     if (!refs.length) return
-    return watchMaterialPages(refs, page?.familyId, page?.childId, setCatalogPages, () => {
-      // Legacy day links remain available while a device reconnects to its family session.
+    return watchMaterialPages(refs, page?.familyId, page?.childId, setCatalogPages, (cause) => {
+      reportUiError(cause, 'Страницы учебника')
     })
   }, [page?.taskPageRefs, page?.familyId, page?.childId])
 
@@ -381,7 +366,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
     if (!hasPage || helpRole === 'checking' || helpRole === 'none') return
     return watchDayHelp(evidenceKey.split('|'), setHelpRequests, (cause) => {
       if ((cause as Error & { code?: string }).code === 'permission-denied') { setHelpRole('none'); setHelpRequests([]) }
-      else setError(cause.message)
+      else setError(reportUiError(cause, 'Страница задания'))
     })
   }, [evidenceKey, hasPage, helpRole])
   useEffect(() => {
@@ -424,6 +409,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
       await uploadDayPhoto(studentToken, photo.taskId, photo.file, photo.id, page?.planRevision)
       setLocalPhotos((current) => current.map((item) => item.id === photo.id && item.state !== 'deleting' ? { ...item, state: 'saved' } : item))
     } catch (cause) {
+      reportUiError(cause, 'Загрузка фото')
       setLocalPhotos((current) => current.map((item) => item.id === photo.id && item.state !== 'deleting'
         ? { ...item, state: 'failed', error: cause instanceof Error ? cause.message : 'Не удалось загрузить фото.' } : item))
     }
