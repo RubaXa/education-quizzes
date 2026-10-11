@@ -219,6 +219,9 @@ async function receive(code) {
   const [inviteSnapshot, handoffSnapshot] = await Promise.all([inviteRef.get(), handoffRef.get()])
   const invite = inviteSnapshot.data()
   if (!invite || invite.status !== 'open' || !handoffSnapshot.exists) fail('Заявка не ожидает обработки.')
+  if (!invite.expiresAt?.toMillis || invite.expiresAt.toMillis() <= Date.now()) {
+    fail('Срок приглашения истёк. Создайте новое приглашение; прежняя заявка не подключает семью.')
+  }
   const payload = decryptHandoff(code, invites.invites[code].privateKey, handoffSnapshot.data())
   let credentials = validCredentials(payload)
   const adapter = new MeshDiaryAdapter(credentials, (updated) => { credentials = updated })
