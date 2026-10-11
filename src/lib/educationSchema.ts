@@ -152,6 +152,8 @@ export type InboxNotification = {
   childId: string
   type: 'homework_published' | 'homework_changed' | 'homework_removed' | 'grade_added' | 'review_ready'
   entityId: string
+  date?: string
+  subject?: string
   sourceRevision: number
   createdAt: unknown
   readAt?: unknown

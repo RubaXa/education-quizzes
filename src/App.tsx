@@ -20,6 +20,7 @@ import DayPage from './DayPage'
 import DayDashboard from './DayDashboard'
 import { PwaConnectionNotice, PwaInstallButton, PwaUpdateNotice } from './components/PwaControls'
 import { PersonalEntry } from './components/PersonalEntry'
+import NotificationBell from './components/NotificationBell'
 import './App.css'
 
 type Route = { kind: 'test' | 'preview' | 'dashboard' | 'my' | 'review' | 'day' | 'day-parent' | 'days' | 'days-parent' | 'enter'; token: string } | { kind: 'home' }
@@ -85,6 +86,7 @@ function Shell({ children, dayRoute = false, quizBack, onHeaderTarget }: { child
         <a className="brand" href="#/" aria-label="Education — на главную"><span className="brand-mark">✳</span><span className="brand-long">Учусь и проверяю</span><span className="brand-short">Education</span></a>
         <div id="day-header-return" ref={onHeaderTarget} />
         {quizBack && <a className="quiz-back-link" href={quizBack}><ArrowLeft size={17} aria-hidden="true" /> Назад</a>}
+        <NotificationBell routeKey={location.hash} />
         <div className="header-actions"><span className="header-note">Маленькие шаги. Большой прогресс.</span><PwaInstallButton /></div>
       </header>
       <main className="page-wrap">{children}</main>

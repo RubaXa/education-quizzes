@@ -1,0 +1,22 @@
+/* @see ../../docs/architecture/activity-and-inbox.md#in-app-center */
+.notification-center{position:relative;flex:none;margin-left:auto;z-index:30}
+.notification-bell{position:relative;display:grid;place-items:center;width:42px;height:42px;border:1px solid #dcd3f2;border-radius:50%;background:#fff;color:#514085;cursor:pointer}
+.notification-bell:hover,.notification-bell:focus-visible{background:#f1edfb;outline-color:#7750e9}
+.notification-count{position:absolute;top:-5px;right:-7px;min-width:18px;padding:1px 4px;border-radius:999px;background:#7e344f;color:#fff;font-size:11px;font-weight:800;line-height:17px;text-align:center}
+.notification-panel{position:absolute;top:calc(100% + 9px);right:0;width:min(360px,calc(100vw - 24px));max-height:min(65vh,540px);overflow:auto;border:1px solid #ded5f1;border-radius:18px;background:#fff;box-shadow:0 16px 44px #2c21552e;color:#30245b}
+.notification-panel header{position:sticky;top:0;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #ece8f4;background:#fff}
+.notification-panel h2{margin:0;font-size:1rem;font-weight:800}
+.notification-panel header button{display:grid;place-items:center;width:30px;height:30px;border:0;border-radius:8px;background:#f3f0fa;color:#514085;cursor:pointer}
+.notification-panel ul{list-style:none;margin:0;padding:0}
+.notification-panel li+li{border-top:1px solid #eeeaf5}
+.notification-item{display:flex;align-items:center;gap:10px;width:100%;padding:14px 16px;border:0;background:#fff;color:inherit;text-align:left;cursor:pointer}
+.notification-item:hover,.notification-item:focus-visible{background:#f7f4ff}
+.notification-item.unread{background:#f3efff}
+.notification-dot{width:7px;height:7px;flex:none;border-radius:50%;background:transparent}
+.notification-item.unread .notification-dot{background:#7857c4}
+.notification-copy{display:grid;gap:3px;flex:1;min-width:0}
+.notification-copy strong{font-size:.91rem;line-height:1.25}
+.notification-copy span{font-size:.84rem;color:#70698b}
+.notification-copy small{font-size:.73rem;color:#79718a}
+.notification-empty,.notification-error{margin:0;padding:18px;color:#70698b;font-size:.88rem}
+.notification-error{color:#9b1c42;background:#fff0f3}

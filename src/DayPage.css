@@ -41,6 +41,7 @@
 .day-quiz-history>summary:focus-visible{outline:3px solid #a88cdc;outline-offset:-3px}
 .day-quiz-history-body{display:grid;gap:8px;padding:0 9px 9px}
 .day-quiz-history .day-task{box-shadow:none}
+.day-focused-task{outline:3px solid #a887df;outline-offset:3px;transition:outline-color .2s}
 .day-quiz-history-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;border:1px solid #e8e1f0;border-radius:12px;background:white;padding:10px 12px;font-size:.8rem}
 .day-quiz-history-row strong{flex:1 1 180px}
 .day-quiz-history-row span{color:#756985}

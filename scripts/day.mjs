@@ -27,15 +27,45 @@ function dashboardLinks() {
   }
 }
 /** @see ../docs/product/dashboard.md#firestore-model */
-function addDashboardDocuments(batch, links, tokens) {
+async function addDashboardDocuments(batch, links, tokens) {
   const ownerFile = resolve(local, 'family-access.json')
   const owner = existsSync(ownerFile) ? json(ownerFile).legacyDayOwner : null
   if (!owner?.familyId || !owner?.childId) fail('Сначала привяжите страницы дня к ребёнку командой family attach-current-day.')
+  const members = await db.collection(`families/${owner.familyId}/members`).get()
   for (const role of ['student', 'parent']) {
-    batch.set(db.doc(`dayDashboards/${tokens[role]}`), {
-      ...buildDayDashboardIndex(local, links, role),
+    const ref = db.doc(`dayDashboards/${tokens[role]}`)
+    const previous = (await ref.get()).data()
+    const previousDays = new Map((previous?.days ?? []).map((day) => [day.date, day]))
+    const index = buildDayDashboardIndex(local, links, role)
+    const notifications = []
+    const days = index.days.map((day) => {
+      const before = previousDays.get(day.date)
+      const priorHomework = new Map((before?.homework ?? []).map((item) => [item.subject, item.text]))
+      const subjects = before ? day.homework.filter((item) => priorHomework.get(item.subject) !== item.text).map((item) => item.subject) : []
+      for (const subject of subjects) notifications.push({ date: day.date, subject, type: priorHomework.has(subject) ? 'homework_changed' : 'homework_published', text: day.homework.find((item) => item.subject === subject)?.text ?? '' })
+      if (before) for (const [subject] of priorHomework) {
+        if (!day.homework.some((item) => item.subject === subject)) notifications.push({ date: day.date, subject, type: 'homework_removed', text: '' })
+      }
+      const homeworkUpdate = subjects.length ? { at: new Date().toISOString(), subjects } : before?.homeworkUpdate
+      return homeworkUpdate ? { ...day, homeworkUpdate } : day
+    })
+    batch.set(ref, {
+      ...index, days,
       familyId: owner.familyId, childId: owner.childId, updatedAt: Timestamp.now(),
     })
+    for (const member of members.docs) {
+      const access = member.data()
+      if (access.active !== true || access.role !== role || !Array.isArray(access.childIds) || !access.childIds.includes(owner.childId)) continue
+      for (const change of notifications) {
+        const fingerprint = createHash('sha256').update(JSON.stringify([owner.childId, change.date, change.subject, change.type, change.text, index.days.find((day) => day.date === change.date)?.checkedAt])).digest('hex').slice(0, 40)
+        batch.set(db.doc(`users/${member.id}/inbox/${fingerprint}`), {
+          familyId: owner.familyId, childId: owner.childId, type: change.type,
+          entityId: `${change.date}:${change.subject}`, date: change.date, subject: change.subject,
+          sourceRevision: Date.parse(index.days.find((day) => day.date === change.date)?.checkedAt ?? '') || Date.now(),
+          createdAt: Timestamp.now(),
+        })
+      }
+    }
   }
 }
 function nextCalendarDate(value, days) { const date = new Date(`${value}T12:00:00Z`); date.setUTCDate(date.getUTCDate() + days); return date.toISOString().slice(0, 10) }
@@ -273,7 +303,7 @@ async function publish() {
   const [oldStudent, oldParent] = await Promise.all([db.doc(`dayPages/${pair.student}`).get(), db.doc(`dayPages/${pair.parent}`).get()])
   batch.set(db.doc(`dayPages/${pair.student}`), mergeDayPage(oldStudent.data(), { ...base, kind: 'student', boardToken: readFileSync(resolve(local, 'learner-board-token'), 'utf8').trim() }))
   batch.set(db.doc(`dayPages/${pair.parent}`), mergeDayPage(oldParent.data(), { ...base, kind: 'parent', studentToken: pair.student, boardToken: readFileSync(resolve(local, 'parent-board-token'), 'utf8').trim(), parentNotes: source.parentNotes ?? [] }))
-  addDashboardDocuments(batch, links, indexTokens)
+  await addDashboardDocuments(batch, links, indexTokens)
   await batch.commit()
   mkdirSync(local, { recursive: true })
   writeFileSync(linksFile, JSON.stringify(links, null, 2), { mode: 0o600 })
@@ -285,7 +315,7 @@ async function publishDashboard() {
   const links = existsSync(linksFile) ? json(linksFile) : {}
   const indexTokens = dashboardLinks()
   const batch = db.batch()
-  addDashboardDocuments(batch, links, indexTokens)
+  await addDashboardDocuments(batch, links, indexTokens)
   await batch.commit()
   writeFileSync(dashboardLinksFile, JSON.stringify(indexTokens, null, 2), { mode: 0o600 })
   console.log(JSON.stringify({ student: `${site}#/days/${indexTokens.student}`, parent: `${site}#/days-parent/${indexTokens.parent}` }, null, 2))

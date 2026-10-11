@@ -29,9 +29,9 @@
 <a id="push"></a>
 ## Уведомления
 
-Адресный список новых оценок, изменений ДЗ и проверенных работ будет храниться в Firestore и станет основным каналом после включения личных профилей. На iPhone Web Push поддерживается для приложения, добавленного на домашний экран, начиная с iOS 16.4; разрешение запрашивается только после нажатия пользователя. [WebKit](https://webkit.org/blog/13878/web-push-for-web-apps-on-ios-and-ipados/), [Apple](https://developer.apple.com/documentation/usernotifications/sending-web-push-notifications-in-web-apps-and-browsers).
+Адресный [центр обновлений внутри приложения](../architecture/activity-and-inbox.md#in-app-center) получает изменения ДЗ через Firestore и показывает их в колокольчике при открытом приложении. На iPhone Web Push поддерживается для приложения, добавленного на домашний экран, начиная с iOS 16.4; разрешение запрашивается только после нажатия пользователя. [WebKit](https://webkit.org/blog/13878/web-push-for-web-apps-on-ios-and-ipados/), [Apple](https://developer.apple.com/documentation/usernotifications/sending-web-push-notifications-in-web-apps-and-browsers).
 
-Push не включён сейчас. Понадобятся вход пользователя, привязка подписки устройства к его постоянному `personId` и техническому `deviceUid`, серверная отправка и проверка на реальном iPhone. Firebase Cloud Messaging требует VAPID и регистрацию экземпляра приложения; это больше одной настройки проекта. [Руководство Firebase](https://firebase.google.com/docs/cloud-messaging/web/get-started). Пока не доказана совместимость выбранного транспорта с iPhone, не обещать push в интерфейсе. Запланированные уведомления внутри приложения не зависят от push.
+Системный Push не включён сейчас. Понадобятся привязка подписки устройства к постоянному `personId` и техническому `deviceUid`, серверная отправка и проверка на реальном iPhone. Firebase Cloud Messaging требует VAPID и регистрацию экземпляра приложения; это больше одной настройки проекта. [Руководство Firebase](https://firebase.google.com/docs/cloud-messaging/web/get-started). Пока не доказана совместимость выбранного транспорта с iPhone, не обещать push в интерфейсе. Внутренний центр не зависит от push.
 
 <a id="status"></a>
 ## Состояние

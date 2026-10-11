@@ -9,6 +9,7 @@ export type IndexedDay = {
   complete: boolean
   schedule: IndexedLesson[]
   homework: IndexedHomework[]
+  homeworkUpdate?: { at: string; subjects: string[] }
   dayToken: string | null
   homeworkDayToken?: string | null
 }

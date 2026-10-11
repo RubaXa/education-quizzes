@@ -50,8 +50,38 @@
 .day-dashboard-mesh span{color:#716684}
 .day-dashboard-empty{padding:13px 0}
 .day-dashboard-lessons{list-style:none;margin:0;padding:0}
-.day-dashboard-lessons li{display:flex;gap:15px;align-items:baseline;padding:9px 0;border-top:1px solid #eee9f3;color:#34295c;font-size:.9rem}
-.day-dashboard-lessons time{min-width:42px;color:#756496;font-weight:750;font-variant-numeric:tabular-nums}
+.day-dashboard-lessons li{border-top:1px solid #eee9f3;color:#34295c;font-size:.9rem}
+.day-dashboard-lesson summary{display:grid;grid-template-columns:48px minmax(0,1fr) auto;align-items:center;gap:8px;min-height:49px;padding:9px 0;list-style:none;cursor:pointer}
+.day-dashboard-lesson summary::-webkit-details-marker{display:none}
+.day-dashboard-lesson time{color:#756496;font-weight:750;font-variant-numeric:tabular-nums;font-size:.83rem}
+.day-dashboard-lesson-name{min-width:0;overflow-wrap:anywhere;line-height:1.3}
+.day-dashboard-lesson-new{display:block;width:fit-content;margin-top:3px;color:#965912;font-size:.7rem;font-weight:800}
+.day-dashboard-lesson.has-new-homework .day-dashboard-lesson-badge{box-shadow:0 0 0 2px #efd5a8}
+.day-dashboard-lesson-badge{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-height:26px;padding:5px 8px 5px 10px;border-radius:999px;white-space:nowrap;font-size:.72rem;font-weight:800;line-height:1;color:#706a7c;background:#f2f0f4}
+.day-dashboard-lesson-badge svg{display:block;flex:none}
+.day-dashboard-lesson-badge svg:last-child{width:14px;height:14px;margin-left:2px;transition:transform .18s ease}
+.day-dashboard-lesson[open] .day-dashboard-lesson-badge svg:last-child{transform:rotate(180deg)}
+.day-dashboard-lesson-complete .day-dashboard-lesson-badge{background:#e7f6ed;color:#236a46}
+.day-dashboard-lesson-partial .day-dashboard-lesson-badge{background:#fff0d9;color:#8b5913}
+.day-dashboard-lesson-empty .day-dashboard-lesson-badge{background:#f0eafb;color:#654499}
+.day-dashboard-lesson-checking .day-dashboard-lesson-badge{background:#eaf3fc;color:#426d98}
+.day-dashboard-lesson-assigned .day-dashboard-lesson-badge,.day-dashboard-lesson-unknown .day-dashboard-lesson-badge{background:#f2edf9;color:#69558d}
+.day-dashboard-lesson-body{margin:0 0 9px 56px;padding:9px 11px;border-radius:12px;background:#faf8fc;font-size:.78rem;line-height:1.45}
+.day-dashboard-lesson-body>p{margin:2px 0}
+.day-dashboard-lesson-items{display:grid;gap:8px}
+.day-dashboard-lesson-item{display:grid;grid-template-columns:16px minmax(0,1fr);gap:7px}
+.day-dashboard-lesson-item+.day-dashboard-lesson-item{border-top:1px solid #e9e4ef;padding-top:8px}
+.day-dashboard-lesson-item-symbol{color:#a46b20;font-weight:800}
+.day-dashboard-lesson-item.done .day-dashboard-lesson-item-symbol{color:#29784e}
+.day-dashboard-lesson-item.checking .day-dashboard-lesson-item-symbol{color:#4578a7}
+.day-dashboard-lesson-item strong,.day-dashboard-lesson-item span:not(.day-dashboard-lesson-item-symbol){display:block}
+.day-dashboard-lesson-item strong{font-size:.77rem}
+.day-dashboard-lesson-item div>span{color:#6f677b}
+.day-dashboard-lesson-item button,.day-dashboard-lesson-raw button{display:inline-flex;align-items:center;gap:4px;margin-top:4px;padding:2px 0;border:0;background:transparent;color:#60449b;font-size:.76rem;font-weight:800;cursor:pointer;text-align:left}
+.day-dashboard-lesson-raw p{margin:2px 0 7px}
+.day-dashboard-lesson-body .day-dashboard-lesson-update{color:#86581c;font-weight:750}
+.day-dashboard-lesson-body>small{display:block;margin-top:7px;color:#817791}
+.day-dashboard-lesson summary:focus-visible,.day-dashboard-lesson-body button:focus-visible{outline:3px solid #ad8ce5;outline-offset:2px}
 .day-dashboard-detail-link{display:inline-flex;align-items:center;gap:7px;margin-top:13px;padding:8px 0;border:0;background:transparent;color:#5d459f;font-weight:800;cursor:pointer;text-align:left}
 .day-dashboard-grades{margin:0 -20px;border-top:1px solid #eee9f3}
 .day-dashboard-grade{border-bottom:1px solid #eee9f3}

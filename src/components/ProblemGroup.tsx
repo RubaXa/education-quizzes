@@ -7,9 +7,9 @@ import { summarizeProblemGroup } from '@/lib/problemGroupSummary'
 import './ProblemGroup.css'
 
 /** @see ../../docs/product/day-page.md#completed-problem-group */
-export default function ProblemGroup({ id, title, problems, uploads, reviews, localPendingCount, sourceCount, ready, children }: {
+export default function ProblemGroup({ id, title, problems, uploads, reviews, localPendingCount, sourceCount, ready, focusTaskId, children }: {
   id: string; title: string; problems: DayProblem[]; uploads: DayUpload[]; reviews: DayWorkReview[];
-  localPendingCount: number; sourceCount: number; ready: boolean; children: ReactNode;
+  localPendingCount: number; sourceCount: number; ready: boolean; focusTaskId?: string; children: ReactNode;
 }) {
   const [manualOpen, setManualOpen] = useState<{ evidenceKey: string; open: boolean } | null>(null)
   const summary = summarizeProblemGroup(problems, uploads, reviews, localPendingCount, ready)
@@ -18,7 +18,8 @@ export default function ProblemGroup({ id, title, problems, uploads, reviews, lo
     ...reviews.filter((review) => problems.some((problem) => review.taskId === problem.id)).map((review) => `${review.taskId}:${review.status}:${review.uploadIds?.join(',')}:${review.summary}:${review.mathReasoning?.answer}:${review.mathReasoning?.argument}`),
     String(localPendingCount),
   ].join('|')
-  const open = manualOpen?.evidenceKey === evidenceKey ? manualOpen.open : ready && !summary.complete
+  const focused = focusTaskId === id || problems.some((problem) => problem.id === focusTaskId)
+  const open = manualOpen?.evidenceKey === evidenceKey ? manualOpen.open : focused || ready && !summary.complete
   const bodyId = `problem-group-${id.replace(/[^a-zA-Z0-9_-]/g, '-')}`
   return <section className={`problem-group ${summary.tone}`}>
     <button className="problem-group-toggle" type="button" aria-expanded={open} aria-controls={bodyId} onClick={() => setManualOpen({ evidenceKey, open: !open })}>
