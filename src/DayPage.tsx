@@ -480,13 +480,13 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
     <section className="day-hero">
       <div className="day-kicker">{parent ? 'Панель родителя' : 'Мой план'} · {shortDate(page.date)}</div>
       <h1>{page.date === moscowToday() ? (parent ? 'Что требует внимания' : 'Сегодня справимся 👋') : `День · ${shortDate(page.date)}`}</h1>
-      <p>{parent ? `Домашнее задание к ${dayMonth(page.targetDate)}: только назначения на эту дату. Выполненные заранее работы появятся у соответствующих заданий.` : `Домашнее задание к ${dayMonth(page.targetDate)}. Выполненное заранее уже будет видно у своего задания.`}</p>
+      <p>{parent ? `Домашнее задание к урокам ${dayMonth(page.targetDate)}: только назначения этих уроков. Срок сдачи может отличаться и указан у задания. Выполненные заранее работы появятся у соответствующих заданий.` : `Домашнее задание к урокам ${dayMonth(page.targetDate)}. Срок сдачи указан у задания, выполненное заранее уже видно в его карточке.`}</p>
       <div className="day-summary"><strong>{pending}</strong><span>{pending === 1 ? 'действие к этой дате осталось' : 'действий к этой дате осталось'}</span>{dayTests.length > 0 && <><span className="day-summary-separator">·</span><span>{dayTests.filter((test) => test.status === 'submitted').length} из {dayTests.length} тестов завершено</span></>}</div>
     </section>
 
     <div className="day-tabs" role="tablist" aria-label="Раздел страницы дня">
       <button role="tab" aria-selected={view === 'school'} className={view === 'school' ? 'active' : ''} onClick={() => { setManualView(true); setView('school') }}>Расписание</button>
-      <button role="tab" aria-selected={view === 'homework'} className={view === 'homework' ? 'active' : ''} onClick={() => { setManualView(true); setView('homework') }}>Домашнее задание на {dayMonth(page.targetDate)}</button>
+      <button role="tab" aria-selected={view === 'homework'} className={view === 'homework' ? 'active' : ''} onClick={() => { setManualView(true); setView('homework') }}>Задания уроков {dayMonth(page.targetDate)}</button>
     </div>
     {error && <div className="day-inline-error" role="alert">{error}</div>}
 
@@ -502,10 +502,10 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
       <h3>Завтра в школе</h3>
       <div className="day-next-schedule">{page.targetSchedule.map((lesson, index) => <span key={`${lesson.start}-${index}`}>{lesson.start} {lesson.subject}</span>)}</div>
     </section> : <>
-      {parent && page.parentNotes?.[0] && <section className="day-attention"><h2>ДЗ на {dayMonth(page.targetDate)}</h2><p>{page.parentNotes[0]}</p></section>}
-      {parent && (currentAdded.length > 0 || currentChanged.length > 0) && <section className="day-attention"><h2>Изменения ДЗ на {dayMonth(page.targetDate)}</h2><p>Добавлено действий: {currentAdded.length}. Уточнено: {currentChanged.length}.</p></section>}
+      {parent && page.parentNotes?.[0] && <section className="day-attention"><h2>ДЗ к урокам {dayMonth(page.targetDate)}</h2><p>{page.parentNotes[0]}</p></section>}
+      {parent && (currentAdded.length > 0 || currentChanged.length > 0) && <section className="day-attention"><h2>Изменения ДЗ к урокам {dayMonth(page.targetDate)}</h2><p>Добавлено действий: {currentAdded.length}. Уточнено: {currentChanged.length}.</p></section>}
       {page.notices[0] && !parent && <div className="day-notices"><p>✳ {page.notices[0]}</p></div>}
-      <h2 className="day-homework-heading">Домашнее задание на {dayMonth(page.targetDate)}</h2>
+      <h2 className="day-homework-heading">Домашнее задание к урокам {dayMonth(page.targetDate)}</h2>
       {currentSubjects.length === 0 && <div className="day-notices"><p>На эту дату задания в МЭШ пока не указаны.</p></div>}
 
       <div className="day-subject-list">{currentSubjects.map((subject) => {
@@ -568,7 +568,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
               const showSubmission = !task.problems?.length && task.kind === 'written' && !criterionPending && taskStatus !== 'verified' && (!priorWork || newWork || uploadingWork || taskStatus === 'needs-fix' || taskStatus === 'partial')
               const submission = task.submission
               const taskCard = <article className={`day-task ${verified || workCovered ? 'done' : submitted ? 'submitted' : ''}`} id={`day-task-${task.id}`} key={task.id}>
-                <div className="day-task-row"><span className={`day-task-state ${verified ? 'verified' : workCovered ? 'covered' : submitted ? 'partial' : taskStatus}`}>{verified && <CheckCircle2 size={15} aria-hidden="true" />} {state}</span>{task.kind === 'written' && <span className="day-task-type">В тетради</span>}{task.originDate && task.originDate !== page.targetDate && <span className="day-task-type">Осталось с {dayMonth(task.originDate)}</span>}</div>
+                <div className="day-task-row"><span className={`day-task-state ${verified ? 'verified' : workCovered ? 'covered' : submitted ? 'partial' : taskStatus}`}>{verified && <CheckCircle2 size={15} aria-hidden="true" />} {state}</span>{task.kind === 'written' && <span className="day-task-type">В тетради</span>}{task.dueDate && task.dueDate !== (task.lessonDate ?? page.targetDate) && <span className="day-task-type">Сдать к {dayMonth(task.dueDate)} · МЭШ</span>}{task.originDate && task.originDate !== page.targetDate && <span className="day-task-type">Осталось с {dayMonth(task.originDate)}</span>}</div>
                 <h3>{task.title}</h3><p>{task.detail}</p>
                 {task.instructionStatus?.state === 'needs-review' && <p className="day-material-warning">⚠️ {task.instructionStatus.message} Подтверждена только запись МЭШ выше; дополнительных пунктов нет.</p>}
                 <WorkReview review={review} uploads={taskUploads} accepted={accepted} canDecide={helpRole === 'parent' && !taskUploads.some((upload) => upload.status === 'pending')} onDecision={parent && canAcceptCorrectAnswer(review) && review ? (action) => recordParentCompletion(review, action) : undefined} decisions={parentDecisions.events} parent={parent} onRequirementChoice={parent && review?.assessmentBasis?.disputedRequirements?.length ? (id, action) => recordRequirementChoice(review, id, action) : undefined} />

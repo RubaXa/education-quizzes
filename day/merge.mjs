@@ -24,13 +24,13 @@ function mergeSubjects(existing = [], incoming = [], retiredTaskIds = new Set())
     }
     result[index] = { ...older, ...subject, tasks }
   }
-  return result
+  return result.filter((subject) => subject.tasks.length || incoming.some((item) => item.id === subject.id))
 }
 
 /** @see ../docs/product/access-and-state.md#state */
 export function mergeDayPage(existing, incoming) {
   if (!existing) return { ...incoming, planRevision: 1, changes: [] }
-  const retiredTaskIds = new Set((incoming.sourceOnlyEntries || []).map((entry) => entry.id))
+  const retiredTaskIds = new Set([...(incoming.sourceOnlyEntries || []).map((entry) => entry.id), ...(incoming.retiredTaskIds || [])])
   const subjects = mergeSubjects(existing.subjects, incoming.subjects, retiredTaskIds)
   const before = new Map(existing.subjects.flatMap((subject) => subject.tasks).map((task) => [task.id, task]))
   const after = subjects.flatMap((subject) => subject.tasks)

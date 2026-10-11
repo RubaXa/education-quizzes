@@ -38,6 +38,19 @@ function subjectInfo(assignment) {
   const found = subjectNames.find(([pattern]) => pattern.test(assignment.subjectName || ''))?.[1]
   return found || [`subject-${assignment.subjectId ?? 'other'}`, assignment.subjectName || 'Предмет', '📘']
 }
+/** Keep the lesson owner and the submission deadline separate. @see ../docs/product/dashboard.md#lesson-and-deadline */
+function deadlineFromMesh(assignment, lessonDate) {
+  const weekday = { понедельник: 1, вторник: 2, среду: 3, четверг: 4, пятницу: 5, субботу: 6, воскресенье: 0 }
+  for (const entry of assignment.homeworkEntries || []) {
+    const excerpt = /сдать[^.]{0,100}?\sв\s+(понедельник|вторник|среду|четверг|пятницу|субботу|воскресенье)/i.exec(entry.description || '')
+    if (!excerpt) continue
+    const day = new Date(`${lessonDate}T12:00:00Z`)
+    const distance = (day.getUTCDay() - weekday[excerpt[1].toLowerCase()] + 7) % 7
+    day.setUTCDate(day.getUTCDate() - distance)
+    return { dueDate: day.toISOString().slice(0, 10), dueDateEvidence: { kind: 'mesh', excerpt: excerpt[0] } }
+  }
+  return { dueDate: lessonDate }
+}
 function nextDate(local, date) {
   const dates = readdirSync(resolve(local, 'diary')).map((name) => /^snapshot-(\d{4}-\d{2}-\d{2})\.json$/.exec(name)?.[1]).filter((value) => value && value > date).sort()
   for (const candidate of dates) {
@@ -72,20 +85,8 @@ export function buildDaySource(local, date) {
   const materialLinks = { ...(current?.materialLinks || Object.fromEntries(Object.entries(earlier?.materialLinks || {}).filter(([taskId]) => retainedTaskIds.has(taskId)))) }
   const sourceOnlyEntries = [...(current?.sourceOnlyEntries || [])]
   let added = 0
-  const dueOnWednesday = (assignment) => subjectInfo(assignment)[0] === 'special' && (assignment.homeworkEntries || []).some((item) => /сдать[^.]*в среду/i.test(item.description || ''))
   const assignments = lessonVisibility(target.assignments || []).conducted
-    .filter((assignment) => !(new Date(`${targetDate}T12:00:00Z`).getUTCDay() === 4 && dueOnWednesday(assignment)))
     .map((assignment) => ({ assignment, lessonDate: targetDate }))
-  if (new Date(`${targetDate}T12:00:00Z`).getUTCDay() === 3) {
-    const following = new Date(`${targetDate}T12:00:00Z`)
-    following.setUTCDate(following.getUTCDate() + 1)
-    const followingDate = following.toISOString().slice(0, 10)
-    const followingFile = resolve(local, 'diary', `snapshot-${followingDate}.json`)
-    if (existsSync(followingFile)) {
-      const nextSnapshot = json(followingFile)
-      if (nextSnapshot.complete) assignments.push(...lessonVisibility(nextSnapshot.assignments || []).conducted.filter(dueOnWednesday).map((assignment) => ({ assignment, lessonDate: followingDate })))
-    }
-  }
   for (const { assignment, lessonDate } of assignments) {
     const [id, name, icon] = subjectInfo(assignment)
     const descriptions = assignment.homeworkEntries?.length
@@ -136,6 +137,11 @@ export function buildDaySource(local, date) {
           old.materialStatus = { state: 'textbook-page-needed', message: 'Учитель изменил условие. Страницы и действия нужно сверить заново перед публикацией.' }
         }
         old.meshText = description
+        old.lessonDate = lessonDate
+        const deadline = deadlineFromMesh(assignment, lessonDate)
+        old.dueDate = deadline.dueDate
+        if (deadline.dueDateEvidence) old.dueDateEvidence = deadline.dueDateEvidence
+        else delete old.dueDateEvidence
         if (assignment.teacherFiles?.length) materialLinks[taskId] = teacherLinks(local, lessonDate, assignment.teacherFiles)
         continue
       }
@@ -145,7 +151,7 @@ export function buildDaySource(local, date) {
         status: 'unknown', kind: 'check',
         instructionStatus: { state: 'needs-review', message: 'Пока известна только запись МЭШ. Подробные шаги и способ сдачи ещё не сверены.' },
         source: `МЭШ, подробная карточка урока ${lessonDate}; запись ${entry.id}.`,
-        meshText: description, originDate: targetDate,
+        meshText: description, originDate: targetDate, lessonDate, ...deadlineFromMesh(assignment, lessonDate),
         ...(!assignment.teacherFiles?.length ? { materialStatus: { state: 'textbook-page-needed', message: 'Страницу учебника к этому заданию ещё не сверили. Пока ориентируйся на точную запись МЭШ.' } } : {}),
       })
       subject.summary = 'Новое задание МЭШ. Подробный разбор готовится.'
@@ -165,7 +171,9 @@ export function buildDaySource(local, date) {
   ]
   parentNotes.push(...(current?.manualParentNotes || []))
   const evidenceDayTokens = [...new Set([...(current?.evidenceDayTokens || earlier?.evidenceDayTokens || []), ...(earlierDate && links[earlierDate] ? [links[earlierDate].student] : [])])]
-  const source = { ...current, targetDate, notices, parentNotes, subjects, testPlacements: placements, materialLinks, sourceOnlyEntries, evidenceDayTokens }
+  const activeTaskIds = new Set(subjects.flatMap((subject) => subject.tasks.map((task) => task.id)))
+  const retiredTaskIds = (current?.retiredTaskIds || []).filter((taskId) => !activeTaskIds.has(taskId))
+  const source = { ...current, targetDate, notices, parentNotes, subjects, testPlacements: placements, materialLinks, sourceOnlyEntries, evidenceDayTokens, retiredTaskIds }
   writeJson(local, `day-source-${date}.json`, source)
   return { date, targetDate, assigned, subjects: subjects.length, tasks: subjects.reduce((sum, subject) => sum + subject.tasks.length, 0), added }
 }

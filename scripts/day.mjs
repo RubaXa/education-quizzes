@@ -96,20 +96,6 @@ function refresh() {
   const teacherMaterials = (target.assignments || []).flatMap((item) => item.teacherFiles || [])
     .filter((item) => /\.(png|jpe?g|webp|pdf)(?:\?|$)/i.test(item.title || item.url || ''))
   if (teacherMaterials.length) runLocal('scripts/storage.mjs', ['sync-teacher', targetDate])
-  if (new Date(`${targetDate}T12:00:00Z`).getUTCDay() === 3) {
-    const followingDate = nextCalendarDate(targetDate, 1)
-    runLocal('diary/cli.mjs', ['sync', '--date', followingDate])
-    const following = json(resolve(local, `diary/snapshot-${followingDate}.json`))
-    if (!following.complete) fail(`Снимок МЭШ на ${followingDate} неполный; срок спецкурса к среде не проверен.`)
-    const specialFiles = (following.assignments || []).filter((item) =>
-      /Специальный курс по математике/.test(item.subjectName || '')
-      && (item.homeworkEntries || []).some((entry) => /сдать[^.]*в среду/i.test(entry.description || ''))
-    ).flatMap((item) => item.teacherFiles || [])
-    if (specialFiles.length) {
-      runLocal('diary/cli.mjs', ['files', '--date', followingDate])
-      runLocal('scripts/storage.mjs', ['sync-teacher', followingDate])
-    }
-  }
   console.log(JSON.stringify(buildDaySource(local, date), null, 2))
 }
 function prepareLogin() {
@@ -221,6 +207,8 @@ function validate(source) {
       }
     }
   }
+  if (!Array.isArray(source.retiredTaskIds ?? []) || (source.retiredTaskIds ?? []).some((id) => !/^mesh-\d+$/.test(id) || ids.has(id))
+    || new Set(source.retiredTaskIds ?? []).size !== (source.retiredTaskIds ?? []).length) fail('Перенесённые задания должны иметь уникальные ID и отсутствовать в текущем списке.')
   for (const [taskId, links] of Object.entries(source.materialLinks ?? {})) {
     if (!ids.has(taskId) || !Array.isArray(links)) fail(`Ссылки на материал должны относиться к существующему заданию: ${taskId}.`)
     const task = source.subjects.flatMap((subject) => subject.tasks).find((item) => item.id === taskId)
@@ -358,7 +346,7 @@ async function publish() {
     schemaVersion: 1, date, targetDate: source.targetDate, updatedAt: Timestamp.now(),
     meshFetchedAt: target.fetchedAt, todaySchedule: schedule(today), targetSchedule: schedule(target),
     subjects: source.subjects, taskIds, testPlacements: source.testPlacements ?? [], notices: source.notices ?? [],
-    sourceOnlyEntries: source.sourceOnlyEntries ?? [],
+    sourceOnlyEntries: source.sourceOnlyEntries ?? [], retiredTaskIds: source.retiredTaskIds ?? [],
     materialLinks: allMaterialLinks, materialLinkReplacements: source.materialLinkReplacements ?? [],
     taskPageRefs: pageRefs,
     evidenceDayTokens: [...new Set([pair.student, ...(source.evidenceDayTokens || [])])],
