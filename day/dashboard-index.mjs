@@ -7,6 +7,7 @@ function dateOnly(value) { return new Intl.DateTimeFormat('en-CA', { timeZone: '
 function addDays(date, count) { const next = new Date(`${date}T12:00:00Z`); next.setUTCDate(next.getUTCDate() + count); return next.toISOString().slice(0, 10) }
 function monday(date) { const day = new Date(`${date}T12:00:00Z`).getUTCDay(); return addDays(date, -(day === 0 ? 6 : day - 1)) }
 function conciseSubject(name) { return String(name || 'Предмет').replace('Иностранный (английский) язык', 'Английский язык').replace(/.*Специальный курс по математике.*/, 'Спецкурс по математике') }
+function validDate(value) { return /^\d{4}-\d{2}-\d{2}$/.test(value ?? '') && !Number.isNaN(Date.parse(`${value}T12:00:00Z`)) && new Date(`${value}T12:00:00Z`).toISOString().slice(0, 10) === value }
 
 /**
  * Проецирует проверенные снимки МЭШ и ссылки опубликованных дней в ролевой индекс.
@@ -71,17 +72,39 @@ export function buildDayDashboardIndex(local, links, role, now = new Date()) {
       homeworkDayToken: homeworkSources.get(date)?.token ?? null,
     })
   }
-  const weekendWork = Object.entries(links).flatMap(([sourceDate, pair]) => {
-    const file = resolve(local, `day-source-${sourceDate}.json`)
-    if (!existsSync(file) || !pair?.[role]) return []
-    const source = readJson(file)
-    const dates = source.weekendSlot?.dates
-    if (!Array.isArray(dates) || !dates.some((date) => date >= start && date <= end)) return []
-    const problemTasks = source.subjects?.filter((subject) => subject.id === 'math' || subject.id === 'special').flatMap((subject) => subject.tasks).filter((task) => task.problems?.length) ?? []
-    if (!problemTasks.length) return []
-    return [{ dates, dayToken: pair[role], lessonDate: source.targetDate,
-      dueDate: source.weekendSlot.dueDate || problemTasks[0].dueDate || source.targetDate,
-      title: source.weekendSlot.title || 'Математика на выходных' }]
+  const weekendTaskOwners = new Set()
+  const weekendWork = readdirSync(local).flatMap((name) => {
+    const sourceDate = /^day-source-(\d{4}-\d{2}-\d{2})\.json$/.exec(name)?.[1]
+    if (!sourceDate) return []
+    const source = readJson(resolve(local, name))
+    const slot = source.weekendSlot
+    if (!slot) return []
+    const pair = links[sourceDate]
+    if (!pair?.[role]) throw new Error(`Выходная работа ${name} не опубликована для роли ${role}.`)
+    if (!validDate(source.targetDate) || !Array.isArray(slot.dates) || !slot.dates.length
+      || !slot.dates.every((date) => validDate(date) && date < source.targetDate && [0, 6].includes(new Date(`${date}T12:00:00Z`).getUTCDay()))
+      || new Set(slot.dates).size !== slot.dates.length || typeof slot.title !== 'string' || !slot.title.trim()
+      || !Array.isArray(slot.taskIds) || !slot.taskIds.length || new Set(slot.taskIds).size !== slot.taskIds.length) {
+      throw new Error(`У выходной работы ${name} нужны выходные даты, название и уникальные ID заданий своего урока.`)
+    }
+    const tasks = source.subjects?.flatMap((subject) => subject.tasks ?? []) ?? []
+    const selected = slot.taskIds.map((id) => tasks.find((task) => task.id === id))
+    if (selected.some((task) => !task || !task.problems?.length || (task.lessonDate ?? source.targetDate) !== source.targetDate)) {
+      throw new Error(`Выходная работа ${name} ссылается на отсутствующее или перенесённое задание. Обновите её привязку до публикации.`)
+    }
+    const dueDates = new Set(selected.map((task) => task.dueDate || source.targetDate))
+    const dueDate = [...dueDates][0]
+    if (dueDates.size !== 1 || slot.dueDate && slot.dueDate !== dueDate) {
+      throw new Error(`У выходной работы ${name} срок сдачи не совпадает с заданием.`)
+    }
+    for (const id of slot.taskIds) {
+      const key = `${source.targetDate}:${id}`
+      if (weekendTaskOwners.has(key)) throw new Error(`Выходное задание ${id} повторяется в нескольких карточках.`)
+      weekendTaskOwners.add(key)
+    }
+    if (!slot.dates.some((date) => date >= start && date <= end)) return []
+    return [{ dates: slot.dates, dayToken: pair[role], taskIds: slot.taskIds, lessonDate: source.targetDate,
+      dueDate, title: slot.title }]
   })
   return { schemaVersion: 1, kind: role, today, timezone: 'Europe/Moscow', days, weekendWork }
 }

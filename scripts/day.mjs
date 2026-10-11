@@ -347,6 +347,7 @@ async function publish() {
     meshFetchedAt: target.fetchedAt, todaySchedule: schedule(today), targetSchedule: schedule(target),
     subjects: source.subjects, taskIds, testPlacements: source.testPlacements ?? [], notices: source.notices ?? [],
     sourceOnlyEntries: source.sourceOnlyEntries ?? [], retiredTaskIds: source.retiredTaskIds ?? [],
+    weekendSlot: source.weekendSlot ?? null,
     materialLinks: allMaterialLinks, materialLinkReplacements: source.materialLinkReplacements ?? [],
     taskPageRefs: pageRefs,
     evidenceDayTokens: [...new Set([pair.student, ...(source.evidenceDayTokens || [])])],
@@ -383,6 +384,20 @@ async function publish() {
 
 async function publishDashboard() {
   const links = existsSync(linksFile) ? json(linksFile) : {}
+  for (const role of ['student', 'parent']) {
+    const index = buildDayDashboardIndex(local, links, role)
+    for (const slot of index.weekendWork) {
+      const page = (await db.doc(`dayPages/${slot.dayToken}`).get()).data()
+      if (page?.kind !== role || page.targetDate !== slot.lessonDate
+        || !slot.taskIds.every((id) => page.taskIds?.includes(id))
+        || JSON.stringify(page.weekendSlot?.taskIds) !== JSON.stringify(slot.taskIds)
+        || JSON.stringify(page.weekendSlot?.dates) !== JSON.stringify(slot.dates)
+        || page.weekendSlot?.title !== slot.title
+        || (page.weekendSlot?.dueDate || slot.dueDate) !== slot.dueDate) {
+        fail(`Выходная карточка ${slot.title} не совпадает с опубликованной страницей ${role}. Сначала выпустите её через day publish.`)
+      }
+    }
+  }
   const indexTokens = dashboardLinks()
   const batch = db.batch()
   await addDashboardDocuments(batch, links, indexTokens)

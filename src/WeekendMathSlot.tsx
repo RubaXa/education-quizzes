@@ -17,7 +17,7 @@ import './WeekendMathSlot.css'
 type LocalPhoto = { id: string; taskId: string; url: string; state: 'uploading' | 'failed'; error?: string }
 function shortDate(date: string) { return new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long', timeZone: 'Europe/Moscow' }).format(new Date(`${date}T12:00:00+03:00`)) }
 
-export default function WeekendMathSlot({ token, parent, lessonDate, dueDate, title }: { token: string; parent: boolean; lessonDate?: string; dueDate: string; title: string }) {
+export default function WeekendMathSlot({ token, taskIds, parent, lessonDate, dueDate, title }: { token: string; taskIds: string[]; parent: boolean; lessonDate?: string; dueDate: string; title: string }) {
   const [page, setPage] = useState<DayPageData>()
   const [helpRequests, setHelpRequests] = useState<DayHelp[]>([])
   const [helpRole, setHelpRole] = useState<'checking' | 'student' | 'parent' | 'none'>('checking')
@@ -65,8 +65,10 @@ export default function WeekendMathSlot({ token, parent, lessonDate, dueDate, ti
 
   if (error && !page) return <section className="weekend-math-slot" role="alert">Не удалось загрузить математический слот: {error}</section>
   if (!page) return <section className="weekend-math-slot">Загружаем задания на выходные…</section>
-  const subjects = page.subjects.filter((subject) => (subject.id === 'math' || subject.id === 'special') && subject.tasks.some((task) => task.problems?.length))
-  return <section className="weekend-math-slot" aria-label="Математика на выходных">
+  const requested = new Set(taskIds)
+  const subjects = page.subjects.map((subject) => ({ ...subject, tasks: subject.tasks.filter((task) => requested.has(task.id)) })).filter((subject) => subject.tasks.length)
+  if (subjects.flatMap((subject) => subject.tasks).length !== requested.size) return <section className="weekend-math-slot" role="alert">Связь выходного задания изменилась. Обновляем карточку; сохранённые работы остаются в подробном ДЗ.</section>
+  return <section className="weekend-math-slot" aria-label={title}>
     <header><div><span className="weekend-math-kicker">Работа на субботу и воскресенье</span><h2>{title}</h2><p>{subjects.map((subject) => subject.name).join(' · ')} · урок {shortDate(lessonDate || page.targetDate)} · сдать {shortDate(dueDate)}</p></div></header>
     {error && <p className="weekend-math-error" role="alert">{error}</p>}
     {subjects.map((subject) => subject.tasks.filter((task) => task.problems?.length).map((task) => {

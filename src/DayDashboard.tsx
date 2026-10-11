@@ -276,7 +276,7 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
 
     <div className="day-dashboard-selected-heading"><div className="day-dashboard-kicker">{parent ? 'Панель родителя' : 'Мой план'} · выбранный день</div><h1>{dateLabel(selectedDate, { weekday: 'long', day: 'numeric', month: 'long' })}</h1></div>
 
-    {weekendWorks.map((slot) => <WeekendMathSlot key={slot.dayToken} token={slot.dayToken} parent={parent} lessonDate={slot.lessonDate} dueDate={slot.dueDate} title={slot.title} />)}
+    {weekendWorks.map((slot) => <WeekendMathSlot key={`${slot.dayToken}:${slot.taskIds.join(',')}`} token={slot.dayToken} taskIds={slot.taskIds} parent={parent} lessonDate={slot.lessonDate} dueDate={slot.dueDate} title={slot.title} />)}
 
     <div className="day-dashboard-grid">
       <div className="day-dashboard-main">
