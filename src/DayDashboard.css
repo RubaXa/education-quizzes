@@ -65,6 +65,7 @@
 .day-dashboard-lesson-partial .day-dashboard-lesson-badge{background:#fff0d9;color:#8b5913}
 .day-dashboard-lesson-empty .day-dashboard-lesson-badge{background:#f0eafb;color:#654499}
 .day-dashboard-lesson-checking .day-dashboard-lesson-badge{background:#eaf3fc;color:#426d98}
+.day-dashboard-lesson-unclear .day-dashboard-lesson-badge{background:#f2f0f4;color:#625b70}
 .day-dashboard-lesson-assigned .day-dashboard-lesson-badge,.day-dashboard-lesson-unknown .day-dashboard-lesson-badge{background:#f2edf9;color:#69558d}
 .day-dashboard-lesson-body{margin:0 0 9px 56px;padding:9px 11px;border-radius:12px;background:#faf8fc;font-size:.78rem;line-height:1.45}
 .day-dashboard-lesson-body>p{margin:2px 0}
@@ -74,6 +75,7 @@
 .day-dashboard-lesson-item-symbol{color:#a46b20;font-weight:800}
 .day-dashboard-lesson-item.done .day-dashboard-lesson-item-symbol{color:#29784e}
 .day-dashboard-lesson-item.checking .day-dashboard-lesson-item-symbol{color:#4578a7}
+.day-dashboard-lesson-item.unclear .day-dashboard-lesson-item-symbol{color:#625b70}
 .day-dashboard-lesson-item strong,.day-dashboard-lesson-item span:not(.day-dashboard-lesson-item-symbol){display:block}
 .day-dashboard-lesson-item strong{font-size:.77rem}
 .day-dashboard-lesson-item div>span{color:#6f677b}

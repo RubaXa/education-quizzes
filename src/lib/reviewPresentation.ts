@@ -57,7 +57,7 @@ export function reviewTone(review: DayWorkReview): ReviewTone {
 
 /** @see ../../docs/product/day-page.md#homework-review */
 export function reviewHeadline(review: DayWorkReview): string {
-  if (review.assessmentBasis?.outcome === 'unresolved') return 'Критерий задания уточняется'
+  if (review.assessmentBasis?.outcome === 'unresolved') return 'Работа разобрана · критерий неясен'
   if (review.studentFeedback?.title) return review.studentFeedback.title
   if (review.mathReasoning) {
     const { answer, argument } = review.mathReasoning
