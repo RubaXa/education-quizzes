@@ -274,20 +274,23 @@ service cloud.firestore {
       allow write: if false;
     }
 
-    // A learner can request one introductory prompt. The request is evidence of
-    // help usage, not a verdict about mastery or a client-written review.
+    // A learner can send one current help request per task. No answer key or
+    // tutor response is client writable. A request is not a mastery verdict.
     match /dayHelp/{studentToken}/items/{taskId} {
       allow get, list: if dayUploadOwner(studentToken);
       allow create, update: if dayUploadOwner(studentToken)
         && get(memberPath(get(/databases/$(database)/documents/dayOwners/$(studentToken)).data.familyId)).data.role == 'student'
         && exists(/databases/$(database)/documents/dayPages/$(studentToken))
         && taskId in get(/databases/$(database)/documents/dayPages/$(studentToken)).data.taskIds
-        && request.resource.data.keys().hasOnly(['taskId', 'revision', 'requestedAt'])
-        && request.resource.data.keys().hasAll(['taskId', 'revision', 'requestedAt'])
+        && request.resource.data.keys().hasOnly(['taskId', 'revision', 'requestedAt', 'requestKind', 'requestText'])
+        && request.resource.data.keys().hasAll(['taskId', 'revision', 'requestedAt', 'requestKind', 'requestText'])
         && request.resource.data.taskId == taskId
         && request.resource.data.revision is int
         && request.resource.data.revision >= 1
         && request.resource.data.revision <= 100000
+        && request.resource.data.requestKind in ['condition', 'start', 'step', 'check']
+        && request.resource.data.requestText is string
+        && request.resource.data.requestText.size() <= 800
         && request.resource.data.requestedAt == request.time
         && (resource == null || (resource.data.taskId == taskId
           && request.resource.data.revision >= resource.data.revision));

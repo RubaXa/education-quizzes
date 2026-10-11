@@ -9,15 +9,16 @@ import { YandexDiskStorage } from '../storage/yandex-disk.mjs'
 
 /** Private agent inbox; file bytes stay on Yandex Disk or in ignored .local.
  * @see ../docs/product/storage-privacy.md#review-queue
+ * @see ../docs/product/adaptive-problem-card.md#слои
  */
 const [command, argument, phase] = process.argv.slice(2)
 const reviewCommand = command === 'review' || command === 'progress'
 const dateFilter = reviewCommand ? null : argument
-if (!['inbox', 'pull', 'review', 'progress'].includes(command)
+if (!['inbox', 'pull', 'review', 'progress', 'help'].includes(command)
   || reviewCommand && !argument
   || command === 'progress' && !['download', 'source', 'review', 'publish', 'paused'].includes(phase)
   || dateFilter && !/^\d{4}-\d{2}-\d{2}$/.test(dateFilter)) {
-  throw new Error('Использование: npm run submissions -- inbox|pull [YYYY-MM-DD] | progress .local/review-....json download|source|review|publish|paused | review .local/review-....json')
+  throw new Error('Использование: npm run submissions -- inbox|pull|help [YYYY-MM-DD] | progress .local/review-....json download|source|review|publish|paused | review .local/review-....json')
 }
 const local = resolve('.local')
 const adcFile = resolve(local, 'adc.json')
@@ -73,6 +74,34 @@ async function pendingInbox() {
     context.processing = await progressByTask.get(`${context.dayDate}:${context.taskId}:${context.childId}`) ?? null
   }
   return rows
+}
+
+async function helpInbox() {
+  const owners = await db.collection('dayOwners').get()
+  const requests = []
+  for (const ownerDoc of owners.docs) {
+    const owner = ownerDoc.data()
+    if (dateFilter && owner.date !== dateFilter) continue
+    const [pageDoc, childDoc, helpDocs] = await Promise.all([
+      db.doc(`dayPages/${ownerDoc.id}`).get(),
+      db.doc(`families/${owner.familyId}/children/${owner.childId}`).get(),
+      db.collection(`dayHelp/${ownerDoc.id}/items`).get(),
+    ])
+    const page = pageDoc.data()
+    if (page?.kind !== 'student' || !helpDocs.size) continue
+    for (const helpDoc of helpDocs.docs) {
+      const help = helpDoc.data()
+      const task = page.subjects?.flatMap((subject) => subject.tasks ?? []).find((entry) => entry.problems?.some((problem) => problem.id === helpDoc.id))
+      const problem = task?.problems?.find((entry) => entry.id === helpDoc.id)
+      requests.push({ childId: owner.childId, childName: childDoc.data()?.displayName ?? null,
+        dayDate: owner.date, taskId: helpDoc.id, taskTitle: problem?.title ?? null,
+        requestedAt: help.requestedAt?.toDate?.().toISOString() ?? null,
+        requestKind: help.requestKind ?? null, requestText: help.requestText ?? '',
+        requestedRevision: help.revision, currentSupportRevision: problem?.support?.revision ?? null })
+    }
+  }
+  requests.sort((a, b) => (b.requestedAt ?? '').localeCompare(a.requestedAt ?? ''))
+  return requests
 }
 
 function privatePhoto(upload) {
@@ -218,6 +247,9 @@ if (command === 'review') {
 } else if (command === 'inbox') {
   const rows = await pendingInbox()
   console.log(JSON.stringify({ pending: rows.length, works: rows.map(({ context }) => context) }, null, 2))
+} else if (command === 'help') {
+  const requests = await helpInbox()
+  console.log(JSON.stringify({ captured: requests.length, requests }, null, 2))
 } else {
   const rows = await pendingInbox()
   const output = resolve(local, 'submission-inbox')

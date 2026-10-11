@@ -4,12 +4,11 @@
 .problem-statement-label{display:flex;align-items:center;gap:7px;min-width:0;color:#503b86;font-size:.87rem;line-height:1.25}
 .problem-statement-label strong{font-weight:800}
 .problem-statement-label span{margin-left:auto;padding:5px 8px;border-radius:999px;background:#eee9f8;color:#5c4690;font-size:.69rem;font-weight:800;white-space:nowrap}
-.problem-statement-text{margin-top:12px;max-width:72ch;white-space:pre-line;overflow-wrap:anywhere;color:#3e3554;font-size:1rem;line-height:1.6}
+.problem-statement-text{margin-top:9px;max-width:72ch;white-space:pre-line;overflow-wrap:anywhere;color:#3e3554;font-size:1rem;line-height:1.6}
 .problem-statement-text b{color:#61459a}
-.problem-statement-transcript{margin-top:11px;color:#503b86}
-.problem-statement-transcript summary{width:max-content;max-width:100%;font-size:.8rem;font-weight:800;cursor:pointer}
-.problem-statement-transcript summary:focus-visible{outline:3px solid #ab8bda;outline-offset:3px}
-.problem-statement-transcript .problem-statement-text{margin-top:8px;padding:10px 12px;border-radius:9px;background:#f4effb}
+.problem-statement-transcript{margin-top:13px;padding:12px;border:1px solid #e4daef;border-radius:11px;color:#503b86}
+.problem-statement-transcript-title{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:.9rem;font-weight:800}
+.problem-statement-transcript-title small{font-size:.7rem;font-weight:600;color:#756987}
 .problem-statement-source{display:block;margin-top:9px;color:#776d84;font-size:.72rem;line-height:1.4}
 .problem-statement-missing{margin:12px 0 0!important;color:#695f78;font-size:.82rem;line-height:1.5}
 .problem-statement-education{padding:15px;background:#f4effb;border-top:1px solid #e4daef}
@@ -25,4 +24,18 @@
 .problem-statement-help-button:focus-visible{outline:3px solid #ab8bda;outline-offset:2px}.problem-statement-help-button:disabled{opacity:.65;cursor:wait}
 .problem-statement-help-used{display:block;margin-top:8px;color:#6b6080;font-size:.72rem}
 .problem-statement-error{margin:8px 0 0!important;color:#9b2e47!important;font-size:.76rem!important}
+.problem-statement-help{margin-top:14px}
+.problem-statement-help>summary{width:max-content;max-width:100%;padding:9px 12px;border:1px solid #bda8da;border-radius:10px;background:#fff;color:#50388c;font-size:.82rem;font-weight:800;cursor:pointer}
+.problem-statement-help form{margin-top:12px;padding:12px;border:1px solid #d7c8e9;border-radius:11px;background:#fff}
+.problem-statement-help fieldset{display:flex;flex-wrap:wrap;gap:7px;margin:0;padding:0;border:0}
+.problem-statement-help legend{margin-bottom:9px;font-size:.84rem;font-weight:800}
+.problem-statement-help fieldset label{display:flex;align-items:center;gap:5px;padding:8px;border:1px solid #ded5eb;border-radius:9px;font-size:.78rem;cursor:pointer}
+.problem-statement-help fieldset label:has(input:checked){border-color:#8c6cbf;background:#f4effb}
+.problem-statement-help-note{display:block;margin-top:13px;font-size:.8rem;font-weight:750}
+.problem-statement-help-note textarea{display:block;box-sizing:border-box;width:100%;min-height:70px;margin-top:7px;padding:9px 10px;border:1px solid #bda8da;border-radius:9px;font:inherit;font-size:1rem;resize:vertical}
+.problem-statement-help-result{margin-top:13px;padding:12px;border-left:3px solid #8668b8;border-radius:9px;background:#fff}
+.problem-statement-help-result strong{font-size:.83rem}.problem-statement-help-result p{margin:7px 0!important;font-size:.93rem;font-weight:700}.problem-statement-help-result small{color:#6b6080;font-size:.72rem}
+.problem-statement-parent-detail{margin-top:13px;font-size:.82rem}.problem-statement-parent-detail summary{font-weight:750;cursor:pointer}.problem-statement-parent-detail p{margin:8px 0!important}
+.problem-statement-parent-source{padding:14px 15px;border-top:1px solid #e4daef;background:#fff;font-size:.82rem;line-height:1.45}
+.problem-statement-parent-source strong{display:block;color:#503b86}.problem-statement-parent-source p{margin:8px 0!important}.problem-statement-parent-source small{display:block;margin-top:7px;color:#71657e}.problem-statement-parent-source a{color:#50388c;font-weight:700}
 @media(max-width:480px){.problem-statement-original,.problem-statement-education{padding:12px}.problem-statement-text{font-size:.94rem}}

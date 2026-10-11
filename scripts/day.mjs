@@ -69,6 +69,12 @@ async function addDashboardDocuments(batch, links, tokens) {
   }
 }
 function nextCalendarDate(value, days) { const date = new Date(`${value}T12:00:00Z`); date.setUTCDate(date.getUTCDate() + days); return date.toISOString().slice(0, 10) }
+/** The student Firestore document must not carry parent-only source research. @see ../docs/product/adaptive-problem-card.md#происхождение-задачи */
+function studentSubjects(subjects) {
+  return subjects.map((subject) => ({ ...subject, tasks: subject.tasks.map((task) => ({ ...task,
+    ...(task.problems ? { problems: task.problems.map(({ sourceResearch: _sourceResearch, ...problem }) => problem) } : {}),
+  })) }))
+}
 function runLocal(script, args) { execFileSync(process.execPath, [script, ...args], { cwd: resolve('.'), stdio: 'inherit' }) }
 function refresh() {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date ?? '')) fail('Укажите дату YYYY-MM-DD.')
@@ -190,6 +196,12 @@ function validate(source) {
           if (problem.original.crop && !validSourceCrop(problem.original.crop, sourceLink)) {
             fail(`У ${problem.id} неверные координаты фрагмента или хэш оригинального листа.`)
           }
+          if (problem.sourceResearch && (!['candidate', 'verified', 'not-found', 'conflict'].includes(problem.sourceResearch.status)
+            || !problem.sourceResearch.title?.trim() || !problem.sourceResearch.match?.trim()
+            || !['not-checked', 'candidate', 'verified', 'unavailable'].includes(problem.sourceResearch.keyStatus)
+            || (problem.sourceResearch.url && !/^https:\/\//.test(problem.sourceResearch.url)))) {
+            fail(`У ${problem.id} неполные сведения об источнике задачи.`)
+          }
           const support = problem.support
           if (!support?.skill?.trim() || !['unknown', 'provisional', 'practicing', 'demonstrated'].includes(support.state)
             || !support.evidence?.trim() || !Array.isArray(support.evidenceRefs) || !support.evidenceRefs.length
@@ -301,7 +313,7 @@ async function publish() {
   }
   const batch = db.batch()
   const [oldStudent, oldParent] = await Promise.all([db.doc(`dayPages/${pair.student}`).get(), db.doc(`dayPages/${pair.parent}`).get()])
-  batch.set(db.doc(`dayPages/${pair.student}`), mergeDayPage(oldStudent.data(), { ...base, kind: 'student', boardToken: readFileSync(resolve(local, 'learner-board-token'), 'utf8').trim() }))
+  batch.set(db.doc(`dayPages/${pair.student}`), mergeDayPage(oldStudent.data(), { ...base, subjects: studentSubjects(source.subjects), kind: 'student', boardToken: readFileSync(resolve(local, 'learner-board-token'), 'utf8').trim() }))
   batch.set(db.doc(`dayPages/${pair.parent}`), mergeDayPage(oldParent.data(), { ...base, kind: 'parent', studentToken: pair.student, boardToken: readFileSync(resolve(local, 'parent-board-token'), 'utf8').trim(), parentNotes: source.parentNotes ?? [] }))
   await addDashboardDocuments(batch, links, indexTokens)
   await batch.commit()
@@ -418,7 +430,9 @@ async function publishProblemSupport() {
               && (!newer.original.crop || validSourceCrop(newer.original.crop, link)))) {
             fail(`У ${problem.id} не совпали номер или исходное вложение в опубликованной странице.`)
           }
-          const next = { ...problem, original: newer.original, support: newer.support }
+          const { sourceResearch: _oldResearch, ...publicProblem } = problem
+          const next = { ...publicProblem, original: newer.original, support: newer.support,
+            ...(index === 1 && newer.sourceResearch ? { sourceResearch: newer.sourceResearch } : {}) }
           if (JSON.stringify(next) !== JSON.stringify(problem)) changed.push(problem.id)
           return next
         })

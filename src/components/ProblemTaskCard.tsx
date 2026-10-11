@@ -9,7 +9,7 @@ import WorkReview from './WorkReview'
 export default function ProblemTaskCard({ problem, state, links, parent, help, review, uploads, helpAccess, onRequestHelp, onPhotos, children }: {
   problem: DayProblem; state: ProblemCardState; links: DayMaterialLink[]; parent: boolean; help?: DayHelp;
   review?: DayWorkReview; uploads: DayUpload[]; helpAccess: 'checking' | 'ready' | 'login-required';
-  onRequestHelp?: (taskId: string, revision: number) => Promise<void>; onPhotos: (files: File[]) => void; children?: ReactNode;
+  onRequestHelp?: (taskId: string, revision: number, requestKind: NonNullable<DayHelp['requestKind']>, requestText: string) => Promise<void>; onPhotos: (files: File[]) => void; children?: ReactNode;
 }) {
   return <ProblemCard problem={problem} state={state}>
     <ProblemStatement problem={problem} links={links} parent={parent} help={help} review={review} helpAccess={helpAccess} onRequestHelp={onRequestHelp} />

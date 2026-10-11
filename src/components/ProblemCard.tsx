@@ -16,5 +16,5 @@ export function ProblemCard({ problem, state, children }: { problem: DayProblem;
 }
 
 export function ProblemUploadButton({ correction, onPhotos }: { correction: boolean; onPhotos: (files: File[]) => void }) {
-  return <label className="problem-card-upload"><Camera size={17} aria-hidden="true" /> {correction ? 'Загрузить исправление' : 'Загрузить материал'}<input type="file" accept="image/*" multiple onChange={(event) => { onPhotos(Array.from(event.currentTarget.files ?? [])); event.currentTarget.value = '' }} /></label>
+  return <label className="problem-card-upload"><Camera size={17} aria-hidden="true" /> {correction ? 'Загрузить исправление' : 'Загрузить решение'}<input type="file" accept="image/*" multiple onChange={(event) => { onPhotos(Array.from(event.currentTarget.files ?? [])); event.currentTarget.value = '' }} /></label>
 }

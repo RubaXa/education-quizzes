@@ -11,6 +11,8 @@ export type DayProblem = {
   id: string; number: number; title: string; detail: string; source: string;
   original?: { text: string; attachmentRef: string; crop?: DaySourceCrop };
   support?: { skill: string; state: 'unknown' | 'provisional' | 'practicing' | 'demonstrated'; evidence: string; evidenceRefs: string[]; facts: { label: string; value: string }[]; find: string; firstQuestion: string; revision: number };
+  /** Parent document only. Never include answer keys or solution steps in a day page. */
+  sourceResearch?: { status: 'candidate' | 'verified' | 'not-found' | 'conflict'; title: string; url?: string; match: string; keyStatus: 'not-checked' | 'candidate' | 'verified' | 'unavailable'; note?: string };
 }
 export type DayTask = { id: string; title: string; detail: string; steps?: DayInstruction[]; problems?: DayProblem[]; status: 'verified' | 'needs-fix' | 'partial' | 'unknown'; kind: 'written' | 'read' | 'check'; source: string; submission?: DaySubmission | null; instructionStatus?: { state: 'needs-review' | 'reviewed'; message: string }; testToken?: string; testSlug?: string; requiredPoints?: number; originDate?: string; platformResult?: { state: 'completed'; points: number; maxPoints: number; durationMinutes?: number; observedDate?: string; source: string }; materialStatus?: { state: 'textbook-page-needed' | 'textbook-page-linked' | 'text-absent-from-textbook' | 'no-textbook'; message: string } }
 export type DayMaterialLink = { title: string; url: string; sourceType: 'textbook-page' | 'teacher-attachment' | 'external-text'; reason?: string; sourceRef?: string; pdfPage?: number; printedPage?: number; editionStatus?: string; extraction?: string; sourceSha256?: string; sourceQuote?: string }
@@ -37,7 +39,7 @@ export function uploadMatchesTask(upload: DayUpload, taskId: string) {
   return upload.coveredTaskIds ? upload.coveredTaskIds.includes(taskId)
     : upload.processingTaskIds ? upload.processingTaskIds.includes(taskId) : upload.taskId === taskId
 }
-export type DayHelp = { id: string; taskId: string; revision: number; requestedAt?: unknown }
+export type DayHelp = { id: string; taskId: string; revision: number; requestedAt?: unknown; requestKind?: 'condition' | 'start' | 'step' | 'check'; requestText?: string }
 export type DayWorkReview = {
   id: string; taskId: string; status?: 'verified' | 'needs-fix' | 'partial' | 'cannot-assess';
   summary?: string; nextStep?: string; source?: string; checkedAt?: unknown; uploadIds?: string[];
@@ -115,8 +117,8 @@ export function watchDayHelp(tokens: string[], onChange: (data: DayHelp[]) => vo
   }, onError))
   return () => stops.forEach((stop) => stop())
 }
-export async function requestDayHelp(studentToken: string, taskId: string, revision: number) {
-  await setDoc(doc(db, 'dayHelp', studentToken, 'items', taskId), { taskId, revision, requestedAt: serverTimestamp() })
+export async function requestDayHelp(studentToken: string, taskId: string, revision: number, requestKind: NonNullable<DayHelp['requestKind']>, requestText: string) {
+  await setDoc(doc(db, 'dayHelp', studentToken, 'items', taskId), { taskId, revision, requestKind, requestText: requestText.trim().slice(0, 800), requestedAt: serverTimestamp() })
 }
 const photoTypes = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'])
 /** @see ../../docs/product/storage-privacy.md#upload-queue */

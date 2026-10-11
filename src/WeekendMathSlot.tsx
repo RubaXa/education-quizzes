@@ -83,7 +83,7 @@ export default function WeekendMathSlot({ token, parent, dueDate, title }: { tok
         const previews = local.filter((item) => item.taskId === problem.id && !photos.some((upload) => upload.id === `${studentToken}:${item.id}`))
         const review = reviews.find((item) => item.taskId === problem.id)
         const state = problemCardState(photos, review, previews.some((photo) => photo.state === 'uploading'), statusNow)
-        return <ProblemTaskCard problem={problem} state={state} key={problem.id} links={taskLinks} parent={parent} help={helpRequests.find((item) => item.taskId === problem.id)} review={review} uploads={photos} helpAccess={helpRole === 'checking' ? 'checking' : helpRole === 'student' ? 'ready' : 'login-required'} onRequestHelp={!parent && helpRole === 'student' ? (taskId, revision) => requestDayHelp(studentToken, taskId, revision) : undefined} onPhotos={(files) => addPhotos(problem.id, files)}>
+        return <ProblemTaskCard problem={problem} state={state} key={problem.id} links={taskLinks} parent={parent} help={helpRequests.find((item) => item.taskId === problem.id)} review={review} uploads={photos} helpAccess={helpRole === 'checking' ? 'checking' : helpRole === 'student' ? 'ready' : 'login-required'} onRequestHelp={!parent && helpRole === 'student' ? (taskId, revision, kind, text) => requestDayHelp(studentToken, taskId, revision, kind, text) : undefined} onPhotos={(files) => addPhotos(problem.id, files)}>
           {(photos.length > 0 || previews.length > 0) && <div className="weekend-math-photos" aria-label={`Фото задачи № ${problem.number}`}>
             {photos.map((photo, index) => {
               const localPhoto = local.find((item) => photo.id === `${studentToken}:${item.id}`)
