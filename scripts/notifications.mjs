@@ -107,6 +107,42 @@ async function backfillReview(sourceDate, taskId) {
   console.log(JSON.stringify({ taskId, recipients: count, type: corrected ? 'review_updated' : 'review_ready' }))
 }
 
+async function backfillParentDecisions() {
+  const owners = await db.collection('dayOwners').get()
+  let count = 0
+  for (const owner of owners.docs) {
+    const events = await db.collection(`dayParentDecisions/${owner.id}/events`).get()
+    const latest = new Map()
+    for (const event of events.docs) {
+      const value = event.data()
+      const key = `${value.taskId}:${value.reviewCheckedAt?.toMillis?.()}`
+      const previous = latest.get(key)
+      if (!previous || (value.decidedAt?.toMillis?.() ?? 0) > (previous.data().decidedAt?.toMillis?.() ?? 0)) latest.set(key, event)
+    }
+    for (const event of latest.values()) {
+      const value = event.data()
+      const progress = (await db.doc(`dayProgress/${owner.id}/items/${value.taskId}`).get()).data()
+      if (!progress?.checkedAt || progress.checkedAt.toMillis() !== value.reviewCheckedAt?.toMillis?.()) continue
+      const members = await db.collection(`families/${owner.data().familyId}/members`).get()
+      const batch = db.batch()
+      let pending = 0
+      for (const member of members.docs) {
+        if (member.data().active !== true || member.data().role !== 'student' || !member.data().childIds?.includes(owner.data().childId)) continue
+        const ref = db.doc(`users/${member.id}/inbox/${event.id}`)
+        if ((await ref.get()).exists) continue
+        batch.create(ref, { familyId: owner.data().familyId, childId: owner.data().childId,
+          type: value.action === 'accept' ? 'parent_accepted' : 'parent_reopened',
+          entityId: value.taskId, taskId: value.taskId, studentToken: owner.id, eventId: event.id,
+          date: owner.data().targetDate, sourceRevision: 1, createdAt: value.decidedAt })
+        pending++
+      }
+      if (pending) { await batch.commit(); count += pending }
+    }
+  }
+  console.log(JSON.stringify({ parentDecisionNotifications: count }))
+}
+
 if (command === 'publish' && first && !second) await publishRelease(first)
 else if (command === 'backfill-review' && first && second) await backfillReview(first, second)
-else fail('Использование: notifications publish .local/release.json | backfill-review YYYY-MM-DD taskId')
+else if (command === 'backfill-parent' && !first) await backfillParentDecisions()
+else fail('Использование: notifications publish .local/release.json | backfill-review YYYY-MM-DD taskId | backfill-parent')

@@ -81,7 +81,7 @@
 | [scripts/quiz-access.test.mjs](../../scripts/quiz-access.test.mjs) | [Тесты](quizzes.md) | Проверка ролевого доступа к тесту | Vitest; разработчик |
 | [scripts/quiz.mjs](../../scripts/quiz.mjs) | [Тесты](quizzes.md) | Создание тестов и публикация ключей | Агент; Firestore |
 | [scripts/storage.mjs](../../scripts/storage.mjs) | [Хранение и приватность](storage-privacy.md) | Перенос прежних фото и страниц | Оператор архива |
-| [scripts/notifications.mjs](../../scripts/notifications.mjs) | [Центр обновлений](../architecture/activity-and-inbox.md) | Выпуск изменений продукта и сверенный backfill результата | Оператор; Firestore; `NotificationBell` |
+| [scripts/notifications.mjs](../../scripts/notifications.mjs) | [Центр обновлений](../architecture/activity-and-inbox.md) | Выпуск изменений продукта и сверенный backfill результата/родительского решения | Оператор; Firestore; `NotificationBell` |
 | [scripts/submissions.mjs](../../scripts/submissions.mjs) | [Основания проверки](review-criteria-provenance.md) | Очередь, этапы, сверка критерия и запись разбора | Агент проверки; Firestore |
 | [scripts/verify-upload-flow.mjs](../../scripts/verify-upload-flow.mjs) | [Хранение и приватность](storage-privacy.md) | Аудит ранее перенесённых фото | Оператор; агент |
 | [src/App.css](../../src/App.css) | [Тесты](quizzes.md) | Оформление тестов и навигации | `src/App.tsx` |
