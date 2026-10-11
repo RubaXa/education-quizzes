@@ -165,6 +165,15 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
     return watchDayPage(gradeToken, setGradePage, (cause) => setError(cause.message))
   }, [gradeToken])
   const selectedPage = page?.targetDate === selectedDate ? page : undefined
+  useEffect(() => {
+    const taskId = sessionStorage.getItem('education-dashboard-focus-task')
+    if (!taskId || !selectedPage || !homeworkToken) return
+    sessionStorage.removeItem('education-dashboard-focus-task')
+    sessionStorage.setItem('education-day-dashboard-return', `#/${parent ? 'days-parent' : 'days'}/${token}`)
+    sessionStorage.setItem('education-day-initial-tab', 'homework')
+    sessionStorage.setItem('education-day-focus-task', JSON.stringify({ dayToken: homeworkToken, taskId }))
+    window.location.hash = `#/${parent ? 'day-parent' : 'day'}/${homeworkToken}`
+  }, [selectedPage, homeworkToken, parent, token])
   const studentToken = selectedPage ? (selectedPage.studentToken ?? homeworkToken) : undefined
   const evidenceTokens = useMemo(() => [...new Set([studentToken, ...(selectedPage?.evidenceDayTokens ?? [])].filter((value): value is string => Boolean(value)))], [studentToken, selectedPage])
   const evidenceKey = evidenceTokens.join('|')

@@ -6,6 +6,7 @@ import { FieldValue, getFirestore, Timestamp } from 'firebase-admin/firestore'
 import { resolveSubmission } from '../storage/submission-inbox.mjs'
 import { reviewCoverage } from '../storage/review-coverage.mjs'
 import { YandexDiskStorage } from '../storage/yandex-disk.mjs'
+import { notificationId, reviewAttemptKey, stageFamilyNotice, taskContext } from '../storage/inbox-notifications.mjs'
 
 /** Private agent inbox; file bytes stay on Yandex Disk or in ignored .local.
  * @see ../docs/product/storage-privacy.md#review-queue
@@ -191,11 +192,38 @@ async function linkedReviewPhotos(review, shared = false) {
   return { owner, refs, photos, page }
 }
 
+/** @see ../docs/architecture/activity-and-inbox.md#notification-producers */
+async function stageReviewNotice(batch, owner, page, review, entries, type, now) {
+  const familyId = owner.data().familyId
+  const childId = owner.data().childId
+  if (!familyId || !childId) return
+  const context = taskContext(page, entries[0].taskId)
+  const one = entries.length === 1
+  const key = reviewAttemptKey(owner.id, review.uploadIds, entries.map((entry) => entry.taskId))
+  const statuses = entries.map((entry) => entry.status)
+  const body = type === 'review_started' ? one ? `Начали разбирать ${context.title}. Повторно загружать фото не нужно.` : `Начали разбирать ${entries.length} заданий с загруженного фото.`
+    : type === 'review_paused' ? 'Разбор приостановлен. Фото сохранено; повторно загружать его не нужно. Причина указана в карточке.'
+    : type === 'review_updated' ? entries[0].workCoverage?.state === 'complete' ? 'Работа сдана. Критерий качества пока уточняется; новых действий не требуется.' : 'Вывод по работе уточнён. Откройте текущий разбор.'
+      : statuses.every((status) => status === 'verified') ? one ? `${context.title}: всё подтверждено.` : `Проверено ${entries.length} заданий. Все подтверждены.`
+        : statuses.some((status) => status === 'needs-fix') ? 'Разбор готов. Есть пункт для исправления; откройте карточку.'
+          : statuses.some((status) => status === 'partial') ? 'Разбор готов. Часть работы подтверждена; откройте карточку.'
+            : 'Разбор фото готов. Откройте карточку, чтобы увидеть вывод.'
+  const correctionKey = type === 'review_updated'
+    ? `${key}:correction:${notificationId(JSON.stringify([entries[0].status, entries[0].summary, entries[0].items, entries[0].workCoverage]))}` : key
+  await stageFamilyNotice(db, batch, { familyId, childId, key: correctionKey,
+    mode: type === 'review_started' ? 'start' : type === 'review_updated' ? 'create' : 'replace',
+    data: { type, entityId: entries[0].taskId, taskId: one ? entries[0].taskId : null,
+      date: page.targetDate, subject: context.subject, title: type === 'review_started' ? 'Начали проверку работы'
+        : type === 'review_paused' ? 'Проверка задержана'
+        : type === 'review_updated' ? 'Результат работы уточнён' : 'Работа проверена',
+      body, sourceRevision: now.toMillis() } })
+}
+
 /** @see ../docs/product/storage-privacy.md#review-publication */
 async function publishProgress(filename, phase) {
   const review = privateReviewFile(filename)
   const shared = Boolean(review.reviews)
-  const { owner, refs: photoRefs } = await linkedReviewPhotos(review, shared)
+  const { owner, refs: photoRefs, page } = await linkedReviewPhotos(review, shared)
   const labels = { download: 'Открываем фото для проверки', source: 'Сверяем с учебником', review: 'Разбираем ответы', publish: 'Сохраняем результат', paused: 'Фото получено · техническая задержка' }
   const entries = review.reviews ?? [review]
   const refs = entries.map((entry) => db.doc(`dayProgress/${owner.id}/items/${entry.taskId}`))
@@ -212,6 +240,8 @@ async function publishProgress(filename, phase) {
     const coverage = reviewCoverage(review)
     photoRefs.forEach((ref, index) => batch.update(ref, { processingTaskIds: coverage.get(review.uploadIds[index]).taskIds }))
   }
+  if (['download', 'source', 'review'].includes(phase)) await stageReviewNotice(batch, owner, page, review, entries, 'review_started', now)
+  if (phase === 'paused') await stageReviewNotice(batch, owner, page, review, entries, 'review_paused', now)
   await batch.commit()
   console.log(JSON.stringify({ phase, publishedToFirebase: true }))
 }
@@ -349,7 +379,8 @@ async function publishFeedbackCorrection(filename) {
   // not old review prose or answer keys that may have appeared in legacy items.
   const oldRecord = { at: now, reason: correction.correctionReason,
     priorStatus: previous.status, priorFeedbackTitle: previous.studentFeedback?.title ?? null }
-  await progressDoc.ref.update({ status: correction.status, summary: correction.summary, nextStep: correction.nextStep,
+  const batch = db.batch()
+  batch.update(progressDoc.ref, { status: correction.status, summary: correction.summary, nextStep: correction.nextStep,
     items: correction.items, ...(correction.mathReasoning ? { mathReasoning: correction.mathReasoning } : {}),
     studentFeedback: correction.studentFeedback ?? FieldValue.delete(),
     assessmentBasis: correction.assessmentBasis,
@@ -357,6 +388,8 @@ async function publishFeedbackCorrection(filename) {
       ? { ...correction.workCoverage, reviewCheckedAt: previous.checkedAt, recordedAt: now }
       : FieldValue.delete(),
     correctedAt: now, feedbackCorrections: [...(previous.feedbackCorrections ?? []), oldRecord].slice(-10) })
+  await stageReviewNotice(batch, owner, page, correction, [correction], 'review_updated', now)
+  await batch.commit()
   console.log(JSON.stringify({ correctedTask: correction.taskId, childId: owner.data().childId,
     preservedAttemptCount: previous.history?.length ?? 0, correctedLiveFeedback: true }))
 }
@@ -380,6 +413,7 @@ async function publishReview(filename) {
     batch.update(ref, { status: 'reviewed', reviewedAt: now, processingTaskIds: FieldValue.delete(),
       ...(coverage ? { coveredTaskIds: coverage.get(id).taskIds, coverageNote: coverage.get(id).observed } : {}) })
   })
+  await stageReviewNotice(batch, owner, page, review, entries, 'review_ready', now)
   await batch.commit()
   console.log(JSON.stringify({ reviewedPhotos: refs.length, taskStatuses: entries.map(({ taskId, status }) => ({ taskId, status })), publishedToFirebase: true }))
 }

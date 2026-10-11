@@ -10,6 +10,7 @@ import { buildDaySource } from '../day/build.mjs'
 import { buildDayDashboardIndex } from '../day/dashboard-index.mjs'
 import { mergeDayPage } from '../day/merge.mjs'
 import { YandexDiskStorage } from '../storage/yandex-disk.mjs'
+import { stageFamilyNotice } from '../storage/inbox-notifications.mjs'
 import { lessonVisibility } from '../diary/application/lesson-visibility.mjs'
 
 const local = resolve('.local')
@@ -370,6 +371,21 @@ async function publish() {
   batch.set(db.doc(`dayPages/${pair.student}`), mergeDayPage(oldStudent.data(), { ...base, subjects: studentSubjects(source.subjects), kind: 'student', boardToken: readFileSync(resolve(local, 'learner-board-token'), 'utf8').trim() }))
   batch.set(db.doc(`dayPages/${pair.parent}`), mergeDayPage(oldParent.data(), { ...base, kind: 'parent', studentToken: pair.student, boardToken: readFileSync(resolve(local, 'parent-board-token'), 'utf8').trim(), parentNotes: source.parentNotes ?? [] }))
   await addDashboardDocuments(batch, links, indexTokens)
+  const familyAccessFile = resolve(local, 'family-access.json')
+  const familyOwner = existsSync(familyAccessFile) ? json(familyAccessFile).legacyDayOwner : null
+  if (familyOwner?.familyId && familyOwner?.childId && oldParent.exists) {
+    const before = new Map((oldParent.data().grades ?? []).map((subject) => [subject.id, subject]))
+    for (const subject of base.grades) {
+      const prior = before.get(subject.id)
+      if (!prior || !Array.isArray(prior.grades) || subject.grades.length <= prior.grades.length) continue
+      const added = subject.grades.slice(prior.grades.length)
+      const fingerprint = createHash('sha256').update(JSON.stringify(subject.grades)).digest('hex')
+      await stageFamilyNotice(db, batch, { ...familyOwner, key: `grade:${familyOwner.childId}:${subject.id}:${fingerprint}`, mode: 'create',
+        data: { type: 'grade_added', entityId: subject.id, subject: subject.name,
+          title: 'Появилась новая оценка', body: added.length === 1 ? `Новая отметка: ${added[0].mark}. Посмотрите, как изменился средний балл.` : `Новых отметок: ${added.length}. Посмотрите обновлённую сводку.`,
+          sourceRevision: Date.parse(gradeSnapshot.observed_at) || Date.now() } })
+    }
+  }
   await batch.commit()
   mkdirSync(local, { recursive: true })
   writeFileSync(linksFile, JSON.stringify(links, null, 2), { mode: 0o600 })

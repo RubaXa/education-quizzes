@@ -150,10 +150,15 @@ export type ViewReceipt = { sourceRevision: number; seenAt: unknown }
 export type InboxNotification = {
   familyId: string
   childId: string
-  type: 'homework_published' | 'homework_changed' | 'homework_removed' | 'grade_added' | 'review_ready'
+  type: 'homework_published' | 'homework_changed' | 'homework_removed' | 'grade_added' | 'review_started' | 'review_paused' | 'review_ready' | 'review_updated' | 'parent_accepted' | 'parent_reopened' | 'product_update'
   entityId: string
   date?: string
   subject?: string
+  taskId?: string | null
+  title?: string
+  body?: string
+  changes?: string[]
+  media?: { before?: { provider: 'yandex-disk'; path: string; publicUrl: string }; after?: { provider: 'yandex-disk'; path: string; publicUrl: string } }
   sourceRevision: number
   createdAt: unknown
   readAt?: unknown

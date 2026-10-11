@@ -1,4 +1,4 @@
-import { collection, doc, getDocFromServer, onSnapshot, serverTimestamp, setDoc } from 'firebase/firestore'
+import { collection, doc, getDocFromServer, getDocs, onSnapshot, serverTimestamp, writeBatch } from 'firebase/firestore'
 import { db } from './firebase'
 import { currentEducationPersonId } from './personalAccess'
 import type { DayWorkReview } from './dayStore'
@@ -55,7 +55,24 @@ export async function recordParentCompletion(review: DayWorkReview, action: Pare
   const latest = await getDocFromServer(doc(db, 'dayProgress', studentToken, 'items', review.taskId))
   if (!latest.exists() || !canAcceptCorrectAnswer(latest.data() as DayWorkReview)
     || stamp(latest.data().checkedAt) !== stamp(review.checkedAt)) throw new Error('Разбор изменился. Откройте свежую версию карточки.')
-  await setDoc(doc(db, 'dayParentDecisions', studentToken, 'events', crypto.randomUUID()), {
+  const owner = await getDocFromServer(doc(db, 'dayOwners', studentToken))
+  const familyId = owner.data()?.familyId
+  const childId = owner.data()?.childId
+  const date = owner.data()?.targetDate
+  if (!owner.exists() || typeof familyId !== 'string' || typeof childId !== 'string' || typeof date !== 'string') throw new Error('Семейная привязка работы не найдена.')
+  const members = await getDocs(collection(db, 'families', familyId, 'members'))
+  const learners = members.docs.filter((member) => member.data().active === true
+    && member.data().role === 'student' && member.data().childIds?.includes(childId))
+  if (!learners.length) throw new Error('Профиль ученика для уведомления не найден.')
+  const eventId = crypto.randomUUID()
+  const batch = writeBatch(db)
+  batch.set(doc(db, 'dayParentDecisions', studentToken, 'events', eventId), {
     taskId: review.taskId, action, reviewCheckedAt: review.checkedAt, actorPersonId, decidedAt: serverTimestamp(),
   })
+  for (const learner of learners) batch.set(doc(db, 'users', learner.id, 'inbox', eventId), {
+    familyId, childId, type: action === 'accept' ? 'parent_accepted' : 'parent_reopened',
+    entityId: review.taskId, taskId: review.taskId, studentToken, eventId, date,
+    sourceRevision: 1, createdAt: serverTimestamp(),
+  })
+  await batch.commit()
 }

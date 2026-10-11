@@ -88,7 +88,41 @@ service cloud.firestore {
       }
       match /inbox/{notificationId} {
         allow get, list: if activeSession() && currentPersonId() == personId;
-        allow create, delete: if false;
+        // A parent's decision and the child's notice are committed together.
+        // The client cannot invent review results or arbitrary announcement text.
+        // @see docs/architecture/activity-and-inbox.md#notification-producers
+        allow create: if activeSession()
+          && request.resource.data.keys().hasOnly([
+            'familyId', 'childId', 'type', 'entityId', 'taskId', 'studentToken',
+            'eventId', 'date', 'sourceRevision', 'createdAt'
+          ])
+          && request.resource.data.keys().hasAll([
+            'familyId', 'childId', 'type', 'entityId', 'taskId', 'studentToken',
+            'eventId', 'date', 'sourceRevision', 'createdAt'
+          ])
+          && parentMember(request.resource.data.familyId)
+          && exists(/databases/$(database)/documents/families/$(request.resource.data.familyId)/members/$(personId))
+          && get(/databases/$(database)/documents/families/$(request.resource.data.familyId)/members/$(personId)).data.active == true
+          && get(/databases/$(database)/documents/families/$(request.resource.data.familyId)/members/$(personId)).data.role == 'student'
+          && get(/databases/$(database)/documents/families/$(request.resource.data.familyId)/members/$(personId)).data.childIds.hasAny([request.resource.data.childId])
+          && request.resource.data.type in ['parent_accepted', 'parent_reopened']
+          && request.resource.data.entityId == request.resource.data.taskId
+          && request.resource.data.sourceRevision == 1
+          && request.resource.data.createdAt == request.time
+          && notificationId == request.resource.data.eventId
+          && request.resource.data.studentToken is string
+          && exists(/databases/$(database)/documents/dayOwners/$(request.resource.data.studentToken))
+          && get(/databases/$(database)/documents/dayOwners/$(request.resource.data.studentToken)).data.familyId == request.resource.data.familyId
+          && get(/databases/$(database)/documents/dayOwners/$(request.resource.data.studentToken)).data.childId == request.resource.data.childId
+          && get(/databases/$(database)/documents/dayOwners/$(request.resource.data.studentToken)).data.targetDate == request.resource.data.date
+          && existsAfter(/databases/$(database)/documents/dayParentDecisions/$(request.resource.data.studentToken)/events/$(request.resource.data.eventId))
+          && getAfter(/databases/$(database)/documents/dayParentDecisions/$(request.resource.data.studentToken)/events/$(request.resource.data.eventId)).data.actorPersonId == currentPersonId()
+          && getAfter(/databases/$(database)/documents/dayParentDecisions/$(request.resource.data.studentToken)/events/$(request.resource.data.eventId)).data.taskId == request.resource.data.taskId
+          && ((request.resource.data.type == 'parent_accepted'
+              && getAfter(/databases/$(database)/documents/dayParentDecisions/$(request.resource.data.studentToken)/events/$(request.resource.data.eventId)).data.action == 'accept')
+            || (request.resource.data.type == 'parent_reopened'
+              && getAfter(/databases/$(database)/documents/dayParentDecisions/$(request.resource.data.studentToken)/events/$(request.resource.data.eventId)).data.action == 'reopen'));
+        allow delete: if false;
         allow update: if activeSession() && currentPersonId() == personId
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['readAt'])
           && request.resource.data.readAt == request.time;
@@ -112,7 +146,7 @@ service cloud.firestore {
       match /members/{memberId} {
         allow get: if activeMember(familyId)
           && currentPersonId() == memberId;
-        allow list: if false;
+        allow list: if parentMember(familyId);
         allow write: if false;
       }
       match /ui/{viewId} {
@@ -244,6 +278,11 @@ service cloud.firestore {
 
     match /dayPages/{linkToken} {
       allow get: if true;
+      allow list, write: if false;
+    }
+
+    match /dayOwners/{studentToken} {
+      allow get: if dayUploadOwner(studentToken);
       allow list, write: if false;
     }
 

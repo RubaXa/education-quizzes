@@ -20,3 +20,12 @@
 .notification-copy small{font-size:.73rem;color:#79718a}
 .notification-empty,.notification-error{margin:0;padding:18px;color:#70698b;font-size:.88rem}
 .notification-error{color:#9b1c42;background:#fff0f3}
+.notification-detail{padding:0 16px 15px 33px;background:#fbf9ff;color:#514563;font-size:.84rem;line-height:1.45}
+.notification-detail p{margin:0 0 9px}
+.notification-detail ul{list-style:disc;margin:0 0 10px;padding-left:18px}
+.notification-detail li+li{border:0;margin-top:4px}
+.notification-detail>button{display:inline-flex;align-items:center;gap:3px;padding:7px 10px;border:1px solid #cab8eb;border-radius:9px;background:#fff;color:#594095;font:inherit;font-weight:700;cursor:pointer}
+.notification-media{display:flex;gap:8px;margin:8px 0 12px}
+.notification-media figure{flex:1;min-width:0;margin:0;padding:5px;border:1px solid #e2d9ef;border-radius:10px;background:#fff}
+.notification-media img{display:block;width:100%;max-height:150px;object-fit:contain;border-radius:5px}
+.notification-media figcaption{padding-top:4px;text-align:center;color:#655785;font-size:.75rem;font-weight:700}

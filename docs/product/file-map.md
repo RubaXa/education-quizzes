@@ -81,6 +81,7 @@
 | [scripts/quiz-access.test.mjs](../../scripts/quiz-access.test.mjs) | [Тесты](quizzes.md) | Проверка ролевого доступа к тесту | Vitest; разработчик |
 | [scripts/quiz.mjs](../../scripts/quiz.mjs) | [Тесты](quizzes.md) | Создание тестов и публикация ключей | Агент; Firestore |
 | [scripts/storage.mjs](../../scripts/storage.mjs) | [Хранение и приватность](storage-privacy.md) | Перенос прежних фото и страниц | Оператор архива |
+| [scripts/notifications.mjs](../../scripts/notifications.mjs) | [Центр обновлений](../architecture/activity-and-inbox.md) | Выпуск изменений продукта и сверенный backfill результата | Оператор; Firestore; `NotificationBell` |
 | [scripts/submissions.mjs](../../scripts/submissions.mjs) | [Основания проверки](review-criteria-provenance.md) | Очередь, этапы, сверка критерия и запись разбора | Агент проверки; Firestore |
 | [scripts/verify-upload-flow.mjs](../../scripts/verify-upload-flow.mjs) | [Хранение и приватность](storage-privacy.md) | Аудит ранее перенесённых фото | Оператор; агент |
 | [src/App.css](../../src/App.css) | [Тесты](quizzes.md) | Оформление тестов и навигации | `src/App.tsx` |
@@ -156,6 +157,7 @@
 | [storage/material-pages.mjs](../../storage/material-pages.mjs) | [Материалы](materials.md) | Публикация страниц учебника на Диске | `scripts/storage.mjs` |
 | [storage/storage-pause.mjs](../../storage/storage-pause.mjs) | [Хранение и приватность](storage-privacy.md) | Снятие технической паузы после сверки | `scripts/storage.mjs` |
 | [storage/storage-pause.test.mjs](../../storage/storage-pause.test.mjs) | [Хранение и приватность](storage-privacy.md) | Проверка снятия паузы | Vitest; разработчик |
+| [storage/inbox-notifications.mjs](../../storage/inbox-notifications.mjs) | [Центр обновлений](../architecture/activity-and-inbox.md) | Адресный выпуск и дедупликация событий | `scripts/submissions.mjs`; `scripts/notifications.mjs` |
 | [storage/submission-inbox.mjs](../../storage/submission-inbox.mjs) | [Хранение и приватность](storage-privacy.md) | Группировка ожидающих работ | `scripts/submissions.mjs` |
 | [storage/submission-inbox.test.mjs](../../storage/submission-inbox.test.mjs) | [Хранение и приватность](storage-privacy.md) | Проверка состава очереди | Vitest; разработчик |
 | [storage/review-coverage.mjs](../../storage/review-coverage.mjs) | [Хранение и приватность](storage-privacy.md) | Сверка покрытия нескольких номеров одним оригиналом | `scripts/submissions.mjs` |
