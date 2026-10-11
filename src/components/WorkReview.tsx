@@ -11,7 +11,11 @@ const itemLabels = { correct: 'Верно', partial: 'Частично верн�
  * меняют только данные; открытая страница получает их через onSnapshot.
  * @see ../../docs/product/day-page.md#homework-review
  */
-export default function WorkReview({ review, uploads }: { review?: DayWorkReview; uploads: DayUpload[] }) {
+export default function WorkReview({ review, uploads, accepted = false, canDecide = false, onDecision }: {
+  review?: DayWorkReview; uploads: DayUpload[]; accepted?: boolean; canDecide?: boolean; onDecision?: (action: 'accept' | 'reopen') => Promise<void>
+}) {
+  const [saving, setSaving] = useState(false)
+  const [decisionError, setDecisionError] = useState('')
   const pending = uploads.filter((upload) => upload.status === 'pending')
   const processing = activeProcessing(review, uploads)
   const [now, setNow] = useState(() => Date.now())
@@ -25,13 +29,26 @@ export default function WorkReview({ review, uploads }: { review?: DayWorkReview
   }, [pending.length])
   if (!pending.length && !review?.status) return null
 
-  const tone = review?.status ? reviewTone(review) : 'neutral'
+  const tone = accepted ? 'success' : review?.status ? reviewTone(review) : 'neutral'
   const items = review?.items ?? []
   const feedback = review?.studentFeedback
   const basis = review?.assessmentBasis
   const visibleSources = basis?.sources.filter((source) => source.kind !== 'official-key') ?? []
   const firstPending = pending.map((upload) => upload.createdAt).find(Boolean)
   const elapsed = processing ? elapsedLabel(processing.startedAt, now) : elapsedLabel(firstPending, now)
+  const answer = review?.mathReasoning?.answer
+  const argument = review?.mathReasoning?.argument
+  const argumentLabel = argument === 'sufficient' ? 'Ход подтверждён' : argument === 'not-required' ? 'Ход не требовался'
+    : argument === 'incomplete' ? 'Ход неполон' : argument === 'not-shown' ? 'Ход не показан' : argument === 'unreadable' ? 'Ход не читается' : 'Ход не установлен'
+
+  async function decide(action: 'accept' | 'reopen') {
+    if (!onDecision || saving) return
+    setSaving(true)
+    setDecisionError('')
+    try { await onDecision(action) }
+    catch (cause) { setDecisionError(cause instanceof Error ? cause.message : 'Не удалось сохранить решение. Попробуйте ещё раз.') }
+    finally { setSaving(false) }
+  }
 
   return <div className="day-review-stack">
     {pending.length > 0 && <div className={`day-review-progress${running ? ' active' : ''}`} role="status" aria-live="polite">
@@ -43,21 +60,23 @@ export default function WorkReview({ review, uploads }: { review?: DayWorkReview
     {review?.status && <details className={`day-work-review ${tone}`}>
       <summary>
         <span className="day-work-review-icon">{tone === 'success' ? <Check size={17} aria-hidden="true" /> : tone === 'partial' ? <Minus size={17} aria-hidden="true" /> : tone === 'error' ? <X size={17} aria-hidden="true" /> : <CircleAlert size={17} aria-hidden="true" />}</span>
-        <span className="day-work-review-title"><b>{pending.length ? 'Предыдущая проверка' : 'Итог разбора'}</b><span>{reviewHeadline(review)}</span></span>
+        <span className="day-work-review-title"><b>{pending.length ? 'Предыдущая проверка' : 'Итог разбора'}</b><span>{accepted ? 'Засчитано родителем · ход неполон' : reviewHeadline(review)}</span></span>
         <ChevronDown className="day-work-review-chevron" size={18} aria-hidden="true" />
       </summary>
       <div className="day-work-review-body">
+        {review.mathReasoning && <div className="day-work-review-verdicts" aria-label="Результат проверки">
+          <span className={answer === 'correct' ? 'correct' : answer === 'incorrect' ? 'incorrect' : 'unknown'}>{answer === 'correct' ? <Check size={16} aria-hidden="true" /> : answer === 'incorrect' ? <X size={16} aria-hidden="true" /> : <CircleAlert size={16} aria-hidden="true" />}{answer === 'correct' ? 'Ответ верен' : answer === 'incorrect' ? 'Ответ неверен' : 'Ответ не установлен'}</span>
+          <span className={argument === 'sufficient' || argument === 'not-required' ? 'correct' : 'incomplete'}>{argument === 'sufficient' || argument === 'not-required' ? <Check size={16} aria-hidden="true" /> : <Minus size={16} aria-hidden="true" />}{argumentLabel}</span>
+        </div>}
+        {accepted && <p className="day-work-review-accepted">Задача завершена по решению родителя. Ответ верен; обоснование хода в работе осталось неполным.</p>}
         {basis?.outcome === 'unresolved' && <p className="day-work-review-unprepared">Разбор фото завершён. {review.summary} Новую работу пока присылать не нужно.</p>}
-        {feedback ? <div className="day-work-review-feedback">
+        {!accepted && feedback ? <div className="day-work-review-feedback">
           <p><b>Уже получилось</b><span>{feedback.confirmed}</span></p>
           <p><b>Проверь здесь</b><span>{feedback.focus}</span></p>
           <p><b>Один вопрос</b><span>{feedback.question}</span></p>
-        </div> : review.status === 'needs-fix' || review.status === 'partial'
+        </div> : !accepted && (review.status === 'needs-fix' || review.status === 'partial')
           ? <p className="day-work-review-unprepared">Работа проверена. Адресный вопрос к этой попытке ещё уточняется.</p>
-          : review.mathReasoning && <div className="day-work-review-reasoning">
-            <p><b>Ответ:</b> {review.mathReasoning.answer === 'correct' ? 'верен' : 'пока не установлен'}</p>
-            <p><b>Ход решения:</b> {review.mathReasoning.argument === 'sufficient' ? 'достаточен для проверки' : review.mathReasoning.argument === 'not-required' ? 'не требовался в условии' : 'пока не подтверждён'}</p>
-          </div>}
+          : null}
         {basis && <div className="day-work-review-basis">
           <p><b>Что требовалось</b><span>{basis.requirement}</span></p>
           <p><b>Что видно в работе</b><span>{basis.observed}</span></p>
@@ -69,6 +88,11 @@ export default function WorkReview({ review, uploads }: { review?: DayWorkReview
           <div><strong>{item.label} · {basis?.outcome === 'unresolved' && item.status === 'cannot-assess' ? 'Критерий неясен' : itemLabels[item.status]}</strong>{item.observed && <small><b>В работе:</b> {item.observed}</small>}</div>
         </li>)}</ol>}
         {!!review.history?.length && <details className="day-review-history"><summary>Предыдущие попытки · {review.history.length}</summary><ol>{[...review.history].reverse().map((entry, index) => <li key={index}><strong>{entry.studentFeedback?.title ?? (entry.status === 'verified' ? 'Верно' : entry.status === 'partial' ? 'Частично' : entry.status === 'needs-fix' ? 'Нужна правка' : 'Не удалось оценить')}</strong>{entry.studentFeedback?.focus && <small>{entry.studentFeedback.focus}</small>}</li>)}</ol></details>}
+        {onDecision && <div className="day-review-parent-decision">
+          <button type="button" disabled={!canDecide || saving} onClick={() => void decide(accepted ? 'reopen' : 'accept')}>{saving ? 'Сохраняем…' : accepted ? 'Вернуть задачу в работу' : 'Засчитать задачу'}</button>
+          {!canDecide && <small>{pending.length ? 'Сначала дождитесь проверки нового фото.' : 'Для решения откройте личную ссылку родителя.'}</small>}
+          {decisionError && <small role="alert">{decisionError}</small>}
+        </div>}
       </div>
     </details>}
   </div>

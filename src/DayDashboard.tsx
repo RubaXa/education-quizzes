@@ -4,6 +4,9 @@ import { ArrowRight, BookOpen, CalendarDays, CheckCircle2, ChevronDown, Clock3, 
 import { uploadMatchesTask, watchDayPage, watchDayReviews, watchDayUploads, watchEvidenceDayPages, withVerifiedPlatformResult } from '@/lib/dayStore'
 import type { DayPageData, DayTask, DayUpload, DayWorkReview } from '@/lib/dayStore'
 import { activeProcessing } from '@/lib/reviewPresentation'
+import { useParentCompletions } from '@/lib/useParentCompletions'
+import { parentAccepted } from '@/lib/parentCompletion'
+import type { ParentCompletionEvent } from '@/lib/parentCompletion'
 import { watchDayDashboard } from '@/lib/dayDashboardStore'
 import type { DayDashboardData } from '@/lib/dayDashboardStore'
 import { loadAnswerKey, watchAssignment } from '@/lib/store'
@@ -49,14 +52,15 @@ function lessonSubjectId(name: string) {
   if (/географ/.test(value)) return 'geography'
   return null
 }
-function lessonWorkItems(tasks: DayTask[], uploads: DayUpload[], reviews: DayWorkReview[], tests: Record<string, Assignment>, scores: Record<string, QuizScore>): LessonWorkItem[] {
+function lessonWorkItems(tasks: DayTask[], uploads: DayUpload[], reviews: DayWorkReview[], decisions: ParentCompletionEvent[], tests: Record<string, Assignment>, scores: Record<string, QuizScore>): LessonWorkItem[] {
   return tasks.flatMap((task) => {
     if (task.problems?.length) return task.problems.map((problem) => {
       const review = reviews.find((item) => item.taskId === problem.id)
       const pending = uploads.some((upload) => uploadMatchesTask(upload, problem.id) && ['requested', 'awaiting-upload', 'uploaded', 'pending'].includes(upload.status))
       const criterionPending = review?.assessmentBasis?.outcome === 'unresolved'
-      const state: LessonWorkItem['state'] = pending ? 'checking' : criterionPending ? 'unclear' : review?.status === 'verified' ? 'done' : 'todo'
-      return { id: problem.id, title: `№ ${problem.number}. ${problem.title}`, state, detail: state === 'unclear' ? `${review?.summary ?? 'Работа разобрана; критерий учителя не подтверждён.'} Новое фото не требуется.` : state === 'checking' ? 'Фото получено, ждём проверки' : state === 'done' ? 'Решение проверено' : review?.status === 'needs-fix' ? 'Нужно исправить решение' : review?.status === 'partial' ? 'Нужно дополнить решение' : 'Нужно выполнить и загрузить решение' }
+      const accepted = parentAccepted(review, decisions)
+      const state: LessonWorkItem['state'] = pending ? 'checking' : criterionPending ? 'unclear' : review?.status === 'verified' || accepted ? 'done' : 'todo'
+      return { id: problem.id, title: `№ ${problem.number}. ${problem.title}`, state, detail: state === 'unclear' ? `${review?.summary ?? 'Работа разобрана; критерий учителя не подтверждён.'} Новое фото не требуется.` : state === 'checking' ? 'Фото получено, ждём проверки' : state === 'done' ? accepted ? 'Засчитано родителем · ответ верен, ход неполон' : 'Решение проверено' : review?.status === 'needs-fix' ? 'Нужно исправить решение' : review?.status === 'partial' ? 'Нужно дополнить решение' : 'Нужно выполнить и загрузить решение' }
     })
     const review = reviews.find((item) => item.taskId === task.id)
     const pending = uploads.some((upload) => uploadMatchesTask(upload, task.id) && ['requested', 'awaiting-upload', 'uploaded', 'pending'].includes(upload.status))
@@ -64,12 +68,13 @@ function lessonWorkItems(tasks: DayTask[], uploads: DayUpload[], reviews: DayWor
     const test = task.testToken ? tests[task.testToken] : undefined
     const readPassed = task.kind === 'read' && score && score.points >= (task.requiredPoints ?? score.maxPoints)
     const cdzPassed = task.platformResult?.state === 'completed'
-    const done = Boolean(readPassed || cdzPassed || review?.status === 'verified' || !review && task.status === 'verified')
+    const accepted = parentAccepted(review, decisions)
+    const done = Boolean(readPassed || cdzPassed || review?.status === 'verified' || accepted || !review && task.status === 'verified')
     const processing = activeProcessing(review, uploads.filter((upload) => uploadMatchesTask(upload, task.id)))
     const criterionPending = review?.assessmentBasis?.outcome === 'unresolved'
     const checking = !done && (pending || Boolean(processing && processing.phase !== 'paused') || task.kind === 'read' && test?.status === 'submitted' && !score)
     const state: LessonWorkItem['state'] = done ? 'done' : checking ? 'checking' : criterionPending ? 'unclear' : 'todo'
-    const detail = state === 'done' ? task.kind === 'read' && score ? `Тест: ${score.points} из ${score.maxPoints} верно` : cdzPassed ? `ЦДЗ пройдено: ${task.platformResult?.points} из ${task.platformResult?.maxPoints}` : 'Работа проверена'
+    const detail = state === 'done' ? accepted ? 'Засчитано родителем · ответ верен, ход неполон' : task.kind === 'read' && score ? `Тест: ${score.points} из ${score.maxPoints} верно` : cdzPassed ? `ЦДЗ пройдено: ${task.platformResult?.points} из ${task.platformResult?.maxPoints}` : 'Работа проверена'
       : state === 'unclear' ? `${review?.summary ?? 'Работа разобрана; критерий учителя не подтверждён.'} Новое фото не требуется.`
         : state === 'checking' ? 'Работа получена, ждём результата проверки'
         : review?.status === 'needs-fix' ? 'Нужно исправить работу' : review?.status === 'partial' ? 'Нужно дополнить работу' : review?.status === 'cannot-assess' ? 'Фото нужно переснять'
@@ -161,6 +166,7 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
   const studentToken = selectedPage ? (selectedPage.studentToken ?? homeworkToken) : undefined
   const evidenceTokens = useMemo(() => [...new Set([studentToken, ...(selectedPage?.evidenceDayTokens ?? [])].filter((value): value is string => Boolean(value)))], [studentToken, selectedPage])
   const evidenceKey = evidenceTokens.join('|')
+  const parentDecisions = useParentCompletions(evidenceKey, Boolean(selectedPage))
   useEffect(() => {
     if (!reviews.some((review) => review.processing)) return
     const timer = window.setInterval(() => setNow(Date.now()), 1000)
@@ -204,7 +210,7 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
   const currentSubjects = selectedPage?.subjects.map((subject) => ({ ...subject, tasks: subject.tasks.filter((task) => (task.originDate ?? selectedDate) === selectedDate)
     .map((task) => withVerifiedPlatformResult(task, selectedDate, evidencePages)) })).filter((subject) => subject.tasks.length) ?? []
   const homeworkRows = currentSubjects.map((subject) => {
-    const items = lessonWorkItems(subject.tasks, uploads, reviews, tests, scores)
+    const items = lessonWorkItems(subject.tasks, uploads, reviews, parentDecisions.events, tests, scores)
     const done = items.filter((item) => item.state === 'done').length
     const next = items.find((item) => item.state === 'todo') ?? items.find((item) => item.state === 'checking') ?? items.find((item) => item.state === 'unclear')
     const group = items.some((item) => item.state === 'todo') ? 'action' : items.some((item) => item.state === 'checking' || item.state === 'unclear') ? 'waiting' : 'complete'
@@ -235,7 +241,7 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
   /** @see ../docs/product/dashboard.md#homework-progress */
   function homeworkRow(row: typeof homeworkRows[number]) {
     const { subject, items, done, next, group } = row
-    const status = group === 'complete' ? 'Всё подтверждено' : next?.state === 'unclear' ? 'Критерий неясен' : next?.state === 'checking' ? 'Ждём проверки' : done ? `${done} из ${items.length} подтверждено` : 'Нужно сделать'
+    const status = group === 'complete' ? 'Всё завершено' : next?.state === 'unclear' ? 'Критерий неясен' : next?.state === 'checking' ? 'Ждём проверки' : done ? `${done} из ${items.length} завершено` : 'Нужно сделать'
     return <button className={`day-dashboard-homework-row ${group}`} key={subject.id} type="button" onClick={() => homeworkToken && openDay(homeworkToken, 'homework', next?.id)}>
       <span className="day-dashboard-icon" aria-hidden="true">{subject.icon}</span>
       <span className="day-dashboard-homework-row-body"><strong>{subject.name}</strong><span className="day-dashboard-homework-status">{status}</span>{next && <span className="day-dashboard-homework-next">{next.title} · {next.detail}</span>}{group === 'complete' && <span className="day-dashboard-homework-next">{subject.tasks.map((task) => task.title).join(' · ')}</span>}</span>
@@ -270,7 +276,7 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
           const updatedAt = selectedEntry.homeworkUpdate?.at
           const recentUpdate = updatedAt ? Date.parse(updatedAt) : NaN
           const newlyAssigned = Number.isFinite(recentUpdate) && now >= recentUpdate && now - recentUpdate < 3 * 24 * 60 * 60 * 1000 && updatedSubjects.some((name) => name.toLocaleLowerCase('ru-RU') === lesson.subject.toLocaleLowerCase('ru-RU') || subjectId != null && lessonSubjectId(name) === subjectId)
-          const taskItems = subject ? lessonWorkItems(subject.tasks, uploads, reviews, tests, scores) : []
+          const taskItems = subject ? lessonWorkItems(subject.tasks, uploads, reviews, parentDecisions.events, tests, scores) : []
           const placementItems: LessonWorkItem[] = (selectedPage?.testPlacements ?? []).filter((placement) => !placement.taskId && (placement.originDate ?? selectedDate) === selectedDate && placement.subjectId === subjectId).map((placement) => {
             const test = tests[placement.token]
             const score = scores[placement.token]

@@ -161,6 +161,11 @@
 .day-work-review.success{--review-bg:#f0fbf3;--review-border:#9eddb6;--review-ink:#195f39;--review-icon:#19643c}
 .day-work-review.partial{--review-bg:#fff8e9;--review-border:#ebcd8d;--review-ink:#76500e;--review-icon:#89540a}
 .day-work-review.error{--review-bg:#fff0f1;--review-border:#eba5ae;--review-ink:#932c3a;--review-icon:#a52839}
+.day-work-review-verdicts{display:flex;flex-wrap:wrap;gap:6px;margin:5px 0 10px}
+.day-work-review-verdicts span{display:inline-flex;align-items:center;gap:5px;min-height:28px;padding:4px 8px;border-radius:999px;font-size:.78rem;font-weight:750;line-height:1.2}
+.day-work-review-verdicts .correct{background:#e7f5ec;color:#1c6840}.day-work-review-verdicts .incorrect{background:#fbe8e9;color:#9b2937}.day-work-review-verdicts .incomplete{background:#fff0d8;color:#89550a}.day-work-review-verdicts .unknown{background:#eeebf2;color:#645b70}
+.day-work-review-accepted{margin:5px 0 10px!important;padding:8px 10px;border:1px solid #a7d8b4;border-radius:9px;background:#f5fff6;color:#245d3c!important;font-size:.8rem}
+.day-review-parent-decision{display:grid;justify-items:start;gap:5px;margin-top:10px}.day-review-parent-decision button{padding:8px 12px;border:0;border-radius:9px;background:#5b4695;color:white;font-size:.8rem;font-weight:750;cursor:pointer}.day-review-parent-decision button:disabled{opacity:.55;cursor:not-allowed}.day-review-parent-decision small{font-size:.75rem;color:#6a5f73}
 .day-work-review-reasoning{margin:10px 0;padding:9px 11px;border:1px solid var(--review-border);border-radius:9px;background:#ffffffa8}
 .day-work-review-reasoning p{margin:4px 0}
 .day-work-review-feedback{display:grid;gap:8px;margin:10px 0}

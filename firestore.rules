@@ -274,6 +274,30 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // A parent may close a task with a correct answer and incomplete reasoning.
+    // The review remains unchanged; each choice is an immutable family event.
+    // @see docs/product/day-page.md#parent-acceptance
+    match /dayParentDecisions/{studentToken}/events/{eventId} {
+      allow get, list: if dayUploadOwner(studentToken);
+      allow create: if dayUploadOwner(studentToken)
+        && parentMember(get(/databases/$(database)/documents/dayOwners/$(studentToken)).data.familyId)
+        && eventId.matches('^[a-f0-9-]{36}$')
+        && request.resource.data.keys().hasOnly(['taskId', 'action', 'reviewCheckedAt', 'actorPersonId', 'decidedAt'])
+        && request.resource.data.keys().hasAll(['taskId', 'action', 'reviewCheckedAt', 'actorPersonId', 'decidedAt'])
+        && request.resource.data.taskId is string
+        && request.resource.data.taskId in get(/databases/$(database)/documents/dayPages/$(studentToken)).data.taskIds
+        && request.resource.data.action in ['accept', 'reopen']
+        && request.resource.data.actorPersonId == currentPersonId()
+        && request.resource.data.decidedAt == request.time
+        && exists(/databases/$(database)/documents/dayProgress/$(studentToken)/items/$(request.resource.data.taskId))
+        && get(/databases/$(database)/documents/dayProgress/$(studentToken)/items/$(request.resource.data.taskId)).data.status == 'partial'
+        && get(/databases/$(database)/documents/dayProgress/$(studentToken)/items/$(request.resource.data.taskId)).data.assessmentBasis.outcome in ['met', 'not-met']
+        && get(/databases/$(database)/documents/dayProgress/$(studentToken)/items/$(request.resource.data.taskId)).data.mathReasoning.answer == 'correct'
+        && get(/databases/$(database)/documents/dayProgress/$(studentToken)/items/$(request.resource.data.taskId)).data.mathReasoning.argument in ['incomplete', 'not-shown', 'unreadable']
+        && request.resource.data.reviewCheckedAt == get(/databases/$(database)/documents/dayProgress/$(studentToken)/items/$(request.resource.data.taskId)).data.checkedAt;
+      allow update, delete: if false;
+    }
+
     // A learner can send one current help request per task. No answer key or
     // tutor response is client writable. A request is not a mastery verdict.
     match /dayHelp/{studentToken}/items/{taskId} {

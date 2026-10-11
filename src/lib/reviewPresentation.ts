@@ -28,7 +28,7 @@ export function processingIsStale(processing: NonNullable<DayWorkReview['process
 }
 
 /** A file's progress and a solution's result remain separate Firestore facts. */
-export function problemCardState(uploads: DayUpload[], review?: DayWorkReview, uploading = false, now = Date.now()): ProblemCardState {
+export function problemCardState(uploads: DayUpload[], review?: DayWorkReview, uploading = false, now = Date.now(), accepted = false): ProblemCardState {
   if (uploading) return { label: 'Фото загружается', tone: 'uploading' }
   if (uploads.some((upload) => artifactAvatarState(upload, review, now) === 'uploading')) return { label: 'Фото загружается', tone: 'uploading' }
   if (uploads.some((upload) => upload.status === 'pending')) {
@@ -36,6 +36,7 @@ export function problemCardState(uploads: DayUpload[], review?: DayWorkReview, u
     if (uploads.some((upload) => artifactAvatarState(upload, review, now) === 'processing')) return { label: processing?.label || 'Проверяем работу', tone: 'processing' }
     return { label: uploads.some((upload) => artifactAvatarState(upload, review, now) === 'paused') ? 'Фото получено · проверка задержана' : 'Фото получено · ждёт проверки', tone: 'waiting' }
   }
+  if (accepted) return { label: 'Засчитано родителем · ход неполон', tone: 'verified' }
   if (review?.status === 'verified') return { label: reviewHeadline(review), tone: 'verified' }
   if (review?.status === 'partial') return { label: reviewHeadline(review), tone: 'partial' }
   if (review?.status === 'needs-fix') return { label: reviewHeadline(review), tone: 'error' }

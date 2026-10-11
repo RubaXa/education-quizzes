@@ -54,7 +54,7 @@
 | [docs/research/photo-math-solution-review.md](../research/photo-math-solution-review.md) | [Адаптивная карточка](adaptive-problem-card.md) | Основание проверки хода решения | Агент при изменении разбора |
 | [docs/research/special-course-source-provenance.md](../research/special-course-source-provenance.md) | [Адаптивная карточка](adaptive-problem-card.md) | Поиск прототипов, вариантов, ключей и критериев спецкурса | Агент подготовки; проверяющий; родительский обзор |
 | [firebase.json](../../firebase.json) | [Семейная модель](../architecture/family-data-model.md) | Настройки публикации правил Firestore | Firebase CLI |
-| [firestore.rules](../../firestore.rules) | [Семейная модель](../architecture/family-data-model.md) | Права на семейные и переходные документы | Firebase; клиент |
+| [firestore.rules](../../firestore.rules) | [Страница дня](day-page.md) | Права на семейные и переходные документы, на решение родителя | Firebase; клиент |
 | [index.html](../../index.html) | [PWA](pwa.md) | HTML-точка входа приложения | Браузер; Vite |
 | [lefthook.yml](../../lefthook.yml) | [Карта файлов](file-map.md) | Проверки перед коммитом и push | Git hooks |
 | [package-lock.json](../../package-lock.json) | [Карта файлов](file-map.md) | Фиксированные версии зависимостей | npm |
@@ -133,6 +133,7 @@
 | [src/lib/personalAccess.ts](../../src/lib/personalAccess.ts) | [Семейная модель](../architecture/family-data-model.md) | Личная сессия и роли | Стартовая страница; день |
 | [src/lib/photoOutbox.ts](../../src/lib/photoOutbox.ts) | [Хранение и приватность](storage-privacy.md) | Локальное хранение фото до передачи | `dayStore`; устройство |
 | [src/lib/problemGroupSummary.ts](../../src/lib/problemGroupSummary.ts) | [Страница дня](day-page.md) | Проверяемая сводка номеров и уникальных фото | `src/components/ProblemGroup.tsx` |
+| [src/lib/parentCompletion.ts](../../src/lib/parentCompletion.ts) | [Страница дня](day-page.md) | Отдельные события решения, проверка версии разбора и действующего статуса | День; слот выходных; dashboard; `WorkReview` |
 | [src/lib/pwa.ts](../../src/lib/pwa.ts) | [PWA](pwa.md) | Регистрация service worker | `PwaControls` |
 | [src/lib/quiz.test.ts](../../src/lib/quiz.test.ts) | [Тесты](quizzes.md) | Проверка оценивания вопросов | Vitest; разработчик |
 | [src/lib/quiz.ts](../../src/lib/quiz.ts) | [Тесты](quizzes.md) | Модель вопросов и оценивание | Тест; Quiz CLI |
@@ -141,6 +142,7 @@
 | [src/lib/reviewPresentation.test.ts](../../src/lib/reviewPresentation.test.ts) | [Страница дня](day-page.md) | Проверка понятных статусов работ | Vitest; разработчик |
 | [src/lib/reviewPresentation.ts](../../src/lib/reviewPresentation.ts) | [Страница дня](day-page.md) | Текст и цвет вердиктов | `WorkReview`; `ProblemCard` |
 | [src/lib/useDayEvidence.ts](../../src/lib/useDayEvidence.ts) | [Формирование плана](plan-generation.md) | Подписки на фото, разборы и страницы результата той же даты сдачи | `src/DayPage.tsx`; `src/WeekendMathSlot.tsx` |
+| [src/lib/useParentCompletions.ts](../../src/lib/useParentCompletions.ts) | [Страница дня](day-page.md) | Подписка на семейные решения по связанным дням | `src/DayPage.tsx`; `src/WeekendMathSlot.tsx`; `src/DayDashboard.tsx` |
 | [src/lib/store.ts](../../src/lib/store.ts) | [Тесты](quizzes.md) | Подписки на попытки, ключи и списки | `src/App.tsx` |
 | [src/lib/utils.ts](../../src/lib/utils.ts) | [Экраны из данных](../architecture/backend-driven-ui.md) | Слияние классов UI | Базовые компоненты |
 | [src/lib/visual.test.ts](../../src/lib/visual.test.ts) | [Тесты](quizzes.md) | Проверка визуальных вопросов | Vitest; разработчик |

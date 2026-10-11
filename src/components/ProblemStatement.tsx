@@ -13,8 +13,9 @@ const helpKinds: { value: NonNullable<DayHelp['requestKind']>; label: string }[]
 ]
 
 /** @see ../../docs/product/adaptive-problem-card.md#показ-ученику */
-export default function ProblemStatement({ problem, links, parent, help, review, onRequestHelp, helpAccess = 'ready' }: {
+export default function ProblemStatement({ problem, links, parent, help, review, finished: parentFinished = false, onRequestHelp, helpAccess = 'ready' }: {
   problem: DayProblem; links: DayMaterialLink[]; parent: boolean; help?: DayHelp; review?: DayWorkReview;
+  finished?: boolean;
   onRequestHelp?: (taskId: string, revision: number, kind: NonNullable<DayHelp['requestKind']>, text: string) => Promise<void>;
   helpAccess?: 'checking' | 'ready' | 'login-required';
 }) {
@@ -28,7 +29,7 @@ export default function ProblemStatement({ problem, links, parent, help, review,
   const hasFragment = Boolean(attachment && original?.crop && original.crop.sourceSha256 === attachment.sourceSha256)
   const support = problem.support
   const opened = Boolean(support && help && help.revision >= support.revision)
-  const finished = review?.status === 'verified'
+  const finished = review?.status === 'verified' || parentFinished
 
   async function requestHelp(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
