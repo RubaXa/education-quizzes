@@ -48,6 +48,7 @@
 | [docs/research/condition-transcript-and-scaffold.md](../research/condition-transcript-and-scaffold.md) | [Адаптивная карточка](adaptive-problem-card.md) | Основание показа точного условия | Агент при изменении карточки |
 | [docs/research/feedback-after-errors.md](../research/feedback-after-errors.md) | [Тесты](quizzes.md) | Основание и границы обратной связи без готового ответа | Агент; результат теста и проверки фото |
 | [docs/research/photo-math-solution-review.md](../research/photo-math-solution-review.md) | [Адаптивная карточка](adaptive-problem-card.md) | Основание проверки хода решения | Агент при изменении разбора |
+| [docs/research/special-course-source-provenance.md](../research/special-course-source-provenance.md) | [Адаптивная карточка](adaptive-problem-card.md) | Поиск прототипов, вариантов, ключей и критериев спецкурса | Агент подготовки; проверяющий; родительский обзор |
 | [firebase.json](../../firebase.json) | [Семейная модель](../architecture/family-data-model.md) | Настройки публикации правил Firestore | Firebase CLI |
 | [firestore.rules](../../firestore.rules) | [Семейная модель](../architecture/family-data-model.md) | Права на семейные и переходные документы | Firebase; клиент |
 | [index.html](../../index.html) | [PWA](pwa.md) | HTML-точка входа приложения | Браузер; Vite |
