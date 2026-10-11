@@ -16,12 +16,17 @@
 | [components.json](../../components.json) | [Экраны из данных](../architecture/backend-driven-ui.md) | Настройки базовых UI-компонентов | Генератор компонентов |
 | [day/build.mjs](../../day/build.mjs) | [Формирование плана](plan-generation.md) | Точная запись МЭШ, владелец по уроку, отдельный срок сдачи и отделение ссылки на файл от действия | `scripts/day.mjs` |
 | [day/dashboard-index.mjs](../../day/dashboard-index.mjs) | [Dashboard](dashboard.md) | Индекс и проверка явных ID выходных заданий, дат урока и срока | `scripts/day.mjs`; `src/DayDashboard.tsx` |
+| [day/grade-reconciliation.mjs](../../day/grade-reconciliation.mjs) | [Средний балл](grades.md) | Сверка среза МЭШ и обнаружение новых либо исправленных оценок | `scripts/day.mjs`; уведомления |
+| [day/grade-reconciliation.test.mjs](../../day/grade-reconciliation.test.mjs) | [Средний балл](grades.md) | Проверка публикационного барьера оценок и изменения ленты | Vitest; разработчик |
 | [day/merge.mjs](../../day/merge.mjs) | [Формирование плана](plan-generation.md) | Слияние без потери работы, ревизия выходного плана, снятие ошибочной карточки и удаление доказанной ссылки | `scripts/day.mjs` |
 | [day/merge.test.mjs](../../day/merge.test.mjs) | [Доступ и состояние](access-and-state.md) | Проверка сохранности при слиянии дня | Vitest; разработчик |
+| [day/pipeline-contract.mjs](../../day/pipeline-contract.mjs) | [Формирование плана](plan-generation.md) | Проверка полноты МЭШ, соответствия плана и опубликованной страницы | `scripts/day.mjs` |
+| [day/pipeline-contract.test.mjs](../../day/pipeline-contract.test.mjs) | [Формирование плана](plan-generation.md) | Проверка барьеров публикации и защиты выходных карточек | Vitest; разработчик |
 | [diary/adapters/mesh.mjs](../../diary/adapters/mesh.mjs) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Получение данных МЭШ | Синхронизатор дневника |
 | [diary/application/diff.mjs](../../diary/application/diff.mjs) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Различия двух снимков дневника | `diary/cli.mjs` |
 | [diary/application/lesson-visibility.mjs](../../diary/application/lesson-visibility.mjs) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Семейные исключения из расписания | Синхронизатор дневника |
 | [diary/application/sync.mjs](../../diary/application/sync.mjs) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Сбор и сохранение снимка МЭШ | `diary/cli.mjs` |
+| [diary/application/sync.test.mjs](../../diary/application/sync.test.mjs) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Проверка полноты подробных карточек МЭШ и защиты полного снимка | Vitest; разработчик |
 | [diary/attachments.mjs](../../diary/attachments.mjs) | [Материалы](materials.md) | Извлечение вложений учителя | `diary/cli.mjs`; план дня |
 | [diary/cli.mjs](../../diary/cli.mjs) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Командный вход синхронизации МЭШ | Оператор; `scripts/day.mjs` |
 | [diary/config.mjs](../../diary/config.mjs) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Конфигурация и выбор ученика | Модули дневника |
@@ -33,6 +38,7 @@
 | [docs/architecture/family-data-model.md](../architecture/family-data-model.md) | [Семейная модель](../architecture/family-data-model.md) | Роли, документы и этапы миграции | Агент; разработчик |
 | [docs/architecture/school-diary-port-adapter.md](../architecture/school-diary-port-adapter.md) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Граница получения данных МЭШ | Агент; разработчик |
 | [docs/product/README.md](README.md) | [Карта спецификаций](README.md) | Навигация между контрактами | Агент; разработчик |
+| [docs/product/education-pipeline.md](education-pipeline.md) | [Сквозной протокол](education-pipeline.md) | Порядок стадий, проверяемые барьеры и пределы автоматизации | Навык синхронизации; операторы; разработчик |
 | [docs/product/access-and-state.md](access-and-state.md) | [Доступ и состояние](access-and-state.md) | Текущие маршруты и владение состоянием | Агент; разработчик |
 | [docs/product/adaptive-problem-card.md](adaptive-problem-card.md) | [Адаптивная карточка](adaptive-problem-card.md) | Оригинал, помощь и попытки по номеру | Агент; разработчик |
 | [docs/product/review-criteria-provenance.md](review-criteria-provenance.md) | [Основания проверки](review-criteria-provenance.md) | Проверяемое требование, источник, запись и предел вердикта | Агент; `scripts/submissions.mjs`; `WorkReview` |
@@ -161,6 +167,8 @@
 | [storage/submission-inbox.mjs](../../storage/submission-inbox.mjs) | [Хранение и приватность](storage-privacy.md) | Группировка ожидающих работ | `scripts/submissions.mjs` |
 | [storage/submission-inbox.test.mjs](../../storage/submission-inbox.test.mjs) | [Хранение и приватность](storage-privacy.md) | Проверка состава очереди | Vitest; разработчик |
 | [storage/review-coverage.mjs](../../storage/review-coverage.mjs) | [Хранение и приватность](storage-privacy.md) | Сверка покрытия нескольких номеров одним оригиналом | `scripts/submissions.mjs` |
+| [storage/review-projection.mjs](../../storage/review-projection.mjs) | [Адаптивная карточка](adaptive-problem-card.md) | Отдельная ученическая проекция разбора без экспертных полей | `scripts/submissions.mjs`; миграция старых проверок |
+| [storage/review-projection.test.mjs](../../storage/review-projection.test.mjs) | [Адаптивная карточка](adaptive-problem-card.md) | Проверка отделения публичного результата от закрытого ключа и истории | Vitest; разработчик |
 | [storage/review-coverage.test.mjs](../../storage/review-coverage.test.mjs) | [Хранение и приватность](storage-privacy.md) | Проверка явной привязки фото к номерам | Vitest; разработчик |
 | [storage/submission-storage.mjs](../../storage/submission-storage.mjs) | [Хранение и приватность](storage-privacy.md) | Сверка старых файлов с Диском | `scripts/storage.mjs` |
 | [storage/textbook-catalog.mjs](../../storage/textbook-catalog.mjs) | [Материалы](materials.md) | Индекс страниц и учебников | `material-pages`; день |

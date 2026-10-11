@@ -49,20 +49,20 @@ export type DayWorkReview = {
   summary?: string; nextStep?: string; source?: string; checkedAt?: unknown; uploadIds?: string[];
   /** @see ../../docs/product/review-criteria-provenance.md */
   assessmentBasis?: {
-    grade: number; schoolYear: string; requirement: string; observed: string; comparison: string;
+    grade?: number; schoolYear?: string; requirement?: string; observed?: string; comparison?: string;
     outcome: 'met' | 'not-met' | 'unresolved'; limitation?: string;
-    sources: { kind: 'teacher' | 'mesh' | 'textbook' | 'method-guide' | 'curriculum' | 'official-key'; ref: string; excerpt: string; role: 'requirement' | 'context' }[];
+    sources?: { kind: 'teacher' | 'mesh' | 'textbook' | 'method-guide' | 'curriculum' | 'official-key'; ref: string; excerpt: string; role: 'requirement' | 'context' }[];
     disputedRequirementIds?: string[];
     /** A proposed family action is not a teacher requirement. @see ../../docs/product/review-criteria-provenance.md#family-disputes */
-    disputedRequirements?: { id: string; action: string; meshExcerpt: string; sourceKind: 'textbook' | 'model-inference'; sourceExcerpt: string; sourceRef: string; uncertainty: string }[];
+    disputedRequirements?: { id: string; action: string; meshExcerpt?: string; sourceKind?: 'textbook' | 'model-inference'; sourceExcerpt?: string; sourceRef?: string; uncertainty?: string }[];
   };
   /** Operator-reviewed text safe for the student view; never generated from the private answer key in the client. */
   studentFeedback?: { title: string; confirmed: string; focus: string; question: string; anchor?: { uploadId: string; location: string } };
   /** Separate the numeric result from the reasoning visible in a mathematical solution photo. */
-  mathReasoning?: { answer: 'correct' | 'incorrect' | 'uncertain'; argument: 'sufficient' | 'incomplete' | 'not-shown' | 'unreadable' | 'not-required'; observed: string; minimumNeeded?: string; criterionSource?: string };
+  mathReasoning?: { answer: 'correct' | 'incorrect' | 'uncertain'; argument: 'sufficient' | 'incomplete' | 'not-shown' | 'unreadable' | 'not-required'; observed?: string; minimumNeeded?: string; criterionSource?: string };
   /** Whether every assigned action is visibly present; independent of the teacher's quality criterion. @see ../../docs/product/review-criteria-provenance.md#work-coverage */
   workCoverage?: { state: 'complete' | 'incomplete' | 'unknown'; note: string; sourceRef: string; reviewCheckedAt: unknown; recordedAt: unknown };
-  items?: { label: string; status: 'correct' | 'incorrect' | 'partial' | 'cannot-assess'; observed: string; expected?: string; note: string }[];
+  items?: { label: string; status: 'correct' | 'incorrect' | 'partial' | 'cannot-assess'; observed?: string; expected?: string; note?: string }[];
   processing?: { phase: 'download' | 'source' | 'review' | 'publish' | 'paused'; label: string; reason?: string; uploadIds: string[]; startedAt: unknown; updatedAt: unknown };
   history?: Pick<DayWorkReview, 'status' | 'summary' | 'nextStep' | 'checkedAt' | 'items' | 'uploadIds' | 'mathReasoning' | 'studentFeedback' | 'assessmentBasis'>[];
 }
@@ -136,13 +136,24 @@ export function watchDayUploads(tokens: string[], onChange: (data: DayUpload[]) 
   return () => stops.forEach((stop) => stop())
 }
 /** @see ../../docs/product/day-page.md#homework-review */
-export function watchDayReviews(tokens: string[], onChange: (data: DayWorkReview[]) => void, onError: (error: Error) => void) {
+export function watchDayReviews(tokens: string[], onChange: (data: DayWorkReview[]) => void, onError: (error: Error) => void, parent = false) {
   const parts = new Map<string, DayWorkReview[]>()
+  const privateParts = new Map<string, DayWorkReview[]>()
   const unique = [...new Set(tokens)]
+  const emit = () => onChange(unique.flatMap((token) => {
+    const publicItems = parts.get(token) || []
+    if (!parent) return publicItems
+    const privateById = new Map((privateParts.get(token) || []).map((item) => [item.id, item]))
+    return publicItems.map((item) => ({ ...item, ...privateById.get(item.id), processing: item.processing }))
+  }))
   const stops = unique.map((studentToken) => onSnapshot(collection(db, 'dayProgress', studentToken, 'items'), (snapshot) => {
     parts.set(studentToken, snapshot.docs.map((item) => ({ id: `${studentToken}:${item.id}`, ...item.data() } as DayWorkReview)))
-    onChange(unique.flatMap((token) => parts.get(token) || []))
+    emit()
   }, onError))
+  if (parent) stops.push(...unique.map((studentToken) => onSnapshot(collection(db, 'dayReviewPrivate', studentToken, 'items'), (snapshot) => {
+    privateParts.set(studentToken, snapshot.docs.map((item) => ({ id: `${studentToken}:${item.id}`, ...item.data() } as DayWorkReview)))
+    emit()
+  }, onError)))
   return () => stops.forEach((stop) => stop())
 }
 /** @see ../../docs/product/adaptive-problem-card.md#показ-ученику */

@@ -193,8 +193,8 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
   useEffect(() => {
     setReviews([])
     if (!evidenceKey) return
-    return watchDayReviews(evidenceKey.split('|'), setReviews, (cause) => setError(cause.message))
-  }, [evidenceKey])
+    return watchDayReviews(evidenceKey.split('|'), setReviews, (cause) => setError(cause.message), parent)
+  }, [evidenceKey, parent])
   useEffect(() => {
     setEvidencePages([])
     if (!evidenceKey) return

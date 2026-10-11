@@ -20,8 +20,8 @@ export function useDayEvidence(page: DayPageData | undefined, token: string, set
   }, [evidenceKey, hasPage, setError])
   useEffect(() => {
     if (!hasPage) return
-    return watchDayReviews(evidenceKey.split('|'), (items) => setReviewSnapshot({ key: evidenceKey, items }), (cause) => setError(cause.message))
-  }, [evidenceKey, hasPage, setError])
+    return watchDayReviews(evidenceKey.split('|'), (items) => setReviewSnapshot({ key: evidenceKey, items }), (cause) => setError(cause.message), page?.kind === 'parent')
+  }, [evidenceKey, hasPage, page?.kind, setError])
   useEffect(() => {
     if (!hasPage) return
     return watchEvidenceDayPages(evidenceKey.split('|'), (items) => setPageSnapshot({ key: evidenceKey, items }), (cause) => setError(cause.message))

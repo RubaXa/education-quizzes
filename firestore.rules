@@ -312,8 +312,15 @@ service cloud.firestore {
     }
 
     match /dayProgress/{studentToken}/items/{taskId} {
-      allow get, list: if exists(/databases/$(database)/documents/dayPages/$(studentToken))
-        && get(/databases/$(database)/documents/dayPages/$(studentToken)).data.kind == 'student';
+      allow get, list: if dayUploadOwner(studentToken);
+      allow write: if false;
+    }
+
+    // Full reasoning and history are stored apart from the learner projection.
+    // @see docs/product/adaptive-problem-card.md#показ-ученику
+    match /dayReviewPrivate/{studentToken}/items/{taskId} {
+      allow get, list: if dayUploadOwner(studentToken)
+        && parentMember(get(/databases/$(database)/documents/dayOwners/$(studentToken)).data.familyId);
       allow write: if false;
     }
 
@@ -342,8 +349,8 @@ service cloud.firestore {
           || (request.resource.data.action in ['require', 'optional']
             && request.resource.data.requirementId is string
             && get(/databases/$(database)/documents/dayProgress/$(studentToken)/items/$(request.resource.data.taskId)).data.assessmentBasis.outcome == 'unresolved'
-            && get(/databases/$(database)/documents/dayProgress/$(studentToken)/items/$(request.resource.data.taskId)).data.assessmentBasis.disputedRequirements is list
-            && get(/databases/$(database)/documents/dayProgress/$(studentToken)/items/$(request.resource.data.taskId)).data.assessmentBasis.disputedRequirements.size() <= 10
+            && get(/databases/$(database)/documents/dayProgress/$(studentToken)/items/$(request.resource.data.taskId)).data.assessmentBasis.disputedRequirementIds is list
+            && get(/databases/$(database)/documents/dayProgress/$(studentToken)/items/$(request.resource.data.taskId)).data.assessmentBasis.disputedRequirementIds.size() <= 10
             && request.resource.data.requirementId in get(/databases/$(database)/documents/dayProgress/$(studentToken)/items/$(request.resource.data.taskId)).data.assessmentBasis.disputedRequirementIds))
         && request.resource.data.reviewCheckedAt == get(/databases/$(database)/documents/dayProgress/$(studentToken)/items/$(request.resource.data.taskId)).data.checkedAt;
       allow update, delete: if false;

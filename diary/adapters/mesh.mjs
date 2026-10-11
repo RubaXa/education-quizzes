@@ -184,9 +184,18 @@ export class MeshDiaryAdapter {
     const lessons = events.filter((event) => String(event.start_at).slice(0, 10) === date)
       .filter((event) => !event.cancelled)
     const output = []
+    const incompleteDetails = []
     for (const event of lessons) {
       let detail = null
-      try { detail = await this.getLessonDetails(event) } catch { /* Keep summary and earlier file metadata. */ }
+      try {
+        detail = await this.getLessonDetails(event)
+        if (!detail || typeof detail !== 'object') throw new Error('Пустая подробная карточка урока')
+      }
+      catch (error) {
+        // Summary and earlier metadata are useful diagnostics, but cannot prove that
+        // homework was removed or that an apparently empty lesson has no homework.
+        incompleteDetails.push({ lessonId: String(event.id), reason: String(error?.message || error) })
+      }
       const earlier = previous.find((item) => item.sourceItemId === String(event.id))
       const teacherFiles = detail ? lessonFiles(detail) : (earlier?.teacherFiles || [])
       const homeworkEntries = detail?.lesson_homeworks?.map((homework, index) => ({
@@ -194,7 +203,8 @@ export class MeshDiaryAdapter {
         description: homework.homework || '',
         updatedAt: homework.homework_updated_at || null,
       })) || earlier?.homeworkEntries || []
-      if (!(event.homework?.total_count || 0) && !(event.homework?.descriptions?.length || 0) && !teacherFiles.length) continue
+      if (!(event.homework?.total_count || 0) && !(event.homework?.descriptions?.length || 0)
+        && !homeworkEntries.length && !teacherFiles.length) continue
       output.push({
         source: 'mesh-eventcalendar',
         sourceItemId: String(event.id),
@@ -206,6 +216,13 @@ export class MeshDiaryAdapter {
         homeworkEntries, teacherFiles,
         detailStatus: detail ? 'loaded' : earlier?.detailStatus === 'loaded' ? 'stale' : 'unavailable',
       })
+    }
+    if (incompleteDetails.length) {
+      const failure = new Error(`Не загружены подробные карточки ${incompleteDetails.length} уроков МЭШ.`)
+      failure.code = 'INCOMPLETE_DETAIL'
+      failure.partialResult = output
+      failure.incompleteDetails = incompleteDetails
+      throw failure
     }
     return output
   }

@@ -108,3 +108,22 @@ export function buildDayDashboardIndex(local, links, role, now = new Date()) {
   })
   return { schemaVersion: 1, kind: role, today, timezone: 'Europe/Moscow', days, weekendWork }
 }
+
+/** An absent local source must not silently erase work already visible to the family.
+ * @see ../docs/product/dashboard.md#weekend-work-contract
+ */
+export function assertWeekendWorkRetention(previous = [], current = [], removals = []) {
+  if (!Array.isArray(removals) || removals.some((item) => !validDate(item.lessonDate)
+    || !Array.isArray(item.taskIds) || !item.taskIds.length || !item.taskIds.every((id) => typeof id === 'string' && id.trim())
+    || typeof item.reason !== 'string' || !item.reason.trim())) {
+    throw new Error('Для снятия выходной карточки нужны дата урока, ID заданий и причина.')
+  }
+  const key = (item) => `${item.lessonDate}:${[...item.taskIds].sort().join(',')}`
+  const active = new Set(current.map(key))
+  const authorized = new Set(removals.map(key))
+  for (const item of previous) {
+    if (!active.has(key(item)) && !authorized.has(key(item))) {
+      throw new Error(`Ранее опубликованная выходная работа ${item.lessonDate} исчезла из локального плана. Восстановите weekendSlot или явно оформите снятие.`)
+    }
+  }
+}

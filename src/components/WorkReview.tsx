@@ -37,7 +37,7 @@ export default function WorkReview({ review, uploads, accepted = false, canDecid
   const items = review?.items ?? []
   const feedback = review?.studentFeedback
   const basis = review?.assessmentBasis
-  const visibleSources = basis?.sources.filter((source) => source.kind !== 'official-key') ?? []
+  const visibleSources = basis?.sources?.filter((source) => source.kind !== 'official-key') ?? []
   const firstPending = pending.map((upload) => upload.createdAt).find(Boolean)
   const elapsed = processing ? elapsedLabel(processing.startedAt, now) : elapsedLabel(firstPending, now)
   const answer = review?.mathReasoning?.answer
@@ -81,13 +81,13 @@ export default function WorkReview({ review, uploads, accepted = false, canDecid
           <span className={argument === 'sufficient' || argument === 'not-required' ? 'correct' : 'incomplete'}>{argument === 'sufficient' || argument === 'not-required' ? <Check size={16} aria-hidden="true" /> : <Minus size={16} aria-hidden="true" />}{argumentLabel}</span>
         </div>}
         {accepted && <p className="day-work-review-accepted">Задача завершена по решению родителя. Ответ верен; обоснование хода в работе осталось неполным.</p>}
-        {basis?.outcome === 'unresolved' && <p className="day-work-review-unprepared">{workCoverageComplete(review) ? `Работа предъявлена полностью: ${review.workCoverage?.note} ` : `Разбор фото завершён. ${review.summary} `}{requiredActions.length ? 'Родитель назначил доработку для семейного плана; она указана ниже.' : 'Дополнительных действий от ученика сейчас не требуется.'}</p>}
+        {basis?.outcome === 'unresolved' && <p className="day-work-review-unprepared">{workCoverageComplete(review) ? `Работа предъявлена полностью: ${review.workCoverage?.note} ` : `Разбор фото завершён. ${review.summary ?? ''} `}{requiredActions.length ? 'Родитель назначил доработку для семейного плана; она указана ниже.' : 'Дополнительных действий от ученика сейчас не требуется.'}</p>}
         {basis?.disputedRequirements?.map((item) => {
           const choice = requirementChoice(review, item.id, decisions)
           if (!parent && !choice) return null
           return <section className="day-work-review-dispute" key={item.id}>
             <strong>{parent ? item.action : choice === 'require' ? `Сделай по решению родителя: ${item.action}` : `Можно по желанию: ${item.action}`}</strong>
-            {parent && <><p><b>МЭШ:</b> «{item.meshExcerpt}»</p><p><b>{item.sourceKind === 'textbook' ? 'Учебник' : 'Предположение Education'}:</b> «{item.sourceExcerpt}»</p><p>{item.uncertainty}</p><small>{item.sourceRef}</small></>}
+            {parent && item.meshExcerpt && <><p><b>МЭШ:</b> «{item.meshExcerpt}»</p><p><b>{item.sourceKind === 'textbook' ? 'Учебник' : 'Предположение Education'}:</b> «{item.sourceExcerpt}»</p><p>{item.uncertainty}</p><small>{item.sourceRef}</small></>}
             <p><b>Решение семьи:</b> {choice === 'require' ? 'обязательно доработать' : choice === 'optional' ? 'по желанию, не долг' : 'ещё не выбрано; от ученика действий не требуется'}</p>
             {parent && <div className="day-work-review-dispute-actions"><button type="button" disabled={!canDecide || saving || choice === 'require'} onClick={() => void chooseRequirement(item.id, 'require')}>Сделать обязательным</button><button type="button" disabled={!canDecide || saving || choice === 'optional'} onClick={() => void chooseRequirement(item.id, 'optional')}>Оставить по желанию</button></div>}
           </section>
@@ -100,7 +100,7 @@ export default function WorkReview({ review, uploads, accepted = false, canDecid
         </div> : !accepted && (review.status === 'needs-fix' || review.status === 'partial')
           ? <p className="day-work-review-unprepared">Работа проверена. Адресный вопрос к этой попытке ещё уточняется.</p>
           : null}
-        {basis && <div className="day-work-review-basis">
+        {basis?.requirement && <div className="day-work-review-basis">
           <p><b>Что требовалось</b><span>{basis.requirement}</span></p>
           <p><b>Что видно в работе</b><span>{basis.observed}</span></p>
           <p><b>{basis.outcome === 'unresolved' ? 'Что осталось неясным' : 'Почему такой результат'}</b><span>{basis.comparison}</span></p>

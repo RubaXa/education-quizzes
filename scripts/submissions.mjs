@@ -1,10 +1,12 @@
 import { createHash } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { isDeepStrictEqual } from 'node:util'
 import { applicationDefault, initializeApp } from 'firebase-admin/app'
 import { FieldValue, getFirestore, Timestamp } from 'firebase-admin/firestore'
 import { resolveSubmission } from '../storage/submission-inbox.mjs'
 import { reviewCoverage } from '../storage/review-coverage.mjs'
+import { studentReviewProjection } from '../storage/review-projection.mjs'
 import { YandexDiskStorage } from '../storage/yandex-disk.mjs'
 import { notificationId, reviewAttemptKey, stageFamilyNotice, taskContext } from '../storage/inbox-notifications.mjs'
 
@@ -15,12 +17,14 @@ import { notificationId, reviewAttemptKey, stageFamilyNotice, taskContext } from
  */
 const [command, argument, phase] = process.argv.slice(2)
 const reviewCommand = command === 'review' || command === 'progress' || command === 'feedback'
-const dateFilter = reviewCommand ? null : argument
-if (!['inbox', 'pull', 'review', 'progress', 'help', 'feedback', 'feedback-audit', 'basis-audit'].includes(command)
+const dateFilter = reviewCommand || ['migrate-private-reviews', 'review-privacy-audit'].includes(command) ? null : argument
+if (!['inbox', 'pull', 'review', 'progress', 'help', 'feedback', 'feedback-audit', 'basis-audit', 'migrate-private-reviews', 'review-privacy-audit'].includes(command)
   || reviewCommand && !argument
   || command === 'progress' && !['download', 'source', 'review', 'publish', 'paused'].includes(phase)
+  || command === 'migrate-private-reviews' && argument && argument !== '--dry-run'
+  || command === 'review-privacy-audit' && argument
   || dateFilter && !/^\d{4}-\d{2}-\d{2}$/.test(dateFilter)) {
-  throw new Error('Использование: npm run submissions -- inbox|pull|help|feedback-audit|basis-audit [YYYY-MM-DD] | progress .local/review-....json download|source|review|publish|paused | review|feedback .local/review-....json')
+  throw new Error('Использование: npm run submissions -- inbox|pull|help|feedback-audit|basis-audit [YYYY-MM-DD] | progress .local/review-....json download|source|review|publish|paused | review|feedback .local/review-....json | migrate-private-reviews [--dry-run] | review-privacy-audit')
 }
 const local = resolve('.local')
 const adcFile = resolve(local, 'adc.json')
@@ -363,17 +367,18 @@ async function publishFeedbackCorrection(filename) {
   const owners = (await db.collection('dayOwners').get()).docs.filter((item) => item.data().date === correction.date)
   const matches = []
   for (const owner of owners) {
-    const [pageDoc, progressDoc, ...photos] = await Promise.all([
+    const [pageDoc, progressDoc, privateDoc, ...photos] = await Promise.all([
       db.doc(`dayPages/${owner.id}`).get(), db.doc(`dayProgress/${owner.id}/items/${correction.taskId}`).get(),
+      db.doc(`dayReviewPrivate/${owner.id}/items/${correction.taskId}`).get(),
       ...correction.uploadIds.map((id) => db.doc(`dayUploads/${owner.id}/files/${id}`).get()),
     ])
     if (pageDoc.data()?.kind === 'student' && progressDoc.exists && photos.every((photo) => photo.exists)) {
-      matches.push({ owner, page: pageDoc.data(), progressDoc, photos })
+      matches.push({ owner, page: pageDoc.data(), progressDoc, privateDoc, photos })
     }
   }
   if (matches.length !== 1) throw new Error('Исправление не связано однозначно с одним ребёнком, заданием и набором фото.')
-  const { owner, page, progressDoc, photos } = matches[0]
-  const previous = progressDoc.data()
+  const { owner, page, progressDoc, privateDoc, photos } = matches[0]
+  const previous = privateDoc.data() ?? progressDoc.data()
   const currentTask = page.subjects?.flatMap((subject) => subject.tasks ?? []).find((task) => task.id === correction.taskId)
   const sameAssignmentAfterPageUpdate = page.planRevision > correction.planRevision
     && correction.meshText?.trim() && currentTask?.meshText === correction.meshText
@@ -391,19 +396,19 @@ async function publishFeedbackCorrection(filename) {
   }
   validateReviewResult(correction, page)
   const now = Timestamp.now()
-  // This document is readable by the learner. Keep the fact of a correction,
-  // not old review prose or answer keys that may have appeared in legacy items.
   const oldRecord = { at: now, reason: correction.correctionReason,
     priorStatus: previous.status, priorFeedbackTitle: previous.studentFeedback?.title ?? null }
   const batch = db.batch()
-  batch.update(progressDoc.ref, { status: correction.status, summary: correction.summary, nextStep: correction.nextStep,
+  const corrected = { ...previous, status: correction.status, summary: correction.summary, nextStep: correction.nextStep,
     items: correction.items, ...(correction.mathReasoning ? { mathReasoning: correction.mathReasoning } : {}),
-    studentFeedback: correction.studentFeedback ?? FieldValue.delete(),
+    studentFeedback: correction.studentFeedback ?? null,
     assessmentBasis: correction.assessmentBasis,
     workCoverage: correction.workCoverage
       ? { ...correction.workCoverage, reviewCheckedAt: previous.checkedAt, recordedAt: now }
-      : FieldValue.delete(),
-    correctedAt: now, feedbackCorrections: [...(previous.feedbackCorrections ?? []), oldRecord].slice(-10) })
+      : null,
+    correctedAt: now, feedbackCorrections: [...(previous.feedbackCorrections ?? []), oldRecord].slice(-10) }
+  batch.set(privateDoc.ref, corrected)
+  batch.set(progressDoc.ref, studentReviewProjection(corrected))
   await stageReviewNotice(batch, owner, page, correction, [correction], 'review_updated', now)
   await batch.commit()
   console.log(JSON.stringify({ correctedTask: correction.taskId, childId: owner.data().childId,
@@ -420,10 +425,15 @@ async function publishReview(filename) {
   entries.forEach((entry) => validateReviewResult(entry, page))
   if (photos.some((photo) => photo.data().storage?.state !== 'stored')) throw new Error('Фото ещё не перенесено на Диск.')
   const reviewRefs = entries.map((entry) => db.doc(`dayProgress/${owner.id}/items/${entry.taskId}`))
-  const previous = await Promise.all(reviewRefs.map(async (ref) => (await ref.get()).data()))
+  const privateRefs = entries.map((entry) => db.doc(`dayReviewPrivate/${owner.id}/items/${entry.taskId}`))
+  const previous = await Promise.all(privateRefs.map(async (ref, index) => (await ref.get()).data() ?? (await reviewRefs[index].get()).data()))
   const now = Timestamp.now()
   const batch = db.batch()
-  entries.forEach((entry, index) => batch.set(reviewRefs[index], resultRecord(entry, previous[index], now, review.date, review.planRevision)))
+  entries.forEach((entry, index) => {
+    const full = resultRecord(entry, previous[index], now, review.date, review.planRevision)
+    batch.set(privateRefs[index], full)
+    batch.set(reviewRefs[index], studentReviewProjection(full))
+  })
   refs.forEach((ref, index) => {
     const id = review.uploadIds[index]
     batch.update(ref, { status: 'reviewed', reviewedAt: now, processingTaskIds: FieldValue.delete(),
@@ -432,6 +442,42 @@ async function publishReview(filename) {
   await stageReviewNotice(batch, owner, page, review, entries, 'review_ready', now)
   await batch.commit()
   console.log(JSON.stringify({ reviewedPhotos: refs.length, taskStatuses: entries.map(({ taskId, status }) => ({ taskId, status })), publishedToFirebase: true }))
+}
+
+/** Moves legacy expert prose out of learner-readable documents without losing history. */
+async function migratePrivateReviews(dryRun, auditOnly = false) {
+  const owners = await db.collection('dayOwners').get()
+  let examined = 0
+  let migrated = 0
+  let missingPrivate = 0
+  let unsafePublic = 0
+  for (const owner of owners.docs) {
+    const page = await db.doc(`dayPages/${owner.id}`).get()
+    if (page.data()?.kind !== 'student') continue
+    const reviews = await db.collection(`dayProgress/${owner.id}/items`).get()
+    for (const publicDoc of reviews.docs) {
+      const current = publicDoc.data()
+      if (!current.status) continue
+      examined += 1
+      const privateRef = db.doc(`dayReviewPrivate/${owner.id}/items/${publicDoc.id}`)
+      const stored = await privateRef.get()
+      const full = stored.data() ?? current
+      const projected = studentReviewProjection(full)
+      const publicProjection = { ...projected, ...(current.processing ? { processing: current.processing } : {}) }
+      const publicMatches = isDeepStrictEqual(current, publicProjection)
+      if (!stored.exists) missingPrivate += 1
+      if (!publicMatches) unsafePublic += 1
+      if (publicMatches && stored.exists) continue
+      migrated += 1
+      if (dryRun || auditOnly) continue
+      const batch = db.batch()
+      if (!stored.exists) batch.set(privateRef, full)
+      batch.set(publicDoc.ref, publicProjection)
+      await batch.commit()
+    }
+  }
+  console.log(JSON.stringify({ examined, migrated, missingPrivate, unsafePublic, dryRun, auditOnly }))
+  if (auditOnly && (missingPrivate || unsafePublic)) process.exitCode = 1
 }
 
 if (command === 'review') {
@@ -452,6 +498,10 @@ if (command === 'review') {
 } else if (command === 'basis-audit') {
   const missing = await basisAudit()
   console.log(JSON.stringify({ missingAssessmentBasis: missing.length, works: missing }, null, 2))
+} else if (command === 'migrate-private-reviews') {
+  await migratePrivateReviews(argument === '--dry-run')
+} else if (command === 'review-privacy-audit') {
+  await migratePrivateReviews(true, true)
 } else {
   const rows = await pendingInbox()
   const output = resolve(local, 'submission-inbox')

@@ -18,7 +18,20 @@ export async function syncDiary({ adapter, dataDir, date }) {
     ['assignments', () => adapter.getAssignments(date, previous?.assignments ?? [])],
   ]) {
     try { result[key] = await load() }
-    catch (error) { result.errors[key] = classifyError(error) }
+    catch (error) {
+      result.errors[key] = classifyError(error)
+      if (key === 'assignments' && Array.isArray(error?.partialResult)) {
+        result.assignments = error.partialResult
+        result.incompleteDetails = error.incompleteDetails
+      }
+    }
+  }
+  if (!result.profile || typeof result.profile !== 'object' || Array.isArray(result.profile)) result.errors.profile ??= 'INVALID_SHAPE'
+  for (const key of ['schedule', 'marks', 'assignments']) {
+    if (!Array.isArray(result[key])) result.errors[key] ??= 'INVALID_SHAPE'
+  }
+  if (Array.isArray(result.assignments) && result.assignments.some((item) => item.detailStatus !== 'loaded')) {
+    result.errors.assignments ??= 'INCOMPLETE_DETAIL'
   }
   result.complete = Object.keys(result.errors).length === 0
   result.changesSincePrevious = diffSnapshots(previous, result)
@@ -32,6 +45,7 @@ export async function syncDiary({ adapter, dataDir, date }) {
 }
 
 function classifyError(error) {
+  if (error?.code === 'INCOMPLETE_DETAIL') return 'INCOMPLETE_DETAIL'
   const message = String(error?.message || '')
   if (/API 401|API 403|авторизац/i.test(message)) return 'AUTH_REQUIRED'
   if (/API 429/.test(message)) return 'RATE_LIMITED'

@@ -25,7 +25,7 @@ export function diffSnapshots(previous, current) {
   if (!previous) return { baseline: true, previousFetchedAt: null, sections: {} }
   const result = { baseline: false, previousFetchedAt: previous.fetchedAt, sections: {} }
   for (const [name, config] of Object.entries(sections)) {
-    if (!Array.isArray(previous[name]) || !Array.isArray(current[name])) {
+    if (current.errors?.[name] || !Array.isArray(previous[name]) || !Array.isArray(current[name])) {
       result.sections[name] = { comparable: false }
       continue
     }

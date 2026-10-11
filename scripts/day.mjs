@@ -1,5 +1,5 @@
 import { createHash, randomBytes } from 'node:crypto'
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
 import { execFileSync } from 'node:child_process'
@@ -7,8 +7,10 @@ import { applicationDefault, initializeApp } from 'firebase-admin/app'
 import { getFirestore, Timestamp } from 'firebase-admin/firestore'
 import { linksFile as pageLinksFile, materialLinks, materialPlan, preparePages, taskPageRefs } from '../storage/material-pages.mjs'
 import { buildDaySource } from '../day/build.mjs'
-import { buildDayDashboardIndex } from '../day/dashboard-index.mjs'
+import { assertWeekendWorkRetention, buildDayDashboardIndex } from '../day/dashboard-index.mjs'
 import { mergeDayPage } from '../day/merge.mjs'
+import { assertPublishedPageAligned, assertSourceAligned, sourcePlanFingerprint } from '../day/pipeline-contract.mjs'
+import { assertGradeSnapshotAligned, detectGradeChange } from '../day/grade-reconciliation.mjs'
 import { YandexDiskStorage } from '../storage/yandex-disk.mjs'
 import { stageFamilyNotice } from '../storage/inbox-notifications.mjs'
 import { lessonVisibility } from '../diary/application/lesson-visibility.mjs'
@@ -21,6 +23,12 @@ const [command, date, third] = process.argv.slice(2)
 
 function fail(message) { throw new Error(message) }
 function json(path) { return JSON.parse(readFileSync(path, 'utf8')) }
+function latestCompleteDiarySnapshot() {
+  const directory = resolve(local, 'diary')
+  const names = readdirSync(directory).filter((name) => /^snapshot-\d{4}-\d{2}-\d{2}\.json$/.test(name))
+  const snapshots = names.map((name) => json(resolve(directory, name))).filter((snapshot) => snapshot.complete)
+  return snapshots.sort((a, b) => String(b.fetchedAt).localeCompare(String(a.fetchedAt)))[0]
+}
 function dashboardLinks() {
   return existsSync(dashboardLinksFile) ? json(dashboardLinksFile) : {
     student: randomBytes(32).toString('base64url'),
@@ -28,7 +36,7 @@ function dashboardLinks() {
   }
 }
 /** @see ../docs/product/dashboard.md#firestore-model */
-async function addDashboardDocuments(batch, links, tokens) {
+async function addDashboardDocuments(batch, links, tokens, stagedPages = {}) {
   const ownerFile = resolve(local, 'family-access.json')
   const owner = existsSync(ownerFile) ? json(ownerFile).legacyDayOwner : null
   if (!owner?.familyId || !owner?.childId) fail('Сначала привяжите страницы дня к ребёнку командой family attach-current-day.')
@@ -38,6 +46,22 @@ async function addDashboardDocuments(batch, links, tokens) {
     const previous = (await ref.get()).data()
     const previousDays = new Map((previous?.days ?? []).map((day) => [day.date, day]))
     const index = buildDayDashboardIndex(local, links, role)
+    const removalFile = resolve(local, 'weekend-slot-removals.json')
+    const removals = existsSync(removalFile) ? json(removalFile).removals : []
+    assertWeekendWorkRetention(previous?.weekendWork, index.weekendWork, removals)
+    const checkedTokens = new Set()
+    for (const day of index.days) {
+      const token = day.homeworkDayToken
+      if (!token || checkedTokens.has(token)) continue
+      checkedTokens.add(token)
+      const sourceDate = Object.entries(links).find(([, pair]) => pair?.[role] === token)?.[0]
+      if (!sourceDate) fail(`Индекс ${role} ссылается на неизвестную страницу дня.`)
+      const source = json(resolve(local, `day-source-${sourceDate}.json`))
+      const snapshot = json(resolve(local, `diary/snapshot-${source.targetDate}.json`))
+      assertSourceAligned(source, snapshot)
+      const page = stagedPages[token] ?? (await db.doc(`dayPages/${token}`).get()).data()
+      assertPublishedPageAligned(source, page, role)
+    }
     const notifications = []
     const days = index.days.map((day) => {
       const before = previousDays.get(day.date)
@@ -66,6 +90,36 @@ async function addDashboardDocuments(batch, links, tokens) {
           createdAt: Timestamp.now(),
         })
       }
+    }
+  }
+}
+/** Read back committed role documents before reporting a successful release. */
+async function verifyPublishedDay(source, pair, indexTokens, links) {
+  for (const role of ['student', 'parent']) {
+    const token = pair[role]
+    const [pageDoc, dashboardDoc] = await Promise.all([
+      db.doc(`dayPages/${token}`).get(), db.doc(`dayDashboards/${indexTokens[role]}`).get(),
+    ])
+    assertPublishedPageAligned(source, pageDoc.data(), role)
+    const indexed = dashboardDoc.data()?.days?.find((item) => item.date === source.targetDate)
+    const expected = buildDayDashboardIndex(local, links, role).days.find((item) => item.date === source.targetDate)
+    if (!indexed || !expected || indexed.dayToken !== expected.dayToken
+      || indexed.homeworkDayToken !== expected.homeworkDayToken
+      || JSON.stringify(indexed.homework) !== JSON.stringify(expected.homework)) {
+      fail(`После записи индекс ${role} не указывает на опубликованный день ${source.targetDate}.`)
+    }
+  }
+}
+async function verifyPublishedIndex(links, indexTokens) {
+  for (const role of ['student', 'parent']) {
+    const expected = buildDayDashboardIndex(local, links, role)
+    const published = (await db.doc(`dayDashboards/${indexTokens[role]}`).get()).data()
+    const keys = ['date', 'checkedAt', 'complete', 'schedule', 'homework', 'dayToken', 'homeworkDayToken']
+    const comparable = (days) => days?.map((day) => Object.fromEntries(keys.map((key) => [key, day[key]])))
+    if (published?.kind !== role
+      || JSON.stringify(comparable(published.days)) !== JSON.stringify(comparable(expected.days))
+      || JSON.stringify(published.weekendWork) !== JSON.stringify(expected.weekendWork)) {
+      fail(`Опубликованный индекс ${role} не совпадает с полным проверенным горизонтом.`)
     }
   }
 }
@@ -306,6 +360,10 @@ async function publish() {
   if (!existsSync(sourceFile)) fail(`Нет ${sourceFile}`)
   const source = json(sourceFile)
   const taskIds = validate(source)
+  const today = json(resolve(local, `diary/snapshot-${date}.json`))
+  const target = json(resolve(local, `diary/snapshot-${source.targetDate}.json`))
+  if (!today?.complete) fail(`Для ${date} нужен полный снимок МЭШ.`)
+  assertSourceAligned(source, target)
   const pageRefs = Object.fromEntries(Object.entries(taskPageRefs()).filter(([taskId]) => taskIds.includes(taskId)))
   // A newly synced assignment must never silently go live with an unchecked textbook source.
   // @see ../docs/product/materials.md#mandatory-source-link
@@ -325,9 +383,8 @@ async function publish() {
   if ([...neededPageIds].some((id) => !knownBefore[id]?.publicUrl || knownBefore[id].imageSha256 !== preparedPages.get(id)?.imageSha256)) {
     runLocal('scripts/storage.mjs', ['sync-pages'])
   }
-  const today = json(resolve(local, `diary/snapshot-${date}.json`))
-  const target = json(resolve(local, `diary/snapshot-${source.targetDate}.json`))
   const gradeSnapshot = json(resolve('../learner/grade-snapshot.json'))
+  assertGradeSnapshotAligned(gradeSnapshot, latestCompleteDiarySnapshot())
   const links = existsSync(linksFile) ? json(linksFile) : {}
   const publishedPageLinks = existsSync(pageLinksFile) ? materialLinks(json(pageLinksFile)) : {}
   const allMaterialLinks = { ...(source.materialLinks || {}) }
@@ -347,7 +404,7 @@ async function publish() {
     meshFetchedAt: target.fetchedAt, todaySchedule: schedule(today), targetSchedule: schedule(target),
     subjects: source.subjects, taskIds, testPlacements: source.testPlacements ?? [], notices: source.notices ?? [],
     sourceOnlyEntries: source.sourceOnlyEntries ?? [], retiredTaskIds: source.retiredTaskIds ?? [],
-    weekendSlot: source.weekendSlot ?? null,
+    weekendSlot: source.weekendSlot ?? null, sourcePlanFingerprint: sourcePlanFingerprint(source),
     materialLinks: allMaterialLinks, materialLinkReplacements: source.materialLinkReplacements ?? [],
     taskPageRefs: pageRefs,
     evidenceDayTokens: [...new Set([pair.student, ...(source.evidenceDayTokens || [])])],
@@ -357,25 +414,31 @@ async function publish() {
   }
   const batch = db.batch()
   const [oldStudent, oldParent] = await Promise.all([db.doc(`dayPages/${pair.student}`).get(), db.doc(`dayPages/${pair.parent}`).get()])
-  batch.set(db.doc(`dayPages/${pair.student}`), mergeDayPage(oldStudent.data(), { ...base, subjects: studentSubjects(source.subjects), kind: 'student', boardToken: readFileSync(resolve(local, 'learner-board-token'), 'utf8').trim() }))
-  batch.set(db.doc(`dayPages/${pair.parent}`), mergeDayPage(oldParent.data(), { ...base, kind: 'parent', studentToken: pair.student, boardToken: readFileSync(resolve(local, 'parent-board-token'), 'utf8').trim(), parentNotes: source.parentNotes ?? [] }))
-  await addDashboardDocuments(batch, links, indexTokens)
+  const studentPage = mergeDayPage(oldStudent.data(), { ...base, subjects: studentSubjects(source.subjects), kind: 'student', boardToken: readFileSync(resolve(local, 'learner-board-token'), 'utf8').trim() })
+  const parentPage = mergeDayPage(oldParent.data(), { ...base, kind: 'parent', studentToken: pair.student, boardToken: readFileSync(resolve(local, 'parent-board-token'), 'utf8').trim(), parentNotes: source.parentNotes ?? [] })
+  batch.set(db.doc(`dayPages/${pair.student}`), studentPage)
+  batch.set(db.doc(`dayPages/${pair.parent}`), parentPage)
+  await addDashboardDocuments(batch, links, indexTokens, { [pair.student]: studentPage, [pair.parent]: parentPage })
   const familyAccessFile = resolve(local, 'family-access.json')
   const familyOwner = existsSync(familyAccessFile) ? json(familyAccessFile).legacyDayOwner : null
   if (familyOwner?.familyId && familyOwner?.childId && oldParent.exists) {
     const before = new Map((oldParent.data().grades ?? []).map((subject) => [subject.id, subject]))
     for (const subject of base.grades) {
       const prior = before.get(subject.id)
-      if (!prior || !Array.isArray(prior.grades) || subject.grades.length <= prior.grades.length) continue
-      const added = subject.grades.slice(prior.grades.length)
-      const fingerprint = createHash('sha256').update(JSON.stringify(subject.grades)).digest('hex')
+      const change = detectGradeChange(prior, subject)
+      if (!change) continue
+      const fingerprint = createHash('sha256').update(JSON.stringify([subject.id, subject.displayed_average,
+        subject.grades.map((grade) => `${grade.mark}:${grade.weight}`).sort()])).digest('hex')
       await stageFamilyNotice(db, batch, { ...familyOwner, key: `grade:${familyOwner.childId}:${subject.id}:${fingerprint}`, mode: 'create',
-        data: { type: 'grade_added', entityId: subject.id, subject: subject.name,
-          title: 'Появилась новая оценка', body: added.length === 1 ? `Новая отметка: ${added[0].mark}. Посмотрите, как изменился средний балл.` : `Новых отметок: ${added.length}. Посмотрите обновлённую сводку.`,
+        data: { type: change.type, entityId: subject.id, subject: subject.name,
+          title: change.type === 'grade_added' ? 'Появилась новая оценка' : 'Оценки уточнены',
+          body: change.type === 'grade_added' && change.added.length === 1 ? `Новая отметка: ${change.added[0][0]}. Посмотрите, как изменился средний балл.` : 'Откройте обновлённую сводку оценок.',
           sourceRevision: Date.parse(gradeSnapshot.observed_at) || Date.now() } })
     }
   }
   await batch.commit()
+  await verifyPublishedDay(source, pair, indexTokens, links)
+  await verifyPublishedIndex(links, indexTokens)
   mkdirSync(local, { recursive: true })
   writeFileSync(linksFile, JSON.stringify(links, null, 2), { mode: 0o600 })
   writeFileSync(dashboardLinksFile, JSON.stringify(indexTokens, null, 2), { mode: 0o600 })
@@ -402,6 +465,7 @@ async function publishDashboard() {
   const batch = db.batch()
   await addDashboardDocuments(batch, links, indexTokens)
   await batch.commit()
+  await verifyPublishedIndex(links, indexTokens)
   writeFileSync(dashboardLinksFile, JSON.stringify(indexTokens, null, 2), { mode: 0o600 })
   console.log(JSON.stringify({ student: `${site}#/days/${indexTokens.student}`, parent: `${site}#/days-parent/${indexTokens.parent}` }, null, 2))
 }

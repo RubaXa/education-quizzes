@@ -15,6 +15,7 @@ function title(notice: Notice) {
   if (notice.type === 'homework_changed') return 'Домашнее задание изменилось'
   if (notice.type === 'homework_removed') return 'Домашнее задание снято'
   if (notice.type === 'grade_added') return 'Появилась новая оценка'
+  if (notice.type === 'grade_changed') return 'Оценки уточнены'
   if (notice.type === 'review_started') return 'Начали проверку работы'
   if (notice.type === 'review_paused') return 'Проверка задержана'
   if (notice.type === 'review_updated') return 'Результат работы уточнён'
@@ -122,7 +123,7 @@ export default function NotificationBell({ routeKey }: { routeKey: string }) {
       {error && <p className="notification-error">{error}</p>}
       {items.length ? <ul>{items.map((item) => <li key={item.id}><button type="button" className={item.readAt ? 'notification-item' : 'notification-item unread'} aria-expanded={expanded === item.id} onClick={() => { void openNotice(item) }}>
         <span className="notification-dot" aria-hidden="true" /><span className="notification-copy"><strong>{title(item)}</strong><span>{item.subject ? `${item.subject} · ` : ''}{item.date ? new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long', timeZone: 'Europe/Moscow' }).format(new Date(`${item.date}T12:00:00+03:00`)) : item.type === 'product_update' ? 'Что изменилось' : 'Учебная работа'}</span><small>{noticeTime(item.createdAt)}</small></span><ChevronRight size={17} aria-hidden="true" />
-      </button>{expanded === item.id && <div className="notification-detail">{detailBody(item) && <p>{detailBody(item)}</p>}{!!item.changes?.length && <ul>{item.changes.map((change, index) => <li key={index}>{change}</li>)}</ul>}{item.media && <div className="notification-media">{item.media.before && <NoticeImage label="Было" media={item.media.before} />}{item.media.after && <NoticeImage label="Стало" media={item.media.after} />}</div>}{item.type !== 'product_update' && <button type="button" onClick={() => navigateToNotice(item)}>{item.type === 'grade_added' ? 'Открыть сводку' : 'Открыть задание'} <ChevronRight size={15} /></button>}</div>}</li>)}</ul> : <p className="notification-empty">Пока обновлений нет.</p>}
+      </button>{expanded === item.id && <div className="notification-detail">{detailBody(item) && <p>{detailBody(item)}</p>}{!!item.changes?.length && <ul>{item.changes.map((change, index) => <li key={index}>{change}</li>)}</ul>}{item.media && <div className="notification-media">{item.media.before && <NoticeImage label="Было" media={item.media.before} />}{item.media.after && <NoticeImage label="Стало" media={item.media.after} />}</div>}{item.type !== 'product_update' && <button type="button" onClick={() => navigateToNotice(item)}>{item.type === 'grade_added' || item.type === 'grade_changed' ? 'Открыть сводку' : 'Открыть задание'} <ChevronRight size={15} /></button>}</div>}</li>)}</ul> : <p className="notification-empty">Пока обновлений нет.</p>}
     </section>}
   </div>
 }
