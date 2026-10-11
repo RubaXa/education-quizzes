@@ -51,7 +51,8 @@ function todayMoscow() {
   return new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'Europe/Moscow' }).format(new Date())
 }
 
-/** @see ../../docs/architecture/activity-and-inbox.md#in-app-center */
+/** @see ../../docs/architecture/activity-and-inbox.md#in-app-center
+ *  @see ../../docs/product/design-system.md#shell */
 export default function NotificationBell({ routeKey }: { routeKey: string }) {
   const [personId, setPersonId] = useState<string | null>(null)
   const [children, setChildren] = useState<PersonalChild[]>([])

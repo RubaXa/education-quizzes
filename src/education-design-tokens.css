@@ -1,0 +1,26 @@
+/* @see ../docs/product/design-system.md#tokens — shared Education tokens, based on the current UI. */
+:root {
+  --edu-canvas: #f6f5fc;
+  --edu-surface: #fff;
+  --edu-ink: #30245b;
+  --edu-ink-dashboard: #34295c;
+  --edu-muted: #70698b;
+  --edu-brand: #7750e9;
+  --edu-bell-ink: #514085;
+  --edu-control-border: #dcd3f2;
+  --edu-card-border: #e4ddef;
+  --edu-hover: #f1edfb;
+  --edu-focus: #7750e9;
+  --edu-success-bg: #e8f6ed;
+  --edu-success-ink: #236b46;
+  --edu-warning-bg: #fff2dd;
+  --edu-warning-ink: #865715;
+  --edu-waiting-bg: #eef5fd;
+  --edu-waiting-ink: #416b95;
+  --edu-danger-bg: #fff1f2;
+  --edu-danger-border: #e6aeb9;
+  --edu-danger-ink: #8b263e;
+  --edu-radius-card: 23px;
+  --edu-radius-control: 14px;
+  --edu-touch-target: 42px;
+}

@@ -1,9 +1,9 @@
 import { randomBytes } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
-import { applicationDefault, initializeApp } from 'firebase-admin/app'
-import { FieldValue, getFirestore, Timestamp } from 'firebase-admin/firestore'
+import { FieldValue, Timestamp } from 'firebase-admin/firestore'
+import { operatorFirestore } from './lib/admin-firebase.mjs'
+import { syncChildAccess } from './lib/access-projection.mjs'
 
 /** Agent-only provisioning; there is deliberately no browser administration route.
  * @see ../docs/architecture/family-data-model.md#provisioning
@@ -24,19 +24,6 @@ function saveRegistry() {
   mkdirSync(resolve('.local'), { recursive: true })
   writeFileSync(registryPath, `${JSON.stringify(registry, null, 2)}\n`, { mode: 0o600 })
 }
-function prepareCredentials() {
-  if (process.env.GOOGLE_APPLICATION_CREDENTIALS) return
-  const file = resolve('.local/adc.json')
-  if (existsSync(file)) { process.env.GOOGLE_APPLICATION_CREDENTIALS = file; return }
-  const loginFile = resolve('.local/config/configstore/firebase-tools.json')
-  if (!existsSync(loginFile)) fail('Нужен локальный вход Firebase CLI.')
-  const login = JSON.parse(readFileSync(loginFile, 'utf8'))
-  if (!login.tokens?.refresh_token) fail('Вход Firebase CLI устарел.')
-  const require = createRequire(import.meta.url)
-  const { clientId, clientSecret } = require('firebase-tools/lib/api')
-  writeFileSync(file, JSON.stringify({ type: 'authorized_user', client_id: clientId(), client_secret: clientSecret(), refresh_token: login.tokens.refresh_token }), { mode: 0o600 })
-  process.env.GOOGLE_APPLICATION_CREDENTIALS = file
-}
 function family(familyId) {
   if (!registry.families[familyId]) fail('Семья не найдена в локальном реестре.')
   return registry.families[familyId]
@@ -52,9 +39,7 @@ function requireFamilyPerson(familyId, personId) {
 }
 function splitIds(value) { return value ? value.split(',').filter(Boolean) : [] }
 
-prepareCredentials()
-initializeApp({ credential: applicationDefault(), projectId: 'education-9d7c6' })
-const db = getFirestore()
+const db = operatorFirestore()
 const now = Timestamp.now()
 
 async function createFamily(childName, parentName) {
@@ -64,11 +49,11 @@ async function createFamily(childName, parentName) {
   const studentLink = secret(), parentLink = secret()
   const batch = db.batch()
   batch.set(db.doc(`families/${familyId}`), { schemaVersion: 2, createdAt: now })
-  batch.set(db.doc(`families/${familyId}/children/${childId}`), { displayName: childName, timezone: 'Europe/Moscow', createdAt: now })
+  batch.set(db.doc(`families/${familyId}/children/${childId}`), { displayName: childName, timezone: 'Europe/Moscow', libraryPolicyVersion: 1, createdAt: now })
   for (const [personId, name, role, link] of [[studentId, childName, 'student', studentLink], [parentId, parentName, 'parent', parentLink]]) {
     batch.set(db.doc(`users/${personId}`), { displayName: name, createdAt: now })
     batch.set(db.doc(`users/${personId}/families/${familyId}`), { createdAt: now })
-    batch.set(db.doc(`families/${familyId}/members/${personId}`), { role, active: true, childIds: [childId], createdAt: now })
+    batch.set(db.doc(`families/${familyId}/members/${personId}`), { role, displayName: name, active: true, childIds: [childId], createdAt: now })
     batch.set(db.doc(`accessLinks/${link}`), { personId, active: true, createdAt: now })
   }
   await batch.commit()
@@ -78,6 +63,7 @@ async function createFamily(childName, parentName) {
   registry.links[studentId] = [studentLink]
   registry.links[parentId] = [parentLink]
   saveRegistry()
+  await syncChildAccess(db, registry, familyId, childId)
   console.log(`Семья: ${familyId}\nРебёнок: ${childId}\nПрофиль ученика: ${studentId}\nПрофиль родителя: ${parentId}`)
   console.log('Личные ссылки сохранены в закрытом реестре. Для выдачи используйте link-url <personId>.')
 }
@@ -90,7 +76,7 @@ async function addParent(familyId, name, childList) {
   const personId = id(), link = secret(), batch = db.batch()
   batch.set(db.doc(`users/${personId}`), { displayName: name, createdAt: now })
   batch.set(db.doc(`users/${personId}/families/${familyId}`), { createdAt: now })
-  batch.set(db.doc(`families/${familyId}/members/${personId}`), { role: 'parent', active: true, childIds, createdAt: now })
+  batch.set(db.doc(`families/${familyId}/members/${personId}`), { role: 'parent', displayName: name, active: true, childIds, createdAt: now })
   batch.set(db.doc(`accessLinks/${link}`), { personId, active: true, createdAt: now })
   await batch.commit()
   registry.people[personId] = { familyId, role: 'parent', displayName: name }
@@ -112,10 +98,10 @@ async function addChild(familyId, name, parentList) {
     if (entry.role !== 'parent') fail('Связать ребёнка можно только с родительским профилем.')
   }
   const childId = id(), personId = id(), link = secret(), batch = db.batch()
-  batch.set(db.doc(`families/${familyId}/children/${childId}`), { displayName: name, timezone: 'Europe/Moscow', createdAt: now })
+  batch.set(db.doc(`families/${familyId}/children/${childId}`), { displayName: name, timezone: 'Europe/Moscow', libraryPolicyVersion: 1, createdAt: now })
   batch.set(db.doc(`users/${personId}`), { displayName: name, createdAt: now })
   batch.set(db.doc(`users/${personId}/families/${familyId}`), { createdAt: now })
-  batch.set(db.doc(`families/${familyId}/members/${personId}`), { role: 'student', active: true, childIds: [childId], createdAt: now })
+  batch.set(db.doc(`families/${familyId}/members/${personId}`), { role: 'student', displayName: name, active: true, childIds: [childId], createdAt: now })
   batch.set(db.doc(`accessLinks/${link}`), { personId, active: true, createdAt: now })
   for (const parentId of parentIds) batch.update(db.doc(`families/${familyId}/members/${parentId}`), { childIds: FieldValue.arrayUnion(childId) })
   await batch.commit()
@@ -123,6 +109,7 @@ async function addChild(familyId, name, parentList) {
   registry.people[personId] = { familyId, childId, role: 'student', displayName: name }
   registry.links[personId] = [link]
   saveRegistry()
+  await syncChildAccess(db, registry, familyId, childId)
   console.log(`Ребёнок: ${childId}\nПрофиль ученика: ${personId}\nЛичная ссылка сохранена в закрытом реестре.`)
 }
 
@@ -141,30 +128,77 @@ async function linkParent(familyId, parentId, childId) {
 async function issueLink(personId) {
   person(personId)
   const link = secret()
-  await db.doc(`accessLinks/${link}`).set({ personId, active: true, createdAt: now })
+  await db.doc(`accessLinks/${link}`).create({ personId, active: true, createdAt: now })
   registry.links[personId] ??= []
   registry.links[personId].push(link)
   saveRegistry()
+  const entry = registry.people[personId]
+  if (entry.role === 'student') await syncChildAccess(db, registry, entry.familyId, entry.childId)
   console.log('Новая личная ссылка сохранена в закрытом реестре.')
 }
 
-function showLink(personId) {
+async function showLink(personId) {
   person(personId)
-  const link = registry.links[personId]?.at(-1)
-  if (!link) fail('Действующей ссылки нет. Сначала используйте issue-link.')
-  console.log(`${site}#/enter/${link}`)
+  for (const link of [...(registry.links[personId] ?? [])].reverse()) {
+    const grant = await db.doc(`accessLinks/${link}`).get()
+    if (grant.data()?.personId === personId && grant.data()?.active === true) {
+      console.log(`${site}#/enter/${link}`)
+      return
+    }
+  }
+  fail('Действующей ссылки нет. Сначала используйте issue-link.')
 }
 
-async function revokeLinks(personId) {
-  person(personId)
+async function linkStatus(personId) {
+  const entry = person(personId)
   const links = registry.links[personId] ?? []
-  if (!links.length) return console.log('Действующих ссылок в локальном реестре нет.')
+  const rows = await Promise.all(links.map(async (link, index) => {
+    const [grant, sessions] = await Promise.all([
+      db.doc(`accessLinks/${link}`).get(),
+      db.collection('deviceSessions').where('linkToken', '==', link).count().get(),
+    ])
+    if (grant.exists && grant.data()?.personId !== personId) fail('Связь личной ссылки с профилем не совпадает.')
+    return { number: index + 1, active: grant.data()?.active === true, devices: sessions.data().count,
+      createdAt: grant.data()?.createdAt?.toDate?.()?.toISOString() ?? null }
+  }))
+  console.log(JSON.stringify({ role: entry.role, links: rows }, null, 2))
+}
+
+async function revokeOldLinks(personId, confirmation) {
+  const entry = person(personId)
+  if (confirmation !== '--confirmed') fail('После входа по новой ссылке повторите команду с --confirmed.')
+  const links = registry.links[personId] ?? []
+  if (links.length < 2) fail('Новой и прежней ссылок одновременно нет.')
+  const newest = links.at(-1)
+  const grants = await Promise.all(links.map((link) => db.doc(`accessLinks/${link}`).get()))
+  if (grants.some((grant) => !grant.exists || grant.data()?.personId !== personId)) fail('Связи ссылок с профилем не совпадают.')
+  if (grants.at(-1).data()?.active !== true) fail('Новая ссылка уже закрыта.')
+  const sessions = await db.collection('deviceSessions').where('linkToken', '==', newest).count().get()
+  if (sessions.data().count < 1) fail('По новой ссылке ещё не вошли ни на одном устройстве.')
+  const old = grants.slice(0, -1).filter((grant) => grant.data()?.active === true)
+  if (!old.length) return console.log('Прежние ссылки уже отозваны.')
   const batch = db.batch()
-  for (const link of links) batch.update(db.doc(`accessLinks/${link}`), { active: false, revokedAt: now })
+  for (const grant of old) batch.update(grant.ref, { active: false, revokedAt: now })
   await batch.commit()
-  registry.links[personId] = []
-  saveRegistry()
-  console.log(`Отозвано ссылок: ${links.length}`)
+  if (entry.role === 'student') await syncChildAccess(db, registry, entry.familyId, entry.childId)
+  console.log(`Отозвано прежних ссылок: ${old.length}. Новая ссылка и профиль сохранены.`)
+}
+
+async function revokeLinks(personId, confirmation) {
+  person(personId)
+  if (confirmation !== '--force') fail('Отзыв всех ссылок оставит профиль без входа. Повторите с --force.')
+  const links = registry.links[personId] ?? []
+  if (!links.length) return console.log('Ссылок в локальном реестре нет.')
+  const grants = await Promise.all(links.map((link) => db.doc(`accessLinks/${link}`).get()))
+  if (grants.some((grant) => !grant.exists || grant.data()?.personId !== personId)) fail('Связи ссылок с профилем не совпадают.')
+  const active = grants.filter((grant) => grant.data()?.active === true)
+  if (!active.length) return console.log('Все ссылки уже отозваны.')
+  const batch = db.batch()
+  for (const grant of active) batch.update(grant.ref, { active: false, revokedAt: now })
+  await batch.commit()
+  const entry = registry.people[personId]
+  if (entry.role === 'student') await syncChildAccess(db, registry, entry.familyId, entry.childId)
+  console.log(`Отозвано ссылок: ${active.length}. История сохранена в закрытом реестре.`)
 }
 
 async function attachCurrentDay(familyId, childId) {
@@ -226,8 +260,10 @@ switch (command) {
   case 'add-child': await addChild(args[0], args[1], args[2]); break
   case 'link': await linkParent(args[0], args[1], args[2]); break
   case 'issue-link': await issueLink(args[0]); break
-  case 'link-url': showLink(args[0]); break
-  case 'revoke-links': await revokeLinks(args[0]); break
+  case 'link-url': await showLink(args[0]); break
+  case 'link-status': await linkStatus(args[0]); break
+  case 'revoke-old-links': await revokeOldLinks(args[0], args[1]); break
+  case 'revoke-links': await revokeLinks(args[0], args[1]); break
   case 'attach-current-day': await attachCurrentDay(args[0], args[1]); break
-  default: fail('Команды: create <имя ребёнка> <имя родителя>; add-parent <familyId> <имя> <childIds>; add-child <familyId> <имя> [parentIds]; link <familyId> <parentId> <childId>; issue-link <personId>; link-url <personId>; revoke-links <personId>; attach-current-day <familyId> <childId>')
+  default: fail('Команды: create <имя ребёнка> <имя родителя>; add-parent <familyId> <имя> <childIds>; add-child <familyId> <имя> [parentIds]; link <familyId> <parentId> <childId>; issue-link <personId>; link-url <personId>; link-status <personId>; revoke-old-links <personId> --confirmed; revoke-links <personId> --force; attach-current-day <familyId> <childId>')
 }

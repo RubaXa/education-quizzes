@@ -14,6 +14,7 @@ import { assertGradeSnapshotAligned, detectGradeChange } from '../day/grade-reco
 import { YandexDiskStorage } from '../storage/yandex-disk.mjs'
 import { stageFamilyNotice } from '../storage/inbox-notifications.mjs'
 import { lessonVisibility } from '../diary/application/lesson-visibility.mjs'
+import { buildFamilySourceGraph } from '../day/family-source-graph.mjs'
 
 const local = resolve('.local')
 const site = 'https://rubaxa.github.io/education-quizzes/'
@@ -365,6 +366,14 @@ async function publish() {
   if (!today?.complete) fail(`Для ${date} нужен полный снимок МЭШ.`)
   assertSourceAligned(source, target)
   const pageRefs = Object.fromEntries(Object.entries(taskPageRefs()).filter(([taskId]) => taskIds.includes(taskId)))
+  // @see ../docs/product/family-library.md#source-graph
+  const legacyOwner = existsSync(resolve(local, 'family-access.json')) ? json(resolve(local, 'family-access.json')).legacyDayOwner : null
+  if (legacyOwner?.familyId && legacyOwner?.childId) {
+    const graph = await buildFamilySourceGraph(db, { familyId: legacyOwner.familyId,
+      childId: legacyOwner.childId, source, pageRefs })
+    writeFileSync(resolve(local, `family-source-graph-${date}.json`), `${JSON.stringify(graph, null, 2)}\n`, { mode: 0o600 })
+    if (graph.problems.length) fail(`${graph.problems.join(' ')} День не опубликован.`)
+  }
   // A newly synced assignment must never silently go live with an unchecked textbook source.
   // @see ../docs/product/materials.md#mandatory-source-link
   for (const task of source.subjects.flatMap((subject) => subject.tasks)) {
@@ -401,6 +410,7 @@ async function publish() {
   const indexTokens = dashboardLinks()
   const base = {
     schemaVersion: 1, date, targetDate: source.targetDate, updatedAt: Timestamp.now(),
+    ...(legacyOwner?.familyId && legacyOwner?.childId ? { familyId: legacyOwner.familyId, childId: legacyOwner.childId } : {}),
     meshFetchedAt: target.fetchedAt, todaySchedule: schedule(today), targetSchedule: schedule(target),
     subjects: source.subjects, taskIds, testPlacements: source.testPlacements ?? [], notices: source.notices ?? [],
     sourceOnlyEntries: source.sourceOnlyEntries ?? [], retiredTaskIds: source.retiredTaskIds ?? [],
@@ -413,6 +423,23 @@ async function publish() {
     workingThreshold: gradeSnapshot.working_threshold,
   }
   const batch = db.batch()
+  const uniquePageRefs = [...new Set(Object.values(pageRefs).flat())]
+  if (uniquePageRefs.length > 300) fail('В одном выпуске больше 300 страниц; разделите публикацию на безопасные пакеты.')
+  if (uniquePageRefs.length && (!legacyOwner?.familyId || !legacyOwner?.childId)) fail('Нельзя выдать страницы без подтверждённой семейной связи.')
+  for (const ref of uniquePageRefs) {
+    const [bookId, pdfPage] = ref.split('#')
+    const shared = await db.doc(`materialBooks/${bookId}/pages/${pdfPage}`).get()
+    const data = shared.data()
+    if (data?.state !== 'published' || typeof data.url !== 'string' || !data.url.startsWith('https://')) {
+      fail(`Страница ${ref} ещё не опубликована в общем каталоге.`)
+    }
+    batch.set(db.doc(`families/${legacyOwner.familyId}/children/${legacyOwner.childId}/bookPages/${ref}`), {
+      bookId, pdfPage: Number(pdfPage), subject: data.subject, title: data.title ?? null,
+      printedPage: data.printedPage ?? null, sourceRef: data.sourceRef,
+      sourceSha256: data.sourceSha256, editionStatus: data.editionStatus,
+      extraction: data.extraction, state: 'published', url: data.url, updatedAt: Timestamp.now(),
+    })
+  }
   const [oldStudent, oldParent] = await Promise.all([db.doc(`dayPages/${pair.student}`).get(), db.doc(`dayPages/${pair.parent}`).get()])
   const studentPage = mergeDayPage(oldStudent.data(), { ...base, subjects: studentSubjects(source.subjects), kind: 'student', boardToken: readFileSync(resolve(local, 'learner-board-token'), 'utf8').trim() })
   const parentPage = mergeDayPage(oldParent.data(), { ...base, kind: 'parent', studentToken: pair.student, boardToken: readFileSync(resolve(local, 'parent-board-token'), 'utf8').trim(), parentNotes: source.parentNotes ?? [] })

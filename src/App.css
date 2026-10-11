@@ -1,3 +1,4 @@
+/* @see ../docs/product/design-system.md#shell — the existing app header is the UI baseline. */
 :root {
   --primary: oklch(0.55 0.23 290);
   --primary-foreground: oklch(1 0 0);
@@ -10,7 +11,7 @@
 body {
   margin: 0;
   min-width: 320px;
-  background: #f6f5fc;
+  background: var(--edu-canvas);
 }
 
 .app-shell {
@@ -18,7 +19,7 @@ body {
   background:
     radial-gradient(circle at 6% 9%, rgba(198, 176, 255, .22), transparent 30rem),
     radial-gradient(circle at 95% 22%, rgba(151, 221, 248, .22), transparent 28rem),
-    #f6f5fc;
+    var(--edu-canvas);
 }
 
 .site-header {
@@ -35,7 +36,7 @@ body {
   display: flex;
   align-items: center;
   gap: .6rem;
-  color: #30245b;
+  color: var(--edu-ink);
   font-weight: 750;
   letter-spacing: -.02em;
   text-decoration: none;
@@ -49,20 +50,20 @@ body {
   height: 2rem;
   flex: none;
   border-radius: .7rem;
-  background: #7750e9;
+  background: var(--edu-brand);
   color: white;
   font-size: 1.4rem;
   line-height: 1;
 }
 
 .header-note {
-  color: #70698b;
+  color: var(--edu-muted);
   font-size: .85rem;
 }
 .header-actions{display:flex;align-items:center;gap:12px}
 #day-header-return{display:none}
-.quiz-back-link{display:inline-flex;align-items:center;justify-content:center;gap:.35rem;margin-left:auto;padding:.45rem .7rem;border:1px solid #dcd3f2;border-radius:999px;background:white;color:#493582;font-weight:700;text-decoration:none;white-space:nowrap}
-.quiz-back-link:hover,.quiz-back-link:focus-visible{background:#f1edfb;border-color:#9b86d0}
+.quiz-back-link{display:inline-flex;align-items:center;justify-content:center;gap:.35rem;margin-left:auto;padding:.45rem .7rem;border:1px solid var(--edu-control-border);border-radius:999px;background:var(--edu-surface);color:#493582;font-weight:700;text-decoration:none;white-space:nowrap}
+.quiz-back-link:hover,.quiz-back-link:focus-visible{background:var(--edu-hover);border-color:#9b86d0}
 
 .page-wrap {
   box-sizing: border-box;

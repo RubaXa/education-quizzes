@@ -10,19 +10,20 @@
 | [.firebaserc](../../.firebaserc) | [Семейная модель](../architecture/family-data-model.md) | Идентификатор проекта Firebase для команд | Firebase CLI |
 | [.gitignore](../../.gitignore) | [Хранение и приватность](storage-privacy.md) | Исключение секретов и локальных оригиналов | Git; проверка приватности |
 | [.oxlintrc.json](../../.oxlintrc.json) | [Карта спецификаций](README.md) | Правила статического анализа кода | oxlint |
-| [AGENTS.md](../../AGENTS.md) | [Карта спецификаций](README.md) | Рабочие ограничения для следующих сессий | Агент Codex |
+| [AGENTS.md](../../AGENTS.md) | [Дизайн-система](design-system.md) | Рабочие ограничения и требование сверять новый UI с действующим | Агент Codex |
 | [README.md](../../README.md) | [Карта спецификаций](README.md) | Вход в репозиторий и команды | Разработчик; агент |
 | [commitlint.config.cjs](../../commitlint.config.cjs) | [Карта файлов](file-map.md) | Формат истории изменений | commitlint |
 | [components.json](../../components.json) | [Экраны из данных](../architecture/backend-driven-ui.md) | Настройки базовых UI-компонентов | Генератор компонентов |
 | [day/build.mjs](../../day/build.mjs) | [Формирование плана](plan-generation.md) | Точная запись МЭШ, владелец по уроку, отдельный срок сдачи и отделение ссылки на файл от действия | `scripts/day.mjs` |
 | [day/dashboard-index.mjs](../../day/dashboard-index.mjs) | [Dashboard](dashboard.md) | Индекс и проверка явных ID выходных заданий, дат урока и срока | `scripts/day.mjs`; `src/DayDashboard.tsx` |
+| [day/family-source-graph.mjs](../../day/family-source-graph.mjs) | [Семейная библиотека](family-library.md) | Граф семейных книг, методик и заданий на каждый выпуск дня | `scripts/day.mjs` |
 | [day/grade-reconciliation.mjs](../../day/grade-reconciliation.mjs) | [Средний балл](grades.md) | Сверка среза МЭШ и обнаружение новых либо исправленных оценок | `scripts/day.mjs`; уведомления |
 | [day/grade-reconciliation.test.mjs](../../day/grade-reconciliation.test.mjs) | [Средний балл](grades.md) | Проверка публикационного барьера оценок и изменения ленты | Vitest; разработчик |
 | [day/merge.mjs](../../day/merge.mjs) | [Формирование плана](plan-generation.md) | Слияние без потери работы, ревизия выходного плана, снятие ошибочной карточки и удаление доказанной ссылки | `scripts/day.mjs` |
 | [day/merge.test.mjs](../../day/merge.test.mjs) | [Доступ и состояние](access-and-state.md) | Проверка сохранности при слиянии дня | Vitest; разработчик |
 | [day/pipeline-contract.mjs](../../day/pipeline-contract.mjs) | [Формирование плана](plan-generation.md) | Проверка полноты МЭШ, соответствия плана и опубликованной страницы | `scripts/day.mjs` |
 | [day/pipeline-contract.test.mjs](../../day/pipeline-contract.test.mjs) | [Формирование плана](plan-generation.md) | Проверка барьеров публикации и защиты выходных карточек | Vitest; разработчик |
-| [diary/adapters/mesh.mjs](../../diary/adapters/mesh.mjs) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Получение данных МЭШ | Синхронизатор дневника |
+| [diary/adapters/mesh.mjs](../../diary/adapters/mesh.mjs) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Совместимый экспорт общего адаптера МЭШ | Синхронизатор дневника |
 | [diary/application/diff.mjs](../../diary/application/diff.mjs) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Различия двух снимков дневника | `diary/cli.mjs` |
 | [diary/application/lesson-visibility.mjs](../../diary/application/lesson-visibility.mjs) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Семейные исключения из расписания | Синхронизатор дневника |
 | [diary/application/sync.mjs](../../diary/application/sync.mjs) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Сбор и сохранение снимка МЭШ | `diary/cli.mjs` |
@@ -44,6 +45,8 @@
 | [docs/product/review-criteria-provenance.md](review-criteria-provenance.md) | [Основания проверки](review-criteria-provenance.md) | Проверяемое требование, источник, запись и предел вердикта | Агент; `scripts/submissions.mjs`; `WorkReview` |
 | [docs/product/dashboard.md](dashboard.md) | [Dashboard](dashboard.md) | Сводки дней, оценок и заданий | Агент; разработчик |
 | [docs/product/day-page.md](day-page.md) | [Страница дня](day-page.md) | Показ и проверка ДЗ | Агент; разработчик |
+| [docs/product/design-system.md](design-system.md) | [Дизайн-система](design-system.md) | Общие правила оболочки, токены, карточки и состояния | Агент; компоненты UI; CSS |
+| [docs/product/family-library.md](family-library.md) | [Семейная библиотека](family-library.md) | Семейное покрытие, общий архив, загрузка PDF и граф источников | Родительский кабинет; синхронизация; приёмник |
 | [docs/product/file-map.md](file-map.md) | [Карта файлов](file-map.md) | Индекс назначения каждого файла | Агент; проверка карты |
 | [docs/product/grades.md](grades.md) | [Оценки](grades.md) | Показ оценок и границы расчёта | Агент; разработчик |
 | [docs/product/materials.md](materials.md) | [Материалы](materials.md) | Источники, страницы и ридер | Агент; разработчик |
@@ -65,6 +68,14 @@
 | [lefthook.yml](../../lefthook.yml) | [Карта файлов](file-map.md) | Проверки перед коммитом и push | Git hooks |
 | [package-lock.json](../../package-lock.json) | [Карта файлов](file-map.md) | Фиксированные версии зависимостей | npm |
 | [package.json](../../package.json) | [Карта файлов](file-map.md) | Команды и зависимости сервиса | npm; агент |
+| [packages/education-connect/README.md](../../packages/education-connect/README.md) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Инструкция локального подключения взрослого | Приглашённый; оператор |
+| [packages/education-connect/package.json](../../packages/education-connect/package.json) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Публикуемый пакет и команда `npx` | npm; приглашённый |
+| [packages/education-connect/bin/education-connect.mjs](../../packages/education-connect/bin/education-connect.mjs) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Локальный вход и подтверждённая передача доступа | Приглашённый взрослый |
+| [packages/education-connect/lib/envelope.mjs](../../packages/education-connect/lib/envelope.mjs) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Сквозное шифрование разового пакета | Пакет; операторский приём |
+| [packages/education-connect/lib/envelope.test.mjs](../../packages/education-connect/lib/envelope.test.mjs) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Проверка шифрования и привязки к приглашению | Vitest; разработчик |
+| [packages/education-connect/lib/handoff-store.mjs](../../packages/education-connect/lib/handoff-store.mjs) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Запись зашифрованного пакета по приглашению | `education-connect` CLI; Firebase |
+| [packages/education-connect/lib/mesh.mjs](../../packages/education-connect/lib/mesh.mjs) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Общий адаптер входа и чтения МЭШ | Пакет; синхронизатор дневника |
+| [packages/education-connect/lib/prompts.mjs](../../packages/education-connect/lib/prompts.mjs) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Скрытый ввод пароля и SMS | Пакет; `diary/cli.mjs` |
 | [public/icons/education-180.png](../../public/icons/education-180.png) | [PWA](pwa.md) | Иконка домашнего экрана iOS | iOS |
 | [public/icons/education-192.png](../../public/icons/education-192.png) | [PWA](pwa.md) | Иконка приложения 192 px | Браузер |
 | [public/icons/education-512.png](../../public/icons/education-512.png) | [PWA](pwa.md) | Иконка приложения 512 px | Браузер |
@@ -72,13 +83,19 @@
 | [public/manifest.webmanifest](../../public/manifest.webmanifest) | [PWA](pwa.md) | Имя, иконки и режим установки | Браузер |
 | [pwa/sw-template.js](../../pwa/sw-template.js) | [PWA](pwa.md) | Шаблон офлайн-кэша | Генератор service worker |
 | [scripts/archive-local.mjs](../../scripts/archive-local.mjs) | [Хранение и приватность](storage-privacy.md) | Перенос локального архива на Диск | Оператор архива |
+| [scripts/access-management.mjs](../../scripts/access-management.mjs) | [Семейная модель](../architecture/family-data-model.md) | Локальная обработка заявок на детские ссылки и сверка карточек доступа | Оператор; `FamilyAccessCards.tsx` |
+| [scripts/audit-family-links.mjs](../../scripts/audit-family-links.mjs) | [Семейная модель](../architecture/family-data-model.md) | Сверка семейных профилей, личных ссылок, МЭШ и старых календарных связей без записи | Оператор после изменения доступа |
 | [scripts/build-inputs.mjs](../../scripts/build-inputs.mjs) | [PWA](pwa.md) | Сбор списка входов для отпечатка выпуска | Сборка сайта |
 | [scripts/build-site.mjs](../../scripts/build-site.mjs) | [PWA](pwa.md) | Сборка клиентского приложения | npm build |
 | [scripts/check-privacy.mjs](../../scripts/check-privacy.mjs) | [Хранение и приватность](storage-privacy.md) | Запрет секретов и персональных файлов в Git | Git hooks; публикация |
 | [scripts/check-spec-map.mjs](../../scripts/check-spec-map.mjs) | [Карта файлов](file-map.md) | Проверка покрытия файлов контрактами | npm check; агент |
+| [scripts/connect.mjs](../../scripts/connect.mjs) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Выпуск приглашений и проверенный приём взрослых | Оператор; Firestore |
 | [scripts/day.mjs](../../scripts/day.mjs) | [Dashboard](dashboard.md) | Выпуск дня, план выходных в Firestore, сверка индекса со страницей, перенос доказательств и аудит ссылок | Оператор; Firestore; `src/DayDashboard.tsx`; `NotificationBell` |
-| [scripts/direct-upload-worker.mjs](../../scripts/direct-upload-worker.mjs) | [Хранение и приватность](storage-privacy.md) | Выдача адреса и проверка фото на Диске | Клиент загрузки; очередь |
-| [scripts/family.mjs](../../scripts/family.mjs) | [Семейная модель](../architecture/family-data-model.md) | Создание семей и личных ссылок | Оператор |
+| [scripts/direct-upload-worker.mjs](../../scripts/direct-upload-worker.mjs) | [Семейная библиотека](family-library.md) | Выдача адресов и проверка фото работ и семейных PDF, общий архив по SHA | Клиенты загрузки; очереди |
+| [scripts/family.mjs](../../scripts/family.mjs) | [Семейная модель](../architecture/family-data-model.md) | Создание семей и личных ссылок с пустой семейной библиотекой | Оператор |
+| [scripts/family-library.mjs](../../scripts/family-library.mjs) | [Семейная библиотека](family-library.md) | Разбор новых PDF, точная привязка к семье и миграция старого комплекта | Оператор; Firestore |
+| [scripts/lib/admin-firebase.mjs](../../scripts/lib/admin-firebase.mjs) | [Семейная модель](../architecture/family-data-model.md) | Локальные административные полномочия Firebase | `family.mjs`; `connect.mjs` |
+| [scripts/lib/access-projection.mjs](../../scripts/lib/access-projection.mjs) | [Семейная модель](../architecture/family-data-model.md) | Безопасная проекция детских ссылок для взрослых семьи | `family.mjs`; `access-management.mjs` |
 | [scripts/generate-sw.mjs](../../scripts/generate-sw.mjs) | [PWA](pwa.md) | Генерация service worker | Сборка сайта |
 | [scripts/install-upload-worker.mjs](../../scripts/install-upload-worker.mjs) | [Хранение и приватность](storage-privacy.md) | Установка локального процесса загрузки | Оператор Mac |
 | [scripts/publish-pages.mjs](../../scripts/publish-pages.mjs) | [PWA](pwa.md) | Публикация и сверка GitHub Pages | Оператор; браузер |
@@ -90,9 +107,9 @@
 | [scripts/notifications.mjs](../../scripts/notifications.mjs) | [Центр обновлений](../architecture/activity-and-inbox.md) | Выпуск изменений продукта и сверенный backfill результата/родительского решения | Оператор; Firestore; `NotificationBell` |
 | [scripts/submissions.mjs](../../scripts/submissions.mjs) | [Основания проверки](review-criteria-provenance.md) | Очередь, этапы, проверка происхождения спорных требований и запись разбора | Агент проверки; Firestore |
 | [scripts/verify-upload-flow.mjs](../../scripts/verify-upload-flow.mjs) | [Хранение и приватность](storage-privacy.md) | Аудит ранее перенесённых фото | Оператор; агент |
-| [src/App.css](../../src/App.css) | [Тесты](quizzes.md) | Оформление тестов и навигации | `src/App.tsx` |
+| [src/App.css](../../src/App.css) | [Дизайн-система](design-system.md) | Общая оболочка, шапка, тесты и предметные темы | `src/App.tsx` |
 | [src/App.tsx](../../src/App.tsx) | [Доступ и состояние](access-and-state.md) | Маршруты, тесты, личный вход и общий колокольчик | Браузер |
-| [src/DayDashboard.css](../../src/DayDashboard.css) | [Dashboard](dashboard.md) | Оформление бейджей расписания и сгруппированного виджета ДЗ | `src/DayDashboard.tsx` |
+| [src/DayDashboard.css](../../src/DayDashboard.css) | [Дизайн-система](design-system.md) | Карточки, бейджи расписания и виджет ДЗ на общих токенах | `src/DayDashboard.tsx` |
 | [src/DayDashboard.tsx](../../src/DayDashboard.tsx) | [Dashboard](dashboard.md) | Календарь, все выходные карточки по ID, отдельные предметы и живые статусы | Ученик; родитель; `src/DayPage.tsx` |
 | [src/DayPage.css](../../src/DayPage.css) | [Страница дня](day-page.md) | Оформление заданий и фокуса после перехода из расписания | `src/DayPage.tsx` |
 | [src/DayPage.tsx](../../src/DayPage.tsx) | [Страница дня](day-page.md) | Компоновка дня из Firestore, отдельный срок сдачи, семейная доработка и фокус задания | Ученик; родитель; `ProblemGroup` |
@@ -101,11 +118,17 @@
 | [src/components/ArtifactAvatar.css](../../src/components/ArtifactAvatar.css) | [Статусы фотографии](day-page.md) | Общая миниатюра и положение значка состояния | `src/components/ArtifactAvatar.tsx` |
 | [src/components/ArtifactAvatar.tsx](../../src/components/ArtifactAvatar.tsx) | [Статусы фотографии](day-page.md) | Общий аватар загруженного фото с одним значком состояния | День; слот выходных |
 | [src/components/CodeBlock.tsx](../../src/components/CodeBlock.tsx) | [Тесты](quizzes.md) | Показ исходного кода в вопросе | Страница теста |
+| [src/components/ConnectionInvite.tsx](../../src/components/ConnectionInvite.tsx) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Команда подключения и живой статус приглашения | `src/App.tsx`; приглашённый взрослый |
 | [src/components/EducationScreen.tsx](../../src/components/EducationScreen.tsx) | [Экраны из данных](../architecture/backend-driven-ui.md) | Ограниченный реестр блоков манифеста | Будущий маршрут v2 |
 | [src/components/MaterialReader.tsx](../../src/components/MaterialReader.tsx) | [Материалы](materials.md) | Миниатюры и просмотр страниц | Страница дня |
 | [src/components/PersonalEntry.tsx](../../src/components/PersonalEntry.tsx) | [Семейная модель](../architecture/family-data-model.md) | Вход по личной ссылке | Личная стартовая страница |
 | [src/components/NotificationBell.tsx](../../src/components/NotificationBell.tsx) | [Центр обновлений](../architecture/activity-and-inbox.md) | Живая личная очередь, семейные решения и переход к учебному дню | `src/App.tsx`; ученик; родитель |
-| [src/components/NotificationBell.css](../../src/components/NotificationBell.css) | [Центр обновлений](../architecture/activity-and-inbox.md) | Компактный колокольчик и список обновлений | `NotificationBell` |
+| [src/components/NotificationBell.css](../../src/components/NotificationBell.css) | [Дизайн-система](design-system.md) | Колокольчик в общей шапке и список обновлений | `NotificationBell` |
+| [src/components/FamilyLibrary.css](../../src/components/FamilyLibrary.css) | [Дизайн-система](design-system.md) | Красный onboarding и компактная семейная библиотека | `FamilyLibrary.tsx` |
+| [src/components/FamilyLibrary.tsx](../../src/components/FamilyLibrary.tsx) | [Семейная библиотека](family-library.md) | Статус книг по расписанию и загрузка PDF взрослым | `ParentHome.tsx` |
+| [src/components/FamilyAccessCards.tsx](../../src/components/FamilyAccessCards.tsx) | [Семья и доступ](../architecture/family-data-model.md) | Состав семьи, заявки и история приглашений, личные ссылки детей | `ParentHome.tsx`; взрослый |
+| [src/components/ParentHome.css](../../src/components/ParentHome.css) | [Дизайн-система](design-system.md) | Компактные раскрываемые строки детей и отдельные карточки семьи | `ParentHome.tsx` |
+| [src/components/ParentHome.tsx](../../src/components/ParentHome.tsx) | [Семья и доступ](../architecture/family-data-model.md) | Кабинет взрослого по реальным доступным детям и известным данным управления | `PersonalEntry.tsx`; взрослый |
 | [src/components/ProblemCard.css](../../src/components/ProblemCard.css) | [Адаптивная карточка](adaptive-problem-card.md) | Оформление свёрнутого номера | `src/components/ProblemCard.tsx` |
 | [src/components/ProblemCard.tsx](../../src/components/ProblemCard.tsx) | [Адаптивная карточка](adaptive-problem-card.md) | Номер, статус и кнопка фото | День; спецкурс |
 | [src/components/ProblemGroup.css](../../src/components/ProblemGroup.css) | [Страница дня](day-page.md) | Оформление общей сводки нумерованного листа | `src/components/ProblemGroup.tsx` |
@@ -129,14 +152,18 @@
 | [src/components/ui/radio-group.tsx](../../src/components/ui/radio-group.tsx) | [Экраны из данных](../architecture/backend-driven-ui.md) | Базовый выбор одного ответа | Компоненты интерфейса |
 | [src/components/ui/textarea.tsx](../../src/components/ui/textarea.tsx) | [Экраны из данных](../architecture/backend-driven-ui.md) | Базовое многострочное поле | Компоненты интерфейса |
 | [src/index.css](../../src/index.css) | [Экраны из данных](../architecture/backend-driven-ui.md) | Общие цвета, шрифты и сброс стилей | Всё приложение |
+| [src/education-design-tokens.css](../../src/education-design-tokens.css) | [Дизайн-система](design-system.md) | Общие токены существующего визуального языка | Все компоненты Education |
 | [src/lib/dayDashboardStore.ts](../../src/lib/dayDashboardStore.ts) | [Dashboard](dashboard.md) | Подписка на даты, ДЗ, изменения и явные ID выходных карточек | `src/DayDashboard.tsx` |
-| [src/lib/dayStore.ts](../../src/lib/dayStore.ts) | [Dashboard](dashboard.md) | Типы даты урока, срока и плана выходных; подписки на связанные результаты | `src/DayPage.tsx`; `src/DayDashboard.tsx` |
+| [src/lib/dayStore.ts](../../src/lib/dayStore.ts) | [Материалы](materials.md) | Типы дня, результаты и подписка на страницы из семейной проекции | `src/DayPage.tsx`; `src/DayDashboard.tsx` |
 | [src/lib/educationSchema.ts](../../src/lib/educationSchema.ts) | [Семейная модель](../architecture/family-data-model.md) | Типы семьи, манифеста и адресных событий | `educationStore`; `NotificationBell` |
 | [src/lib/educationStore.ts](../../src/lib/educationStore.ts) | [Действия и новое](../architecture/activity-and-inbox.md) | Подписка на inbox и команды отметки прочитанного; заготовки журнала | `NotificationBell`; будущий маршрут v2 |
 | [src/lib/firebase.ts](../../src/lib/firebase.ts) | [Доступ и состояние](access-and-state.md) | Подключение к Firestore | Клиентские хранилища |
+| [src/lib/familyBookUpload.ts](../../src/lib/familyBookUpload.ts) | [Семейная библиотека](family-library.md) | Локальная очередь PDF и прямая передача через Яндекс.Диск | `FamilyLibrary`; локальный приёмник |
+| [src/lib/familyLibrary.ts](../../src/lib/familyLibrary.ts) | [Семейная библиотека](family-library.md) | Покрытие наблюдаемого расписания только семейными связями | `FamilyLibrary.tsx` |
 | [src/lib/followup.test.ts](../../src/lib/followup.test.ts) | [Тесты](quizzes.md) | Проверка формирования продолжений | Vitest; разработчик |
 | [src/lib/followup.ts](../../src/lib/followup.ts) | [Тесты](quizzes.md) | Связь повторных тестов | Страница дня; тесты |
 | [src/lib/highlight.ts](../../src/lib/highlight.ts) | [Тесты](quizzes.md) | Подсветка программного кода | `CodeBlock` |
+| [src/lib/homeworkStatus.ts](../../src/lib/homeworkStatus.ts) | [Dashboard](dashboard.md) | Единая классификация выполнено / осталось / ждёт проверки | `DayDashboard.tsx`; `useParentChildOverview.ts` |
 | [src/lib/personalAccess.ts](../../src/lib/personalAccess.ts) | [Семейная модель](../architecture/family-data-model.md) | Личная сессия и роли | Стартовая страница; день |
 | [src/lib/photoOutbox.ts](../../src/lib/photoOutbox.ts) | [Хранение и приватность](storage-privacy.md) | Локальное хранение фото до передачи | `dayStore`; устройство |
 | [src/lib/problemGroupSummary.ts](../../src/lib/problemGroupSummary.ts) | [Страница дня](day-page.md) | Проверяемая сводка номеров и уникальных фото | `src/components/ProblemGroup.tsx` |
@@ -150,6 +177,7 @@
 | [src/lib/reviewPresentation.ts](../../src/lib/reviewPresentation.ts) | [Страница дня](day-page.md) | Текст и цвет вердиктов | `WorkReview`; `ProblemCard` |
 | [src/lib/useDayEvidence.ts](../../src/lib/useDayEvidence.ts) | [Формирование плана](plan-generation.md) | Подписки на фото, разборы и страницы результата той же даты сдачи | `src/DayPage.tsx`; `src/WeekendMathSlot.tsx` |
 | [src/lib/useParentCompletions.ts](../../src/lib/useParentCompletions.ts) | [Страница дня](day-page.md) | Подписка на семейные решения по связанным дням | `src/DayPage.tsx`; `src/WeekendMathSlot.tsx`; `src/DayDashboard.tsx` |
+| [src/lib/useParentChildOverview.ts](../../src/lib/useParentChildOverview.ts) | [Семья и доступ](../architecture/family-data-model.md) | Живая сводка доступного ребёнка без ложного прогресса при незагруженных источниках | `ParentHome.tsx` |
 | [src/lib/store.ts](../../src/lib/store.ts) | [Тесты](quizzes.md) | Подписки на попытки, ключи и списки | `src/App.tsx` |
 | [src/lib/utils.ts](../../src/lib/utils.ts) | [Экраны из данных](../architecture/backend-driven-ui.md) | Слияние классов UI | Базовые компоненты |
 | [src/lib/visual.test.ts](../../src/lib/visual.test.ts) | [Тесты](quizzes.md) | Проверка визуальных вопросов | Vitest; разработчик |
@@ -159,6 +187,7 @@
 | [src/lib/yandexPublic.ts](../../src/lib/yandexPublic.ts) | [Материалы](materials.md) | Получение публичных превью Диска | `MaterialReader` |
 | [src/main.tsx](../../src/main.tsx) | [PWA](pwa.md) | Монтирование React и стилей | Браузер |
 | [storage/direct-upload.mjs](../../storage/direct-upload.mjs) | [Хранение и приватность](storage-privacy.md) | Валидация заявки и пути фото | Worker загрузки |
+| [storage/family-book-upload.mjs](../../storage/family-book-upload.mjs) | [Семейная библиотека](family-library.md) | Валидация полного PDF и семейного пути приёма | Worker загрузки |
 | [storage/direct-upload.test.mjs](../../storage/direct-upload.test.mjs) | [Хранение и приватность](storage-privacy.md) | Проверка прямой загрузки | Vitest; разработчик |
 | [storage/material-pages.mjs](../../storage/material-pages.mjs) | [Материалы](materials.md) | Публикация страниц учебника на Диске | `scripts/storage.mjs` |
 | [storage/storage-pause.mjs](../../storage/storage-pause.mjs) | [Хранение и приватность](storage-privacy.md) | Снятие технической паузы после сверки | `scripts/storage.mjs` |

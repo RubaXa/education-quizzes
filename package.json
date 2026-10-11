@@ -23,7 +23,11 @@
     "storage:install-worker": "node scripts/install-upload-worker.mjs",
     "archive:local": "node scripts/archive-local.mjs",
     "diary": "node diary/cli.mjs",
+    "connect": "node scripts/connect.mjs",
     "family": "node scripts/family.mjs",
+    "family:access": "node scripts/access-management.mjs",
+    "family:audit": "node scripts/audit-family-links.mjs",
+    "family:library": "node scripts/family-library.mjs",
     "submissions": "node scripts/submissions.mjs",
     "notifications": "node scripts/notifications.mjs"
   },

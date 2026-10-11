@@ -1,5 +1,7 @@
 # Карта спецификаций Education
 
+[Семейная библиотека учебников и общий архив](family-library.md) описывает загрузку PDF каждой семьёй, дедубликацию, покрытие расписания и граф источников.
+
 Каждый контракт описывает одну границу продукта и остаётся короче 500 строк. Это **граф**, а не один документ, в который копируется всё. [Карта всех файлов](file-map.md) связывает каждый файл с ближайшим контрактом, причиной существования и потребителем; `npm run check:spec` не даёт оставить новый файл без этой связи. Точечные JSDoc `@see` дополнительно ведут от сложной логики к конкретному правилу. Контракт может описывать целевую часть, поэтому состояние реализации проверяется отдельно.
 
 Итог сквозной проверки договорённостей и открытые расхождения — в [аудите от 11 октября](protocol-audit-2026-10-11.md).
@@ -35,6 +37,7 @@ flowchart LR
 
 | Контракт | Что определяет | Основные модули |
 |---|---|---|
+| [Дизайн-система](design-system.md) | Действующая шапка, общие токены, карточки, состояния и правила для новых экранов | `src/education-design-tokens.css`, `src/App.tsx`, `src/App.css`, `src/components/ui/` |
 | [Доступ и состояние](access-and-state.md) | Маршруты, роли, документы Firestore, повторный выпуск | `src/App.tsx`, `src/lib/store.ts`, `src/lib/dayStore.ts`, `day/merge.mjs` |
 | [Основания проверки](review-criteria-provenance.md) | Порядок источников, подтверждённый критерий, предел вердикта и спор | `scripts/submissions.mjs`, `src/components/WorkReview.tsx` |
 | [Страница дня](day-page.md) | Дата ДЗ, карточки, фото, связь теста с предметом и свёрнутый завершённый лист | `src/DayPage.tsx`, `src/WeekendMathSlot.tsx`, `src/components/ProblemGroup.tsx`, `day/build.mjs`, `scripts/day.mjs` |
@@ -46,8 +49,8 @@ flowchart LR
 | [Средний балл](grades.md) | Метка, условный сценарий и границы точности | `src/DayPage.tsx` |
 | [Хранение и приватность](storage-privacy.md) | Прямая загрузка на Диск, метаданные в Firebase, миграция старых копий | `scripts/direct-upload-worker.mjs`, `src/lib/photoOutbox.ts`, `scripts/storage.mjs` |
 | [Доступ к архиву семей](../architecture/family-artifact-access.md) | Общие оригиналы, ссылки и будущий журнал всех открытий | `storage/yandex-disk.mjs`; постоянно доступный шлюз ещё не реализован |
-| [Порт дневника](../architecture/school-diary-port-adapter.md) | Изоляция МЭШ, семейные правила видимости | `diary/`, `scripts/day.mjs` |
-| [Семья и доступ](../architecture/family-data-model.md) | Семьи, роли, дети, источник истины и перенос ссылочной модели | `src/lib/educationSchema.ts`, `firestore.rules` |
+| [Порт дневника](../architecture/school-diary-port-adapter.md) | Изоляция МЭШ, локальное подключение через приглашение и семейные правила видимости | `diary/`, `packages/education-connect/`, `scripts/connect.mjs`, `src/components/ConnectionInvite.tsx`, `scripts/day.mjs` |
+| [Семья и доступ](../architecture/family-data-model.md) | Семьи, роли, дети, родительский кабинет, источник истины и перенос ссылочной модели | `src/components/ParentHome.tsx`, `src/lib/useParentChildOverview.ts`, `scripts/family.mjs`, `scripts/connect.mjs`, `firestore.rules` |
 | [Экраны из данных](../architecture/backend-driven-ui.md) | Инвариант движка, общие подписки и будущий безопасный манифест | `src/lib/useDayEvidence.ts`, `src/components/ProblemTaskCard.tsx`, `src/lib/educationSchema.ts`, `src/components/EducationScreen.tsx` |
 | [Действия и новое](../architecture/activity-and-inbox.md) | Журнал посещений, ревизии просмотра и адресные уведомления | `src/lib/educationStore.ts`, `firestore.rules` |
 | [Обнаружение и сверка изменений](../architecture/change-detection-and-reconciliation.md) | Сигнал Firebase, проверка МЭШ, очередь фото, восстановление процесса и граница пробуждения агента | `diary/application/sync.mjs`, `scripts/submissions.mjs`; автономный наблюдатель ещё не реализован |
@@ -62,7 +65,7 @@ flowchart LR
 | [День и тесты](day-page.md), [тесты](quizzes.md) | `dayPages`, фото, разбор и попытки читаются через `onSnapshot`; новое содержание приходит без выпуска PWA | Новые виды компонентов требуют выпуска движка |
 | [Фото и Диск](storage-privacy.md) | Новое фото идёт из IndexedDB прямо на Диск; Firestore хранит метаданные; локальный worker подтверждает файл | Реальная съёмка на iPhone ещё не проверена; без Mac передача ждёт его запуска и повторного открытия страницы |
 | [Нумерованные листы](adaptive-problem-card.md) | Исходный лист один, фрагменты по координатам, общие фото, разбор и карточка номера работают в `DayPage` и `WeekendMathSlot`; текст листа берётся из Firestore | Разметка следующего листа выполняется оператором как данные |
-| [Семья](../architecture/family-data-model.md) | Личные ссылки, роли, начальный dashboard и переходные документы работают | Перенос дней, тестов и оценок в документы v2 ещё не завершён |
+| [Семья](../architecture/family-data-model.md) | Личные ссылки, роли, начальный dashboard и переходные документы работают; локально добавлен отдельный кабинет взрослого | Управление приглашениями и ссылками детей в браузере, перенос дней, тестов и оценок в документы v2 ещё не завершены |
 | [Манифест экрана](../architecture/backend-driven-ui.md) | Типы, подписка и компонент подготовлены | Текущие маршруты дня и dashboard к нему не подключены |
 | [Действия и новое](../architecture/activity-and-inbox.md) | Личный inbox и колокольчик показывают изменение ДЗ, новую оценку, разбор и уточнение работы, родительский зачёт и выпуск продукта | Сбор посещений и системный Web Push пока не работают |
 | [Обнаружение и сверка изменений](../architecture/change-detection-and-reconciliation.md) | Есть ручные `diary sync`, `submissions inbox`, публикация дня и живые подписки клиента | Автономный наблюдатель с курсором, атомарная аренда разбора и пробуждение сессии не реализованы |

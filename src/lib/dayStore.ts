@@ -21,6 +21,7 @@ export type DayTestPlacement = { token: string; subjectId: string; taskId?: stri
 /** @see ../../docs/product/access-and-state.md#state */
 export type DayPageData = {
   kind: 'student' | 'parent'; date: string; targetDate: string; meshFetchedAt: string;
+  familyId?: string; childId?: string;
   subjects: DaySubject[]; notices: string[]; gradeSummary: { id: string; name: string; average: number; allFives?: boolean; watch?: boolean }[]; gradeAsOf?: string;
   todaySchedule: { subject: string; start: string; end: string; homework: string }[];
   targetSchedule: { subject: string; start: string; end: string; homework: string }[];
@@ -102,13 +103,14 @@ export function withVerifiedPlatformResult(task: DayTask, targetDate: string, pa
   return { ...task, status: 'verified', platformResult: candidates[0].platformResult }
 }
 /** @see ../../docs/product/materials.md#firestore-catalog */
-export function watchMaterialPages(refs: string[], onChange: (pages: Record<string, DayMaterialLink>) => void, onError: (error: Error) => void) {
+export function watchMaterialPages(refs: string[], familyId: string | undefined, childId: string | undefined, onChange: (pages: Record<string, DayMaterialLink>) => void, onError: (error: Error) => void) {
+  if (!familyId || !childId) { onChange({}); return () => {} }
   const unique = [...new Set(refs)]
   const pages: Record<string, DayMaterialLink> = {}
   const stops = unique.map((ref) => {
     const match = /^([a-z0-9-]+)#([1-9]\d*)$/.exec(ref)
     if (!match) { onError(new Error(`Неизвестная страница учебника: ${ref}`)); return () => {} }
-    return onSnapshot(doc(db, 'materialBooks', match[1], 'pages', match[2]), (snapshot) => {
+    return onSnapshot(doc(db, 'families', familyId, 'children', childId, 'bookPages', ref), (snapshot) => {
       const data = snapshot.data()
       if (data?.state === 'published' && typeof data.url === 'string' && data.url.startsWith('https://')) {
         pages[ref] = { title: data.title || `${data.subject || 'Учебник'}, стр. ${data.printedPage}`,
@@ -131,7 +133,7 @@ export function watchDayUploads(tokens: string[], onChange: (data: DayUpload[]) 
       resumePhotoTransfer(studentToken, item.id, data as { status: string; upload?: { href: string }; deviceUid?: string })
       return { id: `${studentToken}:${item.id}`, ...data } as DayUpload
     }))
-    onChange(unique.flatMap((token) => parts.get(token) || []))
+    if (parts.size === unique.length) onChange(unique.flatMap((token) => parts.get(token) || []))
   }, onError))
   return () => stops.forEach((stop) => stop())
 }
@@ -140,12 +142,15 @@ export function watchDayReviews(tokens: string[], onChange: (data: DayWorkReview
   const parts = new Map<string, DayWorkReview[]>()
   const privateParts = new Map<string, DayWorkReview[]>()
   const unique = [...new Set(tokens)]
-  const emit = () => onChange(unique.flatMap((token) => {
-    const publicItems = parts.get(token) || []
-    if (!parent) return publicItems
-    const privateById = new Map((privateParts.get(token) || []).map((item) => [item.id, item]))
-    return publicItems.map((item) => ({ ...item, ...privateById.get(item.id), processing: item.processing }))
-  }))
+  const emit = () => {
+    if (parts.size !== unique.length || parent && privateParts.size !== unique.length) return
+    onChange(unique.flatMap((token) => {
+      const publicItems = parts.get(token) || []
+      if (!parent) return publicItems
+      const privateById = new Map((privateParts.get(token) || []).map((item) => [item.id, item]))
+      return publicItems.map((item) => ({ ...item, ...privateById.get(item.id), processing: item.processing }))
+    }))
+  }
   const stops = unique.map((studentToken) => onSnapshot(collection(db, 'dayProgress', studentToken, 'items'), (snapshot) => {
     parts.set(studentToken, snapshot.docs.map((item) => ({ id: `${studentToken}:${item.id}`, ...item.data() } as DayWorkReview)))
     emit()

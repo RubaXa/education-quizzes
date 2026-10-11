@@ -4,6 +4,8 @@ import { resolve } from 'node:path'
 import { applicationDefault, initializeApp } from 'firebase-admin/app'
 import { FieldValue, getFirestore, Timestamp } from 'firebase-admin/firestore'
 import { matchesPhoto, validPhotoRequest, validUploadHref, workPath } from '../storage/direct-upload.mjs'
+import { familyBookPath, matchesFamilyBook, validFamilyBookRequest } from '../storage/family-book-upload.mjs'
+import { bookDisplayTitle } from '../storage/textbook-catalog.mjs'
 import { YandexDiskStorage } from '../storage/yandex-disk.mjs'
 
 /** Long-running local broker. It never receives image bytes from Firestore. */
@@ -19,6 +21,91 @@ const db = getFirestore()
 const disk = new YandexDiskStorage(readFileSync(diskToken, 'utf8').trim())
 const busy = new Set()
 const listeners = new Map()
+const bookBusy = new Set()
+
+async function authorizedFamilyBook(familyId, childId, request) {
+  if (!validFamilyBookRequest(request)) return false
+  const session = (await db.doc(`deviceSessions/${request.deviceUid}`).get()).data()
+  if (!session?.linkToken) return false
+  const grant = (await db.doc(`accessLinks/${session.linkToken}`).get()).data()
+  if (!grant?.active || !grant.personId) return false
+  const member = (await db.doc(`families/${familyId}/members/${grant.personId}`).get()).data()
+  return member?.active === true && member.role === 'parent' && member.childIds?.includes(childId)
+}
+
+async function finishFamilyBook(ref, familyId, childId, path, request) {
+  const remote = await disk.head(path)
+  if (remote?.type !== 'file') return false
+  if (remote.size !== request.size) throw new Error('Размер учебника на Диске не совпадает с заявкой.')
+  const bytes = await disk.getAt(path)
+  if (!matchesFamilyBook(bytes, request)) throw new Error('Хэш или формат учебника не совпадает с исходным файлом.')
+  const current = (await ref.get()).data()
+  if (!['requested', 'awaiting-upload', 'uploaded'].includes(current?.status) || current.sha256 !== request.sha256) return true
+  const matches = await db.collection('materialBooks').where('sourceSha256', '==', request.sha256).get()
+  const book = matches.docs.find((item) => item.data().role === 'student-textbook'
+    && item.data().subject?.toLocaleLowerCase('ru') === request.subjectKey)
+  const md5 = createHash('md5').update(bytes).digest('hex')
+  const knownObject = (await db.doc(`storedObjects/${request.sha256}`).get()).data()
+  const knownPath = knownObject?.path ?? book?.data().privateDiskPath
+  const extension = path.slice(path.lastIndexOf('.') + 1)
+  const sharedPath = knownPath ?? `app:/PETR/Учебники/Общий архив/${request.sha256.slice(0, 2)}/${request.sha256}.${extension}`
+  if (knownPath) {
+    const existing = await disk.head(knownPath)
+    if (existing?.type !== 'file' || existing.size !== bytes.length || existing.md5?.toLowerCase() !== md5) {
+      throw new Error('Общий оригинал с таким хэшем отсутствует или повреждён.')
+    }
+  } else await disk.putAt(sharedPath, bytes, md5)
+  await db.doc(`storedObjects/${request.sha256}`).set({ sha256: request.sha256, path: sharedPath,
+    size: bytes.length, md5, contentType: request.contentType, storedAt: Timestamp.now() }, { merge: true })
+  const storage = { provider: 'yandex-disk', state: 'stored', path: sharedPath, size: bytes.length,
+    sha256: request.sha256, md5, syncedAt: Timestamp.now() }
+  if (book) {
+    const batch = db.batch()
+    batch.set(db.doc(`families/${familyId}/children/${childId}/books/${book.id}`), {
+      bookId: book.id, subjectKey: request.subjectKey,
+      title: book.data().title ?? bookDisplayTitle({ id: book.id, ...book.data() }),
+      status: 'confirmed', sourceSha256: request.sha256,
+      evidence: { kind: 'exact-file-sha256', uploadId: ref.id }, confirmedAt: Timestamp.now(),
+    }, { merge: true })
+    batch.update(ref, { status: 'linked', bookId: book.id, storage, upload: FieldValue.delete(), error: FieldValue.delete() })
+    await batch.commit()
+    console.log(JSON.stringify({ event: 'family-book-deduplicated', familyId, childId, bookId: book.id }))
+  } else {
+    await ref.update({ status: 'needs-identification', storage, upload: FieldValue.delete(), error: FieldValue.delete() })
+    console.log(JSON.stringify({ event: 'family-book-needs-identification', familyId, childId, uploadId: ref.id }))
+  }
+  try { await disk.removeFamilyBookStagingAt(path, md5) }
+  catch (error) { console.error(JSON.stringify({ event: 'family-book-staging-cleanup-pending', path, reason: error instanceof Error ? error.message : String(error) })) }
+  return true
+}
+
+async function handleFamilyBook(ref) {
+  if (bookBusy.has(ref.path)) return
+  bookBusy.add(ref.path)
+  try {
+    const childId = ref.parent.parent?.id
+    const familyId = ref.parent.parent?.parent.parent?.id
+    if (!familyId || !childId) return
+    const request = (await ref.get()).data()
+    if (!['requested', 'awaiting-upload', 'uploaded'].includes(request?.status)) return
+    if (!(await authorizedFamilyBook(familyId, childId, request))) {
+      await ref.update({ status: 'upload-error', error: 'Личный доступ родителя или связь с ребёнком больше не действуют.' })
+      return
+    }
+    const path = familyBookPath(familyId, childId, ref.id, request.contentType)
+    if (await finishFamilyBook(ref, familyId, childId, path, request)) return
+    const issuedAt = request.upload?.issuedAt?.toMillis?.() ?? 0
+    if (request.status === 'awaiting-upload' && Date.now() - issuedAt < 10 * 60_000) return
+    await ensureParent(path)
+    const link = await disk.request('GET', 'resources/upload', path, { overwrite: false })
+    if (link?.method !== 'PUT' || !validUploadHref(link.href)) throw new Error('Яндекс.Диск не выдал безопасную ссылку загрузки.')
+    await ref.update({ status: 'awaiting-upload', upload: { href: link.href, issuedAt: Timestamp.now() } })
+    setTimeout(() => { void handleFamilyBook(ref) }, 10 * 60_000)
+  } catch (error) {
+    console.error(JSON.stringify({ event: 'family-book-upload-error', path: ref.path, reason: error instanceof Error ? error.message : String(error) }))
+    setTimeout(() => { void handleFamilyBook(ref) }, 15_000)
+  } finally { bookBusy.delete(ref.path) }
+}
 
 async function authorized(owner, page, request) {
   if (!validPhotoRequest(request, page) || page.date !== owner.date) return false
@@ -108,3 +195,6 @@ db.collection('dayOwners').onSnapshot((snapshot) => {
   }
 }, (error) => { console.error(JSON.stringify({ event: 'owner-listener-error', reason: error.message })); process.exit(1) })
 console.log(JSON.stringify({ event: 'upload-bridge-listening' }))
+db.collectionGroup('bookUploads').onSnapshot((snapshot) => {
+  for (const change of snapshot.docChanges()) if (change.type !== 'removed') void handleFamilyBook(change.doc.ref)
+}, (error) => { console.error(JSON.stringify({ event: 'family-book-listener-error', reason: error.message })); process.exit(1) })

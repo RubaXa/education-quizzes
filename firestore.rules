@@ -51,6 +51,40 @@ service cloud.firestore {
           get(/databases/$(database)/documents/dayOwners/$(studentToken)).data.childId);
     }
 
+    // A random invite code is the only public route to the one-time encrypted handoff.
+    // The operator alone writes invitations and reads them in bulk through Admin SDK.
+    // @see docs/architecture/school-diary-port-adapter.md#family-onboarding-research
+    match /connectionInvites/{inviteCode} {
+      allow get: if request.auth != null && inviteCode.matches('^[A-Za-z0-9_-]{43}$');
+      allow list, write: if false;
+      match /handoff/{handoffId} {
+        allow get: if request.auth != null && handoffId == 'current'
+          && inviteCode.matches('^[A-Za-z0-9_-]{43}$');
+        allow list, update, delete: if false;
+        allow create: if request.auth != null && handoffId == 'current'
+          && inviteCode.matches('^[A-Za-z0-9_-]{43}$')
+          && exists(/databases/$(database)/documents/connectionInvites/$(inviteCode))
+          && get(/databases/$(database)/documents/connectionInvites/$(inviteCode)).data.status == 'open'
+          && get(/databases/$(database)/documents/connectionInvites/$(inviteCode)).data.expiresAt > request.time
+          && request.resource.data.keys().hasOnly(['version', 'ephemeralKey', 'iv', 'ciphertext', 'tag', 'submittedAt'])
+          && request.resource.data.keys().hasAll(['version', 'ephemeralKey', 'iv', 'ciphertext', 'tag', 'submittedAt'])
+          && request.resource.data.version == 1
+          && request.resource.data.ephemeralKey is string
+          && request.resource.data.ephemeralKey.matches('^[A-Za-z0-9_-]{50,100}$')
+          && request.resource.data.iv is string
+          && request.resource.data.iv.matches('^[A-Za-z0-9_-]{16}$')
+          && request.resource.data.tag is string
+          && request.resource.data.tag.matches('^[A-Za-z0-9_-]{22}$')
+          && request.resource.data.ciphertext is string
+          && request.resource.data.ciphertext.size() > 0
+          && request.resource.data.ciphertext.size() <= 110000
+          && request.resource.data.submittedAt == request.time;
+      }
+    }
+
+    match /sourceIdentities/{identityId} { allow read, write: if false; }
+    match /sourceAccounts/{accountId} { allow read, write: if false; }
+
     match /accessLinks/{secret} {
       allow get: if activeSession()
         && get(/databases/$(database)/documents/deviceSessions/$(request.auth.uid)).data.linkToken == secret;
@@ -76,6 +110,39 @@ service cloud.firestore {
     match /users/{personId} {
       allow get: if activeSession() && currentPersonId() == personId;
       allow list, write: if false;
+
+      // The browser requests an invite; only the local operator mints the
+      // receiver key pair and publishes a usable link. No MESH secret enters UI.
+      // @see docs/architecture/family-data-model.md#invitations
+      match /inviteRequests/{requestId} {
+        allow get, list: if activeSession() && currentPersonId() == personId;
+        allow create: if activeSession() && currentPersonId() == personId
+          && request.resource.data.keys().hasOnly(['familyId', 'mode', 'delegateQuota', 'status', 'createdAt'])
+          && request.resource.data.keys().hasAll(['familyId', 'mode', 'delegateQuota', 'status', 'createdAt'])
+          && parentMember(request.resource.data.familyId)
+          && request.resource.data.mode in ['same-family', 'new-family']
+          && request.resource.data.delegateQuota is int
+          && request.resource.data.delegateQuota >= 0
+          && request.resource.data.delegateQuota <= 1000
+          && request.resource.data.status == 'requested'
+          && request.resource.data.createdAt == request.time;
+        allow update, delete: if false;
+      }
+      match /invites/{inviteCode} {
+        allow get, list: if activeSession() && currentPersonId() == personId;
+        allow write: if false;
+      }
+      match /inviteRevocations/{requestId} {
+        allow get, list: if activeSession() && currentPersonId() == personId;
+        allow create: if activeSession() && currentPersonId() == personId
+          && request.resource.data.keys().hasOnly(['inviteCode', 'status', 'createdAt'])
+          && request.resource.data.keys().hasAll(['inviteCode', 'status', 'createdAt'])
+          && request.resource.data.inviteCode is string
+          && request.resource.data.inviteCode.matches('^[A-Za-z0-9_-]{43}$')
+          && request.resource.data.status == 'requested'
+          && request.resource.data.createdAt == request.time;
+        allow update, delete: if false;
+      }
 
       match /families/{familyId} {
         allow get, list: if activeSession() && currentPersonId() == personId;
@@ -147,6 +214,12 @@ service cloud.firestore {
     match /families/{familyId} {
       allow read, write: if false;
 
+      match /invites/{inviteCode} {
+        allow get, list: if parentMember(familyId)
+          && get(memberPath(familyId)).data.inviteUnlimited == true;
+        allow write: if false;
+      }
+
       match /members/{memberId} {
         allow get: if activeMember(familyId)
           && currentPersonId() == memberId;
@@ -164,6 +237,82 @@ service cloud.firestore {
         allow get: if childMember(familyId, childId);
         allow list: if false;
         allow write: if false;
+
+        match /accessGrants/{grantId} {
+          allow get, list: if parentMember(familyId) && childMember(familyId, childId);
+          allow write: if false;
+        }
+        match /accessRequests/{requestId} {
+          allow get, list: if parentMember(familyId) && childMember(familyId, childId);
+          allow create: if parentMember(familyId) && childMember(familyId, childId)
+            && request.resource.data.keys().hasOnly(['action', 'grantId', 'actorPersonId', 'status', 'createdAt'])
+            && request.resource.data.keys().hasAll(['action', 'grantId', 'actorPersonId', 'status', 'createdAt'])
+            && request.resource.data.action in ['rotate', 'revoke']
+            && request.resource.data.grantId is string
+            && (request.resource.data.action == 'rotate' && request.resource.data.grantId == ''
+              || request.resource.data.action == 'revoke' && request.resource.data.grantId.matches('^[a-f0-9]{64}$'))
+            && request.resource.data.actorPersonId == currentPersonId()
+            && request.resource.data.status == 'requested'
+            && request.resource.data.createdAt == request.time;
+          allow update, delete: if false;
+        }
+
+        match /books/{bookId} {
+          allow get, list: if parentMember(familyId) && childMember(familyId, childId);
+          allow write: if false;
+        }
+        match /bookPages/{pageRef} {
+          allow get: if childMember(familyId, childId);
+          allow list: if parentMember(familyId) && childMember(familyId, childId);
+          allow write: if false;
+        }
+        // @see docs/product/family-library.md#firestore-model
+        match /bookUploads/{uploadId} {
+          allow get, list: if parentMember(familyId) && childMember(familyId, childId);
+          allow create: if parentMember(familyId) && childMember(familyId, childId)
+            && request.resource.data.keys().hasOnly([
+              'subjectKey', 'originalName', 'contentType', 'size',
+              'sha256', 'deviceUid', 'status', 'createdAt'
+            ])
+            && request.resource.data.keys().hasAll([
+              'subjectKey', 'originalName', 'contentType', 'size',
+              'sha256', 'deviceUid', 'status', 'createdAt'
+            ])
+            && request.resource.data.deviceUid == request.auth.uid
+            && request.resource.data.status == 'requested'
+            && request.resource.data.subjectKey is string
+            && request.resource.data.subjectKey.size() > 0
+            && request.resource.data.subjectKey.size() <= 100
+            && request.resource.data.originalName is string
+            && request.resource.data.originalName.size() > 0
+            && request.resource.data.originalName.size() <= 160
+            && request.resource.data.contentType == 'application/pdf'
+            && request.resource.data.size is int
+            && request.resource.data.size > 0
+            && request.resource.data.size <= 100000000
+            && request.resource.data.sha256 is string
+            && request.resource.data.sha256.matches('^[a-f0-9]{64}$')
+            && request.resource.data.createdAt == request.time;
+          allow update: if parentMember(familyId) && childMember(familyId, childId)
+            && resource.data.deviceUid == request.auth.uid
+            && resource.data.status == 'awaiting-upload'
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+            && request.resource.data.status == 'uploaded';
+          allow delete: if false;
+        }
+        match /bookRequirements/{subjectId} {
+          allow get, list: if parentMember(familyId) && childMember(familyId, childId);
+          allow create, update: if parentMember(familyId) && childMember(familyId, childId)
+            && request.resource.data.keys().hasOnly(['subjectKey', 'policy', 'updatedAt', 'actorPersonId'])
+            && request.resource.data.keys().hasAll(['subjectKey', 'policy', 'updatedAt', 'actorPersonId'])
+            && request.resource.data.subjectKey is string
+            && request.resource.data.subjectKey.size() > 0
+            && request.resource.data.subjectKey.size() <= 100
+            && request.resource.data.policy in ['required', 'no-book']
+            && request.resource.data.actorPersonId == currentPersonId()
+            && request.resource.data.updatedAt == request.time;
+          allow delete: if false;
+        }
 
         match /days/{dayId} {
           allow get, list: if childMember(familyId, childId);
@@ -290,14 +439,12 @@ service cloud.firestore {
       allow list, write: if false;
     }
 
-    // Shared textbook metadata is available only to a family device with an
-    // active personal link. Originals remain private on Yandex Disk.
+    // The shared catalog is operator-only. Pages assigned to a child are
+    // projected to families/.../children/.../bookPages.
     match /materialBooks/{bookId} {
-      allow get: if activeSession();
-      allow list, write: if false;
+      allow read, write: if false;
       match /pages/{pdfPage} {
-        allow get: if activeSession();
-        allow list, write: if false;
+        allow read, write: if false;
       }
     }
 

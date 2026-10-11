@@ -1,10 +1,13 @@
-.day-dashboard{width:100%;min-width:0;max-width:100%;margin:auto;color:#34295c}
+/* @see ../docs/product/design-system.md#cards-and-status — shared surfaces and semantic states. */
+.day-dashboard{width:100%;min-width:0;max-width:100%;margin:auto;color:var(--edu-ink-dashboard)}
 .day-dashboard *{box-sizing:border-box}
 .day-dashboard>*,.day-dashboard-grid>*,.day-dashboard-side>*{min-width:0;max-width:100%}
 .day-dashboard-selected-heading{margin:22px 2px 0}
+.day-dashboard-parent-home{display:inline-flex;min-height:var(--edu-touch-target);align-items:center;margin-bottom:4px;color:var(--edu-bell-ink);font-size:.85rem;font-weight:800;text-decoration:none}
+.day-dashboard-parent-home:focus-visible{outline:3px solid var(--edu-focus);outline-offset:3px}
 .day-dashboard-kicker{font-size:.72rem;font-weight:850;letter-spacing:.08em;text-transform:uppercase;color:#766696}
 .day-dashboard-selected-heading h1{margin:5px 0 0;color:#34295c;font-size:clamp(1.5rem,4vw,2.25rem);font-weight:850;letter-spacing:-.04em;line-height:1.2;text-transform:capitalize}
-.day-dashboard-calendar,.day-dashboard-card{border:1px solid #e4ddef;border-radius:23px;background:#fff;box-shadow:0 10px 28px #3f306c0b}
+.day-dashboard-calendar,.day-dashboard-card{border:1px solid var(--edu-card-border);border-radius:var(--edu-radius-card);background:var(--edu-surface);box-shadow:0 10px 28px #3f306c0b}
 .day-dashboard-calendar{padding:19px}
 .day-dashboard-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
 .day-dashboard-heading>div{display:flex;align-items:center;gap:8px;color:#6349a0}
@@ -30,9 +33,9 @@
 /* @see ../docs/product/dashboard.md#homework-progress */
 .day-dashboard-homework-overview{display:grid;gap:12px}
 .day-dashboard-card .day-dashboard-homework-summary{margin:0;padding:10px 13px;border-radius:12px;font-size:.83rem;font-weight:800}
-.day-dashboard-homework-summary.action{background:#fff2dd;color:#865715}
-.day-dashboard-homework-summary.waiting{background:#eef5fd;color:#416b95}
-.day-dashboard-homework-summary.complete{background:#e8f6ed;color:#236b46}
+.day-dashboard-homework-summary.action{background:var(--edu-warning-bg);color:var(--edu-warning-ink)}
+.day-dashboard-homework-summary.waiting{background:var(--edu-waiting-bg);color:var(--edu-waiting-ink)}
+.day-dashboard-homework-summary.complete{background:var(--edu-success-bg);color:var(--edu-success-ink)}
 .day-dashboard-homework-group{display:grid;gap:6px}
 .day-dashboard-homework-group h3{margin:4px 0 2px;color:#6d617f;font-size:.76rem;font-weight:800}
 .day-dashboard-homework-row{display:grid;grid-template-columns:39px minmax(0,1fr) 18px;align-items:center;gap:11px;width:100%;border:1px solid #e5deed;border-radius:14px;background:#fff;color:#34295c;padding:11px;text-align:left;cursor:pointer}

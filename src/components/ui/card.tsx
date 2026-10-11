@@ -1,6 +1,8 @@
 import * as React from "react"
 import { cn } from "cn"
 
+/** @see ../../../docs/product/design-system.md#cards-and-status */
+
 function Card({
   className,
   size = "default",

@@ -29,6 +29,11 @@ export function currentEducationPersonId(): string {
   return activeSession.personId
 }
 
+/** Forget a revoked personal grant without deleting the device's Firebase UID. */
+export function clearPersonalSession(): void {
+  activeSession = null
+}
+
 export function secretFromPersonalLink(value: string): string {
   const trimmed = value.trim()
   if (!trimmed) throw new Error('Ссылка не найдена. Скопируйте личную ссылку родителя или ребёнка и попробуйте снова.')

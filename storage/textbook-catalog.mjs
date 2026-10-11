@@ -42,6 +42,13 @@ export function pageDocument(index, page) {
 
 export function pageRef(bookId, pdfPage) { return `${bookId}#${pdfPage}` }
 
+export function bookDisplayTitle(book) {
+  const part = /part-?(\d+)/.exec(book.id ?? '')?.[1]
+  const year = /(?:^|-)(20\d{2})(?:$|-)/.exec(book.id ?? '')?.[1]
+  return [book.subject, book.grade ? `${book.grade} класс` : null,
+    part ? `часть ${part}` : null, year ?? null].filter(Boolean).join(' · ')
+}
+
 export function parsePageRef(value) {
   const match = /^([a-z0-9-]+)#([1-9]\d*)$/.exec(value ?? '')
   if (!match) throw new Error(`Некорректный ID страницы: ${value}`)

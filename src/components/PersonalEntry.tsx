@@ -1,11 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
+import { doc, onSnapshot } from 'firebase/firestore'
 import { Check, ClipboardPaste, Copy, KeyRound } from 'lucide-react'
 import { Button } from './ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card'
 import { Input } from './ui/input'
-import { loadPersonalProfile, personalEntryUrl, redeemPersonalLink, restorePersonalSession, secretFromPastedPersonalLink } from '../lib/personalAccess'
+import { clearPersonalSession, loadPersonalProfile, personalEntryUrl, redeemPersonalLink, restorePersonalSession, secretFromPastedPersonalLink } from '../lib/personalAccess'
 import type { PersonalProfile, PersonalSession } from '../lib/personalAccess'
+import { db } from '../lib/firebase'
 import DayDashboard from '../DayDashboard'
+import { ParentHome } from './ParentHome'
 
 function accessError(cause: unknown): string {
   if (cause && typeof cause === 'object' && 'code' in cause) {
@@ -20,7 +23,9 @@ function accessError(cause: unknown): string {
   return cause instanceof Error ? cause.message : 'Не удалось открыть личный профиль.'
 }
 
-/** @see ../../docs/architecture/family-data-model.md#link-login */
+/** @see ../../docs/architecture/family-data-model.md#link-login
+ *  @see ../../docs/architecture/family-data-model.md#parent-home
+ *  @see ../../docs/product/design-system.md#shell */
 export function PersonalEntry({ initialLink }: { initialLink?: string }) {
   const [link, setLink] = useState('')
   const [profile, setProfile] = useState<PersonalProfile | null>(null)
@@ -68,6 +73,22 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
     void open()
     return () => { alive = false }
   }, [initialLink, retry])
+
+  useEffect(() => {
+    if (!session) return
+    const revoked = () => {
+      clearPersonalSession()
+      setSession(null)
+      setProfile(null)
+      setError('Личная ссылка отозвана. Откройте новую ссылку, чтобы снова войти. Ваши работы сохранены.')
+    }
+    return onSnapshot(doc(db, 'accessLinks', session.linkToken), (grant) => {
+      if (!grant.exists() || grant.data()?.active !== true) revoked()
+    }, (cause) => {
+      if (cause.code === 'permission-denied') revoked()
+      else setError(accessError(cause))
+    })
+  }, [session])
 
   const openLink = async (value: string) => {
     setBusy(true)
@@ -135,12 +156,15 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
   }
 
   if (profile) {
-    const available = profile.children.filter((child) => child.dashboardToken)
+    const parent = profile.children.some((child) => child.role === 'parent')
+    const available = profile.children.filter((child) => child.role === 'student' && child.dashboardToken)
     const child = available.find((item) => `${item.familyId}/${item.childId}` === selectedChild) ?? available[0]
     return <div className="personal-entry">
-      {available.length > 1 && <nav className="personal-child-picker" aria-label="Выбрать ребёнка">{available.map((item) => <Button key={`${item.familyId}/${item.childId}`} type="button" variant={item === child ? 'default' : 'outline'} onClick={() => setSelectedChild(`${item.familyId}/${item.childId}`)}>{item.displayName}</Button>)}</nav>}
-      {child?.dashboardToken ? <DayDashboard key={child.dashboardToken} token={child.dashboardToken} parent={child.role === 'parent'} />
-        : <Card><CardContent className="py-8">Dashboard для этого профиля ещё не опубликован.</CardContent></Card>}
+      {parent ? <ParentHome profile={profile} /> : <>
+        {available.length > 1 && <nav className="personal-child-picker" aria-label="Выбрать ребёнка">{available.map((item) => <Button key={`${item.familyId}/${item.childId}`} type="button" variant={item === child ? 'default' : 'outline'} onClick={() => setSelectedChild(`${item.familyId}/${item.childId}`)}>{item.displayName}</Button>)}</nav>}
+        {child?.dashboardToken ? <DayDashboard key={child.dashboardToken} token={child.dashboardToken} parent={false} />
+          : <Card><CardContent className="py-8">Dashboard для этого профиля ещё не опубликован.</CardContent></Card>}
+      </>}
       <details className="personal-install-hint"><summary>Личная ссылка для установки на iPhone</summary>
         <p>Скопируйте именно ссылку профиля перед добавлением сайта на экран «Домой». При первом запуске с иконки нажмите «Войти по ссылке из буфера».</p>
         <Button type="button" variant="outline" onClick={() => void copyPersonalLink()}>{copied ? <Check /> : <Copy />}{copied ? 'Ссылка скопирована' : 'Скопировать личную ссылку'}</Button>

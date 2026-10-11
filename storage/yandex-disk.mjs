@@ -148,6 +148,21 @@ export class YandexDiskStorage extends SubmissionStoragePort {
     throw new Error('Файл ещё виден на Яндекс.Диске; повторите синхронизацию.')
   }
 
+  /** Remove only a verified temporary family material after it is in the shared archive. */
+  async removeFamilyBookStagingAt(path, expectedMd5) {
+    if (!/^app:\/PETR\/Учебники\/Загрузки\/[A-Za-z0-9_-]{20,80}\/[A-Za-z0-9_-]{20,80}\/[A-Za-z0-9_-]{20,80}\.pdf$/.test(path)) {
+      throw new Error('Удалять можно только временную загрузку учебника.')
+    }
+    if (!/^[a-f0-9]{32}$/i.test(expectedMd5 ?? '')) throw new Error('Нельзя удалить загрузку без проверенной контрольной суммы.')
+    const remote = await this.head(path)
+    if (!remote) return
+    if (remote.type !== 'file' || remote.md5?.toLowerCase() !== expectedMd5.toLowerCase()) {
+      throw new Error('Временный файл на Диске не совпадает с проверенным оригиналом.')
+    }
+    if (remote.public_url) throw new Error('Временный файл неожиданно опубликован; требуется ручная проверка.')
+    await this.request('DELETE', 'resources', path, { permanently: false, force_async: false })
+  }
+
   verify(remote, bytes, expectedMd5, path) {
     if (remote.type !== 'file' || remote.size !== bytes.length || (remote.md5 && remote.md5.toLowerCase() !== expectedMd5)) {
       throw new Error(`Файл на Яндекс Диске не совпадает с локальным: ${path}.`)

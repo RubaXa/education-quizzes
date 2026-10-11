@@ -8,7 +8,7 @@ import { applicationDefault, initializeApp } from 'firebase-admin/app'
 import { FieldValue, getFirestore, Timestamp } from 'firebase-admin/firestore'
 import { YandexDiskStorage } from '../storage/yandex-disk.mjs'
 import { linksFile as pageLinksFile, materialLinks, pagesDir, preparePages } from '../storage/material-pages.mjs'
-import { indexedBooks, pageDocument } from '../storage/textbook-catalog.mjs'
+import { bookDisplayTitle, indexedBooks, pageDocument } from '../storage/textbook-catalog.mjs'
 import { resolvedStoragePause } from '../storage/storage-pause.mjs'
 
 const local = resolve('.local')
@@ -52,7 +52,7 @@ async function syncCatalog() {
   let batch = db.batch()
   for (const { book, index } of books) {
     batch.set(db.doc(`materialBooks/${book.id}`), {
-      id: book.id, subject: book.subject, grade: book.grade, role: book.role,
+      id: book.id, title: bookDisplayTitle(book), subject: book.subject, grade: book.grade, role: book.role,
       editionStatus: index.edition_status, sourceSha256: index.source_sha256,
       pdfPageCount: index.pdf_page_count, printedPageOffset: index.printed_page_offset,
       indexedAt: Timestamp.now(),

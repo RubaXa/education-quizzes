@@ -1,17 +1,17 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { getAuth } from 'firebase/auth'
 import { ArrowRight, BookOpen, CalendarDays, CheckCircle2, ChevronDown, Clock3, Sparkles } from 'lucide-react'
-import { uploadMatchesTask, watchDayPage, watchDayReviews, watchDayUploads, watchEvidenceDayPages, withVerifiedPlatformResult } from '@/lib/dayStore'
-import type { DayPageData, DayTask, DayUpload, DayWorkReview } from '@/lib/dayStore'
-import { activeProcessing, workCoverageComplete } from '@/lib/reviewPresentation'
+import { watchDayPage, watchDayReviews, watchDayUploads, watchEvidenceDayPages, withVerifiedPlatformResult } from '@/lib/dayStore'
+import type { DayPageData, DayUpload, DayWorkReview } from '@/lib/dayStore'
 import { useParentCompletions } from '@/lib/useParentCompletions'
-import { parentAccepted, requiredFamilyActions } from '@/lib/parentCompletion'
-import type { ParentCompletionEvent } from '@/lib/parentCompletion'
 import { watchDayDashboard } from '@/lib/dayDashboardStore'
 import type { DayDashboardData } from '@/lib/dayDashboardStore'
 import { loadAnswerKey, watchAssignment } from '@/lib/store'
 import { grade } from '@/lib/quiz'
 import type { Assignment } from '@/lib/quiz'
+import { lessonSubjectId, lessonWorkItems } from '@/lib/homeworkStatus'
+import type { LessonWorkItem, QuizScore } from '@/lib/homeworkStatus'
+import { currentEducationPersonId } from '@/lib/personalAccess'
 import WeekendMathSlot from './WeekendMathSlot'
 import './DayDashboard.css'
 
@@ -35,59 +35,6 @@ function lessonTime(iso: string) {
   const time = new Date(iso)
   return Number.isNaN(time.getTime()) ? '' : new Intl.DateTimeFormat('ru-RU', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Moscow' }).format(time)
 }
-type QuizScore = { points: number; maxPoints: number }
-type LessonWorkItem = { id: string; title: string; state: 'done' | 'todo' | 'checking' | 'unclear'; detail: string; qualityOpen?: boolean }
-
-/** @see ../docs/product/dashboard.md#schedule-homework-status */
-function lessonSubjectId(name: string) {
-  const value = name.toLocaleLowerCase('ru-RU')
-  if (/спецкурс|специальный курс/.test(value)) return 'special'
-  if (/практикум/.test(value)) return 'practicum'
-  if (/математ/.test(value)) return 'math'
-  if (/русск/.test(value)) return 'russian'
-  if (/литератур/.test(value)) return 'literature'
-  if (/истори/.test(value)) return 'history'
-  if (/англий|иностран/.test(value)) return 'english'
-  if (/труд|технолог/.test(value)) return 'technology'
-  if (/биологи/.test(value)) return 'biology'
-  if (/географ/.test(value)) return 'geography'
-  return null
-}
-function lessonWorkItems(tasks: DayTask[], uploads: DayUpload[], reviews: DayWorkReview[], decisions: ParentCompletionEvent[], tests: Record<string, Assignment>, scores: Record<string, QuizScore>): LessonWorkItem[] {
-  return tasks.flatMap((task) => {
-    if (task.problems?.length) return task.problems.map((problem) => {
-      const review = reviews.find((item) => item.taskId === problem.id)
-      const pending = uploads.some((upload) => uploadMatchesTask(upload, problem.id) && ['requested', 'awaiting-upload', 'uploaded', 'pending'].includes(upload.status))
-      const criterionPending = review?.assessmentBasis?.outcome === 'unresolved'
-      const accepted = parentAccepted(review, decisions)
-      const familyActions = requiredFamilyActions(review, decisions)
-      const covered = workCoverageComplete(review) && !pending && !familyActions.length
-      const state: LessonWorkItem['state'] = pending ? 'checking' : familyActions.length ? 'todo' : criterionPending && !covered ? 'unclear' : review?.status === 'verified' || accepted || covered ? 'done' : 'todo'
-      return { id: problem.id, title: `№ ${problem.number}. ${problem.title}`, state, qualityOpen: covered, detail: familyActions.length ? `По решению родителя: ${familyActions.join('; ')}` : state === 'unclear' ? `${review?.summary ?? 'Работа разобрана; критерий не подтверждён.'} Новое фото не требуется.` : state === 'checking' ? 'Фото получено, ждём проверки' : state === 'done' ? covered ? 'Работа сдана; критерий оценки пока не установлен. Новых действий не требуется.' : accepted ? 'Засчитано родителем · ответ верен, ход неполон' : 'Решение проверено' : review?.status === 'needs-fix' ? 'Нужно исправить решение' : review?.status === 'partial' ? 'Нужно дополнить решение' : 'Нужно выполнить и загрузить решение' }
-    })
-    const review = reviews.find((item) => item.taskId === task.id)
-    const pending = uploads.some((upload) => uploadMatchesTask(upload, task.id) && ['requested', 'awaiting-upload', 'uploaded', 'pending'].includes(upload.status))
-    const score = task.testToken ? scores[task.testToken] : undefined
-    const test = task.testToken ? tests[task.testToken] : undefined
-    const readPassed = task.kind === 'read' && score && score.points >= (task.requiredPoints ?? score.maxPoints)
-    const cdzPassed = task.platformResult?.state === 'completed'
-    const accepted = parentAccepted(review, decisions)
-    const familyActions = requiredFamilyActions(review, decisions)
-    const covered = workCoverageComplete(review) && !pending && !familyActions.length
-    const done = !familyActions.length && Boolean(readPassed || cdzPassed || review?.status === 'verified' || accepted || covered || !review && task.status === 'verified')
-    const processing = activeProcessing(review, uploads.filter((upload) => uploadMatchesTask(upload, task.id)))
-    const criterionPending = review?.assessmentBasis?.outcome === 'unresolved'
-    const checking = !done && (pending || Boolean(processing && processing.phase !== 'paused') || task.kind === 'read' && test?.status === 'submitted' && !score)
-    const state: LessonWorkItem['state'] = pending ? 'checking' : familyActions.length ? 'todo' : done ? 'done' : checking ? 'checking' : criterionPending ? 'unclear' : 'todo'
-    const detail = state === 'checking' ? 'Работа получена, ждём результата проверки' : familyActions.length ? `По решению родителя: ${familyActions.join('; ')}` : state === 'done' ? covered ? 'Работа сдана; критерий оценки пока не установлен. Новых действий не требуется.' : accepted ? 'Засчитано родителем · ответ верен, ход неполон' : task.kind === 'read' && score ? `Тест: ${score.points} из ${score.maxPoints} верно` : cdzPassed ? `ЦДЗ пройдено: ${task.platformResult?.points} из ${task.platformResult?.maxPoints}` : 'Работа проверена'
-      : state === 'unclear' ? `${review?.summary ?? 'Работа разобрана; критерий учителя не подтверждён.'} Новое фото не требуется.`
-        : review?.status === 'needs-fix' ? 'Нужно исправить работу' : review?.status === 'partial' ? 'Нужно дополнить работу' : review?.status === 'cannot-assess' ? 'Фото нужно переснять'
-          : task.kind === 'read' ? test?.status === 'submitted' ? 'Нужен разбор и повторная проверка' : 'Нужно пройти тест'
-            : task.kind === 'check' ? 'Ожидается результат ЦДЗ' : 'Нужно выполнить и загрузить работу'
-    return [{ id: task.id, title: task.title, state, detail, qualityOpen: covered }]
-  })
-}
-
 /**
  * Домашний обзор берёт календарь из dayDashboards, а детали из того же dayPages,
  * что и страница дня. Ответы тестов и фото читаются из их живых документов.
@@ -95,7 +42,12 @@ function lessonWorkItems(tasks: DayTask[], uploads: DayUpload[], reviews: DayWor
  * @see ../docs/product/dashboard.md#day-navigation
  * @see ../docs/product/grades.md#dashboard-grade-list
  */
+/** @see ../docs/product/design-system.md#cards-and-status */
 export default function DayDashboard({ token, parent }: { token: string; parent: boolean }) {
+  let personalParent = false
+  if (parent) {
+    try { personalParent = Boolean(currentEducationPersonId()) } catch { /* Legacy calendar links can still open without a personal session. */ }
+  }
   const [index, setIndex] = useState<DayDashboardData>()
   const [page, setPage] = useState<DayPageData>()
   const [gradePage, setGradePage] = useState<DayPageData>()
@@ -274,7 +226,7 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
       </button>)}</div>
     </section>
 
-    <div className="day-dashboard-selected-heading"><div className="day-dashboard-kicker">{parent ? 'Панель родителя' : 'Мой план'} · выбранный день</div><h1>{dateLabel(selectedDate, { weekday: 'long', day: 'numeric', month: 'long' })}</h1></div>
+    <div className="day-dashboard-selected-heading">{personalParent && <a className="day-dashboard-parent-home" href="#/">← Все дети</a>}<div className="day-dashboard-kicker">{parent ? 'Панель родителя' : 'Мой план'} · выбранный день</div><h1>{dateLabel(selectedDate, { weekday: 'long', day: 'numeric', month: 'long' })}</h1></div>
 
     {weekendWorks.map((slot) => <WeekendMathSlot key={`${slot.dayToken}:${slot.taskIds.join(',')}`} token={slot.dayToken} taskIds={slot.taskIds} parent={parent} lessonDate={slot.lessonDate} dueDate={slot.dueDate} title={slot.title} />)}
 

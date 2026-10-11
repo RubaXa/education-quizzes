@@ -266,6 +266,7 @@ function GradeBadge({ summary, details, threshold, asOf }: { summary?: GradeSumm
  * @see ../docs/product/day-page.md#day-navigation
  * @see ../docs/product/access-and-state.md#state
  */
+/** @see ../docs/product/design-system.md#shell */
 export default function DayPage({ token, parent, headerReturnTarget }: { token: string; parent: boolean; headerReturnTarget: HTMLElement | null }) {
   /** @see ../docs/product/dashboard.md#day-navigation */
   const [requestedView] = useState(() => {
@@ -365,10 +366,10 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
   useEffect(() => {
     const refs = Object.values(page?.taskPageRefs ?? {}).flat()
     if (!refs.length) return
-    return watchMaterialPages(refs, setCatalogPages, () => {
+    return watchMaterialPages(refs, page?.familyId, page?.childId, setCatalogPages, () => {
       // Legacy day links remain available while a device reconnects to its family session.
     })
-  }, [page?.taskPageRefs])
+  }, [page?.taskPageRefs, page?.familyId, page?.childId])
 
   const hasPage = Boolean(page)
   useEffect(() => {
