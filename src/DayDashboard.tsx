@@ -219,7 +219,7 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
     return () => { active = false; stops.forEach((stop) => stop()) }
   }, [placementKey])
 
-  const weekendWork = index?.weekendWork?.find((slot) => slot.dates.includes(selectedDate))
+  const weekendWorks = index?.weekendWork?.filter((slot) => slot.dates.includes(selectedDate)) ?? []
   const currentSubjects = selectedPage?.subjects.map((subject) => ({ ...subject, tasks: subject.tasks.filter((task) => (task.originDate ?? selectedDate) === selectedDate)
     .map((task) => withVerifiedPlatformResult(task, selectedDate, evidencePages)) })).filter((subject) => subject.tasks.length) ?? []
   const homeworkRows = currentSubjects.map((subject) => {
@@ -276,7 +276,7 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
 
     <div className="day-dashboard-selected-heading"><div className="day-dashboard-kicker">{parent ? 'Панель родителя' : 'Мой план'} · выбранный день</div><h1>{dateLabel(selectedDate, { weekday: 'long', day: 'numeric', month: 'long' })}</h1></div>
 
-    {weekendWork && <WeekendMathSlot token={weekendWork.dayToken} parent={parent} dueDate={weekendWork.dueDate} title={weekendWork.title} />}
+    {weekendWorks.map((slot) => <WeekendMathSlot key={slot.dayToken} token={slot.dayToken} parent={parent} lessonDate={slot.lessonDate} dueDate={slot.dueDate} title={slot.title} />)}
 
     <div className="day-dashboard-grid">
       <div className="day-dashboard-main">

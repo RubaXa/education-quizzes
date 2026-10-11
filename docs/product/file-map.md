@@ -15,7 +15,7 @@
 | [commitlint.config.cjs](../../commitlint.config.cjs) | [Карта файлов](file-map.md) | Формат истории изменений | commitlint |
 | [components.json](../../components.json) | [Экраны из данных](../architecture/backend-driven-ui.md) | Настройки базовых UI-компонентов | Генератор компонентов |
 | [day/build.mjs](../../day/build.mjs) | [Формирование плана](plan-generation.md) | Точная запись МЭШ, владелец по уроку, отдельный срок сдачи и отделение ссылки на файл от действия | `scripts/day.mjs` |
-| [day/dashboard-index.mjs](../../day/dashboard-index.mjs) | [Dashboard](dashboard.md) | Индекс дат и ближайших заданий | `scripts/day.mjs` |
+| [day/dashboard-index.mjs](../../day/dashboard-index.mjs) | [Dashboard](dashboard.md) | Индекс дат, заданий и независимых выходных карточек по уроку | `scripts/day.mjs`; `src/DayDashboard.tsx` |
 | [day/merge.mjs](../../day/merge.mjs) | [Формирование плана](plan-generation.md) | Слияние без потери работы, снятие ошибочной карточки и удаление доказанной ссылки из списка действий | `scripts/day.mjs` |
 | [day/merge.test.mjs](../../day/merge.test.mjs) | [Доступ и состояние](access-and-state.md) | Проверка сохранности при слиянии дня | Vitest; разработчик |
 | [diary/adapters/mesh.mjs](../../diary/adapters/mesh.mjs) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Получение данных МЭШ | Синхронизатор дневника |
@@ -87,11 +87,11 @@
 | [src/App.css](../../src/App.css) | [Тесты](quizzes.md) | Оформление тестов и навигации | `src/App.tsx` |
 | [src/App.tsx](../../src/App.tsx) | [Доступ и состояние](access-and-state.md) | Маршруты, тесты, личный вход и общий колокольчик | Браузер |
 | [src/DayDashboard.css](../../src/DayDashboard.css) | [Dashboard](dashboard.md) | Оформление бейджей расписания и сгруппированного виджета ДЗ | `src/DayDashboard.tsx` |
-| [src/DayDashboard.tsx](../../src/DayDashboard.tsx) | [Dashboard](dashboard.md) | Календарь, разные строки практикума и спецкурса, срок сдачи, живые статусы и адресные переходы | Ученик; родитель; `src/DayPage.tsx` |
+| [src/DayDashboard.tsx](../../src/DayDashboard.tsx) | [Dashboard](dashboard.md) | Календарь, отдельные выходные карточки, разные строки практикума и спецкурса и живые статусы | Ученик; родитель; `src/DayPage.tsx` |
 | [src/DayPage.css](../../src/DayPage.css) | [Страница дня](day-page.md) | Оформление заданий и фокуса после перехода из расписания | `src/DayPage.tsx` |
 | [src/DayPage.tsx](../../src/DayPage.tsx) | [Страница дня](day-page.md) | Компоновка дня из Firestore, отдельный срок сдачи, семейная доработка и фокус задания | Ученик; родитель; `ProblemGroup` |
 | [src/WeekendMathSlot.css](../../src/WeekendMathSlot.css) | [Адаптивная карточка](adaptive-problem-card.md) | Оформление общего слота математики | `src/WeekendMathSlot.tsx` |
-| [src/WeekendMathSlot.tsx](../../src/WeekendMathSlot.tsx) | [Экраны из данных](../architecture/backend-driven-ui.md) | Слот из данных ребёнка и общей карточки номера | Ученик; родитель; `ProblemGroup` |
+| [src/WeekendMathSlot.tsx](../../src/WeekendMathSlot.tsx) | [Dashboard](dashboard.md) | Переиспользуемая выходная карточка конкретного урока с собственными фото, проверками и сроком | Ученик; родитель; `ProblemGroup` |
 | [src/components/ArtifactAvatar.css](../../src/components/ArtifactAvatar.css) | [Статусы фотографии](day-page.md) | Общая миниатюра и положение значка состояния | `src/components/ArtifactAvatar.tsx` |
 | [src/components/ArtifactAvatar.tsx](../../src/components/ArtifactAvatar.tsx) | [Статусы фотографии](day-page.md) | Общий аватар загруженного фото с одним значком состояния | День; слот выходных |
 | [src/components/CodeBlock.tsx](../../src/components/CodeBlock.tsx) | [Тесты](quizzes.md) | Показ исходного кода в вопросе | Страница теста |
@@ -123,7 +123,7 @@
 | [src/components/ui/radio-group.tsx](../../src/components/ui/radio-group.tsx) | [Экраны из данных](../architecture/backend-driven-ui.md) | Базовый выбор одного ответа | Компоненты интерфейса |
 | [src/components/ui/textarea.tsx](../../src/components/ui/textarea.tsx) | [Экраны из данных](../architecture/backend-driven-ui.md) | Базовое многострочное поле | Компоненты интерфейса |
 | [src/index.css](../../src/index.css) | [Экраны из данных](../architecture/backend-driven-ui.md) | Общие цвета, шрифты и сброс стилей | Всё приложение |
-| [src/lib/dayDashboardStore.ts](../../src/lib/dayDashboardStore.ts) | [Dashboard](dashboard.md) | Подписка на даты, ДЗ и метку его изменения | `src/DayDashboard.tsx` |
+| [src/lib/dayDashboardStore.ts](../../src/lib/dayDashboardStore.ts) | [Dashboard](dashboard.md) | Подписка на даты, ДЗ, метку изменения и ссылки выходных карточек | `src/DayDashboard.tsx` |
 | [src/lib/dayStore.ts](../../src/lib/dayStore.ts) | [Формирование плана](plan-generation.md) | Типы даты урока и срока, подписки и сопоставление результатов со связанными страницами | `src/DayPage.tsx`; `src/DayDashboard.tsx` |
 | [src/lib/educationSchema.ts](../../src/lib/educationSchema.ts) | [Семейная модель](../architecture/family-data-model.md) | Типы семьи, манифеста и адресных событий | `educationStore`; `NotificationBell` |
 | [src/lib/educationStore.ts](../../src/lib/educationStore.ts) | [Действия и новое](../architecture/activity-and-inbox.md) | Подписка на inbox и команды отметки прочитанного; заготовки журнала | `NotificationBell`; будущий маршрут v2 |

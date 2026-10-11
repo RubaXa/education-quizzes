@@ -77,7 +77,11 @@ export function buildDayDashboardIndex(local, links, role, now = new Date()) {
     const source = readJson(file)
     const dates = source.weekendSlot?.dates
     if (!Array.isArray(dates) || !dates.some((date) => date >= start && date <= end)) return []
-    return [{ dates, dayToken: pair[role], dueDate: source.targetDate, title: source.weekendSlot.title || 'Математика на выходных' }]
+    const problemTasks = source.subjects?.filter((subject) => subject.id === 'math' || subject.id === 'special').flatMap((subject) => subject.tasks).filter((task) => task.problems?.length) ?? []
+    if (!problemTasks.length) return []
+    return [{ dates, dayToken: pair[role], lessonDate: source.targetDate,
+      dueDate: source.weekendSlot.dueDate || problemTasks[0].dueDate || source.targetDate,
+      title: source.weekendSlot.title || 'Математика на выходных' }]
   })
   return { schemaVersion: 1, kind: role, today, timezone: 'Europe/Moscow', days, weekendWork }
 }

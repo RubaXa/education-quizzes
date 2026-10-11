@@ -15,8 +15,9 @@ import { canAcceptCorrectAnswer, parentAccepted, recordParentCompletion } from '
 import './WeekendMathSlot.css'
 
 type LocalPhoto = { id: string; taskId: string; url: string; state: 'uploading' | 'failed'; error?: string }
+function shortDate(date: string) { return new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long', timeZone: 'Europe/Moscow' }).format(new Date(`${date}T12:00:00+03:00`)) }
 
-export default function WeekendMathSlot({ token, parent, dueDate, title }: { token: string; parent: boolean; dueDate: string; title: string }) {
+export default function WeekendMathSlot({ token, parent, lessonDate, dueDate, title }: { token: string; parent: boolean; lessonDate?: string; dueDate: string; title: string }) {
   const [page, setPage] = useState<DayPageData>()
   const [helpRequests, setHelpRequests] = useState<DayHelp[]>([])
   const [helpRole, setHelpRole] = useState<'checking' | 'student' | 'parent' | 'none'>('checking')
@@ -66,7 +67,7 @@ export default function WeekendMathSlot({ token, parent, dueDate, title }: { tok
   if (!page) return <section className="weekend-math-slot">Загружаем задания на выходные…</section>
   const subjects = page.subjects.filter((subject) => (subject.id === 'math' || subject.id === 'special') && subject.tasks.some((task) => task.problems?.length))
   return <section className="weekend-math-slot" aria-label="Математика на выходных">
-    <header><div><span className="weekend-math-kicker">Один слот на субботу и воскресенье</span><h2>{title}</h2><p>{subjects.map((subject) => subject.name).join(' · ')} · срок сдачи {new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long', timeZone: 'Europe/Moscow' }).format(new Date(`${dueDate}T12:00:00+03:00`))}</p></div></header>
+    <header><div><span className="weekend-math-kicker">Работа на субботу и воскресенье</span><h2>{title}</h2><p>{subjects.map((subject) => subject.name).join(' · ')} · урок {shortDate(lessonDate || page.targetDate)} · сдать {shortDate(dueDate)}</p></div></header>
     {error && <p className="weekend-math-error" role="alert">{error}</p>}
     {subjects.map((subject) => subject.tasks.filter((task) => task.problems?.length).map((task) => {
       const taskLinks = page.materialLinks?.[task.id] ?? []

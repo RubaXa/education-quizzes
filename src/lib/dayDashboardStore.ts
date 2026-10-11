@@ -19,7 +19,7 @@ export type DayDashboardData = {
   today: string
   timezone: string
   days: IndexedDay[]
-  weekendWork?: { dates: string[]; dayToken: string; dueDate: string; title: string }[]
+  weekendWork?: { dates: string[]; dayToken: string; lessonDate: string; dueDate: string; title: string }[]
   updatedAt?: unknown
 }
 
