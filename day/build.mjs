@@ -70,6 +70,7 @@ export function buildDaySource(local, date) {
     .map((placement) => ({ ...placement, originDate: placement.originDate || (current ? targetDate : earlier.targetDate) }))
   const retainedTaskIds = new Set(subjects.flatMap((subject) => subject.tasks.map((task) => task.id)))
   const materialLinks = { ...(current?.materialLinks || Object.fromEntries(Object.entries(earlier?.materialLinks || {}).filter(([taskId]) => retainedTaskIds.has(taskId)))) }
+  const sourceOnlyEntries = [...(current?.sourceOnlyEntries || [])]
   let added = 0
   const dueOnWednesday = (assignment) => subjectInfo(assignment)[0] === 'special' && (assignment.homeworkEntries || []).some((item) => /сдать[^.]*в среду/i.test(item.description || ''))
   const assignments = lessonVisibility(target.assignments || []).conducted
@@ -100,8 +101,24 @@ export function buildDaySource(local, date) {
     if (assignment.teacherFiles?.length) subject.materials = [...new Set(teacherLinks(local, lessonDate, assignment.teacherFiles).map((item) => item.title))].join('; ')
     for (const entry of descriptions) {
       const taskId = `mesh-${entry.id}`
-      const old = subject.tasks.find((task) => task.id === taskId)
       const description = entry.description.trim()
+      // A bare attachment pointer names the same teacher file; it assigns no extra work.
+      // @see ../docs/product/plan-generation.md#material-only-mesh-entries
+      const mainEntry = descriptions.find((candidate) => candidate.id !== entry.id && !/^файл здесь\.?$/i.test(candidate.description.trim()))
+      if (/^файл здесь\.?$/i.test(description) && assignment.teacherFiles?.length && mainEntry) {
+        const targetTaskId = `mesh-${mainEntry.id}`
+        if (!sourceOnlyEntries.some((item) => item.id === taskId)) sourceOnlyEntries.push({
+          id: taskId, subjectId: id, targetTaskId, rawText: description,
+          reason: 'Запись МЭШ указывает на приложенный к тому же уроку файл и не задаёт отдельного действия.',
+        })
+        subject.tasks = subject.tasks.filter((task) => task.id !== taskId)
+        delete materialLinks[taskId]
+        if (subject.summary === 'Новое задание МЭШ. Подробный разбор готовится.') {
+          subject.summary = 'Запись МЭШ «Файл здесь» ведёт к уже указанному файлу учителя и не добавляет отдельного задания. Содержание основного задания ещё сверяется.'
+        }
+        continue
+      }
+      const old = subject.tasks.find((task) => task.id === taskId)
       if (old) {
         if (old.meshText !== description) {
           // A changed teacher instruction invalidates the previous agent interpretation.
@@ -148,7 +165,7 @@ export function buildDaySource(local, date) {
   ]
   parentNotes.push(...(current?.manualParentNotes || []))
   const evidenceDayTokens = [...new Set([...(current?.evidenceDayTokens || earlier?.evidenceDayTokens || []), ...(earlierDate && links[earlierDate] ? [links[earlierDate].student] : [])])]
-  const source = { ...current, targetDate, notices, parentNotes, subjects, testPlacements: placements, materialLinks, evidenceDayTokens }
+  const source = { ...current, targetDate, notices, parentNotes, subjects, testPlacements: placements, materialLinks, sourceOnlyEntries, evidenceDayTokens }
   writeJson(local, `day-source-${date}.json`, source)
   return { date, targetDate, assigned, subjects: subjects.length, tasks: subjects.reduce((sum, subject) => sum + subject.tasks.length, 0), added }
 }

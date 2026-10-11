@@ -6,8 +6,8 @@ function withoutSiteCopies({ siteImage, siteThumbnail, ...link }) {
   return link
 }
 
-function mergeSubjects(existing = [], incoming = []) {
-  const result = existing.map((subject) => ({ ...subject, tasks: [...subject.tasks] }))
+function mergeSubjects(existing = [], incoming = [], retiredTaskIds = new Set()) {
+  const result = existing.map((subject) => ({ ...subject, tasks: subject.tasks.filter((task) => !retiredTaskIds.has(task.id)) }))
   for (const subject of incoming) {
     const index = result.findIndex((item) => item.id === subject.id)
     if (index < 0) { result.push(subject); continue }
@@ -30,12 +30,14 @@ function mergeSubjects(existing = [], incoming = []) {
 /** @see ../docs/product/access-and-state.md#state */
 export function mergeDayPage(existing, incoming) {
   if (!existing) return { ...incoming, planRevision: 1, changes: [] }
-  const subjects = mergeSubjects(existing.subjects, incoming.subjects)
+  const retiredTaskIds = new Set((incoming.sourceOnlyEntries || []).map((entry) => entry.id))
+  const subjects = mergeSubjects(existing.subjects, incoming.subjects, retiredTaskIds)
   const before = new Map(existing.subjects.flatMap((subject) => subject.tasks).map((task) => [task.id, task]))
   const after = subjects.flatMap((subject) => subject.tasks)
   const added = after.filter((task) => !before.has(task.id)).map((task) => task.id)
+  const removed = [...retiredTaskIds].filter((taskId) => before.has(taskId) && !after.some((task) => task.id === taskId))
   const changed = after.filter((task) => before.has(task.id) && JSON.stringify(before.get(task.id)) !== JSON.stringify(task)).map((task) => task.id)
-  const materialLinks = Object.fromEntries(Object.entries(existing.materialLinks || {}).map(([taskId, links]) => [taskId, links.map(withoutSiteCopies)]))
+  const materialLinks = Object.fromEntries(Object.entries(existing.materialLinks || {}).filter(([taskId]) => !retiredTaskIds.has(taskId)).map(([taskId, links]) => [taskId, links.map(withoutSiteCopies)]))
   const replacements = new Set(incoming.materialLinkReplacements || [])
   for (const [taskId, links] of Object.entries(incoming.materialLinks || {})) {
     const current = links.map(withoutSiteCopies)
@@ -55,10 +57,10 @@ export function mergeDayPage(existing, incoming) {
   }).map((subject) => subject.id)
   const changedSchedule = JSON.stringify(existing.todaySchedule) !== JSON.stringify(incoming.todaySchedule)
     || JSON.stringify(existing.targetSchedule) !== JSON.stringify(incoming.targetSchedule)
-  const planChanged = added.length || changed.length || changedSubjects.length || newLinks || changedSchedule
+  const planChanged = added.length || removed.length || changed.length || changedSubjects.length || newLinks || changedSchedule
   merged.planRevision = (existing.planRevision || 1) + (planChanged ? 1 : 0)
   merged.changes = planChanged
-    ? [{ at: incoming.updatedAt, added, changed, changedSubjects, newLinks, changedSchedule }, ...(existing.changes || [])].slice(0, 20)
+    ? [{ at: incoming.updatedAt, added, removed, changed, changedSubjects, newLinks, changedSchedule }, ...(existing.changes || [])].slice(0, 20)
     : existing.changes || []
   return merged
 }

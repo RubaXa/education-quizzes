@@ -14,9 +14,9 @@
 | [README.md](../../README.md) | [Карта спецификаций](README.md) | Вход в репозиторий и команды | Разработчик; агент |
 | [commitlint.config.cjs](../../commitlint.config.cjs) | [Карта файлов](file-map.md) | Формат истории изменений | commitlint |
 | [components.json](../../components.json) | [Экраны из данных](../architecture/backend-driven-ui.md) | Настройки базовых UI-компонентов | Генератор компонентов |
-| [day/build.mjs](../../day/build.mjs) | [Формирование плана](plan-generation.md) | Точная запись МЭШ до педагогического разбора | `scripts/day.mjs` |
+| [day/build.mjs](../../day/build.mjs) | [Формирование плана](plan-generation.md) | Точная запись МЭШ и отделение ссылки на файл от действия | `scripts/day.mjs` |
 | [day/dashboard-index.mjs](../../day/dashboard-index.mjs) | [Dashboard](dashboard.md) | Индекс дат и ближайших заданий | `scripts/day.mjs` |
-| [day/merge.mjs](../../day/merge.mjs) | [Доступ и состояние](access-and-state.md) | Слияние повторной публикации без потери работы | `scripts/day.mjs` |
+| [day/merge.mjs](../../day/merge.mjs) | [Формирование плана](plan-generation.md) | Слияние без потери работы и удаление доказанной ссылки из списка действий | `scripts/day.mjs` |
 | [day/merge.test.mjs](../../day/merge.test.mjs) | [Доступ и состояние](access-and-state.md) | Проверка сохранности при слиянии дня | Vitest; разработчик |
 | [diary/adapters/mesh.mjs](../../diary/adapters/mesh.mjs) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Получение данных МЭШ | Синхронизатор дневника |
 | [diary/application/diff.mjs](../../diary/application/diff.mjs) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Различия двух снимков дневника | `diary/cli.mjs` |
@@ -68,7 +68,7 @@
 | [scripts/build-site.mjs](../../scripts/build-site.mjs) | [PWA](pwa.md) | Сборка клиентского приложения | npm build |
 | [scripts/check-privacy.mjs](../../scripts/check-privacy.mjs) | [Хранение и приватность](storage-privacy.md) | Запрет секретов и персональных файлов в Git | Git hooks; публикация |
 | [scripts/check-spec-map.mjs](../../scripts/check-spec-map.mjs) | [Карта файлов](file-map.md) | Проверка покрытия файлов контрактами | npm check; агент |
-| [scripts/day.mjs](../../scripts/day.mjs) | [Dashboard](dashboard.md) | Выпуск плана, индекса и адресных событий изменения ДЗ | Оператор; Firestore; `src/DayDashboard.tsx`; `NotificationBell` |
+| [scripts/day.mjs](../../scripts/day.mjs) | [Формирование плана](plan-generation.md) | Выпуск дня, перенос подтверждённого ЦДЗ между страницами одной даты и аудит ссылок | Оператор; Firestore; `src/DayDashboard.tsx`; `NotificationBell` |
 | [scripts/direct-upload-worker.mjs](../../scripts/direct-upload-worker.mjs) | [Хранение и приватность](storage-privacy.md) | Выдача адреса и проверка фото на Диске | Клиент загрузки; очередь |
 | [scripts/family.mjs](../../scripts/family.mjs) | [Семейная модель](../architecture/family-data-model.md) | Создание семей и личных ссылок | Оператор |
 | [scripts/generate-sw.mjs](../../scripts/generate-sw.mjs) | [PWA](pwa.md) | Генерация service worker | Сборка сайта |
@@ -121,7 +121,7 @@
 | [src/components/ui/textarea.tsx](../../src/components/ui/textarea.tsx) | [Экраны из данных](../architecture/backend-driven-ui.md) | Базовое многострочное поле | Компоненты интерфейса |
 | [src/index.css](../../src/index.css) | [Экраны из данных](../architecture/backend-driven-ui.md) | Общие цвета, шрифты и сброс стилей | Всё приложение |
 | [src/lib/dayDashboardStore.ts](../../src/lib/dayDashboardStore.ts) | [Dashboard](dashboard.md) | Подписка на даты, ДЗ и метку его изменения | `src/DayDashboard.tsx` |
-| [src/lib/dayStore.ts](../../src/lib/dayStore.ts) | [Страница дня](day-page.md) | Подписки, модель дня и фото | `src/DayPage.tsx` |
+| [src/lib/dayStore.ts](../../src/lib/dayStore.ts) | [Формирование плана](plan-generation.md) | Подписки и сопоставление результата ЦДЗ со связанными страницами дня | `src/DayPage.tsx`; `src/DayDashboard.tsx` |
 | [src/lib/educationSchema.ts](../../src/lib/educationSchema.ts) | [Семейная модель](../architecture/family-data-model.md) | Типы семьи, манифеста и адресных событий | `educationStore`; `NotificationBell` |
 | [src/lib/educationStore.ts](../../src/lib/educationStore.ts) | [Действия и новое](../architecture/activity-and-inbox.md) | Подписка на inbox и команды отметки прочитанного; заготовки журнала | `NotificationBell`; будущий маршрут v2 |
 | [src/lib/firebase.ts](../../src/lib/firebase.ts) | [Доступ и состояние](access-and-state.md) | Подключение к Firestore | Клиентские хранилища |
@@ -138,7 +138,7 @@
 | [src/lib/quizWrite.ts](../../src/lib/quizWrite.ts) | [Тесты](quizzes.md) | Последовательная запись ответов | `src/lib/store.ts` |
 | [src/lib/reviewPresentation.test.ts](../../src/lib/reviewPresentation.test.ts) | [Страница дня](day-page.md) | Проверка понятных статусов работ | Vitest; разработчик |
 | [src/lib/reviewPresentation.ts](../../src/lib/reviewPresentation.ts) | [Страница дня](day-page.md) | Текст и цвет вердиктов | `WorkReview`; `ProblemCard` |
-| [src/lib/useDayEvidence.ts](../../src/lib/useDayEvidence.ts) | [Экраны из данных](../architecture/backend-driven-ui.md) | Одна подписка на фото и разборы выбранного дня | `src/DayPage.tsx`; `src/WeekendMathSlot.tsx` |
+| [src/lib/useDayEvidence.ts](../../src/lib/useDayEvidence.ts) | [Формирование плана](plan-generation.md) | Подписки на фото, разборы и страницы результата той же даты сдачи | `src/DayPage.tsx`; `src/WeekendMathSlot.tsx` |
 | [src/lib/store.ts](../../src/lib/store.ts) | [Тесты](quizzes.md) | Подписки на попытки, ключи и списки | `src/App.tsx` |
 | [src/lib/utils.ts](../../src/lib/utils.ts) | [Экраны из данных](../architecture/backend-driven-ui.md) | Слияние классов UI | Базовые компоненты |
 | [src/lib/visual.test.ts](../../src/lib/visual.test.ts) | [Тесты](quizzes.md) | Проверка визуальных вопросов | Vitest; разработчик |

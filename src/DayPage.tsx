@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { BookOpen, Camera, CheckCircle2, ChevronDown, Clock3, ExternalLink, RotateCcw, Trash2, X } from 'lucide-react'
-import { removePendingDayPhoto, requestDayHelp, uploadDayPhoto, uploadMatchesTask, watchDayHelp, watchDayPage, watchMaterialPages } from '@/lib/dayStore'
+import { removePendingDayPhoto, requestDayHelp, uploadDayPhoto, uploadMatchesTask, watchDayHelp, watchDayPage, watchMaterialPages, withVerifiedPlatformResult } from '@/lib/dayStore'
 import type { DayHelp, DayInstruction, DayMaterialLink, DayPageData, DayTask, DayUpload, DayWorkReview } from '@/lib/dayStore'
 import { loadAnswerKey, watchAssignment, watchDashboard } from '@/lib/store'
 import { dayHelpSessionRole } from '@/lib/personalAccess'
@@ -284,7 +284,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
   const [view, setView] = useState<'homework' | 'school'>(requestedView === 'homework' ? 'homework' : 'school')
   const [manualView, setManualView] = useState(requestedView === 'homework' || requestedView === 'school')
   const [error, setError] = useState('')
-  const { studentToken, evidenceKey, uploads, reviews, ready: evidenceReady } = useDayEvidence(page, token, setError)
+  const { studentToken, evidenceKey, uploads, reviews, evidencePages, ready: evidenceReady } = useDayEvidence(page, token, setError)
   const [localPhotos, setLocalPhotos] = useState<LocalPhoto[]>([])
   const [statusNow, setStatusNow] = useState(() => Date.now())
   const photoUrls = useRef(new Set<string>())
@@ -462,7 +462,8 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
 
   if (error && !page) return <div className="day-error"><h1>Не получилось открыть страницу</h1><p>{error}</p></div>
   if (!page) return <p className="day-loading">Загружаем страницу дня…</p>
-  const currentSubjects = page.subjects.map((subject) => ({ ...subject, tasks: subject.tasks.filter((task) => (task.originDate ?? page.targetDate) === page.targetDate) }))
+  const currentSubjects = page.subjects.map((subject) => ({ ...subject, tasks: subject.tasks.filter((task) => (task.originDate ?? page.targetDate) === page.targetDate)
+    .map((task) => withVerifiedPlatformResult(task, page.targetDate, evidencePages)) }))
     .filter((subject) => subject.tasks.length || currentPlacements.some((placement) => placement.subjectId === subject.id && !placement.taskId))
   const noSpecialHomework = page.targetSchedule.some((lesson) => /Спецкурс|Специальный курс/i.test(lesson.subject))
     && !currentSubjects.some((subject) => subject.id === 'special')

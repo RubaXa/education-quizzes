@@ -14,7 +14,7 @@ export type DayProblem = {
   /** Parent document only. Never include answer keys or solution steps in a day page. */
   sourceResearch?: { status: 'candidate' | 'verified' | 'not-found' | 'conflict'; title: string; url?: string; match: string; keyStatus: 'not-checked' | 'candidate' | 'verified' | 'unavailable'; note?: string };
 }
-export type DayTask = { id: string; title: string; detail: string; steps?: DayInstruction[]; problems?: DayProblem[]; status: 'verified' | 'needs-fix' | 'partial' | 'unknown'; kind: 'written' | 'read' | 'check'; source: string; submission?: DaySubmission | null; instructionStatus?: { state: 'needs-review' | 'reviewed'; message: string }; testToken?: string; testSlug?: string; requiredPoints?: number; originDate?: string; platformResult?: { state: 'completed'; points: number; maxPoints: number; durationMinutes?: number; observedDate?: string; source: string }; materialStatus?: { state: 'textbook-page-needed' | 'textbook-page-linked' | 'text-absent-from-textbook' | 'no-textbook'; message: string } }
+export type DayTask = { id: string; title: string; detail: string; meshText?: string; steps?: DayInstruction[]; problems?: DayProblem[]; status: 'verified' | 'needs-fix' | 'partial' | 'unknown'; kind: 'written' | 'read' | 'check'; source: string; submission?: DaySubmission | null; instructionStatus?: { state: 'needs-review' | 'reviewed'; message: string }; testToken?: string; testSlug?: string; requiredPoints?: number; originDate?: string; platformResult?: { state: 'completed'; points: number; maxPoints: number; durationMinutes?: number; observedDate?: string; source: string }; materialStatus?: { state: 'textbook-page-needed' | 'textbook-page-linked' | 'text-absent-from-textbook' | 'no-textbook'; message: string } }
 export type DayMaterialLink = { title: string; url: string; sourceType: 'textbook-page' | 'teacher-attachment' | 'external-text'; reason?: string; sourceRef?: string; pdfPage?: number; printedPage?: number; editionStatus?: string; extraction?: string; sourceSha256?: string; sourceQuote?: string }
 export type DaySubject = { id: string; name: string; icon: string; materials: string; mesh: string; summary: string; tasks: DayTask[] }
 export type DayTestPlacement = { token: string; subjectId: string; taskId?: string; originDate?: string }
@@ -27,8 +27,10 @@ export type DayPageData = {
   boardToken: string; studentToken?: string; parentNotes?: string[]; testPlacements?: DayTestPlacement[];
   materialLinks?: Record<string, DayMaterialLink[]>;
   taskPageRefs?: Record<string, string[]>;
+  /** Raw MESH entries that point to material already attached to another task. @see ../../docs/product/plan-generation.md#material-only-mesh-entries */
+  sourceOnlyEntries?: { id: string; subjectId: string; targetTaskId: string; rawText: string; reason: string }[];
   evidenceDayTokens?: string[]; planRevision?: number;
-  changes?: { at: unknown; added: string[]; changed: string[]; changedSubjects?: string[]; newLinks: boolean; changedSchedule?: boolean }[];
+  changes?: { at: unknown; added: string[]; removed?: string[]; changed: string[]; changedSubjects?: string[]; newLinks: boolean; changedSchedule?: boolean }[];
   grades?: { id: string; name: string; grades: { mark: number; weight: number }[]; displayed_average: number; scenario_verified?: boolean }[];
   workingThreshold?: number;
 }
@@ -70,6 +72,27 @@ export function watchDayPage(token: string, onChange: (page: DayPageData) => voi
     if (snapshot.data().schemaVersion !== 1) { onError(new Error('Данные дня обновились. Обновите приложение до новой версии.')); return }
     onChange(snapshot.data() as DayPageData)
   }, onError)
+}
+/** @see ../../docs/product/plan-generation.md#cross-day-results */
+export function watchEvidenceDayPages(tokens: string[], onChange: (pages: DayPageData[]) => void, onError: (error: Error) => void) {
+  const parts = new Map<string, DayPageData>()
+  const unique = [...new Set(tokens)]
+  const stops = unique.map((token) => watchDayPage(token, (page) => {
+    if (page.kind === 'student') parts.set(token, page)
+    if (parts.size === unique.length) onChange(unique.map((item) => parts.get(item)!))
+  }, onError))
+  return () => stops.forEach((stop) => stop())
+}
+/** A completed platform result belongs to an assignment, even when it was published on an earlier day page. */
+export function withVerifiedPlatformResult(task: DayTask, targetDate: string, pages: DayPageData[]): DayTask {
+  if (task.kind !== 'check' || !task.id.endsWith('-cdz') || task.platformResult?.state === 'completed') return task
+  const candidates = pages.filter((page) => page.targetDate === targetDate)
+    .flatMap((page) => page.subjects.flatMap((subject) => subject.tasks))
+    .filter((prior) => prior.id === task.id && prior.meshText === task.meshText && prior.platformResult?.state === 'completed')
+    .sort((a, b) => (b.platformResult?.observedDate ?? '').localeCompare(a.platformResult?.observedDate ?? ''))
+  if (!candidates.length || candidates.length > 1 && candidates[0].platformResult?.observedDate === candidates[1].platformResult?.observedDate
+    && JSON.stringify(candidates[0].platformResult) !== JSON.stringify(candidates[1].platformResult)) return task
+  return { ...task, status: 'verified', platformResult: candidates[0].platformResult }
 }
 /** @see ../../docs/product/materials.md#firestore-catalog */
 export function watchMaterialPages(refs: string[], onChange: (pages: Record<string, DayMaterialLink>) => void, onError: (error: Error) => void) {

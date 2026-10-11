@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { getAuth } from 'firebase/auth'
 import { ArrowRight, BookOpen, CalendarDays, CheckCircle2, ChevronDown, Clock3, Sparkles } from 'lucide-react'
-import { uploadMatchesTask, watchDayPage, watchDayReviews, watchDayUploads } from '@/lib/dayStore'
+import { uploadMatchesTask, watchDayPage, watchDayReviews, watchDayUploads, watchEvidenceDayPages, withVerifiedPlatformResult } from '@/lib/dayStore'
 import type { DayPageData, DayTask, DayUpload, DayWorkReview } from '@/lib/dayStore'
 import { activeProcessing, elapsedLabel, reviewHeadline, reviewTone, timestampMillis } from '@/lib/reviewPresentation'
 import { watchDayDashboard } from '@/lib/dayDashboardStore'
@@ -157,6 +157,7 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
   const [gradePage, setGradePage] = useState<DayPageData>()
   const [uploads, setUploads] = useState<DayUpload[]>([])
   const [reviews, setReviews] = useState<DayWorkReview[]>([])
+  const [evidencePages, setEvidencePages] = useState<DayPageData[]>([])
   const [tests, setTests] = useState<Record<string, Assignment>>({})
   const [scores, setScores] = useState<Record<string, QuizScore>>({})
   const [selected, setSelected] = useState(() => sessionStorage.getItem('education-dashboard-selection-day') === moscowToday() ? (sessionStorage.getItem('education-dashboard-selected-date') ?? moscowToday()) : moscowToday())
@@ -240,6 +241,11 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
     if (!evidenceKey) return
     return watchDayReviews(evidenceKey.split('|'), setReviews, (cause) => setError(cause.message))
   }, [evidenceKey])
+  useEffect(() => {
+    setEvidencePages([])
+    if (!evidenceKey) return
+    return watchEvidenceDayPages(evidenceKey.split('|'), setEvidencePages, (cause) => setError(cause.message))
+  }, [evidenceKey])
   const placementKey = (selectedPage?.testPlacements ?? []).filter((placement) => (placement.originDate ?? selectedDate) === selectedDate).map((placement) => placement.token).join('|')
   useEffect(() => {
     setTests({})
@@ -260,7 +266,8 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
   }, [placementKey])
 
   const weekendWork = index?.weekendWork?.find((slot) => slot.dates.includes(selectedDate))
-  const currentSubjects = selectedPage?.subjects.map((subject) => ({ ...subject, tasks: subject.tasks.filter((task) => (task.originDate ?? selectedDate) === selectedDate) })).filter((subject) => subject.tasks.length) ?? []
+  const currentSubjects = selectedPage?.subjects.map((subject) => ({ ...subject, tasks: subject.tasks.filter((task) => (task.originDate ?? selectedDate) === selectedDate)
+    .map((task) => withVerifiedPlatformResult(task, selectedDate, evidencePages)) })).filter((subject) => subject.tasks.length) ?? []
   const gradeSource = gradePage
   const gradeRows = gradeSource?.gradeSummary ?? []
   const gradeDetails = new Map((gradeSource?.grades ?? []).map((item) => [item.id, item]))

@@ -231,6 +231,16 @@ function validate(source) {
       if (link.sourceType === 'external-text' && (task.materialStatus?.state !== 'text-absent-from-textbook' || !link.reason)) fail(`Внешний текст для ${taskId} допустим только после подтверждения его отсутствия в учебнике и с объяснением.`)
     }
   }
+  // @see ../docs/product/plan-generation.md#material-only-mesh-entries
+  for (const entry of source.sourceOnlyEntries ?? []) {
+    const target = source.subjects.find((subject) => subject.id === entry.subjectId)?.tasks.find((task) => task.id === entry.targetTaskId)
+    const subject = source.subjects.find((item) => item.id === entry.subjectId)
+    if (!/^mesh-\d+$/.test(entry.id ?? '') || ids.has(entry.id) || !target || target.kind !== 'written'
+      || !entry.rawText?.trim() || !subject?.mesh?.includes(entry.rawText)
+      || !entry.reason?.trim() || !(source.materialLinks?.[target.id] ?? []).some((link) => link.sourceType === 'teacher-attachment')) {
+      fail(`Ссылка МЭШ ${entry.id} может быть исключена из действий только при подтверждённом общем файле учителя.`)
+    }
+  }
   if ((source.materialLinkReplacements ?? []).some((taskId) => !ids.has(taskId))) fail('Заменять материалы можно только для существующего задания.')
   const testTokens = new Set()
   for (const placement of source.testPlacements ?? []) {
@@ -256,6 +266,48 @@ function validate(source) {
     evidenceIds.add(evidence.id)
   }
   return [...ids]
+}
+
+/** Carry a completed platform result between two views of the same assignment date. @see ../docs/product/plan-generation.md#cross-day-results */
+async function reconcileEarlierEvidence(source, studentToken) {
+  const owner = json(resolve(local, 'family-access.json')).legacyDayOwner
+  if (!owner?.childId) fail('Нельзя сопоставить старые результаты без владельца страницы.')
+  const tokens = [...new Set([studentToken, ...(source.evidenceDayTokens ?? [])])]
+  const pages = []
+  for (const token of tokens) {
+    const [ownerDoc, pageDoc] = await Promise.all([db.doc(`dayOwners/${token}`).get(), db.doc(`dayPages/${token}`).get()])
+    if (!pageDoc.exists) continue
+    if (ownerDoc.data()?.childId !== owner.childId || pageDoc.data().kind !== 'student') fail('Источник предыдущего результата принадлежит другой странице или ребёнку.')
+    pages.push({ token, page: pageDoc.data() })
+  }
+  for (const entry of source.sourceOnlyEntries ?? []) {
+    for (const { token } of pages) {
+      const [progress, uploads] = await Promise.all([
+        db.doc(`dayProgress/${token}/items/${entry.id}`).get(),
+        db.collection(`dayUploads/${token}/files`).get(),
+      ])
+      if (progress.exists || uploads.docs.some((upload) => upload.data().status !== 'deleted'
+        && (upload.data().taskId === entry.id || upload.data().coveredTaskIds?.includes(entry.id)))) {
+        fail(`У ссылки МЭШ ${entry.id} уже есть работа или разбор; нельзя скрыть её как простой файл.`)
+      }
+    }
+  }
+  for (const subject of source.subjects) for (const task of subject.tasks) {
+    if (task.kind !== 'check' || !task.id.endsWith('-cdz') || task.platformResult?.state === 'completed') continue
+    const candidates = pages.filter(({ page }) => page.targetDate === source.targetDate)
+      .flatMap(({ page }) => page.subjects?.flatMap((item) => item.tasks ?? []) ?? [])
+      .filter((prior) => prior.id === task.id && prior.meshText === task.meshText && prior.platformResult?.state === 'completed')
+      .sort((a, b) => (b.platformResult.observedDate ?? '').localeCompare(a.platformResult.observedDate ?? ''))
+    if (!candidates.length) continue
+    if (candidates.length > 1 && candidates[0].platformResult.observedDate === candidates[1].platformResult.observedDate
+      && JSON.stringify(candidates[0].platformResult) !== JSON.stringify(candidates[1].platformResult)) {
+      fail(`У ЦДЗ ${task.id} конфликт результатов с одной датой; требуется сверка.`)
+    }
+    if (task.status === 'unknown' || task.status === 'verified') {
+      task.status = 'verified'
+      task.platformResult = candidates[0].platformResult
+    }
+  }
 }
 
 /** @see ../docs/product/access-and-state.md#state */
@@ -299,11 +351,13 @@ async function publish() {
   }
   if (!links[date]) links[date] = { student: randomBytes(32).toString('base64url'), parent: randomBytes(32).toString('base64url') }
   const pair = links[date]
+  await reconcileEarlierEvidence(source, pair.student)
   const indexTokens = dashboardLinks()
   const base = {
     schemaVersion: 1, date, targetDate: source.targetDate, updatedAt: Timestamp.now(),
     meshFetchedAt: target.fetchedAt, todaySchedule: schedule(today), targetSchedule: schedule(target),
     subjects: source.subjects, taskIds, testPlacements: source.testPlacements ?? [], notices: source.notices ?? [],
+    sourceOnlyEntries: source.sourceOnlyEntries ?? [],
     materialLinks: allMaterialLinks, materialLinkReplacements: source.materialLinkReplacements ?? [],
     taskPageRefs: pageRefs,
     evidenceDayTokens: [...new Set([pair.student, ...(source.evidenceDayTokens || [])])],
