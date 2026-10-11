@@ -3,7 +3,7 @@ import { getAuth } from 'firebase/auth'
 import { ArrowRight, BookOpen, CalendarDays, CheckCircle2, ChevronDown, Clock3, Sparkles } from 'lucide-react'
 import { uploadMatchesTask, watchDayPage, watchDayReviews, watchDayUploads, watchEvidenceDayPages, withVerifiedPlatformResult } from '@/lib/dayStore'
 import type { DayPageData, DayTask, DayUpload, DayWorkReview } from '@/lib/dayStore'
-import { activeProcessing } from '@/lib/reviewPresentation'
+import { activeProcessing, workCoverageComplete } from '@/lib/reviewPresentation'
 import { useParentCompletions } from '@/lib/useParentCompletions'
 import { parentAccepted } from '@/lib/parentCompletion'
 import type { ParentCompletionEvent } from '@/lib/parentCompletion'
@@ -36,7 +36,7 @@ function lessonTime(iso: string) {
   return Number.isNaN(time.getTime()) ? '' : new Intl.DateTimeFormat('ru-RU', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Moscow' }).format(time)
 }
 type QuizScore = { points: number; maxPoints: number }
-type LessonWorkItem = { id: string; title: string; state: 'done' | 'todo' | 'checking' | 'unclear'; detail: string }
+type LessonWorkItem = { id: string; title: string; state: 'done' | 'todo' | 'checking' | 'unclear'; detail: string; qualityOpen?: boolean }
 
 /** @see ../docs/product/dashboard.md#schedule-homework-status */
 function lessonSubjectId(name: string) {
@@ -59,8 +59,9 @@ function lessonWorkItems(tasks: DayTask[], uploads: DayUpload[], reviews: DayWor
       const pending = uploads.some((upload) => uploadMatchesTask(upload, problem.id) && ['requested', 'awaiting-upload', 'uploaded', 'pending'].includes(upload.status))
       const criterionPending = review?.assessmentBasis?.outcome === 'unresolved'
       const accepted = parentAccepted(review, decisions)
-      const state: LessonWorkItem['state'] = pending ? 'checking' : criterionPending ? 'unclear' : review?.status === 'verified' || accepted ? 'done' : 'todo'
-      return { id: problem.id, title: `№ ${problem.number}. ${problem.title}`, state, detail: state === 'unclear' ? `${review?.summary ?? 'Работа разобрана; критерий учителя не подтверждён.'} Новое фото не требуется.` : state === 'checking' ? 'Фото получено, ждём проверки' : state === 'done' ? accepted ? 'Засчитано родителем · ответ верен, ход неполон' : 'Решение проверено' : review?.status === 'needs-fix' ? 'Нужно исправить решение' : review?.status === 'partial' ? 'Нужно дополнить решение' : 'Нужно выполнить и загрузить решение' }
+      const covered = workCoverageComplete(review) && !pending
+      const state: LessonWorkItem['state'] = pending ? 'checking' : criterionPending && !covered ? 'unclear' : review?.status === 'verified' || accepted || covered ? 'done' : 'todo'
+      return { id: problem.id, title: `№ ${problem.number}. ${problem.title}`, state, qualityOpen: covered, detail: state === 'unclear' ? `${review?.summary ?? 'Работа разобрана; критерий учителя не подтверждён.'} Новое фото не требуется.` : state === 'checking' ? 'Фото получено, ждём проверки' : state === 'done' ? covered ? 'Работа сдана; критерий оценки пока не установлен. Новых действий не требуется.' : accepted ? 'Засчитано родителем · ответ верен, ход неполон' : 'Решение проверено' : review?.status === 'needs-fix' ? 'Нужно исправить решение' : review?.status === 'partial' ? 'Нужно дополнить решение' : 'Нужно выполнить и загрузить решение' }
     })
     const review = reviews.find((item) => item.taskId === task.id)
     const pending = uploads.some((upload) => uploadMatchesTask(upload, task.id) && ['requested', 'awaiting-upload', 'uploaded', 'pending'].includes(upload.status))
@@ -69,18 +70,19 @@ function lessonWorkItems(tasks: DayTask[], uploads: DayUpload[], reviews: DayWor
     const readPassed = task.kind === 'read' && score && score.points >= (task.requiredPoints ?? score.maxPoints)
     const cdzPassed = task.platformResult?.state === 'completed'
     const accepted = parentAccepted(review, decisions)
-    const done = Boolean(readPassed || cdzPassed || review?.status === 'verified' || accepted || !review && task.status === 'verified')
+    const covered = workCoverageComplete(review) && !pending
+    const done = Boolean(readPassed || cdzPassed || review?.status === 'verified' || accepted || covered || !review && task.status === 'verified')
     const processing = activeProcessing(review, uploads.filter((upload) => uploadMatchesTask(upload, task.id)))
     const criterionPending = review?.assessmentBasis?.outcome === 'unresolved'
     const checking = !done && (pending || Boolean(processing && processing.phase !== 'paused') || task.kind === 'read' && test?.status === 'submitted' && !score)
     const state: LessonWorkItem['state'] = done ? 'done' : checking ? 'checking' : criterionPending ? 'unclear' : 'todo'
-    const detail = state === 'done' ? accepted ? 'Засчитано родителем · ответ верен, ход неполон' : task.kind === 'read' && score ? `Тест: ${score.points} из ${score.maxPoints} верно` : cdzPassed ? `ЦДЗ пройдено: ${task.platformResult?.points} из ${task.platformResult?.maxPoints}` : 'Работа проверена'
+    const detail = state === 'done' ? covered ? 'Работа сдана; критерий оценки пока не установлен. Новых действий не требуется.' : accepted ? 'Засчитано родителем · ответ верен, ход неполон' : task.kind === 'read' && score ? `Тест: ${score.points} из ${score.maxPoints} верно` : cdzPassed ? `ЦДЗ пройдено: ${task.platformResult?.points} из ${task.platformResult?.maxPoints}` : 'Работа проверена'
       : state === 'unclear' ? `${review?.summary ?? 'Работа разобрана; критерий учителя не подтверждён.'} Новое фото не требуется.`
         : state === 'checking' ? 'Работа получена, ждём результата проверки'
         : review?.status === 'needs-fix' ? 'Нужно исправить работу' : review?.status === 'partial' ? 'Нужно дополнить работу' : review?.status === 'cannot-assess' ? 'Фото нужно переснять'
           : task.kind === 'read' ? test?.status === 'submitted' ? 'Нужен разбор и повторная проверка' : 'Нужно пройти тест'
             : task.kind === 'check' ? 'Ожидается результат ЦДЗ' : 'Нужно выполнить и загрузить работу'
-    return [{ id: task.id, title: task.title, state, detail }]
+    return [{ id: task.id, title: task.title, state, detail, qualityOpen: covered }]
   })
 }
 
@@ -241,10 +243,11 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
   /** @see ../docs/product/dashboard.md#homework-progress */
   function homeworkRow(row: typeof homeworkRows[number]) {
     const { subject, items, done, next, group } = row
-    const status = group === 'complete' ? 'Всё завершено' : next?.state === 'unclear' ? 'Критерий неясен' : next?.state === 'checking' ? 'Ждём проверки' : done ? `${done} из ${items.length} завершено` : 'Нужно сделать'
+    const qualityOpen = items.find((item) => item.qualityOpen)
+    const status = group === 'complete' ? qualityOpen ? 'Работа сдана' : 'Всё завершено' : next?.state === 'unclear' ? 'Критерий неясен' : next?.state === 'checking' ? 'Ждём проверки' : done ? `${done} из ${items.length} завершено` : 'Нужно сделать'
     return <button className={`day-dashboard-homework-row ${group}`} key={subject.id} type="button" onClick={() => homeworkToken && openDay(homeworkToken, 'homework', next?.id)}>
       <span className="day-dashboard-icon" aria-hidden="true">{subject.icon}</span>
-      <span className="day-dashboard-homework-row-body"><strong>{subject.name}</strong><span className="day-dashboard-homework-status">{status}</span>{next && <span className="day-dashboard-homework-next">{next.title} · {next.detail}</span>}{group === 'complete' && <span className="day-dashboard-homework-next">{subject.tasks.map((task) => task.title).join(' · ')}</span>}</span>
+      <span className="day-dashboard-homework-row-body"><strong>{subject.name}</strong><span className="day-dashboard-homework-status">{status}</span>{next && <span className="day-dashboard-homework-next">{next.title} · {next.detail}</span>}{group === 'complete' && <span className="day-dashboard-homework-next">{qualityOpen ? qualityOpen.detail : subject.tasks.map((task) => task.title).join(' · ')}</span>}</span>
       <ArrowRight size={18} aria-hidden="true" />
     </button>
   }
@@ -287,8 +290,9 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
           const done = items.filter((item) => item.state === 'done').length
           const checking = items.filter((item) => item.state === 'checking').length
           const unclear = items.filter((item) => item.state === 'unclear').length
+          const qualityOpen = items.some((item) => item.qualityOpen)
           const tone = items.length ? checking ? 'checking' : unclear ? 'unclear' : done === items.length ? 'complete' : done ? 'partial' : 'empty' : rawHomework.length ? 'assigned' : selectedEntry.complete && (selectedPage || selectedDate <= today) ? 'none' : 'unknown'
-          const badge = items.length ? checking ? 'Проверяем' : unclear ? 'Критерий неясен' : `${done} из ${items.length}` : tone === 'none' ? 'Пока нет ДЗ' : tone === 'assigned' ? 'Задано' : 'Уточняем'
+          const badge = items.length ? checking ? 'Проверяем' : unclear ? 'Критерий неясен' : qualityOpen && done === items.length ? 'Сдано' : `${done} из ${items.length}` : tone === 'none' ? 'Пока нет ДЗ' : tone === 'assigned' ? 'Задано' : 'Уточняем'
           return <li key={`${index}-${lesson.subject}`}><details data-subject={lesson.subject} className={`day-dashboard-lesson day-dashboard-lesson-${tone}${newlyAssigned ? ' has-new-homework' : ''}`}>
             <summary><time>{lessonTime(lesson.start)}</time><span className="day-dashboard-lesson-name">{lesson.subject}{newlyAssigned && <span className="day-dashboard-lesson-new">Новое ДЗ</span>}</span><span className="day-dashboard-lesson-badge">{tone === 'complete' && <CheckCircle2 size={13} aria-hidden="true" />}{badge}<ChevronDown size={15} aria-hidden="true" /></span></summary>
             <div className="day-dashboard-lesson-body">{items.length ? <div className="day-dashboard-lesson-items">{items.map((item) => <div className={`day-dashboard-lesson-item ${item.state}`} key={item.id}><span className="day-dashboard-lesson-item-symbol" aria-hidden="true">{item.state === 'done' ? '✓' : item.state === 'checking' ? '◷' : item.state === 'unclear' ? '?' : '→'}</span><div><strong>{item.state === 'done' ? 'Сделано' : item.state === 'checking' ? 'Проверяем' : item.state === 'unclear' ? 'Разобрано' : 'Осталось'}: {item.title}</strong><span>{item.detail}</span>{homeworkToken && <button type="button" onClick={() => openDay(homeworkToken, 'homework', item.id)}>{item.state === 'todo' ? 'Перейти к заданию' : item.state === 'checking' ? 'Открыть работу' : 'Посмотреть результат'} <ArrowRight size={14} aria-hidden="true" /></button>}</div></div>)}</div>

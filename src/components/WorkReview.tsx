@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Check, ChevronDown, CircleAlert, Minus, X } from 'lucide-react'
 import type { DayUpload, DayWorkReview } from '@/lib/dayStore'
-import { activeProcessing, elapsedLabel, processingIsStale, reviewHeadline, reviewTone } from '@/lib/reviewPresentation'
+import { activeProcessing, elapsedLabel, processingIsStale, reviewHeadline, reviewTone, workCoverageComplete } from '@/lib/reviewPresentation'
 import { ArtifactStatusGlyph } from './ArtifactAvatar'
 
 const itemLabels = { correct: 'Верно', partial: 'Частично верно', incorrect: 'Неверно', 'cannot-assess': 'Не удалось проверить' }
@@ -69,7 +69,7 @@ export default function WorkReview({ review, uploads, accepted = false, canDecid
           <span className={argument === 'sufficient' || argument === 'not-required' ? 'correct' : 'incomplete'}>{argument === 'sufficient' || argument === 'not-required' ? <Check size={16} aria-hidden="true" /> : <Minus size={16} aria-hidden="true" />}{argumentLabel}</span>
         </div>}
         {accepted && <p className="day-work-review-accepted">Задача завершена по решению родителя. Ответ верен; обоснование хода в работе осталось неполным.</p>}
-        {basis?.outcome === 'unresolved' && <p className="day-work-review-unprepared">Разбор фото завершён. {review.summary} Новую работу пока присылать не нужно.</p>}
+        {basis?.outcome === 'unresolved' && <p className="day-work-review-unprepared">{workCoverageComplete(review) ? `Работа предъявлена полностью: ${review.workCoverage?.note} ` : `Разбор фото завершён. ${review.summary} `}Критерий оценки пока не установлен; от ученика сейчас действий не требуется.</p>}
         {!accepted && feedback ? <div className="day-work-review-feedback">
           <p><b>Уже получилось</b><span>{feedback.confirmed}</span></p>
           <p><b>Проверь здесь</b><span>{feedback.focus}</span></p>

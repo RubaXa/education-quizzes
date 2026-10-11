@@ -55,6 +55,8 @@ export type DayWorkReview = {
   studentFeedback?: { title: string; confirmed: string; focus: string; question: string; anchor?: { uploadId: string; location: string } };
   /** Separate the numeric result from the reasoning visible in a mathematical solution photo. */
   mathReasoning?: { answer: 'correct' | 'incorrect' | 'uncertain'; argument: 'sufficient' | 'incomplete' | 'not-shown' | 'unreadable' | 'not-required'; observed: string; minimumNeeded?: string; criterionSource?: string };
+  /** Whether every assigned action is visibly present; independent of the teacher's quality criterion. @see ../../docs/product/review-criteria-provenance.md#work-coverage */
+  workCoverage?: { state: 'complete' | 'incomplete' | 'unknown'; note: string; sourceRef: string; reviewCheckedAt: unknown; recordedAt: unknown };
   items?: { label: string; status: 'correct' | 'incorrect' | 'partial' | 'cannot-assess'; observed: string; expected?: string; note: string }[];
   processing?: { phase: 'download' | 'source' | 'review' | 'publish' | 'paused'; label: string; reason?: string; uploadIds: string[]; startedAt: unknown; updatedAt: unknown };
   history?: Pick<DayWorkReview, 'status' | 'summary' | 'nextStep' | 'checkedAt' | 'items' | 'uploadIds' | 'mathReasoning' | 'studentFeedback' | 'assessmentBasis'>[];

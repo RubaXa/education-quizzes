@@ -16,7 +16,7 @@ import ProblemTaskCard from '@/components/ProblemTaskCard'
 import { useDayEvidence } from '@/lib/useDayEvidence'
 import { useParentCompletions } from '@/lib/useParentCompletions'
 import { canAcceptCorrectAnswer, parentAccepted, recordParentCompletion } from '@/lib/parentCompletion'
-import { activeProcessing, artifactAvatarLabel, artifactAvatarState, localArtifactAvatarState, problemCardState } from '@/lib/reviewPresentation'
+import { activeProcessing, artifactAvatarLabel, artifactAvatarState, localArtifactAvatarState, problemCardState, workCoverageComplete } from '@/lib/reviewPresentation'
 import { publicImage } from '@/lib/yandexPublic'
 import { localPhotoForTransfer } from '@/lib/photoOutbox'
 import './DayPage.css'
@@ -553,19 +553,20 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
               const priorWork = taskUploads.some((upload) => upload.status === 'reviewed')
               const newWork = taskUploads.some((upload) => upload.status === 'pending') || localTaskPhotos.some((photo) => photo.state === 'saved' && !taskUploads.some((upload) => upload.id === `${studentToken}:${photo.id}`))
               const uploadingWork = taskUploads.some((upload) => ['requested', 'awaiting-upload', 'uploaded'].includes(upload.status)) || localTaskPhotos.some((photo) => photo.state === 'uploading')
+              const workCovered = workCoverageComplete(review) && !newWork && !uploadingWork
               const linkedTest = tests.find((item) => item.token === task.testToken)
               const readPassed = task.kind === 'read' && linkedTest?.status === 'submitted' && linkedTest.points != null && linkedTest.points >= (task.requiredPoints ?? linkedTest.maxPoints ?? 1)
               const verified = taskStatus === 'verified' || readPassed
               const submitted = (task.kind === 'written' || task.kind === 'check') && newWork
               const state = task.problems?.length ? `${task.problems.length} задач · каждая проверяется отдельно` : task.kind === 'written'
-                ? taskStatus === 'verified' ? 'Готово · проверено' : processing ? 'Проверяем работу' : newWork ? 'Новое фото · ждёт проверки' : uploadingWork ? 'Фото загружается' : criterionPending ? 'Работа разобрана · критерий неясен' : priorWork ? taskStatus === 'needs-fix' ? 'Работа проверена · исправить' : taskStatus === 'partial' ? 'Работа проверена · дополнить' : 'Работа сохранена' : statusLabel(taskStatus)
+                ? taskStatus === 'verified' ? 'Готово · проверено' : processing ? 'Проверяем работу' : newWork ? 'Новое фото · ждёт проверки' : uploadingWork ? 'Фото загружается' : workCovered ? 'Работа сдана · оценка неясна' : criterionPending ? 'Работа разобрана · критерий неясен' : priorWork ? taskStatus === 'needs-fix' ? 'Работа проверена · исправить' : taskStatus === 'partial' ? 'Работа проверена · дополнить' : 'Работа сохранена' : statusLabel(taskStatus)
                 : task.kind === 'read' ? readPassed ? `Чтение подтверждено · ${linkedTest?.points}/${linkedTest?.maxPoints} верно` : linkedTest?.status === 'submitted' ? linkedTest.points == null ? 'Проверяем тест' : `Нужен разбор · ${linkedTest.points}/${linkedTest.maxPoints}` : 'Нужен тест' : cdzTask ? task.platformResult?.state === 'completed' ? `ЦДЗ пройдено · ${task.platformResult.points}/${task.platformResult.maxPoints}` : processing ? 'Проверяем результат ЦДЗ' : newWork ? 'Результат ЦДЗ получен · ждёт проверки' : uploadingWork ? 'Фото загружается' : 'Ожидает результата ЦДЗ' : statusLabel(taskStatus)
               const uploadLabel = cdzTask ? newWork || uploadingWork ? 'Добавить ещё фото ЦДЗ' : 'Загрузить результат ЦДЗ' : newWork || uploadingWork ? 'Добавить ещё фото' : priorWork ? taskStatus === 'needs-fix' ? 'Добавить фото исправления' : 'Добавить фото продолжения' : 'Добавить фото ответа'
               const canUpload = !task.problems?.length && !parent && !criterionPending && (task.kind === 'written' && taskStatus !== 'verified' && (!priorWork || newWork || uploadingWork || taskStatus === 'needs-fix' || taskStatus === 'partial') || cdzTask && taskStatus !== 'verified')
               const showSubmission = !task.problems?.length && task.kind === 'written' && !criterionPending && taskStatus !== 'verified' && (!priorWork || newWork || uploadingWork || taskStatus === 'needs-fix' || taskStatus === 'partial')
               const submission = task.submission
-              const taskCard = <article className={`day-task ${verified ? 'done' : submitted ? 'submitted' : ''}`} id={`day-task-${task.id}`} key={task.id}>
-                <div className="day-task-row"><span className={`day-task-state ${verified ? 'verified' : submitted ? 'partial' : taskStatus}`}>{verified && <CheckCircle2 size={15} aria-hidden="true" />} {state}</span>{task.kind === 'written' && <span className="day-task-type">В тетради</span>}{task.originDate && task.originDate !== page.targetDate && <span className="day-task-type">Осталось с {dayMonth(task.originDate)}</span>}</div>
+              const taskCard = <article className={`day-task ${verified || workCovered ? 'done' : submitted ? 'submitted' : ''}`} id={`day-task-${task.id}`} key={task.id}>
+                <div className="day-task-row"><span className={`day-task-state ${verified ? 'verified' : workCovered ? 'covered' : submitted ? 'partial' : taskStatus}`}>{verified && <CheckCircle2 size={15} aria-hidden="true" />} {state}</span>{task.kind === 'written' && <span className="day-task-type">В тетради</span>}{task.originDate && task.originDate !== page.targetDate && <span className="day-task-type">Осталось с {dayMonth(task.originDate)}</span>}</div>
                 <h3>{task.title}</h3><p>{task.detail}</p>
                 {task.instructionStatus?.state === 'needs-review' && <p className="day-material-warning">⚠️ {task.instructionStatus.message} Подтверждена только запись МЭШ выше; дополнительных пунктов нет.</p>}
                 <WorkReview review={review} uploads={taskUploads} accepted={accepted} canDecide={helpRole === 'parent' && !taskUploads.some((upload) => upload.status === 'pending')} onDecision={parent && canAcceptCorrectAnswer(review) && review ? (action) => recordParentCompletion(review, action) : undefined} />

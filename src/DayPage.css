@@ -161,6 +161,7 @@
 .day-work-review.success{--review-bg:#f0fbf3;--review-border:#9eddb6;--review-ink:#195f39;--review-icon:#19643c}
 .day-work-review.partial{--review-bg:#fff8e9;--review-border:#ebcd8d;--review-ink:#76500e;--review-icon:#89540a}
 .day-work-review.error{--review-bg:#fff0f1;--review-border:#eba5ae;--review-ink:#932c3a;--review-icon:#a52839}
+.day-task-state.covered{background:#eaf2fb;color:#3e6889}
 .day-work-review-verdicts{display:flex;flex-wrap:wrap;gap:6px;margin:5px 0 10px}
 .day-work-review-verdicts span{display:inline-flex;align-items:center;gap:5px;min-height:28px;padding:4px 8px;border-radius:999px;font-size:.78rem;font-weight:750;line-height:1.2}
 .day-work-review-verdicts .correct{background:#e7f5ec;color:#1c6840}.day-work-review-verdicts .incorrect{background:#fbe8e9;color:#9b2937}.day-work-review-verdicts .incomplete{background:#fff0d8;color:#89550a}.day-work-review-verdicts .unknown{background:#eeebf2;color:#645b70}

@@ -232,6 +232,7 @@ function validateReviewResult(review, page) {
     throw new Error('items.expected нельзя публиковать в ученический dayProgress; ключ храните в закрытом source-pack.')
   }
   validateAssessmentBasis(review)
+  validateWorkCoverage(review)
   if (['needs-fix', 'partial'].includes(review.status)) validateStudentFeedback(review)
   const subject = page.subjects?.find((entry) => entry.tasks?.some((task) => task.id === review.taskId || task.problems?.some((problem) => problem.id === review.taskId)))
   const task = subject?.tasks?.find((entry) => entry.id === review.taskId || entry.problems?.some((problem) => problem.id === review.taskId))
@@ -251,6 +252,19 @@ function validateReviewResult(review, page) {
     if (reasoning.answer === 'correct' && ['incomplete', 'not-shown'].includes(reasoning.argument) && review.status !== 'partial') {
       throw new Error('Верный ответ без достаточного хода отмечается отдельно как частичный результат, не как ошибка ответа.')
     }
+  }
+}
+
+/** @see ../docs/product/review-criteria-provenance.md#work-coverage */
+function validateWorkCoverage(review) {
+  if (!review.workCoverage) return
+  const coverage = review.workCoverage
+  if (review.status !== 'cannot-assess' || review.assessmentBasis?.outcome !== 'unresolved'
+    || coverage.state !== 'complete'
+    || typeof coverage.note !== 'string' || coverage.note.trim().length < 12 || coverage.note.length > 300
+    || typeof coverage.sourceRef !== 'string'
+    || !review.assessmentBasis.sources.some((source) => source.role === 'requirement' && source.ref === coverage.sourceRef)) {
+    throw new Error('Полноту сданной работы можно отметить только по сверенному требованию при неясном критерии оценки.')
   }
 }
 
@@ -287,10 +301,12 @@ function validateStudentFeedback(review) {
 
 function resultRecord(review, previous, now, date, planRevision) {
   const priorReviews = previous?.status ? [...(previous.history ?? []), Object.fromEntries(Object.entries(previous).filter(([key]) => key !== 'history' && key !== 'processing'))] : previous?.history ?? []
-  const { taskId, uploadIds, status, summary, nextStep, source, items, mathReasoning, studentFeedback, assessmentBasis } = review
+  const { taskId, uploadIds, status, summary, nextStep, source, items, mathReasoning, studentFeedback, assessmentBasis, workCoverage } = review
   return { date, taskId, planRevision, uploadIds, status, summary, nextStep, source, items,
     ...(mathReasoning ? { mathReasoning } : {}), ...(studentFeedback ? { studentFeedback } : {}),
-    ...(assessmentBasis ? { assessmentBasis } : {}), checkedAt: now, history: priorReviews.slice(-20) }
+    ...(assessmentBasis ? { assessmentBasis } : {}),
+    ...(workCoverage ? { workCoverage: { ...workCoverage, reviewCheckedAt: now, recordedAt: now } } : {}),
+    checkedAt: now, history: priorReviews.slice(-20) }
 }
 
 /** Correct a previously published explanation for the same reviewed photo without inventing a new learner attempt. */
@@ -337,6 +353,9 @@ async function publishFeedbackCorrection(filename) {
     items: correction.items, ...(correction.mathReasoning ? { mathReasoning: correction.mathReasoning } : {}),
     studentFeedback: correction.studentFeedback ?? FieldValue.delete(),
     assessmentBasis: correction.assessmentBasis,
+    workCoverage: correction.workCoverage
+      ? { ...correction.workCoverage, reviewCheckedAt: previous.checkedAt, recordedAt: now }
+      : FieldValue.delete(),
     correctedAt: now, feedbackCorrections: [...(previous.feedbackCorrections ?? []), oldRecord].slice(-10) })
   console.log(JSON.stringify({ correctedTask: correction.taskId, childId: owner.data().childId,
     preservedAttemptCount: previous.history?.length ?? 0, correctedLiveFeedback: true }))

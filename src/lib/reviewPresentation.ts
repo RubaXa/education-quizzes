@@ -58,7 +58,7 @@ export function reviewTone(review: DayWorkReview): ReviewTone {
 
 /** @see ../../docs/product/day-page.md#homework-review */
 export function reviewHeadline(review: DayWorkReview): string {
-  if (review.assessmentBasis?.outcome === 'unresolved') return 'Работа разобрана · критерий неясен'
+  if (review.assessmentBasis?.outcome === 'unresolved') return workCoverageComplete(review) ? 'Работа сдана · критерий оценки неясен' : 'Работа разобрана · критерий неясен'
   if (review.studentFeedback?.title) return review.studentFeedback.title
   if (review.mathReasoning) {
     const { answer, argument } = review.mathReasoning
@@ -86,6 +86,14 @@ export function timestampMillis(value: unknown): number | null {
   if (typeof timestamp.toMillis === 'function') return timestamp.toMillis()
   const seconds = timestamp.seconds ?? timestamp._seconds
   return typeof seconds === 'number' ? seconds * 1000 : null
+}
+
+/** A reviewed submission may cover every assigned action while its quality criterion is unresolved. @see ../../docs/product/review-criteria-provenance.md#work-coverage */
+export function workCoverageComplete(review?: DayWorkReview): boolean {
+  const checkedAt = timestampMillis(review?.checkedAt)
+  return review?.status === 'cannot-assess' && review.assessmentBasis?.outcome === 'unresolved'
+    && review.workCoverage?.state === 'complete' && checkedAt !== null
+    && timestampMillis(review.workCoverage.reviewCheckedAt) === checkedAt
 }
 
 export function elapsedLabel(startedAt: unknown, now: number): string {
