@@ -54,8 +54,9 @@ function lessonWorkItems(tasks: DayTask[], uploads: DayUpload[], reviews: DayWor
     if (task.problems?.length) return task.problems.map((problem) => {
       const review = reviews.find((item) => item.taskId === problem.id)
       const pending = uploads.some((upload) => uploadMatchesTask(upload, problem.id) && ['requested', 'awaiting-upload', 'uploaded', 'pending'].includes(upload.status))
-      const state: LessonWorkItem['state'] = pending ? 'checking' : review?.status === 'verified' ? 'done' : 'todo'
-      return { id: problem.id, title: `№ ${problem.number}. ${problem.title}`, state, detail: state === 'checking' ? 'Фото получено, ждём проверки' : state === 'done' ? 'Решение проверено' : review?.status === 'needs-fix' ? 'Нужно исправить решение' : review?.status === 'partial' ? 'Нужно дополнить решение' : 'Нужно выполнить и загрузить решение' }
+      const criterionPending = review?.assessmentBasis?.outcome === 'unresolved'
+      const state: LessonWorkItem['state'] = pending || criterionPending ? 'checking' : review?.status === 'verified' ? 'done' : 'todo'
+      return { id: problem.id, title: `№ ${problem.number}. ${problem.title}`, state, detail: criterionPending ? 'Критерий задания уточняется; новая работа пока не нужна' : state === 'checking' ? 'Фото получено, ждём проверки' : state === 'done' ? 'Решение проверено' : review?.status === 'needs-fix' ? 'Нужно исправить решение' : review?.status === 'partial' ? 'Нужно дополнить решение' : 'Нужно выполнить и загрузить решение' }
     })
     const review = reviews.find((item) => item.taskId === task.id)
     const pending = uploads.some((upload) => uploadMatchesTask(upload, task.id) && ['requested', 'awaiting-upload', 'uploaded', 'pending'].includes(upload.status))
@@ -65,10 +66,12 @@ function lessonWorkItems(tasks: DayTask[], uploads: DayUpload[], reviews: DayWor
     const cdzPassed = task.platformResult?.state === 'completed'
     const done = Boolean(readPassed || cdzPassed || review?.status === 'verified' || task.status === 'verified')
     const processing = activeProcessing(review, uploads.filter((upload) => uploadMatchesTask(upload, task.id)))
-    const checking = !done && (pending || Boolean(processing && processing.phase !== 'paused') || task.kind === 'read' && test?.status === 'submitted' && !score)
+    const criterionPending = review?.assessmentBasis?.outcome === 'unresolved'
+    const checking = !done && (pending || criterionPending || Boolean(processing && processing.phase !== 'paused') || task.kind === 'read' && test?.status === 'submitted' && !score)
     const state: LessonWorkItem['state'] = done ? 'done' : checking ? 'checking' : 'todo'
     const detail = state === 'done' ? task.kind === 'read' && score ? `Тест: ${score.points} из ${score.maxPoints} верно` : cdzPassed ? `ЦДЗ пройдено: ${task.platformResult?.points} из ${task.platformResult?.maxPoints}` : 'Работа проверена'
-      : state === 'checking' ? 'Работа получена, ждём результата проверки'
+      : criterionPending ? 'Критерий задания уточняется; новая работа пока не нужна'
+        : state === 'checking' ? 'Работа получена, ждём результата проверки'
         : review?.status === 'needs-fix' ? 'Нужно исправить работу' : review?.status === 'partial' ? 'Нужно дополнить работу' : review?.status === 'cannot-assess' ? 'Фото нужно переснять'
           : task.kind === 'read' ? test?.status === 'submitted' ? 'Нужен разбор и повторная проверка' : 'Нужно пройти тест'
             : task.kind === 'check' ? 'Ожидается результат ЦДЗ' : 'Нужно выполнить и загрузить работу'
@@ -91,6 +94,7 @@ function taskState(task: DayTask, uploads: DayUpload[], reviews: DayWorkReview[]
     if (reviewed?.status === 'verified') return 'Проверено'
     if (reviewed?.status === 'partial') return 'Проверено · дополнить'
     if (reviewed?.status === 'needs-fix') return 'Проверено · исправить'
+    if (reviewed?.assessmentBasis?.outcome === 'unresolved') return 'Критерий задания уточняется'
     if (reviewed?.status === 'cannot-assess') return 'Фото нужно переснять'
     if (task.status === 'verified') return 'Проверено'
     if (task.status === 'needs-fix') return 'Нужно исправить'

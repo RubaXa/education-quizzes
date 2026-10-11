@@ -33,6 +33,7 @@ flowchart LR
 | Контракт | Что определяет | Основные модули |
 |---|---|---|
 | [Доступ и состояние](access-and-state.md) | Маршруты, роли, документы Firestore, повторный выпуск | `src/App.tsx`, `src/lib/store.ts`, `src/lib/dayStore.ts`, `day/merge.mjs` |
+| [Основания проверки](review-criteria-provenance.md) | Порядок источников, подтверждённый критерий, предел вердикта и спор | `scripts/submissions.mjs`, `src/components/WorkReview.tsx` |
 | [Страница дня](day-page.md) | Дата ДЗ, карточки, фото, связь теста с предметом и свёрнутый завершённый лист | `src/DayPage.tsx`, `src/WeekendMathSlot.tsx`, `src/components/ProblemGroup.tsx`, `day/build.mjs`, `scripts/day.mjs` |
 | [Адаптивная карточка задачи](adaptive-problem-card.md) | Точный оригинал, отдельные ориентиры, свидетельства навыка и запрос помощи | `src/components/ProblemStatement.tsx`, `src/lib/dayStore.ts`, `src/WeekendMathSlot.tsx`, `src/DayPage.tsx`, `scripts/day.mjs` |
 | [Формирование плана](plan-generation.md) | Граница точной записи МЭШ, проверенного разбора и неопределённости | `day/build.mjs`, `scripts/day.mjs`, `src/DayPage.tsx` |

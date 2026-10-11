@@ -14,11 +14,11 @@ import { YandexDiskStorage } from '../storage/yandex-disk.mjs'
 const [command, argument, phase] = process.argv.slice(2)
 const reviewCommand = command === 'review' || command === 'progress' || command === 'feedback'
 const dateFilter = reviewCommand ? null : argument
-if (!['inbox', 'pull', 'review', 'progress', 'help', 'feedback', 'feedback-audit'].includes(command)
+if (!['inbox', 'pull', 'review', 'progress', 'help', 'feedback', 'feedback-audit', 'basis-audit'].includes(command)
   || reviewCommand && !argument
   || command === 'progress' && !['download', 'source', 'review', 'publish', 'paused'].includes(phase)
   || dateFilter && !/^\d{4}-\d{2}-\d{2}$/.test(dateFilter)) {
-  throw new Error('Использование: npm run submissions -- inbox|pull|help|feedback-audit [YYYY-MM-DD] | progress .local/review-....json download|source|review|publish|paused | review|feedback .local/review-....json')
+  throw new Error('Использование: npm run submissions -- inbox|pull|help|feedback-audit|basis-audit [YYYY-MM-DD] | progress .local/review-....json download|source|review|publish|paused | review|feedback .local/review-....json')
 }
 const local = resolve('.local')
 const adcFile = resolve(local, 'adc.json')
@@ -125,6 +125,23 @@ async function feedbackAudit() {
   return { checked, missing }
 }
 
+/** @see ../docs/product/review-criteria-provenance.md */
+async function basisAudit() {
+  const owners = await db.collection('dayOwners').get()
+  const missing = []
+  for (const ownerDoc of owners.docs) {
+    if (dateFilter && ownerDoc.data().date !== dateFilter) continue
+    const page = (await db.doc(`dayPages/${ownerDoc.id}`).get()).data()
+    if (page?.kind !== 'student') continue
+    for (const item of (await db.collection(`dayProgress/${ownerDoc.id}/items`).get()).docs) {
+      if (!item.data().status || item.data().assessmentBasis) continue
+      missing.push({ childId: ownerDoc.data().childId, dayDate: ownerDoc.data().date,
+        taskId: item.id, status: item.data().status })
+    }
+  }
+  return missing
+}
+
 function privatePhoto(upload) {
   const match = /^data:image\/(jpeg|png|webp);base64,([A-Za-z0-9+/=]+)$/.exec(upload.dataUrl ?? '')
   if (!match) throw new Error('Временные байты фото отсутствуют или повреждены.')
@@ -213,6 +230,7 @@ function validateReviewResult(review, page) {
   if (review.items.some((item) => Object.hasOwn(item, 'expected'))) {
     throw new Error('items.expected нельзя публиковать в ученический dayProgress; ключ храните в закрытом source-pack.')
   }
+  validateAssessmentBasis(review)
   if (['needs-fix', 'partial'].includes(review.status)) validateStudentFeedback(review)
   const subject = page.subjects?.find((entry) => entry.tasks?.some((task) => task.id === review.taskId || task.problems?.some((problem) => problem.id === review.taskId)))
   const task = subject?.tasks?.find((entry) => entry.id === review.taskId || entry.problems?.some((problem) => problem.id === review.taskId))
@@ -235,6 +253,26 @@ function validateReviewResult(review, page) {
   }
 }
 
+/** @see ../docs/product/review-criteria-provenance.md */
+function validateAssessmentBasis(review) {
+  const basis = review.assessmentBasis
+  const sourceKinds = new Set(['teacher', 'mesh', 'textbook', 'method-guide', 'curriculum', 'official-key'])
+  if (!basis || !Number.isInteger(basis.grade) || basis.grade < 1 || basis.grade > 11
+    || !/^20\d{2}\/\d{2}$/.test(basis.schoolYear)
+    || !['requirement', 'observed', 'comparison'].every((key) => typeof basis[key] === 'string' && basis[key].trim().length >= 8)
+    || !Array.isArray(basis.sources) || !basis.sources.length
+    || !basis.sources.every((source) => sourceKinds.has(source.kind) && ['requirement', 'context'].includes(source.role)
+      && source.ref?.trim() && source.excerpt?.trim() && source.excerpt.length <= 250)) {
+    throw new Error('Для неполного или спорного разбора нужен источник критерия: класс, учебный год, требование, запись, сопоставление и сверенные ссылки.')
+  }
+  const expectedOutcome = review.status === 'verified' ? 'met' : review.status === 'cannot-assess' ? 'unresolved' : 'not-met'
+  if (basis.outcome !== expectedOutcome) throw new Error('Вердикт и вывод из критерия противоречат друг другу.')
+  if (basis.outcome === 'not-met' && !basis.sources.some((source) => source.role === 'requirement' && ['teacher', 'mesh', 'textbook', 'official-key'].includes(source.kind))) {
+    throw new Error('Отрицательный вердикт нельзя основывать только на общей программе или методическом совете.')
+  }
+  if (basis.outcome === 'unresolved' && !basis.limitation?.trim()) throw new Error('При спорном критерии объясните, чего именно не хватает для вывода.')
+}
+
 /** @see ../docs/product/adaptive-problem-card.md#адресный-разбор */
 function validateStudentFeedback(review) {
   const feedback = review.studentFeedback
@@ -246,16 +284,17 @@ function validateStudentFeedback(review) {
 
 function resultRecord(review, previous, now, date, planRevision) {
   const priorReviews = previous?.status ? [...(previous.history ?? []), Object.fromEntries(Object.entries(previous).filter(([key]) => key !== 'history' && key !== 'processing'))] : previous?.history ?? []
-  const { taskId, uploadIds, status, summary, nextStep, source, items, mathReasoning, studentFeedback } = review
+  const { taskId, uploadIds, status, summary, nextStep, source, items, mathReasoning, studentFeedback, assessmentBasis } = review
   return { date, taskId, planRevision, uploadIds, status, summary, nextStep, source, items,
-    ...(mathReasoning ? { mathReasoning } : {}), ...(studentFeedback ? { studentFeedback } : {}), checkedAt: now, history: priorReviews.slice(-20) }
+    ...(mathReasoning ? { mathReasoning } : {}), ...(studentFeedback ? { studentFeedback } : {}),
+    ...(assessmentBasis ? { assessmentBasis } : {}), checkedAt: now, history: priorReviews.slice(-20) }
 }
 
 /** Correct a previously published explanation for the same reviewed photo without inventing a new learner attempt. */
 async function publishFeedbackCorrection(filename) {
   const correction = privateReviewFile(filename)
   if (correction.reviews || !correction.correctionReason?.trim()) throw new Error('Исправление одного номера требует correctionReason.')
-  validateStudentFeedback(correction)
+  if (['needs-fix', 'partial'].includes(correction.status)) validateStudentFeedback(correction)
   const owners = (await db.collection('dayOwners').get()).docs.filter((item) => item.data().date === correction.date)
   const matches = []
   for (const owner of owners) {
@@ -273,9 +312,14 @@ async function publishFeedbackCorrection(filename) {
   const currentTask = page.subjects?.flatMap((subject) => subject.tasks ?? []).find((task) => task.id === correction.taskId)
   const sameAssignmentAfterPageUpdate = page.planRevision > correction.planRevision
     && correction.meshText?.trim() && currentTask?.meshText === correction.meshText
+  const expectedPriorStatus = correction.previousStatus ?? correction.status
+  const statusChange = expectedPriorStatus !== correction.status
+  if (statusChange && !['partial:verified', 'partial:cannot-assess', 'needs-fix:cannot-assess', 'cannot-assess:verified'].includes(`${expectedPriorStatus}:${correction.status}`)) {
+    throw new Error('Изменение вердикта требует отдельной допустимой коррекции и старого статуса.')
+  }
   if (page.planRevision !== correction.planRevision && !sameAssignmentAfterPageUpdate
     || previous.planRevision !== correction.planRevision
-    || previous.status !== correction.status || !Array.isArray(previous.uploadIds) || previous.uploadIds.length !== correction.uploadIds.length
+    || previous.status !== expectedPriorStatus || !Array.isArray(previous.uploadIds) || previous.uploadIds.length !== correction.uploadIds.length
     || !previous.uploadIds.every((id) => correction.uploadIds.includes(id))
     || !page.taskIds?.includes(correction.taskId) || photos.some((photo) => photo.data().status !== 'reviewed')) {
     throw new Error('После проверки изменились статус, ревизия, список фото или привязка задания; исправление остановлено.')
@@ -286,8 +330,10 @@ async function publishFeedbackCorrection(filename) {
   // not old review prose or answer keys that may have appeared in legacy items.
   const oldRecord = { at: now, reason: correction.correctionReason,
     priorStatus: previous.status, priorFeedbackTitle: previous.studentFeedback?.title ?? null }
-  await progressDoc.ref.update({ summary: correction.summary, nextStep: correction.nextStep,
-    items: correction.items, ...(correction.mathReasoning ? { mathReasoning: correction.mathReasoning } : {}), studentFeedback: correction.studentFeedback,
+  await progressDoc.ref.update({ status: correction.status, summary: correction.summary, nextStep: correction.nextStep,
+    items: correction.items, ...(correction.mathReasoning ? { mathReasoning: correction.mathReasoning } : {}),
+    studentFeedback: correction.studentFeedback ?? FieldValue.delete(),
+    assessmentBasis: correction.assessmentBasis,
     correctedAt: now, feedbackCorrections: [...(previous.feedbackCorrections ?? []), oldRecord].slice(-10) })
   console.log(JSON.stringify({ correctedTask: correction.taskId, childId: owner.data().childId,
     preservedAttemptCount: previous.history?.length ?? 0, correctedLiveFeedback: true }))
@@ -331,6 +377,9 @@ if (command === 'review') {
 } else if (command === 'feedback-audit') {
   const audit = await feedbackAudit()
   console.log(JSON.stringify({ reviewedWithOpenFix: audit.checked, missingAddressedFeedback: audit.missing.length, works: audit.missing }, null, 2))
+} else if (command === 'basis-audit') {
+  const missing = await basisAudit()
+  console.log(JSON.stringify({ missingAssessmentBasis: missing.length, works: missing }, null, 2))
 } else {
   const rows = await pendingInbox()
   const output = resolve(local, 'submission-inbox')

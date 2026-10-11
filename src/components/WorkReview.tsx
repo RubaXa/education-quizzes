@@ -28,6 +28,7 @@ export default function WorkReview({ review, uploads }: { review?: DayWorkReview
   const tone = review?.status ? reviewTone(review) : 'neutral'
   const items = review?.items ?? []
   const feedback = review?.studentFeedback
+  const basis = review?.assessmentBasis
   const firstPending = pending.map((upload) => upload.createdAt).find(Boolean)
   const elapsed = processing ? elapsedLabel(processing.startedAt, now) : elapsedLabel(firstPending, now)
 
@@ -55,6 +56,12 @@ export default function WorkReview({ review, uploads }: { review?: DayWorkReview
             <p><b>Ответ:</b> {review.mathReasoning.answer === 'correct' ? 'верен' : 'пока не установлен'}</p>
             <p><b>Ход решения:</b> {review.mathReasoning.argument === 'sufficient' ? 'достаточен для проверки' : review.mathReasoning.argument === 'not-required' ? 'не требовался в условии' : 'пока не подтверждён'}</p>
           </div>}
+        {basis && <div className="day-work-review-basis">
+          <p><b>Что требовалось</b><span>{basis.requirement}</span></p>
+          <p><b>Что видно в работе</b><span>{basis.observed}</span></p>
+          <p><b>{basis.outcome === 'unresolved' ? 'Почему пока нет вывода' : 'Почему такой результат'}</b><span>{basis.comparison}</span></p>
+          <details><summary>На чём основана проверка</summary><ul>{basis.sources.map((source, index) => <li key={`${source.ref}-${index}`}><b>{source.kind === 'mesh' ? 'МЭШ' : source.kind === 'textbook' ? 'Учебник' : source.kind === 'teacher' ? 'Учитель' : source.kind === 'curriculum' ? 'Программа' : source.kind === 'method-guide' ? 'Методическое пособие' : 'Официальный ключ'}</b>: «{source.excerpt}» <small>{source.ref}</small></li>)}</ul>{basis.limitation && <p>{basis.limitation}</p>}</details>
+        </div>}
         {!feedback && review.status !== 'needs-fix' && review.status !== 'partial' && items.length > 0 && <ol>{items.map((item, index) => <li className={`day-work-review-item ${item.status}`} key={`${item.label}-${index}`}>
           <span className="day-work-review-item-icon">{item.status === 'correct' ? <Check size={14} aria-hidden="true" /> : item.status === 'incorrect' ? <X size={14} aria-hidden="true" /> : item.status === 'partial' ? <Minus size={14} aria-hidden="true" /> : <CircleAlert size={14} aria-hidden="true" />}</span>
           <div><strong>{item.label} · {itemLabels[item.status]}</strong>{item.observed && <small><b>В работе:</b> {item.observed}</small>}</div>

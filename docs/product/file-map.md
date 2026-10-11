@@ -34,6 +34,7 @@
 | [docs/product/README.md](README.md) | [Карта спецификаций](README.md) | Навигация между контрактами | Агент; разработчик |
 | [docs/product/access-and-state.md](access-and-state.md) | [Доступ и состояние](access-and-state.md) | Текущие маршруты и владение состоянием | Агент; разработчик |
 | [docs/product/adaptive-problem-card.md](adaptive-problem-card.md) | [Адаптивная карточка](adaptive-problem-card.md) | Оригинал, помощь и попытки по номеру | Агент; разработчик |
+| [docs/product/review-criteria-provenance.md](review-criteria-provenance.md) | [Основания проверки](review-criteria-provenance.md) | Проверяемое требование, источник, запись и предел вердикта | Агент; `scripts/submissions.mjs`; `WorkReview` |
 | [docs/product/dashboard.md](dashboard.md) | [Dashboard](dashboard.md) | Сводки дней, оценок и заданий | Агент; разработчик |
 | [docs/product/day-page.md](day-page.md) | [Страница дня](day-page.md) | Показ и проверка ДЗ | Агент; разработчик |
 | [docs/product/file-map.md](file-map.md) | [Карта файлов](file-map.md) | Индекс назначения каждого файла | Агент; проверка карты |
@@ -47,6 +48,7 @@
 | [docs/research/adaptive-problem-scaffolding.md](../research/adaptive-problem-scaffolding.md) | [Адаптивная карточка](adaptive-problem-card.md) | Исследование ступенчатой помощи | Агент при изменении помощи |
 | [docs/research/condition-transcript-and-scaffold.md](../research/condition-transcript-and-scaffold.md) | [Адаптивная карточка](adaptive-problem-card.md) | Основание показа точного условия | Агент при изменении карточки |
 | [docs/research/feedback-after-errors.md](../research/feedback-after-errors.md) | [Тесты](quizzes.md) | Основание и границы обратной связи без готового ответа | Агент; результат теста и проверки фото |
+| [docs/research/evidence-based-homework-review.md](../research/evidence-based-homework-review.md) | [Основания проверки](review-criteria-provenance.md) | Аудит источников и спорного порога для упр. 169 | Агент проверки; спецификация критериев |
 | [docs/research/photo-math-solution-review.md](../research/photo-math-solution-review.md) | [Адаптивная карточка](adaptive-problem-card.md) | Основание проверки хода решения | Агент при изменении разбора |
 | [docs/research/special-course-source-provenance.md](../research/special-course-source-provenance.md) | [Адаптивная карточка](adaptive-problem-card.md) | Поиск прототипов, вариантов, ключей и критериев спецкурса | Агент подготовки; проверяющий; родительский обзор |
 | [firebase.json](../../firebase.json) | [Семейная модель](../architecture/family-data-model.md) | Настройки публикации правил Firestore | Firebase CLI |
@@ -77,7 +79,7 @@
 | [scripts/quiz-access.test.mjs](../../scripts/quiz-access.test.mjs) | [Тесты](quizzes.md) | Проверка ролевого доступа к тесту | Vitest; разработчик |
 | [scripts/quiz.mjs](../../scripts/quiz.mjs) | [Тесты](quizzes.md) | Создание тестов и публикация ключей | Агент; Firestore |
 | [scripts/storage.mjs](../../scripts/storage.mjs) | [Хранение и приватность](storage-privacy.md) | Перенос прежних фото и страниц | Оператор архива |
-| [scripts/submissions.mjs](../../scripts/submissions.mjs) | [Хранение и приватность](storage-privacy.md) | Очередь, этапы и запись разбора | Агент проверки |
+| [scripts/submissions.mjs](../../scripts/submissions.mjs) | [Основания проверки](review-criteria-provenance.md) | Очередь, этапы, сверка критерия и запись разбора | Агент проверки; Firestore |
 | [scripts/verify-upload-flow.mjs](../../scripts/verify-upload-flow.mjs) | [Хранение и приватность](storage-privacy.md) | Аудит ранее перенесённых фото | Оператор; агент |
 | [src/App.css](../../src/App.css) | [Тесты](quizzes.md) | Оформление тестов и навигации | `src/App.tsx` |
 | [src/App.tsx](../../src/App.tsx) | [Доступ и состояние](access-and-state.md) | Маршруты, тесты, личный вход и общий колокольчик | Браузер |
@@ -108,7 +110,7 @@
 | [src/components/SourceFragment.css](../../src/components/SourceFragment.css) | [Адаптивная карточка](adaptive-problem-card.md) | Оформление фрагмента оригинала | `src/components/SourceFragment.tsx` |
 | [src/components/SourceFragment.tsx](../../src/components/SourceFragment.tsx) | [Адаптивная карточка](adaptive-problem-card.md) | Кроп по координатам Firestore | Карточка номера |
 | [src/components/SubjectTheme.tsx](../../src/components/SubjectTheme.tsx) | [Страница дня](day-page.md) | Переиспользуемые темы предметов | День; dashboard |
-| [src/components/WorkReview.tsx](../../src/components/WorkReview.tsx) | [Страница дня](day-page.md) | Этапы и результаты проверки фото | День; спецкурс |
+| [src/components/WorkReview.tsx](../../src/components/WorkReview.tsx) | [Основания проверки](review-criteria-provenance.md) | Общий источник и понятный результат проверки фото | День; спецкурс |
 | [src/components/ui/badge.tsx](../../src/components/ui/badge.tsx) | [Экраны из данных](../architecture/backend-driven-ui.md) | Базовый badge | Компоненты интерфейса |
 | [src/components/ui/button.tsx](../../src/components/ui/button.tsx) | [Экраны из данных](../architecture/backend-driven-ui.md) | Базовая кнопка | Компоненты интерфейса |
 | [src/components/ui/card.tsx](../../src/components/ui/card.tsx) | [Экраны из данных](../architecture/backend-driven-ui.md) | Базовая карточка | Компоненты интерфейса |

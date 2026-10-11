@@ -43,13 +43,19 @@ export type DayHelp = { id: string; taskId: string; revision: number; requestedA
 export type DayWorkReview = {
   id: string; taskId: string; status?: 'verified' | 'needs-fix' | 'partial' | 'cannot-assess';
   summary?: string; nextStep?: string; source?: string; checkedAt?: unknown; uploadIds?: string[];
+  /** @see ../../docs/product/review-criteria-provenance.md */
+  assessmentBasis?: {
+    grade: number; schoolYear: string; requirement: string; observed: string; comparison: string;
+    outcome: 'met' | 'not-met' | 'unresolved'; limitation?: string;
+    sources: { kind: 'teacher' | 'mesh' | 'textbook' | 'method-guide' | 'curriculum' | 'official-key'; ref: string; excerpt: string; role: 'requirement' | 'context' }[];
+  };
   /** Operator-reviewed text safe for the student view; never generated from the private answer key in the client. */
   studentFeedback?: { title: string; confirmed: string; focus: string; question: string; anchor?: { uploadId: string; location: string } };
   /** Separate the numeric result from the reasoning visible in a mathematical solution photo. */
   mathReasoning?: { answer: 'correct' | 'incorrect' | 'uncertain'; argument: 'sufficient' | 'incomplete' | 'not-shown' | 'unreadable' | 'not-required'; observed: string; minimumNeeded?: string; criterionSource?: string };
   items?: { label: string; status: 'correct' | 'incorrect' | 'partial' | 'cannot-assess'; observed: string; expected?: string; note: string }[];
   processing?: { phase: 'download' | 'source' | 'review' | 'publish' | 'paused'; label: string; reason?: string; uploadIds: string[]; startedAt: unknown; updatedAt: unknown };
-  history?: Pick<DayWorkReview, 'status' | 'summary' | 'nextStep' | 'checkedAt' | 'items' | 'uploadIds' | 'mathReasoning' | 'studentFeedback'>[];
+  history?: Pick<DayWorkReview, 'status' | 'summary' | 'nextStep' | 'checkedAt' | 'items' | 'uploadIds' | 'mathReasoning' | 'studentFeedback' | 'assessmentBasis'>[];
 }
 
 export async function loadDayPage(token: string): Promise<DayPageData> {

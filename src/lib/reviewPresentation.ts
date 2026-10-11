@@ -39,12 +39,14 @@ export function problemCardState(uploads: DayUpload[], review?: DayWorkReview, u
   if (review?.status === 'verified') return { label: reviewHeadline(review), tone: 'verified' }
   if (review?.status === 'partial') return { label: reviewHeadline(review), tone: 'partial' }
   if (review?.status === 'needs-fix') return { label: reviewHeadline(review), tone: 'error' }
+  if (review?.assessmentBasis?.outcome === 'unresolved') return { label: reviewHeadline(review), tone: 'waiting' }
   if (review?.status === 'cannot-assess') return { label: 'Не удалось проверить', tone: 'waiting' }
   return uploads.length ? { label: 'Фото сохранено', tone: 'waiting' } : { label: 'Можно приступить', tone: 'ready' }
 }
 
 /** @see ../../docs/product/day-page.md#homework-review */
 export function reviewTone(review: DayWorkReview): ReviewTone {
+  if (review.assessmentBasis?.outcome === 'unresolved') return 'neutral'
   const items = review.items ?? []
   if (!items.length) return 'neutral'
   if (review.status === 'verified' && items.every((item) => item.status === 'correct')) return 'success'
@@ -55,6 +57,7 @@ export function reviewTone(review: DayWorkReview): ReviewTone {
 
 /** @see ../../docs/product/day-page.md#homework-review */
 export function reviewHeadline(review: DayWorkReview): string {
+  if (review.assessmentBasis?.outcome === 'unresolved') return 'Критерий задания уточняется'
   if (review.studentFeedback?.title) return review.studentFeedback.title
   if (review.mathReasoning) {
     const { answer, argument } = review.mathReasoning

@@ -168,6 +168,9 @@
 .day-work-review-feedback p b{font-size:.74rem;color:var(--review-ink)}
 .day-work-review-feedback p span{font-size:.86rem;color:#493f58}
 .day-work-review-unprepared{margin:10px 0!important;padding:10px 11px;border:1px solid var(--review-border);border-radius:9px;background:#ffffffb8;font-size:.82rem}
+.day-work-review-basis{display:grid;gap:7px;margin:10px 0;padding:10px 11px;border:1px solid var(--review-border);border-radius:9px;background:#ffffffc9;font-size:.85rem;line-height:1.45}
+.day-work-review-basis p{display:grid;gap:2px;margin:0}.day-work-review-basis p b{color:var(--review-ink)}
+.day-work-review-basis details{border-top:1px solid var(--review-border);padding-top:8px}.day-work-review-basis details summary{min-height:0;padding:0;display:list-item;font-size:.79rem;font-weight:700}.day-work-review-basis ul{margin:8px 0;padding-left:18px}.day-work-review-basis li{margin:4px 0}.day-work-review-basis li small{display:block;color:#6b6078}
 .day-work-review summary{display:flex;align-items:center;gap:10px;min-height:55px;padding:10px 12px;cursor:pointer;list-style:none}
 .day-work-review summary::-webkit-details-marker{display:none}
 .day-work-review summary:focus-visible{outline:3px solid #9d78da;outline-offset:-3px}
