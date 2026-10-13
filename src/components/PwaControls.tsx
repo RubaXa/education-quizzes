@@ -31,7 +31,7 @@ export function PwaInstallButton() {
     else setShowHelp(true)
   }
   return <>
-    <button className="pwa-install" type="button" onClick={() => void install()}><Download size={16} /> На экран телефона</button>
+    <button className="pwa-install" type="button" aria-label="На экран телефона" onClick={() => void install()}><Download size={16} /><span>На экран телефона</span></button>
     {showHelp && <div className="pwa-help-backdrop" onClick={() => setShowHelp(false)}>
       <div className="pwa-help" role="dialog" aria-modal="true" aria-label="Как установить Education" onClick={(event) => event.stopPropagation()}>
         <button className="pwa-help-close" type="button" aria-label="Закрыть" onClick={() => setShowHelp(false)}><X size={20} /></button>

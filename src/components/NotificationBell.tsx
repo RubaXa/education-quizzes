@@ -62,6 +62,9 @@ export default function NotificationBell({ routeKey }: { routeKey: string }) {
     return cached && (!knownUid || knownUid === cached.session.deviceUid) ? cached : null
   })
   const [personId, setPersonId] = useState<string | null>(cachedContext?.session.personId ?? null)
+  // A cached identity may render immediately, but currentEducationPersonId is
+  // available to the inbox query only after the auth/session restore finishes.
+  const [subscriptionPersonId, setSubscriptionPersonId] = useState<string | null>(null)
   const [children, setChildren] = useState<PersonalChild[]>(cachedContext?.profile.children ?? [])
   const [items, setItems] = useState<Notice[]>(() => cachedContext ? readCachedInbox(cachedContext.session.personId) : [])
   const [open, setOpen] = useState(false)
@@ -73,11 +76,14 @@ export default function NotificationBell({ routeKey }: { routeKey: string }) {
     if (sessionRoute !== 'active') return
     let active = true
     const refresh = async () => {
+      setSubscriptionPersonId(null)
       try {
         const context = await restorePersonalContext()
         if (!active) return
         setPersonId(context?.session.personId ?? null)
         setChildren(context?.profile.children ?? [])
+        setSubscriptionPersonId(context?.session.personId ?? null)
+        setError('')
       } catch (cause) { if (active) setError(reportUiError(cause, 'Обновления')) }
     }
     // Auth's initial callback is the initial refresh. Rechecking the whole
@@ -88,9 +94,10 @@ export default function NotificationBell({ routeKey }: { routeKey: string }) {
 
   useEffect(() => {
     if (!personId) { setItems([]); return }
-    try { return watchInbox(setItems, (cause) => setError(reportUiError(cause, 'Обновления'))) }
+    if (subscriptionPersonId !== personId) return
+    try { return watchInbox((next) => { setItems(next); setError('') }, (cause) => setError(reportUiError(cause, 'Обновления'))) }
     catch (cause) { setError(reportUiError(cause, 'Обновления')) }
-  }, [personId])
+  }, [personId, subscriptionPersonId])
 
   useEffect(() => {
     const acknowledgeLesson = (event: Event) => {

@@ -12,4 +12,4 @@
 .pwa-update button{display:inline-flex;align-items:center;gap:6px;border:0;border-radius:999px;background:#4b398b;color:white;padding:7px 12px;font:inherit;font-size:.83rem;cursor:pointer}
 .pwa-update small{width:100%;color:#9c3e3e}
 .pwa-offline{position:sticky;top:0;z-index:19;padding:calc(10px + env(safe-area-inset-top)) 16px 10px;background:#fff4d6;color:#725621;text-align:center;font-size:.86rem;font-weight:650}
-@media(max-width:540px){.pwa-install{padding:8px 10px;font-size:.72rem;white-space:nowrap}.pwa-install svg{width:17px;height:17px;flex:none}}
+@media(max-width:540px){.pwa-install{width:var(--edu-touch-target);height:var(--edu-touch-target);justify-content:center;padding:0}.pwa-install span{display:none}.pwa-install svg{width:17px;height:17px;flex:none}}

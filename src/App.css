@@ -496,6 +496,8 @@ body {
 
 @media (max-width: 640px) {
   .site-header { padding: 1rem; }
+  .header-actions{order:1;}
+  .notification-bell-slot{margin-left:auto;order:2;}
   .header-note { display: none; }
   .day-route .site-header{gap:.5rem}
   .day-route #day-header-return{display:flex;align-items:center;margin-left:auto;min-width:0}
