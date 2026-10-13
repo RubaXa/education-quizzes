@@ -30,6 +30,11 @@
 .day-dashboard-card{padding:20px}
 .day-dashboard-card p{margin:7px 0;color:#6c617d;font-size:.9rem;line-height:1.55}
 .day-dashboard-card small{color:#8a7f97;font-size:.73rem;line-height:1.45}
+/* @see ../docs/product/dashboard.md#progressive-schedule */
+.day-dashboard-schedule-toggle{display:inline-flex;align-items:center;gap:5px;min-height:32px;margin:-4px 0 8px;padding:3px 0;border:0;background:transparent;color:#60449b;font:inherit;font-size:.78rem;font-weight:800;cursor:pointer}
+.day-dashboard-schedule-toggle svg{transition:transform .18s ease}
+.day-dashboard-schedule-toggle[aria-expanded="true"] svg{transform:rotate(180deg)}
+.day-dashboard-schedule-toggle:focus-visible{outline:3px solid var(--edu-focus);outline-offset:2px}
 .day-dashboard-side{display:grid;gap:14px}
 /* @see ../docs/product/dashboard.md#homework-progress */
 .day-dashboard-homework-overview{display:grid;gap:12px}

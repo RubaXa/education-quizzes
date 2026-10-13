@@ -82,7 +82,7 @@ function ChildCard({ child, overview }: { child: PersonalChild; overview?: Paren
       {overview?.state === 'loading' && <p className="parent-child-note">{overview.reason || 'Загружаем работы и результаты.'}</p>}
       {!child.dashboardToken && <p className="parent-child-note">Календарь этого ребёнка ещё не опубликован для вашего профиля.</p>}
       {day && <small className="parent-child-source">{overview?.fromCache ? 'Последнее сохранённое состояние. ' : ''}МЭШ проверен: {checkedLabel(day.checkedAt)}.</small>}
-      {child.dashboardToken && <a className="parent-child-open" href={`#/days-parent/${child.dashboardToken}`} onClick={() => { if (day) { sessionStorage.setItem('education-dashboard-selected-date', day.date); sessionStorage.setItem('education-dashboard-selection-day', new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'Europe/Moscow' }).format(new Date())) } }}>Открыть календарь {child.displayName} <ArrowRight size={17} aria-hidden="true" /></a>}
+      {child.dashboardToken && <a className="parent-child-open" href={`#/days-parent/${child.dashboardToken}`} onClick={() => { const today = new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'Europe/Moscow' }).format(new Date()); sessionStorage.setItem('education-dashboard-selected-date', today); sessionStorage.setItem('education-dashboard-selection-day', today) }}>Открыть календарь {child.displayName} <ArrowRight size={17} aria-hidden="true" /></a>}
     </div>
   </article>
 }

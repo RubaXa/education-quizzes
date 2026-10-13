@@ -277,6 +277,7 @@
 | [src/lib/homeworkUpdateReceipt.ts](../../src/lib/homeworkUpdateReceipt.ts) | [Новое ДЗ](dashboard.md) | Локальная квитанция открытия изменения по роли и версии | `DayDashboard.tsx` |
 | [src/lib/homeworkUpdateReceipt.test.ts](../../src/lib/homeworkUpdateReceipt.test.ts) | [Новое ДЗ](dashboard.md) | Новая версия снова появляется после просмотра прежней | Vitest; разработчик |
 | [src/lib/parentFocusDay.ts](../../src/lib/parentFocusDay.ts) | [Dashboard](dashboard.md) | Выбор ближайшего учебного дня по первому уроку конкретного ребёнка | `useParentChildOverview.ts`; кабинет родителя |
+| [src/lib/parentFocusDay.test.ts](../../src/lib/parentFocusDay.test.ts) | [Dashboard](dashboard.md) | Граница переключения сводки ДЗ при начале первого урока | Vitest; кабинет родителя |
 | [src/lib/networkRetry.ts](../../src/lib/networkRetry.ts) | [Устойчивость сети](storage-privacy.md) | Ограниченные повторы клиентских запросов к Диску и учёт `Retry-After` | `familyBookUpload`; `photoOutbox`; `yandexPublic` |
 | [src/lib/personalAccess.ts](../../src/lib/personalAccess.ts) | [Семейная модель](../architecture/family-data-model.md) | Личная сессия и роли | Стартовая страница; день |
 | [src/lib/personalAccess.readBudget.test.ts](../../src/lib/personalAccess.readBudget.test.ts) | [План сокращения чтений](../architecture/local-first-release-plan-2026-10-12.md) | Интеграционная фикстура графа профиля с поддельным Firestore и счётчиком документов | Vitest; разработчик |
