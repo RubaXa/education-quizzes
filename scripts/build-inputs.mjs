@@ -8,12 +8,18 @@ const inputs = [
   'package-lock.json', 'tsconfig.json', 'tsconfig.app.json', 'tsconfig.node.json',
 ]
 
+/** @see ../docs/product/pwa.md */
+export function isBuildInput(path) {
+  return !/\.(?:test|spec)\.[cm]?[jt]sx?$/.test(path)
+}
+
 function addInput(hash, path) {
   if (!existsSync(path)) return
   if (statSync(path).isDirectory()) {
     for (const entry of readdirSync(path).sort()) addInput(hash, join(path, entry))
     return
   }
+  if (!isBuildInput(path)) return
   hash.update(relative(root, path)).update('\0').update(readFileSync(path)).update('\0')
 }
 

@@ -135,6 +135,7 @@
 | [scripts/access-management.mjs](../../scripts/access-management.mjs) | [Семейная модель](../architecture/family-data-model.md) | Локальная обработка заявок на детские ссылки и сверка карточек доступа | Оператор; `FamilyAccessCards.tsx` |
 | [scripts/audit-family-links.mjs](../../scripts/audit-family-links.mjs) | [Семейная модель](../architecture/family-data-model.md) | Сверка семейных профилей, личных ссылок, МЭШ и старых календарных связей без записи | Оператор после изменения доступа |
 | [scripts/build-inputs.mjs](../../scripts/build-inputs.mjs) | [PWA](pwa.md) | Сбор списка входов для отпечатка выпуска | Сборка сайта |
+| [scripts/build-inputs.test.mjs](../../scripts/build-inputs.test.mjs) | [PWA](pwa.md) | Проверка исключения тестовых файлов из отпечатка | `npm run test` |
 | [scripts/build-site.mjs](../../scripts/build-site.mjs) | [PWA](pwa.md) | Сборка клиентского приложения | npm build |
 | [scripts/check-privacy.mjs](../../scripts/check-privacy.mjs) | [Хранение и приватность](storage-privacy.md) | Запрет секретов и персональных файлов в Git | Git hooks; публикация |
 | [scripts/check-spec-map.mjs](../../scripts/check-spec-map.mjs) | [Система компонентов](component-system.md) | Покрытие файлов, ссылки React/CSS на контракт и единый загрузчик изображений | npm check; агент |
