@@ -3300,18 +3300,6 @@
     "refresh": "while session active"
   },
   {
-    "id": "src/components/SyncProgress.tsx#onSnapshot#b26350379742",
-    "file": "src/components/SyncProgress.tsx",
-    "line": 51,
-    "api": "onSnapshot",
-    "target": "doc(db, 'families', familyId, 'children', childId, 'syncStatus', 'current')",
-    "group": "client-day",
-    "policy": "scoped-listener",
-    "note": "Для видимого текущего состояния допустима адресная подписка; проверить повторное монтирование и локальный снимок при тёплом старте.",
-    "assessment": "conditional",
-    "refresh": "while relevant view is open"
-  },
-  {
     "id": "src/lib/dayDashboardStore.ts#onSnapshot#f50728f05c6a",
     "file": "src/lib/dayDashboardStore.ts",
     "line": 46,

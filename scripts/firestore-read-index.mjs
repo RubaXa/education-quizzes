@@ -18,7 +18,7 @@ const groupFor = (file) => {
   if (file.startsWith('src/')) {
     if (/personalAccess|PersonalEntry|App\.tsx|ConnectionInvite|FamilyAccessCards/.test(file)) return 'client-access'
     if (/familyLibrary|FamilyLibrary|familyBookUpload/.test(file)) return 'client-books'
-    if (/dayGuidance|dayDashboardStore|dayStore|parentCompletion|SyncProgress/.test(file)) return 'client-day'
+    if (/dayGuidance|dayDashboardStore|dayStore|parentCompletion/.test(file)) return 'client-day'
     if (/educationStore/.test(file)) return 'client-views-inbox'
     if (/photoOutbox/.test(file)) return 'client-outbox'
     if (/store\.ts$/.test(file)) return 'client-quizzes'

@@ -9,7 +9,6 @@ import { useParentChildOverview } from '@/lib/useParentChildOverview'
 import type { ParentChildOverview, ParentSubjectOverview } from '@/lib/useParentChildOverview'
 import { FamilyLibrary } from './FamilyLibrary'
 import { FamilyAccessCards } from './FamilyAccessCards'
-import { SyncProgress } from './SyncProgress'
 import { useDelayedRefresh } from '@/lib/useDelayedRefresh'
 import { readCachedInbox } from '@/lib/inboxCache'
 import './ParentHome.css'
@@ -40,6 +39,7 @@ function ChildCardWithProgress({ child, personId }: { child: PersonalChild & { d
 }
 
 /** @see ../../docs/product/design-system.md#cards-and-status
+ *  @see ../../docs/product/global-sync.md#status
  *  @see ../../docs/architecture/family-data-model.md#parent-home */
 function ChildCard({ child, overview }: { child: PersonalChild; overview?: ParentChildOverview }) {
   const [open, setOpen] = useState(false)
@@ -72,7 +72,6 @@ function ChildCard({ child, overview }: { child: PersonalChild; overview?: Paren
       <span className="parent-child-expand">{open ? 'Скрыть подробности' : 'Что именно?'} <ChevronDown size={18} aria-hidden="true" /></span>
     </button>
     <div id={childPanelId(child)} className="parent-child-detail" hidden={!open}>
-      {open && <SyncProgress familyId={child.familyId} childId={child.childId} />}
       {overview?.reason && ready && <p className="parent-child-note">{overview.reason}</p>}
       {overview?.weekendCards ? <p className="parent-child-note">На выходные доступны {overview.weekendCards} {countWord(overview.weekendCards, 'карточка подготовки', 'карточки подготовки', 'карточек подготовки')}. Их результаты и сроки смотрите в календаре.</p> : null}
       {active.map((subject) => <div className="parent-child-subject" key={subject.id}><strong>{subject.name}</strong>{subject.state === 'unknown' ? <small>Статус сверяется</small> : <small>{subject.items.filter((item) => item.state === 'done').length} из {subject.items.length} выполнено</small>}{subject.rawHomework && <p><span aria-hidden="true">◷</span><span>{subject.rawHomework}</span></p>}{subject.items.filter((item) => item.state !== 'done').map((item) => <p key={item.id}><span aria-hidden="true">{item.state === 'todo' ? '→' : item.state === 'checking' ? '◷' : '?'}</span><span>{item.title} · {item.detail}</span></p>)}</div>)}

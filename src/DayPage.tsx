@@ -17,7 +17,6 @@ import ParentTaskGuide from '@/components/ParentTaskGuide'
 import AssignmentBrief from '@/components/AssignmentBrief'
 import TaskGuidance from '@/components/TaskGuidance'
 import PhotoUploadControl from '@/components/PhotoUploadControl'
-import { SyncProgress } from '@/components/SyncProgress'
 import QuizCard from '@/components/QuizCard'
 import { findQuizPlacement, quizChain, type QuizCardAttempt } from '@/lib/quizCardViewModel'
 import { useDayEvidence } from '@/lib/useDayEvidence'
@@ -199,6 +198,7 @@ function GradeBadge({ summary, details, threshold, asOf }: { summary?: GradeSumm
  * @see ../docs/product/day-page.md#day-page
  * @see ../docs/product/day-page.md#day-navigation
  * @see ../docs/product/access-and-state.md#state
+ * @see ../docs/product/global-sync.md#status
  */
 /** @see ../docs/product/design-system.md#shell */
 export default function DayPage({ token, parent, headerReturnTarget }: { token: string; parent: boolean; headerReturnTarget: HTMLElement | null }) {
@@ -463,8 +463,6 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
       <p>{parent ? `Домашнее задание к урокам ${dayMonth(page.targetDate)}: только назначения этих уроков. Срок сдачи может отличаться и указан у задания. Выполненные заранее работы появятся у соответствующих заданий.` : `Домашнее задание к урокам ${dayMonth(page.targetDate)}. Срок сдачи указан у задания, выполненное заранее уже видно в его карточке.`}</p>
       <div className="day-summary"><strong>{pending}</strong><span>{pending === 1 ? 'действие к этой дате осталось' : 'действий к этой дате осталось'}</span>{dayTests.length > 0 && <><span className="day-summary-separator">·</span><span>{dayTests.filter((test) => test.status === 'submitted').length} из {dayTests.length} тестов завершено</span></>}</div>
     </section>
-
-    {page.familyId && page.childId && <SyncProgress familyId={page.familyId} childId={page.childId} />}
 
     <div className="day-tabs" role="tablist" aria-label="Раздел страницы дня">
       <button role="tab" aria-selected={view === 'school'} className={view === 'school' ? 'active' : ''} onClick={() => { setManualView(true); setView('school') }}>Расписание</button>
