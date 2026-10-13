@@ -137,6 +137,7 @@
 | [scripts/build-inputs.mjs](../../scripts/build-inputs.mjs) | [PWA](pwa.md) | Сбор списка входов для отпечатка выпуска | Сборка сайта |
 | [scripts/build-inputs.test.mjs](../../scripts/build-inputs.test.mjs) | [PWA](pwa.md) | Проверка исключения тестовых файлов из отпечатка | `npm run test` |
 | [scripts/build-site.mjs](../../scripts/build-site.mjs) | [PWA](pwa.md) | Сборка клиентского приложения | npm build |
+| [scripts/check-notification-viewport.mjs](../../scripts/check-notification-viewport.mjs) | [Оболочка](design-system.md) | Браузерная эмуляция границ колокольчика до и после установки PWA на ширинах 320–640 px | npm test:bell-viewport; агент |
 | [scripts/check-privacy.mjs](../../scripts/check-privacy.mjs) | [Хранение и приватность](storage-privacy.md) | Запрет секретов и персональных файлов в Git | Git hooks; публикация |
 | [scripts/check-spec-map.mjs](../../scripts/check-spec-map.mjs) | [Система компонентов](component-system.md) | Покрытие файлов, ссылки React/CSS на контракт и единый загрузчик изображений | npm check; агент |
 | [scripts/connect.mjs](../../scripts/connect.mjs) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Выпуск приглашений и проверенный приём взрослых | Оператор; Firestore |

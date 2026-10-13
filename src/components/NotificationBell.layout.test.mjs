@@ -13,6 +13,7 @@ const pwaCss = readFileSync(resolve('src/components/PwaControls.css'), 'utf8')
 
 describe('notification shell viewport contract', () => {
   it('keeps the bell as the rightmost mobile header item', () => {
+    expect(appCss).toMatch(/@media\s*\(max-width:\s*800px\)[\s\S]*?\.header-note\s*\{[^}]*display:\s*none/)
     expect(appCss).toMatch(/@media\s*\(max-width:\s*640px\)[\s\S]*?\.notification-bell-slot\s*\{[^}]*margin-left:\s*auto;[^}]*order:\s*2;[^}]*\}/)
     expect(appCss).toMatch(/@media\s*\(max-width:\s*640px\)[\s\S]*?\.header-actions\s*\{[^}]*order:\s*1;[^}]*\}/)
     expect(pwaCss).toMatch(/@media\s*\(max-width:\s*540px\)[\s\S]*?\.pwa-install\s*\{[^}]*width:\s*var\(--edu-touch-target\)/)
