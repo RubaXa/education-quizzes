@@ -163,6 +163,12 @@
 .day-subject.is-done .day-subject-head{background:#ecf8f1}
 .day-subject.is-collapsed .day-subject-head{border-bottom:0}
 .day-subject.is-collapsed .day-subject-title p{display:none}
+
+/* @see ../docs/product/day-page.md#multiple-assignments — a sheet result never completes its sibling assignment. */
+.day-subject-assignment-count{display:inline-flex;align-items:center;gap:5px;flex:none;max-width:100%;font-size:.78rem;font-weight:750;color:#655c78;background:#fff;border:1px solid #e5def2;border-radius:999px;padding:6px 10px;white-space:normal}
+.day-subject-assignment-count.is-complete{color:#277146;background:#e7f8ef;border-color:#bce8cd}
+.day-task-assignment-heading{font-size:.77rem;font-weight:800;color:#665187;margin-bottom:9px}
+@media(max-width:640px){.day-subject-assignment-count{order:3;margin-left:77px}.day-task-assignment-heading{margin-bottom:7px}}
 .day-subject-content[hidden]{display:none}
 .day-subject-complete{display:inline-flex;align-items:center;gap:5px;color:#246c49;font-size:.8rem;font-weight:800;white-space:nowrap}
 .day-subject-toggle{display:grid;place-items:center;flex:none;width:36px;height:36px;border:1px solid #ded6ed;border-radius:12px;background:#fff;color:#5b478d;cursor:pointer}

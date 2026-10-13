@@ -32,6 +32,9 @@
 | [day/homework-reference.mjs](../../day/homework-reference.mjs) | [Формирование плана](plan-generation.md) | Разрешение ссылки МЭШ на ранее назначенное ДЗ | `day/build.mjs`; `scripts/day.mjs` |
 | [day/material-access.mjs](../../day/material-access.mjs) | [Модель Firestore](firestore-data-model.md) | Право семьи на страницу учебника либо назначенный лист учителя | `scripts/day.mjs`; аудит |
 | [day/material-access.test.mjs](../../day/material-access.test.mjs) | [Модель Firestore](firestore-data-model.md) | Запрет доступа к общему PDF без семейного подтверждения и различение редакций | Vitest; разработчик |
+| [day/assignment-structure.mjs](../../day/assignment-structure.mjs) | [Несколько заданий](day-page.md) | Барьер против копирования листов учителя между отдельными назначениями МЭШ | `scripts/day.mjs`; публикация |
+| [day/assignment-structure.test.mjs](../../day/assignment-structure.test.mjs) | [Несколько заданий](day-page.md) | Регрессия двух листов и явного общего вложения | Vitest; разработчик |
+| [day/build-assignments.test.mjs](../../day/build-assignments.test.mjs) | [Несколько заданий](day-page.md) | Повторная сборка МЭШ не размножает файлы и сохраняет сверенные связи | Vitest; разработчик |
 | [day/merge.mjs](../../day/merge.mjs) | [Формирование плана](plan-generation.md) | Слияние без потери работы, ревизия выходного плана, снятие ошибочной карточки и удаление доказанной ссылки | `scripts/day.mjs` |
 | [day/merge.test.mjs](../../day/merge.test.mjs) | [Доступ и состояние](access-and-state.md) | Проверка сохранности при слиянии дня | Vitest; разработчик |
 | [day/owner-repair.mjs](../../day/owner-repair.mjs) | [Модель Firestore](firestore-data-model.md) | Узкая миграция владельца старой ролевой страницы по dayOwners | `scripts/day.mjs` |
@@ -290,6 +293,8 @@
 | [src/lib/photoOutbox.ts](../../src/lib/photoOutbox.ts) | [Хранение и приватность](storage-privacy.md) | Локальное хранение фото до передачи | `dayStore`; устройство |
 | [src/lib/photoUploadPolicy.test.ts](../../src/lib/photoUploadPolicy.test.ts) | [Страница дня](day-page.md) | Повторная загрузка после частичной и неясной проверки | Vitest; разработчик |
 | [src/lib/photoUploadPolicy.ts](../../src/lib/photoUploadPolicy.ts) | [Страница дня](day-page.md) | Общее правило доступности загрузки фото ученику | `DayPage.tsx` |
+| [src/lib/assignmentPresentation.ts](../../src/lib/assignmentPresentation.ts) | [Несколько заданий](day-page.md) | Счёт завершения отдельных назначений и видимые подписи без лишней нумерации при одном задании | `DayPage.tsx` |
+| [src/lib/assignmentPresentation.test.ts](../../src/lib/assignmentPresentation.test.ts) | [Несколько заданий](day-page.md) | Регрессия «4 из 4» первого листа при открытом втором | Vitest; разработчик |
 | [src/lib/problemGroupSummary.ts](../../src/lib/problemGroupSummary.ts) | [Страница дня](day-page.md) | Проверяемая сводка номеров и уникальных фото | `src/components/ProblemGroup.tsx` |
 | [src/lib/parentCompletion.ts](../../src/lib/parentCompletion.ts) | [Страница дня](day-page.md) | Отдельные события зачёта и выбора требований, проверка версии разбора | День; слот выходных; dashboard; `WorkReview` |
 | [src/lib/parentCompletion.test.ts](../../src/lib/parentCompletion.test.ts) | [Страница дня](day-page.md) | Проверка обязательности этапов, семейного подсчёта и границы версии | Vitest; разработчик |

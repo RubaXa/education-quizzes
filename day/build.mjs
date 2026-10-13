@@ -5,6 +5,7 @@ import { lessonVisibility } from '../diary/application/lesson-visibility.mjs'
 import { isExplicitCdzTask, rawMeshKind } from './homework-kind.mjs'
 import { subjectPresentation } from './subject-identity.mjs'
 import { referencedHomeworkDate } from './homework-reference.mjs'
+import { teacherFilesForEntry } from './assignment-structure.mjs'
 export { rawMeshKind } from './homework-kind.mjs'
 
 function json(file) { return JSON.parse(readFileSync(file, 'utf8')) }
@@ -76,6 +77,7 @@ export function buildDaySource(local, date) {
     .map((placement) => ({ ...placement, originDate: placement.originDate || (current ? targetDate : earlier.targetDate) }))
   const retainedTaskIds = new Set(subjects.flatMap((subject) => subject.tasks.map((task) => task.id)))
   const materialLinks = { ...(current?.materialLinks || Object.fromEntries(Object.entries(earlier?.materialLinks || {}).filter(([taskId]) => retainedTaskIds.has(taskId)))) }
+  const materialLinkReplacements = new Set(current?.materialLinkReplacements ?? [])
   const sourceOnlyEntries = [...(current?.sourceOnlyEntries || [])]
   let added = 0
   const assignments = lessonVisibility(target.assignments || []).conducted
@@ -98,6 +100,7 @@ export function buildDaySource(local, date) {
     for (const entry of descriptions) {
       const taskId = `mesh-${entry.id}`
       const description = entry.description.trim()
+      const entryFiles = teacherFilesForEntry(assignment, entry, descriptions)
       const referenceDate = referencedHomeworkDate(description, lessonDate)
       // A bare attachment pointer names the same teacher file; it assigns no extra work.
       // @see ../docs/product/plan-generation.md#material-only-mesh-entries
@@ -137,6 +140,8 @@ export function buildDaySource(local, date) {
           subject.summary = 'Условие МЭШ изменилось. Подробный разбор готовится.'
           if (!assignment.teacherFiles?.length) subject.materials = 'Материалы изменённого задания уточняются'
           old.materialStatus = { state: 'textbook-page-needed', message: 'Учитель изменил условие. Страницы и действия нужно сверить заново перед публикацией.' }
+          delete materialLinks[taskId]
+          materialLinkReplacements.add(taskId)
         }
         old.meshText = description
         if (referenceDate) old.referenceDate = referenceDate
@@ -151,7 +156,7 @@ export function buildDaySource(local, date) {
         old.dueDate = deadline.dueDate
         if (deadline.dueDateEvidence) old.dueDateEvidence = deadline.dueDateEvidence
         else delete old.dueDateEvidence
-        if (assignment.teacherFiles?.length) materialLinks[taskId] = teacherLinks(local, lessonDate, assignment.teacherFiles)
+        if (entryFiles.length) materialLinks[taskId] = teacherLinks(local, lessonDate, entryFiles)
         continue
       }
       subject.tasks.push({
@@ -168,12 +173,13 @@ export function buildDaySource(local, date) {
         source: `МЭШ, подробная карточка урока ${lessonDate}; запись ${entry.id}.`,
         meshText: description, originDate: targetDate, lessonDate, ...deadlineFromMesh(assignment, lessonDate),
         ...(referenceDate ? { referenceDate, materialStatus: { state: 'no-textbook', message: `Это указатель на ДЗ к ${referenceDate}, а не новое упражнение из учебника.` } }
-          : !assignment.teacherFiles?.length ? { materialStatus: { state: 'textbook-page-needed', message: 'Страницу учебника к этому заданию ещё не сверили. Пока ориентируйся на точную запись МЭШ.' } } : {}),
+          : assignment.teacherFiles?.length && !entryFiles.length ? { materialStatus: { state: 'teacher-attachment-needed', message: 'Файлы урока ещё не сопоставлены с конкретным заданием МЭШ.' } }
+            : !entryFiles.length ? { materialStatus: { state: 'textbook-page-needed', message: 'Страницу учебника к этому заданию ещё не сверили. Пока ориентируйся на точную запись МЭШ.' } } : {}),
       })
       subject.summary = ''
       if (!assignment.teacherFiles?.length) subject.materials = 'Материалы нового задания уточняются'
       added += 1
-      if (assignment.teacherFiles?.length) materialLinks[taskId] = teacherLinks(local, lessonDate, assignment.teacherFiles)
+      if (entryFiles.length) materialLinks[taskId] = teacherLinks(local, lessonDate, entryFiles)
     }
   }
   const assigned = assignments.filter(({ assignment }) => (assignment.homeworkEntries?.length || assignment.descriptions?.length) > 0).length
@@ -189,7 +195,7 @@ export function buildDaySource(local, date) {
   const evidenceDayTokens = [...new Set([...(current?.evidenceDayTokens || earlier?.evidenceDayTokens || []), ...(earlierDate && links[earlierDate] ? [links[earlierDate].student] : [])])]
   const activeTaskIds = new Set(subjects.flatMap((subject) => subject.tasks.map((task) => task.id)))
   const retiredTaskIds = (current?.retiredTaskIds || []).filter((taskId) => !activeTaskIds.has(taskId))
-  const source = { ...current, targetDate, notices, parentNotes, subjects, testPlacements: placements, materialLinks, sourceOnlyEntries, evidenceDayTokens, retiredTaskIds }
+  const source = { ...current, targetDate, notices, parentNotes, subjects, testPlacements: placements, materialLinks, materialLinkReplacements: [...materialLinkReplacements], sourceOnlyEntries, evidenceDayTokens, retiredTaskIds }
   writeJson(local, `day-source-${date}.json`, source)
   return { date, targetDate, assigned, subjects: subjects.length, tasks: subjects.reduce((sum, subject) => sum + subject.tasks.length, 0), added }
 }

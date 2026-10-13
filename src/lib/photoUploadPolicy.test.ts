@@ -15,4 +15,9 @@ describe('student photo upload availability', () => {
     expect(pupilCanAddPhoto({ ...english, referenceDate: '2026-10-12' }, false)).toBe(false)
     expect(pupilCanAddPhoto({ ...english, kind: 'read' }, false)).toBe(false)
   })
+  it('keeps a separate upload for a second written sheet after the first sheet is complete', () => {
+    const ratios = { ...english, id: 'mesh-351493954', title: 'Пропорции из PDF', kind: 'written' as const }
+    expect(pupilCanAddPhoto(ratios, false)).toBe(true)
+    expect(pupilCanAddPhoto({ ...ratios, status: 'partial' }, false)).toBe(true)
+  })
 })

@@ -13,6 +13,7 @@ import { assertAssignmentLinksExist } from '../day/placement-integrity.mjs'
 import { repairTaskPlacements } from '../day/placement-repair.mjs'
 import { dayDashboardShapeErrors } from '../day/data-contract.mjs'
 import { materialGrantError } from '../day/material-access.mjs'
+import { teacherAttachmentOwnershipErrors } from '../day/assignment-structure.mjs'
 import { ownerMigrationFields } from '../day/owner-repair.mjs'
 import { publicPageSubjects, publicProblem } from '../day/public-projection.mjs'
 import { isExplicitCdzTask } from '../day/homework-kind.mjs'
@@ -401,6 +402,8 @@ function validate(source, { allowUnchangedLegacyTeacherLinks = false } = {}) {
       if (link.sourceType === 'external-text' && (task.materialStatus?.state !== 'text-absent-from-textbook' || !link.reason)) fail(`Внешний текст для ${taskId} допустим только после подтверждения его отсутствия в учебнике и с объяснением.`)
     }
   }
+  const attachmentErrors = teacherAttachmentOwnershipErrors(source)
+  if (attachmentErrors.length) fail(attachmentErrors.join(' '))
   // @see ../docs/product/plan-generation.md#material-only-mesh-entries
   for (const entry of source.sourceOnlyEntries ?? []) {
     const target = source.subjects.find((subject) => subject.id === entry.subjectId)?.tasks.find((task) => task.id === entry.targetTaskId)
@@ -521,6 +524,7 @@ async function stagePublish(date, batch, links, indexTokens, stagedPages, notify
     const state = task.materialStatus?.state
     const hasPages = Boolean(pageRefs[task.id]?.length)
     const hasTeacherFile = source.materialLinks?.[task.id]?.some((link) => link.sourceType === 'teacher-attachment')
+    if (state === 'teacher-attachment-needed') fail(`Файлы урока ещё не сопоставлены с отдельным заданием ${task.id}; день не опубликован.`)
     if (state === 'textbook-page-needed' || (task.id.startsWith('mesh-') && !hasPages && !hasTeacherFile && !['no-textbook', 'text-absent-from-textbook'].includes(state))) {
       fail(`Источник ${task.id} ещё не сверён с учебником. Укажите точные страницы в .local/material-pages.json или причину отсутствия учебника; день не опубликован.`)
     }
