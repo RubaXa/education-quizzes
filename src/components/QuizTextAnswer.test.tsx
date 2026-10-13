@@ -42,5 +42,6 @@ describe('quiz text answers', () => {
     expect(markup('long', 'Язык', { preset: 'english' })).toContain('spellCheck="false"')
     expect(markup('short', 'English', { preset: 'general' })).toContain('spellCheck="false"')
     expect(markup('short', 'Математика')).not.toContain('spellCheck="false"')
+    expect(markup('short', 'Иностранный (немецкий) язык')).not.toContain('spellCheck="false"')
   })
 })

@@ -1,7 +1,6 @@
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import type { QuizVisual } from '@/lib/quiz'
-import { resolveVisual } from '@/lib/visual'
 
 /**
  * Text answer fields shared by short, numeric and long quiz questions.
@@ -15,7 +14,7 @@ export function QuizTextAnswer({ kind, value, disabled, subject, visual, onAnswe
   visual?: QuizVisual
   onAnswer: (value: string) => void
 }) {
-  const noWritingAssistance = resolveVisual(subject).preset === 'english' || visual?.preset === 'english'
+  const noWritingAssistance = /англ|english/iu.test(subject) || visual?.preset === 'english'
   const writingAttributes = noWritingAssistance ? {
     autoComplete: 'off',
     autoCorrect: 'off',
