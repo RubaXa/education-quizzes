@@ -11,7 +11,7 @@
 | [.firebaserc](../../.firebaserc) | [Семейная модель](../architecture/family-data-model.md) | Идентификатор проекта Firebase для команд | Firebase CLI |
 | [.gitignore](../../.gitignore) | [Хранение и приватность](storage-privacy.md) | Исключение секретов и локальных оригиналов | Git; проверка приватности |
 | [.oxlintrc.json](../../.oxlintrc.json) | [Карта спецификаций](README.md) | Правила статического анализа кода | oxlint |
-| [AGENTS.md](../../AGENTS.md) | [Дизайн-система](design-system.md) | Рабочие ограничения и требование сверять новый UI с действующим | Агент Codex |
+| [AGENTS.md](../../AGENTS.md) | [Система компонентов](component-system.md) | Сквозная сверка факта, модели данных, ViewModel, компонентов, тестов и выпуска | Агент Codex |
 | [README.md](../../README.md) | [Карта спецификаций](README.md) | Вход в репозиторий и команды | Разработчик; агент |
 | [commitlint.config.cjs](../../commitlint.config.cjs) | [Карта файлов](file-map.md) | Формат истории изменений | commitlint |
 | [components.json](../../components.json) | [Экраны из данных](../architecture/backend-driven-ui.md) | Настройки базовых UI-компонентов | Генератор компонентов |
@@ -184,8 +184,8 @@
 | [src/App.css](../../src/App.css) | [Дизайн-система](design-system.md) | Общая оболочка, шапка, тесты и предметные темы | `src/App.tsx` |
 | [src/App.tsx](../../src/App.tsx) | [Доступ и состояние](access-and-state.md) | Маршруты, тесты, личный вход и общий колокольчик | Браузер |
 | [src/DayDashboard.css](../../src/DayDashboard.css) | [Дизайн-система](design-system.md) | Карточки, бейджи расписания и виджет ДЗ на общих токенах | `src/DayDashboard.tsx` |
-| [src/DayDashboard.tsx](../../src/DayDashboard.tsx) | [Dashboard](dashboard.md) | Календарь, все выходные карточки по ID, отдельные предметы и живые статусы | Ученик; родитель; `src/DayPage.tsx` |
-| [src/DayDashboard.warmStart.test.tsx](../../src/DayDashboard.warmStart.test.tsx) | [Повторный запуск расписания](dashboard.md) | Интеграционные сценарии сохранённых уроков, ДЗ следующего дня, оценок и отзыва доступа | Vitest; `DayDashboard.tsx` |
+| [src/DayDashboard.tsx](../../src/DayDashboard.tsx) | [Dashboard](dashboard.md) | Календарь сегодняшнего/выбранного дня, сворачивание завершённых уроков, следующее ДЗ, живые статусы и выходные карточки | Ученик; родитель; `src/DayPage.tsx` |
+| [src/DayDashboard.warmStart.test.tsx](../../src/DayDashboard.warmStart.test.tsx) | [Повторный запуск расписания](dashboard.md) | Холодный и тёплый вид, выбранная дата, последовательное сворачивание уроков, отдельное ДЗ, оценки и отзыв доступа | Vitest; `DayDashboard.tsx` |
 | [src/DayPage.css](../../src/DayPage.css) | [Страница дня](day-page.md) | Оформление заданий и фокуса после перехода из расписания | `src/DayPage.tsx` |
 | [src/DayPage.tsx](../../src/DayPage.tsx) | [Страница дня](day-page.md) | Компоновка дня из Firestore, отдельный срок сдачи, семейная доработка и фокус задания | Ученик; родитель; `ProblemGroup` |
 | [src/WeekendMathSlot.css](../../src/WeekendMathSlot.css) | [Адаптивная карточка](adaptive-problem-card.md) | Оформление общего слота математики | `src/WeekendMathSlot.tsx` |
@@ -206,7 +206,7 @@
 | [src/components/FamilyLibrary.tsx](../../src/components/FamilyLibrary.tsx) | [Семейная библиотека](family-library.md) | Статус книг по расписанию и загрузка PDF взрослым | `ParentHome.tsx` |
 | [src/components/FamilyAccessCards.tsx](../../src/components/FamilyAccessCards.tsx) | [Семья и доступ](../architecture/family-data-model.md) | Состав семьи, заявки и история приглашений, личные ссылки детей | `ParentHome.tsx`; взрослый |
 | [src/components/ParentHome.css](../../src/components/ParentHome.css) | [Дизайн-система](design-system.md) | Компактные раскрываемые строки детей и отдельные карточки семьи | `ParentHome.tsx` |
-| [src/components/ParentHome.tsx](../../src/components/ParentHome.tsx) | [Семья и доступ](../architecture/family-data-model.md) | Кабинет взрослого по реальным доступным детям и известным данным управления | `PersonalEntry.tsx`; взрослый |
+| [src/components/ParentHome.tsx](../../src/components/ParentHome.tsx) | [Семья и доступ](../architecture/family-data-model.md) | Кабинет взрослого со сводкой ДЗ на вычисленный день и переходом к сегодняшнему календарю ребёнка | `PersonalEntry.tsx`; взрослый |
 | [src/components/ParentHome.readBudget.test.tsx](../../src/components/ParentHome.readBudget.test.tsx) | [Поэтапный план local-first](../architecture/local-first-release-plan-2026-10-12.md) | Интеграционная трасса начальных подписок и проверка порога 20% без рабочего Firestore | Разработчик; выпуск родительского кабинета |
 | [src/components/ProblemCard.css](../../src/components/ProblemCard.css) | [Адаптивная карточка](adaptive-problem-card.md) | Оформление свёрнутого номера | `src/components/ProblemCard.tsx` |
 | [src/components/ProblemCard.tsx](../../src/components/ProblemCard.tsx) | [Адаптивная карточка](adaptive-problem-card.md) | Номер, статус и кнопка фото | День; спецкурс |
