@@ -5,13 +5,12 @@ import { ArrowLeft, BookOpen, CircleHelp, ClipboardCopy, Clock3, RefreshCw, Send
 import { Button } from '@/components/ui/button'
 import { CodeBlock } from '@/components/CodeBlock'
 import { ReadingCard, ThemeFrame, ThemeHero } from '@/components/SubjectTheme'
+import { QuizTextAnswer } from '@/components/QuizTextAnswer'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Input } from '@/components/ui/input'
 import { Progress } from '@/components/ui/progress'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Textarea } from '@/components/ui/textarea'
 import { countAnswered, grade, summarize } from '@/lib/quiz'
 import { spellingFeedback } from '@/lib/spellingFeedback'
 import { sharedQuestionTopic } from '@/lib/questionTopicPresentation'
@@ -19,7 +18,7 @@ import { buildFollowUpPrompt } from '@/lib/followup'
 import { WriteQueue } from '@/lib/writeQueue'
 import { readCachedQuiz, readQuizDraft, rememberQuizStudent, wasQuizStudent, writeCachedQuiz, writeQuizDraft } from '@/lib/quizDraft'
 import { readLocalQuiz, writeLocalQuizAssignment, writeLocalQuizDraft } from '@/lib/quizLocalStore'
-import type { Answer, AnswerKey, Assignment, ManualReview, QuizQuestion, QuestionResult } from '@/lib/quiz'
+import type { Answer, AnswerKey, Assignment, ManualReview, QuizQuestion, QuizVisual, QuestionResult } from '@/lib/quiz'
 import type { BoardDetails } from '@/lib/store'
 import type { QuizOutcome } from '@/lib/watchQuizOutcome'
 import { clearPersonalSession, loadPersonalProfile, readCachedPersonalContext, readLastPersonalDashboardRoute, rememberPersonalDashboardRoute, restorePersonalSession } from '@/lib/personalAccess'
@@ -129,6 +128,8 @@ function QuestionCard({
   index,
   answer,
   onAnswer,
+  subject,
+  visual,
   disabled = false,
   showTopic = true,
 }: {
@@ -136,6 +137,8 @@ function QuestionCard({
   index: number
   answer?: Answer
   onAnswer: (value: Answer) => void
+  subject: string
+  visual?: QuizVisual
   disabled?: boolean
   showTopic?: boolean
 }) {
@@ -184,24 +187,8 @@ function QuestionCard({
             ))}
           </div>
         )}
-        {(question.kind === 'short' || question.kind === 'number') && (
-          <Input
-            value={asString}
-            disabled={disabled}
-            inputMode={question.kind === 'number' ? 'decimal' : 'text'}
-            placeholder={question.kind === 'number' ? 'Введите число' : 'Напишите ответ'}
-            onChange={(event) => onAnswer(event.target.value)}
-            className="h-12 text-base"
-          />
-        )}
-        {question.kind === 'long' && (
-          <Textarea
-            value={asString}
-            disabled={disabled}
-            placeholder="Опишите решение или объясните ответ своими словами"
-            onChange={(event) => onAnswer(event.target.value)}
-            className="min-h-36 text-base"
-          />
+        {(question.kind === 'short' || question.kind === 'number' || question.kind === 'long') && (
+          <QuizTextAnswer kind={question.kind} value={asString} disabled={disabled} subject={subject} visual={visual} onAnswer={onAnswer} />
         )}
       </CardContent>
     </Card>
@@ -559,7 +546,7 @@ function QuizRunner({ token }: { token: string }) {
       </div>
       {sharedTopic && <p className="text-sm text-muted-foreground">Тема вопросов: {sharedTopic}</p>}
       <div className="space-y-5">{assignment.questions.map((question, index) => (
-        <QuestionCard key={question.id} question={question} index={index} answer={answers[question.id]} onAnswer={(value) => updateAnswer(question.id, value)} showTopic={!sharedTopic} />
+        <QuestionCard key={question.id} question={question} index={index} answer={answers[question.id]} onAnswer={(value) => updateAnswer(question.id, value)} subject={assignment.subject} visual={assignment.visual} showTopic={!sharedTopic} />
       ))}</div>
       {error && <p className="rounded-xl bg-rose-50 p-3 text-sm text-rose-800">{error}</p>}
       <div className="flex flex-col items-start justify-between gap-3 rounded-2xl bg-white p-5 shadow-sm sm:flex-row sm:items-center">
@@ -591,7 +578,7 @@ function Preview({ token }: { token: string }) {
       <ThemeHero subject={preview.subject} visual={preview.visual} title={preview.title} description={preview.description} preview />
       <ReadingCard reading={preview.reading} />
       {sharedTopic && <p className="text-sm text-muted-foreground">Тема вопросов: {sharedTopic}</p>}
-      {preview.questions.map((question, index) => <QuestionCard key={question.id} question={question} index={index} disabled showTopic={!sharedTopic} onAnswer={() => {}} />)}
+      {preview.questions.map((question, index) => <QuestionCard key={question.id} question={question} index={index} disabled subject={preview.subject} visual={preview.visual} showTopic={!sharedTopic} onAnswer={() => {}} />)}
       </div>
     </ThemeFrame>
   )
@@ -641,7 +628,7 @@ function QuizAccess({ token }: { token: string }) {
     <ReadingCard reading={assignment.reading} />
     <p className="text-sm text-muted-foreground">Только просмотр: ответы ученика здесь изменить нельзя.</p>
     {sharedTopic && <p className="text-sm text-muted-foreground">Тема вопросов: {sharedTopic}</p>}
-    {assignment.questions.map((question, index) => <QuestionCard key={question.id} question={question} index={index} disabled showTopic={!sharedTopic} onAnswer={() => {}} />)}
+    {assignment.questions.map((question, index) => <QuestionCard key={question.id} question={question} index={index} disabled subject={assignment.subject} visual={assignment.visual} showTopic={!sharedTopic} onAnswer={() => {}} />)}
   </div></ThemeFrame>
 }
 

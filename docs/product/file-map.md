@@ -230,6 +230,8 @@
 | [src/components/RequirementSwitch.css](../../src/components/RequirementSwitch.css) | [Дизайн-система](design-system.md) | Общий вид переключателя обязательности | `RequirementSwitch.tsx` |
 | [src/components/RequirementSwitch.tsx](../../src/components/RequirementSwitch.tsx) | [Дизайн-система](design-system.md) | Переключатель проверяемого пункта и спорного требования | `ParentTaskGuide.tsx`; `WorkReview.tsx` |
 | [src/components/QuizCard.tsx](../../src/components/QuizCard.tsx) | [Единая карточка теста](card-generation-policy.md) | Одна текущая попытка, процент, история, ссылки и предметные данные через props | `src/App.tsx`; `src/DayPage.tsx` |
+| [src/components/QuizTextAnswer.tsx](../../src/components/QuizTextAnswer.tsx) | [Тесты](quizzes.md) | Текстовый ввод теста и отключение браузерных подсказок для английского | `src/App.tsx` |
+| [src/components/QuizTextAnswer.test.tsx](../../src/components/QuizTextAnswer.test.tsx) | [Тесты](quizzes.md) | Проверка атрибутов английского ввода и сохранения других полей | Vitest; разработчик |
 | [src/components/QuizCard.css](../../src/components/QuizCard.css) | [Дизайн-система](design-system.md) | Общий стиль теста на обеих страницах | `QuizCard.tsx` |
 | [src/components/AssignmentBrief.tsx](../../src/components/AssignmentBrief.tsx) | [Ученическая проекция](subject-card-viewmodel.md) | Дословное задание и объяснение источника для обеих ролей | `src/DayPage.tsx` |
 | [src/components/AssignmentBrief.css](../../src/components/AssignmentBrief.css) | [Дизайн-система](design-system.md) | Оформление точного задания и источника | `AssignmentBrief.tsx` |
