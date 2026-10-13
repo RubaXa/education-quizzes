@@ -13,6 +13,7 @@
     "lint": "oxlint",
     "test": "vitest run",
     "test:bell-viewport": "node scripts/check-notification-viewport.mjs",
+    "test:schedule-viewport": "node scripts/check-schedule-viewport.mjs",
     "test:local-first": "vitest run src/lib/localFirstPilot.test.ts src/lib/materialPageCache.test.ts",
     "bench:reads": "vitest run src/components/ParentHome.readBudget.test.tsx src/lib/bookPageSource.test.ts src/lib/dayMaterialRefs.test.ts --reporter=verbose",
     "index:reads": "node scripts/firestore-read-index.mjs --write",

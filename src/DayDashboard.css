@@ -103,9 +103,9 @@
 .day-dashboard-lesson summary:focus-visible,.day-dashboard-lesson-body button:focus-visible{outline:3px solid #ad8ce5;outline-offset:2px}
 /* @see ../docs/product/design-system.md#mobile-card-headings */
 @media(max-width:560px){
-  .day-dashboard-lesson summary{grid-template-columns:48px minmax(0,1fr);gap:5px 8px;align-items:start}
-  .day-dashboard-lesson-name{overflow-wrap:anywhere;word-break:normal}
-  .day-dashboard-lesson-badge{grid-column:2;justify-self:start;max-width:100%}
+  .day-dashboard-lesson summary{grid-template-columns:44px minmax(0,1fr) max-content;gap:6px;align-items:center}
+  .day-dashboard-lesson-name{overflow-wrap:normal;word-break:normal}
+  .day-dashboard-lesson-badge{grid-column:3;justify-self:end;max-width:none}
   .day-dashboard-lesson-body{margin-left:0}
 }
 .day-dashboard-detail-link{display:inline-flex;align-items:center;gap:7px;margin-top:13px;padding:8px 0;border:0;background:transparent;color:#5d459f;font-weight:800;cursor:pointer;text-align:left}
