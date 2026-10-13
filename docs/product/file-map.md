@@ -7,6 +7,7 @@
 | Файл | Спецификация | Зачем существует | Потребитель |
 |---|---|---|---|
 | [assessment/decision-graph.mjs](../../assessment/decision-graph.mjs) | [Граф самопроверок](assessment-decision-graph.md) | Режимы, предметные матрицы, закрытый план и барьер ручной проверки | `quiz.mjs`; `sync-queue.mjs`; `sync-inbox.mjs` |
+| [assessment/decision-graph.test.mjs](../../assessment/decision-graph.test.mjs) | [Словарный диктант](assessment-decision-graph.md) | Проверка отбора слов, исправлений и формы связанного теста | Vitest; автор теста |
 | [.env.example](../../.env.example) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Шаблон локальной конфигурации интеграции | Оператор CLI |
 | [.firebaserc](../../.firebaserc) | [Семейная модель](../architecture/family-data-model.md) | Идентификатор проекта Firebase для команд | Firebase CLI |
 | [.gitignore](../../.gitignore) | [Хранение и приватность](storage-privacy.md) | Исключение секретов и локальных оригиналов | Git; проверка приватности |
@@ -82,6 +83,7 @@
 | [docs/product/assessment-decision-graph.md](assessment-decision-graph.md) | [Граф самопроверок](assessment-decision-graph.md) | Подтверждение вида задания, источники, предметные ветки, режимы и закрытый план вопросов | Агент; `quiz.mjs`; `sync-queue.mjs` |
 | [docs/product/assessment-source-policy.md](assessment-source-policy.md) | [Граф самопроверок](assessment-decision-graph.md) | Источники и два цикла подготовки к контрольной | Агент; навык тестов |
 | [docs/research/assessment-source-catalog.md](../research/assessment-source-catalog.md) | [Граф самопроверок](assessment-decision-graph.md) | Проверенные каталоги программ и образцов по предметам | Агент при подготовке закрытого плана |
+| [docs/research/vocabulary-dictation-practice.md](../research/vocabulary-dictation-practice.md) | [Словарный диктант](assessment-decision-graph.md) | Первичные исследования письма по памяти, обратной связи и отложенной проверки | Агент; автор словарного теста |
 | [docs/research/reading-only-self-checks.md](../research/reading-only-self-checks.md) | [Чистое чтение](assessment-decision-graph.md) | Основание короткого теста по назначенному тексту и пределы его интерпретации | Агент; `education-sync`; автор теста |
 | [docs/product/subject-card-viewmodel.md](subject-card-viewmodel.md) | [Единая модель карточки](subject-card-viewmodel.md) | Контракт Firestore и проекций взрослого и ученика | Сборка; проверка; UI |
 | [docs/product/subject-aware-guidance.md](subject-aware-guidance.md) | [Единый путь разбора](subject-aware-guidance.md) | Общая оболочка и предметные адаптеры решения, письменного ответа и подсказок | Агент проверки; родительский UI |

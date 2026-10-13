@@ -17,6 +17,31 @@ export const subjectAdapters = Object.freeze({
 const nonempty = (value) => typeof value === 'string' && Boolean(value.trim())
 const identifiers = (records) => new Set(records.map((record) => record.id))
 
+/** Select the words for one linked vocabulary dictation. Incorrect and skipped
+ * words remain in repair; a delayed full check is a separate phase.
+ * @see ../docs/product/assessment-decision-graph.md#vocabulary-dictation
+ */
+export function vocabularyDictationWords({ phase, sourceWordIds, priorWordIds = [], priorResults = [] }) {
+  if (!Array.isArray(sourceWordIds) || !sourceWordIds.length
+    || sourceWordIds.some((id) => !nonempty(id)) || identifiers(sourceWordIds.map((id) => ({ id }))).size !== sourceWordIds.length) {
+    throw new Error('Нужен проверенный список уникальных ID слов.')
+  }
+  if (!['initial', 'full-repeat', 'repair', 'delayed-full'].includes(phase)) throw new Error('Неизвестная фаза словарного диктанта.')
+  if (phase === 'initial') {
+    if (priorWordIds.length || priorResults.length) throw new Error('У первого диктанта нет предыдущей попытки.')
+    return [...sourceWordIds]
+  }
+  if (!Array.isArray(priorWordIds) || !priorWordIds.length || !Array.isArray(priorResults)
+    || priorResults.length !== priorWordIds.length || new Set(priorWordIds).size !== priorWordIds.length
+    || priorWordIds.some((id) => !sourceWordIds.includes(id))) throw new Error('Предыдущий проход слов неполон.')
+  const byWord = new Map(priorResults.map((item) => [item.wordId, item.status]))
+  if (byWord.size !== priorWordIds.length || priorWordIds.some((id) => !['correct', 'incorrect', 'skipped'].includes(byWord.get(id)))) {
+    throw new Error('Каждое слово предыдущего прохода должно быть проверено.')
+  }
+  if (phase === 'full-repeat' && priorWordIds.length !== sourceWordIds.length) throw new Error('Второй проход требует полного первого списка.')
+  return phase === 'repair' ? priorWordIds.filter((id) => byWord.get(id) !== 'correct') : [...sourceWordIds]
+}
+
 /** A reviewed, source-linked reading instruction is sufficient to queue a short Education self-check.
  * @see ../docs/product/assessment-decision-graph.md#reading-only */
 function isConfirmedReadingOnly(task) {
@@ -129,11 +154,30 @@ export function validateAssessmentPlan(plan, spec) {
       errors.push(`Вопрос ${item.questionId ?? '?'}: интервальный слой требует отдельную прежнюю тему и её источник.`)
     }
   }
+  if (plan.dictation) {
+    try {
+      const selected = vocabularyDictationWords(plan.dictation)
+      const wordsByQuestion = plan.dictation.wordIdByQuestion ?? {}
+      const actual = (spec.questions ?? []).map((question) => wordsByQuestion[question.id])
+      if (!nonempty(plan.dictation.sourceRef) || !selected.length || actual.length !== selected.length
+        || new Set(actual).size !== actual.length || actual.some((id) => !selected.includes(id))
+        || (spec.questions ?? []).some((question) => question.kind !== 'short')
+        || (plan.dictation.phase === 'initial' ? Boolean(spec.linkedToTestId) : !spec.linkedToTestId)) {
+        errors.push('Словарный диктант: каждый выбранный пункт должен требовать открытого написания одного проверенного слова; повтор связан с прежним тестом.')
+      }
+    } catch (error) { errors.push(`Словарный диктант: ${error.message}`) }
+  }
   const layers = new Set(items.map((item) => item.layer))
-  for (const layer of ['current', 'transfer']) if (!layers.has(layer)) errors.push(`Нет слоя ${layer}.`)
-  if (!layers.has('spaced') && !nonempty(plan.spacedGapReason)) errors.push('Нет отдельной прежней темы или объяснения её отсутствия.')
-  if (!layers.has('prior-gap') && !layers.has('baseline')) errors.push('Нет слоя прежней ошибки или честной входной проверки.')
-  if (layers.has('baseline') && !nonempty(plan.historyGapReason)) errors.push('Входная проверка требует historyGapReason.')
+  // A linked repair round is a word-level drill continuing the full diagnostic.
+  // It may contain just one misspelt word; unrelated questions would defeat it.
+  if (plan.dictation?.phase === 'repair') {
+    if (items.some((item) => item.layer !== 'prior-gap')) errors.push('Повтор ошибок словарного диктанта должен опираться на подтверждённые неверные слова.')
+  } else {
+    for (const layer of ['current', 'transfer']) if (!layers.has(layer)) errors.push(`Нет слоя ${layer}.`)
+    if (!layers.has('spaced') && !nonempty(plan.spacedGapReason)) errors.push('Нет отдельной прежней темы или объяснения её отсутствия.')
+    if (!layers.has('prior-gap') && !layers.has('baseline')) errors.push('Нет слоя прежней ошибки или честной входной проверки.')
+    if (layers.has('baseline') && !nonempty(plan.historyGapReason)) errors.push('Входная проверка требует historyGapReason.')
+  }
   if (plan.mode === 'control-diagnostic' && ((spec.questions ?? []).length < 20
     || new Set((spec.questions ?? []).map((question) => question.kind)).size < 2
     || !(spec.questions ?? []).some((question) => ['short', 'long', 'number'].includes(question.kind)))) {
