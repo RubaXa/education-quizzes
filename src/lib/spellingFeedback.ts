@@ -10,10 +10,10 @@ export function spellingFeedback(result: QuestionResult): SpellingFeedback | nul
   if (result.points !== 0 || question.kind !== 'short'
     || !/написан|диктант/i.test(question.topic ?? '')
     || typeof correctAnswer !== 'string' || !correctAnswer.trim()
-    || typeof answer !== 'string') return null
+    || (answer !== undefined && typeof answer !== 'string')) return null
 
   const correct = correctAnswer.trim()
-  const actual = answer.trim()
+  const actual = typeof answer === 'string' ? answer.trim() : ''
   let detail = 'Сравни своё слово с правильным написанием по буквам.'
   if (!actual) detail = 'Слово пропущено.'
   else {
