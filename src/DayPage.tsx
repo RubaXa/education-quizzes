@@ -104,13 +104,14 @@ function PhotoStrip({ taskTitle, evidenceLabel = 'Фото работы', studen
 }
 
 /** Adapter from a task's exact MESH instruction and family pages to the shared quiz card.
- * @see ../docs/product/card-generation-policy.md#quiz-adapter */
-function QuizLineageCard({ chain, parent, task, materialLinks = [] }: { chain: QuizCardAttempt[]; parent: boolean; task?: DayTask; materialLinks?: DayMaterialLink[] }) {
+ * @see ../docs/product/card-generation-policy.md#quiz-adapter
+ * @see ../docs/product/day-page.md#multiple-assignments */
+function QuizLineageCard({ chain, parent, task, materialLinks = [], assignmentLabel }: { chain: QuizCardAttempt[]; parent: boolean; task?: DayTask; materialLinks?: DayMaterialLink[]; assignmentLabel?: string }) {
   const context = task?.title.match(/Упр\.\s*\d+/i)?.[0] ?? task?.title ?? 'Самопроверка'
   const readerLinks = materialLinks.filter(canReadInside)
   const otherLinks = materialLinks.filter((link) => !canReadInside(link))
   const materials = task && (task.steps?.length || readerLinks.length || otherLinks.length) ? <>{!!task.steps?.length && <ol className="day-task-steps">{task.steps.map((step, index) => <Instruction key={index} item={step} index={index} />)}</ol>}{readerLinks.length > 0 && <MaterialReader links={readerLinks} parent={parent} />}{otherLinks.map((link) => <a key={link.url} href={link.url} target="_blank" rel="noopener noreferrer">{link.title} <ExternalLink size={13} aria-hidden="true" /></a>)}</> : undefined
-  return <QuizCard chain={chain} parent={parent} context={context} assignment={task && <AssignmentBrief task={task} materialLinks={materialLinks} />} materials={materials} id={task ? `day-task-${task.id}` : `day-quiz-${chain[0].token}`} />
+  return <QuizCard chain={chain} parent={parent} context={context} assignment={task && <>{assignmentLabel && <div className="day-task-assignment-heading">{assignmentLabel}</div>}<AssignmentBrief task={task} materialLinks={materialLinks} /></>} materials={materials} id={task ? `day-task-${task.id}` : `day-quiz-${chain[0].token}`} />
 }
 
 /** @see ../docs/product/day-page.md#instruction-provenance */
@@ -492,7 +493,8 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
                 ...(page.materialLinks?.[task.id] ?? []),
                 ...(page.taskPageRefs?.[task.id] ?? []).map((ref) => catalogPages[ref]).filter((link): link is DayMaterialLink => Boolean(link)),
               ].map((link) => [link.sourceRef || link.url, link])).values()] : []
-              return <QuizLineageCard key={`lineage-${placement.token}`} chain={chain} parent={parent} task={task} materialLinks={materialLinks} />
+              const assignmentIndex = task ? subject.tasks.findIndex((item) => item.id === task.id) : -1
+              return <QuizLineageCard key={`lineage-${placement.token}`} chain={chain} parent={parent} task={task} materialLinks={materialLinks} assignmentLabel={assignments.multiple && assignmentIndex >= 0 ? `Задание ${assignmentIndex + 1} из ${assignments.total}` : undefined} />
             })}
             {subject.tasks.map((task, assignmentIndex) => {
               // A written task may also have a linked self-check. The test must
@@ -503,7 +505,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
                 ...(page.taskPageRefs?.[task.id] ?? []).map((ref) => catalogPages[ref]).filter((link): link is DayMaterialLink => Boolean(link)),
               ].map((link) => [link.sourceRef || link.url, link])).values()]
               const standaloneTest = task.testToken ? tests.find((item) => item.token === task.testToken) : undefined
-              if (task.kind === 'read' && standaloneTest) return <QuizLineageCard key={task.id} chain={quizChain(standaloneTest, tests)} parent={parent} task={task} materialLinks={taskLinks} />
+              if (task.kind === 'read' && standaloneTest) return <QuizLineageCard key={task.id} chain={quizChain(standaloneTest, tests)} parent={parent} task={task} materialLinks={taskLinks} assignmentLabel={assignments.multiple ? `Задание ${assignmentIndex + 1} из ${assignments.total}` : undefined} />
               const readerGroups = taskLinks.filter(canReadInside).reduce<DayMaterialLink[][]>((groups, link) => {
                 const key = `${link.sourceType}:${link.title.replace(/,\s*стр\.\s*\d+\s*$/, '')}`
                 const existing = groups.find((group) => `${group[0].sourceType}:${group[0].title.replace(/,\s*стр\.\s*\d+\s*$/, '')}` === key)
