@@ -15,7 +15,7 @@ if (!chrome) throw new Error('Для проверки нужен Chrome или C
 
 const rows = [
   ['Биология', '1 из 1', 'complete'], ['История', '1 из 1', 'complete has-new-homework'],
-  ['Русский язык', '1 из 2', 'partial'], ['Математика', 'См. 12 октября', 'unknown'],
+  ['Русский язык', '1 из 2', 'partial'], ['Математика', 'ДЗ 12.10', 'unknown'],
   ['Английский язык', '0 из 1', 'empty'], ['География', '1 из 1', 'complete'],
 ]
 function fixture(open) {

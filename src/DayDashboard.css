@@ -104,7 +104,7 @@
 /* @see ../docs/product/design-system.md#mobile-card-headings */
 @media(max-width:560px){
   .day-dashboard-lesson summary{grid-template-columns:44px minmax(0,1fr) max-content;gap:6px;align-items:center}
-  .day-dashboard-lesson-name{overflow-wrap:normal;word-break:normal}
+  .day-dashboard-lesson-name{overflow-wrap:break-word;word-break:normal}
   .day-dashboard-lesson-badge{grid-column:3;justify-self:end;max-width:none}
   .day-dashboard-lesson-body{margin-left:0}
 }

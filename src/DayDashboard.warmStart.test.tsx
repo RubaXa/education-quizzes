@@ -130,6 +130,22 @@ describe('schedule warm start', () => {
     host.remove()
   })
 
+  it('uses a compact badge for a previous-day homework reference, including a saved lesson', async () => {
+    const mathStart = '2026-10-13T07:30:00.000Z'
+    index.days[0].schedule.push({ subject: 'Математика', start: mathStart, end: '2026-10-13T08:15:00.000Z' })
+    localStorage.setItem('education-day-dashboard-lesson-v1:parent:calendar:2026-10-13', JSON.stringify({ version: 1, lessons: [
+      { key: `${mathStart}|Математика`, tone: 'unknown', badge: 'См. 12 октября', items: [], referenceDate: '2026-10-12', referenceText: 'Смотрите ДЗ на понедельник 12.10' },
+    ] }))
+    probe.selected = base(); probe.next = base()
+    const host = document.createElement('div'); document.body.append(host)
+    const root = createRoot(host)
+    await act(async () => { root.render(<DayDashboard token="calendar" parent />) })
+    const badge = host.querySelector('.day-dashboard-lesson[data-subject="Математика"] .day-dashboard-lesson-badge')
+    expect(badge?.textContent).toContain('ДЗ 12.10')
+    expect(badge?.getAttribute('aria-label')).toBe('См. ДЗ за 12 октября')
+    await act(async () => { root.unmount() }); host.remove()
+  })
+
   it('keeps a complete saved badge through incomplete live streams', async () => {
     localStorage.setItem('education-day-dashboard-lesson-v1:parent:calendar:2026-10-13', JSON.stringify({ version: 1, lessons: [
       { key: `${lessonStart}|Биология`, tone: 'complete', badge: '1 из 1', items: [{ id: 'biology', title: 'Ткани', state: 'done', detail: 'Работа проверена' }] },
