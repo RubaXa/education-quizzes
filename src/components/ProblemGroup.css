@@ -22,4 +22,4 @@
 .problem-group-body>.day-task{border:0;border-radius:0;box-shadow:none;margin:0}
 .problem-group-body>.weekend-math-group{margin:0;border:0;border-radius:0;background:transparent}
 .weekend-math-slot .problem-group{margin-top:15px}
-@media(max-width:560px){.problem-group-top{flex-wrap:wrap}.problem-group-toggle{padding:14px}.problem-group-badge{white-space:normal}}
+@media(max-width:560px){.problem-group-top{flex-wrap:wrap}.problem-group-toggle{padding:14px}.problem-group-badge{white-space:nowrap}}

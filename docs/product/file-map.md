@@ -219,6 +219,7 @@
 | [src/components/PhotoUploadControl.tsx](../../src/components/PhotoUploadControl.tsx) | [Страница дня](day-page.md) | Единая множественная загрузка фото для письменного задания и номера | `DayPage.tsx`; `ProblemCard.tsx` |
 | [src/components/PhotoUploadControl.test.tsx](../../src/components/PhotoUploadControl.test.tsx) | [Страница дня](day-page.md) | Проверка общего действия и нескольких фото | Vitest; разработчик |
 | [src/components/ProblemGroup.css](../../src/components/ProblemGroup.css) | [Страница дня](day-page.md) | Оформление общей сводки нумерованного листа | `src/components/ProblemGroup.tsx` |
+| [src/components/ProblemGroup.layout.test.tsx](../../src/components/ProblemGroup.layout.test.tsx) | [Дизайн-система](design-system.md) | Проверяет компактную метку нумерованного листа и её доступное значение | `src/components/ProblemGroup.tsx`; Vitest |
 | [src/components/ProblemGroup.tsx](../../src/components/ProblemGroup.tsx) | [Страница дня](day-page.md) | Сворачивание листа и раскрытие адресного номера | `src/DayPage.tsx`; `src/WeekendMathSlot.tsx` |
 | [src/components/ProblemStatement.css](../../src/components/ProblemStatement.css) | [Адаптивная карточка](adaptive-problem-card.md) | Типографика условия и ориентиров | `src/components/ProblemStatement.tsx` |
 | [src/components/ProblemStatement.tsx](../../src/components/ProblemStatement.tsx) | [Адаптивная карточка](adaptive-problem-card.md) | Точное условие и помощь по запросу | Карточка номера |

@@ -177,8 +177,8 @@ function GradeBadge({ summary, details, threshold, asOf }: { summary?: GradeSumm
   const [nextWeight, setNextWeight] = useState(1)
   if (!summary) return null
   const excellent = isExcellent(summary)
-  if (excellent) return <span className="day-grade excellent">🌟 5,00 · супер</span>
-  if (!needsAttention(summary)) return <span className="day-grade">{formatAverage(summary.average)} · запас есть</span>
+  if (excellent) return <span className="day-grade excellent" aria-label="Средний по предмету 5,00">5,00</span>
+  if (!needsAttention(summary)) return <span className="day-grade" aria-label={`Средний по предмету ${formatAverage(summary.average)}`}>{formatAverage(summary.average)}</span>
   const reliable = canForecast(summary, details) && threshold != null && threshold > 0 && threshold < 5
   const result = reliable ? forecast(details!.grades, nextMark, nextWeight, threshold!) : null
   return <>
@@ -502,11 +502,14 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
         const focused = Boolean(focusTaskId && (subject.tasks.some((task) => task.id === focusTaskId || task.problems?.some((problem) => problem.id === focusTaskId)) || subjectPlacements.some((placement) => placement.token === focusedQuizPlacement?.token)))
         const expanded = isSubjectExpanded(subject.id, subjectDone, subjectOpen, focused)
         return <section className={`day-subject day-subject-${subject.id}${subjectDone ? ' is-done' : ''}${expanded ? '' : ' is-collapsed'}`} key={subject.id}>
-          <div className="day-subject-head"><span className="day-subject-icon">{subject.icon}</span><div className="day-subject-title"><h2>{subject.name}</h2><p>{subject.materials}</p></div>
-            {assignments.multiple ? <span className={`day-subject-assignment-count${assignments.complete ? ' is-complete' : ''}`}>{assignments.complete && <CheckCircle2 size={16} aria-hidden="true" />}{assignments.completed} из {assignments.total} заданий выполнено</span>
-              : subjectDone && <span className="day-subject-complete"><CheckCircle2 size={16} aria-hidden="true" /> Выполнено · {doneCount} из {subjectItems.length}</span>}
-            <GradeBadge summary={summary} details={grade} threshold={page.workingThreshold} asOf={page.gradeAsOf} />
-            <button className="day-subject-toggle" type="button" aria-expanded={expanded} aria-label={`${expanded ? 'Свернуть' : 'Развернуть'} ${subject.name}`} onClick={() => setSubjectOpen((current) => ({ ...current, [subject.id]: !expanded }))}><ChevronDown size={19} aria-hidden="true" /></button></div>
+          <div className="day-subject-head"><span className="day-subject-icon">{subject.icon}</span><div className="day-subject-title"><h2>{subject.name}</h2></div>
+            <button className="day-subject-toggle" type="button" aria-expanded={expanded} aria-label={`${expanded ? 'Свернуть' : 'Развернуть'} ${subject.name}`} onClick={() => setSubjectOpen((current) => ({ ...current, [subject.id]: !expanded }))}><ChevronDown size={19} aria-hidden="true" /></button>
+            {expanded && subject.materials && <p className="day-subject-materials">{subject.materials}</p>}
+            {(assignments.multiple || subjectDone || summary) && <div className="day-subject-status">
+              {assignments.multiple ? <span className={`day-subject-assignment-count${assignments.complete ? ' is-complete' : ''}`} aria-label={`${assignments.completed} из ${assignments.total} заданий выполнено`}>{assignments.complete && <CheckCircle2 size={16} aria-hidden="true" />}{assignments.completed} из {assignments.total}</span>
+                : subjectDone && <span className="day-subject-complete" aria-label={`Выполнено ${doneCount} из ${subjectItems.length}`}><CheckCircle2 size={16} aria-hidden="true" />{doneCount} из {subjectItems.length}</span>}
+              <GradeBadge summary={summary} details={grade} threshold={page.workingThreshold} asOf={page.gradeAsOf} />
+            </div>}</div>
           <div className="day-subject-content" hidden={!expanded}>{!['Новое задание МЭШ. Подробный разбор готовится.', 'Точная запись МЭШ. Подробный разбор готовится.'].includes(subject.summary) && <p className="day-subject-summary">{subject.summary}</p>}
             {parent && <details className="day-mesh"><summary>Как записано в МЭШ</summary>{assignments.multiple ? subject.tasks.map((task, index) => <p key={task.id}><b>Задание {index + 1}.</b> {task.meshText ?? task.title}</p>) : <p>{subject.mesh}</p>}</details>}
             <div className="day-task-list">{lineages.map(({ placement, chain }) => {
@@ -559,7 +562,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
               const verified = referenceDone || !task.referenceDate && (taskStatus === 'verified' || readPassed)
               const submitted = (task.kind === 'written' || task.kind === 'check') && newWork
               // @see ../docs/product/dashboard.md#reference-only-homework
-              const state = task.referenceDate ? referencedItems.length ? `${referenceDone ? 'Готово' : 'Осталось'} · ДЗ за ${dayMonth(task.referenceDate)} · ${referencedItems.filter((item) => item.state === 'done').length} из ${referencedItems.length}` : `См. ДЗ за ${dayMonth(task.referenceDate)}` : task.problems?.length ? `${task.problems.length} задач · каждая проверяется отдельно` : task.kind === 'written'
+              const state = task.referenceDate ? referencedItems.length ? `${referenceDone ? 'Готово' : 'Осталось'} · ДЗ за ${dayMonth(task.referenceDate)} · ${referencedItems.filter((item) => item.state === 'done').length} из ${referencedItems.length}` : `См. ДЗ за ${dayMonth(task.referenceDate)}` : task.problems?.length ? `Задачи: ${task.problems.length}` : task.kind === 'written'
                 ? taskStatus === 'verified' ? 'Готово · проверено' : processing ? 'Проверяем работу' : newWork ? 'Новое фото · ждёт проверки' : uploadingWork ? 'Фото загружается' : familyActions.length ? 'Доработать по решению родителя' : workCovered ? 'Работа сдана · оценка неясна' : criterionPending ? review?.nextStep ? 'Часть задания не подтверждена · можно добавить фото' : 'Работа разобрана · критерий неясен' : priorWork ? taskStatus === 'needs-fix' ? 'Работа проверена · исправить' : taskStatus === 'partial' ? 'Работа проверена · дополнить' : 'Работа сохранена' : statusLabel(taskStatus)
                 : task.kind === 'read' ? readPassed ? `Чтение подтверждено · ${linkedTest?.points}/${linkedTest?.maxPoints} верно` : linkedTest?.status === 'submitted' ? linkedTest.points == null ? 'Проверяем тест' : `Нужен разбор · ${linkedTest.points}/${linkedTest.maxPoints}` : 'Нужен тест' : cdzTask ? task.platformResult?.state === 'completed' ? cdzResultLabel(task.platformResult) : processing ? 'Проверяем результат ЦДЗ' : newWork ? 'Скриншот ЦДЗ получен · ждёт проверки' : uploadingWork ? 'Скриншот загружается' : 'Нужен скриншот результата ЦДЗ' : statusLabel(taskStatus)
               const uploadLabel = cdzTask ? newWork || uploadingWork ? 'Добавить ещё фото ЦДЗ' : 'Загрузить результат ЦДЗ' : newWork || uploadingWork ? 'Добавить ещё фото' : familyActions.length ? 'Загрузить фото доработки' : familyOptional && criterionPending ? 'Добавить фото по желанию' : priorWork ? taskStatus === 'needs-fix' ? 'Добавить фото исправления' : 'Добавить фото продолжения' : 'Загрузить фото тетради'
@@ -571,7 +574,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
               const submission = task.submission
               const taskCard = <article className={`day-task ${verified || workCovered ? 'done' : submitted ? 'submitted' : ''}`} id={`day-task-${task.id}`} key={task.id}>
                 {assignments.multiple && !task.problems?.length && <div className="day-task-assignment-heading">Задание {assignmentIndex + 1} из {assignments.total}</div>}
-                <div className="day-task-row"><span className={`day-task-state ${verified ? 'verified' : workCovered ? 'covered' : submitted ? 'partial' : taskStatus}`}>{verified && <CheckCircle2 size={15} aria-hidden="true" />} {state}</span>{task.kind === 'written' && <span className="day-task-type">В тетради</span>}{task.dueDate && task.dueDate !== (task.lessonDate ?? page.targetDate) && <span className="day-task-type">Сдать к {dayMonth(task.dueDate)} · МЭШ</span>}{task.originDate && task.originDate !== page.targetDate && <span className="day-task-type">Осталось с {dayMonth(task.originDate)}</span>}</div>
+                <div className="day-task-row"><span className={`day-task-state${state.length > 24 ? ' as-text' : ''} ${verified ? 'verified' : workCovered ? 'covered' : submitted ? 'partial' : taskStatus}`}>{verified && <CheckCircle2 size={15} aria-hidden="true" />} {state}</span>{task.kind === 'written' && <span className="day-task-type">В тетради</span>}{task.dueDate && task.dueDate !== (task.lessonDate ?? page.targetDate) && <span className="day-task-type">Сдать к {dayMonth(task.dueDate)} · МЭШ</span>}{task.originDate && task.originDate !== page.targetDate && <span className="day-task-type">Осталось с {dayMonth(task.originDate)}</span>}</div>
                 <h3>{task.title}</h3><AssignmentBrief task={task} materialLinks={taskLinks} />
                 {task.referenceDate && referencedItems.length > 0 && <div className="day-reference-results"><strong>Результаты ДЗ за {dayMonth(task.referenceDate)}</strong>{referencedItems.map((item) => <div className="day-reference-result" key={item.id}><span className={item.state === 'done' ? 'complete' : 'pending'}>{item.state === 'done' ? '✓' : '•'} {item.title}</span><small>{item.detail}</small></div>)}</div>}
                 {!parent && <TaskGuidance items={guidance.filter((item) => item.taskId === task.id)} />}

@@ -101,6 +101,13 @@
 .day-dashboard-lesson-body .day-dashboard-lesson-update{color:#86581c;font-weight:750}
 .day-dashboard-lesson-body>small{display:block;margin-top:7px;color:#817791}
 .day-dashboard-lesson summary:focus-visible,.day-dashboard-lesson-body button:focus-visible{outline:3px solid #ad8ce5;outline-offset:2px}
+/* @see ../docs/product/design-system.md#mobile-card-headings */
+@media(max-width:560px){
+  .day-dashboard-lesson summary{grid-template-columns:48px minmax(0,1fr);gap:5px 8px;align-items:start}
+  .day-dashboard-lesson-name{overflow-wrap:anywhere;word-break:normal}
+  .day-dashboard-lesson-badge{grid-column:2;justify-self:start;max-width:100%}
+  .day-dashboard-lesson-body{margin-left:0}
+}
 .day-dashboard-detail-link{display:inline-flex;align-items:center;gap:7px;margin-top:13px;padding:8px 0;border:0;background:transparent;color:#5d459f;font-weight:800;cursor:pointer;text-align:left}
 .day-dashboard-grades{margin:0 -20px;border-top:1px solid #eee9f3}
 .day-dashboard-grade{border-bottom:1px solid #eee9f3}

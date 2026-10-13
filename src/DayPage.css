@@ -183,3 +183,22 @@
 .day-reference-result .complete{color:#247449;font-weight:750}.day-reference-result .pending{color:#a36220;font-weight:750}
 .day-reference-result small{color:#655c70;text-align:right;line-height:1.4}
 @media(max-width:640px){.day-subject-complete{order:3;width:calc(100% - 65px);margin-left:65px}.day-reference-result{display:block}.day-reference-result small{display:block;text-align:left;margin-top:2px}.day-subject-toggle{margin-left:auto}}
+
+/* @see ../docs/product/design-system.md#mobile-card-headings — a title never competes with status pills. */
+.day-subject-head{display:grid;grid-template-columns:60px minmax(0,1fr) 36px;align-items:center;column-gap:17px;row-gap:10px}
+.day-subject-icon{grid-column:1;grid-row:1}
+.day-subject-title{grid-column:2;grid-row:1;min-width:0}
+.day-subject-title h2{margin:0;overflow-wrap:anywhere;word-break:normal}
+.day-subject-toggle{grid-column:3;grid-row:1;margin:0}
+.day-subject-materials{grid-column:2 / -1;min-width:0;margin:0;color:#746b88;font-size:.96rem;line-height:1.4;overflow-wrap:anywhere}
+.day-subject-status{grid-column:1 / -1;display:flex;align-items:center;flex-wrap:wrap;gap:7px;min-width:0}
+.day-subject-status .day-grade,.day-subject-status .day-grade-button,.day-subject-status .day-subject-assignment-count,.day-subject-status .day-subject-complete{width:auto;margin:0;order:0;white-space:nowrap}
+.day-subject-status .day-grade-expand{flex:0 0 100%;order:1;width:100%;margin:0}
+.day-task-row{flex-wrap:wrap;justify-content:flex-start}
+.day-task-state:not(.as-text),.day-task-type{white-space:nowrap}
+.day-task-state.as-text{order:2;flex-basis:100%;padding:0;border-radius:0;background:none;line-height:1.4;white-space:normal}
+@media(max-width:640px){
+  .day-subject-head{grid-template-columns:49px minmax(0,1fr) 36px;column-gap:11px;row-gap:9px;padding:16px}
+  .day-subject-title h2{font-size:1.28rem;line-height:1.2}
+  .day-subject-materials{font-size:.86rem}
+}

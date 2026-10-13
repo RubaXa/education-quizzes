@@ -26,7 +26,7 @@ export default function ProblemGroup({ id, title, problems, uploads, reviews, de
   const bodyId = `problem-group-${id.replace(/[^a-zA-Z0-9_-]/g, '-')}`
   return <section className={`problem-group ${summary.tone}`}>
     <button className="problem-group-toggle" type="button" aria-expanded={open} aria-controls={bodyId} onClick={() => setManualOpen({ evidenceKey, open: !open })}>
-      <span className="problem-group-top"><strong>{title}</strong><span className="problem-group-badge">{summary.complete && <CheckCircle2 size={16} aria-hidden="true" />}{ready ? `${summary.completedCount} из ${summary.total} завершено` : 'Загружаем…'}</span></span>
+      <span className="problem-group-top"><strong>{title}</strong><span className="problem-group-badge" aria-label={ready ? `${summary.completedCount} из ${summary.total} завершено` : 'Загружаем'}>{summary.complete && <CheckCircle2 size={16} aria-hidden="true" />}{ready ? `${summary.completedCount} из ${summary.total}` : 'Загружаем…'}</span></span>
       <span className="problem-group-conclusion">{summary.conclusion}</span>
       <span className="problem-group-meta"><span>№ {summary.numbers}</span><span><Camera size={14} aria-hidden="true" />{summary.photoCount ? `${summary.photoCount} фото работы` : summary.activeCount ? 'Фото загружается' : 'Фото ещё нет'}</span>{sourceCount > 0 && <span><FileText size={14} aria-hidden="true" />{sourceCount === 1 ? 'Лист учителя' : `${sourceCount} файла учителя`}</span>}</span>
       <span className="problem-group-action">{open ? 'Свернуть' : 'Открыть лист, решения и проверки'} <ChevronDown size={17} aria-hidden="true" /></span>
