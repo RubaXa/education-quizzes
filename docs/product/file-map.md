@@ -304,6 +304,8 @@
 | [src/lib/quizDraft.test.ts](../../src/lib/quizDraft.test.ts) | [Тесты](quizzes.md) | Восстановление локального черновика и отказ хранилища | Vitest; разработчик |
 | [src/lib/quizDraft.ts](../../src/lib/quizDraft.ts) | [Тесты](quizzes.md) | Локальная резервная копия ответов и условий теста | `src/App.tsx` |
 | [src/lib/quizLocalStore.ts](../../src/lib/quizLocalStore.ts) | [Local-first синхронизация](../architecture/local-first-sync.md) | IndexedDB-копия незавершённых ответов и задания на первом этапе миграции | `src/App.tsx` |
+| [src/lib/spellingFeedback.ts](../../src/lib/spellingFeedback.ts) | [Результат словарного диктанта](quizzes.md) | После отправки называет точное написание, отличающиеся буквы и действие для повтора | `ResultCard` |
+| [src/lib/spellingFeedback.test.ts](../../src/lib/spellingFeedback.test.ts) | [Результат словарного диктанта](quizzes.md) | Регрессия для неверной буквы, лишней буквы, пропуска и границы других предметов | Vitest; разработчик |
 | [src/lib/materialPageCache.ts](../../src/lib/materialPageCache.ts) | [Матрица ревизий](../architecture/local-first-revision-matrix.md) | Локальный набор опубликованных страниц по семейной привязке и её ревизии | `FamilyLibrary.tsx` |
 | [src/lib/materialPageCache.test.ts](../../src/lib/materialPageCache.test.ts) | [Проверка local-first](../architecture/local-first-verification.md) | Целостность кеша страниц в поддельной IndexedDB | Vitest; разработчик |
 | [src/lib/bookPageSource.ts](../../src/lib/bookPageSource.ts) | [Просмотр всей книги](family-library.md) | Выбор одного проверенного манифеста с откатом к отдельным страницам v1 | `FamilyLibrary.tsx` |

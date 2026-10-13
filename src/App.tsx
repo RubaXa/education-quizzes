@@ -13,6 +13,7 @@ import { Progress } from '@/components/ui/progress'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Textarea } from '@/components/ui/textarea'
 import { countAnswered, grade, summarize } from '@/lib/quiz'
+import { spellingFeedback } from '@/lib/spellingFeedback'
 import { buildFollowUpPrompt } from '@/lib/followup'
 import { WriteQueue } from '@/lib/writeQueue'
 import { readCachedQuiz, readQuizDraft, rememberQuizStudent, wasQuizStudent, writeCachedQuiz, writeQuizDraft } from '@/lib/quizDraft'
@@ -221,6 +222,7 @@ function ResultCard({ result, index }: { result: QuestionResult; index: number }
   const pending = result.points === null && !skipped
   const partial = !pending && !wrong && !skipped && result.points !== result.question.points
   const needsReflection = wrong || partial
+  const spelling = spellingFeedback(result)
   const reflectionQuestion = result.question.kind === 'single' || result.question.kind === 'multiple' || result.question.kind === 'figure'
     ? 'Какой факт из задания подтверждает твой выбор? Найди его в назначенном материале и сравни со своим ответом.'
     : 'На каком шаге твоя запись перестаёт следовать условию? Сверь этот шаг с назначенным материалом.'
@@ -242,7 +244,23 @@ function ResultCard({ result, index }: { result: QuestionResult; index: number }
         </div>
         {pending && <p className="text-muted-foreground">Разбор появится здесь после проверки.</p>}
         {skipped && <p className="text-muted-foreground">Вопрос не входил в оценку этой попытки.</p>}
-        {needsReflection && (
+        {spelling ? (
+          <section className="result-learning" aria-label="Разбор написания слова">
+            <div className="result-rule">
+              <h3>Как пишется</h3>
+              <p>Правильно: <strong>{spelling.correct}</strong></p>
+              <p>{spelling.detail}</p>
+            </div>
+            <div className="result-material">
+              <BookOpen className="size-5 shrink-0" aria-hidden="true" />
+              <div>
+                <h3>Что повторить</h3>
+                <p>{spelling.practice}</p>
+                {result.source && <p>В учебнике: {result.source}</p>}
+              </div>
+            </div>
+          </section>
+        ) : needsReflection && (
           <section className="result-learning" aria-label="Ориентир для самостоятельной проверки">
             <div className="result-rule">
               <h3>Проверь свой ход</h3>
