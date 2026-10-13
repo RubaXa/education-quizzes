@@ -25,6 +25,20 @@ describe('полнота снимка МЭШ', () => {
     expect(assignments[0].homeworkEntries[0].description).toBe('Решить № 4.')
   })
 
+  it('не запрашивает карточку урока для события календаря без предмета и ДЗ', async () => {
+    const mesh = adapter(async (event) => {
+      if (event.source === 'OLYMPIAD') throw new Error('API 500')
+      return detail
+    })
+    mesh.getSchedule = async () => [
+      { id: 17, start_at: '2026-10-15T08:00:00Z', source: 'OLYMPIAD' },
+      lesson,
+    ]
+    const assignments = await mesh.getAssignments('2026-10-15')
+    expect(assignments).toHaveLength(1)
+    expect(assignments[0].sourceItemId).toBe('42')
+  })
+
   it('не заменяет полный снимок, если подробная карточка урока недоступна', async () => {
     const dataDir = newDirectory()
     const mesh = {

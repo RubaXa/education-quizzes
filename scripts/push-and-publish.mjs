@@ -14,4 +14,4 @@ if (git('status', '--porcelain')) {
 }
 
 execFileSync('git', ['push', 'origin', 'main'], { stdio: 'inherit' })
-execFileSync('npm', ['run', 'publish:pages'], { stdio: 'inherit' })
+execFileSync('npm', ['run', 'publish:pages', '--', ...process.argv.slice(2)], { stdio: 'inherit' })

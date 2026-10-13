@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process'
-import { chmodSync, copyFileSync, existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
+import { chmodSync, copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
-import { resolve } from 'node:path'
+import { dirname, resolve } from 'node:path'
 
 const root = resolve('.')
 const local = resolve(root, '.local')
@@ -16,8 +16,21 @@ const xml = (value) => value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').re
 mkdirSync(resolve(runtime, 'scripts'), { recursive: true })
 mkdirSync(resolve(runtime, 'storage'), { recursive: true })
 mkdirSync(resolve(runtime, '.local'), { recursive: true, mode: 0o700 })
-for (const file of ['scripts/direct-upload-worker.mjs', 'storage/direct-upload.mjs', 'storage/yandex-disk.mjs', 'storage/submission-storage.mjs']) {
+const workerFiles = ['scripts/direct-upload-worker.mjs', 'storage/direct-upload.mjs',
+  'storage/family-book-upload.mjs', 'storage/family-book-projection.mjs', 'storage/textbook-catalog.mjs',
+  'storage/yandex-disk.mjs', 'storage/submission-storage.mjs']
+for (const file of workerFiles) {
   copyFileSync(resolve(root, file), resolve(runtime, file))
+}
+// @see ../docs/product/education-pipeline.md#sync-inbox
+// Verify the copied module graph before replacing the live LaunchAgent.
+for (const file of workerFiles) {
+  const source = readFileSync(resolve(runtime, file), 'utf8')
+  for (const [, dependency] of source.matchAll(/\bfrom\s+['"](\.{1,2}\/[^'"]+)['"]/g)) {
+    if (!existsSync(resolve(dirname(resolve(runtime, file)), dependency))) {
+      throw new Error(`Приёмник не обновлён: отсутствует зависимость ${dependency} для ${file}.`)
+    }
+  }
 }
 copyFileSync(adc, resolve(runtime, '.local/adc.json'))
 copyFileSync(token, resolve(runtime, '.local/yandex-disk-token'))

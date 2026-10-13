@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto'
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, renameSync, unlinkSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
 import { execFileSync } from 'node:child_process'
@@ -12,9 +12,11 @@ import { bookDisplayTitle, indexedBooks, pageDocument } from '../storage/textboo
 import { resolvedStoragePause } from '../storage/storage-pause.mjs'
 
 const local = resolve('.local')
+const childLocal = resolve(process.env.EDUCATION_CHILD_WORKSPACE || '.local')
 const tokenFile = resolve(local, 'yandex-disk-token')
-const linksFile = resolve(local, 'day-links.json')
+const linksFile = resolve(childLocal, 'day-links.json')
 const libraryManifestFile = resolve(local, 'yandex-pages/library.json')
+const fullPageLinksFile = resolve(local, 'yandex-pages/full-book-links.json')
 const [command, date] = process.argv.slice(2)
 
 function fail(message) { throw new Error(message) }
@@ -47,8 +49,11 @@ async function syncCatalog() {
   const db = firestore()
   const books = indexedBooks()
   const known = existsSync(pageLinksFile) ? json(pageLinksFile) : {}
+  const fullKnown = existsSync(fullPageLinksFile) ? json(fullPageLinksFile) : {}
+  const selectedManifest = existsSync(resolve(pagesDir, 'manifest.json')) ? json(resolve(pagesDir, 'manifest.json')) : { entries: [] }
+  const selectedById = new Map(selectedManifest.entries.map((entry) => [entry.id, entry]))
   const privateBooks = existsSync(libraryManifestFile) ? json(libraryManifestFile) : {}
-  let count = 0
+  let count = 0, publishedCount = 0
   let batch = db.batch()
   for (const { book, index } of books) {
     batch.set(db.doc(`materialBooks/${book.id}`), {
@@ -61,18 +66,31 @@ async function syncCatalog() {
     }, { merge: true })
     count += 1
     for (const page of index.pages) {
-      const published = known[`${book.id}:${page.printed_page}`]
+      const full = fullKnown[`${book.id}#${page.pdf_page}`]
+      const selectedId = `${book.id}:${page.printed_page}`
+      const selected = selectedById.get(selectedId)
+      const published = full?.sourceSha256 === index.source_sha256 && full.publicUrl ? full
+        : selected?.sourceSha256 === index.source_sha256 && selected.pdfPage === page.pdf_page
+          && selected.imageSha256 === known[selectedId]?.imageSha256 ? known[selectedId] : null
+      if (published) publishedCount += 1
       batch.set(db.doc(`materialBooks/${book.id}/pages/${page.pdf_page}`), {
         ...pageDocument(index, page),
-        ...(published ? { title: published.title, url: published.publicUrl,
-          imageSha256: published.imageSha256, state: 'published' } : {}),
+        ...(published ? { title: published.title ?? `${bookDisplayTitle(book)}, стр. ${page.printed_page ?? page.pdf_page}`,
+          url: published.publicUrl, imageSha256: published.imageSha256,
+          diskPath: published.path ?? null, state: 'published' } : {}),
       }, { merge: true })
       count += 1
       if (count % 300 === 0) { await batch.commit(); batch = db.batch(); console.log(`Индекс Firestore: ${count} документов`) }
     }
   }
   if (count % 300) await batch.commit()
-  console.log(JSON.stringify({ books: books.length, pages: count - books.length, publishedPages: Object.keys(known).length }))
+  const complete = db.batch()
+  for (const { book, index } of books) complete.set(db.doc(`materialBooks/${book.id}`), {
+    catalogIndexSha256: index.source_sha256, catalogPageCount: index.pdf_page_count,
+    catalogCompletedAt: Timestamp.now(),
+  }, { merge: true })
+  await complete.commit()
+  console.log(JSON.stringify({ books: books.length, pages: count - books.length, publishedPages: publishedCount }))
 }
 
 /** @see ../docs/product/materials.md#private-originals */
@@ -295,10 +313,132 @@ async function syncPages() {
   console.log(JSON.stringify({ pages: entries.length, published, failed: failures.length }, null, 2))
 }
 
+/** Publish every page of editions explicitly linked to a family. The local
+ * checkpoint makes a long manual sync safe to resume after a network failure.
+ * @see ../docs/product/family-library.md#full-book-reader
+ */
+async function syncFamilyPages() {
+  const db = firestore()
+  const indexed = new Map(indexedBooks().map((entry) => [entry.book.id, entry]))
+  const bindings = await db.collectionGroup('books').get()
+  const byBook = new Map()
+  for (const doc of bindings.docs) {
+    const child = doc.ref.parent.parent
+    const family = child?.parent.parent
+    if (!child || !family || family.parent.id !== 'families') continue
+    const data = doc.data()
+    if (!['confirmed', 'provisional'].includes(data.status)) continue
+    const entry = indexed.get(doc.id)
+    if (!entry || (data.catalogSha256 ?? data.sourceSha256) !== entry.index.source_sha256) {
+      throw new Error(`Семейная связь ${doc.ref.path} не соответствует индексированному оригиналу PDF.`)
+    }
+    if (!byBook.has(doc.id)) byBook.set(doc.id, { entry, bindings: [] })
+    byBook.get(doc.id).bindings.push({ ref: doc.ref, data })
+  }
+  const disk = new YandexDiskStorage(token())
+  const known = existsSync(fullPageLinksFile) ? json(fullPageLinksFile) : {}
+  const selected = existsSync(pageLinksFile) ? json(pageLinksFile) : {}
+  const selectedManifest = existsSync(resolve(pagesDir, 'manifest.json')) ? json(resolve(pagesDir, 'manifest.json')) : { entries: [] }
+  const selectedById = new Map(selectedManifest.entries.map((entry) => [entry.id, entry]))
+  let published = 0, projected = 0
+  for (const [bookId, { entry, bindings }] of [...byBook].sort(([a], [b]) => a.localeCompare(b))) {
+    const { book, source, index } = entry
+    const familyBindings = []
+    for (const binding of bindings) {
+      const pages = await binding.ref.parent.parent.collection('bookPages').where('bookId', '==', bookId).count().get()
+      if (binding.data.pdfPageCount !== index.pdf_page_count
+        || binding.data.pagesPublishedSha256 !== index.source_sha256 || !binding.data.pagesPublishedAt
+        || pages.data().count !== index.pdf_page_count) familyBindings.push(binding)
+    }
+    if (!familyBindings.length) { console.log(`${bookId}: семейные страницы уже опубликованы`); continue }
+    const catalog = await db.doc(`materialBooks/${bookId}`).get()
+    if (catalog.data()?.sourceSha256 !== index.source_sha256) {
+      throw new Error(`Сначала синхронизируйте общий каталог: ${bookId}.`)
+    }
+    const sharedSnapshot = await db.collection(`materialBooks/${bookId}/pages`).get()
+    const shared = new Map(sharedSnapshot.docs.map((page) => [Number(page.id), page.data()]))
+    const initial = db.batch()
+    for (const { ref: binding } of familyBindings) initial.set(binding, { pdfPageCount: index.pdf_page_count }, { merge: true })
+    await initial.commit()
+    for (const folder of ['app:/PETR', 'app:/PETR/Учебники', `app:/PETR/Учебники/${bookId}`,
+      `app:/PETR/Учебники/${bookId}/${index.source_sha256.slice(0, 12)}-r160`]) await disk.ensureFolder(folder)
+    async function publishPage(page) {
+      const ref = `${bookId}#${page.pdf_page}`
+      const current = shared.get(page.pdf_page)
+      let publishedPage = current?.state === 'published' && current.sourceSha256 === index.source_sha256
+        && typeof current.url === 'string' && current.url.startsWith('https://') && typeof current.imageSha256 === 'string'
+        ? { publicUrl: current.url, imageSha256: current.imageSha256, path: current.diskPath } : null
+      if (!publishedPage && known[ref]?.sourceSha256 === index.source_sha256) publishedPage = known[ref]
+      const selectedId = `${bookId}:${page.printed_page}`
+      const selectedEntry = selectedById.get(selectedId)
+      if (!publishedPage && selectedEntry?.pdfPage === page.pdf_page
+        && selectedEntry.sourceSha256 === index.source_sha256
+        && selected[selectedId]?.imageSha256 === selectedEntry.imageSha256
+        && selected[selectedId]?.publicUrl) publishedPage = selected[selectedId]
+      if (!publishedPage) {
+        const filename = `pdf-${String(page.pdf_page).padStart(4, '0')}.png`
+        const image = resolve(pagesDir, 'full', bookId, filename)
+        mkdirSync(resolve(pagesDir, 'full', bookId), { recursive: true })
+        execFileSync('pdftoppm', ['-f', String(page.pdf_page), '-l', String(page.pdf_page), '-r', '160', '-png', '-singlefile', source, image.slice(0, -4)], { stdio: 'ignore' })
+        const bytes = readFileSync(image)
+        const imageSha256 = createHash('sha256').update(bytes).digest('hex')
+        const path = `app:/PETR/Учебники/${bookId}/${index.source_sha256.slice(0, 12)}-r160/${filename}`
+        const uploaded = await disk.putAt(path, bytes)
+        const publicUrl = await disk.publish(uploaded.path)
+        publishedPage = { publicUrl, imageSha256, path, sourceSha256: index.source_sha256 }
+        known[ref] = publishedPage
+        const temporary = `${fullPageLinksFile}.tmp`
+        writeFileSync(temporary, `${JSON.stringify(known, null, 2)}\n`, { mode: 0o600 })
+        renameSync(temporary, fullPageLinksFile)
+        unlinkSync(image)
+        published += 1
+      }
+      const title = `${bookDisplayTitle(book)}, ${page.printed_page == null ? `PDF-страница ${page.pdf_page}` : `стр. ${page.printed_page}`}`
+      const pageData = { bookId, pdfPage: page.pdf_page, printedPage: page.printed_page ?? null,
+        subject: book.subject, title, sourceRef: page.source_ref, sourceSha256: index.source_sha256,
+        editionStatus: index.edition_status, extraction: page.extraction, imageSha256: publishedPage.imageSha256,
+        state: 'published', url: publishedPage.publicUrl, updatedAt: Timestamp.now() }
+      return { ref, pageData, diskPath: publishedPage.path ?? null }
+    }
+    const chunkSize = 12
+    for (let offset = 0; offset < index.pages.length; offset += chunkSize) {
+      const results = await Promise.allSettled(index.pages.slice(offset, offset + chunkSize).map(publishPage))
+      let batch = db.batch(), writes = 0
+      async function queue(ref, data) {
+        batch.set(ref, data, { merge: true })
+        writes += 1
+        if (writes >= 240) { await batch.commit(); batch = db.batch(); writes = 0 }
+      }
+      for (const result of results) {
+        if (result.status !== 'fulfilled') continue
+        const { ref, pageData, diskPath } = result.value
+        await queue(db.doc(`materialBooks/${bookId}/pages/${pageData.pdfPage}`), { ...pageData, diskPath })
+        for (const { ref: binding } of familyBindings) await queue(binding.parent.parent.collection('bookPages').doc(ref), pageData)
+      }
+      if (writes) await batch.commit()
+      const failed = results.flatMap((result, indexInChunk) => result.status === 'rejected'
+        ? [{ pdfPage: index.pages[offset + indexInChunk].pdf_page, reason: result.reason }] : [])
+      console.log(`${bookId}: ${Math.min(offset + chunkSize, index.pdf_page_count)}/${index.pdf_page_count} страниц; ошибок ${failed.length}`)
+      if (failed.length) throw new Error(`${bookId}, PDF-страница ${failed[0].pdfPage}: ${failed[0].reason?.message ?? failed[0].reason}. Повторите команду.`)
+    }
+    const complete = db.batch()
+    for (const { ref: binding } of familyBindings) {
+      const pages = await binding.parent.parent.collection('bookPages').where('bookId', '==', bookId).count().get()
+      if (pages.data().count !== index.pdf_page_count) throw new Error(`${binding.path}: опубликовано ${pages.data().count} из ${index.pdf_page_count} страниц.`)
+      complete.set(binding, { pdfPageCount: index.pdf_page_count,
+        pagesPublishedSha256: index.source_sha256, pagesPublishedAt: Timestamp.now() }, { merge: true })
+    }
+    await complete.commit()
+    projected += index.pdf_page_count * familyBindings.length
+    console.log(`${bookId}: готово ${index.pdf_page_count} страниц для ${familyBindings.length} семейных связей`)
+  }
+  console.log(JSON.stringify({ books: byBook.size, newlyPublished: published, familyPagesProjected: projected }))
+}
+
 /** Preserve image attachments from MESH as viewable Education materials. */
 async function syncTeacher() {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date ?? '')) fail('Укажите дату задания YYYY-MM-DD.')
-  const folder = resolve(local, 'diary', 'files', date)
+  const folder = resolve(childLocal, 'diary', 'files', date)
   const manifestFile = resolve(folder, 'manifest.json')
   if (!existsSync(manifestFile)) fail(`Сначала скачайте вложения МЭШ на ${date}.`)
   const archivedFile = resolve(folder, 'yandex-links.json')
@@ -358,5 +498,6 @@ else if (command === 'sync-teacher') await syncTeacher()
 else if (command === 'prepare-pages') console.log(JSON.stringify({ prepared: preparePages().length, directory: '.local/yandex-pages' }))
 else if (command === 'sync-pages') await syncPages()
 else if (command === 'sync-catalog') await syncCatalog()
+else if (command === 'sync-family-pages') await syncFamilyPages()
 else if (command === 'sync-library') await syncLibrary()
-else fail('Команды: connect | sync YYYY-MM-DD | sync-teacher YYYY-MM-DD | prepare-pages | sync-pages | sync-catalog | sync-library')
+else fail('Команды: connect | sync YYYY-MM-DD | sync-teacher YYYY-MM-DD | prepare-pages | sync-pages | sync-catalog | sync-library | sync-family-pages')

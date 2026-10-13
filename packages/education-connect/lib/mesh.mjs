@@ -1,5 +1,6 @@
 import { authenticate } from 'mesh-diary/lib/auth.js'
 import { MeshAPI } from 'mesh-diary/lib/api.js'
+import { fetchMeshRead } from './network-retry.mjs'
 
 const allowedHosts = new Set(['login.mos.ru', 'school.mos.ru', 'dnevnik.mos.ru'])
 
@@ -8,7 +9,7 @@ function meshFetch(url, options = {}) {
   if (address.protocol !== 'https:' || !allowedHosts.has(address.hostname)) {
     throw new Error('МЭШ запросил неизвестный адрес')
   }
-  return fetch(address, { ...options, redirect: 'manual', signal: options.signal ?? AbortSignal.timeout(30000) })
+  return fetchMeshRead(address, options)
 }
 
 function childLabel(profile) {
@@ -45,6 +46,16 @@ function lessonFiles(detail) {
     ]),
   ]
   return [...new Map(files.map((file) => [file.url, file])).values()]
+}
+
+function isCalendarOnlyEvent(event) {
+  const hasSubject = Boolean(event.subject_name || event.subject_id || event.subject?.name)
+  const hasHomework = Boolean(event.homework?.total_count || event.homework?.descriptions?.length)
+  const hasLessonType = Boolean(event.lesson_type || event.course_lesson_type)
+  // МЭШ помещает в расписание также события без урока (например, OLYMPIAD).
+  // Для них endpoint lesson_schedule_items может вернуть внутреннюю ошибку 500.
+  // Если признаки ДЗ есть, событие не скрываем: подробная карточка обязательна.
+  return !hasSubject && !hasHomework && !hasLessonType
 }
 
 /** @see ../../../docs/architecture/school-diary-port-adapter.md#diary-adapter */
@@ -186,6 +197,7 @@ export class MeshDiaryAdapter {
     const output = []
     const incompleteDetails = []
     for (const event of lessons) {
+      if (isCalendarOnlyEvent(event)) continue
       let detail = null
       try {
         detail = await this.getLessonDetails(event)

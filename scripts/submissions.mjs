@@ -172,7 +172,7 @@ function privateReviewFile(filename) {
 }
 
 async function linkedReviewPhotos(review, shared = false) {
-  const owners = (await db.collection('dayOwners').get()).docs.filter((item) => item.data().date === review.date)
+  const owners = (await db.collection('dayOwners').where('date', '==', review.date).get()).docs
   const matches = []
   for (const owner of owners) {
     const refs = review.uploadIds.map((id) => db.doc(`dayUploads/${owner.id}/files/${id}`))
@@ -250,7 +250,7 @@ async function publishProgress(filename, phase) {
   console.log(JSON.stringify({ phase, publishedToFirebase: true }))
 }
 
-function validateReviewResult(review, page) {
+function validateReviewResult(review, page, guide) {
   const statuses = new Set(['verified', 'needs-fix', 'partial', 'cannot-assess'])
   const itemStatuses = new Set(['correct', 'incorrect', 'partial', 'cannot-assess'])
   if (!statuses.has(review.status)
@@ -264,6 +264,21 @@ function validateReviewResult(review, page) {
   }
   if (review.items.some((item) => Object.hasOwn(item, 'expected'))) {
     throw new Error('items.expected нельзя публиковать в ученический dayProgress; ключ храните в закрытом source-pack.')
+  }
+  if (review.checkableStageIds && (!Array.isArray(review.checkableStageIds) || review.checkableStageIds.length < 1
+    || review.checkableStageIds.length > 30 || new Set(review.checkableStageIds).size !== review.checkableStageIds.length
+    || !review.checkableStageIds.every((id) => typeof id === 'string' && /^[a-z0-9-]{2,64}$/.test(id))
+    || !review.checkableStageIds.every((id) => review.items.some((item) => item.stageId === id))
+    || review.items.some((item) => item.stageId && !review.checkableStageIds.includes(item.stageId)))) {
+    throw new Error('Проверяемые этапы должны иметь устойчивые ID и сопоставленный пункт разбора.')
+  }
+  if (guide?.presentation === 'learning-route') {
+    const stageIds = guide.stages.map((stage) => stage.id)
+    if (!Array.isArray(review.checkableStageIds) || review.checkableStageIds.length !== stageIds.length
+      || stageIds.some((id) => !review.checkableStageIds.includes(id)
+        || !review.items.some((item) => item.stageId === id))) {
+      throw new Error('Каждый этап опубликованного родительского маршрута должен иметь проверяемый пункт разбора и включённый по умолчанию переключатель.')
+    }
   }
   validateAssessmentBasis(review)
   validateWorkCoverage(review)
@@ -351,8 +366,9 @@ function validateStudentFeedback(review) {
 
 function resultRecord(review, previous, now, date, planRevision) {
   const priorReviews = previous?.status ? [...(previous.history ?? []), Object.fromEntries(Object.entries(previous).filter(([key]) => key !== 'history' && key !== 'processing'))] : previous?.history ?? []
-  const { taskId, uploadIds, status, summary, nextStep, source, items, mathReasoning, studentFeedback, assessmentBasis, workCoverage } = review
+  const { taskId, uploadIds, status, summary, nextStep, source, items, checkableStageIds, mathReasoning, studentFeedback, assessmentBasis, workCoverage } = review
   return { date, taskId, planRevision, uploadIds, status, summary, nextStep, source, items,
+    ...(checkableStageIds ? { checkableStageIds } : {}),
     ...(mathReasoning ? { mathReasoning } : {}), ...(studentFeedback ? { studentFeedback } : {}),
     ...(assessmentBasis ? { assessmentBasis } : {}),
     ...(workCoverage ? { workCoverage: { ...workCoverage, reviewCheckedAt: now, recordedAt: now } } : {}),
@@ -364,7 +380,7 @@ async function publishFeedbackCorrection(filename) {
   const correction = privateReviewFile(filename)
   if (correction.reviews || !correction.correctionReason?.trim()) throw new Error('Исправление одного номера требует correctionReason.')
   if (['needs-fix', 'partial'].includes(correction.status)) validateStudentFeedback(correction)
-  const owners = (await db.collection('dayOwners').get()).docs.filter((item) => item.data().date === correction.date)
+  const owners = (await db.collection('dayOwners').where('date', '==', correction.date).get()).docs
   const matches = []
   for (const owner of owners) {
     const [pageDoc, progressDoc, privateDoc, ...photos] = await Promise.all([
@@ -394,13 +410,17 @@ async function publishFeedbackCorrection(filename) {
     || !page.taskIds?.includes(correction.taskId) || photos.some((photo) => photo.data().status !== 'reviewed')) {
     throw new Error('После проверки изменились статус, ревизия, список фото или привязка задания; исправление остановлено.')
   }
-  validateReviewResult(correction, page)
+  const guide = currentTask?.cardPattern
+    ? (await db.doc(`dayTaskGuides/${owner.id}/items/${correction.taskId}`).get()).data()?.guide
+    : undefined
+  validateReviewResult(correction, page, guide)
   const now = Timestamp.now()
   const oldRecord = { at: now, reason: correction.correctionReason,
     priorStatus: previous.status, priorFeedbackTitle: previous.studentFeedback?.title ?? null }
   const batch = db.batch()
   const corrected = { ...previous, status: correction.status, summary: correction.summary, nextStep: correction.nextStep,
-    items: correction.items, ...(correction.mathReasoning ? { mathReasoning: correction.mathReasoning } : {}),
+    items: correction.items, ...(correction.checkableStageIds ? { checkableStageIds: correction.checkableStageIds } : {}),
+    ...(correction.mathReasoning ? { mathReasoning: correction.mathReasoning } : {}),
     studentFeedback: correction.studentFeedback ?? null,
     assessmentBasis: correction.assessmentBasis,
     workCoverage: correction.workCoverage
@@ -422,7 +442,12 @@ async function publishReview(filename) {
   const coverage = shared ? reviewCoverage(review) : null
   const { owner, refs, photos, page } = await linkedReviewPhotos(review, shared)
   const entries = review.reviews ?? [review]
-  entries.forEach((entry) => validateReviewResult(entry, page))
+  const routeEntries = entries.filter((entry) => page.subjects?.some((subject) =>
+    subject.tasks?.some((task) => task.id === entry.taskId && task.cardPattern)))
+  const guideDocs = routeEntries.length
+    ? await db.getAll(...routeEntries.map((entry) => db.doc(`dayTaskGuides/${owner.id}/items/${entry.taskId}`))) : []
+  const guides = new Map(routeEntries.map((entry, index) => [entry.taskId, guideDocs[index].data()?.guide]))
+  entries.forEach((entry) => validateReviewResult(entry, page, guides.get(entry.taskId)))
   if (photos.some((photo) => photo.data().storage?.state !== 'stored')) throw new Error('Фото ещё не перенесено на Диск.')
   const reviewRefs = entries.map((entry) => db.doc(`dayProgress/${owner.id}/items/${entry.taskId}`))
   const privateRefs = entries.map((entry) => db.doc(`dayReviewPrivate/${owner.id}/items/${entry.taskId}`))

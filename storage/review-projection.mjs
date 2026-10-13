@@ -15,6 +15,7 @@ export function studentReviewProjection(review) {
   return prune({
     date: review.date, taskId: review.taskId, planRevision: review.planRevision,
     uploadIds: review.uploadIds, status: review.status, checkedAt: review.checkedAt,
+    ...(review.checkableStageIds ? { checkableStageIds: review.checkableStageIds } : {}),
     ...(review.correctedAt ? { correctedAt: review.correctedAt } : {}),
     ...(review.studentFeedback ? { studentFeedback: {
       title: review.studentFeedback.title, confirmed: review.studentFeedback.confirmed,
@@ -35,7 +36,8 @@ export function studentReviewProjection(review) {
       reviewCheckedAt: review.workCoverage.reviewCheckedAt,
       recordedAt: review.workCoverage.recordedAt,
     } } : {}),
-    ...(review.items ? { items: review.items.map((item) => ({ label: item.label, status: item.status })) } : {}),
+    ...(review.items ? { items: review.items.map((item) => ({ label: item.label, status: item.status,
+      ...(item.stageId ? { stageId: item.stageId } : {}) })) } : {}),
     ...(history ? { history } : {}),
     ...(review.processing ? { processing: review.processing } : {}),
   })

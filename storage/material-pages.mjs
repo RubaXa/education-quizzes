@@ -6,7 +6,9 @@ import { fileURLToPath } from 'node:url'
 import { indexedBooks } from './textbook-catalog.mjs'
 
 const projectRoot = fileURLToPath(new URL('../../', import.meta.url))
-const planFile = resolve(projectRoot, 'education-quizzes/.local/material-pages.json')
+const planFile = process.env.EDUCATION_CHILD_WORKSPACE
+  ? resolve(process.env.EDUCATION_CHILD_WORKSPACE, 'material-pages.json')
+  : resolve(projectRoot, 'education-quizzes/.local/material-pages.json')
 export const materialPlan = existsSync(planFile)
   ? JSON.parse(readFileSync(planFile, 'utf8'))
   : { books: [], taskPages: {}, taskEvidence: {} }

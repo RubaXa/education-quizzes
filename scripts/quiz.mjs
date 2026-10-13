@@ -1,10 +1,12 @@
 import { randomBytes } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
-import { resolve } from 'node:path'
+import { dirname, resolve } from 'node:path'
 import { initializeApp, applicationDefault } from 'firebase-admin/app'
 import { getFirestore, Timestamp } from 'firebase-admin/firestore'
 import { assertQuizOwner } from './quiz-access.mjs'
+import { pendingManualQuestionIds, validateAssessmentPlan } from '../assessment/decision-graph.mjs'
+import { assignmentShapeErrors } from '../day/data-contract.mjs'
 
 const projectId = 'education-9d7c6'
 const site = 'https://rubaxa.github.io/education-quizzes/'
@@ -74,7 +76,7 @@ function assignmentOwner(personId) {
   return { familyId: selected.familyId, childId: selected.childId }
 }
 
-function validateSpec(spec) {
+function validateSpec(spec, specPath) {
   if (typeof spec.title !== 'string' || !spec.title.trim()) fail('Не указано название теста.')
   if (typeof spec.description !== 'string' || !spec.description.trim()) fail('Нужно краткое описание теста для личного списка.')
   validateBoardDetails(spec.board)
@@ -124,6 +126,14 @@ function validateSpec(spec) {
       }
     }
   }
+  if (typeof spec.assessmentPlanPath !== 'string' || !spec.assessmentPlanPath.trim()) {
+    fail('Для нового теста нужен закрытый assessmentPlanPath; см. docs/product/assessment-decision-graph.md.')
+  }
+  const planPath = resolve(dirname(resolve(specPath)), spec.assessmentPlanPath)
+  const plan = loadJson(planPath)
+  const policyErrors = validateAssessmentPlan(plan, spec)
+  if (policyErrors.length) fail(`План теста не прошёл структурную проверку:\n- ${policyErrors.join('\n- ')}`)
+  return plan
 }
 
 function validateBoardDetails(board) {
@@ -143,13 +153,19 @@ const db = command === 'validate' ? null : getFirestore()
 
 async function create(specPath, studentPersonId) {
   const spec = loadJson(specPath)
-  validateSpec(spec)
+  const plan = validateSpec(spec, specPath)
   const owner = assignmentOwner(studentPersonId)
   if (spec.linkedToTestId) {
     const parents = await db.collection('assignments').where('testId', '==', spec.linkedToTestId).get()
     if (parents.size !== 1) fail('Исходный testId не найден однозначно. Не используйте токен ученической ссылки в linkedToTestId.')
     const parent = parents.docs[0].data()
     if (parent.familyId !== owner.familyId || parent.childId !== owner.childId || parent.status !== 'submitted') fail('Исходный тест не отправлен или принадлежит другому ученику.')
+    if (plan.mode === 'control-followup' && parent.assessment?.mode !== 'control-diagnostic') {
+      fail('Второй вариант контрольной должен ссылаться на первую контрольную диагностику этого ученика.')
+    }
+    const parentReview = await db.doc(`reviews/${parents.docs[0].id}`).get()
+    const pending = pendingManualQuestionIds(parent, parentReview.data())
+    if (pending.length) fail(`Сначала проверьте все открытые ответы исходного теста: ${pending.join(', ')}.`)
     const continuations = await db.collection('assignments').where('linkedToTestId', '==', spec.linkedToTestId).get()
     if (continuations.docs.some((item) => item.data().familyId === owner.familyId && item.data().childId === owner.childId)) fail('Связанное продолжение для этого теста уже существует.')
   }
@@ -171,6 +187,7 @@ async function create(specPath, studentPersonId) {
     reading: spec.reading ?? null,
     slug: spec.slug,
     linkedToTestId: spec.linkedToTestId ?? null,
+    assessment: { policyVersion: plan.policyVersion, mode: plan.mode, subjectAdapter: plan.subjectAdapter },
     questions: publicQuestions,
     status: 'open',
     answers: {},
@@ -180,6 +197,8 @@ async function create(specPath, studentPersonId) {
     createdAt,
   }
   assertQuizOwner(assignment, owner)
+  const shapeErrors = assignmentShapeErrors(assignment)
+  if (shapeErrors.length) fail(`Тест не соответствует модели Firestore: ${shapeErrors.join(' ')}`)
   const batch = db.batch()
   batch.create(db.doc(`assignments/${learnerToken}`), assignment)
   batch.create(db.doc(`answerKeys/${learnerToken}`), { entries })
@@ -195,6 +214,7 @@ async function create(specPath, studentPersonId) {
   })
   batch.create(db.doc(`dashboard/${ownerToken}/assignments/${learnerToken}`), {
     testId,
+    linkedToTestId: spec.linkedToTestId ?? null,
     title: spec.title,
     description: spec.description ?? '',
     board: spec.board,
@@ -206,6 +226,7 @@ async function create(specPath, studentPersonId) {
   if (existsSync(learnerBoardTokenFile)) {
     batch.create(db.doc(`dashboard/${learnerBoardToken()}/assignments/${learnerToken}`), {
       testId,
+      linkedToTestId: spec.linkedToTestId ?? null,
       title: spec.title,
       description: spec.description ?? '',
       board: spec.board,
@@ -218,6 +239,7 @@ async function create(specPath, studentPersonId) {
   if (existsSync(parentBoardTokenFile)) {
     batch.create(db.doc(`dashboard/${parentBoardToken()}/assignments/${learnerToken}`), {
       testId,
+      linkedToTestId: spec.linkedToTestId ?? null,
       title: spec.title,
       description: spec.description ?? '',
       board: spec.board,
@@ -230,6 +252,8 @@ async function create(specPath, studentPersonId) {
   await batch.commit()
   const published = await db.doc(`assignments/${learnerToken}`).get()
   if (!published.exists) fail('Тест не найден после публикации.')
+  const publishedErrors = assignmentShapeErrors(published.data())
+  if (publishedErrors.length) fail(`Опубликованный тест нарушает модель Firestore: ${publishedErrors.join(' ')}`)
   assertQuizOwner(published.data(), owner)
   console.log(JSON.stringify({
     testId,
@@ -255,6 +279,8 @@ async function addToLearnerBoard(manifestPath) {
     const snapshot = await db.doc(`assignments/${item.token}`).get()
     if (!snapshot.exists) fail(`Назначение с позицией ${position + 1} не найдено.`)
     const assignment = snapshot.data()
+    const assignmentErrors = assignmentShapeErrors(assignment)
+    if (assignmentErrors.length) fail(`Тест с позицией ${position + 1} нарушает модель Firestore: ${assignmentErrors.join(' ')}`)
     if (assignment.status === 'open') assertQuizOwner(assignment, assignmentOwner())
     validateBoardDetails(item.board)
     const indexEntry = {
@@ -309,6 +335,31 @@ async function boardStatus() {
   }))
   entries.sort((a, b) => (a.position ?? 9999) - (b.position ?? 9999))
   console.log(JSON.stringify(entries, null, 2))
+}
+
+async function syncBoardLinks(apply) {
+  const boards = [dashboardToken(), learnerBoardToken(), parentBoardToken()]
+  let checked = 0
+  let changed = 0
+  for (const boardToken of new Set(boards)) {
+    const entries = await db.collection(`dashboard/${boardToken}/assignments`).get()
+    const batch = db.batch()
+    let batchChanges = 0
+    for (const entry of entries.docs) {
+      const assignment = await db.doc(`assignments/${entry.id}`).get()
+      if (!assignment.exists) continue
+      checked += 1
+      const source = assignment.data()
+      if (source.testId !== entry.data().testId) fail(`Идентификатор теста не совпал: ${entry.id}`)
+      const linkedToTestId = source.linkedToTestId ?? null
+      if (entry.data().linkedToTestId === linkedToTestId) continue
+      changed += 1
+      batch.update(entry.ref, { linkedToTestId })
+      batchChanges += 1
+    }
+    if (apply && batchChanges) await batch.commit()
+  }
+  console.log(JSON.stringify({ checked, changed, applied: apply }, null, 2))
 }
 
 async function auditAccess(studentPersonId) {
@@ -369,17 +420,18 @@ async function reviewAttempt(learnerToken, reviewPath) {
 
 try {
   if (command === 'validate') {
-    validateSpec(loadJson(first))
+    validateSpec(loadJson(first), first)
     console.log('Спецификация готова к созданию теста.')
   } else if (command === 'create') await create(first, second)
   else if (command === 'board-add') await addToLearnerBoard(first)
   else if (command === 'list') await list()
   else if (command === 'board-status') await boardStatus()
+  else if (command === 'sync-links') await syncBoardLinks(first === '--apply')
   else if (command === 'audit-access') await auditAccess(first)
   else if (command === 'bind-family') await bindFamily(first, second, third)
   else if (command === 'export') await exportAttempt(first, second)
   else if (command === 'review') await reviewAttempt(first, second)
-  else fail('Команды: validate SPEC.json | create SPEC.json | board-add MANIFEST.json | board-status | audit-access | list | export TOKEN OUTPUT.json | review TOKEN REVIEW.json')
+  else fail('Команды: validate SPEC.json | create SPEC.json | board-add MANIFEST.json | board-status | sync-links [--apply] | audit-access | list | export TOKEN OUTPUT.json | review TOKEN REVIEW.json')
 } catch (error) {
   console.error(error instanceof Error ? error.message : error)
   process.exitCode = 1

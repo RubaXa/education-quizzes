@@ -33,4 +33,27 @@ describe('повторный выпуск страницы дня', () => {
     expect(second.planRevision).toBe(1)
     expect(second.changes).toEqual([])
   })
+
+  it('не переносит старый результат ЦДЗ в изменённое письменное задание', () => {
+    const oldTask = { ...task('mesh-42-cdz', 'verified'), kind: 'check', meshText: 'ЦДЗ по теме', platformResult: { state: 'completed', points: 8, maxPoints: 8 } }
+    const nextTask = { ...task('mesh-42-cdz'), meshText: 'Решить задачу в тетради' }
+    const merged = mergeDayPage(page([oldTask]), page([nextTask]))
+    expect(merged.subjects[0].tasks[0].status).toBe('unknown')
+    expect(merged.subjects[0].tasks[0].platformResult).toBeUndefined()
+  })
+
+  it('не переносит результат платформы в неявное ЦДЗ', () => {
+    const oldTask = { ...task('mesh-42', 'verified'), meshText: 'Решить задачу', platformResult: { state: 'completed', points: 8, maxPoints: 8 } }
+    const merged = mergeDayPage(page([oldTask]), page([oldTask]))
+    expect(merged.subjects[0].tasks[0].platformResult).toBeUndefined()
+  })
+
+  it('заменяет старый testPlacement того же taskId, не оставляя несуществующую ссылку', () => {
+    const oldToken = 'a'.repeat(32), newToken = 'b'.repeat(32)
+    const old = { ...page([{ ...task('mesh-42'), kind: 'read', testToken: oldToken }]), testPlacements: [{ taskId: 'mesh-42', subjectId: 'math', token: oldToken }] }
+    const next = { ...page([{ ...task('mesh-42'), kind: 'read', testToken: newToken }]), testPlacements: [{ taskId: 'mesh-42', subjectId: 'math', token: newToken }] }
+    const merged = mergeDayPage(old, next)
+    expect(merged.testPlacements).toEqual([{ taskId: 'mesh-42', subjectId: 'math', token: newToken }])
+    expect(merged.subjects[0].tasks[0].testToken).toBe(newToken)
+  })
 })

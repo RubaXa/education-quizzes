@@ -5,6 +5,7 @@ import { applicationDefault, initializeApp } from 'firebase-admin/app'
 import { FieldValue, getFirestore, Timestamp } from 'firebase-admin/firestore'
 import { YandexDiskStorage } from '../storage/yandex-disk.mjs'
 import { bookDisplayTitle, indexedBooks } from '../storage/textbook-catalog.mjs'
+import { projectPublishedBookToFamily } from '../storage/family-book-projection.mjs'
 import { taskPageRefs } from '../storage/material-pages.mjs'
 
 /** @see ../docs/product/family-library.md#operator */
@@ -25,20 +26,26 @@ async function childExists() {
 async function link(book, source, upload) {
   const destination = db.doc(`families/${familyId}/children/${childId}/books/${book.id}`)
   const current = (await destination.get()).data()
-  if (current?.status === 'confirmed' && current.sourceSha256 === book.sourceSha256) {
+  const catalogSha256 = source.targetSha256 ?? book.sourceSha256
+  const bindingStatus = book.editionStatus === 'parallel-edition' ? 'provisional' : 'confirmed'
+  if (current?.status === bindingStatus && current.sourceSha256 === book.sourceSha256
+    && (current.catalogSha256 ?? current.sourceSha256) === catalogSha256) {
     if (upload) await upload.ref.update({ status: 'linked', bookId: book.id, linkedAt: Timestamp.now(), error: FieldValue.delete() })
-    console.log(JSON.stringify({ familyId, childId, bookId: book.id, unchanged: true }))
+    const pages = await projectPublishedBookToFamily(db, destination)
+    console.log(JSON.stringify({ familyId, childId, bookId: book.id, unchanged: true, pages }))
     return
   }
   const batch = db.batch()
   batch.set(destination, {
     bookId: book.id, subjectKey: book.subject.toLocaleLowerCase('ru'),
-    title: book.title ?? bookDisplayTitle(book), status: 'confirmed',
-    sourceSha256: book.sourceSha256, evidence: source, confirmedAt: Timestamp.now(),
+    title: book.title ?? bookDisplayTitle(book), status: bindingStatus,
+    sourceSha256: book.sourceSha256, catalogSha256,
+    evidence: source, confirmedAt: Timestamp.now(),
   }, { merge: true })
   if (upload) batch.update(upload.ref, { status: 'linked', bookId: book.id, linkedAt: Timestamp.now(), error: FieldValue.delete() })
   await batch.commit()
-  console.log(JSON.stringify({ familyId, childId, bookId: book.id, source }))
+  const pages = await projectPublishedBookToFamily(db, destination)
+  console.log(JSON.stringify({ familyId, childId, bookId: book.id, source, pages }))
 }
 
 if (command === 'inbox') {

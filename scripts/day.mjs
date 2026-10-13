@@ -6,17 +6,28 @@ import { execFileSync } from 'node:child_process'
 import { applicationDefault, initializeApp } from 'firebase-admin/app'
 import { getFirestore, Timestamp } from 'firebase-admin/firestore'
 import { linksFile as pageLinksFile, materialLinks, materialPlan, preparePages, taskPageRefs } from '../storage/material-pages.mjs'
-import { buildDaySource } from '../day/build.mjs'
+import { buildDaySource, rawMeshKind } from '../day/build.mjs'
 import { assertWeekendWorkRetention, buildDayDashboardIndex } from '../day/dashboard-index.mjs'
 import { mergeDayPage } from '../day/merge.mjs'
+import { assertAssignmentLinksExist } from '../day/placement-integrity.mjs'
+import { repairTaskPlacements } from '../day/placement-repair.mjs'
+import { dayDashboardShapeErrors } from '../day/data-contract.mjs'
+import { materialGrantError } from '../day/material-access.mjs'
+import { ownerMigrationFields } from '../day/owner-repair.mjs'
+import { publicPageSubjects, publicProblem } from '../day/public-projection.mjs'
+import { isExplicitCdzTask } from '../day/homework-kind.mjs'
+import { cardPolicyModules, mathRouteProfile, mathRouteProfiles, validLearningRoute } from '../day/card-policy.mjs'
 import { assertPublishedPageAligned, assertSourceAligned, sourcePlanFingerprint } from '../day/pipeline-contract.mjs'
 import { assertGradeSnapshotAligned, detectGradeChange } from '../day/grade-reconciliation.mjs'
 import { YandexDiskStorage } from '../storage/yandex-disk.mjs'
 import { stageFamilyNotice } from '../storage/inbox-notifications.mjs'
 import { lessonVisibility } from '../diary/application/lesson-visibility.mjs'
+import { stageSchoolAlerts } from '../diary/application/school-alerts.mjs'
 import { buildFamilySourceGraph } from '../day/family-source-graph.mjs'
 
-const local = resolve('.local')
+const sharedLocal = resolve('.local')
+const scoped = Boolean(process.env.EDUCATION_CHILD_WORKSPACE)
+const local = resolve(process.env.EDUCATION_CHILD_WORKSPACE || '.local')
 const site = 'https://rubaxa.github.io/education-quizzes/'
 const linksFile = resolve(local, 'day-links.json')
 const dashboardLinksFile = resolve(local, 'day-dashboard-links.json')
@@ -24,6 +35,26 @@ const [command, date, third] = process.argv.slice(2)
 
 function fail(message) { throw new Error(message) }
 function json(path) { return JSON.parse(readFileSync(path, 'utf8')) }
+function ownerContext() {
+  if (scoped) {
+    const file = resolve(local, 'context.json')
+    if (!existsSync(file)) fail('Для отдельного ребёнка нужен закрытый context.json.')
+    const owner = json(file)
+    if (!owner.familyId || !owner.childId || !owner.sourceAccountId) fail('Контекст ребёнка неполный.')
+    return owner
+  }
+  const file = resolve(local, 'family-access.json')
+  return existsSync(file) ? json(file).legacyDayOwner : null
+}
+function boardToken(role) {
+  const file = resolve(local, role === 'student' ? 'learner-board-token' : 'parent-board-token')
+  if (existsSync(file)) return readFileSync(file, 'utf8').trim()
+  if (!scoped) fail(`Отсутствует ${file}.`)
+  const token = randomBytes(32).toString('base64url')
+  mkdirSync(local, { recursive: true, mode: 0o700 })
+  writeFileSync(file, token, { mode: 0o600, flag: 'wx' })
+  return token
+}
 function latestCompleteDiarySnapshot() {
   const directory = resolve(local, 'diary')
   const names = readdirSync(directory).filter((name) => /^snapshot-\d{4}-\d{2}-\d{2}\.json$/.test(name))
@@ -38,15 +69,27 @@ function dashboardLinks() {
 }
 /** @see ../docs/product/dashboard.md#firestore-model */
 async function addDashboardDocuments(batch, links, tokens, stagedPages = {}) {
-  const ownerFile = resolve(local, 'family-access.json')
-  const owner = existsSync(ownerFile) ? json(ownerFile).legacyDayOwner : null
+  const owner = ownerContext()
   if (!owner?.familyId || !owner?.childId) fail('Сначала привяжите страницы дня к ребёнку командой family attach-current-day.')
   const members = await db.collection(`families/${owner.familyId}/members`).get()
+  if (scoped) {
+    const latestDate = Object.keys(links).sort().at(-1)
+    const latestPair = links[latestDate]
+    for (const member of members.docs) {
+      const access = member.data()
+      if (access.active !== true || !access.childIds?.includes(owner.childId) || !['student', 'parent'].includes(access.role)) continue
+      batch.set(db.doc(`users/${member.id}/families/${owner.familyId}/shortcuts/${owner.childId}`), {
+        dayToken: latestPair[access.role], dashboardToken: tokens[access.role], sourceDate: latestDate, updatedAt: Timestamp.now(),
+      })
+    }
+  }
   for (const role of ['student', 'parent']) {
     const ref = db.doc(`dayDashboards/${tokens[role]}`)
     const previous = (await ref.get()).data()
     const previousDays = new Map((previous?.days ?? []).map((day) => [day.date, day]))
     const index = buildDayDashboardIndex(local, links, role)
+    const indexErrors = dayDashboardShapeErrors(index)
+    if (indexErrors.length) fail(`Неверная схема календаря ${role}: ${indexErrors.join(' ')}`)
     const removalFile = resolve(local, 'weekend-slot-removals.json')
     const removals = existsSync(removalFile) ? json(removalFile).removals : []
     assertWeekendWorkRetention(previous?.weekendWork, index.weekendWork, removals)
@@ -102,9 +145,10 @@ async function verifyPublishedDay(source, pair, indexTokens, links) {
       db.doc(`dayPages/${token}`).get(), db.doc(`dayDashboards/${indexTokens[role]}`).get(),
     ])
     assertPublishedPageAligned(source, pageDoc.data(), role)
+    await assertAssignmentLinksExist(db, pageDoc.data())
     const indexed = dashboardDoc.data()?.days?.find((item) => item.date === source.targetDate)
     const expected = buildDayDashboardIndex(local, links, role).days.find((item) => item.date === source.targetDate)
-    if (!indexed || !expected || indexed.dayToken !== expected.dayToken
+    if (!indexed || !expected || indexed.sourceRevision !== expected.sourceRevision || indexed.dayToken !== expected.dayToken
       || indexed.homeworkDayToken !== expected.homeworkDayToken
       || JSON.stringify(indexed.homework) !== JSON.stringify(expected.homework)) {
       fail(`После записи индекс ${role} не указывает на опубликованный день ${source.targetDate}.`)
@@ -115,7 +159,9 @@ async function verifyPublishedIndex(links, indexTokens) {
   for (const role of ['student', 'parent']) {
     const expected = buildDayDashboardIndex(local, links, role)
     const published = (await db.doc(`dayDashboards/${indexTokens[role]}`).get()).data()
-    const keys = ['date', 'checkedAt', 'complete', 'schedule', 'homework', 'dayToken', 'homeworkDayToken']
+    const shapeErrors = dayDashboardShapeErrors(published)
+    if (shapeErrors.length) fail(`Неверная опубликованная схема календаря ${role}: ${shapeErrors.join(' ')}`)
+    const keys = ['date', 'checkedAt', 'complete', 'sourceRevision', 'schedule', 'homework', 'dayToken', 'homeworkDayToken']
     const comparable = (days) => days?.map((day) => Object.fromEntries(keys.map((key) => [key, day[key]])))
     if (published?.kind !== role
       || JSON.stringify(comparable(published.days)) !== JSON.stringify(comparable(expected.days))
@@ -125,14 +171,9 @@ async function verifyPublishedIndex(links, indexTokens) {
   }
 }
 function nextCalendarDate(value, days) { const date = new Date(`${value}T12:00:00Z`); date.setUTCDate(date.getUTCDate() + days); return date.toISOString().slice(0, 10) }
-/** The student Firestore document must not carry parent-only source research. @see ../docs/product/adaptive-problem-card.md#происхождение-задачи */
-function studentSubjects(subjects) {
-  return subjects.map((subject) => ({ ...subject, tasks: subject.tasks.map((task) => ({ ...task,
-    ...(task.problems ? { problems: task.problems.map(({ sourceResearch: _sourceResearch, ...problem }) => problem) } : {}),
-  })) }))
-}
 function runLocal(script, args) { execFileSync(process.execPath, [script, ...args], { cwd: resolve('.'), stdio: 'inherit' }) }
 function refresh() {
+  if (scoped) fail('Для семейного контекста сначала выполните глобальный сбор МЭШ; refresh одного дня здесь отключён.')
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date ?? '')) fail('Укажите дату YYYY-MM-DD.')
   runLocal('diary/cli.mjs', ['sync', '--date', date])
   let targetDate = null
@@ -155,13 +196,13 @@ function refresh() {
 }
 function prepareLogin() {
   if (process.env.GOOGLE_APPLICATION_CREDENTIALS) return
-  const loginFile = resolve(local, 'config/configstore/firebase-tools.json')
+  const loginFile = resolve(sharedLocal, 'config/configstore/firebase-tools.json')
   if (!existsSync(loginFile)) fail('Сначала войдите через Firebase CLI.')
   const login = json(loginFile)
   if (!login.tokens?.refresh_token) fail('Вход Firebase CLI устарел.')
   const require = createRequire(import.meta.url)
   const { clientId, clientSecret } = require('firebase-tools/lib/api')
-  const file = resolve(local, 'adc.json')
+  const file = resolve(sharedLocal, 'adc.json')
   writeFileSync(file, JSON.stringify({ type: 'authorized_user', client_id: clientId(), client_secret: clientSecret(), refresh_token: login.tokens.refresh_token }), { mode: 0o600 })
   process.env.GOOGLE_APPLICATION_CREDENTIALS = file
 }
@@ -201,6 +242,47 @@ function validateAssignedInstruction(item, task, sourceDocument) {
     }
   } else fail(`Пункт ${task.id} не может добавлять к заданию МЭШ обязательную работу от агента или прежнего разбора.`)
 }
+/** Parent-only reference material must be anchored to this exact task and family-linked pages.
+ * @see ../docs/product/subject-aware-guidance.md#parent-card */
+function validateParentGuide(guide, task, sourceDocument, problem, subjectId) {
+  if (task.id.startsWith('mesh-') && task.instructionStatus?.state !== 'reviewed' || !['structured-notes', 'worked-solution', 'text-structure'].includes(guide.kind)
+    || !guide.overview?.trim() || !Array.isArray(guide.stages) || !guide.stages.length) fail(`У ${task.id} родительский ориентир не сверен.`)
+  const ids = new Set()
+  if (guide.presentation === 'math-route') {
+    const profile = mathRouteProfile(guide)
+    const roles = mathRouteProfiles[profile]
+    const last = guide.stages.at(-1)
+    if (guide.kind !== 'worked-solution' || !Number.isInteger(guide.revision) || guide.revision < 1
+      || !roles || guide.stages.length !== roles.length
+      || guide.stages.map((stage) => stage.role).join(',') !== roles.join(',')
+      || profile !== 'extended' && !guide.depthReason?.trim()
+      || guide.stages.some((stage) => !Array.isArray(stage.rows) || !stage.rows.length || !stage.hintPreview?.trim() || !stage.revealPreview?.trim())
+      || guide.stages.slice(0, -1).some((stage) => stage.answer || stage.verification)
+      || !last?.answer?.trim() || !Array.isArray(last.verification) || !last.verification.length
+      || guide.stages.slice(0, -1).some((stage) => JSON.stringify(stage).includes(last.answer))) {
+      fail(`У ${problem?.id ?? task.id} математический маршрут неполон или раскрывает ответ раньше последнего этапа.`)
+    }
+  }
+  if (guide.presentation === 'learning-route') {
+    if (!validLearningRoute(subjectId, task, guide)) {
+      fail(`У ${task.id} текстовый маршрут не соответствует утверждённому виду и источникам.`)
+    }
+  }
+  for (const stage of guide.stages) {
+    if (!/^[a-z0-9-]+$/.test(stage.id ?? '') || ids.has(stage.id) || !stage.title?.trim() || !stage.expected?.trim()
+      || !stage.source?.label?.trim() || !stage.source.excerpt?.trim()) fail(`У ${task.id} этап родительского ориентира неполон.`)
+    ids.add(stage.id)
+    const source = stage.source
+    if (source.kind === 'mesh') {
+      if (source.ref !== task.id || !task.meshText?.includes(source.excerpt)) fail(`У ${task.id} этап без точной опоры МЭШ.`)
+    } else if (source.kind === 'textbook') {
+      if (!materialPlan.taskPages[task.id]?.includes(source.ref)) fail(`У ${task.id} этап не связан с назначенной страницей учебника.`)
+    } else if (source.kind === 'teacher-file') {
+      if (!sourceDocument.materialLinks?.[task.id]?.some((link) => link.sourceType === 'teacher-attachment' && link.sourceRef === source.ref)
+        || problem && !problem.original?.text?.includes(source.excerpt)) fail(`У ${problem?.id ?? task.id} этап без точного текста листа учителя.`)
+    } else fail(`У ${task.id} неизвестный источник родительского ориентира.`)
+  }
+}
 function validSourceCrop(crop, link) {
   if (!crop || !link?.sourceSha256 || crop.sourceSha256 !== link.sourceSha256) return false
   if (!/^[a-f0-9]{64}$/.test(crop.sourceSha256)) return false
@@ -210,7 +292,7 @@ function validSourceCrop(crop, link) {
     && crop.x + crop.width <= crop.sourceWidth && crop.y + crop.height <= crop.sourceHeight
 }
 
-function validate(source) {
+function validate(source, { allowUnchangedLegacyTeacherLinks = false } = {}) {
   if (!source || !Array.isArray(source.subjects) || !source.subjects.length) fail('В исходнике нужны subjects.')
   const ids = new Set()
   const subjectIds = new Set()
@@ -220,8 +302,50 @@ function validate(source) {
     for (const task of subject.tasks) {
       if (!/^[a-z0-9-]+$/.test(task.id ?? '') || ids.has(task.id) || !task.title) fail('Нужны уникальные id и названия действий.')
       ids.add(task.id)
+      if (task.assessmentIntent) {
+        const intent = task.assessmentIntent
+        if (!['confirmed', 'needs-topic', 'needs-review'].includes(intent.state)) fail(`У ${task.id} неизвестно состояние решения о тесте.`)
+        if (intent.state === 'confirmed' && (task.instructionStatus?.state !== 'reviewed'
+          || !['ordinary', 'control-diagnostic'].includes(intent.mode)
+          || !intent.topic?.trim() || !intent.evidenceRef?.trim()
+          || task.kind === 'written' || task.outputKind === 'platform-result')) {
+          fail(`У ${task.id} самопроверка требует сверенного вида, темы и источника; письменная работа и ЦДЗ не заменяются тестом.`)
+        }
+      }
+      // @see ../docs/product/dashboard.md#reference-only-homework
+      if (task.referenceDate && (!/^\d{4}-\d{2}-\d{2}$/.test(task.referenceDate)
+        || task.referenceDate >= source.targetDate || task.kind !== 'check'
+        || !/^смотри(?:те)?\s+(?:дз|задание)\s+на\s+/i.test(task.meshText ?? '')
+        || task.problems?.length || task.testToken || task.platformResult)) {
+        fail(`Указатель ${task.id} должен вести к прежнему ДЗ и не создавать отдельный результат.`)
+      }
+      const policy = cardPolicyModules(subject.id, task)
+      const adapter = policy.adapter
+      if (task.instructionStatus?.state === 'reviewed' && task.kind === 'written' && task.cardPolicyVersion === 1
+        && (adapter !== 'language-route' || task.parentGuide?.presentation !== 'learning-route')) {
+        fail(`У ${task.id} письменная карточка требует предметный маршрут.`)
+      }
+      if (task.instructionStatus?.state === 'reviewed' && task.outputKind && adapter === 'unsupported-solution') {
+        fail(`У ${task.id} вид результата не соответствует предметному адаптеру.`)
+      }
+      if (task.instructionStatus?.state === 'reviewed' && task.outputKind === 'worked-solution' && !task.problems?.length) {
+        fail(`У ${task.id} математическое решение нужно разложить на устойчивые номера или задачи.`)
+      }
+      if (task.instructionStatus?.state === 'reviewed' && task.outputKind && task.problems?.length && adapter !== 'math-solution') {
+        fail(`У ${task.id} номера задач не соответствуют выбранному виду результата.`)
+      }
+      // @see ../docs/product/special-course-card-overlay.md#teacher-sheet
+      if (policy.overlays.includes('special-course-teacher-sheet') && task.mathRoutePolicyVersion === 1 && task.instructionStatus?.state === 'reviewed'
+        && source.materialLinks?.[task.id]?.some((link) => link.sourceType === 'teacher-attachment') && !task.problems?.length
+        && adapter === 'unclassified') {
+        fail(`У ${task.id} лист спецкурса надо разобрать на номера до публикации.`)
+      }
       if (task.problems != null) {
         if (task.kind !== 'written' || !Array.isArray(task.problems) || !task.problems.length) fail(`У ${task.id} номера допустимы только для письменной работы.`)
+        if ((task.mathRoutePolicyVersion === 1 || task.outputKind === 'worked-solution') && adapter === 'math-solution'
+          && task.problems.some((problem) => problem.parentGuide?.presentation !== 'math-route')) {
+          fail(`У ${task.id} каждый номер требует закрытый математический маршрут перед публикацией.`)
+        }
         if (task.problems.some((problem) => problem.original?.crop) && task.problems.some((problem) => !problem.original?.crop)) {
           fail(`У ${task.id} фрагменты исходного листа нужны для каждого номера.`)
         }
@@ -253,12 +377,14 @@ function validate(source) {
           }
           ids.add(problem.id)
           numbers.add(problem.number)
+          if (problem.parentGuide) validateParentGuide(problem.parentGuide, task, source, problem, subject.id)
         }
       }
       if (task.id.startsWith('mesh-')) {
-        if (task.instructionStatus?.state === 'needs-review' && (task.detail !== task.meshText || task.kind !== 'check' || task.steps?.length || task.submission)) fail(`У ${task.id} разбор ещё не сверен: показывайте только точный текст МЭШ без добавленных действий и фото.`)
+        if (task.instructionStatus?.state === 'needs-review' && (task.detail !== task.meshText || task.kind !== rawMeshKind(task.meshText ?? '') || task.steps?.length || task.submission || task.parentGuide)) fail(`У ${task.id} разбор ещё не сверен: показывайте только точный текст МЭШ без добавленных действий и фото.`)
         if (task.instructionStatus?.state === 'reviewed') for (const step of task.steps ?? []) validateAssignedInstruction(step, task, source)
         for (const item of task.submission?.items ?? []) validateAssignedInstruction(item, task, source)
+        if (task.parentGuide) validateParentGuide(task.parentGuide, task, source, undefined, subject.id)
       }
     }
   }
@@ -269,7 +395,7 @@ function validate(source) {
     const task = source.subjects.flatMap((subject) => subject.tasks).find((item) => item.id === taskId)
     for (const link of links) {
       if (!link.title || !/^https:\/\//.test(link.url ?? '') || !['textbook-page', 'teacher-attachment', 'external-text'].includes(link.sourceType)) fail(`У ссылки ${taskId} нужны HTTPS, название и тип источника.`)
-      if (link.sourceType === 'teacher-attachment' && /\.(png|jpe?g|webp|pdf)(?:\?|$)/i.test(decodeURIComponent(new URL(link.url).pathname)) && new URL(link.url).hostname === 'school.mos.ru') {
+      if (!allowUnchangedLegacyTeacherLinks && link.sourceType === 'teacher-attachment' && /\.(png|jpe?g|webp|pdf)(?:\?|$)/i.test(decodeURIComponent(new URL(link.url).pathname)) && new URL(link.url).hostname === 'school.mos.ru') {
         fail(`Файл учителя для ${taskId} ещё не перенесён на Яндекс.Диск. Запустите storage sync-teacher и обновите исходник дня.`)
       }
       if (link.sourceType === 'external-text' && (task.materialStatus?.state !== 'text-absent-from-textbook' || !link.reason)) fail(`Внешний текст для ${taskId} допустим только после подтверждения его отсутствия в учебнике и с объяснением.`)
@@ -287,10 +413,13 @@ function validate(source) {
   }
   if ((source.materialLinkReplacements ?? []).some((taskId) => !ids.has(taskId))) fail('Заменять материалы можно только для существующего задания.')
   const testTokens = new Set()
+  const testTaskIds = new Set()
   for (const placement of source.testPlacements ?? []) {
-    if (!placement.token || testTokens.has(placement.token) || !subjectIds.has(placement.subjectId)) fail('Нужны уникальные токены тестов и существующие предметы.')
+    if (!/^[A-Za-z0-9_-]{24,64}$/.test(placement.token ?? '') || testTokens.has(placement.token) || !subjectIds.has(placement.subjectId)) fail('Нужны уникальные чистые токены тестов и существующие предметы.')
     testTokens.add(placement.token)
     if (placement.taskId) {
+      if (testTaskIds.has(placement.taskId)) fail(`Два теста привязаны к одному заданию ${placement.taskId}.`)
+      testTaskIds.add(placement.taskId)
       const subject = source.subjects.find((item) => item.id === placement.subjectId)
       const task = subject.tasks.find((item) => item.id === placement.taskId)
       if (!task || task.testToken !== placement.token) fail('Тест внутри задания должен совпадать с testToken этого задания.')
@@ -314,7 +443,7 @@ function validate(source) {
 
 /** Carry a completed platform result between two views of the same assignment date. @see ../docs/product/plan-generation.md#cross-day-results */
 async function reconcileEarlierEvidence(source, studentToken) {
-  const owner = json(resolve(local, 'family-access.json')).legacyDayOwner
+  const owner = ownerContext()
   if (!owner?.childId) fail('Нельзя сопоставить старые результаты без владельца страницы.')
   const tokens = [...new Set([studentToken, ...(source.evidenceDayTokens ?? [])])]
   const pages = []
@@ -337,7 +466,7 @@ async function reconcileEarlierEvidence(source, studentToken) {
     }
   }
   for (const subject of source.subjects) for (const task of subject.tasks) {
-    if (task.kind !== 'check' || !task.id.endsWith('-cdz') || task.platformResult?.state === 'completed') continue
+    if (!isExplicitCdzTask(task) || task.platformResult?.state === 'completed') continue
     const candidates = pages.filter(({ page }) => page.targetDate === source.targetDate)
       .flatMap(({ page }) => page.subjects?.flatMap((item) => item.tasks ?? []) ?? [])
       .filter((prior) => prior.id === task.id && prior.meshText === task.meshText && prior.platformResult?.state === 'completed')
@@ -355,7 +484,7 @@ async function reconcileEarlierEvidence(source, studentToken) {
 }
 
 /** @see ../docs/product/access-and-state.md#state */
-async function publish() {
+async function stagePublish(date, batch, links, indexTokens, stagedPages, notifyGrades) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date ?? '')) fail('Укажите дату YYYY-MM-DD.')
   const sourceFile = resolve(local, `day-source-${date}.json`)
   if (!existsSync(sourceFile)) fail(`Нет ${sourceFile}`)
@@ -367,7 +496,19 @@ async function publish() {
   assertSourceAligned(source, target)
   const pageRefs = Object.fromEntries(Object.entries(taskPageRefs()).filter(([taskId]) => taskIds.includes(taskId)))
   // @see ../docs/product/family-library.md#source-graph
-  const legacyOwner = existsSync(resolve(local, 'family-access.json')) ? json(resolve(local, 'family-access.json')).legacyDayOwner : null
+  const legacyOwner = ownerContext()
+  if (scoped) {
+    const [account, child, identity] = await Promise.all([
+      db.doc(`sourceAccounts/${legacyOwner.sourceAccountId}`).get(),
+      db.doc(`families/${legacyOwner.familyId}/children/${legacyOwner.childId}`).get(),
+      db.doc(`sourceIdentities/${createHash('sha256').update(`mesh-child:${legacyOwner.sourcePersonId}`).digest('hex')}`).get(),
+    ])
+    if (!account.exists || account.data().familyId !== legacyOwner.familyId || account.data().disconnectedAt
+      || !child.exists || String(child.data().meshPersonId) !== String(legacyOwner.sourcePersonId)
+      || identity.data()?.familyId !== legacyOwner.familyId || identity.data()?.childId !== legacyOwner.childId) {
+      fail('Контекст ребёнка не подтверждён семейным источником МЭШ.')
+    }
+  }
   if (legacyOwner?.familyId && legacyOwner?.childId) {
     const graph = await buildFamilySourceGraph(db, { familyId: legacyOwner.familyId,
       childId: legacyOwner.childId, source, pageRefs })
@@ -392,9 +533,10 @@ async function publish() {
   if ([...neededPageIds].some((id) => !knownBefore[id]?.publicUrl || knownBefore[id].imageSha256 !== preparedPages.get(id)?.imageSha256)) {
     runLocal('scripts/storage.mjs', ['sync-pages'])
   }
-  const gradeSnapshot = json(resolve('../learner/grade-snapshot.json'))
+  const gradeFile = scoped ? resolve(local, 'grade-snapshot.json') : resolve('../learner/grade-snapshot.json')
+  if (!existsSync(gradeFile)) fail('Для этого ребёнка ещё нет сверенного среза оценок; день не опубликован.')
+  const gradeSnapshot = json(gradeFile)
   assertGradeSnapshotAligned(gradeSnapshot, latestCompleteDiarySnapshot())
-  const links = existsSync(linksFile) ? json(linksFile) : {}
   const publishedPageLinks = existsSync(pageLinksFile) ? materialLinks(json(pageLinksFile)) : {}
   const allMaterialLinks = { ...(source.materialLinks || {}) }
   for (const [taskId, pageLinks] of Object.entries(publishedPageLinks)) allMaterialLinks[taskId] = [...pageLinks, ...(allMaterialLinks[taskId] || [])]
@@ -407,12 +549,11 @@ async function publish() {
   if (!links[date]) links[date] = { student: randomBytes(32).toString('base64url'), parent: randomBytes(32).toString('base64url') }
   const pair = links[date]
   await reconcileEarlierEvidence(source, pair.student)
-  const indexTokens = dashboardLinks()
   const base = {
     schemaVersion: 1, date, targetDate: source.targetDate, updatedAt: Timestamp.now(),
     ...(legacyOwner?.familyId && legacyOwner?.childId ? { familyId: legacyOwner.familyId, childId: legacyOwner.childId } : {}),
     meshFetchedAt: target.fetchedAt, todaySchedule: schedule(today), targetSchedule: schedule(target),
-    subjects: source.subjects, taskIds, testPlacements: source.testPlacements ?? [], notices: source.notices ?? [],
+    subjects: publicPageSubjects(source.subjects), taskIds, testPlacements: source.testPlacements ?? [], notices: source.notices ?? [],
     sourceOnlyEntries: source.sourceOnlyEntries ?? [], retiredTaskIds: source.retiredTaskIds ?? [],
     weekendSlot: source.weekendSlot ?? null, sourcePlanFingerprint: sourcePlanFingerprint(source),
     materialLinks: allMaterialLinks, materialLinkReplacements: source.materialLinkReplacements ?? [],
@@ -422,17 +563,22 @@ async function publish() {
     grades: gradeSnapshot.subjects.map((subject) => ({ id: subject.id, name: subject.name, displayed_average: subject.displayed_average, scenario_verified: gradeSnapshot.scenarios_verified === true, grades: subject.grades.map(([mark, weight]) => ({ mark, weight })) })),
     workingThreshold: gradeSnapshot.working_threshold,
   }
-  const batch = db.batch()
   const uniquePageRefs = [...new Set(Object.values(pageRefs).flat())]
+  const teacherRefs = new Set(Object.entries(pageRefs).flatMap(([taskId, refs]) =>
+    (source.materialLinks?.[taskId] ?? []).some((link) => link.sourceType === 'teacher-attachment') ? refs : []))
+  const catalogByBook = new Map(), bindingByBook = new Map()
   if (uniquePageRefs.length > 300) fail('В одном выпуске больше 300 страниц; разделите публикацию на безопасные пакеты.')
   if (uniquePageRefs.length && (!legacyOwner?.familyId || !legacyOwner?.childId)) fail('Нельзя выдать страницы без подтверждённой семейной связи.')
   for (const ref of uniquePageRefs) {
     const [bookId, pdfPage] = ref.split('#')
-    const shared = await db.doc(`materialBooks/${bookId}/pages/${pdfPage}`).get()
+    if (!catalogByBook.has(bookId)) catalogByBook.set(bookId, db.doc(`materialBooks/${bookId}`).get())
+    if (!bindingByBook.has(bookId)) bindingByBook.set(bookId, db.doc(`families/${legacyOwner.familyId}/children/${legacyOwner.childId}/books/${bookId}`).get())
+    const [shared, catalog, binding] = await Promise.all([
+      db.doc(`materialBooks/${bookId}/pages/${pdfPage}`).get(), catalogByBook.get(bookId), bindingByBook.get(bookId),
+    ])
     const data = shared.data()
-    if (data?.state !== 'published' || typeof data.url !== 'string' || !data.url.startsWith('https://')) {
-      fail(`Страница ${ref} ещё не опубликована в общем каталоге.`)
-    }
+    const grantError = materialGrantError({ ref, catalog: catalog.data(), shared: data, binding: binding.data(), teacherAssigned: teacherRefs.has(ref) })
+    if (grantError) fail(grantError)
     batch.set(db.doc(`families/${legacyOwner.familyId}/children/${legacyOwner.childId}/bookPages/${ref}`), {
       bookId, pdfPage: Number(pdfPage), subject: data.subject, title: data.title ?? null,
       printedPage: data.printedPage ?? null, sourceRef: data.sourceRef,
@@ -441,14 +587,41 @@ async function publish() {
     })
   }
   const [oldStudent, oldParent] = await Promise.all([db.doc(`dayPages/${pair.student}`).get(), db.doc(`dayPages/${pair.parent}`).get()])
-  const studentPage = mergeDayPage(oldStudent.data(), { ...base, subjects: studentSubjects(source.subjects), kind: 'student', boardToken: readFileSync(resolve(local, 'learner-board-token'), 'utf8').trim() })
-  const parentPage = mergeDayPage(oldParent.data(), { ...base, kind: 'parent', studentToken: pair.student, boardToken: readFileSync(resolve(local, 'parent-board-token'), 'utf8').trim(), parentNotes: source.parentNotes ?? [] })
+  const currentGuideTasks = new Set(source.subjects.flatMap((subject) => subject.tasks.flatMap((task) => [task.id, ...(task.problems ?? []).map((problem) => problem.id)])))
+  const priorGuideTasks = new Set((oldParent.data()?.subjects ?? []).flatMap((subject) => subject.tasks.flatMap((task) => [task.id, ...(task.problems ?? []).map((problem) => problem.id)])))
+  for (const task of source.subjects.flatMap((subject) => subject.tasks)) {
+    for (const item of [task, ...(task.problems ?? [])]) {
+      const ref = db.doc(`dayTaskGuides/${pair.student}/items/${item.id}`)
+      if (item.parentGuide || item.sourceResearch) {
+        if (!legacyOwner?.familyId || !legacyOwner?.childId) fail('Нельзя опубликовать родительский ориентир без подтверждённой семьи.')
+        batch.set(ref, { familyId: legacyOwner.familyId, childId: legacyOwner.childId, taskId: item.id,
+          ...(item.parentGuide ? { guide: item.parentGuide } : {}),
+          ...(item.sourceResearch ? { sourceResearch: item.sourceResearch } : {}),
+          sourcePlanFingerprint: sourcePlanFingerprint(source), updatedAt: Timestamp.now() })
+      } else batch.delete(ref)
+    }
+  }
+  for (const taskId of priorGuideTasks) if (!currentGuideTasks.has(taskId)) batch.delete(db.doc(`dayTaskGuides/${pair.student}/items/${taskId}`))
+  const studentPage = mergeDayPage(oldStudent.data(), { ...base, subjects: publicPageSubjects(source.subjects), kind: 'student', boardToken: boardToken('student') })
+  const parentPage = mergeDayPage(oldParent.data(), { ...base, kind: 'parent', studentToken: pair.student, boardToken: boardToken('parent'), parentNotes: source.parentNotes ?? [] })
+  studentPage.subjects = publicPageSubjects(studentPage.subjects)
+  parentPage.subjects = publicPageSubjects(parentPage.subjects)
+  await Promise.all([assertAssignmentLinksExist(db, studentPage), assertAssignmentLinksExist(db, parentPage)])
   batch.set(db.doc(`dayPages/${pair.student}`), studentPage)
   batch.set(db.doc(`dayPages/${pair.parent}`), parentPage)
-  await addDashboardDocuments(batch, links, indexTokens, { [pair.student]: studentPage, [pair.parent]: parentPage })
-  const familyAccessFile = resolve(local, 'family-access.json')
-  const familyOwner = existsSync(familyAccessFile) ? json(familyAccessFile).legacyDayOwner : null
-  if (familyOwner?.familyId && familyOwner?.childId && oldParent.exists) {
+  stagedPages[pair.student] = studentPage
+  stagedPages[pair.parent] = parentPage
+  const ownerRef = db.doc(`dayOwners/${pair.student}`)
+  const priorOwner = await ownerRef.get()
+  if (priorOwner.exists && (priorOwner.data().familyId !== legacyOwner?.familyId || priorOwner.data().childId !== legacyOwner?.childId)) {
+    fail('Страница дня уже закреплена за другим ребёнком.')
+  }
+  if (legacyOwner?.familyId && legacyOwner?.childId) batch.set(ownerRef, {
+    schemaVersion: 1, familyId: legacyOwner.familyId, childId: legacyOwner.childId,
+    date, targetDate: source.targetDate, updatedAt: Timestamp.now(),
+  }, { merge: true })
+  const familyOwner = ownerContext()
+  if (notifyGrades && familyOwner?.familyId && familyOwner?.childId && oldParent.exists) {
     const before = new Map((oldParent.data().grades ?? []).map((subject) => [subject.id, subject]))
     for (const subject of base.grades) {
       const prior = before.get(subject.id)
@@ -463,14 +636,35 @@ async function publish() {
           sourceRevision: Date.parse(gradeSnapshot.observed_at) || Date.now() } })
     }
   }
+  // Comments on marks can contain a real lesson remark, even when MESH notifications are empty.
+  // @see ../docs/architecture/activity-and-inbox.md#school-alerts
+  if (notifyGrades && familyOwner?.familyId && familyOwner?.childId) await stageSchoolAlerts(db, batch, latestCompleteDiarySnapshot(), familyOwner)
+  return { source, pair, taskIds }
+}
+
+/** All changed linked days enter the same checked Firestore batch before the
+ * dashboard index is updated. The full fingerprint guard stays enabled.
+ * @see ../docs/product/dashboard.md#sync-freshness
+ */
+async function publishDates(dates) {
+  if (!dates.length || new Set(dates).size !== dates.length) fail('Укажите уникальные даты для выпуска.')
+  const links = existsSync(linksFile) ? json(linksFile) : {}
+  const indexTokens = dashboardLinks()
+  const batch = db.batch()
+  const stagedPages = {}
+  const staged = []
+  for (const dayDate of dates) staged.push(await stagePublish(dayDate, batch, links, indexTokens, stagedPages, staged.length === 0))
+  await addDashboardDocuments(batch, links, indexTokens, stagedPages)
   await batch.commit()
-  await verifyPublishedDay(source, pair, indexTokens, links)
+  for (const item of staged) await verifyPublishedDay(item.source, item.pair, indexTokens, links)
   await verifyPublishedIndex(links, indexTokens)
   mkdirSync(local, { recursive: true })
   writeFileSync(linksFile, JSON.stringify(links, null, 2), { mode: 0o600 })
   writeFileSync(dashboardLinksFile, JSON.stringify(indexTokens, null, 2), { mode: 0o600 })
-  console.log(JSON.stringify({ student: `${site}#/day/${pair.student}`, parent: `${site}#/day-parent/${pair.parent}`, tasks: taskIds.length }, null, 2))
+  console.log(JSON.stringify(staged.map(({ source, pair, taskIds }) => ({ targetDate: source.targetDate,
+    student: `${site}#/day/${pair.student}`, parent: `${site}#/day-parent/${pair.parent}`, tasks: taskIds.length })), null, 2))
 }
+async function publish() { return publishDates([date]) }
 
 async function publishDashboard() {
   const links = existsSync(linksFile) ? json(linksFile) : {}
@@ -573,8 +767,11 @@ async function publishProblemSupport() {
   if (!incoming.size) fail('В исходнике нет нумерованных задач.')
   const result = await db.runTransaction(async (transaction) => {
     const refs = [db.doc(`dayPages/${pair.student}`), db.doc(`dayPages/${pair.parent}`)]
-    const snapshots = await Promise.all(refs.map((ref) => transaction.get(ref)))
+    const ownerRef = db.doc(`dayOwners/${pair.student}`)
+    const [ownerSnapshot, ...snapshots] = await Promise.all([ownerRef, ...refs].map((ref) => transaction.get(ref)))
     if (snapshots.some((snapshot) => !snapshot.exists)) fail('Одна из страниц дня отсутствует. Сначала опубликуйте день.')
+    const owner = ownerSnapshot.data()
+    if (!owner?.familyId || !owner?.childId) fail('Для защищённого разбора нужна подтверждённая семья и ребёнок.')
     const counts = []
     snapshots.forEach((snapshot, index) => {
       const page = snapshot.data()
@@ -594,9 +791,7 @@ async function publishProblemSupport() {
               && (!newer.original.crop || validSourceCrop(newer.original.crop, link)))) {
             fail(`У ${problem.id} не совпали номер или исходное вложение в опубликованной странице.`)
           }
-          const { sourceResearch: _oldResearch, ...publicProblem } = problem
-          const next = { ...publicProblem, original: newer.original, support: newer.support,
-            ...(index === 1 && newer.sourceResearch ? { sourceResearch: newer.sourceResearch } : {}) }
+          const next = { ...publicProblem(problem), original: newer.original, support: newer.support }
           if (JSON.stringify(next) !== JSON.stringify(problem)) changed.push(problem.id)
           return next
         })
@@ -609,14 +804,342 @@ async function publishProblemSupport() {
         problemSupportChanges: [{ at: Timestamp.now(), problemIds: changed }, ...(page.problemSupportChanges || [])].slice(0, 20),
       })
     })
+    for (const problem of [...incoming.values()].flatMap((task) => task.problems)) {
+      const guideRef = db.doc(`dayTaskGuides/${pair.student}/items/${problem.id}`)
+      if (problem.parentGuide || problem.sourceResearch) transaction.set(guideRef, {
+        familyId: owner.familyId, childId: owner.childId, taskId: problem.id,
+        ...(problem.parentGuide ? { guide: problem.parentGuide } : {}),
+        ...(problem.sourceResearch ? { sourceResearch: problem.sourceResearch } : {}),
+        sourcePlanFingerprint: sourcePlanFingerprint(source), updatedAt: Timestamp.now(),
+      })
+      else transaction.delete(guideRef)
+    }
     return counts
   })
   console.log(JSON.stringify({ studentProblemsChanged: result[0], parentProblemsChanged: result[1], siteReleaseNeeded: false }))
 }
 
-if (!['refresh', 'build', 'publish', 'problem-support', 'dashboard', 'pull', 'seed-evidence'].includes(command)) fail('Команды: refresh YYYY-MM-DD | build YYYY-MM-DD | publish YYYY-MM-DD | problem-support YYYY-MM-DD | dashboard | pull YYYY-MM-DD [папка] | seed-evidence YYYY-MM-DD')
+/** Read-only audit of the published graph. Run after releases and during sync.
+ * @see ../docs/product/access-and-state.md#integrity-gates */
+async function auditPublishedDays() {
+  const links = json(linksFile)
+  const dates = date ? [date] : Object.keys(links).sort()
+  const problems = []
+  const rows = []
+  const catalogCache = new Map(), bindingCache = new Map()
+  for (const dayDate of dates) {
+    const pair = links[dayDate]
+    if (!pair?.student || !pair?.parent) { problems.push(`${dayDate}: нет двух ролевых ссылок`); continue }
+    const pages = {}
+    for (const role of ['student', 'parent']) {
+      try {
+        const snapshot = await db.doc(`dayPages/${pair[role]}`).get()
+        if (!snapshot.exists) throw new Error('Страница роли отсутствует.')
+        const page = snapshot.data()
+        if (page.schemaVersion !== 1 || page.kind !== role || page.date !== dayDate) throw new Error('Версия, роль или дата страницы неверна.')
+        await assertAssignmentLinksExist(db, page)
+        const refs = [...new Set(Object.values(page.taskPageRefs ?? {}).flat())]
+        const teacherRefs = new Set(Object.entries(page.taskPageRefs ?? {}).flatMap(([taskId, taskRefs]) =>
+          (page.materialLinks?.[taskId] ?? []).some((link) => link.sourceType === 'teacher-attachment') ? taskRefs : []))
+        const refErrors = []
+        for (let offset = 0; offset < refs.length; offset += 12) {
+          const settled = await Promise.allSettled(refs.slice(offset, offset + 12).map(async (ref) => {
+          const [bookId, pdfPage] = ref.split('#')
+          if (!catalogCache.has(bookId)) catalogCache.set(bookId, db.doc(`materialBooks/${bookId}`).get())
+          const bindingKey = `${page.familyId}/${page.childId}/${bookId}`
+          if (page.familyId && page.childId && !bindingCache.has(bindingKey)) bindingCache.set(bindingKey,
+            db.doc(`families/${page.familyId}/children/${page.childId}/books/${bookId}`).get())
+          const [shared, family, catalog, binding] = await Promise.all([
+            db.doc(`materialBooks/${bookId}/pages/${pdfPage}`).get(),
+            page.familyId && page.childId ? db.doc(`families/${page.familyId}/children/${page.childId}/bookPages/${ref}`).get() : null,
+            catalogCache.get(bookId), bindingCache.get(bindingKey) ?? null,
+          ])
+          const grantError = materialGrantError({ ref, catalog: catalog.data(), shared: shared.data(), binding: binding?.data(), teacherAssigned: teacherRefs.has(ref) })
+          if (grantError) throw new Error(grantError)
+          if (family && !family.exists) throw new Error(`Нет семейной проекции страницы ${ref}.`)
+          if (family && family.data().sourceRef !== shared.data().sourceRef) throw new Error(`Семейная связь страницы ${ref} не совпадает с общим каталогом.`)
+          }))
+          for (const result of settled) if (result.status === 'rejected') refErrors.push(result.reason instanceof Error ? result.reason.message : String(result.reason))
+        }
+        if (refErrors.length) {
+          const counts = new Map()
+          for (const message of refErrors) counts.set(message, (counts.get(message) ?? 0) + 1)
+          throw new Error([...counts].sort(([a], [b]) => a.localeCompare(b, 'ru')).map(([message, count]) =>
+            count > 1 ? `${message} (${count} стр.)` : message).join(' '))
+        }
+        pages[role] = page
+        rows.push({ date: dayDate, role, tasks: page.subjects.flatMap((subject) => subject.tasks).length, tests: page.testPlacements?.length ?? 0, pages: refs.length })
+      } catch (error) { problems.push(`${dayDate} ${role}: ${error instanceof Error ? error.message : String(error)}`) }
+    }
+    if (pages.parent && pages.student) {
+      const ids = (page) => page.subjects.flatMap((subject) => subject.tasks.map((task) => task.id)).sort()
+      if (JSON.stringify(ids(pages.parent)) !== JSON.stringify(ids(pages.student))) problems.push(`${dayDate}: ролевые страницы содержат разные taskId.`)
+      if (pages.parent.studentToken !== pair.student) problems.push(`${dayDate}: родительская страница указывает на другого ученика.`)
+    }
+  }
+  console.log(JSON.stringify({ checkedDates: dates.length, rows, problems }, null, 2))
+  if (problems.length) fail(`Аудит обнаружил ${problems.length} несогласованных связей.`)
+}
+
+/** Narrow, reversible-by-evidence migration: repair the task-to-quiz edge only.
+ * A private snapshot is retained; a rollback requires the old graph to pass the
+ * current contract and is never applied automatically.
+ * @see ../docs/product/firestore-data-model.md#migration */
+async function repairPublishedPlacements() {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date ?? '')) fail('Укажите дату YYYY-MM-DD.')
+  const pair = json(linksFile)[date]
+  if (!pair?.student || !pair?.parent) fail('Для дня нет обеих ролевых страниц.')
+  const roles = await Promise.all(['student', 'parent'].map(async (role) => {
+    const ref = db.doc(`dayPages/${pair[role]}`)
+    const snapshot = await ref.get()
+    if (!snapshot.exists) fail(`Нет страницы ${role}.`)
+    const before = snapshot.data()
+    if (before.schemaVersion !== 1 || before.kind !== role || before.date !== date) fail(`Неверная схема, роль или дата страницы ${role}.`)
+    const after = repairTaskPlacements(before)
+    await assertAssignmentLinksExist(db, after)
+    return { role, ref, snapshot, before, after }
+  }))
+  const changed = roles.filter((item) => JSON.stringify(item.before.testPlacements ?? []) !== JSON.stringify(item.after.testPlacements))
+  const summary = { date, pages: roles.map(({ role, before, after }) => ({ role, before: before.testPlacements?.length ?? 0, after: after.testPlacements?.length ?? 0 })), changed: changed.length }
+  if (!process.argv.includes('--apply') || !changed.length) { console.log(JSON.stringify({ ...summary, applied: false })); return }
+  const backupPath = resolve(local, `day-placement-migration-${date}-${Date.now()}.json`)
+  writeFileSync(backupPath, JSON.stringify({ date, pages: roles.map(({ role, before, snapshot }) => ({
+    role, updateTime: snapshot.updateTime.toMillis(), testPlacements: before.testPlacements ?? [],
+    taskTestTokens: before.subjects.flatMap((subject) => subject.tasks.filter((task) => task.testToken)
+      .map((task) => ({ id: task.id, subjectId: subject.id, token: task.testToken }))),
+  })) }, null, 2), { mode: 0o600, flag: 'wx' })
+  await db.runTransaction(async (transaction) => {
+    const current = await Promise.all(roles.map(({ ref }) => transaction.get(ref)))
+    for (const [index, item] of roles.entries()) {
+      if (!current[index].updateTime.isEqual(item.snapshot.updateTime)) fail('Страница изменилась после проверки; миграция отменена.')
+      if (changed.includes(item)) transaction.update(item.ref, { testPlacements: item.after.testPlacements, updatedAt: Timestamp.now() })
+    }
+  })
+  for (const item of roles) {
+    const live = (await item.ref.get()).data()
+    if (JSON.stringify(live.testPlacements ?? []) !== JSON.stringify(item.after.testPlacements)) fail(`Связи ${item.role} после миграции не совпали.`)
+    await assertAssignmentLinksExist(db, live)
+  }
+  console.log(JSON.stringify({ ...summary, applied: true, backupPath }))
+}
+
+/** Restore only a teacher-assigned page projection. A textbook needs the
+ * family's own book binding and is deliberately excluded from this repair. */
+async function repairTeacherProjections() {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date ?? '')) fail('Укажите дату YYYY-MM-DD.')
+  const pair = json(linksFile)[date]
+  if (!pair?.student || !pair?.parent) fail('Для дня нет обеих ролевых страниц.')
+  const snapshots = await Promise.all(['student', 'parent'].map((role) => db.doc(`dayPages/${pair[role]}`).get()))
+  const pages = snapshots.map((snapshot) => snapshot.data())
+  if (pages.some((page, index) => !page || page.kind !== ['student', 'parent'][index] || page.date !== date)
+    || !pages[0].familyId || !pages[0].childId || pages[0].familyId !== pages[1].familyId
+    || pages[0].childId !== pages[1].childId) fail('Роли, дата или семья не совпадают.')
+  const candidates = new Set()
+  for (const page of pages) for (const [taskId, refs] of Object.entries(page.taskPageRefs ?? {})) {
+    if (!(page.materialLinks?.[taskId] ?? []).some((link) => link.sourceType === 'teacher-attachment')) continue
+    for (const ref of refs) candidates.add(ref)
+  }
+  const missing = []
+  for (const ref of candidates) {
+    if (!pages.every((page) => Object.values(page.taskPageRefs ?? {}).flat().includes(ref))) fail(`Роли расходятся по странице ${ref}.`)
+    const [bookId, pdfPage] = ref.split('#')
+    const [catalog, shared, family] = await Promise.all([
+      db.doc(`materialBooks/${bookId}`).get(), db.doc(`materialBooks/${bookId}/pages/${pdfPage}`).get(),
+      db.doc(`families/${pages[0].familyId}/children/${pages[0].childId}/bookPages/${ref}`).get(),
+    ])
+    if (catalog.data()?.role === 'student-textbook') fail(`Учебник ${bookId} требует загрузки и связи семьи; миграция листа учителя запрещена.`)
+    if (!shared.exists || shared.data().state !== 'published' || typeof shared.data().url !== 'string'
+      || !shared.data().url.startsWith('https://')) fail(`Общий лист ${ref} не опубликован.`)
+    if (family.exists) {
+      if (family.data().sourceSha256 !== shared.data().sourceSha256) fail(`Семейный лист ${ref} уже связан с другим оригиналом.`)
+      continue
+    }
+    missing.push({ ref, shared: shared.data() })
+  }
+  const summary = { date, checked: candidates.size, missing: missing.map((item) => item.ref) }
+  if (!process.argv.includes('--apply') || !missing.length) { console.log(JSON.stringify({ ...summary, applied: false })); return }
+  const backupPath = resolve(local, `teacher-page-migration-${date}-${Date.now()}.json`)
+  writeFileSync(backupPath, JSON.stringify({ date, missingBefore: missing.map((item) => item.ref),
+    roleUpdateTimes: snapshots.map((item) => item.updateTime.toMillis()) }, null, 2), { mode: 0o600, flag: 'wx' })
+  await db.runTransaction(async (transaction) => {
+    const current = await Promise.all(['student', 'parent'].map((role) => transaction.get(db.doc(`dayPages/${pair[role]}`))))
+    if (current.some((item, index) => !item.updateTime.isEqual(snapshots[index].updateTime))) fail('Страница изменилась после проверки; миграция отменена.')
+    const refs = missing.map(({ ref }) => db.doc(`families/${pages[0].familyId}/children/${pages[0].childId}/bookPages/${ref}`))
+    const existing = await Promise.all(refs.map((ref) => transaction.get(ref)))
+    if (existing.some((item) => item.exists)) fail('Семейная страница уже появилась; повторите проверку.')
+    for (const [index, item] of missing.entries()) {
+      const data = item.shared
+      transaction.create(refs[index], {
+        bookId: data.bookId, pdfPage: data.pdfPage, subject: data.subject ?? null,
+        title: data.title ?? null, printedPage: data.printedPage ?? null,
+        ...(data.sourceRef ? { sourceRef: data.sourceRef } : {}),
+        sourceSha256: data.sourceSha256, editionStatus: data.editionStatus ?? null,
+        extraction: data.extraction ?? null, state: 'published', url: data.url,
+        updatedAt: Timestamp.now(),
+      })
+    }
+  })
+  for (const item of missing) {
+    const live = (await db.doc(`families/${pages[0].familyId}/children/${pages[0].childId}/bookPages/${item.ref}`).get()).data()
+    if (live?.sourceSha256 !== item.shared.sourceSha256 || live?.url !== item.shared.url) fail(`Лист ${item.ref} не совпал после записи.`)
+  }
+  console.log(JSON.stringify({ ...summary, applied: true, backupPath }))
+}
+
+/** Restore only owner fields from the existing trusted dayOwners record. */
+async function repairPublishedOwner() {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date ?? '')) fail('Укажите дату YYYY-MM-DD.')
+  const pair = json(linksFile)[date]
+  if (!pair?.student || !pair?.parent) fail('Для дня нет обеих ролевых страниц.')
+  const ownerRef = db.doc(`dayOwners/${pair.student}`)
+  const refs = ['student', 'parent'].map((role) => db.doc(`dayPages/${pair[role]}`))
+  const [ownerSnap, ...snaps] = await Promise.all([ownerRef.get(), ...refs.map((ref) => ref.get())])
+  if (!ownerSnap.exists || snaps.some((snap) => !snap.exists)) fail('Нет записи владельца или страницы роли.')
+  const owner = ownerSnap.data()
+  const fields = snaps.map((snap, index) => {
+    const page = snap.data()
+    if (page.schemaVersion !== 1 || page.kind !== ['student', 'parent'][index]) fail('Неверная версия или роль страницы.')
+    return ownerMigrationFields(page, owner)
+  })
+  const changed = snaps.filter((snap) => snap.data().familyId !== owner.familyId || snap.data().childId !== owner.childId).length
+  const summary = { date, changed, ownerRecord: 'verified', preserved: 'tasks, attempts, photos, reviews, statuses' }
+  if (!process.argv.includes('--apply') || !changed) { console.log(JSON.stringify({ ...summary, applied: false })); return }
+  const backupPath = resolve(local, `day-owner-migration-${date}-${Date.now()}.json`)
+  writeFileSync(backupPath, JSON.stringify({ date, pages: snaps.map((snap, index) => ({
+    role: ['student', 'parent'][index], updateTime: snap.updateTime.toMillis(),
+    familyId: snap.data().familyId ?? null, childId: snap.data().childId ?? null,
+  })) }, null, 2), { mode: 0o600, flag: 'wx' })
+  await db.runTransaction(async (transaction) => {
+    const [currentOwner, ...current] = await Promise.all([transaction.get(ownerRef), ...refs.map((ref) => transaction.get(ref))])
+    if (!currentOwner.updateTime.isEqual(ownerSnap.updateTime)
+      || current.some((snap, index) => !snap.updateTime.isEqual(snaps[index].updateTime))) fail('Владелец или страница изменились после проверки.')
+    for (const [index, ref] of refs.entries()) transaction.update(ref, { ...fields[index], updatedAt: Timestamp.now() })
+  })
+  for (const ref of refs) {
+    const live = (await ref.get()).data()
+    if (live.familyId !== owner.familyId || live.childId !== owner.childId) fail('Владелец после миграции не совпал.')
+  }
+  console.log(JSON.stringify({ ...summary, applied: true, backupPath }))
+}
+
+/** Atomically add a reviewed private route to several already-published views of one task.
+ * Existing photos, reviews, task statuses and dashboard links are never rewritten.
+ * The old fingerprint must prove the source differs only by approved route fields.
+ * @see ../docs/product/russian-language-route.md#pipeline */
+async function publishGuideUpgrade() {
+  const dates = (date ?? '').split(',')
+  const taskId = third
+  if (!dates.length || dates.some((item) => !/^\d{4}-\d{2}-\d{2}$/.test(item)) || !/^[a-z0-9-]+$/.test(taskId ?? '')) {
+    fail('Укажите guide-upgrade YYYY-MM-DD[,YYYY-MM-DD] task-id [--dry-run].')
+  }
+  const links = json(linksFile)
+  const upgrades = dates.map((sourceDate) => {
+    const source = json(resolve(local, `day-source-${sourceDate}.json`))
+    // Route-only upgrades prove the rest of the historical plan is byte-for-byte unchanged below.
+    // Old MESH links remain a release blocker for a full day publish, not for a private guide addition.
+    validate(source, { allowUnchangedLegacyTeacherLinks: true })
+    assertSourceAligned(source, json(resolve(local, `diary/snapshot-${source.targetDate}.json`)))
+    const matches = source.subjects.flatMap((subject) => subject.tasks.filter((task) => task.id === taskId).map((task) => ({ subjectId: subject.id, task })))
+    if (matches.length !== 1 || !matches[0].task.parentGuide || matches[0].task.parentGuide.presentation !== 'learning-route') fail(`Нет единственного сверенного маршрута ${taskId} на ${sourceDate}.`)
+    const pair = links[sourceDate]
+    if (!pair?.student || !pair?.parent) fail(`Страницы ${sourceDate} ещё не опубликованы для обеих ролей.`)
+    const baselineFile = resolve(local, `day-source-${sourceDate}.pre-learning-route.json`)
+    const baseline = existsSync(baselineFile) ? json(baselineFile) : structuredClone(source)
+    const oldTask = baseline.subjects.flatMap((subject) => subject.tasks).find((task) => task.id === taskId)
+    if (!oldTask || baseline.targetDate !== source.targetDate) fail(`Исходный план ${sourceDate} до маршрута не найден.`)
+    if (!existsSync(baselineFile)) for (const field of ['outputKind', 'cardPattern', 'cardPolicyVersion', 'parentGuide']) delete oldTask[field]
+    const stripRoute = (document) => {
+      const copy = structuredClone(document)
+      const matching = copy.subjects.flatMap((subject) => subject.tasks).find((task) => task.id === taskId)
+      for (const field of ['outputKind', 'cardPattern', 'cardPolicyVersion', 'parentGuide', 'instructionStatus']) delete matching[field]
+      return copy
+    }
+    if (JSON.stringify(stripRoute(baseline)) !== JSON.stringify(stripRoute(source))
+      || oldTask.instructionStatus?.state && oldTask.instructionStatus.state !== 'reviewed') {
+      fail(`План ${sourceDate} меняет данные за пределами маршрута ${taskId}.`)
+    }
+    return { sourceDate, source, pair, subjectId: matches[0].subjectId, task: matches[0].task,
+      before: sourcePlanFingerprint(baseline), after: sourcePlanFingerprint(source) }
+  })
+  const inspect = async (transaction) => {
+    const refs = upgrades.flatMap(({ pair }) => [db.doc(`dayPages/${pair.student}`), db.doc(`dayPages/${pair.parent}`)])
+    const owners = upgrades.map(({ pair }) => db.doc(`dayOwners/${pair.student}`))
+    const snapshots = await Promise.all([...refs, ...owners].map((ref) => transaction ? transaction.get(ref) : ref.get()))
+    const pageSnapshots = snapshots.slice(0, refs.length)
+    const ownerSnapshots = snapshots.slice(refs.length)
+    const updates = []
+    for (let index = 0; index < upgrades.length; index += 1) {
+      const item = upgrades[index]
+      const owner = ownerSnapshots[index].data()
+      if (!owner?.familyId || !owner?.childId || owner.targetDate !== item.source.targetDate) fail(`Семейная связь ${item.sourceDate} не подтверждена.`)
+      for (let roleIndex = 0; roleIndex < 2; roleIndex += 1) {
+        const role = roleIndex ? 'parent' : 'student'
+        const snapshot = pageSnapshots[index * 2 + roleIndex]
+        const page = snapshot.data()
+        const expectedTasks = item.source.subjects.flatMap((subject) => subject.tasks.map((task) => `${subject.id}:${task.id}:${task.meshText}`)).sort()
+        const publishedTasks = page?.subjects?.flatMap((subject) => subject.tasks.map((task) => `${subject.id}:${task.id}:${task.meshText}`)).sort()
+        const legacy = page?.sourcePlanFingerprint == null
+          && page?.schemaVersion === 1 && page?.date === item.sourceDate
+          && JSON.stringify(publishedTasks) === JSON.stringify(expectedTasks)
+        if (!page || page.kind !== role || page.targetDate !== item.source.targetDate
+          || page.familyId && page.familyId !== owner.familyId || page.childId && page.childId !== owner.childId
+          || !legacy && ![item.before, item.after].includes(page.sourcePlanFingerprint)) {
+          fail(`Страница ${item.sourceDate} ${role} изменилась помимо разрешённого маршрута: ${JSON.stringify({
+            exists: Boolean(page), roleMatches: page?.kind === role, dateMatches: page?.targetDate === item.source.targetDate,
+            familyMatches: !page?.familyId || page.familyId === owner.familyId, childMatches: !page?.childId || page.childId === owner.childId,
+            fingerprintMatches: legacy || [item.before, item.after].includes(page?.sourcePlanFingerprint), legacy,
+          })}`)
+        }
+        const matches = page.subjects.flatMap((subject) => subject.tasks.filter((task) => subject.id === item.subjectId && task.id === taskId))
+        if (matches.length !== 1 || matches[0].meshText !== item.task.meshText) fail(`Условие ${taskId} на странице ${item.sourceDate} ${role} не совпало с МЭШ.`)
+        const subjects = page.subjects.map((subject) => subject.id !== item.subjectId ? subject : {
+          ...subject, tasks: subject.tasks.map((task) => task.id !== taskId ? task : {
+            ...task, outputKind: item.task.outputKind, cardPattern: item.task.cardPattern, cardPolicyVersion: item.task.cardPolicyVersion,
+            instructionStatus: item.task.instructionStatus,
+          }),
+        })
+        const next = { ...page, familyId: owner.familyId, childId: owner.childId, subjects, sourcePlanFingerprint: item.after }
+        assertPublishedPageAligned(item.source, next, role)
+        updates.push({ ref: refs[index * 2 + roleIndex], fields: { familyId: owner.familyId, childId: owner.childId, subjects, sourcePlanFingerprint: item.after, updatedAt: Timestamp.now() } })
+      }
+      item.owner = owner
+    }
+    return updates
+  }
+  if (process.argv.includes('--dry-run')) {
+    await inspect(null)
+    console.log(JSON.stringify({ taskId, dates, preflight: 'passed', writes: upgrades.length * 3 }))
+    return
+  }
+  await db.runTransaction(async (transaction) => {
+    const updates = await inspect(transaction)
+    for (const update of updates) transaction.update(update.ref, update.fields)
+    for (const item of upgrades) transaction.set(db.doc(`dayTaskGuides/${item.pair.student}/items/${taskId}`), {
+      familyId: item.owner.familyId, childId: item.owner.childId, taskId,
+      guide: item.task.parentGuide, sourcePlanFingerprint: item.after, updatedAt: Timestamp.now(),
+    })
+  })
+  for (const item of upgrades) {
+    for (const role of ['student', 'parent']) {
+      const page = (await db.doc(`dayPages/${item.pair[role]}`).get()).data()
+      assertPublishedPageAligned(item.source, page, role)
+      if (page.subjects.flatMap((subject) => subject.tasks).some((task) => task.parentGuide)) fail('Закрытый разбор попал в публичную страницу.')
+    }
+    const guide = (await db.doc(`dayTaskGuides/${item.pair.student}/items/${taskId}`).get()).data()?.guide
+    if (guide?.revision !== item.task.parentGuide.revision || guide?.pattern !== item.task.cardPattern) fail(`После записи маршрут ${taskId} на ${item.sourceDate} не совпал с источником.`)
+  }
+  console.log(JSON.stringify({ taskId, dates, published: true, preserved: 'task IDs, photos, reviews, statuses, dashboards' }))
+}
+
+if (!['refresh', 'build', 'validate', 'publish', 'publish-batch', 'guide-upgrade', 'problem-support', 'dashboard', 'pull', 'seed-evidence', 'audit', 'repair-placements', 'repair-teacher-projections', 'repair-owner'].includes(command)) fail('Команды: refresh YYYY-MM-DD | build YYYY-MM-DD | validate YYYY-MM-DD | publish YYYY-MM-DD | publish-batch YYYY-MM-DD YYYY-MM-DD ... | audit [YYYY-MM-DD] | repair-placements YYYY-MM-DD [--apply] | repair-teacher-projections YYYY-MM-DD [--apply] | repair-owner YYYY-MM-DD [--apply] | guide-upgrade YYYY-MM-DD[,YYYY-MM-DD] task-id [--dry-run] | problem-support YYYY-MM-DD | dashboard | pull YYYY-MM-DD [папка] | seed-evidence YYYY-MM-DD')
 if (command === 'build') {
   console.log(JSON.stringify(buildDaySource(local, date), null, 2))
+  process.exit(0)
+}
+if (command === 'validate') {
+  const source = json(resolve(local, `day-source-${date}.json`))
+  const taskIds = validate(source)
+  console.log(JSON.stringify({ date, targetDate: source.targetDate, tasks: taskIds.length, valid: true }))
   process.exit(0)
 }
 if (command === 'refresh') refresh()
@@ -624,15 +1147,21 @@ prepareLogin()
 initializeApp({ credential: applicationDefault(), projectId: 'education-9d7c6' })
 const db = getFirestore()
 if (command === 'publish' || command === 'refresh') await publish()
+else if (command === 'publish-batch') await publishDates(process.argv.slice(3))
 else if (command === 'dashboard') await publishDashboard()
 else if (command === 'pull') await pull()
 else if (command === 'problem-support') await publishProblemSupport()
+else if (command === 'guide-upgrade') await publishGuideUpgrade()
+else if (command === 'audit') await auditPublishedDays()
+else if (command === 'repair-placements') await repairPublishedPlacements()
+else if (command === 'repair-teacher-projections') await repairTeacherProjections()
+else if (command === 'repair-owner') await repairPublishedOwner()
 else await seedEvidence()
-if ((command === 'publish' || command === 'refresh') && existsSync(resolve(local, 'family-access.json'))) {
-  const owner = json(resolve(local, 'family-access.json')).legacyDayOwner
+if ((command === 'publish' || command === 'publish-batch' || command === 'refresh') && !scoped) {
+  const owner = ownerContext()
   if (owner) {
     try { runLocal('scripts/family.mjs', ['attach-current-day', owner.familyId, owner.childId]) }
-    catch { console.warn('Личный переход к текущему дню не обновлён; сама страница дня опубликована.') }
+    catch { console.warn('Личный переход к текущему дню не обновлён; сама страница дня опубликована. Выпуск частичный.'); process.exitCode = 1 }
   }
 }
 if (command === 'refresh') {

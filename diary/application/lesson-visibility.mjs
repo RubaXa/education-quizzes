@@ -21,8 +21,13 @@ export function lessonVisibility(schedule) {
   const conducted = []
   const hidden = []
   for (const lesson of schedule) {
-    const eventId = notConducted.get(subjectName(lesson))
-    if (eventId) hidden.push({ lesson, reason: 'not-conducted', evidence: eventId })
+    const name = subjectName(lesson)
+    if (!name && (lesson.homeworkEntries?.length || lesson.descriptions?.length || lesson.homework?.descriptions?.length)) {
+      throw new Error('Запись МЭШ содержит ДЗ без предмета: нельзя назначить её по догадке.')
+    }
+    const eventId = notConducted.get(name)
+    if (!name) hidden.push({ lesson, reason: 'non-lesson' })
+    else if (eventId) hidden.push({ lesson, reason: 'not-conducted', evidence: eventId })
     else conducted.push(lesson)
   }
   return { conducted, hidden }

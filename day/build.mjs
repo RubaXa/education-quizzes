@@ -2,16 +2,10 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { writeJson } from '../diary/local-store.mjs'
 import { lessonVisibility } from '../diary/application/lesson-visibility.mjs'
-
-const subjectNames = [
-  [/^Иностранный \(английский\)/, ['english', 'Английский язык', '🇬🇧']],
-  [/^Математика$/, ['math', 'Математика', '∑']],
-  [/^Русский язык$/, ['russian', 'Русский язык', '✍']],
-  [/^Литература$/, ['literature', 'Литература', '📚']],
-  [/Специальный курс по математике/, ['special', 'Спецкурс по математике', '♟']],
-  [/^История$/, ['history', 'История', '🏛']],
-  [/^Биология$/, ['biology', 'Биология', '🌿']],
-]
+import { isExplicitCdzTask, rawMeshKind } from './homework-kind.mjs'
+import { subjectPresentation } from './subject-identity.mjs'
+import { referencedHomeworkDate } from './homework-reference.mjs'
+export { rawMeshKind } from './homework-kind.mjs'
 
 function json(file) { return JSON.parse(readFileSync(file, 'utf8')) }
 function teacherLinks(local, date, files) {
@@ -35,8 +29,7 @@ function teacherLinks(local, date, files) {
   })
 }
 function subjectInfo(assignment) {
-  const found = subjectNames.find(([pattern]) => pattern.test(assignment.subjectName || ''))?.[1]
-  return found || [`subject-${assignment.subjectId ?? 'other'}`, assignment.subjectName || 'Предмет', '📘']
+  return subjectPresentation(assignment.subjectName, assignment.subjectId)
 }
 /** Keep the lesson owner and the submission deadline separate. @see ../docs/product/dashboard.md#lesson-and-deadline */
 function deadlineFromMesh(assignment, lessonDate) {
@@ -88,12 +81,14 @@ export function buildDaySource(local, date) {
   const assignments = lessonVisibility(target.assignments || []).conducted
     .map((assignment) => ({ assignment, lessonDate: targetDate }))
   for (const { assignment, lessonDate } of assignments) {
-    const [id, name, icon] = subjectInfo(assignment)
+    let [id, name, icon] = subjectInfo(assignment)
     const descriptions = assignment.homeworkEntries?.length
       ? assignment.homeworkEntries
       : (assignment.descriptions || []).map((description, index) => ({ id: `${assignment.sourceItemId}-${index}`, description }))
     if (!descriptions.length) continue
-    let subject = subjects.find((item) => item.id === id)
+    // An earlier release may have used a source-ID fallback. Preserve its ID and task links.
+    let subject = subjects.find((item) => item.id === id || item.name === name)
+    if (subject) id = subject.id
     if (!subject) {
       subject = { id, name, icon, materials: 'Материалы задания уточняются', mesh: '', summary: 'Точная запись МЭШ. Подробный разбор готовится.', tasks: [] }
       subjects.push(subject)
@@ -103,6 +98,7 @@ export function buildDaySource(local, date) {
     for (const entry of descriptions) {
       const taskId = `mesh-${entry.id}`
       const description = entry.description.trim()
+      const referenceDate = referencedHomeworkDate(description, lessonDate)
       // A bare attachment pointer names the same teacher file; it assigns no extra work.
       // @see ../docs/product/plan-generation.md#material-only-mesh-entries
       const mainEntry = descriptions.find((candidate) => candidate.id !== entry.id && !/^файл здесь\.?$/i.test(candidate.description.trim()))
@@ -126,17 +122,30 @@ export function buildDaySource(local, date) {
           // Keep uploads separately, but show only the new raw MESH text until review.
           old.title = description.length > 105 ? `${description.slice(0, 102)}…` : description
           old.detail = description
-          old.kind = 'check'
+          old.kind = rawMeshKind(description)
           old.status = 'unknown'
           old.steps = []
           old.submission = null
+          delete old.platformResult
+          delete old.parentGuide
+          delete old.cardPattern
+          delete old.outputKind
+          delete old.assessmentIntent // A changed teacher entry invalidates the prior quiz decision.
           delete old.problems // Old teacher sheet and personalized hints do not apply to a revised condition.
           old.instructionStatus = { state: 'needs-review', message: 'Учитель изменил условие. Сейчас показан точный текст МЭШ; прежний разбор не действует.' }
+          if (!['math', 'special'].includes(id) && old.kind === 'written') old.cardPolicyVersion = 1
           subject.summary = 'Условие МЭШ изменилось. Подробный разбор готовится.'
           if (!assignment.teacherFiles?.length) subject.materials = 'Материалы изменённого задания уточняются'
           old.materialStatus = { state: 'textbook-page-needed', message: 'Учитель изменил условие. Страницы и действия нужно сверить заново перед публикацией.' }
         }
         old.meshText = description
+        if (referenceDate) old.referenceDate = referenceDate
+        else delete old.referenceDate
+        if (referenceDate && old.materialStatus?.state === 'textbook-page-needed') old.materialStatus = {
+          state: 'no-textbook', message: `Это указатель на ДЗ к ${referenceDate}, а не новое упражнение из учебника.`,
+        }
+        if (old.instructionStatus?.state === 'needs-review') old.kind = rawMeshKind(description)
+        if (!isExplicitCdzTask(old)) delete old.platformResult
         old.lessonDate = lessonDate
         const deadline = deadlineFromMesh(assignment, lessonDate)
         old.dueDate = deadline.dueDate
@@ -148,13 +157,20 @@ export function buildDaySource(local, date) {
       subject.tasks.push({
         id: taskId, title: description.length > 105 ? `${description.slice(0, 102)}…` : description,
         detail: description,
-        status: 'unknown', kind: 'check',
-        instructionStatus: { state: 'needs-review', message: 'Пока известна только запись МЭШ. Подробные шаги и способ сдачи ещё не сверены.' },
+        status: 'unknown', kind: rawMeshKind(description),
+        // New numbered math tasks cannot be published after review without the private route.
+        // @see ../docs/product/math-solution-route.md#pipeline
+        ...(['math', 'special'].includes(id) ? { mathRoutePolicyVersion: 1 } : {}),
+        // A reviewed new written Russian task must receive one of the stable routes.
+        // @see ../docs/product/card-generation-policy.md#russian-adapter
+        ...(!['math', 'special'].includes(id) && rawMeshKind(description) === 'written' ? { cardPolicyVersion: 1 } : {}),
+        instructionStatus: { state: 'needs-review', message: '' },
         source: `МЭШ, подробная карточка урока ${lessonDate}; запись ${entry.id}.`,
         meshText: description, originDate: targetDate, lessonDate, ...deadlineFromMesh(assignment, lessonDate),
-        ...(!assignment.teacherFiles?.length ? { materialStatus: { state: 'textbook-page-needed', message: 'Страницу учебника к этому заданию ещё не сверили. Пока ориентируйся на точную запись МЭШ.' } } : {}),
+        ...(referenceDate ? { referenceDate, materialStatus: { state: 'no-textbook', message: `Это указатель на ДЗ к ${referenceDate}, а не новое упражнение из учебника.` } }
+          : !assignment.teacherFiles?.length ? { materialStatus: { state: 'textbook-page-needed', message: 'Страницу учебника к этому заданию ещё не сверили. Пока ориентируйся на точную запись МЭШ.' } } : {}),
       })
-      subject.summary = 'Новое задание МЭШ. Подробный разбор готовится.'
+      subject.summary = ''
       if (!assignment.teacherFiles?.length) subject.materials = 'Материалы нового задания уточняются'
       added += 1
       if (assignment.teacherFiles?.length) materialLinks[taskId] = teacherLinks(local, lessonDate, assignment.teacherFiles)

@@ -32,9 +32,25 @@ for (const [index, line] of lines.entries()) {
 const actual = new Set(execFileSync('git', ['ls-files', '--cached', '--others', '--exclude-standard', '-z'], {
   cwd: root,
   encoding: 'utf8',
-}).split('\0').filter(Boolean))
+}).split('\0').filter((name) => name && existsSync(resolve(root, name))))
 for (const name of actual) if (!files.has(name)) problems.push(`Файл без спецификации: ${name}`)
 for (const name of files.keys()) if (!actual.has(name)) problems.push(`Устаревшая запись без файла: ${name}`)
+
+// A file-map row states ownership; the local reference makes the reason visible
+// while editing the component or its CSS. Keep media loading in one component.
+// @see ../docs/product/component-system.md#change-gates
+for (const name of actual) {
+  if (/^src\/components\/[^/]+\.(tsx|css)$/.test(name) && !name.endsWith('.test.tsx')) {
+    const source = readFileSync(resolve(root, name), 'utf8')
+    if (!/@see\s+\.\.\/\.\.\/docs\/(product|architecture)\//.test(source)) {
+      problems.push(`У продуктового компонента нет ссылки @see на контракт: ${name}`)
+    }
+  }
+  if (/^src\/.*\.tsx$/.test(name) && name !== 'src/components/EducationImage.tsx'
+    && /<img\b/.test(readFileSync(resolve(root, name), 'utf8'))) {
+    problems.push(`Изображение обходит EducationImage: ${name}`)
+  }
+}
 
 if (problems.length) {
   for (const problem of problems) console.error(problem)

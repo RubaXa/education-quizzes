@@ -6,9 +6,12 @@ import { FieldValue, getFirestore, Timestamp } from 'firebase-admin/firestore'
 import { matchesPhoto, validPhotoRequest, validUploadHref, workPath } from '../storage/direct-upload.mjs'
 import { familyBookPath, matchesFamilyBook, validFamilyBookRequest } from '../storage/family-book-upload.mjs'
 import { bookDisplayTitle } from '../storage/textbook-catalog.mjs'
+import { projectPublishedBookToFamily } from '../storage/family-book-projection.mjs'
 import { YandexDiskStorage } from '../storage/yandex-disk.mjs'
 
-/** Long-running local broker. It never receives image bytes from Firestore. */
+/** Long-running local broker. It never receives image bytes from Firestore.
+ * @see ../docs/architecture/local-first-sync.md#operator-upload-index
+ */
 const local = resolve('.local')
 const adc = resolve(local, 'adc.json')
 const diskToken = resolve(local, 'yandex-disk-token')
@@ -24,7 +27,7 @@ const listeners = new Map()
 const bookBusy = new Set()
 
 async function authorizedFamilyBook(familyId, childId, request) {
-  if (!validFamilyBookRequest(request)) return false
+  if (!validFamilyBookRequest(request, childId)) return false
   const session = (await db.doc(`deviceSessions/${request.deviceUid}`).get()).data()
   if (!session?.linkToken) return false
   const grant = (await db.doc(`accessLinks/${session.linkToken}`).get()).data()
@@ -61,15 +64,25 @@ async function finishFamilyBook(ref, familyId, childId, path, request) {
     sha256: request.sha256, md5, syncedAt: Timestamp.now() }
   if (book) {
     const batch = db.batch()
-    batch.set(db.doc(`families/${familyId}/children/${childId}/books/${book.id}`), {
+    const bindingRef = db.doc(`families/${familyId}/children/${childId}/books/${book.id}`)
+    batch.set(bindingRef, {
       bookId: book.id, subjectKey: request.subjectKey,
       title: book.data().title ?? bookDisplayTitle({ id: book.id, ...book.data() }),
-      status: 'confirmed', sourceSha256: request.sha256,
+      status: book.data().editionStatus === 'parallel-edition' ? 'provisional' : 'confirmed',
+      sourceSha256: request.sha256, catalogSha256: book.data().sourceSha256,
       evidence: { kind: 'exact-file-sha256', uploadId: ref.id }, confirmedAt: Timestamp.now(),
     }, { merge: true })
     batch.update(ref, { status: 'linked', bookId: book.id, storage, upload: FieldValue.delete(), error: FieldValue.delete() })
     await batch.commit()
     console.log(JSON.stringify({ event: 'family-book-deduplicated', familyId, childId, bookId: book.id }))
+    try {
+      const result = await projectPublishedBookToFamily(db, bindingRef)
+      console.log(JSON.stringify({ event: 'family-book-pages', familyId, childId, ...result }))
+    } catch (error) {
+      // The binding remains queued for sync-family-pages; do not lose the PDF.
+      console.error(JSON.stringify({ event: 'family-book-pages-pending', familyId, childId,
+        bookId: book.id, reason: error instanceof Error ? error.message : String(error) }))
+    }
   } else {
     await ref.update({ status: 'needs-identification', storage, upload: FieldValue.delete(), error: FieldValue.delete() })
     console.log(JSON.stringify({ event: 'family-book-needs-identification', familyId, childId, uploadId: ref.id }))
@@ -188,13 +201,46 @@ db.collection('dayOwners').onSnapshot((snapshot) => {
   for (const [id, stop] of listeners) if (!present.has(id)) { stop(); listeners.delete(id) }
   for (const owner of snapshot.docs) {
     if (listeners.has(owner.id)) continue
-    const stop = db.collection(`dayUploads/${owner.id}/files`).onSnapshot((files) => {
+    // Completed photos stay in Firestore for history, but the upload broker
+    // only needs work in active phases. A restart must not reread every old
+    // reviewed photo and then call ref.get() for it again.
+    const stop = db.collection(`dayUploads/${owner.id}/files`)
+      .where('status', 'in', ['requested', 'awaiting-upload', 'uploaded', 'deleted'])
+      .onSnapshot((files) => {
       for (const change of files.docChanges()) if (change.type !== 'removed') void handle(owner, change.doc.ref)
     }, (error) => console.error(JSON.stringify({ event: 'upload-listener-error', day: owner.id, reason: error.message })))
     listeners.set(owner.id, stop)
   }
 }, (error) => { console.error(JSON.stringify({ event: 'owner-listener-error', reason: error.message })); process.exit(1) })
 console.log(JSON.stringify({ event: 'upload-bridge-listening' }))
-db.collectionGroup('bookUploads').onSnapshot((snapshot) => {
-  for (const change of snapshot.docChanges()) if (change.type !== 'removed') void handleFamilyBook(change.doc.ref)
-}, (error) => { console.error(JSON.stringify({ event: 'family-book-listener-error', reason: error.message })); process.exit(1) })
+const activeBookStatuses = ['requested', 'awaiting-upload', 'uploaded']
+let legacyBookStop = null
+let activeBookReady = false
+function watchBookUploads(query, mode) {
+  return query.onSnapshot((snapshot) => {
+    if (mode === 'active' && !activeBookReady) {
+      activeBookReady = true
+      console.log(JSON.stringify({ event: 'family-book-active-listening', initialActive: snapshot.size }))
+      // Keep the legacy listener until the filtered initial snapshot arrives.
+      legacyBookStop?.()
+      legacyBookStop = null
+    }
+    for (const change of snapshot.docChanges()) {
+      if (change.type === 'removed' || !activeBookStatuses.includes(change.doc.data().status)) continue
+      void handleFamilyBook(change.doc.ref)
+    }
+  }, (error) => {
+    // The collection-group status index is built separately. Keep the old
+    // discovery path until the index is ready so an upload never disappears.
+    if (mode === 'active' && error.code === 9 && /index/i.test(error.message)) {
+      console.warn(JSON.stringify({ event: 'family-book-active-index-pending', fallback: 'legacy-listener' }))
+      if (!legacyBookStop) legacyBookStop = watchBookUploads(db.collectionGroup('bookUploads'), 'legacy')
+      setTimeout(() => { watchBookUploads(db.collectionGroup('bookUploads')
+        .where('status', 'in', activeBookStatuses), 'active') }, 5 * 60_000)
+      return
+    }
+    console.error(JSON.stringify({ event: 'family-book-listener-error', mode, reason: error.message }))
+    process.exit(1)
+  })
+}
+watchBookUploads(db.collectionGroup('bookUploads').where('status', 'in', activeBookStatuses), 'active')

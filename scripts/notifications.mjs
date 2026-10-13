@@ -1,10 +1,12 @@
 import { createHash } from 'node:crypto'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { applicationDefault, initializeApp } from 'firebase-admin/app'
 import { getFirestore, Timestamp } from 'firebase-admin/firestore'
 import { YandexDiskStorage } from '../storage/yandex-disk.mjs'
 import { notificationId, stageFamilyNotice, taskContext } from '../storage/inbox-notifications.mjs'
+import { loadReleaseNote } from './release-note.mjs'
+import { stageSchoolAlerts } from '../diary/application/school-alerts.mjs'
 
 /** Publish meaningful, source-linked notices as Firestore data; image bytes live on Yandex Disk.
  * @see ../docs/architecture/activity-and-inbox.md#notification-producers
@@ -37,15 +39,7 @@ async function mediaOnDisk(path, releaseId) {
   return { provider: 'yandex-disk', path: diskPath, publicUrl: await storage.publish(diskPath) }
 }
 async function publishRelease(filename) {
-  const path = resolve(filename)
-  if (!path.startsWith(`${local}/`) || !path.endsWith('.json')) fail('Описание выпуска должно лежать в .local/.')
-  const input = JSON.parse(readFileSync(path, 'utf8'))
-  if (!/^[a-z0-9-]{8,80}$/.test(input.releaseId ?? '')
-    || typeof input.title !== 'string' || input.title.trim().length < 8 || input.title.length > 100
-    || typeof input.body !== 'string' || input.body.trim().length < 15 || input.body.length > 500
-    || !Array.isArray(input.changes) || !input.changes.length || input.changes.length > 4
-    || !input.changes.every((line) => typeof line === 'string' && line.trim().length >= 8 && line.length <= 180)
-    || !['all', 'parent', 'student'].includes(input.audience)) fail('Нужны ID выпуска, заголовок, описание, 1–4 конкретных изменения и аудитория.')
+  const { input } = loadReleaseNote(filename)
   const media = {
     ...(input.before ? { before: await mediaOnDisk(input.before, input.releaseId) } : {}),
     ...(input.after ? { after: await mediaOnDisk(input.after, input.releaseId) } : {}),
@@ -62,19 +56,25 @@ async function publishRelease(filename) {
   }
   const id = notificationId(`product:${input.releaseId}`)
   let count = 0
-  let batch = db.batch()
-  let pending = 0
-  for (const [personId, owner] of recipients) {
-    const ref = db.doc(`users/${personId}/inbox/${id}`)
-    if ((await ref.get()).exists) continue
-    batch.create(ref, { ...owner, type: 'product_update', entityId: input.releaseId,
-      title: input.title.trim(), body: input.body.trim(), changes: input.changes.map((line) => line.trim()),
-      ...(Object.keys(media).length ? { media } : {}), sourceRevision: Timestamp.now().toMillis(), createdAt: Timestamp.now() })
-    count++
-    pending++
-    if (pending === 400) { await batch.commit(); batch = db.batch(); pending = 0 }
+  const entries = [...recipients]
+  const publishedAt = Timestamp.now()
+  for (let start = 0; start < entries.length; start += 200) {
+    const part = entries.slice(start, start + 200)
+    const refs = part.map(([personId]) => db.doc(`users/${personId}/inbox/${id}`))
+    const existing = await db.getAll(...refs)
+    const batch = db.batch()
+    let pending = 0
+    for (let index = 0; index < part.length; index++) {
+      if (existing[index].exists) continue
+      const owner = part[index][1]
+      batch.create(refs[index], { ...owner, type: 'product_update', entityId: input.releaseId,
+        title: input.title.trim(), body: input.body.trim(), changes: input.changes.map((line) => line.trim()),
+        ...(Object.keys(media).length ? { media } : {}), sourceRevision: publishedAt.toMillis(), createdAt: publishedAt })
+      count++
+      pending++
+    }
+    if (pending) await batch.commit()
   }
-  if (pending) await batch.commit()
   console.log(JSON.stringify({ releaseId: input.releaseId, recipients: count, mediaOnYandexDisk: Object.keys(media).length }))
 }
 async function backfillReview(sourceDate, taskId) {
@@ -142,7 +142,24 @@ async function backfillParentDecisions() {
   console.log(JSON.stringify({ parentDecisionNotifications: count }))
 }
 
+async function publishSchoolAlerts() {
+  const directory = resolve(local, 'diary')
+  const snapshots = readdirSync(directory).filter((name) => /^snapshot-\d{4}-\d{2}-\d{2}\.json$/.test(name))
+    .map((name) => JSON.parse(readFileSync(resolve(directory, name), 'utf8')))
+    .filter((snapshot) => snapshot.complete)
+    .sort((a, b) => String(b.fetchedAt).localeCompare(String(a.fetchedAt)))
+  if (!snapshots.length) fail('Нет полного снимка МЭШ для школьных сообщений.')
+  const ownerFile = resolve(local, 'family-access.json')
+  if (!existsSync(ownerFile)) fail('Нет подтверждённой семейной связи.')
+  const owner = JSON.parse(readFileSync(ownerFile, 'utf8')).legacyDayOwner
+  const batch = db.batch()
+  const recipients = await stageSchoolAlerts(db, batch, snapshots[0], owner)
+  if (recipients) await batch.commit()
+  console.log(JSON.stringify({ sourceDate: snapshots[0].fetchedAt, recipients }))
+}
+
 if (command === 'publish' && first && !second) await publishRelease(first)
 else if (command === 'backfill-review' && first && second) await backfillReview(first, second)
 else if (command === 'backfill-parent' && !first) await backfillParentDecisions()
-else fail('Использование: notifications publish .local/release.json | backfill-review YYYY-MM-DD taskId | backfill-parent')
+else if (command === 'school-alerts' && !first) await publishSchoolAlerts()
+else fail('Использование: notifications publish .local/release.json | backfill-review YYYY-MM-DD taskId | backfill-parent | school-alerts')

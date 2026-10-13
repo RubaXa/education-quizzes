@@ -1,6 +1,8 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { lessonVisibility } from '../diary/application/lesson-visibility.mjs'
+import { daySourceRevision } from '../sync/day-source-revision.mjs'
+import { referencedHomeworkDate } from './homework-reference.mjs'
 
 function readJson(file) { return JSON.parse(readFileSync(file, 'utf8')) }
 function dateOnly(value) { return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Moscow', year: 'numeric', month: '2-digit', day: '2-digit' }).format(value) }
@@ -56,7 +58,7 @@ export function buildDayDashboardIndex(local, links, role, now = new Date()) {
       const entries = assignment.homeworkEntries?.length
         ? assignment.homeworkEntries.map((entry) => entry.description)
         : assignment.descriptions || []
-      return entries.filter((text) => typeof text === 'string' && text.trim()).map((text) => ({ subject: conciseSubject(assignment.subjectName || assignment.subject_name), text: text.trim() }))
+      return entries.filter((text) => typeof text === 'string' && text.trim()).map((text) => ({ subject: conciseSubject(assignment.subjectName || assignment.subject_name), text: text.trim(), referenceDate: referencedHomeworkDate(text, date) }))
     })
     const homeworkBySubject = new Map()
     for (const item of homeworkEntries) {
@@ -65,11 +67,23 @@ export function buildDayDashboardIndex(local, links, role, now = new Date()) {
       homeworkBySubject.set(item.subject, texts)
     }
     const homework = [...homeworkBySubject].map(([subject, texts]) => ({ subject, text: texts.join('; ') }))
+    // An exact MESH pointer such as “Смотри задание на четверг” opens that
+    // published lesson, instead of demanding a duplicate Friday page.
+    const referencedDates = homeworkEntries.map((entry) => entry.referenceDate)
+    const referencedDate = homeworkEntries.length && referencedDates.every((item) => item && item === referencedDates[0])
+      ? referencedDates[0] : null
+    const referencedSnapshot = referencedDate ? snapshots.get(referencedDate) : null
+    const matchingSubject = referencedSnapshot && homeworkEntries.every((entry) =>
+      lessonVisibility(referencedSnapshot.assignments).conducted.some((assignment) =>
+        conciseSubject(assignment.subjectName || assignment.subject_name) === entry.subject
+        && (assignment.homeworkEntries?.length || assignment.descriptions?.length)))
+    const referencedToken = matchingSubject ? homeworkSources.get(referencedDate)?.token : null
     const lessonList = schedule.map((lesson) => ({ subject: conciseSubject(lesson.subject_name), start: lesson.start_at ?? '', end: lesson.finish_at ?? '' }))
     days.push({
       date, checkedAt: snapshot?.fetchedAt ?? null, complete: Boolean(snapshot?.complete),
+      sourceRevision: snapshot?.complete ? daySourceRevision(snapshot) : null,
       schedule: lessonList, homework, dayToken: links[date]?.[role] ?? null,
-      homeworkDayToken: homeworkSources.get(date)?.token ?? null,
+      homeworkDayToken: homeworkSources.get(date)?.token ?? referencedToken ?? null,
     })
   }
   const weekendTaskOwners = new Set()

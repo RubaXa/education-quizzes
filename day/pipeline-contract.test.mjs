@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { assertPublishedPageAligned, assertSourceAligned, sourcePlanFingerprint } from './pipeline-contract.mjs'
 import { assertWeekendWorkRetention } from './dashboard-index.mjs'
 
-const snapshot = { complete: true, date: '2026-10-15', assignments: [{ sourceItemId: '42', detailStatus: 'loaded',
+const snapshot = { complete: true, date: '2026-10-15', assignments: [{ sourceItemId: '42', subject_name: 'Математика', detailStatus: 'loaded',
   homeworkEntries: [{ id: '99', description: 'Решить № 4.' }] }] }
 const source = { targetDate: '2026-10-15', subjects: [{ tasks: [{ id: 'mesh-99', meshText: 'Решить № 4.' }] }] }
 

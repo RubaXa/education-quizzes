@@ -1,3 +1,5 @@
+import { isExplicitCdzTask } from './homework-kind.mjs'
+
 function uniqueBy(items, key) {
   return [...new Map(items.map((item) => [key(item), item])).values()]
 }
@@ -18,8 +20,11 @@ function mergeSubjects(existing = [], incoming = [], retiredTaskIds = new Set())
       if (position < 0) tasks.push(task)
       else {
         const old = tasks[position]
-        const sameCondition = old.meshText === task.meshText
-        tasks[position] = { ...old, ...task, status: sameCondition && task.status === 'unknown' && old.status !== 'unknown' ? old.status : task.status }
+        const sameCondition = old.meshText === task.meshText && old.kind === task.kind
+        const merged = sameCondition ? { ...old, ...task } : { ...task }
+        merged.status = sameCondition && task.status === 'unknown' && old.status !== 'unknown' ? old.status : task.status
+        if (!isExplicitCdzTask(merged)) delete merged.platformResult
+        tasks[position] = merged
       }
     }
     result[index] = { ...older, ...subject, tasks }
@@ -44,10 +49,20 @@ export function mergeDayPage(existing, incoming) {
     materialLinks[taskId] = replacements.has(taskId) ? current : uniqueBy([...(materialLinks[taskId] || []), ...current], (item) => item.url)
   }
   for (const taskId of replacements) if (!(taskId in (incoming.materialLinks || {}))) materialLinks[taskId] = []
+  // A republished task owns its test placement. Keeping the previous token
+  // would make one task point at both the corrected and the stale assignment.
+  // @see ../docs/product/quizzes.md#quiz-results
+  const replacedPlacementTasks = new Set([
+    ...retiredTaskIds,
+    ...incoming.subjects.flatMap((subject) => subject.tasks.map((task) => task.id)),
+    ...(incoming.testPlacements || []).map((placement) => placement.taskId).filter(Boolean),
+  ])
+  const retainedPlacements = (existing.testPlacements || [])
+    .filter((placement) => !placement.taskId || !replacedPlacementTasks.has(placement.taskId))
   const merged = {
     ...existing, ...incoming, subjects,
     taskIds: after.flatMap((task) => [task.id, ...(task.problems || []).map((problem) => problem.id)]), materialLinks,
-    testPlacements: uniqueBy([...(existing.testPlacements || []), ...(incoming.testPlacements || [])], (item) => item.token),
+    testPlacements: uniqueBy([...retainedPlacements, ...(incoming.testPlacements || [])], (item) => item.token),
     evidenceDayTokens: [...new Set([...(existing.evidenceDayTokens || []), ...(incoming.evidenceDayTokens || [])])],
   }
   const newLinks = Object.entries(materialLinks).some(([id, links]) => JSON.stringify(links) !== JSON.stringify(existing.materialLinks?.[id] || []))

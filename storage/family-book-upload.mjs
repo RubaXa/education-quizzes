@@ -11,8 +11,9 @@ export function familyBookPath(familyId, childId, uploadId, contentType) {
   return `app:/PETR/Учебники/Загрузки/${familyId}/${childId}/${uploadId}.${extensions[contentType]}`
 }
 
-export function validFamilyBookRequest(request) {
-  return identifier.test(request?.childId ?? '')
+export function validFamilyBookRequest(request, childId) {
+  // childId is the verified Firestore path segment, not a writable field in the request.
+  return identifier.test(childId ?? '')
     && identifier.test(request?.deviceUid ?? '')
     && typeof request?.subjectKey === 'string' && request.subjectKey.length > 0 && request.subjectKey.length <= 100
     && typeof request?.originalName === 'string' && request.originalName.length > 0 && request.originalName.length <= 160
