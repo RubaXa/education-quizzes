@@ -8,6 +8,8 @@
 |---|---|---|---|
 | [assessment/decision-graph.mjs](../../assessment/decision-graph.mjs) | [Граф самопроверок](assessment-decision-graph.md) | Режимы, предметные матрицы, полнота слов по назначенным источникам и барьер ручной проверки | `quiz.mjs`; `sync-queue.mjs`; `sync-inbox.mjs` |
 | [assessment/decision-graph.test.mjs](../../assessment/decision-graph.test.mjs) | [Словарный диктант](assessment-decision-graph.md) | Проверка полного охвата упражнений, отбора слов, исправлений и формы связанного теста | Vitest; автор теста |
+| [assessment/question-copy.mjs](../../assessment/question-copy.mjs) | [Тесты](quizzes.md) | Поиск повторяющейся вводной фразы и инструкции в заголовках вопросов | `scripts/quiz.mjs` |
+| [assessment/question-copy.test.mjs](../../assessment/question-copy.test.mjs) | [Тесты](quizzes.md) | Регрессия на многократный заголовок словарного диктанта | Vitest; автор теста |
 | [.env.example](../../.env.example) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Шаблон локальной конфигурации интеграции | Оператор CLI |
 | [.firebaserc](../../.firebaserc) | [Семейная модель](../architecture/family-data-model.md) | Идентификатор проекта Firebase для команд | Firebase CLI |
 | [.gitignore](../../.gitignore) | [Хранение и приватность](storage-privacy.md) | Исключение секретов и локальных оригиналов | Git; проверка приватности |
@@ -264,6 +266,8 @@
 | [src/lib/guideReadPolicy.ts](../../src/lib/guideReadPolicy.ts) | [Страница дня](day-page.md) | Выбор раскрытого предмета при адресном переходе и видимых задач для чтения закрытых ориентиров | `src/DayPage.tsx` |
 | [src/lib/guideReadPolicy.test.ts](../../src/lib/guideReadPolicy.test.ts) | [Страница дня](day-page.md) | Проверка адресного раскрытия и свёрнутого состояния с бюджетом чтений | Vitest; `src/DayPage.tsx` |
 | [src/lib/quizCardViewModel.test.ts](../../src/lib/quizCardViewModel.test.ts) | [Dashboard](dashboard.md) | Переход из списка дел к исходной карточке связанного теста | Vitest; `src/DayPage.tsx` |
+| [src/lib/questionTopicPresentation.ts](../../src/lib/questionTopicPresentation.ts) | [Тесты](quizzes.md) | Общую тему показывает один раз перед вопросами | `src/App.tsx` |
+| [src/lib/questionTopicPresentation.test.ts](../../src/lib/questionTopicPresentation.test.ts) | [Тесты](quizzes.md) | Общая тема и отдельные темы разных вопросов | Vitest; `src/App.tsx` |
 | [src/lib/dayGuidance.ts](../../src/lib/dayGuidance.ts) | [Математический маршрут](math-solution-route.md) | Выборочная передача этапа и подписка на помощь ребёнку | `DayPage.tsx`; `ProblemStatement.tsx`; Firebase |
 | [src/lib/quizCardViewModel.ts](../../src/lib/quizCardViewModel.ts) | [Единая модель карточки](subject-card-viewmodel.md) | Общий тип попытки, связка истории и адрес исходной карточки для продолжения теста | `QuizCard.tsx`; `DayPage.tsx` |
 | [src/lib/educationSchema.ts](../../src/lib/educationSchema.ts) | [Семейная модель](../architecture/family-data-model.md) | Типы семьи, манифеста и адресных событий | `educationStore`; `NotificationBell` |

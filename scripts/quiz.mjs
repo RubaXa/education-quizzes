@@ -6,6 +6,7 @@ import { initializeApp, applicationDefault } from 'firebase-admin/app'
 import { getFirestore, Timestamp } from 'firebase-admin/firestore'
 import { assertQuizOwner } from './quiz-access.mjs'
 import { pendingManualQuestionIds, validateAssessmentPlan } from '../assessment/decision-graph.mjs'
+import { repeatedQuestionCopy } from '../assessment/question-copy.mjs'
 import { assignmentShapeErrors } from '../day/data-contract.mjs'
 
 const projectId = 'education-9d7c6'
@@ -84,6 +85,8 @@ function validateSpec(spec, specPath) {
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(spec.slug ?? '')) fail('slug должен содержать латинские буквы, цифры и дефисы.')
   if (spec.linkedToTestId !== undefined && (typeof spec.linkedToTestId !== 'string' || !spec.linkedToTestId.trim())) fail('linkedToTestId должен содержать ID исходного теста, а не токен ссылки.')
   if (!Array.isArray(spec.questions) || !spec.questions.length || spec.questions.length > 100) fail('Нужно от 1 до 100 вопросов.')
+  const repeatedCopy = repeatedQuestionCopy(spec.questions)
+  if (repeatedCopy.length) fail(repeatedCopy.join(' '))
   if (spec.visual !== undefined) {
     if (!spec.visual || typeof spec.visual !== 'object' || Array.isArray(spec.visual)) fail('visual должен быть объектом.')
     if (spec.visual.preset && !['english', 'informatics', 'biology', 'literature', 'history', 'math', 'russian', 'geography', 'physics', 'chemistry', 'general'].includes(spec.visual.preset)) fail('Неизвестный visual.preset.')

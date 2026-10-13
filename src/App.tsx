@@ -14,6 +14,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Textarea } from '@/components/ui/textarea'
 import { countAnswered, grade, summarize } from '@/lib/quiz'
 import { spellingFeedback } from '@/lib/spellingFeedback'
+import { sharedQuestionTopic } from '@/lib/questionTopicPresentation'
 import { buildFollowUpPrompt } from '@/lib/followup'
 import { WriteQueue } from '@/lib/writeQueue'
 import { readCachedQuiz, readQuizDraft, rememberQuizStudent, wasQuizStudent, writeCachedQuiz, writeQuizDraft } from '@/lib/quizDraft'
@@ -121,6 +122,7 @@ function ErrorCard({ message, onRetry }: { message: string; onRetry?: () => void
 /**
  * Показывает один вопрос и редактируемый ответ в назначенном тесте.
  * @see ../docs/product/quizzes.md#quiz-runner
+ * @see ../docs/product/quizzes.md#question-copy
  */
 function QuestionCard({
   question,
@@ -128,12 +130,14 @@ function QuestionCard({
   answer,
   onAnswer,
   disabled = false,
+  showTopic = true,
 }: {
   question: QuizQuestion
   index: number
   answer?: Answer
   onAnswer: (value: Answer) => void
   disabled?: boolean
+  showTopic?: boolean
 }) {
   const optionList = question.options ?? []
   const asString = typeof answer === 'string' ? answer : ''
@@ -147,7 +151,7 @@ function QuestionCard({
           <span className="text-sm text-muted-foreground">{question.points} {wordForm(question.points, 'балл', 'балла', 'баллов')}</span>
         </div>
         <CardTitle className="text-xl leading-snug sm:text-2xl">{question.prompt}</CardTitle>
-        {question.topic && <CardDescription>Тема: {question.topic}</CardDescription>}
+        {showTopic && question.topic && <CardDescription>Тема: {question.topic}</CardDescription>}
       </CardHeader>
       <CardContent className="space-y-4">
         {question.code && <CodeBlock code={question.code} />}
@@ -537,6 +541,7 @@ function QuizRunner({ token }: { token: string }) {
 
   const answered = countAnswered({ ...assignment, answers })
   const progress = assignment.questions.length ? Math.round(100 * answered / assignment.questions.length) : 0
+  const sharedTopic = sharedQuestionTopic(assignment.questions)
 
   return (
     <ThemeFrame subject={assignment.subject} visual={assignment.visual}>
@@ -552,8 +557,9 @@ function QuizRunner({ token }: { token: string }) {
         <div className="mb-2 flex justify-between text-sm"><span>Ваш прогресс</span><strong>{answered} из {assignment.questions.length}</strong></div>
         <Progress value={progress} />
       </div>
+      {sharedTopic && <p className="text-sm text-muted-foreground">Тема вопросов: {sharedTopic}</p>}
       <div className="space-y-5">{assignment.questions.map((question, index) => (
-        <QuestionCard key={question.id} question={question} index={index} answer={answers[question.id]} onAnswer={(value) => updateAnswer(question.id, value)} />
+        <QuestionCard key={question.id} question={question} index={index} answer={answers[question.id]} onAnswer={(value) => updateAnswer(question.id, value)} showTopic={!sharedTopic} />
       ))}</div>
       {error && <p className="rounded-xl bg-rose-50 p-3 text-sm text-rose-800">{error}</p>}
       <div className="flex flex-col items-start justify-between gap-3 rounded-2xl bg-white p-5 shadow-sm sm:flex-row sm:items-center">
@@ -578,12 +584,14 @@ function Preview({ token }: { token: string }) {
   useEffect(() => { loadPreview(token).then(setPreview).catch((cause) => setError(describeError(cause))) }, [token])
   if (error) return <ErrorCard message={error} />
   if (!preview) return <p>Загружаем предпросмотр…</p>
+  const sharedTopic = sharedQuestionTopic(preview.questions)
   return (
     <ThemeFrame subject={preview.subject} visual={preview.visual}>
       <div className="space-y-6">
       <ThemeHero subject={preview.subject} visual={preview.visual} title={preview.title} description={preview.description} preview />
       <ReadingCard reading={preview.reading} />
-      {preview.questions.map((question, index) => <QuestionCard key={question.id} question={question} index={index} disabled onAnswer={() => {}} />)}
+      {sharedTopic && <p className="text-sm text-muted-foreground">Тема вопросов: {sharedTopic}</p>}
+      {preview.questions.map((question, index) => <QuestionCard key={question.id} question={question} index={index} disabled showTopic={!sharedTopic} onAnswer={() => {}} />)}
       </div>
     </ThemeFrame>
   )
@@ -627,11 +635,13 @@ function QuizAccess({ token }: { token: string }) {
   if (student) return <QuizRunner key={token} token={token} />
   if (!assignment) return <p>Загружаем тест для просмотра…</p>
   if (assignment.status === 'submitted') return <ThemeFrame subject={assignment.subject} visual={assignment.visual}><ResultView assignment={assignment} token={token} /></ThemeFrame>
+  const sharedTopic = sharedQuestionTopic(assignment.questions)
   return <ThemeFrame subject={assignment.subject} visual={assignment.visual}><div className="space-y-6">
     <ThemeHero subject={assignment.subject} visual={assignment.visual} title={assignment.title} description={assignment.description} preview />
     <ReadingCard reading={assignment.reading} />
     <p className="text-sm text-muted-foreground">Только просмотр: ответы ученика здесь изменить нельзя.</p>
-    {assignment.questions.map((question, index) => <QuestionCard key={question.id} question={question} index={index} disabled onAnswer={() => {}} />)}
+    {sharedTopic && <p className="text-sm text-muted-foreground">Тема вопросов: {sharedTopic}</p>}
+    {assignment.questions.map((question, index) => <QuestionCard key={question.id} question={question} index={index} disabled showTopic={!sharedTopic} onAnswer={() => {}} />)}
   </div></ThemeFrame>
 }
 
