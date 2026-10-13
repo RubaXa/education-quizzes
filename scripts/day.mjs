@@ -17,7 +17,7 @@ import { teacherAttachmentOwnershipErrors } from '../day/assignment-structure.mj
 import { ownerMigrationFields } from '../day/owner-repair.mjs'
 import { publicPageSubjects, publicProblem } from '../day/public-projection.mjs'
 import { isExplicitCdzTask } from '../day/homework-kind.mjs'
-import { cardPolicyModules, mathRouteProfile, mathRouteProfiles, validLearningRoute } from '../day/card-policy.mjs'
+import { cardPolicyModules, mathRouteProfile, mathRouteProfiles, missingMathRoutes, validLearningRoute } from '../day/card-policy.mjs'
 import { assertPublishedPageAligned, assertSourceAligned, sourcePlanFingerprint } from '../day/pipeline-contract.mjs'
 import { assertGradeSnapshotAligned, detectGradeChange } from '../day/grade-reconciliation.mjs'
 import { YandexDiskStorage } from '../storage/yandex-disk.mjs'
@@ -343,9 +343,9 @@ function validate(source, { allowUnchangedLegacyTeacherLinks = false } = {}) {
       }
       if (task.problems != null) {
         if (task.kind !== 'written' || !Array.isArray(task.problems) || !task.problems.length) fail(`У ${task.id} номера допустимы только для письменной работы.`)
-        if ((task.mathRoutePolicyVersion === 1 || task.outputKind === 'worked-solution') && adapter === 'math-solution'
-          && task.problems.some((problem) => problem.parentGuide?.presentation !== 'math-route')) {
-          fail(`У ${task.id} каждый номер требует закрытый математический маршрут перед публикацией.`)
+        const routeGaps = missingMathRoutes(subject.id, task)
+        if (routeGaps.length) {
+          fail(`У ${task.id} каждый номер требует закрытый математический маршрут перед публикацией: ${routeGaps.join(', ')}.`)
         }
         if (task.problems.some((problem) => problem.original?.crop) && task.problems.some((problem) => !problem.original?.crop)) {
           fail(`У ${task.id} фрагменты исходного листа нужны для каждого номера.`)

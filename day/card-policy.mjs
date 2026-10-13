@@ -56,6 +56,15 @@ export function mathRouteProfile(guide) {
   return guide?.routeProfile ?? 'extended'
 }
 
+/** A reviewed numbered math sheet is a set of separate solutions, including legacy sheets.
+ * @see ../docs/product/math-solution-route.md#selection */
+export function missingMathRoutes(subjectId, task) {
+  if (!['math', 'special'].includes(subjectId) || task?.kind !== 'written'
+    || task?.instructionStatus?.state !== 'reviewed' || !Array.isArray(task?.problems)) return []
+  return task.problems.filter((problem) => problem.parentGuide?.kind !== 'worked-solution'
+    || problem.parentGuide?.presentation !== 'math-route').map((problem) => problem.id)
+}
+
 export function cardAdapter(subjectId, task) {
   if (task?.instructionStatus?.state === 'needs-review') return 'raw-mesh'
   if (task?.cardPattern) {

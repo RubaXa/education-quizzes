@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { cardAdapter, languageRoutePatterns, learningRoutePatterns, validLanguageRoute, validLearningRoute } from './card-policy.mjs'
+import { cardAdapter, languageRoutePatterns, learningRoutePatterns, missingMathRoutes, validLanguageRoute, validLearningRoute } from './card-policy.mjs'
 import { publicPageSubjects } from './public-projection.mjs'
 
 describe('stable written-language card contract', () => {
@@ -45,5 +45,17 @@ describe('stable written-language card contract', () => {
       expect(publicSubject.tasks[0].parentGuide).toBeUndefined()
       expect(publicSubject.tasks[0].cardPattern).toBe(name)
     }
+  })
+})
+
+describe('numbered mathematics parent route gate', () => {
+  it('finds a missing guide even when a reviewed legacy sheet has no policy version', () => {
+    const task = { kind: 'written', instructionStatus: { state: 'reviewed' }, problems: [
+      { id: 'p06', parentGuide: { kind: 'worked-solution', presentation: 'math-route', stages: [] } },
+      { id: 'p07' },
+    ] }
+    expect(missingMathRoutes('special', task)).toEqual(['p07'])
+    expect(missingMathRoutes('special', { ...task, instructionStatus: { state: 'needs-review' } })).toEqual([])
+    expect(missingMathRoutes('history', task)).toEqual([])
   })
 })
