@@ -1,18 +1,17 @@
 import { useEffect, useRef, useState } from 'react'
 import { X } from 'lucide-react'
-import { removePendingDayPhoto, requestDayHelp, uploadDayPhoto, uploadMatchesTask, watchDayHelp, watchDayPage } from '@/lib/dayStore'
-import type { DayHelp, DayPageData } from '@/lib/dayStore'
+import { removePendingDayPhoto, requestDayHelp, uploadDayPhoto, uploadMatchesTask, watchDayHelp, watchDayPage, watchDayTaskGuides } from '@/lib/dayStore'
+import type { DayHelp, DayPageData, ParentTaskPrivate } from '@/lib/dayStore'
 import { dayHelpSessionRole } from '@/lib/personalAccess'
-import PublicThumbnail from '@/components/PublicThumbnail'
 import EducationImage from '@/components/EducationImage'
-import ArtifactAvatar from '@/components/ArtifactAvatar'
+import ArtifactAvatar, { WorkArtifactImage } from '@/components/ArtifactAvatar'
 import MaterialReader, { canReadInside } from '@/components/MaterialReader'
 import ProblemGroup from '@/components/ProblemGroup'
 import ProblemTaskCard from '@/components/ProblemTaskCard'
 import { artifactAvatarLabel, artifactAvatarState, localArtifactAvatarState, problemCardState } from '@/lib/reviewPresentation'
 import { useDayEvidence } from '@/lib/useDayEvidence'
 import { useParentCompletions } from '@/lib/useParentCompletions'
-import { canAcceptCorrectAnswer, parentAccepted, recordParentCompletion } from '@/lib/parentCompletion'
+import { canAcceptCorrectAnswer, parentAccepted, recordParentCompletion, recordRequirementChoice } from '@/lib/parentCompletion'
 import { reportUiError } from '@/lib/uiErrors'
 import './WeekendMathSlot.css'
 
@@ -22,11 +21,13 @@ function shortDate(date: string) { return new Intl.DateTimeFormat('ru-RU', { day
 export default function WeekendMathSlot({ token, taskIds, parent, lessonDate, dueDate, title }: { token: string; taskIds: string[]; parent: boolean; lessonDate?: string; dueDate: string; title: string }) {
   const [page, setPage] = useState<DayPageData>()
   const [helpRequests, setHelpRequests] = useState<DayHelp[]>([])
+  const [guideSnapshot, setGuideSnapshot] = useState<{ token: string; guides: Record<string, ParentTaskPrivate> }>({ token: '', guides: {} })
   const [helpRole, setHelpRole] = useState<'checking' | 'student' | 'parent' | 'none'>('checking')
   const [local, setLocal] = useState<LocalPhoto[]>([])
   const previewUrls = useRef(new Set<string>())
   const [error, setError] = useState('')
   const { studentToken, evidenceKey, uploads, reviews, ready: evidenceReady } = useDayEvidence(page, token, setError)
+  const taskPrivate = parent && helpRole === 'parent' && guideSnapshot.token === studentToken ? guideSnapshot.guides : {}
   const parentDecisions = useParentCompletions(evidenceKey, Boolean(page) && helpRole !== 'checking' && helpRole !== 'none')
   const [statusNow, setStatusNow] = useState(() => Date.now())
   useEffect(() => watchDayPage(token, (data) => { setPage(data); setError('') }, (cause) => setError(reportUiError(cause, 'Задание на выходные'))), [token])
@@ -39,6 +40,14 @@ export default function WeekendMathSlot({ token, taskIds, parent, lessonDate, du
     if ((cause as Error & { code?: string }).code === 'permission-denied') { setHelpRole('none'); setHelpRequests([]) }
     else setError(reportUiError(cause, 'Задание на выходные'))
   }) : undefined, [page, evidenceKey, helpRole])
+  useEffect(() => {
+    if (!parent || !page || !studentToken || helpRole !== 'parent') return
+    return watchDayTaskGuides(studentToken, (guides) => setGuideSnapshot({ token: studentToken, guides }), (cause) => {
+      setGuideSnapshot({ token: '', guides: {} })
+      if ((cause as Error & { code?: string }).code === 'permission-denied') setHelpRole('none')
+      setError(reportUiError(cause, 'Ориентиры для проверки'))
+    })
+  }, [parent, page, studentToken, helpRole])
   useEffect(() => {
     const saved = local.filter((item) => uploads.some((upload) => upload.id === `${studentToken}:${item.id}` && (upload.status === 'pending' || upload.status === 'reviewed')))
     if (!saved.length) return
@@ -93,13 +102,13 @@ export default function WeekendMathSlot({ token, taskIds, parent, lessonDate, du
         const review = reviews.find((item) => item.taskId === problem.id)
         const accepted = parentAccepted(review, parentDecisions.events)
         const state = problemCardState(photos, review, previews.some((photo) => photo.state === 'uploading'), statusNow, accepted)
-        return <ProblemTaskCard problem={problem} state={state} key={problem.id} links={taskLinks} parent={parent} help={helpRequests.find((item) => item.taskId === problem.id)} review={review} uploads={photos} accepted={accepted} canDecide={helpRole === 'parent'} onDecision={parent && canAcceptCorrectAnswer(review) && review ? (action) => recordParentCompletion(review, action) : undefined} helpAccess={helpRole === 'checking' ? 'checking' : helpRole === 'student' ? 'ready' : 'login-required'} onRequestHelp={!parent && helpRole === 'student' ? (taskId, revision, kind, text) => requestDayHelp(studentToken, taskId, revision, kind, text) : undefined} onPhotos={(files) => addPhotos(problem.id, files)}>
+        return <ProblemTaskCard problem={problem} state={state} key={problem.id} links={taskLinks} parent={parent} guide={taskPrivate[problem.id]?.guide} sourceResearch={taskPrivate[problem.id]?.sourceResearch} help={helpRequests.find((item) => item.taskId === problem.id)} review={review} uploads={photos} accepted={accepted} canDecide={helpRole === 'parent'} onDecision={parent && canAcceptCorrectAnswer(review) && review ? (action) => recordParentCompletion(review, action) : undefined} decisions={parentDecisions.events} onRequirementChoice={parent && review?.assessmentBasis?.disputedRequirements?.length ? (id, action) => recordRequirementChoice(review, id, action) : undefined} helpAccess={helpRole === 'checking' ? 'checking' : helpRole === 'student' ? 'ready' : 'login-required'} onRequestHelp={!parent && helpRole === 'student' ? (taskId, revision, kind, text) => requestDayHelp(studentToken, taskId, revision, kind, text) : undefined} onPhotos={(files) => addPhotos(problem.id, files)}>
           {(photos.length > 0 || previews.length > 0) && <div className="weekend-math-photos" aria-label={`Фото задачи № ${problem.number}`}>
             {photos.map((photo, index) => {
               const localPhoto = local.find((item) => photo.id === `${studentToken}:${item.id}`)
               const state = artifactAvatarState(photo, review, statusNow)
               return <span className="weekend-math-photo-item" key={photo.id} title={`Фото ${index + 1} · ${artifactAvatarLabel(state)}`}>
-                <ArtifactAvatar state={state}>{photo.dataUrl ? <EducationImage source={photo.dataUrl} alt={`Фото ${index + 1}`} compact /> : photo.storage?.publicUrl ? <PublicThumbnail url={photo.storage.publicUrl} alt={`Фото ${index + 1}`} retryControl /> : localPhoto ? <EducationImage source={localPhoto.url} alt={`Фото ${index + 1}`} compact /> : undefined}</ArtifactAvatar>
+                <ArtifactAvatar state={state}><WorkArtifactImage upload={photo} title={problem.title} index={index} fallbackUrl={localPhoto?.url} compact retryControl /></ArtifactAvatar>
                 {!parent && photo.status !== 'reviewed' && <button type="button" aria-label={`Удалить фото ${index + 1}`} onClick={() => { void removePendingDayPhoto(photo.id.split(':')[0], photo.id.split(':')[1]).catch((cause) => setError(reportUiError(cause, 'Удаление фото'))) }}><X size={11} /></button>}
               </span>
             })}

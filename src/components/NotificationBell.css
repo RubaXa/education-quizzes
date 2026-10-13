@@ -15,14 +15,21 @@
 .notification-item.unread{background:#f3efff}
 .notification-dot{width:7px;height:7px;flex:none;border-radius:50%;background:transparent}
 .notification-item.unread .notification-dot{background:#7857c4}
+.notification-item.school-alert.unread{background:var(--edu-warning-bg)}
+.notification-item.school-alert.unread .notification-dot{background:var(--edu-warning-ink)}
 .notification-copy{display:grid;gap:3px;flex:1;min-width:0}
 .notification-copy strong{font-size:.91rem;line-height:1.25}
 .notification-copy span{font-size:.84rem;color:#70698b}
 .notification-copy small{font-size:.73rem;color:#79718a}
 .notification-empty,.notification-error{margin:0;padding:18px;color:#70698b;font-size:.88rem}
 .notification-error{color:#9b1c42;background:#fff0f3}
+.notification-history-toggle{display:block;width:100%;padding:12px 16px;border:0;border-top:1px solid #ece8f4;background:#fff;color:#594095;text-align:left;font:inherit;font-size:.84rem;font-weight:700;cursor:pointer}
+.notification-history-toggle:hover,.notification-history-toggle:focus-visible{background:#f7f4ff}
 .notification-detail{padding:0 16px 15px 33px;background:#fbf9ff;color:#514563;font-size:.84rem;line-height:1.45}
 .notification-detail p{margin:0 0 9px}
+.notification-thread-event+.notification-thread-event{margin-top:11px;padding-top:11px;border-top:1px solid #e5dfef}
+.notification-thread-event>strong,.notification-thread-event>small{display:block;margin-bottom:3px}
+.notification-thread-event>small{color:#79718a}
 .notification-detail ul{list-style:disc;margin:0 0 10px;padding-left:18px}
 .notification-detail li+li{border:0;margin-top:4px}
 .notification-detail>button{display:inline-flex;align-items:center;gap:3px;padding:7px 10px;border:1px solid #cab8eb;border-radius:9px;background:#fff;color:#594095;font:inherit;font-weight:700;cursor:pointer}

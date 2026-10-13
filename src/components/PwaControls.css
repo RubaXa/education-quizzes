@@ -1,3 +1,4 @@
+/* @see ../../docs/product/pwa.md — app update and install controls use the current Education shell. */
 .pwa-install{display:inline-flex;align-items:center;gap:7px;border:1px solid #d9cdeb;border-radius:999px;background:#fff;color:#4b398b;padding:8px 12px;font:inherit;font-size:.8rem;font-weight:750;cursor:pointer}
 .pwa-install:focus-visible,.pwa-update button:focus-visible,.pwa-help-close:focus-visible{outline:3px solid #a98be9;outline-offset:2px}
 .pwa-help-backdrop{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;background:#231a48a8;padding:max(16px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(16px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}

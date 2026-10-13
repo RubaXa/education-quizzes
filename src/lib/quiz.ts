@@ -35,6 +35,8 @@ export type Assignment = {
   schemaVersion: 1
   testId: string
   linkedToTestId?: string | null
+  /** Public routing metadata only; private assessment plan and learner evidence stay in work/. */
+  assessment?: { policyVersion: 1; mode: 'ordinary' | 'control-diagnostic' | 'control-followup' | 'targeted-followup'; subjectAdapter: string; unansweredPolicy?: 'optional' }
   title: string
   description?: string
   subject: string
@@ -91,6 +93,7 @@ export type QuestionResult = {
   answer?: Answer
   correctAnswer?: Answer
   points: number | null
+  skipped?: boolean
   explanation?: string
   source?: string
   learning?: LearningGuide
@@ -114,6 +117,15 @@ export function grade(
     const answer = assignment.answers[question.id]
     const expected = key.entries[question.id]
     const manual = review?.entries?.[question.id]
+    const answered = typeof answer === 'string' ? Boolean(answer.trim()) : Array.isArray(answer) && answer.length > 0
+
+    if (!answered) {
+      const skipped = assignment.assessment?.unansweredPolicy === 'optional'
+      return { question, answer, points: skipped ? null : 0, skipped,
+        explanation: skipped ? undefined : expected?.explanation,
+        source: skipped ? undefined : expected?.source,
+        learning: skipped ? undefined : expected?.learning }
+    }
 
     if (question.kind === 'long') {
       return {
@@ -163,7 +175,8 @@ export function grade(
 export function summarize(results: QuestionResult[]) {
   return {
     earned: results.reduce((total, result) => total + (result.points ?? 0), 0),
-    possible: results.reduce((total, result) => total + result.question.points, 0),
-    pending: results.filter((result) => result.points === null).length,
+    possible: results.reduce((total, result) => total + (result.skipped ? 0 : result.question.points), 0),
+    pending: results.filter((result) => !result.skipped && result.points === null).length,
+    skipped: results.filter((result) => result.skipped).length,
   }
 }

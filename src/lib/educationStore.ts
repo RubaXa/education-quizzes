@@ -1,9 +1,10 @@
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
-import { collection, doc, limit, onSnapshot, orderBy, query, runTransaction, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore'
+import { collection, doc, limit, onSnapshot, orderBy, query, runTransaction, serverTimestamp, setDoc, updateDoc, writeBatch } from 'firebase/firestore'
 import { db } from './firebase'
 import { currentEducationPersonId, restorePersonalSession } from './personalAccess'
 import { parseScreenManifest } from './educationSchema'
 import { reportUiError } from './uiErrors'
+import { markCachedInboxRead, writeCachedInbox } from './inboxCache'
 import type { ActivityType, EducationDay, EducationTask, InboxNotification, ScreenManifest, ScreenView, ViewReceipt } from './educationSchema'
 
 function segment(value: string): string {
@@ -110,13 +111,33 @@ export async function markSectionSeen(viewKey: string, sourceRevision: number) {
 export async function markNotificationRead(notificationId: string) {
   const personId = currentEducationPersonId()
   await updateDoc(doc(db, 'users', personId, 'inbox', segment(notificationId)), { readAt: serverTimestamp() })
+  markCachedInboxRead(personId, [notificationId])
+}
+
+/** One commit acknowledges every event represented by a visible thread. */
+export async function markNotificationsRead(notificationIds: string[]) {
+  const ids = [...new Set(notificationIds.map(segment))]
+  if (!ids.length) return
+  const personId = currentEducationPersonId()
+  for (let start = 0; start < ids.length; start += 400) {
+    const batch = writeBatch(db)
+    for (const id of ids.slice(start, start + 400)) batch.update(doc(db, 'users', personId, 'inbox', id), { readAt: serverTimestamp() })
+    await batch.commit()
+  }
+  markCachedInboxRead(personId, ids)
 }
 
 /** @see ../../docs/architecture/activity-and-inbox.md#read-state */
-export function watchInbox(onChange: (notifications: Array<InboxNotification & { id: string }>) => void, onError: (error: Error) => void) {
+export function watchInbox(onChange: (notifications: Array<InboxNotification & { id: string }>) => void, onError: (error: Error) => void,
+  options: { serverConfirmedOnly?: boolean } = {}) {
   const personId = currentEducationPersonId()
   const reference = query(collection(db, 'users', personId, 'inbox'), orderBy('createdAt', 'desc'), limit(100))
-  return onSnapshot(reference, (snapshot) => onChange(snapshot.docs.map((entry) => ({ id: entry.id, ...entry.data() } as InboxNotification & { id: string }))), onError)
+  // A cache-only first snapshot can differ from the server solely in metadata.
+  // Request that transition explicitly, or a confirmed-only consumer may stay empty.
+  return onSnapshot(reference, { includeMetadataChanges: options.serverConfirmedOnly === true }, (snapshot) => {
+    if (options.serverConfirmedOnly && snapshot.metadata.fromCache) return
+    onChange(writeCachedInbox(personId, snapshot.docs.map((entry) => ({ id: entry.id, ...entry.data() } as InboxNotification & { id: string }))))
+  }, onError)
 }
 
 /** @see ../../docs/architecture/activity-and-inbox.md#read-state */

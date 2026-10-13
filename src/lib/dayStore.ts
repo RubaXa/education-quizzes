@@ -1,20 +1,59 @@
 import { collection, doc, getDoc, getDocFromServer, onSnapshot, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore'
 import { getAuth } from 'firebase/auth'
 import { db } from './firebase'
+import { isExplicitCdzTask } from '../../day/homework-kind.mjs'
 import { removePhotoFromOutbox, resumePhotoTransfer, savePhotoForTransfer } from './photoOutbox'
+import { normalizeDayPage } from './dayCompatibility'
 
 export type DayInstruction = string | { text: string; source: { kind: 'mesh' | 'textbook' | 'review' | 'teacher-file'; label: string; evidence: string; excerpt?: string; ref?: string; certainty: 'confirmed' | 'uncertain' } }
 export type DaySubmission = { buttonLabel: string; lead?: string; items?: DayInstruction[]; photo?: string; description?: string }
 export type DaySourceCrop = { x: number; y: number; width: number; height: number; sourceWidth: number; sourceHeight: number; sourceSha256: string }
+export type DaySourceResearch = { status: 'candidate' | 'verified' | 'not-found' | 'conflict'; title: string; url?: string; match: string; keyStatus: 'not-checked' | 'candidate' | 'verified' | 'unavailable'; note?: string }
 /** @see ../../docs/product/adaptive-problem-card.md#слои */
 export type DayProblem = {
   id: string; number: number; title: string; detail: string; source: string;
   original?: { text: string; attachmentRef: string; crop?: DaySourceCrop };
   support?: { skill: string; state: 'unknown' | 'provisional' | 'practicing' | 'demonstrated'; evidence: string; evidenceRefs: string[]; facts: { label: string; value: string }[]; find: string; firstQuestion: string; revision: number };
-  /** Parent document only. Never include answer keys or solution steps in a day page. */
-  sourceResearch?: { status: 'candidate' | 'verified' | 'not-found' | 'conflict'; title: string; url?: string; match: string; keyStatus: 'not-checked' | 'candidate' | 'verified' | 'unavailable'; note?: string };
+  /** Operator source only; publish in role-protected dayTaskGuides, never in either dayPage. */
+  sourceResearch?: DaySourceResearch;
+  parentGuide?: ParentTaskGuide;
 }
-export type DayTask = { id: string; title: string; detail: string; meshText?: string; steps?: DayInstruction[]; problems?: DayProblem[]; status: 'verified' | 'needs-fix' | 'partial' | 'unknown'; kind: 'written' | 'read' | 'check'; source: string; submission?: DaySubmission | null; instructionStatus?: { state: 'needs-review' | 'reviewed'; message: string }; testToken?: string; testSlug?: string; requiredPoints?: number; originDate?: string; lessonDate?: string; dueDate?: string; dueDateEvidence?: { kind: 'mesh'; excerpt: string }; platformResult?: { state: 'completed'; points: number; maxPoints: number; durationMinutes?: number; observedDate?: string; source: string }; materialStatus?: { state: 'textbook-page-needed' | 'textbook-page-linked' | 'text-absent-from-textbook' | 'no-textbook'; message: string } }
+/** One data contract powers 2–4 stage mathematics and language routes.
+ * Math answers belong only to the final stage; dayPages must never contain this type.
+ * @see ../../docs/product/card-generation-policy.md#math-adapter */
+export type ParentTaskGuide = {
+  kind: 'structured-notes' | 'worked-solution' | 'text-structure';
+  presentation?: 'math-route' | 'learning-route'; pattern?: 'spelling' | 'syntax' | 'text-plan' | 'composition' | 'short-interpretation' | 'evidence-response' | 'concept-function' | 'vocabulary-list' | 'written-exercise' | 'source-analysis' | 'map-analysis' | 'source-evidence'; routeProfile?: 'compact' | 'standard' | 'extended'; depthReason?: string;
+  revision?: number; overview: string; boundary?: string;
+  stages: {
+    id: string; title: string; expected: string; why?: string; reviewLabels?: string[];
+    role?: 'given' | 'relations' | 'calculation' | 'solution' | 'answer';
+    rows?: { label?: string; value: string; explanation?: string }[];
+    hintPreview?: string; revealPreview?: string;
+    answer?: string; verification?: { label?: string; value: string }[];
+    source: { kind: 'mesh' | 'textbook' | 'teacher-file'; label: string; ref: string; excerpt: string };
+  }[];
+}
+export type ParentTaskPrivate = { guide?: ParentTaskGuide; sourceResearch?: DaySourceResearch }
+export type PlatformResult = { state: 'completed'; points?: number; maxPoints?: number; durationMinutes?: number; observedDate?: string; source: string; evidenceKind?: 'screenshot' | 'mesh' }
+export type DayTask = { id: string; title: string; detail: string; meshText?: string; steps?: DayInstruction[]; problems?: DayProblem[]; mathRoutePolicyVersion?: 1; cardPattern?: ParentTaskGuide['pattern']; cardPolicyVersion?: 1; outputKind?: 'worked-solution' | 'structured-notes' | 'text-structure' | 'evidence-only' | 'reading' | 'platform-result'; assessmentIntent?: { state: 'confirmed' | 'needs-topic' | 'needs-review'; mode?: 'ordinary' | 'control-diagnostic' | 'control-followup' | 'targeted-followup'; topic?: string; evidenceRef?: string }; status: 'verified' | 'needs-fix' | 'partial' | 'unknown'; kind: 'written' | 'read' | 'check'; referenceDate?: string; source: string; submission?: DaySubmission | null; instructionStatus?: { state: 'needs-review' | 'reviewed'; message: string }; testToken?: string; testSlug?: string; requiredPoints?: number; originDate?: string; lessonDate?: string; dueDate?: string; dueDateEvidence?: { kind: 'mesh'; excerpt: string }; platformResult?: PlatformResult; materialStatus?: { state: 'textbook-page-needed' | 'textbook-page-linked' | 'text-absent-from-textbook' | 'no-textbook'; message: string } }
+/** @see ../../docs/product/day-page.md#cdz-proof */
+export function cdzResultLabel(result?: PlatformResult) {
+  if (result?.state !== 'completed') return 'Ожидается подтверждение ЦДЗ'
+  const score = Number.isFinite(result.points) && Number.isFinite(result.maxPoints) ? ` · ${result.points}/${result.maxPoints} баллов` : ''
+  const duration = Number.isFinite(result.durationMinutes) ? ` · ${result.durationMinutes} мин` : ''
+  return `ЦДЗ выполнено${score}${duration}`
+}
+export function cdzEvidenceLabel(result?: PlatformResult) {
+  if (!result) return ''
+  if (result.evidenceKind === 'screenshot' || /скриншот|фото/i.test(result.source)) return 'Подтверждено скриншотом результата'
+  if (result.evidenceKind === 'mesh') return 'Подтверждено данными МЭШ'
+  return `Подтверждено: ${result.source}`
+}
+/** @see ../../docs/product/plan-generation.md#raw-mesh-stage */
+export function isCdzTask(task: Pick<DayTask, 'id' | 'kind' | 'meshText' | 'title'>) {
+  return isExplicitCdzTask(task)
+}
 export type DayMaterialLink = { title: string; url: string; sourceType: 'textbook-page' | 'teacher-attachment' | 'external-text'; reason?: string; sourceRef?: string; pdfPage?: number; printedPage?: number; editionStatus?: string; extraction?: string; sourceSha256?: string; sourceQuote?: string }
 export type DaySubject = { id: string; name: string; icon: string; materials: string; mesh: string; summary: string; tasks: DayTask[] }
 export type DayTestPlacement = { token: string; subjectId: string; taskId?: string; originDate?: string }
@@ -48,6 +87,8 @@ export type DayHelp = { id: string; taskId: string; revision: number; requestedA
 export type DayWorkReview = {
   id: string; taskId: string; status?: 'verified' | 'needs-fix' | 'partial' | 'cannot-assess';
   summary?: string; nextStep?: string; source?: string; checkedAt?: unknown; uploadIds?: string[];
+  /** Complete set of reviewable route stages; absent on legacy reviews, which cannot be auto-completed by a family switch. */
+  checkableStageIds?: string[];
   /** @see ../../docs/product/review-criteria-provenance.md */
   assessmentBasis?: {
     grade?: number; schoolYear?: string; requirement?: string; observed?: string; comparison?: string;
@@ -63,7 +104,7 @@ export type DayWorkReview = {
   mathReasoning?: { answer: 'correct' | 'incorrect' | 'uncertain'; argument: 'sufficient' | 'incomplete' | 'not-shown' | 'unreadable' | 'not-required'; observed?: string; minimumNeeded?: string; criterionSource?: string };
   /** Whether every assigned action is visibly present; independent of the teacher's quality criterion. @see ../../docs/product/review-criteria-provenance.md#work-coverage */
   workCoverage?: { state: 'complete' | 'incomplete' | 'unknown'; note: string; sourceRef: string; reviewCheckedAt: unknown; recordedAt: unknown };
-  items?: { label: string; status: 'correct' | 'incorrect' | 'partial' | 'cannot-assess'; observed?: string; expected?: string; note?: string }[];
+  items?: { label: string; stageId?: string; status: 'correct' | 'incorrect' | 'partial' | 'cannot-assess'; observed?: string; expected?: string; note?: string }[];
   processing?: { phase: 'download' | 'source' | 'review' | 'publish' | 'paused'; label: string; reason?: string; uploadIds: string[]; startedAt: unknown; updatedAt: unknown };
   history?: Pick<DayWorkReview, 'status' | 'summary' | 'nextStep' | 'checkedAt' | 'items' | 'uploadIds' | 'mathReasoning' | 'studentFeedback' | 'assessmentBasis'>[];
 }
@@ -71,14 +112,14 @@ export type DayWorkReview = {
 export async function loadDayPage(token: string): Promise<DayPageData> {
   const snapshot = await getDoc(doc(db, 'dayPages', token))
   if (!snapshot.exists()) throw new Error('Страница дня не найдена.')
-  if (snapshot.data().schemaVersion !== 1) throw new Error('Данные дня обновились. Обновите приложение до новой версии.')
-  return snapshot.data() as DayPageData
+  return normalizeDayPage(snapshot.data())
 }
-export function watchDayPage(token: string, onChange: (page: DayPageData) => void, onError: (error: Error) => void) {
-  return onSnapshot(doc(db, 'dayPages', token), (snapshot) => {
+export function watchDayPage(token: string, onChange: (page: DayPageData) => void, onError: (error: Error) => void,
+  options: { serverConfirmedOnly?: boolean } = {}) {
+  return onSnapshot(doc(db, 'dayPages', token), { includeMetadataChanges: options.serverConfirmedOnly === true }, (snapshot) => {
+    if (options.serverConfirmedOnly && snapshot.metadata?.fromCache) return
     if (!snapshot.exists()) { onError(new Error('Страница дня не найдена.')); return }
-    if (snapshot.data().schemaVersion !== 1) { onError(new Error('Данные дня обновились. Обновите приложение до новой версии.')); return }
-    onChange(snapshot.data() as DayPageData)
+    try { onChange(normalizeDayPage(snapshot.data())) } catch (error) { onError(error as Error) }
   }, onError)
 }
 /** @see ../../docs/product/plan-generation.md#cross-day-results */
@@ -93,7 +134,7 @@ export function watchEvidenceDayPages(tokens: string[], onChange: (pages: DayPag
 }
 /** A completed platform result belongs to an assignment, even when it was published on an earlier day page. */
 export function withVerifiedPlatformResult(task: DayTask, targetDate: string, pages: DayPageData[]): DayTask {
-  if (task.kind !== 'check' || !task.id.endsWith('-cdz') || task.platformResult?.state === 'completed') return task
+  if (!isCdzTask(task) || task.platformResult?.state === 'completed') return task
   const candidates = pages.filter((page) => page.targetDate === targetDate)
     .flatMap((page) => page.subjects.flatMap((subject) => subject.tasks))
     .filter((prior) => prior.id === task.id && prior.meshText === task.meshText && prior.platformResult?.state === 'completed')
@@ -160,6 +201,16 @@ export function watchDayReviews(tokens: string[], onChange: (data: DayWorkReview
     emit()
   }, onError)))
   return () => stops.forEach((stop) => stop())
+}
+/** Parent-only prepared path; never fetch this collection on a student route.
+ * @see ../../docs/product/subject-aware-guidance.md#parent-card */
+export function watchDayTaskGuides(studentToken: string, onChange: (guides: Record<string, ParentTaskPrivate>) => void, onError: (error: Error) => void) {
+  return onSnapshot(collection(db, 'dayTaskGuides', studentToken, 'items'), (snapshot) => {
+    onChange(Object.fromEntries(snapshot.docs.map((entry) => [entry.id, {
+      guide: entry.data().guide as ParentTaskGuide | undefined,
+      sourceResearch: entry.data().sourceResearch as DaySourceResearch | undefined,
+    }])))
+  }, onError)
 }
 /** @see ../../docs/product/adaptive-problem-card.md#показ-ученику */
 export function watchDayHelp(tokens: string[], onChange: (data: DayHelp[]) => void, onError: (error: Error) => void) {

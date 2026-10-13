@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
+import { getAuth } from 'firebase/auth'
 import { doc, onSnapshot } from 'firebase/firestore'
 import { Check, ClipboardPaste, Copy, KeyRound } from 'lucide-react'
 import { Button } from './ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card'
 import { Input } from './ui/input'
-import { clearPersonalSession, loadPersonalProfile, personalEntryUrl, redeemPersonalLink, restorePersonalSession, secretFromPastedPersonalLink } from '../lib/personalAccess'
+import { clearPersonalSession, loadPersonalProfile, personalEntryUrl, readCachedPersonalContext, redeemPersonalLink, rememberPersonalContext, restorePersonalContext, secretFromPastedPersonalLink } from '../lib/personalAccess'
 import type { PersonalProfile, PersonalSession } from '../lib/personalAccess'
 import { db } from '../lib/firebase'
 import DayDashboard from '../DayDashboard'
@@ -25,17 +26,31 @@ function accessError(cause: unknown): string {
   return cause instanceof Error && !('code' in cause) ? cause.message : detail
 }
 
+function transientAccessError(cause: unknown): boolean {
+  return Boolean(cause && typeof cause === 'object' && 'code' in cause
+    && ['auth/network-request-failed', 'unavailable', 'deadline-exceeded'].includes(String(cause.code)))
+}
+
 /** @see ../../docs/architecture/family-data-model.md#link-login
  *  @see ../../docs/architecture/family-data-model.md#parent-home
  *  @see ../../docs/product/design-system.md#shell */
 export function PersonalEntry({ initialLink }: { initialLink?: string }) {
+  const [initialContext] = useState(() => {
+    if (initialLink) return null
+    const cached = readCachedPersonalContext()
+    const knownUid = getAuth().currentUser?.uid
+    return cached && (!knownUid || knownUid === cached.session.deviceUid) ? cached : null
+  })
   const [link, setLink] = useState('')
-  const [profile, setProfile] = useState<PersonalProfile | null>(null)
-  const [session, setSession] = useState<PersonalSession | null>(null)
-  const [busy, setBusy] = useState(true)
+  const [profile, setProfile] = useState<PersonalProfile | null>(initialContext?.profile ?? null)
+  const [session, setSession] = useState<PersonalSession | null>(initialContext?.session ?? null)
+  const [busy, setBusy] = useState(!initialContext)
   const [error, setError] = useState('')
   const [online, setOnline] = useState(navigator.onLine)
   const [retry, setRetry] = useState(0)
+  const [retryable, setRetryable] = useState(false)
+  const automaticRetries = useRef(0)
+  const pendingLink = useRef<string | null>(null)
   const [copied, setCopied] = useState(false)
   const [selectedChild, setSelectedChild] = useState<string | null>(null)
   const [manualEntry, setManualEntry] = useState(false)
@@ -54,27 +69,60 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
 
   useEffect(() => {
     let alive = true
+    let retryTimer: number | undefined
     const open = async () => {
       setBusy(true)
       setError('')
+      setRetryable(false)
       try {
         // The bearer secret is removed from browser history as soon as we have captured it.
         if (initialLink) history.replaceState(null, '', `${location.pathname}${location.search}#/`)
-        const restored = initialLink ? await redeemPersonalLink(initialLink) : await restorePersonalSession()
+        const restored = initialLink ? await redeemPersonalLink(initialLink) : null
+        const context = initialLink ? restored ? { session: restored, profile: await loadPersonalProfile(restored) } : null : await restorePersonalContext()
         if (!alive) return
-        if (restored) {
-          const nextProfile = await loadPersonalProfile(restored)
-          if (alive) { setSession(restored); setProfile(nextProfile) }
+        if (context) {
+          if (initialLink) rememberPersonalContext(context)
+          setSession((previous) => previous?.linkToken === context.session.linkToken && previous.deviceUid === context.session.deviceUid ? previous : context.session)
+          setProfile((previous) => JSON.stringify(previous) === JSON.stringify(context.profile) ? previous : context.profile)
+          automaticRetries.current = 0
+        } else if (initialContext) {
+          clearPersonalSession()
+          setSession(null)
+          setProfile(null)
         }
       } catch (cause) {
-        if (alive) setError(accessError(cause))
+        if (alive) {
+          setError(accessError(cause))
+          const transient = transientAccessError(cause)
+          setRetryable(transient)
+          // navigator.onLine can remain true during a brief Firebase outage.
+          // Retry only a few times; do not turn a failed login into a read loop.
+          if (transient && automaticRetries.current < 3) {
+            const delay = [2_000, 5_000, 15_000][automaticRetries.current++]
+            retryTimer = window.setTimeout(() => { if (alive) setRetry((value) => value + 1) }, delay)
+          }
+        }
       } finally {
         if (alive) setBusy(false)
       }
     }
     void open()
-    return () => { alive = false }
-  }, [initialLink, retry])
+    return () => { alive = false; if (retryTimer) window.clearTimeout(retryTimer) }
+  }, [initialLink, retry, initialContext])
+
+  useEffect(() => {
+    if (!initialContext) return
+    let active = true
+    void getAuth().authStateReady().then(() => {
+      if (!active) return
+      if (getAuth().currentUser?.uid !== initialContext.session.deviceUid) {
+        clearPersonalSession()
+        setSession(null)
+        setProfile(null)
+      }
+    })
+    return () => { active = false }
+  }, [initialContext])
 
   useEffect(() => {
     if (!session) return
@@ -82,27 +130,100 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
       clearPersonalSession()
       setSession(null)
       setProfile(null)
+      setRetryable(false)
       setError('Личная ссылка отозвана. Откройте новую ссылку, чтобы снова войти. Ваши работы сохранены.')
     }
-    return onSnapshot(doc(db, 'accessLinks', session.linkToken), (grant) => {
-      if (!grant.exists() || grant.data()?.active !== true) revoked()
+    const stopGrant = onSnapshot(doc(db, 'accessLinks', session.linkToken), (grant) => {
+      if (grant.metadata.fromCache) return
+      if (!grant.exists() || grant.data()?.active !== true || grant.data()?.personId !== session.personId) revoked()
     }, (cause) => {
       if (cause.code === 'permission-denied') revoked()
       else setError(accessError(cause))
     })
+    const stopDevice = onSnapshot(doc(db, 'deviceSessions', session.deviceUid), (device) => {
+      if (!device.metadata.fromCache && (!device.exists() || device.data()?.linkToken !== session.linkToken)) revoked()
+    }, (cause) => { if (cause.code === 'permission-denied') revoked() })
+    return () => { stopGrant(); stopDevice() }
+  }, [session])
+
+  useEffect(() => {
+    if (!session || !profile) return
+    let active = true
+    let refreshing = false
+    const familyIds = [...new Set(profile.children.map((child) => child.familyId))]
+    const stops = familyIds.map((familyId) => onSnapshot(doc(db, 'families', familyId, 'members', session.personId), (member) => {
+      if (member.metadata.fromCache || !active) return
+      const previous = profile.children.filter((child) => child.familyId === familyId)
+      const ids = Array.isArray(member.data()?.childIds) ? member.data()!.childIds.filter((id: unknown): id is string => typeof id === 'string').sort() : []
+      const changed = !member.exists() || member.data()?.active !== true ||
+        member.data()?.role !== previous[0]?.role ||
+        JSON.stringify(ids) !== JSON.stringify(previous.map((child) => child.childId).sort())
+      if (!changed || refreshing) return
+      refreshing = true
+      // Remove revoked family content before fetching the replacement profile.
+      if (!member.exists() || member.data()?.active !== true) {
+        setProfile((current) => current ? { ...current, children: current.children.filter((child) => child.familyId !== familyId) } : current)
+      }
+      void loadPersonalProfile(session).then((updated) => {
+        if (!active) return
+        rememberPersonalContext({ session, profile: updated })
+        setProfile(updated)
+      }).catch((cause) => { if (active) setError(accessError(cause)) })
+        .finally(() => { refreshing = false })
+    }, (cause) => {
+      if (cause.code === 'permission-denied' && active) {
+        setProfile((current) => current ? { ...current, children: current.children.filter((child) => child.familyId !== familyId) } : current)
+      }
+    }))
+    return () => { active = false; stops.forEach((stop) => stop()) }
+  }, [session, profile])
+
+  useEffect(() => {
+    if (!session) return
+    let active = true
+    let refreshing = false
+    const refreshIfDue = () => {
+      const cached = readCachedPersonalContext()
+      if (!active || refreshing || !cached || Date.now() - cached.savedAt < 30 * 60_000) return
+      refreshing = true
+      void loadPersonalProfile(session).then((updated) => {
+        if (!active) return
+        rememberPersonalContext({ session, profile: updated })
+        setProfile((previous) => JSON.stringify(previous) === JSON.stringify(updated) ? previous : updated)
+      }).catch((cause) => { if (active) setError(accessError(cause)) })
+        .finally(() => { refreshing = false })
+    }
+    const timer = window.setInterval(refreshIfDue, 5 * 60_000)
+    window.addEventListener('focus', refreshIfDue)
+    return () => { active = false; window.clearInterval(timer); window.removeEventListener('focus', refreshIfDue) }
   }, [session])
 
   const openLink = async (value: string) => {
+    pendingLink.current = value
     setBusy(true)
     setError('')
+    setRetryable(false)
     try {
       const redeemed = await redeemPersonalLink(secretFromPastedPersonalLink(value))
-      setProfile(await loadPersonalProfile(redeemed))
+      const loaded = await loadPersonalProfile(redeemed)
+      rememberPersonalContext({ session: redeemed, profile: loaded })
+      setProfile(loaded)
       setSession(redeemed)
+      pendingLink.current = null
+      automaticRetries.current = 0
       setLink('')
     } catch (cause) {
       setError(accessError(cause))
+      const transient = transientAccessError(cause)
+      setRetryable(transient)
+      if (!transient) pendingLink.current = null
     } finally { setBusy(false) }
+  }
+
+  const retryConnection = () => {
+    automaticRetries.current = 0
+    if (pendingLink.current) void openLink(pendingLink.current)
+    else setRetry((value) => value + 1)
   }
 
   const submit = (event: React.FormEvent) => {
@@ -172,8 +293,11 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
         <Button type="button" variant="outline" onClick={() => void copyPersonalLink()}>{copied ? <Check /> : <Copy />}{copied ? 'Ссылка скопирована' : 'Скопировать личную ссылку'}</Button>
       </details>
       {error && <p role="alert" className="personal-login-error">{error}</p>}
+      {retryable && <Button type="button" variant="outline" disabled={busy} onClick={retryConnection}>Повторить подключение</Button>}
     </div>
   }
+
+  if (busy && !error) return <div className="personal-entry-loading" role="status">Проверяем личный доступ и загружаем кабинет…</div>
 
   return <Card className="personal-login mx-auto max-w-2xl">
     <CardHeader>
@@ -191,6 +315,7 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
       {busy && !link && <p className="text-muted-foreground">Проверяем доступ…</p>}
       {!online && <p role="status" className="personal-offline">Нет сети. Приложение открылось, но личный план загрузится после подключения.</p>}
       {error && <p role="alert" className="personal-login-error">{error}</p>}
+      {retryable && <Button type="button" variant="outline" disabled={busy} onClick={retryConnection}>Повторить подключение</Button>}
     </CardContent>
   </Card>
 }

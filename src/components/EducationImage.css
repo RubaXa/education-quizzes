@@ -3,7 +3,7 @@
 .education-image[data-state=loading],.education-image[data-state=error]{min-height:110px}
 .education-image>img{display:block;width:100%;height:auto;object-fit:var(--edu-image-fit);margin:0}
 .education-image[style*="height:"]>img,.education-image[style*="aspect-ratio:"]:not(.education-image-crop)>img{height:100%}
-.education-image[data-state=loading]>img{visibility:hidden}
+.education-image[data-state=loading]>img{opacity:0}
 .education-image-status{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:7px;padding:12px;text-align:center;font-size:.78rem;line-height:1.3}
 .education-image-status>svg{flex:none;color:var(--edu-brand);animation:education-image-spin 1s linear infinite}
 .education-image-error>svg{color:var(--edu-danger-ink);animation:none}

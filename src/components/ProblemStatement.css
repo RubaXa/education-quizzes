@@ -1,6 +1,13 @@
 /* @see ../../docs/product/adaptive-problem-card.md#слои */
 .problem-statement{min-width:0;margin-top:12px;border:1px solid #ded5eb;border-radius:15px;overflow:hidden;background:#fff;color:#34295c}
 .problem-statement-original{padding:15px}
+/* Only the parent's selected stage enters the student projection.
+ * @see ../../docs/product/subject-aware-guidance.md#math-route */
+.problem-statement-guidance{padding:14px 15px;border-top:1px solid var(--edu-card-border);background:var(--edu-waiting-bg);color:var(--edu-ink)}
+.problem-statement-guidance>strong{display:block;margin-bottom:9px;font-size:.86rem}
+.problem-statement-guidance>div{margin-top:7px;padding:9px 10px;border-radius:9px;background:var(--edu-surface)}
+.problem-statement-guidance small{color:var(--edu-waiting-ink);font-size:.73rem;font-weight:800}
+.problem-statement-guidance p{margin:5px 0 0;font-size:.89rem;line-height:1.5}
 .problem-statement-label{display:flex;align-items:center;gap:7px;min-width:0;color:#503b86;font-size:.87rem;line-height:1.25}
 .problem-statement-label strong{font-weight:800}
 .problem-statement-label span{margin-left:auto;padding:5px 8px;border-radius:999px;background:#eee9f8;color:#5c4690;font-size:.69rem;font-weight:800;white-space:nowrap}
@@ -35,7 +42,13 @@
 .problem-statement-help-note textarea{display:block;box-sizing:border-box;width:100%;min-height:70px;margin-top:7px;padding:9px 10px;border:1px solid #bda8da;border-radius:9px;font:inherit;font-size:1rem;resize:vertical}
 .problem-statement-help-result{margin-top:13px;padding:12px;border-left:3px solid #8668b8;border-radius:9px;background:#fff}
 .problem-statement-help-result strong{font-size:.83rem}.problem-statement-help-result p{margin:7px 0!important;font-size:.93rem;font-weight:700}.problem-statement-help-result small{color:#6b6080;font-size:.72rem}
-.problem-statement-parent-detail{margin-top:13px;font-size:.82rem}.problem-statement-parent-detail summary{font-weight:750;cursor:pointer}.problem-statement-parent-detail p{margin:8px 0!important}
-.problem-statement-parent-source{padding:14px 15px;border-top:1px solid #e4daef;background:#fff;font-size:.82rem;line-height:1.45}
-.problem-statement-parent-source strong{display:block;color:#503b86}.problem-statement-parent-source p{margin:8px 0!important}.problem-statement-parent-source small{display:block;margin-top:7px;color:#71657e}.problem-statement-parent-source a{color:#50388c;font-weight:700}
+/* @see ../../docs/product/design-system.md#cards-and-status
+ * @see ../../docs/product/adaptive-problem-card.md#происхождение-задачи */
+.problem-statement-parent-source{padding:10px 15px;border-top:1px solid var(--edu-card-border);background:var(--edu-surface);font-size:.82rem;line-height:1.45}
+.problem-statement-parent-source summary{display:flex;align-items:center;gap:7px;min-height:var(--edu-touch-target);cursor:pointer;color:var(--edu-ink);font-weight:750;list-style:none}
+.problem-statement-parent-source summary::-webkit-details-marker{display:none}
+.problem-statement-parent-source summary:focus-visible{outline:3px solid var(--edu-focus);outline-offset:2px}
+.problem-statement-parent-source summary svg{flex:none;color:var(--edu-muted)}
+.problem-statement-parent-source[open]>div{padding-bottom:5px}
+.problem-statement-parent-source p{margin:8px 0!important}.problem-statement-parent-source small{display:block;margin-top:7px;color:var(--edu-muted)}.problem-statement-parent-source a{color:var(--edu-brand);font-weight:700}
 @media(max-width:480px){.problem-statement-original,.problem-statement-education{padding:12px}.problem-statement-text{font-size:.94rem}}

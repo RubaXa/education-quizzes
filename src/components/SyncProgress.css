@@ -1,0 +1,10 @@
+/* @see ../../docs/product/design-system.md#cards-and-status
+ * @see ../../docs/product/global-sync.md#status */
+.edu-sync-progress { display: flex; align-items: center; flex-wrap: wrap; gap: .45rem; padding: .6rem .8rem; color: var(--edu-waiting-ink); background: var(--edu-waiting-bg); border: 1px solid var(--edu-card-border); border-radius: var(--edu-radius-control); font-size: .9rem; line-height: 1.35; }
+.edu-sync-progress-dot { width: .55rem; height: .55rem; flex: 0 0 auto; border-radius: 50%; background: currentColor; }
+.edu-sync-progress progress { width: 5rem; height: .45rem; accent-color: var(--edu-brand); }
+.edu-sync-progress-complete { color: var(--edu-success-ink); background: var(--edu-success-bg); }
+.edu-sync-progress-blocked { color: var(--edu-warning-ink); background: var(--edu-warning-bg); border-color: var(--edu-warning-border); }
+.edu-sync-progress button { color: inherit; background: transparent; border: 0; padding: 0; font: inherit; font-weight: 700; text-decoration: underline; cursor: pointer; }
+.edu-sync-queue summary { cursor: pointer; font-weight: 700; }
+.edu-sync-queue ul { margin: .35rem 0 0; padding-left: 1.25rem; font-weight: 400; }

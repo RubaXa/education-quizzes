@@ -1,6 +1,10 @@
 import { getAuth, signInAnonymously } from 'firebase/auth'
 import { collection, doc, getDoc, getDocs, serverTimestamp, setDoc } from 'firebase/firestore'
 import { db } from './firebase'
+import { createRequestSingleFlight } from './requestSingleFlight'
+import { clearCachedLessonStatuses } from './dayDashboardLessonCache'
+import { clearCachedDashboardView } from './dayDashboardViewCache'
+import { clearCachedInbox } from './inboxCache'
 
 /** @see ../../docs/architecture/family-data-model.md#link-login */
 export type PersonalSession = { personId: string; deviceUid: string; linkToken: string }
@@ -19,8 +23,87 @@ export type PersonalProfile = {
 }
 
 let activeSession: PersonalSession | null = null
+let sessionRevision = 0
 let pendingRedemption: { linkToken: string; promise: Promise<PersonalSession> } | null = null
+const startupContext = createRequestSingleFlight<string, { session: PersonalSession; profile: PersonalProfile } | null>(3_000)
 const secretPattern = /^[A-Za-z0-9_-]{43}$/
+const localContextKey = 'education-personal-context-v1'
+const lastDashboardRouteKey = 'education-last-dashboard-route-v1'
+const localContextMaxAgeMs = 30 * 60_000
+type PersonalContext = { session: PersonalSession; profile: PersonalProfile }
+type CachedPersonalContext = PersonalContext & { savedAt: number }
+
+/** A device-scoped last known view. Firestore rules remain the authority for every remote read/write.
+ * @see ../../docs/architecture/local-first-release-plan-2026-10-12.md#personal-startup
+ */
+export function readCachedPersonalContext(): CachedPersonalContext | null {
+  try {
+    const value: unknown = JSON.parse(localStorage.getItem(localContextKey) ?? 'null')
+    if (!value || typeof value !== 'object') return null
+    const cached = value as Partial<CachedPersonalContext>
+    const session = cached.session
+    const profile = cached.profile
+    if (!session || !profile || !secretPattern.test(session.linkToken) ||
+      typeof session.deviceUid !== 'string' || !session.deviceUid ||
+      typeof session.personId !== 'string' || profile.personId !== session.personId ||
+      typeof profile.displayName !== 'string' || !Array.isArray(profile.children) ||
+      !profile.children.every((child) => typeof child.familyId === 'string' && typeof child.childId === 'string' &&
+        typeof child.displayName === 'string' && (child.role === 'parent' || child.role === 'student')) ||
+      !Number.isFinite(cached.savedAt) || cached.savedAt! > Date.now() + 60_000) return null
+    return cached as CachedPersonalContext
+  } catch { return null }
+}
+
+export function rememberPersonalContext(context: PersonalContext): void {
+  activeSession = context.session
+  try { localStorage.setItem(localContextKey, JSON.stringify({ ...context, savedAt: Date.now() })) }
+  catch { /* The current session still works without durable storage. */ }
+}
+
+function forgetCachedPersonalContext(): void {
+  try { localStorage.removeItem(localContextKey) } catch { /* Ignore blocked storage. */ }
+}
+
+function forgetPersonalViews(): void {
+  const cached = readCachedPersonalContext()
+  if (!cached) return
+  clearCachedInbox(cached.profile.personId)
+  try {
+    const familyChildren = new Map<string, string[]>()
+    for (const child of cached.profile.children) {
+      familyChildren.set(child.familyId, [...(familyChildren.get(child.familyId) ?? []), child.childId])
+      if (!child.dashboardToken) continue
+      localStorage.removeItem(`education-day-dashboard-v1:${child.dashboardToken}`)
+      localStorage.removeItem(`education-parent-overview-v1:${cached.profile.personId}:${child.dashboardToken}`)
+      clearCachedLessonStatuses(child.dashboardToken, child.role)
+      clearCachedDashboardView(child.role, child.dashboardToken)
+    }
+    for (const [familyId, childIds] of familyChildren) localStorage.removeItem(`education-family-library-v1:${familyId}:${childIds.sort().join(',')}`)
+    localStorage.removeItem('education-dashboard-selected-date')
+    localStorage.removeItem('education-dashboard-selection-day')
+  } catch { /* Local storage may be unavailable. */ }
+}
+
+export function readLastPersonalDashboardRoute(): string | null {
+  const cached = readCachedPersonalContext()
+  if (!cached) return null
+  const knownUid = getAuth().currentUser?.uid
+  if (knownUid && knownUid !== cached.session.deviceUid) return null
+  try {
+    const route = localStorage.getItem(lastDashboardRouteKey)
+    const match = route?.match(/^#\/(days|days-parent)\/([A-Za-z0-9_-]+)$/)
+    if (!match) return null
+    const kind = match[1] === 'days-parent' ? 'parent' : 'student'
+    return cached.profile.children.some((child) => child.role === kind && child.dashboardToken === match[2]) ? route : null
+  } catch { return null }
+}
+
+export function rememberPersonalDashboardRoute(route: string): void {
+  try {
+    if (route === '#/' || route === '') localStorage.removeItem(lastDashboardRouteKey)
+    else if (/^#\/(days|days-parent)\/[A-Za-z0-9_-]+$/.test(route)) localStorage.setItem(lastDashboardRouteKey, route)
+  } catch { /* The open route still works. */ }
+}
 
 export function currentEducationPersonId(): string {
   if (!activeSession || getAuth().currentUser?.uid !== activeSession.deviceUid) {
@@ -31,7 +114,12 @@ export function currentEducationPersonId(): string {
 
 /** Forget a revoked personal grant without deleting the device's Firebase UID. */
 export function clearPersonalSession(): void {
+  sessionRevision++
   activeSession = null
+  startupContext.clear()
+  forgetPersonalViews()
+  forgetCachedPersonalContext()
+  rememberPersonalDashboardRoute('#/')
 }
 
 export function secretFromPersonalLink(value: string): string {
@@ -75,8 +163,9 @@ async function authUid(): Promise<string> {
   return (await signInAnonymously(auth)).user.uid
 }
 
-async function sessionFromGrant(linkToken: string, deviceUid: string): Promise<PersonalSession> {
+async function sessionFromGrant(linkToken: string, deviceUid: string, expectedRevision = sessionRevision): Promise<PersonalSession> {
   const grant = await getDoc(doc(db, 'accessLinks', linkToken))
+  if (expectedRevision !== sessionRevision) throw new Error('Личная сессия изменилась. Повторите вход.')
   const personId = grant.data()?.personId
   if (!grant.exists() || grant.data()?.active !== true || typeof personId !== 'string') {
     throw new Error('Личная ссылка закрыта. Попросите новую ссылку.')
@@ -94,6 +183,12 @@ export function personalEntryUrl(session: PersonalSession): string {
 export async function redeemPersonalLink(value: string): Promise<PersonalSession> {
   const linkToken = secretFromPersonalLink(value)
   if (pendingRedemption?.linkToken === linkToken) return pendingRedemption.promise
+  sessionRevision++
+  startupContext.clear()
+  forgetPersonalViews()
+  forgetCachedPersonalContext()
+  rememberPersonalDashboardRoute('#/')
+  const expectedRevision = sessionRevision
   const promise = (async () => {
     const deviceUid = await authUid()
     const reference = doc(db, 'deviceSessions', deviceUid)
@@ -103,11 +198,37 @@ export async function redeemPersonalLink(value: string): Promise<PersonalSession
       createdAt: previous.exists() ? previous.data().createdAt : serverTimestamp(),
       updatedAt: serverTimestamp(),
     })
-    return sessionFromGrant(linkToken, deviceUid)
+    return sessionFromGrant(linkToken, deviceUid, expectedRevision)
   })()
   pendingRedemption = { linkToken, promise }
   try { return await promise }
   finally { if (pendingRedemption?.promise === promise) pendingRedemption = null }
+}
+
+/** Shared startup read for the entry screen and bell. Authorization is still
+ * checked by Firestore on every document; revocation clears this short cache.
+ * @see ../../docs/architecture/local-first-release-plan-2026-10-12.md
+ */
+export async function restorePersonalContext(): Promise<{ session: PersonalSession; profile: PersonalProfile } | null> {
+  const auth = getAuth()
+  await auth.authStateReady()
+  const uid = auth.currentUser?.uid
+  if (!uid) return null
+  const cached = readCachedPersonalContext()
+  if (cached && cached.session.deviceUid !== uid) clearPersonalSession()
+  else if (cached && Date.now() - cached.savedAt < localContextMaxAgeMs) {
+    activeSession = cached.session
+    return { session: cached.session, profile: cached.profile }
+  }
+  return startupContext.get(uid, async () => {
+    const expectedRevision = sessionRevision
+    const session = await restorePersonalSession()
+    if (!session) return null
+    const profile = await loadPersonalProfile(session)
+    if (expectedRevision !== sessionRevision) return null
+    rememberPersonalContext({ session, profile })
+    return { session, profile }
+  })
 }
 
 /** @see ../../docs/architecture/family-data-model.md#authorization */
@@ -116,10 +237,18 @@ export async function restorePersonalSession(): Promise<PersonalSession | null> 
   await auth.authStateReady()
   const deviceUid = auth.currentUser?.uid
   if (!deviceUid) return null
+  if (activeSession?.deviceUid === deviceUid) return activeSession
+  const cached = readCachedPersonalContext()
+  if (cached?.session.deviceUid === deviceUid) {
+    activeSession = cached.session
+    return activeSession
+  }
+  const expectedRevision = sessionRevision
   const snapshot = await getDoc(doc(db, 'deviceSessions', deviceUid))
+  if (expectedRevision !== sessionRevision) return null
   const linkToken = snapshot.data()?.linkToken
   if (!snapshot.exists() || typeof linkToken !== 'string' || !secretPattern.test(linkToken)) return null
-  return sessionFromGrant(linkToken, deviceUid)
+  return sessionFromGrant(linkToken, deviceUid, expectedRevision)
 }
 
 /** @see ../../docs/product/adaptive-problem-card.md#показ-ученику */

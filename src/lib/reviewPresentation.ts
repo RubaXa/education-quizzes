@@ -58,7 +58,9 @@ export function reviewTone(review: DayWorkReview): ReviewTone {
 
 /** @see ../../docs/product/day-page.md#homework-review */
 export function reviewHeadline(review: DayWorkReview): string {
-  if (review.assessmentBasis?.outcome === 'unresolved') return workCoverageComplete(review) ? 'Работа сдана · критерий оценки неясен' : 'Работа разобрана · критерий неясен'
+  if (review.assessmentBasis?.outcome === 'unresolved') return workCoverageComplete(review) ? 'Работа сдана · критерий оценки неясен'
+    : review.nextStep && review.items?.some((item) => item.status === 'cannot-assess') ? 'Часть задания не подтверждена'
+      : 'Работа разобрана · критерий неясен'
   if (review.studentFeedback?.title) return review.studentFeedback.title
   if (review.mathReasoning) {
     const { answer, argument } = review.mathReasoning

@@ -3,11 +3,14 @@ import { doc, getDocFromServer, serverTimestamp, setDoc, updateDoc } from 'fireb
 import { db } from './firebase'
 import type { FamilyBookUpload } from './familyLibrary'
 import { currentEducationPersonId } from './personalAccess'
+import { fetchWithRetry } from './networkRetry'
+import { reportUiError } from './uiErrors'
 
 /** @see ../../docs/product/family-library.md#upload */
 const allowed = new Set(['application/pdf'])
 const outboxName = 'education-book-outbox-v1'
 const active = new Map<string, Promise<void>>()
+const reportedFailures = new Set<string>()
 
 function outbox<T>(mode: IDBTransactionMode, run: (store: IDBObjectStore) => IDBRequest<T>): Promise<T> {
   return new Promise((resolve, reject) => {
@@ -71,7 +74,8 @@ export function resumeFamilyBookTransfer(familyId: string, childId: string, uplo
     if (!validUploadHref(upload.upload!.href)) throw new Error('Некорректная ссылка Яндекс.Диска.')
     const file = await outbox<Blob | undefined>('readonly', (store) => store.get(id))
     if (!file) return
-    const response = await fetch(upload.upload!.href, { method: 'PUT', body: file, headers: { 'Content-Type': 'application/octet-stream' } })
+    const response = await fetchWithRetry(upload.upload!.href, { method: 'PUT', body: file, headers: { 'Content-Type': 'application/octet-stream' } }, { attempts: 4, timeoutMs: 120_000 })
+    if (response.status === 403) throw new Error('Ссылка загрузки устарела. PDF сохранён на этом устройстве; ожидаем новую ссылку.')
     if (!response.ok && response.status !== 409) throw new Error(`Яндекс.Диск отклонил файл: HTTP ${response.status}.`)
     const ref = doc(db, 'families', familyId, 'children', childId, 'bookUploads', upload.id)
     const latest = await getDocFromServer(ref)
@@ -80,5 +84,8 @@ export function resumeFamilyBookTransfer(familyId: string, childId: string, uplo
     }
   })()
   active.set(id, job)
-  void job.catch(() => {}).finally(() => { if (active.get(id) === job) active.delete(id) })
+  void job.catch((cause) => {
+    const failureKey = `${id}:${upload.upload!.href}`
+    if (!reportedFailures.has(failureKey)) { reportedFailures.add(failureKey); reportUiError(cause, 'Передача учебника') }
+  }).finally(() => { if (active.get(id) === job) active.delete(id) })
 }

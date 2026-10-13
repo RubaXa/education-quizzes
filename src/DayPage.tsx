@@ -1,48 +1,39 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { BookOpen, Camera, CheckCircle2, ChevronDown, Clock3, ExternalLink, RotateCcw, Trash2, X } from 'lucide-react'
-import { removePendingDayPhoto, requestDayHelp, uploadDayPhoto, uploadMatchesTask, watchDayHelp, watchDayPage, watchMaterialPages, withVerifiedPlatformResult } from '@/lib/dayStore'
-import type { DayHelp, DayInstruction, DayMaterialLink, DayPageData, DayTask, DayUpload, DayWorkReview } from '@/lib/dayStore'
-import { loadAnswerKey, watchAssignment, watchDashboard } from '@/lib/store'
+import { BookOpen, CheckCircle2, ChevronDown, Clock3, ExternalLink, RotateCcw, Trash2, X } from 'lucide-react'
+import { cdzEvidenceLabel, cdzResultLabel, isCdzTask, removePendingDayPhoto, requestDayHelp, uploadDayPhoto, uploadMatchesTask, watchDayHelp, watchDayPage, watchDayTaskGuides, watchMaterialPages, withVerifiedPlatformResult } from '@/lib/dayStore'
+import { unresolvedMaterialPageRefs } from '@/lib/dayMaterialRefs'
+import type { DayHelp, DayInstruction, DayMaterialLink, DayPageData, DayTask, DayUpload, DayWorkReview, ParentTaskPrivate } from '@/lib/dayStore'
 import { dayHelpSessionRole } from '@/lib/personalAccess'
-import { grade } from '@/lib/quiz'
-import type { Assignment } from '@/lib/quiz'
+import { useDayQuizOutcomes } from '@/lib/useDayQuizOutcomes'
 import MaterialReader, { canReadInside } from '@/components/MaterialReader'
 import EducationImage from '@/components/EducationImage'
-import ArtifactAvatar from '@/components/ArtifactAvatar'
+import ArtifactAvatar, { WorkArtifactImage } from '@/components/ArtifactAvatar'
 import WorkReview from '@/components/WorkReview'
 import ProblemGroup from '@/components/ProblemGroup'
 import ProblemTaskCard from '@/components/ProblemTaskCard'
+import ParentTaskGuide from '@/components/ParentTaskGuide'
+import AssignmentBrief from '@/components/AssignmentBrief'
+import TaskGuidance from '@/components/TaskGuidance'
+import PhotoUploadControl from '@/components/PhotoUploadControl'
+import { SyncProgress } from '@/components/SyncProgress'
+import QuizCard from '@/components/QuizCard'
+import { quizChain, type QuizCardAttempt } from '@/lib/quizCardViewModel'
 import { useDayEvidence } from '@/lib/useDayEvidence'
 import { useParentCompletions } from '@/lib/useParentCompletions'
-import { canAcceptCorrectAnswer, parentAccepted, recordParentCompletion, recordRequirementChoice, requiredFamilyActions, requirementChoice } from '@/lib/parentCompletion'
+import { lessonWorkItems } from '@/lib/homeworkStatus'
+import { pupilCanAddPhoto } from '@/lib/photoUploadPolicy'
+import { canAcceptCorrectAnswer, parentAccepted, recordParentCompletion, recordRequirementChoice, recordStageChoice, requiredFamilyActions, requirementChoice, stageCompletion } from '@/lib/parentCompletion'
 import { activeProcessing, artifactAvatarLabel, artifactAvatarState, localArtifactAvatarState, problemCardState, workCoverageComplete } from '@/lib/reviewPresentation'
-import { localPhotoForTransfer } from '@/lib/photoOutbox'
 import './DayPage.css'
 import { reportUiError } from '@/lib/uiErrors'
+import { DATA_UPDATE_MESSAGE } from '@/lib/dayCompatibility'
+import DataCompatibilityNotice from './components/DataCompatibilityNotice'
+import { sendDayGuidance, watchDayGuidance } from '@/lib/dayGuidance'
+import type { DayGuidance } from '@/lib/dayGuidance'
 
-type TestItem = { token: string; testId: string; linkedToTestId?: string | null; title: string; description?: string; subject: string; slug: string; previewToken: string; status: Assignment['status']; answered: number; total: number; points?: number; maxPoints?: number }
+type TestItem = QuizCardAttempt & { subject: string }
 type LocalPhoto = { id: string; taskId: string; file: File; previewUrl: string; state: 'uploading' | 'saved' | 'failed' | 'deleting'; error?: string }
-
-/**
- * Показывает работу из временной очереди или по ссылке на проверенный файл Диска.
- * @see ../docs/product/day-page.md#photo-preview
- * @see ../docs/product/storage-privacy.md#upload-queue
- */
-async function localWorkImage(source: string): Promise<string> {
-  const [studentToken, uploadId] = source.split(':')
-  const blob = await localPhotoForTransfer(studentToken, uploadId)
-  if (!blob) throw new Error('Исходное фото не найдено на этом устройстве.')
-  return URL.createObjectURL(blob)
-}
-
-function WorkPhoto({ upload, title, index, compact = false }: { upload: DayUpload; title: string; index: number; compact?: boolean }) {
-  const publicUrl = upload.storage?.publicUrl
-  const local = !upload.dataUrl && !publicUrl
-  return <EducationImage source={upload.dataUrl ?? publicUrl ?? upload.id} mode={publicUrl && !upload.dataUrl ? 'public' : 'direct'}
-    resolver={local ? localWorkImage : undefined} revokeResolvedUrl={local} size={compact ? 'S' : 'XXXL'}
-    alt={`Работа по заданию «${title}», фото ${index + 1}`} compact={compact} retryControl={!compact} className={compact ? '' : 'day-upload-photo'} />
-}
 
 /**
  * Разделяет технический статус снимка и педагогический результат задания.
@@ -83,13 +74,15 @@ function PhotoStrip({ taskTitle, evidenceLabel = 'Фото работы', studen
       setRemovingId(null)
     }
   }
+  const cdzProof = evidenceLabel === 'Подтверждение ЦДЗ'
   return <div className="day-upload-list" aria-label={`Фото задания «${taskTitle}»`}>
-    <div className="day-upload-head"><strong>{evidenceLabel}</strong><span>Проверено {reviewedCount} из {photoCount}</span></div>
+    <div className="day-upload-head"><strong>{evidenceLabel}</strong><span>{reviewedCount} из {photoCount} фото проверено</span></div>
+    {cdzProof && <small className="day-upload-context">Снимок результата МЭШ, присланный ребёнком. Кнопки внутри снимка относятся к МЭШ.</small>}
     <div className="day-upload-strip">
       {visibleUploads.map((upload, index) => {
         const state = artifactAvatarState(upload, review, now)
         const status = artifactAvatarLabel(state)
-        return <button className="day-upload-chip" type="button" key={upload.id} title={`${upload.origin === 'archive' ? 'Ранее загруженная работа' : `Фото ${index + 1}`} · ${status}`} aria-label={`Открыть фото ${index + 1}: ${status}`} aria-expanded={selectedId === upload.id} onClick={() => setSelectedId(selectedId === upload.id ? null : upload.id)}><ArtifactAvatar state={state}><WorkPhoto upload={upload} title={taskTitle} index={index} compact /></ArtifactAvatar></button>
+        return <button className="day-upload-chip" type="button" key={upload.id} title={`${upload.origin === 'archive' ? 'Ранее загруженная работа' : `Фото ${index + 1}`} · ${status}`} aria-label={`Открыть фото ${index + 1}: ${status}`} aria-expanded={selectedId === upload.id} onClick={() => setSelectedId(selectedId === upload.id ? null : upload.id)}><ArtifactAvatar state={state}><WorkArtifactImage upload={upload} title={taskTitle} index={index} compact /></ArtifactAvatar></button>
       })}
       {localOnly.map((photo, index) => {
         const id = `${studentToken}:${photo.id}`
@@ -98,10 +91,9 @@ function PhotoStrip({ taskTitle, evidenceLabel = 'Фото работы', studen
         return <button className="day-upload-chip" type="button" key={photo.id} title={`Фото ${visibleUploads.length + index + 1} · ${status}`} aria-label={`Открыть фото ${visibleUploads.length + index + 1}: ${status}`} aria-expanded={selectedId === id} onClick={() => setSelectedId(selectedId === id ? null : id)}><ArtifactAvatar state={state}><EducationImage source={photo.previewUrl} alt="" compact retryControl={false} /></ArtifactAvatar></button>
       })}
     </div>
-    <div className="day-upload-progress" role="progressbar" aria-label="Проверенные фотографии" aria-valuemin={0} aria-valuemax={photoCount} aria-valuenow={reviewedCount}><span style={{ width: `${reviewedCount / photoCount * 100}%` }} /></div>
     {summary && <small className="day-upload-summary">{summary}</small>}
     {(selectedUpload || selectedLocal) && <div className="day-upload-expanded"><button className="day-upload-close" type="button" aria-label="Закрыть фото" onClick={() => setSelectedId(null)}><X size={17} aria-hidden="true" /></button>
-      {selectedUpload ? <><WorkPhoto upload={selectedUpload} title={taskTitle} index={visibleUploads.indexOf(selectedUpload)} /><p>{selectedUpload.status === 'reviewed' ? evidenceLabel === 'Подтверждение ЦДЗ' ? 'Результат ЦДЗ указан в карточке задания.' : 'Разбор этого задания показан в блоке «Проверка работы».' : selectedUpload.status === 'upload-error' ? selectedUpload.error ?? 'Не удалось передать фото. Удалите запись и загрузите снимок снова.' : selectedUpload.status === 'pending' ? activeProcessing(review, [selectedUpload]) ? 'Сейчас проверяем фото.' : 'Фото ждёт разбора.' : 'Исходное фото передаётся напрямую на Яндекс.Диск; дождитесь подтверждения.'} {selectedUpload.storage?.state === 'stored' ? 'Файл на Яндекс.Диске.' : 'Исходник остаётся на этом устройстве до передачи.'}</p>{selectedUpload.storage?.publicUrl && <a className="day-upload-original" href={selectedUpload.storage.publicUrl} target="_blank" rel="noopener noreferrer">Открыть на Яндекс.Диске <ExternalLink size={13} aria-hidden="true" /></a>}</>
+      {selectedUpload ? <><WorkArtifactImage upload={selectedUpload} title={taskTitle} index={visibleUploads.indexOf(selectedUpload)} /><p>{selectedUpload.status === 'reviewed' ? cdzProof ? 'Результат ЦДЗ указан в карточке задания.' : 'Разбор этого задания показан в блоке «Проверка работы».' : selectedUpload.status === 'upload-error' ? selectedUpload.error ?? 'Не удалось передать фото. Удалите запись и загрузите снимок снова.' : selectedUpload.status === 'pending' ? activeProcessing(review, [selectedUpload]) ? 'Сейчас проверяем фото.' : 'Фото ждёт разбора.' : 'Исходное фото передаётся напрямую на Яндекс.Диск; дождитесь подтверждения.'} {selectedUpload.storage?.state === 'stored' ? 'Файл на Яндекс.Диске.' : 'Исходник остаётся на этом устройстве до передачи.'}</p>{selectedUpload.storage?.publicUrl && <a className="day-upload-original" href={selectedUpload.storage.publicUrl} target="_blank" rel="noopener noreferrer">Открыть на Яндекс.Диске <ExternalLink size={13} aria-hidden="true" /></a>}</>
         : selectedLocal && <><EducationImage source={selectedLocal.previewUrl} alt={`Новое фото по заданию «${taskTitle}»`} className="day-upload-photo" /><p>{selectedLocal.state === 'failed' ? selectedLocal.error ?? 'Не удалось загрузить фото.' : selectedLocal.state === 'saved' ? 'Фото сохранено и ждёт разбора.' : selectedLocal.state === 'deleting' ? 'Удаляем фото…' : 'Фото загружается…'}</p>{selectedLocal.state === 'failed' && removingId !== selectedId && <button type="button" className="day-upload-retry" onClick={() => onRetry(selectedLocal)}><RotateCcw size={14} aria-hidden="true" /> Повторить</button>}</>}
       {(selectedUpload && selectedUpload.status !== 'reviewed' || selectedLocal) && <button className="day-upload-delete" type="button" disabled={removingId === selectedId} onClick={() => selectedId && void deletePhoto(selectedId)}><Trash2 size={14} aria-hidden="true" /> {removingId === selectedId ? 'Удаляем…' : 'Удалить фото'}</button>}
       {deleteError && <p className="day-upload-delete-error" role="alert">{deleteError}</p>}
@@ -109,60 +101,14 @@ function PhotoStrip({ taskTitle, evidenceLabel = 'Фото работы', studen
   </div>
 }
 
-/**
- * Показывает живое состояние связанного теста внутри домашнего задания.
- * @see ../docs/product/day-page.md#test-progress
- */
-function TestProgress({ test }: { test: TestItem }) {
-  const answered = Math.min(test.answered, test.total)
-  const remaining = Math.max(0, test.total - answered)
-  const label = test.status === 'submitted'
-    ? test.points == null ? 'Тест отправлен · результат уточняется' : `Результат · ${test.points} из ${test.maxPoints} верно`
-    : answered ? `В процессе · осталось ${remaining} из ${test.total} вопросов`
-      : `Тест не начат · осталось ${remaining} из ${test.total} вопросов`
-  return <div className="day-test-progress">
-    <span>{label}</span>
-    <div className="day-test-track" role="progressbar" aria-label="Ответы на вопросы теста" aria-valuemin={0} aria-valuemax={test.total} aria-valuenow={answered}>
-      <span style={{ width: `${test.total ? answered / test.total * 100 : 0}%` }} />
-    </div>
-  </div>
-}
-
-/** @see ../docs/product/day-page.md#quiz-lineage */
-function quizChain(root: TestItem | undefined, tests: TestItem[]): TestItem[] {
-  if (!root) return []
-  const chain = [root]
-  const seen = new Set([root.testId])
-  while (true) {
-    const next = tests.find((test) => test.linkedToTestId === chain[chain.length - 1].testId && !seen.has(test.testId))
-    if (!next) return chain
-    chain.push(next)
-    seen.add(next.testId)
-  }
-}
-
-/** @see ../docs/product/day-page.md#quiz-lineage */
-function QuizLineageCard({ chain, parent, task, materialLinks = [] }: { chain: TestItem[]; parent: boolean; task?: DayTask; materialLinks?: DayMaterialLink[] }) {
-  const latest = chain[chain.length - 1]
-  const earlier = chain.slice(0, -1)
-  const graded = earlier.filter((test) => test.status === 'submitted' && test.points != null && test.maxPoints != null)
-  const points = graded.reduce((sum, test) => sum + (test.points ?? 0), 0)
-  const max = graded.reduce((sum, test) => sum + (test.maxPoints ?? 0), 0)
-  const href = parent && latest.status !== 'submitted' && latest.previewToken ? `#/preview/${latest.slug}~${latest.previewToken}` : `#/t/${latest.slug}~${latest.token}`
-  const label = parent ? latest.status === 'submitted' ? 'Посмотреть результат' : 'Посмотреть вопросы' : latest.status === 'submitted' ? 'Посмотреть результат' : latest.answered ? 'Продолжить повторный тест' : 'Пройти повторный тест'
+/** Adapter from a task's exact MESH instruction and family pages to the shared quiz card.
+ * @see ../docs/product/card-generation-policy.md#quiz-adapter */
+function QuizLineageCard({ chain, parent, task, materialLinks = [] }: { chain: QuizCardAttempt[]; parent: boolean; task?: DayTask; materialLinks?: DayMaterialLink[] }) {
   const context = task?.title.match(/Упр\.\s*\d+/i)?.[0] ?? task?.title ?? 'Самопроверка'
-  const hasScore = latest.status === 'submitted' && latest.points != null && latest.maxPoints != null
-  const scoreLabel = hasScore ? `${latest.points} из ${latest.maxPoints}` : latest.status === 'submitted' ? 'Результат уточняется' : latest.answered ? 'В процессе' : 'Не начат'
   const readerLinks = materialLinks.filter(canReadInside)
   const otherLinks = materialLinks.filter((link) => !canReadInside(link))
-  return <section className="day-quiz-lineage" id={task ? `day-task-${task.id}` : `day-quiz-${chain[0].token}`} aria-label={`Самопроверки: ${context}`}>
-    <div className="day-quiz-lineage-head"><strong>Самопроверка по {context.toLowerCase()}</strong><span className={`day-quiz-lineage-score${hasScore && latest.points === latest.maxPoints ? ' complete' : hasScore ? ' partial' : ''}`}>{scoreLabel}</span></div>
-    <div className="day-quiz-lineage-current"><small>{latest.status === 'submitted' ? 'Последний тест' : latest.answered ? 'Сейчас · в процессе' : 'Сейчас · закрепляем ошибку'}</small><h3>{latest.title}</h3>{latest.description && <p>{latest.description}</p>}
-      <div className="day-quiz-lineage-actions"><a className="day-quiz-link" href={href}>{label} <ExternalLink size={15} aria-hidden="true" /></a></div>
-      {task && <details className="day-quiz-materials"><summary>Условие и страницы учебника <ChevronDown size={15} aria-hidden="true" /></summary><div><p>{task.detail}</p>{!!task.steps?.length && <ol className="day-task-steps">{task.steps.map((step, index) => <Instruction key={index} item={step} index={index} />)}</ol>}{readerLinks.length > 0 && <MaterialReader links={readerLinks} parent={parent} />}{otherLinks.map((link) => <a key={link.url} href={link.url} target="_blank" rel="noopener noreferrer">{link.title} <ExternalLink size={13} aria-hidden="true" /></a>)}</div></details>}
-    </div>
-    <details className="day-quiz-history"><summary><span><strong>Предыдущие тесты</strong><small>{earlier.length} {earlier.length === 1 ? 'тест' : earlier.length < 5 ? 'теста' : 'тестов'}{max ? ` · ${points} из ${max} баллов` : ''}</small></span>{max > 0 && <span className={`day-quiz-history-score ${points === max ? 'complete' : ''}`} aria-label={`${Math.round(points / max * 100)} процентов набранных баллов`}><i style={{ width: `${Math.round(points / max * 100)}%` }} />{Math.round(points / max * 100)}%</span>}<ChevronDown size={18} aria-hidden="true" /></summary><div className="day-quiz-history-body">{earlier.map((test) => <div className="day-quiz-history-row" key={test.token}><strong>{test.title}</strong><span>{test.status === 'submitted' ? test.points == null ? 'Отправлен · балл уточняется' : `${test.points} из ${test.maxPoints} баллов` : 'Не завершён'}</span><a href={parent && test.status !== 'submitted' && test.previewToken ? `#/preview/${test.slug}~${test.previewToken}` : `#/t/${test.slug}~${test.token}`}>{test.status === 'submitted' ? 'Посмотреть результат' : 'Посмотреть вопросы'} <ExternalLink size={13} aria-hidden="true" /></a></div>)}</div></details>
-  </section>
+  const materials = task && (task.steps?.length || readerLinks.length || otherLinks.length) ? <>{!!task.steps?.length && <ol className="day-task-steps">{task.steps.map((step, index) => <Instruction key={index} item={step} index={index} />)}</ol>}{readerLinks.length > 0 && <MaterialReader links={readerLinks} parent={parent} />}{otherLinks.map((link) => <a key={link.url} href={link.url} target="_blank" rel="noopener noreferrer">{link.title} <ExternalLink size={13} aria-hidden="true" /></a>)}</> : undefined
+  return <QuizCard chain={chain} parent={parent} context={context} assignment={task && <AssignmentBrief task={task} materialLinks={materialLinks} />} materials={materials} id={task ? `day-task-${task.id}` : `day-quiz-${chain[0].token}`} />
 }
 
 /** @see ../docs/product/day-page.md#instruction-provenance */
@@ -265,15 +211,45 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
     return new RegExp(`^#/${parent ? 'days-parent' : 'days'}/[A-Za-z0-9_-]{20,}$`).test(saved) ? saved : ''
   })
   const [page, setPage] = useState<DayPageData>()
-  const [catalogPages, setCatalogPages] = useState<Record<string, DayMaterialLink>>({})
+  const [catalogState, setCatalogState] = useState<{ key: string; pages: Record<string, DayMaterialLink> }>({ key: '', pages: {} })
   const [helpRequests, setHelpRequests] = useState<DayHelp[]>([])
+  const [guideSnapshot, setGuideSnapshot] = useState<{ token: string; guides: Record<string, ParentTaskPrivate> }>({ token: '', guides: {} })
+  const [guidanceSnapshot, setGuidanceSnapshot] = useState<{ token: string; items: DayGuidance[] }>({ token: '', items: [] })
   const [helpRole, setHelpRole] = useState<'checking' | 'student' | 'parent' | 'none'>('checking')
-  const [tests, setTests] = useState<TestItem[]>([])
+  /** @see ../docs/product/day-page.md#completed-subjects */
+  const [subjectOpen, setSubjectOpen] = useState<Record<string, boolean>>({})
   const [view, setView] = useState<'homework' | 'school'>(requestedView === 'homework' ? 'homework' : 'school')
   const [manualView, setManualView] = useState(requestedView === 'homework' || requestedView === 'school')
   const [error, setError] = useState('')
+  const quizOutcomes = useDayQuizOutcomes(page, page?.targetDate ?? '', setError)
+  const tests: TestItem[] = Object.entries(quizOutcomes.tests).map(([quizToken, assignment]) => {
+    const entry = quizOutcomes.boardEntries.find((item) => item.token === quizToken)
+    const score = quizOutcomes.scores[quizToken]
+    return {
+      token: quizToken, testId: assignment.testId, linkedToTestId: assignment.linkedToTestId,
+      title: entry?.title ?? assignment.title, description: assignment.description,
+      subject: entry?.subject ?? assignment.subject, slug: entry?.slug ?? '', previewToken: entry?.previewToken,
+      status: assignment.status, answered: Object.values(assignment.answers ?? {}).filter((answer) => answer !== '' && (!Array.isArray(answer) || answer.length > 0)).length,
+      total: assignment.questions.length, points: score?.points, maxPoints: score?.maxPoints,
+    }
+  })
   const { studentToken, evidenceKey, uploads, reviews, evidencePages, ready: evidenceReady } = useDayEvidence(page, token, setError)
   const parentDecisions = useParentCompletions(evidenceKey, Boolean(page) && helpRole !== 'checking' && helpRole !== 'none')
+  useEffect(() => {
+    if (!parent || !page || helpRole !== 'parent') return
+    return watchDayTaskGuides(studentToken, (guides) => setGuideSnapshot({ token: studentToken, guides }), (cause) => {
+      setGuideSnapshot({ token: '', guides: {} })
+      if ((cause as Error & { code?: string }).code === 'permission-denied') setHelpRole('none')
+      setError(reportUiError(cause, 'Ориентиры для проверки'))
+    })
+  }, [parent, page, helpRole, studentToken])
+  const taskGuides = parent && helpRole === 'parent' && guideSnapshot.token === studentToken ? guideSnapshot.guides : {}
+  useEffect(() => {
+    if (!page || helpRole === 'checking' || helpRole === 'none') return
+    return watchDayGuidance(studentToken, (items) => setGuidanceSnapshot({ token: studentToken, items }), (cause) => setError(reportUiError(cause, 'Подсказки к заданиям')))
+  }, [page, helpRole, studentToken])
+  const guidance = guidanceSnapshot.token === studentToken ? guidanceSnapshot.items : []
+  const guidanceReady = guidanceSnapshot.token === studentToken
   const [localPhotos, setLocalPhotos] = useState<LocalPhoto[]>([])
   const [statusNow, setStatusNow] = useState(() => Date.now())
   const photoUrls = useRef(new Set<string>())
@@ -305,56 +281,25 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
 
   useEffect(() => {
     let active = true
-    let stops: (() => void)[] = []
-    let connected = false
-    stops.push(watchDayPage(token, (data) => {
+    const stop = watchDayPage(token, (data) => {
       if (!active) return
       if ((parent && data.kind !== 'parent') || (!parent && data.kind !== 'student')) { setError('Эта ссылка предназначена для другой страницы.'); return }
       setPage(data)
-      if (connected) return
-      connected = true
-      let generation = 0
-      let assignmentStops: (() => void)[] = []
-      stops.push(watchDashboard(data.boardToken, (index) => {
-        generation += 1
-        const current = generation
-        assignmentStops.forEach((stop) => stop())
-        assignmentStops = []
-        const rows = new Map<string, TestItem>()
-        if (!index.length) setTests([])
-        for (const item of index) {
-          const stop = watchAssignment(item.token, (assignment) => {
-            if (!active || generation !== current) return
-            rows.set(item.token, {
-              token: item.token, testId: assignment.testId, linkedToTestId: assignment.linkedToTestId, title: item.title, description: assignment.description, subject: item.subject, slug: item.slug, previewToken: item.previewToken,
-              status: assignment.status, answered: Object.values(assignment.answers ?? {}).filter((answer) => answer !== '' && (!Array.isArray(answer) || answer.length > 0)).length,
-              total: assignment.questions.length,
-            })
-            const show = () => setTests([...rows.values()].sort((a, b) => a.subject.localeCompare(b.subject, 'ru')))
-            show()
-            if (assignment.status === 'submitted') {
-              void loadAnswerKey(item.token).then((key) => {
-                if (!active || generation !== current) return
-                const results = grade(assignment, key)
-                rows.set(item.token, { ...rows.get(item.token)!, points: results.reduce((sum, result) => sum + (result.points ?? 0), 0), maxPoints: assignment.questions.reduce((sum, question) => sum + question.points, 0) })
-                show()
-              }).catch((cause) => setError(reportUiError(cause, 'Страница задания')))
-            }
-          }, (cause) => setError(reportUiError(cause, 'Страница задания')))
-          assignmentStops.push(stop)
-        }
-      }, (cause) => setError(reportUiError(cause, 'Страница задания'))))
-      stops.push(() => assignmentStops.forEach((stop) => stop()))
-    }, (cause) => { if (active) setError(reportUiError(cause, 'Страница задания')) }))
-    return () => { active = false; stops.forEach((stop) => stop()) }
+    }, (cause) => { if (active) setError(reportUiError(cause, 'Страница задания')) })
+    return () => { active = false; stop() }
   }, [token, parent])
+  const materialProjectionKey = page ? JSON.stringify({
+    familyId: page.familyId, childId: page.childId, refs: unresolvedMaterialPageRefs(page),
+  }) : ''
+  const catalogPages = catalogState.key === materialProjectionKey ? catalogState.pages : {}
   useEffect(() => {
-    const refs = Object.values(page?.taskPageRefs ?? {}).flat()
+    if (!materialProjectionKey) return
+    const { refs, familyId, childId } = JSON.parse(materialProjectionKey) as { refs: string[]; familyId?: string; childId?: string }
     if (!refs.length) return
-    return watchMaterialPages(refs, page?.familyId, page?.childId, setCatalogPages, (cause) => {
+    return watchMaterialPages(refs, familyId, childId, (pages) => setCatalogState({ key: materialProjectionKey, pages }), (cause) => {
       reportUiError(cause, 'Страницы учебника')
     })
-  }, [page?.taskPageRefs, page?.familyId, page?.childId])
+  }, [materialProjectionKey])
 
   const hasPage = Boolean(page)
   useEffect(() => {
@@ -400,9 +345,10 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
       if (task.kind === 'read') { const test = tests.find((item) => item.token === task.testToken); return !(test?.status === 'submitted' && test.points != null && test.points >= (task.requiredPoints ?? test.maxPoints ?? 1)) }
       return true
     }).length
-    const testPending = currentPlacements.filter((placement) => !placement.taskId && quizChain(tests.find((item) => item.token === placement.token), tests).at(-1)?.status !== 'submitted').length
-    return taskPending + testPending
-  }, [page, uploads, localPhotos, tests, currentPlacements])
+    const testPending = currentPlacements.filter((placement) => !placement.taskId && tests.find((item) => item.token === placement.token)?.status !== 'submitted').length
+    const linkedPending = dayTests.filter((test) => test.linkedToTestId && test.status !== 'submitted').length
+    return taskPending + testPending + linkedPending
+  }, [page, uploads, localPhotos, tests, currentPlacements, dayTests])
   async function sendPhoto(photo: LocalPhoto) {
     setLocalPhotos((current) => current.map((item) => item.id === photo.id && item.state !== 'deleting' ? { ...item, state: 'uploading', error: undefined } : item))
     try {
@@ -450,6 +396,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
     for (const photo of photos) queuePhotoUpload(photo)
   }
 
+  if (error === DATA_UPDATE_MESSAGE) return <DataCompatibilityNotice />
   if (error && !page) return <div className="day-error"><h1>Не получилось открыть страницу</h1><p>{error}</p></div>
   if (!page) return <p className="day-loading">Загружаем страницу дня…</p>
   const currentSubjects = page.subjects.map((subject) => ({ ...subject, tasks: subject.tasks.filter((task) => (task.originDate ?? page.targetDate) === page.targetDate)
@@ -461,6 +408,10 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
   const lastChange = page.changes?.[0]
   const currentAdded = lastChange?.added.filter((id) => currentTaskIds.has(id)) ?? []
   const currentChanged = lastChange?.changed.filter((id) => currentTaskIds.has(id)) ?? []
+  const quizStates = Object.fromEntries(tests.map((test) => [test.token, { status: test.status, testId: test.testId, linkedToTestId: test.linkedToTestId, title: test.title }]))
+  const quizScores = Object.fromEntries(tests.filter((test) => test.points != null && test.maxPoints != null)
+    .map((test) => [test.token, { points: test.points!, maxPoints: test.maxPoints! }]))
+  const workItems = (tasks: DayTask[]) => lessonWorkItems(tasks, uploads, reviews, parentDecisions.events, quizStates, quizScores)
 
   return <>{headerReturnTarget && createPortal(<a className="day-return day-return-header" href={returnToDashboard || '#/'}>← На главную</a>, headerReturnTarget)}<div className={`day-page ${parent ? 'day-parent' : 'day-student'}`}>
     <a className="day-return day-return-content" href={returnToDashboard || '#/'}>← На главную</a>
@@ -470,6 +421,8 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
       <p>{parent ? `Домашнее задание к урокам ${dayMonth(page.targetDate)}: только назначения этих уроков. Срок сдачи может отличаться и указан у задания. Выполненные заранее работы появятся у соответствующих заданий.` : `Домашнее задание к урокам ${dayMonth(page.targetDate)}. Срок сдачи указан у задания, выполненное заранее уже видно в его карточке.`}</p>
       <div className="day-summary"><strong>{pending}</strong><span>{pending === 1 ? 'действие к этой дате осталось' : 'действий к этой дате осталось'}</span>{dayTests.length > 0 && <><span className="day-summary-separator">·</span><span>{dayTests.filter((test) => test.status === 'submitted').length} из {dayTests.length} тестов завершено</span></>}</div>
     </section>
+
+    {page.familyId && page.childId && <SyncProgress familyId={page.familyId} childId={page.childId} />}
 
     <div className="day-tabs" role="tablist" aria-label="Раздел страницы дня">
       <button role="tab" aria-selected={view === 'school'} className={view === 'school' ? 'active' : ''} onClick={() => { setManualView(true); setView('school') }}>Расписание</button>
@@ -499,12 +452,22 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
         const summary = page.gradeSummary.find((item) => item.id === subject.id)
         const grade = page.grades?.find((item) => item.id === subject.id)
         const subjectPlacements = currentPlacements.filter((placement) => placement.subjectId === subject.id)
-        const lineages = subjectPlacements.map((placement) => ({ placement, chain: quizChain(tests.find((item) => item.token === placement.token), tests) })).filter(({ chain }) => chain.length > 1)
+        const lineages = subjectPlacements.map((placement) => ({ placement, chain: quizChain(tests.find((item) => item.token === placement.token), tests) })).filter(({ chain }) => chain.length > 0)
         const lineageByToken = new Map(lineages.map(({ placement, chain }) => [placement.token, chain]))
-        return <section className={`day-subject day-subject-${subject.id}`} key={subject.id}>
+        const referenceTask = subject.tasks.find((task) => task.referenceDate)
+        const referencePage = referenceTask && evidencePages.find((candidate) => candidate.targetDate === referenceTask.referenceDate)
+        const referenceSubject = referencePage?.subjects.find((candidate) => candidate.id === subject.id)
+        const referencedItems = referenceSubject ? workItems(referenceSubject.tasks.map((task) => withVerifiedPlatformResult(task, referencePage!.targetDate, evidencePages))) : []
+        const subjectItems = [...workItems(subject.tasks), ...referencedItems]
+        const subjectDone = subjectItems.length > 0 && subjectItems.every((item) => item.state === 'done')
+        const doneCount = subjectItems.filter((item) => item.state === 'done').length
+        const expanded = subjectOpen[subject.id] ?? !subjectDone
+        return <section className={`day-subject day-subject-${subject.id}${subjectDone ? ' is-done' : ''}${expanded ? '' : ' is-collapsed'}`} key={subject.id}>
           <div className="day-subject-head"><span className="day-subject-icon">{subject.icon}</span><div className="day-subject-title"><h2>{subject.name}</h2><p>{subject.materials}</p></div>
-            <GradeBadge summary={summary} details={grade} threshold={page.workingThreshold} asOf={page.gradeAsOf} /></div>
-          <div className="day-subject-content"><p className="day-subject-summary">{subject.summary}</p>
+            {subjectDone && <span className="day-subject-complete"><CheckCircle2 size={16} aria-hidden="true" /> Выполнено · {doneCount} из {subjectItems.length}</span>}
+            <GradeBadge summary={summary} details={grade} threshold={page.workingThreshold} asOf={page.gradeAsOf} />
+            <button className="day-subject-toggle" type="button" aria-expanded={expanded} aria-label={`${expanded ? 'Свернуть' : 'Развернуть'} ${subject.name}`} onClick={() => setSubjectOpen((current) => ({ ...current, [subject.id]: !expanded }))}><ChevronDown size={19} aria-hidden="true" /></button></div>
+          <div className="day-subject-content" hidden={!expanded}>{!['Новое задание МЭШ. Подробный разбор готовится.', 'Точная запись МЭШ. Подробный разбор готовится.'].includes(subject.summary) && <p className="day-subject-summary">{subject.summary}</p>}
             {parent && <details className="day-mesh"><summary>Как записано в МЭШ</summary><p>{subject.mesh}</p></details>}
             <div className="day-task-list">{lineages.map(({ placement, chain }) => {
               const task = subject.tasks.find((item) => item.testToken === placement.token)
@@ -515,11 +478,15 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
               return <QuizLineageCard key={`lineage-${placement.token}`} chain={chain} parent={parent} task={task} materialLinks={materialLinks} />
             })}
             {subject.tasks.map((task) => {
-              if (task.testToken && lineageByToken.has(task.testToken)) return null
+              // A written task may also have a linked self-check. The test must
+              // never replace the notebook submission and its photo action.
+              if (task.kind === 'read' && task.testToken && lineageByToken.has(task.testToken)) return null
               const taskLinks = [...new Map([
                 ...(page.materialLinks?.[task.id] ?? []),
                 ...(page.taskPageRefs?.[task.id] ?? []).map((ref) => catalogPages[ref]).filter((link): link is DayMaterialLink => Boolean(link)),
               ].map((link) => [link.sourceRef || link.url, link])).values()]
+              const standaloneTest = task.testToken ? tests.find((item) => item.token === task.testToken) : undefined
+              if (task.kind === 'read' && standaloneTest) return <QuizLineageCard key={task.id} chain={quizChain(standaloneTest, tests)} parent={parent} task={task} materialLinks={taskLinks} />
               const readerGroups = taskLinks.filter(canReadInside).reduce<DayMaterialLink[][]>((groups, link) => {
                 const key = `${link.sourceType}:${link.title.replace(/,\s*стр\.\s*\d+\s*$/, '')}`
                 const existing = groups.find((group) => `${group[0].sourceType}:${group[0].title.replace(/,\s*стр\.\s*\d+\s*$/, '')}` === key)
@@ -530,14 +497,15 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
               const otherLinks = taskLinks.filter((link) => !canReadInside(link))
               const needsTextbook = task.materialStatus?.state === 'textbook-page-needed' && !taskLinks.some((link) => link.sourceType === 'textbook-page')
               const taskUploads = uploads.filter((upload) => uploadMatchesTask(upload, task.id))
-              const cdzTask = task.kind === 'check' && (task.id.endsWith('-cdz') || task.title.includes('ЦДЗ'))
+              const cdzTask = isCdzTask(task)
               const review = reviews.find((item) => item.taskId === task.id)
               const accepted = parentAccepted(review, parentDecisions.events)
+              const familyStageComplete = stageCompletion(review, parentDecisions.events)?.complete ?? false
               const criterionPending = review?.assessmentBasis?.outcome === 'unresolved'
               const familyActions = requiredFamilyActions(review, parentDecisions.events)
               const familyOptional = review?.assessmentBasis?.disputedRequirements?.some((item) => requirementChoice(review, item.id, parentDecisions.events) === 'optional') ?? false
               const processing = activeProcessing(review, taskUploads)
-              const taskStatus = criterionPending ? 'unknown' : accepted ? 'verified' : review?.status && review.status !== 'cannot-assess' ? review.status : task.status
+              const taskStatus = familyStageComplete ? 'verified' : criterionPending ? 'unknown' : accepted ? 'verified' : review?.status && review.status !== 'cannot-assess' ? review.status : task.status
               const localTaskPhotos = localPhotos.filter((photo) => photo.taskId === task.id)
               const priorWork = taskUploads.some((upload) => upload.status === 'reviewed')
               const newWork = taskUploads.some((upload) => upload.status === 'pending') || localTaskPhotos.some((photo) => photo.state === 'saved' && !taskUploads.some((upload) => upload.id === `${studentToken}:${photo.id}`))
@@ -545,19 +513,26 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
               const workCovered = workCoverageComplete(review) && !familyActions.length && !newWork && !uploadingWork
               const linkedTest = tests.find((item) => item.token === task.testToken)
               const readPassed = task.kind === 'read' && linkedTest?.status === 'submitted' && linkedTest.points != null && linkedTest.points >= (task.requiredPoints ?? linkedTest.maxPoints ?? 1)
-              const verified = taskStatus === 'verified' || readPassed
+              const referenceDone = Boolean(task.referenceDate && referencedItems.length && referencedItems.every((item) => item.state === 'done'))
+              const verified = referenceDone || !task.referenceDate && (taskStatus === 'verified' || readPassed)
               const submitted = (task.kind === 'written' || task.kind === 'check') && newWork
-              const state = task.problems?.length ? `${task.problems.length} задач · каждая проверяется отдельно` : task.kind === 'written'
-                ? taskStatus === 'verified' ? 'Готово · проверено' : processing ? 'Проверяем работу' : newWork ? 'Новое фото · ждёт проверки' : uploadingWork ? 'Фото загружается' : familyActions.length ? 'Доработать по решению родителя' : workCovered ? 'Работа сдана · оценка неясна' : criterionPending ? 'Работа разобрана · критерий неясен' : priorWork ? taskStatus === 'needs-fix' ? 'Работа проверена · исправить' : taskStatus === 'partial' ? 'Работа проверена · дополнить' : 'Работа сохранена' : statusLabel(taskStatus)
-                : task.kind === 'read' ? readPassed ? `Чтение подтверждено · ${linkedTest?.points}/${linkedTest?.maxPoints} верно` : linkedTest?.status === 'submitted' ? linkedTest.points == null ? 'Проверяем тест' : `Нужен разбор · ${linkedTest.points}/${linkedTest.maxPoints}` : 'Нужен тест' : cdzTask ? task.platformResult?.state === 'completed' ? `ЦДЗ пройдено · ${task.platformResult.points}/${task.platformResult.maxPoints}` : processing ? 'Проверяем результат ЦДЗ' : newWork ? 'Результат ЦДЗ получен · ждёт проверки' : uploadingWork ? 'Фото загружается' : 'Ожидает результата ЦДЗ' : statusLabel(taskStatus)
-              const uploadLabel = cdzTask ? newWork || uploadingWork ? 'Добавить ещё фото ЦДЗ' : 'Загрузить результат ЦДЗ' : newWork || uploadingWork ? 'Добавить ещё фото' : familyActions.length ? 'Загрузить фото доработки' : familyOptional && criterionPending ? 'Добавить фото по желанию' : priorWork ? taskStatus === 'needs-fix' ? 'Добавить фото исправления' : 'Добавить фото продолжения' : 'Добавить фото ответа'
-              const canUpload = !task.problems?.length && !parent && (criterionPending ? familyActions.length > 0 || familyOptional : (task.kind === 'written' && taskStatus !== 'verified' && (!priorWork || newWork || uploadingWork || taskStatus === 'needs-fix' || taskStatus === 'partial') || cdzTask && taskStatus !== 'verified'))
-              const showSubmission = !task.problems?.length && task.kind === 'written' && !criterionPending && taskStatus !== 'verified' && (!priorWork || newWork || uploadingWork || taskStatus === 'needs-fix' || taskStatus === 'partial')
+              // @see ../docs/product/dashboard.md#reference-only-homework
+              const state = task.referenceDate ? referencedItems.length ? `${referenceDone ? 'Готово' : 'Осталось'} · ДЗ за ${dayMonth(task.referenceDate)} · ${referencedItems.filter((item) => item.state === 'done').length} из ${referencedItems.length}` : `См. ДЗ за ${dayMonth(task.referenceDate)}` : task.problems?.length ? `${task.problems.length} задач · каждая проверяется отдельно` : task.kind === 'written'
+                ? taskStatus === 'verified' ? 'Готово · проверено' : processing ? 'Проверяем работу' : newWork ? 'Новое фото · ждёт проверки' : uploadingWork ? 'Фото загружается' : familyActions.length ? 'Доработать по решению родителя' : workCovered ? 'Работа сдана · оценка неясна' : criterionPending ? review?.nextStep ? 'Часть задания не подтверждена · можно добавить фото' : 'Работа разобрана · критерий неясен' : priorWork ? taskStatus === 'needs-fix' ? 'Работа проверена · исправить' : taskStatus === 'partial' ? 'Работа проверена · дополнить' : 'Работа сохранена' : statusLabel(taskStatus)
+                : task.kind === 'read' ? readPassed ? `Чтение подтверждено · ${linkedTest?.points}/${linkedTest?.maxPoints} верно` : linkedTest?.status === 'submitted' ? linkedTest.points == null ? 'Проверяем тест' : `Нужен разбор · ${linkedTest.points}/${linkedTest.maxPoints}` : 'Нужен тест' : cdzTask ? task.platformResult?.state === 'completed' ? cdzResultLabel(task.platformResult) : processing ? 'Проверяем результат ЦДЗ' : newWork ? 'Скриншот ЦДЗ получен · ждёт проверки' : uploadingWork ? 'Скриншот загружается' : 'Нужен скриншот результата ЦДЗ' : statusLabel(taskStatus)
+              const uploadLabel = cdzTask ? newWork || uploadingWork ? 'Добавить ещё фото ЦДЗ' : 'Загрузить результат ЦДЗ' : newWork || uploadingWork ? 'Добавить ещё фото' : familyActions.length ? 'Загрузить фото доработки' : familyOptional && criterionPending ? 'Добавить фото по желанию' : priorWork ? taskStatus === 'needs-fix' ? 'Добавить фото исправления' : 'Добавить фото продолжения' : 'Загрузить фото тетради'
+              // The pupil can always submit a newer photo of written work.
+              // A completed review or an unresolved family criterion must not
+              // remove the upload control from the pupil's task card.
+              const canUpload = pupilCanAddPhoto(task, parent)
+              const showSubmission = !task.problems?.length && task.kind === 'written' && !verified && (!priorWork || newWork || uploadingWork || criterionPending || taskStatus === 'needs-fix' || taskStatus === 'partial')
               const submission = task.submission
               const taskCard = <article className={`day-task ${verified || workCovered ? 'done' : submitted ? 'submitted' : ''}`} id={`day-task-${task.id}`} key={task.id}>
                 <div className="day-task-row"><span className={`day-task-state ${verified ? 'verified' : workCovered ? 'covered' : submitted ? 'partial' : taskStatus}`}>{verified && <CheckCircle2 size={15} aria-hidden="true" />} {state}</span>{task.kind === 'written' && <span className="day-task-type">В тетради</span>}{task.dueDate && task.dueDate !== (task.lessonDate ?? page.targetDate) && <span className="day-task-type">Сдать к {dayMonth(task.dueDate)} · МЭШ</span>}{task.originDate && task.originDate !== page.targetDate && <span className="day-task-type">Осталось с {dayMonth(task.originDate)}</span>}</div>
-                <h3>{task.title}</h3><p>{task.detail}</p>
-                {task.instructionStatus?.state === 'needs-review' && <p className="day-material-warning">⚠️ {task.instructionStatus.message} Подтверждена только запись МЭШ выше; дополнительных пунктов нет.</p>}
+                <h3>{task.title}</h3><AssignmentBrief task={task} materialLinks={taskLinks} />
+                {task.referenceDate && referencedItems.length > 0 && <div className="day-reference-results"><strong>Результаты ДЗ за {dayMonth(task.referenceDate)}</strong>{referencedItems.map((item) => <div className="day-reference-result" key={item.id}><span className={item.state === 'done' ? 'complete' : 'pending'}>{item.state === 'done' ? '✓' : '•'} {item.title}</span><small>{item.detail}</small></div>)}</div>}
+                {!parent && <TaskGuidance items={guidance.filter((item) => item.taskId === task.id)} />}
+                {parent && taskGuides[task.id]?.guide && <ParentTaskGuide guide={taskGuides[task.id]!.guide!} review={review} decisions={parentDecisions.events} guidance={guidance.filter((item) => item.taskId === task.id)} guidanceReady={guidanceReady} onSend={(stage, level) => sendDayGuidance(studentToken, task.id, taskGuides[task.id]!.guide!, stage.id, level)} onStageChoice={helpRole === 'parent' && review ? (stage, required) => recordStageChoice(review, taskGuides[task.id]!.guide!, stage.id, required) : undefined} />}
                 <WorkReview review={review} uploads={taskUploads} accepted={accepted} canDecide={helpRole === 'parent' && !taskUploads.some((upload) => upload.status === 'pending')} onDecision={parent && canAcceptCorrectAnswer(review) && review ? (action) => recordParentCompletion(review, action) : undefined} decisions={parentDecisions.events} parent={parent} onRequirementChoice={parent && review?.assessmentBasis?.disputedRequirements?.length ? (id, action) => recordRequirementChoice(review, id, action) : undefined} />
                 {familyActions.length > 0 && <div className="day-submission-instructions"><strong>Доработка по решению родителя</strong><ol>{familyActions.map((action) => <li key={action}>{action}</li>)}</ol><p>Это семейное решение по спорному требованию. В МЭШ такого уточнения нет.</p></div>}
                 {!!task.steps?.length && <ol className="day-task-steps">{task.steps.map((step, index) => <Instruction key={index} item={step} index={index} />)}</ol>}
@@ -573,7 +548,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
                     const problemReview = reviews.find((item) => item.taskId === problem.id)
                     const problemAccepted = parentAccepted(problemReview, parentDecisions.events)
                     const state = problemCardState(problemUploads, problemReview, problemPhotos.some((photo) => photo.state === 'uploading'), statusNow, problemAccepted)
-                    return <ProblemTaskCard problem={problem} state={state} key={problem.id} links={taskLinks} parent={parent} help={helpRequests.find((item) => item.taskId === problem.id)} review={problemReview} uploads={problemUploads} accepted={problemAccepted} canDecide={helpRole === 'parent'} onDecision={parent && canAcceptCorrectAnswer(problemReview) && problemReview ? (action) => recordParentCompletion(problemReview, action) : undefined} helpAccess={helpRole === 'checking' ? 'checking' : helpRole === 'student' ? 'ready' : 'login-required'} onRequestHelp={!parent && helpRole === 'student' ? (taskId, revision, kind, text) => requestDayHelp(studentToken, taskId, revision, kind, text) : undefined} onPhotos={(files) => attach(problem, files)}>
+                    return <ProblemTaskCard problem={problem} state={state} key={problem.id} links={taskLinks} parent={parent} guide={taskGuides[problem.id]?.guide} guidance={guidance.filter((item) => item.taskId === problem.id)} guidanceReady={guidanceReady} onSendGuidance={parent && taskGuides[problem.id]?.guide ? (stage, level) => sendDayGuidance(studentToken, problem.id, taskGuides[problem.id]!.guide!, stage.id, level) : undefined} onStageChoice={parent && helpRole === 'parent' && problemReview && taskGuides[problem.id]?.guide ? (stage, required) => recordStageChoice(problemReview, taskGuides[problem.id]!.guide!, stage.id, required) : undefined} sourceResearch={taskGuides[problem.id]?.sourceResearch} help={helpRequests.find((item) => item.taskId === problem.id)} review={problemReview} uploads={problemUploads} accepted={problemAccepted} canDecide={helpRole === 'parent'} onDecision={parent && canAcceptCorrectAnswer(problemReview) && problemReview ? (action) => recordParentCompletion(problemReview, action) : undefined} decisions={parentDecisions.events} onRequirementChoice={parent && problemReview?.assessmentBasis?.disputedRequirements?.length ? (id, action) => recordRequirementChoice(problemReview, id, action) : undefined} helpAccess={helpRole === 'checking' ? 'checking' : helpRole === 'student' ? 'ready' : 'login-required'} onRequestHelp={!parent && subject.id === 'special' && helpRole === 'student' ? (taskId, revision, kind, text) => requestDayHelp(studentToken, taskId, revision, kind, text) : undefined} onPhotos={(files) => attach(problem, files)}>
                       <PhotoStrip taskTitle={`№ ${problem.number}. ${problem.title}`} studentToken={studentToken} uploads={problemUploads} localPhotos={problemPhotos} review={problemReview} now={statusNow} onRetry={queuePhotoUpload} onDelete={deletePhoto} />
                     </ProblemTaskCard>
                   })}
@@ -586,12 +561,11 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
                   {!submission?.lead && !submission?.items?.length && !submission?.photo && <p>{submission?.description ?? `Страница тетради с результатом задания «${task.title}». Номер и ответ должны читаться.`}</p>}
                 </div>}
                 <div className="day-task-actions">
-                  {canUpload && <label className="day-upload"><Camera size={17} aria-hidden="true" /> {uploadLabel}<input type="file" accept="image/*" multiple onChange={(event) => { attach(task, Array.from(event.currentTarget.files ?? [])); event.currentTarget.value = '' }} /></label>}
+                  {canUpload && <PhotoUploadControl label={uploadLabel} onPhotos={(files) => attach(task, files)} />}
                   {task.kind === 'read' && task.testToken && task.testSlug && <a className="day-quiz-link" href={parent && linkedTest?.status !== 'submitted' && linkedTest?.previewToken ? `#/preview/${task.testSlug}~${linkedTest.previewToken}` : `#/t/${task.testSlug}~${task.testToken}`}>{parent ? linkedTest?.status === 'submitted' ? 'Посмотреть результат' : 'Посмотреть вопросы' : linkedTest?.status === 'submitted' ? 'Посмотреть результат' : linkedTest?.answered ? 'Продолжить тест' : 'Пройти короткий тест'} <ExternalLink size={15} /></a>}
-                  {parent && !task.problems?.length && <span className="day-parent-status">{task.kind === 'written' ? taskStatus === 'verified' ? 'Работа проверена' : newWork ? 'Новая загрузка ожидает проверки' : priorWork ? 'Работа разобрана; подробности выше' : 'Подтверждённого фото пока нет' : task.kind === 'read' ? readPassed ? 'Чтение подтверждено тестом' : 'Чтение тестом пока не подтверждено' : cdzTask ? task.platformResult?.state === 'completed' ? `Подтверждено результатом МЭШ: ${task.platformResult.points}/${task.platformResult.maxPoints} баллов` : newWork ? 'Результат ЦДЗ ожидает проверки' : 'Результат ЦДЗ пока не подтверждён' : 'Статус сдачи не сообщён'}</span>}
+                  {parent && !task.problems?.length && <span className="day-parent-status">{task.referenceDate ? 'Состояние взято из исходного дня; новой работы МЭШ не назначил' : task.kind === 'written' ? taskStatus === 'verified' ? 'Работа проверена' : newWork ? 'Новая загрузка ожидает проверки' : priorWork ? 'Работа разобрана; подробности выше' : 'Подтверждённого фото пока нет' : task.kind === 'read' ? readPassed ? 'Чтение подтверждено тестом' : 'Чтение тестом пока не подтверждено' : cdzTask ? task.platformResult?.state === 'completed' ? cdzEvidenceLabel(task.platformResult) : newWork ? 'Скриншот ЦДЗ ожидает проверки' : 'Результат ЦДЗ пока не подтверждён' : 'Статус сдачи не сообщён'}</span>}
                 </div>
-                {task.kind === 'read' && linkedTest && <TestProgress test={linkedTest} />}
-                <PhotoStrip taskTitle={task.title} evidenceLabel={cdzTask ? 'Подтверждение ЦДЗ' : 'Фото работы'} studentToken={studentToken} uploads={taskUploads} localPhotos={localTaskPhotos} review={review} now={statusNow} onRetry={queuePhotoUpload} onDelete={deletePhoto} />
+                {!task.referenceDate && <PhotoStrip taskTitle={task.title} evidenceLabel={cdzTask ? 'Подтверждение ЦДЗ' : 'Фото работы'} studentToken={studentToken} uploads={taskUploads} localPhotos={localTaskPhotos} review={review} now={statusNow} onRetry={queuePhotoUpload} onDelete={deletePhoto} />}
                 {parent && <small className="day-source"><BookOpen size={14} /> {task.source}</small>}
               </article>
               if (!task.problems?.length) return taskCard
@@ -605,11 +579,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
               const test = tests.find((item) => item.token === placement.token)
               const chain = lineageByToken.get(placement.token)
               if (chain) return null
-              return <article className={`day-task day-quiz-task ${test?.status === 'submitted' ? 'done' : ''}`} id={`day-quiz-${placement.token}`} key={placement.token}>
-                <div className="day-task-row"><span className={`day-task-state ${test?.status === 'submitted' ? 'verified' : ''}`}>{test?.status === 'submitted' ? 'Тест завершён' : test?.answered ? 'Тест в процессе' : 'Тест не пройден'}</span><span className="day-task-type">Самопроверка</span></div>
-                <h3>{test?.title ?? 'Загружаем тест…'}</h3>
-                {test && <><TestProgress test={test} /><a className="day-quiz-link" href={parent && test.status !== 'submitted' && test.previewToken ? `#/preview/${test.slug}~${test.previewToken}` : `#/t/${test.slug}~${test.token}`}>{parent ? test.status === 'submitted' ? 'Посмотреть результат' : 'Посмотреть вопросы' : test.status === 'submitted' ? 'Мой результат' : test.answered ? 'Продолжить тест' : 'Пройти тест'} <ExternalLink size={15} /></a></>}
-              </article>
+              return test ? <QuizCard key={placement.token} chain={quizChain(test, tests)} parent={parent} id={`day-quiz-${placement.token}`} /> : <p key={placement.token} className="day-loading">Загружаем тест…</p>
             })}</div>
           </div>
         </section>

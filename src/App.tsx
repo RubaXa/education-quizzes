@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { ArrowLeft, BookOpen, ChevronDown, CircleHelp, ClipboardCopy, Clock3, RefreshCw, Send, Sparkles } from 'lucide-react'
+import { getAuth } from 'firebase/auth'
+import { doc, onSnapshot } from 'firebase/firestore'
+import { ArrowLeft, BookOpen, CircleHelp, ClipboardCopy, Clock3, RefreshCw, Send, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { CodeBlock } from '@/components/CodeBlock'
 import { ReadingCard, ThemeFrame, ThemeHero } from '@/components/SubjectTheme'
@@ -13,9 +15,13 @@ import { Textarea } from '@/components/ui/textarea'
 import { countAnswered, grade, summarize } from '@/lib/quiz'
 import { buildFollowUpPrompt } from '@/lib/followup'
 import { WriteQueue } from '@/lib/writeQueue'
+import { readCachedQuiz, readQuizDraft, rememberQuizStudent, wasQuizStudent, writeCachedQuiz, writeQuizDraft } from '@/lib/quizDraft'
+import { readLocalQuiz, writeLocalQuizAssignment, writeLocalQuizDraft } from '@/lib/quizLocalStore'
 import type { Answer, AnswerKey, Assignment, ManualReview, QuizQuestion, QuestionResult } from '@/lib/quiz'
 import type { BoardDetails } from '@/lib/store'
-import { loadPersonalProfile, restorePersonalSession } from '@/lib/personalAccess'
+import type { QuizOutcome } from '@/lib/watchQuizOutcome'
+import { clearPersonalSession, loadPersonalProfile, readCachedPersonalContext, readLastPersonalDashboardRoute, rememberPersonalDashboardRoute, restorePersonalSession } from '@/lib/personalAccess'
+import { db } from '@/lib/firebase'
 import DayPage from './DayPage'
 import DayDashboard from './DayDashboard'
 import { PwaConnectionNotice, PwaInstallButton, PwaUpdateNotice } from './components/PwaControls'
@@ -23,7 +29,8 @@ import { PersonalEntry } from './components/PersonalEntry'
 import NotificationBell from './components/NotificationBell'
 import { ConnectionInvite } from './components/ConnectionInvite'
 import EducationImage from './components/EducationImage'
-import ErrorToasts from './components/ErrorToasts'
+import QuizCard from './components/QuizCard'
+import type { QuizCardAttempt } from '@/lib/quizCardViewModel'
 import { reportUiError } from '@/lib/uiErrors'
 import './App.css'
 
@@ -34,10 +41,11 @@ const loadPreview = async (token: string) => (await storeModule()).loadPreview(t
 const watchAssignment = async (token: string, onChange: Parameters<Awaited<ReturnType<typeof storeModule>>['watchAssignment']>[1], onError: (error: Error) => void) => (await storeModule()).watchAssignment(token, onChange, onError)
 const watchAnswerKey = async (token: string, onChange: (key: AnswerKey) => void, onError: (error: Error) => void) => (await storeModule()).watchAnswerKey(token, onChange, onError)
 const watchReview = async (token: string, onChange: (review: ManualReview | undefined) => void, onError: (error: Error) => void) => (await storeModule()).watchReview(token, onChange, onError)
+const watchQuizOutcome = async (token: string, onChange: Parameters<typeof import('@/lib/watchQuizOutcome')['watchQuizOutcome']>[1], onError: (error: Error) => void) => (await import('@/lib/watchQuizOutcome')).watchQuizOutcome(token, onChange, onError)
 const watchDashboard = async (token: string, onChange: Parameters<Awaited<ReturnType<typeof storeModule>>['watchDashboard']>[1], onError: (error: Error) => void) => (await storeModule()).watchDashboard(token, onChange, onError)
 const watchViewed = async (token: string, onChange: (ids: Set<string>) => void, onError: (error: Error) => void) => (await storeModule()).watchViewed(token, onChange, onError)
 const markViewed = async (boardToken: string, assignmentToken: string) => (await storeModule()).markViewed(boardToken, assignmentToken)
-const saveDraft = async (token: string, changedAnswers: Record<string, Answer>) => (await storeModule()).saveDraft(token, changedAnswers)
+const saveDraft = async (token: string, changedAnswers: Record<string, Answer>, started: boolean) => (await storeModule()).saveDraft(token, changedAnswers, started)
 const submitAssignment = async (token: string) => (await storeModule()).submitAssignment(token)
 
 /**
@@ -88,12 +96,11 @@ function Shell({ children, dayRoute = false, quizBack, onHeaderTarget }: { child
     <div className={`app-shell${dayRoute ? ' day-route' : ''}`}>
       <PwaUpdateNotice />
       <PwaConnectionNotice />
-      <ErrorToasts />
       <header className="site-header">
         <a className="brand" href="#/" aria-label="Education — на главную"><span className="brand-mark">✳</span><span className="brand-long">Учусь и проверяю</span><span className="brand-short">Education</span></a>
         <div id="day-header-return" ref={onHeaderTarget} />
         {quizBack && <a className="quiz-back-link" href={quizBack}><ArrowLeft size={17} aria-hidden="true" /> Назад</a>}
-        <NotificationBell routeKey={location.hash} />
+        <div className="notification-bell-slot"><NotificationBell routeKey={location.hash} /></div>
         <div className="header-actions"><span className="header-note">Маленькие шаги. Большой прогресс.</span><PwaInstallButton /></div>
       </header>
       <main className="page-wrap">{children}</main>
@@ -209,9 +216,10 @@ function answerText(question: QuizQuestion, answer?: Answer): string {
  * @see ../docs/product/quizzes.md#quiz-results
  */
 function ResultCard({ result, index }: { result: QuestionResult; index: number }) {
+  const skipped = result.skipped === true
   const wrong = result.points === 0
-  const pending = result.points === null
-  const partial = !pending && !wrong && result.points !== result.question.points
+  const pending = result.points === null && !skipped
+  const partial = !pending && !wrong && !skipped && result.points !== result.question.points
   const needsReflection = wrong || partial
   const reflectionQuestion = result.question.kind === 'single' || result.question.kind === 'multiple' || result.question.kind === 'figure'
     ? 'Какой факт из задания подтверждает твой выбор? Найди его в назначенном материале и сравни со своим ответом.'
@@ -220,10 +228,10 @@ function ResultCard({ result, index }: { result: QuestionResult; index: number }
     <Card className="border-0 shadow-sm">
       <CardHeader className="gap-2">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <Badge variant={pending || partial ? 'secondary' : wrong ? 'destructive' : 'default'}>
-            {pending ? 'Ждёт проверки' : wrong ? 'Неверно' : partial ? 'Частично верно' : 'Верно'}
+          <Badge variant={skipped || pending || partial ? 'secondary' : wrong ? 'destructive' : 'default'}>
+            {skipped ? 'Пропущено' : pending ? 'Ждёт проверки' : wrong ? 'Неверно' : partial ? 'Частично верно' : 'Верно'}
           </Badge>
-          <span className="text-sm text-muted-foreground">{pending ? '—' : result.points} / {result.question.points}</span>
+          <span className="text-sm text-muted-foreground">{skipped ? 'Без оценки' : `${pending ? '—' : result.points} / ${result.question.points}`}</span>
         </div>
         <CardTitle className="text-lg leading-snug">{index + 1}. {result.question.prompt}</CardTitle>
       </CardHeader>
@@ -233,6 +241,7 @@ function ResultCard({ result, index }: { result: QuestionResult; index: number }
           <p className={wrong ? 'result-answer-wrong' : ''}><span>Ваш ответ</span><strong>{answerText(result.question, result.answer)}</strong></p>
         </div>
         {pending && <p className="text-muted-foreground">Разбор появится здесь после проверки.</p>}
+        {skipped && <p className="text-muted-foreground">Вопрос не входил в оценку этой попытки.</p>}
         {needsReflection && (
           <section className="result-learning" aria-label="Ориентир для самостоятельной проверки">
             <div className="result-rule">
@@ -290,6 +299,7 @@ function ResultView({ assignment, token }: { assignment: Assignment; token: stri
             <span>{summary.pending ? `Ещё ${summary.pending} ${wordForm(summary.pending, 'ответ ждёт', 'ответа ждут', 'ответов ждут')} проверки` : `${percentage}% правильных баллов`}</span>
           </div>
           <Progress value={percentage} className="bg-white/20" />
+          {summary.skipped > 0 && <p className="text-sm text-white/80">Пропущено без оценки: {summary.skipped} из {assignment.questions.length}.</p>}
           {summary.pending > 0 && <p className="text-sm text-white/80">Итог предварительный. Полный разбор появится по этой же ссылке после проверки.</p>}
         </CardContent>
       </Card>
@@ -311,54 +321,168 @@ function QuizRunner({ token }: { token: string }) {
   const [saving, setSaving] = useState(false)
   const [unsaved, setUnsaved] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [localBackupAvailable, setLocalBackupAvailable] = useState(true)
+  const [serverConfirmed, setServerConfirmed] = useState(false)
   const answersRef = useRef<Record<string, Answer>>({})
   const serverAnswersRef = useRef<Record<string, Answer>>({})
   const dirtyAnswers = useRef<Record<string, { value: Answer; revision: number }>>({})
   const answerRevision = useRef(0)
   const writeQueue = useRef(new WriteQueue())
   const pendingWrites = useRef(0)
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const retryCount = useRef(0)
+  const firstSnapshot = useRef(false)
+  const startedRef = useRef(false)
+
+  function persistDirty() {
+    const dirty = Object.fromEntries(Object.entries(dirtyAnswers.current).map(([id, change]) => [id, change.value]))
+    const legacySaved = writeQuizDraft(token, dirty)
+    setLocalBackupAvailable(legacySaved)
+    void writeLocalQuizDraft(token, dirty).then(() => setLocalBackupAvailable(true)).catch(() => {
+      if (!legacySaved) setLocalBackupAvailable(false)
+    })
+  }
+
+  function scheduleSave(delay = 900) {
+    if (saveTimer.current) clearTimeout(saveTimer.current)
+    saveTimer.current = setTimeout(() => {
+      saveTimer.current = null
+      queueSave()
+    }, delay)
+  }
 
   useEffect(() => {
     let active = true
     let unsubscribe: (() => void) | undefined
-    void watchAssignment(token, (data) => {
+    let watchRetry: ReturnType<typeof setTimeout> | undefined
+    let watchFailures = 0
+    const cached = readCachedQuiz(token)
+    if (cached) {
+      setAssignment(cached)
+      serverAnswersRef.current = cached.answers ?? {}
+    }
+    const local = readQuizDraft(token)
+    for (const [id, value] of Object.entries(local)) {
+      dirtyAnswers.current[id] = { value, revision: ++answerRevision.current }
+    }
+    if (cached || Object.keys(local).length) {
+      answersRef.current = { ...(cached?.answers ?? {}), ...local }
+      setAnswers(answersRef.current)
+      setUnsaved(true)
+    }
+    function retryWatch(cause: unknown) {
+      if (!active) return
+      setServerConfirmed(false)
+      setError(describeError(cause))
+      unsubscribe?.()
+      unsubscribe = undefined
+      if (watchRetry) clearTimeout(watchRetry)
+      watchFailures += 1
+      watchRetry = setTimeout(() => { void connect() }, Math.min(120_000, 5_000 * 2 ** Math.min(watchFailures - 1, 5)))
+    }
+    async function connect() {
+      try {
+        const next = await watchAssignment(token, (data, confirmed) => {
       if (!active) return
       setAssignment(data)
+      setServerConfirmed(confirmed)
       serverAnswersRef.current = data.answers ?? {}
-      if (data.status === 'submitted' || pendingWrites.current === 0 && Object.keys(dirtyAnswers.current).length === 0) {
-        answersRef.current = serverAnswersRef.current
-        setAnswers(answersRef.current)
+      if (confirmed) {
+        watchFailures = 0
+        startedRef.current = startedRef.current || data.startedAt != null
+        writeCachedQuiz(token, data)
+        void writeLocalQuizAssignment(token, data).catch(() => {})
+        if (!Object.keys(dirtyAnswers.current).length) setError('')
       }
-    }, (cause) => { if (active) setError(describeError(cause)) }).then((next) => {
-      if (active) unsubscribe = next
-      else next()
-    }).catch((cause) => { if (active) setError(describeError(cause)) })
-    return () => { active = false; unsubscribe?.() }
+      if (confirmed && data.status === 'submitted') {
+        dirtyAnswers.current = {}
+        writeQuizDraft(token, {})
+        void writeLocalQuizDraft(token, {}).catch(() => {})
+      }
+      const pending = Object.fromEntries(Object.entries(dirtyAnswers.current).map(([id, change]) => [id, change.value]))
+      answersRef.current = { ...serverAnswersRef.current, ...pending }
+      setAnswers(answersRef.current)
+      setUnsaved(!confirmed || Object.keys(pending).length > 0)
+      if (confirmed && !firstSnapshot.current) {
+        firstSnapshot.current = true
+        if (data.status === 'open' && Object.keys(pending).length) scheduleSave(1200)
+      }
+        }, retryWatch)
+        if (active) unsubscribe = next
+        else next()
+      } catch (cause) { retryWatch(cause) }
+    }
+    // Import the existing synchronous emergency copy into IndexedDB before
+    // opening the network stream. Old clients can still read localStorage.
+    void (async () => {
+      try {
+        const indexed = await readLocalQuiz(token)
+        if (!active) return
+        if (!cached && indexed.assignment) {
+          setAssignment(indexed.assignment)
+          serverAnswersRef.current = indexed.assignment.answers ?? {}
+          answersRef.current = { ...serverAnswersRef.current, ...Object.fromEntries(Object.entries(dirtyAnswers.current).map(([id, change]) => [id, change.value])) }
+          setAnswers(answersRef.current)
+        }
+        if (!Object.keys(local).length && Object.keys(indexed.draft).length) {
+          for (const [id, value] of Object.entries(indexed.draft)) {
+            if (!dirtyAnswers.current[id]) dirtyAnswers.current[id] = { value, revision: ++answerRevision.current }
+          }
+          answersRef.current = { ...serverAnswersRef.current, ...Object.fromEntries(Object.entries(dirtyAnswers.current).map(([id, change]) => [id, change.value])) }
+          setAnswers(answersRef.current)
+          setUnsaved(true)
+          writeQuizDraft(token, indexed.draft)
+        }
+        if (cached) void writeLocalQuizAssignment(token, cached).catch(() => {})
+        if (Object.keys(local).length) void writeLocalQuizDraft(token, local).catch(() => {})
+      } catch { /* localStorage remains the recovery copy when IndexedDB is unavailable. */ }
+      if (active) void connect()
+    })()
+    const retryOnline = () => {
+      if (watchRetry) { clearTimeout(watchRetry); watchRetry = undefined; void connect() }
+      if (Object.keys(dirtyAnswers.current).length) scheduleSave(0)
+    }
+    window.addEventListener('online', retryOnline)
+    return () => {
+      active = false
+      unsubscribe?.()
+      if (watchRetry) clearTimeout(watchRetry)
+      window.removeEventListener('online', retryOnline)
+      if (saveTimer.current) clearTimeout(saveTimer.current)
+    }
   }, [token])
 
   function queueSave() {
-    setError('')
+    if (pendingWrites.current > 0 || !firstSnapshot.current || Object.keys(dirtyAnswers.current).length === 0) return
     setSaving(true)
     pendingWrites.current += 1
     const write = writeQueue.current.add(async () => {
       const pending = { ...dirtyAnswers.current }
       const patch = Object.fromEntries(Object.entries(pending).map(([id, change]) => [id, change.value]))
       if (Object.keys(patch).length === 0) return
-      await saveDraft(token, patch)
+      await saveDraft(token, patch, startedRef.current)
+      startedRef.current = true
       serverAnswersRef.current = { ...serverAnswersRef.current, ...patch }
       for (const [id, change] of Object.entries(pending)) {
         if (dirtyAnswers.current[id]?.revision === change.revision) delete dirtyAnswers.current[id]
       }
+      persistDirty()
       setUnsaved(Object.keys(dirtyAnswers.current).length > 0)
       setError('')
+      retryCount.current = 0
     })
-    void write.catch((cause) => setError(`Не удалось сохранить ответ: ${describeError(cause)}`)).finally(() => {
+    void write.catch((cause) => {
+      setError(`Не удалось сохранить ответ: ${describeError(cause)}`)
+      retryCount.current += 1
+    }).finally(() => {
       pendingWrites.current -= 1
       if (pendingWrites.current === 0) {
         setSaving(false)
         if (Object.keys(dirtyAnswers.current).length === 0) {
           answersRef.current = serverAnswersRef.current
           setAnswers(answersRef.current)
+        } else {
+          scheduleSave(retryCount.current ? Math.min(120_000, 5_000 * 2 ** Math.min(retryCount.current - 1, 5)) : 900)
         }
       }
     })
@@ -370,7 +494,8 @@ function QuizRunner({ token }: { token: string }) {
     dirtyAnswers.current[questionId] = { value, revision: ++answerRevision.current }
     setAnswers(next)
     setUnsaved(true)
-    queueSave()
+    persistDirty()
+    scheduleSave(retryCount.current ? Math.min(120_000, 5_000 * 2 ** Math.min(retryCount.current - 1, 5)) : 900)
   }
 
   async function submit() {
@@ -415,10 +540,10 @@ function QuizRunner({ token }: { token: string }) {
       {error && <p className="rounded-xl bg-rose-50 p-3 text-sm text-rose-800">{error}</p>}
       <div className="flex flex-col items-start justify-between gap-3 rounded-2xl bg-white p-5 shadow-sm sm:flex-row sm:items-center">
         <div className="flex flex-wrap items-center gap-3">
-          <span className="text-sm text-muted-foreground">{error ? 'Сохранение не подтверждено' : saving ? 'Сохраняем ответ в Firebase…' : unsaved ? 'Ответы ещё не сохранены' : 'Все выбранные ответы сохранены'}</span>
-          {unsaved && !saving && <Button variant="outline" onClick={queueSave}>Повторить сохранение</Button>}
+          <span className="text-sm text-muted-foreground">{unsaved ? localBackupAvailable ? 'Черновик сохранён на этом устройстве; отправка в Firebase не подтверждена' : 'Черновик не удалось сохранить на устройстве — скопируйте ответы и не закрывайте страницу' : saving ? 'Сохраняем ответ в Firebase…' : 'Все выбранные ответы сохранены в Firebase'}</span>
+          {unsaved && !saving && serverConfirmed && <Button variant="outline" onClick={() => { retryCount.current = 0; if (saveTimer.current) clearTimeout(saveTimer.current); saveTimer.current = null; queueSave() }}>Повторить сохранение</Button>}
         </div>
-        <Button size="lg" disabled={submitting || saving || unsaved} onClick={submit}><Send /> {submitting ? 'Отправляем…' : 'Завершить тест'}</Button>
+        <Button size="lg" disabled={submitting || saving || unsaved || !serverConfirmed} onClick={submit}><Send /> {submitting ? 'Отправляем…' : 'Завершить тест'}</Button>
       </div>
       </div>
     </ThemeFrame>
@@ -460,11 +585,18 @@ function QuizAccess({ token }: { token: string }) {
       try {
         const session = await restorePersonalSession()
         const profile = session ? await loadPersonalProfile(session) : null
-        if (active) setStudent(Boolean(profile?.children.some((child) => child.role === 'student')))
-      } catch (cause) { if (active) setError(describeError(cause)) }
+        const isStudent = Boolean(profile?.children.some((child) => child.role === 'student'))
+        if (isStudent && session) rememberQuizStudent(token, session.deviceUid)
+        if (active) setStudent(isStudent)
+      } catch (cause) {
+        if (!active) return
+        const uid = getAuth().currentUser?.uid
+        if (uid && wasQuizStudent(token, uid) && readCachedQuiz(token)) setStudent(true)
+        else setError(describeError(cause))
+      }
     })()
     return () => { active = false }
-  }, [])
+  }, [token])
   useEffect(() => {
     if (student !== false) return
     let active = true
@@ -474,7 +606,7 @@ function QuizAccess({ token }: { token: string }) {
   }, [student, token])
   if (error) return <ErrorCard message={error} />
   if (student === null) return <p>Проверяем профиль…</p>
-  if (student) return <QuizRunner token={token} />
+  if (student) return <QuizRunner key={token} token={token} />
   if (!assignment) return <p>Загружаем тест для просмотра…</p>
   if (assignment.status === 'submitted') return <ThemeFrame subject={assignment.subject} visual={assignment.visual}><ResultView assignment={assignment} token={token} /></ThemeFrame>
   return <ThemeFrame subject={assignment.subject} visual={assignment.visual}><div className="space-y-6">
@@ -485,19 +617,11 @@ function QuizAccess({ token }: { token: string }) {
   </div></ThemeFrame>
 }
 
-type BoardItem = {
-  token: string
-  title: string
-  description: string
+type BoardItem = QuizCardAttempt & {
   board: BoardDetails | null
   subject: string
-  slug: string
-  previewToken: string
   position: number | null
   createdAt: { seconds?: number } | null
-  status: Assignment['status']
-  answered: number
-  total: number
   submittedAt: { seconds?: number } | null
 }
 
@@ -514,37 +638,16 @@ function BoardCard({ item, parent = false, unread = false, copied = false, onCop
   onMarkViewed?: (token: string) => void
 }) {
   const completed = item.status === 'submitted'
-  const remaining = Math.max(0, item.total - item.answered)
-  return (
-    <Card className="board-card border-0 shadow-sm">
-      <CardHeader className="gap-3">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <Badge variant={completed && !unread ? 'secondary' : 'default'}>{parent && completed ? unread ? 'Новый результат' : 'Просмотрен' : completed ? 'Пройден' : item.answered ? 'В процессе' : 'Не начат'}</Badge>
-          <span className="text-sm text-muted-foreground">{item.answered} из {item.total}</span>
-        </div>
-        {parent && <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{item.subject}</span>}
-        <CardTitle className="text-xl font-semibold">{item.title}</CardTitle>
-        {item.description && <details className="board-description">
-          <summary><span>{item.description}</span><ChevronDown className="size-4 shrink-0" aria-hidden="true" /></summary>
-          {item.board && <div className="board-description-content">
-            <div><h4>На основе материалов</h4><ul>{item.board.materials.map((material) => <li key={material}>{material}</li>)}</ul></div>
-            <div><h4>Что повторить</h4><p>{item.board.review}</p></div>
-            <div><h4>Зачем этот тест</h4><p>{item.board.purpose}</p></div>
-          </div>}
-        </details>}
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {!completed && <div className="space-y-2"><div className="flex justify-between gap-2 text-sm"><span>Отвечено: {item.answered}</span><strong>Осталось: {remaining}</strong></div><Progress value={item.total ? item.answered * 100 / item.total : 0} /></div>}
-        <div className="flex flex-wrap gap-2">
-          {!parent && <Button asChild><a href={`#/t/${item.slug}~${item.token}`}>{completed ? 'Посмотреть результат' : item.answered ? 'Продолжить тест' : 'Начать тест'}</a></Button>}
-          {parent && completed && <Button asChild><a href={`#/t/${item.slug}~${item.token}`} onClick={() => { if (unread) onMarkViewed?.(item.token) }}>Посмотреть результат</a></Button>}
-          {item.previewToken && <Button variant="outline" asChild><a href={`#/preview/${item.slug}~${item.previewToken}`}>{parent ? 'Посмотреть вопросы' : 'Просмотреть без ответов'}</a></Button>}
-          {parent && completed && <Button variant="outline" onClick={() => onCopy?.(item)}><ClipboardCopy /> {copied ? 'Скопировано' : 'Скопировать задание агенту'}</Button>}
-          {parent && unread && <Button variant="ghost" onClick={() => onMarkViewed?.(item.token)}>Отметить просмотренным</Button>}
-        </div>
-      </CardContent>
-    </Card>
-  )
+  const materials = item.board ? <div className="board-description-content">
+    <div><h4>На основе материалов</h4><ul>{item.board.materials.map((material) => <li key={material}>{material}</li>)}</ul></div>
+    <div><h4>Что повторить</h4><p>{item.board.review}</p></div>
+    <div><h4>Зачем этот тест</h4><p>{item.board.purpose}</p></div>
+  </div> : undefined
+  return <QuizCard chain={[item]} parent={parent} context={item.subject || 'заданию'} id={`board-quiz-${item.token}`} materials={materials} onOpen={() => { if (unread) onMarkViewed?.(item.token) }} extraActions={<>
+    {parent && completed && <Button variant="outline" onClick={() => onCopy?.(item)}><ClipboardCopy /> {copied ? 'Скопировано' : 'Скопировать задание агенту'}</Button>}
+    {parent && unread && <Button variant="ghost" onClick={() => onMarkViewed?.(item.token)}>Отметить просмотренным</Button>}
+  </>} />
+
 }
 
 /**
@@ -559,40 +662,57 @@ function Dashboard({ token, parent = false }: { token: string; parent?: boolean 
 
   useEffect(() => {
     let active = true
-    let generation = 0
     let stopIndex: (() => void) | undefined
-    let stopAssignments: Array<() => void> = []
+    const subscriptions = new Map<string, { active: boolean; stop?: () => void }>()
+    const outcomes = new Map<string, QuizOutcome>()
+    let indexRows: Awaited<ReturnType<typeof import('@/lib/store').loadDashboard>> = []
+    const emit = () => {
+      if (!active || indexRows.some((item) => !outcomes.has(item.token))) return
+      const next = indexRows.map((item): BoardItem => {
+        const { assignment, score } = outcomes.get(item.token)!
+        return {
+          ...item,
+          testId: assignment.testId,
+          linkedToTestId: assignment.linkedToTestId,
+          title: item.title || assignment.title,
+          description: item.description || assignment.description || '',
+          board: item.board,
+          subject: item.subject || assignment.subject,
+          status: assignment.status,
+          answered: countAnswered(assignment),
+          total: assignment.questions.length,
+          submittedAt: assignment.submittedAt as { seconds?: number } | null,
+          points: score?.points,
+          maxPoints: score?.maxPoints,
+        }
+      }).sort((a, b) => (a.position ?? a.createdAt?.seconds ?? 0) - (b.position ?? b.createdAt?.seconds ?? 0))
+      setItems(next)
+      setError('')
+    }
     void watchDashboard(token, (index) => {
-      generation += 1
-      const currentGeneration = generation
-      stopAssignments.forEach((stop) => stop())
-      stopAssignments = []
-      const rows = new Map<string, BoardItem>()
-      if (index.length === 0) setItems([])
+      indexRows = index
+      const needed = new Set(index.map((item) => item.token))
+      for (const [id, subscription] of subscriptions) {
+        if (needed.has(id)) continue
+        subscription.active = false
+        subscription.stop?.()
+        subscriptions.delete(id)
+        outcomes.delete(id)
+      }
       for (const item of index) {
-        void watchAssignment(item.token, (assignment) => {
-          if (!active || currentGeneration !== generation) return
-          rows.set(item.token, {
-            ...item,
-            title: item.title || assignment.title,
-            description: item.description || assignment.description || '',
-            board: item.board,
-            subject: item.subject || assignment.subject,
-            status: assignment.status,
-            answered: countAnswered(assignment),
-            total: assignment.questions.length,
-            submittedAt: assignment.submittedAt as { seconds?: number } | null,
-          })
-          if (rows.size === index.length) {
-            const next = [...rows.values()].sort((a, b) => (a.position ?? a.createdAt?.seconds ?? 0) - (b.position ?? b.createdAt?.seconds ?? 0))
-            setItems(next)
-            setError('')
-          }
+        if (subscriptions.has(item.token)) continue
+        const subscription: { active: boolean; stop?: () => void } = { active: true }
+        subscriptions.set(item.token, subscription)
+        void watchQuizOutcome(item.token, (outcome) => {
+          if (!active || !subscription.active) return
+          outcomes.set(item.token, outcome)
+          emit()
         }, (cause) => { if (active) setError(describeError(cause)) }).then((stop) => {
-          if (active && currentGeneration === generation) stopAssignments.push(stop)
+          if (active && subscription.active) subscription.stop = stop
           else stop()
         }).catch((cause) => { if (active) setError(describeError(cause)) })
       }
+      emit()
     }, (cause) => { if (active) setError(describeError(cause)) }).then((stop) => {
       if (active) stopIndex = stop
       else stop()
@@ -609,7 +729,7 @@ function Dashboard({ token, parent = false }: { token: string; parent?: boolean 
       active = false
       stopIndex?.()
       stopViewed?.()
-      stopAssignments.forEach((stop) => stop())
+      for (const subscription of subscriptions.values()) { subscription.active = false; subscription.stop?.() }
     }
   }, [token, parent])
 
@@ -671,7 +791,13 @@ function Home() {
  * @see ../docs/product/access-and-state.md#routes
  */
 function App() {
-  const [route, setRoute] = useState<Route>(routeFromHash)
+  const [route, setRoute] = useState<Route>(() => {
+    if (!location.hash || location.hash === '#/') {
+      const saved = readLastPersonalDashboardRoute()
+      if (saved) history.replaceState(history.state, '', `${location.pathname}${location.search}${saved}`)
+    }
+    return routeFromHash()
+  })
   const [headerReturnTarget, setHeaderReturnTarget] = useState<HTMLDivElement | null>(null)
   const [testReturn, setTestReturn] = useState(() => quizReturnHash(history.state?.educationQuizReturnHash))
   useEffect(() => {
@@ -688,11 +814,45 @@ function App() {
       }
       previousRoute = nextRoute
       previousHash = location.hash
+      rememberPersonalDashboardRoute(location.hash)
       setRoute(nextRoute)
     }
     window.addEventListener('hashchange', updateRoute)
     return () => window.removeEventListener('hashchange', updateRoute)
   }, [])
+  useEffect(() => {
+    if (route.kind !== 'days' && route.kind !== 'days-parent') return
+    const cached = readCachedPersonalContext()
+    const role = route.kind === 'days-parent' ? 'parent' : 'student'
+    if (!cached?.profile.children.some((child) => child.role === role && child.dashboardToken === route.token)) return
+    let active = true
+    let stops: Array<() => void> = []
+    const close = () => {
+      if (!active) return
+      clearPersonalSession()
+      window.location.hash = '#/'
+    }
+    void getAuth().authStateReady().then(() => {
+      if (!active) return
+      if (getAuth().currentUser?.uid !== cached.session.deviceUid) { close(); return }
+      const { session } = cached
+      stops = [
+        onSnapshot(doc(db, 'accessLinks', session.linkToken), (grant) => {
+          if (!grant.metadata.fromCache && (!grant.exists() || grant.data()?.active !== true || grant.data()?.personId !== session.personId)) close()
+        }, (cause) => { if (cause.code === 'permission-denied') close() }),
+        onSnapshot(doc(db, 'deviceSessions', session.deviceUid), (device) => {
+          if (!device.metadata.fromCache && (!device.exists() || device.data()?.linkToken !== session.linkToken)) close()
+        }, (cause) => { if (cause.code === 'permission-denied') close() }),
+      ]
+      for (const familyId of new Set(cached.profile.children.filter((child) => child.role === role && child.dashboardToken === route.token).map((child) => child.familyId))) {
+        stops.push(onSnapshot(doc(db, 'families', familyId, 'members', session.personId), (member) => {
+          if (!member.metadata.fromCache && (!member.exists() || member.data()?.active !== true || member.data()?.role !== role ||
+            !member.data()?.childIds?.includes(cached.profile.children.find((child) => child.familyId === familyId && child.dashboardToken === route.token)?.childId))) close()
+        }, (cause) => { if (cause.code === 'permission-denied') close() }))
+      }
+    })
+    return () => { active = false; stops.forEach((stop) => stop()) }
+  }, [route])
   return <Shell dayRoute={route.kind === 'day' || route.kind === 'day-parent'} quizBack={route.kind === 'test' || route.kind === 'preview' ? testReturn : undefined} onHeaderTarget={setHeaderReturnTarget}>{route.kind === 'test' ? <QuizAccess key={route.token} token={route.token} /> : route.kind === 'preview' ? <Preview token={route.token} /> : route.kind === 'dashboard' || route.kind === 'my' || route.kind === 'review' ? <Dashboard key={`${route.kind}-${route.token}`} token={route.token} parent={route.kind === 'review'} /> : route.kind === 'days' || route.kind === 'days-parent' ? <DayDashboard key={`${route.kind}-${route.token}`} token={route.token} parent={route.kind === 'days-parent'} /> : route.kind === 'day' || route.kind === 'day-parent' ? <DayPage key={`${route.kind}-${route.token}`} token={route.token} parent={route.kind === 'day-parent'} headerReturnTarget={headerReturnTarget} /> : route.kind === 'enter' ? <PersonalEntry key={route.token} initialLink={route.token} /> : route.kind === 'connect' ? <ConnectionInvite key={route.token} code={route.token} /> : <Home />}</Shell>
 }
 

@@ -1,0 +1,52 @@
+/* @see ../../docs/product/design-system.md#cards-and-status and ../../docs/product/card-generation-policy.md#quiz-adapter — one quiz card on every route. */
+.day-quiz-link{display:inline-flex;align-items:center;gap:7px;border-radius:10px;padding:9px 12px;background:#5c4798;color:white;font-size:.84rem;font-weight:800;text-decoration:none}.day-quiz-link:hover{background:#49387c;color:white}
+.day-quiz-task{background:#faf8ff;border-color:#e1d8f2}
+.day-quiz-lineage{min-width:0;border:1px solid #ded6eb;border-radius:17px;background:#fff;overflow:hidden}
+.day-quiz-lineage-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:10px 16px;background:#f2ebfa}
+.day-quiz-lineage-head strong{font-size:.84rem;line-height:1.3}
+.day-quiz-lineage-score{border-radius:999px;background:#f4f0fa;color:#62517f;padding:4px 9px;font-size:.74rem;font-weight:800;white-space:nowrap}
+.day-quiz-lineage-score.complete{background:#e6f6eb;color:#216a3d}
+.day-quiz-lineage-score.partial{background:#fff1dc;color:#905b1c}
+.day-quiz-lineage-current{padding:13px 16px 15px}
+.day-quiz-lineage-current>small{color:#7355a3;font-size:.77rem;font-weight:800}
+.day-quiz-lineage-current h3{font-size:1.08rem;line-height:1.32;font-weight:850;margin:6px 0}
+.day-quiz-lineage-current>p{font-size:.88rem;line-height:1.46;color:#665d76;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.day-quiz-lineage-actions{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:11px}
+.day-quiz-lineage-actions .day-quiz-link{margin:0}
+.day-quiz-copy{display:grid;place-items:center;width:var(--edu-touch-target);height:var(--edu-touch-target);border:1px solid var(--edu-card-border);border-radius:var(--edu-radius-control);background:var(--edu-surface);color:var(--edu-brand);cursor:pointer}
+.day-quiz-copy:focus-visible{outline:3px solid var(--edu-focus);outline-offset:2px}
+.day-quiz-materials{border-top:1px solid #eee8f3;margin-top:13px;padding-top:9px}
+.day-quiz-materials>summary{display:flex;align-items:center;gap:5px;color:#665686;font-size:.78rem;font-weight:750;cursor:pointer;list-style:none}
+.day-quiz-materials>summary::-webkit-details-marker{display:none}
+.day-quiz-materials>summary svg{transition:transform .2s}
+.day-quiz-materials[open]>summary svg{transform:rotate(180deg)}
+.day-quiz-materials>div{padding-top:11px}
+.day-quiz-materials p{font-size:.86rem;line-height:1.5;color:#625874;margin:0 0 8px}
+.day-quiz-materials a{display:inline-flex;align-items:center;gap:4px;color:#5c4798;font-size:.8rem;font-weight:750}
+.day-quiz-history{min-width:0;border-top:1px solid #ded6eb;background:#faf8fd}
+.day-quiz-history>summary{display:flex;align-items:center;justify-content:space-between;gap:10px;list-style:none;cursor:pointer;padding:13px 16px;color:#4b3a78}
+.day-quiz-history>summary::-webkit-details-marker{display:none}
+.day-quiz-history>summary>span{display:grid;gap:2px;min-width:0}
+.day-quiz-history>summary strong{font-size:.9rem}
+.day-quiz-history>summary small{font-size:.76rem;color:#766b8b}
+.day-quiz-history-score{position:relative;isolation:isolate;overflow:hidden;min-width:54px;padding:4px 7px;border:1px solid #eed9b8;border-radius:999px;background:#fff6e9;color:#875915;text-align:center;font-size:.76rem;font-weight:800}
+.day-quiz-history-score i{position:absolute;inset:0 auto 0 0;z-index:-1;background:#f9e8cb}
+.day-quiz-history-score.complete{border-color:#d9e7dd;background:#edf7ef;color:#236a3d}
+.day-quiz-history-score.complete i{background:#d4efdb}
+.day-quiz-history>summary>span:first-child{flex:1}
+.day-quiz-history>summary svg{flex:none;transition:transform .2s ease}
+.day-quiz-history[open]>summary svg{transform:rotate(180deg)}
+.day-quiz-history>summary:focus-visible{outline:3px solid #a88cdc;outline-offset:-3px}
+.day-quiz-history-body{display:grid;gap:8px;padding:0 9px 9px}
+.day-quiz-history .day-task{box-shadow:none}
+.day-quiz-history-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;border:1px solid #e8e1f0;border-radius:12px;background:white;padding:10px 12px;font-size:.8rem}
+.day-quiz-history-row strong{flex:1 1 180px}
+.day-quiz-history-row span{color:#756985}
+.day-quiz-history-row a{display:inline-flex;align-items:center;gap:4px;color:#5c4798;font-weight:750;white-space:nowrap}
+@media(max-width:640px){.day-quiz-lineage-actions .day-quiz-link{font-size:.8rem}.day-quiz-lineage-head{padding:9px 13px}.day-quiz-lineage-current{padding:12px 13px 14px}}
+.day-test-progress{margin-top:13px;color:#625779;font-size:.85rem;font-weight:650}
+.day-test-track{height:8px;margin-top:8px;background:#e7e1f0;border-radius:999px;overflow:hidden}
+.day-test-track>span{display:block;height:100%;background:#7559b7;border-radius:999px;transition:width .2s ease}
+.day-quiz-extra-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.day-quiz-lineage{color:var(--edu-ink);background:var(--edu-surface);border-color:var(--edu-card-border)}
+.day-quiz-lineage .day-test-track>span{background:var(--edu-brand)}

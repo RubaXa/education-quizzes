@@ -7,8 +7,11 @@ import type { DayWorkReview } from './dayStore'
 export type ParentCompletionEvent = {
   id: string
   taskId: string
-  action: 'accept' | 'reopen' | 'require' | 'optional'
+  action: 'accept' | 'reopen' | 'require' | 'optional' | 'stage-required' | 'stage-optional'
   requirementId?: string
+  stageId?: string
+  stageIndex?: number
+  guideRevision?: number
   reviewCheckedAt: unknown
   decidedAt: unknown
 }
@@ -52,6 +55,32 @@ export function requirementChoice(review: DayWorkReview | undefined, requirement
 
 export function requiredFamilyActions(review: DayWorkReview | undefined, events: ParentCompletionEvent[]): string[] {
   return review?.assessmentBasis?.disputedRequirements?.filter((item) => requirementChoice(review, item.id, events) === 'require').map((item) => item.action) ?? []
+}
+
+/** A reviewed stage is required until a parent explicitly excludes it for this review version.
+ * @see ../../docs/product/day-page.md#review-stage-switch */
+export function stageRequired(review: DayWorkReview | undefined, stageId: string, events: ParentCompletionEvent[]): boolean {
+  if (!review?.checkableStageIds?.includes(stageId)) return true
+  const version = stamp(review.checkedAt)
+  const token = review.id.split(':')[0]
+  const latest = events.filter((event) => event.id.startsWith(`${token}:`) && event.taskId === review.taskId
+    && event.stageId === stageId && ['stage-required', 'stage-optional'].includes(event.action)
+    && stamp(event.reviewCheckedAt) === version && stamp(event.decidedAt))
+    .sort((a, b) => stamp(b.decidedAt).localeCompare(stamp(a.decidedAt)) || b.id.localeCompare(a.id))[0]
+  return latest?.action !== 'stage-optional'
+}
+
+export function stageCompletion(review: DayWorkReview | undefined, events: ParentCompletionEvent[]) {
+  const ids = review?.checkableStageIds
+  if (!ids?.length || new Set(ids).size !== ids.length) return null
+  const items = review?.items ?? []
+  const required = ids.filter((id) => stageRequired(review, id, events))
+  const confirmed = required.filter((id) => {
+    const matched = items.filter((item) => item.stageId === id)
+    return matched.length > 0 && matched.every((item) => item.status === 'correct')
+  })
+  return { required: required.length, confirmed: confirmed.length,
+    optional: ids.length - required.length, complete: confirmed.length === required.length }
 }
 
 export function watchParentCompletions(tokens: string[], onChange: (events: ParentCompletionEvent[]) => void, onError: (error: Error) => void) {
@@ -123,4 +152,18 @@ export async function recordRequirementChoice(review: DayWorkReview, requirement
     sourceRevision: 1, createdAt: serverTimestamp(),
   })
   await batch.commit()
+}
+
+/** One immutable family choice, validated against the current private guide by Firestore rules.
+ * No profile or membership scan is needed for the write. */
+export async function recordStageChoice(review: DayWorkReview, guide: { revision?: number; stages: { id: string }[] }, stageId: string, required: boolean) {
+  if (!review.checkableStageIds?.includes(stageId) || !stamp(review.checkedAt)) throw new Error('Пункт не связан с текущей проверкой.')
+  const stageIndex = guide.stages.findIndex((stage) => stage.id === stageId)
+  if (stageIndex < 0 || !Number.isInteger(guide.revision) || !review.id.includes(':')) throw new Error('Не найдена текущая версия разбора.')
+  const studentToken = review.id.split(':')[0]
+  await writeBatch(db).set(doc(db, 'dayParentDecisions', studentToken, 'events', crypto.randomUUID()), {
+    taskId: review.taskId, action: required ? 'stage-required' : 'stage-optional', stageId, stageIndex,
+    guideRevision: guide.revision, reviewCheckedAt: review.checkedAt,
+    actorPersonId: currentEducationPersonId(), decidedAt: serverTimestamp(),
+  }).commit()
 }

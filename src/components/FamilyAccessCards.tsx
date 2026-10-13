@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { addDoc, collection, doc, onSnapshot, serverTimestamp } from 'firebase/firestore'
+import { getAuth } from 'firebase/auth'
 import { Copy, KeyRound, Link2, ShieldCheck, UsersRound } from 'lucide-react'
 import { db } from '@/lib/firebase'
 import type { PersonalChild, PersonalProfile } from '@/lib/personalAccess'
@@ -23,14 +24,21 @@ function readableError(cause: unknown) {
   return detail
 }
 function useRecords<T>(path: string[]) {
-  const [records, setRecords] = useState<T[] | null>(null)
-  const [error, setError] = useState('')
+  const [snapshot, setSnapshot] = useState<{ key: string; records: T[] | null; error: string }>({ key: '', records: null, error: '' })
   const key = path.join('/')
-  useEffect(() => onSnapshot(collection(db, key), (snapshot) => {
-    setRecords(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as T))
-    setError('')
-  }, (cause) => { setRecords(null); setError(readableError(cause)) }), [key])
-  return { records, error }
+  useEffect(() => {
+    let active = true
+    let stop: (() => void) | undefined
+    void getAuth().authStateReady().then(() => {
+      if (!active || !getAuth().currentUser) return
+      stop = onSnapshot(collection(db, key), { includeMetadataChanges: true }, (value) => {
+        if (!active || value.metadata?.fromCache) return
+        setSnapshot({ key, records: value.docs.map((item) => ({ id: item.id, ...item.data() }) as T), error: '' })
+      }, (cause) => { if (active) setSnapshot({ key, records: null, error: readableError(cause) }) })
+    }).catch((cause: unknown) => { if (active) setSnapshot({ key, records: null, error: readableError(cause) }) })
+    return () => { active = false; stop?.() }
+  }, [key])
+  return snapshot.key === key ? { records: snapshot.records, error: snapshot.error } : { records: null, error: '' }
 }
 
 function MembersCard({ familyId, familyChildren, profile }: { familyId: string; familyChildren: PersonalChild[]; profile: PersonalProfile }) {
@@ -38,7 +46,7 @@ function MembersCard({ familyId, familyChildren, profile }: { familyId: string; 
   const adults = records?.filter((item) => item.role === 'parent' && item.active) ?? []
   return <article className="parent-manage-card">
     <div className="parent-manage-head"><UsersRound size={20} aria-hidden="true" /><h3>Члены семьи</h3></div>
-    <p className="parent-manage-count">{records ? `${adults.length} взрослых · ${familyChildren.length} детей с вашим доступом` : error || 'Загружаем состав'}</p>
+    <p className="parent-manage-count">{records && adults.length ? `${adults.length} взрослых · ${familyChildren.length} детей с вашим доступом` : error || 'Состав семьи уточняется'}</p>
     <ul>{adults.map((item) => <li key={item.id}>{item.displayName || (item.id === profile.personId ? profile.displayName : 'Взрослый')}{item.id === profile.personId ? ' · вы' : ''}<span>{item.meshConnectedAt ? 'МЭШ подключён' : 'МЭШ ещё не связан с профилем'}</span></li>)}</ul>
     <p>Дети: {familyChildren.map((child) => child.displayName).join(', ')}.</p>
   </article>
@@ -104,18 +112,18 @@ function InvitesCard({ familyId, personId }: { familyId: string; personId: strin
   const pending = ownRequests?.some((item) => item.status === 'requested')
   return <article className="parent-manage-card">
     <div className="parent-manage-head"><ShieldCheck size={20} aria-hidden="true" /><h3>Приглашения</h3></div>
-    <p className="parent-manage-count">{right?.inviteUnlimited ? 'Можно приглашать без лимита' : `Осталось приглашений: ${right?.inviteQuota ?? 0}`}</p>
-    {allowed && <div className="parent-manage-form">
+    <p className="parent-manage-count">{!right ? 'Проверяем право приглашать' : right.inviteUnlimited ? 'Можно приглашать без лимита' : `Осталось приглашений: ${right.inviteQuota ?? 0}`}</p>
+    {right && allowed && <div className="parent-manage-form">
       <label>Кого приглашаете?<select value={mode} onChange={(event) => setMode(event.target.value as 'same-family' | 'new-family')}><option value="same-family">Взрослого в нашу семью</option><option value="new-family">Новую семью</option></select></label>
       <label>Сколько приглашений сможет выдать адресат?<input type="number" min={0} max={1000} value={quota} onChange={(event) => setQuota(Math.max(0, Math.min(1000, Number(event.target.value) || 0)))} /></label>
       <Button type="button" disabled={busy || pending} onClick={() => void requestInvite()}>Создать приглашение</Button>
       <small>Заявка проходит через локальный процесс. Пароль МЭШ и ключ расшифрования здесь не хранятся.</small>
     </div>}
-    {!allowed && <p>Право создавать новые приглашения не выдано.</p>}
+    {right && !allowed && <p>Право создавать новые приглашения не выдано.</p>}
     {(inviteError || requestError) && <p role="alert">{inviteError || requestError}</p>}
     {ownRequests?.filter((item) => item.status === 'requested').map((item) => <p className="parent-manage-pending" key={item.id}>◷ Приглашение готовится · {item.mode === 'new-family' ? 'новая семья' : 'наша семья'} · право выдать ещё {item.delegateQuota}</p>)}
     {ownRequests?.filter((item) => item.status === 'rejected').map((item) => <p key={item.id} role="status">Запрос приглашения отклонён: {item.reason || 'право или данные заявки не подтверждены'}.</p>)}
-    {invites?.length ? <ul>{[...invites].sort((a, b) => (b.createdAt?.toDate().getTime() ?? 0) - (a.createdAt?.toDate().getTime() ?? 0)).map((item) => <InviteRow key={item.id} item={item} nowMs={nowMs} busy={busy} revokePending={Boolean(revocations?.some((revocation) => revocation.inviteCode === item.id && revocation.status === 'requested'))} copy={(code) => { void copy(code) }} revoke={(code) => { void requestRevoke(code) }} />)}</ul> : !pending && <p>Выданных приглашений пока нет.</p>}
+    {right && invites?.length ? <ul>{[...invites].sort((a, b) => (b.createdAt?.toDate().getTime() ?? 0) - (a.createdAt?.toDate().getTime() ?? 0)).map((item) => <InviteRow key={item.id} item={item} nowMs={nowMs} busy={busy} revokePending={Boolean(revocations?.some((revocation) => revocation.inviteCode === item.id && revocation.status === 'requested'))} copy={(code) => { void copy(code) }} revoke={(code) => { void requestRevoke(code) }} />)}</ul> : right && allInvites && !pending && <p>Выданных приглашений пока нет.</p>}
     {message && <p role="status">{message}</p>}
   </article>
 }
@@ -148,7 +156,7 @@ function ChildAccess({ familyId, child, actorPersonId }: { familyId: string; chi
     <span>{grants === null ? error || 'Загружаем ссылки' : active.length ? `${active.length} действующих · ${grants.length} в истории` : 'Действующей ссылки нет'}</span>
     {latest && <span>Последняя выдана {date(latest.createdAt)} · входов по техническим сессиям: {latest.sessionCount ?? 'неизвестно'}</span>}
     <div className="parent-manage-actions">{latest && <Button type="button" variant="outline" size="sm" onClick={() => void copy()}><Copy size={16} /> Скопировать ссылку</Button>}
-      <Button type="button" variant="outline" size="sm" disabled={busy || pending} onClick={() => void request('rotate')}><KeyRound size={16} /> Новая ссылка</Button>
+      <Button type="button" variant="outline" size="sm" disabled={busy || pending || grants === null} onClick={() => void request('rotate')}><KeyRound size={16} /> Новая ссылка</Button>
       {latest && <Button type="button" variant="outline" size="sm" disabled={busy || pending} onClick={() => void request('revoke', latest.id)}>Заблокировать</Button>}
     </div>
     {grants && grants.length > 1 && <details><summary>История ссылок · {grants.length}</summary><ul>{[...grants].sort((a, b) => (b.createdAt?.toDate().getTime() ?? 0) - (a.createdAt?.toDate().getTime() ?? 0)).map((grant) => <li key={grant.id}>{grant.active ? 'Действует' : 'Закрыта'} · {date(grant.createdAt)} · технических сессий: {grant.sessionCount ?? 'неизвестно'}</li>)}</ul></details>}
@@ -159,19 +167,32 @@ function ChildAccess({ familyId, child, actorPersonId }: { familyId: string; chi
 }
 
 /** @see ../../docs/architecture/family-data-model.md#parent-home
- *  @see ../../docs/product/design-system.md#cards-and-status */
+ *  @see ../../docs/product/design-system.md#cards-and-status
+ *  @see ../../docs/architecture/local-first-release-plan-2026-10-12.md */
 export function FamilyAccessCards({ profile, familyChildren }: { profile: PersonalProfile; familyChildren: PersonalChild[] }) {
   const familyId = familyChildren[0]?.familyId
+  const sectionRef = useRef<HTMLElement>(null)
+  const [visible, setVisible] = useState(() => typeof IntersectionObserver === 'undefined')
+  useEffect(() => {
+    if (visible || !familyId) return
+    const section = sectionRef.current
+    if (!section || typeof IntersectionObserver === 'undefined') { setVisible(true); return }
+    const observer = new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) { setVisible(true); observer.disconnect() }
+    }, { rootMargin: '160px' })
+    observer.observe(section)
+    return () => observer.disconnect()
+  }, [visible, familyId])
   if (!familyId) return null
-  return <section className="parent-family-group" aria-label={`Семья: ${familyChildren.map((child) => child.displayName).join(', ')}`}>
+  return <section ref={sectionRef} className="parent-family-group" aria-label={`Семья: ${familyChildren.map((child) => child.displayName).join(', ')}`}>
     <h2>Семья и доступ</h2>
-    <div className="parent-family-grid">
+    {visible ? <div className="parent-family-grid">
       <MembersCard familyId={familyId} familyChildren={familyChildren} profile={profile} />
       <InvitesCard familyId={familyId} personId={profile.personId} />
       <article className="parent-manage-card"><div className="parent-manage-head"><Link2 size={20} aria-hidden="true" /><h3>Вход детей</h3></div>
         <p>Личная ссылка открывает только профиль ребёнка. Её можно заменить без удаления работ и результатов.</p>
         {familyChildren.map((child) => <ChildAccess key={child.childId} familyId={familyId} child={child} actorPersonId={profile.personId} />)}
       </article>
-    </div>
+    </div> : <button type="button" className="parent-manage-card parent-family-open" onClick={() => setVisible(true)}>Открыть управление семьёй</button>}
   </section>
 }

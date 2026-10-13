@@ -1,9 +1,13 @@
 import type { ReactNode } from 'react'
-import { Camera, CheckCircle2, ChevronDown, CircleAlert, Clock3, LoaderCircle } from 'lucide-react'
+import { CheckCircle2, ChevronDown, CircleAlert, Clock3, LoaderCircle } from 'lucide-react'
 import type { DayProblem } from '@/lib/dayStore'
 import type { ProblemCardState } from '@/lib/reviewPresentation'
+import PhotoUploadControl from './PhotoUploadControl'
 import './ProblemCard.css'
 
+/** One numbered problem shell; route-specific evidence stays in its children.
+ * @see ../../docs/product/component-system.md#registry
+ * @see ../../docs/product/adaptive-problem-card.md#shared-problem-view */
 export function ProblemCard({ problem, state, children }: { problem: DayProblem; state: ProblemCardState; children: ReactNode }) {
   const icon = state.tone === 'verified' ? <CheckCircle2 size={15} aria-hidden="true" />
     : state.tone === 'uploading' || state.tone === 'processing' ? <LoaderCircle size={15} className="problem-card-spinning" aria-hidden="true" />
@@ -16,5 +20,5 @@ export function ProblemCard({ problem, state, children }: { problem: DayProblem;
 }
 
 export function ProblemUploadButton({ correction, onPhotos }: { correction: boolean; onPhotos: (files: File[]) => void }) {
-  return <label className="problem-card-upload"><Camera size={17} aria-hidden="true" /> {correction ? 'Загрузить исправление' : 'Загрузить решение'}<input type="file" accept="image/*" multiple onChange={(event) => { onPhotos(Array.from(event.currentTarget.files ?? [])); event.currentTarget.value = '' }} /></label>
+  return <PhotoUploadControl className="problem-card-upload" label={correction ? 'Добавить фото исправления' : 'Добавить фото решения'} onPhotos={onPhotos} />
 }

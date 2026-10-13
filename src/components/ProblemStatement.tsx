@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import { BookOpen, Lightbulb } from 'lucide-react'
-import type { DayHelp, DayMaterialLink, DayProblem, DayWorkReview } from '@/lib/dayStore'
+import { BookOpen, CheckCircle2, CircleHelp, Lightbulb, TriangleAlert } from 'lucide-react'
+import type { DayHelp, DayMaterialLink, DayProblem, DaySourceResearch, DayWorkReview } from '@/lib/dayStore'
 import { reportUiError } from '@/lib/uiErrors'
 import SourceFragment from './SourceFragment'
+import TaskGuidance from './TaskGuidance'
+import type { DayGuidance } from '@/lib/dayGuidance'
 import './ProblemStatement.css'
 
 const helpKinds: { value: NonNullable<DayHelp['requestKind']>; label: string }[] = [
@@ -14,8 +16,8 @@ const helpKinds: { value: NonNullable<DayHelp['requestKind']>; label: string }[]
 ]
 
 /** @see ../../docs/product/adaptive-problem-card.md#показ-ученику */
-export default function ProblemStatement({ problem, links, parent, help, review, finished: parentFinished = false, onRequestHelp, helpAccess = 'ready' }: {
-  problem: DayProblem; links: DayMaterialLink[]; parent: boolean; help?: DayHelp; review?: DayWorkReview;
+export default function ProblemStatement({ problem, links, parent, help, review, guidance = [], sourceResearch, hideParentSupport = false, finished: parentFinished = false, onRequestHelp, helpAccess = 'ready' }: {
+  problem: DayProblem; links: DayMaterialLink[]; parent: boolean; help?: DayHelp; review?: DayWorkReview; guidance?: DayGuidance[]; sourceResearch?: DaySourceResearch; hideParentSupport?: boolean;
   finished?: boolean;
   onRequestHelp?: (taskId: string, revision: number, kind: NonNullable<DayHelp['requestKind']>, text: string) => Promise<void>;
   helpAccess?: 'checking' | 'ready' | 'login-required';
@@ -53,20 +55,24 @@ export default function ProblemStatement({ problem, links, parent, help, review,
         : <p className="problem-statement-missing">Точная текстовая запись этого номера ещё не подготовлена. Полное условие и рисунок — в исходном листе выше.</p>}
       <small className="problem-statement-source">{problem.source}</small>
     </div>
-    {support && <div className="problem-statement-education">
+    {!parent && <TaskGuidance items={guidance} />}
+    {support && !(parent && hideParentSupport) && <div className="problem-statement-education">
       <div className="problem-statement-label"><Lightbulb size={16} aria-hidden="true" /><strong>Как читать условие</strong></div>
       {!!support.facts.length && <div className="problem-statement-facts" aria-label="Дано">{support.facts.map((fact) => <div key={fact.label}><small>{fact.label}</small><strong>{fact.value}</strong></div>)}</div>}
       {support.find && <div className="problem-statement-find"><small>Найти</small><strong>{support.find}</strong></div>}
-      {parent ? <details className="problem-statement-parent-detail"><summary>Почему выбрана такая опора</summary><p><b>Навык:</b> {support.skill}</p><p><b>Что известно:</b> {support.evidence}</p>{opened && <p>Ребёнок запросил ориентир.</p>}</details>
-        : finished ? null
+      {parent || finished || !onRequestHelp ? null
           : opened ? <div className="problem-statement-help-result"><strong>Первый ориентир</strong><p>{support.firstQuestion}</p><small>Этот вопрос подготовлен к задаче заранее. Твой запрос сохранён для следующего разбора.</small></div>
             : helpAccess === 'checking' ? <p className="problem-statement-rationale">Проверяем личный вход…</p>
               : helpAccess === 'login-required' ? <p className="problem-statement-rationale">Чтобы попросить ориентир, зайди по личной ссылке ученика Education.</p>
                 : <details className="problem-statement-help"><summary>Нужен ориентир?</summary><form onSubmit={(event) => void requestHelp(event)}><fieldset><legend>На чём ты остановился?</legend>{helpKinds.map((option) => <label key={option.value}><input type="radio" name={`help-${problem.id}`} value={option.value} checked={kind === option.value} onChange={() => setKind(option.value)} />{option.label}</label>)}</fieldset><label className="problem-statement-help-note">Что уже пробовал? Можно написать «Пока не знаю».<textarea value={note} maxLength={800} onChange={(event) => setNote(event.target.value)} placeholder="Моя мысль или вопрос" /></label><button type="submit" className="problem-statement-help-button" disabled={requesting || !onRequestHelp}>{requesting ? 'Отправляем…' : 'Отправить'}</button></form></details>}
       {error && <p className="problem-statement-error" role="alert">{error}</p>}
     </div>}
-    {parent && <div className="problem-statement-parent-source"><strong>Происхождение задачи</strong>{problem.sourceResearch
-      ? <><p>{problem.sourceResearch.status === 'verified' ? 'Источник подтверждён' : problem.sourceResearch.status === 'candidate' ? 'Возможный источник — требуется сверка' : problem.sourceResearch.status === 'conflict' ? 'Источники расходятся' : 'Первоисточник пока не найден'}: {problem.sourceResearch.title}</p><p>{problem.sourceResearch.match}</p>{problem.sourceResearch.url && <a href={problem.sourceResearch.url} target="_blank" rel="noopener noreferrer">Открыть найденный материал ↗</a>}<small>Ключ: {problem.sourceResearch.keyStatus === 'verified' ? 'сверен' : problem.sourceResearch.keyStatus === 'candidate' ? 'найден кандидат, требуется сверка' : problem.sourceResearch.keyStatus === 'unavailable' ? 'не найден' : 'не проверен'}. {problem.sourceResearch.note}</small></>
-      : <p>Исходный лист учителя сохранён. Более ранний первоисточник и ключ пока не установлены.</p>}</div>}
+    {parent && <details className="problem-statement-parent-source">
+      <summary>{sourceResearch?.status === 'verified' ? <CheckCircle2 size={16} aria-hidden="true" /> : sourceResearch?.status === 'conflict' ? <TriangleAlert size={16} aria-hidden="true" /> : <CircleHelp size={16} aria-hidden="true" />}
+        <span>{sourceResearch?.status === 'verified' ? 'Источник подтверждён' : sourceResearch?.status === 'candidate' ? 'Возможный источник' : sourceResearch?.status === 'conflict' ? 'Источники расходятся' : 'Происхождение не установлено'}</span>
+      </summary>
+      {sourceResearch ? <div><p>{sourceResearch.title}</p><p>{sourceResearch.match}</p>{sourceResearch.url && <a href={sourceResearch.url} target="_blank" rel="noopener noreferrer">Открыть источник ↗</a>}<small>Ключ: {sourceResearch.keyStatus === 'verified' ? 'сверен' : sourceResearch.keyStatus === 'candidate' ? 'кандидат требует сверки' : sourceResearch.keyStatus === 'unavailable' ? 'не найден' : 'не проверен'}. {sourceResearch.note}</small></div>
+        : <div><p>Есть исходный лист учителя. Более ранний источник пока не подтверждён.</p></div>}
+    </details>}
   </div>
 }

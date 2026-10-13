@@ -4,12 +4,11 @@ import type { DayDashboardData, IndexedDay } from './dayDashboardStore'
 import { watchDayPage, watchDayReviews, watchDayUploads, watchEvidenceDayPages, withVerifiedPlatformResult } from './dayStore'
 import type { DayPageData, DayUpload, DayWorkReview } from './dayStore'
 import { useParentCompletions } from './useParentCompletions'
-import { lessonWorkItems } from './homeworkStatus'
-import type { LessonWorkItem, QuizScore } from './homeworkStatus'
-import { loadAnswerKey, watchAssignment } from './store'
-import { grade } from './quiz'
-import type { Assignment } from './quiz'
+import { lessonWorkItems, linkedQuizWorkItems } from './homeworkStatus'
+import type { LessonWorkItem } from './homeworkStatus'
+import { useDayQuizOutcomes } from './useDayQuizOutcomes'
 import { reportUiError } from './uiErrors'
+import { parentFocusDay } from './parentFocusDay'
 
 export type ParentSubjectOverview = {
   id: string
@@ -29,16 +28,32 @@ export type ParentChildOverview = {
   weekendCards: number
   reason: string
   error: string
+  fromCache?: boolean
+  cachedAt?: number
 }
 
-function moscowToday() {
-  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Moscow', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
+function overviewCacheKey(personId: string, dashboardToken: string) {
+  return `education-parent-overview-v1:${personId}:${dashboardToken}`
+}
+function readOverview(personId: string, dashboardToken: string): ParentChildOverview | null {
+  try {
+    const value: unknown = JSON.parse(localStorage.getItem(overviewCacheKey(personId, dashboardToken)) ?? 'null')
+    if (!value || typeof value !== 'object') return null
+    const overview = value as ParentChildOverview
+    return (overview.state === 'ready' || overview.state === 'none') &&
+      (overview.day === null || Boolean(overview.day && /^\d{4}-\d{2}-\d{2}$/.test(overview.day.date))) &&
+      Array.isArray(overview.subjects) && overview.subjects.every((subject) =>
+        subject && typeof subject.id === 'string' && typeof subject.name === 'string' &&
+        ['done', 'todo', 'checking', 'unclear'].includes(subject.state) && Array.isArray(subject.items) &&
+        subject.items.every((item) => item && typeof item.id === 'string' && typeof item.title === 'string' &&
+          typeof item.detail === 'string' && ['done', 'todo', 'checking', 'unclear'].includes(item.state))) &&
+      ['done', 'checking', 'todo', 'unclear', 'total', 'weekendCards'].every((field) => Number.isSafeInteger(overview[field as keyof ParentChildOverview])) &&
+      typeof overview.cachedAt === 'number' && overview.cachedAt <= Date.now() + 60_000 ? overview : null
+  } catch { return null }
 }
 
-function nearestDay(index: DayDashboardData | null, today: string): IndexedDay | null {
-  if (!index) return null
-  const upcoming = index.days.filter((day) => day.date >= today).sort((a, b) => a.date.localeCompare(b.date))
-  return upcoming.find((day) => day.homework.length > 0) ?? upcoming.find((day) => day.schedule.length > 0) ?? upcoming[0] ?? null
+function moscowToday(now: Date) {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Moscow', year: 'numeric', month: '2-digit', day: '2-digit' }).format(now)
 }
 function subjectState(items: LessonWorkItem[]): ParentSubjectOverview['state'] {
   return items.some((item) => item.state === 'todo') ? 'todo'
@@ -53,14 +68,14 @@ function subjectState(items: LessonWorkItem[]): ParentSubjectOverview['state'] {
  * @see ../../docs/architecture/family-data-model.md#parent-home
  * @see ../../docs/product/dashboard.md#homework-progress
  */
-export function useParentChildOverview(dashboardToken: string): ParentChildOverview {
+function useLiveParentChildOverview(dashboardToken: string): ParentChildOverview {
   const [index, setIndex] = useState<DayDashboardData | null>(null)
   const [indexReady, setIndexReady] = useState(false)
   const [error, setError] = useState('')
-  const [today, setToday] = useState(moscowToday)
+  const [now, setNow] = useState(() => Date.now())
 
   useEffect(() => {
-    const timer = window.setInterval(() => setToday(moscowToday()), 60_000)
+    const timer = window.setInterval(() => setNow(Date.now()), 60_000)
     return () => window.clearInterval(timer)
   }, [])
 
@@ -73,7 +88,8 @@ export function useParentChildOverview(dashboardToken: string): ParentChildOverv
     }, (cause) => { setError(reportUiError(cause, 'Обзор ребёнка')); setIndexReady(true) })
   }, [dashboardToken])
 
-  const day = nearestDay(index, today)
+  const today = moscowToday(new Date(now))
+  const day = parentFocusDay(index, new Date(now))
   const weekendCards = index?.weekendWork?.filter((slot) => slot.dates.includes(today)).length ?? 0
   const dayToken = day?.homeworkDayToken ?? null
   const [pageSnapshot, setPageSnapshot] = useState<{ token: string; page: DayPageData } | null>(null)
@@ -91,57 +107,29 @@ export function useParentChildOverview(dashboardToken: string): ParentChildOverv
   const decisions = useParentCompletions(evidenceKey, Boolean(page))
   useEffect(() => {
     if (!evidenceKey) return
-    return watchDayUploads(evidenceTokens, (items) => setUploadSnapshot({ key: evidenceKey, items }), (cause) => setError(reportUiError(cause, 'Обзор ребёнка')))
-  }, [evidenceKey, evidenceTokens])
+    return watchDayUploads(evidenceKey.split('|'), (items) => setUploadSnapshot({ key: evidenceKey, items }), (cause) => setError(reportUiError(cause, 'Обзор ребёнка')))
+  }, [evidenceKey])
   useEffect(() => {
     if (!evidenceKey) return
-    return watchDayReviews(evidenceTokens, (items) => setReviewSnapshot({ key: evidenceKey, items }), (cause) => setError(reportUiError(cause, 'Обзор ребёнка')), true)
-  }, [evidenceKey, evidenceTokens])
+    return watchDayReviews(evidenceKey.split('|'), (items) => setReviewSnapshot({ key: evidenceKey, items }), (cause) => setError(reportUiError(cause, 'Обзор ребёнка')), true)
+  }, [evidenceKey])
   useEffect(() => {
     if (!evidenceKey) return
-    return watchEvidenceDayPages(evidenceTokens, (pages) => setPageEvidenceSnapshot({ key: evidenceKey, pages }), (cause) => setError(reportUiError(cause, 'Обзор ребёнка')))
-  }, [evidenceKey, evidenceTokens])
+    return watchEvidenceDayPages(evidenceKey.split('|'), (pages) => setPageEvidenceSnapshot({ key: evidenceKey, pages }), (cause) => setError(reportUiError(cause, 'Обзор ребёнка')))
+  }, [evidenceKey])
 
-  const testTokens = useMemo(() => [...new Set([
-    ...(page?.subjects.flatMap((subject) => subject.tasks.map((task) => task.testToken)) ?? []),
-    ...(page?.testPlacements?.filter((placement) => (placement.originDate ?? day?.date) === day?.date).map((placement) => placement.token) ?? []),
-  ].filter((value): value is string => Boolean(value)))], [page, day?.date])
-  const testKey = testTokens.join('|')
-  const loadKey = `${dashboardToken}|${day?.date ?? ''}|${dayToken ?? ''}|${evidenceKey}|${testKey}`
+  const { tests, scores, ready: testsReady } = useDayQuizOutcomes(page, day?.date ?? '', setError)
+  const loadKey = `${dashboardToken}|${day?.date ?? ''}|${dayToken ?? ''}|${evidenceKey}|${testsReady}`
   const [expiredKey, setExpiredKey] = useState('')
   useEffect(() => {
     const timer = window.setTimeout(() => setExpiredKey(loadKey), 15_000)
     return () => window.clearTimeout(timer)
   }, [loadKey])
   const loadingExpired = expiredKey === loadKey
-  const [testSnapshot, setTestSnapshot] = useState<{ key: string; items: Record<string, { assignment: Assignment; score?: QuizScore; scoreReady: boolean }> } | null>(null)
-  useEffect(() => {
-    if (!testKey) return
-    let active = true
-    const items: Record<string, { assignment: Assignment; score?: QuizScore; scoreReady: boolean }> = {}
-    const emit = () => { if (active) setTestSnapshot({ key: testKey, items: { ...items } }) }
-    const stops = testTokens.map((token) => watchAssignment(token, (assignment) => {
-      items[token] = { assignment, scoreReady: assignment.status !== 'submitted' }
-      emit()
-      if (assignment.status !== 'submitted') return
-      void loadAnswerKey(token).then((key) => {
-        if (!active || items[token]?.assignment !== assignment) return
-        const results = grade(assignment, key)
-        const score = results.some((result) => result.points == null) ? undefined : {
-          points: results.reduce((sum, result) => sum + (result.points ?? 0), 0),
-          maxPoints: assignment.questions.reduce((sum, question) => sum + question.points, 0),
-        }
-        items[token] = { assignment, score, scoreReady: true }
-        emit()
-      }).catch((cause) => { if (active) setError(reportUiError(cause, 'Обзор ребёнка')) })
-    }, (cause) => setError(reportUiError(cause, 'Обзор ребёнка'))))
-    return () => { active = false; stops.forEach((stop) => stop()) }
-  }, [testKey, testTokens])
-
   const blank: ParentChildOverview = { state: 'loading', day, subjects: [], done: 0, checking: 0, todo: 0, unclear: 0, total: 0, weekendCards, reason: '', error }
   if (error) return { ...blank, state: 'unknown', reason: 'Сведения не удалось сверить. Откройте календарь для подробностей.' }
   if (!indexReady) return loadingExpired ? { ...blank, state: 'unknown', reason: 'Календарь пока не загрузился. Проверьте связь и откройте календарь ребёнка.' } : blank
-  if (!day) return { ...blank, state: 'unknown', reason: 'Ближайшие учебные дни ещё не загружены.' }
+  if (!day) return { ...blank, state: 'unknown', reason: 'Расписание следующего учебного дня ещё не загружено.' }
   if (!dayToken || !page) {
     if (day.complete && day.homework.length === 0) return { ...blank, state: 'none', reason: 'На последней сверке ДЗ не было; оно может появиться позже.' }
     return { ...blank, state: 'unknown', reason: day.homework.length ? 'ДЗ найдено в МЭШ; подробный план ещё готовится.' : 'ДЗ на этот день ещё уточняется.' }
@@ -150,29 +138,30 @@ export function useParentChildOverview(dashboardToken: string): ParentChildOverv
   if (!evidenceKey || uploadSnapshot?.key !== evidenceKey || reviewSnapshot?.key !== evidenceKey || pageEvidenceSnapshot?.key !== evidenceKey || !decisions.ready) {
     return { ...blank, state: loadingExpired ? 'unknown' : 'loading', reason: loadingExpired ? 'Не удалось получить все результаты. Откройте календарь ребёнка для подробностей.' : 'Загружаем работы и результаты.' }
   }
-  if (testKey && (testSnapshot?.key !== testKey || testTokens.some((token) => !testSnapshot.items[token]?.scoreReady))) {
+  if (!testsReady) {
     return { ...blank, state: loadingExpired ? 'unknown' : 'loading', reason: loadingExpired ? 'Не удалось получить все результаты тестов. Откройте календарь ребёнка.' : 'Загружаем результаты тестов.' }
   }
   const uploads = uploadSnapshot.items
   const reviews = reviewSnapshot.items
   const evidencePages = pageEvidenceSnapshot.pages
-  const tests = Object.fromEntries(testTokens.map((token) => [token, testSnapshot?.items[token]?.assignment]).filter((pair) => pair[1])) as Record<string, Assignment>
-  const scores = Object.fromEntries(testTokens.map((token) => [token, testSnapshot?.items[token]?.score]).filter((pair) => pair[1])) as Record<string, QuizScore>
+  // A MESH pointer to an earlier day has no new work item and must not become a completed subject.
+  // @see ../../docs/product/dashboard.md#reference-only-homework
   const subjects: ParentSubjectOverview[] = page.subjects.filter((subject) => subject.tasks.some((task) => (task.originDate ?? day.date) === day.date)).map((subject) => {
     const tasks = subject.tasks.filter((task) => (task.originDate ?? day.date) === day.date).map((task) => withVerifiedPlatformResult(task, day.date, evidencePages))
     const items = lessonWorkItems(tasks, uploads, reviews, decisions.events, tests, scores)
     const state = subjectState(items)
     return { id: subject.id, name: subject.name, state, items }
-  })
-  const placed = (page.testPlacements ?? []).filter((placement) => !placement.taskId && (placement.originDate ?? day.date) === day.date)
+  }).filter((subject) => subject.items.length > 0)
+  const placed = (page.testPlacements ?? []).filter((placement) => !placement.taskId && (placement.originDate ?? day.date) === day.date && !tests[placement.token]?.linkedToTestId)
   for (const placement of placed) {
     const assignment = tests[placement.token]
     const score = scores[placement.token]
     const state: LessonWorkItem['state'] = assignment?.status === 'submitted' ? !score ? 'checking' : score.points === score.maxPoints ? 'done' : 'todo' : 'todo'
     const item: LessonWorkItem = { id: `quiz:${placement.token}`, title: assignment?.title ?? 'Самопроверка', state, detail: state === 'done' ? `Тест: ${score?.points} из ${score?.maxPoints} верно` : state === 'checking' ? 'Ответы отправлены, результат уточняется' : assignment?.status === 'submitted' ? 'Есть ошибки; нужно повторить' : 'Нужно пройти тест' }
     const subject = subjects.find((value) => value.id === placement.subjectId)
-    if (subject) { subject.items.push(item); subject.state = subjectState(subject.items) }
-    else subjects.push({ id: placement.subjectId, name: page.subjects.find((value) => value.id === placement.subjectId)?.name ?? 'Самопроверка', state, items: [item] })
+    const lineageItems = [item, ...linkedQuizWorkItems(placement.token, tests, scores)]
+    if (subject) { subject.items.push(...lineageItems); subject.state = subjectState(subject.items) }
+    else subjects.push({ id: placement.subjectId, name: page.subjects.find((value) => value.id === placement.subjectId)?.name ?? 'Самопроверка', state: subjectState(lineageItems), items: lineageItems })
   }
   const items = subjects.flatMap((subject) => subject.items)
   if (!items.length) return { ...blank, state: day.complete && day.homework.length === 0 ? 'none' : 'unknown', reason: day.homework.length ? 'Точный состав ДЗ ещё не опубликован.' : 'ДЗ на этот день ещё уточняется.' }
@@ -182,4 +171,22 @@ export function useParentChildOverview(dashboardToken: string): ParentChildOverv
   const unclear = items.filter((item) => item.state === 'unclear').length
   return { state: 'ready', day, subjects, done, checking, todo, unclear, total: items.length, weekendCards,
     reason: day.complete ? '' : 'Известные задания показаны; сверка МЭШ ещё не завершена.', error: '' }
+}
+
+/** Show the last complete parent projection on the first frame, then replace it
+ * atomically after all live evidence streams have produced a consistent view.
+ * @see ../../docs/architecture/local-first-release-plan-2026-10-12.md#personal-startup
+ */
+export function useParentChildOverview(dashboardToken: string, personId: string): ParentChildOverview {
+  const cached = readOverview(personId, dashboardToken)
+  const live = useLiveParentChildOverview(dashboardToken)
+  const liveSerialized = live.state === 'ready' || live.state === 'none' ? JSON.stringify(live) : ''
+  useEffect(() => {
+    if (!liveSerialized) return
+    const stable = { ...JSON.parse(liveSerialized) as ParentChildOverview, fromCache: false, cachedAt: Date.now() }
+    try { localStorage.setItem(overviewCacheKey(personId, dashboardToken), JSON.stringify(stable)) }
+    catch { /* The current screen remains live without durable storage. */ }
+  }, [personId, dashboardToken, liveSerialized])
+  if ((live.state === 'loading' || live.state === 'unknown') && cached) return { ...cached, fromCache: true }
+  return live
 }

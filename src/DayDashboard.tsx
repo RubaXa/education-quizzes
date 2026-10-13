@@ -1,20 +1,23 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { getAuth } from 'firebase/auth'
 import { ArrowRight, BookOpen, CalendarDays, CheckCircle2, ChevronDown, Clock3, Sparkles } from 'lucide-react'
-import { watchDayPage, watchDayReviews, watchDayUploads, watchEvidenceDayPages, withVerifiedPlatformResult } from '@/lib/dayStore'
-import type { DayPageData, DayUpload, DayWorkReview } from '@/lib/dayStore'
-import { useParentCompletions } from '@/lib/useParentCompletions'
-import { watchDayDashboard } from '@/lib/dayDashboardStore'
+import { watchDayPage } from '@/lib/dayStore'
+import type { DayPageData } from '@/lib/dayStore'
+import { clearCachedDayDashboard, readCachedDayDashboard, watchDayDashboard } from '@/lib/dayDashboardStore'
 import type { DayDashboardData } from '@/lib/dayDashboardStore'
-import { loadAnswerKey, watchAssignment } from '@/lib/store'
-import { grade } from '@/lib/quiz'
-import type { Assignment } from '@/lib/quiz'
-import { lessonSubjectId, lessonWorkItems } from '@/lib/homeworkStatus'
-import type { LessonWorkItem, QuizScore } from '@/lib/homeworkStatus'
-import { currentEducationPersonId } from '@/lib/personalAccess'
+import { lessonSubjectId, lessonWorkItems, linkedQuizWorkItems } from '@/lib/homeworkStatus'
+import type { LessonWorkItem } from '@/lib/homeworkStatus'
+import { clearCachedLessonStatuses, lessonCacheKey, readCachedLessonStatuses, writeCachedLessonStatuses } from '@/lib/dayDashboardLessonCache'
+import { clearCachedDashboardView, readCachedGrades, readCachedHomeworkRows, writeCachedGrades, writeCachedHomeworkRows } from '@/lib/dayDashboardViewCache'
+import type { CachedHomeworkRow } from '@/lib/dayDashboardViewCache'
+import { currentEducationPersonId, readCachedPersonalContext } from '@/lib/personalAccess'
+import { useDashboardDayWork } from '@/lib/useDashboardDayWork'
 import WeekendMathSlot from './WeekendMathSlot'
 import './DayDashboard.css'
 import { reportUiError } from '@/lib/uiErrors'
+import { DATA_UPDATE_MESSAGE } from '@/lib/dayCompatibility'
+import { homeworkUpdateKey, markHomeworkUpdateSeen, wasHomeworkUpdateSeen } from '@/lib/homeworkUpdateReceipt'
+import DataCompatibilityNotice from './components/DataCompatibilityNotice'
 
 function moscowToday() {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Moscow', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
@@ -25,12 +28,26 @@ function dateLabel(date: string, options: Intl.DateTimeFormatOptions = { day: 'n
 function checkedLabel(value: string | null) {
   return value ? new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Moscow' }).format(new Date(value)) : 'ещё не проверяли'
 }
+/** @see ../docs/product/dashboard.md#sync-freshness */
+function checkedAge(value: string | null, now: number) {
+  if (!value) return ''
+  const checked = Date.parse(value)
+  if (!Number.isFinite(checked)) return ''
+  const minutes = Math.max(0, Math.floor((now - checked) / 60_000))
+  if (minutes < 1) return 'только что'
+  if (minutes < 60) return `${minutes} ${word(minutes, 'минуту', 'минуты', 'минут')} назад`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours} ${word(hours, 'час', 'часа', 'часов')} назад`
+  const days = Math.floor(hours / 24)
+  return `${days} ${word(days, 'день', 'дня', 'дней')} назад`
+}
 function word(count: number, one: string, few: string, many: string) {
   const n = count % 100
   if (n >= 11 && n <= 14) return many
   return count % 10 === 1 ? one : count % 10 >= 2 && count % 10 <= 4 ? few : many
 }
 function isWeekend(date: string) { return [0, 6].includes(new Date(`${date}T12:00:00Z`).getUTCDay()) }
+function nextCalendarDate(date: string) { const day = new Date(`${date}T12:00:00Z`); day.setUTCDate(day.getUTCDate() + 1); return day.toISOString().slice(0, 10) }
 function lessonTime(iso: string) {
   if (!iso) return ''
   const time = new Date(iso)
@@ -47,20 +64,25 @@ function lessonTime(iso: string) {
 export default function DayDashboard({ token, parent }: { token: string; parent: boolean }) {
   let personalParent = false
   if (parent) {
-    try { personalParent = Boolean(currentEducationPersonId()) } catch { /* Legacy calendar links can still open without a personal session. */ }
+    try { personalParent = Boolean(currentEducationPersonId()) }
+    catch {
+      const cached = readCachedPersonalContext()
+      const uid = getAuth().currentUser?.uid
+      personalParent = Boolean(cached && (!uid || uid === cached.session.deviceUid) &&
+        cached.profile.children.some((child) => child.role === 'parent' && child.dashboardToken === token))
+    }
   }
-  const [index, setIndex] = useState<DayDashboardData>()
-  const [page, setPage] = useState<DayPageData>()
-  const [gradePage, setGradePage] = useState<DayPageData>()
-  const [uploads, setUploads] = useState<DayUpload[]>([])
-  const [reviews, setReviews] = useState<DayWorkReview[]>([])
-  const [evidencePages, setEvidencePages] = useState<DayPageData[]>([])
-  const [tests, setTests] = useState<Record<string, Assignment>>({})
-  const [scores, setScores] = useState<Record<string, QuizScore>>({})
-  const [selected, setSelected] = useState(() => sessionStorage.getItem('education-dashboard-selection-day') === moscowToday() ? (sessionStorage.getItem('education-dashboard-selected-date') ?? moscowToday()) : moscowToday())
+  const [index, setIndex] = useState<DayDashboardData | undefined>(() => readCachedDayDashboard(token, parent ? 'parent' : 'student') ?? undefined)
+  const [gradeState, setGradeState] = useState<{ token: string; page: DayPageData }>()
+  const [selected, setSelected] = useState(() => {
+    if (sessionStorage.getItem('education-dashboard-selection-day') === moscowToday()) return sessionStorage.getItem('education-dashboard-selected-date') ?? moscowToday()
+    if (localStorage.getItem('education-dashboard-selection-day') === moscowToday()) return localStorage.getItem('education-dashboard-selected-date') ?? moscowToday()
+    return moscowToday()
+  })
   const [focusSubject, setFocusSubject] = useState(() => sessionStorage.getItem('education-dashboard-focus-subject') ?? '')
   const [error, setError] = useState('')
   const [now, setNow] = useState(() => Date.now())
+  const [seenUpdates, setSeenUpdates] = useState<Set<string>>(() => new Set())
   const datesRef = useRef<HTMLDivElement>(null)
   const today = moscowToday()
 
@@ -84,7 +106,15 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
         if (data.kind !== (parent ? 'parent' : 'student')) { setError('Эта ссылка предназначена для другой страницы.'); return }
         setIndex(data)
         setError('')
-      }, (cause) => setError(reportUiError(cause, 'Учебный день')))
+      }, (cause) => {
+        if ((cause as { code?: string }).code === 'permission-denied') {
+          clearCachedDayDashboard(token)
+          clearCachedLessonStatuses(token, parent ? 'parent' : 'student')
+          clearCachedDashboardView(parent ? 'parent' : 'student', token)
+          setIndex(undefined)
+        }
+        setError(reportUiError(cause, 'Учебный день'))
+      })
     }).catch((cause) => { if (active) setError(reportUiError(cause, 'Учебный день')) })
     return () => { active = false; stop?.() }
   }, [token, parent])
@@ -108,18 +138,23 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
     if (strip && active) strip.scrollLeft = active.offsetLeft - strip.offsetLeft - (strip.clientWidth - active.clientWidth) / 2
   }, [index, selectedDate])
   const homeworkToken = selectedEntry?.homeworkDayToken
+  // The timetable belongs to the selected day; the card below prepares the
+  // nearest following school day. Weekend dates without lessons are skipped.
+  const nextEntry = index?.days.find((day) => day.date > selectedDate && (day.schedule.length > 0 || day.homework.length > 0))
+  const nextDate = nextEntry?.date ?? ''
+  const nextHomeworkToken = nextEntry?.homeworkDayToken
+  const selectedWork = useDashboardDayWork(homeworkToken, selectedDate, parent, setError)
+  const nextWork = useDashboardDayWork(nextHomeworkToken, nextDate, parent, setError)
+  const selectedPage = selectedWork.page
+  const currentSubjects = selectedWork.subjects
+  const { uploads, reviews, tests, scores, parentDecisions } = selectedWork
   const gradeToken = index?.days.filter((day) => day.date <= today && day.dayToken).sort((a, b) => b.date.localeCompare(a.date))[0]?.dayToken
   useEffect(() => {
-    setPage(undefined)
-    if (!homeworkToken) return
-    return watchDayPage(homeworkToken, setPage, (cause) => setError(reportUiError(cause, 'Учебный день')))
-  }, [homeworkToken])
-  useEffect(() => {
-    setGradePage(undefined)
     if (!gradeToken) return
-    return watchDayPage(gradeToken, setGradePage, (cause) => setError(reportUiError(cause, 'Учебный день')))
-  }, [gradeToken])
-  const selectedPage = page?.targetDate === selectedDate ? page : undefined
+    return watchDayPage(gradeToken, (page) => setGradeState({ token: gradeToken, page }),
+      (cause) => setError(reportUiError(cause, 'Учебный день')),
+      { serverConfirmedOnly: Boolean(readCachedGrades(parent ? 'parent' : 'student', token, gradeToken)) })
+  }, [gradeToken, parent, token])
   useEffect(() => {
     const taskId = sessionStorage.getItem('education-dashboard-focus-task')
     if (!taskId || !selectedPage || !homeworkToken) return
@@ -129,65 +164,80 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
     sessionStorage.setItem('education-day-focus-task', JSON.stringify({ dayToken: homeworkToken, taskId }))
     window.location.hash = `#/${parent ? 'day-parent' : 'day'}/${homeworkToken}`
   }, [selectedPage, homeworkToken, parent, token])
-  const studentToken = selectedPage ? (selectedPage.studentToken ?? homeworkToken) : undefined
-  const evidenceTokens = useMemo(() => [...new Set([studentToken, ...(selectedPage?.evidenceDayTokens ?? [])].filter((value): value is string => Boolean(value)))], [studentToken, selectedPage])
-  const evidenceKey = evidenceTokens.join('|')
-  const parentDecisions = useParentCompletions(evidenceKey, Boolean(selectedPage))
   useEffect(() => {
-    if (!reviews.some((review) => review.processing)) return
+    if (![...reviews, ...nextWork.reviews].some((review) => review.processing)) return
     const timer = window.setInterval(() => setNow(Date.now()), 1000)
     return () => window.clearInterval(timer)
-  }, [reviews])
-  useEffect(() => {
-    setUploads([])
-    if (!evidenceKey) return
-    return watchDayUploads(evidenceKey.split('|'), setUploads, (cause) => setError(reportUiError(cause, 'Учебный день')))
-  }, [evidenceKey])
-  useEffect(() => {
-    setReviews([])
-    if (!evidenceKey) return
-    return watchDayReviews(evidenceKey.split('|'), setReviews, (cause) => setError(reportUiError(cause, 'Учебный день')), parent)
-  }, [evidenceKey, parent])
-  useEffect(() => {
-    setEvidencePages([])
-    if (!evidenceKey) return
-    return watchEvidenceDayPages(evidenceKey.split('|'), setEvidencePages, (cause) => setError(reportUiError(cause, 'Учебный день')))
-  }, [evidenceKey])
-  const placementKey = (selectedPage?.testPlacements ?? []).filter((placement) => (placement.originDate ?? selectedDate) === selectedDate).map((placement) => placement.token).join('|')
-  useEffect(() => {
-    setTests({})
-    setScores({})
-    if (!placementKey) return
-    let active = true
-    const stops = placementKey.split('|').map((testToken) => watchAssignment(testToken, (assignment) => {
-      setTests((prior) => ({ ...prior, [testToken]: assignment }))
-      if (assignment.status !== 'submitted') return
-      void loadAnswerKey(testToken).then((key) => {
-        if (!active) return
-        const results = grade(assignment, key)
-        if (results.some((result) => result.points == null)) return
-        setScores((prior) => ({ ...prior, [testToken]: { points: results.reduce((sum, result) => sum + (result.points ?? 0), 0), maxPoints: assignment.questions.reduce((sum, question) => sum + question.points, 0) } }))
-      }).catch((cause) => setError(reportUiError(cause, 'Учебный день')))
-    }, (cause) => setError(reportUiError(cause, 'Учебный день'))))
-    return () => { active = false; stops.forEach((stop) => stop()) }
-  }, [placementKey])
+  }, [reviews, nextWork.reviews])
 
   const weekendWorks = index?.weekendWork?.filter((slot) => slot.dates.includes(selectedDate)) ?? []
-  const currentSubjects = selectedPage?.subjects.map((subject) => ({ ...subject, tasks: subject.tasks.filter((task) => (task.originDate ?? selectedDate) === selectedDate)
-    .map((task) => withVerifiedPlatformResult(task, selectedDate, evidencePages)) })).filter((subject) => subject.tasks.length) ?? []
-  const homeworkRows = currentSubjects.map((subject) => {
-    const items = lessonWorkItems(subject.tasks, uploads, reviews, parentDecisions.events, tests, scores)
+  const liveHomeworkRows: CachedHomeworkRow[] = nextWork.subjects.map((subject) => {
+    const items = lessonWorkItems(subject.tasks, nextWork.uploads, nextWork.reviews, nextWork.parentDecisions.events, nextWork.tests, nextWork.scores)
     const done = items.filter((item) => item.state === 'done').length
-    const next = items.find((item) => item.state === 'todo') ?? items.find((item) => item.state === 'checking') ?? items.find((item) => item.state === 'unclear')
-    const group = items.some((item) => item.state === 'todo') ? 'action' : items.some((item) => item.state === 'checking' || item.state === 'unclear') ? 'waiting' : 'complete'
-    return { subject, items, done, next, group }
-  })
+    const group: CachedHomeworkRow['group'] = items.some((item) => item.state === 'todo') ? 'action' : items.some((item) => item.state === 'checking' || item.state === 'unclear') ? 'waiting' : 'complete'
+    return { subject: { id: subject.id, name: subject.name, icon: subject.icon,
+      tasks: subject.tasks.map((task) => ({ title: task.title })) }, items, done, group }
+  }).filter((row) => row.items.length > 0)
+  const role = parent ? 'parent' : 'student'
+  const homeworkRows = nextWork.ready ? liveHomeworkRows : nextHomeworkToken ? readCachedHomeworkRows(role, token, nextHomeworkToken) : []
+  const completeHomeworkSnapshot = nextWork.ready && nextHomeworkToken ? JSON.stringify(liveHomeworkRows) : ''
+  useEffect(() => {
+    if (completeHomeworkSnapshot && nextHomeworkToken) writeCachedHomeworkRows(role, token, nextHomeworkToken, JSON.parse(completeHomeworkSnapshot))
+  }, [completeHomeworkSnapshot, nextHomeworkToken, role, token])
   const actionRows = homeworkRows.filter((row) => row.group === 'action')
   const waitingRows = homeworkRows.filter((row) => row.group === 'waiting')
   const completeRows = homeworkRows.filter((row) => row.group === 'complete')
-  const gradeSource = gradePage
+  const gradeSource = gradeToken && gradeState && gradeState.token === gradeToken ? gradeState.page
+    : gradeToken ? readCachedGrades(role, token, gradeToken) : null
+  useEffect(() => {
+    if (gradeState && gradeState.token === gradeToken && gradeToken) writeCachedGrades(role, token, gradeToken, gradeState.page)
+  }, [gradeState, gradeToken, role, token])
   const gradeRows = gradeSource?.gradeSummary ?? []
   const gradeDetails = new Map((gradeSource?.grades ?? []).map((item) => [item.id, item]))
+
+  /** @see ../docs/product/dashboard.md#dashboard-warm-start */
+  const savedLessons = new Map(readCachedLessonStatuses(token, role, selectedDate).map((row) => [row.key, row]))
+  const lessonRows = selectedEntry?.schedule.map((lesson) => {
+    const subjectId = lessonSubjectId(lesson.subject)
+    const subject = currentSubjects.find((item) => item.id === subjectId || subjectId != null && lessonSubjectId(item.name) === subjectId || item.name.toLocaleLowerCase('ru-RU') === lesson.subject.toLocaleLowerCase('ru-RU'))
+    const rawHomework = selectedEntry.homework.filter((item) => item.subject.toLocaleLowerCase('ru-RU') === lesson.subject.toLocaleLowerCase('ru-RU') || subjectId != null && lessonSubjectId(item.subject) === subjectId)
+    const updatedSubjects = selectedEntry.homeworkUpdate?.subjects ?? []
+    const updatedAt = selectedEntry.homeworkUpdate?.at
+    const recentUpdate = updatedAt ? Date.parse(updatedAt) : NaN
+    const updateKey = updatedAt ? homeworkUpdateKey(token, selectedDate, lesson.subject, updatedAt) : ''
+    const newlyAssigned = Number.isFinite(recentUpdate) && now >= recentUpdate && now - recentUpdate < 3 * 24 * 60 * 60 * 1000 && updatedSubjects.some((name) => name.toLocaleLowerCase('ru-RU') === lesson.subject.toLocaleLowerCase('ru-RU') || subjectId != null && lessonSubjectId(name) === subjectId)
+      && !seenUpdates.has(updateKey) && !wasHomeworkUpdateSeen(updateKey)
+    const taskItems = subject ? lessonWorkItems(subject.tasks, uploads, reviews, parentDecisions.events, tests, scores) : []
+    const placementItems: LessonWorkItem[] = (selectedPage?.testPlacements ?? []).filter((placement) => !placement.taskId && (placement.originDate ?? selectedDate) === selectedDate && placement.subjectId === subjectId && !tests[placement.token]?.linkedToTestId).flatMap((placement) => {
+      const test = tests[placement.token]
+      const score = scores[placement.token]
+      const state: LessonWorkItem['state'] = test?.status === 'submitted' ? !score ? 'checking' : score.points === score.maxPoints ? 'done' : 'todo' : 'todo'
+      return [{ id: `quiz:${placement.token}`, title: test?.title ?? 'Самопроверка', state, detail: state === 'done' ? `Тест: ${score?.points} из ${score?.maxPoints} верно` : state === 'checking' ? 'Ответы отправлены, результат уточняется' : test?.status === 'submitted' ? `Есть ошибки: ${score?.points} из ${score?.maxPoints} верно` : 'Нужно пройти тест' }, ...linkedQuizWorkItems(placement.token, tests, scores)]
+    })
+    const liveItems = [...taskItems, ...placementItems]
+    const liveReferenceTask = subject?.tasks.find((task) => task.referenceDate)
+    const done = liveItems.filter((item) => item.state === 'done').length
+    const checking = liveItems.filter((item) => item.state === 'checking').length
+    const unclear = liveItems.filter((item) => item.state === 'unclear').length
+    const qualityOpen = liveItems.some((item) => item.qualityOpen)
+    const liveTone = liveItems.length ? checking ? 'checking' : unclear ? 'unclear' : done === liveItems.length ? 'complete' : done ? 'partial' : 'empty' : liveReferenceTask ? 'reference' : rawHomework.length ? 'assigned' : selectedEntry.complete && (selectedPage || selectedDate <= today) ? 'none' : 'unknown'
+    const liveBadge = liveItems.length ? checking ? 'Проверяем' : unclear ? 'Критерий неясен' : qualityOpen && done === liveItems.length ? 'Сдано' : `${done} из ${liveItems.length}` : liveReferenceTask?.referenceDate ? `См. ${dateLabel(liveReferenceTask.referenceDate)}` : liveTone === 'none' ? 'Пока нет ДЗ' : liveTone === 'assigned' ? 'Задано' : 'Уточняем'
+    const key = lessonCacheKey(lesson.start, lesson.subject)
+    const cached = savedLessons.get(key)
+    const shown = selectedWork.ready ? { key, tone: liveTone, badge: liveBadge, items: liveItems,
+      referenceDate: liveReferenceTask?.referenceDate, referenceText: liveReferenceTask?.meshText } : cached
+    const referenceDate = shown?.referenceDate
+    const referenceToken = referenceDate ? index?.days.find((day) => day.date === referenceDate)?.homeworkDayToken : null
+    return { lesson, subject, rawHomework, updatedAt, updateKey, newlyAssigned,
+      items: shown?.items ?? [], tone: shown?.tone ?? 'unknown', badge: shown?.badge ?? 'Уточняем',
+      referenceDate, referenceText: shown?.referenceText, referenceToken, key }
+  }) ?? []
+  const completeLessonSnapshot = selectedWork.ready ? JSON.stringify(lessonRows.map(({ key, tone, badge, items, referenceDate, referenceText }) =>
+    ({ key, tone, badge, items, referenceDate, referenceText }))) : ''
+  useEffect(() => {
+    if (!completeLessonSnapshot) return
+    writeCachedLessonStatuses(token, role, selectedDate, JSON.parse(completeLessonSnapshot))
+  }, [completeLessonSnapshot, role, selectedDate, token])
 
   function chooseDay(date: string) {
     setSelected(date)
@@ -195,6 +245,10 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
     sessionStorage.removeItem('education-dashboard-focus-subject')
     sessionStorage.setItem('education-dashboard-selected-date', date)
     sessionStorage.setItem('education-dashboard-selection-day', today)
+    try {
+      localStorage.setItem('education-dashboard-selected-date', date)
+      localStorage.setItem('education-dashboard-selection-day', today)
+    } catch { /* The open calendar still remembers this date. */ }
   }
   function openDay(dayToken: string, tab?: 'homework', taskId?: string) {
     sessionStorage.setItem('education-day-dashboard-return', `#/${parent ? 'days-parent' : 'days'}/${token}`)
@@ -206,16 +260,18 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
   }
   /** @see ../docs/product/dashboard.md#homework-progress */
   function homeworkRow(row: typeof homeworkRows[number]) {
-    const { subject, items, done, next, group } = row
+    const { subject, items, done, group } = row
+    const next = items.find((item) => item.state === 'todo') ?? items.find((item) => item.state === 'checking') ?? items.find((item) => item.state === 'unclear')
     const qualityOpen = items.find((item) => item.qualityOpen)
     const status = group === 'complete' ? qualityOpen ? 'Работа сдана' : 'Всё завершено' : next?.state === 'unclear' ? 'Критерий неясен' : next?.state === 'checking' ? 'Ждём проверки' : done ? `${done} из ${items.length} завершено` : 'Нужно сделать'
-    return <button className={`day-dashboard-homework-row ${group}`} key={subject.id} type="button" onClick={() => homeworkToken && openDay(homeworkToken, 'homework', next?.id)}>
+    return <button className={`day-dashboard-homework-row ${group}`} key={subject.id} type="button" onClick={() => nextHomeworkToken && openDay(nextHomeworkToken, 'homework', next?.id)}>
       <span className="day-dashboard-icon" aria-hidden="true">{subject.icon}</span>
       <span className="day-dashboard-homework-row-body"><strong>{subject.name}</strong><span className="day-dashboard-homework-status">{status}</span>{next && <span className="day-dashboard-homework-next">{next.title} · {next.detail}</span>}{group === 'complete' && <span className="day-dashboard-homework-next">{qualityOpen ? qualityOpen.detail : subject.tasks.map((task) => task.title).join(' · ')}</span>}</span>
       <ArrowRight size={18} aria-hidden="true" />
     </button>
   }
 
+  if (error === DATA_UPDATE_MESSAGE) return <DataCompatibilityNotice />
   if (error && !index) return <div className="day-dashboard-error"><h1>Не получилось открыть dashboard</h1><p>{error}</p></div>
   if (!index) return <p className="day-dashboard-loading">Загружаем dashboard…</p>
   return <div className="day-dashboard">
@@ -227,7 +283,7 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
       </button>)}</div>
     </section>
 
-    <div className="day-dashboard-selected-heading">{personalParent && <a className="day-dashboard-parent-home" href="#/">← Все дети</a>}<div className="day-dashboard-kicker">{parent ? 'Панель родителя' : 'Мой план'} · выбранный день</div><h1>{dateLabel(selectedDate, { weekday: 'long', day: 'numeric', month: 'long' })}</h1></div>
+    <div className={`day-dashboard-selected-heading${parent ? ' parent' : ''}`}>{personalParent && <a className="day-dashboard-parent-home" href="#/">← Все дети</a>}<div className="day-dashboard-kicker">{parent ? 'Панель родителя' : 'Мой план'} · выбранный день</div><h1>{dateLabel(selectedDate, { weekday: 'long', day: 'numeric', month: 'long' })}</h1></div>
 
     {weekendWorks.map((slot) => <WeekendMathSlot key={`${slot.dayToken}:${slot.taskIds.join(',')}`} token={slot.dayToken} taskIds={slot.taskIds} parent={parent} lessonDate={slot.lessonDate} dueDate={slot.dueDate} title={slot.title} />)}
 
@@ -235,46 +291,34 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
       <div className="day-dashboard-main">
       <section className="day-dashboard-card" aria-label="Расписание выбранного дня">
         <div className="day-dashboard-heading"><div><CalendarDays size={20} /><h2>Расписание</h2></div><small>{dateLabel(selectedDate)}<br />МЭШ проверен: {checkedLabel(selectedEntry?.checkedAt ?? null)}</small></div>
-        {selectedEntry?.schedule.length ? <ul className="day-dashboard-lessons">{selectedEntry.schedule.map((lesson, index) => {
-          const subjectId = lessonSubjectId(lesson.subject)
-          const subject = currentSubjects.find((item) => item.id === subjectId || item.name.toLocaleLowerCase('ru-RU') === lesson.subject.toLocaleLowerCase('ru-RU'))
-          const rawHomework = selectedEntry.homework.filter((item) => item.subject.toLocaleLowerCase('ru-RU') === lesson.subject.toLocaleLowerCase('ru-RU') || subjectId != null && lessonSubjectId(item.subject) === subjectId)
-          const updatedSubjects = selectedEntry.homeworkUpdate?.subjects ?? []
-          const updatedAt = selectedEntry.homeworkUpdate?.at
-          const recentUpdate = updatedAt ? Date.parse(updatedAt) : NaN
-          const newlyAssigned = Number.isFinite(recentUpdate) && now >= recentUpdate && now - recentUpdate < 3 * 24 * 60 * 60 * 1000 && updatedSubjects.some((name) => name.toLocaleLowerCase('ru-RU') === lesson.subject.toLocaleLowerCase('ru-RU') || subjectId != null && lessonSubjectId(name) === subjectId)
-          const taskItems = subject ? lessonWorkItems(subject.tasks, uploads, reviews, parentDecisions.events, tests, scores) : []
-          const placementItems: LessonWorkItem[] = (selectedPage?.testPlacements ?? []).filter((placement) => !placement.taskId && (placement.originDate ?? selectedDate) === selectedDate && placement.subjectId === subjectId).map((placement) => {
-            const test = tests[placement.token]
-            const score = scores[placement.token]
-            const state: LessonWorkItem['state'] = test?.status === 'submitted' ? !score ? 'checking' : score.points === score.maxPoints ? 'done' : 'todo' : 'todo'
-            return { id: `quiz:${placement.token}`, title: test?.title ?? 'Самопроверка', state, detail: state === 'done' ? `Тест: ${score?.points} из ${score?.maxPoints} верно` : state === 'checking' ? 'Ответы отправлены, результат уточняется' : test?.status === 'submitted' ? `Есть ошибки: ${score?.points} из ${score?.maxPoints} верно` : 'Нужно пройти тест' }
-          })
-          const items = [...taskItems, ...placementItems]
-          const done = items.filter((item) => item.state === 'done').length
-          const checking = items.filter((item) => item.state === 'checking').length
-          const unclear = items.filter((item) => item.state === 'unclear').length
-          const qualityOpen = items.some((item) => item.qualityOpen)
-          const tone = items.length ? checking ? 'checking' : unclear ? 'unclear' : done === items.length ? 'complete' : done ? 'partial' : 'empty' : rawHomework.length ? 'assigned' : selectedEntry.complete && (selectedPage || selectedDate <= today) ? 'none' : 'unknown'
-          const badge = items.length ? checking ? 'Проверяем' : unclear ? 'Критерий неясен' : qualityOpen && done === items.length ? 'Сдано' : `${done} из ${items.length}` : tone === 'none' ? 'Пока нет ДЗ' : tone === 'assigned' ? 'Задано' : 'Уточняем'
-          return <li key={`${index}-${lesson.subject}`}><details data-subject={lesson.subject} className={`day-dashboard-lesson day-dashboard-lesson-${tone}${newlyAssigned ? ' has-new-homework' : ''}`}>
+        {selectedEntry?.schedule.length ? <ul className="day-dashboard-lessons">{lessonRows.map(({ lesson, subject, rawHomework, updatedAt, updateKey, newlyAssigned, items, tone, badge, referenceDate, referenceText, referenceToken }, lessonIndex) => {
+          return <li key={`${lessonIndex}-${lesson.subject}`}><details data-subject={lesson.subject} className={`day-dashboard-lesson day-dashboard-lesson-${tone}${newlyAssigned ? ' has-new-homework' : ''}`} onToggle={(event) => {
+            if (!event.currentTarget.open || !newlyAssigned || !updateKey) return
+            markHomeworkUpdateSeen(updateKey)
+            setSeenUpdates((current) => new Set(current).add(updateKey))
+            window.dispatchEvent(new CustomEvent('education-homework-update-seen', {
+              detail: { dashboardToken: token, date: selectedDate, subject: lesson.subject },
+            }))
+          }}>
             <summary><time>{lessonTime(lesson.start)}</time><span className="day-dashboard-lesson-name">{lesson.subject}{newlyAssigned && <span className="day-dashboard-lesson-new">Новое ДЗ</span>}</span><span className="day-dashboard-lesson-badge">{tone === 'complete' && <CheckCircle2 size={13} aria-hidden="true" />}{badge}<ChevronDown size={15} aria-hidden="true" /></span></summary>
             <div className="day-dashboard-lesson-body">{subject?.tasks.some((task) => task.dueDate && task.dueDate !== (task.lessonDate ?? selectedDate)) && <p className="day-dashboard-lesson-update">Срок сдачи: {dateLabel(subject.tasks.find((task) => task.dueDate && task.dueDate !== (task.lessonDate ?? selectedDate))!.dueDate!)} · по записи МЭШ. Задание относится к этому уроку.</p>}{items.length ? <div className="day-dashboard-lesson-items">{items.map((item) => <div className={`day-dashboard-lesson-item ${item.state}`} key={item.id}><span className="day-dashboard-lesson-item-symbol" aria-hidden="true">{item.state === 'done' ? '✓' : item.state === 'checking' ? '◷' : item.state === 'unclear' ? '?' : '→'}</span><div><strong>{item.state === 'done' ? 'Сделано' : item.state === 'checking' ? 'Проверяем' : item.state === 'unclear' ? 'Разобрано' : 'Осталось'}: {item.title}</strong><span>{item.detail}</span>{homeworkToken && <button type="button" onClick={() => openDay(homeworkToken, 'homework', item.id)}>{item.state === 'todo' ? 'Перейти к заданию' : item.state === 'checking' ? 'Открыть работу' : 'Посмотреть результат'} <ArrowRight size={14} aria-hidden="true" /></button>}</div></div>)}</div>
+              : referenceDate ? <div className="day-dashboard-lesson-raw"><p>{referenceText}</p><small>Это ссылка на уже назначенное ДЗ. Второй раз выполнять его не нужно.</small>{referenceToken && <button type="button" onClick={() => openDay(referenceToken, 'homework')}>Открыть ДЗ за {dateLabel(referenceDate)} <ArrowRight size={14} aria-hidden="true" /></button>}</div>
               : rawHomework.length ? <div className="day-dashboard-lesson-raw">{rawHomework.map((item, rawIndex) => <p key={rawIndex}>{item.text}</p>)}<small>Точный разбор задания ещё готовится.</small>{homeworkToken && <button type="button" onClick={() => openDay(homeworkToken, 'homework')}>Открыть ДЗ <ArrowRight size={14} aria-hidden="true" /></button>}</div>
                 : <p>{tone === 'none' ? 'На последней сверке задания к этому уроку не было. Оно может появиться позже.' : 'Сведения о домашнем задании ещё уточняются.'}</p>}{newlyAssigned && <p className="day-dashboard-lesson-update">ДЗ обновлено: {checkedLabel(updatedAt ?? null)}.</p>}<small>Последняя сверка МЭШ: {checkedLabel(selectedEntry.checkedAt)}.</small></div>
           </details></li>
         })}</ul> : <p className="day-dashboard-empty">{selectedEntry?.complete ? 'Уроков на эту дату нет.' : `Расписание ещё не подтверждено. Последняя проверка: ${checkedLabel(selectedEntry?.checkedAt ?? null)}.`}</p>}
         {selectedEntry?.dayToken && <button className="day-dashboard-detail-link" type="button" onClick={() => openDay(selectedEntry.dayToken!)}>Открыть подробное расписание <ArrowRight size={17} /></button>}
       </section>
-      <section className="day-dashboard-card" aria-label="Домашнее задание выбранного дня">
-        <div className="day-dashboard-heading"><div><BookOpen size={20} /><h2>Домашнее задание</h2></div><small>Уроки {dateLabel(selectedDate)}</small></div>
-        {selectedPage && currentSubjects.length ? <div className="day-dashboard-homework-overview">
+      <section className="day-dashboard-card" aria-label="Домашнее задание следующего учебного дня">
+        <div className="day-dashboard-heading"><div><BookOpen size={20} /><h2>{nextDate === nextCalendarDate(selectedDate) ? 'Домашнее задание на завтра' : 'Домашнее задание к следующему учебному дню'}</h2></div>{nextEntry && <small>Уроки {dateLabel(nextDate, { weekday: 'long', day: 'numeric', month: 'long' })}</small>}</div>
+        {!nextEntry ? <p className="day-dashboard-empty">Следующий учебный день пока не найден в проверенном расписании МЭШ.</p>
+          : homeworkRows.length > 0 ? <div className="day-dashboard-homework-overview">
           <p className={`day-dashboard-homework-summary ${actionRows.length ? 'action' : waitingRows.length ? 'waiting' : 'complete'}`}>{actionRows.length ? `Требуют внимания: ${actionRows.length} ${word(actionRows.length, 'предмет', 'предмета', 'предметов')}` : waitingRows.length ? 'От ученика пока не требуется действий' : 'Всё заданное сделано'}</p>
           {actionRows.length > 0 && <div className="day-dashboard-homework-group"><h3>Что сделать</h3>{actionRows.map(homeworkRow)}</div>}
           {waitingRows.length > 0 && <div className="day-dashboard-homework-group"><h3>Ждём проверку или уточнение</h3>{waitingRows.map(homeworkRow)}</div>}
           {completeRows.length > 0 && <details className="day-dashboard-homework-complete"><summary><CheckCircle2 size={18} aria-hidden="true" /><span>Сделано · {completeRows.length} {word(completeRows.length, 'предмет', 'предмета', 'предметов')}</span><ChevronDown size={17} aria-hidden="true" /></summary><div>{completeRows.map(homeworkRow)}</div></details>}
-        </div> : selectedEntry?.homework.length ? <div className="day-dashboard-mesh">{selectedEntry.homework.map((item, index) => <p key={index}><strong>{item.subject}</strong><span>{item.text}</span></p>)}<small>Точный текст МЭШ · разбор страницы готовится</small></div> : <p className="day-dashboard-empty">{selectedEntry?.complete ? 'По сохранённым данным МЭШ ДЗ на эту дату не опубликовано.' : 'ДЗ пока не опубликовано.'} Последняя проверка: {checkedLabel(selectedEntry?.checkedAt ?? null)}.</p>}
-        {homeworkToken && <button className="day-dashboard-detail-link" type="button" onClick={() => openDay(homeworkToken, 'homework')}>Открыть подробное ДЗ <ArrowRight size={17} /></button>}
+        </div> : nextEntry.homework.length ? <div className="day-dashboard-mesh">{nextEntry.homework.map((item, index) => <p key={index}><strong>{item.subject}</strong><span>{item.text}</span></p>)}<small>{nextWork.linkedPage && nextWork.linkedPage.targetDate !== nextDate ? `Запись МЭШ ссылается на урок ${dateLabel(nextWork.linkedPage.targetDate)}.` : 'Точный текст МЭШ · разбор страницы готовится'}</small></div> : <p className="day-dashboard-empty">{nextEntry.complete ? 'На этот учебный день МЭШ пока не показывает домашнего задания.' : 'ДЗ ещё не подтверждено.'} Последняя проверка: {checkedLabel(nextEntry.checkedAt)}.</p>}
+        {nextHomeworkToken && <button className="day-dashboard-detail-link" type="button" onClick={() => openDay(nextHomeworkToken, 'homework')}>{nextWork.linkedPage && nextWork.linkedPage.targetDate !== nextDate ? 'Открыть указанное задание' : 'Открыть подробное ДЗ'} <ArrowRight size={17} /></button>}
       </section>
       </div>
       <aside className="day-dashboard-side">
@@ -288,13 +332,13 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
           {gradeSource?.gradeAsOf && <p className="day-dashboard-grade-asof">Сохранённый срез МЭШ на {dateLabel(gradeSource.gradeAsOf.slice(0, 10))}. Новые оценки появятся после синхронизации, не при открытии страницы.</p>}
         </section>
         <section className="day-dashboard-card"><div className="day-dashboard-heading"><div><Clock3 size={20} /><h2>Синхронизация</h2></div></div>
-          <p>МЭШ за {dateLabel(selectedDate)}: {checkedLabel(selectedEntry?.checkedAt ?? null)}.</p>
-          {parent && selectedPage?.changes?.[0] && <p>В последнем обновлении: добавлено {selectedPage.changes[0].added.length}, уточнено {selectedPage.changes[0].changed.length}.</p>}
+          <p>Последняя проверка МЭШ: {checkedLabel(selectedEntry?.checkedAt ?? null)}{selectedEntry?.checkedAt && ` · ${checkedAge(selectedEntry.checkedAt, now)}`}.</p>
+          {parent && selectedPage?.changes?.[0] && (selectedPage.changes[0].added.length > 0 || selectedPage.changes[0].changed.length > 0) && <p>На странице ДЗ добавлено {selectedPage.changes[0].added.length}, уточнено {selectedPage.changes[0].changed.length}.</p>}
           {uploads.some((upload) => upload.status === 'pending') && <p><CheckCircle2 size={15} /> Фото ожидают разбора: {uploads.filter((upload) => upload.status === 'pending').length}.</p>}
           <small>Данные обновляются из Firestore при открытой странице.</small>
         </section>
       </aside>
     </div>
-    <p className="day-dashboard-source">Расписание и ДЗ показаны для выбранной даты. Работы и тесты обновляются из Firestore.</p>
+    <p className="day-dashboard-source">Расписание показывает выбранный день; блок ДЗ ниже готовит ближайший следующий учебный день. Работы и тесты обновляются из Firestore.</p>
   </div>
 }

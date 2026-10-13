@@ -1,12 +1,14 @@
 import {
   collection,
   doc,
+  FieldPath,
   getDoc,
   getDocs,
   onSnapshot,
   runTransaction,
   serverTimestamp,
   setDoc,
+  updateDoc,
 } from 'firebase/firestore'
 import { db } from './firebase'
 import type { Answer, AnswerKey, Assignment, ManualReview, QuizQuestion, QuizReading, QuizVisual } from './quiz'
@@ -33,16 +35,26 @@ export async function loadAssignment(token: string): Promise<Assignment> {
 }
 
 /** @see ../../docs/product/quizzes.md#quiz-runner */
-export function watchAssignment(token: string, onChange: (assignment: Assignment) => void, onError: (error: Error) => void) {
-  return onSnapshot(doc(db, 'assignments', token), (snapshot) => {
+export function watchAssignment(token: string, onChange: (assignment: Assignment, confirmed: boolean) => void, onError: (error: Error) => void) {
+  return onSnapshot(doc(db, 'assignments', token), { includeMetadataChanges: true }, (snapshot) => {
     if (!snapshot.exists()) { onError(new Error('Ссылка не найдена или была отозвана.')); return }
-    onChange(snapshot.data() as Assignment)
+    onChange(snapshot.data() as Assignment, !snapshot.metadata.fromCache && !snapshot.metadata.hasPendingWrites)
   }, onError)
 }
 
 /** @see ../../docs/product/quizzes.md#quiz-runner */
-export async function saveDraft(token: string, changedAnswers: Record<string, Answer>) {
+export async function saveDraft(token: string, changedAnswers: Record<string, Answer>, started: boolean) {
   const reference = doc(db, 'assignments', token)
+  if (started) {
+    const fields: unknown[] = []
+    for (const [id, answer] of Object.entries(changedAnswers)) fields.push(new FieldPath('answers', id), answer)
+    if (!fields.length) return
+    fields.push('updatedAt', serverTimestamp())
+    // Update only changed answer fields. A read/merge transaction for every edit
+    // consumed the daily Firestore read allowance during long written tests.
+    await updateDoc(reference, fields[0] as FieldPath, fields[1], ...fields.slice(2))
+    return
+  }
   await runTransaction(db, async (transaction) => {
     const snapshot = await transaction.get(reference)
     const current = snapshot.exists() ? snapshot.data() : undefined
@@ -122,6 +134,8 @@ export async function loadDashboard(token: string) {
   const snapshot = await getDocs(collection(db, 'dashboard', token, 'assignments'))
   return snapshot.docs.map((item) => ({
     token: item.id,
+    testId: String(item.data().testId ?? ''),
+    linkedToTestId: typeof item.data().linkedToTestId === 'string' ? item.data().linkedToTestId as string : null,
     title: String(item.data().title ?? 'Без названия'),
     description: String(item.data().description ?? ''),
     board: readBoardDetails(item.data().board),
@@ -138,6 +152,8 @@ export function watchDashboard(token: string, onChange: (items: Awaited<ReturnTy
   return onSnapshot(collection(db, 'dashboard', token, 'assignments'), (snapshot) => {
     onChange(snapshot.docs.map((item) => ({
       token: item.id,
+      testId: String(item.data().testId ?? ''),
+      linkedToTestId: typeof item.data().linkedToTestId === 'string' ? item.data().linkedToTestId as string : null,
       title: String(item.data().title ?? 'Без названия'),
       description: String(item.data().description ?? ''),
       board: readBoardDetails(item.data().board),

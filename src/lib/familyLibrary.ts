@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { collection, onSnapshot } from 'firebase/firestore'
+import { getAuth } from 'firebase/auth'
 import { db } from './firebase'
 import { watchDayDashboard } from './dayDashboardStore'
 import type { PersonalChild } from './personalAccess'
@@ -15,6 +16,11 @@ export type FamilyBook = {
   title: string
   status: 'confirmed' | 'provisional'
   sourceSha256?: string
+  catalogSha256?: string
+  pdfPageCount?: number
+  pagesPublishedSha256?: string
+  pagesManifestSha256?: string
+  pagesPublishedAt?: unknown
 }
 export type FamilyBookUpload = {
   id: string
@@ -69,12 +75,40 @@ export function bookNeeds(children: PersonalChild[], schedules: Record<string, s
   return result.sort((a, b) => a.childName.localeCompare(b.childName, 'ru') || a.subject.localeCompare(b.subject, 'ru'))
 }
 
-type LibraryState = { loading: boolean; error: string; observedDays: number; observedSubjects: number; unobservedChildren: string[]; needs: BookNeed[]; books: FamilyBook[] }
+type LibraryState = { loading: boolean; error: string; observedDays: number; observedSubjects: number; unobservedChildren: string[]; needs: BookNeed[]; books: FamilyBook[]; fromCache?: boolean }
+
+export function familyLibraryCacheKey(familyId: string, children: PersonalChild[]) {
+  return `education-family-library-v1:${familyId}:${children.map((child) => child.childId).sort().join(',')}`
+}
+
+function readLibrary(familyId: string, children: PersonalChild[]): LibraryState | null {
+  try {
+    const value: unknown = JSON.parse(localStorage.getItem(familyLibraryCacheKey(familyId, children)) ?? 'null')
+    if (!value || typeof value !== 'object') return null
+    const state = value as LibraryState
+    return state.loading === false && Array.isArray(state.books) && Array.isArray(state.needs) &&
+      Number.isSafeInteger(state.observedDays) && Number.isSafeInteger(state.observedSubjects) &&
+      Array.isArray(state.unobservedChildren) && state.books.every((book) => book && typeof book.id === 'string' &&
+        typeof book.title === 'string' && typeof book.childId === 'string' && (book.status === 'confirmed' || book.status === 'provisional')) &&
+      state.needs.every((need) => need && typeof need.childId === 'string' && typeof need.subject === 'string' &&
+        Array.isArray(need.books) && Array.isArray(need.uploads)) ? { ...state, fromCache: true } : null
+  } catch { return null }
+}
+
+function rememberLibrary(familyId: string, children: PersonalChild[], state: LibraryState) {
+  const safe = { ...state, fromCache: false, needs: state.needs.map((need) => ({ ...need,
+    uploads: need.uploads.map(({ upload: _upload, ...item }) => item) })) }
+  try { localStorage.setItem(familyLibraryCacheKey(familyId, children), JSON.stringify(safe)) }
+  catch { /* The live library still works without local persistence. */ }
+}
 
 export function useFamilyLibrary(familyId: string, children: PersonalChild[]): LibraryState {
-  const [state, setState] = useState<LibraryState>({ loading: true, error: '', observedDays: 0, observedSubjects: 0, unobservedChildren: [], needs: [], books: [] })
+  const [state, setState] = useState<LibraryState>(() => readLibrary(familyId, children) ?? { loading: true, error: '', observedDays: 0, observedSubjects: 0, unobservedChildren: [], needs: [], books: [] })
+  const [retry, setRetry] = useState(0)
   useEffect(() => {
     let active = true
+    let retryTimer: number | undefined
+    const cached = readLibrary(familyId, children)
     const schedules: Record<string, string[]> = {}
     const bindings: Record<string, FamilyBook[]> = {}
     const requirements: Record<string, BookRequirement[]> = {}
@@ -85,39 +119,64 @@ export function useFamilyLibrary(familyId: string, children: PersonalChild[]): L
     const required = children.length * 4
     const emit = () => {
       if (!active) return
-      setState({ loading: !error && ready.size < required, error,
+      // A failed or incomplete refresh is not evidence that the family has no books.
+      // Keep the last complete snapshot until every source has answered again.
+      if (ready.size < required) {
+        if (cached) setState({ ...cached, error })
+        else setState({ loading: !error, error, observedDays: 0, observedSubjects: 0,
+          unobservedChildren: [], needs: [], books: [] })
+        return
+      }
+      const next: LibraryState = { loading: !error && ready.size < required, error,
         observedDays: Object.values(dayCounts).reduce((sum, count) => sum + count, 0),
         observedSubjects: Object.values(schedules).flat().map(subjectKey).filter((value, index, all) => all.indexOf(value) === index).length,
         unobservedChildren: children.filter((child) => !schedules[child.childId]?.length).map((child) => child.displayName),
         books: Object.values(bindings).flat(),
-        needs: bookNeeds(children, schedules, Object.values(bindings).flat(), Object.values(uploads).flat(), Object.values(requirements).flat()) })
+        needs: bookNeeds(children, schedules, Object.values(bindings).flat(), Object.values(uploads).flat(), Object.values(requirements).flat()) }
+      setState(next)
+      if (!next.loading && !next.error) rememberLibrary(familyId, children, next)
     }
     const fail = (cause: Error) => {
-      error = reportUiError(cause, 'Семейная библиотека'); emit() }
+      error = reportUiError(cause, 'Семейная библиотека'); emit()
+      if (retryTimer === undefined) retryTimer = window.setTimeout(() => {
+        if (active) setRetry((value) => value + 1)
+      }, Math.min(120_000, 5_000 * 2 ** Math.min(retry, 5)))
+    }
+    const retryOnReconnect = () => { if (active && error) setRetry((value) => value + 1) }
+    window.addEventListener('online', retryOnReconnect)
     const stops: (() => void)[] = []
-    for (const child of children) {
+    // Cached parent screens render before Firebase Auth restores its session.
+    // Starting protected listeners earlier can permanently fail on a warm launch.
+    void getAuth().authStateReady().then(() => {
+      if (!active) return
+      if (!getAuth().currentUser) { fail(new Error('Сессия ещё не восстановлена')); return }
+      for (const child of children) {
       if (child.dashboardToken) stops.push(watchDayDashboard(child.dashboardToken, (index) => {
         schedules[child.childId] = index.days.flatMap((day) => day.schedule.map((lesson) => lesson.subject))
         dayCounts[child.childId] = index.days.length
         ready.add(`schedule:${child.childId}`); emit()
       }, fail))
       else { schedules[child.childId] = []; ready.add(`schedule:${child.childId}`) }
-      stops.push(onSnapshot(collection(db, 'families', familyId, 'children', child.childId, 'books'), (snapshot) => {
+      stops.push(onSnapshot(collection(db, 'families', familyId, 'children', child.childId, 'books'), { includeMetadataChanges: true }, (snapshot) => {
+        if (snapshot.metadata?.fromCache) return
         bindings[child.childId] = snapshot.docs.map((item) => ({ id: item.id, childId: child.childId, ...item.data() } as FamilyBook))
         ready.add(`books:${child.childId}`); emit()
       }, fail))
-      stops.push(onSnapshot(collection(db, 'families', familyId, 'children', child.childId, 'bookUploads'), (snapshot) => {
+      stops.push(onSnapshot(collection(db, 'families', familyId, 'children', child.childId, 'bookUploads'), { includeMetadataChanges: true }, (snapshot) => {
+        if (snapshot.metadata?.fromCache) return
         uploads[child.childId] = snapshot.docs.map((item) => ({ id: item.id, childId: child.childId, ...item.data() } as FamilyBookUpload))
         uploads[child.childId].forEach((item) => resumeFamilyBookTransfer(familyId, child.childId, item))
         ready.add(`uploads:${child.childId}`); emit()
       }, fail))
-      stops.push(onSnapshot(collection(db, 'families', familyId, 'children', child.childId, 'bookRequirements'), (snapshot) => {
+      stops.push(onSnapshot(collection(db, 'families', familyId, 'children', child.childId, 'bookRequirements'), { includeMetadataChanges: true }, (snapshot) => {
+        if (snapshot.metadata?.fromCache) return
         requirements[child.childId] = snapshot.docs.map((item) => ({ childId: child.childId, ...item.data() } as BookRequirement))
         ready.add(`requirements:${child.childId}`); emit()
       }, fail))
-    }
-    emit()
-    return () => { active = false; stops.forEach((stop) => stop()) }
-  }, [familyId, children])
+      }
+      emit()
+    }).catch((cause: unknown) => { if (active) fail(cause instanceof Error ? cause : new Error(String(cause))) })
+    return () => { active = false; window.removeEventListener('online', retryOnReconnect); if (retryTimer !== undefined) window.clearTimeout(retryTimer); stops.forEach((stop) => stop()) }
+  }, [familyId, children, retry])
   return state
 }

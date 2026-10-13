@@ -3,7 +3,8 @@
 .day-dashboard *{box-sizing:border-box}
 .day-dashboard>*,.day-dashboard-grid>*,.day-dashboard-side>*{min-width:0;max-width:100%}
 .day-dashboard-selected-heading{margin:22px 2px 0}
-.day-dashboard-parent-home{display:inline-flex;min-height:var(--edu-touch-target);align-items:center;margin-bottom:4px;color:var(--edu-bell-ink);font-size:.85rem;font-weight:800;text-decoration:none}
+.day-dashboard-selected-heading.parent{position:relative;padding-top:calc(var(--edu-touch-target) + 4px)}
+.day-dashboard-parent-home{position:absolute;top:0;left:0;display:inline-flex;min-height:var(--edu-touch-target);align-items:center;color:var(--edu-bell-ink);font-size:.85rem;font-weight:800;text-decoration:none}
 .day-dashboard-parent-home:focus-visible{outline:3px solid var(--edu-focus);outline-offset:3px}
 .day-dashboard-kicker{font-size:.72rem;font-weight:850;letter-spacing:.08em;text-transform:uppercase;color:#766696}
 .day-dashboard-selected-heading h1{margin:5px 0 0;color:#34295c;font-size:clamp(1.5rem,4vw,2.25rem);font-weight:850;letter-spacing:-.04em;line-height:1.2;text-transform:capitalize}

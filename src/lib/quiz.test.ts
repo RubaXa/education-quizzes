@@ -44,14 +44,26 @@ describe('grading', () => {
 
   it('keeps written answers pending until a manual review arrives', () => {
     const pending = grade(assignment, key)
-    expect(summarize(pending)).toEqual({ earned: 2, possible: 6, pending: 1 })
+    expect(summarize(pending)).toEqual({ earned: 2, possible: 6, pending: 1, skipped: 0 })
     expect(pending[2].learning).toBeUndefined()
 
     const reviewed = grade(assignment, key, {
       entries: { reason: { points: 2, explanation: 'Нужна точная запись.' } },
     })
-    expect(summarize(reviewed)).toEqual({ earned: 4, possible: 6, pending: 0 })
+    expect(summarize(reviewed)).toEqual({ earned: 4, possible: 6, pending: 0, skipped: 0 })
     expect(reviewed[2].explanation).toBe('Нужна точная запись.')
     expect(reviewed[2].learning?.rule).toBe('Сначала объясни ход.')
+  })
+
+  it('excludes optional unanswered items from the score and manual-review count', () => {
+    const optional = { ...assignment,
+      assessment: { policyVersion: 1 as const, mode: 'control-followup' as const,
+        subjectAdapter: 'russian', unansweredPolicy: 'optional' as const },
+      answers: { ...assignment.answers, reason: '' },
+    }
+    const results = grade(optional, key)
+    expect(results[0]).toMatchObject({ skipped: true, points: null })
+    expect(results[2]).toMatchObject({ skipped: true, points: null })
+    expect(summarize(results)).toEqual({ earned: 2, possible: 2, pending: 0, skipped: 2 })
   })
 })

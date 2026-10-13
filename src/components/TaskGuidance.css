@@ -1,0 +1,6 @@
+/* @see ../../docs/product/design-system.md#cards-and-status — same help view in every written subject. */
+.day-task-guidance{margin:12px 0;border:1px solid var(--edu-control-border);border-radius:var(--edu-radius-control);background:var(--edu-hover);padding:12px 14px;color:var(--edu-ink)}
+.day-task-guidance>strong{display:block;margin-bottom:7px;font-size:.88rem}
+.day-task-guidance>div+div{border-top:1px solid var(--edu-control-border);margin-top:9px;padding-top:9px}
+.day-task-guidance small{display:block;color:var(--edu-brand);font-weight:750}
+.day-task-guidance p{margin:3px 0 0;line-height:1.5}

@@ -1,9 +1,12 @@
 import { doc, getDocFromServer, updateDoc } from 'firebase/firestore'
 import { db } from './firebase'
+import { fetchWithRetry } from './networkRetry'
+import { reportUiError } from './uiErrors'
 
 type OutboxEntry = { id: string; file: Blob }
 type UploadState = { status: string; upload?: { href: string }; deviceUid?: string }
 const active = new Map<string, Promise<void>>()
+const reportedFailures = new Set<string>()
 const dbName = 'education-photo-outbox-v1'
 
 function key(studentToken: string, uploadId: string) { return `${studentToken}:${uploadId}` }
@@ -61,7 +64,8 @@ export function resumePhotoTransfer(studentToken: string, uploadId: string, data
     const file = await localPhotoForTransfer(studentToken, uploadId)
     if (!file) return // Another device cannot reconstruct the original file.
     if (!validUploadHref(data.upload!.href)) throw new Error('Некорректная ссылка Яндекс.Диска.')
-    const response = await fetch(data.upload!.href, { method: 'PUT', body: file, headers: { 'Content-Type': 'application/octet-stream' } })
+    const response = await fetchWithRetry(data.upload!.href, { method: 'PUT', body: file, headers: { 'Content-Type': 'application/octet-stream' } }, { attempts: 4, timeoutMs: 120_000 })
+    if (response.status === 403) throw new Error('Ссылка загрузки устарела. Фото сохранено на этом устройстве; ожидаем новую ссылку.')
     if (!response.ok && response.status !== 409) throw new Error(`Яндекс.Диск отклонил фото: HTTP ${response.status}.`)
     const latest = await getDocFromServer(ref)
     if (latest.data()?.status === 'awaiting-upload' && latest.data()?.upload?.href === data.upload!.href) {
@@ -69,5 +73,8 @@ export function resumePhotoTransfer(studentToken: string, uploadId: string, data
     }
   })()
   active.set(id, job)
-  void job.catch(() => {}).finally(() => { if (active.get(id) === job) active.delete(id) })
+  void job.catch((cause) => {
+    const failureKey = `${id}:${data.upload!.href}`
+    if (!reportedFailures.has(failureKey)) { reportedFailures.add(failureKey); reportUiError(cause, 'Передача фото') }
+  }).finally(() => { if (active.get(id) === job) active.delete(id) })
 }

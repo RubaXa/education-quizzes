@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react'
+import { getAuth, onAuthStateChanged } from 'firebase/auth'
 import { Bell, ChevronRight, X } from 'lucide-react'
-import { markNotificationRead, watchEducationUser, watchInbox } from '@/lib/educationStore'
-import type { InboxNotification } from '@/lib/educationSchema'
-import { loadPersonalProfile, restorePersonalSession } from '@/lib/personalAccess'
+import { markNotificationsRead, watchInbox } from '@/lib/educationStore'
+import { readCachedPersonalContext, restorePersonalContext } from '@/lib/personalAccess'
+import { readCachedInbox } from '@/lib/inboxCache'
 import type { PersonalChild } from '@/lib/personalAccess'
+import { groupNotificationThreads, viewedHomeworkNoticeIds } from '@/lib/notificationThreads'
+import type { Notice, NotificationThread } from '@/lib/notificationThreads'
 import EducationImage from './EducationImage'
 import './NotificationBell.css'
 import { reportUiError } from '@/lib/uiErrors'
-
-type Notice = InboxNotification & { id: string }
 
 function title(notice: Notice) {
   if (notice.title) return notice.title
@@ -17,6 +18,8 @@ function title(notice: Notice) {
   if (notice.type === 'homework_removed') return 'Домашнее задание снято'
   if (notice.type === 'grade_added') return 'Появилась новая оценка'
   if (notice.type === 'grade_changed') return 'Оценки уточнены'
+  if (notice.type === 'school_late') return 'Отмечено опоздание'
+  if (notice.type === 'school_remark') return 'Замечание в МЭШ'
   if (notice.type === 'review_started') return 'Начали проверку работы'
   if (notice.type === 'review_paused') return 'Проверка задержана'
   if (notice.type === 'review_updated') return 'Результат работы уточнён'
@@ -24,6 +27,7 @@ function title(notice: Notice) {
   if (notice.type === 'parent_reopened') return 'Задача снова открыта'
   if (notice.type === 'parent_requirement_mandatory') return 'Родитель назначил доработку'
   if (notice.type === 'parent_requirement_optional') return 'Доработка теперь по желанию'
+  if (notice.type === 'parent_guidance') return 'Родитель отправил помощь по задаче'
   if (notice.type === 'product_update') return 'Обновление Education'
   return 'Работа проверена'
 }
@@ -36,6 +40,7 @@ function detailBody(notice: Notice) {
   if (notice.type === 'parent_reopened') return 'Родитель снова открыл задачу. Посмотри, что осталось сделать.'
   if (notice.type === 'parent_requirement_mandatory') return 'Открой карточку: там указано, что именно родитель решил доработать.'
   if (notice.type === 'parent_requirement_optional') return 'Родитель снял обязательную доработку. Задание уже предъявлено; можно вернуться к нему по желанию.'
+  if (notice.type === 'parent_guidance') return 'Открой задачу: в карточке есть подсказка или показанный шаг.'
   return ''
 }
 function noticeTime(value: unknown) {
@@ -49,29 +54,37 @@ function todayMoscow() {
 /** @see ../../docs/architecture/activity-and-inbox.md#in-app-center
  *  @see ../../docs/product/design-system.md#shell */
 export default function NotificationBell({ routeKey }: { routeKey: string }) {
-  const [personId, setPersonId] = useState<string | null>(null)
-  const [children, setChildren] = useState<PersonalChild[]>([])
-  const [items, setItems] = useState<Notice[]>([])
+  const sessionRoute = routeKey.startsWith('#/enter/') ? routeKey : 'active'
+  const [cachedContext] = useState(() => {
+    if (routeKey.startsWith('#/enter/')) return null
+    const cached = readCachedPersonalContext()
+    const knownUid = getAuth().currentUser?.uid
+    return cached && (!knownUid || knownUid === cached.session.deviceUid) ? cached : null
+  })
+  const [personId, setPersonId] = useState<string | null>(cachedContext?.session.personId ?? null)
+  const [children, setChildren] = useState<PersonalChild[]>(cachedContext?.profile.children ?? [])
+  const [items, setItems] = useState<Notice[]>(() => cachedContext ? readCachedInbox(cachedContext.session.personId) : [])
   const [open, setOpen] = useState(false)
+  const [showHistory, setShowHistory] = useState(false)
   const [expanded, setExpanded] = useState<string | null>(null)
   const [error, setError] = useState('')
 
   useEffect(() => {
+    if (sessionRoute !== 'active') return
     let active = true
     const refresh = async () => {
       try {
-        const session = await restorePersonalSession()
+        const context = await restorePersonalContext()
         if (!active) return
-        setPersonId(session?.personId ?? null)
-        if (!session) { setChildren([]); return }
-        const profile = await loadPersonalProfile(session)
-        if (active) setChildren(profile.children)
-      } catch (cause) { if (active) { reportUiError(cause, 'Обновления'); setPersonId(null); setChildren([]) } }
+        setPersonId(context?.session.personId ?? null)
+        setChildren(context?.profile.children ?? [])
+      } catch (cause) { if (active) setError(reportUiError(cause, 'Обновления')) }
     }
-    const stop = watchEducationUser(() => { void refresh() })
-    void refresh()
+    // Auth's initial callback is the initial refresh. Rechecking the whole
+    // profile on every ordinary route change was a costly duplicate read.
+    const stop = onAuthStateChanged(getAuth(), () => { void refresh() }, (cause) => { if (active) setError(reportUiError(cause, 'Обновления')) })
     return () => { active = false; stop() }
-  }, [routeKey])
+  }, [sessionRoute])
 
   useEffect(() => {
     if (!personId) { setItems([]); return }
@@ -80,19 +93,46 @@ export default function NotificationBell({ routeKey }: { routeKey: string }) {
   }, [personId])
 
   useEffect(() => {
+    const acknowledgeLesson = (event: Event) => {
+      const viewed = (event as CustomEvent<{ dashboardToken?: string; date?: string; subject?: string }>).detail
+      if (!viewed?.dashboardToken || !viewed.date || !viewed.subject) return
+      const child = children.find((entry) => entry.dashboardToken === viewed.dashboardToken)
+      if (!child) return
+      const ids = viewedHomeworkNoticeIds(items, { familyId: child.familyId, childId: child.childId,
+        date: viewed.date, subject: viewed.subject })
+      if (!ids.length) return
+      setItems((current) => current.map((item) => ids.includes(item.id) ? { ...item, readAt: new Date().toISOString() } : item))
+      void markNotificationsRead(ids).catch((cause) => {
+        setItems((current) => current.map((item) => ids.includes(item.id) ? { ...item, readAt: undefined } : item))
+        setError(reportUiError(cause, 'Обновления'))
+      })
+    }
+    window.addEventListener('education-homework-update-seen', acknowledgeLesson)
+    return () => window.removeEventListener('education-homework-update-seen', acknowledgeLesson)
+  }, [children, items])
+
+  useEffect(() => {
     if (!open) return
-    const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') setOpen(false) }
+    const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') { setOpen(false); setShowHistory(false); setExpanded(null) } }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [open])
 
   if (!personId || routeKey.startsWith('#/enter/')) return null
-  const unread = items.filter((item) => !item.readAt).length
+  const threads = groupNotificationThreads(items)
+  const unread = threads.filter((thread) => thread.unread > 0).length
+  const historyCount = threads.length - unread
+  const visibleThreads = threads.filter((thread) => showHistory || thread.unread > 0 || expanded === thread.key)
 
-  async function openNotice(item: Notice) {
-    try { await markNotificationRead(item.id) }
-    catch (cause) { setError(reportUiError(cause, 'Обновления')) }
-    setExpanded((current) => current === item.id ? null : item.id)
+  async function openNotice(thread: NotificationThread) {
+    const ids = thread.items.filter((item) => !item.readAt).map((item) => item.id)
+    if (ids.length) setItems((current) => current.map((item) => ids.includes(item.id) ? { ...item, readAt: new Date().toISOString() } : item))
+    try { await markNotificationsRead(ids) }
+    catch (cause) {
+      setItems((current) => current.map((item) => ids.includes(item.id) ? { ...item, readAt: undefined } : item))
+      setError(reportUiError(cause, 'Обновления'))
+    }
+    setExpanded((current) => current === thread.key ? null : thread.key)
   }
 
   function navigateToNotice(item: Notice) {
@@ -105,21 +145,27 @@ export default function NotificationBell({ routeKey }: { routeKey: string }) {
     }
     if (item.taskId) sessionStorage.setItem('education-dashboard-focus-task', item.taskId)
     setOpen(false)
+    setShowHistory(false)
+    setExpanded(null)
     const target = `#/${child.role === 'parent' ? 'days-parent' : 'days'}/${child.dashboardToken}`
     if (window.location.hash === target) window.dispatchEvent(new Event('education-notification-navigation'))
     else window.location.hash = target
   }
 
   return <div className="notification-center">
-    <button className="notification-bell" type="button" aria-label={`Обновления${unread ? `, непрочитанных: ${unread}` : ''}`} aria-expanded={open} aria-controls="education-notification-list" onClick={() => setOpen((value) => !value)}>
+    <button className="notification-bell" type="button" aria-label={`Обновления${unread ? `, непрочитанных: ${unread}` : ''}`} aria-expanded={open} aria-controls="education-notification-list" onClick={() => { setOpen((value) => !value); setShowHistory(false); setExpanded(null) }}>
       <Bell size={20} aria-hidden="true" />{unread > 0 && <span className="notification-count">{unread > 99 ? '99+' : unread}</span>}
     </button>
     {open && <section id="education-notification-list" className="notification-panel" aria-label="Обновления Education">
-      <header><h2>Обновления</h2><button type="button" aria-label="Закрыть обновления" onClick={() => setOpen(false)}><X size={19} /></button></header>
+      <header><h2>Обновления</h2><button type="button" aria-label="Закрыть обновления" onClick={() => { setOpen(false); setShowHistory(false); setExpanded(null) }}><X size={19} /></button></header>
       {error && <p className="notification-error">{error}</p>}
-      {items.length ? <ul>{items.map((item) => <li key={item.id}><button type="button" className={item.readAt ? 'notification-item' : 'notification-item unread'} aria-expanded={expanded === item.id} onClick={() => { void openNotice(item) }}>
-        <span className="notification-dot" aria-hidden="true" /><span className="notification-copy"><strong>{title(item)}</strong><span>{item.subject ? `${item.subject} · ` : ''}{item.date ? new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long', timeZone: 'Europe/Moscow' }).format(new Date(`${item.date}T12:00:00+03:00`)) : item.type === 'product_update' ? 'Что изменилось' : 'Учебная работа'}</span><small>{noticeTime(item.createdAt)}</small></span><ChevronRight size={17} aria-hidden="true" />
-      </button>{expanded === item.id && <div className="notification-detail">{detailBody(item) && <p>{detailBody(item)}</p>}{!!item.changes?.length && <ul>{item.changes.map((change, index) => <li key={index}>{change}</li>)}</ul>}{item.media && <div className="notification-media">{item.media.before && <NoticeImage label="Было" media={item.media.before} />}{item.media.after && <NoticeImage label="Стало" media={item.media.after} />}</div>}{item.type !== 'product_update' && <button type="button" onClick={() => navigateToNotice(item)}>{item.type === 'grade_added' || item.type === 'grade_changed' ? 'Открыть сводку' : 'Открыть задание'} <ChevronRight size={15} /></button>}</div>}</li>)}</ul> : <p className="notification-empty">Пока обновлений нет.</p>}
+      {visibleThreads.length ? <ul>{visibleThreads.map((thread) => {
+        const item = thread.latest
+        return <li key={thread.key}><button type="button" className={`notification-item${thread.unread ? ' unread' : ''}${item.type === 'school_late' || item.type === 'school_remark' ? ' school-alert' : ''}`} aria-expanded={expanded === thread.key} onClick={() => { void openNotice(thread) }}>
+          <span className="notification-dot" aria-hidden="true" /><span className="notification-copy"><strong>{item.type === 'product_update' ? 'Обновления Education' : title(item)}</strong><span>{item.subject ? `${item.subject} · ` : ''}{item.date ? new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long', timeZone: 'Europe/Moscow' }).format(new Date(`${item.date}T12:00:00+03:00`)) : item.type === 'product_update' ? 'Что изменилось' : 'Учебная работа'}{thread.items.length > 1 ? ` · ${thread.items.length} события` : ''}</span><small>{noticeTime(item.createdAt)}</small></span><ChevronRight size={17} aria-hidden="true" />
+        </button>{expanded === thread.key && <div className="notification-detail">{thread.items.map((entry) => <div className="notification-thread-event" key={entry.id}>{thread.items.length > 1 && <><strong>{title(entry)}</strong><small>{noticeTime(entry.createdAt)}</small></>}{detailBody(entry) && <p>{detailBody(entry)}</p>}{!!entry.changes?.length && <ul>{entry.changes.map((change, index) => <li key={index}>{change}</li>)}</ul>}{entry.media && <div className="notification-media">{entry.media.before && <NoticeImage label="Было" media={entry.media.before} />}{entry.media.after && <NoticeImage label="Стало" media={entry.media.after} />}</div>}</div>)}{item.type !== 'product_update' && <button type="button" onClick={() => navigateToNotice(item)}>{item.type === 'grade_added' || item.type === 'grade_changed' ? 'Открыть сводку' : item.type === 'school_late' || item.type === 'school_remark' ? 'Открыть день' : 'Открыть задание'} <ChevronRight size={15} /></button>}</div>}</li>
+      })}</ul> : <p className="notification-empty">Новых обновлений нет.</p>}
+      {historyCount > 0 && <button className="notification-history-toggle" type="button" aria-expanded={showHistory} onClick={() => setShowHistory((value) => !value)}>{showHistory ? 'Скрыть историю' : `История · ${historyCount}`}</button>}
     </section>}
   </div>
 }
