@@ -194,6 +194,7 @@
 | [src/DayDashboard.warmStart.test.tsx](../../src/DayDashboard.warmStart.test.tsx) | [Повторный запуск расписания](dashboard.md) | Холодный и тёплый вид, выбранная дата, последовательное сворачивание уроков, отдельное ДЗ, оценки и отзыв доступа | Vitest; `DayDashboard.tsx` |
 | [src/DayPage.css](../../src/DayPage.css) | [Страница дня](day-page.md) | Оформление заданий и фокуса после перехода из расписания | `src/DayPage.tsx` |
 | [src/DayPage.tsx](../../src/DayPage.tsx) | [Страница дня](day-page.md) | Компоновка дня из Firestore, отдельный срок сдачи, семейная доработка и фокус задания | Ученик; родитель; `ProblemGroup` |
+| [src/DayPage.gradeBadge.test.tsx](../../src/DayPage.gradeBadge.test.tsx) | [Средний балл](grades.md) | Регрессия раскрытия среднего независимо от цвета и проверка сценария | Vitest; разработчик |
 | [src/WeekendMathSlot.css](../../src/WeekendMathSlot.css) | [Адаптивная карточка](adaptive-problem-card.md) | Оформление общего слота математики | `src/WeekendMathSlot.tsx` |
 | [src/WeekendMathSlot.tsx](../../src/WeekendMathSlot.tsx) | [Dashboard](dashboard.md) | Переиспользуемая карточка только перечисленных ID своего урока с фото, проверками и сроком | Ученик; родитель; `ProblemGroup` |
 | [src/components/ArtifactAvatar.css](../../src/components/ArtifactAvatar.css) | [Статусы фотографии](day-page.md) | Общая миниатюра и положение значка состояния | `src/components/ArtifactAvatar.tsx` |

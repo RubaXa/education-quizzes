@@ -171,18 +171,17 @@ function canForecast(summary: GradeSummary, details?: GradeDetails) {
  * Компактная метка среднего с условным сценарием при наличии сверенных оценок.
  * @see ../docs/product/grades.md#grade-badge
  */
-function GradeBadge({ summary, details, threshold, asOf }: { summary?: GradeSummary; details?: GradeDetails; threshold?: number; asOf?: string }) {
+export function GradeBadge({ summary, details, threshold, asOf }: { summary?: GradeSummary; details?: GradeDetails; threshold?: number; asOf?: string }) {
   const [open, setOpen] = useState(false)
   const [nextMark, setNextMark] = useState(4)
   const [nextWeight, setNextWeight] = useState(1)
   if (!summary) return null
   const excellent = isExcellent(summary)
-  if (excellent) return <span className="day-grade excellent" aria-label="Средний по предмету 5,00">5,00</span>
-  if (!needsAttention(summary)) return <span className="day-grade" aria-label={`Средний по предмету ${formatAverage(summary.average)}`}>{formatAverage(summary.average)}</span>
+  const tone = excellent ? ' excellent' : needsAttention(summary) ? ' watch' : ''
   const reliable = canForecast(summary, details) && threshold != null && threshold > 0 && threshold < 5
   const result = reliable ? forecast(details!.grades, nextMark, nextWeight, threshold!) : null
   return <>
-    <button type="button" className="day-grade watch day-grade-button" aria-expanded={open} aria-label={`Средний по предмету ${formatAverage(summary.average)}. ${open ? 'Скрыть' : 'Показать'} сценарий следующей оценки`} onClick={() => setOpen((value) => !value)}><span>{formatAverage(summary.average)}</span><ChevronDown size={14} aria-hidden="true" /></button>
+    <button type="button" className={`day-grade${tone} day-grade-button`} aria-expanded={open} aria-label={`Средний по предмету ${formatAverage(summary.average)}. ${open ? 'Скрыть' : 'Показать'} сценарий следующей оценки`} onClick={() => setOpen((value) => !value)}><span>{formatAverage(summary.average)}</span><ChevronDown size={14} aria-hidden="true" /></button>
     {open && <div className="day-grade-expand"><div className="day-grade-box">
       {result ? <>
         <div className="day-grade-toolbar"><span className="day-grade-expand-title">Оценка</span><div className="day-grade-choices" role="group" aria-label="Следующая оценка">{[3, 4, 5].map((mark) => <button key={mark} type="button" aria-pressed={nextMark === mark} onClick={() => setNextMark(mark)}>{mark}</button>)}</div><label className="day-grade-weight">Вес <select aria-label="Вес следующей оценки: ×1 обычная, ×2 условная" value={nextWeight} onChange={(event) => setNextWeight(Number(event.target.value))}><option value="1">×1</option><option value="2">×2</option></select></label></div>
