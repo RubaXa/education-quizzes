@@ -1,4 +1,4 @@
-import { collection, doc, getDoc, getDocFromServer, onSnapshot, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore'
+import { collection, doc, documentId, getDoc, getDocFromServer, onSnapshot, query, serverTimestamp, setDoc, updateDoc, where } from 'firebase/firestore'
 import { getAuth } from 'firebase/auth'
 import { db } from './firebase'
 import { isExplicitCdzTask } from '../../day/homework-kind.mjs'
@@ -204,13 +204,24 @@ export function watchDayReviews(tokens: string[], onChange: (data: DayWorkReview
 }
 /** Parent-only prepared path; never fetch this collection on a student route.
  * @see ../../docs/product/subject-aware-guidance.md#parent-card */
-export function watchDayTaskGuides(studentToken: string, onChange: (guides: Record<string, ParentTaskPrivate>) => void, onError: (error: Error) => void) {
-  return onSnapshot(collection(db, 'dayTaskGuides', studentToken, 'items'), (snapshot) => {
-    onChange(Object.fromEntries(snapshot.docs.map((entry) => [entry.id, {
+export function watchDayTaskGuides(studentToken: string, onChange: (guides: Record<string, ParentTaskPrivate>) => void,
+  onError: (error: Error) => void, options: { taskIds?: string[] } = {}) {
+  const selected = options.taskIds === undefined ? null : [...new Set(options.taskIds)]
+  if (selected?.length === 0) { onChange({}); return () => {} }
+  const refs = selected === null
+    ? [collection(db, 'dayTaskGuides', studentToken, 'items')]
+    : Array.from({ length: Math.ceil(selected.length / 30) }, (_, index) => query(
+      collection(db, 'dayTaskGuides', studentToken, 'items'),
+      where(documentId(), 'in', selected.slice(index * 30, index * 30 + 30))))
+  const parts = new Map<number, Record<string, ParentTaskPrivate>>()
+  const stops = refs.map((reference, index) => onSnapshot(reference, (snapshot) => {
+    parts.set(index, Object.fromEntries(snapshot.docs.map((entry) => [entry.id, {
       guide: entry.data().guide as ParentTaskGuide | undefined,
       sourceResearch: entry.data().sourceResearch as DaySourceResearch | undefined,
     }])))
-  }, onError)
+    if (parts.size === refs.length) onChange(Object.assign({}, ...Array.from({ length: refs.length }, (_, part) => parts.get(part))))
+  }, onError))
+  return () => stops.forEach((stop) => stop())
 }
 /** @see ../../docs/product/adaptive-problem-card.md#показ-ученику */
 export function watchDayHelp(tokens: string[], onChange: (data: DayHelp[]) => void, onError: (error: Error) => void) {

@@ -3206,7 +3206,7 @@
   {
     "id": "src/components/FamilyLibrary.tsx#getDoc#6f8543066a2a",
     "file": "src/components/FamilyLibrary.tsx",
-    "line": 66,
+    "line": 67,
     "api": "getDoc",
     "target": "doc(db, 'families', familyId, 'children', childId, 'bookPages', `${bookId}#manifest`)",
     "group": "client-books",
@@ -3218,7 +3218,7 @@
   {
     "id": "src/components/FamilyLibrary.tsx#getDocs#33b0342e265d",
     "file": "src/components/FamilyLibrary.tsx",
-    "line": 67,
+    "line": 68,
     "api": "getDocs",
     "target": "pages",
     "group": "client-books",
@@ -3230,7 +3230,7 @@
   {
     "id": "src/components/FamilyLibrary.tsx#onSnapshot#0c7dac5e0913",
     "file": "src/components/FamilyLibrary.tsx",
-    "line": 80,
+    "line": 81,
     "api": "onSnapshot",
     "target": "pages",
     "group": "client-books",
@@ -3290,7 +3290,7 @@
   {
     "id": "src/lib/dayDashboardStore.ts#onSnapshot#f50728f05c6a",
     "file": "src/lib/dayDashboardStore.ts",
-    "line": 41,
+    "line": 46,
     "api": "onSnapshot",
     "target": "doc(db, 'dayDashboards', token)",
     "group": "client-day",
@@ -3362,7 +3362,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#1658e056615b",
     "file": "src/lib/dayStore.ts",
-    "line": 118,
+    "line": 119,
     "api": "onSnapshot",
     "target": "doc(db, 'dayPages', token)",
     "group": "client-day",
@@ -3374,7 +3374,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#c2b7cd8e3f9b",
     "file": "src/lib/dayStore.ts",
-    "line": 152,
+    "line": 154,
     "api": "onSnapshot",
     "target": "doc(db, 'families', familyId, 'children', childId, 'bookPages', ref)",
     "group": "client-day",
@@ -3386,7 +3386,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#b781e597a36b",
     "file": "src/lib/dayStore.ts",
-    "line": 169,
+    "line": 171,
     "api": "onSnapshot",
     "target": "collection(db, 'dayUploads', studentToken, 'files')",
     "group": "client-day",
@@ -3398,7 +3398,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#9c726eac32b0",
     "file": "src/lib/dayStore.ts",
-    "line": 193,
+    "line": 195,
     "api": "onSnapshot",
     "target": "collection(db, 'dayProgress', studentToken, 'items')",
     "group": "client-day",
@@ -3410,7 +3410,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#c6f7e46096c2",
     "file": "src/lib/dayStore.ts",
-    "line": 197,
+    "line": 199,
     "api": "onSnapshot",
     "target": "collection(db, 'dayReviewPrivate', studentToken, 'items')",
     "group": "client-day",
@@ -3420,21 +3420,21 @@
     "refresh": "while relevant view is open"
   },
   {
-    "id": "src/lib/dayStore.ts#onSnapshot#6cc0276c6872",
+    "id": "src/lib/dayStore.ts#onSnapshot#592bd0712c2e",
     "file": "src/lib/dayStore.ts",
-    "line": 206,
+    "line": 217,
     "api": "onSnapshot",
-    "target": "collection(db, 'dayTaskGuides', studentToken, 'items')",
+    "target": "reference",
     "group": "client-day",
-    "policy": "scoped-listener",
-    "note": "Для видимого текущего состояния допустима адресная подписка; проверить повторное монтирование и локальный снимок при тёплом старте.",
+    "policy": "visible-parent-guide-ids",
+    "note": "Закрытые ориентиры читаются только для задач развёрнутых предметов через documentId in (до 30 ID в запросе); для всех свёрнутых предметов подписки нет. Старый полный режим сохранён для WeekendMathSlot. Проверены повторное раскрытие, пустой набор и разбиение длинного листа.",
     "assessment": "conditional",
-    "refresh": "while relevant view is open"
+    "refresh": "while a parent task section is visible"
   },
   {
     "id": "src/lib/dayStore.ts#onSnapshot#d0e658ed1ab2",
     "file": "src/lib/dayStore.ts",
-    "line": 217,
+    "line": 230,
     "api": "onSnapshot",
     "target": "collection(db, 'dayHelp', studentToken, 'items')",
     "group": "client-day",
@@ -3446,7 +3446,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#705de0a8baee",
     "file": "src/lib/dayStore.ts",
-    "line": 232,
+    "line": 245,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayPages', studentToken)",
     "group": "client-day",
@@ -3458,7 +3458,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#249d93879c40",
     "file": "src/lib/dayStore.ts",
-    "line": 242,
+    "line": 255,
     "api": "getDocFromServer",
     "target": "ref",
     "group": "client-day",
@@ -3470,7 +3470,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#249d93879c40-2",
     "file": "src/lib/dayStore.ts",
-    "line": 253,
+    "line": 266,
     "api": "getDocFromServer",
     "target": "ref",
     "group": "client-day",
@@ -3482,7 +3482,7 @@
   {
     "id": "src/lib/educationStore.ts#onSnapshot#af6c439f215d",
     "file": "src/lib/educationStore.ts",
-    "line": 30,
+    "line": 31,
     "api": "onSnapshot",
     "target": "doc(db, 'families', segment(familyId), 'ui', view)",
     "group": "client-views-inbox",
@@ -3494,7 +3494,7 @@
   {
     "id": "src/lib/educationStore.ts#onSnapshot#cc233f1e70fd",
     "file": "src/lib/educationStore.ts",
-    "line": 40,
+    "line": 41,
     "api": "onSnapshot",
     "target": "doc(db, 'families', segment(familyId), 'children', segment(childId), 'days', date)",
     "group": "client-views-inbox",
@@ -3506,7 +3506,7 @@
   {
     "id": "src/lib/educationStore.ts#onSnapshot#7d1de1c9546c",
     "file": "src/lib/educationStore.ts",
-    "line": 46,
+    "line": 47,
     "api": "onSnapshot",
     "target": "doc(db, 'families', segment(familyId), 'children', segment(childId), 'tasks', segment(taskId))",
     "group": "client-views-inbox",
@@ -3518,7 +3518,7 @@
   {
     "id": "src/lib/educationStore.ts#transaction.get#ab5c8ca36c03",
     "file": "src/lib/educationStore.ts",
-    "line": 103,
+    "line": 104,
     "api": "transaction.get",
     "target": "reference",
     "group": "client-views-inbox",
@@ -3530,7 +3530,7 @@
   {
     "id": "src/lib/educationStore.ts#onSnapshot#23d4cfbd2587",
     "file": "src/lib/educationStore.ts",
-    "line": 134,
+    "line": 137,
     "api": "onSnapshot",
     "target": "reference",
     "group": "client-views-inbox",
@@ -3542,7 +3542,7 @@
   {
     "id": "src/lib/educationStore.ts#onSnapshot#e1d8d3f8755c",
     "file": "src/lib/educationStore.ts",
-    "line": 143,
+    "line": 146,
     "api": "onSnapshot",
     "target": "doc(db, 'users', personId, 'views', segment(viewKey))",
     "group": "client-views-inbox",
@@ -3686,7 +3686,7 @@
   {
     "id": "src/lib/personalAccess.ts#getDoc#9290ff8cd3f8",
     "file": "src/lib/personalAccess.ts",
-    "line": 161,
+    "line": 167,
     "api": "getDoc",
     "target": "doc(db, 'accessLinks', linkToken)",
     "group": "client-access",
@@ -3698,7 +3698,7 @@
   {
     "id": "src/lib/personalAccess.ts#getDoc#a031cc72eb42",
     "file": "src/lib/personalAccess.ts",
-    "line": 189,
+    "line": 195,
     "api": "getDoc",
     "target": "reference",
     "group": "client-access",
@@ -3710,7 +3710,7 @@
   {
     "id": "src/lib/personalAccess.ts#getDoc#55eca3546993",
     "file": "src/lib/personalAccess.ts",
-    "line": 241,
+    "line": 247,
     "api": "getDoc",
     "target": "doc(db, 'deviceSessions', deviceUid)",
     "group": "client-access",
@@ -3722,7 +3722,7 @@
   {
     "id": "src/lib/personalAccess.ts#getDoc#597358094a96",
     "file": "src/lib/personalAccess.ts",
-    "line": 262,
+    "line": 268,
     "api": "getDoc",
     "target": "doc(db, 'users', session.personId)",
     "group": "client-access",
@@ -3734,7 +3734,7 @@
   {
     "id": "src/lib/personalAccess.ts#getDocs#c04990b4354a",
     "file": "src/lib/personalAccess.ts",
-    "line": 266,
+    "line": 272,
     "api": "getDocs",
     "target": "collection(db, 'users', session.personId, 'families')",
     "group": "client-access",
@@ -3746,7 +3746,7 @@
   {
     "id": "src/lib/personalAccess.ts#getDoc#5d1a89a83476",
     "file": "src/lib/personalAccess.ts",
-    "line": 270,
+    "line": 276,
     "api": "getDoc",
     "target": "doc(db, 'families', familyId, 'members', session.personId)",
     "group": "client-access",
@@ -3758,7 +3758,7 @@
   {
     "id": "src/lib/personalAccess.ts#getDoc#1eef01645270",
     "file": "src/lib/personalAccess.ts",
-    "line": 278,
+    "line": 284,
     "api": "getDoc",
     "target": "doc(db, 'families', familyId, 'children', childId)",
     "group": "client-access",
@@ -3770,7 +3770,7 @@
   {
     "id": "src/lib/personalAccess.ts#getDoc#0aeaca741ec9",
     "file": "src/lib/personalAccess.ts",
-    "line": 279,
+    "line": 285,
     "api": "getDoc",
     "target": "doc(db, 'users', session.personId, 'families', familyId, 'shortcuts', childId)",
     "group": "client-access",

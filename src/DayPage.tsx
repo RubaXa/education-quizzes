@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { BookOpen, CheckCircle2, ChevronDown, Clock3, ExternalLink, RotateCcw, Trash2, X } from 'lucide-react'
 import { cdzEvidenceLabel, cdzResultLabel, isCdzTask, removePendingDayPhoto, requestDayHelp, uploadDayPhoto, uploadMatchesTask, watchDayHelp, watchDayPage, watchDayTaskGuides, watchMaterialPages, withVerifiedPlatformResult } from '@/lib/dayStore'
 import { unresolvedMaterialPageRefs } from '@/lib/dayMaterialRefs'
+import { isSubjectExpanded, visibleGuideTaskIds } from '@/lib/guideReadPolicy'
 import type { DayHelp, DayInstruction, DayMaterialLink, DayPageData, DayTask, DayUpload, DayWorkReview, ParentTaskPrivate } from '@/lib/dayStore'
 import { dayHelpSessionRole } from '@/lib/personalAccess'
 import { useDayQuizOutcomes } from '@/lib/useDayQuizOutcomes'
@@ -235,14 +236,6 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
   })
   const { studentToken, evidenceKey, uploads, reviews, evidencePages, ready: evidenceReady } = useDayEvidence(page, token, setError)
   const parentDecisions = useParentCompletions(evidenceKey, Boolean(page) && helpRole !== 'checking' && helpRole !== 'none')
-  useEffect(() => {
-    if (!parent || !page || helpRole !== 'parent') return
-    return watchDayTaskGuides(studentToken, (guides) => setGuideSnapshot({ token: studentToken, guides }), (cause) => {
-      setGuideSnapshot({ token: '', guides: {} })
-      if ((cause as Error & { code?: string }).code === 'permission-denied') setHelpRole('none')
-      setError(reportUiError(cause, 'Ориентиры для проверки'))
-    })
-  }, [parent, page, helpRole, studentToken])
   const taskGuides = parent && helpRole === 'parent' && guideSnapshot.token === studentToken ? guideSnapshot.guides : {}
   useEffect(() => {
     if (!page || helpRole === 'checking' || helpRole === 'none') return
@@ -349,6 +342,37 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
     const linkedPending = dayTests.filter((test) => test.linkedToTestId && test.status !== 'submitted').length
     return taskPending + testPending + linkedPending
   }, [page, uploads, localPhotos, tests, currentPlacements, dayTests])
+  const currentSubjects = page ? page.subjects.map((subject) => ({ ...subject, tasks: subject.tasks.filter((task) => (task.originDate ?? page.targetDate) === page.targetDate)
+    .map((task) => withVerifiedPlatformResult(task, page.targetDate, evidencePages)) }))
+    .filter((subject) => subject.tasks.length || currentPlacements.some((placement) => placement.subjectId === subject.id && !placement.taskId)) : []
+  const quizStates = Object.fromEntries(tests.map((test) => [test.token, { status: test.status, testId: test.testId, linkedToTestId: test.linkedToTestId, title: test.title }]))
+  const quizScores = Object.fromEntries(tests.filter((test) => test.points != null && test.maxPoints != null)
+    .map((test) => [test.token, { points: test.points!, maxPoints: test.maxPoints! }]))
+  const workItems = (tasks: DayTask[]) => lessonWorkItems(tasks, uploads, reviews, parentDecisions.events, quizStates, quizScores)
+  const referencedWorkItems = (subject: (typeof currentSubjects)[number]) => {
+    const referenceTask = subject.tasks.find((task) => task.referenceDate)
+    const referencePage = referenceTask && evidencePages.find((candidate) => candidate.targetDate === referenceTask.referenceDate)
+    const referenceSubject = referencePage?.subjects.find((candidate) => candidate.id === subject.id)
+    return referenceSubject ? workItems(referenceSubject.tasks.map((task) => withVerifiedPlatformResult(task, referencePage!.targetDate, evidencePages))) : []
+  }
+  const visibleGuideIds = parent && page && view === 'homework'
+    ? visibleGuideTaskIds(currentSubjects, subjectOpen, (subject) => {
+      const items = [...workItems(subject.tasks), ...referencedWorkItems(subject)]
+      return items.length > 0 && items.every((item) => item.state === 'done')
+    }) : []
+  const guideReadKey = JSON.stringify(visibleGuideIds)
+  const hasGuidePage = Boolean(page)
+  useEffect(() => {
+    if (!parent || !hasGuidePage || helpRole !== 'parent') return
+    let active = true
+    const stop = watchDayTaskGuides(studentToken, (guides) => { if (active) setGuideSnapshot({ token: studentToken, guides }) }, (cause) => {
+      if (!active) return
+      setGuideSnapshot({ token: '', guides: {} })
+      if ((cause as Error & { code?: string }).code === 'permission-denied') setHelpRole('none')
+      setError(reportUiError(cause, 'Ориентиры для проверки'))
+    }, { taskIds: JSON.parse(guideReadKey) as string[] })
+    return () => { active = false; stop() }
+  }, [parent, hasGuidePage, helpRole, studentToken, guideReadKey])
   async function sendPhoto(photo: LocalPhoto) {
     setLocalPhotos((current) => current.map((item) => item.id === photo.id && item.state !== 'deleting' ? { ...item, state: 'uploading', error: undefined } : item))
     try {
@@ -399,19 +423,12 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
   if (error === DATA_UPDATE_MESSAGE) return <DataCompatibilityNotice />
   if (error && !page) return <div className="day-error"><h1>Не получилось открыть страницу</h1><p>{error}</p></div>
   if (!page) return <p className="day-loading">Загружаем страницу дня…</p>
-  const currentSubjects = page.subjects.map((subject) => ({ ...subject, tasks: subject.tasks.filter((task) => (task.originDate ?? page.targetDate) === page.targetDate)
-    .map((task) => withVerifiedPlatformResult(task, page.targetDate, evidencePages)) }))
-    .filter((subject) => subject.tasks.length || currentPlacements.some((placement) => placement.subjectId === subject.id && !placement.taskId))
   const noSpecialHomework = page.targetSchedule.some((lesson) => /Спецкурс|Специальный курс/i.test(lesson.subject))
     && !currentSubjects.some((subject) => subject.id === 'special')
   const currentTaskIds = new Set(currentSubjects.flatMap((subject) => subject.tasks.map((task) => task.id)))
   const lastChange = page.changes?.[0]
   const currentAdded = lastChange?.added.filter((id) => currentTaskIds.has(id)) ?? []
   const currentChanged = lastChange?.changed.filter((id) => currentTaskIds.has(id)) ?? []
-  const quizStates = Object.fromEntries(tests.map((test) => [test.token, { status: test.status, testId: test.testId, linkedToTestId: test.linkedToTestId, title: test.title }]))
-  const quizScores = Object.fromEntries(tests.filter((test) => test.points != null && test.maxPoints != null)
-    .map((test) => [test.token, { points: test.points!, maxPoints: test.maxPoints! }]))
-  const workItems = (tasks: DayTask[]) => lessonWorkItems(tasks, uploads, reviews, parentDecisions.events, quizStates, quizScores)
 
   return <>{headerReturnTarget && createPortal(<a className="day-return day-return-header" href={returnToDashboard || '#/'}>← На главную</a>, headerReturnTarget)}<div className={`day-page ${parent ? 'day-parent' : 'day-student'}`}>
     <a className="day-return day-return-content" href={returnToDashboard || '#/'}>← На главную</a>
@@ -454,14 +471,11 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
         const subjectPlacements = currentPlacements.filter((placement) => placement.subjectId === subject.id)
         const lineages = subjectPlacements.map((placement) => ({ placement, chain: quizChain(tests.find((item) => item.token === placement.token), tests) })).filter(({ chain }) => chain.length > 0)
         const lineageByToken = new Map(lineages.map(({ placement, chain }) => [placement.token, chain]))
-        const referenceTask = subject.tasks.find((task) => task.referenceDate)
-        const referencePage = referenceTask && evidencePages.find((candidate) => candidate.targetDate === referenceTask.referenceDate)
-        const referenceSubject = referencePage?.subjects.find((candidate) => candidate.id === subject.id)
-        const referencedItems = referenceSubject ? workItems(referenceSubject.tasks.map((task) => withVerifiedPlatformResult(task, referencePage!.targetDate, evidencePages))) : []
+        const referencedItems = referencedWorkItems(subject)
         const subjectItems = [...workItems(subject.tasks), ...referencedItems]
         const subjectDone = subjectItems.length > 0 && subjectItems.every((item) => item.state === 'done')
         const doneCount = subjectItems.filter((item) => item.state === 'done').length
-        const expanded = subjectOpen[subject.id] ?? !subjectDone
+        const expanded = isSubjectExpanded(subject.id, subjectDone, subjectOpen)
         return <section className={`day-subject day-subject-${subject.id}${subjectDone ? ' is-done' : ''}${expanded ? '' : ' is-collapsed'}`} key={subject.id}>
           <div className="day-subject-head"><span className="day-subject-icon">{subject.icon}</span><div className="day-subject-title"><h2>{subject.name}</h2><p>{subject.materials}</p></div>
             {subjectDone && <span className="day-subject-complete"><CheckCircle2 size={16} aria-hidden="true" /> Выполнено · {doneCount} из {subjectItems.length}</span>}

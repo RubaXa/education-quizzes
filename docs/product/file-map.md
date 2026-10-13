@@ -254,6 +254,9 @@
 | [src/lib/dayCompatibility.ts](../../src/lib/dayCompatibility.ts) | [Модель Firestore](firestore-data-model.md) | Чтение старых v0/v1 и защита от будущей несовместимой версии | `dayStore`; `dayDashboardStore` |
 | [src/lib/dayCompatibility.test.ts](../../src/lib/dayCompatibility.test.ts) | [Модель Firestore](firestore-data-model.md) | Проверка адаптера старого дня и неизвестной версии | Vitest; разработчик |
 | [src/lib/dayStore.ts](../../src/lib/dayStore.ts) | [Граф самопроверок](assessment-decision-graph.md) | Типы дня, подтверждённого намерения теста, результатов и подписка на страницы | `src/DayPage.tsx`; `src/DayDashboard.tsx` |
+| [src/lib/dayStore.guideRead.test.ts](../../src/lib/dayStore.guideRead.test.ts) | [Предметный разбор](subject-aware-guidance.md) | Подписка только на видимые родительские ориентиры и совместимость старого режима | Vitest; `src/DayPage.tsx` |
+| [src/lib/guideReadPolicy.ts](../../src/lib/guideReadPolicy.ts) | [Страница дня](day-page.md) | Выбор видимых задач для чтения закрытых ориентиров | `src/DayPage.tsx` |
+| [src/lib/guideReadPolicy.test.ts](../../src/lib/guideReadPolicy.test.ts) | [Страница дня](day-page.md) | Проверка свёрнутого и раскрытого состояния с бюджетом чтений | Vitest; `src/DayPage.tsx` |
 | [src/lib/dayGuidance.ts](../../src/lib/dayGuidance.ts) | [Математический маршрут](math-solution-route.md) | Выборочная передача этапа и подписка на помощь ребёнку | `DayPage.tsx`; `ProblemStatement.tsx`; Firebase |
 | [src/lib/quizCardViewModel.ts](../../src/lib/quizCardViewModel.ts) | [Единая модель карточки](subject-card-viewmodel.md) | Общий тип попытки и связка истории без предметного ветвления | `QuizCard.tsx`; `DayPage.tsx` |
 | [src/lib/educationSchema.ts](../../src/lib/educationSchema.ts) | [Семейная модель](../architecture/family-data-model.md) | Типы семьи, манифеста и адресных событий | `educationStore`; `NotificationBell` |
