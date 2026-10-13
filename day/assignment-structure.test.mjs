@@ -42,4 +42,9 @@ describe('границы отдельных заданий в одном пре�
     expect(teacherFilesForEntry(lesson, entries[0], entries)).toEqual([lesson.teacherFiles[0]])
     expect(teacherFilesForEntry(lesson, entries[1], entries)).toEqual([lesson.teacherFiles[1]])
   })
+  it('не теряет файл, когда вторая запись лишь указывает «Файл здесь»', () => {
+    const lesson = { teacherFiles: [{ id: 'sheet' }] }
+    const entries = [{ id: 'main', description: 'Решить задания из файла' }, { id: 'pointer', description: 'Файл здесь' }]
+    expect(teacherFilesForEntry(lesson, entries[0], entries)).toEqual(lesson.teacherFiles)
+  })
 })

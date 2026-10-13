@@ -28,7 +28,8 @@ export function teacherAttachmentOwnershipErrors(source) {
  * @see ../docs/product/day-page.md#multiple-assignments */
 export function teacherFilesForEntry(assignment, entry, entries) {
   const files = assignment.teacherFiles ?? []
-  if (entries.length === 1) return files
+  const actionable = entries.filter((candidate) => !/^файл здесь\.?$/i.test(String(candidate.description ?? '').trim()))
+  if (actionable.length <= 1) return files
   const ownIds = new Set((entry.teacherFileIds ?? []).map(String))
   return files.filter((file) => ownIds.has(String(file.id))
     || String(file.homeworkEntryId ?? '') === String(entry.id)
