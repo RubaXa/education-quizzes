@@ -9,6 +9,9 @@ import { setTimeout as delay } from 'node:timers/promises'
 
 const root = resolve(import.meta.dirname, '..')
 const css = readFileSync(resolve(root, 'src/DayDashboard.css'), 'utf8')
+const fontRoot = resolve(root, 'node_modules/@fontsource-variable/geist/files')
+const cyrillicFont = readFileSync(join(fontRoot, 'geist-cyrillic-wght-normal.woff2')).toString('base64')
+const latinFont = readFileSync(join(fontRoot, 'geist-latin-wght-normal.woff2')).toString('base64')
 const chrome = [process.env.CHROME_BIN, '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
   '/usr/bin/google-chrome', '/usr/bin/chromium'].find((path) => path && existsSync(path))
 if (!chrome) throw new Error('Для проверки нужен Chrome или CHROME_BIN.')
@@ -19,7 +22,10 @@ const rows = [
   ['Английский язык', '0 из 1', 'empty'], ['География', '1 из 1', 'complete'],
 ]
 function fixture(open) {
-  return `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${css}\nbody{margin:0;padding:8px}</style>
+  return `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>
+  @font-face{font-family:'Geist Variable';src:url(data:font/woff2;base64,${cyrillicFont}) format('woff2');font-weight:100 900;unicode-range:U+0400-052F,U+2DE0-2DFF,U+A640-A69F}
+  @font-face{font-family:'Geist Variable';src:url(data:font/woff2;base64,${latinFont}) format('woff2');font-weight:100 900;unicode-range:U+0000-00FF}
+  ${css}\nbody{margin:0;padding:8px;font-family:'Geist Variable',sans-serif}</style>
   <div class="day-dashboard"><section class="day-dashboard-card"><ul class="day-dashboard-lessons">
   ${rows.map(([name, badge, tone]) => `<li><details class="day-dashboard-lesson day-dashboard-lesson-${tone}" ${open ? 'open' : ''}>
     <summary><time>08:30</time><span class="day-dashboard-lesson-name">${name}${name === 'История' ? '<span class="day-dashboard-lesson-new">Новое ДЗ</span>' : ''}</span>
