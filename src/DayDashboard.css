@@ -126,3 +126,5 @@
 .day-dashboard-loading{padding:30px;text-align:center}
 @media(max-width:760px){.day-dashboard-grid{grid-template-columns:1fr}.day-dashboard-side{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){.day-dashboard-calendar{padding:15px 12px}.day-dashboard-date{flex-basis:58px}.day-dashboard-side{grid-template-columns:1fr}.day-dashboard-heading h2{font-size:1.15rem}}
+/* @see ../docs/product/dashboard.md#schedule-homework-status */
+.day-dashboard-lesson{scroll-margin-top:1rem}

@@ -19,3 +19,10 @@ export function quizChain(root: QuizCardAttempt | undefined, tests: QuizCardAtte
     seen.add(next.testId)
   }
 }
+
+/** A linked quiz has one visible card at its root assignment, not an extra DOM card.
+ * @see ../../docs/product/dashboard.md#schedule-homework-status */
+export function findQuizPlacement<T extends { token: string }>(placements: T[], tests: QuizCardAttempt[], token: string): T | undefined {
+  return placements.find((placement) => quizChain(tests.find((test) => test.token === placement.token), tests)
+    .some((test) => test.token === token))
+}

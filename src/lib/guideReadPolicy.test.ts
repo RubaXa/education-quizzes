@@ -12,6 +12,11 @@ describe('existing subject disclosure', () => {
     expect(isSubjectExpanded('geography', true, { geography: true })).toBe(true)
     expect(isSubjectExpanded('biology', false, { biology: false })).toBe(false)
   })
+
+  it('opens the destination subject even when its saved status is complete', () => {
+    expect(isSubjectExpanded('geography', true, {}, true)).toBe(true)
+    expect(isSubjectExpanded('geography', true, { geography: false }, true)).toBe(false)
+  })
 })
 
 describe('parent guide read budget', () => {

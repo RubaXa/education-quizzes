@@ -17,6 +17,7 @@ const index = { schemaVersion: 1, kind: 'parent', today: '2026-10-13', timezone:
   schedule: [{ subject: 'История', start: '2026-10-14T05:30:00.000Z', end: '2026-10-14T06:15:00.000Z' }],
   homework: [{ subject: 'История', text: 'Параграф 7' }], dayToken: null, homeworkDayToken: 'work-14' }] }
 const allDays = index.days
+const originalScrollIntoView = Element.prototype.scrollIntoView
 const base = () => ({ page: undefined, linkedPage: undefined, subjects: [], uploads: [], reviews: [], tests: {}, scores: {},
   parentDecisions: { events: [], ready: false, error: '' }, ready: false })
 
@@ -34,9 +35,23 @@ vi.mock('@/lib/personalAccess', async (importOriginal) => ({ ...await importOrig
 import DayDashboard from './DayDashboard'
 
 beforeEach(() => { vi.spyOn(Date, 'now').mockReturnValue(new Date('2026-10-13T05:00:00.000Z').getTime()) })
-afterEach(() => { probe.selected = null; probe.next = null; probe.grade = null; probe.dashboardError = null; delete (allDays[0] as typeof allDays[0] & { homeworkUpdate?: unknown }).homeworkUpdate; allDays[0].schedule.splice(1); index.days = allDays; localStorage.clear(); sessionStorage.clear(); vi.restoreAllMocks() })
+afterEach(() => { probe.selected = null; probe.next = null; probe.grade = null; probe.dashboardError = null; delete (allDays[0] as typeof allDays[0] & { homeworkUpdate?: unknown }).homeworkUpdate; allDays[0].schedule.splice(1); index.days = allDays; localStorage.clear(); sessionStorage.clear(); Element.prototype.scrollIntoView = originalScrollIntoView; vi.restoreAllMocks() })
 
 describe('schedule warm start', () => {
+  it('reveals a focused lesson after classes and aligns its start', async () => {
+    vi.mocked(Date.now).mockReturnValue(new Date('2026-10-13T06:20:00.000Z').getTime())
+    sessionStorage.setItem('education-dashboard-focus-subject', 'Биология')
+    const scroll = vi.fn()
+    Element.prototype.scrollIntoView = scroll
+    probe.selected = base(); probe.next = base()
+    const host = document.createElement('div'); document.body.append(host)
+    const root = createRoot(host)
+    await act(async () => { root.render(<DayDashboard token="calendar" parent />) })
+    expect(host.querySelector('[aria-label="Расписание выбранного дня"]')?.getAttribute('data-collapsed')).toBe('false')
+    expect(host.querySelector<HTMLDetailsElement>('.day-dashboard-lesson')?.open).toBe(true)
+    expect(scroll).toHaveBeenCalledWith({ behavior: 'auto', block: 'start' })
+    await act(async () => { root.unmount() }); host.remove()
+  })
   it('keeps the selected day distinct from the next homework day', async () => {
     probe.selected = base(); probe.next = base()
     const host = document.createElement('div'); document.body.append(host)

@@ -19,7 +19,7 @@ import TaskGuidance from '@/components/TaskGuidance'
 import PhotoUploadControl from '@/components/PhotoUploadControl'
 import { SyncProgress } from '@/components/SyncProgress'
 import QuizCard from '@/components/QuizCard'
-import { quizChain, type QuizCardAttempt } from '@/lib/quizCardViewModel'
+import { findQuizPlacement, quizChain, type QuizCardAttempt } from '@/lib/quizCardViewModel'
 import { useDayEvidence } from '@/lib/useDayEvidence'
 import { useParentCompletions } from '@/lib/useParentCompletions'
 import { lessonWorkItems } from '@/lib/homeworkStatus'
@@ -257,7 +257,24 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
     try { const request = JSON.parse(stored) as { dayToken: string; taskId: string }; return request.dayToken === token ? request.taskId : '' }
     catch { return '' }
   })
-  const focusHandled = useRef(false)
+  const focusHandled = useRef({ initial: false, settled: false })
+  const focusedQuizPlacement = focusTaskId.startsWith('quiz:') && page
+    ? findQuizPlacement((page.testPlacements ?? []).filter((placement) => (placement.originDate ?? page.targetDate) === page.targetDate), tests, focusTaskId.slice(5))
+    : undefined
+  useEffect(() => {
+    if (!focusTaskId) return
+    const cancelPendingAlignment = () => { focusHandled.current.settled = true }
+    window.addEventListener('wheel', cancelPendingAlignment, { passive: true })
+    window.addEventListener('touchstart', cancelPendingAlignment, { passive: true })
+    window.addEventListener('pointerdown', cancelPendingAlignment, { passive: true })
+    window.addEventListener('keydown', cancelPendingAlignment)
+    return () => {
+      window.removeEventListener('wheel', cancelPendingAlignment)
+      window.removeEventListener('touchstart', cancelPendingAlignment)
+      window.removeEventListener('pointerdown', cancelPendingAlignment)
+      window.removeEventListener('keydown', cancelPendingAlignment)
+    }
+  }, [focusTaskId])
 
   useEffect(() => () => { for (const url of photoUrls.current) URL.revokeObjectURL(url) }, [])
   const hasPendingUploads = uploads.some((upload) => upload.status === 'pending')
@@ -317,18 +334,24 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
     return () => window.clearInterval(timer)
   }, [page, manualView])
   useEffect(() => {
-    if (!page || view !== 'homework' || !focusTaskId || focusHandled.current) return
+    if (!page || view !== 'homework' || !focusTaskId) return
+    const settled = evidenceReady && parentDecisions.ready
+    if (focusHandled.current.settled || focusHandled.current.initial && !settled) return
     const frame = window.requestAnimationFrame(() => {
-      const target = focusTaskId.startsWith('quiz:') ? document.getElementById(`day-quiz-${focusTaskId.slice(5)}`) : document.getElementById(focusTaskId) ?? document.getElementById(`day-task-${focusTaskId}`)
+      const target = focusTaskId.startsWith('quiz:')
+        ? document.getElementById(`day-quiz-${focusTaskId.slice(5)}`) ?? (focusedQuizPlacement && document.getElementById(focusedQuizPlacement.taskId ? `day-task-${focusedQuizPlacement.taskId}` : `day-quiz-${focusedQuizPlacement.token}`))
+        : document.getElementById(focusTaskId) ?? document.getElementById(`day-task-${focusTaskId}`)
       if (!target) return
+      if (target.closest('.day-subject-content[hidden], .problem-group-body[hidden]')) { focusHandled.current.settled = true; return }
       if (target instanceof HTMLDetailsElement) target.open = true
-      target.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      target.scrollIntoView({ behavior: 'auto', block: 'start' })
       target.classList.add('day-focused-task')
-      focusHandled.current = true
+      focusHandled.current.initial = true
+      if (settled) focusHandled.current.settled = true
       window.setTimeout(() => target.classList.remove('day-focused-task'), 5000)
     })
     return () => window.cancelAnimationFrame(frame)
-  }, [page, view, focusTaskId, evidenceReady])
+  }, [page, view, focusTaskId, evidenceReady, parentDecisions.ready, focusedQuizPlacement])
   const currentPlacements = useMemo(() => (page?.testPlacements ?? []).filter((placement) => (placement.originDate ?? page?.targetDate) === page?.targetDate), [page])
   const dayTests = useMemo(() => [...new Map(currentPlacements.flatMap((placement) => quizChain(tests.find((item) => item.token === placement.token), tests)).map((item) => [item.token, item])).values()], [currentPlacements, tests])
   const pending = useMemo(() => {
@@ -478,7 +501,8 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
         const doneCount = subjectItems.filter((item) => item.state === 'done').length
         const assignments = assignmentProgress(subject.tasks, (task) => workItems([task]))
         const subjectDone = assignments.multiple ? assignments.complete : subjectItems.length > 0 && subjectItems.every((item) => item.state === 'done')
-        const expanded = isSubjectExpanded(subject.id, subjectDone, subjectOpen)
+        const focused = Boolean(focusTaskId && (subject.tasks.some((task) => task.id === focusTaskId || task.problems?.some((problem) => problem.id === focusTaskId)) || subjectPlacements.some((placement) => placement.token === focusedQuizPlacement?.token)))
+        const expanded = isSubjectExpanded(subject.id, subjectDone, subjectOpen, focused)
         return <section className={`day-subject day-subject-${subject.id}${subjectDone ? ' is-done' : ''}${expanded ? '' : ' is-collapsed'}`} key={subject.id}>
           <div className="day-subject-head"><span className="day-subject-icon">{subject.icon}</span><div className="day-subject-title"><h2>{subject.name}</h2><p>{subject.materials}</p></div>
             {assignments.multiple ? <span className={`day-subject-assignment-count${assignments.complete ? ' is-complete' : ''}`}>{assignments.complete && <CheckCircle2 size={16} aria-hidden="true" />}{assignments.completed} из {assignments.total} заданий выполнено</span>

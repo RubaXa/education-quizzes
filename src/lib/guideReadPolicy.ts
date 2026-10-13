@@ -1,7 +1,7 @@
 /** Keep the guide subscription aligned with the subject card's visible state.
  * @see ../../docs/product/day-page.md#completed-subjects */
-export function isSubjectExpanded(subjectId: string, done: boolean, choices: Record<string, boolean>): boolean {
-  return choices[subjectId] ?? !done
+export function isSubjectExpanded(subjectId: string, done: boolean, choices: Record<string, boolean>, focused = false): boolean {
+  return choices[subjectId] ?? (focused || !done)
 }
 
 type GuideTask = { id: string; problems?: { id: string }[] }

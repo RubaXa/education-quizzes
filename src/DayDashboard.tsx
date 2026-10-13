@@ -128,11 +128,12 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
     const target = [...document.querySelectorAll<HTMLElement>('.day-dashboard-lesson')].find((element) => element.dataset.subject === focusSubject || subjectId != null && lessonSubjectId(element.dataset.subject ?? '') === subjectId)
     if (target) {
       if (target instanceof HTMLDetailsElement) target.open = true
-      target.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      setScheduleOverride({ date: selectedDate, open: true })
+      target.scrollIntoView({ behavior: 'auto', block: 'start' })
       sessionStorage.removeItem('education-dashboard-focus-subject')
       setFocusSubject('')
     }
-  }, [focusSubject, selectedEntry])
+  }, [focusSubject, selectedEntry, selectedDate])
   useEffect(() => {
     const strip = datesRef.current
     const active = strip?.querySelector<HTMLElement>('[aria-pressed="true"]')
@@ -249,7 +250,7 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
     const end = Date.parse(lesson.end)
     return Number.isFinite(end) && now >= end
   })
-  const scheduleCollapsed = scheduleOverride?.date === selectedDate ? !scheduleOverride.open : scheduleFinished
+  const scheduleCollapsed = focusSubject ? false : scheduleOverride?.date === selectedDate ? !scheduleOverride.open : scheduleFinished
   const completeLessonSnapshot = selectedWork.ready ? JSON.stringify(lessonRows.map(({ key, tone, badge, items, referenceDate, referenceText }) =>
     ({ key, tone, badge, items, referenceDate, referenceText }))) : ''
   useEffect(() => {
