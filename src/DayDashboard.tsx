@@ -187,6 +187,11 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
   }).filter((row) => row.items.length > 0)
   const role = parent ? 'parent' : 'student'
   const homeworkRows = nextWork.ready ? liveHomeworkRows : nextHomeworkToken ? readCachedHomeworkRows(role, token, nextHomeworkToken) : []
+  // A saved status projection can be older than the freshly published MESH
+  // calendar. Keep its known statuses, but never let it hide a new assignment.
+  const unprojectedHomework = (nextEntry?.homework ?? []).filter((item) =>
+    !homeworkRows.some((row) => row.subject.name.toLocaleLowerCase('ru-RU') === item.subject.toLocaleLowerCase('ru-RU')
+      || lessonSubjectId(row.subject.name) != null && lessonSubjectId(row.subject.name) === lessonSubjectId(item.subject)))
   const completeHomeworkSnapshot = nextWork.ready && nextHomeworkToken ? JSON.stringify(liveHomeworkRows) : ''
   useEffect(() => {
     if (completeHomeworkSnapshot && nextHomeworkToken) writeCachedHomeworkRows(role, token, nextHomeworkToken, JSON.parse(completeHomeworkSnapshot))
@@ -329,9 +334,10 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
         <div className="day-dashboard-heading"><div><BookOpen size={20} /><h2>{nextDate === nextCalendarDate(selectedDate) ? 'Домашнее задание на завтра' : 'Домашнее задание к следующему учебному дню'}</h2></div>{nextEntry && <small>Уроки {dateLabel(nextDate, { weekday: 'long', day: 'numeric', month: 'long' })}</small>}</div>
         {!nextEntry ? <p className="day-dashboard-empty">Следующий учебный день пока не найден в проверенном расписании МЭШ.</p>
           : homeworkRows.length > 0 ? <div className="day-dashboard-homework-overview">
-          <p className={`day-dashboard-homework-summary ${actionRows.length ? 'action' : waitingRows.length ? 'waiting' : 'complete'}`}>{actionRows.length ? `Требуют внимания: ${actionRows.length} ${word(actionRows.length, 'предмет', 'предмета', 'предметов')}` : waitingRows.length ? 'От ученика пока не требуется действий' : 'Всё заданное сделано'}</p>
+          <p className={`day-dashboard-homework-summary ${actionRows.length ? 'action' : waitingRows.length || unprojectedHomework.length ? 'waiting' : 'complete'}`}>{actionRows.length ? `Требуют внимания: ${actionRows.length} ${word(actionRows.length, 'предмет', 'предмета', 'предметов')}${unprojectedHomework.length ? ` · ещё ${unprojectedHomework.length} ${word(unprojectedHomework.length, 'задание сверяется', 'задания сверяются', 'заданий сверяются')}` : ''}` : unprojectedHomework.length ? `${unprojectedHomework.length} ${word(unprojectedHomework.length, 'задание сверяется', 'задания сверяются', 'заданий сверяются')}` : waitingRows.length ? 'От ученика пока не требуется действий' : 'Всё заданное сделано'}</p>
           {actionRows.length > 0 && <div className="day-dashboard-homework-group"><h3>Что сделать</h3>{actionRows.map(homeworkRow)}</div>}
           {waitingRows.length > 0 && <div className="day-dashboard-homework-group"><h3>Ждём проверку или уточнение</h3>{waitingRows.map(homeworkRow)}</div>}
+          {unprojectedHomework.length > 0 && <div className="day-dashboard-mesh" aria-label="Новые задания МЭШ без сверенного статуса">{unprojectedHomework.map((item) => <p key={item.subject}><strong>{item.subject}</strong><span>{item.text}</span></p>)}<small>Задания видны в МЭШ; статус выполнения ещё сверяется.</small></div>}
           {completeRows.length > 0 && <details className="day-dashboard-homework-complete"><summary><CheckCircle2 size={18} aria-hidden="true" /><span>Сделано · {completeRows.length} {word(completeRows.length, 'предмет', 'предмета', 'предметов')}</span><ChevronDown size={17} aria-hidden="true" /></summary><div>{completeRows.map(homeworkRow)}</div></details>}
         </div> : nextEntry.homework.length ? <div className="day-dashboard-mesh">{nextEntry.homework.map((item, index) => <p key={index}><strong>{item.subject}</strong><span>{item.text}</span></p>)}<small>{nextWork.linkedPage && nextWork.linkedPage.targetDate !== nextDate ? `Запись МЭШ ссылается на урок ${dateLabel(nextWork.linkedPage.targetDate)}.` : 'Точный текст МЭШ · разбор страницы готовится'}</small></div> : <p className="day-dashboard-empty">{nextEntry.complete ? 'На этот учебный день МЭШ пока не показывает домашнего задания.' : 'ДЗ ещё не подтверждено.'} Последняя проверка: {checkedLabel(nextEntry.checkedAt)}.</p>}
         {nextHomeworkToken && <button className="day-dashboard-detail-link" type="button" onClick={() => openDay(nextHomeworkToken, 'homework')}>{nextWork.linkedPage && nextWork.linkedPage.targetDate !== nextDate ? 'Открыть указанное задание' : 'Открыть подробное ДЗ'} <ArrowRight size={17} /></button>}

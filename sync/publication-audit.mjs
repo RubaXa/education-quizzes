@@ -25,3 +25,25 @@ export function pendingPublicationDates(expected, published, dates) {
   }
   return pending
 }
+
+/** Refresh only check times for already published, byte-equivalent day content.
+ * Preserve inbox badges and every other field of the published index.
+ * @see ../docs/product/dashboard.md#sync-freshness
+ */
+export function refreshedCalendarChecks(expected, published) {
+  if (!Array.isArray(expected?.days) || !Array.isArray(published?.days)) return null
+  const fresh = new Map(expected.days.map((day) => [day.date, day]))
+  let changed = false
+  const days = published.days.map((prior) => {
+    const next = fresh.get(prior.date)
+    if (!next?.checkedAt || !prior.sourceRevision || prior.sourceRevision !== next.sourceRevision) return prior
+    for (const field of ['schedule', 'homework', 'dayToken', 'homeworkDayToken']) {
+      if (JSON.stringify(prior[field] ?? null) !== JSON.stringify(next[field] ?? null)) return prior
+    }
+    const nextTime = Date.parse(next.checkedAt), priorTime = Date.parse(prior.checkedAt ?? '')
+    if (!Number.isFinite(nextTime) || Number.isFinite(priorTime) && nextTime <= priorTime) return prior
+    changed = true
+    return { ...prior, checkedAt: next.checkedAt }
+  })
+  return changed ? days : null
+}

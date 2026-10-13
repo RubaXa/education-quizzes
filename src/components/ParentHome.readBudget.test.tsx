@@ -6,7 +6,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { PersonalProfile } from '@/lib/personalAccess'
 
 const probe = vi.hoisted(() => ({ paths: [] as string[], active: new Map<string, number>(), errors: new Map<string, (error: Error) => void>(),
-  values: new Map<string, (snapshot: any) => void>(), restoreGate: null as Promise<void> | null, authGate: null as Promise<void> | null }));
+  values: new Map<string, (snapshot: any) => void>(), listeners: new Map<string, Array<(snapshot: any) => void>>(), restoreGate: null as Promise<void> | null, authGate: null as Promise<void> | null }));
 (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true
 
 // Count real component subscriptions against a fake Firestore boundary. This
@@ -43,7 +43,10 @@ vi.mock('firebase/firestore', async (importOriginal) => {
       const onError = handlers.at(-1)
       if (typeof onError === 'function') probe.errors.set(value.path, onError as (error: Error) => void)
       const onValue = handlers.find((handler) => typeof handler === 'function')
-      if (typeof onValue === 'function') probe.values.set(value.path, onValue as (snapshot: any) => void)
+      if (typeof onValue === 'function') {
+        probe.values.set(value.path, onValue as (snapshot: any) => void)
+        probe.listeners.set(value.path, [...(probe.listeners.get(value.path) ?? []), onValue as (snapshot: any) => void])
+      }
       return () => probe.active.set(value.path, (probe.active.get(value.path) ?? 1) - 1)
     },
   }
@@ -85,7 +88,7 @@ class ViewportObserver {
   disconnect() {}
 }
 
-afterEach(() => { probe.paths.length = 0; probe.active.clear(); probe.errors.clear(); probe.values.clear(); probe.restoreGate = null; probe.authGate = null; enterViewport = undefined; localStorage.clear(); vi.unstubAllGlobals() })
+afterEach(() => { probe.paths.length = 0; probe.active.clear(); probe.errors.clear(); probe.values.clear(); probe.listeners.clear(); probe.restoreGate = null; probe.authGate = null; enterViewport = undefined; localStorage.clear(); vi.unstubAllGlobals() })
 
 const booksPath = 'families/family/children/child/books'
 const uploadsPath = 'families/family/children/child/bookUploads'
@@ -164,6 +167,28 @@ describe('parent home warm start — complete local snapshot', () => {
     expect(sessionStorage.getItem('education-dashboard-selected-date')).toBe(today)
     await act(async () => { root.unmount() })
     host.remove()
+  })
+  it('shows new MESH homework and check time even if result streams have not finished', async () => {
+    localStorage.setItem('education-parent-overview-v1:person:calendar', JSON.stringify({ state: 'ready',
+      day: { date: '2026-10-14', checkedAt: '2026-10-12T09:00:00.000Z', complete: true, schedule: [],
+        homework: [{ subject: 'Литература', text: 'Читать' }] },
+      subjects: [{ id: 'literature', name: 'Литература', state: 'todo', items: [{ id: 'lit', title: 'Читать', state: 'todo', detail: 'Не закончено' }] }],
+      done: 0, todo: 1, checking: 0, unclear: 0, total: 1, weekendCards: 0, reason: '', error: '', cachedAt: Date.now() }))
+    vi.stubGlobal('IntersectionObserver', ViewportObserver)
+    const host = document.createElement('div'); document.body.append(host)
+    const root = createRoot(host)
+    await act(async () => { root.render(<ParentHome profile={profile} />) })
+    const updated = { metadata: { fromCache: false }, exists: () => true, data: () => ({ kind: 'parent', today: '2026-10-13', timezone: 'Europe/Moscow',
+      days: [{ date: '2026-10-14', checkedAt: '2026-10-13T14:00:00.000Z', complete: true,
+        schedule: [{ subject: 'История', start: '2026-10-14T05:30:00.000Z', end: '2026-10-14T06:15:00.000Z' }],
+        homework: [{ subject: 'Литература', text: 'Читать' }, { subject: 'История', text: 'Параграф 8' }],
+        dayToken: null, homeworkDayToken: 'work-14' }] }) }
+    await act(async () => { probe.listeners.get('dayDashboards/calendar')?.forEach((listener) => listener(updated)) })
+    await act(async () => { host.querySelector<HTMLButtonElement>('.parent-child-toggle')?.click() })
+    expect(host.querySelector('.parent-child-detail')?.textContent).toContain('История')
+    expect(host.querySelector('.parent-child-detail')?.textContent).toContain('Параграф 8')
+    expect(host.querySelector('.parent-child-source')?.textContent).toContain('13 окт')
+    await act(async () => { root.unmount() }); host.remove()
   })
   it('draws the cached child before personal restoration and starts inbox only after it', async () => {
     let release!: () => void

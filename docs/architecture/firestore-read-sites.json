@@ -2642,7 +2642,7 @@
   {
     "id": "scripts/sync-project.mjs#admin.get#d897f590fe69",
     "file": "scripts/sync-project.mjs",
-    "line": 41,
+    "line": 42,
     "api": "admin.get",
     "target": "db.collection('families')",
     "group": "operator-sync",
@@ -2654,7 +2654,7 @@
   {
     "id": "scripts/sync-project.mjs#admin.get#ae26f2da7d36",
     "file": "scripts/sync-project.mjs",
-    "line": 41,
+    "line": 42,
     "api": "admin.get",
     "target": "db.collection('sourceAccounts')",
     "group": "operator-sync",
@@ -2666,7 +2666,7 @@
   {
     "id": "scripts/sync-project.mjs#admin.get#e8fb5d1240b7",
     "file": "scripts/sync-project.mjs",
-    "line": 41,
+    "line": 42,
     "api": "admin.get",
     "target": "db.collection('sourceIdentities')",
     "group": "operator-sync",
@@ -2678,7 +2678,7 @@
   {
     "id": "scripts/sync-project.mjs#admin.get#fafe11af177d",
     "file": "scripts/sync-project.mjs",
-    "line": 46,
+    "line": 47,
     "api": "admin.get",
     "target": "db.collection(`families/${family.id}/children`)",
     "group": "operator-sync",
@@ -2690,7 +2690,7 @@
   {
     "id": "scripts/sync-project.mjs#admin.get#8c046f90843d",
     "file": "scripts/sync-project.mjs",
-    "line": 46,
+    "line": 47,
     "api": "admin.get",
     "target": "db.collection(`families/${family.id}/members`)",
     "group": "operator-sync",
@@ -2702,7 +2702,7 @@
   {
     "id": "scripts/sync-project.mjs#admin.get#ddaa06b20bbd",
     "file": "scripts/sync-project.mjs",
-    "line": 104,
+    "line": 106,
     "api": "admin.get",
     "target": "db.doc(`dayDashboards/${token}`)",
     "group": "operator-sync",
@@ -2712,9 +2712,33 @@
     "refresh": "on affected event"
   },
   {
+    "id": "scripts/sync-project.mjs#admin.get#4e894d48fdca",
+    "file": "scripts/sync-project.mjs",
+    "line": 126,
+    "api": "admin.get",
+    "target": "db.doc(`dayPages/${token}`)",
+    "group": "operator-sync",
+    "policy": "operator-point",
+    "note": "Две ролевые страницы текущего ребёнка сверяются с полным срезом оценок МЭШ; обнаруживает непубликованные оценки, не читая всю историю.",
+    "assessment": "justified",
+    "refresh": "once per complete MESH cycle"
+  },
+  {
+    "id": "scripts/sync-project.mjs#admin.get#efe6ef9926c8",
+    "file": "scripts/sync-project.mjs",
+    "line": 149,
+    "api": "admin.get",
+    "target": "snapshot.ref",
+    "group": "operator-sync",
+    "policy": "operator-point",
+    "note": "После атомарного обновления календарных времён перечитывается только изменённый ролевой индекс для подтверждения записи.",
+    "assessment": "justified",
+    "refresh": "only after changed check timestamps"
+  },
+  {
     "id": "scripts/sync-project.mjs#admin.get#51573d45cc18",
     "file": "scripts/sync-project.mjs",
-    "line": 240,
+    "line": 283,
     "api": "admin.get",
     "target": "statusRef(target)",
     "group": "operator-sync",
@@ -2726,7 +2750,7 @@
   {
     "id": "scripts/sync-project.mjs#admin.get#16193df213d4",
     "file": "scripts/sync-project.mjs",
-    "line": 260,
+    "line": 303,
     "api": "admin.get",
     "target": "db.collection('operatorSyncJobs').where('runId', '==', runId)",
     "group": "operator-sync",

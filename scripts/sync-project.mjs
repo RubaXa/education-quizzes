@@ -10,7 +10,8 @@ import { ensureDataDir, readJson, writeJson } from '../diary/local-store.mjs'
 import { dateWindow, mapBounded, projectTargets } from '../sync/project-plan.mjs'
 import { persistMeshCapture } from '../sync/artifact-capture.mjs'
 import { buildDayDashboardIndex } from '../day/dashboard-index.mjs'
-import { pendingPublicationDates } from '../sync/publication-audit.mjs'
+import { assertGradeSnapshotAligned } from '../day/grade-reconciliation.mjs'
+import { pendingPublicationDates, refreshedCalendarChecks } from '../sync/publication-audit.mjs'
 import { enqueueSyncJob, setSyncJob, syncFingerprint } from '../sync/job-queue.mjs'
 
 /** Global source collection. Enrichment and publication remain separate checked phases.
@@ -93,23 +94,63 @@ function credentialRecord(accountId, kind) {
   } }
   return state
 }
-async function auditPublishedDays(dir, dates) {
+async function auditPublishedDays(dir, dates, asOf) {
   const workspace = dirname(dir)
   const links = readJson(workspace, 'day-links.json') ?? {}
   const dashboardTokens = readJson(workspace, 'day-dashboard-links.json') ?? {}
   const pendingByDate = new Map()
+  const freshness = []
   for (const role of ['student', 'parent']) {
     const expected = buildDayDashboardIndex(workspace, links, role)
     const token = dashboardTokens[role]
-    const published = token ? (await db.doc(`dayDashboards/${token}`).get()).data() : null
+    const snapshot = token ? await db.doc(`dayDashboards/${token}`).get() : null
+    const published = snapshot?.data() ?? null
+    if (published && published.kind === role && published.familyId && published.childId) {
+      const days = refreshedCalendarChecks(expected, published)
+      if (days) freshness.push({ role, snapshot, days })
+    }
     for (const item of pendingPublicationDates(expected, published, dates)) {
       const reasons = pendingByDate.get(item.date) ?? new Set()
       for (const reason of item.reasons) reasons.add(`${role}:${reason}`)
       pendingByDate.set(item.date, reasons)
     }
   }
-  return [...pendingByDate].sort(([a], [b]) => a.localeCompare(b))
-    .map(([date, reasons]) => ({ date, reasons: [...reasons].sort() }))
+  // The dashboard reads grades from the most recent day page, not from the
+  // calendar index. A zero calendar diff cannot certify that the marks shown
+  // to either role caught up with the complete MESH period snapshot.
+  const currentSourceDate = Object.keys(links).filter((item) => item <= asOf).sort().at(-1)
+  const latestMesh = readJson(dir, `snapshot-${dates.at(-1)}.json`)
+  if (currentSourceDate && latestMesh?.complete && Array.isArray(latestMesh.marks)) {
+    for (const role of ['student', 'parent']) {
+      const token = links[currentSourceDate]?.[role]
+      const page = token ? (await db.doc(`dayPages/${token}`).get()).data() : null
+      try { assertGradeSnapshotAligned({ subjects: page?.grades ?? [] }, latestMesh) }
+      catch {
+        const targetDate = page?.targetDate ?? currentSourceDate
+        const reasons = pendingByDate.get(targetDate) ?? new Set()
+        reasons.add(`${role}:grade-projection-stale`)
+        pendingByDate.set(targetDate, reasons)
+      }
+    }
+  }
+  return { pending: [...pendingByDate].sort(([a], [b]) => a.localeCompare(b))
+    .map(([date, reasons]) => ({ date, reasons: [...reasons].sort() })), freshness }
+}
+async function publishCalendarChecks(target, candidates) {
+  const owned = candidates.filter(({ snapshot }) => snapshot.data().familyId === target.familyId
+    && snapshot.data().childId === target.childId)
+  if (owned.length !== candidates.length) throw new Error('Календарь принадлежит другой семье или ребёнку.')
+  if (!owned.length) return 0
+  const batch = db.batch()
+  for (const { snapshot, days } of owned) batch.update(snapshot.ref, { days, updatedAt: Timestamp.now() },
+    { lastUpdateTime: snapshot.updateTime })
+  await batch.commit()
+  for (const { snapshot, days } of owned) {
+    const live = (await snapshot.ref.get()).data()
+    if (JSON.stringify(live?.days) !== JSON.stringify(days)) throw new Error('Время проверки календаря не подтвердилось после публикации.')
+  }
+  return new Set(owned.flatMap(({ snapshot, days }) => days.filter((day, index) =>
+    day.checkedAt !== snapshot.data().days[index]?.checkedAt).map((day) => day.date))).size
 }
 async function collectChild(target, context, runId, today) {
   const dates = dateWindow(today)
@@ -165,7 +206,9 @@ async function collectChild(target, context, runId, today) {
       await status(target, runId, 'fetching', { checkedDates: checked, totalDates: dates.length, currentDate: date, lastFullMeshAt: lastFull })
     }
   }
-  const pendingPublicationDatesByDay = await auditPublishedDays(dir, dates)
+  const publication = await auditPublishedDays(dir, dates, today)
+  const pendingPublicationDatesByDay = publication.pending
+  const calendarChecksPublished = await publishCalendarChecks(target, publication.freshness)
   const expected = buildDayDashboardIndex(dirname(dir), readJson(dirname(dir), 'day-links.json') ?? {}, 'student')
   const expectedByDate = new Map((expected.days ?? []).map((day) => [day.date, day]))
   for (const date of new Set([...changedDates.map((item) => item.date), ...pendingPublicationDatesByDay.map((item) => item.date)])) {
@@ -178,14 +221,14 @@ async function collectChild(target, context, runId, today) {
     await status(target, runId, 'complete', { checkedDates: checked, totalDates: dates.length,
       currentDate: dates.at(-1), lastFullMeshAt: lastFull, pendingPublicationCount: 0,
       reason: null, verifiedAt: Timestamp.now() })
-    return { state: 'complete', checkedDates: checked, privateCaptures: captures,
+    return { state: 'complete', checkedDates: checked, privateCaptures: captures, calendarChecksPublished,
       checkedFrom: dates[0], checkedThrough: dates.at(-1), lastFullMeshAt: lastFull,
       changes, changedDates, pendingPublicationDates: pendingPublicationDatesByDay, sourceDir: dir }
   }
   await status(target, runId, 'awaiting-review', { checkedDates: checked, totalDates: dates.length,
     currentDate: dates.at(-1), lastFullMeshAt: lastFull,
     pendingPublicationCount: pendingPublicationDatesByDay.length, reason: 'source-review-required' })
-  return { state: 'awaiting-enrichment', checkedDates: checked, privateCaptures: captures,
+  return { state: 'awaiting-enrichment', checkedDates: checked, privateCaptures: captures, calendarChecksPublished,
     checkedFrom: dates[0], checkedThrough: dates.at(-1), lastFullMeshAt: lastFull,
     changes, changedDates, pendingPublicationDates: pendingPublicationDatesByDay, sourceDir: dir }
 }
@@ -255,7 +298,7 @@ async function markPhase() {
     if (!job.sourceDir || !job.checkedFrom || !job.checkedThrough) throw new Error('Нет полного проверенного окна МЭШ для завершения запуска.')
     const dates = dateWindow(manifest.startedFor)
     if (dates[0] !== job.checkedFrom || dates.at(-1) !== job.checkedThrough) throw new Error('Окно МЭШ в журнале не совпадает с текущим протоколом.')
-    const pending = await auditPublishedDays(job.sourceDir, dates)
+    const { pending } = await auditPublishedDays(job.sourceDir, dates, manifest.startedFor)
     if (pending.length) throw new Error(`Остались неопубликованные дни: ${pending.map((item) => item.date).join(', ')}.`)
     const queued = (await db.collection('operatorSyncJobs').where('runId', '==', runId).get()).docs.filter((doc) => {
       const item = doc.data()

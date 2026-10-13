@@ -13,8 +13,9 @@ import { parentFocusDay } from './parentFocusDay'
 export type ParentSubjectOverview = {
   id: string
   name: string
-  state: 'done' | 'todo' | 'checking' | 'unclear'
+  state: 'done' | 'todo' | 'checking' | 'unclear' | 'unknown'
   items: LessonWorkItem[]
+  rawHomework?: string
 }
 export type ParentChildOverview = {
   state: 'loading' | 'unknown' | 'none' | 'ready'
@@ -187,6 +188,20 @@ export function useParentChildOverview(dashboardToken: string, personId: string)
     try { localStorage.setItem(overviewCacheKey(personId, dashboardToken), JSON.stringify(stable)) }
     catch { /* The current screen remains live without durable storage. */ }
   }, [personId, dashboardToken, liveSerialized])
-  if ((live.state === 'loading' || live.state === 'unknown') && cached) return { ...cached, fromCache: true }
+  if ((live.state === 'loading' || live.state === 'unknown') && cached) {
+    if (!live.day) return { ...cached, fromCache: true }
+    const sameDay = cached.day?.date === live.day.date
+    const previousHomework = new Map((sameDay ? cached.day?.homework ?? [] : [])
+      .map((item) => [item.subject.toLocaleLowerCase('ru-RU'), item.text]))
+    const changed = live.day.homework.filter((item) => previousHomework.get(item.subject.toLocaleLowerCase('ru-RU')) !== item.text)
+    if (!changed.length && sameDay) return { ...cached, day: live.day, fromCache: true }
+    const changedNames = new Set(changed.map((item) => item.subject.toLocaleLowerCase('ru-RU')))
+    const retained = sameDay ? cached.subjects.filter((subject) => !changedNames.has(subject.name.toLocaleLowerCase('ru-RU'))) : []
+    const pending = changed.map((item, index): ParentSubjectOverview => ({
+      id: `mesh-pending-${index}`, name: item.subject, state: 'unknown', items: [], rawHomework: item.text,
+    }))
+    return { ...cached, state: 'unknown', day: live.day, subjects: [...retained, ...pending],
+      reason: 'Новые записи МЭШ видны; результаты работ ещё сверяются.', fromCache: true }
+  }
   return live
 }

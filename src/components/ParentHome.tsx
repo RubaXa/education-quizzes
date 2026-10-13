@@ -31,7 +31,7 @@ function countWord(count: number, one: string, few: string, many: string) {
   return last === 1 ? one : last >= 2 && last <= 4 ? few : many
 }
 function subjectPriority(subject: ParentSubjectOverview) {
-  return subject.state === 'todo' ? 0 : subject.state === 'unclear' ? 1 : subject.state === 'checking' ? 2 : 3
+  return subject.state === 'todo' ? 0 : subject.state === 'unknown' ? 1 : subject.state === 'unclear' ? 2 : subject.state === 'checking' ? 3 : 4
 }
 
 function ChildCardWithProgress({ child, personId }: { child: PersonalChild & { dashboardToken: string }; personId: string }) {
@@ -75,7 +75,7 @@ function ChildCard({ child, overview }: { child: PersonalChild; overview?: Paren
       {open && <SyncProgress familyId={child.familyId} childId={child.childId} />}
       {overview?.reason && ready && <p className="parent-child-note">{overview.reason}</p>}
       {overview?.weekendCards ? <p className="parent-child-note">На выходные доступны {overview.weekendCards} {countWord(overview.weekendCards, 'карточка подготовки', 'карточки подготовки', 'карточек подготовки')}. Их результаты и сроки смотрите в календаре.</p> : null}
-      {active.map((subject) => <div className="parent-child-subject" key={subject.id}><strong>{subject.name}</strong><small>{subject.items.filter((item) => item.state === 'done').length} из {subject.items.length} выполнено</small>{subject.items.filter((item) => item.state !== 'done').map((item) => <p key={item.id}><span aria-hidden="true">{item.state === 'todo' ? '→' : item.state === 'checking' ? '◷' : '?'}</span><span>{item.title} · {item.detail}</span></p>)}</div>)}
+      {active.map((subject) => <div className="parent-child-subject" key={subject.id}><strong>{subject.name}</strong>{subject.state === 'unknown' ? <small>Статус сверяется</small> : <small>{subject.items.filter((item) => item.state === 'done').length} из {subject.items.length} выполнено</small>}{subject.rawHomework && <p><span aria-hidden="true">◷</span><span>{subject.rawHomework}</span></p>}{subject.items.filter((item) => item.state !== 'done').map((item) => <p key={item.id}><span aria-hidden="true">{item.state === 'todo' ? '→' : item.state === 'checking' ? '◷' : '?'}</span><span>{item.title} · {item.detail}</span></p>)}</div>)}
       {done.length > 0 && <details className="parent-child-complete"><summary><CheckCircle2 size={17} aria-hidden="true" /> Сделано · {done.length} {countWord(done.length, 'предмет', 'предмета', 'предметов')} <ChevronDown size={16} aria-hidden="true" /></summary><ul>{done.map((subject) => <li key={subject.id}>{subject.name} · {subject.items.length} {countWord(subject.items.length, 'пункт', 'пункта', 'пунктов')}</li>)}</ul></details>}
       {overview?.state === 'none' && <p className="parent-child-note">{overview.reason}</p>}
       {overview?.state === 'unknown' && <p className="parent-child-note">{overview.reason}</p>}

@@ -157,6 +157,23 @@ describe('schedule warm start', () => {
     await act(async () => { reopened.unmount() }); host.remove()
   })
 
+  it('keeps newly published MESH subjects visible while saved work statuses are incomplete', async () => {
+    index.days[1].homework.push({ subject: 'Литература', text: 'С. 91–92 (читать)' })
+    localStorage.setItem('education-day-dashboard-view-v1:parent:calendar:work:work-14', JSON.stringify({ version: 1,
+      data: [{ subject: { id: 'literature', name: 'Литература', icon: '📚', tasks: [{ title: 'Читать' }] },
+        items: [{ id: 'lit', title: 'Читать', state: 'todo', detail: 'Осталось прочитать' }], done: 0, group: 'action' }] }))
+    probe.selected = base(); probe.next = base()
+    const host = document.createElement('div'); document.body.append(host)
+    const root = createRoot(host)
+    await act(async () => { root.render(<DayDashboard token="calendar" parent />) })
+    const homework = host.querySelector('[aria-label="Домашнее задание следующего учебного дня"]')
+    expect(homework?.textContent).toContain('Литература')
+    expect(homework?.textContent).toContain('История')
+    expect(homework?.textContent).toContain('Параграф 7')
+    await act(async () => { root.unmount() }); host.remove()
+    index.days[1].homework.pop()
+  })
+
   it('does not present assigned work as a completion status on a cold start', async () => {
     probe.selected = base()
     const host = document.createElement('div')
