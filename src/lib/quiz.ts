@@ -122,6 +122,7 @@ export function grade(
     if (!answered) {
       const skipped = assignment.assessment?.unansweredPolicy === 'optional'
       return { question, answer, points: skipped ? null : 0, skipped,
+        correctAnswer: skipped ? undefined : expected?.correct,
         explanation: skipped ? undefined : expected?.explanation,
         source: skipped ? undefined : expected?.source,
         learning: skipped ? undefined : expected?.learning }
