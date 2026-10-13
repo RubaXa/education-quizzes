@@ -6,8 +6,8 @@
 
 | Файл | Спецификация | Зачем существует | Потребитель |
 |---|---|---|---|
-| [assessment/decision-graph.mjs](../../assessment/decision-graph.mjs) | [Граф самопроверок](assessment-decision-graph.md) | Режимы, предметные матрицы, закрытый план и барьер ручной проверки | `quiz.mjs`; `sync-queue.mjs`; `sync-inbox.mjs` |
-| [assessment/decision-graph.test.mjs](../../assessment/decision-graph.test.mjs) | [Словарный диктант](assessment-decision-graph.md) | Проверка отбора слов, исправлений и формы связанного теста | Vitest; автор теста |
+| [assessment/decision-graph.mjs](../../assessment/decision-graph.mjs) | [Граф самопроверок](assessment-decision-graph.md) | Режимы, предметные матрицы, полнота слов по назначенным источникам и барьер ручной проверки | `quiz.mjs`; `sync-queue.mjs`; `sync-inbox.mjs` |
+| [assessment/decision-graph.test.mjs](../../assessment/decision-graph.test.mjs) | [Словарный диктант](assessment-decision-graph.md) | Проверка полного охвата упражнений, отбора слов, исправлений и формы связанного теста | Vitest; автор теста |
 | [.env.example](../../.env.example) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Шаблон локальной конфигурации интеграции | Оператор CLI |
 | [.firebaserc](../../.firebaserc) | [Семейная модель](../architecture/family-data-model.md) | Идентификатор проекта Firebase для команд | Firebase CLI |
 | [.gitignore](../../.gitignore) | [Хранение и приватность](storage-privacy.md) | Исключение секретов и локальных оригиналов | Git; проверка приватности |

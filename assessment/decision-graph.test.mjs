@@ -1,10 +1,23 @@
 import { describe, expect, it } from 'vitest'
-import { validateAssessmentPlan, vocabularyDictationWords } from './decision-graph.mjs'
+import { validateAssessmentPlan, validateVocabularySourceCoverage, vocabularyDictationWords } from './decision-graph.mjs'
 
 const words = ['tomatoes', 'rice', 'tea']
 const checked = (entries) => entries.map(([wordId, status]) => ({ wordId, status }))
 
 describe('vocabulary dictation selection', () => {
+  it('requires the union of words from every assigned exercise, including the next page', () => {
+    const coverage = { assignedMaterialRefs: ['starlight-6:25:vocabulary', 'starlight-6:26:ex1'],
+      sourceCoverage: [
+        { ref: 'starlight-6:25:vocabulary', evidenceRef: 'family-pdf:25', verified: true, wordIds: ['tomatoes', 'tea'] },
+        { ref: 'starlight-6:26:ex1', evidenceRef: 'family-pdf:26', verified: true, wordIds: ['broccoli'] },
+      ], sourceWordIds: ['tomatoes', 'tea', 'broccoli'] }
+    expect(validateVocabularySourceCoverage(coverage)).toEqual([])
+    expect(validateVocabularySourceCoverage({ ...coverage, sourceWordIds: ['tomatoes', 'tea'] }))
+      .toContain('Список диктанта не совпадает с объединением слов назначенных упражнений.')
+    expect(validateVocabularySourceCoverage({ ...coverage, sourceCoverage: coverage.sourceCoverage.slice(0, 1) }).length).toBeGreaterThan(0)
+    expect(validateVocabularySourceCoverage({ ...coverage, sourceCoverage: coverage.sourceCoverage.map((item) =>
+      item.ref.endsWith(':ex1') ? { ...item, verified: false } : item) }).length).toBeGreaterThan(0)
+  })
   it('checks the complete source list twice, then only unresolved spellings', () => {
     expect(vocabularyDictationWords({ phase: 'initial', sourceWordIds: words })).toEqual(words)
     expect(vocabularyDictationWords({ phase: 'full-repeat', sourceWordIds: words, priorWordIds: words,
@@ -27,11 +40,15 @@ describe('vocabulary dictation selection', () => {
   })
   it('requires free written production and a linked retest in the authoring gate', () => {
     const plan = { dictation: { phase: 'repair', sourceRef: 'verified-teacher-list', sourceWordIds: words,
+      assignedMaterialRefs: ['teacher-list'], sourceCoverage: [{ ref: 'teacher-list', evidenceRef: 'family-original',
+        verified: true, wordIds: words }],
       priorWordIds: words, priorResults: checked([['tomatoes', 'incorrect'], ['rice', 'correct'], ['tea', 'correct']]),
       wordIdByQuestion: { q1: 'tomatoes' } } }
     const open = { questions: [{ id: 'q1', kind: 'short' }], linkedToTestId: 'prior-test' }
     const good = validateAssessmentPlan(plan, open)
     expect(good.filter((error) => error.startsWith('Словарный диктант:'))).toEqual([])
+    const incomplete = validateAssessmentPlan({ dictation: { ...plan.dictation, sourceCoverage: [] } }, open)
+    expect(incomplete.some((error) => error.includes('все назначенные упражнения'))).toBe(true)
     expect(good).not.toContain('Нет слоя current.')
     expect(good).not.toContain('Нет слоя transfer.')
     const choice = validateAssessmentPlan(plan, { ...open, questions: [{ id: 'q1', kind: 'single' }] })

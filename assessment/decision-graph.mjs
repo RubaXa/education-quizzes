@@ -42,6 +42,38 @@ export function vocabularyDictationWords({ phase, sourceWordIds, priorWordIds = 
   return phase === 'repair' ? priorWordIds.filter((id) => byWord.get(id) !== 'correct') : [...sourceWordIds]
 }
 
+/** A dictation covers every assigned exercise, not just a word list copied from
+ * a short MESH note. Evidence belongs to the exact family material/exercise.
+ * @see ../docs/product/assessment-decision-graph.md#vocabulary-dictation
+ */
+export function validateVocabularySourceCoverage(dictation) {
+  const assigned = dictation?.assignedMaterialRefs
+  const coverage = dictation?.sourceCoverage
+  if (!Array.isArray(assigned) || !assigned.length || assigned.some((ref) => !nonempty(ref))
+    || new Set(assigned).size !== assigned.length || !Array.isArray(coverage)
+    || coverage.length !== assigned.length) return ['Нужны все назначенные упражнения и по одной сверке слов для каждого.']
+  const covered = new Set(), words = new Set(), errors = []
+  for (const item of coverage) {
+    if (!nonempty(item?.ref) || !assigned.includes(item.ref) || covered.has(item.ref)
+      || item.verified !== true || !nonempty(item.evidenceRef)
+      || !Array.isArray(item.wordIds) || !item.wordIds.length
+      || item.wordIds.some((word) => !nonempty(word)) || new Set(item.wordIds).size !== item.wordIds.length) {
+      errors.push(`Не подтверждены границы и слова упражнения ${item?.ref ?? '?'}.`)
+      continue
+    }
+    covered.add(item.ref)
+    for (const word of item.wordIds) words.add(word)
+  }
+  if (covered.size !== assigned.length || assigned.some((ref) => !covered.has(ref))) {
+    errors.push('Не все назначенные упражнения сверены с точным материалом.')
+  }
+  const selected = new Set(dictation.sourceWordIds ?? [])
+  if (words.size !== selected.size || [...words].some((word) => !selected.has(word))) {
+    errors.push('Список диктанта не совпадает с объединением слов назначенных упражнений.')
+  }
+  return errors
+}
+
 /** A reviewed, source-linked reading instruction is sufficient to queue a short Education self-check.
  * @see ../docs/product/assessment-decision-graph.md#reading-only */
 function isConfirmedReadingOnly(task) {
@@ -155,6 +187,7 @@ export function validateAssessmentPlan(plan, spec) {
     }
   }
   if (plan.dictation) {
+    errors.push(...validateVocabularySourceCoverage(plan.dictation).map((error) => `Словарный диктант: ${error}`))
     try {
       const selected = vocabularyDictationWords(plan.dictation)
       const wordsByQuestion = plan.dictation.wordIdByQuestion ?? {}
