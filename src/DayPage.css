@@ -184,8 +184,7 @@
 .day-subject.has-numbered-sheet .problem-statement-text{margin-top:14px}
 .day-subject.has-numbered-sheet .problem-statement-education{margin:0 0 12px;padding:13px;border-radius:12px;background:var(--edu-problem-education-bg)}
 .day-subject.has-numbered-sheet .problem-statement-education>.problem-statement-label{display:none}
-.day-subject.has-numbered-sheet .problem-statement-facts{display:flex;flex-wrap:wrap;gap:8px;margin:0}
-.day-subject.has-numbered-sheet .problem-statement-facts>div{padding:0;background:transparent;text-align:left}
+.day-subject.has-numbered-sheet .problem-statement-facts{margin:0}
 .day-subject.has-numbered-sheet .problem-statement-find{margin-top:9px;padding:0;background:transparent}
 .day-subject.has-numbered-sheet .problem-card>.day-parent-guide,.day-subject.has-numbered-sheet .problem-card>.day-work-review{border-top:0}
 @media(max-width:560px){

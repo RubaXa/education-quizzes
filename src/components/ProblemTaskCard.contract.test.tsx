@@ -36,6 +36,25 @@ describe('stable numbered problem layers', () => {
   } as DayProblem
   const guide = { kind: 'worked-solution', presentation: 'math-route', overview: 'Разбор', stages: [] } as ParentTaskGuide
 
+  it('shows each labeled quantity in its own fact tile without rewriting the source', () => {
+    const diagram = { ...problem, support: { ...problem.support!, facts: [
+      { label: 'Из условия', value: 'Птицы: 20; животные: 10; автомобили: 60' },
+    ], find: 'Построить круговую диаграмму коллекции' } } as DayProblem
+    const html = renderToStaticMarkup(<ProblemTaskCard problem={diagram} state={{ tone: 'ready', label: 'Не начато' }}
+      links={[]} parent guide={guide} uploads={[]} helpAccess="ready" onPhotos={() => undefined} />)
+    expect(html).toContain('<small>Птицы</small><strong>20</strong>')
+    expect(html).toContain('<small>Животные</small><strong>10</strong>')
+    expect(html).toContain('<small>Автомобили</small><strong>60</strong>')
+    expect(html).not.toContain('<strong>Птицы: 20; животные: 10; автомобили: 60</strong>')
+    expect(diagram.support?.facts).toEqual([{ label: 'Из условия', value: 'Птицы: 20; животные: 10; автомобили: 60' }])
+    const ambiguous = { ...diagram, support: { ...diagram.support!, facts: [
+      { label: 'Из условия', value: 'Время: 12:30; место: школа' },
+    ] } } as DayProblem
+    const ambiguousHtml = renderToStaticMarkup(<ProblemTaskCard problem={ambiguous} state={{ tone: 'ready', label: 'Не начато' }}
+      links={[]} parent guide={guide} uploads={[]} helpAccess="ready" onPhotos={() => undefined} />)
+    expect(ambiguousHtml).toContain('<small>Из условия</small><strong>Время: 12:30; место: школа</strong>')
+  })
+
   it('keeps the colored given/find layer on the parent math route', () => {
     const html = renderToStaticMarkup(<ProblemTaskCard problem={problem} state={{ tone: 'ready', label: 'Не начато' }}
       links={[]} parent guide={guide} uploads={[]} helpAccess="ready" onPhotos={() => undefined} />)

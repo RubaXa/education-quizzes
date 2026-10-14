@@ -14,6 +14,19 @@ const helpKinds: { value: NonNullable<DayHelp['requestKind']>; label: string }[]
   { value: 'check', label: 'Хочу проверить ход' },
 ]
 
+// @see ../../docs/product/problem-card-design-decisions.md#fact-tiles
+function displayFacts(facts: { label: string; value: string }[]) {
+  if (facts.length !== 1 || !/^(?:из условия|дано)$/i.test(facts[0].label.trim())) return facts
+  const parts = facts[0].value.split(';').map((part) => part.trim()).filter(Boolean)
+  if (parts.length < 2 || parts.some((part) => !/^[^:;]+:\s*[^:;]+$/.test(part))) return facts
+  const parsed = parts.map((part) => {
+    const colon = part.indexOf(':')
+    return { label: part.slice(0, colon).trim().replace(/^[а-яё]/u, (letter) => letter.toLocaleUpperCase('ru')), value: part.slice(colon + 1).trim() }
+  })
+  if (new Set(parsed.map((part) => part.label.toLocaleLowerCase('ru'))).size !== parsed.length) return facts
+  return parsed
+}
+
 /** @see ../../docs/product/adaptive-problem-card.md#показ-ученику
  * @see ../../docs/product/problem-card-design-decisions.md#flat-numbered-sheet
  * @see ../../docs/product/problem-card-design-decisions.md */
@@ -35,6 +48,7 @@ export default function ProblemStatement({ problem, links, parent, help, review,
     ?? (!original ? links.find((link) => link.sourceType === 'teacher-attachment') : undefined)
   const hasFragment = Boolean(attachment && original?.crop && original.crop.sourceSha256 === attachment.sourceSha256)
   const support = problem.support
+  const facts = support ? displayFacts(support.facts) : []
   const opened = Boolean(support && help && help.revision >= support.revision)
   const finished = review?.status === 'verified' || parentFinished
   const sourceStatus = sourceResearch?.status === 'verified' ? 'complete' : sourceResearch?.status === 'conflict' ? 'needs-fix' : 'unknown'
@@ -64,7 +78,7 @@ export default function ProblemStatement({ problem, links, parent, help, review,
     </div>
     {support && <div className="problem-statement-education">
       <div className="problem-statement-label"><Lightbulb size={16} aria-hidden="true" /><strong>Как читать условие</strong></div>
-      {!!support.facts.length && <div className="problem-statement-facts" aria-label="Дано">{support.facts.map((fact) => <div key={fact.label}><small>{fact.label}</small><strong>{fact.value}</strong></div>)}</div>}
+      {!!facts.length && <div className="problem-statement-facts" aria-label="Дано">{facts.map((fact) => <div key={fact.label}><small>{fact.label}</small><strong>{fact.value}</strong></div>)}</div>}
       {support.find && <div className="problem-statement-find"><small>Найти</small><strong>{support.find}</strong></div>}
       {parent || finished || !onRequestHelp ? null
           : opened ? <div className="problem-statement-help-result"><strong>Первый ориентир</strong><p>{support.firstQuestion}</p><small>Этот вопрос подготовлен к задаче заранее. Твой запрос сохранён для следующего разбора.</small></div>

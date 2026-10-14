@@ -18,7 +18,7 @@
       }
     },
     "src/DayPage.css": {
-      "sha256": "c53fa7b99c855af6a24ff7891e5d35941fcd7709e23945cc96748ff10026692b",
+      "sha256": "8d6f72d14b985375280decfaf33da6d3febb2e2acd43001a29f015203b5d5591",
       "record": "docs/product/ui-decisions/flat-numbered-sheet-2026-10-14.md",
       "specs": [
         "docs/product/problem-card-design-decisions.md",
@@ -31,7 +31,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 14.10.2026 повторно приложил согласованный макет и потребовал сверить с ним выпускаемую карточку."
+        "evidence": "Родитель 14.10.2026 сравнил два снимка блока «Дано» и прямо попросил вернуть отдельные значения с короткими подписями вместо одной нечитаемой строки."
       }
     },
     "src/components/AssignmentBrief.tsx": {
@@ -69,7 +69,7 @@
       }
     },
     "scripts/check-problem-variant-viewport.mjs": {
-      "sha256": "4a682597d3a31da86a1b7fc0587cd1d3b9e908959f64b7ea6674552467592af5",
+      "sha256": "b20c93c3410f81a4b7991bc2ae36d804a856396ca2f634114b6008960f022f51",
       "record": "docs/product/ui-decisions/flat-numbered-sheet-2026-10-14.md",
       "specs": [
         "docs/product/problem-card-design-decisions.md",
@@ -82,7 +82,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 14.10.2026 повторно приложил согласованный макет и потребовал сверить с ним выпускаемую карточку."
+        "evidence": "Родитель 14.10.2026 сравнил два снимка блока «Дано» и прямо попросил вернуть отдельные значения с короткими подписями вместо одной нечитаемой строки."
       }
     },
     "src/components/ProblemGroup.tsx": {
@@ -120,7 +120,7 @@
       }
     },
     "src/components/ProblemStatement.tsx": {
-      "sha256": "91a2e55aa261254233cd97c43d386cf4f7320255cf5afcbae5f9724896185717",
+      "sha256": "ea9015dbec2b5d9dafad81876033848d7f103ce9d3e0ca1463cdddef93c3147d",
       "record": "docs/product/ui-decisions/flat-numbered-sheet-2026-10-14.md",
       "specs": [
         "docs/product/problem-card-design-decisions.md",
@@ -133,7 +133,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 14.10.2026 повторно приложил согласованный макет и потребовал сверить с ним выпускаемую карточку."
+        "evidence": "Родитель 14.10.2026 сравнил два снимка блока «Дано» и прямо попросил вернуть отдельные значения с короткими подписями вместо одной нечитаемой строки."
       }
     },
     "src/components/ProblemStatement.css": {
