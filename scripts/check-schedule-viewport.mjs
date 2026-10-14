@@ -19,7 +19,8 @@ const chrome = [process.env.CHROME_BIN, '/Applications/Google Chrome.app/Content
 if (!chrome) throw new Error('Для проверки нужен Chrome или CHROME_BIN.')
 
 const rows = [
-  ['Биология', '1 из 1', 'complete', 'Прошёл'], ['История', '1 из 1', 'complete has-new-homework', 'Идёт'],
+  ['Биология', '1 из 1', 'complete'], ['Практикум по решению математических задач', 'Не задано', 'none'],
+  ['История', '1 из 1', 'complete has-new-homework', 'Идёт'],
   ['Русский язык', '1 из 2', 'partial'], ['Математика', 'ДЗ 12.10', 'unknown'],
   ['Английский язык', '0 из 1', 'empty'], ['География', '1 из 1', 'complete'],
   ['Физическая культура', 'Не задано', 'none'],
@@ -36,17 +37,23 @@ const statusIcon = (status) => {
 }
 const chevron = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>'
 const newIcon = '<svg class="edu-status-icon edu-status-icon-new" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><circle cx="19" cy="5" r="2"/></svg>'
-function fixture(open) {
+function renderRow([name, badge, tone, phase], open) {
+  return `<li><details class="day-dashboard-lesson day-dashboard-lesson-${tone}" ${open ? 'open' : ''}>
+    <summary><time>08:30</time><span class="day-dashboard-lesson-name">${name}${phase ? `<span class="day-dashboard-lesson-phase current">${phase}</span>` : ''}${name === 'История' ? `<span class="day-dashboard-lesson-new">${newIcon}Новое ДЗ</span>` : ''}</span>
+    <span class="day-dashboard-lesson-badge">${badge.startsWith('ДЗ') ? '' : statusIcon(tone.includes('complete') ? 'complete' : tone === 'partial' ? 'partial' : tone === 'unknown' ? 'unknown' : tone === 'none' ? 'not-assigned' : 'ready')}${badge}${chevron}</span></summary>
+    <div class="day-dashboard-lesson-body">Подробности задания и проверки.</div></details></li>`
+}
+function fixture(open, pastExpanded) {
+  const pastNames = rows.slice(0, 2).map(([name]) => name).join(', ')
   return `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>
   @font-face{font-family:'Geist Variable';src:url(data:font/woff2;base64,${cyrillicFont}) format('woff2');font-weight:100 900;unicode-range:U+0400-052F,U+2DE0-2DFF,U+A640-A69F}
   @font-face{font-family:'Geist Variable';src:url(data:font/woff2;base64,${latinFont}) format('woff2');font-weight:100 900;unicode-range:U+0000-00FF}
   ${tokens}${iconCss}${css}\nbody{margin:0;padding:8px;font-family:'Geist Variable',sans-serif}</style>
-  <div class="day-dashboard"><section class="day-dashboard-card"><ul class="day-dashboard-lessons">
-  ${rows.map(([name, badge, tone, phase]) => `<li><details class="day-dashboard-lesson day-dashboard-lesson-${tone}" ${open ? 'open' : ''}>
-    <summary><time>08:30</time><span class="day-dashboard-lesson-name">${name}${phase ? `<span class="day-dashboard-lesson-phase${phase === 'Идёт' ? ' current' : ''}">${phase}</span>` : ''}${name === 'История' ? `<span class="day-dashboard-lesson-new">${newIcon}Новое ДЗ</span>` : ''}</span>
-    <span class="day-dashboard-lesson-badge">${badge.startsWith('ДЗ') ? '' : statusIcon(tone.includes('complete') ? 'complete' : tone === 'partial' ? 'partial' : tone === 'unknown' ? 'unknown' : tone === 'none' ? 'not-assigned' : 'ready')}${badge}${chevron}</span></summary>
-    <div class="day-dashboard-lesson-body">Подробности задания и проверки.</div></details></li>`).join('')}
-  </ul></section></div>`
+  <div class="day-dashboard"><section class="day-dashboard-card"><div class="day-dashboard-lesson-groups">
+    <div class="day-dashboard-past-group"><button class="day-dashboard-past-toggle" aria-expanded="${pastExpanded}" type="button"><strong>Прошли · 2</strong><span>${pastNames}</span>${chevron}</button>
+      ${pastExpanded ? `<ul class="day-dashboard-lessons day-dashboard-past-lessons">${rows.slice(0, 2).map((row) => renderRow(row, open)).join('')}</ul>` : ''}</div>
+    <ul class="day-dashboard-lessons day-dashboard-current-lessons">${rows.slice(2).map((row) => renderRow(row, open)).join('')}</ul>
+  </div></section></div>`
 }
 
 const profile = mkdtempSync(join(tmpdir(), 'education-schedule-chrome-'))
@@ -80,24 +87,25 @@ try {
     socket.send(JSON.stringify({ id, method, params }))
   })
   try {
-    for (const width of [320, 390, 540]) for (const open of [false, true]) {
+    for (const width of [320, 390, 540]) for (const pastExpanded of [false, true]) for (const open of [false, true]) {
       await send('Emulation.setDeviceMetricsOverride', { width, height: 844, deviceScaleFactor: 1, mobile: true })
-      await send('Page.navigate', { url: `data:text/html;base64,${Buffer.from(fixture(open)).toString('base64')}` })
+      await send('Page.navigate', { url: `data:text/html;base64,${Buffer.from(fixture(open, pastExpanded)).toString('base64')}` })
       await delay(160)
       const result = await send('Runtime.evaluate', { returnByValue: true, expression: `JSON.stringify((()=>({
         width:innerWidth,scroll:document.documentElement.scrollWidth,
+        past:(()=>{const p=document.querySelector('.day-dashboard-past-toggle'), n=p.querySelector('span');return{height:p.getBoundingClientRect().height, textFits:n.scrollWidth<=n.clientWidth, right:p.getBoundingClientRect().right}})(),
         rows:[...document.querySelectorAll('.day-dashboard-lesson summary')].map(s=>{const n=s.querySelector('.day-dashboard-lesson-name'),b=s.querySelector('.day-dashboard-lesson-badge'),nr=n.getBoundingClientRect(),br=b.getBoundingClientRect(),sr=s.getBoundingClientRect();return{name:n.textContent,badge:b.textContent,height:sr.height,nameLeft:nr.left,nameRight:nr.right,badgeLeft:br.left,badgeRight:br.right,centerGap:Math.abs((nr.top+nr.bottom-br.top-br.bottom)/2),nameFits:n.scrollWidth<=n.clientWidth,badgeFits:b.scrollWidth<=b.clientWidth}})
       }))())` })
       if (result.exceptionDetails || !result.result?.value) throw new Error('Chrome не смог измерить расписание.')
       const layout = JSON.parse(result.result.value)
-      const bad = layout.rows.find((row) => row.badgeLeft < row.nameRight + 5 || row.centerGap > 7 || row.height > 70 || !row.nameFits || !row.badgeFits || row.badgeRight > width - 18)
-      if (layout.width !== width || layout.scroll > width || bad) throw new Error(`Сетка урока нарушена: ${JSON.stringify({ width, open, bad, scroll: layout.scroll })}`)
+      const bad = layout.rows.find((row) => row.badgeLeft < row.nameRight + 5 || row.centerGap > 7 || row.height > (row.name.startsWith('Практикум') ? 100 : 70) || !row.nameFits || !row.badgeFits || row.badgeRight > width - 18)
+      if (layout.width !== width || layout.scroll > width || layout.past.height > 55 || layout.past.right > width - 18 || bad) throw new Error(`Сетка урока нарушена: ${JSON.stringify({ width, open, bad, scroll: layout.scroll })}`)
       if (screenshotDir) {
         mkdirSync(screenshotDir, { recursive: true })
         const shot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true })
-        writeFileSync(join(screenshotDir, `schedule-${width}-${open ? 'open' : 'compact'}.png`), Buffer.from(shot.data, 'base64'))
+        writeFileSync(join(screenshotDir, `schedule-${width}-${pastExpanded ? 'past-open' : 'past-closed'}-${open ? 'lesson-open' : 'lesson-closed'}.png`), Buffer.from(shot.data, 'base64'))
       }
-      console.log(`${width}px, ${open ? 'раскрыто' : 'свёрнуто'}: ${layout.rows.length} компактных строк`)
+      console.log(`${width}px, прошли ${pastExpanded ? 'раскрыты' : 'свёрнуты'}, уроки ${open ? 'раскрыты' : 'свёрнуты'}: ${layout.rows.length} строк`)
     }
   } finally { socket.close() }
 } finally { proc.kill(); await delay(300); rmSync(profile, { recursive: true, force: true }) }

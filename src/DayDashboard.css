@@ -67,6 +67,13 @@
 .day-dashboard-mesh span{color:#716684}
 .day-dashboard-empty{padding:13px 0}
 .day-dashboard-lessons{list-style:none;margin:0;padding:0}
+/* @see ../docs/product/dashboard.md#progressive-schedule — completed lessons share one compact control during the school day. */
+.day-dashboard-past-toggle{display:grid;grid-template-columns:max-content minmax(0,1fr) 16px;align-items:center;gap:8px;width:100%;min-height:43px;padding:8px 0;border:0;border-top:1px solid #eee9f3;background:transparent;color:var(--edu-accent-ink);font:inherit;font-size:.78rem;text-align:left;cursor:pointer}
+.day-dashboard-past-toggle strong{white-space:nowrap;font-weight:800}
+.day-dashboard-past-toggle span{min-width:0;overflow:hidden;color:var(--edu-text-secondary);text-overflow:ellipsis;white-space:nowrap}
+.day-dashboard-past-toggle svg{transition:transform .18s ease}
+.day-dashboard-past-toggle[aria-expanded="true"] svg{transform:rotate(180deg)}
+.day-dashboard-past-toggle:focus-visible{outline:3px solid var(--edu-focus);outline-offset:2px}
 .day-dashboard-lessons li{border-top:1px solid #eee9f3;color:#34295c;font-size:.9rem}
 .day-dashboard-lesson summary{display:grid;grid-template-columns:48px minmax(0,1fr) auto;align-items:center;gap:8px;min-height:49px;padding:9px 0;list-style:none;cursor:pointer}
 .day-dashboard-lesson summary::-webkit-details-marker{display:none}

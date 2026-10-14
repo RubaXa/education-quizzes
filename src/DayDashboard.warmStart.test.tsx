@@ -110,6 +110,39 @@ describe('schedule warm start', () => {
     expect(scroll).toHaveBeenCalledWith({ behavior: 'auto', block: 'start' })
     await act(async () => { root.unmount() }); host.remove()
   })
+  it('opens the finished group when navigation targets a completed lesson during the school day', async () => {
+    allDays[0].schedule.push({ subject: 'История', start: '2026-10-13T06:30:00.000Z', end: '2026-10-13T07:15:00.000Z' })
+    vi.setSystemTime(new Date('2026-10-13T06:40:00.000Z'))
+    sessionStorage.setItem('education-dashboard-focus-subject', 'Биология')
+    const scroll = vi.fn()
+    Element.prototype.scrollIntoView = scroll
+    probe.selected = base()
+    const host = document.createElement('div'); document.body.append(host)
+    const root = createRoot(host)
+    await act(async () => { root.render(<DayDashboard token="calendar" parent />) })
+    expect(host.querySelector('.day-dashboard-past-toggle')?.getAttribute('aria-expanded')).toBe('true')
+    expect(host.querySelector<HTMLDetailsElement>('.day-dashboard-past-lessons .day-dashboard-lesson')?.open).toBe(true)
+    expect(scroll).toHaveBeenCalledWith({ behavior: 'auto', block: 'start' })
+    await act(async () => { root.unmount() }); host.remove()
+  })
+  it('summarizes multiple completed lessons without hiding the lesson in progress', async () => {
+    allDays[0].schedule.push(
+      { subject: 'Математика', start: '2026-10-13T06:20:00.000Z', end: '2026-10-13T06:30:00.000Z' },
+      { subject: 'История', start: '2026-10-13T06:30:00.000Z', end: '2026-10-13T07:15:00.000Z' },
+    )
+    vi.setSystemTime(new Date('2026-10-13T06:40:00.000Z'))
+    probe.selected = base()
+    const host = document.createElement('div'); document.body.append(host)
+    const root = createRoot(host)
+    await act(async () => { root.render(<DayDashboard token="calendar" parent />) })
+    const group = host.querySelector<HTMLButtonElement>('.day-dashboard-past-toggle')!
+    expect(group.textContent).toContain('Прошли · 2')
+    expect(group.textContent).toContain('Биология, Математика')
+    expect(host.querySelectorAll('.day-dashboard-current-lessons .day-dashboard-lesson')).toHaveLength(1)
+    expect(host.querySelector('.day-dashboard-current-lessons')?.textContent).toContain('История')
+    expect(host.querySelector('.day-dashboard-current-lessons')?.textContent).not.toContain('Биология')
+    await act(async () => { root.unmount() }); host.remove()
+  })
   it('keeps the selected day distinct from the next homework day', async () => {
     probe.selected = base(); probe.next = base()
     const host = document.createElement('div'); document.body.append(host)
@@ -158,7 +191,7 @@ describe('schedule warm start', () => {
     expect(host.querySelector('.day-dashboard-lesson-new')).toBeNull()
     await act(async () => { root.unmount() }); host.remove()
   })
-  it('shows past, current and future lessons as compact rows with completion counts', async () => {
+  it('groups finished lessons while the current and future lessons stay visible', async () => {
     index.days[0].schedule.push(
       { subject: 'Математика', start: '2026-10-13T06:30:00.000Z', end: '2026-10-13T07:15:00.000Z' },
       { subject: 'История', start: '2026-10-13T07:30:00.000Z', end: '2026-10-13T08:15:00.000Z' },
@@ -173,16 +206,22 @@ describe('schedule warm start', () => {
     const root = createRoot(host)
     await act(async () => { root.render(<DayDashboard token="calendar" parent />) })
     expect(host.querySelector('[aria-label="Расписание выбранного дня"]')?.getAttribute('data-collapsed')).toBe('false')
-    const lessons = host.querySelectorAll<HTMLDetailsElement>('.day-dashboard-lesson')
-    expect([...lessons].map((lesson) => lesson.open)).toEqual([false, false, false])
-    expect(lessons[0].textContent).toContain('Прошёл')
-    expect(lessons[1].textContent).toContain('Идёт')
-    expect(lessons[2].textContent).not.toContain('Идёт')
-    expect(lessons[0].querySelector('.day-dashboard-lesson-badge')?.textContent).toContain('1 из 1')
-    expect(lessons[1].querySelector('.day-dashboard-lesson-badge')?.textContent).toContain('0 из 1')
-    await act(async () => { lessons[1].querySelector<HTMLElement>('summary')?.click() })
-    expect(lessons[1].open).toBe(true)
-    expect(lessons[0].open).toBe(false)
+    const past = host.querySelector<HTMLButtonElement>('.day-dashboard-past-toggle')!
+    expect(past.getAttribute('aria-expanded')).toBe('false')
+    expect(past.textContent).toContain('Биология')
+    expect(host.querySelector('.day-dashboard-past-lessons')).toBeNull()
+    const visible = host.querySelectorAll<HTMLDetailsElement>('.day-dashboard-current-lessons .day-dashboard-lesson')
+    expect([...visible].map((lesson) => lesson.open)).toEqual([false, false])
+    expect(visible[0].textContent).toContain('Идёт')
+    expect(visible[1].textContent).not.toContain('Идёт')
+    expect(visible[0].querySelector('.day-dashboard-lesson-badge')?.textContent).toContain('0 из 1')
+    await act(async () => { past.click() })
+    expect(past.getAttribute('aria-expanded')).toBe('true')
+    expect(host.querySelectorAll('.day-dashboard-past-lessons .day-dashboard-lesson')).toHaveLength(1)
+    expect(host.querySelector('.day-dashboard-past-lessons .day-dashboard-lesson-badge')?.textContent).toContain('1 из 1')
+    await act(async () => { visible[0].querySelector<HTMLElement>('summary')?.click() })
+    expect(visible[0].open).toBe(true)
+    expect(host.querySelector<HTMLDetailsElement>('.day-dashboard-past-lessons .day-dashboard-lesson')?.open).toBe(false)
     await act(async () => { root.unmount() }); host.remove()
   })
   it('keeps a confirmed live completion and reuses it on the next opening', async () => {

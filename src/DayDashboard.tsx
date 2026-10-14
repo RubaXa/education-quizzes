@@ -84,6 +84,7 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
   const [error, setError] = useState('')
   const [now, setNow] = useState(() => Date.now())
   const [scheduleOverride, setScheduleOverride] = useState<{ date: string; open: boolean } | null>(null)
+  const [pastLessonsOverride, setPastLessonsOverride] = useState<{ date: string; open: boolean } | null>(null)
   const [seenUpdates, setSeenUpdates] = useState<Set<string>>(() => new Set())
   const datesRef = useRef<HTMLDivElement>(null)
   const today = moscowToday()
@@ -123,19 +124,6 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
 
   const selectedDate = index?.days.some((day) => day.date === selected) ? selected : today
   const selectedEntry = index?.days.find((day) => day.date === selectedDate)
-  useEffect(() => {
-    if (!focusSubject || !selectedEntry) return
-    const subjectId = lessonSubjectId(focusSubject)
-    const target = [...document.querySelectorAll<HTMLElement>('.day-dashboard-lesson')].find((element) => element.dataset.subject === focusSubject || subjectId != null && lessonSubjectId(element.dataset.subject ?? '') === subjectId)
-    if (target) {
-      if (target instanceof HTMLDetailsElement) target.open = true
-      acknowledgeHomeworkUpdate(selectedDate, target.dataset.subject ?? focusSubject)
-      setScheduleOverride({ date: selectedDate, open: true })
-      target.scrollIntoView({ behavior: 'auto', block: 'start' })
-      sessionStorage.removeItem('education-dashboard-focus-subject')
-      setFocusSubject('')
-    }
-  }, [focusSubject, selectedEntry, selectedDate])
   useEffect(() => {
     const strip = datesRef.current
     const active = strip?.querySelector<HTMLElement>('[aria-pressed="true"]')
@@ -253,6 +241,48 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
     return Number.isFinite(end) && now >= end
   })
   const scheduleCollapsed = focusSubject ? false : scheduleOverride?.date === selectedDate ? !scheduleOverride.open : scheduleFinished
+  const finishedLessonRows = lessonRows.filter(({ lesson }) => {
+    const end = Date.parse(lesson.end)
+    return Number.isFinite(end) && now >= end
+  })
+  const groupFinishedLessons = selectedDate === today && !scheduleFinished && finishedLessonRows.length > 0
+  const focusSubjectId = lessonSubjectId(focusSubject)
+  const focusIsFinished = groupFinishedLessons && finishedLessonRows.some(({ lesson }) => lesson.subject === focusSubject || focusSubjectId != null && lessonSubjectId(lesson.subject) === focusSubjectId)
+  const pastLessonsExpanded = focusIsFinished || pastLessonsOverride?.date === selectedDate && pastLessonsOverride.open
+  const visibleLessonRows = groupFinishedLessons ? lessonRows.filter(({ lesson }) => {
+    const end = Date.parse(lesson.end)
+    return !Number.isFinite(end) || now < end
+  }) : lessonRows
+  /** @see ../docs/product/dashboard.md#progressive-schedule */
+  useEffect(() => {
+    if (!focusSubject || !selectedEntry) return
+    const subjectId = lessonSubjectId(focusSubject)
+    const target = [...document.querySelectorAll<HTMLElement>('.day-dashboard-lesson')].find((element) => element.dataset.subject === focusSubject || subjectId != null && lessonSubjectId(element.dataset.subject ?? '') === subjectId)
+    if (!target) return
+    if (target instanceof HTMLDetailsElement) target.open = true
+    acknowledgeHomeworkUpdate(selectedDate, target.dataset.subject ?? focusSubject)
+    setScheduleOverride({ date: selectedDate, open: true })
+    if (focusIsFinished) setPastLessonsOverride({ date: selectedDate, open: true })
+    target.scrollIntoView({ behavior: 'auto', block: 'start' })
+    sessionStorage.removeItem('education-dashboard-focus-subject')
+    setFocusSubject('')
+  }, [focusSubject, focusIsFinished, selectedEntry, selectedDate])
+
+  function renderLesson({ lesson, subject, rawHomework, updatedAt, newlyAssigned, items, tone, badge, referenceDate, referenceText, referenceToken }: typeof lessonRows[number], lessonIndex: number) {
+    const start = Date.parse(lesson.start)
+    const end = Date.parse(lesson.end)
+    const underway = Number.isFinite(start) && Number.isFinite(end) && start <= now && now < end
+    return <li key={`${selectedDate}-${lessonIndex}-${lesson.subject}`}><details data-subject={lesson.subject} className={`day-dashboard-lesson day-dashboard-lesson-${tone}${newlyAssigned ? ' has-new-homework' : ''}`}>
+      <summary onClick={() => {
+        acknowledgeHomeworkUpdate(selectedDate, lesson.subject)
+      }}>{/* @see ../docs/product/design-system.md#mobile-card-headings */}<time>{lessonTime(lesson.start)}</time><span className="day-dashboard-lesson-name">{lesson.subject}{underway && <span className="day-dashboard-lesson-phase current">Идёт</span>}{newlyAssigned && <span className="day-dashboard-lesson-new"><StatusIcon status="new" size={12} />Новое ДЗ</span>}</span><span className="day-dashboard-lesson-badge" aria-label={referenceDate ? `См. ДЗ за ${dateLabel(referenceDate)}` : tone === 'none' ? 'ДЗ не задано на последней сверке МЭШ' : tone === 'checking' ? `${badge}, проверяем` : tone === 'unclear' ? `${badge}, критерий неясен` : undefined}>{!referenceDate && <StatusIcon size={13} status={tone === 'none' ? 'not-assigned' : tone === 'complete' ? 'complete' : tone === 'partial' ? 'partial' : tone === 'checking' ? 'waiting' : tone === 'unclear' || tone === 'unknown' ? 'unknown' : 'ready'} />}{referenceDate ? `ДЗ ${dateLabel(referenceDate, { day: 'numeric', month: '2-digit' })}` : badge}<ChevronDown size={15} aria-hidden="true" /></span></summary>
+      <div className="day-dashboard-lesson-body">{subject?.tasks.some((task) => task.dueDate && task.dueDate !== (task.lessonDate ?? selectedDate)) && <p className="day-dashboard-lesson-update">Срок сдачи: {dateLabel(subject.tasks.find((task) => task.dueDate && task.dueDate !== (task.lessonDate ?? selectedDate))!.dueDate!)} · по записи МЭШ. Задание относится к этому уроку.</p>}{items.length ? <div className="day-dashboard-lesson-items">{items.map((item) => <div className={`day-dashboard-lesson-item ${item.state}`} key={item.id}><span className="day-dashboard-lesson-item-symbol" aria-hidden="true"><StatusIcon size={15} status={item.state === 'done' ? 'complete' : item.state === 'checking' ? 'waiting' : item.state === 'unclear' ? 'unknown' : 'ready'} /></span><div><strong>{item.state === 'done' ? 'Сделано' : item.state === 'checking' ? 'Проверяем' : item.state === 'unclear' ? 'Разобрано' : 'Осталось'}: {item.title}</strong><span>{item.detail}</span>{homeworkToken && <button type="button" onClick={() => openDay(homeworkToken, 'homework', item.id, { date: selectedDate, subject: lesson.subject })}>{item.state === 'todo' ? 'Перейти к заданию' : item.state === 'checking' ? 'Открыть работу' : 'Посмотреть результат'} <ArrowRight size={14} aria-hidden="true" /></button>}</div></div>)}</div>
+        : referenceDate ? <div className="day-dashboard-lesson-raw"><p>{referenceText}</p><small>Это ссылка на уже назначенное ДЗ. Второй раз выполнять его не нужно.</small>{referenceToken && <button type="button" onClick={() => openDay(referenceToken, 'homework')}>Открыть ДЗ за {dateLabel(referenceDate)} <ArrowRight size={14} aria-hidden="true" /></button>}</div>
+        : rawHomework.length ? <div className="day-dashboard-lesson-raw">{rawHomework.map((item, rawIndex) => <p key={rawIndex}>{item.text}</p>)}<small>Точный разбор задания ещё готовится.</small>{homeworkToken && <button type="button" onClick={() => openDay(homeworkToken, 'homework')}>Открыть ДЗ <ArrowRight size={14} aria-hidden="true" /></button>}</div>
+          : <p>{tone === 'none' ? 'На последней сверке МЭШ домашнее задание к этому уроку не задано.' : 'Сведения о домашнем задании ещё уточняются.'}</p>}{newlyAssigned && <p className="day-dashboard-lesson-update">ДЗ обновлено: {checkedLabel(updatedAt ?? null)}.</p>}<small>Последняя сверка МЭШ: {checkedLabel(selectedEntry?.checkedAt ?? null)}.</small></div>
+    </details></li>
+  }
+
   const completeLessonSnapshot = selectedWork.ready ? JSON.stringify(lessonRows.map(({ key, tone, badge, items, referenceDate, referenceText }) =>
     ({ key, tone, badge, items, referenceDate, referenceText }))) : ''
   useEffect(() => {
@@ -330,21 +360,15 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
       <section className="day-dashboard-card" aria-label="Расписание выбранного дня" data-collapsed={scheduleCollapsed}>
         <div className="day-dashboard-heading"><div><CalendarDays size={20} /><h2>Расписание</h2></div><small>{dateLabel(selectedDate)}<br />МЭШ проверен: {checkedLabel(selectedEntry?.checkedAt ?? null)}</small></div>
         {Boolean(selectedEntry?.schedule.length) && <button className="day-dashboard-schedule-toggle" type="button" aria-expanded={!scheduleCollapsed} onClick={() => setScheduleOverride({ date: selectedDate, open: scheduleCollapsed })}>{scheduleCollapsed ? `Показать уроки · ${lessonRows.length}` : 'Свернуть расписание'} <ChevronDown size={16} aria-hidden="true" /></button>}
-        {!scheduleCollapsed && (selectedEntry?.schedule.length ? <ul className="day-dashboard-lessons">{lessonRows.map(({ lesson, subject, rawHomework, updatedAt, newlyAssigned, items, tone, badge, referenceDate, referenceText, referenceToken }, lessonIndex) => {
-          const start = Date.parse(lesson.start)
-          const end = Date.parse(lesson.end)
-          const ended = Number.isFinite(end) && now >= end
-          const underway = Number.isFinite(start) && Number.isFinite(end) && start <= now && now < end
-          return <li key={`${selectedDate}-${lessonIndex}-${lesson.subject}-${ended}`}><details data-subject={lesson.subject} className={`day-dashboard-lesson day-dashboard-lesson-${tone}${newlyAssigned ? ' has-new-homework' : ''}`}>
-            <summary onClick={() => {
-              acknowledgeHomeworkUpdate(selectedDate, lesson.subject)
-            }}>{/* @see ../docs/product/design-system.md#mobile-card-headings */}<time>{lessonTime(lesson.start)}</time><span className="day-dashboard-lesson-name">{lesson.subject}{(ended || underway) && <span className={`day-dashboard-lesson-phase${underway ? ' current' : ''}`}>{underway ? 'Идёт' : 'Прошёл'}</span>}{newlyAssigned && <span className="day-dashboard-lesson-new"><StatusIcon status="new" size={12} />Новое ДЗ</span>}</span><span className="day-dashboard-lesson-badge" aria-label={referenceDate ? `См. ДЗ за ${dateLabel(referenceDate)}` : tone === 'none' ? 'ДЗ не задано на последней сверке МЭШ' : tone === 'checking' ? `${badge}, проверяем` : tone === 'unclear' ? `${badge}, критерий неясен` : undefined}>{!referenceDate && <StatusIcon size={13} status={tone === 'none' ? 'not-assigned' : tone === 'complete' ? 'complete' : tone === 'partial' ? 'partial' : tone === 'checking' ? 'waiting' : tone === 'unclear' || tone === 'unknown' ? 'unknown' : 'ready'} />}{referenceDate ? `ДЗ ${dateLabel(referenceDate, { day: 'numeric', month: '2-digit' })}` : badge}<ChevronDown size={15} aria-hidden="true" /></span></summary>
-            <div className="day-dashboard-lesson-body">{subject?.tasks.some((task) => task.dueDate && task.dueDate !== (task.lessonDate ?? selectedDate)) && <p className="day-dashboard-lesson-update">Срок сдачи: {dateLabel(subject.tasks.find((task) => task.dueDate && task.dueDate !== (task.lessonDate ?? selectedDate))!.dueDate!)} · по записи МЭШ. Задание относится к этому уроку.</p>}{items.length ? <div className="day-dashboard-lesson-items">{items.map((item) => <div className={`day-dashboard-lesson-item ${item.state}`} key={item.id}><span className="day-dashboard-lesson-item-symbol" aria-hidden="true"><StatusIcon size={15} status={item.state === 'done' ? 'complete' : item.state === 'checking' ? 'waiting' : item.state === 'unclear' ? 'unknown' : 'ready'} /></span><div><strong>{item.state === 'done' ? 'Сделано' : item.state === 'checking' ? 'Проверяем' : item.state === 'unclear' ? 'Разобрано' : 'Осталось'}: {item.title}</strong><span>{item.detail}</span>{homeworkToken && <button type="button" onClick={() => openDay(homeworkToken, 'homework', item.id, { date: selectedDate, subject: lesson.subject })}>{item.state === 'todo' ? 'Перейти к заданию' : item.state === 'checking' ? 'Открыть работу' : 'Посмотреть результат'} <ArrowRight size={14} aria-hidden="true" /></button>}</div></div>)}</div>
-              : referenceDate ? <div className="day-dashboard-lesson-raw"><p>{referenceText}</p><small>Это ссылка на уже назначенное ДЗ. Второй раз выполнять его не нужно.</small>{referenceToken && <button type="button" onClick={() => openDay(referenceToken, 'homework')}>Открыть ДЗ за {dateLabel(referenceDate)} <ArrowRight size={14} aria-hidden="true" /></button>}</div>
-              : rawHomework.length ? <div className="day-dashboard-lesson-raw">{rawHomework.map((item, rawIndex) => <p key={rawIndex}>{item.text}</p>)}<small>Точный разбор задания ещё готовится.</small>{homeworkToken && <button type="button" onClick={() => openDay(homeworkToken, 'homework')}>Открыть ДЗ <ArrowRight size={14} aria-hidden="true" /></button>}</div>
-                : <p>{tone === 'none' ? 'На последней сверке МЭШ домашнее задание к этому уроку не задано.' : 'Сведения о домашнем задании ещё уточняются.'}</p>}{newlyAssigned && <p className="day-dashboard-lesson-update">ДЗ обновлено: {checkedLabel(updatedAt ?? null)}.</p>}<small>Последняя сверка МЭШ: {checkedLabel(selectedEntry.checkedAt)}.</small></div>
-          </details></li>
-        })}</ul> : <p className="day-dashboard-empty">{selectedEntry?.complete ? 'Уроков на эту дату нет.' : `Расписание ещё не подтверждено. Последняя проверка: ${checkedLabel(selectedEntry?.checkedAt ?? null)}.`}</p>)}
+        {!scheduleCollapsed && (selectedEntry?.schedule.length ? <div className="day-dashboard-lesson-groups">
+          {groupFinishedLessons && <div className="day-dashboard-past-group">
+            <button className="day-dashboard-past-toggle" type="button" aria-expanded={pastLessonsExpanded} aria-label={`Прошедшие уроки: ${finishedLessonRows.map(({ lesson }) => lesson.subject).join(', ')}`} onClick={() => setPastLessonsOverride({ date: selectedDate, open: !pastLessonsExpanded })}>
+              <strong>Прошли · {finishedLessonRows.length}</strong><span>{finishedLessonRows.map(({ lesson }) => lesson.subject).join(', ')}</span><ChevronDown size={16} aria-hidden="true" />
+            </button>
+            {pastLessonsExpanded && <ul className="day-dashboard-lessons day-dashboard-past-lessons">{finishedLessonRows.map(renderLesson)}</ul>}
+          </div>}
+          <ul className="day-dashboard-lessons day-dashboard-current-lessons">{visibleLessonRows.map(renderLesson)}</ul>
+        </div> : <p className="day-dashboard-empty">{selectedEntry?.complete ? 'Уроков на эту дату нет.' : `Расписание ещё не подтверждено. Последняя проверка: ${checkedLabel(selectedEntry?.checkedAt ?? null)}.`}</p>)}
         {!scheduleCollapsed && selectedEntry?.dayToken && <button className="day-dashboard-detail-link" type="button" onClick={() => openDay(selectedEntry.dayToken!)}>Открыть подробное расписание <ArrowRight size={17} /></button>}
       </section>
       <section className="day-dashboard-card" aria-label="Домашнее задание следующего учебного дня">
