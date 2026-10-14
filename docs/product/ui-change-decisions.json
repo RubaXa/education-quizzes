@@ -614,6 +614,73 @@
         "status": "direct-request",
         "evidence": "Прямой запрос родителя 14.10.2026: переключатель этапа снова не работает, на снимке отказ «Нет доступа. Проверьте личную ссылку»."
       }
+    },
+    "src/components/NotificationBell.tsx": {
+      "sha256": "25c168a481a284c219057b2230321c09b359af2c87c1d19ca1bd6c767d7bc452",
+      "record": "docs/product/ui-decisions/notification-read-all-2026-10-14.md",
+      "specs": [
+        "docs/architecture/activity-and-inbox.md",
+        "docs/product/design-system.md"
+      ],
+      "tests": [
+        "src/components/NotificationBell.test.tsx",
+        "src/lib/educationStore.inbox.test.ts",
+        "src/components/NotificationBell.layout.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя 14.10.2026: в открытом колокольчике рядом с «Обновления» нужен контроль «Прочитать все»."
+      }
+    },
+    "src/components/NotificationBell.css": {
+      "sha256": "eda4a1ea1da58ea3b4731ea8816d3c0dc263162ceddc612ce0d9379ec4b215e2",
+      "record": "docs/product/ui-decisions/notification-read-all-2026-10-14.md",
+      "specs": [
+        "docs/architecture/activity-and-inbox.md",
+        "docs/product/design-system.md"
+      ],
+      "tests": [
+        "src/components/NotificationBell.test.tsx",
+        "src/lib/educationStore.inbox.test.ts",
+        "src/components/NotificationBell.layout.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя 14.10.2026: в открытом колокольчике рядом с «Обновления» нужен контроль «Прочитать все»."
+      }
+    },
+    "src/lib/educationStore.ts": {
+      "sha256": "3b9f5f02cb03ef8921a97078fd5e8dbfd0350ae7b5bb868cbcb0b51325786c27",
+      "record": "docs/product/ui-decisions/notification-read-all-2026-10-14.md",
+      "specs": [
+        "docs/architecture/activity-and-inbox.md",
+        "docs/product/design-system.md"
+      ],
+      "tests": [
+        "src/components/NotificationBell.test.tsx",
+        "src/lib/educationStore.inbox.test.ts",
+        "src/components/NotificationBell.layout.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя 14.10.2026: в открытом колокольчике рядом с «Обновления» нужен контроль «Прочитать все»."
+      }
+    },
+    "scripts/check-notification-viewport.mjs": {
+      "sha256": "2067a8045e6486f4e98398930116ff585d7d9598929302e27d4c1fca13b5f8c4",
+      "record": "docs/product/ui-decisions/notification-read-all-2026-10-14.md",
+      "specs": [
+        "docs/product/design-system.md",
+        "docs/architecture/activity-and-inbox.md"
+      ],
+      "tests": [
+        "src/components/NotificationBell.layout.test.mjs",
+        "src/components/NotificationBell.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя 14.10.2026: в открытом колокольчике рядом с «Обновления» нужен контроль «Прочитать все» на мобильном экране."
+      }
     }
   }
 }

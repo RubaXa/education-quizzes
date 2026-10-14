@@ -3,7 +3,7 @@ import { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-const probe = vi.hoisted(() => ({ marked: [] as string[][], cached: null as any, delayInbox: false,
+const probe = vi.hoisted(() => ({ marked: [] as string[][], bulkMarked: 0, bulkFailure: false, cached: null as any, delayInbox: false,
   requireRestoredSession: false, sessionReady: false, subscriptions: 0, restoreGate: null as Promise<void> | null,
   inboxChange: null as ((items: unknown[]) => void) | null, inboxError: null as ((error: Error) => void) | null }))
 ;(globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true
@@ -22,12 +22,13 @@ vi.mock('@/lib/educationStore', () => ({
     return () => {}
   },
   markNotificationsRead: async (ids: string[]) => { probe.marked.push(ids) },
+  markAllNotificationsRead: async () => { probe.bulkMarked++; if (probe.bulkFailure) throw new Error('Запись недоступна'); return 1 },
 }))
 
 import NotificationBell from './NotificationBell'
 import { writeCachedInbox } from '@/lib/inboxCache'
 
-afterEach(() => { probe.marked.length = 0; probe.cached = null; probe.delayInbox = false;
+afterEach(() => { probe.marked.length = 0; probe.bulkMarked = 0; probe.bulkFailure = false; probe.cached = null; probe.delayInbox = false;
   probe.requireRestoredSession = false; probe.sessionReady = false; probe.subscriptions = 0;
   probe.restoreGate = null; probe.inboxChange = null; probe.inboxError = null; localStorage.clear() })
 
@@ -96,5 +97,37 @@ describe('notification center read history', () => {
     expect(host.textContent).toContain('Появилось домашнее задание')
     await act(async () => { root.unmount() })
     host.remove()
+  })
+  it('marks all personal updates without opening each thread and keeps history', async () => {
+    const host = document.createElement('div'); document.body.append(host)
+    const root = createRoot(host)
+    await act(async () => { root.render(<NotificationBell routeKey="#/" />) })
+    await act(async () => { host.querySelector<HTMLButtonElement>('.notification-bell')!.click() })
+    const readAll = host.querySelector<HTMLButtonElement>('.notification-read-all')!
+    expect(readAll.textContent).toBe('Прочитать все')
+    expect(readAll.disabled).toBe(false)
+    await act(async () => { readAll.click() })
+    expect(probe.bulkMarked).toBe(1)
+    expect(probe.marked).toEqual([])
+    expect(host.querySelector('.notification-bell')?.getAttribute('aria-label')).not.toContain('непрочитанных')
+    expect(host.textContent).toContain('Новых обновлений нет.')
+    expect(readAll.disabled).toBe(false)
+    await act(async () => { readAll.click() })
+    expect(probe.bulkMarked).toBe(2) // older unread notices may be outside the live 100-item window
+    await act(async () => { host.querySelector<HTMLButtonElement>('.notification-history-toggle')!.click() })
+    expect(host.textContent).toContain('Появилось домашнее задание')
+    await act(async () => { root.unmount() }); host.remove()
+  })
+  it('keeps unread updates when the bulk receipt fails', async () => {
+    probe.bulkFailure = true
+    const host = document.createElement('div'); document.body.append(host)
+    const root = createRoot(host)
+    await act(async () => { root.render(<NotificationBell routeKey="#/" />) })
+    await act(async () => { host.querySelector<HTMLButtonElement>('.notification-bell')!.click() })
+    await act(async () => { host.querySelector<HTMLButtonElement>('.notification-read-all')!.click() })
+    expect(probe.bulkMarked).toBe(1)
+    expect(host.querySelector('.notification-bell')?.getAttribute('aria-label')).toContain('непрочитанных: 1')
+    expect(host.querySelector('.notification-error')).not.toBeNull()
+    await act(async () => { root.unmount() }); host.remove()
   })
 })

@@ -16,10 +16,10 @@ if (!chrome) throw new Error('Для проверки нужен Chrome или C
 
 function fixture(installed) {
   const install = installed ? '' : '<button class="pwa-install" aria-label="На экран телефона"><svg width="16" height="16"></svg><span>На экран телефона</span></button>'
-  return `<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><style>${css}\n:root{--edu-touch-target:42px}body{margin:0}</style>
+  return `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${css}\n:root{--edu-touch-target:42px}body{margin:0}</style>
     <div class="app-shell"><header class="site-header"><a class="brand"><span class="brand-mark">✳</span><span class="brand-long">Учусь и проверяю</span><span class="brand-short">Education</span></a>
     <div id="day-header-return"></div><div class="notification-bell-slot"><div class="notification-center"><button class="notification-bell">♧</button>
-    <section class="notification-panel"><header><h2>Обновления</h2><button>×</button></header><p>Новых обновлений нет.</p></section></div></div>
+    <section class="notification-panel"><header><h2>Обновления</h2><button class="notification-read-all">Прочитать все</button><button class="notification-close">×</button></header><p>Новых обновлений нет.</p></section></div></div>
     <div class="header-actions"><span class="header-note">Маленькие шаги. Большой прогресс.</span>${install}</div></header></div>`
 }
 
@@ -58,11 +58,12 @@ try {
       await send('Page.navigate', { url: `data:text/html;base64,${Buffer.from(fixture(installed)).toString('base64')}` })
       await delay(250)
       const result = await send('Runtime.evaluate', { returnByValue: true,
-        expression: `JSON.stringify((()=>{const b=document.querySelector('.notification-bell').getBoundingClientRect(),p=document.querySelector('.notification-panel').getBoundingClientRect();return{width:innerWidth,visual:visualViewport.width,scroll:document.documentElement.scrollWidth,note:getComputedStyle(document.querySelector('.header-note')).display,brand:document.querySelector('.brand').getBoundingClientRect().width,actions:document.querySelector('.header-actions').getBoundingClientRect().width,bellRight:b.right,panelLeft:p.left,panelRight:p.right}})())` })
+        expression: `JSON.stringify((()=>{const b=document.querySelector('.notification-bell').getBoundingClientRect(),p=document.querySelector('.notification-panel').getBoundingClientRect(),h=document.querySelector('.notification-panel header'),a=document.querySelector('.notification-read-all').getBoundingClientRect(),c=document.querySelector('.notification-close').getBoundingClientRect(),s=getComputedStyle(document.querySelector('.notification-read-all'));return{width:innerWidth,visual:visualViewport.width,scroll:document.documentElement.scrollWidth,note:getComputedStyle(document.querySelector('.header-note')).display,brand:document.querySelector('.brand').getBoundingClientRect().width,actions:document.querySelector('.header-actions').getBoundingClientRect().width,bellRight:b.right,panelLeft:p.left,panelRight:p.right,headerWidth:h.clientWidth,headerScroll:h.scrollWidth,actionLeft:a.left,actionRight:a.right,actionFont:s.fontSize,actionPadding:s.padding,closeLeft:c.left}})())` })
       if (result.exceptionDetails || !result.result?.value) throw new Error('Chrome не смог измерить панель.')
       const row = JSON.parse(result.result.value)
       if (row.width !== width || row.bellRight < width - 24 || row.bellRight > width - 12 ||
-        row.panelLeft < 12 || row.panelRight > width - 12) throw new Error(`Панель вышла за границы: ${JSON.stringify({ ...row, installed })}`)
+        row.panelLeft < 12 || row.panelRight > width - 12 || row.headerScroll > row.headerWidth ||
+        row.actionLeft < row.panelLeft || row.actionRight > row.closeLeft) throw new Error(`Панель вышла за границы: ${JSON.stringify({ ...row, installed })}`)
       console.log(`${width}px, ${installed ? 'PWA установлена' : 'до установки'}: bell=${row.bellRight}, panel=${row.panelLeft}..${row.panelRight}`)
     }
   } finally { socket.close() }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
 import { Bell, ChevronRight, X } from 'lucide-react'
-import { markNotificationsRead, watchInbox } from '@/lib/educationStore'
+import { markAllNotificationsRead, markNotificationsRead, watchInbox } from '@/lib/educationStore'
 import { readCachedPersonalContext, restorePersonalContext } from '@/lib/personalAccess'
 import { readCachedInbox } from '@/lib/inboxCache'
 import type { PersonalChild } from '@/lib/personalAccess'
@@ -71,6 +71,7 @@ export default function NotificationBell({ routeKey }: { routeKey: string }) {
   const [showHistory, setShowHistory] = useState(false)
   const [expanded, setExpanded] = useState<string | null>(null)
   const [error, setError] = useState('')
+  const [readingAll, setReadingAll] = useState(false)
 
   useEffect(() => {
     if (sessionRoute !== 'active') return
@@ -142,6 +143,17 @@ export default function NotificationBell({ routeKey }: { routeKey: string }) {
     setExpanded((current) => current === thread.key ? null : thread.key)
   }
 
+  async function readAll() {
+    if (readingAll || subscriptionPersonId !== personId) return
+    const visibleUnreadIds = new Set(items.filter((item) => !item.readAt).map((item) => item.id))
+    setReadingAll(true); setError('')
+    try {
+      await markAllNotificationsRead()
+      setItems((current) => current.map((item) => visibleUnreadIds.has(item.id) ? { ...item, readAt: new Date().toISOString() } : item))
+    } catch (cause) { setError(reportUiError(cause, 'Обновления')) }
+    finally { setReadingAll(false) }
+  }
+
   function navigateToNotice(item: Notice) {
     const child = children.find((entry) => entry.childId === item.childId && entry.familyId === item.familyId && entry.dashboardToken)
     if (!child) { setError('Переход к учебному дню ещё не подключён для этого профиля.'); return }
@@ -164,7 +176,7 @@ export default function NotificationBell({ routeKey }: { routeKey: string }) {
       <Bell size={20} aria-hidden="true" />{unread > 0 && <span className="notification-count">{unread > 99 ? '99+' : unread}</span>}
     </button>
     {open && <section id="education-notification-list" className="notification-panel" aria-label="Обновления Education">
-      <header><h2>Обновления</h2><button type="button" aria-label="Закрыть обновления" onClick={() => { setOpen(false); setShowHistory(false); setExpanded(null) }}><X size={19} /></button></header>
+      <header><h2>Обновления</h2><button className="notification-read-all" type="button" disabled={readingAll || subscriptionPersonId !== personId} onClick={() => void readAll()}>{readingAll ? 'Читаем…' : 'Прочитать все'}</button><button className="notification-close" type="button" aria-label="Закрыть обновления" onClick={() => { setOpen(false); setShowHistory(false); setExpanded(null) }}><X size={19} /></button></header>
       {error && <p className="notification-error">{error}</p>}
       {visibleThreads.length ? <ul>{visibleThreads.map((thread) => {
         const item = thread.latest

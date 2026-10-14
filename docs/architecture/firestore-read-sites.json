@@ -3588,6 +3588,18 @@
     "refresh": "on mutation"
   },
   {
+    "id": "src/lib/educationStore.ts#getDocsFromServer#f95b7ac5568f",
+    "file": "src/lib/educationStore.ts",
+    "line": 142,
+    "api": "getDocsFromServer",
+    "target": "cursor ? query(inbox, orderBy('createdAt', 'desc'), startAfter(cursor), limit(400)) : query(inbox, orderBy('createdAt', 'desc'), limit(400))",
+    "group": "client-views-inbox",
+    "assessment": "conditional",
+    "policy": "paged-explicit-bulk-inbox",
+    "refresh": "user-action-only",
+    "note": "Кнопка «Прочитать все» по явному нажатию обходит личный inbox по 400 документов; подписка 100 не покрывает старые непрочитанные. Не запускать при открытии панели. Стоимость зависит от истории человека и требует живого замера."
+  },
+  {
     "id": "src/lib/educationStore.ts#onSnapshot#23d4cfbd2587",
     "file": "src/lib/educationStore.ts",
     "line": 137,

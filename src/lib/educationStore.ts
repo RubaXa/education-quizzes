@@ -1,5 +1,6 @@
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
-import { collection, doc, limit, onSnapshot, orderBy, query, runTransaction, serverTimestamp, setDoc, updateDoc, writeBatch } from 'firebase/firestore'
+import { collection, doc, getDocsFromServer, limit, onSnapshot, orderBy, query, runTransaction, serverTimestamp, setDoc, startAfter, updateDoc, writeBatch } from 'firebase/firestore'
+import type { QueryDocumentSnapshot } from 'firebase/firestore'
 import { db } from './firebase'
 import { currentEducationPersonId, restorePersonalSession } from './personalAccess'
 import { parseScreenManifest } from './educationSchema'
@@ -125,6 +126,27 @@ export async function markNotificationsRead(notificationIds: string[]) {
     await batch.commit()
   }
   markCachedInboxRead(personId, ids)
+}
+
+/** Explicitly acknowledge the complete personal inbox, not only the 100 recent
+ * notices kept by the live bell. New notices arriving after the first page are
+ * outside the traversed cursor and remain unread.
+ * @see ../../docs/architecture/activity-and-inbox.md#in-app-center */
+export async function markAllNotificationsRead(): Promise<number> {
+  const personId = currentEducationPersonId()
+  const inbox = collection(db, 'users', personId, 'inbox')
+  let cursor: QueryDocumentSnapshot | undefined
+  let marked = 0
+  for (;;) {
+    if (currentEducationPersonId() !== personId) throw new Error('Личная сессия изменилась. Откройте обновления заново.')
+    const page = await getDocsFromServer(cursor
+      ? query(inbox, orderBy('createdAt', 'desc'), startAfter(cursor), limit(400))
+      : query(inbox, orderBy('createdAt', 'desc'), limit(400)))
+    const unreadIds = page.docs.filter((item) => !item.data().readAt).map((item) => item.id)
+    if (unreadIds.length) { await markNotificationsRead(unreadIds); marked += unreadIds.length }
+    if (page.size < 400) return marked
+    cursor = page.docs[page.docs.length - 1]
+  }
 }
 
 /** @see ../../docs/architecture/activity-and-inbox.md#read-state */
