@@ -2,7 +2,7 @@
  * @see ../docs/product/design-system.md#mobile-card-headings
  */
 import { spawn } from 'node:child_process'
-import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
@@ -17,18 +17,19 @@ const chrome = [process.env.CHROME_BIN, '/Applications/Google Chrome.app/Content
 if (!chrome) throw new Error('Для проверки нужен Chrome или CHROME_BIN.')
 
 const rows = [
-  ['Биология', '1 из 1', 'complete'], ['История', '1 из 1', 'complete has-new-homework'],
+  ['Биология', '1 из 1', 'complete', 'Прошёл'], ['История', '1 из 1', 'complete has-new-homework', 'Идёт'],
   ['Русский язык', '1 из 2', 'partial'], ['Математика', 'ДЗ 12.10', 'unknown'],
   ['Английский язык', '0 из 1', 'empty'], ['География', '1 из 1', 'complete'],
 ]
+const screenshotDir = process.env.SCHEDULE_SCREENSHOT_DIR
 function fixture(open) {
   return `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>
   @font-face{font-family:'Geist Variable';src:url(data:font/woff2;base64,${cyrillicFont}) format('woff2');font-weight:100 900;unicode-range:U+0400-052F,U+2DE0-2DFF,U+A640-A69F}
   @font-face{font-family:'Geist Variable';src:url(data:font/woff2;base64,${latinFont}) format('woff2');font-weight:100 900;unicode-range:U+0000-00FF}
   ${css}\nbody{margin:0;padding:8px;font-family:'Geist Variable',sans-serif}</style>
   <div class="day-dashboard"><section class="day-dashboard-card"><ul class="day-dashboard-lessons">
-  ${rows.map(([name, badge, tone]) => `<li><details class="day-dashboard-lesson day-dashboard-lesson-${tone}" ${open ? 'open' : ''}>
-    <summary><time>08:30</time><span class="day-dashboard-lesson-name">${name}${name === 'История' ? '<span class="day-dashboard-lesson-new">Новое ДЗ</span>' : ''}</span>
+  ${rows.map(([name, badge, tone, phase]) => `<li><details class="day-dashboard-lesson day-dashboard-lesson-${tone}" ${open ? 'open' : ''}>
+    <summary><time>08:30</time><span class="day-dashboard-lesson-name">${name}${phase ? `<span class="day-dashboard-lesson-phase${phase === 'Идёт' ? ' current' : ''}">${phase}</span>` : ''}${name === 'История' ? '<span class="day-dashboard-lesson-new">Новое ДЗ</span>' : ''}</span>
     <span class="day-dashboard-lesson-badge">${tone.includes('complete') ? '<svg width="13" height="13"></svg>' : ''}${badge}<svg width="15" height="15"></svg></span></summary>
     <div class="day-dashboard-lesson-body">Подробности задания и проверки.</div></details></li>`).join('')}
   </ul></section></div>`
@@ -77,6 +78,11 @@ try {
       const layout = JSON.parse(result.result.value)
       const bad = layout.rows.find((row) => row.badgeLeft < row.nameRight + 5 || row.centerGap > 7 || row.height > 70 || !row.nameFits || !row.badgeFits || row.badgeRight > width - 18)
       if (layout.width !== width || layout.scroll > width || bad) throw new Error(`Сетка урока нарушена: ${JSON.stringify({ width, open, bad, scroll: layout.scroll })}`)
+      if (screenshotDir) {
+        mkdirSync(screenshotDir, { recursive: true })
+        const shot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true })
+        writeFileSync(join(screenshotDir, `schedule-${width}-${open ? 'open' : 'compact'}.png`), Buffer.from(shot.data, 'base64'))
+      }
       console.log(`${width}px, ${open ? 'раскрыто' : 'свёрнуто'}: ${layout.rows.length} компактных строк`)
     }
   } finally { socket.close() }

@@ -71,12 +71,12 @@ describe('schedule warm start', () => {
     expect(host.querySelector('[aria-label="Домашнее задание следующего учебного дня"]')?.textContent).toContain('История')
     await act(async () => { root.unmount() }); host.remove()
   })
-  it('opens upcoming lessons before class and folds the schedule after the last lesson', async () => {
+  it('keeps upcoming lesson details compact before class and folds the schedule after the last lesson', async () => {
     probe.selected = base(); probe.next = base()
     const host = document.createElement('div'); document.body.append(host)
     const first = createRoot(host)
     await act(async () => { first.render(<DayDashboard token="calendar" parent />) })
-    expect(host.querySelector<HTMLDetailsElement>('.day-dashboard-lesson')?.open).toBe(true)
+    expect(host.querySelector<HTMLDetailsElement>('.day-dashboard-lesson')?.open).toBe(false)
     await act(async () => { first.unmount() })
     vi.setSystemTime(new Date('2026-10-13T06:20:00.000Z'))
     const second = createRoot(host)
@@ -89,7 +89,7 @@ describe('schedule warm start', () => {
     expect(host.querySelector<HTMLDetailsElement>('.day-dashboard-lesson')?.open).toBe(true)
     await act(async () => { second.unmount() }); host.remove()
   })
-  it('does not mark new homework read when an upcoming lesson opens automatically', async () => {
+  it('does not mark new homework read when an upcoming lesson appears compactly', async () => {
     Object.assign(index.days[0], { homeworkUpdate: { at: '2026-10-13T04:00:00.000Z', subjects: ['Биология'] } })
     probe.selected = base(); probe.next = base()
     const host = document.createElement('div'); document.body.append(host)
@@ -100,16 +100,31 @@ describe('schedule warm start', () => {
     expect(host.querySelector('.day-dashboard-lesson-new')).toBeNull()
     await act(async () => { root.unmount() }); host.remove()
   })
-  it('folds only the finished lesson while a later lesson is still ahead', async () => {
-    index.days[0].schedule.push({ subject: 'Математика', start: '2026-10-13T07:30:00.000Z', end: '2026-10-13T08:15:00.000Z' })
-    vi.setSystemTime(new Date('2026-10-13T06:20:00.000Z'))
+  it('shows past, current and future lessons as compact rows with completion counts', async () => {
+    index.days[0].schedule.push(
+      { subject: 'Математика', start: '2026-10-13T06:30:00.000Z', end: '2026-10-13T07:15:00.000Z' },
+      { subject: 'История', start: '2026-10-13T07:30:00.000Z', end: '2026-10-13T08:15:00.000Z' },
+    )
+    vi.setSystemTime(new Date('2026-10-13T06:40:00.000Z'))
     probe.selected = base(); probe.next = base()
+    probe.selected = { ...base(), ready: true, page: { targetDate: '2026-10-13' },
+      subjects: [{ id: 'biology', name: 'Биология', tasks: [{ id: 'biology', title: 'Ткани', kind: 'written', status: 'verified' }] },
+        { id: 'mathematics', name: 'Математика', tasks: [{ id: 'math', title: 'Пример', kind: 'written', status: 'unknown' }] }],
+      uploads: [{ id: 'pending-math', taskId: 'math', status: 'pending' }] }
     const host = document.createElement('div'); document.body.append(host)
     const root = createRoot(host)
     await act(async () => { root.render(<DayDashboard token="calendar" parent />) })
     expect(host.querySelector('[aria-label="Расписание выбранного дня"]')?.getAttribute('data-collapsed')).toBe('false')
     const lessons = host.querySelectorAll<HTMLDetailsElement>('.day-dashboard-lesson')
-    expect([...lessons].map((lesson) => lesson.open)).toEqual([false, true])
+    expect([...lessons].map((lesson) => lesson.open)).toEqual([false, false, false])
+    expect(lessons[0].textContent).toContain('Прошёл')
+    expect(lessons[1].textContent).toContain('Идёт')
+    expect(lessons[2].textContent).not.toContain('Идёт')
+    expect(lessons[0].querySelector('.day-dashboard-lesson-badge')?.textContent).toContain('1 из 1')
+    expect(lessons[1].querySelector('.day-dashboard-lesson-badge')?.textContent).toContain('0 из 1')
+    await act(async () => { lessons[1].querySelector<HTMLElement>('summary')?.click() })
+    expect(lessons[1].open).toBe(true)
+    expect(lessons[0].open).toBe(false)
     await act(async () => { root.unmount() }); host.remove()
   })
   it('keeps a confirmed live completion and reuses it on the next opening', async () => {
@@ -163,6 +178,19 @@ describe('schedule warm start', () => {
     expect(host.querySelector('.day-dashboard-lesson-badge')?.textContent).not.toContain('0 из 1')
     await act(async () => { root.unmount() })
     host.remove()
+  })
+
+  it('turns a saved checking label into a count on a warm start', async () => {
+    localStorage.setItem('education-day-dashboard-lesson-v1:parent:calendar:2026-10-13', JSON.stringify({ version: 1, lessons: [
+      { key: `${lessonStart}|Биология`, tone: 'checking', badge: 'Проверяем', items: [{ id: 'biology', title: 'Ткани', state: 'checking', detail: 'Ждём проверки' }] },
+    ] }))
+    probe.selected = base()
+    const host = document.createElement('div'); document.body.append(host)
+    const root = createRoot(host)
+    await act(async () => { root.render(<DayDashboard token="calendar" parent />) })
+    expect(host.querySelector('.day-dashboard-lesson-badge')?.textContent).toContain('0 из 1')
+    expect(host.querySelector<HTMLDetailsElement>('.day-dashboard-lesson')?.open).toBe(false)
+    await act(async () => { root.unmount() }); host.remove()
   })
 
   it('opens with the last complete next-day homework and grades before live streams answer', async () => {

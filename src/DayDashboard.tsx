@@ -232,17 +232,17 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
     const done = liveItems.filter((item) => item.state === 'done').length
     const checking = liveItems.filter((item) => item.state === 'checking').length
     const unclear = liveItems.filter((item) => item.state === 'unclear').length
-    const qualityOpen = liveItems.some((item) => item.qualityOpen)
     const liveTone = liveItems.length ? checking ? 'checking' : unclear ? 'unclear' : done === liveItems.length ? 'complete' : done ? 'partial' : 'empty' : liveReferenceTask ? 'reference' : rawHomework.length ? 'assigned' : selectedEntry.complete && (selectedPage || selectedDate <= today) ? 'none' : 'unknown'
-    const liveBadge = liveItems.length ? checking ? 'Проверяем' : unclear ? 'Критерий неясен' : qualityOpen && done === liveItems.length ? 'Сдано' : `${done} из ${liveItems.length}` : liveReferenceTask?.referenceDate ? `См. ${dateLabel(liveReferenceTask.referenceDate)}` : liveTone === 'none' ? 'Пока нет ДЗ' : liveTone === 'assigned' ? 'Задано' : 'Уточняем'
+    const liveBadge = liveItems.length ? `${done} из ${liveItems.length}` : liveReferenceTask?.referenceDate ? `См. ${dateLabel(liveReferenceTask.referenceDate)}` : liveTone === 'none' ? 'Пока нет ДЗ' : liveTone === 'assigned' ? 'Задано' : 'Уточняем'
     const key = lessonCacheKey(lesson.start, lesson.subject)
     const cached = savedLessons.get(key)
     const shown = selectedWork.ready ? { key, tone: liveTone, badge: liveBadge, items: liveItems,
       referenceDate: liveReferenceTask?.referenceDate, referenceText: liveReferenceTask?.meshText } : cached
+    const shownItems = shown?.items ?? []
     const referenceDate = shown?.referenceDate
     const referenceToken = referenceDate ? index?.days.find((day) => day.date === referenceDate)?.homeworkDayToken : null
     return { lesson, subject, rawHomework, updatedAt, updateKey, newlyAssigned,
-      items: shown?.items ?? [], tone: shown?.tone ?? 'unknown', badge: shown?.badge ?? 'Уточняем',
+      items: shownItems, tone: shown?.tone ?? 'unknown', badge: shownItems.length ? `${shownItems.filter((item) => item.state === 'done').length} из ${shownItems.length}` : shown?.badge ?? 'Уточняем',
       referenceDate, referenceText: shown?.referenceText, referenceToken, key }
   }) ?? []
   /** @see ../docs/product/dashboard.md#progressive-schedule */
@@ -312,9 +312,11 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
         <div className="day-dashboard-heading"><div><CalendarDays size={20} /><h2>Расписание</h2></div><small>{dateLabel(selectedDate)}<br />МЭШ проверен: {checkedLabel(selectedEntry?.checkedAt ?? null)}</small></div>
         {Boolean(selectedEntry?.schedule.length) && <button className="day-dashboard-schedule-toggle" type="button" aria-expanded={!scheduleCollapsed} onClick={() => setScheduleOverride({ date: selectedDate, open: scheduleCollapsed })}>{scheduleCollapsed ? `Показать уроки · ${lessonRows.length}` : 'Свернуть расписание'} <ChevronDown size={16} aria-hidden="true" /></button>}
         {!scheduleCollapsed && (selectedEntry?.schedule.length ? <ul className="day-dashboard-lessons">{lessonRows.map(({ lesson, subject, rawHomework, updatedAt, updateKey, newlyAssigned, items, tone, badge, referenceDate, referenceText, referenceToken }, lessonIndex) => {
+          const start = Date.parse(lesson.start)
           const end = Date.parse(lesson.end)
           const ended = Number.isFinite(end) && now >= end
-          return <li key={`${selectedDate}-${lessonIndex}-${lesson.subject}-${ended}`}><details open={!ended} data-subject={lesson.subject} className={`day-dashboard-lesson day-dashboard-lesson-${tone}${newlyAssigned ? ' has-new-homework' : ''}`}>
+          const underway = Number.isFinite(start) && Number.isFinite(end) && start <= now && now < end
+          return <li key={`${selectedDate}-${lessonIndex}-${lesson.subject}-${ended}`}><details data-subject={lesson.subject} className={`day-dashboard-lesson day-dashboard-lesson-${tone}${newlyAssigned ? ' has-new-homework' : ''}`}>
             <summary onClick={() => {
               if (!newlyAssigned || !updateKey) return
               markHomeworkUpdateSeen(updateKey)
@@ -322,7 +324,7 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
               window.dispatchEvent(new CustomEvent('education-homework-update-seen', {
                 detail: { dashboardToken: token, date: selectedDate, subject: lesson.subject },
               }))
-            }}>{/* @see ../docs/product/design-system.md#mobile-card-headings */}<time>{lessonTime(lesson.start)}</time><span className="day-dashboard-lesson-name">{lesson.subject}{newlyAssigned && <span className="day-dashboard-lesson-new">Новое ДЗ</span>}</span><span className="day-dashboard-lesson-badge" aria-label={referenceDate ? `См. ДЗ за ${dateLabel(referenceDate)}` : undefined}>{tone === 'complete' && <CheckCircle2 size={13} aria-hidden="true" />}{referenceDate ? `ДЗ ${dateLabel(referenceDate, { day: 'numeric', month: '2-digit' })}` : badge}<ChevronDown size={15} aria-hidden="true" /></span></summary>
+            }}>{/* @see ../docs/product/design-system.md#mobile-card-headings */}<time>{lessonTime(lesson.start)}</time><span className="day-dashboard-lesson-name">{lesson.subject}{(ended || underway) && <span className={`day-dashboard-lesson-phase${underway ? ' current' : ''}`}>{underway ? 'Идёт' : 'Прошёл'}</span>}{newlyAssigned && <span className="day-dashboard-lesson-new">Новое ДЗ</span>}</span><span className="day-dashboard-lesson-badge" aria-label={referenceDate ? `См. ДЗ за ${dateLabel(referenceDate)}` : tone === 'checking' ? `${badge}, проверяем` : tone === 'unclear' ? `${badge}, критерий неясен` : undefined}>{tone === 'complete' && <CheckCircle2 size={13} aria-hidden="true" />}{referenceDate ? `ДЗ ${dateLabel(referenceDate, { day: 'numeric', month: '2-digit' })}` : badge}<ChevronDown size={15} aria-hidden="true" /></span></summary>
             <div className="day-dashboard-lesson-body">{subject?.tasks.some((task) => task.dueDate && task.dueDate !== (task.lessonDate ?? selectedDate)) && <p className="day-dashboard-lesson-update">Срок сдачи: {dateLabel(subject.tasks.find((task) => task.dueDate && task.dueDate !== (task.lessonDate ?? selectedDate))!.dueDate!)} · по записи МЭШ. Задание относится к этому уроку.</p>}{items.length ? <div className="day-dashboard-lesson-items">{items.map((item) => <div className={`day-dashboard-lesson-item ${item.state}`} key={item.id}><span className="day-dashboard-lesson-item-symbol" aria-hidden="true">{item.state === 'done' ? '✓' : item.state === 'checking' ? '◷' : item.state === 'unclear' ? '?' : '→'}</span><div><strong>{item.state === 'done' ? 'Сделано' : item.state === 'checking' ? 'Проверяем' : item.state === 'unclear' ? 'Разобрано' : 'Осталось'}: {item.title}</strong><span>{item.detail}</span>{homeworkToken && <button type="button" onClick={() => openDay(homeworkToken, 'homework', item.id)}>{item.state === 'todo' ? 'Перейти к заданию' : item.state === 'checking' ? 'Открыть работу' : 'Посмотреть результат'} <ArrowRight size={14} aria-hidden="true" /></button>}</div></div>)}</div>
               : referenceDate ? <div className="day-dashboard-lesson-raw"><p>{referenceText}</p><small>Это ссылка на уже назначенное ДЗ. Второй раз выполнять его не нужно.</small>{referenceToken && <button type="button" onClick={() => openDay(referenceToken, 'homework')}>Открыть ДЗ за {dateLabel(referenceDate)} <ArrowRight size={14} aria-hidden="true" /></button>}</div>
               : rawHomework.length ? <div className="day-dashboard-lesson-raw">{rawHomework.map((item, rawIndex) => <p key={rawIndex}>{item.text}</p>)}<small>Точный разбор задания ещё готовится.</small>{homeworkToken && <button type="button" onClick={() => openDay(homeworkToken, 'homework')}>Открыть ДЗ <ArrowRight size={14} aria-hidden="true" /></button>}</div>
