@@ -66,7 +66,7 @@ export default function MaterialReader({ links, parent, statement = false, book 
       <small>Нажмите на страницу, чтобы открыть её крупно.</small>
     </div> : <div className="day-reader-thumbs" aria-label={`Открыть страницы: ${range}`}>
       {links.map((link, index) => <button type="button" className="day-reader-thumb" key={link.url} onClick={() => setActive(index)} aria-label={`Открыть ${pageName(link, index)}`}>
-        <EducationImage source={link.url} mode="public" alt="" size={statement ? 'XXXL' : 'S'} fit={statement ? 'contain' : 'cover'} compact retryControl={false} />
+        <EducationImage source={link.url} mode="public" alt="" size={statement ? 'XXXL' : 'S'} fit={statement ? 'contain' : 'cover'} compact={!statement} retryControl={false} />
         <small>{statement ? 'Открыть лист крупно' : pageName(link, index)}</small>
       </button>)}
     </div>}

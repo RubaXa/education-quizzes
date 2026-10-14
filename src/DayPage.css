@@ -35,10 +35,11 @@
 .day-reader-thumbs{min-width:0;max-width:100%;scroll-snap-type:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
 .day-reader-statement .day-reader-thumbs{display:block;overflow:visible;padding:0}
 .day-reader-statement .day-reader-thumb{display:block;width:100%;min-height:0;padding:9px;text-align:center}
-.day-reader-statement .day-reader-thumb img,.day-reader-statement .day-reader-thumb-placeholder{width:100%;height:auto;max-height:350px;object-fit:contain;object-position:center;background:#fff}
+.day-reader-statement .day-reader-thumb img,.day-reader-statement .day-reader-thumb-placeholder{width:100%;height:auto;object-fit:contain;object-position:center;background:#fff}
 .day-reader-statement .day-reader-thumb-placeholder{min-height:130px}
 .day-reader-thumb .education-image{height:92px}
-.day-reader-statement .day-reader-thumb .education-image{height:auto;aspect-ratio:3 / 4}
+/* @see ../docs/product/design-system.md#images — teacher sheets follow their actual page ratio. */
+.day-reader-statement .day-reader-thumb .education-image{height:auto;aspect-ratio:auto}
 .day-reader-full-image{width:min(100%,1000px);flex:none}
 .day-reader-stage.zoomed .day-reader-full-image{width:180%;max-width:none}
 .day-reader-stage.zoomed .day-reader-full-image img{width:100%;max-width:100%}
