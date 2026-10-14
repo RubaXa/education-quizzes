@@ -1,5 +1,6 @@
-/* @see ../../docs/product/adaptive-problem-card.md#слои */
-.problem-statement{min-width:0;margin-top:12px;border:1px solid #ded5eb;border-radius:15px;overflow:hidden;background:#fff;color:#34295c}
+/* @see ../../docs/product/adaptive-problem-card.md#слои
+ * @see ../../docs/product/problem-card-design-decisions.md */
+.problem-statement{min-width:0;margin-top:12px;border:1px solid var(--edu-problem-border);border-radius:15px;overflow:hidden;background:var(--edu-surface);color:var(--edu-ink-dashboard)}
 .problem-statement-original{padding:15px}
 /* Only the parent's selected stage enters the student projection.
  * @see ../../docs/product/subject-aware-guidance.md#math-route */
@@ -8,48 +9,44 @@
 .problem-statement-guidance>div{margin-top:7px;padding:9px 10px;border-radius:9px;background:var(--edu-surface)}
 .problem-statement-guidance small{color:var(--edu-waiting-ink);font-size:.73rem;font-weight:800}
 .problem-statement-guidance p{margin:5px 0 0;font-size:.89rem;line-height:1.5}
-.problem-statement-label{display:flex;align-items:center;gap:7px;min-width:0;color:#503b86;font-size:.87rem;line-height:1.25}
+.problem-statement-label{display:flex;align-items:center;gap:7px;min-width:0;color:var(--edu-problem-heading);font-size:.87rem;line-height:1.25}
 .problem-statement-label strong{font-weight:800}
-.problem-statement-text{margin-top:9px;max-width:72ch;white-space:pre-line;overflow-wrap:anywhere;color:#3e3554;font-size:1rem;line-height:1.6}
-.problem-statement-text b{color:#61459a}
-.problem-statement-transcript{margin-top:13px;padding:12px;border:1px solid #e4daef;border-radius:11px;color:#503b86}
+/* @see ../../docs/product/adaptive-problem-card.md#происхождение-задачи */
+.problem-statement-source-trigger{display:grid;place-items:center;flex:none;width:var(--edu-touch-target);height:var(--edu-touch-target);margin:-8px -8px -8px auto;padding:0;border:0;border-radius:10px;background:transparent;color:var(--edu-status-neutral-ink);cursor:pointer}
+.problem-statement-source-trigger.complete{color:var(--edu-status-success-ink)}
+.problem-statement-source-trigger.needs-fix{color:var(--edu-status-attention-ink)}
+.problem-statement-source-trigger:hover,.problem-statement-source-trigger[aria-expanded="true"]{background:var(--edu-canvas)}
+.problem-statement-source-trigger:focus-visible{outline:3px solid var(--edu-focus);outline-offset:2px}
+.problem-statement-source-detail{margin-top:13px;padding:12px;border:1px solid var(--edu-card-border);border-radius:var(--edu-radius-control);background:var(--edu-canvas);color:var(--edu-text-primary);font-size:.82rem;line-height:1.45}
+.problem-statement-source-detail p{margin:8px 0!important}.problem-statement-source-detail small{display:block;margin-top:8px;color:var(--edu-text-secondary)}.problem-statement-source-detail a{color:var(--edu-brand);font-weight:700}
+.problem-statement-text{margin-top:9px;max-width:72ch;white-space:pre-line;overflow-wrap:anywhere;color:var(--edu-problem-text);font-size:1rem;line-height:1.6}
+.problem-statement-text b{color:var(--edu-problem-number-ink)}
+.problem-statement-transcript{margin-top:13px;padding:12px;border:1px solid var(--edu-problem-transcript-border);border-radius:11px;color:var(--edu-problem-heading)}
 .problem-statement-transcript-title{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:.9rem;font-weight:800}
-.problem-statement-source{display:block;margin-top:9px;color:#776d84;font-size:.72rem;line-height:1.4}
-.problem-statement-missing{margin:12px 0 0!important;color:#695f78;font-size:.82rem;line-height:1.5}
-.problem-statement-education{padding:15px;background:#f4effb;border-top:1px solid #e4daef}
+.problem-statement-source{display:block;margin-top:9px;color:var(--edu-problem-source-ink);font-size:.72rem;line-height:1.4}
+.problem-statement-missing{margin:12px 0 0!important;color:var(--edu-problem-missing-ink);font-size:.82rem;line-height:1.5}
+.problem-statement-education{padding:15px;background:var(--edu-problem-education-bg);border-top:1px solid var(--edu-problem-transcript-border)}
 .problem-statement-facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(76px,1fr));gap:7px;margin-top:12px}
-.problem-statement-facts>div{min-width:0;padding:9px 8px;border-radius:10px;background:#fff;text-align:center}
-.problem-statement-facts small{display:block;color:#726680;font-size:.69rem}
-.problem-statement-facts strong{display:block;margin-top:3px;color:#34295c;font-size:.9rem;overflow-wrap:anywhere}
-.problem-statement-find{display:flex;align-items:baseline;gap:12px;margin-top:9px;padding:10px 12px;border-radius:10px;background:#e9e0f6}
-.problem-statement-find small{color:#625286;font-size:.75rem}.problem-statement-find strong{color:#49347e;font-size:1.06rem}
-.problem-statement-rationale{margin:11px 0 0!important;color:#6c5f7b;font-size:.78rem;line-height:1.5}
-.problem-statement-question{margin:11px 0 0!important;color:#382d55;font-size:.94rem;line-height:1.5;font-weight:750}
-.problem-statement-help-button{margin-top:11px;padding:9px 12px;border:1px solid #bda8da;border-radius:10px;background:#fff;color:#50388c;font:inherit;font-size:.81rem;font-weight:800;cursor:pointer}
-.problem-statement-help-button:focus-visible{outline:3px solid #ab8bda;outline-offset:2px}.problem-statement-help-button:disabled{opacity:.65;cursor:wait}
-.problem-statement-help-used{display:block;margin-top:8px;color:#6b6080;font-size:.72rem}
-.problem-statement-error{margin:8px 0 0!important;color:#9b2e47!important;font-size:.76rem!important}
+.problem-statement-facts>div{min-width:0;padding:9px 8px;border-radius:10px;background:var(--edu-surface);text-align:center}
+.problem-statement-facts small{display:block;color:var(--edu-problem-fact-label);font-size:.69rem}
+.problem-statement-facts strong{display:block;margin-top:3px;color:var(--edu-ink-dashboard);font-size:.9rem;overflow-wrap:anywhere}
+.problem-statement-find{display:flex;align-items:baseline;gap:12px;margin-top:9px;padding:10px 12px;border-radius:10px;background:var(--edu-problem-find-bg)}
+.problem-statement-find small{color:var(--edu-problem-find-label);font-size:.75rem}.problem-statement-find strong{color:var(--edu-problem-find-ink);font-size:1.06rem}
+.problem-statement-rationale{margin:11px 0 0!important;color:var(--edu-problem-rationale-ink);font-size:.78rem;line-height:1.5}
+.problem-statement-question{margin:11px 0 0!important;color:var(--edu-problem-question-ink);font-size:.94rem;line-height:1.5;font-weight:750}
+.problem-statement-help-button{margin-top:11px;padding:9px 12px;border:1px solid var(--edu-problem-help-border);border-radius:10px;background:var(--edu-surface);color:var(--edu-problem-help-ink);font:inherit;font-size:.81rem;font-weight:800;cursor:pointer}
+.problem-statement-help-button:focus-visible{outline:3px solid var(--edu-problem-help-focus);outline-offset:2px}.problem-statement-help-button:disabled{opacity:.65;cursor:wait}
+.problem-statement-help-used{display:block;margin-top:8px;color:var(--edu-problem-help-muted);font-size:.72rem}
+.problem-statement-error{margin:8px 0 0!important;color:var(--edu-problem-error-ink)!important;font-size:.76rem!important}
 .problem-statement-help{margin-top:14px}
-.problem-statement-help>summary{width:max-content;max-width:100%;padding:9px 12px;border:1px solid #bda8da;border-radius:10px;background:#fff;color:#50388c;font-size:.82rem;font-weight:800;cursor:pointer}
-.problem-statement-help form{margin-top:12px;padding:12px;border:1px solid #d7c8e9;border-radius:11px;background:#fff}
+.problem-statement-help>summary{width:max-content;max-width:100%;padding:9px 12px;border:1px solid var(--edu-problem-help-border);border-radius:10px;background:var(--edu-surface);color:var(--edu-problem-help-ink);font-size:.82rem;font-weight:800;cursor:pointer}
+.problem-statement-help form{margin-top:12px;padding:12px;border:1px solid var(--edu-problem-help-form-border);border-radius:11px;background:var(--edu-surface)}
 .problem-statement-help fieldset{display:flex;flex-wrap:wrap;gap:7px;margin:0;padding:0;border:0}
 .problem-statement-help legend{margin-bottom:9px;font-size:.84rem;font-weight:800}
-.problem-statement-help fieldset label{display:flex;align-items:center;gap:5px;padding:8px;border:1px solid #ded5eb;border-radius:9px;font-size:.78rem;cursor:pointer}
-.problem-statement-help fieldset label:has(input:checked){border-color:#8c6cbf;background:#f4effb}
+.problem-statement-help fieldset label{display:flex;align-items:center;gap:5px;padding:8px;border:1px solid var(--edu-problem-border);border-radius:9px;font-size:.78rem;cursor:pointer}
+.problem-statement-help fieldset label:has(input:checked){border-color:var(--edu-problem-help-selected-border);background:var(--edu-problem-help-bg)}
 .problem-statement-help-note{display:block;margin-top:13px;font-size:.8rem;font-weight:750}
-.problem-statement-help-note textarea{display:block;box-sizing:border-box;width:100%;min-height:70px;margin-top:7px;padding:9px 10px;border:1px solid #bda8da;border-radius:9px;font:inherit;font-size:1rem;resize:vertical}
-.problem-statement-help-result{margin-top:13px;padding:12px;border-left:3px solid #8668b8;border-radius:9px;background:#fff}
-.problem-statement-help-result strong{font-size:.83rem}.problem-statement-help-result p{margin:7px 0!important;font-size:.93rem;font-weight:700}.problem-statement-help-result small{color:#6b6080;font-size:.72rem}
-/* @see ../../docs/product/design-system.md#cards-and-status
- * @see ../../docs/product/adaptive-problem-card.md#происхождение-задачи */
-.problem-statement-parent-source{padding:10px 15px;border-top:1px solid var(--edu-card-border);background:var(--edu-surface);font-size:.82rem;line-height:1.45}
-.problem-statement-parent-source summary{display:flex;align-items:center;gap:7px;min-height:var(--edu-touch-target);cursor:pointer;color:var(--edu-ink);font-weight:750;list-style:none}
-.problem-statement-parent-source summary::-webkit-details-marker{display:none}
-.problem-statement-parent-source summary:focus-visible{outline:3px solid var(--edu-focus);outline-offset:2px}
-/* @see ../../docs/product/status-presentation.md#components — source confidence uses the same signal shapes. */
-.problem-statement-parent-source summary svg{flex:none;color:var(--edu-status-neutral-ink)}
-.problem-statement-parent-source summary svg.edu-status-icon-complete{color:var(--edu-status-success-ink)}
-.problem-statement-parent-source summary svg.edu-status-icon-needs-fix{color:var(--edu-status-attention-ink)}
-.problem-statement-parent-source[open]>div{padding-bottom:5px}
-.problem-statement-parent-source p{margin:8px 0!important}.problem-statement-parent-source small{display:block;margin-top:7px;color:var(--edu-muted)}.problem-statement-parent-source a{color:var(--edu-brand);font-weight:700}
+.problem-statement-help-note textarea{display:block;box-sizing:border-box;width:100%;min-height:70px;margin-top:7px;padding:9px 10px;border:1px solid var(--edu-problem-help-border);border-radius:9px;font:inherit;font-size:1rem;resize:vertical}
+.problem-statement-help-result{margin-top:13px;padding:12px;border-left:3px solid var(--edu-problem-help-accent);border-radius:9px;background:var(--edu-surface)}
+.problem-statement-help-result strong{font-size:.83rem}.problem-statement-help-result p{margin:7px 0!important;font-size:.93rem;font-weight:700}.problem-statement-help-result small{color:var(--edu-problem-help-muted);font-size:.72rem}
 @media(max-width:480px){.problem-statement-original,.problem-statement-education{padding:12px}.problem-statement-text{font-size:.94rem}}

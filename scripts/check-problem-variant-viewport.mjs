@@ -1,5 +1,6 @@
 /** Mobile screenshot and geometry regression for the existing variant/problem hierarchy.
  * @see ../docs/product/design-system.md#cards-and-status
+ * @see ../docs/product/problem-card-design-decisions.md
  */
 import { spawn } from 'node:child_process'
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
@@ -8,7 +9,7 @@ import { join, resolve } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 
 const root = resolve(import.meta.dirname, '..')
-const css = ['src/DayPage.css', 'src/components/ProblemCard.css', 'src/components/ParentTaskGuide.css', 'src/components/RequirementSwitch.css']
+const css = ['src/DayPage.css', 'src/components/ProblemCard.css', 'src/components/ProblemStatement.css', 'src/components/ParentTaskGuide.css', 'src/components/RequirementSwitch.css']
   .map((path) => readFileSync(resolve(root, path), 'utf8')).join('\n')
 const tokens = readFileSync(resolve(root, 'src/education-design-tokens.css'), 'utf8')
 const iconCss = readFileSync(resolve(root, 'src/components/StatusIcon.css'), 'utf8')
@@ -18,9 +19,10 @@ if (!chrome) throw new Error('Для проверки нужен Chrome или C
 
 // @see ../docs/product/status-presentation.md#components — the fixture mirrors current ready SVG geometry.
 const readyIcon = '<svg class="edu-status-icon edu-status-icon-ready" data-status="ready" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>'
-const card = (number, title) => `<details class="problem-card ready"><summary class="problem-card-heading" aria-label="№ ${number}. ${title}. Не начато"><strong>№ ${number}. ${title}</strong><span class="problem-card-state">${readyIcon}<svg class="problem-card-chevron" width="17" height="17" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span></summary><div class="day-parent-guide-body"><p>Условие задачи № ${number}</p><details class="day-parent-guide day-parent-learning-route"><summary class="day-learning-route-heading"><span><strong>Разбор для родителя</strong></span></summary><div class="day-parent-learning-route-body"><details class="day-learning-route-stage"><summary>Дано и что найти</summary><p>Подробности этапа</p></details></div></details></div></details>`
+const statement = (number) => `<div class="problem-statement"><div class="problem-statement-original"><div class="problem-statement-label"><strong>Условие № ${number}</strong><button class="problem-statement-source-trigger unknown" aria-label="Происхождение не проверено. Показать происхождение задачи" aria-expanded="false"><svg data-status="unknown" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9 9a3 3 0 0 1 6 0c0 2-3 2-3 4"/><path d="M12 17h.01"/></svg></button></div><div class="problem-statement-source-detail" hidden><strong>Происхождение не проверено</strong><p>Исходный лист учителя известен. Поиск более раннего источника не записан.</p></div><div class="problem-statement-transcript"><div class="problem-statement-transcript-title">Условие текстом</div><div class="problem-statement-text"><b>№ ${number}.</b> Дано: DE = 6,4 см, EF = 3,9 см, DF = 9,3 см. Найти ошибку.</div></div></div><div class="problem-statement-education"><div class="problem-statement-label"><strong>Как читать условие</strong></div><div class="problem-statement-facts" aria-label="Дано"><div><small>DE</small><strong>6,4 см</strong></div><div><small>EF</small><strong>3,9 см</strong></div><div><small>DF</small><strong>9,3 см</strong></div></div><div class="problem-statement-find"><small>Найти</small><strong>Ошибку в условии</strong></div></div></div>`
+const card = (number, title) => `<details class="problem-card ready"><summary class="problem-card-heading" aria-label="№ ${number}. ${title}. Не начато"><strong>№ ${number}. ${title}</strong><span class="problem-card-state">${readyIcon}<svg class="problem-card-chevron" width="17" height="17" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span></summary>${statement(number)}<details class="day-parent-guide day-parent-learning-route"><summary class="day-learning-route-heading"><span><strong>Разбор</strong></span></summary><div class="day-parent-learning-route-body"><details class="day-learning-route-stage"><summary>Дано и что найти</summary><p>Подробности этапа</p></details></div></details></details>`
 const variant = (number, cards) => `<div class="day-practice-variant-shell"><details class="day-practice-variant"><summary><strong>Вариант ${number}</strong><span>${readyIcon}0 из ${cards.length}</span><svg class="day-practice-variant-chevron" width="17" height="17" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></summary><div class="day-practice-variant-problems">${cards.join('')}</div></details><button class="edu-requirement-switch" role="switch" aria-checked="true" aria-label="Учитывать вариант"><span class="edu-requirement-switch-track"></span></button></div>`
-const html = `<!doctype html><html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${tokens}${iconCss}*{box-sizing:border-box}body{margin:0;padding:12px;background:#f5f2fa;font:16px Arial,sans-serif;color:#34295c}.fixture{max-width:540px;margin:auto;padding:12px;border:1px solid #ded6eb;border-radius:18px;background:#fff}.fixture>h1{font-size:1rem}.fixture-grid{display:grid;gap:10px}.day-parent-guide-body{padding:10px}${css}</style><div class="fixture"><h1>Пример · подготовка по математике</h1><div class="fixture-grid">${variant(1, [card(1, 'Марки Ивана'), card(2, 'День и ночь'), card(3, 'Океаны на диаграмме')])}${variant(2, [card(1, 'Круговая диаграмма и распределение значений')])}</div></div></html>`
+const html = `<!doctype html><html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${tokens}${iconCss}*{box-sizing:border-box}body{margin:0;padding:12px;background:#f5f2fa;font:16px Arial,sans-serif;color:#34295c}.fixture{max-width:540px;margin:auto;padding:12px;border:1px solid #ded6eb;border-radius:18px;background:#fff}.fixture>h1{font-size:1rem}.fixture-grid{display:grid;gap:10px}.day-parent-guide-body{padding:10px}${css}</style><div class="fixture"><h1>Пример интерфейса · подготовка по математике</h1><div class="fixture-grid">${variant(1, [card(1, 'Найти ошибку в длине отрезка'), card(2, 'День и ночь'), card(3, 'Океаны на диаграмме')])}${variant(2, [card(1, 'Круговая диаграмма и распределение значений')])}</div></div></html>`
 
 const profile = mkdtempSync(join(tmpdir(), 'education-variant-viewport-'))
 const fixturePath = join(profile, 'fixture.html')
@@ -81,6 +83,10 @@ try {
         writeFileSync(process.env.VARIANT_EXPANDED_SCREENSHOT_PATH ?? join(tmpdir(), 'education-variant-expanded.png'), Buffer.from(shot.data, 'base64'))
       }
       await evaluate("document.querySelector('.day-practice-variant .problem-card').open=true")
+      const statementLayers = await evaluate("Boolean(document.querySelector('.day-practice-variant .problem-card .problem-statement-transcript') && document.querySelector('.day-practice-variant .problem-card .problem-statement-facts') && document.querySelector('.day-practice-variant .problem-card .problem-statement-find'))")
+      if (!statementLayers) throw new Error(`${width}px: пропал структурированный слой условия`)
+      const provenanceCompact = await evaluate("document.querySelector('.day-practice-variant .problem-card .problem-statement-source-trigger').getBoundingClientRect().width <= 44 && document.querySelector('.day-practice-variant .problem-card .problem-statement-source-detail').hidden")
+      if (!provenanceCompact) throw new Error(`${width}px: происхождение опять занимает широкую полосу`)
       const guideClosed = await evaluate("[...document.querySelectorAll('.day-parent-learning-route')].every(item=>!item.open)")
       if (!guideClosed) throw new Error(`${width}px: открытие задачи самовольно раскрывает родительский разбор`)
       if (width === 390) {
@@ -88,6 +94,13 @@ try {
         const shot = await send('Page.captureScreenshot', { format: 'png' })
         writeFileSync(process.env.VARIANT_PROBLEM_EXPANDED_SCREENSHOT_PATH ?? join(tmpdir(), 'education-problem-expanded.png'), Buffer.from(shot.data, 'base64'))
       }
+      await evaluate("document.querySelector('.day-practice-variant .problem-card .problem-statement-source-detail').hidden=false")
+      if (await evaluate('document.documentElement.scrollWidth>innerWidth')) throw new Error(`${width}px: раскрытое происхождение выходит за экран`)
+      if (width === 390 && process.env.VARIANT_SOURCE_EXPANDED_SCREENSHOT_PATH) {
+        const shot = await send('Page.captureScreenshot', { format: 'png' })
+        writeFileSync(process.env.VARIANT_SOURCE_EXPANDED_SCREENSHOT_PATH, Buffer.from(shot.data, 'base64'))
+      }
+      await evaluate("document.querySelector('.day-practice-variant .problem-card .problem-statement-source-detail').hidden=true")
       await evaluate("document.querySelector('.day-practice-variant .day-parent-learning-route').open=true")
       const stagesClosed = await evaluate("[...document.querySelectorAll('.day-learning-route-stage')].every(item=>!item.open)")
       if (!stagesClosed) throw new Error(`${width}px: открытие родительского разбора самовольно раскрывает этапы`)

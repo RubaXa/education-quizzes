@@ -83,6 +83,7 @@
 | [docs/product/firestore-data-model.md](firestore-data-model.md) | [Модель Firestore](firestore-data-model.md) | Поля, владельцы, связи, версии и миграции действующего графа v1 | Синхронизация; клиент; разработчик |
 | [docs/product/access-and-state.md](access-and-state.md) | [Доступ и состояние](access-and-state.md) | Текущие маршруты и владение состоянием | Агент; разработчик |
 | [docs/product/adaptive-problem-card.md](adaptive-problem-card.md) | [Адаптивная карточка](adaptive-problem-card.md) | Оригинал, помощь и попытки по номеру | Агент; разработчик |
+| [docs/product/problem-card-design-decisions.md](problem-card-design-decisions.md) | [Адаптивная карточка](adaptive-problem-card.md) | Матрица сохранённых визуальных решений и регрессионной сверки для каждого слоя номера | Агент; разработчик |
 | [docs/research/parent-card-subject-options.md](../research/parent-card-subject-options.md) | [Выбор карточки](card-generation-policy.md) | Исследовательское основание принятых предметных форм | Родитель; агент; предметные адаптеры |
 | [docs/research/literature-card-options.md](../research/literature-card-options.md) | [Выбор карточки](card-generation-policy.md) | Источники и пять согласованных литературных форм | Родитель; агент; генератор карточек |
 | [docs/product/card-generation-policy.md](card-generation-policy.md) | [Выбор карточки](card-generation-policy.md) | Общий граф выбора и профили математического адаптера | Сборка; проверка; UI |
@@ -231,6 +232,7 @@
 | [src/components/ProblemGroup.layout.test.tsx](../../src/components/ProblemGroup.layout.test.tsx) | [Дизайн-система](design-system.md) | Проверяет компактную метку нумерованного листа и её доступное значение | `src/components/ProblemGroup.tsx`; Vitest |
 | [src/components/ProblemGroup.tsx](../../src/components/ProblemGroup.tsx) | [Страница дня](day-page.md) | Сворачивание листа и раскрытие адресного номера | `src/DayPage.tsx`; `src/WeekendMathSlot.tsx` |
 | [src/components/ProblemStatement.css](../../src/components/ProblemStatement.css) | [Адаптивная карточка](adaptive-problem-card.md) | Типографика условия и ориентиров | `src/components/ProblemStatement.tsx` |
+| [src/components/ProblemStatement.provenance.test.tsx](../../src/components/ProblemStatement.provenance.test.tsx) | [Матрица карточки](problem-card-design-decisions.md) | Проверяет компактное происхождение и различие отсутствующей и неудачной проверки | Vitest; разработчик |
 | [src/components/ProblemStatement.tsx](../../src/components/ProblemStatement.tsx) | [Адаптивная карточка](adaptive-problem-card.md) | Точное условие и помощь по запросу | Карточка номера |
 | [src/components/StatusIcon.css](../../src/components/StatusIcon.css) | [Матрица статусов](status-presentation.md) | Одна форма и анимация значка статуса | `StatusIcon.tsx` |
 | [src/components/StatusIcon.test.tsx](../../src/components/StatusIcon.test.tsx) | [Матрица статусов](status-presentation.md) | Фиксация всех форм статуса и доступного скрытия декоративного SVG | Vitest; разработчик |
