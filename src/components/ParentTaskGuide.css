@@ -62,8 +62,10 @@
 .day-learning-route-check{margin-top:10px;border-top:1px solid var(--edu-card-border)}
 .day-learning-route-check summary{min-height:var(--edu-touch-target);cursor:pointer;font-weight:750}
 .day-learning-route-check p{margin:6px 0 8px;padding-left:8px;font-size:.81rem}
-.day-learning-route-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px}
+.day-learning-route-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:11px}
 .day-learning-route-actions button,.day-learning-route-preview button{min-height:var(--edu-touch-target);padding:8px 11px;border:1px solid var(--edu-card-border);border-radius:var(--edu-radius-control);background:var(--edu-surface);color:var(--edu-accent-ink);font:inherit;font-size:.8rem;font-weight:750;cursor:pointer}
+.day-learning-route-actions button{min-width:0;width:100%;white-space:nowrap}
+.day-learning-route-actions button:only-child{grid-column:1/-1}
 .day-learning-route-actions button:first-child{background:var(--edu-primary-bg);color:var(--edu-primary-ink)}
 .day-learning-route-preview{margin-top:10px;padding:11px;border:1px solid var(--edu-card-border);border-radius:var(--edu-radius-control);background:var(--edu-canvas)}
 .day-learning-route-preview p{margin:6px 0 9px}

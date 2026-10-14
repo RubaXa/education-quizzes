@@ -9,6 +9,7 @@ describe('one parent route component', () => {
       kind: 'worked-solution', presentation: 'math-route', routeProfile: 'standard', revision: 1,
       overview: 'Разбор', stages: ['given', 'solution', 'answer'].map((id) => ({
         id, title: id, role: id as 'given' | 'solution' | 'answer', expected: id,
+        hintPreview: `Подсказка ${id}`, revealPreview: `Шаг ${id}`,
         source: { kind: 'teacher-file', label: 'Лист', ref: 'sheet', excerpt: 'условие' },
       })),
     }
@@ -16,6 +17,7 @@ describe('one parent route component', () => {
     expect(html).toContain('<details class="day-parent-guide day-parent-learning-route"')
     expect(html).toContain('<strong>Разбор</strong>')
     expect(html).not.toContain('От условия к ответу')
+    expect(html).toContain('>Ответ</button>')
     expect((html.match(/<details class="day-learning-route-stage [^"]*" open=""/g) ?? []).length).toBe(0)
   })
 
@@ -37,8 +39,9 @@ describe('one parent route component', () => {
     expect(markup).toContain('Форма спорна')
     expect(markup).toContain('Критерий формы спорен')
     expect(markup).toContain('от ребёнка пока ничего не требуется')
-    expect(markup).toContain('Отправить подсказку')
-    expect(markup).toContain('Показать этот шаг')
+    expect(markup).toContain('>Подсказка</button>')
+    expect(markup).toContain('>Весь шаг</button>')
+    expect(markup).toContain('Выбрать подсказку для этапа')
     expect(markup).not.toContain('Ответ:')
   })
 })

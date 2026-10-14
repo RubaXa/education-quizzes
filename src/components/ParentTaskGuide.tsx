@@ -153,8 +153,8 @@ export default function ParentTaskGuide({ guide, review, decisions = [], guidanc
           {stage.role === 'answer' && !!stage.verification?.length && <details className="day-learning-route-check"><summary>Проверка по условию</summary>{stage.verification.map((row, rowIndex) => <p key={rowIndex}>{row.label && <b>{row.label}: </b>}{row.value}</p>)}</details>}
           {stage.why && <p className="day-learning-route-why">{stage.why}</p>}
           {guidanceReady && !stageSent && <div className="day-learning-route-actions">
-            {stage.hintPreview && <button type="button" onClick={() => { setPreview({ id: stage.id, level: 'hint' }); setError('') }}>Отправить подсказку</button>}
-            {stage.revealPreview && <button type="button" onClick={() => { setPreview({ id: stage.id, level: 'reveal' }); setError('') }}>{stage.role === 'answer' ? 'Показать ответ' : 'Показать этот шаг'}</button>}
+            {stage.hintPreview && <button type="button" aria-label={`Выбрать подсказку для этапа «${stage.title}»`} onClick={() => { setPreview({ id: stage.id, level: 'hint' }); setError('') }}>Подсказка</button>}
+            {stage.revealPreview && <button type="button" aria-label={`Выбрать ${stage.role === 'answer' ? 'показ ответа' : 'показ полного шага'} для этапа «${stage.title}»`} onClick={() => { setPreview({ id: stage.id, level: 'reveal' }); setError('') }}>{stage.role === 'answer' ? 'Ответ' : 'Весь шаг'}</button>}
           </div>}
           {guidanceReady && active && previewText && <div className="day-learning-route-preview"><b>{active.level === 'hint' ? 'Подсказка Пете' : 'Показать Пете'}</b><p>{previewText}</p><button type="button" disabled={sending || !onSend} onClick={() => void send(stage, active.level)}>{sending ? 'Отправляем…' : 'Отправить Пете'}</button>{!onSend && <small>Отправка пока недоступна.</small>}</div>}
           {stageSent && <p className="day-learning-route-sent" role="status">Помощь отправлена Пете.</p>}
