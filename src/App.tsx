@@ -647,11 +647,12 @@ type BoardItem = QuizCardAttempt & {
  * Карточка назначения в ученическом или родительском списке тестов.
  * @see ../docs/product/quizzes.md#test-lists
  */
-function BoardCard({ item, parent = false, unread = false, copied = false, onCopy, onMarkViewed }: {
+function BoardCard({ item, parent = false, unread = false, copied = false, hasContinuation = false, onCopy, onMarkViewed }: {
   item: BoardItem
   parent?: boolean
   unread?: boolean
   copied?: boolean
+  hasContinuation?: boolean
   onCopy?: (item: BoardItem) => void
   onMarkViewed?: (token: string) => void
 }) {
@@ -661,7 +662,7 @@ function BoardCard({ item, parent = false, unread = false, copied = false, onCop
     <div><h4>Что повторить</h4><p>{item.board.review}</p></div>
     <div><h4>Зачем этот тест</h4><p>{item.board.purpose}</p></div>
   </div> : undefined
-  return <QuizCard chain={[item]} parent={parent} context={item.subject || 'заданию'} id={`board-quiz-${item.token}`} materials={materials} onOpen={() => { if (unread) onMarkViewed?.(item.token) }} extraActions={<>
+  return <QuizCard chain={[item]} parent={parent} allowFollowupRequest={!hasContinuation} context={item.subject || 'заданию'} id={`board-quiz-${item.token}`} materials={materials} onOpen={() => { if (unread) onMarkViewed?.(item.token) }} extraActions={<>
     {parent && completed && <Button variant="outline" onClick={() => onCopy?.(item)}><ClipboardCopy /> {copied ? 'Скопировано' : 'Скопировать задание агенту'}</Button>}
     {parent && unread && <Button variant="ghost" onClick={() => onMarkViewed?.(item.token)}>Отметить просмотренным</Button>}
   </>} />
@@ -702,6 +703,7 @@ function Dashboard({ token, parent = false }: { token: string; parent?: boolean 
           submittedAt: assignment.submittedAt as { seconds?: number } | null,
           points: score?.points,
           maxPoints: score?.maxPoints,
+          followupRequested: Boolean(assignment.followupRequestedAt),
         }
       }).sort((a, b) => (a.position ?? a.createdAt?.seconds ?? 0) - (b.position ?? b.createdAt?.seconds ?? 0))
       setItems(next)
@@ -783,7 +785,7 @@ function Dashboard({ token, parent = false }: { token: string; parent?: boolean 
       {error && <ErrorCard message={error} />}
       {!items && <p>Загружаем список…</p>}
       {items?.length === 0 && <Card><CardContent className="py-10 text-center">Тестов пока нет.</CardContent></Card>}
-      {parent && newResults.length > 0 && <section className="space-y-3" aria-label="Новые результаты"><h2 className="board-subject-title">Новые результаты</h2>{newResults.map((item) => <BoardCard key={item.token} item={item} parent unread copied={copied === item.token} onCopy={copyPrompt} onMarkViewed={markResultViewed} />)}</section>}
+      {parent && newResults.length > 0 && <section className="space-y-3" aria-label="Новые результаты"><h2 className="board-subject-title">Новые результаты</h2>{newResults.map((item) => <BoardCard key={item.token} item={item} parent hasContinuation={items?.some((candidate) => candidate.linkedToTestId === item.testId)} unread copied={copied === item.token} onCopy={copyPrompt} onMarkViewed={markResultViewed} />)}</section>}
       {subjects.map((subject) => {
         const subjectItems = items?.filter((item) => item.subject === subject) ?? []
         const active = subjectItems.filter((item) => item.status !== 'submitted')
@@ -793,7 +795,7 @@ function Dashboard({ token, parent = false }: { token: string; parent?: boolean 
         return <section key={subject} className="space-y-4" aria-label={subject}>
           <h2 className="board-subject-title">{subject}</h2>
           {active.length > 0 && <div className="space-y-3"><h3 className="board-section-title">{parent ? 'В работе' : 'Активные'}</h3>{active.map((item) => <BoardCard key={item.token} item={item} parent={parent} />)}</div>}
-          {(parent ? reviewed : archived).length > 0 && <div className="space-y-3"><h3 className="board-section-title">{parent ? 'Просмотренные результаты' : 'Пройденные · архив'}</h3>{(parent ? reviewed : archived).map((item) => <BoardCard key={item.token} item={item} parent={parent} copied={copied === item.token} onCopy={copyPrompt} onMarkViewed={markResultViewed} />)}</div>}
+          {(parent ? reviewed : archived).length > 0 && <div className="space-y-3"><h3 className="board-section-title">{parent ? 'Просмотренные результаты' : 'Пройденные · архив'}</h3>{(parent ? reviewed : archived).map((item) => <BoardCard key={item.token} item={item} parent={parent} hasContinuation={items?.some((candidate) => candidate.linkedToTestId === item.testId)} copied={copied === item.token} onCopy={copyPrompt} onMarkViewed={markResultViewed} />)}</div>}
         </section>
       })}
     </div>

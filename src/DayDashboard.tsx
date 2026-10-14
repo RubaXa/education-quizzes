@@ -5,7 +5,8 @@ import { watchDayPage } from '@/lib/dayStore'
 import type { DayPageData } from '@/lib/dayStore'
 import { clearCachedDayDashboard, readCachedDayDashboard, watchDayDashboard } from '@/lib/dayDashboardStore'
 import type { DayDashboardData } from '@/lib/dayDashboardStore'
-import { lessonSubjectId, lessonWorkItems, linkedQuizWorkItems } from '@/lib/homeworkStatus'
+import { lessonSubjectId, lessonWorkItems, quizRequirement } from '@/lib/homeworkStatus'
+import { quizTaskForPlacement, withQuizPlacements } from '@/lib/quizCardViewModel'
 import type { LessonWorkItem } from '@/lib/homeworkStatus'
 import { clearCachedLessonStatuses, lessonCacheKey, readCachedLessonStatuses, writeCachedLessonStatuses } from '@/lib/dayDashboardLessonCache'
 import { clearCachedDashboardView, readCachedGrades, readCachedHomeworkRows, writeCachedGrades, writeCachedHomeworkRows } from '@/lib/dayDashboardViewCache'
@@ -170,7 +171,9 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
 
   const weekendWorks = index?.weekendWork?.filter((slot) => slot.dates.includes(selectedDate)) ?? []
   const liveHomeworkRows: CachedHomeworkRow[] = nextWork.subjects.map((subject) => {
-    const items = lessonWorkItems(subject.tasks, nextWork.uploads, nextWork.reviews, nextWork.parentDecisions.events, nextWork.tests, nextWork.scores)
+    const placements = (nextWork.page?.testPlacements ?? []).filter((placement) => placement.subjectId === subject.id && (placement.originDate ?? nextDate) === nextDate)
+    const tasks = withQuizPlacements(subject.tasks, placements)
+    const items = lessonWorkItems(tasks, nextWork.uploads, nextWork.reviews, nextWork.parentDecisions.events, nextWork.tests, nextWork.scores)
     const done = items.filter((item) => item.state === 'done').length
     const group: CachedHomeworkRow['group'] = items.some((item) => item.state === 'todo') ? 'action' : items.some((item) => item.state === 'checking' || item.state === 'unclear') ? 'waiting' : 'complete'
     return { subject: { id: subject.id, name: subject.name, icon: subject.icon,
@@ -210,12 +213,12 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
     const updateKey = updatedAt ? homeworkUpdateKey(token, selectedDate, lesson.subject, updatedAt) : ''
     const newlyAssigned = Number.isFinite(recentUpdate) && now >= recentUpdate && now - recentUpdate < 3 * 24 * 60 * 60 * 1000 && updatedSubjects.some((name) => name.toLocaleLowerCase('ru-RU') === lesson.subject.toLocaleLowerCase('ru-RU') || subjectId != null && lessonSubjectId(name) === subjectId)
       && !seenUpdates.has(updateKey) && !wasHomeworkUpdateSeen(updateKey)
-    const taskItems = subject ? lessonWorkItems(subject.tasks, uploads, reviews, parentDecisions.events, tests, scores) : []
-    const placementItems: LessonWorkItem[] = (selectedPage?.testPlacements ?? []).filter((placement) => !placement.taskId && (placement.originDate ?? selectedDate) === selectedDate && placement.subjectId === subjectId && !tests[placement.token]?.linkedToTestId).flatMap((placement) => {
+    const subjectPlacements = (selectedPage?.testPlacements ?? []).filter((placement) => (placement.originDate ?? selectedDate) === selectedDate && placement.subjectId === subjectId)
+    const tasks = withQuizPlacements(subject?.tasks ?? [], subjectPlacements)
+    const taskItems = lessonWorkItems(tasks, uploads, reviews, parentDecisions.events, tests, scores)
+    const placementItems: LessonWorkItem[] = subjectPlacements.filter((placement) => !quizTaskForPlacement(subject?.tasks ?? [], subjectPlacements, placement) && !tests[placement.token]?.linkedToTestId).map((placement) => {
       const test = tests[placement.token]
-      const score = scores[placement.token]
-      const state: LessonWorkItem['state'] = test?.status === 'submitted' ? !score ? 'checking' : score.points === score.maxPoints ? 'done' : 'todo' : 'todo'
-      return [{ id: `quiz:${placement.token}`, title: test?.title ?? 'Самопроверка', state, detail: state === 'done' ? `Тест: ${score?.points} из ${score?.maxPoints} верно` : state === 'checking' ? 'Ответы отправлены, результат уточняется' : test?.status === 'submitted' ? `Есть ошибки: ${score?.points} из ${score?.maxPoints} верно` : 'Нужно пройти тест' }, ...linkedQuizWorkItems(placement.token, tests, scores)]
+      return { id: `quiz:${placement.token}`, title: test?.title ?? 'Самопроверка', ...quizRequirement(placement.token, tests, scores) }
     })
     const liveItems = [...taskItems, ...placementItems]
     const liveReferenceTask = subject?.tasks.find((task) => task.referenceDate)
@@ -276,7 +279,7 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
       <summary onClick={() => {
         acknowledgeHomeworkUpdate(selectedDate, lesson.subject)
       }}>{/* @see ../docs/product/design-system.md#mobile-card-headings */}<time>{lessonTime(lesson.start)}</time><span className="day-dashboard-lesson-name">{lesson.subject}{underway && <span className="day-dashboard-lesson-phase current">Идёт</span>}{newlyAssigned && <span className="day-dashboard-lesson-new"><StatusIcon status="new" size={12} />Новое ДЗ</span>}</span><span className="day-dashboard-lesson-badge" aria-label={referenceDate ? `См. ДЗ за ${dateLabel(referenceDate)}` : tone === 'none' ? 'ДЗ не задано на последней сверке МЭШ' : tone === 'checking' ? `${badge}, проверяем` : tone === 'unclear' ? `${badge}, критерий неясен` : undefined}>{!referenceDate && tone !== 'none' && <StatusIcon size={13} status={tone === 'complete' ? 'complete' : tone === 'partial' ? 'partial' : tone === 'checking' ? 'waiting' : tone === 'unclear' || tone === 'unknown' ? 'unknown' : 'ready'} />}{referenceDate ? `ДЗ ${dateLabel(referenceDate, { day: 'numeric', month: '2-digit' })}` : badge}<ChevronDown size={15} aria-hidden="true" /></span></summary>
-      <div className="day-dashboard-lesson-body">{subject?.tasks.some((task) => task.dueDate && task.dueDate !== (task.lessonDate ?? selectedDate)) && <p className="day-dashboard-lesson-update">Срок сдачи: {dateLabel(subject.tasks.find((task) => task.dueDate && task.dueDate !== (task.lessonDate ?? selectedDate))!.dueDate!)} · по записи МЭШ. Задание относится к этому уроку.</p>}{items.length ? <div className="day-dashboard-lesson-items">{items.map((item) => <div className={`day-dashboard-lesson-item ${item.state}`} key={item.id}><span className="day-dashboard-lesson-item-symbol" aria-hidden="true"><StatusIcon size={15} status={item.state === 'done' ? 'complete' : item.state === 'checking' ? 'waiting' : item.state === 'unclear' ? 'unknown' : 'ready'} /></span><div><strong>{item.state === 'done' ? 'Сделано' : item.state === 'checking' ? 'Проверяем' : item.state === 'unclear' ? 'Разобрано' : 'Осталось'}: {item.title}</strong><span>{item.detail}</span>{homeworkToken && <button type="button" onClick={() => openDay(homeworkToken, 'homework', item.id, { date: selectedDate, subject: lesson.subject })}>{item.state === 'todo' ? 'Перейти к заданию' : item.state === 'checking' ? 'Открыть работу' : 'Посмотреть результат'} <ArrowRight size={14} aria-hidden="true" /></button>}</div></div>)}</div>
+      <div className="day-dashboard-lesson-body">{subject?.tasks.some((task) => task.dueDate && task.dueDate !== (task.lessonDate ?? selectedDate)) && <p className="day-dashboard-lesson-update">Срок сдачи: {dateLabel(subject.tasks.find((task) => task.dueDate && task.dueDate !== (task.lessonDate ?? selectedDate))!.dueDate!)} · по записи МЭШ. Задание относится к этому уроку.</p>}{items.length ? <div className="day-dashboard-lesson-items">{items.map((item) => <div className={`day-dashboard-lesson-item ${item.state}`} key={item.id}><span className="day-dashboard-lesson-item-symbol" aria-hidden="true"><StatusIcon size={15} status={item.state === 'done' ? 'complete' : item.state === 'checking' ? 'waiting' : item.state === 'unclear' ? 'unknown' : 'ready'} /></span><div><strong>{item.state === 'done' ? 'Сделано' : item.state === 'checking' ? 'Проверяем' : item.state === 'unclear' ? 'Разобрано' : 'Осталось'}: {item.title}</strong><span>{item.detail}</span>{homeworkToken && <button type="button" onClick={() => openDay(homeworkToken, 'homework', item.id, { date: selectedDate, subject: lesson.subject })}>{item.state === 'todo' ? 'Перейти к заданию' : item.state === 'checking' ? 'Открыть работу' : 'Результат'} <ArrowRight size={14} aria-hidden="true" /></button>}</div></div>)}</div>
         : referenceDate ? <div className="day-dashboard-lesson-raw"><p>{referenceText}</p><small>Это ссылка на уже назначенное ДЗ. Второй раз выполнять его не нужно.</small>{referenceToken && <button type="button" onClick={() => openDay(referenceToken, 'homework')}>Открыть ДЗ за {dateLabel(referenceDate)} <ArrowRight size={14} aria-hidden="true" /></button>}</div>
         : rawHomework.length ? <div className="day-dashboard-lesson-raw">{rawHomework.map((item, rawIndex) => <p key={rawIndex}>{item.text}</p>)}<small>Точный разбор задания ещё готовится.</small>{homeworkToken && <button type="button" onClick={() => openDay(homeworkToken, 'homework')}>Открыть ДЗ <ArrowRight size={14} aria-hidden="true" /></button>}</div>
           : <p>{tone === 'none' ? 'На последней сверке МЭШ домашнее задание к этому уроку не задано.' : 'Сведения о домашнем задании ещё уточняются.'}</p>}{newlyAssigned && <p className="day-dashboard-lesson-update">ДЗ обновлено: {checkedLabel(updatedAt ?? null)}.</p>}<small>Последняя сверка МЭШ: {checkedLabel(selectedEntry?.checkedAt ?? null)}.</small></div>

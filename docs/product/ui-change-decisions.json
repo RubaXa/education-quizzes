@@ -1,37 +1,39 @@
 {
   "files": {
     "src/DayPage.tsx": {
-      "sha256": "89d3d190759cea2878569f4c6ce64d9ff9ceae0cbbbb80938c3e3df042fe979a",
-      "record": "docs/product/ui-decisions/flat-numbered-sheet-2026-10-14.md",
+      "sha256": "bb8bf3aa980339bf14cd74175940f770ed5fac0292dc7d19440329ab3fcd907f",
+      "record": "docs/product/ui-decisions/quiz-threshold-and-page-slider-2026-10-14.md",
       "specs": [
-        "docs/product/problem-card-design-decisions.md",
-        "docs/product/design-system.md"
+        "docs/product/assessment-decision-graph.md",
+        "docs/product/dashboard.md",
+        "docs/product/materials.md",
+        "docs/product/quizzes.md"
       ],
       "tests": [
-        "src/components/ProblemTaskCard.contract.test.tsx",
-        "src/components/ProblemGroup.layout.test.tsx",
-        "src/components/ProblemStatement.provenance.test.tsx"
+        "src/lib/homeworkStatus.test.ts",
+        "src/lib/quizCardViewModel.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 14.10.2026 повторно приложил согласованный макет и потребовал сверить с ним выпускаемую карточку."
+        "evidence": "Прямой запрос родителя 14.10.2026 по снимкам: соседние страницы в одном ридере, зачёт любого теста от 80%, кнопка работы над ошибками и публикация сайта."
       }
     },
     "src/DayPage.css": {
-      "sha256": "8d6f72d14b985375280decfaf33da6d3febb2e2acd43001a29f015203b5d5591",
-      "record": "docs/product/ui-decisions/flat-numbered-sheet-2026-10-14.md",
+      "sha256": "4db78810be55c0b4711130fb93d693472ccc02382457cbcd10335c9652afb49a",
+      "record": "docs/product/ui-decisions/quiz-threshold-and-page-slider-2026-10-14.md",
       "specs": [
-        "docs/product/problem-card-design-decisions.md",
-        "docs/product/design-system.md"
+        "docs/product/assessment-decision-graph.md",
+        "docs/product/dashboard.md",
+        "docs/product/materials.md",
+        "docs/product/quizzes.md"
       ],
       "tests": [
-        "src/components/ProblemTaskCard.contract.test.tsx",
-        "src/components/ProblemGroup.layout.test.tsx",
-        "src/components/ProblemStatement.provenance.test.tsx"
+        "src/lib/dayMaterialRefs.test.ts",
+        "src/components/MaterialReader.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 14.10.2026 сравнил два снимка блока «Дано» и прямо попросил вернуть отдельные значения с короткими подписями вместо одной нечитаемой строки."
+        "evidence": "Прямой запрос родителя 14.10.2026 по снимкам: соседние страницы в одном ридере, зачёт любого теста от 80%, кнопка работы над ошибками и публикация сайта."
       }
     },
     "src/components/AssignmentBrief.tsx": {
@@ -236,6 +238,273 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Родитель 14.10.2026 повторно приложил согласованный макет и потребовал сверить с ним выпускаемую карточку."
+      }
+    },
+    "scripts/quiz.mjs": {
+      "sha256": "b531b20e365a20676e91b10065dbd41c80e2f7f5eab9e38eab617a2264c1fe74",
+      "record": "docs/product/ui-decisions/quiz-threshold-and-page-slider-2026-10-14.md",
+      "specs": [
+        "docs/product/assessment-decision-graph.md",
+        "docs/product/dashboard.md",
+        "docs/product/materials.md",
+        "docs/product/quizzes.md"
+      ],
+      "tests": [
+        "src/lib/quizCompletion.test.ts",
+        "src/lib/homeworkStatus.test.ts"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя 14.10.2026 по снимкам: соседние страницы в одном ридере, зачёт любого теста от 80%, кнопка работы над ошибками и публикация сайта."
+      }
+    },
+    "scripts/sync-queue.mjs": {
+      "sha256": "682ccf72e0349ff316bb6ff7168dd643859a16db106df735264648620447a5fa",
+      "record": "docs/product/ui-decisions/quiz-threshold-and-page-slider-2026-10-14.md",
+      "specs": [
+        "docs/product/assessment-decision-graph.md",
+        "docs/product/dashboard.md",
+        "docs/product/materials.md",
+        "docs/product/quizzes.md"
+      ],
+      "tests": [
+        "src/lib/quizCompletion.test.ts",
+        "src/lib/homeworkStatus.test.ts"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя 14.10.2026 по снимкам: соседние страницы в одном ридере, зачёт любого теста от 80%, кнопка работы над ошибками и публикация сайта."
+      }
+    },
+    "src/App.tsx": {
+      "sha256": "e88b3844050bb0f79b729283489f1b22942f73ca8c584afa8fa630885300218e",
+      "record": "docs/product/ui-decisions/quiz-threshold-and-page-slider-2026-10-14.md",
+      "specs": [
+        "docs/product/assessment-decision-graph.md",
+        "docs/product/dashboard.md",
+        "docs/product/materials.md",
+        "docs/product/quizzes.md"
+      ],
+      "tests": [
+        "src/lib/homeworkStatus.test.ts",
+        "src/lib/quizCardViewModel.test.ts"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя 14.10.2026 по снимкам: соседние страницы в одном ридере, зачёт любого теста от 80%, кнопка работы над ошибками и публикация сайта."
+      }
+    },
+    "src/DayDashboard.tsx": {
+      "sha256": "8c1cb0d01c14e6e611e808fc2df5f3bdbd57b93f1eca0f6dacbfc6cc1a837106",
+      "record": "docs/product/ui-decisions/quiz-threshold-and-page-slider-2026-10-14.md",
+      "specs": [
+        "docs/product/assessment-decision-graph.md",
+        "docs/product/dashboard.md",
+        "docs/product/materials.md",
+        "docs/product/quizzes.md"
+      ],
+      "tests": [
+        "src/lib/homeworkStatus.test.ts",
+        "src/lib/quizCardViewModel.test.ts"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя 14.10.2026 по снимкам: соседние страницы в одном ридере, зачёт любого теста от 80%, кнопка работы над ошибками и публикация сайта."
+      }
+    },
+    "src/components/MaterialReader.tsx": {
+      "sha256": "c41dd5f82b4c1b707035e429403881e6db3430012cf3d8051e73ae3a9b0081fe",
+      "record": "docs/product/ui-decisions/quiz-threshold-and-page-slider-2026-10-14.md",
+      "specs": [
+        "docs/product/assessment-decision-graph.md",
+        "docs/product/dashboard.md",
+        "docs/product/materials.md",
+        "docs/product/quizzes.md"
+      ],
+      "tests": [
+        "src/lib/dayMaterialRefs.test.ts",
+        "src/components/MaterialReader.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя 14.10.2026 по снимкам: соседние страницы в одном ридере, зачёт любого теста от 80%, кнопка работы над ошибками и публикация сайта."
+      }
+    },
+    "src/components/QuizCard.css": {
+      "sha256": "4598226304ed527d0cca9f4028fd1a184665ee52b5fb69274332c52f4763d689",
+      "record": "docs/product/ui-decisions/quiz-threshold-and-page-slider-2026-10-14.md",
+      "specs": [
+        "docs/product/assessment-decision-graph.md",
+        "docs/product/dashboard.md",
+        "docs/product/materials.md",
+        "docs/product/quizzes.md"
+      ],
+      "tests": [
+        "src/components/QuizCard.test.tsx",
+        "src/lib/quizCompletion.test.ts"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя 14.10.2026 по снимкам: соседние страницы в одном ридере, зачёт любого теста от 80%, кнопка работы над ошибками и публикация сайта."
+      }
+    },
+    "src/components/QuizCard.tsx": {
+      "sha256": "92a58accd15de64f9ce3f80d0b45f5d89d1c6565f8bfb7918c8ae42a764847a0",
+      "record": "docs/product/ui-decisions/quiz-threshold-and-page-slider-2026-10-14.md",
+      "specs": [
+        "docs/product/assessment-decision-graph.md",
+        "docs/product/dashboard.md",
+        "docs/product/materials.md",
+        "docs/product/quizzes.md"
+      ],
+      "tests": [
+        "src/components/QuizCard.test.tsx",
+        "src/lib/quizCompletion.test.ts"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя 14.10.2026 по снимкам: соседние страницы в одном ридере, зачёт любого теста от 80%, кнопка работы над ошибками и публикация сайта."
+      }
+    },
+    "src/lib/dayMaterialRefs.ts": {
+      "sha256": "a8f63496dfb8e85aef5dec118e7bb425c81049c6185e9e2ee66ae4f8af2e1929",
+      "record": "docs/product/ui-decisions/quiz-threshold-and-page-slider-2026-10-14.md",
+      "specs": [
+        "docs/product/assessment-decision-graph.md",
+        "docs/product/dashboard.md",
+        "docs/product/materials.md",
+        "docs/product/quizzes.md"
+      ],
+      "tests": [
+        "src/lib/dayMaterialRefs.test.ts",
+        "src/components/MaterialReader.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя 14.10.2026 по снимкам: соседние страницы в одном ридере, зачёт любого теста от 80%, кнопка работы над ошибками и публикация сайта."
+      }
+    },
+    "src/lib/homeworkStatus.ts": {
+      "sha256": "f675ed4e6991fd0af52388e0e824d5e1e41f2d02bc45c275bb24f785381d535f",
+      "record": "docs/product/ui-decisions/quiz-threshold-and-page-slider-2026-10-14.md",
+      "specs": [
+        "docs/product/assessment-decision-graph.md",
+        "docs/product/dashboard.md",
+        "docs/product/materials.md",
+        "docs/product/quizzes.md"
+      ],
+      "tests": [
+        "src/lib/homeworkStatus.test.ts",
+        "src/lib/quizCardViewModel.test.ts"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя 14.10.2026 по снимкам: соседние страницы в одном ридере, зачёт любого теста от 80%, кнопка работы над ошибками и публикация сайта."
+      }
+    },
+    "src/lib/quiz.ts": {
+      "sha256": "eabf95b6ba88bef8f2a7f54ba5e38035d51114300382b77fb157989976c5d2f9",
+      "record": "docs/product/ui-decisions/quiz-threshold-and-page-slider-2026-10-14.md",
+      "specs": [
+        "docs/product/assessment-decision-graph.md",
+        "docs/product/dashboard.md",
+        "docs/product/materials.md",
+        "docs/product/quizzes.md"
+      ],
+      "tests": [
+        "src/lib/homeworkStatus.test.ts",
+        "src/lib/quizCardViewModel.test.ts"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя 14.10.2026 по снимкам: соседние страницы в одном ридере, зачёт любого теста от 80%, кнопка работы над ошибками и публикация сайта."
+      }
+    },
+    "src/lib/quizCardViewModel.ts": {
+      "sha256": "b082115c7d952036c364d6f70d9b8483e6c6442745dd75d97d5512c02a23f187",
+      "record": "docs/product/ui-decisions/quiz-threshold-and-page-slider-2026-10-14.md",
+      "specs": [
+        "docs/product/assessment-decision-graph.md",
+        "docs/product/dashboard.md",
+        "docs/product/materials.md",
+        "docs/product/quizzes.md"
+      ],
+      "tests": [
+        "src/lib/homeworkStatus.test.ts",
+        "src/lib/quizCardViewModel.test.ts"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя 14.10.2026 по снимкам: соседние страницы в одном ридере, зачёт любого теста от 80%, кнопка работы над ошибками и публикация сайта."
+      }
+    },
+    "src/lib/store.ts": {
+      "sha256": "14eaadcc61afe5f42fe8a61dfcf4cf662b1621ff424d189355585abe01fcc7bd",
+      "record": "docs/product/ui-decisions/quiz-threshold-and-page-slider-2026-10-14.md",
+      "specs": [
+        "docs/product/assessment-decision-graph.md",
+        "docs/product/dashboard.md",
+        "docs/product/materials.md",
+        "docs/product/quizzes.md"
+      ],
+      "tests": [
+        "src/lib/homeworkStatus.test.ts",
+        "src/lib/quizCardViewModel.test.ts"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя 14.10.2026 по снимкам: соседние страницы в одном ридере, зачёт любого теста от 80%, кнопка работы над ошибками и публикация сайта."
+      }
+    },
+    "src/lib/useParentChildOverview.ts": {
+      "sha256": "fe4766bdad14221637f654c4c7ecfbc6588cb3a22b790e1133d5420ab8f75d20",
+      "record": "docs/product/ui-decisions/quiz-threshold-and-page-slider-2026-10-14.md",
+      "specs": [
+        "docs/product/assessment-decision-graph.md",
+        "docs/product/dashboard.md",
+        "docs/product/materials.md",
+        "docs/product/quizzes.md"
+      ],
+      "tests": [
+        "src/lib/homeworkStatus.test.ts",
+        "src/lib/quizCardViewModel.test.ts"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя 14.10.2026 по снимкам: соседние страницы в одном ридере, зачёт любого теста от 80%, кнопка работы над ошибками и публикация сайта."
+      }
+    },
+    "src/lib/quizCompletion.ts": {
+      "sha256": "d7a3a981088b8acdc69eec03761bcffe3d9fadb458d626f6538e50b7bd9851ce",
+      "record": "docs/product/ui-decisions/quiz-threshold-and-page-slider-2026-10-14.md",
+      "specs": [
+        "docs/product/assessment-decision-graph.md",
+        "docs/product/dashboard.md",
+        "docs/product/materials.md",
+        "docs/product/quizzes.md"
+      ],
+      "tests": [
+        "src/lib/quizCompletion.test.ts",
+        "src/lib/homeworkStatus.test.ts"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя 14.10.2026 по снимкам: соседние страницы в одном ридере, зачёт любого теста от 80%, кнопка работы над ошибками и публикация сайта."
+      }
+    },
+    "scripts/check-material-preview-viewport.mjs": {
+      "sha256": "db8e03cfbeea286b37ffa45bd4d606b4b5d558d819d51bf53d3e1a5ae829180c",
+      "record": "docs/product/ui-decisions/quiz-threshold-and-page-slider-2026-10-14.md",
+      "specs": [
+        "docs/product/materials.md",
+        "docs/product/design-system.md"
+      ],
+      "tests": [
+        "src/components/MaterialReader.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя 14.10.2026: объединить соседние страницы учебника и проверить мобильные снимки перед публикацией."
       }
     }
   }

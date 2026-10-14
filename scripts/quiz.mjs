@@ -8,6 +8,8 @@ import { assertQuizOwner } from './quiz-access.mjs'
 import { pendingManualQuestionIds, validateAssessmentPlan } from '../assessment/decision-graph.mjs'
 import { repeatedQuestionCopy } from '../assessment/question-copy.mjs'
 import { assignmentShapeErrors } from '../day/data-contract.mjs'
+import { grade, summarize } from '../src/lib/quiz.ts'
+import { followupQuestionCount, needsQuizFollowup } from '../src/lib/quizCompletion.ts'
 
 const projectId = 'education-9d7c6'
 const site = 'https://rubaxa.github.io/education-quizzes/'
@@ -166,9 +168,22 @@ async function create(specPath, studentPersonId) {
     if (plan.mode === 'control-followup' && parent.assessment?.mode !== 'control-diagnostic') {
       fail('Второй вариант контрольной должен ссылаться на первую контрольную диагностику этого ученика.')
     }
-    const parentReview = await db.doc(`reviews/${parents.docs[0].id}`).get()
+    const [parentReview, parentKey] = await Promise.all([
+      db.doc(`reviews/${parents.docs[0].id}`).get(), db.doc(`answerKeys/${parents.docs[0].id}`).get(),
+    ])
     const pending = pendingManualQuestionIds(parent, parentReview.data())
     if (pending.length) fail(`Сначала проверьте все открытые ответы исходного теста: ${pending.join(', ')}.`)
+    if (!parentKey.exists) fail('Ключ исходной попытки отсутствует: продолжение нельзя составить по непроверенному результату.')
+    const results = grade(parent, parentKey.data(), parentReview.data())
+    const score = summarize(results)
+    if (score.pending || !score.possible) fail('Исходная попытка ещё не проверена полностью.')
+    if (!needsQuizFollowup({ points: score.earned, maxPoints: score.possible }, Boolean(parent.followupRequestedAt))) {
+      fail('Исходный тест зачтён: продолжение создаётся только по запросу родителя.')
+    }
+    const errors = results.filter((result) => !result.skipped && result.points !== null && result.points < result.question.points).length
+    if (!errors) fail('В исходном результате нет подтверждённых ошибок для адресного продолжения.')
+    const targetCount = followupQuestionCount(parent.questions.length, errors)
+    if (spec.questions.length !== targetCount) fail(`Продолжение должно содержать ${targetCount} вопросов для ${errors} подтверждённых ошибок из ${parent.questions.length} исходных.`)
     const continuations = await db.collection('assignments').where('linkedToTestId', '==', spec.linkedToTestId).get()
     if (continuations.docs.some((item) => item.data().familyId === owner.familyId && item.data().childId === owner.childId)) fail('Связанное продолжение для этого теста уже существует.')
   }

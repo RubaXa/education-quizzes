@@ -4,7 +4,7 @@ import { BookOpen, ChevronDown, Clock3, ExternalLink, RotateCcw, Trash2, X } fro
 import StatusIcon from './components/StatusIcon'
 // @see ../docs/product/status-presentation.md#components
 import { cdzEvidenceLabel, cdzResultLabel, isCdzTask, removePendingDayPhoto, requestDayHelp, uploadDayPhoto, uploadMatchesTask, watchDayHelp, watchDayPage, watchDayTaskGuides, watchMaterialPages, withVerifiedPlatformResult } from '@/lib/dayStore'
-import { unresolvedMaterialPageRefs } from '@/lib/dayMaterialRefs'
+import { groupAdjacentMaterialPages, unresolvedMaterialPageRefs } from '@/lib/dayMaterialRefs'
 import { isSubjectExpanded, visibleGuideTaskIds } from '@/lib/guideReadPolicy'
 import type { DayHelp, DayInstruction, DayMaterialLink, DayPageData, DayProblem, DayTask, DayUpload, DayWorkReview, ParentTaskPrivate } from '@/lib/dayStore'
 import { dayHelpSessionRole } from '@/lib/personalAccess'
@@ -21,10 +21,10 @@ import AssignmentBrief from '@/components/AssignmentBrief'
 import TaskGuidance from '@/components/TaskGuidance'
 import PhotoUploadControl from '@/components/PhotoUploadControl'
 import QuizCard from '@/components/QuizCard'
-import { findQuizPlacement, quizChain, type QuizCardAttempt } from '@/lib/quizCardViewModel'
+import { findQuizPlacement, quizChain, quizTaskForPlacement, withQuizPlacements, type QuizCardAttempt } from '@/lib/quizCardViewModel'
 import { useDayEvidence } from '@/lib/useDayEvidence'
 import { useParentCompletions } from '@/lib/useParentCompletions'
-import { lessonWorkItems } from '@/lib/homeworkStatus'
+import { lessonWorkItems, quizRequirement } from '@/lib/homeworkStatus'
 import { pupilCanAddPhoto } from '@/lib/photoUploadPolicy'
 import { assignmentProgress, assignmentTitle } from '@/lib/assignmentPresentation'
 import { canAcceptCorrectAnswer, parentAccepted, recordParentCompletion, recordRequirementChoice, recordStageChoice, recordVariantChoice, requiredFamilyActions, requirementChoice, stageCompletion, variantRequired } from '@/lib/parentCompletion'
@@ -112,7 +112,7 @@ function QuizLineageCard({ chain, parent, task, materialLinks = [], assignmentLa
   const context = task?.title.match(/Упр\.\s*\d+/i)?.[0] ?? task?.title ?? 'Самопроверка'
   const readerLinks = materialLinks.filter(canReadInside)
   const otherLinks = materialLinks.filter((link) => !canReadInside(link))
-  const materials = task && (task.steps?.length || readerLinks.length || otherLinks.length) ? <>{!!task.steps?.length && <ol className="day-task-steps">{task.steps.map((step, index) => <Instruction key={index} item={step} index={index} />)}</ol>}{readerLinks.length > 0 && <MaterialReader links={readerLinks} parent={parent} />}{otherLinks.map((link) => <a key={link.url} href={link.url} target="_blank" rel="noopener noreferrer">{link.title} <ExternalLink size={13} aria-hidden="true" /></a>)}</> : undefined
+  const materials = task && (task.steps?.length || readerLinks.length || otherLinks.length) ? <>{!!task.steps?.length && <ol className="day-task-steps">{task.steps.map((step, index) => <Instruction key={index} item={step} index={index} />)}</ol>}{groupAdjacentMaterialPages(readerLinks).map((group) => <MaterialReader key={group[0].url} links={group} parent={parent} />)}{otherLinks.map((link) => <a key={link.url} href={link.url} target="_blank" rel="noopener noreferrer">{link.title} <ExternalLink size={13} aria-hidden="true" /></a>)}</> : undefined
   return <QuizCard chain={chain} parent={parent} context={context} assignment={task && <>{assignmentLabel && <div className="day-task-assignment-heading">{assignmentLabel}</div>}<AssignmentBrief task={task} materialLinks={materialLinks} /></>} materials={materials} id={task ? `day-task-${task.id}` : `day-quiz-${chain[0].token}`} />
 }
 
@@ -236,6 +236,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
       subject: entry?.subject ?? assignment.subject, slug: entry?.slug ?? '', previewToken: entry?.previewToken,
       status: assignment.status, answered: Object.values(assignment.answers ?? {}).filter((answer) => answer !== '' && (!Array.isArray(answer) || answer.length > 0)).length,
       total: assignment.questions.length, points: score?.points, maxPoints: score?.maxPoints,
+      followupRequested: Boolean(assignment.followupRequestedAt),
     }
   })
   const { studentToken, evidenceKey, uploads, reviews, evidencePages, ready: evidenceReady } = useDayEvidence(page, token, setError)
@@ -356,25 +357,31 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
   }, [page, view, focusTaskId, evidenceReady, parentDecisions.ready, focusedQuizPlacement])
   const currentPlacements = useMemo(() => (page?.testPlacements ?? []).filter((placement) => (placement.originDate ?? page?.targetDate) === page?.targetDate), [page])
   const dayTests = useMemo(() => [...new Map(currentPlacements.flatMap((placement) => quizChain(tests.find((item) => item.token === placement.token), tests)).map((item) => [item.token, item])).values()], [currentPlacements, tests])
-  const pending = useMemo(() => {
+  const quizStates = Object.fromEntries(tests.map((test) => [test.token, { status: test.status, testId: test.testId, linkedToTestId: test.linkedToTestId, title: test.title, followupRequested: test.followupRequested }]))
+  const quizScores = Object.fromEntries(tests.filter((test) => test.points != null && test.maxPoints != null)
+    .map((test) => [test.token, { points: test.points!, maxPoints: test.maxPoints! }]))
+  const pending = (() => {
     if (!page) return 0
-    const taskPending = page.subjects.flatMap((subject) => subject.tasks).filter((task) => (task.originDate ?? page.targetDate) === page.targetDate).filter((task) => {
+    const taskPending = page.subjects.flatMap((subject) => subject.tasks.map((task) => ({ subject, task }))).filter(({ task }) => (task.originDate ?? page.targetDate) === page.targetDate).filter(({ subject, task }) => {
+      const placements = currentPlacements.filter((placement) => placement.subjectId === subject.id)
+      const testToken = task.testToken ?? placements.find((placement) => quizTaskForPlacement(subject.tasks, placements, placement)?.id === task.id)?.token
+      if ((task.kind === 'read' || task.kind === 'check') && testToken) return quizRequirement(testToken, quizStates, quizScores).state !== 'done'
       if (task.status === 'verified') return false
       if (task.kind === 'written') return !uploads.some((upload) => uploadMatchesTask(upload, task.id) && (upload.status === 'pending' || task.status === 'unknown'))
         && !localPhotos.some((photo) => photo.taskId === task.id && photo.state === 'saved')
-      if (task.kind === 'read') { const test = tests.find((item) => item.token === task.testToken); return !(test?.status === 'submitted' && test.points != null && test.points >= (task.requiredPoints ?? test.maxPoints ?? 1)) }
       return true
     }).length
-    const testPending = currentPlacements.filter((placement) => !placement.taskId && tests.find((item) => item.token === placement.token)?.status !== 'submitted').length
-    const linkedPending = dayTests.filter((test) => test.linkedToTestId && test.status !== 'submitted').length
-    return taskPending + testPending + linkedPending
-  }, [page, uploads, localPhotos, tests, currentPlacements, dayTests])
-  const currentSubjects = page ? page.subjects.map((subject) => ({ ...subject, tasks: subject.tasks.filter((task) => (task.originDate ?? page.targetDate) === page.targetDate)
-    .map((task) => withVerifiedPlatformResult(task, page.targetDate, evidencePages)) }))
+    const testPending = currentPlacements.filter((placement) => !page.subjects.some((subject) => quizTaskForPlacement(subject.tasks, currentPlacements.filter((item) => item.subjectId === subject.id), placement))
+      && quizRequirement(placement.token, quizStates, quizScores).state !== 'done').length
+    return taskPending + testPending
+  })()
+  const currentSubjects = page ? page.subjects.map((subject) => {
+    const tasks = subject.tasks.filter((task) => (task.originDate ?? page.targetDate) === page.targetDate)
+      .map((task) => withVerifiedPlatformResult(task, page.targetDate, evidencePages))
+    const placements = currentPlacements.filter((placement) => placement.subjectId === subject.id)
+    return { ...subject, tasks: withQuizPlacements(tasks, placements) }
+  })
     .filter((subject) => subject.tasks.length || currentPlacements.some((placement) => placement.subjectId === subject.id && !placement.taskId)) : []
-  const quizStates = Object.fromEntries(tests.map((test) => [test.token, { status: test.status, testId: test.testId, linkedToTestId: test.linkedToTestId, title: test.title }]))
-  const quizScores = Object.fromEntries(tests.filter((test) => test.points != null && test.maxPoints != null)
-    .map((test) => [test.token, { points: test.points!, maxPoints: test.maxPoints! }]))
   const workItems = (tasks: DayTask[]) => lessonWorkItems(tasks, uploads, reviews, parentDecisions.events, quizStates, quizScores)
   const referencedWorkItems = (subject: (typeof currentSubjects)[number]) => {
     const referenceTask = subject.tasks.find((task) => task.referenceDate)
@@ -497,7 +504,8 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
         const lineages = subjectPlacements.map((placement) => ({ placement, chain: quizChain(tests.find((item) => item.token === placement.token), tests) })).filter(({ chain }) => chain.length > 0)
         const lineageByToken = new Map(lineages.map(({ placement, chain }) => [placement.token, chain]))
         const referencedItems = referencedWorkItems(subject)
-        const subjectItems = [...workItems(subject.tasks), ...referencedItems]
+        const standalonePlacements = subjectPlacements.filter((placement) => !subject.tasks.some((task) => task.testToken === placement.token))
+        const subjectItems = [...workItems(subject.tasks), ...standalonePlacements.map((placement) => ({ id: `quiz:${placement.token}`, title: 'Самопроверка', ...quizRequirement(placement.token, quizStates, quizScores) })), ...referencedItems]
         const doneCount = subjectItems.filter((item) => item.state === 'done').length
         const assignments = assignmentProgress(subject.tasks, (task) => workItems([task]))
         const numberedSheet = subject.tasks.length === 1 && Boolean(subject.tasks[0].problems?.length)
@@ -531,20 +539,14 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
             {subject.tasks.map((task, assignmentIndex) => {
               // A written task may also have a linked self-check. The test must
               // never replace the notebook submission and its photo action.
-              if (task.kind === 'read' && task.testToken && lineageByToken.has(task.testToken)) return null
+              if ((task.kind === 'read' || task.kind === 'check') && task.testToken && lineageByToken.has(task.testToken)) return null
               const taskLinks = [...new Map([
                 ...(page.materialLinks?.[task.id] ?? []),
                 ...(page.taskPageRefs?.[task.id] ?? []).map((ref) => catalogPages[ref]).filter((link): link is DayMaterialLink => Boolean(link)),
               ].map((link) => [link.sourceRef || link.url, link])).values()]
               const standaloneTest = task.testToken ? tests.find((item) => item.token === task.testToken) : undefined
-              if (task.kind === 'read' && standaloneTest) return <QuizLineageCard key={task.id} chain={quizChain(standaloneTest, tests)} parent={parent} task={task} materialLinks={taskLinks} assignmentLabel={assignments.multiple ? `Задание ${assignmentIndex + 1} из ${assignments.total}` : undefined} />
-              const readerGroups = taskLinks.filter(canReadInside).reduce<DayMaterialLink[][]>((groups, link) => {
-                const key = `${link.sourceType}:${link.title.replace(/,\s*стр\.\s*\d+\s*$/, '')}`
-                const existing = groups.find((group) => `${group[0].sourceType}:${group[0].title.replace(/,\s*стр\.\s*\d+\s*$/, '')}` === key)
-                if (existing) existing.push(link)
-                else groups.push([link])
-                return groups
-              }, [])
+              if ((task.kind === 'read' || task.kind === 'check') && standaloneTest) return <QuizLineageCard key={task.id} chain={quizChain(standaloneTest, tests)} parent={parent} task={task} materialLinks={taskLinks} assignmentLabel={assignments.multiple ? `Задание ${assignmentIndex + 1} из ${assignments.total}` : undefined} />
+              const readerGroups = groupAdjacentMaterialPages(taskLinks.filter(canReadInside))
               const otherLinks = taskLinks.filter((link) => !canReadInside(link))
               const needsTextbook = task.materialStatus?.state === 'textbook-page-needed' && !taskLinks.some((link) => link.sourceType === 'textbook-page')
               const needsTeacherAttachment = task.materialStatus?.state === 'teacher-attachment-needed' && !taskLinks.some((link) => link.sourceType === 'teacher-attachment')
@@ -564,7 +566,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
               const uploadingWork = taskUploads.some((upload) => ['requested', 'awaiting-upload', 'uploaded'].includes(upload.status)) || localTaskPhotos.some((photo) => photo.state === 'uploading')
               const workCovered = workCoverageComplete(review) && !familyActions.length && !newWork && !uploadingWork
               const linkedTest = tests.find((item) => item.token === task.testToken)
-              const readPassed = task.kind === 'read' && linkedTest?.status === 'submitted' && linkedTest.points != null && linkedTest.points >= (task.requiredPoints ?? linkedTest.maxPoints ?? 1)
+              const readPassed = (task.kind === 'read' || task.kind === 'check') && task.testToken && quizRequirement(task.testToken, quizStates, quizScores).state === 'done'
               const referenceDone = Boolean(task.referenceDate && referencedItems.length && referencedItems.every((item) => item.state === 'done'))
               const verified = referenceDone || !task.referenceDate && (taskStatus === 'verified' || readPassed)
               const submitted = (task.kind === 'written' || task.kind === 'check') && newWork
@@ -633,7 +635,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
                 </div>}
                 <div className="day-task-actions">
                   {canUpload && <PhotoUploadControl label={uploadLabel} onPhotos={(files) => attach(task, files)} />}
-                  {task.kind === 'read' && task.testToken && task.testSlug && <a className="day-quiz-link" href={parent && linkedTest?.status !== 'submitted' && linkedTest?.previewToken ? `#/preview/${task.testSlug}~${linkedTest.previewToken}` : `#/t/${task.testSlug}~${task.testToken}`}>{parent ? linkedTest?.status === 'submitted' ? 'Посмотреть результат' : 'Посмотреть вопросы' : linkedTest?.status === 'submitted' ? 'Посмотреть результат' : linkedTest?.answered ? 'Продолжить тест' : 'Пройти короткий тест'} <ExternalLink size={15} /></a>}
+                  {task.kind === 'read' && task.testToken && task.testSlug && <a className="day-quiz-link" href={parent && linkedTest?.status !== 'submitted' && linkedTest?.previewToken ? `#/preview/${task.testSlug}~${linkedTest.previewToken}` : `#/t/${task.testSlug}~${task.testToken}`}>{parent ? linkedTest?.status === 'submitted' ? 'Результат' : 'Посмотреть вопросы' : linkedTest?.status === 'submitted' ? 'Результат' : linkedTest?.answered ? 'Продолжить тест' : 'Пройти короткий тест'} <ExternalLink size={15} /></a>}
                   {parent && !task.problems?.length && <span className="day-parent-status">{task.referenceDate ? 'Состояние взято из исходного дня; новой работы МЭШ не назначил' : task.kind === 'written' ? taskStatus === 'verified' ? 'Работа проверена' : newWork ? 'Новая загрузка ожидает проверки' : priorWork ? 'Работа разобрана; подробности выше' : 'Подтверждённого фото пока нет' : task.kind === 'read' ? readPassed ? 'Чтение подтверждено тестом' : 'Чтение тестом пока не подтверждено' : cdzTask ? task.platformResult?.state === 'completed' ? cdzEvidenceLabel(task.platformResult) : newWork ? 'Скриншот ЦДЗ ожидает проверки' : 'Результат ЦДЗ пока не подтверждён' : 'Статус сдачи не сообщён'}</span>}
                 </div>
                 {!task.referenceDate && <PhotoStrip taskTitle={task.title} evidenceLabel={cdzTask ? 'Подтверждение ЦДЗ' : 'Фото работы'} studentToken={studentToken} uploads={taskUploads} localPhotos={localTaskPhotos} review={review} now={statusNow} onRetry={queuePhotoUpload} onDelete={deletePhoto} />}

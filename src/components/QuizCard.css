@@ -17,6 +17,9 @@
 .day-quiz-lineage-actions .day-quiz-link{margin:0}
 .day-quiz-copy{display:grid;place-items:center;width:var(--edu-touch-target);height:var(--edu-touch-target);border:1px solid var(--edu-card-border);border-radius:var(--edu-radius-control);background:var(--edu-surface);color:var(--edu-brand);cursor:pointer}
 .day-quiz-copy:focus-visible{outline:3px solid var(--edu-focus);outline-offset:2px}
+.day-quiz-copy:disabled{opacity:.5;cursor:default}
+.day-quiz-lineage-current>small[role="status"],.day-quiz-lineage-current>small[role="alert"]{display:block;margin-top:8px;font-size:.76rem}
+.day-quiz-lineage-current>small[role="alert"]{color:var(--edu-status-error-ink)}
 .day-quiz-materials{border-top:1px solid #eee8f3;margin-top:13px;padding-top:9px}
 .day-quiz-materials>summary{display:flex;align-items:center;gap:5px;color:#665686;font-size:.78rem;font-weight:750;cursor:pointer;list-style:none}
 .day-quiz-materials>summary::-webkit-details-marker{display:none}

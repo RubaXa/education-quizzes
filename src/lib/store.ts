@@ -11,6 +11,7 @@ import {
   updateDoc,
 } from 'firebase/firestore'
 import { db } from './firebase'
+import { currentEducationPersonId } from './personalAccess'
 import type { Answer, AnswerKey, Assignment, ManualReview, QuizQuestion, QuizReading, QuizVisual } from './quiz'
 import { assertOpenAssignment } from './quizWrite'
 
@@ -32,6 +33,19 @@ export async function loadAssignment(token: string): Promise<Assignment> {
   const snapshot = await getDoc(doc(db, 'assignments', token))
   if (!snapshot.exists()) throw new Error('Ссылка не найдена или была отозвана.')
   return snapshot.data() as Assignment
+}
+
+/** @see ../../docs/product/quizzes.md#followup-request */
+export async function requestQuizFollowup(token: string, testId: string): Promise<void> {
+  const reference = doc(db, 'assignments', token)
+  await runTransaction(db, async (transaction) => {
+    const snapshot = await transaction.get(reference)
+    if (!snapshot.exists()) throw new Error('Исходный тест не найден.')
+    const current = snapshot.data() as Assignment
+    if (current.testId !== testId || current.status !== 'submitted') throw new Error('Результат теста изменился. Обновите страницу.')
+    if (current.followupRequestedAt) return
+    transaction.update(reference, { followupRequestedAt: serverTimestamp(), followupRequestedBy: currentEducationPersonId() })
+  })
 }
 
 /** @see ../../docs/product/quizzes.md#quiz-runner */

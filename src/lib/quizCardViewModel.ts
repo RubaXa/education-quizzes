@@ -1,4 +1,6 @@
 import type { Assignment } from './quiz'
+import { isCdzTask } from './dayStore'
+import type { DayTask, DayTestPlacement } from './dayStore'
 
 /** Stable read model shared by the day route and the personal test list.
  * @see ../../docs/product/subject-card-viewmodel.md#projections */
@@ -6,6 +8,25 @@ export type QuizCardAttempt = {
   token: string; testId: string; linkedToTestId?: string | null; title: string; description?: string;
   slug: string; previewToken?: string; status: Assignment['status']; answered: number; total: number;
   points?: number; maxPoints?: number;
+  followupRequested?: boolean;
+}
+
+/** A single check task and a single standalone quiz are one family self-check.
+ * @see ../../docs/product/day-page.md#single-check-quiz */
+export function quizTaskForPlacement(tasks: DayTask[], placements: DayTestPlacement[], placement: DayTestPlacement): DayTask | undefined {
+  if (!placements.some((item) => item.token === placement.token)) return undefined
+  if (placement.taskId) return tasks.find((task) => task.id === placement.taskId)
+  return tasks.length === 1 && placements.length === 1 && tasks[0].kind === 'check' && !isCdzTask(tasks[0])
+    && !tasks[0].testToken ? tasks[0] : undefined
+}
+
+/** One deterministic association serves the day, calendar, and parent home. */
+export function withQuizPlacements(tasks: DayTask[], placements: DayTestPlacement[]): DayTask[] {
+  return tasks.map((task) => {
+    if (task.testToken) return task
+    const placement = placements.find((item) => quizTaskForPlacement(tasks, placements, item)?.id === task.id)
+    return placement ? { ...task, testToken: placement.token } : task
+  })
 }
 
 export function quizChain(root: QuizCardAttempt | undefined, tests: QuizCardAttempt[]): QuizCardAttempt[] {

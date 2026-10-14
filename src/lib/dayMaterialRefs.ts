@@ -13,6 +13,24 @@ export function unresolvedMaterialPageRefs(page: Pick<DayPageData, 'taskPageRefs
   return [...unresolved]
 }
 
+/** @see ../../docs/product/materials.md#adjacent-pages */
+export function groupAdjacentMaterialPages(links: DayMaterialLink[]): DayMaterialLink[][] {
+  const groups: DayMaterialLink[][] = []
+  for (const link of links) {
+    const previous = groups.at(-1)?.at(-1)
+    const previousBook = previous?.sourceRef?.match(/^([^#]+)#pdf-\d+$/)?.[1]
+    const book = link.sourceRef?.match(/^([^#]+)#pdf-\d+$/)?.[1]
+    const contiguous = link.sourceType === 'textbook-page' && previous?.sourceType === 'textbook-page'
+      && book && book === previousBook && Number.isInteger(link.pdfPage) && Number.isInteger(previous.pdfPage)
+      && link.pdfPage === previous.pdfPage! + 1
+    const sameTeacherSheet = link.sourceType === 'teacher-attachment' && previous?.sourceType === 'teacher-attachment'
+      && link.title === previous.title
+    if (contiguous || sameTeacherSheet) groups[groups.length - 1].push(link)
+    else groups.push([link])
+  }
+  return groups
+}
+
 function matchesPublishedPage(ref: string, link: DayMaterialLink): boolean {
   const match = /^([a-z0-9-]+)#([1-9]\d*)$/.exec(ref)
   if (!match) return false

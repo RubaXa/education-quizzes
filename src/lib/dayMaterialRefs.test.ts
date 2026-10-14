@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { unresolvedMaterialPageRefs } from './dayMaterialRefs'
+import { groupAdjacentMaterialPages, unresolvedMaterialPageRefs } from './dayMaterialRefs'
 import type { DayMaterialLink } from './dayStore'
 
 const link = (ref: string, url = 'https://disk.yandex.ru/page') => {
@@ -9,6 +9,10 @@ const link = (ref: string, url = 'https://disk.yandex.ru/page') => {
 }
 
 describe('day material read budget', () => {
+  it('groups only adjacent pages of the same book', () => {
+    const pages = [link('starlight#25'), link('starlight#150'), link('starlight#151'), link('other#152')]
+    expect(groupAdjacentMaterialPages(pages).map((group) => group.map((item) => item.pdfPage))).toEqual([[25], [150, 151], [152]])
+  })
   it('reuses published links and eliminates per-page Firestore reads for a complete day', () => {
     const refs = Array.from({ length: 8 }, (_, index) => `book-2026#${index + 1}`)
     const page = { taskPageRefs: { task: refs }, materialLinks: { task: refs.map((ref) => link(ref)) } }

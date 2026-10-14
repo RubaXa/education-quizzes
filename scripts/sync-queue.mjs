@@ -7,6 +7,8 @@ import { operatorFirestore } from './lib/admin-firebase.mjs'
 import { dateWindow } from '../sync/project-plan.mjs'
 import { enqueueSyncJob, setSyncJob, syncFingerprint, syncJobId } from '../sync/job-queue.mjs'
 import { pendingManualQuestionIds, quizDecision } from '../assessment/decision-graph.mjs'
+import { grade, summarize } from '../src/lib/quiz.ts'
+import { followupQuestionCount, needsQuizFollowup } from '../src/lib/quizCompletion.ts'
 
 /** Scan live Firebase sources, persist operator work, and expose resumable phases.
  * The operator still performs source research and pedagogy; this command never
@@ -98,17 +100,35 @@ async function discover() {
       }
     }
   }
-  const submittedQuizzes = await db.collection('assignments').where('assessment.mode', '==', 'control-diagnostic').get()
-  for (const doc of submittedQuizzes.docs) {
+  // Every submitted subject uses the same threshold. A passing test only
+  // enters this queue after an explicit parent request on its assignment.
+  // @see ../docs/product/assessment-decision-graph.md#followup-threshold
+  const since = Timestamp.fromDate(new Date(`${first}T00:00:00+03:00`))
+  const [recentQuizzes, parentRequests] = await Promise.all([
+    db.collection('assignments').where('submittedAt', '>=', since).get(),
+    db.collection('assignments').where('followupRequestedAt', '>=', since).get(),
+  ])
+  const historical = process.argv.includes('--full-audit')
+    ? await db.collection('assignments').where('status', '==', 'submitted').get() : null
+  const submittedQuizzes = new Map([...recentQuizzes.docs, ...parentRequests.docs, ...(historical?.docs ?? [])].map((doc) => [doc.id, doc]))
+  for (const doc of submittedQuizzes.values()) {
     const assignment = doc.data()
-    if (assignment.status !== 'submitted' || !assignment.familyId || !assignment.childId) continue
+    if (assignment.status !== 'submitted' || !assignment.familyId || !assignment.childId || !assignment.testId || !Array.isArray(assignment.questions)) continue
     const linked = await db.collection('assignments').where('linkedToTestId', '==', assignment.testId).get()
-    if (!linked.empty) continue
-    const review = await db.doc(`reviews/${doc.id}`).get()
-    if (pendingManualQuestionIds(assignment, review.data()).length) continue
-    candidates.push(job('prepare-control-followup', assignment.familyId, assignment.childId,
-      assignment.testId, { type: 'quiz', id: doc.id, testId: assignment.testId },
-      [assignment.testId, assignment.submittedAt?.toMillis?.(), review.updateTime?.toMillis?.()], 35))
+    if (linked.docs.some((item) => item.data().familyId === assignment.familyId && item.data().childId === assignment.childId)) continue
+    const [answerKey, review] = await Promise.all([db.doc(`answerKeys/${doc.id}`).get(), db.doc(`reviews/${doc.id}`).get()])
+    if (!answerKey.exists || pendingManualQuestionIds(assignment, review.data()).length) continue
+    const results = grade(assignment, answerKey.data(), review.data())
+    const score = summarize(results)
+    if (score.pending || !needsQuizFollowup({ points: score.earned, maxPoints: score.possible }, Boolean(assignment.followupRequestedAt))) continue
+    const errorCount = results.filter((result) => !result.skipped && result.points !== null && result.points < result.question.points).length
+    if (!errorCount) continue
+    candidates.push(job('prepare-targeted-followup', assignment.familyId, assignment.childId,
+      assignment.testId, { type: 'quiz', id: doc.id, testId: assignment.testId,
+        originalCount: assignment.questions.length, errorCount,
+        targetCount: followupQuestionCount(assignment.questions.length, errorCount),
+        trigger: assignment.followupRequestedAt ? 'parent-request' : 'below-threshold' },
+      [assignment.testId, assignment.submittedAt?.toMillis?.(), review.updateTime?.toMillis?.(), assignment.followupRequestedAt?.toMillis?.()], 35))
   }
   // Reviewed uploads with no corresponding result are not in the ordinary
   // inbox. Detect the orphan rather than silently treating it as finished.
@@ -154,10 +174,11 @@ async function verifiedResolution(record) {
     return assignment.exists && !pendingManualQuestionIds(assignment.data(), review.data()).length
       ? 'all-open-answers-reviewed' : null
   }
-  if (record.kind === 'prepare-control-followup') {
+  if (record.kind === 'prepare-control-followup') return 'superseded-by-universal-threshold-policy'
+  if (record.kind === 'prepare-targeted-followup') {
     const linked = await db.collection('assignments').where('linkedToTestId', '==', source.testId).get()
     return linked.docs.some((item) => item.data().familyId === record.familyId && item.data().childId === record.childId)
-      ? 'linked-control-followup-published' : null
+      ? 'linked-targeted-followup-published' : null
   }
   if (['prepare-quiz', 'classify-assignment', 'enrich-task', 'material-needed'].includes(record.kind)) {
     const page = (await db.doc(`dayPages/${source.dayToken}`).get()).data()

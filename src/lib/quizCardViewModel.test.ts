@@ -1,8 +1,22 @@
 import { describe, expect, it } from 'vitest'
-import { findQuizPlacement, type QuizCardAttempt } from './quizCardViewModel'
+import { findQuizPlacement, quizTaskForPlacement, withQuizPlacements, type QuizCardAttempt } from './quizCardViewModel'
+import type { DayTask, DayTestPlacement } from './dayStore'
 
 const quiz = (token: string, testId: string, linkedToTestId?: string): QuizCardAttempt => ({
   token, testId, linkedToTestId, title: token, slug: token, status: 'open', answered: 0, total: 1,
+})
+
+describe('legacy single check assignment', () => {
+  const task = { id: 'mesh-351501906', kind: 'check' } as DayTask
+  const placement = { token: 'english-quiz' } as DayTestPlacement
+  it('links the sole self-check instead of counting the same work twice', () => {
+    expect(quizTaskForPlacement([task], [placement], placement)).toBe(task)
+    expect(withQuizPlacements([task], [placement])[0].testToken).toBe('english-quiz')
+  })
+  it('does not attach a test from another subject or an ambiguous set', () => {
+    expect(quizTaskForPlacement([task], [placement], { token: 'math-quiz' } as DayTestPlacement)).toBeUndefined()
+    expect(quizTaskForPlacement([task], [placement, { token: 'another' } as DayTestPlacement], placement)).toBeUndefined()
+  })
 })
 
 /** @see ../../docs/product/dashboard.md#schedule-homework-status */

@@ -1,6 +1,8 @@
 import { useState, type ReactNode } from 'react'
-import { ChevronDown, Copy, ExternalLink } from 'lucide-react'
+import { ChevronDown, Copy, ExternalLink, RotateCcw } from 'lucide-react'
 import type { QuizCardAttempt } from '@/lib/quizCardViewModel'
+import { quizPassed } from '@/lib/quizCompletion'
+import { requestQuizFollowup } from '@/lib/store'
 import StatusIcon from './StatusIcon'
 import './QuizCard.css'
 
@@ -28,11 +30,14 @@ export function QuizProgress({ test }: { test: QuizCardAttempt }) {
   </div>
 }
 
-export default function QuizCard({ chain, parent, context = 'Самопроверка', assignment, materials, extraActions, id, onOpen }: {
-  chain: QuizCardAttempt[]; parent: boolean; context?: string; assignment?: ReactNode; materials?: ReactNode; extraActions?: ReactNode; id?: string; onOpen?: () => void;
+export default function QuizCard({ chain, parent, context = 'Самопроверка', assignment, materials, extraActions, id, onOpen, allowFollowupRequest = true }: {
+  chain: QuizCardAttempt[]; parent: boolean; context?: string; assignment?: ReactNode; materials?: ReactNode; extraActions?: ReactNode; id?: string; onOpen?: () => void; allowFollowupRequest?: boolean;
 }) {
   const [copied, setCopied] = useState(false)
   const [copyError, setCopyError] = useState('')
+  const [requesting, setRequesting] = useState(false)
+  const [requestError, setRequestError] = useState('')
+  const [requestedLocally, setRequestedLocally] = useState(false)
   const latest = chain.at(-1)
   if (!latest) return null
   const earlier = chain.slice(0, -1)
@@ -40,21 +45,23 @@ export default function QuizCard({ chain, parent, context = 'Самопрове�
   const points = graded.reduce((sum, test) => sum + (test.points ?? 0), 0)
   const max = graded.reduce((sum, test) => sum + (test.maxPoints ?? 0), 0)
   const href = parent && latest.status !== 'submitted' && latest.previewToken ? `#/preview/${latest.slug}~${latest.previewToken}` : `#/t/${latest.slug}~${latest.token}`
-  const label = parent ? latest.status === 'submitted' ? 'Посмотреть результат' : 'Посмотреть вопросы' : latest.status === 'submitted' ? 'Посмотреть результат' : latest.answered ? 'Продолжить тест' : 'Пройти тест'
+  const label = parent ? latest.status === 'submitted' ? 'Результат' : 'Посмотреть вопросы' : latest.status === 'submitted' ? 'Результат' : latest.answered ? 'Продолжить тест' : 'Пройти тест'
   const hasScore = latest.status === 'submitted' && latest.points != null && latest.maxPoints != null && latest.maxPoints > 0
+  const followupRequested = Boolean(latest.followupRequested || requestedLocally)
   const scoreLabel = hasScore ? `${Math.round(latest.points! / latest.maxPoints! * 100)}% · ${scoreNumber(latest.points!)} из ${scoreNumber(latest.maxPoints!)}` : latest.status === 'submitted' ? 'Результат уточняется' : `${latest.answered} из ${latest.total}`
-  const scoreStatus = hasScore ? latest.points === latest.maxPoints ? 'complete' : 'partial'
+  const scoreStatus = hasScore ? quizPassed({ points: latest.points!, maxPoints: latest.maxPoints! }) && !followupRequested ? 'complete' : 'partial'
     : latest.status === 'submitted' ? 'waiting' : latest.answered ? 'started' : 'ready'
   return <section className="day-quiz-lineage" id={id} aria-label={`Самопроверки: ${context}`}>
     <div className="day-quiz-lineage-head"><strong>{context === 'Самопроверка' ? context : `Самопроверка: ${context}`}</strong><span className={`day-quiz-lineage-score ${scoreStatus}`} aria-label={latest.status === 'submitted' ? scoreLabel : `${latest.answered ? 'В процессе' : 'Не начат'} · ${latest.answered} из ${latest.total} ответов`}><StatusIcon status={scoreStatus} size={14} />{scoreLabel}</span></div>
     <div className="day-quiz-lineage-current">{latest.status === 'submitted' && earlier.length > 0 && <small>Последний тест</small>}<h3>{latest.title}</h3>{latest.description && <p>{latest.description}</p>}
       {assignment}
       <QuizProgress test={latest} />
-      <div className="day-quiz-lineage-actions"><a className="day-quiz-link" href={href} onClick={onOpen}>{label} <ExternalLink size={15} aria-hidden="true" /></a>{parent && <button type="button" className="day-quiz-copy" aria-label="Скопировать ссылку ребёнку" title="Скопировать ссылку ребёнку" onClick={() => void navigator.clipboard.writeText(new URL(`#/t/${latest.slug}~${latest.token}`, window.location.href).href).then(() => { setCopied(true); setCopyError('') }).catch(() => setCopyError('Не удалось скопировать ссылку.'))}><Copy size={16} aria-hidden="true" /></button>}</div>
+      <div className="day-quiz-lineage-actions">{parent && allowFollowupRequest && hasScore && latest.points! < latest.maxPoints! && <button type="button" className="day-quiz-copy" disabled={requesting || followupRequested} aria-label={followupRequested ? 'Работа над ошибками запрошена' : 'Запросить работу над ошибками'} title={followupRequested ? 'Работа над ошибками запрошена' : 'Запросить работу над ошибками'} onClick={() => { setRequesting(true); setRequestError(''); void requestQuizFollowup(latest.token, latest.testId).then(() => setRequestedLocally(true)).catch((cause) => setRequestError(cause instanceof Error ? cause.message : 'Не удалось отправить запрос.')).finally(() => setRequesting(false)) }}><RotateCcw size={17} aria-hidden="true" /></button>}<a className="day-quiz-link" href={href} onClick={onOpen}>{label} <ExternalLink size={15} aria-hidden="true" /></a>{parent && <button type="button" className="day-quiz-copy" aria-label="Скопировать ссылку ребёнку" title="Скопировать ссылку ребёнку" onClick={() => void navigator.clipboard.writeText(new URL(`#/t/${latest.slug}~${latest.token}`, window.location.href).href).then(() => { setCopied(true); setCopyError('') }).catch(() => setCopyError('Не удалось скопировать ссылку.'))}><Copy size={16} aria-hidden="true" /></button>}</div>
+      {followupRequested && <small role="status">Работа над ошибками запрошена · ждём новый тест</small>}{requestError && <small role="alert">{requestError}</small>}
       {copied && <small role="status">Ссылка скопирована</small>}{copyError && <small role="alert">{copyError}</small>}
       {materials && <details className="day-quiz-materials"><summary>Условие и страницы учебника <ChevronDown size={15} aria-hidden="true" /></summary><div>{materials}</div></details>}
       {extraActions && <div className="day-quiz-extra-actions">{extraActions}</div>}
     </div>
-    {earlier.length > 0 && <details className="day-quiz-history"><summary><span><strong>Предыдущие тесты</strong><small>{earlier.length} {earlier.length === 1 ? 'тест' : earlier.length < 5 ? 'теста' : 'тестов'}{max ? ` · ${scoreNumber(points)} из ${scoreNumber(max)} баллов` : ''}</small></span>{max > 0 && <span className={`day-quiz-history-score ${points === max ? 'complete' : ''}`} aria-label={`${Math.round(points / max * 100)} процентов набранных баллов`}><i style={{ width: `${Math.round(points / max * 100)}%` }} />{Math.round(points / max * 100)}%</span>}<ChevronDown size={18} aria-hidden="true" /></summary><div className="day-quiz-history-body">{earlier.map((test) => <div className="day-quiz-history-row" key={test.token}><strong>{test.title}</strong><span>{test.status === 'submitted' ? test.points == null ? 'Отправлен · балл уточняется' : `${scoreNumber(test.points)} из ${scoreNumber(test.maxPoints!)} баллов` : 'Не завершён'}</span><a href={parent && test.status !== 'submitted' && test.previewToken ? `#/preview/${test.slug}~${test.previewToken}` : `#/t/${test.slug}~${test.token}`}>{test.status === 'submitted' ? 'Посмотреть результат' : 'Посмотреть вопросы'} <ExternalLink size={13} aria-hidden="true" /></a></div>)}</div></details>}
+    {earlier.length > 0 && <details className="day-quiz-history"><summary><span><strong>Предыдущие тесты</strong><small>{earlier.length} {earlier.length === 1 ? 'тест' : earlier.length < 5 ? 'теста' : 'тестов'}{max ? ` · ${scoreNumber(points)} из ${scoreNumber(max)} баллов` : ''}</small></span>{max > 0 && <span className={`day-quiz-history-score ${quizPassed({ points, maxPoints: max }) ? 'complete' : ''}`} aria-label={`${Math.round(points / max * 100)} процентов набранных баллов`}><i style={{ width: `${Math.round(points / max * 100)}%` }} />{Math.round(points / max * 100)}%</span>}<ChevronDown size={18} aria-hidden="true" /></summary><div className="day-quiz-history-body">{earlier.map((test) => <div className="day-quiz-history-row" key={test.token}><strong>{test.title}</strong><span>{test.status === 'submitted' ? test.points == null ? 'Отправлен · балл уточняется' : `${scoreNumber(test.points)} из ${scoreNumber(test.maxPoints!)} баллов` : 'Не завершён'}</span><a href={parent && test.status !== 'submitted' && test.previewToken ? `#/preview/${test.slug}~${test.previewToken}` : `#/t/${test.slug}~${test.token}`}>{test.status === 'submitted' ? 'Результат' : 'Посмотреть вопросы'} <ExternalLink size={13} aria-hidden="true" /></a></div>)}</div></details>}
   </section>
 }

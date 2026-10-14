@@ -408,6 +408,20 @@ service cloud.firestore {
           (request.resource.data.status == 'submitted'
             && request.resource.data.submittedAt == request.time)
         );
+
+      // A parent may request one linked practice cycle after a submitted test.
+      // The operator publishes questions; the browser cannot change a result.
+      // @see docs/product/quizzes.md#followup-request
+      allow update: if resource.data.status == 'submitted'
+        && resource.data.familyId is string
+        && resource.data.childId is string
+        && parentMember(resource.data.familyId)
+        && childMember(resource.data.familyId, resource.data.childId)
+        && !('followupRequestedAt' in resource.data)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['followupRequestedAt', 'followupRequestedBy'])
+        && request.resource.data.diff(resource.data).affectedKeys().hasAll(['followupRequestedAt', 'followupRequestedBy'])
+        && request.resource.data.followupRequestedAt == request.time
+        && request.resource.data.followupRequestedBy == currentPersonId();
     }
 
     match /answerKeys/{linkToken} {

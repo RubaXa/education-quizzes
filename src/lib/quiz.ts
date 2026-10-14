@@ -35,6 +35,8 @@ export type Assignment = {
   schemaVersion: 1
   testId: string
   linkedToTestId?: string | null
+  followupRequestedAt?: unknown
+  followupRequestedBy?: string
   /** Public routing metadata only; private assessment plan and learner evidence stay in work/. */
   assessment?: { policyVersion: 1; mode: 'ordinary' | 'control-diagnostic' | 'control-followup' | 'targeted-followup'; subjectAdapter: string; unansweredPolicy?: 'optional' }
   title: string

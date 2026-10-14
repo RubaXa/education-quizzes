@@ -4,7 +4,8 @@ import type { DayDashboardData, IndexedDay } from './dayDashboardStore'
 import { watchDayPage, watchDayReviews, watchDayUploads, watchEvidenceDayPages, withVerifiedPlatformResult } from './dayStore'
 import type { DayPageData, DayUpload, DayWorkReview } from './dayStore'
 import { useParentCompletions } from './useParentCompletions'
-import { lessonWorkItems, linkedQuizWorkItems } from './homeworkStatus'
+import { lessonWorkItems, quizRequirement } from './homeworkStatus'
+import { quizTaskForPlacement, withQuizPlacements } from './quizCardViewModel'
 import type { LessonWorkItem } from './homeworkStatus'
 import { useDayQuizOutcomes } from './useDayQuizOutcomes'
 import { reportUiError } from './uiErrors'
@@ -145,22 +146,27 @@ function useLiveParentChildOverview(dashboardToken: string): ParentChildOverview
   const uploads = uploadSnapshot.items
   const reviews = reviewSnapshot.items
   const evidencePages = pageEvidenceSnapshot.pages
+  const quizStates = Object.fromEntries(Object.entries(tests).map(([token, assignment]) => [token, {
+    status: assignment.status, testId: assignment.testId, linkedToTestId: assignment.linkedToTestId,
+    title: assignment.title, followupRequested: Boolean(assignment.followupRequestedAt),
+  }]))
   // A MESH pointer to an earlier day has no new work item and must not become a completed subject.
   // @see ../../docs/product/dashboard.md#reference-only-homework
   const subjects: ParentSubjectOverview[] = page.subjects.filter((subject) => subject.tasks.some((task) => (task.originDate ?? day.date) === day.date)).map((subject) => {
-    const tasks = subject.tasks.filter((task) => (task.originDate ?? day.date) === day.date).map((task) => withVerifiedPlatformResult(task, day.date, evidencePages))
-    const items = lessonWorkItems(tasks, uploads, reviews, decisions.events, tests, scores)
+    const rawTasks = subject.tasks.filter((task) => (task.originDate ?? day.date) === day.date).map((task) => withVerifiedPlatformResult(task, day.date, evidencePages))
+    const placements = (page.testPlacements ?? []).filter((placement) => placement.subjectId === subject.id && (placement.originDate ?? day.date) === day.date)
+    const tasks = withQuizPlacements(rawTasks, placements)
+    const items = lessonWorkItems(tasks, uploads, reviews, decisions.events, quizStates, scores)
     const state = subjectState(items)
     return { id: subject.id, name: subject.name, state, items }
   }).filter((subject) => subject.items.length > 0)
-  const placed = (page.testPlacements ?? []).filter((placement) => !placement.taskId && (placement.originDate ?? day.date) === day.date && !tests[placement.token]?.linkedToTestId)
+  const placed = (page.testPlacements ?? []).filter((placement) => !placement.taskId && (placement.originDate ?? day.date) === day.date && !tests[placement.token]?.linkedToTestId
+    && !page.subjects.some((subject) => subject.id === placement.subjectId && quizTaskForPlacement(subject.tasks, (page.testPlacements ?? []).filter((item) => item.subjectId === subject.id && (item.originDate ?? day.date) === day.date), placement)))
   for (const placement of placed) {
     const assignment = tests[placement.token]
-    const score = scores[placement.token]
-    const state: LessonWorkItem['state'] = assignment?.status === 'submitted' ? !score ? 'checking' : score.points === score.maxPoints ? 'done' : 'todo' : 'todo'
-    const item: LessonWorkItem = { id: `quiz:${placement.token}`, title: assignment?.title ?? 'Самопроверка', state, detail: state === 'done' ? `Тест: ${score?.points} из ${score?.maxPoints} верно` : state === 'checking' ? 'Ответы отправлены, результат уточняется' : assignment?.status === 'submitted' ? 'Есть ошибки; нужно повторить' : 'Нужно пройти тест' }
+    const item: LessonWorkItem = { id: `quiz:${placement.token}`, title: assignment?.title ?? 'Самопроверка', ...quizRequirement(placement.token, quizStates, scores) }
     const subject = subjects.find((value) => value.id === placement.subjectId)
-    const lineageItems = [item, ...linkedQuizWorkItems(placement.token, tests, scores)]
+    const lineageItems = [item]
     if (subject) { subject.items.push(...lineageItems); subject.state = subjectState(subject.items) }
     else subjects.push({ id: placement.subjectId, name: page.subjects.find((value) => value.id === placement.subjectId)?.name ?? 'Самопроверка', state: subjectState(lineageItems), items: lineageItems })
   }

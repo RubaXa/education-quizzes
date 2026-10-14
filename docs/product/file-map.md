@@ -157,7 +157,7 @@
 | [scripts/direct-upload-worker.mjs](../../scripts/direct-upload-worker.mjs) | [Семейная библиотека](family-library.md) | Выдача адресов и проверка фото работ и семейных PDF, общий архив по SHA | Клиенты загрузки; очереди |
 | [scripts/ensure-book-upload-index.mjs](../../scripts/ensure-book-upload-index.mjs) | [Local-first синхронизация](../architecture/local-first-sync.md) | Аддитивная установка индекса активных PDF-заявок с сохранением существующих настроек поля | Оператор; `direct-upload-worker.mjs` |
 | [scripts/sync-inbox.mjs](../../scripts/sync-inbox.mjs) | [Сквозной протокол](education-pipeline.md) | Общий снимок очередей PDF, работ и всех ещё не проверенных открытых ответов по всем семьям; дельта обращений за помощью | Операторский полный запуск `education-sync`; `sync/help-request-cache.mjs` |
-| [scripts/sync-queue.mjs](../../scripts/sync-queue.mjs) | [Граф самопроверок](assessment-decision-graph.md) | Стадии классификации, подготовки, ручной проверки и второго теста в общей очереди | `education-sync`; Firestore |
+| [scripts/sync-queue.mjs](../../scripts/sync-queue.mjs) | [Граф самопроверок](assessment-decision-graph.md) | Стадии классификации, ручной проверки и адресного продолжения по порогу или запросу | `education-sync`; Firestore |
 | [scripts/sync-project.mjs](../../scripts/sync-project.mjs) | [Глобальная синхронизация](global-sync.md) | Инвентаризация семей, полный сбор МЭШ, проверка опубликованных оценок и адресное продвижение времени неизменившихся дней | `skills/education-sync`; оператор |
 | [scripts/firestore-usage.mjs](../../scripts/firestore-usage.mjs) | [Аудит нагрузки](../architecture/firestore-usage-2026-10-12.md) | Чтение агрегированных метрик Cloud Monitoring без запроса документов Firestore | Оператор; сравнение до и после |
 | [scripts/firestore-usage-window.mjs](../../scripts/firestore-usage-window.mjs) | [Аудит нагрузки](../architecture/firestore-usage-2026-10-12.md) | Точные равные интервалы и разрешение метрик для сравнения выпусков | `firestore-usage.mjs` |
@@ -187,7 +187,7 @@
 | [scripts/push-and-publish.mjs](../../scripts/push-and-publish.mjs) | [PWA](pwa.md) | Push исходников и выпуск сайта | Оператор |
 | [scripts/quiz-access.mjs](../../scripts/quiz-access.mjs) | [Тесты](quizzes.md) | Проверка доступа к попытке и роли | Quiz CLI |
 | [scripts/quiz-access.test.mjs](../../scripts/quiz-access.test.mjs) | [Тесты](quizzes.md) | Проверка ролевого доступа к тесту | Vitest; разработчик |
-| [scripts/quiz.mjs](../../scripts/quiz.mjs) | [Граф самопроверок](assessment-decision-graph.md) | Проверка закрытого плана, завершённости исходной ручной проверки, публикация тестов и ключей | Агент; Firestore |
+| [scripts/quiz.mjs](../../scripts/quiz.mjs) | [Граф самопроверок](assessment-decision-graph.md) | Проверка закрытого плана, результата и размера связанного теста, публикация тестов и ключей | Агент; Firestore |
 | [scripts/storage.mjs](../../scripts/storage.mjs) | [Семейная библиотека](family-library.md) | Перенос фото, публикация назначенных и всех страниц семейно связанных книг | Оператор архива |
 | [scripts/notifications.mjs](../../scripts/notifications.mjs) | [Центр обновлений](../architecture/activity-and-inbox.md) | Выпуск изменений продукта и сверенный backfill результата/родительского решения | Оператор; Firestore; `NotificationBell` |
 | [scripts/submissions.mjs](../../scripts/submissions.mjs) | [Основания проверки](review-criteria-provenance.md) | Очередь, этапы, проверка происхождения спорных требований и запись разбора | Агент проверки; Firestore |
@@ -212,8 +212,8 @@
 | [src/components/EducationImage.test.tsx](../../src/components/EducationImage.test.tsx) | [Изображения](design-system.md) | Регрессия повторной загрузки миниатюры после истёкшего превью | Vitest; разработчик |
 | [src/components/EducationImage.css](../../src/components/EducationImage.css) | [Изображения](design-system.md) | Оболочка изображения и состояния загрузки | `EducationImage.tsx` |
 | [src/components/EducationScreen.tsx](../../src/components/EducationScreen.tsx) | [Экраны из данных](../architecture/backend-driven-ui.md) | Ограниченный реестр блоков манифеста | Будущий маршрут v2 |
-| [src/components/MaterialReader.tsx](../../src/components/MaterialReader.tsx) | [Материалы](materials.md) | Миниатюры ДЗ, постраничное перелистывание полной книги | Страница дня; семейная библиотека |
-| [scripts/check-material-preview-viewport.mjs](../../scripts/check-material-preview-viewport.mjs) | [Изображения](design-system.md) | Браузерная проверка пропорций горизонтального и вертикального листа на телефоне | Разработчик; превью материалов |
+| [src/components/MaterialReader.tsx](../../src/components/MaterialReader.tsx) | [Материалы](materials.md) | Миниатюры ДЗ, перелистывание соседних страниц в одном блоке и полной книги | Страница дня; семейная библиотека |
+| [scripts/check-material-preview-viewport.mjs](../../scripts/check-material-preview-viewport.mjs) | [Изображения](design-system.md) | Браузерная проверка пропорций листов и одного блока соседних страниц на телефоне | Разработчик; превью материалов |
 | [src/components/PersonalEntry.tsx](../../src/components/PersonalEntry.tsx) | [Семейная модель](../architecture/family-data-model.md) | Вход по личной ссылке | Личная стартовая страница |
 | [src/components/PersonalEntry.localFirst.test.tsx](../../src/components/PersonalEntry.localFirst.test.tsx) | [Поэтапный план local-first](../architecture/local-first-release-plan-2026-10-12.md) | Проверка первого локального кадра, трёх подписок и закрытия после отзыва на поддельном Firestore | Разработчик; выпуск личного кабинета |
 | [src/components/NotificationBell.tsx](../../src/components/NotificationBell.tsx) | [Центр обновлений](../architecture/activity-and-inbox.md) | Живая личная очередь, семейные решения и переход к учебному дню | `src/App.tsx`; ученик; родитель |
@@ -283,7 +283,7 @@
 | [src/lib/dayStore.guideRead.test.ts](../../src/lib/dayStore.guideRead.test.ts) | [Предметный разбор](subject-aware-guidance.md) | Подписка только на видимые родительские ориентиры и совместимость старого режима | Vitest; `src/DayPage.tsx` |
 | [src/lib/guideReadPolicy.ts](../../src/lib/guideReadPolicy.ts) | [Страница дня](day-page.md) | Выбор раскрытого предмета при адресном переходе и видимых задач для чтения закрытых ориентиров | `src/DayPage.tsx` |
 | [src/lib/guideReadPolicy.test.ts](../../src/lib/guideReadPolicy.test.ts) | [Страница дня](day-page.md) | Проверка адресного раскрытия и свёрнутого состояния с бюджетом чтений | Vitest; `src/DayPage.tsx` |
-| [src/lib/quizCardViewModel.test.ts](../../src/lib/quizCardViewModel.test.ts) | [Dashboard](dashboard.md) | Переход из списка дел к исходной карточке связанного теста | Vitest; `src/DayPage.tsx` |
+| [src/lib/quizCardViewModel.test.ts](../../src/lib/quizCardViewModel.test.ts) | [Dashboard](dashboard.md) | Переход к исходной карточке и безопасное связывание единственного теста с заданием | Vitest; `src/DayPage.tsx` |
 | [src/lib/questionTopicPresentation.ts](../../src/lib/questionTopicPresentation.ts) | [Тесты](quizzes.md) | Общую тему показывает один раз перед вопросами | `src/App.tsx` |
 | [src/lib/questionTopicPresentation.test.ts](../../src/lib/questionTopicPresentation.test.ts) | [Тесты](quizzes.md) | Общая тема и отдельные темы разных вопросов | Vitest; `src/App.tsx` |
 | [src/lib/dayGuidance.ts](../../src/lib/dayGuidance.ts) | [Математический маршрут](math-solution-route.md) | Выборочная передача этапа и подписка на помощь ребёнку | `DayPage.tsx`; `TaskGuidance.tsx`; Firebase |
@@ -303,7 +303,7 @@
 | [src/lib/followup.test.ts](../../src/lib/followup.test.ts) | [Тесты](quizzes.md) | Проверка формирования продолжений | Vitest; разработчик |
 | [src/lib/followup.ts](../../src/lib/followup.ts) | [Тесты](quizzes.md) | Связь повторных тестов | Страница дня; тесты |
 | [src/lib/highlight.ts](../../src/lib/highlight.ts) | [Тесты](quizzes.md) | Подсветка программного кода | `CodeBlock` |
-| [src/lib/homeworkStatus.ts](../../src/lib/homeworkStatus.ts) | [Dashboard](dashboard.md) | Единая классификация выполнено / осталось / ждёт проверки | `DayDashboard.tsx`; `useParentChildOverview.ts` |
+| [src/lib/homeworkStatus.ts](../../src/lib/homeworkStatus.ts) | [Dashboard](dashboard.md) | Единая классификация выполнено / осталось / ждёт проверки с порогом теста 80% | `DayDashboard.tsx`; `useParentChildOverview.ts` |
 | [src/lib/homeworkUpdateReceipt.ts](../../src/lib/homeworkUpdateReceipt.ts) | [Новое ДЗ](dashboard.md) | Локальная квитанция открытия изменения по роли и версии | `DayDashboard.tsx` |
 | [src/lib/homeworkUpdateReceipt.test.ts](../../src/lib/homeworkUpdateReceipt.test.ts) | [Новое ДЗ](dashboard.md) | Новая версия снова появляется после просмотра прежней | Vitest; разработчик |
 | [src/lib/parentFocusDay.ts](../../src/lib/parentFocusDay.ts) | [Dashboard](dashboard.md) | Выбор ближайшего учебного дня по первому уроку конкретного ребёнка | `useParentChildOverview.ts`; кабинет родителя |
@@ -333,7 +333,7 @@
 | [src/lib/materialPageCache.test.ts](../../src/lib/materialPageCache.test.ts) | [Проверка local-first](../architecture/local-first-verification.md) | Целостность кеша страниц в поддельной IndexedDB | Vitest; разработчик |
 | [src/lib/bookPageSource.ts](../../src/lib/bookPageSource.ts) | [Просмотр всей книги](family-library.md) | Выбор одного проверенного манифеста с откатом к отдельным страницам v1 | `FamilyLibrary.tsx` |
 | [src/lib/bookPageSource.test.ts](../../src/lib/bookPageSource.test.ts) | [Поэтапный план local-first](../architecture/local-first-release-plan-2026-10-12.md) | Фейковый Firestore: 240 документов против одного, отказ манифеста и старый путь | Vitest; выпуск книги |
-| [src/lib/dayMaterialRefs.ts](../../src/lib/dayMaterialRefs.ts) | [Материалы дня](materials.md) | Проверка уже опубликованных ссылок дня перед адресной подпиской на отсутствующие страницы | `DayPage.tsx` |
+| [src/lib/dayMaterialRefs.ts](../../src/lib/dayMaterialRefs.ts) | [Материалы дня](materials.md) | Проверка опубликованных ссылок и группировка соседних страниц одного издания | `DayPage.tsx` |
 | [src/lib/dayMaterialRefs.test.ts](../../src/lib/dayMaterialRefs.test.ts) | [Поэтапный план local-first](../architecture/local-first-release-plan-2026-10-12.md) | Бюджет чтений страниц дня, fallback старых страниц и защита от подмены источника | Vitest; выпуск дня |
 | [src/lib/localFirstPilot.ts](../../src/lib/localFirstPilot.ts) | [Проверка local-first](../architecture/local-first-verification.md) | Изолированный протокол head, delta и атомарной локальной проекции | Пилот; тесты, не рабочий экран |
 | [src/lib/localFirstPilot.test.ts](../../src/lib/localFirstPilot.test.ts) | [Проверка local-first](../architecture/local-first-verification.md) | Интеграционные сценарии с фейковым Firestore и IndexedDB | Vitest; разработчик |
@@ -392,6 +392,16 @@
 | [docs/product/ui-decisions/flat-numbered-sheet-2026-10-14.md](ui-decisions/flat-numbered-sheet-2026-10-14.md) | [Плоская секция](problem-card-design-decisions.md) | Основание, состав, роли и проверка исправления вложенности | `ui-change-decisions.json`; ревью |
 | [scripts/check-ui-contract.mjs](../../scripts/check-ui-contract.mjs) | [Управление UI](ui-change-control.md) | Останавливает незаявленную правку или добавление продуктового кода | `npm run check:spec`; разработчик |
 | [scripts/check-ui-contract.test.mjs](../../scripts/check-ui-contract.test.mjs) | [Управление UI](ui-change-control.md) | Проверяет отказ при переносе CSS без решения, устаревшем отпечатке и отсутствии теста | Vitest; разработчик |
+
+
+| [docs/product/ui-decisions/quiz-threshold-and-page-slider-2026-10-14.md](ui-decisions/quiz-threshold-and-page-slider-2026-10-14.md) | [Граф самопроверок](assessment-decision-graph.md) | Основание и ролевой контракт порога, запроса и группировки страниц | `ui-change-decisions.json`; ревью выпуска |
+| [src/lib/quizCompletion.ts](../../src/lib/quizCompletion.ts) | [Граф самопроверок](assessment-decision-graph.md) | Единый порог 80% и ограниченная формула длины продолжения | `homeworkStatus.ts`; `sync-queue.mjs`; `quiz.mjs` |
+| [src/lib/quizCompletion.test.ts](../../src/lib/quizCompletion.test.ts) | [Граф самопроверок](assessment-decision-graph.md) | Граничные 80%, ручной запрос и размер 39/5 → 10 | Vitest; выпуск |
+| [src/lib/homeworkStatus.test.ts](../../src/lib/homeworkStatus.test.ts) | [Dashboard](dashboard.md) | Одна цепочка тестов, завершение и повторное открытие после запроса | Vitest; выпуск |
+| [src/components/MaterialReader.test.tsx](../../src/components/MaterialReader.test.tsx) | [Ридер](materials.md) | Один блок и один текущий превью для пары страниц | Vitest; выпуск |
+| [src/components/QuizCard.test.tsx](../../src/components/QuizCard.test.tsx) | [Тесты](quizzes.md) | Ролевая кнопка запроса, краткое название результата и ожидающий статус | Vitest; выпуск |
+
+| [scripts/firestore-rules-followup.test.mjs](../../scripts/firestore-rules-followup.test.mjs) | [Родительский запрос](quizzes.md) | Статический регрессионный барьер узкого права записи запроса без изменения ответов | Vitest; выпуск правил |
 
 ## Проверка после изменения
 

@@ -64,6 +64,16 @@ export default function MaterialReader({ links, parent, statement = false, book 
         <button type="button" disabled={preview === links.length - 1} onClick={() => setPreview((value) => value + 1)} aria-label="Следующая страница"><ChevronRight size={20} /></button></div>
       <input type="range" min="0" max={links.length - 1} value={Math.min(preview, links.length - 1)} onChange={(event) => setPreview(Number(event.target.value))} aria-label="Перейти к странице книги" />
       <small>Нажмите на страницу, чтобы открыть её крупно.</small>
+    </div> : links.length > 1 && first.sourceType === 'textbook-page' ? <div className="day-reader-slides" aria-label={`Страницы учебника: ${range}`}>
+      <button type="button" className="day-reader-thumb" onClick={() => setActive(preview)} aria-label={`Открыть крупно: ${pageName(links[preview], preview)}`}>
+        <EducationImage key={links[preview].url} source={links[preview].url} mode="public" alt="" size="S" fit="cover" compact retryControl={false} />
+        <small>{pageName(links[preview], preview)}</small>
+      </button>
+      <div className="day-reader-slide-controls">
+        <button type="button" disabled={preview === 0} onClick={() => setPreview((value) => value - 1)} aria-label="Предыдущая страница"><ChevronLeft size={18} /></button>
+        <span>{preview + 1} из {links.length}</span>
+        <button type="button" disabled={preview === links.length - 1} onClick={() => setPreview((value) => value + 1)} aria-label="Следующая страница"><ChevronRight size={18} /></button>
+      </div>
     </div> : <div className="day-reader-thumbs" aria-label={`Открыть страницы: ${range}`}>
       {links.map((link, index) => <button type="button" className="day-reader-thumb" key={link.url} onClick={() => setActive(index)} aria-label={`Открыть ${pageName(link, index)}`}>
         <EducationImage source={link.url} mode="public" alt="" size={statement ? 'XXXL' : 'S'} fit={statement ? 'contain' : 'cover'} compact={!statement} retryControl={false} />

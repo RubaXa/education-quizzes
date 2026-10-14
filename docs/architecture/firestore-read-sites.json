@@ -1704,6 +1704,18 @@
     "refresh": "on affected event"
   },
   {
+    "id": "scripts/quiz.mjs#admin.get#67ef58f895e7",
+    "file": "scripts/quiz.mjs",
+    "line": 172,
+    "api": "admin.get",
+    "target": "db.doc(`answerKeys/${parents.docs[0].id}`)",
+    "group": "operator-other",
+    "policy": "operator-point",
+    "note": "Адресное чтение ключа уже отправленной исходной попытки перед публикацией продолжения; требуется для проверенного балла и размера, без listener и без перебора семей.",
+    "assessment": "justified",
+    "refresh": "once before linked quiz publication"
+  },
+  {
     "id": "scripts/quiz.mjs#admin.get#c7a806345120",
     "file": "scripts/quiz.mjs",
     "line": 169,
@@ -2784,16 +2796,40 @@
     "refresh": "per changed owner or explicit audit"
   },
   {
-    "id": "scripts/sync-queue.mjs#admin.get#1e4da4e0964b",
+    "id": "scripts/sync-queue.mjs#admin.get#1d8e188eb440",
     "file": "scripts/sync-queue.mjs",
-    "line": 101,
+    "line": 108,
     "api": "admin.get",
-    "target": "db.collection('assignments').where('assessment.mode', '==', 'control-diagnostic')",
+    "target": "db.collection('assignments').where('submittedAt', '>=', since)",
     "group": "operator-sync",
-    "policy": "delta-or-explicit-audit",
-    "note": "Широкий обход дорого повторять в рабочем цикле; перейти на локальный курсор/активный индекс и оставить полный обход для явной сверки.",
+    "policy": "bounded-operator-query",
+    "note": "Запрос ограничен текущим понедельником и доступным окном; результирующие документы только отправленные или новые родительские запросы. При полной ревизии отдельно запускается --full-audit. Измерить число документов по семейному отчёту.",
+    "assessment": "conditional",
+    "refresh": "once per periodic EducationSync scan"
+  },
+  {
+    "id": "scripts/sync-queue.mjs#admin.get#65c287e369d4",
+    "file": "scripts/sync-queue.mjs",
+    "line": 109,
+    "api": "admin.get",
+    "target": "db.collection('assignments').where('followupRequestedAt', '>=', since)",
+    "group": "operator-sync",
+    "policy": "bounded-operator-query",
+    "note": "Запрос ограничен текущим понедельником и доступным окном; результирующие документы только отправленные или новые родительские запросы. При полной ревизии отдельно запускается --full-audit. Измерить число документов по семейному отчёту.",
+    "assessment": "conditional",
+    "refresh": "once per periodic EducationSync scan"
+  },
+  {
+    "id": "scripts/sync-queue.mjs#admin.get#1d12e77a6b5f",
+    "file": "scripts/sync-queue.mjs",
+    "line": 112,
+    "api": "admin.get",
+    "target": "db.collection('assignments').where('status', '==', 'submitted')",
+    "group": "operator-sync",
+    "policy": "full-audit-only",
+    "note": "Глобальная история читается только при явном полном аудите, чтобы восстановить пропущенные продолжения; обычный периодический проход использует ограниченные запросы.",
     "assessment": "high-risk",
-    "refresh": "per changed item; full scan explicit"
+    "refresh": "explicit --full-audit only"
   },
   {
     "id": "scripts/sync-queue.mjs#admin.get#08a54eb290a9",
@@ -2806,6 +2842,18 @@
     "note": "Поиск связанного теста оправдан при событии; индекс/обратную ссылку сравнить с повторным запросом, сохранив проверку целостности.",
     "assessment": "conditional",
     "refresh": "on linked test event"
+  },
+  {
+    "id": "scripts/sync-queue.mjs#admin.get#04b494408d5f",
+    "file": "scripts/sync-queue.mjs",
+    "line": 119,
+    "api": "admin.get",
+    "target": "db.doc(`answerKeys/${doc.id}`)",
+    "group": "operator-sync",
+    "policy": "operator-point",
+    "note": "Ключ конкретной отправленной попытки нужен для достоверного балла и списка ошибок; только после дедупликации двух временных запросов и проверки наличия прямого продолжения.",
+    "assessment": "conditional",
+    "refresh": "once per submitted candidate"
   },
   {
     "id": "scripts/sync-queue.mjs#admin.get#0755593be7bd",
@@ -3816,18 +3864,6 @@
     "refresh": "when view opens or cache invalidates"
   },
   {
-    "id": "src/lib/store.ts#onSnapshot#ea01cda4ba38",
-    "file": "src/lib/store.ts",
-    "line": 39,
-    "api": "onSnapshot",
-    "target": "doc(db, 'assignments', token)",
-    "group": "client-quizzes",
-    "policy": "scoped-listener",
-    "note": "Живой статус нужен только для активной задачи/очереди; ограничить выборку, объединить потребителей и освободить подписку вне экрана.",
-    "assessment": "conditional",
-    "refresh": "while relevant view is open"
-  },
-  {
     "id": "src/lib/store.ts#transaction.get#c78e515a8b5c",
     "file": "src/lib/store.ts",
     "line": 59,
@@ -3840,6 +3876,18 @@
     "refresh": "on mutation"
   },
   {
+    "id": "src/lib/store.ts#onSnapshot#ea01cda4ba38",
+    "file": "src/lib/store.ts",
+    "line": 39,
+    "api": "onSnapshot",
+    "target": "doc(db, 'assignments', token)",
+    "group": "client-quizzes",
+    "policy": "scoped-listener",
+    "note": "Живой статус нужен только для активной задачи/очереди; ограничить выборку, объединить потребителей и освободить подписку вне экрана.",
+    "assessment": "conditional",
+    "refresh": "while relevant view is open"
+  },
+  {
     "id": "src/lib/store.ts#transaction.get#c78e515a8b5c-2",
     "file": "src/lib/store.ts",
     "line": 76,
@@ -3850,6 +3898,18 @@
     "note": "Чтение внутри транзакции защищает конкурентное обновление; повторные транзакционные попытки учитываются при замере.",
     "assessment": "justified",
     "refresh": "on mutation"
+  },
+  {
+    "id": "src/lib/store.ts#transaction.get#c78e515a8b5c-3",
+    "file": "src/lib/store.ts",
+    "line": 90,
+    "api": "transaction.get",
+    "target": "reference",
+    "group": "client-quizzes",
+    "policy": "parent-action-point",
+    "note": "Транзакция читает одно назначение по известному токену, чтобы предотвратить дубли запроса и проверить статус/testId; нет listener или фонового чтения.",
+    "assessment": "justified",
+    "refresh": "once on explicit parent button"
   },
   {
     "id": "src/lib/store.ts#getDoc#7a5f981db99f",
