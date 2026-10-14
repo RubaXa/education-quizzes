@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import { describe, expect, it } from 'vitest'
 import { renderToStaticMarkup } from 'react-dom/server'
 import AssignmentBrief from './AssignmentBrief'
@@ -32,5 +33,13 @@ describe('one public task and quiz view', () => {
     const scored = renderToStaticMarkup(<QuizCard chain={[{ ...pending, points: 3, maxPoints: 4 }]} parent />)
     expect(scored).toContain('75%')
     expect(scored).toContain('3 из 4')
+  })
+
+  it('shows an untouched quiz as an icon and count without repeating Не начат', () => {
+    const host = document.createElement('div')
+    host.innerHTML = renderToStaticMarkup(<QuizCard chain={[{ token: 'token', testId: 'test', title: 'Диаграммы', slug: 'quiz', status: 'open', answered: 0, total: 20 }]} parent />)
+    expect(host.querySelector('.day-quiz-lineage-score')?.textContent).toBe('0 из 20')
+    expect(host.querySelector('.day-quiz-lineage-score')?.getAttribute('aria-label')).toContain('Не начат')
+    expect(host.textContent).not.toContain('Не начат')
   })
 })

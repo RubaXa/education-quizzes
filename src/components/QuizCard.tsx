@@ -19,7 +19,7 @@ export function QuizProgress({ test }: { test: QuizCardAttempt }) {
   const label = test.status === 'submitted'
     ? scored ? `Результат · ${scoreNumber(test.points!)} из ${scoreNumber(test.maxPoints!)} баллов · ${percentage}%` : 'Тест отправлен · результат уточняется'
     : answered ? `В процессе · отвечено ${answered} из ${test.total} · осталось ${remaining}`
-      : `Тест не начат · ${test.total} ${questionWord(test.total)}`
+      : `${test.total} ${questionWord(test.total)}`
   return <div className="day-test-progress">
     <span>{label}</span>
     {(scored || test.status !== 'submitted') && <div className="day-test-track" role="progressbar" aria-label={scored ? 'Результат теста в процентах' : 'Ответы на вопросы теста'} aria-valuemin={0} aria-valuemax={scored ? 100 : test.total} aria-valuenow={scored ? percentage! : answered}>
@@ -42,12 +42,12 @@ export default function QuizCard({ chain, parent, context = 'Самопрове�
   const href = parent && latest.status !== 'submitted' && latest.previewToken ? `#/preview/${latest.slug}~${latest.previewToken}` : `#/t/${latest.slug}~${latest.token}`
   const label = parent ? latest.status === 'submitted' ? 'Посмотреть результат' : 'Посмотреть вопросы' : latest.status === 'submitted' ? 'Посмотреть результат' : latest.answered ? 'Продолжить тест' : 'Пройти тест'
   const hasScore = latest.status === 'submitted' && latest.points != null && latest.maxPoints != null && latest.maxPoints > 0
-  const scoreLabel = hasScore ? `${Math.round(latest.points! / latest.maxPoints! * 100)}% · ${scoreNumber(latest.points!)} из ${scoreNumber(latest.maxPoints!)}` : latest.status === 'submitted' ? 'Результат уточняется' : latest.answered ? 'В процессе' : 'Не начат'
+  const scoreLabel = hasScore ? `${Math.round(latest.points! / latest.maxPoints! * 100)}% · ${scoreNumber(latest.points!)} из ${scoreNumber(latest.maxPoints!)}` : latest.status === 'submitted' ? 'Результат уточняется' : `${latest.answered} из ${latest.total}`
   const scoreStatus = hasScore ? latest.points === latest.maxPoints ? 'complete' : 'partial'
     : latest.status === 'submitted' ? 'waiting' : latest.answered ? 'started' : 'ready'
   return <section className="day-quiz-lineage" id={id} aria-label={`Самопроверки: ${context}`}>
-    <div className="day-quiz-lineage-head"><strong>{context === 'Самопроверка' ? context : `Самопроверка: ${context}`}</strong><span className={`day-quiz-lineage-score ${scoreStatus}`}><StatusIcon status={scoreStatus} size={14} />{scoreLabel}</span></div>
-    <div className="day-quiz-lineage-current"><small>{latest.status === 'submitted' ? 'Последний тест' : latest.answered ? 'Сейчас · в процессе' : 'Сейчас · не начат'}</small><h3>{latest.title}</h3>{latest.description && <p>{latest.description}</p>}
+    <div className="day-quiz-lineage-head"><strong>{context === 'Самопроверка' ? context : `Самопроверка: ${context}`}</strong><span className={`day-quiz-lineage-score ${scoreStatus}`} aria-label={latest.status === 'submitted' ? scoreLabel : `${latest.answered ? 'В процессе' : 'Не начат'} · ${latest.answered} из ${latest.total} ответов`}><StatusIcon status={scoreStatus} size={14} />{scoreLabel}</span></div>
+    <div className="day-quiz-lineage-current">{latest.status === 'submitted' && earlier.length > 0 && <small>Последний тест</small>}<h3>{latest.title}</h3>{latest.description && <p>{latest.description}</p>}
       {assignment}
       <QuizProgress test={latest} />
       <div className="day-quiz-lineage-actions"><a className="day-quiz-link" href={href} onClick={onOpen}>{label} <ExternalLink size={15} aria-hidden="true" /></a>{parent && <button type="button" className="day-quiz-copy" aria-label="Скопировать ссылку ребёнку" title="Скопировать ссылку ребёнку" onClick={() => void navigator.clipboard.writeText(new URL(`#/t/${latest.slug}~${latest.token}`, window.location.href).href).then(() => { setCopied(true); setCopyError('') }).catch(() => setCopyError('Не удалось скопировать ссылку.'))}><Copy size={16} aria-hidden="true" /></button>}</div>
