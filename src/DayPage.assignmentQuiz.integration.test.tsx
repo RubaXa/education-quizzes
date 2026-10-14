@@ -15,6 +15,7 @@ const scene = vi.hoisted(() => ({
   reviews: [] as DayWorkReview[],
   uploads: [] as DayUpload[],
   decisions: [] as ParentCompletionEvent[],
+  guides: {} as Record<string, unknown>,
   choiceCalls: [] as boolean[],
 }))
 
@@ -25,7 +26,7 @@ vi.mock('./lib/dayStore', async (importOriginal) => ({
     return () => {}
   },
   watchDayHelp: (_tokens: string[], onChange: (items: unknown[]) => void) => { onChange([]); return () => {} },
-  watchDayTaskGuides: (_token: string, onChange: (guides: Record<string, unknown>) => void) => { onChange({}); return () => {} },
+  watchDayTaskGuides: (_token: string, onChange: (guides: Record<string, unknown>) => void) => { onChange(scene.guides); return () => {} },
 }))
 vi.mock('./lib/dayGuidance', async (importOriginal) => ({
   ...await importOriginal<typeof import('./lib/dayGuidance')>(),
@@ -69,7 +70,11 @@ function page(): DayPageData {
   const problems = [first, second].flatMap((variantId) => Array.from({ length: 5 }, (_, index) => ({
     id: `${variantId}-p${index + 1}`, number: index + 1,
     title: index === 0 ? 'Марки Ивана' : `Задача ${index + 1}`, detail: '', source: 'Лист учителя', variantId,
-    original: { text: `№ ${index + 1}. Постройте диаграмму.`, attachmentRef: 'teacher-sheet' },
+    original: { text: `№ ${index + 1}. Постройте диаграмму.`, attachmentRef: 'teacher-sheet',
+      crop: { x: 20, y: 30, width: 420, height: 180, sourceWidth: 1000, sourceHeight: 700, sourceSha256: 'teacher-sha' } },
+    support: { skill: 'Круговая диаграмма', state: 'unknown' as const, evidence: 'Сверенный лист', evidenceRefs: ['teacher-sheet'],
+      facts: [{ label: 'Птицы', value: '20' }, { label: 'Животные', value: '10' }, { label: 'Автомобили', value: '60' }],
+      find: 'Доли на диаграмме', firstQuestion: 'Какие величины даны?', revision: 1 },
   })))
   return {
     kind: 'parent', date: '2026-10-14', targetDate: '2026-10-14', meshFetchedAt: '2026-10-14T10:00:00.000Z',
@@ -80,7 +85,7 @@ function page(): DayPageData {
         detail: '', source: 'МЭШ', meshText: 'Подготовиться к самостоятельной по круговым и столбчатым диаграммам. Файл приложен.',
         testToken: 'diagrams-test', practiceVariants: [{ id: first, title: 'Вариант 1' }, { id: second, title: 'Вариант 2' }], problems }] }],
     testPlacements: [{ token: 'diagrams-test', subjectId: 'math', taskId }],
-    materialLinks: { [taskId]: [{ title: 'Лист учителя', sourceType: 'teacher-attachment', url: 'https://disk.yandex.ru/d/example', sourceRef: 'teacher-sheet' }] },
+    materialLinks: { [taskId]: [{ title: 'Лист учителя', sourceType: 'teacher-attachment', url: 'https://disk.yandex.ru/d/example', sourceRef: 'teacher-sheet', sourceSha256: 'teacher-sha' }] },
   }
 }
 
@@ -91,6 +96,7 @@ beforeEach(() => {
   scene.uploads = [{ id: 'student-token:photo-1', taskId: firstProblemIds[0], coveredTaskIds: firstProblemIds, status: 'reviewed' }]
   scene.decisions = [{ id: 'optional', taskId, variantId: second, action: 'variant-optional', reviewCheckedAt: null,
     decidedAt: { seconds: 100, nanoseconds: 0 } }]
+  scene.guides = { [firstProblemIds[0]]: { guide: { kind: 'worked-solution', presentation: 'math-route', overview: 'Разбор для родителя', stages: [] } } }
   scene.choiceCalls = []
   sessionStorage.clear()
   sessionStorage.setItem('education-day-initial-tab', 'homework')
@@ -173,6 +179,27 @@ describe('day page: teacher sheet and linked self-check', () => {
       expect(view.host.querySelectorAll('.day-practice-variant')).toHaveLength(2)
       expect(view.host.querySelectorAll('.day-practice-variant-shell [role="switch"]')).toHaveLength(0)
       expect(view.host.querySelectorAll('.day-practice-variant-shell')[1]?.textContent).toContain('По желанию')
+    } finally { await view.cleanup() }
+  })
+
+  it.each([true, false])('keeps original, exact text and given/find in the opened problem (parent=%s)', async (parent) => {
+    const view = await renderPage(parent)
+    try {
+      await act(async () => { view.host.querySelector<HTMLButtonElement>('.problem-group-toggle')?.click() })
+      await act(async () => { view.host.querySelector<HTMLElement>('.day-practice-variant > summary')?.click() })
+      await act(async () => { view.host.querySelector<HTMLElement>('.day-practice-variant .problem-card-heading')?.click() })
+      const number = view.host.querySelector('.day-practice-variant .problem-card')
+      expect(number?.querySelector('.source-fragment-trigger')).not.toBeNull()
+      expect(number?.querySelector('.problem-statement-transcript')?.textContent).toContain('№ 1. Постройте диаграмму.')
+      expect(number?.querySelector('.problem-statement-facts')?.textContent).toContain('Птицы')
+      expect(number?.querySelector('.problem-statement-find')?.textContent).toContain('Доли на диаграмме')
+      if (parent) {
+        expect(number?.querySelector('.day-parent-guide')).not.toBeNull()
+        expect(number?.querySelector('.problem-card-upload')).toBeNull()
+      } else {
+        expect(number?.querySelector('.day-parent-guide')).toBeNull()
+        expect(number?.querySelector('.problem-card-upload')).not.toBeNull()
+      }
     } finally { await view.cleanup() }
   })
 
