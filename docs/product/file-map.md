@@ -385,6 +385,11 @@
 | [scripts/firestore-read-index.mjs](../../scripts/firestore-read-index.mjs) | [Реестр чтений](../architecture/firestore-read-paths.md) | AST-инвентаризация прямых чтений и запрет новых путей без оценки | `npm run check:reads`; разработчик |
 | [docs/architecture/firestore-read-sites.json](../architecture/firestore-read-sites.json) | [Реестр чтений](../architecture/firestore-read-paths.md) | Поимённый реестр текущих вызовов с частотой, причиной и предварительной оценкой | `firestore-read-index.mjs`; архитектурный аудит |
 | [docs/architecture/firestore-read-paths.md](../architecture/firestore-read-paths.md) | [Реестр чтений](../architecture/firestore-read-paths.md) | Правило выбора подписки, разового чтения и локальной сверки по типу данных | Разработчик; оператор EducationSync |
+| [docs/product/ui-change-control.md](ui-change-control.md) | [Управление UI](ui-change-control.md) | Сквозная связь сценария, спецификации, JSX/CSS, регрессии и согласования | Разработчик; ревью выпуска |
+| [docs/product/ui-contract-baseline.json](ui-contract-baseline.json) | [Управление UI](ui-change-control.md) | Запечатанный начальный отпечаток 209 файлов продуктового кода | `check-ui-contract.mjs` |
+| [docs/product/ui-change-decisions.json](ui-change-decisions.json) | [Управление UI](ui-change-control.md) | Принятые изменения UI с решением, спецификацией и проверкой по файлу | `check-ui-contract.mjs`; ревью |
+| [scripts/check-ui-contract.mjs](../../scripts/check-ui-contract.mjs) | [Управление UI](ui-change-control.md) | Останавливает незаявленную правку или добавление продуктового кода | `npm run check:spec`; разработчик |
+| [scripts/check-ui-contract.test.mjs](../../scripts/check-ui-contract.test.mjs) | [Управление UI](ui-change-control.md) | Проверяет отказ при переносе CSS без решения, устаревшем отпечатке и отсутствии теста | Vitest; разработчик |
 
 ## Проверка после изменения
 

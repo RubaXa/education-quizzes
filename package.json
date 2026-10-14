@@ -21,7 +21,7 @@
     "bench:reads": "vitest run src/components/ParentHome.readBudget.test.tsx src/lib/bookPageSource.test.ts src/lib/dayMaterialRefs.test.ts --reporter=verbose",
     "index:reads": "node scripts/firestore-read-index.mjs --write",
     "check:reads": "node scripts/firestore-read-index.mjs --self-test && node scripts/firestore-read-index.mjs",
-    "check:spec": "node scripts/check-spec-map.mjs",
+    "check:spec": "node scripts/check-spec-map.mjs && node scripts/check-ui-contract.mjs",
     "check": "npm run check:spec && npm run check:reads && npm run lint && npm run test && npm run build",
     "prepare": "lefthook install",
     "preview": "vite preview",
