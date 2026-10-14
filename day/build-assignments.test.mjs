@@ -46,4 +46,21 @@ describe('сборка двух МЭШ-заданий с файлами уров
     buildDaySource(local, '2026-10-13')
     expect(read(source).materialLinks).toEqual(initial.materialLinks)
   })
+  it('сбрасывает прежнюю разметку вариантов при изменении записи учителя', () => {
+    const { local, assignment, source } = fixture()
+    buildDaySource(local, '2026-10-13')
+    const old = read(source)
+    old.subjects[0].tasks[0].practiceVariants = [{ id: 'mesh-one-v1', title: 'Вариант 1' }, { id: 'mesh-one-v2', title: 'Вариант 2' }]
+    old.subjects[0].tasks[0].problems = [{ id: 'mesh-one-p-v1-1', variantId: 'mesh-one-v1', number: 1 }]
+    write(source, old)
+    assignment.homeworkEntries[0].description = 'Решить новый лист учителя'
+    write(join(local, 'diary', 'snapshot-2026-10-14.json'), {
+      complete: true, fetchedAt: '2026-10-13T13:00:00Z', schedule: [{ subjectName: 'Математика' }], assignments: [assignment],
+    })
+    buildDaySource(local, '2026-10-13')
+    const revised = read(source).subjects[0].tasks[0]
+    expect(revised.instructionStatus.state).toBe('needs-review')
+    expect(revised.problems).toBeUndefined()
+    expect(revised.practiceVariants).toBeUndefined()
+  })
 })

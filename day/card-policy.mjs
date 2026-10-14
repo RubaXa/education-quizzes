@@ -89,6 +89,63 @@ export function practiceVariantErrors(task) {
   return errors
 }
 
+/** Independently inspected teacher-sheet inventory, checked against the card.
+ * The operator records this from the full original before entering problem cards.
+ * @see ../docs/product/card-generation-policy.md#source-inventory */
+export function sourceInventoryErrors(task, links = []) {
+  const teacherLinks = links.filter((link) => link.sourceType === 'teacher-attachment')
+  if (task?.mathRoutePolicyVersion !== 2 || task?.instructionStatus?.state !== 'reviewed') return []
+  if (!teacherLinks.length) return task.materialStatus?.state === 'teacher-attachment-needed'
+    || /(?:из|в|к)\s+файл[ауе]|лист[ауе]?\s+учителя/i.test(task.meshText ?? '')
+    ? ['Для сверенного задания нужен назначенный ему файл учителя.'] : []
+  const inventory = task.sourceInventory
+  if (!inventory || !Array.isArray(inventory.sources) || inventory.sources.length !== teacherLinks.length) {
+    return ['Нужна отдельная опись каждого файла учителя.']
+  }
+  const seenSources = new Set()
+  const groups = []
+  for (const sheet of inventory.sources) {
+    const link = teacherLinks.find((item) => item.sourceRef === sheet.sourceRef && item.sourceSha256 === sheet.sourceSha256)
+    if (!link || seenSources.has(sheet.sourceRef) || !sheet.evidenceRef?.trim()
+      || !/^[a-f0-9]{64}$/.test(sheet.sourceSha256 ?? '')) {
+      return ['Нужна независимая сверка каждого полного оригинала с его хэшем и записью проверки.']
+    }
+    seenSources.add(sheet.sourceRef)
+    if (!Array.isArray(sheet.groups) || (!sheet.groups.length && !sheet.noNumberedProblemsReason?.trim())) {
+      return ['В описи каждого файла нужны группы номеров или явная причина их отсутствия.']
+    }
+    groups.push(...sheet.groups)
+  }
+  if (!groups.length) return task.problems?.length || task.practiceVariants?.length
+    ? ['Карточка содержит номера или варианты, которых нет в описи оригиналов.'] : []
+  if (inventory.resultMode === 'written' && (task.kind !== 'written' || task.outputKind !== 'worked-solution')
+    || inventory.resultMode === 'optional-practice' && (task.kind !== 'check' || !task.practiceVariants?.length)
+    || !['written', 'optional-practice'].includes(inventory.resultMode)) {
+    return ['Вид работы и действие загрузки не совпадают с описью оригинала.']
+  }
+  const inventoryPairs = []
+  for (const group of groups) {
+    if (!Array.isArray(group.numbers) || !group.numbers.length
+      || group.numbers.some((number) => !Number.isInteger(number) || number < 1)) {
+      return ['В каждой группе описи нужны положительные номера задач.']
+    }
+    inventoryPairs.push(...group.numbers.map((number) => `${group.variantId ?? ''}:${number}`))
+  }
+  if (new Set(inventoryPairs).size !== inventoryPairs.length) return ['В описи повторён номер внутри одного варианта.']
+  const expectedVariantIds = new Set((task.practiceVariants ?? []).map((variant) => variant.id))
+  const inventoryVariantIds = new Set(groups.map((group) => group.variantId ?? ''))
+  if (expectedVariantIds.size
+    ? expectedVariantIds.size !== inventoryVariantIds.size || [...expectedVariantIds].some((id) => !inventoryVariantIds.has(id))
+    : inventoryVariantIds.size !== 1 || !inventoryVariantIds.has('')) {
+    return ['Варианты карточки не совпадают с независимо сверенным листом.']
+  }
+  const actualPairs = (task.problems ?? []).map((problem) => `${problem.variantId ?? ''}:${problem.number}`)
+  if (inventoryPairs.length !== actualPairs.length || inventoryPairs.some((pair) => !actualPairs.includes(pair))) {
+    return ['Номера карточки не совпадают с независимо сверенным листом.']
+  }
+  return []
+}
+
 export function cardAdapter(subjectId, task) {
   if (task?.instructionStatus?.state === 'needs-review') return 'raw-mesh'
   if (task?.cardPattern) {

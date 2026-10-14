@@ -20,7 +20,7 @@
 | [components.json](../../components.json) | [Экраны из данных](../architecture/backend-driven-ui.md) | Настройки базовых UI-компонентов | Генератор компонентов |
 | [day/build.mjs](../../day/build.mjs) | [Формирование плана](plan-generation.md) | Точная запись МЭШ, классификация явной письменной работы отдельно от ЦДЗ, сброс решения о тесте при смене записи, владелец и срок сдачи | `scripts/day.mjs` |
 | [day/card-policy.d.mts](../../day/card-policy.d.mts) | [Выбор карточки](card-generation-policy.md) | Типы профилей и общего графа выбора | TypeScript; клиент |
-| [day/card-policy.mjs](../../day/card-policy.mjs) | [Выбор карточки](card-generation-policy.md) | Выбор адаптера по ожидаемому результату и профиля математического маршрута | `scripts/day.mjs`; `ParentTaskGuide` |
+| [day/card-policy.mjs](../../day/card-policy.mjs) | [Выбор карточки](card-generation-policy.md) | Выбор адаптера, профиля математического маршрута и сверка описи учительского листа | `scripts/day.mjs`; `ParentTaskGuide` |
 | [day/card-policy.test.mjs](../../day/card-policy.test.mjs) | [Выбор карточки](card-generation-policy.md) | Проверка четырёх письменных маршрутов, источника конфигурации и закрытой родительской проекции | Vitest; разработчик |
 | [day/dashboard-index.mjs](../../day/dashboard-index.mjs) | [Dashboard](dashboard.md) | Индекс и проверка явных ID выходных заданий, дат урока и срока | `scripts/day.mjs`; `src/DayDashboard.tsx` |
 | [day/dashboard-index.test.mjs](../../day/dashboard-index.test.mjs) | [Dashboard](dashboard.md) | Проверка ссылки МЭШ на задание предыдущего учебного дня | Vitest; разработчик |
@@ -36,7 +36,7 @@
 | [day/material-access.test.mjs](../../day/material-access.test.mjs) | [Модель Firestore](firestore-data-model.md) | Запрет доступа к общему PDF без семейного подтверждения и различение редакций | Vitest; разработчик |
 | [day/assignment-structure.mjs](../../day/assignment-structure.mjs) | [Несколько заданий](day-page.md) | Барьер против копирования листов учителя между отдельными назначениями МЭШ | `scripts/day.mjs`; публикация |
 | [day/assignment-structure.test.mjs](../../day/assignment-structure.test.mjs) | [Несколько заданий](day-page.md) | Регрессия двух листов и явного общего вложения | Vitest; разработчик |
-| [day/build-assignments.test.mjs](../../day/build-assignments.test.mjs) | [Несколько заданий](day-page.md) | Повторная сборка МЭШ не размножает файлы и сохраняет сверенные связи | Vitest; разработчик |
+| [day/build-assignments.test.mjs](../../day/build-assignments.test.mjs) | [Сертификация карточки](card-flow-certification.md) | Повторная сборка МЭШ не размножает файлы, сохраняет связи и сбрасывает устаревшие варианты | Vitest; разработчик |
 | [day/merge.mjs](../../day/merge.mjs) | [Формирование плана](plan-generation.md) | Слияние без потери работы, ревизия выходного плана, снятие ошибочной карточки и удаление доказанной ссылки | `scripts/day.mjs` |
 | [day/merge.test.mjs](../../day/merge.test.mjs) | [Доступ и состояние](access-and-state.md) | Проверка сохранности при слиянии дня | Vitest; разработчик |
 | [day/owner-repair.mjs](../../day/owner-repair.mjs) | [Модель Firestore](firestore-data-model.md) | Узкая миграция владельца старой ролевой страницы по dayOwners | `scripts/day.mjs` |
@@ -45,7 +45,7 @@
 | [day/placement-integrity.test.mjs](../../day/placement-integrity.test.mjs) | [Модель Firestore](firestore-data-model.md) | Регрессия дублирующей и отсутствующей связи | Vitest; разработчик |
 | [day/placement-repair.mjs](../../day/placement-repair.mjs) | [Модель Firestore](firestore-data-model.md) | Узкая идемпотентная Up-миграция связи теста | `scripts/day.mjs` |
 | [day/placement-repair.test.mjs](../../day/placement-repair.test.mjs) | [Модель Firestore](firestore-data-model.md) | Проверка сохранения остальных полей при миграции | Vitest; разработчик |
-| [day/pipeline-contract.mjs](../../day/pipeline-contract.mjs) | [Формирование плана](plan-generation.md) | Проверка полноты МЭШ, соответствия плана и опубликованной страницы | `scripts/day.mjs` |
+| [day/pipeline-contract.mjs](../../day/pipeline-contract.mjs) | [Сертификация карточки](card-flow-certification.md) | Проверка полноты МЭШ, отпечатка и состава опубликованных заданий, вариантов и номеров | `scripts/day.mjs` |
 | [day/pipeline-contract.test.mjs](../../day/pipeline-contract.test.mjs) | [Формирование плана](plan-generation.md) | Проверка барьеров публикации и защиты выходных карточек | Vitest; разработчик |
 | [day/public-projection.mjs](../../day/public-projection.mjs) | [Единый путь разбора](subject-aware-guidance.md) | Исключение закрытого разбора из обеих страниц дня по ссылке | `scripts/day.mjs` |
 | [day/public-projection.test.mjs](../../day/public-projection.test.mjs) | [Единый путь разбора](subject-aware-guidance.md) | Проверка удаления закрытых полей без порчи исходника | Vitest; разработчик |
@@ -85,6 +85,7 @@
 | [docs/research/parent-card-subject-options.md](../research/parent-card-subject-options.md) | [Выбор карточки](card-generation-policy.md) | Исследовательское основание принятых предметных форм | Родитель; агент; предметные адаптеры |
 | [docs/research/literature-card-options.md](../research/literature-card-options.md) | [Выбор карточки](card-generation-policy.md) | Источники и пять согласованных литературных форм | Родитель; агент; генератор карточек |
 | [docs/product/card-generation-policy.md](card-generation-policy.md) | [Выбор карточки](card-generation-policy.md) | Общий граф выбора и профили математического адаптера | Сборка; проверка; UI |
+| [docs/product/card-flow-certification.md](card-flow-certification.md) | [Сертификация карточки](card-flow-certification.md) | Матрица переходов от МЭШ и оригинала до ролевого чтения и телефона, пределы проверок | Агент; сборка; выпуск |
 | [docs/product/assessment-decision-graph.md](assessment-decision-graph.md) | [Граф самопроверок](assessment-decision-graph.md) | Подтверждение вида задания, источники, предметные ветки, режимы и закрытый план вопросов | Агент; `quiz.mjs`; `sync-queue.mjs` |
 | [docs/product/assessment-source-policy.md](assessment-source-policy.md) | [Граф самопроверок](assessment-decision-graph.md) | Источники и два цикла подготовки к контрольной | Агент; навык тестов |
 | [docs/research/assessment-source-catalog.md](../research/assessment-source-catalog.md) | [Граф самопроверок](assessment-decision-graph.md) | Проверенные каталоги программ и образцов по предметам | Агент при подготовке закрытого плана |
@@ -243,6 +244,7 @@
 | [src/components/TaskGuidance.css](../../src/components/TaskGuidance.css) | [Дизайн-система](design-system.md) | Оформление выбранной помощи ребёнку | `TaskGuidance.tsx` |
 | [src/components/UnifiedTaskCard.test.tsx](../../src/components/UnifiedTaskCard.test.tsx) | [Единая модель карточки](subject-card-viewmodel.md) | Проверка ученического источника, выборочной помощи и единого процента теста | Vitest; разработчик |
 | [src/components/ProblemTaskCard.tsx](../../src/components/ProblemTaskCard.tsx) | [Адаптивная карточка](adaptive-problem-card.md) | Общая композиция условия, разбора и загрузки для номера | `src/DayPage.tsx`; `src/WeekendMathSlot.tsx` |
+| [src/components/ProblemTaskCard.contract.test.tsx](../../src/components/ProblemTaskCard.contract.test.tsx) | [Сертификация карточки](card-flow-certification.md) | Наличие действия загрузки у пункта второго варианта и после завершённой проверки | Vitest; разработчик |
 | [src/components/PwaControls.css](../../src/components/PwaControls.css) | [PWA](pwa.md) | Оформление установки и обновления | `src/components/PwaControls.tsx` |
 | [src/components/PwaControls.tsx](../../src/components/PwaControls.tsx) | [PWA](pwa.md) | Управление обновлением приложения | Пользователь PWA |
 | [src/components/SourceFragment.css](../../src/components/SourceFragment.css) | [Адаптивная карточка](adaptive-problem-card.md) | Оформление фрагмента оригинала | `src/components/SourceFragment.tsx` |

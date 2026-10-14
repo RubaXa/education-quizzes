@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto'
 import { lessonVisibility } from '../diary/application/lesson-visibility.mjs'
+import { publicPageSubjects } from './public-projection.mjs'
 
 /** @see ../docs/product/plan-generation.md#publication-preflight */
 export function meshEntries(snapshot) {
@@ -59,6 +60,21 @@ export function assertPublishedPageAligned(source, page, role) {
   if (page.sourcePlanFingerprint) {
     if (page.sourcePlanFingerprint !== sourcePlanFingerprint(source)) {
       throw new Error(`Опубликованная страница ${role} отстаёт от локального плана урока ${source.targetDate}. Сначала day publish.`)
+    }
+    // A matching copied fingerprint alone cannot prove that nested tasks survived
+    // projection, writing and readback. Check the user-visible topology too.
+    const topology = (subjects) => subjects?.map((subject) => ({ id: subject.id,
+      tasks: subject.tasks?.map((task) => ({ id: task.id, meshText: task.meshText,
+        kind: task.kind, outputKind: task.outputKind,
+        practiceVariants: task.practiceVariants?.map((variant) => ({ id: variant.id, title: variant.title })),
+        problems: task.problems?.map((problem) => ({ id: problem.id, variantId: problem.variantId,
+          number: problem.number, title: problem.title, original: problem.original && {
+            attachmentRef: problem.original.attachmentRef, text: problem.original.text,
+          } })),
+      })),
+    }))
+    if (JSON.stringify(topology(page.subjects)) !== JSON.stringify(topology(publicPageSubjects(source.subjects)))) {
+      throw new Error(`Опубликованная страница ${role} потеряла задание, вариант или номер. Повторите публикацию и обратную сверку.`)
     }
     return
   }

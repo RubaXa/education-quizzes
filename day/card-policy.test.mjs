@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { cardAdapter, languageRoutePatterns, learningRoutePatterns, missingMathRoutes, practiceVariantErrors, validLanguageRoute, validLearningRoute } from './card-policy.mjs'
+import { cardAdapter, languageRoutePatterns, learningRoutePatterns, missingMathRoutes, practiceVariantErrors, sourceInventoryErrors, validLanguageRoute, validLearningRoute } from './card-policy.mjs'
 import { publicPageSubjects } from './public-projection.mjs'
 
 describe('stable written-language card contract', () => {
@@ -49,6 +49,36 @@ describe('stable written-language card contract', () => {
 })
 
 describe('numbered mathematics parent route gate', () => {
+  it('checks every source variant and printed number against a separately inspected original', () => {
+    const ref = 'mesh-attachment:sheet#1'
+    const sha = 'a'.repeat(64)
+    const links = [{ sourceType: 'teacher-attachment', sourceRef: ref, sourceSha256: sha }]
+    const task = { id: 'mesh-1', kind: 'check', mathRoutePolicyVersion: 2, instructionStatus: { state: 'reviewed' },
+      practiceVariants: [{ id: 'mesh-1-v1', title: 'Вариант 1' }, { id: 'mesh-1-v2', title: 'Вариант 2' }],
+      sourceInventory: { resultMode: 'optional-practice', sources: [{ sourceRef: ref, sourceSha256: sha,
+        evidenceRef: 'work/source.md', groups: [
+          { variantId: 'mesh-1-v1', numbers: [1, 2] }, { variantId: 'mesh-1-v2', numbers: [1, 2] },
+        ] }] },
+      problems: [1, 2].flatMap((number) => ['mesh-1-v1', 'mesh-1-v2'].map((variantId) => ({ variantId, number }))),
+    }
+    expect(sourceInventoryErrors(task, links)).toEqual([])
+    expect(sourceInventoryErrors({ ...task, problems: task.problems.slice(0, -1) }, links)).toEqual(expect.arrayContaining([expect.stringMatching(/Номера/)]))
+    expect(sourceInventoryErrors({ ...task, practiceVariants: task.practiceVariants.slice(0, 1) }, links)).toEqual(expect.arrayContaining([expect.stringMatching(/Варианты/)]))
+    expect(sourceInventoryErrors({ ...task, kind: 'written' }, links)).toEqual(expect.arrayContaining([expect.stringMatching(/Вид работы/)]))
+    expect(sourceInventoryErrors(task, [{ ...links[0], sourceSha256: 'b'.repeat(64) }])).toEqual(expect.arrayContaining([expect.stringMatching(/оригинала/)]))
+    expect(sourceInventoryErrors({ ...task, sourceInventory: undefined }, links)).not.toEqual([])
+    expect(sourceInventoryErrors({ ...task, mathRoutePolicyVersion: 1, sourceInventory: undefined }, links)).toEqual([])
+    expect(sourceInventoryErrors({ ...task, meshText: 'Решать задания из файла' }, [])).toEqual(expect.arrayContaining([expect.stringMatching(/файл учителя/)]))
+    expect(sourceInventoryErrors(task, [...links, { sourceType: 'teacher-attachment', sourceRef: 'mesh-attachment:second#1', sourceSha256: 'b'.repeat(64) }]))
+      .toEqual(expect.arrayContaining([expect.stringMatching(/каждого файла/)]))
+    const second = { sourceType: 'teacher-attachment', sourceRef: 'mesh-attachment:second#1', sourceSha256: 'b'.repeat(64) }
+    const split = { ...task, sourceInventory: { ...task.sourceInventory, sources: [
+      { ...task.sourceInventory.sources[0], groups: [{ variantId: 'mesh-1-v1', numbers: [1, 2] }] },
+      { sourceRef: second.sourceRef, sourceSha256: second.sourceSha256, evidenceRef: 'work/second.md',
+        groups: [{ variantId: 'mesh-1-v2', numbers: [1, 2] }] },
+    ] } }
+    expect(sourceInventoryErrors(split, [...links, second])).toEqual([])
+  })
   it('accepts two sourced practice variants with repeated printed numbers and stable distinct IDs', () => {
     const task = { id: 'mesh-1', kind: 'check', instructionStatus: { state: 'reviewed' },
       practiceVariants: [{ id: 'mesh-1-v1', title: 'Вариант 1' }, { id: 'mesh-1-v2', title: 'Вариант 2' }],

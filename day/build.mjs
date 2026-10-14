@@ -135,6 +135,8 @@ export function buildDaySource(local, date) {
           delete old.outputKind
           delete old.assessmentIntent // A changed teacher entry invalidates the prior quiz decision.
           delete old.problems // Old teacher sheet and personalized hints do not apply to a revised condition.
+          delete old.practiceVariants
+          delete old.sourceInventory
           old.instructionStatus = { state: 'needs-review', message: 'Учитель изменил условие. Сейчас показан точный текст МЭШ; прежний разбор не действует.' }
           if (!['math', 'special'].includes(id) && old.kind === 'written') old.cardPolicyVersion = 1
           subject.summary = 'Условие МЭШ изменилось. Подробный разбор готовится.'
@@ -165,7 +167,7 @@ export function buildDaySource(local, date) {
         status: 'unknown', kind: rawMeshKind(description),
         // New numbered math tasks cannot be published after review without the private route.
         // @see ../docs/product/math-solution-route.md#pipeline
-        ...(['math', 'special'].includes(id) ? { mathRoutePolicyVersion: 1 } : {}),
+        ...(['math', 'special'].includes(id) ? { mathRoutePolicyVersion: 2 } : {}),
         // A reviewed new written Russian task must receive one of the stable routes.
         // @see ../docs/product/card-generation-policy.md#russian-adapter
         ...(!['math', 'special'].includes(id) && rawMeshKind(description) === 'written' ? { cardPolicyVersion: 1 } : {}),

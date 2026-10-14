@@ -5,7 +5,7 @@ export function publicProblem({ sourceResearch: _sourceResearch, parentGuide: _p
 }
 
 export function publicPageSubjects(subjects) {
-  return subjects.map((subject) => ({ ...subject, tasks: subject.tasks.map(({ parentGuide: _parentGuide, sourceResearch: _sourceResearch, ...task }) => ({
+  return subjects.map((subject) => ({ ...subject, tasks: subject.tasks.map(({ parentGuide: _parentGuide, sourceResearch: _sourceResearch, sourceInventory: _sourceInventory, ...task }) => ({
     ...task,
     ...(task.problems ? { problems: task.problems.map(publicProblem) } : {}),
   })) }))

@@ -3,7 +3,7 @@ import { publicPageSubjects, publicProblem } from './public-projection.mjs'
 
 describe('публичная проекция страниц дня', () => {
   it('удаляет родительский ориентир и исследование из задания и номера', () => {
-    const input = [{ id: 'math', tasks: [{ id: 'mesh-1', parentGuide: { stages: [] }, sourceResearch: { title: 'internal' },
+    const input = [{ id: 'math', tasks: [{ id: 'mesh-1', parentGuide: { stages: [] }, sourceResearch: { title: 'internal' }, sourceInventory: { evidenceRef: 'private' },
       problems: [{ id: 'problem-1', title: '№ 1', parentGuide: { stages: [] }, sourceResearch: { title: 'internal' } }] }] }]
     const output = publicPageSubjects(input)
     expect(output).toEqual([{ id: 'math', tasks: [{ id: 'mesh-1', problems: [{ id: 'problem-1', title: '№ 1' }] }] }])

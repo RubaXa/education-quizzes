@@ -10,3 +10,4 @@ export declare function validLanguageRoute(task: { cardPattern?: string; cardPol
 export declare function mathRouteProfile(guide: { routeProfile?: MathRouteProfile } | undefined): MathRouteProfile
 export declare function cardAdapter(subjectId: string, task: { instructionStatus?: { state: string }; outputKind?: string; cardPattern?: string; kind?: string; problems?: unknown[] } | undefined): string
 export declare function cardPolicyModules(subjectId: string, task: { instructionStatus?: { state: string }; outputKind?: string; cardPattern?: string; kind?: string; problems?: unknown[] } | undefined): { base: 'assignment-card'; adapter: string; overlays: string[] }
+export declare function sourceInventoryErrors(task: unknown, links?: unknown[]): string[]

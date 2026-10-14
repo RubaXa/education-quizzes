@@ -17,7 +17,7 @@ import { teacherAttachmentOwnershipErrors } from '../day/assignment-structure.mj
 import { ownerMigrationFields } from '../day/owner-repair.mjs'
 import { publicPageSubjects, publicProblem } from '../day/public-projection.mjs'
 import { isExplicitCdzTask } from '../day/homework-kind.mjs'
-import { cardPolicyModules, mathRouteProfile, mathRouteProfiles, missingMathRoutes, practiceVariantErrors, validLearningRoute } from '../day/card-policy.mjs'
+import { cardPolicyModules, mathRouteProfile, mathRouteProfiles, missingMathRoutes, practiceVariantErrors, sourceInventoryErrors, validLearningRoute } from '../day/card-policy.mjs'
 import { assertPublishedPageAligned, assertSourceAligned, sourcePlanFingerprint } from '../day/pipeline-contract.mjs'
 import { assertGradeSnapshotAligned, detectGradeChange } from '../day/grade-reconciliation.mjs'
 import { YandexDiskStorage } from '../storage/yandex-disk.mjs'
@@ -324,6 +324,8 @@ function validate(source, { allowUnchangedLegacyTeacherLinks = false } = {}) {
       const adapter = policy.adapter
       const variantErrors = practiceVariantErrors(task)
       if (variantErrors.length) fail(`У ${task.id} неверно разобраны варианты: ${variantErrors.join(' ')}`)
+      const inventoryErrors = sourceInventoryErrors(task, source.materialLinks?.[task.id] ?? [])
+      if (inventoryErrors.length) fail(`У ${task.id} не завершена сверка полного листа: ${inventoryErrors.join(' ')}`)
       if (task.instructionStatus?.state === 'reviewed' && task.kind === 'written' && task.cardPolicyVersion === 1
         && (adapter !== 'language-route' || task.parentGuide?.presentation !== 'learning-route')) {
         fail(`У ${task.id} письменная карточка требует предметный маршрут.`)
