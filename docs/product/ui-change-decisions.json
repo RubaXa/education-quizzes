@@ -357,8 +357,8 @@
       }
     },
     "src/components/QuizCard.tsx": {
-      "sha256": "3eb7093235e8d7e3c33e48ccee2f824fa1de3008831c8a48cde2de97a4c63e21",
-      "record": "docs/product/ui-decisions/one-parent-review-and-safe-site-2026-10-14.md",
+      "sha256": "b86cefa596088be1b724ea41481aed94cc3e6242fe944e57cc11301431594081",
+      "record": "docs/product/ui-decisions/parent-followup-button-release-2026-10-14.md",
       "specs": [
         "docs/product/assessment-decision-graph.md",
         "docs/product/dashboard.md",
@@ -371,7 +371,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 14.10.2026: один понятный родительский разбор по русскому с предметной спецификой, обновить сайт; отдельные права Firestore пока не разрешены."
+        "evidence": "Прямой запрос родителя 14.10.2026: показать кнопку связанного теста для любого полностью проверенного результата ниже 100% и выпустить согласованное действие."
       }
     },
     "src/lib/dayMaterialRefs.ts": {
