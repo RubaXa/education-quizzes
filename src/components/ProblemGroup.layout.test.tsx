@@ -9,6 +9,9 @@ describe('numbered sheet heading', () => {
       { id: 'sheet-p01', number: 1, title: 'Задача', detail: '', source: 'Учитель' },
     ]} uploads={[]} reviews={[]} localPendingCount={0} sourceCount={1} ready><p>Условие</p></ProblemGroup>)
     expect(html).toContain('hidden=""')
+    expect(html).toContain('problem-group-chevron')
+    expect(html).not.toContain('Открыть лист, решения и проверки')
+    expect(html).not.toContain('Фото ещё нет')
   })
 
   it('keeps the visible count short and the full meaning accessible', () => {

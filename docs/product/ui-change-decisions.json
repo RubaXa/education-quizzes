@@ -1,3 +1,123 @@
 {
-  "files": {}
+  "files": {
+    "src/DayPage.tsx": {
+      "sha256": "39944085c5a15bc503105a82a388ab4c2b4ec1cc5441026200472b99e18377d6",
+      "record": "docs/product/ui-decisions/flat-numbered-sheet-2026-10-14.md",
+      "specs": [
+        "docs/product/problem-card-design-decisions.md",
+        "docs/product/design-system.md"
+      ],
+      "tests": [
+        "src/components/AssignmentBrief.test.tsx",
+        "src/components/ProblemTaskCard.contract.test.tsx",
+        "src/components/ProblemGroup.layout.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Запрос родителя 14.10.2026: вижу те же проблемы с вложенностью карточек; давай доделаем оставшееся."
+      }
+    },
+    "src/DayPage.css": {
+      "sha256": "9a37004e24e99837e8f4ced2b4cb8695ace778a678141c3590e958ca02512f92",
+      "record": "docs/product/ui-decisions/flat-numbered-sheet-2026-10-14.md",
+      "specs": [
+        "docs/product/problem-card-design-decisions.md",
+        "docs/product/design-system.md"
+      ],
+      "tests": [
+        "src/components/AssignmentBrief.test.tsx",
+        "src/components/ProblemTaskCard.contract.test.tsx",
+        "src/components/ProblemGroup.layout.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Запрос родителя 14.10.2026: вижу те же проблемы с вложенностью карточек; давай доделаем оставшееся."
+      }
+    },
+    "src/components/AssignmentBrief.tsx": {
+      "sha256": "90da4d23262cb2d304885df806e69d2e5f2af9314d7d5df924aafb2e2d5756f0",
+      "record": "docs/product/ui-decisions/flat-numbered-sheet-2026-10-14.md",
+      "specs": [
+        "docs/product/problem-card-design-decisions.md",
+        "docs/product/design-system.md"
+      ],
+      "tests": [
+        "src/components/AssignmentBrief.test.tsx",
+        "src/components/ProblemTaskCard.contract.test.tsx",
+        "src/components/ProblemGroup.layout.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Запрос родителя 14.10.2026: вижу те же проблемы с вложенностью карточек; давай доделаем оставшееся."
+      }
+    },
+    "src/components/AssignmentBrief.css": {
+      "sha256": "7c456fa4a93ac2e02849a3f112984bdef49ce3478d0c8b668e5b5348e5feefb5",
+      "record": "docs/product/ui-decisions/flat-numbered-sheet-2026-10-14.md",
+      "specs": [
+        "docs/product/problem-card-design-decisions.md",
+        "docs/product/design-system.md"
+      ],
+      "tests": [
+        "src/components/AssignmentBrief.test.tsx",
+        "src/components/ProblemTaskCard.contract.test.tsx",
+        "src/components/ProblemGroup.layout.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Запрос родителя 14.10.2026: вижу те же проблемы с вложенностью карточек; давай доделаем оставшееся."
+      }
+    },
+    "scripts/check-problem-variant-viewport.mjs": {
+      "sha256": "c37cd934edb6f340c73a866f386b7e9306922d560e5b5c2e9ed6743ae9348be2",
+      "record": "docs/product/ui-decisions/flat-numbered-sheet-2026-10-14.md",
+      "specs": [
+        "docs/product/problem-card-design-decisions.md",
+        "docs/product/design-system.md"
+      ],
+      "tests": [
+        "src/components/AssignmentBrief.test.tsx",
+        "src/components/ProblemTaskCard.contract.test.tsx",
+        "src/components/ProblemGroup.layout.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Запрос родителя 14.10.2026: вижу те же проблемы с вложенностью карточек; давай доделаем оставшееся."
+      }
+    },
+    "src/components/ProblemGroup.tsx": {
+      "sha256": "2d64db8bbbb75f23039838de755de42d465366d00c363a49a634af209a9c3361",
+      "record": "docs/product/ui-decisions/flat-numbered-sheet-2026-10-14.md",
+      "specs": [
+        "docs/product/problem-card-design-decisions.md",
+        "docs/product/design-system.md"
+      ],
+      "tests": [
+        "src/components/AssignmentBrief.test.tsx",
+        "src/components/ProblemTaskCard.contract.test.tsx",
+        "src/components/ProblemGroup.layout.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Запрос родителя 14.10.2026: вижу те же проблемы с вложенностью карточек; давай доделаем оставшееся."
+      }
+    },
+    "src/components/ProblemGroup.css": {
+      "sha256": "8ae71839edd6cef52c9ae85cb2c2a210afab5e41b4139f74c8fb818c526050ff",
+      "record": "docs/product/ui-decisions/flat-numbered-sheet-2026-10-14.md",
+      "specs": [
+        "docs/product/problem-card-design-decisions.md",
+        "docs/product/design-system.md"
+      ],
+      "tests": [
+        "src/components/AssignmentBrief.test.tsx",
+        "src/components/ProblemTaskCard.contract.test.tsx",
+        "src/components/ProblemGroup.layout.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Запрос родителя 14.10.2026: вижу те же проблемы с вложенностью карточек; давай доделаем оставшееся."
+      }
+    }
+  }
 }

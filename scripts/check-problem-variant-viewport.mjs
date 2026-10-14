@@ -9,7 +9,7 @@ import { join, resolve } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 
 const root = resolve(import.meta.dirname, '..')
-const css = ['src/DayPage.css', 'src/components/ProblemCard.css', 'src/components/ProblemStatement.css', 'src/components/ParentTaskGuide.css', 'src/components/RequirementSwitch.css']
+const css = ['src/DayPage.css', 'src/components/ProblemGroup.css', 'src/components/AssignmentBrief.css', 'src/components/ProblemCard.css', 'src/components/ProblemStatement.css', 'src/components/ParentTaskGuide.css', 'src/components/RequirementSwitch.css']
   .map((path) => readFileSync(resolve(root, path), 'utf8')).join('\n')
 const tokens = readFileSync(resolve(root, 'src/education-design-tokens.css'), 'utf8')
 const iconCss = readFileSync(resolve(root, 'src/components/StatusIcon.css'), 'utf8')
@@ -23,7 +23,7 @@ const statement = (number) => `<div class="problem-statement"><div class="proble
 const card = (number, title) => `<details class="problem-card ready"><summary class="problem-card-heading" aria-label="№ ${number}. ${title}. Не начато"><strong>№ ${number}. ${title}</strong><span class="problem-card-state">${readyIcon}<svg class="problem-card-chevron" width="17" height="17" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span></summary>${statement(number)}<details class="day-parent-guide day-parent-learning-route"><summary class="day-learning-route-heading"><span><strong>Разбор</strong></span></summary><div class="day-parent-learning-route-body"><details class="day-learning-route-stage"><summary>Дано и что найти</summary><p>Подробности этапа</p></details></div></details></details>`
 const variant = (number, cards) => `<div class="day-practice-variant-shell"><details class="day-practice-variant"><summary><strong>Вариант ${number}</strong><span>${readyIcon}0 из ${cards.length}</span><svg class="day-practice-variant-chevron" width="17" height="17" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></summary><div class="day-practice-variant-problems">${cards.join('')}</div></details><button class="edu-requirement-switch" role="switch" aria-checked="true" aria-label="Учитывать вариант"><span class="edu-requirement-switch-track"></span></button></div>`
 const actionFixture = `<div class="action-fixture day-parent-guide day-parent-learning-route" style="width:min(240px,100%);margin:0 auto 14px"><div class="day-parent-learning-route-body"><div class="day-learning-route-stage"><div class="day-learning-route-body"><div class="day-learning-route-actions"><button>Подсказка</button><button>Весь шаг</button></div></div></div></div></div>`
-const html = `<!doctype html><html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${tokens}${iconCss}*{box-sizing:border-box}body{margin:0;padding:12px;background:#f5f2fa;font:16px Arial,sans-serif;color:#34295c}.fixture{max-width:540px;margin:auto;padding:12px;border:1px solid #ded6eb;border-radius:18px;background:#fff}.fixture>h1{font-size:1rem}.fixture-grid{display:grid;gap:10px}.day-parent-guide-body{padding:10px}${css}</style>${actionFixture}<div class="fixture"><h1>Пример интерфейса · подготовка по математике</h1><div class="fixture-grid">${variant(1, [card(1, 'Найти ошибку в длине отрезка'), card(2, 'День и ночь'), card(3, 'Океаны на диаграмме')])}${variant(2, [card(1, 'Круговая диаграмма и распределение значений')])}</div></div></html>`
+const html = `<!doctype html><html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${tokens}${iconCss}*{box-sizing:border-box}body{margin:0;padding:12px;background:#f5f2fa;font:16px Arial,sans-serif;color:#34295c}.fixture{max-width:540px;margin:auto;padding:12px;border:1px solid #ded6eb;border-radius:18px;background:#fff}.fixture>h1{font-size:1rem}.fixture-grid{display:grid;gap:0}.day-parent-guide-body{padding:10px}${css}</style>${actionFixture}<div class="fixture day-subject-content"><h1>Пример интерфейса · подготовка по математике</h1><section class="problem-group"><button class="problem-group-toggle" aria-expanded="false" aria-label="Развернуть подготовку к самостоятельной; 0 из 4 завершено"><span class="problem-group-top"><strong>Подготовиться к самостоятельной: диаграммы</strong><span class="problem-group-badge">0 из 4</span><svg class="problem-group-chevron" width="18" height="18" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2"/></svg></span></button><div class="problem-group-body" hidden><article class="day-task has-problems"><details class="day-assignment-brief day-assignment-brief-compact"><summary>Как задано учителем</summary><p>Подготовиться по двум вариантам листа</p></details><div class="day-problem-list"><h4>Задания из листа · 4</h4><div class="fixture-grid">${variant(1, [card(1, 'Найти ошибку в длине отрезка'), card(2, 'День и ночь'), card(3, 'Океаны на диаграмме')])}${variant(2, [card(1, 'Круговая диаграмма и распределение значений')])}</div></div></article></div></section></div></html>`
 
 const profile = mkdtempSync(join(tmpdir(), 'education-variant-viewport-'))
 const fixturePath = join(profile, 'fixture.html')
@@ -32,7 +32,7 @@ const proc = spawn(chrome, ['--headless=new', '--no-sandbox', '--disable-gpu', '
   `--user-data-dir=${profile}`, 'about:blank'], { stdio: 'ignore' })
 try {
   let port
-  for (let attempt = 0; attempt < 50; attempt++) {
+  for (let attempt = 0; attempt < 100; attempt++) {
     try { port = Number(readFileSync(join(profile, 'DevToolsActivePort'), 'utf8').split('\n')[0]); break }
     catch { await delay(100) }
   }
@@ -73,6 +73,12 @@ try {
       }
       const closed = await evaluate("[...document.querySelectorAll('.day-practice-variant,.problem-card,.day-parent-learning-route')].every(item=>!item.open)")
       if (!closed) throw new Error(`${width}px: вариант, задача или родительский разбор открыты до нажатия`)
+      if (!await evaluate("document.querySelector('.problem-group-body').hidden && document.querySelector('.problem-group-toggle').getAttribute('aria-expanded')==='false'")) throw new Error(`${width}px: лист должен быть закрыт при входе`)
+      if (width === 390 && process.env.VARIANT_SHEET_COLLAPSED_SCREENSHOT_PATH) {
+        const shot = await send('Page.captureScreenshot', { format: 'png' })
+        writeFileSync(process.env.VARIANT_SHEET_COLLAPSED_SCREENSHOT_PATH, Buffer.from(shot.data, 'base64'))
+      }
+      await evaluate("document.querySelector('.problem-group-body').hidden=false;document.querySelector('.problem-group-toggle').setAttribute('aria-expanded','true')")
       if (width === 390) {
         const shot = await send('Page.captureScreenshot', { format: 'png' })
         writeFileSync(process.env.VARIANT_COLLAPSED_SCREENSHOT_PATH ?? join(tmpdir(), 'education-variants-collapsed.png'), Buffer.from(shot.data, 'base64'))
@@ -90,6 +96,9 @@ try {
         writeFileSync(process.env.VARIANT_EXPANDED_SCREENSHOT_PATH ?? join(tmpdir(), 'education-variant-expanded.png'), Buffer.from(shot.data, 'base64'))
       }
       await evaluate("document.querySelector('.day-practice-variant .problem-card').open=true")
+      // @see ../docs/product/problem-card-design-decisions.md#flat-numbered-sheet
+      const nestedFrames = JSON.parse(await evaluate("JSON.stringify(['.problem-group','.day-task.has-problems','.day-practice-variant','.problem-card','.problem-statement','.problem-statement-transcript'].map(selector=>({selector,left:parseFloat(getComputedStyle(document.querySelector(selector)).borderLeftWidth)})))"))
+      if (nestedFrames.some((item) => item.left > 0)) throw new Error(`${width}px: лишняя рамка вокруг вложенного слоя: ${JSON.stringify(nestedFrames)}`)
       const statementLayers = await evaluate("Boolean(document.querySelector('.day-practice-variant .problem-card .problem-statement-transcript') && document.querySelector('.day-practice-variant .problem-card .problem-statement-facts') && document.querySelector('.day-practice-variant .problem-card .problem-statement-find'))")
       if (!statementLayers) throw new Error(`${width}px: пропал структурированный слой условия`)
       const provenanceCompact = await evaluate("document.querySelector('.day-practice-variant .problem-card .problem-statement-source-trigger').getBoundingClientRect().width <= 44 && document.querySelector('.day-practice-variant .problem-card .problem-statement-source-detail').hidden")

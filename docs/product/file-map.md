@@ -249,6 +249,7 @@
 | [src/components/QuizCard.css](../../src/components/QuizCard.css) | [Дизайн-система](design-system.md) | Общий стиль теста на обеих страницах | `QuizCard.tsx` |
 | [src/components/AssignmentBrief.tsx](../../src/components/AssignmentBrief.tsx) | [Ученическая проекция](subject-card-viewmodel.md) | Дословное задание и объяснение источника для обеих ролей | `src/DayPage.tsx` |
 | [src/components/AssignmentBrief.css](../../src/components/AssignmentBrief.css) | [Дизайн-система](design-system.md) | Оформление точного задания и источника | `AssignmentBrief.tsx` |
+| [src/components/AssignmentBrief.test.tsx](../../src/components/AssignmentBrief.test.tsx) | [Плоская секция](problem-card-design-decisions.md) | Проверка одного раскрытия дословной записи учителя и прежней формы обычного задания | Vitest; разработчик |
 | [src/components/DataCompatibilityNotice.tsx](../../src/components/DataCompatibilityNotice.tsx) | [Модель Firestore](firestore-data-model.md) | Блокировка несовместимой версии с явным обновлением | `DayPage`; `DayDashboard` |
 | [src/components/DataCompatibilityNotice.css](../../src/components/DataCompatibilityNotice.css) | [Дизайн-система](design-system.md) | Существующие токены для экрана обновления данных | `DataCompatibilityNotice.tsx` |
 | [src/components/TaskGuidance.tsx](../../src/components/TaskGuidance.tsx) | [Ученическая проекция](subject-card-viewmodel.md) | Только выбранные взрослым этапы в общей форме маршрута задачи | `src/DayPage.tsx`; `ProblemTaskCard.tsx` |
@@ -388,6 +389,7 @@
 | [docs/product/ui-change-control.md](ui-change-control.md) | [Управление UI](ui-change-control.md) | Сквозная связь сценария, спецификации, JSX/CSS, регрессии и согласования | Разработчик; ревью выпуска |
 | [docs/product/ui-contract-baseline.json](ui-contract-baseline.json) | [Управление UI](ui-change-control.md) | Запечатанный начальный отпечаток 209 файлов продуктового кода | `check-ui-contract.mjs` |
 | [docs/product/ui-change-decisions.json](ui-change-decisions.json) | [Управление UI](ui-change-control.md) | Принятые изменения UI с решением, спецификацией и проверкой по файлу | `check-ui-contract.mjs`; ревью |
+| [docs/product/ui-decisions/flat-numbered-sheet-2026-10-14.md](ui-decisions/flat-numbered-sheet-2026-10-14.md) | [Плоская секция](problem-card-design-decisions.md) | Основание, состав, роли и проверка исправления вложенности | `ui-change-decisions.json`; ревью |
 | [scripts/check-ui-contract.mjs](../../scripts/check-ui-contract.mjs) | [Управление UI](ui-change-control.md) | Останавливает незаявленную правку или добавление продуктового кода | `npm run check:spec`; разработчик |
 | [scripts/check-ui-contract.test.mjs](../../scripts/check-ui-contract.test.mjs) | [Управление UI](ui-change-control.md) | Проверяет отказ при переносе CSS без решения, устаревшем отпечатке и отсутствии теста | Vitest; разработчик |
 

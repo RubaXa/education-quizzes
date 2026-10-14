@@ -500,6 +500,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
         const subjectItems = [...workItems(subject.tasks), ...referencedItems]
         const doneCount = subjectItems.filter((item) => item.state === 'done').length
         const assignments = assignmentProgress(subject.tasks, (task) => workItems([task]))
+        const meshOnlyTasks = subject.tasks.filter((task) => !task.problems?.length)
         const subjectDone = assignments.multiple ? assignments.complete : subjectItems.length > 0 && subjectItems.every((item) => item.state === 'done')
         const focused = Boolean(focusTaskId && (subject.tasks.some((task) => task.id === focusTaskId || task.problems?.some((problem) => problem.id === focusTaskId)) || subjectPlacements.some((placement) => placement.token === focusedQuizPlacement?.token)))
         const expanded = isSubjectExpanded(subject.id, subjectDone, subjectOpen, focused)
@@ -513,7 +514,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
               <GradeBadge summary={summary} details={grade} threshold={page.workingThreshold} asOf={page.gradeAsOf} />
             </div>}</div>
           <div className="day-subject-content" hidden={!expanded}>{!['Новое задание МЭШ. Подробный разбор готовится.', 'Точная запись МЭШ. Подробный разбор готовится.'].includes(subject.summary) && <p className="day-subject-summary">{subject.summary}</p>}
-            {parent && <details className="day-mesh"><summary>Как записано в МЭШ</summary>{assignments.multiple ? subject.tasks.map((task, index) => <p key={task.id}><b>Задание {index + 1}.</b> {task.meshText ?? task.title}</p>) : <p>{subject.mesh}</p>}</details>}
+            {parent && meshOnlyTasks.length > 0 && <details className="day-mesh"><summary>Как записано в МЭШ</summary>{assignments.multiple ? meshOnlyTasks.map((task) => <p key={task.id}><b>Задание {subject.tasks.indexOf(task) + 1}.</b> {task.meshText ?? task.title}</p>) : <p>{subject.mesh}</p>}</details>}
             <div className="day-task-list">{lineages.map(({ placement, chain }) => {
               const task = subject.tasks.find((item) => item.testToken === placement.token)
               const materialLinks = task ? [...new Map([
@@ -584,10 +585,10 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
                   <PhotoStrip taskTitle={`№ ${problem.number}. ${problem.title}`} studentToken={studentToken} uploads={problemUploads} localPhotos={problemPhotos} review={problemReview} now={statusNow} onRetry={queuePhotoUpload} onDelete={deletePhoto} />
                 </ProblemTaskCard>
               }
-              const taskCard = <article className={`day-task ${verified || workCovered ? 'done' : submitted ? 'submitted' : ''}`} id={`day-task-${task.id}`} key={task.id}>
+              const taskCard = <article className={`day-task ${task.problems?.length ? 'has-problems' : ''} ${verified || workCovered ? 'done' : submitted ? 'submitted' : ''}`} id={`day-task-${task.id}`} key={task.id}>
                 {assignments.multiple && !task.problems?.length && <div className="day-task-assignment-heading">Задание {assignmentIndex + 1} из {assignments.total}</div>}
                 <div className="day-task-row">{!task.problems?.length && <span className={`day-task-state${state.length > 24 ? ' as-text' : ''} ${verified ? 'verified' : workCovered ? 'covered' : submitted ? 'partial' : taskStatus}`}><StatusIcon size={15} status={verified ? 'complete' : uploadingWork ? 'uploading' : processing ? 'processing' : newWork ? 'waiting' : workCovered ? 'unknown' : taskStatus === 'needs-fix' ? 'needs-fix' : taskStatus === 'partial' ? 'partial' : task.kind === 'read' && linkedTest?.answered ? 'started' : taskStatus === 'unknown' && (task.kind === 'read' || cdzTask) ? 'ready' : 'unknown'} />{state}</span>}{task.kind === 'written' && <span className="day-task-type">В тетради</span>}{task.dueDate && task.dueDate !== (task.lessonDate ?? page.targetDate) && <span className="day-task-type">Сдать к {dayMonth(task.dueDate)} · МЭШ</span>}{task.originDate && task.originDate !== page.targetDate && <span className="day-task-type">Осталось с {dayMonth(task.originDate)}</span>}</div>
-                <h3>{task.title}</h3><AssignmentBrief task={task} materialLinks={taskLinks} />
+                {!task.problems?.length && <h3>{task.title}</h3>}<AssignmentBrief task={task} materialLinks={taskLinks} compact={Boolean(task.problems?.length)} />
                 {task.referenceDate && referencedItems.length > 0 && <div className="day-reference-results"><strong>Результаты ДЗ за {dayMonth(task.referenceDate)}</strong>{referencedItems.map((item) => <div className="day-reference-result" key={item.id}><span className={item.state === 'done' ? 'complete' : 'pending'}>{item.state === 'done' ? '✓' : '•'} {item.title}</span><small>{item.detail}</small></div>)}</div>}
                 {!parent && <TaskGuidance items={guidance.filter((item) => item.taskId === task.id)} />}
                 {parent && taskGuides[task.id]?.guide && <ParentTaskGuide guide={taskGuides[task.id]!.guide!} review={review} decisions={parentDecisions.events} guidance={guidance.filter((item) => item.taskId === task.id)} guidanceReady={guidanceReady} onSend={(stage, level) => sendDayGuidance(studentToken, task.id, taskGuides[task.id]!.guide!, stage.id, level)} onStageChoice={helpRole === 'parent' && review ? (stage, required) => recordStageChoice(review, taskGuides[task.id]!.guide!, stage.id, required) : undefined} />}

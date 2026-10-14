@@ -116,6 +116,36 @@
 .day-practice-variant[open]>summary svg.day-practice-variant-chevron{transform:rotate(180deg)}
 .day-practice-variant-problems{display:grid;gap:9px;padding:10px;border-top:1px solid var(--edu-card-border)}
 .day-practice-variant-shell>.edu-requirement-switch{position:absolute;right:3px;top:2px}
+
+/* A numbered teacher sheet has one outer boundary. Variants and problems use
+ * full-width list rows, while the source image and input retain their own affordance.
+ * @see ../docs/product/problem-card-design-decisions.md#flat-numbered-sheet */
+.day-subject-content .problem-group{border:0;border-top:1px solid var(--edu-card-border);border-radius:0;background:transparent;overflow:visible}
+.day-subject-content .problem-group-body{border-top:1px solid var(--edu-card-border)}
+.day-subject-content .problem-group-body>.day-task.has-problems{border:0;border-radius:0;background:transparent}
+.problem-group-body>.day-task.has-problems{padding:12px 14px 0}
+.problem-group-body>.day-task.has-problems>.day-task-row{margin-bottom:2px}
+.problem-group-body>.day-task.has-problems>.day-problem-list{gap:0;margin:12px -14px 0}
+.problem-group-body .day-problem-list>h4{padding:0 14px 8px;color:var(--edu-text-secondary);font-size:.8rem}
+.problem-group-body .day-practice-variant{border:0;border-top:1px solid var(--edu-card-border);border-radius:0;background:transparent;overflow:visible}
+.problem-group-body .day-practice-variant>summary{padding-left:14px;padding-right:62px}
+.problem-group-body .day-practice-variant-problems{gap:0;padding:0;border-top:1px solid var(--edu-card-border)}
+.problem-group-body .day-practice-variant-shell>.edu-requirement-switch{right:12px}
+.problem-group-body .problem-card{padding:0;border:0;border-radius:0;background:transparent}
+.problem-group-body .problem-card+.problem-card{border-top:1px solid var(--edu-card-border)}
+.problem-group-body .problem-card-heading{min-height:var(--edu-touch-target);padding:12px 14px}
+.problem-group-body .problem-card>.problem-statement{margin:0;border:0;border-radius:0;background:transparent}
+.problem-group-body .problem-statement-original{padding:12px 14px}
+.problem-group-body .problem-statement-transcript{padding:0;border:0;border-radius:0}
+.problem-group-body .problem-statement-education{padding:12px 14px;border-top:0}
+.problem-group-body .problem-card>.day-parent-guide,
+.problem-group-body .problem-card>.day-work-review{margin:0;border:0;border-top:1px solid var(--edu-card-border);border-radius:0}
+.problem-group-body .problem-card>.day-parent-guide .day-learning-route-stage{border:0;border-top:1px solid var(--edu-card-border);border-radius:0}
+.problem-group-body .problem-card>.day-parent-guide .day-learning-route-stages{gap:0}
+.problem-group-body .problem-card>.day-parent-guide .day-learning-route-body{border-top:0}
+.problem-group-body .problem-card>.problem-card-actions,
+.problem-group-body .problem-card>.day-photo-strip{padding:0 14px 12px}
+@media(max-width:560px){.day-subject-content:has(.problem-group){padding-inline:12px}}
 @keyframes day-photo-spin{to{transform:rotate(360deg)}}
 .day-upload-expanded{position:relative;margin-top:8px;padding:8px;border-top:1px solid #e5ddef}
 .day-upload-close{position:absolute;right:8px;top:8px;display:grid;place-items:center;width:28px;height:28px;border:0;border-radius:50%;background:#f0eaf8;color:#4e3a83;cursor:pointer}
