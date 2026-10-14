@@ -25,6 +25,7 @@ function timeOf(value: unknown): number {
  * @see ../../docs/product/card-generation-policy.md#math-adapter
  * @see ../../docs/product/card-generation-policy.md#russian-adapter
  * @see ../../docs/product/problem-card-design-decisions.md#role-projection
+ * @see ../../docs/product/problem-card-design-decisions.md#flat-numbered-sheet
  * @see ../../docs/product/status-presentation.md#components */
 export default function ParentTaskGuide({ guide, review, decisions = [], guidance = [], guidanceReady = true, onSend, onStageChoice }: {
   guide: Guide; review?: DayWorkReview; decisions?: ParentCompletionEvent[]; guidance?: DayGuidance[]; guidanceReady?: boolean;
@@ -123,7 +124,7 @@ export default function ParentTaskGuide({ guide, review, decisions = [], guidanc
   }
 
   return <details className="day-parent-guide day-parent-learning-route" aria-label={mathematics ? 'Разбор решения для родителя' : 'Разбор письменной работы для родителя'}>
-    <summary className="day-learning-route-heading"><BookOpen size={18} aria-hidden="true" /><span><strong>{mathematics ? 'Разбор' : guide.overview}</strong></span><ChevronDown className="day-learning-route-chevron" size={17} aria-hidden="true" /></summary>
+    <summary className="day-learning-route-heading"><BookOpen size={18} aria-hidden="true" /><span><strong>{mathematics ? 'Разбор для родителя' : guide.overview}</strong></span><ChevronDown className="day-learning-route-chevron" size={17} aria-hidden="true" /></summary>
     <div className="day-parent-learning-route-body">
     {matched.length > 0 && <div className="day-learning-route-progress" aria-label="Состояние проверки фото">
       {mathematics && <><span>Ответ: <b>{review?.mathReasoning?.answer === 'correct' ? 'верен' : review?.mathReasoning?.answer === 'incorrect' ? 'неверен' : 'не подтверждён'}</b></span>

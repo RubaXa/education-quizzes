@@ -6,8 +6,9 @@ import EducationImage from './EducationImage'
 import './SourceFragment.css'
 
 /** Coordinate-based viewport onto the preserved original. No rewritten image is stored.
- * @see ../../docs/product/design-system.md#images */
-export default function SourceFragment({ link, crop, number }: { link: DayMaterialLink; crop: DaySourceCrop; number: number }) {
+ * @see ../../docs/product/design-system.md#images
+ * @see ../../docs/product/problem-card-design-decisions.md#flat-numbered-sheet */
+export default function SourceFragment({ link, crop, number, excerpt }: { link: DayMaterialLink; crop: DaySourceCrop; number: number; excerpt?: string }) {
   const [open, setOpen] = useState(false)
   const [whole, setWhole] = useState(false)
   const [zoomed, setZoomed] = useState(false)
@@ -26,8 +27,8 @@ export default function SourceFragment({ link, crop, number }: { link: DayMateri
   function show() { setWhole(false); setZoomed(false); setOpen(true) }
   return <div className="source-fragment">
     <button type="button" className="source-fragment-trigger" onClick={show} aria-label={`Открыть фрагмент оригинального листа с задачей № ${number}`}>
-      <EducationImage source={link.url} mode="public" crop={crop} alt={`Точный фрагмент листа учителя: задача № ${number}`} retryControl={false} />
-      <small>Фрагмент № {number} · открыть крупно</small>
+      {excerpt ? <><strong>Оригинал · открыть крупно ↗</strong><span>{excerpt.slice(0, 115)}{excerpt.length > 115 ? '…' : ''}</span></>
+        : <><EducationImage source={link.url} mode="public" crop={crop} alt={`Точный фрагмент листа учителя: задача № ${number}`} retryControl={false} /><small>Фрагмент № {number} · открыть крупно</small></>}
     </button>
     {open && createPortal(<div className="day-reader-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) setOpen(false) }}>
       <div className="day-reader-dialog" role="dialog" aria-modal="true" aria-label={`Оригинал задачи № ${number}`}>

@@ -12,3 +12,25 @@
 .weekend-math-photos button{position:absolute;right:-4px;top:-5px;display:grid;place-items:center;width:16px;height:16px;padding:0;border:1px solid #ddcbd6;border-radius:50%;background:#fff;color:#933a50;cursor:pointer}
 .weekend-math-error{color:#9d3348!important}
 @media(max-width:640px){.weekend-math-slot{padding:12px}.weekend-math-group{padding:10px}}
+/* @see ../docs/product/problem-card-design-decisions.md#flat-numbered-sheet */
+.weekend-math-slot .problem-group{border:0;border-top:1px solid var(--edu-card-border);border-radius:0;background:transparent}
+.weekend-math-slot .problem-group-body{border-top:1px solid var(--edu-card-border)}
+.weekend-math-slot .weekend-math-group{margin:0;padding:0;border:0;border-radius:0;background:transparent}
+.weekend-math-slot .weekend-math-group>p{margin:12px 0;color:var(--edu-text-secondary)}
+.weekend-math-slot .day-teacher-sheet{border-block:1px solid var(--edu-card-border)}
+.weekend-math-slot .day-teacher-sheet>summary{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:var(--edu-touch-target);list-style:none;cursor:pointer;color:var(--edu-brand);font-weight:750}
+.weekend-math-slot .day-teacher-sheet>summary::-webkit-details-marker{display:none}
+.weekend-math-slot .day-teacher-sheet>summary span:last-child{flex:none;color:var(--edu-text-secondary);font-size:.79rem;font-weight:500;white-space:nowrap}
+.weekend-math-slot .day-teacher-sheet>.day-reader{margin:0 0 12px}
+.weekend-math-slot .weekend-math-problems{gap:0;margin:0}
+.weekend-math-slot .problem-card{padding:0;border:0;border-radius:0;background:transparent}
+.weekend-math-slot .problem-card+.problem-card{border-top:1px solid var(--edu-card-border)}
+.weekend-math-slot .problem-card-heading{min-height:var(--edu-touch-target);padding:12px 0}
+.weekend-math-slot .problem-statement{margin:0;border:0;border-radius:0;background:transparent}
+.weekend-math-slot .problem-statement-original{padding:12px 0}
+.weekend-math-slot .problem-statement-label,.weekend-math-slot .problem-statement-transcript-title{display:none}
+.weekend-math-slot .problem-statement-transcript{margin:0;padding:0;border:0}
+.weekend-math-slot .problem-statement-education{margin:0 0 12px;padding:13px;border:0;border-radius:12px}
+.weekend-math-slot .problem-statement-education>.problem-statement-label{display:none}
+.weekend-math-slot .problem-card>.day-parent-guide,.weekend-math-slot .problem-card>.day-work-review{margin:0;border:0;border-top:1px solid var(--edu-card-border);border-radius:0}
+@media(max-width:640px){.weekend-math-slot .weekend-math-group{padding:0}}

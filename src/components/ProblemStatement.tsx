@@ -15,6 +15,7 @@ const helpKinds: { value: NonNullable<DayHelp['requestKind']>; label: string }[]
 ]
 
 /** @see ../../docs/product/adaptive-problem-card.md#показ-ученику
+ * @see ../../docs/product/problem-card-design-decisions.md#flat-numbered-sheet
  * @see ../../docs/product/problem-card-design-decisions.md */
 export default function ProblemStatement({ problem, links, parent, help, review, sourceResearch, finished: parentFinished = false, onRequestHelp, helpAccess = 'ready' }: {
   problem: DayProblem; links: DayMaterialLink[]; parent: boolean; help?: DayHelp; review?: DayWorkReview; sourceResearch?: DaySourceResearch;
@@ -28,6 +29,8 @@ export default function ProblemStatement({ problem, links, parent, help, review,
   const [error, setError] = useState('')
   const [sourceOpen, setSourceOpen] = useState(false)
   const original = problem.original
+  const originalText = original?.text?.trim()
+  const textHasNumber = Boolean(originalText && new RegExp(`^№\\s*${problem.number}(?:\\s*[.)]|\\s)`).test(originalText))
   const attachment = links.find((link) => link.sourceType === 'teacher-attachment' && link.sourceRef === original?.attachmentRef)
     ?? (!original ? links.find((link) => link.sourceType === 'teacher-attachment') : undefined)
   const hasFragment = Boolean(attachment && original?.crop && original.crop.sourceSha256 === attachment.sourceSha256)
@@ -52,18 +55,10 @@ export default function ProblemStatement({ problem, links, parent, help, review,
 
   return <div className="problem-statement">
     <div className="problem-statement-original">
-      <div className="problem-statement-label"><BookOpen size={16} aria-hidden="true" /><strong>Условие № {problem.number}</strong>
-        {parent && <button className={`problem-statement-source-trigger ${sourceStatus}`} type="button" aria-label={`${sourceLabel}. ${sourceOpen ? 'Скрыть' : 'Показать'} происхождение задачи`} aria-expanded={sourceOpen} aria-controls={sourceOpen ? `source-${problem.id}` : undefined} onClick={() => setSourceOpen((value) => !value)} title={sourceLabel}>
-          {/* @see ../../docs/product/adaptive-problem-card.md#происхождение-задачи */}<StatusIcon size={18} status={sourceStatus} />
-        </button>}
-      </div>
-      {parent && sourceOpen && <div className="problem-statement-source-detail" id={`source-${problem.id}`}><strong>{sourceLabel}</strong>
-        {sourceResearch ? <><p>{sourceResearch.title}</p><p>{sourceResearch.match}</p>{sourceResearch.url && <a href={sourceResearch.url} target="_blank" rel="noopener noreferrer">Открыть источник ↗</a>}<small>Ключ: {sourceResearch.keyStatus === 'verified' ? 'сверен' : sourceResearch.keyStatus === 'candidate' ? 'кандидат требует сверки' : sourceResearch.keyStatus === 'unavailable' ? 'не найден' : 'не проверен'}. {sourceResearch.note}</small></>
-          : <p>Исходный лист учителя известен. Поиск более раннего источника не записан.</p>}
-      </div>}
-      {hasFragment && attachment && original?.crop && <SourceFragment link={attachment} crop={original.crop} number={problem.number} />}
+      <div className="problem-statement-label"><BookOpen size={16} aria-hidden="true" /><strong>Условие № {problem.number}</strong></div>
+      {hasFragment && attachment && original?.crop && <SourceFragment link={attachment} crop={original.crop} number={problem.number} excerpt={original.text} />}
       {attachment && !hasFragment && <p className="problem-statement-missing">Точный фрагмент ещё не подготовлен. Полный лист учителя показан над списком заданий.</p>}
-      {original?.text ? <div className="problem-statement-transcript"><div className="problem-statement-transcript-title">Условие текстом</div><div className="problem-statement-text"><b>№ {problem.number}.</b> {original.text}</div></div>
+      {originalText ? <div className="problem-statement-transcript"><div className="problem-statement-transcript-title">Условие текстом</div><div className="problem-statement-text">{!textHasNumber && <><b>№ {problem.number}.</b> </>}{originalText}</div></div>
         : <p className="problem-statement-missing">Точная текстовая запись этого номера ещё не подготовлена. Полное условие и рисунок — в исходном листе выше.</p>}
       <small className="problem-statement-source">{problem.source}</small>
     </div>
@@ -77,6 +72,15 @@ export default function ProblemStatement({ problem, links, parent, help, review,
               : helpAccess === 'login-required' ? <p className="problem-statement-rationale">Чтобы попросить ориентир, зайди по личной ссылке ученика Education.</p>
                 : <details className="problem-statement-help"><summary>Нужен ориентир?</summary><form onSubmit={(event) => void requestHelp(event)}><fieldset><legend>На чём ты остановился?</legend>{helpKinds.map((option) => <label key={option.value}><input type="radio" name={`help-${problem.id}`} value={option.value} checked={kind === option.value} onChange={() => setKind(option.value)} />{option.label}</label>)}</fieldset><label className="problem-statement-help-note">Что уже пробовал? Можно написать «Пока не знаю».<textarea value={note} maxLength={800} onChange={(event) => setNote(event.target.value)} placeholder="Моя мысль или вопрос" /></label><button type="submit" className="problem-statement-help-button" disabled={requesting || !onRequestHelp}>{requesting ? 'Отправляем…' : 'Отправить'}</button></form></details>}
       {error && <p className="problem-statement-error" role="alert">{error}</p>}
+    </div>}
+    {parent && <div className="problem-statement-provenance">
+      <button className={`problem-statement-source-trigger ${sourceStatus}`} type="button" aria-label={`${sourceLabel}. ${sourceOpen ? 'Скрыть' : 'Показать'} происхождение задачи`} aria-expanded={sourceOpen} aria-controls={sourceOpen ? `source-${problem.id}` : undefined} onClick={() => setSourceOpen((value) => !value)} title={sourceLabel}>
+        {/* @see ../../docs/product/adaptive-problem-card.md#происхождение-задачи */}<span aria-hidden="true">ⓘ</span><strong>Источник</strong><StatusIcon size={18} status={sourceStatus} />
+      </button>
+      {sourceOpen && <div className="problem-statement-source-detail" id={`source-${problem.id}`}><strong>{sourceLabel}</strong>
+        {sourceResearch ? <><p>{sourceResearch.title}</p><p>{sourceResearch.match}</p>{sourceResearch.url && <a href={sourceResearch.url} target="_blank" rel="noopener noreferrer">Открыть источник ↗</a>}<small>Ключ: {sourceResearch.keyStatus === 'verified' ? 'сверен' : sourceResearch.keyStatus === 'candidate' ? 'кандидат требует сверки' : sourceResearch.keyStatus === 'unavailable' ? 'не найден' : 'не проверен'}. {sourceResearch.note}</small></>
+          : <p>Исходный лист учителя известен. Поиск более раннего источника не записан.</p>}
+      </div>}
     </div>}
   </div>
 }

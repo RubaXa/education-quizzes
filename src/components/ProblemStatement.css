@@ -1,4 +1,5 @@
 /* @see ../../docs/product/adaptive-problem-card.md#слои
+ * @see ../../docs/product/problem-card-design-decisions.md#flat-numbered-sheet
  * @see ../../docs/product/problem-card-design-decisions.md */
 .problem-statement{min-width:0;margin-top:12px;border:1px solid var(--edu-problem-border);border-radius:15px;overflow:hidden;background:var(--edu-surface);color:var(--edu-ink-dashboard)}
 .problem-statement-original{padding:15px}
@@ -16,6 +17,10 @@
 .problem-statement-source-trigger.complete{color:var(--edu-status-success-ink)}
 .problem-statement-source-trigger.needs-fix{color:var(--edu-status-attention-ink)}
 .problem-statement-source-trigger:hover,.problem-statement-source-trigger[aria-expanded="true"]{background:var(--edu-canvas)}
+.problem-statement-provenance{padding:8px 15px 12px}
+.problem-statement-provenance .problem-statement-source-trigger{display:inline-flex;align-items:center;gap:6px;width:auto;height:var(--edu-touch-target);margin:0;padding:0 7px;color:var(--edu-brand);font-size:.83rem}
+.problem-statement-provenance .problem-statement-source-trigger>strong{font-weight:750}
+.problem-statement-provenance .problem-statement-source-trigger>.edu-status-icon{margin-left:5px}
 .problem-statement-source-trigger:focus-visible{outline:3px solid var(--edu-focus);outline-offset:2px}
 .problem-statement-source-detail{margin-top:13px;padding:12px;border:1px solid var(--edu-card-border);border-radius:var(--edu-radius-control);background:var(--edu-canvas);color:var(--edu-text-primary);font-size:.82rem;line-height:1.45}
 .problem-statement-source-detail p{margin:8px 0!important}.problem-statement-source-detail small{display:block;margin-top:8px;color:var(--edu-text-secondary)}.problem-statement-source-detail a{color:var(--edu-brand);font-weight:700}

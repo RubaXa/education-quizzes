@@ -44,14 +44,24 @@ describe('stable numbered problem layers', () => {
     expect(html).toContain('class="problem-statement-facts"')
     expect(html).toContain('class="problem-statement-find"')
     expect(html).toContain('Условие текстом')
-    expect(html).toContain('Разбор')
+    expect(html).toContain('Разбор для родителя')
+    expect(html.indexOf('problem-statement-education')).toBeLessThan(html.indexOf('problem-statement-provenance'))
   })
 
-  it('shows only a compact source icon until the parent opens it', () => {
+  it('does not repeat a number already present in the teacher transcript', () => {
+    const numbered = { ...problem, original: { ...problem.original, text: '№ 3. Дано: DF = 9,3 см. Найти ошибку.' } } as DayProblem
+    const html = renderToStaticMarkup(<ProblemTaskCard problem={numbered} state={{ tone: 'ready', label: 'Не начато' }}
+      links={[]} parent guide={guide} uploads={[]} helpAccess="ready" onPhotos={() => undefined} />)
+    expect(html).toContain('№ 3. Дано: DF')
+    expect(html).not.toContain('№ 3.</b> № 3.')
+  })
+
+  it('shows a compact source disclosure until the parent opens it', () => {
     const html = renderToStaticMarkup(<ProblemTaskCard problem={problem} state={{ tone: 'ready', label: 'Не начато' }}
       links={[]} parent guide={guide} uploads={[]} helpAccess="ready" onPhotos={() => undefined} />)
     expect(html).toContain('aria-label="Происхождение не проверено. Показать происхождение задачи"')
     expect(html).toContain('aria-expanded="false"')
+    expect(html).toContain('Источник')
     expect(html).not.toContain('class="problem-statement-parent-source"')
     expect(html).not.toContain('Поиск более раннего источника не записан')
   })

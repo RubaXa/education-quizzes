@@ -90,12 +90,13 @@ export default function WeekendMathSlot({ token, taskIds, parent, lessonDate, du
       const problemIds = new Set(problems.map((problem) => problem.id))
       const localPendingCount = local.filter((photo) => problemIds.has(photo.taskId) && !uploads.some((upload) => upload.id === `${studentToken}:${photo.id}` && upload.status === 'reviewed')).length
       const sourceCount = new Set(taskLinks.filter((link) => link.sourceType === 'teacher-attachment').map((link) => link.url)).size
-      /** @see ../docs/product/day-page.md#completed-problem-group */
+      /** @see ../docs/product/day-page.md#completed-problem-group
+       * @see ../docs/product/problem-card-design-decisions.md#flat-numbered-sheet */
       return <ProblemGroup key={task.id} id={task.id} title={`${subject.icon} ${subject.name}`} problems={problems} uploads={uploads} reviews={reviews} decisions={parentDecisions.events} localPendingCount={localPendingCount} sourceCount={sourceCount} ready={evidenceReady && parentDecisions.ready}>
       <div className="weekend-math-group">
       <p>{subject.summary || task.detail}</p>
-      {teacherLinks.length > 0 && <MaterialReader links={teacherLinks} parent={parent} statement />}
-      <h4 className="weekend-math-list-title">Задания из листа · {task.problems?.length}</h4>
+      {teacherLinks.length > 0 && <details className="day-teacher-sheet"><summary><span>▤ &nbsp;Лист учителя</span><span>{teacherLinks.length} {teacherLinks.length === 1 ? 'лист' : 'листа'} · открыть ↗</span></summary><MaterialReader links={teacherLinks} parent={parent} statement /></details>}
+      <h4 className="weekend-math-list-title edu-visually-hidden">Задания из листа · {task.problems?.length}</h4>
       <div className="weekend-math-problems">{task.problems?.map((problem) => {
         const photos = uploads.filter((upload) => uploadMatchesTask(upload, problem.id))
         const previews = local.filter((item) => item.taskId === problem.id && !photos.some((upload) => upload.id === `${studentToken}:${item.id}`))

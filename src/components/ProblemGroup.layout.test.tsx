@@ -26,4 +26,14 @@ describe('numbered sheet heading', () => {
     expect(html).toContain('>0 из 4</span>')
     expect(html).not.toContain('>0 из 4 завершено</span>')
   })
+
+  it('shows the agreed short title and variant subtitle without operational metadata', () => {
+    const html = renderToStaticMarkup(<ProblemGroup id="sheet" title="Подготовка: диаграммы" subtitle="Самопроверка · 2 варианта"
+      problems={[{ id: 'p1', number: 1, title: 'Марки Ивана', detail: '', source: 'Лист учителя' }]}
+      uploads={[]} reviews={[]} localPendingCount={0} sourceCount={1} ready><p>Варианты</p></ProblemGroup>)
+    expect(html).toContain('Подготовка: диаграммы')
+    expect(html).toContain('Самопроверка · 2 варианта')
+    expect(html).not.toContain('Фото ещё нет')
+    expect(html).not.toContain('Откройте номера')
+  })
 })

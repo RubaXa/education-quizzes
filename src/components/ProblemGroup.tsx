@@ -10,8 +10,8 @@ import './ProblemGroup.css'
 /** @see ../../docs/product/day-page.md#completed-problem-group
  * @see ../../docs/product/problem-card-design-decisions.md#flat-numbered-sheet
  * @see ../../docs/product/status-presentation.md#components */
-export default function ProblemGroup({ id, title, problems, requiredProblems = problems, numberLabel, uploads, reviews, decisions = [], localPendingCount, sourceCount, ready, focusTaskId, children }: {
-  id: string; title: string; problems: DayProblem[]; requiredProblems?: DayProblem[]; numberLabel?: string; uploads: DayUpload[]; reviews: DayWorkReview[];
+export default function ProblemGroup({ id, title, subtitle, problems, requiredProblems = problems, numberLabel, uploads, reviews, decisions = [], localPendingCount, sourceCount, ready, focusTaskId, children }: {
+  id: string; title: string; subtitle?: string; problems: DayProblem[]; requiredProblems?: DayProblem[]; numberLabel?: string; uploads: DayUpload[]; reviews: DayWorkReview[];
   decisions?: ParentCompletionEvent[];
   localPendingCount: number; sourceCount: number; ready: boolean; focusTaskId?: string; children: ReactNode;
 }) {
@@ -24,9 +24,10 @@ export default function ProblemGroup({ id, title, problems, requiredProblems = p
   const bodyId = `problem-group-${id.replace(/[^a-zA-Z0-9_-]/g, '-')}`
   return <section className={`problem-group ${summary.tone}`}>
     <button className="problem-group-toggle" type="button" aria-expanded={open} aria-controls={bodyId} aria-label={`${open ? 'Свернуть' : 'Развернуть'} ${title}; ${ready ? summary.total ? `${summary.completedCount} из ${summary.total} завершено` : 'все варианты по желанию' : 'загружаем результаты'}`} onClick={() => setManualOpen(!open)}>
-      <span className="problem-group-top"><strong>{title}</strong><span className="problem-group-badge" aria-label={ready ? summary.total ? `${summary.completedCount} из ${summary.total} завершено` : 'Все варианты по желанию' : 'Загружаем'}><StatusIcon size={16} status={!ready ? 'processing' : summary.tone === 'success' ? 'complete' : summary.tone === 'partial' ? 'partial' : summary.tone === 'error' ? 'needs-fix' : summary.tone === 'working' ? 'waiting' : 'ready'} />{ready ? summary.total ? `${summary.completedCount} из ${summary.total}` : 'По желанию' : 'Загружаем…'}</span><ChevronDown className="problem-group-chevron" size={18} aria-hidden="true" /></span>
-      {(open || summary.tone !== 'neutral') && <span className="problem-group-conclusion">{summary.conclusion}</span>}
-      {open && <span className="problem-group-meta"><span>{numberLabel ?? `№ ${summary.numbers}`}</span><span><Camera size={14} aria-hidden="true" />{summary.photoCount ? `${summary.photoCount} фото работы` : summary.activeCount ? 'Фото загружается' : 'Фото ещё нет'}</span>{sourceCount > 0 && <span><FileText size={14} aria-hidden="true" />{sourceCount === 1 ? 'Лист учителя' : `${sourceCount} файла учителя`}</span>}</span>}
+      <span className="problem-group-top"><strong>{title}</strong>{!open && <span className="problem-group-badge" aria-label={ready ? summary.total ? `${summary.completedCount} из ${summary.total} завершено` : 'Все варианты по желанию' : 'Загружаем'}><StatusIcon size={16} status={!ready ? 'processing' : summary.tone === 'success' ? 'complete' : summary.tone === 'partial' ? 'partial' : summary.tone === 'error' ? 'needs-fix' : summary.tone === 'working' ? 'waiting' : 'ready'} />{ready ? summary.total ? `${summary.completedCount} из ${summary.total}` : 'По желанию' : 'Загружаем…'}</span>}<ChevronDown className="problem-group-chevron" size={18} aria-hidden="true" /></span>
+      {subtitle && <span className="problem-group-subtitle">{subtitle}</span>}
+      {!subtitle && (open || summary.tone !== 'neutral') && <span className="problem-group-conclusion">{summary.conclusion}</span>}
+      {!subtitle && open && <span className="problem-group-meta"><span>{numberLabel ?? `№ ${summary.numbers}`}</span><span><Camera size={14} aria-hidden="true" />{summary.photoCount ? `${summary.photoCount} фото работы` : summary.activeCount ? 'Фото загружается' : 'Фото ещё нет'}</span>{sourceCount > 0 && <span><FileText size={14} aria-hidden="true" />{sourceCount === 1 ? 'Лист учителя' : `${sourceCount} файла учителя`}</span>}</span>}
     </button>
     <div id={bodyId} className="problem-group-body" hidden={!open}>{open && children}</div>
   </section>
