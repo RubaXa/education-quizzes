@@ -17,6 +17,9 @@ describe('one upload action per numbered problem', () => {
       expect(html).toContain('Добавить фото')
       expect(html).toContain(`id="${problem.id}"`)
       expect(html).not.toContain(`id="${problem.id}" open=""`)
+      expect(html).toContain('Условие № 1')
+      expect(html).not.toContain('Оригинал учителя')
+      expect(html).not.toContain('Сверь с оригиналом')
       if (tone === 'ready') expect(html).toContain('Не начато')
     }
   })

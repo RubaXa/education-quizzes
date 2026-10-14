@@ -48,10 +48,10 @@ export default function ProblemStatement({ problem, links, parent, help, review,
 
   return <div className="problem-statement">
     <div className="problem-statement-original">
-      <div className="problem-statement-label"><BookOpen size={16} aria-hidden="true" /><strong>Условие № {problem.number}</strong><span>Оригинал учителя</span></div>
+      <div className="problem-statement-label"><BookOpen size={16} aria-hidden="true" /><strong>Условие № {problem.number}</strong></div>
       {hasFragment && attachment && original?.crop && <SourceFragment link={attachment} crop={original.crop} number={problem.number} />}
       {attachment && !hasFragment && <p className="problem-statement-missing">Точный фрагмент ещё не подготовлен. Полный лист учителя показан над списком заданий.</p>}
-      {original?.text ? <div className="problem-statement-transcript"><div className="problem-statement-transcript-title">Условие текстом <small>Сверь с оригиналом</small></div><div className="problem-statement-text"><b>№ {problem.number}.</b> {original.text}</div></div>
+      {original?.text ? <div className="problem-statement-transcript"><div className="problem-statement-transcript-title">Условие текстом</div><div className="problem-statement-text"><b>№ {problem.number}.</b> {original.text}</div></div>
         : <p className="problem-statement-missing">Точная текстовая запись этого номера ещё не подготовлена. Полное условие и рисунок — в исходном листе выше.</p>}
       <small className="problem-statement-source">{problem.source}</small>
     </div>

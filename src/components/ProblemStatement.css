@@ -10,12 +10,10 @@
 .problem-statement-guidance p{margin:5px 0 0;font-size:.89rem;line-height:1.5}
 .problem-statement-label{display:flex;align-items:center;gap:7px;min-width:0;color:#503b86;font-size:.87rem;line-height:1.25}
 .problem-statement-label strong{font-weight:800}
-.problem-statement-label span{margin-left:auto;padding:5px 8px;border-radius:999px;background:#eee9f8;color:#5c4690;font-size:.69rem;font-weight:800;white-space:nowrap}
 .problem-statement-text{margin-top:9px;max-width:72ch;white-space:pre-line;overflow-wrap:anywhere;color:#3e3554;font-size:1rem;line-height:1.6}
 .problem-statement-text b{color:#61459a}
 .problem-statement-transcript{margin-top:13px;padding:12px;border:1px solid #e4daef;border-radius:11px;color:#503b86}
 .problem-statement-transcript-title{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:.9rem;font-weight:800}
-.problem-statement-transcript-title small{font-size:.7rem;font-weight:600;color:#756987}
 .problem-statement-source{display:block;margin-top:9px;color:#776d84;font-size:.72rem;line-height:1.4}
 .problem-statement-missing{margin:12px 0 0!important;color:#695f78;font-size:.82rem;line-height:1.5}
 .problem-statement-education{padding:15px;background:#f4effb;border-top:1px solid #e4daef}
