@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { collection, doc, getDoc, getDocs, onSnapshot, query, where } from 'firebase/firestore'
-import { AlertCircle, BookOpen, CheckCircle2, ChevronDown, RefreshCw, Upload } from 'lucide-react'
+import { BookOpen, ChevronDown, RefreshCw, Upload } from 'lucide-react'
+import StatusIcon from './StatusIcon'
+import type { EducationStatus } from './StatusIcon'
 import { db } from '@/lib/firebase'
 import type { DocumentData, QuerySnapshot } from 'firebase/firestore'
 import { requestFamilyBookUpload, setFamilyBookRequirement } from '@/lib/familyBookUpload'
@@ -89,7 +91,7 @@ function FamilyBookPages({ familyId, childId, bookId, expectedCount, revision, s
 
 function FamilyBookEntry({ familyId, childId, childName, bookId, title, multipleChildren, expectedCount, ready, revision, sourceSha256, manifestReady }: { familyId: string; childId: string; childName: string; bookId: string; title: string; multipleChildren: boolean; expectedCount?: number; ready: boolean; revision?: string; sourceSha256?: string; manifestReady: boolean }) {
   const [open, setOpen] = useState(false)
-  return <li className="family-library-book-entry"><div>{ready ? <CheckCircle2 size={17} aria-hidden="true" /> : <AlertCircle className="family-library-unpublished" size={17} aria-hidden="true" />}<span><strong>{title}</strong>{multipleChildren ? ` · ${childName}` : ''}{ready && expectedCount ? ` · ${expectedCount} стр.` : ' · публикация страниц не завершена'}</span><button type="button" aria-expanded={open} onClick={() => setOpen((value) => !value)}>{open ? 'Скрыть страницы' : 'Открыть книгу'}</button></div>
+  return <li className="family-library-book-entry"><div><StatusIcon status={ready ? 'complete' : 'waiting'} size={17} /><span><strong>{title}</strong>{multipleChildren ? ` · ${childName}` : ''}{ready && expectedCount ? ` · ${expectedCount} стр.` : ' · публикация страниц не завершена'}</span><button type="button" aria-expanded={open} onClick={() => setOpen((value) => !value)}>{open ? 'Скрыть страницы' : 'Открыть книгу'}</button></div>
     {open && <FamilyBookPages familyId={familyId} childId={childId} bookId={bookId} expectedCount={expectedCount} revision={ready ? revision : undefined} sourceSha256={ready ? sourceSha256 : undefined} manifestReady={ready && manifestReady} />}
   </li>
 }
@@ -105,6 +107,16 @@ function uploadLabel(need: BookNeed) {
   return 'Связываем с библиотекой семьи'
 }
 
+/** @see ../../docs/product/status-presentation.md#matrix */
+function needStatus(need: BookNeed): EducationStatus {
+  const uploadStatus = need.uploads.at(-1)?.status
+  if (uploadStatus === 'upload-error') return 'failed'
+  if (uploadStatus === 'awaiting-upload') return 'uploading'
+  if (uploadStatus === 'uploaded') return 'processing'
+  if (need.state === 'pending' || need.state === 'review') return 'waiting'
+  return 'needs-fix'
+}
+
 function pagesReady(book: { pagesPublishedAt?: unknown; pagesPublishedSha256?: string; catalogSha256?: string; sourceSha256?: string }) {
   return Boolean(book.pagesPublishedAt && book.pagesPublishedSha256
     && book.pagesPublishedSha256 === (book.catalogSha256 ?? book.sourceSha256))
@@ -116,7 +128,8 @@ function pagesRevision(book: { pagesPublishedAt?: unknown; pagesPublishedSha256?
   return book.pagesPublishedSha256 && Number.isFinite(millis) ? `${book.pagesPublishedSha256}:${millis}` : undefined
 }
 
-/** @see ../../docs/product/design-system.md#cards-and-status
+/** @see ../../docs/product/status-presentation.md#components
+ *  @see ../../docs/product/design-system.md#cards-and-status
  *  @see ../../docs/product/family-library.md#parent-dashboard */
 export function FamilyLibrary({ familyId, familyChildren }: { familyId: string; familyChildren: PersonalChild[] }) {
   const library = useFamilyLibrary(familyId, familyChildren)
@@ -149,12 +162,12 @@ export function FamilyLibrary({ familyId, familyChildren }: { familyId: string; 
 
   return <section className={`family-library ${unresolved ? 'family-library-needs' : 'family-library-ready'}`} aria-label="Учебники семьи">
     {unresolved ? <div className="family-library-main">
-      <div className="family-library-heading"><AlertCircle size={23} aria-hidden="true" /><div><h2>Нужны учебники и материалы</h2><p>Для проверки заданий нужны книги именно вашей семьи. Предметы взяты из загруженного расписания; общий архив не назначает семье учебник автоматически.</p></div></div>
+      <div className="family-library-heading"><StatusIcon status="needs-fix" size={23} /><div><h2>Нужны учебники и материалы</h2><p>Для проверки заданий нужны книги именно вашей семьи. Предметы взяты из загруженного расписания; общий архив не назначает семье учебник автоматически.</p></div></div>
       {library.observedDays === 0 || library.observedSubjects === 0 ? <p>Предметы расписания ещё не загружены. После их появления здесь будет список нужных учебников.</p>
             : <><p className="family-library-count">{missing.length ? `Не хватает по ${missing.length} ${missing.length === 1 ? 'предмету' : 'предметам'}.` : 'Переданные файлы обрабатываются или состав материалов уточняется.'}</p>
               {library.unobservedChildren.length > 0 && <p>Расписание пока не содержит предметы для: {library.unobservedChildren.join(', ')}. Комплект этого ребёнка ещё неизвестен.</p>}
               {needs.map((need) => { const id = `${need.childId}:${need.subjectKey}`; return <div className="family-library-row" key={id}>
-                <div><strong>{need.subject}</strong><span>{familyChildren.length > 1 ? `${need.childName} · ` : ''}{need.state === 'pending' || need.uploads.at(-1)?.status === 'upload-error' ? uploadLabel(need) : need.state === 'review' ? 'Уточните, используется ли учебник или материалы курса' : need.books.some((book) => book.status === 'provisional') ? 'Передан PDF другого издания; точный учебник пока не подтверждён' : 'Учебник не подтверждён для этого ребёнка'}</span></div>
+                <div><strong>{need.subject}</strong><span className="family-library-need-state"><StatusIcon status={needStatus(need)} size={15} />{familyChildren.length > 1 ? `${need.childName} · ` : ''}{need.state === 'pending' || need.uploads.at(-1)?.status === 'upload-error' ? uploadLabel(need) : need.state === 'review' ? 'Уточните, используется ли учебник или материалы курса' : need.books.some((book) => book.status === 'provisional') ? 'Передан PDF другого издания; точный учебник пока не подтверждён' : 'Учебник не подтверждён для этого ребёнка'}</span></div>
                 <div className="family-library-actions"><input ref={(element) => { fileInputs.current[id] = element }} type="file" accept=".pdf,application/pdf" aria-label={`Загрузить материал: ${need.subject}, ${need.childName}`} onChange={(event) => { const file = event.target.files?.[0]; if (file) void upload(need, file) }} hidden />
                   <button type="button" disabled={busy === id} onClick={() => fileInputs.current[id]?.click()}><Upload size={16} aria-hidden="true" /> {busy === id ? 'Сохраняем…' : need.state === 'pending' ? 'Другой PDF' : 'Загрузить PDF'}</button>
                   {need.state === 'review' && <button type="button" className="family-library-secondary" disabled={busy === id} onClick={() => void setPolicy(need, 'no-book')}>Учебника нет</button>}
@@ -165,7 +178,7 @@ export function FamilyLibrary({ familyId, familyChildren }: { familyId: string; 
             </>}
     </div> : null}
     <details className="family-library-list" open={hasCompleteSnapshot && !unresolved && confirmed.length + provisional.length === 0}>
-      <summary><BookOpen size={19} aria-hidden="true" /><span>{hasCompleteSnapshot ? `Библиотека семьи · ${confirmed.length + provisional.length} ${confirmed.length + provisional.length === 1 ? 'книга' : 'книг'} · просмотр ${viewableCount}/${confirmed.length + provisional.length}` : 'Библиотека семьи'}</span>{showRefresh && <RefreshCw className="family-library-refresh" size={14} aria-label="Обновление библиотеки" />}{library.error && <span className="family-library-sync-error" title="Обновление библиотеки пока недоступно">!</span>}<ChevronDown size={18} aria-hidden="true" /></summary>
+      <summary><BookOpen size={19} aria-hidden="true" /><span>{hasCompleteSnapshot ? `Библиотека семьи · ${confirmed.length + provisional.length} ${confirmed.length + provisional.length === 1 ? 'книга' : 'книг'} · просмотр ${viewableCount}/${confirmed.length + provisional.length}` : 'Библиотека семьи'}</span>{showRefresh && <RefreshCw className="family-library-refresh" size={14} aria-label="Обновление библиотеки" />}{library.error && <span className="family-library-sync-error" title="Обновление библиотеки пока недоступно" aria-label="Ошибка обновления библиотеки"><StatusIcon status="failed" size={15} /></span>}<ChevronDown size={18} aria-hidden="true" /></summary>
       {confirmed.length ? <ul>{confirmed.map((book) => <FamilyBookEntry key={`${book.childId}:${book.bookId}`} familyId={familyId} childId={book.childId} childName={familyChildren.find((child) => child.childId === book.childId)?.displayName ?? 'Ребёнок'} bookId={book.bookId} title={book.title} multipleChildren={familyChildren.length > 1} expectedCount={book.pdfPageCount} ready={pagesReady(book)} revision={pagesRevision(book)} sourceSha256={book.pagesPublishedSha256} manifestReady={book.pagesManifestSha256 === book.pagesPublishedSha256} />)}</ul>
         : <p>Подтверждённых книг пока нет. Общие документы других семей здесь не отображаются.</p>}
       {provisional.length > 0 && <div className="family-library-provisional"><strong>Переданы, но издание ещё не подтверждено для уроков</strong><ul>{provisional.map((book) => <FamilyBookEntry key={`${book.childId}:${book.bookId}`} familyId={familyId} childId={book.childId} childName={familyChildren.find((child) => child.childId === book.childId)?.displayName ?? 'Ребёнок'} bookId={book.bookId} title={book.title} multipleChildren={familyChildren.length > 1} expectedCount={book.pdfPageCount} ready={pagesReady(book)} revision={pagesRevision(book)} sourceSha256={book.pagesPublishedSha256} manifestReady={book.pagesManifestSha256 === book.pagesPublishedSha256} />)}</ul></div>}

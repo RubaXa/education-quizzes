@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ArrowRight, CheckCircle2, ChevronDown, Clock3, AlertCircle, RefreshCw } from 'lucide-react'
+import { ArrowRight, ChevronDown, Clock3, AlertCircle, RefreshCw } from 'lucide-react'
 import { restorePersonalContext } from '@/lib/personalAccess'
 import type { PersonalChild, PersonalProfile } from '@/lib/personalAccess'
 import type { InboxNotification } from '@/lib/educationSchema'
@@ -11,6 +11,7 @@ import { FamilyLibrary } from './FamilyLibrary'
 import { FamilyAccessCards } from './FamilyAccessCards'
 import { useDelayedRefresh } from '@/lib/useDelayedRefresh'
 import { readCachedInbox } from '@/lib/inboxCache'
+import StatusIcon from './StatusIcon'
 import './ParentHome.css'
 
 function dateLabel(date: string) {
@@ -38,7 +39,7 @@ function ChildCardWithProgress({ child, personId }: { child: PersonalChild & { d
   return <ChildCard child={child} overview={overview} />
 }
 
-/** @see ../../docs/product/design-system.md#cards-and-status
+/** @see ../../docs/product/status-presentation.md#components
  *  @see ../../docs/product/global-sync.md#status
  *  @see ../../docs/architecture/family-data-model.md#parent-home */
 function ChildCard({ child, overview }: { child: PersonalChild; overview?: ParentChildOverview }) {
@@ -65,7 +66,7 @@ function ChildCard({ child, overview }: { child: PersonalChild; overview?: Paren
   const day = overview?.day
   return <article className="parent-child-card">
     <button type="button" className="parent-child-toggle" aria-expanded={open} aria-controls={childPanelId(child)} onClick={() => setOpen((value) => !value)}>
-      <span className="parent-child-top"><span className="parent-child-name">{child.displayName}</span><span className={`parent-child-badge ${tone}`}>{badge}{showRefresh && <RefreshCw className="parent-child-refresh" size={13} aria-label="Обновление данных" />}</span></span>
+      <span className="parent-child-top"><span className="parent-child-name">{child.displayName}</span><span className={`parent-child-badge ${tone}`}><StatusIcon size={15} status={tone === 'complete' ? 'complete' : tone === 'action' ? 'needs-fix' : tone === 'waiting' ? 'waiting' : 'unknown'} />{badge}{showRefresh && <RefreshCw className="parent-child-refresh" size={13} aria-label="Обновление данных" />}</span></span>
       <span className="parent-child-date">{day ? `К ${dateLabel(day.date)}` : 'Ближайший учебный день пока неизвестен'}</span>
       {known && <><span className="parent-child-track" role="progressbar" aria-label={`Выполнено ${overview.done} из ${overview.total} опубликованных заданий`} aria-valuemin={0} aria-valuemax={overview.total} aria-valuenow={overview.done}><span className="parent-child-done" style={{ width: `${overview.done / overview.total * 100}%` }} /><span className="parent-child-checking" style={{ width: `${overview.checking / overview.total * 100}%` }} /></span><span className="parent-child-progress">{overview.done} из {overview.total} завершено{overview.checking ? ` · ${overview.checking} ждёт проверки` : ''}{overview.unclear ? ` · ${overview.unclear} требует решения взрослого` : ''}</span></>}
       {!known && <span className="parent-child-progress">{!child.dashboardToken ? 'Сводка появится после подключения календаря.' : overview?.reason || 'Загружаем опубликованные сведения.'}</span>}
@@ -74,8 +75,8 @@ function ChildCard({ child, overview }: { child: PersonalChild; overview?: Paren
     <div id={childPanelId(child)} className="parent-child-detail" hidden={!open}>
       {overview?.reason && ready && <p className="parent-child-note">{overview.reason}</p>}
       {overview?.weekendCards ? <p className="parent-child-note">На выходные доступны {overview.weekendCards} {countWord(overview.weekendCards, 'карточка подготовки', 'карточки подготовки', 'карточек подготовки')}. Их результаты и сроки смотрите в календаре.</p> : null}
-      {active.map((subject) => <div className="parent-child-subject" key={subject.id}><strong>{subject.name}</strong>{subject.state === 'unknown' ? <small>Статус сверяется</small> : <small>{subject.items.filter((item) => item.state === 'done').length} из {subject.items.length} выполнено</small>}{subject.rawHomework && <p><span aria-hidden="true">◷</span><span>{subject.rawHomework}</span></p>}{subject.items.filter((item) => item.state !== 'done').map((item) => <p key={item.id}><span aria-hidden="true">{item.state === 'todo' ? '→' : item.state === 'checking' ? '◷' : '?'}</span><span>{item.title} · {item.detail}</span></p>)}</div>)}
-      {done.length > 0 && <details className="parent-child-complete"><summary><CheckCircle2 size={17} aria-hidden="true" /> Сделано · {done.length} {countWord(done.length, 'предмет', 'предмета', 'предметов')} <ChevronDown size={16} aria-hidden="true" /></summary><ul>{done.map((subject) => <li key={subject.id}>{subject.name} · {subject.items.length} {countWord(subject.items.length, 'пункт', 'пункта', 'пунктов')}</li>)}</ul></details>}
+      {active.map((subject) => <div className="parent-child-subject" key={subject.id}><strong>{subject.name}</strong>{subject.state === 'unknown' ? <small>Статус сверяется</small> : <small>{subject.items.filter((item) => item.state === 'done').length} из {subject.items.length} выполнено</small>}{subject.rawHomework && <p><span aria-hidden="true"><StatusIcon status="unknown" size={15} /></span><span>{subject.rawHomework}</span></p>}{subject.items.filter((item) => item.state !== 'done').map((item) => <p key={item.id}><span aria-hidden="true"><StatusIcon size={15} status={item.state === 'todo' ? 'ready' : item.state === 'checking' ? 'waiting' : 'unknown'} /></span><span>{item.title} · {item.detail}</span></p>)}</div>)}
+      {done.length > 0 && <details className="parent-child-complete"><summary><StatusIcon status="complete" size={17} /> Сделано · {done.length} {countWord(done.length, 'предмет', 'предмета', 'предметов')} <ChevronDown size={16} aria-hidden="true" /></summary><ul>{done.map((subject) => <li key={subject.id}>{subject.name} · {subject.items.length} {countWord(subject.items.length, 'пункт', 'пункта', 'пунктов')}</li>)}</ul></details>}
       {overview?.state === 'none' && <p className="parent-child-note">{overview.reason}</p>}
       {overview?.state === 'unknown' && <p className="parent-child-note">{overview.reason}</p>}
       {overview?.state === 'loading' && <p className="parent-child-note">{overview.reason || 'Загружаем работы и результаты.'}</p>}

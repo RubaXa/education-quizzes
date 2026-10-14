@@ -1,4 +1,11 @@
 /* @see ../docs/product/design-system.md#shell — the existing app header is the UI baseline. */
+/* @see ../docs/product/status-presentation.md#components — shared quiz result semantics. */
+.edu-quiz-result-status{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.edu-quiz-result-status.complete{background:var(--edu-status-success-bg);color:var(--edu-status-success-ink)}
+.edu-quiz-result-status.partial{background:var(--edu-status-attention-bg);color:var(--edu-status-attention-ink)}
+.edu-quiz-result-status.incorrect{background:var(--edu-status-error-bg);color:var(--edu-status-error-ink)}
+.edu-quiz-result-status.waiting{background:var(--edu-status-waiting-bg);color:var(--edu-status-waiting-ink)}
+.edu-quiz-result-status.unknown{background:var(--edu-status-neutral-bg);color:var(--edu-status-neutral-ink)}
 :root {
   --primary: oklch(0.55 0.23 290);
   --primary-foreground: oklch(1 0 0);

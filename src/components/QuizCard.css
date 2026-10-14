@@ -1,12 +1,14 @@
-/* @see ../../docs/product/design-system.md#cards-and-status and ../../docs/product/card-generation-policy.md#quiz-adapter — one quiz card on every route. */
+/* @see ../../docs/product/status-presentation.md#components and ../../docs/product/card-generation-policy.md#quiz-adapter — one quiz card on every route. */
 .day-quiz-link{display:inline-flex;align-items:center;gap:7px;border-radius:10px;padding:9px 12px;background:#5c4798;color:white;font-size:.84rem;font-weight:800;text-decoration:none}.day-quiz-link:hover{background:#49387c;color:white}
 .day-quiz-task{background:#faf8ff;border-color:#e1d8f2}
 .day-quiz-lineage{min-width:0;border:1px solid #ded6eb;border-radius:17px;background:#fff;overflow:hidden}
 .day-quiz-lineage-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:10px 16px;background:#f2ebfa}
 .day-quiz-lineage-head strong{font-size:.84rem;line-height:1.3}
-.day-quiz-lineage-score{border-radius:999px;background:#f4f0fa;color:#62517f;padding:4px 9px;font-size:.74rem;font-weight:800;white-space:nowrap}
-.day-quiz-lineage-score.complete{background:#e6f6eb;color:#216a3d}
-.day-quiz-lineage-score.partial{background:#fff1dc;color:#905b1c}
+.day-quiz-lineage-score{display:inline-flex;align-items:center;gap:5px;border-radius:999px;background:var(--edu-status-neutral-bg);color:var(--edu-status-neutral-ink);padding:4px 9px;font-size:.74rem;font-weight:800;white-space:nowrap}
+.day-quiz-lineage-score.complete{background:var(--edu-status-success-bg);color:var(--edu-status-success-ink)}
+.day-quiz-lineage-score.partial{background:var(--edu-status-attention-bg);color:var(--edu-status-attention-ink)}
+.day-quiz-lineage-score.waiting{background:var(--edu-status-waiting-bg);color:var(--edu-status-waiting-ink)}
+.day-quiz-lineage-score.started{background:var(--edu-status-accent-bg);color:var(--edu-status-accent-ink)}
 .day-quiz-lineage-current{padding:13px 16px 15px}
 .day-quiz-lineage-current>small{color:#7355a3;font-size:.77rem;font-weight:800}
 .day-quiz-lineage-current h3{font-size:1.08rem;line-height:1.32;font-weight:850;margin:6px 0}
@@ -29,10 +31,10 @@
 .day-quiz-history>summary>span{display:grid;gap:2px;min-width:0}
 .day-quiz-history>summary strong{font-size:.9rem}
 .day-quiz-history>summary small{font-size:.76rem;color:#766b8b}
-.day-quiz-history-score{position:relative;isolation:isolate;overflow:hidden;min-width:54px;padding:4px 7px;border:1px solid #eed9b8;border-radius:999px;background:#fff6e9;color:#875915;text-align:center;font-size:.76rem;font-weight:800}
-.day-quiz-history-score i{position:absolute;inset:0 auto 0 0;z-index:-1;background:#f9e8cb}
-.day-quiz-history-score.complete{border-color:#d9e7dd;background:#edf7ef;color:#236a3d}
-.day-quiz-history-score.complete i{background:#d4efdb}
+.day-quiz-history-score{position:relative;isolation:isolate;overflow:hidden;min-width:54px;padding:4px 7px;border:1px solid var(--edu-status-attention-bg);border-radius:999px;background:var(--edu-status-attention-bg);color:var(--edu-status-attention-ink);text-align:center;font-size:.76rem;font-weight:800}
+.day-quiz-history-score i{position:absolute;inset:0 auto 0 0;z-index:-1;background:var(--edu-status-attention-bg)}
+.day-quiz-history-score.complete{border-color:var(--edu-status-success-bg);background:var(--edu-status-success-bg);color:var(--edu-status-success-ink)}
+.day-quiz-history-score.complete i{background:var(--edu-status-success-bg)}
 .day-quiz-history>summary>span:first-child{flex:1}
 .day-quiz-history>summary svg{flex:none;transition:transform .2s ease}
 .day-quiz-history[open]>summary svg{transform:rotate(180deg)}

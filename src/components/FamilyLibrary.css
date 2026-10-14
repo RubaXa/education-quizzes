@@ -1,4 +1,5 @@
-/* @see ../../docs/product/design-system.md#cards-and-status
+/* @see ../../docs/product/status-presentation.md#components
+ * @see ../../docs/product/design-system.md#cards-and-status
  * @see ../../docs/product/family-library.md#parent-dashboard */
 .family-library{min-width:0;border:1px solid var(--edu-card-border);border-radius:var(--edu-radius-card);background:var(--edu-surface);overflow:hidden;box-shadow:0 10px 28px #3f306c0b}
 .family-library-needs{order:1;border-color:var(--edu-danger-border)}
@@ -14,6 +15,8 @@
 .family-library-row>div:first-child{display:grid;gap:3px;min-width:0}
 .family-library-row strong{font-size:.91rem}
 .family-library-row span{color:#746675;font-size:.81rem;line-height:1.4}
+.family-library-need-state{display:inline-flex;align-items:flex-start;gap:5px}
+.family-library-need-state>svg{flex:none;margin-top:2px}
 .family-library-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px}
 .family-library-actions button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:var(--edu-touch-target);border:1px solid #a52741;border-radius:var(--edu-radius-control);background:#a52741;color:#fff;padding:8px 11px;font:inherit;font-size:.78rem;font-weight:800;cursor:pointer}
 .family-library-actions button.family-library-secondary{background:#fff;color:#8b263e}
@@ -27,7 +30,7 @@
 .family-library-list summary>svg:first-child{color:#6349a0}
 .family-library-list summary>svg:last-child{margin-left:auto;color:#6349a0}
 .family-library-refresh{flex:none;color:#786c91;animation:family-library-refresh-spin 1.4s linear infinite}
-.family-library-sync-error{color:var(--edu-muted);font-size:.75rem}
+.family-library-sync-error{color:var(--edu-status-error-ink);display:inline-flex;align-items:center}
 @keyframes family-library-refresh-spin{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){.family-library-refresh{animation:none}}
 .family-library-list[open] summary>svg:last-child{transform:rotate(180deg)}
@@ -36,7 +39,7 @@
 .family-library-list li>svg{flex:none;color:var(--edu-success-ink)}
 .family-library-book-entry>div{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .family-library-book-entry>div>svg{color:var(--edu-success-ink);flex:none}
-.family-library-book-entry>div>svg.family-library-unpublished{color:var(--edu-warning-ink)}
+.family-library-book-entry>div>svg.edu-status-icon-waiting{color:var(--edu-status-waiting-ink)}
 .family-library-book-entry button{margin-left:auto;border:1px solid var(--edu-control-border);border-radius:10px;background:var(--edu-surface);color:#6349a0;padding:8px 10px;font:inherit;font-size:.79rem;font-weight:800;cursor:pointer}
 .family-library-book-entry button:focus-visible{outline:3px solid var(--edu-focus);outline-offset:2px}
 .family-library-book-entry>.day-reader{width:100%;margin-top:10px}

@@ -102,6 +102,7 @@
 | [docs/product/dashboard.md](dashboard.md) | [Dashboard](dashboard.md) | Сводки дней, оценок и заданий | Агент; разработчик |
 | [docs/product/day-page.md](day-page.md) | [Страница дня](day-page.md) | Показ и проверка ДЗ | Агент; разработчик |
 | [docs/product/design-system.md](design-system.md) | [Дизайн-система](design-system.md) | Общие правила оболочки, токены, карточки и состояния | Агент; компоненты UI; CSS |
+| [docs/product/status-presentation.md](status-presentation.md) | [Дизайн-система](design-system.md) | Единая матрица значков, цветов, текста, компонентных правил и просмотра новой ревизии ДЗ | Компоненты статусов; разработчик |
 | [docs/product/family-library.md](family-library.md) | [Семейная библиотека](family-library.md) | Семейное покрытие, общий архив, загрузка PDF и граф источников | Родительский кабинет; синхронизация; приёмник |
 | [docs/product/file-map.md](file-map.md) | [Карта файлов](file-map.md) | Индекс назначения каждого файла | Агент; проверка карты |
 | [docs/product/grades.md](grades.md) | [Оценки](grades.md) | Показ оценок и границы расчёта | Агент; разработчик |
@@ -120,6 +121,7 @@
 | [docs/research/photo-math-solution-review.md](../research/photo-math-solution-review.md) | [Адаптивная карточка](adaptive-problem-card.md) | Основание проверки хода решения | Агент при изменении разбора |
 | [docs/research/subject-specific-review-and-feedback.md](../research/subject-specific-review-and-feedback.md) | [Единый путь разбора](subject-aware-guidance.md) | Федеральные программы, предметные методики и пределы их применения к ДЗ | Агент проверки; автор адаптера |
 | [docs/research/special-course-source-provenance.md](../research/special-course-source-provenance.md) | [Адаптивная карточка](adaptive-problem-card.md) | Поиск прототипов, вариантов, ключей и критериев спецкурса | Агент подготовки; проверяющий; родительский обзор |
+| [docs/research/status-design-systems.md](../research/status-design-systems.md) | [Матрица статусов](status-presentation.md) | Первичные источники для ролей цвета, иконок, доступности и прогресса | Дизайн-система; агент UI |
 | [firebase.json](../../firebase.json) | [Семейная модель](../architecture/family-data-model.md) | Настройки публикации правил Firestore | Firebase CLI |
 | [firestore.rules](../../firestore.rules) | [Страница дня](day-page.md) | Права на семейные документы, закрытый эталон и выбор спорных требований | Firebase; клиент |
 | [index.html](../../index.html) | [PWA](pwa.md) | HTML-точка входа приложения | Браузер; Vite |
@@ -229,6 +231,9 @@
 | [src/components/ProblemGroup.tsx](../../src/components/ProblemGroup.tsx) | [Страница дня](day-page.md) | Сворачивание листа и раскрытие адресного номера | `src/DayPage.tsx`; `src/WeekendMathSlot.tsx` |
 | [src/components/ProblemStatement.css](../../src/components/ProblemStatement.css) | [Адаптивная карточка](adaptive-problem-card.md) | Типографика условия и ориентиров | `src/components/ProblemStatement.tsx` |
 | [src/components/ProblemStatement.tsx](../../src/components/ProblemStatement.tsx) | [Адаптивная карточка](adaptive-problem-card.md) | Точное условие и помощь по запросу | Карточка номера |
+| [src/components/StatusIcon.css](../../src/components/StatusIcon.css) | [Матрица статусов](status-presentation.md) | Одна форма и анимация значка статуса | `StatusIcon.tsx` |
+| [src/components/StatusIcon.test.tsx](../../src/components/StatusIcon.test.tsx) | [Матрица статусов](status-presentation.md) | Фиксация всех форм статуса и доступного скрытия декоративного SVG | Vitest; разработчик |
+| [src/components/StatusIcon.tsx](../../src/components/StatusIcon.tsx) | [Матрица статусов](status-presentation.md) | Общий словарь Lucide по подтверждённым состояниям | Карточки, день, dashboard, фото, библиотека |
 | [src/components/ParentTaskGuide.css](../../src/components/ParentTaskGuide.css) | [Единый путь разбора](subject-aware-guidance.md) | Внешний вид общего родительского разбора | `ParentTaskGuide.tsx` |
 | [src/components/ParentTaskGuide.test.tsx](../../src/components/ParentTaskGuide.test.tsx) | [Письменный русский](russian-language-route.md) | Проверка отображения этапов, наложения работы и адресной помощи в едином компоненте | Vitest; разработчик |
 | [src/components/ParentTaskGuide.tsx](../../src/components/ParentTaskGuide.tsx) | [Единый путь разбора](subject-aware-guidance.md) | Общий поэтапный разбор для обычных и нумерованных заданий | `DayPage.tsx`; `ProblemTaskCard.tsx` |

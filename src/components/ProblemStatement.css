@@ -46,7 +46,10 @@
 .problem-statement-parent-source summary{display:flex;align-items:center;gap:7px;min-height:var(--edu-touch-target);cursor:pointer;color:var(--edu-ink);font-weight:750;list-style:none}
 .problem-statement-parent-source summary::-webkit-details-marker{display:none}
 .problem-statement-parent-source summary:focus-visible{outline:3px solid var(--edu-focus);outline-offset:2px}
-.problem-statement-parent-source summary svg{flex:none;color:var(--edu-muted)}
+/* @see ../../docs/product/status-presentation.md#components — source confidence uses the same signal shapes. */
+.problem-statement-parent-source summary svg{flex:none;color:var(--edu-status-neutral-ink)}
+.problem-statement-parent-source summary svg.edu-status-icon-complete{color:var(--edu-status-success-ink)}
+.problem-statement-parent-source summary svg.edu-status-icon-needs-fix{color:var(--edu-status-attention-ink)}
 .problem-statement-parent-source[open]>div{padding-bottom:5px}
 .problem-statement-parent-source p{margin:8px 0!important}.problem-statement-parent-source small{display:block;margin-top:7px;color:var(--edu-muted)}.problem-statement-parent-source a{color:var(--edu-brand);font-weight:700}
 @media(max-width:480px){.problem-statement-original,.problem-statement-education{padding:12px}.problem-statement-text{font-size:.94rem}}

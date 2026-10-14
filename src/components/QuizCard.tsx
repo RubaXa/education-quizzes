@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import { ChevronDown, Copy, ExternalLink } from 'lucide-react'
 import type { QuizCardAttempt } from '@/lib/quizCardViewModel'
+import StatusIcon from './StatusIcon'
 import './QuizCard.css'
 
 function scoreNumber(value: number) { return new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 2 }).format(value) }
@@ -9,7 +10,7 @@ function questionWord(count: number) { const last = count % 10; const lastTwo = 
 /** One quiz projection for a subject task, a standalone test and the test list.
  * Content and attempt history come from Firebase; presentation never depends on subject.
  * @see ../../docs/product/card-generation-policy.md#quiz-adapter
- * @see ../../docs/product/design-system.md#cards-and-status */
+ * @see ../../docs/product/status-presentation.md#components */
 export function QuizProgress({ test }: { test: QuizCardAttempt }) {
   const answered = Math.min(test.answered, test.total)
   const remaining = Math.max(0, test.total - answered)
@@ -42,8 +43,10 @@ export default function QuizCard({ chain, parent, context = 'Самопрове�
   const label = parent ? latest.status === 'submitted' ? 'Посмотреть результат' : 'Посмотреть вопросы' : latest.status === 'submitted' ? 'Посмотреть результат' : latest.answered ? 'Продолжить тест' : 'Пройти тест'
   const hasScore = latest.status === 'submitted' && latest.points != null && latest.maxPoints != null && latest.maxPoints > 0
   const scoreLabel = hasScore ? `${Math.round(latest.points! / latest.maxPoints! * 100)}% · ${scoreNumber(latest.points!)} из ${scoreNumber(latest.maxPoints!)}` : latest.status === 'submitted' ? 'Результат уточняется' : latest.answered ? 'В процессе' : 'Не начат'
+  const scoreStatus = hasScore ? latest.points === latest.maxPoints ? 'complete' : 'partial'
+    : latest.status === 'submitted' ? 'waiting' : latest.answered ? 'started' : 'ready'
   return <section className="day-quiz-lineage" id={id} aria-label={`Самопроверки: ${context}`}>
-    <div className="day-quiz-lineage-head"><strong>{context === 'Самопроверка' ? context : `Самопроверка: ${context}`}</strong><span className={`day-quiz-lineage-score${hasScore && latest.points === latest.maxPoints ? ' complete' : hasScore ? ' partial' : ''}`}>{scoreLabel}</span></div>
+    <div className="day-quiz-lineage-head"><strong>{context === 'Самопроверка' ? context : `Самопроверка: ${context}`}</strong><span className={`day-quiz-lineage-score ${scoreStatus}`}><StatusIcon status={scoreStatus} size={14} />{scoreLabel}</span></div>
     <div className="day-quiz-lineage-current"><small>{latest.status === 'submitted' ? 'Последний тест' : latest.answered ? 'Сейчас · в процессе' : 'Сейчас · не начат'}</small><h3>{latest.title}</h3>{latest.description && <p>{latest.description}</p>}
       {assignment}
       <QuizProgress test={latest} />

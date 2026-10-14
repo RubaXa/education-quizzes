@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
-import { CircleAlert, LoaderCircle, RotateCcw } from 'lucide-react'
+import { RotateCcw } from 'lucide-react'
+import StatusIcon from './StatusIcon'
 import { publicImage } from '@/lib/yandexPublic'
 import './EducationImage.css'
 
@@ -92,8 +93,8 @@ function ImageRequest({ source, alt, mode = 'direct', size = 'XXXL', resolver, r
 
   return <span className={`education-image${cropValid ? ' education-image-crop' : ''}${compact ? ' education-image-compact' : ''} ${className}`} data-state={status} style={style}>
     {resolved && status !== 'error' && <img key={`${resolved}:${attempt}`} src={resolved} alt={alt} loading={loading} referrerPolicy="no-referrer" ref={(node) => { if (node?.complete && node.naturalWidth > 0) { autoFailures.current = 0; setStatus('ready') } }} onLoad={() => { autoFailures.current = 0; setStatus('ready') }} onError={() => fail(mode === 'public' || Boolean(resolver))} />}
-    {status === 'loading' && <span className="education-image-status" role="status"><LoaderCircle size={compact ? 16 : 25} aria-hidden="true" /><span className={compact ? 'education-image-sr-only' : ''}>Загружаем изображение…</span></span>}
-    {status === 'error' && <span className="education-image-status education-image-error" role="alert"><CircleAlert size={compact ? 16 : 22} aria-hidden="true" /><span className={compact ? 'education-image-sr-only' : ''}>Не удалось загрузить изображение.</span>{retryControl && <button type="button" onClick={(event) => { event.preventDefault(); event.stopPropagation(); retry() }} aria-label={compact ? 'Повторить загрузку изображения' : undefined}><RotateCcw size={compact ? 13 : 16} aria-hidden="true" />{!compact && 'Повторить'}</button>}</span>}
+    {status === 'loading' && <span className="education-image-status" role="status"><StatusIcon status="processing" size={compact ? 16 : 25} /><span className={compact ? 'education-image-sr-only' : ''}>Загружаем изображение…</span></span>}
+    {status === 'error' && <span className="education-image-status education-image-error" role="alert"><StatusIcon status="failed" size={compact ? 16 : 22} /><span className={compact ? 'education-image-sr-only' : ''}>Не удалось загрузить изображение.</span>{retryControl && <button type="button" onClick={(event) => { event.preventDefault(); event.stopPropagation(); retry() }} aria-label={compact ? 'Повторить загрузку изображения' : undefined}><RotateCcw size={compact ? 13 : 16} aria-hidden="true" />{!compact && 'Повторить'}</button>}</span>}
   </span>
 }
 

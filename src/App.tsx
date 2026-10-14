@@ -28,6 +28,7 @@ import DayDashboard from './DayDashboard'
 import { PwaConnectionNotice, PwaInstallButton, PwaUpdateNotice } from './components/PwaControls'
 import { PersonalEntry } from './components/PersonalEntry'
 import NotificationBell from './components/NotificationBell'
+import StatusIcon from './components/StatusIcon'
 import { ConnectionInvite } from './components/ConnectionInvite'
 import EducationImage from './components/EducationImage'
 import QuizCard from './components/QuizCard'
@@ -206,6 +207,7 @@ function answerText(question: QuizQuestion, answer?: Answer): string {
 /**
  * Показывает разбор отдельного вопроса после отправки теста.
  * @see ../docs/product/quizzes.md#quiz-results
+ * @see ../docs/product/status-presentation.md#components
  */
 function ResultCard({ result, index }: { result: QuestionResult; index: number }) {
   const skipped = result.skipped === true
@@ -221,7 +223,8 @@ function ResultCard({ result, index }: { result: QuestionResult; index: number }
     <Card className="border-0 shadow-sm">
       <CardHeader className="gap-2">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <Badge variant={skipped || pending || partial ? 'secondary' : wrong ? 'destructive' : 'default'}>
+          <Badge className={`edu-quiz-result-status ${skipped ? 'unknown' : pending ? 'waiting' : wrong ? 'incorrect' : partial ? 'partial' : 'complete'}`} variant={skipped || pending || partial ? 'secondary' : wrong ? 'destructive' : 'default'}>
+            <StatusIcon size={14} status={skipped ? 'unknown' : pending ? 'waiting' : wrong ? 'incorrect' : partial ? 'partial' : 'complete'} />
             {skipped ? 'Пропущено' : pending ? 'Ждёт проверки' : wrong ? 'Неверно' : partial ? 'Частично верно' : 'Верно'}
           </Badge>
           <span className="text-sm text-muted-foreground">{skipped ? 'Без оценки' : `${pending ? '—' : result.points} / ${result.question.points}`}</span>

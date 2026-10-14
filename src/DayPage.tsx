@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { BookOpen, CheckCircle2, ChevronDown, Clock3, ExternalLink, RotateCcw, Trash2, X } from 'lucide-react'
+import { BookOpen, ChevronDown, Clock3, ExternalLink, RotateCcw, Trash2, X } from 'lucide-react'
+import StatusIcon from './components/StatusIcon'
+// @see ../docs/product/status-presentation.md#components
 import { cdzEvidenceLabel, cdzResultLabel, isCdzTask, removePendingDayPhoto, requestDayHelp, uploadDayPhoto, uploadMatchesTask, watchDayHelp, watchDayPage, watchDayTaskGuides, watchMaterialPages, withVerifiedPlatformResult } from '@/lib/dayStore'
 import { unresolvedMaterialPageRefs } from '@/lib/dayMaterialRefs'
 import { isSubjectExpanded, visibleGuideTaskIds } from '@/lib/guideReadPolicy'
@@ -506,8 +508,8 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
             <button className="day-subject-toggle" type="button" aria-expanded={expanded} aria-label={`${expanded ? 'Свернуть' : 'Развернуть'} ${subject.name}`} onClick={() => setSubjectOpen((current) => ({ ...current, [subject.id]: !expanded }))}><ChevronDown size={19} aria-hidden="true" /></button>
             {expanded && subject.materials && <p className="day-subject-materials">{subject.materials}</p>}
             {(assignments.multiple || subjectDone || summary) && <div className="day-subject-status">
-              {assignments.multiple ? <span className={`day-subject-assignment-count${assignments.complete ? ' is-complete' : ''}`} aria-label={`${assignments.completed} из ${assignments.total} заданий выполнено`}>{assignments.complete && <CheckCircle2 size={16} aria-hidden="true" />}{assignments.completed} из {assignments.total}</span>
-                : subjectDone && <span className="day-subject-complete" aria-label={`Выполнено ${doneCount} из ${subjectItems.length}`}><CheckCircle2 size={16} aria-hidden="true" />{doneCount} из {subjectItems.length}</span>}
+              {assignments.multiple ? <span className={`day-subject-assignment-count${assignments.complete ? ' is-complete' : ''}`} aria-label={`${assignments.completed} из ${assignments.total} заданий выполнено`}><StatusIcon size={16} status={assignments.complete ? 'complete' : assignments.completed ? 'partial' : 'ready'} />{assignments.completed} из {assignments.total}</span>
+                : subjectDone && <span className="day-subject-complete" aria-label={`Выполнено ${doneCount} из ${subjectItems.length}`}><StatusIcon status="complete" size={16} />{doneCount} из {subjectItems.length}</span>}
               <GradeBadge summary={summary} details={grade} threshold={page.workingThreshold} asOf={page.gradeAsOf} />
             </div>}</div>
           <div className="day-subject-content" hidden={!expanded}>{!['Новое задание МЭШ. Подробный разбор готовится.', 'Точная запись МЭШ. Подробный разбор готовится.'].includes(subject.summary) && <p className="day-subject-summary">{subject.summary}</p>}
@@ -584,7 +586,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
               }
               const taskCard = <article className={`day-task ${verified || workCovered ? 'done' : submitted ? 'submitted' : ''}`} id={`day-task-${task.id}`} key={task.id}>
                 {assignments.multiple && !task.problems?.length && <div className="day-task-assignment-heading">Задание {assignmentIndex + 1} из {assignments.total}</div>}
-                <div className="day-task-row"><span className={`day-task-state${state.length > 24 ? ' as-text' : ''} ${verified ? 'verified' : workCovered ? 'covered' : submitted ? 'partial' : taskStatus}`}>{verified && <CheckCircle2 size={15} aria-hidden="true" />} {state}</span>{task.kind === 'written' && <span className="day-task-type">В тетради</span>}{task.dueDate && task.dueDate !== (task.lessonDate ?? page.targetDate) && <span className="day-task-type">Сдать к {dayMonth(task.dueDate)} · МЭШ</span>}{task.originDate && task.originDate !== page.targetDate && <span className="day-task-type">Осталось с {dayMonth(task.originDate)}</span>}</div>
+                <div className="day-task-row"><span className={`day-task-state${state.length > 24 ? ' as-text' : ''} ${verified ? 'verified' : workCovered ? 'covered' : submitted ? 'partial' : taskStatus}`}><StatusIcon size={15} status={verified ? 'complete' : uploadingWork ? 'uploading' : processing ? 'processing' : newWork ? 'waiting' : workCovered ? 'unknown' : taskStatus === 'needs-fix' ? 'needs-fix' : taskStatus === 'partial' ? 'partial' : task.kind === 'read' && linkedTest?.answered ? 'started' : taskStatus === 'unknown' && (task.kind === 'read' || cdzTask) ? 'ready' : 'unknown'} />{state}</span>{task.kind === 'written' && <span className="day-task-type">В тетради</span>}{task.dueDate && task.dueDate !== (task.lessonDate ?? page.targetDate) && <span className="day-task-type">Сдать к {dayMonth(task.dueDate)} · МЭШ</span>}{task.originDate && task.originDate !== page.targetDate && <span className="day-task-type">Осталось с {dayMonth(task.originDate)}</span>}</div>
                 <h3>{task.title}</h3><AssignmentBrief task={task} materialLinks={taskLinks} />
                 {task.referenceDate && referencedItems.length > 0 && <div className="day-reference-results"><strong>Результаты ДЗ за {dayMonth(task.referenceDate)}</strong>{referencedItems.map((item) => <div className="day-reference-result" key={item.id}><span className={item.state === 'done' ? 'complete' : 'pending'}>{item.state === 'done' ? '✓' : '•'} {item.title}</span><small>{item.detail}</small></div>)}</div>}
                 {!parent && <TaskGuidance items={guidance.filter((item) => item.taskId === task.id)} />}

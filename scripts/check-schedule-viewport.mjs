@@ -9,6 +9,8 @@ import { setTimeout as delay } from 'node:timers/promises'
 
 const root = resolve(import.meta.dirname, '..')
 const css = readFileSync(resolve(root, 'src/DayDashboard.css'), 'utf8')
+const tokens = readFileSync(resolve(root, 'src/education-design-tokens.css'), 'utf8')
+const iconCss = readFileSync(resolve(root, 'src/components/StatusIcon.css'), 'utf8')
 const fontRoot = resolve(root, 'node_modules/@fontsource-variable/geist/files')
 const cyrillicFont = readFileSync(join(fontRoot, 'geist-cyrillic-wght-normal.woff2')).toString('base64')
 const latinFont = readFileSync(join(fontRoot, 'geist-latin-wght-normal.woff2')).toString('base64')
@@ -22,15 +24,25 @@ const rows = [
   ['Английский язык', '0 из 1', 'empty'], ['География', '1 из 1', 'complete'],
 ]
 const screenshotDir = process.env.SCHEDULE_SCREENSHOT_DIR
+// @see ../docs/product/status-presentation.md#matrix — fixture mirrors the icon/count/chevron columns.
+const statusIcon = (status) => {
+  const path = status === 'complete' ? '<circle cx="12" cy="12" r="10"/><path d="m8 12 3 3 5-6"/>'
+    : status === 'partial' ? '<circle cx="12" cy="12" r="10"/><path d="M8 12h8"/>'
+      : status === 'unknown' ? '<circle cx="12" cy="12" r="10"/><path d="M9 9a3 3 0 0 1 6 0c0 2-3 2-3 4m0 4h.01"/>'
+        : '<circle cx="12" cy="12" r="10"/>'
+  return `<svg class="edu-status-icon edu-status-icon-${status}" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${path}</svg>`
+}
+const chevron = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>'
+const newIcon = '<svg class="edu-status-icon edu-status-icon-new" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><circle cx="19" cy="5" r="2"/></svg>'
 function fixture(open) {
   return `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>
   @font-face{font-family:'Geist Variable';src:url(data:font/woff2;base64,${cyrillicFont}) format('woff2');font-weight:100 900;unicode-range:U+0400-052F,U+2DE0-2DFF,U+A640-A69F}
   @font-face{font-family:'Geist Variable';src:url(data:font/woff2;base64,${latinFont}) format('woff2');font-weight:100 900;unicode-range:U+0000-00FF}
-  ${css}\nbody{margin:0;padding:8px;font-family:'Geist Variable',sans-serif}</style>
+  ${tokens}${iconCss}${css}\nbody{margin:0;padding:8px;font-family:'Geist Variable',sans-serif}</style>
   <div class="day-dashboard"><section class="day-dashboard-card"><ul class="day-dashboard-lessons">
   ${rows.map(([name, badge, tone, phase]) => `<li><details class="day-dashboard-lesson day-dashboard-lesson-${tone}" ${open ? 'open' : ''}>
-    <summary><time>08:30</time><span class="day-dashboard-lesson-name">${name}${phase ? `<span class="day-dashboard-lesson-phase${phase === 'Идёт' ? ' current' : ''}">${phase}</span>` : ''}${name === 'История' ? '<span class="day-dashboard-lesson-new">Новое ДЗ</span>' : ''}</span>
-    <span class="day-dashboard-lesson-badge">${tone.includes('complete') ? '<svg width="13" height="13"></svg>' : ''}${badge}<svg width="15" height="15"></svg></span></summary>
+    <summary><time>08:30</time><span class="day-dashboard-lesson-name">${name}${phase ? `<span class="day-dashboard-lesson-phase${phase === 'Идёт' ? ' current' : ''}">${phase}</span>` : ''}${name === 'История' ? `<span class="day-dashboard-lesson-new">${newIcon}Новое ДЗ</span>` : ''}</span>
+    <span class="day-dashboard-lesson-badge">${badge.startsWith('ДЗ') ? '' : statusIcon(tone.includes('complete') ? 'complete' : tone === 'partial' ? 'partial' : tone === 'unknown' ? 'unknown' : 'ready')}${badge}${chevron}</span></summary>
     <div class="day-dashboard-lesson-body">Подробности задания и проверки.</div></details></li>`).join('')}
   </ul></section></div>`
 }

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { getAuth } from 'firebase/auth'
-import { ArrowRight, BookOpen, CalendarDays, CheckCircle2, ChevronDown, Clock3, Sparkles } from 'lucide-react'
+import { ArrowRight, BookOpen, CalendarDays, ChevronDown, Clock3, Sparkles } from 'lucide-react'
 import { watchDayPage } from '@/lib/dayStore'
 import type { DayPageData } from '@/lib/dayStore'
 import { clearCachedDayDashboard, readCachedDayDashboard, watchDayDashboard } from '@/lib/dayDashboardStore'
@@ -18,6 +18,7 @@ import { reportUiError } from '@/lib/uiErrors'
 import { DATA_UPDATE_MESSAGE } from '@/lib/dayCompatibility'
 import { homeworkUpdateKey, markHomeworkUpdateSeen, wasHomeworkUpdateSeen } from '@/lib/homeworkUpdateReceipt'
 import DataCompatibilityNotice from './components/DataCompatibilityNotice'
+import StatusIcon from './components/StatusIcon'
 
 function moscowToday() {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Moscow', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
@@ -128,6 +129,7 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
     const target = [...document.querySelectorAll<HTMLElement>('.day-dashboard-lesson')].find((element) => element.dataset.subject === focusSubject || subjectId != null && lessonSubjectId(element.dataset.subject ?? '') === subjectId)
     if (target) {
       if (target instanceof HTMLDetailsElement) target.open = true
+      acknowledgeHomeworkUpdate(selectedDate, target.dataset.subject ?? focusSubject)
       setScheduleOverride({ date: selectedDate, open: true })
       target.scrollIntoView({ behavior: 'auto', block: 'start' })
       sessionStorage.removeItem('education-dashboard-focus-subject')
@@ -269,7 +271,23 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
       localStorage.setItem('education-dashboard-selection-day', today)
     } catch { /* The open calendar still remembers this date. */ }
   }
-  function openDay(dayToken: string, tab?: 'homework', taskId?: string) {
+  /** @see ../docs/product/dashboard.md#homework-updates */
+  function acknowledgeHomeworkUpdate(date: string, subject: string) {
+    const entry = index?.days.find((day) => day.date === date)
+    const at = entry?.homeworkUpdate?.at
+    const subjectId = lessonSubjectId(subject)
+    if (!at || !entry.homeworkUpdate?.subjects.some((name) => name.toLocaleLowerCase('ru-RU') === subject.toLocaleLowerCase('ru-RU')
+      || subjectId != null && lessonSubjectId(name) === subjectId)) return
+    const key = homeworkUpdateKey(token, date, subject, at)
+    if (seenUpdates.has(key) || wasHomeworkUpdateSeen(key)) return
+    markHomeworkUpdateSeen(key)
+    setSeenUpdates((current) => new Set(current).add(key))
+    window.dispatchEvent(new CustomEvent('education-homework-update-seen', {
+      detail: { dashboardToken: token, date, subject },
+    }))
+  }
+  function openDay(dayToken: string, tab?: 'homework', taskId?: string, viewed?: { date: string; subject: string }) {
+    if (viewed) acknowledgeHomeworkUpdate(viewed.date, viewed.subject)
     sessionStorage.setItem('education-day-dashboard-return', `#/${parent ? 'days-parent' : 'days'}/${token}`)
     if (tab) sessionStorage.setItem('education-day-initial-tab', tab)
     else sessionStorage.removeItem('education-day-initial-tab')
@@ -277,15 +295,16 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
     else sessionStorage.removeItem('education-day-focus-task')
     window.location.hash = `#/${parent ? 'day-parent' : 'day'}/${dayToken}`
   }
-  /** @see ../docs/product/dashboard.md#homework-progress */
+  /** @see ../docs/product/dashboard.md#homework-progress
+   * @see ../docs/product/status-presentation.md#components */
   function homeworkRow(row: typeof homeworkRows[number]) {
     const { subject, items, done, group } = row
     const next = items.find((item) => item.state === 'todo') ?? items.find((item) => item.state === 'checking') ?? items.find((item) => item.state === 'unclear')
     const qualityOpen = items.find((item) => item.qualityOpen)
     const status = group === 'complete' ? qualityOpen ? 'Работа сдана' : 'Всё завершено' : next?.state === 'unclear' ? 'Критерий неясен' : next?.state === 'checking' ? 'Ждём проверки' : done ? `${done} из ${items.length} завершено` : 'Нужно сделать'
-    return <button className={`day-dashboard-homework-row ${group}`} key={subject.id} type="button" onClick={() => nextHomeworkToken && openDay(nextHomeworkToken, 'homework', next?.id)}>
+    return <button className={`day-dashboard-homework-row ${group}`} key={subject.id} type="button" onClick={() => nextHomeworkToken && openDay(nextHomeworkToken, 'homework', next?.id, { date: nextDate, subject: subject.name })}>
       <span className="day-dashboard-icon" aria-hidden="true">{subject.icon}</span>
-      <span className="day-dashboard-homework-row-body"><strong>{subject.name}</strong><span className="day-dashboard-homework-status">{status}</span>{next && <span className="day-dashboard-homework-next">{next.title} · {next.detail}</span>}{group === 'complete' && <span className="day-dashboard-homework-next">{qualityOpen ? qualityOpen.detail : subject.tasks.map((task) => task.title).join(' · ')}</span>}</span>
+      <span className="day-dashboard-homework-row-body"><strong>{subject.name}</strong><span className="day-dashboard-homework-status"><StatusIcon size={14} status={group === 'complete' ? 'complete' : next?.state === 'checking' ? 'waiting' : next?.state === 'unclear' ? 'unknown' : done ? 'partial' : 'ready'} />{status}</span>{next && <span className="day-dashboard-homework-next">{next.title} · {next.detail}</span>}{group === 'complete' && <span className="day-dashboard-homework-next">{qualityOpen ? qualityOpen.detail : subject.tasks.map((task) => task.title).join(' · ')}</span>}</span>
       <ArrowRight size={18} aria-hidden="true" />
     </button>
   }
@@ -311,21 +330,16 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
       <section className="day-dashboard-card" aria-label="Расписание выбранного дня" data-collapsed={scheduleCollapsed}>
         <div className="day-dashboard-heading"><div><CalendarDays size={20} /><h2>Расписание</h2></div><small>{dateLabel(selectedDate)}<br />МЭШ проверен: {checkedLabel(selectedEntry?.checkedAt ?? null)}</small></div>
         {Boolean(selectedEntry?.schedule.length) && <button className="day-dashboard-schedule-toggle" type="button" aria-expanded={!scheduleCollapsed} onClick={() => setScheduleOverride({ date: selectedDate, open: scheduleCollapsed })}>{scheduleCollapsed ? `Показать уроки · ${lessonRows.length}` : 'Свернуть расписание'} <ChevronDown size={16} aria-hidden="true" /></button>}
-        {!scheduleCollapsed && (selectedEntry?.schedule.length ? <ul className="day-dashboard-lessons">{lessonRows.map(({ lesson, subject, rawHomework, updatedAt, updateKey, newlyAssigned, items, tone, badge, referenceDate, referenceText, referenceToken }, lessonIndex) => {
+        {!scheduleCollapsed && (selectedEntry?.schedule.length ? <ul className="day-dashboard-lessons">{lessonRows.map(({ lesson, subject, rawHomework, updatedAt, newlyAssigned, items, tone, badge, referenceDate, referenceText, referenceToken }, lessonIndex) => {
           const start = Date.parse(lesson.start)
           const end = Date.parse(lesson.end)
           const ended = Number.isFinite(end) && now >= end
           const underway = Number.isFinite(start) && Number.isFinite(end) && start <= now && now < end
           return <li key={`${selectedDate}-${lessonIndex}-${lesson.subject}-${ended}`}><details data-subject={lesson.subject} className={`day-dashboard-lesson day-dashboard-lesson-${tone}${newlyAssigned ? ' has-new-homework' : ''}`}>
             <summary onClick={() => {
-              if (!newlyAssigned || !updateKey) return
-              markHomeworkUpdateSeen(updateKey)
-              setSeenUpdates((current) => new Set(current).add(updateKey))
-              window.dispatchEvent(new CustomEvent('education-homework-update-seen', {
-                detail: { dashboardToken: token, date: selectedDate, subject: lesson.subject },
-              }))
-            }}>{/* @see ../docs/product/design-system.md#mobile-card-headings */}<time>{lessonTime(lesson.start)}</time><span className="day-dashboard-lesson-name">{lesson.subject}{(ended || underway) && <span className={`day-dashboard-lesson-phase${underway ? ' current' : ''}`}>{underway ? 'Идёт' : 'Прошёл'}</span>}{newlyAssigned && <span className="day-dashboard-lesson-new">Новое ДЗ</span>}</span><span className="day-dashboard-lesson-badge" aria-label={referenceDate ? `См. ДЗ за ${dateLabel(referenceDate)}` : tone === 'checking' ? `${badge}, проверяем` : tone === 'unclear' ? `${badge}, критерий неясен` : undefined}>{tone === 'complete' && <CheckCircle2 size={13} aria-hidden="true" />}{referenceDate ? `ДЗ ${dateLabel(referenceDate, { day: 'numeric', month: '2-digit' })}` : badge}<ChevronDown size={15} aria-hidden="true" /></span></summary>
-            <div className="day-dashboard-lesson-body">{subject?.tasks.some((task) => task.dueDate && task.dueDate !== (task.lessonDate ?? selectedDate)) && <p className="day-dashboard-lesson-update">Срок сдачи: {dateLabel(subject.tasks.find((task) => task.dueDate && task.dueDate !== (task.lessonDate ?? selectedDate))!.dueDate!)} · по записи МЭШ. Задание относится к этому уроку.</p>}{items.length ? <div className="day-dashboard-lesson-items">{items.map((item) => <div className={`day-dashboard-lesson-item ${item.state}`} key={item.id}><span className="day-dashboard-lesson-item-symbol" aria-hidden="true">{item.state === 'done' ? '✓' : item.state === 'checking' ? '◷' : item.state === 'unclear' ? '?' : '→'}</span><div><strong>{item.state === 'done' ? 'Сделано' : item.state === 'checking' ? 'Проверяем' : item.state === 'unclear' ? 'Разобрано' : 'Осталось'}: {item.title}</strong><span>{item.detail}</span>{homeworkToken && <button type="button" onClick={() => openDay(homeworkToken, 'homework', item.id)}>{item.state === 'todo' ? 'Перейти к заданию' : item.state === 'checking' ? 'Открыть работу' : 'Посмотреть результат'} <ArrowRight size={14} aria-hidden="true" /></button>}</div></div>)}</div>
+              acknowledgeHomeworkUpdate(selectedDate, lesson.subject)
+            }}>{/* @see ../docs/product/design-system.md#mobile-card-headings */}<time>{lessonTime(lesson.start)}</time><span className="day-dashboard-lesson-name">{lesson.subject}{(ended || underway) && <span className={`day-dashboard-lesson-phase${underway ? ' current' : ''}`}>{underway ? 'Идёт' : 'Прошёл'}</span>}{newlyAssigned && <span className="day-dashboard-lesson-new"><StatusIcon status="new" size={12} />Новое ДЗ</span>}</span><span className="day-dashboard-lesson-badge" aria-label={referenceDate ? `См. ДЗ за ${dateLabel(referenceDate)}` : tone === 'checking' ? `${badge}, проверяем` : tone === 'unclear' ? `${badge}, критерий неясен` : undefined}>{!referenceDate && tone !== 'none' && <StatusIcon size={13} status={tone === 'complete' ? 'complete' : tone === 'partial' ? 'partial' : tone === 'checking' ? 'waiting' : tone === 'unclear' || tone === 'unknown' ? 'unknown' : 'ready'} />}{referenceDate ? `ДЗ ${dateLabel(referenceDate, { day: 'numeric', month: '2-digit' })}` : badge}<ChevronDown size={15} aria-hidden="true" /></span></summary>
+            <div className="day-dashboard-lesson-body">{subject?.tasks.some((task) => task.dueDate && task.dueDate !== (task.lessonDate ?? selectedDate)) && <p className="day-dashboard-lesson-update">Срок сдачи: {dateLabel(subject.tasks.find((task) => task.dueDate && task.dueDate !== (task.lessonDate ?? selectedDate))!.dueDate!)} · по записи МЭШ. Задание относится к этому уроку.</p>}{items.length ? <div className="day-dashboard-lesson-items">{items.map((item) => <div className={`day-dashboard-lesson-item ${item.state}`} key={item.id}><span className="day-dashboard-lesson-item-symbol" aria-hidden="true"><StatusIcon size={15} status={item.state === 'done' ? 'complete' : item.state === 'checking' ? 'waiting' : item.state === 'unclear' ? 'unknown' : 'ready'} /></span><div><strong>{item.state === 'done' ? 'Сделано' : item.state === 'checking' ? 'Проверяем' : item.state === 'unclear' ? 'Разобрано' : 'Осталось'}: {item.title}</strong><span>{item.detail}</span>{homeworkToken && <button type="button" onClick={() => openDay(homeworkToken, 'homework', item.id, { date: selectedDate, subject: lesson.subject })}>{item.state === 'todo' ? 'Перейти к заданию' : item.state === 'checking' ? 'Открыть работу' : 'Посмотреть результат'} <ArrowRight size={14} aria-hidden="true" /></button>}</div></div>)}</div>
               : referenceDate ? <div className="day-dashboard-lesson-raw"><p>{referenceText}</p><small>Это ссылка на уже назначенное ДЗ. Второй раз выполнять его не нужно.</small>{referenceToken && <button type="button" onClick={() => openDay(referenceToken, 'homework')}>Открыть ДЗ за {dateLabel(referenceDate)} <ArrowRight size={14} aria-hidden="true" /></button>}</div>
               : rawHomework.length ? <div className="day-dashboard-lesson-raw">{rawHomework.map((item, rawIndex) => <p key={rawIndex}>{item.text}</p>)}<small>Точный разбор задания ещё готовится.</small>{homeworkToken && <button type="button" onClick={() => openDay(homeworkToken, 'homework')}>Открыть ДЗ <ArrowRight size={14} aria-hidden="true" /></button>}</div>
                 : <p>{tone === 'none' ? 'На последней сверке задания к этому уроку не было. Оно может появиться позже.' : 'Сведения о домашнем задании ещё уточняются.'}</p>}{newlyAssigned && <p className="day-dashboard-lesson-update">ДЗ обновлено: {checkedLabel(updatedAt ?? null)}.</p>}<small>Последняя сверка МЭШ: {checkedLabel(selectedEntry.checkedAt)}.</small></div>
@@ -341,7 +355,7 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
           {actionRows.length > 0 && <div className="day-dashboard-homework-group"><h3>Что сделать</h3>{actionRows.map(homeworkRow)}</div>}
           {waitingRows.length > 0 && <div className="day-dashboard-homework-group"><h3>Ждём проверку или уточнение</h3>{waitingRows.map(homeworkRow)}</div>}
           {unprojectedHomework.length > 0 && <div className="day-dashboard-mesh" aria-label="Новые задания МЭШ без сверенного статуса">{unprojectedHomework.map((item) => <p key={item.subject}><strong>{item.subject}</strong><span>{item.text}</span></p>)}<small>Задания видны в МЭШ; статус выполнения ещё сверяется.</small></div>}
-          {completeRows.length > 0 && <details className="day-dashboard-homework-complete"><summary><CheckCircle2 size={18} aria-hidden="true" /><span>Сделано · {completeRows.length} {word(completeRows.length, 'предмет', 'предмета', 'предметов')}</span><ChevronDown size={17} aria-hidden="true" /></summary><div>{completeRows.map(homeworkRow)}</div></details>}
+          {completeRows.length > 0 && <details className="day-dashboard-homework-complete"><summary><StatusIcon status="complete" size={18} /><span>Сделано · {completeRows.length} {word(completeRows.length, 'предмет', 'предмета', 'предметов')}</span><ChevronDown size={17} aria-hidden="true" /></summary><div>{completeRows.map(homeworkRow)}</div></details>}
         </div> : nextEntry.homework.length ? <div className="day-dashboard-mesh">{nextEntry.homework.map((item, index) => <p key={index}><strong>{item.subject}</strong><span>{item.text}</span></p>)}<small>{nextWork.linkedPage && nextWork.linkedPage.targetDate !== nextDate ? `Запись МЭШ ссылается на урок ${dateLabel(nextWork.linkedPage.targetDate)}.` : 'Точный текст МЭШ · разбор страницы готовится'}</small></div> : <p className="day-dashboard-empty">{nextEntry.complete ? 'На этот учебный день МЭШ пока не показывает домашнего задания.' : 'ДЗ ещё не подтверждено.'} Последняя проверка: {checkedLabel(nextEntry.checkedAt)}.</p>}
         {nextHomeworkToken && <button className="day-dashboard-detail-link" type="button" onClick={() => openDay(nextHomeworkToken, 'homework')}>{nextWork.linkedPage && nextWork.linkedPage.targetDate !== nextDate ? 'Открыть указанное задание' : 'Открыть подробное ДЗ'} <ArrowRight size={17} /></button>}
       </section>
@@ -359,7 +373,7 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
         <section className="day-dashboard-card"><div className="day-dashboard-heading"><div><Clock3 size={20} /><h2>Синхронизация</h2></div></div>
           <p>Последняя проверка МЭШ: {checkedLabel(selectedEntry?.checkedAt ?? null)}{selectedEntry?.checkedAt && ` · ${checkedAge(selectedEntry.checkedAt, now)}`}.</p>
           {parent && selectedPage?.changes?.[0] && (selectedPage.changes[0].added.length > 0 || selectedPage.changes[0].changed.length > 0) && <p>На странице ДЗ добавлено {selectedPage.changes[0].added.length}, уточнено {selectedPage.changes[0].changed.length}.</p>}
-          {uploads.some((upload) => upload.status === 'pending') && <p><CheckCircle2 size={15} /> Фото ожидают разбора: {uploads.filter((upload) => upload.status === 'pending').length}.</p>}
+          {uploads.some((upload) => upload.status === 'pending') && <p><StatusIcon status="waiting" size={15} /> Фото ожидают разбора: {uploads.filter((upload) => upload.status === 'pending').length}.</p>}
           <small>Данные обновляются из Firestore при открытой странице.</small>
         </section>
       </aside>

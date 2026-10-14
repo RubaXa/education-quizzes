@@ -2,12 +2,14 @@ import { useEffect, useState } from 'react'
 import { getAuth, signInAnonymously } from 'firebase/auth'
 import { doc, onSnapshot } from 'firebase/firestore'
 import { Copy, Link2 } from 'lucide-react'
+import StatusIcon from './StatusIcon'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { db } from '@/lib/firebase'
 import { reportUiError } from '@/lib/uiErrors'
 
-/** @see ../../docs/architecture/school-diary-port-adapter.md#family-onboarding-research */
+/** @see ../../docs/architecture/school-diary-port-adapter.md#family-onboarding-research
+ * @see ../../docs/product/status-presentation.md#components */
 export function ConnectionInvite({ code }: { code: string }) {
   const [state, setState] = useState<'loading' | 'open' | 'submitted' | 'connected' | 'closed' | 'error'>('loading')
   const [submitted, setSubmitted] = useState(false)
@@ -50,11 +52,11 @@ export function ConnectionInvite({ code }: { code: string }) {
       <CardDescription>Вход в МЭШ выполняется на вашем компьютере. Пароль и код из SMS не вводятся на этом сайте.</CardDescription>
     </CardHeader>
     <CardContent className="space-y-5">
-      {display === 'loading' && <p>Проверяем приглашение…</p>}
-      {display === 'error' && <p role="alert">Не удалось проверить приглашение. Повторите попытку позже.</p>}
-      {display === 'closed' && <p>Приглашение закрыто или срок его действия истёк. Попросите новую ссылку.</p>}
-      {display === 'connected' && <p>МЭШ подключён. Взрослому будет выдана отдельная личная ссылка Education.</p>}
-      {display === 'submitted' && <p>Доступ передан в зашифрованном виде. Ожидаем проверки оператором Education.</p>}
+      {display === 'loading' && <p><StatusIcon status="processing" /> Проверяем приглашение…</p>}
+      {display === 'error' && <p role="alert"><StatusIcon status="failed" /> Не удалось проверить приглашение. Повторите попытку позже.</p>}
+      {display === 'closed' && <p><StatusIcon status="paused" /> Приглашение закрыто или срок его действия истёк. Попросите новую ссылку.</p>}
+      {display === 'connected' && <p><StatusIcon status="complete" /> МЭШ подключён. Взрослому будет выдана отдельная личная ссылка Education.</p>}
+      {display === 'submitted' && <p><StatusIcon status="waiting" /> Доступ передан в зашифрованном виде. Ожидаем проверки оператором Education.</p>}
       {display === 'open' && <>
         <div className="space-y-2"><p><strong>1.</strong> Откройте Терминал или PowerShell на своём компьютере с Node.js 20 или новее.</p>
           <p><strong>2.</strong> Выполните команду:</p>

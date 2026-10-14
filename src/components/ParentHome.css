@@ -1,4 +1,4 @@
-/* @see ../../docs/product/design-system.md#cards-and-status
+/* @see ../../docs/product/status-presentation.md#components
  * @see ../../docs/architecture/family-data-model.md#parent-home */
 .parent-home{display:grid;gap:18px;max-width:920px;margin:auto;color:var(--edu-ink-dashboard)}
 .parent-home *{box-sizing:border-box}
@@ -23,19 +23,19 @@
 .parent-child-toggle:focus-visible,.parent-child-open:focus-visible,.parent-child-complete summary:focus-visible{outline:3px solid var(--edu-focus);outline-offset:3px}
 .parent-child-top{display:flex;justify-content:space-between;align-items:center;gap:12px}
 .parent-child-name{font-size:1.16rem;font-weight:850}
-.parent-child-badge{display:inline-flex;align-items:center;gap:6px;flex:none;border-radius:999px;padding:6px 10px;font-size:.78rem;font-weight:800}
+.parent-child-badge{display:inline-flex;align-items:center;gap:6px;flex:none;border-radius:999px;padding:6px 10px;font-size:.78rem;font-weight:800;white-space:nowrap}
 .parent-child-refresh{flex:none;animation:parent-child-refresh-spin 1.4s linear infinite}
 @keyframes parent-child-refresh-spin{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){.parent-child-refresh{animation:none}}
-.parent-child-badge.complete{background:var(--edu-success-bg);color:var(--edu-success-ink)}
-.parent-child-badge.action{background:var(--edu-warning-bg);color:var(--edu-warning-ink)}
-.parent-child-badge.waiting{background:var(--edu-waiting-bg);color:var(--edu-waiting-ink)}
-.parent-child-badge.unknown{background:#f2eff7;color:#6e637e}
+.parent-child-badge.complete{background:var(--edu-status-success-bg);color:var(--edu-status-success-ink)}
+.parent-child-badge.action{background:var(--edu-status-attention-bg);color:var(--edu-status-attention-ink)}
+.parent-child-badge.waiting{background:var(--edu-status-waiting-bg);color:var(--edu-status-waiting-ink)}
+.parent-child-badge.unknown{background:var(--edu-status-neutral-bg);color:var(--edu-status-neutral-ink)}
 .parent-child-date,.parent-child-progress,.parent-child-expand{display:block}
 .parent-child-date{margin-top:4px;color:var(--edu-muted);font-size:.83rem}
 .parent-child-track{display:flex;width:100%;height:8px;margin:13px 0 6px;overflow:hidden;border-radius:999px;background:#ebe7f1}
-.parent-child-done{background:#2f9367;transition:width .2s ease}
-.parent-child-checking{background:#6b95c7;transition:width .2s ease}
+.parent-child-done{background:var(--edu-status-success-ink);transition:width .2s ease}
+.parent-child-checking{background:var(--edu-status-waiting-ink);transition:width .2s ease}
 .parent-child-progress{color:#6c617d;font-size:.83rem;line-height:1.4}
 .parent-child-expand{display:flex;align-items:center;justify-content:space-between;margin-top:11px;color:#6349a0;font-size:.83rem;font-weight:800}
 .parent-child-toggle[aria-expanded='true'] .parent-child-expand svg{transform:rotate(180deg)}
@@ -44,7 +44,7 @@
 .parent-child-subject strong{font-size:.9rem}
 .parent-child-subject small{display:block;margin-top:3px;color:#655a74;font-size:.78rem}
 .parent-child-subject p{display:flex;gap:8px;margin:7px 0 0;color:#655a74;font-size:.82rem;line-height:1.45}
-.parent-child-subject p>span:first-child{color:#80520f;font-weight:850}
+.parent-child-subject p>span:first-child{color:var(--edu-status-attention-ink);font-weight:850}
 .parent-child-complete{margin:13px 0;border:1px solid #d5e9dc;border-radius:12px;background:#f5fbf7;color:var(--edu-success-ink)}
 .parent-child-complete summary{display:flex;align-items:center;gap:7px;padding:10px 12px;cursor:pointer;font-size:.83rem;font-weight:800}
 .parent-child-complete summary svg:last-child{margin-left:auto}
@@ -74,7 +74,7 @@
 .parent-manage-form small{margin:0}
 .parent-manage-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:7px}
 .parent-manage-actions button{white-space:normal;text-align:left}
-.parent-manage-pending{display:block;padding:9px 10px;border-radius:10px;background:var(--edu-waiting-bg);color:var(--edu-waiting-ink);font-size:.8rem;font-weight:750}
+.parent-manage-pending{display:block;padding:9px 10px;border-radius:10px;background:var(--edu-status-waiting-bg);color:var(--edu-status-waiting-ink);font-size:.8rem;font-weight:750}
 .parent-child-access{display:grid;gap:5px;padding:12px 0;border-top:1px solid var(--edu-card-border);font-size:.82rem}
 .parent-child-access>strong{color:var(--edu-ink-dashboard);font-size:.91rem}
 .parent-child-access>span{color:var(--edu-muted);line-height:1.4}

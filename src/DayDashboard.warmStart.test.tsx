@@ -33,11 +33,41 @@ vi.mock('@/lib/personalAccess', async (importOriginal) => ({ ...await importOrig
   currentEducationPersonId: () => '' }))
 
 import DayDashboard from './DayDashboard'
+import { homeworkUpdateKey, wasHomeworkUpdateSeen } from './lib/homeworkUpdateReceipt'
 
 beforeEach(() => { vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime(new Date('2026-10-13T05:00:00.000Z')) })
-afterEach(() => { probe.selected = null; probe.next = null; probe.grade = null; probe.dashboardError = null; delete (allDays[0] as typeof allDays[0] & { homeworkUpdate?: unknown }).homeworkUpdate; allDays[0].schedule.splice(1); index.days = allDays; localStorage.clear(); sessionStorage.clear(); Element.prototype.scrollIntoView = originalScrollIntoView; vi.useRealTimers(); vi.restoreAllMocks() })
+afterEach(() => { probe.selected = null; probe.next = null; probe.grade = null; probe.dashboardError = null; for (const day of allDays) delete (day as typeof day & { homeworkUpdate?: unknown }).homeworkUpdate; allDays[0].schedule.splice(1); index.days = allDays; localStorage.clear(); sessionStorage.clear(); window.location.hash = ''; Element.prototype.scrollIntoView = originalScrollIntoView; vi.useRealTimers(); vi.restoreAllMocks() })
 
 describe('schedule warm start', () => {
+  it('acknowledges a new subject when its homework is opened from the next-day card', async () => {
+    const at = '2026-10-13T04:00:00.000Z'
+    Object.assign(allDays[1], { homeworkUpdate: { at, subjects: ['История'] } })
+    probe.selected = base()
+    probe.next = { ...base(), ready: true, subjects: [{ id: 'history', name: 'История', icon: '📚',
+      tasks: [{ id: 'history-task', title: 'Параграф 7', kind: 'written', status: 'unknown' }] }] }
+    const key = homeworkUpdateKey('calendar', '2026-10-14', 'История', at)
+    const host = document.createElement('div'); document.body.append(host)
+    const root = createRoot(host)
+    await act(async () => { root.render(<DayDashboard token="calendar" parent />) })
+    expect(wasHomeworkUpdateSeen(key)).toBe(false)
+    await act(async () => { host.querySelector<HTMLButtonElement>('.day-dashboard-homework-row')?.click() })
+    expect(wasHomeworkUpdateSeen(key)).toBe(true)
+    await act(async () => { root.unmount() }); host.remove()
+  })
+  it('acknowledges only the focused subject when opening it from a notification', async () => {
+    const at = '2026-10-13T04:00:00.000Z'
+    allDays[0].schedule.push({ subject: 'История', start: '2026-10-13T06:30:00.000Z', end: '2026-10-13T07:15:00.000Z' })
+    Object.assign(allDays[0], { homeworkUpdate: { at, subjects: ['Биология', 'История'] } })
+    sessionStorage.setItem('education-dashboard-focus-subject', 'Биология')
+    Element.prototype.scrollIntoView = vi.fn()
+    probe.selected = base()
+    const host = document.createElement('div'); document.body.append(host)
+    const root = createRoot(host)
+    await act(async () => { root.render(<DayDashboard token="calendar" parent />) })
+    expect(wasHomeworkUpdateSeen(homeworkUpdateKey('calendar', '2026-10-13', 'Биология', at))).toBe(true)
+    expect(wasHomeworkUpdateSeen(homeworkUpdateKey('calendar', '2026-10-13', 'История', at))).toBe(false)
+    await act(async () => { root.unmount() }); host.remove()
+  })
   it('reveals a focused lesson after classes and aligns its start', async () => {
     vi.setSystemTime(new Date('2026-10-13T06:20:00.000Z'))
     sessionStorage.setItem('education-dashboard-focus-subject', 'Биология')

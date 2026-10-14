@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
-import { BookOpen, CheckCircle2, ChevronDown, CircleHelp, TriangleAlert } from 'lucide-react'
+import { BookOpen, ChevronDown } from 'lucide-react'
 import type { DayWorkReview, ParentTaskGuide as Guide } from '@/lib/dayStore'
 import { stageCompletion, stageRequired } from '@/lib/parentCompletion'
 import type { ParentCompletionEvent } from '@/lib/parentCompletion'
 import type { DayGuidance } from '@/lib/dayGuidance'
 import { reportUiError } from '@/lib/uiErrors'
 import RequirementSwitch from './RequirementSwitch'
+import StatusIcon from './StatusIcon'
 import './ParentTaskGuide.css'
 
 type Stage = Guide['stages'][number]
@@ -23,7 +24,7 @@ function timeOf(value: unknown): number {
 /** Parent-only configurable stages below the existing task/ProblemStatement original.
  * @see ../../docs/product/card-generation-policy.md#math-adapter
  * @see ../../docs/product/card-generation-policy.md#russian-adapter
- * @see ../../docs/product/design-system.md#cards-and-status */
+ * @see ../../docs/product/status-presentation.md#components */
 export default function ParentTaskGuide({ guide, review, decisions = [], guidance = [], guidanceReady = true, onSend, onStageChoice }: {
   guide: Guide; review?: DayWorkReview; decisions?: ParentCompletionEvent[]; guidance?: DayGuidance[]; guidanceReady?: boolean;
   onSend?: (stage: Stage, level: Level) => Promise<void>;
@@ -95,7 +96,7 @@ export default function ParentTaskGuide({ guide, review, decisions = [], guidanc
       {guide.boundary && <p className="day-parent-guide-boundary">{guide.boundary}</p>}
       <div className="day-parent-guide-stages">{guide.stages.map((stage) => {
         const result = observed.get(stage.id)
-        return <details key={stage.id}><summary>{stage.title}{result && <span>{result.status === 'correct' ? '✓ Есть в работе' : result.status === 'incorrect' ? 'Нужно исправить' : result.status === 'partial' ? 'Часть есть' : 'Не удалось проверить'}</span>}</summary>
+        return <details key={stage.id}><summary>{stage.title}{result && <span><StatusIcon size={14} status={result.status === 'correct' ? 'complete' : result.status === 'incorrect' ? 'needs-fix' : result.status === 'partial' ? 'partial' : 'unknown'} />{result.status === 'correct' ? 'Есть в работе' : result.status === 'incorrect' ? 'Нужно исправить' : result.status === 'partial' ? 'Часть есть' : 'Не удалось проверить'}</span>}</summary>
           <p>{stage.expected}</p>{stage.why && <p className="day-parent-guide-why">Почему: {stage.why}</p>}
           {result?.observed && <p className="day-parent-guide-observed">В работе ученика: {result.observed}</p>}
           <small>Источник: {stage.source.label}</small>
@@ -141,7 +142,7 @@ export default function ParentTaskGuide({ guide, review, decisions = [], guidanc
       const checkable = !mathematics && Boolean(review?.checkableStageIds?.includes(stage.id))
       const required = isRequired(stage)
       return <div className="day-learning-route-stage-shell" key={stage.id}><details className={`day-learning-route-stage ${result?.status ? `day-learning-route-${result.status}` : ''}${checkable && !required ? ' day-learning-route-optional' : ''}`} open={stageError?.id === stage.id && stageError.reviewVersion === reviewVersion}>
-        <summary><span className="day-learning-route-number">{result?.status === 'correct' ? <CheckCircle2 size={17} aria-hidden="true" /> : result?.status === 'incorrect' ? <TriangleAlert size={17} aria-hidden="true" /> : result?.status === 'cannot-assess' ? <CircleHelp size={17} aria-hidden="true" /> : index + 1}</span><span className="day-learning-route-stage-title"><b>{stage.title}</b>{result && <small>{checkable && !required ? 'По желанию · не входит в итог' : disputedCriterion && result.status === 'cannot-assess' ? 'Критерий формы спорен' : !mathematics && result.status === 'cannot-assess' ? 'Пока не подтверждено' : statusText[result.status]}</small>}</span>
+        <summary><span className="day-learning-route-number">{result ? <StatusIcon size={17} status={result.status === 'correct' ? 'complete' : result.status === 'incorrect' ? 'needs-fix' : result.status === 'partial' ? 'partial' : 'unknown'} /> : index + 1}</span><span className="day-learning-route-stage-title"><b>{stage.title}</b>{result && <small>{checkable && !required ? 'По желанию · не входит в итог' : disputedCriterion && result.status === 'cannot-assess' ? 'Критерий формы спорен' : !mathematics && result.status === 'cannot-assess' ? 'Пока не подтверждено' : statusText[result.status]}</small>}</span>
         </summary>
         <div className="day-learning-route-body">
           {stageError?.id === stage.id && stageError.reviewVersion === reviewVersion && <p className="day-learning-route-error" role="alert">{stageError.message}</p>}

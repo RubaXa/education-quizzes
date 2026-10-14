@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import { BookOpen, CheckCircle2, CircleHelp, Lightbulb, TriangleAlert } from 'lucide-react'
+import { BookOpen, Lightbulb } from 'lucide-react'
+import StatusIcon from './StatusIcon'
 import type { DayHelp, DayMaterialLink, DayProblem, DaySourceResearch, DayWorkReview } from '@/lib/dayStore'
 import { reportUiError } from '@/lib/uiErrors'
 import SourceFragment from './SourceFragment'
@@ -68,7 +69,7 @@ export default function ProblemStatement({ problem, links, parent, help, review,
       {error && <p className="problem-statement-error" role="alert">{error}</p>}
     </div>}
     {parent && <details className="problem-statement-parent-source">
-      <summary>{sourceResearch?.status === 'verified' ? <CheckCircle2 size={16} aria-hidden="true" /> : sourceResearch?.status === 'conflict' ? <TriangleAlert size={16} aria-hidden="true" /> : <CircleHelp size={16} aria-hidden="true" />}
+      <summary>{/* @see ../../docs/product/status-presentation.md#components */}<StatusIcon size={16} status={sourceResearch?.status === 'verified' ? 'complete' : sourceResearch?.status === 'conflict' ? 'needs-fix' : 'unknown'} />
         <span>{sourceResearch?.status === 'verified' ? 'Источник подтверждён' : sourceResearch?.status === 'candidate' ? 'Возможный источник' : sourceResearch?.status === 'conflict' ? 'Источники расходятся' : 'Происхождение не установлено'}</span>
       </summary>
       {sourceResearch ? <div><p>{sourceResearch.title}</p><p>{sourceResearch.match}</p>{sourceResearch.url && <a href={sourceResearch.url} target="_blank" rel="noopener noreferrer">Открыть источник ↗</a>}<small>Ключ: {sourceResearch.keyStatus === 'verified' ? 'сверен' : sourceResearch.keyStatus === 'candidate' ? 'кандидат требует сверки' : sourceResearch.keyStatus === 'unavailable' ? 'не найден' : 'не проверен'}. {sourceResearch.note}</small></div>

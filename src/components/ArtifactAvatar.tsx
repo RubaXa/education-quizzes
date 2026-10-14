@@ -1,19 +1,19 @@
 import type { ReactNode } from 'react'
-import { Camera, CheckCircle2, CircleAlert, Clock3, LoaderCircle } from 'lucide-react'
+import { Camera } from 'lucide-react'
 import type { ArtifactAvatarState } from '@/lib/reviewPresentation'
 import type { DayUpload } from '@/lib/dayStore'
 import { localPhotoForTransfer } from '@/lib/photoOutbox'
 import EducationImage from './EducationImage'
+import StatusIcon from './StatusIcon'
 import './ArtifactAvatar.css'
 
 export function ArtifactStatusGlyph({ state, size = 10 }: { state: ArtifactAvatarState; size?: number }) {
-  return state === 'uploading' || state === 'processing' ? <LoaderCircle size={size} aria-hidden="true" />
-    : state === 'reviewed' ? <CheckCircle2 size={size} aria-hidden="true" />
-      : state === 'failed' ? <CircleAlert size={size} aria-hidden="true" /> : <Clock3 size={size} aria-hidden="true" />
+  return <StatusIcon status={state === 'reviewed' ? 'complete' : state === 'failed' ? 'failed' : state} size={size} />
 }
 
 /** The same image and state badge for uploaded work in every task view.
  * @see ../../docs/product/day-page.md#photo-status
+ * @see ../../docs/product/status-presentation.md#components
  */
 export default function ArtifactAvatar({ state, children }: { state: ArtifactAvatarState; children?: ReactNode }) {
   return <span className="artifact-avatar">

@@ -55,6 +55,7 @@ flowchart LR
 | Контракт | Что определяет | Основные модули |
 |---|---|---|
 | [Дизайн-система](design-system.md) | Действующая шапка, общие токены, карточки, состояния и правила для новых экранов | `src/education-design-tokens.css`, `src/App.tsx`, `src/App.css`, `src/components/ui/` |
+| [Матрица статусов](status-presentation.md) | Единые значки, цветовые роли, компактный вид, полный текст и квитанция просмотра нового ДЗ | `src/components/StatusIcon.tsx`, `src/DayDashboard.tsx`, карточки и библиотека |
 | [Система компонентов](component-system.md) | Почему компонент существует, кто его использует и когда вариант становится данными | `src/components/`, `src/DayPage.tsx`, `src/WeekendMathSlot.tsx` |
 | [Доступ и состояние](access-and-state.md) | Маршруты, роли, документы Firestore, повторный выпуск | `src/App.tsx`, `src/lib/store.ts`, `src/lib/dayStore.ts`, `day/merge.mjs` |
 | [Модель Firestore](firestore-data-model.md) | Строгие поля и владельцы v1, связи, совместимость, аудит и миграции | `day/data-contract.mjs`, `day/placement-integrity.mjs`, `scripts/day.mjs` |

@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
-import { Check, ChevronDown, CircleAlert, Minus, X } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 import type { DayUpload, DayWorkReview } from '@/lib/dayStore'
 import { requirementChoice, requiredFamilyActions, stageCompletion } from '@/lib/parentCompletion'
 import type { ParentCompletionEvent } from '@/lib/parentCompletion'
 import { activeProcessing, elapsedLabel, processingIsStale, reviewHeadline, reviewTone, workCoverageComplete } from '@/lib/reviewPresentation'
 import { ArtifactStatusGlyph } from './ArtifactAvatar'
+import StatusIcon from './StatusIcon'
 import RequirementSwitch from './RequirementSwitch'
 
 const itemLabels = { correct: 'Верно', partial: 'Частично верно', incorrect: 'Неверно', 'cannot-assess': 'Не удалось проверить' }
@@ -13,6 +14,7 @@ const itemLabels = { correct: 'Верно', partial: 'Частично верн�
  * Постоянный компонент читает этап и итог из Firestore. Следующие проверки
  * меняют только данные; открытая страница получает их через onSnapshot.
  * @see ../../docs/product/day-page.md#homework-review
+ * @see ../../docs/product/status-presentation.md#components
  */
 export default function WorkReview({ review, uploads, accepted = false, canDecide = false, onDecision, decisions = [], onRequirementChoice, parent = false }: {
   review?: DayWorkReview; uploads: DayUpload[]; accepted?: boolean; canDecide?: boolean; onDecision?: (action: 'accept' | 'reopen') => Promise<void>;
@@ -74,14 +76,14 @@ export default function WorkReview({ review, uploads, accepted = false, canDecid
 
     {review?.status && <details className={`day-work-review ${tone}`}>
       <summary>
-        <span className="day-work-review-icon">{tone === 'success' ? <Check size={17} aria-hidden="true" /> : tone === 'partial' ? <Minus size={17} aria-hidden="true" /> : tone === 'error' ? <X size={17} aria-hidden="true" /> : <CircleAlert size={17} aria-hidden="true" />}</span>
+        <span className="day-work-review-icon"><StatusIcon size={17} status={tone === 'success' ? 'complete' : tone === 'partial' ? 'partial' : tone === 'error' ? 'needs-fix' : 'unknown'} /></span>
         <span className="day-work-review-title"><b>{pending.length ? 'Предыдущая проверка' : 'Итог разбора'}</b><span>{requiredActions.length ? 'Доработать по решению родителя' : familyDone ? `Готово по семейному плану · ${familyStages?.confirmed} из ${familyStages?.required}` : accepted ? 'Засчитано родителем · ход неполон' : reviewHeadline(review)}</span></span>
         <ChevronDown className="day-work-review-chevron" size={18} aria-hidden="true" />
       </summary>
       <div className="day-work-review-body">
         {review.mathReasoning && <div className="day-work-review-verdicts" aria-label="Результат проверки">
-          <span className={answer === 'correct' ? 'correct' : answer === 'incorrect' ? 'incorrect' : 'unknown'}>{answer === 'correct' ? <Check size={16} aria-hidden="true" /> : answer === 'incorrect' ? <X size={16} aria-hidden="true" /> : <CircleAlert size={16} aria-hidden="true" />}{answer === 'correct' ? 'Ответ верен' : answer === 'incorrect' ? 'Ответ неверен' : 'Ответ не установлен'}</span>
-          <span className={argument === 'sufficient' || argument === 'not-required' ? 'correct' : 'incomplete'}>{argument === 'sufficient' || argument === 'not-required' ? <Check size={16} aria-hidden="true" /> : <Minus size={16} aria-hidden="true" />}{argumentLabel}</span>
+          <span className={answer === 'correct' ? 'correct' : answer === 'incorrect' ? 'incorrect' : 'unknown'}><StatusIcon size={16} status={answer === 'correct' ? 'complete' : answer === 'incorrect' ? 'incorrect' : 'unknown'} />{answer === 'correct' ? 'Ответ верен' : answer === 'incorrect' ? 'Ответ неверен' : 'Ответ не установлен'}</span>
+          <span className={argument === 'sufficient' || argument === 'not-required' ? 'correct' : 'incomplete'}><StatusIcon size={16} status={argument === 'sufficient' || argument === 'not-required' ? 'complete' : 'partial'} />{argumentLabel}</span>
         </div>}
         {familyDone && <p className="day-work-review-accepted">Все пункты семейного плана подтверждены. {familyStages?.optional ? `${familyStages.optional} пункт(а) оставлены по желанию родителя.` : ''} Исходный разбор фото сохранён.</p>}
         {accepted && <p className="day-work-review-accepted">Задача завершена по решению родителя. Ответ верен; обоснование хода в работе осталось неполным.</p>}
@@ -111,7 +113,7 @@ export default function WorkReview({ review, uploads, accepted = false, canDecid
           {(visibleSources.length > 0 || basis.limitation) && <details><summary>На чём основана проверка</summary>{visibleSources.length > 0 && <ul>{visibleSources.map((source, index) => <li key={`${source.ref}-${index}`}><b>{source.kind === 'mesh' ? 'МЭШ' : source.kind === 'textbook' ? 'Учебник' : source.kind === 'teacher' ? 'Учитель' : source.kind === 'curriculum' ? 'Программа' : 'Методическое пособие'}</b>: «{source.excerpt}» <small>{source.ref}</small></li>)}</ul>}{basis.limitation && <p>{basis.limitation}</p>}</details>}
         </div>}
         {!feedback && review.status !== 'needs-fix' && review.status !== 'partial' && items.length > 0 && <ol>{items.map((item, index) => <li className={`day-work-review-item ${item.status}`} key={`${item.label}-${index}`}>
-          <span className="day-work-review-item-icon">{item.status === 'correct' ? <Check size={14} aria-hidden="true" /> : item.status === 'incorrect' ? <X size={14} aria-hidden="true" /> : item.status === 'partial' ? <Minus size={14} aria-hidden="true" /> : <CircleAlert size={14} aria-hidden="true" />}</span>
+          <span className="day-work-review-item-icon"><StatusIcon size={14} status={item.status === 'correct' ? 'complete' : item.status === 'incorrect' ? 'incorrect' : item.status === 'partial' ? 'partial' : 'unknown'} /></span>
           <div><strong>{item.label} · {basis?.outcome === 'unresolved' && item.status === 'cannot-assess' ? 'Критерий неясен' : itemLabels[item.status]}</strong>{item.observed && <small><b>В работе:</b> {item.observed}</small>}</div>
         </li>)}</ol>}
         {!!review.history?.length && <details className="day-review-history"><summary>Предыдущие попытки · {review.history.length}</summary><ol>{[...review.history].reverse().map((entry, index) => <li key={index}><strong>{entry.studentFeedback?.title ?? (entry.status === 'verified' ? 'Верно' : entry.status === 'partial' ? 'Частично' : entry.status === 'needs-fix' ? 'Нужна правка' : 'Не удалось оценить')}</strong>{entry.studentFeedback?.focus && <small>{entry.studentFeedback.focus}</small>}</li>)}</ol></details>}

@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { addDoc, collection, doc, onSnapshot, serverTimestamp } from 'firebase/firestore'
 import { getAuth } from 'firebase/auth'
 import { Copy, KeyRound, Link2, ShieldCheck, UsersRound } from 'lucide-react'
+import StatusIcon from './StatusIcon'
+// @see ../../docs/product/status-presentation.md#components — pending invitations use the shared waiting sign.
 import { db } from '@/lib/firebase'
 import type { PersonalChild, PersonalProfile } from '@/lib/personalAccess'
 import { Button } from './ui/button'
@@ -121,7 +123,7 @@ function InvitesCard({ familyId, personId }: { familyId: string; personId: strin
     </div>}
     {right && !allowed && <p>Право создавать новые приглашения не выдано.</p>}
     {(inviteError || requestError) && <p role="alert">{inviteError || requestError}</p>}
-    {ownRequests?.filter((item) => item.status === 'requested').map((item) => <p className="parent-manage-pending" key={item.id}>◷ Приглашение готовится · {item.mode === 'new-family' ? 'новая семья' : 'наша семья'} · право выдать ещё {item.delegateQuota}</p>)}
+    {ownRequests?.filter((item) => item.status === 'requested').map((item) => <p className="parent-manage-pending" key={item.id}><StatusIcon status="waiting" size={15} /> Приглашение готовится · {item.mode === 'new-family' ? 'новая семья' : 'наша семья'} · право выдать ещё {item.delegateQuota}</p>)}
     {ownRequests?.filter((item) => item.status === 'rejected').map((item) => <p key={item.id} role="status">Запрос приглашения отклонён: {item.reason || 'право или данные заявки не подтверждены'}.</p>)}
     {right && invites?.length ? <ul>{[...invites].sort((a, b) => (b.createdAt?.toDate().getTime() ?? 0) - (a.createdAt?.toDate().getTime() ?? 0)).map((item) => <InviteRow key={item.id} item={item} nowMs={nowMs} busy={busy} revokePending={Boolean(revocations?.some((revocation) => revocation.inviteCode === item.id && revocation.status === 'requested'))} copy={(code) => { void copy(code) }} revoke={(code) => { void requestRevoke(code) }} />)}</ul> : right && allInvites && !pending && <p>Выданных приглашений пока нет.</p>}
     {message && <p role="status">{message}</p>}
@@ -160,7 +162,7 @@ function ChildAccess({ familyId, child, actorPersonId }: { familyId: string; chi
       {latest && <Button type="button" variant="outline" size="sm" disabled={busy || pending} onClick={() => void request('revoke', latest.id)}>Заблокировать</Button>}
     </div>
     {grants && grants.length > 1 && <details><summary>История ссылок · {grants.length}</summary><ul>{[...grants].sort((a, b) => (b.createdAt?.toDate().getTime() ?? 0) - (a.createdAt?.toDate().getTime() ?? 0)).map((grant) => <li key={grant.id}>{grant.active ? 'Действует' : 'Закрыта'} · {date(grant.createdAt)} · технических сессий: {grant.sessionCount ?? 'неизвестно'}</li>)}</ul></details>}
-    {pending && <span className="parent-manage-pending">◷ Заявка ожидает локальной обработки</span>}
+    {pending && <span className="parent-manage-pending"><StatusIcon status="waiting" size={15} /> Заявка ожидает локальной обработки</span>}
     {requests?.filter((item) => item.status === 'rejected').map((item) => <span key={item.id} role="status">Запрос {item.action === 'rotate' ? 'новой ссылки' : 'блокировки'} отклонён: {item.reason || 'условия не подтверждены'}.</span>)}
     {message && <span role="status">{message}</span>}
   </div>
