@@ -2,7 +2,7 @@
 // @see ../../docs/architecture/local-first-release-plan-2026-10-12.md#startup-regression-contract
 import { act } from 'react'
 import { createRoot } from 'react-dom/client'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { PersonalProfile } from '@/lib/personalAccess'
 
 const probe = vi.hoisted(() => ({ paths: [] as string[], active: new Map<string, number>(), errors: new Map<string, (error: Error) => void>(),
@@ -88,7 +88,8 @@ class ViewportObserver {
   disconnect() {}
 }
 
-afterEach(() => { probe.paths.length = 0; probe.active.clear(); probe.errors.clear(); probe.values.clear(); probe.listeners.clear(); probe.restoreGate = null; probe.authGate = null; enterViewport = undefined; localStorage.clear(); vi.unstubAllGlobals() })
+beforeEach(() => { vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime(new Date('2026-10-13T05:00:00.000Z')) })
+afterEach(() => { probe.paths.length = 0; probe.active.clear(); probe.errors.clear(); probe.values.clear(); probe.listeners.clear(); probe.restoreGate = null; probe.authGate = null; enterViewport = undefined; localStorage.clear(); vi.unstubAllGlobals(); vi.useRealTimers() })
 
 const booksPath = 'families/family/children/child/books'
 const uploadsPath = 'families/family/children/child/bookUploads'

@@ -505,7 +505,7 @@ body {
   .day-route .site-header{gap:.5rem}
   .day-route #day-header-return{display:flex;align-items:center;margin-left:auto;min-width:0}
   .day-route .header-actions{display:none}
-  .quiz-back-link + .header-actions{display:none}
+  .quiz-back-link ~ .header-actions{display:none}
   .page-wrap { width: min(100% - 1rem, 920px); margin-top: .5rem; }
   .option-tile { padding: .85rem; }
   .theme-frame { padding: .3rem; border-radius: 1.4rem; }

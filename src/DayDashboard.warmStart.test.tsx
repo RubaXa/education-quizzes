@@ -34,12 +34,12 @@ vi.mock('@/lib/personalAccess', async (importOriginal) => ({ ...await importOrig
 
 import DayDashboard from './DayDashboard'
 
-beforeEach(() => { vi.spyOn(Date, 'now').mockReturnValue(new Date('2026-10-13T05:00:00.000Z').getTime()) })
-afterEach(() => { probe.selected = null; probe.next = null; probe.grade = null; probe.dashboardError = null; delete (allDays[0] as typeof allDays[0] & { homeworkUpdate?: unknown }).homeworkUpdate; allDays[0].schedule.splice(1); index.days = allDays; localStorage.clear(); sessionStorage.clear(); Element.prototype.scrollIntoView = originalScrollIntoView; vi.restoreAllMocks() })
+beforeEach(() => { vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime(new Date('2026-10-13T05:00:00.000Z')) })
+afterEach(() => { probe.selected = null; probe.next = null; probe.grade = null; probe.dashboardError = null; delete (allDays[0] as typeof allDays[0] & { homeworkUpdate?: unknown }).homeworkUpdate; allDays[0].schedule.splice(1); index.days = allDays; localStorage.clear(); sessionStorage.clear(); Element.prototype.scrollIntoView = originalScrollIntoView; vi.useRealTimers(); vi.restoreAllMocks() })
 
 describe('schedule warm start', () => {
   it('reveals a focused lesson after classes and aligns its start', async () => {
-    vi.mocked(Date.now).mockReturnValue(new Date('2026-10-13T06:20:00.000Z').getTime())
+    vi.setSystemTime(new Date('2026-10-13T06:20:00.000Z'))
     sessionStorage.setItem('education-dashboard-focus-subject', 'Биология')
     const scroll = vi.fn()
     Element.prototype.scrollIntoView = scroll
@@ -78,7 +78,7 @@ describe('schedule warm start', () => {
     await act(async () => { first.render(<DayDashboard token="calendar" parent />) })
     expect(host.querySelector<HTMLDetailsElement>('.day-dashboard-lesson')?.open).toBe(true)
     await act(async () => { first.unmount() })
-    vi.mocked(Date.now).mockReturnValue(new Date('2026-10-13T06:20:00.000Z').getTime())
+    vi.setSystemTime(new Date('2026-10-13T06:20:00.000Z'))
     const second = createRoot(host)
     await act(async () => { second.render(<DayDashboard token="calendar" parent />) })
     expect(host.querySelector('[aria-label="Расписание выбранного дня"]')?.getAttribute('data-collapsed')).toBe('true')
@@ -102,7 +102,7 @@ describe('schedule warm start', () => {
   })
   it('folds only the finished lesson while a later lesson is still ahead', async () => {
     index.days[0].schedule.push({ subject: 'Математика', start: '2026-10-13T07:30:00.000Z', end: '2026-10-13T08:15:00.000Z' })
-    vi.mocked(Date.now).mockReturnValue(new Date('2026-10-13T06:20:00.000Z').getTime())
+    vi.setSystemTime(new Date('2026-10-13T06:20:00.000Z'))
     probe.selected = base(); probe.next = base()
     const host = document.createElement('div'); document.body.append(host)
     const root = createRoot(host)

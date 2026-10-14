@@ -20,6 +20,13 @@ describe('notification shell viewport contract', () => {
     expect(pwaCss).toMatch(/\.pwa-install span\s*\{[^}]*display:\s*none/)
   })
 
+  it('hides the install control beside a quiz back link on narrow phones', () => {
+    // A quiz header has brand + back + bell; keeping the install button pushes
+    // the bell 48px beyond a 320px viewport.
+    expect(appCss).toMatch(/@media\s*\(max-width:\s*640px\)[\s\S]*?\.quiz-back-link\s*~\s*\.header-actions\s*\{\s*display:\s*none\s*\}/)
+    expect(16 + 96 + 16 + 94 + 16 + 42 + 16).toBeLessThanOrEqual(320)
+  })
+
   it('bounds the panel to the phone viewport even at 320px', () => {
     expect(bellCss).toMatch(/\.notification-panel\s*\{[^}]*right:\s*0;[^}]*width:\s*min\(360px,calc\(100vw - 32px\)\)/)
     for (const viewport of [320, 390, 540, 640]) {
