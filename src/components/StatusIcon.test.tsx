@@ -5,7 +5,7 @@ import type { EducationStatus } from './StatusIcon'
 
 // @see ../../docs/product/status-presentation.md#matrix
 const statuses: EducationStatus[] = [
-  'ready', 'started', 'uploading', 'waiting', 'processing', 'paused', 'complete',
+  'not-assigned', 'ready', 'started', 'uploading', 'waiting', 'processing', 'paused', 'complete',
   'partial', 'needs-fix', 'incorrect', 'unknown', 'failed', 'new',
 ]
 

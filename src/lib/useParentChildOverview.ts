@@ -132,7 +132,7 @@ function useLiveParentChildOverview(dashboardToken: string): ParentChildOverview
   if (!indexReady) return loadingExpired ? { ...blank, state: 'unknown', reason: 'Календарь пока не загрузился. Проверьте связь и откройте календарь ребёнка.' } : blank
   if (!day) return { ...blank, state: 'unknown', reason: 'Расписание следующего учебного дня ещё не загружено.' }
   if (!dayToken || !page) {
-    if (day.complete && day.homework.length === 0) return { ...blank, state: 'none', reason: 'На последней сверке ДЗ не было; оно может появиться позже.' }
+    if (day.complete && day.homework.length === 0) return { ...blank, state: 'none', reason: 'На последней сверке МЭШ домашнее задание к этому дню не задано.' }
     return { ...blank, state: 'unknown', reason: day.homework.length ? 'ДЗ найдено в МЭШ; подробный план ещё готовится.' : 'ДЗ на этот день ещё уточняется.' }
   }
   if (decisions.error) return { ...blank, state: 'unknown', reason: 'Не удалось получить решения взрослого. Откройте календарь для подробностей.' }

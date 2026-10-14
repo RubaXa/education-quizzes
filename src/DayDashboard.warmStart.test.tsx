@@ -39,6 +39,34 @@ beforeEach(() => { vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime(new 
 afterEach(() => { probe.selected = null; probe.next = null; probe.grade = null; probe.dashboardError = null; for (const day of allDays) delete (day as typeof day & { homeworkUpdate?: unknown }).homeworkUpdate; allDays[0].schedule.splice(1); index.days = allDays; localStorage.clear(); sessionStorage.clear(); window.location.hash = ''; Element.prototype.scrollIntoView = originalScrollIntoView; vi.useRealTimers(); vi.restoreAllMocks() })
 
 describe('schedule warm start', () => {
+  it('calls a confirmed empty lesson Не задано without implying future homework', async () => {
+    index.days = [{ ...allDays[0], homework: [] }, allDays[1]]
+    probe.selected = { ...base(), ready: true }
+    probe.next = base()
+    const host = document.createElement('div'); document.body.append(host)
+    const root = createRoot(host)
+    await act(async () => { root.render(<DayDashboard token="calendar" parent />) })
+    const lesson = host.querySelector<HTMLDetailsElement>('.day-dashboard-lesson')!
+    expect(lesson.querySelector('.day-dashboard-lesson-badge')?.textContent).toContain('Не задано')
+    expect(lesson.querySelector('[data-status="not-assigned"]')).not.toBeNull()
+    expect(lesson.querySelector('.day-dashboard-lesson-badge')?.getAttribute('aria-label')).toContain('на последней сверке МЭШ')
+    await act(async () => { lesson.open = true })
+    expect(lesson.querySelector('.day-dashboard-lesson-body')?.textContent).toContain('На последней сверке МЭШ')
+    expect(lesson.textContent).not.toContain('может появиться позже')
+    await act(async () => { root.unmount() }); host.remove()
+  })
+  it('rewords a saved empty badge immediately on a warm start', async () => {
+    localStorage.setItem('education-day-dashboard-lesson-v1:parent:calendar:2026-10-13', JSON.stringify({ version: 1, lessons: [
+      { key: `${lessonStart}|Биология`, tone: 'none', badge: 'Пока нет ДЗ', items: [] },
+    ] }))
+    probe.selected = base()
+    const host = document.createElement('div'); document.body.append(host)
+    const root = createRoot(host)
+    await act(async () => { root.render(<DayDashboard token="calendar" parent />) })
+    expect(host.querySelector('.day-dashboard-lesson-badge')?.textContent).toContain('Не задано')
+    expect(host.textContent).not.toContain('Пока нет ДЗ')
+    await act(async () => { root.unmount() }); host.remove()
+  })
   it('acknowledges a new subject when its homework is opened from the next-day card', async () => {
     const at = '2026-10-13T04:00:00.000Z'
     Object.assign(allDays[1], { homeworkUpdate: { at, subjects: ['История'] } })
