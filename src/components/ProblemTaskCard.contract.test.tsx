@@ -1,7 +1,7 @@
 // @see ../../docs/product/card-generation-policy.md#source-inventory
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
-import type { DayProblem, ParentTaskGuide } from '@/lib/dayStore'
+import type { DayMaterialLink, DayProblem, ParentTaskGuide } from '@/lib/dayStore'
 import type { DayGuidance } from '@/lib/dayGuidance'
 import ProblemTaskCard from './ProblemTaskCard'
 
@@ -16,6 +16,7 @@ describe('one upload action per numbered problem', () => {
         state={{ tone, label: tone === 'verified' ? 'Подтверждено' : 'Не начато' }}
         links={[]} parent={false} uploads={[]} helpAccess="ready" onPhotos={() => undefined} />)
       expect(html).toContain('Добавить фото')
+      expect(html).toContain('class="problem-card-upload"')
       expect(html).toContain(`id="${problem.id}"`)
       expect(html).not.toContain(`id="${problem.id}" open=""`)
       expect(html).toContain('Условие № 1')
@@ -36,15 +37,34 @@ describe('stable numbered problem layers', () => {
   } as DayProblem
   const guide = { kind: 'worked-solution', presentation: 'math-route', overview: 'Разбор', stages: [] } as ParentTaskGuide
 
+  it('shows the actual cropped original beside a separate transcription when text exists', () => {
+    const crop = { x: 90, y: 130, width: 820, height: 128, sourceWidth: 1871, sourceHeight: 1323, sourceSha256: 'teacher-sha' }
+    const numbered = { ...problem, original: { text: '№ 3. Дано: DF = 9,3 см.', attachmentRef: 'sheet', crop } } as DayProblem
+    const links = [{ sourceType: 'teacher-attachment', sourceRef: 'sheet', sourceSha256: 'teacher-sha', url: 'https://example.org/sheet.png' }] as DayMaterialLink[]
+    const html = renderToStaticMarkup(<ProblemTaskCard problem={numbered} state={{ tone: 'ready', label: 'Не начато' }}
+      links={links} parent guide={guide} uploads={[]} helpAccess="ready" onPhotos={() => undefined} />)
+    expect(html).toContain('education-image-crop')
+    expect(html).toContain('Открыть фрагмент оригинального листа')
+    expect(html).toContain('Условие текстом')
+    expect(html).not.toContain('Оригинал · открыть крупно')
+  })
+
+  it('does not show a photo upload action to the parent', () => {
+    const html = renderToStaticMarkup(<ProblemTaskCard problem={problem} state={{ tone: 'ready', label: 'Не начато' }}
+      links={[]} parent guide={guide} uploads={[]} helpAccess="ready" onPhotos={() => undefined} />)
+    expect(html).not.toContain('Добавить фото решения')
+    expect(html).not.toContain('problem-card-upload')
+  })
+
   it('shows each labeled quantity in its own fact tile without rewriting the source', () => {
     const diagram = { ...problem, support: { ...problem.support!, facts: [
       { label: 'Из условия', value: 'Птицы: 20; животные: 10; автомобили: 60' },
     ], find: 'Построить круговую диаграмму коллекции' } } as DayProblem
     const html = renderToStaticMarkup(<ProblemTaskCard problem={diagram} state={{ tone: 'ready', label: 'Не начато' }}
       links={[]} parent guide={guide} uploads={[]} helpAccess="ready" onPhotos={() => undefined} />)
-    expect(html).toContain('<small>Птицы</small><strong>20</strong>')
-    expect(html).toContain('<small>Животные</small><strong>10</strong>')
-    expect(html).toContain('<small>Автомобили</small><strong>60</strong>')
+    expect(html).toContain('<strong>20</strong><small>Птицы</small>')
+    expect(html).toContain('<strong>10</strong><small>Животные</small>')
+    expect(html).toContain('<strong>60</strong><small>Автомобили</small>')
     expect(html).not.toContain('<strong>Птицы: 20; животные: 10; автомобили: 60</strong>')
     expect(diagram.support?.facts).toEqual([{ label: 'Из условия', value: 'Птицы: 20; животные: 10; автомобили: 60' }])
     const ambiguous = { ...diagram, support: { ...diagram.support!, facts: [
@@ -52,7 +72,7 @@ describe('stable numbered problem layers', () => {
     ] } } as DayProblem
     const ambiguousHtml = renderToStaticMarkup(<ProblemTaskCard problem={ambiguous} state={{ tone: 'ready', label: 'Не начато' }}
       links={[]} parent guide={guide} uploads={[]} helpAccess="ready" onPhotos={() => undefined} />)
-    expect(ambiguousHtml).toContain('<small>Из условия</small><strong>Время: 12:30; место: школа</strong>')
+    expect(ambiguousHtml).toContain('<strong>Время: 12:30; место: школа</strong><small>Из условия</small>')
   })
 
   it('keeps the colored given/find layer on the parent math route', () => {
@@ -64,7 +84,7 @@ describe('stable numbered problem layers', () => {
     expect(html).toContain('class="problem-statement-find"')
     expect(html).toContain('Условие текстом')
     expect(html).toContain('Разбор для родителя')
-    expect(html.indexOf('problem-statement-education')).toBeLessThan(html.indexOf('problem-statement-provenance'))
+    expect(html).not.toContain('class="problem-statement-provenance"')
   })
 
   it('does not repeat a number already present in the teacher transcript', () => {
@@ -80,7 +100,7 @@ describe('stable numbered problem layers', () => {
       links={[]} parent guide={guide} uploads={[]} helpAccess="ready" onPhotos={() => undefined} />)
     expect(html).toContain('aria-label="Происхождение не проверено. Показать происхождение задачи"')
     expect(html).toContain('aria-expanded="false"')
-    expect(html).toContain('Источник')
+    expect(html.indexOf('problem-card-source-trigger')).toBeLessThan(html.indexOf('problem-statement-original'))
     expect(html).not.toContain('class="problem-statement-parent-source"')
     expect(html).not.toContain('Поиск более раннего источника не записан')
   })

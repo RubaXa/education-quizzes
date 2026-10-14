@@ -17,12 +17,12 @@ export default function ProblemTaskCard({ problem, state, links, parent, help, r
   review?: DayWorkReview; uploads: DayUpload[]; accepted?: boolean; canDecide?: boolean; onDecision?: (action: 'accept' | 'reopen') => Promise<void>; decisions?: ParentCompletionEvent[]; onRequirementChoice?: (id: string, action: 'require' | 'optional') => Promise<void>; onStageChoice?: (stage: ParentTaskGuideData['stages'][number], required: boolean) => Promise<void>; helpAccess: 'checking' | 'ready' | 'login-required';
   onRequestHelp?: (taskId: string, revision: number, requestKind: NonNullable<DayHelp['requestKind']>, requestText: string) => Promise<void>; onPhotos: (files: File[]) => void; children?: ReactNode;
 }) {
-  return <ProblemCard problem={problem} state={state}>
-    <ProblemStatement problem={problem} links={links} parent={parent} help={help} review={review} sourceResearch={sourceResearch} finished={accepted} helpAccess={helpAccess} onRequestHelp={onRequestHelp} />
+  return <ProblemCard problem={problem} state={state} parent={parent} sourceResearch={sourceResearch}>
+    <ProblemStatement problem={problem} links={links} parent={parent} help={help} review={review} finished={accepted} helpAccess={helpAccess} onRequestHelp={onRequestHelp} />
     {!parent && <TaskGuidance items={guidance ?? []} />}
     {parent && guide && <ParentTaskGuide guide={guide} review={review} decisions={decisions} guidance={guidance} guidanceReady={guidanceReady} onSend={onSendGuidance} onStageChoice={onStageChoice} />}
     <WorkReview review={review} uploads={uploads} accepted={accepted} canDecide={canDecide && !uploads.some((upload) => upload.status === 'pending')} onDecision={onDecision} decisions={decisions} onRequirementChoice={onRequirementChoice} parent={parent} />
-    <div className="problem-card-actions">{parent ? !uploads.length && <small>Фото по этому номеру пока нет</small> : <ProblemUploadButton correction={accepted || review?.status === 'needs-fix' || review?.status === 'partial'} onPhotos={onPhotos} />}</div>
+    {!parent && <div className="problem-card-actions"><ProblemUploadButton correction={accepted || review?.status === 'needs-fix' || review?.status === 'partial'} onPhotos={onPhotos} /></div>}
     {children}
   </ProblemCard>
 }

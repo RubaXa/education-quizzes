@@ -1,12 +1,10 @@
 /* @see ../../docs/product/design-system.md#images
  * @see ../../docs/product/problem-card-design-decisions.md#flat-numbered-sheet */
 .source-fragment{margin-top:12px}
-.source-fragment-trigger{display:block;width:100%;padding:7px;border:1px solid #dcd3e8;border-radius:11px;background:#faf8fd;color:#5c4690;text-align:center;cursor:pointer}
+.source-fragment-trigger{display:block;width:100%;padding:7px;border:1px solid var(--edu-problem-transcript-border);border-radius:11px;background:var(--edu-surface);color:var(--edu-brand);text-align:left;cursor:pointer}
 .source-fragment-trigger:hover,.source-fragment-trigger:focus-visible{border-color:#8165bd;outline:2px solid #c8b7e9}
-.source-fragment-trigger small{display:block;margin-top:6px;font-size:.73rem;font-weight:750}
-.source-fragment-trigger:has(>span){display:grid;gap:5px;padding:12px 14px;border:0;border-radius:12px;background:var(--edu-problem-education-bg);text-align:left}
-.source-fragment-trigger:has(>span)>strong{color:var(--edu-brand);font-size:.84rem}
-.source-fragment-trigger:has(>span)>span{display:-webkit-box;overflow:hidden;-webkit-line-clamp:2;-webkit-box-orient:vertical;color:var(--edu-text-primary);font-family:Georgia,serif;font-size:.86rem;line-height:1.4}
+.source-fragment-caption{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px;color:var(--edu-brand);font-size:.78rem}
+.source-fragment-caption small{font-size:.72rem;font-weight:750;white-space:nowrap}
 .source-fragment-trigger .education-image{width:100%;background:#fff}
 .source-fragment-trigger .education-image:not(.education-image-crop){min-height:100px}
 .source-fragment-switch{min-height:37px;padding:7px 9px;border:1px solid #d9cdeb;border-radius:9px;background:#fff;color:#533f87;font:inherit;font-size:.78rem;font-weight:750;cursor:pointer}

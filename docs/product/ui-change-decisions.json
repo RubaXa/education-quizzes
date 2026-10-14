@@ -71,20 +71,21 @@
       }
     },
     "scripts/check-problem-variant-viewport.mjs": {
-      "sha256": "b20c93c3410f81a4b7991bc2ae36d804a856396ca2f634114b6008960f022f51",
-      "record": "docs/product/ui-decisions/flat-numbered-sheet-2026-10-14.md",
+      "sha256": "a2ba9d8a01f8089e1167e31e17a94200e217c9ba858bf746b8004048121f9b38",
+      "record": "docs/product/ui-decisions/restore-numbered-original-2026-10-14.md",
       "specs": [
+        "docs/product/adaptive-problem-card.md",
         "docs/product/problem-card-design-decisions.md",
         "docs/product/design-system.md"
       ],
       "tests": [
         "src/components/ProblemTaskCard.contract.test.tsx",
-        "src/components/ProblemGroup.layout.test.tsx",
-        "src/components/ProblemStatement.provenance.test.tsx"
+        "src/components/ProblemStatement.provenance.test.tsx",
+        "src/components/ProblemCard.test.tsx"
       ],
       "authorization": {
-        "status": "direct-request",
-        "evidence": "Родитель 14.10.2026 сравнил два снимка блока «Дано» и прямо попросил вернуть отдельные значения с короткими подписями вместо одной нечитаемой строки."
+        "status": "approved-mockup",
+        "evidence": "Родитель 14.10.2026 после просмотра конкретного макета с видимым исходным кропом ответил «Да, стало лучше, очень лучше» и потребовал доделать этот вариант, убрав макетную родительскую кнопку загрузки фото."
       }
     },
     "src/components/ProblemGroup.tsx": {
@@ -122,71 +123,75 @@
       }
     },
     "src/components/ProblemStatement.tsx": {
-      "sha256": "ea9015dbec2b5d9dafad81876033848d7f103ce9d3e0ca1463cdddef93c3147d",
-      "record": "docs/product/ui-decisions/flat-numbered-sheet-2026-10-14.md",
+      "sha256": "42b4391c1b06aae294119aaea14bdcfdd403fd3e391f258333621b3985f8bdde",
+      "record": "docs/product/ui-decisions/restore-numbered-original-2026-10-14.md",
       "specs": [
+        "docs/product/adaptive-problem-card.md",
         "docs/product/problem-card-design-decisions.md",
         "docs/product/design-system.md"
       ],
       "tests": [
         "src/components/ProblemTaskCard.contract.test.tsx",
-        "src/components/ProblemGroup.layout.test.tsx",
-        "src/components/ProblemStatement.provenance.test.tsx"
+        "src/components/ProblemStatement.provenance.test.tsx",
+        "src/components/ProblemCard.test.tsx"
       ],
       "authorization": {
-        "status": "direct-request",
-        "evidence": "Родитель 14.10.2026 сравнил два снимка блока «Дано» и прямо попросил вернуть отдельные значения с короткими подписями вместо одной нечитаемой строки."
+        "status": "approved-mockup",
+        "evidence": "Родитель 14.10.2026 после просмотра конкретного макета с видимым исходным кропом ответил «Да, стало лучше, очень лучше» и потребовал доделать этот вариант, убрав макетную родительскую кнопку загрузки фото."
       }
     },
     "src/components/ProblemStatement.css": {
-      "sha256": "53950846a87181dfec6df12c5d566b73759dc0af9096e3a84879532541849e06",
-      "record": "docs/product/ui-decisions/flat-numbered-sheet-2026-10-14.md",
+      "sha256": "ab327890e91799976872f940600b3f33191ca4cf013c8beb59f8aa559b826677",
+      "record": "docs/product/ui-decisions/restore-numbered-original-2026-10-14.md",
       "specs": [
+        "docs/product/adaptive-problem-card.md",
         "docs/product/problem-card-design-decisions.md",
         "docs/product/design-system.md"
       ],
       "tests": [
         "src/components/ProblemTaskCard.contract.test.tsx",
-        "src/components/ProblemGroup.layout.test.tsx",
-        "src/components/ProblemStatement.provenance.test.tsx"
+        "src/components/ProblemStatement.provenance.test.tsx",
+        "src/components/ProblemCard.test.tsx"
       ],
       "authorization": {
-        "status": "direct-request",
-        "evidence": "Родитель 14.10.2026 повторно приложил согласованный макет и потребовал сверить с ним выпускаемую карточку."
+        "status": "approved-mockup",
+        "evidence": "Родитель 14.10.2026 после просмотра конкретного макета с видимым исходным кропом ответил «Да, стало лучше, очень лучше» и потребовал доделать этот вариант, убрав макетную родительскую кнопку загрузки фото."
       }
     },
     "src/components/SourceFragment.tsx": {
-      "sha256": "42355c12b59ded1127ef02c750a149402e575781af0f86d752f3b9700d635e7c",
-      "record": "docs/product/ui-decisions/flat-numbered-sheet-2026-10-14.md",
+      "sha256": "ec0d0eefd41c2d8c1ed67c7bc9e75cbee9aeeb6deb299de32304b7f933074ed6",
+      "record": "docs/product/ui-decisions/restore-numbered-original-2026-10-14.md",
       "specs": [
+        "docs/product/adaptive-problem-card.md",
         "docs/product/problem-card-design-decisions.md",
         "docs/product/design-system.md"
       ],
       "tests": [
         "src/components/ProblemTaskCard.contract.test.tsx",
-        "src/components/ProblemGroup.layout.test.tsx",
-        "src/components/ProblemStatement.provenance.test.tsx"
+        "src/components/ProblemStatement.provenance.test.tsx",
+        "src/components/ProblemCard.test.tsx"
       ],
       "authorization": {
-        "status": "direct-request",
-        "evidence": "Родитель 14.10.2026 повторно приложил согласованный макет и потребовал сверить с ним выпускаемую карточку."
+        "status": "approved-mockup",
+        "evidence": "Родитель 14.10.2026 после просмотра конкретного макета с видимым исходным кропом ответил «Да, стало лучше, очень лучше» и потребовал доделать этот вариант, убрав макетную родительскую кнопку загрузки фото."
       }
     },
     "src/components/SourceFragment.css": {
-      "sha256": "5f4005fa1402f9e59e97e2bdc42e287a7e4504d13be83f6e82ab5eebb6a3e17b",
-      "record": "docs/product/ui-decisions/flat-numbered-sheet-2026-10-14.md",
+      "sha256": "5b222ee5051b3f597c6e0aa189d48d66a4f265d565cb0dfb1ede1fe9a5443ee5",
+      "record": "docs/product/ui-decisions/restore-numbered-original-2026-10-14.md",
       "specs": [
+        "docs/product/adaptive-problem-card.md",
         "docs/product/problem-card-design-decisions.md",
         "docs/product/design-system.md"
       ],
       "tests": [
         "src/components/ProblemTaskCard.contract.test.tsx",
-        "src/components/ProblemGroup.layout.test.tsx",
-        "src/components/ProblemStatement.provenance.test.tsx"
+        "src/components/ProblemStatement.provenance.test.tsx",
+        "src/components/ProblemCard.test.tsx"
       ],
       "authorization": {
-        "status": "direct-request",
-        "evidence": "Родитель 14.10.2026 повторно приложил согласованный макет и потребовал сверить с ним выпускаемую карточку."
+        "status": "approved-mockup",
+        "evidence": "Родитель 14.10.2026 после просмотра конкретного макета с видимым исходным кропом ответил «Да, стало лучше, очень лучше» и потребовал доделать этот вариант, убрав макетную родительскую кнопку загрузки фото."
       }
     },
     "src/components/ParentTaskGuide.tsx": {
@@ -505,6 +510,60 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Прямой запрос родителя 14.10.2026: объединить соседние страницы учебника и проверить мобильные снимки перед публикацией."
+      }
+    },
+    "src/components/ProblemCard.tsx": {
+      "sha256": "fb69827483eeea0c6f988b2761f28887874dbde9823fd22f95830470b703cef5",
+      "record": "docs/product/ui-decisions/restore-numbered-original-2026-10-14.md",
+      "specs": [
+        "docs/product/adaptive-problem-card.md",
+        "docs/product/problem-card-design-decisions.md",
+        "docs/product/design-system.md"
+      ],
+      "tests": [
+        "src/components/ProblemTaskCard.contract.test.tsx",
+        "src/components/ProblemStatement.provenance.test.tsx",
+        "src/components/ProblemCard.test.tsx"
+      ],
+      "authorization": {
+        "status": "approved-mockup",
+        "evidence": "Родитель 14.10.2026 после просмотра конкретного макета с видимым исходным кропом ответил «Да, стало лучше, очень лучше» и потребовал доделать этот вариант, убрав макетную родительскую кнопку загрузки фото."
+      }
+    },
+    "src/components/ProblemCard.css": {
+      "sha256": "a929789d0c3e2848a61d7bc212537c04d0f2513acdb7f78f1e9b85a3aac282ee",
+      "record": "docs/product/ui-decisions/restore-numbered-original-2026-10-14.md",
+      "specs": [
+        "docs/product/adaptive-problem-card.md",
+        "docs/product/problem-card-design-decisions.md",
+        "docs/product/design-system.md"
+      ],
+      "tests": [
+        "src/components/ProblemTaskCard.contract.test.tsx",
+        "src/components/ProblemStatement.provenance.test.tsx",
+        "src/components/ProblemCard.test.tsx"
+      ],
+      "authorization": {
+        "status": "approved-mockup",
+        "evidence": "Родитель 14.10.2026 после просмотра конкретного макета с видимым исходным кропом ответил «Да, стало лучше, очень лучше» и потребовал доделать этот вариант, убрав макетную родительскую кнопку загрузки фото."
+      }
+    },
+    "src/components/ProblemTaskCard.tsx": {
+      "sha256": "3ff34d4dc8e34d521d494ddc6509e53584a164b73dd0df23015a4e8d9aafeed3",
+      "record": "docs/product/ui-decisions/restore-numbered-original-2026-10-14.md",
+      "specs": [
+        "docs/product/adaptive-problem-card.md",
+        "docs/product/problem-card-design-decisions.md",
+        "docs/product/design-system.md"
+      ],
+      "tests": [
+        "src/components/ProblemTaskCard.contract.test.tsx",
+        "src/components/ProblemStatement.provenance.test.tsx",
+        "src/components/ProblemCard.test.tsx"
+      ],
+      "authorization": {
+        "status": "approved-mockup",
+        "evidence": "Родитель 14.10.2026 после просмотра конкретного макета с видимым исходным кропом ответил «Да, стало лучше, очень лучше» и потребовал доделать этот вариант, убрав макетную родительскую кнопку загрузки фото."
       }
     }
   }

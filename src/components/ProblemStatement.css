@@ -12,29 +12,16 @@
 .problem-statement-guidance p{margin:5px 0 0;font-size:.89rem;line-height:1.5}
 .problem-statement-label{display:flex;align-items:center;gap:7px;min-width:0;color:var(--edu-problem-heading);font-size:.87rem;line-height:1.25}
 .problem-statement-label strong{font-weight:800}
-/* @see ../../docs/product/adaptive-problem-card.md#происхождение-задачи */
-.problem-statement-source-trigger{display:grid;place-items:center;flex:none;width:var(--edu-touch-target);height:var(--edu-touch-target);margin:-8px -8px -8px auto;padding:0;border:0;border-radius:10px;background:transparent;color:var(--edu-status-neutral-ink);cursor:pointer}
-.problem-statement-source-trigger.complete{color:var(--edu-status-success-ink)}
-.problem-statement-source-trigger.needs-fix{color:var(--edu-status-attention-ink)}
-.problem-statement-source-trigger:hover,.problem-statement-source-trigger[aria-expanded="true"]{background:var(--edu-canvas)}
-.problem-statement-provenance{padding:8px 15px 12px}
-.problem-statement-provenance .problem-statement-source-trigger{display:inline-flex;align-items:center;gap:6px;width:auto;height:var(--edu-touch-target);margin:0;padding:0 7px;color:var(--edu-brand);font-size:.83rem}
-.problem-statement-provenance .problem-statement-source-trigger>strong{font-weight:750}
-.problem-statement-provenance .problem-statement-source-trigger>.edu-status-icon{margin-left:5px}
-.problem-statement-source-trigger:focus-visible{outline:3px solid var(--edu-focus);outline-offset:2px}
-.problem-statement-source-detail{margin-top:13px;padding:12px;border:1px solid var(--edu-card-border);border-radius:var(--edu-radius-control);background:var(--edu-canvas);color:var(--edu-text-primary);font-size:.82rem;line-height:1.45}
-.problem-statement-source-detail p{margin:8px 0!important}.problem-statement-source-detail small{display:block;margin-top:8px;color:var(--edu-text-secondary)}.problem-statement-source-detail a{color:var(--edu-brand);font-weight:700}
 .problem-statement-text{margin-top:9px;max-width:72ch;white-space:pre-line;overflow-wrap:anywhere;color:var(--edu-problem-text);font-size:1rem;line-height:1.6}
 .problem-statement-text b{color:var(--edu-problem-number-ink)}
 .problem-statement-transcript{margin-top:13px;padding:12px;border:1px solid var(--edu-problem-transcript-border);border-radius:11px;color:var(--edu-problem-heading)}
 .problem-statement-transcript-title{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:.9rem;font-weight:800}
-.problem-statement-source{display:block;margin-top:9px;color:var(--edu-problem-source-ink);font-size:.72rem;line-height:1.4}
 .problem-statement-missing{margin:12px 0 0!important;color:var(--edu-problem-missing-ink);font-size:.82rem;line-height:1.5}
 .problem-statement-education{padding:15px;background:var(--edu-problem-education-bg);border-top:1px solid var(--edu-problem-transcript-border)}
 .problem-statement-facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(76px,1fr));gap:7px;margin-top:12px}
 .problem-statement-facts>div{min-width:0;padding:9px 8px;border-radius:10px;background:var(--edu-surface);text-align:center}
-.problem-statement-facts small{display:block;color:var(--edu-problem-fact-label);font-size:.69rem}
-.problem-statement-facts strong{display:block;margin-top:3px;color:var(--edu-ink-dashboard);font-size:.9rem;overflow-wrap:anywhere}
+.problem-statement-facts small{display:block;margin-top:3px;color:var(--edu-problem-fact-label);font-size:.69rem}
+.problem-statement-facts strong{display:block;color:var(--edu-ink-dashboard);font-size:1rem;overflow-wrap:anywhere}
 .problem-statement-find{display:flex;align-items:baseline;gap:12px;margin-top:9px;padding:10px 12px;border-radius:10px;background:var(--edu-problem-find-bg)}
 .problem-statement-find small{color:var(--edu-problem-find-label);font-size:.75rem}.problem-statement-find strong{color:var(--edu-problem-find-ink);font-size:1.06rem}
 .problem-statement-rationale{margin:11px 0 0!important;color:var(--edu-problem-rationale-ink);font-size:.78rem;line-height:1.5}

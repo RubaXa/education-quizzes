@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { BookOpen, Lightbulb } from 'lucide-react'
-import StatusIcon from './StatusIcon'
-import type { DayHelp, DayMaterialLink, DayProblem, DaySourceResearch, DayWorkReview } from '@/lib/dayStore'
+import type { DayHelp, DayMaterialLink, DayProblem, DayWorkReview } from '@/lib/dayStore'
 import { reportUiError } from '@/lib/uiErrors'
 import SourceFragment from './SourceFragment'
 import './ProblemStatement.css'
@@ -30,8 +29,8 @@ function displayFacts(facts: { label: string; value: string }[]) {
 /** @see ../../docs/product/adaptive-problem-card.md#показ-ученику
  * @see ../../docs/product/problem-card-design-decisions.md#flat-numbered-sheet
  * @see ../../docs/product/problem-card-design-decisions.md */
-export default function ProblemStatement({ problem, links, parent, help, review, sourceResearch, finished: parentFinished = false, onRequestHelp, helpAccess = 'ready' }: {
-  problem: DayProblem; links: DayMaterialLink[]; parent: boolean; help?: DayHelp; review?: DayWorkReview; sourceResearch?: DaySourceResearch;
+export default function ProblemStatement({ problem, links, parent, help, review, finished: parentFinished = false, onRequestHelp, helpAccess = 'ready' }: {
+  problem: DayProblem; links: DayMaterialLink[]; parent: boolean; help?: DayHelp; review?: DayWorkReview;
   finished?: boolean;
   onRequestHelp?: (taskId: string, revision: number, kind: NonNullable<DayHelp['requestKind']>, text: string) => Promise<void>;
   helpAccess?: 'checking' | 'ready' | 'login-required';
@@ -40,7 +39,6 @@ export default function ProblemStatement({ problem, links, parent, help, review,
   const [kind, setKind] = useState<NonNullable<DayHelp['requestKind']>>('start')
   const [note, setNote] = useState('')
   const [error, setError] = useState('')
-  const [sourceOpen, setSourceOpen] = useState(false)
   const original = problem.original
   const originalText = original?.text?.trim()
   const textHasNumber = Boolean(originalText && new RegExp(`^№\\s*${problem.number}(?:\\s*[.)]|\\s)`).test(originalText))
@@ -51,9 +49,6 @@ export default function ProblemStatement({ problem, links, parent, help, review,
   const facts = support ? displayFacts(support.facts) : []
   const opened = Boolean(support && help && help.revision >= support.revision)
   const finished = review?.status === 'verified' || parentFinished
-  const sourceStatus = sourceResearch?.status === 'verified' ? 'complete' : sourceResearch?.status === 'conflict' ? 'needs-fix' : 'unknown'
-  const sourceLabel = sourceResearch?.status === 'verified' ? 'Источник подтверждён' : sourceResearch?.status === 'candidate' ? 'Возможный источник'
-    : sourceResearch?.status === 'conflict' ? 'Источники расходятся' : sourceResearch?.status === 'not-found' ? 'Подтверждённый источник не найден' : 'Происхождение не проверено'
 
   async function requestHelp(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -70,15 +65,14 @@ export default function ProblemStatement({ problem, links, parent, help, review,
   return <div className="problem-statement">
     <div className="problem-statement-original">
       <div className="problem-statement-label"><BookOpen size={16} aria-hidden="true" /><strong>Условие № {problem.number}</strong></div>
-      {hasFragment && attachment && original?.crop && <SourceFragment link={attachment} crop={original.crop} number={problem.number} excerpt={original.text} />}
+      {hasFragment && attachment && original?.crop && <SourceFragment link={attachment} crop={original.crop} number={problem.number} />}
       {attachment && !hasFragment && <p className="problem-statement-missing">Точный фрагмент ещё не подготовлен. Полный лист учителя показан над списком заданий.</p>}
       {originalText ? <div className="problem-statement-transcript"><div className="problem-statement-transcript-title">Условие текстом</div><div className="problem-statement-text">{!textHasNumber && <><b>№ {problem.number}.</b> </>}{originalText}</div></div>
         : <p className="problem-statement-missing">Точная текстовая запись этого номера ещё не подготовлена. Полное условие и рисунок — в исходном листе выше.</p>}
-      <small className="problem-statement-source">{problem.source}</small>
     </div>
     {support && <div className="problem-statement-education">
       <div className="problem-statement-label"><Lightbulb size={16} aria-hidden="true" /><strong>Как читать условие</strong></div>
-      {!!facts.length && <div className="problem-statement-facts" aria-label="Дано">{facts.map((fact) => <div key={fact.label}><small>{fact.label}</small><strong>{fact.value}</strong></div>)}</div>}
+      {!!facts.length && <div className="problem-statement-facts" aria-label="Дано">{facts.map((fact) => <div key={fact.label}><strong>{fact.value}</strong><small>{fact.label}</small></div>)}</div>}
       {support.find && <div className="problem-statement-find"><small>Найти</small><strong>{support.find}</strong></div>}
       {parent || finished || !onRequestHelp ? null
           : opened ? <div className="problem-statement-help-result"><strong>Первый ориентир</strong><p>{support.firstQuestion}</p><small>Этот вопрос подготовлен к задаче заранее. Твой запрос сохранён для следующего разбора.</small></div>
@@ -86,15 +80,6 @@ export default function ProblemStatement({ problem, links, parent, help, review,
               : helpAccess === 'login-required' ? <p className="problem-statement-rationale">Чтобы попросить ориентир, зайди по личной ссылке ученика Education.</p>
                 : <details className="problem-statement-help"><summary>Нужен ориентир?</summary><form onSubmit={(event) => void requestHelp(event)}><fieldset><legend>На чём ты остановился?</legend>{helpKinds.map((option) => <label key={option.value}><input type="radio" name={`help-${problem.id}`} value={option.value} checked={kind === option.value} onChange={() => setKind(option.value)} />{option.label}</label>)}</fieldset><label className="problem-statement-help-note">Что уже пробовал? Можно написать «Пока не знаю».<textarea value={note} maxLength={800} onChange={(event) => setNote(event.target.value)} placeholder="Моя мысль или вопрос" /></label><button type="submit" className="problem-statement-help-button" disabled={requesting || !onRequestHelp}>{requesting ? 'Отправляем…' : 'Отправить'}</button></form></details>}
       {error && <p className="problem-statement-error" role="alert">{error}</p>}
-    </div>}
-    {parent && <div className="problem-statement-provenance">
-      <button className={`problem-statement-source-trigger ${sourceStatus}`} type="button" aria-label={`${sourceLabel}. ${sourceOpen ? 'Скрыть' : 'Показать'} происхождение задачи`} aria-expanded={sourceOpen} aria-controls={sourceOpen ? `source-${problem.id}` : undefined} onClick={() => setSourceOpen((value) => !value)} title={sourceLabel}>
-        {/* @see ../../docs/product/adaptive-problem-card.md#происхождение-задачи */}<span aria-hidden="true">ⓘ</span><strong>Источник</strong><StatusIcon size={18} status={sourceStatus} />
-      </button>
-      {sourceOpen && <div className="problem-statement-source-detail" id={`source-${problem.id}`}><strong>{sourceLabel}</strong>
-        {sourceResearch ? <><p>{sourceResearch.title}</p><p>{sourceResearch.match}</p>{sourceResearch.url && <a href={sourceResearch.url} target="_blank" rel="noopener noreferrer">Открыть источник ↗</a>}<small>Ключ: {sourceResearch.keyStatus === 'verified' ? 'сверен' : sourceResearch.keyStatus === 'candidate' ? 'кандидат требует сверки' : sourceResearch.keyStatus === 'unavailable' ? 'не найден' : 'не проверен'}. {sourceResearch.note}</small></>
-          : <p>Исходный лист учителя известен. Поиск более раннего источника не записан.</p>}
-      </div>}
     </div>}
   </div>
 }

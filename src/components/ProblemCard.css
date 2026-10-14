@@ -1,6 +1,6 @@
 /* @see ../../docs/product/status-presentation.md#components */
 .problem-card{min-width:0;padding:13px 14px;border:1px solid var(--edu-card-border);border-radius:14px;background:var(--edu-surface);color:var(--edu-text-primary)}
-.problem-card-heading{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px;list-style:none;cursor:pointer}
+.problem-card-heading{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;align-items:center;gap:5px;list-style:none;cursor:pointer}
 .problem-card-heading::-webkit-details-marker{display:none}
 .problem-card-heading:focus-visible{outline:3px solid var(--edu-focus);outline-offset:4px}
 .problem-card-heading>strong{min-width:0;overflow-wrap:anywhere;font-size:.94rem;line-height:1.4}
@@ -12,6 +12,17 @@
 .problem-card.processing .problem-card-state,.problem-card.uploading .problem-card-state,.problem-card.waiting .problem-card-state{color:var(--edu-status-waiting-ink)}
 .problem-card-chevron{margin-left:5px;transition:transform .2s ease}
 .problem-card[open] .problem-card-chevron{transform:rotate(180deg)}
+/* Provenance is a disclosure in the task heading, not a full-width card layer.
+ * @see ../../docs/product/problem-card-design-decisions.md#flat-numbered-sheet */
+.problem-card-source-wrap{display:flex;align-items:center}
+.problem-card-source-trigger{display:grid;place-items:center;width:var(--edu-touch-target);height:var(--edu-touch-target);padding:0;border:0;border-radius:50%;background:transparent;color:var(--edu-status-neutral-ink);cursor:pointer}
+.problem-card-source-trigger.complete{color:var(--edu-status-success-ink)}
+.problem-card-source-trigger.needs-fix{color:var(--edu-status-attention-ink)}
+.problem-card-source-trigger:hover,.problem-card-source-trigger[aria-expanded="true"]{background:var(--edu-problem-education-bg)}
+.problem-card-source-trigger:focus-visible{outline:3px solid var(--edu-focus);outline-offset:2px}
+.problem-card-source-detail{grid-column:1/-1;display:grid;gap:6px;width:100%;padding:11px 12px;border-radius:10px;background:var(--edu-problem-education-bg);color:var(--edu-text-primary);font-size:.78rem;line-height:1.4;white-space:normal;cursor:auto}
+.problem-card-source-detail[hidden]{display:none}
+.problem-card-source-detail>strong{font-size:.82rem}.problem-card-source-detail>small{color:var(--edu-text-secondary)}.problem-card-source-detail a{color:var(--edu-brand);font-weight:700}
 .problem-card-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px}
 .problem-card-upload{display:inline-flex;align-items:center;gap:6px;padding:9px 12px;border-radius:9px;background:var(--edu-primary-bg);color:var(--edu-primary-ink);font-size:.8rem;font-weight:800;cursor:pointer}
 .problem-card-upload:focus-within{outline:3px solid var(--edu-focus);outline-offset:2px}

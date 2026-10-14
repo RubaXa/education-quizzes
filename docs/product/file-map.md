@@ -226,14 +226,14 @@
 | [src/components/ParentHome.readBudget.test.tsx](../../src/components/ParentHome.readBudget.test.tsx) | [Поэтапный план local-first](../architecture/local-first-release-plan-2026-10-12.md) | Интеграционная трасса начальных подписок и проверка порога 20% без рабочего Firestore | Разработчик; выпуск родительского кабинета |
 | [src/components/ProblemCard.css](../../src/components/ProblemCard.css) | [Адаптивная карточка](adaptive-problem-card.md) | Оформление свёрнутого номера | `src/components/ProblemCard.tsx` |
 | [src/components/ProblemCard.test.tsx](../../src/components/ProblemCard.test.tsx) | [Матрица статусов](status-presentation.md) | Регрессия компактного значка без повторения «Не начато» и полной доступной подписи | Vitest; разработчик |
-| [src/components/ProblemCard.tsx](../../src/components/ProblemCard.tsx) | [Адаптивная карточка](adaptive-problem-card.md) | Номер, статус и кнопка фото | День; спецкурс |
+| [src/components/ProblemCard.tsx](../../src/components/ProblemCard.tsx) | [Адаптивная карточка](adaptive-problem-card.md) | Номер, статус и родительское раскрытие происхождения в заголовке | День; спецкурс |
 | [src/components/PhotoUploadControl.tsx](../../src/components/PhotoUploadControl.tsx) | [Страница дня](day-page.md) | Единая множественная загрузка фото для письменного задания и номера | `DayPage.tsx`; `ProblemCard.tsx` |
 | [src/components/PhotoUploadControl.test.tsx](../../src/components/PhotoUploadControl.test.tsx) | [Страница дня](day-page.md) | Проверка общего действия и нескольких фото | Vitest; разработчик |
 | [src/components/ProblemGroup.css](../../src/components/ProblemGroup.css) | [Страница дня](day-page.md) | Оформление общей сводки нумерованного листа | `src/components/ProblemGroup.tsx` |
 | [src/components/ProblemGroup.layout.test.tsx](../../src/components/ProblemGroup.layout.test.tsx) | [Дизайн-система](design-system.md) | Проверяет компактную метку нумерованного листа и её доступное значение | `src/components/ProblemGroup.tsx`; Vitest |
 | [src/components/ProblemGroup.tsx](../../src/components/ProblemGroup.tsx) | [Страница дня](day-page.md) | Сворачивание листа и раскрытие адресного номера | `src/DayPage.tsx`; `src/WeekendMathSlot.tsx` |
 | [src/components/ProblemStatement.css](../../src/components/ProblemStatement.css) | [Адаптивная карточка](adaptive-problem-card.md) | Типографика условия и ориентиров | `src/components/ProblemStatement.tsx` |
-| [src/components/ProblemStatement.provenance.test.tsx](../../src/components/ProblemStatement.provenance.test.tsx) | [Матрица карточки](problem-card-design-decisions.md) | Проверяет компактное происхождение и различие отсутствующей и неудачной проверки | Vitest; разработчик |
+| [src/components/ProblemStatement.provenance.test.tsx](../../src/components/ProblemStatement.provenance.test.tsx) | [Матрица карточки](problem-card-design-decisions.md) | Проверяет значок происхождения в заголовке номера и различие отсутствующей и неудачной проверки | Vitest; разработчик |
 | [src/components/ProblemStatement.tsx](../../src/components/ProblemStatement.tsx) | [Адаптивная карточка](adaptive-problem-card.md) | Точное условие и помощь по запросу | Карточка номера |
 | [src/components/StatusIcon.css](../../src/components/StatusIcon.css) | [Матрица статусов](status-presentation.md) | Одна форма и анимация значка статуса | `StatusIcon.tsx` |
 | [src/components/StatusIcon.test.tsx](../../src/components/StatusIcon.test.tsx) | [Матрица статусов](status-presentation.md) | Фиксация всех форм статуса и доступного скрытия декоративного SVG | Vitest; разработчик |
@@ -357,7 +357,7 @@
 | [src/lib/writeQueue.ts](../../src/lib/writeQueue.ts) | [Тесты](quizzes.md) | Порядок записи ответов | `quizWrite` |
 | [src/lib/yandexPublic.ts](../../src/lib/yandexPublic.ts) | [Материалы](materials.md) | Получение публичных превью Диска | `MaterialReader` |
 | [src/lib/yandexPublic.test.ts](../../src/lib/yandexPublic.test.ts) | [Изображения](design-system.md) | Проверка обновления превью PDF после ошибки загрузки миниатюры | Vitest; разработчик |
-| [scripts/check-problem-variant-viewport.mjs](../../scripts/check-problem-variant-viewport.mjs) | [Карточки и состояния](design-system.md) | Скриншотная проверка цепочки вариант → номер → родительский разбор → закрытые этапы на мобильных ширинах | Chrome; разработчик |
+| [scripts/check-problem-variant-viewport.mjs](../../scripts/check-problem-variant-viewport.mjs) | [Карточки и состояния](design-system.md) | Проверка загруженных пикселей фрагмента, сетки фактов и цепочки вариант → номер → закрытый разбор на мобильных ширинах | Chrome; разработчик |
 | [src/main.tsx](../../src/main.tsx) | [PWA](pwa.md) | Монтирование React и стилей | Браузер |
 | [storage/direct-upload.mjs](../../storage/direct-upload.mjs) | [Хранение и приватность](storage-privacy.md) | Валидация заявки и пути фото | Worker загрузки |
 | [storage/family-book-upload.mjs](../../storage/family-book-upload.mjs) | [Семейная библиотека](family-library.md) | Валидация полного PDF и семейного пути приёма | Worker загрузки |
@@ -390,6 +390,7 @@
 | [docs/product/ui-contract-baseline.json](ui-contract-baseline.json) | [Управление UI](ui-change-control.md) | Запечатанный начальный отпечаток 209 файлов продуктового кода | `check-ui-contract.mjs` |
 | [docs/product/ui-change-decisions.json](ui-change-decisions.json) | [Управление UI](ui-change-control.md) | Принятые изменения UI с решением, спецификацией и проверкой по файлу | `check-ui-contract.mjs`; ревью |
 | [docs/product/ui-decisions/flat-numbered-sheet-2026-10-14.md](ui-decisions/flat-numbered-sheet-2026-10-14.md) | [Плоская секция](problem-card-design-decisions.md) | Основание, состав, роли и проверка исправления вложенности | `ui-change-decisions.json`; ревью |
+| [docs/product/ui-decisions/restore-numbered-original-2026-10-14.md](ui-decisions/restore-numbered-original-2026-10-14.md) | [Матрица карточки](problem-card-design-decisions.md) | Согласованное восстановление видимого оригинала, компактного источника и границы загрузки фото | `ui-change-decisions.json`; ревью |
 | [scripts/check-ui-contract.mjs](../../scripts/check-ui-contract.mjs) | [Управление UI](ui-change-control.md) | Останавливает незаявленную правку или добавление продуктового кода | `npm run check:spec`; разработчик |
 | [scripts/check-ui-contract.test.mjs](../../scripts/check-ui-contract.test.mjs) | [Управление UI](ui-change-control.md) | Проверяет отказ при переносе CSS без решения, устаревшем отпечатке и отсутствии теста | Vitest; разработчик |
 
