@@ -291,8 +291,9 @@
 .day-subject-toggle{grid-column:3;grid-row:1;margin:0}
 .day-subject-materials{grid-column:2 / -1;min-width:0;margin:0;color:#746b88;font-size:.96rem;line-height:1.4;overflow-wrap:anywhere}
 /* @see ../docs/product/grades.md#grade-badge — fixed count/average columns in both card states. */
-.day-subject-status{grid-column:1 / -1;display:grid;grid-template-columns:106px minmax(0,1fr);align-items:center;column-gap:10px;row-gap:9px;min-width:0}
-.day-subject-status .day-subject-assignment-count,.day-subject-status .day-subject-complete{grid-column:1;grid-row:1;order:0;justify-self:start;min-height:36px;display:inline-flex;align-items:center;max-width:106px;width:auto;padding:6px 10px;border:1px solid #bce8cd;border-radius:999px;background:#e7f8ef;color:#277146;font-size:.78rem;line-height:1;white-space:nowrap;font-variant-numeric:tabular-nums;margin:0}
+/* @see ../docs/product/day-page.md#numbered-sheet-and-quiz — task and quiz counts have separate labels. */
+.day-subject-status{grid-column:1 / -1;display:grid;grid-template-columns:max-content minmax(0,1fr);align-items:center;column-gap:10px;row-gap:9px;min-width:0}
+.day-subject-status .day-subject-assignment-count,.day-subject-status .day-subject-complete{grid-column:1;grid-row:1;order:0;justify-self:start;min-height:36px;display:inline-flex;align-items:center;width:auto;padding:6px 10px;border:1px solid #bce8cd;border-radius:999px;background:#e7f8ef;color:#277146;font-size:.78rem;line-height:1;white-space:nowrap;font-variant-numeric:tabular-nums;margin:0}
 .day-subject-status .day-subject-assignment-count:not(.is-complete){border-color:#e5def2;background:#fff;color:#655c78}
 .day-subject-status .day-grade-button{grid-column:2;grid-row:1;order:0;justify-self:start;min-height:36px;min-width:86px;margin:0;white-space:nowrap;font-variant-numeric:tabular-nums}
 .day-subject-status .day-grade-expand{grid-column:1 / -1;grid-row:2;order:0;width:100%;margin:0;min-width:0}

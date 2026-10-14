@@ -108,12 +108,14 @@ function PhotoStrip({ taskTitle, evidenceLabel = 'Фото работы', studen
 /** Adapter from a task's exact MESH instruction and family pages to the shared quiz card.
  * @see ../docs/product/card-generation-policy.md#quiz-adapter
  * @see ../docs/product/day-page.md#multiple-assignments */
-function QuizLineageCard({ chain, parent, task, materialLinks = [], assignmentLabel }: { chain: QuizCardAttempt[]; parent: boolean; task?: DayTask; materialLinks?: DayMaterialLink[]; assignmentLabel?: string }) {
+function QuizLineageCard({ chain, parent, task, materialLinks = [], assignmentLabel, separateAssignment = false }: { chain: QuizCardAttempt[]; parent: boolean; task?: DayTask; materialLinks?: DayMaterialLink[]; assignmentLabel?: string; separateAssignment?: boolean }) {
   const context = task?.title.match(/Упр\.\s*\d+/i)?.[0] ?? task?.title ?? 'Самопроверка'
   const readerLinks = materialLinks.filter(canReadInside)
   const otherLinks = materialLinks.filter((link) => !canReadInside(link))
   const materials = task && (task.steps?.length || readerLinks.length || otherLinks.length) ? <>{!!task.steps?.length && <ol className="day-task-steps">{task.steps.map((step, index) => <Instruction key={index} item={step} index={index} />)}</ol>}{groupAdjacentMaterialPages(readerLinks).map((group) => <MaterialReader key={group[0].url} links={group} parent={parent} />)}{otherLinks.map((link) => <a key={link.url} href={link.url} target="_blank" rel="noopener noreferrer">{link.title} <ExternalLink size={13} aria-hidden="true" /></a>)}</> : undefined
-  return <QuizCard chain={chain} parent={parent} context={context} assignment={task && <>{assignmentLabel && <div className="day-task-assignment-heading">{assignmentLabel}</div>}<AssignmentBrief task={task} materialLinks={materialLinks} /></>} materials={materials} id={task ? `day-task-${task.id}` : `day-quiz-${chain[0].token}`} />
+  // @see ../docs/product/day-page.md#numbered-sheet-and-quiz
+  // A numbered teacher sheet remains its own task beside the linked quiz.
+  return <QuizCard chain={chain} parent={parent} context={context} assignment={!separateAssignment && task && <>{assignmentLabel && <div className="day-task-assignment-heading">{assignmentLabel}</div>}<AssignmentBrief task={task} materialLinks={materialLinks} /></>} materials={separateAssignment ? undefined : materials} id={task && !separateAssignment ? `day-task-${task.id}` : `day-quiz-${chain[0].token}`} />
 }
 
 /** @see ../docs/product/day-page.md#instruction-provenance */
@@ -520,7 +522,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
             <button className="day-subject-toggle" type="button" aria-expanded={expanded} aria-label={`${expanded ? 'Свернуть' : 'Развернуть'} ${subject.name}`} onClick={() => setSubjectOpen((current) => ({ ...current, [subject.id]: !expanded }))}><ChevronDown size={19} aria-hidden="true" /></button>
             {expanded && subject.materials && <p className="day-subject-materials">{subject.materials}</p>}
             {(numberedSheet || assignments.multiple || subjectDone || summary) && <div className="day-subject-status">
-              {numberedSheet && numberedProblemIds.size ? <span className={`day-subject-assignment-count${numberedDone === numberedProblemIds.size ? ' is-complete' : ''}`} aria-label={`${numberedDone} из ${numberedProblemIds.size} задач выполнено`}><StatusIcon size={16} status={numberedDone === numberedProblemIds.size ? 'complete' : numberedDone ? 'partial' : 'ready'} />{numberedDone} из {numberedProblemIds.size}</span>
+              {numberedSheet && numberedProblemIds.size ? <span className={`day-subject-assignment-count${numberedDone === numberedProblemIds.size ? ' is-complete' : ''}`} aria-label={`Задачи учителя: ${numberedDone} из ${numberedProblemIds.size} выполнено`}><StatusIcon size={16} status={numberedDone === numberedProblemIds.size ? 'complete' : numberedDone ? 'partial' : 'ready'} />Задачи: {numberedDone} из {numberedProblemIds.size}</span>
                 : assignments.multiple ? <span className={`day-subject-assignment-count${assignments.complete ? ' is-complete' : ''}`} aria-label={`${assignments.completed} из ${assignments.total} заданий выполнено`}><StatusIcon size={16} status={assignments.complete ? 'complete' : assignments.completed ? 'partial' : 'ready'} />{assignments.completed} из {assignments.total}</span>
                 : subjectDone && <span className="day-subject-complete" aria-label={`Выполнено ${doneCount} из ${subjectItems.length}`}><StatusIcon status="complete" size={16} />{doneCount} из {subjectItems.length}</span>}
               <GradeBadge summary={summary} details={grade} threshold={page.workingThreshold} asOf={page.gradeAsOf} />
@@ -534,18 +536,18 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
                 ...(page.taskPageRefs?.[task.id] ?? []).map((ref) => catalogPages[ref]).filter((link): link is DayMaterialLink => Boolean(link)),
               ].map((link) => [link.sourceRef || link.url, link])).values()] : []
               const assignmentIndex = task ? subject.tasks.findIndex((item) => item.id === task.id) : -1
-              return <QuizLineageCard key={`lineage-${placement.token}`} chain={chain} parent={parent} task={task} materialLinks={materialLinks} assignmentLabel={assignments.multiple && assignmentIndex >= 0 ? `Задание ${assignmentIndex + 1} из ${assignments.total}` : undefined} />
+              return <QuizLineageCard key={`lineage-${placement.token}`} chain={chain} parent={parent} task={task} materialLinks={materialLinks} assignmentLabel={assignments.multiple && assignmentIndex >= 0 ? `Задание ${assignmentIndex + 1} из ${assignments.total}` : undefined} separateAssignment={Boolean(task?.problems?.length)} />
             })}
             {subject.tasks.map((task, assignmentIndex) => {
               // A written task may also have a linked self-check. The test must
               // never replace the notebook submission and its photo action.
-              if ((task.kind === 'read' || task.kind === 'check') && task.testToken && lineageByToken.has(task.testToken)) return null
+              if (!task.problems?.length && (task.kind === 'read' || task.kind === 'check') && task.testToken && lineageByToken.has(task.testToken)) return null
               const taskLinks = [...new Map([
                 ...(page.materialLinks?.[task.id] ?? []),
                 ...(page.taskPageRefs?.[task.id] ?? []).map((ref) => catalogPages[ref]).filter((link): link is DayMaterialLink => Boolean(link)),
               ].map((link) => [link.sourceRef || link.url, link])).values()]
               const standaloneTest = task.testToken ? tests.find((item) => item.token === task.testToken) : undefined
-              if ((task.kind === 'read' || task.kind === 'check') && standaloneTest) return <QuizLineageCard key={task.id} chain={quizChain(standaloneTest, tests)} parent={parent} task={task} materialLinks={taskLinks} assignmentLabel={assignments.multiple ? `Задание ${assignmentIndex + 1} из ${assignments.total}` : undefined} />
+              if (!task.problems?.length && (task.kind === 'read' || task.kind === 'check') && standaloneTest) return <QuizLineageCard key={task.id} chain={quizChain(standaloneTest, tests)} parent={parent} task={task} materialLinks={taskLinks} assignmentLabel={assignments.multiple ? `Задание ${assignmentIndex + 1} из ${assignments.total}` : undefined} />
               const readerGroups = groupAdjacentMaterialPages(taskLinks.filter(canReadInside))
               const otherLinks = taskLinks.filter((link) => !canReadInside(link))
               const needsTextbook = task.materialStatus?.state === 'textbook-page-needed' && !taskLinks.some((link) => link.sourceType === 'textbook-page')
@@ -649,7 +651,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
               const problemIds = new Set(requiredProblems.map((problem) => problem.id))
               const localPendingCount = localPhotos.filter((photo) => problemIds.has(photo.taskId) && !uploads.some((upload) => upload.id === `${studentToken}:${photo.id}` && upload.status === 'reviewed')).length
               const sourceCount = new Set(taskLinks.filter((link) => link.sourceType === 'teacher-attachment').map((link) => link.url)).size
-              return <ProblemGroup key={task.id} id={task.id} title={task.practiceVariants?.length ? assignmentTitle(task, assignmentIndex, assignments.total).replace(/^Подготовиться к (?:самостоятельной|контрольной)(?: работе)?:/i, 'Подготовка:') : assignmentTitle(task, assignmentIndex, assignments.total)} subtitle={task.practiceVariants?.length ? `Самопроверка · ${task.practiceVariants.length} варианта` : undefined} problems={task.problems} requiredProblems={requiredProblems} numberLabel={task.practiceVariants?.length ? `${task.practiceVariants.length} варианта` : undefined} uploads={uploads} reviews={reviews} decisions={parentDecisions.events} localPendingCount={localPendingCount} sourceCount={sourceCount} ready={evidenceReady && parentDecisions.ready} focusTaskId={focusTaskId}>{taskCard}</ProblemGroup>
+              return <ProblemGroup key={task.id} id={task.id} title={task.practiceVariants?.length ? assignmentTitle(task, assignmentIndex, assignments.total).replace(/^Подготовиться к (?:самостоятельной|контрольной)(?: работе)?:/i, 'Подготовка:') : assignmentTitle(task, assignmentIndex, assignments.total)} subtitle={task.practiceVariants?.length ? `${task.practiceVariants.length} варианта из листа учителя` : undefined} problems={task.problems} requiredProblems={requiredProblems} numberLabel={task.practiceVariants?.length ? `${task.practiceVariants.length} варианта` : undefined} uploads={uploads} reviews={reviews} decisions={parentDecisions.events} localPendingCount={localPendingCount} sourceCount={sourceCount} ready={evidenceReady && parentDecisions.ready} focusTaskId={focusTaskId}>{taskCard}</ProblemGroup>
             })}
             {currentPlacements.filter((placement) => placement.subjectId === subject.id && !placement.taskId).map((placement) => {
               const test = tests.find((item) => item.token === placement.token)
