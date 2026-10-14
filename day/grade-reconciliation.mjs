@@ -38,6 +38,27 @@ export function assertGradeSnapshotAligned(gradeSnapshot, meshSnapshot) {
   }
 }
 
+/** Preserve source identity: equal marks may describe different work and comments.
+ * @see ../docs/product/grades.md#dashboard-grade-list
+ */
+export function gradeDetailRows(gradeSnapshot, meshSnapshot) {
+  assertGradeSnapshotAligned(gradeSnapshot, meshSnapshot)
+  const meshByName = new Map(meshSnapshot.marks.map((item) => [subjectName(item.subject_name), item]))
+  return gradeSnapshot.subjects.map((subject) => {
+    const source = meshByName.get(subject.name)
+    const complete = source && source.count === subject.grades.length && source.marks?.length === source.count
+    const grades = complete ? source.marks.map((item) => ({
+      mark: Number(item.value), weight: Number(item.weight),
+      ...(item.id != null ? { sourceId: String(item.id) } : {}),
+      ...(typeof item.date === 'string' && /^\d{4}-\d{2}-\d{2}/.test(item.date) ? { date: item.date.slice(0, 10) } : {}),
+      ...(item.control_form_name?.trim() ? { workType: item.control_form_name.trim() } : {}),
+      ...(item.comment?.trim() ? { comment: item.comment.trim() } : {}),
+    })) : subject.grades.map(([mark, weight]) => ({ mark, weight }))
+    return { id: subject.id, name: subject.name, displayed_average: subject.displayed_average,
+      scenario_verified: gradeSnapshot.scenarios_verified === true, grades }
+  })
+}
+
 /** Distinguishes added grades from corrections and ignores order-only changes. */
 export function detectGradeChange(previous, current) {
   if (!previous || !Array.isArray(previous.grades) || !Array.isArray(current?.grades)) return null

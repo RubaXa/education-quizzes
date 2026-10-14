@@ -10,7 +10,7 @@ export async function syncDiary({ adapter, dataDir, date }) {
     throw new Error('Дата должна иметь вид YYYY-MM-DD')
   }
   const previous = readJson(dataDir, `snapshot-${date}.json`)
-  const result = { schemaVersion: 1, source: 'mesh', date, fetchedAt: new Date().toISOString(), marksScope: 'subject-summary', assignmentScope: 'schedule-lessons-on-date', profile: null, schedule: null, marks: null, assignments: null, errors: {} }
+  const result = { schemaVersion: 1, source: 'mesh', date, fetchedAt: new Date().toISOString(), marksScope: 'subject-period-full', assignmentScope: 'schedule-lessons-on-date', profile: null, schedule: null, marks: null, assignments: null, errors: {} }
   for (const [key, load] of [
     ['profile', () => adapter.getProfile()],
     ['schedule', () => adapter.getSchedule(date)],

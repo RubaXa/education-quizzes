@@ -28,8 +28,8 @@
 | [day/data-contract.mjs](../../day/data-contract.mjs) | [Модель Firestore](firestore-data-model.md) | Проверка формы страниц, календаря и теста перед выпуском | `scripts/day.mjs`; аудит |
 | [day/data-contract.test.mjs](../../day/data-contract.test.mjs) | [Модель Firestore](firestore-data-model.md) | Регрессии схемы, ролей, версий и уникальных ID | Vitest; разработчик |
 | [day/family-source-graph.mjs](../../day/family-source-graph.mjs) | [Семейная библиотека](family-library.md) | Граф семейных книг, методик и заданий на каждый выпуск дня | `scripts/day.mjs` |
-| [day/grade-reconciliation.mjs](../../day/grade-reconciliation.mjs) | [Средний балл](grades.md) | Сверка среза МЭШ и обнаружение новых либо исправленных оценок | `scripts/day.mjs`; уведомления |
-| [day/grade-reconciliation.test.mjs](../../day/grade-reconciliation.test.mjs) | [Средний балл](grades.md) | Проверка публикационного барьера оценок и изменения ленты | Vitest; разработчик |
+| [day/grade-reconciliation.mjs](../../day/grade-reconciliation.mjs) | [Средний балл](grades.md) | Сверка среза МЭШ, подробности подтверждённой отметки и обнаружение изменений | `scripts/day.mjs`; уведомления |
+| [day/grade-reconciliation.test.mjs](../../day/grade-reconciliation.test.mjs) | [Средний балл](grades.md) | Проверка барьера, одинаковых отметок с разными работами и изменений | Vitest; разработчик |
 | [day/homework-kind.d.mts](../../day/homework-kind.d.mts) | [Формирование плана](plan-generation.md) | Типы единого определения явного ЦДЗ и письменного задания | TypeScript; клиент |
 | [day/homework-kind.mjs](../../day/homework-kind.mjs) | [Формирование плана](plan-generation.md) | Общее правило классификации МЭШ для сборки и интерфейса | `day/build.mjs`; `src/lib/dayStore.ts`; `day/merge.mjs` |
 | [day/homework-reference.mjs](../../day/homework-reference.mjs) | [Формирование плана](plan-generation.md) | Разрешение ссылки МЭШ на ранее назначенное ДЗ | `day/build.mjs`; `scripts/day.mjs` |
@@ -140,7 +140,8 @@
 | [packages/education-connect/lib/envelope.mjs](../../packages/education-connect/lib/envelope.mjs) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Сквозное шифрование разового пакета | Пакет; операторский приём |
 | [packages/education-connect/lib/envelope.test.mjs](../../packages/education-connect/lib/envelope.test.mjs) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Проверка шифрования и привязки к приглашению | Vitest; разработчик |
 | [packages/education-connect/lib/handoff-store.mjs](../../packages/education-connect/lib/handoff-store.mjs) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Запись зашифрованного пакета по приглашению | `education-connect` CLI; Firebase |
-| [packages/education-connect/lib/mesh.mjs](../../packages/education-connect/lib/mesh.mjs) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Общий адаптер входа и чтения МЭШ | Пакет; синхронизатор дневника |
+| [packages/education-connect/lib/mesh.mjs](../../packages/education-connect/lib/mesh.mjs) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Общий адаптер входа, чтения МЭШ и полного журнала оценок текущего периода | Пакет; синхронизатор дневника |
+| [packages/education-connect/lib/mesh-marks.test.mjs](../../packages/education-connect/lib/mesh-marks.test.mjs) | [Средний балл](grades.md) | Проверка выбора периода и запрета неполного журнала отметок | Vitest; разработчик |
 | [packages/education-connect/lib/prompts.mjs](../../packages/education-connect/lib/prompts.mjs) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Скрытый ввод пароля и SMS | Пакет; `diary/cli.mjs` |
 | [public/icons/education-180.png](../../public/icons/education-180.png) | [PWA](pwa.md) | Иконка домашнего экрана iOS | iOS |
 | [public/icons/education-192.png](../../public/icons/education-192.png) | [PWA](pwa.md) | Иконка приложения 192 px | Браузер |
@@ -205,6 +206,7 @@
 | [src/DayPage.css](../../src/DayPage.css) | [Страница дня](day-page.md) | Оформление заданий и фокуса после перехода из расписания | `src/DayPage.tsx` |
 | [src/DayPage.assignmentQuiz.integration.test.tsx](../../src/DayPage.assignmentQuiz.integration.test.tsx) | [Страница дня](day-page.md) | Сквозной рендер листа с двумя вариантами, теста и родительского выбора в обеих ролях | Vitest; `src/DayPage.tsx` |
 | [docs/product/ui-decisions/teacher-sheet-beside-quiz-2026-10-14.md](ui-decisions/teacher-sheet-beside-quiz-2026-10-14.md) | [Страница дня](day-page.md) | Решение о сохранении листа учителя рядом с тестом и обратимом выборе варианта | `ui-change-decisions.json`; ревью выпуска |
+| [docs/product/ui-decisions/grade-mark-details-2026-10-14.md](ui-decisions/grade-mark-details-2026-10-14.md) | [Средний балл](grades.md) | Решение о раскрытии работы и комментария у конкретной оценки | `ui-change-decisions.json`; ревью выпуска |
 | [src/DayPage.tsx](../../src/DayPage.tsx) | [Страница дня](day-page.md) | Компоновка дня из Firestore, отдельный срок сдачи, семейная доработка и фокус задания | Ученик; родитель; `ProblemGroup` |
 | [src/DayPage.gradeBadge.test.tsx](../../src/DayPage.gradeBadge.test.tsx) | [Средний балл](grades.md) | Регрессия раскрытия среднего независимо от цвета и проверка сценария | Vitest; разработчик |
 | [scripts/check-schedule-viewport.mjs](../../scripts/check-schedule-viewport.mjs) | [Дизайн-система](design-system.md) | Браузерная проверка геометрии строк и группы прошедших уроков на 320–540 px в свёрнутых и раскрытых состояниях; по запросу снимки через `SCHEDULE_SCREENSHOT_DIR` | `npm run test:schedule-viewport`; разработчик |

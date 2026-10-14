@@ -58,6 +58,24 @@ function isCalendarOnlyEvent(event) {
   return !hasSubject && !hasHomework && !hasLessonType
 }
 
+/** @see ../../../docs/architecture/school-diary-port-adapter.md#full-grade-period */
+export function normalizeSubjectPeriods(subjects, date = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Moscow', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())) {
+  if (!Array.isArray(subjects)) throw new Error('Полный журнал оценок МЭШ не является списком')
+  return subjects.flatMap((subject) => {
+    const period = subject.periods?.find((item) => item.start_iso <= date && date <= item.end_iso)
+    if (!period) return []
+    if (!Number.isInteger(period.count) || !Array.isArray(period.marks) || period.marks.length !== period.count) {
+      throw new Error(`МЭШ вернул неполный список отметок: ${subject.subject_name}`)
+    }
+    return [{ subject_name: subject.subject_name, subject_id: subject.subject_id, period: period.title,
+      start: period.start_iso, end: period.end_iso, average: period.value, count: period.count,
+      ...(period.dynamic != null ? { dynamic: period.dynamic } : {}),
+      ...(period.target != null ? { target: period.target } : {}),
+      ...(period.fixed_value != null ? { fixed_value: period.fixed_value } : {}),
+      marks: period.marks }]
+  })
+}
+
 /** @see ../../../docs/architecture/school-diary-port-adapter.md#diary-adapter */
 export async function loginToMesh({ username, password, askSmsCode, chooseProfile }) {
   const auth = await authenticate({ fetch: meshFetch, username, password, askSmsCode, onProgress: () => {} })
@@ -182,7 +200,13 @@ export class MeshDiaryAdapter {
     this.scheduleCache.set(date, events)
     return events
   }
-  async getMarks() { return this.api.getSubjectMarks() }
+  async getMarks() {
+    const url = new URL('https://school.mos.ru/api/family/mobile/v1/subject_marks')
+    url.searchParams.set('student_id', this.secret.studentId)
+    url.searchParams.set('profile_id', this.secret.profileId)
+    const data = await this.api.apiFetch(url.toString())
+    return normalizeSubjectPeriods(data.payload || data)
+  }
   async getLessonDetails(event) {
     const url = new URL(`https://school.mos.ru/api/family/mobile/v1/lesson_schedule_items/${encodeURIComponent(String(event.id))}`)
     url.searchParams.set('student_id', this.secret.studentId)

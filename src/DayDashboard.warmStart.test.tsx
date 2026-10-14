@@ -313,6 +313,31 @@ describe('schedule warm start', () => {
     await act(async () => { reopened.unmount() }); host.remove()
   })
 
+  it('shows the work and teacher comment for the tapped mark, including two equal marks', async () => {
+    probe.selected = base(); probe.next = base()
+    probe.grade = { gradeSummary: [{ id: 'math', name: 'Математика', average: 5 }], grades: [{ id: 'math', grades: [
+      { mark: 5, weight: 1, sourceId: '11', date: '2026-10-12', workType: 'Домашнее задание', comment: 'Проверь оформление' },
+      { mark: 5, weight: 1, sourceId: '12', date: '2026-10-13', workType: 'Практическая работа' },
+    ] }] }
+    const host = document.createElement('div'); document.body.append(host)
+    const root = createRoot(host)
+    await act(async () => { root.render(<DayDashboard token="calendar" parent />) })
+    const subject = host.querySelector<HTMLDetailsElement>('.day-dashboard-grade')!
+    await act(async () => { subject.open = true })
+    const buttons = subject.querySelectorAll<HTMLButtonElement>('.day-dashboard-grade-detail li button')
+    expect(buttons).toHaveLength(2)
+    await act(async () => { buttons[0].click() })
+    expect(subject.querySelector('.day-dashboard-mark-detail')?.textContent).toContain('Домашнее задание')
+    expect(subject.querySelector('.day-dashboard-mark-detail')?.textContent).toContain('Проверь оформление')
+    await act(async () => { buttons[1].click() })
+    expect(subject.querySelector('.day-dashboard-mark-detail')?.textContent).toContain('Практическая работа')
+    expect(subject.querySelector('.day-dashboard-mark-detail')?.textContent).not.toContain('Проверь оформление')
+    expect(buttons[1].getAttribute('aria-expanded')).toBe('true')
+    await act(async () => { buttons[1].click() })
+    expect(subject.querySelector('.day-dashboard-mark-detail')).toBeNull()
+    await act(async () => { root.unmount() }); host.remove()
+  })
+
   it('keeps newly published MESH subjects visible while saved work statuses are incomplete', async () => {
     index.days[1].homework.push({ subject: 'Литература', text: 'С. 91–92 (читать)' })
     localStorage.setItem('education-day-dashboard-view-v1:parent:calendar:work:work-14', JSON.stringify({ version: 1,

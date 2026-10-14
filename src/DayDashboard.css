@@ -130,10 +130,17 @@
 .day-dashboard-grade-detail{padding:0 20px 13px}
 .day-dashboard-grade-detail p{margin:1px 0 8px;font-size:.78rem}
 .day-dashboard-grade-detail ul{display:flex;flex-wrap:wrap;gap:5px;list-style:none;margin:0 0 9px;padding:0}
-.day-dashboard-grade-detail li{display:inline-flex;align-items:center;gap:3px;min-width:27px;justify-content:center;padding:3px 6px;border-radius:8px;background:#f2eef8;color:#49388a;font-size:.78rem;font-weight:800}
+.day-dashboard-grade-detail li{display:inline-flex;align-items:center;justify-content:center;border-radius:8px;background:#f2eef8;color:#49388a;font-size:.78rem;font-weight:800}
 .day-dashboard-grade-detail li.mark-5{background:#e7f6eb;color:#267346}
 .day-dashboard-grade-detail li.mark-2,.day-dashboard-grade-detail li.mark-3{background:#fff0da;color:#925d16}
 .day-dashboard-grade-detail li small{font-size:.65rem;color:inherit}
+/* @see ../docs/product/grades.md#dashboard-grade-list */
+.day-dashboard-grade-detail li button{display:inline-flex;align-items:center;gap:3px;justify-content:center;min-width:34px;min-height:34px;padding:4px 7px;border:0;border-radius:8px;background:transparent;color:inherit;font:inherit;cursor:pointer}
+.day-dashboard-grade-detail li button[aria-expanded="true"]{outline:2px solid currentColor;outline-offset:1px}
+.day-dashboard-grade-detail li button:focus-visible{outline:2px solid #7045b8;outline-offset:2px}
+.day-dashboard-mark-detail{display:grid;gap:4px;padding:10px 12px;border-radius:10px;background:#f7f3fc;color:#33285b;font-size:.8rem;overflow-wrap:anywhere}
+.day-dashboard-mark-detail span,.day-dashboard-mark-detail small{color:#766d82}
+.day-dashboard-mark-detail p{margin:2px 0 0;line-height:1.45}
 .day-dashboard-grade-asof{padding-top:4px;font-size:.75rem!important;color:#817791!important}
 .day-dashboard-source{display:flex;align-items:center;gap:6px;margin:20px 2px;color:#8a8199;font-size:.75rem}
 .day-dashboard-error{padding:18px 22px;border-radius:18px;background:#fff0f1;color:#a23844}

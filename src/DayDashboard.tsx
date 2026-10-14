@@ -87,6 +87,7 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
   const [scheduleOverride, setScheduleOverride] = useState<{ date: string; open: boolean } | null>(null)
   const [pastLessonsOverride, setPastLessonsOverride] = useState<{ date: string; open: boolean } | null>(null)
   const [seenUpdates, setSeenUpdates] = useState<Set<string>>(() => new Set())
+  const [selectedGrade, setSelectedGrade] = useState<{ subjectId: string; index: number } | null>(null)
   const datesRef = useRef<HTMLDivElement>(null)
   const today = moscowToday()
 
@@ -392,7 +393,12 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
           {gradeRows.length ? <div className="day-dashboard-grades">{gradeRows.map((grade) => {
             const marks = gradeDetails.get(grade.id)?.grades ?? []
             return <details key={grade.id} className="day-dashboard-grade"><summary><span>{grade.name}</span><strong className={grade.allFives ? 'excellent' : grade.watch ? 'watch' : ''}>{grade.allFives && '✨ '}{grade.average.toFixed(2).replace('.', ',')}</strong><ChevronDown size={16} aria-hidden="true" /></summary>
-              <div className="day-dashboard-grade-detail">{marks.length ? <><p>{marks.length} {word(marks.length, 'оценка', 'оценки', 'оценок')} в сохранённом срезе:</p><ul>{marks.map(({ mark, weight }, index) => <li key={`${index}-${mark}-${weight}`} className={`mark-${mark}`} aria-label={`Оценка ${mark}, вес ${weight}`}>{mark}{weight !== 1 && <small>вес {weight}</small>}</li>)}</ul><small>Даты и типы отдельных работ в этом срезе не сохранены.</small></> : <p>Список оценок для этого предмета пока не сохранён.</p>}</div>
+              <div className="day-dashboard-grade-detail">{marks.length ? <><p>{marks.length} {word(marks.length, 'оценка', 'оценки', 'оценок')} в сохранённом срезе:</p><ul>{marks.map(({ mark, weight, date }, index) => <li key={`${index}-${mark}-${weight}`} className={`mark-${mark}`}><button type="button" aria-label={`Оценка ${mark}, вес ${weight}${date ? `, ${dateLabel(date)}` : ''}. Показать, за что поставлена`} aria-expanded={selectedGrade?.subjectId === grade.id && selectedGrade.index === index} onClick={() => setSelectedGrade((current) => current?.subjectId === grade.id && current.index === index ? null : { subjectId: grade.id, index })}>{mark}{weight !== 1 && <small>вес {weight}</small>}</button></li>)}</ul>{selectedGrade?.subjectId === grade.id && marks[selectedGrade.index] && <div className="day-dashboard-mark-detail" role="region" aria-label={`Подробности оценки ${marks[selectedGrade.index].mark}`}>
+                {marks[selectedGrade.index].date && <span>{dateLabel(marks[selectedGrade.index].date!)}</span>}
+                <strong>{marks[selectedGrade.index].workType || 'Вид работы в МЭШ не указан'}</strong>
+                {marks[selectedGrade.index].comment && <p>Комментарий учителя: {marks[selectedGrade.index].comment}</p>}
+                {!marks[selectedGrade.index].date && !marks[selectedGrade.index].workType && !marks[selectedGrade.index].comment && <small>Подробности этой оценки пока не сохранены.</small>}
+              </div>}</> : <p>Список оценок для этого предмета пока не сохранён.</p>}</div>
             </details>
           })}</div> : <p>Срез оценок ещё не опубликован.</p>}
           {gradeSource?.gradeAsOf && <p className="day-dashboard-grade-asof">Сохранённый срез МЭШ на {dateLabel(gradeSource.gradeAsOf.slice(0, 10))}. Новые оценки появятся после синхронизации, не при открытии страницы.</p>}

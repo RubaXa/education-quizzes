@@ -19,7 +19,7 @@ import { publicPageSubjects, publicProblem } from '../day/public-projection.mjs'
 import { isExplicitCdzTask } from '../day/homework-kind.mjs'
 import { cardPolicyModules, mathRouteProfile, mathRouteProfiles, missingMathRoutes, practiceVariantErrors, sourceInventoryErrors, validLearningRoute } from '../day/card-policy.mjs'
 import { assertPublishedPageAligned, assertSourceAligned, sourcePlanFingerprint } from '../day/pipeline-contract.mjs'
-import { assertGradeSnapshotAligned, detectGradeChange } from '../day/grade-reconciliation.mjs'
+import { assertGradeSnapshotAligned, detectGradeChange, gradeDetailRows } from '../day/grade-reconciliation.mjs'
 import { YandexDiskStorage } from '../storage/yandex-disk.mjs'
 import { stageFamilyNotice } from '../storage/inbox-notifications.mjs'
 import { lessonVisibility } from '../diary/application/lesson-visibility.mjs'
@@ -571,7 +571,7 @@ async function stagePublish(date, batch, links, indexTokens, stagedPages, notify
     taskPageRefs: pageRefs,
     evidenceDayTokens: [...new Set([pair.student, ...(source.evidenceDayTokens || [])])],
     gradeSummary: gradeSummary(gradeSnapshot), gradeAsOf: gradeSnapshot.observed_at,
-    grades: gradeSnapshot.subjects.map((subject) => ({ id: subject.id, name: subject.name, displayed_average: subject.displayed_average, scenario_verified: gradeSnapshot.scenarios_verified === true, grades: subject.grades.map(([mark, weight]) => ({ mark, weight })) })),
+    grades: gradeDetailRows(gradeSnapshot, latestCompleteDiarySnapshot()),
     workingThreshold: gradeSnapshot.working_threshold,
   }
   const uniquePageRefs = [...new Set(Object.values(pageRefs).flat())]

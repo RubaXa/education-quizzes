@@ -306,21 +306,18 @@
       }
     },
     "src/DayDashboard.tsx": {
-      "sha256": "8c1cb0d01c14e6e611e808fc2df5f3bdbd57b93f1eca0f6dacbfc6cc1a837106",
-      "record": "docs/product/ui-decisions/quiz-threshold-and-page-slider-2026-10-14.md",
+      "sha256": "f0b04359dc43e53774d1c06dc3a4a96ef7eeebf95b73d70f332fe983ccc43679",
+      "record": "docs/product/ui-decisions/grade-mark-details-2026-10-14.md",
       "specs": [
-        "docs/product/assessment-decision-graph.md",
-        "docs/product/dashboard.md",
-        "docs/product/materials.md",
-        "docs/product/quizzes.md"
+        "docs/product/grades.md",
+        "docs/architecture/school-diary-port-adapter.md"
       ],
       "tests": [
-        "src/lib/homeworkStatus.test.ts",
-        "src/lib/quizCardViewModel.test.ts"
+        "src/DayDashboard.warmStart.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 14.10.2026 по снимкам: соседние страницы в одном ридере, зачёт любого теста от 80%, кнопка работы над ошибками и публикация сайта."
+        "evidence": "Родитель 14.10.2026 прямо попросил нажимать на конкретную оценку в списке и видеть вид работы и комментарий учителя из МЭШ."
       }
     },
     "src/components/MaterialReader.tsx": {
@@ -683,6 +680,96 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Прямой запрос родителя 14.10.2026: в открытом колокольчике рядом с «Обновления» нужен контроль «Прочитать все» на мобильном экране."
+      }
+    },
+    "day/grade-reconciliation.mjs": {
+      "sha256": "53cac89210fcfdc0e2d9e2b268d1c8f2ef30035374fc1335b30e171ce34dc95f",
+      "record": "docs/product/ui-decisions/grade-mark-details-2026-10-14.md",
+      "specs": [
+        "docs/product/grades.md",
+        "docs/architecture/school-diary-port-adapter.md"
+      ],
+      "tests": [
+        "day/grade-reconciliation.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 14.10.2026 прямо попросил нажимать на конкретную оценку в списке и видеть вид работы и комментарий учителя из МЭШ."
+      }
+    },
+    "diary/application/sync.mjs": {
+      "sha256": "1dff1e18908079d4d3a19dbf6825e3fe2bd9b00a3cf1db1cf1946e97e80fe28d",
+      "record": "docs/product/ui-decisions/grade-mark-details-2026-10-14.md",
+      "specs": [
+        "docs/product/grades.md",
+        "docs/architecture/school-diary-port-adapter.md"
+      ],
+      "tests": [
+        "packages/education-connect/lib/mesh-marks.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 14.10.2026 прямо попросил нажимать на конкретную оценку в списке и видеть вид работы и комментарий учителя из МЭШ."
+      }
+    },
+    "packages/education-connect/lib/mesh.mjs": {
+      "sha256": "b9153d9206292043b07d8f3b7a39561ca7459eaab391234fb465194067f60484",
+      "record": "docs/product/ui-decisions/grade-mark-details-2026-10-14.md",
+      "specs": [
+        "docs/product/grades.md",
+        "docs/architecture/school-diary-port-adapter.md"
+      ],
+      "tests": [
+        "packages/education-connect/lib/mesh-marks.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 14.10.2026 прямо попросил нажимать на конкретную оценку в списке и видеть вид работы и комментарий учителя из МЭШ."
+      }
+    },
+    "scripts/day.mjs": {
+      "sha256": "0d056a84c1ed40056f2196b8a0bbc48c5d2c97f9694f092bc825c75aa3608e46",
+      "record": "docs/product/ui-decisions/grade-mark-details-2026-10-14.md",
+      "specs": [
+        "docs/product/grades.md",
+        "docs/architecture/school-diary-port-adapter.md"
+      ],
+      "tests": [
+        "day/grade-reconciliation.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 14.10.2026 прямо попросил нажимать на конкретную оценку в списке и видеть вид работы и комментарий учителя из МЭШ."
+      }
+    },
+    "src/lib/dayStore.ts": {
+      "sha256": "a5725c9282ed685869b14f5290b608c1528b315e0a666d9f2b2715cd782fd9d3",
+      "record": "docs/product/ui-decisions/grade-mark-details-2026-10-14.md",
+      "specs": [
+        "docs/product/grades.md",
+        "docs/architecture/school-diary-port-adapter.md"
+      ],
+      "tests": [
+        "src/DayDashboard.warmStart.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 14.10.2026 прямо попросил нажимать на конкретную оценку в списке и видеть вид работы и комментарий учителя из МЭШ."
+      }
+    },
+    "src/DayDashboard.css": {
+      "sha256": "afb6be772c1400caccbc803ef3cb664b3484dfc167d5c3e997dcf50fce71cd7c",
+      "record": "docs/product/ui-decisions/grade-mark-details-2026-10-14.md",
+      "specs": [
+        "docs/product/grades.md",
+        "docs/architecture/school-diary-port-adapter.md"
+      ],
+      "tests": [
+        "src/DayDashboard.warmStart.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 14.10.2026 прямо попросил нажимать на конкретную оценку в списке и видеть вид работы и комментарий учителя из МЭШ."
       }
     }
   }
