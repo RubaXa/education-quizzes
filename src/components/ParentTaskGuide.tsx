@@ -24,6 +24,7 @@ function timeOf(value: unknown): number {
 /** Parent-only configurable stages below the existing task/ProblemStatement original.
  * @see ../../docs/product/card-generation-policy.md#math-adapter
  * @see ../../docs/product/card-generation-policy.md#russian-adapter
+ * @see ../../docs/product/problem-card-design-decisions.md#role-projection
  * @see ../../docs/product/status-presentation.md#components */
 export default function ParentTaskGuide({ guide, review, decisions = [], guidance = [], guidanceReady = true, onSend, onStageChoice }: {
   guide: Guide; review?: DayWorkReview; decisions?: ParentCompletionEvent[]; guidance?: DayGuidance[]; guidanceReady?: boolean;

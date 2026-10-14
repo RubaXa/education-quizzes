@@ -5,8 +5,6 @@ import StatusIcon from './StatusIcon'
 import type { DayHelp, DayMaterialLink, DayProblem, DaySourceResearch, DayWorkReview } from '@/lib/dayStore'
 import { reportUiError } from '@/lib/uiErrors'
 import SourceFragment from './SourceFragment'
-import TaskGuidance from './TaskGuidance'
-import type { DayGuidance } from '@/lib/dayGuidance'
 import './ProblemStatement.css'
 
 const helpKinds: { value: NonNullable<DayHelp['requestKind']>; label: string }[] = [
@@ -18,8 +16,8 @@ const helpKinds: { value: NonNullable<DayHelp['requestKind']>; label: string }[]
 
 /** @see ../../docs/product/adaptive-problem-card.md#показ-ученику
  * @see ../../docs/product/problem-card-design-decisions.md */
-export default function ProblemStatement({ problem, links, parent, help, review, guidance = [], sourceResearch, finished: parentFinished = false, onRequestHelp, helpAccess = 'ready' }: {
-  problem: DayProblem; links: DayMaterialLink[]; parent: boolean; help?: DayHelp; review?: DayWorkReview; guidance?: DayGuidance[]; sourceResearch?: DaySourceResearch;
+export default function ProblemStatement({ problem, links, parent, help, review, sourceResearch, finished: parentFinished = false, onRequestHelp, helpAccess = 'ready' }: {
+  problem: DayProblem; links: DayMaterialLink[]; parent: boolean; help?: DayHelp; review?: DayWorkReview; sourceResearch?: DaySourceResearch;
   finished?: boolean;
   onRequestHelp?: (taskId: string, revision: number, kind: NonNullable<DayHelp['requestKind']>, text: string) => Promise<void>;
   helpAccess?: 'checking' | 'ready' | 'login-required';
@@ -69,7 +67,6 @@ export default function ProblemStatement({ problem, links, parent, help, review,
         : <p className="problem-statement-missing">Точная текстовая запись этого номера ещё не подготовлена. Полное условие и рисунок — в исходном листе выше.</p>}
       <small className="problem-statement-source">{problem.source}</small>
     </div>
-    {!parent && <TaskGuidance items={guidance} />}
     {support && <div className="problem-statement-education">
       <div className="problem-statement-label"><Lightbulb size={16} aria-hidden="true" /><strong>Как читать условие</strong></div>
       {!!support.facts.length && <div className="problem-statement-facts" aria-label="Дано">{support.facts.map((fact) => <div key={fact.label}><small>{fact.label}</small><strong>{fact.value}</strong></div>)}</div>}

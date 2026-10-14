@@ -251,11 +251,11 @@
 | [src/components/AssignmentBrief.css](../../src/components/AssignmentBrief.css) | [Дизайн-система](design-system.md) | Оформление точного задания и источника | `AssignmentBrief.tsx` |
 | [src/components/DataCompatibilityNotice.tsx](../../src/components/DataCompatibilityNotice.tsx) | [Модель Firestore](firestore-data-model.md) | Блокировка несовместимой версии с явным обновлением | `DayPage`; `DayDashboard` |
 | [src/components/DataCompatibilityNotice.css](../../src/components/DataCompatibilityNotice.css) | [Дизайн-система](design-system.md) | Существующие токены для экрана обновления данных | `DataCompatibilityNotice.tsx` |
-| [src/components/TaskGuidance.tsx](../../src/components/TaskGuidance.tsx) | [Ученическая проекция](subject-card-viewmodel.md) | Только выбранная взрослым помощь в обычных и нумерованных задачах | `src/DayPage.tsx`; `ProblemStatement.tsx` |
+| [src/components/TaskGuidance.tsx](../../src/components/TaskGuidance.tsx) | [Ученическая проекция](subject-card-viewmodel.md) | Только выбранные взрослым этапы в общей форме маршрута задачи | `src/DayPage.tsx`; `ProblemTaskCard.tsx` |
 | [src/components/TaskGuidance.css](../../src/components/TaskGuidance.css) | [Дизайн-система](design-system.md) | Оформление выбранной помощи ребёнку | `TaskGuidance.tsx` |
 | [src/components/UnifiedTaskCard.test.tsx](../../src/components/UnifiedTaskCard.test.tsx) | [Единая модель карточки](subject-card-viewmodel.md) | Проверка ученического источника, выборочной помощи и единого процента теста | Vitest; разработчик |
 | [src/components/ProblemTaskCard.tsx](../../src/components/ProblemTaskCard.tsx) | [Адаптивная карточка](adaptive-problem-card.md) | Общая композиция условия, разбора и загрузки для номера | `src/DayPage.tsx`; `src/WeekendMathSlot.tsx` |
-| [src/components/ProblemTaskCard.contract.test.tsx](../../src/components/ProblemTaskCard.contract.test.tsx) | [Сертификация карточки](card-flow-certification.md) | Наличие действия загрузки у пункта второго варианта и после завершённой проверки | Vitest; разработчик |
+| [src/components/ProblemTaskCard.contract.test.tsx](../../src/components/ProblemTaskCard.contract.test.tsx) | [Сертификация карточки](card-flow-certification.md) | Загрузка у каждого номера, общий порядок слоёв и отсутствие закрытого решения в ученической проекции | Vitest; разработчик |
 | [src/components/PwaControls.css](../../src/components/PwaControls.css) | [PWA](pwa.md) | Оформление установки и обновления | `src/components/PwaControls.tsx` |
 | [src/components/PwaControls.tsx](../../src/components/PwaControls.tsx) | [PWA](pwa.md) | Управление обновлением приложения | Пользователь PWA |
 | [src/components/SourceFragment.css](../../src/components/SourceFragment.css) | [Адаптивная карточка](adaptive-problem-card.md) | Оформление фрагмента оригинала | `src/components/SourceFragment.tsx` |
@@ -285,7 +285,7 @@
 | [src/lib/quizCardViewModel.test.ts](../../src/lib/quizCardViewModel.test.ts) | [Dashboard](dashboard.md) | Переход из списка дел к исходной карточке связанного теста | Vitest; `src/DayPage.tsx` |
 | [src/lib/questionTopicPresentation.ts](../../src/lib/questionTopicPresentation.ts) | [Тесты](quizzes.md) | Общую тему показывает один раз перед вопросами | `src/App.tsx` |
 | [src/lib/questionTopicPresentation.test.ts](../../src/lib/questionTopicPresentation.test.ts) | [Тесты](quizzes.md) | Общая тема и отдельные темы разных вопросов | Vitest; `src/App.tsx` |
-| [src/lib/dayGuidance.ts](../../src/lib/dayGuidance.ts) | [Математический маршрут](math-solution-route.md) | Выборочная передача этапа и подписка на помощь ребёнку | `DayPage.tsx`; `ProblemStatement.tsx`; Firebase |
+| [src/lib/dayGuidance.ts](../../src/lib/dayGuidance.ts) | [Математический маршрут](math-solution-route.md) | Выборочная передача этапа и подписка на помощь ребёнку | `DayPage.tsx`; `TaskGuidance.tsx`; Firebase |
 | [src/lib/quizCardViewModel.ts](../../src/lib/quizCardViewModel.ts) | [Единая модель карточки](subject-card-viewmodel.md) | Общий тип попытки, связка истории и адрес исходной карточки для продолжения теста | `QuizCard.tsx`; `DayPage.tsx` |
 | [src/lib/educationSchema.ts](../../src/lib/educationSchema.ts) | [Семейная модель](../architecture/family-data-model.md) | Типы семьи, манифеста и адресных событий | `educationStore`; `NotificationBell` |
 | [src/lib/inboxCache.ts](../../src/lib/inboxCache.ts) | [Повторный запуск расписания](dashboard.md) | Последний inbox одного пользователя и монотонные локальные квитанции чтения | `educationStore`; `ParentHome`; `NotificationBell` |

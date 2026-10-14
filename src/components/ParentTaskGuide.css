@@ -14,6 +14,7 @@
 .day-parent-guide-why,.day-parent-guide-observed{color:var(--edu-muted)}
 .day-parent-guide summary:focus-visible{outline:3px solid var(--edu-focus);outline-offset:2px}
 /* One configurable route reuses Education tokens and the existing original above it.
+ * @see ../../docs/product/problem-card-design-decisions.md#role-projection
  * @see ../../docs/product/card-generation-policy.md#math-adapter
  * @see ../../docs/product/card-generation-policy.md#russian-adapter
  * @see ../../docs/product/design-system.md#cards-and-status */

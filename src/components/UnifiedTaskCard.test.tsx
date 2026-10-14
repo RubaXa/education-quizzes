@@ -25,6 +25,18 @@ describe('one public task and quiz view', () => {
     expect(html).not.toContain('Показанный шаг')
   })
 
+  it('keeps released steps in route order without adding a private guide', () => {
+    const items = [
+      { id: 'later', taskId: 'mesh-example', stageId: 'answer', stageIndex: 1, level: 'reveal' as const, text: 'Проверь результат подстановкой.', guideRevision: 1, actorPersonId: 'parent', createdAt: null },
+      { id: 'first', taskId: 'mesh-example', stageId: 'data', stageIndex: 0, level: 'hint' as const, text: 'Назови известные величины.', guideRevision: 1, actorPersonId: 'parent', createdAt: null },
+    ]
+    const html = renderToStaticMarkup(<TaskGuidance items={items} />)
+    expect(html.indexOf('Шаг 1')).toBeLessThan(html.indexOf('Шаг 2'))
+    expect(html).toContain('Подсказка')
+    expect(html).toContain('Показанный шаг')
+    expect(html).toContain('day-learning-route-stage')
+  })
+
   it('shows a score percentage only after points are known', () => {
     const pending = { token: 'token', testId: 'test', title: 'Самопроверка', slug: 'quiz', status: 'submitted' as const, answered: 4, total: 4 }
     const waiting = renderToStaticMarkup(<QuizCard chain={[pending]} parent />)

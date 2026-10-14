@@ -2,6 +2,7 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import type { DayProblem, ParentTaskGuide } from '@/lib/dayStore'
+import type { DayGuidance } from '@/lib/dayGuidance'
 import ProblemTaskCard from './ProblemTaskCard'
 
 describe('one upload action per numbered problem', () => {
@@ -53,5 +54,32 @@ describe('stable numbered problem layers', () => {
     expect(html).toContain('aria-expanded="false"')
     expect(html).not.toContain('class="problem-statement-parent-source"')
     expect(html).not.toContain('Поиск более раннего источника не записан')
+  })
+
+  it('uses the same route slot but sends the student only the selected stage text', () => {
+    const privateStep = { id: 'reason', title: 'Связь отрезков', expected: 'ЗАКРЫТОЕ РЕШЕНИЕ',
+      hintPreview: 'Сравни длины на рисунке.', revealPreview: 'ЗАКРЫТЫЙ ШАГ',
+      source: { label: 'Сверенный лист' } }
+    const privateGuide = { kind: 'worked-solution', presentation: 'math-route', overview: 'Разбор',
+      stages: [privateStep] } as ParentTaskGuide
+    const hint = { id: 'sent-hint', taskId: problem.id, stageId: 'reason', stageIndex: 0,
+      level: 'hint', text: 'Сравни длины на рисунке.', guideRevision: 1,
+      actorPersonId: 'parent', createdAt: null } as DayGuidance
+    const common = { problem, state: { tone: 'ready', label: 'Не начато' } as const,
+      links: [], guide: privateGuide, uploads: [], helpAccess: 'ready' as const,
+      onPhotos: () => undefined }
+    const before = renderToStaticMarkup(<ProblemTaskCard {...common} parent={false} guidance={[]} />)
+    const student = renderToStaticMarkup(<ProblemTaskCard {...common} parent={false} guidance={[hint]} />)
+    const parent = renderToStaticMarkup(<ProblemTaskCard {...common} parent guidance={[hint]} />)
+    expect(before).not.toContain('class="day-task-guidance')
+    expect(student).toContain('day-task-guidance day-parent-guide day-parent-learning-route')
+    expect(parent).toContain('day-parent-guide day-parent-learning-route')
+    expect(student.indexOf('Как читать условие')).toBeLessThan(student.indexOf('aria-label="Разбор от родителя"'))
+    expect(parent.indexOf('Как читать условие')).toBeLessThan(parent.indexOf('aria-label="Разбор решения для родителя"'))
+    expect(student).toContain('Сравни длины на рисунке.')
+    expect(student).toContain('Подсказка')
+    expect(student).not.toContain('ЗАКРЫТОЕ РЕШЕНИЕ')
+    expect(student).not.toContain('ЗАКРЫТЫЙ ШАГ')
+    expect(parent).toContain('ЗАКРЫТОЕ РЕШЕНИЕ')
   })
 })
