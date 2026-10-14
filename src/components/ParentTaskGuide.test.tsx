@@ -14,6 +14,8 @@ describe('one parent route component', () => {
     }
     const html = renderToStaticMarkup(<ParentTaskGuide guide={guide} />)
     expect(html).toContain('<details class="day-parent-guide day-parent-learning-route"')
+    expect(html).toContain('Разбор для родителя')
+    expect(html).not.toContain('От условия к ответу')
     expect((html.match(/<details class="day-learning-route-stage [^"]*" open=""/g) ?? []).length).toBe(0)
   })
 

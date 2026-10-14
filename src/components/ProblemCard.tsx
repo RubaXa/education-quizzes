@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { CheckCircle2, ChevronDown, CircleAlert, Clock3, LoaderCircle } from 'lucide-react'
 import type { DayProblem } from '@/lib/dayStore'
-import type { ProblemCardState } from '@/lib/reviewPresentation'
+import { compactProblemCardLabel, type ProblemCardState } from '@/lib/reviewPresentation'
 import PhotoUploadControl from './PhotoUploadControl'
 import './ProblemCard.css'
 
@@ -14,7 +14,7 @@ export function ProblemCard({ problem, state, children }: { problem: DayProblem;
       : state.tone === 'error' ? <CircleAlert size={15} aria-hidden="true" />
         : state.tone === 'ready' ? null : <Clock3 size={15} aria-hidden="true" />
   return <details className={`problem-card ${state.tone}`} id={problem.id}>
-    <summary className="problem-card-heading"><strong>№ {problem.number}. {problem.title}</strong><span className="problem-card-state">{icon}<small>{state.label}</small><ChevronDown size={17} className="problem-card-chevron" aria-hidden="true" /></span></summary>
+    <summary className="problem-card-heading"><strong>№ {problem.number}. {problem.title}</strong><span className="problem-card-state" aria-label={state.label} title={state.label}>{icon}<small aria-hidden="true">{compactProblemCardLabel(state)}</small><ChevronDown size={17} className="problem-card-chevron" aria-hidden="true" /></span></summary>
     {children}
   </details>
 }

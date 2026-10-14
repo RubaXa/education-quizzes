@@ -43,8 +43,8 @@ describe('pre-work family practice choices', () => {
       id: taskId, title: 'Диаграммы', detail: '', kind: 'check', status: 'unknown', source: 'МЭШ',
       practiceVariants: [{ id: `${taskId}-v1`, title: 'Вариант 1' }, { id: optionalVariantId, title: 'Вариант 2' }],
       problems: [
-        { id: `${taskId}-v1-p1`, number: '1', title: 'Круговая диаграмма', variantId: `${taskId}-v1` },
-        { id: `${taskId}-v2-p1`, number: '1', title: 'Столбчатая диаграмма', variantId: optionalVariantId },
+        { id: `${taskId}-v1-p1`, number: 1, title: 'Круговая диаграмма', detail: '', source: 'Лист учителя', variantId: `${taskId}-v1` },
+        { id: `${taskId}-v2-p1`, number: 1, title: 'Столбчатая диаграмма', detail: '', source: 'Лист учителя', variantId: optionalVariantId },
       ], testToken: 'diagrams-check',
     } as DayTask
     const optional = { id: 'student-token:a', taskId, variantId: optionalVariantId,

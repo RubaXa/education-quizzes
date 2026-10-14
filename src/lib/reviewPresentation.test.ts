@@ -1,12 +1,19 @@
 import { describe, expect, it } from 'vitest'
 import type { DayWorkReview } from './dayStore'
-import { reviewHeadline, reviewTone } from './reviewPresentation'
+import { compactProblemCardLabel, problemCardState, reviewHeadline, reviewTone } from './reviewPresentation'
 
 function review(status: DayWorkReview['status'], items: Array<'correct' | 'partial' | 'incorrect' | 'cannot-assess'>): DayWorkReview {
   return { id: 'test', taskId: 'test', status, items: items.map((item, index) => ({ label: `${index + 1}`, status: item, observed: 'ответ', note: 'пояснение' })) }
 }
 
 describe('collapsed homework review', () => {
+  it('shows a short truthful status before any work is uploaded', () => {
+    const state = problemCardState([])
+    expect(state).toEqual({ label: 'Не начато', tone: 'ready' })
+    expect(compactProblemCardLabel(state)).toBe('Не начато')
+    expect(compactProblemCardLabel({ label: 'Ответ и ход подтверждены', tone: 'verified' })).toBe('Проверено')
+    expect(compactProblemCardLabel({ label: 'Фото получено · ждёт проверки', tone: 'waiting' })).toBe('Ждёт проверки')
+  })
   it('shows green only when the entire work is verified', () => {
     const done = review('verified', ['correct', 'correct'])
     expect(reviewTone(done)).toBe('success')

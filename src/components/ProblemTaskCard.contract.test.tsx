@@ -12,10 +12,12 @@ describe('one upload action per numbered problem', () => {
         original: { text: '№ 1. Решить задачу.', attachmentRef: 'mesh-attachment:sheet#1' },
       } as DayProblem
       const html = renderToStaticMarkup(<ProblemTaskCard problem={problem}
-        state={{ tone, label: tone === 'verified' ? 'Подтверждено' : 'Можно приступить' }}
+        state={{ tone, label: tone === 'verified' ? 'Подтверждено' : 'Не начато' }}
         links={[]} parent={false} uploads={[]} helpAccess="ready" onPhotos={() => undefined} />)
       expect(html).toContain('Добавить фото')
       expect(html).toContain(`id="${problem.id}"`)
+      expect(html).not.toContain(`id="${problem.id}" open=""`)
+      if (tone === 'ready') expect(html).toContain('Не начато')
     }
   })
 })

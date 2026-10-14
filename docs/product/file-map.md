@@ -206,6 +206,7 @@
 | [src/components/CodeBlock.tsx](../../src/components/CodeBlock.tsx) | [Тесты](quizzes.md) | Показ исходного кода в вопросе | Страница теста |
 | [src/components/ConnectionInvite.tsx](../../src/components/ConnectionInvite.tsx) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Команда подключения и живой статус приглашения | `src/App.tsx`; приглашённый взрослый |
 | [src/components/EducationImage.tsx](../../src/components/EducationImage.tsx) | [Изображения](design-system.md) | Общий загрузчик, кроп, индикация, ошибка и повтор | Материалы; фото; тесты; уведомления |
+| [src/components/EducationImage.test.tsx](../../src/components/EducationImage.test.tsx) | [Изображения](design-system.md) | Регрессия повторной загрузки миниатюры после истёкшего превью | Vitest; разработчик |
 | [src/components/EducationImage.css](../../src/components/EducationImage.css) | [Изображения](design-system.md) | Оболочка изображения и состояния загрузки | `EducationImage.tsx` |
 | [src/components/EducationScreen.tsx](../../src/components/EducationScreen.tsx) | [Экраны из данных](../architecture/backend-driven-ui.md) | Ограниченный реестр блоков манифеста | Будущий маршрут v2 |
 | [src/components/MaterialReader.tsx](../../src/components/MaterialReader.tsx) | [Материалы](materials.md) | Миниатюры ДЗ, постраничное перелистывание полной книги | Страница дня; семейная библиотека |
@@ -345,6 +346,8 @@
 | [src/lib/writeQueue.test.ts](../../src/lib/writeQueue.test.ts) | [Тесты](quizzes.md) | Проверка очереди быстрых ответов | Vitest; разработчик |
 | [src/lib/writeQueue.ts](../../src/lib/writeQueue.ts) | [Тесты](quizzes.md) | Порядок записи ответов | `quizWrite` |
 | [src/lib/yandexPublic.ts](../../src/lib/yandexPublic.ts) | [Материалы](materials.md) | Получение публичных превью Диска | `MaterialReader` |
+| [src/lib/yandexPublic.test.ts](../../src/lib/yandexPublic.test.ts) | [Изображения](design-system.md) | Проверка обновления превью PDF после ошибки загрузки миниатюры | Vitest; разработчик |
+| [scripts/check-problem-variant-viewport.mjs](../../scripts/check-problem-variant-viewport.mjs) | [Карточки и состояния](design-system.md) | Скриншотная проверка свёрнутых вариантов, задач и однострочного статуса на мобильных ширинах | Chrome; разработчик |
 | [src/main.tsx](../../src/main.tsx) | [PWA](pwa.md) | Монтирование React и стилей | Браузер |
 | [storage/direct-upload.mjs](../../storage/direct-upload.mjs) | [Хранение и приватность](storage-privacy.md) | Валидация заявки и пути фото | Worker загрузки |
 | [storage/family-book-upload.mjs](../../storage/family-book-upload.mjs) | [Семейная библиотека](family-library.md) | Валидация полного PDF и семейного пути приёма | Worker загрузки |

@@ -42,7 +42,18 @@ export function problemCardState(uploads: DayUpload[], review?: DayWorkReview, u
   if (review?.status === 'needs-fix') return { label: reviewHeadline(review), tone: 'error' }
   if (review?.assessmentBasis?.outcome === 'unresolved') return { label: reviewHeadline(review), tone: 'waiting' }
   if (review?.status === 'cannot-assess') return { label: 'Не удалось проверить', tone: 'waiting' }
-  return uploads.length ? { label: 'Фото сохранено', tone: 'waiting' } : { label: 'Можно приступить', tone: 'ready' }
+  return uploads.length ? { label: 'Фото сохранено', tone: 'waiting' } : { label: 'Не начато', tone: 'ready' }
+}
+
+/** The compact heading retains the full state as its accessible label. */
+export function compactProblemCardLabel(state: ProblemCardState): string {
+  if (state.tone === 'ready') return 'Не начато'
+  if (state.tone === 'uploading') return 'Загрузка'
+  if (state.tone === 'processing') return 'Проверяем'
+  if (state.tone === 'verified') return state.label.startsWith('Засчитано родителем') ? 'Засчитано' : 'Проверено'
+  if (state.tone === 'partial') return 'Частично'
+  if (state.tone === 'error') return 'Исправить'
+  return state.label.includes('ждёт проверки') || state.label.includes('задержана') ? 'Ждёт проверки' : 'Неясно'
 }
 
 /** @see ../../docs/product/day-page.md#homework-review */

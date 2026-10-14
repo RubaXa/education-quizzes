@@ -1,11 +1,11 @@
 /* @see ../../docs/product/adaptive-problem-card.md#показ-ученику */
 .problem-card{min-width:0;padding:13px 14px;border:1px solid #ded6eb;border-radius:14px;background:#fff;color:#34295c}
-.problem-card-heading{display:flex;align-items:center;justify-content:space-between;gap:8px 14px;flex-wrap:wrap;list-style:none;cursor:pointer}
+.problem-card-heading{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px;list-style:none;cursor:pointer}
 .problem-card-heading::-webkit-details-marker{display:none}
 .problem-card-heading:focus-visible{outline:3px solid #ab8bda;outline-offset:4px}
-.problem-card-heading>strong{font-size:.94rem;line-height:1.4}
-.problem-card-state{display:inline-flex;align-items:center;gap:5px;margin-left:auto;color:#6a5d7d}
-.problem-card-state small{font-size:.75rem;font-weight:700}
+.problem-card-heading>strong{min-width:0;overflow-wrap:anywhere;font-size:.94rem;line-height:1.4}
+.problem-card-state{display:inline-flex;align-items:center;gap:5px;margin-left:auto;white-space:nowrap;color:#6a5d7d}
+.problem-card-state small{font-size:.75rem;font-weight:700;white-space:nowrap}
 .problem-card.verified .problem-card-state{color:#17643c}
 .problem-card.partial .problem-card-state{color:#8a6115}
 .problem-card.error .problem-card-state{color:#a23746}

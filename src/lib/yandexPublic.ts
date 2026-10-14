@@ -32,14 +32,13 @@ export function publicResource(value: string, size: string, refresh = false): Pr
 
 /** @see ../../docs/product/materials.md#material-reader */
 export async function publicImage(value: string, size = 'XXXL', refresh = false) {
-  // A preview URL can fail even while the public original is available. After
-  // an image decode/load error, bypass the preview and ask for a fresh download.
-  if (!refresh) {
-    try {
-      const resource = await publicResource(value, size)
-      if (resource.preview ?? resource.file) return (resource.preview ?? resource.file)!
-    } catch { /* Try the same public resource through its download endpoint. */ }
-  }
+  // A public attachment can be a PDF: its download URL works in a reader but
+  // cannot be decoded by <img>. Refresh the image preview after a load error.
+  try {
+    const resource = await publicResource(value, size, refresh)
+    if (resource.preview) return resource.preview
+    if (resource.file) return resource.file
+  } catch { /* Try the public download endpoint if preview metadata is unavailable. */ }
   const endpoint = new URL('https://cloud-api.yandex.net/v1/disk/public/resources/download')
   endpoint.searchParams.set('public_key', publicDiskUrl(value))
   const response = await fetchWithRetry(endpoint, { cache: 'no-store' }, { attempts: 2, timeoutMs: 7_000 })
