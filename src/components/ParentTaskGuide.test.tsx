@@ -4,6 +4,19 @@ import ParentTaskGuide from './ParentTaskGuide'
 import type { ParentTaskGuide as Guide } from '@/lib/dayStore'
 
 describe('one parent route component', () => {
+  it('keeps the parent route and every math stage closed until opened', () => {
+    const guide: Guide = {
+      kind: 'worked-solution', presentation: 'math-route', routeProfile: 'standard', revision: 1,
+      overview: 'Разбор', stages: ['given', 'solution', 'answer'].map((id) => ({
+        id, title: id, role: id as 'given' | 'solution' | 'answer', expected: id,
+        source: { kind: 'teacher-file', label: 'Лист', ref: 'sheet', excerpt: 'условие' },
+      })),
+    }
+    const html = renderToStaticMarkup(<ParentTaskGuide guide={guide} />)
+    expect(html).toContain('<details class="day-parent-guide day-parent-learning-route"')
+    expect((html.match(/<details class="day-learning-route-stage [^"]*" open=""/g) ?? []).length).toBe(0)
+  })
+
   it('renders a sourced text-plan route and overlays reviewed work', () => {
     const guide: Guide = {
       kind: 'text-structure', presentation: 'learning-route', pattern: 'text-plan', revision: 1,

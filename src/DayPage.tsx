@@ -4,7 +4,7 @@ import { BookOpen, CheckCircle2, ChevronDown, Clock3, ExternalLink, RotateCcw, T
 import { cdzEvidenceLabel, cdzResultLabel, isCdzTask, removePendingDayPhoto, requestDayHelp, uploadDayPhoto, uploadMatchesTask, watchDayHelp, watchDayPage, watchDayTaskGuides, watchMaterialPages, withVerifiedPlatformResult } from '@/lib/dayStore'
 import { unresolvedMaterialPageRefs } from '@/lib/dayMaterialRefs'
 import { isSubjectExpanded, visibleGuideTaskIds } from '@/lib/guideReadPolicy'
-import type { DayHelp, DayInstruction, DayMaterialLink, DayPageData, DayTask, DayUpload, DayWorkReview, ParentTaskPrivate } from '@/lib/dayStore'
+import type { DayHelp, DayInstruction, DayMaterialLink, DayPageData, DayProblem, DayTask, DayUpload, DayWorkReview, ParentTaskPrivate } from '@/lib/dayStore'
 import { dayHelpSessionRole } from '@/lib/personalAccess'
 import { useDayQuizOutcomes } from '@/lib/useDayQuizOutcomes'
 import MaterialReader, { canReadInside } from '@/components/MaterialReader'
@@ -14,6 +14,7 @@ import WorkReview from '@/components/WorkReview'
 import ProblemGroup from '@/components/ProblemGroup'
 import ProblemTaskCard from '@/components/ProblemTaskCard'
 import ParentTaskGuide from '@/components/ParentTaskGuide'
+import RequirementSwitch from '@/components/RequirementSwitch'
 import AssignmentBrief from '@/components/AssignmentBrief'
 import TaskGuidance from '@/components/TaskGuidance'
 import PhotoUploadControl from '@/components/PhotoUploadControl'
@@ -24,7 +25,7 @@ import { useParentCompletions } from '@/lib/useParentCompletions'
 import { lessonWorkItems } from '@/lib/homeworkStatus'
 import { pupilCanAddPhoto } from '@/lib/photoUploadPolicy'
 import { assignmentProgress, assignmentTitle } from '@/lib/assignmentPresentation'
-import { canAcceptCorrectAnswer, parentAccepted, recordParentCompletion, recordRequirementChoice, recordStageChoice, requiredFamilyActions, requirementChoice, stageCompletion } from '@/lib/parentCompletion'
+import { canAcceptCorrectAnswer, parentAccepted, recordParentCompletion, recordRequirementChoice, recordStageChoice, recordVariantChoice, requiredFamilyActions, requirementChoice, stageCompletion, variantRequired } from '@/lib/parentCompletion'
 import { activeProcessing, artifactAvatarLabel, artifactAvatarState, localArtifactAvatarState, problemCardState, workCoverageComplete } from '@/lib/reviewPresentation'
 import './DayPage.css'
 import { reportUiError } from '@/lib/uiErrors'
@@ -571,6 +572,16 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
               const canUpload = pupilCanAddPhoto(task, parent)
               const showSubmission = !task.problems?.length && task.kind === 'written' && !verified && (!priorWork || newWork || uploadingWork || criterionPending || taskStatus === 'needs-fix' || taskStatus === 'partial')
               const submission = task.submission
+              const renderProblem = (problem: DayProblem) => {
+                const problemUploads = uploads.filter((upload) => uploadMatchesTask(upload, problem.id))
+                const problemPhotos = localPhotos.filter((photo) => photo.taskId === problem.id)
+                const problemReview = reviews.find((item) => item.taskId === problem.id)
+                const problemAccepted = parentAccepted(problemReview, parentDecisions.events)
+                const state = problemCardState(problemUploads, problemReview, problemPhotos.some((photo) => photo.state === 'uploading'), statusNow, problemAccepted)
+                return <ProblemTaskCard problem={problem} state={state} key={problem.id} links={taskLinks} parent={parent} guide={taskGuides[problem.id]?.guide} guidance={guidance.filter((item) => item.taskId === problem.id)} guidanceReady={guidanceReady} onSendGuidance={parent && taskGuides[problem.id]?.guide ? (stage, level) => sendDayGuidance(studentToken, problem.id, taskGuides[problem.id]!.guide!, stage.id, level) : undefined} onStageChoice={parent && helpRole === 'parent' && problemReview && taskGuides[problem.id]?.guide ? (stage, required) => recordStageChoice(problemReview, taskGuides[problem.id]!.guide!, stage.id, required) : undefined} sourceResearch={taskGuides[problem.id]?.sourceResearch} help={helpRequests.find((item) => item.taskId === problem.id)} review={problemReview} uploads={problemUploads} accepted={problemAccepted} canDecide={helpRole === 'parent'} onDecision={parent && canAcceptCorrectAnswer(problemReview) && problemReview ? (action) => recordParentCompletion(problemReview, action) : undefined} decisions={parentDecisions.events} onRequirementChoice={parent && problemReview?.assessmentBasis?.disputedRequirements?.length ? (id, action) => recordRequirementChoice(problemReview, id, action) : undefined} helpAccess={helpRole === 'checking' ? 'checking' : helpRole === 'student' ? 'ready' : 'login-required'} onRequestHelp={!parent && subject.id === 'special' && helpRole === 'student' ? (taskId, revision, kind, text) => requestDayHelp(studentToken, taskId, revision, kind, text) : undefined} onPhotos={(files) => attach(problem, files)}>
+                  <PhotoStrip taskTitle={`№ ${problem.number}. ${problem.title}`} studentToken={studentToken} uploads={problemUploads} localPhotos={problemPhotos} review={problemReview} now={statusNow} onRetry={queuePhotoUpload} onDelete={deletePhoto} />
+                </ProblemTaskCard>
+              }
               const taskCard = <article className={`day-task ${verified || workCovered ? 'done' : submitted ? 'submitted' : ''}`} id={`day-task-${task.id}`} key={task.id}>
                 {assignments.multiple && !task.problems?.length && <div className="day-task-assignment-heading">Задание {assignmentIndex + 1} из {assignments.total}</div>}
                 <div className="day-task-row"><span className={`day-task-state${state.length > 24 ? ' as-text' : ''} ${verified ? 'verified' : workCovered ? 'covered' : submitted ? 'partial' : taskStatus}`}>{verified && <CheckCircle2 size={15} aria-hidden="true" />} {state}</span>{task.kind === 'written' && <span className="day-task-type">В тетради</span>}{task.dueDate && task.dueDate !== (task.lessonDate ?? page.targetDate) && <span className="day-task-type">Сдать к {dayMonth(task.dueDate)} · МЭШ</span>}{task.originDate && task.originDate !== page.targetDate && <span className="day-task-type">Осталось с {dayMonth(task.originDate)}</span>}</div>
@@ -588,16 +599,21 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
                 {otherLinks.length > 0 && <div className="day-material-links">{otherLinks.map((material) => <div className="day-material-source" key={material.url}><a href={material.url} target="_blank" rel="noopener noreferrer">{material.sourceType === 'textbook-page' ? 'Страница учебника' : material.sourceType === 'teacher-attachment' ? 'Файл учителя' : material.sourceType === 'external-text' ? 'Внешний текст, не из учебника' : 'Материал'}: {material.title} <ExternalLink size={13} aria-hidden="true" /></a>{material.reason && <small>{material.reason}</small>}{material.sourceQuote && <small>Из учебника: «{material.sourceQuote.trim()}»</small>}{parent && material.sourceRef && <small>{material.sourceRef} · PDF {material.pdfPage} · учебник {material.printedPage}</small>}</div>)}</div>}
                 {!!task.problems?.length && <div className="day-problem-list" aria-label={`Задачи: ${task.title}`}>
                   <h4>Задания из листа · {task.problems.length}</h4>
-                  {task.problems.map((problem) => {
-                    const problemUploads = uploads.filter((upload) => uploadMatchesTask(upload, problem.id))
-                    const problemPhotos = localPhotos.filter((photo) => photo.taskId === problem.id)
-                    const problemReview = reviews.find((item) => item.taskId === problem.id)
-                    const problemAccepted = parentAccepted(problemReview, parentDecisions.events)
-                    const state = problemCardState(problemUploads, problemReview, problemPhotos.some((photo) => photo.state === 'uploading'), statusNow, problemAccepted)
-                    return <ProblemTaskCard problem={problem} state={state} key={problem.id} links={taskLinks} parent={parent} guide={taskGuides[problem.id]?.guide} guidance={guidance.filter((item) => item.taskId === problem.id)} guidanceReady={guidanceReady} onSendGuidance={parent && taskGuides[problem.id]?.guide ? (stage, level) => sendDayGuidance(studentToken, problem.id, taskGuides[problem.id]!.guide!, stage.id, level) : undefined} onStageChoice={parent && helpRole === 'parent' && problemReview && taskGuides[problem.id]?.guide ? (stage, required) => recordStageChoice(problemReview, taskGuides[problem.id]!.guide!, stage.id, required) : undefined} sourceResearch={taskGuides[problem.id]?.sourceResearch} help={helpRequests.find((item) => item.taskId === problem.id)} review={problemReview} uploads={problemUploads} accepted={problemAccepted} canDecide={helpRole === 'parent'} onDecision={parent && canAcceptCorrectAnswer(problemReview) && problemReview ? (action) => recordParentCompletion(problemReview, action) : undefined} decisions={parentDecisions.events} onRequirementChoice={parent && problemReview?.assessmentBasis?.disputedRequirements?.length ? (id, action) => recordRequirementChoice(problemReview, id, action) : undefined} helpAccess={helpRole === 'checking' ? 'checking' : helpRole === 'student' ? 'ready' : 'login-required'} onRequestHelp={!parent && subject.id === 'special' && helpRole === 'student' ? (taskId, revision, kind, text) => requestDayHelp(studentToken, taskId, revision, kind, text) : undefined} onPhotos={(files) => attach(problem, files)}>
-                      <PhotoStrip taskTitle={`№ ${problem.number}. ${problem.title}`} studentToken={studentToken} uploads={problemUploads} localPhotos={problemPhotos} review={problemReview} now={statusNow} onRetry={queuePhotoUpload} onDelete={deletePhoto} />
-                    </ProblemTaskCard>
-                  })}
+                  {task.practiceVariants?.length ? task.practiceVariants.map((variant) => {
+                    const variantProblems = task.problems!.filter((problem) => problem.variantId === variant.id)
+                    const completed = variantProblems.filter((problem) => {
+                      const review = reviews.find((item) => item.taskId === problem.id)
+                      return review?.status === 'verified' || parentAccepted(review, parentDecisions.events)
+                    }).length
+                    const required = variantRequired(task.id, variant.id, parentDecisions.events)
+                    return <div className="day-practice-variant-shell" key={variant.id}>
+                      <details className="day-practice-variant" open={variantProblems.some((problem) => problem.id === focusTaskId) || undefined}>
+                        <summary><strong>{variant.title}</strong><span>{required ? `${completed} из ${variantProblems.length}` : 'По желанию'}</span><ChevronDown size={17} aria-hidden="true" /></summary>
+                        <div className="day-practice-variant-problems">{variantProblems.map(renderProblem)}</div>
+                      </details>
+                      {parent && <RequirementSwitch checked={required} disabled={!parentDecisions.ready || helpRole !== 'parent'} label={`Учитывать «${variant.title}» в семейном плане`} onChange={(next) => void recordVariantChoice(studentToken, task.id, variant.id, next).catch((cause) => reportUiError(cause, 'Выбор варианта'))} />}
+                    </div>
+                  }) : task.problems.map(renderProblem)}
                 </div>}
                 {showSubmission && <div className="day-submission-instructions">
                   <strong>{priorWork && (taskStatus === 'needs-fix' || taskStatus === 'partial') ? 'Что исправить и сфотографировать' : 'Что сфотографировать'}</strong>
@@ -616,10 +632,12 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
               </article>
               if (!task.problems?.length) return taskCard
               /** @see ../docs/product/day-page.md#completed-problem-group */
-              const problemIds = new Set(task.problems.map((problem) => problem.id))
+              const requiredProblems = task.practiceVariants?.length ? task.problems.filter((problem) =>
+                problem.variantId && variantRequired(task.id, problem.variantId, parentDecisions.events)) : task.problems
+              const problemIds = new Set(requiredProblems.map((problem) => problem.id))
               const localPendingCount = localPhotos.filter((photo) => problemIds.has(photo.taskId) && !uploads.some((upload) => upload.id === `${studentToken}:${photo.id}` && upload.status === 'reviewed')).length
               const sourceCount = new Set(taskLinks.filter((link) => link.sourceType === 'teacher-attachment').map((link) => link.url)).size
-              return <ProblemGroup key={task.id} id={task.id} title={assignmentTitle(task, assignmentIndex, assignments.total)} problems={task.problems} uploads={uploads} reviews={reviews} decisions={parentDecisions.events} localPendingCount={localPendingCount} sourceCount={sourceCount} ready={evidenceReady && parentDecisions.ready} focusTaskId={focusTaskId}>{taskCard}</ProblemGroup>
+              return <ProblemGroup key={task.id} id={task.id} title={assignmentTitle(task, assignmentIndex, assignments.total)} problems={task.problems} requiredProblems={requiredProblems} numberLabel={task.practiceVariants?.length ? `${task.practiceVariants.length} варианта` : undefined} uploads={uploads} reviews={reviews} decisions={parentDecisions.events} localPendingCount={localPendingCount} sourceCount={sourceCount} ready={evidenceReady && parentDecisions.ready} focusTaskId={focusTaskId}>{taskCard}</ProblemGroup>
             })}
             {currentPlacements.filter((placement) => placement.subjectId === subject.id && !placement.taskId).map((placement) => {
               const test = tests.find((item) => item.token === placement.token)

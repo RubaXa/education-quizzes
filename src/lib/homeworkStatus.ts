@@ -1,7 +1,7 @@
 import { cdzResultLabel, isCdzTask, uploadMatchesTask } from './dayStore'
 import type { DayTask, DayUpload, DayWorkReview } from './dayStore'
 import { activeProcessing, workCoverageComplete } from './reviewPresentation'
-import { parentAccepted, requiredFamilyActions, stageCompletion } from './parentCompletion'
+import { parentAccepted, requiredFamilyActions, stageCompletion, variantRequired } from './parentCompletion'
 import type { ParentCompletionEvent } from './parentCompletion'
 import { lessonSubjectKey } from '../../day/subject-identity.mjs'
 
@@ -42,7 +42,8 @@ export function lessonWorkItems(tasks: DayTask[], uploads: DayUpload[], reviews:
     // A MESH pointer to an earlier lesson is information, not a second task.
     // @see ../../docs/product/dashboard.md#reference-only-homework
     if (task.referenceDate) return []
-    if (task.problems?.length) return task.problems.map((problem) => {
+    if (task.problems?.length) return [
+      ...task.problems.filter((problem) => !problem.variantId || variantRequired(task.id, problem.variantId, decisions)).map((problem) => {
       const review = reviews.find((item) => item.taskId === problem.id)
       const pending = uploads.some((upload) => uploadMatchesTask(upload, problem.id) && ['requested', 'awaiting-upload', 'uploaded', 'pending'].includes(upload.status))
       const criterionPending = review?.assessmentBasis?.outcome === 'unresolved'
@@ -51,8 +52,15 @@ export function lessonWorkItems(tasks: DayTask[], uploads: DayUpload[], reviews:
       const familyActions = requiredFamilyActions(review, decisions)
       const covered = workCoverageComplete(review) && !pending && !familyActions.length
       const state: LessonWorkItem['state'] = pending ? 'checking' : familyActions.length ? 'todo' : familyStageComplete || review?.status === 'verified' || accepted || covered ? 'done' : criterionPending ? 'unclear' : 'todo'
-      return { id: problem.id, title: `№ ${problem.number}. ${problem.title}`, state, qualityOpen: covered, detail: familyActions.length ? `По решению родителя: ${familyActions.join('; ')}` : state === 'unclear' ? `${review?.summary ?? 'Работа разобрана; критерий не подтверждён.'} Новое фото не требуется.` : state === 'checking' ? 'Фото получено, ждём проверки' : state === 'done' ? covered ? 'Работа сдана; критерий оценки пока не установлен. Новых действий не требуется.' : accepted ? 'Засчитано родителем · ответ верен, ход неполон' : 'Решение проверено' : review?.status === 'needs-fix' ? 'Нужно исправить решение' : review?.status === 'partial' ? 'Нужно дополнить решение' : 'Нужно выполнить и загрузить решение' }
-    })
+      return { id: problem.id, title: `${problem.variantId ? `${task.practiceVariants?.find((variant) => variant.id === problem.variantId)?.title ?? 'Вариант'} · ` : ''}№ ${problem.number}. ${problem.title}`, state, qualityOpen: covered, detail: familyActions.length ? `По решению родителя: ${familyActions.join('; ')}` : state === 'unclear' ? `${review?.summary ?? 'Работа разобрана; критерий не подтверждён.'} Новое фото не требуется.` : state === 'checking' ? 'Фото получено, ждём проверки' : state === 'done' ? covered ? 'Работа сдана; критерий оценки пока не установлен. Новых действий не требуется.' : accepted ? 'Засчитано родителем · ответ верен, ход неполон' : 'Решение проверено' : review?.status === 'needs-fix' ? 'Нужно исправить решение' : review?.status === 'partial' ? 'Нужно дополнить решение' : 'Нужно выполнить и загрузить решение' }
+    }),
+      ...(task.testToken ? [{ id: `quiz:${task.testToken}`, title: 'Самопроверка по теме',
+        state: (tests[task.testToken]?.status === 'submitted' && scores[task.testToken] ? 'done'
+          : tests[task.testToken]?.status === 'submitted' ? 'checking' : 'todo') as LessonWorkItem['state'],
+        detail: scores[task.testToken] ? `Тест: ${scores[task.testToken].points} из ${scores[task.testToken].maxPoints} баллов`
+          : tests[task.testToken]?.status === 'submitted' ? 'Ответы отправлены, ждём проверки' : 'Самопроверка ещё не завершена' },
+        ...linkedQuizWorkItems(task.testToken, tests, scores)] : []),
+    ]
     const review = reviews.find((item) => item.taskId === task.id)
     const pending = uploads.some((upload) => uploadMatchesTask(upload, task.id) && ['requested', 'awaiting-upload', 'uploaded', 'pending'].includes(upload.status))
     const score = task.testToken ? scores[task.testToken] : undefined

@@ -36,6 +36,7 @@ export function summarizeProblemGroup(problems: DayProblem[], uploads: DayUpload
   const partial = problems.filter((problem) => { const review = reviewFor(problem); return review?.status === 'partial' && !parentAccepted(review, decisions) }).length
   const acceptedCount = problems.filter((problem) => parentAccepted(reviewFor(problem), decisions)).length
   const conclusion = !ready ? 'Загружаем результаты проверки…'
+    : !problems.length ? 'Все варианты исключены из обязательного семейного плана. Условия и работы остаются доступны.'
     : complete ? reasoningConfirmed ? 'Хорошо: ответы и ход решения подтверждены во всех номерах.' : acceptedCount ? `${acceptedCount} ${acceptedCount === 1 ? 'задача засчитана' : 'задачи засчитаны'} родителем с пометкой о неполном ходе. Остальные номера завершены.` : 'Все номера проверены по загруженным работам.'
       : activeCount ? 'Есть новые фото: дождитесь проверки, чтобы увидеть итог.'
         : needsFix || partial ? 'Есть номера для исправления или дополнения.'

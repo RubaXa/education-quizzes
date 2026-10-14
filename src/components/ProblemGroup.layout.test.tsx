@@ -4,6 +4,13 @@ import { describe, expect, it } from 'vitest'
 import ProblemGroup from './ProblemGroup'
 
 describe('numbered sheet heading', () => {
+  it('keeps an incomplete sheet closed by default', () => {
+    const html = renderToStaticMarkup(<ProblemGroup id="sheet" title="Лист" problems={[
+      { id: 'sheet-p01', number: 1, title: 'Задача', detail: '', source: 'Учитель' },
+    ]} uploads={[]} reviews={[]} localPendingCount={0} sourceCount={1} ready><p>Условие</p></ProblemGroup>)
+    expect(html).toContain('hidden=""')
+  })
+
   it('keeps the visible count short and the full meaning accessible', () => {
     const problems = [3, 4, 6, 7].map((number) => ({
       id: `problem-${number}`, number, title: `Задача ${number}`, detail: '', source: 'Лист учителя',

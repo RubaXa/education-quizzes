@@ -11,6 +11,15 @@ const page = (tasks, evidenceDayTokens = ['today']) => ({
 })
 
 describe('повторный выпуск страницы дня', () => {
+  it('publishes variant IDs beside one MESH assignment and keeps them on a repeat', () => {
+    const withVariants = { ...task('mesh-351641344'), kind: 'check',
+      practiceVariants: [{ id: 'mesh-351641344-v1', title: 'Вариант 1' }, { id: 'mesh-351641344-v2', title: 'Вариант 2' }],
+      problems: [{ id: 'mesh-351641344-p-v1-001' }, { id: 'mesh-351641344-p-v2-001' }] }
+    const first = mergeDayPage(null, page([withVariants]))
+    const second = mergeDayPage(first, page([withVariants]))
+    expect(second.taskIds).toEqual(['mesh-351641344', 'mesh-351641344-p-v1-001', 'mesh-351641344-p-v2-001'])
+    expect(second.practiceVariantIds).toEqual(['mesh-351641344-v1', 'mesh-351641344-v2'])
+  })
   it('сохраняет старые действия и подтверждённый статус, добавляя позднее ДЗ', () => {
     const old = page([task('old', 'verified')], ['today', 'yesterday'])
     const next = page([task('old'), task('new')])

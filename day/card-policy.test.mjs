@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { cardAdapter, languageRoutePatterns, learningRoutePatterns, missingMathRoutes, validLanguageRoute, validLearningRoute } from './card-policy.mjs'
+import { cardAdapter, languageRoutePatterns, learningRoutePatterns, missingMathRoutes, practiceVariantErrors, validLanguageRoute, validLearningRoute } from './card-policy.mjs'
 import { publicPageSubjects } from './public-projection.mjs'
 
 describe('stable written-language card contract', () => {
@@ -49,6 +49,15 @@ describe('stable written-language card contract', () => {
 })
 
 describe('numbered mathematics parent route gate', () => {
+  it('accepts two sourced practice variants with repeated printed numbers and stable distinct IDs', () => {
+    const task = { id: 'mesh-1', kind: 'check', instructionStatus: { state: 'reviewed' },
+      practiceVariants: [{ id: 'mesh-1-v1', title: 'Вариант 1' }, { id: 'mesh-1-v2', title: 'Вариант 2' }],
+      problems: [{ id: 'mesh-1-p-v1-01', variantId: 'mesh-1-v1', number: 1 },
+        { id: 'mesh-1-p-v2-01', variantId: 'mesh-1-v2', number: 1 }] }
+    expect(practiceVariantErrors(task)).toEqual([])
+    expect(cardAdapter('math', task)).toBe('math-solution')
+    expect(practiceVariantErrors({ ...task, problems: task.problems.slice(0, 1) })).not.toEqual([])
+  })
   it('finds a missing guide even when a reviewed legacy sheet has no policy version', () => {
     const task = { kind: 'written', instructionStatus: { state: 'reviewed' }, problems: [
       { id: 'p06', parentGuide: { kind: 'worked-solution', presentation: 'math-route', stages: [] } },

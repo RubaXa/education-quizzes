@@ -16,10 +16,16 @@
  * @see ../../docs/product/card-generation-policy.md#math-adapter
  * @see ../../docs/product/card-generation-policy.md#russian-adapter
  * @see ../../docs/product/design-system.md#cards-and-status */
-.day-parent-learning-route{padding:13px;background:var(--edu-surface)}
+.day-parent-learning-route{padding:0;background:var(--edu-surface)}
+.day-parent-learning-route-body{padding:0 13px 13px}
 .day-learning-route-heading{display:flex;align-items:center;gap:9px;color:var(--edu-ink)}
+.day-parent-learning-route>.day-learning-route-heading{padding:13px;list-style:none}
+.day-parent-learning-route>.day-learning-route-heading::-webkit-details-marker{display:none}
+.day-learning-route-heading>span{min-width:0;flex:1}
 .day-learning-route-heading small{display:block;color:var(--edu-muted);font-size:.71rem;font-weight:750;text-transform:uppercase;letter-spacing:.035em}
-.day-learning-route-heading h4{margin:2px 0 0;font-size:1.06rem;line-height:1.3}
+.day-learning-route-heading strong{display:block;margin-top:2px;font-size:1.06rem;line-height:1.3}
+.day-learning-route-chevron{flex:none;transition:transform .2s}
+.day-parent-learning-route[open]>.day-learning-route-heading .day-learning-route-chevron{transform:rotate(180deg)}
 .day-learning-route-progress{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px;padding:10px;border-radius:var(--edu-radius-control);background:var(--edu-canvas);font-size:.82rem}
 .day-learning-route-progress span{padding:6px 8px;border-radius:8px;background:var(--edu-surface)}
 .day-learning-route-progress small{flex-basis:100%;color:var(--edu-muted);line-height:1.45}
@@ -64,4 +70,4 @@
 .day-learning-route-source{display:block;margin-top:11px;color:var(--edu-muted);font-size:.7rem}
 .day-learning-route-sent{margin:9px 0;color:var(--edu-success-ink);font-weight:750}
 .day-learning-route-error{margin:10px 0;color:var(--edu-danger-ink)}
-.day-parent-learning-route>.day-parent-guide-boundary{margin:12px 0 0;font-size:.75rem;line-height:1.45}
+.day-parent-learning-route-body>.day-parent-guide-boundary{margin:12px 0 0;font-size:.75rem;line-height:1.45}

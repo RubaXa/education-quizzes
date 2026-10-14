@@ -62,6 +62,7 @@ export function mergeDayPage(existing, incoming) {
   const merged = {
     ...existing, ...incoming, subjects,
     taskIds: after.flatMap((task) => [task.id, ...(task.problems || []).map((problem) => problem.id)]), materialLinks,
+    practiceVariantIds: after.flatMap((task) => (task.practiceVariants || []).map((variant) => variant.id)),
     testPlacements: uniqueBy([...retainedPlacements, ...(incoming.testPlacements || [])], (item) => item.token),
     evidenceDayTokens: [...new Set([...(existing.evidenceDayTokens || []), ...(incoming.evidenceDayTokens || [])])],
   }

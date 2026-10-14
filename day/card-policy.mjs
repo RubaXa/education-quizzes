@@ -59,10 +59,34 @@ export function mathRouteProfile(guide) {
 /** A reviewed numbered math sheet is a set of separate solutions, including legacy sheets.
  * @see ../docs/product/math-solution-route.md#selection */
 export function missingMathRoutes(subjectId, task) {
-  if (!['math', 'special'].includes(subjectId) || task?.kind !== 'written'
+  if (!['math', 'special'].includes(subjectId) || task?.kind !== 'written' && !task?.practiceVariants?.length
     || task?.instructionStatus?.state !== 'reviewed' || !Array.isArray(task?.problems)) return []
   return task.problems.filter((problem) => problem.parentGuide?.kind !== 'worked-solution'
     || problem.parentGuide?.presentation !== 'math-route').map((problem) => problem.id)
+}
+
+/** A practice plan groups source problems without inventing extra MESH entries.
+ * @see ../docs/product/card-generation-policy.md#practice-variants */
+export function practiceVariantErrors(task) {
+  if (!task?.practiceVariants) return []
+  const variants = task.practiceVariants
+  if (!Array.isArray(variants) || variants.length < 2 || !Array.isArray(task.problems)) return ['Практика требует вариантов и пунктов.']
+  const ids = new Set()
+  const errors = []
+  for (const variant of variants) {
+    if (typeof variant.id !== 'string' || !new RegExp(`^${task.id}-v[1-9][0-9]*$`).test(variant.id)
+      || ids.has(variant.id) || !variant.title?.trim()) errors.push('У варианта нужен устойчивый ID и заголовок.')
+    ids.add(variant.id)
+    if (!task.problems.some((problem) => problem.variantId === variant.id)) errors.push(`У ${variant.id} нет заданий.`)
+  }
+  const numbers = new Set()
+  for (const problem of task.problems) {
+    if (!ids.has(problem.variantId)) errors.push(`Пункт ${problem.id} не связан с вариантом.`)
+    const pair = `${problem.variantId}:${problem.number}`
+    if (numbers.has(pair)) errors.push(`Номер ${pair} повторён внутри варианта.`)
+    numbers.add(pair)
+  }
+  return errors
 }
 
 export function cardAdapter(subjectId, task) {
@@ -79,7 +103,7 @@ export function cardAdapter(subjectId, task) {
   if (task?.outputKind === 'text-structure') return 'text-structure'
   if (task?.outputKind === 'worked-solution') return ['math', 'special'].includes(subjectId) ? 'math-solution' : 'unsupported-solution'
   // Historical numbered sheets have already been reviewed as math solutions.
-  if (task?.kind === 'written' && task?.problems?.length && ['math', 'special'].includes(subjectId)) return 'math-solution'
+  if ((task?.kind === 'written' || task?.practiceVariants?.length) && task?.problems?.length && ['math', 'special'].includes(subjectId)) return 'math-solution'
   return 'unclassified'
 }
 

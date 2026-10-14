@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
-import { BookOpen, CheckCircle2, CircleHelp, TriangleAlert } from 'lucide-react'
+import { BookOpen, CheckCircle2, ChevronDown, CircleHelp, TriangleAlert } from 'lucide-react'
 import type { DayWorkReview, ParentTaskGuide as Guide } from '@/lib/dayStore'
-import { mathRouteProfile } from '../../day/card-policy.mjs'
 import { stageCompletion, stageRequired } from '@/lib/parentCompletion'
 import type { ParentCompletionEvent } from '@/lib/parentCompletion'
 import type { DayGuidance } from '@/lib/dayGuidance'
@@ -121,8 +120,9 @@ export default function ParentTaskGuide({ guide, review, decisions = [], guidanc
     finally { setSending(false) }
   }
 
-  return <section className="day-parent-guide day-parent-learning-route" aria-label={mathematics ? 'Разбор решения для родителя' : 'Разбор письменной работы для родителя'}>
-    <div className="day-learning-route-heading"><BookOpen size={18} aria-hidden="true" /><div><small>Разбор для родителя</small><h4>{mathematics ? 'От условия к ответу' : guide.overview}</h4></div></div>
+  return <details className="day-parent-guide day-parent-learning-route" aria-label={mathematics ? 'Разбор решения для родителя' : 'Разбор письменной работы для родителя'}>
+    <summary className="day-learning-route-heading"><BookOpen size={18} aria-hidden="true" /><span><small>Разбор для родителя</small><strong>{mathematics ? 'От условия к ответу' : guide.overview}</strong></span><ChevronDown className="day-learning-route-chevron" size={17} aria-hidden="true" /></summary>
+    <div className="day-parent-learning-route-body">
     {matched.length > 0 && <div className="day-learning-route-progress" aria-label="Состояние проверки фото">
       {mathematics && <><span>Ответ: <b>{review?.mathReasoning?.answer === 'correct' ? 'верен' : review?.mathReasoning?.answer === 'incorrect' ? 'неверен' : 'не подтверждён'}</b></span>
       <span>Ход: <b>{review?.mathReasoning?.argument === 'sufficient' ? 'подтверждён' : review?.mathReasoning?.argument === 'incomplete' ? 'неполон' : review?.mathReasoning?.argument === 'not-shown' ? 'не показан' : review?.mathReasoning?.argument === 'unreadable' ? 'не читается' : 'пока неясен'}</b></span></>}
@@ -140,8 +140,7 @@ export default function ParentTaskGuide({ guide, review, decisions = [], guidanc
       const previewText = active?.level === 'hint' ? stage.hintPreview : stage.revealPreview
       const checkable = !mathematics && Boolean(review?.checkableStageIds?.includes(stage.id))
       const required = isRequired(stage)
-      const initiallyOpen = stage.role !== 'answer' && !completion?.complete && (firstAttention >= 0 ? index === firstAttention : index < (mathematics && mathRouteProfile(guide) === 'compact' ? 1 : 2))
-      return <div className="day-learning-route-stage-shell" key={stage.id}><details className={`day-learning-route-stage ${result?.status ? `day-learning-route-${result.status}` : ''}${checkable && !required ? ' day-learning-route-optional' : ''}`} open={initiallyOpen || stageError?.id === stage.id && stageError.reviewVersion === reviewVersion}>
+      return <div className="day-learning-route-stage-shell" key={stage.id}><details className={`day-learning-route-stage ${result?.status ? `day-learning-route-${result.status}` : ''}${checkable && !required ? ' day-learning-route-optional' : ''}`} open={stageError?.id === stage.id && stageError.reviewVersion === reviewVersion}>
         <summary><span className="day-learning-route-number">{result?.status === 'correct' ? <CheckCircle2 size={17} aria-hidden="true" /> : result?.status === 'incorrect' ? <TriangleAlert size={17} aria-hidden="true" /> : result?.status === 'cannot-assess' ? <CircleHelp size={17} aria-hidden="true" /> : index + 1}</span><span className="day-learning-route-stage-title"><b>{stage.title}</b>{result && <small>{checkable && !required ? 'По желанию · не входит в итог' : disputedCriterion && result.status === 'cannot-assess' ? 'Критерий формы спорен' : !mathematics && result.status === 'cannot-assess' ? 'Пока не подтверждено' : statusText[result.status]}</small>}</span>
         </summary>
         <div className="day-learning-route-body">
@@ -163,5 +162,6 @@ export default function ParentTaskGuide({ guide, review, decisions = [], guidanc
     })}</div>
     {guide.boundary && <p className="day-parent-guide-boundary">{guide.boundary}</p>}
     {error && <p className="day-learning-route-error" role="alert">{error}</p>}
-  </section>
+    </div>
+  </details>
 }

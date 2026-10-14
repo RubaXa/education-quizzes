@@ -17,7 +17,7 @@ import { teacherAttachmentOwnershipErrors } from '../day/assignment-structure.mj
 import { ownerMigrationFields } from '../day/owner-repair.mjs'
 import { publicPageSubjects, publicProblem } from '../day/public-projection.mjs'
 import { isExplicitCdzTask } from '../day/homework-kind.mjs'
-import { cardPolicyModules, mathRouteProfile, mathRouteProfiles, missingMathRoutes, validLearningRoute } from '../day/card-policy.mjs'
+import { cardPolicyModules, mathRouteProfile, mathRouteProfiles, missingMathRoutes, practiceVariantErrors, validLearningRoute } from '../day/card-policy.mjs'
 import { assertPublishedPageAligned, assertSourceAligned, sourcePlanFingerprint } from '../day/pipeline-contract.mjs'
 import { assertGradeSnapshotAligned, detectGradeChange } from '../day/grade-reconciliation.mjs'
 import { YandexDiskStorage } from '../storage/yandex-disk.mjs'
@@ -322,6 +322,8 @@ function validate(source, { allowUnchangedLegacyTeacherLinks = false } = {}) {
       }
       const policy = cardPolicyModules(subject.id, task)
       const adapter = policy.adapter
+      const variantErrors = practiceVariantErrors(task)
+      if (variantErrors.length) fail(`У ${task.id} неверно разобраны варианты: ${variantErrors.join(' ')}`)
       if (task.instructionStatus?.state === 'reviewed' && task.kind === 'written' && task.cardPolicyVersion === 1
         && (adapter !== 'language-route' || task.parentGuide?.presentation !== 'learning-route')) {
         fail(`У ${task.id} письменная карточка требует предметный маршрут.`)
@@ -342,7 +344,8 @@ function validate(source, { allowUnchangedLegacyTeacherLinks = false } = {}) {
         fail(`У ${task.id} лист спецкурса надо разобрать на номера до публикации.`)
       }
       if (task.problems != null) {
-        if (task.kind !== 'written' || !Array.isArray(task.problems) || !task.problems.length) fail(`У ${task.id} номера допустимы только для письменной работы.`)
+        if (task.kind !== 'written' && !(task.kind === 'check' && task.practiceVariants?.length)
+          || !Array.isArray(task.problems) || !task.problems.length) fail(`У ${task.id} номера допустимы только для решения или сверенной подготовки по листу.`)
         const routeGaps = missingMathRoutes(subject.id, task)
         if (routeGaps.length) {
           fail(`У ${task.id} каждый номер требует закрытый математический маршрут перед публикацией: ${routeGaps.join(', ')}.`)
@@ -353,7 +356,7 @@ function validate(source, { allowUnchangedLegacyTeacherLinks = false } = {}) {
         const numbers = new Set()
         for (const problem of task.problems) {
           if (!/^[a-z0-9-]+$/.test(problem.id ?? '') || !problem.id.startsWith(`${task.id}-p`) || ids.has(problem.id)
-            || !Number.isInteger(problem.number) || numbers.has(problem.number)
+            || !Number.isInteger(problem.number) || numbers.has(`${problem.variantId ?? ''}:${problem.number}`)
             || !problem.title?.trim() || !problem.detail?.trim() || !problem.source?.trim()) fail(`У ${task.id} каждый номер должен иметь устойчивый ID, условие и источник.`)
           // @see ../docs/product/adaptive-problem-card.md#выпуск-и-безопасность
           const sourceLink = source.materialLinks?.[task.id]?.find((link) => link.sourceType === 'teacher-attachment' && link.sourceRef === problem.original?.attachmentRef)
@@ -377,7 +380,7 @@ function validate(source, { allowUnchangedLegacyTeacherLinks = false } = {}) {
             fail(`У ${problem.id} нет проверяемого педагогического слоя с первым вопросом.`)
           }
           ids.add(problem.id)
-          numbers.add(problem.number)
+          numbers.add(`${problem.variantId ?? ''}:${problem.number}`)
           if (problem.parentGuide) validateParentGuide(problem.parentGuide, task, source, problem, subject.id)
         }
       }
@@ -557,7 +560,9 @@ async function stagePublish(date, batch, links, indexTokens, stagedPages, notify
     schemaVersion: 1, date, targetDate: source.targetDate, updatedAt: Timestamp.now(),
     ...(legacyOwner?.familyId && legacyOwner?.childId ? { familyId: legacyOwner.familyId, childId: legacyOwner.childId } : {}),
     meshFetchedAt: target.fetchedAt, todaySchedule: schedule(today), targetSchedule: schedule(target),
-    subjects: publicPageSubjects(source.subjects), taskIds, testPlacements: source.testPlacements ?? [], notices: source.notices ?? [],
+    subjects: publicPageSubjects(source.subjects), taskIds,
+    practiceVariantIds: source.subjects.flatMap((subject) => subject.tasks.flatMap((task) => (task.practiceVariants ?? []).map((variant) => variant.id))),
+    testPlacements: source.testPlacements ?? [], notices: source.notices ?? [],
     sourceOnlyEntries: source.sourceOnlyEntries ?? [], retiredTaskIds: source.retiredTaskIds ?? [],
     weekendSlot: source.weekendSlot ?? null, sourcePlanFingerprint: sourcePlanFingerprint(source),
     materialLinks: allMaterialLinks, materialLinkReplacements: source.materialLinkReplacements ?? [],

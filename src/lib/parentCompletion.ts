@@ -7,8 +7,9 @@ import type { DayWorkReview } from './dayStore'
 export type ParentCompletionEvent = {
   id: string
   taskId: string
-  action: 'accept' | 'reopen' | 'require' | 'optional' | 'stage-required' | 'stage-optional'
+  action: 'accept' | 'reopen' | 'require' | 'optional' | 'stage-required' | 'stage-optional' | 'variant-required' | 'variant-optional'
   requirementId?: string
+  variantId?: string
   stageId?: string
   stageIndex?: number
   guideRevision?: number
@@ -55,6 +56,23 @@ export function requirementChoice(review: DayWorkReview | undefined, requirement
 
 export function requiredFamilyActions(review: DayWorkReview | undefined, events: ParentCompletionEvent[]): string[] {
   return review?.assessmentBasis?.disputedRequirements?.filter((item) => requirementChoice(review, item.id, events) === 'require').map((item) => item.action) ?? []
+}
+
+/** Family practice is selected before a photo exists; the teacher assignment stays intact.
+ * @see ../../docs/product/card-generation-policy.md#practice-variants */
+export function variantRequired(taskId: string, variantId: string, events: ParentCompletionEvent[]): boolean {
+  const latest = events.filter((event) => event.taskId === taskId && event.variantId === variantId
+    && ['variant-required', 'variant-optional'].includes(event.action) && stamp(event.decidedAt))
+    .sort((a, b) => stamp(b.decidedAt).localeCompare(stamp(a.decidedAt)) || b.id.localeCompare(a.id))[0]
+  return latest?.action !== 'variant-optional'
+}
+
+export async function recordVariantChoice(studentToken: string, taskId: string, variantId: string, required: boolean) {
+  if (!studentToken || !variantId.startsWith(`${taskId}-v`)) throw new Error('Вариант не связан с заданием.')
+  await writeBatch(db).set(doc(db, 'dayParentDecisions', studentToken, 'events', crypto.randomUUID()), {
+    taskId, variantId, action: required ? 'variant-required' : 'variant-optional', reviewCheckedAt: null,
+    actorPersonId: currentEducationPersonId(), decidedAt: serverTimestamp(),
+  }).commit()
 }
 
 /** A reviewed stage is required until a parent explicitly excludes it for this review version.

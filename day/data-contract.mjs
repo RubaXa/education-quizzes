@@ -32,6 +32,8 @@ export function dayPageShapeErrors(page) {
   if (page.materialLinks != null && !object(page.materialLinks)) errors.push('Ссылки материалов должны быть словарём по taskId.')
   if (page.taskPageRefs != null && !object(page.taskPageRefs)) errors.push('Страницы учебников должны быть словарём по taskId.')
   if (page.evidenceDayTokens != null && !Array.isArray(page.evidenceDayTokens)) errors.push('Предыдущие дни должны быть массивом ссылок.')
+  if (page.practiceVariantIds != null && (!Array.isArray(page.practiceVariantIds)
+    || page.practiceVariantIds.some((id) => !text(id)))) errors.push('Варианты семейной подготовки должны иметь устойчивые ID.')
   if (page.subjects?.some((subject) => subject.tasks?.some((task) => task.parentGuide || task.sourceResearch
     || task.problems?.some((problem) => problem.parentGuide || problem.sourceResearch)))) {
     errors.push('Закрытый родительский разбор оказался в открытой странице дня.')
