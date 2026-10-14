@@ -26,6 +26,7 @@ function timeOf(value: unknown): number {
  * @see ../../docs/product/card-generation-policy.md#russian-adapter
  * @see ../../docs/product/problem-card-design-decisions.md#role-projection
  * @see ../../docs/product/problem-card-design-decisions.md#flat-numbered-sheet
+ * @see ../../docs/product/day-page.md#review-stage-switch
  * @see ../../docs/product/status-presentation.md#components */
 export default function ParentTaskGuide({ guide, review, decisions = [], guidance = [], guidanceReady = true, onSend, onStageChoice }: {
   guide: Guide; review?: DayWorkReview; decisions?: ParentCompletionEvent[]; guidance?: DayGuidance[]; guidanceReady?: boolean;
@@ -83,7 +84,7 @@ export default function ParentTaskGuide({ guide, review, decisions = [], guidanc
     try { await onStageChoice(stage, required) }
     catch (cause) {
       setPendingChoices((current) => { const next = { ...current }; delete next[stage.id]; return next })
-      setStageError({ id: stage.id, reviewVersion, message: cause instanceof Error && /^(Пункт не связан|Не найдена текущая версия)/.test(cause.message)
+      setStageError({ id: stage.id, reviewVersion, message: cause instanceof Error && /^(Пункт не связан|Не найдена текущая версия|Разбор изменился|Выбор не сохранён)/.test(cause.message)
         ? cause.message : reportUiError(cause, 'Решение родителя') })
     }
     finally { setStageSaving('') }

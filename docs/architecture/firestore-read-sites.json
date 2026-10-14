@@ -3744,6 +3744,30 @@
     "refresh": "when view opens or cache invalidates"
   },
   {
+    "id": "src/lib/parentCompletion.ts#getDocFromServer#7fd571a5ea71",
+    "file": "src/lib/parentCompletion.ts",
+    "line": 182,
+    "api": "getDocFromServer",
+    "target": "doc(db, 'dayTaskGuides', studentToken, 'items', review.taskId)",
+    "group": "client-day",
+    "assessment": "justified",
+    "policy": "addressed-server-read-before-parent-choice",
+    "refresh": "once-per-click",
+    "note": "Родитель нажал переключатель этапа: одно адресное серверное чтение закрытого маршрута, чтобы не отправлять устаревшую ревизию после исправления текста. Данные не читаются при открытии или прокрутке; численный бюджет требует замера на телефоне."
+  },
+  {
+    "id": "src/lib/parentCompletion.ts#getDocFromServer#eada5c202adf-3",
+    "file": "src/lib/parentCompletion.ts",
+    "line": 183,
+    "api": "getDocFromServer",
+    "target": "doc(db, 'dayProgress', studentToken, 'items', review.taskId)",
+    "group": "client-day",
+    "assessment": "justified",
+    "policy": "addressed-server-read-before-parent-choice",
+    "refresh": "once-per-click",
+    "note": "То же нажатие: одно адресное чтение текущей проверки, чтобы не переносить решение на новое фото. Правило записи повторно проверяет эту версию. Фактические платные чтения, включая Rules, ещё не замерены."
+  },
+  {
     "id": "src/lib/personalAccess.ts#getDoc#9290ff8cd3f8",
     "file": "src/lib/personalAccess.ts",
     "line": 167,

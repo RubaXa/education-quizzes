@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { DayTask, DayWorkReview } from './dayStore'
-import { stageCompletion, variantRequired, type ParentCompletionEvent } from './parentCompletion'
+import { currentStageChoice, stageCompletion, variantRequired, type ParentCompletionEvent } from './parentCompletion'
 import { lessonWorkItems } from './homeworkStatus'
 
 const at = (seconds: number) => ({ seconds, nanoseconds: 0 })
@@ -14,6 +14,18 @@ const review = {
 } as DayWorkReview
 
 describe('family review stage choices', () => {
+  it('uses the live guide revision for the same checked work after a wording correction', () => {
+    const original = { revision: 1, stages: [{ id: 'educational' }, { id: 'covering' }] }
+    const corrected = { revision: 2, stages: [{ id: 'educational' }, { id: 'covering' }] }
+    expect(currentStageChoice(review, original, review, corrected, 'educational')).toEqual({
+      stageIndex: 0, guideRevision: 2, reviewCheckedAt: review.checkedAt,
+    })
+  })
+  it('does not apply a choice to a newer photo review or changed stage structure', () => {
+    const guide = { revision: 1, stages: [{ id: 'educational' }, { id: 'covering' }] }
+    expect(() => currentStageChoice(review, guide, { ...review, checkedAt: at(101) }, guide, 'educational')).toThrow('Разбор изменился')
+    expect(() => currentStageChoice(review, guide, review, { revision: 2, stages: [{ id: 'different' }, { id: 'covering' }] }, 'educational')).toThrow('Разбор изменился')
+  })
   it('requires all checkable stages by default, then excludes a parent-optional stage from completion', () => {
     expect(stageCompletion(review, [])).toEqual({ required: 2, confirmed: 1, optional: 0, complete: false })
     const choice = { id: 'student-token:choice-1', taskId: review.taskId, stageId: 'educational',

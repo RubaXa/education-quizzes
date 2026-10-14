@@ -176,12 +176,40 @@ export async function recordRequirementChoice(review: DayWorkReview, requirement
  * No profile or membership scan is needed for the write. */
 export async function recordStageChoice(review: DayWorkReview, guide: { revision?: number; stages: { id: string }[] }, stageId: string, required: boolean) {
   if (!review.checkableStageIds?.includes(stageId) || !stamp(review.checkedAt)) throw new Error('Пункт не связан с текущей проверкой.')
-  const stageIndex = guide.stages.findIndex((stage) => stage.id === stageId)
-  if (stageIndex < 0 || !Number.isInteger(guide.revision) || !review.id.includes(':')) throw new Error('Не найдена текущая версия разбора.')
+  if (!guide.stages.some((stage) => stage.id === stageId) || !Number.isInteger(guide.revision) || !review.id.includes(':')) throw new Error('Не найдена текущая версия разбора.')
   const studentToken = review.id.split(':')[0]
-  await writeBatch(db).set(doc(db, 'dayParentDecisions', studentToken, 'events', crypto.randomUUID()), {
-    taskId: review.taskId, action: required ? 'stage-required' : 'stage-optional', stageId, stageIndex,
-    guideRevision: guide.revision, reviewCheckedAt: review.checkedAt,
+  const [liveGuideSnap, liveReviewSnap] = await Promise.all([
+    getDocFromServer(doc(db, 'dayTaskGuides', studentToken, 'items', review.taskId)),
+    getDocFromServer(doc(db, 'dayProgress', studentToken, 'items', review.taskId)),
+  ])
+  const liveGuide = liveGuideSnap.data()?.guide as { revision?: number; stages?: { id: string }[] } | undefined
+  const liveReview = liveReviewSnap.data() as DayWorkReview | undefined
+  const choice = currentStageChoice(review, guide, liveReview, liveGuide, stageId)
+  try { await writeBatch(db).set(doc(db, 'dayParentDecisions', studentToken, 'events', crypto.randomUUID()), {
+    taskId: review.taskId, action: required ? 'stage-required' : 'stage-optional', stageId, stageIndex: choice.stageIndex,
+    guideRevision: choice.guideRevision, reviewCheckedAt: choice.reviewCheckedAt,
     actorPersonId: currentEducationPersonId(), decidedAt: serverTimestamp(),
-  }).commit()
+  }).commit() }
+  catch (cause) {
+    if (cause && typeof cause === 'object' && 'code' in cause && cause.code === 'permission-denied') {
+      throw new Error('Выбор не сохранён: разбор доступен, но сервер отклонил изменение. Сообщите об ошибке.')
+    }
+    throw cause
+  }
+}
+
+/** Use fresh server versions before writing a parent's choice. A wording-only guide revision may
+ * advance while the phone is suspended; a new checked attempt must never inherit an old choice.
+ * @see ../../docs/product/day-page.md#review-stage-switch */
+export function currentStageChoice(review: DayWorkReview, guide: { revision?: number; stages: { id: string }[] },
+  liveReview: DayWorkReview | undefined, liveGuide: { revision?: number; stages?: { id: string }[] } | undefined, stageId: string) {
+  if (!liveReview || !liveGuide || !Number.isInteger(liveGuide.revision)
+    || stamp(liveReview.checkedAt) !== stamp(review.checkedAt)
+    || !liveReview.checkableStageIds?.includes(stageId)
+    || guide.stages.map((stage) => stage.id).join('|') !== liveGuide.stages?.map((stage) => stage.id).join('|')) {
+    throw new Error('Разбор изменился. Откройте обновлённую карточку.')
+  }
+  const stageIndex = liveGuide.stages.findIndex((stage) => stage.id === stageId)
+  if (stageIndex < 0) throw new Error('Разбор изменился. Откройте обновлённую карточку.')
+  return { stageIndex, guideRevision: liveGuide.revision!, reviewCheckedAt: liveReview.checkedAt }
 }
