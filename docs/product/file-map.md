@@ -223,6 +223,7 @@
 | [src/components/ParentHome.tsx](../../src/components/ParentHome.tsx) | [Семья и доступ](../architecture/family-data-model.md) | Кабинет взрослого со сводкой ДЗ на вычисленный день и переходом к сегодняшнему календарю ребёнка | `PersonalEntry.tsx`; взрослый |
 | [src/components/ParentHome.readBudget.test.tsx](../../src/components/ParentHome.readBudget.test.tsx) | [Поэтапный план local-first](../architecture/local-first-release-plan-2026-10-12.md) | Интеграционная трасса начальных подписок и проверка порога 20% без рабочего Firestore | Разработчик; выпуск родительского кабинета |
 | [src/components/ProblemCard.css](../../src/components/ProblemCard.css) | [Адаптивная карточка](adaptive-problem-card.md) | Оформление свёрнутого номера | `src/components/ProblemCard.tsx` |
+| [src/components/ProblemCard.test.tsx](../../src/components/ProblemCard.test.tsx) | [Матрица статусов](status-presentation.md) | Регрессия компактного значка без повторения «Не начато» и полной доступной подписи | Vitest; разработчик |
 | [src/components/ProblemCard.tsx](../../src/components/ProblemCard.tsx) | [Адаптивная карточка](adaptive-problem-card.md) | Номер, статус и кнопка фото | День; спецкурс |
 | [src/components/PhotoUploadControl.tsx](../../src/components/PhotoUploadControl.tsx) | [Страница дня](day-page.md) | Единая множественная загрузка фото для письменного задания и номера | `DayPage.tsx`; `ProblemCard.tsx` |
 | [src/components/PhotoUploadControl.test.tsx](../../src/components/PhotoUploadControl.test.tsx) | [Страница дня](day-page.md) | Проверка общего действия и нескольких фото | Vitest; разработчик |
@@ -352,7 +353,7 @@
 | [src/lib/writeQueue.ts](../../src/lib/writeQueue.ts) | [Тесты](quizzes.md) | Порядок записи ответов | `quizWrite` |
 | [src/lib/yandexPublic.ts](../../src/lib/yandexPublic.ts) | [Материалы](materials.md) | Получение публичных превью Диска | `MaterialReader` |
 | [src/lib/yandexPublic.test.ts](../../src/lib/yandexPublic.test.ts) | [Изображения](design-system.md) | Проверка обновления превью PDF после ошибки загрузки миниатюры | Vitest; разработчик |
-| [scripts/check-problem-variant-viewport.mjs](../../scripts/check-problem-variant-viewport.mjs) | [Карточки и состояния](design-system.md) | Скриншотная проверка свёрнутых вариантов, задач и однострочного статуса на мобильных ширинах | Chrome; разработчик |
+| [scripts/check-problem-variant-viewport.mjs](../../scripts/check-problem-variant-viewport.mjs) | [Карточки и состояния](design-system.md) | Скриншотная проверка цепочки вариант → номер → родительский разбор → закрытые этапы на мобильных ширинах | Chrome; разработчик |
 | [src/main.tsx](../../src/main.tsx) | [PWA](pwa.md) | Монтирование React и стилей | Браузер |
 | [storage/direct-upload.mjs](../../storage/direct-upload.mjs) | [Хранение и приватность](storage-privacy.md) | Валидация заявки и пути фото | Worker загрузки |
 | [storage/family-book-upload.mjs](../../storage/family-book-upload.mjs) | [Семейная библиотека](family-library.md) | Валидация полного PDF и семейного пути приёма | Worker загрузки |

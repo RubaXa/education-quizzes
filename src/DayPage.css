@@ -108,9 +108,11 @@
 .day-practice-variant>summary{display:flex;align-items:center;gap:9px;min-height:var(--edu-touch-target);padding:11px 55px 11px 13px;cursor:pointer;list-style:none;color:var(--edu-ink)}
 .day-practice-variant>summary::-webkit-details-marker{display:none}
 .day-practice-variant>summary strong{flex:1;min-width:0}
-.day-practice-variant>summary span{flex:none;color:var(--edu-muted);font-size:.78rem;font-weight:700;white-space:nowrap}
+.day-practice-variant>summary span{display:inline-flex;align-items:center;gap:4px;flex:none;color:var(--edu-status-neutral-ink);font-size:.78rem;font-weight:700;white-space:nowrap}
+.day-practice-variant>summary span:has(.edu-status-icon-complete){color:var(--edu-status-success-ink)}
+.day-practice-variant>summary span:has(.edu-status-icon-partial){color:var(--edu-status-attention-ink)}
 .day-practice-variant>summary svg{flex:none;transition:transform .2s}
-.day-practice-variant[open]>summary svg{transform:rotate(180deg)}
+.day-practice-variant[open]>summary svg.day-practice-variant-chevron{transform:rotate(180deg)}
 .day-practice-variant-problems{display:grid;gap:9px;padding:10px;border-top:1px solid var(--edu-card-border)}
 .day-practice-variant-shell>.edu-requirement-switch{position:absolute;right:3px;top:2px}
 @keyframes day-photo-spin{to{transform:rotate(360deg)}}

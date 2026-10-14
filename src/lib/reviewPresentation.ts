@@ -45,15 +45,19 @@ export function problemCardState(uploads: DayUpload[], review?: DayWorkReview, u
   return uploads.length ? { label: 'Фото сохранено', tone: 'waiting' } : { label: 'Не начато', tone: 'ready' }
 }
 
-/** The compact heading retains the full state as its accessible label. */
+/** The repeated ready state is icon-only; the summary keeps its full accessible name.
+ * @see ../../docs/product/status-presentation.md#matrix */
 export function compactProblemCardLabel(state: ProblemCardState): string {
-  if (state.tone === 'ready') return 'Не начато'
+  if (state.tone === 'ready') return ''
   if (state.tone === 'uploading') return 'Загрузка'
   if (state.tone === 'processing') return 'Проверяем'
   if (state.tone === 'verified') return state.label.startsWith('Засчитано родителем') ? 'Засчитано' : 'Проверено'
   if (state.tone === 'partial') return 'Частично'
   if (state.tone === 'error') return 'Исправить'
-  return state.label.includes('ждёт проверки') || state.label.includes('задержана') ? 'Ждёт проверки' : 'Неясно'
+  if (state.label.includes('задержана')) return 'Задержка'
+  if (state.label.includes('ждёт проверки')) return 'Ждёт проверки'
+  if (state.label === 'Фото сохранено') return 'Фото получено'
+  return 'Неясно'
 }
 
 /** @see ../../docs/product/day-page.md#homework-review */

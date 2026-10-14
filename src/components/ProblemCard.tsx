@@ -14,8 +14,9 @@ export function ProblemCard({ problem, state, children }: { problem: DayProblem;
   const status = state.tone === 'verified' ? 'complete' : state.tone === 'error' ? 'needs-fix'
     : state.tone === 'partial' ? 'partial' : state.tone === 'waiting' && state.label.includes('задержана') ? 'paused'
       : state.tone === 'waiting' && state.label.includes('неяс') ? 'unknown' : state.tone
+  const compact = compactProblemCardLabel(state)
   return <details className={`problem-card ${state.tone}`} id={problem.id}>
-    <summary className="problem-card-heading"><strong>№ {problem.number}. {problem.title}</strong><span className="problem-card-state" aria-label={state.label} title={state.label}><StatusIcon status={status} size={15} /><small aria-hidden="true">{compactProblemCardLabel(state)}</small><ChevronDown size={17} className="problem-card-chevron" aria-hidden="true" /></span></summary>
+    <summary className="problem-card-heading" aria-label={`№ ${problem.number}. ${problem.title}. ${state.label}`}><strong>№ {problem.number}. {problem.title}</strong><span className="problem-card-state" title={state.label}><StatusIcon status={status} size={15} />{compact && <small aria-hidden="true">{compact}</small>}<ChevronDown size={17} className="problem-card-chevron" aria-hidden="true" /></span></summary>
     {children}
   </details>
 }

@@ -10,7 +10,7 @@ describe('collapsed homework review', () => {
   it('shows a short truthful status before any work is uploaded', () => {
     const state = problemCardState([])
     expect(state).toEqual({ label: 'Не начато', tone: 'ready' })
-    expect(compactProblemCardLabel(state)).toBe('Не начато')
+    expect(compactProblemCardLabel(state)).toBe('')
     expect(compactProblemCardLabel({ label: 'Ответ и ход подтверждены', tone: 'verified' })).toBe('Проверено')
     expect(compactProblemCardLabel({ label: 'Фото получено · ждёт проверки', tone: 'waiting' })).toBe('Ждёт проверки')
   })
