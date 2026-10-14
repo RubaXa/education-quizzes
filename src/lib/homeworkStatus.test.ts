@@ -16,11 +16,11 @@ describe('one required self-check across its linked attempts', () => {
     const chain = { ...root, retry: { status: 'open', testId: 'english-2', linkedToTestId: 'english-1' } }
     expect(quizRequirement('root', chain, passed).state).toBe('todo')
     expect(quizRequirement('root', { ...chain, retry: { ...chain.retry, status: 'submitted' } },
-      { ...passed, retry: { points: 8, maxPoints: 10 } }).state).toBe('done')
+      { ...passed, retry: { points: 9, maxPoints: 10 } }).state).toBe('done')
   })
 
-  it('requires correction below 80 percent', () => {
-    expect(quizRequirement('root', root, { root: { points: 31, maxPoints: 40 } }).state).toBe('todo')
+  it('requires correction below 85 percent', () => {
+    expect(quizRequirement('root', root, { root: { points: 33, maxPoints: 40 } }).state).toBe('todo')
   })
 
   it('a parent request reopens even a previously verified reading task', () => {

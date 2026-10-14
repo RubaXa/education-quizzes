@@ -480,8 +480,8 @@
       }
     },
     "src/lib/quizCompletion.ts": {
-      "sha256": "d7a3a981088b8acdc69eec03761bcffe3d9fadb458d626f6538e50b7bd9851ce",
-      "record": "docs/product/ui-decisions/quiz-threshold-and-page-slider-2026-10-14.md",
+      "sha256": "fd9b16742ed64a93af0277301fd0547c2cc446e01d4ab24560e5c890a7672d84",
+      "record": "docs/product/ui-decisions/quiz-threshold-85-2026-10-14.md",
       "specs": [
         "docs/product/assessment-decision-graph.md",
         "docs/product/dashboard.md",
@@ -494,7 +494,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 14.10.2026 по снимкам: соседние страницы в одном ридере, зачёт любого теста от 80%, кнопка работы над ошибками и публикация сайта."
+        "evidence": "Прямое уточнение родителя 14.10.2026: зачёт любого полностью проверенного теста от 85% включительно."
       }
     },
     "scripts/check-material-preview-viewport.mjs": {

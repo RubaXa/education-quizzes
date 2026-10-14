@@ -303,7 +303,7 @@
 | [src/lib/followup.test.ts](../../src/lib/followup.test.ts) | [Тесты](quizzes.md) | Проверка формирования продолжений | Vitest; разработчик |
 | [src/lib/followup.ts](../../src/lib/followup.ts) | [Тесты](quizzes.md) | Связь повторных тестов | Страница дня; тесты |
 | [src/lib/highlight.ts](../../src/lib/highlight.ts) | [Тесты](quizzes.md) | Подсветка программного кода | `CodeBlock` |
-| [src/lib/homeworkStatus.ts](../../src/lib/homeworkStatus.ts) | [Dashboard](dashboard.md) | Единая классификация выполнено / осталось / ждёт проверки с порогом теста 80% | `DayDashboard.tsx`; `useParentChildOverview.ts` |
+| [src/lib/homeworkStatus.ts](../../src/lib/homeworkStatus.ts) | [Dashboard](dashboard.md) | Единая классификация выполнено / осталось / ждёт проверки с порогом теста 85% | `DayDashboard.tsx`; `useParentChildOverview.ts` |
 | [src/lib/homeworkUpdateReceipt.ts](../../src/lib/homeworkUpdateReceipt.ts) | [Новое ДЗ](dashboard.md) | Локальная квитанция открытия изменения по роли и версии | `DayDashboard.tsx` |
 | [src/lib/homeworkUpdateReceipt.test.ts](../../src/lib/homeworkUpdateReceipt.test.ts) | [Новое ДЗ](dashboard.md) | Новая версия снова появляется после просмотра прежней | Vitest; разработчик |
 | [src/lib/parentFocusDay.ts](../../src/lib/parentFocusDay.ts) | [Dashboard](dashboard.md) | Выбор ближайшего учебного дня по первому уроку конкретного ребёнка | `useParentChildOverview.ts`; кабинет родителя |
@@ -396,8 +396,9 @@
 
 
 | [docs/product/ui-decisions/quiz-threshold-and-page-slider-2026-10-14.md](ui-decisions/quiz-threshold-and-page-slider-2026-10-14.md) | [Граф самопроверок](assessment-decision-graph.md) | Основание и ролевой контракт порога, запроса и группировки страниц | `ui-change-decisions.json`; ревью выпуска |
-| [src/lib/quizCompletion.ts](../../src/lib/quizCompletion.ts) | [Граф самопроверок](assessment-decision-graph.md) | Единый порог 80% и ограниченная формула длины продолжения | `homeworkStatus.ts`; `sync-queue.mjs`; `quiz.mjs` |
-| [src/lib/quizCompletion.test.ts](../../src/lib/quizCompletion.test.ts) | [Граф самопроверок](assessment-decision-graph.md) | Граничные 80%, ручной запрос и размер 39/5 → 10 | Vitest; выпуск |
+| [docs/product/ui-decisions/quiz-threshold-85-2026-10-14.md](ui-decisions/quiz-threshold-85-2026-10-14.md) | [Граф самопроверок](assessment-decision-graph.md) | Решение родителя о пороге 85%, переходе статусов и проверках | `quizCompletion.ts`; оператор; агент |
+| [src/lib/quizCompletion.ts](../../src/lib/quizCompletion.ts) | [Граф самопроверок](assessment-decision-graph.md) | Единый порог 85% и ограниченная формула длины продолжения | `homeworkStatus.ts`; `sync-queue.mjs`; `quiz.mjs` |
+| [src/lib/quizCompletion.test.ts](../../src/lib/quizCompletion.test.ts) | [Граф самопроверок](assessment-decision-graph.md) | Граничные 85%, ручной запрос и размер 39/5 → 10 | Vitest; выпуск |
 | [src/lib/homeworkStatus.test.ts](../../src/lib/homeworkStatus.test.ts) | [Dashboard](dashboard.md) | Одна цепочка тестов, завершение и повторное открытие после запроса | Vitest; выпуск |
 | [src/components/MaterialReader.test.tsx](../../src/components/MaterialReader.test.tsx) | [Ридер](materials.md) | Один блок и один текущий превью для пары страниц | Vitest; выпуск |
 | [src/components/QuizCard.test.tsx](../../src/components/QuizCard.test.tsx) | [Тесты](quizzes.md) | Ролевая кнопка запроса, краткое название результата и ожидающий статус | Vitest; выпуск |
