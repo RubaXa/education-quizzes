@@ -22,6 +22,7 @@
 | [day/card-policy.d.mts](../../day/card-policy.d.mts) | [Выбор карточки](card-generation-policy.md) | Типы профилей и общего графа выбора | TypeScript; клиент |
 | [day/card-policy.mjs](../../day/card-policy.mjs) | [Выбор карточки](card-generation-policy.md) | Выбор адаптера, профиля математического маршрута и сверка описи учительского листа | `scripts/day.mjs`; `ParentTaskGuide` |
 | [day/card-policy.test.mjs](../../day/card-policy.test.mjs) | [Выбор карточки](card-generation-policy.md) | Проверка четырёх письменных маршрутов, источника конфигурации и закрытой родительской проекции | Vitest; разработчик |
+| [day/card-flow-certification.test.mjs](../../day/card-flow-certification.test.mjs) | [Сертификация карточки](card-flow-certification.md) | Сквозной fixture двух МЭШ назначений, трёх файлов, вариантов, фото и ролевого чтения | Vitest; разработчик |
 | [day/dashboard-index.mjs](../../day/dashboard-index.mjs) | [Dashboard](dashboard.md) | Индекс и проверка явных ID выходных заданий, дат урока и срока | `scripts/day.mjs`; `src/DayDashboard.tsx` |
 | [day/dashboard-index.test.mjs](../../day/dashboard-index.test.mjs) | [Dashboard](dashboard.md) | Проверка ссылки МЭШ на задание предыдущего учебного дня | Vitest; разработчик |
 | [day/data-contract.mjs](../../day/data-contract.mjs) | [Модель Firestore](firestore-data-model.md) | Проверка формы страниц, календаря и теста перед выпуском | `scripts/day.mjs`; аудит |
