@@ -49,6 +49,7 @@
 .day-learning-route-stage-shell>.edu-requirement-switch{position:absolute;right:3px;top:3px;z-index:1}
 @media(max-width:430px){.day-learning-route-stage>summary{gap:7px;padding:9px 49px 9px 9px}}
 .day-learning-route-incorrect .day-learning-route-number{color:var(--edu-status-attention-ink)}
+.day-learning-route-optional .day-learning-route-number{color:var(--edu-muted)}
 .day-learning-route-body{padding:11px 12px 13px;border-top:1px solid var(--edu-card-border);font-size:.84rem;line-height:1.5}
 .day-learning-route-body>p{margin:0 0 10px}
 .day-learning-route-observed,.day-learning-route-why{padding:9px;border-radius:8px;background:var(--edu-canvas)}

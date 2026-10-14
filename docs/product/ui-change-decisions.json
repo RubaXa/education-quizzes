@@ -199,7 +199,7 @@
       }
     },
     "src/components/ParentTaskGuide.tsx": {
-      "sha256": "262cdec71d8081d40708a175c991edf5aed27f10060e24a08f6873694e3d8a37",
+      "sha256": "9c518ca6dd01041bc095768306ab24d740271e82e9a1da7559646c0b5859518c",
       "record": "docs/product/ui-decisions/stage-switch-fresh-version-2026-10-14.md",
       "specs": [
         "docs/product/day-page.md",
@@ -211,7 +211,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 14.10.2026: переключатель этапа снова не работает, на снимке отказ «Нет доступа. Проверьте личную ссылку»."
+        "evidence": "Прямой запрос родителя 14.10.2026: переключатель конкретной ошибки снова не работает; он должен выключаться и показывать ожидание серверного подтверждения."
       }
     },
     "src/WeekendMathSlot.tsx": {
@@ -570,8 +570,8 @@
       }
     },
     "src/components/ParentTaskGuide.css": {
-      "sha256": "851f66b18a91fba66d3aac45fa5fecbdee5c54db0301a5d433445d247ad81e22",
-      "record": "docs/product/ui-decisions/one-parent-review-and-safe-site-2026-10-14.md",
+      "sha256": "965f05704c76ed7d8a32f53bd3c003e1a40ccaa76e6a034a94be6d7c9cf3125d",
+      "record": "docs/product/ui-decisions/stage-switch-fresh-version-2026-10-14.md",
       "specs": [
         "docs/product/russian-language-route.md",
         "docs/product/design-system.md"
@@ -581,7 +581,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 14.10.2026: один понятный родительский разбор по русскому с предметной спецификой, обновить сайт; отдельные права Firestore пока не разрешены."
+        "evidence": "Прямой запрос родителя 14.10.2026: выключенный конкретный пункт не должен сохранять вид активной ошибки."
       }
     },
     "src/lib/reviewPresentation.ts": {

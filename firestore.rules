@@ -50,6 +50,42 @@ service cloud.firestore {
           get(/databases/$(database)/documents/dayOwners/$(studentToken)).data.familyId,
           get(/databases/$(database)/documents/dayOwners/$(studentToken)).data.childId);
     }
+    // A stage choice needs one read per source document. Repeated nested access
+    // checks can exceed Firestore's per-write document-access limit.
+    // @see docs/product/day-page.md#review-stage-switch
+    function validReviewedStageChoice(studentToken, eventId, data) {
+      let session = get(/databases/$(database)/documents/deviceSessions/$(request.auth.uid)).data;
+      let link = get(/databases/$(database)/documents/accessLinks/$(session.linkToken)).data;
+      let owner = get(/databases/$(database)/documents/dayOwners/$(studentToken)).data;
+      let member = get(/databases/$(database)/documents/families/$(owner.familyId)/members/$(link.personId)).data;
+      let page = get(/databases/$(database)/documents/dayPages/$(studentToken)).data;
+      let guide = get(/databases/$(database)/documents/dayTaskGuides/$(studentToken)/items/$(data.taskId)).data.guide;
+      let review = get(/databases/$(database)/documents/dayProgress/$(studentToken)/items/$(data.taskId)).data;
+      return request.auth != null
+        && link.active == true
+        && member.active == true
+        && member.role == 'parent'
+        && owner.childId in member.childIds
+        && eventId.matches('^[a-f0-9-]{36}$')
+        && data.taskId is string
+        && data.taskId in page.taskIds
+        && data.action in ['stage-required', 'stage-optional']
+        && data.actorPersonId == link.personId
+        && data.decidedAt == request.time
+        && data.keys().hasOnly(['taskId', 'action', 'stageId', 'stageIndex', 'guideRevision', 'reviewCheckedAt', 'actorPersonId', 'decidedAt'])
+        && data.keys().hasAll(['taskId', 'action', 'stageId', 'stageIndex', 'guideRevision', 'reviewCheckedAt', 'actorPersonId', 'decidedAt'])
+        && data.stageId is string
+        && data.stageIndex is int
+        && data.stageIndex >= 0
+        && data.guideRevision is int
+        && guide.presentation == 'learning-route'
+        && data.guideRevision == guide.revision
+        && data.stageIndex < guide.stages.size()
+        && data.stageId == guide.stages[data.stageIndex].id
+        && review.checkableStageIds is list
+        && data.stageId in review.checkableStageIds
+        && data.reviewCheckedAt == review.checkedAt;
+    }
 
     // A random invite code is the only public route to the one-time encrypted handoff.
     // The operator alone writes invitations and reads them in bulk through Admin SDK.
@@ -544,7 +580,11 @@ service cloud.firestore {
     // @see docs/product/day-page.md#parent-acceptance
     match /dayParentDecisions/{studentToken}/events/{eventId} {
       allow get, list: if dayUploadOwner(studentToken);
-      allow create: if dayUploadOwner(studentToken)
+      allow create: if request.auth != null
+        && request.resource.data.action in ['stage-required', 'stage-optional']
+        && validReviewedStageChoice(studentToken, eventId, request.resource.data);
+      allow create: if !(request.resource.data.action in ['stage-required', 'stage-optional'])
+        && dayUploadOwner(studentToken)
         && parentMember(get(/databases/$(database)/documents/dayOwners/$(studentToken)).data.familyId)
         && eventId.matches('^[a-f0-9-]{36}$')
         && request.resource.data.keys().hasOnly(['taskId', 'action', 'requirementId', 'variantId', 'stageId', 'stageIndex', 'guideRevision', 'reviewCheckedAt', 'actorPersonId', 'decidedAt'])
@@ -576,20 +616,7 @@ service cloud.firestore {
             && get(/databases/$(database)/documents/dayProgress/$(studentToken)/items/$(request.resource.data.taskId)).data.assessmentBasis.disputedRequirementIds is list
             && get(/databases/$(database)/documents/dayProgress/$(studentToken)/items/$(request.resource.data.taskId)).data.assessmentBasis.disputedRequirementIds.size() <= 10
             && request.resource.data.requirementId in get(/databases/$(database)/documents/dayProgress/$(studentToken)/items/$(request.resource.data.taskId)).data.assessmentBasis.disputedRequirementIds)
-          || (request.resource.data.action in ['stage-required', 'stage-optional']
-            && !request.resource.data.keys().hasAny(['requirementId'])
-            && request.resource.data.stageId is string
-            && request.resource.data.stageIndex is int
-            && request.resource.data.stageIndex >= 0
-            && request.resource.data.guideRevision is int
-            && exists(/databases/$(database)/documents/dayTaskGuides/$(studentToken)/items/$(request.resource.data.taskId))
-            && get(/databases/$(database)/documents/dayTaskGuides/$(studentToken)/items/$(request.resource.data.taskId)).data.guide.presentation == 'learning-route'
-            && request.resource.data.guideRevision == get(/databases/$(database)/documents/dayTaskGuides/$(studentToken)/items/$(request.resource.data.taskId)).data.guide.revision
-            && request.resource.data.stageIndex < get(/databases/$(database)/documents/dayTaskGuides/$(studentToken)/items/$(request.resource.data.taskId)).data.guide.stages.size()
-            && request.resource.data.stageId == get(/databases/$(database)/documents/dayTaskGuides/$(studentToken)/items/$(request.resource.data.taskId)).data.guide.stages[request.resource.data.stageIndex].id
-            && get(/databases/$(database)/documents/dayProgress/$(studentToken)/items/$(request.resource.data.taskId)).data.checkableStageIds is list
-            && request.resource.data.stageId in get(/databases/$(database)/documents/dayProgress/$(studentToken)/items/$(request.resource.data.taskId)).data.checkableStageIds))
-            && request.resource.data.reviewCheckedAt == get(/databases/$(database)/documents/dayProgress/$(studentToken)/items/$(request.resource.data.taskId)).data.checkedAt));
+          )));
       allow update, delete: if false;
     }
 

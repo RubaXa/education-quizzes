@@ -58,4 +58,24 @@ describe('one parent route component', () => {
     expect(markup).toContain('Исправить только «вековой»')
     expect(markup).toContain('Не заменяет прилагательное')
   })
+
+  it('excludes only the parent-disabled error from the compact family status', () => {
+    const guide: Guide = { kind: 'structured-notes', presentation: 'learning-route', pattern: 'source-evidence', revision: 2,
+      overview: 'Проверка ответа', stages: [{ id: 'evidence', title: 'Сверить шесть ответов с требованием', expected: 'Сверить слова',
+        source: { kind: 'textbook', label: 'Учебник', ref: 'book:106', excerpt: 'упражнение' } }] }
+    const review = { id: 'token:task', taskId: 'task', status: 'partial' as const,
+      checkedAt: { seconds: 100, nanoseconds: 0 }, checkableStageIds: ['evidence'],
+      items: [{ stageId: 'evidence', label: 'Слово', status: 'incorrect' as const, observed: 'сто лет' }] }
+    const before = renderToStaticMarkup(<ParentTaskGuide guide={guide} review={review} onStageChoice={async () => {}} />)
+    const after = renderToStaticMarkup(<ParentTaskGuide guide={guide} review={review} decisions={[{
+      id: 'token:decision', taskId: 'task', action: 'stage-optional', stageId: 'evidence',
+      reviewCheckedAt: review.checkedAt, decidedAt: { seconds: 101, nanoseconds: 0 },
+    }]} onStageChoice={async () => {}} />)
+    expect(before).toContain('Расхождение')
+    expect(before).toContain('aria-checked="true"')
+    expect(after).toContain('По желанию · не входит в итог')
+    expect(after).toContain('aria-checked="false"')
+    expect(after).toContain('data-status="ready"')
+    expect(after).not.toContain('data-status="needs-fix"')
+  })
 })
