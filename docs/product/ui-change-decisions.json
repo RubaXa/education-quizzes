@@ -1,21 +1,25 @@
 {
   "files": {
     "src/DayPage.tsx": {
-      "sha256": "bb8bf3aa980339bf14cd74175940f770ed5fac0292dc7d19440329ab3fcd907f",
-      "record": "docs/product/ui-decisions/quiz-threshold-and-page-slider-2026-10-14.md",
+      "sha256": "fd684d85964c2fc2fe7b549b320f66fc201dc1f0a47509f3e1884c17fc14c7e6",
+      "record": "docs/product/ui-decisions/one-parent-review-and-safe-site-2026-10-14.md",
       "specs": [
         "docs/product/assessment-decision-graph.md",
         "docs/product/dashboard.md",
         "docs/product/materials.md",
-        "docs/product/quizzes.md"
+        "docs/product/quizzes.md",
+        "docs/product/russian-language-route.md",
+        "docs/product/day-page.md"
       ],
       "tests": [
         "src/lib/homeworkStatus.test.ts",
-        "src/lib/quizCardViewModel.test.ts"
+        "src/lib/quizCardViewModel.test.ts",
+        "src/lib/reviewPresentation.test.ts",
+        "src/components/ParentTaskGuide.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 14.10.2026 по снимкам: соседние страницы в одном ридере, зачёт любого теста от 80%, кнопка работы над ошибками и публикация сайта."
+        "evidence": "Прямой запрос родителя 14.10.2026: один понятный родительский разбор по русскому с предметной спецификой, обновить сайт; отдельные права Firestore пока не разрешены."
       }
     },
     "src/DayPage.css": {
@@ -195,20 +199,23 @@
       }
     },
     "src/components/ParentTaskGuide.tsx": {
-      "sha256": "a06eb768fd2a8508a943d2dcebc869e33bc326151e8158daee6fdb98cf2c6641",
-      "record": "docs/product/ui-decisions/flat-numbered-sheet-2026-10-14.md",
+      "sha256": "90afa1df66997cd33a0999b7bf8be057924f6cbc2fe4266c0e29f140b90c74fa",
+      "record": "docs/product/ui-decisions/one-parent-review-and-safe-site-2026-10-14.md",
       "specs": [
         "docs/product/problem-card-design-decisions.md",
-        "docs/product/design-system.md"
+        "docs/product/design-system.md",
+        "docs/product/russian-language-route.md",
+        "docs/product/subject-card-viewmodel.md"
       ],
       "tests": [
         "src/components/ProblemTaskCard.contract.test.tsx",
         "src/components/ProblemGroup.layout.test.tsx",
-        "src/components/ProblemStatement.provenance.test.tsx"
+        "src/components/ProblemStatement.provenance.test.tsx",
+        "src/components/ParentTaskGuide.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 14.10.2026 повторно приложил согласованный макет и потребовал сверить с ним выпускаемую карточку."
+        "evidence": "Прямой запрос родителя 14.10.2026: один понятный родительский разбор по русскому с предметной спецификой, обновить сайт; отдельные права Firestore пока не разрешены."
       }
     },
     "src/WeekendMathSlot.tsx": {
@@ -354,8 +361,8 @@
       }
     },
     "src/components/QuizCard.tsx": {
-      "sha256": "92a58accd15de64f9ce3f80d0b45f5d89d1c6565f8bfb7918c8ae42a764847a0",
-      "record": "docs/product/ui-decisions/quiz-threshold-and-page-slider-2026-10-14.md",
+      "sha256": "3eb7093235e8d7e3c33e48ccee2f824fa1de3008831c8a48cde2de97a4c63e21",
+      "record": "docs/product/ui-decisions/one-parent-review-and-safe-site-2026-10-14.md",
       "specs": [
         "docs/product/assessment-decision-graph.md",
         "docs/product/dashboard.md",
@@ -368,7 +375,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 14.10.2026 по снимкам: соседние страницы в одном ридере, зачёт любого теста от 80%, кнопка работы над ошибками и публикация сайта."
+        "evidence": "Прямой запрос родителя 14.10.2026: один понятный родительский разбор по русскому с предметной спецификой, обновить сайт; отдельные права Firestore пока не разрешены."
       }
     },
     "src/lib/dayMaterialRefs.ts": {
@@ -564,6 +571,36 @@
       "authorization": {
         "status": "approved-mockup",
         "evidence": "Родитель 14.10.2026 после просмотра конкретного макета с видимым исходным кропом ответил «Да, стало лучше, очень лучше» и потребовал доделать этот вариант, убрав макетную родительскую кнопку загрузки фото."
+      }
+    },
+    "src/components/ParentTaskGuide.css": {
+      "sha256": "851f66b18a91fba66d3aac45fa5fecbdee5c54db0301a5d433445d247ad81e22",
+      "record": "docs/product/ui-decisions/one-parent-review-and-safe-site-2026-10-14.md",
+      "specs": [
+        "docs/product/russian-language-route.md",
+        "docs/product/design-system.md"
+      ],
+      "tests": [
+        "src/components/ParentTaskGuide.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя 14.10.2026: один понятный родительский разбор по русскому с предметной спецификой, обновить сайт; отдельные права Firestore пока не разрешены."
+      }
+    },
+    "src/lib/reviewPresentation.ts": {
+      "sha256": "929f2bdcf06991655b5c15c5dfad7df88c5262457a2d63e6dcd058f666ddc24e",
+      "record": "docs/product/ui-decisions/one-parent-review-and-safe-site-2026-10-14.md",
+      "specs": [
+        "docs/product/russian-language-route.md",
+        "docs/product/day-page.md"
+      ],
+      "tests": [
+        "src/lib/reviewPresentation.test.ts"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя 14.10.2026: один понятный родительский разбор по русскому с предметной спецификой, обновить сайт; отдельные права Firestore пока не разрешены."
       }
     }
   }

@@ -4,6 +4,11 @@ export type ReviewTone = 'success' | 'partial' | 'error' | 'neutral'
 export type ProblemCardState = { label: string; tone: 'ready' | 'uploading' | 'waiting' | 'processing' | 'verified' | 'partial' | 'error' }
 export type ArtifactAvatarState = 'uploading' | 'waiting' | 'processing' | 'reviewed' | 'failed' | 'paused'
 
+/** @see ../../docs/product/russian-language-route.md#review-in-one-route */
+export function showSeparateWorkReview(parent: boolean, presentation?: string, hasParentDecision = false, hasDisputedRequirement = false): boolean {
+  return !parent || presentation !== 'learning-route' || hasParentDecision || hasDisputedRequirement
+}
+
 /** One file state drives the same avatar on the day page and in the weekend slot. */
 export function artifactAvatarState(upload: DayUpload, review?: DayWorkReview, now = Date.now()): ArtifactAvatarState {
   if (upload.status === 'reviewed') return 'reviewed'

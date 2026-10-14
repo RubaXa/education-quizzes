@@ -1,12 +1,19 @@
 import { describe, expect, it } from 'vitest'
 import type { DayWorkReview } from './dayStore'
-import { compactProblemCardLabel, problemCardState, reviewHeadline, reviewTone } from './reviewPresentation'
+import { compactProblemCardLabel, problemCardState, reviewHeadline, reviewTone, showSeparateWorkReview } from './reviewPresentation'
 
 function review(status: DayWorkReview['status'], items: Array<'correct' | 'partial' | 'incorrect' | 'cannot-assess'>): DayWorkReview {
   return { id: 'test', taskId: 'test', status, items: items.map((item, index) => ({ label: `${index + 1}`, status: item, observed: 'ответ', note: 'пояснение' })) }
 }
 
 describe('collapsed homework review', () => {
+  it('keeps one parent route for a reviewed written task, while preserving learner feedback and parent decisions', () => {
+    expect(showSeparateWorkReview(true, 'learning-route')).toBe(false)
+    expect(showSeparateWorkReview(false, 'learning-route')).toBe(true)
+    expect(showSeparateWorkReview(true, 'math-route')).toBe(true)
+    expect(showSeparateWorkReview(true, 'learning-route', true)).toBe(true)
+    expect(showSeparateWorkReview(true, 'learning-route', false, true)).toBe(true)
+  })
   it('shows a short truthful status before any work is uploaded', () => {
     const state = problemCardState([])
     expect(state).toEqual({ label: 'Не начато', tone: 'ready' })

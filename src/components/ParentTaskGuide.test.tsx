@@ -44,4 +44,18 @@ describe('one parent route component', () => {
     expect(markup).toContain('Выбрать подсказку для этапа')
     expect(markup).not.toContain('Ответ:')
   })
+
+  it('puts the specific next action inside the sourced parent route', () => {
+    const guide: Guide = {
+      kind: 'structured-notes', presentation: 'learning-route', pattern: 'source-evidence', revision: 2,
+      overview: 'Упр. 199: что засчитать и что исправить', stages: [{ id: 'evidence', title: 'Сверить ответы', expected: 'Проверить слово',
+        source: { kind: 'textbook', label: 'Семейный учебник', ref: 'book:106', excerpt: 'близкое слово' } }],
+    }
+    const markup = renderToStaticMarkup(<ParentTaskGuide guide={guide} review={{ id: 'review', taskId: 'mesh-351709033', status: 'partial',
+      nextStep: 'Исправить только «вековой»: подобрать прилагательное перед «лес».',
+      items: [{ stageId: 'evidence', label: 'Слово', status: 'incorrect', observed: 'сто лет', note: 'Не заменяет прилагательное' }] }} />)
+    expect(markup).toContain('Что осталось сделать')
+    expect(markup).toContain('Исправить только «вековой»')
+    expect(markup).toContain('Не заменяет прилагательное')
+  })
 })

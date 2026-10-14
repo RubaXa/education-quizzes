@@ -126,6 +126,10 @@ export default function ParentTaskGuide({ guide, review, decisions = [], guidanc
   return <details className="day-parent-guide day-parent-learning-route" aria-label={mathematics ? 'Разбор решения для родителя' : 'Разбор письменной работы для родителя'}>
     <summary className="day-learning-route-heading"><BookOpen size={18} aria-hidden="true" /><span><strong>{mathematics ? 'Разбор для родителя' : guide.overview}</strong></span><ChevronDown className="day-learning-route-chevron" size={17} aria-hidden="true" /></summary>
     <div className="day-parent-learning-route-body">
+    {!mathematics && review?.status && <div className="day-learning-route-review-summary">
+      <strong>{review.status === 'verified' ? 'Работа подтверждена' : review.status === 'cannot-assess' ? 'Проверка пока не завершена' : 'Что осталось сделать'}</strong>
+      <p>{review.nextStep ?? review.summary}</p>
+    </div>}
     {matched.length > 0 && <div className="day-learning-route-progress" aria-label="Состояние проверки фото">
       {mathematics && <><span>Ответ: <b>{review?.mathReasoning?.answer === 'correct' ? 'верен' : review?.mathReasoning?.answer === 'incorrect' ? 'неверен' : 'не подтверждён'}</b></span>
       <span>Ход: <b>{review?.mathReasoning?.argument === 'sufficient' ? 'подтверждён' : review?.mathReasoning?.argument === 'incomplete' ? 'неполон' : review?.mathReasoning?.argument === 'not-shown' ? 'не показан' : review?.mathReasoning?.argument === 'unreadable' ? 'не читается' : 'пока неясен'}</b></span></>}

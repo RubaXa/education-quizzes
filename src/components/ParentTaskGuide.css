@@ -20,6 +20,10 @@
  * @see ../../docs/product/design-system.md#cards-and-status */
 .day-parent-learning-route{padding:0;background:var(--edu-surface)}
 .day-parent-learning-route-body{padding:0 13px 13px}
+/* @see ../../docs/product/russian-language-route.md#review-in-one-route */
+.day-learning-route-review-summary{margin:2px 0 12px;padding:10px 0;border-top:1px solid var(--edu-card-border);color:var(--edu-ink)}
+.day-learning-route-review-summary strong{font-size:.8rem}
+.day-learning-route-review-summary p{margin:4px 0 0;font-size:.84rem;line-height:1.45}
 .day-learning-route-heading{display:flex;align-items:center;gap:9px;color:var(--edu-ink)}
 .day-parent-learning-route>.day-learning-route-heading{padding:13px;list-style:none}
 .day-parent-learning-route>.day-learning-route-heading::-webkit-details-marker{display:none}
