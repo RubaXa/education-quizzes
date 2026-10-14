@@ -209,6 +209,22 @@ describe('parent home warm start — complete local snapshot', () => {
 })
 
 describe('parent home cold start — no complete local snapshot', () => {
+  it('uses the two-em dash on a saved confirmed day without homework', async () => {
+    localStorage.setItem('education-parent-overview-v1:person:calendar', JSON.stringify({ state: 'none',
+      day: { date: '2026-10-14', checkedAt: '2026-10-13T07:00:00.000Z', complete: true, schedule: [], homework: [] },
+      subjects: [], done: 0, todo: 0, checking: 0, unclear: 0, total: 0, weekendCards: 0,
+      reason: 'Пока нет ДЗ', error: '', cachedAt: Date.now() }))
+    vi.stubGlobal('IntersectionObserver', ViewportObserver)
+    const host = document.createElement('div')
+    document.body.append(host)
+    const root = createRoot(host)
+    await act(async () => { root.render(<ParentHome profile={profile} />) })
+    const badge = host.querySelector('.parent-child-badge')
+    expect(badge?.textContent).toBe('⸻')
+    expect(badge?.getAttribute('aria-label')).toContain('не задано')
+    expect(host.querySelector('.parent-child-toggle')?.textContent).not.toContain('Не задано')
+    await act(async () => { root.unmount() }); host.remove()
+  })
   it('defers protected family subscriptions until Firebase Auth is ready', async () => {
     let release!: () => void
     probe.authGate = new Promise<void>((resolve) => { release = resolve })

@@ -19,11 +19,11 @@ const chrome = [process.env.CHROME_BIN, '/Applications/Google Chrome.app/Content
 if (!chrome) throw new Error('Для проверки нужен Chrome или CHROME_BIN.')
 
 const rows = [
-  ['Биология', '1 из 1', 'complete'], ['Практикум по решению математических задач', 'Не задано', 'none'],
+  ['Биология', '1 из 1', 'complete'], ['Практикум по решению математических задач', '⸻', 'none'],
   ['История', '1 из 1', 'complete has-new-homework', 'Идёт'],
   ['Русский язык', '1 из 2', 'partial'], ['Математика', 'ДЗ 12.10', 'unknown'],
   ['Английский язык', '0 из 1', 'empty'], ['География', '1 из 1', 'complete'],
-  ['Физическая культура', 'Не задано', 'none'],
+  ['Физическая культура', '⸻', 'none'],
 ]
 const screenshotDir = process.env.SCHEDULE_SCREENSHOT_DIR
 // @see ../docs/product/status-presentation.md#matrix — fixture mirrors the icon/count/chevron columns.
@@ -31,7 +31,6 @@ const statusIcon = (status) => {
   const path = status === 'complete' ? '<circle cx="12" cy="12" r="10"/><path d="m8 12 3 3 5-6"/>'
     : status === 'partial' ? '<circle cx="12" cy="12" r="10"/><path d="M8 12h8"/>'
       : status === 'unknown' ? '<circle cx="12" cy="12" r="10"/><path d="M9 9a3 3 0 0 1 6 0c0 2-3 2-3 4m0 4h.01"/>'
-        : status === 'not-assigned' ? '<path d="M4 12h16"/>'
         : '<circle cx="12" cy="12" r="10"/>'
   return `<svg class="edu-status-icon edu-status-icon-${status}" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${path}</svg>`
 }
@@ -40,7 +39,7 @@ const newIcon = '<svg class="edu-status-icon edu-status-icon-new" width="12" hei
 function renderRow([name, badge, tone, phase], open) {
   return `<li><details class="day-dashboard-lesson day-dashboard-lesson-${tone}" ${open ? 'open' : ''}>
     <summary><time>08:30</time><span class="day-dashboard-lesson-name">${name}${phase ? `<span class="day-dashboard-lesson-phase current">${phase}</span>` : ''}${name === 'История' ? `<span class="day-dashboard-lesson-new">${newIcon}Новое ДЗ</span>` : ''}</span>
-    <span class="day-dashboard-lesson-badge">${badge.startsWith('ДЗ') ? '' : statusIcon(tone.includes('complete') ? 'complete' : tone === 'partial' ? 'partial' : tone === 'unknown' ? 'unknown' : tone === 'none' ? 'not-assigned' : 'ready')}${badge}${chevron}</span></summary>
+    <span class="day-dashboard-lesson-badge" ${tone === 'none' ? 'aria-label="ДЗ не задано на последней сверке МЭШ"' : ''}>${badge.startsWith('ДЗ') || tone === 'none' ? '' : statusIcon(tone.includes('complete') ? 'complete' : tone === 'partial' ? 'partial' : tone === 'unknown' ? 'unknown' : 'ready')}${badge}${chevron}</span></summary>
     <div class="day-dashboard-lesson-body">Подробности задания и проверки.</div></details></li>`
 }
 function fixture(open, pastExpanded) {

@@ -1,6 +1,6 @@
 import {
   BellDot, Circle, CircleAlert, CircleCheck, CircleDot, CircleHelp, CircleMinus,
-  CirclePause, CircleX, Clock3, CloudUpload, LoaderCircle, Minus, TriangleAlert,
+  CirclePause, CircleX, Clock3, CloudUpload, LoaderCircle, TriangleAlert,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import './StatusIcon.css'
@@ -8,11 +8,10 @@ import './StatusIcon.css'
 /** Visual vocabulary only. The owning badge/summary supplies the full accessible label.
  * @see ../../docs/product/status-presentation.md#matrix
  */
-export type EducationStatus = 'not-assigned' | 'ready' | 'started' | 'uploading' | 'waiting' | 'processing' | 'paused'
+export type EducationStatus = 'ready' | 'started' | 'uploading' | 'waiting' | 'processing' | 'paused'
   | 'complete' | 'partial' | 'needs-fix' | 'incorrect' | 'unknown' | 'failed' | 'new'
 
 const icons: Record<EducationStatus, LucideIcon> = {
-  'not-assigned': Minus,
   ready: Circle,
   started: CircleDot,
   uploading: CloudUpload,

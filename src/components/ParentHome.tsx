@@ -47,10 +47,11 @@ function ChildCard({ child, overview }: { child: PersonalChild; overview?: Paren
   const showRefresh = useDelayedRefresh(Boolean(overview?.fromCache && !overview?.error))
   const ready = overview?.state === 'ready'
   const confirmed = ready && overview.day?.complete === true
+  const noHomework = overview?.state === 'none' && !overview.weekendCards
   const badge = !child.dashboardToken ? 'Календарь не подключён'
     : !overview || overview.state === 'loading' ? 'Загружаем данные'
     : overview.state === 'unknown' ? overview.reason.startsWith('Не удалось') ? 'Данные недоступны' : 'ДЗ уточняется'
-      : overview.state === 'none' ? overview.weekendCards ? 'Есть подготовка' : 'Не задано'
+      : overview.state === 'none' ? overview.weekendCards ? 'Есть подготовка' : '⸻'
         : !confirmed ? 'ДЗ может измениться'
           : overview.todo ? `${overview.todo} осталось`
             : overview.unclear ? 'Решение взрослого'
@@ -67,14 +68,14 @@ function ChildCard({ child, overview }: { child: PersonalChild; overview?: Paren
   const day = overview?.day
   return <article className="parent-child-card">
     <button type="button" className="parent-child-toggle" aria-expanded={open} aria-controls={childPanelId(child)} onClick={() => setOpen((value) => !value)}>
-      <span className="parent-child-top"><span className="parent-child-name">{child.displayName}</span><span className={`parent-child-badge ${tone}`}><StatusIcon size={15} status={overview?.state === 'none' && !overview.weekendCards ? 'not-assigned' : tone === 'complete' ? 'complete' : tone === 'action' ? 'needs-fix' : tone === 'waiting' ? 'waiting' : 'unknown'} />{badge}{showRefresh && <RefreshCw className="parent-child-refresh" size={13} aria-label="Обновление данных" />}</span></span>
+      <span className="parent-child-top"><span className="parent-child-name">{child.displayName}</span><span className={`parent-child-badge ${tone}`} aria-label={noHomework ? 'ДЗ не задано на последней сверке МЭШ' : undefined}>{!noHomework && <StatusIcon size={15} status={tone === 'complete' ? 'complete' : tone === 'action' ? 'needs-fix' : tone === 'waiting' ? 'waiting' : 'unknown'} />}{badge}{showRefresh && <RefreshCw className="parent-child-refresh" size={13} aria-label="Обновление данных" />}</span></span>
       <span className="parent-child-date">{day ? `К ${dateLabel(day.date)}` : 'Ближайший учебный день пока неизвестен'}</span>
       {known && <><span className="parent-child-track" role="progressbar" aria-label={`Выполнено ${overview.done} из ${overview.total} опубликованных заданий`} aria-valuemin={0} aria-valuemax={overview.total} aria-valuenow={overview.done}><span className="parent-child-done" style={{ width: `${overview.done / overview.total * 100}%` }} /><span className="parent-child-checking" style={{ width: `${overview.checking / overview.total * 100}%` }} /></span><span className="parent-child-progress">{overview.done} из {overview.total} завершено{overview.checking ? ` · ${overview.checking} ждёт проверки` : ''}{overview.unclear ? ` · ${overview.unclear} требует решения взрослого` : ''}</span></>}
-      {!known && <span className="parent-child-progress">{!child.dashboardToken ? 'Сводка появится после подключения календаря.' : reason || 'Загружаем опубликованные сведения.'}</span>}
+      {!known && !noHomework && <span className="parent-child-progress">{!child.dashboardToken ? 'Сводка появится после подключения календаря.' : reason || 'Загружаем опубликованные сведения.'}</span>}
       <span className="parent-child-expand">{open ? 'Скрыть подробности' : 'Что именно?'} <ChevronDown size={18} aria-hidden="true" /></span>
     </button>
     <div id={childPanelId(child)} className="parent-child-detail" hidden={!open}>
-      {overview?.reason && ready && <p className="parent-child-note">{overview.reason}</p>}
+      {reason && (ready || noHomework) && <p className="parent-child-note">{reason}</p>}
       {overview?.weekendCards ? <p className="parent-child-note">На выходные доступны {overview.weekendCards} {countWord(overview.weekendCards, 'карточка подготовки', 'карточки подготовки', 'карточек подготовки')}. Их результаты и сроки смотрите в календаре.</p> : null}
       {active.map((subject) => <div className="parent-child-subject" key={subject.id}><strong>{subject.name}</strong>{subject.state === 'unknown' ? <small>Статус сверяется</small> : <small>{subject.items.filter((item) => item.state === 'done').length} из {subject.items.length} выполнено</small>}{subject.rawHomework && <p><span aria-hidden="true"><StatusIcon status="unknown" size={15} /></span><span>{subject.rawHomework}</span></p>}{subject.items.filter((item) => item.state !== 'done').map((item) => <p key={item.id}><span aria-hidden="true"><StatusIcon size={15} status={item.state === 'todo' ? 'ready' : item.state === 'checking' ? 'waiting' : 'unknown'} /></span><span>{item.title} · {item.detail}</span></p>)}</div>)}
       {done.length > 0 && <details className="parent-child-complete"><summary><StatusIcon status="complete" size={17} /> Сделано · {done.length} {countWord(done.length, 'предмет', 'предмета', 'предметов')} <ChevronDown size={16} aria-hidden="true" /></summary><ul>{done.map((subject) => <li key={subject.id}>{subject.name} · {subject.items.length} {countWord(subject.items.length, 'пункт', 'пункта', 'пунктов')}</li>)}</ul></details>}
