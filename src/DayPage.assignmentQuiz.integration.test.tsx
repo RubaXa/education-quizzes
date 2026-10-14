@@ -175,4 +175,41 @@ describe('day page: teacher sheet and linked self-check', () => {
       expect(view.host.querySelectorAll('.day-practice-variant-shell')[1]?.textContent).toContain('По желанию')
     } finally { await view.cleanup() }
   })
+
+  it('keeps a numbered teacher sheet when no self-check was assigned', async () => {
+    const current = page()
+    current.testPlacements = []
+    delete current.subjects[0].tasks[0].testToken
+    scene.page = current
+    const view = await renderPage(true)
+    try {
+      expect(view.host.querySelectorAll('.day-quiz-lineage')).toHaveLength(0)
+      expect(view.host.querySelectorAll('.problem-group')).toHaveLength(1)
+      await act(async () => { view.host.querySelector<HTMLButtonElement>('.problem-group-toggle')?.click() })
+      expect(view.host.querySelectorAll('.day-practice-variant')).toHaveLength(2)
+    } finally { await view.cleanup() }
+  })
+
+  it('keeps a second independent teacher assignment apart from the linked quiz', async () => {
+    const current = page()
+    const another = structuredClone(current.subjects[0].tasks[0])
+    another.id = 'mesh-geometry'
+    another.title = 'Решить задачу по геометрии'
+    delete another.testToken
+    delete another.practiceVariants
+    another.problems = [{ id: 'geometry-p1', number: 1, title: 'Отрезки', detail: '', source: 'Другой лист учителя',
+      original: { text: '№ 1. Найдите длину отрезка.', attachmentRef: 'geometry-sheet' } }]
+    current.subjects[0].tasks.push(another)
+    current.materialLinks!['mesh-geometry'] = [{ title: 'Другой лист учителя', sourceType: 'teacher-attachment',
+      url: 'https://disk.yandex.ru/d/geometry', sourceRef: 'geometry-sheet' }]
+    scene.page = current
+    const view = await renderPage(true)
+    try {
+      expect(view.host.querySelectorAll('.day-quiz-lineage')).toHaveLength(1)
+      expect(view.host.querySelectorAll('.problem-group')).toHaveLength(2)
+      expect(view.host.querySelectorAll('.problem-group')[0].textContent).toContain('Подготовиться к самостоятельной: диаграммы')
+      expect(view.host.querySelectorAll('.problem-group')[1].textContent).toContain('Решить задачу по геометрии')
+      expect(view.host.querySelectorAll('.problem-group')[1].textContent).not.toContain('Марки Ивана')
+    } finally { await view.cleanup() }
+  })
 })
