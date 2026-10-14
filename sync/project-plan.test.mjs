@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { dateWindow, mapBounded, projectTargets } from './project-plan.mjs'
+import { collectedProjectSummary, dateWindow, mapBounded, projectTargets } from './project-plan.mjs'
 
 describe('global project inventory', () => {
   const input = {
@@ -42,5 +42,32 @@ describe('global project inventory', () => {
     })
     expect(highest).toBeLessThanOrEqual(2)
     expect(result.map((item) => item.status)).toEqual(['fulfilled', 'fulfilled', 'rejected', 'fulfilled'])
+  })
+  it('aggregates all families once and does not call a source diff a publication', () => {
+    const summary = collectedProjectSummary({
+      inventory: { families: 2, children: 3, sourceAccounts: 2 },
+      jobs: [
+        { familyId: 'one', childId: 'a', checkedDates: 42, changes: { lessons: 2, assignments: 1, grades: 1 }, pendingPublicationDates: [{ date: '2026-10-15' }], state: 'awaiting-enrichment' },
+        { familyId: 'one', childId: 'b', checkedDates: 42, changes: { lessons: 0, assignments: 1, grades: 0 }, pendingPublicationDates: [], state: 'complete' },
+        { familyId: 'two', childId: 'c', state: 'blocked', reason: 'auth-required' },
+      ],
+    })
+    expect(summary).toEqual({
+      familiesDiscovered: 2, childrenDiscovered: 3, sourceAccountsDiscovered: 2,
+      familiesSourceChecked: 1, childrenSourceChecked: 2,
+      familiesWithSourceChanges: 1, childrenWithSourceChanges: 2,
+      sourceChanges: { lessons: 2, assignments: 2, grades: 1 },
+      checkedDates: 84, pendingPublicationDays: 1, blockedChildren: 1,
+    })
+    expect(summary).not.toHaveProperty('published')
+  })
+  it('does not call a family checked when one of its children was blocked', () => {
+    const summary = collectedProjectSummary({ inventory: { families: 1, children: 2, sourceAccounts: 1 }, jobs: [
+      { familyId: 'one', childId: 'a', checkedDates: 42, changes: {} },
+      { familyId: 'one', childId: 'b', state: 'blocked', reason: 'auth-required' },
+    ] })
+    expect(summary.familiesSourceChecked).toBe(0)
+    expect(summary.childrenSourceChecked).toBe(1)
+    expect(summary.blockedChildren).toBe(1)
   })
 })

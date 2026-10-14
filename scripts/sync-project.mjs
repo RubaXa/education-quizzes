@@ -7,7 +7,7 @@ import { operatorFirestore } from './lib/admin-firebase.mjs'
 import { MeshDiaryAdapter } from '../packages/education-connect/lib/mesh.mjs'
 import { syncDiary } from '../diary/application/sync.mjs'
 import { ensureDataDir, readJson, writeJson } from '../diary/local-store.mjs'
-import { dateWindow, mapBounded, projectTargets } from '../sync/project-plan.mjs'
+import { collectedProjectSummary, dateWindow, mapBounded, projectTargets } from '../sync/project-plan.mjs'
 import { persistMeshCapture } from '../sync/artifact-capture.mjs'
 import { buildDayDashboardIndex } from '../day/dashboard-index.mjs'
 import { assertGradeSnapshotAligned } from '../day/grade-reconciliation.mjs'
@@ -356,6 +356,7 @@ if (command === 'plan') {
     const blocked = results.filter((item) => item.result.state === 'blocked').length
     console.log(JSON.stringify({ runId, families: data.families.length, children: data.targets.length,
       fetched: results.length - blocked, blocked,
+      report: collectedProjectSummary(manifest),
       changedDates: results.reduce((sum, item) => sum + (item.result.changedDates?.length ?? 0), 0),
       pendingPublicationDates: results.reduce((sum, item) => sum + (item.result.pendingPublicationDates?.length ?? 0), 0),
       state: blocked === results.length ? 'blocked' : blocked ? 'partially-collected'

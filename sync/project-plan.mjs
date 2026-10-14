@@ -54,6 +54,35 @@ export function dateWindow(today) {
   })
 }
 
+/** Source collection counts only. Publication and readback require separate evidence.
+ * @see ../docs/product/global-sync.md#report
+ */
+export function collectedProjectSummary(manifest) {
+  const jobs = manifest.jobs ?? []
+  const checked = jobs.filter((job) => Number.isInteger(job.checkedDates) && job.checkedDates > 0)
+  const changed = checked.filter((job) => Object.values(job.changes ?? {}).some((count) => count > 0))
+  const familyCount = (items) => new Set(items.map((job) => job.familyId)).size
+  const allByFamily = Map.groupBy(jobs, (job) => job.familyId)
+  const sum = (items, key) => items.reduce((total, job) => total + (job.changes?.[key] ?? 0), 0)
+  return {
+    familiesDiscovered: manifest.inventory?.families ?? null,
+    childrenDiscovered: manifest.inventory?.children ?? null,
+    sourceAccountsDiscovered: manifest.inventory?.sourceAccounts ?? null,
+    familiesSourceChecked: [...allByFamily.values()].filter((children) => children.every((job) => checked.includes(job))).length,
+    childrenSourceChecked: checked.length,
+    familiesWithSourceChanges: familyCount(changed),
+    childrenWithSourceChanges: changed.length,
+    sourceChanges: {
+      lessons: sum(checked, 'lessons'),
+      assignments: sum(checked, 'assignments'),
+      grades: sum(checked, 'grades'),
+    },
+    checkedDates: checked.reduce((total, job) => total + job.checkedDates, 0),
+    pendingPublicationDays: checked.reduce((total, job) => total + (job.pendingPublicationDates?.length ?? 0), 0),
+    blockedChildren: jobs.filter((job) => job.state === 'blocked').length,
+  }
+}
+
 export async function mapBounded(items, limit, run) {
   if (!Number.isInteger(limit) || limit < 1) throw new Error('Лимит параллельности должен быть положительным.')
   const results = Array(items.length)
