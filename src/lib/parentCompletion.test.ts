@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { DayTask, DayWorkReview } from './dayStore'
-import { currentStageChoice, stageCompletion, variantRequired, type ParentCompletionEvent } from './parentCompletion'
+import { currentStageChoice, requiredFamilyActions, stageCompletion, variantRequired, type ParentCompletionEvent } from './parentCompletion'
 import { lessonWorkItems } from './homeworkStatus'
 
 const at = (seconds: number) => ({ seconds, nanoseconds: 0 })
@@ -14,6 +14,18 @@ const review = {
 } as DayWorkReview
 
 describe('family review stage choices', () => {
+  it('credits the completed MESH number while the other number remains unreadable', () => {
+    const numbered = { ...review, status: 'cannot-assess', checkableStageIds: ['mesh-218', 'mesh-223'],
+      items: [{ stageId: 'mesh-218', label: '№ 218', status: 'correct' },
+        { stageId: 'mesh-223', label: '№ 223', status: 'cannot-assess' }],
+      assessmentBasis: { disputedRequirements: [
+        { id: 'method-218', action: 'Определить способ выражения сравнений' },
+        { id: 'direct-223', action: 'Придумать собственные предложения' },
+      ] },
+    } as DayWorkReview
+    expect(stageCompletion(numbered, [])).toEqual({ required: 2, confirmed: 1, optional: 0, complete: false })
+    expect(requiredFamilyActions(numbered, [])).toEqual([])
+  })
   it('uses the live guide revision for the same checked work after a wording correction', () => {
     const original = { revision: 1, stages: [{ id: 'educational' }, { id: 'covering' }] }
     const corrected = { revision: 2, stages: [{ id: 'educational' }, { id: 'covering' }] }

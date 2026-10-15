@@ -23,7 +23,7 @@ export type DayProblem = {
  * @see ../../docs/product/card-generation-policy.md#math-adapter */
 export type ParentTaskGuide = {
   kind: 'structured-notes' | 'worked-solution' | 'text-structure';
-  presentation?: 'math-route' | 'learning-route'; pattern?: 'spelling' | 'syntax' | 'text-plan' | 'composition' | 'short-interpretation' | 'evidence-response' | 'concept-function' | 'vocabulary-list' | 'written-exercise' | 'source-analysis' | 'map-analysis' | 'source-evidence'; routeProfile?: 'compact' | 'standard' | 'extended'; depthReason?: string;
+  presentation?: 'math-route' | 'learning-route'; pattern?: 'spelling' | 'syntax' | 'text-plan' | 'composition' | 'short-interpretation' | 'evidence-response' | 'concept-function' | 'vocabulary-list' | 'written-exercise' | 'source-analysis' | 'map-analysis' | 'source-evidence' | 'source-units'; routeProfile?: 'compact' | 'standard' | 'extended'; depthReason?: string;
   revision?: number; overview: string; boundary?: string;
   stages: {
     id: string; title: string; expected: string; why?: string; reviewLabels?: string[];

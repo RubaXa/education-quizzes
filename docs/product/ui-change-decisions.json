@@ -708,37 +708,33 @@
       }
     },
     "scripts/day.mjs": {
-      "sha256": "82ac98e0dac20ba4d4ac3a805b1d79b99d6d4ecc789497325fb16035b56a2d70",
-      "record": "docs/product/ui-decisions/education-sync-performance-2026-10-15.md",
+      "sha256": "f5bc73fbde8b6313f5eba000461ac0716db8c92cec1b8ed65a1d6eb509428ecf",
+      "record": "docs/product/ui-decisions/mesh-assigned-units-2026-10-15.md",
       "specs": [
-        "docs/product/global-sync.md",
-        "docs/architecture/education-sync-latency-audit-2026-10-15.md"
-      ],
-      "tests": [
-        "day/placement-integrity.test.mjs",
-        "day/material-access.test.mjs"
-      ],
-      "authorization": {
-        "status": "direct-request",
-        "evidence": "Родитель 15.10.2026 прямо потребовал повторный полный Education Sync с таймерами, расследование узких мест и ускорение процесса без потери подтверждённых данных."
-      }
-    },
-    "src/lib/dayStore.ts": {
-      "sha256": "b8a1500072c253582100a0855854a4e2da016a36fcf9304c948fccaee223ed6c",
-      "record": "docs/product/ui-decisions/missing-evidence-homework-overview-2026-10-15.md",
-      "specs": [
-        "docs/product/dashboard.md",
+        "docs/product/russian-language-route.md",
         "docs/product/review-criteria-provenance.md"
       ],
       "tests": [
-        "src/DayDashboard.warmStart.test.tsx",
-        "src/lib/homeworkStatus.test.ts",
-        "src/lib/reviewPresentation.test.ts",
-        "storage/review-projection.test.mjs"
+        "day/card-policy.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 15.10.2026 показал неверный статус русского ДЗ, потребовал ясный разбор результата и исправление обзора."
+        "evidence": "Родитель 15.10.2026 прямо потребовал отдельный результат каждого назначенного номера МЭШ и необязательность дополнительных действий учебника."
+      }
+    },
+    "src/lib/dayStore.ts": {
+      "sha256": "73ca036df56661310e3100fce616469ae4703d509d7d6b355c2f725f70198c33",
+      "record": "docs/product/ui-decisions/mesh-assigned-units-2026-10-15.md",
+      "specs": [
+        "docs/product/card-generation-policy.md",
+        "docs/product/review-criteria-provenance.md"
+      ],
+      "tests": [
+        "src/lib/parentCompletion.test.ts"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 15.10.2026 прямо потребовал отдельный результат каждого назначенного номера МЭШ и необязательность дополнительных действий учебника."
       }
     },
     "src/DayDashboard.css": {
@@ -949,6 +945,21 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Родитель 15.10.2026 показал неверный статус русского ДЗ, потребовал ясный разбор результата и исправление обзора."
+      }
+    },
+    "day/card-policy.mjs": {
+      "sha256": "1de22ca631c7af77b70369ae957b5c294a8e0b01d58654fe7d4e4c9ca9c61be4",
+      "record": "docs/product/ui-decisions/mesh-assigned-units-2026-10-15.md",
+      "specs": [
+        "docs/product/card-generation-policy.md",
+        "docs/product/review-criteria-provenance.md"
+      ],
+      "tests": [
+        "day/card-policy.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 15.10.2026 прямо потребовал отдельный результат каждого назначенного номера МЭШ и необязательность дополнительных действий учебника."
       }
     }
   }

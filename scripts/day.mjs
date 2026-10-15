@@ -1195,7 +1195,8 @@ async function publishGuideUpgrade() {
     if (matches.length !== 1 || !matches[0].task.parentGuide || matches[0].task.parentGuide.presentation !== 'learning-route') fail(`Нет единственного сверенного маршрута ${taskId} на ${sourceDate}.`)
     const pair = links[sourceDate]
     if (!pair?.student || !pair?.parent) fail(`Страницы ${sourceDate} ещё не опубликованы для обеих ролей.`)
-    const baselineFile = resolve(local, `day-source-${sourceDate}.pre-learning-route.json`)
+    const unitBaselineFile = resolve(local, `day-source-${sourceDate}.pre-assigned-units.json`)
+    const baselineFile = existsSync(unitBaselineFile) ? unitBaselineFile : resolve(local, `day-source-${sourceDate}.pre-learning-route.json`)
     const baseline = existsSync(baselineFile) ? json(baselineFile) : structuredClone(source)
     const oldTask = baseline.subjects.flatMap((subject) => subject.tasks).find((task) => task.id === taskId)
     if (!oldTask || baseline.targetDate !== source.targetDate) fail(`Исходный план ${sourceDate} до маршрута не найден.`)

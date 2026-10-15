@@ -46,6 +46,20 @@ describe('stable written-language card contract', () => {
       expect(publicSubject.tasks[0].cardPattern).toBe(name)
     }
   })
+
+  it('keeps each assigned MESH exercise as a separate required route stage', () => {
+    const task = { id: 'mesh-351902085', kind: 'written', cardPolicyVersion: 1, cardPattern: 'source-units',
+      outputKind: 'structured-notes', instructionStatus: { state: 'reviewed' },
+      steps: [{ text: 'В упр. 218 выпиши сравнения.' }, { text: 'В упр. 223 выпиши олицетворения.' }] }
+    const stage = (id) => ({ id, expected: 'Выписать назначенные выражения', hintPreview: 'Найди выражения в тексте',
+      revealPreview: 'Сверь запись с оригиналом', reviewLabels: [id] })
+    const guide = { kind: 'structured-notes', presentation: 'learning-route', pattern: 'source-units', revision: 2,
+      stages: [stage('mesh-218'), stage('mesh-223')] }
+    expect(validLearningRoute('russian', task, guide)).toBe(true)
+    expect(validLearningRoute('russian', task, { ...guide, stages: [stage('assignment'), stage('evidence')] })).toBe(false)
+    expect(validLearningRoute('russian', task, { ...guide, stages: [stage('mesh-218')] })).toBe(false)
+    expect(validLearningRoute('russian', task, { ...guide, stages: [...guide.stages, stage('method-218')] })).toBe(false)
+  })
 })
 
 describe('numbered mathematics parent route gate', () => {

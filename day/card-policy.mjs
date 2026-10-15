@@ -30,7 +30,18 @@ export const learningRoutePatterns = Object.freeze({
   'source-analysis': Object.freeze({ subject: 'history', kind: 'text-structure', stages: Object.freeze(['origin', 'claim', 'evidence', 'limit']) }),
   'map-analysis': Object.freeze({ subject: 'geography', kind: 'text-structure', stages: Object.freeze(['question', 'source', 'observation', 'conclusion']) }),
   'source-evidence': Object.freeze({ subject: '*', kind: 'structured-notes', stages: Object.freeze(['assignment', 'evidence']) }),
+  'source-units': Object.freeze({ subject: '*', kind: 'structured-notes', assignedUnits: true }),
 })
+
+/** Each separately assigned numbered exercise is its own required review result.
+ * Additional textbook instructions do not become stages. @see ../docs/product/review-criteria-provenance.md#assigned-units */
+function assignedUnitStageIds(task) {
+  const steps = task?.steps
+  if (!Array.isArray(steps) || steps.length < 2) return []
+  const numbers = steps.map((step) => /^В упр\.\s*(\d+)\b/u.exec(step?.text ?? '')?.[1])
+  if (numbers.some((number) => !number) || new Set(numbers).size !== numbers.length) return []
+  return numbers.map((number) => `mesh-${number}`)
+}
 
 export function validLearningRoute(subjectId, task, guide) {
   const pattern = learningRoutePatterns[task?.cardPattern]
@@ -40,7 +51,9 @@ export function validLearningRoute(subjectId, task, guide) {
     && guide.pattern === task.cardPattern && guide.kind === pattern.kind && task.outputKind === pattern.kind
     && Number.isInteger(guide.revision) && guide.revision >= 1
     && Array.isArray(stages) && stages.length > 0 && stages.length <= 24
-    && (pattern.repeatable ? new Set(stages.map((stage) => stage.id)).size === stages.length
+    && (pattern.assignedUnits ? assignedUnitStageIds(task).length === stages.length
+        && stages.map((stage) => stage.id).join(',') === assignedUnitStageIds(task).join(',')
+      : pattern.repeatable ? new Set(stages.map((stage) => stage.id)).size === stages.length
       : stages.map((stage) => stage.id).join(',') === pattern.stages.join(','))
     && stages.every((stage) => stage.expected?.trim() && stage.hintPreview?.trim() && stage.revealPreview?.trim()
       && Array.isArray(stage.reviewLabels) && stage.reviewLabels.length
