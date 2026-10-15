@@ -36,3 +36,28 @@ describe('result and parent follow-up action', () => {
     expect(pending).not.toContain('Создать связанный тест по ошибкам')
   })
 })
+
+/** @see ../../docs/product/quizzes.md#optional-quiz */
+describe('one family requirement switch on the shared test card', () => {
+  const open: QuizCardAttempt = { token: 'root', testId: 'math-1', slug: 'math', title: 'Диаграммы', status: 'open', answered: 0, total: 20 }
+  it('offers the existing switch to a parent on an active required test', () => {
+    const html = renderToStaticMarkup(<QuizCard chain={[open]} parent />)
+    expect(html).toContain('Обязателен')
+    expect(html).toContain('role="switch"')
+    expect(html).toContain('aria-checked="true"')
+  })
+  it('shows a voluntary test to a pupil without an editing control', () => {
+    const html = renderToStaticMarkup(<QuizCard chain={[{ ...open, familyOptional: true }]} parent={false} />)
+    expect(html).toContain('По желанию')
+    expect(html).not.toContain('role="switch"')
+    expect(html).toContain('Пройти тест')
+  })
+  it('keeps the choice on a retry and hides the switch after submission', () => {
+    const retry = { ...open, token: 'retry', testId: 'math-2', linkedToTestId: 'math-1' }
+    const active = renderToStaticMarkup(<QuizCard chain={[{ ...open, status: 'submitted', familyOptional: true }, retry]} parent />)
+    expect(active).toContain('По желанию')
+    expect(active).toContain('aria-checked="false"')
+    const finished = renderToStaticMarkup(<QuizCard chain={[{ ...open, status: 'submitted', familyOptional: true }]} parent />)
+    expect(finished).not.toContain('role="switch"')
+  })
+})

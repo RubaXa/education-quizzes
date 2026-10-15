@@ -1,26 +1,25 @@
 {
   "files": {
     "src/DayPage.tsx": {
-      "sha256": "d4fc50edb7fb9f1abe73816924c08e5f79021b8207b5f4f1471ca8d04f0f9ec7",
-      "record": "docs/product/ui-decisions/teacher-sheet-beside-quiz-2026-10-14.md",
+      "sha256": "40c4728e81273204034b265f35e02a03af3e54b307e260a78b84cdc0521237cc",
+      "record": "docs/product/ui-decisions/optional-quiz-switch-2026-10-15.md",
       "specs": [
-        "docs/product/assessment-decision-graph.md",
-        "docs/product/dashboard.md",
-        "docs/product/materials.md",
         "docs/product/quizzes.md",
-        "docs/product/russian-language-route.md",
-        "docs/product/day-page.md"
+        "docs/product/dashboard.md",
+        "docs/product/design-system.md"
       ],
       "tests": [
         "src/lib/homeworkStatus.test.ts",
         "src/lib/quizCardViewModel.test.ts",
-        "src/lib/reviewPresentation.test.ts",
-        "src/components/ParentTaskGuide.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx"
+        "src/lib/assignmentPresentation.test.ts",
+        "src/components/QuizCard.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx",
+        "src/lib/store.optionalQuiz.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 14.10.2026: тест и лист учителя с двумя вариантами показывать вместе, необязательный вариант сохранять и позволить включить обратно; закрепить интеграционным тестом."
+        "evidence": "Прямой запрос родителя 15.10.2026: добавить в общий компонент теста переключатель обязательности только для активного теста, правильно исключать его из всех счётчиков и покрыть сценарий тестами."
       }
     },
     "src/DayPage.css": {
@@ -288,36 +287,47 @@
       }
     },
     "src/App.tsx": {
-      "sha256": "e88b3844050bb0f79b729283489f1b22942f73ca8c584afa8fa630885300218e",
-      "record": "docs/product/ui-decisions/quiz-threshold-and-page-slider-2026-10-14.md",
+      "sha256": "8c5789e6c53e0d8a99296e68f1cf0b2f268ae76ca91802efc8bf54f4cde14195",
+      "record": "docs/product/ui-decisions/optional-quiz-switch-2026-10-15.md",
       "specs": [
-        "docs/product/assessment-decision-graph.md",
+        "docs/product/quizzes.md",
         "docs/product/dashboard.md",
-        "docs/product/materials.md",
-        "docs/product/quizzes.md"
+        "docs/product/design-system.md"
       ],
       "tests": [
         "src/lib/homeworkStatus.test.ts",
-        "src/lib/quizCardViewModel.test.ts"
+        "src/lib/quizCardViewModel.test.ts",
+        "src/lib/assignmentPresentation.test.ts",
+        "src/components/QuizCard.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx",
+        "src/lib/store.optionalQuiz.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 14.10.2026 по снимкам: соседние страницы в одном ридере, зачёт любого теста от 80%, кнопка работы над ошибками и публикация сайта."
+        "evidence": "Прямой запрос родителя 15.10.2026: добавить в общий компонент теста переключатель обязательности только для активного теста, правильно исключать его из всех счётчиков и покрыть сценарий тестами."
       }
     },
     "src/DayDashboard.tsx": {
-      "sha256": "f0b04359dc43e53774d1c06dc3a4a96ef7eeebf95b73d70f332fe983ccc43679",
-      "record": "docs/product/ui-decisions/grade-mark-details-2026-10-14.md",
+      "sha256": "cd83b635848a481a1ca778c8e607fc673c28c09eb7427a85cbc725dd813e4b29",
+      "record": "docs/product/ui-decisions/optional-quiz-switch-2026-10-15.md",
       "specs": [
-        "docs/product/grades.md",
-        "docs/architecture/school-diary-port-adapter.md"
+        "docs/product/quizzes.md",
+        "docs/product/dashboard.md",
+        "docs/product/design-system.md"
       ],
       "tests": [
-        "src/DayDashboard.warmStart.test.tsx"
+        "src/lib/homeworkStatus.test.ts",
+        "src/lib/quizCardViewModel.test.ts",
+        "src/lib/assignmentPresentation.test.ts",
+        "src/components/QuizCard.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx",
+        "src/lib/store.optionalQuiz.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 14.10.2026 прямо попросил нажимать на конкретную оценку в списке и видеть вид работы и комментарий учителя из МЭШ."
+        "evidence": "Прямой запрос родителя 15.10.2026: добавить в общий компонент теста переключатель обязательности только для активного теста, правильно исключать его из всех счётчиков и покрыть сценарий тестами."
       }
     },
     "src/components/MaterialReader.tsx": {
@@ -339,39 +349,47 @@
       }
     },
     "src/components/QuizCard.css": {
-      "sha256": "4598226304ed527d0cca9f4028fd1a184665ee52b5fb69274332c52f4763d689",
-      "record": "docs/product/ui-decisions/quiz-threshold-and-page-slider-2026-10-14.md",
+      "sha256": "a574eda2adbdb6a9190c542a09bed6ad6f0cb88573eb843f3e4da1bd1335ed3c",
+      "record": "docs/product/ui-decisions/optional-quiz-switch-2026-10-15.md",
       "specs": [
-        "docs/product/assessment-decision-graph.md",
+        "docs/product/quizzes.md",
         "docs/product/dashboard.md",
-        "docs/product/materials.md",
-        "docs/product/quizzes.md"
+        "docs/product/design-system.md"
       ],
       "tests": [
+        "src/lib/homeworkStatus.test.ts",
+        "src/lib/quizCardViewModel.test.ts",
+        "src/lib/assignmentPresentation.test.ts",
         "src/components/QuizCard.test.tsx",
-        "src/lib/quizCompletion.test.ts"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx",
+        "src/lib/store.optionalQuiz.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 14.10.2026 по снимкам: соседние страницы в одном ридере, зачёт любого теста от 80%, кнопка работы над ошибками и публикация сайта."
+        "evidence": "Прямой запрос родителя 15.10.2026: добавить в общий компонент теста переключатель обязательности только для активного теста, правильно исключать его из всех счётчиков и покрыть сценарий тестами."
       }
     },
     "src/components/QuizCard.tsx": {
-      "sha256": "b86cefa596088be1b724ea41481aed94cc3e6242fe944e57cc11301431594081",
-      "record": "docs/product/ui-decisions/parent-followup-button-release-2026-10-14.md",
+      "sha256": "8b3176e71124fa8e246add47bdca4e63ab3fefa448027e4f5c08258e4bbd34f3",
+      "record": "docs/product/ui-decisions/optional-quiz-switch-2026-10-15.md",
       "specs": [
-        "docs/product/assessment-decision-graph.md",
+        "docs/product/quizzes.md",
         "docs/product/dashboard.md",
-        "docs/product/materials.md",
-        "docs/product/quizzes.md"
+        "docs/product/design-system.md"
       ],
       "tests": [
+        "src/lib/homeworkStatus.test.ts",
+        "src/lib/quizCardViewModel.test.ts",
+        "src/lib/assignmentPresentation.test.ts",
         "src/components/QuizCard.test.tsx",
-        "src/lib/quizCompletion.test.ts"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx",
+        "src/lib/store.optionalQuiz.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 14.10.2026: показать кнопку связанного теста для любого полностью проверенного результата ниже 100% и выпустить согласованное действие."
+        "evidence": "Прямой запрос родителя 15.10.2026: добавить в общий компонент теста переключатель обязательности только для активного теста, правильно исключать его из всех счётчиков и покрыть сценарий тестами."
       }
     },
     "src/lib/dayMaterialRefs.ts": {
@@ -393,93 +411,113 @@
       }
     },
     "src/lib/homeworkStatus.ts": {
-      "sha256": "f675ed4e6991fd0af52388e0e824d5e1e41f2d02bc45c275bb24f785381d535f",
-      "record": "docs/product/ui-decisions/quiz-threshold-and-page-slider-2026-10-14.md",
+      "sha256": "cdf48ab25bb2413f5253860b4edbcdd46441606853dc1380d44fc7a9ee0c6cbb",
+      "record": "docs/product/ui-decisions/optional-quiz-switch-2026-10-15.md",
       "specs": [
-        "docs/product/assessment-decision-graph.md",
+        "docs/product/quizzes.md",
         "docs/product/dashboard.md",
-        "docs/product/materials.md",
-        "docs/product/quizzes.md"
+        "docs/product/design-system.md"
       ],
       "tests": [
         "src/lib/homeworkStatus.test.ts",
-        "src/lib/quizCardViewModel.test.ts"
+        "src/lib/quizCardViewModel.test.ts",
+        "src/lib/assignmentPresentation.test.ts",
+        "src/components/QuizCard.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx",
+        "src/lib/store.optionalQuiz.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 14.10.2026 по снимкам: соседние страницы в одном ридере, зачёт любого теста от 80%, кнопка работы над ошибками и публикация сайта."
+        "evidence": "Прямой запрос родителя 15.10.2026: добавить в общий компонент теста переключатель обязательности только для активного теста, правильно исключать его из всех счётчиков и покрыть сценарий тестами."
       }
     },
     "src/lib/quiz.ts": {
-      "sha256": "eabf95b6ba88bef8f2a7f54ba5e38035d51114300382b77fb157989976c5d2f9",
-      "record": "docs/product/ui-decisions/quiz-threshold-and-page-slider-2026-10-14.md",
+      "sha256": "bb4b896526338558ab83bc63758193b77e846e7f165e90aa9e1956a707891a86",
+      "record": "docs/product/ui-decisions/optional-quiz-switch-2026-10-15.md",
       "specs": [
-        "docs/product/assessment-decision-graph.md",
+        "docs/product/quizzes.md",
         "docs/product/dashboard.md",
-        "docs/product/materials.md",
-        "docs/product/quizzes.md"
+        "docs/product/design-system.md"
       ],
       "tests": [
         "src/lib/homeworkStatus.test.ts",
-        "src/lib/quizCardViewModel.test.ts"
+        "src/lib/quizCardViewModel.test.ts",
+        "src/lib/assignmentPresentation.test.ts",
+        "src/components/QuizCard.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx",
+        "src/lib/store.optionalQuiz.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 14.10.2026 по снимкам: соседние страницы в одном ридере, зачёт любого теста от 80%, кнопка работы над ошибками и публикация сайта."
+        "evidence": "Прямой запрос родителя 15.10.2026: добавить в общий компонент теста переключатель обязательности только для активного теста, правильно исключать его из всех счётчиков и покрыть сценарий тестами."
       }
     },
     "src/lib/quizCardViewModel.ts": {
-      "sha256": "b082115c7d952036c364d6f70d9b8483e6c6442745dd75d97d5512c02a23f187",
-      "record": "docs/product/ui-decisions/quiz-threshold-and-page-slider-2026-10-14.md",
+      "sha256": "b8fb7e41aff9743821cdbdb7e18b3b12b4cea16ad62739637fc348cba261aa54",
+      "record": "docs/product/ui-decisions/optional-quiz-switch-2026-10-15.md",
       "specs": [
-        "docs/product/assessment-decision-graph.md",
+        "docs/product/quizzes.md",
         "docs/product/dashboard.md",
-        "docs/product/materials.md",
-        "docs/product/quizzes.md"
+        "docs/product/design-system.md"
       ],
       "tests": [
         "src/lib/homeworkStatus.test.ts",
-        "src/lib/quizCardViewModel.test.ts"
+        "src/lib/quizCardViewModel.test.ts",
+        "src/lib/assignmentPresentation.test.ts",
+        "src/components/QuizCard.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx",
+        "src/lib/store.optionalQuiz.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 14.10.2026 по снимкам: соседние страницы в одном ридере, зачёт любого теста от 80%, кнопка работы над ошибками и публикация сайта."
+        "evidence": "Прямой запрос родителя 15.10.2026: добавить в общий компонент теста переключатель обязательности только для активного теста, правильно исключать его из всех счётчиков и покрыть сценарий тестами."
       }
     },
     "src/lib/store.ts": {
-      "sha256": "14eaadcc61afe5f42fe8a61dfcf4cf662b1621ff424d189355585abe01fcc7bd",
-      "record": "docs/product/ui-decisions/quiz-threshold-and-page-slider-2026-10-14.md",
+      "sha256": "212cb5a99cb93c3bb848b9860f0bbca78a2850ed417c8ab937e2a89313d1efb1",
+      "record": "docs/product/ui-decisions/optional-quiz-switch-2026-10-15.md",
       "specs": [
-        "docs/product/assessment-decision-graph.md",
+        "docs/product/quizzes.md",
         "docs/product/dashboard.md",
-        "docs/product/materials.md",
-        "docs/product/quizzes.md"
+        "docs/product/design-system.md"
       ],
       "tests": [
         "src/lib/homeworkStatus.test.ts",
-        "src/lib/quizCardViewModel.test.ts"
+        "src/lib/quizCardViewModel.test.ts",
+        "src/lib/assignmentPresentation.test.ts",
+        "src/components/QuizCard.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx",
+        "src/lib/store.optionalQuiz.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 14.10.2026 по снимкам: соседние страницы в одном ридере, зачёт любого теста от 80%, кнопка работы над ошибками и публикация сайта."
+        "evidence": "Прямой запрос родителя 15.10.2026: добавить в общий компонент теста переключатель обязательности только для активного теста, правильно исключать его из всех счётчиков и покрыть сценарий тестами."
       }
     },
     "src/lib/useParentChildOverview.ts": {
-      "sha256": "fe4766bdad14221637f654c4c7ecfbc6588cb3a22b790e1133d5420ab8f75d20",
-      "record": "docs/product/ui-decisions/quiz-threshold-and-page-slider-2026-10-14.md",
+      "sha256": "92cba1947d99aa05e3c09783c881172a77175635aef9bb9faf6b95605abd4393",
+      "record": "docs/product/ui-decisions/optional-quiz-switch-2026-10-15.md",
       "specs": [
-        "docs/product/assessment-decision-graph.md",
+        "docs/product/quizzes.md",
         "docs/product/dashboard.md",
-        "docs/product/materials.md",
-        "docs/product/quizzes.md"
+        "docs/product/design-system.md"
       ],
       "tests": [
         "src/lib/homeworkStatus.test.ts",
-        "src/lib/quizCardViewModel.test.ts"
+        "src/lib/quizCardViewModel.test.ts",
+        "src/lib/assignmentPresentation.test.ts",
+        "src/components/QuizCard.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx",
+        "src/lib/store.optionalQuiz.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 14.10.2026 по снимкам: соседние страницы в одном ридере, зачёт любого теста от 80%, кнопка работы над ошибками и публикация сайта."
+        "evidence": "Прямой запрос родителя 15.10.2026: добавить в общий компонент теста переключатель обязательности только для активного теста, правильно исключать его из всех счётчиков и покрыть сценарий тестами."
       }
     },
     "src/lib/quizCompletion.ts": {
@@ -770,6 +808,66 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Родитель 14.10.2026 прямо попросил нажимать на конкретную оценку в списке и видеть вид работы и комментарий учителя из МЭШ."
+      }
+    },
+    "src/lib/assignmentPresentation.ts": {
+      "sha256": "a67856c7af03a0c40610e7a51e1270e4cad42ef8891b00bee9e96a22812c1229",
+      "record": "docs/product/ui-decisions/optional-quiz-switch-2026-10-15.md",
+      "specs": [
+        "docs/product/quizzes.md",
+        "docs/product/dashboard.md",
+        "docs/product/design-system.md"
+      ],
+      "tests": [
+        "src/lib/homeworkStatus.test.ts",
+        "src/lib/quizCardViewModel.test.ts",
+        "src/lib/assignmentPresentation.test.ts",
+        "src/components/QuizCard.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx",
+        "src/lib/store.optionalQuiz.test.ts"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя 15.10.2026: добавить в общий компонент теста переключатель обязательности только для активного теста, правильно исключать его из всех счётчиков и покрыть сценарий тестами."
+      }
+    },
+    "src/lib/dayDashboardLessonCache.ts": {
+      "sha256": "e915ce83d8e0ea44dc69f18c0e7c2760765e33c3ea57542a015ab464ec7bb4a1",
+      "record": "docs/product/ui-decisions/optional-quiz-switch-2026-10-15.md",
+      "specs": [
+        "docs/product/quizzes.md",
+        "docs/product/dashboard.md",
+        "docs/product/design-system.md"
+      ],
+      "tests": [
+        "src/lib/homeworkStatus.test.ts",
+        "src/lib/quizCardViewModel.test.ts",
+        "src/lib/assignmentPresentation.test.ts",
+        "src/components/QuizCard.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx",
+        "src/lib/store.optionalQuiz.test.ts"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя 15.10.2026: добавить в общий компонент теста переключатель обязательности только для активного теста, правильно исключать его из всех счётчиков и покрыть сценарий тестами."
+      }
+    },
+    "scripts/check-quiz-switch-viewport.mjs": {
+      "sha256": "61bdcb015b4925793c0070a987531eb40574fa844e3c13cfb8b31f8e960f99c5",
+      "record": "docs/product/ui-decisions/optional-quiz-switch-2026-10-15.md",
+      "specs": [
+        "docs/product/quizzes.md",
+        "docs/product/design-system.md"
+      ],
+      "tests": [
+        "src/components/QuizCard.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя 15.10.2026: переключатель активного теста должен помещаться в одном общем компоненте и быть покрыт проверками на мобильном экране."
       }
     }
   }

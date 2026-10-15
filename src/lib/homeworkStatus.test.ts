@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { lessonWorkItems, quizRequirement } from './homeworkStatus'
+import { lessonWorkItems, quizRequirement, requiredQuizRequirement } from './homeworkStatus'
 import type { DayTask } from './dayStore'
 
 /** @see ../../docs/product/assessment-decision-graph.md#followup-threshold */
@@ -28,5 +28,26 @@ describe('one required self-check across its linked attempts', () => {
     const items = lessonWorkItems([task], [], [], [], { root: { ...root.root, followupRequested: true } }, passed)
     expect(items).toHaveLength(1)
     expect(items[0].state).toBe('todo')
+  })
+
+  it('excludes an optional chain across attempts and restores it when required again', () => {
+    const chain = { root: { status: 'submitted', testId: 'math-1', familyOptional: true },
+      retry: { status: 'open', testId: 'math-2', linkedToTestId: 'math-1' } }
+    expect(quizRequirement('root', chain, {})).toEqual({ state: 'optional', detail: 'По желанию · не входит в итог' })
+    expect(requiredQuizRequirement('root', chain, {})).toBeNull()
+    expect(quizRequirement('root', { ...chain, root: { ...chain.root, familyOptional: false } }, {}).state).toBe('todo')
+  })
+
+  it('removes only the quiz from a teacher worksheet, preserving its problems', () => {
+    const task = { id: 'mesh-math', title: 'Диаграммы', kind: 'check', status: 'unknown', testToken: 'root',
+      problems: [{ id: 'math-p1', number: 1, title: 'Диаграмма', detail: '', source: 'Лист учителя' }] } as DayTask
+    const optional = { root: { status: 'open', testId: 'math-1', familyOptional: true } }
+    expect(lessonWorkItems([task], [], [], [], optional, {}).map((item) => item.id)).toEqual(['math-p1'])
+    expect(lessonWorkItems([task], [], [], [], { root: { ...optional.root, familyOptional: false } }, {}).map((item) => item.id)).toEqual(['math-p1', 'quiz:root'])
+  })
+
+  it('removes an optional standalone reading check from required work without deleting its source', () => {
+    const task = { id: 'mesh-read', title: 'Прочитать параграф', kind: 'read', status: 'unknown', testToken: 'root' } as DayTask
+    expect(lessonWorkItems([task], [], [], [], { root: { status: 'open', familyOptional: true } }, {})).toEqual([])
   })
 })

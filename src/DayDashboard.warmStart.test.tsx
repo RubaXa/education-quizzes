@@ -39,6 +39,22 @@ beforeEach(() => { vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime(new 
 afterEach(() => { probe.selected = null; probe.next = null; probe.grade = null; probe.dashboardError = null; for (const day of allDays) delete (day as typeof day & { homeworkUpdate?: unknown }).homeworkUpdate; allDays[0].schedule.splice(1); index.days = allDays; localStorage.clear(); sessionStorage.clear(); window.location.hash = ''; Element.prototype.scrollIntoView = originalScrollIntoView; vi.useRealTimers(); vi.restoreAllMocks() })
 
 describe('schedule warm start', () => {
+  it('shows an optional-only test in the lesson without counting it as homework', async () => {
+    const page = { targetDate: '2026-10-13', subjects: [{ id: 'biology', tasks: [] }],
+      testPlacements: [{ subjectId: 'biology', token: 'quiz-root' }] }
+    probe.selected = { ...base(), ready: true, page, subjects: [{ id: 'biology', name: 'Биология', icon: '🧬', tasks: [] }],
+      tests: { 'quiz-root': { status: 'open', testId: 'quiz-1', title: 'Самопроверка', familyOptional: true } } }
+    const host = document.createElement('div'); document.body.append(host)
+    const root = createRoot(host)
+    try {
+      await act(async () => { root.render(<DayDashboard token="calendar" parent />) })
+      const lesson = host.querySelector<HTMLDetailsElement>('.day-dashboard-lesson')!
+      expect(lesson.querySelector('.day-dashboard-lesson-badge')?.textContent).toBe('По желанию')
+      expect(lesson.querySelector('.day-dashboard-lesson-badge')?.textContent).not.toContain('0 из 1')
+      await act(async () => { lesson.open = true })
+      expect(lesson.querySelector('.day-dashboard-lesson-body')?.textContent).toContain('не входит в счётчик заданий')
+    } finally { await act(async () => root.unmount()); host.remove() }
+  })
   it('shows only a two-em dash for confirmed empty homework with an accessible explanation', async () => {
     index.days = [{ ...allDays[0], homework: [] }, allDays[1]]
     probe.selected = { ...base(), ready: true }

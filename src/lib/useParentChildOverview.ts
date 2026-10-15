@@ -4,7 +4,7 @@ import type { DayDashboardData, IndexedDay } from './dayDashboardStore'
 import { watchDayPage, watchDayReviews, watchDayUploads, watchEvidenceDayPages, withVerifiedPlatformResult } from './dayStore'
 import type { DayPageData, DayUpload, DayWorkReview } from './dayStore'
 import { useParentCompletions } from './useParentCompletions'
-import { lessonWorkItems, quizRequirement } from './homeworkStatus'
+import { lessonWorkItems, quizRequirement, requiredQuizRequirement } from './homeworkStatus'
 import { quizTaskForPlacement, withQuizPlacements } from './quizCardViewModel'
 import type { LessonWorkItem } from './homeworkStatus'
 import { useDayQuizOutcomes } from './useDayQuizOutcomes'
@@ -148,7 +148,7 @@ function useLiveParentChildOverview(dashboardToken: string): ParentChildOverview
   const evidencePages = pageEvidenceSnapshot.pages
   const quizStates = Object.fromEntries(Object.entries(tests).map(([token, assignment]) => [token, {
     status: assignment.status, testId: assignment.testId, linkedToTestId: assignment.linkedToTestId,
-    title: assignment.title, followupRequested: Boolean(assignment.followupRequestedAt),
+    title: assignment.title, followupRequested: Boolean(assignment.followupRequestedAt), familyOptional: Boolean(assignment.familyOptional),
   }]))
   // A MESH pointer to an earlier day has no new work item and must not become a completed subject.
   // @see ../../docs/product/dashboard.md#reference-only-homework
@@ -164,14 +164,21 @@ function useLiveParentChildOverview(dashboardToken: string): ParentChildOverview
     && !page.subjects.some((subject) => subject.id === placement.subjectId && quizTaskForPlacement(subject.tasks, (page.testPlacements ?? []).filter((item) => item.subjectId === subject.id && (item.originDate ?? day.date) === day.date), placement)))
   for (const placement of placed) {
     const assignment = tests[placement.token]
-    const item: LessonWorkItem = { id: `quiz:${placement.token}`, title: assignment?.title ?? 'Самопроверка', ...quizRequirement(placement.token, quizStates, scores) }
+    const requirement = requiredQuizRequirement(placement.token, quizStates, scores)
+    if (!requirement) continue
+    const item: LessonWorkItem = { id: `quiz:${placement.token}`, title: assignment?.title ?? 'Самопроверка', ...requirement }
     const subject = subjects.find((value) => value.id === placement.subjectId)
     const lineageItems = [item]
     if (subject) { subject.items.push(...lineageItems); subject.state = subjectState(subject.items) }
     else subjects.push({ id: placement.subjectId, name: page.subjects.find((value) => value.id === placement.subjectId)?.name ?? 'Самопроверка', state: subjectState(lineageItems), items: lineageItems })
   }
   const items = subjects.flatMap((subject) => subject.items)
-  if (!items.length) return { ...blank, state: day.complete && day.homework.length === 0 ? 'none' : 'unknown', reason: day.homework.length ? 'Точный состав ДЗ ещё не опубликован.' : 'ДЗ на этот день ещё уточняется.' }
+  if (!items.length) {
+    const voluntary = (page.testPlacements ?? []).some((placement) => quizRequirement(placement.token, quizStates, scores).state === 'optional')
+      || page.subjects.some((subject) => subject.tasks.some((task) => task.testToken && quizRequirement(task.testToken, quizStates, scores).state === 'optional'))
+    if (voluntary) return { ...blank, state: 'ready', subjects, reason: 'Обязательных действий нет; тесты по желанию остаются доступными.' }
+    return { ...blank, state: day.complete && day.homework.length === 0 ? 'none' : 'unknown', reason: day.homework.length ? 'Точный состав ДЗ ещё не опубликован.' : 'ДЗ на этот день ещё уточняется.' }
+  }
   const done = items.filter((item) => item.state === 'done').length
   const checking = items.filter((item) => item.state === 'checking').length
   const todo = items.filter((item) => item.state === 'todo').length

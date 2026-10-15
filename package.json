@@ -17,6 +17,7 @@
     "test:source-fragment-viewport": "node scripts/check-source-fragment-viewport.mjs",
     "test:material-preview-viewport": "node scripts/check-material-preview-viewport.mjs",
     "test:problem-variant-viewport": "node scripts/check-problem-variant-viewport.mjs",
+    "test:quiz-switch-viewport": "node scripts/check-quiz-switch-viewport.mjs",
     "test:local-first": "vitest run src/lib/localFirstPilot.test.ts src/lib/materialPageCache.test.ts",
     "bench:reads": "vitest run src/components/ParentHome.readBudget.test.tsx src/lib/bookPageSource.test.ts src/lib/dayMaterialRefs.test.ts --reporter=verbose",
     "index:reads": "node scripts/firestore-read-index.mjs --write",

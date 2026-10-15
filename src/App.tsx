@@ -32,7 +32,7 @@ import StatusIcon from './components/StatusIcon'
 import { ConnectionInvite } from './components/ConnectionInvite'
 import EducationImage from './components/EducationImage'
 import QuizCard from './components/QuizCard'
-import type { QuizCardAttempt } from '@/lib/quizCardViewModel'
+import { quizRoot, type QuizCardAttempt } from '@/lib/quizCardViewModel'
 import { reportUiError } from '@/lib/uiErrors'
 import './App.css'
 
@@ -704,9 +704,13 @@ function Dashboard({ token, parent = false }: { token: string; parent?: boolean 
           points: score?.points,
           maxPoints: score?.maxPoints,
           followupRequested: Boolean(assignment.followupRequestedAt),
+          familyOptional: Boolean(assignment.familyOptional),
         }
       }).sort((a, b) => (a.position ?? a.createdAt?.seconds ?? 0) - (b.position ?? b.createdAt?.seconds ?? 0))
-      setItems(next)
+      setItems(next.map((item) => {
+        const root = quizRoot(item, next)
+        return { ...item, rootToken: root.token, familyOptional: root.familyOptional }
+      }))
       setError('')
     }
     void watchDashboard(token, (index) => {

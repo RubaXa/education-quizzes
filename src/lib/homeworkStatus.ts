@@ -10,11 +10,17 @@ import { quizPassed } from './quizCompletion'
  *  @see ../../docs/architecture/family-data-model.md#parent-home */
 export type QuizScore = { points: number; maxPoints: number }
 export type LessonWorkItem = { id: string; title: string; state: 'done' | 'todo' | 'checking' | 'unclear'; detail: string; qualityOpen?: boolean }
-export type QuizWorkState = { status: string; testId?: string; linkedToTestId?: string | null; title?: string; followupRequested?: boolean; followupRequestedAt?: unknown }
+export type QuizWorkState = { status: string; testId?: string; linkedToTestId?: string | null; title?: string; followupRequested?: boolean; followupRequestedAt?: unknown; familyOptional?: boolean }
+
+export type QuizRequirement = Pick<LessonWorkItem, 'state' | 'detail'> | { state: 'optional'; detail: string }
 
 /** A chain is one required self-check. Earlier attempts remain in history.
  * @see ../../docs/product/dashboard.md#homework-progress */
-export function quizRequirement(rootToken: string, tests: Record<string, QuizWorkState>, scores: Record<string, QuizScore>): Pick<LessonWorkItem, 'state' | 'detail'> {
+export function quizRequirement(rootToken: string, tests: Record<string, QuizWorkState>, scores: Record<string, QuizScore>): QuizRequirement {
+  // The family choice is attached to the root, never to a retry. It removes
+  // only this self-check from required work; the teacher sheet stays separate.
+  // @see ../../docs/product/quizzes.md#optional-quiz
+  if (tests[rootToken]?.familyOptional) return { state: 'optional', detail: 'По желанию · не входит в итог' }
   let token = rootToken
   const seen = new Set<string>()
   while (tests[token]?.testId && !seen.has(tests[token].testId!)) {
@@ -30,6 +36,12 @@ export function quizRequirement(rootToken: string, tests: Record<string, QuizWor
   if (test.followupRequested || test.followupRequestedAt) return { state: 'todo', detail: 'Работа над ошибками запрошена · ждём новый тест' }
   if (quizPassed(score)) return { state: 'done', detail: `Тест: ${score.points} из ${score.maxPoints} верно` }
   return { state: 'todo', detail: `Нужна работа над ошибками · ${score.points} из ${score.maxPoints} верно` }
+}
+
+/** A voluntary test stays visible in QuizCard, but creates no work item. */
+export function requiredQuizRequirement(rootToken: string, tests: Record<string, QuizWorkState>, scores: Record<string, QuizScore>): Pick<LessonWorkItem, 'state' | 'detail'> | null {
+  const requirement = quizRequirement(rootToken, tests, scores)
+  return requirement.state === 'optional' ? null : requirement
 }
 
 /** @see ../../docs/product/dashboard.md#schedule-homework-status */
@@ -53,11 +65,12 @@ export function lessonWorkItems(tasks: DayTask[], uploads: DayUpload[], reviews:
       const state: LessonWorkItem['state'] = pending ? 'checking' : familyActions.length ? 'todo' : familyStageComplete || review?.status === 'verified' || accepted || covered ? 'done' : criterionPending ? 'unclear' : 'todo'
       return { id: problem.id, title: `${problem.variantId ? `${task.practiceVariants?.find((variant) => variant.id === problem.variantId)?.title ?? 'Вариант'} · ` : ''}№ ${problem.number}. ${problem.title}`, state, qualityOpen: covered, detail: familyActions.length ? `По решению родителя: ${familyActions.join('; ')}` : state === 'unclear' ? `${review?.summary ?? 'Работа разобрана; критерий не подтверждён.'} Новое фото не требуется.` : state === 'checking' ? 'Фото получено, ждём проверки' : state === 'done' ? covered ? 'Работа сдана; критерий оценки пока не установлен. Новых действий не требуется.' : accepted ? 'Засчитано родителем · ответ верен, ход неполон' : 'Решение проверено' : review?.status === 'needs-fix' ? 'Нужно исправить решение' : review?.status === 'partial' ? 'Нужно дополнить решение' : 'Нужно выполнить и загрузить решение' }
     }),
-      ...(task.testToken ? [{ id: `quiz:${task.testToken}`, title: 'Самопроверка по теме',
-        ...quizRequirement(task.testToken, tests, scores) }] : []),
+      ...(task.testToken && requiredQuizRequirement(task.testToken, tests, scores) ? [{ id: `quiz:${task.testToken}`, title: 'Самопроверка по теме',
+        ...requiredQuizRequirement(task.testToken, tests, scores)! }] : []),
     ]
     if ((task.kind === 'read' || task.kind === 'check') && task.testToken) {
-      return [{ id: task.id, title: task.title, ...quizRequirement(task.testToken, tests, scores) }]
+      const requirement = requiredQuizRequirement(task.testToken, tests, scores)
+      return requirement ? [{ id: task.id, title: task.title, ...requirement }] : []
     }
     const review = reviews.find((item) => item.taskId === task.id)
     const pending = uploads.some((upload) => uploadMatchesTask(upload, task.id) && ['requested', 'awaiting-upload', 'uploaded', 'pending'].includes(upload.status))

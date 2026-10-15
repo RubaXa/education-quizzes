@@ -17,6 +17,8 @@ const scene = vi.hoisted(() => ({
   decisions: [] as ParentCompletionEvent[],
   guides: {} as Record<string, unknown>,
   choiceCalls: [] as boolean[],
+  quizOptional: false,
+  quizChoiceCalls: [] as boolean[],
 }))
 
 vi.mock('./lib/dayStore', async (importOriginal) => ({
@@ -47,9 +49,16 @@ vi.mock('./lib/useDayQuizOutcomes', () => ({
   useDayQuizOutcomes: () => ({
     boardEntries: [{ token: 'diagrams-test', testId: 'quiz-1', title: 'Диаграммы — тренировка', subject: 'Математика', slug: 'diagrams' }],
     tests: { 'diagrams-test': { testId: 'quiz-1', status: 'open', title: 'Диаграммы — тренировка', subject: 'Математика',
-      description: 'Самопроверка по теме.', questions: Array.from({ length: 20 }, (_, index) => ({ id: `q-${index}` })), answers: {} } },
+      description: 'Самопроверка по теме.', questions: Array.from({ length: 20 }, (_, index) => ({ id: `q-${index}` })), answers: {}, familyOptional: scene.quizOptional } },
     scores: {}, ready: true,
   }),
+}))
+vi.mock('./lib/store', async (importOriginal) => ({
+  ...await importOriginal<typeof import('./lib/store')>(),
+  setQuizRequired: async (_root: string, _active: string, required: boolean) => {
+    scene.quizChoiceCalls.push(required)
+    scene.quizOptional = !required
+  },
 }))
 vi.mock('./lib/parentCompletion', async (importOriginal) => ({
   ...await importOriginal<typeof import('./lib/parentCompletion')>(),
@@ -98,6 +107,8 @@ beforeEach(() => {
     decidedAt: { seconds: 100, nanoseconds: 0 } }]
   scene.guides = { [firstProblemIds[0]]: { guide: { kind: 'worked-solution', presentation: 'math-route', overview: 'Разбор для родителя', stages: [] } } }
   scene.choiceCalls = []
+  scene.quizOptional = false
+  scene.quizChoiceCalls = []
   sessionStorage.clear()
   sessionStorage.setItem('education-day-initial-tab', 'homework')
 })
@@ -112,6 +123,37 @@ async function renderPage(parent: boolean) {
 }
 
 describe('day page: teacher sheet and linked self-check', () => {
+  it('excludes only the active quiz, then restores it without losing the teacher sheet', async () => {
+    const view = await renderPage(true)
+    try {
+      const control = () => view.host.querySelector<HTMLButtonElement>('.day-quiz-requirement [role="switch"]')
+      expect(control()?.getAttribute('aria-checked')).toBe('true')
+      expect(view.host.querySelector('.day-subject-assignment-count')?.textContent).toContain('Задачи: 5 из 5')
+      await act(async () => { control()?.click() })
+      await act(async () => { view.root.render(<DayPage token="student-token" parent headerReturnTarget={null} />) })
+      expect(scene.quizChoiceCalls).toEqual([false])
+      expect(control()?.getAttribute('aria-checked')).toBe('false')
+      expect(view.host.querySelector('.day-quiz-lineage')?.textContent).toContain('По желанию')
+      expect(view.host.querySelector('.day-subject-assignment-count')?.textContent).toContain('Задачи: 5 из 5')
+      expect(view.host.querySelector('.problem-group')).not.toBeNull()
+      await act(async () => { control()?.click() })
+      await act(async () => { view.root.render(<DayPage token="student-token" parent headerReturnTarget={null} />) })
+      expect(scene.quizChoiceCalls).toEqual([false, true])
+      expect(control()?.getAttribute('aria-checked')).toBe('true')
+    } finally { await view.cleanup() }
+  })
+  it('does not count an optional test as remaining, but keeps an unfinished teacher number', async () => {
+    scene.quizOptional = true
+    const view = await renderPage(true)
+    try {
+      expect(view.host.querySelector('.day-summary strong')?.textContent).toBe('0')
+      expect(view.host.querySelector('.day-summary')?.textContent).not.toContain('обязательных тестов')
+      scene.reviews = scene.reviews.filter((review) => review.taskId !== firstProblemIds[0])
+      await act(async () => { view.root.render(<DayPage token="student-token" parent headerReturnTarget={null} />) })
+      expect(view.host.querySelector('.day-summary strong')?.textContent).toBe('1')
+      expect(view.host.querySelector('.day-subject-assignment-count')?.textContent).toContain('Задачи: 4 из 5')
+    } finally { await view.cleanup() }
+  })
   it('keeps a reading-only assignment in one quiz card with the exact instruction', async () => {
     const reading = page()
     reading.subjects[0].tasks[0] = { id: taskId, kind: 'read', status: 'unknown', title: 'Прочитать параграф',

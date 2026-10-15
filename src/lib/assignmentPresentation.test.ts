@@ -9,7 +9,7 @@ describe('отдельные назначения МЭШ внутри одног
     const progress = assignmentProgress([geometry, ratios], (task) => task.id === 'geometry'
       ? [{ state: 'done' }, { state: 'done' }, { state: 'done' }, { state: 'done' }]
       : [{ state: 'todo' }])
-    expect(progress).toEqual({ total: 2, completed: 1, complete: false, multiple: true })
+    expect(progress).toEqual({ total: 2, requiredTotal: 2, completed: 1, complete: false, multiple: true })
     expect(assignmentTitle(geometry, 0, 2)).toBe('Задание 1 · Геометрия: задачи 3, 4, 6 и 7')
     expect(assignmentTitle(ratios, 1, 2)).toBe('Задание 2 · Пропорции: решить задания из файла')
   })
@@ -18,5 +18,9 @@ describe('отдельные назначения МЭШ внутри одног
   })
   it('не закрывает лист по частично проверенным пунктам', () => {
     expect(assignmentProgress([ratios], () => [{ state: 'done' }, { state: 'checking' }]).complete).toBe(false)
+  })
+  it('не включает необязательную самопроверку в счётчик назначений', () => {
+    expect(assignmentProgress([geometry, ratios], (task) => task.id === 'geometry' ? [{ state: 'done' }] : []))
+      .toEqual({ total: 2, requiredTotal: 1, completed: 1, complete: true, multiple: true })
   })
 })

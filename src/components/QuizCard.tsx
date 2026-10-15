@@ -3,7 +3,9 @@ import { ChevronDown, Copy, ExternalLink, RotateCcw } from 'lucide-react'
 import type { QuizCardAttempt } from '@/lib/quizCardViewModel'
 import { quizPassed } from '@/lib/quizCompletion'
 import { requestQuizFollowup } from '@/lib/store'
+import { setQuizRequired } from '@/lib/store'
 import StatusIcon from './StatusIcon'
+import RequirementSwitch from './RequirementSwitch'
 import './QuizCard.css'
 
 function scoreNumber(value: number) { return new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 2 }).format(value) }
@@ -13,6 +15,7 @@ function questionWord(count: number) { const last = count % 10; const lastTwo = 
  * Content and attempt history come from Firebase; presentation never depends on subject.
  * @see ../../docs/product/card-generation-policy.md#quiz-adapter
  * @see ../../docs/product/quizzes.md#followup-request
+ * @see ../../docs/product/quizzes.md#optional-quiz
  * @see ../../docs/product/status-presentation.md#components */
 export function QuizProgress({ test }: { test: QuizCardAttempt }) {
   const answered = Math.min(test.answered, test.total)
@@ -39,8 +42,12 @@ export default function QuizCard({ chain, parent, context = 'Самопрове�
   const [requesting, setRequesting] = useState(false)
   const [requestError, setRequestError] = useState('')
   const [requestedLocally, setRequestedLocally] = useState(false)
+  const [savingRequirement, setSavingRequirement] = useState(false)
+  const [requirementError, setRequirementError] = useState('')
   const latest = chain.at(-1)
   if (!latest) return null
+  const root = chain[0]
+  const required = !root.familyOptional
   const earlier = chain.slice(0, -1)
   const graded = earlier.filter((test) => test.status === 'submitted' && test.points != null && test.maxPoints != null)
   const points = graded.reduce((sum, test) => sum + (test.points ?? 0), 0)
@@ -53,12 +60,12 @@ export default function QuizCard({ chain, parent, context = 'Самопрове�
   const scoreStatus = hasScore ? quizPassed({ points: latest.points!, maxPoints: latest.maxPoints! }) && !followupRequested ? 'complete' : 'partial'
     : latest.status === 'submitted' ? 'waiting' : latest.answered ? 'started' : 'ready'
   return <section className="day-quiz-lineage" id={id} aria-label={`Самопроверки: ${context}`}>
-    <div className="day-quiz-lineage-head"><strong>{context === 'Самопроверка' ? context : `Самопроверка: ${context}`}</strong><span className={`day-quiz-lineage-score ${scoreStatus}`} aria-label={latest.status === 'submitted' ? scoreLabel : `${latest.answered ? 'В процессе' : 'Не начат'} · ${latest.answered} из ${latest.total} ответов`}><StatusIcon status={scoreStatus} size={14} />{scoreLabel}</span></div>
+    <div className="day-quiz-lineage-head"><strong>{context === 'Самопроверка' ? context : `Самопроверка: ${context}`}</strong><div className="day-quiz-lineage-meta"><span className={`day-quiz-lineage-score ${scoreStatus}`} aria-label={latest.status === 'submitted' ? scoreLabel : `${latest.answered ? 'В процессе' : 'Не начат'} · ${latest.answered} из ${latest.total} ответов`}><StatusIcon status={scoreStatus} size={14} />{scoreLabel}</span>{latest.status === 'open' && (parent ? <span className="day-quiz-requirement"><span>{required ? 'Обязателен' : 'По желанию'}</span><RequirementSwitch checked={required} disabled={savingRequirement} label={`Учитывать тест «${latest.title}» в семейном плане`} onChange={(next) => { setSavingRequirement(true); setRequirementError(''); void setQuizRequired(root.rootToken ?? root.token, latest.token, next).catch((cause) => setRequirementError(cause instanceof Error ? cause.message : 'Не удалось сохранить выбор.')).finally(() => setSavingRequirement(false)) }} /></span> : !required && <span className="day-quiz-optional-label">По желанию</span>)}</div></div>
     <div className="day-quiz-lineage-current">{latest.status === 'submitted' && earlier.length > 0 && <small>Последний тест</small>}<h3>{latest.title}</h3>{latest.description && <p>{latest.description}</p>}
       {assignment}
       <QuizProgress test={latest} />
       <div className="day-quiz-lineage-actions">{parent && allowFollowupRequest && hasScore && latest.points! < latest.maxPoints! && <button type="button" className="day-quiz-copy" disabled={requesting || followupRequested} aria-label={followupRequested ? 'Связанный тест запрошен' : 'Создать связанный тест по ошибкам'} title={followupRequested ? 'Связанный тест запрошен' : 'Создать связанный тест по ошибкам'} onClick={() => { setRequesting(true); setRequestError(''); void requestQuizFollowup(latest.token, latest.testId).then(() => setRequestedLocally(true)).catch((cause) => setRequestError(cause instanceof Error ? cause.message : 'Не удалось отправить запрос.')).finally(() => setRequesting(false)) }}><RotateCcw size={17} aria-hidden="true" /></button>}<a className="day-quiz-link" href={href} onClick={onOpen}>{label} <ExternalLink size={15} aria-hidden="true" /></a>{parent && <button type="button" className="day-quiz-copy" aria-label="Скопировать ссылку ребёнку" title="Скопировать ссылку ребёнку" onClick={() => void navigator.clipboard.writeText(new URL(`#/t/${latest.slug}~${latest.token}`, window.location.href).href).then(() => { setCopied(true); setCopyError('') }).catch(() => setCopyError('Не удалось скопировать ссылку.'))}><Copy size={16} aria-hidden="true" /></button>}</div>
-      {followupRequested && <small role="status">Работа над ошибками запрошена · ждём новый тест</small>}{requestError && <small role="alert">{requestError}</small>}
+      {followupRequested && <small role="status">Работа над ошибками запрошена · ждём новый тест</small>}{requestError && <small role="alert">{requestError}</small>}{savingRequirement && <small role="status">Сохраняем выбор…</small>}{requirementError && <small role="alert">{requirementError}</small>}
       {copied && <small role="status">Ссылка скопирована</small>}{copyError && <small role="alert">{copyError}</small>}
       {materials && <details className="day-quiz-materials"><summary>Условие и страницы учебника <ChevronDown size={15} aria-hidden="true" /></summary><div>{materials}</div></details>}
       {extraActions && <div className="day-quiz-extra-actions">{extraActions}</div>}

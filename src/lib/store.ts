@@ -48,6 +48,27 @@ export async function requestQuizFollowup(token: string, testId: string): Promis
   })
 }
 
+/** Parent choice belongs to the root assignment, while the current open attempt
+ * can be a later linked test. One or two document reads happen only on a click.
+ * @see ../../docs/product/quizzes.md#optional-quiz */
+export async function setQuizRequired(rootToken: string, activeToken: string, required: boolean): Promise<void> {
+  const rootRef = doc(db, 'assignments', rootToken)
+  const activeRef = doc(db, 'assignments', activeToken)
+  await runTransaction(db, async (transaction) => {
+    const root = await transaction.get(rootRef)
+    const active = activeToken === rootToken ? root : await transaction.get(activeRef)
+    if (!root.exists() || !active.exists()) throw new Error('Тест больше не найден. Обновите страницу.')
+    const origin = root.data() as Assignment & { familyId?: string; childId?: string }
+    const current = active.data() as Assignment & { familyId?: string; childId?: string }
+    if (origin.linkedToTestId || current.status !== 'open'
+      || !origin.familyId || !origin.childId || origin.familyId !== current.familyId || origin.childId !== current.childId) {
+      throw new Error('Активный тест изменился. Обновите страницу.')
+    }
+    if (Boolean(origin.familyOptional) === !required) return
+    transaction.update(rootRef, { familyOptional: !required, familyChoiceAt: serverTimestamp(), familyChoiceBy: currentEducationPersonId() })
+  })
+}
+
 /** @see ../../docs/product/quizzes.md#quiz-runner */
 export function watchAssignment(token: string, onChange: (assignment: Assignment, confirmed: boolean) => void, onError: (error: Error) => void) {
   return onSnapshot(doc(db, 'assignments', token), { includeMetadataChanges: true }, (snapshot) => {

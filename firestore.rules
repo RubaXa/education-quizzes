@@ -458,6 +458,22 @@ service cloud.firestore {
         && request.resource.data.diff(resource.data).affectedKeys().hasAll(['followupRequestedAt', 'followupRequestedBy'])
         && request.resource.data.followupRequestedAt == request.time
         && request.resource.data.followupRequestedBy == currentPersonId();
+
+      // Only a parent may change whether a root self-check counts in the
+      // family plan. Answers, scoring and the teacher task are untouched.
+      // @see docs/product/quizzes.md#optional-quiz
+      allow update: if resource.data.familyId is string
+        && resource.data.childId is string
+        && parentMember(resource.data.familyId)
+        && childMember(resource.data.familyId, resource.data.childId)
+        && (!('linkedToTestId' in resource.data) || resource.data.linkedToTestId == null)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['familyOptional', 'familyChoiceAt', 'familyChoiceBy'])
+        && request.resource.data.diff(resource.data).affectedKeys().hasAll(['familyOptional', 'familyChoiceAt'])
+        && request.resource.data.familyOptional is bool
+        && (('familyOptional' in resource.data && request.resource.data.familyOptional != resource.data.familyOptional)
+          || (!('familyOptional' in resource.data) && request.resource.data.familyOptional == true))
+        && request.resource.data.familyChoiceAt == request.time
+        && request.resource.data.familyChoiceBy == currentPersonId();
     }
 
     match /answerKeys/{linkToken} {

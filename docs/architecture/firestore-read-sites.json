@@ -4044,6 +4044,30 @@
     "refresh": "while relevant view is open"
   },
   {
+    "id": "src/lib/store.ts#transaction.get#493907a6ed76",
+    "file": "src/lib/store.ts",
+    "line": 58,
+    "api": "transaction.get",
+    "target": "rootRef",
+    "group": "client-quizzes",
+    "assessment": "justified",
+    "policy": "parent-action-point",
+    "refresh": "once on explicit parent switch",
+    "note": "Одно адресное чтение исходного назначения только при нажатии родительского переключателя; проверяет текущий выбор и семейную принадлежность перед атомарной записью. На открытом исходном тесте это единственное чтение."
+  },
+  {
+    "id": "src/lib/store.ts#transaction.get#5a367a551b66",
+    "file": "src/lib/store.ts",
+    "line": 59,
+    "api": "transaction.get",
+    "target": "activeRef",
+    "group": "client-quizzes",
+    "assessment": "justified",
+    "policy": "parent-action-point",
+    "refresh": "once on explicit parent switch for linked test",
+    "note": "Второе адресное чтение выполняется только если открыт связанный тест: транзакция подтверждает, что текущая попытка ещё открыта и принадлежит тому же ребёнку. При исходной попытке повторного чтения нет; фоновых listener не добавлено."
+  },
+  {
     "id": "sync/help-request-cache.mjs#admin.get#26488c360e24",
     "file": "sync/help-request-cache.mjs",
     "line": 41,

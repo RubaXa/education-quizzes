@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { findQuizPlacement, quizTaskForPlacement, withQuizPlacements, type QuizCardAttempt } from './quizCardViewModel'
+import { findQuizPlacement, quizRoot, quizTaskForPlacement, withQuizPlacements, type QuizCardAttempt } from './quizCardViewModel'
 import type { DayTask, DayTestPlacement } from './dayStore'
 
 const quiz = (token: string, testId: string, linkedToTestId?: string): QuizCardAttempt => ({
@@ -28,5 +28,10 @@ describe('destination of a linked self-check', () => {
   })
   it('does not send an unrelated test to this assignment', () => {
     expect(findQuizPlacement([{ token: 'first', taskId: 'english-work' }], tests, 'other')).toBeUndefined()
+  })
+  it('takes the optional decision from the first attempt even on a later board card', () => {
+    const chain = [quiz('first', 'test-1'), quiz('retry', 'test-2', 'test-1'), quiz('again', 'test-3', 'test-2')]
+    expect(quizRoot(chain[2], chain).token).toBe('first')
+    expect(quizRoot(chain[1], chain).token).toBe('first')
   })
 })

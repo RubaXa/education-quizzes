@@ -5,14 +5,14 @@ import type { LessonWorkItem } from './homeworkStatus'
  * @see ../../docs/product/dashboard.md#dashboard-warm-start */
 export type CachedLessonStatus = {
   key: string
-  tone: 'checking' | 'unclear' | 'complete' | 'partial' | 'empty' | 'reference' | 'assigned' | 'none' | 'unknown'
+  tone: 'checking' | 'unclear' | 'complete' | 'partial' | 'empty' | 'reference' | 'assigned' | 'none' | 'optional' | 'unknown'
   badge: string
   items: LessonWorkItem[]
   referenceDate?: string
   referenceText?: string
 }
 
-const tones = new Set<CachedLessonStatus['tone']>(['checking', 'unclear', 'complete', 'partial', 'empty', 'reference', 'assigned', 'none', 'unknown'])
+const tones = new Set<CachedLessonStatus['tone']>(['checking', 'unclear', 'complete', 'partial', 'empty', 'reference', 'assigned', 'none', 'optional', 'unknown'])
 function key(token: string, role: 'parent' | 'student', date: string) {
   return `education-day-dashboard-lesson-v1:${role}:${token}:${date}`
 }

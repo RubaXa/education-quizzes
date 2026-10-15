@@ -9,6 +9,7 @@ export type QuizCardAttempt = {
   slug: string; previewToken?: string; status: Assignment['status']; answered: number; total: number;
   points?: number; maxPoints?: number;
   followupRequested?: boolean;
+  familyOptional?: boolean; rootToken?: string;
 }
 
 /** A single check task and a single standalone quiz are one family self-check.
@@ -39,6 +40,21 @@ export function quizChain(root: QuizCardAttempt | undefined, tests: QuizCardAtte
     chain.push(next)
     seen.add(next.testId)
   }
+}
+
+/** The board shows attempts separately, but the requirement belongs to the
+ * oldest available assignment in their linked chain. */
+export function quizRoot<T extends Pick<QuizCardAttempt, 'token' | 'testId' | 'linkedToTestId'>>(item: T, tests: T[]): T {
+  const byTestId = new Map(tests.map((test) => [test.testId, test]))
+  const seen = new Set([item.testId])
+  let root = item
+  while (root.linkedToTestId && !seen.has(root.linkedToTestId)) {
+    const previous = byTestId.get(root.linkedToTestId)
+    if (!previous) break
+    root = previous
+    seen.add(previous.testId)
+  }
+  return root
 }
 
 /** A linked quiz has one visible card at its root assignment, not an extra DOM card.
