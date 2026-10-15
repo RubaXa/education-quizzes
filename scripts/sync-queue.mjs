@@ -16,6 +16,8 @@ import { followupQuestionCount, needsQuizFollowup } from '../src/lib/quizComplet
  * @see ../docs/product/global-sync.md#operator-queue
  */
 const db = operatorFirestore()
+const started = performance.now()
+const measurements = { phaseMs: {}, sourceDocuments: {}, sdkCalls: {} }
 const queueProjectionFile = resolve('.local/project-sync/queue-projection.json')
 const candidateCacheFile = resolve('.local/project-sync/candidate-fingerprints.json')
 const command = process.argv[2] ?? 'scan'
@@ -23,6 +25,17 @@ if (!['scan', 'list', 'claim', 'advance', 'finish', 'block'].includes(command)) 
   throw new Error('Использование: npm run sync:queue -- scan|list|claim|advance|finish|block [--id ID] [--phase PHASE] [--evidence REF] [--reason CODE]')
 }
 function option(name) { const at = process.argv.indexOf(name); return at < 0 ? null : process.argv[at + 1] }
+async function boundedMap(values, limit, visit) {
+  const result = new Array(values.length)
+  let next = 0
+  await Promise.all(Array.from({ length: Math.min(limit, values.length) }, async () => {
+    while (next < values.length) {
+      const index = next++
+      result[index] = await visit(values[index])
+    }
+  }))
+  return result
+}
 function candidateCache() {
   try {
     const data = JSON.parse(readFileSync(candidateCacheFile, 'utf8'))
@@ -56,7 +69,9 @@ function inboxSnapshot() {
   return snapshot
 }
 async function discover() {
+  const inboxStarted = performance.now()
   const inbox = inboxSnapshot()
+  measurements.phaseMs.inbox = Math.round(performance.now() - inboxStarted)
   const candidates = inbox.items.map((item) => {
     const kind = inboxKind(item)
     const sourceId = `${item.dayDate ?? 'library'}:${item.id}`
@@ -73,6 +88,10 @@ async function discover() {
     db.collection('dayOwners').where('date', '>=', first).where('date', '<=', last).get(),
     db.collection('dayPages').where('targetDate', '>=', first).where('targetDate', '<=', last).get(),
   ])
+  measurements.sourceDocuments.dayOwners = owners.size
+  measurements.sourceDocuments.dayPages = pages.size
+  measurements.sdkCalls.dayOwnerQueries = 1
+  measurements.sdkCalls.dayPageQueries = 1
   const ownerByToken = new Map(owners.docs.map((doc) => [doc.id, doc.data()]))
   for (const doc of pages.docs) {
     const page = doc.data()
@@ -111,47 +130,75 @@ async function discover() {
   const historical = process.argv.includes('--full-audit')
     ? await db.collection('assignments').where('status', '==', 'submitted').get() : null
   const submittedQuizzes = new Map([...recentQuizzes.docs, ...parentRequests.docs, ...(historical?.docs ?? [])].map((doc) => [doc.id, doc]))
-  for (const doc of submittedQuizzes.values()) {
+  measurements.sourceDocuments.recentQuizzes = recentQuizzes.size
+  measurements.sourceDocuments.parentRequests = parentRequests.size
+  measurements.sourceDocuments.historicalQuizzes = historical?.size ?? 0
+  measurements.sdkCalls.quizSourceQueries = historical ? 3 : 2
+  measurements.sdkCalls.followupLinkedQueries = 0
+  measurements.sdkCalls.followupDetailGets = 0
+  measurements.sourceDocuments.linkedAssignments = 0
+  const followupStarted = performance.now()
+  const followups = await boundedMap([...submittedQuizzes.values()], 4, async (doc) => {
     const assignment = doc.data()
-    if (assignment.status !== 'submitted' || !assignment.familyId || !assignment.childId || !assignment.testId || !Array.isArray(assignment.questions)) continue
+    if (assignment.status !== 'submitted' || !assignment.familyId || !assignment.childId || !assignment.testId || !Array.isArray(assignment.questions)) return null
+    measurements.sdkCalls.followupLinkedQueries++
     const linked = await db.collection('assignments').where('linkedToTestId', '==', assignment.testId).get()
-    if (linked.docs.some((item) => item.data().familyId === assignment.familyId && item.data().childId === assignment.childId)) continue
+    measurements.sourceDocuments.linkedAssignments += linked.size
+    if (linked.docs.some((item) => item.data().familyId === assignment.familyId && item.data().childId === assignment.childId)) return null
+    measurements.sdkCalls.followupDetailGets += 2
     const [answerKey, review] = await Promise.all([db.doc(`answerKeys/${doc.id}`).get(), db.doc(`reviews/${doc.id}`).get()])
-    if (!answerKey.exists || pendingManualQuestionIds(assignment, review.data()).length) continue
+    if (!answerKey.exists || pendingManualQuestionIds(assignment, review.data()).length) return null
     const results = grade(assignment, answerKey.data(), review.data())
     const score = summarize(results)
-    if (score.pending || !needsQuizFollowup({ points: score.earned, maxPoints: score.possible }, Boolean(assignment.followupRequestedAt))) continue
+    if (score.pending || !needsQuizFollowup({ points: score.earned, maxPoints: score.possible }, Boolean(assignment.followupRequestedAt))) return null
     const errorCount = results.filter((result) => !result.skipped && result.points !== null && result.points < result.question.points).length
-    if (!errorCount) continue
-    candidates.push(job('prepare-targeted-followup', assignment.familyId, assignment.childId,
+    if (!errorCount) return null
+    return job('prepare-targeted-followup', assignment.familyId, assignment.childId,
       assignment.testId, { type: 'quiz', id: doc.id, testId: assignment.testId,
         originalCount: assignment.questions.length, errorCount,
         targetCount: followupQuestionCount(assignment.questions.length, errorCount),
         trigger: assignment.followupRequestedAt ? 'parent-request' : 'below-threshold' },
-      [assignment.testId, assignment.submittedAt?.toMillis?.(), review.updateTime?.toMillis?.(), assignment.followupRequestedAt?.toMillis?.()], 35))
-  }
+      [assignment.testId, assignment.submittedAt?.toMillis?.(), review.updateTime?.toMillis?.(), assignment.followupRequestedAt?.toMillis?.()], 35)
+  })
+  candidates.push(...followups.filter(Boolean))
+  measurements.phaseMs.followups = Math.round(performance.now() - followupStarted)
   // Reviewed uploads with no corresponding result are not in the ordinary
   // inbox. Detect the orphan rather than silently treating it as finished.
-  for (const ownerDoc of owners.docs) {
+  measurements.sdkCalls.reviewedUploadQueries = 0
+  measurements.sdkCalls.reviewedProgressQueries = 0
+  measurements.sdkCalls.reviewedPageGets = 0
+  measurements.sourceDocuments.reviewedUploads = 0
+  measurements.sourceDocuments.reviewedProgress = 0
+  const reviewedStarted = performance.now()
+  const orphanGroups = await boundedMap(owners.docs, 4, async (ownerDoc) => {
     const owner = ownerDoc.data()
-    if (!window.has(owner.date)) continue
+    if (!window.has(owner.date)) return []
+    measurements.sdkCalls.reviewedUploadQueries++
     const files = await db.collection(`dayUploads/${ownerDoc.id}/files`).where('status', '==', 'reviewed').get()
+    measurements.sourceDocuments.reviewedUploads += files.size
     const reviewed = files.docs.filter((file) => file.data().taskId && file.data().origin !== 'archive')
-    if (!reviewed.length) continue
+    if (!reviewed.length) return []
+    measurements.sdkCalls.reviewedProgressQueries++
     const results = await db.collection(`dayProgress/${ownerDoc.id}/items`).get()
+    measurements.sourceDocuments.reviewedProgress += results.size
     const byTask = new Map(results.docs.map((doc) => [doc.id, doc.data()]))
+    measurements.sdkCalls.reviewedPageGets++
     const page = (await db.doc(`dayPages/${ownerDoc.id}`).get()).data()
     const pageTaskById = new Map((page?.subjects ?? []).flatMap((subject) => subject.tasks ?? []).map((task) => [task.id, task]))
+    const missing = []
     for (const file of reviewed) {
       const data = file.data(), result = byTask.get(data.taskId)
       // A newer submission may supersede this attempt in dayProgress. The
       // upload's own reviewed status remains its durable historical result.
       if (result?.status || pageTaskById.get(data.taskId)?.platformResult?.state === 'completed') continue
-      candidates.push(job('repair-review', owner.familyId, owner.childId,
+      missing.push(job('repair-review', owner.familyId, owner.childId,
         `${owner.date}:${file.id}`, { type: 'student-work', dayToken: ownerDoc.id, date: owner.date, uploadId: file.id, taskId: data.taskId },
         [file.id, data.taskId, data.reviewedAt?.toMillis?.()], 5))
     }
-  }
+    return missing
+  })
+  candidates.push(...orphanGroups.flat())
+  measurements.phaseMs.reviewedUploads = Math.round(performance.now() - reviewedStarted)
   return { inbox, candidates: [...new Map(candidates.map((candidate) =>
     [syncJobId(candidate.kind, candidate.familyId, candidate.childId, candidate.sourceId), candidate])).values()] }
 }
@@ -274,37 +321,53 @@ async function reportQueue(touched = [], snapshotOverride = null) {
     childId: item.childId, sourceId: item.sourceId, status: item.status, phase: item.phase, reason: item.reason })) }
 }
 if (command === 'scan') {
+  const discoveryStarted = performance.now()
   const { inbox, candidates } = await discover()
+  measurements.phaseMs.discovery = Math.round(performance.now() - discoveryStarted)
   const previousFingerprints = process.argv.includes('--full-audit') ? null : candidateCache()
   const nextFingerprints = {}
   const discovered = new Set()
   let created = 0, resolved = 0, unchanged = 0
-  for (const candidate of candidates) {
-    const id = syncJobId(candidate.kind, candidate.familyId, candidate.childId, candidate.sourceId)
+  const enqueueStarted = performance.now()
+  const candidatesWithIds = candidates.map((candidate) => ({ candidate,
+    id: syncJobId(candidate.kind, candidate.familyId, candidate.childId, candidate.sourceId) }))
+  const enqueueResults = await boundedMap(candidatesWithIds, 4, async ({ candidate, id }) => {
     // An unchanged source does not need another transaction just to rediscover
     // the same durable job. The cache is committed only after a complete scan.
-    if (previousFingerprints?.[id] === candidate.fingerprint) unchanged++
-    else {
-      const result = await enqueueSyncJob(db, candidate)
-      if (result.created) created++
-    }
+    if (previousFingerprints?.[id] === candidate.fingerprint) return { id, candidate, unchanged: true, created: false }
+    const result = await enqueueSyncJob(db, candidate)
+    return { id, candidate, unchanged: false, created: result.created }
+  })
+  for (const { id, candidate, unchanged: same, created: isCreated } of enqueueResults) {
+    if (same) unchanged++
+    if (isCreated) created++
     nextFingerprints[id] = candidate.fingerprint
     discovered.add(id)
   }
+  measurements.phaseMs.enqueue = Math.round(performance.now() - enqueueStarted)
+  measurements.sdkCalls.enqueueTransactions = candidates.length - unchanged
   saveCandidateCache(nextFingerprints)
+  const resolutionStarted = performance.now()
   const prior = await db.collection('operatorSyncJobs').where('status', 'in', ['queued', 'processing', 'blocked']).get()
+  measurements.sourceDocuments.activeJobs = prior.size
   const touched = [...candidates, ...prior.docs.map((doc) => doc.data())].map(({ familyId, childId }) => ({ familyId, childId }))
-  for (const doc of prior.docs) {
+  const resolutionResults = await boundedMap(prior.docs, 4, async (doc) => {
     const record = doc.data()
-    if (record.status === 'done' || discovered.has(doc.id) || record.kind === 'reconcile-day') continue
+    if (record.status === 'done' || discovered.has(doc.id) || record.kind === 'reconcile-day') return false
     const evidence = await verifiedResolution(record)
-    if (!evidence) continue
+    if (!evidence) return false
     await setSyncJob(db, doc.id, 'done', 'verified', { evidence })
-    resolved++
-  }
+    return true
+  })
+  resolved = resolutionResults.filter(Boolean).length
+  measurements.phaseMs.resolve = Math.round(performance.now() - resolutionStarted)
+  const projectionStarted = performance.now()
+  const queue = await reportQueue(touched, resolved === 0 ? prior : null)
+  measurements.phaseMs.projection = Math.round(performance.now() - projectionStarted)
   console.log(JSON.stringify({ scannedAt: new Date().toISOString(), inboxCounts: inbox.counts,
     candidates: candidates.length, created, unchanged, fullAudit: previousFingerprints === null,
-    resolved, ...await reportQueue(touched, resolved === 0 ? prior : null) }, null, 2))
+    resolved, ...queue, measurements: { ...measurements, inbox: inbox.measurements,
+      totalMs: Math.round(performance.now() - started), note: 'SDK calls and returned documents, not billed reads' } }, null, 2))
 } else if (command === 'list') {
   console.log(JSON.stringify(await reportQueue(), null, 2))
 } else {

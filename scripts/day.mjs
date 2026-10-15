@@ -921,62 +921,115 @@ async function publishProblemSupport() {
 /** Read-only audit of the published graph. Run after releases and during sync.
  * @see ../docs/product/access-and-state.md#integrity-gates */
 async function auditPublishedDays() {
+  const started = performance.now()
   const links = json(linksFile)
   const dates = date ? [date] : Object.keys(links).sort()
   const problems = []
   const rows = []
-  const catalogCache = new Map(), bindingCache = new Map()
+  const catalogCache = new Map(), bindingCache = new Map(), sharedCache = new Map(), familyCache = new Map()
+  const reads = { rolePages: 0, materialRefs: 0,
+    sharedPages: 0, familyPages: 0, catalogs: 0, bindings: 0 }
+  let placementChecks = 0
+  const roleTimings = []
+  const measuredDays = new Map()
+  let next = 0
+  await Promise.all(Array.from({ length: Math.min(3, dates.length) }, async () => {
+    while (next < dates.length) {
+      const dayDate = dates[next++]
+      const dayStarted = performance.now()
+      const dayProblems = [], dayRows = []
+      const pair = links[dayDate]
+      if (!pair?.student || !pair?.parent) {
+        dayProblems.push(`${dayDate}: нет двух ролевых ссылок`)
+        measuredDays.set(dayDate, { problems: dayProblems, rows: dayRows, ms: Math.round(performance.now() - dayStarted) })
+        continue
+      }
+      const pages = {}
+      for (const role of ['student', 'parent']) {
+        const roleStarted = performance.now()
+        const roleTime = { date: dayDate, role }
+        try {
+          reads.rolePages++
+          const snapshot = await db.doc(`dayPages/${pair[role]}`).get()
+          roleTime.pageGetMs = Math.round(performance.now() - roleStarted)
+          if (!snapshot.exists) throw new Error('Страница роли отсутствует.')
+          const page = snapshot.data()
+          if (page.schemaVersion !== 1 || page.kind !== role || page.date !== dayDate) throw new Error('Версия, роль или дата страницы неверна.')
+          placementChecks += (page.testPlacements ?? []).length
+          const placementStarted = performance.now()
+          await assertAssignmentLinksExist(db, page)
+          roleTime.assignmentLinksMs = Math.round(performance.now() - placementStarted)
+          const materialStarted = performance.now()
+          const refs = [...new Set(Object.values(page.taskPageRefs ?? {}).flat())]
+          reads.materialRefs += refs.length
+          const teacherRefs = new Set(Object.entries(page.taskPageRefs ?? {}).flatMap(([taskId, taskRefs]) =>
+            (page.materialLinks?.[taskId] ?? []).some((link) => link.sourceType === 'teacher-attachment') ? taskRefs : []))
+          const refErrors = []
+          for (let offset = 0; offset < refs.length; offset += 12) {
+            const settled = await Promise.allSettled(refs.slice(offset, offset + 12).map(async (ref) => {
+              const [bookId, pdfPage] = ref.split('#')
+              if (!catalogCache.has(bookId)) {
+                reads.catalogs++
+                catalogCache.set(bookId, db.doc(`materialBooks/${bookId}`).get())
+              }
+              const bindingKey = `${page.familyId}/${page.childId}/${bookId}`
+              if (page.familyId && page.childId && !bindingCache.has(bindingKey)) {
+                reads.bindings++
+                bindingCache.set(bindingKey, db.doc(`families/${page.familyId}/children/${page.childId}/books/${bookId}`).get())
+              }
+              const familyKey = `${page.familyId}/${page.childId}/${ref}`
+              if (!sharedCache.has(ref)) {
+                reads.sharedPages++
+                sharedCache.set(ref, db.doc(`materialBooks/${bookId}/pages/${pdfPage}`).get())
+              }
+              if (page.familyId && page.childId && !familyCache.has(familyKey)) {
+                reads.familyPages++
+                familyCache.set(familyKey, db.doc(`families/${page.familyId}/children/${page.childId}/bookPages/${ref}`).get())
+              }
+              const [shared, family, catalog, binding] = await Promise.all([
+                sharedCache.get(ref), familyCache.get(familyKey) ?? null,
+                catalogCache.get(bookId), bindingCache.get(bindingKey) ?? null,
+              ])
+              const grantError = materialGrantError({ ref, catalog: catalog.data(), shared: shared.data(), binding: binding?.data(), teacherAssigned: teacherRefs.has(ref) })
+              if (grantError) throw new Error(grantError)
+              if (family && !family.exists) throw new Error(`Нет семейной проекции страницы ${ref}.`)
+              if (family && family.data().sourceRef !== shared.data().sourceRef) throw new Error(`Семейная связь страницы ${ref} не совпадает с общим каталогом.`)
+            }))
+            for (const result of settled) if (result.status === 'rejected') refErrors.push(result.reason instanceof Error ? result.reason.message : String(result.reason))
+          }
+          if (refErrors.length) {
+            const counts = new Map()
+            for (const message of refErrors) counts.set(message, (counts.get(message) ?? 0) + 1)
+            throw new Error([...counts].sort(([a], [b]) => a.localeCompare(b, 'ru')).map(([message, count]) =>
+              count > 1 ? `${message} (${count} стр.)` : message).join(' '))
+          }
+          roleTime.materialRefsMs = Math.round(performance.now() - materialStarted)
+          pages[role] = page
+          dayRows.push({ date: dayDate, role, tasks: page.subjects.flatMap((subject) => subject.tasks).length, tests: page.testPlacements?.length ?? 0, pages: refs.length })
+        } catch (error) { dayProblems.push(`${dayDate} ${role}: ${error instanceof Error ? error.message : String(error)}`) }
+        finally {
+          roleTime.totalMs = Math.round(performance.now() - roleStarted)
+          roleTimings.push(roleTime)
+        }
+      }
+      if (pages.parent && pages.student) {
+        const ids = (page) => page.subjects.flatMap((subject) => subject.tasks.map((task) => task.id)).sort()
+        if (JSON.stringify(ids(pages.parent)) !== JSON.stringify(ids(pages.student))) dayProblems.push(`${dayDate}: ролевые страницы содержат разные taskId.`)
+        if (pages.parent.studentToken !== pair.student) dayProblems.push(`${dayDate}: родительская страница указывает на другого ученика.`)
+      }
+      measuredDays.set(dayDate, { problems: dayProblems, rows: dayRows, ms: Math.round(performance.now() - dayStarted) })
+    }
+  }))
   for (const dayDate of dates) {
-    const pair = links[dayDate]
-    if (!pair?.student || !pair?.parent) { problems.push(`${dayDate}: нет двух ролевых ссылок`); continue }
-    const pages = {}
-    for (const role of ['student', 'parent']) {
-      try {
-        const snapshot = await db.doc(`dayPages/${pair[role]}`).get()
-        if (!snapshot.exists) throw new Error('Страница роли отсутствует.')
-        const page = snapshot.data()
-        if (page.schemaVersion !== 1 || page.kind !== role || page.date !== dayDate) throw new Error('Версия, роль или дата страницы неверна.')
-        await assertAssignmentLinksExist(db, page)
-        const refs = [...new Set(Object.values(page.taskPageRefs ?? {}).flat())]
-        const teacherRefs = new Set(Object.entries(page.taskPageRefs ?? {}).flatMap(([taskId, taskRefs]) =>
-          (page.materialLinks?.[taskId] ?? []).some((link) => link.sourceType === 'teacher-attachment') ? taskRefs : []))
-        const refErrors = []
-        for (let offset = 0; offset < refs.length; offset += 12) {
-          const settled = await Promise.allSettled(refs.slice(offset, offset + 12).map(async (ref) => {
-          const [bookId, pdfPage] = ref.split('#')
-          if (!catalogCache.has(bookId)) catalogCache.set(bookId, db.doc(`materialBooks/${bookId}`).get())
-          const bindingKey = `${page.familyId}/${page.childId}/${bookId}`
-          if (page.familyId && page.childId && !bindingCache.has(bindingKey)) bindingCache.set(bindingKey,
-            db.doc(`families/${page.familyId}/children/${page.childId}/books/${bookId}`).get())
-          const [shared, family, catalog, binding] = await Promise.all([
-            db.doc(`materialBooks/${bookId}/pages/${pdfPage}`).get(),
-            page.familyId && page.childId ? db.doc(`families/${page.familyId}/children/${page.childId}/bookPages/${ref}`).get() : null,
-            catalogCache.get(bookId), bindingCache.get(bindingKey) ?? null,
-          ])
-          const grantError = materialGrantError({ ref, catalog: catalog.data(), shared: shared.data(), binding: binding?.data(), teacherAssigned: teacherRefs.has(ref) })
-          if (grantError) throw new Error(grantError)
-          if (family && !family.exists) throw new Error(`Нет семейной проекции страницы ${ref}.`)
-          if (family && family.data().sourceRef !== shared.data().sourceRef) throw new Error(`Семейная связь страницы ${ref} не совпадает с общим каталогом.`)
-          }))
-          for (const result of settled) if (result.status === 'rejected') refErrors.push(result.reason instanceof Error ? result.reason.message : String(result.reason))
-        }
-        if (refErrors.length) {
-          const counts = new Map()
-          for (const message of refErrors) counts.set(message, (counts.get(message) ?? 0) + 1)
-          throw new Error([...counts].sort(([a], [b]) => a.localeCompare(b, 'ru')).map(([message, count]) =>
-            count > 1 ? `${message} (${count} стр.)` : message).join(' '))
-        }
-        pages[role] = page
-        rows.push({ date: dayDate, role, tasks: page.subjects.flatMap((subject) => subject.tasks).length, tests: page.testPlacements?.length ?? 0, pages: refs.length })
-      } catch (error) { problems.push(`${dayDate} ${role}: ${error instanceof Error ? error.message : String(error)}`) }
-    }
-    if (pages.parent && pages.student) {
-      const ids = (page) => page.subjects.flatMap((subject) => subject.tasks.map((task) => task.id)).sort()
-      if (JSON.stringify(ids(pages.parent)) !== JSON.stringify(ids(pages.student))) problems.push(`${dayDate}: ролевые страницы содержат разные taskId.`)
-      if (pages.parent.studentToken !== pair.student) problems.push(`${dayDate}: родительская страница указывает на другого ученика.`)
-    }
+    const result = measuredDays.get(dayDate)
+    problems.push(...result.problems)
+    rows.push(...result.rows)
   }
-  console.log(JSON.stringify({ checkedDates: dates.length, rows, problems }, null, 2))
+  console.log(JSON.stringify({ checkedDates: dates.length, rows, problems,
+    measurements: { totalMs: Math.round(performance.now() - started), dayMs: Object.fromEntries(dates.map((dayDate) => [dayDate, measuredDays.get(dayDate).ms])),
+      roleMs: roleTimings.sort((a, b) => a.date.localeCompare(b.date) || a.role.localeCompare(b.role)),
+      sdkDocumentGets: reads, placementChecks,
+      note: 'SDK calls, not billed Firestore reads; dates checked with concurrency 3' } }, null, 2))
   if (problems.length) fail(`Аудит обнаружил ${problems.length} несогласованных связей.`)
 }
 

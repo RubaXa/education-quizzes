@@ -17,6 +17,19 @@ if (!existsSync(process.env.GOOGLE_APPLICATION_CREDENTIALS)) {
 initializeApp({ credential: applicationDefault(), projectId: 'education-9d7c6' })
 const db = getFirestore()
 const helpCache = new HelpRequestCache(resolve('.local/project-sync/help-requests.json'), Timestamp)
+const started = performance.now()
+const timings = {}
+const readCalls = { initialQueries: 4, pageCounts: 0, dayFiles: 0, dayHelp: 0,
+  progressBatches: 0, progressRefs: 0, manualReviews: 0 }
+
+// Independent owners and books can be checked together without widening the
+// source set. Keep a small limit to avoid a burst of Firestore requests.
+async function boundedEach(values, limit, visit) {
+  let next = 0
+  await Promise.all(Array.from({ length: Math.min(limit, values.length) }, async () => {
+    while (next < values.length) await visit(values[next++])
+  }))
+}
 
 function time(value) { return value?.toDate?.()?.toISOString?.() ?? null }
 
@@ -39,6 +52,8 @@ async function readProgressBatch(studentToken, taskIds) {
   const ids = [...new Set(taskIds.filter((id) => typeof id === 'string' && id))]
   for (let start = 0; start < ids.length; start += 250) {
     const refs = ids.slice(start, start + 250).map((id) => db.doc(`dayProgress/${studentToken}/items/${id}`))
+    readCalls.progressBatches++
+    readCalls.progressRefs += refs.length
     const snapshots = await db.getAll(...refs)
     for (const snapshot of snapshots) if (snapshot.exists) byTask.set(snapshot.id, snapshot.data())
   }
@@ -67,16 +82,17 @@ function addBook(items, snapshot) {
 }
 
 async function addBookPages(items, snapshot) {
-  for (const doc of snapshot.docs) {
+  await boundedEach(snapshot.docs, 4, async (doc) => {
     const child = doc.ref.parent.parent
     const family = child?.parent.parent
-    if (!child || !family || family.parent.id !== 'families') continue
+    if (!child || !family || family.parent.id !== 'families') return
     const data = doc.data()
-    if (!['confirmed', 'provisional'].includes(data.status)) continue
+    if (!['confirmed', 'provisional'].includes(data.status)) return
     if (data.pagesPublishedAt && data.pagesPublishedSha256 === (data.catalogSha256 ?? data.sourceSha256)
-      && Number.isInteger(data.pdfPageCount) && data.pdfPageCount > 0) continue
+      && Number.isInteger(data.pdfPageCount) && data.pdfPageCount > 0) return
     // The publication marker is written only after page-count verification.
     // Count the family pages again only when that marker is absent or stale.
+    readCalls.pageCounts++
     const pages = await child.collection('bookPages').where('bookId', '==', doc.id).count().get()
     const availablePages = pages.data().count
     items.push({ kind: 'textbook-pages', lane: 'publish', familyId: family.id,
@@ -84,7 +100,7 @@ async function addBookPages(items, snapshot) {
       expectedPages: data.pdfPageCount ?? null, availablePages,
       sourceSha256: data.sourceSha256 ?? null,
       nextAction: 'sync-books' })
-  }
+  })
 }
 
 async function addDays(items, owners) {
@@ -92,11 +108,13 @@ async function addDays(items, owners) {
   let scannedHelp = 0
   let fetchedHelp = 0
   const helpModes = { full: 0, delta: 0 }
-  for (const ownerDoc of owners.docs) {
+  await boundedEach(owners.docs, 4, async (ownerDoc) => {
     const owner = ownerDoc.data()
     if (!owner.familyId || !owner.childId || !owner.date) {
       throw new Error(`У владельца дня ${ownerDoc.id} нет семейной связи или даты.`)
     }
+    readCalls.dayFiles++
+    readCalls.dayHelp++
     const [files, requests] = await Promise.all([
       db.collection(`dayUploads/${ownerDoc.id}/files`)
         .where('status', 'in', ['requested', 'awaiting-upload', 'uploaded', 'pending', 'upload-error']).get(),
@@ -140,36 +158,45 @@ async function addDays(items, owners) {
         status: 'recorded-no-resolution-field', createdAt: time(data.requestedAt),
         nextAction: 'compare-request-with-support-and-response-history' })
     }
-  }
+  })
   return { scannedFiles, scannedHelp, fetchedHelp, helpModes }
 }
 
 async function addSubmittedQuizzes(items, snapshot) {
-  for (const doc of snapshot.docs) {
+  await boundedEach(snapshot.docs, 6, async (doc) => {
     const data = doc.data()
     const openQuestions = (data.questions ?? []).filter((question) => question.kind === 'long')
-    if (!openQuestions.length) continue // Other question types are graded from answerKeys.
+    if (!openQuestions.length) return // Other question types are graded from answerKeys.
+    readCalls.manualReviews++
     const review = await db.doc(`reviews/${doc.id}`).get()
     const pendingQuestionIds = pendingManualQuestionIds(data, review.data())
-    if (!pendingQuestionIds.length) continue
+    if (!pendingQuestionIds.length) return
     items.push({ kind: 'quiz', lane: 'review', familyId: data.familyId ?? null,
       childId: data.childId ?? null, id: doc.id, testId: data.testId ?? null,
       status: 'submitted-needs-manual-review', pendingQuestionIds, createdAt: time(data.submittedAt),
       nextAction: 'export-and-review-open-responses' })
-  }
+  })
 }
 
+const initialStarted = performance.now()
 const [books, boundBooks, owners, submitted] = await Promise.all([
   db.collectionGroup('bookUploads').get(),
   db.collectionGroup('books').get(),
   db.collection('dayOwners').get(),
   db.collection('assignments').where('status', '==', 'submitted').get(),
 ])
+timings.initialMs = Math.round(performance.now() - initialStarted)
 const items = []
 addBook(items, books)
+const pagesStarted = performance.now()
 await addBookPages(items, boundBooks)
+timings.bookPagesMs = Math.round(performance.now() - pagesStarted)
+const daysStarted = performance.now()
 const days = await addDays(items, owners)
+timings.dayOwnersMs = Math.round(performance.now() - daysStarted)
+const quizzesStarted = performance.now()
 await addSubmittedQuizzes(items, submitted)
+timings.submittedQuizzesMs = Math.round(performance.now() - quizzesStarted)
 helpCache.retainOwners(owners.docs.map((doc) => doc.id))
 helpCache.save()
 items.sort((a, b) => (a.createdAt ?? '').localeCompare(b.createdAt ?? '')
@@ -178,6 +205,8 @@ items.sort((a, b) => (a.createdAt ?? '').localeCompare(b.createdAt ?? '')
 const counts = Object.fromEntries(['transfer', 'identify', 'publish', 'review', 'triage', 'investigate'].map((lane) => [lane,
   items.filter((item) => item.lane === lane).length]))
 console.log(JSON.stringify({ complete: true, readOnly: true, checkedAt: new Date().toISOString(),
+  measurements: { totalMs: Math.round(performance.now() - started), phaseMs: timings,
+    firestoreCalls: readCalls, note: 'SDK calls and returned documents, not billed reads' },
   scanned: { bookUploads: books.size, boundBooks: boundBooks.size, dayOwners: owners.size, workUploads: days.scannedFiles,
     helpRequests: days.scannedHelp, helpDocumentsFetched: days.fetchedHelp, helpReadModes: days.helpModes,
     submittedQuizzes: submitted.size }, counts, items }, null, 2))

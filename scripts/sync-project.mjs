@@ -2,6 +2,7 @@
 import { createHash, randomUUID } from 'node:crypto'
 import { existsSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { basename, dirname, resolve } from 'node:path'
+import { performance } from 'node:perf_hooks'
 import { Timestamp } from 'firebase-admin/firestore'
 import { operatorFirestore } from './lib/admin-firebase.mjs'
 import { MeshDiaryAdapter } from '../packages/education-connect/lib/mesh.mjs'
@@ -25,6 +26,39 @@ const runDir = resolve(local, 'project-sync')
 const command = process.argv[2] || 'plan'
 if (!['plan', 'collect', 'phase'].includes(command)) throw new Error('Использование: npm run sync:project -- plan | collect | phase --run ID --family ID --child ID --to PHASE')
 
+// Timings are confined to the private run manifest. These count adapter
+// operations, not underlying HTTP requests or billed Firestore document reads.
+// @see ../docs/architecture/education-sync-latency-audit-2026-10-15.md
+const timingStart = Symbol('timingStart')
+function newTiming() {
+  return { clock: 'monotonic', startedAt: new Date().toISOString(), stages: {}, counts: {}, [timingStart]: performance.now() }
+}
+async function measure(timing, stage, work) {
+  const started = performance.now()
+  let failed = false
+  try { return await work() }
+  catch (error) { failed = true; throw error }
+  finally {
+    const entry = timing.stages[stage] ?? { calls: 0, elapsedMs: 0, failures: 0 }
+    const elapsedMs = Math.round((performance.now() - started) * 100) / 100
+    entry.calls++
+    entry.elapsedMs = Math.round((entry.elapsedMs + elapsedMs) * 100) / 100
+    if (['syncDate', 'getProfile', 'getSchedule', 'getAssignments'].includes(stage)) {
+      entry.samplesMs ??= []
+      entry.samplesMs.push(elapsedMs)
+    }
+    if (failed) entry.failures++
+    timing.stages[stage] = entry
+  }
+}
+function count(timing, name, amount = 1) { timing.counts[name] = (timing.counts[name] ?? 0) + amount }
+function finishTiming(timing) {
+  if (timing.finishedAt) return timing
+  timing.finishedAt = new Date().toISOString()
+  timing.wallMs = Math.round((performance.now() - timing[timingStart]) * 100) / 100
+  return timing
+}
+
 function json(file) { return JSON.parse(readFileSync(file, 'utf8')) }
 function sourceKey(value) { return createHash('sha256').update(`mesh-parent:${value}`).digest('hex') }
 function moscowToday() {
@@ -37,7 +71,7 @@ function safeReason(error) {
   if (/INCOMPLETE_DETAIL/.test(message)) return 'incomplete-mesh'
   return 'source-error'
 }
-async function inventory() {
+async function inventory(timing) {
   const [familyDocs, accountDocs, identityDocs] = await Promise.all([
     db.collection('families').get(), db.collection('sourceAccounts').get(), db.collection('sourceIdentities').get(),
   ])
@@ -51,6 +85,9 @@ async function inventory() {
       members: members.docs.map((doc) => ({ ...doc.data(), id: doc.id, familyId: family.id })),
     }
   }))
+  count(timing, 'inventoryQueryCalls', 3 + 2 * families.length)
+  count(timing, 'inventoryDocumentsDelivered', familyDocs.size + accountDocs.size + identityDocs.size
+    + nested.reduce((sum, item) => sum + item.children.length + item.members.length, 0))
   const access = readJson(local, 'family-access.json')
   const oldSecret = readJson(resolve(local, 'diary'), 'secret.json')
   const legacy = access?.legacyDayOwner && oldSecret?.actorPersonId
@@ -94,7 +131,7 @@ function credentialRecord(accountId, kind) {
   } }
   return state
 }
-async function auditPublishedDays(dir, dates, asOf) {
+async function auditPublishedDays(dir, dates, asOf, timing) {
   const workspace = dirname(dir)
   const links = readJson(workspace, 'day-links.json') ?? {}
   const dashboardTokens = readJson(workspace, 'day-dashboard-links.json') ?? {}
@@ -103,7 +140,7 @@ async function auditPublishedDays(dir, dates, asOf) {
   for (const role of ['student', 'parent']) {
     const expected = buildDayDashboardIndex(workspace, links, role)
     const token = dashboardTokens[role]
-    const snapshot = token ? await db.doc(`dayDashboards/${token}`).get() : null
+    const snapshot = token ? await measure(timing, 'publishedDashboardRead', () => db.doc(`dayDashboards/${token}`).get()) : null
     const published = snapshot?.data() ?? null
     if (published && published.kind === role && published.familyId && published.childId) {
       const days = refreshedCalendarChecks(expected, published)
@@ -123,7 +160,7 @@ async function auditPublishedDays(dir, dates, asOf) {
   if (currentSourceDate && latestMesh?.complete && Array.isArray(latestMesh.marks)) {
     for (const role of ['student', 'parent']) {
       const token = links[currentSourceDate]?.[role]
-      const page = token ? (await db.doc(`dayPages/${token}`).get()).data() : null
+      const page = token ? (await measure(timing, 'publishedGradePageRead', () => db.doc(`dayPages/${token}`).get())).data() : null
       try { assertGradeSnapshotAligned({ subjects: page?.grades ?? [] }, latestMesh) }
       catch {
         const targetDate = page?.targetDate ?? currentSourceDate
@@ -136,7 +173,7 @@ async function auditPublishedDays(dir, dates, asOf) {
   return { pending: [...pendingByDate].sort(([a], [b]) => a.localeCompare(b))
     .map(([date, reasons]) => ({ date, reasons: [...reasons].sort() })), freshness }
 }
-async function publishCalendarChecks(target, candidates) {
+async function publishCalendarChecks(target, candidates, timing) {
   const owned = candidates.filter(({ snapshot }) => snapshot.data().familyId === target.familyId
     && snapshot.data().childId === target.childId)
   if (owned.length !== candidates.length) throw new Error('Календарь принадлежит другой семье или ребёнку.')
@@ -144,26 +181,31 @@ async function publishCalendarChecks(target, candidates) {
   const batch = db.batch()
   for (const { snapshot, days } of owned) batch.update(snapshot.ref, { days, updatedAt: Timestamp.now() },
     { lastUpdateTime: snapshot.updateTime })
-  await batch.commit()
+  await measure(timing, 'calendarCommit', () => batch.commit())
   for (const { snapshot, days } of owned) {
-    const live = (await snapshot.ref.get()).data()
+    const live = (await measure(timing, 'calendarReadback', () => snapshot.ref.get())).data()
     if (JSON.stringify(live?.days) !== JSON.stringify(days)) throw new Error('Время проверки календаря не подтвердилось после публикации.')
   }
   return new Set(owned.flatMap(({ snapshot, days }) => days.filter((day, index) =>
     day.checkedAt !== snapshot.data().days[index]?.checkedAt).map((day) => day.date))).size
 }
-async function collectChild(target, context, runId, today) {
+async function collectChild(target, context, runId, today, timing) {
   const dates = dateWindow(today)
-  await status(target, runId, 'fetching', { checkedDates: 0, currentDate: null, totalDates: dates.length, reason: null })
+  count(timing, 'datesPlanned', dates.length)
+  await measure(timing, 'statusWrite', () => status(target, runId, 'fetching', { checkedDates: 0, currentDate: null, totalDates: dates.length, reason: null }))
   const profile = context.profiles.find((item) => String(item.person_id) === target.sourcePersonId)
   if (!profile) throw new Error('ACCESS_NOT_VERIFIED: ребёнок отсутствует у подключённого взрослого.')
   const secret = { ...context.credentials, personId: String(profile.person_id),
     profileId: String(profile.id), studentId: String(profile.id) }
   const adapter = new MeshDiaryAdapter(secret, context.save)
-  await adapter.verifyAccess()
+  await measure(timing, 'verifyAccess', () => adapter.verifyAccess())
+  for (const method of ['getProfile', 'getSchedule', 'getAssignments', 'getLessonDetails']) {
+    const original = adapter[method].bind(adapter)
+    adapter[method] = (...args) => measure(timing, method, () => original(...args))
+  }
   const loadMarks = adapter.getMarks.bind(adapter)
   let marks
-  adapter.getMarks = () => { marks ??= loadMarks(); return marks }
+  adapter.getMarks = () => { marks ??= measure(timing, 'getMarks', loadMarks); return marks }
   const dir = target.credentialKind === 'legacy' ? resolve(local, 'diary')
     : resolve(runDir, 'sources', target.familyId, target.childId, 'diary')
   if (target.credentialKind !== 'legacy') writeJson(dirname(dir), 'context.json', {
@@ -176,16 +218,18 @@ async function collectChild(target, context, runId, today) {
   let checked = 0, lastFull = null, captures = 0
   for (let index = 0; index < dates.length; index++) {
     const date = dates[index]
-    const result = await syncDiary({ adapter, dataDir: dir, date })
+    const result = await measure(timing, 'syncDate', () => syncDiary({ adapter, dataDir: dir, date }))
+    count(timing, 'datesAttempted')
     if (!result.complete) {
       const reason = Object.values(result.errors).includes('RATE_LIMITED') ? 'rate-limited'
         : Object.values(result.errors).includes('AUTH_REQUIRED') ? 'auth-required' : 'incomplete-mesh'
-      await status(target, runId, 'blocked', { reason, checkedDates: checked, currentDate: date, lastFullMeshAt: lastFull })
+      await measure(timing, 'statusWrite', () => status(target, runId, 'blocked', { reason, checkedDates: checked, currentDate: date, lastFullMeshAt: lastFull }))
       return { state: 'blocked', reason, checkedDates: checked, lastFullMeshAt: lastFull, changes }
     }
-    persistMeshCapture({ runDir, runId, familyId: target.familyId, childId: target.childId, snapshot: result })
+    await measure(timing, 'persistCapture', () => persistMeshCapture({ runDir, runId, familyId: target.familyId, childId: target.childId, snapshot: result }))
     captures++
     checked++
+    count(timing, 'datesComplete')
     lastFull = result.fetchedAt
     const dayChanges = {}
     for (const [section, label] of [['schedule', 'lessons'], ['marks', 'grades'], ['assignments', 'assignments']]) {
@@ -203,68 +247,78 @@ async function collectChild(target, context, runId, today) {
     }
     if (Object.keys(dayChanges).length) changedDates.push({ date, changes: dayChanges, fetchedAt: result.fetchedAt })
     if (checked % 4 === 0 || checked === dates.length) {
-      await status(target, runId, 'fetching', { checkedDates: checked, totalDates: dates.length, currentDate: date, lastFullMeshAt: lastFull })
+      await measure(timing, 'statusWrite', () => status(target, runId, 'fetching', { checkedDates: checked, totalDates: dates.length, currentDate: date, lastFullMeshAt: lastFull }))
     }
   }
-  const publication = await auditPublishedDays(dir, dates, today)
+  const publication = await measure(timing, 'publicationAudit', () => auditPublishedDays(dir, dates, today, timing))
   const pendingPublicationDatesByDay = publication.pending
-  const calendarChecksPublished = await publishCalendarChecks(target, publication.freshness)
+  const calendarChecksPublished = await measure(timing, 'calendarCheckUpdate', () => publishCalendarChecks(target, publication.freshness, timing))
+  count(timing, 'datesWithSourceChanges', changedDates.length)
+  count(timing, 'datesPendingPublication', pendingPublicationDatesByDay.length)
+  count(timing, 'calendarChecksPublished', calendarChecksPublished)
   const expected = buildDayDashboardIndex(dirname(dir), readJson(dirname(dir), 'day-links.json') ?? {}, 'student')
   const expectedByDate = new Map((expected.days ?? []).map((day) => [day.date, day]))
   for (const date of new Set([...changedDates.map((item) => item.date), ...pendingPublicationDatesByDay.map((item) => item.date)])) {
     const revision = expectedByDate.get(date)?.sourceRevision
-    await enqueueSyncJob(db, { kind: 'reconcile-day', familyId: target.familyId, childId: target.childId,
+    await measure(timing, 'enqueueDay', () => enqueueSyncJob(db, { kind: 'reconcile-day', familyId: target.familyId, childId: target.childId,
       sourceId: date, source: { type: 'mesh-day', date }, runId, priority: 25,
-      fingerprint: syncFingerprint([date, revision ?? null]) })
+      fingerprint: syncFingerprint([date, revision ?? null]) }))
   }
   if (Object.values(changes).every((count) => count === 0) && pendingPublicationDatesByDay.length === 0) {
-    await status(target, runId, 'complete', { checkedDates: checked, totalDates: dates.length,
+    await measure(timing, 'statusWrite', () => status(target, runId, 'complete', { checkedDates: checked, totalDates: dates.length,
       currentDate: dates.at(-1), lastFullMeshAt: lastFull, pendingPublicationCount: 0,
-      reason: null, verifiedAt: Timestamp.now() })
+      reason: null, verifiedAt: Timestamp.now() }))
     return { state: 'complete', checkedDates: checked, privateCaptures: captures, calendarChecksPublished,
       checkedFrom: dates[0], checkedThrough: dates.at(-1), lastFullMeshAt: lastFull,
       changes, changedDates, pendingPublicationDates: pendingPublicationDatesByDay, sourceDir: dir }
   }
-  await status(target, runId, 'awaiting-review', { checkedDates: checked, totalDates: dates.length,
+  await measure(timing, 'statusWrite', () => status(target, runId, 'awaiting-review', { checkedDates: checked, totalDates: dates.length,
     currentDate: dates.at(-1), lastFullMeshAt: lastFull,
-    pendingPublicationCount: pendingPublicationDatesByDay.length, reason: 'source-review-required' })
+    pendingPublicationCount: pendingPublicationDatesByDay.length, reason: 'source-review-required' }))
   return { state: 'awaiting-enrichment', checkedDates: checked, privateCaptures: captures, calendarChecksPublished,
     checkedFrom: dates[0], checkedThrough: dates.at(-1), lastFullMeshAt: lastFull,
     changes, changedDates, pendingPublicationDates: pendingPublicationDatesByDay, sourceDir: dir }
 }
 async function collectAccount(accountId, targets, runId, today) {
-  const record = credentialRecord(accountId, targets[0].credentialKind)
-  const initial = new MeshDiaryAdapter(record.credentials, record.save)
-  const profiles = await initial.api.getStudentProfiles(record.credentials.actorPersonId)
-  if (!Array.isArray(profiles)) throw new Error('ACCESS_NOT_VERIFIED: список детей МЭШ не получен.')
-  const context = { get credentials() { return record.credentials }, profiles, save: record.save }
-  const results = []
-  for (const target of targets) {
-    try {
-      const result = await collectChild(target, context, runId, today)
-      results.push({ target, result })
-      if (result.reason === 'rate-limited' || result.reason === 'auth-required') {
-        for (const remaining of targets.slice(results.length)) {
-          await status(remaining, runId, 'blocked', { reason: result.reason })
-          results.push({ target: remaining, result: { state: 'blocked', reason: result.reason } })
+  const timing = newTiming()
+  try {
+    const record = await measure(timing, 'credentialLoad', () => credentialRecord(accountId, targets[0].credentialKind))
+    const initial = new MeshDiaryAdapter(record.credentials, record.save)
+    const profiles = await measure(timing, 'profileListing', () => initial.api.getStudentProfiles(record.credentials.actorPersonId))
+    if (!Array.isArray(profiles)) throw new Error('ACCESS_NOT_VERIFIED: список детей МЭШ не получен.')
+    const context = { get credentials() { return record.credentials }, profiles, save: record.save }
+    const results = []
+    for (const target of targets) {
+      const childTiming = newTiming()
+      try {
+        const result = await measure(timing, 'childCollection', () => collectChild(target, context, runId, today, childTiming))
+        results.push({ target, result: { ...result, timing: finishTiming(childTiming) } })
+        if (result.reason === 'rate-limited' || result.reason === 'auth-required') {
+          for (const remaining of targets.slice(results.length)) {
+            await measure(timing, 'statusWriteSkippedChild', () => status(remaining, runId, 'blocked', { reason: result.reason }))
+            results.push({ target: remaining, result: { state: 'blocked', reason: result.reason } })
+          }
+          break
         }
-        break
+      }
+      catch (error) {
+        const reason = safeReason(error)
+        await measure(childTiming, 'statusWrite', () => status(target, runId, 'blocked', { reason }))
+        results.push({ target, result: { state: 'blocked', reason, timing: finishTiming(childTiming) } })
+        if (reason === 'rate-limited' || reason === 'auth-required') {
+          for (const remaining of targets.slice(results.length)) {
+            await measure(timing, 'statusWriteSkippedChild', () => status(remaining, runId, 'blocked', { reason }))
+            results.push({ target: remaining, result: { state: 'blocked', reason } })
+          }
+          break
+        }
       }
     }
-    catch (error) {
-      const reason = safeReason(error)
-      await status(target, runId, 'blocked', { reason })
-      results.push({ target, result: { state: 'blocked', reason } })
-      if (reason === 'rate-limited' || reason === 'auth-required') {
-        for (const remaining of targets.slice(results.length)) {
-          await status(remaining, runId, 'blocked', { reason })
-          results.push({ target: remaining, result: { state: 'blocked', reason } })
-        }
-        break
-      }
-    }
+    return { results, timing: finishTiming(timing) }
+  } catch (error) {
+    if (error && typeof error === 'object') error.syncTiming = finishTiming(timing)
+    throw error
   }
-  return results
 }
 
 function option(name) {
@@ -316,7 +370,8 @@ async function markPhase() {
 
 if (command === 'phase') await markPhase()
 else {
-const data = await inventory()
+const runTiming = newTiming()
+const data = await measure(runTiming, 'inventory', () => inventory(runTiming))
 if (command === 'plan') {
   console.log(JSON.stringify({ readOnly: true, ...publicSummary(data) }, null, 2))
 } else {
@@ -328,28 +383,37 @@ if (command === 'plan') {
   const today = moscowToday()
   const results = []
   try {
-    let openingBatch = db.batch(), openingCount = 0
-    for (const target of data.targets) {
-      if (target.state === 'blocked') {
-        openingBatch.set(statusRef(target), { runId, phase: 'blocked', updatedAt: Timestamp.now(), reason: target.reason }, { merge: true })
-        results.push({ target, result: { state: 'blocked', reason: target.reason } })
-      } else openingBatch.set(statusRef(target), { runId, phase: 'queued', updatedAt: Timestamp.now(), reason: null, checkedDates: 0 }, { merge: true })
-      if (++openingCount === 200) { await openingBatch.commit(); openingBatch = db.batch(); openingCount = 0 }
-    }
-    if (openingCount) await openingBatch.commit()
+    await measure(runTiming, 'openingStatuses', async () => {
+      let openingBatch = db.batch(), openingCount = 0
+      for (const target of data.targets) {
+        if (target.state === 'blocked') {
+          openingBatch.set(statusRef(target), { runId, phase: 'blocked', updatedAt: Timestamp.now(), reason: target.reason }, { merge: true })
+          results.push({ target, result: { state: 'blocked', reason: target.reason } })
+        } else openingBatch.set(statusRef(target), { runId, phase: 'queued', updatedAt: Timestamp.now(), reason: null, checkedDates: 0 }, { merge: true })
+        if (++openingCount === 200) { await openingBatch.commit(); openingBatch = db.batch(); openingCount = 0 }
+      }
+      if (openingCount) await openingBatch.commit()
+    })
+    count(runTiming, 'childrenDiscovered', data.targets.length)
     const groups = Map.groupBy(data.targets.filter((item) => item.state === 'queued'), (item) => item.sourceAccountId)
-    const completed = await mapBounded([...groups], 2, async ([accountId, targets]) => collectAccount(accountId, targets, runId, today))
+    count(runTiming, 'accountsQueued', groups.size)
+    const completed = await measure(runTiming, 'accountCollection', () => mapBounded([...groups], 2,
+      async ([accountId, targets]) => collectAccount(accountId, targets, runId, today)))
+    const accountTimings = []
     for (let index = 0; index < completed.length; index++) {
       const entry = completed[index]
-      if (entry.status === 'fulfilled') results.push(...entry.value)
+      accountTimings.push(entry.status === 'fulfilled' ? entry.value.timing : entry.reason?.syncTiming ?? null)
+      if (entry.status === 'fulfilled') results.push(...entry.value.results)
       else for (const target of [...groups][index][1]) {
         const reason = safeReason(entry.reason)
         await status(target, runId, 'blocked', { reason })
         results.push({ target, result: { state: 'blocked', reason } })
       }
     }
+    runTiming.accounts = accountTimings
+    finishTiming(runTiming)
     const manifest = { runId, startedFor: today, finishedAt: new Date().toISOString(),
-      inventory: publicSummary(data), jobs: results.map(({ target, result }) => ({
+      inventory: publicSummary(data), timing: runTiming, jobs: results.map(({ target, result }) => ({
         familyId: target.familyId, childId: target.childId, sourceAccountId: target.sourceAccountId ?? null, ...result,
       })) }
     writeJson(runDir, `run-${runId}.json`, manifest)

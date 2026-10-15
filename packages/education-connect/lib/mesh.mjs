@@ -58,6 +58,20 @@ function isCalendarOnlyEvent(event) {
   return !hasSubject && !hasHomework && !hasLessonType
 }
 
+// Preserve source order while bounding requests to the lesson detail endpoint.
+// @see ../../../docs/architecture/education-sync-latency-audit-2026-10-15.md
+async function mapBounded(values, limit, visit) {
+  const results = new Array(values.length)
+  let next = 0
+  await Promise.all(Array.from({ length: Math.min(limit, values.length) }, async () => {
+    while (next < values.length) {
+      const index = next++
+      results[index] = await visit(values[index])
+    }
+  }))
+  return results
+}
+
 /** @see ../../../docs/architecture/school-diary-port-adapter.md#full-grade-period */
 export function normalizeSubjectPeriods(subjects, date = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Moscow', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())) {
   if (!Array.isArray(subjects)) throw new Error('Полный журнал оценок МЭШ не является списком')
@@ -220,18 +234,20 @@ export class MeshDiaryAdapter {
       .filter((event) => !event.cancelled)
     const output = []
     const incompleteDetails = []
-    for (const event of lessons) {
-      if (isCalendarOnlyEvent(event)) continue
-      let detail = null
+    const detailed = await mapBounded(lessons.filter((event) => !isCalendarOnlyEvent(event)), 3, async (event) => {
       try {
-        detail = await this.getLessonDetails(event)
+        const detail = await this.getLessonDetails(event)
         if (!detail || typeof detail !== 'object') throw new Error('Пустая подробная карточка урока')
+        return { event, detail, error: null }
       }
       catch (error) {
         // Summary and earlier metadata are useful diagnostics, but cannot prove that
         // homework was removed or that an apparently empty lesson has no homework.
-        incompleteDetails.push({ lessonId: String(event.id), reason: String(error?.message || error) })
+        return { event, detail: null, error: String(error?.message || error) }
       }
+    })
+    for (const { event, detail, error } of detailed) {
+      if (error) incompleteDetails.push({ lessonId: String(event.id), reason: error })
       const earlier = previous.find((item) => item.sourceItemId === String(event.id))
       const teacherFiles = detail ? lessonFiles(detail) : (earlier?.teacherFiles || [])
       const homeworkEntries = detail?.lesson_homeworks?.map((homework, index) => ({

@@ -264,21 +264,19 @@
       }
     },
     "scripts/sync-queue.mjs": {
-      "sha256": "682ccf72e0349ff316bb6ff7168dd643859a16db106df735264648620447a5fa",
-      "record": "docs/product/ui-decisions/quiz-threshold-and-page-slider-2026-10-14.md",
+      "sha256": "bbf0e92a8a17cd4e3368d72bfda25abcdde26bc7b9da6664f8962bf3fb4189da",
+      "record": "docs/product/ui-decisions/education-sync-performance-2026-10-15.md",
       "specs": [
-        "docs/product/assessment-decision-graph.md",
-        "docs/product/dashboard.md",
-        "docs/product/materials.md",
-        "docs/product/quizzes.md"
+        "docs/product/global-sync.md",
+        "docs/architecture/education-sync-latency-audit-2026-10-15.md"
       ],
       "tests": [
-        "src/lib/quizCompletion.test.ts",
-        "src/lib/homeworkStatus.test.ts"
+        "sync/project-plan.test.mjs",
+        "src/lib/quizCompletion.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 14.10.2026 по снимкам: соседние страницы в одном ридере, зачёт любого теста от 80%, кнопка работы над ошибками и публикация сайта."
+        "evidence": "Родитель 15.10.2026 прямо потребовал повторный полный Education Sync с таймерами, расследование узких мест и ускорение процесса без потери подтверждённых данных."
       }
     },
     "src/App.tsx": {
@@ -694,34 +692,34 @@
       }
     },
     "packages/education-connect/lib/mesh.mjs": {
-      "sha256": "b9153d9206292043b07d8f3b7a39561ca7459eaab391234fb465194067f60484",
-      "record": "docs/product/ui-decisions/grade-mark-details-2026-10-14.md",
+      "sha256": "eb40fead4a90ff35b1ec47328f33e3f9fcd2a668ba502d634af6aa3167f1c585",
+      "record": "docs/product/ui-decisions/education-sync-performance-2026-10-15.md",
       "specs": [
-        "docs/product/grades.md",
-        "docs/architecture/school-diary-port-adapter.md"
+        "docs/product/global-sync.md",
+        "docs/architecture/education-sync-latency-audit-2026-10-15.md"
       ],
       "tests": [
-        "packages/education-connect/lib/mesh-marks.test.mjs"
+        "packages/education-connect/lib/mesh-assignments.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 14.10.2026 прямо попросил нажимать на конкретную оценку в списке и видеть вид работы и комментарий учителя из МЭШ."
+        "evidence": "Родитель 15.10.2026 прямо потребовал повторный полный Education Sync с таймерами, расследование узких мест и ускорение процесса без потери подтверждённых данных."
       }
     },
     "scripts/day.mjs": {
-      "sha256": "239b2fafc4e3123e98915dc8c588c7ed260903df678e137e877c454e2d7c63ea",
-      "record": "docs/product/ui-decisions/grade-projection-reconciliation-2026-10-15.md",
+      "sha256": "82ac98e0dac20ba4d4ac3a805b1d79b99d6d4ecc789497325fb16035b56a2d70",
+      "record": "docs/product/ui-decisions/education-sync-performance-2026-10-15.md",
       "specs": [
-        "docs/product/grades.md",
-        "docs/product/dashboard.md"
+        "docs/product/global-sync.md",
+        "docs/architecture/education-sync-latency-audit-2026-10-15.md"
       ],
       "tests": [
-        "day/grade-reconciliation.test.mjs",
-        "day/grade-publication.test.mjs"
+        "day/placement-integrity.test.mjs",
+        "day/material-access.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 15.10.2026 сообщил, что после синхронизации у оценок исчезли ранее видимые комментарии, и потребовал исправить единый пайплайн со спецификацией и тестами."
+        "evidence": "Родитель 15.10.2026 прямо потребовал повторный полный Education Sync с таймерами, расследование узких мест и ускорение процесса без потери подтверждённых данных."
       }
     },
     "src/lib/dayStore.ts": {
@@ -845,6 +843,38 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Прямой запрос родителя 15.10.2026 со скриншотами расписания: песочные часы и отсчёт только у ближайшего будущего урока, таймер и отсчёт до конца вместо слова «Идёт» у текущего."
+      }
+    },
+    "scripts/sync-inbox.mjs": {
+      "sha256": "0840ae25ffbeb2e4a56fb9a47dfed458fbd996cb32b98a3fd4d416082de9b421",
+      "record": "docs/product/ui-decisions/education-sync-performance-2026-10-15.md",
+      "specs": [
+        "docs/product/global-sync.md",
+        "docs/architecture/education-sync-latency-audit-2026-10-15.md"
+      ],
+      "tests": [
+        "sync/help-request-cache.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 15.10.2026 прямо потребовал повторный полный Education Sync с таймерами, расследование узких мест и ускорение процесса без потери подтверждённых данных."
+      }
+    },
+    "scripts/sync-project.mjs": {
+      "sha256": "b0de08df54d1c7137e570c1ff8a2144b964639d48019b7068ad76dc970425b75",
+      "record": "docs/product/ui-decisions/education-sync-performance-2026-10-15.md",
+      "specs": [
+        "docs/product/global-sync.md",
+        "docs/architecture/education-sync-latency-audit-2026-10-15.md"
+      ],
+      "tests": [
+        "sync/project-plan.test.mjs",
+        "sync/publication-audit.test.mjs",
+        "packages/education-connect/lib/mesh-assignments.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 15.10.2026 прямо потребовал повторный полный Education Sync с таймерами, расследование узких мест и ускорение процесса без потери подтверждённых данных."
       }
     }
   }
