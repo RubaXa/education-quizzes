@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { lessonWorkItems, quizRequirement, requiredQuizRequirement } from './homeworkStatus'
-import type { DayTask } from './dayStore'
+import type { DayTask, DayWorkReview } from './dayStore'
 
 /** @see ../../docs/product/assessment-decision-graph.md#followup-threshold */
 describe('one required self-check across its linked attempts', () => {
@@ -49,5 +49,31 @@ describe('one required self-check across its linked attempts', () => {
   it('removes an optional standalone reading check from required work without deleting its source', () => {
     const task = { id: 'mesh-read', title: 'Прочитать параграф', kind: 'read', status: 'unknown', testToken: 'root' } as DayTask
     expect(lessonWorkItems([task], [], [], [], { root: { status: 'open', familyOptional: true } }, {})).toEqual([])
+  })
+})
+
+/** @see ../../docs/product/dashboard.md#homework-progress */
+describe('reviewed written work in the next-homework overview', () => {
+  const task = { id: 'mesh-russian', title: 'Упр. 218 и 223: выписать средства выразительности', kind: 'written' } as DayTask
+  const base = { id: 'review', taskId: task.id, status: 'cannot-assess',
+    studentFeedback: { title: '№ 218 проверен; № 223 не виден целиком', confirmed: 'Сравнения выписаны',
+      focus: '№ 223 не виден', question: 'Покажи № 223 целиком' } } as DayWorkReview
+
+  it('keeps the exact MESH requirement and names missing evidence without copying the long review', () => {
+    const review = { ...base, summary: 'Длинный экспертный разбор не нужен в обзоре',
+      assessmentBasis: { outcome: 'unresolved', unresolvedReason: 'missing-evidence' } } as DayWorkReview
+    const [item] = lessonWorkItems([task], [], [review], [], {}, {})
+    expect(item).toMatchObject({ state: 'unclear', unresolvedReason: 'missing-evidence',
+      detail: '№ 218 проверен; № 223 не виден целиком' })
+    expect(item.detail).not.toContain('Длинный экспертный разбор')
+    expect(item.title).toContain('Упр. 218 и 223')
+  })
+
+  it('does not claim a missing photo when the criterion itself is uncertain', () => {
+    const review = { ...base, summary: 'Длинное объяснение',
+      assessmentBasis: { outcome: 'unresolved', unresolvedReason: 'criterion-unclear' } } as DayWorkReview
+    const [item] = lessonWorkItems([task], [], [review], [], {}, {})
+    expect(item).toMatchObject({ state: 'unclear', unresolvedReason: 'criterion-unclear',
+      detail: 'Работа разобрана; основание неопределённости — в карточке.' })
   })
 })

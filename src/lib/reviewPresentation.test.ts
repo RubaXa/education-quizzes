@@ -41,4 +41,13 @@ describe('collapsed homework review', () => {
   it('keeps unassessable work neutral', () => {
     expect(reviewTone(review('cannot-assess', ['cannot-assess']))).toBe('neutral')
   })
+
+  it('distinguishes an off-frame answer from an unclear criterion', () => {
+    const missing = { ...review('cannot-assess', ['partial', 'cannot-assess']),
+      assessmentBasis: { outcome: 'unresolved', unresolvedReason: 'missing-evidence' } } as DayWorkReview
+    expect(reviewHeadline(missing)).toBe('Часть работы не видна на фото')
+    expect(problemCardState([], missing).label).toBe('Часть работы не видна на фото')
+    const criterion = { ...missing, assessmentBasis: { outcome: 'unresolved', unresolvedReason: 'criterion-unclear' } } as DayWorkReview
+    expect(reviewHeadline(criterion)).toBe('Работа разобрана · критерий неясен')
+  })
 })

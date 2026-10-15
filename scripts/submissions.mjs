@@ -340,7 +340,11 @@ function validateAssessmentBasis(review) {
   if (basis.outcome === 'not-met' && !basis.sources.some((source) => source.role === 'requirement' && ['teacher', 'mesh', 'textbook'].includes(source.kind))) {
     throw new Error('Отрицательный вердикт нельзя основывать только на общей программе или методическом совете.')
   }
-  if (basis.outcome === 'unresolved' && !basis.limitation?.trim()) throw new Error('При спорном критерии объясните, чего именно не хватает для вывода.')
+  if (basis.outcome === 'unresolved' && !basis.limitation?.trim()) throw new Error('Если итог нельзя установить, объясните, каких именно данных или критериев не хватает.')
+  if (basis.unresolvedReason && (basis.outcome !== 'unresolved'
+    || !['missing-evidence', 'criterion-unclear'].includes(basis.unresolvedReason))) {
+    throw new Error('Причина неустановленного результата должна отличать недостающую работу от неясного критерия.')
+  }
   if (basis.disputedRequirements) {
     const disputes = basis.disputedRequirements
     if (basis.outcome !== 'unresolved' || !Array.isArray(disputes) || disputes.length < 1 || disputes.length > 10

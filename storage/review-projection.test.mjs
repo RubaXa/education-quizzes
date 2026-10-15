@@ -22,4 +22,14 @@ describe('публичная проекция разбора', () => {
     expect(result.items[0]).toEqual({ label: 'План', status: 'partial' })
     expect(result.history[0]).toEqual({ status: 'needs-fix', studentFeedback: { title: 'Первая попытка' } })
   })
+
+  it('передаёт только безопасную причину недостающего фото, без экспертного объяснения', () => {
+    const result = studentReviewProjection({ date: '2026-10-15', taskId: 'mesh-218-223', status: 'cannot-assess',
+      assessmentBasis: { outcome: 'unresolved', unresolvedReason: 'missing-evidence',
+        limitation: 'Второй номер за кадром', requirement: 'Учитель назначил два номера' },
+      studentFeedback: { title: '№ 218 проверен; № 223 не виден', confirmed: 'Первый номер виден',
+        focus: 'Второй номер не виден', question: 'Покажи второй номер?' } })
+    expect(result.assessmentBasis).toEqual({ outcome: 'unresolved', unresolvedReason: 'missing-evidence' })
+    expect(result).not.toHaveProperty('summary')
+  })
 })

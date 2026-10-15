@@ -39,6 +39,30 @@ beforeEach(() => { vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime(new 
 afterEach(() => { probe.selected = null; probe.next = null; probe.grade = null; probe.dashboardError = null; for (const day of allDays) delete (day as typeof day & { homeworkUpdate?: unknown }).homeworkUpdate; allDays[0].schedule.splice(1); index.days = allDays; localStorage.clear(); sessionStorage.clear(); window.location.hash = ''; Element.prototype.scrollIntoView = originalScrollIntoView; vi.useRealTimers(); vi.restoreAllMocks() })
 
 describe('schedule warm start', () => {
+  it('keeps a clear MESH assignment separate from missing photographic evidence in the parent overview', async () => {
+    const homework = allDays[1].homework
+    allDays[1].homework = [{ subject: 'Русский язык', text: 'Упр. 218, 223 (выписать только средства выразительности)' }]
+    probe.selected = base()
+    probe.next = { ...base(), ready: true, subjects: [{ id: 'russian', name: 'Русский язык', icon: '✍️', tasks: [
+      { id: 'mesh-russian', title: 'Упр. 218 и 223: выписать средства выразительности', kind: 'written' },
+    ] }], reviews: [{ id: 'review-russian', taskId: 'mesh-russian', status: 'cannot-assess',
+      summary: 'Большой экспертный разбор не должен занимать весь обзор',
+      studentFeedback: { title: '№ 218 проверен; № 223 не виден целиком' },
+      assessmentBasis: { outcome: 'unresolved', unresolvedReason: 'missing-evidence' } }] }
+    const host = document.createElement('div'); document.body.append(host)
+    const root = createRoot(host)
+    try {
+      await act(async () => { root.render(<DayDashboard token="calendar" parent />) })
+      const row = host.querySelector('.day-dashboard-homework-row')
+      expect(row?.textContent).toContain('Не вся работа видна')
+      expect(row?.textContent).toContain('№ 218 проверен; № 223 не виден целиком')
+      expect(row?.textContent).not.toContain('Критерий неясен')
+      expect(row?.textContent).not.toContain('Большой экспертный разбор')
+    } finally {
+      await act(async () => root.unmount()); host.remove()
+      allDays[1].homework = homework
+    }
+  })
   it('shows an optional-only test in the lesson without counting it as homework', async () => {
     const page = { targetDate: '2026-10-13', subjects: [{ id: 'biology', tasks: [] }],
       testPlacements: [{ subjectId: 'biology', token: 'quiz-root' }] }

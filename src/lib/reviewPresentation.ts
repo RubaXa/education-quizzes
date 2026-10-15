@@ -78,6 +78,10 @@ export function reviewTone(review: DayWorkReview): ReviewTone {
 
 /** @see ../../docs/product/day-page.md#homework-review */
 export function reviewHeadline(review: DayWorkReview): string {
+  if (review.assessmentBasis?.outcome === 'unresolved' && review.assessmentBasis.unresolvedReason === 'missing-evidence')
+    return 'Часть работы не видна на фото'
+  if (review.assessmentBasis?.outcome === 'unresolved' && !review.assessmentBasis.unresolvedReason)
+    return 'Итог пока не установлен'
   if (review.assessmentBasis?.outcome === 'unresolved') return workCoverageComplete(review) ? 'Работа сдана · критерий оценки неясен'
     : review.nextStep && review.items?.some((item) => item.status === 'cannot-assess') ? 'Часть задания не подтверждена'
       : 'Работа разобрана · критерий неясен'

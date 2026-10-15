@@ -93,6 +93,8 @@ export type DayWorkReview = {
   assessmentBasis?: {
     grade?: number; schoolYear?: string; requirement?: string; observed?: string; comparison?: string;
     outcome: 'met' | 'not-met' | 'unresolved'; limitation?: string;
+    /** Why the result is unresolved; a missing photo is not an unclear teacher criterion. */
+    unresolvedReason?: 'missing-evidence' | 'criterion-unclear';
     sources?: { kind: 'teacher' | 'mesh' | 'textbook' | 'method-guide' | 'curriculum' | 'official-key'; ref: string; excerpt: string; role: 'requirement' | 'context' }[];
     disputedRequirementIds?: string[];
     /** A proposed family action is not a teacher requirement. @see ../../docs/product/review-criteria-provenance.md#family-disputes */

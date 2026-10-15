@@ -9,7 +9,7 @@ import { quizPassed } from './quizCompletion'
 /** @see ../../docs/product/dashboard.md#homework-progress
  *  @see ../../docs/architecture/family-data-model.md#parent-home */
 export type QuizScore = { points: number; maxPoints: number }
-export type LessonWorkItem = { id: string; title: string; state: 'done' | 'todo' | 'checking' | 'unclear'; detail: string; qualityOpen?: boolean }
+export type LessonWorkItem = { id: string; title: string; state: 'done' | 'todo' | 'checking' | 'unclear'; detail: string; qualityOpen?: boolean; unresolvedReason?: 'missing-evidence' | 'criterion-unclear' }
 export type QuizWorkState = { status: string; testId?: string; linkedToTestId?: string | null; title?: string; followupRequested?: boolean; followupRequestedAt?: unknown; familyOptional?: boolean }
 
 export type QuizRequirement = Pick<LessonWorkItem, 'state' | 'detail'> | { state: 'optional'; detail: string }
@@ -63,7 +63,12 @@ export function lessonWorkItems(tasks: DayTask[], uploads: DayUpload[], reviews:
       const familyActions = requiredFamilyActions(review, decisions)
       const covered = workCoverageComplete(review) && !pending && !familyActions.length
       const state: LessonWorkItem['state'] = pending ? 'checking' : familyActions.length ? 'todo' : familyStageComplete || review?.status === 'verified' || accepted || covered ? 'done' : criterionPending ? 'unclear' : 'todo'
-      return { id: problem.id, title: `${problem.variantId ? `${task.practiceVariants?.find((variant) => variant.id === problem.variantId)?.title ?? 'Вариант'} · ` : ''}№ ${problem.number}. ${problem.title}`, state, qualityOpen: covered, detail: familyActions.length ? `По решению родителя: ${familyActions.join('; ')}` : state === 'unclear' ? `${review?.summary ?? 'Работа разобрана; критерий не подтверждён.'} Новое фото не требуется.` : state === 'checking' ? 'Фото получено, ждём проверки' : state === 'done' ? covered ? 'Работа сдана; критерий оценки пока не установлен. Новых действий не требуется.' : accepted ? 'Засчитано родителем · ответ верен, ход неполон' : 'Решение проверено' : review?.status === 'needs-fix' ? 'Нужно исправить решение' : review?.status === 'partial' ? 'Нужно дополнить решение' : 'Нужно выполнить и загрузить решение' }
+      return { id: problem.id, title: `${problem.variantId ? `${task.practiceVariants?.find((variant) => variant.id === problem.variantId)?.title ?? 'Вариант'} · ` : ''}№ ${problem.number}. ${problem.title}`, state, qualityOpen: covered,
+        unresolvedReason: state === 'unclear' ? review?.assessmentBasis?.unresolvedReason : undefined,
+        detail: familyActions.length ? `По решению родителя: ${familyActions.join('; ')}` : state === 'unclear'
+          ? review?.assessmentBasis?.unresolvedReason === 'missing-evidence' ? review.studentFeedback?.title ?? 'Часть работы не видна на фото; подробности в разборе.'
+            : 'Работа разобрана; основание неопределённости — в карточке.'
+          : state === 'checking' ? 'Фото получено, ждём проверки' : state === 'done' ? covered ? 'Работа сдана; критерий оценки пока не установлен. Новых действий не требуется.' : accepted ? 'Засчитано родителем · ответ верен, ход неполон' : 'Решение проверено' : review?.status === 'needs-fix' ? 'Нужно исправить решение' : review?.status === 'partial' ? 'Нужно дополнить решение' : 'Нужно выполнить и загрузить решение' }
     }),
       ...(task.testToken && requiredQuizRequirement(task.testToken, tests, scores) ? [{ id: `quiz:${task.testToken}`, title: 'Самопроверка по теме',
         ...requiredQuizRequirement(task.testToken, tests, scores)! }] : []),
@@ -87,10 +92,13 @@ export function lessonWorkItems(tasks: DayTask[], uploads: DayUpload[], reviews:
     const checking = !done && (pending || Boolean(processing && processing.phase !== 'paused') || (task.kind === 'read' || task.kind === 'check') && quiz?.state === 'checking')
     const state: LessonWorkItem['state'] = pending ? 'checking' : familyActions.length ? 'todo' : done ? 'done' : checking ? 'checking' : criterionPending ? 'unclear' : 'todo'
     const detail = state === 'checking' ? quiz?.state === 'checking' ? quiz.detail : 'Работа получена, ждём результата проверки' : familyActions.length ? `По решению родителя: ${familyActions.join('; ')}` : state === 'done' ? familyStageComplete ? 'Все обязательные пункты подтверждены по семейному плану' : covered ? 'Работа сдана; критерий оценки пока не установлен. Новых действий не требуется.' : accepted ? 'Засчитано родителем · ответ верен, ход неполон' : readPassed ? quiz!.detail : cdzPassed ? cdzResultLabel(task.platformResult) : 'Работа проверена'
-      : state === 'unclear' ? `${review?.summary ?? 'Работа разобрана; критерий учителя не подтверждён.'} Новое фото не требуется.`
+      : state === 'unclear' ? review?.assessmentBasis?.unresolvedReason === 'missing-evidence'
+        ? review.studentFeedback?.title ?? 'Часть работы не видна на фото; подробности в разборе.'
+        : 'Работа разобрана; основание неопределённости — в карточке.'
         : review?.status === 'needs-fix' ? 'Нужно исправить работу' : review?.status === 'partial' ? 'Нужно дополнить работу' : review?.status === 'cannot-assess' ? 'Фото нужно переснять'
           : (task.kind === 'read' || task.kind === 'check') && quiz ? quiz.detail
             : isCdzTask(task) ? 'Ожидается результат ЦДЗ' : task.kind === 'check' ? 'Нужно выполнить задание МЭШ' : 'Нужно выполнить и загрузить работу'
-    return [{ id: task.id, title: task.title, state, detail, qualityOpen: covered }]
+    return [{ id: task.id, title: task.title, state, detail, qualityOpen: covered,
+      unresolvedReason: state === 'unclear' ? review?.assessmentBasis?.unresolvedReason : undefined }]
   })
 }

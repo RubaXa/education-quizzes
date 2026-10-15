@@ -26,6 +26,7 @@ export function studentReviewProjection(review) {
     ...(review.mathReasoning ? { mathReasoning: { answer: review.mathReasoning.answer, argument: review.mathReasoning.argument } } : {}),
     ...(basis ? { assessmentBasis: {
       outcome: basis.outcome,
+      ...(basis.unresolvedReason ? { unresolvedReason: basis.unresolvedReason } : {}),
       ...(basis.disputedRequirementIds ? { disputedRequirementIds: basis.disputedRequirementIds } : {}),
       ...(dispute ? { disputedRequirements: dispute } : {}),
     } } : {}),

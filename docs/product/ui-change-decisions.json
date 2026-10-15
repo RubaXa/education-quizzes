@@ -296,19 +296,21 @@
       }
     },
     "src/DayDashboard.tsx": {
-      "sha256": "40b79775a526691e1e6427dd74da652913584f0786cce5e194d17f4b300e33d7",
-      "record": "docs/product/ui-decisions/lesson-countdowns-2026-10-15.md",
+      "sha256": "643e457f22f4d8b0553031cbc9ce8bd33935243855d8d258f65625e15301c2df",
+      "record": "docs/product/ui-decisions/missing-evidence-homework-overview-2026-10-15.md",
       "specs": [
         "docs/product/dashboard.md",
-        "docs/product/design-system.md",
-        "docs/product/status-presentation.md"
+        "docs/product/review-criteria-provenance.md"
       ],
       "tests": [
-        "src/DayDashboard.warmStart.test.tsx"
+        "src/DayDashboard.warmStart.test.tsx",
+        "src/lib/homeworkStatus.test.ts",
+        "src/lib/reviewPresentation.test.ts",
+        "storage/review-projection.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 15.10.2026 со скриншотами расписания: песочные часы и отсчёт только у ближайшего будущего урока, таймер и отсчёт до конца вместо слова «Идёт» у текущего."
+        "evidence": "Родитель 15.10.2026 показал неверный статус русского ДЗ, потребовал ясный разбор результата и исправление обзора."
       }
     },
     "src/components/QuizCard.css": {
@@ -362,25 +364,21 @@
       }
     },
     "src/lib/homeworkStatus.ts": {
-      "sha256": "cdf48ab25bb2413f5253860b4edbcdd46441606853dc1380d44fc7a9ee0c6cbb",
-      "record": "docs/product/ui-decisions/optional-quiz-switch-2026-10-15.md",
+      "sha256": "f891f63f48c795312ef9837f649da00439a8d2212470bffce3cf8ca23461a77a",
+      "record": "docs/product/ui-decisions/missing-evidence-homework-overview-2026-10-15.md",
       "specs": [
-        "docs/product/quizzes.md",
         "docs/product/dashboard.md",
-        "docs/product/design-system.md"
+        "docs/product/review-criteria-provenance.md"
       ],
       "tests": [
-        "src/lib/homeworkStatus.test.ts",
-        "src/lib/quizCardViewModel.test.ts",
-        "src/lib/assignmentPresentation.test.ts",
-        "src/components/QuizCard.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
         "src/DayDashboard.warmStart.test.tsx",
-        "src/lib/store.optionalQuiz.test.ts"
+        "src/lib/homeworkStatus.test.ts",
+        "src/lib/reviewPresentation.test.ts",
+        "storage/review-projection.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 15.10.2026: добавить в общий компонент теста переключатель обязательности только для активного теста, правильно исключать его из всех счётчиков и покрыть сценарий тестами."
+        "evidence": "Родитель 15.10.2026 показал неверный статус русского ДЗ, потребовал ясный разбор результата и исправление обзора."
       }
     },
     "src/lib/quiz.ts": {
@@ -563,18 +561,21 @@
       }
     },
     "src/lib/reviewPresentation.ts": {
-      "sha256": "929f2bdcf06991655b5c15c5dfad7df88c5262457a2d63e6dcd058f666ddc24e",
-      "record": "docs/product/ui-decisions/one-parent-review-and-safe-site-2026-10-14.md",
+      "sha256": "747a0fb81501276f63a46e3d0ed39f2edf4509fa06fb25b43a4ab8f9ff87bca7",
+      "record": "docs/product/ui-decisions/missing-evidence-homework-overview-2026-10-15.md",
       "specs": [
-        "docs/product/russian-language-route.md",
-        "docs/product/day-page.md"
+        "docs/product/dashboard.md",
+        "docs/product/review-criteria-provenance.md"
       ],
       "tests": [
-        "src/lib/reviewPresentation.test.ts"
+        "src/DayDashboard.warmStart.test.tsx",
+        "src/lib/homeworkStatus.test.ts",
+        "src/lib/reviewPresentation.test.ts",
+        "storage/review-projection.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 14.10.2026: один понятный родительский разбор по русскому с предметной спецификой, обновить сайт; отдельные права Firestore пока не разрешены."
+        "evidence": "Родитель 15.10.2026 показал неверный статус русского ДЗ, потребовал ясный разбор результата и исправление обзора."
       }
     },
     "src/lib/parentCompletion.ts": {
@@ -723,18 +724,21 @@
       }
     },
     "src/lib/dayStore.ts": {
-      "sha256": "a5725c9282ed685869b14f5290b608c1528b315e0a666d9f2b2715cd782fd9d3",
-      "record": "docs/product/ui-decisions/grade-mark-details-2026-10-14.md",
+      "sha256": "b8a1500072c253582100a0855854a4e2da016a36fcf9304c948fccaee223ed6c",
+      "record": "docs/product/ui-decisions/missing-evidence-homework-overview-2026-10-15.md",
       "specs": [
-        "docs/product/grades.md",
-        "docs/architecture/school-diary-port-adapter.md"
+        "docs/product/dashboard.md",
+        "docs/product/review-criteria-provenance.md"
       ],
       "tests": [
-        "src/DayDashboard.warmStart.test.tsx"
+        "src/DayDashboard.warmStart.test.tsx",
+        "src/lib/homeworkStatus.test.ts",
+        "src/lib/reviewPresentation.test.ts",
+        "storage/review-projection.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 14.10.2026 прямо попросил нажимать на конкретную оценку в списке и видеть вид работы и комментарий учителя из МЭШ."
+        "evidence": "Родитель 15.10.2026 показал неверный статус русского ДЗ, потребовал ясный разбор результата и исправление обзора."
       }
     },
     "src/DayDashboard.css": {
@@ -894,19 +898,57 @@
       }
     },
     "scripts/submissions.mjs": {
-      "sha256": "310f8e5c0d31657905c745cf0bd40ad14a5ec143ff14a876f7ce50dab8925725",
-      "record": "docs/product/ui-decisions/two-pass-written-review-2026-10-15.md",
+      "sha256": "f6a9ac1950598bcaadbceaf499522576d8c3c13144b0d66cc8e90d51b7e14603",
+      "record": "docs/product/ui-decisions/missing-evidence-homework-overview-2026-10-15.md",
       "specs": [
-        "docs/product/review-criteria-provenance.md",
-        "docs/product/subject-aware-guidance.md"
+        "docs/product/dashboard.md",
+        "docs/product/review-criteria-provenance.md"
       ],
       "tests": [
-        "storage/review-challenge.test.mjs",
+        "src/DayDashboard.warmStart.test.tsx",
+        "src/lib/homeworkStatus.test.ts",
+        "src/lib/reviewPresentation.test.ts",
         "storage/review-projection.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 15.10.2026 потребовал повторно читать оригиналы и точное задание при любом сомнении в письменной работе перед отрицательным вердиктом."
+        "evidence": "Родитель 15.10.2026 показал неверный статус русского ДЗ, потребовал ясный разбор результата и исправление обзора."
+      }
+    },
+    "src/components/WorkReview.tsx": {
+      "sha256": "5f5e2f30d2773b2d38eef87a71e0d3c3e4b0b411b89083c517aff2e6ee288a74",
+      "record": "docs/product/ui-decisions/missing-evidence-homework-overview-2026-10-15.md",
+      "specs": [
+        "docs/product/dashboard.md",
+        "docs/product/review-criteria-provenance.md"
+      ],
+      "tests": [
+        "src/DayDashboard.warmStart.test.tsx",
+        "src/lib/homeworkStatus.test.ts",
+        "src/lib/reviewPresentation.test.ts",
+        "storage/review-projection.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 15.10.2026 показал неверный статус русского ДЗ, потребовал ясный разбор результата и исправление обзора."
+      }
+    },
+    "storage/review-projection.mjs": {
+      "sha256": "cef7172ef70053929c2354b14f94ffbf4f0ff65e4438df20312ea8a01a225cec",
+      "record": "docs/product/ui-decisions/missing-evidence-homework-overview-2026-10-15.md",
+      "specs": [
+        "docs/product/dashboard.md",
+        "docs/product/review-criteria-provenance.md"
+      ],
+      "tests": [
+        "src/DayDashboard.warmStart.test.tsx",
+        "src/lib/homeworkStatus.test.ts",
+        "src/lib/reviewPresentation.test.ts",
+        "storage/review-projection.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 15.10.2026 показал неверный статус русского ДЗ, потребовал ясный разбор результата и исправление обзора."
       }
     }
   }
