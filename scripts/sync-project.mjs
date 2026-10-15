@@ -352,7 +352,7 @@ async function markPhase() {
     if (!job.sourceDir || !job.checkedFrom || !job.checkedThrough) throw new Error('Нет полного проверенного окна МЭШ для завершения запуска.')
     const dates = dateWindow(manifest.startedFor)
     if (dates[0] !== job.checkedFrom || dates.at(-1) !== job.checkedThrough) throw new Error('Окно МЭШ в журнале не совпадает с текущим протоколом.')
-    const { pending } = await auditPublishedDays(job.sourceDir, dates, manifest.startedFor)
+    const { pending } = await auditPublishedDays(job.sourceDir, dates, manifest.startedFor, newTiming())
     if (pending.length) throw new Error(`Остались неопубликованные дни: ${pending.map((item) => item.date).join(', ')}.`)
     const queued = (await db.collection('operatorSyncJobs').where('runId', '==', runId).get()).docs.filter((doc) => {
       const item = doc.data()

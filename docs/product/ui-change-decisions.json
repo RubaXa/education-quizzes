@@ -861,7 +861,7 @@
       }
     },
     "scripts/sync-project.mjs": {
-      "sha256": "b0de08df54d1c7137e570c1ff8a2144b964639d48019b7068ad76dc970425b75",
+      "sha256": "adbc81b8e3967032ecc8ac62c055913cfb2f8fbe4b174ae80bc616b02919c0a1",
       "record": "docs/product/ui-decisions/education-sync-performance-2026-10-15.md",
       "specs": [
         "docs/product/global-sync.md",
