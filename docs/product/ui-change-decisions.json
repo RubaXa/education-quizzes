@@ -17,14 +17,15 @@
       }
     },
     "src/DayPage.css": {
-      "sha256": "cf6c7585e03bffc4679219bc243066596ba4a53d619b0e689d51ebe4b7a10e39",
-      "record": "docs/product/ui-decisions/teacher-sheet-beside-quiz-2026-10-14.md",
+      "sha256": "24dd97d87e76c750874117d1ab2bb94bc4c6449af1c579aca7a581e63bf0f214",
+      "record": "docs/product/ui-decisions/restore-textbook-strip-2026-10-15.md",
       "specs": [
         "docs/product/assessment-decision-graph.md",
         "docs/product/dashboard.md",
         "docs/product/materials.md",
         "docs/product/quizzes.md",
-        "docs/product/day-page.md"
+        "docs/product/day-page.md",
+        "docs/product/design-system.md"
       ],
       "tests": [
         "src/lib/dayMaterialRefs.test.ts",
@@ -33,7 +34,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 14.10.2026: различать прогресс задач учителя и теста, сохранять оба блока и проверять карточку на телефоне."
+        "evidence": "Прямой запрос родителя 15.10.2026 со скриншотом страниц 112–115: восстановить несколько одновременно видимых миниатюр и прокрутку пальцем вместо одного превью со стрелками."
       }
     },
     "src/components/AssignmentBrief.tsx": {
@@ -312,24 +313,6 @@
         "evidence": "Прямой запрос родителя 15.10.2026 со скриншотами расписания: песочные часы и отсчёт только у ближайшего будущего урока, таймер и отсчёт до конца вместо слова «Идёт» у текущего."
       }
     },
-    "src/components/MaterialReader.tsx": {
-      "sha256": "c41dd5f82b4c1b707035e429403881e6db3430012cf3d8051e73ae3a9b0081fe",
-      "record": "docs/product/ui-decisions/quiz-threshold-and-page-slider-2026-10-14.md",
-      "specs": [
-        "docs/product/assessment-decision-graph.md",
-        "docs/product/dashboard.md",
-        "docs/product/materials.md",
-        "docs/product/quizzes.md"
-      ],
-      "tests": [
-        "src/lib/dayMaterialRefs.test.ts",
-        "src/components/MaterialReader.test.tsx"
-      ],
-      "authorization": {
-        "status": "direct-request",
-        "evidence": "Прямой запрос родителя 14.10.2026 по снимкам: соседние страницы в одном ридере, зачёт любого теста от 80%, кнопка работы над ошибками и публикация сайта."
-      }
-    },
     "src/components/QuizCard.css": {
       "sha256": "530bac5a427f2714e44b54d4b1637793dedd82cc85f90c7a8e81dfc2fc72ffb1",
       "record": "docs/product/ui-decisions/quiz-attempt-time-icon-2026-10-15.md",
@@ -497,18 +480,19 @@
       }
     },
     "scripts/check-material-preview-viewport.mjs": {
-      "sha256": "db8e03cfbeea286b37ffa45bd4d606b4b5d558d819d51bf53d3e1a5ae829180c",
-      "record": "docs/product/ui-decisions/quiz-threshold-and-page-slider-2026-10-14.md",
+      "sha256": "9664252055e76de2d78c0be80aaae2f1e25b53b8a12482172c4d7c2a173d5762",
+      "record": "docs/product/ui-decisions/restore-textbook-strip-2026-10-15.md",
       "specs": [
         "docs/product/materials.md",
         "docs/product/design-system.md"
       ],
       "tests": [
-        "src/components/MaterialReader.test.tsx"
+        "src/components/MaterialReader.test.tsx",
+        "src/lib/dayMaterialRefs.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 14.10.2026: объединить соседние страницы учебника и проверить мобильные снимки перед публикацией."
+        "evidence": "Прямой запрос родителя 15.10.2026 со скриншотом страниц 112–115: восстановить несколько одновременно видимых миниатюр и прокрутку пальцем вместо одного превью со стрелками."
       }
     },
     "src/components/ProblemCard.tsx": {

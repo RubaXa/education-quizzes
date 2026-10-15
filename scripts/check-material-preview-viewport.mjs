@@ -1,5 +1,6 @@
-/** Browser layout regression for teacher sheets with different page ratios.
+/** Browser layout regression for teacher sheets and the horizontal textbook strip.
  * @see ../docs/product/design-system.md#images
+ * @see ../docs/product/materials.md#material-reader
  */
 import { spawn } from 'node:child_process'
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
@@ -18,7 +19,8 @@ const page = (name, width, height) => {
   const image = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}"><rect width="100%" height="100%" fill="white"/><text x="20" y="45" font-size="30">${name}</text><rect x="20" y="65" width="${width - 40}" height="${height - 85}" fill="#e8e0f7"/></svg>`).toString('base64')
   return `<div class="day-reader day-reader-statement"><div class="day-reader-heading"><strong>Лист учителя · 1 лист</strong><span>${name}</span></div><div class="day-reader-thumbs"><button class="day-reader-thumb"><span class="education-image" data-state="ready" style="height:auto;aspect-ratio:auto;--edu-image-fit:contain"><img src="data:image/svg+xml;base64,${image}" alt=""></span><small>Открыть лист крупно</small></button></div></div>`
 }
-const slider = `<div class="day-reader" aria-label="Страницы учебника: стр. 150–151"><div class="day-reader-heading"><strong>Страницы учебника · стр. 150–151</strong><span>Английский · Starlight 6</span></div><div class="day-reader-slides"><button class="day-reader-thumb"><span class="education-image" data-state="ready" style="height:auto;aspect-ratio:auto;--edu-image-fit:contain"><img src="data:image/svg+xml;base64,${Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="600" height="900"><rect width="100%" height="100%" fill="white"/><text x="40" y="70" font-size="40">GR3</text></svg>').toString('base64')}" alt=""></span><small>Страница 150</small></button><div class="day-reader-slide-controls"><button disabled aria-label="Предыдущая страница">‹</button><span>1 из 2</span><button aria-label="Следующая страница">›</button></div></div></div>`
+const textbookPage = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="600" height="900"><rect width="100%" height="100%" fill="white"/></svg>').toString('base64')
+const slider = `<div class="day-reader"><div class="day-reader-heading"><strong>Страницы учебника · стр. 112–117</strong><span>Русский язык 6</span></div><div class="day-reader-thumbs" aria-label="Открыть страницы: стр. 112–117">${[112, 113, 114, 115, 116, 117].map((number) => `<button class="day-reader-thumb" aria-label="Открыть Страница ${number}"><span class="education-image" data-state="ready"><img src="data:image/svg+xml;base64,${textbookPage}" alt=""></span><small>Страница ${number}</small></button>`).join('')}</div></div>`
 const html = `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>*{box-sizing:border-box}body{margin:0;padding:12px;background:#f8f6fc;font:16px sans-serif}${css}</style>${page('Горизонтальный лист', 1200, 600)}${page('Вертикальный лист', 600, 900)}${slider}`
 
 const profile = mkdtempSync(join(tmpdir(), 'education-material-preview-chrome-'))
@@ -61,14 +63,14 @@ try {
       if (result.exceptionDetails || !result.result?.value) throw new Error('Chrome не смог измерить листы.')
       const layout = JSON.parse(result.result.value)
       if (layout.length !== 2 || layout.some((item) => !item.loaded || item.overflow || Math.abs(item.height - item.expected) > 1)) throw new Error(`Неверные размеры превью: ${JSON.stringify({ width, layout })}`)
-      const sliderResult = await send('Runtime.evaluate', { returnByValue: true, expression: `JSON.stringify((()=>{const root=document.querySelector('.day-reader-slides'), page=root.querySelector('.day-reader-thumb'), controls=root.querySelector('.day-reader-slide-controls');return {rootRight:root.getBoundingClientRect().right,pageRight:page.getBoundingClientRect().right,controlsRight:controls.getBoundingClientRect().right,windowWidth:innerWidth,count:root.querySelectorAll('.day-reader-thumb').length}})())` })
+      const sliderResult = await send('Runtime.evaluate', { returnByValue: true, expression: `JSON.stringify((()=>{const root=document.querySelector('.day-reader:not(.day-reader-statement) .day-reader-thumbs'), pages=[...root.querySelectorAll('.day-reader-thumb')], rect=root.getBoundingClientRect(), visible=pages.filter(page=>page.getBoundingClientRect().right<=rect.right+1).length;root.scrollLeft=root.scrollWidth;return {rootRight:rect.right,windowWidth:innerWidth,count:pages.length,visible,scrollWidth:root.scrollWidth,clientWidth:root.clientWidth,scrollLeft:root.scrollLeft,lastRight:pages.at(-1).getBoundingClientRect().right,viewportRight:rect.right}})())` })
       const sliderLayout = JSON.parse(sliderResult.result.value)
-      if (sliderLayout.count !== 1 || Math.max(sliderLayout.rootRight, sliderLayout.pageRight, sliderLayout.controlsRight) > width + 1) throw new Error(`Слайдер страниц вышел за экран: ${JSON.stringify({ width, sliderLayout })}`)
+      if (sliderLayout.count !== 6 || sliderLayout.visible < 2 || sliderLayout.visible >= 6 || sliderLayout.rootRight > width + 1 || sliderLayout.scrollWidth <= sliderLayout.clientWidth || sliderLayout.scrollLeft <= 0 || sliderLayout.lastRight > sliderLayout.viewportRight + 1) throw new Error(`Лента страниц не прокручивается внутри экрана: ${JSON.stringify({ width, sliderLayout })}`)
       if (width === 390 && process.env.MATERIAL_PREVIEW_SCREENSHOT_PATH) {
         const shot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true })
         writeFileSync(process.env.MATERIAL_PREVIEW_SCREENSHOT_PATH, Buffer.from(shot.data, 'base64'))
       }
-      console.log(`${width}px: листы сохраняют пропорции; страницы 150–151 в одном блоке без переполнения`)
+      console.log(`${width}px: листы сохраняют пропорции; несколько страниц видны, лента прокручивается внутри блока`)
     }
   } finally { socket.close() }
 } finally {

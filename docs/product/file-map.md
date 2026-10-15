@@ -224,8 +224,8 @@
 | [src/components/EducationImage.test.tsx](../../src/components/EducationImage.test.tsx) | [Изображения](design-system.md) | Регрессия повторной загрузки миниатюры после истёкшего превью | Vitest; разработчик |
 | [src/components/EducationImage.css](../../src/components/EducationImage.css) | [Изображения](design-system.md) | Оболочка изображения и состояния загрузки | `EducationImage.tsx` |
 | [src/components/EducationScreen.tsx](../../src/components/EducationScreen.tsx) | [Экраны из данных](../architecture/backend-driven-ui.md) | Ограниченный реестр блоков манифеста | Будущий маршрут v2 |
-| [src/components/MaterialReader.tsx](../../src/components/MaterialReader.tsx) | [Материалы](materials.md) | Миниатюры ДЗ, перелистывание соседних страниц в одном блоке и полной книги | Страница дня; семейная библиотека |
-| [scripts/check-material-preview-viewport.mjs](../../scripts/check-material-preview-viewport.mjs) | [Изображения](design-system.md) | Браузерная проверка пропорций листов и одного блока соседних страниц на телефоне | Разработчик; превью материалов |
+| [src/components/MaterialReader.tsx](../../src/components/MaterialReader.tsx) | [Материалы](materials.md) | Горизонтальная лента назначенных страниц, крупный просмотр и отдельный режим полной книги | Страница дня; семейная библиотека |
+| [scripts/check-material-preview-viewport.mjs](../../scripts/check-material-preview-viewport.mjs) | [Материалы](materials.md) | Браузерная проверка пропорций листов и прокрутки нескольких страниц на телефоне | Разработчик; превью материалов |
 | [src/components/PersonalEntry.tsx](../../src/components/PersonalEntry.tsx) | [Семейная модель](../architecture/family-data-model.md) | Вход по личной ссылке | Личная стартовая страница |
 | [src/components/PersonalEntry.localFirst.test.tsx](../../src/components/PersonalEntry.localFirst.test.tsx) | [Поэтапный план local-first](../architecture/local-first-release-plan-2026-10-12.md) | Проверка первого локального кадра, трёх подписок и закрытия после отзыва на поддельном Firestore | Разработчик; выпуск личного кабинета |
 | [src/components/NotificationBell.tsx](../../src/components/NotificationBell.tsx) | [Центр обновлений](../architecture/activity-and-inbox.md) | Живая личная очередь, семейные решения и переход к учебному дню | `src/App.tsx`; ученик; родитель |
@@ -415,11 +415,12 @@
 
 
 | [docs/product/ui-decisions/quiz-threshold-and-page-slider-2026-10-14.md](ui-decisions/quiz-threshold-and-page-slider-2026-10-14.md) | [Граф самопроверок](assessment-decision-graph.md) | Основание и ролевой контракт порога, запроса и группировки страниц | `ui-change-decisions.json`; ревью выпуска |
+| [docs/product/ui-decisions/restore-textbook-strip-2026-10-15.md](ui-decisions/restore-textbook-strip-2026-10-15.md) | [Материалы](materials.md) | Решение о восстановлении горизонтальной ленты назначенных страниц и мобильной проверки | `ui-change-decisions.json`; ревью выпуска |
 | [docs/product/ui-decisions/quiz-threshold-85-2026-10-14.md](ui-decisions/quiz-threshold-85-2026-10-14.md) | [Граф самопроверок](assessment-decision-graph.md) | Решение родителя о пороге 85%, переходе статусов и проверках | `quizCompletion.ts`; оператор; агент |
 | [src/lib/quizCompletion.ts](../../src/lib/quizCompletion.ts) | [Граф самопроверок](assessment-decision-graph.md) | Единый порог 85% и ограниченная формула длины продолжения | `homeworkStatus.ts`; `sync-queue.mjs`; `quiz.mjs` |
 | [src/lib/quizCompletion.test.ts](../../src/lib/quizCompletion.test.ts) | [Граф самопроверок](assessment-decision-graph.md) | Граничные 85%, ручной запрос и размер 39/5 → 10 | Vitest; выпуск |
 | [src/lib/homeworkStatus.test.ts](../../src/lib/homeworkStatus.test.ts) | [Dashboard](dashboard.md) | Одна цепочка тестов, завершение и повторное открытие после запроса | Vitest; выпуск |
-| [src/components/MaterialReader.test.tsx](../../src/components/MaterialReader.test.tsx) | [Ридер](materials.md) | Один блок и один текущий превью для пары страниц | Vitest; выпуск |
+| [src/components/MaterialReader.test.tsx](../../src/components/MaterialReader.test.tsx) | [Ридер](materials.md) | Один блок, все назначенные миниатюры и обе роли | Vitest; выпуск |
 | [src/components/QuizCard.test.tsx](../../src/components/QuizCard.test.tsx) | [Тесты](quizzes.md) | Ролевая кнопка запроса, краткое название результата и ожидающий статус | Vitest; выпуск |
 | [src/components/QuizCard.time.test.tsx](../../src/components/QuizCard.time.test.tsx) | [Время попытки](quizzes.md) | Раскрытие дат активной и исторической попытки в обеих ролях, старые записи без времени | Vitest; выпуск |
 
