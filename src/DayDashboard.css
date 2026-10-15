@@ -79,8 +79,11 @@
 .day-dashboard-lesson summary::-webkit-details-marker{display:none}
 .day-dashboard-lesson time{color:#756496;font-weight:750;font-variant-numeric:tabular-nums;font-size:.83rem}
 .day-dashboard-lesson-name{min-width:0;overflow-wrap:anywhere;line-height:1.3}
-.day-dashboard-lesson-phase{display:inline-block;margin-left:6px;color:var(--edu-muted);font-size:.67rem;font-weight:650;white-space:nowrap}
-.day-dashboard-lesson-phase.current{color:#60449b;font-weight:800}
+/* @see ../docs/product/dashboard.md#lesson-countdowns — time state is separate from homework status. */
+.day-dashboard-lesson-phase{display:inline-flex;align-items:center;gap:3px;margin-left:6px;font-size:.67rem;font-weight:750;font-variant-numeric:tabular-nums;white-space:nowrap;vertical-align:baseline}
+.day-dashboard-lesson-phase svg{flex:none}
+.day-dashboard-lesson-phase.waiting{color:var(--edu-status-waiting-ink)}
+.day-dashboard-lesson-phase.current{color:var(--edu-accent-ink);font-weight:800}
 .day-dashboard-lesson-new{display:flex;align-items:center;gap:3px;width:fit-content;margin-top:3px;color:var(--edu-status-accent-ink);font-size:.7rem;font-weight:800}
 .day-dashboard-lesson-badge{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-height:26px;padding:5px 8px 5px 10px;border-radius:999px;white-space:nowrap;font-size:.72rem;font-weight:800;line-height:1;color:var(--edu-status-neutral-ink);background:var(--edu-status-neutral-bg)}
 .day-dashboard-lesson-badge svg{display:block;flex:none}

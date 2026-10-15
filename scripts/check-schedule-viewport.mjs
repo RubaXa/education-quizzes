@@ -20,8 +20,8 @@ if (!chrome) throw new Error('Для проверки нужен Chrome или C
 
 const rows = [
   ['Биология', '1 из 1', 'complete'], ['Практикум по решению математических задач', '⸻', 'none'],
-  ['История', '1 из 1', 'complete has-new-homework', 'Идёт'],
-  ['Русский язык', '1 из 2', 'partial'], ['Математика', 'ДЗ 12.10', 'unknown'],
+  ['История', '1 из 1', 'complete has-new-homework', 'current'],
+  ['Русский язык', '1 из 2', 'partial', 'waiting'], ['Математика', 'ДЗ 12.10', 'unknown'],
   ['Английский язык', '0 из 1', 'empty'], ['География', '1 из 1', 'complete'],
   ['Физическая культура', '⸻', 'none'],
 ]
@@ -36,9 +36,10 @@ const statusIcon = (status) => {
 }
 const chevron = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>'
 const newIcon = '<svg class="edu-status-icon edu-status-icon-new" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><circle cx="19" cy="5" r="2"/></svg>'
+const lessonTimeIcon = (phase) => `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${phase === 'current' ? '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>' : '<path d="M5 3h14M5 21h14M7 3c0 5 5 6 5 9s-5 4-5 9m10-18c0 5-5 6-5 9s5 4 5 9"/>'}</svg>`
 function renderRow([name, badge, tone, phase], open) {
   return `<li><details class="day-dashboard-lesson day-dashboard-lesson-${tone}" ${open ? 'open' : ''}>
-    <summary><time>08:30</time><span class="day-dashboard-lesson-name">${name}${phase ? `<span class="day-dashboard-lesson-phase current">${phase}</span>` : ''}${name === 'История' ? `<span class="day-dashboard-lesson-new">${newIcon}Новое ДЗ</span>` : ''}</span>
+    <summary><time>08:30</time><span class="day-dashboard-lesson-name">${name}${phase ? `<span class="day-dashboard-lesson-phase ${phase}" aria-label="${phase === 'current' ? 'До конца урока 35 мин' : 'Начнётся через 50 мин'}">${lessonTimeIcon(phase)}${phase === 'current' ? '35' : '50'} мин</span>` : ''}${name === 'История' ? `<span class="day-dashboard-lesson-new">${newIcon}Новое ДЗ</span>` : ''}</span>
     <span class="day-dashboard-lesson-badge" ${tone === 'none' ? 'aria-label="ДЗ не задано на последней сверке МЭШ"' : ''}>${badge.startsWith('ДЗ') || tone === 'none' ? '' : statusIcon(tone.includes('complete') ? 'complete' : tone === 'partial' ? 'partial' : tone === 'unknown' ? 'unknown' : 'ready')}${badge}${chevron}</span></summary>
     <div class="day-dashboard-lesson-body">Подробности задания и проверки.</div></details></li>`
 }

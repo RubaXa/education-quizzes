@@ -159,6 +159,41 @@ describe('schedule warm start', () => {
     expect(host.querySelector('.day-dashboard-current-lessons')?.textContent).not.toContain('Биология')
     await act(async () => { root.unmount() }); host.remove()
   })
+  it('shows a countdown only for the nearest future lesson and a distinct countdown for the current lesson', async () => {
+    allDays[0].schedule.push(
+      { subject: 'Математика', start: '2026-10-13T06:30:00.000Z', end: '2026-10-13T07:15:00.000Z' },
+      { subject: 'История', start: '2026-10-13T07:30:00.000Z', end: '2026-10-13T08:15:00.000Z' },
+    )
+    vi.setSystemTime(new Date('2026-10-13T06:20:00.000Z'))
+    probe.selected = base()
+    const host = document.createElement('div'); document.body.append(host)
+    const root = createRoot(host)
+    try {
+      await act(async () => { root.render(<DayDashboard token="calendar" parent />) })
+      const math = host.querySelector<HTMLDetailsElement>('.day-dashboard-lesson[data-subject="Математика"]')!
+      const history = host.querySelector<HTMLDetailsElement>('.day-dashboard-lesson[data-subject="История"]')!
+      expect(math.querySelector('.day-dashboard-lesson-phase.waiting')?.textContent).toContain('10 мин')
+      expect(math.querySelector('.day-dashboard-lesson-phase.waiting')?.getAttribute('aria-label')).toContain('Начнётся через')
+      expect(history.querySelector('.day-dashboard-lesson-phase')).toBeNull()
+      vi.setSystemTime(new Date('2026-10-13T06:40:00.000Z'))
+      await act(async () => { document.dispatchEvent(new Event('visibilitychange')) })
+      expect(math.querySelector('.day-dashboard-lesson-phase.current')?.textContent).toContain('35 мин')
+      expect(math.querySelector('.day-dashboard-lesson-phase.current')?.getAttribute('aria-label')).toContain('До конца урока')
+      expect(math.querySelector('.day-dashboard-lesson-phase.current')?.textContent).not.toContain('Идёт')
+      expect(history.querySelector('.day-dashboard-lesson-phase.waiting')?.textContent).toContain('50 мин')
+      expect(host.querySelectorAll('.day-dashboard-lesson-phase.waiting')).toHaveLength(1)
+      vi.setSystemTime(new Date('2026-10-13T06:41:00.000Z'))
+      await act(async () => { document.dispatchEvent(new Event('visibilitychange')) })
+      expect(math.querySelector('.day-dashboard-lesson-phase.current')?.textContent).toContain('34 мин')
+      expect(history.querySelector('.day-dashboard-lesson-phase.waiting')?.textContent).toContain('49 мин')
+      vi.setSystemTime(new Date('2026-10-13T07:15:00.000Z'))
+      await act(async () => { document.dispatchEvent(new Event('visibilitychange')) })
+      expect(host.querySelector('.day-dashboard-past-toggle')?.textContent).toContain('Прошли · 2')
+      expect(host.querySelector('.day-dashboard-current-lessons .day-dashboard-lesson-phase.waiting')?.textContent).toContain('15 мин')
+      await act(async () => { host.querySelectorAll<HTMLButtonElement>('.day-dashboard-date')[1]?.click() })
+      expect(host.querySelectorAll('.day-dashboard-lesson-phase')).toHaveLength(0)
+    } finally { await act(async () => root.unmount()); host.remove() }
+  })
   it('keeps the selected day distinct from the next homework day', async () => {
     probe.selected = base(); probe.next = base()
     const host = document.createElement('div'); document.body.append(host)
@@ -228,8 +263,9 @@ describe('schedule warm start', () => {
     expect(host.querySelector('.day-dashboard-past-lessons')).toBeNull()
     const visible = host.querySelectorAll<HTMLDetailsElement>('.day-dashboard-current-lessons .day-dashboard-lesson')
     expect([...visible].map((lesson) => lesson.open)).toEqual([false, false])
-    expect(visible[0].textContent).toContain('Идёт')
-    expect(visible[1].textContent).not.toContain('Идёт')
+    expect(visible[0].querySelector('.day-dashboard-lesson-phase.current')?.getAttribute('aria-label')).toContain('До конца урока')
+    expect(visible[0].textContent).not.toContain('Идёт')
+    expect(visible[1].querySelector('.day-dashboard-lesson-phase.waiting')?.getAttribute('aria-label')).toContain('Начнётся через')
     expect(visible[0].querySelector('.day-dashboard-lesson-badge')?.textContent).toContain('0 из 1')
     await act(async () => { past.click() })
     expect(past.getAttribute('aria-expanded')).toBe('true')

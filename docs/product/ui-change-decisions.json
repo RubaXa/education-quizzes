@@ -297,25 +297,19 @@
       }
     },
     "src/DayDashboard.tsx": {
-      "sha256": "cd83b635848a481a1ca778c8e607fc673c28c09eb7427a85cbc725dd813e4b29",
-      "record": "docs/product/ui-decisions/optional-quiz-switch-2026-10-15.md",
+      "sha256": "40b79775a526691e1e6427dd74da652913584f0786cce5e194d17f4b300e33d7",
+      "record": "docs/product/ui-decisions/lesson-countdowns-2026-10-15.md",
       "specs": [
-        "docs/product/quizzes.md",
         "docs/product/dashboard.md",
-        "docs/product/design-system.md"
+        "docs/product/design-system.md",
+        "docs/product/status-presentation.md"
       ],
       "tests": [
-        "src/lib/homeworkStatus.test.ts",
-        "src/lib/quizCardViewModel.test.ts",
-        "src/lib/assignmentPresentation.test.ts",
-        "src/components/QuizCard.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/DayDashboard.warmStart.test.tsx",
-        "src/lib/store.optionalQuiz.test.ts"
+        "src/DayDashboard.warmStart.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 15.10.2026: добавить в общий компонент теста переключатель обязательности только для активного теста, правильно исключать его из всех счётчиков и покрыть сценарий тестами."
+        "evidence": "Прямой запрос родителя 15.10.2026 со скриншотами расписания: песочные часы и отсчёт только у ближайшего будущего урока, таймер и отсчёт до конца вместо слова «Идёт» у текущего."
       }
     },
     "src/components/MaterialReader.tsx": {
@@ -762,18 +756,19 @@
       }
     },
     "src/DayDashboard.css": {
-      "sha256": "afb6be772c1400caccbc803ef3cb664b3484dfc167d5c3e997dcf50fce71cd7c",
-      "record": "docs/product/ui-decisions/grade-mark-details-2026-10-14.md",
+      "sha256": "90c06169d0fa55360a07cc3f10b20dcb66f331497f1ffc551081ee71fecc31ee",
+      "record": "docs/product/ui-decisions/lesson-countdowns-2026-10-15.md",
       "specs": [
-        "docs/product/grades.md",
-        "docs/architecture/school-diary-port-adapter.md"
+        "docs/product/dashboard.md",
+        "docs/product/design-system.md",
+        "docs/product/status-presentation.md"
       ],
       "tests": [
         "src/DayDashboard.warmStart.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 14.10.2026 прямо попросил нажимать на конкретную оценку в списке и видеть вид работы и комментарий учителя из МЭШ."
+        "evidence": "Прямой запрос родителя 15.10.2026 со скриншотами расписания: песочные часы и отсчёт только у ближайшего будущего урока, таймер и отсчёт до конца вместо слова «Идёт» у текущего."
       }
     },
     "src/lib/assignmentPresentation.ts": {
@@ -850,6 +845,22 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Родитель 15.10.2026 сообщил, что после синхронизации у оценок исчезли ранее видимые комментарии, и потребовал исправить единый пайплайн со спецификацией и тестами."
+      }
+    },
+    "scripts/check-schedule-viewport.mjs": {
+      "sha256": "699ecfd1dd6dad5e22d82905d494cc254811ef35023c2d9d1daea5a1618af008",
+      "record": "docs/product/ui-decisions/lesson-countdowns-2026-10-15.md",
+      "specs": [
+        "docs/product/dashboard.md",
+        "docs/product/design-system.md",
+        "docs/product/status-presentation.md"
+      ],
+      "tests": [
+        "src/DayDashboard.warmStart.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя 15.10.2026 со скриншотами расписания: песочные часы и отсчёт только у ближайшего будущего урока, таймер и отсчёт до конца вместо слова «Идёт» у текущего."
       }
     }
   }

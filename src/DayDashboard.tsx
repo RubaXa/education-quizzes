@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { getAuth } from 'firebase/auth'
-import { ArrowRight, BookOpen, CalendarDays, ChevronDown, Clock3, Sparkles } from 'lucide-react'
+import { ArrowRight, BookOpen, CalendarDays, ChevronDown, Clock3, Hourglass, Sparkles, Timer } from 'lucide-react'
 import { watchDayPage } from '@/lib/dayStore'
 import type { DayPageData } from '@/lib/dayStore'
 import { clearCachedDayDashboard, readCachedDayDashboard, watchDayDashboard } from '@/lib/dayDashboardStore'
@@ -54,6 +54,13 @@ function lessonTime(iso: string) {
   if (!iso) return ''
   const time = new Date(iso)
   return Number.isNaN(time.getTime()) ? '' : new Intl.DateTimeFormat('ru-RU', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Moscow' }).format(time)
+}
+/** @see ../docs/product/dashboard.md#lesson-countdowns */
+function remainingLessonTime(target: number, now: number) {
+  const minutes = Math.max(1, Math.ceil((target - now) / 60_000))
+  const hours = Math.floor(minutes / 60)
+  const rest = minutes % 60
+  return hours ? `${hours} ч${rest ? ` ${rest} мин` : ''}` : `${minutes} мин`
 }
 /**
  * Домашний обзор берёт календарь из dayDashboards, а детали из того же dayPages,
@@ -265,6 +272,9 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
     const end = Date.parse(lesson.end)
     return !Number.isFinite(end) || now < end
   }) : lessonRows
+  /** @see ../docs/product/dashboard.md#lesson-countdowns — only the nearest future lesson gets a waiting timer. */
+  const nearestStart = selectedDate === today ? Math.min(...lessonRows.map(({ lesson }) => Date.parse(lesson.start)).filter((start) => Number.isFinite(start) && start > now)) : Infinity
+  const nextLesson = Number.isFinite(nearestStart) ? lessonRows.find(({ lesson }) => Date.parse(lesson.start) === nearestStart)?.lesson : undefined
   /** @see ../docs/product/dashboard.md#progressive-schedule */
   useEffect(() => {
     if (!focusSubject || !selectedEntry) return
@@ -283,11 +293,14 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
   function renderLesson({ lesson, subject, rawHomework, updatedAt, newlyAssigned, items, tone, badge, referenceDate, referenceText, referenceToken }: typeof lessonRows[number], lessonIndex: number) {
     const start = Date.parse(lesson.start)
     const end = Date.parse(lesson.end)
-    const underway = Number.isFinite(start) && Number.isFinite(end) && start <= now && now < end
+    const underway = selectedDate === today && Number.isFinite(start) && Number.isFinite(end) && end > start && start <= now && now < end
+    const awaiting = selectedDate === today && lesson === nextLesson && !underway
+    const countdown = underway ? remainingLessonTime(end, now) : awaiting ? remainingLessonTime(start, now) : ''
+    const countdownLabel = underway ? `До конца урока ${countdown}` : `Начнётся через ${countdown}`
     return <li key={`${selectedDate}-${lessonIndex}-${lesson.subject}`}><details data-subject={lesson.subject} className={`day-dashboard-lesson day-dashboard-lesson-${tone}${newlyAssigned ? ' has-new-homework' : ''}`}>
       <summary onClick={() => {
         acknowledgeHomeworkUpdate(selectedDate, lesson.subject)
-      }}>{/* @see ../docs/product/design-system.md#mobile-card-headings */}<time>{lessonTime(lesson.start)}</time><span className="day-dashboard-lesson-name">{lesson.subject}{underway && <span className="day-dashboard-lesson-phase current">Идёт</span>}{newlyAssigned && <span className="day-dashboard-lesson-new"><StatusIcon status="new" size={12} />Новое ДЗ</span>}</span><span className="day-dashboard-lesson-badge" aria-label={referenceDate ? `См. ДЗ за ${dateLabel(referenceDate)}` : tone === 'none' ? 'ДЗ не задано на последней сверке МЭШ' : tone === 'checking' ? `${badge}, проверяем` : tone === 'unclear' ? `${badge}, критерий неясен` : undefined}>{!referenceDate && tone !== 'none' && <StatusIcon size={13} status={tone === 'complete' ? 'complete' : tone === 'partial' ? 'partial' : tone === 'checking' ? 'waiting' : tone === 'unclear' || tone === 'unknown' ? 'unknown' : 'ready'} />}{referenceDate ? `ДЗ ${dateLabel(referenceDate, { day: 'numeric', month: '2-digit' })}` : badge}<ChevronDown size={15} aria-hidden="true" /></span></summary>
+      }}>{/* @see ../docs/product/design-system.md#mobile-card-headings */}<time>{lessonTime(lesson.start)}</time><span className="day-dashboard-lesson-name">{lesson.subject}{countdown && <span className={`day-dashboard-lesson-phase ${underway ? 'current' : 'waiting'}`} aria-label={countdownLabel} title={countdownLabel}>{underway ? <Timer size={14} aria-hidden="true" /> : <Hourglass size={14} aria-hidden="true" />}{countdown}</span>}{newlyAssigned && <span className="day-dashboard-lesson-new"><StatusIcon status="new" size={12} />Новое ДЗ</span>}</span><span className="day-dashboard-lesson-badge" aria-label={referenceDate ? `См. ДЗ за ${dateLabel(referenceDate)}` : tone === 'none' ? 'ДЗ не задано на последней сверке МЭШ' : tone === 'checking' ? `${badge}, проверяем` : tone === 'unclear' ? `${badge}, критерий неясен` : undefined}>{!referenceDate && tone !== 'none' && <StatusIcon size={13} status={tone === 'complete' ? 'complete' : tone === 'partial' ? 'partial' : tone === 'checking' ? 'waiting' : tone === 'unclear' || tone === 'unknown' ? 'unknown' : 'ready'} />}{referenceDate ? `ДЗ ${dateLabel(referenceDate, { day: 'numeric', month: '2-digit' })}` : badge}<ChevronDown size={15} aria-hidden="true" /></span></summary>
       <div className="day-dashboard-lesson-body">{subject?.tasks.some((task) => task.dueDate && task.dueDate !== (task.lessonDate ?? selectedDate)) && <p className="day-dashboard-lesson-update">Срок сдачи: {dateLabel(subject.tasks.find((task) => task.dueDate && task.dueDate !== (task.lessonDate ?? selectedDate))!.dueDate!)} · по записи МЭШ. Задание относится к этому уроку.</p>}{items.length ? <div className="day-dashboard-lesson-items">{items.map((item) => <div className={`day-dashboard-lesson-item ${item.state}`} key={item.id}><span className="day-dashboard-lesson-item-symbol" aria-hidden="true"><StatusIcon size={15} status={item.state === 'done' ? 'complete' : item.state === 'checking' ? 'waiting' : item.state === 'unclear' ? 'unknown' : 'ready'} /></span><div><strong>{item.state === 'done' ? 'Сделано' : item.state === 'checking' ? 'Проверяем' : item.state === 'unclear' ? 'Разобрано' : 'Осталось'}: {item.title}</strong><span>{item.detail}</span>{homeworkToken && <button type="button" onClick={() => openDay(homeworkToken, 'homework', item.id, { date: selectedDate, subject: lesson.subject })}>{item.state === 'todo' ? 'Перейти к заданию' : item.state === 'checking' ? 'Открыть работу' : 'Результат'} <ArrowRight size={14} aria-hidden="true" /></button>}</div></div>)}</div>
         : referenceDate ? <div className="day-dashboard-lesson-raw"><p>{referenceText}</p><small>Это ссылка на уже назначенное ДЗ. Второй раз выполнять его не нужно.</small>{referenceToken && <button type="button" onClick={() => openDay(referenceToken, 'homework')}>Открыть ДЗ за {dateLabel(referenceDate)} <ArrowRight size={14} aria-hidden="true" /></button>}</div>
         : tone === 'optional' ? <div className="day-dashboard-lesson-raw"><p>Самопроверка доступна по желанию и не входит в счётчик заданий.</p>{homeworkToken && <button type="button" onClick={() => openDay(homeworkToken, 'homework')}>Открыть тест <ArrowRight size={14} aria-hidden="true" /></button>}</div>
