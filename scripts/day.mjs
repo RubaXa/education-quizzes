@@ -19,7 +19,8 @@ import { publicPageSubjects, publicProblem } from '../day/public-projection.mjs'
 import { isExplicitCdzTask } from '../day/homework-kind.mjs'
 import { cardPolicyModules, mathRouteProfile, mathRouteProfiles, missingMathRoutes, practiceVariantErrors, sourceInventoryErrors, validLearningRoute } from '../day/card-policy.mjs'
 import { assertPublishedPageAligned, assertSourceAligned, sourcePlanFingerprint } from '../day/pipeline-contract.mjs'
-import { assertGradeSnapshotAligned, detectGradeChange, gradeDetailRows } from '../day/grade-reconciliation.mjs'
+import { chooseGradeJournal, detectGradeChange, gradeDetailRows, gradeProjectionPatch } from '../day/grade-reconciliation.mjs'
+import { stageGradeProjectionForRole } from '../day/grade-publication.mjs'
 import { YandexDiskStorage } from '../storage/yandex-disk.mjs'
 import { stageFamilyNotice } from '../storage/inbox-notifications.mjs'
 import { lessonVisibility } from '../diary/application/lesson-visibility.mjs'
@@ -56,11 +57,24 @@ function boardToken(role) {
   writeFileSync(file, token, { mode: 0o600, flag: 'wx' })
   return token
 }
-function latestCompleteDiarySnapshot() {
+function completeDiarySnapshots() {
   const directory = resolve(local, 'diary')
   const names = readdirSync(directory).filter((name) => /^snapshot-\d{4}-\d{2}-\d{2}\.json$/.test(name))
   const snapshots = names.map((name) => json(resolve(directory, name))).filter((snapshot) => snapshot.complete)
-  return snapshots.sort((a, b) => String(b.fetchedAt).localeCompare(String(a.fetchedAt)))[0]
+  return snapshots.sort((a, b) => String(b.fetchedAt).localeCompare(String(a.fetchedAt)))
+}
+function latestCompleteDiarySnapshot() { return completeDiarySnapshots()[0] }
+function currentGradeProjection() {
+  const file = scoped ? resolve(local, 'grade-snapshot.json') : resolve('../learner/grade-snapshot.json')
+  if (!existsSync(file)) fail('Для этого ребёнка ещё нет сверенного среза оценок; день не опубликован.')
+  const snapshot = json(file)
+  const mesh = chooseGradeJournal(snapshot, completeDiarySnapshots())
+  const fields = {
+    gradeSummary: gradeSummary(snapshot), gradeAsOf: snapshot.observed_at,
+    grades: gradeDetailRows(snapshot, mesh), workingThreshold: snapshot.working_threshold,
+  }
+  const fingerprint = createHash('sha256').update(JSON.stringify(fields)).digest('hex')
+  return { snapshot, mesh, fields, fingerprint }
 }
 function dashboardLinks() {
   return existsSync(dashboardLinksFile) ? json(dashboardLinksFile) : {
@@ -69,10 +83,18 @@ function dashboardLinks() {
   }
 }
 /** @see ../docs/product/dashboard.md#firestore-model */
-async function addDashboardDocuments(batch, links, tokens, stagedPages = {}) {
+async function addDashboardDocuments(batch, links, tokens, stagedPages = {}, gradeProjection = null) {
   const owner = ownerContext()
   if (!owner?.familyId || !owner?.childId) fail('Сначала привяжите страницы дня к ребёнку командой family attach-current-day.')
   const members = await db.collection(`families/${owner.familyId}/members`).get()
+  const pageCache = new Map(Object.entries(stagedPages))
+  const loadPage = async (token) => {
+    if (pageCache.has(token)) return pageCache.get(token)
+    const page = (await db.doc(`dayPages/${token}`).get()).data()
+    pageCache.set(token, page)
+    return page
+  }
+  const updatedGradeTokens = []
   if (scoped) {
     const latestDate = Object.keys(links).sort().at(-1)
     const latestPair = links[latestDate]
@@ -87,6 +109,15 @@ async function addDashboardDocuments(batch, links, tokens, stagedPages = {}) {
   for (const role of ['student', 'parent']) {
     const ref = db.doc(`dayDashboards/${tokens[role]}`)
     const previous = (await ref.get()).data()
+    if (gradeProjection) updatedGradeTokens.push(...await stageGradeProjectionForRole({
+      role, links, owner, fingerprint: gradeProjection.fingerprint,
+      previousFingerprint: previous?.gradeProjectionFingerprint,
+      desired: gradeProjection.fields, loadPage,
+      stagePatch: (dayToken, patch) => {
+        if (stagedPages[dayToken]) fail('Новая страница дня расходится с текущим срезом оценок.')
+        batch.update(db.doc(`dayPages/${dayToken}`), patch)
+      },
+    }))
     const previousDays = new Map((previous?.days ?? []).map((day) => [day.date, day]))
     const index = buildDayDashboardIndex(local, links, role)
     const indexErrors = dayDashboardShapeErrors(index)
@@ -104,7 +135,7 @@ async function addDashboardDocuments(batch, links, tokens, stagedPages = {}) {
       const source = json(resolve(local, `day-source-${sourceDate}.json`))
       const snapshot = json(resolve(local, `diary/snapshot-${source.targetDate}.json`))
       assertSourceAligned(source, snapshot)
-      const page = stagedPages[token] ?? (await db.doc(`dayPages/${token}`).get()).data()
+      const page = await loadPage(token)
       assertPublishedPageAligned(source, page, role)
     }
     const notifications = []
@@ -122,6 +153,7 @@ async function addDashboardDocuments(batch, links, tokens, stagedPages = {}) {
     batch.set(ref, {
       ...index, days,
       familyId: owner.familyId, childId: owner.childId, updatedAt: Timestamp.now(),
+      ...(gradeProjection ? { gradeProjectionFingerprint: gradeProjection.fingerprint } : {}),
     })
     for (const member of members.docs) {
       const access = member.data()
@@ -135,6 +167,19 @@ async function addDashboardDocuments(batch, links, tokens, stagedPages = {}) {
           createdAt: Timestamp.now(),
         })
       }
+    }
+  }
+  return updatedGradeTokens
+}
+/** Read back only grade projections changed in this batch. No unchanged page is rewritten.
+ * @see ../docs/product/grades.md#mesh-reconciliation
+ */
+async function verifyGradeProjection(tokens, desired) {
+  if (!tokens.length) return
+  const pages = await db.getAll(...tokens.map((token) => db.doc(`dayPages/${token}`)))
+  for (const page of pages) {
+    if (!page.exists || gradeProjectionPatch(page.data(), desired)) {
+      fail('Подробности оценок не совпали с опубликованной страницей после записи.')
     }
   }
 }
@@ -492,7 +537,7 @@ async function reconcileEarlierEvidence(source, studentToken) {
 }
 
 /** @see ../docs/product/access-and-state.md#state */
-async function stagePublish(date, batch, links, indexTokens, stagedPages, notifyGrades) {
+async function stagePublish(date, batch, links, indexTokens, stagedPages, notifyGrades, gradeProjection) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date ?? '')) fail('Укажите дату YYYY-MM-DD.')
   const sourceFile = resolve(local, `day-source-${date}.json`)
   if (!existsSync(sourceFile)) fail(`Нет ${sourceFile}`)
@@ -542,10 +587,7 @@ async function stagePublish(date, batch, links, indexTokens, stagedPages, notify
   if ([...neededPageIds].some((id) => !knownBefore[id]?.publicUrl || knownBefore[id].imageSha256 !== preparedPages.get(id)?.imageSha256)) {
     runLocal('scripts/storage.mjs', ['sync-pages'])
   }
-  const gradeFile = scoped ? resolve(local, 'grade-snapshot.json') : resolve('../learner/grade-snapshot.json')
-  if (!existsSync(gradeFile)) fail('Для этого ребёнка ещё нет сверенного среза оценок; день не опубликован.')
-  const gradeSnapshot = json(gradeFile)
-  assertGradeSnapshotAligned(gradeSnapshot, latestCompleteDiarySnapshot())
+  const gradeSnapshot = gradeProjection.snapshot
   const publishedPageLinks = existsSync(pageLinksFile) ? materialLinks(json(pageLinksFile)) : {}
   const allMaterialLinks = { ...(source.materialLinks || {}) }
   for (const [taskId, pageLinks] of Object.entries(publishedPageLinks)) allMaterialLinks[taskId] = [...pageLinks, ...(allMaterialLinks[taskId] || [])]
@@ -570,9 +612,7 @@ async function stagePublish(date, batch, links, indexTokens, stagedPages, notify
     materialLinks: allMaterialLinks, materialLinkReplacements: source.materialLinkReplacements ?? [],
     taskPageRefs: pageRefs,
     evidenceDayTokens: [...new Set([pair.student, ...(source.evidenceDayTokens || [])])],
-    gradeSummary: gradeSummary(gradeSnapshot), gradeAsOf: gradeSnapshot.observed_at,
-    grades: gradeDetailRows(gradeSnapshot, latestCompleteDiarySnapshot()),
-    workingThreshold: gradeSnapshot.working_threshold,
+    ...gradeProjection.fields,
   }
   const uniquePageRefs = [...new Set(Object.values(pageRefs).flat())]
   const teacherRefs = new Set(Object.entries(pageRefs).flatMap(([taskId, refs]) =>
@@ -664,11 +704,13 @@ async function publishDates(dates) {
   const batch = db.batch()
   const stagedPages = {}
   const staged = []
-  for (const dayDate of dates) staged.push(await stagePublish(dayDate, batch, links, indexTokens, stagedPages, staged.length === 0))
-  await addDashboardDocuments(batch, links, indexTokens, stagedPages)
+  const gradeProjection = currentGradeProjection()
+  for (const dayDate of dates) staged.push(await stagePublish(dayDate, batch, links, indexTokens, stagedPages, staged.length === 0, gradeProjection))
+  const updatedGradeTokens = await addDashboardDocuments(batch, links, indexTokens, stagedPages, gradeProjection)
   await batch.commit()
   for (const item of staged) await verifyPublishedDay(item.source, item.pair, indexTokens, links)
   await verifyPublishedIndex(links, indexTokens)
+  await verifyGradeProjection(updatedGradeTokens, gradeProjection.fields)
   mkdirSync(local, { recursive: true })
   writeFileSync(linksFile, JSON.stringify(links, null, 2), { mode: 0o600 })
   writeFileSync(dashboardLinksFile, JSON.stringify(indexTokens, null, 2), { mode: 0o600 })
@@ -695,11 +737,57 @@ async function publishDashboard() {
   }
   const indexTokens = dashboardLinks()
   const batch = db.batch()
-  await addDashboardDocuments(batch, links, indexTokens)
+  const gradeProjection = Object.keys(links).length ? currentGradeProjection() : null
+  const updatedGradeTokens = await addDashboardDocuments(batch, links, indexTokens, {}, gradeProjection)
   await batch.commit()
   await verifyPublishedIndex(links, indexTokens)
+  if (gradeProjection) await verifyGradeProjection(updatedGradeTokens, gradeProjection.fields)
   writeFileSync(dashboardLinksFile, JSON.stringify(indexTokens, null, 2), { mode: 0o600 })
   console.log(JSON.stringify({ student: `${site}#/days/${indexTokens.student}`, parent: `${site}#/days-parent/${indexTokens.parent}` }, null, 2))
+}
+
+/** Addressed repair for an already published grade projection; default is read-only.
+ * @see ../docs/product/grades.md#mesh-reconciliation
+ */
+async function reconcilePublishedGrades(apply) {
+  const links = json(linksFile)
+  const tokens = dashboardLinks()
+  const owner = ownerContext()
+  if (!owner?.familyId || !owner?.childId) fail('Для сверки оценок нужен подтверждённый семейный владелец.')
+  const projection = currentGradeProjection()
+  const batch = db.batch()
+  const changed = { parent: [], student: [] }
+  let indexUpdates = 0
+  for (const role of ['student', 'parent']) {
+    const dashboard = db.doc(`dayDashboards/${tokens[role]}`)
+    const previous = (await dashboard.get()).data()
+    const cache = new Map()
+    changed[role] = await stageGradeProjectionForRole({
+      role, links, owner, fingerprint: projection.fingerprint, previousFingerprint: null,
+      desired: projection.fields,
+      loadPage: async (token) => {
+        if (!cache.has(token)) cache.set(token, (await db.doc(`dayPages/${token}`).get()).data())
+        return cache.get(token)
+      },
+      stagePatch: (token, patch) => batch.update(db.doc(`dayPages/${token}`), patch),
+    })
+    if (previous?.gradeProjectionFingerprint !== projection.fingerprint) {
+      batch.set(dashboard, { gradeProjectionFingerprint: projection.fingerprint }, { merge: true })
+      indexUpdates++
+    }
+  }
+  const writes = changed.parent.length + changed.student.length + indexUpdates
+  if (apply && writes) {
+    await batch.commit()
+    await verifyGradeProjection([...changed.parent, ...changed.student], projection.fields)
+    for (const role of ['student', 'parent']) {
+      const index = (await db.doc(`dayDashboards/${tokens[role]}`).get()).data()
+      if (index?.gradeProjectionFingerprint !== projection.fingerprint) fail(`Ревизия оценок ${role} не сохранилась.`)
+    }
+  }
+  console.log(JSON.stringify({ mode: apply ? 'applied' : 'dry-run', linkedDays: Object.keys(links).length,
+    changedPages: { parent: changed.parent.length, student: changed.student.length }, indexUpdates,
+    verified: apply ? writes === 0 ? 'already-current' : 'read-back' : 'pending' }))
 }
 
 /** @see ../docs/product/storage-privacy.md#upload-queue */
@@ -1142,7 +1230,7 @@ async function publishGuideUpgrade() {
   console.log(JSON.stringify({ taskId, dates, published: true, preserved: 'task IDs, photos, reviews, statuses, dashboards' }))
 }
 
-if (!['refresh', 'build', 'validate', 'publish', 'publish-batch', 'guide-upgrade', 'problem-support', 'dashboard', 'pull', 'seed-evidence', 'audit', 'repair-placements', 'repair-teacher-projections', 'repair-owner'].includes(command)) fail('Команды: refresh YYYY-MM-DD | build YYYY-MM-DD | validate YYYY-MM-DD | publish YYYY-MM-DD | publish-batch YYYY-MM-DD YYYY-MM-DD ... | audit [YYYY-MM-DD] | repair-placements YYYY-MM-DD [--apply] | repair-teacher-projections YYYY-MM-DD [--apply] | repair-owner YYYY-MM-DD [--apply] | guide-upgrade YYYY-MM-DD[,YYYY-MM-DD] task-id [--dry-run] | problem-support YYYY-MM-DD | dashboard | pull YYYY-MM-DD [папка] | seed-evidence YYYY-MM-DD')
+if (!['refresh', 'build', 'validate', 'publish', 'publish-batch', 'guide-upgrade', 'problem-support', 'dashboard', 'reconcile-grades', 'pull', 'seed-evidence', 'audit', 'repair-placements', 'repair-teacher-projections', 'repair-owner'].includes(command)) fail('Команды: refresh YYYY-MM-DD | build YYYY-MM-DD | validate YYYY-MM-DD | publish YYYY-MM-DD | publish-batch YYYY-MM-DD YYYY-MM-DD ... | audit [YYYY-MM-DD] | reconcile-grades [--apply] | repair-placements YYYY-MM-DD [--apply] | repair-teacher-projections YYYY-MM-DD [--apply] | repair-owner YYYY-MM-DD [--apply] | guide-upgrade YYYY-MM-DD[,YYYY-MM-DD] task-id [--dry-run] | problem-support YYYY-MM-DD | dashboard | pull YYYY-MM-DD [папка] | seed-evidence YYYY-MM-DD')
 if (command === 'build') {
   console.log(JSON.stringify(buildDaySource(local, date), null, 2))
   process.exit(0)
@@ -1160,6 +1248,7 @@ const db = getFirestore()
 if (command === 'publish' || command === 'refresh') await publish()
 else if (command === 'publish-batch') await publishDates(process.argv.slice(3))
 else if (command === 'dashboard') await publishDashboard()
+else if (command === 'reconcile-grades') await reconcilePublishedGrades(date === '--apply')
 else if (command === 'pull') await pull()
 else if (command === 'problem-support') await publishProblemSupport()
 else if (command === 'guide-upgrade') await publishGuideUpgrade()

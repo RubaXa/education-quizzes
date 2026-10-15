@@ -59,6 +59,44 @@ export function gradeDetailRows(gradeSnapshot, meshSnapshot) {
   })
 }
 
+/** Prefer the newest fully identified journal aligned with the confirmed marks.
+ * A later schedule-only snapshot may be complete for lessons yet omit mark details.
+ * @see ../docs/product/grades.md#mesh-reconciliation
+ */
+export function chooseGradeJournal(gradeSnapshot, candidates) {
+  let fallback
+  for (const snapshot of [...candidates].sort((a, b) => String(b?.fetchedAt).localeCompare(String(a?.fetchedAt)))) {
+    try { assertGradeSnapshotAligned(gradeSnapshot, snapshot) } catch { continue }
+    fallback ??= snapshot
+    const byName = new Map(snapshot.marks.map((item) => [subjectName(item.subject_name), item]))
+    const allDetailed = gradeSnapshot.subjects.every((subject) => {
+      if (!subject.grades.length) return true
+      const row = byName.get(subject.name)
+      return row?.count === subject.grades.length && row.marks?.length === row.count
+        && row.marks.every((mark) => mark.id != null)
+    })
+    if (allDetailed) return snapshot
+  }
+  if (fallback) return fallback
+  throw new Error('Нет снимка МЭШ, согласованного с подтверждённым срезом оценок.')
+}
+
+/** Return only changed grade fields; never replace identified marks with anonymous rows.
+ * @see ../docs/product/grades.md#mesh-reconciliation
+ */
+export function gradeProjectionPatch(page, desired) {
+  const marks = (rows) => (rows ?? []).flatMap((subject) => subject.grades ?? [])
+  const oldIdentified = marks(page?.grades).some((mark) => mark.sourceId != null)
+  const nextMarks = marks(desired.grades)
+  if (oldIdentified && nextMarks.some((mark) => mark.sourceId == null)) {
+    throw new Error('Нельзя терять подробности оценок: текущий журнал МЭШ неполон.')
+  }
+  const fields = ['gradeSummary', 'gradeAsOf', 'grades', 'workingThreshold']
+  const patch = Object.fromEntries(fields.filter((field) => JSON.stringify(page?.[field]) !== JSON.stringify(desired[field]))
+    .map((field) => [field, desired[field]]))
+  return Object.keys(patch).length ? patch : null
+}
+
 /** Distinguishes added grades from corrections and ignores order-only changes. */
 export function detectGradeChange(previous, current) {
   if (!previous || !Array.isArray(previous.grades) || !Array.isArray(current?.grades)) return null

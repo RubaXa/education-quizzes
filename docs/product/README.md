@@ -75,7 +75,7 @@ flowchart LR
 | [Многодневный dashboard](dashboard.md) | Полоса дат, сводки и контракт будущей многодневной синхронизации | `src/DayDashboard.tsx`, `src/lib/dayDashboardStore.ts`, `day/dashboard-index.mjs`; многодневная синхронизация и полная история версий ДЗ ещё не реализованы |
 | [Тесты](quizzes.md) | Попытка, сохранение, результат, списки | `src/App.tsx`, `src/components/SubjectTheme.tsx`, `src/lib/quiz.ts` |
 | [Материалы](materials.md) | Точный источник, страницы, ридер | `src/components/MaterialReader.tsx`, `src/lib/yandexPublic.ts`, `storage/material-pages.mjs` |
-| [Средний балл](grades.md) | Метка, условный сценарий и границы точности | `src/DayPage.tsx` |
+| [Средний балл](grades.md) | Метка, условный сценарий, комментарии МЭШ и единая проекция на связанных днях | `scripts/day.mjs`; `src/DayPage.tsx`; `src/DayDashboard.tsx` |
 | [Хранение и приватность](storage-privacy.md) | Прямая загрузка на Диск, метаданные в Firebase, миграция старых копий | `scripts/direct-upload-worker.mjs`, `src/lib/photoOutbox.ts`, `scripts/storage.mjs` |
 | [Доступ к архиву семей](../architecture/family-artifact-access.md) | Общие оригиналы, ссылки и будущий журнал всех открытий | `storage/yandex-disk.mjs`; постоянно доступный шлюз ещё не реализован |
 | [Порт дневника](../architecture/school-diary-port-adapter.md) | Изоляция МЭШ, локальное подключение через приглашение и семейные правила видимости | `diary/`, `packages/education-connect/`, `scripts/connect.mjs`, `src/components/ConnectionInvite.tsx`, `scripts/day.mjs` |

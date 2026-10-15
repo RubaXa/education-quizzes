@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { assertGradeSnapshotAligned, detectGradeChange, gradeDetailRows } from './grade-reconciliation.mjs'
+import { assertGradeSnapshotAligned, chooseGradeJournal, detectGradeChange, gradeDetailRows, gradeProjectionPatch } from './grade-reconciliation.mjs'
 
 describe('сверка оценок', () => {
   const grade = { subjects: [{ name: 'Математика', grades: [[5, 1], [4, 1]], displayed_average: 4.5 }] }
@@ -38,5 +38,24 @@ describe('сверка оценок', () => {
     expect(() => gradeDetailRows(saved, { ...full, marks: [{ ...full.marks[0], marks: [
       full.marks[0].marks[0], { ...full.marks[0].marks[1], value: '4' },
     ] }] })).toThrow(/расходится/)
+  })
+  it('выбирает прежний полный журнал при более новом кратком ответе МЭШ', () => {
+    const latest = { ...mesh, fetchedAt: '2026-10-15T01:00:00Z', marks: [{ ...mesh.marks[0], marks: [{ value: '5', weight: 1 }] }] }
+    const detailed = { ...mesh, fetchedAt: '2026-10-14T20:00:00Z', marks: [{ ...mesh.marks[0], marks: [
+      { id: 11, value: '4', weight: 1, comment: 'Проверено' }, { id: 12, value: '5', weight: 1 },
+    ] }] }
+    expect(chooseGradeJournal(grade, [latest, detailed])).toBe(detailed)
+  })
+  it('восстанавливает одинаковые подробности на всех страницах дня и не переписывает неизменный срез', () => {
+    const detailed = gradeDetailRows({ subjects: [{ id: 'math', ...grade.subjects[0] }] }, {
+      ...mesh, marks: [{ ...mesh.marks[0], marks: [
+        { id: 11, value: '4', weight: 1, comment: 'Проверено' }, { id: 12, value: '5', weight: 1 },
+      ] }],
+    })
+    const desired = { gradeAsOf: '2026-10-14', gradeSummary: [{ id: 'math', average: 4.5 }], grades: detailed, workingThreshold: 4.55 }
+    const stale = { ...desired, grades: [{ ...detailed[0], grades: [{ mark: 4, weight: 1 }, { mark: 5, weight: 1 }] }] }
+    expect(gradeProjectionPatch(stale, desired)).toEqual({ grades: detailed })
+    expect(gradeProjectionPatch(desired, desired)).toBeNull()
+    expect(() => gradeProjectionPatch(desired, stale)).toThrow(/терять подробности/)
   })
 })

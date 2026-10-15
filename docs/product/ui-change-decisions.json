@@ -685,18 +685,19 @@
       }
     },
     "day/grade-reconciliation.mjs": {
-      "sha256": "53cac89210fcfdc0e2d9e2b268d1c8f2ef30035374fc1335b30e171ce34dc95f",
-      "record": "docs/product/ui-decisions/grade-mark-details-2026-10-14.md",
+      "sha256": "ca028fb87971d0fcec70479b88f4337b71d16cc20ff29440e1390bdf6e9c379d",
+      "record": "docs/product/ui-decisions/grade-projection-reconciliation-2026-10-15.md",
       "specs": [
         "docs/product/grades.md",
-        "docs/architecture/school-diary-port-adapter.md"
+        "docs/product/dashboard.md"
       ],
       "tests": [
-        "day/grade-reconciliation.test.mjs"
+        "day/grade-reconciliation.test.mjs",
+        "day/grade-publication.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 14.10.2026 прямо попросил нажимать на конкретную оценку в списке и видеть вид работы и комментарий учителя из МЭШ."
+        "evidence": "Родитель 15.10.2026 сообщил, что после синхронизации у оценок исчезли ранее видимые комментарии, и потребовал исправить единый пайплайн со спецификацией и тестами."
       }
     },
     "diary/application/sync.mjs": {
@@ -730,18 +731,19 @@
       }
     },
     "scripts/day.mjs": {
-      "sha256": "0d056a84c1ed40056f2196b8a0bbc48c5d2c97f9694f092bc825c75aa3608e46",
-      "record": "docs/product/ui-decisions/grade-mark-details-2026-10-14.md",
+      "sha256": "239b2fafc4e3123e98915dc8c588c7ed260903df678e137e877c454e2d7c63ea",
+      "record": "docs/product/ui-decisions/grade-projection-reconciliation-2026-10-15.md",
       "specs": [
         "docs/product/grades.md",
-        "docs/architecture/school-diary-port-adapter.md"
+        "docs/product/dashboard.md"
       ],
       "tests": [
-        "day/grade-reconciliation.test.mjs"
+        "day/grade-reconciliation.test.mjs",
+        "day/grade-publication.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 14.10.2026 прямо попросил нажимать на конкретную оценку в списке и видеть вид работы и комментарий учителя из МЭШ."
+        "evidence": "Родитель 15.10.2026 сообщил, что после синхронизации у оценок исчезли ранее видимые комментарии, и потребовал исправить единый пайплайн со спецификацией и тестами."
       }
     },
     "src/lib/dayStore.ts": {
@@ -832,6 +834,22 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Родитель 15.10.2026 после просмотра макета согласовал только значок времени в действующем общем компоненте теста, без изменения остального дизайна карточки."
+      }
+    },
+    "day/grade-publication.mjs": {
+      "sha256": "9da28cbb19445497450e2a8895d9c71778944416d33fe23f62b0698082bf60db",
+      "record": "docs/product/ui-decisions/grade-projection-reconciliation-2026-10-15.md",
+      "specs": [
+        "docs/product/grades.md",
+        "docs/product/dashboard.md"
+      ],
+      "tests": [
+        "day/grade-reconciliation.test.mjs",
+        "day/grade-publication.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 15.10.2026 сообщил, что после синхронизации у оценок исчезли ранее видимые комментарии, и потребовал исправить единый пайплайн со спецификацией и тестами."
       }
     }
   }
