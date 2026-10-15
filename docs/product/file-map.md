@@ -260,6 +260,7 @@
 | [scripts/check-quiz-switch-viewport.mjs](../../scripts/check-quiz-switch-viewport.mjs) | [Дизайн-система](design-system.md) | Chrome-проверка одной строки и границ шапки общего теста на 320, 390, 540 px | `npm run test:quiz-switch-viewport` |
 | [src/lib/store.optionalQuiz.test.ts](../../src/lib/store.optionalQuiz.test.ts) | [Необязательная самопроверка](quizzes.md) | Транзакция исходного назначения, активная попытка и отказ другому ребёнку | Vitest; выпуск |
 | [docs/product/ui-decisions/optional-quiz-switch-2026-10-15.md](ui-decisions/optional-quiz-switch-2026-10-15.md) | [Необязательная самопроверка](quizzes.md) | Основание, роли, счётчики и регрессионная матрица переключателя | `ui-change-decisions.json`; выпуск |
+| [docs/product/ui-decisions/quiz-attempt-time-icon-2026-10-15.md](ui-decisions/quiz-attempt-time-icon-2026-10-15.md) | [Время попытки](quizzes.md) | Адресное решение о значке часов без пересборки карточки | `ui-change-decisions.json`; выпуск |
 | [src/components/AssignmentBrief.tsx](../../src/components/AssignmentBrief.tsx) | [Ученическая проекция](subject-card-viewmodel.md) | Дословное задание и объяснение источника для обеих ролей | `src/DayPage.tsx` |
 | [src/components/AssignmentBrief.css](../../src/components/AssignmentBrief.css) | [Дизайн-система](design-system.md) | Оформление точного задания и источника | `AssignmentBrief.tsx` |
 | [src/components/AssignmentBrief.test.tsx](../../src/components/AssignmentBrief.test.tsx) | [Плоская секция](problem-card-design-decisions.md) | Проверка одного раскрытия дословной записи учителя и прежней формы обычного задания | Vitest; разработчик |
@@ -416,6 +417,7 @@
 | [src/lib/homeworkStatus.test.ts](../../src/lib/homeworkStatus.test.ts) | [Dashboard](dashboard.md) | Одна цепочка тестов, завершение и повторное открытие после запроса | Vitest; выпуск |
 | [src/components/MaterialReader.test.tsx](../../src/components/MaterialReader.test.tsx) | [Ридер](materials.md) | Один блок и один текущий превью для пары страниц | Vitest; выпуск |
 | [src/components/QuizCard.test.tsx](../../src/components/QuizCard.test.tsx) | [Тесты](quizzes.md) | Ролевая кнопка запроса, краткое название результата и ожидающий статус | Vitest; выпуск |
+| [src/components/QuizCard.time.test.tsx](../../src/components/QuizCard.time.test.tsx) | [Время попытки](quizzes.md) | Раскрытие дат активной и исторической попытки в обеих ролях, старые записи без времени | Vitest; выпуск |
 
 | [scripts/firestore-rules-followup.test.mjs](../../scripts/firestore-rules-followup.test.mjs) | [Родительский запрос](quizzes.md) | Статический регрессионный барьер узкого права записи запроса без изменения ответов | Vitest; выпуск правил |
 | [scripts/firestore-rules-stage-choice.test.mjs](../../scripts/firestore-rules-stage-choice.test.mjs) | [Переключатель этапа](day-page.md) | Регрессионный барьер семи чтений и серверных проверок роли, этапа и ревизии | Vitest; выпуск правил |

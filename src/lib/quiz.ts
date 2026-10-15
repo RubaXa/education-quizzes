@@ -51,6 +51,7 @@ export type Assignment = {
   questions: QuizQuestion[]
   status: 'open' | 'submitted'
   answers: Record<string, Answer>
+  createdAt?: unknown
   startedAt: unknown | null
   updatedAt: unknown | null
   submittedAt: unknown | null

@@ -1,25 +1,19 @@
 {
   "files": {
     "src/DayPage.tsx": {
-      "sha256": "40c4728e81273204034b265f35e02a03af3e54b307e260a78b84cdc0521237cc",
-      "record": "docs/product/ui-decisions/optional-quiz-switch-2026-10-15.md",
+      "sha256": "867f4b730b4516539cb4371c74f2405c2eff58399ff1fbb2799ba698feafe636",
+      "record": "docs/product/ui-decisions/quiz-attempt-time-icon-2026-10-15.md",
       "specs": [
         "docs/product/quizzes.md",
-        "docs/product/dashboard.md",
         "docs/product/design-system.md"
       ],
       "tests": [
-        "src/lib/homeworkStatus.test.ts",
-        "src/lib/quizCardViewModel.test.ts",
-        "src/lib/assignmentPresentation.test.ts",
-        "src/components/QuizCard.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/DayDashboard.warmStart.test.tsx",
-        "src/lib/store.optionalQuiz.test.ts"
+        "src/components/QuizCard.time.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 15.10.2026: добавить в общий компонент теста переключатель обязательности только для активного теста, правильно исключать его из всех счётчиков и покрыть сценарий тестами."
+        "evidence": "Родитель 15.10.2026 после просмотра макета согласовал только значок времени в действующем общем компоненте теста, без изменения остального дизайна карточки."
       }
     },
     "src/DayPage.css": {
@@ -287,25 +281,19 @@
       }
     },
     "src/App.tsx": {
-      "sha256": "8c5789e6c53e0d8a99296e68f1cf0b2f268ae76ca91802efc8bf54f4cde14195",
-      "record": "docs/product/ui-decisions/optional-quiz-switch-2026-10-15.md",
+      "sha256": "920b5234ae7d572c468de2c852d5f3fadb5c5f279803c13e36e987d074800c2c",
+      "record": "docs/product/ui-decisions/quiz-attempt-time-icon-2026-10-15.md",
       "specs": [
         "docs/product/quizzes.md",
-        "docs/product/dashboard.md",
         "docs/product/design-system.md"
       ],
       "tests": [
-        "src/lib/homeworkStatus.test.ts",
-        "src/lib/quizCardViewModel.test.ts",
-        "src/lib/assignmentPresentation.test.ts",
-        "src/components/QuizCard.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/DayDashboard.warmStart.test.tsx",
-        "src/lib/store.optionalQuiz.test.ts"
+        "src/components/QuizCard.time.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 15.10.2026: добавить в общий компонент теста переключатель обязательности только для активного теста, правильно исключать его из всех счётчиков и покрыть сценарий тестами."
+        "evidence": "Родитель 15.10.2026 после просмотра макета согласовал только значок времени в действующем общем компоненте теста, без изменения остального дизайна карточки."
       }
     },
     "src/DayDashboard.tsx": {
@@ -349,47 +337,35 @@
       }
     },
     "src/components/QuizCard.css": {
-      "sha256": "a574eda2adbdb6a9190c542a09bed6ad6f0cb88573eb843f3e4da1bd1335ed3c",
-      "record": "docs/product/ui-decisions/optional-quiz-switch-2026-10-15.md",
+      "sha256": "530bac5a427f2714e44b54d4b1637793dedd82cc85f90c7a8e81dfc2fc72ffb1",
+      "record": "docs/product/ui-decisions/quiz-attempt-time-icon-2026-10-15.md",
       "specs": [
         "docs/product/quizzes.md",
-        "docs/product/dashboard.md",
         "docs/product/design-system.md"
       ],
       "tests": [
-        "src/lib/homeworkStatus.test.ts",
-        "src/lib/quizCardViewModel.test.ts",
-        "src/lib/assignmentPresentation.test.ts",
-        "src/components/QuizCard.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/DayDashboard.warmStart.test.tsx",
-        "src/lib/store.optionalQuiz.test.ts"
+        "src/components/QuizCard.time.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 15.10.2026: добавить в общий компонент теста переключатель обязательности только для активного теста, правильно исключать его из всех счётчиков и покрыть сценарий тестами."
+        "evidence": "Родитель 15.10.2026 после просмотра макета согласовал только значок времени в действующем общем компоненте теста, без изменения остального дизайна карточки."
       }
     },
     "src/components/QuizCard.tsx": {
-      "sha256": "8b3176e71124fa8e246add47bdca4e63ab3fefa448027e4f5c08258e4bbd34f3",
-      "record": "docs/product/ui-decisions/optional-quiz-switch-2026-10-15.md",
+      "sha256": "a3a7bb95b2c3ef1a20a3dab91390a642ec04d45e22a333bab518a91735ff09d4",
+      "record": "docs/product/ui-decisions/quiz-attempt-time-icon-2026-10-15.md",
       "specs": [
         "docs/product/quizzes.md",
-        "docs/product/dashboard.md",
         "docs/product/design-system.md"
       ],
       "tests": [
-        "src/lib/homeworkStatus.test.ts",
-        "src/lib/quizCardViewModel.test.ts",
-        "src/lib/assignmentPresentation.test.ts",
-        "src/components/QuizCard.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/DayDashboard.warmStart.test.tsx",
-        "src/lib/store.optionalQuiz.test.ts"
+        "src/components/QuizCard.time.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 15.10.2026: добавить в общий компонент теста переключатель обязательности только для активного теста, правильно исключать его из всех счётчиков и покрыть сценарий тестами."
+        "evidence": "Родитель 15.10.2026 после просмотра макета согласовал только значок времени в действующем общем компоненте теста, без изменения остального дизайна карточки."
       }
     },
     "src/lib/dayMaterialRefs.ts": {
@@ -433,47 +409,35 @@
       }
     },
     "src/lib/quiz.ts": {
-      "sha256": "bb4b896526338558ab83bc63758193b77e846e7f165e90aa9e1956a707891a86",
-      "record": "docs/product/ui-decisions/optional-quiz-switch-2026-10-15.md",
+      "sha256": "e017ae899f9b65aea083848d347ed761aefbd58c2320b6f933d0189048d0e4fe",
+      "record": "docs/product/ui-decisions/quiz-attempt-time-icon-2026-10-15.md",
       "specs": [
         "docs/product/quizzes.md",
-        "docs/product/dashboard.md",
         "docs/product/design-system.md"
       ],
       "tests": [
-        "src/lib/homeworkStatus.test.ts",
-        "src/lib/quizCardViewModel.test.ts",
-        "src/lib/assignmentPresentation.test.ts",
-        "src/components/QuizCard.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/DayDashboard.warmStart.test.tsx",
-        "src/lib/store.optionalQuiz.test.ts"
+        "src/components/QuizCard.time.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 15.10.2026: добавить в общий компонент теста переключатель обязательности только для активного теста, правильно исключать его из всех счётчиков и покрыть сценарий тестами."
+        "evidence": "Родитель 15.10.2026 после просмотра макета согласовал только значок времени в действующем общем компоненте теста, без изменения остального дизайна карточки."
       }
     },
     "src/lib/quizCardViewModel.ts": {
-      "sha256": "b8fb7e41aff9743821cdbdb7e18b3b12b4cea16ad62739637fc348cba261aa54",
-      "record": "docs/product/ui-decisions/optional-quiz-switch-2026-10-15.md",
+      "sha256": "f05592d81466eda0dd524a02e0dad193561001bb881dac0da2ac0aa982be3d1f",
+      "record": "docs/product/ui-decisions/quiz-attempt-time-icon-2026-10-15.md",
       "specs": [
         "docs/product/quizzes.md",
-        "docs/product/dashboard.md",
         "docs/product/design-system.md"
       ],
       "tests": [
-        "src/lib/homeworkStatus.test.ts",
-        "src/lib/quizCardViewModel.test.ts",
-        "src/lib/assignmentPresentation.test.ts",
-        "src/components/QuizCard.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/DayDashboard.warmStart.test.tsx",
-        "src/lib/store.optionalQuiz.test.ts"
+        "src/components/QuizCard.time.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 15.10.2026: добавить в общий компонент теста переключатель обязательности только для активного теста, правильно исключать его из всех счётчиков и покрыть сценарий тестами."
+        "evidence": "Родитель 15.10.2026 после просмотра макета согласовал только значок времени в действующем общем компоненте теста, без изменения остального дизайна карточки."
       }
     },
     "src/lib/store.ts": {
@@ -855,19 +819,19 @@
       }
     },
     "scripts/check-quiz-switch-viewport.mjs": {
-      "sha256": "61bdcb015b4925793c0070a987531eb40574fa844e3c13cfb8b31f8e960f99c5",
-      "record": "docs/product/ui-decisions/optional-quiz-switch-2026-10-15.md",
+      "sha256": "6f3a0837444891bee615e140617f15bfa435acb54e0f83a2a02540cf4dd05b6f",
+      "record": "docs/product/ui-decisions/quiz-attempt-time-icon-2026-10-15.md",
       "specs": [
         "docs/product/quizzes.md",
         "docs/product/design-system.md"
       ],
       "tests": [
-        "src/components/QuizCard.test.tsx",
+        "src/components/QuizCard.time.test.tsx",
         "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 15.10.2026: переключатель активного теста должен помещаться в одном общем компоненте и быть покрыт проверками на мобильном экране."
+        "evidence": "Родитель 15.10.2026 после просмотра макета согласовал только значок времени в действующем общем компоненте теста, без изменения остального дизайна карточки."
       }
     }
   }

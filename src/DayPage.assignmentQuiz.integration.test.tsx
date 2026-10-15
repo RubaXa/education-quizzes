@@ -49,7 +49,8 @@ vi.mock('./lib/useDayQuizOutcomes', () => ({
   useDayQuizOutcomes: () => ({
     boardEntries: [{ token: 'diagrams-test', testId: 'quiz-1', title: 'Диаграммы — тренировка', subject: 'Математика', slug: 'diagrams' }],
     tests: { 'diagrams-test': { testId: 'quiz-1', status: 'open', title: 'Диаграммы — тренировка', subject: 'Математика',
-      description: 'Самопроверка по теме.', questions: Array.from({ length: 20 }, (_, index) => ({ id: `q-${index}` })), answers: {}, familyOptional: scene.quizOptional } },
+      description: 'Самопроверка по теме.', questions: Array.from({ length: 20 }, (_, index) => ({ id: `q-${index}` })), answers: {}, familyOptional: scene.quizOptional,
+      createdAt: { seconds: 1792000000, nanoseconds: 0 }, updatedAt: { seconds: 1792003600, nanoseconds: 0 } } },
     scores: {}, ready: true,
   }),
 }))
@@ -123,6 +124,21 @@ async function renderPage(parent: boolean) {
 }
 
 describe('day page: teacher sheet and linked self-check', () => {
+  it('shows stored attempt times through only the shared quiz icon', async () => {
+    const view = await renderPage(true)
+    try {
+      const quiz = view.host.querySelector('.day-quiz-lineage')
+      const trigger = quiz?.querySelector<HTMLButtonElement>('.day-quiz-time-trigger')
+      expect(trigger?.getAttribute('aria-expanded')).toBe('false')
+      expect(quiz?.querySelector('.day-quiz-time-details')).toBeNull()
+      await act(async () => { trigger?.click() })
+      expect(trigger?.getAttribute('aria-expanded')).toBe('true')
+      expect(quiz?.querySelector('.day-quiz-time-details')?.textContent).toContain('Создан')
+      expect(quiz?.querySelector('.day-quiz-time-details time')).not.toBeNull()
+      expect(quiz?.querySelector('.day-quiz-time-details')?.textContent).toContain('Не начат')
+      expect(quiz?.querySelector('.day-quiz-time-details')?.textContent).toContain('Не завершён')
+    } finally { await view.cleanup() }
+  })
   it('excludes only the active quiz, then restores it without losing the teacher sheet', async () => {
     const view = await renderPage(true)
     try {

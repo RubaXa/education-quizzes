@@ -8,6 +8,7 @@ export type QuizCardAttempt = {
   token: string; testId: string; linkedToTestId?: string | null; title: string; description?: string;
   slug: string; previewToken?: string; status: Assignment['status']; answered: number; total: number;
   points?: number; maxPoints?: number;
+  createdAt?: unknown; startedAt?: unknown; updatedAt?: unknown; submittedAt?: unknown;
   followupRequested?: boolean;
   familyOptional?: boolean; rootToken?: string;
 }
