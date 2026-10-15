@@ -876,6 +876,38 @@
         "status": "direct-request",
         "evidence": "Родитель 15.10.2026 прямо потребовал повторный полный Education Sync с таймерами, расследование узких мест и ускорение процесса без потери подтверждённых данных."
       }
+    },
+    "storage/review-challenge.mjs": {
+      "sha256": "fe65dd3414aecca086299317ccec49ed8555602ba8de496cdd776b013236f899",
+      "record": "docs/product/ui-decisions/two-pass-written-review-2026-10-15.md",
+      "specs": [
+        "docs/product/review-criteria-provenance.md",
+        "docs/product/subject-aware-guidance.md"
+      ],
+      "tests": [
+        "storage/review-challenge.test.mjs",
+        "storage/review-projection.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 15.10.2026 потребовал повторно читать оригиналы и точное задание при любом сомнении в письменной работе перед отрицательным вердиктом."
+      }
+    },
+    "scripts/submissions.mjs": {
+      "sha256": "310f8e5c0d31657905c745cf0bd40ad14a5ec143ff14a876f7ce50dab8925725",
+      "record": "docs/product/ui-decisions/two-pass-written-review-2026-10-15.md",
+      "specs": [
+        "docs/product/review-criteria-provenance.md",
+        "docs/product/subject-aware-guidance.md"
+      ],
+      "tests": [
+        "storage/review-challenge.test.mjs",
+        "storage/review-projection.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 15.10.2026 потребовал повторно читать оригиналы и точное задание при любом сомнении в письменной работе перед отрицательным вердиктом."
+      }
     }
   }
 }

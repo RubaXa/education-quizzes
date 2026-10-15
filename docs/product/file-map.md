@@ -98,6 +98,7 @@
 | [docs/research/assessment-source-catalog.md](../research/assessment-source-catalog.md) | [Граф самопроверок](assessment-decision-graph.md) | Проверенные каталоги программ и образцов по предметам | Агент при подготовке закрытого плана |
 | [docs/research/vocabulary-dictation-practice.md](../research/vocabulary-dictation-practice.md) | [Словарный диктант](assessment-decision-graph.md) | Первичные исследования письма по памяти, обратной связи и отложенной проверки | Агент; автор словарного теста |
 | [docs/research/reading-only-self-checks.md](../research/reading-only-self-checks.md) | [Чистое чтение](assessment-decision-graph.md) | Основание короткого теста по назначенному тексту и пределы его интерпретации | Агент; `education-sync`; автор теста |
+| [docs/research/two-pass-written-work-review.md](../research/two-pass-written-work-review.md) | [Два прохода](review-criteria-provenance.md) | Методическое основание повторного чтения спорной письменной работы и предел переноса | Агент проверки; разработчик |
 | [docs/product/subject-card-viewmodel.md](subject-card-viewmodel.md) | [Единая модель карточки](subject-card-viewmodel.md) | Контракт Firestore и проекций взрослого и ученика | Сборка; проверка; UI |
 | [docs/product/subject-aware-guidance.md](subject-aware-guidance.md) | [Единый путь разбора](subject-aware-guidance.md) | Общая оболочка и предметные адаптеры решения, письменного ответа и подсказок | Агент проверки; родительский UI |
 | [docs/product/global-sync.md](global-sync.md) | [Глобальная синхронизация](global-sync.md) | Охват всех семей, граф фаз, параллельность и адресный статус | `skills/education-sync`; глобальный операторский запуск |
@@ -109,6 +110,7 @@
 | [docs/product/ui-decisions/notification-read-all-2026-10-14.md](ui-decisions/notification-read-all-2026-10-14.md) | [Центр обновлений](../architecture/activity-and-inbox.md) | Решение о массовом прочтении личного inbox и мобильной шапке панели | `NotificationBell`; `educationStore`; агент выпуска |
 | [docs/product/russian-language-route.md](russian-language-route.md) | [Письменный русский](russian-language-route.md) | Повторяемая подготовка четырёх видов письменной карточки, сверка фото и безопасный выпуск | Синхронизация; проверка; родительская карточка |
 | [docs/product/review-criteria-provenance.md](review-criteria-provenance.md) | [Основания проверки](review-criteria-provenance.md) | Проверяемое требование, источник, запись и предел вердикта | Агент; `scripts/submissions.mjs`; `WorkReview` |
+| [docs/product/ui-decisions/two-pass-written-review-2026-10-15.md](ui-decisions/two-pass-written-review-2026-10-15.md) | [Основания проверки](review-criteria-provenance.md) | Решение о втором чтении письменной работы при сомнении | Агент; механический контроль изменений |
 | [docs/product/dashboard.md](dashboard.md) | [Dashboard](dashboard.md) | Сводки дней, оценок и заданий | Агент; разработчик |
 | [docs/product/day-page.md](day-page.md) | [Страница дня](day-page.md) | Показ и проверка ДЗ | Агент; разработчик |
 | [docs/product/design-system.md](design-system.md) | [Дизайн-система](design-system.md) | Общие правила оболочки, токены, карточки и состояния | Агент; компоненты UI; CSS |
@@ -394,6 +396,8 @@
 | [storage/submission-inbox.mjs](../../storage/submission-inbox.mjs) | [Хранение и приватность](storage-privacy.md) | Группировка ожидающих работ | `scripts/submissions.mjs` |
 | [storage/submission-inbox.test.mjs](../../storage/submission-inbox.test.mjs) | [Хранение и приватность](storage-privacy.md) | Проверка состава очереди | Vitest; разработчик |
 | [storage/review-coverage.mjs](../../storage/review-coverage.mjs) | [Хранение и приватность](storage-privacy.md) | Сверка покрытия нескольких номеров одним оригиналом | `scripts/submissions.mjs` |
+| [storage/review-challenge.mjs](../../storage/review-challenge.mjs) | [Два прохода](review-criteria-provenance.md) | Не пропускает спорный письменный разбор без трассировки второго чтения | `scripts/submissions.mjs` |
+| [storage/review-challenge.test.mjs](../../storage/review-challenge.test.mjs) | [Два прохода](review-criteria-provenance.md) | Проверка обязательности фото, точного МЭШ, допустимой альтернативы и статуса | Vitest; разработчик |
 | [storage/review-projection.mjs](../../storage/review-projection.mjs) | [Адаптивная карточка](adaptive-problem-card.md) | Отдельная ученическая проекция разбора без экспертных полей | `scripts/submissions.mjs`; миграция старых проверок |
 | [storage/review-projection.test.mjs](../../storage/review-projection.test.mjs) | [Адаптивная карточка](adaptive-problem-card.md) | Проверка отделения публичного результата от закрытого ключа и истории | Vitest; разработчик |
 | [storage/review-coverage.test.mjs](../../storage/review-coverage.test.mjs) | [Хранение и приватность](storage-privacy.md) | Проверка явной привязки фото к номерам | Vitest; разработчик |

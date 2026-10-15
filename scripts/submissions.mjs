@@ -6,6 +6,7 @@ import { applicationDefault, initializeApp } from 'firebase-admin/app'
 import { FieldValue, getFirestore, Timestamp } from 'firebase-admin/firestore'
 import { resolveSubmission } from '../storage/submission-inbox.mjs'
 import { reviewCoverage } from '../storage/review-coverage.mjs'
+import { reviewChallengeErrors } from '../storage/review-challenge.mjs'
 import { studentReviewProjection } from '../storage/review-projection.mjs'
 import { YandexDiskStorage } from '../storage/yandex-disk.mjs'
 import { notificationId, reviewAttemptKey, stageFamilyNotice, taskContext } from '../storage/inbox-notifications.mjs'
@@ -250,7 +251,8 @@ async function publishProgress(filename, phase) {
   console.log(JSON.stringify({ phase, publishedToFirebase: true }))
 }
 
-function validateReviewResult(review, page, guide) {
+/** @see ../docs/product/review-criteria-provenance.md#second-pass */
+function validateReviewResult(review, page, guide, { requireChallenge = false } = {}) {
   const statuses = new Set(['verified', 'needs-fix', 'partial', 'cannot-assess'])
   const itemStatuses = new Set(['correct', 'incorrect', 'partial', 'cannot-assess'])
   if (!statuses.has(review.status)
@@ -285,6 +287,8 @@ function validateReviewResult(review, page, guide) {
   if (['needs-fix', 'partial'].includes(review.status)) validateStudentFeedback(review)
   const subject = page.subjects?.find((entry) => entry.tasks?.some((task) => task.id === review.taskId || task.problems?.some((problem) => problem.id === review.taskId)))
   const task = subject?.tasks?.find((entry) => entry.id === review.taskId || entry.problems?.some((problem) => problem.id === review.taskId))
+  const challengeErrors = reviewChallengeErrors(review, task, { required: requireChallenge })
+  if (challengeErrors.length) throw new Error(challengeErrors.join(' '))
   if (subject && ['math', 'special'].includes(subject.id) && task?.kind === 'written') {
     const reasoning = review.mathReasoning
     const answerStates = new Set(['correct', 'incorrect', 'uncertain'])
@@ -366,11 +370,11 @@ function validateStudentFeedback(review) {
 
 function resultRecord(review, previous, now, date, planRevision) {
   const priorReviews = previous?.status ? [...(previous.history ?? []), Object.fromEntries(Object.entries(previous).filter(([key]) => key !== 'history' && key !== 'processing'))] : previous?.history ?? []
-  const { taskId, uploadIds, status, summary, nextStep, source, items, checkableStageIds, mathReasoning, studentFeedback, assessmentBasis, workCoverage } = review
+  const { taskId, uploadIds, status, summary, nextStep, source, items, checkableStageIds, mathReasoning, studentFeedback, assessmentBasis, workCoverage, challengeReview } = review
   return { date, taskId, planRevision, uploadIds, status, summary, nextStep, source, items,
     ...(checkableStageIds ? { checkableStageIds } : {}),
     ...(mathReasoning ? { mathReasoning } : {}), ...(studentFeedback ? { studentFeedback } : {}),
-    ...(assessmentBasis ? { assessmentBasis } : {}),
+    ...(assessmentBasis ? { assessmentBasis } : {}), ...(challengeReview ? { challengeReview } : {}),
     ...(workCoverage ? { workCoverage: { ...workCoverage, reviewCheckedAt: now, recordedAt: now } } : {}),
     checkedAt: now, history: priorReviews.slice(-20) }
 }
@@ -413,7 +417,7 @@ async function publishFeedbackCorrection(filename) {
   const guide = currentTask?.cardPattern
     ? (await db.doc(`dayTaskGuides/${owner.id}/items/${correction.taskId}`).get()).data()?.guide
     : undefined
-  validateReviewResult(correction, page, guide)
+  validateReviewResult(correction, page, guide, { requireChallenge: previous.status !== 'verified' })
   const now = Timestamp.now()
   const oldRecord = { at: now, reason: correction.correctionReason,
     priorStatus: previous.status, priorFeedbackTitle: previous.studentFeedback?.title ?? null }
@@ -423,6 +427,7 @@ async function publishFeedbackCorrection(filename) {
     ...(correction.mathReasoning ? { mathReasoning: correction.mathReasoning } : {}),
     studentFeedback: correction.studentFeedback ?? null,
     assessmentBasis: correction.assessmentBasis,
+    challengeReview: correction.challengeReview ?? previous.challengeReview ?? null,
     workCoverage: correction.workCoverage
       ? { ...correction.workCoverage, reviewCheckedAt: previous.checkedAt, recordedAt: now }
       : null,
