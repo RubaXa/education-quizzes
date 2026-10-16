@@ -411,10 +411,9 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
           <p>Последняя проверка МЭШ: {checkedLabel(selectedEntry?.checkedAt ?? null)}{selectedEntry?.checkedAt && ` · ${checkedAge(selectedEntry.checkedAt, now)}`}.</p>
           {parent && selectedPage?.changes?.[0] && (selectedPage.changes[0].added.length > 0 || selectedPage.changes[0].changed.length > 0) && <p>На странице ДЗ добавлено {selectedPage.changes[0].added.length}, уточнено {selectedPage.changes[0].changed.length}.</p>}
           {uploads.some((upload) => upload.status === 'pending') && <p><StatusIcon status="waiting" size={15} /> Фото ожидают разбора: {uploads.filter((upload) => upload.status === 'pending').length}.</p>}
-          <small>Данные обновляются из Firestore при открытой странице.</small>
+          <small>Новые результаты появляются без перезагрузки.</small>
         </section>
       </aside>
     </div>
-    <p className="day-dashboard-source">Расписание показывает выбранный день; блок ДЗ ниже готовит ближайший следующий учебный день. Работы и тесты обновляются из Firestore.</p>
   </div>
 }

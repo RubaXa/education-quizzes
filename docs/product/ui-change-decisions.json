@@ -730,7 +730,7 @@
       }
     },
     "src/DayDashboard.tsx": {
-      "sha256": "15ed38b2dfc16c5d2db0cb908de3953bafd5548a35b10e1f6a83a96af62599d0",
+      "sha256": "8a08c95a15764ba0686a201d0bd91f2bc3700bb973b8d9f2428d776d2762f047",
       "record": "docs/product/ui-decisions/compact-homework-copy-2026-10-16.md",
       "specs": [
         "docs/product/dashboard.md",

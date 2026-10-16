@@ -54,6 +54,8 @@ describe('schedule warm start', () => {
       expect(card.querySelector('time')?.textContent).toBe('Понедельник, 19 октября')
       expect(card.textContent).not.toContain('на завтра')
       expect(card.querySelector('.day-dashboard-homework-summary')).toBeNull()
+      expect(host.textContent).not.toContain('следующий учебный день')
+      expect(host.querySelector('.day-dashboard-source')).toBeNull()
       await act(async()=>card.querySelector<HTMLButtonElement>('.day-dashboard-homework-row')!.click())
       expect(window.location.hash).toBe(`#/${parent?'day-parent':'day'}/work-14`)
       await act(async()=>root.unmount());host.remove()
