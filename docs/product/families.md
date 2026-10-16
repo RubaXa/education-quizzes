@@ -9,6 +9,15 @@ sections:
   - подтверждённый-сценарий
   - контракты-и-реализация
 
+created: 2026-10-16
+updated: 2026-10-16
+consumers:
+  - "parent"
+  - "student"
+  - "Education operator"
+code:
+  - "scripts/family.mjs"
+  - "scripts/access-management.mjs"
 ---
 
 # Семья и подключение

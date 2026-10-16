@@ -1,3 +1,6 @@
+/**
+ * @see ../docs/operations/deployment.md
+ */
 import { execFileSync } from 'node:child_process'
 import { chmodSync, copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'

@@ -2,6 +2,20 @@
 id: plans.local-first-release-plan-2026-10-12
 status: accepted
 implementation: partial
+created: 2026-10-13
+updated: 2026-10-16
+consumers:
+  - "Education operator"
+  - "developer"
+  - "release operator"
+code:
+  - "scripts/backfill-book-manifests.mjs"
+  - "src/components/FamilyAccessCards.tsx"
+  - "src/components/ParentHome.tsx"
+  - "src/lib/personalAccess.ts"
+  - "src/lib/requestSingleFlight.ts"
+  - "src/lib/useParentChildOverview.ts"
+  - "sync/help-request-cache.mjs"
 parent: product.education
 uses: []
 sections:
@@ -9,7 +23,6 @@ sections:
   - правило-измерения-и-выпуска
   - очередь-шагов
   - отчёт-по-каждому-шагу
-
 ---
 # Поэтапное сокращение чтений и переход к local-first
 

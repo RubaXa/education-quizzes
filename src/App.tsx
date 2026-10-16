@@ -1,3 +1,9 @@
+/**
+ * @see ../docs/services/web-app/README.md
+ */
+/**
+ * @see ../docs/product/README.md
+ */
 import { useEffect, useRef, useState } from 'react'
 import { getAuth } from 'firebase/auth'
 import { doc, onSnapshot } from 'firebase/firestore'

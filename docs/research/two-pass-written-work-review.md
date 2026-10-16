@@ -2,12 +2,19 @@
 id: research.two-pass-written-work-review
 status: reference
 implementation: not-applicable
+created: 2026-10-15
+updated: 2026-10-16
+consumers:
+  - "product implementer"
+  - "service implementer"
+  - "Education operator"
+code:
+  []
 parent: product.education
 uses: []
 sections:
   - задача-и-источники
   - принятый-механизм
-
 ---
 # Повторная проверка спорной письменной работы
 

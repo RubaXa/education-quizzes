@@ -9,6 +9,15 @@ uses:
   - service.telegram-bot
   - product.pwa
 sections: []
+created: 2026-10-16
+updated: 2026-10-16
+consumers:
+  - "release operator"
+  - "upload worker operator"
+  - "web-app users"
+code:
+  - "scripts/build-site.mjs"
+  - "scripts/install-upload-worker.mjs"
 ---
 
 # Выпуск приложений и правил

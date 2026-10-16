@@ -1,4 +1,7 @@
 #!/usr/bin/env node
+/**
+ * @see ../docs/operations/README.md
+ */
 /** Single deterministic entry point for Education operator operations.
  * @see ../docs/services/operator-cli/README.md#operation-contract */
 import { readFileSync } from 'node:fs'

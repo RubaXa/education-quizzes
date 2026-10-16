@@ -1,7 +1,17 @@
 ---
 id: service.telegram-bot.delivery
 status: accepted
-implementation: planned
+implementation: partial
+created: 2026-10-16
+updated: 2026-10-16
+consumers:
+  - "Telegram service implementer"
+  - "bot operator"
+  - "parents and guardians"
+code:
+  - "packages/telegram-notifications/domain/renderer.mjs"
+  - "packages/telegram-notifications/application/notifications.mjs"
+  - "packages/telegram-notifications/adapters/telegram.mjs"
 parent: service.telegram-bot
 uses:
   - service.telegram-bot
@@ -14,12 +24,11 @@ sections:
   - структурный-вид
   - telegram-formatting-и-частичные-ошибки
   - будущие-расширения
-
 ---
 # Маршрутизация, форматирование и Telegram доставка
 
 **Родитель:** [корневая архитектура](README.md); [порты и события](ports-and-events.md); [ledger/outbox](event-ledger-outbox.md).
-**Статус:** целевая спецификация; отправка сообщений worker-ом ещё не реализована.
+**Статус:** family renderer and explicit outbox delivery adapter implemented; event grouping, team routing and approved contextual links are not implemented. Delivery stays disabled by default.
 
 ## Разделение ответственности
 
@@ -56,7 +65,7 @@ sections:
   {время события} · {контекстная ссылка, если доступна}
 ```
 
-Пока это каркас, а не утверждённый дизайн. Для оценки показывать конкретную отметку и предмет, не раскрывать закрытые вычисления/агрегаты. Для загрузки писать «файл загружен», не «задание выполнено». Для теста раскрывать только безопасный статус, не ответы/ключ. Не включать raw path, document ID, токены или ошибки SDK.
+Пока это каркас, а не утверждённый дизайн. Renderer применяет event-specific field whitelist: оценка выводится только для `grade.*` и в формате `1–5` с опциональным знаком; произвольные `value`, quiz answer/status, upload status и closed review detail не выводятся. Team view пока содержит только категорию события. Не включать raw path, document ID, токены или ошибки SDK. Разбитые на части сообщения имеют заголовок `часть i/n`.
 
 ## Telegram formatting и частичные ошибки
 

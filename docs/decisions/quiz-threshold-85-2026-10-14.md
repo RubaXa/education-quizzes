@@ -2,6 +2,13 @@
 id: decisions.quiz-threshold-85-2026-10-14
 status: reference
 implementation: not-applicable
+created: 2026-10-14
+updated: 2026-10-16
+consumers:
+  - "product implementer"
+  - "service implementer"
+code:
+  []
 parent: product.education
 uses:
   - decisions.quiz-threshold-and-page-slider-2026-10-14
@@ -11,7 +18,6 @@ sections:
   - действия-и-роли
   - проверки
   - согласование
-
 ---
 # Порог самопроверки 85%
 

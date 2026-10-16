@@ -8,6 +8,14 @@ uses:
   - module.materials.storage-privacy
   - shared.data.firestore
 sections: []
+created: 2026-10-16
+updated: 2026-10-16
+consumers:
+  - "upload worker process"
+  - "Education operator"
+  - "photo/book upload request producer"
+code:
+  - "scripts/direct-upload-worker.mjs"
 ---
 
 # Локальный worker загрузок

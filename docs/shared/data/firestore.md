@@ -2,6 +2,20 @@
 id: shared.data.firestore
 status: accepted
 implementation: partial
+created: 2026-10-13
+updated: 2026-10-16
+consumers:
+  - "Firestore publisher"
+  - "web-app data readers"
+  - "sync operator"
+  - "schema implementer"
+code:
+  - "day/data-contract.mjs"
+  - "day/material-access.mjs"
+  - "day/owner-repair.mjs"
+  - "day/placement-repair.mjs"
+  - "scripts/day.mjs"
+  - "src/components/DataCompatibilityNotice.css"
 parent: shared.data
 uses: []
 sections:
@@ -12,7 +26,6 @@ sections:
   - инварианты-связей
   - проверка-перед-записью-и-после-неё
   - совместимость-и-миграция
-
 ---
 # Модель данных Firestore: действующий граф v1
 

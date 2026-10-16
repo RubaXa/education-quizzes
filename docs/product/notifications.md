@@ -1,7 +1,14 @@
 ---
 id: product.notifications
 status: draft
-implementation: planned
+implementation: partial
+created: 2026-10-16
+consumers:
+  - "parent"
+  - "student"
+  - "Education operator"
+code:
+  - "scripts/telegram-bot.mjs"
 parent: product.education
 uses:
   - module.notifications.inbox
@@ -20,12 +27,12 @@ sections:
   - открытые-вопросы-интервью
   - источник-по-telegram-deep-links
   - ограничение-исследования-частоты-мэш
-
 ---
 
 # Спецификация сервиса уведомлений `@agi_edu_bot`
 
 **Статус:** рабочий черновик по интервью от 16.10.2026
+**Реализация:** частичный runtime-срез существует; source observers, оба UI link flow, grouping/digest и production rollout отсутствуют. Не считать сервис действующим наблюдателем.
 **Назначение:** зафиксировать бизнес-цели и проектные решения для сервиса событий и уведомлений PETR через Telegram-бота `@agi_edu_bot`.
 
 > Архитектурные границы, порты, расширение модулей и состояние реализации описаны отдельно в [корневой спецификации сервиса](../services/telegram-bot/README.md). Этот документ сохраняет бизнес-контракт и ответы интервью; детали адаптеров и хранения находятся в дочерних архитектурных спецификациях.

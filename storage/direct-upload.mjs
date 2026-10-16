@@ -1,3 +1,6 @@
+/**
+ * @see ../docs/shared/media-storage.md
+ */
 import { createHash } from 'node:crypto'
 
 const idPattern = /^[A-Za-z0-9_-]{20,80}$/

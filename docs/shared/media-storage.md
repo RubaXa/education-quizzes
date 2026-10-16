@@ -8,6 +8,16 @@ uses:
   - module.materials.storage-privacy
   - service.upload-worker
 sections: []
+created: 2026-10-16
+updated: 2026-10-16
+consumers:
+  - "student photo uploader"
+  - "parent library uploader"
+  - "upload worker"
+  - "storage operator"
+code:
+  - "storage/direct-upload.mjs"
+  - "scripts/direct-upload-worker.mjs"
 ---
 
 # Общая граница медиа

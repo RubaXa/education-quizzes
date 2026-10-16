@@ -2,6 +2,13 @@
 id: decision.specification-graph-migration
 status: accepted
 implementation: not-applicable
+created: 2026-10-16
+updated: 2026-10-16
+consumers:
+  - "product implementer"
+  - "service implementer"
+code:
+  []
 parent: product.education
 uses:
   - shared.specification-system
@@ -13,7 +20,6 @@ sections:
   - согласование
   - затронутые-исходники
   - итог-интеграции
-
 ---
 
 # Перенос спецификаций в единый граф

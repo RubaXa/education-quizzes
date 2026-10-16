@@ -2,6 +2,16 @@
 id: service.operator-cli
 status: accepted
 implementation: partial
+created: 2026-10-16
+updated: 2026-10-16
+consumers:
+  - "Education operator"
+  - "operator CLI"
+  - "service developer"
+code:
+  - "scripts/education.mjs"
+  - "scripts/submissions.mjs"
+  - "storage/review-readback.mjs"
 parent: product.education
 uses:
   - module.synchronization
@@ -16,7 +26,6 @@ sections:
   - execution
   - состояние-и-следующие-ограничения
   - entrypoints-and-effects
-
 ---
 # Операторское ядро Education {#operator-core}
 

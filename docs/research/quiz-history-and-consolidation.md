@@ -2,13 +2,20 @@
 id: research.quiz-history-and-consolidation
 status: reference
 implementation: not-applicable
+created: 2026-10-16
+updated: 2026-10-16
+consumers:
+  - "product implementer"
+  - "service implementer"
+  - "Education operator"
+code:
+  []
 parent: product.education
 uses: []
 sections:
   - компактный-список-с-раскрытием
   - исправление-ошибки-и-широкая-проверка
   - проектные-решения-которые-не-следуют-из-исследования-автоматически
-
 ---
 # История попыток и итоговая проверка темы
 

@@ -2,6 +2,28 @@
 id: module.families
 status: accepted
 implementation: partial
+created: 2026-10-08
+updated: 2026-10-16
+consumers:
+  - "parent"
+  - "student"
+  - "family access operator"
+  - "web-app access flow"
+code:
+  - "scripts/access-management.mjs"
+  - "scripts/audit-family-links.mjs"
+  - "scripts/family.mjs"
+  - "scripts/lib/access-projection.mjs"
+  - "scripts/lib/admin-firebase.mjs"
+  - "src/components/FamilyAccessCards.tsx"
+  - "src/components/ParentHome.css"
+  - "src/components/ParentHome.tsx"
+  - "src/components/PersonalEntry.tsx"
+  - "src/lib/educationSchema.ts"
+  - "src/lib/educationStore.ts"
+  - "src/lib/homeworkStatus.ts"
+  - "src/lib/personalAccess.ts"
+  - "src/lib/useParentChildOverview.ts"
 parent: product.education
 uses:
   - shared.data.firestore
@@ -16,7 +38,6 @@ sections:
   - переход-с-нынешних-ссылок
   - заведение-профилей-агентом
   - состояние-реализации
-
 ---
 
 # Семейная модель и доступ

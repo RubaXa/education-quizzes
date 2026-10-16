@@ -2,6 +2,23 @@
 id: module.reviews.card-generation-policy
 status: accepted
 implementation: partial
+created: 2026-10-13
+updated: 2026-10-16
+consumers:
+  - "student"
+  - "parent"
+  - "review operator"
+  - "submission publisher"
+code:
+  - "day/build.mjs"
+  - "day/card-policy.mjs"
+  - "src/DayPage.css"
+  - "src/DayPage.tsx"
+  - "src/components/AssignmentBrief.tsx"
+  - "src/components/ParentTaskGuide.css"
+  - "src/components/ParentTaskGuide.tsx"
+  - "src/lib/dayStore.ts"
+  - "src/lib/parentCompletion.ts"
 parent: module.reviews
 uses:
   - module.reviews.subject-aware-guidance
@@ -16,7 +33,6 @@ sections:
   - math-adapter
   - extension
   - implementation
-
 ---
 # Выбор карточки задания {#decision-graph}
 

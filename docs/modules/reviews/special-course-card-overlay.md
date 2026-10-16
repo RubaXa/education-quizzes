@@ -2,6 +2,16 @@
 id: module.reviews.special-course-card-overlay
 status: accepted
 implementation: partial
+created: 2026-10-13
+updated: 2026-10-16
+consumers:
+  - "student"
+  - "parent"
+  - "review operator"
+  - "submission publisher"
+code:
+  - "day/card-policy.mjs"
+  - "scripts/day.mjs"
 parent: module.reviews
 uses:
   - module.reviews.card-generation-policy

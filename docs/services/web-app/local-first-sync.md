@@ -2,6 +2,18 @@
 id: service.web-app.local-first-sync
 status: accepted
 implementation: partial
+created: 2026-10-13
+updated: 2026-10-16
+consumers:
+  - "parent"
+  - "student"
+  - "web-app frontend"
+  - "frontend developer"
+code:
+  - "scripts/direct-upload-worker.mjs"
+  - "scripts/ensure-book-upload-index.mjs"
+  - "src/lib/localFirstPilot.ts"
+  - "src/lib/quizLocalStore.ts"
 parent: service.web-app
 uses:
   - service.web-app.local-first-verification
@@ -12,7 +24,6 @@ sections:
   - алгоритм-клиента
   - публикатор-educationsync
   - внедрение-без-потери-действующего-теста
-
 ---
 # Local-first синхронизация Education
 

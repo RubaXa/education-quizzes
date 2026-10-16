@@ -8,6 +8,14 @@ uses:
   - module.synchronization.global-sync
   - module.synchronization.education-pipeline
 sections: []
+created: 2026-10-16
+updated: 2026-10-16
+consumers:
+  - "Education sync operator"
+  - "sync-project CLI"
+  - "family data publishers"
+code:
+  - "scripts/sync-project.mjs"
 ---
 
 # Ручной запуск EducationSync

@@ -8,6 +8,15 @@ uses:
   - service.upload-worker
   - module.synchronization.change-detection-and-reconciliation
 sections: []
+created: 2026-10-16
+updated: 2026-10-16
+consumers:
+  - "sync operator"
+  - "upload worker operator"
+  - "review operator"
+code:
+  - "operator/run-operation.mjs"
+  - "sync/publication-audit.mjs"
 ---
 
 # Восстановление после сбоя

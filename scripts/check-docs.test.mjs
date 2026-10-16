@@ -13,7 +13,7 @@ function fixture() {
   const git = (...args) => execFileSync('git', args, { cwd: root, stdio: 'pipe' })
   const write = (path, text) => { mkdirSync(join(root, path, '..'), { recursive: true }); writeFileSync(join(root, path), text) }
   git('init', '-q')
-  const spec = '---\nid: product.education\nstatus: accepted\nimplementation: partial\nuses: []\nsections:\n  - scope\n---\n# Product\n## Scope\n[Target](../../target.md#target)\n'
+  const spec = '---\nid: product.education\nstatus: accepted\nimplementation: planned\ncreated: 2026-01-01\nupdated: 2026-01-01\nconsumers:\n  - Agent\ncode: []\nuses: []\nsections:\n  - scope\n---\n# Product\n## Scope\n[Target](../../target.md#target)\n'
   write('docs/product/README.md', spec)
   write('target.md', '# Target\n')
   write('docs/file-map.md', [
@@ -50,7 +50,7 @@ describe('documentation pre-commit snapshot', () => {
       copyFileSync(join(sourceRoot, 'scripts', name), join(root, 'scripts', name))
     }
     copyFileSync(join(sourceRoot, 'lefthook.yml'), join(root, 'lefthook.yml'))
-    write('docs/shared/specification-system.md', '---\nid: shared.specification-system\nstatus: accepted\nimplementation: implemented\nparent: product.education\nuses: []\nsections: []\n---\n# Tools\n')
+    write('docs/shared/specification-system.md', '---\nid: shared.specification-system\nstatus: accepted\nimplementation: implemented\ncreated: 2026-01-01\nupdated: 2026-01-01\nparent: product.education\nuses: []\nconsumers:\n  - Author\ncode:\n  - scripts/check-docs.mjs\n  - scripts/spec-graph.mjs\nsections: []\n---\n# Tools\n')
     const map = readFileSync(join(root, 'docs/file-map.md'), 'utf8')
     write('docs/file-map.md', map + ['scripts/check-docs.mjs', 'scripts/spec-graph.mjs', 'lefthook.yml', 'docs/shared/specification-system.md'].map(path =>
       `\n| [${path}](../${path}) | [Contract](product/README.md) | Tool | Author |`).join(''))
@@ -67,5 +67,31 @@ describe('documentation pre-commit snapshot', () => {
     const errors = checkDocs(root, { staged: true }).problems.join('\n')
     expect(errors).toContain('обязательные разделы')
     expect(errors).toContain('файл без контракта new.md')
+  })
+  it('does not let repaired worktree dates, consumers or @see hide invalid index content', () => {
+    const { root, write, git } = fixture()
+    const shared = (created, updated, consumers) => `---\nid: shared.impl\nstatus: accepted\nimplementation: implemented\ncreated: ${created}\nupdated: ${updated}\nparent: product.education\nuses: []\nconsumers:\n${consumers}\ncode:\n  - src/impl.ts\nsections: []\n---\n# Impl\n`
+    write('docs/shared/impl.md', shared('2026-02-01', '2025-01-01', '  - Agent\n  - Agent'))
+    write('src/impl.ts', 'const label = "@see ../docs/shared/impl.md"\n')
+    const map = readFileSync(join(root, 'docs/file-map.md'), 'utf8')
+    write('docs/file-map.md', `${map}\n| [docs/shared/impl.md](shared/impl.md) | [Contract](shared/impl.md) | Contract | Agent |\n| [src/impl.ts](../src/impl.ts) | [Contract](shared/impl.md) | Runtime | App |`)
+    git('add', '.')
+    write('docs/shared/impl.md', shared('2026-01-01', '2026-02-01', '  - Agent'))
+    write('src/impl.ts', '/** @see ../docs/shared/impl.md */\nconst label = "runtime"\n')
+    const errors = checkDocs(root, { staged: true }).problems.join('\n')
+    expect(errors).toContain('created не может быть позже')
+    expect(errors).toContain('consumers должен')
+    expect(errors).toContain('требуется @see')
+  })
+  it('reads staged .cjs implementation code and validates its indexed comment backlink', () => {
+    const { root, write, git } = fixture()
+    write('docs/shared/cjs-impl.md', '---\nid: shared.cjs-impl\nstatus: accepted\nimplementation: implemented\ncreated: 2026-01-01\nupdated: 2026-01-01\nparent: product.education\nuses: []\nconsumers:\n  - App\ncode:\n  - scripts/impl.cjs\nsections: []\n---\n# CJS implementation\n')
+    write('scripts/impl.cjs', 'const example = "@see ../docs/shared/cjs-impl.md"\n')
+    const map = readFileSync(join(root, 'docs/file-map.md'), 'utf8')
+    write('docs/file-map.md', `${map}\n| [docs/shared/cjs-impl.md](shared/cjs-impl.md) | [Contract](shared/cjs-impl.md) | CJS contract | Agent |\n| [scripts/impl.cjs](../scripts/impl.cjs) | [Contract](shared/cjs-impl.md) | CJS runtime | App |`)
+    git('add', '.')
+    write('scripts/impl.cjs', '// @see ../docs/shared/cjs-impl.md\nconst runtime = true\n')
+    const errors = checkDocs(root, { staged: true }).problems.join('\n')
+    expect(errors).toContain('scripts/impl.cjs: требуется @see')
   })
 })

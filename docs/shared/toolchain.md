@@ -9,6 +9,14 @@ sections:
   - действующий-запуск
   - ограничения
 
+created: 2026-10-16
+updated: 2026-10-16
+consumers:
+  - "frontend developer"
+  - "repository maintainer"
+  - "operator"
+code:
+  - "vite.config.ts"
 ---
 
 # Toolchain и конфигурация репозитория

@@ -2,6 +2,22 @@
 id: module.families.access-and-state
 status: accepted
 implementation: partial
+created: 2026-10-08
+updated: 2026-10-16
+consumers:
+  - "parent"
+  - "student"
+  - "family access operator"
+  - "web-app access flow"
+code:
+  - "day/merge.mjs"
+  - "day/placement-integrity.mjs"
+  - "scripts/day.mjs"
+  - "src/App.tsx"
+  - "src/DayPage.tsx"
+  - "src/components/DataCompatibilityNotice.tsx"
+  - "src/lib/dayCompatibility.ts"
+  - "src/lib/dayStore.ts"
 parent: module.families
 uses:
   - module.families
@@ -10,7 +26,6 @@ sections:
   - владение-состоянием
   - барьер-целостности
   - совместимость-схемы
-
 ---
 # Доступ и состояние Education
 

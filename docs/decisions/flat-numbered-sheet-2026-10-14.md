@@ -2,6 +2,13 @@
 id: decisions.flat-numbered-sheet-2026-10-14
 status: reference
 implementation: not-applicable
+created: 2026-10-14
+updated: 2026-10-16
+consumers:
+  - "product implementer"
+  - "service implementer"
+code:
+  []
 parent: product.education
 uses:
   - decisions.restore-numbered-original-2026-10-14
@@ -13,7 +20,6 @@ sections:
   - действия-и-роли
   - проверки
   - согласование
-
 ---
 # Плоская секция нумерованного листа
 

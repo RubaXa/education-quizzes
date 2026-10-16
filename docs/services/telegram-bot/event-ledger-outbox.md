@@ -1,7 +1,16 @@
 ---
 id: service.telegram-bot.event-ledger-outbox
 status: accepted
-implementation: planned
+implementation: partial
+created: 2026-10-16
+updated: 2026-10-16
+consumers:
+  - "Telegram service implementer"
+  - "bot operator"
+  - "parents and guardians"
+code:
+  - "packages/telegram-notifications/application/notifications.mjs"
+  - "packages/telegram-notifications/adapters/firestore.mjs"
 parent: service.telegram-bot
 uses:
   - service.telegram-bot
@@ -14,12 +23,13 @@ sections:
   - восстановление-и-retention
   - метрики-и-проверочные-сценарии
   - подмодули
-
 ---
 # Журнал событий и delivery outbox
 
 **Родитель:** [корневая архитектура](README.md); [порты и события](ports-and-events.md).
-**Статус:** целевой контракт, не реализован.
+**Статус:** целевой контракт частично реализован.
+
+Первый срез включает event/job transaction, idempotency по deterministic eventId, lease fencing token, expiry recovery, bounded retry states и durable per-part receipts. Runtime delivery остаётся opt-in; источники и grouping не реализованы.
 
 ## Задача
 
@@ -27,19 +37,19 @@ sections:
 
 ## Логические записи
 
-- `events/{eventId}`: schema version, source identity/revision, domain event projection, detection time, processing state, audit refs.
-- `outbox/{jobId}`: `eventId`, recipient key, channel, message grouping key, delivery state, attempts, `nextAttemptAt`, lease owner/expiry, safe error code, sent message IDs.
+- `telegramNotificationEvents/{eventId}`: schema version, source identity/revision, normalized domain event projection, detection time.
+- `telegramNotificationOutbox/{jobId}`: event/recipient link identity and child scope, `state`, attempts, `nextAttemptAt`, lease owner/token/expiry, part receipts and safe error code.
 - `checkpoints/{scopeKey}`: source adapter cursor или snapshot revision, completeness, last success time.
 - `groups/{groupKey}`: recipient, event references, first event time, last event time, flush deadline, status.
 
-Имена коллекций ориентировочные. До фиксации схемы проверить лимиты размеров, Firestore transaction/batch semantics, индексы и retention.
+Эти коллекции — реализация текущего среза. Job сохраняет `messageVersion: 1` и неизменяемые `messageParts` при enqueue, поэтому receipts относятся к постоянным индексам и текстам. Старые jobs без этой схемы переводятся в `dead_letter`; автоматическая миграция не поддерживается. Перед delivery opt-in адресно объединить [индексы worker](../../../packages/telegram-notifications/firestore.indexes.json) с имеющимися индексами после проверки целевого проекта; автоматически заменять global Firebase index manifest этим scoped-файлом нельзя. Retention policy не утверждена.
 
 ## Атомарность и идемпотентность
 
 1. Детерминированный `eventId` вычисляется до записи.
 2. Транзакция создаёт event только если его нет и добавляет уникальные delivery jobs/групповые references для соответствующих получателей.
 3. Повторная обработка получает receipt существующего event и не создаёт повторную доставку.
-4. Worker захватывает job атомарной lease; только владелец непросроченной lease может завершить/перенести job.
+4. Worker захватывает job атомарной lease с непредсказуемым fencing token; только тот же worker с тем же token и непросроченной lease может продлить её, записать receipt или завершить/перенести job.
 5. После отправки сохраняется receipt. Падение между фактическим `sendMessage` и записью receipt может привести к повторной отправке: Telegram send API не является транзакцией с Firestore. Повтор минимизируется и маркируется, но exactly-once обещать нельзя.
 
 Для группового дайджеста стабильный `groupKey` вычисляется по recipient + окну/периоду; добавление событий не создаёт параллельный дайджест той же группы. Очередь должна ограничивать конкурентные отправки на chat и соблюдать Telegram rate limits.
@@ -50,7 +60,7 @@ sections:
 
 Ветви ошибок: `leased → retry_wait → pending`; исчерпание/неисправимая ошибка → `dead_letter` с операторской видимостью. Просроченная lease возвращается в очередь. Ошибка источника не создаёт delivery job, пока событие не подтверждено; подтверждённые события сохраняются при любой недоступности Telegram.
 
-Retry policy должна иметь ограниченные exponential delays, jitter, максимум попыток/возраста и отдельную обработку 429 `retry_after`, 5xx/network, blocked user и malformed request. Окончательные значения настраиваются в operations spec.
+Retry policy ограничивает число попыток, включая каждое lease claim: повторный crash также расходует попытку; recovery ставит bounded delay. Политика использует exponential delays и отдельную обработку 429 `retry_after`, 5xx/network, blocked user и malformed request.
 
 ## Восстановление и retention
 

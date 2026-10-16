@@ -2,6 +2,15 @@
 id: service.web-app.local-first-verification
 status: accepted
 implementation: partial
+created: 2026-10-13
+updated: 2026-10-16
+consumers:
+  - "parent"
+  - "student"
+  - "web-app frontend"
+  - "frontend developer"
+code:
+  - "src/lib/localFirstPilot.ts"
 parent: service.web-app
 uses:
   - service.web-app.local-first-sync
@@ -10,7 +19,6 @@ sections:
   - scenarios
   - migration
   - release-gate
-
 ---
 # Проверка перехода на семейные ревизии
 

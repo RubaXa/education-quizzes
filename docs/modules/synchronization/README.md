@@ -11,6 +11,14 @@ sections:
   - код-и-данные
   - спецификации
 
+created: 2026-10-16
+updated: 2026-10-16
+consumers:
+  - "Education sync operator"
+  - "sync-project CLI"
+  - "Firestore publisher"
+code:
+  - "scripts/sync-project.mjs"
 ---
 
 # Синхронизация и публикация

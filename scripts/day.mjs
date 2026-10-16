@@ -1,3 +1,7 @@
+/**
+ * @see ../docs/product/school-day.md
+ * @see ../docs/modules/reviews/card-flow-certification.md
+ */
 /** @see ../docs/modules/materials/material-clarification.md */
 import { materialRequestErrors, openMaterialRequest } from '../src/lib/materialRequest.ts'
 import { createHash, randomBytes } from 'node:crypto'

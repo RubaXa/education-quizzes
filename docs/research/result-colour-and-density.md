@@ -2,6 +2,14 @@
 id: research.result-colour-and-density
 status: reference
 implementation: not-applicable
+created: 2026-10-16
+updated: 2026-10-16
+consumers:
+  - "product implementer"
+  - "service implementer"
+  - "Education operator"
+code:
+  []
 parent: product.education
 uses:
   - research.quiz-history-and-consolidation
@@ -9,7 +17,6 @@ sections:
   - что-подтверждают-первичные-источники
   - что-не-согласовано-в-действующем-коде
   - рекомендация-по-плотности
-
 ---
 # Цвет результата и плотность истории тестов
 

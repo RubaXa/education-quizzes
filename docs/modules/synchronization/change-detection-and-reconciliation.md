@@ -2,6 +2,14 @@
 id: module.synchronization.change-detection-and-reconciliation
 status: accepted
 implementation: partial
+created: 2026-10-11
+updated: 2026-10-16
+consumers:
+  - "Education sync operator"
+  - "sync-project CLI"
+  - "Firestore publisher"
+code:
+  - "scripts/submissions.mjs"
 parent: module.synchronization
 uses:
   - module.synchronization.plan-generation
@@ -11,7 +19,6 @@ sections:
   - один-набор-фото--один-разбор
   - восстановление-и-выпуск
   - граница-текущей-реализации
-
 ---
 # Обнаружение изменений и сверка состояния Education
 

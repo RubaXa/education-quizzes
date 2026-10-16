@@ -2,6 +2,23 @@
 id: module.synchronization.global-sync
 status: accepted
 implementation: partial
+created: 2026-10-13
+updated: 2026-10-16
+consumers:
+  - "Education sync operator"
+  - "sync-project CLI"
+  - "Firestore publisher"
+code:
+  - "packages/education-connect/lib/network-retry.mjs"
+  - "scripts/sync-project.mjs"
+  - "scripts/sync-queue.mjs"
+  - "src/DayPage.tsx"
+  - "src/components/ParentHome.tsx"
+  - "sync/day-source-revision.mjs"
+  - "sync/job-queue.mjs"
+  - "sync/project-plan.mjs"
+  - "sync/publication-audit.mjs"
+  - "sync/run-context.mjs"
 parent: module.synchronization
 uses:
   - module.synchronization.shared-artifact-pipeline
@@ -12,7 +29,6 @@ sections:
   - status
   - report
   - reconciliation
-
 ---
 # Глобальная синхронизация Education {#global-sync}
 

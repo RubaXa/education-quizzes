@@ -1,3 +1,6 @@
+/**
+ * @see ../docs/modules/notifications/events.md
+ */
 import { createHash } from 'node:crypto'
 import { Timestamp } from 'firebase-admin/firestore'
 

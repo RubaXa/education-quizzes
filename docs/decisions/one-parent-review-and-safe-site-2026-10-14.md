@@ -2,6 +2,13 @@
 id: decisions.one-parent-review-and-safe-site-2026-10-14
 status: reference
 implementation: not-applicable
+created: 2026-10-14
+updated: 2026-10-16
+consumers:
+  - "product implementer"
+  - "service implementer"
+code:
+  []
 parent: product.education
 uses: []
 sections:
@@ -10,7 +17,6 @@ sections:
   - действия-и-роли
   - проверки
   - согласование
-
 ---
 # Один предметный разбор и безопасный выпуск страницы
 

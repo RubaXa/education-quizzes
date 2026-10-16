@@ -11,6 +11,15 @@ sections:
   - код-и-данные
   - спецификации
 
+created: 2026-10-16
+updated: 2026-10-16
+consumers:
+  - "student"
+  - "parent"
+  - "quiz author"
+  - "assessment pipeline"
+code:
+  - "src/lib/quiz.ts"
 ---
 
 # Оценивание и самопроверки

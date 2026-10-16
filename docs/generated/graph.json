@@ -4,7 +4,14 @@
     {
       "id": "architecture.education",
       "status": "accepted",
-      "implementation": "partial",
+      "implementation": "not-applicable",
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "Education agent",
+        "developer"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [
         "service.web-app",
@@ -28,6 +35,17 @@
       "id": "audits.education-sync-latency-audit-2026-10-15",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-15",
+      "updated": "2026-10-16",
+      "consumers": [
+        "Education operator",
+        "developer",
+        "release reviewer"
+      ],
+      "code": [
+        "packages/education-connect/lib/mesh.mjs",
+        "scripts/sync-project.mjs"
+      ],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -42,6 +60,14 @@
       "id": "audits.firestore-read-audit-2026-10-14",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-14",
+      "updated": "2026-10-16",
+      "consumers": [
+        "Education operator",
+        "developer",
+        "release reviewer"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [
         "audits.firestore-usage-2026-10-12"
@@ -57,6 +83,17 @@
       "id": "audits.firestore-usage-2026-10-12",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-13",
+      "updated": "2026-10-16",
+      "consumers": [
+        "Education operator",
+        "developer",
+        "release reviewer"
+      ],
+      "code": [
+        "scripts/firestore-usage-window.mjs",
+        "scripts/firestore-usage.mjs"
+      ],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -70,6 +107,14 @@
       "id": "audits.product-spec-index-2026-10-16",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "Education operator",
+        "developer",
+        "release reviewer"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [
         "audits.protocol-audit-2026-10-11",
@@ -85,6 +130,14 @@
       "id": "audits.protocol-audit-2026-10-11",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-11",
+      "updated": "2026-10-16",
+      "consumers": [
+        "Education operator",
+        "developer",
+        "release reviewer"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -99,6 +152,14 @@
       "id": "audits.release-inventory-2026-10-12",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-13",
+      "updated": "2026-10-16",
+      "consumers": [
+        "Education operator",
+        "developer",
+        "release reviewer"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -113,6 +174,14 @@
       "id": "audits.specification-graph-audit-2026-10-16",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "Education operator",
+        "developer",
+        "release reviewer"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -129,9 +198,40 @@
       "path": "docs/audits/specification-graph-audit-2026-10-16.md"
     },
     {
+      "id": "audits.specification-lifecycle-2026-10-16",
+      "status": "reference",
+      "implementation": "not-applicable",
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "parent": "product.education",
+      "uses": [
+        "shared.specification-system"
+      ],
+      "consumers": [
+        "читатель аудита",
+        "технический лидер"
+      ],
+      "code": [],
+      "sections": [
+        "объём-и-методика",
+        "сводка",
+        "нормативные-контракты",
+        "примечания-классификации",
+        "проверка"
+      ],
+      "path": "docs/audits/specification-lifecycle-2026-10-16.md"
+    },
+    {
       "id": "decision.documentation-precommit",
       "status": "accepted",
-      "implementation": "implemented",
+      "implementation": "not-applicable",
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [
         "shared.specification-system"
@@ -149,6 +249,13 @@
       "id": "decision.specification-graph-migration",
       "status": "accepted",
       "implementation": "not-applicable",
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [
         "shared.specification-system"
@@ -165,9 +272,71 @@
       "path": "docs/decisions/specification-graph-migration-2026-10-16.md"
     },
     {
+      "id": "decision.specification-lifecycle",
+      "status": "accepted",
+      "implementation": "not-applicable",
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "parent": "product.education",
+      "uses": [
+        "shared.specification-system"
+      ],
+      "consumers": [
+        "Worker",
+        "Технический лидер"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/specification-lifecycle-2026-10-16.md"
+    },
+    {
+      "id": "decision.telegram-foundation",
+      "status": "accepted",
+      "implementation": "not-applicable",
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "parent": "service.telegram-bot",
+      "uses": [
+        "service.telegram-bot",
+        "service.telegram-bot.operations",
+        "service.telegram-bot.identity-and-linking",
+        "service.telegram-bot.event-ledger-outbox",
+        "service.telegram-bot.ports-and-events",
+        "service.telegram-bot.delivery"
+      ],
+      "consumers": [
+        "Пользователь, запросивший первый runtime increment",
+        "Worker Telegram-сервиса",
+        "Оператор локального запуска",
+        "Технический лидер"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/telegram-foundation-2026-10-16.md"
+    },
+    {
       "id": "decisions.compact-homework-copy-2026-10-16",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -184,6 +353,13 @@
       "id": "decisions.compact-results-ui-kit-2026-10-16",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -199,6 +375,13 @@
       "id": "decisions.education-sync-performance-2026-10-15",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-15",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -214,6 +397,13 @@
       "id": "decisions.flat-numbered-sheet-2026-10-14",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-14",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [
         "decisions.restore-numbered-original-2026-10-14"
@@ -233,6 +423,13 @@
       "id": "decisions.grade-mark-details-2026-10-14",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-14",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -248,6 +445,13 @@
       "id": "decisions.grade-projection-reconciliation-2026-10-15",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-15",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -263,6 +467,13 @@
       "id": "decisions.history-default-universal-request-2026-10-16",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -278,6 +489,13 @@
       "id": "decisions.history-followup-volume-2026-10-16",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -293,6 +511,13 @@
       "id": "decisions.lesson-countdowns-2026-10-15",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-15",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -308,6 +533,13 @@
       "id": "decisions.local-first-hot-path-decision-2026-10-12",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-13",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -323,6 +555,13 @@
       "id": "decisions.material-clarification-2026-10-16",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -339,6 +578,13 @@
       "id": "decisions.mesh-assigned-units-2026-10-15",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -354,6 +600,13 @@
       "id": "decisions.mesh-requirement-trace-2026-10-16",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -369,6 +622,13 @@
       "id": "decisions.missing-evidence-homework-overview-2026-10-15",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-15",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -384,6 +644,13 @@
       "id": "decisions.notification-read-all-2026-10-14",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-14",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -399,6 +666,13 @@
       "id": "decisions.one-parent-review-and-safe-site-2026-10-14",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-14",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -414,6 +688,13 @@
       "id": "decisions.operator-core-cli-2026-10-16",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -429,6 +710,13 @@
       "id": "decisions.operator-tool-trial-2026-10-16",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -444,6 +732,13 @@
       "id": "decisions.optional-quiz-switch-2026-10-15",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-15",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -459,6 +754,13 @@
       "id": "decisions.parent-followup-button-release-2026-10-14",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-14",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -474,6 +776,13 @@
       "id": "decisions.quiz-attempt-time-icon-2026-10-15",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-15",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -489,6 +798,13 @@
       "id": "decisions.quiz-threshold-85-2026-10-14",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-14",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [
         "decisions.quiz-threshold-and-page-slider-2026-10-14"
@@ -506,6 +822,13 @@
       "id": "decisions.quiz-threshold-and-page-slider-2026-10-14",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-14",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [
         "decisions.restore-textbook-strip-2026-10-15"
@@ -523,6 +846,13 @@
       "id": "decisions.quiz-time-row-2026-10-16",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -538,6 +868,13 @@
       "id": "decisions.requirement-switch-no-label-2026-10-16",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -553,6 +890,13 @@
       "id": "decisions.restore-numbered-original-2026-10-14",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-14",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -568,6 +912,13 @@
       "id": "decisions.restore-textbook-strip-2026-10-15",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-15",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -583,6 +934,13 @@
       "id": "decisions.stable-grade-snapshot-command-2026-10-16",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -598,6 +956,13 @@
       "id": "decisions.stage-switch-fresh-version-2026-10-14",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-14",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -613,6 +978,13 @@
       "id": "decisions.teacher-sheet-beside-quiz-2026-10-14",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-14",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -628,6 +1000,13 @@
       "id": "decisions.two-pass-written-review-2026-10-15",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-15",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -642,7 +1021,14 @@
     {
       "id": "docs.education",
       "status": "accepted",
-      "implementation": "implemented",
+      "implementation": "not-applicable",
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "Education agent",
+        "developer"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [
         "architecture.education",
@@ -1102,6 +1488,13 @@
       "consumer": "Синхронизатор; план дня"
     },
     {
+      "id": "file:docs/audits/specification-lifecycle-2026-10-16.json",
+      "path": "docs/audits/specification-lifecycle-2026-10-16.json",
+      "kind": "artifact",
+      "purpose": "Машиночитаемые provenance, implementation evidence, gaps и suggested backlinks",
+      "consumer": "Технический лидер; автор документации"
+    },
+    {
       "id": "file:docs/audits/specification-migration-preservation-2026-10-16.json",
       "path": "docs/audits/specification-migration-preservation-2026-10-16.json",
       "kind": "artifact",
@@ -1127,6 +1520,13 @@
       "path": "docs/generated/graph.mmd",
       "kind": "artifact",
       "purpose": "Навигация, привязки или проверка производного графа",
+      "consumer": "Разработчик; npm check:spec"
+    },
+    {
+      "id": "file:docs/generated/status.md",
+      "path": "docs/generated/status.md",
+      "kind": "artifact",
+      "purpose": "Сводка состояния по проверенным metadata; не evidence deployment",
       "consumer": "Разработчик; npm check:spec"
     },
     {
@@ -1324,6 +1724,104 @@
       "kind": "artifact",
       "purpose": "Инструкция локального подключения взрослого",
       "consumer": "Приглашённый; оператор"
+    },
+    {
+      "id": "file:packages/telegram-notifications/adapters/config.mjs",
+      "path": "packages/telegram-notifications/adapters/config.mjs",
+      "kind": "artifact",
+      "purpose": "Проверка локальных параметров бота, Firestore project и instance ID",
+      "consumer": "`scripts/telegram-bot.mjs`"
+    },
+    {
+      "id": "file:packages/telegram-notifications/adapters/firestore.mjs",
+      "path": "packages/telegram-notifications/adapters/firestore.mjs",
+      "kind": "artifact",
+      "purpose": "Firestore registry, event ledger, outbox lease/recovery и live-проверки семейного доступа; это storage adapter, не source observer",
+      "consumer": "Telegram runtime; notification application; identity flow"
+    },
+    {
+      "id": "file:packages/telegram-notifications/adapters/memory.mjs",
+      "path": "packages/telegram-notifications/adapters/memory.mjs",
+      "kind": "artifact",
+      "purpose": "In-memory registry, event ledger и outbox для тестового vertical slice",
+      "consumer": "Vitest; application core"
+    },
+    {
+      "id": "file:packages/telegram-notifications/adapters/runtime.mjs",
+      "path": "packages/telegram-notifications/adapters/runtime.mjs",
+      "kind": "artifact",
+      "purpose": "Связка Firestore adapters, identity, delivery service и Telegram transport",
+      "consumer": "`scripts/telegram-bot.mjs`"
+    },
+    {
+      "id": "file:packages/telegram-notifications/adapters/telegram.mjs",
+      "path": "packages/telegram-notifications/adapters/telegram.mjs",
+      "kind": "artifact",
+      "purpose": "Приватные команды бота, идентичность Bot API и транспорт сообщений",
+      "consumer": "Telegram worker; grammY"
+    },
+    {
+      "id": "file:packages/telegram-notifications/adapters/worker-loop.mjs",
+      "path": "packages/telegram-notifications/adapters/worker-loop.mjs",
+      "kind": "artifact",
+      "purpose": "Прерываемый цикл outbox и корректное завершение с ожиданием обработки",
+      "consumer": "CLI worker; `scripts/telegram-bot.mjs`"
+    },
+    {
+      "id": "file:packages/telegram-notifications/application/identity.mjs",
+      "path": "packages/telegram-notifications/application/identity.mjs",
+      "kind": "artifact",
+      "purpose": "Регистрация Telegram account и ограничение identity действий приватным чатом",
+      "consumer": "Telegram adapter; registry"
+    },
+    {
+      "id": "file:packages/telegram-notifications/application/notifications.mjs",
+      "path": "packages/telegram-notifications/application/notifications.mjs",
+      "kind": "artifact",
+      "purpose": "Идемпотентная запись event и обработка outbox jobs",
+      "consumer": "Worker; event ledger; delivery port"
+    },
+    {
+      "id": "file:packages/telegram-notifications/domain/diff.mjs",
+      "path": "packages/telegram-notifications/domain/diff.mjs",
+      "kind": "artifact",
+      "purpose": "Чистая классификация различий двух полных снимков; не реализует опрос или Firestore source observer",
+      "consumer": "Notification application; будущий source adapter"
+    },
+    {
+      "id": "file:packages/telegram-notifications/domain/events.mjs",
+      "path": "packages/telegram-notifications/domain/events.mjs",
+      "kind": "artifact",
+      "purpose": "Схема нормализованного события и стабильный event ID",
+      "consumer": "Application core; source adapters"
+    },
+    {
+      "id": "file:packages/telegram-notifications/domain/ports.mjs",
+      "path": "packages/telegram-notifications/domain/ports.mjs",
+      "kind": "artifact",
+      "purpose": "Проверка минимальных методов application ports",
+      "consumer": "Application core; adapters"
+    },
+    {
+      "id": "file:packages/telegram-notifications/domain/renderer.mjs",
+      "path": "packages/telegram-notifications/domain/renderer.mjs",
+      "kind": "artifact",
+      "purpose": "Privacy-aware структурное форматирование события для семьи или команды",
+      "consumer": "Notification service"
+    },
+    {
+      "id": "file:packages/telegram-notifications/firestore.indexes.json",
+      "path": "packages/telegram-notifications/firestore.indexes.json",
+      "kind": "artifact",
+      "purpose": "Composite indexes для bounded outbox claim и восстановления истёкших lease",
+      "consumer": "Оператор Firestore; Telegram worker"
+    },
+    {
+      "id": "file:packages/telegram-notifications/notifications.test.mjs",
+      "path": "packages/telegram-notifications/notifications.test.mjs",
+      "kind": "verification",
+      "purpose": "Проверка регистрации, event/outbox core, приватности и портов на memory store",
+      "consumer": "Vitest; разработчик"
     },
     {
       "id": "file:public/icons/education-180.png",
@@ -1751,6 +2249,13 @@
       "kind": "artifact",
       "purpose": "Стадии классификации, ручной проверки и адресного продолжения; ограниченно параллельные независимые задания и замер стадий",
       "consumer": "`education-sync`; Firestore"
+    },
+    {
+      "id": "file:scripts/telegram-bot.mjs",
+      "path": "scripts/telegram-bot.mjs",
+      "kind": "artifact",
+      "purpose": "Команды read-only `check` и явного `worker`; доставка выключена по умолчанию",
+      "consumer": "Оператор; локальный worker"
     },
     {
       "id": "file:scripts/verify-upload-flow.mjs",
@@ -3418,12 +3923,38 @@
         "код-и-данные",
         "спецификации"
       ],
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "student",
+        "parent",
+        "quiz author",
+        "assessment pipeline"
+      ],
+      "code": [
+        "src/lib/quiz.ts"
+      ],
       "path": "docs/modules/assessments/README.md"
     },
     {
       "id": "module.assessments.assessment-decision-graph",
       "status": "accepted",
       "implementation": "partial",
+      "created": "2026-10-13",
+      "updated": "2026-10-16",
+      "consumers": [
+        "student",
+        "parent",
+        "quiz author",
+        "assessment pipeline"
+      ],
+      "code": [
+        "assessment/decision-graph.mjs",
+        "assessment/followup-contract.mjs",
+        "assessment/quiz-lineage.mjs",
+        "scripts/sync-queue.mjs",
+        "src/lib/quizCompletion.ts"
+      ],
       "parent": "module.assessments",
       "uses": [
         "module.assessments.quiz-chain-proposal"
@@ -3450,12 +3981,39 @@
         "control-cycle",
         "release"
       ],
+      "created": "2026-10-13",
+      "updated": "2026-10-16",
+      "consumers": [
+        "student",
+        "parent",
+        "quiz author",
+        "assessment pipeline"
+      ],
+      "code": [
+        "assessment/decision-graph.mjs"
+      ],
       "path": "docs/modules/assessments/assessment-source-policy.md"
     },
     {
       "id": "module.assessments.quiz-chain-proposal",
       "status": "accepted",
       "implementation": "partial",
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "student",
+        "parent",
+        "quiz author",
+        "assessment pipeline"
+      ],
+      "code": [
+        "src/components/QuizAttemptReview.tsx",
+        "src/components/QuizCard.css",
+        "src/components/QuizCard.tsx",
+        "src/lib/quizCardViewModel.ts",
+        "assessment/followup-contract.mjs",
+        "assessment/quiz-lineage.mjs"
+      ],
       "parent": "module.assessments",
       "uses": [
         "module.assessments.result-presentation-proposal",
@@ -3475,6 +4033,32 @@
       "id": "module.assessments.quizzes",
       "status": "accepted",
       "implementation": "partial",
+      "created": "2026-10-08",
+      "updated": "2026-10-16",
+      "consumers": [
+        "student",
+        "parent",
+        "quiz author",
+        "assessment pipeline"
+      ],
+      "code": [
+        "assessment/question-copy.mjs",
+        "day/merge.mjs",
+        "scripts/check-quiz-switch-viewport.mjs",
+        "src/App.tsx",
+        "src/components/CodeBlock.tsx",
+        "src/components/QuizCard.css",
+        "src/components/QuizCard.tsx",
+        "src/components/QuizResultCard.tsx",
+        "src/components/QuizTextAnswer.tsx",
+        "src/components/SubjectTheme.tsx",
+        "src/lib/homeworkStatus.ts",
+        "src/lib/questionTopicPresentation.ts",
+        "src/lib/quizDraft.ts",
+        "src/lib/spellingFeedback.ts",
+        "src/lib/store.ts",
+        "src/lib/watchQuizOutcome.ts"
+      ],
       "parent": "module.assessments",
       "uses": [
         "module.assessments.quiz-chain-proposal",
@@ -3498,6 +4082,23 @@
       "id": "module.assessments.result-presentation-proposal",
       "status": "accepted",
       "implementation": "partial",
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "student",
+        "parent",
+        "quiz author",
+        "assessment pipeline"
+      ],
+      "code": [
+        "src/App.css",
+        "src/components/QuizCard.css",
+        "src/components/QuizCard.tsx",
+        "src/components/ui/result.css",
+        "src/components/ui/result.tsx",
+        "src/education-design-tokens.css",
+        "src/lib/resultPresentation.ts"
+      ],
       "parent": "module.assessments",
       "uses": [],
       "sections": [
@@ -3523,12 +4124,47 @@
       "sections": [
         "проверки-и-ограничения"
       ],
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "parent",
+        "student",
+        "day synchronizer",
+        "review process"
+      ],
+      "code": [
+        "day/build.mjs"
+      ],
       "path": "docs/modules/assignments/README.md"
     },
     {
       "id": "module.families",
       "status": "accepted",
       "implementation": "partial",
+      "created": "2026-10-08",
+      "updated": "2026-10-16",
+      "consumers": [
+        "parent",
+        "student",
+        "family access operator",
+        "web-app access flow"
+      ],
+      "code": [
+        "scripts/access-management.mjs",
+        "scripts/audit-family-links.mjs",
+        "scripts/family.mjs",
+        "scripts/lib/access-projection.mjs",
+        "scripts/lib/admin-firebase.mjs",
+        "src/components/FamilyAccessCards.tsx",
+        "src/components/ParentHome.css",
+        "src/components/ParentHome.tsx",
+        "src/components/PersonalEntry.tsx",
+        "src/lib/educationSchema.ts",
+        "src/lib/educationStore.ts",
+        "src/lib/homeworkStatus.ts",
+        "src/lib/personalAccess.ts",
+        "src/lib/useParentChildOverview.ts"
+      ],
       "parent": "product.education",
       "uses": [
         "shared.data.firestore",
@@ -3551,6 +4187,24 @@
       "id": "module.families.access-and-state",
       "status": "accepted",
       "implementation": "partial",
+      "created": "2026-10-08",
+      "updated": "2026-10-16",
+      "consumers": [
+        "parent",
+        "student",
+        "family access operator",
+        "web-app access flow"
+      ],
+      "code": [
+        "day/merge.mjs",
+        "day/placement-integrity.mjs",
+        "scripts/day.mjs",
+        "src/App.tsx",
+        "src/DayPage.tsx",
+        "src/components/DataCompatibilityNotice.tsx",
+        "src/lib/dayCompatibility.ts",
+        "src/lib/dayStore.ts"
+      ],
       "parent": "module.families",
       "uses": [
         "module.families"
@@ -3566,10 +4220,18 @@
     {
       "id": "module.families.family-artifact-access",
       "status": "accepted",
-      "implementation": "partial",
+      "implementation": "planned",
+      "created": "2026-10-10",
+      "consumers": [
+        "parent",
+        "student",
+        "family access operator",
+        "web-app access flow"
+      ],
+      "code": [],
       "parent": "module.families",
       "type": "architecture-decision",
-      "updated": "2026-10-10",
+      "updated": "2026-10-16",
       "related": [
         "../materials/storage-privacy.md",
         "README.md"
@@ -3595,12 +4257,48 @@
         "код-и-данные",
         "спецификации"
       ],
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "parent",
+        "student",
+        "family library",
+        "upload worker"
+      ],
+      "code": [
+        "src/components/FamilyLibrary.tsx"
+      ],
       "path": "docs/modules/materials/README.md"
     },
     {
       "id": "module.materials.family-library",
       "status": "accepted",
       "implementation": "partial",
+      "created": "2026-10-11",
+      "updated": "2026-10-16",
+      "consumers": [
+        "parent",
+        "student",
+        "family library",
+        "upload worker"
+      ],
+      "code": [
+        "day/family-source-graph.mjs",
+        "scripts/backfill-book-manifests.mjs",
+        "scripts/day.mjs",
+        "scripts/family-library.mjs",
+        "scripts/storage.mjs",
+        "scripts/sync-inbox.mjs",
+        "src/components/FamilyLibrary.css",
+        "src/components/FamilyLibrary.tsx",
+        "src/components/MaterialReader.tsx",
+        "src/lib/bookPageSource.ts",
+        "src/lib/familyBookUpload.ts",
+        "src/lib/familyLibrary.ts",
+        "src/lib/materialPageCache.ts",
+        "storage/family-book-projection.mjs",
+        "storage/family-book-upload.mjs"
+      ],
       "parent": "module.materials",
       "uses": [
         "module.materials.materials",
@@ -3621,6 +4319,31 @@
       "id": "module.materials.material-clarification",
       "status": "accepted",
       "implementation": "partial",
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "parent",
+        "student",
+        "family library",
+        "upload worker"
+      ],
+      "code": [
+        "day/build.mjs",
+        "day/data-contract.mjs",
+        "scripts/day.mjs",
+        "scripts/submissions.mjs",
+        "scripts/sync-queue.mjs",
+        "src/DayDashboard.tsx",
+        "src/DayPage.tsx",
+        "src/components/MaterialRequest.tsx",
+        "src/lib/dayStore.ts",
+        "src/lib/homeworkStatus.ts",
+        "src/lib/materialRequest.ts",
+        "src/lib/photoUploadPolicy.ts",
+        "storage/review-projection.mjs",
+        "storage/review-readback.mjs",
+        "storage/submission-inbox.mjs"
+      ],
       "parent": "module.materials",
       "uses": [],
       "sections": [
@@ -3638,6 +4361,27 @@
       "id": "module.materials.materials",
       "status": "accepted",
       "implementation": "partial",
+      "created": "2026-10-08",
+      "updated": "2026-10-16",
+      "consumers": [
+        "parent",
+        "student",
+        "family library",
+        "upload worker"
+      ],
+      "code": [
+        "scripts/check-material-preview-viewport.mjs",
+        "scripts/day.mjs",
+        "scripts/storage.mjs",
+        "src/DayPage.css",
+        "src/components/MaterialReader.tsx",
+        "src/lib/dayMaterialRefs.ts",
+        "src/lib/dayStore.ts",
+        "src/lib/yandexPublic.ts",
+        "storage/material-pages.mjs",
+        "storage/page-publication.mjs",
+        "storage/textbook-catalog.mjs"
+      ],
       "parent": "module.materials",
       "uses": [
         "module.materials.storage-privacy",
@@ -3658,6 +4402,28 @@
       "id": "module.materials.storage-privacy",
       "status": "accepted",
       "implementation": "partial",
+      "created": "2026-10-08",
+      "updated": "2026-10-16",
+      "consumers": [
+        "parent",
+        "student",
+        "family library",
+        "upload worker"
+      ],
+      "code": [
+        "scripts/archive-local.mjs",
+        "scripts/check-privacy.mjs",
+        "scripts/day.mjs",
+        "scripts/family.mjs",
+        "scripts/storage.mjs",
+        "scripts/submissions.mjs",
+        "scripts/verify-upload-flow.mjs",
+        "src/lib/dayStore.ts",
+        "src/lib/networkRetry.ts",
+        "storage/review-coverage.mjs",
+        "storage/submission-inbox.mjs",
+        "storage/yandex-disk.mjs"
+      ],
       "parent": "module.materials",
       "uses": [
         "module.materials.materials",
@@ -3691,6 +4457,17 @@
         "код-и-данные",
         "спецификации"
       ],
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "parent",
+        "student",
+        "in-app notification publisher",
+        "web inbox frontend"
+      ],
+      "code": [
+        "src/components/NotificationBell.tsx"
+      ],
       "path": "docs/modules/notifications/README.md"
     },
     {
@@ -3705,12 +4482,42 @@
       "sections": [
         "расширение"
       ],
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "notification publisher",
+        "in-app inbox",
+        "Telegram service implementer"
+      ],
+      "code": [
+        "storage/inbox-notifications.mjs"
+      ],
       "path": "docs/modules/notifications/events.md"
     },
     {
       "id": "module.notifications.inbox",
       "status": "accepted",
       "implementation": "partial",
+      "created": "2026-10-08",
+      "updated": "2026-10-16",
+      "consumers": [
+        "parent",
+        "student",
+        "in-app notification publisher",
+        "web inbox frontend"
+      ],
+      "code": [
+        "scripts/day.mjs",
+        "scripts/notifications.mjs",
+        "scripts/release-note.mjs",
+        "scripts/submissions.mjs",
+        "src/components/NotificationBell.css",
+        "src/components/NotificationBell.tsx",
+        "src/lib/educationSchema.ts",
+        "src/lib/educationStore.ts",
+        "src/lib/notificationThreads.ts",
+        "storage/inbox-notifications.mjs"
+      ],
       "parent": "module.notifications",
       "uses": [],
       "sections": [
@@ -3738,12 +4545,42 @@
         "код-и-данные",
         "спецификации"
       ],
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "student",
+        "parent",
+        "review operator",
+        "submission publisher"
+      ],
+      "code": [
+        "scripts/submissions.mjs"
+      ],
       "path": "docs/modules/reviews/README.md"
     },
     {
       "id": "module.reviews.adaptive-problem-card",
       "status": "accepted",
       "implementation": "partial",
+      "created": "2026-10-10",
+      "updated": "2026-10-16",
+      "consumers": [
+        "student",
+        "parent",
+        "review operator",
+        "submission publisher"
+      ],
+      "code": [
+        "scripts/day.mjs",
+        "scripts/submissions.mjs",
+        "src/components/ProblemCard.tsx",
+        "src/components/ProblemStatement.css",
+        "src/components/ProblemStatement.tsx",
+        "src/components/ProblemTaskCard.tsx",
+        "src/lib/dayStore.ts",
+        "src/lib/personalAccess.ts",
+        "storage/review-projection.mjs"
+      ],
       "parent": "module.reviews",
       "uses": [
         "module.reviews.subject-aware-guidance",
@@ -3773,12 +4610,43 @@
         "что-было-источником-повторов",
         "регрессии-и-пределы"
       ],
+      "created": "2026-10-14",
+      "updated": "2026-10-16",
+      "consumers": [
+        "student",
+        "parent",
+        "review operator",
+        "submission publisher"
+      ],
+      "code": [
+        "scripts/day.mjs",
+        "day/pipeline-contract.mjs"
+      ],
       "path": "docs/modules/reviews/card-flow-certification.md"
     },
     {
       "id": "module.reviews.card-generation-policy",
       "status": "accepted",
       "implementation": "partial",
+      "created": "2026-10-13",
+      "updated": "2026-10-16",
+      "consumers": [
+        "student",
+        "parent",
+        "review operator",
+        "submission publisher"
+      ],
+      "code": [
+        "day/build.mjs",
+        "day/card-policy.mjs",
+        "src/DayPage.css",
+        "src/DayPage.tsx",
+        "src/components/AssignmentBrief.tsx",
+        "src/components/ParentTaskGuide.css",
+        "src/components/ParentTaskGuide.tsx",
+        "src/lib/dayStore.ts",
+        "src/lib/parentCompletion.ts"
+      ],
       "parent": "module.reviews",
       "uses": [
         "module.reviews.subject-aware-guidance",
@@ -3801,6 +4669,18 @@
       "id": "module.reviews.math-solution-route",
       "status": "accepted",
       "implementation": "partial",
+      "created": "2026-10-13",
+      "updated": "2026-10-16",
+      "consumers": [
+        "student",
+        "parent",
+        "review operator",
+        "submission publisher"
+      ],
+      "code": [
+        "day/build.mjs",
+        "day/card-policy.mjs"
+      ],
       "parent": "module.reviews",
       "uses": [
         "module.reviews.subject-aware-guidance",
@@ -3818,6 +4698,35 @@
       "id": "module.reviews.problem-card-design-decisions",
       "status": "accepted",
       "implementation": "partial",
+      "created": "2026-10-14",
+      "updated": "2026-10-16",
+      "consumers": [
+        "student",
+        "parent",
+        "review operator",
+        "submission publisher"
+      ],
+      "code": [
+        "scripts/check-problem-variant-viewport.mjs",
+        "src/DayPage.css",
+        "src/WeekendMathSlot.css",
+        "src/WeekendMathSlot.tsx",
+        "src/components/AssignmentBrief.css",
+        "src/components/AssignmentBrief.tsx",
+        "src/components/ParentTaskGuide.css",
+        "src/components/ParentTaskGuide.tsx",
+        "src/components/ProblemCard.css",
+        "src/components/ProblemGroup.css",
+        "src/components/ProblemGroup.tsx",
+        "src/components/ProblemStatement.css",
+        "src/components/ProblemStatement.tsx",
+        "src/components/ProblemTaskCard.tsx",
+        "src/components/SourceFragment.css",
+        "src/components/SourceFragment.tsx",
+        "src/components/TaskGuidance.css",
+        "src/components/TaskGuidance.tsx",
+        "src/education-design-tokens.css"
+      ],
       "parent": "module.reviews",
       "uses": [
         "module.reviews.adaptive-problem-card",
@@ -3834,6 +4743,25 @@
       "id": "module.reviews.review-criteria-provenance",
       "status": "accepted",
       "implementation": "partial",
+      "created": "2026-10-11",
+      "updated": "2026-10-16",
+      "consumers": [
+        "student",
+        "parent",
+        "review operator",
+        "submission publisher"
+      ],
+      "code": [
+        "day/card-policy.mjs",
+        "scripts/submissions.mjs",
+        "src/DayPage.css",
+        "src/components/WorkReview.tsx",
+        "src/lib/dayStore.ts",
+        "src/lib/parentCompletion.ts",
+        "src/lib/reviewPresentation.ts",
+        "storage/review-challenge.mjs",
+        "storage/review-requirements.mjs"
+      ],
       "parent": "module.reviews",
       "uses": [
         "module.reviews.adaptive-problem-card",
@@ -3851,6 +4779,20 @@
       "id": "module.reviews.russian-language-route",
       "status": "accepted",
       "implementation": "partial",
+      "created": "2026-10-13",
+      "updated": "2026-10-16",
+      "consumers": [
+        "student",
+        "parent",
+        "review operator",
+        "submission publisher"
+      ],
+      "code": [
+        "scripts/day.mjs",
+        "src/DayPage.tsx",
+        "src/components/ParentTaskGuide.css",
+        "src/lib/reviewPresentation.ts"
+      ],
       "parent": "module.reviews",
       "uses": [
         "module.reviews.card-generation-policy",
@@ -3867,6 +4809,18 @@
       "id": "module.reviews.special-course-card-overlay",
       "status": "accepted",
       "implementation": "partial",
+      "created": "2026-10-13",
+      "updated": "2026-10-16",
+      "consumers": [
+        "student",
+        "parent",
+        "review operator",
+        "submission publisher"
+      ],
+      "code": [
+        "day/card-policy.mjs",
+        "scripts/day.mjs"
+      ],
       "parent": "module.reviews",
       "uses": [
         "module.reviews.card-generation-policy"
@@ -3878,6 +4832,23 @@
       "id": "module.reviews.subject-aware-guidance",
       "status": "accepted",
       "implementation": "partial",
+      "created": "2026-10-13",
+      "updated": "2026-10-16",
+      "consumers": [
+        "student",
+        "parent",
+        "review operator",
+        "submission publisher"
+      ],
+      "code": [
+        "day/public-projection.mjs",
+        "scripts/day.mjs",
+        "src/components/ParentTaskGuide.css",
+        "src/components/ProblemStatement.css",
+        "src/components/TaskGuidance.tsx",
+        "src/lib/dayGuidance.ts",
+        "src/lib/dayStore.ts"
+      ],
       "parent": "module.reviews",
       "uses": [
         "module.reviews.review-criteria-provenance",
@@ -3899,6 +4870,18 @@
       "id": "module.reviews.subject-card-viewmodel",
       "status": "accepted",
       "implementation": "partial",
+      "created": "2026-10-13",
+      "updated": "2026-10-16",
+      "consumers": [
+        "student",
+        "parent",
+        "review operator",
+        "submission publisher"
+      ],
+      "code": [
+        "src/lib/quizCardViewModel.ts",
+        "src/lib/watchQuizOutcome.ts"
+      ],
       "parent": "module.reviews",
       "uses": [
         "module.reviews.card-generation-policy"
@@ -3915,13 +4898,31 @@
       "id": "module.school-diary",
       "status": "accepted",
       "implementation": "partial",
+      "created": "2026-10-08",
+      "consumers": [
+        "parent",
+        "student",
+        "sync operator",
+        "day dashboard frontend"
+      ],
+      "code": [
+        "packages/education-connect/bin/education-connect.mjs",
+        "packages/education-connect/lib/envelope.mjs",
+        "packages/education-connect/lib/handoff-store.mjs",
+        "packages/education-connect/lib/mesh.mjs",
+        "packages/education-connect/lib/network-retry.mjs",
+        "packages/education-connect/lib/prompts.mjs",
+        "scripts/connect.mjs",
+        "scripts/day.mjs",
+        "src/components/ConnectionInvite.tsx"
+      ],
       "parent": "product.education",
       "uses": [
         "module.families",
         "module.synchronization"
       ],
       "type": "architecture-proposal",
-      "updated": "2026-10-08",
+      "updated": "2026-10-16",
       "related": [
         "../../../README.md",
         "../../product/README.md"
@@ -3945,6 +4946,39 @@
       "id": "module.school-diary.dashboard",
       "status": "accepted",
       "implementation": "partial",
+      "created": "2026-10-08",
+      "updated": "2026-10-16",
+      "consumers": [
+        "parent",
+        "student",
+        "sync operator",
+        "day dashboard frontend"
+      ],
+      "code": [
+        "day/build.mjs",
+        "day/dashboard-index.mjs",
+        "day/homework-reference.mjs",
+        "day/subject-identity.mjs",
+        "scripts/day.mjs",
+        "src/DayDashboard.css",
+        "src/DayDashboard.tsx",
+        "src/DayPage.tsx",
+        "src/components/HomeworkOverview.tsx",
+        "src/lib/dayDashboardLessonCache.ts",
+        "src/lib/dayDashboardStore.ts",
+        "src/lib/dayDashboardViewCache.ts",
+        "src/lib/homeworkStatus.ts",
+        "src/lib/homeworkUpdateReceipt.ts",
+        "src/lib/inboxCache.ts",
+        "src/lib/parentFocusDay.ts",
+        "src/lib/quizCardViewModel.ts",
+        "src/lib/uiKitExamples.ts",
+        "src/lib/useDashboardDayWork.ts",
+        "src/lib/useDayQuizOutcomes.ts",
+        "src/lib/useDelayedRefresh.ts",
+        "src/lib/useParentChildOverview.ts",
+        "sync/publication-audit.mjs"
+      ],
       "parent": "module.school-diary",
       "uses": [
         "module.school-diary.day-page",
@@ -3970,6 +5004,36 @@
       "id": "module.school-diary.day-page",
       "status": "accepted",
       "implementation": "partial",
+      "created": "2026-10-08",
+      "updated": "2026-10-16",
+      "consumers": [
+        "parent",
+        "student",
+        "sync operator",
+        "day dashboard frontend"
+      ],
+      "code": [
+        "day/assignment-structure.mjs",
+        "scripts/day.mjs",
+        "src/App.tsx",
+        "src/DayPage.css",
+        "src/DayPage.tsx",
+        "src/WeekendMathSlot.tsx",
+        "src/components/ArtifactAvatar.tsx",
+        "src/components/ParentTaskGuide.tsx",
+        "src/components/PhotoUploadControl.tsx",
+        "src/components/ProblemGroup.tsx",
+        "src/components/WorkReview.tsx",
+        "src/lib/assignmentPresentation.ts",
+        "src/lib/dayStore.ts",
+        "src/lib/guideReadPolicy.ts",
+        "src/lib/parentCompletion.ts",
+        "src/lib/photoUploadPolicy.ts",
+        "src/lib/problemGroupSummary.ts",
+        "src/lib/quizCardViewModel.ts",
+        "src/lib/reviewPresentation.ts",
+        "src/lib/useParentCompletions.ts"
+      ],
       "parent": "module.school-diary",
       "uses": [
         "module.school-diary.dashboard",
@@ -3996,6 +5060,25 @@
       "id": "module.school-diary.grades",
       "status": "accepted",
       "implementation": "partial",
+      "created": "2026-10-08",
+      "updated": "2026-10-16",
+      "consumers": [
+        "parent",
+        "student",
+        "sync operator",
+        "day dashboard frontend"
+      ],
+      "code": [
+        "day/grade-publication.mjs",
+        "day/grade-reconciliation.mjs",
+        "day/grade-snapshot.mjs",
+        "scripts/day.mjs",
+        "scripts/grade-snapshot.mjs",
+        "src/DayDashboard.css",
+        "src/DayDashboard.tsx",
+        "src/DayPage.css",
+        "src/DayPage.tsx"
+      ],
       "parent": "module.school-diary",
       "uses": [
         "module.school-diary.day-page",
@@ -4022,12 +5105,35 @@
         "код-и-данные",
         "спецификации"
       ],
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "Education sync operator",
+        "sync-project CLI",
+        "Firestore publisher"
+      ],
+      "code": [
+        "scripts/sync-project.mjs"
+      ],
       "path": "docs/modules/synchronization/README.md"
     },
     {
       "id": "module.synchronization.backend-driven-ui",
       "status": "accepted",
       "implementation": "partial",
+      "created": "2026-10-08",
+      "updated": "2026-10-16",
+      "consumers": [
+        "Education sync operator",
+        "sync-project CLI",
+        "Firestore publisher"
+      ],
+      "code": [
+        "src/components/EducationScreen.tsx",
+        "src/lib/educationSchema.ts",
+        "src/lib/educationStore.ts",
+        "src/lib/useDayEvidence.ts"
+      ],
       "parent": "module.synchronization",
       "uses": [],
       "sections": [
@@ -4045,6 +5151,16 @@
       "id": "module.synchronization.change-detection-and-reconciliation",
       "status": "accepted",
       "implementation": "partial",
+      "created": "2026-10-11",
+      "updated": "2026-10-16",
+      "consumers": [
+        "Education sync operator",
+        "sync-project CLI",
+        "Firestore publisher"
+      ],
+      "code": [
+        "scripts/submissions.mjs"
+      ],
       "parent": "module.synchronization",
       "uses": [
         "module.synchronization.plan-generation"
@@ -4062,6 +5178,18 @@
       "id": "module.synchronization.education-pipeline",
       "status": "accepted",
       "implementation": "partial",
+      "created": "2026-10-11",
+      "updated": "2026-10-16",
+      "consumers": [
+        "Education sync operator",
+        "sync-project CLI",
+        "Firestore publisher"
+      ],
+      "code": [
+        "scripts/install-upload-worker.mjs",
+        "scripts/sync-books.mjs",
+        "scripts/sync-inbox.mjs"
+      ],
       "parent": "module.synchronization",
       "uses": [
         "module.synchronization.plan-generation",
@@ -4077,6 +5205,16 @@
       "id": "module.synchronization.firestore-read-paths",
       "status": "accepted",
       "implementation": "partial",
+      "created": "2026-10-13",
+      "updated": "2026-10-16",
+      "consumers": [
+        "Education sync operator",
+        "sync-project CLI",
+        "Firestore publisher"
+      ],
+      "code": [
+        "scripts/firestore-read-index.mjs"
+      ],
       "parent": "module.synchronization",
       "uses": [],
       "sections": [
@@ -4092,6 +5230,25 @@
       "id": "module.synchronization.global-sync",
       "status": "accepted",
       "implementation": "partial",
+      "created": "2026-10-13",
+      "updated": "2026-10-16",
+      "consumers": [
+        "Education sync operator",
+        "sync-project CLI",
+        "Firestore publisher"
+      ],
+      "code": [
+        "packages/education-connect/lib/network-retry.mjs",
+        "scripts/sync-project.mjs",
+        "scripts/sync-queue.mjs",
+        "src/DayPage.tsx",
+        "src/components/ParentHome.tsx",
+        "sync/day-source-revision.mjs",
+        "sync/job-queue.mjs",
+        "sync/project-plan.mjs",
+        "sync/publication-audit.mjs",
+        "sync/run-context.mjs"
+      ],
       "parent": "module.synchronization",
       "uses": [
         "module.synchronization.shared-artifact-pipeline",
@@ -4110,6 +5267,20 @@
       "id": "module.synchronization.plan-generation",
       "status": "accepted",
       "implementation": "partial",
+      "created": "2026-10-09",
+      "updated": "2026-10-16",
+      "consumers": [
+        "Education sync operator",
+        "sync-project CLI",
+        "Firestore publisher"
+      ],
+      "code": [
+        "day/build.mjs",
+        "day/homework-kind.mjs",
+        "day/pipeline-contract.mjs",
+        "scripts/day.mjs",
+        "src/lib/dayStore.ts"
+      ],
       "parent": "module.synchronization",
       "uses": [
         "module.synchronization.education-pipeline"
@@ -4128,6 +5299,16 @@
       "id": "module.synchronization.shared-artifact-pipeline",
       "status": "accepted",
       "implementation": "partial",
+      "created": "2026-10-13",
+      "updated": "2026-10-16",
+      "consumers": [
+        "Education sync operator",
+        "sync-project CLI",
+        "Firestore publisher"
+      ],
+      "code": [
+        "sync/artifact-capture.mjs"
+      ],
       "parent": "module.synchronization",
       "uses": [
         "module.synchronization.global-sync"
@@ -4152,6 +5333,16 @@
         "service.telegram-bot"
       ],
       "sections": [],
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "Education operator",
+        "developer",
+        "release operator"
+      ],
+      "code": [
+        "scripts/education.mjs"
+      ],
       "path": "docs/operations/README.md"
     },
     {
@@ -4166,6 +5357,17 @@
         "product.pwa"
       ],
       "sections": [],
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "release operator",
+        "upload worker operator",
+        "web-app users"
+      ],
+      "code": [
+        "scripts/build-site.mjs",
+        "scripts/install-upload-worker.mjs"
+      ],
       "path": "docs/operations/deployment.md"
     },
     {
@@ -4179,6 +5381,16 @@
         "module.synchronization.education-pipeline"
       ],
       "sections": [],
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "Education sync operator",
+        "sync-project CLI",
+        "family data publishers"
+      ],
+      "code": [
+        "scripts/sync-project.mjs"
+      ],
       "path": "docs/operations/education-sync.md"
     },
     {
@@ -4191,6 +5403,16 @@
         "shared.specification-system"
       ],
       "sections": [],
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "Education operator",
+        "developer",
+        "release operator"
+      ],
+      "code": [
+        "vite.config.ts"
+      ],
       "path": "docs/operations/local-development.md"
     },
     {
@@ -4204,12 +5426,39 @@
         "module.synchronization.change-detection-and-reconciliation"
       ],
       "sections": [],
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "sync operator",
+        "upload worker operator",
+        "review operator"
+      ],
+      "code": [
+        "operator/run-operation.mjs",
+        "sync/publication-audit.mjs"
+      ],
       "path": "docs/operations/recovery.md"
     },
     {
       "id": "plans.local-first-release-plan-2026-10-12",
       "status": "accepted",
       "implementation": "partial",
+      "created": "2026-10-13",
+      "updated": "2026-10-16",
+      "consumers": [
+        "Education operator",
+        "developer",
+        "release operator"
+      ],
+      "code": [
+        "scripts/backfill-book-manifests.mjs",
+        "src/components/FamilyAccessCards.tsx",
+        "src/components/ParentHome.tsx",
+        "src/lib/personalAccess.ts",
+        "src/lib/requestSingleFlight.ts",
+        "src/lib/useParentChildOverview.ts",
+        "sync/help-request-cache.mjs"
+      ],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -4231,6 +5480,16 @@
       "sections": [
         "подтверждённый-сценарий",
         "контракты-и-реализация"
+      ],
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "parent",
+        "student",
+        "Education operator"
+      ],
+      "code": [
+        "src/lib/quiz.ts"
       ],
       "path": "docs/product/assessments.md"
     },
@@ -4263,6 +5522,17 @@
         "сервисы-и-общие-контракты",
         "предыдущий-полный-индекс-и-таблица-состояния"
       ],
+      "created": "2026-10-08",
+      "updated": "2026-10-16",
+      "consumers": [
+        "parent",
+        "student",
+        "web-app frontend",
+        "Education operator"
+      ],
+      "code": [
+        "src/App.tsx"
+      ],
       "path": "docs/product/README.md"
     },
     {
@@ -4276,6 +5546,17 @@
       "sections": [
         "подтверждённый-сценарий",
         "контракты-и-реализация"
+      ],
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "parent",
+        "student",
+        "Education operator"
+      ],
+      "code": [
+        "scripts/family.mjs",
+        "scripts/access-management.mjs"
       ],
       "path": "docs/product/families.md"
     },
@@ -4291,6 +5572,16 @@
         "подтверждённый-сценарий",
         "контракты-и-реализация"
       ],
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "parent",
+        "student",
+        "Education operator"
+      ],
+      "code": [
+        "scripts/submissions.mjs"
+      ],
       "path": "docs/product/homework-review.md"
     },
     {
@@ -4305,12 +5596,32 @@
         "подтверждённый-сценарий",
         "контракты-и-реализация"
       ],
+      "created": "2026-10-08",
+      "updated": "2026-10-16",
+      "consumers": [
+        "parent",
+        "student",
+        "Education operator"
+      ],
+      "code": [
+        "scripts/direct-upload-worker.mjs",
+        "day/build.mjs"
+      ],
       "path": "docs/product/materials.md"
     },
     {
       "id": "product.notifications",
       "status": "draft",
-      "implementation": "planned",
+      "implementation": "partial",
+      "created": "2026-10-16",
+      "consumers": [
+        "parent",
+        "student",
+        "Education operator"
+      ],
+      "code": [
+        "scripts/telegram-bot.mjs"
+      ],
       "parent": "product.education",
       "uses": [
         "module.notifications.inbox",
@@ -4337,6 +5648,20 @@
       "id": "product.pwa",
       "status": "accepted",
       "implementation": "partial",
+      "created": "2026-10-08",
+      "updated": "2026-10-16",
+      "consumers": [
+        "parent",
+        "student",
+        "Education operator"
+      ],
+      "code": [
+        "scripts/build-inputs.mjs",
+        "src/components/PwaControls.css",
+        "src/components/PwaControls.tsx",
+        "src/lib/personalAccess.ts",
+        "src/lib/pwa.ts"
+      ],
       "parent": "product.education",
       "uses": [
         "product.education"
@@ -4362,12 +5687,33 @@
         "подтверждённый-сценарий",
         "контракты-и-реализация"
       ],
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "parent",
+        "student",
+        "Education operator"
+      ],
+      "code": [
+        "scripts/day.mjs",
+        "src/DayDashboard.tsx"
+      ],
       "path": "docs/product/school-day.md"
     },
     {
       "id": "product.ui-change-control",
       "status": "accepted",
       "implementation": "partial",
+      "created": "2026-10-14",
+      "updated": "2026-10-16",
+      "consumers": [
+        "parent",
+        "student",
+        "Education operator"
+      ],
+      "code": [
+        "scripts/check-ui-contract.mjs"
+      ],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -4382,9 +5728,16 @@
       "id": "research.adaptive-problem-critical-review",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-10",
+      "consumers": [
+        "product implementer",
+        "service implementer",
+        "Education operator"
+      ],
+      "code": [],
       "parent": "product.education",
       "type": "research-note",
-      "updated": "2026-10-10",
+      "updated": "2026-10-16",
       "related": [
         "adaptive-problem-scaffolding.md",
         "../modules/reviews/adaptive-problem-card.md",
@@ -4401,9 +5754,16 @@
       "id": "research.adaptive-problem-scaffolding",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-10",
+      "consumers": [
+        "product implementer",
+        "service implementer",
+        "Education operator"
+      ],
+      "code": [],
       "parent": "product.education",
       "type": "research-note",
-      "updated": "2026-10-10",
+      "updated": "2026-10-16",
       "related": [
         "adaptive-problem-critical-review.md",
         "../modules/synchronization/backend-driven-ui.md",
@@ -4422,6 +5782,14 @@
       "id": "research.assessment-source-catalog",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-13",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer",
+        "Education operator"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -4433,9 +5801,16 @@
       "id": "research.condition-transcript-and-scaffold",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-10",
+      "consumers": [
+        "product implementer",
+        "service implementer",
+        "Education operator"
+      ],
+      "code": [],
       "parent": "product.education",
       "type": "research-note",
-      "updated": "2026-10-10",
+      "updated": "2026-10-16",
       "related": [
         "adaptive-problem-scaffolding.md",
         "adaptive-problem-critical-review.md",
@@ -4454,6 +5829,14 @@
       "id": "research.evidence-based-homework-review",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-11",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer",
+        "Education operator"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -4466,6 +5849,14 @@
       "id": "research.feedback-after-errors",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-10",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer",
+        "Education operator"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -4479,6 +5870,14 @@
       "id": "research.firestore-read-reduction-research-2026-10-12",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-13",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer",
+        "Education operator"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -4495,6 +5894,14 @@
       "id": "research.literature-card-options",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-13",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer",
+        "Education operator"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -4509,6 +5916,14 @@
       "id": "research.parent-card-subject-options",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-13",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer",
+        "Education operator"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -4523,6 +5938,14 @@
       "id": "research.photo-math-solution-review",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-10",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer",
+        "Education operator"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -4536,6 +5959,14 @@
       "id": "research.quiz-history-and-consolidation",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer",
+        "Education operator"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -4549,6 +5980,14 @@
       "id": "research.reading-only-self-checks",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-13",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer",
+        "Education operator"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [],
@@ -4558,6 +5997,14 @@
       "id": "research.result-colour-and-density",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer",
+        "Education operator"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [
         "research.quiz-history-and-consolidation"
@@ -4573,9 +6020,16 @@
       "id": "research.special-course-source-provenance",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-11",
+      "consumers": [
+        "product implementer",
+        "service implementer",
+        "Education operator"
+      ],
+      "code": [],
       "parent": "product.education",
       "type": "research-note",
-      "updated": "2026-10-11",
+      "updated": "2026-10-16",
       "related": [
         "../modules/reviews/adaptive-problem-card.md",
         "../../src/components/ProblemStatement.tsx",
@@ -4596,6 +6050,14 @@
       "id": "research.status-design-systems",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-14",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer",
+        "Education operator"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [],
@@ -4605,6 +6067,14 @@
       "id": "research.subject-specific-review-and-feedback",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-13",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer",
+        "Education operator"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -4617,6 +6087,14 @@
       "id": "research.two-pass-written-work-review",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-15",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer",
+        "Education operator"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -4629,6 +6107,14 @@
       "id": "research.ui-kit-structure",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer",
+        "Education operator"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -4640,6 +6126,14 @@
       "id": "research.vocabulary-dictation-practice",
       "status": "reference",
       "implementation": "not-applicable",
+      "created": "2026-10-13",
+      "updated": "2026-10-16",
+      "consumers": [
+        "product implementer",
+        "service implementer",
+        "Education operator"
+      ],
+      "code": [],
       "parent": "product.education",
       "uses": [],
       "sections": [
@@ -4651,6 +6145,18 @@
       "id": "service.operator-cli",
       "status": "accepted",
       "implementation": "partial",
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "Education operator",
+        "operator CLI",
+        "service developer"
+      ],
+      "code": [
+        "scripts/education.mjs",
+        "scripts/submissions.mjs",
+        "storage/review-readback.mjs"
+      ],
       "parent": "product.education",
       "uses": [
         "module.synchronization",
@@ -4672,7 +6178,18 @@
     {
       "id": "service.telegram-bot",
       "status": "accepted",
-      "implementation": "planned",
+      "implementation": "partial",
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "Telegram service implementer",
+        "bot operator",
+        "parents and guardians"
+      ],
+      "code": [
+        "packages/telegram-notifications/adapters/runtime.mjs",
+        "scripts/telegram-bot.mjs"
+      ],
       "parent": "product.education",
       "uses": [
         "shared.toolchain",
@@ -4700,7 +6217,19 @@
     {
       "id": "service.telegram-bot.delivery",
       "status": "accepted",
-      "implementation": "planned",
+      "implementation": "partial",
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "Telegram service implementer",
+        "bot operator",
+        "parents and guardians"
+      ],
+      "code": [
+        "packages/telegram-notifications/domain/renderer.mjs",
+        "packages/telegram-notifications/application/notifications.mjs",
+        "packages/telegram-notifications/adapters/telegram.mjs"
+      ],
       "parent": "service.telegram-bot",
       "uses": [
         "service.telegram-bot",
@@ -4720,7 +6249,18 @@
     {
       "id": "service.telegram-bot.event-ledger-outbox",
       "status": "accepted",
-      "implementation": "planned",
+      "implementation": "partial",
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "Telegram service implementer",
+        "bot operator",
+        "parents and guardians"
+      ],
+      "code": [
+        "packages/telegram-notifications/application/notifications.mjs",
+        "packages/telegram-notifications/adapters/firestore.mjs"
+      ],
       "parent": "service.telegram-bot",
       "uses": [
         "service.telegram-bot",
@@ -4741,6 +6281,14 @@
       "id": "service.telegram-bot.firestore",
       "status": "accepted",
       "implementation": "planned",
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "Telegram service implementer",
+        "bot operator",
+        "parents and guardians"
+      ],
+      "code": [],
       "parent": "service.telegram-bot",
       "uses": [],
       "sections": [
@@ -4756,7 +6304,18 @@
     {
       "id": "service.telegram-bot.identity-and-linking",
       "status": "accepted",
-      "implementation": "planned",
+      "implementation": "partial",
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "Telegram service implementer",
+        "bot operator",
+        "parents and guardians"
+      ],
+      "code": [
+        "packages/telegram-notifications/application/identity.mjs",
+        "packages/telegram-notifications/adapters/telegram.mjs"
+      ],
       "parent": "service.telegram-bot",
       "uses": [
         "service.telegram-bot",
@@ -4776,6 +6335,14 @@
       "id": "service.telegram-bot.mesh",
       "status": "accepted",
       "implementation": "planned",
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "Telegram service implementer",
+        "bot operator",
+        "parents and guardians"
+      ],
+      "code": [],
       "parent": "service.telegram-bot",
       "uses": [],
       "sections": [
@@ -4790,7 +6357,20 @@
     {
       "id": "service.telegram-bot.operations",
       "status": "accepted",
-      "implementation": "planned",
+      "implementation": "partial",
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "Telegram service implementer",
+        "bot operator",
+        "parents and guardians"
+      ],
+      "code": [
+        "packages/telegram-notifications/adapters/config.mjs",
+        "packages/telegram-notifications/adapters/runtime.mjs",
+        "packages/telegram-notifications/adapters/telegram.mjs",
+        "scripts/telegram-bot.mjs"
+      ],
       "parent": "service.telegram-bot",
       "uses": [
         "service.telegram-bot"
@@ -4808,7 +6388,20 @@
     {
       "id": "service.telegram-bot.ports-and-events",
       "status": "accepted",
-      "implementation": "planned",
+      "implementation": "partial",
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "Telegram service implementer",
+        "bot operator",
+        "parents and guardians"
+      ],
+      "code": [
+        "packages/telegram-notifications/domain/events.mjs",
+        "packages/telegram-notifications/domain/diff.mjs",
+        "packages/telegram-notifications/domain/ports.mjs",
+        "packages/telegram-notifications/application/notifications.mjs"
+      ],
       "parent": "service.telegram-bot",
       "uses": [
         "service.telegram-bot"
@@ -4836,6 +6429,16 @@
         "shared.data.firestore"
       ],
       "sections": [],
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "upload worker process",
+        "Education operator",
+        "photo/book upload request producer"
+      ],
+      "code": [
+        "scripts/direct-upload-worker.mjs"
+      ],
       "path": "docs/services/upload-worker/README.md"
     },
     {
@@ -4859,12 +6462,37 @@
         "спецификации",
         "код-и-данные"
       ],
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "parent",
+        "student",
+        "web-app frontend",
+        "frontend developer"
+      ],
+      "code": [
+        "src/App.tsx"
+      ],
       "path": "docs/services/web-app/README.md"
     },
     {
       "id": "service.web-app.local-first-sync",
       "status": "accepted",
       "implementation": "partial",
+      "created": "2026-10-13",
+      "updated": "2026-10-16",
+      "consumers": [
+        "parent",
+        "student",
+        "web-app frontend",
+        "frontend developer"
+      ],
+      "code": [
+        "scripts/direct-upload-worker.mjs",
+        "scripts/ensure-book-upload-index.mjs",
+        "src/lib/localFirstPilot.ts",
+        "src/lib/quizLocalStore.ts"
+      ],
       "parent": "service.web-app",
       "uses": [
         "service.web-app.local-first-verification"
@@ -4883,6 +6511,17 @@
       "id": "service.web-app.local-first-verification",
       "status": "accepted",
       "implementation": "partial",
+      "created": "2026-10-13",
+      "updated": "2026-10-16",
+      "consumers": [
+        "parent",
+        "student",
+        "web-app frontend",
+        "frontend developer"
+      ],
+      "code": [
+        "src/lib/localFirstPilot.ts"
+      ],
       "parent": "service.web-app",
       "uses": [
         "service.web-app.local-first-sync"
@@ -4906,6 +6545,17 @@
         "module.materials.storage-privacy"
       ],
       "sections": [],
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "parent",
+        "student",
+        "web-app access flow",
+        "server/operator process"
+      ],
+      "code": [
+        "src/lib/personalAccess.ts"
+      ],
       "path": "docs/shared/access-and-privacy.md"
     },
     {
@@ -4924,12 +6574,39 @@
       "sections": [
         "data-contracts"
       ],
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "Firestore publisher",
+        "web-app data readers",
+        "sync operator",
+        "schema implementer"
+      ],
+      "code": [
+        "day/data-contract.mjs"
+      ],
       "path": "docs/shared/data/README.md"
     },
     {
       "id": "shared.data.firestore",
       "status": "accepted",
       "implementation": "partial",
+      "created": "2026-10-13",
+      "updated": "2026-10-16",
+      "consumers": [
+        "Firestore publisher",
+        "web-app data readers",
+        "sync operator",
+        "schema implementer"
+      ],
+      "code": [
+        "day/data-contract.mjs",
+        "day/material-access.mjs",
+        "day/owner-repair.mjs",
+        "day/placement-repair.mjs",
+        "scripts/day.mjs",
+        "src/components/DataCompatibilityNotice.css"
+      ],
       "parent": "shared.data",
       "uses": [],
       "sections": [
@@ -4947,6 +6624,18 @@
       "id": "shared.data.revisions",
       "status": "accepted",
       "implementation": "partial",
+      "created": "2026-10-13",
+      "updated": "2026-10-16",
+      "consumers": [
+        "Firestore publisher",
+        "web-app data readers",
+        "sync operator",
+        "schema implementer"
+      ],
+      "code": [
+        "src/components/FamilyLibrary.tsx",
+        "src/lib/materialPageCache.ts"
+      ],
       "parent": "shared.data",
       "uses": [
         "shared.data.firestore"
@@ -4965,6 +6654,50 @@
       "id": "shared.design",
       "status": "accepted",
       "implementation": "partial",
+      "created": "2026-10-11",
+      "updated": "2026-10-16",
+      "consumers": [
+        "React UI components",
+        "frontend developer",
+        "screen author / Education agent"
+      ],
+      "code": [
+        "scripts/check-material-preview-viewport.mjs",
+        "scripts/check-notification-viewport.mjs",
+        "scripts/check-problem-variant-viewport.mjs",
+        "scripts/check-schedule-viewport.mjs",
+        "scripts/check-source-fragment-viewport.mjs",
+        "src/App.css",
+        "src/App.tsx",
+        "src/DayDashboard.css",
+        "src/DayDashboard.tsx",
+        "src/DayPage.css",
+        "src/DayPage.tsx",
+        "src/components/ArtifactAvatar.tsx",
+        "src/components/AssignmentBrief.css",
+        "src/components/AssignmentBrief.tsx",
+        "src/components/EducationImage.css",
+        "src/components/EducationImage.tsx",
+        "src/components/FamilyAccessCards.tsx",
+        "src/components/FamilyLibrary.css",
+        "src/components/FamilyLibrary.tsx",
+        "src/components/MaterialReader.tsx",
+        "src/components/NotificationBell.css",
+        "src/components/NotificationBell.tsx",
+        "src/components/ParentHome.tsx",
+        "src/components/ParentTaskGuide.css",
+        "src/components/PersonalEntry.tsx",
+        "src/components/RequirementSwitch.css",
+        "src/components/RequirementSwitch.tsx",
+        "src/components/SourceFragment.css",
+        "src/components/SourceFragment.tsx",
+        "src/components/ui/badge.tsx",
+        "src/components/ui/button.tsx",
+        "src/components/ui/card.tsx",
+        "src/education-design-tokens.css",
+        "src/lib/uiErrors.ts",
+        "src/lib/useDashboardDayWork.ts"
+      ],
       "parent": "product.education",
       "uses": [
         "shared.design.components",
@@ -4989,6 +6722,18 @@
       "id": "shared.design.components",
       "status": "accepted",
       "implementation": "partial",
+      "created": "2026-10-13",
+      "updated": "2026-10-16",
+      "consumers": [
+        "React UI components",
+        "frontend developer",
+        "screen author / Education agent"
+      ],
+      "code": [
+        "scripts/check-spec-map.mjs",
+        "src/components/ArtifactAvatar.tsx",
+        "src/components/ProblemCard.tsx"
+      ],
       "parent": "shared.design",
       "uses": [
         "shared.design",
@@ -5008,6 +6753,41 @@
       "id": "shared.design.statuses",
       "status": "accepted",
       "implementation": "partial",
+      "created": "2026-10-14",
+      "updated": "2026-10-16",
+      "consumers": [
+        "React UI components",
+        "frontend developer",
+        "screen author / Education agent"
+      ],
+      "code": [
+        "scripts/check-problem-variant-viewport.mjs",
+        "scripts/check-schedule-viewport.mjs",
+        "src/App.css",
+        "src/DayDashboard.css",
+        "src/DayPage.css",
+        "src/DayPage.tsx",
+        "src/components/ArtifactAvatar.css",
+        "src/components/ArtifactAvatar.tsx",
+        "src/components/ConnectionInvite.tsx",
+        "src/components/EducationImage.css",
+        "src/components/FamilyAccessCards.tsx",
+        "src/components/FamilyLibrary.css",
+        "src/components/FamilyLibrary.tsx",
+        "src/components/ParentHome.css",
+        "src/components/ParentHome.tsx",
+        "src/components/ParentTaskGuide.css",
+        "src/components/ParentTaskGuide.tsx",
+        "src/components/ProblemCard.css",
+        "src/components/ProblemCard.tsx",
+        "src/components/ProblemGroup.css",
+        "src/components/ProblemGroup.tsx",
+        "src/components/QuizResultCard.tsx",
+        "src/components/StatusIcon.css",
+        "src/components/StatusIcon.tsx",
+        "src/components/WorkReview.tsx",
+        "src/lib/reviewPresentation.ts"
+      ],
       "parent": "shared.design",
       "uses": [
         "shared.design.ui-kit"
@@ -5026,6 +6806,18 @@
       "id": "shared.design.ui-kit",
       "status": "accepted",
       "implementation": "partial",
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "React UI components",
+        "frontend developer",
+        "screen author / Education agent"
+      ],
+      "code": [
+        "src/UiKit.css",
+        "src/UiKit.tsx",
+        "src/lib/uiKitExamples.ts"
+      ],
       "parent": "shared.design",
       "uses": [
         "shared.design"
@@ -5051,14 +6843,37 @@
         "service.upload-worker"
       ],
       "sections": [],
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "student photo uploader",
+        "parent library uploader",
+        "upload worker",
+        "storage operator"
+      ],
+      "code": [
+        "storage/direct-upload.mjs",
+        "scripts/direct-upload-worker.mjs"
+      ],
       "path": "docs/shared/media-storage.md"
     },
     {
       "id": "shared.specification-system",
       "status": "accepted",
       "implementation": "implemented",
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
       "parent": "product.education",
       "uses": [],
+      "consumers": [
+        "Education agent",
+        "developer",
+        "documentation checks"
+      ],
+      "code": [
+        "scripts/spec-graph.mjs",
+        "scripts/check-docs.mjs"
+      ],
       "sections": [
         "один-владелец-правила",
         "метаданные",
@@ -5080,6 +6895,16 @@
       "sections": [
         "действующий-запуск",
         "ограничения"
+      ],
+      "created": "2026-10-16",
+      "updated": "2026-10-16",
+      "consumers": [
+        "frontend developer",
+        "repository maintainer",
+        "operator"
+      ],
+      "code": [
+        "vite.config.ts"
       ],
       "path": "docs/shared/toolchain.md"
     }
@@ -5141,6 +6966,11 @@
       "type": "uses"
     },
     {
+      "from": "audits.specification-lifecycle-2026-10-16",
+      "to": "shared.specification-system",
+      "type": "uses"
+    },
+    {
       "from": "decision.documentation-precommit",
       "to": "shared.specification-system",
       "type": "uses"
@@ -5148,6 +6978,41 @@
     {
       "from": "decision.specification-graph-migration",
       "to": "shared.specification-system",
+      "type": "uses"
+    },
+    {
+      "from": "decision.specification-lifecycle",
+      "to": "shared.specification-system",
+      "type": "uses"
+    },
+    {
+      "from": "decision.telegram-foundation",
+      "to": "service.telegram-bot.delivery",
+      "type": "uses"
+    },
+    {
+      "from": "decision.telegram-foundation",
+      "to": "service.telegram-bot.event-ledger-outbox",
+      "type": "uses"
+    },
+    {
+      "from": "decision.telegram-foundation",
+      "to": "service.telegram-bot.identity-and-linking",
+      "type": "uses"
+    },
+    {
+      "from": "decision.telegram-foundation",
+      "to": "service.telegram-bot.operations",
+      "type": "uses"
+    },
+    {
+      "from": "decision.telegram-foundation",
+      "to": "service.telegram-bot.ports-and-events",
+      "type": "uses"
+    },
+    {
+      "from": "decision.telegram-foundation",
+      "to": "service.telegram-bot",
       "type": "uses"
     },
     {
@@ -5206,8 +7071,18 @@
       "type": "implements"
     },
     {
+      "from": "file:assessment/decision-graph.mjs",
+      "to": "module.assessments.assessment-source-policy",
+      "type": "implements"
+    },
+    {
       "from": "file:assessment/followup-contract.mjs",
       "to": "module.assessments.assessment-decision-graph",
+      "type": "implements"
+    },
+    {
+      "from": "file:assessment/followup-contract.mjs",
+      "to": "module.assessments.quiz-chain-proposal",
       "type": "implements"
     },
     {
@@ -5218,6 +7093,11 @@
     {
       "from": "file:assessment/quiz-lineage.mjs",
       "to": "module.assessments.assessment-decision-graph",
+      "type": "implements"
+    },
+    {
+      "from": "file:assessment/quiz-lineage.mjs",
+      "to": "module.assessments.quiz-chain-proposal",
       "type": "implements"
     },
     {
@@ -5237,7 +7117,37 @@
     },
     {
       "from": "file:day/build.mjs",
+      "to": "module.assignments",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/build.mjs",
+      "to": "module.materials.material-clarification",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/build.mjs",
+      "to": "module.reviews.card-generation-policy",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/build.mjs",
+      "to": "module.reviews.math-solution-route",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/build.mjs",
+      "to": "module.school-diary.dashboard",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/build.mjs",
       "to": "module.synchronization.plan-generation",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/build.mjs",
+      "to": "product.materials",
       "type": "implements"
     },
     {
@@ -5251,13 +7161,38 @@
       "type": "implements"
     },
     {
+      "from": "file:day/card-policy.mjs",
+      "to": "module.reviews.math-solution-route",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/card-policy.mjs",
+      "to": "module.reviews.review-criteria-provenance",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/card-policy.mjs",
+      "to": "module.reviews.special-course-card-overlay",
+      "type": "implements"
+    },
+    {
       "from": "file:day/dashboard-index.mjs",
       "to": "module.school-diary.dashboard",
       "type": "implements"
     },
     {
       "from": "file:day/data-contract.mjs",
+      "to": "module.materials.material-clarification",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/data-contract.mjs",
       "to": "shared.data.firestore",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/data-contract.mjs",
+      "to": "shared.data",
       "type": "implements"
     },
     {
@@ -5292,12 +7227,27 @@
     },
     {
       "from": "file:day/homework-reference.mjs",
+      "to": "module.school-diary.dashboard",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/homework-reference.mjs",
       "to": "module.synchronization.plan-generation",
       "type": "implements"
     },
     {
       "from": "file:day/material-access.mjs",
       "to": "shared.data.firestore",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/merge.mjs",
+      "to": "module.assessments.quizzes",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/merge.mjs",
+      "to": "module.families.access-and-state",
       "type": "implements"
     },
     {
@@ -5313,6 +7263,16 @@
     {
       "from": "file:day/pipeline-contract.mjs",
       "to": "module.reviews.card-flow-certification",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/pipeline-contract.mjs",
+      "to": "module.synchronization.plan-generation",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/placement-integrity.mjs",
+      "to": "module.families.access-and-state",
       "type": "implements"
     },
     {
@@ -5386,6 +7346,11 @@
       "type": "implements"
     },
     {
+      "from": "file:docs/audits/specification-lifecycle-2026-10-16.json",
+      "to": "shared.specification-system",
+      "type": "implements"
+    },
+    {
       "from": "file:docs/audits/specification-migration-preservation-2026-10-16.json",
       "to": "shared.specification-system",
       "type": "implements"
@@ -5402,6 +7367,11 @@
     },
     {
       "from": "file:docs/generated/graph.mmd",
+      "to": "shared.specification-system",
+      "type": "implements"
+    },
+    {
+      "from": "file:docs/generated/status.md",
       "to": "shared.specification-system",
       "type": "implements"
     },
@@ -5457,6 +7427,11 @@
     },
     {
       "from": "file:operator/run-operation.mjs",
+      "to": "operations.recovery",
+      "type": "implements"
+    },
+    {
+      "from": "file:operator/run-operation.mjs",
       "to": "service.operator-cli",
       "type": "implements"
     },
@@ -5487,6 +7462,16 @@
     },
     {
       "from": "file:packages/education-connect/lib/mesh.mjs",
+      "to": "audits.education-sync-latency-audit-2026-10-15",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-connect/lib/mesh.mjs",
+      "to": "module.school-diary",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-connect/lib/network-retry.mjs",
       "to": "module.school-diary",
       "type": "implements"
     },
@@ -5508,6 +7493,96 @@
     {
       "from": "file:packages/education-connect/README.md",
       "to": "module.school-diary",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/adapters/config.mjs",
+      "to": "service.telegram-bot.operations",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/adapters/firestore.mjs",
+      "to": "service.telegram-bot.event-ledger-outbox",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/adapters/memory.mjs",
+      "to": "service.telegram-bot.event-ledger-outbox",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/adapters/runtime.mjs",
+      "to": "service.telegram-bot.operations",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/adapters/runtime.mjs",
+      "to": "service.telegram-bot",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/adapters/telegram.mjs",
+      "to": "service.telegram-bot.delivery",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/adapters/telegram.mjs",
+      "to": "service.telegram-bot.identity-and-linking",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/adapters/telegram.mjs",
+      "to": "service.telegram-bot.operations",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/adapters/worker-loop.mjs",
+      "to": "service.telegram-bot.operations",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/application/identity.mjs",
+      "to": "service.telegram-bot.identity-and-linking",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/application/notifications.mjs",
+      "to": "service.telegram-bot.delivery",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/application/notifications.mjs",
+      "to": "service.telegram-bot.event-ledger-outbox",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/application/notifications.mjs",
+      "to": "service.telegram-bot.ports-and-events",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/domain/diff.mjs",
+      "to": "service.telegram-bot.ports-and-events",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/domain/events.mjs",
+      "to": "service.telegram-bot.ports-and-events",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/domain/ports.mjs",
+      "to": "service.telegram-bot.ports-and-events",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/domain/renderer.mjs",
+      "to": "service.telegram-bot.delivery",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/firestore.indexes.json",
+      "to": "service.telegram-bot.operations",
       "type": "implements"
     },
     {
@@ -5551,6 +7626,11 @@
       "type": "implements"
     },
     {
+      "from": "file:scripts/access-management.mjs",
+      "to": "product.families",
+      "type": "implements"
+    },
+    {
       "from": "file:scripts/archive-local.mjs",
       "to": "module.materials.storage-privacy",
       "type": "implements"
@@ -5566,8 +7646,18 @@
       "type": "implements"
     },
     {
+      "from": "file:scripts/backfill-book-manifests.mjs",
+      "to": "plans.local-first-release-plan-2026-10-12",
+      "type": "implements"
+    },
+    {
       "from": "file:scripts/build-inputs.mjs",
       "to": "product.pwa",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/build-site.mjs",
+      "to": "operations.deployment",
       "type": "implements"
     },
     {
@@ -5586,6 +7676,11 @@
       "type": "implements"
     },
     {
+      "from": "file:scripts/check-material-preview-viewport.mjs",
+      "to": "shared.design",
+      "type": "implements"
+    },
+    {
       "from": "file:scripts/check-notification-viewport.mjs",
       "to": "shared.design",
       "type": "implements"
@@ -5597,12 +7692,32 @@
     },
     {
       "from": "file:scripts/check-problem-variant-viewport.mjs",
+      "to": "module.reviews.problem-card-design-decisions",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/check-problem-variant-viewport.mjs",
+      "to": "shared.design.statuses",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/check-problem-variant-viewport.mjs",
       "to": "shared.design",
       "type": "implements"
     },
     {
       "from": "file:scripts/check-quiz-switch-viewport.mjs",
+      "to": "module.assessments.quizzes",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/check-quiz-switch-viewport.mjs",
       "to": "shared.design",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/check-schedule-viewport.mjs",
+      "to": "shared.design.statuses",
       "type": "implements"
     },
     {
@@ -5613,6 +7728,11 @@
     {
       "from": "file:scripts/check-source-fragment-viewport.mjs",
       "to": "shared.design",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/check-spec-map.mjs",
+      "to": "shared.design.components",
       "type": "implements"
     },
     {
@@ -5636,8 +7756,123 @@
       "type": "implements"
     },
     {
+      "from": "file:scripts/day.mjs",
+      "to": "module.families.access-and-state",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/day.mjs",
+      "to": "module.materials.family-library",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/day.mjs",
+      "to": "module.materials.material-clarification",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/day.mjs",
+      "to": "module.materials.materials",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/day.mjs",
+      "to": "module.materials.storage-privacy",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/day.mjs",
+      "to": "module.notifications.inbox",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/day.mjs",
+      "to": "module.reviews.adaptive-problem-card",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/day.mjs",
+      "to": "module.reviews.card-flow-certification",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/day.mjs",
+      "to": "module.reviews.russian-language-route",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/day.mjs",
+      "to": "module.reviews.special-course-card-overlay",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/day.mjs",
+      "to": "module.reviews.subject-aware-guidance",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/day.mjs",
+      "to": "module.school-diary.dashboard",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/day.mjs",
+      "to": "module.school-diary.day-page",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/day.mjs",
+      "to": "module.school-diary.grades",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/day.mjs",
+      "to": "module.school-diary",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/day.mjs",
+      "to": "module.synchronization.plan-generation",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/day.mjs",
+      "to": "product.school-day",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/day.mjs",
+      "to": "shared.data.firestore",
+      "type": "implements"
+    },
+    {
       "from": "file:scripts/direct-upload-worker.mjs",
       "to": "module.materials.family-library",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/direct-upload-worker.mjs",
+      "to": "product.materials",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/direct-upload-worker.mjs",
+      "to": "service.upload-worker",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/direct-upload-worker.mjs",
+      "to": "service.web-app.local-first-sync",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/direct-upload-worker.mjs",
+      "to": "shared.media-storage",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/education.mjs",
+      "to": "operations",
       "type": "implements"
     },
     {
@@ -5661,13 +7896,33 @@
       "type": "implements"
     },
     {
+      "from": "file:scripts/family.mjs",
+      "to": "module.materials.storage-privacy",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/family.mjs",
+      "to": "product.families",
+      "type": "implements"
+    },
+    {
       "from": "file:scripts/firestore-read-index.mjs",
       "to": "module.synchronization.firestore-read-paths",
       "type": "implements"
     },
     {
       "from": "file:scripts/firestore-usage-window.mjs",
+      "to": "audits.firestore-usage-2026-10-12",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/firestore-usage-window.mjs",
       "to": "module.synchronization.firestore-read-paths",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/firestore-usage.mjs",
+      "to": "audits.firestore-usage-2026-10-12",
       "type": "implements"
     },
     {
@@ -5688,6 +7943,16 @@
     {
       "from": "file:scripts/install-upload-worker.mjs",
       "to": "module.materials.storage-privacy",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/install-upload-worker.mjs",
+      "to": "module.synchronization.education-pipeline",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/install-upload-worker.mjs",
+      "to": "operations.deployment",
       "type": "implements"
     },
     {
@@ -5741,8 +8006,58 @@
       "type": "implements"
     },
     {
+      "from": "file:scripts/storage.mjs",
+      "to": "module.materials.materials",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/storage.mjs",
+      "to": "module.materials.storage-privacy",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/submissions.mjs",
+      "to": "module.materials.material-clarification",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/submissions.mjs",
+      "to": "module.materials.storage-privacy",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/submissions.mjs",
+      "to": "module.notifications.inbox",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/submissions.mjs",
+      "to": "module.reviews.adaptive-problem-card",
+      "type": "implements"
+    },
+    {
       "from": "file:scripts/submissions.mjs",
       "to": "module.reviews.review-criteria-provenance",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/submissions.mjs",
+      "to": "module.reviews",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/submissions.mjs",
+      "to": "module.synchronization.change-detection-and-reconciliation",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/submissions.mjs",
+      "to": "product.homework-review",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/submissions.mjs",
+      "to": "service.operator-cli",
       "type": "implements"
     },
     {
@@ -5752,7 +8067,17 @@
     },
     {
       "from": "file:scripts/sync-inbox.mjs",
+      "to": "module.materials.family-library",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/sync-inbox.mjs",
       "to": "module.synchronization.education-pipeline",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/sync-project.mjs",
+      "to": "audits.education-sync-latency-audit-2026-10-15",
       "type": "implements"
     },
     {
@@ -5761,8 +8086,43 @@
       "type": "implements"
     },
     {
+      "from": "file:scripts/sync-project.mjs",
+      "to": "module.synchronization",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/sync-project.mjs",
+      "to": "operations.education-sync",
+      "type": "implements"
+    },
+    {
       "from": "file:scripts/sync-queue.mjs",
       "to": "module.assessments.assessment-decision-graph",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/sync-queue.mjs",
+      "to": "module.materials.material-clarification",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/sync-queue.mjs",
+      "to": "module.synchronization.global-sync",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/telegram-bot.mjs",
+      "to": "product.notifications",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/telegram-bot.mjs",
+      "to": "service.telegram-bot.operations",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/telegram-bot.mjs",
+      "to": "service.telegram-bot",
       "type": "implements"
     },
     {
@@ -5772,7 +8132,22 @@
     },
     {
       "from": "file:src/App.css",
+      "to": "module.assessments.result-presentation-proposal",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/App.css",
+      "to": "shared.design.statuses",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/App.css",
       "to": "shared.design",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/App.tsx",
+      "to": "module.assessments.quizzes",
       "type": "implements"
     },
     {
@@ -5781,7 +8156,37 @@
       "type": "implements"
     },
     {
+      "from": "file:src/App.tsx",
+      "to": "module.school-diary.day-page",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/App.tsx",
+      "to": "product.education",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/App.tsx",
+      "to": "service.web-app",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/App.tsx",
+      "to": "shared.design",
+      "type": "implements"
+    },
+    {
       "from": "file:src/components/ArtifactAvatar.css",
+      "to": "module.school-diary.day-page",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ArtifactAvatar.css",
+      "to": "shared.design.statuses",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ArtifactAvatar.tsx",
       "to": "module.school-diary.day-page",
       "type": "implements"
     },
@@ -5791,13 +8196,43 @@
       "type": "implements"
     },
     {
+      "from": "file:src/components/ArtifactAvatar.tsx",
+      "to": "shared.design.statuses",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ArtifactAvatar.tsx",
+      "to": "shared.design",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/AssignmentBrief.css",
+      "to": "module.reviews.problem-card-design-decisions",
+      "type": "implements"
+    },
+    {
       "from": "file:src/components/AssignmentBrief.css",
       "to": "shared.design",
       "type": "implements"
     },
     {
       "from": "file:src/components/AssignmentBrief.tsx",
+      "to": "module.reviews.card-generation-policy",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/AssignmentBrief.tsx",
+      "to": "module.reviews.problem-card-design-decisions",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/AssignmentBrief.tsx",
       "to": "module.reviews.subject-card-viewmodel",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/AssignmentBrief.tsx",
+      "to": "shared.design",
       "type": "implements"
     },
     {
@@ -5811,13 +8246,33 @@
       "type": "implements"
     },
     {
+      "from": "file:src/components/ConnectionInvite.tsx",
+      "to": "shared.design.statuses",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/DataCompatibilityNotice.css",
+      "to": "shared.data.firestore",
+      "type": "implements"
+    },
+    {
       "from": "file:src/components/DataCompatibilityNotice.css",
       "to": "shared.design",
       "type": "implements"
     },
     {
       "from": "file:src/components/DataCompatibilityNotice.tsx",
+      "to": "module.families.access-and-state",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/DataCompatibilityNotice.tsx",
       "to": "shared.data.firestore",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/EducationImage.css",
+      "to": "shared.design.statuses",
       "type": "implements"
     },
     {
@@ -5841,6 +8296,31 @@
       "type": "implements"
     },
     {
+      "from": "file:src/components/FamilyAccessCards.tsx",
+      "to": "plans.local-first-release-plan-2026-10-12",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/FamilyAccessCards.tsx",
+      "to": "shared.design.statuses",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/FamilyAccessCards.tsx",
+      "to": "shared.design",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/FamilyLibrary.css",
+      "to": "module.materials.family-library",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/FamilyLibrary.css",
+      "to": "shared.design.statuses",
+      "type": "implements"
+    },
+    {
       "from": "file:src/components/FamilyLibrary.css",
       "to": "shared.design",
       "type": "implements"
@@ -5851,8 +8331,33 @@
       "type": "implements"
     },
     {
+      "from": "file:src/components/FamilyLibrary.tsx",
+      "to": "module.materials",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/FamilyLibrary.tsx",
+      "to": "shared.data.revisions",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/FamilyLibrary.tsx",
+      "to": "shared.design.statuses",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/FamilyLibrary.tsx",
+      "to": "shared.design",
+      "type": "implements"
+    },
+    {
       "from": "file:src/components/HomeworkOverview.tsx",
       "to": "module.school-diary.dashboard",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/MaterialReader.tsx",
+      "to": "module.materials.family-library",
       "type": "implements"
     },
     {
@@ -5861,8 +8366,18 @@
       "type": "implements"
     },
     {
+      "from": "file:src/components/MaterialReader.tsx",
+      "to": "shared.design",
+      "type": "implements"
+    },
+    {
       "from": "file:src/components/MaterialRequest.tsx",
       "to": "module.materials.material-clarification",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/NotificationBell.css",
+      "to": "module.notifications.inbox",
       "type": "implements"
     },
     {
@@ -5876,6 +8391,26 @@
       "type": "implements"
     },
     {
+      "from": "file:src/components/NotificationBell.tsx",
+      "to": "module.notifications",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/NotificationBell.tsx",
+      "to": "shared.design",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ParentHome.css",
+      "to": "module.families",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ParentHome.css",
+      "to": "shared.design.statuses",
+      "type": "implements"
+    },
+    {
       "from": "file:src/components/ParentHome.css",
       "to": "shared.design",
       "type": "implements"
@@ -5886,8 +8421,63 @@
       "type": "implements"
     },
     {
+      "from": "file:src/components/ParentHome.tsx",
+      "to": "module.synchronization.global-sync",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ParentHome.tsx",
+      "to": "plans.local-first-release-plan-2026-10-12",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ParentHome.tsx",
+      "to": "shared.design.statuses",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ParentHome.tsx",
+      "to": "shared.design",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ParentTaskGuide.css",
+      "to": "module.reviews.card-generation-policy",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ParentTaskGuide.css",
+      "to": "module.reviews.problem-card-design-decisions",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ParentTaskGuide.css",
+      "to": "module.reviews.russian-language-route",
+      "type": "implements"
+    },
+    {
       "from": "file:src/components/ParentTaskGuide.css",
       "to": "module.reviews.subject-aware-guidance",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ParentTaskGuide.css",
+      "to": "shared.design.statuses",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ParentTaskGuide.css",
+      "to": "shared.design",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ParentTaskGuide.tsx",
+      "to": "module.reviews.card-generation-policy",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ParentTaskGuide.tsx",
+      "to": "module.reviews.problem-card-design-decisions",
       "type": "implements"
     },
     {
@@ -5896,8 +8486,23 @@
       "type": "implements"
     },
     {
+      "from": "file:src/components/ParentTaskGuide.tsx",
+      "to": "module.school-diary.day-page",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ParentTaskGuide.tsx",
+      "to": "shared.design.statuses",
+      "type": "implements"
+    },
+    {
       "from": "file:src/components/PersonalEntry.tsx",
       "to": "module.families",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/PersonalEntry.tsx",
+      "to": "shared.design",
       "type": "implements"
     },
     {
@@ -5911,8 +8516,33 @@
       "type": "implements"
     },
     {
+      "from": "file:src/components/ProblemCard.css",
+      "to": "module.reviews.problem-card-design-decisions",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ProblemCard.css",
+      "to": "shared.design.statuses",
+      "type": "implements"
+    },
+    {
       "from": "file:src/components/ProblemCard.tsx",
       "to": "module.reviews.adaptive-problem-card",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ProblemCard.tsx",
+      "to": "shared.design.components",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ProblemCard.tsx",
+      "to": "shared.design.statuses",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ProblemGroup.css",
+      "to": "module.reviews.problem-card-design-decisions",
       "type": "implements"
     },
     {
@@ -5921,8 +8551,23 @@
       "type": "implements"
     },
     {
+      "from": "file:src/components/ProblemGroup.css",
+      "to": "shared.design.statuses",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ProblemGroup.tsx",
+      "to": "module.reviews.problem-card-design-decisions",
+      "type": "implements"
+    },
+    {
       "from": "file:src/components/ProblemGroup.tsx",
       "to": "module.school-diary.day-page",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ProblemGroup.tsx",
+      "to": "shared.design.statuses",
       "type": "implements"
     },
     {
@@ -5931,13 +8576,33 @@
       "type": "implements"
     },
     {
+      "from": "file:src/components/ProblemStatement.css",
+      "to": "module.reviews.problem-card-design-decisions",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ProblemStatement.css",
+      "to": "module.reviews.subject-aware-guidance",
+      "type": "implements"
+    },
+    {
       "from": "file:src/components/ProblemStatement.tsx",
       "to": "module.reviews.adaptive-problem-card",
       "type": "implements"
     },
     {
+      "from": "file:src/components/ProblemStatement.tsx",
+      "to": "module.reviews.problem-card-design-decisions",
+      "type": "implements"
+    },
+    {
       "from": "file:src/components/ProblemTaskCard.tsx",
       "to": "module.reviews.adaptive-problem-card",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ProblemTaskCard.tsx",
+      "to": "module.reviews.problem-card-design-decisions",
       "type": "implements"
     },
     {
@@ -5957,7 +8622,37 @@
     },
     {
       "from": "file:src/components/QuizCard.css",
+      "to": "module.assessments.quiz-chain-proposal",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/QuizCard.css",
+      "to": "module.assessments.quizzes",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/QuizCard.css",
+      "to": "module.assessments.result-presentation-proposal",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/QuizCard.css",
       "to": "shared.design",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/QuizCard.tsx",
+      "to": "module.assessments.quiz-chain-proposal",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/QuizCard.tsx",
+      "to": "module.assessments.quizzes",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/QuizCard.tsx",
+      "to": "module.assessments.result-presentation-proposal",
       "type": "implements"
     },
     {
@@ -5968,6 +8663,11 @@
     {
       "from": "file:src/components/QuizResultCard.tsx",
       "to": "module.assessments.quizzes",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/QuizResultCard.tsx",
+      "to": "shared.design.statuses",
       "type": "implements"
     },
     {
@@ -5991,8 +8691,28 @@
       "type": "implements"
     },
     {
+      "from": "file:src/components/SourceFragment.css",
+      "to": "module.reviews.problem-card-design-decisions",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/SourceFragment.css",
+      "to": "shared.design",
+      "type": "implements"
+    },
+    {
       "from": "file:src/components/SourceFragment.tsx",
       "to": "module.reviews.adaptive-problem-card",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/SourceFragment.tsx",
+      "to": "module.reviews.problem-card-design-decisions",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/SourceFragment.tsx",
+      "to": "shared.design",
       "type": "implements"
     },
     {
@@ -6007,12 +8727,32 @@
     },
     {
       "from": "file:src/components/SubjectTheme.tsx",
+      "to": "module.assessments.quizzes",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/SubjectTheme.tsx",
       "to": "module.school-diary.day-page",
       "type": "implements"
     },
     {
       "from": "file:src/components/TaskGuidance.css",
+      "to": "module.reviews.problem-card-design-decisions",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/TaskGuidance.css",
       "to": "shared.design",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/TaskGuidance.tsx",
+      "to": "module.reviews.problem-card-design-decisions",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/TaskGuidance.tsx",
+      "to": "module.reviews.subject-aware-guidance",
       "type": "implements"
     },
     {
@@ -6026,13 +8766,28 @@
       "type": "implements"
     },
     {
+      "from": "file:src/components/ui/badge.tsx",
+      "to": "shared.design",
+      "type": "implements"
+    },
+    {
       "from": "file:src/components/ui/button.tsx",
       "to": "module.synchronization.backend-driven-ui",
       "type": "implements"
     },
     {
+      "from": "file:src/components/ui/button.tsx",
+      "to": "shared.design",
+      "type": "implements"
+    },
+    {
       "from": "file:src/components/ui/card.tsx",
       "to": "module.synchronization.backend-driven-ui",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ui/card.tsx",
+      "to": "shared.design",
       "type": "implements"
     },
     {
@@ -6076,8 +8831,38 @@
       "type": "implements"
     },
     {
+      "from": "file:src/components/WorkReview.tsx",
+      "to": "module.school-diary.day-page",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/WorkReview.tsx",
+      "to": "shared.design.statuses",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayDashboard.css",
+      "to": "module.school-diary.dashboard",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayDashboard.css",
+      "to": "module.school-diary.grades",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayDashboard.css",
+      "to": "shared.design.statuses",
+      "type": "implements"
+    },
+    {
       "from": "file:src/DayDashboard.css",
       "to": "shared.design",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayDashboard.tsx",
+      "to": "module.materials.material-clarification",
       "type": "implements"
     },
     {
@@ -6086,13 +8871,118 @@
       "type": "implements"
     },
     {
+      "from": "file:src/DayDashboard.tsx",
+      "to": "module.school-diary.grades",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayDashboard.tsx",
+      "to": "product.school-day",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayDashboard.tsx",
+      "to": "shared.design",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayPage.css",
+      "to": "module.materials.materials",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayPage.css",
+      "to": "module.reviews.card-generation-policy",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayPage.css",
+      "to": "module.reviews.problem-card-design-decisions",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayPage.css",
+      "to": "module.reviews.review-criteria-provenance",
+      "type": "implements"
+    },
+    {
       "from": "file:src/DayPage.css",
       "to": "module.school-diary.day-page",
       "type": "implements"
     },
     {
+      "from": "file:src/DayPage.css",
+      "to": "module.school-diary.grades",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayPage.css",
+      "to": "shared.design.statuses",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayPage.css",
+      "to": "shared.design",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayPage.tsx",
+      "to": "module.families.access-and-state",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayPage.tsx",
+      "to": "module.materials.material-clarification",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayPage.tsx",
+      "to": "module.reviews.card-generation-policy",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayPage.tsx",
+      "to": "module.reviews.russian-language-route",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayPage.tsx",
+      "to": "module.school-diary.dashboard",
+      "type": "implements"
+    },
+    {
       "from": "file:src/DayPage.tsx",
       "to": "module.school-diary.day-page",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayPage.tsx",
+      "to": "module.school-diary.grades",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayPage.tsx",
+      "to": "module.synchronization.global-sync",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayPage.tsx",
+      "to": "shared.design.statuses",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayPage.tsx",
+      "to": "shared.design",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/education-design-tokens.css",
+      "to": "module.assessments.result-presentation-proposal",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/education-design-tokens.css",
+      "to": "module.reviews.problem-card-design-decisions",
       "type": "implements"
     },
     {
@@ -6113,6 +9003,11 @@
     {
       "from": "file:src/lib/bookPageSource.ts",
       "to": "module.materials.family-library",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/dayCompatibility.ts",
+      "to": "module.families.access-and-state",
       "type": "implements"
     },
     {
@@ -6141,6 +9036,11 @@
       "type": "implements"
     },
     {
+      "from": "file:src/lib/dayGuidance.ts",
+      "to": "module.reviews.subject-aware-guidance",
+      "type": "implements"
+    },
+    {
       "from": "file:src/lib/dayMaterialRefs.ts",
       "to": "module.materials.materials",
       "type": "implements"
@@ -6151,13 +9051,83 @@
       "type": "implements"
     },
     {
+      "from": "file:src/lib/dayStore.ts",
+      "to": "module.families.access-and-state",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/dayStore.ts",
+      "to": "module.materials.material-clarification",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/dayStore.ts",
+      "to": "module.materials.materials",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/dayStore.ts",
+      "to": "module.materials.storage-privacy",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/dayStore.ts",
+      "to": "module.reviews.adaptive-problem-card",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/dayStore.ts",
+      "to": "module.reviews.card-generation-policy",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/dayStore.ts",
+      "to": "module.reviews.review-criteria-provenance",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/dayStore.ts",
+      "to": "module.reviews.subject-aware-guidance",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/dayStore.ts",
+      "to": "module.school-diary.day-page",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/dayStore.ts",
+      "to": "module.synchronization.plan-generation",
+      "type": "implements"
+    },
+    {
       "from": "file:src/lib/educationSchema.ts",
+      "to": "module.families",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/educationSchema.ts",
+      "to": "module.notifications.inbox",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/educationSchema.ts",
+      "to": "module.synchronization.backend-driven-ui",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/educationStore.ts",
       "to": "module.families",
       "type": "implements"
     },
     {
       "from": "file:src/lib/educationStore.ts",
       "to": "module.notifications.inbox",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/educationStore.ts",
+      "to": "module.synchronization.backend-driven-ui",
       "type": "implements"
     },
     {
@@ -6192,6 +9162,21 @@
     },
     {
       "from": "file:src/lib/homeworkStatus.ts",
+      "to": "module.assessments.quizzes",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/homeworkStatus.ts",
+      "to": "module.families",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/homeworkStatus.ts",
+      "to": "module.materials.material-clarification",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/homeworkStatus.ts",
       "to": "module.school-diary.dashboard",
       "type": "implements"
     },
@@ -6207,7 +9192,17 @@
     },
     {
       "from": "file:src/lib/localFirstPilot.ts",
+      "to": "service.web-app.local-first-sync",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/localFirstPilot.ts",
       "to": "service.web-app.local-first-verification",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/materialPageCache.ts",
+      "to": "module.materials.family-library",
       "type": "implements"
     },
     {
@@ -6232,6 +9227,16 @@
     },
     {
       "from": "file:src/lib/parentCompletion.ts",
+      "to": "module.reviews.card-generation-policy",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/parentCompletion.ts",
+      "to": "module.reviews.review-criteria-provenance",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/parentCompletion.ts",
       "to": "module.school-diary.day-page",
       "type": "implements"
     },
@@ -6246,8 +9251,33 @@
       "type": "implements"
     },
     {
+      "from": "file:src/lib/personalAccess.ts",
+      "to": "module.reviews.adaptive-problem-card",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/personalAccess.ts",
+      "to": "plans.local-first-release-plan-2026-10-12",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/personalAccess.ts",
+      "to": "product.pwa",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/personalAccess.ts",
+      "to": "shared.access-and-privacy",
+      "type": "implements"
+    },
+    {
       "from": "file:src/lib/photoOutbox.ts",
       "to": "module.materials.storage-privacy",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/photoUploadPolicy.ts",
+      "to": "module.materials.material-clarification",
       "type": "implements"
     },
     {
@@ -6276,8 +9306,33 @@
       "type": "implements"
     },
     {
+      "from": "file:src/lib/quiz.ts",
+      "to": "module.assessments",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/quiz.ts",
+      "to": "product.assessments",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/quizCardViewModel.ts",
+      "to": "module.assessments.quiz-chain-proposal",
+      "type": "implements"
+    },
+    {
       "from": "file:src/lib/quizCardViewModel.ts",
       "to": "module.reviews.subject-card-viewmodel",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/quizCardViewModel.ts",
+      "to": "module.school-diary.dashboard",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/quizCardViewModel.ts",
+      "to": "module.school-diary.day-page",
       "type": "implements"
     },
     {
@@ -6306,13 +9361,33 @@
       "type": "implements"
     },
     {
+      "from": "file:src/lib/requestSingleFlight.ts",
+      "to": "plans.local-first-release-plan-2026-10-12",
+      "type": "implements"
+    },
+    {
       "from": "file:src/lib/resultPresentation.ts",
       "to": "module.assessments.result-presentation-proposal",
       "type": "implements"
     },
     {
       "from": "file:src/lib/reviewPresentation.ts",
+      "to": "module.reviews.review-criteria-provenance",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/reviewPresentation.ts",
+      "to": "module.reviews.russian-language-route",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/reviewPresentation.ts",
       "to": "module.school-diary.day-page",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/reviewPresentation.ts",
+      "to": "shared.design.statuses",
       "type": "implements"
     },
     {
@@ -6332,12 +9407,27 @@
     },
     {
       "from": "file:src/lib/uiKitExamples.ts",
+      "to": "module.school-diary.dashboard",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/uiKitExamples.ts",
       "to": "shared.design.ui-kit",
       "type": "implements"
     },
     {
       "from": "file:src/lib/useDashboardDayWork.ts",
       "to": "module.school-diary.dashboard",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/useDashboardDayWork.ts",
+      "to": "shared.design",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/useDayEvidence.ts",
+      "to": "module.synchronization.backend-driven-ui",
       "type": "implements"
     },
     {
@@ -6351,6 +9441,11 @@
       "type": "implements"
     },
     {
+      "from": "file:src/lib/useDayQuizOutcomes.ts",
+      "to": "module.school-diary.dashboard",
+      "type": "implements"
+    },
+    {
       "from": "file:src/lib/useDelayedRefresh.ts",
       "to": "module.school-diary.dashboard",
       "type": "implements"
@@ -6358,6 +9453,16 @@
     {
       "from": "file:src/lib/useParentChildOverview.ts",
       "to": "module.families",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/useParentChildOverview.ts",
+      "to": "module.school-diary.dashboard",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/useParentChildOverview.ts",
+      "to": "plans.local-first-release-plan-2026-10-12",
       "type": "implements"
     },
     {
@@ -6378,6 +9483,11 @@
     {
       "from": "file:src/lib/watchQuizOutcome.ts",
       "to": "module.assessments.quizzes",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/watchQuizOutcome.ts",
+      "to": "module.reviews.subject-card-viewmodel",
       "type": "implements"
     },
     {
@@ -6411,13 +9521,33 @@
       "type": "implements"
     },
     {
+      "from": "file:src/WeekendMathSlot.css",
+      "to": "module.reviews.problem-card-design-decisions",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/WeekendMathSlot.tsx",
+      "to": "module.reviews.problem-card-design-decisions",
+      "type": "implements"
+    },
+    {
       "from": "file:src/WeekendMathSlot.tsx",
       "to": "module.school-diary.dashboard",
       "type": "implements"
     },
     {
+      "from": "file:src/WeekendMathSlot.tsx",
+      "to": "module.school-diary.day-page",
+      "type": "implements"
+    },
+    {
       "from": "file:storage/direct-upload.mjs",
       "to": "module.materials.storage-privacy",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/direct-upload.mjs",
+      "to": "shared.media-storage",
       "type": "implements"
     },
     {
@@ -6428,6 +9558,11 @@
     {
       "from": "file:storage/family-book-upload.mjs",
       "to": "module.materials.family-library",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/inbox-notifications.mjs",
+      "to": "module.notifications.events",
       "type": "implements"
     },
     {
@@ -6457,12 +9592,27 @@
     },
     {
       "from": "file:storage/review-projection.mjs",
+      "to": "module.materials.material-clarification",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/review-projection.mjs",
       "to": "module.reviews.adaptive-problem-card",
       "type": "implements"
     },
     {
       "from": "file:storage/review-readback.mjs",
+      "to": "module.materials.material-clarification",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/review-readback.mjs",
       "to": "module.reviews.review-criteria-provenance",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/review-readback.mjs",
+      "to": "service.operator-cli",
       "type": "implements"
     },
     {
@@ -6473,6 +9623,11 @@
     {
       "from": "file:storage/storage-pause.mjs",
       "to": "module.materials.storage-privacy",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/submission-inbox.mjs",
+      "to": "module.materials.material-clarification",
       "type": "implements"
     },
     {
@@ -6511,6 +9666,11 @@
       "type": "implements"
     },
     {
+      "from": "file:sync/help-request-cache.mjs",
+      "to": "plans.local-first-release-plan-2026-10-12",
+      "type": "implements"
+    },
+    {
       "from": "file:sync/job-queue.mjs",
       "to": "module.synchronization.global-sync",
       "type": "implements"
@@ -6522,7 +9682,17 @@
     },
     {
       "from": "file:sync/publication-audit.mjs",
+      "to": "module.school-diary.dashboard",
+      "type": "implements"
+    },
+    {
+      "from": "file:sync/publication-audit.mjs",
       "to": "module.synchronization.global-sync",
+      "type": "implements"
+    },
+    {
+      "from": "file:sync/publication-audit.mjs",
+      "to": "operations.recovery",
       "type": "implements"
     },
     {
@@ -6543,6 +9713,11 @@
     {
       "from": "file:tsconfig.node.json",
       "to": "shared.toolchain",
+      "type": "implements"
+    },
+    {
+      "from": "file:vite.config.ts",
+      "to": "operations.local-development",
       "type": "implements"
     },
     {
@@ -7717,12 +10892,22 @@
     },
     {
       "from": "product.education",
+      "to": "audits.specification-lifecycle-2026-10-16",
+      "type": "contains"
+    },
+    {
+      "from": "product.education",
       "to": "decision.documentation-precommit",
       "type": "contains"
     },
     {
       "from": "product.education",
       "to": "decision.specification-graph-migration",
+      "type": "contains"
+    },
+    {
+      "from": "product.education",
+      "to": "decision.specification-lifecycle",
       "type": "contains"
     },
     {
@@ -8317,6 +11502,11 @@
     },
     {
       "from": "service.telegram-bot.event-ledger-outbox",
+      "to": "file:packages/telegram-notifications/notifications.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "service.telegram-bot.event-ledger-outbox",
       "to": "service.telegram-bot.ports-and-events",
       "type": "uses"
     },
@@ -8344,6 +11534,11 @@
       "from": "service.telegram-bot.ports-and-events",
       "to": "service.telegram-bot",
       "type": "uses"
+    },
+    {
+      "from": "service.telegram-bot",
+      "to": "decision.telegram-foundation",
+      "type": "contains"
     },
     {
       "from": "service.telegram-bot",

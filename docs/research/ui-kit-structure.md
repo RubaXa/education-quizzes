@@ -2,11 +2,18 @@
 id: research.ui-kit-structure
 status: reference
 implementation: not-applicable
+created: 2026-10-16
+updated: 2026-10-16
+consumers:
+  - "product implementer"
+  - "service implementer"
+  - "Education operator"
+code:
+  []
 parent: product.education
 uses: []
 sections:
   - выбор-для-education
-
 ---
 # Как устроить небольшой живой UI Kit
 

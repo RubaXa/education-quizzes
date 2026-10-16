@@ -2,6 +2,48 @@
 id: shared.design
 status: accepted
 implementation: partial
+created: 2026-10-11
+updated: 2026-10-16
+consumers:
+  - "React UI components"
+  - "frontend developer"
+  - "screen author / Education agent"
+code:
+  - "scripts/check-material-preview-viewport.mjs"
+  - "scripts/check-notification-viewport.mjs"
+  - "scripts/check-problem-variant-viewport.mjs"
+  - "scripts/check-schedule-viewport.mjs"
+  - "scripts/check-source-fragment-viewport.mjs"
+  - "src/App.css"
+  - "src/App.tsx"
+  - "src/DayDashboard.css"
+  - "src/DayDashboard.tsx"
+  - "src/DayPage.css"
+  - "src/DayPage.tsx"
+  - "src/components/ArtifactAvatar.tsx"
+  - "src/components/AssignmentBrief.css"
+  - "src/components/AssignmentBrief.tsx"
+  - "src/components/EducationImage.css"
+  - "src/components/EducationImage.tsx"
+  - "src/components/FamilyAccessCards.tsx"
+  - "src/components/FamilyLibrary.css"
+  - "src/components/FamilyLibrary.tsx"
+  - "src/components/MaterialReader.tsx"
+  - "src/components/NotificationBell.css"
+  - "src/components/NotificationBell.tsx"
+  - "src/components/ParentHome.tsx"
+  - "src/components/ParentTaskGuide.css"
+  - "src/components/PersonalEntry.tsx"
+  - "src/components/RequirementSwitch.css"
+  - "src/components/RequirementSwitch.tsx"
+  - "src/components/SourceFragment.css"
+  - "src/components/SourceFragment.tsx"
+  - "src/components/ui/badge.tsx"
+  - "src/components/ui/button.tsx"
+  - "src/components/ui/card.tsx"
+  - "src/education-design-tokens.css"
+  - "src/lib/uiErrors.ts"
+  - "src/lib/useDashboardDayWork.ts"
 parent: product.education
 uses:
   - shared.design.components
@@ -18,7 +60,6 @@ sections:
   - workflow
   - ui-kit
   - короткие-заголовки
-
 ---
 # Дизайн-система Education
 

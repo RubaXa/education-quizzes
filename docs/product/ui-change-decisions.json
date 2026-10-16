@@ -1,7 +1,7 @@
 {
   "files": {
     "assessment/decision-graph.mjs": {
-      "sha256": "e592a7e61a949bdeb5fbe1d964bea2164c92cd5a78fbd3b3b55e6b46ca610257",
+      "sha256": "a3322d3299bdfdadadb80b5755aa618798a89023c53ae84608016736653f18df",
       "record": "docs/decisions/history-default-universal-request-2026-10-16.md",
       "specs": [
         "docs/modules/assessments/quiz-chain-proposal.md",
@@ -22,6 +22,10 @@
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
         "previousSha256": "d8d35129282fac06ab64c9d6f9cbc3a982c01ab831e0442568f5b3940dc04f18"
+      },
+      "specificationLifecycle": {
+        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
+        "previousSha256": "e592a7e61a949bdeb5fbe1d964bea2164c92cd5a78fbd3b3b55e6b46ca610257"
       }
     },
     "src/App.css": {
@@ -373,7 +377,7 @@
       }
     },
     "day/pipeline-contract.mjs": {
-      "sha256": "9ce13a325c45dccc8f51b317aa840470b2874e9f1b79754ef7e6469a44663960",
+      "sha256": "f2719f4dfeea19ae74be3d9609dbcae1899740c56ba395a4160e011033ae0de6",
       "record": "docs/decisions/operator-tool-trial-2026-10-16.md",
       "specs": [
         "docs/modules/synchronization/plan-generation.md",
@@ -389,10 +393,14 @@
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
         "previousSha256": "0565dfdf94b82dd3c3cdab458536f09838d4f64be84ade32555d673cee20ecbe"
+      },
+      "specificationLifecycle": {
+        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
+        "previousSha256": "9ce13a325c45dccc8f51b317aa840470b2874e9f1b79754ef7e6469a44663960"
       }
     },
     "assessment/followup-contract.mjs": {
-      "sha256": "7a2ca0ed895b704aa71a5c6528224a187c569dadba236fdd1de72ce34e38df4d",
+      "sha256": "29499ba10ac538660d938f529f376e0903b39935b87203963f854fd3154c80e2",
       "record": "docs/decisions/history-followup-volume-2026-10-16.md",
       "specs": [
         "docs/modules/assessments/assessment-decision-graph.md",
@@ -409,10 +417,14 @@
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
         "previousSha256": "d865d1b369d8dd4c5d9055887aabe1ed3eedcb397129fe2096370564ccb53e60"
+      },
+      "specificationLifecycle": {
+        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
+        "previousSha256": "7a2ca0ed895b704aa71a5c6528224a187c569dadba236fdd1de72ce34e38df4d"
       }
     },
     "assessment/quiz-lineage.mjs": {
-      "sha256": "673f03ef5846bc10e1bc6a12d368ee3ab0cfb3b82da1e747ab89692f8414497a",
+      "sha256": "bfa3bf6df1123917bbe57a420edae48a4b40185087e0d2801759419d2244add5",
       "record": "docs/decisions/history-default-universal-request-2026-10-16.md",
       "specs": [
         "docs/modules/assessments/quiz-chain-proposal.md",
@@ -433,6 +445,10 @@
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
         "previousSha256": "3299c1c263ab7c59e860d192ea68e14da6141b235378d2d27aff6ebf6a48e6b3"
+      },
+      "specificationLifecycle": {
+        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
+        "previousSha256": "673f03ef5846bc10e1bc6a12d368ee3ab0cfb3b82da1e747ab89692f8414497a"
       }
     },
     "operator/operation-contract.mjs": {
@@ -455,7 +471,7 @@
       }
     },
     "operator/run-operation.mjs": {
-      "sha256": "27ce342b2172465043b79c032bb70b9f7e62a94fe39faadb508fc78823da77db",
+      "sha256": "8f2119f9d7fbb602d8112ae87cc0aa72468f7172c577bb728324891259756cb2",
       "record": "docs/decisions/operator-tool-trial-2026-10-16.md",
       "specs": [
         "docs/services/operator-cli/README.md",
@@ -471,10 +487,14 @@
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
         "previousSha256": "2172aab0c3e7491d811471c03cf06b98d982b2379b56ff2e8093a25af335c6ce"
+      },
+      "specificationLifecycle": {
+        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
+        "previousSha256": "27ce342b2172465043b79c032bb70b9f7e62a94fe39faadb508fc78823da77db"
       }
     },
     "scripts/education.mjs": {
-      "sha256": "8df0da2f61a68ee34de12dafcdabea27fc716e1fab6cbf058fc13498ff11cd8b",
+      "sha256": "3d77d57fcc83045aac34aa181902fe529857e07f6192ac945350a19e9fce23eb",
       "record": "docs/decisions/operator-tool-trial-2026-10-16.md",
       "specs": [
         "docs/services/operator-cli/README.md",
@@ -492,6 +512,10 @@
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
         "previousSha256": "20061bf6bcde8aaa7873a18ad3f9722a41397a18b95188189a396a1577367365"
+      },
+      "specificationLifecycle": {
+        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
+        "previousSha256": "8df0da2f61a68ee34de12dafcdabea27fc716e1fab6cbf058fc13498ff11cd8b"
       }
     },
     "storage/review-readback.mjs": {
@@ -872,7 +896,7 @@
       }
     },
     "src/App.tsx": {
-      "sha256": "871b4426382fbffddbaf76874563ffce4d33248cad556a4ba9db0506ba83fec9",
+      "sha256": "ddf3f5a1bb363bf3ce58d8c15709efcb85fb5a12d878e4a7df497bc095702c4b",
       "record": "docs/decisions/compact-results-ui-kit-2026-10-16.md",
       "specs": [
         "docs/modules/assessments/result-presentation-proposal.md",
@@ -892,10 +916,14 @@
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
         "previousSha256": "9202a31edde2f11564f808668e2aa65683ae30cd050e7eb4df9b920884f8a13f"
+      },
+      "specificationLifecycle": {
+        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
+        "previousSha256": "871b4426382fbffddbaf76874563ffce4d33248cad556a4ba9db0506ba83fec9"
       }
     },
     "src/DayDashboard.tsx": {
-      "sha256": "ddec1e5d9802d74b9eecb1c0797463878d39102639258f87a5e86ac7d775b7dd",
+      "sha256": "66e8bf761603bde0f1ade24a725425067a287440079400779a55660ba05555c5",
       "record": "docs/decisions/compact-homework-copy-2026-10-16.md",
       "specs": [
         "docs/modules/school-diary/dashboard.md",
@@ -914,6 +942,10 @@
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
         "previousSha256": "8a08c95a15764ba0686a201d0bd91f2bc3700bb973b8d9f2428d776d2762f047"
+      },
+      "specificationLifecycle": {
+        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
+        "previousSha256": "ddec1e5d9802d74b9eecb1c0797463878d39102639258f87a5e86ac7d775b7dd"
       }
     },
     "src/components/QuizCard.css": {
@@ -1007,7 +1039,7 @@
       }
     },
     "src/lib/quiz.ts": {
-      "sha256": "e017ae899f9b65aea083848d347ed761aefbd58c2320b6f933d0189048d0e4fe",
+      "sha256": "2466aa3c75a7905fbb38cbcab8bb64bc55040ff603144f853380ac5ceeb55a92",
       "record": "docs/decisions/quiz-attempt-time-icon-2026-10-15.md",
       "specs": [
         "docs/modules/assessments/quizzes.md",
@@ -1020,6 +1052,10 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Родитель 15.10.2026 после просмотра макета согласовал только значок времени в действующем общем компоненте теста, без изменения остального дизайна карточки."
+      },
+      "specificationLifecycle": {
+        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
+        "previousSha256": "e017ae899f9b65aea083848d347ed761aefbd58c2320b6f933d0189048d0e4fe"
       }
     },
     "src/lib/quizCardViewModel.ts": {
@@ -1267,7 +1303,7 @@
       }
     },
     "src/components/NotificationBell.tsx": {
-      "sha256": "ac73af32b3827caf3f2488ee53452277fafde74272c974c7d3054ed66412ee06",
+      "sha256": "f71532ae9914dcba666b196bbfc206aa64e0c977ca9f7ede7b2720cfc7550fae",
       "record": "docs/decisions/notification-read-all-2026-10-14.md",
       "specs": [
         "docs/modules/notifications/inbox.md",
@@ -1285,6 +1321,10 @@
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
         "previousSha256": "25c168a481a284c219057b2230321c09b359af2c87c1d19ca1bd6c767d7bc452"
+      },
+      "specificationLifecycle": {
+        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
+        "previousSha256": "ac73af32b3827caf3f2488ee53452277fafde74272c974c7d3054ed66412ee06"
       }
     },
     "src/components/NotificationBell.css": {
@@ -1410,7 +1450,7 @@
       ]
     },
     "scripts/day.mjs": {
-      "sha256": "e4470ef9b960fe6248ab1b905f4f088f767a8669795334e232473ad6b5cd9d61",
+      "sha256": "15f25d98d886fa4c0ee05c0c3b5a4e5665e776e4674ef3ae81a408298376f377",
       "record": "docs/decisions/material-clarification-2026-10-16.md",
       "specs": [
         "docs/modules/materials/material-clarification.md"
@@ -1433,6 +1473,10 @@
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
         "previousSha256": "47c95f9b14fc7897cba37674b1e9eade4e58a7949c7f56307d92ae1418990649"
+      },
+      "specificationLifecycle": {
+        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
+        "previousSha256": "e4470ef9b960fe6248ab1b905f4f088f767a8669795334e232473ad6b5cd9d61"
       }
     },
     "src/lib/dayStore.ts": {
@@ -1617,7 +1661,7 @@
       ]
     },
     "scripts/sync-project.mjs": {
-      "sha256": "f47ba354ba2915c33f36aaee75351f92e78028ff0c5f025bf79ede0a72d209dc",
+      "sha256": "a0a81e485f4bbfcbb4622021601fc8ab911a4a59467c5180fb6dc230d637e53b",
       "record": "docs/decisions/operator-tool-trial-2026-10-16.md",
       "specs": [
         "docs/modules/synchronization/global-sync.md"
@@ -1638,7 +1682,11 @@
       },
       "evidence": [
         "docs/audits/education-sync-latency-audit-2026-10-15.md"
-      ]
+      ],
+      "specificationLifecycle": {
+        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
+        "previousSha256": "f47ba354ba2915c33f36aaee75351f92e78028ff0c5f025bf79ede0a72d209dc"
+      }
     },
     "storage/review-challenge.mjs": {
       "sha256": "2060f3ec483b55c91a37ddf0d948bfde8302ea9c29ba1024378a4292d9403a17",
@@ -1661,7 +1709,7 @@
       }
     },
     "scripts/submissions.mjs": {
-      "sha256": "5f946bf288cc372f70beadff657996494a9e0db957de4219948d93839e69fdcc",
+      "sha256": "453406a1fd97dfe599628812ebe99ca56db80049ffc8bc3d1c4980684e9360fa",
       "record": "docs/decisions/material-clarification-2026-10-16.md",
       "specs": [
         "docs/modules/materials/material-clarification.md"
@@ -1684,6 +1732,10 @@
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
         "previousSha256": "64c3cf410a07bc049ebc78071b8208c510f255f04dafc5f19b3da4b478bb9fe4"
+      },
+      "specificationLifecycle": {
+        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
+        "previousSha256": "5f946bf288cc372f70beadff657996494a9e0db957de4219948d93839e69fdcc"
       }
     },
     "src/components/WorkReview.tsx": {
@@ -1812,7 +1864,7 @@
       }
     },
     "day/build.mjs": {
-      "sha256": "ab2dbc2d77f03a53bfe42c0aca48b84b26a12ce2b811a9945f513b0fbde0a71d",
+      "sha256": "c1b91c9125554c800f0fdc94ae6f7ea42a5d9ddb01ece690b32ae7b1423fdbbd",
       "record": "docs/decisions/material-clarification-2026-10-16.md",
       "specs": [
         "docs/modules/materials/material-clarification.md"
@@ -1835,10 +1887,14 @@
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
         "previousSha256": "2c125726513a06a69335f72713cbdedf2be4f2a92fc109faa631fad5a3a42644"
+      },
+      "specificationLifecycle": {
+        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
+        "previousSha256": "ab2dbc2d77f03a53bfe42c0aca48b84b26a12ce2b811a9945f513b0fbde0a71d"
       }
     },
     "day/data-contract.mjs": {
-      "sha256": "0c35aa4563db984b6ab2c1940c81951cb63424a6bfc25b1837a9615dd5e251f4",
+      "sha256": "3ad154ae6e6bb9151acc6ab9fb5ba844bb743a3510b41b0fe025421a0c2a19a2",
       "record": "docs/decisions/material-clarification-2026-10-16.md",
       "specs": [
         "docs/modules/materials/material-clarification.md"
@@ -1861,6 +1917,10 @@
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
         "previousSha256": "2b5032846c2a5c9a3bcc5ab26dea3cbe7d43eed623a1a55e6dbdc7d13f135418"
+      },
+      "specificationLifecycle": {
+        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
+        "previousSha256": "0c35aa4563db984b6ab2c1940c81951cb63424a6bfc25b1837a9615dd5e251f4"
       }
     },
     "src/lib/photoUploadPolicy.ts": {
@@ -2370,7 +2430,7 @@
       }
     },
     "scripts/access-management.mjs": {
-      "sha256": "23cff56d268a7e51321397c65ac145ec4c8a7004fa8f913b065c433f8e0c882b",
+      "sha256": "dd95d911ec39b31476479107f5ecae61c17813b66f4a76151d8af06b294c3ad6",
       "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
       "specs": [
         "docs/shared/specification-system.md"
@@ -2386,6 +2446,10 @@
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
         "previousSha256": "c09fa4684329d457d5905b436808010d89eae98283e9b08f104762c63e549c44"
+      },
+      "specificationLifecycle": {
+        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
+        "previousSha256": "23cff56d268a7e51321397c65ac145ec4c8a7004fa8f913b065c433f8e0c882b"
       }
     },
     "scripts/archive-local.mjs": {
@@ -2518,7 +2582,7 @@
       }
     },
     "scripts/direct-upload-worker.mjs": {
-      "sha256": "80b79749f5558303d52e1618324d5318e479cf60c4d848ca310c36ed100718d8",
+      "sha256": "0cf068604027d682ae33c885ddb8c14a3da45f5001938653446191697128eb42",
       "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
       "specs": [
         "docs/shared/specification-system.md"
@@ -2534,6 +2598,10 @@
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
         "previousSha256": "f1a4ccadd041a5821f52efcde35a52636d49928c3668811177a8149dba000e54"
+      },
+      "specificationLifecycle": {
+        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
+        "previousSha256": "80b79749f5558303d52e1618324d5318e479cf60c4d848ca310c36ed100718d8"
       }
     },
     "scripts/ensure-book-upload-index.mjs": {
@@ -2575,7 +2643,7 @@
       }
     },
     "scripts/family.mjs": {
-      "sha256": "abaf5547f99f57062a9d1ef680ef482614a01813decb114f5464a18b6eed7d8c",
+      "sha256": "a345f19a24afc2e2e9e1b20bb8e8ad48a975ab68741e92746e34c36fc7cd68a5",
       "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
       "specs": [
         "docs/shared/specification-system.md"
@@ -2591,6 +2659,10 @@
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
         "previousSha256": "83f90f44906b7159f59f6be78c2f8dc29d380b8f198fe20344be63c4acbca08b"
+      },
+      "specificationLifecycle": {
+        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
+        "previousSha256": "abaf5547f99f57062a9d1ef680ef482614a01813decb114f5464a18b6eed7d8c"
       }
     },
     "scripts/firestore-read-index.mjs": {
@@ -2651,7 +2723,7 @@
       }
     },
     "scripts/install-upload-worker.mjs": {
-      "sha256": "af2f6be2e1cd693b232eb82b6162947fe96d12778d9e0fd354698c13cf5ad7a4",
+      "sha256": "1a346d809e1b541a1890460e424754553c2864a5fce6453b0aa473d09fd2aca1",
       "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
       "specs": [
         "docs/shared/specification-system.md"
@@ -2667,6 +2739,10 @@
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
         "previousSha256": "4bd6607ba29417623c6852b187b686c1e29927e81ee4a4054c2c856b7f197fb3"
+      },
+      "specificationLifecycle": {
+        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
+        "previousSha256": "af2f6be2e1cd693b232eb82b6162947fe96d12778d9e0fd354698c13cf5ad7a4"
       }
     },
     "scripts/lib/access-projection.mjs": {
@@ -2993,7 +3069,7 @@
       }
     },
     "src/components/FamilyLibrary.tsx": {
-      "sha256": "b429d4342405b3cb27771e6f26b3a0ca346220e357cd60fa712d4252358b2253",
+      "sha256": "18cd8c001a2e5dad8ae24096ecd742c8050f63a67a5fc54968855b53a0794771",
       "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
       "specs": [
         "docs/shared/specification-system.md"
@@ -3009,6 +3085,10 @@
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
         "previousSha256": "8ab6cc38c53c5e2ea85e23226b8005124e18e9542d8a1f52a9c270a2f209aa0d"
+      },
+      "specificationLifecycle": {
+        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
+        "previousSha256": "b429d4342405b3cb27771e6f26b3a0ca346220e357cd60fa712d4252358b2253"
       }
     },
     "src/components/MaterialReader.tsx": {
@@ -3620,7 +3700,7 @@
       }
     },
     "src/lib/personalAccess.ts": {
-      "sha256": "50ece8c966bf626ce2dc6057470e67105e6c013dc874928f4446149f022e83b1",
+      "sha256": "4299c9e975d28567611c921dc9a4b4469e9a58928d0c8e060d02917083b615d3",
       "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
       "specs": [
         "docs/shared/specification-system.md"
@@ -3636,6 +3716,10 @@
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
         "previousSha256": "68e331f2ec6817181f6b042f41df55b305b5caad5632a6e3c2c7ad0dcaccccd5"
+      },
+      "specificationLifecycle": {
+        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
+        "previousSha256": "50ece8c966bf626ce2dc6057470e67105e6c013dc874928f4446149f022e83b1"
       }
     },
     "src/lib/problemGroupSummary.ts": {
@@ -3905,7 +3989,7 @@
       }
     },
     "storage/inbox-notifications.mjs": {
-      "sha256": "d5e5e14531f829453d8e454bc227291f9da3ba523da095d42f049f909a22cfa4",
+      "sha256": "cc767aa4c155360255907cb67b5f74206b9d7e38eb709de82ca4ac1ec267f1a9",
       "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
       "specs": [
         "docs/shared/specification-system.md"
@@ -3921,6 +4005,10 @@
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
         "previousSha256": "b23e062e8ee4dccf86d85073daf6bdeade32c9a54d30dd4e494c24d00e02b7e1"
+      },
+      "specificationLifecycle": {
+        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
+        "previousSha256": "d5e5e14531f829453d8e454bc227291f9da3ba523da095d42f049f909a22cfa4"
       }
     },
     "storage/material-pages.mjs": {
@@ -4095,7 +4183,7 @@
       }
     },
     "sync/publication-audit.mjs": {
-      "sha256": "7d94418c96ce0155084e47a2dd1051844bc2e8572514d405c5636bbca1590cb1",
+      "sha256": "77822b0df65575a74bad3f25f90878de50730ad0ab1e4353e4b0c5d09ecc756e",
       "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
       "specs": [
         "docs/shared/specification-system.md"
@@ -4111,10 +4199,14 @@
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
         "previousSha256": "0006148a166403903fdac889c925fabe9c1836d70b4fe2a58b0f8909e40d3814"
+      },
+      "specificationLifecycle": {
+        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
+        "previousSha256": "7d94418c96ce0155084e47a2dd1051844bc2e8572514d405c5636bbca1590cb1"
       }
     },
     "scripts/spec-graph.mjs": {
-      "sha256": "7fed27d77683278e4ddcf76eec6eb8383463101dbed4877d598a9010c74b4dfb",
+      "sha256": "6919682cb4785e88e1da7bd248200ed03bca42f730e5f1a9b425bc42e44354c3",
       "record": "docs/decisions/documentation-precommit-2026-10-16.md",
       "specs": [
         "docs/shared/specification-system.md"
@@ -4126,6 +4218,10 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Пользователь прямо запросил детерминированную проверку структуры документов, обязательных секций и ссылок на pre-commit hook 16.10.2026."
+      },
+      "specificationLifecycle": {
+        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
+        "previousSha256": "7fed27d77683278e4ddcf76eec6eb8383463101dbed4877d598a9010c74b4dfb"
       }
     },
     "assessment/question-copy.mjs": {
@@ -4148,7 +4244,7 @@
       }
     },
     "scripts/check-docs.mjs": {
-      "sha256": "568dfe72213efbfc463e0daab7143229937069b8b3eddce45f653a4fcb01abdd",
+      "sha256": "c24d4d9c36e806cb67b3bad66d66df936d405268e42f9f8a3fced339662365f5",
       "record": "docs/decisions/documentation-precommit-2026-10-16.md",
       "specs": [
         "docs/shared/specification-system.md"
@@ -4160,6 +4256,232 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Пользователь прямо запросил детерминированную проверку структуры документов, обязательных секций и ссылок на pre-commit hook 16.10.2026."
+      },
+      "specificationLifecycle": {
+        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
+        "previousSha256": "568dfe72213efbfc463e0daab7143229937069b8b3eddce45f653a4fcb01abdd"
+      }
+    },
+    "scripts/build-site.mjs": {
+      "sha256": "1d4f48a3e19cea9e731ff27f22460ebdef414ce88601b61597d23c266b9a6c97",
+      "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
+      "specs": [
+        "docs/operations/deployment.md"
+      ],
+      "tests": [
+        "scripts/build-inputs.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь 16.10.2026 прямо запросил аудит metadata и обратных ссылок кода; изменения здесь добавляют только comment-only @see ссылки и фиксацию hash в журнале решений."
+      },
+      "specificationLifecycle": {
+        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
+        "previousSha256": "298b2d272f7437eb5d24ef30292fee464b3f298d87acd2600fdb309f781aa653"
+      }
+    },
+    "storage/direct-upload.mjs": {
+      "sha256": "2b1654371b56c0cccb6fbd9dc211b372be75551a225039ef6bd77c824de267a9",
+      "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
+      "specs": [
+        "docs/modules/materials/storage-privacy.md"
+      ],
+      "tests": [
+        "storage/direct-upload.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь 16.10.2026 прямо запросил аудит metadata и обратных ссылок кода; изменения здесь добавляют только comment-only @see ссылки и фиксацию hash в журнале решений."
+      },
+      "specificationLifecycle": {
+        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
+        "previousSha256": "a6c09519a3393a23f7813b42e4376b1ae75f1017fb8bd4fcb7d152e81fb6a51e"
+      }
+    },
+    "packages/telegram-notifications/adapters/config.mjs": {
+      "sha256": "02ed4b5a34b5566a4e32547c212da8699cb6b4b0fb51aa282a7b46df68e06b44",
+      "record": "docs/decisions/telegram-foundation-2026-10-16.md",
+      "specs": [
+        "docs/services/telegram-bot/operations.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/notifications.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь прямо запросил начать реализацию Telegram-сервиса и сообщил о локально заданной AGI_EDU_BOT; значение секрета не включается в доказательство."
+      }
+    },
+    "packages/telegram-notifications/adapters/firestore.mjs": {
+      "sha256": "52542a7f6c54b8a2b7055dacfd11281321f148938327093dec347e704ce55d2b",
+      "record": "docs/decisions/telegram-foundation-2026-10-16.md",
+      "specs": [
+        "docs/services/telegram-bot/adapters/firestore.md",
+        "docs/services/telegram-bot/event-ledger-outbox.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/notifications.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь прямо запросил начать реализацию Telegram-сервиса и сообщил о локально заданной AGI_EDU_BOT; значение секрета не включается в доказательство."
+      }
+    },
+    "packages/telegram-notifications/adapters/memory.mjs": {
+      "sha256": "0648580b43854d008d8fc4d740247c67af50c49dc652d87577c69195b0b192a7",
+      "record": "docs/decisions/telegram-foundation-2026-10-16.md",
+      "specs": [
+        "docs/services/telegram-bot/event-ledger-outbox.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/notifications.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь прямо запросил начать реализацию Telegram-сервиса и сообщил о локально заданной AGI_EDU_BOT; значение секрета не включается в доказательство."
+      }
+    },
+    "packages/telegram-notifications/adapters/runtime.mjs": {
+      "sha256": "26832843099e0efe2cc0ab14aff4c3f4d478a7515c348d3fe79733f0c125217a",
+      "record": "docs/decisions/telegram-foundation-2026-10-16.md",
+      "specs": [
+        "docs/services/telegram-bot/operations.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/notifications.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь прямо запросил начать реализацию Telegram-сервиса и сообщил о локально заданной AGI_EDU_BOT; значение секрета не включается в доказательство."
+      }
+    },
+    "packages/telegram-notifications/adapters/telegram.mjs": {
+      "sha256": "4b73aef33722de517e1b09ec9ec412d55bc4c827e0bdf4fc4570d9b5008b27de",
+      "record": "docs/decisions/telegram-foundation-2026-10-16.md",
+      "specs": [
+        "docs/services/telegram-bot/delivery.md",
+        "docs/services/telegram-bot/identity-and-linking.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/notifications.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь прямо запросил начать реализацию Telegram-сервиса и сообщил о локально заданной AGI_EDU_BOT; значение секрета не включается в доказательство."
+      }
+    },
+    "packages/telegram-notifications/adapters/worker-loop.mjs": {
+      "sha256": "ab56f29b4b1db16d9a6f83bc48576ff0fce771174130a4e42daeffa6ce025a94",
+      "record": "docs/decisions/telegram-foundation-2026-10-16.md",
+      "specs": [
+        "docs/services/telegram-bot/operations.md",
+        "docs/services/telegram-bot/event-ledger-outbox.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/notifications.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь прямо запросил начать реализацию Telegram-сервиса и сообщил о локально заданной AGI_EDU_BOT; значение секрета не включается в доказательство."
+      }
+    },
+    "packages/telegram-notifications/application/identity.mjs": {
+      "sha256": "c1a28a2cfb4ca4cf9223dcf3dcc7ef8816032d7e43ab90aa79ad1ebfa95b2ad4",
+      "record": "docs/decisions/telegram-foundation-2026-10-16.md",
+      "specs": [
+        "docs/services/telegram-bot/identity-and-linking.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/notifications.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь прямо запросил начать реализацию Telegram-сервиса и сообщил о локально заданной AGI_EDU_BOT; значение секрета не включается в доказательство."
+      }
+    },
+    "packages/telegram-notifications/application/notifications.mjs": {
+      "sha256": "ddbcb1db703e422423306227fdf3d8bbc65628a4f68e5975991ed9d3d36c5487",
+      "record": "docs/decisions/telegram-foundation-2026-10-16.md",
+      "specs": [
+        "docs/services/telegram-bot/event-ledger-outbox.md",
+        "docs/services/telegram-bot/delivery.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/notifications.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь прямо запросил начать реализацию Telegram-сервиса и сообщил о локально заданной AGI_EDU_BOT; значение секрета не включается в доказательство."
+      }
+    },
+    "packages/telegram-notifications/domain/diff.mjs": {
+      "sha256": "42dfb853656e8d8b32f7ed9876e852f4b176b024250ac3ffb35d1288ad3d5bd0",
+      "record": "docs/decisions/telegram-foundation-2026-10-16.md",
+      "specs": [
+        "docs/services/telegram-bot/ports-and-events.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/notifications.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь прямо запросил начать реализацию Telegram-сервиса и сообщил о локально заданной AGI_EDU_BOT; значение секрета не включается в доказательство."
+      }
+    },
+    "packages/telegram-notifications/domain/events.mjs": {
+      "sha256": "8f3e778bea6d6583ebb0b759251681b48070bbd87c91fdf607ab55cf4c2dce10",
+      "record": "docs/decisions/telegram-foundation-2026-10-16.md",
+      "specs": [
+        "docs/services/telegram-bot/ports-and-events.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/notifications.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь прямо запросил начать реализацию Telegram-сервиса и сообщил о локально заданной AGI_EDU_BOT; значение секрета не включается в доказательство."
+      }
+    },
+    "packages/telegram-notifications/domain/ports.mjs": {
+      "sha256": "4ce7f70c22140239d276933852c882c272557b043534441759d9d4d2bec66d79",
+      "record": "docs/decisions/telegram-foundation-2026-10-16.md",
+      "specs": [
+        "docs/services/telegram-bot/ports-and-events.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/notifications.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь прямо запросил начать реализацию Telegram-сервиса и сообщил о локально заданной AGI_EDU_BOT; значение секрета не включается в доказательство."
+      }
+    },
+    "packages/telegram-notifications/domain/renderer.mjs": {
+      "sha256": "84c29b40b13f2fe41d08e8511379a653134c19a7e4484fc120b43f721aab7987",
+      "record": "docs/decisions/telegram-foundation-2026-10-16.md",
+      "specs": [
+        "docs/services/telegram-bot/delivery.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/notifications.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь прямо запросил начать реализацию Telegram-сервиса и сообщил о локально заданной AGI_EDU_BOT; значение секрета не включается в доказательство."
+      }
+    },
+    "scripts/telegram-bot.mjs": {
+      "sha256": "28fa375a63f53c45033aaa5246b97945305d4de3196f0ad15aad5ff99ad32203",
+      "record": "docs/decisions/telegram-foundation-2026-10-16.md",
+      "specs": [
+        "docs/services/telegram-bot/operations.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/notifications.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь прямо запросил начать реализацию Telegram-сервиса и сообщил о локально заданной AGI_EDU_BOT; значение секрета не включается в доказательство."
       }
     }
   }

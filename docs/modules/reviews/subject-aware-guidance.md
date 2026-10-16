@@ -2,6 +2,21 @@
 id: module.reviews.subject-aware-guidance
 status: accepted
 implementation: partial
+created: 2026-10-13
+updated: 2026-10-16
+consumers:
+  - "student"
+  - "parent"
+  - "review operator"
+  - "submission publisher"
+code:
+  - "day/public-projection.mjs"
+  - "scripts/day.mjs"
+  - "src/components/ParentTaskGuide.css"
+  - "src/components/ProblemStatement.css"
+  - "src/components/TaskGuidance.tsx"
+  - "src/lib/dayGuidance.ts"
+  - "src/lib/dayStore.ts"
 parent: module.reviews
 uses:
   - module.reviews.review-criteria-provenance
@@ -15,7 +30,6 @@ sections:
   - data-contract
   - release-gate
   - implementation
-
 ---
 # Единый путь разбора задачи и письменного ответа
 

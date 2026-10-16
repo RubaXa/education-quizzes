@@ -2,6 +2,21 @@
 id: module.assessments.result-presentation-proposal
 status: accepted
 implementation: partial
+created: 2026-10-16
+updated: 2026-10-16
+consumers:
+  - "student"
+  - "parent"
+  - "quiz author"
+  - "assessment pipeline"
+code:
+  - "src/App.css"
+  - "src/components/QuizCard.css"
+  - "src/components/QuizCard.tsx"
+  - "src/components/ui/result.css"
+  - "src/components/ui/result.tsx"
+  - "src/education-design-tokens.css"
+  - "src/lib/resultPresentation.ts"
 parent: module.assessments
 uses: []
 sections:
@@ -10,7 +25,6 @@ sections:
   - один-компонент-и-одна-политика
   - матрица-внедрения
   - обязательные-проверки
-
 ---
 # Общие числовые результаты: цвет, метка и полоса
 

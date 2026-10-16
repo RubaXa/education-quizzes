@@ -2,6 +2,33 @@
 id: module.reviews.problem-card-design-decisions
 status: accepted
 implementation: partial
+created: 2026-10-14
+updated: 2026-10-16
+consumers:
+  - "student"
+  - "parent"
+  - "review operator"
+  - "submission publisher"
+code:
+  - "scripts/check-problem-variant-viewport.mjs"
+  - "src/DayPage.css"
+  - "src/WeekendMathSlot.css"
+  - "src/WeekendMathSlot.tsx"
+  - "src/components/AssignmentBrief.css"
+  - "src/components/AssignmentBrief.tsx"
+  - "src/components/ParentTaskGuide.css"
+  - "src/components/ParentTaskGuide.tsx"
+  - "src/components/ProblemCard.css"
+  - "src/components/ProblemGroup.css"
+  - "src/components/ProblemGroup.tsx"
+  - "src/components/ProblemStatement.css"
+  - "src/components/ProblemStatement.tsx"
+  - "src/components/ProblemTaskCard.tsx"
+  - "src/components/SourceFragment.css"
+  - "src/components/SourceFragment.tsx"
+  - "src/components/TaskGuidance.css"
+  - "src/components/TaskGuidance.tsx"
+  - "src/education-design-tokens.css"
 parent: module.reviews
 uses:
   - module.reviews.adaptive-problem-card
@@ -10,7 +37,6 @@ sections:
   - fact-tiles
   - role-projection
   - проверка-изменения
-
 ---
 # Решения о дизайне карточки задачи
 

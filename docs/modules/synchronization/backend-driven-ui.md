@@ -2,6 +2,17 @@
 id: module.synchronization.backend-driven-ui
 status: accepted
 implementation: partial
+created: 2026-10-08
+updated: 2026-10-16
+consumers:
+  - "Education sync operator"
+  - "sync-project CLI"
+  - "Firestore publisher"
+code:
+  - "src/components/EducationScreen.tsx"
+  - "src/lib/educationSchema.ts"
+  - "src/lib/educationStore.ts"
+  - "src/lib/useDayEvidence.ts"
 parent: module.synchronization
 uses: []
 sections:
@@ -12,7 +23,6 @@ sections:
   - граница-клиента
   - переходы
   - что-настраивается
-
 ---
 # Education: экраны из Firestore
 

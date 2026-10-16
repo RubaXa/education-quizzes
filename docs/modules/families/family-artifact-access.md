@@ -1,10 +1,17 @@
 ---
 id: module.families.family-artifact-access
 status: accepted
-implementation: partial
+implementation: planned
+created: 2026-10-10
+consumers:
+  - "parent"
+  - "student"
+  - "family access operator"
+  - "web-app access flow"
+code: []
 parent: module.families
 type: architecture-decision
-updated: 2026-10-10
+updated: 2026-10-16
 related:
   - ../materials/storage-privacy.md
   - README.md
@@ -13,7 +20,6 @@ sections:
   - согласовано-с-родителем-10102026
   - следствие-для-устройства-системы
   - текущее-состояние-и-граница-следующего-этапа
-
 ---
 
 # Общий архив семей и ссылки на отдельные файлы

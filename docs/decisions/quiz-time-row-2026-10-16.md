@@ -2,6 +2,13 @@
 id: decisions.quiz-time-row-2026-10-16
 status: reference
 implementation: not-applicable
+created: 2026-10-16
+updated: 2026-10-16
+consumers:
+  - "product implementer"
+  - "service implementer"
+code:
+  []
 parent: product.education
 uses: []
 sections:
@@ -10,7 +17,6 @@ sections:
   - действия-и-роли
   - проверки
   - согласование
-
 ---
 # Даты рядом с выбранной попыткой
 

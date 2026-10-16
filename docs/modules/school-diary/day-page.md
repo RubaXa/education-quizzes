@@ -2,6 +2,34 @@
 id: module.school-diary.day-page
 status: accepted
 implementation: partial
+created: 2026-10-08
+updated: 2026-10-16
+consumers:
+  - "parent"
+  - "student"
+  - "sync operator"
+  - "day dashboard frontend"
+code:
+  - "day/assignment-structure.mjs"
+  - "scripts/day.mjs"
+  - "src/App.tsx"
+  - "src/DayPage.css"
+  - "src/DayPage.tsx"
+  - "src/WeekendMathSlot.tsx"
+  - "src/components/ArtifactAvatar.tsx"
+  - "src/components/ParentTaskGuide.tsx"
+  - "src/components/PhotoUploadControl.tsx"
+  - "src/components/ProblemGroup.tsx"
+  - "src/components/WorkReview.tsx"
+  - "src/lib/assignmentPresentation.ts"
+  - "src/lib/dayStore.ts"
+  - "src/lib/guideReadPolicy.ts"
+  - "src/lib/parentCompletion.ts"
+  - "src/lib/photoUploadPolicy.ts"
+  - "src/lib/problemGroupSummary.ts"
+  - "src/lib/quizCardViewModel.ts"
+  - "src/lib/reviewPresentation.ts"
+  - "src/lib/useParentCompletions.ts"
 parent: module.school-diary
 uses:
   - module.school-diary.dashboard
@@ -20,7 +48,6 @@ sections:
   - несколько-страниц-одного-задания
   - разбор-загруженной-работы
   - уточнение-материала-ученика
-
 ---
 # Страница дня
 

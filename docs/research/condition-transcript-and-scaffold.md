@@ -2,9 +2,16 @@
 id: research.condition-transcript-and-scaffold
 status: reference
 implementation: not-applicable
+created: 2026-10-10
+consumers:
+  - "product implementer"
+  - "service implementer"
+  - "Education operator"
+code:
+  []
 parent: product.education
 type: research-note
-updated: 2026-10-10
+updated: 2026-10-16
 related:
   - adaptive-problem-scaffolding.md
   - adaptive-problem-critical-review.md
@@ -15,7 +22,6 @@ sections:
   - что-подтверждают-источники
   - варианты-для-карточки
   - выбранный-вариант-прототипа
-
 ---
 
 # Оригинал условия, точная запись и педагогическая подсказка

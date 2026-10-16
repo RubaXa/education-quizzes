@@ -1,4 +1,8 @@
 #!/usr/bin/env node
+/**
+ * @see ../docs/modules/synchronization/README.md
+ * @see ../docs/operations/education-sync.md
+ */
 import { createHash, randomUUID } from 'node:crypto'
 import { existsSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { basename, dirname, resolve } from 'node:path'

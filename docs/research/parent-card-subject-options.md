@@ -2,6 +2,14 @@
 id: research.parent-card-subject-options
 status: reference
 implementation: not-applicable
+created: 2026-10-13
+updated: 2026-10-16
+consumers:
+  - "product implementer"
+  - "service implementer"
+  - "Education operator"
+code:
+  []
 parent: product.education
 uses: []
 sections:
@@ -9,7 +17,6 @@ sections:
   - предлагаемые-формы
   - почему-предложены-именно-эти-формы
   - порядок-обсуждения
-
 ---
 # Варианты родительской карточки по предметам
 

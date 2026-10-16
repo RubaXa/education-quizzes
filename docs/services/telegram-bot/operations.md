@@ -1,7 +1,18 @@
 ---
 id: service.telegram-bot.operations
 status: accepted
-implementation: planned
+implementation: partial
+created: 2026-10-16
+updated: 2026-10-16
+consumers:
+  - "Telegram service implementer"
+  - "bot operator"
+  - "parents and guardians"
+code:
+  - "packages/telegram-notifications/adapters/config.mjs"
+  - "packages/telegram-notifications/adapters/runtime.mjs"
+  - "packages/telegram-notifications/adapters/telegram.mjs"
+  - "scripts/telegram-bot.mjs"
 parent: service.telegram-bot
 uses:
   - service.telegram-bot
@@ -12,29 +23,31 @@ sections:
   - здоровье-и-сигналы
   - развёртывание-и-rollout
   - подмодули
-
 ---
 # Runtime и эксплуатация Telegram notification service
 
 **Родитель:** [корневая архитектура](README.md).
-**Статус:** target operations contract; хостинг и эксплуатационный worker ещё не настроены.
+**Статус:** local check/worker entrypoints exist; hosted deployment, alerting and production rollout are not configured.
 
 ## Runtime boundary
 
-Рекомендуемый первый runtime — один постоянно работающий Node.js worker с long polling Telegram и Firestore listeners плюс периодический МЭШ poll. Это упрощает окна группировки и восстановление outbox. Host/deployment не выбран; Firebase Functions — отдельная альтернатива с иным scheduler/webhook контрактом, а не переключение одной переменной.
+Целевой runtime — один постоянно работающий Node.js worker с long polling Telegram, Firestore listeners и периодическим МЭШ poll. В текущем срезе source listeners/polling отсутствуют: worker может обрабатывать только уже записанные jobs, а delivery выключена по умолчанию. Host/deployment не выбран; Firebase Functions — отдельная альтернатива с иным scheduler/webhook контрактом, а не переключение одной переменной.
 
-Runtime composition root загружает/валидирует config, создаёт adapters, порты, application services, health state и graceful shutdown. Core modules не читают process.env. Остановка прекращает новые source signals, дожидается ограниченный срок текущей транзакции/записи job, затем закрывает listeners и bot.
+Runtime composition root загружает/валидирует config, создаёт registry/ledger/Telegram adapters и application services. Core modules не читают process.env. SIGINT/SIGTERM interrupt idle wait, останавливают bot, в пределах общего 25-секундного shutdown budget ждут polling promise (включая завершение in-flight handlers) и текущий delivery drain, затем вызывают Firestore `terminate()`. Ошибка drain/stop/terminate логируется безопасным кодом и выставляет failure exit status; при превышении deadline worker завершает процесс с failure code. Hosted deployment и readiness не настроены.
 
 ## Конфигурация
 
 Минимальные группы параметров:
 
 - Telegram bot token и разрешённые team recipient IDs.
-- Firestore project/database и source path registry.
+- `TELEGRAM_FIRESTORE_PROJECT_ID`, ADC и `TELEGRAM_WORKER_ID`.
+- Firestore source path registry (observers are not implemented in this increment).
 - Окна группировки, poll interval, retry bounds, lease duration, concurrency limits.
 - Environment/instance ID, log level, privacy-safe diagnostics.
 
-Секреты передавать через host secret manager или ADC; никакого `.env`, credentials JSON или token в Git/логах. Конфигурация валидируется при старте. Опасная пустая команда получателя или проект Firestore должна останавливать readiness, а не молча отправлять в неверное место.
+Секрет Telegram читается только из `AGI_EDU_BOT`; `check` выполняет `getMe`, проверяет username `agi_edu_bot` и не создаёт Firestore client. Явный `worker` требует `TELEGRAM_FIRESTORE_PROJECT_ID`, разрешает ADC чтением `telegramBotRuntimeChecks/{projectId}` до polling и использует default application credentials. `--enable-delivery` отдельно включает чтение outbox; без него доставка выключена. Секреты передавать через host secret manager или ADC; никакого `.env`, credentials JSON или token в Git/логах. Ошибки логируются только из finite safe-code set.
+
+Для ledger/outbox нужен scoped manifest [firestore.indexes.json](../../../packages/telegram-notifications/firestore.indexes.json). До delivery opt-in проверить существующие индексы проекта и объединить адресно два composite index (`state + nextAttemptAt`, `state + leaseUntil`); manifest сам по себе не выпущен и не должен автоматически заменять глобальный Firebase index manifest.
 
 ## IAM и данные
 

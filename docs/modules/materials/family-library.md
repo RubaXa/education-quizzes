@@ -2,6 +2,29 @@
 id: module.materials.family-library
 status: accepted
 implementation: partial
+created: 2026-10-11
+updated: 2026-10-16
+consumers:
+  - "parent"
+  - "student"
+  - "family library"
+  - "upload worker"
+code:
+  - "day/family-source-graph.mjs"
+  - "scripts/backfill-book-manifests.mjs"
+  - "scripts/day.mjs"
+  - "scripts/family-library.mjs"
+  - "scripts/storage.mjs"
+  - "scripts/sync-inbox.mjs"
+  - "src/components/FamilyLibrary.css"
+  - "src/components/FamilyLibrary.tsx"
+  - "src/components/MaterialReader.tsx"
+  - "src/lib/bookPageSource.ts"
+  - "src/lib/familyBookUpload.ts"
+  - "src/lib/familyLibrary.ts"
+  - "src/lib/materialPageCache.ts"
+  - "storage/family-book-projection.mjs"
+  - "storage/family-book-upload.mjs"
 parent: module.materials
 uses:
   - module.materials.materials
@@ -14,7 +37,6 @@ sections:
   - firestore-model
   - source-graph
   - состояние-реализации
-
 ---
 # Семейная библиотека и общий архив учебников
 

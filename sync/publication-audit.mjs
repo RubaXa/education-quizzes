@@ -1,3 +1,6 @@
+/**
+ * @see ../docs/operations/recovery.md
+ */
 /** Compare the current source projection with the last Firestore publication.
  * A fresh download alone must never clear an unpublished change.
  * @see ../docs/modules/synchronization/global-sync.md#reconciliation

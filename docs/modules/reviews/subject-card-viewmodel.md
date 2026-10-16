@@ -2,6 +2,16 @@
 id: module.reviews.subject-card-viewmodel
 status: accepted
 implementation: partial
+created: 2026-10-13
+updated: 2026-10-16
+consumers:
+  - "student"
+  - "parent"
+  - "review operator"
+  - "submission publisher"
+code:
+  - "src/lib/quizCardViewModel.ts"
+  - "src/lib/watchQuizOutcome.ts"
 parent: module.reviews
 uses:
   - module.reviews.card-generation-policy
@@ -10,7 +20,6 @@ sections:
   - generation
   - learner-view
   - release-gate
-
 ---
 # Единая модель карточки задания {#viewmodel}
 

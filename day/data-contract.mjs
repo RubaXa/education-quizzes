@@ -1,3 +1,6 @@
+/**
+ * @see ../docs/shared/data/README.md
+ */
 /** @see ../docs/modules/materials/material-clarification.md */
 import { materialRequestErrors } from '../src/lib/materialRequest.ts'
 /** Runtime shape of the current Firestore projection. Optional additive fields are

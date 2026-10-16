@@ -2,6 +2,18 @@
 id: product.pwa
 status: accepted
 implementation: partial
+created: 2026-10-08
+updated: 2026-10-16
+consumers:
+  - "parent"
+  - "student"
+  - "Education operator"
+code:
+  - "scripts/build-inputs.mjs"
+  - "src/components/PwaControls.css"
+  - "src/components/PwaControls.tsx"
+  - "src/lib/personalAccess.ts"
+  - "src/lib/pwa.ts"
 parent: product.education
 uses:
   - product.education
@@ -11,7 +23,6 @@ sections:
   - уведомления
   - отпечаток-выпуска
   - состояние
-
 ---
 # Education как приложение на телефоне
 

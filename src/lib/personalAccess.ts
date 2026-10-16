@@ -1,3 +1,7 @@
+
+/**
+ * @see ../../docs/shared/access-and-privacy.md
+ */
 import { getAuth, signInAnonymously } from 'firebase/auth'
 import { collection, doc, getDoc, getDocs, serverTimestamp, setDoc } from 'firebase/firestore'
 import { db } from './firebase'

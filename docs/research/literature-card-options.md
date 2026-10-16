@@ -2,6 +2,14 @@
 id: research.literature-card-options
 status: reference
 implementation: not-applicable
+created: 2026-10-13
+updated: 2026-10-16
+consumers:
+  - "product implementer"
+  - "service implementer"
+  - "Education operator"
+code:
+  []
 parent: product.education
 uses: []
 sections:
@@ -9,7 +17,6 @@ sections:
   - пять-форм-без-пяти-отдельных-ui-компонентов
   - композиция-из-имеющегося-кода
   - основание-для-выбора
-
 ---
 # Литература: конечный набор карточек для обсуждения
 

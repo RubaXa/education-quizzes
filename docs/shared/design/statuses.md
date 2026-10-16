@@ -2,6 +2,39 @@
 id: shared.design.statuses
 status: accepted
 implementation: partial
+created: 2026-10-14
+updated: 2026-10-16
+consumers:
+  - "React UI components"
+  - "frontend developer"
+  - "screen author / Education agent"
+code:
+  - "scripts/check-problem-variant-viewport.mjs"
+  - "scripts/check-schedule-viewport.mjs"
+  - "src/App.css"
+  - "src/DayDashboard.css"
+  - "src/DayPage.css"
+  - "src/DayPage.tsx"
+  - "src/components/ArtifactAvatar.css"
+  - "src/components/ArtifactAvatar.tsx"
+  - "src/components/ConnectionInvite.tsx"
+  - "src/components/EducationImage.css"
+  - "src/components/FamilyAccessCards.tsx"
+  - "src/components/FamilyLibrary.css"
+  - "src/components/FamilyLibrary.tsx"
+  - "src/components/ParentHome.css"
+  - "src/components/ParentHome.tsx"
+  - "src/components/ParentTaskGuide.css"
+  - "src/components/ParentTaskGuide.tsx"
+  - "src/components/ProblemCard.css"
+  - "src/components/ProblemCard.tsx"
+  - "src/components/ProblemGroup.css"
+  - "src/components/ProblemGroup.tsx"
+  - "src/components/QuizResultCard.tsx"
+  - "src/components/StatusIcon.css"
+  - "src/components/StatusIcon.tsx"
+  - "src/components/WorkReview.tsx"
+  - "src/lib/reviewPresentation.ts"
 parent: shared.design
 uses:
   - shared.design.ui-kit
@@ -12,7 +45,6 @@ sections:
   - снятие-метки-новое-дз
   - проверка
   - числовые-результаты-тестов
-
 ---
 # Матрица статусов Education
 

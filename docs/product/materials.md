@@ -9,6 +9,15 @@ sections:
   - подтверждённый-сценарий
   - контракты-и-реализация
 
+created: 2026-10-08
+updated: 2026-10-16
+consumers:
+  - "parent"
+  - "student"
+  - "Education operator"
+code:
+  - "scripts/direct-upload-worker.mjs"
+  - "day/build.mjs"
 ---
 
 # Учебные материалы семьи

@@ -1,7 +1,18 @@
 ---
 id: service.telegram-bot.ports-and-events
 status: accepted
-implementation: planned
+implementation: partial
+created: 2026-10-16
+updated: 2026-10-16
+consumers:
+  - "Telegram service implementer"
+  - "bot operator"
+  - "parents and guardians"
+code:
+  - "packages/telegram-notifications/domain/events.mjs"
+  - "packages/telegram-notifications/domain/diff.mjs"
+  - "packages/telegram-notifications/domain/ports.mjs"
+  - "packages/telegram-notifications/application/notifications.mjs"
 parent: service.telegram-bot
 uses:
   - service.telegram-bot
@@ -14,12 +25,11 @@ sections:
   - ошибки-и-обратная-совместимость
   - проверочные-сценарии-контракта
   - подмодули
-
 ---
 # Порты и события Telegram notification service
 
 **Родитель:** [корневая архитектура](README.md).
-**Статус:** целевой контракт; код ещё не реализован.
+**Статус:** normalized event validation, stable identity, snapshot diff and application ports implemented; source adapters do not yet produce observations.
 
 ## Назначение
 
@@ -59,7 +69,7 @@ source, scopeKey, completeness, observedAt, sourceRevision?, cursor?, records[]
 |---|---|
 | `eventId` | Детерминированный ID из `source + scopeKey + sourceEventKey + sourceRevision + eventType`; стабильная канонизация и хэширование задаются реализацией |
 | `sourceEventKey` | ID записи источника, а для diff snapshot — устойчивый ID предметной записи, не индекс массива |
-| `sourceRevision` | Ревизия/updatedAt источника; для snapshot-diff — хэш нормализованных значимых полей |
+| `sourceRevision` | Ревизия источника; для snapshot-diff — hash перехода нормализованных значимых полей, включающий durable monotonic `observationSequence` |
 | `eventType` | Версионируемый enum, например `grade.created`, `homework.changed`, `upload.confirmed`; свободные строки неизвестного типа не отправляются |
 | `familyId`, `childId` | Разрешаются из проверенного owner map и сохраняются как идентичность адресации |
 | `privacyClass` | Минимальная политика раскрытия: `family-summary`, `team-summary`, `restricted`; renderer проверяет её перед выводом |
@@ -85,7 +95,7 @@ source, scopeKey, completeness, observedAt, sourceRevision?, cursor?, records[]
 
 1. Полный снимок без изменений даёт ноль событий.
 2. Одинаковая ревизия повторно не создаёт новый event/job.
-3. Частичный снимок не создаёт события удаления и не продвигает baseline.
+3. Неполный или некорректный снимок не создаёт события удаления и не продвигает baseline; каждый полный снимок обязан иметь durable monotonic `observationSequence` из checkpoint adapter, не `fetchedAt`.
 4. Изменение значимого поля порождает event с новым ID и before/after минимумом.
 5. Неизвестный event type не попадает в семейную доставку.
 6. Изменение Telegram username не меняет идентичность account/link.

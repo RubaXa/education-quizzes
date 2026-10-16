@@ -1,3 +1,6 @@
+/**
+ * @see ../docs/modules/assessments/assessment-source-policy.md
+ */
 /** Private quiz authoring contract. The plan is never copied into assignments.
  * @see ../docs/modules/assessments/assessment-decision-graph.md#contract
  */

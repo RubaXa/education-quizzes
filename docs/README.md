@@ -1,14 +1,20 @@
 ---
 id: docs.education
 status: accepted
-implementation: implemented
+implementation: not-applicable
+created: 2026-10-16
+updated: 2026-10-16
+consumers:
+  - "Education agent"
+  - "developer"
+code:
+  []
 parent: product.education
 uses:
   - architecture.education
   - shared.specification-system
 sections:
   - как-различать-документы
-
 ---
 
 # Навигатор спецификаций Education

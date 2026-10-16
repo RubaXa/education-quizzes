@@ -2,6 +2,14 @@
 id: audits.release-inventory-2026-10-12
 status: reference
 implementation: not-applicable
+created: 2026-10-13
+updated: 2026-10-16
+consumers:
+  - "Education operator"
+  - "developer"
+  - "release reviewer"
+code:
+  []
 parent: product.education
 uses: []
 sections:
@@ -9,7 +17,6 @@ sections:
   - решение
   - фактическое-состояние
   - порядок-следующих-изменений
-
 ---
 # Инвентаризация выпуска 12.10.2026
 

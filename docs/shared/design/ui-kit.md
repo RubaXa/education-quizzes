@@ -2,6 +2,16 @@
 id: shared.design.ui-kit
 status: accepted
 implementation: partial
+created: 2026-10-16
+updated: 2026-10-16
+consumers:
+  - "React UI components"
+  - "frontend developer"
+  - "screen author / Education agent"
+code:
+  - "src/UiKit.css"
+  - "src/UiKit.tsx"
+  - "src/lib/uiKitExamples.ts"
 parent: shared.design
 uses:
   - shared.design
@@ -12,7 +22,6 @@ sections:
   - регрессии-и-развитие
   - уточнение-материала-ученика
   - сводка-дз
-
 ---
 # Education UI Kit
 

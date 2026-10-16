@@ -2,6 +2,13 @@
 id: decisions.quiz-threshold-and-page-slider-2026-10-14
 status: reference
 implementation: not-applicable
+created: 2026-10-14
+updated: 2026-10-16
+consumers:
+  - "product implementer"
+  - "service implementer"
+code:
+  []
 parent: product.education
 uses:
   - decisions.restore-textbook-strip-2026-10-15
@@ -11,7 +18,6 @@ sections:
   - действия-и-роли
   - проверки
   - согласование
-
 ---
 # Самопроверка от 80% и соседние страницы
 

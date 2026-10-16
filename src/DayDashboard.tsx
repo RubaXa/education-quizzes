@@ -1,3 +1,6 @@
+/**
+ * @see ../docs/product/school-day.md
+ */
 /** @see ../docs/modules/school-diary/dashboard.md#compact-homework */
 /** @see ../docs/modules/materials/material-clarification.md */
 import { useEffect, useRef, useState } from 'react'

@@ -1,3 +1,7 @@
+/**
+ * @see ../docs/product/homework-review.md
+ * @see ../docs/modules/reviews/README.md
+ */
 /** @see ../docs/modules/materials/material-clarification.md */
 import { sourceReviewErrors } from '../src/lib/materialRequest.ts'
 import { createHash } from 'node:crypto'

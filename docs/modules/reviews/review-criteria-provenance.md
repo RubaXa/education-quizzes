@@ -2,6 +2,23 @@
 id: module.reviews.review-criteria-provenance
 status: accepted
 implementation: partial
+created: 2026-10-11
+updated: 2026-10-16
+consumers:
+  - "student"
+  - "parent"
+  - "review operator"
+  - "submission publisher"
+code:
+  - "day/card-policy.mjs"
+  - "scripts/submissions.mjs"
+  - "src/DayPage.css"
+  - "src/components/WorkReview.tsx"
+  - "src/lib/dayStore.ts"
+  - "src/lib/parentCompletion.ts"
+  - "src/lib/reviewPresentation.ts"
+  - "storage/review-challenge.mjs"
+  - "storage/review-requirements.mjs"
 parent: module.reviews
 uses:
   - module.reviews.adaptive-problem-card
@@ -11,7 +28,6 @@ sections:
   - источник-пакет-перед-вердиктом
   - решение-и-спор
   - состояние-внедрения
-
 ---
 # Основания проверки работы
 

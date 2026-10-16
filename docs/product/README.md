@@ -26,6 +26,15 @@ sections:
   - сервисы-и-общие-контракты
   - предыдущий-полный-индекс-и-таблица-состояния
 
+created: 2026-10-08
+updated: 2026-10-16
+consumers:
+  - "parent"
+  - "student"
+  - "web-app frontend"
+  - "Education operator"
+code:
+  - "src/App.tsx"
 ---
 
 # PETR Education: продуктовый контракт

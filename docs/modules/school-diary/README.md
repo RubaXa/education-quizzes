@@ -2,13 +2,29 @@
 id: module.school-diary
 status: accepted
 implementation: partial
+created: 2026-10-08
+consumers:
+  - "parent"
+  - "student"
+  - "sync operator"
+  - "day dashboard frontend"
+code:
+  - "packages/education-connect/bin/education-connect.mjs"
+  - "packages/education-connect/lib/envelope.mjs"
+  - "packages/education-connect/lib/handoff-store.mjs"
+  - "packages/education-connect/lib/mesh.mjs"
+  - "packages/education-connect/lib/network-retry.mjs"
+  - "packages/education-connect/lib/prompts.mjs"
+  - "scripts/connect.mjs"
+  - "scripts/day.mjs"
+  - "src/components/ConnectionInvite.tsx"
 parent: product.education
 uses:
   - module.families
   - module.synchronization
 
 type: architecture-proposal
-updated: 2026-10-08
+updated: 2026-10-16
 related:
   - ../../../README.md
   - ../../product/README.md
@@ -24,7 +40,6 @@ sections:
   - последовательность-синхронизации
   - контракт-расширения
   - основания-и-открытые-вопросы
-
 ---
 
 # Порт школьного дневника

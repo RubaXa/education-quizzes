@@ -8,6 +8,14 @@ uses:
   - service.upload-worker
   - service.telegram-bot
 sections: []
+created: 2026-10-16
+updated: 2026-10-16
+consumers:
+  - "Education operator"
+  - "developer"
+  - "release operator"
+code:
+  - "scripts/education.mjs"
 ---
 
 # Операционная граница

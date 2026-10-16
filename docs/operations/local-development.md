@@ -7,6 +7,14 @@ uses:
   - shared.toolchain
   - shared.specification-system
 sections: []
+created: 2026-10-16
+updated: 2026-10-16
+consumers:
+  - "Education operator"
+  - "developer"
+  - "release operator"
+code:
+  - "vite.config.ts"
 ---
 
 # Локальная разработка

@@ -49,7 +49,9 @@
     "firestore:usage": "node scripts/firestore-usage.mjs",
     "submissions": "node scripts/submissions.mjs",
     "notifications": "node scripts/notifications.mjs",
-    "check:docs": "node scripts/check-docs.mjs"
+    "check:docs": "node scripts/check-docs.mjs",
+    "telegram:check": "node scripts/telegram-bot.mjs check",
+    "telegram:worker": "node scripts/telegram-bot.mjs worker"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.3.0",

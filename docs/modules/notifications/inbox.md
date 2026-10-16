@@ -2,6 +2,24 @@
 id: module.notifications.inbox
 status: accepted
 implementation: partial
+created: 2026-10-08
+updated: 2026-10-16
+consumers:
+  - "parent"
+  - "student"
+  - "in-app notification publisher"
+  - "web inbox frontend"
+code:
+  - "scripts/day.mjs"
+  - "scripts/notifications.mjs"
+  - "scripts/release-note.mjs"
+  - "scripts/submissions.mjs"
+  - "src/components/NotificationBell.css"
+  - "src/components/NotificationBell.tsx"
+  - "src/lib/educationSchema.ts"
+  - "src/lib/educationStore.ts"
+  - "src/lib/notificationThreads.ts"
+  - "storage/inbox-notifications.mjs"
 parent: module.notifications
 uses: []
 sections:
@@ -12,7 +30,6 @@ sections:
   - что-создаёт-уведомление-и-как-не-засорять-центр
   - центр-обновлений-внутри-приложения
   - отчётность-и-срок-хранения
-
 ---
 # Education: действия, просмотры и новое
 

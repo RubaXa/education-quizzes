@@ -1,3 +1,7 @@
+/**
+ * @see ../docs/modules/reviews/README.md
+ * @see ../docs/modules/reviews/card-flow-certification.md
+ */
 import { createHash } from 'node:crypto'
 import { lessonVisibility } from '../diary/application/lesson-visibility.mjs'
 import { publicPageSubjects } from './public-projection.mjs'

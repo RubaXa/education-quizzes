@@ -1,7 +1,16 @@
 ---
 id: service.telegram-bot
 status: accepted
-implementation: planned
+implementation: partial
+created: 2026-10-16
+updated: 2026-10-16
+consumers:
+  - "Telegram service implementer"
+  - "bot operator"
+  - "parents and guardians"
+code:
+  - "packages/telegram-notifications/adapters/runtime.mjs"
+  - "scripts/telegram-bot.mjs"
 parent: product.education
 uses:
   - shared.toolchain
@@ -22,11 +31,10 @@ sections:
   - расширение-без-перестройки-ядра
   - порядок-реализации-и-состояние
   - решения-ожидающие-подтвержденияпроверки
-
 ---
 # Архитектура сервиса уведомлений `@agi_edu_bot`
 
-**Статус:** целевая архитектура; код сервиса ещё не реализован.
+**Статус:** архитектура частично реализована: account registry, подтверждённый `/stop`, typed event/diff/renderer и Firestore ledger/outbox primitives доступны. Production source observation и deployment не объявлены.
 **Владелец:** отдельный Node.js worker в Education.
 **Бизнес-контракт и решения интервью:** [спецификация сервиса](petr-private:docs/product/agi-edu-bot-service-spec.md).
 
@@ -144,13 +152,15 @@ subject?, title?, before?, after?, contextRefs[], privacyClass
 | Этап | Результат | Статус |
 |---|---|---|
 | A | Архитектура, события, privacy boundary, deployment decision | Спецификация в работе; данный документ — целевая граница |
-| B | Core contracts, Firestore ledger/outbox, тестируемая идемпотентность | Не реализовано |
-| C | Telegram `/start`, реестр аккаунтов и безопасная семейная привязка | Не реализовано |
+| B | Core contracts, Firestore ledger/outbox, тестируемая идемпотентность | Частично; source wiring planned |
+| C | Telegram `/start`, реестр аккаунтов и безопасная семейная привязка | Частично; registry/disconnect есть, issuer UI отсутствует |
 | D | Firestore observation, затем МЭШ polling и source mappings | Не реализовано |
-| E | Routing, structured templates, retry/recovery и team alerts | Не реализовано |
+| E | Routing, structured templates, retry/recovery и team alerts | Частично; family renderer/outbox есть, grouping/team route отсутствуют |
 | F | Операционный запуск, минимальные IAM/secrets, мониторинг и контролируемый rollout | Не реализовано |
 
-Установка npm-пакета или документированный контракт не означает, что соответствующий worker работает. До этапа F сервис не является действующим наблюдателем и ничего не отправляет.
+Установка npm-пакета или документированный контракт не означает, что worker работает. Только явно запущенный `worker` принимает команды; delivery выключена по умолчанию. Сервис не является действующим наблюдателем.
+
+Первый срез: `node scripts/telegram-bot.mjs check` делает read-only `getMe` и сверяет `agi_edu_bot` без создания Firestore client. Явный `worker` использует ADC, проверяет project access до polling, поддерживает `/start` и sender-bound одноразовый `/stop`; linking token может быть погашен только внедрённым trusted authorizer, которого в текущем UI нет. `--enable-delivery` отдельно включает обработку уже подтверждённых outbox jobs; Firestore/МЭШ observers, UI linking, team resolver и grouping/digest planned.
 
 ## Решения, ожидающие подтверждения/проверки
 

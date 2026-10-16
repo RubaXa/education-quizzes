@@ -1,5 +1,6 @@
 /** Content-independent safeguards for a linked quiz and an unopened revision.
- * @see ../docs/modules/assessments/assessment-decision-graph.md#followup-threshold */
+ * @see ../docs/modules/assessments/assessment-decision-graph.md#followup-threshold
+ * @see ../docs/modules/assessments/quiz-chain-proposal.md#связь-с-кодом-и-проверками */
 import { isDeepStrictEqual } from 'node:util'
 export function assertFollowupCoverage(plan, spec, sourceTestId, errorQuestionIds) {
   const coverage = plan?.followupCoverage

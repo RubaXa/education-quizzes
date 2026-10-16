@@ -2,6 +2,14 @@
 id: service.telegram-bot.mesh
 status: accepted
 implementation: planned
+created: 2026-10-16
+updated: 2026-10-16
+consumers:
+  - "Telegram service implementer"
+  - "bot operator"
+  - "parents and guardians"
+code:
+  []
 parent: service.telegram-bot
 uses: []
 sections:
@@ -10,7 +18,6 @@ sections:
   - начальный-event-mapping
   - ошибки-и-восстановление
   - будущие-подмодули
-
 ---
 # Адаптер источника МЭШ
 
@@ -27,6 +34,7 @@ sections:
 
 - Scope ключуется по семье, ребёнку и исходной учётной записи.
 - Одна observation включает проверенный набор расписания, заданий и оценок, необходимый для diff; время скачивания не входит в content revision.
+- Каждая полная observation обязана иметь устойчивый монотонный `observationSequence`, выделенный и сохранённый источником по scope до передачи в diff. `fetchedAt` и случайный UUID не заменяют sequence. Повторный или меньший sequence отвергается без продвижения baseline; пока durable sequence provider не реализован, этот источник остаётся planned.
 - Сравнивать только устойчивые source IDs и нормализованные значимые поля. Перестановка записей, время fetch и серверный шум не создают событие.
 - Продвигать baseline только после полного валидного снимка всех обязательных частей. Пустой/частичный ответ, ошибка аутентификации и транспортный сбой сохраняют предыдущую baseline.
 - Исчезновение записи становится событием только если контрактом доказана полнота области и источником подтверждён её статус; иначе открыть reconciliation signal.

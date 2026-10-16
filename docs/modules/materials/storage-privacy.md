@@ -2,6 +2,26 @@
 id: module.materials.storage-privacy
 status: accepted
 implementation: partial
+created: 2026-10-08
+updated: 2026-10-16
+consumers:
+  - "parent"
+  - "student"
+  - "family library"
+  - "upload worker"
+code:
+  - "scripts/archive-local.mjs"
+  - "scripts/check-privacy.mjs"
+  - "scripts/day.mjs"
+  - "scripts/family.mjs"
+  - "scripts/storage.mjs"
+  - "scripts/submissions.mjs"
+  - "scripts/verify-upload-flow.mjs"
+  - "src/lib/dayStore.ts"
+  - "src/lib/networkRetry.ts"
+  - "storage/review-coverage.mjs"
+  - "storage/submission-inbox.mjs"
+  - "storage/yandex-disk.mjs"
 parent: module.materials
 uses:
   - module.materials.materials
@@ -17,7 +37,6 @@ sections:
   - повторная-миграция-и-сверка
   - закрытый-архив-локальных-оригиналов
   - уточнение-материала-ученика
-
 ---
 # Хранение медиа и приватность
 

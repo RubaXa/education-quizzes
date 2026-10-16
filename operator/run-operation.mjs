@@ -1,3 +1,6 @@
+/**
+ * @see ../docs/operations/recovery.md
+ */
 /** One execution and one private receipt for every operator operation.
  * @see ../docs/services/operator-cli/README.md#execution */
 import { randomUUID } from 'node:crypto'

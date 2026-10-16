@@ -2,6 +2,23 @@
 id: module.school-diary.grades
 status: accepted
 implementation: partial
+created: 2026-10-08
+updated: 2026-10-16
+consumers:
+  - "parent"
+  - "student"
+  - "sync operator"
+  - "day dashboard frontend"
+code:
+  - "day/grade-publication.mjs"
+  - "day/grade-reconciliation.mjs"
+  - "day/grade-snapshot.mjs"
+  - "scripts/day.mjs"
+  - "scripts/grade-snapshot.mjs"
+  - "src/DayDashboard.css"
+  - "src/DayDashboard.tsx"
+  - "src/DayPage.css"
+  - "src/DayPage.tsx"
 parent: module.school-diary
 uses:
   - module.school-diary.day-page
@@ -10,7 +27,6 @@ sections:
   - сверка-перед-выпуском
   - метка-предмета
   - оценки-на-dashboard
-
 ---
 # Средний балл в Education
 

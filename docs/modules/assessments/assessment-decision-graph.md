@@ -2,6 +2,19 @@
 id: module.assessments.assessment-decision-graph
 status: accepted
 implementation: partial
+created: 2026-10-13
+updated: 2026-10-16
+consumers:
+  - "student"
+  - "parent"
+  - "quiz author"
+  - "assessment pipeline"
+code:
+  - "assessment/decision-graph.mjs"
+  - "assessment/followup-contract.mjs"
+  - "assessment/quiz-lineage.mjs"
+  - "scripts/sync-queue.mjs"
+  - "src/lib/quizCompletion.ts"
 parent: module.assessments
 uses:
   - module.assessments.quiz-chain-proposal
@@ -11,7 +24,6 @@ sections:
   - contract
   - sources
   - implementation
-
 ---
 # Граф подготовки учебных самопроверок {#decision-graph}
 

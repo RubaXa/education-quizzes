@@ -2,6 +2,14 @@
 id: audits.firestore-read-audit-2026-10-14
 status: reference
 implementation: not-applicable
+created: 2026-10-14
+updated: 2026-10-16
+consumers:
+  - "Education operator"
+  - "developer"
+  - "release reviewer"
+code:
+  []
 parent: product.education
 uses:
   - audits.firestore-usage-2026-10-12
@@ -9,7 +17,6 @@ sections:
   - сопоставимый-срез
   - матрица-необходимости-и-цены
   - что-должно-считаться-доказательством
-
 ---
 # Повторный аудит чтений Firestore — 14 октября 2026
 

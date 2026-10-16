@@ -2,6 +2,14 @@
 id: audits.specification-graph-audit-2026-10-16
 status: reference
 implementation: not-applicable
+created: 2026-10-16
+updated: 2026-10-16
+consumers:
+  - "Education operator"
+  - "developer"
+  - "release reviewer"
+code:
+  []
 parent: product.education
 uses: []
 sections:
@@ -14,7 +22,6 @@ sections:
   - сводная-таблица-реорганизации
   - необходимые-проверки-после-реорганизации
   - ограничения-этого-снимка
-
 ---
 # Ревизия графа спецификаций PETR и Education
 

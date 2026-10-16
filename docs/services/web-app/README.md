@@ -18,6 +18,15 @@ sections:
   - спецификации
   - код-и-данные
 
+created: 2026-10-16
+updated: 2026-10-16
+consumers:
+  - "parent"
+  - "student"
+  - "web-app frontend"
+  - "frontend developer"
+code:
+  - "src/App.tsx"
 ---
 
 # Клиентское приложение

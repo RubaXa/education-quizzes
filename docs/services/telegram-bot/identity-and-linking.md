@@ -1,7 +1,16 @@
 ---
 id: service.telegram-bot.identity-and-linking
 status: accepted
-implementation: planned
+implementation: partial
+created: 2026-10-16
+updated: 2026-10-16
+consumers:
+  - "Telegram service implementer"
+  - "bot operator"
+  - "parents and guardians"
+code:
+  - "packages/telegram-notifications/application/identity.mjs"
+  - "packages/telegram-notifications/adapters/telegram.mjs"
 parent: service.telegram-bot
 uses:
   - service.telegram-bot
@@ -13,12 +22,13 @@ sections:
   - отключение
   - данные-и-доступ
   - подмодули
-
 ---
 # Реестр Telegram identity и семейная привязка
 
 **Родитель:** [корневая архитектура](README.md); [порты и события](ports-and-events.md); [семейная модель](../../modules/families/README.md).
-**Статус:** целевой сценарий, не реализован.
+**Статус:** целевой сценарий частично реализован. Account registration and confirmed `/stop` exist; family linking does not.
+
+Выпуск и погашение семейного link token не включены: оба пользовательских UI flow отсутствуют, поэтому бот не доверяет произвольному `familyId` и требует внедрённый trusted `FamilyLinkAuthorizationPort` с подтверждённым PETR actor и live membership. Без такого порта `/start <payload>` не создаёт семейную связь.
 
 ## Модель идентичности
 
@@ -54,7 +64,7 @@ Token requirements: криптографически случайный, одн�
 
 ## Данные и доступ
 
-Конкретные коллекции нужно сверить с существующей family model. Минимальные сущности: telegramAccounts, familyLinks, linkTokens, linkHistory. Уникальность активной пары account/family обеспечивается транзакцией/ограничением приложения и проверкой конкурентных запросов. Любое чтение семьи для маршрутизации проходит server-side resolver и проверяет активный link непосредственно перед созданием доставки.
+Реализация первого среза использует `telegramBotAccounts/{telegramUserId}`, `telegramBotFamilyLinks/{linkId}`, `telegramBotStopChallenges/{sha256(callbackToken)}` и append-only `telegramBotLinkHistory/{linkId_tokenHash}`. `tokenHash` — SHA-256 подтверждения, он не раскрывает raw callback token. Семейная связь должна быть создана только trusted `FamilyLinkAuthorizationPort`; его production adapter/issuer пока отсутствует. Membership проверяется заново по `families/{familyId}/members/{personId}`: `active`, роль `parent` и точное наличие `childId`. Перед enqueue и каждым отправляемым part проверяются также текущие `telegramBotFamilyLinks` state/owner. Уникальность активной пары account/family и выпуск токенов остаются ответственностью trusted issuer, который ещё не реализован.
 
 Не логировать токен, приватные Telegram updates, контакты или raw message body. Username обновлять как метаданные и не использовать в авторизации. При удалении/отзыве сохранять минимальную историю, необходимую для аудита, с retention policy, которую надо утвердить.
 

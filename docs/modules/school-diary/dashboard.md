@@ -2,6 +2,37 @@
 id: module.school-diary.dashboard
 status: accepted
 implementation: partial
+created: 2026-10-08
+updated: 2026-10-16
+consumers:
+  - "parent"
+  - "student"
+  - "sync operator"
+  - "day dashboard frontend"
+code:
+  - "day/build.mjs"
+  - "day/dashboard-index.mjs"
+  - "day/homework-reference.mjs"
+  - "day/subject-identity.mjs"
+  - "scripts/day.mjs"
+  - "src/DayDashboard.css"
+  - "src/DayDashboard.tsx"
+  - "src/DayPage.tsx"
+  - "src/components/HomeworkOverview.tsx"
+  - "src/lib/dayDashboardLessonCache.ts"
+  - "src/lib/dayDashboardStore.ts"
+  - "src/lib/dayDashboardViewCache.ts"
+  - "src/lib/homeworkStatus.ts"
+  - "src/lib/homeworkUpdateReceipt.ts"
+  - "src/lib/inboxCache.ts"
+  - "src/lib/parentFocusDay.ts"
+  - "src/lib/quizCardViewModel.ts"
+  - "src/lib/uiKitExamples.ts"
+  - "src/lib/useDashboardDayWork.ts"
+  - "src/lib/useDayQuizOutcomes.ts"
+  - "src/lib/useDelayedRefresh.ts"
+  - "src/lib/useParentChildOverview.ts"
+  - "sync/publication-audit.mjs"
 parent: module.school-diary
 uses:
   - module.school-diary.day-page
@@ -19,7 +50,6 @@ sections:
   - граница-первой-реализации
   - источник-интерфейса-и-доступ
   - compact-homework
-
 ---
 # Многодневный dashboard Education
 

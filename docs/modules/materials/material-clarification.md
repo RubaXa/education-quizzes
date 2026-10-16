@@ -2,6 +2,29 @@
 id: module.materials.material-clarification
 status: accepted
 implementation: partial
+created: 2026-10-16
+updated: 2026-10-16
+consumers:
+  - "parent"
+  - "student"
+  - "family library"
+  - "upload worker"
+code:
+  - "day/build.mjs"
+  - "day/data-contract.mjs"
+  - "scripts/day.mjs"
+  - "scripts/submissions.mjs"
+  - "scripts/sync-queue.mjs"
+  - "src/DayDashboard.tsx"
+  - "src/DayPage.tsx"
+  - "src/components/MaterialRequest.tsx"
+  - "src/lib/dayStore.ts"
+  - "src/lib/homeworkStatus.ts"
+  - "src/lib/materialRequest.ts"
+  - "src/lib/photoUploadPolicy.ts"
+  - "storage/review-projection.mjs"
+  - "storage/review-readback.mjs"
+  - "storage/submission-inbox.mjs"
 parent: module.materials
 uses: []
 sections:
@@ -12,7 +35,6 @@ sections:
   - состояния-и-роли
   - штатная-команда-и-пакет
   - состояние-реализации
-
 ---
 # Уточнение задания по материалам ученика
 

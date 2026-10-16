@@ -2,13 +2,21 @@
 id: audits.firestore-usage-2026-10-12
 status: reference
 implementation: not-applicable
+created: 2026-10-13
+updated: 2026-10-16
+consumers:
+  - "Education operator"
+  - "developer"
+  - "release reviewer"
+code:
+  - "scripts/firestore-usage-window.mjs"
+  - "scripts/firestore-usage.mjs"
 parent: product.education
 uses: []
 sections:
   - что-измерено
   - вывод-из-кода-и-исправленный-путь
   - как-сравнивать-дальше
-
 ---
 # Нагрузка Firestore: разбор 12 октября 2026
 

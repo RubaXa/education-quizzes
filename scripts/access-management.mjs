@@ -1,4 +1,7 @@
 #!/usr/bin/env node
+/**
+ * @see ../docs/product/families.md
+ */
 import { randomBytes } from 'node:crypto'
 import { existsSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'

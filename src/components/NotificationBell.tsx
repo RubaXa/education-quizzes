@@ -1,3 +1,6 @@
+/**
+ * @see ../../docs/modules/notifications/README.md
+ */
 import { useEffect, useState } from 'react'
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
 import { Bell, ChevronRight, X } from 'lucide-react'

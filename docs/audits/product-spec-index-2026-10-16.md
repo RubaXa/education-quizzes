@@ -2,6 +2,14 @@
 id: audits.product-spec-index-2026-10-16
 status: reference
 implementation: not-applicable
+created: 2026-10-16
+updated: 2026-10-16
+consumers:
+  - "Education operator"
+  - "developer"
+  - "release reviewer"
+code:
+  []
 parent: product.education
 uses:
   - audits.protocol-audit-2026-10-11
@@ -9,7 +17,6 @@ uses:
 sections:
   - сверка-реализации-исходный-аудит-11102026-дополнено-12102026
   - уточнение-материала-ученика
-
 ---
 # Карта спецификаций Education
 

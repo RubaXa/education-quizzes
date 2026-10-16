@@ -2,12 +2,19 @@
 id: research.evidence-based-homework-review
 status: reference
 implementation: not-applicable
+created: 2026-10-11
+updated: 2026-10-16
+consumers:
+  - "product implementer"
+  - "service implementer"
+  - "Education operator"
+code:
+  []
 parent: product.education
 uses: []
 sections:
   - что-источники-позволяют-установить
   - вывод-для-механизма
-
 ---
 # Проверка домашней работы по источнику, а не по ожиданию модели
 

@@ -2,6 +2,18 @@
 id: module.synchronization.plan-generation
 status: accepted
 implementation: partial
+created: 2026-10-09
+updated: 2026-10-16
+consumers:
+  - "Education sync operator"
+  - "sync-project CLI"
+  - "Firestore publisher"
+code:
+  - "day/build.mjs"
+  - "day/homework-kind.mjs"
+  - "day/pipeline-contract.mjs"
+  - "scripts/day.mjs"
+  - "src/lib/dayStore.ts"
 parent: module.synchronization
 uses:
   - module.synchronization.education-pipeline
@@ -12,7 +24,6 @@ sections:
   - сверка-перед-подробным-планом
   - барьер-перед-публикацией
   - неопределённость-и-помощь-агента
-
 ---
 # Формирование плана из МЭШ
 

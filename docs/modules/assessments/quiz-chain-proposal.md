@@ -2,6 +2,20 @@
 id: module.assessments.quiz-chain-proposal
 status: accepted
 implementation: partial
+created: 2026-10-16
+updated: 2026-10-16
+consumers:
+  - "student"
+  - "parent"
+  - "quiz author"
+  - "assessment pipeline"
+code:
+  - "src/components/QuizAttemptReview.tsx"
+  - "src/components/QuizCard.css"
+  - "src/components/QuizCard.tsx"
+  - "src/lib/quizCardViewModel.ts"
+  - "assessment/followup-contract.mjs"
+  - "assessment/quiz-lineage.mjs"
 parent: module.assessments
 uses:
   - module.assessments.result-presentation-proposal
@@ -13,7 +27,6 @@ sections:
   - данные-проценты-и-сортировка
   - единое-продолжение-по-всей-истории
   - связь-с-кодом-и-проверками
-
 ---
 # Цепочка тестов: компактная история и итоговая проверка
 

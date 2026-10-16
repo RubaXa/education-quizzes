@@ -2,6 +2,23 @@
 id: module.reviews.adaptive-problem-card
 status: accepted
 implementation: partial
+created: 2026-10-10
+updated: 2026-10-16
+consumers:
+  - "student"
+  - "parent"
+  - "review operator"
+  - "submission publisher"
+code:
+  - "scripts/day.mjs"
+  - "scripts/submissions.mjs"
+  - "src/components/ProblemCard.tsx"
+  - "src/components/ProblemStatement.css"
+  - "src/components/ProblemStatement.tsx"
+  - "src/components/ProblemTaskCard.tsx"
+  - "src/lib/dayStore.ts"
+  - "src/lib/personalAccess.ts"
+  - "storage/review-projection.mjs"
 parent: module.reviews
 uses:
   - module.reviews.subject-aware-guidance
@@ -13,7 +30,6 @@ sections:
   - происхождение-задачи
   - выпуск-и-безопасность
   - общее-представление-номера
-
 ---
 # Адаптивная карточка задачи
 

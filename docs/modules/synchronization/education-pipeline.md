@@ -2,6 +2,16 @@
 id: module.synchronization.education-pipeline
 status: accepted
 implementation: partial
+created: 2026-10-11
+updated: 2026-10-16
+consumers:
+  - "Education sync operator"
+  - "sync-project CLI"
+  - "Firestore publisher"
+code:
+  - "scripts/install-upload-worker.mjs"
+  - "scripts/sync-books.mjs"
+  - "scripts/sync-inbox.mjs"
 parent: module.synchronization
 uses:
   - module.synchronization.plan-generation
@@ -9,7 +19,6 @@ uses:
 sections:
   - textbook-sync
   - sync-inbox
-
 ---
 # Сквозной протокол обновления Education
 

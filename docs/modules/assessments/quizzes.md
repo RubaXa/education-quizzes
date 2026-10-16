@@ -2,6 +2,30 @@
 id: module.assessments.quizzes
 status: accepted
 implementation: partial
+created: 2026-10-08
+updated: 2026-10-16
+consumers:
+  - "student"
+  - "parent"
+  - "quiz author"
+  - "assessment pipeline"
+code:
+  - "assessment/question-copy.mjs"
+  - "day/merge.mjs"
+  - "scripts/check-quiz-switch-viewport.mjs"
+  - "src/App.tsx"
+  - "src/components/CodeBlock.tsx"
+  - "src/components/QuizCard.css"
+  - "src/components/QuizCard.tsx"
+  - "src/components/QuizResultCard.tsx"
+  - "src/components/QuizTextAnswer.tsx"
+  - "src/components/SubjectTheme.tsx"
+  - "src/lib/homeworkStatus.ts"
+  - "src/lib/questionTopicPresentation.ts"
+  - "src/lib/quizDraft.ts"
+  - "src/lib/spellingFeedback.ts"
+  - "src/lib/store.ts"
+  - "src/lib/watchQuizOutcome.ts"
 parent: module.assessments
 uses:
   - module.assessments.quiz-chain-proposal
@@ -17,7 +41,6 @@ sections:
   - время-каждой-попытки
   - родительский-просмотр-и-право-ответа
   - принятая-компактная-история-16102026
-
 ---
 # Тесты и самопроверки
 

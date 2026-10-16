@@ -2,9 +2,16 @@
 id: research.special-course-source-provenance
 status: reference
 implementation: not-applicable
+created: 2026-10-11
+consumers:
+  - "product implementer"
+  - "service implementer"
+  - "Education operator"
+code:
+  []
 parent: product.education
 type: research-note
-updated: 2026-10-11
+updated: 2026-10-16
 related:
   - ../modules/reviews/adaptive-problem-card.md
   - ../../src/components/ProblemStatement.tsx
@@ -17,7 +24,6 @@ sections:
   - порядок-для-каждого-номера
   - найденный-кандидат-для-листа-с--17-от-15102026
   - границы-педагогической-обратной-связи
-
 ---
 
 # Происхождение и ключи задач спецкурса

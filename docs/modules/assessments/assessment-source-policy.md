@@ -10,6 +10,15 @@ sections:
   - control-cycle
   - release
 
+created: 2026-10-13
+updated: 2026-10-16
+consumers:
+  - "student"
+  - "parent"
+  - "quiz author"
+  - "assessment pipeline"
+code:
+  - "assessment/decision-graph.mjs"
 ---
 # Источники и условный цикл учебной самопроверки {#source-policy}
 

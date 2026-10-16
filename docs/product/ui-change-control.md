@@ -2,6 +2,14 @@
 id: product.ui-change-control
 status: accepted
 implementation: partial
+created: 2026-10-14
+updated: 2026-10-16
+consumers:
+  - "parent"
+  - "student"
+  - "Education operator"
+code:
+  - "scripts/check-ui-contract.mjs"
 parent: product.education
 uses: []
 sections:
@@ -9,7 +17,6 @@ sections:
   - numbered-card-matrix
   - mechanical-gate
   - coverage-limit
-
 ---
 # Управление изменениями интерфейса Education
 

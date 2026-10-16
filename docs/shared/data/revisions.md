@@ -2,6 +2,16 @@
 id: shared.data.revisions
 status: accepted
 implementation: partial
+created: 2026-10-13
+updated: 2026-10-16
+consumers:
+  - "Firestore publisher"
+  - "web-app data readers"
+  - "sync operator"
+  - "schema implementer"
+code:
+  - "src/components/FamilyLibrary.tsx"
+  - "src/lib/materialPageCache.ts"
 parent: shared.data
 uses:
   - shared.data.firestore
@@ -12,7 +22,6 @@ sections:
   - пакеты-очередь-и-оплачиваемые-операции
   - выбор-локальной-библиотеки
   - проверяемые-границы-срезов
-
 ---
 # Матрица данных и ревизий для local-first Education
 

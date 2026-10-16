@@ -2,13 +2,20 @@
 id: research.feedback-after-errors
 status: reference
 implementation: not-applicable
+created: 2026-10-10
+updated: 2026-10-16
+consumers:
+  - "product implementer"
+  - "service implementer"
+  - "Education operator"
+code:
+  []
 parent: product.education
 uses: []
 sections:
   - что-показывает-исследование
   - правило-education-для-ученика
   - техническая-граница-текущего-продукта
-
 ---
 # Обратная связь после ошибки: сохранить самостоятельную попытку
 

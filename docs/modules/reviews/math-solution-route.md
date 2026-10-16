@@ -2,6 +2,16 @@
 id: module.reviews.math-solution-route
 status: accepted
 implementation: partial
+created: 2026-10-13
+updated: 2026-10-16
+consumers:
+  - "student"
+  - "parent"
+  - "review operator"
+  - "submission publisher"
+code:
+  - "day/build.mjs"
+  - "day/card-policy.mjs"
 parent: module.reviews
 uses:
   - module.reviews.subject-aware-guidance
@@ -11,7 +21,6 @@ sections:
   - selection
   - pipeline
   - modules
-
 ---
 # Математический маршрут родителя {#math-route}
 

@@ -2,6 +2,13 @@
 id: service.telegram-bot.firestore
 status: accepted
 implementation: planned
+created: 2026-10-16
+updated: 2026-10-16
+consumers:
+  - "Telegram service implementer"
+  - "bot operator"
+  - "parents and guardians"
+code: []
 parent: service.telegram-bot
 uses: []
 sections:
@@ -11,16 +18,15 @@ sections:
   - пределы-доступа-и-приватность
   - масштабирование
   - проверки-перед-активацией
-
 ---
 # Адаптер источника Firestore
 
 **Родитель:** [корневая архитектура](../README.md); [порты и события](../ports-and-events.md).
-**Статус:** проектируемый adapter, не запущен.
+**Статус:** source observer и source normalization не реализованы. Реализованный registry/ledger Firestore storage описан отдельно в [контракте event ledger/outbox](../event-ledger-outbox.md) и не означает, что Education source observation работает.
 
 ## Ответственность
 
-Наблюдать только согласованные Firestore paths, подтверждать владение записью через текущую модель семьи/владельцев, формировать нормализованные observations и передавать их в application port. Адаптер не определяет получателя по документу сам и не отправляет сообщения.
+Планируемый listener должен наблюдать только согласованные Firestore paths, подтверждать владение записью через текущую модель семьи/владельцев, формировать нормализованные observations и передавать их в application port. Источники не определяют получателя сами и не отправляют сообщения.
 
 ## Подписка и обработка сигнала
 
@@ -28,6 +34,7 @@ sections:
 - Подписываться на узкие document/query paths с ограниченной областью и индексами. Список paths утверждается после проверки текущих моделей Firestore и реальных документов.
 - Сигнал считается wake-up: получить актуальное состояние документа, проверить его owner/role links и revision, нормализовать допустимые поля.
 - Учитывать повторные и переставленные события; игнорировать устаревшую ревизию. Не выводить удаление только по отсутствию документа в ограниченном query.
+- Полная observation передаёт durable monotonic `observationSequence` из persistent checkpoint per scope; время fetch и случайный UUID не годятся. Повторный/меньший sequence не продвигает baseline. Sequence/checkpoint source adapter ещё не реализован, поэтому listener остаётся planned.
 - Listener error закрывает readiness источника, сохраняет последний подтверждённый checkpoint, сообщает operations port и пересоздаёт listener с ограниченным exponential backoff и jitter.
 - При возобновлении подписки выполнить reconciliation текущего окна/курсора, чтобы закрыть разрыв между disconnect и новым snapshot.
 

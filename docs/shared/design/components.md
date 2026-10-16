@@ -2,6 +2,16 @@
 id: shared.design.components
 status: accepted
 implementation: partial
+created: 2026-10-13
+updated: 2026-10-16
+consumers:
+  - "React UI components"
+  - "frontend developer"
+  - "screen author / Education agent"
+code:
+  - "scripts/check-spec-map.mjs"
+  - "src/components/ArtifactAvatar.tsx"
+  - "src/components/ProblemCard.tsx"
 parent: shared.design
 uses:
   - shared.design
@@ -13,7 +23,6 @@ sections:
   - change-gates
   - implementation
   - первый-набор-ui-kit
-
 ---
 # Система компонентов Education
 

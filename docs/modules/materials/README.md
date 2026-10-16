@@ -10,6 +10,15 @@ sections:
   - код-и-данные
   - спецификации
 
+created: 2026-10-16
+updated: 2026-10-16
+consumers:
+  - "parent"
+  - "student"
+  - "family library"
+  - "upload worker"
+code:
+  - "src/components/FamilyLibrary.tsx"
 ---
 
 # Материалы и учебные источники

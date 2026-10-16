@@ -9,6 +9,14 @@ uses:
 sections:
   - расширение
 
+created: 2026-10-16
+updated: 2026-10-16
+consumers:
+  - "notification publisher"
+  - "in-app inbox"
+  - "Telegram service implementer"
+code:
+  - "storage/inbox-notifications.mjs"
 ---
 
 # Каталог событий: действующий inbox и целевой Telegram

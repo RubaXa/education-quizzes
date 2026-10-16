@@ -13,6 +13,15 @@ uses:
 sections:
   - data-contracts
 
+created: 2026-10-16
+updated: 2026-10-16
+consumers:
+  - "Firestore publisher"
+  - "web-app data readers"
+  - "sync operator"
+  - "schema implementer"
+code:
+  - "day/data-contract.mjs"
 ---
 
 # Общие схемы данных

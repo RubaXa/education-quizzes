@@ -11,6 +11,15 @@ uses:
 sections:
   - проверки-и-ограничения
 
+created: 2026-10-16
+updated: 2026-10-16
+consumers:
+  - "parent"
+  - "student"
+  - "day synchronizer"
+  - "review process"
+code:
+  - "day/build.mjs"
 ---
 
 # Задание и подтверждённое состояние

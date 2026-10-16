@@ -2,6 +2,18 @@
 id: module.reviews.russian-language-route
 status: accepted
 implementation: partial
+created: 2026-10-13
+updated: 2026-10-16
+consumers:
+  - "student"
+  - "parent"
+  - "review operator"
+  - "submission publisher"
+code:
+  - "scripts/day.mjs"
+  - "src/DayPage.tsx"
+  - "src/components/ParentTaskGuide.css"
+  - "src/lib/reviewPresentation.ts"
 parent: module.reviews
 uses:
   - module.reviews.card-generation-policy
@@ -10,7 +22,6 @@ sections:
   - review-in-one-route
   - pipeline
   - example
-
 ---
 # Письменный маршрут русского языка {#russian-route}
 

@@ -2,6 +2,13 @@
 id: decisions.notification-read-all-2026-10-14
 status: reference
 implementation: not-applicable
+created: 2026-10-14
+updated: 2026-10-16
+consumers:
+  - "product implementer"
+  - "service implementer"
+code:
+  []
 parent: product.education
 uses: []
 sections:
@@ -10,7 +17,6 @@ sections:
   - действия-и-роли
   - проверки
   - согласование
-
 ---
 # Прочитать все обновления
 

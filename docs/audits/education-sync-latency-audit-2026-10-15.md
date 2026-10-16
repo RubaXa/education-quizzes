@@ -2,6 +2,15 @@
 id: audits.education-sync-latency-audit-2026-10-15
 status: reference
 implementation: not-applicable
+created: 2026-10-15
+updated: 2026-10-16
+consumers:
+  - "Education operator"
+  - "developer"
+  - "release reviewer"
+code:
+  - "packages/education-connect/lib/mesh.mjs"
+  - "scripts/sync-project.mjs"
 parent: product.education
 uses: []
 sections:
@@ -9,7 +18,6 @@ sections:
   - где-путь-делает-лишнюю-работу
   - план-с-измеримыми-рубежами
   - реализовано-15-октября-и-повторный-замер
-
 ---
 # Почему полный Education Sync занял 91 минуту
 

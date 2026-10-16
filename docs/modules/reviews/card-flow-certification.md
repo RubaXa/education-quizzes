@@ -11,6 +11,16 @@ sections:
   - что-было-источником-повторов
   - регрессии-и-пределы
 
+created: 2026-10-14
+updated: 2026-10-16
+consumers:
+  - "student"
+  - "parent"
+  - "review operator"
+  - "submission publisher"
+code:
+  - "scripts/day.mjs"
+  - "day/pipeline-contract.mjs"
 ---
 # Сертификация пути карточки задания
 

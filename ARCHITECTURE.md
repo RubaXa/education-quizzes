@@ -1,7 +1,14 @@
 ---
 id: architecture.education
 status: accepted
-implementation: partial
+implementation: not-applicable
+created: 2026-10-16
+updated: 2026-10-16
+consumers:
+  - "Education agent"
+  - "developer"
+code:
+  []
 parent: product.education
 uses:
   - service.web-app

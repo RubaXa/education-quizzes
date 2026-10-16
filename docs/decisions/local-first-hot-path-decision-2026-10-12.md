@@ -2,6 +2,13 @@
 id: decisions.local-first-hot-path-decision-2026-10-12
 status: reference
 implementation: not-applicable
+created: 2026-10-13
+updated: 2026-10-16
+consumers:
+  - "product implementer"
+  - "service implementer"
+code:
+  []
 parent: product.education
 uses: []
 sections:
@@ -10,7 +17,6 @@ sections:
   - варианты-и-достижение-цели
   - порядок-работы-и-проверка-выбора
   - источники-и-границы-исследования
-
 ---
 # Local-first через горячие пути: пересмотр решения
 

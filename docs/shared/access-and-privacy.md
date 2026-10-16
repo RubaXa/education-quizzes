@@ -8,6 +8,15 @@ uses:
   - shared.data.firestore
   - module.materials.storage-privacy
 sections: []
+created: 2026-10-16
+updated: 2026-10-16
+consumers:
+  - "parent"
+  - "student"
+  - "web-app access flow"
+  - "server/operator process"
+code:
+  - "src/lib/personalAccess.ts"
 ---
 
 # Доступ и приватность: общие границы

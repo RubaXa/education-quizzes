@@ -12,6 +12,20 @@ const scalar = (value) => value.trim().replace(/^(['"])(.*)\1$/, '$2')
 const specDirectories = /^docs\/(product|services|modules|shared|operations|decisions|research|audits|plans)\/.*\.md$/
 const allowedStatuses = new Set(['draft', 'accepted', 'superseded', 'reference'])
 const allowedImplementations = new Set(['planned', 'partial', 'implemented', 'not-applicable'])
+const datedSpec = (path) => specDirectories.test(path)
+const runtimeCode = /\.(?:[cm]?[jt]sx?|css|rules)$/
+const testCode = /(?:^|\/)(?:__tests__\/|[^/]*\.(?:test|spec)\.)/
+
+function validDate(value) {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false
+  const [year, month, day] = value.split('-').map(Number)
+  const date = new Date(Date.UTC(year, month - 1, day))
+  return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day
+}
+
+export function isRuntimeCodePath(path) {
+  return runtimeCode.test(path)
+}
 
 export function parseMetadata(source) {
   const match = source.match(/^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/)
@@ -49,6 +63,11 @@ export function validateMetadata(documents) {
     byId.set(metadata.id, { path, metadata })
     if (!allowedStatuses.has(metadata.status)) problems.push(`${path}: неизвестный status ${metadata.status}.`)
     if (!allowedImplementations.has(metadata.implementation)) problems.push(`${path}: неизвестный implementation ${metadata.implementation}.`)
+    if (!validDate(metadata.created)) problems.push(`${path}: created должен быть реальной датой YYYY-MM-DD.`)
+    if (!validDate(metadata.updated)) problems.push(`${path}: updated должен быть реальной датой YYYY-MM-DD.`)
+    if (validDate(metadata.created) && validDate(metadata.updated) && metadata.created > metadata.updated) problems.push(`${path}: created не может быть позже updated.`)
+    if (!Array.isArray(metadata.consumers) || metadata.consumers.length === 0 || metadata.consumers.some((item) => typeof item !== 'string' || !item.trim()) || new Set(metadata.consumers).size !== metadata.consumers.length) problems.push(`${path}: consumers должен быть непустым списком уникальных строк.`)
+    if (!Array.isArray(metadata.code) || metadata.code.some((item) => typeof item !== 'string' || !item.trim()) || new Set(metadata.code).size !== metadata.code.length) problems.push(`${path}: code должен быть списком уникальных относительных путей (либо []).`)
     if (!Array.isArray(metadata.uses)) problems.push(`${path}: uses должен быть списком ID (либо []).`)
     if (text.replace(/\r?\n$/, '').split(/\r?\n/).length > 700) problems.push(`${path}: спецификация превышает 700 строк.`)
     if (metadata.id !== 'product.education' && typeof metadata.parent !== 'string') problems.push(`${path}: требуется parent.`)
@@ -151,10 +170,47 @@ export function localReferences(source, { code = false } = {}) {
       refs.push(match[1].replace(/^<|>$/g, ''))
     }
   }
-  for (const match of source.matchAll(/@see\s+([^\s*]+)/g)) {
-    if (match[1].includes('docs/') || match[1].endsWith('.md')) refs.push(match[1])
+  const annotations = code ? codeAnnotations(source) : [...source.matchAll(/@see\s+([^\s*]+)/g)].map((match) => match[1])
+  for (const annotation of annotations) {
+    if (annotation.includes('docs/') || annotation.endsWith('.md')) refs.push(annotation)
   }
   return refs.filter((ref) => !/^[a-z][a-z0-9+.-]*:/i.test(ref) && !ref.startsWith('//'))
+}
+
+// Small lexical pass: only inspect comments, skipping quoted strings and templates.
+// This intentionally is not a JavaScript parser; it covers ordinary // and /* */ comments.
+export function codeAnnotations(source) {
+  let comments = ''
+  let index = 0
+  while (index < source.length) {
+    const char = source[index]
+    const next = source[index + 1]
+    if (char === '"' || char === "'" || char === '`') {
+      const quote = char
+      index++
+      while (index < source.length) {
+        if (source[index] === '\\') { index += 2; continue }
+        if (source[index++] === quote) break
+      }
+      continue
+    }
+    if (char === '/' && next === '/') {
+      const start = index + 2
+      index = source.indexOf('\n', start)
+      if (index < 0) index = source.length
+      comments += `${source.slice(start, index)}\n`
+      continue
+    }
+    if (char === '/' && next === '*') {
+      const start = index + 2
+      const end = source.indexOf('*/', start)
+      index = end < 0 ? source.length : end + 2
+      comments += `${source.slice(start, end < 0 ? source.length : end)}\n`
+      continue
+    }
+    index++
+  }
+  return [...comments.matchAll(/@see\s+([^\s*]+)/g)].map((match) => match[1])
 }
 
 export function checkReferences(files, { repositoryRoot, read, exists }) {
@@ -203,10 +259,17 @@ export function deriveGraph(documents, mappings, repositoryRoot) {
       ? { from: target, to: id, type: 'verified-by' }
       : { from: id, to: target, type: 'implements' })
   }
+  const fileNodes = new Set(nodes.filter((node) => node.id.startsWith('file:')).map((node) => node.path))
+  for (const node of nodes.filter((item) => !item.id.startsWith('file:'))) {
+    for (const codePath of node.code ?? []) {
+      if (fileNodes.has(codePath)) edges.push({ from: `file:${codePath}`, to: node.id, type: 'implements' })
+    }
+  }
+  const uniqueEdges = [...new Map(edges.map((edge) => [`${edge.from}\0${edge.to}\0${edge.type}`, edge])).values()]
   return {
     schemaVersion: 1,
     nodes: nodes.sort((a, b) => a.id.localeCompare(b.id, 'en')),
-    edges: edges.sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b), 'en')),
+    edges: uniqueEdges.sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b), 'en')),
   }
 }
 
@@ -218,8 +281,43 @@ export function validateBindings(documents, mappings, repositoryRoot) {
     if (row.invalid) { problems.push(`file-map: неверная строка ${row.invalid}`); continue }
     if (seen.has(row.path)) problems.push(`file-map: повтор файла ${row.path}.`)
     seen.add(row.path)
+    if (!row.purpose?.trim() || !row.consumer?.trim()) problems.push(`file-map: у ${row.path} должны быть purpose и consumer.`)
     const target = slash(relative(repositoryRoot, resolve(repositoryRoot, 'docs', row.specLink.split('#')[0])))
     if (!specs.has(target)) problems.push(`file-map: у ${row.path} нет узла контракта ${target}.`)
+  }
+  return problems
+}
+
+export function validateImplementation(documents, mappings, repositoryRoot, { exists, read }) {
+  const problems = []
+  const map = new Map(mappings.filter((row) => !row.invalid).map((row) => [row.path, row]))
+  for (const doc of documents) {
+    const { path, metadata } = doc
+    if (!metadata?.id) continue
+    const code = Array.isArray(metadata.code) ? metadata.code : []
+    for (const codePath of code) {
+      const segments = typeof codePath === 'string' ? codePath.split('/') : []
+      if (typeof codePath !== 'string' || codePath.startsWith('/') || /^[a-z]:/i.test(codePath) || codePath.includes('\\') || segments.some((part) => !part || part === '.' || part === '..') || segments.some((part) => ['docs', 'test', 'tests', '__tests__'].includes(part)) || !isRuntimeCodePath(codePath) || testCode.test(codePath)) {
+        problems.push(`${path}: code должен содержать только относительные runtime paths, без docs и tests (${codePath}).`)
+        continue
+      }
+      const absolute = resolve(repositoryRoot, codePath)
+      if (!exists(absolute)) { problems.push(`${path}: code path отсутствует в снимке: ${codePath}.`); continue }
+      const mapping = map.get(codePath)
+      if (!mapping || !mapping.purpose?.trim() || !mapping.consumer?.trim()) problems.push(`${path}: code path ${codePath} должен иметь строку file-map с purpose и consumer.`)
+      const source = read(codePath)
+      const expected = slash(relative(repositoryRoot, resolve(repositoryRoot, path)))
+      const annotations = codeAnnotations(source)
+      const linked = annotations.some((annotation) => {
+        if (/^[a-z][a-z0-9+.-]*:/i.test(annotation) || annotation.startsWith('//')) return false
+        const target = annotation.split('#', 1)[0]
+        return slash(relative(repositoryRoot, resolve(repositoryRoot, dirname(codePath), target))) === expected
+      })
+      if (!linked) problems.push(`${codePath}: требуется @see с прямой локальной ссылкой на ${path}.`)
+    }
+    if (datedSpec(path) && ['product', 'services', 'modules', 'shared', 'operations'].some((dir) => path.startsWith(`docs/${dir}/`)) && ['partial', 'implemented'].includes(metadata.implementation) && !code.length) {
+      problems.push(`${path}: для нормативного ${metadata.implementation} контракта требуется непустой code.`)
+    }
   }
   return problems
 }
@@ -236,6 +334,31 @@ export function renderMermaid(graph) {
   return `${lines.join('\n')}\n`
 }
 
+const tableCell = (value) => String(value ?? '').replaceAll('|', '\\|').replaceAll('\r', ' ').replaceAll('\n', ' ')
+
+export function renderStatus(documents, repositoryRoot) {
+  const lines = [
+    '# Состояние по проверенным метаданным',
+    '',
+    'Это состояние отражает только проверенные метаданные; оно не доказывает смысловую полноту требований или deployment.',
+    '',
+    '| Документ | Создан | Обновлён | Статус | Реализация | Потребители | Код |',
+    '|---|---|---|---|---|---|---|',
+  ]
+  const canonical = documents.filter(({ metadata }) => metadata?.id).sort((a, b) => a.path.localeCompare(b.path, 'en'))
+  for (const { path, metadata } of canonical) {
+    const generatedDirectory = resolve(repositoryRoot, 'docs/generated')
+    const specHref = slash(relative(generatedDirectory, resolve(repositoryRoot, path)))
+    const consumers = (metadata.consumers ?? []).map(tableCell).join('<br>')
+    const code = (metadata.code ?? []).map((codePath) => {
+      const href = slash(relative(generatedDirectory, resolve(repositoryRoot, codePath)))
+      return `[${tableCell(codePath)}](${href})`
+    }).join('<br>')
+    lines.push(`| [${tableCell(path)}](${specHref}) | ${tableCell(metadata.created)} | ${tableCell(metadata.updated)} | ${tableCell(metadata.status)} | ${tableCell(metadata.implementation)} | ${consumers} | ${code} |`)
+  }
+  return `${lines.join('\n')}\n`
+}
+
 export function inspectRepository(repositoryRoot = root, snapshot) {
   const paths = snapshot?.paths ?? execFileSync('git', ['ls-files', '--cached', '--others', '--exclude-standard', '-z'], { cwd: repositoryRoot, encoding: 'utf8' })
     .split('\0').filter((path) => path && existsSync(resolve(repositoryRoot, path)))
@@ -244,11 +367,11 @@ export function inspectRepository(repositoryRoot = root, snapshot) {
   const documents = specPaths.map((path) => ({ path, text: read(path), metadata: parseMetadata(read(path)) }))
   const problems = [...validateMetadata(documents), ...validateStructure(documents)]
   const references = paths.filter((path) => path.endsWith('.md') && !path.startsWith('docs/generated/')
-    || /\.(ts|tsx|js|mjs|css|rules)$/.test(path))
+    || isRuntimeCodePath(path))
   problems.push(...checkReferences(references, { repositoryRoot, read, exists: snapshot?.exists ?? existsSync }))
   if (!(snapshot?.exists ?? existsSync)(resolve(repositoryRoot, 'docs/file-map.md'))) return { problems: [...problems, 'Отсутствует docs/file-map.md.'], documents }
   const mappings = parseFileMap(read('docs/file-map.md'))
-  problems.push(...validateBindings(documents, mappings, repositoryRoot))
+  problems.push(...validateBindings(documents, mappings, repositoryRoot), ...validateImplementation(documents, mappings, repositoryRoot, { exists: snapshot?.exists ?? existsSync, read }))
   const actual = new Set(paths)
   const mapped = new Set(mappings.filter((row) => !row.invalid).map((row) => row.path))
   for (const path of actual) if (!mapped.has(path)) problems.push(`file-map: файл без контракта ${path}.`)
@@ -261,6 +384,7 @@ export function inspectRepository(repositoryRoot = root, snapshot) {
   const generated = new Map([
     ['docs/generated/graph.json', `${JSON.stringify(graph, null, 2)}\n`],
     ['docs/generated/graph.mmd', renderMermaid(graph)],
+    ['docs/generated/status.md', renderStatus(documents, repositoryRoot)],
   ])
   return { problems, documents, graph, generated }
 }

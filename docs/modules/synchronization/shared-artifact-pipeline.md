@@ -2,6 +2,14 @@
 id: module.synchronization.shared-artifact-pipeline
 status: accepted
 implementation: partial
+created: 2026-10-13
+updated: 2026-10-16
+consumers:
+  - "Education sync operator"
+  - "sync-project CLI"
+  - "Firestore publisher"
+code:
+  - "sync/artifact-capture.mjs"
 parent: module.synchronization
 uses:
   - module.synchronization.global-sync
@@ -11,7 +19,6 @@ sections:
   - identity
   - journal
   - implementation
-
 ---
 # Общие артефакты и семейные связи Education {#shared-artifacts}
 

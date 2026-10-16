@@ -2,6 +2,14 @@
 id: audits.protocol-audit-2026-10-11
 status: reference
 implementation: not-applicable
+created: 2026-10-11
+updated: 2026-10-16
+consumers:
+  - "Education operator"
+  - "developer"
+  - "release reviewer"
+code:
+  []
 parent: product.education
 uses: []
 sections:
@@ -9,7 +17,6 @@ sections:
   - повторная-сверка-решений-с-кодом--12-октября-2026
   - sync-readiness-2026-10-12
   - global-sync-correction-2026-10-12
-
 ---
 # Сверка протоколов Education — 11 октября 2026
 

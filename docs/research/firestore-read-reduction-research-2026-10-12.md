@@ -2,6 +2,14 @@
 id: research.firestore-read-reduction-research-2026-10-12
 status: reference
 implementation: not-applicable
+created: 2026-10-13
+updated: 2026-10-16
+consumers:
+  - "product implementer"
+  - "service implementer"
+  - "Education operator"
+code:
+  []
 parent: product.education
 uses: []
 sections:
@@ -11,7 +19,6 @@ sections:
   - наложение-на-текущие-горячие-пути
   - протокол-совместимость-и-опыты
   - выпуск-1210
-
 ---
 # Как сокращать чтения Firestore в Education
 

@@ -2,6 +2,25 @@
 id: module.materials.materials
 status: accepted
 implementation: partial
+created: 2026-10-08
+updated: 2026-10-16
+consumers:
+  - "parent"
+  - "student"
+  - "family library"
+  - "upload worker"
+code:
+  - "scripts/check-material-preview-viewport.mjs"
+  - "scripts/day.mjs"
+  - "scripts/storage.mjs"
+  - "src/DayPage.css"
+  - "src/components/MaterialReader.tsx"
+  - "src/lib/dayMaterialRefs.ts"
+  - "src/lib/dayStore.ts"
+  - "src/lib/yandexPublic.ts"
+  - "storage/material-pages.mjs"
+  - "storage/page-publication.mjs"
+  - "storage/textbook-catalog.mjs"
 parent: module.materials
 uses:
   - module.materials.storage-privacy
@@ -14,7 +33,6 @@ sections:
   - приватные-оригиналы
   - публикация-отдельной-страницы
   - ридер
-
 ---
 # Материалы и страницы учебников
 

@@ -2,11 +2,18 @@
 id: research.assessment-source-catalog
 status: reference
 implementation: not-applicable
+created: 2026-10-13
+updated: 2026-10-16
+consumers:
+  - "product implementer"
+  - "service implementer"
+  - "Education operator"
+code:
+  []
 parent: product.education
 uses: []
 sections:
   - межпредметные-официальные-источники-и-формы
-
 ---
 # Каталог источников для учебных тестов {#catalog}
 

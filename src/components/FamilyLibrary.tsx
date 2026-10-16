@@ -1,3 +1,6 @@
+/**
+ * @see ../../docs/modules/materials/README.md
+ */
 import { useEffect, useRef, useState } from 'react'
 import { collection, doc, getDoc, getDocs, onSnapshot, query, where } from 'firebase/firestore'
 import { BookOpen, ChevronDown, RefreshCw, Upload } from 'lucide-react'

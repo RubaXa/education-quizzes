@@ -1,3 +1,9 @@
+/**
+ * @see ../docs/product/materials.md
+ */
+/**
+ * @see ../docs/modules/assignments/README.md
+ */
 /** @see ../docs/modules/materials/material-clarification.md */
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'

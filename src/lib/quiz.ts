@@ -1,3 +1,7 @@
+/**
+ * @see ../../docs/product/assessments.md
+ * @see ../../docs/modules/assessments/README.md
+ */
 export type Answer = string | string[]
 
 export type QuizOption = {

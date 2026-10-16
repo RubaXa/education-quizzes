@@ -4,7 +4,7 @@
 import { execFileSync } from 'node:child_process'
 import { relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { inspectRepository, root } from './spec-graph.mjs'
+import { inspectRepository, isRuntimeCodePath, root } from './spec-graph.mjs'
 
 export function stagedSnapshot(repositoryRoot) {
   const git = (args, options = {}) => execFileSync('git', args, { cwd: repositoryRoot, maxBuffer: 64 * 1024 * 1024, ...options })
@@ -13,7 +13,7 @@ export function stagedSnapshot(repositoryRoot) {
     if (!match || match[2] !== '0') throw new Error('В индексе есть неразрешённый конфликт Git.')
     return { oid: match[1], path: match[3] }
   })
-  const textFiles = records.filter(({ path }) => /\.(md|ts|tsx|js|mjs|css|rules)$/.test(path))
+  const textFiles = records.filter(({ path }) => path.endsWith('.md') || isRuntimeCodePath(path))
   const oids = [...new Set(textFiles.map(({ oid }) => oid))]
   const buffer = git(['cat-file', '--batch'], { input: `${oids.join('\n')}\n` })
   let offset = 0

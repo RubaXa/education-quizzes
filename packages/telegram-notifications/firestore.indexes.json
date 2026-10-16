@@ -1,0 +1,21 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "telegramNotificationOutbox",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "state", "order": "ASCENDING" },
+        { "fieldPath": "nextAttemptAt", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "telegramNotificationOutbox",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "state", "order": "ASCENDING" },
+        { "fieldPath": "leaseUntil", "order": "ASCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
