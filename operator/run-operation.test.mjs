@@ -63,4 +63,22 @@ describe('operator execution receipts', () => {
         .rejects.toThrow('did not confirm completion')
     } finally { rmSync(root, { recursive: true, force: true }) }
   })
+
+  it('revises an unopened quiz through validate, guarded write and readback', async () => {
+    const root = workspace()
+    try {
+      writeFileSync(resolve(root, 'quiz.json'), '{"assessmentPlanPath":"./plan.json"}')
+      writeFileSync(resolve(root, 'plan.json'), '{}')
+      const called = []
+      const operation = request('quiz.revise-open', { learnerToken: 'old-token', specPath: 'quiz.json', personId: 'student-id' })
+      const result = await executeOperation(operation, { root, apply: true,
+        run: async (_script, argv) => {
+          called.push(argv)
+          return { stdout: argv[0] === 'validate' ? 'validated' : '{"testId":"same-id","questionCount":9,"revised":true,"verified":true}' }
+        } })
+      expect(called).toEqual([['validate', 'quiz.json'], ['revise-open', 'old-token', 'quiz.json', 'student-id']])
+      expect(result.summary).toEqual({ questionCount: 9, revised: true, verified: true })
+      expect((await executeOperation(operation, { root, apply: true, run: async () => { throw new Error('repeated write') } })).status).toBe('reused')
+    } finally { rmSync(root, { recursive: true, force: true }) }
+  })
 })

@@ -8,6 +8,8 @@ import { assertQuizOwner } from './quiz-access.mjs'
 import { pendingManualQuestionIds, validateAssessmentPlan } from '../assessment/decision-graph.mjs'
 import { repeatedQuestionCopy } from '../assessment/question-copy.mjs'
 import { assignmentShapeErrors } from '../day/data-contract.mjs'
+import { assertFollowupCoverage, assertOpenRevisionReadback, openQuizRevision } from '../assessment/followup-contract.mjs'
+import { quizLineageStatistics } from '../assessment/quiz-lineage.mjs'
 import { grade, summarize } from '../src/lib/quiz.ts'
 import { followupQuestionCount, needsQuizFollowup } from '../src/lib/quizCompletion.ts'
 
@@ -156,34 +158,41 @@ if (command !== 'validate') {
 }
 const db = command === 'validate' ? null : getFirestore()
 
+async function inspectedFollowupSource(spec, plan, owner) {
+  const parents = await db.collection('assignments').where('testId', '==', spec.linkedToTestId).get()
+  if (parents.size !== 1) fail('Исходный testId не найден однозначно. Не используйте токен ученической ссылки в linkedToTestId.')
+  const parent = parents.docs[0].data()
+  if (parent.familyId !== owner.familyId || parent.childId !== owner.childId || parent.status !== 'submitted') fail('Исходный тест не отправлен или принадлежит другому ученику.')
+  if (plan.mode === 'control-followup' && parent.assessment?.mode !== 'control-diagnostic') {
+    fail('Второй вариант контрольной должен ссылаться на первую контрольную диагностику этого ученика.')
+  }
+  const [parentReview, parentKey] = await Promise.all([
+    db.doc(`reviews/${parents.docs[0].id}`).get(), db.doc(`answerKeys/${parents.docs[0].id}`).get(),
+  ])
+  const pending = pendingManualQuestionIds(parent, parentReview.data())
+  if (pending.length) fail(`Сначала проверьте все открытые ответы исходного теста: ${pending.join(', ')}.`)
+  if (!parentKey.exists) fail('Ключ исходной попытки отсутствует: продолжение нельзя составить по непроверенному результату.')
+  const results = grade(parent, parentKey.data(), parentReview.data())
+  const score = summarize(results)
+  if (score.pending || !score.possible) fail('Исходная попытка ещё не проверена полностью.')
+  if (!needsQuizFollowup({ points: score.earned, maxPoints: score.possible }, Boolean(parent.followupRequestedAt))) {
+    fail('Исходный тест зачтён: продолжение создаётся только по запросу родителя.')
+  }
+  const errorQuestionIds = results.filter((result) => !result.skipped && result.points !== null
+    && result.points < result.question.points).map((result) => result.question.id)
+  if (!errorQuestionIds.length) fail('В исходном результате нет подтверждённых ошибок для адресного продолжения.')
+  const targetCount = followupQuestionCount(parent.questions.length, errorQuestionIds.length)
+  if (spec.questions.length !== targetCount) fail(`Продолжение должно содержать ${targetCount} вопросов для ${errorQuestionIds.length} подтверждённых ошибок из ${parent.questions.length} исходных.`)
+  assertFollowupCoverage(plan, spec, parent.testId, errorQuestionIds)
+  return { parent, errorQuestionIds, targetCount }
+}
+
 async function create(specPath, studentPersonId) {
   const spec = loadJson(specPath)
   const plan = validateSpec(spec, specPath)
   const owner = assignmentOwner(studentPersonId)
   if (spec.linkedToTestId) {
-    const parents = await db.collection('assignments').where('testId', '==', spec.linkedToTestId).get()
-    if (parents.size !== 1) fail('Исходный testId не найден однозначно. Не используйте токен ученической ссылки в linkedToTestId.')
-    const parent = parents.docs[0].data()
-    if (parent.familyId !== owner.familyId || parent.childId !== owner.childId || parent.status !== 'submitted') fail('Исходный тест не отправлен или принадлежит другому ученику.')
-    if (plan.mode === 'control-followup' && parent.assessment?.mode !== 'control-diagnostic') {
-      fail('Второй вариант контрольной должен ссылаться на первую контрольную диагностику этого ученика.')
-    }
-    const [parentReview, parentKey] = await Promise.all([
-      db.doc(`reviews/${parents.docs[0].id}`).get(), db.doc(`answerKeys/${parents.docs[0].id}`).get(),
-    ])
-    const pending = pendingManualQuestionIds(parent, parentReview.data())
-    if (pending.length) fail(`Сначала проверьте все открытые ответы исходного теста: ${pending.join(', ')}.`)
-    if (!parentKey.exists) fail('Ключ исходной попытки отсутствует: продолжение нельзя составить по непроверенному результату.')
-    const results = grade(parent, parentKey.data(), parentReview.data())
-    const score = summarize(results)
-    if (score.pending || !score.possible) fail('Исходная попытка ещё не проверена полностью.')
-    if (!needsQuizFollowup({ points: score.earned, maxPoints: score.possible }, Boolean(parent.followupRequestedAt))) {
-      fail('Исходный тест зачтён: продолжение создаётся только по запросу родителя.')
-    }
-    const errors = results.filter((result) => !result.skipped && result.points !== null && result.points < result.question.points).length
-    if (!errors) fail('В исходном результате нет подтверждённых ошибок для адресного продолжения.')
-    const targetCount = followupQuestionCount(parent.questions.length, errors)
-    if (spec.questions.length !== targetCount) fail(`Продолжение должно содержать ${targetCount} вопросов для ${errors} подтверждённых ошибок из ${parent.questions.length} исходных.`)
+    await inspectedFollowupSource(spec, plan, owner)
     const continuations = await db.collection('assignments').where('linkedToTestId', '==', spec.linkedToTestId).get()
     if (continuations.docs.some((item) => item.data().familyId === owner.familyId && item.data().childId === owner.childId)) fail('Связанное продолжение для этого теста уже существует.')
   }
@@ -281,6 +290,86 @@ async function create(specPath, studentPersonId) {
     ...(existsSync(learnerBoardTokenFile) ? { learnerBoard: `${site}#/my/${learnerBoardToken()}` } : {}),
     ...(existsSync(parentBoardTokenFile) ? { parentBoard: `${site}#/review/${parentBoardToken()}` } : {}),
   }, null, 2))
+}
+
+/** Closed statistics for one linked chain; no lesson text or answer key is published. */
+async function loadLineage(learnerToken) {
+  const attempts = [], seen = new Set()
+  let tokenToRead = learnerToken
+  let owner = null
+  while (tokenToRead && attempts.length < 16) {
+    if (seen.has(tokenToRead)) fail('В цепочке тестов обнаружен цикл.')
+    seen.add(tokenToRead)
+    const [assignmentDoc, keyDoc, reviewDoc] = await Promise.all([
+      db.doc(`assignments/${tokenToRead}`).get(), db.doc(`answerKeys/${tokenToRead}`).get(),
+      db.doc(`reviews/${tokenToRead}`).get(),
+    ])
+    if (!assignmentDoc.exists || !keyDoc.exists) fail('В цепочке нет назначения или ключа.')
+    const assignment = assignmentDoc.data()
+    if (owner && (assignment.familyId !== owner.familyId || assignment.childId !== owner.childId)) fail('Цепочка пересекла границу семьи.')
+    owner ??= { familyId: assignment.familyId, childId: assignment.childId }
+    attempts.push({ assignment, answerKey: keyDoc.data(), review: reviewDoc.data() ?? null })
+    if (!assignment.linkedToTestId) return attempts
+    const previous = await db.collection('assignments').where('testId', '==', assignment.linkedToTestId).get()
+    if (previous.size !== 1) fail('Предыдущая попытка в цепочке не найдена однозначно.')
+    tokenToRead = previous.docs[0].id
+  }
+  fail('Цепочка тестов длиннее 16 попыток.')
+}
+
+async function exportLineage(learnerToken, outputPath) {
+  if (!learnerToken || !outputPath || !resolve(outputPath).startsWith(`${localDir}/`)) {
+    fail('Укажите токен и закрытый путь внутри .local/.')
+  }
+  const statistics = quizLineageStatistics(await loadLineage(learnerToken))
+  writeFileSync(resolve(outputPath), `${JSON.stringify(statistics, null, 2)}\n`, { mode: 0o600 })
+  console.log(JSON.stringify({ saved: resolve(outputPath), attempts: statistics.attempts.length,
+    latestErrors: statistics.next.errorQuestionIds.length, targetCount: statistics.next.targetCount }))
+}
+
+/** Atomically update an unopened continuation without changing its testId or links. */
+async function reviseOpenQuiz(learnerToken, specPath, studentPersonId) {
+  if (!learnerToken || !specPath || !studentPersonId) fail('Нужны токен открытого теста, spec и ID ученика.')
+  const spec = loadJson(specPath)
+  const plan = validateSpec(spec, specPath)
+  if (plan.mode !== 'targeted-followup' || !spec.linkedToTestId) fail('Ревизия разрешена только для адресного продолжения.')
+  const owner = assignmentOwner(studentPersonId)
+  await inspectedFollowupSource(spec, plan, owner)
+  const ownerToken = dashboardToken()
+  const assignmentRef = db.doc(`assignments/${learnerToken}`)
+  const keyRef = db.doc(`answerKeys/${learnerToken}`)
+  const ownerIndexRef = db.doc(`dashboard/${ownerToken}/assignments/${learnerToken}`)
+  const revisedAt = Timestamp.now()
+  let readbackRefs = null
+  await db.runTransaction(async (transaction) => {
+    const [assignmentDoc, keyDoc, ownerIndexDoc] = await Promise.all([
+      transaction.get(assignmentRef), transaction.get(keyRef), transaction.get(ownerIndexRef),
+    ])
+    if (!assignmentDoc.exists || !keyDoc.exists || !ownerIndexDoc.exists) fail('Для ревизии нужны назначение, ключ и родительский индекс.')
+    const previewToken = ownerIndexDoc.data().previewToken
+    if (!previewToken) fail('У теста нет связанного предпросмотра.')
+    const previewRef = db.doc(`previews/${previewToken}`)
+    const additionalIndexRefs = [learnerBoardTokenFile, parentBoardTokenFile].filter(existsSync).map((file) =>
+      db.doc(`dashboard/${readFileSync(file, 'utf8').trim()}/assignments/${learnerToken}`))
+    const indexRefs = [ownerIndexRef, ...additionalIndexRefs]
+    const [previewDoc, ...additionalIndexDocs] = await Promise.all([
+      transaction.get(previewRef), ...additionalIndexRefs.map((ref) => transaction.get(ref)),
+    ])
+    const indexDocs = [ownerIndexDoc, ...additionalIndexDocs]
+    if (!previewDoc.exists || indexDocs.some((doc) => !doc.exists)) fail('Не все ролевые индексы и предпросмотр существуют.')
+    const patch = openQuizRevision({ current: assignmentDoc.data(), spec, owner, revisedAt })
+    const shapeErrors = assignmentShapeErrors({ ...assignmentDoc.data(), ...patch.assignment })
+    if (shapeErrors.length) fail(`Ревизия нарушает модель назначения: ${shapeErrors.join(' ')}`)
+    transaction.update(assignmentRef, patch.assignment)
+    transaction.update(keyRef, patch.answerKey)
+    transaction.update(previewRef, patch.preview)
+    indexRefs.forEach((ref) => transaction.update(ref, patch.index))
+    readbackRefs = [assignmentRef, keyRef, previewRef, ...indexRefs]
+  })
+  const docs = await db.getAll(...readbackRefs)
+  const result = assertOpenRevisionReadback({ assignment: docs[0].data(), answerKey: docs[1].data(),
+    preview: docs[2].data(), indexes: docs.slice(3).map((doc) => doc.data()), spec })
+  console.log(JSON.stringify(result))
 }
 
 async function addToLearnerBoard(manifestPath) {
@@ -441,6 +530,8 @@ try {
     validateSpec(loadJson(first), first)
     console.log('Спецификация готова к созданию теста.')
   } else if (command === 'create') await create(first, second)
+  else if (command === 'revise-open') await reviseOpenQuiz(first, second, third)
+  else if (command === 'history') await exportLineage(first, second)
   else if (command === 'board-add') await addToLearnerBoard(first)
   else if (command === 'list') await list()
   else if (command === 'board-status') await boardStatus()
@@ -449,7 +540,7 @@ try {
   else if (command === 'bind-family') await bindFamily(first, second, third)
   else if (command === 'export') await exportAttempt(first, second)
   else if (command === 'review') await reviewAttempt(first, second)
-  else fail('Команды: validate SPEC.json | create SPEC.json | board-add MANIFEST.json | board-status | sync-links [--apply] | audit-access | list | export TOKEN OUTPUT.json | review TOKEN REVIEW.json')
+  else fail('Команды: validate SPEC.json | create SPEC.json [PERSON_ID] | revise-open TOKEN SPEC.json PERSON_ID | history TOKEN .local/OUTPUT.json | board-add MANIFEST.json | board-status | sync-links [--apply] | audit-access | list | export TOKEN OUTPUT.json | review TOKEN REVIEW.json')
 } catch (error) {
   console.error(error instanceof Error ? error.message : error)
   process.exitCode = 1

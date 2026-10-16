@@ -41,6 +41,8 @@ const publicSummary = (operation, value) => {
     verified: parsed.verified === true }
   if (operation === 'quiz.publish') return { published: typeof parsed.testId === 'string' && parsed.testId.length > 0,
     readback: typeof parsed.testId === 'string' && parsed.testId.length > 0 }
+  if (operation === 'quiz.revise-open') return { questionCount: parsed.questionCount ?? null,
+    revised: parsed.revised === true, verified: parsed.verified === true }
   return { parsed: true }
 }
 
@@ -69,7 +71,10 @@ export async function executeOperation(request, { apply = false, root = resolve(
   if (apply && descriptor.preflight) {
     const preflightStarted = performance.now()
     try {
-      await run(resolve(root, descriptor.script), [descriptor.preflight, ...descriptor.argv(request.input, false)], root)
+      const validationArgv = request.operation === 'quiz.revise-open'
+        ? [descriptor.preflight, request.input.specPath]
+        : [descriptor.preflight, ...descriptor.argv(request.input, false)]
+      await run(resolve(root, descriptor.script), validationArgv, root)
       preflightMs = Math.round(performance.now() - preflightStarted)
     } catch (error) {
       const failure = { ...base, finishedAt: now(), status: 'invalid',
@@ -91,6 +96,9 @@ export async function executeOperation(request, { apply = false, root = resolve(
     }
     if (request.operation === 'review.publish' && summary.verified !== true) {
       throw new Error('Review publication did not confirm addressable readback.')
+    }
+    if (request.operation === 'quiz.revise-open' && summary.verified !== true) {
+      throw new Error('Quiz revision did not confirm role-index readback.')
     }
     const result = { ...base, finishedAt: now(), status: 'succeeded', summary, metrics, stdout, stderr }
     writePrivateJson(journal, result)

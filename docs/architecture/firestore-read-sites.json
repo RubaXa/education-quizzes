@@ -1730,7 +1730,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#ffa52efd6c07",
     "file": "scripts/quiz.mjs",
-    "line": 164,
+    "line": 162,
     "api": "admin.get",
     "target": "db.collection('assignments').where('testId', '==', spec.linkedToTestId)",
     "group": "operator-other",
@@ -1742,7 +1742,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#9ea2d7f73efd",
     "file": "scripts/quiz.mjs",
-    "line": 172,
+    "line": 170,
     "api": "admin.get",
     "target": "db.doc(`reviews/${parents.docs[0].id}`)",
     "group": "operator-other",
@@ -1754,7 +1754,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#67ef58f895e7",
     "file": "scripts/quiz.mjs",
-    "line": 172,
+    "line": 170,
     "api": "admin.get",
     "target": "db.doc(`answerKeys/${parents.docs[0].id}`)",
     "group": "operator-other",
@@ -1766,7 +1766,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#c7a806345120",
     "file": "scripts/quiz.mjs",
-    "line": 187,
+    "line": 196,
     "api": "admin.get",
     "target": "db.collection('assignments').where('linkedToTestId', '==', spec.linkedToTestId)",
     "group": "operator-other",
@@ -1778,7 +1778,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#62b9e3afebf5",
     "file": "scripts/quiz.mjs",
-    "line": 271,
+    "line": 280,
     "api": "admin.get",
     "target": "db.doc(`assignments/${learnerToken}`)",
     "group": "operator-other",
@@ -1788,9 +1788,129 @@
     "note": "Проверить кратность адресного чтения в одном EducationSync: локальный снимок/мемоизация по ID допустимы, если не нарушают актуальность перед записью."
   },
   {
+    "id": "scripts/quiz.mjs#admin.get#93adc9e22f88",
+    "file": "scripts/quiz.mjs",
+    "line": 304,
+    "api": "admin.get",
+    "target": "db.doc(`assignments/${tokenToRead}`)",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "operator-point",
+    "refresh": "only on explicit quiz history export",
+    "note": "One assignment per linked attempt, max 16; no listener or periodic polling."
+  },
+  {
+    "id": "scripts/quiz.mjs#admin.get#a13ac351f175",
+    "file": "scripts/quiz.mjs",
+    "line": 304,
+    "api": "admin.get",
+    "target": "db.doc(`answerKeys/${tokenToRead}`)",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "operator-point",
+    "refresh": "only on explicit quiz history export",
+    "note": "One answer key per linked attempt for deterministic grading, max 16."
+  },
+  {
+    "id": "scripts/quiz.mjs#admin.get#ef0cb380cd40",
+    "file": "scripts/quiz.mjs",
+    "line": 305,
+    "api": "admin.get",
+    "target": "db.doc(`reviews/${tokenToRead}`)",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "operator-point",
+    "refresh": "only on explicit quiz history export",
+    "note": "One manual review per linked attempt; needed to exclude ungraded answers."
+  },
+  {
+    "id": "scripts/quiz.mjs#admin.get#0a2cf8c61005",
+    "file": "scripts/quiz.mjs",
+    "line": 313,
+    "api": "admin.get",
+    "target": "db.collection('assignments').where('testId', '==', assignment.linkedToTestId)",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "operator-point",
+    "refresh": "only on explicit quiz history export",
+    "note": "One indexed parent lookup per link, max 15; checks unique chain ownership."
+  },
+  {
+    "id": "scripts/quiz.mjs#admin.get#5af2f146a13f",
+    "file": "scripts/quiz.mjs",
+    "line": 346,
+    "api": "admin.get",
+    "target": "transaction",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "operator-transaction",
+    "refresh": "once per explicit unopened quiz revision",
+    "note": "Transaction reads assignment to reject saved answers before any write."
+  },
+  {
+    "id": "scripts/quiz.mjs#admin.get#5af2f146a13f-2",
+    "file": "scripts/quiz.mjs",
+    "line": 346,
+    "api": "admin.get",
+    "target": "transaction",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "operator-transaction",
+    "refresh": "once per explicit unopened quiz revision",
+    "note": "Transaction reads the existing answer key before replacement."
+  },
+  {
+    "id": "scripts/quiz.mjs#admin.get#5af2f146a13f-3",
+    "file": "scripts/quiz.mjs",
+    "line": 346,
+    "api": "admin.get",
+    "target": "transaction",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "operator-transaction",
+    "refresh": "once per explicit unopened quiz revision",
+    "note": "Transaction reads owner index to find the existing preview and preserve token."
+  },
+  {
+    "id": "scripts/quiz.mjs#admin.get#5af2f146a13f-4",
+    "file": "scripts/quiz.mjs",
+    "line": 356,
+    "api": "admin.get",
+    "target": "transaction",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "operator-transaction",
+    "refresh": "once per explicit unopened quiz revision",
+    "note": "Transaction verifies the preview exists before atomically updating it."
+  },
+  {
+    "id": "scripts/quiz.mjs#admin.get#5af2f146a13f-5",
+    "file": "scripts/quiz.mjs",
+    "line": 356,
+    "api": "admin.get",
+    "target": "transaction",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "operator-transaction",
+    "refresh": "once per explicit unopened quiz revision",
+    "note": "Transaction verifies only the additional role indexes; the owner index read is reused."
+  },
+  {
+    "id": "scripts/quiz.mjs#admin.getAll#b0c1c92f920c",
+    "file": "scripts/quiz.mjs",
+    "line": 369,
+    "api": "admin.getAll",
+    "target": "db",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "operator-readback",
+    "refresh": "once after successful explicit revision",
+    "note": "Batch readback confirms assignment, key, preview and role indexes; no listener."
+  },
+  {
     "id": "scripts/quiz.mjs#admin.get#2e47d8dc9017",
     "file": "scripts/quiz.mjs",
-    "line": 297,
+    "line": 386,
     "api": "admin.get",
     "target": "db.doc(`assignments/${item.token}`)",
     "group": "operator-other",
@@ -1802,7 +1922,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#73bcb67b3161",
     "file": "scripts/quiz.mjs",
-    "line": 324,
+    "line": 413,
     "api": "admin.get",
     "target": "db.collection(`dashboard/${ownerToken}/assignments`)",
     "group": "operator-other",
@@ -1814,7 +1934,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#b65d76738868",
     "file": "scripts/quiz.mjs",
-    "line": 326,
+    "line": 415,
     "api": "admin.get",
     "target": "db.doc(`assignments/${item.id}`)",
     "group": "operator-other",
@@ -1826,7 +1946,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#6f14da11a5d7",
     "file": "scripts/quiz.mjs",
-    "line": 340,
+    "line": 429,
     "api": "admin.get",
     "target": "db.collection(`dashboard/${board}/assignments`)",
     "group": "operator-other",
@@ -1838,7 +1958,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#b65d76738868-2",
     "file": "scripts/quiz.mjs",
-    "line": 342,
+    "line": 431,
     "api": "admin.get",
     "target": "db.doc(`assignments/${item.id}`)",
     "group": "operator-other",
@@ -1850,7 +1970,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#03a1fbb7fefa",
     "file": "scripts/quiz.mjs",
-    "line": 363,
+    "line": 452,
     "api": "admin.get",
     "target": "db.collection(`dashboard/${boardToken}/assignments`)",
     "group": "operator-other",
@@ -1862,7 +1982,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#5b369111a272",
     "file": "scripts/quiz.mjs",
-    "line": 367,
+    "line": 456,
     "api": "admin.get",
     "target": "db.doc(`assignments/${entry.id}`)",
     "group": "operator-other",
@@ -1874,7 +1994,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#7f9af9eb32fd",
     "file": "scripts/quiz.mjs",
-    "line": 385,
+    "line": 474,
     "api": "admin.get",
     "target": "db.collection(`dashboard/${learnerBoardToken()}/assignments`)",
     "group": "operator-other",
@@ -1886,7 +2006,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#b65d76738868-3",
     "file": "scripts/quiz.mjs",
-    "line": 388,
+    "line": 477,
     "api": "admin.get",
     "target": "db.doc(`assignments/${item.id}`)",
     "group": "operator-other",
@@ -1898,7 +2018,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#7710d62b032d",
     "file": "scripts/quiz.mjs",
-    "line": 402,
+    "line": 491,
     "api": "admin.get",
     "target": "db.doc(`dashboard/${learnerBoardToken()}/assignments/${placement.token}`)",
     "group": "operator-other",
@@ -1910,7 +2030,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#49263dc18a20",
     "file": "scripts/quiz.mjs",
-    "line": 405,
+    "line": 494,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -1922,7 +2042,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#62b9e3afebf5-2",
     "file": "scripts/quiz.mjs",
-    "line": 416,
+    "line": 505,
     "api": "admin.get",
     "target": "db.doc(`assignments/${learnerToken}`)",
     "group": "operator-other",
@@ -1934,7 +2054,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#0e6be1588830",
     "file": "scripts/quiz.mjs",
-    "line": 417,
+    "line": 506,
     "api": "admin.get",
     "target": "db.doc(`answerKeys/${learnerToken}`)",
     "group": "operator-other",
@@ -1946,7 +2066,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#f6f324f19b6f",
     "file": "scripts/quiz.mjs",
-    "line": 418,
+    "line": 507,
     "api": "admin.get",
     "target": "db.doc(`reviews/${learnerToken}`)",
     "group": "operator-other",
@@ -1958,7 +2078,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#62b9e3afebf5-3",
     "file": "scripts/quiz.mjs",
-    "line": 433,
+    "line": 522,
     "api": "admin.get",
     "target": "db.doc(`assignments/${learnerToken}`)",
     "group": "operator-other",

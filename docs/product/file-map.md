@@ -8,13 +8,17 @@
 |---|---|---|---|
 | [assessment/decision-graph.mjs](../../assessment/decision-graph.mjs) | [Граф самопроверок](assessment-decision-graph.md) | Режимы, предметные матрицы, полнота слов по назначенным источникам и барьер ручной проверки | `quiz.mjs`; `sync-queue.mjs`; `sync-inbox.mjs` |
 | [assessment/decision-graph.test.mjs](../../assessment/decision-graph.test.mjs) | [Словарный диктант](assessment-decision-graph.md) | Проверка полного охвата упражнений, отбора слов, исправлений и формы связанного теста | Vitest; автор теста |
+| [assessment/followup-contract.mjs](../../assessment/followup-contract.mjs) | [Зачёт и продолжение](assessment-decision-graph.md) | Покрытие каждой ошибки отдельным вопросом и безопасная ревизия не начатого теста | `scripts/quiz.mjs` |
+| [assessment/followup-contract.test.mjs](../../assessment/followup-contract.test.mjs) | [Зачёт и продолжение](assessment-decision-graph.md) | Регрессия полного провала, покрытия ошибок и запрета переписывать начатую попытку | Vitest; выпуск |
+| [assessment/quiz-lineage.mjs](../../assessment/quiz-lineage.mjs) | [Зачёт и продолжение](assessment-decision-graph.md) | Детерминированная закрытая статистика тем, ответов и выбранных вариантов в цепочке | `scripts/quiz.mjs`; составитель теста |
+| [assessment/quiz-lineage.test.mjs](../../assessment/quiz-lineage.test.mjs) | [Зачёт и продолжение](assessment-decision-graph.md) | Регрессия истории попыток и запрет считать непроверенный результат ошибкой | Vitest; выпуск |
 | [assessment/question-copy.mjs](../../assessment/question-copy.mjs) | [Тесты](quizzes.md) | Поиск повторяющейся вводной фразы и инструкции в заголовках вопросов | `scripts/quiz.mjs` |
 | [assessment/question-copy.test.mjs](../../assessment/question-copy.test.mjs) | [Тесты](quizzes.md) | Регрессия на многократный заголовок словарного диктанта | Vitest; автор теста |
 | [.env.example](../../.env.example) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Шаблон локальной конфигурации интеграции | Оператор CLI |
 | [.firebaserc](../../.firebaserc) | [Семейная модель](../architecture/family-data-model.md) | Идентификатор проекта Firebase для команд | Firebase CLI |
 | [.gitignore](../../.gitignore) | [Хранение и приватность](storage-privacy.md) | Исключение секретов и локальных оригиналов | Git; проверка приватности |
 | [.oxlintrc.json](../../.oxlintrc.json) | [Карта спецификаций](README.md) | Правила статического анализа кода | oxlint |
-| [AGENTS.md](../../AGENTS.md) | [Система компонентов](component-system.md) | Сквозная сверка факта, модели данных, ViewModel, компонентов, тестов и выпуска | Агент Codex |
+| [AGENTS.md](../../AGENTS.md) | [Система компонентов](component-system.md) | Короткие правила сохранения согласованных решений и поиска контрактов до правки | Агент Codex |
 | [README.md](../../README.md) | [Карта спецификаций](README.md) | Вход в репозиторий и команды | Разработчик; агент |
 | [commitlint.config.cjs](../../commitlint.config.cjs) | [Карта файлов](file-map.md) | Формат истории изменений | commitlint |
 | [components.json](../../components.json) | [Экраны из данных](../architecture/backend-driven-ui.md) | Настройки базовых UI-компонентов | Генератор компонентов |
@@ -108,6 +112,8 @@
 | [docs/product/global-sync.md](global-sync.md) | [Глобальная синхронизация](global-sync.md) | Охват всех семей, граф фаз, параллельность и адресный статус | `skills/education-sync`; глобальный операторский запуск |
 | [docs/architecture/operator-core.md](../architecture/operator-core.md) | [Операторское ядро](../architecture/operator-core.md) | Единый CLI, модель данных, граф решений, метрики и границы механической работы | Агент; оператор; доменные CLI |
 | [docs/product/ui-decisions/operator-core-cli-2026-10-16.md](ui-decisions/operator-core-cli-2026-10-16.md) | [Операторское ядро](../architecture/operator-core.md) | Решение о фиксированных CLI-операциях, квитанциях и адресном readback | Оператор; проверка решений |
+| [docs/product/ui-decisions/history-followup-volume-2026-10-16.md](ui-decisions/history-followup-volume-2026-10-16.md) | [Зачёт и продолжение](assessment-decision-graph.md) | Решение о росте теста после полного провала и исправлении не начатой попытки | Оператор; проверка решений |
+| [docs/product/ui-decisions/requirement-switch-no-label-2026-10-16.md](ui-decisions/requirement-switch-no-label-2026-10-16.md) | [Дизайн-система](design-system.md) | Устранение противоречивой подписи переключателя и короткий вход в контракты | Агент; проверка решений |
 | [docs/product/special-course-card-overlay.md](special-course-card-overlay.md) | [Лист спецкурса](special-course-card-overlay.md) | Дополнительные правила оригинала, номеров и выпуска листа | Синхронизация; проверка; сборка |
 | [docs/product/math-solution-route.md](math-solution-route.md) | [Математический маршрут](math-solution-route.md) | Повторяемая подготовка отдельной задачи математики и спецкурса | Синхронизация; проверка; родительская карточка |
 | [docs/product/ui-decisions/one-parent-review-and-safe-site-2026-10-14.md](ui-decisions/one-parent-review-and-safe-site-2026-10-14.md) | [Письменный русский](russian-language-route.md) | Решение об одном предметном родительском разборе и временной границе кнопки теста | Компоненты карточки; выпуск сайта |
@@ -175,9 +181,9 @@
 | [scripts/day.mjs](../../scripts/day.mjs) | [Граф самопроверок](assessment-decision-graph.md) | Выпуск дня, проверка подтверждённого намерения теста, сверка индекса и аудит ссылок с ограниченной параллельностью, кэшем и замером | Оператор; Firestore; `src/DayDashboard.tsx`; `NotificationBell` |
 | [scripts/grade-snapshot.mjs](../../scripts/grade-snapshot.mjs) | [Средний балл](grades.md) | Штатный предпросмотр и запись аддитивного среза МЭШ после постоянного отчёта | Оператор Education Sync; `day reconcile-grades` |
 | [scripts/education.mjs](../../scripts/education.mjs) | [Операторское ядро](../architecture/operator-core.md) | Единая точка входа для фиксированных операций, статуса и квитанций | Агент; оператор |
-| [operator/operation-contract.mjs](../../operator/operation-contract.mjs) | [Операторское ядро](../architecture/operator-core.md) | Типизированный реестр операций, проверка входа и отпечаток пакета | `scripts/education.mjs`; `operator/run-operation.mjs` |
+| [operator/operation-contract.mjs](../../operator/operation-contract.mjs) | [Операторское ядро](../architecture/operator-core.md) | Типизированный реестр операций, безопасная ревизия открытого теста, проверка входа и отпечаток пакета | `scripts/education.mjs`; `operator/run-operation.mjs` |
 | [operator/operation-contract.test.mjs](../../operator/operation-contract.test.mjs) | [Операторское ядро](../architecture/operator-core.md) | Проверка запрета произвольной команды и изменения отпечатка | Vitest; разработчик |
-| [operator/run-operation.mjs](../../operator/run-operation.mjs) | [Операторское ядро](../architecture/operator-core.md) | Исполнение фиксированной команды, замер и закрытая квитанция | `scripts/education.mjs` |
+| [operator/run-operation.mjs](../../operator/run-operation.mjs) | [Операторское ядро](../architecture/operator-core.md) | Исполнение фиксированной команды, замер, обратная проверка ревизии и закрытая квитанция | `scripts/education.mjs` |
 | [operator/run-operation.test.mjs](../../operator/run-operation.test.mjs) | [Операторское ядро](../architecture/operator-core.md) | Проверка предпросмотра, валидации, повторов и квитанции | Vitest; разработчик |
 | [scripts/direct-upload-worker.mjs](../../scripts/direct-upload-worker.mjs) | [Семейная библиотека](family-library.md) | Выдача адресов и проверка фото работ и семейных PDF, общий архив по SHA | Клиенты загрузки; очереди |
 | [scripts/ensure-book-upload-index.mjs](../../scripts/ensure-book-upload-index.mjs) | [Local-first синхронизация](../architecture/local-first-sync.md) | Аддитивная установка индекса активных PDF-заявок с сохранением существующих настроек поля | Оператор; `direct-upload-worker.mjs` |
@@ -212,7 +218,7 @@
 | [scripts/push-and-publish.mjs](../../scripts/push-and-publish.mjs) | [PWA](pwa.md) | Push исходников и выпуск сайта | Оператор |
 | [scripts/quiz-access.mjs](../../scripts/quiz-access.mjs) | [Тесты](quizzes.md) | Проверка доступа к попытке и роли | Quiz CLI |
 | [scripts/quiz-access.test.mjs](../../scripts/quiz-access.test.mjs) | [Тесты](quizzes.md) | Проверка ролевого доступа к тесту | Vitest; разработчик |
-| [scripts/quiz.mjs](../../scripts/quiz.mjs) | [Граф самопроверок](assessment-decision-graph.md) | Проверка закрытого плана, результата и размера связанного теста, публикация тестов и ключей | Агент; Firestore |
+| [scripts/quiz.mjs](../../scripts/quiz.mjs) | [Граф самопроверок](assessment-decision-graph.md) | Проверка закрытого плана и каждой ошибки, экспорт цепочки, публикация и ревизия не начатого теста с readback | Агент; Firestore |
 | [scripts/storage.mjs](../../scripts/storage.mjs) | [Семейная библиотека](family-library.md) | Перенос фото, публикация назначенных и всех страниц семейно связанных книг | Оператор архива |
 | [scripts/notifications.mjs](../../scripts/notifications.mjs) | [Центр обновлений](../architecture/activity-and-inbox.md) | Выпуск изменений продукта и сверенный backfill результата/родительского решения | Оператор; Firestore; `NotificationBell` |
 | [scripts/submissions.mjs](../../scripts/submissions.mjs) | [Основания проверки](review-criteria-provenance.md) | Очередь, проверка пакета без записи, публикация и обратное чтение разбора | Агент проверки; операторский CLI; Firestore |
@@ -443,8 +449,8 @@
 | [docs/product/ui-decisions/quiz-threshold-and-page-slider-2026-10-14.md](ui-decisions/quiz-threshold-and-page-slider-2026-10-14.md) | [Граф самопроверок](assessment-decision-graph.md) | Основание и ролевой контракт порога, запроса и группировки страниц | `ui-change-decisions.json`; ревью выпуска |
 | [docs/product/ui-decisions/restore-textbook-strip-2026-10-15.md](ui-decisions/restore-textbook-strip-2026-10-15.md) | [Материалы](materials.md) | Решение о восстановлении горизонтальной ленты назначенных страниц и мобильной проверки | `ui-change-decisions.json`; ревью выпуска |
 | [docs/product/ui-decisions/quiz-threshold-85-2026-10-14.md](ui-decisions/quiz-threshold-85-2026-10-14.md) | [Граф самопроверок](assessment-decision-graph.md) | Решение родителя о пороге 85%, переходе статусов и проверках | `quizCompletion.ts`; оператор; агент |
-| [src/lib/quizCompletion.ts](../../src/lib/quizCompletion.ts) | [Граф самопроверок](assessment-decision-graph.md) | Единый порог 85% и ограниченная формула длины продолжения | `homeworkStatus.ts`; `sync-queue.mjs`; `quiz.mjs` |
-| [src/lib/quizCompletion.test.ts](../../src/lib/quizCompletion.test.ts) | [Граф самопроверок](assessment-decision-graph.md) | Граничные 85%, ручной запрос и размер 39/5 → 10 | Vitest; выпуск |
+| [src/lib/quizCompletion.ts](../../src/lib/quizCompletion.ts) | [Граф самопроверок](assessment-decision-graph.md) | Единый порог 85% и рост продолжения при большинстве ошибок | `homeworkStatus.ts`; `sync-queue.mjs`; `quiz.mjs` |
+| [src/lib/quizCompletion.test.ts](../../src/lib/quizCompletion.test.ts) | [Граф самопроверок](assessment-decision-graph.md) | Граничные 85%, ручной запрос и объём при полном провале 5/5 → 9 | Vitest; выпуск |
 | [src/lib/homeworkStatus.test.ts](../../src/lib/homeworkStatus.test.ts) | [Dashboard](dashboard.md) | Одна цепочка тестов, завершение и повторное открытие после запроса | Vitest; выпуск |
 | [src/components/MaterialReader.test.tsx](../../src/components/MaterialReader.test.tsx) | [Ридер](materials.md) | Один блок, все назначенные миниатюры и обе роли | Vitest; выпуск |
 | [src/components/QuizCard.test.tsx](../../src/components/QuizCard.test.tsx) | [Тесты](quizzes.md) | Ролевая кнопка запроса, краткое название результата и ожидающий статус | Vitest; выпуск |

@@ -35,6 +35,10 @@ export const operations = Object.freeze({
     validate: fields({ specPath: file }), argv: args('specPath') },
   'quiz.publish': { effect: 'create', script: 'scripts/quiz.mjs', command: 'create', preflight: 'validate',
     validate: fields({ specPath: file, personId: (v) => typeof v === 'string' && id.test(v) }), argv: args('specPath', 'personId'), payloadField: 'specPath' },
+  'quiz.revise-open': { effect: 'create', script: 'scripts/quiz.mjs', command: 'revise-open', preflight: 'validate',
+    validate: fields({ learnerToken: (v) => typeof v === 'string' && id.test(v), specPath: file,
+      personId: (v) => typeof v === 'string' && id.test(v) }),
+    argv: args('learnerToken', 'specPath', 'personId'), payloadField: 'specPath' },
   'review.validate': { effect: 'read', script: 'scripts/submissions.mjs', command: 'validate',
     validate: fields({ reviewPath: file }), argv: args('reviewPath') },
   'review.publish': { effect: 'create', script: 'scripts/submissions.mjs', command: 'review', preflight: 'validate',
@@ -65,7 +69,7 @@ export function operationFingerprint(request, root) {
   const operation = validateOperationRequest(request)
   const payloadPath = operation.payloadField ? resolve(root, request.input[operation.payloadField]) : null
   const payload = payloadPath ? readFileSync(payloadPath) : Buffer.alloc(0)
-  const plan = request.operation === 'quiz.publish'
+  const plan = ['quiz.publish', 'quiz.revise-open'].includes(request.operation)
     ? JSON.parse(payload.toString('utf8')).assessmentPlanPath : null
   const planBytes = plan ? readFileSync(resolve(dirname(payloadPath), plan)) : Buffer.alloc(0)
   return createHash('sha256').update(JSON.stringify([request.schemaVersion, request.operation, request.input,
@@ -80,5 +84,6 @@ export function operationCatalog() {
 const sampleFields = {
   'grades.snapshot': { sourceDate: 1, reportPath: 1 },
   'quiz.validate': { specPath: 1 }, 'quiz.publish': { specPath: 1, personId: 1 },
+  'quiz.revise-open': { learnerToken: 1, specPath: 1, personId: 1 },
   'review.validate': { reviewPath: 1 }, 'review.publish': { reviewPath: 1 },
 }

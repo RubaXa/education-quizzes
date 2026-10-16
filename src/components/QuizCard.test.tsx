@@ -42,7 +42,7 @@ describe('one family requirement switch on the shared test card', () => {
   const open: QuizCardAttempt = { token: 'root', testId: 'math-1', slug: 'math', title: 'Диаграммы', status: 'open', answered: 0, total: 20 }
   it('offers the existing switch to a parent on an active required test', () => {
     const html = renderToStaticMarkup(<QuizCard chain={[open]} parent />)
-    expect(html).toContain('Обязателен')
+    expect(html).not.toContain('Обязателен')
     expect(html).toContain('role="switch"')
     expect(html).toContain('aria-checked="true"')
   })
@@ -55,7 +55,8 @@ describe('one family requirement switch on the shared test card', () => {
   it('keeps the choice on a retry and hides the switch after submission', () => {
     const retry = { ...open, token: 'retry', testId: 'math-2', linkedToTestId: 'math-1' }
     const active = renderToStaticMarkup(<QuizCard chain={[{ ...open, status: 'submitted', familyOptional: true }, retry]} parent />)
-    expect(active).toContain('По желанию')
+    expect(active).not.toContain('По желанию')
+    expect(active).toContain('aria-label="Учитывать тест')
     expect(active).toContain('aria-checked="false"')
     const finished = renderToStaticMarkup(<QuizCard chain={[{ ...open, status: 'submitted', familyOptional: true }]} parent />)
     expect(finished).not.toContain('role="switch"')

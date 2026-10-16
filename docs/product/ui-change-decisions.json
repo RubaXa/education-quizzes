@@ -1,18 +1,32 @@
 {
   "files": {
+    "assessment/followup-contract.mjs": {
+      "sha256": "d865d1b369d8dd4c5d9055887aabe1ed3eedcb397129fe2096370564ccb53e60",
+      "record": "docs/product/ui-decisions/history-followup-volume-2026-10-16.md",
+      "specs": ["docs/product/assessment-decision-graph.md", "docs/product/quizzes.md"],
+      "tests": ["assessment/followup-contract.test.mjs", "src/lib/quizCompletion.test.ts"],
+      "authorization": { "status": "direct-request", "evidence": "Родитель 16.10.2026 потребовал отдельную новую проверку каждой ошибки и сохранность уже выданного теста." }
+    },
+    "assessment/quiz-lineage.mjs": {
+      "sha256": "c6f2988f52f16b3a9c619dc45ec983ef9e477b8706f36f8c059f071d25654d15",
+      "record": "docs/product/ui-decisions/history-followup-volume-2026-10-16.md",
+      "specs": ["docs/product/assessment-decision-graph.md", "docs/product/quizzes.md"],
+      "tests": ["assessment/quiz-lineage.test.mjs"],
+      "authorization": { "status": "direct-request", "evidence": "Родитель 16.10.2026 потребовал учитывать историю вопросов и выбранных вариантов при создании связанного теста." }
+    },
     "operator/operation-contract.mjs": {
-      "sha256": "7b09c80971b05dd1b7d76f484c5e59ab6439ee33038ec123f30b432ed6b0984a",
-      "record": "docs/product/ui-decisions/operator-core-cli-2026-10-16.md",
-      "specs": ["docs/architecture/operator-core.md", "docs/product/global-sync.md"],
+      "sha256": "f14143f69cd7e8d0c76fdd96d0925487c5969c586d9b8d7554b2c3713c7751f7",
+      "record": "docs/product/ui-decisions/history-followup-volume-2026-10-16.md",
+      "specs": ["docs/architecture/operator-core.md", "docs/product/assessment-decision-graph.md"],
       "tests": ["operator/operation-contract.test.mjs"],
-      "authorization": { "status": "direct-request", "evidence": "Родитель 16.10.2026 прямо потребовал единое ядро переиспользуемых CLI-инструментов со строгой моделью операций вместо inline-скриптов." }
+      "authorization": { "status": "direct-request", "evidence": "Родитель 16.10.2026 потребовал исправить связанный тест и закрепить операцию в едином повторяемом CLI." }
     },
     "operator/run-operation.mjs": {
-      "sha256": "d6720d9ad633784ebf8169f1a66088bd11ee2ea2ac9a411a19557011081d7d7e",
-      "record": "docs/product/ui-decisions/operator-core-cli-2026-10-16.md",
-      "specs": ["docs/architecture/operator-core.md", "docs/product/global-sync.md"],
+      "sha256": "55612796dbd8ddb3e199b1cd23f6f88e905d675c501e2207c635bccf5949e4eb",
+      "record": "docs/product/ui-decisions/history-followup-volume-2026-10-16.md",
+      "specs": ["docs/architecture/operator-core.md", "docs/product/assessment-decision-graph.md"],
       "tests": ["operator/run-operation.test.mjs"],
-      "authorization": { "status": "direct-request", "evidence": "Родитель 16.10.2026 прямо потребовал единое ядро переиспользуемых CLI-инструментов с метриками, квитанциями и проверкой результата." }
+      "authorization": { "status": "direct-request", "evidence": "Родитель 16.10.2026 потребовал исправить связанный тест через проверяемую стандартную команду с обратным чтением." }
     },
     "scripts/education.mjs": {
       "sha256": "bc427fc983c1bbbbd061ad71be090f432e16f0e7b3acde3d61cc349aa503bbd4",
@@ -272,8 +286,8 @@
       }
     },
     "scripts/quiz.mjs": {
-      "sha256": "b531b20e365a20676e91b10065dbd41c80e2f7f5eab9e38eab617a2264c1fe74",
-      "record": "docs/product/ui-decisions/quiz-threshold-and-page-slider-2026-10-14.md",
+      "sha256": "6e53d4324065aad94300ca90d0cea2ca904c44f441fcec57301d2bddf3f361e6",
+      "record": "docs/product/ui-decisions/history-followup-volume-2026-10-16.md",
       "specs": [
         "docs/product/assessment-decision-graph.md",
         "docs/product/dashboard.md",
@@ -282,11 +296,12 @@
       ],
       "tests": [
         "src/lib/quizCompletion.test.ts",
-        "src/lib/homeworkStatus.test.ts"
+        "assessment/followup-contract.test.mjs",
+        "assessment/quiz-lineage.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 14.10.2026 по снимкам: соседние страницы в одном ридере, зачёт любого теста от 80%, кнопка работы над ошибками и публикация сайта."
+        "evidence": "Родитель 16.10.2026 потребовал учитывать каждую ошибку и историю при создании продолжения и исправить открытый тест истории."
       }
     },
     "scripts/sync-queue.mjs": {
@@ -356,19 +371,20 @@
       }
     },
     "src/components/QuizCard.tsx": {
-      "sha256": "a3a7bb95b2c3ef1a20a3dab91390a642ec04d45e22a333bab518a91735ff09d4",
-      "record": "docs/product/ui-decisions/quiz-attempt-time-icon-2026-10-15.md",
+      "sha256": "37cb439027c71e393cf1e8b52721bf1ac2299ebfe782b0947f836e71acf4be42",
+      "record": "docs/product/ui-decisions/requirement-switch-no-label-2026-10-16.md",
       "specs": [
         "docs/product/quizzes.md",
         "docs/product/design-system.md"
       ],
       "tests": [
+        "src/components/QuizCard.test.tsx",
         "src/components/QuizCard.time.test.tsx",
         "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 15.10.2026 после просмотра макета согласовал только значок времени в действующем общем компоненте теста, без изменения остального дизайна карточки."
+        "evidence": "Родитель 16.10.2026 потребовал убрать видимую подпись переключателя и исправить противоречащие этому спецификацию и тесты."
       }
     },
     "src/lib/dayMaterialRefs.ts": {
@@ -484,8 +500,8 @@
       }
     },
     "src/lib/quizCompletion.ts": {
-      "sha256": "fd9b16742ed64a93af0277301fd0547c2cc446e01d4ab24560e5c890a7672d84",
-      "record": "docs/product/ui-decisions/quiz-threshold-85-2026-10-14.md",
+      "sha256": "7f8c0015239e8a65e2d13d35062a4bf1ae419787f7151756beccdd539c9b0c6f",
+      "record": "docs/product/ui-decisions/history-followup-volume-2026-10-16.md",
       "specs": [
         "docs/product/assessment-decision-graph.md",
         "docs/product/dashboard.md",
@@ -498,7 +514,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое уточнение родителя 14.10.2026: зачёт любого полностью проверенного теста от 85% включительно."
+        "evidence": "Родитель 16.10.2026 потребовал не сокращать связанный тест при большинстве ошибок и добавить прежние ошибки, успехи и перенос."
       }
     },
     "scripts/check-material-preview-viewport.mjs": {
@@ -826,8 +842,8 @@
       }
     },
     "scripts/check-quiz-switch-viewport.mjs": {
-      "sha256": "6f3a0837444891bee615e140617f15bfa435acb54e0f83a2a02540cf4dd05b6f",
-      "record": "docs/product/ui-decisions/quiz-attempt-time-icon-2026-10-15.md",
+      "sha256": "51d82a6c389001f9591fe89cd2ab070b17466924ce8ad6afc050ede6839218ef",
+      "record": "docs/product/ui-decisions/requirement-switch-no-label-2026-10-16.md",
       "specs": [
         "docs/product/quizzes.md",
         "docs/product/design-system.md"
@@ -838,7 +854,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 15.10.2026 после просмотра макета согласовал только значок времени в действующем общем компоненте теста, без изменения остального дизайна карточки."
+        "evidence": "Родитель 16.10.2026 потребовал показывать только тумблер без текстовой подписи и закрепить поведение проверками."
       }
     },
     "day/grade-publication.mjs": {
