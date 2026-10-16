@@ -192,25 +192,21 @@
       }
     },
     "src/UiKit.tsx": {
-      "sha256": "fecfed08ae76bb3a62d36d374274c27f32ff6d14140627ddf956ee0194e6529d",
-      "record": "docs/product/ui-decisions/material-clarification-2026-10-16.md",
+      "sha256": "599deaa35a211bac2936e64dce3ad11a633e4107cfa1e320da58f2b3df837d2c",
+      "record": "docs/product/ui-decisions/compact-homework-copy-2026-10-16.md",
       "specs": [
-        "docs/product/material-clarification.md"
+        "docs/product/dashboard.md",
+        "docs/product/design-system.md"
       ],
       "tests": [
-        "src/lib/materialRequest.test.ts",
+        "src/components/HomeworkOverview.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx",
         "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/lib/homeworkStatus.test.ts",
-        "src/lib/photoUploadPolicy.test.ts",
-        "src/UiKit.test.tsx",
-        "storage/submission-inbox.test.mjs",
-        "storage/review-projection.test.mjs",
-        "storage/review-readback.test.mjs",
-        "day/build-assignments.test.mjs"
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 16.10.2026 прямо потребовал вопрос ученику в карточке и ответ фото записей через стандартную загрузку с обработкой следующей синхронизацией."
+        "evidence": "Родитель16.10.2026 прямо отверг длинные повторяющиеся подписи про учебный день и уроки и потребовал структурировать существующую карточку."
       }
     },
     "src/UiKit.css": {
@@ -233,22 +229,21 @@
       }
     },
     "src/lib/uiKitExamples.ts": {
-      "sha256": "301f51868dd107e1d3ab8dbe55c27d9a094ff5e5d72fc8cda1df3bcb8d794a0d",
-      "record": "docs/product/ui-decisions/compact-results-ui-kit-2026-10-16.md",
+      "sha256": "466649674384ca8e41cf5fe584048965cfb58764d3b32fbb07754143e1d96525",
+      "record": "docs/product/ui-decisions/compact-homework-copy-2026-10-16.md",
       "specs": [
-        "docs/product/result-presentation-proposal.md",
-        "docs/product/quiz-chain-proposal.md",
-        "docs/product/ui-kit.md"
+        "docs/product/dashboard.md",
+        "docs/product/design-system.md"
       ],
       "tests": [
-        "src/components/QuizCard.history.test.tsx",
-        "src/components/ui/result.test.tsx",
-        "src/lib/watchQuizOutcome.test.ts",
+        "src/components/HomeworkOverview.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
         "src/UiKit.test.tsx"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "Родитель 16.10.2026 утвердил уплотнённую таблицу и цветовую шкалу словами «стало намного лучше, закрепляй вариант» и прямо запросил интерактивный UI Kit."
+        "status": "direct-request",
+        "evidence": "Родитель16.10.2026 прямо отверг длинные повторяющиеся подписи про учебный день и уроки и потребовал структурировать существующую карточку."
       }
     },
     "scripts/storage.mjs": {
@@ -430,25 +425,21 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "72f0c6f690700fa783053946f9afb239d26d1668b7ae614eaba7973c3dfc1421",
-      "record": "docs/product/ui-decisions/material-clarification-2026-10-16.md",
+      "sha256": "421e71f9d1e5b27ac55d7f93227309087573c15d1ee3df2bf87dd11d75ee27db",
+      "record": "docs/product/ui-decisions/compact-homework-copy-2026-10-16.md",
       "specs": [
-        "docs/product/material-clarification.md"
+        "docs/product/dashboard.md",
+        "docs/product/design-system.md"
       ],
       "tests": [
-        "src/lib/materialRequest.test.ts",
+        "src/components/HomeworkOverview.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx",
         "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/lib/homeworkStatus.test.ts",
-        "src/lib/photoUploadPolicy.test.ts",
-        "src/UiKit.test.tsx",
-        "storage/submission-inbox.test.mjs",
-        "storage/review-projection.test.mjs",
-        "storage/review-readback.test.mjs",
-        "day/build-assignments.test.mjs"
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 16.10.2026 прямо потребовал вопрос ученику в карточке и ответ фото записей через стандартную загрузку с обработкой следующей синхронизацией."
+        "evidence": "Родитель16.10.2026 прямо отверг длинные повторяющиеся подписи про учебный день и уроки и потребовал структурировать существующую карточку."
       }
     },
     "src/DayPage.css": {
@@ -739,25 +730,21 @@
       }
     },
     "src/DayDashboard.tsx": {
-      "sha256": "47667adcce5af3061919cce9ccec9135dd96e985ccd2cd6aaedb8e3365eac735",
-      "record": "docs/product/ui-decisions/material-clarification-2026-10-16.md",
+      "sha256": "15ed38b2dfc16c5d2db0cb908de3953bafd5548a35b10e1f6a83a96af62599d0",
+      "record": "docs/product/ui-decisions/compact-homework-copy-2026-10-16.md",
       "specs": [
-        "docs/product/material-clarification.md"
+        "docs/product/dashboard.md",
+        "docs/product/design-system.md"
       ],
       "tests": [
-        "src/lib/materialRequest.test.ts",
+        "src/components/HomeworkOverview.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx",
         "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/lib/homeworkStatus.test.ts",
-        "src/lib/photoUploadPolicy.test.ts",
-        "src/UiKit.test.tsx",
-        "storage/submission-inbox.test.mjs",
-        "storage/review-projection.test.mjs",
-        "storage/review-readback.test.mjs",
-        "day/build-assignments.test.mjs"
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 16.10.2026 прямо потребовал вопрос ученику в карточке и ответ фото записей через стандартную загрузку с обработкой следующей синхронизацией."
+        "evidence": "Родитель16.10.2026 прямо отверг длинные повторяющиеся подписи про учебный день и уроки и потребовал структурировать существующую карточку."
       }
     },
     "src/components/QuizCard.css": {
@@ -1208,19 +1195,21 @@
       }
     },
     "src/DayDashboard.css": {
-      "sha256": "90c06169d0fa55360a07cc3f10b20dcb66f331497f1ffc551081ee71fecc31ee",
-      "record": "docs/product/ui-decisions/lesson-countdowns-2026-10-15.md",
+      "sha256": "a4e71958bad63c4ad5dd29a979739777e025b0afc53f28842e90daeb389612fb",
+      "record": "docs/product/ui-decisions/compact-homework-copy-2026-10-16.md",
       "specs": [
         "docs/product/dashboard.md",
-        "docs/product/design-system.md",
-        "docs/product/status-presentation.md"
+        "docs/product/design-system.md"
       ],
       "tests": [
-        "src/DayDashboard.warmStart.test.tsx"
+        "src/components/HomeworkOverview.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 15.10.2026 со скриншотами расписания: песочные часы и отсчёт только у ближайшего будущего урока, таймер и отсчёт до конца вместо слова «Идёт» у текущего."
+        "evidence": "Родитель16.10.2026 прямо отверг длинные повторяющиеся подписи про учебный день и уроки и потребовал структурировать существующую карточку."
       }
     },
     "src/lib/assignmentPresentation.ts": {
@@ -1617,6 +1606,24 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Родитель 16.10.2026 прямо потребовал вопрос ученику в карточке и ответ фото записей через стандартную загрузку с обработкой следующей синхронизацией."
+      }
+    },
+    "src/components/HomeworkOverview.tsx": {
+      "sha256": "04513bc7bd9e9ed9a37f24b102069bb26ad2bc5efcfbc01b516b2f80db59ab04",
+      "record": "docs/product/ui-decisions/compact-homework-copy-2026-10-16.md",
+      "specs": [
+        "docs/product/dashboard.md",
+        "docs/product/design-system.md"
+      ],
+      "tests": [
+        "src/components/HomeworkOverview.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/UiKit.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель16.10.2026 прямо отверг длинные повторяющиеся подписи про учебный день и уроки и потребовал структурировать существующую карточку."
       }
     }
   }

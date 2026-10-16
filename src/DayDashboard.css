@@ -152,3 +152,13 @@
 @media(max-width:560px){.day-dashboard-calendar{padding:15px 12px}.day-dashboard-date{flex-basis:58px}.day-dashboard-side{grid-template-columns:1fr}.day-dashboard-heading h2{font-size:1.15rem}}
 /* @see ../docs/product/dashboard.md#schedule-homework-status */
 .day-dashboard-lesson{scroll-margin-top:1rem}
+
+/* @see ../docs/product/dashboard.md#compact-homework — one title/date, no repeated summary banner. */
+.day-dashboard-homework-heading{flex-direction:column;align-items:flex-start;gap:5px}
+.day-dashboard-homework-heading time{margin-left:30px;color:var(--edu-text-secondary);font-size:.85rem;line-height:1.4}
+.day-dashboard-homework-card .day-dashboard-homework-heading h2{margin:0;font-size:1.2rem;line-height:1.25}
+.day-dashboard-homework-card .day-dashboard-homework-group h3{display:flex;align-items:center;gap:5px;margin:0 0 2px;color:var(--edu-text-secondary);font-size:.8rem}
+.day-dashboard-homework-group h3>span{font-variant-numeric:tabular-nums}
+.day-dashboard-homework-next,.day-dashboard-homework-reason{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+.day-dashboard-homework-reason{color:var(--edu-text-secondary);font-size:.73rem;line-height:1.4}
+.day-dashboard-homework-row-body{gap:4px}

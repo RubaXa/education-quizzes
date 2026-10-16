@@ -146,6 +146,22 @@ it('asks the child for missing source material through the standard uploader, wi
 })
 
 describe('day page: teacher sheet and linked self-check', () => {
+  /** @see ../docs/product/dashboard.md#compact-homework */
+  it('uses one dated homework heading without the repeated lesson explanation', async()=>{
+    for (const parent of [false,true]) {
+      sessionStorage.setItem('education-day-initial-tab','homework')
+      const view=await renderPage(parent)
+      try {
+        expect(view.host.querySelector('h1')?.textContent).toBe('Домашнее задание')
+        expect(view.host.querySelector('.day-hero>p')?.textContent).toBe('Среда, 14 октября')
+        expect(view.host.textContent).not.toContain('к урокам')
+        expect(view.host.textContent).not.toContain('только назначения этих уроков')
+        expect(view.host.querySelector('[role="tab"][aria-selected="true"]')?.textContent).toBe('Задания')
+        await act(async()=>view.host.querySelector<HTMLButtonElement>('[role="tab"]')!.click())
+        expect(view.host.querySelector('h1')?.textContent).toBe('Расписание')
+      } finally { await view.cleanup() }
+    }
+  })
   it('shows stored attempt times through only the shared quiz icon', async () => {
     const view = await renderPage(true)
     try {

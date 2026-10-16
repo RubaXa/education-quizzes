@@ -6,6 +6,9 @@
 
 | Файл | Спецификация | Зачем существует | Потребитель |
 |---|---|---|---|
+| [src/components/HomeworkOverview.tsx](../../src/components/HomeworkOverview.tsx) | [Компактная сводка ДЗ](dashboard.md) | Общий чистый вид сводки ДЗ и явной даты | DayDashboard; UI Kit |
+| [src/components/HomeworkOverview.test.tsx](../../src/components/HomeworkOverview.test.tsx) | [Компактная сводка ДЗ](dashboard.md) | Группы, дата, полный смысл статуса и переходы | Vitest |
+| [docs/product/ui-decisions/compact-homework-copy-2026-10-16.md](../../docs/product/ui-decisions/compact-homework-copy-2026-10-16.md) | [Компактная сводка ДЗ](dashboard.md) | Основание кратких заголовков и сохранённые сценарии | UI gate; разработчик |
 | [docs/product/material-clarification.md](../../docs/product/material-clarification.md) | [Уточнение материала](material-clarification.md) | Контракт источника без оценки выполнения | Оператор; UI; CLI |
 | [docs/product/ui-decisions/material-clarification-2026-10-16.md](../../docs/product/ui-decisions/material-clarification-2026-10-16.md) | [Уточнение материала](material-clarification.md) | Основание изменения и границы ролей | Барьер UI |
 | [src/components/MaterialRequest.tsx](../../src/components/MaterialRequest.tsx) | [Уточнение материала](material-clarification.md) | Вопрос в стандартной поверхности фото | DayPage; UI Kit |

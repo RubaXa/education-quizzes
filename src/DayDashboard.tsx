@@ -1,7 +1,8 @@
+/** @see ../docs/product/dashboard.md#compact-homework */
 /** @see ../docs/product/material-clarification.md */
 import { useEffect, useRef, useState } from 'react'
 import { getAuth } from 'firebase/auth'
-import { ArrowRight, BookOpen, CalendarDays, ChevronDown, Clock3, Hourglass, Sparkles, Timer } from 'lucide-react'
+import { ArrowRight, CalendarDays, ChevronDown, Clock3, Hourglass, Sparkles, Timer } from 'lucide-react'
 import { watchDayPage } from '@/lib/dayStore'
 import type { DayPageData } from '@/lib/dayStore'
 import { clearCachedDayDashboard, readCachedDayDashboard, watchDayDashboard } from '@/lib/dayDashboardStore'
@@ -21,6 +22,7 @@ import { DATA_UPDATE_MESSAGE } from '@/lib/dayCompatibility'
 import { homeworkUpdateKey, markHomeworkUpdateSeen, wasHomeworkUpdateSeen } from '@/lib/homeworkUpdateReceipt'
 import DataCompatibilityNotice from './components/DataCompatibilityNotice'
 import StatusIcon from './components/StatusIcon'
+import HomeworkOverview from './components/HomeworkOverview'
 
 function moscowToday() {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Moscow', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
@@ -50,7 +52,6 @@ function word(count: number, one: string, few: string, many: string) {
   return count % 10 === 1 ? one : count % 10 >= 2 && count % 10 <= 4 ? few : many
 }
 function isWeekend(date: string) { return [0, 6].includes(new Date(`${date}T12:00:00Z`).getUTCDay()) }
-function nextCalendarDate(date: string) { const day = new Date(`${date}T12:00:00Z`); day.setUTCDate(day.getUTCDate() + 1); return day.toISOString().slice(0, 10) }
 function lessonTime(iso: string) {
   if (!iso) return ''
   const time = new Date(iso)
@@ -205,9 +206,6 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
   useEffect(() => {
     if (completeHomeworkSnapshot && nextHomeworkToken) writeCachedHomeworkRows(role, token, nextHomeworkToken, JSON.parse(completeHomeworkSnapshot))
   }, [completeHomeworkSnapshot, nextHomeworkToken, role, token])
-  const actionRows = homeworkRows.filter((row) => row.group === 'action')
-  const waitingRows = homeworkRows.filter((row) => row.group === 'waiting')
-  const completeRows = homeworkRows.filter((row) => row.group === 'complete')
   const gradeSource = gradeToken && gradeState && gradeState.token === gradeToken ? gradeState.page
     : gradeToken ? readCachedGrades(role, token, gradeToken) : null
   useEffect(() => {
@@ -352,21 +350,6 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
     else sessionStorage.removeItem('education-day-focus-task')
     window.location.hash = `#/${parent ? 'day-parent' : 'day'}/${dayToken}`
   }
-  /** @see ../docs/product/dashboard.md#homework-progress
-   * @see ../docs/product/status-presentation.md#components */
-  function homeworkRow(row: typeof homeworkRows[number]) {
-    const { subject, items, done, group } = row
-    const next = items.find((item) => item.state === 'todo') ?? items.find((item) => item.state === 'checking') ?? items.find((item) => item.state === 'unclear')
-    const qualityOpen = items.find((item) => item.qualityOpen)
-    const status = next?.clarification ? 'Уточнить материал' : group === 'complete' ? qualityOpen ? 'Работа сдана' : 'Всё завершено' : next?.state === 'unclear'
-      ? next.unresolvedReason === 'missing-evidence' ? 'Не вся работа видна' : 'Итог не установлен'
-      : next?.state === 'checking' ? 'Ждём проверки' : done ? `${done} из ${items.length} завершено` : 'Нужно сделать'
-    return <button className={`day-dashboard-homework-row ${group}`} key={subject.id} type="button" onClick={() => nextHomeworkToken && openDay(nextHomeworkToken, 'homework', next?.id, { date: nextDate, subject: subject.name })}>
-      <span className="day-dashboard-icon" aria-hidden="true">{subject.icon}</span>
-      <span className="day-dashboard-homework-row-body"><strong>{subject.name}</strong><span className="day-dashboard-homework-status"><StatusIcon size={14} status={group === 'complete' ? 'complete' : next?.state === 'checking' ? 'waiting' : next?.state === 'unclear' ? 'unknown' : done ? 'partial' : 'ready'} />{status}</span>{next && <span className="day-dashboard-homework-next">{next.title} · {next.detail}</span>}{group === 'complete' && <span className="day-dashboard-homework-next">{qualityOpen ? qualityOpen.detail : subject.tasks.map((task) => task.title).join(' · ')}</span>}</span>
-      <ArrowRight size={18} aria-hidden="true" />
-    </button>
-  }
 
   if (error === DATA_UPDATE_MESSAGE) return <DataCompatibilityNotice />
   if (error && !index) return <div className="day-dashboard-error"><h1>Не получилось открыть dashboard</h1><p>{error}</p></div>
@@ -400,18 +383,14 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
         </div> : <p className="day-dashboard-empty">{selectedEntry?.complete ? 'Уроков на эту дату нет.' : `Расписание ещё не подтверждено. Последняя проверка: ${checkedLabel(selectedEntry?.checkedAt ?? null)}.`}</p>)}
         {!scheduleCollapsed && selectedEntry?.dayToken && <button className="day-dashboard-detail-link" type="button" onClick={() => openDay(selectedEntry.dayToken!)}>Открыть подробное расписание <ArrowRight size={17} /></button>}
       </section>
-      <section className="day-dashboard-card" aria-label="Домашнее задание следующего учебного дня">
-        <div className="day-dashboard-heading"><div><BookOpen size={20} /><h2>{nextDate === nextCalendarDate(selectedDate) ? 'Домашнее задание на завтра' : 'Домашнее задание к следующему учебному дню'}</h2></div>{nextEntry && <small>Уроки {dateLabel(nextDate, { weekday: 'long', day: 'numeric', month: 'long' })}</small>}</div>
-        {!nextEntry ? <p className="day-dashboard-empty">Следующий учебный день пока не найден в проверенном расписании МЭШ.</p>
-          : homeworkRows.length > 0 ? <div className="day-dashboard-homework-overview">
-          <p className={`day-dashboard-homework-summary ${actionRows.length ? 'action' : waitingRows.length || unprojectedHomework.length ? 'waiting' : 'complete'}`}>{actionRows.length ? `Требуют внимания: ${actionRows.length} ${word(actionRows.length, 'предмет', 'предмета', 'предметов')}${unprojectedHomework.length ? ` · ещё ${unprojectedHomework.length} ${word(unprojectedHomework.length, 'задание без проверенного статуса', 'задания без проверенного статуса', 'заданий без проверенного статуса')}` : ''}` : unprojectedHomework.length ? `${unprojectedHomework.length} ${word(unprojectedHomework.length, 'задание без проверенного статуса', 'задания без проверенного статуса', 'заданий без проверенного статуса')}` : waitingRows.length ? 'Есть работа, итог которой пока не установлен' : 'Всё заданное сделано'}</p>
-          {actionRows.length > 0 && <div className="day-dashboard-homework-group"><h3>Что сделать</h3>{actionRows.map(homeworkRow)}</div>}
-          {waitingRows.length > 0 && <div className="day-dashboard-homework-group"><h3>Пока не удалось подтвердить</h3>{waitingRows.map(homeworkRow)}</div>}
-          {unprojectedHomework.length > 0 && <div className="day-dashboard-mesh" aria-label="Задания МЭШ без подтверждённого статуса выполнения">{unprojectedHomework.map((item) => <p key={item.subject}><strong>{item.subject}</strong><span>{item.text}</span></p>)}<small>Запись МЭШ видна; данных о выполнении этого пункта пока нет.</small></div>}
-          {completeRows.length > 0 && <details className="day-dashboard-homework-complete"><summary><StatusIcon status="complete" size={18} /><span>Сделано · {completeRows.length} {word(completeRows.length, 'предмет', 'предмета', 'предметов')}</span><ChevronDown size={17} aria-hidden="true" /></summary><div>{completeRows.map(homeworkRow)}</div></details>}
-        </div> : nextEntry.homework.length ? <div className="day-dashboard-mesh">{nextEntry.homework.map((item, index) => <p key={index}><strong>{item.subject}</strong><span>{item.text}</span></p>)}<small>{nextWork.linkedPage && nextWork.linkedPage.targetDate !== nextDate ? `Запись МЭШ ссылается на урок ${dateLabel(nextWork.linkedPage.targetDate)}.` : 'Точный текст МЭШ · разбор страницы готовится'}</small></div> : <p className="day-dashboard-empty">{nextEntry.complete ? 'На этот учебный день МЭШ пока не показывает домашнего задания.' : 'ДЗ ещё не подтверждено.'} Последняя проверка: {checkedLabel(nextEntry.checkedAt)}.</p>}
-        {nextHomeworkToken && <button className="day-dashboard-detail-link" type="button" onClick={() => openDay(nextHomeworkToken, 'homework')}>{nextWork.linkedPage && nextWork.linkedPage.targetDate !== nextDate ? 'Открыть указанное задание' : 'Открыть подробное ДЗ'} <ArrowRight size={17} /></button>}
-      </section>
+      <HomeworkOverview date={nextEntry ? nextDate : undefined} rows={homeworkRows} unconfirmed={unprojectedHomework}
+        onOpen={(row, taskId) => nextHomeworkToken && openDay(nextHomeworkToken, 'homework', taskId, { date: nextDate, subject: row.subject.name })}
+        onOpenAll={nextHomeworkToken ? () => openDay(nextHomeworkToken, 'homework') : undefined}
+        openAllLabel={nextWork.linkedPage && nextWork.linkedPage.targetDate !== nextDate ? 'Указанное задание' : 'Все задания'}
+        fallback={!nextEntry ? <p className="day-dashboard-empty">Дата следующего ДЗ пока неизвестна.</p>
+          : nextEntry.homework.length ? <div className="day-dashboard-mesh">{nextEntry.homework.map((item, index) => <p key={index}><strong>{item.subject}</strong><span>{item.text}</span></p>)}<small>{nextWork.linkedPage && nextWork.linkedPage.targetDate !== nextDate ? `МЭШ ссылается на ${dateLabel(nextWork.linkedPage.targetDate)}.` : 'Разбор готовится'}</small></div>
+            : <p className="day-dashboard-empty">{nextEntry.complete ? 'В МЭШ пока нет заданий на эту дату.' : 'ДЗ ещё не подтверждено.'} Проверено: {checkedLabel(nextEntry.checkedAt)}.</p>}
+      />
       </div>
       <aside className="day-dashboard-side">
         <section className="day-dashboard-card" aria-label="Оценки по предметам"><div className="day-dashboard-heading"><div><Sparkles size={20} /><h2>Оценки</h2></div>{gradeRows.length > 0 && <small>{gradeRows.length} {word(gradeRows.length, 'предмет', 'предмета', 'предметов')}</small>}</div>

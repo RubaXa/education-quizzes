@@ -32,6 +32,16 @@ it('has internally consistent example points and counts',()=>{
  for(const test of uiKitQuizExamples){const score=summarize(test.results!);expect(score.earned).toBe(test.points);expect(score.possible).toBe(test.maxPoints)}
 })
 
+/** @see ../docs/product/dashboard.md#compact-homework */
+it('previews the real homework component and its existing click targets',async()=>{
+ document.body.append(host);root=createRoot(host);await act(async()=>root!.render(<UiKit/>))
+ await act(async()=>[...host.querySelectorAll<HTMLButtonElement>('nav button')].find(button=>button.textContent==='Сводка ДЗ')!.click())
+ expect(host.querySelector('[aria-label="Домашнее задание"] time')?.textContent).toBe('Понедельник, 19 октября')
+ await act(async()=>host.querySelector<HTMLButtonElement>('.day-dashboard-homework-row')!.click())
+ expect(host.querySelector('[role="status"]')?.textContent).toContain('Английский язык')
+ expect(host.querySelector<HTMLDetailsElement>('.day-dashboard-homework-complete')?.open).toBe(false)
+})
+
 /** @see ../docs/product/material-clarification.md */
 it('previews the source question using the shared local photo control',async()=>{
  document.body.append(host);root=createRoot(host);await act(async()=>root!.render(<UiKit/>))

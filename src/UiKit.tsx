@@ -1,10 +1,11 @@
+import HomeworkOverview from '@/components/HomeworkOverview'
 import MaterialRequest from '@/components/MaterialRequest'
 import PhotoUploadControl from '@/components/PhotoUploadControl'
 import { useState } from 'react'
 import { BookOpen, ChevronRight, CircleHelp, Layers3, Palette } from 'lucide-react'
 import { ResultBadge, ResultMeter, ResultPoints } from '@/components/ui/result'
 import QuizCard from '@/components/QuizCard'
-import { uiKitQuizExamples } from '@/lib/uiKitExamples'
+import { uiKitQuizExamples, uiKitHomeworkRows } from '@/lib/uiKitExamples'
 import type { ResultInput } from '@/lib/resultPresentation'
 import tokenCss from './education-design-tokens.css?raw'
 import './UiKit.css'
@@ -12,6 +13,7 @@ import './UiKit.css'
 const topics = [
   {id:'tokens',group:'Основы',title:'Цвета и токены',icon:Palette},
   {id:'results',group:'Компоненты',title:'Индикаторы результата',icon:CircleHelp},
+  {id:'homework',group:'Составные сценарии',title:'Сводка ДЗ',icon:BookOpen},
   {id:'material',group:'Составные сценарии',title:'Уточнение материала',icon:BookOpen},
   {id:'quiz',group:'Составные сценарии',title:'История тестов',icon:Layers3},
 ] as const
@@ -53,6 +55,7 @@ export default function UiKit() {
   const [points,setPoints] = useState(34)
   const [max,setMax] = useState(39)
   const [state,setState] = useState('score')
+  const [demoTarget,setDemoTarget] = useState('')
   const [demoFiles,setDemoFiles] = useState<string[]>([])
   const input:ResultInput = state==='score' ? {kind:'score',points,maxPoints:max} : state==='answers' ? {kind:'answers',answered:points,total:max} : {kind:state==='waiting'?'waiting':'unknown'}
   return <div className="edu-kit">
@@ -69,6 +72,7 @@ export default function UiKit() {
       {section==='tokens' && <section aria-labelledby="kit-tokens-title"><h2 id="kit-tokens-title">Цвета и токены</h2><p>Базовое значение → смысловая роль → компонент. Компонент берёт цвет по смыслу, например success, а не выбирает свой зелёный.</p><div className="edu-kit-roles">{colourRoles.map(([role,label,description])=><div key={role} className={`edu-result-tone-${role}`}><span className="edu-kit-swatch" /><strong>{label}</strong><small>{description}</small><code>--edu-status-{role}-bg / ink</code></div>)}</div>
       <h3>Текущие CSS-токены</h3><p>Значения ниже получены из общего файла приложения. Изменение токена обновляет примеры и потребителей одновременно.</p><dl className="edu-kit-token-list">{tokenDefinitions.map(token=><div key={token.name}><dt><code>{token.name}</code><span className="edu-kit-token-preview" style={{background:token.name.endsWith('-bg')||token.name.endsWith('-ink')||token.name==='--edu-canvas'?`var(${token.name})`:undefined}} aria-hidden="true" /></dt><dd><code>{token.value}</code><p>{tokenMeaning(token.name)}</p></dd></div>)}</dl>
       </section>}
+      {section==='homework' && <section aria-label="Пример сводки ДЗ"><h2>Сводка ДЗ</h2><p>Условные данные. Заголовок, дата и статусы используют тот же компонент, что и главная страница.</p><HomeworkOverview date="2026-10-19" rows={uiKitHomeworkRows} onOpen={row=>setDemoTarget(row.subject.name)} onOpenAll={()=>setDemoTarget('Все задания')}/>{demoTarget && <p role="status">Демонстрация перехода: {demoTarget}</p>}<p>Статус, задание и причина показаны отдельно. Длинный текст — короткий предпросмотр; полный разбор открывается нажатием на предмет.</p></section>}
       {section==='material' && <section aria-labelledby="kit-material-title"><h2 id="kit-material-title">Уточнение материала</h2><p>Пример с условными данными. Выбранные файлы остаются в этой демонстрации и не отправляются в Education.</p><MaterialRequest request={{id:'demo-notes',state:'open',question:'Какая последняя тема записана в тетради? Пришли фото записей с последнего урока.',photoPrompt:'Заголовок темы и все страницы последних записей целиком. Переписывать ничего не нужно.'}} label={demoFiles.length ? 'Материал выбран · пример' : 'Нужен материал для уточнения'} detail={demoFiles.length ? `Выбрано файлов: ${demoFiles.length}. На рабочей странице они будут переданы на Диск и попадут в следующий запуск синхронизации.` : 'Это вопрос для уточнения источника, а не требование учителя сдать письменную работу.'} /><PhotoUploadControl label="Добавить фото записей" onPhotos={files=>setDemoFiles(files.map(file=>file.name))}/><p>Фото помогает установить тему и увидеть записи. Само получение материала не отмечает домашнее задание выполненным.</p></section>}
       {section==='quiz' && <section aria-labelledby="kit-quiz-title"><h2 id="kit-quiz-title">История тестов</h2><p>Пример с условными данными. Тот же QuizCard используется на странице урока и в списке тестов. Нажмите название попытки для разбора, часы — для дат.</p><QuizCard chain={uiKitQuizExamples} parent={false} linksEnabled={false} context="Пример темы" assignment={<div className="edu-kit-assignment"><strong>Задание учителя · пример</strong><p>Повторить назначенную тему. Дополнительные упражнения не становятся обязательным домашним заданием.</p></div>} materials={<p>Демонстрационный материал. Персональных страниц и ответов здесь нет.</p>} />
       <h3>Что сохраняется при изменении дизайна</h3><ul><li>Корень цепочки, роли, обязательность и исходное задание учителя.</li><li>Верные ответы, баллы и вопросы считаются отдельно.</li><li>История идёт от новых завершений к старым. Поздний разбор не меняет порядок.</li><li>Просмотр дат и раскрытие ошибок не открывают новые подписки Firebase.</li></ul></section>}

@@ -480,14 +480,14 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
     <a className="day-return day-return-content" href={returnToDashboard || '#/'}>← На главную</a>
     <section className="day-hero">
       <div className="day-kicker">{parent ? 'Панель родителя' : 'Мой план'} · {shortDate(page.date)}</div>
-      <h1>{page.date === moscowToday() ? (parent ? 'Что требует внимания' : 'Сегодня справимся 👋') : `День · ${shortDate(page.date)}`}</h1>
-      <p>{parent ? `Домашнее задание к урокам ${dayMonth(page.targetDate)}: только назначения этих уроков. Срок сдачи может отличаться и указан у задания. Выполненные заранее работы появятся у соответствующих заданий.` : `Домашнее задание к урокам ${dayMonth(page.targetDate)}. Срок сдачи указан у задания, выполненное заранее уже видно в его карточке.`}</p>
+      <h1>{view === 'school' ? 'Расписание' : 'Домашнее задание'}</h1>
+      <p>{shortDate(view === 'school' ? page.date : page.targetDate).replace(/^./u, letter => letter.toUpperCase())}{view === 'homework' && currentSubjects.some(subject => subject.tasks.some(task => task.dueDate && task.dueDate !== page.targetDate)) && '. Отдельные сроки указаны у заданий.'}</p>
       <div className="day-summary"><strong>{pending}</strong><span>{pending === 1 ? 'действие к этой дате осталось' : 'действий к этой дате осталось'}</span>{requiredDayTests.length > 0 && <><span className="day-summary-separator">·</span><span>{requiredDayTests.filter((test) => test.status === 'submitted').length} из {requiredDayTests.length} обязательных тестов завершено</span></>}</div>
     </section>
 
     <div className="day-tabs" role="tablist" aria-label="Раздел страницы дня">
       <button role="tab" aria-selected={view === 'school'} className={view === 'school' ? 'active' : ''} onClick={() => { setManualView(true); setView('school') }}>Расписание</button>
-      <button role="tab" aria-selected={view === 'homework'} className={view === 'homework' ? 'active' : ''} onClick={() => { setManualView(true); setView('homework') }}>Задания уроков {dayMonth(page.targetDate)}</button>
+      <button role="tab" aria-selected={view === 'homework'} className={view === 'homework' ? 'active' : ''} onClick={() => { setManualView(true); setView('homework') }}>Задания</button>
     </div>
     {error && <div className="day-inline-error" role="alert">{error}</div>}
 
@@ -500,13 +500,13 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
         const grade = page.grades?.find((item) => item.id === id)
         return <div className="day-lesson" key={`${lesson.start}-${index}`}><time>{lesson.start}<br />{lesson.end}</time><div className="day-lesson-main"><div className="day-lesson-heading"><strong>{lesson.subject}</strong><GradeBadge summary={summary} details={grade} threshold={page.workingThreshold} asOf={page.gradeAsOf} /></div>{lesson.homework && <p>{lesson.homework}</p>}</div></div>
       })}</div>
-      <h3>Завтра в школе</h3>
+      <h3>{shortDate(page.targetDate).replace(/^./u, letter => letter.toUpperCase())}</h3>
       <div className="day-next-schedule">{page.targetSchedule.map((lesson, index) => <span key={`${lesson.start}-${index}`}>{lesson.start} {lesson.subject}</span>)}</div>
     </section> : <>
-      {parent && page.parentNotes?.[0] && <section className="day-attention"><h2>ДЗ к урокам {dayMonth(page.targetDate)}</h2><p>{page.parentNotes[0]}</p></section>}
-      {parent && (currentAdded.length > 0 || currentChanged.length > 0) && <section className="day-attention"><h2>Изменения ДЗ к урокам {dayMonth(page.targetDate)}</h2><p>Добавлено действий: {currentAdded.length}. Уточнено: {currentChanged.length}.</p></section>}
+      {parent && page.parentNotes?.[0] && <section className="day-attention"><h2>О задании</h2><p>{page.parentNotes[0]}</p></section>}
+      {parent && (currentAdded.length > 0 || currentChanged.length > 0) && <section className="day-attention"><h2>Что изменилось</h2><p>Добавлено: {currentAdded.length}. Уточнено: {currentChanged.length}.</p></section>}
       {page.notices[0] && !parent && <div className="day-notices"><p>✳ {page.notices[0]}</p></div>}
-      <h2 className="day-homework-heading">Домашнее задание к урокам {dayMonth(page.targetDate)}</h2>
+      <h2 className="day-homework-heading">По предметам</h2>
       {currentSubjects.length === 0 && <div className="day-notices"><p>На эту дату задания в МЭШ пока не указаны.</p></div>}
 
       <div className="day-subject-list">{currentSubjects.map((subject) => {

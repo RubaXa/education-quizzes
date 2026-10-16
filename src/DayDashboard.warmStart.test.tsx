@@ -39,6 +39,26 @@ beforeEach(() => { vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime(new 
 afterEach(() => { probe.selected = null; probe.next = null; probe.grade = null; probe.dashboardError = null; for (const day of allDays) delete (day as typeof day & { homeworkUpdate?: unknown }).homeworkUpdate; allDays[0].schedule.splice(1); index.days = allDays; localStorage.clear(); sessionStorage.clear(); window.location.hash = ''; Element.prototype.scrollIntoView = originalScrollIntoView; vi.useRealTimers(); vi.restoreAllMocks() })
 
 describe('schedule warm start', () => {
+  /** @see ../docs/product/dashboard.md#compact-homework */
+  it('uses the same compact card in both roles and keeps Monday after Friday', async () => {
+    vi.setSystemTime(new Date('2026-10-16T12:00:00.000Z'))
+    index.days = [{...allDays[0],date:'2026-10-16'},{...allDays[1],date:'2026-10-19'}]
+    probe.selected = base()
+    probe.next = {...base(),ready:true,subjects:[{id:'history',name:'История',icon:'📚',tasks:[{id:'repeat',title:'Повторить параграф 7',kind:'written',status:'unknown'}]}]}
+    for (const parent of [true,false]) {
+      const host=document.createElement('div');document.body.append(host);const root=createRoot(host)
+      await act(async()=>root.render(<DayDashboard token="calendar" parent={parent}/>))
+      const card=host.querySelector('[aria-label="Домашнее задание"]')!
+      expect(card.querySelector('h2')?.textContent).toBe('Домашнее задание')
+      expect(card.querySelector('time')?.dateTime).toBe('2026-10-19')
+      expect(card.querySelector('time')?.textContent).toBe('Понедельник, 19 октября')
+      expect(card.textContent).not.toContain('на завтра')
+      expect(card.querySelector('.day-dashboard-homework-summary')).toBeNull()
+      await act(async()=>card.querySelector<HTMLButtonElement>('.day-dashboard-homework-row')!.click())
+      expect(window.location.hash).toBe(`#/${parent?'day-parent':'day'}/work-14`)
+      await act(async()=>root.unmount());host.remove()
+    }
+  })
   it('keeps a clear MESH assignment separate from missing photographic evidence in the parent overview', async () => {
     const homework = allDays[1].homework
     allDays[1].homework = [{ subject: 'Русский язык', text: 'Упр. 218, 223 (выписать только средства выразительности)' }]
@@ -224,7 +244,7 @@ describe('schedule warm start', () => {
     const root = createRoot(host)
     await act(async () => { root.render(<DayDashboard token="calendar" parent />) })
     expect(host.querySelector('[aria-label="Расписание выбранного дня"]')?.textContent).toContain('Биология')
-    expect(host.querySelector('[aria-label="Домашнее задание следующего учебного дня"]')?.textContent).toContain('История')
+    expect(host.querySelector('[aria-label="Домашнее задание"]')?.textContent).toContain('История')
     await act(async () => { root.unmount() }); host.remove()
   })
   it('shows today without claiming yesterday or tomorrow is today when the index lacks a current-day row', async () => {
@@ -234,7 +254,7 @@ describe('schedule warm start', () => {
     const root = createRoot(host)
     await act(async () => { root.render(<DayDashboard token="calendar" parent />) })
     expect(host.querySelector('.day-dashboard-selected-heading h1')?.textContent).toContain('13 октября')
-    expect(host.querySelector('[aria-label="Домашнее задание следующего учебного дня"]')?.textContent).toContain('История')
+    expect(host.querySelector('[aria-label="Домашнее задание"]')?.textContent).toContain('История')
     await act(async () => { root.unmount() }); host.remove()
   })
   it('keeps upcoming lesson details compact before class and folds the schedule after the last lesson', async () => {
@@ -248,7 +268,7 @@ describe('schedule warm start', () => {
     const second = createRoot(host)
     await act(async () => { second.render(<DayDashboard token="calendar" parent />) })
     expect(host.querySelector('[aria-label="Расписание выбранного дня"]')?.getAttribute('data-collapsed')).toBe('true')
-    expect(host.querySelector('[aria-label="Домашнее задание следующего учебного дня"]')).not.toBeNull()
+    expect(host.querySelector('[aria-label="Домашнее задание"]')).not.toBeNull()
     await act(async () => { host.querySelector<HTMLButtonElement>('.day-dashboard-schedule-toggle')?.click() })
     expect(host.querySelector<HTMLDetailsElement>('.day-dashboard-lesson')?.open).toBe(false)
     await act(async () => { host.querySelector<HTMLElement>('.day-dashboard-lesson summary')?.click() })
@@ -375,14 +395,14 @@ describe('schedule warm start', () => {
     const host = document.createElement('div'); document.body.append(host)
     const first = createRoot(host)
     await act(async () => { first.render(<DayDashboard token="calendar" parent />) })
-    expect(host.querySelector('.day-dashboard-homework-summary')?.textContent).toContain('Всё заданное сделано')
+    expect(host.querySelector('.day-dashboard-homework-complete summary')?.textContent).toContain('Сделано · 1')
     expect(host.querySelector('.day-dashboard-grades')?.textContent).toContain('4,75')
     await act(async () => { first.unmount() })
 
     probe.selected = base(); probe.next = base(); probe.grade = null
     const reopened = createRoot(host)
     await act(async () => { reopened.render(<DayDashboard token="calendar" parent />) })
-    expect(host.querySelector('.day-dashboard-homework-summary')?.textContent).toContain('Всё заданное сделано')
+    expect(host.querySelector('.day-dashboard-homework-complete summary')?.textContent).toContain('Сделано · 1')
     expect(host.querySelector('.day-dashboard-homework-complete')?.textContent).toContain('История')
     expect(host.querySelector('.day-dashboard-grades')?.textContent).toContain('4,75')
     expect(host.textContent).not.toContain('Срез оценок ещё не опубликован')
@@ -423,7 +443,7 @@ describe('schedule warm start', () => {
     const host = document.createElement('div'); document.body.append(host)
     const root = createRoot(host)
     await act(async () => { root.render(<DayDashboard token="calendar" parent />) })
-    const homework = host.querySelector('[aria-label="Домашнее задание следующего учебного дня"]')
+    const homework = host.querySelector('[aria-label="Домашнее задание"]')
     expect(homework?.textContent).toContain('Литература')
     expect(homework?.textContent).toContain('История')
     expect(homework?.textContent).toContain('Параграф 7')
