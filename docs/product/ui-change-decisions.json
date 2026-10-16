@@ -425,9 +425,10 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "421e71f9d1e5b27ac55d7f93227309087573c15d1ee3df2bf87dd11d75ee27db",
-      "record": "docs/product/ui-decisions/compact-homework-copy-2026-10-16.md",
+      "sha256": "ea6eab86aef43d43c068205e3309373fa4ed2e9d5ecdd79109af28d549ec3766",
+      "record": "docs/product/ui-decisions/material-clarification-2026-10-16.md",
       "specs": [
+        "docs/product/material-clarification.md",
         "docs/product/dashboard.md",
         "docs/product/design-system.md"
       ],
@@ -439,7 +440,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель16.10.2026 прямо отверг длинные повторяющиеся подписи про учебный день и уроки и потребовал структурировать существующую карточку."
+        "evidence": "Родитель потребовал сохранить исходные фото и разборы при появлении самопроверки;16.10 запросил полный цикл и тесты по новым материалам. Исправлено исчезновение уже показанного материала при разрешении запроса."
       }
     },
     "src/DayPage.css": {
@@ -1565,7 +1566,7 @@
       }
     },
     "src/components/MaterialRequest.tsx": {
-      "sha256": "72a10a8f0069dcd034d1ff94116e559afefb17d1fc27d462bd146e3a19877761",
+      "sha256": "0d8d46e83e28005d952a2dbb9e5480da43817de8c243df2dda66fa74b42fa40f",
       "record": "docs/product/ui-decisions/material-clarification-2026-10-16.md",
       "specs": [
         "docs/product/material-clarification.md"

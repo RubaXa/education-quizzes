@@ -145,7 +145,47 @@ it('asks the child for missing source material through the standard uploader, wi
   }
 })
 
+/** @see ../docs/product/material-clarification.md */
+it('preserves resolved source photos and observations beside the linked quiz for both roles', async () => {
+  scene.page!.subjects[0].tasks = [{id:'notes',kind:'read',status:'unknown',title:'Повторить записи',detail:'',source:'МЭШ',meshText:'Повторить записи по последней теме.',testToken:'diagrams-test',
+    assessmentIntent:{state:'confirmed',mode:'ordinary',topic:'Сказание',evidenceRef:'Два снимка записей'},
+    materialRequest:{id:'notes-1',state:'resolved',question:'Какая последняя тема записана?',photoPrompt:'Пришли фото записей.',resolvedTopic:'Сказание о белгородском киселе',uploadIds:['notes-photo']}}]
+  scene.page!.testPlacements = [{token:'diagrams-test',subjectId:'math',taskId:'notes'}]
+  scene.uploads = [{id:'student-token:notes-photo',taskId:'notes',status:'reviewed'}]
+  scene.reviews = [{id:'notes-review',taskId:'notes',purpose:'source-material',uploadIds:['notes-photo'],sourceAnalysis:{requestId:'notes-1',topic:'Сказание о белгородском киселе',observed:'Видны план старца и главная мысль.',quality:'Записи читаемы.',limitation:'Повторение по памяти неизвестно.',nextStep:'Пройди самопроверку.',evidence:[{uploadId:'notes-photo',location:'Заголовок страницы',text:'Сказание о белгородском киселе'}]}}]
+  for (const parent of [false,true]) {
+    sessionStorage.setItem('education-day-initial-tab','homework')
+    const view=await renderPage(parent)
+    try {
+      const quiz=view.host.querySelector('.day-quiz-lineage')!
+      expect(quiz).not.toBeNull()
+      expect(quiz.textContent).toContain('Сказание о белгородском киселе')
+      expect(quiz.textContent).toContain('Видны план старца и главная мысль.')
+      const photo=quiz.querySelector<HTMLButtonElement>('[aria-label="Открыть фото 1: Проверено"]')!
+      expect(photo).not.toBeNull()
+      await act(async()=>photo.click())
+      expect(quiz.textContent).toContain('Фото не является результатом теста.')
+      expect(quiz.textContent).not.toContain('Разбор этого задания показан в блоке «Проверка работы».')
+      expect(quiz.textContent).not.toContain('Какая последняя тема записана?')
+      expect(quiz.textContent).not.toContain('Пришли фото записей.')
+      expect(quiz.querySelector('input[type="file"]')).toBeNull()
+    } finally { await view.cleanup() }
+  }
+})
+
 describe('day page: teacher sheet and linked self-check', () => {
+  it('does not count reviewed written work or a verified platform result as remaining work', async()=>{
+    scene.page!.subjects[0].tasks=[
+      {id:'written',kind:'written',status:'unknown',title:'Запись',detail:'',source:'МЭШ'},
+      {id:'platform',kind:'check',status:'unknown',title:'Выполнить ЦДЗ',detail:'',source:'МЭШ'},
+    ]
+    scene.page!.testPlacements=[]
+    scene.reviews=[{id:'written-review',taskId:'written',status:'verified',uploadIds:['a']},{id:'platform-review',taskId:'platform',status:'verified',uploadIds:['b']}]
+    scene.uploads=[]
+    const view=await renderPage(true)
+    try { expect(view.host.querySelector('.day-summary strong')?.textContent).toBe('0') }
+    finally {await view.cleanup()}
+  })
   /** @see ../docs/product/dashboard.md#compact-homework */
   it('uses one dated homework heading without the repeated lesson explanation', async()=>{
     for (const parent of [false,true]) {
