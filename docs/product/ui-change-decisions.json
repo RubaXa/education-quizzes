@@ -2446,7 +2446,7 @@
       }
     },
     "scripts/check-privacy.mjs": {
-      "sha256": "e0e357a822ccea2ef073766a3408d3f39ce28d8b6f9941f46544499dba2128f0",
+      "sha256": "3e2ae27e2d11c814bfa054e9f406947c5f6a0243ba92395b3a84f5945d6351d0",
       "record": "docs/decisions/documentation-precommit-2026-10-16.md",
       "specs": [
         "docs/shared/specification-system.md",
