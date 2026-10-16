@@ -18,7 +18,7 @@ import { ownerMigrationFields } from '../day/owner-repair.mjs'
 import { publicPageSubjects, publicProblem } from '../day/public-projection.mjs'
 import { isExplicitCdzTask } from '../day/homework-kind.mjs'
 import { cardPolicyModules, mathRouteProfile, mathRouteProfiles, missingMathRoutes, practiceVariantErrors, sourceInventoryErrors, validLearningRoute } from '../day/card-policy.mjs'
-import { assertPublishedPageAligned, assertSourceAligned, sourcePlanFingerprint } from '../day/pipeline-contract.mjs'
+import { assertPublishedPageAligned, assertSourceAligned, sourcePlanFingerprint, textbookRefError } from '../day/pipeline-contract.mjs'
 import { chooseGradeJournal, detectGradeChange, gradeDetailRows, gradeProjectionPatch } from '../day/grade-reconciliation.mjs'
 import { stageGradeProjectionForRole } from '../day/grade-publication.mjs'
 import { YandexDiskStorage } from '../storage/yandex-disk.mjs'
@@ -281,7 +281,8 @@ function validateAssignedInstruction(item, task, sourceDocument) {
   if (item.source.kind === 'mesh') {
     if (!item.source.excerpt?.trim() || !task.meshText?.includes(item.source.excerpt) || item.source.evidence !== task.meshText) fail(`Для пункта ${task.id} нужна дословная опора в МЭШ.`)
   } else if (item.source.kind === 'textbook') {
-    if (!materialPlan.taskPages[task.id]?.some((pageId) => item.source.ref?.startsWith(pageId))) fail(`Для пункта ${task.id} нужна сверенная страница учебника.`)
+    const error = textbookRefError(item.source.ref, materialPlan.taskPages[task.id], { path: `${task.id}.instruction.source.ref`, exact: false })
+    if (error) fail(error)
   } else if (item.source.kind === 'teacher-file') {
     if (!sourceDocument.materialLinks?.[task.id]?.some((link) => link.sourceType === 'teacher-attachment' && link.title === item.source.ref)) {
       fail(`Для пункта ${task.id} нужен исходный файл учителя из МЭШ.`)
@@ -322,7 +323,8 @@ function validateParentGuide(guide, task, sourceDocument, problem, subjectId) {
     if (source.kind === 'mesh') {
       if (source.ref !== task.id || !task.meshText?.includes(source.excerpt)) fail(`У ${task.id} этап без точной опоры МЭШ.`)
     } else if (source.kind === 'textbook') {
-      if (!materialPlan.taskPages[task.id]?.includes(source.ref)) fail(`У ${task.id} этап не связан с назначенной страницей учебника.`)
+      const error = textbookRefError(source.ref, materialPlan.taskPages[task.id], { path: `${task.id}.parentGuide.stages.${stage.id}.source.ref` })
+      if (error) fail(error)
     } else if (source.kind === 'teacher-file') {
       if (!sourceDocument.materialLinks?.[task.id]?.some((link) => link.sourceType === 'teacher-attachment' && link.sourceRef === source.ref)
         || problem && !problem.original?.text?.includes(source.excerpt)) fail(`У ${problem?.id ?? task.id} этап без точного текста листа учителя.`)
@@ -584,8 +586,10 @@ async function stagePublish(date, batch, links, indexTokens, stagedPages, notify
   const knownBefore = existsSync(pageLinksFile) ? json(pageLinksFile) : {}
   const neededPageIds = new Set(Object.keys(pageRefs).flatMap((taskId) => materialPlan.taskPages[taskId] || []))
   const preparedPages = new Map(preparePages().map((entry) => [entry.id, entry]))
-  if ([...neededPageIds].some((id) => !knownBefore[id]?.publicUrl || knownBefore[id].imageSha256 !== preparedPages.get(id)?.imageSha256)) {
-    runLocal('scripts/storage.mjs', ['sync-pages'])
+  for (const id of neededPageIds) {
+    if (!knownBefore[id]?.publicUrl || knownBefore[id].imageSha256 !== preparedPages.get(id)?.imageSha256) {
+      runLocal('scripts/storage.mjs', ['sync-pages', '--page', id])
+    }
   }
   const gradeSnapshot = gradeProjection.snapshot
   const publishedPageLinks = existsSync(pageLinksFile) ? materialLinks(json(pageLinksFile)) : {}

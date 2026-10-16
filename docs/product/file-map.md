@@ -54,7 +54,7 @@
 | [day/placement-integrity.test.mjs](../../day/placement-integrity.test.mjs) | [Модель Firestore](firestore-data-model.md) | Регрессия дублирующей и отсутствующей связи | Vitest; разработчик |
 | [day/placement-repair.mjs](../../day/placement-repair.mjs) | [Модель Firestore](firestore-data-model.md) | Узкая идемпотентная Up-миграция связи теста | `scripts/day.mjs` |
 | [day/placement-repair.test.mjs](../../day/placement-repair.test.mjs) | [Модель Firestore](firestore-data-model.md) | Проверка сохранения остальных полей при миграции | Vitest; разработчик |
-| [day/pipeline-contract.mjs](../../day/pipeline-contract.mjs) | [Сертификация карточки](card-flow-certification.md) | Проверка полноты МЭШ, отпечатка и состава опубликованных заданий, вариантов и номеров | `scripts/day.mjs` |
+| [day/pipeline-contract.mjs](../../day/pipeline-contract.mjs) | [Сертификация карточки](card-flow-certification.md) | Проверка полноты МЭШ, отпечатка, состава заданий и адресная диагностика ссылок на страницы | `scripts/day.mjs` |
 | [day/pipeline-contract.test.mjs](../../day/pipeline-contract.test.mjs) | [Формирование плана](plan-generation.md) | Проверка барьеров публикации и защиты выходных карточек | Vitest; разработчик |
 | [day/public-projection.mjs](../../day/public-projection.mjs) | [Единый путь разбора](subject-aware-guidance.md) | Исключение закрытого разбора из обеих страниц дня по ссылке | `scripts/day.mjs` |
 | [day/public-projection.test.mjs](../../day/public-projection.test.mjs) | [Единый путь разбора](subject-aware-guidance.md) | Проверка удаления закрытых полей без порчи исходника | Vitest; разработчик |
@@ -185,6 +185,11 @@
 | [operator/operation-contract.test.mjs](../../operator/operation-contract.test.mjs) | [Операторское ядро](../architecture/operator-core.md) | Проверка запрета произвольной команды и изменения отпечатка | Vitest; разработчик |
 | [operator/run-operation.mjs](../../operator/run-operation.mjs) | [Операторское ядро](../architecture/operator-core.md) | Исполнение фиксированной команды, замер, обратная проверка ревизии и закрытая квитанция | `scripts/education.mjs` |
 | [operator/run-operation.test.mjs](../../operator/run-operation.test.mjs) | [Операторское ядро](../architecture/operator-core.md) | Проверка предпросмотра, валидации, повторов и квитанции | Vitest; разработчик |
+| [operator/recipes.mjs](../../operator/recipes.mjs) | [Операторское ядро](../architecture/operator-core.md) | Фиксированные последовательности начала, статуса и окончания с одним свежим inbox | `scripts/education.mjs` |
+| [operator/recipes.test.mjs](../../operator/recipes.test.mjs) | [Операторское ядро](../architecture/operator-core.md) | Запрет повторного inbox и продолжения при неполном снимке | Vitest; оператор |
+| [sync/run-context.mjs](../../sync/run-context.mjs) | [Глобальная синхронизация](global-sync.md) | Один профиль и журнал оценок на ребёнка за запуск без сокращения календарного обхода | `scripts/sync-project.mjs` |
+| [sync/run-context.test.mjs](../../sync/run-context.test.mjs) | [Глобальная синхронизация](global-sync.md) | Изоляция детей и запусков, повтор после сбоя и сохранение комментариев | Vitest; оператор |
+| [docs/product/ui-decisions/operator-tool-trial-2026-10-16.md](ui-decisions/operator-tool-trial-2026-10-16.md) | [Операторское ядро](../architecture/operator-core.md) | Основание устранения повторных чтений и улучшения диагностики по результатам живого запуска | Ревью; `ui-change-decisions.json` |
 | [scripts/direct-upload-worker.mjs](../../scripts/direct-upload-worker.mjs) | [Семейная библиотека](family-library.md) | Выдача адресов и проверка фото работ и семейных PDF, общий архив по SHA | Клиенты загрузки; очереди |
 | [scripts/ensure-book-upload-index.mjs](../../scripts/ensure-book-upload-index.mjs) | [Local-first синхронизация](../architecture/local-first-sync.md) | Аддитивная установка индекса активных PDF-заявок с сохранением существующих настроек поля | Оператор; `direct-upload-worker.mjs` |
 | [scripts/sync-inbox.mjs](../../scripts/sync-inbox.mjs) | [Сквозной протокол](education-pipeline.md) | Общий снимок очередей PDF, работ и открытых ответов; ограниченно параллельные владельцы и замер вызовов SDK | Операторский полный запуск `education-sync`; `sync/help-request-cache.mjs` |
@@ -411,6 +416,8 @@
 | [storage/family-book-upload.test.mjs](../../storage/family-book-upload.test.mjs) | [Семейная библиотека](family-library.md) | Проверка пути ребёнка, метаданных и хэша PDF | Vitest; разработчик |
 | [storage/direct-upload.test.mjs](../../storage/direct-upload.test.mjs) | [Хранение и приватность](storage-privacy.md) | Проверка прямой загрузки | Vitest; разработчик |
 | [storage/material-pages.mjs](../../storage/material-pages.mjs) | [Материалы](materials.md) | Публикация страниц учебника на Диске | `scripts/storage.mjs` |
+| [storage/page-publication.mjs](../../storage/page-publication.mjs) | [Материалы](materials.md) | Выбор адресной страницы и сравнение документа каталога перед записью | `scripts/storage.mjs`; `day publish` |
+| [storage/page-publication.test.mjs](../../storage/page-publication.test.mjs) | [Материалы](materials.md) | Защита от публикации соседних страниц и повторной записи неизменного документа | Vitest; оператор |
 | [storage/storage-pause.mjs](../../storage/storage-pause.mjs) | [Хранение и приватность](storage-privacy.md) | Снятие технической паузы после сверки | `scripts/storage.mjs` |
 | [storage/storage-pause.test.mjs](../../storage/storage-pause.test.mjs) | [Хранение и приватность](storage-privacy.md) | Проверка снятия паузы | Vitest; разработчик |
 | [storage/inbox-notifications.mjs](../../storage/inbox-notifications.mjs) | [Центр обновлений](../architecture/activity-and-inbox.md) | Адресный выпуск и дедупликация событий | `scripts/submissions.mjs`; `scripts/notifications.mjs` |

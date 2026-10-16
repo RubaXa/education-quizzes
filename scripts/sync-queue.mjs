@@ -364,7 +364,7 @@ if (command === 'scan') {
   const projectionStarted = performance.now()
   const queue = await reportQueue(touched, resolved === 0 ? prior : null)
   measurements.phaseMs.projection = Math.round(performance.now() - projectionStarted)
-  console.log(JSON.stringify({ scannedAt: new Date().toISOString(), inboxCounts: inbox.counts,
+  console.log(JSON.stringify({ scannedAt: new Date().toISOString(), inboxCounts: inbox.counts, inboxSnapshot: inbox,
     candidates: candidates.length, created, unchanged, fullAudit: previousFingerprints === null,
     resolved, ...queue, measurements: { ...measurements, inbox: inbox.measurements,
       totalMs: Math.round(performance.now() - started), note: 'SDK calls and returned documents, not billed reads' } }, null, 2))

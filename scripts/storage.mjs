@@ -10,6 +10,7 @@ import { YandexDiskStorage } from '../storage/yandex-disk.mjs'
 import { linksFile as pageLinksFile, materialLinks, pagesDir, preparePages } from '../storage/material-pages.mjs'
 import { bookDisplayTitle, indexedBooks, pageDocument } from '../storage/textbook-catalog.mjs'
 import { resolvedStoragePause } from '../storage/storage-pause.mjs'
+import { materialPageDocument, needsPageWrite, selectPublicationPages } from '../storage/page-publication.mjs'
 
 const local = resolve('.local')
 const childLocal = resolve(process.env.EDUCATION_CHILD_WORKSPACE || '.local')
@@ -244,7 +245,10 @@ async function sync() {
 
 /** @see ../docs/product/materials.md#page-publication */
 async function syncPages() {
-  const entries = preparePages()
+  const allEntries = preparePages()
+  const pageId = date === '--page' ? process.argv[4] : undefined
+  if (date && (date !== '--page' || !pageId || process.argv.length !== 5)) fail('sync-pages [--page bookId:printedPage]')
+  const entries = selectPublicationPages(allEntries, pageId)
   const storage = new YandexDiskStorage(token())
   const known = existsSync(pageLinksFile) ? json(pageLinksFile) : {}
   const failures = []
@@ -265,27 +269,35 @@ async function syncPages() {
   }
   if (failures.length) fail(`Не удалось опубликовать ${failures.length} страниц: ${failures.join('; ')}`)
   const db = firestore()
+  let catalogWrites = 0, catalogReadbacks = 0
   for (let offset = 0; offset < entries.length; offset += 300) {
     const batch = db.batch()
-    for (const entry of entries.slice(offset, offset + 300)) {
+    const group = entries.slice(offset, offset + 300)
+    const snapshots = await db.getAll(...group.map((entry) => db.doc(`materialBooks/${entry.bookId}/pages/${entry.pdfPage}`)))
+    const changes = []
+    for (const [index, entry] of group.entries()) {
       const link = known[entry.id]
-      batch.set(db.doc(`materialBooks/${entry.bookId}/pages/${entry.pdfPage}`), {
-        bookId: entry.bookId, title: entry.title, pdfPage: entry.pdfPage,
-        printedPage: entry.printedPage, sourceSha256: entry.sourceSha256,
-        imageSha256: entry.imageSha256, diskPath: entry.diskPath,
-        url: link.publicUrl, state: 'published',
-      }, { merge: true })
+      const desired = materialPageDocument(entry, link.publicUrl)
+      if (!needsPageWrite(snapshots[index].data(), desired)) continue
+      batch.set(snapshots[index].ref, desired, { merge: true })
+      changes.push({ ref: snapshots[index].ref, desired })
     }
-    await batch.commit()
+    if (changes.length) {
+      await batch.commit()
+      const readback = await db.getAll(...changes.map((item) => item.ref))
+      if (readback.some((snapshot, index) => needsPageWrite(snapshot.data(), changes[index].desired))) fail('Каталог страницы не подтвердился после публикации.')
+      catalogWrites += changes.length
+      catalogReadbacks += readback.length
+    }
   }
   const links = materialLinks(known)
   const index = ['# Страницы материалов на Яндекс.Диске', '', 'Ссылки относятся к отдельным изображениям, а не к полным PDF.', '']
-  for (const entry of entries) {
+  for (const entry of allEntries) {
     const url = known[entry.id]?.publicUrl
     if (url) index.push(`- [${entry.title}](${url})`)
   }
   writeFileSync(resolve(pagesDir, 'index.md'), `${index.join('\n')}\n`, { mode: 0o600 })
-  if (Object.values(links).some((items) => items.length)) {
+  if (!pageId && Object.values(links).some((items) => items.length)) {
     const batch = db.batch()
     let changedPages = 0
     for (const pair of Object.values(json(linksFile))) {
@@ -310,7 +322,8 @@ async function syncPages() {
     if (changedPages) await batch.commit()
     console.log(`Обновлено страниц Education: ${changedPages}`)
   }
-  console.log(JSON.stringify({ pages: entries.length, published, failed: failures.length }, null, 2))
+  console.log(JSON.stringify({ pages: entries.length, published, failed: failures.length,
+    catalogReads: entries.length, catalogWrites, catalogReadbacks, dayLinks: pageId ? 'publish-through-day-command' : 'reconciled' }, null, 2))
 }
 
 /** Publish every page of editions explicitly linked to a family. The local

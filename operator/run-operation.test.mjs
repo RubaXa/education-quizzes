@@ -8,6 +8,44 @@ const request = (operation, input = {}) => ({ schemaVersion: 1, operation, input
 const workspace = () => mkdtempSync(resolve(tmpdir(), 'education-run-'))
 
 describe('operator execution receipts', () => {
+  it('preserves the full scan snapshot privately without a second inbox query', async () => {
+    const root = workspace()
+    try {
+      const result = await executeOperation(request('queue.scan'), { root, apply: true,
+        run: async () => ({ stdout: JSON.stringify({ counts: { queued: 0 },
+          inboxSnapshot: { complete: true, counts: { review: 0 }, items: [{ token: 'private-token' }] } }) }) })
+      expect(result.summary.inbox).toEqual({ complete: true, counts: { review: 0 } })
+      expect(JSON.stringify(result)).not.toContain('private-token')
+      expect(readFileSync(result.journal, 'utf8')).toContain('private-token')
+    } finally { rmSync(root, { recursive: true, force: true }) }
+  })
+
+  it('reports a partial source collection with its timings instead of an uncertain create', async () => {
+    const root = workspace()
+    try {
+      const result = await executeOperation(request('project.collect'), { root, apply: true,
+        run: async () => { throw Object.assign(new Error('source blocked'), { stdout: JSON.stringify({
+          runId: 'source-run', state: 'partially-collected', journal: '.local/source-run.json',
+          timing: { elapsedMs: 15 }, report: { blockedChildren: 1 },
+        }) }) } })
+      expect(result.status).toBe('partial')
+      expect(result.summary).toMatchObject({ sourceState: 'partially-collected',
+        sourceJournal: '.local/source-run.json', timing: { elapsedMs: 15 } })
+    } finally { rmSync(root, { recursive: true, force: true }) }
+  })
+
+  it('accepts an audited day only with an explicit empty problems array', async () => {
+    const root = workspace()
+    try {
+      const options = (value) => ({ root, run: async () => ({ stdout: JSON.stringify(value) }) })
+      const result = await executeOperation(request('day.audit'), options({ checkedDates: 13, problems: [] }))
+      expect(result.summary).toMatchObject({ checkedDates: 13, problemCount: 0, verified: true })
+      await expect(executeOperation(request('day.audit'), options({ checkedDates: 13, problems: ['missing-role'] })))
+        .rejects.toThrow('did not confirm completion')
+      await expect(executeOperation(request('day.audit'), options({ checkedDates: 13 })))
+        .rejects.toThrow('did not confirm completion')
+    } finally { rmSync(root, { recursive: true, force: true }) }
+  })
   it('records timing and a private output while exposing only a safe summary', async () => {
     const root = workspace()
     try {

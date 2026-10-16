@@ -27,11 +27,17 @@ const publicSummary = (operation, value) => {
   if (operation === 'inbox.snapshot') return { complete: parsed.complete === true, counts: parsed.counts ?? null,
     measurements: parsed.measurements ?? null }
   if (operation.startsWith('queue.')) return { counts: parsed.counts ?? null, created: parsed.created ?? null,
-    resolved: parsed.resolved ?? null, measurements: parsed.measurements ?? null }
+    resolved: parsed.resolved ?? null,
+    inbox: parsed.inboxSnapshot ? { complete: parsed.inboxSnapshot.complete === true, counts: parsed.inboxSnapshot.counts ?? null } : null,
+    measurements: parsed.measurements ?? null }
   if (operation === 'grades.snapshot') return { changedSubjects: parsed.changedSubjects ?? null,
     unchanged: parsed.unchanged ?? null, applied: parsed.applied ?? null }
-  if (operation === 'project.collect') return { runId: parsed.runId ?? null, report: parsed.report ?? null,
-    timing: parsed.timing ?? null }
+  if (operation === 'project.collect') return { runId: parsed.runId ?? null, sourceState: parsed.state ?? null,
+    sourceJournal: parsed.journal ?? null, report: parsed.report ?? null, timing: parsed.timing ?? null }
+  if (operation === 'day.audit') return { checkedDates: parsed.checkedDates ?? null,
+    problemCount: Array.isArray(parsed.problems) ? parsed.problems.length : null,
+    verified: Array.isArray(parsed.problems) && parsed.problems.length === 0,
+    measurements: parsed.measurements ?? null }
   if (operation === 'grades.publish') return { changed: parsed.changed ?? null, verified: parsed.verified ?? null }
   if (operation === 'review.validate') return { valid: parsed.valid === true,
     tasks: Array.isArray(parsed.taskIds) ? parsed.taskIds.length : null,
@@ -100,13 +106,22 @@ export async function executeOperation(request, { apply = false, root = resolve(
     if (request.operation === 'quiz.revise-open' && summary.verified !== true) {
       throw new Error('Quiz revision did not confirm role-index readback.')
     }
+    if (request.operation === 'day.audit' && summary.verified !== true) throw new Error('Published day audit is incomplete or contains problems.')
     const result = { ...base, finishedAt: now(), status: 'succeeded', summary, metrics, stdout, stderr }
     writePrivateJson(journal, result)
     if (apply && descriptor.effect === 'create') writePrivateJson(receipt, { ...base, finishedAt: result.finishedAt,
       status: 'succeeded', summary, metrics, journal })
     return { status: 'succeeded', operation: request.operation, fingerprint, journal, summary, metrics }
   } catch (error) {
-    const result = { ...base, finishedAt: now(), status: 'needs-readback',
+    const partial = request.operation === 'project.collect' ? parseJson(error?.stdout ?? '') : null
+    if (partial?.runId && ['blocked', 'partially-collected'].includes(partial.state)) {
+      const summary = publicSummary(request.operation, error.stdout)
+      const metrics = { elapsedMs: Math.round(performance.now() - started) }
+      writePrivateJson(journal, { ...base, finishedAt: now(), status: 'partial', summary, metrics,
+        stdout: error.stdout, stderr: error.stderr ?? '' })
+      return { status: 'partial', operation: request.operation, fingerprint, journal, summary, metrics }
+    }
+    const result = { ...base, finishedAt: now(), status: descriptor.effect === 'create' ? 'needs-readback' : 'failed',
       metrics: { elapsedMs: Math.round(performance.now() - started) },
       error: String(error?.message ?? error), stdout: error?.stdout ?? '', stderr: error?.stderr ?? '' }
     writePrivateJson(journal, result)

@@ -15,6 +15,10 @@ describe('stable operator operation contract', () => {
     expect(ids).toContain('quiz.revise-open')
     expect(ids).toContain('review.publish')
     expect(new Set(ids).size).toBe(ids.length)
+    for (const item of operationCatalog()) {
+      expect(item.purpose.length).toBeGreaterThan(15)
+      expect(item.interpretation.length).toBeGreaterThan(30)
+    }
   })
 
   it('rejects arbitrary fields and unapproved writes', () => {

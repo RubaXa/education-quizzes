@@ -14,6 +14,7 @@ import { buildDayDashboardIndex } from '../day/dashboard-index.mjs'
 import { assertGradeSnapshotAligned } from '../day/grade-reconciliation.mjs'
 import { pendingPublicationDates, refreshedCalendarChecks } from '../sync/publication-audit.mjs'
 import { enqueueSyncJob, setSyncJob, syncFingerprint } from '../sync/job-queue.mjs'
+import { reuseRunContext } from '../sync/run-context.mjs'
 
 /** Global source collection. Enrichment and publication remain separate checked phases.
  * @see ../docs/product/global-sync.md#inventory
@@ -199,13 +200,11 @@ async function collectChild(target, context, runId, today, timing) {
     profileId: String(profile.id), studentId: String(profile.id) }
   const adapter = new MeshDiaryAdapter(secret, context.save)
   await measure(timing, 'verifyAccess', () => adapter.verifyAccess())
-  for (const method of ['getProfile', 'getSchedule', 'getAssignments', 'getLessonDetails']) {
+  for (const method of ['getProfile', 'getMarks', 'getSchedule', 'getAssignments', 'getLessonDetails']) {
     const original = adapter[method].bind(adapter)
     adapter[method] = (...args) => measure(timing, method, () => original(...args))
   }
-  const loadMarks = adapter.getMarks.bind(adapter)
-  let marks
-  adapter.getMarks = () => { marks ??= measure(timing, 'getMarks', loadMarks); return marks }
+  reuseRunContext(adapter, (method) => count(timing, `${method}Reused`))
   const dir = target.credentialKind === 'legacy' ? resolve(local, 'diary')
     : resolve(runDir, 'sources', target.familyId, target.childId, 'diary')
   if (target.credentialKind !== 'legacy') writeJson(dirname(dir), 'context.json', {
@@ -423,7 +422,7 @@ if (command === 'plan') {
     const blocked = results.filter((item) => item.result.state === 'blocked').length
     console.log(JSON.stringify({ runId, families: data.families.length, children: data.targets.length,
       fetched: results.length - blocked, blocked,
-      report: collectedProjectSummary(manifest),
+      report: collectedProjectSummary(manifest), timing: runTiming,
       changedDates: results.reduce((sum, item) => sum + (item.result.changedDates?.length ?? 0), 0),
       pendingPublicationDates: results.reduce((sum, item) => sum + (item.result.pendingPublicationDates?.length ?? 0), 0),
       state: blocked === results.length ? 'blocked' : blocked ? 'partially-collected'

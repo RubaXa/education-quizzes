@@ -1,5 +1,40 @@
 {
   "files": {
+    "scripts/storage.mjs": {
+      "sha256": "2a01e3abcfd80720ca118d21e13045b0e80f69e22387065d53d83ebcf6a73dce",
+      "record": "docs/product/ui-decisions/operator-tool-trial-2026-10-16.md",
+      "specs": ["docs/product/materials.md", "docs/architecture/operator-core.md"],
+      "tests": ["storage/page-publication.test.mjs"],
+      "authorization": {"status":"direct-request","evidence":"Родитель 16.10.2026 поручил испытать инструменты Education Sync и исправить выявленные лишние чтения и записи."}
+    },
+    "storage/page-publication.mjs": {
+      "sha256": "6c321718653befe48c8de8febf5f1015234b5788196d01df9ffcf88b98cab1cf",
+      "record": "docs/product/ui-decisions/operator-tool-trial-2026-10-16.md",
+      "specs": ["docs/product/materials.md"],
+      "tests": ["storage/page-publication.test.mjs"],
+      "authorization": {"status":"direct-request","evidence":"Родитель 16.10.2026 поручил заменить ручные действия проверяемыми адресными инструментами и улучшить их после испытания."}
+    },
+    "operator/recipes.mjs": {
+      "sha256": "8399cb09dfd6bf6822607afb9be4542cb7b0fccc23250bf745bd6c135f92aa9f",
+      "record": "docs/product/ui-decisions/operator-tool-trial-2026-10-16.md",
+      "specs": ["docs/architecture/operator-core.md"],
+      "tests": ["operator/recipes.test.mjs", "operator/run-operation.test.mjs"],
+      "authorization": {"status":"direct-request","evidence":"Родитель 16.10.2026 поручил испытать Education Sync штатными инструментами и исправить выявленные недостатки."}
+    },
+    "sync/run-context.mjs": {
+      "sha256": "994ed5f2a5a64b377ecf1d8bf80d1d58cc0ee62c6e32d2880cf76612b9393169",
+      "record": "docs/product/ui-decisions/operator-tool-trial-2026-10-16.md",
+      "specs": ["docs/product/global-sync.md"],
+      "tests": ["sync/run-context.test.mjs"],
+      "authorization": {"status":"direct-request","evidence":"Родитель 16.10.2026 поручил измерить и улучшить повторяемые инструменты синхронизации без потери качества."}
+    },
+    "day/pipeline-contract.mjs": {
+      "sha256": "0565dfdf94b82dd3c3cdab458536f09838d4f64be84ade32555d673cee20ecbe",
+      "record": "docs/product/ui-decisions/operator-tool-trial-2026-10-16.md",
+      "specs": ["docs/product/plan-generation.md", "docs/product/card-flow-certification.md"],
+      "tests": ["day/pipeline-contract.test.mjs"],
+      "authorization": {"status":"direct-request","evidence":"Родитель 16.10.2026 поручил испытать инструменты, их результат и инструкции и улучшить непонятную диагностику."}
+    },
     "assessment/followup-contract.mjs": {
       "sha256": "d865d1b369d8dd4c5d9055887aabe1ed3eedcb397129fe2096370564ccb53e60",
       "record": "docs/product/ui-decisions/history-followup-volume-2026-10-16.md",
@@ -15,24 +50,24 @@
       "authorization": { "status": "direct-request", "evidence": "Родитель 16.10.2026 потребовал учитывать историю вопросов и выбранных вариантов при создании связанного теста." }
     },
     "operator/operation-contract.mjs": {
-      "sha256": "f14143f69cd7e8d0c76fdd96d0925487c5969c586d9b8d7554b2c3713c7751f7",
-      "record": "docs/product/ui-decisions/history-followup-volume-2026-10-16.md",
+      "sha256": "420ac84b63f168b88c1a647dcdafa936d8829ecee746a77b9715a0c59d2ef2dd",
+      "record": "docs/product/ui-decisions/operator-tool-trial-2026-10-16.md",
       "specs": ["docs/architecture/operator-core.md", "docs/product/assessment-decision-graph.md"],
       "tests": ["operator/operation-contract.test.mjs"],
       "authorization": { "status": "direct-request", "evidence": "Родитель 16.10.2026 потребовал исправить связанный тест и закрепить операцию в едином повторяемом CLI." }
     },
     "operator/run-operation.mjs": {
-      "sha256": "55612796dbd8ddb3e199b1cd23f6f88e905d675c501e2207c635bccf5949e4eb",
-      "record": "docs/product/ui-decisions/history-followup-volume-2026-10-16.md",
+      "sha256": "2172aab0c3e7491d811471c03cf06b98d982b2379b56ff2e8093a25af335c6ce",
+      "record": "docs/product/ui-decisions/operator-tool-trial-2026-10-16.md",
       "specs": ["docs/architecture/operator-core.md", "docs/product/assessment-decision-graph.md"],
       "tests": ["operator/run-operation.test.mjs"],
       "authorization": { "status": "direct-request", "evidence": "Родитель 16.10.2026 потребовал исправить связанный тест через проверяемую стандартную команду с обратным чтением." }
     },
     "scripts/education.mjs": {
-      "sha256": "bc427fc983c1bbbbd061ad71be090f432e16f0e7b3acde3d61cc349aa503bbd4",
-      "record": "docs/product/ui-decisions/operator-core-cli-2026-10-16.md",
+      "sha256": "20061bf6bcde8aaa7873a18ad3f9722a41397a18b95188189a396a1577367365",
+      "record": "docs/product/ui-decisions/operator-tool-trial-2026-10-16.md",
       "specs": ["docs/architecture/operator-core.md", "docs/product/global-sync.md"],
-      "tests": ["operator/operation-contract.test.mjs", "operator/run-operation.test.mjs"],
+      "tests": ["operator/operation-contract.test.mjs", "operator/run-operation.test.mjs", "operator/recipes.test.mjs"],
       "authorization": { "status": "direct-request", "evidence": "Родитель 16.10.2026 прямо потребовал штатные повторяемые CLI-команды Education вместо изобретаемых заново inline-скриптов." }
     },
     "storage/review-readback.mjs": {
@@ -305,15 +340,17 @@
       }
     },
     "scripts/sync-queue.mjs": {
-      "sha256": "bbf0e92a8a17cd4e3368d72bfda25abcdde26bc7b9da6664f8962bf3fb4189da",
-      "record": "docs/product/ui-decisions/education-sync-performance-2026-10-15.md",
+      "sha256": "903469a820ef3a0bf4abf6f368e7ceef8547fffbbdad74c2f3e203e25b41d46f",
+      "record": "docs/product/ui-decisions/operator-tool-trial-2026-10-16.md",
       "specs": [
         "docs/product/global-sync.md",
         "docs/architecture/education-sync-latency-audit-2026-10-15.md"
       ],
       "tests": [
         "sync/project-plan.test.mjs",
-        "src/lib/quizCompletion.test.ts"
+        "src/lib/quizCompletion.test.ts",
+        "operator/run-operation.test.mjs",
+        "operator/recipes.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
@@ -750,14 +787,16 @@
       }
     },
     "scripts/day.mjs": {
-      "sha256": "f5bc73fbde8b6313f5eba000461ac0716db8c92cec1b8ed65a1d6eb509428ecf",
-      "record": "docs/product/ui-decisions/mesh-assigned-units-2026-10-15.md",
+      "sha256": "50094f7d38f37e58ddd3ea2a9b8788a5fa8db3200af0f33a0f95920cf28d1099",
+      "record": "docs/product/ui-decisions/operator-tool-trial-2026-10-16.md",
       "specs": [
         "docs/product/russian-language-route.md",
         "docs/product/review-criteria-provenance.md"
       ],
       "tests": [
-        "day/card-policy.test.mjs"
+        "day/card-policy.test.mjs",
+        "day/pipeline-contract.test.mjs",
+        "storage/page-publication.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
@@ -905,8 +944,8 @@
       }
     },
     "scripts/sync-project.mjs": {
-      "sha256": "63cdeb99de7939918382d952d530cab00ef43623dc2fa0449949afd92ef6cf57",
-      "record": "docs/product/ui-decisions/education-sync-performance-2026-10-15.md",
+      "sha256": "8883220c419b0399ae6580c9af5b5db630e42a3d83ccde167a1b9386f86a15a6",
+      "record": "docs/product/ui-decisions/operator-tool-trial-2026-10-16.md",
       "specs": [
         "docs/product/global-sync.md",
         "docs/architecture/education-sync-latency-audit-2026-10-15.md"
@@ -914,6 +953,7 @@
       "tests": [
         "sync/project-plan.test.mjs",
         "sync/publication-audit.test.mjs",
+        "sync/run-context.test.mjs",
         "packages/education-connect/lib/mesh-assignments.test.mjs"
       ],
       "authorization": {

@@ -1,10 +1,25 @@
 import { describe, expect, it } from 'vitest'
-import { assertPublishedPageAligned, assertSourceAligned, sourcePlanFingerprint } from './pipeline-contract.mjs'
+import { assertPublishedPageAligned, assertSourceAligned, sourcePlanFingerprint, textbookRefError } from './pipeline-contract.mjs'
 import { assertWeekendWorkRetention } from './dashboard-index.mjs'
 
 const snapshot = { complete: true, date: '2026-10-15', assignments: [{ sourceItemId: '42', subject_name: 'Математика', detailStatus: 'loaded',
   homeworkEntries: [{ id: '99', description: 'Решить № 4.' }] }] }
 const source = { targetDate: '2026-10-15', subjects: [{ tasks: [{ id: 'mesh-99', meshText: 'Решить № 4.' }] }] }
+
+describe('диагностика ссылки на семейную страницу', () => {
+  it('называет точное поле, полученное значение и допустимый ID', () => {
+    const path = 'mesh-99.parentGuide.stages.evidence.source.ref'
+    expect(textbookRefError('book:115#exercise-225', ['book:115'], { path }))
+      .toContain(`${path}: получено "book:115#exercise-225"; нужна назначенная страница book:115`)
+    expect(textbookRefError(undefined, [], { path })).toContain('taskPages пуст')
+    expect(textbookRefError('book:115', ['book:115'], { path })).toBeNull()
+  })
+  it('сохраняет прежний контракт суффикса только для инструкции', () => {
+    expect(textbookRefError('book:115#exercise-225', ['book:115'], { exact: false })).toBeNull()
+    expect(textbookRefError('other-book:115', ['book:115'], { exact: false })).not.toBeNull()
+    expect(textbookRefError(115, ['book:115'])).not.toBeNull()
+  })
+})
 
 describe('барьер публикации плана', () => {
   it('останавливает выпуск при новом ДЗ в МЭШ без обновления источника', () => {
