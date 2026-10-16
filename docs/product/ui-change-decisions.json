@@ -271,11 +271,24 @@
       "authorization": { "status": "direct-request", "evidence": "Родитель 16.10.2026 потребовал отдельную новую проверку каждой ошибки и сохранность уже выданного теста." }
     },
     "assessment/quiz-lineage.mjs": {
-      "sha256": "c6f2988f52f16b3a9c619dc45ec983ef9e477b8706f36f8c059f071d25654d15",
-      "record": "docs/product/ui-decisions/history-followup-volume-2026-10-16.md",
-      "specs": ["docs/product/assessment-decision-graph.md", "docs/product/quizzes.md"],
-      "tests": ["assessment/quiz-lineage.test.mjs"],
-      "authorization": { "status": "direct-request", "evidence": "Родитель 16.10.2026 потребовал учитывать историю вопросов и выбранных вариантов при создании связанного теста." }
+      "sha256": "3299c1c263ab7c59e860d192ea68e14da6141b235378d2d27aff6ebf6a48e6b3",
+      "record": "docs/product/ui-decisions/history-default-universal-request-2026-10-16.md",
+      "specs": [
+        "docs/product/quiz-chain-proposal.md",
+        "docs/product/assessment-decision-graph.md",
+        "docs/product/quizzes.md"
+      ],
+      "tests": [
+        "src/components/QuizCard.history.test.tsx",
+        "src/components/QuizCard.test.tsx",
+        "src/lib/homeworkStatus.test.ts",
+        "src/lib/store.optionalQuiz.test.ts",
+        "assessment/quiz-lineage.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 16.10.2026 прямо требует закрытую по умолчанию историю и универсальную кнопку нового теста, включая100%, с учётом всех предыдущих попыток по общей автоматической политике."
+      }
     },
     "operator/operation-contract.mjs": {
       "sha256": "420ac84b63f168b88c1a647dcdafa936d8829ecee746a77b9715a0c59d2ef2dd",
@@ -551,40 +564,43 @@
       }
     },
     "scripts/quiz.mjs": {
-      "sha256": "6e53d4324065aad94300ca90d0cea2ca904c44f441fcec57301d2bddf3f361e6",
-      "record": "docs/product/ui-decisions/history-followup-volume-2026-10-16.md",
+      "sha256": "92e01c4f85dd6fc944d935b243c98c821f9321b62856eed2730eefa0877c6099",
+      "record": "docs/product/ui-decisions/history-default-universal-request-2026-10-16.md",
       "specs": [
+        "docs/product/quiz-chain-proposal.md",
         "docs/product/assessment-decision-graph.md",
-        "docs/product/dashboard.md",
-        "docs/product/materials.md",
         "docs/product/quizzes.md"
       ],
       "tests": [
-        "src/lib/quizCompletion.test.ts",
-        "assessment/followup-contract.test.mjs",
+        "src/components/QuizCard.history.test.tsx",
+        "src/components/QuizCard.test.tsx",
+        "src/lib/homeworkStatus.test.ts",
+        "src/lib/store.optionalQuiz.test.ts",
         "assessment/quiz-lineage.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 16.10.2026 потребовал учитывать каждую ошибку и историю при создании продолжения и исправить открытый тест истории."
+        "evidence": "Родитель 16.10.2026 прямо требует закрытую по умолчанию историю и универсальную кнопку нового теста, включая100%, с учётом всех предыдущих попыток по общей автоматической политике."
       }
     },
     "scripts/sync-queue.mjs": {
-      "sha256": "903469a820ef3a0bf4abf6f368e7ceef8547fffbbdad74c2f3e203e25b41d46f",
-      "record": "docs/product/ui-decisions/operator-tool-trial-2026-10-16.md",
+      "sha256": "27c4f99baf617c39501bdf7f249f1526f375d309c8549095b7c4bebd86bbfd04",
+      "record": "docs/product/ui-decisions/history-default-universal-request-2026-10-16.md",
       "specs": [
-        "docs/product/global-sync.md",
-        "docs/architecture/education-sync-latency-audit-2026-10-15.md"
+        "docs/product/quiz-chain-proposal.md",
+        "docs/product/assessment-decision-graph.md",
+        "docs/product/quizzes.md"
       ],
       "tests": [
-        "sync/project-plan.test.mjs",
-        "src/lib/quizCompletion.test.ts",
-        "operator/run-operation.test.mjs",
-        "operator/recipes.test.mjs"
+        "src/components/QuizCard.history.test.tsx",
+        "src/components/QuizCard.test.tsx",
+        "src/lib/homeworkStatus.test.ts",
+        "src/lib/store.optionalQuiz.test.ts",
+        "assessment/quiz-lineage.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 15.10.2026 прямо потребовал повторный полный Education Sync с таймерами, расследование узких мест и ускорение процесса без потери подтверждённых данных."
+        "evidence": "Родитель 16.10.2026 прямо требует закрытую по умолчанию историю и универсальную кнопку нового теста, включая100%, с учётом всех предыдущих попыток по общей автоматической политике."
       }
     },
     "src/App.tsx": {
@@ -644,22 +660,23 @@
       }
     },
     "src/components/QuizCard.tsx": {
-      "sha256": "ab5dbe008536e3348dfd9d3ed8910869ea8421895d30e5c109cd1cd59de59f29",
-      "record": "docs/product/ui-decisions/compact-results-ui-kit-2026-10-16.md",
+      "sha256": "ea3250fff0d8905a6e8befef89feb59632f4bd28da3f6cf513a241cd90d1ea99",
+      "record": "docs/product/ui-decisions/history-default-universal-request-2026-10-16.md",
       "specs": [
-        "docs/product/result-presentation-proposal.md",
         "docs/product/quiz-chain-proposal.md",
-        "docs/product/ui-kit.md"
+        "docs/product/assessment-decision-graph.md",
+        "docs/product/quizzes.md"
       ],
       "tests": [
         "src/components/QuizCard.history.test.tsx",
-        "src/components/ui/result.test.tsx",
-        "src/lib/watchQuizOutcome.test.ts",
-        "src/UiKit.test.tsx"
+        "src/components/QuizCard.test.tsx",
+        "src/lib/homeworkStatus.test.ts",
+        "src/lib/store.optionalQuiz.test.ts",
+        "assessment/quiz-lineage.test.mjs"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "Родитель 16.10.2026 утвердил уплотнённую таблицу и цветовую шкалу словами «стало намного лучше, закрепляй вариант» и прямо запросил интерактивный UI Kit."
+        "status": "direct-request",
+        "evidence": "Родитель 16.10.2026 прямо требует закрытую по умолчанию историю и универсальную кнопку нового теста, включая100%, с учётом всех предыдущих попыток по общей автоматической политике."
       }
     },
     "src/lib/dayMaterialRefs.ts": {
@@ -681,21 +698,23 @@
       }
     },
     "src/lib/homeworkStatus.ts": {
-      "sha256": "f891f63f48c795312ef9837f649da00439a8d2212470bffce3cf8ca23461a77a",
-      "record": "docs/product/ui-decisions/missing-evidence-homework-overview-2026-10-15.md",
+      "sha256": "7bb544b85514721f2f31ded9d333f9e80072c691f9ec162019dc7e21eecc8215",
+      "record": "docs/product/ui-decisions/history-default-universal-request-2026-10-16.md",
       "specs": [
-        "docs/product/dashboard.md",
-        "docs/product/review-criteria-provenance.md"
+        "docs/product/quiz-chain-proposal.md",
+        "docs/product/assessment-decision-graph.md",
+        "docs/product/quizzes.md"
       ],
       "tests": [
-        "src/DayDashboard.warmStart.test.tsx",
+        "src/components/QuizCard.history.test.tsx",
+        "src/components/QuizCard.test.tsx",
         "src/lib/homeworkStatus.test.ts",
-        "src/lib/reviewPresentation.test.ts",
-        "storage/review-projection.test.mjs"
+        "src/lib/store.optionalQuiz.test.ts",
+        "assessment/quiz-lineage.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 15.10.2026 показал неверный статус русского ДЗ, потребовал ясный разбор результата и исправление обзора."
+        "evidence": "Родитель 16.10.2026 прямо требует закрытую по умолчанию историю и универсальную кнопку нового теста, включая100%, с учётом всех предыдущих попыток по общей автоматической политике."
       }
     },
     "src/lib/quiz.ts": {

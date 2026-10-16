@@ -7,8 +7,7 @@ import { operatorFirestore } from './lib/admin-firebase.mjs'
 import { dateWindow } from '../sync/project-plan.mjs'
 import { enqueueSyncJob, setSyncJob, syncFingerprint, syncJobId } from '../sync/job-queue.mjs'
 import { pendingManualQuestionIds, quizDecision } from '../assessment/decision-graph.mjs'
-import { grade, summarize } from '../src/lib/quiz.ts'
-import { followupQuestionCount, needsQuizFollowup } from '../src/lib/quizCompletion.ts'
+import { followupQueueSource } from '../assessment/quiz-lineage.mjs'
 
 /** Scan live Firebase sources, persist operator work, and expose resumable phases.
  * The operator still performs source research and pedagogy; this command never
@@ -148,16 +147,10 @@ async function discover() {
     measurements.sdkCalls.followupDetailGets += 2
     const [answerKey, review] = await Promise.all([db.doc(`answerKeys/${doc.id}`).get(), db.doc(`reviews/${doc.id}`).get()])
     if (!answerKey.exists || pendingManualQuestionIds(assignment, review.data()).length) return null
-    const results = grade(assignment, answerKey.data(), review.data())
-    const score = summarize(results)
-    if (score.pending || !needsQuizFollowup({ points: score.earned, maxPoints: score.possible }, Boolean(assignment.followupRequestedAt))) return null
-    const errorCount = results.filter((result) => !result.skipped && result.points !== null && result.points < result.question.points).length
-    if (!errorCount) return null
+    const source = followupQueueSource(assignment, answerKey.data(), review.data())
+    if (!source) return null
     return job('prepare-targeted-followup', assignment.familyId, assignment.childId,
-      assignment.testId, { type: 'quiz', id: doc.id, testId: assignment.testId,
-        originalCount: assignment.questions.length, errorCount,
-        targetCount: followupQuestionCount(assignment.questions.length, errorCount),
-        trigger: assignment.followupRequestedAt ? 'parent-request' : 'below-threshold' },
+      assignment.testId, { ...source, id: doc.id },
       [assignment.testId, assignment.submittedAt?.toMillis?.(), review.updateTime?.toMillis?.(), assignment.followupRequestedAt?.toMillis?.()], 35)
   })
   candidates.push(...followups.filter(Boolean))

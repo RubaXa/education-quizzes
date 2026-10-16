@@ -19,6 +19,7 @@ describe('approved compact quiz table',()=>{
   it.each([true,false])('keeps the teacher source, exact counts, weighted aggregate and newest-first history; parent=%s',async parent=>{
     const{host}=await mount(chain,parent)
     expect([...host.querySelectorAll('tbody tr')].map(row=>row.getAttribute('data-test-id'))).toEqual(['repair','zero','first'])
+    expect(host.querySelector<HTMLDetailsElement>('.day-quiz-history')?.open).toBe(false)
     expect(chain.map(item=>item.testId)).toEqual(['first','zero','repair','latest'])
     expect(host.querySelector('.day-quiz-chain-summary')?.textContent).toContain('18 / 32')
     expect(host.querySelector('.day-quiz-chain-summary')?.textContent).toContain('56%')
@@ -53,14 +54,24 @@ describe('approved compact quiz table',()=>{
   it('uses a blue pending state after one click while the passing result stays green',async()=>{
     const result={...chain[2],points:8}
     const{host,root}=await mount([result])
-    await act(async()=>host.querySelector<HTMLButtonElement>('[aria-label="Создать связанный тест по ошибкам"]')!.click())
+    await act(async()=>host.querySelector<HTMLButtonElement>('[aria-label="Создать новый тест с учётом всех попыток"]')!.click())
     expect(requestQuizFollowup).toHaveBeenCalledExactlyOnceWith(result.token,result.testId)
-    expect(host.querySelector('[aria-label="Связанный тест запрошен"]')?.hasAttribute('disabled')).toBe(true)
+    expect(host.querySelector('[aria-label="Новый тест запрошен"]')?.hasAttribute('disabled')).toBe(true)
     expect(host.querySelector('.day-quiz-lineage-score')?.getAttribute('data-tone')).toBe('success')
     expect(host.querySelector('.day-quiz-request-state')?.textContent).toContain('ждём новый тест')
     await act(async()=>root.render(<QuizCard chain={[result,{...result,token:'next',testId:'next',status:'open',points:undefined,maxPoints:undefined}]} parent />))
     expect(host.querySelector('.day-quiz-request-state')).toBeNull()
     expect(host.querySelectorAll('[role="switch"]')).toHaveLength(1)
+  })
+  it('requests once after 100% and keeps earned results intact',async()=>{
+    const{host}=await mount()
+    const button=host.querySelector<HTMLButtonElement>('[aria-label="Создать новый тест с учётом всех попыток"]')!
+    expect(button.disabled).toBe(false)
+    await act(async()=>button.click())
+    expect(requestQuizFollowup).toHaveBeenCalledExactlyOnceWith('latest','latest')
+    expect(button.disabled).toBe(true)
+    expect(host.querySelector('.day-quiz-request-state')?.textContent).toContain('Новый тест запрошен')
+    expect(host.querySelector('.day-quiz-lineage-score')?.textContent).toContain('100%')
   })
   it('does not infer correct answers from a weighted score or mark pending as zero',async()=>{
     const{host}=await mount([{...chain[0],results:undefined}, {...chain[3],points:undefined,maxPoints:undefined,results:undefined}])
@@ -71,7 +82,7 @@ describe('approved compact quiz table',()=>{
   it('keeps the request retryable after a rejected write without inventing a pending job',async()=>{
     vi.mocked(requestQuizFollowup).mockRejectedValueOnce(new Error('Ошибка записи'))
     const{host}=await mount([chain[2]])
-    const button=host.querySelector<HTMLButtonElement>('[aria-label="Создать связанный тест по ошибкам"]')!
+    const button=host.querySelector<HTMLButtonElement>('[aria-label="Создать новый тест с учётом всех попыток"]')!
     await act(async()=>button.click())
     expect(button.disabled).toBe(false)
     expect(host.querySelector('.day-quiz-request-state')).toBeNull()

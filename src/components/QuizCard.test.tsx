@@ -10,31 +10,31 @@ describe('result and parent follow-up action', () => {
   it('shows compact result and request button only to the parent', () => {
     const parent = renderToStaticMarkup(<QuizCard chain={[result]} parent />)
     const student = renderToStaticMarkup(<QuizCard chain={[result]} parent={false} />)
-    expect(parent).toContain('Создать связанный тест по ошибкам')
+    expect(parent).toContain('Создать новый тест с учётом всех попыток')
     expect(parent).toContain('Результат')
     expect(parent).not.toContain('Посмотреть результат')
-    expect(student).not.toContain('Создать связанный тест по ошибкам')
+    expect(student).not.toContain('Создать новый тест с учётом всех попыток')
   })
   it('shows the request as pending rather than completed', () => {
     const html = renderToStaticMarkup(<QuizCard chain={[{ ...result, followupRequested: true }]} parent />)
-    expect(html).toContain('Работа над ошибками запрошена')
+    expect(html).toContain('Новый тест запрошен')
     expect(html).toContain('day-quiz-lineage-score complete')
     expect(html).toContain('day-quiz-request-state')
   })
-  it('hides the request for an older attempt that already has a continuation', () => {
+  it('keeps an older attempt action visible but disabled when it already has a continuation', () => {
     const html = renderToStaticMarkup(<QuizCard chain={[result]} parent allowFollowupRequest={false} />)
-    expect(html).not.toContain('Создать связанный тест по ошибкам')
+    expect(html).toContain('disabled="" aria-label="Создать новый тест с учётом всех попыток"')
   })
-  it('offers the same action from 85% through 99%, but not after 100%', () => {
-    expect(renderToStaticMarkup(<QuizCard chain={[{ ...result, points: 38, maxPoints: 40 }]} parent />)).toContain('Создать связанный тест по ошибкам')
-    expect(renderToStaticMarkup(<QuizCard chain={[{ ...result, points: 40, maxPoints: 40 }]} parent />)).not.toContain('Создать связанный тест по ошибкам')
+  it('offers the same action including after 100%', () => {
+    expect(renderToStaticMarkup(<QuizCard chain={[{ ...result, points: 38, maxPoints: 40 }]} parent />)).toContain('Создать новый тест с учётом всех попыток')
+    expect(renderToStaticMarkup(<QuizCard chain={[{ ...result, points: 40, maxPoints: 40 }]} parent />)).toContain('Создать новый тест с учётом всех попыток')
   })
   it('keeps the request available below the passing threshold', () => {
-    expect(renderToStaticMarkup(<QuizCard chain={[{ ...result, points: 20 }]} parent />)).toContain('Создать связанный тест по ошибкам')
+    expect(renderToStaticMarkup(<QuizCard chain={[{ ...result, points: 20 }]} parent />)).toContain('Создать новый тест с учётом всех попыток')
   })
   it('waits for a checked result before offering a linked test', () => {
     const pending = renderToStaticMarkup(<QuizCard chain={[{ ...result, points: undefined, maxPoints: undefined }]} parent />)
-    expect(pending).not.toContain('Создать связанный тест по ошибкам')
+    expect(pending).toContain('disabled="" aria-label="Создать новый тест с учётом всех попыток"')
   })
 })
 

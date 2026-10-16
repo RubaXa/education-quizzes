@@ -22,7 +22,7 @@ vi.mock('firebase/firestore', async (importOriginal) => ({
   }),
 }))
 
-import { setQuizRequired } from './store'
+import { requestQuizFollowup, setQuizRequired } from './store'
 
 beforeEach(() => {
   scene.docs = { 'assignments/root': { testId: 'math-1', status: 'open', familyId: 'family', childId: 'child' } }
@@ -52,6 +52,26 @@ describe('parent family choice is an isolated assignment write', () => {
     scene.docs['assignments/retry'].status = 'open'
     scene.docs['assignments/retry'].childId = 'other'
     await expect(setQuizRequired('root', 'retry', false)).rejects.toThrow('Активный тест изменился')
+    expect(scene.writes).toEqual([])
+  })
+})
+
+/** @see ../../docs/product/quizzes.md#followup-request */
+describe('universal parent continuation uses the same narrow transaction', () => {
+  it('accepts a completed 100% attempt, reads once and writes only the request fields', async () => {
+    scene.docs['assignments/root'] = { ...scene.docs['assignments/root'], status: 'submitted', points: 5, maxPoints: 5, answers: { a: 'right' } }
+    await requestQuizFollowup('root', 'math-1')
+    expect(scene.reads).toEqual(['assignments/root'])
+    expect(scene.writes).toEqual([{ path: 'assignments/root', data: { followupRequestedAt: 'SERVER_TIME', followupRequestedBy: 'parent-person' } }])
+    Object.assign(scene.docs['assignments/root'], scene.writes[0].data)
+    await requestQuizFollowup('root', 'math-1')
+    expect(scene.writes).toHaveLength(1)
+    expect(scene.docs['assignments/root'].answers).toEqual({ a: 'right' })
+  })
+  it('rejects an unsubmitted or replaced attempt without persisting a request', async () => {
+    await expect(requestQuizFollowup('root', 'math-1')).rejects.toThrow('Результат теста изменился')
+    scene.docs['assignments/root'].status = 'submitted'
+    await expect(requestQuizFollowup('root', 'other-test')).rejects.toThrow('Результат теста изменился')
     expect(scene.writes).toEqual([])
   })
 })

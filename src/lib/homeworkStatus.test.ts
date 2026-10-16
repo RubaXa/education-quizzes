@@ -19,6 +19,14 @@ describe('one required self-check across its linked attempts', () => {
       { ...passed, retry: { points: 9, maxPoints: 10 } }).state).toBe('done')
   })
 
+  it('keeps 100% done until an explicit request and excludes an optional requested test', () => {
+    const perfect = { root: { points: 5, maxPoints: 5 } }
+    expect(quizRequirement('root', root, perfect).state).toBe('done')
+    const requested = { root: { ...root.root, followupRequested: true } }
+    expect(quizRequirement('root', requested, perfect)).toMatchObject({ state: 'todo', detail: 'Новый тест запрошен · ждём новый тест' })
+    expect(requiredQuizRequirement('root', { root: { ...requested.root, familyOptional: true } }, perfect)).toBeNull()
+  })
+
   it('requires correction below 85 percent', () => {
     expect(quizRequirement('root', root, { root: { points: 33, maxPoints: 40 } }).state).toBe('todo')
   })

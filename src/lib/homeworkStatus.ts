@@ -33,7 +33,7 @@ export function quizRequirement(rootToken: string, tests: Record<string, QuizWor
   const score = scores[token]
   if (!test || test.status !== 'submitted') return { state: 'todo', detail: 'Нужно пройти самопроверку' }
   if (!score) return { state: 'checking', detail: 'Ответы отправлены, результат уточняется' }
-  if (test.followupRequested || test.followupRequestedAt) return { state: 'todo', detail: 'Работа над ошибками запрошена · ждём новый тест' }
+  if (test.followupRequested || test.followupRequestedAt) return { state: 'todo', detail: 'Новый тест запрошен · ждём новый тест' }
   if (quizPassed(score)) return { state: 'done', detail: `Тест: ${score.points} из ${score.maxPoints} верно` }
   return { state: 'todo', detail: `Нужна работа над ошибками · ${score.points} из ${score.maxPoints} верно` }
 }

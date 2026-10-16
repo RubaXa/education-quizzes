@@ -9,9 +9,9 @@ import { pendingManualQuestionIds, validateAssessmentPlan } from '../assessment/
 import { repeatedQuestionCopy } from '../assessment/question-copy.mjs'
 import { assignmentShapeErrors } from '../day/data-contract.mjs'
 import { assertFollowupCoverage, assertOpenRevisionReadback, openQuizRevision } from '../assessment/followup-contract.mjs'
-import { quizLineageStatistics } from '../assessment/quiz-lineage.mjs'
+import { assertLineageContinuation, quizLineageStatistics } from '../assessment/quiz-lineage.mjs'
 import { grade, summarize } from '../src/lib/quiz.ts'
-import { followupQuestionCount, needsQuizFollowup } from '../src/lib/quizCompletion.ts'
+import { needsQuizFollowup } from '../src/lib/quizCompletion.ts'
 
 const projectId = 'education-9d7c6'
 const site = 'https://rubaxa.github.io/education-quizzes/'
@@ -180,9 +180,8 @@ async function inspectedFollowupSource(spec, plan, owner) {
   }
   const errorQuestionIds = results.filter((result) => !result.skipped && result.points !== null
     && result.points < result.question.points).map((result) => result.question.id)
-  if (!errorQuestionIds.length) fail('В исходном результате нет подтверждённых ошибок для адресного продолжения.')
-  const targetCount = followupQuestionCount(parent.questions.length, errorQuestionIds.length)
-  if (spec.questions.length !== targetCount) fail(`Продолжение должно содержать ${targetCount} вопросов для ${errorQuestionIds.length} подтверждённых ошибок из ${parent.questions.length} исходных.`)
+  const attempts = await loadLineage(parents.docs[0].id, { assignment: parent, answerKey: parentKey.data(), review: parentReview.data() ?? null })
+  const { targetCount } = assertLineageContinuation(plan, spec, attempts)
   assertFollowupCoverage(plan, spec, parent.testId, errorQuestionIds)
   return { parent, errorQuestionIds, targetCount }
 }
@@ -293,22 +292,26 @@ async function create(specPath, studentPersonId) {
 }
 
 /** Closed statistics for one linked chain; no lesson text or answer key is published. */
-async function loadLineage(learnerToken) {
+async function loadLineage(learnerToken, firstAttempt = null) {
   const attempts = [], seen = new Set()
   let tokenToRead = learnerToken
   let owner = null
   while (tokenToRead && attempts.length < 16) {
     if (seen.has(tokenToRead)) fail('В цепочке тестов обнаружен цикл.')
     seen.add(tokenToRead)
-    const [assignmentDoc, keyDoc, reviewDoc] = await Promise.all([
-      db.doc(`assignments/${tokenToRead}`).get(), db.doc(`answerKeys/${tokenToRead}`).get(),
-      db.doc(`reviews/${tokenToRead}`).get(),
-    ])
-    if (!assignmentDoc.exists || !keyDoc.exists) fail('В цепочке нет назначения или ключа.')
-    const assignment = assignmentDoc.data()
+    let attempt = firstAttempt && tokenToRead === learnerToken ? firstAttempt : null
+    if (!attempt) {
+      const [assignmentDoc, keyDoc, reviewDoc] = await Promise.all([
+        db.doc(`assignments/${tokenToRead}`).get(), db.doc(`answerKeys/${tokenToRead}`).get(),
+        db.doc(`reviews/${tokenToRead}`).get(),
+      ])
+      if (!assignmentDoc.exists || !keyDoc.exists) fail('В цепочке нет назначения или ключа.')
+      attempt = { assignment: assignmentDoc.data(), answerKey: keyDoc.data(), review: reviewDoc.data() ?? null }
+    }
+    const { assignment } = attempt
     if (owner && (assignment.familyId !== owner.familyId || assignment.childId !== owner.childId)) fail('Цепочка пересекла границу семьи.')
     owner ??= { familyId: assignment.familyId, childId: assignment.childId }
-    attempts.push({ assignment, answerKey: keyDoc.data(), review: reviewDoc.data() ?? null })
+    attempts.push(attempt)
     if (!assignment.linkedToTestId) return attempts
     const previous = await db.collection('assignments').where('testId', '==', assignment.linkedToTestId).get()
     if (previous.size !== 1) fail('Предыдущая попытка в цепочке не найдена однозначно.')
@@ -317,11 +320,13 @@ async function loadLineage(learnerToken) {
   fail('Цепочка тестов длиннее 16 попыток.')
 }
 
-async function exportLineage(learnerToken, outputPath) {
+async function exportLineage(learnerToken, outputPath, planPath) {
   if (!learnerToken || !outputPath || !resolve(outputPath).startsWith(`${localDir}/`)) {
     fail('Укажите токен и закрытый путь внутри .local/.')
   }
-  const statistics = quizLineageStatistics(await loadLineage(learnerToken))
+  const coverage = planPath ? loadJson(planPath)?.continuation?.topicCoverage : []
+  if (!Array.isArray(coverage)) fail('В закрытом плане нужна continuation.topicCoverage — матрица темы.')
+  const statistics = quizLineageStatistics(await loadLineage(learnerToken), coverage.length)
   writeFileSync(resolve(outputPath), `${JSON.stringify(statistics, null, 2)}\n`, { mode: 0o600 })
   console.log(JSON.stringify({ saved: resolve(outputPath), attempts: statistics.attempts.length,
     latestErrors: statistics.next.errorQuestionIds.length, targetCount: statistics.next.targetCount }))
@@ -531,7 +536,7 @@ try {
     console.log('Спецификация готова к созданию теста.')
   } else if (command === 'create') await create(first, second)
   else if (command === 'revise-open') await reviseOpenQuiz(first, second, third)
-  else if (command === 'history') await exportLineage(first, second)
+  else if (command === 'history') await exportLineage(first, second, third)
   else if (command === 'board-add') await addToLearnerBoard(first)
   else if (command === 'list') await list()
   else if (command === 'board-status') await boardStatus()
@@ -540,7 +545,7 @@ try {
   else if (command === 'bind-family') await bindFamily(first, second, third)
   else if (command === 'export') await exportAttempt(first, second)
   else if (command === 'review') await reviewAttempt(first, second)
-  else fail('Команды: validate SPEC.json | create SPEC.json [PERSON_ID] | revise-open TOKEN SPEC.json PERSON_ID | history TOKEN .local/OUTPUT.json | board-add MANIFEST.json | board-status | sync-links [--apply] | audit-access | list | export TOKEN OUTPUT.json | review TOKEN REVIEW.json')
+  else fail('Команды: validate SPEC.json | create SPEC.json [PERSON_ID] | revise-open TOKEN SPEC.json PERSON_ID | history TOKEN .local/OUTPUT.json [PLAN.json] | board-add MANIFEST.json | board-status | sync-links [--apply] | audit-access | list | export TOKEN OUTPUT.json | review TOKEN REVIEW.json')
 } catch (error) {
   console.error(error instanceof Error ? error.message : error)
   process.exitCode = 1
