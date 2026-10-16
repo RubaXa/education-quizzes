@@ -6,6 +6,8 @@
 
 | Файл | Спецификация | Зачем существует | Потребитель |
 |---|---|---|---|
+| [docs/product/quiz-chain-proposal.md](quiz-chain-proposal.md) | [Самопроверки](quizzes.md) | Черновик сетки истории, разбора на месте и детерминированной итоговой проверки; ждёт решения родителя | Родитель; проектировщик; будущая реализация |
+| [docs/research/quiz-history-and-consolidation.md](../research/quiz-history-and-consolidation.md) | [Черновик цепочки тестов](quiz-chain-proposal.md) | Первичные основания компактного списка, раскрытия и широкой проверки после исправления ошибок | Родитель; автор контракта |
 | [assessment/decision-graph.mjs](../../assessment/decision-graph.mjs) | [Граф самопроверок](assessment-decision-graph.md) | Режимы, предметные матрицы, полнота слов по назначенным источникам и барьер ручной проверки | `quiz.mjs`; `sync-queue.mjs`; `sync-inbox.mjs` |
 | [assessment/decision-graph.test.mjs](../../assessment/decision-graph.test.mjs) | [Словарный диктант](assessment-decision-graph.md) | Проверка полного охвата упражнений, отбора слов, исправлений и формы связанного теста | Vitest; автор теста |
 | [assessment/followup-contract.mjs](../../assessment/followup-contract.mjs) | [Зачёт и продолжение](assessment-decision-graph.md) | Покрытие каждой ошибки отдельным вопросом и безопасная ревизия не начатого теста | `scripts/quiz.mjs` |
