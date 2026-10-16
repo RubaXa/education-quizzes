@@ -1,0 +1,2317 @@
+{
+  "date": "2026-10-16",
+  "scope": "Structural spec migration; before snapshot includes pre-existing user/session changes",
+  "normalization": "Strip YAML and Markdown link targets, ignore added HTML anchors, canonicalize moved full paths. The complete ordered source body must remain a contiguous text block; new appended commentary is permitted.",
+  "requirements": [
+    {
+      "source": "docs/architecture/activity-and-inbox.md",
+      "destination": "docs/modules/notifications/inbox.md",
+      "sourceSha256": "98bbd91b7ef39e7aee581e31fed5c1d1007bfc0385a33561ef03d8558ad90b70",
+      "destinationSha256": "1c55e3e454e646da69439b78122997bc46265743e475e1717fdfaf66df8fdbc5",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/architecture/backend-driven-ui.md",
+      "destination": "docs/modules/synchronization/backend-driven-ui.md",
+      "sourceSha256": "a28314861501c82bdbcc47cfb2ed0f79b10f204f8c4cdbd8e2bafcba4daa8f00",
+      "destinationSha256": "78d7ed5b367a8948385fbf54288f1830ffcf3ea0642aab1f31bf06e1b78e794f",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/architecture/change-detection-and-reconciliation.md",
+      "destination": "docs/modules/synchronization/change-detection-and-reconciliation.md",
+      "sourceSha256": "951fa045a5261cb9e1f4336c3f9231ca5127c4067805a9509a5da66c3f9b52d3",
+      "destinationSha256": "825378268ccebb22b43f584f406bc81164ec0b7c1cf6c64b9ae0cf1002f08f5d",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/architecture/education-sync-latency-audit-2026-10-15.md",
+      "destination": "docs/audits/education-sync-latency-audit-2026-10-15.md",
+      "sourceSha256": "e5d451cf131258ab29c72425b3b5465e09fb38cb6572fe8d6de776a1de98e28e",
+      "destinationSha256": "ffb4b840aee4d14299f62839f677737ca3c719c0289d243397cfea512fb43c14",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/architecture/family-artifact-access.md",
+      "destination": "docs/modules/families/family-artifact-access.md",
+      "sourceSha256": "557dfd0b35d70d2bc97e78d0e9b6e7cbef9b155a6cbdb73db2fdea976a280ba9",
+      "destinationSha256": "7f13061a38b5949eb8f81243a5792e18ac9a71923af46b9f0b22a41786cf373c",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/architecture/family-data-model.md",
+      "destination": "docs/modules/families/README.md",
+      "sourceSha256": "5a9db21a0d1975999387d472eba76d3fe1e5bdda53c8a4c6be8207c2672ede6f",
+      "destinationSha256": "0ec996ab57745304db7a2d6005daa1129b36d3676e225fedabdb24c81ebcc119",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/architecture/firestore-read-audit-2026-10-14.md",
+      "destination": "docs/audits/firestore-read-audit-2026-10-14.md",
+      "sourceSha256": "be0cffcf08bab7ba1a02c88b668db7d75c7e0f7fa916a3b2e7a5e112c105861d",
+      "destinationSha256": "4ea2848d14b4041712229aaebee6937cc7339878ba3804cff312e0faab76c4eb",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/architecture/firestore-read-paths.md",
+      "destination": "docs/modules/synchronization/firestore-read-paths.md",
+      "sourceSha256": "6fa5954b722eb1712f952ff4784fd6d2ce5e2d8fb9422bf18d40decbc4beac20",
+      "destinationSha256": "e10f8da6cc9ce636685937246c4ff20d85ecd864fbd72edffb82dca54f0f53e7",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/architecture/firestore-read-reduction-research-2026-10-12.md",
+      "destination": "docs/research/firestore-read-reduction-research-2026-10-12.md",
+      "sourceSha256": "da362ab44ed8734666c2bced492e61fc1f1e63bd99f5ef77bf806e7e5d552d3a",
+      "destinationSha256": "2ef86415146548f08f16dd675527d28f5971e9b41f5a1505f178bf146d8ce619",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/architecture/firestore-usage-2026-10-12.md",
+      "destination": "docs/audits/firestore-usage-2026-10-12.md",
+      "sourceSha256": "0604de88e4af38470b52def1263aaa1b918c4c4b332904fb79926f2440490c59",
+      "destinationSha256": "a33f0b23ebf9035b79694c1e7f2f4f09f7032f7ce49ded59e7319c56fd5d3293",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/architecture/local-first-hot-path-decision-2026-10-12.md",
+      "destination": "docs/decisions/local-first-hot-path-decision-2026-10-12.md",
+      "sourceSha256": "de33beaca1cfc7891e9b67b0b4e2f74cb96bf0ebcb25b08744f9b7a00bc0f111",
+      "destinationSha256": "ccc22c44d76dabb145110e376a190dfa35339351e8dc0aa6d2fa1269a5afb2de",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/architecture/local-first-release-plan-2026-10-12.md",
+      "destination": "docs/plans/local-first-release-plan-2026-10-12.md",
+      "sourceSha256": "986231f1c3bf5700754da75e76f9e43e02258526c1f136d02823d44ba8f1f7b4",
+      "destinationSha256": "9d7ff5343daf894303814fcf7cdad3468e6439ef305b412b0681f72cae7c6b5b",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/architecture/local-first-revision-matrix.md",
+      "destination": "docs/shared/data/revisions.md",
+      "sourceSha256": "e0dda483efa70e3df511f00e8f2047ccdff117a12c43ea266fec3dfc1429ec54",
+      "destinationSha256": "e1226008dccf86db5d53e3b8f6857eeda1abec37971734e8d4b376944cd8d3b7",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/architecture/local-first-sync.md",
+      "destination": "docs/services/web-app/local-first-sync.md",
+      "sourceSha256": "b01a2c9af0f88754c22a33fcdaff495bd092dfc1d7271bee773c4ce8d6054695",
+      "destinationSha256": "ea5d7025be8cec3f5df79f21e5348b02496ab716204ab51cbd36783176c7cc0f",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/architecture/local-first-verification.md",
+      "destination": "docs/services/web-app/local-first-verification.md",
+      "sourceSha256": "d4e471548a39ea00dad58e4caa67a71f00a64ef6cfa7b92f45d8033cd56364f1",
+      "destinationSha256": "b430be7a15fa13d93e4664e8d5bdae3b56cc7750b9a58b069b43c18b3a981aef",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/architecture/operator-core.md",
+      "destination": "docs/services/operator-cli/README.md",
+      "sourceSha256": "f9def00af5c901fbff2f0a6e0228009abb36135b2a0be0198c02f8a93ed44ba9",
+      "destinationSha256": "439809b7a1b71157ce09ea0d036407dc13d08b7fa98ed420b54553ec9f36c247",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/architecture/school-diary-port-adapter.md",
+      "destination": "docs/modules/school-diary/README.md",
+      "sourceSha256": "94d7e2d8790948b6a5d97243c15b2905cf1a9a7491089fb4a867c0729dec4c35",
+      "destinationSha256": "f4d55447b231b3e617278914ee8753b623432d7c35c0a9a61cfe2f103de29660",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/architecture/shared-artifact-pipeline.md",
+      "destination": "docs/modules/synchronization/shared-artifact-pipeline.md",
+      "sourceSha256": "a4f72cbaf31661a0520666d9046dd3b70b12905ae44ae978fbacfbee4c2f20ea",
+      "destinationSha256": "e8115519a988a72aca74b8c4ba45250dc3fe33cfd3ac97107247e5abe60ab9d7",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/architecture/specification-graph-audit-2026-10-16.md",
+      "destination": "docs/audits/specification-graph-audit-2026-10-16.md",
+      "sourceSha256": "2bb0c1a4ba8e483369de697f42f6f8b3ca270ab87f76b7ddb7d4ace05b2863c5",
+      "destinationSha256": "02f4c1613ecd70e6588cad0cf972e80973a5e33d7fed6d9cbed0191d3510b749",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/architecture/telegram/adapters/firestore.md",
+      "destination": "docs/services/telegram-bot/adapters/firestore.md",
+      "sourceSha256": "76a2dfb0aedfe6a087f7a96327daf72e17c2e37f64875b452bebd6fb6cbcc02c",
+      "destinationSha256": "5c7b8e6c63a91074875e12260cc0d2c982355319c4ec8ead42d5acd53211736b",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/architecture/telegram/adapters/mesh.md",
+      "destination": "docs/services/telegram-bot/adapters/mesh.md",
+      "sourceSha256": "b960e60453a51d204783a8e952569a7d17d187fcbd119dceaac57201fc0a4b70",
+      "destinationSha256": "4fac8d9005110b95676dfec89094c0996088e0056036e662dc3d0ea4b57f32b0",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/architecture/telegram/delivery.md",
+      "destination": "docs/services/telegram-bot/delivery.md",
+      "sourceSha256": "178befee7b0841db1c1c02a63e0a3a72f93aeaa8cb3c651c0f2051f672830c2c",
+      "destinationSha256": "74ee3ef86d4f7cffabe9f7ef2c741d7e133c39d0eb59e0e436c33dbfacd78f42",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/architecture/telegram/event-ledger-outbox.md",
+      "destination": "docs/services/telegram-bot/event-ledger-outbox.md",
+      "sourceSha256": "b9afa0845b8d1edf6b4ec4ce4bc87ec637b721c634f2590076a28f1c54fe7191",
+      "destinationSha256": "1a3fe691efce5f9de1abff54210637c2d71aed51e51a55dbaebebd94196f7b87",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/architecture/telegram/identity-and-linking.md",
+      "destination": "docs/services/telegram-bot/identity-and-linking.md",
+      "sourceSha256": "cc7aa4e7caf74808791642f63622c42e6bb78f83e88b190046e7c44e38f5617d",
+      "destinationSha256": "e532543002282a9c95b3aee60a90c672b22558b02ddc982f782c24b5d0060919",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/architecture/telegram/operations.md",
+      "destination": "docs/services/telegram-bot/operations.md",
+      "sourceSha256": "670678552bb2ec9c8b0a111ae1dc0bce1aa2c365ac73a457be6f8c680b4c998b",
+      "destinationSha256": "2b960f7e1adb5d4e8f60044854cc685627a01ebe3b06aed9499ad0376fc9b99f",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/architecture/telegram/ports-and-events.md",
+      "destination": "docs/services/telegram-bot/ports-and-events.md",
+      "sourceSha256": "ab7865afcfa421f446550ea0f219f8f71770c3fe5e5355fd1aebbe799308978b",
+      "destinationSha256": "d7b054a53f6cba5f2f9fae30e2ba1169d418f727bb875085b78afc4cf58a1051",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/architecture/telegram-notification-service.md",
+      "destination": "docs/services/telegram-bot/README.md",
+      "sourceSha256": "5d6317e3d351cadd9f1a8e815f5b1b6a7b280da826261354ec3afd0696e40d8e",
+      "destinationSha256": "62b8544de8c164180115622a6ae6615fe5d6aa568108bb3e4cf92a7b1e459688",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/README.md",
+      "destination": "docs/audits/product-spec-index-2026-10-16.md",
+      "sourceSha256": "ea0105b3b41f92cc0027d2a2f5ccf2852aa17940c52aef324d1402190f29496d",
+      "destinationSha256": "d6cce6dd6db6670a907111d049ba2020d6d8f2f05628a5f520db6e647171e8d7",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/access-and-state.md",
+      "destination": "docs/modules/families/access-and-state.md",
+      "sourceSha256": "1327ec02ac6c0e24d1b6e085991faa6435395a02391ca3679a376b105f275ed3",
+      "destinationSha256": "935d7a626db2d3a721074d2182a150a6f435e3dcd94e248a0717e9b0e5bdd57e",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/adaptive-problem-card.md",
+      "destination": "docs/modules/reviews/adaptive-problem-card.md",
+      "sourceSha256": "06bbc3e2f439b616bf0f50bcca3e32e84d8425309b222b790f07c19a49526c09",
+      "destinationSha256": "8e4edfa6f05b7e7083b4b8ddc4314e88560682b9137e18423d74e9b4a116709e",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/assessment-decision-graph.md",
+      "destination": "docs/modules/assessments/assessment-decision-graph.md",
+      "sourceSha256": "68ec7aef3fad511a660f491e1b4bd5416e5190287a88df2ff90f652093275e47",
+      "destinationSha256": "aa1b8de986d5f2e9a992207a649a2cccaba143667a250e6272e9e3028a10a6e1",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/assessment-source-policy.md",
+      "destination": "docs/modules/assessments/assessment-source-policy.md",
+      "sourceSha256": "62b897de66354cac0f5d7bff1d5bfb60dbd525c8b8ef7e4e9b1fb4491b69767e",
+      "destinationSha256": "ee1abcfd4d549fc6b69e2511366513a733c83565f31e028134bbc6d2716191ae",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/card-flow-certification.md",
+      "destination": "docs/modules/reviews/card-flow-certification.md",
+      "sourceSha256": "e5f401e4edb60768d3beefd3900582b2cfd324c6ad21f96fad7060509cc01c23",
+      "destinationSha256": "187f5f40c44872a09b4cb20771c6400ceea766518a52764d418e10c3adbf03ee",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/card-generation-policy.md",
+      "destination": "docs/modules/reviews/card-generation-policy.md",
+      "sourceSha256": "e264ce4677b04c7a4aac7701b8b0357eafe6fd6f02d6e3da763faa4ad31f37dd",
+      "destinationSha256": "6ca2b253e08226bccea39be5db6444bd147289764ff12901d65a9048f06f2758",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/component-system.md",
+      "destination": "docs/shared/design/components.md",
+      "sourceSha256": "844811d798eece842e97b607ce9d8305c7beb6a3889f71234606507aabebb5bc",
+      "destinationSha256": "d48808717575b9c718fd278db55e1ee0674068efc157979c5ee07412ef487cd1",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/dashboard.md",
+      "destination": "docs/modules/school-diary/dashboard.md",
+      "sourceSha256": "3248989dc79868d56e2b189dcfdb6ab49f5335ae2b449671b28e01cdbb1041d0",
+      "destinationSha256": "5a7c37c2095ab634e99e78bd8fcfb5d81e2d27e022d3b64bc3c3569f1dbd9e71",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/day-page.md",
+      "destination": "docs/modules/school-diary/day-page.md",
+      "sourceSha256": "4f52ad08f5e8b16e1ae317a0d4d4d831ae68d430c1d6b85d71aa36d6d8c7bc4f",
+      "destinationSha256": "2a26f9dd2a37141264b1044fb0f07a7fd2dbd412865982d504b1d8d244f69711",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/design-system.md",
+      "destination": "docs/shared/design/README.md",
+      "sourceSha256": "a6469dd702d38caecc19f9ac0be8b6b24e986de4ffeaae45dab94092bdbbdea5",
+      "destinationSha256": "c6e2e522db79be26c8eda60fdc7a01d3637718fc86226fadc968912f0f296141",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/education-pipeline.md",
+      "destination": "docs/modules/synchronization/education-pipeline.md",
+      "sourceSha256": "93f3f303269eb2c56800e4b6da4664f6528428f62754d30379723c86acb6bffc",
+      "destinationSha256": "816beb571f42d11efd46ac670165831bdc830e98570079835c0fafa593869913",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/family-library.md",
+      "destination": "docs/modules/materials/family-library.md",
+      "sourceSha256": "7532f2b838f5cfe51403ea37fe2486495392011b1546c3a8221c890d2f231d57",
+      "destinationSha256": "2d0de226beb4c20a5c73af3755ac8a7c39cc871fc1aa4da310edafebf6a9d50c",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/firestore-data-model.md",
+      "destination": "docs/shared/data/firestore.md",
+      "sourceSha256": "3573954eaf99ea556aab184a9936f29a9804a489f8b3353ea90de83e40225be6",
+      "destinationSha256": "59f6923d761eb150edf7aa2a0ad969f2c567c4678f3beb9daf48c4a39414f2ef",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/global-sync.md",
+      "destination": "docs/modules/synchronization/global-sync.md",
+      "sourceSha256": "c7737c5be2485428d2f1b32378e1bbcbb03b2e8c7f8be9b5b85ef8c8f398f1fa",
+      "destinationSha256": "5061865ea87f3fc2dd2f9545858d05ac638bf061a93999242ab8f62dfc7eb386",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/grades.md",
+      "destination": "docs/modules/school-diary/grades.md",
+      "sourceSha256": "13f184eeaa903528f311c25c29a392bc10ad4bdf2225ce40588be9d28e4da115",
+      "destinationSha256": "837da3908fc699ab87472960d4eb2450d5accaeac162da9baef706a8bf1ba630",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/material-clarification.md",
+      "destination": "docs/modules/materials/material-clarification.md",
+      "sourceSha256": "91c314419797ccc9e4ee6c2ecef04827ad15ce42318a0100bb5936c36cb2ad8f",
+      "destinationSha256": "0607068a936e50968f1318455471a059fc611a7598369c5d3fe5731342f54d6c",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/materials.md",
+      "destination": "docs/modules/materials/materials.md",
+      "sourceSha256": "510b2a14cac5332006ab5bc5af33a825c943e4d442eb7e3c91f0a818f84608da",
+      "destinationSha256": "049029b5bd1d799eb4fadb886a3472aa715d809299f82b4cabf993651b215429",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/math-solution-route.md",
+      "destination": "docs/modules/reviews/math-solution-route.md",
+      "sourceSha256": "e2672737e1138ccfecb96dca3430ef55940ecad14f98573c6f4add56cbd926ae",
+      "destinationSha256": "8735228688b4cd6ac645fc85385e9012c30047de88fc2453fa85940358af4812",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/plan-generation.md",
+      "destination": "docs/modules/synchronization/plan-generation.md",
+      "sourceSha256": "a698d6ee54f8d971b776373d6f933f71919cf2e9010ca7645c872184611499c5",
+      "destinationSha256": "c676c00f7612ed78381b9a66d1b5d276ef40cdec69a6bb933a641ef6905c8c6e",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/problem-card-design-decisions.md",
+      "destination": "docs/modules/reviews/problem-card-design-decisions.md",
+      "sourceSha256": "b249d067e8208c3e1b0c1c925174a649095e11f46da40e48d96ed4be794b32be",
+      "destinationSha256": "c91b1746910b9c65031791b41c1d2bff8e41e993e7f0e2cc36d6a3377734d443",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/protocol-audit-2026-10-11.md",
+      "destination": "docs/audits/protocol-audit-2026-10-11.md",
+      "sourceSha256": "7bd83e181129178dad9d24b79eb6e1b4d72b9298f1ff304b1276c1ed62ebb845",
+      "destinationSha256": "3aeeacac8312dd471990be463f69a0059a9958157103328ac89d1ee97b1a2a6f",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/pwa.md",
+      "destination": "docs/product/pwa.md",
+      "sourceSha256": "22e8ca293719264dfeff37465025a86bdaed5d02f208dfdd60f65e77c141dfb6",
+      "destinationSha256": "ec4427815b130e7a2e43efc6b6d455aedfc37f259ae1df2f46a7daa3244f06b0",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/quiz-chain-proposal.md",
+      "destination": "docs/modules/assessments/quiz-chain-proposal.md",
+      "sourceSha256": "1e6406c0c7895611efaf9727124da117f1f8dd49ccb98b23a7592a002548ac8f",
+      "destinationSha256": "4ff7a5c97a3dfa262a8d8bd013587aec54b02d6c36e01574f9e90dd49d36732a",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/quizzes.md",
+      "destination": "docs/modules/assessments/quizzes.md",
+      "sourceSha256": "2ee832c83b8528ca8df7807c2e64d29f542711efda4feaff2cda451a888390e2",
+      "destinationSha256": "5aada86d5a28082cbd86e50b15aea86f6ccc601b45678d7d80112d3476e0ef0f",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/release-inventory-2026-10-12.md",
+      "destination": "docs/audits/release-inventory-2026-10-12.md",
+      "sourceSha256": "a309559baa02110d654a81b0ae1a022394db8c76f046ecca581079c8a2ba95e1",
+      "destinationSha256": "2e7f71904da93b8b31e30a483c7d5d5a6303f48894b0b5a4a347359fce45f905",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/result-presentation-proposal.md",
+      "destination": "docs/modules/assessments/result-presentation-proposal.md",
+      "sourceSha256": "1ba9c3ac34bb11ad096134e033edb11c17199f49660ed179b9475d7fd69a779a",
+      "destinationSha256": "99bda0939d6c18e6032cb85e46a1f078a3a94a3ab41f0d585f7d6d98592dfee6",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/review-criteria-provenance.md",
+      "destination": "docs/modules/reviews/review-criteria-provenance.md",
+      "sourceSha256": "fb9e721f56f2b1be74f59b150576cb87d00936323911d5332a29eb71b3eb823e",
+      "destinationSha256": "7661160f9d24e45af901e40bed39dcaf0c4820645797447d4e386d966e05f620",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/russian-language-route.md",
+      "destination": "docs/modules/reviews/russian-language-route.md",
+      "sourceSha256": "3aac302029a0a492382e55a391b8f2fdd7937a770695bac96cf9f31d59317207",
+      "destinationSha256": "10ec79f4eb70cdcd94ab175de451354163da84df79733461ffa8f3251d7f1948",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/special-course-card-overlay.md",
+      "destination": "docs/modules/reviews/special-course-card-overlay.md",
+      "sourceSha256": "857ac1f521380210571cdd79251d3b1ff2515f7483c6fd3ab09d7442de04db22",
+      "destinationSha256": "f205909bd4fe1980e32ab621d8937d166c9d74596715b79b5440bd126981aafa",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/status-presentation.md",
+      "destination": "docs/shared/design/statuses.md",
+      "sourceSha256": "1fc826cbd343da5bf4a6788e1491be2a12a05c9843ad2b5800cf1702cdc4a7b5",
+      "destinationSha256": "231990a01a0a6ddbc81ae59c889acf91196db1cf21432fe93359dae0779af786",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/storage-privacy.md",
+      "destination": "docs/modules/materials/storage-privacy.md",
+      "sourceSha256": "5c20b981c4949b24c10d81c0f2fc53b2567d69fbfe855be90be331b0740aa43f",
+      "destinationSha256": "153742f888f23266d8fb67e834daf92966bca4a66ec0535f66d91398c3b12626",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/subject-aware-guidance.md",
+      "destination": "docs/modules/reviews/subject-aware-guidance.md",
+      "sourceSha256": "18f0d2fc2650fd22d2447b8f128df8d6af5eac4a2ad3f7d05680e0345bc63db4",
+      "destinationSha256": "b3b5f402ee2602250d8869c71e199c0d1092dc7d76da4b1e929ca71609525abd",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/subject-card-viewmodel.md",
+      "destination": "docs/modules/reviews/subject-card-viewmodel.md",
+      "sourceSha256": "1a83ad3b40cb4ef27d5bcd50c29b6414d38716994aee18564acc0df9efb7e6b5",
+      "destinationSha256": "b92a5cd43e68c74454a001e78dcd9bd80ee727e4706805a49d3dccb6c0138e23",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/ui-change-control.md",
+      "destination": "docs/product/ui-change-control.md",
+      "sourceSha256": "b345f08b5f60aee7a940a65edd75cbc8be30ec313bcffc4ccdfe93c98ce65e4c",
+      "destinationSha256": "778598194f100608873329eca9bfac3cf6689f26f3fb4730c32596915e3639a9",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/ui-decisions/compact-homework-copy-2026-10-16.md",
+      "destination": "docs/decisions/compact-homework-copy-2026-10-16.md",
+      "sourceSha256": "1b66a519259e6987c9daac4a680a601d7491d45c5c61118db7351f1c2b11b5f3",
+      "destinationSha256": "220d53816d868b297d31cc7e7ae601985117a17f4982a5a3bf067eb60cf2ff87",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/ui-decisions/compact-results-ui-kit-2026-10-16.md",
+      "destination": "docs/decisions/compact-results-ui-kit-2026-10-16.md",
+      "sourceSha256": "1f1c0160558adf3c95051260423ca769ea1fee04566677daaf5df98e68c4bb54",
+      "destinationSha256": "d7532b68ed20fa72572fb63e1a3dca800f0cc766ce60aefc3e21d77af0cded84",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/ui-decisions/education-sync-performance-2026-10-15.md",
+      "destination": "docs/decisions/education-sync-performance-2026-10-15.md",
+      "sourceSha256": "aac567db64a612b2e8331f8a1497364fa0419e18c860c56c3ca909f70a649e3e",
+      "destinationSha256": "6019f98139fc5ad7d98883024db112ee105e233ebfa8aefa5f1fcb37ff4100e8",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/ui-decisions/flat-numbered-sheet-2026-10-14.md",
+      "destination": "docs/decisions/flat-numbered-sheet-2026-10-14.md",
+      "sourceSha256": "519f4e3372aa0f7eff6f5e22be54923d39294cabae5880d727a1133d3ac54569",
+      "destinationSha256": "4bef691930f3040b51d80894d70a63b38d758a81bc0c7bb1462ed532ae7b856b",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/ui-decisions/grade-mark-details-2026-10-14.md",
+      "destination": "docs/decisions/grade-mark-details-2026-10-14.md",
+      "sourceSha256": "ad2371cbee9b368a5fefe327b3ba989e9f83df2bc9e72fdffea5a50dec0f04c2",
+      "destinationSha256": "0b1f8449682be27cafda581dc1c466a08ba12e03964509fa04c24e132cd6e39c",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/ui-decisions/grade-projection-reconciliation-2026-10-15.md",
+      "destination": "docs/decisions/grade-projection-reconciliation-2026-10-15.md",
+      "sourceSha256": "7cdc4e2efa3a52d1e8a3998472fc8b67bd9350cc8e59a001db51daafdc0460d0",
+      "destinationSha256": "844f1efa2112af9829564d5a003eeb5721c6faefb7b79db3d0b6ceadf775f6b3",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/ui-decisions/history-default-universal-request-2026-10-16.md",
+      "destination": "docs/decisions/history-default-universal-request-2026-10-16.md",
+      "sourceSha256": "a8c94eeec2573ad2abd1bae89edb9d71c11f0fb32667060a26b4d0f62134d2cc",
+      "destinationSha256": "c15da54c61b971ed3bd460ab28d3ccf0686c3e8704524685cc667d24bd99657a",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/ui-decisions/history-followup-volume-2026-10-16.md",
+      "destination": "docs/decisions/history-followup-volume-2026-10-16.md",
+      "sourceSha256": "12e768496012e9e8a77b22d7e9a68c4cd8f2d4ab6d3b336df3696e00bf03e4c5",
+      "destinationSha256": "9b1ccccf342c0675463970e6b22808b42d6152c96ce530f827f7f3870e0c4446",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/ui-decisions/lesson-countdowns-2026-10-15.md",
+      "destination": "docs/decisions/lesson-countdowns-2026-10-15.md",
+      "sourceSha256": "dcbb004d68f1f9e482b0651e7e59b85266d410e9e701c9c26cfeeda8cb83197b",
+      "destinationSha256": "f91e84eb78a7396b4f47ae462c91ea860bce3adf2d42526ccd2ef5922497e5e4",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/ui-decisions/material-clarification-2026-10-16.md",
+      "destination": "docs/decisions/material-clarification-2026-10-16.md",
+      "sourceSha256": "549d2161117c9034ad329fc11fdd82db8d5b1daae185aa5f2e8c75285642080b",
+      "destinationSha256": "5775f85c71182517c43eeadb6ef9fa3dd296c13df2039cc0a271091117486cf0",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/ui-decisions/mesh-assigned-units-2026-10-15.md",
+      "destination": "docs/decisions/mesh-assigned-units-2026-10-15.md",
+      "sourceSha256": "2208a23570e04d65ccc8f59d5f2513b5980411d728d091da805d9ede9e0fc596",
+      "destinationSha256": "e96fe752e7418b260f7c2d17e96ef12578e46da2487305e04694bc8f4146e9ed",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/ui-decisions/mesh-requirement-trace-2026-10-16.md",
+      "destination": "docs/decisions/mesh-requirement-trace-2026-10-16.md",
+      "sourceSha256": "10a7122776f3e57a4bff41f76e4ec41b0dbe29c9afbbd375e1fdf3afa0c655b3",
+      "destinationSha256": "ac3620e32d1ff3773476747a0ddfaf0da221ee330afb0154b0ceb4ba74f96e3f",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/ui-decisions/missing-evidence-homework-overview-2026-10-15.md",
+      "destination": "docs/decisions/missing-evidence-homework-overview-2026-10-15.md",
+      "sourceSha256": "278dac28a4187eefeddc999e54bd4305c1fd931518ac63ef04e59309275383fb",
+      "destinationSha256": "05756f1e73ebfb69427e3304f743b033fa43140d7ed8bf3eeccf244fb6ffd2c6",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/ui-decisions/notification-read-all-2026-10-14.md",
+      "destination": "docs/decisions/notification-read-all-2026-10-14.md",
+      "sourceSha256": "c1ee78be347a1cc2e87980acfdb8b4b5df2f1a3854eda5fae09a23b9e6970318",
+      "destinationSha256": "da8434965aa227e53307a7a5658363a7c0ce8f2139a3cc16e323b734da829f3d",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/ui-decisions/one-parent-review-and-safe-site-2026-10-14.md",
+      "destination": "docs/decisions/one-parent-review-and-safe-site-2026-10-14.md",
+      "sourceSha256": "093d8754d4eaf4859fbb62c4f079bda688390476eb17166b71fbf2dd168113dc",
+      "destinationSha256": "4a73556622b1369103b2fcc591fb45be7ebeceeb1a3d6736ff4ae2a96e8364bd",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/ui-decisions/operator-core-cli-2026-10-16.md",
+      "destination": "docs/decisions/operator-core-cli-2026-10-16.md",
+      "sourceSha256": "64d3e06016d84dce3e657acb7b2cc4dea26c8d5d92bf7072e78f0321b7f49f63",
+      "destinationSha256": "3a745e411a0661ef7fcd1dc46b1f4d3c0cd0ebc3c9450cfdd6068e6cc1fd9463",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/ui-decisions/operator-tool-trial-2026-10-16.md",
+      "destination": "docs/decisions/operator-tool-trial-2026-10-16.md",
+      "sourceSha256": "0e5941baf8c3847547e9f49594634ba996a6801e02d846917e1a79c763a98188",
+      "destinationSha256": "31a8527cbc072209de9b1fbc696d2060bc8d72e15263d3f3d1f1cb90ca3dc242",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/ui-decisions/optional-quiz-switch-2026-10-15.md",
+      "destination": "docs/decisions/optional-quiz-switch-2026-10-15.md",
+      "sourceSha256": "f0bb4434155fc8956a59b31191ad7bd1f25f31b9c2ed0c059f3f72622b79ebf7",
+      "destinationSha256": "a11cd337cefa23ad5a458c2c72d1d186ce233fb59377f98b845f361edc7f3e3d",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/ui-decisions/parent-followup-button-release-2026-10-14.md",
+      "destination": "docs/decisions/parent-followup-button-release-2026-10-14.md",
+      "sourceSha256": "c145c9e26f18db3a6bf8717072ed32b09a879f2cbf2ed3f2747ae945b68dc556",
+      "destinationSha256": "da893a3add34415ffa31a8a450d12f12bc1743993e2efaa1178d1ca7e9dc1c1b",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/ui-decisions/quiz-attempt-time-icon-2026-10-15.md",
+      "destination": "docs/decisions/quiz-attempt-time-icon-2026-10-15.md",
+      "sourceSha256": "95559d78f271297d5193f134a27435574c611c89c48b5576949ed7825cf82e83",
+      "destinationSha256": "45467076efd5dd8731e35612bf3a4df8cd548d3911d1345a596ebe3a3e118e44",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/ui-decisions/quiz-threshold-85-2026-10-14.md",
+      "destination": "docs/decisions/quiz-threshold-85-2026-10-14.md",
+      "sourceSha256": "278d68dfb1056e0271cb5b805f5d8e22e868f0a08a72abbce599f4610fab91d5",
+      "destinationSha256": "58d727d624294d5df4e1b27683397cf5c97e15388011822b770a5950bec4c654",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/ui-decisions/quiz-threshold-and-page-slider-2026-10-14.md",
+      "destination": "docs/decisions/quiz-threshold-and-page-slider-2026-10-14.md",
+      "sourceSha256": "0f551340499993e572aba534a8a0aeb96e744b91d4fe674177d96f21399d93f0",
+      "destinationSha256": "a353c8a9c50a5bf67f63895962810c3c1e585a0ea0c2902ee5a735c296265b9d",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/ui-decisions/quiz-time-row-2026-10-16.md",
+      "destination": "docs/decisions/quiz-time-row-2026-10-16.md",
+      "sourceSha256": "cc3491a318a2bfee8539a66688d5eed5b13421279aedf843f759b0bd65237af6",
+      "destinationSha256": "f41b0fab92fe60976f3b97b9e7031b658c0cde94d7ef9bc9162dfea5fc6cd5c9",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/ui-decisions/requirement-switch-no-label-2026-10-16.md",
+      "destination": "docs/decisions/requirement-switch-no-label-2026-10-16.md",
+      "sourceSha256": "c9d58930a4d1207353fec778728f5948ba058036efa25e0fd29bea4f66a9812b",
+      "destinationSha256": "5e0f6342f94ea0ab8bddc9935911e592b48e1a309c96961cdcfec0ce701a1a8b",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/ui-decisions/restore-numbered-original-2026-10-14.md",
+      "destination": "docs/decisions/restore-numbered-original-2026-10-14.md",
+      "sourceSha256": "6288e05669359802980fdd857b0a4ef7593bf2fe42417ecba440456bf0b0a6df",
+      "destinationSha256": "9d3ad5d49969bd660015f4806b7f3de3b132422d7225b22542c033e386f0ede0",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/ui-decisions/restore-textbook-strip-2026-10-15.md",
+      "destination": "docs/decisions/restore-textbook-strip-2026-10-15.md",
+      "sourceSha256": "bdf0b01a2ffe4b2d99b7819b8b8b1bd727c04702af67d788e16aabc78aa36531",
+      "destinationSha256": "46f4a99cf8f4d0327d520a0891f5d09d49ce9f21313b46a43ee574b35e4dce10",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/ui-decisions/stable-grade-snapshot-command-2026-10-16.md",
+      "destination": "docs/decisions/stable-grade-snapshot-command-2026-10-16.md",
+      "sourceSha256": "c762bd86b2f593a07f70370c991c2faf0e7ddf1b81bcb4fe17168f724159bb1f",
+      "destinationSha256": "64872754eb7cae012a19abef7026a4ccc35dd7cb64ce2d8dea0a23608550e30e",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/ui-decisions/stage-switch-fresh-version-2026-10-14.md",
+      "destination": "docs/decisions/stage-switch-fresh-version-2026-10-14.md",
+      "sourceSha256": "b851c8492dfae012861b35d7bb94aa18df218589e93ad735b6133520a800baf5",
+      "destinationSha256": "92b49273fb86f9fdc99ff07466e6c9fc0b7a947e88307b6dfc910640ed8dd201",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/ui-decisions/teacher-sheet-beside-quiz-2026-10-14.md",
+      "destination": "docs/decisions/teacher-sheet-beside-quiz-2026-10-14.md",
+      "sourceSha256": "405cd55b687e9119537468ff8d0f776b6bbbe30b0346dd1ce12e9a7258622d84",
+      "destinationSha256": "b43fa563d7656ff7658ae7de1237c06acea5febce04b54da54353ff3ad9ab27f",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/ui-decisions/two-pass-written-review-2026-10-15.md",
+      "destination": "docs/decisions/two-pass-written-review-2026-10-15.md",
+      "sourceSha256": "37bdf3a54db83f5cdcbde579776cc255f50aa52e66af3cad7707838a20dd6cc7",
+      "destinationSha256": "268844f86515e38459eb4bd820241a66c7c01f2fa35b155b6a2931f02030b87e",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/product/ui-kit.md",
+      "destination": "docs/shared/design/ui-kit.md",
+      "sourceSha256": "4556aa77270ad4a244134924bb22df5b96d1518646c14ee1caadfe756efc91ab",
+      "destinationSha256": "21b6a21fc255c21f55390202b2844ba99924ac980c5db5959bb84a173218e5ad",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/research/adaptive-problem-critical-review.md",
+      "destination": "docs/research/adaptive-problem-critical-review.md",
+      "sourceSha256": "529f0af076488900b17befd359eb70cb8f4839ad9cee6aad6b9ebc36d6eafd04",
+      "destinationSha256": "a00c189d7d69171b600797155c0446fb3d1a84de6d41aa23c99e93e8ad8e61b4",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/research/adaptive-problem-scaffolding.md",
+      "destination": "docs/research/adaptive-problem-scaffolding.md",
+      "sourceSha256": "da1daac686b760267bc0900b2e85b51eda6dddc3236a77cff2b82a21e1c25d5a",
+      "destinationSha256": "b3c27976f525e2d3a7526fc97ef212cdc14079e328acc050470f7d4d72a29689",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/research/assessment-source-catalog.md",
+      "destination": "docs/research/assessment-source-catalog.md",
+      "sourceSha256": "4dc346c738ea81df45f0b2d4a4aaf5030f877bc4cbed7c40fe074e582fb4b74e",
+      "destinationSha256": "cdf30eb1bfa6fff89be78d7cbd274e48c849c60267694817249612739ba90811",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/research/condition-transcript-and-scaffold.md",
+      "destination": "docs/research/condition-transcript-and-scaffold.md",
+      "sourceSha256": "7b8cb663de311313103de04363b12daa23da7c47a2f434bda73f3b9fe759fc20",
+      "destinationSha256": "a8ba5e453771104048e6e1579dfe42aed8e3013a20efcc037ee946fb7aef633c",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/research/evidence-based-homework-review.md",
+      "destination": "docs/research/evidence-based-homework-review.md",
+      "sourceSha256": "ee5806f0ddbabf0718559e4eaeb3e9f0bc2a088c54526b6bc19e5762a7f08f61",
+      "destinationSha256": "e14101cf39100f68677c99de3433712d2006de769ff890ebb34aff99720a12bf",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/research/feedback-after-errors.md",
+      "destination": "docs/research/feedback-after-errors.md",
+      "sourceSha256": "73bf753b3de42d8dd4b12eefd11e3b8d4f21e6d0cd0d464fc793933081f2a69f",
+      "destinationSha256": "9d17de57e4bee6612fc6d0ad2f2c00f8e6e24cf5813807252adf0cb5cdbd8e5e",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/research/literature-card-options.md",
+      "destination": "docs/research/literature-card-options.md",
+      "sourceSha256": "a115433688e40d5315e105f291dbc17cc52530096a625b9b70e96125ba7cea7f",
+      "destinationSha256": "ff3d4d318a4b078ce3ce6d91065bb711bbb4eeb38a1670473e172af571c282d4",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/research/parent-card-subject-options.md",
+      "destination": "docs/research/parent-card-subject-options.md",
+      "sourceSha256": "646713daa7fc4cb941b824dcd0faf0be63dc37079da6822c91467804c86c398c",
+      "destinationSha256": "efcdd263d467c1bc06cfd5d2642b73d96f344468a5e37905fc86fecbe37fa533",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/research/photo-math-solution-review.md",
+      "destination": "docs/research/photo-math-solution-review.md",
+      "sourceSha256": "8ddf65d4172afae818d38517fab54dd6429ce24d6f368aec49320cc31adaff77",
+      "destinationSha256": "d124ef344422bf0c834e58876ac7dbc7b7dde4ac216f1e62d6092707fb8eec3a",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/research/quiz-history-and-consolidation.md",
+      "destination": "docs/research/quiz-history-and-consolidation.md",
+      "sourceSha256": "19b3bc8614da8cf83add233cf73320fc877e1119a532e4da9aa7f99a7af0d98e",
+      "destinationSha256": "86c5b6b0b1f8dee23ca366bf56f764fc7e1f2e473c01ccff1d1c90b891a4684a",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/research/reading-only-self-checks.md",
+      "destination": "docs/research/reading-only-self-checks.md",
+      "sourceSha256": "87dcc9a36f2830baf3b1c97a7e08ecba08f6c7aed6e0a5868f06cfb8ce4c4c47",
+      "destinationSha256": "0e1fa2f83ef7de2498a4a99aacbcfb93b078bff6360dc7c1cce6a12556cfdb73",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/research/result-colour-and-density.md",
+      "destination": "docs/research/result-colour-and-density.md",
+      "sourceSha256": "a449749586374666aacb51260c8d6ad89d7017c2410e94fa3e9bd676da7bfd05",
+      "destinationSha256": "b21ee8447d7d6a820fe62e69d43246e361e8ee494c11840ce55c49cee60cd50a",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/research/special-course-source-provenance.md",
+      "destination": "docs/research/special-course-source-provenance.md",
+      "sourceSha256": "3cddef8a2dcd3ac97ae03004700f46a30b56b4209aeecf9f58e7e4906271e70b",
+      "destinationSha256": "0f153f3e711fa313862a483800c73e2e48252f46b00d339591a36d53a2a54e91",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/research/status-design-systems.md",
+      "destination": "docs/research/status-design-systems.md",
+      "sourceSha256": "12c5a6fd46ef15c336509ec068eb8645cc34d1d4e8353c58e1afb780487d7cb7",
+      "destinationSha256": "d560b3a93408504d6fb7e3d13e5eca08819fe469eb02ec3766691bb775a97860",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/research/subject-specific-review-and-feedback.md",
+      "destination": "docs/research/subject-specific-review-and-feedback.md",
+      "sourceSha256": "e16052b6be99bca9ce8baf7d1a21679a2e23e7123c1dec38e0693787f8e42f94",
+      "destinationSha256": "7d4e7f4d59d4fb014beaf074d658fdf68b5041f6adecd671caa60b33464cb4c1",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/research/two-pass-written-work-review.md",
+      "destination": "docs/research/two-pass-written-work-review.md",
+      "sourceSha256": "2ca23603bb9b2210bd22c3bb6fd91d3b9dfff5442afcd6527f4a1a57614567e4",
+      "destinationSha256": "2b7b41ecd2d49c7f54917a654f21f508b22029387c1d8007941e63401b018fbc",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/research/ui-kit-structure.md",
+      "destination": "docs/research/ui-kit-structure.md",
+      "sourceSha256": "f4cd4faefb70b4d3ac7840182d8b21e2f2627153d81cd190c12f15eac562684a",
+      "destinationSha256": "91dfcf93c6b0d1ef6494c5a4ec91883c956a74bacce10b7f0e2a04da314cb2c3",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "docs/research/vocabulary-dictation-practice.md",
+      "destination": "docs/research/vocabulary-dictation-practice.md",
+      "sourceSha256": "d230be974fbdb6153caf700e210afe04671cbdd299ade1e535dcae95410ab3f9",
+      "destinationSha256": "389b002eb988d694bc64cb96428a27b7189d7e269e5d3b3cfe06b1448eb357f8",
+      "normalizedBodyPreserved": true
+    }
+  ],
+  "sourceChanges": [
+    {
+      "path": "assessment/decision-graph.mjs",
+      "beforeSha256": "d8d35129282fac06ab64c9d6f9cbc3a982c01ab831e0442568f5b3940dc04f18",
+      "afterSha256": "e592a7e61a949bdeb5fbe1d964bea2164c92cd5a78fbd3b3b55e6b46ca610257",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "assessment/decision-graph.test.mjs",
+      "beforeSha256": "61a406dceee2cf7dee331cfa7585c6f1da3d9349767ba384bf0b2f2281cff93e",
+      "afterSha256": "1af7ba4a65955d18ddfc362f3b644fab9b174da84f93764d0994ff1e7b6a1cd9",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "assessment/followup-contract.mjs",
+      "beforeSha256": "d865d1b369d8dd4c5d9055887aabe1ed3eedcb397129fe2096370564ccb53e60",
+      "afterSha256": "7a2ca0ed895b704aa71a5c6528224a187c569dadba236fdd1de72ce34e38df4d",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "assessment/question-copy.mjs",
+      "beforeSha256": "2c22f3427d62306cfcb9c4d7c17a66f7d62240526969f1de517e311f78d7cdf8",
+      "afterSha256": "9e233f347ba03465671c60adf6cc56235c9a8bab453a8f765ac560bfc34485c0",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "assessment/question-copy.test.mjs",
+      "beforeSha256": "7cc8ed321855a72e544edaaa8625b2e100703b1d72af6f0e2bb4f9ea7ff7ce51",
+      "afterSha256": "3daef1f674c18b6b476400a177618802caa460883bb3870fcf90905965dac92f",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "assessment/quiz-lineage.mjs",
+      "beforeSha256": "3299c1c263ab7c59e860d192ea68e14da6141b235378d2d27aff6ebf6a48e6b3",
+      "afterSha256": "673f03ef5846bc10e1bc6a12d368ee3ab0cfb3b82da1e747ab89692f8414497a",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "assessment/quiz-lineage.test.mjs",
+      "beforeSha256": "e10580d61e9c3612abb7797bb5b5cf85ecd9a87df3fd6f09462c819d29dab29c",
+      "afterSha256": "8d5a68fc3edf4eb0a7d1abe87d6967e469ba3dbafd47e4485a250adba2609396",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "day/assignment-structure.mjs",
+      "beforeSha256": "2d397c54239d4f06d039e5364c84842523182f66736a5b3dc410eb064ccecc6c",
+      "afterSha256": "c4d03b9ed84747e4bedc112dafe89dde0d3bde9bf8f471aab7d25b48dfd46a20",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "day/build.mjs",
+      "beforeSha256": "2c125726513a06a69335f72713cbdedf2be4f2a92fc109faa631fad5a3a42644",
+      "afterSha256": "ab2dbc2d77f03a53bfe42c0aca48b84b26a12ce2b811a9945f513b0fbde0a71d",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "day/card-policy.mjs",
+      "beforeSha256": "1de22ca631c7af77b70369ae957b5c294a8e0b01d58654fe7d4e4c9ca9c61be4",
+      "afterSha256": "a7e184fe3a5cd4c3d06d4ba458ee96eb945b84ce2a76582d18f833b36d0f48b0",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "day/dashboard-index.mjs",
+      "beforeSha256": "54b45354b4071db55163efcb4dc03ab5fa2b154f95614cca16cc832f4b39fc42",
+      "afterSha256": "33ba795aa248b3db5dd0fe19f9a33c97a2cd9fa07fcc70f77321742be7b09af7",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "day/data-contract.mjs",
+      "beforeSha256": "2b5032846c2a5c9a3bcc5ab26dea3cbe7d43eed623a1a55e6dbdc7d13f135418",
+      "afterSha256": "0c35aa4563db984b6ab2c1940c81951cb63424a6bfc25b1837a9615dd5e251f4",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "day/family-source-graph.mjs",
+      "beforeSha256": "d202b16e506d91d0a5ee2e1609bb5c3e9e493eb24e0bee2fae67487cc9539f93",
+      "afterSha256": "02ccc683dd43a0368ca4437bac869556f5cc3f6d9089d245d79162b051e20cac",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "day/grade-publication.mjs",
+      "beforeSha256": "9da28cbb19445497450e2a8895d9c71778944416d33fe23f62b0698082bf60db",
+      "afterSha256": "f35878084f26e6383867ae298e3f6487a31c6f4a1ad64e5a167cc27a9f20432f",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "day/grade-reconciliation.mjs",
+      "beforeSha256": "ca028fb87971d0fcec70479b88f4337b71d16cc20ff29440e1390bdf6e9c379d",
+      "afterSha256": "05fb2df247608a5e2a0c004ee98795234ac66e1801121ed0041ddf190d00a4f9",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "day/grade-snapshot.mjs",
+      "beforeSha256": "411c56357084b964d084d9de64c8119c1ee9c6ae2db2adac7698b49952e29e14",
+      "afterSha256": "e41a540c89cc0e4e063c5cb15d90d88d4e31da8a4a06615713ea2b43a5fc70b8",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "day/homework-kind.mjs",
+      "beforeSha256": "4a548469124673facd5e769876949a45a84adf25b5cccf6529f9fcf03d796f1c",
+      "afterSha256": "89a2601392903764e008ce310c968268e9b5e2275adc26c1f79ed9c4596456a9",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "day/homework-reference.mjs",
+      "beforeSha256": "e36e5ae3185f2e57f94cf161a75ad97ef66c40611f59baae8ef392079d8189d6",
+      "afterSha256": "38cebd6e00ffb9dc79653735a1b8f81b66c8809754904e0cdde9aed5db78bbf3",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "day/material-access.mjs",
+      "beforeSha256": "d590ac32f2eafa5bd32b02962744ba58d80df96ffd6456c17a55d5ba8d624743",
+      "afterSha256": "3c46dc78490c1553ff97ddb9768aea15be95e3170df94a677f2200164ad58f53",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "day/merge.mjs",
+      "beforeSha256": "46f29c8802a6a0cd3d4feff0ed93ef8d194aed7d7d157f0fb0b5dfe0b95fb807",
+      "afterSha256": "0064dc1eb1f5c1619104e1673a4945b24995bdad96991d867a566e8dd2955202",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "day/owner-repair.mjs",
+      "beforeSha256": "c0f9321b0183aaa904faed55aaaf540d16fcb8f71a1cf8477acb89dc17073112",
+      "afterSha256": "007bcd6c96782e04843a3ed8f4990f18686df92dedd2364241cefc93f514b327",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "day/pipeline-contract.mjs",
+      "beforeSha256": "0565dfdf94b82dd3c3cdab458536f09838d4f64be84ade32555d673cee20ecbe",
+      "afterSha256": "9ce13a325c45dccc8f51b317aa840470b2874e9f1b79754ef7e6469a44663960",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "day/placement-integrity.mjs",
+      "beforeSha256": "b0eb26dcd46800939b58874a6321f908735aa3719c2b593d46a4a74c252c2631",
+      "afterSha256": "d726d23d959111ca43ed4d3f7144822fd42fcfa47b4252886f479963307e9891",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "day/placement-repair.mjs",
+      "beforeSha256": "6bd07071ce7b78c129f3003aab22ef735c570015f91d2b322c1c2a92ac694565",
+      "afterSha256": "5e79a98a707097dd5583827742e70bca8fc2b121bc4b89d6ab9d0a2a312fb392",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "day/public-projection.mjs",
+      "beforeSha256": "f14c787a84a4176cb481d47346217b2bc8e98a2ea41f8a44f50859e6f0cc411f",
+      "afterSha256": "4622c5bb86320989aa95a9443b3cb4c0a5ea89a854804b1b2b61f2f145d36415",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "day/subject-identity.mjs",
+      "beforeSha256": "b304f3bf147a1d94a70aa5a2556afc3f6c2a9ea1b3d29d362111c813a44a77a3",
+      "afterSha256": "048a9cbb2f8be7f7971255228b410fbec4ff87a9230c98e52b2c29087ae3b4fd",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "diary/adapters/mesh.mjs",
+      "beforeSha256": "dac03caefd75ecc6c46422c2e8faa8893c643d0ad95f0fb649b9327ca30dfd62",
+      "afterSha256": "a6e639775718c334e09fae133eba37274dfb611d99136d9f0e38f6f11670af4a",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "diary/application/lesson-visibility.mjs",
+      "beforeSha256": "7c7e7482b80c0ca9003ff50b4aea0a17b3b316a16c5ad516d9f61eaaa8371d3e",
+      "afterSha256": "a6fc2d4c08a3297892a5afef0a46054b8e19b4765940cc11c183f45d58a3fa57",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "diary/application/school-alerts.mjs",
+      "beforeSha256": "c812103b3b997d0be86ee6007e18c2e8a8831f92f0738e1a55d4643e6b5acff8",
+      "afterSha256": "6ba4b7810893e16bf145c5654a85f0a8c660eccd7616f8fd0b5f45adf2062c94",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "diary/application/sync.mjs",
+      "beforeSha256": "1dff1e18908079d4d3a19dbf6825e3fe2bd9b00a3cf1db1cf1946e97e80fe28d",
+      "afterSha256": "d4bdf28699a5e7285992ee7bfb5f89e1fa0df20b9195ccfbc34adcd177dea15a",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "operator/operation-contract.mjs",
+      "beforeSha256": "420ac84b63f168b88c1a647dcdafa936d8829ecee746a77b9715a0c59d2ef2dd",
+      "afterSha256": "35a9e68a9c8155cb721ce774fdf18a05d7410f605411faca7d0dcd5f9fd06c28",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "operator/recipes.mjs",
+      "beforeSha256": "8399cb09dfd6bf6822607afb9be4542cb7b0fccc23250bf745bd6c135f92aa9f",
+      "afterSha256": "554ba58dee2c09007faadd7d05b23860d080eeb7abda4a7511eea23cb5aab88e",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "operator/run-operation.mjs",
+      "beforeSha256": "2172aab0c3e7491d811471c03cf06b98d982b2379b56ff2e8093a25af335c6ce",
+      "afterSha256": "27ce342b2172465043b79c032bb70b9f7e62a94fe39faadb508fc78823da77db",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "packages/education-connect/bin/education-connect.mjs",
+      "beforeSha256": "6e2167cebe79860e15813570d49bc0adc6773037a8d47323b1acda4ec7f0ca05",
+      "afterSha256": "e575185bbff7b2fa85f4321e76490c08fe5015ef44892714e9d984a3517c7637",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "packages/education-connect/lib/envelope.mjs",
+      "beforeSha256": "39d18d7ed16adb11e3691d3439b800d40f37db8e80a7b0398e26401db6e84741",
+      "afterSha256": "0132b377a62fdfa5b7dbc03418cfdbe52a71837d508e027a9fa3cd25c54ed6ca",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "packages/education-connect/lib/envelope.test.mjs",
+      "beforeSha256": "15488f2f07d30abab8398129fda86a829eadb58de0dcc1dbc8f4972fe652036e",
+      "afterSha256": "dbcc4b4a4b376ce7c911fdfc6c63e56a9638d5cf52b63d1cd752bdce8e55a0ab",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "packages/education-connect/lib/handoff-store.mjs",
+      "beforeSha256": "5bab94b8f36d20d3615cb1ad2c0669cb49d4d82a28e03566ec9fa442aa3903a9",
+      "afterSha256": "6487797109dfb6d7cdf41fdcd6aa065519087f56d3391732fab67ab61c331676",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "packages/education-connect/lib/mesh.mjs",
+      "beforeSha256": "eb40fead4a90ff35b1ec47328f33e3f9fcd2a668ba502d634af6aa3167f1c585",
+      "afterSha256": "678efda0c71cd2cbe7e1763bac2ead3533e2024bcc27fbebb7f6d664018d821d",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "packages/education-connect/lib/network-retry.mjs",
+      "beforeSha256": "b475ef0878cf4455478f4cdc5d36873e902593009496b2c4b7cb6db10b424788",
+      "afterSha256": "61996b9c4b46a469cbcc2df76d7c5f6119ee64e5463940f4ca50211a015bbe31",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "packages/education-connect/lib/prompts.mjs",
+      "beforeSha256": "83835741857f376988794bff5373a9be9a2abe7a5cf753ee515c38df62238934",
+      "afterSha256": "b88873d3eb94a8874f9869d8c34866f4c015ae62ca9ac870c4e47c241b95f1b2",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "scripts/access-management.mjs",
+      "beforeSha256": "c09fa4684329d457d5905b436808010d89eae98283e9b08f104762c63e549c44",
+      "afterSha256": "23cff56d268a7e51321397c65ac145ec4c8a7004fa8f913b065c433f8e0c882b",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "scripts/archive-local.mjs",
+      "beforeSha256": "40a305862ca3f93663a207402db5095c2cde4b65173f10b39b3418aeca527df3",
+      "afterSha256": "51ff7a56d6f414b43ea45c0b4a8930a898ee2228fea66f995f6b4abb3e9d180f",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "scripts/audit-family-links.mjs",
+      "beforeSha256": "e544627dc8cee4f111331f0ff591d6a1394e31fed09254064ddbecb168a06922",
+      "afterSha256": "da9dc135a4d63941ce8f6b92ea723e3e82bb46da5d02bd4af423c7bcaa2121b5",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "scripts/backfill-book-manifests.mjs",
+      "beforeSha256": "124909934eb2989cd7a24eccabf4063e288b9bd09cbc4cce5d4e2ef2c30fd0ef",
+      "afterSha256": "7e516d1c93ceb9deaf145a18db4267b972109ec4b11c7dee03288f98dce0b659",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "scripts/check-material-preview-viewport.mjs",
+      "beforeSha256": "9664252055e76de2d78c0be80aaae2f1e25b53b8a12482172c4d7c2a173d5762",
+      "afterSha256": "9bea12a7ce732c15f259269f52635f7e3bc534d3ae830f0f9a2d941055580ab4",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "scripts/check-notification-viewport.mjs",
+      "beforeSha256": "2067a8045e6486f4e98398930116ff585d7d9598929302e27d4c1fca13b5f8c4",
+      "afterSha256": "2f1244db787268621a0ddf19390108f3a883c4c352d17236d990315221301521",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "scripts/check-privacy.mjs",
+      "beforeSha256": "0b8ec0e5915afa01786bb978b063c11b03c2f5ea4b3b5692b4a1a91d2fd53a2c",
+      "afterSha256": "3ca24354f79f2e88c07f95cd3252cbbdfa6db0efc8757b32f261105163da6e8c",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "scripts/check-problem-variant-viewport.mjs",
+      "beforeSha256": "a2ba9d8a01f8089e1167e31e17a94200e217c9ba858bf746b8004048121f9b38",
+      "afterSha256": "f9d899470e5feaa1359cd3187831e26c8cfb33afb90f3504e1d73156e93d2858",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "scripts/check-quiz-switch-viewport.mjs",
+      "beforeSha256": "51d82a6c389001f9591fe89cd2ab070b17466924ce8ad6afc050ede6839218ef",
+      "afterSha256": "13a250697c2e4412480ec89836eb1752c7ea3650736663771749bfc7cc7ef771",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "scripts/check-schedule-viewport.mjs",
+      "beforeSha256": "699ecfd1dd6dad5e22d82905d494cc254811ef35023c2d9d1daea5a1618af008",
+      "afterSha256": "c5994b021af9b8a3719cf620f600486f93ddf4aadeed78b8807802cbd303f53a",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "scripts/check-source-fragment-viewport.mjs",
+      "beforeSha256": "27b7a7b2b4d166eff5c94ec91ad40614489ab4b96ae310dc36a448cbdb0b03e8",
+      "afterSha256": "208df19a5d85046e89c97f2a29da9687c41648dd293f2d182e736233de727a1d",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "scripts/check-spec-map.mjs",
+      "beforeSha256": "eb0da70d9c18e0ca9bd76b15101922e9a4ef118d47296c315320cd6cf845e39a",
+      "afterSha256": "f2e2da4411ce5ff72b9899996d9fb9c6cad96b131b147eef5a93d2e0ff8b9fee",
+      "change": "validator"
+    },
+    {
+      "path": "scripts/check-ui-contract.mjs",
+      "beforeSha256": "e1b7905efd68b5c042ab153fe85bb117e43adb19ea281615f037260a740ebb5c",
+      "afterSha256": "29c014dd18ac2d65969a8bb5a473d3fc868f5bea1aa525c14087b429300f944e",
+      "change": "validator"
+    },
+    {
+      "path": "scripts/check-ui-contract.test.mjs",
+      "beforeSha256": "6b867c88fff9f07944a48fda371f7e9f1ef317c6222b7a73b43b0595cc8faf0f",
+      "afterSha256": "3613988263dd1a30ef74aef779ba850060a58e4d7c969842dac948921d9877e2",
+      "change": "validator"
+    },
+    {
+      "path": "scripts/connect.mjs",
+      "beforeSha256": "76eeca079e22a0a58c2546b57392cbebbd687a8250fac15a254bcfa368ac16b9",
+      "afterSha256": "a7408c3689039ff7023d5243fd5811e84a82a4a6997cbe846dfa75c868a5b5f1",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "scripts/day.mjs",
+      "beforeSha256": "47c95f9b14fc7897cba37674b1e9eade4e58a7949c7f56307d92ae1418990649",
+      "afterSha256": "e4470ef9b960fe6248ab1b905f4f088f767a8669795334e232473ad6b5cd9d61",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "scripts/direct-upload-worker.mjs",
+      "beforeSha256": "f1a4ccadd041a5821f52efcde35a52636d49928c3668811177a8149dba000e54",
+      "afterSha256": "80b79749f5558303d52e1618324d5318e479cf60c4d848ca310c36ed100718d8",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "scripts/education.mjs",
+      "beforeSha256": "20061bf6bcde8aaa7873a18ad3f9722a41397a18b95188189a396a1577367365",
+      "afterSha256": "8df0da2f61a68ee34de12dafcdabea27fc716e1fab6cbf058fc13498ff11cd8b",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "scripts/ensure-book-upload-index.mjs",
+      "beforeSha256": "bbdb29edae87632b10ddb12c63191330716375b994853413e67b2a9ce5083d3d",
+      "afterSha256": "cbb6867b7ea7aa534fa6f0967ecb4b810210f20d2ad35a6390d1ff780914934c",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "scripts/family-library.mjs",
+      "beforeSha256": "cae51b240c0a9e79430e3162381dfeaa749eb5fd28c877b82839f9c761ff9ede",
+      "afterSha256": "97eab33b7023272c4a650da7df0cf0b56d47df2bc1ea283c2f2a2f7123c47560",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "scripts/family.mjs",
+      "beforeSha256": "83f90f44906b7159f59f6be78c2f8dc29d380b8f198fe20344be63c4acbca08b",
+      "afterSha256": "abaf5547f99f57062a9d1ef680ef482614a01813decb114f5464a18b6eed7d8c",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "scripts/firestore-read-index.mjs",
+      "beforeSha256": "54c022354bdfead4566eb542e5cac3aaff6752d9d5748c44ff0384ac686ac1d6",
+      "afterSha256": "db6c1550efd05f13902fea747cb8929db8e8a3916952d64471e8a2e7c976ef0b",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "scripts/firestore-rules-followup.test.mjs",
+      "beforeSha256": "73ba5e03d1b27c22ac2d0547650dc16e7c856f637d88ed687fefba3eb32f76fe",
+      "afterSha256": "ee0d31c83c9606ae42ed2cccc0c7ef703ad93970d944316ee0946a641460f591",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "scripts/firestore-rules-optional-quiz.test.mjs",
+      "beforeSha256": "cae5821743ad4ab09293058465c232cd064285f9d1ce33b0015fcef2c4b1de85",
+      "afterSha256": "78f20c53dcbd7fd30a6206b6452df8a79535498eca58abc8da82d32a1c17206f",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "scripts/firestore-rules-stage-choice.test.mjs",
+      "beforeSha256": "dd3ce1984c97d0cdfc4f5b541f0fb39da849fed5ece995024739c812cb87e409",
+      "afterSha256": "20f040f8a2466ac5a2417c16bc2e04fe95987c7fac47dce387db2287bdfeed09",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "scripts/firestore-usage-window.mjs",
+      "beforeSha256": "93419ea8cb988255a022c0cf58e9d7c047e6611f81355dc88d2131232c86ec4b",
+      "afterSha256": "1782542f4d7e96916eddd84fe72ad46d9ed44663a409e032b8107444e876511e",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "scripts/firestore-usage.mjs",
+      "beforeSha256": "41b0d6a9d50b20833d7dede31e0c2c42db60c87c4fb8602ad686c4e695ffdceb",
+      "afterSha256": "0e6874edc9dbd15251f1d64156718d65e4ff6fc2b78b0e934c2040c0466d5963",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "scripts/grade-snapshot.mjs",
+      "beforeSha256": "b175f8e9a3c964b98fdb9df3995b8d7d4f52f7d42e8b0b7992751b95df57af78",
+      "afterSha256": "7f476fe7b6fb8675319372e4ee0815fed6ae1586460ce4bf5f68194d3b8dc221",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "scripts/install-upload-worker.mjs",
+      "beforeSha256": "4bd6607ba29417623c6852b187b686c1e29927e81ee4a4054c2c856b7f197fb3",
+      "afterSha256": "af2f6be2e1cd693b232eb82b6162947fe96d12778d9e0fd354698c13cf5ad7a4",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "scripts/lib/access-projection.mjs",
+      "beforeSha256": "83199a4ddd7778d233a0e16bf60bf8db463282857c4299c586a4761ab0382757",
+      "afterSha256": "c003b3a51d7af622f065e1fed332558318f5f67b00166f027fe0f50556bd6795",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "scripts/lib/admin-firebase.mjs",
+      "beforeSha256": "264b65dcfc965d10059e40d8fd786bb9e03c3cb3eecea89a4416ce8ed385bb7d",
+      "afterSha256": "650a5b85f82331a54658c72e4ef2953cef7c0abb7117a642878ef3a2cf52e00b",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "scripts/notifications.mjs",
+      "beforeSha256": "f0764b49699f8344236a5605b71e772d548b6e0b9229a05b0c821bb7046c14e6",
+      "afterSha256": "48a6b937d2eae2848578293c82fe99e8456341b6bf5782922533b651c7036a4c",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "scripts/quiz.mjs",
+      "beforeSha256": "92e01c4f85dd6fc944d935b243c98c821f9321b62856eed2730eefa0877c6099",
+      "afterSha256": "1a75e66f08b09dd1463cf44c8f80ffec449a2d15238b153a559fd0a28b736c60",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "scripts/release-note.mjs",
+      "beforeSha256": "f2aa08352fe9786034cfd8ab8b2f08d59f940b9cdfe5808a0a2dcc63b834ae7e",
+      "afterSha256": "af2e9a134dca5c4af947b57914e569d73df39d710dd7a0de5cc20dcd0acc7d2f",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "scripts/storage.mjs",
+      "beforeSha256": "2a01e3abcfd80720ca118d21e13045b0e80f69e22387065d53d83ebcf6a73dce",
+      "afterSha256": "63b512dad9fb83cf7362c4442975633db52cc1365e8c5347509c369617183417",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "scripts/submissions.mjs",
+      "beforeSha256": "64c3cf410a07bc049ebc78071b8208c510f255f04dafc5f19b3da4b478bb9fe4",
+      "afterSha256": "5f946bf288cc372f70beadff657996494a9e0db957de4219948d93839e69fdcc",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "scripts/sync-books.mjs",
+      "beforeSha256": "30d18ad2c40aff93d3fb0aa21a8dc798559e69a2d1bb54dce713b97762c156c7",
+      "afterSha256": "9229f1a6b5e544d9e7afda27eed7749995ac07c90af3e6f9967284d3fb5d500b",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "scripts/sync-inbox.mjs",
+      "beforeSha256": "0840ae25ffbeb2e4a56fb9a47dfed458fbd996cb32b98a3fd4d416082de9b421",
+      "afterSha256": "9568f6d637ff88b40c28256f92f63aac197ca80796a824df2b6e97b52f86fbe4",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "scripts/sync-project.mjs",
+      "beforeSha256": "8883220c419b0399ae6580c9af5b5db630e42a3d83ccde167a1b9386f86a15a6",
+      "afterSha256": "f47ba354ba2915c33f36aaee75351f92e78028ff0c5f025bf79ede0a72d209dc",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "scripts/sync-queue.mjs",
+      "beforeSha256": "60f44c1f93982c7f1c8642b341c4c79d89b86523bc7c86398e02a0fc50d0ca1b",
+      "afterSha256": "67d8b7092e5b75e6eacd58e85b8c6b71c967f3e76d7e518fc0aaf6a4e1460ce3",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "scripts/verify-upload-flow.mjs",
+      "beforeSha256": "a9de0ad03bd12f78b4da333ebc9ac8d1e5c3d569653cbc6c3ea38af16d3192de",
+      "afterSha256": "741cbf8ef26d1903552bc5daee13641220b63eb24f6a293f2498891798c2f4dd",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/App.css",
+      "beforeSha256": "7cfca4a03ce513d0cfa7cbb23c10398d9760229ac52a2468e324fc1595c0505f",
+      "afterSha256": "1f893aa6c50cdcd31a336b75a328611fbeba5b4235b5aa25499620fa920eb2f9",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/App.tsx",
+      "beforeSha256": "9202a31edde2f11564f808668e2aa65683ae30cd050e7eb4df9b920884f8a13f",
+      "afterSha256": "871b4426382fbffddbaf76874563ffce4d33248cad556a4ba9db0506ba83fec9",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/DayDashboard.css",
+      "beforeSha256": "a4e71958bad63c4ad5dd29a979739777e025b0afc53f28842e90daeb389612fb",
+      "afterSha256": "85eb8263bee5c0b9f394cf1ee731f20e40634650e647564d32a286d2948ac065",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/DayDashboard.tsx",
+      "beforeSha256": "8a08c95a15764ba0686a201d0bd91f2bc3700bb973b8d9f2428d776d2762f047",
+      "afterSha256": "ddec1e5d9802d74b9eecb1c0797463878d39102639258f87a5e86ac7d775b7dd",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/DayDashboard.warmStart.test.tsx",
+      "beforeSha256": "f7682841eebf493580744df08204754e54e6869f93450dae49b60fb99ed01bb7",
+      "afterSha256": "4dc6e6eb55a65332750ef81b46ddc18f022c081faf8767910f22d253fd7c3ff8",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/DayPage.assignmentQuiz.integration.test.tsx",
+      "beforeSha256": "8238d2c0b30c06ba7340224e9cf296a5eee16893079ffd9c98e9af660073df74",
+      "afterSha256": "ff1057d741d192fa22c05381a1a262c4da5c9c1eb96ed2bdd472e7054db7e4b9",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/DayPage.css",
+      "beforeSha256": "4dd4c8cbabb9f097e0a57ad84bb212a29b52e474263f3d9ae33c977d594232ea",
+      "afterSha256": "3da9265f39f8be8505a22e006c7510e8e057267cdadcbc0f042719550319ece8",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/DayPage.gradeBadge.test.tsx",
+      "beforeSha256": "0a2c7555a2fd03967206657c0b185798d6696aad061cef6521ad960c3a70a081",
+      "afterSha256": "b8b64a57a661b53e43dced60c46b2443a27bb88812846b01d14b20268f3889aa",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/DayPage.tsx",
+      "beforeSha256": "ea6eab86aef43d43c068205e3309373fa4ed2e9d5ecdd79109af28d549ec3766",
+      "afterSha256": "eef585aee6996eeaf6339b233a3cc1ba31e36a065d975bdcd3b495ffafc0011b",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/UiKit.css",
+      "beforeSha256": "a4bceaf99852c58aed167570f9019191755861dac860cb561afe6baab34451b5",
+      "afterSha256": "9e3181f84c10b95e2e717f87e81d09f8aa08a131292c00e34f0460b5e62dbdd7",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/UiKit.test.tsx",
+      "beforeSha256": "27cb2942cf83d9b8d0e72c9cf0a600604efc4528162a6022aef31a53120d47a7",
+      "afterSha256": "527bbf7a3e78a79e0807992370ed63283fef94f743fde064c51aa54e05d5bba3",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/UiKit.tsx",
+      "beforeSha256": "599deaa35a211bac2936e64dce3ad11a633e4107cfa1e320da58f2b3df837d2c",
+      "afterSha256": "37a5de6339e49d648416dc360dd389d2bac28d6e3014df47e1798dba4405294b",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/WeekendMathSlot.css",
+      "beforeSha256": "bbde59e525e577dd22ebfc19579868f4fd35f9a1b6614666672077bd12853cc2",
+      "afterSha256": "fd1cb4c158711ae362b22b3011d3f9d0b542ff2c74baf3a3c6bf23a4253b0070",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/WeekendMathSlot.tsx",
+      "beforeSha256": "e35045f46e826bc41c673a470bf2c78afc2a8b1c175f8da336cc0029e83979e6",
+      "afterSha256": "255d907bddb334af99107eb70afc326a6db405d2a55dc2f68c5773abb82e0817",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/ArtifactAvatar.css",
+      "beforeSha256": "342db27ddf1647d5c8a7220b9ce228e1b8ea2aca62044cfd8da97ce11861fa90",
+      "afterSha256": "56c9be04a131d3c243693ff297849d3c9852ed6ba83ae3d31d3e2c74111c4a30",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/ArtifactAvatar.tsx",
+      "beforeSha256": "26e0045a7289b12bbe83ac326e63de1d634e67af9f405ed3c84be85344a30666",
+      "afterSha256": "cbd2274f3234eb55a996ac6b928137c922396a6cf8e01c016f6dcdc2aa9f3c1b",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/AssignmentBrief.css",
+      "beforeSha256": "7c456fa4a93ac2e02849a3f112984bdef49ce3478d0c8b668e5b5348e5feefb5",
+      "afterSha256": "04dffb1f4885c54f69d96182d56ff75a4c7f44b59d7142068a859fe97210943a",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/AssignmentBrief.test.tsx",
+      "beforeSha256": "f4c879a5de2c8d79d225fd9b03a0c17f003270d336075f8e00e422005663bd83",
+      "afterSha256": "3a8effa64a72a6a994511212e31930f9298eced23e659c9a5cd3ec96f2351fb4",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/AssignmentBrief.tsx",
+      "beforeSha256": "90da4d23262cb2d304885df806e69d2e5f2af9314d7d5df924aafb2e2d5756f0",
+      "afterSha256": "33502b3caaa75e6df9fc5d4626e935548840e67f005b82fff0704badfc8cdb01",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/CodeBlock.tsx",
+      "beforeSha256": "00ea11eb51f69cdb4f043662ee5f1ef7128062aaff74cd658e8c48c371d2e280",
+      "afterSha256": "65f9c26b7fdde0bd2f8ddb97e2f9c516cba49abfa0cb0d6db59efd35b788af95",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/ConnectionInvite.tsx",
+      "beforeSha256": "6c7e6cfe8d90989d4036659bcb774f368ce46854ee2ab07f8675b6ba4795e94f",
+      "afterSha256": "ec8ddec4e2dcecc5177a787139d3d9a2b240accb9c834228fc9580dc71ca4e07",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/DataCompatibilityNotice.css",
+      "beforeSha256": "939600264af7ff33992b5fa7f206168fd3fb6d884208130c6b10e8f4bbef4f35",
+      "afterSha256": "63081e2155eed539a03cb0a8bc7feb7b14e6d562322218731fe376d53ce9072d",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/DataCompatibilityNotice.tsx",
+      "beforeSha256": "6a22c4041cddddee053f1eaf9cde7070cc926f191c4450ee70704f37ddf85af2",
+      "afterSha256": "c614b272a3adfc25f30a858a400f1d6de79c53b2f41f00fb345ec34aee08bb03",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/EducationImage.css",
+      "beforeSha256": "1098fdbded34ad1eb392bb599ae05ccfee75fdee8f7c2829b4c44b00e6a3eb05",
+      "afterSha256": "33960b43b88c7a032156642b9f6d0c0a0b45810400dc3fadd45c5165bf43a584",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/EducationImage.test.tsx",
+      "beforeSha256": "59ee5eb1ff800d3c02c3c05c99ea832ee6a5d50e6f80ff1e1fe2b189dc0d183f",
+      "afterSha256": "0e52164d1141f643c29508f48639e19fa457c46df683020e9a9168c697767ed5",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/EducationImage.tsx",
+      "beforeSha256": "862bee19611c43b971bbac7fe71b50d083566dca8667ee9ef3cd11fc8dc0f61d",
+      "afterSha256": "a63eaa80bf1514186b076c0bd9fc3b71e7a1be7293f0c7aea51053be68deb2ad",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/EducationScreen.tsx",
+      "beforeSha256": "e0169115149238fee0e5daab598fd30b3dad916452f3d5898e55663cd52de822",
+      "afterSha256": "97a7388641470d5575d4c6d7171174699ba9140959b86481eb4514aedf28c409",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/FamilyAccessCards.tsx",
+      "beforeSha256": "cfc8ec9ca8449909549025eba498cf9bd78dc224a6762944cf16928ee37b7c4d",
+      "afterSha256": "adee4b30f8edbcb6c6ccfc80bbacf7cb66306e32aac4820b5821e61b8a5d4f5f",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/FamilyLibrary.css",
+      "beforeSha256": "b1290e8ced98f0f251c7acfff6b43e03b745d9b1e727cc9107ee7b044f112eb2",
+      "afterSha256": "a3c12ef89f277155b095a7ceaeb99eeb84670dd847dd1884e183da3d237e3ad2",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/FamilyLibrary.tsx",
+      "beforeSha256": "8ab6cc38c53c5e2ea85e23226b8005124e18e9542d8a1f52a9c270a2f209aa0d",
+      "afterSha256": "b429d4342405b3cb27771e6f26b3a0ca346220e357cd60fa712d4252358b2253",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/HomeworkOverview.test.tsx",
+      "beforeSha256": "32179e0b068a5c4139837539f6b75ce0ae4f1a10387e679e275fd21026a65469",
+      "afterSha256": "5c73254660d75a85d8ab4c75a793042b0505b3db8978e7e6197a67017f9b64dd",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/HomeworkOverview.tsx",
+      "beforeSha256": "04513bc7bd9e9ed9a37f24b102069bb26ad2bc5efcfbc01b516b2f80db59ab04",
+      "afterSha256": "38263502920bf5171e46a0291252aa385a3b10d85a4da073c7f2f1c6de7c3ef8",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/MaterialReader.test.tsx",
+      "beforeSha256": "64ed8458dd6e4c9902e611f04998425fd0b5b54aaec941656ecb9a2ef1ad1490",
+      "afterSha256": "b4a0d2b9c59d51f708c2eae9272fc140c6cbf7bc6131941b48ad65ad0175e037",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/MaterialReader.tsx",
+      "beforeSha256": "dab9afd28c0d9e356dd983e42ff3a4ca0a005b075e31a0095fa4235676e50cf1",
+      "afterSha256": "2d415377d17cc2ae62b4eb3ae0d9bdfa6ebd89b40081e58bdb334a286de2f494",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/MaterialRequest.tsx",
+      "beforeSha256": "0d8d46e83e28005d952a2dbb9e5480da43817de8c243df2dda66fa74b42fa40f",
+      "afterSha256": "97d5ed0e6692cecc6ea9fb61d8d7d224d060afc8b38860d6e28ce360b5caf99e",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/NotificationBell.css",
+      "beforeSha256": "eda4a1ea1da58ea3b4731ea8816d3c0dc263162ceddc612ce0d9379ec4b215e2",
+      "afterSha256": "8f9018fd3ef771e5eb2b27c6614bd97e35d23be47deed08c559c616e1588b8ee",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/NotificationBell.layout.test.mjs",
+      "beforeSha256": "5511fdb9eeaab820fb643b3bd342d171be71c0833e289e87820e0c72c3a290c8",
+      "afterSha256": "62969ab6014e67ab55c9aa9a731fc2f3c43e441510762e0198e86e297c56e25f",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/NotificationBell.tsx",
+      "beforeSha256": "25c168a481a284c219057b2230321c09b359af2c87c1d19ca1bd6c767d7bc452",
+      "afterSha256": "ac73af32b3827caf3f2488ee53452277fafde74272c974c7d3054ed66412ee06",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/ParentHome.css",
+      "beforeSha256": "a51813de888a16d2f241a955739dcb31b0c944e89c6df30aca9e83ea0b9546b6",
+      "afterSha256": "107d63128d428d12096be8f389c8e495656d51104f8025494eeab057e722c471",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/ParentHome.readBudget.test.tsx",
+      "beforeSha256": "e7617744d8c9d3bfdd60a8dcbcfd7475ca7ac691b8f172ff7d72cde48f853f95",
+      "afterSha256": "89b617a0749ff6bece1a4288aed3ae1cabd2cec580998c4af1a2ce209fdb9d4d",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/ParentHome.tsx",
+      "beforeSha256": "6de59bc10e6f09c6d081d8d395c0b924484e8087eadc5fea2b55b2234ac61d82",
+      "afterSha256": "d9b71fc9e39e344c10ca021afc2f7a68eacfb5160e1fc47c3d3bbc5a1ed47c31",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/ParentTaskGuide.css",
+      "beforeSha256": "965f05704c76ed7d8a32f53bd3c003e1a40ccaa76e6a034a94be6d7c9cf3125d",
+      "afterSha256": "ead1e2bb5d35ebcbb4543643ffe5b0a741e960f172e3511b61b3258c449ba565",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/ParentTaskGuide.tsx",
+      "beforeSha256": "2311a4f098e04a4d8a28e90be3184e2555d257b65210787754090b93d3f18e63",
+      "afterSha256": "316e4daa7f3d1b7f70f3235b4ea0be01604ac2573d2ece040f09c489cce6675b",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/PersonalEntry.localFirst.test.tsx",
+      "beforeSha256": "91015b1d1d3f32d666d4486f1587976181846fe275a90f541cfd7702e32836d7",
+      "afterSha256": "9612f2d5bea442b1888317034a47d6274676391f83cec2a15386eb2387dde9cd",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/PersonalEntry.tsx",
+      "beforeSha256": "af41b2f2e2151f00291de63610d941d00b963fd0b28facd45c52a75bbfc7a595",
+      "afterSha256": "cc609099b8f287f0a2d15941ec64a1c685346e37c7901660f462a16169942c5d",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/PhotoUploadControl.tsx",
+      "beforeSha256": "272fc3b6f128da8824aac576069db60111eed5f3e7ccc2ea460ebafb554f1910",
+      "afterSha256": "c8bab7d10fbe7b4f70f158d507844f81254ded517cd520094aec5efab82417fd",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/ProblemCard.css",
+      "beforeSha256": "a929789d0c3e2848a61d7bc212537c04d0f2513acdb7f78f1e9b85a3aac282ee",
+      "afterSha256": "3c96cd4186c4f05709c63bdc10289b1274e919d13e0b9c6806d98474fa621f9e",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/ProblemCard.test.tsx",
+      "beforeSha256": "bb46c2c3c1956ec4715d835940c54386b97b8cdc263e6a5ac2c63cc7ebc8beae",
+      "afterSha256": "1b6618b97a0674277fea47d10d2ed50cc929c8f6d0962280d0cc29c292a88467",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/ProblemCard.tsx",
+      "beforeSha256": "fb69827483eeea0c6f988b2761f28887874dbde9823fd22f95830470b703cef5",
+      "afterSha256": "4aa8144cc89244167278a62dcbcb977da627ffa7f04ac3958ee04bf56e910d7b",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/ProblemGroup.css",
+      "beforeSha256": "8ae71839edd6cef52c9ae85cb2c2a210afab5e41b4139f74c8fb818c526050ff",
+      "afterSha256": "a1985294983563d7d74558b5088265d4f8c312ea5938a1a364d4f010c0420424",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/ProblemGroup.layout.test.tsx",
+      "beforeSha256": "c9a6fac5959460450f8dc1ee080e79a39ab03e6ed826f1c5f0b4771b25e77bd3",
+      "afterSha256": "3a13e79de2b3282038dcd250e0780e1ab1d1b0351bbb820d199c85c628c8ebc4",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/ProblemGroup.tsx",
+      "beforeSha256": "10d8f50428a9421726864dae1281a263204365cbf36ddfbaf3cdcb0f732ffc60",
+      "afterSha256": "1fdd3aa888ed6564afce88e65638614d8f22a350f62ef4df5462dce989465f2b",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/ProblemStatement.css",
+      "beforeSha256": "ab327890e91799976872f940600b3f33191ca4cf013c8beb59f8aa559b826677",
+      "afterSha256": "7a639635863fdd2dd6eeceec3260cdf259599eebeaf0cbcd87def9959b0ba41b",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/ProblemStatement.provenance.test.tsx",
+      "beforeSha256": "bbf5fb27e8b872ff82661decae01abacf8a132488da447a147cf81b80bc2e606",
+      "afterSha256": "7019fe442d04d9c4985b9483535de55dc0d30aba56a682110bb1cf2a8cb394d3",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/ProblemStatement.tsx",
+      "beforeSha256": "42b4391c1b06aae294119aaea14bdcfdd403fd3e391f258333621b3985f8bdde",
+      "afterSha256": "76f3ebe4279c55387cc25f8099d604506510c17d2cef4799075fea43dff6e2b4",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/ProblemTaskCard.contract.test.tsx",
+      "beforeSha256": "42e5ee18e66f15157e7f1a386417ce9d8c5fab1431c4247f3c89689b2daf0bbb",
+      "afterSha256": "da97035bbb45ed204c9c1125475a655ae98402fce305f8e3a4daaa46b0dac05f",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/ProblemTaskCard.tsx",
+      "beforeSha256": "3ff34d4dc8e34d521d494ddc6509e53584a164b73dd0df23015a4e8d9aafeed3",
+      "afterSha256": "2438210321f1ddf0cc46b444d9949c4a5847c198297b4a67801efbc95df7736a",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/QuizAttemptReview.tsx",
+      "beforeSha256": "82539d6178bf1bddab9a761eee800a47423134ff27416ef7557c5c60762d45a6",
+      "afterSha256": "34e646a8c3b91ad66e716e2e619cbc31d13044527482ea61c984fe365dba6cac",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/QuizCard.css",
+      "beforeSha256": "5b05c7bf40309130382a9ea26b75b731c2fc54ebc83f1371f7fe6b8ed5a3fc43",
+      "afterSha256": "18b0df43adc0c96bca8191e3c20fb1bf499c3548e08e9797859b105565589e19",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/QuizCard.history.test.tsx",
+      "beforeSha256": "0bf31e5dfd56b2d84e14775719971e90b91541146f1226d5d7ec067b6bef4899",
+      "afterSha256": "de9a05358a28413679e07b7e4042f9003af4617da9d98d78fa60b48a07a63aa0",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/QuizCard.test.tsx",
+      "beforeSha256": "35894e8a4d5fa5fee1d5425183670d0dbea9965b046438dd1c644d0b332d9fce",
+      "afterSha256": "4f586a91933c72aca2f39bece0c0620dff7b15e6c8abbfd78171497ac776c6bc",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/QuizCard.time.test.tsx",
+      "beforeSha256": "52bd264b379c568ce0e4f3318819f6a2e8125849a5f80f6461c8eee0177e8ea8",
+      "afterSha256": "83b85588ec6176e13f4bfad5e70429d0cf5e83d69c7f55479055c6712cb5745c",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/QuizCard.tsx",
+      "beforeSha256": "0733acac2f27bd17b4fe7dcdb156d591d88b2aae2590219fe28e29e9ac49798d",
+      "afterSha256": "d8193089db4c6969377e24f525ab37149e239f982f988da7adbcae864ca18245",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/QuizResultCard.tsx",
+      "beforeSha256": "8a2fe11a30459cb2ad46aef82d572c3dc7665cd471f9ef5e054775d3a6c2591d",
+      "afterSha256": "0e854566001d838c8e1f02c5c597e272a6dab7f29bff168deec07ac05f252ff8",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/QuizTextAnswer.tsx",
+      "beforeSha256": "8fdeec961d282a4204eafff2cdbee9ece2c3f72a1d27e96ee91c4dc8c55c8796",
+      "afterSha256": "692e642e412591e3700465326179b7b63102bf686a57061d0da9cfb5cea58e16",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/RequirementSwitch.css",
+      "beforeSha256": "df927d73744fcfc90a252c8a6781f08dae072ebfd2685a111dfbc2b3995b4016",
+      "afterSha256": "d39a79e18e8d4b31e978065b494a63221119927b116d0ff1b0a52b0ef1da65bc",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/RequirementSwitch.tsx",
+      "beforeSha256": "ff1cda9479253520b30532303eb6f54c69cdd23393c87a3f34794ae784ca6c37",
+      "afterSha256": "6fcdbd9bcadd6462ea72c09aead229834503521072adc9a0f7e5bd4d01dca9be",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/SourceFragment.css",
+      "beforeSha256": "5b222ee5051b3f597c6e0aa189d48d66a4f265d565cb0dfb1ede1fe9a5443ee5",
+      "afterSha256": "da9762b479939e1196bed4bae77980b9756d64bd2c8f608b84fbf39311c3902d",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/SourceFragment.tsx",
+      "beforeSha256": "ec0d0eefd41c2d8c1ed67c7bc9e75cbee9aeeb6deb299de32304b7f933074ed6",
+      "afterSha256": "e7ab19ad3eb8a92401461d439d7d6a6a6a071f00f3068024afee1fef52d3176f",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/StatusIcon.css",
+      "beforeSha256": "035a804b43f0e070b62ebf896879fa72a901760d65be9c6ad67b577262be4a75",
+      "afterSha256": "995b9c62b991ab3b8c955c811f4a492912a683eea1c84b1b1799606c0c608a12",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/StatusIcon.test.tsx",
+      "beforeSha256": "acffaf4b36d64c03ed39c9ac686d17f4405bef4ef2b885d085dc4fafaf771153",
+      "afterSha256": "dec06a41f1e00bacdb803709ae42273a8fd57e2d53fc403d45690d52ec07f012",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/StatusIcon.tsx",
+      "beforeSha256": "6c39d23e736a25b506e248efc998bc6ed8a7cd055cbcd2d35452c30cdf91166f",
+      "afterSha256": "9fbca1fcaeccd2f8f3032f5fb27036d0479daf143320963214f2269d55e57294",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/SubjectTheme.tsx",
+      "beforeSha256": "6a043e30a9d02f01ad37a0cdf096995215c29ebc7e7fa18bf197714593679540",
+      "afterSha256": "81e5fc5ac184e60bda0f8e717aa568b1fd9d7ef9fd2f49d838b3ee251faeed6e",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/TaskGuidance.css",
+      "beforeSha256": "7ada0b1c8d5d144d643db3d323e592244933e91211c380946e7ebe8c7b2be4d4",
+      "afterSha256": "229939aecbc2161dcd2690bb0f47560d6100e29a8f3ec37d54051d7e5791cceb",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/TaskGuidance.tsx",
+      "beforeSha256": "16072564cd9cd760c0be396593bb80eb56255080fb0343566516e10911b11215",
+      "afterSha256": "994d472c93bc3896d5b3f5badc6638f920f838758461d995c86ce98cda931b21",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/UnifiedTaskCard.test.tsx",
+      "beforeSha256": "21abe507bdb5b9d6e264a5237563c45f7666d9361f9f6525266b7112b7994834",
+      "afterSha256": "f934d30a9c18ce9ee00fa9ef8a47a08c14c2082b32f82b4fd8f386fa1adda5db",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/WorkReview.tsx",
+      "beforeSha256": "80800411b8f303db7be935430c25eabbcb275baa70b3bb12fe10a6d3884a5bd9",
+      "afterSha256": "35875fa6fad2ea6d83a01cee9af1721d10e1b60c281d4c30833fec8ae3b3c12b",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/ui/badge.tsx",
+      "beforeSha256": "c0dc1a6eec3a7b9b6057bf97c25cd2d7083d12226708503072f634aff37adebf",
+      "afterSha256": "3d9443fabf9134f6c58d14f3b949ff97ecdb900e6d43208023306741c397310c",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/ui/button.tsx",
+      "beforeSha256": "d03f38778d36a79f2d00f41ea7916ccd5024ac67ec9957183147bb79c286e625",
+      "afterSha256": "86ff5627ee8274fd04cc01aa66eb77e28fc656d96c89be940144e14ef756e8e0",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/ui/card.tsx",
+      "beforeSha256": "37082e513a1876b12b7c9a3f06f0b5f4b36c89405b92e785f5be888bf1f370a8",
+      "afterSha256": "b2d49aeae7f606a3ad01f9cb55c386bdd61a0eca8d8f4aead82d4642ef230bdc",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/ui/result.css",
+      "beforeSha256": "4307011c6116ede1dfd7e907232908a9957c60d1aef2c43398a14a649a7697b6",
+      "afterSha256": "802cb0371b39e4077990708eb9fed57cfdf3c248419474b91a38effd6eee3cec",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/ui/result.test.tsx",
+      "beforeSha256": "72c4ac29dc1d9ecb5e81c92290a96a7827d33998b0ecab2641ff38fb7579e64e",
+      "afterSha256": "6cfd2c26f148d82a1cacaa4b0f414df14a434048cb2d1991a75590f1da081d76",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/components/ui/result.tsx",
+      "beforeSha256": "dea7ac16a41c4892f014abe90461cead3a8dfc90cf6018b72b8472784e904803",
+      "afterSha256": "8c175a0008de5e48bc53568c5ebb4c0ac58c9f51a01c71433049c5dc2f604f3f",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/education-design-tokens.css",
+      "beforeSha256": "52250db89fcbeb8222fc289ea8ce7aa97373a270f79fae2b8034ee2a107d206d",
+      "afterSha256": "035f6f717e1f5216996654997864a7c5e76a292f1663349c0c40f610cfce96dc",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/assignmentPresentation.ts",
+      "beforeSha256": "a67856c7af03a0c40610e7a51e1270e4cad42ef8891b00bee9e96a22812c1229",
+      "afterSha256": "742803293fbdc114046e062b4bb5d265280507d553b2cccce77d166f1068497c",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/bookPageSource.ts",
+      "beforeSha256": "90896a0d6beb6a4d524f2c3fc5f4879eb81bce8a8475b92829d7284d5e675839",
+      "afterSha256": "1efe8009d9813450b3dc13cad61191212cffd11352743270df39fa5ad161fe79",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/dayCompatibility.ts",
+      "beforeSha256": "14be36b97cd348c53422ffe89d7ed7bf827c40395c440f10faa9834ae6c59738",
+      "afterSha256": "830c821713f5e05099ba581eaed78d2b08d58fb845041b06ec964f95c006c59d",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/dayDashboardLessonCache.ts",
+      "beforeSha256": "e915ce83d8e0ea44dc69f18c0e7c2760765e33c3ea57542a015ab464ec7bb4a1",
+      "afterSha256": "751a276fb8831c139eadea9bdab986a44f2f14e5b91869e304526c8df0fb0a9c",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/dayDashboardStore.ts",
+      "beforeSha256": "9150b235f9747e4b9baecb3b5a4856a9d015c9a07ff3384a93cd539e828432b4",
+      "afterSha256": "2c0cd99e0a6a21d0804f08071d3698138182066ae4b50195e64be202e8472643",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/dayDashboardStore.warmStart.test.ts",
+      "beforeSha256": "6f31fb811685d0c28b560fe78b3d37fdab68bbb4313666ac6d9c92b6b93d6947",
+      "afterSha256": "ff3d6dbd2ba3b0e01c126f45f63cc3f242d8ebcad811409d5eb6247b14ce1b9a",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/dayDashboardViewCache.ts",
+      "beforeSha256": "bb4e5e41ebe12f3b479dee1ece49eb3951022a2328d5044d2be58d5b2e9a463c",
+      "afterSha256": "81d68d6e7ba24de1cfcb307327ef3f801464299aa282c52c83b3c729458fe578",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/dayGuidance.ts",
+      "beforeSha256": "575833b2ff6f406829d966a2e84034e90d89de12e955b22b00be89394a547bb0",
+      "afterSha256": "211cfa4d8e57b402aa7ef0f117a4d04bc2ca3b1e772bd03ba5a4e4e826114f32",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/dayMaterialRefs.ts",
+      "beforeSha256": "a8f63496dfb8e85aef5dec118e7bb425c81049c6185e9e2ee66ae4f8af2e1929",
+      "afterSha256": "0a6e20b1531745a80429b3a438cbe0da48f248fdbe0185bd538851f49e283cb7",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/dayStore.guideRead.test.ts",
+      "beforeSha256": "a85ad22590b3190f2610ef56c4aa479420e5554869d2181aee04b2bfd2f2eaca",
+      "afterSha256": "fce3b66fa5bf6b44d7e0416a599adbaeb8f47e4ece183142e0b25bbdfff21195",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/dayStore.ts",
+      "beforeSha256": "ab5796f38d569bbb89c3187c2ab637e46f8337d9c82b3b2ee0dd369fa9fa293b",
+      "afterSha256": "d3ba1e67161480cd0a389f9559bddd87fe1f74cf4a4333bc1d6a6f4e5e57b109",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/educationSchema.ts",
+      "beforeSha256": "c5ca37b2be0a69cbbbe205e547b6750270b3878ac4a18aa7e70b850e8496ffcd",
+      "afterSha256": "536408eeb1353b5f96c116ada4d958b0049de1be87f54cc34a924eec9fab111e",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/educationStore.ts",
+      "beforeSha256": "3b9f5f02cb03ef8921a97078fd5e8dbfd0350ae7b5bb868cbcb0b51325786c27",
+      "afterSha256": "e36b2a22ebd1a4cfc6568ef1e124598c042fef9ba348dd649e2f6dc92a779535",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/familyBookUpload.ts",
+      "beforeSha256": "7267eba752e7687a7e95c2d02179326579188b111cba3dffd0d0d859740e4c10",
+      "afterSha256": "43b3bb5ab6d70c5e9a2349d8a629bcba597798b8bcde2f3a8b30683f6b2e67e5",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/familyLibrary.ts",
+      "beforeSha256": "e3af5138d3ce62ae478041ef55afa60473e46aa62a0f372f434071e48bf4b2b8",
+      "afterSha256": "fd737fa512fe617d9b76ee7f88d0296fcfc607733698566afced7fe86da79c98",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/guideReadPolicy.test.ts",
+      "beforeSha256": "a427af1412c66db6b5427ec2cb7c7fd54cbb33521c55de38ed3622a420f96fb3",
+      "afterSha256": "6b1d2582f0507fb6b6697be82f9c592fa883d8826577ce1205b48097388a746b",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/guideReadPolicy.ts",
+      "beforeSha256": "6e740801b0bff4b90748ace3a9bf3ef15d068a16bc0139289fb140590af5d0e0",
+      "afterSha256": "54d5bf21302522816633345d5599591679ac749faa5306546cff787ecb942520",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/homeworkStatus.test.ts",
+      "beforeSha256": "b97bab56eb4649fac6caeffc0d6827d5639e5d32678afd813221faf397aa5125",
+      "afterSha256": "9af773358f99043f12f0709d0f4c1a353495924e51e4ee03c2965525cb9c00ed",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/homeworkStatus.ts",
+      "beforeSha256": "a827e55d6ccff6ad9c7dfd0b9e747f2ad8a65d311a1810bbeb3e3c291f5d21a5",
+      "afterSha256": "79dc4635728df8926425c4130ecd66aae1be802f36154742eff02449cb9d638d",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/homeworkUpdateReceipt.ts",
+      "beforeSha256": "72fbaf19ea1129635110da735b9c1b0d8207b7d73314fbbbcc58420d6a1170f3",
+      "afterSha256": "fc8e3ada2ea1ab9ec00f7a9dfecc06d6b78309c779b4e546bdff60e92a66bf5b",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/inboxCache.test.ts",
+      "beforeSha256": "a43b292715260f0bf1283004bf5ace4f601b08de39244b1bb7d441648f266571",
+      "afterSha256": "56483e5a2d593025cee5f8630f862d63fb0811403d7e465ebc4e6d3ef94d5a37",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/inboxCache.ts",
+      "beforeSha256": "880aac2d12e55105b6c953ac19daa260ab1c3e02fe6cdc04d3ecc74e856d2339",
+      "afterSha256": "a5999510e4d7cc9b3906b5eb3c00aa2361951a8b4e49631f1b03f72e7dd48de8",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/localFirstPilot.ts",
+      "beforeSha256": "29784afb94832dee5590ce12a3c66fdd7cc4fccce817c9359adec4de67bc774f",
+      "afterSha256": "5f655da8669cb3437fec6ae9cc0b7c2f60bcfdb93b3705764b23c5327c56f1b9",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/materialPageCache.ts",
+      "beforeSha256": "4678308aa3bf24fc083c81412f35229e471b6e5c5d0a582ce4fb93e92f10003d",
+      "afterSha256": "6a1e93619a3317faa97ffcbe18492452af395292f13a97a7f405e28c51ffd088",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/materialRequest.test.ts",
+      "beforeSha256": "8e780ed9fa21f75afb6e3832deddb4b09583ecfb3884e453fc5e4575c31d24cb",
+      "afterSha256": "0026968e138cb8c828e627737ce29a5b5fd2c37f3034f9603c165ebcbe1ac68b",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/materialRequest.ts",
+      "beforeSha256": "ddac64670887b608617fe69eac32753634c1c4d40c5bcf1dbf2e082409f802c3",
+      "afterSha256": "649a78acef056f36f4ff6eb79650b9ef893856bf7a4862f0fa9798153935dcd1",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/networkRetry.ts",
+      "beforeSha256": "a01d6b39f89f05f811e7a1bba59a0abf261fa7090fb220ebcdc22b18aa909b01",
+      "afterSha256": "6d14335fd1f853bbb3f01783e5f3a212730ee689ac44f9a1a1d34d74cd0a7423",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/notificationThreads.ts",
+      "beforeSha256": "c81f42fb6915528dbaf91ec9772ba36be8c7851b632674a27fb84e8ed97a0cb7",
+      "afterSha256": "3f4122c798614c13bc98f5b9c353ac5d7ff1267a4c3dc5b457e4c45680c68337",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/parentCompletion.ts",
+      "beforeSha256": "9f3f7efe6936211f06048b03c87db2ef4817e81f2f2fc9bc736291d13cffb329",
+      "afterSha256": "030659af1d6c0c2f242eccd8bb6695cf599edd3a41dca31f4974299111219150",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/parentFocusDay.test.ts",
+      "beforeSha256": "2ba379bf1753c823f7129521ad8b31c685b78c38ccdf8762dcd2584e1cc667b2",
+      "afterSha256": "e06dabe0c958c554e761bf509fa31978989fe3cdc40d2bc787399b47dc4d53b5",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/parentFocusDay.ts",
+      "beforeSha256": "5b95ac302daf99ff46a7c288acd659f54730e55d7fe944ed8376cedafa85a70f",
+      "afterSha256": "f78d25a252c26f4b0412fc030a9bc4ef4910c679d9c29685295fa122aba925c8",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/personalAccess.readBudget.test.ts",
+      "beforeSha256": "0d63cc0cf420a8ffbee3da241384fbb634e54ebea12dcc4f4f3061ae623f3bf8",
+      "afterSha256": "73eb791620090b98095c688f37874a78e2074e11452db88ff573748580b301d5",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/personalAccess.ts",
+      "beforeSha256": "68e331f2ec6817181f6b042f41df55b305b5caad5632a6e3c2c7ad0dcaccccd5",
+      "afterSha256": "50ece8c966bf626ce2dc6057470e67105e6c013dc874928f4446149f022e83b1",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/photoUploadPolicy.ts",
+      "beforeSha256": "e0f177ce13a2bbac321e9c0aecb56ff12c8d68c4827a92f7d75df8626edb2f91",
+      "afterSha256": "21341cdefbca9325fcd6eccfd0a76e5e8d504057f855e409a6c4fd0780fec1af",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/problemGroupSummary.ts",
+      "beforeSha256": "32552f1225f162ac729568686538217de6fee0c01f9916ac02a5c4343473a5ba",
+      "afterSha256": "dff754ff682709db767db3291c1e761ea5953f58f0671057cf91a66f81a10805",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/questionTopicPresentation.test.ts",
+      "beforeSha256": "c2d75b0f3f2eb6bc756b54e69678db91e761db39c10c3725d9b5361ba737b468",
+      "afterSha256": "61ddbf882776e55471bc43a4dc3105292f53abbb426049e4eb3c13c80a14df18",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/questionTopicPresentation.ts",
+      "beforeSha256": "4e636cf049fc7b0f9039952fed1fc31eee54324826da1bbe5e2ee9d232e6080e",
+      "afterSha256": "dbd95c195c28926f908d9846090fe73a35a5de19dbe7f8708424557fe281b3ae",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/quizCardViewModel.test.ts",
+      "beforeSha256": "b2dd7a3df761fe9a8d748a22142b3a2a702755811f023720c4729a759196c7be",
+      "afterSha256": "88f48641f92d487cdedcbb128eaf90524879f555af10ec23082fdacdcf4fbdc1",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/quizCardViewModel.ts",
+      "beforeSha256": "be2a5f58e1ca8dd409fdef7ab5819347a5de97bca85926d68c55ea4a37964015",
+      "afterSha256": "6cd9ebe6428ef63416b8a09fc8424483c21272c898ff2124cf9e83bcbd4c9d23",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/quizCompletion.ts",
+      "beforeSha256": "7f8c0015239e8a65e2d13d35062a4bf1ae419787f7151756beccdd539c9b0c6f",
+      "afterSha256": "2e30f37951401b8c1aa1a892f139f23c42b5fdb8a0efa7441611404da7181f5f",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/quizDraft.ts",
+      "beforeSha256": "5efe22d71574aa6c0691aee841e8a0a33471c1bf1f81486a70130194c895bfe1",
+      "afterSha256": "c58a043fb6b849136032ba216153a858d13477ef266913eb1f5a657c71dd1d5a",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/quizLocalStore.ts",
+      "beforeSha256": "e13bdd1a601dfed83939fa3ede8139d56cd725f1adf7891cf59ba292873b0a5f",
+      "afterSha256": "69b4a474d8ba9c9174b20efbfaa2fa9e8a3dcd2b2ea901b9ceceb577bb4fffe8",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/requestSingleFlight.ts",
+      "beforeSha256": "91fb7fd99cd05c095be9d60a791ba0787ac59b361aa3a4f2774d2e10c08f4983",
+      "afterSha256": "24395408517184639ea3e9b4c95ba14fc65d392508c7ff61768b1b4eebcf747c",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/resultPresentation.test.ts",
+      "beforeSha256": "c308cb8a7634c08ce3069ff2ad76bca0d05b5138a68347deb3d774aae423e90a",
+      "afterSha256": "9653a0e4953832c47427356ca0149fdd677a6dfc926dbee35b8240c5fd3d3ce6",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/resultPresentation.ts",
+      "beforeSha256": "8184a87529d810f2c64dc926c64d88cf95c15f1b8d3e54790ae28e03e5200902",
+      "afterSha256": "49434408f2899831c83afcf28ef15119c9384ee3719450b88ef3a574680a4f41",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/reviewPresentation.ts",
+      "beforeSha256": "747a0fb81501276f63a46e3d0ed39f2edf4509fa06fb25b43a4ab8f9ff87bca7",
+      "afterSha256": "f9beb4f16ce3dc62861e8cddef57af664151c96555b10aedbd2401c4f85cf71e",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/spellingFeedback.ts",
+      "beforeSha256": "c4a5978e5ac53130ab65e276b9f71745738037ffa6a47df2dd9987f1e353724b",
+      "afterSha256": "653077710a1a0acc13b642a848bc897da34356c3460b0678ee6bd4d9d966f555",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/store.optionalQuiz.test.ts",
+      "beforeSha256": "36cc16978d67474020a826fdab7aec83afac3fcd09873be6338f356fb011d0f1",
+      "afterSha256": "8bee0bb68b0eb61623b973fdeb229c59ebbc9a12bb1a2a0a5c23f245ef4808df",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/store.ts",
+      "beforeSha256": "212cb5a99cb93c3bb848b9860f0bbca78a2850ed417c8ab937e2a89313d1efb1",
+      "afterSha256": "205116f9ffe6aa8b0f78de9aa1f426a6385f903d6466ac3086554946ee527332",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/uiErrors.ts",
+      "beforeSha256": "58946e5d1805bd001cf39f02c97326ff7baea56585d2415c4df9765d3f18ddd2",
+      "afterSha256": "a7a087ae6649979ba390e35a1f82fe61b6cd28c6eec67defdf4865e708cf9f18",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/uiKitExamples.ts",
+      "beforeSha256": "466649674384ca8e41cf5fe584048965cfb58764d3b32fbb07754143e1d96525",
+      "afterSha256": "b809c5e713602677127eec481bf84393726cfa878d8766411336fe7f2b85307a",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/useDashboardDayWork.ts",
+      "beforeSha256": "a53e20ed4956931b6327601faf98b365e99f5cb5ba2ebfff71a7e49b06a3be4c",
+      "afterSha256": "e55f234a17a6a9178b884c820295271740e82d32d101237f5b7cba0dff31c5e2",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/useDayEvidence.ts",
+      "beforeSha256": "88bc37c5882cc2f806b32c1580ceae33c2dbf04784a8cbddbb736f6dbd8bc149",
+      "afterSha256": "6c11bbcb4a8716cbf947e6dfd4dea4adb31aa045d6e0e357e9d61e5e2d81747c",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/useDayQuizOutcomes.ts",
+      "beforeSha256": "cb6314fa98cfa8fc4cc8b5f1b2e4396b6ba77c2485266f677f4833eca731cbf8",
+      "afterSha256": "0ec8d962dc472c7da022db84b9ec5355e1c21db798ed1a108ebc1a2436f98589",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/useDelayedRefresh.test.tsx",
+      "beforeSha256": "f0681bf4c6c3af1c271d098b45f018fd39ad474fe7606c17ebd54d7b6786fc8f",
+      "afterSha256": "513dcfb77c8d42f3c2ee7e0f4fa80ea90863a013bcfd52f90dd136f18f0f4d01",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/useDelayedRefresh.ts",
+      "beforeSha256": "ad27b6ee3012e13d10c2327fccc655c002eb45e3d8216eabf9e2b8cf3556fe05",
+      "afterSha256": "44e6a67c5a0ffb245985bc3326a775498f8fc5ac17061a6af80ae860f37ccb55",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/useParentChildOverview.ts",
+      "beforeSha256": "92cba1947d99aa05e3c09783c881172a77175635aef9bb9faf6b95605abd4393",
+      "afterSha256": "7f1e96cabb9c819d46d849a143de631d4c04abefd9d277dd953c09eba59ecca3",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/useParentCompletions.ts",
+      "beforeSha256": "bcc8b083d5d9f8152bdb53ff7d9334315b834e249c4c38e48c64bb78d7f201b9",
+      "afterSha256": "7f2f4718db240e9d71812a25638da3762d9370925e88c3a188f2f237fd11561b",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/watchQuizOutcome.test.ts",
+      "beforeSha256": "680e70280357401f677f2c84be51e6e7d65d378a51254d3ff7df9e3563ba47d6",
+      "afterSha256": "57bdc742fdf5f1489874247dae28f3d939a337ef772f21b2839f504e38173282",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/watchQuizOutcome.ts",
+      "beforeSha256": "bb562ab2bbd1dc0d7c5147900437cd135731c3d256f78efb5369b5b9e83d3165",
+      "afterSha256": "08f84a8053bbb59be6fd0d29128c85caf1068b586e60b04f76f2a48e4c0fd8c2",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/yandexPublic.test.ts",
+      "beforeSha256": "1f634a9b7914fcdc7d2050a98963c703308fd20eeb760c1b8a1a4a0587056dc2",
+      "afterSha256": "b4840b370b725afb6a4d2a49096310b9ef189132e97e55c65cef82552c5feddc",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "src/lib/yandexPublic.ts",
+      "beforeSha256": "153f66f2740509d5c2306df44281edc62af3c3db579a152f95fdb7df6f24dfad",
+      "afterSha256": "5bb14ef22fec4cdcc29cc52affb56eab9697153dbe699a0724d424c5c6bcc04a",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "storage/family-book-projection.mjs",
+      "beforeSha256": "084e222c1a6819d900e1cdbc06aa12fe62fa3efdcb6871517ba51649b8629709",
+      "afterSha256": "9c8f1c7a87d74a4196e1e06879ed613edd1c26b1caaa9b96ff7d17901740bec8",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "storage/family-book-upload.mjs",
+      "beforeSha256": "f96a2cfa6c6ba9d2f03f81d5094c4e54a559eb3ee6f65a6734a8c512bf080dce",
+      "afterSha256": "1d150a08b681c9272f9668a811ca9dab661d1cd0c72117d67ff265a7503b8e75",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "storage/inbox-notifications.mjs",
+      "beforeSha256": "b23e062e8ee4dccf86d85073daf6bdeade32c9a54d30dd4e494c24d00e02b7e1",
+      "afterSha256": "d5e5e14531f829453d8e454bc227291f9da3ba523da095d42f049f909a22cfa4",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "storage/material-pages.mjs",
+      "beforeSha256": "f416108ead39c0749928b7b6b82ccc60533e468631d2e3fd1d8d51aa78a26f91",
+      "afterSha256": "85dc670d6e2d94e2da70f6c9e0c1f8e4e2ed4afcdbd08d19dabf1f28e675a2f1",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "storage/page-publication.mjs",
+      "beforeSha256": "6c321718653befe48c8de8febf5f1015234b5788196d01df9ffcf88b98cab1cf",
+      "afterSha256": "f4402ff9138b3d6ea5a727f291008380ff876a6c15e889fb70836bdd1ac441c9",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "storage/review-challenge.mjs",
+      "beforeSha256": "fe65dd3414aecca086299317ccec49ed8555602ba8de496cdd776b013236f899",
+      "afterSha256": "2060f3ec483b55c91a37ddf0d948bfde8302ea9c29ba1024378a4292d9403a17",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "storage/review-coverage.mjs",
+      "beforeSha256": "d4aa36889e39ca3ddf76b45a7e23dd12b503f16c71a4d6eb79cbdbef490b95e7",
+      "afterSha256": "7fd887231028eb03d6f3675cf468474dbdae7af7117a160c7e13ac7f6d3f3123",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "storage/review-projection.mjs",
+      "beforeSha256": "723039cb6f9117c5444f862e16c36fea6d7dc10ec404bb91a10262408702f4ec",
+      "afterSha256": "53d983a252bf8a0126568e482aa0b33079ab1da7254820976317b85a5fb1a728",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "storage/review-readback.mjs",
+      "beforeSha256": "dd9fd82bfd4f75b6fe44392100ea25c5231a1e6703449d2cc5c5f927548ccdca",
+      "afterSha256": "345d60339032ba76be7343dd9270df0f658c28d98d679e4f1ca800edcfc8ed6e",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "storage/review-requirements.mjs",
+      "beforeSha256": "f5f28c2d14bc5c4285e44b9685762c6098b86cd492a5894b8ab269d0e414b43c",
+      "afterSha256": "7671c4caf7479491a3b651aaf92aa4402bec335820ef001d2f38992ce965355a",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "storage/submission-inbox.mjs",
+      "beforeSha256": "e744e85d1b9caa428b04b63732cea250dd698ccb2a16f8d51805cc4010b5b1f3",
+      "afterSha256": "5de57e65e40722a7f2ce33a51b3268fd8850955aa8a408de9174569f238a9388",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "storage/textbook-catalog.mjs",
+      "beforeSha256": "d3410b971168d776d629ebc5db1d4ed51ed40c625146c56b62495b863f46db23",
+      "afterSha256": "118b9ff53b4d67ad379c4f497a6036a270adf54edcdb77ccd1347c07fd712e3b",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "storage/yandex-disk.mjs",
+      "beforeSha256": "18accc690a31cf4bc6387bceaf0979973e145a796662ffc86b1a1d4b4417c1c6",
+      "afterSha256": "37e411e1428ae385cf8759c6c5ed4c8017e29da7b03731681d4041184f8de424",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "sync/artifact-capture.mjs",
+      "beforeSha256": "aee2edf85ec2d932801b0f0bafef6eb115e2a86269b3be051fca0c9641b1561c",
+      "afterSha256": "948a1b1240cecaa0a32ed1871b30d60c48ea97810438b91d95bb6522438a0729",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "sync/day-source-revision.mjs",
+      "beforeSha256": "62954fee3a2ef4357a5b6eadec228951c87cfc628e36a236445ae2100f492950",
+      "afterSha256": "e3c56c886c524d84062aad7b4b31c4a72de9580312c666522299c31a203c9760",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "sync/help-request-cache.mjs",
+      "beforeSha256": "497baff96a2a4186e25892fde3e396c95ed7213764f2573f91e8ac8304d9a69a",
+      "afterSha256": "d46928fe33effebd4cb22fe6107f32b39cbcb157e0a63a9967e25dc874e01e97",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "sync/job-queue.mjs",
+      "beforeSha256": "2d673fc16099c0c4f983ee6f044bdbae83b0c3b6f500b1d834edee2f10bded1c",
+      "afterSha256": "824e89af3c94e2f63f1061795c993701ab9e4ed3d9c7ca13b6265c577060561d",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "sync/project-plan.mjs",
+      "beforeSha256": "c09e6e1f19e6240cdc118a0c0f27158431b17d3aca21955f86080ebbee1ae410",
+      "afterSha256": "2e2e28963e8562319da0ded728734adbc06503feb73c3fb1f3deae58837466ef",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "sync/publication-audit.mjs",
+      "beforeSha256": "0006148a166403903fdac889c925fabe9c1836d70b4fe2a58b0f8909e40d3814",
+      "afterSha256": "7d94418c96ce0155084e47a2dd1051844bc2e8572514d405c5636bbca1590cb1",
+      "change": "documentation-references-only"
+    },
+    {
+      "path": "sync/run-context.mjs",
+      "beforeSha256": "994ed5f2a5a64b377ecf1d8bf80d1d58cc0ee62c6e32d2880cf76612b9393169",
+      "afterSha256": "3d2ba34b78cb8d4eccbba20f71ace0087df77bd046db9ecda2f30c65a72ba30c",
+      "change": "documentation-references-only"
+    }
+  ],
+  "immutableUiBaselinePreserved": true,
+  "externalReferences": "Explicit petr-private provenance can be resolved by the PETR self-review and does not require private content in a standalone Education checkout.",
+  "additionalPreservation": [
+    {
+      "source": "petr-private:AGENTS.md before migration",
+      "destination": "petr-private:docs/product/tutoring-policy.md",
+      "normalizedBodyPreserved": true
+    },
+    {
+      "source": "petr-private:docs/product/agi-edu-bot-service-spec.md",
+      "destination": "docs/product/notifications.md",
+      "normalizedBodyPreserved": true
+    }
+  ],
+  "verification": {
+    "npmRunCheck": "passed",
+    "testFiles": 121,
+    "tests": 490,
+    "typecheck": "passed in full build; final build gate confirmed unchanged inputs",
+    "firestoreReadSites": 359,
+    "newFirestoreCalls": 0,
+    "graphSpecs": 140,
+    "mappedFiles": 530,
+    "graphEdges": 722,
+    "standaloneCheckout": {
+      "exitCode": 0,
+      "files": 530,
+      "privateFilesCopied": false,
+      "dependenciesCopied": false
+    },
+    "petrBootstrap": "passed",
+    "petrSelfReview": "passed; 1271 authored Markdown documents",
+    "existingWarnings": "Existing lint and Vite chunk warnings remain non-blocking."
+  },
+  "workerReview": {
+    "model": "Luna",
+    "chunks": [
+      "spec relocation and boundaries",
+      "body preservation review",
+      "five navigation routes and graph validator QA",
+      "private PETR entrypoint/policy relocation"
+    ],
+    "resolvedFindings": [
+      "Telegram metadata corrected to planned",
+      "Graph generator rejects malformed/unresolved file-map bindings",
+      "Private PETR link moved to the private PETR navigator",
+      "Missing anchors restored at their owning contract sections"
+    ]
+  }
+}

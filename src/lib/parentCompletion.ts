@@ -3,7 +3,7 @@ import { db } from './firebase'
 import { currentEducationPersonId } from './personalAccess'
 import type { DayWorkReview } from './dayStore'
 
-/** A parent's completion decision is separate from the evidence-based review. @see ../../docs/product/day-page.md#parent-acceptance */
+/** A parent's completion decision is separate from the evidence-based review. @see ../../docs/modules/school-diary/day-page.md#parent-acceptance */
 export type ParentCompletionEvent = {
   id: string
   taskId: string
@@ -42,7 +42,7 @@ export function parentAccepted(review: DayWorkReview | undefined, events: Parent
   return related[0]?.action === 'accept'
 }
 
-/** Only the latest choice for this exact review version and proposal applies. @see ../../docs/product/review-criteria-provenance.md#family-disputes */
+/** Only the latest choice for this exact review version and proposal applies. @see ../../docs/modules/reviews/review-criteria-provenance.md#family-disputes */
 export function requirementChoice(review: DayWorkReview | undefined, requirementId: string, events: ParentCompletionEvent[]): 'require' | 'optional' | undefined {
   if (!review?.assessmentBasis?.disputedRequirements?.some((item) => item.id === requirementId)) return undefined
   const version = stamp(review.checkedAt)
@@ -59,7 +59,7 @@ export function requiredFamilyActions(review: DayWorkReview | undefined, events:
 }
 
 /** Family practice is selected before a photo exists; the teacher assignment stays intact.
- * @see ../../docs/product/card-generation-policy.md#practice-variants */
+ * @see ../../docs/modules/reviews/card-generation-policy.md#practice-variants */
 export function variantRequired(taskId: string, variantId: string, events: ParentCompletionEvent[]): boolean {
   const latest = events.filter((event) => event.taskId === taskId && event.variantId === variantId
     && ['variant-required', 'variant-optional'].includes(event.action) && stamp(event.decidedAt))
@@ -76,7 +76,7 @@ export async function recordVariantChoice(studentToken: string, taskId: string, 
 }
 
 /** A reviewed stage is required until a parent explicitly excludes it for this review version.
- * @see ../../docs/product/day-page.md#review-stage-switch */
+ * @see ../../docs/modules/school-diary/day-page.md#review-stage-switch */
 export function stageRequired(review: DayWorkReview | undefined, stageId: string, events: ParentCompletionEvent[]): boolean {
   if (!review?.checkableStageIds?.includes(stageId)) return true
   const version = stamp(review.checkedAt)
@@ -200,7 +200,7 @@ export async function recordStageChoice(review: DayWorkReview, guide: { revision
 
 /** Use fresh server versions before writing a parent's choice. A wording-only guide revision may
  * advance while the phone is suspended; a new checked attempt must never inherit an old choice.
- * @see ../../docs/product/day-page.md#review-stage-switch */
+ * @see ../../docs/modules/school-diary/day-page.md#review-stage-switch */
 export function currentStageChoice(review: DayWorkReview, guide: { revision?: number; stages: { id: string }[] },
   liveReview: DayWorkReview | undefined, liveGuide: { revision?: number; stages?: { id: string }[] } | undefined, stageId: string) {
   if (!liveReview || !liveGuide || !Number.isInteger(liveGuide.revision)

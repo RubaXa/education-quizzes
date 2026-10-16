@@ -1,5 +1,5 @@
 /** Bounded retry policy for browser requests to Yandex Disk.
- * @see ../../docs/product/storage-privacy.md#network-resilience */
+ * @see ../../docs/modules/materials/storage-privacy.md#network-resilience */
 const transientStatuses = new Set([408, 423, 425, 429, 500, 502, 503, 504])
 const cooldowns = new Map<string, number>()
 

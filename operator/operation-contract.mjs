@@ -1,5 +1,5 @@
 /** Stable, typed operator operations. No caller may provide executable code.
- * @see ../docs/architecture/operator-core.md#operation-contract */
+ * @see ../docs/services/operator-cli/README.md#operation-contract */
 import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'

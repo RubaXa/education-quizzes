@@ -14,7 +14,7 @@ function validDate(value) { return /^\d{4}-\d{2}-\d{2}$/.test(value ?? '') && !N
 /**
  * Проецирует проверенные снимки МЭШ и ссылки опубликованных дней в ролевой индекс.
  * Интерфейс читает этот документ из Firestore и не хранит расписание в коде.
- * @see ../docs/product/dashboard.md#firestore-model
+ * @see ../docs/modules/school-diary/dashboard.md#firestore-model
  */
 export function buildDayDashboardIndex(local, links, role, now = new Date()) {
   const today = dateOnly(now)
@@ -124,7 +124,7 @@ export function buildDayDashboardIndex(local, links, role, now = new Date()) {
 }
 
 /** An absent local source must not silently erase work already visible to the family.
- * @see ../docs/product/dashboard.md#weekend-work-contract
+ * @see ../docs/modules/school-diary/dashboard.md#weekend-work-contract
  */
 export function assertWeekendWorkRetention(previous = [], current = [], removals = []) {
   if (!Array.isArray(removals) || removals.some((item) => !validDate(item.lessonDate)

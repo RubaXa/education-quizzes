@@ -1,5 +1,5 @@
 /** Addressed page publication preserves unrelated catalogue records.
- * @see ../docs/product/materials.md#page-publication */
+ * @see ../docs/modules/materials/materials.md#page-publication */
 export function selectPublicationPages(entries, pageId) {
   if (pageId === undefined) return entries
   const selected = entries.filter((entry) => entry.id === pageId)

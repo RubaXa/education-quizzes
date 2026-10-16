@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-// @see ../../docs/architecture/local-first-release-plan-2026-10-12.md#startup-regression-contract
+// @see ../../docs/plans/local-first-release-plan-2026-10-12.md#startup-regression-contract
 import { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, describe, expect, it, vi } from 'vitest'

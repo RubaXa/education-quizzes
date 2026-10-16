@@ -17,7 +17,7 @@ import './FamilyLibrary.css'
 import { useDelayedRefresh } from '@/lib/useDelayedRefresh'
 import { reportUiError } from '@/lib/uiErrors'
 
-// @see ../../docs/architecture/local-first-revision-matrix.md#матрица-чтения
+// @see ../../docs/shared/data/revisions.md#матрица-чтения
 // Published page sets are immutable for one binding revision. Reopening a book
 // in the same tab must not reread every page or create another live listener.
 const publishedPageCache = new Map<string, DayMaterialLink[]>()
@@ -107,7 +107,7 @@ function uploadLabel(need: BookNeed) {
   return 'Связываем с библиотекой семьи'
 }
 
-/** @see ../../docs/product/status-presentation.md#matrix */
+/** @see ../../docs/shared/design/statuses.md#matrix */
 function needStatus(need: BookNeed): EducationStatus {
   const uploadStatus = need.uploads.at(-1)?.status
   if (uploadStatus === 'upload-error') return 'failed'
@@ -128,9 +128,9 @@ function pagesRevision(book: { pagesPublishedAt?: unknown; pagesPublishedSha256?
   return book.pagesPublishedSha256 && Number.isFinite(millis) ? `${book.pagesPublishedSha256}:${millis}` : undefined
 }
 
-/** @see ../../docs/product/status-presentation.md#components
- *  @see ../../docs/product/design-system.md#cards-and-status
- *  @see ../../docs/product/family-library.md#parent-dashboard */
+/** @see ../../docs/shared/design/statuses.md#components
+ *  @see ../../docs/shared/design/README.md#cards-and-status
+ *  @see ../../docs/modules/materials/family-library.md#parent-dashboard */
 export function FamilyLibrary({ familyId, familyChildren }: { familyId: string; familyChildren: PersonalChild[] }) {
   const library = useFamilyLibrary(familyId, familyChildren)
   const showRefresh = useDelayedRefresh(Boolean(library.fromCache && !library.error))

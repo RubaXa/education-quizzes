@@ -1,7 +1,7 @@
 import { createInterface } from 'node:readline/promises'
 import { stdin, stdout } from 'node:process'
 
-/** @see ../../../docs/architecture/school-diary-port-adapter.md#family-onboarding-research */
+/** @see ../../../docs/modules/school-diary/README.md#family-onboarding-research */
 export function hiddenPrompt(label) {
   if (!stdin.isTTY || !stdin.setRawMode) throw new Error('Для входа нужен интерактивный терминал')
   stdout.write(label)

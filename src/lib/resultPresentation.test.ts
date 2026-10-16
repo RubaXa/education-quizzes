@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { resultPresentation } from './resultPresentation'
 
-/** @see ../../docs/product/result-presentation-proposal.md */
+/** @see ../../docs/modules/assessments/result-presentation-proposal.md */
 describe('one result policy before rounding', () => {
   it.each([[0,'error','0%'],[49.99,'error','49,99%'],[50,'attention','50%'],[84.99,'attention','84,99%'],[85,'success','85%'],[99.99,'success','99,99%'],[100,'success','100%']])('%s', (points, tone, label) => {
     expect(resultPresentation({kind:'score',points:Number(points),maxPoints:100})).toMatchObject({tone,label})

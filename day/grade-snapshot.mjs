@@ -1,5 +1,5 @@
 /** Deterministic additive reconciliation of the confirmed numeric grade ledger.
- * @see ../docs/product/grades.md#mesh-reconciliation */
+ * @see ../docs/modules/school-diary/grades.md#mesh-reconciliation */
 import { assertGradeSnapshotAligned } from './grade-reconciliation.mjs'
 
 const aliases = new Map([

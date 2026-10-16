@@ -8,7 +8,7 @@ import { reportUiError } from './uiErrors'
 
 /** The board identifies every continuation of a placed test. Both parent summaries
  * and the day dashboard use the same live chain as the detailed task card.
- * @see ../../docs/product/dashboard.md#homework-progress */
+ * @see ../../docs/modules/school-diary/dashboard.md#homework-progress */
 export function useDayQuizOutcomes(page: DayPageData | null | undefined, date: string, onError: (message: string) => void) {
   const boardToken = page?.boardToken
   const [boardState, setBoardState] = useState<{ token: string; entries: Awaited<ReturnType<typeof import('./store').loadDashboard>> }>()

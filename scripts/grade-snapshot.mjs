@@ -1,5 +1,5 @@
 /** Stable operator command for the numeric grade ledger.
- * @see ../docs/product/grades.md#mesh-reconciliation */
+ * @see ../docs/modules/school-diary/grades.md#mesh-reconciliation */
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { proposeGradeSnapshot } from '../day/grade-snapshot.mjs'

@@ -3,7 +3,7 @@ import { test } from 'vitest'
 import { strict as assert } from 'node:assert'
 
 /** Keep the reviewed-stage rule inside Firestore's document access budget.
- * @see ../docs/product/day-page.md#review-stage-switch */
+ * @see ../docs/modules/school-diary/day-page.md#review-stage-switch */
 test('reviewed-stage choice reads seven source documents once and keeps exact-version guards', () => {
   const rules = readFileSync(new URL('../firestore.rules', import.meta.url), 'utf8')
   const helper = rules.slice(rules.indexOf('function validReviewedStageChoice('), rules.indexOf('\n    // A random invite code', rules.indexOf('function validReviewedStageChoice(')))

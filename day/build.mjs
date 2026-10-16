@@ -1,4 +1,4 @@
-/** @see ../docs/product/material-clarification.md */
+/** @see ../docs/modules/materials/material-clarification.md */
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { writeJson } from '../diary/local-store.mjs'
@@ -33,7 +33,7 @@ function teacherLinks(local, date, files) {
 function subjectInfo(assignment) {
   return subjectPresentation(assignment.subjectName, assignment.subjectId)
 }
-/** Keep the lesson owner and the submission deadline separate. @see ../docs/product/dashboard.md#lesson-and-deadline */
+/** Keep the lesson owner and the submission deadline separate. @see ../docs/modules/school-diary/dashboard.md#lesson-and-deadline */
 function deadlineFromMesh(assignment, lessonDate) {
   const weekday = { понедельник: 1, вторник: 2, среду: 3, четверг: 4, пятницу: 5, субботу: 6, воскресенье: 0 }
   for (const entry of assignment.homeworkEntries || []) {
@@ -58,7 +58,7 @@ function previousDate(local, date) {
   return readdirSync(local).map((name) => /^day-source-(\d{4}-\d{2}-\d{2})\.json$/.exec(name)?.[1]).filter((value) => value && value < date).sort().at(-1)
 }
 
-/** @see ../docs/product/plan-generation.md#raw-mesh-stage */
+/** @see ../docs/modules/synchronization/plan-generation.md#raw-mesh-stage */
 export function buildDaySource(local, date) {
   const targetDate = nextDate(local, date)
   const today = json(resolve(local, 'diary', `snapshot-${date}.json`))
@@ -104,7 +104,7 @@ export function buildDaySource(local, date) {
       const entryFiles = teacherFilesForEntry(assignment, entry, descriptions)
       const referenceDate = referencedHomeworkDate(description, lessonDate)
       // A bare attachment pointer names the same teacher file; it assigns no extra work.
-      // @see ../docs/product/plan-generation.md#material-only-mesh-entries
+      // @see ../docs/modules/synchronization/plan-generation.md#material-only-mesh-entries
       const mainEntry = descriptions.find((candidate) => candidate.id !== entry.id && !/^файл здесь\.?$/i.test(candidate.description.trim()))
       if (/^файл здесь\.?$/i.test(description) && assignment.teacherFiles?.length && mainEntry) {
         const targetTaskId = `mesh-${mainEntry.id}`
@@ -168,10 +168,10 @@ export function buildDaySource(local, date) {
         detail: description,
         status: 'unknown', kind: rawMeshKind(description),
         // New numbered math tasks cannot be published after review without the private route.
-        // @see ../docs/product/math-solution-route.md#pipeline
+        // @see ../docs/modules/reviews/math-solution-route.md#pipeline
         ...(['math', 'special'].includes(id) ? { mathRoutePolicyVersion: 2 } : {}),
         // A reviewed new written Russian task must receive one of the stable routes.
-        // @see ../docs/product/card-generation-policy.md#russian-adapter
+        // @see ../docs/modules/reviews/card-generation-policy.md#russian-adapter
         ...(!['math', 'special'].includes(id) && rawMeshKind(description) === 'written' ? { cardPolicyVersion: 1 } : {}),
         instructionStatus: { state: 'needs-review', message: '' },
         source: `МЭШ, подробная карточка урока ${lessonDate}; запись ${entry.id}.`,

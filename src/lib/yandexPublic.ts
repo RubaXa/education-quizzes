@@ -12,7 +12,7 @@ function publicDiskUrl(value: string) {
   return url.toString()
 }
 
-/** @see ../../docs/product/materials.md#material-reader */
+/** @see ../../docs/modules/materials/materials.md#material-reader */
 export function publicResource(value: string, size: string, refresh = false): Promise<PublicResource> {
   const url = publicDiskUrl(value)
   const key = `${url}:${size}`
@@ -30,7 +30,7 @@ export function publicResource(value: string, size: string, refresh = false): Pr
   return resources.get(key)!
 }
 
-/** @see ../../docs/product/materials.md#material-reader */
+/** @see ../../docs/modules/materials/materials.md#material-reader */
 export async function publicImage(value: string, size = 'XXXL', refresh = false) {
   // A public attachment can be a PDF: its download URL works in a reader but
   // cannot be decoded by <img>. Refresh the image preview after a load error.

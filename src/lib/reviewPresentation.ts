@@ -4,7 +4,7 @@ export type ReviewTone = 'success' | 'partial' | 'error' | 'neutral'
 export type ProblemCardState = { label: string; tone: 'ready' | 'uploading' | 'waiting' | 'processing' | 'verified' | 'partial' | 'error' }
 export type ArtifactAvatarState = 'uploading' | 'waiting' | 'processing' | 'reviewed' | 'failed' | 'paused'
 
-/** @see ../../docs/product/russian-language-route.md#review-in-one-route */
+/** @see ../../docs/modules/reviews/russian-language-route.md#review-in-one-route */
 export function showSeparateWorkReview(parent: boolean, presentation?: string, hasParentDecision = false, hasDisputedRequirement = false): boolean {
   return !parent || presentation !== 'learning-route' || hasParentDecision || hasDisputedRequirement
 }
@@ -51,7 +51,7 @@ export function problemCardState(uploads: DayUpload[], review?: DayWorkReview, u
 }
 
 /** The repeated ready state is icon-only; the summary keeps its full accessible name.
- * @see ../../docs/product/status-presentation.md#matrix */
+ * @see ../../docs/shared/design/statuses.md#matrix */
 export function compactProblemCardLabel(state: ProblemCardState): string {
   if (state.tone === 'ready') return ''
   if (state.tone === 'uploading') return 'Загрузка'
@@ -65,7 +65,7 @@ export function compactProblemCardLabel(state: ProblemCardState): string {
   return 'Неясно'
 }
 
-/** @see ../../docs/product/day-page.md#homework-review */
+/** @see ../../docs/modules/school-diary/day-page.md#homework-review */
 export function reviewTone(review: DayWorkReview): ReviewTone {
   if (review.assessmentBasis?.outcome === 'unresolved') return 'neutral'
   const items = review.items ?? []
@@ -76,7 +76,7 @@ export function reviewTone(review: DayWorkReview): ReviewTone {
   return 'neutral'
 }
 
-/** @see ../../docs/product/day-page.md#homework-review */
+/** @see ../../docs/modules/school-diary/day-page.md#homework-review */
 export function reviewHeadline(review: DayWorkReview): string {
   if (review.assessmentBasis?.outcome === 'unresolved' && review.assessmentBasis.unresolvedReason === 'missing-evidence')
     return 'Часть работы не видна на фото'
@@ -114,7 +114,7 @@ export function timestampMillis(value: unknown): number | null {
   return typeof seconds === 'number' ? seconds * 1000 : null
 }
 
-/** A reviewed submission may cover every assigned action while its quality criterion is unresolved. @see ../../docs/product/review-criteria-provenance.md#work-coverage */
+/** A reviewed submission may cover every assigned action while its quality criterion is unresolved. @see ../../docs/modules/reviews/review-criteria-provenance.md#work-coverage */
 export function workCoverageComplete(review?: DayWorkReview): boolean {
   const checkedAt = timestampMillis(review?.checkedAt)
   return review?.status === 'cannot-assess' && review.assessmentBasis?.outcome === 'unresolved'

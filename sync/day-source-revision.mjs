@@ -8,7 +8,7 @@ function canonical(value) {
 
 /** A stable, date-specific revision of the MESH lesson and assignment source.
  * It deliberately excludes fetch time and period-wide marks.
- * @see ../docs/product/global-sync.md#reconciliation
+ * @see ../docs/modules/synchronization/global-sync.md#reconciliation
  */
 export function daySourceRevision(snapshot) {
   if (!snapshot?.complete || !Array.isArray(snapshot.schedule) || !Array.isArray(snapshot.assignments)) {

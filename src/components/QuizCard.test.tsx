@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import QuizCard from './QuizCard'
 import type { QuizCardAttempt } from '@/lib/quizCardViewModel'
 
-/** @see ../../docs/product/quizzes.md#followup-request */
+/** @see ../../docs/modules/assessments/quizzes.md#followup-request */
 describe('result and parent follow-up action', () => {
   const result: QuizCardAttempt = { token: 'example', testId: 'english-1', slug: 'english', title: 'Английский',
     status: 'submitted', answered: 39, total: 39, points: 34, maxPoints: 39 }
@@ -38,7 +38,7 @@ describe('result and parent follow-up action', () => {
   })
 })
 
-/** @see ../../docs/product/quizzes.md#optional-quiz */
+/** @see ../../docs/modules/assessments/quizzes.md#optional-quiz */
 describe('one family requirement switch on the shared test card', () => {
   const open: QuizCardAttempt = { token: 'root', testId: 'math-1', slug: 'math', title: 'Диаграммы', status: 'open', answered: 0, total: 20 }
   it('offers the existing switch to a parent on an active required test', () => {

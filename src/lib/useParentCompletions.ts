@@ -3,7 +3,7 @@ import { watchParentCompletions } from './parentCompletion'
 import type { ParentCompletionEvent } from './parentCompletion'
 import { reportUiError } from './uiErrors'
 
-/** Family-visible decisions are separate from the checked solution. @see ../../docs/product/day-page.md#parent-acceptance */
+/** Family-visible decisions are separate from the checked solution. @see ../../docs/modules/school-diary/day-page.md#parent-acceptance */
 export function useParentCompletions(evidenceKey: string, enabled: boolean) {
   const [snapshot, setSnapshot] = useState<{ key: string; events: ParentCompletionEvent[] }>({ key: '', events: [] })
   const [error, setError] = useState('')

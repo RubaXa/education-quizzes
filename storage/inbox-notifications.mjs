@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto'
 import { Timestamp } from 'firebase-admin/firestore'
 
 /** One changing review notice per attempt; separate immutable notices for corrections and releases.
- * @see ../docs/architecture/activity-and-inbox.md#notification-producers
+ * @see ../docs/modules/notifications/inbox.md#notification-producers
  */
 export function notificationId(key) {
   return createHash('sha256').update(key).digest('hex').slice(0, 40)

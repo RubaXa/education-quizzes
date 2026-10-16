@@ -1,5 +1,5 @@
-/* @see ../../docs/product/design-system.md#images
- * @see ../../docs/product/problem-card-design-decisions.md#flat-numbered-sheet */
+/* @see ../../docs/shared/design/README.md#images
+ * @see ../../docs/modules/reviews/problem-card-design-decisions.md#flat-numbered-sheet */
 .source-fragment{margin-top:12px}
 .source-fragment-trigger{display:block;width:100%;padding:7px;border:1px solid var(--edu-problem-transcript-border);border-radius:11px;background:var(--edu-surface);color:var(--edu-brand);text-align:left;cursor:pointer}
 .source-fragment-trigger:hover,.source-fragment-trigger:focus-visible{border-color:#8165bd;outline:2px solid #c8b7e9}

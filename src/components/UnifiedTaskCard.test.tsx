@@ -6,7 +6,7 @@ import QuizCard from './QuizCard'
 import TaskGuidance from './TaskGuidance'
 import type { DayTask } from '@/lib/dayStore'
 
-/** @see ../../docs/product/subject-card-viewmodel.md#release-gate */
+/** @see ../../docs/modules/reviews/subject-card-viewmodel.md#release-gate */
 describe('one public task and quiz view', () => {
   it('shows the exact teacher instruction and origin without a private answer', () => {
     const task = { id: 'mesh-example', title: 'Тема и идея', detail: 'Посмотри страницы учебника.', meshText: 'Записать тему и идею.', source: 'МЭШ, запись урока.', kind: 'written', status: 'unknown' } as DayTask

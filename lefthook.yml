@@ -1,6 +1,8 @@
 pre-commit:
   parallel: true
   commands:
+    documentation:
+      run: node scripts/check-docs.mjs --staged
     whitespace:
       run: git diff --cached --check
     lint:

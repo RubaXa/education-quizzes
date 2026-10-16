@@ -3,7 +3,7 @@ import type { DayPageData, DayMaterialLink } from './dayStore'
 /** Published dayPages already carry verified textbook links. Fetch only refs
  * missing from that projection; legacy pages and teacher attachments still use
  * their family bookPages documents.
- * @see ../../docs/product/materials.md#day-page-embedded-links */
+ * @see ../../docs/modules/materials/materials.md#day-page-embedded-links */
 export function unresolvedMaterialPageRefs(page: Pick<DayPageData, 'taskPageRefs' | 'materialLinks'>): string[] {
   const unresolved = new Set<string>()
   for (const [taskId, refs] of Object.entries(page.taskPageRefs ?? {})) {
@@ -13,7 +13,7 @@ export function unresolvedMaterialPageRefs(page: Pick<DayPageData, 'taskPageRefs
   return [...unresolved]
 }
 
-/** @see ../../docs/product/materials.md#adjacent-pages */
+/** @see ../../docs/modules/materials/materials.md#adjacent-pages */
 export function groupAdjacentMaterialPages(links: DayMaterialLink[]): DayMaterialLink[][] {
   const groups: DayMaterialLink[][] = []
   for (const link of links) {

@@ -40,7 +40,7 @@ export function readCachedDayDashboard(token: string, kind: DayDashboardData['ki
   } catch { return null }
 }
 
-/** @see ../../docs/product/dashboard.md#firestore-model */
+/** @see ../../docs/modules/school-diary/dashboard.md#firestore-model */
 export function watchDayDashboard(token: string, onChange: (data: DayDashboardData) => void, onError: (error: Error) => void) {
   const hadCompleteLocalView = Boolean(readCachedDayDashboard(token, 'parent') || readCachedDayDashboard(token, 'student'))
   return onSnapshot(doc(db, 'dayDashboards', token), { includeMetadataChanges: true }, (snapshot) => {

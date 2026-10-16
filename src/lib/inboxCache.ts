@@ -5,7 +5,7 @@ const key = (personId: string) => `education-inbox-v1:${personId}`
 
 /** Last seen inbox is part of the first local frame, scoped to one person.
  * Firestore remains authoritative when the current inbox arrives.
- * @see ../../docs/product/dashboard.md#dashboard-warm-start */
+ * @see ../../docs/modules/school-diary/dashboard.md#dashboard-warm-start */
 export function readCachedInbox(personId: string): Item[] {
   try {
     const value: unknown = JSON.parse(localStorage.getItem(key(personId)) ?? 'null')

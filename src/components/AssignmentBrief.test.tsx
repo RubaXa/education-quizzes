@@ -1,4 +1,4 @@
-// @see ../../docs/product/problem-card-design-decisions.md#flat-numbered-sheet
+// @see ../../docs/modules/reviews/problem-card-design-decisions.md#flat-numbered-sheet
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import type { DayTask } from '@/lib/dayStore'

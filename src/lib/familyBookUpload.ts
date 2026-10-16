@@ -6,7 +6,7 @@ import { currentEducationPersonId } from './personalAccess'
 import { fetchWithRetry } from './networkRetry'
 import { reportUiError } from './uiErrors'
 
-/** @see ../../docs/product/family-library.md#upload */
+/** @see ../../docs/modules/materials/family-library.md#upload */
 const allowed = new Set(['application/pdf'])
 const outboxName = 'education-book-outbox-v1'
 const active = new Map<string, Promise<void>>()

@@ -3,7 +3,7 @@ import type { QuestionResult } from './quiz'
 export type SpellingFeedback = { correct: string; detail: string; practice: string }
 
 /** Shows the verified spelling only after a vocabulary dictation was submitted.
- * @see ../../docs/product/quizzes.md#quiz-results
+ * @see ../../docs/modules/assessments/quizzes.md#quiz-results
  */
 export function spellingFeedback(result: QuestionResult): SpellingFeedback | null {
   const { question, correctAnswer, answer } = result

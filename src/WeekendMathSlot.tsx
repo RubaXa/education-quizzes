@@ -90,8 +90,8 @@ export default function WeekendMathSlot({ token, taskIds, parent, lessonDate, du
       const problemIds = new Set(problems.map((problem) => problem.id))
       const localPendingCount = local.filter((photo) => problemIds.has(photo.taskId) && !uploads.some((upload) => upload.id === `${studentToken}:${photo.id}` && upload.status === 'reviewed')).length
       const sourceCount = new Set(taskLinks.filter((link) => link.sourceType === 'teacher-attachment').map((link) => link.url)).size
-      /** @see ../docs/product/day-page.md#completed-problem-group
-       * @see ../docs/product/problem-card-design-decisions.md#flat-numbered-sheet */
+      /** @see ../docs/modules/school-diary/day-page.md#completed-problem-group
+       * @see ../docs/modules/reviews/problem-card-design-decisions.md#flat-numbered-sheet */
       return <ProblemGroup key={task.id} id={task.id} title={`${subject.icon} ${subject.name}`} problems={problems} uploads={uploads} reviews={reviews} decisions={parentDecisions.events} localPendingCount={localPendingCount} sourceCount={sourceCount} ready={evidenceReady && parentDecisions.ready}>
       <div className="weekend-math-group">
       <p>{subject.summary || task.detail}</p>

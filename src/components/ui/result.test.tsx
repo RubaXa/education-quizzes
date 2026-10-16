@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { ResultBadge, ResultMeter, ResultPoints } from './result'
-/** @see ../../../docs/product/result-presentation-proposal.md */
+/** @see ../../../docs/modules/assessments/result-presentation-proposal.md */
 describe('shared result primitives',()=>{
   it('renders one tone in badge, points and meter',()=>{
     const input={kind:'score' as const,points:34,maxPoints:39}

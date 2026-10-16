@@ -1,3 +1,14 @@
+---
+id: research.two-pass-written-work-review
+status: reference
+implementation: not-applicable
+parent: product.education
+uses: []
+sections:
+  - задача-и-источники
+  - принятый-механизм
+
+---
 # Повторная проверка спорной письменной работы
 
 ## Задача и источники

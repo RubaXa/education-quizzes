@@ -1,13 +1,23 @@
 ---
+id: research.special-course-source-provenance
+status: reference
+implementation: not-applicable
+parent: product.education
 type: research-note
-status: active
 updated: 2026-10-11
 related:
-  - ../product/adaptive-problem-card.md
+  - ../modules/reviews/adaptive-problem-card.md
   - ../../src/components/ProblemStatement.tsx
   - ../../scripts/day.mjs
-  - ../../../skills/material-ingestion/SKILL.md
-  - ../../../skills/homework-review/SKILL.md
+  - petr-private:skills/material-ingestion/SKILL.md
+  - petr-private:skills/homework-review/SKILL.md
+uses: []
+sections:
+  - зачем-это-нужно
+  - порядок-для-каждого-номера
+  - найденный-кандидат-для-листа-с--17-от-15102026
+  - границы-педагогической-обратной-связи
+
 ---
 
 # Происхождение и ключи задач спецкурса

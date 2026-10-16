@@ -1,5 +1,5 @@
-/* @see ../../docs/architecture/activity-and-inbox.md#in-app-center
- * @see ../../docs/product/design-system.md#shell */
+/* @see ../../docs/modules/notifications/inbox.md#in-app-center
+ * @see ../../docs/shared/design/README.md#shell */
 .notification-center{position:relative;flex:none;margin-left:auto;z-index:30}
 .notification-bell{position:relative;display:grid;place-items:center;width:var(--edu-touch-target);height:var(--edu-touch-target);border:1px solid var(--edu-control-border);border-radius:50%;background:var(--edu-surface);color:var(--edu-bell-ink);cursor:pointer}
 .notification-bell:hover,.notification-bell:focus-visible{background:var(--edu-hover);outline-color:var(--edu-focus)}

@@ -2,7 +2,7 @@
  * A photo has one upload placement but may prove several tasks on the same day.
  * Coverage is asserted by the reviewer after reading the original, never inferred
  * from the button used to upload it.
- * @see ../docs/product/storage-privacy.md#multi-task-photo
+ * @see ../docs/modules/materials/storage-privacy.md#multi-task-photo
  */
 export function reviewCoverage(batch) {
   if (!Array.isArray(batch.reviews) || !batch.reviews.length || batch.taskId !== undefined) {

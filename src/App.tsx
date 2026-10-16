@@ -53,7 +53,7 @@ const submitAssignment = async (token: string) => (await storeModule()).submitAs
 
 /**
  * Выбирает страницу и представление по ссылке с отдельным токеном доступа.
- * @see ../docs/product/access-and-state.md#routes
+ * @see ../docs/modules/families/access-and-state.md#routes
  */
 function routeFromHash(): Route {
   const [, kind, raw = ''] = location.hash.split('/')
@@ -65,7 +65,7 @@ function routeFromHash(): Route {
   return { kind: 'home' }
 }
 
-/** @see ../docs/product/quizzes.md#quiz-navigation */
+/** @see ../docs/modules/assessments/quizzes.md#quiz-navigation */
 function quizReturnHash(value: unknown): string {
   if (typeof value !== 'string') return '#/'
   if (value === '#/') return value
@@ -92,9 +92,9 @@ function wordForm(count: number, one: string, few: string, many: string): string
   return many
 }
 
-/** @see ../docs/product/design-system.md#shell
- *  @see ../docs/product/day-page.md#day-navigation
- *  @see ../docs/product/quizzes.md#quiz-navigation */
+/** @see ../docs/shared/design/README.md#shell
+ *  @see ../docs/modules/school-diary/day-page.md#day-navigation
+ *  @see ../docs/modules/assessments/quizzes.md#quiz-navigation */
 function Shell({ children, dayRoute = false, quizBack, onHeaderTarget }: { children: React.ReactNode; dayRoute?: boolean; quizBack?: string; onHeaderTarget: (target: HTMLDivElement | null) => void }) {
   return (
     <div className={`app-shell${dayRoute ? ' day-route' : ''}`}>
@@ -123,8 +123,8 @@ function ErrorCard({ message, onRetry }: { message: string; onRetry?: () => void
 
 /**
  * Показывает один вопрос и редактируемый ответ в назначенном тесте.
- * @see ../docs/product/quizzes.md#quiz-runner
- * @see ../docs/product/quizzes.md#question-copy
+ * @see ../docs/modules/assessments/quizzes.md#quiz-runner
+ * @see ../docs/modules/assessments/quizzes.md#question-copy
  */
 function QuestionCard({
   question,
@@ -200,7 +200,7 @@ function QuestionCard({
 
 /**
  * Собирает результат из ответов, ключа и доступной ручной проверки.
- * @see ../docs/product/quizzes.md#quiz-results
+ * @see ../docs/modules/assessments/quizzes.md#quiz-results
  */
 function ResultView({ assignment, token }: { assignment: Assignment; token: string }) {
   const [key, setKey] = useState<AnswerKey>()
@@ -246,8 +246,8 @@ function ResultView({ assignment, token }: { assignment: Assignment; token: stri
 
 /**
  * Ведёт попытку, последовательное сохранение ответов и отправку теста.
- * @see ../docs/product/quizzes.md#quiz-runner
- * @see ../docs/product/day-page.md#test-progress
+ * @see ../docs/modules/assessments/quizzes.md#quiz-runner
+ * @see ../docs/modules/school-diary/day-page.md#test-progress
  */
 function QuizRunner({ token }: { token: string }) {
   const [assignment, setAssignment] = useState<Assignment>()
@@ -489,7 +489,7 @@ function QuizRunner({ token }: { token: string }) {
 
 /**
  * Показывает вопросы родителю без записи ответов и создания попытки.
- * @see ../docs/product/quizzes.md#test-lists
+ * @see ../docs/modules/assessments/quizzes.md#test-lists
  */
 function Preview({ token }: { token: string }) {
   const [preview, setPreview] = useState<Awaited<ReturnType<typeof loadPreview>>>()
@@ -512,7 +512,7 @@ function Preview({ token }: { token: string }) {
 
 /** Parent links and direct student URLs share a read-only result surface. The
  * actual permission to write is enforced by Firestore assignment ownership.
- * @see ../docs/product/quizzes.md#parent-read-only
+ * @see ../docs/modules/assessments/quizzes.md#parent-read-only
  */
 function QuizAccess({ token }: { token: string }) {
   const [student, setStudent] = useState<boolean | null>(null)
@@ -568,7 +568,7 @@ type BoardItem = QuizCardAttempt & {
 
 /**
  * Карточка назначения в ученическом или родительском списке тестов.
- * @see ../docs/product/quizzes.md#test-lists
+ * @see ../docs/modules/assessments/quizzes.md#test-lists
  */
 function BoardCard({ item, parent = false, unread = false, copied = false, hasContinuation = false, onCopy, onMarkViewed }: {
   item: BoardItem
@@ -594,7 +594,7 @@ function BoardCard({ item, parent = false, unread = false, copied = false, hasCo
 
 /**
  * Живой список назначений и результатов для соответствующей ссылки.
- * @see ../docs/product/quizzes.md#test-lists
+ * @see ../docs/modules/assessments/quizzes.md#test-lists
  */
 function Dashboard({ token, parent = false }: { token: string; parent?: boolean }) {
   const [items, setItems] = useState<BoardItem[]>()
@@ -738,7 +738,7 @@ function Home() {
 
 /**
  * Связывает страницы дня, теста, предпросмотра и списков в одном приложении.
- * @see ../docs/product/access-and-state.md#routes
+ * @see ../docs/modules/families/access-and-state.md#routes
  */
 function App() {
   const [route, setRoute] = useState<Route>(() => {

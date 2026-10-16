@@ -7,9 +7,9 @@ import type { ParentCompletionEvent } from '@/lib/parentCompletion'
 import StatusIcon from './StatusIcon'
 import './ProblemGroup.css'
 
-/** @see ../../docs/product/day-page.md#completed-problem-group
- * @see ../../docs/product/problem-card-design-decisions.md#flat-numbered-sheet
- * @see ../../docs/product/status-presentation.md#components */
+/** @see ../../docs/modules/school-diary/day-page.md#completed-problem-group
+ * @see ../../docs/modules/reviews/problem-card-design-decisions.md#flat-numbered-sheet
+ * @see ../../docs/shared/design/statuses.md#components */
 export default function ProblemGroup({ id, title, subtitle, problems, requiredProblems = problems, numberLabel, uploads, reviews, decisions = [], localPendingCount, sourceCount, ready, focusTaskId, children }: {
   id: string; title: string; subtitle?: string; problems: DayProblem[]; requiredProblems?: DayProblem[]; numberLabel?: string; uploads: DayUpload[]; reviews: DayWorkReview[];
   decisions?: ParentCompletionEvent[];
@@ -18,7 +18,7 @@ export default function ProblemGroup({ id, title, subtitle, problems, requiredPr
   const [manualOpen, setManualOpen] = useState<boolean | null>(null)
   const summary = summarizeProblemGroup(requiredProblems, uploads, reviews, localPendingCount, ready, decisions)
   const focused = focusTaskId === id || problems.some((problem) => problem.id === focusTaskId)
-  // @see ../../docs/product/day-page.md#completed-problem-group
+  // @see ../../docs/modules/school-diary/day-page.md#completed-problem-group
   // A sheet is compact on entry; an explicit deep link still reveals its target.
   const open = manualOpen ?? focused
   const bodyId = `problem-group-${id.replace(/[^a-zA-Z0-9_-]/g, '-')}`

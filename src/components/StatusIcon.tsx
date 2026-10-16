@@ -6,7 +6,7 @@ import type { LucideIcon } from 'lucide-react'
 import './StatusIcon.css'
 
 /** Visual vocabulary only. The owning badge/summary supplies the full accessible label.
- * @see ../../docs/product/status-presentation.md#matrix
+ * @see ../../docs/shared/design/statuses.md#matrix
  */
 export type EducationStatus = 'ready' | 'started' | 'uploading' | 'waiting' | 'processing' | 'paused'
   | 'complete' | 'partial' | 'needs-fix' | 'incorrect' | 'unknown' | 'failed' | 'new'

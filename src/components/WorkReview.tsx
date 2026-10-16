@@ -13,9 +13,9 @@ const itemLabels = { correct: 'Верно', partial: 'Частично верн�
 /**
  * Постоянный компонент читает этап и итог из Firestore. Следующие проверки
  * меняют только данные; открытая страница получает их через onSnapshot.
- * @see ../../docs/product/day-page.md#homework-review
- * @see ../../docs/product/status-presentation.md#components
- * @see ../../docs/product/review-criteria-provenance.md
+ * @see ../../docs/modules/school-diary/day-page.md#homework-review
+ * @see ../../docs/shared/design/statuses.md#components
+ * @see ../../docs/modules/reviews/review-criteria-provenance.md
  */
 export default function WorkReview({ review, uploads, accepted = false, canDecide = false, onDecision, decisions = [], onRequirementChoice, parent = false }: {
   review?: DayWorkReview; uploads: DayUpload[]; accepted?: boolean; canDecide?: boolean; onDecision?: (action: 'accept' | 'reopen') => Promise<void>;

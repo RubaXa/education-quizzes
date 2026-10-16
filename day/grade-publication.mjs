@@ -2,7 +2,7 @@ import { gradeProjectionPatch } from './grade-reconciliation.mjs'
 
 /** Keep every published day of one child on the same verified grade projection.
  * The dashboard can point to any linked day without losing mark provenance.
- * @see ../docs/product/grades.md#mesh-reconciliation
+ * @see ../docs/modules/school-diary/grades.md#mesh-reconciliation
  */
 export async function stageGradeProjectionForRole({ role, links, owner, fingerprint, previousFingerprint,
   desired, loadPage, stagePatch }) {

@@ -6,7 +6,7 @@ import { clearCachedLessonStatuses } from './dayDashboardLessonCache'
 import { clearCachedDashboardView } from './dayDashboardViewCache'
 import { clearCachedInbox } from './inboxCache'
 
-/** @see ../../docs/architecture/family-data-model.md#link-login */
+/** @see ../../docs/modules/families/README.md#link-login */
 export type PersonalSession = { personId: string; deviceUid: string; linkToken: string }
 export type PersonalChild = {
   familyId: string
@@ -34,7 +34,7 @@ type PersonalContext = { session: PersonalSession; profile: PersonalProfile }
 type CachedPersonalContext = PersonalContext & { savedAt: number }
 
 /** A device-scoped last known view. Firestore rules remain the authority for every remote read/write.
- * @see ../../docs/architecture/local-first-release-plan-2026-10-12.md#personal-startup
+ * @see ../../docs/plans/local-first-release-plan-2026-10-12.md#personal-startup
  */
 export function readCachedPersonalContext(): CachedPersonalContext | null {
   try {
@@ -207,7 +207,7 @@ export async function redeemPersonalLink(value: string): Promise<PersonalSession
 
 /** Shared startup read for the entry screen and bell. Authorization is still
  * checked by Firestore on every document; revocation clears this short cache.
- * @see ../../docs/architecture/local-first-release-plan-2026-10-12.md
+ * @see ../../docs/plans/local-first-release-plan-2026-10-12.md
  */
 export async function restorePersonalContext(): Promise<{ session: PersonalSession; profile: PersonalProfile } | null> {
   const auth = getAuth()
@@ -231,7 +231,7 @@ export async function restorePersonalContext(): Promise<{ session: PersonalSessi
   })
 }
 
-/** @see ../../docs/architecture/family-data-model.md#authorization */
+/** @see ../../docs/modules/families/README.md#authorization */
 export async function restorePersonalSession(): Promise<PersonalSession | null> {
   const auth = getAuth()
   await auth.authStateReady()
@@ -251,7 +251,7 @@ export async function restorePersonalSession(): Promise<PersonalSession | null> 
   return sessionFromGrant(linkToken, deviceUid, expectedRevision)
 }
 
-/** @see ../../docs/product/adaptive-problem-card.md#показ-ученику */
+/** @see ../../docs/modules/reviews/adaptive-problem-card.md#показ-ученику */
 export async function dayHelpSessionRole(): Promise<'student' | 'parent' | null> {
   try {
     const session = await restorePersonalSession()
@@ -263,7 +263,7 @@ export async function dayHelpSessionRole(): Promise<'student' | 'parent' | null>
   } catch { return null }
 }
 
-/** @see ../../docs/architecture/family-data-model.md#collections */
+/** @see ../../docs/modules/families/README.md#collections */
 export async function loadPersonalProfile(session: PersonalSession): Promise<PersonalProfile> {
   const person = await getDoc(doc(db, 'users', session.personId))
   if (!person.exists()) throw new Error('Профиль ещё не опубликован.')

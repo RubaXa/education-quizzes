@@ -17,7 +17,7 @@ export function viewedHomeworkNoticeIds(notices: Notice[], viewed: ViewedHomewor
 
 /** One visible thread for unread updates to the same work. The source events
  * remain immutable and individually addressable for audit and old clients.
- * @see ../../docs/architecture/activity-and-inbox.md#in-app-center
+ * @see ../../docs/modules/notifications/inbox.md#in-app-center
  */
 export function notificationThreadKey(notice: Notice): string {
   const scope = `${notice.familyId ?? ''}/${notice.childId ?? ''}`

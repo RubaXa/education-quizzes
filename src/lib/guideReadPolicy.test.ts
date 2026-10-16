@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { isSubjectExpanded, visibleGuideTaskIds } from './guideReadPolicy'
 
-/** @see ../../docs/product/day-page.md#completed-subjects */
+/** @see ../../docs/modules/school-diary/day-page.md#completed-subjects */
 describe('existing subject disclosure', () => {
   it('opens unfinished work and folds completed work by default', () => {
     expect(isSubjectExpanded('biology', false, {})).toBe(true)

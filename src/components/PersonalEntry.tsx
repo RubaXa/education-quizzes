@@ -31,9 +31,9 @@ function transientAccessError(cause: unknown): boolean {
     && ['auth/network-request-failed', 'unavailable', 'deadline-exceeded'].includes(String(cause.code)))
 }
 
-/** @see ../../docs/architecture/family-data-model.md#link-login
- *  @see ../../docs/architecture/family-data-model.md#parent-home
- *  @see ../../docs/product/design-system.md#shell */
+/** @see ../../docs/modules/families/README.md#link-login
+ *  @see ../../docs/modules/families/README.md#parent-home
+ *  @see ../../docs/shared/design/README.md#shell */
 export function PersonalEntry({ initialLink }: { initialLink?: string }) {
   const [initialContext] = useState(() => {
     if (initialLink) return null

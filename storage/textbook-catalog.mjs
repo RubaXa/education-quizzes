@@ -11,7 +11,7 @@ function sha256(bytes) { return createHash('sha256').update(bytes).digest('hex')
 /**
  * The local search index supplies page identity; Firestore stores the shared catalog.
  * A page's public URL is added only after its exact PNG is checked on Yandex Disk.
- * @see ../docs/product/materials.md#firestore-catalog
+ * @see ../docs/modules/materials/materials.md#firestore-catalog
  */
 export function indexedBooks() {
   const registry = JSON.parse(readFileSync(registryFile, 'utf8'))

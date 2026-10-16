@@ -30,7 +30,7 @@ beforeEach(() => {
   scene.writes = []
 })
 
-/** @see ../../docs/product/quizzes.md#optional-quiz */
+/** @see ../../docs/modules/assessments/quizzes.md#optional-quiz */
 describe('parent family choice is an isolated assignment write', () => {
   it('turns an open root test optional with one read and without touching answers', async () => {
     await setQuizRequired('root', 'root', false)
@@ -56,7 +56,7 @@ describe('parent family choice is an isolated assignment write', () => {
   })
 })
 
-/** @see ../../docs/product/quizzes.md#followup-request */
+/** @see ../../docs/modules/assessments/quizzes.md#followup-request */
 describe('universal parent continuation uses the same narrow transaction', () => {
   it('accepts a completed 100% attempt, reads once and writes only the request fields', async () => {
     scene.docs['assignments/root'] = { ...scene.docs['assignments/root'], status: 'submitted', points: 5, maxPoints: 5, answers: { a: 'right' } }

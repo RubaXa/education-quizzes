@@ -1,10 +1,10 @@
-/* @see ../../docs/product/design-system.md#cards-and-status — shared task source uses Education tokens. */
+/* @see ../../docs/shared/design/README.md#cards-and-status — shared task source uses Education tokens. */
 .day-assignment-brief{margin:11px 0;border:1px solid var(--edu-card-border);border-radius:var(--edu-radius-control);background:var(--edu-surface);padding:11px 13px;line-height:1.5}
 .day-assignment-brief-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--edu-ink);font-size:.82rem}
 .day-assignment-brief-heading>span{color:var(--edu-muted);font-weight:700}
 .day-assignment-brief>p{margin:4px 0 0;color:var(--edu-ink);font-weight:650}
 .day-assignment-explanation{display:block;margin-top:7px;color:var(--edu-muted)}
-/* @see ../../docs/product/problem-card-design-decisions.md#flat-numbered-sheet */
+/* @see ../../docs/modules/reviews/problem-card-design-decisions.md#flat-numbered-sheet */
 .day-assignment-brief-compact{border:0;border-radius:0;background:transparent;padding:0;color:var(--edu-text-secondary)}
 .day-assignment-brief-compact>summary{display:list-item;min-height:var(--edu-touch-target);padding:10px 0;cursor:pointer;font-size:.82rem;font-weight:750}
 .day-assignment-brief-compact>summary:focus-visible{outline:3px solid var(--edu-focus);outline-offset:2px}

@@ -5,8 +5,8 @@ import { getFirestore } from 'firebase-admin/firestore'
 import { projectPublishedBookToFamily, validFamilyBookManifest } from '../storage/family-book-projection.mjs'
 
 /** One-time additive migration. Old bookPages rows and old clients stay valid.
- * @see ../docs/product/family-library.md#full-book-reader
- * @see ../docs/architecture/local-first-release-plan-2026-10-12.md */
+ * @see ../docs/modules/materials/family-library.md#full-book-reader
+ * @see ../docs/plans/local-first-release-plan-2026-10-12.md */
 const apply = process.argv.includes('--apply')
 const audit = process.argv.includes('--audit')
 if (apply && audit || process.argv.some((arg) => arg.startsWith('--') && !['--apply', '--audit'].includes(arg))) {

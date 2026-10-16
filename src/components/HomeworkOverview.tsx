@@ -5,7 +5,7 @@ import StatusIcon from './StatusIcon'
 import '../DayDashboard.css'
 
 /** One date, short group headings and a bounded preview; full tasks stay at their existing destination.
- * @see ../../docs/product/dashboard.md#compact-homework */
+ * @see ../../docs/modules/school-diary/dashboard.md#compact-homework */
 export default function HomeworkOverview({ date, rows = [], unconfirmed = [], fallback, onOpen, onOpenAll, openAllLabel = 'Все задания' }: {
   date?: string; rows?: CachedHomeworkRow[]; unconfirmed?: { subject: string; text: string }[];
   fallback?: ReactNode; onOpen: (row: CachedHomeworkRow, taskId?: string) => void;

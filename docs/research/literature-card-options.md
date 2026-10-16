@@ -1,6 +1,19 @@
+---
+id: research.literature-card-options
+status: reference
+implementation: not-applicable
+parent: product.education
+uses: []
+sections:
+  - что-действительно-встречалось
+  - пять-форм-без-пяти-отдельных-ui-компонентов
+  - композиция-из-имеющегося-кода
+  - основание-для-выбора
+
+---
 # Литература: конечный набор карточек для обсуждения
 
-Статус: **варианты согласованы; реализованные ветки описаны в [действующем графе](../product/card-generation-policy.md#subject-adapters)**. Основа — проверенные записи МЭШ за 5, 7, 9 и 12 октября 2026 года, семейный учебник Коровиной и разбор «Кубка». Общая [оболочка задания](../product/card-generation-policy.md#shared-shell), [дизайн-система](../product/design-system.md#cards-and-status) и [границы источника](../product/plan-generation.md#raw-mesh-stage) остаются действующими. Новая форма выбирается по **требуемому результату**, а не по слову «литература».
+Статус: **варианты согласованы; реализованные ветки описаны в [действующем графе](../modules/reviews/card-generation-policy.md#subject-adapters)**. Основа — проверенные записи МЭШ за 5, 7, 9 и 12 октября 2026 года, семейный учебник Коровиной и разбор «Кубка». Общая [оболочка задания](../modules/reviews/card-generation-policy.md#shared-shell), [дизайн-система](../shared/design/README.md#cards-and-status) и [границы источника](../modules/synchronization/plan-generation.md#raw-mesh-stage) остаются действующими. Новая форма выбирается по **требуемому результату**, а не по слову «литература».
 
 ## Что действительно встречалось
 

@@ -49,7 +49,7 @@ function tokenMeaning(name: string) {
 }
 
 /** Small living documentation page. Examples import the shipped components and never access family data.
- * @see ../docs/product/ui-kit.md */
+ * @see ../docs/shared/design/ui-kit.md */
 export default function UiKit() {
   const [section,setSection] = useState<(typeof topics)[number]['id']>('results')
   const [points,setPoints] = useState(34)

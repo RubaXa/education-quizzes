@@ -10,7 +10,7 @@ import { projectPublishedBookToFamily } from '../storage/family-book-projection.
 import { YandexDiskStorage } from '../storage/yandex-disk.mjs'
 
 /** Long-running local broker. It never receives image bytes from Firestore.
- * @see ../docs/architecture/local-first-sync.md#operator-upload-index
+ * @see ../docs/services/web-app/local-first-sync.md#operator-upload-index
  */
 const local = resolve('.local')
 const adc = resolve(local, 'adc.json')

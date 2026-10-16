@@ -3,7 +3,7 @@ import { isCdzTask } from './dayStore'
 import type { DayTask, DayTestPlacement } from './dayStore'
 
 /** Stable read model shared by the day route and the personal test list.
- * @see ../../docs/product/subject-card-viewmodel.md#projections */
+ * @see ../../docs/modules/reviews/subject-card-viewmodel.md#projections */
 export type QuizCardAttempt = {
   token: string; testId: string; linkedToTestId?: string | null; title: string; description?: string;
   slug: string; previewToken?: string; status: Assignment['status']; answered: number; total: number;
@@ -16,7 +16,7 @@ export type QuizCardAttempt = {
 }
 
 /** Presentation order never mutates the causal chain or sorts by a late review update.
- * @see ../../docs/product/quiz-chain-proposal.md */
+ * @see ../../docs/modules/assessments/quiz-chain-proposal.md */
 export function quizTimestamp(value: unknown): number {
   if (value instanceof Date) return Number.isFinite(value.getTime()) ? value.getTime() : 0
   if (typeof value === 'string' || typeof value === 'number') { const time = new Date(value).getTime(); return Number.isFinite(time) ? time : 0 }
@@ -45,7 +45,7 @@ export function quizAnswerCounts(test: QuizCardAttempt) {
 }
 
 /** A single check task and a single standalone quiz are one family self-check.
- * @see ../../docs/product/day-page.md#single-check-quiz */
+ * @see ../../docs/modules/school-diary/day-page.md#single-check-quiz */
 export function quizTaskForPlacement(tasks: DayTask[], placements: DayTestPlacement[], placement: DayTestPlacement): DayTask | undefined {
   if (!placements.some((item) => item.token === placement.token)) return undefined
   if (placement.taskId) return tasks.find((task) => task.id === placement.taskId)
@@ -90,7 +90,7 @@ export function quizRoot<T extends Pick<QuizCardAttempt, 'token' | 'testId' | 'l
 }
 
 /** A linked quiz has one visible card at its root assignment, not an extra DOM card.
- * @see ../../docs/product/dashboard.md#schedule-homework-status */
+ * @see ../../docs/modules/school-diary/dashboard.md#schedule-homework-status */
 export function findQuizPlacement<T extends { token: string }>(placements: T[], tests: QuizCardAttempt[], token: string): T | undefined {
   return placements.find((placement) => quizChain(tests.find((test) => test.token === placement.token), tests)
     .some((test) => test.token === token))

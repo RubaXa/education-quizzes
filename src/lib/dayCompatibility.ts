@@ -15,7 +15,7 @@ function bareToken(value: string) { return value.includes('~') ? value.slice(val
 
 /** Migrate the readable v0/v1 page shape in memory. Never write from the browser.
  * An old placement is superseded by the task's current testToken.
- * @see ../../docs/product/access-and-state.md#schema-compatibility */
+ * @see ../../docs/modules/families/access-and-state.md#schema-compatibility */
 export function normalizeDayPage(raw: unknown): DayPageData {
   const data = raw as DayPageData & { schemaVersion?: number }
   if (!data || typeof data !== 'object' || !supportedVersion(data.schemaVersion)

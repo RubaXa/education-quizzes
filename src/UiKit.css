@@ -1,4 +1,4 @@
-/* @see ../docs/product/ui-kit.md — living docs use existing Shell and Education tokens. */
+/* @see ../docs/shared/design/ui-kit.md — living docs use existing Shell and Education tokens. */
 .edu-kit{color:var(--edu-ink)}
 .edu-kit-intro{margin-bottom:24px}
 .edu-kit-intro>span{display:flex;align-items:center;gap:7px;color:var(--edu-accent-ink);font-weight:750}

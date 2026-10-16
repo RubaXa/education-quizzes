@@ -1,4 +1,4 @@
-/** @see ../docs/product/material-clarification.md */
+/** @see ../docs/modules/materials/material-clarification.md */
 import { sourceReviewErrors } from '../src/lib/materialRequest.ts'
 import { createHash } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
@@ -16,9 +16,9 @@ import { YandexDiskStorage } from '../storage/yandex-disk.mjs'
 import { notificationId, reviewAttemptKey, stageFamilyNotice, taskContext } from '../storage/inbox-notifications.mjs'
 
 /** Private agent inbox; file bytes stay on Yandex Disk or in ignored .local.
- * @see ../docs/product/storage-privacy.md#review-queue
- * @see ../docs/product/adaptive-problem-card.md#слои
- * @see ../docs/architecture/change-detection-and-reconciliation.md
+ * @see ../docs/modules/materials/storage-privacy.md#review-queue
+ * @see ../docs/modules/reviews/adaptive-problem-card.md#слои
+ * @see ../docs/modules/synchronization/change-detection-and-reconciliation.md
  */
 const [command, argument, phase] = process.argv.slice(2)
 const reviewCommand = ['review', 'validate', 'progress', 'feedback'].includes(command)
@@ -136,7 +136,7 @@ async function feedbackAudit() {
   return { checked, missing }
 }
 
-/** @see ../docs/product/review-criteria-provenance.md */
+/** @see ../docs/modules/reviews/review-criteria-provenance.md */
 async function basisAudit() {
   const owners = await db.collection('dayOwners').get()
   const missing = []
@@ -201,7 +201,7 @@ async function linkedReviewPhotos(review, shared = false) {
   return { owner, refs, photos, page }
 }
 
-/** @see ../docs/architecture/activity-and-inbox.md#notification-producers */
+/** @see ../docs/modules/notifications/inbox.md#notification-producers */
 async function stageReviewNotice(batch, owner, page, review, entries, type, now) {
   const familyId = owner.data().familyId
   const childId = owner.data().childId
@@ -228,7 +228,7 @@ async function stageReviewNotice(batch, owner, page, review, entries, type, now)
       body, sourceRevision: now.toMillis() } })
 }
 
-/** @see ../docs/product/storage-privacy.md#review-publication */
+/** @see ../docs/modules/materials/storage-privacy.md#review-publication */
 async function publishProgress(filename, phase) {
   const review = privateReviewFile(filename)
   const shared = Boolean(review.reviews)
@@ -255,7 +255,7 @@ async function publishProgress(filename, phase) {
   console.log(JSON.stringify({ phase, publishedToFirebase: true }))
 }
 
-/** @see ../docs/product/review-criteria-provenance.md#second-pass */
+/** @see ../docs/modules/reviews/review-criteria-provenance.md#second-pass */
 function validateReviewResult(review, page, guide, { requireChallenge = false } = {}) {
   const sourceTask = page.subjects?.flatMap(subject => subject.tasks ?? []).find(task => task.id === review.taskId)
   const sourceErrors = sourceReviewErrors(review, sourceTask ?? {})
@@ -320,7 +320,7 @@ function validateReviewResult(review, page, guide, { requireChallenge = false } 
   }
 }
 
-/** @see ../docs/product/review-criteria-provenance.md#work-coverage */
+/** @see ../docs/modules/reviews/review-criteria-provenance.md#work-coverage */
 function validateWorkCoverage(review) {
   if (!review.workCoverage) return
   const coverage = review.workCoverage
@@ -333,11 +333,11 @@ function validateWorkCoverage(review) {
   }
 }
 
-/** @see ../docs/product/review-criteria-provenance.md */
+/** @see ../docs/modules/reviews/review-criteria-provenance.md */
 function validateAssessmentBasis(review) {
   const basis = review.assessmentBasis
   // dayProgress is readable by the learner; answer keys belong in the private source pack.
-  // @see ../docs/product/review-criteria-provenance.md
+  // @see ../docs/modules/reviews/review-criteria-provenance.md
   const sourceKinds = new Set(['teacher', 'mesh', 'textbook', 'method-guide', 'curriculum'])
   if (!basis || !Number.isInteger(basis.grade) || basis.grade < 1 || basis.grade > 11
     || !/^20\d{2}\/\d{2}$/.test(basis.schoolYear)
@@ -375,7 +375,7 @@ function validateAssessmentBasis(review) {
   }
 }
 
-/** @see ../docs/product/adaptive-problem-card.md#адресный-разбор */
+/** @see ../docs/modules/reviews/adaptive-problem-card.md#адресный-разбор */
 function validateStudentFeedback(review) {
   const feedback = review.studentFeedback
   if (!feedback || !['title', 'confirmed', 'focus', 'question'].every((key) => typeof feedback[key] === 'string' && feedback[key].trim().length >= 8 && feedback[key].length <= 700)
@@ -460,7 +460,7 @@ async function publishFeedbackCorrection(filename) {
 }
 
 /** Shared, read-only validation for a proposed review and its exact source context.
- * @see ../docs/architecture/operator-core.md#decision-packets */
+ * @see ../docs/services/operator-cli/README.md#decision-packets */
 async function preparedReview(filename) {
   const review = privateReviewFile(filename)
   const shared = Boolean(review.reviews)
@@ -483,7 +483,7 @@ async function validateReviewFile(filename) {
     publishedToFirebase: false }))
 }
 
-/** @see ../docs/product/storage-privacy.md#multi-task-photo */
+/** @see ../docs/modules/materials/storage-privacy.md#multi-task-photo */
 async function publishReview(filename) {
   const { review, coverage, owner, refs, page, entries } = await preparedReview(filename)
   const reviewRefs = entries.map((entry) => db.doc(`dayProgress/${owner.id}/items/${entry.taskId}`))

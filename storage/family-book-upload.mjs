@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto'
 
-/** @see ../docs/product/family-library.md#upload */
+/** @see ../docs/modules/materials/family-library.md#upload */
 const identifier = /^[A-Za-z0-9_-]{20,80}$/
 const extensions = Object.freeze({ 'application/pdf': 'pdf' })
 

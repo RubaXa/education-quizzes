@@ -14,7 +14,7 @@ export type ProblemGroupSummary = {
   tone: 'success' | 'partial' | 'error' | 'working' | 'neutral'
 }
 
-/** @see ../../docs/product/day-page.md#completed-problem-group */
+/** @see ../../docs/modules/school-diary/day-page.md#completed-problem-group */
 export function summarizeProblemGroup(problems: DayProblem[], uploads: DayUpload[], reviews: DayWorkReview[], localPendingCount: number, ready: boolean, decisions: ParentCompletionEvent[] = []): ProblemGroupSummary {
   const linked = uploads.filter((upload) => problems.some((problem) => uploadMatchesTask(upload, problem.id)))
   const reviewed = linked.filter((upload) => upload.status === 'reviewed')

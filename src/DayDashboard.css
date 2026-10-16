@@ -1,4 +1,4 @@
-/* @see ../docs/product/status-presentation.md#components — shared surfaces and semantic states. */
+/* @see ../docs/shared/design/statuses.md#components — shared surfaces and semantic states. */
 .day-dashboard{width:100%;min-width:0;max-width:100%;margin:auto;color:var(--edu-ink-dashboard)}
 .day-dashboard *{box-sizing:border-box}
 .day-dashboard>*,.day-dashboard-grid>*,.day-dashboard-side>*{min-width:0;max-width:100%}
@@ -30,13 +30,13 @@
 .day-dashboard-card{padding:20px}
 .day-dashboard-card p{margin:7px 0;color:#6c617d;font-size:.9rem;line-height:1.55}
 .day-dashboard-card small{color:#8a7f97;font-size:.73rem;line-height:1.45}
-/* @see ../docs/product/dashboard.md#progressive-schedule */
+/* @see ../docs/modules/school-diary/dashboard.md#progressive-schedule */
 .day-dashboard-schedule-toggle{display:inline-flex;align-items:center;gap:5px;min-height:32px;margin:-4px 0 8px;padding:3px 0;border:0;background:transparent;color:#60449b;font:inherit;font-size:.78rem;font-weight:800;cursor:pointer}
 .day-dashboard-schedule-toggle svg{transition:transform .18s ease}
 .day-dashboard-schedule-toggle[aria-expanded="true"] svg{transform:rotate(180deg)}
 .day-dashboard-schedule-toggle:focus-visible{outline:3px solid var(--edu-focus);outline-offset:2px}
 .day-dashboard-side{display:grid;gap:14px}
-/* @see ../docs/product/dashboard.md#homework-progress */
+/* @see ../docs/modules/school-diary/dashboard.md#homework-progress */
 .day-dashboard-homework-overview{display:grid;gap:12px}
 .day-dashboard-card .day-dashboard-homework-summary{margin:0;padding:10px 13px;border-radius:12px;font-size:.83rem;font-weight:800}
 .day-dashboard-homework-summary.action{background:var(--edu-status-attention-bg);color:var(--edu-status-attention-ink)}
@@ -67,7 +67,7 @@
 .day-dashboard-mesh span{color:#716684}
 .day-dashboard-empty{padding:13px 0}
 .day-dashboard-lessons{list-style:none;margin:0;padding:0}
-/* @see ../docs/product/dashboard.md#progressive-schedule — completed lessons share one compact control during the school day. */
+/* @see ../docs/modules/school-diary/dashboard.md#progressive-schedule — completed lessons share one compact control during the school day. */
 .day-dashboard-past-toggle{display:grid;grid-template-columns:max-content minmax(0,1fr) 16px;align-items:center;gap:8px;width:100%;min-height:43px;padding:8px 0;border:0;border-top:1px solid #eee9f3;background:transparent;color:var(--edu-accent-ink);font:inherit;font-size:.78rem;text-align:left;cursor:pointer}
 .day-dashboard-past-toggle strong{white-space:nowrap;font-weight:800}
 .day-dashboard-past-toggle span{min-width:0;overflow:hidden;color:var(--edu-text-secondary);text-overflow:ellipsis;white-space:nowrap}
@@ -79,7 +79,7 @@
 .day-dashboard-lesson summary::-webkit-details-marker{display:none}
 .day-dashboard-lesson time{color:#756496;font-weight:750;font-variant-numeric:tabular-nums;font-size:.83rem}
 .day-dashboard-lesson-name{min-width:0;overflow-wrap:anywhere;line-height:1.3}
-/* @see ../docs/product/dashboard.md#lesson-countdowns — time state is separate from homework status. */
+/* @see ../docs/modules/school-diary/dashboard.md#lesson-countdowns — time state is separate from homework status. */
 .day-dashboard-lesson-phase{display:inline-flex;align-items:center;gap:3px;margin-left:6px;font-size:.67rem;font-weight:750;font-variant-numeric:tabular-nums;white-space:nowrap;vertical-align:baseline}
 .day-dashboard-lesson-phase svg{flex:none}
 .day-dashboard-lesson-phase.waiting{color:var(--edu-status-waiting-ink)}
@@ -111,7 +111,7 @@
 .day-dashboard-lesson-body .day-dashboard-lesson-update{color:#86581c;font-weight:750}
 .day-dashboard-lesson-body>small{display:block;margin-top:7px;color:#817791}
 .day-dashboard-lesson summary:focus-visible,.day-dashboard-lesson-body button:focus-visible{outline:3px solid #ad8ce5;outline-offset:2px}
-/* @see ../docs/product/design-system.md#mobile-card-headings */
+/* @see ../docs/shared/design/README.md#mobile-card-headings */
 @media(max-width:560px){
   .day-dashboard-lesson summary{grid-template-columns:44px minmax(0,1fr) max-content;gap:6px;align-items:center}
   .day-dashboard-lesson-name{overflow-wrap:break-word;word-break:normal}
@@ -137,7 +137,7 @@
 .day-dashboard-grade-detail li.mark-5{background:#e7f6eb;color:#267346}
 .day-dashboard-grade-detail li.mark-2,.day-dashboard-grade-detail li.mark-3{background:#fff0da;color:#925d16}
 .day-dashboard-grade-detail li small{font-size:.65rem;color:inherit}
-/* @see ../docs/product/grades.md#dashboard-grade-list */
+/* @see ../docs/modules/school-diary/grades.md#dashboard-grade-list */
 .day-dashboard-grade-detail li button{display:inline-flex;align-items:center;gap:3px;justify-content:center;min-width:34px;min-height:34px;padding:4px 7px;border:0;border-radius:8px;background:transparent;color:inherit;font:inherit;cursor:pointer}
 .day-dashboard-grade-detail li button[aria-expanded="true"]{outline:2px solid currentColor;outline-offset:1px}
 .day-dashboard-grade-detail li button:focus-visible{outline:2px solid #7045b8;outline-offset:2px}
@@ -150,10 +150,10 @@
 .day-dashboard-loading{padding:30px;text-align:center}
 @media(max-width:760px){.day-dashboard-grid{grid-template-columns:1fr}.day-dashboard-side{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){.day-dashboard-calendar{padding:15px 12px}.day-dashboard-date{flex-basis:58px}.day-dashboard-side{grid-template-columns:1fr}.day-dashboard-heading h2{font-size:1.15rem}}
-/* @see ../docs/product/dashboard.md#schedule-homework-status */
+/* @see ../docs/modules/school-diary/dashboard.md#schedule-homework-status */
 .day-dashboard-lesson{scroll-margin-top:1rem}
 
-/* @see ../docs/product/dashboard.md#compact-homework — one title/date, no repeated summary banner. */
+/* @see ../docs/modules/school-diary/dashboard.md#compact-homework — one title/date, no repeated summary banner. */
 .day-dashboard-homework-heading{flex-direction:column;align-items:flex-start;gap:5px}
 .day-dashboard-homework-heading time{margin-left:30px;color:var(--edu-text-secondary);font-size:.85rem;line-height:1.4}
 .day-dashboard-homework-card .day-dashboard-homework-heading h2{margin:0;font-size:1.2rem;line-height:1.25}

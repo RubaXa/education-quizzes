@@ -1,7 +1,7 @@
-/** @see ../docs/product/material-clarification.md */
+/** @see ../docs/modules/materials/material-clarification.md */
 import { isDeepStrictEqual } from 'node:util'
 /** Verify only the documents changed by one review publication.
- * @see ../docs/architecture/operator-core.md#execution */
+ * @see ../docs/services/operator-cli/README.md#execution */
 export function assertReviewReadback({ entries, planRevision, privateDocs, publicDocs, uploads }) {
   if (entries.length !== privateDocs.length || entries.length !== publicDocs.length || !uploads.length) {
     throw new Error('Incomplete review readback.')

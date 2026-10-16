@@ -1,6 +1,6 @@
 /** Real CSS geometry for the shared active-test header on a narrow phone.
- * @see ../docs/product/quizzes.md#optional-quiz
- * @see ../docs/product/quizzes.md#attempt-time */
+ * @see ../docs/modules/assessments/quizzes.md#optional-quiz
+ * @see ../docs/modules/assessments/quizzes.md#attempt-time */
 import { spawn } from 'node:child_process'
 import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'

@@ -1,6 +1,6 @@
-/** @see ../docs/product/material-clarification.md */
+/** @see ../docs/modules/materials/material-clarification.md */
 /** Only this projection may be stored under learner-readable dayProgress.
- * @see ../docs/product/adaptive-problem-card.md#показ-ученику
+ * @see ../docs/modules/reviews/adaptive-problem-card.md#показ-ученику
  */
 export function studentReviewProjection(review) {
   if (!review || typeof review !== 'object') return review

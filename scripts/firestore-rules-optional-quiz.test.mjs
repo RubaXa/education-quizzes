@@ -3,7 +3,7 @@ import { test } from 'vitest'
 import { strict as assert } from 'node:assert'
 
 /** Narrow parent write for the family requirement; answers and score are immutable.
- * @see ../docs/product/quizzes.md#optional-quiz */
+ * @see ../docs/modules/assessments/quizzes.md#optional-quiz */
 test('only a parent can toggle the root self-check requirement', () => {
   const rules = readFileSync(new URL('../firestore.rules', import.meta.url), 'utf8')
   const start = rules.indexOf('// Only a parent may change whether a root self-check counts')

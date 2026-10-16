@@ -7,7 +7,7 @@ import { indexedBooks } from '../storage/textbook-catalog.mjs'
 import { projectPublishedBookToFamily } from '../storage/family-book-projection.mjs'
 
 /** One idempotent operator pass for registered PDFs and every family binding.
- * @see ../docs/product/education-pipeline.md#textbook-sync
+ * @see ../docs/modules/synchronization/education-pipeline.md#textbook-sync
  */
 const root = resolve('..')
 const credentials = resolve('.local/adc.json')

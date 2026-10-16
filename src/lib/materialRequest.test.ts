@@ -3,7 +3,7 @@ import { materialRequestErrors, materialRequestView, sourceReviewErrors } from '
 
 const task = { assessmentIntent:{state:'needs-topic'}, materialRequest:{id:'notes-1',state:'open' as const,question:'Какая последняя тема записана в тетради?',photoPrompt:'Пришли заголовок и записи последнего урока.'} }
 const analysis = {requestId:'notes-1',topic:'Баллада',observed:'Виден заголовок и три определения.',quality:'Определения читаются, правый край обрезан.',limitation:'По снимку неизвестно, насколько самостоятельно сделаны записи.',nextStep:'Уточним последний пример по целой строке.',evidence:[{uploadId:'photo-1',location:'Верхняя часть страницы',text:'Заголовок «Баллада» и записи ниже.'}]}
-/** @see ../../docs/product/material-clarification.md */
+/** @see ../../docs/modules/materials/material-clarification.md */
 describe('a source request is separate from completion',()=>{
   it('validates a request and never invents a topic from the MESH pointer',()=>{
     expect(materialRequestErrors(task)).toEqual([])

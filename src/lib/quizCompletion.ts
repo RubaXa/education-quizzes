@@ -1,4 +1,4 @@
-/** @see ../../docs/product/assessment-decision-graph.md#followup-threshold */
+/** @see ../../docs/modules/assessments/assessment-decision-graph.md#followup-threshold */
 export const QUIZ_PASS_PERCENT = 85
 
 export function quizPassed(score?: { points: number; maxPoints: number } | null): boolean {

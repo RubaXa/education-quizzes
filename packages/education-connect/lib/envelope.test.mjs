@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { randomBytes } from 'node:crypto'
 import { decryptHandoff, encryptHandoff, generateReceiverKeys } from './envelope.mjs'
 
-/** @see ../../../docs/architecture/school-diary-port-adapter.md#family-onboarding-research */
+/** @see ../../../docs/modules/school-diary/README.md#family-onboarding-research */
 describe('education-connect handoff', () => {
   const invite = randomBytes(32).toString('base64url')
 

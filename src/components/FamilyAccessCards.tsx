@@ -3,7 +3,7 @@ import { addDoc, collection, doc, onSnapshot, serverTimestamp } from 'firebase/f
 import { getAuth } from 'firebase/auth'
 import { Copy, KeyRound, Link2, ShieldCheck, UsersRound } from 'lucide-react'
 import StatusIcon from './StatusIcon'
-// @see ../../docs/product/status-presentation.md#components — pending invitations use the shared waiting sign.
+// @see ../../docs/shared/design/statuses.md#components — pending invitations use the shared waiting sign.
 import { db } from '@/lib/firebase'
 import type { PersonalChild, PersonalProfile } from '@/lib/personalAccess'
 import { Button } from './ui/button'
@@ -72,8 +72,8 @@ function InviteRow({ item, nowMs, busy, revokePending, copy, revoke }: { item: I
 }
 
 /** Browser requests are queued; the local operator owns the receiver key.
- * @see ../../docs/architecture/family-data-model.md#invitations
- * @see ../../docs/product/design-system.md#cards-and-status */
+ * @see ../../docs/modules/families/README.md#invitations
+ * @see ../../docs/shared/design/README.md#cards-and-status */
 function InvitesCard({ familyId, personId }: { familyId: string; personId: string }) {
   const [right, setRight] = useState<Member | null>(null)
   const { records: allInvites, error: inviteError } = useRecords<Invite>(right?.inviteUnlimited ? ['families', familyId, 'invites'] : ['users', personId, 'invites'])
@@ -168,9 +168,9 @@ function ChildAccess({ familyId, child, actorPersonId }: { familyId: string; chi
   </div>
 }
 
-/** @see ../../docs/architecture/family-data-model.md#parent-home
- *  @see ../../docs/product/design-system.md#cards-and-status
- *  @see ../../docs/architecture/local-first-release-plan-2026-10-12.md */
+/** @see ../../docs/modules/families/README.md#parent-home
+ *  @see ../../docs/shared/design/README.md#cards-and-status
+ *  @see ../../docs/plans/local-first-release-plan-2026-10-12.md */
 export function FamilyAccessCards({ profile, familyChildren }: { profile: PersonalProfile; familyChildren: PersonalChild[] }) {
   const familyId = familyChildren[0]?.familyId
   const sectionRef = useRef<HTMLElement>(null)

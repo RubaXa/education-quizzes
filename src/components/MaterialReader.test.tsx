@@ -8,7 +8,7 @@ import type { DayMaterialLink } from '@/lib/dayStore'
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 
-/** @see ../../docs/product/materials.md#material-reader */
+/** @see ../../docs/modules/materials/materials.md#material-reader */
 describe('adjacent textbook page strip', () => {
   const links = [150, 151, 152, 153].map((page): DayMaterialLink => ({
     title: `Starlight 6, стр. ${page}`, url: `https://disk.yandex.ru/i/page-${page}`,

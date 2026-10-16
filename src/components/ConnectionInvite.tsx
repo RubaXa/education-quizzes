@@ -8,8 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { db } from '@/lib/firebase'
 import { reportUiError } from '@/lib/uiErrors'
 
-/** @see ../../docs/architecture/school-diary-port-adapter.md#family-onboarding-research
- * @see ../../docs/product/status-presentation.md#components */
+/** @see ../../docs/modules/school-diary/README.md#family-onboarding-research
+ * @see ../../docs/shared/design/statuses.md#components */
 export function ConnectionInvite({ code }: { code: string }) {
   const [state, setState] = useState<'loading' | 'open' | 'submitted' | 'connected' | 'closed' | 'error'>('loading')
   const [submitted, setSubmitted] = useState(false)

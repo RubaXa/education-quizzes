@@ -1,5 +1,5 @@
 /** Fixed recipes preserve fresh inbox evidence without scanning it twice.
- * @see ../docs/architecture/operator-core.md#operation-contract */
+ * @see ../docs/services/operator-cli/README.md#operation-contract */
 const recipes = Object.freeze({
   status: ['project.plan', 'inbox.snapshot', 'queue.list'],
   discover: ['queue.scan', 'project.plan'],

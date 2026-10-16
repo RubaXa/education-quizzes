@@ -1,5 +1,5 @@
 /** A tutor asks for context without inventing a teacher requirement or a grade.
- * @see ../../docs/product/material-clarification.md */
+ * @see ../../docs/modules/materials/material-clarification.md */
 export type MaterialRequest = {
   id: string; state: 'open' | 'resolved'; question: string; photoPrompt: string;
   resolvedTopic?: string; uploadIds?: string[];

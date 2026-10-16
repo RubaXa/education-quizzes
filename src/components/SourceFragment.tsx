@@ -6,8 +6,8 @@ import EducationImage from './EducationImage'
 import './SourceFragment.css'
 
 /** Coordinate-based viewport onto the preserved original. No rewritten image is stored.
- * @see ../../docs/product/design-system.md#images
- * @see ../../docs/product/problem-card-design-decisions.md#flat-numbered-sheet */
+ * @see ../../docs/shared/design/README.md#images
+ * @see ../../docs/modules/reviews/problem-card-design-decisions.md#flat-numbered-sheet */
 export default function SourceFragment({ link, crop, number }: { link: DayMaterialLink; crop: DaySourceCrop; number: number }) {
   const [open, setOpen] = useState(false)
   const [whole, setWhole] = useState(false)

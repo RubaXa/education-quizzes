@@ -17,8 +17,8 @@ import { enqueueSyncJob, setSyncJob, syncFingerprint } from '../sync/job-queue.m
 import { reuseRunContext } from '../sync/run-context.mjs'
 
 /** Global source collection. Enrichment and publication remain separate checked phases.
- * @see ../docs/product/global-sync.md#inventory
- * @see ../docs/product/global-sync.md#status
+ * @see ../docs/modules/synchronization/global-sync.md#inventory
+ * @see ../docs/modules/synchronization/global-sync.md#status
  */
 const db = operatorFirestore()
 const local = resolve('.local')
@@ -29,7 +29,7 @@ if (!['plan', 'collect', 'phase'].includes(command)) throw new Error('Испол
 
 // Timings are confined to the private run manifest. These count adapter
 // operations, not underlying HTTP requests or billed Firestore document reads.
-// @see ../docs/architecture/education-sync-latency-audit-2026-10-15.md
+// @see ../docs/audits/education-sync-latency-audit-2026-10-15.md
 const timingStart = Symbol('timingStart')
 function newTiming() {
   return { clock: 'monotonic', startedAt: new Date().toISOString(), stages: {}, counts: {}, [timingStart]: performance.now() }

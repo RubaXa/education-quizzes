@@ -1,4 +1,4 @@
-/* @see ../docs/product/design-system.md#tokens — shared Education tokens, based on the current UI. */
+/* @see ../docs/shared/design/README.md#tokens — shared Education tokens, based on the current UI. */
 :root {
   --edu-canvas: #f6f5fc;
   --edu-surface: #fff;
@@ -38,7 +38,7 @@
   --edu-status-waiting-ink: var(--edu-waiting-ink);
   --edu-status-error-bg: var(--edu-danger-bg);
   --edu-status-error-ink: var(--edu-danger-ink);
-  /* @see ../docs/product/problem-card-design-decisions.md — preserved math card palette. */
+  /* @see ../docs/modules/reviews/problem-card-design-decisions.md — preserved math card palette. */
   --edu-problem-border: #ded5eb;
   --edu-problem-heading: #503b86;
   --edu-problem-text: #3e3554;
@@ -65,7 +65,7 @@
   --edu-radius-card: 23px;
   --edu-radius-control: 14px;
   --edu-touch-target: 42px;
-  /* @see ../docs/product/result-presentation-proposal.md */
+  /* @see ../docs/modules/assessments/result-presentation-proposal.md */
   --edu-result-meter-height: 7px;
   --edu-result-meter-compact-height: 3px;
   --edu-quiz-row-padding: 6px;

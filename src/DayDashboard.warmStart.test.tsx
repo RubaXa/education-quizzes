@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-// @see ../docs/product/dashboard.md#dashboard-warm-start
+// @see ../docs/modules/school-diary/dashboard.md#dashboard-warm-start
 import { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -39,7 +39,7 @@ beforeEach(() => { vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime(new 
 afterEach(() => { probe.selected = null; probe.next = null; probe.grade = null; probe.dashboardError = null; for (const day of allDays) delete (day as typeof day & { homeworkUpdate?: unknown }).homeworkUpdate; allDays[0].schedule.splice(1); index.days = allDays; localStorage.clear(); sessionStorage.clear(); window.location.hash = ''; Element.prototype.scrollIntoView = originalScrollIntoView; vi.useRealTimers(); vi.restoreAllMocks() })
 
 describe('schedule warm start', () => {
-  /** @see ../docs/product/dashboard.md#compact-homework */
+  /** @see ../docs/modules/school-diary/dashboard.md#compact-homework */
   it('uses the same compact card in both roles and keeps Monday after Friday', async () => {
     vi.setSystemTime(new Date('2026-10-16T12:00:00.000Z'))
     index.days = [{...allDays[0],date:'2026-10-16'},{...allDays[1],date:'2026-10-19'}]

@@ -1,4 +1,4 @@
-/* @see ../../docs/product/problem-card-design-decisions.md#role-projection */
+/* @see ../../docs/modules/reviews/problem-card-design-decisions.md#role-projection */
 .day-task-guidance.day-parent-learning-route{padding:0;background:var(--edu-surface)}
 .day-task-guidance .day-learning-route-stage>summary{padding-right:12px}
 .day-task-guidance .day-learning-route-body>p{margin:0;overflow-wrap:anywhere}

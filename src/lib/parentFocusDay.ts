@@ -5,7 +5,7 @@ const moscowDate = (date: Date) => new Intl.DateTimeFormat('en-CA', { timeZone: 
 
 /** The parent overview follows the child's first actual lesson, not midnight.
  * Stale lessons from another date cannot advance the card.
- * @see ../../docs/product/dashboard.md#parent-focus-day
+ * @see ../../docs/modules/school-diary/dashboard.md#parent-focus-day
  */
 export function parentFocusDay(index: DayDashboardData | null, now: Date): IndexedDay | null {
   if (!index) return null

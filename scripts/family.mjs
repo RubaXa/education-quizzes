@@ -6,7 +6,7 @@ import { operatorFirestore } from './lib/admin-firebase.mjs'
 import { syncChildAccess } from './lib/access-projection.mjs'
 
 /** Agent-only provisioning; there is deliberately no browser administration route.
- * @see ../docs/architecture/family-data-model.md#provisioning
+ * @see ../docs/modules/families/README.md#provisioning
  */
 const registryPath = resolve('.local/family-access.json')
 const site = 'https://rubaxa.github.io/education-quizzes/'
@@ -219,7 +219,7 @@ async function attachCurrentDay(familyId, childId) {
   const dashboards = existsSync(dashboardsPath) ? JSON.parse(readFileSync(dashboardsPath, 'utf8')) : {}
   // The private owner map lets the agent discover submissions without guessing
   // a child's day token. It is never readable from the public client.
-  // @see ../docs/product/storage-privacy.md#review-queue
+  // @see ../docs/modules/materials/storage-privacy.md#review-queue
   const ownerEntries = []
   for (const [dayDate, pair] of Object.entries(days)) {
     if (!pair?.student) fail(`У страницы ${dayDate} нет ученического токена.`)

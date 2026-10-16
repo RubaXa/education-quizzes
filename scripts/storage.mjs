@@ -45,7 +45,7 @@ function firestore() {
   return getFirestore()
 }
 
-/** @see ../docs/product/materials.md#firestore-catalog */
+/** @see ../docs/modules/materials/materials.md#firestore-catalog */
 async function syncCatalog() {
   const db = firestore()
   const books = indexedBooks()
@@ -94,7 +94,7 @@ async function syncCatalog() {
   console.log(JSON.stringify({ books: books.length, pages: count - books.length, publishedPages: publishedCount }))
 }
 
-/** @see ../docs/product/materials.md#private-originals */
+/** @see ../docs/modules/materials/materials.md#private-originals */
 async function syncLibrary() {
   const storage = new YandexDiskStorage(token())
   mkdirSync(pagesDir, { recursive: true })
@@ -138,7 +138,7 @@ async function connect() {
   console.log('Яндекс Диск подключён. Проверена запись в закрытую папку приложения app:/PETR.')
 }
 
-/** @see ../docs/product/storage-privacy.md#storage-migration */
+/** @see ../docs/modules/materials/storage-privacy.md#storage-migration */
 async function sync() {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date ?? '')) fail('Укажите дату YYYY-MM-DD.')
   const student = json(linksFile)[date]?.student
@@ -243,7 +243,7 @@ async function sync() {
   if (failures.length) fail(`Не удалось перенести ${failures.length} вложений: ${failures.join('; ')}`)
 }
 
-/** @see ../docs/product/materials.md#page-publication */
+/** @see ../docs/modules/materials/materials.md#page-publication */
 async function syncPages() {
   const allEntries = preparePages()
   const pageId = date === '--page' ? process.argv[4] : undefined
@@ -328,7 +328,7 @@ async function syncPages() {
 
 /** Publish every page of editions explicitly linked to a family. The local
  * checkpoint makes a long manual sync safe to resume after a network failure.
- * @see ../docs/product/family-library.md#full-book-reader
+ * @see ../docs/modules/materials/family-library.md#full-book-reader
  */
 async function syncFamilyPages() {
   const db = firestore()

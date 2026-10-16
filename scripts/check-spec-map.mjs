@@ -3,8 +3,8 @@ import { existsSync, readFileSync } from 'node:fs'
 import { relative, resolve, sep } from 'node:path'
 
 const root = resolve(import.meta.dirname, '..')
-const mapPath = resolve(root, 'docs/product/file-map.md')
-const mapDir = resolve(root, 'docs/product')
+const mapPath = resolve(root, 'docs/file-map.md')
+const mapDir = resolve(root, 'docs')
 const lines = readFileSync(mapPath, 'utf8').split(/\r?\n/)
 const files = new Map()
 const problems = []
@@ -23,7 +23,7 @@ for (const [index, line] of lines.entries()) {
     problems.push(`Неверная ссылка на файл ${name}: ${fileLink}`)
   }
   const spec = relative(root, resolve(mapDir, specLink)).split(sep).join('/')
-  if (!/^docs\/(product|architecture)\/.+\.md$/.test(spec) || !existsSync(resolve(root, spec))) {
+  if (!/^docs\/(product|services|modules|shared|operations|decisions|research|audits|plans)\/.+\.md$/.test(spec) || !existsSync(resolve(root, spec))) {
     problems.push(`У ${name} отсутствует действующая спецификация: ${specLink}`)
   }
   if (!purpose.trim() || !consumer.trim()) problems.push(`У ${name} не указаны назначение или потребитель.`)
@@ -38,11 +38,11 @@ for (const name of files.keys()) if (!actual.has(name)) problems.push(`Уста�
 
 // A file-map row states ownership; the local reference makes the reason visible
 // while editing the component or its CSS. Keep media loading in one component.
-// @see ../docs/product/component-system.md#change-gates
+// @see ../docs/shared/design/components.md#change-gates
 for (const name of actual) {
   if (/^src\/components\/[^/]+\.(tsx|css)$/.test(name) && !name.endsWith('.test.tsx')) {
     const source = readFileSync(resolve(root, name), 'utf8')
-    if (!/@see\s+\.\.\/\.\.\/docs\/(product|architecture)\//.test(source)) {
+    if (!/@see\s+\.\.\/\.\.\/docs\/(product|services|modules|shared)\//.test(source)) {
       problems.push(`У продуктового компонента нет ссылки @see на контракт: ${name}`)
     }
   }

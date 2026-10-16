@@ -1,10 +1,23 @@
+---
+id: product.ui-change-control
+status: accepted
+implementation: partial
+parent: product.education
+uses: []
+sections:
+  - trace
+  - numbered-card-matrix
+  - mechanical-gate
+  - coverage-limit
+
+---
 # Управление изменениями интерфейса Education
 
 Статус: действующий процесс проверки **текущего** интерфейса. Макеты из `reports/2026-10-14-card-nesting-design-options.md` — варианты для обсуждения; они не меняют этот контракт и не являются согласием на новый экран.
 
 ## От смысла к проверке {#trace}
 
-Для каждого изменения записывается цепочка `потребность и подтверждение пользователя → сценарий → источник данных/права → продуктовая спецификация → компонент → CSS/токены → тест поведения → проверка геометрии → выпуск`. [Карта файлов](file-map.md) задаёт ближайший контракт и потребителя каждого файла, [система компонентов](component-system.md#registry) — канонический компонент, [дизайн-система](design-system.md) — общий язык экрана, [матрица задачи](problem-card-design-decisions.md) — слои нумерованной карточки. Наличие `@see` само по себе не доказывает совпадения поведения с контрактом.
+Для каждого изменения записывается цепочка `потребность и подтверждение пользователя → сценарий → источник данных/права → продуктовая спецификация → компонент → CSS/токены → тест поведения → проверка геометрии → выпуск`. [Карта файлов](../file-map.md) задаёт ближайший контракт и потребителя каждого файла, [система компонентов](../shared/design/components.md#registry) — канонический компонент, [дизайн-система](../shared/design/README.md) — общий язык экрана, [матрица задачи](../modules/reviews/problem-card-design-decisions.md) — слои нумерованной карточки. Наличие `@see` само по себе не доказывает совпадения поведения с контрактом.
 
 Перед любым переносом элемента или изменением формулировки, роли, раскрытия либо цвета нужно назвать: что увидит пользователь до и после, какое действие изменится, какие состояния/ширины/роли затронуты и почему прежнее решение недостаточно. Новую функцию или переосмысление согласованного поведения показывают родителю в конкретном макете до выпуска. Прямая просьба исправить дефект уже даёт основание на исправление в обозначенных пределах; решение и доказательство всё равно записываются. Неоднозначное «сделать лучше» не заменяет утверждение нового продуктового поведения.
 
@@ -12,13 +25,13 @@
 
 | Слой и сценарий | Владелец в коде и стиле | Спецификация | Проверка |
 |---|---|---|---|
-| Лист и счётчик, исходно закрыт; глубокая ссылка открывает нужную группу | `ProblemGroup.tsx/css`, `DayPage.tsx/css` | [Страница дня](day-page.md#completed-problem-group), [матрица](problem-card-design-decisions.md) | `ProblemGroup.layout.test.tsx`; `check-problem-variant-viewport.mjs` |
-| Варианты раздельны, каждый изначально закрыт; переключатель обязательности независим | `DayPage.tsx/css`, `RequirementSwitch.tsx/css` | [Выбор карточки](card-generation-policy.md), [матрица](problem-card-design-decisions.md) | `ProblemTaskCard.contract.test.tsx`; `check-problem-variant-viewport.mjs` |
-| Номер закрыт, короткий статус и доступное полное значение | `ProblemCard.tsx/css`, `StatusIcon.tsx/css` | [Статусы](status-presentation.md#components), [матрица](problem-card-design-decisions.md) | `ProblemCard.test.tsx`; `check-problem-variant-viewport.mjs` |
-| Оригинал с рисунком → дословный текст → цветное `Дано / Найти` | `SourceFragment.tsx/css`, `ProblemStatement.tsx/css` | [Адаптивная задача](adaptive-problem-card.md), [матрица](problem-card-design-decisions.md) | `ProblemTaskCard.contract.test.tsx`; `check-source-fragment-viewport.mjs`; `check-problem-variant-viewport.mjs` |
-| Происхождение — компактный знак в заголовке номера; неизвестное отделено от безрезультатного поиска | `ProblemCard.tsx/css` | [Матрица](problem-card-design-decisions.md), [источник критерия](review-criteria-provenance.md) | `ProblemStatement.provenance.test.tsx`; `check-problem-variant-viewport.mjs` |
-| Родительский путь и каждый этап закрыты; ученик видит только отправленную помощь | `ParentTaskGuide.tsx/css`, `TaskGuidance.tsx/css`, `ProblemTaskCard.tsx` | [Ролевые проекции](problem-card-design-decisions.md#role-projection) | `ParentTaskGuide.test.tsx`; `ProblemTaskCard.contract.test.tsx`; `check-problem-variant-viewport.mjs` |
-| Фото прикрепляется учеником к номеру через существующий контрол; родитель видит результат без кнопки загрузки; одно фото может покрыть несколько номеров | `ProblemTaskCard.tsx`, `WorkReview.tsx`, `PhotoUploadControl.tsx` | [Хранение](storage-privacy.md#multi-task-photo), [матрица](problem-card-design-decisions.md) | `ProblemTaskCard.contract.test.tsx`; тесты разбора фото и контракта данных |
+| Лист и счётчик, исходно закрыт; глубокая ссылка открывает нужную группу | `ProblemGroup.tsx/css`, `DayPage.tsx/css` | [Страница дня](../modules/school-diary/day-page.md#completed-problem-group), [матрица](../modules/reviews/problem-card-design-decisions.md) | `ProblemGroup.layout.test.tsx`; `check-problem-variant-viewport.mjs` |
+| Варианты раздельны, каждый изначально закрыт; переключатель обязательности независим | `DayPage.tsx/css`, `RequirementSwitch.tsx/css` | [Выбор карточки](../modules/reviews/card-generation-policy.md), [матрица](../modules/reviews/problem-card-design-decisions.md) | `ProblemTaskCard.contract.test.tsx`; `check-problem-variant-viewport.mjs` |
+| Номер закрыт, короткий статус и доступное полное значение | `ProblemCard.tsx/css`, `StatusIcon.tsx/css` | [Статусы](../shared/design/statuses.md#components), [матрица](../modules/reviews/problem-card-design-decisions.md) | `ProblemCard.test.tsx`; `check-problem-variant-viewport.mjs` |
+| Оригинал с рисунком → дословный текст → цветное `Дано / Найти` | `SourceFragment.tsx/css`, `ProblemStatement.tsx/css` | [Адаптивная задача](../modules/reviews/adaptive-problem-card.md), [матрица](../modules/reviews/problem-card-design-decisions.md) | `ProblemTaskCard.contract.test.tsx`; `check-source-fragment-viewport.mjs`; `check-problem-variant-viewport.mjs` |
+| Происхождение — компактный знак в заголовке номера; неизвестное отделено от безрезультатного поиска | `ProblemCard.tsx/css` | [Матрица](../modules/reviews/problem-card-design-decisions.md), [источник критерия](../modules/reviews/review-criteria-provenance.md) | `ProblemStatement.provenance.test.tsx`; `check-problem-variant-viewport.mjs` |
+| Родительский путь и каждый этап закрыты; ученик видит только отправленную помощь | `ParentTaskGuide.tsx/css`, `TaskGuidance.tsx/css`, `ProblemTaskCard.tsx` | [Ролевые проекции](../modules/reviews/problem-card-design-decisions.md#role-projection) | `ParentTaskGuide.test.tsx`; `ProblemTaskCard.contract.test.tsx`; `check-problem-variant-viewport.mjs` |
+| Фото прикрепляется учеником к номеру через существующий контрол; родитель видит результат без кнопки загрузки; одно фото может покрыть несколько номеров | `ProblemTaskCard.tsx`, `WorkReview.tsx`, `PhotoUploadControl.tsx` | [Хранение](../modules/materials/storage-privacy.md#multi-task-photo), [матрица](../modules/reviews/problem-card-design-decisions.md) | `ProblemTaskCard.contract.test.tsx`; тесты разбора фото и контракта данных |
 
 Матрица фиксирует действующее содержание и роли, но **не объявляет нынешние многослойные рамки оптимальным оформлением**. Их альтернативы находятся в отдельном предложении. Нельзя закреплять обнаруженную регрессию только потому, что она присутствует в HTML или снимке.
 

@@ -2,8 +2,8 @@ import { join } from 'node:path'
 import { readJson, writeJson } from '../local-store.mjs'
 import { diffSnapshots } from './diff.mjs'
 
-/** @see ../../docs/architecture/school-diary-port-adapter.md#sync */
-/** @see ../../docs/architecture/change-detection-and-reconciliation.md */
+/** @see ../../docs/modules/school-diary/README.md#sync */
+/** @see ../../docs/modules/synchronization/change-detection-and-reconciliation.md */
 export async function syncDiary({ adapter, dataDir, date }) {
   const parsed = /^\d{4}-\d{2}-\d{2}$/.test(date) ? new Date(`${date}T00:00:00Z`) : null
   if (!parsed || Number.isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== date) {

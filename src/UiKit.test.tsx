@@ -11,7 +11,7 @@ vi.mock('./education-design-tokens.css?raw',async()=>({default:(await import('no
 Object.assign(globalThis,{IS_REACT_ACT_ENVIRONMENT:true})
 const host=document.createElement('div');let root:ReturnType<typeof createRoot>|undefined
 afterEach(async()=>{if(root)await act(async()=>root!.unmount());root=undefined;host.remove();host.innerHTML=''})
-/** @see ../docs/product/ui-kit.md */
+/** @see ../docs/shared/design/ui-kit.md */
 it('uses the real components, token source and local interactive controls',async()=>{
  document.body.append(host);root=createRoot(host);await act(async()=>root!.render(<UiKit/>))
  expect(host.querySelector('.edu-result-badge')?.textContent).toContain('87%')
@@ -32,7 +32,7 @@ it('has internally consistent example points and counts',()=>{
  for(const test of uiKitQuizExamples){const score=summarize(test.results!);expect(score.earned).toBe(test.points);expect(score.possible).toBe(test.maxPoints)}
 })
 
-/** @see ../docs/product/dashboard.md#compact-homework */
+/** @see ../docs/modules/school-diary/dashboard.md#compact-homework */
 it('previews the real homework component and its existing click targets',async()=>{
  document.body.append(host);root=createRoot(host);await act(async()=>root!.render(<UiKit/>))
  await act(async()=>[...host.querySelectorAll<HTMLButtonElement>('nav button')].find(button=>button.textContent==='Сводка ДЗ')!.click())
@@ -42,7 +42,7 @@ it('previews the real homework component and its existing click targets',async()
  expect(host.querySelector<HTMLDetailsElement>('.day-dashboard-homework-complete')?.open).toBe(false)
 })
 
-/** @see ../docs/product/material-clarification.md */
+/** @see ../docs/modules/materials/material-clarification.md */
 it('previews the source question using the shared local photo control',async()=>{
  document.body.append(host);root=createRoot(host);await act(async()=>root!.render(<UiKit/>))
  await act(async()=>[...host.querySelectorAll<HTMLButtonElement>('nav button')].find(button=>button.textContent==='Уточнение материала')!.click())

@@ -45,7 +45,7 @@ function validDownloadUrl(href) {
   return url
 }
 
-/** @see ../docs/product/storage-privacy.md#storage-migration */
+/** @see ../docs/modules/materials/storage-privacy.md#storage-migration */
 export class YandexDiskStorage extends SubmissionStoragePort {
   constructor(token, { fetcher = fetch } = {}) {
     super()
@@ -66,7 +66,7 @@ export class YandexDiskStorage extends SubmissionStoragePort {
   }
 
   // One bounded policy for API calls and signed upload/download links.
-  // @see ../docs/product/storage-privacy.md#network-resilience
+  // @see ../docs/modules/materials/storage-privacy.md#network-resilience
   async fetchResilient(url, options = {}, { attempts = 8, timeoutMs = 60_000 } = {}) {
     for (let attempt = 0; attempt < attempts; attempt += 1) {
       const cooldown = this.retryUntil - Date.now()
@@ -199,7 +199,7 @@ export class YandexDiskStorage extends SubmissionStoragePort {
     throw new Error('Скачивание с Диска не удалось после повторов; повторите синхронизацию.')
   }
 
-  /** @see ../docs/product/storage-privacy.md#photo-deletion */
+  /** @see ../docs/modules/materials/storage-privacy.md#photo-deletion */
   async removeWorkAt(path, expectedMd5) {
     if (!/^app:\/PETR\/Работы\/\d{4}-\d{2}-\d{2}\/[^/]+\/[A-Za-z0-9_-]{20,}\.(jpg|png|webp|heic|heif)$/.test(path)) {
       throw new Error('Удалять можно только отдельный файл ученической работы.')

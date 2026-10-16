@@ -1,6 +1,6 @@
 /** Device-local acknowledgement of an already opened lesson update.
  * A new source timestamp gets a new key; no Firestore read or write is needed.
- * @see ../../docs/product/dashboard.md#homework-updates
+ * @see ../../docs/modules/school-diary/dashboard.md#homework-updates
  */
 export function homeworkUpdateKey(dashboardToken: string, date: string, subject: string, updatedAt: string): string {
   return `education-homework-update:${encodeURIComponent(dashboardToken)}:${date}:${encodeURIComponent(subject.trim().toLocaleLowerCase('ru-RU'))}:${encodeURIComponent(updatedAt)}`

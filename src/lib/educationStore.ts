@@ -19,7 +19,7 @@ function signedInUid(): string {
   return uid
 }
 
-/** @see ../../docs/architecture/family-data-model.md#authorization */
+/** @see ../../docs/modules/families/README.md#authorization */
 export function watchEducationUser(onChange: (personId: string | null) => void) {
   return onAuthStateChanged(getAuth(), (user) => {
     if (!user) { onChange(null); return }
@@ -27,7 +27,7 @@ export function watchEducationUser(onChange: (personId: string | null) => void) 
   }, (cause) => { reportUiError(cause, 'Профиль Education'); onChange(null) })
 }
 
-/** @see ../../docs/architecture/backend-driven-ui.md#manifest */
+/** @see ../../docs/modules/synchronization/backend-driven-ui.md#manifest */
 export function watchScreenManifest(familyId: string, view: ScreenView, onChange: (manifest: ScreenManifest) => void, onError: (error: Error) => void) {
   return onSnapshot(doc(db, 'families', segment(familyId), 'ui', view), (snapshot) => {
     if (!snapshot.exists()) { onError(new Error('Настройки экрана ещё не опубликованы.')); return }
@@ -36,14 +36,14 @@ export function watchScreenManifest(familyId: string, view: ScreenView, onChange
   }, onError)
 }
 
-/** @see ../../docs/architecture/family-data-model.md#collections */
+/** @see ../../docs/modules/families/README.md#collections */
 export function watchEducationDay(familyId: string, childId: string, date: string, onChange: (day: EducationDay | null) => void, onError: (error: Error) => void) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error('Некорректная дата учебного дня.')
   return onSnapshot(doc(db, 'families', segment(familyId), 'children', segment(childId), 'days', date),
     (snapshot) => onChange(snapshot.exists() ? snapshot.data() as EducationDay : null), onError)
 }
 
-/** @see ../../docs/architecture/family-data-model.md#collections */
+/** @see ../../docs/modules/families/README.md#collections */
 export function watchEducationTask(familyId: string, childId: string, taskId: string, onChange: (task: EducationTask | null) => void, onError: (error: Error) => void) {
   return onSnapshot(doc(db, 'families', segment(familyId), 'children', segment(childId), 'tasks', segment(taskId)),
     (snapshot) => onChange(snapshot.exists() ? snapshot.data() as EducationTask : null), onError)
@@ -59,7 +59,7 @@ function currentSessionId(): string {
 /**
  * Неуспех телеметрии не должен отменять предметное действие; вызывающий код
  * решает, где показать техническую ошибку и когда повторить запись.
- * @see ../../docs/architecture/activity-and-inbox.md#events
+ * @see ../../docs/modules/notifications/inbox.md#events
  */
 export async function recordActivity(input: {
   familyId: string
@@ -87,7 +87,7 @@ export async function recordActivity(input: {
   return eventId
 }
 
-/** @see ../../docs/architecture/activity-and-inbox.md#events */
+/** @see ../../docs/modules/notifications/inbox.md#events */
 export async function recordActivityOnce(input: Parameters<typeof recordActivity>[0]) {
   const key = [input.familyId, input.childId, input.type, input.viewId, input.sectionId ?? '', input.entityId ?? ''].join('|')
   if (emittedInSession.has(key)) return
@@ -96,7 +96,7 @@ export async function recordActivityOnce(input: Parameters<typeof recordActivity
   catch (cause) { emittedInSession.delete(key); throw cause }
 }
 
-/** @see ../../docs/architecture/activity-and-inbox.md#read-state */
+/** @see ../../docs/modules/notifications/inbox.md#read-state */
 export async function markSectionSeen(viewKey: string, sourceRevision: number) {
   if (!Number.isSafeInteger(sourceRevision) || sourceRevision < 0) throw new Error('Некорректная версия раздела.')
   const personId = currentEducationPersonId()
@@ -108,7 +108,7 @@ export async function markSectionSeen(viewKey: string, sourceRevision: number) {
   })
 }
 
-/** @see ../../docs/architecture/activity-and-inbox.md#read-state */
+/** @see ../../docs/modules/notifications/inbox.md#read-state */
 export async function markNotificationRead(notificationId: string) {
   const personId = currentEducationPersonId()
   await updateDoc(doc(db, 'users', personId, 'inbox', segment(notificationId)), { readAt: serverTimestamp() })
@@ -131,7 +131,7 @@ export async function markNotificationsRead(notificationIds: string[]) {
 /** Explicitly acknowledge the complete personal inbox, not only the 100 recent
  * notices kept by the live bell. New notices arriving after the first page are
  * outside the traversed cursor and remain unread.
- * @see ../../docs/architecture/activity-and-inbox.md#in-app-center */
+ * @see ../../docs/modules/notifications/inbox.md#in-app-center */
 export async function markAllNotificationsRead(): Promise<number> {
   const personId = currentEducationPersonId()
   const inbox = collection(db, 'users', personId, 'inbox')
@@ -149,7 +149,7 @@ export async function markAllNotificationsRead(): Promise<number> {
   }
 }
 
-/** @see ../../docs/architecture/activity-and-inbox.md#read-state */
+/** @see ../../docs/modules/notifications/inbox.md#read-state */
 export function watchInbox(onChange: (notifications: Array<InboxNotification & { id: string }>) => void, onError: (error: Error) => void,
   options: { serverConfirmedOnly?: boolean } = {}) {
   const personId = currentEducationPersonId()
@@ -162,7 +162,7 @@ export function watchInbox(onChange: (notifications: Array<InboxNotification & {
   }, onError)
 }
 
-/** @see ../../docs/architecture/activity-and-inbox.md#read-state */
+/** @see ../../docs/modules/notifications/inbox.md#read-state */
 export function watchViewReceipt(viewKey: string, onChange: (receipt: ViewReceipt | null) => void, onError: (error: Error) => void) {
   const personId = currentEducationPersonId()
   return onSnapshot(doc(db, 'users', personId, 'views', segment(viewKey)),

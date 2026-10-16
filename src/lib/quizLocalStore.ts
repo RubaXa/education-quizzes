@@ -3,7 +3,7 @@ import type { Answer, Assignment } from './quiz'
 /** First IndexedDB slice of the local-first migration. This stores only the
  * pupil's assignment and unconfirmed answers, never answer keys or parent
  * guides. The existing localStorage copy remains readable by older clients.
- * @see ../../docs/architecture/local-first-sync.md#rollout */
+ * @see ../../docs/services/web-app/local-first-sync.md#rollout */
 const databaseName = 'education-local-v1'
 const draftStore = 'quizDrafts'
 const assignmentStore = 'quizAssignments'

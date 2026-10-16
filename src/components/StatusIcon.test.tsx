@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import StatusIcon from './StatusIcon'
 import type { EducationStatus } from './StatusIcon'
 
-// @see ../../docs/product/status-presentation.md#matrix
+// @see ../../docs/shared/design/statuses.md#matrix
 const statuses: EducationStatus[] = [
   'ready', 'started', 'uploading', 'waiting', 'processing', 'paused', 'complete',
   'partial', 'needs-fix', 'incorrect', 'unknown', 'failed', 'new',

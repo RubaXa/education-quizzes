@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/** @see ../docs/product/material-clarification.md */
+/** @see ../docs/modules/materials/material-clarification.md */
 import { hasSourceReceipt } from '../src/lib/materialRequest.ts'
 import { execFileSync } from 'node:child_process'
 import { mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
@@ -14,7 +14,7 @@ import { followupQueueSource } from '../assessment/quiz-lineage.mjs'
 /** Scan live Firebase sources, persist operator work, and expose resumable phases.
  * The operator still performs source research and pedagogy; this command never
  * guesses an answer or marks a submission reviewed by itself.
- * @see ../docs/product/global-sync.md#operator-queue
+ * @see ../docs/modules/synchronization/global-sync.md#operator-queue
  */
 const db = operatorFirestore()
 const started = performance.now()
@@ -122,7 +122,7 @@ async function discover() {
   }
   // Every submitted subject uses the same threshold. A passing test only
   // enters this queue after an explicit parent request on its assignment.
-  // @see ../docs/product/assessment-decision-graph.md#followup-threshold
+  // @see ../docs/modules/assessments/assessment-decision-graph.md#followup-threshold
   const since = Timestamp.fromDate(new Date(`${first}T00:00:00+03:00`))
   const [recentQuizzes, parentRequests] = await Promise.all([
     db.collection('assignments').where('submittedAt', '>=', since).get(),

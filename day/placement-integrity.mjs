@@ -2,7 +2,7 @@ import { assignmentShapeErrors, dayPageShapeErrors } from './data-contract.mjs'
 
 /** Deterministic graph checks for a staged/published day. An assignment document
  * is checked separately by the publisher before the Firestore batch commits.
- * @see ../docs/product/access-and-state.md#integrity-gates */
+ * @see ../docs/modules/families/access-and-state.md#integrity-gates */
 export function placementIntegrityErrors(page) {
   const errors = dayPageShapeErrors(page)
   if (!page || !Array.isArray(page.subjects)) return errors

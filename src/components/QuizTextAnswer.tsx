@@ -4,7 +4,7 @@ import type { QuizVisual } from '@/lib/quiz'
 
 /**
  * Text answer fields shared by short, numeric and long quiz questions.
- * @see ../../docs/product/quizzes.md#quiz-runner
+ * @see ../../docs/modules/assessments/quizzes.md#quiz-runner
  */
 export function QuizTextAnswer({ kind, value, disabled, subject, visual, onAnswer }: {
   kind: 'short' | 'number' | 'long'

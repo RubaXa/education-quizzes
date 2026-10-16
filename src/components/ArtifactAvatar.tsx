@@ -12,8 +12,8 @@ export function ArtifactStatusGlyph({ state, size = 10 }: { state: ArtifactAvata
 }
 
 /** The same image and state badge for uploaded work in every task view.
- * @see ../../docs/product/day-page.md#photo-status
- * @see ../../docs/product/status-presentation.md#components
+ * @see ../../docs/modules/school-diary/day-page.md#photo-status
+ * @see ../../docs/shared/design/statuses.md#components
  */
 export default function ArtifactAvatar({ state, children }: { state: ArtifactAvatarState; children?: ReactNode }) {
   return <span className="artifact-avatar">
@@ -31,8 +31,8 @@ async function localWorkImage(source: string): Promise<string> {
 
 /** One source-selection path for a saved work image on the day and weekend views.
  * The upload state remains separate from the educational review state.
- * @see ../../docs/product/component-system.md#work-artifacts
- * @see ../../docs/product/design-system.md#images */
+ * @see ../../docs/shared/design/components.md#work-artifacts
+ * @see ../../docs/shared/design/README.md#images */
 export function WorkArtifactImage({ upload, title, index, compact = false, fallbackUrl, retryControl = !compact }: {
   upload: DayUpload; title: string; index: number; compact?: boolean; fallbackUrl?: string; retryControl?: boolean;
 }) {

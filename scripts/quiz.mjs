@@ -134,7 +134,7 @@ function validateSpec(spec, specPath) {
     }
   }
   if (typeof spec.assessmentPlanPath !== 'string' || !spec.assessmentPlanPath.trim()) {
-    fail('Для нового теста нужен закрытый assessmentPlanPath; см. docs/product/assessment-decision-graph.md.')
+    fail('Для нового теста нужен закрытый assessmentPlanPath; см. docs/modules/assessments/assessment-decision-graph.md.')
   }
   const planPath = resolve(dirname(resolve(specPath)), spec.assessmentPlanPath)
   const plan = loadJson(planPath)

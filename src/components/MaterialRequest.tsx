@@ -1,7 +1,7 @@
 import type { MaterialRequest as Request, SourceAnalysis } from '@/lib/materialRequest'
 
 /** Existing submission-instructions surface; the normal photo control stays in DayPage.
- * @see ../../docs/product/material-clarification.md */
+ * @see ../../docs/modules/materials/material-clarification.md */
 export default function MaterialRequest({ request, label, detail, analysis }: {
   request: Request; label: string; detail: string; analysis?: SourceAnalysis
 }) {

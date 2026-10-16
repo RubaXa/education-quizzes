@@ -1,11 +1,11 @@
-/** @see ../docs/product/material-clarification.md */
+/** @see ../docs/modules/materials/material-clarification.md */
 import MaterialRequest from '@/components/MaterialRequest'
 import { materialRequestView } from '@/lib/materialRequest'
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { BookOpen, ChevronDown, Clock3, ExternalLink, RotateCcw, Trash2, X } from 'lucide-react'
 import StatusIcon from './components/StatusIcon'
-// @see ../docs/product/status-presentation.md#components
+// @see ../docs/shared/design/statuses.md#components
 import { cdzEvidenceLabel, cdzResultLabel, isCdzTask, removePendingDayPhoto, requestDayHelp, uploadDayPhoto, uploadMatchesTask, watchDayHelp, watchDayPage, watchDayTaskGuides, watchMaterialPages, withVerifiedPlatformResult } from '@/lib/dayStore'
 import { groupAdjacentMaterialPages, unresolvedMaterialPageRefs } from '@/lib/dayMaterialRefs'
 import { isSubjectExpanded, visibleGuideTaskIds } from '@/lib/guideReadPolicy'
@@ -44,7 +44,7 @@ type LocalPhoto = { id: string; taskId: string; file: File; previewUrl: string; 
 
 /**
  * Разделяет технический статус снимка и педагогический результат задания.
- * @see ../docs/product/day-page.md#photo-status
+ * @see ../docs/modules/school-diary/day-page.md#photo-status
  */
 function PhotoStrip({ taskTitle, evidenceLabel = 'Фото работы', studentToken, uploads, localPhotos, review, now, onRetry, onDelete }: {
   taskTitle: string; evidenceLabel?: string; studentToken: string; uploads: DayUpload[]; localPhotos: LocalPhoto[]; review?: DayWorkReview; now: number;
@@ -109,19 +109,19 @@ function PhotoStrip({ taskTitle, evidenceLabel = 'Фото работы', studen
 }
 
 /** Adapter from a task's exact MESH instruction and family pages to the shared quiz card.
- * @see ../docs/product/card-generation-policy.md#quiz-adapter
- * @see ../docs/product/day-page.md#multiple-assignments */
+ * @see ../docs/modules/reviews/card-generation-policy.md#quiz-adapter
+ * @see ../docs/modules/school-diary/day-page.md#multiple-assignments */
 function QuizLineageCard({ chain, parent, task, materialLinks = [], assignmentLabel, separateAssignment = false, sourceEvidence }: { chain: QuizCardAttempt[]; parent: boolean; task?: DayTask; materialLinks?: DayMaterialLink[]; assignmentLabel?: string; separateAssignment?: boolean; sourceEvidence?: ReactNode }) {
   const context = task?.title.match(/Упр\.\s*\d+/i)?.[0] ?? task?.title ?? 'Самопроверка'
   const readerLinks = materialLinks.filter(canReadInside)
   const otherLinks = materialLinks.filter((link) => !canReadInside(link))
   const materials = task && (task.steps?.length || readerLinks.length || otherLinks.length) ? <>{!!task.steps?.length && <ol className="day-task-steps">{task.steps.map((step, index) => <Instruction key={index} item={step} index={index} />)}</ol>}{groupAdjacentMaterialPages(readerLinks).map((group) => <MaterialReader key={group[0].url} links={group} parent={parent} />)}{otherLinks.map((link) => <a key={link.url} href={link.url} target="_blank" rel="noopener noreferrer">{link.title} <ExternalLink size={13} aria-hidden="true" /></a>)}</> : undefined
-  // @see ../docs/product/day-page.md#numbered-sheet-and-quiz
+  // @see ../docs/modules/school-diary/day-page.md#numbered-sheet-and-quiz
   // A numbered teacher sheet remains its own task beside the linked quiz.
   return <QuizCard chain={chain} parent={parent} context={context} assignment={!separateAssignment && task && <>{assignmentLabel && <div className="day-task-assignment-heading">{assignmentLabel}</div>}<AssignmentBrief task={task} materialLinks={materialLinks} />{sourceEvidence}</>} materials={separateAssignment ? undefined : materials} id={task && !separateAssignment ? `day-task-${task.id}` : `day-quiz-${chain[0].token}`} />
 }
 
-/** @see ../docs/product/day-page.md#instruction-provenance */
+/** @see ../docs/modules/school-diary/day-page.md#instruction-provenance */
 function Instruction({ item, index }: { item: DayInstruction; index: number }) {
   const source = typeof item === 'string' ? undefined : item.source
   const uncertain = !source || source.certainty === 'uncertain'
@@ -141,7 +141,7 @@ function formatAverage(value: number) { return value.toFixed(2).replace('.', ','
 function formatChange(value: number) { return `${value >= 0 ? '+' : '−'}${formatAverage(Math.abs(value))}` }
 function localMinutes() { const parts = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone: 'Europe/Moscow' }).format(new Date()).split(':').map(Number); return parts[0] * 60 + parts[1] }
 function moscowToday() { return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Moscow', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date()) }
-/** @see ../docs/product/day-page.md#day-page */
+/** @see ../docs/modules/school-diary/day-page.md#day-page */
 function activeView(page: DayPageData): 'homework' | 'school' {
   if (page.date !== moscowToday()) return 'school'
   const last = page.todaySchedule.map((lesson) => lesson.end).sort().at(-1)
@@ -150,7 +150,7 @@ function activeView(page: DayPageData): 'homework' | 'school' {
   return localMinutes() < hour * 60 + minute ? 'school' : 'homework'
 }
 function statusLabel(status: DayTask['status']) { return ({ verified: 'Проверено', 'needs-fix': 'Нужно исправить', partial: 'Часть сделана', unknown: 'Статус неизвестен' })[status] }
-/** @see ../docs/product/grades.md#grade-badge */
+/** @see ../docs/modules/school-diary/grades.md#grade-badge */
 function forecast(grades: { mark: number; weight: number }[], next: number, nextWeight: number, threshold: number) {
   const points = grades.reduce((sum, { mark, weight }) => sum + mark * weight, 0) + next * nextWeight
   const weight = grades.reduce((sum, { weight: value }) => sum + value, 0) + nextWeight
@@ -177,7 +177,7 @@ function canForecast(summary: GradeSummary, details?: GradeDetails) {
 }
 /**
  * Компактная метка среднего с условным сценарием при наличии сверенных оценок.
- * @see ../docs/product/grades.md#grade-badge
+ * @see ../docs/modules/school-diary/grades.md#grade-badge
  */
 export function GradeBadge({ summary, details, threshold, asOf }: { summary?: GradeSummary; details?: GradeDetails; threshold?: number; asOf?: string }) {
   const [open, setOpen] = useState(false)
@@ -202,14 +202,14 @@ export function GradeBadge({ summary, details, threshold, asOf }: { summary?: Gr
 
 /**
  * Показывает план дня и связывает задания с фото, материалами и тестами.
- * @see ../docs/product/day-page.md#day-page
- * @see ../docs/product/day-page.md#day-navigation
- * @see ../docs/product/access-and-state.md#state
- * @see ../docs/product/global-sync.md#status
+ * @see ../docs/modules/school-diary/day-page.md#day-page
+ * @see ../docs/modules/school-diary/day-page.md#day-navigation
+ * @see ../docs/modules/families/access-and-state.md#state
+ * @see ../docs/modules/synchronization/global-sync.md#status
  */
-/** @see ../docs/product/design-system.md#shell */
+/** @see ../docs/shared/design/README.md#shell */
 export default function DayPage({ token, parent, headerReturnTarget }: { token: string; parent: boolean; headerReturnTarget: HTMLElement | null }) {
-  /** @see ../docs/product/dashboard.md#day-navigation */
+  /** @see ../docs/modules/school-diary/dashboard.md#day-navigation */
   const [requestedView] = useState(() => {
     const query = new URLSearchParams(window.location.search).get('tab')
     const stored = sessionStorage.getItem('education-day-initial-tab')
@@ -226,7 +226,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
   const [guideSnapshot, setGuideSnapshot] = useState<{ token: string; guides: Record<string, ParentTaskPrivate> }>({ token: '', guides: {} })
   const [guidanceSnapshot, setGuidanceSnapshot] = useState<{ token: string; items: DayGuidance[] }>({ token: '', items: [] })
   const [helpRole, setHelpRole] = useState<'checking' | 'student' | 'parent' | 'none'>('checking')
-  /** @see ../docs/product/day-page.md#completed-subjects */
+  /** @see ../docs/modules/school-diary/day-page.md#completed-subjects */
   const [subjectOpen, setSubjectOpen] = useState<Record<string, boolean>>({})
   const [view, setView] = useState<'homework' | 'school'>(requestedView === 'homework' ? 'homework' : 'school')
   const [manualView, setManualView] = useState(requestedView === 'homework' || requestedView === 'school')
@@ -260,7 +260,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
   const [statusNow, setStatusNow] = useState(() => Date.now())
   const photoUrls = useRef(new Set<string>())
   const uploadJobs = useRef(new Map<string, Promise<void>>())
-  /** @see ../docs/product/dashboard.md#schedule-homework-status */
+  /** @see ../docs/modules/school-diary/dashboard.md#schedule-homework-status */
   const [focusTaskId] = useState(() => {
     const stored = sessionStorage.getItem('education-day-focus-task')
     sessionStorage.removeItem('education-day-focus-task')
@@ -463,7 +463,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
   }
 
   /** Resolved notes remain evidence when the read task moves into QuizCard.
-   * @see ../docs/product/material-clarification.md */
+   * @see ../docs/modules/materials/material-clarification.md */
   function sourceEvidence(task?: DayTask) {
     const request = task?.materialRequest
     if (!task || request?.state !== 'resolved') return undefined
@@ -591,7 +591,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
               const referenceDone = Boolean(task.referenceDate && referencedItems.length && referencedItems.every((item) => item.state === 'done'))
               const verified = !materialView && (referenceDone || !task.referenceDate && (taskStatus === 'verified' || readPassed))
               const submitted = (task.kind === 'written' || task.kind === 'check') && newWork
-              // @see ../docs/product/dashboard.md#reference-only-homework
+              // @see ../docs/modules/school-diary/dashboard.md#reference-only-homework
               const state = materialView ? materialView.label : task.referenceDate ? referencedItems.length ? `${referenceDone ? 'Готово' : 'Осталось'} · ДЗ за ${dayMonth(task.referenceDate)} · ${referencedItems.filter((item) => item.state === 'done').length} из ${referencedItems.length}` : `См. ДЗ за ${dayMonth(task.referenceDate)}` : task.problems?.length ? `Задачи: ${task.problems.length}` : task.kind === 'written'
                 ? taskStatus === 'verified' ? 'Готово · проверено' : processing ? 'Проверяем работу' : newWork ? 'Новое фото · ждёт проверки' : uploadingWork ? 'Фото загружается' : familyActions.length ? 'Доработать по решению родителя' : workCovered ? 'Работа сдана · оценка неясна' : criterionPending ? review?.nextStep ? 'Часть задания не подтверждена · можно добавить фото' : 'Работа разобрана · критерий неясен' : priorWork ? taskStatus === 'needs-fix' ? 'Работа проверена · исправить' : taskStatus === 'partial' ? 'Работа проверена · дополнить' : 'Работа сохранена' : statusLabel(taskStatus)
                 : task.kind === 'read' ? task.testToken && quizRequirement(task.testToken, quizStates, quizScores).state === 'optional' ? 'Самопроверка по желанию' : readPassed ? `Чтение подтверждено · ${linkedTest?.points}/${linkedTest?.maxPoints} верно` : linkedTest?.status === 'submitted' ? linkedTest.points == null ? 'Проверяем тест' : `Нужен разбор · ${linkedTest.points}/${linkedTest.maxPoints}` : 'Нужен тест' : cdzTask ? task.platformResult?.state === 'completed' ? cdzResultLabel(task.platformResult) : processing ? 'Проверяем результат ЦДЗ' : newWork ? 'Скриншот ЦДЗ получен · ждёт проверки' : uploadingWork ? 'Скриншот загружается' : 'Нужен скриншот результата ЦДЗ' : statusLabel(taskStatus)
@@ -619,7 +619,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
                 {task.referenceDate && referencedItems.length > 0 && <div className="day-reference-results"><strong>Результаты ДЗ за {dayMonth(task.referenceDate)}</strong>{referencedItems.map((item) => <div className="day-reference-result" key={item.id}><span className={item.state === 'done' ? 'complete' : 'pending'}>{item.state === 'done' ? '✓' : '•'} {item.title}</span><small>{item.detail}</small></div>)}</div>}
                 {!parent && <TaskGuidance items={guidance.filter((item) => item.taskId === task.id)} />}
                 {parent && taskGuides[task.id]?.guide && <ParentTaskGuide guide={taskGuides[task.id]!.guide!} review={review} decisions={parentDecisions.events} guidance={guidance.filter((item) => item.taskId === task.id)} guidanceReady={guidanceReady} onSend={(stage, level) => sendDayGuidance(studentToken, task.id, taskGuides[task.id]!.guide!, stage.id, level)} onStageChoice={helpRole === 'parent' && review ? (stage, required) => recordStageChoice(review, taskGuides[task.id]!.guide!, stage.id, required) : undefined} />}
-                {/* @see docs/product/russian-language-route.md#review-in-one-route: the parent route owns its verdict; keep WorkReview for the learner and for parent decisions. */}
+                {/* @see ../docs/modules/reviews/russian-language-route.md#review-in-one-route the parent route owns its verdict; keep WorkReview for the learner and for parent decisions. */}
                 {review?.purpose !== 'source-material' && showSeparateWorkReview(parent, taskGuides[task.id]?.guide?.presentation, canAcceptCorrectAnswer(review), Boolean(review?.assessmentBasis?.disputedRequirements?.length || review?.requirementChecks?.length)) && <WorkReview review={review} uploads={taskUploads} accepted={accepted} canDecide={helpRole === 'parent' && !taskUploads.some((upload) => upload.status === 'pending')} onDecision={parent && canAcceptCorrectAnswer(review) && review ? (action) => recordParentCompletion(review, action) : undefined} decisions={parentDecisions.events} parent={parent} onRequirementChoice={parent && review?.assessmentBasis?.disputedRequirements?.length ? (id, action) => recordRequirementChoice(review, id, action) : undefined} />}
                 {familyActions.length > 0 && <div className="day-submission-instructions"><strong>Доработка по решению родителя</strong><ol>{familyActions.map((action) => <li key={action}>{action}</li>)}</ol><p>Это семейное решение по спорному требованию. В МЭШ такого уточнения нет.</p></div>}
                 {!!task.steps?.length && <ol className="day-task-steps">{task.steps.map((step, index) => <Instruction key={index} item={step} index={index} />)}</ol>}
@@ -665,7 +665,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
                 {parent && <small className="day-source"><BookOpen size={14} /> {task.source}</small>}
               </article>
               if (!task.problems?.length) return taskCard
-              /** @see ../docs/product/day-page.md#completed-problem-group */
+              /** @see ../docs/modules/school-diary/day-page.md#completed-problem-group */
               const requiredProblems = task.practiceVariants?.length ? task.problems.filter((problem) =>
                 problem.variantId && variantRequired(task.id, problem.variantId, parentDecisions.events)) : task.problems
               const problemIds = new Set(requiredProblems.map((problem) => problem.id))

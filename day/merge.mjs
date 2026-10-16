@@ -32,7 +32,7 @@ function mergeSubjects(existing = [], incoming = [], retiredTaskIds = new Set())
   return result.filter((subject) => subject.tasks.length || incoming.some((item) => item.id === subject.id))
 }
 
-/** @see ../docs/product/access-and-state.md#state */
+/** @see ../docs/modules/families/access-and-state.md#state */
 export function mergeDayPage(existing, incoming) {
   if (!existing) return { ...incoming, planRevision: 1, changes: [] }
   const retiredTaskIds = new Set([...(incoming.sourceOnlyEntries || []).map((entry) => entry.id), ...(incoming.retiredTaskIds || [])])
@@ -51,7 +51,7 @@ export function mergeDayPage(existing, incoming) {
   for (const taskId of replacements) if (!(taskId in (incoming.materialLinks || {}))) materialLinks[taskId] = []
   // A republished task owns its test placement. Keeping the previous token
   // would make one task point at both the corrected and the stale assignment.
-  // @see ../docs/product/quizzes.md#quiz-results
+  // @see ../docs/modules/assessments/quizzes.md#quiz-results
   const replacedPlacementTasks = new Set([
     ...retiredTaskIds,
     ...incoming.subjects.flatMap((subject) => subject.tasks.map((task) => task.id)),

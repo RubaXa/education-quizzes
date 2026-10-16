@@ -22,12 +22,12 @@ function timeOf(value: unknown): number {
 }
 
 /** Parent-only configurable stages below the existing task/ProblemStatement original.
- * @see ../../docs/product/card-generation-policy.md#math-adapter
- * @see ../../docs/product/card-generation-policy.md#russian-adapter
- * @see ../../docs/product/problem-card-design-decisions.md#role-projection
- * @see ../../docs/product/problem-card-design-decisions.md#flat-numbered-sheet
- * @see ../../docs/product/day-page.md#review-stage-switch
- * @see ../../docs/product/status-presentation.md#components */
+ * @see ../../docs/modules/reviews/card-generation-policy.md#math-adapter
+ * @see ../../docs/modules/reviews/card-generation-policy.md#russian-adapter
+ * @see ../../docs/modules/reviews/problem-card-design-decisions.md#role-projection
+ * @see ../../docs/modules/reviews/problem-card-design-decisions.md#flat-numbered-sheet
+ * @see ../../docs/modules/school-diary/day-page.md#review-stage-switch
+ * @see ../../docs/shared/design/statuses.md#components */
 export default function ParentTaskGuide({ guide, review, decisions = [], guidance = [], guidanceReady = true, onSend, onStageChoice }: {
   guide: Guide; review?: DayWorkReview; decisions?: ParentCompletionEvent[]; guidance?: DayGuidance[]; guidanceReady?: boolean;
   onSend?: (stage: Stage, level: Level) => Promise<void>;

@@ -1,4 +1,4 @@
-/* @see ../../docs/product/status-presentation.md#matrix — icon shape is stable across routes. */
+/* @see ../../docs/shared/design/statuses.md#matrix — icon shape is stable across routes. */
 .edu-status-icon{display:inline-block;flex:none;vertical-align:middle;color:currentColor}
 .edu-status-icon-processing{animation:edu-status-spin 1.1s linear infinite}
 @keyframes edu-status-spin{to{transform:rotate(360deg)}}

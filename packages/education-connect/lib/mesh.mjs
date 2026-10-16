@@ -59,7 +59,7 @@ function isCalendarOnlyEvent(event) {
 }
 
 // Preserve source order while bounding requests to the lesson detail endpoint.
-// @see ../../../docs/architecture/education-sync-latency-audit-2026-10-15.md
+// @see ../../../docs/audits/education-sync-latency-audit-2026-10-15.md
 async function mapBounded(values, limit, visit) {
   const results = new Array(values.length)
   let next = 0
@@ -72,7 +72,7 @@ async function mapBounded(values, limit, visit) {
   return results
 }
 
-/** @see ../../../docs/architecture/school-diary-port-adapter.md#full-grade-period */
+/** @see ../../../docs/modules/school-diary/README.md#full-grade-period */
 export function normalizeSubjectPeriods(subjects, date = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Moscow', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())) {
   if (!Array.isArray(subjects)) throw new Error('Полный журнал оценок МЭШ не является списком')
   return subjects.flatMap((subject) => {
@@ -90,7 +90,7 @@ export function normalizeSubjectPeriods(subjects, date = new Intl.DateTimeFormat
   })
 }
 
-/** @see ../../../docs/architecture/school-diary-port-adapter.md#diary-adapter */
+/** @see ../../../docs/modules/school-diary/README.md#diary-adapter */
 export async function loginToMesh({ username, password, askSmsCode, chooseProfile }) {
   const auth = await authenticate({ fetch: meshFetch, username, password, askSmsCode, onProgress: () => {} })
   if (!auth.token || !auth.personId) throw new Error('Вход прошёл, но профиль МЭШ не найден')
@@ -145,7 +145,7 @@ async function refreshToken(secret) {
   return { token, refreshToken: mos.refresh_token || secret.refreshToken }
 }
 
-/** @see ../../../docs/architecture/school-diary-port-adapter.md#diary-adapter */
+/** @see ../../../docs/modules/school-diary/README.md#diary-adapter */
 export class MeshDiaryAdapter {
   constructor(secret, saveSecret) {
     this.secret = secret

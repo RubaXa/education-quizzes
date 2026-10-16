@@ -5,7 +5,7 @@ import { resolve } from 'node:path'
 import { operatorFirestore } from './lib/admin-firebase.mjs'
 
 /** Read-only verification after a family/auth change.
- * @see ../docs/architecture/family-data-model.md#migration */
+ * @see ../docs/modules/families/README.md#migration */
 const file = resolve('.local/family-access.json')
 if (!existsSync(file)) throw new Error('Локальный реестр семьи не найден.')
 const registry = JSON.parse(readFileSync(file, 'utf8'))

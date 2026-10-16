@@ -1,4 +1,4 @@
-// @see ../../docs/product/dashboard.md#parent-focus-day
+// @see ../../docs/modules/school-diary/dashboard.md#parent-focus-day
 import { describe, expect, it } from 'vitest'
 import type { DayDashboardData } from './dayDashboardStore'
 import { parentFocusDay } from './parentFocusDay'

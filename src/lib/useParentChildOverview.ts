@@ -67,8 +67,8 @@ function subjectState(items: LessonWorkItem[]): ParentSubjectOverview['state'] {
  * Reuses the same evidence and task classifier as the day dashboard. Until every
  * required live stream has produced a snapshot, the parent sees "Уточняем",
  * never a made-up 0/N or a premature "Всё готово".
- * @see ../../docs/architecture/family-data-model.md#parent-home
- * @see ../../docs/product/dashboard.md#homework-progress
+ * @see ../../docs/modules/families/README.md#parent-home
+ * @see ../../docs/modules/school-diary/dashboard.md#homework-progress
  */
 function useLiveParentChildOverview(dashboardToken: string): ParentChildOverview {
   const [index, setIndex] = useState<DayDashboardData | null>(null)
@@ -151,7 +151,7 @@ function useLiveParentChildOverview(dashboardToken: string): ParentChildOverview
     title: assignment.title, followupRequested: Boolean(assignment.followupRequestedAt), familyOptional: Boolean(assignment.familyOptional),
   }]))
   // A MESH pointer to an earlier day has no new work item and must not become a completed subject.
-  // @see ../../docs/product/dashboard.md#reference-only-homework
+  // @see ../../docs/modules/school-diary/dashboard.md#reference-only-homework
   const subjects: ParentSubjectOverview[] = page.subjects.filter((subject) => subject.tasks.some((task) => (task.originDate ?? day.date) === day.date)).map((subject) => {
     const rawTasks = subject.tasks.filter((task) => (task.originDate ?? day.date) === day.date).map((task) => withVerifiedPlatformResult(task, day.date, evidencePages))
     const placements = (page.testPlacements ?? []).filter((placement) => placement.subjectId === subject.id && (placement.originDate ?? day.date) === day.date)
@@ -189,7 +189,7 @@ function useLiveParentChildOverview(dashboardToken: string): ParentChildOverview
 
 /** Show the last complete parent projection on the first frame, then replace it
  * atomically after all live evidence streams have produced a consistent view.
- * @see ../../docs/architecture/local-first-release-plan-2026-10-12.md#personal-startup
+ * @see ../../docs/plans/local-first-release-plan-2026-10-12.md#personal-startup
  */
 export function useParentChildOverview(dashboardToken: string, personId: string): ParentChildOverview {
   const cached = readOverview(personId, dashboardToken)

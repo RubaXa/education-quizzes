@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 
 /** Keep fast background refreshes invisible; only prolonged reconciliation gets a small icon.
- * @see ../../docs/product/dashboard.md#dashboard-warm-start */
+ * @see ../../docs/modules/school-diary/dashboard.md#dashboard-warm-start */
 export function useDelayedRefresh(active: boolean, delayMs = 450): boolean {
   const [visible, setVisible] = useState(false)
   useEffect(() => {

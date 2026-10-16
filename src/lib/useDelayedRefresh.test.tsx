@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-// @see ../../docs/product/dashboard.md#dashboard-warm-start
+// @see ../../docs/modules/school-diary/dashboard.md#dashboard-warm-start
 import { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, expect, it, vi } from 'vitest'

@@ -1,6 +1,6 @@
 /** Keep one in-flight (and briefly settled) read for identical startup callers.
  * The short window only coalesces a render wave; it is not an authorization cache.
- * @see ../../docs/architecture/local-first-release-plan-2026-10-12.md
+ * @see ../../docs/plans/local-first-release-plan-2026-10-12.md
  */
 export function createRequestSingleFlight<Key, Value>(ttlMs: number) {
   let current: { key: Key; promise: Promise<Value>; expiresAt: number; settled: boolean } | null = null

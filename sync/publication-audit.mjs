@@ -1,6 +1,6 @@
 /** Compare the current source projection with the last Firestore publication.
  * A fresh download alone must never clear an unpublished change.
- * @see ../docs/product/global-sync.md#reconciliation
+ * @see ../docs/modules/synchronization/global-sync.md#reconciliation
  */
 export function pendingPublicationDates(expected, published, dates) {
   const current = new Map((expected?.days ?? []).map((day) => [day.date, day]))
@@ -28,7 +28,7 @@ export function pendingPublicationDates(expected, published, dates) {
 
 /** Refresh only check times for already published, byte-equivalent day content.
  * Preserve inbox badges and every other field of the published index.
- * @see ../docs/product/dashboard.md#sync-freshness
+ * @see ../docs/modules/school-diary/dashboard.md#sync-freshness
  */
 export function refreshedCalendarChecks(expected, published) {
   if (!Array.isArray(expected?.days) || !Array.isArray(published?.days)) return null

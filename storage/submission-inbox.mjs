@@ -1,5 +1,5 @@
-/** @see ../docs/product/material-clarification.md */
-/** @see ../docs/product/storage-privacy.md#review-queue */
+/** @see ../docs/modules/materials/material-clarification.md */
+/** @see ../docs/modules/materials/storage-privacy.md#review-queue */
 function millis(value) {
   if (!value) return null
   if (typeof value.toMillis === 'function') return value.toMillis()
@@ -10,7 +10,7 @@ function millis(value) {
 /**
  * Resolve a pending file to its private owner and the assignment visible on the
  * day page. Never infer an assignment from filename, subject or disk directory.
- * @see ../docs/product/storage-privacy.md#review-queue
+ * @see ../docs/modules/materials/storage-privacy.md#review-queue
  */
 export function resolveSubmission({ owner, page, childName, uploadId, upload }) {
   const contextValid = page?.kind === 'student' && page.date === owner.date

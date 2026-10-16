@@ -99,7 +99,7 @@ function ImageRequest({ source, alt, mode = 'direct', size = 'XXXL', resolver, r
 }
 
 /** One loading and retry contract for original pages, crops, photos and illustrations.
- * @see ../../docs/product/design-system.md#images */
+ * @see ../../docs/shared/design/README.md#images */
 export default function EducationImage(props: EducationImageProps) {
   return <ImageRequest key={`${props.mode ?? 'direct'}:${props.source}:${props.size ?? 'XXXL'}:${JSON.stringify(props.crop ?? null)}`} {...props} />
 }

@@ -8,7 +8,7 @@ import { decryptHandoff, generateReceiverKeys } from '../packages/education-conn
 import { MeshDiaryAdapter } from '../packages/education-connect/lib/mesh.mjs'
 import { syncChildAccess } from './lib/access-projection.mjs'
 
-/** Operator-only invite and intake. @see ../docs/architecture/school-diary-port-adapter.md#family-onboarding-research */
+/** Operator-only invite and intake. @see ../docs/modules/school-diary/README.md#family-onboarding-research */
 const db = operatorFirestore()
 const site = 'https://rubaxa.github.io/education-quizzes/'
 const inviteFile = resolve('.local/connection-invites.json')

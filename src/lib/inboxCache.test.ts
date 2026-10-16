@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-// @see ../../docs/product/dashboard.md#dashboard-warm-start
+// @see ../../docs/modules/school-diary/dashboard.md#dashboard-warm-start
 import { afterEach, expect, it } from 'vitest'
 import { clearCachedInbox, markCachedInboxRead, readCachedInbox, writeCachedInbox } from './inboxCache'
 

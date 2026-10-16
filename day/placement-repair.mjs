@@ -1,7 +1,7 @@
 import { placementIntegrityErrors } from './placement-integrity.mjs'
 
 /** A migration of one edge only. Other page fields, attempts and role links stay intact.
- * @see ../docs/product/firestore-data-model.md#migration */
+ * @see ../docs/shared/data/firestore.md#migration */
 export function repairTaskPlacements(page) {
   const tasks = new Map((page.subjects ?? []).flatMap((subject) => (subject.tasks ?? [])
     .map((task) => [task.id, { task, subjectId: subject.id }])))

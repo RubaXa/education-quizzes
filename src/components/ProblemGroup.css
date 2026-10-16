@@ -1,5 +1,5 @@
-/* @see ../../docs/product/status-presentation.md#components */
-/* @see ../../docs/product/problem-card-design-decisions.md#flat-numbered-sheet */
+/* @see ../../docs/shared/design/statuses.md#components */
+/* @see ../../docs/modules/reviews/problem-card-design-decisions.md#flat-numbered-sheet */
 .problem-group{min-width:0;border:1px solid #e4ddec;border-radius:18px;background:#fff;overflow:hidden}
 .problem-group.success{border-color:#cce8d5;background:#fbfefb}
 .problem-group-toggle{display:block;width:100%;padding:16px 17px;border:0;background:transparent;color:#34295c;text-align:left;cursor:pointer}

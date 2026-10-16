@@ -1,5 +1,5 @@
 /** Per-assigned-unit evidence contract. Text here is safe for learner display; private keys stay in source packs.
- * @see ../docs/product/review-criteria-provenance.md#requirement-trace */
+ * @see ../docs/modules/reviews/review-criteria-provenance.md#requirement-trace */
 export function validateRequirementChecks(review) {
   if (review.requirementChecks === undefined) return
   const checks = review.requirementChecks

@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto'
 
 /** Rebuilds a source graph from this family's current facts on every publication.
- * @see ../docs/product/family-library.md#source-graph
+ * @see ../docs/modules/materials/family-library.md#source-graph
  */
 export async function buildFamilySourceGraph(db, { familyId, childId, source, pageRefs }) {
   const base = `families/${familyId}/children/${childId}`

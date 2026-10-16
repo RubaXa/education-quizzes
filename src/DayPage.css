@@ -1,13 +1,13 @@
-/* @see ../docs/product/design-system.md#cards-and-status — page-specific layout keeps the shared Education shell. */
-/* @see ../docs/product/status-presentation.md#components — task and subject state share one icon and role palette. */
-/* @see ../docs/product/materials.md#material-reader — assigned pages share a horizontal thumbnail strip. */
+/* @see ../docs/shared/design/README.md#cards-and-status — page-specific layout keeps the shared Education shell. */
+/* @see ../docs/shared/design/statuses.md#components — task and subject state share one icon and role palette. */
+/* @see ../docs/modules/materials/materials.md#material-reader — assigned pages share a horizontal thumbnail strip. */
 .day-page{max-width:1060px;margin:0 auto;color:#34295c}.day-page *{box-sizing:border-box}.day-hero{border-radius:30px;background:linear-gradient(120deg,#483887,#7860b8 65%,#9c80cb);color:white;padding:34px 40px;box-shadow:0 20px 50px #46368020}.day-kicker{font-size:.82rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;opacity:.8}.day-hero h1{font-size:clamp(2rem,5vw,3.25rem);font-weight:850;line-height:1.08;margin:13px 0}.day-hero p{font-size:1.05rem;max-width:740px;opacity:.92}.day-summary{display:flex;align-items:center;gap:10px;margin-top:22px;flex-wrap:wrap}.day-summary strong{font-size:2rem;line-height:1}.day-summary-separator{opacity:.5}.day-tabs{display:flex;gap:8px;margin:23px 0}.day-tabs button{border:1px solid #e1dbef;background:white;border-radius:999px;color:#5c5079;font-weight:750;padding:10px 19px;cursor:pointer}.day-tabs button.active{background:#483887;color:white;border-color:#483887}.day-inline-error,.day-error{padding:18px 22px;border-radius:18px;background:#fff0f1;color:#a23844;margin:20px 0}.day-notices,.day-attention{border:1px solid #ece5f5;background:#faf7ff;border-radius:22px;padding:17px 23px;margin-bottom:20px}.day-notices p,.day-attention p{margin:7px 0;line-height:1.5}.day-attention h2{font-size:1.25rem;font-weight:800;margin:0 0 10px}.day-subject-list{display:grid;gap:20px}.day-subject{background:white;border:1px solid #e6e0ef;border-radius:26px;overflow:hidden;box-shadow:0 12px 35px #4a397012}.day-subject-head{display:flex;align-items:center;gap:17px;padding:25px 29px;background:#f7f5fc;border-bottom:1px solid #e9e3f3}.day-subject-math .day-subject-head{background:#f7f3ff}.day-subject-english .day-subject-head{background:#f2f8ff}.day-subject-russian .day-subject-head{background:#fff5f2}.day-subject-special .day-subject-head{background:#f5f7fa}.day-subject-icon{display:grid;place-items:center;width:60px;height:60px;border:2px solid #e5def4;background:white;border-radius:21px;font-size:1.8rem;color:#7554bd;flex-shrink:0}.day-subject-title{min-width:0;flex:1}.day-subject-title h2{font-size:1.55rem;font-weight:850;line-height:1.1;margin:0 0 6px}.day-subject-title p{color:#746b88;margin:0;font-size:.96rem}.day-grade{font-weight:800;border-radius:999px;background:white;color:#5f5187;border:1px solid #e5def2;padding:7px 12px;font-size:.86rem;white-space:nowrap}.day-grade.excellent{background:#e7f8ef;border-color:#bce8cd;color:#277146}.day-grade.watch{background:#fff1df;border-color:#f6d7a4;color:#9a5f12}.day-subject-content{padding:24px 29px 28px}.day-subject-summary{font-size:1rem;color:#564d6d;margin:0 0 18px;line-height:1.55}.day-mesh{font-size:.88rem;color:#776c8b;margin-bottom:18px}.day-mesh summary{cursor:pointer;font-weight:750}.day-mesh p{margin:8px 0}.day-grade-scenarios{background:#faf6ee;border:1px solid #f1e1c6;border-radius:18px;padding:15px 17px;margin:0 0 18px}.day-grade-scenarios h3{font-size:.91rem;font-weight:800;margin:0 0 9px}.day-grade-scenarios>div{display:flex;flex-wrap:wrap;gap:7px}.day-grade-scenarios span{background:white;border-radius:9px;padding:6px 9px;font-size:.82rem}.day-grade-scenarios small{display:block;color:#766b59;margin-top:9px}.day-task-list{display:grid;gap:10px}.day-task{border:1px solid #eae5f1;border-radius:17px;padding:16px 17px;background:#fff}.day-task.done{background:#fbfefa;border-color:#d9e9da}.day-task-row{display:flex;justify-content:space-between;align-items:center;gap:8px}.day-task-state,.day-task-type{font-size:.73rem;font-weight:800;border-radius:999px;padding:4px 9px;background:#f2edf9;color:#6f58a1}.day-task-state.needs-fix{background:#fff0e1;color:#a2621a}.day-task-state.verified{background:#e9f7ed;color:#28764b}.day-task-state.partial{background:#eef4ff;color:#4871a4}.day-task-type{background:#f5f3f8;color:#8a8296}.day-task h3{font-size:1.02rem;font-weight:800;margin:12px 0 5px}.day-task p{font-size:.92rem;color:#655b75;line-height:1.5;margin:0}.day-task-actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-top:13px}.day-check,.day-upload{display:inline-flex;align-items:center;justify-content:center;border-radius:10px;padding:8px 11px;cursor:pointer;font-size:.84rem;font-weight:750}.day-check{background:#f4effa;color:#634899}.day-check input{accent-color:#6d50aa;margin-right:7px}.day-check span{display:inline-flex;gap:5px;align-items:center}.day-upload{background:#5c4798;color:white;gap:6px}.day-upload input{display:none}.day-parent-status{color:#756c84;font-size:.83rem}.day-upload-list{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.day-upload-list a{font-size:.78rem;color:#604e99;text-decoration:underline}.day-source{display:flex;gap:5px;align-items:center;color:#8b8498;margin-top:11px;line-height:1.4}.day-tests,.day-schedule-panel{background:white;border:1px solid #e5deef;border-radius:25px;padding:27px;margin-top:23px}.day-section-heading{display:flex;gap:12px;align-items:flex-start}.day-section-heading h2,.day-schedule-panel h2{font-size:1.5rem;font-weight:850;margin:0 0 4px}.day-section-heading p,.day-schedule-panel>p{color:#716885;margin:0 0 19px}.day-test-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(235px,1fr));gap:11px}.day-test{border:1px solid #e7e0ee;border-radius:17px;background:#faf8fd;padding:17px}.day-test>span{color:#8a70ad;font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;font-weight:800}.day-test h3{font-weight:800;font-size:1rem;line-height:1.35;margin:7px 0}.day-test p{font-size:.85rem;color:#736987;margin:0 0 12px}.day-test a{color:#5a429b;font-weight:800;display:inline-flex;gap:5px;align-items:center}.day-timeline{margin:14px 0 24px}.day-lesson{display:grid;grid-template-columns:105px 1fr;gap:18px;padding:14px 0;border-bottom:1px solid #eee9f4}.day-lesson time{color:#817695;font-weight:800}.day-lesson strong{font-size:1.08rem}.day-lesson p{color:#706785;margin:4px 0 0}.day-schedule-panel h3{font-weight:800;font-size:1.15rem;margin:0 0 12px}.day-next-schedule{display:flex;gap:8px;flex-wrap:wrap}.day-next-schedule span{padding:7px 10px;border-radius:999px;background:#f4effa;font-size:.81rem}.day-footer{display:flex;align-items:center;gap:6px;color:#898197;font-size:.78rem;margin:26px 2px}.day-loading{padding:30px;text-align:center}@media(max-width:640px){.day-hero{padding:26px 23px;border-radius:23px}.day-subject-head{padding:18px;flex-wrap:wrap}.day-subject-icon{width:49px;height:49px;border-radius:16px;font-size:1.4rem}.day-subject-title h2{font-size:1.28rem}.day-grade{margin-left:65px}.day-subject-content{padding:18px}.day-tabs button{font-size:.86rem;padding:9px 13px}.day-tests,.day-schedule-panel{padding:19px}.day-lesson{grid-template-columns:75px 1fr;gap:9px}.day-summary{font-size:.86rem}}
 .day-return{display:inline-flex;align-items:center;margin:0 0 16px;border:1px solid #ded4ec;border-radius:11px;background:white;color:#59418e;padding:9px 12px;font-size:.84rem;font-weight:800;text-decoration:none}.day-return:hover{background:#f5effc;color:#483887}
 .day-return-header{display:none}
 @media(max-width:640px){.day-return-content{display:none}.day-return-header{display:inline-flex;align-items:center;justify-content:center;margin:0;min-height:36px;padding:7px 10px;font-size:.78rem;line-height:1.1;white-space:nowrap}.day-return-header:focus-visible{outline:3px solid #9d78da;outline-offset:2px}}
 .day-scenario-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:9px}.day-scenario-head h3{margin:0}.day-scenario-head label{display:flex;align-items:center;gap:6px;font-size:.8rem;font-weight:750}.day-scenario-head select{background:white;border:1px solid #e3d2b1;border-radius:8px;color:#574930;padding:5px 8px}
 .day-focused-task{outline:3px solid #a887df;outline-offset:3px;transition:outline-color .2s}
-/* @see ../docs/product/day-page.md#day-navigation */
+/* @see ../docs/modules/school-diary/day-page.md#day-navigation */
 .day-task,.problem-card,[id^="day-quiz-"]{scroll-margin-top:1rem}
 .day-task .day-quiz-link{display:inline-flex;align-items:center;gap:6px;margin-top:12px;background:#5c4798;color:#fff;font-size:.9rem;font-weight:800;text-decoration:none}
 .day-task .day-quiz-link:hover{background:#49387c;color:#fff;text-decoration:none}
@@ -39,7 +39,7 @@
 .day-reader-statement .day-reader-thumb img,.day-reader-statement .day-reader-thumb-placeholder{width:100%;height:auto;object-fit:contain;object-position:center;background:#fff}
 .day-reader-statement .day-reader-thumb-placeholder{min-height:130px}
 .day-reader-thumb .education-image{height:92px}
-/* @see ../docs/product/design-system.md#images — teacher sheets follow their actual page ratio. */
+/* @see ../docs/shared/design/README.md#images — teacher sheets follow their actual page ratio. */
 .day-reader-statement .day-reader-thumb .education-image{height:auto;aspect-ratio:auto}
 .day-reader-full-image{width:min(100%,1000px);flex:none}
 .day-reader-stage.zoomed .day-reader-full-image{width:180%;max-width:none}
@@ -75,7 +75,7 @@
 .day-task-steps li>span:first-child,.day-submission-instructions li>span:first-child{display:block;min-width:0}
 .day-task-steps li>.day-instruction-source,.day-submission-instructions li>.day-instruction-source{position:absolute;left:.1rem;top:calc((1.55em - 1.2rem)/2);margin:0;vertical-align:baseline}
 
-/* @see ../docs/product/day-page.md#instruction-provenance */
+/* @see ../docs/modules/school-diary/day-page.md#instruction-provenance */
 .day-instruction-source{display:inline-block;position:relative;vertical-align:middle;margin-left:.18rem}
 .day-instruction-source summary{display:inline-grid;place-items:center;width:1.2rem;height:1.2rem;border:1px solid #b9a8d8;border-radius:50%;color:#624a9a;background:#fff;font-size:.72rem;font-weight:800;line-height:1;cursor:pointer;list-style:none}
 .day-instruction-source summary::-webkit-details-marker{display:none}
@@ -90,7 +90,7 @@
 .day-instruction-source.uncertain summary{border-color:#e6a84c;background:#fff0d9;color:#985a11}
 .day-instruction-source.uncertain>.day-instruction-source-body{background:#fff7e9;border-color:#efd8a7}
 
-/* @see ../docs/product/day-page.md#multi-photo-upload */
+/* @see ../docs/modules/school-diary/day-page.md#multi-photo-upload */
 .day-upload-list{display:block;min-width:0;margin-top:11px;padding:8px 10px;border:1px solid #e4dced;border-radius:11px;background:#faf8fe}
 .day-upload-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;color:#5a4881}
 .day-upload-head strong{font-size:.76rem;font-weight:800}
@@ -104,7 +104,7 @@
 .day-upload-summary{display:block;margin-top:5px;color:#716484;font-size:.7rem;line-height:1.3}
 .day-problem-list{display:grid;gap:10px;margin:17px 0 5px}
 .day-problem-list>h4{margin:0 0 2px;color:#49347e;font-size:.95rem}
-/* @see ../docs/product/card-generation-policy.md#practice-variants */
+/* @see ../docs/modules/reviews/card-generation-policy.md#practice-variants */
 .day-practice-variant-shell{position:relative;min-width:0}
 .day-practice-variant{border:1px solid var(--edu-card-border);border-radius:var(--edu-radius-control);background:var(--edu-surface);overflow:hidden}
 .day-practice-variant>summary{display:flex;align-items:center;gap:9px;min-height:var(--edu-touch-target);padding:11px 55px 11px 13px;cursor:pointer;list-style:none;color:var(--edu-ink)}
@@ -120,7 +120,7 @@
 
 /* A numbered teacher sheet has one outer boundary. Variants and problems use
  * full-width list rows, while the source image and input retain their own affordance.
- * @see ../docs/product/problem-card-design-decisions.md#flat-numbered-sheet */
+ * @see ../docs/modules/reviews/problem-card-design-decisions.md#flat-numbered-sheet */
 .day-subject-content .problem-group{border:0;border-top:1px solid var(--edu-card-border);border-radius:0;background:transparent;overflow:visible}
 .day-subject-content .problem-group-body{border-top:1px solid var(--edu-card-border)}
 .day-subject-content .problem-group-body>.day-task.has-problems{border:0;border-radius:0;background:transparent}
@@ -148,7 +148,7 @@
 .problem-group-body .problem-card>.day-photo-strip{padding:0 14px 12px}
 @media(max-width:560px){.day-subject-content:has(.problem-group){padding-inline:12px}}
 /* The approved numbered-sheet mockup uses one subject frame and divider rows.
- * @see ../docs/product/problem-card-design-decisions.md#flat-numbered-sheet */
+ * @see ../docs/modules/reviews/problem-card-design-decisions.md#flat-numbered-sheet */
 .edu-visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .day-subject.has-numbered-sheet .day-subject-head{grid-template-columns:minmax(0,1fr) auto 36px;background:var(--edu-surface);border-bottom:0;padding-bottom:12px}
 .day-subject.has-numbered-sheet .day-subject-icon{display:none}
@@ -208,7 +208,7 @@
 .day-upload-delete:focus-visible{outline:3px solid #ae91e8;outline-offset:2px}
 .day-task .day-upload-delete-error{margin-top:7px;color:#a23844;font-size:.76rem}
 
-/* @see ../docs/product/day-page.md#homework-review */
+/* @see ../docs/modules/school-diary/day-page.md#homework-review */
 .day-review-stack{display:grid;gap:8px;min-width:0;margin:13px 0}
 .day-review-progress{display:flex;align-items:center;gap:10px;min-width:0;padding:10px 12px;border:1px solid #e3dbea;border-radius:12px;background:#f9f7fc;color:#5a4d6f}
 .day-review-progress.active{border-color:#cabbeb;background:#f5f0ff;color:#513985}
@@ -222,7 +222,7 @@
 .day-work-review.error{--review-bg:#fff0f1;--review-border:#eba5ae;--review-ink:#932c3a;--review-icon:#a52839}
 .day-task-state.covered{background:#eaf2fb;color:#3e6889}
 .day-work-review-verdicts{display:flex;flex-wrap:wrap;gap:6px;margin:5px 0 10px}
-/* @see ../docs/product/review-criteria-provenance.md#requirement-trace */
+/* @see ../docs/modules/reviews/review-criteria-provenance.md#requirement-trace */
 .day-work-review-requirements{margin:8px 0 12px;line-height:1.45;font-size:.82rem}.day-work-review-requirements h4{margin:0 0 5px;color:#342851;font-size:.9rem}.day-work-review-requirements>p{margin:0 0 7px!important}.day-work-review-requirements ol{margin:0;padding:0;list-style:none;border-top:1px solid var(--review-border)}.day-work-review-requirements li{display:grid;gap:4px;padding:10px 0;border-bottom:1px solid var(--review-border)}.day-work-review-requirements li>strong{color:#342851}.day-work-review-requirements li b{color:#51446c}.day-work-review-requirement-result{display:flex;align-items:center;gap:5px;font-weight:750}.day-work-review-requirement-result.confirmed{color:#1c6840}.day-work-review-requirement-result.unknown{color:#5a6680}.day-work-review-requirement-result.not-met{color:#a52839}
 .day-work-review-verdicts span{display:inline-flex;align-items:center;gap:5px;min-height:28px;padding:4px 8px;border-radius:999px;font-size:.78rem;font-weight:750;line-height:1.2}
 .day-work-review-verdicts .correct{background:#e7f5ec;color:#1c6840}.day-work-review-verdicts .incorrect{background:#fbe8e9;color:#9b2937}.day-work-review-verdicts .incomplete{background:#fff0d8;color:#89550a}.day-work-review-verdicts .unknown{background:#eeebf2;color:#645b70}
@@ -240,7 +240,7 @@
 .day-work-review-basis details{border-top:1px solid var(--review-border);padding-top:8px}.day-work-review-basis details summary{min-height:0;padding:0;display:list-item;font-size:.79rem;font-weight:700}.day-work-review-basis ul{margin:8px 0;padding-left:18px}.day-work-review-basis li{margin:4px 0}.day-work-review-basis li small{display:block;color:#6b6078}
 .day-work-review-dispute{margin:10px 0;padding:11px;border:1px solid #d5c9e8;border-radius:10px;background:#fff;display:grid;gap:7px;font-size:.82rem;line-height:1.4}
 .day-work-review-dispute strong{color:#3c2c65}.day-work-review-dispute p{margin:0}.day-work-review-dispute small{color:#746b82;overflow-wrap:anywhere}
-/* @see ../docs/product/design-system.md#cards-and-status — the family switch reuses the current Education palette. */
+/* @see ../docs/shared/design/README.md#cards-and-status — the family switch reuses the current Education palette. */
 .day-work-review summary{display:flex;align-items:center;gap:10px;min-height:55px;padding:10px 12px;cursor:pointer;list-style:none}
 .day-work-review summary::-webkit-details-marker{display:none}
 .day-work-review summary:focus-visible{outline:3px solid #9d78da;outline-offset:-3px}
@@ -256,13 +256,13 @@
 .day-task .day-work-review-next{margin-top:11px;font-size:.81rem}.day-work-review-source{display:block;margin-top:7px;color:#746a7f;font-size:.72rem;line-height:1.4}
 @media (prefers-reduced-motion:reduce){.day-review-progress.active .day-review-progress-icon svg{animation:none}.day-work-review-chevron{transition:none}}
 
-/* @see ../docs/product/day-page.md#completed-subjects */
+/* @see ../docs/modules/school-diary/day-page.md#completed-subjects */
 .day-subject.is-done{border-color:#cce8d7;background:#fbfefa}
 .day-subject.is-done .day-subject-head{background:#ecf8f1}
 .day-subject.is-collapsed .day-subject-head{border-bottom:0}
 .day-subject.is-collapsed .day-subject-title p{display:none}
 
-/* @see ../docs/product/day-page.md#multiple-assignments — a sheet result never completes its sibling assignment. */
+/* @see ../docs/modules/school-diary/day-page.md#multiple-assignments — a sheet result never completes its sibling assignment. */
 .day-subject-assignment-count{display:inline-flex;align-items:center;gap:5px;flex:none;max-width:100%;font-size:.78rem;font-weight:750;color:#655c78;background:#fff;border:1px solid #e5def2;border-radius:999px;padding:6px 10px;white-space:normal}
 .day-subject-assignment-count.is-complete{color:#277146;background:#e7f8ef;border-color:#bce8cd}
 .day-task-assignment-heading{font-size:.77rem;font-weight:800;color:#665187;margin-bottom:9px}
@@ -280,15 +280,15 @@
 .day-reference-result small{color:#655c70;text-align:right;line-height:1.4}
 @media(max-width:640px){.day-subject-complete{order:3;width:calc(100% - 65px);margin-left:65px}.day-reference-result{display:block}.day-reference-result small{display:block;text-align:left;margin-top:2px}.day-subject-toggle{margin-left:auto}}
 
-/* @see ../docs/product/design-system.md#mobile-card-headings — a title never competes with status pills. */
+/* @see ../docs/shared/design/README.md#mobile-card-headings — a title never competes with status pills. */
 .day-subject-head{display:grid;grid-template-columns:60px minmax(0,1fr) 36px;align-items:center;column-gap:17px;row-gap:10px}
 .day-subject-icon{grid-column:1;grid-row:1}
 .day-subject-title{grid-column:2;grid-row:1;min-width:0}
 .day-subject-title h2{margin:0;overflow-wrap:anywhere;word-break:normal}
 .day-subject-toggle{grid-column:3;grid-row:1;margin:0}
 .day-subject-materials{grid-column:2 / -1;min-width:0;margin:0;color:#746b88;font-size:.96rem;line-height:1.4;overflow-wrap:anywhere}
-/* @see ../docs/product/grades.md#grade-badge — fixed count/average columns in both card states. */
-/* @see ../docs/product/day-page.md#numbered-sheet-and-quiz — task and quiz counts have separate labels. */
+/* @see ../docs/modules/school-diary/grades.md#grade-badge — fixed count/average columns in both card states. */
+/* @see ../docs/modules/school-diary/day-page.md#numbered-sheet-and-quiz — task and quiz counts have separate labels. */
 .day-subject-status{grid-column:1 / -1;display:grid;grid-template-columns:max-content minmax(0,1fr);align-items:center;column-gap:10px;row-gap:9px;min-width:0}
 .day-subject-status .day-subject-assignment-count,.day-subject-status .day-subject-complete{grid-column:1;grid-row:1;order:0;justify-self:start;min-height:36px;display:inline-flex;align-items:center;width:auto;padding:6px 10px;border:1px solid #bce8cd;border-radius:999px;background:#e7f8ef;color:#277146;font-size:.78rem;line-height:1;white-space:nowrap;font-variant-numeric:tabular-nums;margin:0}
 .day-subject-status .day-subject-assignment-count:not(.is-complete){border-color:#e5def2;background:#fff;color:#655c78}

@@ -1,7 +1,7 @@
 import './RequirementSwitch.css'
 
 /** Shared family requirement control for reviewed stages and disputed actions.
- * @see ../../docs/product/design-system.md#cards-and-status */
+ * @see ../../docs/shared/design/README.md#cards-and-status */
 export default function RequirementSwitch({ checked, disabled = false, onChange, label = 'Учитывать пункт при проверке' }: {
   checked: boolean; disabled?: boolean; onChange: (checked: boolean) => void; label?: string
 }) {

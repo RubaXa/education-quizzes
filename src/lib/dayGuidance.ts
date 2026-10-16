@@ -9,7 +9,7 @@ export type DayGuidance = {
 }
 
 /** Read-only on the learner route; the guide and neighboring stages remain private.
- * @see ../../docs/product/subject-aware-guidance.md#math-route */
+ * @see ../../docs/modules/reviews/subject-aware-guidance.md#math-route */
 export function watchDayGuidance(studentToken: string, onChange: (items: DayGuidance[]) => void, onError: (error: Error) => void) {
   return onSnapshot(collection(db, 'dayGuidance', studentToken, 'items'), (snapshot) => {
     onChange(snapshot.docs.map((entry) => ({ id: entry.id, ...entry.data() } as DayGuidance))

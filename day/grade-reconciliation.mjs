@@ -17,7 +17,7 @@ const gradeCounts = (grades) => {
 }
 
 /** Source summary may omit individual marks; count and average are always required.
- * @see ../docs/product/grades.md#mesh-reconciliation
+ * @see ../docs/modules/school-diary/grades.md#mesh-reconciliation
  */
 export function assertGradeSnapshotAligned(gradeSnapshot, meshSnapshot) {
   if (!meshSnapshot?.complete || !Array.isArray(meshSnapshot.marks)) throw new Error('Для оценок нужен полный снимок МЭШ.')
@@ -39,7 +39,7 @@ export function assertGradeSnapshotAligned(gradeSnapshot, meshSnapshot) {
 }
 
 /** Preserve source identity: equal marks may describe different work and comments.
- * @see ../docs/product/grades.md#dashboard-grade-list
+ * @see ../docs/modules/school-diary/grades.md#dashboard-grade-list
  */
 export function gradeDetailRows(gradeSnapshot, meshSnapshot) {
   assertGradeSnapshotAligned(gradeSnapshot, meshSnapshot)
@@ -61,7 +61,7 @@ export function gradeDetailRows(gradeSnapshot, meshSnapshot) {
 
 /** Prefer the newest fully identified journal aligned with the confirmed marks.
  * A later schedule-only snapshot may be complete for lessons yet omit mark details.
- * @see ../docs/product/grades.md#mesh-reconciliation
+ * @see ../docs/modules/school-diary/grades.md#mesh-reconciliation
  */
 export function chooseGradeJournal(gradeSnapshot, candidates) {
   let fallback
@@ -82,7 +82,7 @@ export function chooseGradeJournal(gradeSnapshot, candidates) {
 }
 
 /** Return only changed grade fields; never replace identified marks with anonymous rows.
- * @see ../docs/product/grades.md#mesh-reconciliation
+ * @see ../docs/modules/school-diary/grades.md#mesh-reconciliation
  */
 export function gradeProjectionPatch(page, desired) {
   const marks = (rows) => (rows ?? []).flatMap((subject) => subject.grades ?? [])

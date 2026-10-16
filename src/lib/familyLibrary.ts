@@ -7,7 +7,7 @@ import type { PersonalChild } from './personalAccess'
 import { resumeFamilyBookTransfer } from './familyBookUpload'
 import { reportUiError } from './uiErrors'
 
-/** @see ../../docs/product/family-library.md#coverage */
+/** @see ../../docs/modules/materials/family-library.md#coverage */
 export type FamilyBook = {
   id: string
   childId: string

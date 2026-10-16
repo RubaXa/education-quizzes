@@ -8,7 +8,7 @@ import { bookDisplayTitle, indexedBooks } from '../storage/textbook-catalog.mjs'
 import { projectPublishedBookToFamily } from '../storage/family-book-projection.mjs'
 import { taskPageRefs } from '../storage/material-pages.mjs'
 
-/** @see ../docs/product/family-library.md#operator */
+/** @see ../docs/modules/materials/family-library.md#operator */
 const [command, familyId, childId, argument] = process.argv.slice(2)
 const local = resolve('.local')
 const adc = resolve(local, 'adc.json')

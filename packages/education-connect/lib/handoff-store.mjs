@@ -3,7 +3,7 @@ import { getAuth, signInAnonymously } from 'firebase/auth'
 import { doc, getDoc, getFirestore, serverTimestamp, setDoc } from 'firebase/firestore'
 
 /** Public Firebase project identifiers are not credentials.
- * @see ../../../docs/architecture/school-diary-port-adapter.md#family-onboarding-research
+ * @see ../../../docs/modules/school-diary/README.md#family-onboarding-research
  */
 const app = initializeApp({
   apiKey: 'AIzaSyBwyDHPCu_uMIpYZJa--F5F19ibqfo0sGw',

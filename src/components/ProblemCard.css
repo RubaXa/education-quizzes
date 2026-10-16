@@ -1,4 +1,4 @@
-/* @see ../../docs/product/status-presentation.md#components */
+/* @see ../../docs/shared/design/statuses.md#components */
 .problem-card{min-width:0;padding:13px 14px;border:1px solid var(--edu-card-border);border-radius:14px;background:var(--edu-surface);color:var(--edu-text-primary)}
 .problem-card-heading{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;align-items:center;gap:5px;list-style:none;cursor:pointer}
 .problem-card-heading::-webkit-details-marker{display:none}
@@ -13,7 +13,7 @@
 .problem-card-chevron{margin-left:5px;transition:transform .2s ease}
 .problem-card[open] .problem-card-chevron{transform:rotate(180deg)}
 /* Provenance is a disclosure in the task heading, not a full-width card layer.
- * @see ../../docs/product/problem-card-design-decisions.md#flat-numbered-sheet */
+ * @see ../../docs/modules/reviews/problem-card-design-decisions.md#flat-numbered-sheet */
 .problem-card-source-wrap{display:flex;align-items:center}
 .problem-card-source-trigger{display:grid;place-items:center;width:var(--edu-touch-target);height:var(--edu-touch-target);padding:0;border:0;border-radius:50%;background:transparent;color:var(--edu-status-neutral-ink);cursor:pointer}
 .problem-card-source-trigger.complete{color:var(--edu-status-success-ink)}

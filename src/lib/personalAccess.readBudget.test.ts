@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-// @see ../../docs/architecture/local-first-release-plan-2026-10-12.md#startup-regression-contract
+// @see ../../docs/plans/local-first-release-plan-2026-10-12.md#startup-regression-contract
 
 const probe = vi.hoisted(() => ({ delivered: 0, requests: [] as string[], grantGate: null as Promise<void> | null }))
 vi.mock('./firebase', () => ({ db: {} }))

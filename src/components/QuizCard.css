@@ -1,5 +1,5 @@
-/* @see ../../docs/product/quiz-chain-proposal.md
- * @see ../../docs/product/result-presentation-proposal.md */
+/* @see ../../docs/modules/assessments/quiz-chain-proposal.md
+ * @see ../../docs/modules/assessments/result-presentation-proposal.md */
 .day-quiz-lineage{min-width:0;border:1px solid var(--edu-card-border);border-radius:18px;overflow:hidden;background:var(--edu-surface);color:var(--edu-ink)}
 .day-quiz-lineage-head{display:flex;justify-content:space-between;flex-wrap:wrap;gap:5px;padding:10px 14px;background:var(--edu-status-accent-bg)}
 .day-quiz-lineage-head>strong{width:100%;font-size:.84rem;line-height:1.3}
@@ -54,7 +54,7 @@
 .day-quiz-history-table td{border-top:1px solid var(--edu-card-border);padding:var(--edu-quiz-row-padding) 3px;text-align:right;vertical-align:middle;font-size:.8rem}
 .day-quiz-history-table td:first-child{text-align:left;overflow-wrap:anywhere}
 .day-quiz-history-table td:last-child{padding-left:0;padding-right:0}
-/* @see ../../docs/product/quizzes.md#attempt-time — dates belong to the clicked row. */
+/* @see ../../docs/modules/assessments/quizzes.md#attempt-time — dates belong to the clicked row. */
 .day-quiz-history-table .day-quiz-history-time-row>td{border-top:0;padding:0 0 var(--edu-quiz-row-padding)}
 .day-quiz-history-table .selected{background:var(--edu-hover)}
 .day-quiz-history-table .edu-result-badge{font-size:.75rem;padding:3px 5px;gap:3px}

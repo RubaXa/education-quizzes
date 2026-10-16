@@ -12,7 +12,7 @@ import { YandexDiskStorage } from '../storage/yandex-disk.mjs'
  * Read-only archive audit by default; --exercise temporarily submits a generated
  * image through the browser SDK, transfers it to Disk, pulls the review queue,
  * then removes only the generated record and file.
- * @see ../docs/product/storage-privacy.md#upload-verification
+ * @see ../docs/modules/materials/storage-privacy.md#upload-verification
  */
 const date = process.argv.find((value) => /^\d{4}-\d{2}-\d{2}$/.test(value))
 const exercise = process.argv.includes('--exercise')

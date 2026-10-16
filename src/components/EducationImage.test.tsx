@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-// @see ../../docs/product/design-system.md#images
+// @see ../../docs/shared/design/README.md#images
 import { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { describe, expect, it, vi } from 'vitest'

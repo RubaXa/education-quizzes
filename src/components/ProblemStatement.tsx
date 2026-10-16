@@ -13,7 +13,7 @@ const helpKinds: { value: NonNullable<DayHelp['requestKind']>; label: string }[]
   { value: 'check', label: 'Хочу проверить ход' },
 ]
 
-// @see ../../docs/product/problem-card-design-decisions.md#fact-tiles
+// @see ../../docs/modules/reviews/problem-card-design-decisions.md#fact-tiles
 function displayFacts(facts: { label: string; value: string }[]) {
   if (facts.length !== 1 || !/^(?:из условия|дано)$/i.test(facts[0].label.trim())) return facts
   const parts = facts[0].value.split(';').map((part) => part.trim()).filter(Boolean)
@@ -26,9 +26,9 @@ function displayFacts(facts: { label: string; value: string }[]) {
   return parsed
 }
 
-/** @see ../../docs/product/adaptive-problem-card.md#показ-ученику
- * @see ../../docs/product/problem-card-design-decisions.md#flat-numbered-sheet
- * @see ../../docs/product/problem-card-design-decisions.md */
+/** @see ../../docs/modules/reviews/adaptive-problem-card.md#показ-ученику
+ * @see ../../docs/modules/reviews/problem-card-design-decisions.md#flat-numbered-sheet
+ * @see ../../docs/modules/reviews/problem-card-design-decisions.md */
 export default function ProblemStatement({ problem, links, parent, help, review, finished: parentFinished = false, onRequestHelp, helpAccess = 'ready' }: {
   problem: DayProblem; links: DayMaterialLink[]; parent: boolean; help?: DayHelp; review?: DayWorkReview;
   finished?: boolean;

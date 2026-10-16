@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import type { DayProblem, DaySourceResearch } from '@/lib/dayStore'
 import ProblemTaskCard from './ProblemTaskCard'
 
-// @see ../../docs/product/problem-card-design-decisions.md#flat-numbered-sheet
+// @see ../../docs/modules/reviews/problem-card-design-decisions.md#flat-numbered-sheet
 const problem = { id: 'math-p3', number: 3, title: 'Найти ошибку', detail: 'Решить', source: 'Лист учителя',
   original: { text: 'Дано: DF = 9,3 см. Найти ошибку.', attachmentRef: 'sheet' },
 } as DayProblem

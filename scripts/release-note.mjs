@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import { resolve, sep } from 'node:path'
 
 /** A release note is private operator input, never a file bundled into the PWA.
- * @see ../docs/architecture/activity-and-inbox.md#notification-producers
+ * @see ../docs/modules/notifications/inbox.md#notification-producers
  */
 export function loadReleaseNote(filename) {
   const local = resolve('.local')

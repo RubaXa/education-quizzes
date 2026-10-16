@@ -4,7 +4,7 @@ import { relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { YandexDiskStorage } from '../storage/yandex-disk.mjs'
 
-/** @see ../docs/product/storage-privacy.md#private-archive */
+/** @see ../docs/modules/materials/storage-privacy.md#private-archive */
 const projectRoot = fileURLToPath(new URL('../', import.meta.url))
 const familyRoot = resolve(projectRoot, '..')
 const manifestFile = resolve(projectRoot, '.local/archive-manifest.json')

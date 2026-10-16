@@ -5,7 +5,7 @@ import { ensureDataDir, writeJson } from '../diary/local-store.mjs'
 
 /** Immutable, family-private input to the shared enrichment pipeline.
  * The current MESH snapshot remains in diary/; this copy survives later revisions.
- * @see ../docs/architecture/shared-artifact-pipeline.md#capture
+ * @see ../docs/modules/synchronization/shared-artifact-pipeline.md#capture
  */
 const safeId = /^[A-Za-z0-9_-]{1,120}$/
 const safeDate = /^\d{4}-\d{2}-\d{2}$/

@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto'
 import { stageFamilyNotice } from '../../storage/inbox-notifications.mjs'
 
 /** Only explicit behavioural comments become parent alerts. Ordinary mark topics stay out of the inbox.
- * @see ../../docs/architecture/activity-and-inbox.md#school-alerts
+ * @see ../../docs/modules/notifications/inbox.md#school-alerts
  */
 export function schoolAlerts(snapshot) {
   if (!snapshot?.complete || !Array.isArray(snapshot.marks)) return []

@@ -1,4 +1,4 @@
-// @see ../../docs/product/design-system.md#images
+// @see ../../docs/shared/design/README.md#images
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const { fetchWithRetry } = vi.hoisted(() => ({ fetchWithRetry: vi.fn() }))

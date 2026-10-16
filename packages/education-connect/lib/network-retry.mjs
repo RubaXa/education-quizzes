@@ -1,6 +1,6 @@
 /** Only read requests are retried; login and token exchange are never replayed.
- * @see ../../../docs/architecture/school-diary-port-adapter.md#sync
- * @see ../../../docs/product/global-sync.md#dag
+ * @see ../../../docs/modules/school-diary/README.md#sync
+ * @see ../../../docs/modules/synchronization/global-sync.md#dag
  */
 export function retryAfterMs(value, now = Date.now()) {
   if (!value) return null

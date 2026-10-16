@@ -9,7 +9,7 @@ import { loadReleaseNote } from './release-note.mjs'
 import { stageSchoolAlerts } from '../diary/application/school-alerts.mjs'
 
 /** Publish meaningful, source-linked notices as Firestore data; image bytes live on Yandex Disk.
- * @see ../docs/architecture/activity-and-inbox.md#notification-producers
+ * @see ../docs/modules/notifications/inbox.md#notification-producers
  */
 const local = resolve('.local')
 const adcFile = resolve(local, 'adc.json')

@@ -33,7 +33,7 @@ export function checkUiContracts({ paths, baseline, decisions, read, exists }) {
       continue
     }
     if (decision.sha256 !== digest) problems.push(`Устарел отпечаток решения для ${path}.`)
-    if (!/^docs\/product\/ui-decisions\/[a-z0-9-]+\.md$/.test(decision.record ?? '') || !exists(decision.record)) {
+    if (!/^docs\/decisions\/[a-z0-9-]+\.md$/.test(decision.record ?? '') || !exists(decision.record)) {
       problems.push(`Нет записи о согласованном решении для ${path}.`)
     } else {
       const record = read(decision.record)
@@ -42,7 +42,7 @@ export function checkUiContracts({ paths, baseline, decisions, read, exists }) {
       }
       if (!record.includes(path)) problems.push(`${decision.record}: не назван затронутый файл ${path}.`)
     }
-    if (!Array.isArray(decision.specs) || decision.specs.length === 0 || decision.specs.some((spec) => !/^docs\/(product|architecture)\/.+\.md$/.test(spec) || !exists(spec))) {
+    if (!Array.isArray(decision.specs) || decision.specs.length === 0 || decision.specs.some((spec) => !/^docs\/(product|services|modules|shared|operations)\/.+\.md$/.test(spec) || !exists(spec))) {
       problems.push(`${path}: нужна ссылка на действующую спецификацию.`)
     }
     if (!Array.isArray(decision.tests) || decision.tests.length === 0 || decision.tests.some((test) => !/^(src|scripts|day|storage|diary|assessment|packages|pwa|sync|operator)\/.+\.test\.(tsx|ts|mjs|js)$/.test(test) || !exists(test))) {

@@ -17,7 +17,7 @@ function inputFor(test: QuizCardAttempt): ResultInput {
 const quizTimeFormatter = new Intl.DateTimeFormat('ru-RU', {
   day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Moscow',
 })
-/** @see ../../docs/product/quizzes.md#attempt-time */
+/** @see ../../docs/modules/assessments/quizzes.md#attempt-time */
 function QuizTimeDetails({ test, id }: { test: QuizCardAttempt; id: string }) {
   const row = (label: string, value: unknown, missing: string) => {
     const time = quizTimestamp(value)
@@ -32,7 +32,7 @@ function QuizTimeDetails({ test, id }: { test: QuizCardAttempt; id: string }) {
 }
 
 /** Same indicators in the task card, board and UI Kit.
- * @see ../../docs/product/result-presentation-proposal.md */
+ * @see ../../docs/modules/assessments/result-presentation-proposal.md */
 export function QuizProgress({ test }: { test: QuizCardAttempt }) {
   const input = inputFor(test)
   const view = resultPresentation(input)
@@ -52,9 +52,9 @@ export function QuizProgress({ test }: { test: QuizCardAttempt }) {
 }
 
 /** One shared card: day, board, history. The chain stays causal; only history display is sorted.
- * @see ../../docs/product/quiz-chain-proposal.md
- * @see ../../docs/product/result-presentation-proposal.md
- * @see ../../docs/product/quizzes.md#optional-quiz */
+ * @see ../../docs/modules/assessments/quiz-chain-proposal.md
+ * @see ../../docs/modules/assessments/result-presentation-proposal.md
+ * @see ../../docs/modules/assessments/quizzes.md#optional-quiz */
 export default function QuizCard({ chain, parent, context = 'Самопроверка', assignment, materials, extraActions, id, onOpen, allowFollowupRequest = true, linksEnabled = true }: {
   chain: QuizCardAttempt[]; parent: boolean; context?: string; assignment?: ReactNode; materials?: ReactNode; extraActions?: ReactNode; id?: string; onOpen?: () => void; allowFollowupRequest?: boolean; linksEnabled?: boolean;
 }) {

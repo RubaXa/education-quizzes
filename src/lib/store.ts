@@ -35,7 +35,7 @@ export async function loadAssignment(token: string): Promise<Assignment> {
   return snapshot.data() as Assignment
 }
 
-/** @see ../../docs/product/quizzes.md#followup-request */
+/** @see ../../docs/modules/assessments/quizzes.md#followup-request */
 export async function requestQuizFollowup(token: string, testId: string): Promise<void> {
   const reference = doc(db, 'assignments', token)
   await runTransaction(db, async (transaction) => {
@@ -50,7 +50,7 @@ export async function requestQuizFollowup(token: string, testId: string): Promis
 
 /** Parent choice belongs to the root assignment, while the current open attempt
  * can be a later linked test. One or two document reads happen only on a click.
- * @see ../../docs/product/quizzes.md#optional-quiz */
+ * @see ../../docs/modules/assessments/quizzes.md#optional-quiz */
 export async function setQuizRequired(rootToken: string, activeToken: string, required: boolean): Promise<void> {
   const rootRef = doc(db, 'assignments', rootToken)
   const activeRef = doc(db, 'assignments', activeToken)
@@ -69,7 +69,7 @@ export async function setQuizRequired(rootToken: string, activeToken: string, re
   })
 }
 
-/** @see ../../docs/product/quizzes.md#quiz-runner */
+/** @see ../../docs/modules/assessments/quizzes.md#quiz-runner */
 export function watchAssignment(token: string, onChange: (assignment: Assignment, confirmed: boolean) => void, onError: (error: Error) => void) {
   return onSnapshot(doc(db, 'assignments', token), { includeMetadataChanges: true }, (snapshot) => {
     if (!snapshot.exists()) { onError(new Error('Ссылка не найдена или была отозвана.')); return }
@@ -77,7 +77,7 @@ export function watchAssignment(token: string, onChange: (assignment: Assignment
   }, onError)
 }
 
-/** @see ../../docs/product/quizzes.md#quiz-runner */
+/** @see ../../docs/modules/assessments/quizzes.md#quiz-runner */
 export async function saveDraft(token: string, changedAnswers: Record<string, Answer>, started: boolean) {
   const reference = doc(db, 'assignments', token)
   if (started) {
@@ -104,7 +104,7 @@ export async function saveDraft(token: string, changedAnswers: Record<string, An
   })
 }
 
-/** @see ../../docs/product/quizzes.md#quiz-runner */
+/** @see ../../docs/modules/assessments/quizzes.md#quiz-runner */
 export async function submitAssignment(token: string) {
   const reference = doc(db, 'assignments', token)
   await runTransaction(db, async (transaction) => {
@@ -138,7 +138,7 @@ export async function loadReview(token: string): Promise<ManualReview | undefine
   return snapshot.exists() ? snapshot.data() as ManualReview : undefined
 }
 
-/** @see ../../docs/product/quizzes.md#quiz-results */
+/** @see ../../docs/modules/assessments/quizzes.md#quiz-results */
 export function watchReview(token: string, onChange: (review: ManualReview | undefined) => void, onError: (error: Error) => void) {
   return onSnapshot(doc(db, 'reviews', token), (snapshot) => {
     onChange(snapshot.exists() ? snapshot.data() as ManualReview : undefined)
@@ -182,7 +182,7 @@ export async function loadDashboard(token: string) {
   }))
 }
 
-/** @see ../../docs/product/quizzes.md#test-lists */
+/** @see ../../docs/modules/assessments/quizzes.md#test-lists */
 export function watchDashboard(token: string, onChange: (items: Awaited<ReturnType<typeof loadDashboard>>) => void, onError: (error: Error) => void) {
   return onSnapshot(collection(db, 'dashboard', token, 'assignments'), (snapshot) => {
     onChange(snapshot.docs.map((item) => ({

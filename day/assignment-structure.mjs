@@ -1,6 +1,6 @@
 /** An attachment belongs to one MESH assignment, even when several assignments
  * share a subject and lesson. A genuinely shared file needs explicit provenance
- * on every edge. @see ../docs/product/day-page.md#multiple-assignments */
+ * on every edge. @see ../docs/modules/school-diary/day-page.md#multiple-assignments */
 export function teacherAttachmentOwnershipErrors(source) {
   const owners = new Map()
   for (const subject of source.subjects ?? []) for (const task of subject.tasks ?? []) {
@@ -25,7 +25,7 @@ export function teacherAttachmentOwnershipErrors(source) {
 
 /** Lesson-level MESH attachments have no assignment owner unless the source
  * supplies an explicit edge. Do not attach every file to every sibling task.
- * @see ../docs/product/day-page.md#multiple-assignments */
+ * @see ../docs/modules/school-diary/day-page.md#multiple-assignments */
 export function teacherFilesForEntry(assignment, entry, entries) {
   const files = assignment.teacherFiles ?? []
   const actionable = entries.filter((candidate) => !/^файл здесь\.?$/i.test(String(candidate.description ?? '').trim()))

@@ -2,7 +2,7 @@ import type { LessonWorkItem } from './homeworkStatus'
 
 /** A small, role-scoped view projection for the first frame of a reopened day.
  * It is written only after every input to the status calculation has answered.
- * @see ../../docs/product/dashboard.md#dashboard-warm-start */
+ * @see ../../docs/modules/school-diary/dashboard.md#dashboard-warm-start */
 export type CachedLessonStatus = {
   key: string
   tone: 'checking' | 'unclear' | 'complete' | 'partial' | 'empty' | 'reference' | 'assigned' | 'none' | 'optional' | 'unknown'

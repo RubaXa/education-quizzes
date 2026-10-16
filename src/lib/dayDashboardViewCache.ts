@@ -4,7 +4,7 @@ import type { LessonWorkItem } from './homeworkStatus'
 /** Last complete visible projections for a reopened calendar route.
  * Keys include the role and published document token; a new document never
  * inherits a different role's work or grades.
- * @see ../../docs/product/dashboard.md#dashboard-warm-start */
+ * @see ../../docs/modules/school-diary/dashboard.md#dashboard-warm-start */
 export type CachedHomeworkRow = {
   subject: { id: string; name: string; icon: string; tasks: { title: string }[] }
   items: LessonWorkItem[]

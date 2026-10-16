@@ -1,6 +1,6 @@
 /** A shared page is not by itself a family grant. Textbooks need the family's
  * own binding; a teacher file needs an assigned teacher attachment in this day.
- * @see ../docs/product/firestore-data-model.md#edges */
+ * @see ../docs/shared/data/firestore.md#edges */
 export function materialGrantError({ ref, catalog, shared, binding, teacherAssigned }) {
   if (!shared || shared.state !== 'published' || typeof shared.url !== 'string' || !shared.url.startsWith('https://')) {
     return `Общая страница ${ref} не опубликована.`

@@ -1,11 +1,19 @@
 ---
+id: research.adaptive-problem-critical-review
+status: reference
+implementation: not-applicable
+parent: product.education
 type: research-note
-status: complete
 updated: 2026-10-10
 related:
   - adaptive-problem-scaffolding.md
-  - ../product/adaptive-problem-card.md
-  - ../product/day-page.md
+  - ../modules/reviews/adaptive-problem-card.md
+  - ../modules/school-diary/day-page.md
+uses: []
+sections:
+  - риски-и-решения
+  - открытая-граница
+
 ---
 
 # Критическая проверка адаптивной карточки

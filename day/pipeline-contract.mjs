@@ -3,13 +3,13 @@ import { lessonVisibility } from '../diary/application/lesson-visibility.mjs'
 import { publicPageSubjects } from './public-projection.mjs'
 
 /** Explain the failing field and canonical page IDs without weakening source checks.
- * @see ../docs/product/plan-generation.md#review-gate */
+ * @see ../docs/modules/synchronization/plan-generation.md#review-gate */
 export function textbookRefError(ref, pageIds = [], { path = 'source.ref', exact = true } = {}) {
   if (typeof ref === 'string' && pageIds.some((pageId) => exact ? ref === pageId : ref.startsWith(pageId))) return null
   return `${path}: получено ${JSON.stringify(ref) ?? 'undefined'}; нужна назначенная страница ${pageIds.length ? pageIds.join(', ') : '(taskPages пуст — сначала свяжите семейную страницу)'}.${exact ? ' Используйте точный ID без суффикса.' : ''}`
 }
 
-/** @see ../docs/product/plan-generation.md#publication-preflight */
+/** @see ../docs/modules/synchronization/plan-generation.md#publication-preflight */
 export function meshEntries(snapshot) {
   if (!snapshot?.complete || !Array.isArray(snapshot.assignments)
     || snapshot.assignments.some((item) => item.detailStatus !== 'loaded')) {

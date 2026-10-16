@@ -1,6 +1,6 @@
 /** Isolated v2 protocol pilot. It never connects to production Firebase.
- * @see ../../docs/architecture/local-first-sync.md#decision
- * @see ../../docs/architecture/local-first-verification.md#contract */
+ * @see ../../docs/services/web-app/local-first-sync.md#decision
+ * @see ../../docs/services/web-app/local-first-verification.md#contract */
 /** A role plus its person/child scope; two pupils in one family never share a local namespace. */
 export type Audience = `parent:${string}` | `student:${string}`
 export type Channel = 'calendar' | 'tasks' | 'materials' | 'submissions' | 'quizzes' | 'reviews' | 'guidance' | 'access'

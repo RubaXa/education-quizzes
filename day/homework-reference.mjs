@@ -1,5 +1,5 @@
 /** A MESH instruction pointing to earlier homework has no new learner action.
- * @see ../docs/product/dashboard.md#reference-only-homework */
+ * @see ../docs/modules/school-diary/dashboard.md#reference-only-homework */
 const weekdays = { понедельник: 1, вторник: 2, среду: 3, четверг: 4, пятницу: 5, субботу: 6, воскресенье: 0 }
 
 export function referencedHomeworkDate(text, lessonDate) {

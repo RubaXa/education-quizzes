@@ -1,4 +1,4 @@
-/** @see ../docs/product/material-clarification.md */
+/** @see ../docs/modules/materials/material-clarification.md */
 import { materialRequestErrors, openMaterialRequest } from '../src/lib/materialRequest.ts'
 import { createHash, randomBytes } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
@@ -84,7 +84,7 @@ function dashboardLinks() {
     parent: randomBytes(32).toString('base64url'),
   }
 }
-/** @see ../docs/product/dashboard.md#firestore-model */
+/** @see ../docs/modules/school-diary/dashboard.md#firestore-model */
 async function addDashboardDocuments(batch, links, tokens, stagedPages = {}, gradeProjection = null) {
   const owner = ownerContext()
   if (!owner?.familyId || !owner?.childId) fail('Сначала привяжите страницы дня к ребёнку командой family attach-current-day.')
@@ -174,7 +174,7 @@ async function addDashboardDocuments(batch, links, tokens, stagedPages = {}, gra
   return updatedGradeTokens
 }
 /** Read back only grade projections changed in this batch. No unchanged page is rewritten.
- * @see ../docs/product/grades.md#mesh-reconciliation
+ * @see ../docs/modules/school-diary/grades.md#mesh-reconciliation
  */
 async function verifyGradeProjection(tokens, desired) {
   if (!tokens.length) return
@@ -255,7 +255,7 @@ function prepareLogin() {
   process.env.GOOGLE_APPLICATION_CREDENTIALS = file
 }
 function time(value) { return new Date(value).toLocaleTimeString('ru-RU', { timeZone: 'Europe/Moscow', hour: '2-digit', minute: '2-digit' }) }
-/** @see ../docs/architecture/school-diary-port-adapter.md#visibility */
+/** @see ../docs/modules/school-diary/README.md#visibility */
 function schedule(snapshot) {
   return lessonVisibility(snapshot.schedule).conducted.filter((item) => !item.cancelled).map((item) => ({
     subject: item.subject_name.includes('Специальный курс') ? 'Спецкурс по математике' : item.subject_name.replace('Иностранный (английский) язык', 'Английский язык'),
@@ -275,7 +275,7 @@ function gradeSummary(snapshot) {
     }
   })
 }
-/** @see ../docs/product/plan-generation.md#review-gate */
+/** @see ../docs/modules/synchronization/plan-generation.md#review-gate */
 function validateAssignedInstruction(item, task, sourceDocument) {
   if (!item || typeof item !== 'object' || !item.text?.trim() || !item.source?.label?.trim() || !item.source?.evidence?.trim() || item.source.certainty !== 'confirmed') {
     fail(`Обязательный пункт ${task.id} без подтверждённого источника. Не публикуйте домысел как ДЗ.`)
@@ -292,7 +292,7 @@ function validateAssignedInstruction(item, task, sourceDocument) {
   } else fail(`Пункт ${task.id} не может добавлять к заданию МЭШ обязательную работу от агента или прежнего разбора.`)
 }
 /** Parent-only reference material must be anchored to this exact task and family-linked pages.
- * @see ../docs/product/subject-aware-guidance.md#parent-card */
+ * @see ../docs/modules/reviews/subject-aware-guidance.md#parent-card */
 function validateParentGuide(guide, task, sourceDocument, problem, subjectId) {
   if (task.id.startsWith('mesh-') && task.instructionStatus?.state !== 'reviewed' || !['structured-notes', 'worked-solution', 'text-structure'].includes(guide.kind)
     || !guide.overview?.trim() || !Array.isArray(guide.stages) || !guide.stages.length) fail(`У ${task.id} родительский ориентир не сверен.`)
@@ -364,7 +364,7 @@ function validate(source, { allowUnchangedLegacyTeacherLinks = false } = {}) {
           fail(`У ${task.id} самопроверка требует сверенного вида, темы и источника; письменная работа и ЦДЗ не заменяются тестом.`)
         }
       }
-      // @see ../docs/product/dashboard.md#reference-only-homework
+      // @see ../docs/modules/school-diary/dashboard.md#reference-only-homework
       if (task.referenceDate && (!/^\d{4}-\d{2}-\d{2}$/.test(task.referenceDate)
         || task.referenceDate >= source.targetDate || task.kind !== 'check'
         || !/^смотри(?:те)?\s+(?:дз|задание)\s+на\s+/i.test(task.meshText ?? '')
@@ -390,7 +390,7 @@ function validate(source, { allowUnchangedLegacyTeacherLinks = false } = {}) {
       if (task.instructionStatus?.state === 'reviewed' && task.outputKind && task.problems?.length && adapter !== 'math-solution') {
         fail(`У ${task.id} номера задач не соответствуют выбранному виду результата.`)
       }
-      // @see ../docs/product/special-course-card-overlay.md#teacher-sheet
+      // @see ../docs/modules/reviews/special-course-card-overlay.md#teacher-sheet
       if (policy.overlays.includes('special-course-teacher-sheet') && task.mathRoutePolicyVersion === 1 && task.instructionStatus?.state === 'reviewed'
         && source.materialLinks?.[task.id]?.some((link) => link.sourceType === 'teacher-attachment') && !task.problems?.length
         && adapter === 'unclassified') {
@@ -411,7 +411,7 @@ function validate(source, { allowUnchangedLegacyTeacherLinks = false } = {}) {
           if (!/^[a-z0-9-]+$/.test(problem.id ?? '') || !problem.id.startsWith(`${task.id}-p`) || ids.has(problem.id)
             || !Number.isInteger(problem.number) || numbers.has(`${problem.variantId ?? ''}:${problem.number}`)
             || !problem.title?.trim() || !problem.detail?.trim() || !problem.source?.trim()) fail(`У ${task.id} каждый номер должен иметь устойчивый ID, условие и источник.`)
-          // @see ../docs/product/adaptive-problem-card.md#выпуск-и-безопасность
+          // @see ../docs/modules/reviews/adaptive-problem-card.md#выпуск-и-безопасность
           const sourceLink = source.materialLinks?.[task.id]?.find((link) => link.sourceType === 'teacher-attachment' && link.sourceRef === problem.original?.attachmentRef)
           if (!problem.original?.text?.trim() || !problem.original?.attachmentRef?.trim() || !sourceLink) {
             fail(`У ${problem.id} нужен дословно сверенный текст и исходный лист учителя.`)
@@ -460,7 +460,7 @@ function validate(source, { allowUnchangedLegacyTeacherLinks = false } = {}) {
   }
   const attachmentErrors = teacherAttachmentOwnershipErrors(source)
   if (attachmentErrors.length) fail(attachmentErrors.join(' '))
-  // @see ../docs/product/plan-generation.md#material-only-mesh-entries
+  // @see ../docs/modules/synchronization/plan-generation.md#material-only-mesh-entries
   for (const entry of source.sourceOnlyEntries ?? []) {
     const target = source.subjects.find((subject) => subject.id === entry.subjectId)?.tasks.find((task) => task.id === entry.targetTaskId)
     const subject = source.subjects.find((item) => item.id === entry.subjectId)
@@ -484,7 +484,7 @@ function validate(source, { allowUnchangedLegacyTeacherLinks = false } = {}) {
       if (!task || task.testToken !== placement.token) fail('Тест внутри задания должен совпадать с testToken этого задания.')
     }
   }
-  // @see ../docs/product/day-page.md#test-progress
+  // @see ../docs/modules/school-diary/day-page.md#test-progress
   for (const subject of source.subjects) for (const task of subject.tasks) {
     if (task.kind !== 'read' || openMaterialRequest(task)) continue
     if (!task.testToken || !task.testSlug || !(source.testPlacements ?? []).some((placement) => placement.taskId === task.id && placement.subjectId === subject.id && placement.token === task.testToken)) {
@@ -500,7 +500,7 @@ function validate(source, { allowUnchangedLegacyTeacherLinks = false } = {}) {
   return [...ids]
 }
 
-/** Carry a completed platform result between two views of the same assignment date. @see ../docs/product/plan-generation.md#cross-day-results */
+/** Carry a completed platform result between two views of the same assignment date. @see ../docs/modules/synchronization/plan-generation.md#cross-day-results */
 async function reconcileEarlierEvidence(source, studentToken) {
   const owner = ownerContext()
   if (!owner?.childId) fail('Нельзя сопоставить старые результаты без владельца страницы.')
@@ -542,7 +542,7 @@ async function reconcileEarlierEvidence(source, studentToken) {
   }
 }
 
-/** @see ../docs/product/access-and-state.md#state */
+/** @see ../docs/modules/families/access-and-state.md#state */
 async function stagePublish(date, batch, links, indexTokens, stagedPages, notifyGrades, gradeProjection) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date ?? '')) fail('Укажите дату YYYY-MM-DD.')
   const sourceFile = resolve(local, `day-source-${date}.json`)
@@ -554,7 +554,7 @@ async function stagePublish(date, batch, links, indexTokens, stagedPages, notify
   if (!today?.complete) fail(`Для ${date} нужен полный снимок МЭШ.`)
   assertSourceAligned(source, target)
   const pageRefs = Object.fromEntries(Object.entries(taskPageRefs()).filter(([taskId]) => taskIds.includes(taskId)))
-  // @see ../docs/product/family-library.md#source-graph
+  // @see ../docs/modules/materials/family-library.md#source-graph
   const legacyOwner = ownerContext()
   if (scoped) {
     const [account, child, identity] = await Promise.all([
@@ -575,7 +575,7 @@ async function stagePublish(date, batch, links, indexTokens, stagedPages, notify
     if (graph.problems.length) fail(`${graph.problems.join(' ')} День не опубликован.`)
   }
   // A newly synced assignment must never silently go live with an unchecked textbook source.
-  // @see ../docs/product/materials.md#mandatory-source-link
+  // @see ../docs/modules/materials/materials.md#mandatory-source-link
   for (const task of source.subjects.flatMap((subject) => subject.tasks)) {
     const state = task.materialStatus?.state
     const hasPages = Boolean(pageRefs[task.id]?.length)
@@ -696,14 +696,14 @@ async function stagePublish(date, batch, links, indexTokens, stagedPages, notify
     }
   }
   // Comments on marks can contain a real lesson remark, even when MESH notifications are empty.
-  // @see ../docs/architecture/activity-and-inbox.md#school-alerts
+  // @see ../docs/modules/notifications/inbox.md#school-alerts
   if (notifyGrades && familyOwner?.familyId && familyOwner?.childId) await stageSchoolAlerts(db, batch, latestCompleteDiarySnapshot(), familyOwner)
   return { source, pair, taskIds }
 }
 
 /** All changed linked days enter the same checked Firestore batch before the
  * dashboard index is updated. The full fingerprint guard stays enabled.
- * @see ../docs/product/dashboard.md#sync-freshness
+ * @see ../docs/modules/school-diary/dashboard.md#sync-freshness
  */
 async function publishDates(dates) {
   if (!dates.length || new Set(dates).size !== dates.length) fail('Укажите уникальные даты для выпуска.')
@@ -755,7 +755,7 @@ async function publishDashboard() {
 }
 
 /** Addressed repair for an already published grade projection; default is read-only.
- * @see ../docs/product/grades.md#mesh-reconciliation
+ * @see ../docs/modules/school-diary/grades.md#mesh-reconciliation
  */
 async function reconcilePublishedGrades(apply) {
   const links = json(linksFile)
@@ -798,7 +798,7 @@ async function reconcilePublishedGrades(apply) {
     verified: apply ? writes === 0 ? 'already-current' : 'read-back' : 'pending' }))
 }
 
-/** @see ../docs/product/storage-privacy.md#upload-queue */
+/** @see ../docs/modules/materials/storage-privacy.md#upload-queue */
 async function pull() {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date ?? '')) fail('Укажите дату YYYY-MM-DD.')
   const links = json(linksFile)
@@ -861,7 +861,7 @@ async function seedEvidence() {
 }
 
 /** Publish only source-faithful problem text and learner support; preserve live schedule, grades, uploads and reviews.
- * @see ../docs/product/adaptive-problem-card.md#выпуск-и-безопасность
+ * @see ../docs/modules/reviews/adaptive-problem-card.md#выпуск-и-безопасность
  */
 async function publishProblemSupport() {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date ?? '')) fail('Укажите дату YYYY-MM-DD.')
@@ -927,7 +927,7 @@ async function publishProblemSupport() {
 }
 
 /** Read-only audit of the published graph. Run after releases and during sync.
- * @see ../docs/product/access-and-state.md#integrity-gates */
+ * @see ../docs/modules/families/access-and-state.md#integrity-gates */
 async function auditPublishedDays() {
   const started = performance.now()
   const links = json(linksFile)
@@ -1044,7 +1044,7 @@ async function auditPublishedDays() {
 /** Narrow, reversible-by-evidence migration: repair the task-to-quiz edge only.
  * A private snapshot is retained; a rollback requires the old graph to pass the
  * current contract and is never applied automatically.
- * @see ../docs/product/firestore-data-model.md#migration */
+ * @see ../docs/shared/data/firestore.md#migration */
 async function repairPublishedPlacements() {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date ?? '')) fail('Укажите дату YYYY-MM-DD.')
   const pair = json(linksFile)[date]
@@ -1185,7 +1185,7 @@ async function repairPublishedOwner() {
 /** Atomically add a reviewed private route to several already-published views of one task.
  * Existing photos, reviews, task statuses and dashboard links are never rewritten.
  * The old fingerprint must prove the source differs only by approved route fields.
- * @see ../docs/product/russian-language-route.md#pipeline */
+ * @see ../docs/modules/reviews/russian-language-route.md#pipeline */
 async function publishGuideUpgrade() {
   const dates = (date ?? '').split(',')
   const taskId = third

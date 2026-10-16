@@ -1,4 +1,4 @@
-// @see ../../docs/product/card-generation-policy.md#source-inventory
+// @see ../../docs/modules/reviews/card-generation-policy.md#source-inventory
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import type { DayMaterialLink, DayProblem, ParentTaskGuide } from '@/lib/dayStore'
@@ -27,7 +27,7 @@ describe('one upload action per numbered problem', () => {
   })
 })
 
-// @see ../../docs/product/adaptive-problem-card.md#показ-ученику
+// @see ../../docs/modules/reviews/adaptive-problem-card.md#показ-ученику
 describe('stable numbered problem layers', () => {
   const problem = { id: 'math-p3', number: 3, title: 'Найти ошибку', detail: 'Решить', source: 'Лист учителя',
     original: { text: 'Дано: DF = 9,3 см. Найти ошибку.', attachmentRef: 'sheet' },

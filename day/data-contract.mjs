@@ -1,9 +1,9 @@
-/** @see ../docs/product/material-clarification.md */
+/** @see ../docs/modules/materials/material-clarification.md */
 import { materialRequestErrors } from '../src/lib/materialRequest.ts'
 /** Runtime shape of the current Firestore projection. Optional additive fields are
  * accepted so older clients and already published documents keep working.
  * Cross-document edges are checked by placement-integrity.mjs.
- * @see ../docs/product/firestore-data-model.md#v1 */
+ * @see ../docs/shared/data/firestore.md#v1 */
 export const DAY_SCHEMA_VERSION = 1
 const object = (value) => value !== null && typeof value === 'object' && !Array.isArray(value)
 const text = (value) => typeof value === 'string' && value.trim().length > 0

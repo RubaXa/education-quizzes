@@ -1,6 +1,6 @@
 /** Browser layout regression for teacher sheets and the horizontal textbook strip.
- * @see ../docs/product/design-system.md#images
- * @see ../docs/product/materials.md#material-reader
+ * @see ../docs/shared/design/README.md#images
+ * @see ../docs/modules/materials/materials.md#material-reader
  */
 import { spawn } from 'node:child_process'
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'

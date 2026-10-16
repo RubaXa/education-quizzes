@@ -6,7 +6,7 @@ import { reportUiError } from './uiErrors'
 
 type Snapshot<T> = { key: string; items: T[] }
 
-/** One evidence stream for every view of the same child and day. @see ../../docs/architecture/backend-driven-ui.md#legacy-evidence */
+/** One evidence stream for every view of the same child and day. @see ../../docs/modules/synchronization/backend-driven-ui.md#legacy-evidence */
 export function useDayEvidence(page: DayPageData | undefined, token: string, setError: Dispatch<SetStateAction<string>>) {
   const studentToken = page?.studentToken ?? token
   const evidenceKey = [...new Set([studentToken, ...(page?.evidenceDayTokens ?? [])])].join('|')

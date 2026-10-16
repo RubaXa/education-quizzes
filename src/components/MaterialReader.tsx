@@ -16,9 +16,9 @@ export function canReadInside(link: DayMaterialLink) {
 
 /**
  * Открывает страницы задания или всю семейную книгу внутри Education.
- * @see ../../docs/product/materials.md#material-reader
- * @see ../../docs/product/family-library.md#full-book-reader
- * @see ../../docs/product/design-system.md#images
+ * @see ../../docs/modules/materials/materials.md#material-reader
+ * @see ../../docs/modules/materials/family-library.md#full-book-reader
+ * @see ../../docs/shared/design/README.md#images
  */
 export default function MaterialReader({ links, parent, statement = false, book = false }: { links: DayMaterialLink[]; parent: boolean; statement?: boolean; book?: boolean }) {
   const [active, setActive] = useState<number | null>(null)

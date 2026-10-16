@@ -1,7 +1,7 @@
 import { createCipheriv, createDecipheriv, createHash, diffieHellman, generateKeyPairSync, hkdfSync, createPrivateKey, createPublicKey, randomBytes } from 'node:crypto'
 
 /** One-time handoff format. The receiver private key never leaves the operator's machine.
- * @see ../../../docs/architecture/school-diary-port-adapter.md#family-onboarding-research
+ * @see ../../../docs/modules/school-diary/README.md#family-onboarding-research
  */
 const context = Buffer.from('education-connect:handoff:v1')
 const encoded = (value) => Buffer.from(value).toString('base64url')

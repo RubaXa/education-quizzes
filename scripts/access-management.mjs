@@ -7,7 +7,7 @@ import { operatorFirestore } from './lib/admin-firebase.mjs'
 import { grantId, syncChildAccess } from './lib/access-projection.mjs'
 
 /** Hybrid operator side of browser access requests.
- * @see ../docs/architecture/family-data-model.md#parent-home */
+ * @see ../docs/modules/families/README.md#parent-home */
 const db = operatorFirestore()
 const file = resolve('.local/family-access.json')
 if (!existsSync(file)) throw new Error('Локальный реестр семьи не найден.')

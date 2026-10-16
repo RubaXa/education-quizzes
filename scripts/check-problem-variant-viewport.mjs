@@ -1,6 +1,6 @@
 /** Mobile screenshot and geometry regression for the existing variant/problem hierarchy.
- * @see ../docs/product/design-system.md#cards-and-status
- * @see ../docs/product/problem-card-design-decisions.md
+ * @see ../docs/shared/design/README.md#cards-and-status
+ * @see ../docs/modules/reviews/problem-card-design-decisions.md
  */
 import { spawn } from 'node:child_process'
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
@@ -17,7 +17,7 @@ const chrome = [process.env.CHROME_BIN, '/Applications/Google Chrome.app/Content
   '/usr/bin/google-chrome', '/usr/bin/chromium'].find((path) => path && existsSync(path))
 if (!chrome) throw new Error('Для проверки нужен Chrome или CHROME_BIN.')
 
-// @see ../docs/product/status-presentation.md#components — the fixture mirrors current ready SVG geometry.
+// @see ../docs/shared/design/statuses.md#components — the fixture mirrors current ready SVG geometry.
 const readyIcon = '<svg class="edu-status-icon edu-status-icon-ready" data-status="ready" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>'
 const originalImage = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="1871" height="1323"><rect width="100%" height="100%" fill="white"/><text x="95" y="160" font-size="27" font-family="serif">3. Дано: DE = 6,4 см; EF = 3,9 см; DF = 9,3 см.</text><text x="95" y="198" font-size="27" font-family="serif">Найти ошибку в условии.</text></svg>')}`
 const statement = (number) => `<div class="problem-statement"><div class="problem-statement-original"><div class="source-fragment"><button class="source-fragment-trigger"><span class="source-fragment-caption"><strong>Оригинал учителя</strong><small>Открыть крупно ↗</small></span><span class="education-image education-image-crop" data-state="ready" style="aspect-ratio:820 / 128;--edu-crop-width:228.1707%;--edu-crop-left:-10.9756%;--edu-crop-top:-101.5625%;--edu-image-fit:contain"><img src="${originalImage}" alt="Точный фрагмент листа учителя"/></span></button></div><div class="problem-statement-transcript"><div class="problem-statement-transcript-title">Условие текстом</div><div class="problem-statement-text"><b>№ ${number}.</b> Дано: DE = 6,4 см, EF = 3,9 см, DF = 9,3 см. Найти ошибку.</div></div></div><div class="problem-statement-education"><div class="problem-statement-facts" aria-label="Дано"><div><strong>6,4 см</strong><small>DE</small></div><div><strong>3,9 см</strong><small>EF</small></div><div><strong>9,3 см</strong><small>DF</small></div></div><div class="problem-statement-find"><small>Найти</small><strong>Ошибку в условии</strong></div></div></div>`
@@ -106,7 +106,7 @@ try {
       await evaluate("document.querySelector('.day-practice-variant .problem-card').open=true")
       const sourcePixels = await evaluate("(() => { const image=document.querySelector('.day-practice-variant .problem-card .source-fragment .education-image-crop>img'); const box=image?.closest('.education-image-crop')?.getBoundingClientRect(); return Boolean(image?.complete && image.naturalWidth===1871 && box && box.width>0 && box.height>0 && box.height<box.width/3) })()")
       if (!sourcePixels) throw new Error(`${width}px: видимый фрагмент оригинала не загрузился или имеет неверную геометрию`)
-      // @see ../docs/product/problem-card-design-decisions.md#flat-numbered-sheet
+      // @see ../docs/modules/reviews/problem-card-design-decisions.md#flat-numbered-sheet
       const nestedFrames = JSON.parse(await evaluate("JSON.stringify(['.problem-group','.day-task.has-problems','.day-practice-variant','.problem-card','.problem-statement','.problem-statement-transcript'].map(selector=>({selector,left:parseFloat(getComputedStyle(document.querySelector(selector)).borderLeftWidth)})))"))
       if (nestedFrames.some((item) => item.left > 0)) throw new Error(`${width}px: лишняя рамка вокруг вложенного слоя: ${JSON.stringify(nestedFrames)}`)
       const statementLayers = await evaluate("Boolean(document.querySelector('.day-practice-variant .problem-card .problem-statement-transcript') && document.querySelector('.day-practice-variant .problem-card .problem-statement-facts') && document.querySelector('.day-practice-variant .problem-card .problem-statement-find'))")

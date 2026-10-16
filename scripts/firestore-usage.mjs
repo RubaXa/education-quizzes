@@ -6,7 +6,7 @@ import { usageWindow } from './firestore-usage-window.mjs'
 
 /** Read Cloud Monitoring aggregates without reading a Firestore document.
  * Usage Insights in Google Cloud is needed for collection-level attribution.
- * @see ../docs/architecture/firestore-usage-2026-10-12.md
+ * @see ../docs/audits/firestore-usage-2026-10-12.md
  */
 const credentials = resolve('.local/adc.json')
 if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) process.env.GOOGLE_APPLICATION_CREDENTIALS = credentials

@@ -32,7 +32,7 @@ describe('linked quiz history', () => {
   })
 })
 
-/** @see ../docs/product/assessment-decision-graph.md#followup-threshold */
+/** @see ../docs/modules/assessments/assessment-decision-graph.md#followup-threshold */
 describe('one continuation policy for parent requests and automatic generation', () => {
   const full = (testId, count, correct, linkedToTestId = null) => {
     const questions = Array.from({ length: count }, (_, i) => ({ id: `q${i}`, topic: `Навык ${i}`, kind: 'single', points: 1 }))

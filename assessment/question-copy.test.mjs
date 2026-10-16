@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { repeatedQuestionCopy } from './question-copy.mjs'
 
-/** @see ../docs/product/quizzes.md#question-copy */
+/** @see ../docs/modules/assessments/quizzes.md#question-copy */
 describe('question heading copy', () => {
   it('catches repeated task labels and instructions across a dictation', () => {
     const prompts = ['хлеб', 'рис', 'сыр'].map((word) => ({

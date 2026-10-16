@@ -6,8 +6,8 @@ import { pendingManualQuestionIds } from '../assessment/decision-graph.mjs'
 import { HelpRequestCache } from '../sync/help-request-cache.mjs'
 
 /** Read-only operator inbox for the complete manual Education sync.
- * @see ../docs/product/education-pipeline.md#sync-inbox
- * @see ../docs/product/family-library.md#upload
+ * @see ../docs/modules/synchronization/education-pipeline.md#sync-inbox
+ * @see ../docs/modules/materials/family-library.md#upload
  */
 const localCredentials = resolve('.local', 'adc.json')
 if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) process.env.GOOGLE_APPLICATION_CREDENTIALS = localCredentials

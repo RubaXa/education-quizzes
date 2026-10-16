@@ -1,5 +1,5 @@
 /** Private quiz authoring contract. The plan is never copied into assignments.
- * @see ../docs/product/assessment-decision-graph.md#contract
+ * @see ../docs/modules/assessments/assessment-decision-graph.md#contract
  */
 export const assessmentModes = Object.freeze(['ordinary', 'control-diagnostic', 'control-followup', 'targeted-followup'])
 export const assessmentLayers = Object.freeze(['current', 'prior-gap', 'baseline', 'spaced', 'transfer'])
@@ -19,7 +19,7 @@ const identifiers = (records) => new Set(records.map((record) => record.id))
 
 /** Select the words for one linked vocabulary dictation. Incorrect and skipped
  * words remain in repair; a delayed full check is a separate phase.
- * @see ../docs/product/assessment-decision-graph.md#vocabulary-dictation
+ * @see ../docs/modules/assessments/assessment-decision-graph.md#vocabulary-dictation
  */
 export function vocabularyDictationWords({ phase, sourceWordIds, priorWordIds = [], priorResults = [] }) {
   if (!Array.isArray(sourceWordIds) || !sourceWordIds.length
@@ -44,7 +44,7 @@ export function vocabularyDictationWords({ phase, sourceWordIds, priorWordIds = 
 
 /** A dictation covers every assigned exercise, not just a word list copied from
  * a short MESH note. Evidence belongs to the exact family material/exercise.
- * @see ../docs/product/assessment-decision-graph.md#vocabulary-dictation
+ * @see ../docs/modules/assessments/assessment-decision-graph.md#vocabulary-dictation
  */
 export function validateVocabularySourceCoverage(dictation) {
   const assigned = dictation?.assignedMaterialRefs
@@ -75,7 +75,7 @@ export function validateVocabularySourceCoverage(dictation) {
 }
 
 /** A reviewed, source-linked reading instruction is sufficient to queue a short Education self-check.
- * @see ../docs/product/assessment-decision-graph.md#reading-only */
+ * @see ../docs/modules/assessments/assessment-decision-graph.md#reading-only */
 function isConfirmedReadingOnly(task) {
   if (task?.instructionStatus?.state !== 'reviewed'
     || task?.materialStatus?.state !== 'textbook-page-linked'

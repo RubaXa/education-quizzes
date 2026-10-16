@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 
-/** @see ../docs/product/storage-privacy.md#privacy-boundary */
+/** @see ../docs/modules/materials/storage-privacy.md#privacy-boundary */
 const history = process.argv.includes('--history')
 const staged = execFileSync('git', ['diff', '--cached', '--diff-filter=ACMR', '--name-only', '-z'])
   .toString('utf8').split('\0').filter(Boolean).map((path) => ({ path, object: `:${path}` }))
@@ -37,7 +37,10 @@ for (const { path, object } of changed) {
     if (createHash('sha256').update(bytes).digest('hex') !== iconHash) violations.push(`${path}: иконка не совпадает с проверенным файлом`)
     continue
   }
-  if (forbiddenPath.test(path)) { violations.push(`${path}: закрытый файл или медиа`); continue }
+  // Only normative Markdown in this exact docs directory may use the name materials.
+  // Media, .local, secrets and content scanning retain their existing checks.
+  const materialSpecification = /^docs\/modules\/materials\/[a-z0-9-]+\.md$/i.test(path)
+  if (forbiddenPath.test(path) && !materialSpecification) { violations.push(`${path}: закрытый файл или медиа`); continue }
   if (history && execFileSync('git', ['cat-file', '-t', object], { encoding: 'utf8' }).trim() !== 'blob') continue
   const content = history
     ? execFileSync('git', ['cat-file', '-p', object], { maxBuffer: 20 * 1024 * 1024 })

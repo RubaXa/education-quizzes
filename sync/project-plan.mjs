@@ -1,6 +1,6 @@
 /** Pure inventory and scheduling rules for one global Education run.
- * @see ../docs/product/global-sync.md#inventory
- * @see ../docs/product/global-sync.md#dag
+ * @see ../docs/modules/synchronization/global-sync.md#inventory
+ * @see ../docs/modules/synchronization/global-sync.md#dag
  */
 const idPattern = /^[A-Za-z0-9_-]{1,120}$/
 
@@ -55,7 +55,7 @@ export function dateWindow(today) {
 }
 
 /** Source collection counts only. Publication and readback require separate evidence.
- * @see ../docs/product/global-sync.md#report
+ * @see ../docs/modules/synchronization/global-sync.md#report
  */
 export function collectedProjectSummary(manifest) {
   const jobs = manifest.jobs ?? []

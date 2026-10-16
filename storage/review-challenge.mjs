@@ -1,6 +1,6 @@
 /** A second, evidence-led reading before a written-work concern can be published.
  * This validates traceability, not the truth of a human transcription.
- * @see ../docs/product/review-criteria-provenance.md#second-pass
+ * @see ../docs/modules/reviews/review-criteria-provenance.md#second-pass
  */
 export function reviewChallengeErrors(review, task, { required = false } = {}) {
   if (task?.kind !== 'written' || !required && review.status === 'verified' && !review.challengeReview) return []

@@ -3,11 +3,11 @@ import { readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { relative, resolve } from 'node:path'
 import ts from 'typescript'
 
-// @see ../docs/architecture/firestore-read-paths.md#inventory
+// @see ../docs/modules/synchronization/firestore-read-paths.md#inventory
 // This is a source-site inventory, not a claim about billed reads. Dynamic
 // helpers, Security Rules lookups and SDK reconnects need runtime measurement.
 const root = resolve(import.meta.dirname, '..')
-const registryPath = resolve(root, 'docs/architecture/firestore-read-sites.json')
+const registryPath = resolve(root, 'docs/shared/data/firestore-read-sites.json')
 const dirs = ['src', 'scripts', 'sync', 'packages']
 const webReads = new Set([
   'getDoc', 'getDocs', 'getDocFromServer', 'getDocsFromServer',

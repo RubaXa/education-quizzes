@@ -14,7 +14,7 @@ function subjectName(lesson) {
   return String(value).replace(/\s+/g, ' ').trim().toLocaleLowerCase('ru')
 }
 
-/** @see ../../docs/architecture/school-diary-port-adapter.md#visibility */
+/** @see ../../docs/modules/school-diary/README.md#visibility */
 export function lessonVisibility(schedule) {
   if (!Array.isArray(schedule)) return { conducted: null, hidden: [] }
   const notConducted = hiddenSubjects()

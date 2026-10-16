@@ -1,6 +1,17 @@
+---
+id: research.evidence-based-homework-review
+status: reference
+implementation: not-applicable
+parent: product.education
+uses: []
+sections:
+  - что-источники-позволяют-установить
+  - вывод-для-механизма
+
+---
 # Проверка домашней работы по источнику, а не по ожиданию модели
 
-Дата сверки: 11.10.2026. Основание: [точная запись МЭШ и фото упр. 169](../../../work/2026-10-10-russian-ex169/assignment.md), семейный оригинал `russian-baranov-6-part-1-2026#pdf-0091` и `#pdf-0092` (печатные с. 90–91), [федеральная программа русского языка для 5–9 классов](https://edsoo.ru/wp-content/uploads/2025/09/01_frp_russkij-yazyk_5-9-klassy_itog-na-sajt_1-2.pdf), [каталог пособий издателя](https://prosv.ru/catalog/metodicheskie-posobiya-russkii-yazik103/).
+Дата сверки: 11.10.2026. Основание: [точная запись МЭШ и фото упр. 169](petr-private:work/2026-10-10-russian-ex169/assignment.md), семейный оригинал `russian-baranov-6-part-1-2026#pdf-0091` и `#pdf-0092` (печатные с. 90–91), [федеральная программа русского языка для 5–9 классов](https://edsoo.ru/wp-content/uploads/2025/09/01_frp_russkij-yazyk_5-9-klassy_itog-na-sajt_1-2.pdf), [каталог пособий издателя](https://prosv.ru/catalog/metodicheskie-posobiya-russkii-yazik103/).
 
 ## Что источники позволяют установить
 

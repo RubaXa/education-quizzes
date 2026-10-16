@@ -3,7 +3,7 @@ import { verifiedBookManifest } from './materialPageCache'
 
 /** A v2 family manifest is one document; v1 page rows remain a safe fallback.
  * The caller's live family book binding decides whether the manifest may be read.
- * @see ../../docs/product/family-library.md#full-book-reader */
+ * @see ../../docs/modules/materials/family-library.md#full-book-reader */
 export async function readBookPageSource<T>(input: {
   manifestReady: boolean
   expectedCount: number

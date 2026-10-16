@@ -1,5 +1,5 @@
 /** Private, deterministic history of linked attempts. Never publish raw answers.
- * @see ../docs/product/assessment-decision-graph.md#followup-threshold */
+ * @see ../docs/modules/assessments/assessment-decision-graph.md#followup-threshold */
 import { grade, summarize } from '../src/lib/quiz.ts'
 import { followupQuestionCount, needsQuizFollowup } from '../src/lib/quizCompletion.ts'
 import { createHash } from 'node:crypto'

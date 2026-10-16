@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-// @see ../../docs/product/dashboard.md#dashboard-warm-start
+// @see ../../docs/modules/school-diary/dashboard.md#dashboard-warm-start
 import { afterEach, expect, it, vi } from 'vitest'
 
 const probe = vi.hoisted(() => ({ change: null as null | ((snapshot: any) => void) }))

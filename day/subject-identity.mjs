@@ -1,5 +1,5 @@
 /** Shared lesson identity. Keep Firestore subject IDs stable during migration.
- * @see ../docs/product/dashboard.md#schedule-homework-status */
+ * @see ../docs/modules/school-diary/dashboard.md#schedule-homework-status */
 const known = [
   [/спецкурс|специальный курс/i, 'special', 'Спецкурс по математике', '♟'],
   [/практикум/i, 'practicum', 'Практикум по решению математических задач', '∑'],

@@ -2,7 +2,7 @@ import type { EducationStatus } from '@/components/StatusIcon'
 import { QUIZ_PASS_PERCENT } from './quizCompletion'
 
 /** Shared meaning, independent of screen and subject. Never infer success from draft completion.
- * @see ../../docs/product/result-presentation-proposal.md */
+ * @see ../../docs/modules/assessments/result-presentation-proposal.md */
 export type ResultTone = 'success' | 'attention' | 'error' | 'waiting' | 'accent' | 'neutral'
 export type ResultInput = { kind: 'score'; points?: number; maxPoints?: number }
   | { kind: 'answers'; answered: number; total: number }

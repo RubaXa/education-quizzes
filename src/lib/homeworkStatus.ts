@@ -1,4 +1,4 @@
-/** @see ../../docs/product/material-clarification.md */
+/** @see ../../docs/modules/materials/material-clarification.md */
 import { materialRequestView } from './materialRequest'
 import { cdzResultLabel, isCdzTask, uploadMatchesTask } from './dayStore'
 import type { DayTask, DayUpload, DayWorkReview } from './dayStore'
@@ -8,8 +8,8 @@ import type { ParentCompletionEvent } from './parentCompletion'
 import { lessonSubjectKey } from '../../day/subject-identity.mjs'
 import { quizPassed } from './quizCompletion'
 
-/** @see ../../docs/product/dashboard.md#homework-progress
- *  @see ../../docs/architecture/family-data-model.md#parent-home */
+/** @see ../../docs/modules/school-diary/dashboard.md#homework-progress
+ *  @see ../../docs/modules/families/README.md#parent-home */
 export type QuizScore = { points: number; maxPoints: number }
 export type LessonWorkItem = { id: string; title: string; state: 'done' | 'todo' | 'checking' | 'unclear'; detail: string; qualityOpen?: boolean; clarification?: boolean; unresolvedReason?: 'missing-evidence' | 'criterion-unclear' }
 export type QuizWorkState = { status: string; testId?: string; linkedToTestId?: string | null; title?: string; followupRequested?: boolean; followupRequestedAt?: unknown; familyOptional?: boolean }
@@ -17,11 +17,11 @@ export type QuizWorkState = { status: string; testId?: string; linkedToTestId?: 
 export type QuizRequirement = Pick<LessonWorkItem, 'state' | 'detail'> | { state: 'optional'; detail: string }
 
 /** A chain is one required self-check. Earlier attempts remain in history.
- * @see ../../docs/product/dashboard.md#homework-progress */
+ * @see ../../docs/modules/school-diary/dashboard.md#homework-progress */
 export function quizRequirement(rootToken: string, tests: Record<string, QuizWorkState>, scores: Record<string, QuizScore>): QuizRequirement {
   // The family choice is attached to the root, never to a retry. It removes
   // only this self-check from required work; the teacher sheet stays separate.
-  // @see ../../docs/product/quizzes.md#optional-quiz
+  // @see ../../docs/modules/assessments/quizzes.md#optional-quiz
   if (tests[rootToken]?.familyOptional) return { state: 'optional', detail: 'По желанию · не входит в итог' }
   let token = rootToken
   const seen = new Set<string>()
@@ -46,14 +46,14 @@ export function requiredQuizRequirement(rootToken: string, tests: Record<string,
   return requirement.state === 'optional' ? null : requirement
 }
 
-/** @see ../../docs/product/dashboard.md#schedule-homework-status */
+/** @see ../../docs/modules/school-diary/dashboard.md#schedule-homework-status */
 export function lessonSubjectId(name: string) {
   return lessonSubjectKey(name)
 }
 export function lessonWorkItems(tasks: DayTask[], uploads: DayUpload[], reviews: DayWorkReview[], decisions: ParentCompletionEvent[], tests: Record<string, QuizWorkState>, scores: Record<string, QuizScore>): LessonWorkItem[] {
   return tasks.flatMap((task) => {
     // A MESH pointer to an earlier lesson is information, not a second task.
-    // @see ../../docs/product/dashboard.md#reference-only-homework
+    // @see ../../docs/modules/school-diary/dashboard.md#reference-only-homework
     if (task.referenceDate) return []
     if (task.problems?.length) return [
       ...task.problems.filter((problem) => !problem.variantId || variantRequired(task.id, problem.variantId, decisions)).map((problem) => {

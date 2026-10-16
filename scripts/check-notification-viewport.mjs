@@ -1,5 +1,5 @@
 /** Browser geometry regression for the mobile bell. Run where Chrome is available.
- * @see ../docs/product/design-system.md#shell
+ * @see ../docs/shared/design/README.md#shell
  */
 import { spawn } from 'node:child_process'
 import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'

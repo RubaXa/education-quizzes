@@ -5,7 +5,7 @@ import { applicationDefault, getApps, initializeApp } from 'firebase-admin/app'
 import { getFirestore } from 'firebase-admin/firestore'
 
 /** Local operator credentials only. Never import this module in the browser or npm connector.
- * @see ../../docs/architecture/family-data-model.md#provisioning
+ * @see ../../docs/modules/families/README.md#provisioning
  */
 function prepareCredentials() {
   if (process.env.GOOGLE_APPLICATION_CREDENTIALS) return

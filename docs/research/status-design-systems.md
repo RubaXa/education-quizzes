@@ -1,6 +1,14 @@
+---
+id: research.status-design-systems
+status: reference
+implementation: not-applicable
+parent: product.education
+uses: []
+sections: []
+---
 # Обозначения статусов в Education: основания
 
-Дата сверки: 14.10.2026. Это исследовательское основание для [матрицы статусов](../product/status-presentation.md), а не инструкция копировать оформление сторонней системы.
+Дата сверки: 14.10.2026. Это исследовательское основание для [матрицы статусов](../shared/design/statuses.md), а не инструкция копировать оформление сторонней системы.
 
 | Первичный источник | Что подтверждает | Решение для Education |
 |---|---|---|

@@ -4,8 +4,8 @@ import './ParentTaskGuide.css'
 import './TaskGuidance.css'
 
 /** Only parent-selected, published help is visible to the learner.
- * @see ../../docs/product/subject-aware-guidance.md#data-contract
- * @see ../../docs/product/problem-card-design-decisions.md#role-projection */
+ * @see ../../docs/modules/reviews/subject-aware-guidance.md#data-contract
+ * @see ../../docs/modules/reviews/problem-card-design-decisions.md#role-projection */
 export default function TaskGuidance({ items }: { items: DayGuidance[] }) {
   if (!items.length) return null
   const ordered = [...items].sort((a, b) => a.stageIndex - b.stageIndex)

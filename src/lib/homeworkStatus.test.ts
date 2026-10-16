@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { lessonWorkItems, quizRequirement, requiredQuizRequirement } from './homeworkStatus'
 import type { DayTask, DayWorkReview } from './dayStore'
 
-/** @see ../../docs/product/material-clarification.md */
+/** @see ../../docs/modules/materials/material-clarification.md */
 it('never treats requested notes, received photos or an identified topic as completed homework', () => {
   const task = { id:'notes',kind:'read',status:'verified',title:'Повторить записи',assessmentIntent:{state:'needs-topic'},
     materialRequest:{id:'notes-1',state:'open',question:'Какая тема записана в тетради?',photoPrompt:'Пришли фото записей последнего урока.'} } as DayTask
@@ -13,7 +13,7 @@ it('never treats requested notes, received photos or an identified topic as comp
   expect(lessonWorkItems([task],[],[review],[],{},{})).toMatchObject([{clarification:true,state:'checking'}])
 })
 
-/** @see ../../docs/product/assessment-decision-graph.md#followup-threshold */
+/** @see ../../docs/modules/assessments/assessment-decision-graph.md#followup-threshold */
 describe('one required self-check across its linked attempts', () => {
   const root = { root: { status: 'submitted', testId: 'english-1' } }
   const passed = { root: { points: 34, maxPoints: 39 } }
@@ -71,7 +71,7 @@ describe('one required self-check across its linked attempts', () => {
   })
 })
 
-/** @see ../../docs/product/dashboard.md#homework-progress */
+/** @see ../../docs/modules/school-diary/dashboard.md#homework-progress */
 describe('reviewed written work in the next-homework overview', () => {
   const task = { id: 'mesh-russian', title: 'Упр. 218 и 223: выписать средства выразительности', kind: 'written' } as DayTask
   const base = { id: 'review', taskId: task.id, status: 'cannot-assess',

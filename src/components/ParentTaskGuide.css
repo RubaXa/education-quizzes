@@ -1,5 +1,5 @@
-/* @see ../../docs/product/subject-aware-guidance.md#parent-card
- * @see ../../docs/product/design-system.md#cards-and-status */
+/* @see ../../docs/modules/reviews/subject-aware-guidance.md#parent-card
+ * @see ../../docs/shared/design/README.md#cards-and-status */
 .day-parent-guide{margin:12px 0;border:1px solid var(--edu-card-border);border-radius:var(--edu-radius-control);background:var(--edu-canvas);color:var(--edu-ink)}
 .day-parent-guide>summary{display:flex;align-items:center;gap:8px;min-height:var(--edu-touch-target);padding:10px 13px;cursor:pointer;font-weight:760;list-style:none}
 .day-parent-guide>summary::-webkit-details-marker,.day-parent-guide-stages summary::-webkit-details-marker{display:none}
@@ -8,19 +8,19 @@
 .day-parent-guide-boundary{color:var(--edu-muted)}.day-parent-guide-stages{display:grid;gap:7px}
 .day-parent-guide-stages details{border:1px solid var(--edu-card-border);border-radius:10px;background:var(--edu-surface);padding:0 11px}
 .day-parent-guide-stages summary{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:var(--edu-touch-target);cursor:pointer;list-style:none;font-weight:730;font-size:.83rem}
-/* @see ../../docs/product/status-presentation.md#components */
+/* @see ../../docs/shared/design/statuses.md#components */
 .day-parent-guide-stages summary span{display:inline-flex;align-items:center;gap:4px;font-size:.72rem;font-weight:650;color:var(--edu-text-secondary)}
 .day-parent-guide-stages p{font-size:.82rem;line-height:1.5;margin:0 0 8px}.day-parent-guide-stages small{display:block;margin:0 0 10px;color:var(--edu-muted);font-size:.71rem}
 .day-parent-guide-why,.day-parent-guide-observed{color:var(--edu-muted)}
 .day-parent-guide summary:focus-visible{outline:3px solid var(--edu-focus);outline-offset:2px}
 /* One configurable route reuses Education tokens and the existing original above it.
- * @see ../../docs/product/problem-card-design-decisions.md#role-projection
- * @see ../../docs/product/card-generation-policy.md#math-adapter
- * @see ../../docs/product/card-generation-policy.md#russian-adapter
- * @see ../../docs/product/design-system.md#cards-and-status */
+ * @see ../../docs/modules/reviews/problem-card-design-decisions.md#role-projection
+ * @see ../../docs/modules/reviews/card-generation-policy.md#math-adapter
+ * @see ../../docs/modules/reviews/card-generation-policy.md#russian-adapter
+ * @see ../../docs/shared/design/README.md#cards-and-status */
 .day-parent-learning-route{padding:0;background:var(--edu-surface)}
 .day-parent-learning-route-body{padding:0 13px 13px}
-/* @see ../../docs/product/russian-language-route.md#review-in-one-route */
+/* @see ../../docs/modules/reviews/russian-language-route.md#review-in-one-route */
 .day-learning-route-review-summary{margin:2px 0 12px;padding:10px 0;border-top:1px solid var(--edu-card-border);color:var(--edu-ink)}
 .day-learning-route-review-summary strong{font-size:.8rem}
 .day-learning-route-review-summary p{margin:4px 0 0;font-size:.84rem;line-height:1.45}

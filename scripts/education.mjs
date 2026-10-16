@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /** Single deterministic entry point for Education operator operations.
- * @see ../docs/architecture/operator-core.md#operation-contract */
+ * @see ../docs/services/operator-cli/README.md#operation-contract */
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { operationCatalog } from '../operator/operation-contract.mjs'

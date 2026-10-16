@@ -1,5 +1,5 @@
 // @vitest-environment node
-// @see ../../docs/product/design-system.md#shell
+// @see ../../docs/shared/design/README.md#shell
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'

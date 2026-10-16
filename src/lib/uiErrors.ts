@@ -1,5 +1,5 @@
 /** Return a short, safe explanation to the component that owns the failed action.
- * @see ../../docs/product/design-system.md#error-feedback */
+ * @see ../../docs/shared/design/README.md#error-feedback */
 export function reportUiError(cause: unknown, _context: string): string {
   const code = cause && typeof cause === 'object' && 'code' in cause ? String(cause.code) : ''
   const safeNetworkMessage = cause instanceof Error && /^(?:Связь с Яндекс\.Диском не восстановилась|Яндекс\.Диск просит подождать|Ссылка загрузки устарела|Яндекс\.Диск отклонил (?:файл|фото): HTTP (?:408|423|425|429|5\d\d))/.test(cause.message)

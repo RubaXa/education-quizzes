@@ -1,5 +1,5 @@
 /** One execution and one private receipt for every operator operation.
- * @see ../docs/architecture/operator-core.md#execution */
+ * @see ../docs/services/operator-cli/README.md#execution */
 import { randomUUID } from 'node:crypto'
 import { execFile } from 'node:child_process'
 import { mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'

@@ -2,7 +2,7 @@ import { Camera } from 'lucide-react'
 
 /** One multi-photo action for written homework and numbered problems.
  * Its visibility is decided by the task's completion, never by the number
- * or review status of earlier photos. @see ../../docs/product/day-page.md#upload-queue */
+ * or review status of earlier photos. @see ../../docs/modules/school-diary/day-page.md#upload-queue */
 export default function PhotoUploadControl({ label, onPhotos, className = 'day-upload' }: {
   label: string; onPhotos: (files: File[]) => void; className?: string
 }) {

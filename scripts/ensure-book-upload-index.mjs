@@ -4,7 +4,7 @@ import { applicationDefault } from 'firebase-admin/app'
 
 /** Add only the collection-group status index used by direct-upload-worker.
  * Preserve the collection-scope indexes already configured on this field.
- * @see ../docs/architecture/local-first-sync.md#operator-upload-index
+ * @see ../docs/services/web-app/local-first-sync.md#operator-upload-index
  */
 const credentials = resolve('.local/adc.json')
 if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) process.env.GOOGLE_APPLICATION_CREDENTIALS = credentials

@@ -5,7 +5,7 @@ import { loadInvite, submitHandoff } from '../lib/handoff-store.mjs'
 import { loginToMesh, MeshDiaryAdapter } from '../lib/mesh.mjs'
 import { confirmPrompt, hiddenPrompt } from '../lib/prompts.mjs'
 
-/** @see ../../../docs/architecture/school-diary-port-adapter.md#family-onboarding-research */
+/** @see ../../../docs/modules/school-diary/README.md#family-onboarding-research */
 async function main() {
   const at = process.argv.indexOf('--invite')
   const code = at >= 0 ? process.argv[at + 1] : null

@@ -1,6 +1,19 @@
+---
+id: research.result-colour-and-density
+status: reference
+implementation: not-applicable
+parent: product.education
+uses:
+  - research.quiz-history-and-consolidation
+sections:
+  - что-подтверждают-первичные-источники
+  - что-не-согласовано-в-действующем-коде
+  - рекомендация-по-плотности
+
+---
 # Цвет результата и плотность истории тестов
 
-Дата: 16.10.2026. Исследование по запросу родителя; продолжение [исследования истории](quiz-history-and-consolidation.md). Предлагаемый контракт — [единое отображение результатов](../product/result-presentation-proposal.md). Действующие [статусы](../product/status-presentation.md) и [оценки](../product/grades.md) до согласования новой шкалы не заменяются.
+Дата: 16.10.2026. Исследование по запросу родителя; продолжение [исследования истории](quiz-history-and-consolidation.md). Предлагаемый контракт — [единое отображение результатов](../modules/assessments/result-presentation-proposal.md). Действующие [статусы](../shared/design/statuses.md) и [оценки](../modules/school-diary/grades.md) до согласования новой шкалы не заменяются.
 
 ## Что подтверждают первичные источники
 

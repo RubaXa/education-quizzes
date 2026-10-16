@@ -4,7 +4,7 @@ import { activateEducationUpdate } from '@/lib/pwa'
 import './DataCompatibilityNotice.css'
 
 /** A blocking state only for a future data schema this client cannot read.
- * @see ../../docs/product/access-and-state.md#schema-compatibility */
+ * @see ../../docs/modules/families/access-and-state.md#schema-compatibility */
 export default function DataCompatibilityNotice() {
   const [error, setError] = useState('')
   async function update() {

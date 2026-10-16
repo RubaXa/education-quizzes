@@ -7,7 +7,7 @@ import type { QuizCardAttempt } from '@/lib/quizCardViewModel'
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 
-/** @see ../../docs/product/quizzes.md#attempt-time */
+/** @see ../../docs/modules/assessments/quizzes.md#attempt-time */
 describe('time control in the existing quiz card', () => {
   const earlier: QuizCardAttempt = {
     token: 'first', testId: 'math-1', slug: 'math', title: 'Первый тест',

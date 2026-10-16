@@ -1,5 +1,5 @@
 /** Browser geometry regression for compact schedule rows.
- * @see ../docs/product/design-system.md#mobile-card-headings
+ * @see ../docs/shared/design/README.md#mobile-card-headings
  */
 import { spawn } from 'node:child_process'
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
@@ -26,7 +26,7 @@ const rows = [
   ['Физическая культура', '⸻', 'none'],
 ]
 const screenshotDir = process.env.SCHEDULE_SCREENSHOT_DIR
-// @see ../docs/product/status-presentation.md#matrix — fixture mirrors the icon/count/chevron columns.
+// @see ../docs/shared/design/statuses.md#matrix — fixture mirrors the icon/count/chevron columns.
 const statusIcon = (status) => {
   const path = status === 'complete' ? '<circle cx="12" cy="12" r="10"/><path d="m8 12 3 3 5-6"/>'
     : status === 'partial' ? '<circle cx="12" cy="12" r="10"/><path d="M8 12h8"/>'

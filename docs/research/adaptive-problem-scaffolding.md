@@ -1,11 +1,21 @@
 ---
+id: research.adaptive-problem-scaffolding
+status: reference
+implementation: not-applicable
+parent: product.education
 type: research-note
-status: complete
 updated: 2026-10-10
 related:
   - adaptive-problem-critical-review.md
-  - ../architecture/backend-driven-ui.md
-  - ../product/adaptive-problem-card.md
+  - ../modules/synchronization/backend-driven-ui.md
+  - ../modules/reviews/adaptive-problem-card.md
+uses: []
+sections:
+  - вопрос
+  - подтверждения-из-исследований
+  - продуктовый-вывод-для-education
+  - границы-вывода
+
 ---
 
 # Дозирование помощи в карточке задачи

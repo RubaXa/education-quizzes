@@ -6,8 +6,8 @@ import { useDayQuizOutcomes } from './useDayQuizOutcomes'
 import { reportUiError } from './uiErrors'
 
 /** Reuse one live Firestore projection for the selected lesson and the next homework day.
- * @see ../../docs/product/dashboard.md#homework-progress
- * @see ../../docs/product/design-system.md#cards-and-status
+ * @see ../../docs/modules/school-diary/dashboard.md#homework-progress
+ * @see ../../docs/shared/design/README.md#cards-and-status
  */
 export function useDashboardDayWork(dayToken: string | null | undefined, date: string, parent: boolean, onError: (message: string) => void) {
   const [pageState, setPageState] = useState<{ token: string; data: DayPageData }>()

@@ -39,9 +39,9 @@ function ChildCardWithProgress({ child, personId }: { child: PersonalChild & { d
   return <ChildCard child={child} overview={overview} />
 }
 
-/** @see ../../docs/product/status-presentation.md#components
- *  @see ../../docs/product/global-sync.md#status
- *  @see ../../docs/architecture/family-data-model.md#parent-home */
+/** @see ../../docs/shared/design/statuses.md#components
+ *  @see ../../docs/modules/synchronization/global-sync.md#status
+ *  @see ../../docs/modules/families/README.md#parent-home */
 function ChildCard({ child, overview }: { child: PersonalChild; overview?: ParentChildOverview }) {
   const [open, setOpen] = useState(false)
   const showRefresh = useDelayedRefresh(Boolean(overview?.fromCache && !overview?.error))
@@ -89,9 +89,9 @@ function ChildCard({ child, overview }: { child: PersonalChild; overview?: Paren
   </article>
 }
 
-/** @see ../../docs/architecture/family-data-model.md#parent-home
- *  @see ../../docs/product/design-system.md#shell
- *  @see ../../docs/architecture/local-first-release-plan-2026-10-12.md */
+/** @see ../../docs/modules/families/README.md#parent-home
+ *  @see ../../docs/shared/design/README.md#shell
+ *  @see ../../docs/plans/local-first-release-plan-2026-10-12.md */
 export function ParentHome({ profile }: { profile: PersonalProfile }) {
   // Keep child lists stable while inbox and progress snapshots rerender this page.
   // useFamilyLibrary subscribes to four streams per child.

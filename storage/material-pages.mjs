@@ -43,7 +43,7 @@ function selectedPages(books) {
   return selected
 }
 
-/** @see ../docs/product/materials.md#firestore-catalog */
+/** @see ../docs/modules/materials/materials.md#firestore-catalog */
 export function taskPageRefs() {
   const books = booksById()
   return Object.fromEntries(Object.entries(materialPlan.taskPages).map(([taskId, ids]) => [taskId, ids.map((id) => {
@@ -65,7 +65,7 @@ function pdfPageCount(file) {
   return Number(match[1])
 }
 
-/** @see ../docs/product/materials.md#page-publication */
+/** @see ../docs/modules/materials/materials.md#page-publication */
 export function preparePages() {
   const books = booksById()
   if (!books.size) throw new Error('Каталог учебников пуст.')
@@ -105,7 +105,7 @@ export function preparePages() {
   return entries
 }
 
-/** @see ../docs/product/materials.md#source-metadata */
+/** @see ../docs/modules/materials/materials.md#source-metadata */
 export function materialLinks(linkMap) {
   const bookById = booksById()
   const indexCache = new Map()

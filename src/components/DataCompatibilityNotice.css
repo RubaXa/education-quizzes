@@ -1,4 +1,4 @@
-/* @see ../../docs/product/firestore-data-model.md#migration — block only an unreadable future schema. */
+/* @see ../../docs/shared/data/firestore.md#migration — block only an unreadable future schema. */
 .data-compatibility{width:min(640px,calc(100% - 28px));margin:30px auto;padding:28px;border:1px solid var(--edu-card-border);border-radius:var(--edu-radius-card);background:var(--edu-surface);color:var(--edu-ink)}
 .data-compatibility h1{margin:0 0 12px;font-size:1.5rem}
 .data-compatibility p{margin:0 0 16px;line-height:1.5}

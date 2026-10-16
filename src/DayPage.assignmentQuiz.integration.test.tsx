@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-// @see ../docs/product/day-page.md#numbered-sheet-and-quiz
+// @see ../docs/modules/school-diary/day-page.md#numbered-sheet-and-quiz
 import { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -123,7 +123,7 @@ async function renderPage(parent: boolean) {
   return { host, root, cleanup: async () => { await act(async () => root.unmount()); host.remove() } }
 }
 
-/** @see ../docs/product/material-clarification.md */
+/** @see ../docs/modules/materials/material-clarification.md */
 it('asks the child for missing source material through the standard uploader, without grading it', async () => {
   scene.page!.subjects = [{id:'literature',name:'Литература',icon:'📖',materials:'',mesh:'Повторить записи по последней теме.',summary:'',tasks:[{
     id:'notes',kind:'read',status:'unknown',title:'Повторить записи',detail:'',source:'МЭШ',meshText:'Повторить записи по последней теме.',
@@ -145,7 +145,7 @@ it('asks the child for missing source material through the standard uploader, wi
   }
 })
 
-/** @see ../docs/product/material-clarification.md */
+/** @see ../docs/modules/materials/material-clarification.md */
 it('preserves resolved source photos and observations beside the linked quiz for both roles', async () => {
   scene.page!.subjects[0].tasks = [{id:'notes',kind:'read',status:'unknown',title:'Повторить записи',detail:'',source:'МЭШ',meshText:'Повторить записи по последней теме.',testToken:'diagrams-test',
     assessmentIntent:{state:'confirmed',mode:'ordinary',topic:'Сказание',evidenceRef:'Два снимка записей'},
@@ -186,7 +186,7 @@ describe('day page: teacher sheet and linked self-check', () => {
     try { expect(view.host.querySelector('.day-summary strong')?.textContent).toBe('0') }
     finally {await view.cleanup()}
   })
-  /** @see ../docs/product/dashboard.md#compact-homework */
+  /** @see ../docs/modules/school-diary/dashboard.md#compact-homework */
   it('uses one dated homework heading without the repeated lesson explanation', async()=>{
     for (const parent of [false,true]) {
       sessionStorage.setItem('education-day-initial-tab','homework')

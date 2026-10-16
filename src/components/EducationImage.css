@@ -1,5 +1,5 @@
-/* @see ../../docs/product/design-system.md#images
- * @see ../../docs/product/status-presentation.md#components */
+/* @see ../../docs/shared/design/README.md#images
+ * @see ../../docs/shared/design/statuses.md#components */
 .education-image{position:relative;display:block;min-width:0;max-width:100%;overflow:hidden;background:var(--edu-hover);color:var(--edu-muted);border-radius:8px}
 .education-image[data-state=loading],.education-image[data-state=error]{min-height:110px}
 .education-image>img{display:block;width:100%;height:auto;object-fit:var(--edu-image-fit);margin:0}

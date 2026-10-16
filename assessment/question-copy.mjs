@@ -1,5 +1,5 @@
 /** Shared instructions belong in the test description, not in every question heading.
- * @see ../docs/product/quizzes.md#question-copy */
+ * @see ../docs/modules/assessments/quizzes.md#question-copy */
 export function repeatedQuestionCopy(questions) {
   if (questions.length < 3) return []
   const prompts = questions.map((question) => String(question?.prompt ?? '').trim())

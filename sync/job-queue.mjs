@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto'
 import { Timestamp } from 'firebase-admin/firestore'
 
 /** Closed, durable operator queue. No credentials, answers or source text enter a job.
- * @see ../docs/product/global-sync.md#operator-queue
+ * @see ../docs/modules/synchronization/global-sync.md#operator-queue
  */
 export function syncJobId(kind, familyId, childId, sourceId) {
   return createHash('sha256').update(JSON.stringify([kind, familyId, childId, sourceId])).digest('hex')

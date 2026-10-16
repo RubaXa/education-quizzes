@@ -1,5 +1,5 @@
 /** Browser geometry regression for teacher-sheet crops.
- * @see ../docs/product/design-system.md#images
+ * @see ../docs/shared/design/README.md#images
  */
 import { spawn } from 'node:child_process'
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'

@@ -1,11 +1,21 @@
 ---
+id: research.condition-transcript-and-scaffold
+status: reference
+implementation: not-applicable
+parent: product.education
 type: research-note
-status: complete
 updated: 2026-10-10
 related:
   - adaptive-problem-scaffolding.md
   - adaptive-problem-critical-review.md
-  - ../product/adaptive-problem-card.md
+  - ../modules/reviews/adaptive-problem-card.md
+uses: []
+sections:
+  - вопрос
+  - что-подтверждают-источники
+  - варианты-для-карточки
+  - выбранный-вариант-прототипа
+
 ---
 
 # Оригинал условия, точная запись и педагогическая подсказка

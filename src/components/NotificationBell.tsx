@@ -51,8 +51,8 @@ function todayMoscow() {
   return new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'Europe/Moscow' }).format(new Date())
 }
 
-/** @see ../../docs/architecture/activity-and-inbox.md#in-app-center
- *  @see ../../docs/product/design-system.md#shell */
+/** @see ../../docs/modules/notifications/inbox.md#in-app-center
+ *  @see ../../docs/shared/design/README.md#shell */
 export default function NotificationBell({ routeKey }: { routeKey: string }) {
   const sessionRoute = routeKey.startsWith('#/enter/') ? routeKey : 'active'
   const [cachedContext] = useState(() => {

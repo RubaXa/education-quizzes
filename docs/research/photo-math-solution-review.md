@@ -1,3 +1,15 @@
+---
+id: research.photo-math-solution-review
+status: reference
+implementation: not-applicable
+parent: product.education
+uses: []
+sections:
+  - что-дают-источники
+  - вывод-для-education
+  - ограничения
+
+---
 # Проверка математического решения по фотографии
 
 ## Что дают источники

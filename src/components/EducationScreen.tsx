@@ -6,7 +6,7 @@ export type ScreenRenderers = Record<ScreenBlockType, (block: ScreenBlock) => Re
 /**
  * Порядок, наличие и подписи секций приходят из Firestore-манифеста.
  * Каждый тип исполняется только через зарегистрированный React-компонент.
- * @see ../../docs/architecture/backend-driven-ui.md#rendering
+ * @see ../../docs/modules/synchronization/backend-driven-ui.md#rendering
  */
 export function EducationScreen({ manifest, renderers }: { manifest: ScreenManifest; renderers: ScreenRenderers }) {
   return <main data-screen-revision={manifest.revision}>

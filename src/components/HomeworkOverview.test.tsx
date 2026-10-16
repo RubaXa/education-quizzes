@@ -10,7 +10,7 @@ let root: ReturnType<typeof createRoot> | undefined
 const host = document.createElement('div')
 afterEach(async()=>{if(root)await act(async()=>root!.unmount());root=undefined;host.remove();host.innerHTML=''})
 const row = (id:string, group:CachedHomeworkRow['group']):CachedHomeworkRow => ({subject:{id,name:id,icon:'📚',tasks:[{title:'Упр. 218 и 223'}]},group,done:group==='complete'?1:0,items:[{id:`${id}-task`,title:'Упр. 218 и 223',state:group==='complete'?'done':group==='waiting'?'unclear':'todo',detail:'№ 218 проверен; № 223 не виден целиком',unresolvedReason:'missing-evidence'}]})
-/** @see ../../docs/product/dashboard.md#compact-homework */
+/** @see ../../docs/modules/school-diary/dashboard.md#compact-homework */
 it('shows one short title and one explicit date, with counted groups instead of a duplicate banner',async()=>{
  document.body.append(host);root=createRoot(host);await act(async()=>root!.render(<HomeworkOverview date="2026-10-19" rows={[row('Русский','action'),row('Литература','waiting'),row('Математика','complete')]} onOpen={()=>{}}/>))
  expect(host.querySelector('h2')?.textContent).toBe('Домашнее задание')

@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-// @see ../docs/product/grades.md#grade-badge
+// @see ../docs/modules/school-diary/grades.md#grade-badge
 import { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { describe, expect, it } from 'vitest'

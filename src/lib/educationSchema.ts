@@ -1,4 +1,4 @@
-/** @see ../../docs/architecture/family-data-model.md#collections */
+/** @see ../../docs/modules/families/README.md#collections */
 export type EducationRole = 'parent' | 'student'
 
 export type FamilyMembership = {
@@ -14,7 +14,7 @@ export type SourceRevision = {
   checkedAt: unknown
 }
 
-/** @see ../../docs/architecture/family-data-model.md#sync */
+/** @see ../../docs/modules/families/README.md#sync */
 export type EducationTask = SourceRevision & {
   id: string
   childId: string
@@ -75,7 +75,7 @@ export type ScreenBlock = {
   visible?: boolean
 }
 
-/** @see ../../docs/architecture/backend-driven-ui.md#manifest */
+/** @see ../../docs/modules/synchronization/backend-driven-ui.md#manifest */
 export type ScreenManifest = {
   schemaVersion: 1
   revision: number
@@ -98,7 +98,7 @@ const parentOnlyBlocks = new Set<ScreenBlockType>(['review-queue'])
 /**
  * Firestore управляет составом экрана через закрытый набор блоков и источников.
  * Неизвестная версия или произвольный путь не превращаются в исполняемый UI.
- * @see ../../docs/architecture/backend-driven-ui.md#rendering
+ * @see ../../docs/modules/synchronization/backend-driven-ui.md#rendering
  */
 export function parseScreenManifest(value: unknown, view: ScreenView): ScreenManifest {
   const expectedAudience: ScreenAudience = view.startsWith('parent-') ? 'parent' : 'student'
@@ -130,7 +130,7 @@ export type ActivityType =
   | 'page_opened' | 'section_opened' | 'day_opened' | 'task_opened'
   | 'test_started' | 'test_submitted' | 'submission_uploaded' | 'notification_opened'
 
-/** @see ../../docs/architecture/activity-and-inbox.md#events */
+/** @see ../../docs/modules/notifications/inbox.md#events */
 export type ActivityEvent = {
   schemaVersion: 1
   actorPersonId: string
@@ -144,7 +144,7 @@ export type ActivityEvent = {
   occurredAt: unknown
 }
 
-/** @see ../../docs/architecture/activity-and-inbox.md#read-state */
+/** @see ../../docs/modules/notifications/inbox.md#read-state */
 export type ViewReceipt = { sourceRevision: number; seenAt: unknown }
 
 export type InboxNotification = {

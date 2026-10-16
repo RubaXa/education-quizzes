@@ -7,8 +7,8 @@ export type QuizOutcome = { assignment: Assignment; score?: QuizScore; results?:
 
 /** One live result projection for every test card and parent overview.
  * Manual review can arrive after submission; its Firestore update must finish the score everywhere.
- * @see ../../docs/product/quizzes.md#quiz-results
- * @see ../../docs/product/subject-card-viewmodel.md#projections
+ * @see ../../docs/modules/assessments/quizzes.md#quiz-results
+ * @see ../../docs/modules/reviews/subject-card-viewmodel.md#projections
  */
 export function watchQuizOutcome(token: string, onChange: (outcome: QuizOutcome) => void, onError: (error: Error) => void) {
   let assignment: Assignment | undefined

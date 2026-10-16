@@ -58,7 +58,7 @@ describe('vocabulary dictation selection', () => {
   })
 })
 
-/** @see ../docs/product/quiz-chain-proposal.md */
+/** @see ../docs/modules/assessments/quiz-chain-proposal.md */
 it('does not invent prior mistakes or a missing baseline after a wholly perfect history', () => {
   const plan = { items: [{ questionId: 'a', layer: 'current' }, { questionId: 'b', layer: 'spaced' }, { questionId: 'c', layer: 'transfer' }] }
   const spec = { questions: [{ id: 'a' }, { id: 'b' }, { id: 'c' }], linkedToTestId: 'perfect' }

@@ -4,7 +4,7 @@ import type { DayMaterialLink } from './dayStore'
  * binding before this cache is used; the key includes that binding's revision.
  * Keep this database separate from quiz drafts so cache upgrades cannot block
  * a pupil's unfinished test.
- * @see ../../docs/architecture/local-first-revision-matrix.md#матрица-чтения */
+ * @see ../../docs/shared/data/revisions.md#матрица-чтения */
 const databaseName = 'education-material-cache-v1'
 const storeName = 'publishedBooks'
 
@@ -33,7 +33,7 @@ export function completeMaterialPages(value: unknown, expectedCount: number, sou
 
 /** A family-scoped v2 bundle is accepted only with the exact binding hash and
  * a complete page sequence. Missing/old bundles fall back to v1 page rows.
- * @see ../../docs/product/family-library.md#full-book-reader */
+ * @see ../../docs/modules/materials/family-library.md#full-book-reader */
 export function verifiedBookManifest(value: unknown, expectedCount: number, sourceSha256: string): DayMaterialLink[] | null {
   if (!value || typeof value !== 'object') return null
   const manifest = value as { schemaVersion?: unknown; state?: unknown; sourceSha256?: unknown; pageCount?: unknown; pages?: unknown }

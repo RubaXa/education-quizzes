@@ -17,7 +17,7 @@ export function validFamilyBookManifest(value, binding) {
 /**
  * Project an already indexed and published shared book into one family's view.
  * The family binding is the access grant; catalog presence alone grants nothing.
- * @see ../docs/product/family-library.md#full-book-reader
+ * @see ../docs/modules/materials/family-library.md#full-book-reader
  */
 export async function projectPublishedBookToFamily(db, bindingRef, { verifyCount = false, ensureManifest = false } = {}) {
   const binding = (await bindingRef.get()).data()

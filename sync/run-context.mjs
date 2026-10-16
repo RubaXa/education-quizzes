@@ -1,6 +1,6 @@
 /** Only date-independent calls may be reused within one child collection.
  * Every new child/run receives a new adapter and a fresh cache.
- * @see ../docs/product/global-sync.md#reconciliation */
+ * @see ../docs/modules/synchronization/global-sync.md#reconciliation */
 export function reuseRunContext(adapter, onReuse = () => {}) {
   for (const method of ['getProfile', 'getMarks']) {
     const load = adapter[method].bind(adapter)

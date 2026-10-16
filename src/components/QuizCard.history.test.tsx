@@ -14,7 +14,7 @@ const chain=[attempt('first',6,11,7,4,'2026-10-14'),attempt('zero',0,7,5,0,'2026
 const mounted:Array<{root:ReturnType<typeof createRoot>;host:HTMLDivElement}>=[]
 async function mount(items=chain,parent=true){const host=document.createElement('div');document.body.append(host);const root=createRoot(host);mounted.push({root,host});await act(async()=>root.render(<QuizCard chain={items} parent={parent} assignment={<p>Точная запись МЭШ</p>} materials={<p>Оригинальные страницы</p>} />));return{host,root}}
 afterEach(async()=>{for(const{root,host}of mounted.splice(0)){await act(async()=>root.unmount());host.remove()}vi.clearAllMocks()})
-/** @see ../../docs/product/quiz-chain-proposal.md */
+/** @see ../../docs/modules/assessments/quiz-chain-proposal.md */
 describe('approved compact quiz table',()=>{
   it.each([true,false])('keeps the teacher source, exact counts, weighted aggregate and newest-first history; parent=%s',async parent=>{
     const{host}=await mount(chain,parent)

@@ -1,7 +1,7 @@
 import type { Answer, Assignment } from './quiz'
 
 /** A device-local safety copy of answers that Firestore has not confirmed yet.
- * @see ../../docs/product/quizzes.md#quiz-runner */
+ * @see ../../docs/modules/assessments/quizzes.md#quiz-runner */
 const key = (token: string) => `education.quiz-draft.v1.${token}`
 const assignmentKey = (token: string) => `education.quiz-assignment.v1.${token}`
 const studentKey = (token: string, deviceUid: string) => `education.quiz-student.v1.${token}.${deviceUid}`

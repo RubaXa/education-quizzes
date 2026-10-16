@@ -5,7 +5,7 @@ const site = 'https://rubaxa.github.io/education-quizzes/'
 export const grantId = (token) => createHash('sha256').update(token).digest('hex')
 
 /** Rebuild a parent's view from operator-owned grants; never change learner work.
- * @see ../../docs/architecture/family-data-model.md#link-rotation */
+ * @see ../../docs/modules/families/README.md#link-rotation */
 export async function syncChildAccess(db, registry, familyId, childId) {
   const people = Object.entries(registry.people).filter(([, item]) => item.familyId === familyId
     && item.childId === childId && item.role === 'student')

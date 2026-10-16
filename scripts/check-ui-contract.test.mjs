@@ -5,8 +5,8 @@ import { checkUiContracts, isProductUiFile, sha256 } from './check-ui-contract.m
 const original = 'old CSS'
 const changed = 'new CSS'
 const path = 'src/components/ProblemCard.css'
-const record = 'docs/product/ui-decisions/2026-10-14-card-layout.md'
-const spec = 'docs/product/problem-card-design-decisions.md'
+const record = 'docs/decisions/2026-10-14-card-layout.md'
+const spec = 'docs/modules/reviews/problem-card-design-decisions.md'
 const test = 'src/components/ProblemCard.test.tsx'
 const authorization = { status: 'direct-request', evidence: 'Запрос пользователя в текущем разговоре: исправить оформление номера.' }
 const recordText = `# Решение\n\n${path}\n\n## Основание\nЗапрос пользователя.\n\n## Было → стало\nИзменена компоновка.\n\n## Действия и роли\nОбе роли.\n\n## Проверки\nСнимок и тест.\n\n## Согласование\nЯвное решение.`

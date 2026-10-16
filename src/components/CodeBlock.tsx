@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 
 /** Keep the complete program visible even when highlighting cannot load.
- * @see ../../docs/product/quizzes.md */
+ * @see ../../docs/modules/assessments/quizzes.md */
 export function CodeBlock({ code }: { code: string }) {
   const [highlighted, setHighlighted] = useState<{ code: string; html: string }>()
 

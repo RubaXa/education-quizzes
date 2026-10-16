@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-/** @see ../../docs/product/subject-aware-guidance.md#parent-card */
+/** @see ../../docs/modules/reviews/subject-aware-guidance.md#parent-card */
 const probe = vi.hoisted(() => ({ listeners: [] as Array<{ path: string; ids: string[] | null; emit: (value: unknown) => void; stop: ReturnType<typeof vi.fn> }> }))
 vi.mock('./firebase', () => ({ db: {} }))
 vi.mock('./photoOutbox', () => ({ removePhotoFromOutbox: vi.fn(), resumePhotoTransfer: vi.fn(), savePhotoForTransfer: vi.fn() }))

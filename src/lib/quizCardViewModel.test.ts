@@ -19,7 +19,7 @@ describe('legacy single check assignment', () => {
   })
 })
 
-/** @see ../../docs/product/dashboard.md#schedule-homework-status */
+/** @see ../../docs/modules/school-diary/dashboard.md#schedule-homework-status */
 describe('destination of a linked self-check', () => {
   const tests = [quiz('first', 'test-1'), quiz('retry', 'test-2', 'test-1')]
   it('locates the original assignment card for a follow-up test', () => {

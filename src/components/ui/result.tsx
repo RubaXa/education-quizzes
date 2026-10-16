@@ -4,7 +4,7 @@ import StatusIcon from '../StatusIcon'
 import './result.css'
 
 /** Canonical indicators, also rendered by the UI Kit. No reads, subscriptions or local palettes.
- * @see ../../../docs/product/result-presentation-proposal.md */
+ * @see ../../../docs/modules/assessments/result-presentation-proposal.md */
 export function ResultBadge({ input, showPoints = false, compact = false, className = '' }: { input: ResultInput; showPoints?: boolean; compact?: boolean; className?: string }) {
   const view = resultPresentation(input)
   return <span className={`edu-result-badge edu-result-tone-${view.tone} ${className}`.trim()} data-tone={view.tone} aria-label={input.kind === 'answers' ? `${input.answered ? 'В процессе' : 'Не начат'} · ${input.answered} из ${input.total} ответов` : undefined}>

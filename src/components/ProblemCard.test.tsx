@@ -5,7 +5,7 @@ import { ProblemCard } from './ProblemCard'
 
 const problem = { id: 'p1', number: 1, title: 'Марки Ивана', detail: '', source: 'teacher' }
 
-// @see ../../docs/product/status-presentation.md#components
+// @see ../../docs/shared/design/statuses.md#components
 describe('compact problem status', () => {
   it('shows one ready icon without repeating Не начато in every numbered row', () => {
     const host = document.createElement('div')

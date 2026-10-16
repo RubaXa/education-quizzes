@@ -1,5 +1,5 @@
 /** Exact comparable intervals for read-only Cloud Monitoring reports.
- * @see ../docs/architecture/firestore-usage-2026-10-12.md#сопоставимые-окна */
+ * @see ../docs/audits/firestore-usage-2026-10-12.md#сопоставимые-окна */
 export function usageWindow(args, now = new Date()) {
   let start, end, mode
   if (args[0] === '--minutes' && args.length === 2) {

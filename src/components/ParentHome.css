@@ -1,5 +1,5 @@
-/* @see ../../docs/product/status-presentation.md#components
- * @see ../../docs/architecture/family-data-model.md#parent-home */
+/* @see ../../docs/shared/design/statuses.md#components
+ * @see ../../docs/modules/families/README.md#parent-home */
 .parent-home{display:grid;gap:18px;max-width:920px;margin:auto;color:var(--edu-ink-dashboard)}
 .parent-home *{box-sizing:border-box}
 .parent-home-heading{order:0}

@@ -1,6 +1,6 @@
 /** Shared card decision graph. A subject suggests an adapter; the verified output
  * decides which one applies. No subject name alone creates a solution or a duty.
- * @see ../docs/product/card-generation-policy.md#decision-graph */
+ * @see ../docs/modules/reviews/card-generation-policy.md#decision-graph */
 export const mathRouteProfiles = Object.freeze({
   compact: Object.freeze(['solution', 'answer']),
   standard: Object.freeze(['given', 'solution', 'answer']),
@@ -9,7 +9,7 @@ export const mathRouteProfiles = Object.freeze({
 
 /** Stable stage IDs are shared by generation, validation and the parent renderer.
  * The LLM fills sourced text; it cannot change the shape of a published pattern.
- * @see ../docs/product/card-generation-policy.md#russian-adapter */
+ * @see ../docs/modules/reviews/card-generation-policy.md#russian-adapter */
 export const languageRoutePatterns = Object.freeze({
   spelling: Object.freeze({ kind: 'structured-notes', stages: Object.freeze(['rule', 'application', 'writing']) }),
   syntax: Object.freeze({ kind: 'structured-notes', stages: Object.freeze(['basis', 'relations', 'analysis']) }),
@@ -19,7 +19,7 @@ export const languageRoutePatterns = Object.freeze({
 
 /** Subject-specific routes are configurations of the same private guide and public task shell.
  * A repeatable route keeps one stage per sourced item (for example tissue → function).
- * @see ../docs/product/card-generation-policy.md#subject-adapters */
+ * @see ../docs/modules/reviews/card-generation-policy.md#subject-adapters */
 export const learningRoutePatterns = Object.freeze({
   ...languageRoutePatterns,
   'short-interpretation': Object.freeze({ subject: 'literature', kind: 'text-structure', stages: Object.freeze(['theme', 'idea']) }),
@@ -34,7 +34,7 @@ export const learningRoutePatterns = Object.freeze({
 })
 
 /** Each separately assigned numbered exercise is its own required review result.
- * Additional textbook instructions do not become stages. @see ../docs/product/review-criteria-provenance.md#assigned-units */
+ * Additional textbook instructions do not become stages. @see ../docs/modules/reviews/review-criteria-provenance.md#assigned-units */
 function assignedUnitStageIds(task) {
   const steps = task?.steps
   if (!Array.isArray(steps) || steps.length < 2) return []
@@ -70,7 +70,7 @@ export function mathRouteProfile(guide) {
 }
 
 /** A reviewed numbered math sheet is a set of separate solutions, including legacy sheets.
- * @see ../docs/product/math-solution-route.md#selection */
+ * @see ../docs/modules/reviews/math-solution-route.md#selection */
 export function missingMathRoutes(subjectId, task) {
   if (!['math', 'special'].includes(subjectId) || task?.kind !== 'written' && !task?.practiceVariants?.length
     || task?.instructionStatus?.state !== 'reviewed' || !Array.isArray(task?.problems)) return []
@@ -79,7 +79,7 @@ export function missingMathRoutes(subjectId, task) {
 }
 
 /** A practice plan groups source problems without inventing extra MESH entries.
- * @see ../docs/product/card-generation-policy.md#practice-variants */
+ * @see ../docs/modules/reviews/card-generation-policy.md#practice-variants */
 export function practiceVariantErrors(task) {
   if (!task?.practiceVariants) return []
   const variants = task.practiceVariants
@@ -104,7 +104,7 @@ export function practiceVariantErrors(task) {
 
 /** Independently inspected teacher-sheet inventory, checked against the card.
  * The operator records this from the full original before entering problem cards.
- * @see ../docs/product/card-generation-policy.md#source-inventory */
+ * @see ../docs/modules/reviews/card-generation-policy.md#source-inventory */
 export function sourceInventoryErrors(task, links = []) {
   const teacherLinks = links.filter((link) => link.sourceType === 'teacher-attachment')
   if (task?.mathRoutePolicyVersion !== 2 || task?.instructionStatus?.state !== 'reviewed') return []
@@ -179,7 +179,7 @@ export function cardAdapter(subjectId, task) {
 
 /** Compose shared, result-specific and assignment-specific requirements.
  * A family/school overlay must be added with explicit applicability later.
- * @see ../docs/product/special-course-card-overlay.md#teacher-sheet */
+ * @see ../docs/modules/reviews/special-course-card-overlay.md#teacher-sheet */
 export function cardPolicyModules(subjectId, task) {
   const adapter = cardAdapter(subjectId, task)
   return {

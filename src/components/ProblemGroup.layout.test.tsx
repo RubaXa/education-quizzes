@@ -1,4 +1,4 @@
-// @see ../../docs/product/design-system.md#mobile-card-headings
+// @see ../../docs/shared/design/README.md#mobile-card-headings
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import ProblemGroup from './ProblemGroup'

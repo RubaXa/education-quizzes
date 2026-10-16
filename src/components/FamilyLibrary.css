@@ -1,6 +1,6 @@
-/* @see ../../docs/product/status-presentation.md#components
- * @see ../../docs/product/design-system.md#cards-and-status
- * @see ../../docs/product/family-library.md#parent-dashboard */
+/* @see ../../docs/shared/design/statuses.md#components
+ * @see ../../docs/shared/design/README.md#cards-and-status
+ * @see ../../docs/modules/materials/family-library.md#parent-dashboard */
 .family-library{min-width:0;border:1px solid var(--edu-card-border);border-radius:var(--edu-radius-card);background:var(--edu-surface);overflow:hidden;box-shadow:0 10px 28px #3f306c0b}
 .family-library-needs{order:1;border-color:var(--edu-danger-border)}
 .family-library-ready{order:4}

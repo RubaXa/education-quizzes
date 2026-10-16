@@ -17,8 +17,8 @@ function answerText(question: QuizQuestion, answer?: Answer): string {
 
 /**
  * Показывает разбор отдельного вопроса после отправки теста.
- * @see ../../docs/product/quizzes.md#quiz-results
- * @see ../../docs/product/status-presentation.md#components
+ * @see ../../docs/modules/assessments/quizzes.md#quiz-results
+ * @see ../../docs/shared/design/statuses.md#components
  */
 export default function ResultCard({ result, index }: { result: QuestionResult; index: number }) {
   const skipped = result.skipped === true

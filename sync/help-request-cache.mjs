@@ -7,7 +7,7 @@ const checksum = (value) => createHash('sha256').update(JSON.stringify(value)).d
 /** Durable operator projection for one append/update-only source. Client rules
  * require requestedAt == request.time and forbid deletes; a periodic full pass
  * also catches privileged out-of-band edits and damaged local state.
- * @see ../docs/architecture/local-first-release-plan-2026-10-12.md
+ * @see ../docs/plans/local-first-release-plan-2026-10-12.md
  */
 export class HelpRequestCache {
   constructor(file, Timestamp, { now = () => Date.now(), fullAuditMs = 24 * 60 * 60 * 1000 } = {}) {

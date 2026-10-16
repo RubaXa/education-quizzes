@@ -1,4 +1,4 @@
-/* @see ../../../docs/product/result-presentation-proposal.md — score semantics shared by all consumers. */
+/* @see ../../../docs/modules/assessments/result-presentation-proposal.md — score semantics shared by all consumers. */
 .edu-result-tone-success{--result-ink:var(--edu-status-success-ink);--result-bg:var(--edu-status-success-bg)}
 .edu-result-tone-attention{--result-ink:var(--edu-status-attention-ink);--result-bg:var(--edu-status-attention-bg)}
 .edu-result-tone-error{--result-ink:var(--edu-status-error-ink);--result-bg:var(--edu-status-error-bg)}

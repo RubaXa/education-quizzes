@@ -52,7 +52,7 @@ service cloud.firestore {
     }
     // A stage choice needs one read per source document. Repeated nested access
     // checks can exceed Firestore's per-write document-access limit.
-    // @see docs/product/day-page.md#review-stage-switch
+    // @see docs/modules/school-diary/day-page.md#review-stage-switch
     function validReviewedStageChoice(studentToken, eventId, data) {
       let session = get(/databases/$(database)/documents/deviceSessions/$(request.auth.uid)).data;
       let link = get(/databases/$(database)/documents/accessLinks/$(session.linkToken)).data;
@@ -89,7 +89,7 @@ service cloud.firestore {
 
     // A random invite code is the only public route to the one-time encrypted handoff.
     // The operator alone writes invitations and reads them in bulk through Admin SDK.
-    // @see docs/architecture/school-diary-port-adapter.md#family-onboarding-research
+    // @see docs/modules/school-diary/README.md#family-onboarding-research
     match /connectionInvites/{inviteCode} {
       allow get: if request.auth != null && inviteCode.matches('^[A-Za-z0-9_-]{43}$');
       allow list, write: if false;
@@ -120,7 +120,7 @@ service cloud.firestore {
 
     match /sourceIdentities/{identityId} { allow read, write: if false; }
     match /sourceAccounts/{accountId} { allow read, write: if false; }
-    // @see docs/product/global-sync.md#operator-queue
+    // @see docs/modules/synchronization/global-sync.md#operator-queue
     match /operatorSyncJobs/{jobId} { allow read, write: if false; }
 
     match /accessLinks/{secret} {
@@ -151,7 +151,7 @@ service cloud.firestore {
 
       // The browser requests an invite; only the local operator mints the
       // receiver key pair and publishes a usable link. No MESH secret enters UI.
-      // @see docs/architecture/family-data-model.md#invitations
+      // @see docs/modules/families/README.md#invitations
       match /inviteRequests/{requestId} {
         allow get, list: if activeSession() && currentPersonId() == personId;
         allow create: if activeSession() && currentPersonId() == personId
@@ -195,7 +195,7 @@ service cloud.firestore {
         allow get, list: if activeSession() && currentPersonId() == personId;
         // A parent's decision and the child's notice are committed together.
         // The client cannot invent review results or arbitrary announcement text.
-        // @see docs/architecture/activity-and-inbox.md#notification-producers
+        // @see docs/modules/notifications/inbox.md#notification-producers
         allow create: if activeSession()
           && request.resource.data.keys().hasOnly([
             'familyId', 'childId', 'type', 'entityId', 'taskId', 'studentToken',
@@ -281,7 +281,7 @@ service cloud.firestore {
         allow list: if false;
         allow write: if false;
 
-        // @see docs/product/global-sync.md#status
+        // @see docs/modules/synchronization/global-sync.md#status
         match /syncStatus/{statusId} {
           allow get: if statusId == 'current' && childMember(familyId, childId);
           allow list, write: if false;
@@ -315,7 +315,7 @@ service cloud.firestore {
           allow list: if parentMember(familyId) && childMember(familyId, childId);
           allow write: if false;
         }
-        // @see docs/product/family-library.md#firestore-model
+        // @see docs/modules/materials/family-library.md#firestore-model
         match /bookUploads/{uploadId} {
           allow get, list: if parentMember(familyId) && childMember(familyId, childId);
           allow create: if parentMember(familyId) && childMember(familyId, childId)
@@ -447,7 +447,7 @@ service cloud.firestore {
 
       // A parent may request one linked practice cycle after a submitted test.
       // The operator publishes questions; the browser cannot change a result.
-      // @see docs/product/quizzes.md#followup-request
+      // @see docs/modules/assessments/quizzes.md#followup-request
       allow update: if resource.data.status == 'submitted'
         && resource.data.familyId is string
         && resource.data.childId is string
@@ -461,7 +461,7 @@ service cloud.firestore {
 
       // Only a parent may change whether a root self-check counts in the
       // family plan. Answers, scoring and the teacher task are untouched.
-      // @see docs/product/quizzes.md#optional-quiz
+      // @see docs/modules/assessments/quizzes.md#optional-quiz
       allow update: if resource.data.familyId is string
         && resource.data.childId is string
         && parentMember(resource.data.familyId)
@@ -543,7 +543,7 @@ service cloud.firestore {
     }
 
     // Full reasoning and history are stored apart from the learner projection.
-    // @see docs/product/adaptive-problem-card.md#показ-ученику
+    // @see docs/modules/reviews/adaptive-problem-card.md#показ-ученику
     match /dayReviewPrivate/{studentToken}/items/{taskId} {
       allow get, list: if dayUploadOwner(studentToken)
         && parentMember(get(/databases/$(database)/documents/dayOwners/$(studentToken)).data.familyId);
@@ -551,7 +551,7 @@ service cloud.firestore {
     }
 
     // Prepared solution/structure before any attempt. A public dayPages token never grants access.
-    // @see docs/product/subject-aware-guidance.md#parent-card
+    // @see docs/modules/reviews/subject-aware-guidance.md#parent-card
     match /dayTaskGuides/{studentToken}/items/{taskId} {
       allow get, list: if dayUploadOwner(studentToken)
         && parentMember(get(/databases/$(database)/documents/dayOwners/$(studentToken)).data.familyId);
@@ -560,7 +560,7 @@ service cloud.firestore {
 
     // The parent can release exactly one prepared hint or solution stage.
     // The learner sees only this selected text, never the complete guide.
-    // @see docs/product/subject-aware-guidance.md#math-route
+    // @see docs/modules/reviews/subject-aware-guidance.md#math-route
     match /dayGuidance/{studentToken}/items/{eventId} {
       allow get, list: if dayUploadOwner(studentToken);
       allow create: if dayUploadOwner(studentToken)
@@ -593,7 +593,7 @@ service cloud.firestore {
 
     // A parent may close a task with a correct answer and incomplete reasoning.
     // The review remains unchanged; each choice is an immutable family event.
-    // @see docs/product/day-page.md#parent-acceptance
+    // @see docs/modules/school-diary/day-page.md#parent-acceptance
     match /dayParentDecisions/{studentToken}/events/{eventId} {
       allow get, list: if dayUploadOwner(studentToken);
       allow create: if request.auth != null

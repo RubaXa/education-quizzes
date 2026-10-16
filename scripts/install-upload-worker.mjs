@@ -22,7 +22,7 @@ const workerFiles = ['scripts/direct-upload-worker.mjs', 'storage/direct-upload.
 for (const file of workerFiles) {
   copyFileSync(resolve(root, file), resolve(runtime, file))
 }
-// @see ../docs/product/education-pipeline.md#sync-inbox
+// @see ../docs/modules/synchronization/education-pipeline.md#sync-inbox
 // Verify the copied module graph before replacing the live LaunchAgent.
 for (const file of workerFiles) {
   const source = readFileSync(resolve(runtime, file), 'utf8')

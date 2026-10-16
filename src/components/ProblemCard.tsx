@@ -7,9 +7,9 @@ import StatusIcon from './StatusIcon'
 import './ProblemCard.css'
 
 /** One numbered problem shell; route-specific evidence stays in its children.
- * @see ../../docs/product/component-system.md#registry
- * @see ../../docs/product/adaptive-problem-card.md#shared-problem-view
- * @see ../../docs/product/status-presentation.md#components */
+ * @see ../../docs/shared/design/components.md#registry
+ * @see ../../docs/modules/reviews/adaptive-problem-card.md#shared-problem-view
+ * @see ../../docs/shared/design/statuses.md#components */
 export function ProblemCard({ problem, state, parent = false, sourceResearch, children }: { problem: DayProblem; state: ProblemCardState; parent?: boolean; sourceResearch?: DaySourceResearch; children: ReactNode }) {
   const [sourceOpen, setSourceOpen] = useState(false)
   const status = state.tone === 'verified' ? 'complete' : state.tone === 'error' ? 'needs-fix'

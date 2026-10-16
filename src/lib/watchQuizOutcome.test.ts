@@ -4,7 +4,7 @@ import { watchQuizOutcome, type QuizOutcome } from './watchQuizOutcome'
 const calls=vi.hoisted(()=>({assignment:undefined as ((value:Assignment)=>void)|undefined,key:undefined as ((value:AnswerKey)=>void)|undefined,review:undefined as ((value:ManualReview|undefined)=>void)|undefined,stops:[vi.fn(),vi.fn(),vi.fn()]}))
 vi.mock('./store',()=>({watchAssignment:vi.fn((_token,onChange)=>{calls.assignment=onChange;return calls.stops[0]}),watchAnswerKey:vi.fn((_token,onChange)=>{calls.key=onChange;return calls.stops[1]}),watchReview:vi.fn((_token,onChange)=>{calls.review=onChange;return calls.stops[2]})}))
 import { watchAnswerKey,watchReview } from './store'
-/** @see ../../docs/product/quiz-chain-proposal.md */
+/** @see ../../docs/modules/assessments/quiz-chain-proposal.md */
 describe('shared outcomes keep already loaded question results',()=>{
  it('updates manual grading through the same key and review listeners, then unsubscribes once',()=>{
   vi.clearAllMocks();const values:QuizOutcome[]=[];const stop=watchQuizOutcome('sample',value=>values.push(value),vi.fn())
