@@ -373,7 +373,10 @@ else {
 const runTiming = newTiming()
 const data = await measure(runTiming, 'inventory', () => inventory(runTiming))
 if (command === 'plan') {
-  console.log(JSON.stringify({ readOnly: true, ...publicSummary(data) }, null, 2))
+  const timing = finishTiming(runTiming)
+  console.log(JSON.stringify({ readOnly: true, ...publicSummary(data),
+    measurements: { totalMs: timing.wallMs, inventoryMs: timing.stages.inventory?.elapsedMs ?? null,
+      counts: timing.counts, note: 'SDK calls and returned documents, not billed reads' } }, null, 2))
 } else {
   ensureDataDir(runDir)
   const lock = resolve(runDir, 'active.lock')

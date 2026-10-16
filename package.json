@@ -32,6 +32,7 @@
     "storage:worker": "node scripts/direct-upload-worker.mjs",
     "storage:install-worker": "node scripts/install-upload-worker.mjs",
     "archive:local": "node scripts/archive-local.mjs",
+    "education": "node scripts/education.mjs",
     "diary": "node diary/cli.mjs",
     "grades:snapshot": "node scripts/grade-snapshot.mjs",
     "connect": "node scripts/connect.mjs",

@@ -15,7 +15,7 @@ const decisionsPath = resolve(root, 'docs/product/ui-change-decisions.json')
 const BASELINE_SHA256 = '06906431b44f867c6973cef128fa878e814d0f2de629fc1b7c7bcae041337192'
 
 export const sha256 = (value) => createHash('sha256').update(value).digest('hex')
-export const isProductUiFile = (path) => /^(src|day|storage|diary|assessment|packages|pwa|sync|scripts)\/.*\.(mjs|js|ts|tsx|css)$/.test(path)
+export const isProductUiFile = (path) => /^(src|day|storage|diary|assessment|packages|pwa|sync|scripts|operator)\/.*\.(mjs|js|ts|tsx|css)$/.test(path)
   && !/\.test\.[^.]+$/.test(path) && !path.endsWith('.d.ts') && path !== 'scripts/check-ui-contract.mjs'
 
 export function checkUiContracts({ paths, baseline, decisions, read, exists }) {
@@ -45,7 +45,7 @@ export function checkUiContracts({ paths, baseline, decisions, read, exists }) {
     if (!Array.isArray(decision.specs) || decision.specs.length === 0 || decision.specs.some((spec) => !/^docs\/(product|architecture)\/.+\.md$/.test(spec) || !exists(spec))) {
       problems.push(`${path}: нужна ссылка на действующую спецификацию.`)
     }
-    if (!Array.isArray(decision.tests) || decision.tests.length === 0 || decision.tests.some((test) => !/^(src|scripts|day|storage|diary|assessment|packages|pwa|sync)\/.+\.test\.(tsx|ts|mjs|js)$/.test(test) || !exists(test))) {
+    if (!Array.isArray(decision.tests) || decision.tests.length === 0 || decision.tests.some((test) => !/^(src|scripts|day|storage|diary|assessment|packages|pwa|sync|operator)\/.+\.test\.(tsx|ts|mjs|js)$/.test(test) || !exists(test))) {
       problems.push(`${path}: нужны существующие регрессионные тесты.`)
     }
     if (!['direct-request', 'approved-mockup'].includes(decision.authorization?.status) || typeof decision.authorization?.evidence !== 'string' || decision.authorization.evidence.trim().length < 20) {

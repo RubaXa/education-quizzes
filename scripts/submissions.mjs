@@ -9,6 +9,7 @@ import { reviewCoverage } from '../storage/review-coverage.mjs'
 import { reviewChallengeErrors } from '../storage/review-challenge.mjs'
 import { studentReviewProjection } from '../storage/review-projection.mjs'
 import { validateRequirementChecks } from '../storage/review-requirements.mjs'
+import { assertReviewReadback } from '../storage/review-readback.mjs'
 import { YandexDiskStorage } from '../storage/yandex-disk.mjs'
 import { notificationId, reviewAttemptKey, stageFamilyNotice, taskContext } from '../storage/inbox-notifications.mjs'
 
@@ -18,15 +19,15 @@ import { notificationId, reviewAttemptKey, stageFamilyNotice, taskContext } from
  * @see ../docs/architecture/change-detection-and-reconciliation.md
  */
 const [command, argument, phase] = process.argv.slice(2)
-const reviewCommand = command === 'review' || command === 'progress' || command === 'feedback'
+const reviewCommand = ['review', 'validate', 'progress', 'feedback'].includes(command)
 const dateFilter = reviewCommand || ['migrate-private-reviews', 'review-privacy-audit'].includes(command) ? null : argument
-if (!['inbox', 'pull', 'review', 'progress', 'help', 'feedback', 'feedback-audit', 'basis-audit', 'migrate-private-reviews', 'review-privacy-audit'].includes(command)
+if (!['inbox', 'pull', 'review', 'validate', 'progress', 'help', 'feedback', 'feedback-audit', 'basis-audit', 'migrate-private-reviews', 'review-privacy-audit'].includes(command)
   || reviewCommand && !argument
   || command === 'progress' && !['download', 'source', 'review', 'publish', 'paused'].includes(phase)
   || command === 'migrate-private-reviews' && argument && argument !== '--dry-run'
   || command === 'review-privacy-audit' && argument
   || dateFilter && !/^\d{4}-\d{2}-\d{2}$/.test(dateFilter)) {
-  throw new Error('Использование: npm run submissions -- inbox|pull|help|feedback-audit|basis-audit [YYYY-MM-DD] | progress .local/review-....json download|source|review|publish|paused | review|feedback .local/review-....json | migrate-private-reviews [--dry-run] | review-privacy-audit')
+  throw new Error('Использование: npm run submissions -- inbox|pull|help|feedback-audit|basis-audit [YYYY-MM-DD] | progress .local/review-....json download|source|review|publish|paused | validate|review|feedback .local/review-....json | migrate-private-reviews [--dry-run] | review-privacy-audit')
 }
 const local = resolve('.local')
 const adcFile = resolve(local, 'adc.json')
@@ -448,8 +449,9 @@ async function publishFeedbackCorrection(filename) {
     preservedAttemptCount: previous.history?.length ?? 0, correctedLiveFeedback: true }))
 }
 
-/** @see ../docs/product/storage-privacy.md#multi-task-photo */
-async function publishReview(filename) {
+/** Shared, read-only validation for a proposed review and its exact source context.
+ * @see ../docs/architecture/operator-core.md#decision-packets */
+async function preparedReview(filename) {
   const review = privateReviewFile(filename)
   const shared = Boolean(review.reviews)
   const coverage = shared ? reviewCoverage(review) : null
@@ -462,6 +464,18 @@ async function publishReview(filename) {
   const guides = new Map(routeEntries.map((entry, index) => [entry.taskId, guideDocs[index].data()?.guide]))
   entries.forEach((entry) => validateReviewResult(entry, page, guides.get(entry.taskId)))
   if (photos.some((photo) => photo.data().storage?.state !== 'stored')) throw new Error('Фото ещё не перенесено на Диск.')
+  return { review, coverage, owner, refs, page, entries }
+}
+
+async function validateReviewFile(filename) {
+  const { entries, refs } = await preparedReview(filename)
+  console.log(JSON.stringify({ valid: true, taskIds: entries.map((entry) => entry.taskId), reviewedPhotos: refs.length,
+    publishedToFirebase: false }))
+}
+
+/** @see ../docs/product/storage-privacy.md#multi-task-photo */
+async function publishReview(filename) {
+  const { review, coverage, owner, refs, page, entries } = await preparedReview(filename)
   const reviewRefs = entries.map((entry) => db.doc(`dayProgress/${owner.id}/items/${entry.taskId}`))
   const privateRefs = entries.map((entry) => db.doc(`dayReviewPrivate/${owner.id}/items/${entry.taskId}`))
   const previous = await Promise.all(privateRefs.map(async (ref, index) => (await ref.get()).data() ?? (await reviewRefs[index].get()).data()))
@@ -479,7 +493,13 @@ async function publishReview(filename) {
   })
   await stageReviewNotice(batch, owner, page, review, entries, 'review_ready', now)
   await batch.commit()
-  console.log(JSON.stringify({ reviewedPhotos: refs.length, taskStatuses: entries.map(({ taskId, status }) => ({ taskId, status })), publishedToFirebase: true }))
+  const readback = await db.getAll(...privateRefs, ...reviewRefs, ...refs)
+  const verified = assertReviewReadback({ entries, planRevision: review.planRevision,
+    privateDocs: readback.slice(0, entries.length).map((item) => item.data()),
+    publicDocs: readback.slice(entries.length, entries.length * 2).map((item) => item.data()),
+    uploads: readback.slice(entries.length * 2).map((item) => item.data()) })
+  console.log(JSON.stringify({ reviewedPhotos: refs.length, taskStatuses: entries.map(({ taskId, status }) => ({ taskId, status })),
+    publishedToFirebase: true, verified: verified.verified }))
 }
 
 /** Moves legacy expert prose out of learner-readable documents without losing history. */
@@ -518,7 +538,9 @@ async function migratePrivateReviews(dryRun, auditOnly = false) {
   if (auditOnly && (missingPrivate || unsafePublic)) process.exitCode = 1
 }
 
-if (command === 'review') {
+if (command === 'validate') {
+  await validateReviewFile(argument)
+} else if (command === 'review') {
   await publishReview(argument)
 } else if (command === 'feedback') {
   await publishFeedbackCorrection(argument)

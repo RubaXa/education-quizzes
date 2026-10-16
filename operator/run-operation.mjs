@@ -1,0 +1,109 @@
+/** One execution and one private receipt for every operator operation.
+ * @see ../docs/architecture/operator-core.md#execution */
+import { randomUUID } from 'node:crypto'
+import { execFile } from 'node:child_process'
+import { mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
+import { resolve } from 'node:path'
+import { performance } from 'node:perf_hooks'
+import { promisify } from 'node:util'
+import { operationCommand, operationFingerprint, validateOperationRequest } from './operation-contract.mjs'
+
+const exec = promisify(execFile)
+const now = () => new Date().toISOString()
+const writePrivateJson = (path, value) => {
+  const tmp = `${path}.${process.pid}.tmp`
+  writeFileSync(tmp, `${JSON.stringify(value, null, 2)}\n`, { mode: 0o600 })
+  renameSync(tmp, path)
+}
+const parseJson = (value) => {
+  try { return JSON.parse(value) } catch { return null }
+}
+const publicSummary = (operation, value) => {
+  const parsed = parseJson(value)
+  if (!parsed || typeof parsed !== 'object') return { parsed: false }
+  if (operation === 'project.plan') return { families: parsed.families ?? null, children: parsed.children ?? null,
+    sourceAccounts: parsed.sourceAccounts ?? null, syncTargetsQueued: parsed.queued ?? null,
+    sourceTargetsBlocked: parsed.blocked ?? null, measurements: parsed.measurements ?? null }
+  if (operation === 'inbox.snapshot') return { complete: parsed.complete === true, counts: parsed.counts ?? null,
+    measurements: parsed.measurements ?? null }
+  if (operation.startsWith('queue.')) return { counts: parsed.counts ?? null, created: parsed.created ?? null,
+    resolved: parsed.resolved ?? null, measurements: parsed.measurements ?? null }
+  if (operation === 'grades.snapshot') return { changedSubjects: parsed.changedSubjects ?? null,
+    unchanged: parsed.unchanged ?? null, applied: parsed.applied ?? null }
+  if (operation === 'project.collect') return { runId: parsed.runId ?? null, report: parsed.report ?? null,
+    timing: parsed.timing ?? null }
+  if (operation === 'grades.publish') return { changed: parsed.changed ?? null, verified: parsed.verified ?? null }
+  if (operation === 'review.validate') return { valid: parsed.valid === true,
+    tasks: Array.isArray(parsed.taskIds) ? parsed.taskIds.length : null,
+    reviewedPhotos: parsed.reviewedPhotos ?? null }
+  if (operation === 'review.publish') return { reviewedPhotos: parsed.reviewedPhotos ?? null,
+    taskStatuses: parsed.taskStatuses ?? null, publishedToFirebase: parsed.publishedToFirebase === true,
+    verified: parsed.verified === true }
+  if (operation === 'quiz.publish') return { published: typeof parsed.testId === 'string' && parsed.testId.length > 0,
+    readback: typeof parsed.testId === 'string' && parsed.testId.length > 0 }
+  return { parsed: true }
+}
+
+export async function executeOperation(request, { apply = false, root = resolve(import.meta.dirname, '..'),
+  journalDir = resolve(root, '.local/operator-runs'), run = (script, argv, cwd) => exec(process.execPath,
+    [script, ...argv], { cwd, maxBuffer: 16 * 1024 * 1024, timeout: 10 * 60 * 1000 }) } = {}) {
+  const descriptor = validateOperationRequest(request)
+  const command = operationCommand(request, apply)
+  const fingerprint = operationFingerprint(request, root)
+  mkdirSync(journalDir, { recursive: true, mode: 0o700 })
+  const receipt = resolve(journalDir, `${fingerprint}.json`)
+  if (apply && descriptor.effect === 'create') {
+    let previous = null
+    try { previous = JSON.parse(readFileSync(receipt, 'utf8')) } catch { /* First attempt. */ }
+    if (previous?.status === 'succeeded') return { status: 'reused', operation: request.operation,
+      fingerprint, journal: receipt, summary: previous.summary, metrics: previous.metrics }
+    if (previous) throw new Error(`Previous ${request.operation} attempt needs readback: ${receipt}`)
+  }
+  const runId = randomUUID()
+  const journal = resolve(journalDir, `${runId}.json`)
+  const startedAt = now()
+  const started = performance.now()
+  const base = { schemaVersion: 1, runId, operation: request.operation, fingerprint, apply,
+    request, command, startedAt }
+  let preflightMs = null
+  if (apply && descriptor.preflight) {
+    const preflightStarted = performance.now()
+    try {
+      await run(resolve(root, descriptor.script), [descriptor.preflight, ...descriptor.argv(request.input, false)], root)
+      preflightMs = Math.round(performance.now() - preflightStarted)
+    } catch (error) {
+      const failure = { ...base, finishedAt: now(), status: 'invalid',
+        metrics: { elapsedMs: Math.round(performance.now() - started), preflightMs: Math.round(performance.now() - preflightStarted) },
+        error: String(error?.message ?? error), stdout: error?.stdout ?? '', stderr: error?.stderr ?? '' }
+      writePrivateJson(journal, failure)
+      throw new Error(`${request.operation} validation failed; inspect private journal ${journal}`)
+    }
+  }
+  if (apply && descriptor.effect === 'create') writePrivateJson(receipt, { ...base, status: 'started' })
+  try {
+    const { stdout = '', stderr = '' } = await run(resolve(root, command.script), command.argv, root)
+    const metrics = { elapsedMs: Math.round(performance.now() - started), preflightMs,
+      stdoutBytes: Buffer.byteLength(stdout),
+      stderrBytes: Buffer.byteLength(stderr) }
+    const summary = publicSummary(request.operation, stdout)
+    if (request.operation === 'quiz.publish' && summary.readback !== true) {
+      throw new Error('Quiz publication did not return a read-back testId.')
+    }
+    if (request.operation === 'review.publish' && summary.verified !== true) {
+      throw new Error('Review publication did not confirm addressable readback.')
+    }
+    const result = { ...base, finishedAt: now(), status: 'succeeded', summary, metrics, stdout, stderr }
+    writePrivateJson(journal, result)
+    if (apply && descriptor.effect === 'create') writePrivateJson(receipt, { ...base, finishedAt: result.finishedAt,
+      status: 'succeeded', summary, metrics, journal })
+    return { status: 'succeeded', operation: request.operation, fingerprint, journal, summary, metrics }
+  } catch (error) {
+    const result = { ...base, finishedAt: now(), status: 'needs-readback',
+      metrics: { elapsedMs: Math.round(performance.now() - started) },
+      error: String(error?.message ?? error), stdout: error?.stdout ?? '', stderr: error?.stderr ?? '' }
+    writePrivateJson(journal, result)
+    if (apply && descriptor.effect === 'create') writePrivateJson(receipt, { ...base,
+      status: 'needs-readback', journal, finishedAt: result.finishedAt })
+    throw new Error(`${request.operation} did not confirm completion; inspect private journal ${journal}`)
+  }
+}

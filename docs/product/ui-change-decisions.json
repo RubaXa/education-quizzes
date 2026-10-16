@@ -1,5 +1,33 @@
 {
   "files": {
+    "operator/operation-contract.mjs": {
+      "sha256": "7b09c80971b05dd1b7d76f484c5e59ab6439ee33038ec123f30b432ed6b0984a",
+      "record": "docs/product/ui-decisions/operator-core-cli-2026-10-16.md",
+      "specs": ["docs/architecture/operator-core.md", "docs/product/global-sync.md"],
+      "tests": ["operator/operation-contract.test.mjs"],
+      "authorization": { "status": "direct-request", "evidence": "Родитель 16.10.2026 прямо потребовал единое ядро переиспользуемых CLI-инструментов со строгой моделью операций вместо inline-скриптов." }
+    },
+    "operator/run-operation.mjs": {
+      "sha256": "d6720d9ad633784ebf8169f1a66088bd11ee2ea2ac9a411a19557011081d7d7e",
+      "record": "docs/product/ui-decisions/operator-core-cli-2026-10-16.md",
+      "specs": ["docs/architecture/operator-core.md", "docs/product/global-sync.md"],
+      "tests": ["operator/run-operation.test.mjs"],
+      "authorization": { "status": "direct-request", "evidence": "Родитель 16.10.2026 прямо потребовал единое ядро переиспользуемых CLI-инструментов с метриками, квитанциями и проверкой результата." }
+    },
+    "scripts/education.mjs": {
+      "sha256": "bc427fc983c1bbbbd061ad71be090f432e16f0e7b3acde3d61cc349aa503bbd4",
+      "record": "docs/product/ui-decisions/operator-core-cli-2026-10-16.md",
+      "specs": ["docs/architecture/operator-core.md", "docs/product/global-sync.md"],
+      "tests": ["operator/operation-contract.test.mjs", "operator/run-operation.test.mjs"],
+      "authorization": { "status": "direct-request", "evidence": "Родитель 16.10.2026 прямо потребовал штатные повторяемые CLI-команды Education вместо изобретаемых заново inline-скриптов." }
+    },
+    "storage/review-readback.mjs": {
+      "sha256": "6964cff4c0f234536762a1cd07a7945a76df8caa582b39f7217f5bf1cff54c1f",
+      "record": "docs/product/ui-decisions/operator-core-cli-2026-10-16.md",
+      "specs": ["docs/architecture/operator-core.md", "docs/product/review-criteria-provenance.md"],
+      "tests": ["storage/review-readback.test.mjs"],
+      "authorization": { "status": "direct-request", "evidence": "Родитель 16.10.2026 прямо потребовал проверяемое сохранение решений через стандартный инструмент и тесты на сохранённый результат." }
+    },
     "src/DayPage.tsx": {
       "sha256": "4a7ffb1f079bf96f1435ece96be69b62c686eafdd99923a9003c73e6992ef927",
       "record": "docs/product/ui-decisions/mesh-requirement-trace-2026-10-16.md",
@@ -861,7 +889,7 @@
       }
     },
     "scripts/sync-project.mjs": {
-      "sha256": "adbc81b8e3967032ecc8ac62c055913cfb2f8fbe4b174ae80bc616b02919c0a1",
+      "sha256": "63cdeb99de7939918382d952d530cab00ef43623dc2fa0449949afd92ef6cf57",
       "record": "docs/product/ui-decisions/education-sync-performance-2026-10-15.md",
       "specs": [
         "docs/product/global-sync.md",
@@ -894,7 +922,7 @@
       }
     },
     "scripts/submissions.mjs": {
-      "sha256": "ce0a3782402933e6189d5e6972133b88cda16c63237cc50d1147f66162f99a69",
+      "sha256": "45737af4c4e500b2fa56de17a0b85ebb63636b015a48dcc5f7ad4c6cc6cea41b",
       "record": "docs/product/ui-decisions/mesh-requirement-trace-2026-10-16.md",
       "specs": [
         "docs/product/review-criteria-provenance.md",

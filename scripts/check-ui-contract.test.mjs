@@ -23,7 +23,7 @@ function fixture({ content = original, decision, paths = [path], available = [re
 
 describe('UI decision gate', () => {
   it('covers interface, status projection and publication modules but not tests', () => {
-    expect(['src/App.tsx', 'src/DayPage.css', 'src/lib/reviewPresentation.ts', 'day/card-policy.mjs', 'storage/review-projection.mjs', 'scripts/day.mjs'].every(isProductUiFile)).toBe(true)
+    expect(['src/App.tsx', 'src/DayPage.css', 'src/lib/reviewPresentation.ts', 'day/card-policy.mjs', 'storage/review-projection.mjs', 'scripts/day.mjs', 'operator/run-operation.mjs'].every(isProductUiFile)).toBe(true)
     expect(isProductUiFile('src/components/ProblemCard.test.tsx')).toBe(false)
     expect(isProductUiFile('scripts/check-ui-contract.mjs')).toBe(false)
   })
