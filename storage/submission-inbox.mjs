@@ -1,3 +1,4 @@
+/** @see ../docs/product/material-clarification.md */
 /** @see ../docs/product/storage-privacy.md#review-queue */
 function millis(value) {
   if (!value) return null
@@ -40,7 +41,8 @@ export function resolveSubmission({ owner, page, childName, uploadId, upload }) 
     taskTitle: linked ? problem ? `${task.title} · № ${problem.number}: ${problem.title}` : task.title : null,
     assignmentText: linked ? problem?.detail ?? task.meshText ?? task.detail : null,
     relatedTasks,
-    expectedPhoto: linked ? problem ? `Решение задачи № ${problem.number}: номер, ход и ответ должны читаться.` : task.submission?.photo ?? task.submission?.description ?? null : null,
+    ...(task?.materialRequest?.state === 'open' ? { purpose: 'source-material', materialRequest: task.materialRequest } : {}),
+    expectedPhoto: linked ? task.materialRequest?.state === 'open' ? task.materialRequest.photoPrompt : problem ? `Решение задачи № ${problem.number}: номер, ход и ответ должны читаться.` : task.submission?.photo ?? task.submission?.description ?? null : null,
     planRevision: linked ? page.planRevision ?? null : null,
     conditionChangedAfterUpload: changedAfterUpload,
     resolution: linked ? 'linked' : 'needs-manual-link',

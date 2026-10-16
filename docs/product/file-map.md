@@ -6,6 +6,11 @@
 
 | Файл | Спецификация | Зачем существует | Потребитель |
 |---|---|---|---|
+| [docs/product/material-clarification.md](../../docs/product/material-clarification.md) | [Уточнение материала](material-clarification.md) | Контракт источника без оценки выполнения | Оператор; UI; CLI |
+| [docs/product/ui-decisions/material-clarification-2026-10-16.md](../../docs/product/ui-decisions/material-clarification-2026-10-16.md) | [Уточнение материала](material-clarification.md) | Основание изменения и границы ролей | Барьер UI |
+| [src/components/MaterialRequest.tsx](../../src/components/MaterialRequest.tsx) | [Уточнение материала](material-clarification.md) | Вопрос в стандартной поверхности фото | DayPage; UI Kit |
+| [src/lib/materialRequest.ts](../../src/lib/materialRequest.ts) | [Уточнение материала](material-clarification.md) | Валидация и состояния запроса источника | DayPage; day; submissions; queue |
+| [src/lib/materialRequest.test.ts](../../src/lib/materialRequest.test.ts) | [Уточнение материала](material-clarification.md) | Регрессия границ источника и оценки | Vitest |
 | [src/lib/uiKitExamples.ts](../../src/lib/uiKitExamples.ts) | [UI Kit](ui-kit.md) | Условные согласованные по баллам и вопросам примеры без персональных данных | UiKit; Vitest |
 | [docs/product/ui-kit.md](ui-kit.md) | [Контракт](ui-kit.md) | Контракт живой страницы токенов и компонентов | Разработчик; родитель |
 | [docs/research/ui-kit-structure.md](../research/ui-kit-structure.md) | [Контракт](ui-kit.md) | Первичные материалы Ant, Material и других систем; выбранная структура каталога | Дизайн-система |

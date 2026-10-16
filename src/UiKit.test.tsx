@@ -31,3 +31,16 @@ it('uses the real components, token source and local interactive controls',async
 it('has internally consistent example points and counts',()=>{
  for(const test of uiKitQuizExamples){const score=summarize(test.results!);expect(score.earned).toBe(test.points);expect(score.possible).toBe(test.maxPoints)}
 })
+
+/** @see ../docs/product/material-clarification.md */
+it('previews the source question using the shared local photo control',async()=>{
+ document.body.append(host);root=createRoot(host);await act(async()=>root!.render(<UiKit/>))
+ await act(async()=>[...host.querySelectorAll<HTMLButtonElement>('nav button')].find(button=>button.textContent==='Уточнение материала')!.click())
+ expect(host.querySelector('[aria-label="Уточнение материала"]')).not.toBeNull()
+ const input=host.querySelector<HTMLInputElement>('.day-upload input')!
+ expect(input.accept).toBe('image/*');expect(input.multiple).toBe(true)
+ Object.defineProperty(input,'files',{value:[new File(['demo'],'notes.jpg',{type:'image/jpeg'})],configurable:true})
+ await act(async()=>input.dispatchEvent(new Event('change',{bubbles:true})))
+ expect(host.textContent).toContain('Выбрано файлов: 1')
+ expect(host.textContent).not.toContain('Работа проверена')
+})

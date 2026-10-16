@@ -1,3 +1,4 @@
+/** @see ../docs/product/material-clarification.md */
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { writeJson } from '../diary/local-store.mjs'
@@ -133,6 +134,7 @@ export function buildDaySource(local, date) {
           delete old.parentGuide
           delete old.cardPattern
           delete old.outputKind
+          delete old.materialRequest // A changed teacher instruction invalidates the old source question.
           delete old.assessmentIntent // A changed teacher entry invalidates the prior quiz decision.
           delete old.problems // Old teacher sheet and personalized hints do not apply to a revised condition.
           delete old.practiceVariants

@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+/** @see ../docs/product/material-clarification.md */
+import { hasSourceReceipt } from '../src/lib/materialRequest.ts'
 import { execFileSync } from 'node:child_process'
 import { mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -183,7 +185,7 @@ async function discover() {
       const data = file.data(), result = byTask.get(data.taskId)
       // A newer submission may supersede this attempt in dayProgress. The
       // upload's own reviewed status remains its durable historical result.
-      if (result?.status || pageTaskById.get(data.taskId)?.platformResult?.state === 'completed') continue
+      if (result?.status || hasSourceReceipt(result) || pageTaskById.get(data.taskId)?.platformResult?.state === 'completed') continue
       missing.push(job('repair-review', owner.familyId, owner.childId,
         `${owner.date}:${file.id}`, { type: 'student-work', dayToken: ownerDoc.id, date: owner.date, uploadId: file.id, taskId: data.taskId },
         [file.id, data.taskId, data.reviewedAt?.toMillis?.()], 5))
@@ -239,7 +241,7 @@ async function verifiedResolution(record) {
     const page = record.kind === 'repair-review' ? (await db.doc(`dayPages/${owner.id}`).get()).data() : null
     const platformDone = page?.subjects?.some((subject) => subject.tasks?.some((task) =>
       task.id === upload?.taskId && task.platformResult?.state === 'completed'))
-    if (record.kind === 'repair-review') return upload?.origin === 'archive' || result?.status || platformDone ? 'review-record-or-platform-result-present' : null
+    if (record.kind === 'repair-review') return upload?.origin === 'archive' || result?.status || hasSourceReceipt(result) || platformDone ? 'review-record-or-platform-result-present' : null
     return upload?.status === 'reviewed' && result?.uploadIds?.includes(source.id ?? source.uploadId) ? 'review-and-upload-published' : null
   }
   if (record.kind === 'ingest-book') {

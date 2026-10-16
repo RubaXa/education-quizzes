@@ -1,3 +1,4 @@
+/** @see ../docs/product/material-clarification.md */
 import { useEffect, useRef, useState } from 'react'
 import { getAuth } from 'firebase/auth'
 import { ArrowRight, BookOpen, CalendarDays, ChevronDown, Clock3, Hourglass, Sparkles, Timer } from 'lucide-react'
@@ -357,7 +358,7 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
     const { subject, items, done, group } = row
     const next = items.find((item) => item.state === 'todo') ?? items.find((item) => item.state === 'checking') ?? items.find((item) => item.state === 'unclear')
     const qualityOpen = items.find((item) => item.qualityOpen)
-    const status = group === 'complete' ? qualityOpen ? 'Работа сдана' : 'Всё завершено' : next?.state === 'unclear'
+    const status = next?.clarification ? 'Уточнить материал' : group === 'complete' ? qualityOpen ? 'Работа сдана' : 'Всё завершено' : next?.state === 'unclear'
       ? next.unresolvedReason === 'missing-evidence' ? 'Не вся работа видна' : 'Итог не установлен'
       : next?.state === 'checking' ? 'Ждём проверки' : done ? `${done} из ${items.length} завершено` : 'Нужно сделать'
     return <button className={`day-dashboard-homework-row ${group}`} key={subject.id} type="button" onClick={() => nextHomeworkToken && openDay(nextHomeworkToken, 'homework', next?.id, { date: nextDate, subject: subject.name })}>

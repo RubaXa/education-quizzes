@@ -1,3 +1,5 @@
+/** @see ../docs/product/material-clarification.md */
+import { sourceReviewErrors } from '../src/lib/materialRequest.ts'
 import { createHash } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -208,7 +210,7 @@ async function stageReviewNotice(batch, owner, page, review, entries, type, now)
   const one = entries.length === 1
   const key = reviewAttemptKey(owner.id, review.uploadIds, entries.map((entry) => entry.taskId))
   const statuses = entries.map((entry) => entry.status)
-  const body = type === 'review_started' ? one ? `Начали разбирать ${context.title}. Повторно загружать фото не нужно.` : `Начали разбирать ${entries.length} заданий с загруженного фото.`
+  const body = entries[0].purpose === 'source-material' && type === 'review_ready' ? 'Материал прочитан. Тема и следующий шаг указаны в карточке; выполнение ДЗ отдельно не оценивалось.' : type === 'review_started' ? one ? `Начали разбирать ${context.title}. Повторно загружать фото не нужно.` : `Начали разбирать ${entries.length} заданий с загруженного фото.`
     : type === 'review_paused' ? 'Разбор приостановлен. Фото сохранено; повторно загружать его не нужно. Причина указана в карточке.'
     : type === 'review_updated' ? entries[0].workCoverage?.state === 'complete' ? 'Работа сдана. Критерий качества пока уточняется; новых действий не требуется.' : 'Вывод по работе уточнён. Откройте текущий разбор.'
       : statuses.every((status) => status === 'verified') ? one ? `${context.title}: всё подтверждено.` : `Проверено ${entries.length} заданий. Все подтверждены.`
@@ -220,7 +222,7 @@ async function stageReviewNotice(batch, owner, page, review, entries, type, now)
   await stageFamilyNotice(db, batch, { familyId, childId, key: correctionKey,
     mode: type === 'review_started' ? 'start' : type === 'review_updated' ? 'create' : 'replace',
     data: { type, entityId: entries[0].taskId, taskId: one ? entries[0].taskId : null,
-      date: page.targetDate, subject: context.subject, title: type === 'review_started' ? 'Начали проверку работы'
+      date: page.targetDate, subject: context.subject, title: entries[0].purpose === 'source-material' && type === 'review_ready' ? 'Материал прочитан' : type === 'review_started' ? 'Начали проверку работы'
         : type === 'review_paused' ? 'Проверка задержана'
         : type === 'review_updated' ? 'Результат работы уточнён' : 'Работа проверена',
       body, sourceRevision: now.toMillis() } })
@@ -255,6 +257,13 @@ async function publishProgress(filename, phase) {
 
 /** @see ../docs/product/review-criteria-provenance.md#second-pass */
 function validateReviewResult(review, page, guide, { requireChallenge = false } = {}) {
+  const sourceTask = page.subjects?.flatMap(subject => subject.tasks ?? []).find(task => task.id === review.taskId)
+  const sourceErrors = sourceReviewErrors(review, sourceTask ?? {})
+  if (sourceErrors.length) throw new Error(sourceErrors.join(' '))
+  if (review.purpose === 'source-material') {
+    if (![review.summary, review.nextStep, review.source].every(value => typeof value === 'string' && value.trim().length >= 8)) throw new Error('У разбора материала нужны итог, следующий шаг и источник.')
+    return
+  }
   const statuses = new Set(['verified', 'needs-fix', 'partial', 'cannot-assess'])
   const itemStatuses = new Set(['correct', 'incorrect', 'partial', 'cannot-assess'])
   if (!statuses.has(review.status)
@@ -376,7 +385,8 @@ function validateStudentFeedback(review) {
 }
 
 function resultRecord(review, previous, now, date, planRevision) {
-  const priorReviews = previous?.status ? [...(previous.history ?? []), Object.fromEntries(Object.entries(previous).filter(([key]) => key !== 'history' && key !== 'processing'))] : previous?.history ?? []
+  const priorReviews = previous?.status || previous?.purpose === 'source-material' ? [...(previous.history ?? []), Object.fromEntries(Object.entries(previous).filter(([key]) => key !== 'history' && key !== 'processing'))] : previous?.history ?? []
+  if (review.purpose === 'source-material') return { date, taskId: review.taskId, planRevision, uploadIds: review.uploadIds, purpose: 'source-material', sourceAnalysis: review.sourceAnalysis, summary: review.summary, nextStep: review.nextStep, source: review.source, checkedAt: now, history: priorReviews.slice(-20) }
   const { taskId, uploadIds, status, summary, nextStep, source, items, checkableStageIds, requirementChecks, mathReasoning, studentFeedback, assessmentBasis, workCoverage, challengeReview } = review
   return { date, taskId, planRevision, uploadIds, status, summary, nextStep, source, items,
     ...(checkableStageIds ? { checkableStageIds } : {}),

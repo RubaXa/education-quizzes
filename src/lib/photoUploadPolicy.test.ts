@@ -20,4 +20,10 @@ describe('student photo upload availability', () => {
     expect(pupilCanAddPhoto(ratios, false)).toBe(true)
     expect(pupilCanAddPhoto({ ...ratios, status: 'partial' }, false)).toBe(true)
   })
+  it('lets only the learner answer an explicit source request using the same uploader', () => {
+    const request = { ...english, kind:'read' as const, assessmentIntent:{state:'needs-topic' as const}, materialRequest:{id:'notes-1',state:'open' as const,question:'Какая последняя тема записана в тетради?',photoPrompt:'Пришли страницы последних записей целиком.'} }
+    expect(pupilCanAddPhoto(request,false)).toBe(true)
+    expect(pupilCanAddPhoto(request,true)).toBe(false)
+    expect(pupilCanAddPhoto({...request,materialRequest:{...request.materialRequest,state:'resolved',resolvedTopic:'Баллада',uploadIds:['photo']}},false)).toBe(false)
+  })
 })

@@ -1,3 +1,5 @@
+/** @see ../docs/product/material-clarification.md */
+import { materialRequestErrors } from '../src/lib/materialRequest.ts'
 /** Runtime shape of the current Firestore projection. Optional additive fields are
  * accepted so older clients and already published documents keep working.
  * Cross-document edges are checked by placement-integrity.mjs.
@@ -24,6 +26,7 @@ export function dayPageShapeErrors(page) {
     if (!object(subject) || !text(subject.id) || !Array.isArray(subject.tasks)) { errors.push('У предмета нет ID или массива заданий.'); continue }
     for (const task of subject.tasks) {
       if (!object(task) || !text(task.id) || !text(task.title)) { errors.push('У задания нет ID или названия.'); continue }
+      errors.push(...materialRequestErrors(task))
       if (!['written', 'read', 'check'].includes(task.kind)) errors.push(`Неизвестный вид задания ${task.id}.`)
       if (!['verified', 'needs-fix', 'partial', 'unknown'].includes(task.status)) errors.push(`Неизвестный статус задания ${task.id}.`)
     }

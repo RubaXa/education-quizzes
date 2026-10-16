@@ -1,3 +1,5 @@
+/** @see ../../docs/product/material-clarification.md */
+import { materialRequestView } from './materialRequest'
 import { cdzResultLabel, isCdzTask, uploadMatchesTask } from './dayStore'
 import type { DayTask, DayUpload, DayWorkReview } from './dayStore'
 import { activeProcessing, workCoverageComplete } from './reviewPresentation'
@@ -9,7 +11,7 @@ import { quizPassed } from './quizCompletion'
 /** @see ../../docs/product/dashboard.md#homework-progress
  *  @see ../../docs/architecture/family-data-model.md#parent-home */
 export type QuizScore = { points: number; maxPoints: number }
-export type LessonWorkItem = { id: string; title: string; state: 'done' | 'todo' | 'checking' | 'unclear'; detail: string; qualityOpen?: boolean; unresolvedReason?: 'missing-evidence' | 'criterion-unclear' }
+export type LessonWorkItem = { id: string; title: string; state: 'done' | 'todo' | 'checking' | 'unclear'; detail: string; qualityOpen?: boolean; clarification?: boolean; unresolvedReason?: 'missing-evidence' | 'criterion-unclear' }
 export type QuizWorkState = { status: string; testId?: string; linkedToTestId?: string | null; title?: string; followupRequested?: boolean; followupRequestedAt?: unknown; familyOptional?: boolean }
 
 export type QuizRequirement = Pick<LessonWorkItem, 'state' | 'detail'> | { state: 'optional'; detail: string }
@@ -78,6 +80,8 @@ export function lessonWorkItems(tasks: DayTask[], uploads: DayUpload[], reviews:
       return requirement ? [{ id: task.id, title: task.title, ...requirement }] : []
     }
     const review = reviews.find((item) => item.taskId === task.id)
+    const materialView = materialRequestView(task, uploads.filter(upload => uploadMatchesTask(upload, task.id)), review)
+    if (materialView) return [{ id: task.id, title: task.title, clarification: true, state: materialView.phase === 'waiting' ? 'todo' : 'checking', detail: materialView.detail }]
     const pending = uploads.some((upload) => uploadMatchesTask(upload, task.id) && ['requested', 'awaiting-upload', 'uploaded', 'pending'].includes(upload.status))
     const quiz = task.testToken ? quizRequirement(task.testToken, tests, scores) : undefined
     const readPassed = (task.kind === 'read' || task.kind === 'check') && quiz?.state === 'done'

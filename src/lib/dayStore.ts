@@ -1,3 +1,5 @@
+/** @see ../../docs/product/material-clarification.md */
+import type { MaterialRequest, SourceAnalysis } from './materialRequest'
 import { collection, doc, documentId, getDoc, getDocFromServer, onSnapshot, query, serverTimestamp, setDoc, updateDoc, where } from 'firebase/firestore'
 import { getAuth } from 'firebase/auth'
 import { db } from './firebase'
@@ -36,7 +38,7 @@ export type ParentTaskGuide = {
 }
 export type ParentTaskPrivate = { guide?: ParentTaskGuide; sourceResearch?: DaySourceResearch }
 export type PlatformResult = { state: 'completed'; points?: number; maxPoints?: number; durationMinutes?: number; observedDate?: string; source: string; evidenceKind?: 'screenshot' | 'mesh' }
-export type DayTask = { id: string; title: string; detail: string; meshText?: string; steps?: DayInstruction[]; problems?: DayProblem[]; practiceVariants?: { id: string; title: string }[]; mathRoutePolicyVersion?: 1; cardPattern?: ParentTaskGuide['pattern']; cardPolicyVersion?: 1; outputKind?: 'worked-solution' | 'structured-notes' | 'text-structure' | 'evidence-only' | 'reading' | 'platform-result'; assessmentIntent?: { state: 'confirmed' | 'needs-topic' | 'needs-review'; mode?: 'ordinary' | 'control-diagnostic' | 'control-followup' | 'targeted-followup'; topic?: string; evidenceRef?: string }; status: 'verified' | 'needs-fix' | 'partial' | 'unknown'; kind: 'written' | 'read' | 'check'; referenceDate?: string; source: string; submission?: DaySubmission | null; instructionStatus?: { state: 'needs-review' | 'reviewed'; message: string }; testToken?: string; testSlug?: string; requiredPoints?: number; originDate?: string; lessonDate?: string; dueDate?: string; dueDateEvidence?: { kind: 'mesh'; excerpt: string }; platformResult?: PlatformResult; materialStatus?: { state: 'textbook-page-needed' | 'textbook-page-linked' | 'teacher-attachment-needed' | 'teacher-attachment-linked' | 'text-absent-from-textbook' | 'no-textbook'; message: string } }
+export type DayTask = { materialRequest?: MaterialRequest; id: string; title: string; detail: string; meshText?: string; steps?: DayInstruction[]; problems?: DayProblem[]; practiceVariants?: { id: string; title: string }[]; mathRoutePolicyVersion?: 1; cardPattern?: ParentTaskGuide['pattern']; cardPolicyVersion?: 1; outputKind?: 'worked-solution' | 'structured-notes' | 'text-structure' | 'evidence-only' | 'reading' | 'platform-result'; assessmentIntent?: { state: 'confirmed' | 'needs-topic' | 'needs-review'; mode?: 'ordinary' | 'control-diagnostic' | 'control-followup' | 'targeted-followup'; topic?: string; evidenceRef?: string }; status: 'verified' | 'needs-fix' | 'partial' | 'unknown'; kind: 'written' | 'read' | 'check'; referenceDate?: string; source: string; submission?: DaySubmission | null; instructionStatus?: { state: 'needs-review' | 'reviewed'; message: string }; testToken?: string; testSlug?: string; requiredPoints?: number; originDate?: string; lessonDate?: string; dueDate?: string; dueDateEvidence?: { kind: 'mesh'; excerpt: string }; platformResult?: PlatformResult; materialStatus?: { state: 'textbook-page-needed' | 'textbook-page-linked' | 'teacher-attachment-needed' | 'teacher-attachment-linked' | 'text-absent-from-textbook' | 'no-textbook'; message: string } }
 /** @see ../../docs/product/day-page.md#cdz-proof */
 export function cdzResultLabel(result?: PlatformResult) {
   if (result?.state !== 'completed') return 'Ожидается подтверждение ЦДЗ'
@@ -85,6 +87,7 @@ export function uploadMatchesTask(upload: DayUpload, taskId: string) {
 }
 export type DayHelp = { id: string; taskId: string; revision: number; requestedAt?: unknown; requestKind?: 'condition' | 'start' | 'step' | 'check'; requestText?: string }
 export type DayWorkReview = {
+  purpose?: 'source-material'; sourceAnalysis?: SourceAnalysis;
   id: string; taskId: string; status?: 'verified' | 'needs-fix' | 'partial' | 'cannot-assess';
   summary?: string; nextStep?: string; source?: string; checkedAt?: unknown; uploadIds?: string[];
   /** Complete set of reviewable route stages; absent on legacy reviews, which cannot be auto-completed by a family switch. */

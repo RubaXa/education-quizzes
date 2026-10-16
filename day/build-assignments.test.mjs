@@ -52,6 +52,7 @@ describe('сборка двух МЭШ-заданий с файлами уров
     const old = read(source)
     old.subjects[0].tasks[0].practiceVariants = [{ id: 'mesh-one-v1', title: 'Вариант 1' }, { id: 'mesh-one-v2', title: 'Вариант 2' }]
     old.subjects[0].tasks[0].problems = [{ id: 'mesh-one-p-v1-1', variantId: 'mesh-one-v1', number: 1 }]
+    old.subjects[0].tasks[0].materialRequest = { id:'notes-1', state:'open', question:'Прежний вопрос по прежнему условию', photoPrompt:'Фото прежнего материала' }
     write(source, old)
     assignment.homeworkEntries[0].description = 'Решить новый лист учителя'
     write(join(local, 'diary', 'snapshot-2026-10-14.json'), {
@@ -62,5 +63,6 @@ describe('сборка двух МЭШ-заданий с файлами уров
     expect(revised.instructionStatus.state).toBe('needs-review')
     expect(revised.problems).toBeUndefined()
     expect(revised.practiceVariants).toBeUndefined()
+    expect(revised.materialRequest).toBeUndefined()
   })
 })

@@ -7,6 +7,14 @@ const fixture = () => ({ entries: [{ taskId: 'mesh-1', status: 'verified' }], pl
   uploads: [{ status: 'reviewed' }] })
 
 describe('review publication readback', () => {
+  it('verifies a source receipt in both roles without a homework grade', () => {
+    const entry={taskId:'mesh-notes',purpose:'source-material',sourceAnalysis:{requestId:'notes-1',topic:'Баллада'}}
+    const doc={...entry,planRevision:3}
+    const data={entries:[entry],planRevision:3,privateDocs:[doc],publicDocs:[doc],uploads:[{status:'reviewed'}]}
+    expect(assertReviewReadback(data).verified).toBe(true)
+    expect(()=>assertReviewReadback({...data,publicDocs:[{...doc,sourceAnalysis:{...entry.sourceAnalysis,topic:'Другая тема'}}]})).toThrow('Source material publication differs')
+    expect(()=>assertReviewReadback({...data,publicDocs:[{...doc,status:'verified'}]})).toThrow('differs')
+  })
   it('accepts exactly the published expert, learner, and upload states', () => {
     expect(assertReviewReadback(fixture())).toEqual({ reviewedTasks: 1, reviewedUploads: 1, verified: true })
   })

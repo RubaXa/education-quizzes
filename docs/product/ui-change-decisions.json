@@ -192,22 +192,25 @@
       }
     },
     "src/UiKit.tsx": {
-      "sha256": "646fe901a8b663ca5621ac9aa7ebd2a1e7766e21a5fcd7e4bfed6e333d4067ac",
-      "record": "docs/product/ui-decisions/compact-results-ui-kit-2026-10-16.md",
+      "sha256": "fecfed08ae76bb3a62d36d374274c27f32ff6d14140627ddf956ee0194e6529d",
+      "record": "docs/product/ui-decisions/material-clarification-2026-10-16.md",
       "specs": [
-        "docs/product/result-presentation-proposal.md",
-        "docs/product/quiz-chain-proposal.md",
-        "docs/product/ui-kit.md"
+        "docs/product/material-clarification.md"
       ],
       "tests": [
-        "src/components/QuizCard.history.test.tsx",
-        "src/components/ui/result.test.tsx",
-        "src/lib/watchQuizOutcome.test.ts",
-        "src/UiKit.test.tsx"
+        "src/lib/materialRequest.test.ts",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/lib/homeworkStatus.test.ts",
+        "src/lib/photoUploadPolicy.test.ts",
+        "src/UiKit.test.tsx",
+        "storage/submission-inbox.test.mjs",
+        "storage/review-projection.test.mjs",
+        "storage/review-readback.test.mjs",
+        "day/build-assignments.test.mjs"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "Родитель 16.10.2026 утвердил уплотнённую таблицу и цветовую шкалу словами «стало намного лучше, закрепляй вариант» и прямо запросил интерактивный UI Kit."
+        "status": "direct-request",
+        "evidence": "Родитель 16.10.2026 прямо потребовал вопрос ученику в карточке и ответ фото записей через стандартную загрузку с обработкой следующей синхронизацией."
       }
     },
     "src/UiKit.css": {
@@ -251,44 +254,91 @@
     "scripts/storage.mjs": {
       "sha256": "2a01e3abcfd80720ca118d21e13045b0e80f69e22387065d53d83ebcf6a73dce",
       "record": "docs/product/ui-decisions/operator-tool-trial-2026-10-16.md",
-      "specs": ["docs/product/materials.md", "docs/architecture/operator-core.md"],
-      "tests": ["storage/page-publication.test.mjs"],
-      "authorization": {"status":"direct-request","evidence":"Родитель 16.10.2026 поручил испытать инструменты Education Sync и исправить выявленные лишние чтения и записи."}
+      "specs": [
+        "docs/product/materials.md",
+        "docs/architecture/operator-core.md"
+      ],
+      "tests": [
+        "storage/page-publication.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 16.10.2026 поручил испытать инструменты Education Sync и исправить выявленные лишние чтения и записи."
+      }
     },
     "storage/page-publication.mjs": {
       "sha256": "6c321718653befe48c8de8febf5f1015234b5788196d01df9ffcf88b98cab1cf",
       "record": "docs/product/ui-decisions/operator-tool-trial-2026-10-16.md",
-      "specs": ["docs/product/materials.md"],
-      "tests": ["storage/page-publication.test.mjs"],
-      "authorization": {"status":"direct-request","evidence":"Родитель 16.10.2026 поручил заменить ручные действия проверяемыми адресными инструментами и улучшить их после испытания."}
+      "specs": [
+        "docs/product/materials.md"
+      ],
+      "tests": [
+        "storage/page-publication.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 16.10.2026 поручил заменить ручные действия проверяемыми адресными инструментами и улучшить их после испытания."
+      }
     },
     "operator/recipes.mjs": {
       "sha256": "8399cb09dfd6bf6822607afb9be4542cb7b0fccc23250bf745bd6c135f92aa9f",
       "record": "docs/product/ui-decisions/operator-tool-trial-2026-10-16.md",
-      "specs": ["docs/architecture/operator-core.md"],
-      "tests": ["operator/recipes.test.mjs", "operator/run-operation.test.mjs"],
-      "authorization": {"status":"direct-request","evidence":"Родитель 16.10.2026 поручил испытать Education Sync штатными инструментами и исправить выявленные недостатки."}
+      "specs": [
+        "docs/architecture/operator-core.md"
+      ],
+      "tests": [
+        "operator/recipes.test.mjs",
+        "operator/run-operation.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 16.10.2026 поручил испытать Education Sync штатными инструментами и исправить выявленные недостатки."
+      }
     },
     "sync/run-context.mjs": {
       "sha256": "994ed5f2a5a64b377ecf1d8bf80d1d58cc0ee62c6e32d2880cf76612b9393169",
       "record": "docs/product/ui-decisions/operator-tool-trial-2026-10-16.md",
-      "specs": ["docs/product/global-sync.md"],
-      "tests": ["sync/run-context.test.mjs"],
-      "authorization": {"status":"direct-request","evidence":"Родитель 16.10.2026 поручил измерить и улучшить повторяемые инструменты синхронизации без потери качества."}
+      "specs": [
+        "docs/product/global-sync.md"
+      ],
+      "tests": [
+        "sync/run-context.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 16.10.2026 поручил измерить и улучшить повторяемые инструменты синхронизации без потери качества."
+      }
     },
     "day/pipeline-contract.mjs": {
       "sha256": "0565dfdf94b82dd3c3cdab458536f09838d4f64be84ade32555d673cee20ecbe",
       "record": "docs/product/ui-decisions/operator-tool-trial-2026-10-16.md",
-      "specs": ["docs/product/plan-generation.md", "docs/product/card-flow-certification.md"],
-      "tests": ["day/pipeline-contract.test.mjs"],
-      "authorization": {"status":"direct-request","evidence":"Родитель 16.10.2026 поручил испытать инструменты, их результат и инструкции и улучшить непонятную диагностику."}
+      "specs": [
+        "docs/product/plan-generation.md",
+        "docs/product/card-flow-certification.md"
+      ],
+      "tests": [
+        "day/pipeline-contract.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 16.10.2026 поручил испытать инструменты, их результат и инструкции и улучшить непонятную диагностику."
+      }
     },
     "assessment/followup-contract.mjs": {
       "sha256": "d865d1b369d8dd4c5d9055887aabe1ed3eedcb397129fe2096370564ccb53e60",
       "record": "docs/product/ui-decisions/history-followup-volume-2026-10-16.md",
-      "specs": ["docs/product/assessment-decision-graph.md", "docs/product/quizzes.md"],
-      "tests": ["assessment/followup-contract.test.mjs", "src/lib/quizCompletion.test.ts"],
-      "authorization": { "status": "direct-request", "evidence": "Родитель 16.10.2026 потребовал отдельную новую проверку каждой ошибки и сохранность уже выданного теста." }
+      "specs": [
+        "docs/product/assessment-decision-graph.md",
+        "docs/product/quizzes.md"
+      ],
+      "tests": [
+        "assessment/followup-contract.test.mjs",
+        "src/lib/quizCompletion.test.ts"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 16.10.2026 потребовал отдельную новую проверку каждой ошибки и сохранность уже выданного теста."
+      }
     },
     "assessment/quiz-lineage.mjs": {
       "sha256": "3299c1c263ab7c59e860d192ea68e14da6141b235378d2d27aff6ebf6a48e6b3",
@@ -313,48 +363,92 @@
     "operator/operation-contract.mjs": {
       "sha256": "420ac84b63f168b88c1a647dcdafa936d8829ecee746a77b9715a0c59d2ef2dd",
       "record": "docs/product/ui-decisions/operator-tool-trial-2026-10-16.md",
-      "specs": ["docs/architecture/operator-core.md", "docs/product/assessment-decision-graph.md"],
-      "tests": ["operator/operation-contract.test.mjs"],
-      "authorization": { "status": "direct-request", "evidence": "Родитель 16.10.2026 потребовал исправить связанный тест и закрепить операцию в едином повторяемом CLI." }
+      "specs": [
+        "docs/architecture/operator-core.md",
+        "docs/product/assessment-decision-graph.md"
+      ],
+      "tests": [
+        "operator/operation-contract.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 16.10.2026 потребовал исправить связанный тест и закрепить операцию в едином повторяемом CLI."
+      }
     },
     "operator/run-operation.mjs": {
       "sha256": "2172aab0c3e7491d811471c03cf06b98d982b2379b56ff2e8093a25af335c6ce",
       "record": "docs/product/ui-decisions/operator-tool-trial-2026-10-16.md",
-      "specs": ["docs/architecture/operator-core.md", "docs/product/assessment-decision-graph.md"],
-      "tests": ["operator/run-operation.test.mjs"],
-      "authorization": { "status": "direct-request", "evidence": "Родитель 16.10.2026 потребовал исправить связанный тест через проверяемую стандартную команду с обратным чтением." }
+      "specs": [
+        "docs/architecture/operator-core.md",
+        "docs/product/assessment-decision-graph.md"
+      ],
+      "tests": [
+        "operator/run-operation.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 16.10.2026 потребовал исправить связанный тест через проверяемую стандартную команду с обратным чтением."
+      }
     },
     "scripts/education.mjs": {
       "sha256": "20061bf6bcde8aaa7873a18ad3f9722a41397a18b95188189a396a1577367365",
       "record": "docs/product/ui-decisions/operator-tool-trial-2026-10-16.md",
-      "specs": ["docs/architecture/operator-core.md", "docs/product/global-sync.md"],
-      "tests": ["operator/operation-contract.test.mjs", "operator/run-operation.test.mjs", "operator/recipes.test.mjs"],
-      "authorization": { "status": "direct-request", "evidence": "Родитель 16.10.2026 прямо потребовал штатные повторяемые CLI-команды Education вместо изобретаемых заново inline-скриптов." }
-    },
-    "storage/review-readback.mjs": {
-      "sha256": "6964cff4c0f234536762a1cd07a7945a76df8caa582b39f7217f5bf1cff54c1f",
-      "record": "docs/product/ui-decisions/operator-core-cli-2026-10-16.md",
-      "specs": ["docs/architecture/operator-core.md", "docs/product/review-criteria-provenance.md"],
-      "tests": ["storage/review-readback.test.mjs"],
-      "authorization": { "status": "direct-request", "evidence": "Родитель 16.10.2026 прямо потребовал проверяемое сохранение решений через стандартный инструмент и тесты на сохранённый результат." }
-    },
-    "src/DayPage.tsx": {
-      "sha256": "5f00e2e12477e08e1e071c26073286144c0ae7170b7d43b7f62e7ea5b7536e6c",
-      "record": "docs/product/ui-decisions/compact-results-ui-kit-2026-10-16.md",
       "specs": [
-        "docs/product/result-presentation-proposal.md",
-        "docs/product/quiz-chain-proposal.md",
-        "docs/product/ui-kit.md"
+        "docs/architecture/operator-core.md",
+        "docs/product/global-sync.md"
       ],
       "tests": [
-        "src/components/QuizCard.history.test.tsx",
-        "src/components/ui/result.test.tsx",
-        "src/lib/watchQuizOutcome.test.ts",
-        "src/UiKit.test.tsx"
+        "operator/operation-contract.test.mjs",
+        "operator/run-operation.test.mjs",
+        "operator/recipes.test.mjs"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "Родитель 16.10.2026 утвердил уплотнённую таблицу и цветовую шкалу словами «стало намного лучше, закрепляй вариант» и прямо запросил интерактивный UI Kit."
+        "status": "direct-request",
+        "evidence": "Родитель 16.10.2026 прямо потребовал штатные повторяемые CLI-команды Education вместо изобретаемых заново inline-скриптов."
+      }
+    },
+    "storage/review-readback.mjs": {
+      "sha256": "dd9fd82bfd4f75b6fe44392100ea25c5231a1e6703449d2cc5c5f927548ccdca",
+      "record": "docs/product/ui-decisions/material-clarification-2026-10-16.md",
+      "specs": [
+        "docs/product/material-clarification.md"
+      ],
+      "tests": [
+        "src/lib/materialRequest.test.ts",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/lib/homeworkStatus.test.ts",
+        "src/lib/photoUploadPolicy.test.ts",
+        "src/UiKit.test.tsx",
+        "storage/submission-inbox.test.mjs",
+        "storage/review-projection.test.mjs",
+        "storage/review-readback.test.mjs",
+        "day/build-assignments.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 16.10.2026 прямо потребовал вопрос ученику в карточке и ответ фото записей через стандартную загрузку с обработкой следующей синхронизацией."
+      }
+    },
+    "src/DayPage.tsx": {
+      "sha256": "72f0c6f690700fa783053946f9afb239d26d1668b7ae614eaba7973c3dfc1421",
+      "record": "docs/product/ui-decisions/material-clarification-2026-10-16.md",
+      "specs": [
+        "docs/product/material-clarification.md"
+      ],
+      "tests": [
+        "src/lib/materialRequest.test.ts",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/lib/homeworkStatus.test.ts",
+        "src/lib/photoUploadPolicy.test.ts",
+        "src/UiKit.test.tsx",
+        "storage/submission-inbox.test.mjs",
+        "storage/review-projection.test.mjs",
+        "storage/review-readback.test.mjs",
+        "day/build-assignments.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 16.10.2026 прямо потребовал вопрос ученику в карточке и ответ фото записей через стандартную загрузку с обработкой следующей синхронизацией."
       }
     },
     "src/DayPage.css": {
@@ -604,23 +698,25 @@
       }
     },
     "scripts/sync-queue.mjs": {
-      "sha256": "27c4f99baf617c39501bdf7f249f1526f375d309c8549095b7c4bebd86bbfd04",
-      "record": "docs/product/ui-decisions/history-default-universal-request-2026-10-16.md",
+      "sha256": "60f44c1f93982c7f1c8642b341c4c79d89b86523bc7c86398e02a0fc50d0ca1b",
+      "record": "docs/product/ui-decisions/material-clarification-2026-10-16.md",
       "specs": [
-        "docs/product/quiz-chain-proposal.md",
-        "docs/product/assessment-decision-graph.md",
-        "docs/product/quizzes.md"
+        "docs/product/material-clarification.md"
       ],
       "tests": [
-        "src/components/QuizCard.history.test.tsx",
-        "src/components/QuizCard.test.tsx",
+        "src/lib/materialRequest.test.ts",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
         "src/lib/homeworkStatus.test.ts",
-        "src/lib/store.optionalQuiz.test.ts",
-        "assessment/quiz-lineage.test.mjs"
+        "src/lib/photoUploadPolicy.test.ts",
+        "src/UiKit.test.tsx",
+        "storage/submission-inbox.test.mjs",
+        "storage/review-projection.test.mjs",
+        "storage/review-readback.test.mjs",
+        "day/build-assignments.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 16.10.2026 прямо требует закрытую по умолчанию историю и универсальную кнопку нового теста, включая100%, с учётом всех предыдущих попыток по общей автоматической политике."
+        "evidence": "Родитель 16.10.2026 прямо потребовал вопрос ученику в карточке и ответ фото записей через стандартную загрузку с обработкой следующей синхронизацией."
       }
     },
     "src/App.tsx": {
@@ -643,21 +739,25 @@
       }
     },
     "src/DayDashboard.tsx": {
-      "sha256": "643e457f22f4d8b0553031cbc9ce8bd33935243855d8d258f65625e15301c2df",
-      "record": "docs/product/ui-decisions/missing-evidence-homework-overview-2026-10-15.md",
+      "sha256": "47667adcce5af3061919cce9ccec9135dd96e985ccd2cd6aaedb8e3365eac735",
+      "record": "docs/product/ui-decisions/material-clarification-2026-10-16.md",
       "specs": [
-        "docs/product/dashboard.md",
-        "docs/product/review-criteria-provenance.md"
+        "docs/product/material-clarification.md"
       ],
       "tests": [
-        "src/DayDashboard.warmStart.test.tsx",
+        "src/lib/materialRequest.test.ts",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
         "src/lib/homeworkStatus.test.ts",
-        "src/lib/reviewPresentation.test.ts",
-        "storage/review-projection.test.mjs"
+        "src/lib/photoUploadPolicy.test.ts",
+        "src/UiKit.test.tsx",
+        "storage/submission-inbox.test.mjs",
+        "storage/review-projection.test.mjs",
+        "storage/review-readback.test.mjs",
+        "day/build-assignments.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 15.10.2026 показал неверный статус русского ДЗ, потребовал ясный разбор результата и исправление обзора."
+        "evidence": "Родитель 16.10.2026 прямо потребовал вопрос ученику в карточке и ответ фото записей через стандартную загрузку с обработкой следующей синхронизацией."
       }
     },
     "src/components/QuizCard.css": {
@@ -713,23 +813,25 @@
       }
     },
     "src/lib/homeworkStatus.ts": {
-      "sha256": "7bb544b85514721f2f31ded9d333f9e80072c691f9ec162019dc7e21eecc8215",
-      "record": "docs/product/ui-decisions/history-default-universal-request-2026-10-16.md",
+      "sha256": "a827e55d6ccff6ad9c7dfd0b9e747f2ad8a65d311a1810bbeb3e3c291f5d21a5",
+      "record": "docs/product/ui-decisions/material-clarification-2026-10-16.md",
       "specs": [
-        "docs/product/quiz-chain-proposal.md",
-        "docs/product/assessment-decision-graph.md",
-        "docs/product/quizzes.md"
+        "docs/product/material-clarification.md"
       ],
       "tests": [
-        "src/components/QuizCard.history.test.tsx",
-        "src/components/QuizCard.test.tsx",
+        "src/lib/materialRequest.test.ts",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
         "src/lib/homeworkStatus.test.ts",
-        "src/lib/store.optionalQuiz.test.ts",
-        "assessment/quiz-lineage.test.mjs"
+        "src/lib/photoUploadPolicy.test.ts",
+        "src/UiKit.test.tsx",
+        "storage/submission-inbox.test.mjs",
+        "storage/review-projection.test.mjs",
+        "storage/review-readback.test.mjs",
+        "day/build-assignments.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 16.10.2026 прямо требует закрытую по умолчанию историю и универсальную кнопку нового теста, включая100%, с учётом всех предыдущих попыток по общей автоматической политике."
+        "evidence": "Родитель 16.10.2026 прямо потребовал вопрос ученику в карточке и ответ фото записей через стандартную загрузку с обработкой следующей синхронизацией."
       }
     },
     "src/lib/quiz.ts": {
@@ -1062,37 +1164,47 @@
       }
     },
     "scripts/day.mjs": {
-      "sha256": "50094f7d38f37e58ddd3ea2a9b8788a5fa8db3200af0f33a0f95920cf28d1099",
-      "record": "docs/product/ui-decisions/operator-tool-trial-2026-10-16.md",
+      "sha256": "47c95f9b14fc7897cba37674b1e9eade4e58a7949c7f56307d92ae1418990649",
+      "record": "docs/product/ui-decisions/material-clarification-2026-10-16.md",
       "specs": [
-        "docs/product/russian-language-route.md",
-        "docs/product/review-criteria-provenance.md"
+        "docs/product/material-clarification.md"
       ],
       "tests": [
-        "day/card-policy.test.mjs",
-        "day/pipeline-contract.test.mjs",
-        "storage/page-publication.test.mjs"
+        "src/lib/materialRequest.test.ts",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/lib/homeworkStatus.test.ts",
+        "src/lib/photoUploadPolicy.test.ts",
+        "src/UiKit.test.tsx",
+        "storage/submission-inbox.test.mjs",
+        "storage/review-projection.test.mjs",
+        "storage/review-readback.test.mjs",
+        "day/build-assignments.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 15.10.2026 прямо потребовал отдельный результат каждого назначенного номера МЭШ и необязательность дополнительных действий учебника."
+        "evidence": "Родитель 16.10.2026 прямо потребовал вопрос ученику в карточке и ответ фото записей через стандартную загрузку с обработкой следующей синхронизацией."
       }
     },
     "src/lib/dayStore.ts": {
-      "sha256": "2f3b5bc4ce6ee77ab5f5290e1dc5b70bf9f8477e6947a1e3ee88ae2f868dafbd",
-      "record": "docs/product/ui-decisions/mesh-requirement-trace-2026-10-16.md",
+      "sha256": "ab5796f38d569bbb89c3187c2ab637e46f8337d9c82b3b2ee0dd369fa9fa293b",
+      "record": "docs/product/ui-decisions/material-clarification-2026-10-16.md",
       "specs": [
-        "docs/product/review-criteria-provenance.md",
-        "docs/product/design-system.md"
+        "docs/product/material-clarification.md"
       ],
       "tests": [
-        "storage/review-requirements.test.mjs",
+        "src/lib/materialRequest.test.ts",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/lib/homeworkStatus.test.ts",
+        "src/lib/photoUploadPolicy.test.ts",
+        "src/UiKit.test.tsx",
+        "storage/submission-inbox.test.mjs",
         "storage/review-projection.test.mjs",
-        "src/components/WorkReview.requirements.test.tsx"
+        "storage/review-readback.test.mjs",
+        "day/build-assignments.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 16.10.2026 прямо попросил перепроверить русскую работу и сделать структурный разбор по каждому требованию МЭШ, материалу и фото."
+        "evidence": "Родитель 16.10.2026 прямо потребовал вопрос ученику в карточке и ответ фото записей через стандартную загрузку с обработкой следующей синхронизацией."
       }
     },
     "src/DayDashboard.css": {
@@ -1253,20 +1365,25 @@
       }
     },
     "scripts/submissions.mjs": {
-      "sha256": "45737af4c4e500b2fa56de17a0b85ebb63636b015a48dcc5f7ad4c6cc6cea41b",
-      "record": "docs/product/ui-decisions/mesh-requirement-trace-2026-10-16.md",
+      "sha256": "64c3cf410a07bc049ebc78071b8208c510f255f04dafc5f19b3da4b478bb9fe4",
+      "record": "docs/product/ui-decisions/material-clarification-2026-10-16.md",
       "specs": [
-        "docs/product/review-criteria-provenance.md",
-        "docs/product/design-system.md"
+        "docs/product/material-clarification.md"
       ],
       "tests": [
-        "storage/review-requirements.test.mjs",
+        "src/lib/materialRequest.test.ts",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/lib/homeworkStatus.test.ts",
+        "src/lib/photoUploadPolicy.test.ts",
+        "src/UiKit.test.tsx",
+        "storage/submission-inbox.test.mjs",
         "storage/review-projection.test.mjs",
-        "src/components/WorkReview.requirements.test.tsx"
+        "storage/review-readback.test.mjs",
+        "day/build-assignments.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 16.10.2026 прямо попросил перепроверить русскую работу и сделать структурный разбор по каждому требованию МЭШ, материалу и фото."
+        "evidence": "Родитель 16.10.2026 прямо потребовал вопрос ученику в карточке и ответ фото записей через стандартную загрузку с обработкой следующей синхронизацией."
       }
     },
     "src/components/WorkReview.tsx": {
@@ -1287,20 +1404,25 @@
       }
     },
     "storage/review-projection.mjs": {
-      "sha256": "2dbc16be97245c9bccaf0712dae5a1d6d24063aa0c7adb6a04f98cdfeaed94ae",
-      "record": "docs/product/ui-decisions/mesh-requirement-trace-2026-10-16.md",
+      "sha256": "723039cb6f9117c5444f862e16c36fea6d7dc10ec404bb91a10262408702f4ec",
+      "record": "docs/product/ui-decisions/material-clarification-2026-10-16.md",
       "specs": [
-        "docs/product/review-criteria-provenance.md",
-        "docs/product/design-system.md"
+        "docs/product/material-clarification.md"
       ],
       "tests": [
-        "storage/review-requirements.test.mjs",
+        "src/lib/materialRequest.test.ts",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/lib/homeworkStatus.test.ts",
+        "src/lib/photoUploadPolicy.test.ts",
+        "src/UiKit.test.tsx",
+        "storage/submission-inbox.test.mjs",
         "storage/review-projection.test.mjs",
-        "src/components/WorkReview.requirements.test.tsx"
+        "storage/review-readback.test.mjs",
+        "day/build-assignments.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 16.10.2026 прямо попросил перепроверить русскую работу и сделать структурный разбор по каждому требованию МЭШ, материалу и фото."
+        "evidence": "Родитель 16.10.2026 прямо потребовал вопрос ученику в карточке и ответ фото записей через стандартную загрузку с обработкой следующей синхронизацией."
       }
     },
     "day/card-policy.mjs": {
@@ -1321,16 +1443,32 @@
     "day/grade-snapshot.mjs": {
       "sha256": "411c56357084b964d084d9de64c8119c1ee9c6ae2db2adac7698b49952e29e14",
       "record": "docs/product/ui-decisions/stable-grade-snapshot-command-2026-10-16.md",
-      "specs": ["docs/product/grades.md"],
-      "tests": ["day/grade-snapshot.test.mjs", "day/grade-reconciliation.test.mjs"],
-      "authorization": { "status": "direct-request", "evidence": "Родитель 16.10.2026 попросил штатные повторяемые команды Education вместо одноразовых inline-скриптов." }
+      "specs": [
+        "docs/product/grades.md"
+      ],
+      "tests": [
+        "day/grade-snapshot.test.mjs",
+        "day/grade-reconciliation.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 16.10.2026 попросил штатные повторяемые команды Education вместо одноразовых inline-скриптов."
+      }
     },
     "scripts/grade-snapshot.mjs": {
       "sha256": "b175f8e9a3c964b98fdb9df3995b8d7d4f52f7d42e8b0b7992751b95df57af78",
       "record": "docs/product/ui-decisions/stable-grade-snapshot-command-2026-10-16.md",
-      "specs": ["docs/product/grades.md"],
-      "tests": ["day/grade-snapshot.test.mjs", "day/grade-publication.test.mjs"],
-      "authorization": { "status": "direct-request", "evidence": "Родитель 16.10.2026 попросил штатные повторяемые команды Education вместо одноразовых inline-скриптов." }
+      "specs": [
+        "docs/product/grades.md"
+      ],
+      "tests": [
+        "day/grade-snapshot.test.mjs",
+        "day/grade-publication.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 16.10.2026 попросил штатные повторяемые команды Education вместо одноразовых inline-скриптов."
+      }
     },
     "storage/review-requirements.mjs": {
       "sha256": "f5f28c2d14bc5c4285e44b9685762c6098b86cd492a5894b8ab269d0e414b43c",
@@ -1347,6 +1485,138 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Родитель 16.10.2026 прямо попросил перепроверить русскую работу и сделать структурный разбор по каждому требованию МЭШ, материалу и фото."
+      }
+    },
+    "day/build.mjs": {
+      "sha256": "2c125726513a06a69335f72713cbdedf2be4f2a92fc109faa631fad5a3a42644",
+      "record": "docs/product/ui-decisions/material-clarification-2026-10-16.md",
+      "specs": [
+        "docs/product/material-clarification.md"
+      ],
+      "tests": [
+        "src/lib/materialRequest.test.ts",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/lib/homeworkStatus.test.ts",
+        "src/lib/photoUploadPolicy.test.ts",
+        "src/UiKit.test.tsx",
+        "storage/submission-inbox.test.mjs",
+        "storage/review-projection.test.mjs",
+        "storage/review-readback.test.mjs",
+        "day/build-assignments.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 16.10.2026 прямо потребовал вопрос ученику в карточке и ответ фото записей через стандартную загрузку с обработкой следующей синхронизацией."
+      }
+    },
+    "day/data-contract.mjs": {
+      "sha256": "2b5032846c2a5c9a3bcc5ab26dea3cbe7d43eed623a1a55e6dbdc7d13f135418",
+      "record": "docs/product/ui-decisions/material-clarification-2026-10-16.md",
+      "specs": [
+        "docs/product/material-clarification.md"
+      ],
+      "tests": [
+        "src/lib/materialRequest.test.ts",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/lib/homeworkStatus.test.ts",
+        "src/lib/photoUploadPolicy.test.ts",
+        "src/UiKit.test.tsx",
+        "storage/submission-inbox.test.mjs",
+        "storage/review-projection.test.mjs",
+        "storage/review-readback.test.mjs",
+        "day/build-assignments.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 16.10.2026 прямо потребовал вопрос ученику в карточке и ответ фото записей через стандартную загрузку с обработкой следующей синхронизацией."
+      }
+    },
+    "src/lib/photoUploadPolicy.ts": {
+      "sha256": "e0f177ce13a2bbac321e9c0aecb56ff12c8d68c4827a92f7d75df8626edb2f91",
+      "record": "docs/product/ui-decisions/material-clarification-2026-10-16.md",
+      "specs": [
+        "docs/product/material-clarification.md"
+      ],
+      "tests": [
+        "src/lib/materialRequest.test.ts",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/lib/homeworkStatus.test.ts",
+        "src/lib/photoUploadPolicy.test.ts",
+        "src/UiKit.test.tsx",
+        "storage/submission-inbox.test.mjs",
+        "storage/review-projection.test.mjs",
+        "storage/review-readback.test.mjs",
+        "day/build-assignments.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 16.10.2026 прямо потребовал вопрос ученику в карточке и ответ фото записей через стандартную загрузку с обработкой следующей синхронизацией."
+      }
+    },
+    "storage/submission-inbox.mjs": {
+      "sha256": "e744e85d1b9caa428b04b63732cea250dd698ccb2a16f8d51805cc4010b5b1f3",
+      "record": "docs/product/ui-decisions/material-clarification-2026-10-16.md",
+      "specs": [
+        "docs/product/material-clarification.md"
+      ],
+      "tests": [
+        "src/lib/materialRequest.test.ts",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/lib/homeworkStatus.test.ts",
+        "src/lib/photoUploadPolicy.test.ts",
+        "src/UiKit.test.tsx",
+        "storage/submission-inbox.test.mjs",
+        "storage/review-projection.test.mjs",
+        "storage/review-readback.test.mjs",
+        "day/build-assignments.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 16.10.2026 прямо потребовал вопрос ученику в карточке и ответ фото записей через стандартную загрузку с обработкой следующей синхронизацией."
+      }
+    },
+    "src/components/MaterialRequest.tsx": {
+      "sha256": "72a10a8f0069dcd034d1ff94116e559afefb17d1fc27d462bd146e3a19877761",
+      "record": "docs/product/ui-decisions/material-clarification-2026-10-16.md",
+      "specs": [
+        "docs/product/material-clarification.md"
+      ],
+      "tests": [
+        "src/lib/materialRequest.test.ts",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/lib/homeworkStatus.test.ts",
+        "src/lib/photoUploadPolicy.test.ts",
+        "src/UiKit.test.tsx",
+        "storage/submission-inbox.test.mjs",
+        "storage/review-projection.test.mjs",
+        "storage/review-readback.test.mjs",
+        "day/build-assignments.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 16.10.2026 прямо потребовал вопрос ученику в карточке и ответ фото записей через стандартную загрузку с обработкой следующей синхронизацией."
+      }
+    },
+    "src/lib/materialRequest.ts": {
+      "sha256": "ddac64670887b608617fe69eac32753634c1c4d40c5bcf1dbf2e082409f802c3",
+      "record": "docs/product/ui-decisions/material-clarification-2026-10-16.md",
+      "specs": [
+        "docs/product/material-clarification.md"
+      ],
+      "tests": [
+        "src/lib/materialRequest.test.ts",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/lib/homeworkStatus.test.ts",
+        "src/lib/photoUploadPolicy.test.ts",
+        "src/UiKit.test.tsx",
+        "storage/submission-inbox.test.mjs",
+        "storage/review-projection.test.mjs",
+        "storage/review-readback.test.mjs",
+        "day/build-assignments.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 16.10.2026 прямо потребовал вопрос ученику в карточке и ответ фото записей через стандартную загрузку с обработкой следующей синхронизацией."
       }
     }
   }

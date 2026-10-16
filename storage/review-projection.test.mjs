@@ -2,6 +2,15 @@ import { describe, expect, it } from 'vitest'
 import { studentReviewProjection } from './review-projection.mjs'
 
 describe('публичная проекция разбора', () => {
+  it('preserves the source analysis without inventing a homework verdict or exposing a key', () => {
+    const sourceAnalysis={requestId:'notes-1',topic:'Баллада',observed:'Виден заголовок',quality:'Записи читаются',limitation:'Самостоятельность неизвестна',nextStep:'Повтори записи',evidence:[]}
+    const result=studentReviewProjection({taskId:'notes',purpose:'source-material',sourceAnalysis,answerKey:'private',assessmentBasis:{outcome:'met'}})
+    expect(result.purpose).toBe('source-material')
+    expect(result.sourceAnalysis).toEqual(sourceAnalysis)
+    expect(result).not.toHaveProperty('status')
+    expect(result).not.toHaveProperty('assessmentBasis')
+    expect(result).not.toHaveProperty('answerKey')
+  })
   it('оставляет статус и адресный вопрос, удаляя экспертный текст из текущей и старой попытки', () => {
     const result = studentReviewProjection({
       date: '2026-10-15', taskId: 'mesh-99', status: 'partial', checkedAt: 'now',

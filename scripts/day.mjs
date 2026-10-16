@@ -1,3 +1,5 @@
+/** @see ../docs/product/material-clarification.md */
+import { materialRequestErrors, openMaterialRequest } from '../src/lib/materialRequest.ts'
 import { createHash, randomBytes } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
@@ -350,6 +352,8 @@ function validate(source, { allowUnchangedLegacyTeacherLinks = false } = {}) {
     for (const task of subject.tasks) {
       if (!/^[a-z0-9-]+$/.test(task.id ?? '') || ids.has(task.id) || !task.title) fail('Нужны уникальные id и названия действий.')
       ids.add(task.id)
+      const requestErrors = materialRequestErrors(task)
+      if (requestErrors.length) fail(requestErrors.join(' '))
       if (task.assessmentIntent) {
         const intent = task.assessmentIntent
         if (!['confirmed', 'needs-topic', 'needs-review'].includes(intent.state)) fail(`У ${task.id} неизвестно состояние решения о тесте.`)
@@ -482,7 +486,7 @@ function validate(source, { allowUnchangedLegacyTeacherLinks = false } = {}) {
   }
   // @see ../docs/product/day-page.md#test-progress
   for (const subject of source.subjects) for (const task of subject.tasks) {
-    if (task.kind !== 'read') continue
+    if (task.kind !== 'read' || openMaterialRequest(task)) continue
     if (!task.testToken || !task.testSlug || !(source.testPlacements ?? []).some((placement) => placement.taskId === task.id && placement.subjectId === subject.id && placement.token === task.testToken)) {
       fail(`Устный пункт ${task.id} опубликован без связанной самопроверки Education.`)
     }

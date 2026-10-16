@@ -11,6 +11,11 @@ const upload = { taskId: 'task-1', status: 'pending', createdAt: '2026-10-08T14:
   storage: { state: 'stored', path: 'app:/PETR/example.jpg' } }
 
 describe('private submission inbox', () => {
+  it('carries the source question and expected notes into the operator context', () => {
+    const request={id:'notes-1',state:'open',question:'Какая тема была на последнем уроке?',photoPrompt:'Заголовок и все страницы записей.'}
+    const sourcePage={...page,subjects:[{...page.subjects[0],tasks:[{...page.subjects[0].tasks[0],materialRequest:request}]}]}
+    expect(resolveSubmission({owner,page:sourcePage,uploadId:'photo',upload})).toMatchObject({purpose:'source-material',materialRequest:request,expectedPhoto:request.photoPrompt})
+  })
   it('links a pending photo to the exact owner and task', () => {
     const result = resolveSubmission({ owner, page, childName: 'Ученик', uploadId: 'photo', upload })
     expect(result).toMatchObject({ childName: 'Ученик', childId: 'child', taskId: 'task-1',

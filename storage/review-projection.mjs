@@ -1,3 +1,4 @@
+/** @see ../docs/product/material-clarification.md */
 /** Only this projection may be stored under learner-readable dayProgress.
  * @see ../docs/product/adaptive-problem-card.md#показ-ученику
  */
@@ -6,6 +7,7 @@ export function studentReviewProjection(review) {
   const prune = (value) => Array.isArray(value) ? value.map(prune)
     : value && typeof value === 'object' && !(typeof value.toDate === 'function')
       ? Object.fromEntries(Object.entries(value).filter(([, item]) => item !== undefined).map(([key, item]) => [key, prune(item)])) : value
+  if (review.purpose === 'source-material') return prune({ date: review.date, taskId: review.taskId, planRevision: review.planRevision, uploadIds: review.uploadIds, purpose: review.purpose, sourceAnalysis: review.sourceAnalysis, summary: review.summary, nextStep: review.nextStep, checkedAt: review.checkedAt })
   const basis = review.assessmentBasis
   const dispute = basis?.disputedRequirements?.map((item) => ({ id: item.id, action: item.action }))
   const history = review.history?.map((entry) => ({
