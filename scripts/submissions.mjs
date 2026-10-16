@@ -8,6 +8,7 @@ import { resolveSubmission } from '../storage/submission-inbox.mjs'
 import { reviewCoverage } from '../storage/review-coverage.mjs'
 import { reviewChallengeErrors } from '../storage/review-challenge.mjs'
 import { studentReviewProjection } from '../storage/review-projection.mjs'
+import { validateRequirementChecks } from '../storage/review-requirements.mjs'
 import { YandexDiskStorage } from '../storage/yandex-disk.mjs'
 import { notificationId, reviewAttemptKey, stageFamilyNotice, taskContext } from '../storage/inbox-notifications.mjs'
 
@@ -283,6 +284,7 @@ function validateReviewResult(review, page, guide, { requireChallenge = false } 
     }
   }
   validateAssessmentBasis(review)
+  validateRequirementChecks(review)
   validateWorkCoverage(review)
   if (['needs-fix', 'partial'].includes(review.status)) validateStudentFeedback(review)
   const subject = page.subjects?.find((entry) => entry.tasks?.some((task) => task.id === review.taskId || task.problems?.some((problem) => problem.id === review.taskId)))
@@ -374,9 +376,10 @@ function validateStudentFeedback(review) {
 
 function resultRecord(review, previous, now, date, planRevision) {
   const priorReviews = previous?.status ? [...(previous.history ?? []), Object.fromEntries(Object.entries(previous).filter(([key]) => key !== 'history' && key !== 'processing'))] : previous?.history ?? []
-  const { taskId, uploadIds, status, summary, nextStep, source, items, checkableStageIds, mathReasoning, studentFeedback, assessmentBasis, workCoverage, challengeReview } = review
+  const { taskId, uploadIds, status, summary, nextStep, source, items, checkableStageIds, requirementChecks, mathReasoning, studentFeedback, assessmentBasis, workCoverage, challengeReview } = review
   return { date, taskId, planRevision, uploadIds, status, summary, nextStep, source, items,
     ...(checkableStageIds ? { checkableStageIds } : {}),
+    ...(requirementChecks ? { requirementChecks } : {}),
     ...(mathReasoning ? { mathReasoning } : {}), ...(studentFeedback ? { studentFeedback } : {}),
     ...(assessmentBasis ? { assessmentBasis } : {}), ...(challengeReview ? { challengeReview } : {}),
     ...(workCoverage ? { workCoverage: { ...workCoverage, reviewCheckedAt: now, recordedAt: now } } : {}),
@@ -428,6 +431,7 @@ async function publishFeedbackCorrection(filename) {
   const batch = db.batch()
   const corrected = { ...previous, status: correction.status, summary: correction.summary, nextStep: correction.nextStep,
     items: correction.items, ...(correction.checkableStageIds ? { checkableStageIds: correction.checkableStageIds } : {}),
+    ...(correction.requirementChecks ? { requirementChecks: correction.requirementChecks } : {}),
     ...(correction.mathReasoning ? { mathReasoning: correction.mathReasoning } : {}),
     studentFeedback: correction.studentFeedback ?? null,
     assessmentBasis: correction.assessmentBasis,

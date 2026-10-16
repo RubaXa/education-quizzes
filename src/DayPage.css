@@ -222,6 +222,8 @@
 .day-work-review.error{--review-bg:#fff0f1;--review-border:#eba5ae;--review-ink:#932c3a;--review-icon:#a52839}
 .day-task-state.covered{background:#eaf2fb;color:#3e6889}
 .day-work-review-verdicts{display:flex;flex-wrap:wrap;gap:6px;margin:5px 0 10px}
+/* @see ../docs/product/review-criteria-provenance.md#requirement-trace */
+.day-work-review-requirements{margin:8px 0 12px;line-height:1.45;font-size:.82rem}.day-work-review-requirements h4{margin:0 0 5px;color:#342851;font-size:.9rem}.day-work-review-requirements>p{margin:0 0 7px!important}.day-work-review-requirements ol{margin:0;padding:0;list-style:none;border-top:1px solid var(--review-border)}.day-work-review-requirements li{display:grid;gap:4px;padding:10px 0;border-bottom:1px solid var(--review-border)}.day-work-review-requirements li>strong{color:#342851}.day-work-review-requirements li b{color:#51446c}.day-work-review-requirement-result{display:flex;align-items:center;gap:5px;font-weight:750}.day-work-review-requirement-result.confirmed{color:#1c6840}.day-work-review-requirement-result.unknown{color:#5a6680}.day-work-review-requirement-result.not-met{color:#a52839}
 .day-work-review-verdicts span{display:inline-flex;align-items:center;gap:5px;min-height:28px;padding:4px 8px;border-radius:999px;font-size:.78rem;font-weight:750;line-height:1.2}
 .day-work-review-verdicts .correct{background:#e7f5ec;color:#1c6840}.day-work-review-verdicts .incorrect{background:#fbe8e9;color:#9b2937}.day-work-review-verdicts .incomplete{background:#fff0d8;color:#89550a}.day-work-review-verdicts .unknown{background:#eeebf2;color:#645b70}
 .day-work-review-accepted{margin:5px 0 10px!important;padding:8px 10px;border:1px solid #a7d8b4;border-radius:9px;background:#f5fff6;color:#245d3c!important;font-size:.8rem}

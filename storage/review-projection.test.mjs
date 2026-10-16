@@ -32,4 +32,14 @@ describe('публичная проекция разбора', () => {
     expect(result.assessmentBasis).toEqual({ outcome: 'unresolved', unresolvedReason: 'missing-evidence' })
     expect(result).not.toHaveProperty('summary')
   })
+  it('показывает ребёнку только проверяемую цепочку по номеру без закрытого ключа', () => {
+    const result = studentReviewProjection({ date: '2026-10-15', taskId: 'mesh-218-223', status: 'cannot-assess',
+      requirementChecks: [{ id: 'mesh-223', action: 'Выписать олицетворения', meshExcerpt: 'Упр. 223: выписать средства выразительности',
+        materialExcerpt: 'Найдите олицетворения', evidence: { state: 'outside-frame', uploadId: 'photo', observation: 'Запись за краем кадра', secret: 'ключ' },
+        result: 'unknown', explanation: 'Покажи только этот номер', privateNote: 'ключ' }] })
+    expect(result.requirementChecks[0]).toEqual({ id: 'mesh-223', action: 'Выписать олицетворения', meshExcerpt: 'Упр. 223: выписать средства выразительности',
+      materialExcerpt: 'Найдите олицетворения', evidence: { state: 'outside-frame', uploadId: 'photo', observation: 'Запись за краем кадра' },
+      result: 'unknown', explanation: 'Покажи только этот номер' })
+    expect(JSON.stringify(result)).not.toContain('ключ')
+  })
 })

@@ -82,6 +82,7 @@
 | [docs/architecture/family-data-model.md](../architecture/family-data-model.md) | [Семейная модель](../architecture/family-data-model.md) | Роли, документы и этапы миграции | Агент; разработчик |
 | [docs/architecture/school-diary-port-adapter.md](../architecture/school-diary-port-adapter.md) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Граница получения данных МЭШ | Агент; разработчик |
 | [docs/architecture/shared-artifact-pipeline.md](../architecture/shared-artifact-pipeline.md) | [Общие артефакты](../architecture/shared-artifact-pipeline.md) | Стадии исходников, общего обогащения и адресных связей | `skills/education-sync`; синхронизатор; разработчик |
+| [docs/product/ui-decisions/mesh-requirement-trace-2026-10-16.md](../../docs/product/ui-decisions/mesh-requirement-trace-2026-10-16.md) | [Основания проверки](review-criteria-provenance.md) | Решение о структуре разбора отдельных требований МЭШ и роли фото | Агент; UI-контракт |
 | [docs/product/README.md](README.md) | [Карта спецификаций](README.md) | Навигация между контрактами | Агент; разработчик |
 | [docs/product/component-system.md](component-system.md) | [Система компонентов](component-system.md) | Роли компонентов, основания переиспользования и барьеры нового UI | Агент; React; проверка карты |
 | [docs/product/education-pipeline.md](education-pipeline.md) | [Сквозной протокол](education-pipeline.md) | Порядок стадий, проверяемые барьеры и пределы автоматизации | Навык синхронизации; операторы; разработчик |
@@ -287,6 +288,7 @@
 | [src/components/SourceFragment.css](../../src/components/SourceFragment.css) | [Адаптивная карточка](adaptive-problem-card.md) | Оформление фрагмента оригинала | `src/components/SourceFragment.tsx` |
 | [src/components/SourceFragment.tsx](../../src/components/SourceFragment.tsx) | [Адаптивная карточка](adaptive-problem-card.md) | Кроп по координатам Firestore | Карточка номера |
 | [src/components/SubjectTheme.tsx](../../src/components/SubjectTheme.tsx) | [Страница дня](day-page.md) | Переиспользуемые темы предметов | День; dashboard |
+| [src/components/WorkReview.requirements.test.tsx](../../src/components/WorkReview.requirements.test.tsx) | [Основания проверки](review-criteria-provenance.md) | Проверка понятного результата по каждому номеру даже при общей обратной связи | Vitest; разработчик |
 | [src/components/WorkReview.tsx](../../src/components/WorkReview.tsx) | [Основания проверки](review-criteria-provenance.md) | Понятный результат проверки, происхождение спорных требований и выбор родителя | День; спецкурс |
 | [src/components/ui/badge.tsx](../../src/components/ui/badge.tsx) | [Экраны из данных](../architecture/backend-driven-ui.md) | Базовый badge | Компоненты интерфейса |
 | [src/components/ui/button.tsx](../../src/components/ui/button.tsx) | [Экраны из данных](../architecture/backend-driven-ui.md) | Базовая кнопка | Компоненты интерфейса |
@@ -400,6 +402,8 @@
 | [storage/review-coverage.mjs](../../storage/review-coverage.mjs) | [Хранение и приватность](storage-privacy.md) | Сверка покрытия нескольких номеров одним оригиналом | `scripts/submissions.mjs` |
 | [storage/review-challenge.mjs](../../storage/review-challenge.mjs) | [Два прохода](review-criteria-provenance.md) | Не пропускает спорный письменный разбор без трассировки второго чтения | `scripts/submissions.mjs` |
 | [storage/review-challenge.test.mjs](../../storage/review-challenge.test.mjs) | [Два прохода](review-criteria-provenance.md) | Проверка обязательности фото, точного МЭШ, допустимой альтернативы и статуса | Vitest; разработчик |
+| [storage/review-requirements.mjs](../../storage/review-requirements.mjs) | [Основания проверки](review-criteria-provenance.md) | Проверка связи каждого назначенного пункта с МЭШ, семейным учебником, фото и вердиктом | `scripts/submissions.mjs` |
+| [storage/review-requirements.test.mjs](../../storage/review-requirements.test.mjs) | [Основания проверки](review-criteria-provenance.md) | Регрессия обязательных пунктов, источников и невидимого фото | Vitest; разработчик |
 | [storage/review-projection.mjs](../../storage/review-projection.mjs) | [Адаптивная карточка](adaptive-problem-card.md) | Отдельная ученическая проекция разбора без экспертных полей | `scripts/submissions.mjs`; миграция старых проверок |
 | [storage/review-projection.test.mjs](../../storage/review-projection.test.mjs) | [Адаптивная карточка](adaptive-problem-card.md) | Проверка отделения публичного результата от закрытого ключа и истории | Vitest; разработчик |
 | [storage/review-coverage.test.mjs](../../storage/review-coverage.test.mjs) | [Хранение и приватность](storage-privacy.md) | Проверка явной привязки фото к номерам | Vitest; разработчик |

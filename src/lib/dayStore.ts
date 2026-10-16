@@ -89,6 +89,10 @@ export type DayWorkReview = {
   summary?: string; nextStep?: string; source?: string; checkedAt?: unknown; uploadIds?: string[];
   /** Complete set of reviewable route stages; absent on legacy reviews, which cannot be auto-completed by a family switch. */
   checkableStageIds?: string[];
+  /** Student-safe source → photo → verdict per assigned MESH unit. @see ../../docs/product/review-criteria-provenance.md#requirement-trace */
+  requirementChecks?: { id: string; action: string; meshExcerpt: string; materialExcerpt: string;
+    evidence: { state: 'visible' | 'outside-frame' | 'unreadable' | 'not-sent'; uploadId: string; observation: string };
+    result: 'confirmed' | 'not-met' | 'partial' | 'unknown'; explanation: string }[];
   /** @see ../../docs/product/review-criteria-provenance.md */
   assessmentBasis?: {
     grade?: number; schoolYear?: string; requirement?: string; observed?: string; comparison?: string;

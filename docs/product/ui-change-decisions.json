@@ -1,40 +1,37 @@
 {
   "files": {
     "src/DayPage.tsx": {
-      "sha256": "867f4b730b4516539cb4371c74f2405c2eff58399ff1fbb2799ba698feafe636",
-      "record": "docs/product/ui-decisions/quiz-attempt-time-icon-2026-10-15.md",
+      "sha256": "4a7ffb1f079bf96f1435ece96be69b62c686eafdd99923a9003c73e6992ef927",
+      "record": "docs/product/ui-decisions/mesh-requirement-trace-2026-10-16.md",
       "specs": [
-        "docs/product/quizzes.md",
+        "docs/product/review-criteria-provenance.md",
         "docs/product/design-system.md"
       ],
       "tests": [
-        "src/components/QuizCard.time.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx"
+        "storage/review-requirements.test.mjs",
+        "storage/review-projection.test.mjs",
+        "src/components/WorkReview.requirements.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 15.10.2026 после просмотра макета согласовал только значок времени в действующем общем компоненте теста, без изменения остального дизайна карточки."
+        "evidence": "Родитель 16.10.2026 прямо попросил перепроверить русскую работу и сделать структурный разбор по каждому требованию МЭШ, материалу и фото."
       }
     },
     "src/DayPage.css": {
-      "sha256": "24dd97d87e76c750874117d1ab2bb94bc4c6449af1c579aca7a581e63bf0f214",
-      "record": "docs/product/ui-decisions/restore-textbook-strip-2026-10-15.md",
+      "sha256": "4dd4c8cbabb9f097e0a57ad84bb212a29b52e474263f3d9ae33c977d594232ea",
+      "record": "docs/product/ui-decisions/mesh-requirement-trace-2026-10-16.md",
       "specs": [
-        "docs/product/assessment-decision-graph.md",
-        "docs/product/dashboard.md",
-        "docs/product/materials.md",
-        "docs/product/quizzes.md",
-        "docs/product/day-page.md",
+        "docs/product/review-criteria-provenance.md",
         "docs/product/design-system.md"
       ],
       "tests": [
-        "src/lib/dayMaterialRefs.test.ts",
-        "src/components/MaterialReader.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx"
+        "storage/review-requirements.test.mjs",
+        "storage/review-projection.test.mjs",
+        "src/components/WorkReview.requirements.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 15.10.2026 со скриншотом страниц 112–115: восстановить несколько одновременно видимых миниатюр и прокрутку пальцем вместо одного превью со стрелками."
+        "evidence": "Родитель 16.10.2026 прямо попросил перепроверить русскую работу и сделать структурный разбор по каждому требованию МЭШ, материалу и фото."
       }
     },
     "src/components/AssignmentBrief.tsx": {
@@ -196,19 +193,20 @@
       }
     },
     "src/components/ParentTaskGuide.tsx": {
-      "sha256": "9c518ca6dd01041bc095768306ab24d740271e82e9a1da7559646c0b5859518c",
-      "record": "docs/product/ui-decisions/stage-switch-fresh-version-2026-10-14.md",
+      "sha256": "2311a4f098e04a4d8a28e90be3184e2555d257b65210787754090b93d3f18e63",
+      "record": "docs/product/ui-decisions/mesh-requirement-trace-2026-10-16.md",
       "specs": [
-        "docs/product/day-page.md",
+        "docs/product/review-criteria-provenance.md",
         "docs/product/design-system.md"
       ],
       "tests": [
-        "src/lib/parentCompletion.test.ts",
-        "src/components/ParentTaskGuide.test.tsx"
+        "storage/review-requirements.test.mjs",
+        "storage/review-projection.test.mjs",
+        "src/components/WorkReview.requirements.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 14.10.2026: переключатель конкретной ошибки снова не работает; он должен выключаться и показывать ожидание серверного подтверждения."
+        "evidence": "Родитель 16.10.2026 прямо попросил перепроверить русскую работу и сделать структурный разбор по каждому требованию МЭШ, материалу и фото."
       }
     },
     "src/WeekendMathSlot.tsx": {
@@ -723,18 +721,20 @@
       }
     },
     "src/lib/dayStore.ts": {
-      "sha256": "73ca036df56661310e3100fce616469ae4703d509d7d6b355c2f725f70198c33",
-      "record": "docs/product/ui-decisions/mesh-assigned-units-2026-10-15.md",
+      "sha256": "2f3b5bc4ce6ee77ab5f5290e1dc5b70bf9f8477e6947a1e3ee88ae2f868dafbd",
+      "record": "docs/product/ui-decisions/mesh-requirement-trace-2026-10-16.md",
       "specs": [
-        "docs/product/card-generation-policy.md",
-        "docs/product/review-criteria-provenance.md"
+        "docs/product/review-criteria-provenance.md",
+        "docs/product/design-system.md"
       ],
       "tests": [
-        "src/lib/parentCompletion.test.ts"
+        "storage/review-requirements.test.mjs",
+        "storage/review-projection.test.mjs",
+        "src/components/WorkReview.requirements.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 15.10.2026 прямо потребовал отдельный результат каждого назначенного номера МЭШ и необязательность дополнительных действий учебника."
+        "evidence": "Родитель 16.10.2026 прямо попросил перепроверить русскую работу и сделать структурный разбор по каждому требованию МЭШ, материалу и фото."
       }
     },
     "src/DayDashboard.css": {
@@ -894,57 +894,54 @@
       }
     },
     "scripts/submissions.mjs": {
-      "sha256": "f6a9ac1950598bcaadbceaf499522576d8c3c13144b0d66cc8e90d51b7e14603",
-      "record": "docs/product/ui-decisions/missing-evidence-homework-overview-2026-10-15.md",
+      "sha256": "ce0a3782402933e6189d5e6972133b88cda16c63237cc50d1147f66162f99a69",
+      "record": "docs/product/ui-decisions/mesh-requirement-trace-2026-10-16.md",
       "specs": [
-        "docs/product/dashboard.md",
-        "docs/product/review-criteria-provenance.md"
+        "docs/product/review-criteria-provenance.md",
+        "docs/product/design-system.md"
       ],
       "tests": [
-        "src/DayDashboard.warmStart.test.tsx",
-        "src/lib/homeworkStatus.test.ts",
-        "src/lib/reviewPresentation.test.ts",
-        "storage/review-projection.test.mjs"
+        "storage/review-requirements.test.mjs",
+        "storage/review-projection.test.mjs",
+        "src/components/WorkReview.requirements.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 15.10.2026 показал неверный статус русского ДЗ, потребовал ясный разбор результата и исправление обзора."
+        "evidence": "Родитель 16.10.2026 прямо попросил перепроверить русскую работу и сделать структурный разбор по каждому требованию МЭШ, материалу и фото."
       }
     },
     "src/components/WorkReview.tsx": {
-      "sha256": "5f5e2f30d2773b2d38eef87a71e0d3c3e4b0b411b89083c517aff2e6ee288a74",
-      "record": "docs/product/ui-decisions/missing-evidence-homework-overview-2026-10-15.md",
+      "sha256": "80800411b8f303db7be935430c25eabbcb275baa70b3bb12fe10a6d3884a5bd9",
+      "record": "docs/product/ui-decisions/mesh-requirement-trace-2026-10-16.md",
       "specs": [
-        "docs/product/dashboard.md",
-        "docs/product/review-criteria-provenance.md"
+        "docs/product/review-criteria-provenance.md",
+        "docs/product/design-system.md"
       ],
       "tests": [
-        "src/DayDashboard.warmStart.test.tsx",
-        "src/lib/homeworkStatus.test.ts",
-        "src/lib/reviewPresentation.test.ts",
-        "storage/review-projection.test.mjs"
+        "storage/review-requirements.test.mjs",
+        "storage/review-projection.test.mjs",
+        "src/components/WorkReview.requirements.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 15.10.2026 показал неверный статус русского ДЗ, потребовал ясный разбор результата и исправление обзора."
+        "evidence": "Родитель 16.10.2026 прямо попросил перепроверить русскую работу и сделать структурный разбор по каждому требованию МЭШ, материалу и фото."
       }
     },
     "storage/review-projection.mjs": {
-      "sha256": "cef7172ef70053929c2354b14f94ffbf4f0ff65e4438df20312ea8a01a225cec",
-      "record": "docs/product/ui-decisions/missing-evidence-homework-overview-2026-10-15.md",
+      "sha256": "2dbc16be97245c9bccaf0712dae5a1d6d24063aa0c7adb6a04f98cdfeaed94ae",
+      "record": "docs/product/ui-decisions/mesh-requirement-trace-2026-10-16.md",
       "specs": [
-        "docs/product/dashboard.md",
-        "docs/product/review-criteria-provenance.md"
+        "docs/product/review-criteria-provenance.md",
+        "docs/product/design-system.md"
       ],
       "tests": [
-        "src/DayDashboard.warmStart.test.tsx",
-        "src/lib/homeworkStatus.test.ts",
-        "src/lib/reviewPresentation.test.ts",
-        "storage/review-projection.test.mjs"
+        "storage/review-requirements.test.mjs",
+        "storage/review-projection.test.mjs",
+        "src/components/WorkReview.requirements.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 15.10.2026 показал неверный статус русского ДЗ, потребовал ясный разбор результата и исправление обзора."
+        "evidence": "Родитель 16.10.2026 прямо попросил перепроверить русскую работу и сделать структурный разбор по каждому требованию МЭШ, материалу и фото."
       }
     },
     "day/card-policy.mjs": {
@@ -960,6 +957,23 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Родитель 15.10.2026 прямо потребовал отдельный результат каждого назначенного номера МЭШ и необязательность дополнительных действий учебника."
+      }
+    },
+    "storage/review-requirements.mjs": {
+      "sha256": "f5f28c2d14bc5c4285e44b9685762c6098b86cd492a5894b8ab269d0e414b43c",
+      "record": "docs/product/ui-decisions/mesh-requirement-trace-2026-10-16.md",
+      "specs": [
+        "docs/product/review-criteria-provenance.md",
+        "docs/product/design-system.md"
+      ],
+      "tests": [
+        "storage/review-requirements.test.mjs",
+        "storage/review-projection.test.mjs",
+        "src/components/WorkReview.requirements.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 16.10.2026 прямо попросил перепроверить русскую работу и сделать структурный разбор по каждому требованию МЭШ, материалу и фото."
       }
     }
   }

@@ -16,6 +16,11 @@ export function studentReviewProjection(review) {
     date: review.date, taskId: review.taskId, planRevision: review.planRevision,
     uploadIds: review.uploadIds, status: review.status, checkedAt: review.checkedAt,
     ...(review.checkableStageIds ? { checkableStageIds: review.checkableStageIds } : {}),
+    ...(review.requirementChecks ? { requirementChecks: review.requirementChecks.map((check) => ({
+      id: check.id, action: check.action, meshExcerpt: check.meshExcerpt, materialExcerpt: check.materialExcerpt,
+      evidence: { state: check.evidence.state, uploadId: check.evidence.uploadId, observation: check.evidence.observation },
+      result: check.result, explanation: check.explanation,
+    })) } : {}),
     ...(review.correctedAt ? { correctedAt: review.correctedAt } : {}),
     ...(review.studentFeedback ? { studentFeedback: {
       title: review.studentFeedback.title, confirmed: review.studentFeedback.confirmed,
