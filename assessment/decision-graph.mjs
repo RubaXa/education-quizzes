@@ -208,7 +208,9 @@ export function validateAssessmentPlan(plan, spec) {
   } else {
     for (const layer of ['current', 'transfer']) if (!layers.has(layer)) errors.push(`Нет слоя ${layer}.`)
     if (!layers.has('spaced') && !nonempty(plan.spacedGapReason)) errors.push('Нет отдельной прежней темы или объяснения её отсутствия.')
-    if (!layers.has('prior-gap') && !layers.has('baseline')) errors.push('Нет слоя прежней ошибки или честной входной проверки.')
+    // A fully checked consolidation may have no historical errors at all.
+    // Publication revalidates this strategy against the complete lineage.
+    if (!layers.has('prior-gap') && !layers.has('baseline') && plan.continuation?.strategy !== 'consolidation') errors.push('Нет слоя прежней ошибки или честной входной проверки.')
     if (layers.has('baseline') && !nonempty(plan.historyGapReason)) errors.push('Входная проверка требует historyGapReason.')
   }
   if (plan.mode === 'control-diagnostic' && ((spec.questions ?? []).length < 20

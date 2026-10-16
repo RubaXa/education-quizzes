@@ -10,7 +10,7 @@
 
 Только последняя попытка → единый детерминированный план всей причинной цепочки. При ошибках сохраняется адресный объём; после100% — исходный охват всей темы, до трёх исторических слабых групп, отдельное повторение и перенос. Новое подтверждение continuation обязательно для create/revise-open. Неверный fingerprint, пропущенный слот или неполная матрица блокируют запись. Состав формулировок проверяет оператор, автоматический банк ещё не реализован.
 
-Файлы: `src/components/QuizCard.tsx`, `src/lib/homeworkStatus.ts`, `assessment/quiz-lineage.mjs`, `scripts/quiz.mjs`, `scripts/sync-queue.mjs`.
+Файлы: `src/components/QuizCard.tsx`, `src/lib/homeworkStatus.ts`, `assessment/quiz-lineage.mjs`, `assessment/decision-graph.mjs`, `scripts/quiz.mjs`, `scripts/sync-queue.mjs`.
 
 ## Действия и роли
 
@@ -18,7 +18,7 @@
 
 ## Проверки
 
-`src/components/QuizCard.test.tsx`, `src/components/QuizCard.history.test.tsx`, `src/lib/homeworkStatus.test.ts`, `src/lib/store.optionalQuiz.test.ts`, `assessment/quiz-lineage.test.mjs`, `assessment/followup-contract.test.mjs`. RED воспроизвёл регрессии до исправления. Проверены обе роли,100%, единственная запись, повтор, отказ, неизменные ответы, отсутствие автоматического долга после100%, опциональность, полный провал, исходный охват и все слоты истории. Полный check, Chrome и readback опубликованного сайта фиксируются в журнале выпуска.
+`src/components/QuizCard.test.tsx`, `src/components/QuizCard.history.test.tsx`, `src/lib/homeworkStatus.test.ts`, `src/lib/store.optionalQuiz.test.ts`, `assessment/quiz-lineage.test.mjs`, `assessment/decision-graph.test.mjs`, `assessment/followup-contract.test.mjs`. RED воспроизвёл регрессии до исправления. Проверены обе роли,100%, единственная запись, повтор, отказ, неизменные ответы, отсутствие автоматического долга после100%, опциональность, полный провал, исходный охват и все слоты истории. Полный check, Chrome и readback опубликованного сайта фиксируются в журнале выпуска.
 
 ## Согласование
 

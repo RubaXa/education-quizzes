@@ -1,5 +1,25 @@
 {
   "files": {
+    "assessment/decision-graph.mjs": {
+      "sha256": "d8d35129282fac06ab64c9d6f9cbc3a982c01ab831e0442568f5b3940dc04f18",
+      "record": "docs/product/ui-decisions/history-default-universal-request-2026-10-16.md",
+      "specs": [
+        "docs/product/quiz-chain-proposal.md",
+        "docs/product/assessment-decision-graph.md",
+        "docs/product/quizzes.md"
+      ],
+      "tests": [
+        "src/components/QuizCard.history.test.tsx",
+        "src/components/QuizCard.test.tsx",
+        "src/lib/homeworkStatus.test.ts",
+        "src/lib/store.optionalQuiz.test.ts",
+        "assessment/quiz-lineage.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 16.10.2026 прямо требует закрытую по умолчанию историю и универсальную кнопку нового теста, включая100%, с учётом всех предыдущих попыток по общей автоматической политике."
+      }
+    },
     "src/App.css": {
       "sha256": "7cfca4a03ce513d0cfa7cbb23c10398d9760229ac52a2468e324fc1595c0505f",
       "record": "docs/product/ui-decisions/compact-results-ui-kit-2026-10-16.md",
