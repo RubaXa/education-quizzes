@@ -71,4 +71,38 @@ describe('time control in the existing quiz card', () => {
     expect(host.textContent).toContain('Время неизвестно')
     expect(host.textContent).not.toContain('Не завершён')
   })
+
+  it.each([true, false])('keeps historical dates immediately after their own row; parent=%s', async parent => {
+    const host = document.createElement('div')
+    document.body.append(host)
+    hosts.push(host)
+    const root = createRoot(host)
+    roots.push(root)
+    const middle = { ...earlier, token: 'middle', testId: 'math-middle', linkedToTestId: earlier.testId,
+      title: 'Средний тест', submittedAt: { seconds: 1792022400 } }
+    await act(async () => root.render(<QuizCard chain={[earlier, middle, { ...active, linkedToTestId: middle.testId }]} parent={parent} />))
+    await act(async () => host.querySelector<HTMLElement>('.day-quiz-history > summary')!.click())
+    const button = host.querySelector<HTMLButtonElement>('[aria-label="Показать время теста «Средний тест»"]')!
+    const first = host.querySelector<HTMLButtonElement>('[aria-label="Показать время теста «Первый тест»"]')!
+    const rows = () => [...host.querySelectorAll('tr[data-test-id]')].map(row => row.getAttribute('data-test-id'))
+    expect(rows()).toEqual(['math-middle', 'math-1'])
+    await act(async () => button.click())
+    const panel = document.getElementById(button.getAttribute('aria-controls')!)!
+    expect(button.closest('tr')!.nextElementSibling?.contains(panel)).toBe(true)
+    expect(panel.closest('td')?.getAttribute('colspan')).toBe('4')
+    expect(panel.closest('table')).toBe(host.querySelector('.day-quiz-history-table'))
+    expect(button.getAttribute('aria-expanded')).toBe('true')
+    expect(panel.querySelectorAll('time')).toHaveLength(4)
+    expect(rows()).toEqual(['math-middle', 'math-1'])
+    await act(async () => first.click())
+    expect(panel.isConnected).toBe(false)
+    expect(button.getAttribute('aria-expanded')).toBe('false')
+    const firstPanel = document.getElementById(first.getAttribute('aria-controls')!)!
+    expect(first.closest('tr')!.nextElementSibling?.contains(firstPanel)).toBe(true)
+    expect(host.querySelectorAll('.day-quiz-time-details')).toHaveLength(1)
+    await act(async () => first.click())
+    expect(first.getAttribute('aria-expanded')).toBe('false')
+    expect(host.querySelectorAll('.day-quiz-time-details')).toHaveLength(0)
+    expect(rows()).toEqual(['math-middle', 'math-1'])
+  })
 })

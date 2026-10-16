@@ -54,6 +54,8 @@
 .day-quiz-history-table td{border-top:1px solid var(--edu-card-border);padding:var(--edu-quiz-row-padding) 3px;text-align:right;vertical-align:middle;font-size:.8rem}
 .day-quiz-history-table td:first-child{text-align:left;overflow-wrap:anywhere}
 .day-quiz-history-table td:last-child{padding-left:0;padding-right:0}
+/* @see ../../docs/product/quizzes.md#attempt-time — dates belong to the clicked row. */
+.day-quiz-history-table .day-quiz-history-time-row>td{border-top:0;padding:0 0 var(--edu-quiz-row-padding)}
 .day-quiz-history-table .selected{background:var(--edu-hover)}
 .day-quiz-history-table .edu-result-badge{font-size:.75rem;padding:3px 5px;gap:3px}
 .day-quiz-history-table .edu-result-meter{max-width:68px;margin-left:auto}

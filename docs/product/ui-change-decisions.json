@@ -661,42 +661,37 @@
       }
     },
     "src/components/QuizCard.css": {
-      "sha256": "6e2d188e201a7f1dd67f264379a33abe2dfc91e023327e0c5ef0af2d4a191780",
-      "record": "docs/product/ui-decisions/compact-results-ui-kit-2026-10-16.md",
+      "sha256": "5b05c7bf40309130382a9ea26b75b731c2fc54ebc83f1371f7fe6b8ed5a3fc43",
+      "record": "docs/product/ui-decisions/quiz-time-row-2026-10-16.md",
       "specs": [
-        "docs/product/result-presentation-proposal.md",
-        "docs/product/quiz-chain-proposal.md",
-        "docs/product/ui-kit.md"
+        "docs/product/quizzes.md",
+        "docs/product/quiz-chain-proposal.md"
       ],
       "tests": [
+        "src/components/QuizCard.time.test.tsx",
         "src/components/QuizCard.history.test.tsx",
-        "src/components/ui/result.test.tsx",
-        "src/lib/watchQuizOutcome.test.ts",
         "src/UiKit.test.tsx"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "Родитель 16.10.2026 утвердил уплотнённую таблицу и цветовую шкалу словами «стало намного лучше, закрепляй вариант» и прямо запросил интерактивный UI Kit."
+        "status": "direct-request",
+        "evidence": "Родитель16.10.2026 прислал скриншот и потребовал исправить раскрытие дат: блок открывается под последним тестом вместо выбранной строки."
       }
     },
     "src/components/QuizCard.tsx": {
-      "sha256": "ea3250fff0d8905a6e8befef89feb59632f4bd28da3f6cf513a241cd90d1ea99",
-      "record": "docs/product/ui-decisions/history-default-universal-request-2026-10-16.md",
+      "sha256": "0733acac2f27bd17b4fe7dcdb156d591d88b2aae2590219fe28e29e9ac49798d",
+      "record": "docs/product/ui-decisions/quiz-time-row-2026-10-16.md",
       "specs": [
-        "docs/product/quiz-chain-proposal.md",
-        "docs/product/assessment-decision-graph.md",
-        "docs/product/quizzes.md"
+        "docs/product/quizzes.md",
+        "docs/product/quiz-chain-proposal.md"
       ],
       "tests": [
+        "src/components/QuizCard.time.test.tsx",
         "src/components/QuizCard.history.test.tsx",
-        "src/components/QuizCard.test.tsx",
-        "src/lib/homeworkStatus.test.ts",
-        "src/lib/store.optionalQuiz.test.ts",
-        "assessment/quiz-lineage.test.mjs"
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 16.10.2026 прямо требует закрытую по умолчанию историю и универсальную кнопку нового теста, включая100%, с учётом всех предыдущих попыток по общей автоматической политике."
+        "evidence": "Родитель16.10.2026 прислал скриншот и потребовал исправить раскрытие дат: блок открывается под последним тестом вместо выбранной строки."
       }
     },
     "src/lib/dayMaterialRefs.ts": {

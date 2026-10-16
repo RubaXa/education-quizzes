@@ -481,7 +481,7 @@
 | [src/lib/homeworkStatus.test.ts](../../src/lib/homeworkStatus.test.ts) | [Dashboard](dashboard.md) | Одна цепочка тестов, завершение и повторное открытие после запроса | Vitest; выпуск |
 | [src/components/MaterialReader.test.tsx](../../src/components/MaterialReader.test.tsx) | [Ридер](materials.md) | Один блок, все назначенные миниатюры и обе роли | Vitest; выпуск |
 | [src/components/QuizCard.test.tsx](../../src/components/QuizCard.test.tsx) | [Тесты](quizzes.md) | Ролевая кнопка запроса, краткое название результата и ожидающий статус | Vitest; выпуск |
-| [src/components/QuizCard.time.test.tsx](../../src/components/QuizCard.time.test.tsx) | [Время попытки](quizzes.md) | Раскрытие дат активной и исторической попытки в обеих ролях, старые записи без времени | Vitest; выпуск |
+| [src/components/QuizCard.time.test.tsx](../../src/components/QuizCard.time.test.tsx) | [Время попытки](quizzes.md) | Даты непосредственно после выбранной строки, переключение и закрытие в обеих ролях; старые записи без времени | Vitest; выпуск |
 
 | [scripts/firestore-rules-followup.test.mjs](../../scripts/firestore-rules-followup.test.mjs) | [Родительский запрос](quizzes.md) | Статический регрессионный барьер узкого права записи запроса без изменения ответов | Vitest; выпуск правил |
 | [scripts/firestore-rules-stage-choice.test.mjs](../../scripts/firestore-rules-stage-choice.test.mjs) | [Переключатель этапа](day-page.md) | Регрессионный барьер семи чтений и серверных проверок роли, этапа и ревизии | Vitest; выпуск правил |
@@ -493,3 +493,5 @@
 3. Запустить `npm run check:spec`, затем обычные проверки проекта. Если код и контракт расходятся, исправить один из них с доказательством, не объявляя запланированный модуль работающим.
 
 | [docs/product/ui-decisions/history-default-universal-request-2026-10-16.md](ui-decisions/history-default-universal-request-2026-10-16.md) | [Цепочка тестов](quiz-chain-proposal.md) | Прямая коррекция закрытой истории,100% и единой политики продолжения | Разработчик; UI gate |
+
+| [docs/product/ui-decisions/quiz-time-row-2026-10-16.md](ui-decisions/quiz-time-row-2026-10-16.md) | [Время попытки](quizzes.md) | Исправление расположения дат под выбранной строкой и регрессия обеих ролей | UI gate; разработчик |
