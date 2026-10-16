@@ -1,4 +1,4 @@
-import type { Assignment } from './quiz'
+import type { Assignment, QuestionResult } from './quiz'
 import { isCdzTask } from './dayStore'
 import type { DayTask, DayTestPlacement } from './dayStore'
 
@@ -8,9 +8,40 @@ export type QuizCardAttempt = {
   token: string; testId: string; linkedToTestId?: string | null; title: string; description?: string;
   slug: string; previewToken?: string; status: Assignment['status']; answered: number; total: number;
   points?: number; maxPoints?: number;
+  /** Already graded under the same access policy as the full result; no row subscriptions. */
+  results?: QuestionResult[];
   createdAt?: unknown; startedAt?: unknown; updatedAt?: unknown; submittedAt?: unknown;
   followupRequested?: boolean;
   familyOptional?: boolean; rootToken?: string;
+}
+
+/** Presentation order never mutates the causal chain or sorts by a late review update.
+ * @see ../../docs/product/quiz-chain-proposal.md */
+export function quizTimestamp(value: unknown): number {
+  if (value instanceof Date) return Number.isFinite(value.getTime()) ? value.getTime() : 0
+  if (typeof value === 'string' || typeof value === 'number') { const time = new Date(value).getTime(); return Number.isFinite(time) ? time : 0 }
+  if (value && typeof value === 'object' && 'seconds' in value && typeof value.seconds === 'number') return quizTimestamp(value.seconds * 1000)
+  if (value && typeof value === 'object' && 'toMillis' in value && typeof value.toMillis === 'function') return quizTimestamp(value.toMillis())
+  if (value && typeof value === 'object' && 'toDate' in value && typeof value.toDate === 'function') return quizTimestamp(value.toDate())
+  return 0
+}
+
+export function quizHistoryNewestFirst(tests: QuizCardAttempt[]): QuizCardAttempt[] {
+  return [...tests].sort((a,b) => (quizTimestamp(b.submittedAt) || quizTimestamp(b.createdAt)) - (quizTimestamp(a.submittedAt) || quizTimestamp(a.createdAt)) || (a.testId < b.testId ? -1 : a.testId > b.testId ? 1 : 0))
+}
+
+export function quizAnswerCounts(test: QuizCardAttempt) {
+  if (!test.results) return undefined
+  const counts = { correct: 0, partial: 0, incorrect: 0, unanswered: 0, pending: 0, excluded: 0 }
+  for (const result of test.results) {
+    if (result.skipped) counts.excluded++
+    else if (result.points === null) counts.pending++
+    else if (result.points === result.question.points) counts.correct++
+    else if (result.answer === undefined || result.answer === '' || Array.isArray(result.answer) && !result.answer.length) counts.unanswered++
+    else if (result.points > 0) counts.partial++
+    else counts.incorrect++
+  }
+  return counts
 }
 
 /** A single check task and a single standalone quiz are one family self-check.

@@ -65,4 +65,10 @@
   --edu-radius-card: 23px;
   --edu-radius-control: 14px;
   --edu-touch-target: 42px;
+  /* @see ../docs/product/result-presentation-proposal.md */
+  --edu-result-meter-height: 7px;
+  --edu-result-meter-compact-height: 3px;
+  --edu-quiz-row-padding: 6px;
+  --edu-quiz-meta-gap: 2px;
+  --edu-quiz-touch-target: 44px;
 }

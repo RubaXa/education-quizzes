@@ -1,0 +1,12 @@
+/* @see ../../../docs/product/result-presentation-proposal.md — score semantics shared by all consumers. */
+.edu-result-tone-success{--result-ink:var(--edu-status-success-ink);--result-bg:var(--edu-status-success-bg)}
+.edu-result-tone-attention{--result-ink:var(--edu-status-attention-ink);--result-bg:var(--edu-status-attention-bg)}
+.edu-result-tone-error{--result-ink:var(--edu-status-error-ink);--result-bg:var(--edu-status-error-bg)}
+.edu-result-tone-waiting{--result-ink:var(--edu-status-waiting-ink);--result-bg:var(--edu-status-waiting-bg)}
+.edu-result-tone-accent{--result-ink:var(--edu-status-accent-ink);--result-bg:var(--edu-status-accent-bg)}
+.edu-result-tone-neutral{--result-ink:var(--edu-status-neutral-ink);--result-bg:var(--edu-status-neutral-bg)}
+.edu-result-badge{display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:4px 8px;border-radius:999px;background:var(--result-bg);color:var(--result-ink);font-size:.75rem;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+.edu-result-points{color:var(--result-ink);font-weight:750;font-variant-numeric:tabular-nums}
+.edu-result-meter{height:var(--edu-result-meter-height);border-radius:999px;background:var(--result-bg);overflow:hidden}
+.edu-result-meter>span{display:block;height:100%;background:var(--result-ink)}
+.edu-result-meter-compact{height:var(--edu-result-meter-compact-height);margin-top:5px}

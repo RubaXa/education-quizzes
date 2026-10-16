@@ -6,6 +6,24 @@
 
 | Файл | Спецификация | Зачем существует | Потребитель |
 |---|---|---|---|
+| [src/lib/uiKitExamples.ts](../../src/lib/uiKitExamples.ts) | [UI Kit](ui-kit.md) | Условные согласованные по баллам и вопросам примеры без персональных данных | UiKit; Vitest |
+| [docs/product/ui-kit.md](ui-kit.md) | [Контракт](ui-kit.md) | Контракт живой страницы токенов и компонентов | Разработчик; родитель |
+| [docs/research/ui-kit-structure.md](../research/ui-kit-structure.md) | [Контракт](ui-kit.md) | Первичные материалы Ant, Material и других систем; выбранная структура каталога | Дизайн-система |
+| [docs/product/ui-decisions/compact-results-ui-kit-2026-10-16.md](ui-decisions/compact-results-ui-kit-2026-10-16.md) | [Контракт](ui-kit.md) | Основание согласованной таблицы и первого набора UI Kit | Барьер изменений; ревью |
+| [src/UiKit.tsx](../../src/UiKit.tsx) | [Контракт](ui-kit.md) | Интерактивные рабочие индикаторы, описание текущих токенов и пример истории | App; родитель; разработчик |
+| [src/UiKit.css](../../src/UiKit.css) | [Контракт](ui-kit.md) | Адаптивная композиция каталога на общих токенах | UiKit |
+| [src/UiKit.test.tsx](../../src/UiKit.test.tsx) | [Контракт](ui-kit.md) | Регрессия примеров, навигации, локальных входов и токенов | Vitest |
+| [src/lib/resultPresentation.ts](../../src/lib/resultPresentation.ts) | [Контракт](result-presentation-proposal.md) | Общий чистый селектор цвета и формата балла до округления | ui/result; QuizCard |
+| [src/lib/resultPresentation.test.ts](../../src/lib/resultPresentation.test.ts) | [Контракт](result-presentation-proposal.md) | Границы результата и различение неизвестного и нуля | Vitest |
+| [src/components/ui/result.tsx](../../src/components/ui/result.tsx) | [Контракт](result-presentation-proposal.md) | Общие ResultBadge, ResultPoints, ResultMeter | QuizCard; ResultView; QuizResultCard; UiKit |
+| [src/components/ui/result.css](../../src/components/ui/result.css) | [Контракт](result-presentation-proposal.md) | Единые семантические пары токенов для результата | ui/result |
+| [src/components/ui/result.test.tsx](../../src/components/ui/result.test.tsx) | [Контракт](result-presentation-proposal.md) | Регрессия смысла индикаторов и контраста текущих пар | Vitest |
+| [src/components/QuizResultCard.tsx](../../src/components/QuizResultCard.tsx) | [Контракт](quizzes.md) | Одна безопасная карточка результата вопроса, извлечённая из App | ResultView; QuizAttemptReview |
+| [src/components/QuizAttemptReview.tsx](../../src/components/QuizAttemptReview.tsx) | [Контракт](quiz-chain-proposal.md) | Раскрытие уже загруженных ошибок и полной ссылки на месте | QuizCard |
+| [src/components/QuizCard.history.test.tsx](../../src/components/QuizCard.history.test.tsx) | [Контракт](quiz-chain-proposal.md) | Ролевая интеграция истории, точных счётчиков, ожидания и обновления результата | Vitest |
+| [src/lib/watchQuizOutcome.test.ts](../../src/lib/watchQuizOutcome.test.ts) | [Контракт](quiz-chain-proposal.md) | Обратная проверка обновления grade и отписки без лишних слушателей | Vitest |
+| [docs/product/result-presentation-proposal.md](result-presentation-proposal.md) | [Матрица статусов](status-presentation.md) | Принятая общая семантика меток, баллов, полос и плотной таблицы; школьные отметки отделены от тестовой шкалы | Родитель; разработчик общего компонента |
+| [docs/research/result-colour-and-density.md](../research/result-colour-and-density.md) | [Предложение числовых результатов](result-presentation-proposal.md) | Первичные источники по контрасту, цветовым ролям и плотности списка | Автор дизайн-системы; родитель |
 | [docs/product/quiz-chain-proposal.md](quiz-chain-proposal.md) | [Самопроверки](quizzes.md) | Черновик сетки истории, разбора на месте и детерминированной итоговой проверки; ждёт решения родителя | Родитель; проектировщик; будущая реализация |
 | [docs/research/quiz-history-and-consolidation.md](../research/quiz-history-and-consolidation.md) | [Черновик цепочки тестов](quiz-chain-proposal.md) | Первичные основания компактного списка, раскрытия и широкой проверки после исправления ошибок | Родитель; автор контракта |
 | [assessment/decision-graph.mjs](../../assessment/decision-graph.mjs) | [Граф самопроверок](assessment-decision-graph.md) | Режимы, предметные матрицы, полнота слов по назначенным источникам и барьер ручной проверки | `quiz.mjs`; `sync-queue.mjs`; `sync-inbox.mjs` |

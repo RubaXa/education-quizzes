@@ -1,0 +1,41 @@
+/* @see ../docs/product/ui-kit.md — living docs use existing Shell and Education tokens. */
+.edu-kit{color:var(--edu-ink)}
+.edu-kit-intro{margin-bottom:24px}
+.edu-kit-intro>span{display:flex;align-items:center;gap:7px;color:var(--edu-accent-ink);font-weight:750}
+.edu-kit-intro h1{font-weight:800;font-size:clamp(1.7rem,4vw,2.5rem);line-height:1.2;margin:8px 0}
+.edu-kit p{line-height:1.5;color:var(--edu-text-secondary)}
+.edu-kit-intro a{display:inline-flex;align-items:center;min-height:44px;color:var(--edu-accent-ink)}
+.edu-kit-layout{display:grid;grid-template-columns:210px minmax(0,1fr);gap:24px;align-items:start}
+.edu-kit nav{display:grid;gap:18px;min-width:0}
+.edu-kit nav small{display:block;color:var(--edu-text-secondary);font-size:.75rem;margin-bottom:4px}
+.edu-kit nav button{display:flex;align-items:center;gap:7px;width:100%;min-height:44px;padding:8px;border:0;border-radius:10px;color:var(--edu-accent-ink);background:transparent;text-align:left;font-size:.84rem;font-weight:650;cursor:pointer}
+.edu-kit nav button[aria-current]{background:var(--edu-status-accent-bg)}
+.edu-kit nav button svg:last-child{margin-left:auto}
+.edu-kit button:focus-visible,.edu-kit input:focus-visible,.edu-kit select:focus-visible{outline:3px solid var(--edu-focus);outline-offset:2px}
+.edu-kit-content{min-width:0;padding:22px;border:1px solid var(--edu-card-border);border-radius:var(--edu-radius-card);background:var(--edu-surface)}
+.edu-kit h2{font-size:1.4rem;font-weight:800;margin:0 0 10px}
+.edu-kit h3{font-size:1rem;font-weight:750;margin:24px 0 8px}
+.edu-kit ul{padding-left:20px;display:grid;gap:9px;font-size:.9rem}
+.edu-kit-playground{border-top:1px solid var(--edu-card-border);border-bottom:1px solid var(--edu-card-border);margin:16px 0;padding:16px 0}
+.edu-kit-controls{display:grid;grid-template-columns:minmax(0,2fr) repeat(2,minmax(0,1fr));gap:8px}
+.edu-kit-controls label{display:flex;flex-direction:column;gap:5px;font-size:.8rem;color:var(--edu-text-secondary);min-width:0}
+.edu-kit-controls input,.edu-kit-controls select{min-width:0;width:100%;min-height:44px;border:1px solid var(--edu-control-border);border-radius:10px;background:var(--edu-surface);color:var(--edu-ink);font-size:1rem;padding:6px 9px}
+.edu-kit-controls :disabled{opacity:.5}
+.edu-kit-presets{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.edu-kit-presets button{padding:6px 10px;border:1px solid var(--edu-control-border);border-radius:10px;background:var(--edu-surface);color:var(--edu-accent-ink);min-height:44px;cursor:pointer}
+.edu-kit-result-example{display:grid;gap:12px;padding:12px 0}
+.edu-kit-result-example>.edu-result-badge{justify-self:start}
+.edu-kit-roles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:18px 0}
+.edu-kit-roles>div{display:grid;grid-template-columns:28px 1fr;gap:4px 8px;min-width:0}
+.edu-kit-swatch{grid-row:span 3;border-radius:8px;background:var(--result-bg);box-shadow:inset 0 0 0 5px var(--result-ink);min-height:28px}
+.edu-kit-roles small{font-size:.75rem;color:var(--edu-text-secondary)}
+.edu-kit code{font-size:.73rem;overflow-wrap:anywhere;color:var(--edu-text-secondary)}
+.edu-kit-token-list{margin:0}
+.edu-kit-token-list>div{padding:12px 0;border-top:1px solid var(--edu-card-border)}
+.edu-kit-token-list dt{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.edu-kit-token-list dd{margin:5px 0 0}
+.edu-kit-token-list dd p{font-size:.8rem;margin:4px 0 0}
+.edu-kit-token-preview{width:20px;height:20px;border-radius:5px;flex:none}
+.edu-kit-assignment{border:1px solid var(--edu-card-border);padding:10px 12px;border-radius:14px;margin-top:12px;font-size:.85rem}
+.edu-kit-assignment p{margin:4px 0 0}
+@media(max-width:700px){.edu-kit-layout{grid-template-columns:minmax(0,1fr);gap:18px}.edu-kit nav{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.edu-kit nav button{height:100%;font-size:.76rem;align-items:flex-start}.edu-kit nav button>svg{display:none}.edu-kit nav>div{display:flex;flex-direction:column}.edu-kit-content{padding:16px}.edu-kit-controls{grid-template-columns:repeat(2,minmax(0,1fr))}.edu-kit-controls>label:first-child{grid-column:1/-1}.edu-kit-roles{grid-template-columns:1fr}}

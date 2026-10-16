@@ -18,7 +18,8 @@ describe('result and parent follow-up action', () => {
   it('shows the request as pending rather than completed', () => {
     const html = renderToStaticMarkup(<QuizCard chain={[{ ...result, followupRequested: true }]} parent />)
     expect(html).toContain('Работа над ошибками запрошена')
-    expect(html).toContain('day-quiz-lineage-score partial')
+    expect(html).toContain('day-quiz-lineage-score complete')
+    expect(html).toContain('day-quiz-request-state')
   })
   it('hides the request for an older attempt that already has a continuation', () => {
     const html = renderToStaticMarkup(<QuizCard chain={[result]} parent allowFollowupRequest={false} />)

@@ -330,7 +330,7 @@ body {
 .theme-frame .option-tile:hover { border-color: var(--theme-mid); background: var(--theme-paper); }
 .theme-frame .option-tile:has([data-state='checked']) { border-color: var(--theme-mid); background: color-mix(in srgb, var(--theme-paper) 80%, white); }
 .theme-frame .sticky-progress { border: 1px solid var(--theme-border); }
-.theme-frame .result-hero { background: linear-gradient(125deg, var(--theme-deep), var(--theme-mid)); }
+.theme-frame .result-hero { background: var(--edu-surface); }
 
 .sticky-progress {
   position: sticky;
@@ -421,10 +421,8 @@ body {
   object-fit: contain;
 }
 
-.result-hero {
-  background: linear-gradient(125deg, #5235ba, #8257d8 58%, #b262cb);
-  color: white;
-}
+/* @see ../docs/product/result-presentation-proposal.md */
+.result-hero { background: var(--edu-surface); color: var(--edu-ink); }
 
 .result-answers {
   display: grid;
@@ -470,7 +468,6 @@ body {
   gap: .5rem 1rem;
 }
 
-.score-panel > span { color: rgba(255,255,255,.78); }
 
 .home-icon {
   display: grid;

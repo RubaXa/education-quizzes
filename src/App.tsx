@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { getAuth } from 'firebase/auth'
 import { doc, onSnapshot } from 'firebase/firestore'
-import { ArrowLeft, BookOpen, CircleHelp, ClipboardCopy, Clock3, RefreshCw, Send, Sparkles } from 'lucide-react'
+import { ArrowLeft, CircleHelp, ClipboardCopy, Clock3, RefreshCw, Send, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { CodeBlock } from '@/components/CodeBlock'
 import { ReadingCard, ThemeFrame, ThemeHero } from '@/components/SubjectTheme'
@@ -12,13 +12,12 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Progress } from '@/components/ui/progress'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { countAnswered, grade, summarize } from '@/lib/quiz'
-import { spellingFeedback } from '@/lib/spellingFeedback'
 import { sharedQuestionTopic } from '@/lib/questionTopicPresentation'
 import { buildFollowUpPrompt } from '@/lib/followup'
 import { WriteQueue } from '@/lib/writeQueue'
 import { readCachedQuiz, readQuizDraft, rememberQuizStudent, wasQuizStudent, writeCachedQuiz, writeQuizDraft } from '@/lib/quizDraft'
 import { readLocalQuiz, writeLocalQuizAssignment, writeLocalQuizDraft } from '@/lib/quizLocalStore'
-import type { Answer, AnswerKey, Assignment, ManualReview, QuizQuestion, QuizVisual, QuestionResult } from '@/lib/quiz'
+import type { Answer, AnswerKey, Assignment, ManualReview, QuizQuestion, QuizVisual } from '@/lib/quiz'
 import type { BoardDetails } from '@/lib/store'
 import type { QuizOutcome } from '@/lib/watchQuizOutcome'
 import { clearPersonalSession, loadPersonalProfile, readCachedPersonalContext, readLastPersonalDashboardRoute, rememberPersonalDashboardRoute, restorePersonalSession } from '@/lib/personalAccess'
@@ -28,7 +27,9 @@ import DayDashboard from './DayDashboard'
 import { PwaConnectionNotice, PwaInstallButton, PwaUpdateNotice } from './components/PwaControls'
 import { PersonalEntry } from './components/PersonalEntry'
 import NotificationBell from './components/NotificationBell'
-import StatusIcon from './components/StatusIcon'
+import ResultCard from './components/QuizResultCard'
+import { ResultBadge, ResultMeter, ResultPoints } from './components/ui/result'
+import UiKit from './UiKit'
 import { ConnectionInvite } from './components/ConnectionInvite'
 import EducationImage from './components/EducationImage'
 import QuizCard from './components/QuizCard'
@@ -36,7 +37,7 @@ import { quizRoot, type QuizCardAttempt } from '@/lib/quizCardViewModel'
 import { reportUiError } from '@/lib/uiErrors'
 import './App.css'
 
-type Route = { kind: 'test' | 'preview' | 'dashboard' | 'my' | 'review' | 'day' | 'day-parent' | 'days' | 'days-parent' | 'enter' | 'connect'; token: string } | { kind: 'home' }
+type Route = { kind: 'test' | 'preview' | 'dashboard' | 'my' | 'review' | 'day' | 'day-parent' | 'days' | 'days-parent' | 'enter' | 'connect'; token: string } | { kind: 'home' | 'ui-kit' }
 
 const storeModule = () => import('@/lib/store')
 const loadPreview = async (token: string) => (await storeModule()).loadPreview(token)
@@ -56,6 +57,7 @@ const submitAssignment = async (token: string) => (await storeModule()).submitAs
  */
 function routeFromHash(): Route {
   const [, kind, raw = ''] = location.hash.split('/')
+  if (kind === 'ui-kit') return { kind: 'ui-kit' }
   const token = raw.includes('~') ? raw.slice(raw.lastIndexOf('~') + 1) : raw
   if ((kind === 't' || kind === 'preview' || kind === 'dashboard' || kind === 'my' || kind === 'review' || kind === 'day' || kind === 'day-parent' || kind === 'days' || kind === 'days-parent' || kind === 'enter' || kind === 'connect') && token) {
     return { kind: kind === 't' ? 'test' : kind, token }
@@ -196,84 +198,6 @@ function QuestionCard({
   )
 }
 
-function answerText(question: QuizQuestion, answer?: Answer): string {
-  if (answer === undefined || answer === '' || (Array.isArray(answer) && !answer.length)) return 'Ответ не дан'
-  if (Array.isArray(answer)) {
-    return answer.map((id) => question.options?.find((option) => option.id === id)?.label ?? id).join(', ')
-  }
-  return question.options?.find((option) => option.id === answer)?.label ?? answer
-}
-
-/**
- * Показывает разбор отдельного вопроса после отправки теста.
- * @see ../docs/product/quizzes.md#quiz-results
- * @see ../docs/product/status-presentation.md#components
- */
-function ResultCard({ result, index }: { result: QuestionResult; index: number }) {
-  const skipped = result.skipped === true
-  const wrong = result.points === 0
-  const pending = result.points === null && !skipped
-  const partial = !pending && !wrong && !skipped && result.points !== result.question.points
-  const needsReflection = wrong || partial
-  const spelling = spellingFeedback(result)
-  const reflectionQuestion = result.question.kind === 'single' || result.question.kind === 'multiple' || result.question.kind === 'figure'
-    ? 'Какой факт из задания подтверждает твой выбор? Найди его в назначенном материале и сравни со своим ответом.'
-    : 'На каком шаге твоя запись перестаёт следовать условию? Сверь этот шаг с назначенным материалом.'
-  return (
-    <Card className="border-0 shadow-sm">
-      <CardHeader className="gap-2">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <Badge className={`edu-quiz-result-status ${skipped ? 'unknown' : pending ? 'waiting' : wrong ? 'incorrect' : partial ? 'partial' : 'complete'}`} variant={skipped || pending || partial ? 'secondary' : wrong ? 'destructive' : 'default'}>
-            <StatusIcon size={14} status={skipped ? 'unknown' : pending ? 'waiting' : wrong ? 'incorrect' : partial ? 'partial' : 'complete'} />
-            {skipped ? 'Пропущено' : pending ? 'Ждёт проверки' : wrong ? 'Неверно' : partial ? 'Частично верно' : 'Верно'}
-          </Badge>
-          <span className="text-sm text-muted-foreground">{skipped ? 'Без оценки' : `${pending ? '—' : result.points} / ${result.question.points}`}</span>
-        </div>
-        <CardTitle className="text-lg leading-snug">{index + 1}. {result.question.prompt}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4 text-sm sm:text-base">
-        {result.question.code && <CodeBlock code={result.question.code} />}
-        <div className="result-answers">
-          <p className={wrong ? 'result-answer-wrong' : ''}><span>Ваш ответ</span><strong>{answerText(result.question, result.answer)}</strong></p>
-        </div>
-        {pending && <p className="text-muted-foreground">Разбор появится здесь после проверки.</p>}
-        {skipped && <p className="text-muted-foreground">Вопрос не входил в оценку этой попытки.</p>}
-        {spelling ? (
-          <section className="result-learning" aria-label="Разбор написания слова">
-            <div className="result-rule">
-              <h3>Как пишется</h3>
-              <p>Правильно: <strong>{spelling.correct}</strong></p>
-              <p>{spelling.detail}</p>
-            </div>
-            <div className="result-material">
-              <BookOpen className="size-5 shrink-0" aria-hidden="true" />
-              <div>
-                <h3>Что повторить</h3>
-                <p>{spelling.practice}</p>
-                {result.source && <p>В учебнике: {result.source}</p>}
-              </div>
-            </div>
-          </section>
-        ) : needsReflection && (
-          <section className="result-learning" aria-label="Ориентир для самостоятельной проверки">
-            <div className="result-rule">
-              <h3>Проверь свой ход</h3>
-              <p>{reflectionQuestion}</p>
-            </div>
-            <div className="result-material">
-              <BookOpen className="size-5 shrink-0" aria-hidden="true" />
-              <div>
-                <h3>Где искать</h3>
-                <p>Вернись к материалу, указанному в карточке теста. Он поможет проверить именно этот вопрос.</p>
-              </div>
-            </div>
-          </section>
-        )}
-      </CardContent>
-    </Card>
-  )
-}
-
 /**
  * Собирает результат из ответов, ключа и доступной ручной проверки.
  * @see ../docs/product/quizzes.md#quiz-results
@@ -296,23 +220,22 @@ function ResultView({ assignment, token }: { assignment: Assignment; token: stri
   if (!key) return error ? <ErrorCard message={error} /> : <p>Загружаем результат…</p>
   const results = grade(assignment, key, review)
   const summary = summarize(results)
-  const percentage = summary.possible ? Math.round(100 * summary.earned / summary.possible) : 0
 
   return (
     <div className="space-y-6">
-      {summary.pending === 0 && percentage === 100 && <div className="celebration" aria-hidden="true">✦ ✳ ✦ ✴ ✳ ✦</div>}
+      {summary.pending === 0 && summary.possible > 0 && summary.earned === summary.possible && <div className="celebration" aria-hidden="true">✦ ✳ ✦ ✴ ✳ ✦</div>}
       <Card className="result-hero border-0 shadow-lg">
         <CardContent className="space-y-5 py-8 sm:py-10">
-          <Badge className="bg-white/20 text-white"><Sparkles className="size-3" /> Работа отправлена</Badge>
+          <Badge variant="secondary"><Sparkles className="size-3" /> Работа отправлена</Badge>
           <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">{summary.pending ? 'Хорошее начало!' : 'Готово!'}</h1>
-          <p className="max-w-2xl text-white/85">{assignment.title}</p>
+          <p className="max-w-2xl text-muted-foreground">{assignment.title}</p>
           <div className="score-panel">
-            <strong className="text-4xl sm:text-5xl">{summary.earned}<span className="text-2xl font-normal text-white/70"> / {summary.possible}</span></strong>
-            <span>{summary.pending ? `Ещё ${summary.pending} ${wordForm(summary.pending, 'ответ ждёт', 'ответа ждут', 'ответов ждут')} проверки` : `${percentage}% правильных баллов`}</span>
+            <strong className="text-4xl sm:text-5xl"><ResultPoints points={summary.pending ? undefined : summary.earned} maxPoints={summary.possible} /></strong>
+            <ResultBadge input={summary.pending ? {kind:'waiting'} : {kind:'score',points:summary.earned,maxPoints:summary.possible}} />
           </div>
-          <Progress value={percentage} className="bg-white/20" />
-          {summary.skipped > 0 && <p className="text-sm text-white/80">Пропущено без оценки: {summary.skipped} из {assignment.questions.length}.</p>}
-          {summary.pending > 0 && <p className="text-sm text-white/80">Итог предварительный. Полный разбор появится по этой же ссылке после проверки.</p>}
+          <ResultMeter input={summary.pending ? {kind:'waiting'} : {kind:'score',points:summary.earned,maxPoints:summary.possible}} label="Процент набранных баллов" />
+          {summary.skipped > 0 && <p className="text-sm text-muted-foreground">Пропущено без оценки: {summary.skipped} из {assignment.questions.length}.</p>}
+          {summary.pending > 0 && <p className="text-sm text-muted-foreground">Итог предварительный. Полный разбор появится по этой же ссылке после проверки.</p>}
         </CardContent>
       </Card>
       <h2 className="text-xl font-semibold sm:text-2xl">Разбор по вопросам</h2>
@@ -688,7 +611,7 @@ function Dashboard({ token, parent = false }: { token: string; parent?: boolean 
     const emit = () => {
       if (!active || indexRows.some((item) => !outcomes.has(item.token))) return
       const next = indexRows.map((item): BoardItem => {
-        const { assignment, score } = outcomes.get(item.token)!
+        const { assignment, score, results } = outcomes.get(item.token)!
         return {
           ...item,
           testId: assignment.testId,
@@ -703,6 +626,7 @@ function Dashboard({ token, parent = false }: { token: string; parent?: boolean 
           createdAt: (assignment.createdAt ?? item.createdAt) as { seconds?: number } | null,
           submittedAt: assignment.submittedAt as { seconds?: number } | null,
           startedAt: assignment.startedAt, updatedAt: assignment.updatedAt,
+          results,
           points: score?.points,
           maxPoints: score?.maxPoints,
           followupRequested: Boolean(assignment.followupRequestedAt),
@@ -879,7 +803,7 @@ function App() {
     })
     return () => { active = false; stops.forEach((stop) => stop()) }
   }, [route])
-  return <Shell dayRoute={route.kind === 'day' || route.kind === 'day-parent'} quizBack={route.kind === 'test' || route.kind === 'preview' ? testReturn : undefined} onHeaderTarget={setHeaderReturnTarget}>{route.kind === 'test' ? <QuizAccess key={route.token} token={route.token} /> : route.kind === 'preview' ? <Preview token={route.token} /> : route.kind === 'dashboard' || route.kind === 'my' || route.kind === 'review' ? <Dashboard key={`${route.kind}-${route.token}`} token={route.token} parent={route.kind === 'review'} /> : route.kind === 'days' || route.kind === 'days-parent' ? <DayDashboard key={`${route.kind}-${route.token}`} token={route.token} parent={route.kind === 'days-parent'} /> : route.kind === 'day' || route.kind === 'day-parent' ? <DayPage key={`${route.kind}-${route.token}`} token={route.token} parent={route.kind === 'day-parent'} headerReturnTarget={headerReturnTarget} /> : route.kind === 'enter' ? <PersonalEntry key={route.token} initialLink={route.token} /> : route.kind === 'connect' ? <ConnectionInvite key={route.token} code={route.token} /> : <Home />}</Shell>
+  return <Shell dayRoute={route.kind === 'day' || route.kind === 'day-parent'} quizBack={route.kind === 'test' || route.kind === 'preview' ? testReturn : undefined} onHeaderTarget={setHeaderReturnTarget}>{route.kind === 'ui-kit' ? <UiKit /> : route.kind === 'test' ? <QuizAccess key={route.token} token={route.token} /> : route.kind === 'preview' ? <Preview token={route.token} /> : route.kind === 'dashboard' || route.kind === 'my' || route.kind === 'review' ? <Dashboard key={`${route.kind}-${route.token}`} token={route.token} parent={route.kind === 'review'} /> : route.kind === 'days' || route.kind === 'days-parent' ? <DayDashboard key={`${route.kind}-${route.token}`} token={route.token} parent={route.kind === 'days-parent'} /> : route.kind === 'day' || route.kind === 'day-parent' ? <DayPage key={`${route.kind}-${route.token}`} token={route.token} parent={route.kind === 'day-parent'} headerReturnTarget={headerReturnTarget} /> : route.kind === 'enter' ? <PersonalEntry key={route.token} initialLink={route.token} /> : route.kind === 'connect' ? <ConnectionInvite key={route.token} code={route.token} /> : <Home />}</Shell>
 }
 
 export default App

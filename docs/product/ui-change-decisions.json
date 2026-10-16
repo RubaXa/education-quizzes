@@ -1,5 +1,233 @@
 {
   "files": {
+    "src/App.css": {
+      "sha256": "7cfca4a03ce513d0cfa7cbb23c10398d9760229ac52a2468e324fc1595c0505f",
+      "record": "docs/product/ui-decisions/compact-results-ui-kit-2026-10-16.md",
+      "specs": [
+        "docs/product/result-presentation-proposal.md",
+        "docs/product/quiz-chain-proposal.md",
+        "docs/product/ui-kit.md"
+      ],
+      "tests": [
+        "src/components/QuizCard.history.test.tsx",
+        "src/components/ui/result.test.tsx",
+        "src/lib/watchQuizOutcome.test.ts",
+        "src/UiKit.test.tsx"
+      ],
+      "authorization": {
+        "status": "approved-mockup",
+        "evidence": "Родитель 16.10.2026 утвердил уплотнённую таблицу и цветовую шкалу словами «стало намного лучше, закрепляй вариант» и прямо запросил интерактивный UI Kit."
+      }
+    },
+    "src/components/QuizAttemptReview.tsx": {
+      "sha256": "82539d6178bf1bddab9a761eee800a47423134ff27416ef7557c5c60762d45a6",
+      "record": "docs/product/ui-decisions/compact-results-ui-kit-2026-10-16.md",
+      "specs": [
+        "docs/product/result-presentation-proposal.md",
+        "docs/product/quiz-chain-proposal.md",
+        "docs/product/ui-kit.md"
+      ],
+      "tests": [
+        "src/components/QuizCard.history.test.tsx",
+        "src/components/ui/result.test.tsx",
+        "src/lib/watchQuizOutcome.test.ts",
+        "src/UiKit.test.tsx"
+      ],
+      "authorization": {
+        "status": "approved-mockup",
+        "evidence": "Родитель 16.10.2026 утвердил уплотнённую таблицу и цветовую шкалу словами «стало намного лучше, закрепляй вариант» и прямо запросил интерактивный UI Kit."
+      }
+    },
+    "src/components/QuizResultCard.tsx": {
+      "sha256": "8a2fe11a30459cb2ad46aef82d572c3dc7665cd471f9ef5e054775d3a6c2591d",
+      "record": "docs/product/ui-decisions/compact-results-ui-kit-2026-10-16.md",
+      "specs": [
+        "docs/product/result-presentation-proposal.md",
+        "docs/product/quiz-chain-proposal.md",
+        "docs/product/ui-kit.md"
+      ],
+      "tests": [
+        "src/components/QuizCard.history.test.tsx",
+        "src/components/ui/result.test.tsx",
+        "src/lib/watchQuizOutcome.test.ts",
+        "src/UiKit.test.tsx"
+      ],
+      "authorization": {
+        "status": "approved-mockup",
+        "evidence": "Родитель 16.10.2026 утвердил уплотнённую таблицу и цветовую шкалу словами «стало намного лучше, закрепляй вариант» и прямо запросил интерактивный UI Kit."
+      }
+    },
+    "src/components/ui/result.tsx": {
+      "sha256": "dea7ac16a41c4892f014abe90461cead3a8dfc90cf6018b72b8472784e904803",
+      "record": "docs/product/ui-decisions/compact-results-ui-kit-2026-10-16.md",
+      "specs": [
+        "docs/product/result-presentation-proposal.md",
+        "docs/product/quiz-chain-proposal.md",
+        "docs/product/ui-kit.md"
+      ],
+      "tests": [
+        "src/components/QuizCard.history.test.tsx",
+        "src/components/ui/result.test.tsx",
+        "src/lib/watchQuizOutcome.test.ts",
+        "src/UiKit.test.tsx"
+      ],
+      "authorization": {
+        "status": "approved-mockup",
+        "evidence": "Родитель 16.10.2026 утвердил уплотнённую таблицу и цветовую шкалу словами «стало намного лучше, закрепляй вариант» и прямо запросил интерактивный UI Kit."
+      }
+    },
+    "src/components/ui/result.css": {
+      "sha256": "4307011c6116ede1dfd7e907232908a9957c60d1aef2c43398a14a649a7697b6",
+      "record": "docs/product/ui-decisions/compact-results-ui-kit-2026-10-16.md",
+      "specs": [
+        "docs/product/result-presentation-proposal.md",
+        "docs/product/quiz-chain-proposal.md",
+        "docs/product/ui-kit.md"
+      ],
+      "tests": [
+        "src/components/QuizCard.history.test.tsx",
+        "src/components/ui/result.test.tsx",
+        "src/lib/watchQuizOutcome.test.ts",
+        "src/UiKit.test.tsx"
+      ],
+      "authorization": {
+        "status": "approved-mockup",
+        "evidence": "Родитель 16.10.2026 утвердил уплотнённую таблицу и цветовую шкалу словами «стало намного лучше, закрепляй вариант» и прямо запросил интерактивный UI Kit."
+      }
+    },
+    "src/lib/resultPresentation.ts": {
+      "sha256": "8184a87529d810f2c64dc926c64d88cf95c15f1b8d3e54790ae28e03e5200902",
+      "record": "docs/product/ui-decisions/compact-results-ui-kit-2026-10-16.md",
+      "specs": [
+        "docs/product/result-presentation-proposal.md",
+        "docs/product/quiz-chain-proposal.md",
+        "docs/product/ui-kit.md"
+      ],
+      "tests": [
+        "src/components/QuizCard.history.test.tsx",
+        "src/components/ui/result.test.tsx",
+        "src/lib/watchQuizOutcome.test.ts",
+        "src/UiKit.test.tsx"
+      ],
+      "authorization": {
+        "status": "approved-mockup",
+        "evidence": "Родитель 16.10.2026 утвердил уплотнённую таблицу и цветовую шкалу словами «стало намного лучше, закрепляй вариант» и прямо запросил интерактивный UI Kit."
+      }
+    },
+    "src/lib/watchQuizOutcome.ts": {
+      "sha256": "bb562ab2bbd1dc0d7c5147900437cd135731c3d256f78efb5369b5b9e83d3165",
+      "record": "docs/product/ui-decisions/compact-results-ui-kit-2026-10-16.md",
+      "specs": [
+        "docs/product/result-presentation-proposal.md",
+        "docs/product/quiz-chain-proposal.md",
+        "docs/product/ui-kit.md"
+      ],
+      "tests": [
+        "src/components/QuizCard.history.test.tsx",
+        "src/components/ui/result.test.tsx",
+        "src/lib/watchQuizOutcome.test.ts",
+        "src/UiKit.test.tsx"
+      ],
+      "authorization": {
+        "status": "approved-mockup",
+        "evidence": "Родитель 16.10.2026 утвердил уплотнённую таблицу и цветовую шкалу словами «стало намного лучше, закрепляй вариант» и прямо запросил интерактивный UI Kit."
+      }
+    },
+    "src/lib/useDayQuizOutcomes.ts": {
+      "sha256": "cb6314fa98cfa8fc4cc8b5f1b2e4396b6ba77c2485266f677f4833eca731cbf8",
+      "record": "docs/product/ui-decisions/compact-results-ui-kit-2026-10-16.md",
+      "specs": [
+        "docs/product/result-presentation-proposal.md",
+        "docs/product/quiz-chain-proposal.md",
+        "docs/product/ui-kit.md"
+      ],
+      "tests": [
+        "src/components/QuizCard.history.test.tsx",
+        "src/components/ui/result.test.tsx",
+        "src/lib/watchQuizOutcome.test.ts",
+        "src/UiKit.test.tsx"
+      ],
+      "authorization": {
+        "status": "approved-mockup",
+        "evidence": "Родитель 16.10.2026 утвердил уплотнённую таблицу и цветовую шкалу словами «стало намного лучше, закрепляй вариант» и прямо запросил интерактивный UI Kit."
+      }
+    },
+    "src/education-design-tokens.css": {
+      "sha256": "52250db89fcbeb8222fc289ea8ce7aa97373a270f79fae2b8034ee2a107d206d",
+      "record": "docs/product/ui-decisions/compact-results-ui-kit-2026-10-16.md",
+      "specs": [
+        "docs/product/result-presentation-proposal.md",
+        "docs/product/quiz-chain-proposal.md",
+        "docs/product/ui-kit.md"
+      ],
+      "tests": [
+        "src/components/QuizCard.history.test.tsx",
+        "src/components/ui/result.test.tsx",
+        "src/lib/watchQuizOutcome.test.ts",
+        "src/UiKit.test.tsx"
+      ],
+      "authorization": {
+        "status": "approved-mockup",
+        "evidence": "Родитель 16.10.2026 утвердил уплотнённую таблицу и цветовую шкалу словами «стало намного лучше, закрепляй вариант» и прямо запросил интерактивный UI Kit."
+      }
+    },
+    "src/UiKit.tsx": {
+      "sha256": "646fe901a8b663ca5621ac9aa7ebd2a1e7766e21a5fcd7e4bfed6e333d4067ac",
+      "record": "docs/product/ui-decisions/compact-results-ui-kit-2026-10-16.md",
+      "specs": [
+        "docs/product/result-presentation-proposal.md",
+        "docs/product/quiz-chain-proposal.md",
+        "docs/product/ui-kit.md"
+      ],
+      "tests": [
+        "src/components/QuizCard.history.test.tsx",
+        "src/components/ui/result.test.tsx",
+        "src/lib/watchQuizOutcome.test.ts",
+        "src/UiKit.test.tsx"
+      ],
+      "authorization": {
+        "status": "approved-mockup",
+        "evidence": "Родитель 16.10.2026 утвердил уплотнённую таблицу и цветовую шкалу словами «стало намного лучше, закрепляй вариант» и прямо запросил интерактивный UI Kit."
+      }
+    },
+    "src/UiKit.css": {
+      "sha256": "a4bceaf99852c58aed167570f9019191755861dac860cb561afe6baab34451b5",
+      "record": "docs/product/ui-decisions/compact-results-ui-kit-2026-10-16.md",
+      "specs": [
+        "docs/product/result-presentation-proposal.md",
+        "docs/product/quiz-chain-proposal.md",
+        "docs/product/ui-kit.md"
+      ],
+      "tests": [
+        "src/components/QuizCard.history.test.tsx",
+        "src/components/ui/result.test.tsx",
+        "src/lib/watchQuizOutcome.test.ts",
+        "src/UiKit.test.tsx"
+      ],
+      "authorization": {
+        "status": "approved-mockup",
+        "evidence": "Родитель 16.10.2026 утвердил уплотнённую таблицу и цветовую шкалу словами «стало намного лучше, закрепляй вариант» и прямо запросил интерактивный UI Kit."
+      }
+    },
+    "src/lib/uiKitExamples.ts": {
+      "sha256": "301f51868dd107e1d3ab8dbe55c27d9a094ff5e5d72fc8cda1df3bcb8d794a0d",
+      "record": "docs/product/ui-decisions/compact-results-ui-kit-2026-10-16.md",
+      "specs": [
+        "docs/product/result-presentation-proposal.md",
+        "docs/product/quiz-chain-proposal.md",
+        "docs/product/ui-kit.md"
+      ],
+      "tests": [
+        "src/components/QuizCard.history.test.tsx",
+        "src/components/ui/result.test.tsx",
+        "src/lib/watchQuizOutcome.test.ts",
+        "src/UiKit.test.tsx"
+      ],
+      "authorization": {
+        "status": "approved-mockup",
+        "evidence": "Родитель 16.10.2026 утвердил уплотнённую таблицу и цветовую шкалу словами «стало намного лучше, закрепляй вариант» и прямо запросил интерактивный UI Kit."
+      }
+    },
     "scripts/storage.mjs": {
       "sha256": "2a01e3abcfd80720ca118d21e13045b0e80f69e22387065d53d83ebcf6a73dce",
       "record": "docs/product/ui-decisions/operator-tool-trial-2026-10-16.md",
@@ -78,20 +306,22 @@
       "authorization": { "status": "direct-request", "evidence": "Родитель 16.10.2026 прямо потребовал проверяемое сохранение решений через стандартный инструмент и тесты на сохранённый результат." }
     },
     "src/DayPage.tsx": {
-      "sha256": "4a7ffb1f079bf96f1435ece96be69b62c686eafdd99923a9003c73e6992ef927",
-      "record": "docs/product/ui-decisions/mesh-requirement-trace-2026-10-16.md",
+      "sha256": "5f00e2e12477e08e1e071c26073286144c0ae7170b7d43b7f62e7ea5b7536e6c",
+      "record": "docs/product/ui-decisions/compact-results-ui-kit-2026-10-16.md",
       "specs": [
-        "docs/product/review-criteria-provenance.md",
-        "docs/product/design-system.md"
+        "docs/product/result-presentation-proposal.md",
+        "docs/product/quiz-chain-proposal.md",
+        "docs/product/ui-kit.md"
       ],
       "tests": [
-        "storage/review-requirements.test.mjs",
-        "storage/review-projection.test.mjs",
-        "src/components/WorkReview.requirements.test.tsx"
+        "src/components/QuizCard.history.test.tsx",
+        "src/components/ui/result.test.tsx",
+        "src/lib/watchQuizOutcome.test.ts",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
-        "status": "direct-request",
-        "evidence": "Родитель 16.10.2026 прямо попросил перепроверить русскую работу и сделать структурный разбор по каждому требованию МЭШ, материалу и фото."
+        "status": "approved-mockup",
+        "evidence": "Родитель 16.10.2026 утвердил уплотнённую таблицу и цветовую шкалу словами «стало намного лучше, закрепляй вариант» и прямо запросил интерактивный UI Kit."
       }
     },
     "src/DayPage.css": {
@@ -358,19 +588,22 @@
       }
     },
     "src/App.tsx": {
-      "sha256": "920b5234ae7d572c468de2c852d5f3fadb5c5f279803c13e36e987d074800c2c",
-      "record": "docs/product/ui-decisions/quiz-attempt-time-icon-2026-10-15.md",
+      "sha256": "9202a31edde2f11564f808668e2aa65683ae30cd050e7eb4df9b920884f8a13f",
+      "record": "docs/product/ui-decisions/compact-results-ui-kit-2026-10-16.md",
       "specs": [
-        "docs/product/quizzes.md",
-        "docs/product/design-system.md"
+        "docs/product/result-presentation-proposal.md",
+        "docs/product/quiz-chain-proposal.md",
+        "docs/product/ui-kit.md"
       ],
       "tests": [
-        "src/components/QuizCard.time.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx"
+        "src/components/QuizCard.history.test.tsx",
+        "src/components/ui/result.test.tsx",
+        "src/lib/watchQuizOutcome.test.ts",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
-        "status": "direct-request",
-        "evidence": "Родитель 15.10.2026 после просмотра макета согласовал только значок времени в действующем общем компоненте теста, без изменения остального дизайна карточки."
+        "status": "approved-mockup",
+        "evidence": "Родитель 16.10.2026 утвердил уплотнённую таблицу и цветовую шкалу словами «стало намного лучше, закрепляй вариант» и прямо запросил интерактивный UI Kit."
       }
     },
     "src/DayDashboard.tsx": {
@@ -392,36 +625,41 @@
       }
     },
     "src/components/QuizCard.css": {
-      "sha256": "530bac5a427f2714e44b54d4b1637793dedd82cc85f90c7a8e81dfc2fc72ffb1",
-      "record": "docs/product/ui-decisions/quiz-attempt-time-icon-2026-10-15.md",
+      "sha256": "6e2d188e201a7f1dd67f264379a33abe2dfc91e023327e0c5ef0af2d4a191780",
+      "record": "docs/product/ui-decisions/compact-results-ui-kit-2026-10-16.md",
       "specs": [
-        "docs/product/quizzes.md",
-        "docs/product/design-system.md"
+        "docs/product/result-presentation-proposal.md",
+        "docs/product/quiz-chain-proposal.md",
+        "docs/product/ui-kit.md"
       ],
       "tests": [
-        "src/components/QuizCard.time.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx"
+        "src/components/QuizCard.history.test.tsx",
+        "src/components/ui/result.test.tsx",
+        "src/lib/watchQuizOutcome.test.ts",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
-        "status": "direct-request",
-        "evidence": "Родитель 15.10.2026 после просмотра макета согласовал только значок времени в действующем общем компоненте теста, без изменения остального дизайна карточки."
+        "status": "approved-mockup",
+        "evidence": "Родитель 16.10.2026 утвердил уплотнённую таблицу и цветовую шкалу словами «стало намного лучше, закрепляй вариант» и прямо запросил интерактивный UI Kit."
       }
     },
     "src/components/QuizCard.tsx": {
-      "sha256": "37cb439027c71e393cf1e8b52721bf1ac2299ebfe782b0947f836e71acf4be42",
-      "record": "docs/product/ui-decisions/requirement-switch-no-label-2026-10-16.md",
+      "sha256": "ab5dbe008536e3348dfd9d3ed8910869ea8421895d30e5c109cd1cd59de59f29",
+      "record": "docs/product/ui-decisions/compact-results-ui-kit-2026-10-16.md",
       "specs": [
-        "docs/product/quizzes.md",
-        "docs/product/design-system.md"
+        "docs/product/result-presentation-proposal.md",
+        "docs/product/quiz-chain-proposal.md",
+        "docs/product/ui-kit.md"
       ],
       "tests": [
-        "src/components/QuizCard.test.tsx",
-        "src/components/QuizCard.time.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx"
+        "src/components/QuizCard.history.test.tsx",
+        "src/components/ui/result.test.tsx",
+        "src/lib/watchQuizOutcome.test.ts",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
-        "status": "direct-request",
-        "evidence": "Родитель 16.10.2026 потребовал убрать видимую подпись переключателя и исправить противоречащие этому спецификацию и тесты."
+        "status": "approved-mockup",
+        "evidence": "Родитель 16.10.2026 утвердил уплотнённую таблицу и цветовую шкалу словами «стало намного лучше, закрепляй вариант» и прямо запросил интерактивный UI Kit."
       }
     },
     "src/lib/dayMaterialRefs.ts": {
@@ -477,19 +715,22 @@
       }
     },
     "src/lib/quizCardViewModel.ts": {
-      "sha256": "f05592d81466eda0dd524a02e0dad193561001bb881dac0da2ac0aa982be3d1f",
-      "record": "docs/product/ui-decisions/quiz-attempt-time-icon-2026-10-15.md",
+      "sha256": "be2a5f58e1ca8dd409fdef7ab5819347a5de97bca85926d68c55ea4a37964015",
+      "record": "docs/product/ui-decisions/compact-results-ui-kit-2026-10-16.md",
       "specs": [
-        "docs/product/quizzes.md",
-        "docs/product/design-system.md"
+        "docs/product/result-presentation-proposal.md",
+        "docs/product/quiz-chain-proposal.md",
+        "docs/product/ui-kit.md"
       ],
       "tests": [
-        "src/components/QuizCard.time.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx"
+        "src/components/QuizCard.history.test.tsx",
+        "src/components/ui/result.test.tsx",
+        "src/lib/watchQuizOutcome.test.ts",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
-        "status": "direct-request",
-        "evidence": "Родитель 15.10.2026 после просмотра макета согласовал только значок времени в действующем общем компоненте теста, без изменения остального дизайна карточки."
+        "status": "approved-mockup",
+        "evidence": "Родитель 16.10.2026 утвердил уплотнённую таблицу и цветовую шкалу словами «стало намного лучше, закрепляй вариант» и прямо запросил интерактивный UI Kit."
       }
     },
     "src/lib/store.ts": {

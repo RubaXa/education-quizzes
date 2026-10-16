@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { DayPageData } from './dayStore'
-import type { Assignment } from './quiz'
+import type { Assignment, QuestionResult } from './quiz'
 import type { QuizScore } from './homeworkStatus'
 import { watchDashboard } from './store'
 import { watchQuizOutcome } from './watchQuizOutcome'
@@ -41,10 +41,10 @@ export function useDayQuizOutcomes(page: DayPageData | null | undefined, date: s
     return [...selected]
   }, [boardState, boardToken, roots])
   const tokenKey = tokens.join('|')
-  const [outcomes, setOutcomes] = useState<{ key: string; items: Record<string, { assignment: Assignment; score?: QuizScore; scoreReady: boolean }> }>()
+  const [outcomes, setOutcomes] = useState<{ key: string; items: Record<string, { assignment: Assignment; score?: QuizScore; results?: QuestionResult[]; scoreReady: boolean }> }>()
   useEffect(() => {
     if (!tokenKey) return
-    const items: Record<string, { assignment: Assignment; score?: QuizScore; scoreReady: boolean }> = {}
+    const items: Record<string, { assignment: Assignment; score?: QuizScore; results?: QuestionResult[]; scoreReady: boolean }> = {}
     // The board can publish a new object with exactly the same tokens. Only a
     // changed token set should reopen Firestore listeners.
     const stops = tokenKey.split('|').map((token) => watchQuizOutcome(token, (outcome) => {
@@ -58,6 +58,7 @@ export function useDayQuizOutcomes(page: DayPageData | null | undefined, date: s
     boardEntries: boardState?.token === boardToken ? boardState?.entries ?? [] : [],
     tests: Object.fromEntries(Object.entries(items).map(([token, outcome]) => [token, outcome.assignment])) as Record<string, Assignment>,
     scores: Object.fromEntries(Object.entries(items).filter(([, outcome]) => outcome.score).map(([token, outcome]) => [token, outcome.score!])) as Record<string, QuizScore>,
+    results: Object.fromEntries(Object.entries(items).filter(([, outcome]) => outcome.results).map(([token, outcome]) => [token, outcome.results!])),
     ready: boardReady && tokens.every((token) => items[token]?.scoreReady),
   }
 }

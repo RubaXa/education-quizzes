@@ -238,6 +238,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
       subject: entry?.subject ?? assignment.subject, slug: entry?.slug ?? '', previewToken: entry?.previewToken,
       status: assignment.status, answered: Object.values(assignment.answers ?? {}).filter((answer) => answer !== '' && (!Array.isArray(answer) || answer.length > 0)).length,
       total: assignment.questions.length, points: score?.points, maxPoints: score?.maxPoints,
+      results: quizOutcomes.results?.[quizToken],
       createdAt: assignment.createdAt, startedAt: assignment.startedAt, updatedAt: assignment.updatedAt, submittedAt: assignment.submittedAt,
       followupRequested: Boolean(assignment.followupRequestedAt),
       familyOptional: Boolean(assignment.familyOptional),

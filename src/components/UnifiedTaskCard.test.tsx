@@ -40,7 +40,7 @@ describe('one public task and quiz view', () => {
   it('shows a score percentage only after points are known', () => {
     const pending = { token: 'token', testId: 'test', title: 'Самопроверка', slug: 'quiz', status: 'submitted' as const, answered: 4, total: 4 }
     const waiting = renderToStaticMarkup(<QuizCard chain={[pending]} parent />)
-    expect(waiting).toContain('Результат уточняется')
+    expect(waiting).toContain('Ждёт проверки')
     expect(waiting).not.toContain('role="progressbar"')
     const scored = renderToStaticMarkup(<QuizCard chain={[{ ...pending, points: 3, maxPoints: 4 }]} parent />)
     expect(scored).toContain('75%')

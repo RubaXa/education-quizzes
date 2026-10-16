@@ -1,9 +1,9 @@
 import { grade, summarize } from './quiz'
-import type { AnswerKey, Assignment, ManualReview } from './quiz'
+import type { AnswerKey, Assignment, ManualReview, QuestionResult } from './quiz'
 import type { QuizScore } from './homeworkStatus'
 import { watchAnswerKey, watchAssignment, watchReview } from './store'
 
-export type QuizOutcome = { assignment: Assignment; score?: QuizScore; scoreReady: boolean }
+export type QuizOutcome = { assignment: Assignment; score?: QuizScore; results?: QuestionResult[]; scoreReady: boolean }
 
 /** One live result projection for every test card and parent overview.
  * Manual review can arrive after submission; its Firestore update must finish the score everywhere.
@@ -28,7 +28,7 @@ export function watchQuizOutcome(token: string, onChange: (outcome: QuizOutcome)
       points: summary.earned,
       maxPoints: summary.possible,
     }
-    onChange({ assignment, score, scoreReady: true })
+    onChange({ assignment, score, results, scoreReady: true })
   }
 
   const stopAssignment = watchAssignment(token, (next) => {
