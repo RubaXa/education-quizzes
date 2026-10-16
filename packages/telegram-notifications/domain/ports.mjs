@@ -1,6 +1,6 @@
 /** @see ../../../docs/services/telegram-bot/ports-and-events.md#контракт-портов */
 export const PORTS = Object.freeze([
-  'IdentityRegistryPort', 'FamilyLinkAuthorizationPort', 'MembershipAuthorizationPort',
+  'IdentityRegistryPort', 'ChannelAvailabilityPort', 'FamilyLinkAuthorizationPort', 'MembershipAuthorizationPort',
   'EventLedgerPort', 'DeliveryOutboxPort', 'TelegramDeliveryPort', 'ClockPort', 'LoggerPort',
 ])
 

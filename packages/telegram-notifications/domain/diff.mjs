@@ -32,7 +32,7 @@ export function diffCompleteSnapshots({ source, scopeKey, familyId, childId, pre
 const EVENT_TYPE_SET = new Set(EVENT_TYPES)
 const fieldKeys = ['childName', 'subject', 'title', 'value', 'status', 'occurredLabel']
 function validSnapshot(snapshot) {
-  if (!snapshot?.complete || !Array.isArray(snapshot.records) || !Number.isSafeInteger(snapshot.observationSequence) || snapshot.observationSequence < 0) return false
+  if (!snapshot || snapshot.complete !== true || !Array.isArray(snapshot.records) || !Number.isSafeInteger(snapshot.observationSequence) || snapshot.observationSequence < 0) return false
   const seen = new Set()
   for (const record of snapshot.records) {
     if (!record || typeof record.recordKey !== 'string' || !record.recordKey.trim() || !['grade', 'schedule', 'assignment', 'upload', 'quiz', 'review'].includes(record.kind)) return false

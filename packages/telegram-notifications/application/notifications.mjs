@@ -3,11 +3,12 @@ import { createDomainEvent } from '../domain/events.mjs'
 
 /** @see ../../../docs/services/telegram-bot/event-ledger-outbox.md#атомарность-и-идемпотентность @see ../../../docs/services/telegram-bot/delivery.md#разделение-ответственности @see ../../../docs/services/telegram-bot/ports-and-events.md#контракт-портов */
 export class NotificationService {
-  constructor({ eventLedger, outbox, recipients, membership, renderer, delivery, clock = () => new Date(), logger = { info() {}, error() {} }, workerId, retryMaxAttempts = 8, leaseMs = 120_000, recoveryIntervalMs = 60_000 }) {
+  constructor({ eventLedger, outbox, recipients, membership, channel = null, renderer, delivery, clock = () => new Date(), logger = { info() {}, error() {} }, workerId, retryMaxAttempts = 8, leaseMs = 120_000, recoveryIntervalMs = 60_000 }) {
     this.ledger = assertPort(eventLedger, ['recordIfAbsent'])
     this.outbox = assertPort(outbox, ['claim', 'finish', 'reschedule', 'recoverExpired', 'renew', 'savePartReceipt'])
     this.recipients = assertPort(recipients, ['resolveVerified'])
     this.membership = assertPort(membership, ['isActiveMember'])
+    this.channel = channel ? assertPort(channel, ['getState', 'markUnavailable']) : { async getState() { return { status: 'available', version: 0 } }, async markUnavailable() { return { applied: true } } }
     this.renderer = renderer
     this.delivery = delivery
     this.clock = clock
@@ -57,9 +58,18 @@ export class NotificationService {
     }
     const job = await this.outbox.claim({ workerId: this.workerId, now: this.clock().toISOString(), leaseMs: this.leaseMs, maxAttempts: this.retryMaxAttempts })
     if (!job) return false
+    let channelAttempt = null
+    let channelCheckInProgress = false
     try {
       if (!await this.membership.isActiveMember(job)) {
         await this.outbox.finish({ jobId: job.jobId, workerId: this.workerId, leaseToken: job.leaseToken, now: this.clock().toISOString(), result: { state: 'blocked', safeErrorCode: 'membership_inactive' } })
+        return true
+      }
+      channelCheckInProgress = true
+      const channelState = await this.channel.getState(job.telegramUserId)
+      channelCheckInProgress = false
+      if (channelState.status !== 'available') {
+        await this.outbox.finish({ jobId: job.jobId, workerId: this.workerId, leaseToken: job.leaseToken, now: this.clock().toISOString(), result: { state: 'blocked', safeErrorCode: 'channel_unavailable' } })
         return true
       }
       if (job.messageVersion !== 1 || !Array.isArray(job.messageParts) || job.messageParts.length === 0 || job.messageParts.some((part) => typeof part !== 'string')) {
@@ -74,8 +84,17 @@ export class NotificationService {
           await this.outbox.finish({ jobId: job.jobId, workerId: this.workerId, leaseToken: job.leaseToken, now: beforePart, result: { state: 'blocked', safeErrorCode: 'membership_inactive' } })
           return true
         }
+        channelCheckInProgress = true
+        const beforeState = await this.channel.getState(job.telegramUserId)
+        channelCheckInProgress = false
+        if (beforeState.status !== 'available') {
+          await this.outbox.finish({ jobId: job.jobId, workerId: this.workerId, leaseToken: job.leaseToken, now: beforePart, result: { state: 'blocked', safeErrorCode: 'channel_unavailable' } })
+          return true
+        }
         await this.outbox.renew({ jobId: job.jobId, workerId: this.workerId, leaseToken: job.leaseToken, now: beforePart, leaseMs: this.leaseMs })
+        channelAttempt = { senderId: job.telegramUserId, attemptStartedAt: Date.parse(beforePart), expectedVersion: beforeState.version }
         const receipt = await this.delivery.send({ chatId: job.telegramUserId, text: messages[index] })
+        channelAttempt = null
         const afterPart = this.clock().toISOString()
         await this.outbox.savePartReceipt({ jobId: job.jobId, workerId: this.workerId, leaseToken: job.leaseToken, index, receipt, now: afterPart, leaseMs: this.leaseMs })
         receipts.push(receipt)
@@ -83,11 +102,16 @@ export class NotificationService {
       await this.outbox.finish({ jobId: job.jobId, workerId: this.workerId, leaseToken: job.leaseToken, now: this.clock().toISOString(), result: { state: 'sent', partReceipts: receipts } })
     } catch (error) {
       if (error?.safeCode === 'stale_lease') return true
-      const safe = classify(error)
+      let safe = channelCheckInProgress ? { code: 'channel_state_unavailable', retryable: true } : classify(error)
+      if (error?.safeCode === 'channel_unavailable' && channelAttempt) {
+        const result = await this.channel.markUnavailable(channelAttempt)
+        if (!result.applied && result.state === 'available') safe = { code: 'channel_state_changed', retryable: true }
+        else safe = { code: 'channel_unavailable', retryable: false }
+      }
       const attempts = job.attempts ?? 1
       try {
         if (!safe.retryable || attempts >= this.retryMaxAttempts) {
-          await this.outbox.finish({ jobId: job.jobId, workerId: this.workerId, leaseToken: job.leaseToken, now: this.clock().toISOString(), result: { state: safe.code === 'recipient_blocked' ? 'blocked' : 'dead_letter', safeErrorCode: safe.code } })
+          await this.outbox.finish({ jobId: job.jobId, workerId: this.workerId, leaseToken: job.leaseToken, now: this.clock().toISOString(), result: { state: ['recipient_blocked', 'channel_unavailable'].includes(safe.code) ? 'blocked' : 'dead_letter', safeErrorCode: safe.code } })
         } else {
           const backoffMs = safe.retryAfterMs ?? Math.min(60 * 60_000, 1000 * (2 ** Math.min(attempts, 12)))
           await this.outbox.reschedule({ jobId: job.jobId, workerId: this.workerId, leaseToken: job.leaseToken, now: this.clock().toISOString(), attempts, nextAttemptAt: new Date(this.clock().valueOf() + backoffMs).toISOString(), safeErrorCode: safe.code })

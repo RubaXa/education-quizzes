@@ -3,7 +3,7 @@ id: service.telegram-bot.identity-and-linking
 status: accepted
 implementation: partial
 created: 2026-10-16
-updated: 2026-10-16
+updated: 2026-10-17
 consumers:
   - "Telegram service implementer"
   - "bot operator"
@@ -11,6 +11,8 @@ consumers:
 code:
   - "packages/telegram-notifications/application/identity.mjs"
   - "packages/telegram-notifications/adapters/telegram.mjs"
+  - "packages/telegram-notifications/adapters/firestore.mjs"
+  - "packages/telegram-notifications/adapters/memory.mjs"
 parent: service.telegram-bot
 uses:
   - service.telegram-bot
@@ -40,10 +42,20 @@ Telegram account идентифицируется неизменяемым numer
 
 `unregistered → registered → link_pending → linked → disconnected`
 
-- `blocked`/`delivery_unavailable` — состояние канала/адресата, не отзыв семейного доступа.
+- Состояние Telegram-канала хранится отдельно как `channelStatus: available|blocked|unavailable`. `my_chat_member` обновляет его по проверенным private событиям; `403` означает только `unavailable`, поскольку один код ошибки не доказывает блокировку пользователем. Изменение канала не отзывает семейный доступ.
 - Повторный Start обновляет account metadata и выдаёт безопасную подсказку; не создаёт повторную link и не реактивирует отключённую связь молча.
 - Отключение одной family link оставляет account и другие links зарегистрированными.
 - История переходов append-only; актуальное состояние — проекция/текущий документ.
+
+### Реестр доступности канала
+
+Account хранит `channelStatus`, `channelStatusVersion`, `channelStatusChangedAt` (epoch milliseconds), `channelStatusSource`, `lastChannelUpdateId` и `lastChannelUpdateAt`. Доступность не является доказательством семейной авторизации. Существующий legacy account без channelStatus совместим с available; отсутствующий account недоступен до достоверного Start/membership update. Достоверное первое membership событие создаёт только минимальную account запись, без family link; delivery failure не создаёт account.
+
+`/start` передаёт Telegram update ID и `message.date`. `my_chat_member` принимается только в private chat с `chat.id = from.id`, для bot user ID, совпавшего с доверенным ID текущего бота. `member → available`, `kicked → blocked`, `left → unavailable`; неизвестные статусы не меняют реестр. При повторном Start существующие отключённые family links остаются отключёнными.
+
+Транзакция отклоняет повтор/меньший update ID и более старое event time. В ту же секунду больший Telegram update ID задаёт порядок. После интервала не меньше семи дней между доверенными Telegram event times допускается меньший/равный ID: установленный SDK документирует случайный выбор следующего update ID после недели без updates (`@grammyjs/types/update.d.ts`, поле `Update.update_id`). Это допустимое окно reset, не утверждение, что данный аккаунт наблюдал глобальный простой бота. Дубликаты прежнего времени всё равно отклоняются.
+
+Перед job и каждой частью `ChannelAvailabilityPort.getState` адресно проверяет доступность; недоступность блокирует job, не family link. Временная ошибка чтения состояния даёт bounded retry, а не permanent failure. `403` сохраняет unavailable только с expected channel version из начала попытки: поздний ответ не перезаписывает новый Start/unblock. Неупорядочиваемый cross-source update с event time не новее локальной отметки failure отклоняется; новое явное `/start` с более поздним временем подтверждает recovery. Host clock должен быть синхронизирован. Ошибка записи failure оставляет lease для обычного восстановления. Уже terminally blocked jobs не возрождаются автоматически; replay для ранее авторизованных адресатов остаётся отдельной политикой.
 
 ## Привязка и подтверждение
 

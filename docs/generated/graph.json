@@ -222,6 +222,39 @@
       "path": "docs/audits/specification-lifecycle-2026-10-16.md"
     },
     {
+      "id": "audits.telegram-self-review-2026-10-16",
+      "status": "reference",
+      "implementation": "not-applicable",
+      "created": "2026-10-16",
+      "updated": "2026-10-17",
+      "consumers": [
+        "Technical lead",
+        "Telegram service developer",
+        "Telegram bot operator"
+      ],
+      "code": [],
+      "parent": "service.telegram-bot",
+      "uses": [
+        "service.telegram-bot",
+        "service.telegram-bot.ports-and-events",
+        "service.telegram-bot.identity-and-linking",
+        "service.telegram-bot.event-ledger-outbox",
+        "service.telegram-bot.delivery",
+        "service.telegram-bot.operations",
+        "shared.specification-system"
+      ],
+      "sections": [
+        "область-и-метод",
+        "сделано-и-не-сделано",
+        "независимые-находки",
+        "технический-триаж",
+        "проверки-и-границы",
+        "recheck-2026-10-17",
+        "fixes-2026-10-17"
+      ],
+      "path": "docs/audits/telegram-self-review-2026-10-16.md"
+    },
+    {
       "id": "decision.documentation-precommit",
       "status": "accepted",
       "implementation": "not-applicable",
@@ -325,6 +358,33 @@
         "согласование"
       ],
       "path": "docs/decisions/telegram-foundation-2026-10-16.md"
+    },
+    {
+      "id": "decision.telegram-review-fixes-2026-10-17",
+      "status": "accepted",
+      "implementation": "not-applicable",
+      "created": "2026-10-17",
+      "updated": "2026-10-17",
+      "parent": "service.telegram-bot",
+      "uses": [
+        "service.telegram-bot.ports-and-events",
+        "service.telegram-bot.identity-and-linking",
+        "service.telegram-bot.event-ledger-outbox"
+      ],
+      "consumers": [
+        "Telegram service developer",
+        "Technical lead",
+        "Bot operator"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/telegram-review-fixes-2026-10-17.md"
     },
     {
       "id": "decisions.compact-homework-copy-2026-10-16",
@@ -1500,6 +1560,13 @@
       "kind": "artifact",
       "purpose": "Навигация, привязки или проверка производного графа",
       "consumer": "Разработчик; npm check:spec"
+    },
+    {
+      "id": "file:docs/audits/telegram-recheck-2026-10-17.json",
+      "path": "docs/audits/telegram-recheck-2026-10-17.json",
+      "kind": "artifact",
+      "purpose": "Синтетические inputs/outputs, SHA-256 проверенных исходников и границы повторного fact-check",
+      "consumer": "Техлид; разработчик"
     },
     {
       "id": "file:docs/file-map.md",
@@ -5206,7 +5273,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-13",
-      "updated": "2026-10-16",
+      "updated": "2026-10-17",
       "consumers": [
         "Education sync operator",
         "sync-project CLI",
@@ -6180,7 +6247,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-16",
-      "updated": "2026-10-16",
+      "updated": "2026-10-17",
       "consumers": [
         "Telegram service implementer",
         "bot operator",
@@ -6251,7 +6318,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-16",
-      "updated": "2026-10-16",
+      "updated": "2026-10-17",
       "consumers": [
         "Telegram service implementer",
         "bot operator",
@@ -6306,7 +6373,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-16",
-      "updated": "2026-10-16",
+      "updated": "2026-10-17",
       "consumers": [
         "Telegram service implementer",
         "bot operator",
@@ -6314,7 +6381,9 @@
       ],
       "code": [
         "packages/telegram-notifications/application/identity.mjs",
-        "packages/telegram-notifications/adapters/telegram.mjs"
+        "packages/telegram-notifications/adapters/telegram.mjs",
+        "packages/telegram-notifications/adapters/firestore.mjs",
+        "packages/telegram-notifications/adapters/memory.mjs"
       ],
       "parent": "service.telegram-bot",
       "uses": [
@@ -6390,7 +6459,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-16",
-      "updated": "2026-10-16",
+      "updated": "2026-10-17",
       "consumers": [
         "Telegram service implementer",
         "bot operator",
@@ -6971,6 +7040,41 @@
       "type": "uses"
     },
     {
+      "from": "audits.telegram-self-review-2026-10-16",
+      "to": "service.telegram-bot.delivery",
+      "type": "uses"
+    },
+    {
+      "from": "audits.telegram-self-review-2026-10-16",
+      "to": "service.telegram-bot.event-ledger-outbox",
+      "type": "uses"
+    },
+    {
+      "from": "audits.telegram-self-review-2026-10-16",
+      "to": "service.telegram-bot.identity-and-linking",
+      "type": "uses"
+    },
+    {
+      "from": "audits.telegram-self-review-2026-10-16",
+      "to": "service.telegram-bot.operations",
+      "type": "uses"
+    },
+    {
+      "from": "audits.telegram-self-review-2026-10-16",
+      "to": "service.telegram-bot.ports-and-events",
+      "type": "uses"
+    },
+    {
+      "from": "audits.telegram-self-review-2026-10-16",
+      "to": "service.telegram-bot",
+      "type": "uses"
+    },
+    {
+      "from": "audits.telegram-self-review-2026-10-16",
+      "to": "shared.specification-system",
+      "type": "uses"
+    },
+    {
       "from": "decision.documentation-precommit",
       "to": "shared.specification-system",
       "type": "uses"
@@ -7013,6 +7117,21 @@
     {
       "from": "decision.telegram-foundation",
       "to": "service.telegram-bot",
+      "type": "uses"
+    },
+    {
+      "from": "decision.telegram-review-fixes-2026-10-17",
+      "to": "service.telegram-bot.event-ledger-outbox",
+      "type": "uses"
+    },
+    {
+      "from": "decision.telegram-review-fixes-2026-10-17",
+      "to": "service.telegram-bot.identity-and-linking",
+      "type": "uses"
+    },
+    {
+      "from": "decision.telegram-review-fixes-2026-10-17",
+      "to": "service.telegram-bot.ports-and-events",
       "type": "uses"
     },
     {
@@ -7356,6 +7475,11 @@
       "type": "implements"
     },
     {
+      "from": "file:docs/audits/telegram-recheck-2026-10-17.json",
+      "to": "audits.telegram-self-review-2026-10-16",
+      "type": "implements"
+    },
+    {
       "from": "file:docs/file-map.md",
       "to": "shared.specification-system",
       "type": "implements"
@@ -7506,8 +7630,18 @@
       "type": "implements"
     },
     {
+      "from": "file:packages/telegram-notifications/adapters/firestore.mjs",
+      "to": "service.telegram-bot.identity-and-linking",
+      "type": "implements"
+    },
+    {
       "from": "file:packages/telegram-notifications/adapters/memory.mjs",
       "to": "service.telegram-bot.event-ledger-outbox",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/adapters/memory.mjs",
+      "to": "service.telegram-bot.identity-and-linking",
       "type": "implements"
     },
     {
@@ -11537,7 +11671,17 @@
     },
     {
       "from": "service.telegram-bot",
+      "to": "audits.telegram-self-review-2026-10-16",
+      "type": "contains"
+    },
+    {
+      "from": "service.telegram-bot",
       "to": "decision.telegram-foundation",
+      "type": "contains"
+    },
+    {
+      "from": "service.telegram-bot",
+      "to": "decision.telegram-review-fixes-2026-10-17",
       "type": "contains"
     },
     {

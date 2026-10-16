@@ -3,7 +3,7 @@ id: service.telegram-bot.event-ledger-outbox
 status: accepted
 implementation: partial
 created: 2026-10-16
-updated: 2026-10-16
+updated: 2026-10-17
 consumers:
   - "Telegram service implementer"
   - "bot operator"
@@ -45,6 +45,9 @@ sections:
 Эти коллекции — реализация текущего среза. Job сохраняет `messageVersion: 1` и неизменяемые `messageParts` при enqueue, поэтому receipts относятся к постоянным индексам и текстам. Старые jobs без этой схемы переводятся в `dead_letter`; автоматическая миграция не поддерживается. Перед delivery opt-in адресно объединить [индексы worker](../../../packages/telegram-notifications/firestore.indexes.json) с имеющимися индексами после проверки целевого проекта; автоматически заменять global Firebase index manifest этим scoped-файлом нельзя. Retention policy не утверждена.
 
 ## Атомарность и идемпотентность
+
+Ответ `recordIfAbsent.queued` считает только реально новые jobs: verified target с уже существующим job ID не увеличивает счётчик. Проверка включает orphan job при отсутствующем event document. Существующая job не перезаписывается; повтор event по-прежнему возвращает existing receipt без позднего backfill.
+
 
 1. Детерминированный `eventId` вычисляется до записи.
 2. Транзакция создаёт event только если его нет и добавляет уникальные delivery jobs/групповые references для соответствующих получателей.

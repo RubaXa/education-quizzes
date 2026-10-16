@@ -1,7 +1,7 @@
 import { randomBytes } from 'node:crypto'
 import { FieldValue } from '@google-cloud/firestore'
 
-/** @see ../../../docs/services/telegram-bot/event-ledger-outbox.md#логические-записи */
+/** @see ../../../docs/services/telegram-bot/event-ledger-outbox.md#логические-записи @see ../../../docs/services/telegram-bot/identity-and-linking.md#состояния @see ../../../docs/services/telegram-bot/ports-and-events.md#контракт-портов */
 export function createFirestoreAdapters(db, { eventCollection = 'telegramNotificationEvents', outboxCollection = 'telegramNotificationOutbox', accountCollection = 'telegramBotAccounts' } = {}) {
   const events = db.collection(eventCollection)
   const jobs = db.collection(outboxCollection)
@@ -15,6 +15,38 @@ export function createFirestoreAdapters(db, { eventCollection = 'telegramNotific
         const old = snapshot.exists ? snapshot.data() : {}
         // Repeated /start never changes a disconnected account back to active.
         tx.set(ref, { telegramUserId: senderId, username: username ?? '', firstName: firstName ?? '', status: old.status ?? 'registered', updatedAt: at, createdAt: old.createdAt ?? at }, { merge: true })
+      })
+    },
+    async recordChannelUpdate({ senderId, status, updateId, observedAt }) {
+      const ref = accounts.doc(senderId)
+      return db.runTransaction(async (tx) => {
+        const snap = await tx.get(ref)
+        if (!Number.isSafeInteger(updateId) || !Number.isSafeInteger(observedAt)) return { updated: false }
+        const occurredAt = new Date(observedAt).toISOString()
+        const old = snap.exists ? snap.data() : { telegramUserId: senderId, username: '', firstName: '', status: 'registered', createdAt: occurredAt }
+        const telegramIdReset = Number.isSafeInteger(old.lastChannelUpdateId) && Number.isSafeInteger(old.lastChannelUpdateAt)
+          && observedAt >= old.lastChannelUpdateAt + 7 * 24 * 60 * 60_000
+        if (Number.isSafeInteger(old.lastChannelUpdateId) && updateId <= old.lastChannelUpdateId && !telegramIdReset) return { updated: false }
+        if (Number.isSafeInteger(old.lastChannelUpdateAt) && observedAt < old.lastChannelUpdateAt) return { updated: false }
+        if (old.channelStatusSource === 'delivery_failure' && Number.isSafeInteger(old.channelStatusChangedAt) && observedAt <= old.channelStatusChangedAt) return { updated: false }
+        const version = (old.channelStatusVersion ?? 0) + 1
+        const update = { ...(!snap.exists ? old : {}), telegramUserId: senderId, channelStatus: status, channelStatusChangedAt: observedAt, channelStatusSource: 'telegram_update', channelStatusVersion: version, lastChannelUpdateId: updateId, lastChannelUpdateAt: observedAt, updatedAt: occurredAt }
+        if (snap.exists) tx.update(ref, update)
+        else tx.create(ref, update)
+        return { updated: true, state: status, version }
+      })
+    },
+    async markChannelUnavailable({ senderId, attemptStartedAt, expectedVersion }) {
+      const ref = accounts.doc(senderId)
+      return db.runTransaction(async (tx) => {
+        const snap = await tx.get(ref)
+        if (!snap.exists) return { applied: false, state: 'unavailable', version: 0 }
+        const old = snap.data()
+        const version = old.channelStatusVersion ?? 0
+        const state = old.channelStatus ?? 'available'
+        if (version !== expectedVersion || (Number.isSafeInteger(old.channelStatusChangedAt) && old.channelStatusChangedAt > attemptStartedAt)) return { applied: false, state, version }
+        tx.update(ref, { channelStatus: 'unavailable', channelStatusChangedAt: attemptStartedAt, channelStatusSource: 'delivery_failure', channelStatusVersion: version + 1 })
+        return { applied: true, state: 'unavailable', version: version + 1 }
       })
     },
     async listActiveLinks(senderId) {
@@ -41,6 +73,17 @@ export function createFirestoreAdapters(db, { eventCollection = 'telegramNotific
         return { code: 'disconnected' }
       })
     },
+  }
+  const channel = {
+    async getState(senderId) {
+      const snap = await accounts.doc(String(senderId)).get()
+      if (!snap.exists) return { status: 'unavailable', version: 0, exists: false }
+      const row = snap.data()
+      return { status: row.channelStatus ?? 'available', version: row.channelStatusVersion ?? 0, exists: true }
+    },
+    async isAvailable(senderId) { return (await this.getState(senderId)).status === 'available' },
+    async confirmReachable({ senderId, updateId, observedAt }) { return registry.recordChannelUpdate({ senderId: String(senderId), status: 'available', updateId, observedAt }) },
+    async markUnavailable(input) { return registry.markChannelUnavailable(input) },
   }
   const outbox = {
     async claim({ workerId, now, leaseMs, maxAttempts = 8 }) {
@@ -124,7 +167,7 @@ export function createFirestoreAdapters(db, { eventCollection = 'telegramNotific
         })
         tx.create(eventRef, { ...event, createdAt: FieldValue.serverTimestamp() })
         for (let i = 0; i < jobRows.length; i += 1) if (verified[i] && !existingJobs[i].exists) tx.create(jobRefs[i], jobRows[i])
-        return { created: true, eventId: event.eventId, queued: verified.filter(Boolean).length }
+        return { created: true, eventId: event.eventId, queued: verified.filter((ok, index) => ok && !existingJobs[index].exists).length }
       })
     },
   }
@@ -154,7 +197,7 @@ export function createFirestoreAdapters(db, { eventCollection = 'telegramNotific
       return member?.active === true && member.role === 'parent' && Array.isArray(member.childIds) && member.childIds.includes(childId)
     },
   }
-  return { registry, outbox, eventLedger, recipients, membership }
+  return { registry, channel, outbox, eventLedger, recipients, membership }
 }
 
 async function withOwnedLease(db, ref, workerId, leaseToken, now, update) {

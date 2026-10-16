@@ -43,14 +43,38 @@
     "target": "tx",
     "group": "operator-other",
     "assessment": "justified",
-    "policy": "transaction-guard",
-    "refresh": "user-action-only",
-    "note": "Только на явном /start в личном чате. Транзакция читает текущий account status до merge, поэтому повторная регистрация не возвращает отключённый аккаунт в active; фонового observer нет."
+    "policy": "private-command-account-guard",
+    "refresh": "only on explicit private /start",
+    "note": "Транзакция читает один account перед merge профиля. Не меняет family links; доступность канала обновляется отдельно с Telegram ordering guard."
+  },
+  {
+    "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-2",
+    "file": "packages/telegram-notifications/adapters/firestore.mjs",
+    "line": 23,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "channel-update-ordering-guard",
+    "refresh": "only on private /start or verified my_chat_member update",
+    "note": "Адресное транзакционное чтение account для проверки Telegram update ID/date, local delivery marker и монотонной channel version. Повтор/старое событие не меняет состояние; семейные links не читаются и не отзываются."
+  },
+  {
+    "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-3",
+    "file": "packages/telegram-notifications/adapters/firestore.mjs",
+    "line": 42,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "channel-failure-version-guard",
+    "refresh": "only after an actual send returns 403",
+    "note": "Одна account transaction применяет unavailable только при прежней channel version и отсутствии более нового подтверждения. Поздний403 не перезаписывает новый Start/unblock; family links не изменяются."
   },
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#10dc9c274e6c",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 21,
+    "line": 53,
     "api": "admin.get",
     "target": "familyLinks.where('telegramUserId', '==', senderId)",
     "group": "operator-other",
@@ -60,33 +84,45 @@
     "note": "Выполняется только для явного /stop в личном чате и ограничена telegramUserId. Возвращаются активные связи одного пользователя; query без limit, поэтому не запускать фоново и следить за ростом связей."
   },
   {
-    "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-2",
+    "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-4",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 30,
+    "line": 62,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
     "assessment": "justified",
-    "policy": "transaction-guard",
+    "policy": "stop-confirmation-transaction-guard",
     "refresh": "only on explicit private stop confirmation",
-    "note": "По одноразовому hash challenge транзакция проверяет существование, отправителя, срок и usedAt. Это защита подтверждения от повтора и гонки."
+    "note": "Транзакция перечитывает challenge и выбранную link, сверяет sender/family/TTL/usedAt/active. Отзывает одну связь и пишет историю."
   },
   {
-    "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-3",
+    "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-5",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 35,
+    "line": 67,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
     "assessment": "justified",
-    "policy": "transaction-guard",
+    "policy": "stop-confirmation-transaction-guard",
     "refresh": "only on explicit private stop confirmation",
-    "note": "В той же транзакции проверяются владелец, семья и active status link перед отключением; затем challenge помечается использованным, связь отключается и создаётся history запись."
+    "note": "Транзакция перечитывает challenge и выбранную link, сверяет sender/family/TTL/usedAt/active. Отзывает одну связь и пишет историю."
+  },
+  {
+    "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#428aa877ac7a",
+    "file": "packages/telegram-notifications/adapters/firestore.mjs",
+    "line": 79,
+    "api": "admin.get",
+    "target": "accounts.doc(String(senderId))",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "channel-availability-before-send",
+    "refresh": "before an opted-in job and each message part",
+    "note": "Адресное чтение одного account перед job/частью: известный unavailable/blocked канал не получает повторную отправку. Старый account без channelStatus совместим; отсутствующий account недоступен. Это дополнительные чтения пропорционально jobs/parts, без observer или сканирования."
   },
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#aa3dda10699d",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 47,
+    "line": 90,
     "api": "admin.get",
     "target": "jobs.where('state', 'in', ['pending', 'retry_wait']).where('nextAttemptAt', '<=', now).orderBy('nextAttemptAt').limit(20)",
     "group": "operator-other",
@@ -96,33 +132,33 @@
     "note": "Claim query фильтрует pending/retry_wait и due time, сортирует и ограничена limit(20). Читается только если worker запущен с --enable-delivery; после бездействия polling ждёт 1–60 секунд с jitter. Остаток очереди проверяется следующей итерацией."
   },
   {
-    "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-4",
+    "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-6",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 51,
+    "line": 94,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
     "assessment": "justified",
-    "policy": "transaction-guard",
-    "refresh": "per candidate during opt-in outbox claim",
-    "note": "Для кандидата из ограниченной выборки транзакция повторно читает текущее состояние перед выдачей lease. Учитывается гонка между worker-ами; при конфликте может проверяться следующий кандидат, максимум из выборки 20."
+    "policy": "outbox-claim-transaction-guard",
+    "refresh": "per candidate in opt-in bounded outbox claim",
+    "note": "Для каждого кандидата из limit20 транзакционно перепроверяет due state, attempts и выдаёт lease с fencing token."
   },
   {
-    "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-5",
+    "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-7",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 72,
+    "line": 120,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
     "assessment": "justified",
-    "policy": "transaction-guard",
-    "refresh": "after each sent message part during opt-in delivery",
-    "note": "Перед записью receipt транзакция проверяет существование job, owner/token/срок lease и строгий порядок частей; затем сохраняет receipt и продлевает lease. Не кешировать между частями."
+    "policy": "outbox-receipt-transaction-guard",
+    "refresh": "after each sent part",
+    "note": "Транзакционное чтение job проверяет lease owner/token/expiry и порядок части до сохранения receipt. Между частями не кешируется."
   },
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#79f1478d85f7",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 86,
+    "line": 134,
     "api": "admin.get",
     "target": "jobs.where('state', '==', 'leased').where('leaseUntil', '<=', now).limit(200)",
     "group": "operator-other",
@@ -132,69 +168,69 @@
     "note": "Recovery query ограничена limit(200) и выполняется NotificationService.runOne не чаще раза в минуту только в opt-in delivery loop. При большем backlog остаток ждёт следующей минутной проверки."
   },
   {
-    "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-6",
-    "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 88,
-    "api": "admin.get",
-    "target": "tx",
-    "group": "operator-other",
-    "assessment": "justified",
-    "policy": "transaction-guard",
-    "refresh": "once per returned expired lease during opt-in recovery",
-    "note": "Для каждой из максимум 200 записей транзакция повторно подтверждает expired leased state перед возвратом в pending; запись, изменившаяся после выборки, не перезаписывается."
-  },
-  {
-    "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-7",
-    "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 101,
-    "api": "admin.get",
-    "target": "tx",
-    "group": "operator-other",
-    "assessment": "justified",
-    "policy": "event-id-idempotency-guard",
-    "refresh": "only when a source/application event is accepted",
-    "note": "Транзакция читает deterministic eventId и прекращает обработку, если событие уже существует. В текущем worker нет source observers, поэтому автоматического потока таких событий пока нет."
-  },
-  {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-8",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 104,
+    "line": 136,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
     "assessment": "justified",
-    "policy": "transaction-guard",
-    "refresh": "only during event acceptance before outbox writes",
-    "note": "До создания outbox jobs транзакция проверяет отсутствие детерминированных job ID, чтобы повторное событие не создало дубликат."
+    "policy": "expired-lease-transaction-guard",
+    "refresh": "per expired candidate at most once per minute in opt-in delivery",
+    "note": "Для каждой записи из limit200 транзакция проверяет текущий expired leased state перед retry_wait/dead_letter. Конкурентно изменённые записи не перезаписываются."
   },
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-9",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 105,
+    "line": 154,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
     "assessment": "justified",
-    "policy": "transaction-guard",
-    "refresh": "only during event acceptance before enqueue",
-    "note": "Link records читаются транзакционно вместе с event ledger и membership. Перед enqueue проверяются актуальные family/person/Telegram identity и active status; кешировать авторизацию нельзя."
+    "policy": "event-enqueue-transaction-guard",
+    "refresh": "only on explicit application event acceptance",
+    "note": "В event ledger транзакционно читается event ID до event/jobs writes. Проверяются идемпотентность, отсутствие duplicate jobs и свежая family/person/child авторизация. Source wiring не подключён."
   },
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-10",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 106,
+    "line": 157,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
     "assessment": "justified",
-    "policy": "transaction-guard",
-    "refresh": "only during event acceptance before enqueue",
-    "note": "Member records читаются транзакционно вместе с link/job; для каждого кандидата подтверждаются active parent membership и childIds до enqueue. Source observers не подключены."
+    "policy": "event-enqueue-transaction-guard",
+    "refresh": "only on explicit application event acceptance",
+    "note": "В event ledger транзакционно читается job ID до event/jobs writes. Проверяются идемпотентность, отсутствие duplicate jobs и свежая family/person/child авторизация. Source wiring не подключён."
+  },
+  {
+    "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-11",
+    "file": "packages/telegram-notifications/adapters/firestore.mjs",
+    "line": 158,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "event-enqueue-transaction-guard",
+    "refresh": "only on explicit application event acceptance",
+    "note": "В event ledger транзакционно читается family link до event/jobs writes. Проверяются идемпотентность, отсутствие duplicate jobs и свежая family/person/child авторизация. Source wiring не подключён."
+  },
+  {
+    "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-12",
+    "file": "packages/telegram-notifications/adapters/firestore.mjs",
+    "line": 159,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "event-enqueue-transaction-guard",
+    "refresh": "only on explicit application event acceptance",
+    "note": "В event ledger транзакционно читается membership до event/jobs writes. Проверяются идемпотентность, отсутствие duplicate jobs и свежая family/person/child авторизация. Source wiring не подключён."
   },
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#ee8efaa3a706",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 123,
+    "line": 176,
     "api": "admin.get",
     "target": "familyLinks.where('familyId', '==', event.familyId)",
     "group": "operator-other",
@@ -206,7 +242,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#e06f851a5504",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 138,
+    "line": 191,
     "api": "admin.get",
     "target": "familyLinks.doc(linkId)",
     "group": "operator-other",
@@ -218,7 +254,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#203c2b3aac79",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 142,
+    "line": 195,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -228,16 +264,16 @@
     "note": "Адресно перечитывается family member и сверяются active/parent/childIds перед enqueue и каждой частью доставки. Не кешировать между проверками; это свежесть отзыва, а не общий фоновой read."
   },
   {
-    "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-11",
+    "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-13",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 152,
+    "line": 205,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
     "assessment": "justified",
-    "policy": "transaction-guard",
-    "refresh": "on each outbox lease state mutation",
-    "note": "withOwnedLease транзакционно проверяет job, владельца/token и непросроченный lease перед finish/renew/reschedule. Один актуальный документ защищает запись от устаревшего worker."
+    "policy": "outbox-lease-mutation-guard",
+    "refresh": "on finish/renew/reschedule",
+    "note": "Один job транзакционно перечитывается для проверки owner/token/expiry перед изменением lease/state. Защита от stale worker."
   },
   {
     "id": "packages/telegram-notifications/adapters/runtime.mjs#admin.get#8132c83ea5f4",

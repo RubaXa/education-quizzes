@@ -8,13 +8,26 @@ export function createTelegramAdapter({ token, identity, logger = { error() {} }
   bot.command('start', async (ctx) => {
     if (ctx.chat?.type !== 'private') return
     try {
-      const result = await identity.start({ senderId: ctx.from.id, chatType: ctx.chat.type, username: ctx.from.username, firstName: ctx.from.first_name, startToken: ctx.match || undefined })
+      const result = await identity.start({ senderId: ctx.from.id, chatType: ctx.chat.type, username: ctx.from.username, firstName: ctx.from.first_name, startToken: ctx.match || undefined, updateId: ctx.update.update_id, occurredAt: new Date(ctx.message.date * 1000).toISOString() })
       return ctx.reply(result.code === 'linking_unavailable'
         ? 'Telegram зарегистрирован. Подключение семьи пока недоступно.'
         : 'Telegram зарегистрирован. Чтобы отключить одну семейную связь, используйте /stop.')
     } catch {
       logger.error({ code: 'start_failed' })
       return ctx.reply('Не удалось обработать команду. Повторите позже.')
+    }
+  })
+  bot.on('my_chat_member', async (ctx) => {
+    const update = ctx.myChatMember
+    const status = update?.new_chat_member?.status
+    const channelStatus = status === 'member' ? 'available' : status === 'kicked' ? 'blocked' : status === 'left' ? 'unavailable' : null
+    if (!channelStatus) return
+    try {
+      await identity.observeChannelMembership({ senderId: update.from?.id, chatId: update.chat?.id, actorId: update.from?.id,
+        chatType: update.chat?.type, botUserId: update.new_chat_member?.user?.id, expectedBotUserId: ctx.me?.id,
+        updateId: ctx.update.update_id, occurredAt: new Date(update.date * 1000).toISOString(), status: channelStatus })
+    } catch {
+      logger.error({ code: 'channel_membership_update_failed' })
     }
   })
   bot.command('stop', async (ctx) => {
@@ -64,7 +77,7 @@ export function createTelegramDelivery(token, { ApiClass = Api } = {}) {
         return { messageId: message.message_id }
       } catch (cause) {
         const error = new Error('telegram_delivery_failed')
-        if (cause?.error_code === 403) error.safeCode = 'recipient_blocked'
+        if (cause?.error_code === 403) error.safeCode = 'channel_unavailable'
         else if (cause?.parameters?.retry_after) { error.safeCode = 'rate_limited'; error.retryAfterMs = cause.parameters.retry_after * 1000 }
         else if (cause instanceof HttpError || cause?.error_code >= 500) error.safeCode = 'telegram_temporary'
         else error.safeCode = 'delivery_failed'

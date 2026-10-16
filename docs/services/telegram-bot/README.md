@@ -3,7 +3,7 @@ id: service.telegram-bot
 status: accepted
 implementation: partial
 created: 2026-10-16
-updated: 2026-10-16
+updated: 2026-10-17
 consumers:
   - "Telegram service implementer"
   - "bot operator"
@@ -35,6 +35,7 @@ sections:
 # Архитектура сервиса уведомлений `@agi_edu_bot`
 
 **Статус:** архитектура частично реализована: account registry, подтверждённый `/stop`, typed event/diff/renderer и Firestore ledger/outbox primitives доступны. Production source observation и deployment не объявлены.
+**Исправления 17 октября:** strict snapshot completeness, идемпотентные context refs и учёт доступности канала реализованы и покрыты регрессиями; [решение и проверки](../../decisions/telegram-review-fixes-2026-10-17.md). Source wiring, link issuer/UI и rollout остаются незавершёнными.
 **Владелец:** отдельный Node.js worker в Education.
 **Бизнес-контракт и решения интервью:** [спецификация сервиса](petr-private:docs/product/agi-edu-bot-service-spec.md).
 
@@ -145,7 +146,7 @@ subject?, title?, before?, after?, contextRefs[], privacyClass
 5. **Новый deployment**: заменить entrypoint/runtime adapter согласно operations spec. Use case и порты остаются прежними.
 6. **Новая настройка события**: только после отдельного контракта предпочтений; отсутствие настройки трактуется единообразно, миграция существующих связей описывается явно.
 
-Каждое расширение обновляет этот root только если меняется общая граница или инвариант; остальные изменения остаются в модульном документе. Новые документы связываются в `docs/product/README.md` и `docs/product/file-map.md`.
+Каждое расширение обновляет этот root только если меняется общая граница или инвариант; остальные изменения остаются в модульном документе. Новые документы связываются в [карте продукта](../../product/README.md) и [карте файлов](../../file-map.md).
 
 ## Порядок реализации и состояние
 
@@ -163,6 +164,8 @@ subject?, title?, before?, after?, contextRefs[], privacyClass
 Первый срез: `node scripts/telegram-bot.mjs check` делает read-only `getMe` и сверяет `agi_edu_bot` без создания Firestore client. Явный `worker` использует ADC, проверяет project access до polling, поддерживает `/start` и sender-bound одноразовый `/stop`; linking token может быть погашен только внедрённым trusted authorizer, которого в текущем UI нет. `--enable-delivery` отдельно включает обработку уже подтверждённых outbox jobs; Firestore/МЭШ observers, UI linking, team resolver и grouping/digest planned.
 
 ## Решения, ожидающие подтверждения/проверки
+
+Независимая сверка документации и локального кода за 2026-10-16 зафиксирована в [аудите Telegram self-review](../../audits/telegram-self-review-2026-10-16.md); он различает реализованный foundation, planned source wiring и вопросы, требующие решения.
 
 - Размещение и процессный режим: постоянный worker рекомендован, хостинг ещё не выбран.
 - Срок одноразового токена и точные правила отзыва.

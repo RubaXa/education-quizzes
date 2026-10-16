@@ -4313,10 +4313,11 @@
       }
     },
     "packages/telegram-notifications/adapters/firestore.mjs": {
-      "sha256": "52542a7f6c54b8a2b7055dacfd11281321f148938327093dec347e704ce55d2b",
-      "record": "docs/decisions/telegram-foundation-2026-10-16.md",
+      "sha256": "aee219cc83639faa82d724a84c92dc5b7403c8c23364f0df1013b515bd02fa82",
+      "record": "docs/decisions/telegram-review-fixes-2026-10-17.md",
       "specs": [
-        "docs/services/telegram-bot/adapters/firestore.md",
+        "docs/services/telegram-bot/ports-and-events.md",
+        "docs/services/telegram-bot/identity-and-linking.md",
         "docs/services/telegram-bot/event-ledger-outbox.md"
       ],
       "tests": [
@@ -4324,13 +4325,15 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо запросил начать реализацию Telegram-сервиса и сообщил о локально заданной AGI_EDU_BOT; значение секрета не включается в доказательство."
+        "evidence": "Пользователь прямо запросил исправить найденные проблемы через Luna Worker, добавить тесты, обновить спецификации, прогнать проверки и выполнить commit/push."
       }
     },
     "packages/telegram-notifications/adapters/memory.mjs": {
-      "sha256": "0648580b43854d008d8fc4d740247c67af50c49dc652d87577c69195b0b192a7",
-      "record": "docs/decisions/telegram-foundation-2026-10-16.md",
+      "sha256": "ac04e00a1763a2555212c20c890107d52eae4c0d2af99d583c98a3e8fbfe2d73",
+      "record": "docs/decisions/telegram-review-fixes-2026-10-17.md",
       "specs": [
+        "docs/services/telegram-bot/ports-and-events.md",
+        "docs/services/telegram-bot/identity-and-linking.md",
         "docs/services/telegram-bot/event-ledger-outbox.md"
       ],
       "tests": [
@@ -4338,36 +4341,39 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо запросил начать реализацию Telegram-сервиса и сообщил о локально заданной AGI_EDU_BOT; значение секрета не включается в доказательство."
+        "evidence": "Пользователь прямо запросил исправить найденные проблемы через Luna Worker, добавить тесты, обновить спецификации, прогнать проверки и выполнить commit/push."
       }
     },
     "packages/telegram-notifications/adapters/runtime.mjs": {
-      "sha256": "26832843099e0efe2cc0ab14aff4c3f4d478a7515c348d3fe79733f0c125217a",
-      "record": "docs/decisions/telegram-foundation-2026-10-16.md",
+      "sha256": "f3c3f95fb4b2bc0941e748f25fd818aee56d27c7955cf55e364b2ac357c7b263",
+      "record": "docs/decisions/telegram-review-fixes-2026-10-17.md",
       "specs": [
-        "docs/services/telegram-bot/operations.md"
+        "docs/services/telegram-bot/ports-and-events.md",
+        "docs/services/telegram-bot/identity-and-linking.md",
+        "docs/services/telegram-bot/event-ledger-outbox.md"
       ],
       "tests": [
         "packages/telegram-notifications/notifications.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо запросил начать реализацию Telegram-сервиса и сообщил о локально заданной AGI_EDU_BOT; значение секрета не включается в доказательство."
+        "evidence": "Пользователь прямо запросил исправить найденные проблемы через Luna Worker, добавить тесты, обновить спецификации, прогнать проверки и выполнить commit/push."
       }
     },
     "packages/telegram-notifications/adapters/telegram.mjs": {
-      "sha256": "4b73aef33722de517e1b09ec9ec412d55bc4c827e0bdf4fc4570d9b5008b27de",
-      "record": "docs/decisions/telegram-foundation-2026-10-16.md",
+      "sha256": "8a77f808fbc3a0d88450de5f37e174b2c89854d4d18c23ab84cf317dc740ebbe",
+      "record": "docs/decisions/telegram-review-fixes-2026-10-17.md",
       "specs": [
-        "docs/services/telegram-bot/delivery.md",
-        "docs/services/telegram-bot/identity-and-linking.md"
+        "docs/services/telegram-bot/ports-and-events.md",
+        "docs/services/telegram-bot/identity-and-linking.md",
+        "docs/services/telegram-bot/event-ledger-outbox.md"
       ],
       "tests": [
         "packages/telegram-notifications/notifications.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо запросил начать реализацию Telegram-сервиса и сообщил о локально заданной AGI_EDU_BOT; значение секрета не включается в доказательство."
+        "evidence": "Пользователь прямо запросил исправить найденные проблемы через Luna Worker, добавить тесты, обновить спецификации, прогнать проверки и выполнить commit/push."
       }
     },
     "packages/telegram-notifications/adapters/worker-loop.mjs": {
@@ -4386,74 +4392,83 @@
       }
     },
     "packages/telegram-notifications/application/identity.mjs": {
-      "sha256": "c1a28a2cfb4ca4cf9223dcf3dcc7ef8816032d7e43ab90aa79ad1ebfa95b2ad4",
-      "record": "docs/decisions/telegram-foundation-2026-10-16.md",
+      "sha256": "1a8e8f263c7343769d2b6c0032e103c615fe0d133e02fcb36a240b7868a7d0ab",
+      "record": "docs/decisions/telegram-review-fixes-2026-10-17.md",
       "specs": [
-        "docs/services/telegram-bot/identity-and-linking.md"
+        "docs/services/telegram-bot/ports-and-events.md",
+        "docs/services/telegram-bot/identity-and-linking.md",
+        "docs/services/telegram-bot/event-ledger-outbox.md"
       ],
       "tests": [
         "packages/telegram-notifications/notifications.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо запросил начать реализацию Telegram-сервиса и сообщил о локально заданной AGI_EDU_BOT; значение секрета не включается в доказательство."
+        "evidence": "Пользователь прямо запросил исправить найденные проблемы через Luna Worker, добавить тесты, обновить спецификации, прогнать проверки и выполнить commit/push."
       }
     },
     "packages/telegram-notifications/application/notifications.mjs": {
-      "sha256": "ddbcb1db703e422423306227fdf3d8bbc65628a4f68e5975991ed9d3d36c5487",
-      "record": "docs/decisions/telegram-foundation-2026-10-16.md",
+      "sha256": "f5892b13c97c922f436bf50a4829394b3e16cd8fc20912709cb964a461a926cd",
+      "record": "docs/decisions/telegram-review-fixes-2026-10-17.md",
       "specs": [
-        "docs/services/telegram-bot/event-ledger-outbox.md",
-        "docs/services/telegram-bot/delivery.md"
+        "docs/services/telegram-bot/ports-and-events.md",
+        "docs/services/telegram-bot/identity-and-linking.md",
+        "docs/services/telegram-bot/event-ledger-outbox.md"
       ],
       "tests": [
         "packages/telegram-notifications/notifications.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо запросил начать реализацию Telegram-сервиса и сообщил о локально заданной AGI_EDU_BOT; значение секрета не включается в доказательство."
+        "evidence": "Пользователь прямо запросил исправить найденные проблемы через Luna Worker, добавить тесты, обновить спецификации, прогнать проверки и выполнить commit/push."
       }
     },
     "packages/telegram-notifications/domain/diff.mjs": {
-      "sha256": "42dfb853656e8d8b32f7ed9876e852f4b176b024250ac3ffb35d1288ad3d5bd0",
-      "record": "docs/decisions/telegram-foundation-2026-10-16.md",
+      "sha256": "4e59fb65ddd35a7671cc45c097f71abb9438f2120237f0ac606d89277ace8b58",
+      "record": "docs/decisions/telegram-review-fixes-2026-10-17.md",
       "specs": [
-        "docs/services/telegram-bot/ports-and-events.md"
+        "docs/services/telegram-bot/ports-and-events.md",
+        "docs/services/telegram-bot/identity-and-linking.md",
+        "docs/services/telegram-bot/event-ledger-outbox.md"
       ],
       "tests": [
         "packages/telegram-notifications/notifications.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо запросил начать реализацию Telegram-сервиса и сообщил о локально заданной AGI_EDU_BOT; значение секрета не включается в доказательство."
+        "evidence": "Пользователь прямо запросил исправить найденные проблемы через Luna Worker, добавить тесты, обновить спецификации, прогнать проверки и выполнить commit/push."
       }
     },
     "packages/telegram-notifications/domain/events.mjs": {
-      "sha256": "8f3e778bea6d6583ebb0b759251681b48070bbd87c91fdf607ab55cf4c2dce10",
-      "record": "docs/decisions/telegram-foundation-2026-10-16.md",
+      "sha256": "a008341391b8c20af8db70697000941359e2fa832556c2541651a955728a0bbf",
+      "record": "docs/decisions/telegram-review-fixes-2026-10-17.md",
       "specs": [
-        "docs/services/telegram-bot/ports-and-events.md"
+        "docs/services/telegram-bot/ports-and-events.md",
+        "docs/services/telegram-bot/identity-and-linking.md",
+        "docs/services/telegram-bot/event-ledger-outbox.md"
       ],
       "tests": [
         "packages/telegram-notifications/notifications.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо запросил начать реализацию Telegram-сервиса и сообщил о локально заданной AGI_EDU_BOT; значение секрета не включается в доказательство."
+        "evidence": "Пользователь прямо запросил исправить найденные проблемы через Luna Worker, добавить тесты, обновить спецификации, прогнать проверки и выполнить commit/push."
       }
     },
     "packages/telegram-notifications/domain/ports.mjs": {
-      "sha256": "4ce7f70c22140239d276933852c882c272557b043534441759d9d4d2bec66d79",
-      "record": "docs/decisions/telegram-foundation-2026-10-16.md",
+      "sha256": "0a8e0dc5e1c2f0b5d972895577f440f42a7baca9df06902f452645203bbafb8a",
+      "record": "docs/decisions/telegram-review-fixes-2026-10-17.md",
       "specs": [
-        "docs/services/telegram-bot/ports-and-events.md"
+        "docs/services/telegram-bot/ports-and-events.md",
+        "docs/services/telegram-bot/identity-and-linking.md",
+        "docs/services/telegram-bot/event-ledger-outbox.md"
       ],
       "tests": [
         "packages/telegram-notifications/notifications.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо запросил начать реализацию Telegram-сервиса и сообщил о локально заданной AGI_EDU_BOT; значение секрета не включается в доказательство."
+        "evidence": "Пользователь прямо запросил исправить найденные проблемы через Luna Worker, добавить тесты, обновить спецификации, прогнать проверки и выполнить commit/push."
       }
     },
     "packages/telegram-notifications/domain/renderer.mjs": {

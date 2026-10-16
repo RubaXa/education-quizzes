@@ -1,0 +1,119 @@
+{
+  "date": "2026-10-17",
+  "head": "acdfced2de811931991fafa19fbe6b4e61b69605",
+  "mode": "local synthetic reproductions and source inspection; no external services",
+  "runtime_changed": false,
+  "source_sha256": {
+    "packages/telegram-notifications/domain/diff.mjs": "42dfb853656e8d8b32f7ed9876e852f4b176b024250ac3ffb35d1288ad3d5bd0",
+    "packages/telegram-notifications/domain/events.mjs": "8f3e778bea6d6583ebb0b759251681b48070bbd87c91fdf607ab55cf4c2dce10",
+    "packages/telegram-notifications/application/notifications.mjs": "ddbcb1db703e422423306227fdf3d8bbc65628a4f68e5975991ed9d3d36c5487",
+    "packages/telegram-notifications/adapters/telegram.mjs": "4b73aef33722de517e1b09ec9ec412d55bc4c827e0bdf4fc4570d9b5008b27de",
+    "packages/telegram-notifications/notifications.test.mjs": "d8579a189161b6a820fb376eee1bc007e8d01b339287d227869d58b1571ee06b"
+  },
+  "snapshot_input": {
+    "previous": {
+      "complete": true,
+      "observationSequence": 1,
+      "records": []
+    },
+    "current": {
+      "observationSequence": 2,
+      "records": [
+        {
+          "recordKey": "synthetic-grade",
+          "kind": "grade",
+          "fields": {
+            "value": "5"
+          }
+        }
+      ]
+    },
+    "source": "mesh",
+    "scopeKey": "synthetic-scope",
+    "familyId": "synthetic-family",
+    "childId": "synthetic-child",
+    "detectedAt": "2026-10-17T00:00:00.000Z"
+  },
+  "completeness_results": [
+    {
+      "complete": true,
+      "advanced": true,
+      "eventCount": 1
+    },
+    {
+      "complete": false,
+      "advanced": false,
+      "eventCount": 0
+    },
+    {
+      "complete": "partial",
+      "advanced": true,
+      "eventCount": 1
+    },
+    {
+      "complete": "unknown",
+      "advanced": true,
+      "eventCount": 1
+    },
+    {
+      "complete": 1,
+      "advanced": true,
+      "eventCount": 1
+    }
+  ],
+  "normalization": {
+    "operation": "createDomainEvent(createDomainEvent(raw))",
+    "input": {
+      "source": "firestore",
+      "scopeKey": "synthetic-scope",
+      "familyId": "synthetic-family",
+      "childId": "synthetic-child",
+      "sourceEventKey": "synthetic-key",
+      "sourceRevision": "1",
+      "eventType": "grade.created",
+      "privacyClass": "family-summary",
+      "fields": {
+        "value": "5"
+      },
+      "contextRefs": [
+        {
+          "kind": "grade",
+          "id": "synthetic-grade"
+        }
+      ],
+      "detectedAt": "2026-10-17T00:00:00.000Z"
+    },
+    "eventIdStable": true,
+    "contextRefIdStable": false
+  },
+  "missing_detectedAt": {
+    "complete_false": {
+      "advanced": false,
+      "baselineIsPrevious": true
+    },
+    "complete_true": {
+      "advanced": false,
+      "baselineIsPrevious": true
+    }
+  },
+  "full_check": {
+    "exit_code": 0,
+    "tests": 526,
+    "test_files": 124,
+    "build": "skipped due unchanged fingerprint"
+  },
+  "not_verified": [
+    "real Firestore permissions/indexes/transactions",
+    "Telegram delivery and polling",
+    "production deployment"
+  ],
+  "open_findings": [
+    "strict completeness validation",
+    "contextRef normalization idempotence",
+    "negative test preconditions",
+    "channel lifecycle registry",
+    "orphan queued counter",
+    "routing replay for previously authorized recipients",
+    "private anchor validator"
+  ]
+}

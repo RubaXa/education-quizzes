@@ -3,7 +3,7 @@ id: service.telegram-bot.ports-and-events
 status: accepted
 implementation: partial
 created: 2026-10-16
-updated: 2026-10-16
+updated: 2026-10-17
 consumers:
   - "Telegram service implementer"
   - "bot operator"
@@ -49,7 +49,7 @@ flowchart LR
 
 ## Контракт observation
 
-`SourceObservation` сообщает подтверждённое представление одного источника и checkpoint:
+Целевой DTO `SourceObservation` сообщает подтверждённое представление одного источника и checkpoint:
 
 ```text
 source, scopeKey, completeness, observedAt, sourceRevision?, cursor?, records[]
@@ -60,6 +60,10 @@ source, scopeKey, completeness, observedAt, sourceRevision?, cursor?, records[]
 - `records[]` содержат стабильный `recordKey`, revision/updated time при наличии, и минимальные типизированные поля.
 - `cursor` opaque и принадлежит адаптеру; ядро хранит/передаёт его, но не интерпретирует.
 - Сетевой сбой не является observation и не очищает последний полный snapshot.
+
+Это целевая граница источника, а не текущая сигнатура snapshot-diff. Реализованный `diffCompleteSnapshots` в `packages/telegram-notifications/domain/diff.mjs` принимает `current.complete: boolean`, `current.observationSequence` и отдельный `detectedAt`; он также получает `source`, `scopeKey`, `familyId` и `childId` как отдельные аргументы. Адаптер, который преобразует DTO выше в этот вызов, пока отсутствует. При таком преобразовании `completeness === 'complete'` становится `complete: true`; `partial`/`unknown` должны отклоняться без продвижения baseline. Sequence берётся из durable checkpoint по scope, а не выводится из `observedAt`, `fetchedAt` или случайного значения. `detectedAt` — время обнаружения worker и не заменяет время observation/источника. Scope должен сохранять изоляцию семьи и ребёнка; идентичность `sourceAccountId` входит в `scopeKey` для источников с отдельными учётными записями.
+
+**Исправление по fact-check 17 октября:** только `complete === true` у current и previous допускает продвижение baseline; строки, числа и объекты не считаются подтверждением полноты. Отрицательные тесты передают валидный `detectedAt`, чтобы достигать этой проверки. [Исходное воспроизведение](../../audits/telegram-self-review-2026-10-16.md#recheck-2026-10-17) сохраняется как история до ремонта.
 
 ## Domain event contract
 
@@ -76,16 +80,26 @@ source, scopeKey, completeness, observedAt, sourceRevision?, cursor?, records[]
 
 Если значимое поле события меняется, появляется новая ревизия/событие. Дублирующийся сигнал той же ревизии возвращает существующий `eventId`. Неполные payload не становятся `deleted` или `cancelled`.
 
+Нормализация идемпотентна для всего DTO, включая `contextRefs.id`: сырые ID хэшируются; при `identityEncoding: sha256-v1` уже нормализованный 64-символьный hex ID сохраняется. `NotificationService.accept` может безопасно повторно нормализовать event до записи. Это не означает наличия context links в renderer: их источник и разрешённый resolver пока planned.
+
 ## Контракт портов
 
-- `SourceObservationPort`: `start(emit)`, `stop()`, checkpoint lifecycle и управляемая ошибка источника.
-- `IdentityRegistryPort`: читать активные связи account/family, выдавать/погашать одноразовый link token, отзывать одну связь, записывать историю переходов.
-- `EventLedgerPort`: атомарно `recordIfAbsent(event)` и получить существующий receipt при повторе.
-- `DeliveryOutboxPort`: добавить уникальные jobs, claim с lease, finish, reschedule и безопасно вернуть истёкшую lease в очередь.
-- `RecipientResolverPort`: по событию вернуть получателей и разрешённые privacy views; принимать только сохранённую identity link, не произвольный Telegram ID из event payload.
-- `MessageRendererPort`: `(event, recipientView, locale) → MessagePart[]`, без побочных эффектов и сети.
-- `TelegramDeliveryPort`: `(chatId, MessagePart) → DeliveryReceipt`; ошибки нормализуются на retryable/permanent/rate-limited.
-- `ClockPort` и `LoggerPort`: внедряются в use cases, чтобы тестировать окна группировки и таймеры без реального ожидания.
+Таблица различает реализованный минимум и целевой портовый контракт. Наличие общего интерфейса в документации не означает наличие adapter или его подключение к runtime.
+
+| Порт / capability | Реализованный минимум | Planned / не подключено |
+|---|---|---|
+| `SourceObservationPort` | `diffCompleteSnapshots` валидирует snapshot и строит события из последовательных полных снимков; `createDomainEvent` нормализует event | `start(emit)`, `stop()`, чтение источников, checkpoint lifecycle, DTO bridge и управляемые ошибки источника |
+| `IdentityRegistryPort`, `FamilyLinkAuthorizationPort` | Регистрация Telegram account, чтение уже существующих links, stop challenge и отзыв одной link | Выдача/погашение семейного link token, PETR UI issuer и production trusted authorization adapter |
+| `EventLedgerPort`, `DeliveryOutboxPort` | `recordIfAbsent`, job claim/finish/reschedule, lease, recovery и per-part receipts в Firestore adapter | Source checkpoint storage и групповые записи/доставка дайджеста |
+| `RecipientResolverPort`, `MembershipAuthorizationPort` | Проверка активной семейной связи и membership родителя/ребёнка | Team resolver, team recipient configuration и раздельная route policy |
+| `MessageRendererPort` | Детерминированная family summary whitelist и разделение длинного текста | Полные `recipientView`/locale templates, approved context links и grouped digest renderer |
+| `TelegramDeliveryPort` | grammY transport, классификация ошибок, ограниченный retry и явная доставка из существующего outbox | End-to-end source-to-message поток и production rollout |
+| `ChannelAvailabilityPort` | `getState` и version-fenced `markUnavailable`; private update ordering в registry; runtime всегда инжектирует Firestore adapter | Реальные Telegram/Firestore integration и полный channel audit/retention |
+| `ClockPort`, `LoggerPort` | Внедряемые clock/logger в application services | Политика окон группировки и операционные метрики/readiness |
+
+Целевые сигнатуры остаются: `RecipientResolverPort` возвращает только проверенных получателей и privacy views; `MessageRendererPort` — `(event, recipientView, locale) → MessagePart[]`; `TelegramDeliveryPort` — `(chatId, MessagePart) → DeliveryReceipt`. Это описание будущих границ и не меняет фактический минимальный runtime composition.
+
+В текущем `diffCompleteSnapshots` implicit mapping предусмотрен только для `grade`, `schedule` и `assignment` (`created`/`changed`). Для `upload`, `quiz` и `review` адаптер должен передать явный известный `eventType`; автоматическое выведение этих типов из `kind` отсутствует. Firebase source mapping и передача таких records пока не подключены.
 
 ## Ошибки и обратная совместимость
 

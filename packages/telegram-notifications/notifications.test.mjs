@@ -13,6 +13,8 @@ import { createTelegramAdapter, createTelegramDelivery } from './adapters/telegr
 import { runWorker } from './adapters/worker-loop.mjs'
 import { EventEmitter } from 'node:events'
 
+/** @see ../../docs/services/telegram-bot/ports-and-events.md */
+
 const now = '2026-10-16T12:00:00.000Z'
 const event = () => createDomainEvent({ source: 'firestore', scopeKey: 'scope', familyId: 'family-a', childId: 'child-a', sourceEventKey: 'upload-1', sourceRevision: 'rev-1', eventType: 'upload.confirmed', privacyClass: 'family-summary', detectedAt: now, fields: { childName: 'Ученик А', status: 'загружено' } })
 
@@ -68,12 +70,135 @@ describe('Telegram notification vertical slice', () => {
     expect(await expiring.confirmStop({ senderId: 5, chatType: 'private', callbackToken: remaining.callbackToken })).toEqual({ code: 'invalid_confirmation' })
   })
 
+  it('requires a strict boolean completeness flag and a valid detectedAt before any baseline moves', () => {
+    const previous = { complete: true, observationSequence: 1, records: [{ recordKey: 'g1', kind: 'grade', fields: { value: '5' } }] }
+    for (const complete of ['partial', 'unknown', 1, {}, false]) {
+      const current = { complete, observationSequence: 2, records: [] }
+      const rejected = diffCompleteSnapshots({ source: 'mesh', scopeKey: 's', familyId: 'f', childId: 'c', previous, current, detectedAt: now })
+      expect(rejected.advanced).toBe(false)
+      expect(rejected.baseline).toBe(previous)
+      const withoutBaseline = diffCompleteSnapshots({ source: 'mesh', scopeKey: 's', familyId: 'f', childId: 'c', current, detectedAt: now })
+      expect(withoutBaseline.advanced).toBe(false)
+      expect(withoutBaseline.baseline).toBeUndefined()
+    }
+    const invalidPrevious = diffCompleteSnapshots({ source: 'mesh', scopeKey: 's', familyId: 'f', childId: 'c', previous: { ...previous, complete: 'yes' }, current: { complete: true, observationSequence: 2, records: [] }, detectedAt: now })
+    expect(invalidPrevious).toMatchObject({ advanced: false, events: [] })
+    expect(invalidPrevious.baseline.complete).toBe('yes')
+    const partial = diffCompleteSnapshots({ source: 'mesh', scopeKey: 's', familyId: 'f', childId: 'c', previous, current: { complete: false, observationSequence: 2, records: [] }, detectedAt: now })
+    expect(partial.advanced).toBe(false)
+    expect(diffCompleteSnapshots({ source: 'mesh', scopeKey: 's', familyId: 'f', childId: 'c', current: { complete: true, observationSequence: 2, records: [] }, detectedAt: 'not-a-time' })).toMatchObject({ advanced: false, baseline: undefined, events: [] })
+  })
+
+  it('normalizes context reference IDs idempotently while hashing raw source IDs', () => {
+    const raw = { source: 'firestore', scopeKey: 'scope', familyId: 'family-a', childId: 'child-a', sourceEventKey: 'event', sourceRevision: 'rev', eventType: 'homework.assigned', privacyClass: 'family-summary', detectedAt: now, contextRefs: [{ kind: 'task', id: 'private-task-id' }] }
+    const once = createDomainEvent(raw)
+    const twice = createDomainEvent(once)
+    expect(twice.contextRefs).toEqual(once.contextRefs)
+    expect(once.eventId).toBe(twice.eventId)
+    expect(once.contextRefs[0].id).not.toBe('private-task-id')
+  })
+
+  it('tracks private Telegram reachability separately from family links and rejects stale or unbound membership updates', async () => {
+    const store = createMemoryStore()
+    store.addActiveLink({ linkId: 'link-a', familyId: 'family-a', personId: 'person-a', telegramUserId: '5' })
+    const identity = new IdentityService({ registry: store.registry, clock: () => new Date(now) })
+    await identity.start({ senderId: 5, chatType: 'private', updateId: 100, occurredAt: now })
+    expect(await store.channel.getState('5')).toMatchObject({ status: 'available', version: 1 })
+    await expect(identity.observeChannelMembership({ senderId: 5, chatId: 6, actorId: 5, chatType: 'private', botUserId: 99, expectedBotUserId: 99, updateId: 101, occurredAt: '2026-10-16T12:00:01.000Z', status: 'blocked' })).resolves.toMatchObject({ updated: false })
+    await expect(identity.observeChannelMembership({ senderId: 5, chatId: 5, actorId: 5, chatType: 'private', botUserId: 99, expectedBotUserId: 99, updateId: 101, occurredAt: '2026-10-16T12:00:01.000Z', status: 'blocked' })).resolves.toMatchObject({ updated: true })
+    expect(await store.channel.getState('5')).toMatchObject({ status: 'blocked', version: 2 })
+    await identity.start({ senderId: 5, chatType: 'private', updateId: 99, occurredAt: now })
+    expect(await store.channel.getState('5')).toMatchObject({ status: 'blocked', version: 2 })
+    await identity.start({ senderId: 5, chatType: 'private', updateId: 102, occurredAt: '2026-10-16T12:00:01.000Z' })
+    expect(await store.channel.getState('5')).toMatchObject({ status: 'available', version: 3 })
+    await identity.observeChannelMembership({ senderId: 5, chatId: 5, actorId: 5, chatType: 'private', botUserId: 99, expectedBotUserId: 99, updateId: 103, occurredAt: '2026-10-16T12:00:02.000Z', status: 'blocked' })
+    expect(await store.channel.getState('5')).toMatchObject({ status: 'blocked', version: 4 })
+    await identity.observeChannelMembership({ senderId: 5, chatId: 5, actorId: 5, chatType: 'private', botUserId: 99, expectedBotUserId: 99, updateId: 102, occurredAt: '2026-10-16T12:00:03.000Z', status: 'available' })
+    expect(await store.channel.getState('5')).toMatchObject({ status: 'blocked', version: 4 })
+    await identity.start({ senderId: 5, chatType: 'private', updateId: 104, occurredAt: '2026-10-16T12:00:04.000Z' })
+    expect(await store.channel.getState('5')).toMatchObject({ status: 'available', version: 5 })
+    await expect(identity.observeChannelMembership({ senderId: 5, chatId: 5, actorId: 5, chatType: 'private', botUserId: undefined, expectedBotUserId: undefined, updateId: 105, occurredAt: '2026-10-16T12:00:05.000Z', status: 'blocked' })).resolves.toMatchObject({ updated: false })
+    await expect(identity.observeChannelMembership({ senderId: 5, chatId: 5, actorId: 7, chatType: 'private', botUserId: 99, expectedBotUserId: 99, updateId: 105, occurredAt: '2026-10-16T12:00:05.000Z', status: 'blocked' })).resolves.toMatchObject({ updated: false })
+    await expect(identity.observeChannelMembership({ senderId: 5, chatId: 5, actorId: 5, chatType: 'private', botUserId: 98, expectedBotUserId: 99, updateId: 105, occurredAt: '2026-10-16T12:00:05.000Z', status: 'blocked' })).resolves.toMatchObject({ updated: false })
+    await expect(identity.observeChannelMembership({ senderId: 5, chatId: 6, actorId: 5, chatType: 'group', botUserId: 99, expectedBotUserId: 99, updateId: 105, occurredAt: '2026-10-16T12:00:05.000Z', status: 'blocked' })).resolves.toMatchObject({ updated: false })
+    expect(store.links.get('link-a').status).toBe('active')
+  })
+
+  it('persists channel ordering and stale 403 fences transactionally in the Firestore adapter', async () => {
+    const db = new FakeFirestore()
+    const adapters = createFirestoreAdapters(db)
+    await adapters.registry.registerAccount({ senderId: '5', username: '', firstName: '', at: now })
+    expect(await adapters.registry.recordChannelUpdate({ senderId: '5', status: 'blocked', updateId: 10, observedAt: Date.parse(now) })).toMatchObject({ updated: true, version: 1 })
+    expect(await adapters.registry.recordChannelUpdate({ senderId: '5', status: 'available', updateId: 11, observedAt: Date.parse(now) })).toMatchObject({ updated: true, state: 'available', version: 2 })
+    expect(await adapters.registry.recordChannelUpdate({ senderId: '5', status: 'blocked', updateId: 9, observedAt: Date.parse(now) + 10_000 })).toMatchObject({ updated: false })
+    expect(await adapters.registry.markChannelUnavailable({ senderId: '5', attemptStartedAt: Date.parse(now) - 1, expectedVersion: 1 })).toMatchObject({ applied: false, state: 'available', version: 2 })
+    expect(await adapters.registry.markChannelUnavailable({ senderId: '5', attemptStartedAt: Date.parse(now), expectedVersion: 2 })).toMatchObject({ applied: true, state: 'unavailable', version: 3 })
+    expect(await adapters.channel.getState('5')).toMatchObject({ status: 'unavailable', version: 3 })
+    expect((await db.doc('telegramBotAccounts/5').get()).data().status).toBe('registered')
+  })
+
+  it('accepts Telegram update_id reset only after a week of trusted update time', async () => {
+    const week = 7 * 24 * 60 * 60_000
+    const timestamp = Date.parse(now)
+    const memory = createMemoryStore()
+    await memory.registry.registerAccount({ senderId: '5', username: '', firstName: '', at: now })
+    await memory.registry.recordChannelUpdate({ senderId: '5', status: 'blocked', updateId: 500, observedAt: timestamp })
+    expect(await memory.registry.recordChannelUpdate({ senderId: '5', status: 'available', updateId: 1, observedAt: timestamp + week - 1 })).toMatchObject({ updated: false })
+    expect(await memory.registry.recordChannelUpdate({ senderId: '5', status: 'available', updateId: 1, observedAt: timestamp + week })).toMatchObject({ updated: true, state: 'available' })
+
+    const db = new FakeFirestore()
+    const firestore = createFirestoreAdapters(db)
+    await firestore.registry.registerAccount({ senderId: '5', username: '', firstName: '', at: now })
+    await firestore.registry.recordChannelUpdate({ senderId: '5', status: 'blocked', updateId: 500, observedAt: timestamp })
+    expect(await firestore.registry.recordChannelUpdate({ senderId: '5', status: 'available', updateId: 1, observedAt: timestamp + week - 1 })).toMatchObject({ updated: false })
+    expect(await firestore.registry.recordChannelUpdate({ senderId: '5', status: 'available', updateId: 1, observedAt: timestamp + week })).toMatchObject({ updated: true, state: 'available' })
+  })
+
+  it('registers first-seen authenticated membership updates without touching family links', async () => {
+    const firestoreDb = new FakeFirestore()
+    const memoryStore = createMemoryStore()
+    const cases = [
+      { store: memoryStore, readAccount: (id) => memoryStore.accounts.get(id) },
+      { store: createFirestoreAdapters(firestoreDb), readAccount: async (id) => (await firestoreDb.doc(`telegramBotAccounts/${id}`).get()).data() },
+    ]
+    for (const { store, readAccount } of cases) {
+      const registry = store.registry
+      const identity = new IdentityService({ registry, clock: () => new Date(now) })
+      await identity.observeChannelMembership({ senderId: 77, chatId: 77, actorId: 77, chatType: 'private', botUserId: 99, expectedBotUserId: 99, updateId: 1, occurredAt: now, status: 'blocked' })
+      expect(await store.channel.getState('77')).toMatchObject({ status: 'blocked', exists: true })
+      expect(await registry.listActiveLinks('77')).toEqual([])
+      await registry.registerAccount({ senderId: '77', username: 'preserved', firstName: 'User A', at: now })
+      await identity.observeChannelMembership({ senderId: 77, chatId: 77, actorId: 77, chatType: 'private', botUserId: 99, expectedBotUserId: 99, updateId: 2, occurredAt: '2026-10-16T12:00:01.000Z', status: 'available' })
+      const account = await readAccount('77')
+      expect(account).toMatchObject({ username: 'preserved', firstName: 'User A', status: 'registered' })
+    }
+  })
+
+  it('keeps a newer explicit channel confirmation when an earlier send failure returns 403', async () => {
+    const store = createMemoryStore()
+    await store.registry.registerAccount({ senderId: '5', username: '', firstName: '', at: now })
+    const started = await store.channel.getState('5')
+    await store.channel.confirmReachable({ senderId: '5', updateId: 10, observedAt: Date.parse(now) + 2_000 })
+    const staleFailure = await store.channel.markUnavailable({ senderId: '5', attemptStartedAt: Date.parse(now) + 1_000, expectedVersion: started.version })
+    expect(staleFailure).toMatchObject({ applied: false, state: 'available' })
+    expect(await store.channel.getState('5')).toMatchObject({ status: 'available', version: 1 })
+  })
+
+  it('treats a missing channel state on legacy accounts as available but a missing account as unavailable', async () => {
+    const store = createMemoryStore()
+    await store.registry.registerAccount({ senderId: '5', username: '', firstName: '', at: now })
+    expect(await store.channel.isAvailable('5')).toBe(true)
+    expect(await store.channel.isAvailable('6')).toBe(false)
+  })
+
   it('sets the first complete snapshot as baseline and does not advance on partial input', () => {
     const first = { complete: true, observationSequence: 1, records: [{ recordKey: 'g1', kind: 'grade', fields: { value: '5' } }] }
     const seeded = diffCompleteSnapshots({ source: 'mesh', scopeKey: 's', familyId: 'f', childId: 'c', current: first, detectedAt: now })
     expect(seeded.events).toHaveLength(0)
+    expect(seeded.advanced).toBe(true)
+    expect(seeded.baseline).toBe(first)
     const partial = { complete: false, observationSequence: 2, records: [] }
-    const rejected = diffCompleteSnapshots({ source: 'mesh', scopeKey: 's', familyId: 'f', childId: 'c', previous: first, current: partial })
+    const rejected = diffCompleteSnapshots({ source: 'mesh', scopeKey: 's', familyId: 'f', childId: 'c', previous: first, current: partial, detectedAt: now })
     expect(rejected.advanced).toBe(false)
     expect(rejected.baseline).toBe(first)
   })
@@ -152,6 +277,98 @@ describe('Telegram notification vertical slice', () => {
     const replacement = await store.outbox.claim({ workerId: 'old', now: reclaimAt, leaseMs: 50 })
     await expect(store.outbox.finish({ jobId: 'stale-job', workerId: 'old', leaseToken: claim.leaseToken, now: reclaimAt, result: { state: 'sent' } })).rejects.toThrow('stale_lease')
     expect(replacement.leaseToken).not.toBe(claim.leaseToken)
+  })
+
+  it('does not send when the independent channel gate knows the account is unavailable', async () => {
+    const store = createMemoryStore()
+    await store.registry.registerAccount({ senderId: '5', username: '', firstName: '', at: now })
+    store.addActiveLink({ linkId: 'link-a', familyId: 'family-a', personId: 'person-a', telegramUserId: '5' })
+    await store.channel.setStatusForTest('5', 'unavailable', Date.parse(now))
+    let sends = 0
+    const service = new NotificationService({ eventLedger: store.eventLedger, outbox: store.outbox,
+      recipients: { async resolveVerified() { return [{ type: 'family-link', linkId: 'link-a', familyId: 'family-a', personId: 'person-a', telegramUserId: '5' }] } },
+      membership: { async isActiveMember() { return true } }, channel: store.channel,
+      renderer: renderEvent, delivery: { async send() { sends += 1; return { messageId: 1 } } },
+      clock: () => new Date(now), workerId: 'channel-gate', logger: { info() {}, error() {} },
+    })
+    await service.accept(event())
+    await service.runOne()
+    expect(sends).toBe(0)
+    expect([...store.jobs.values()][0]).toMatchObject({ state: 'blocked', safeErrorCode: 'channel_unavailable' })
+    expect(store.links.get('link-a').status).toBe('active')
+  })
+
+  it('keeps a job retryable when the channel state store is temporarily unavailable', async () => {
+    const store = createMemoryStore()
+    store.addActiveLink({ linkId: 'link-a', familyId: 'family-a', personId: 'person-a', telegramUserId: '5' })
+    const service = new NotificationService({ eventLedger: store.eventLedger, outbox: store.outbox,
+      recipients: { async resolveVerified() { return [{ type: 'family-link', linkId: 'link-a', familyId: 'family-a', personId: 'person-a', telegramUserId: '5' }] } },
+      membership: { async isActiveMember() { return true } }, channel: { async getState() { throw new Error('private-db-detail') }, async markUnavailable() { return { applied: false } } },
+      renderer: renderEvent, delivery: { async send() { throw new Error('must_not_send') } }, clock: () => new Date(now), workerId: 'channel-read', logger: { info() {}, error() {} },
+    })
+    await service.accept(event())
+    await service.runOne()
+    expect([...store.jobs.values()][0]).toMatchObject({ state: 'retry_wait', safeErrorCode: 'channel_state_unavailable' })
+    expect(JSON.stringify([...store.jobs.values()])).not.toContain('private-db-detail')
+  })
+
+  it('leaves a job for lease recovery when persisting a 403 channel marker fails', async () => {
+    const store = createMemoryStore()
+    await store.registry.registerAccount({ senderId: '5', username: '', firstName: '', at: now })
+    store.addActiveLink({ linkId: 'link-a', familyId: 'family-a', personId: 'person-a', telegramUserId: '5' })
+    const service = new NotificationService({ eventLedger: store.eventLedger, outbox: store.outbox,
+      recipients: { async resolveVerified() { return [{ type: 'family-link', linkId: 'link-a', familyId: 'family-a', personId: 'person-a', telegramUserId: '5' }] } },
+      membership: { async isActiveMember() { return true } }, channel: { async getState() { return { status: 'available', version: 0 } }, async markUnavailable() { throw new Error('private-write-detail') } },
+      renderer: renderEvent, delivery: { async send() { throw Object.assign(new Error(), { safeCode: 'channel_unavailable' }) } },
+      clock: () => new Date(now), workerId: 'channel-write', logger: { info() {}, error() {} },
+    })
+    await service.accept(event())
+    await expect(service.runOne()).rejects.toThrow('private-write-detail')
+    expect([...store.jobs.values()][0].state).toBe('leased')
+    await store.outbox.recoverExpired(new Date(Date.parse(now) + 121_000).toISOString())
+    expect([...store.jobs.values()][0]).toMatchObject({ state: 'retry_wait', safeErrorCode: 'worker_lease_expired' })
+  })
+
+  it('does not let a late 403 overwrite a newer channel update and retries the current job', async () => {
+    const store = createMemoryStore()
+    await store.registry.registerAccount({ senderId: '5', username: '', firstName: '', at: now })
+    store.addActiveLink({ linkId: 'link-a', familyId: 'family-a', personId: 'person-a', telegramUserId: '5' })
+    let rejectSend
+    const service = new NotificationService({ eventLedger: store.eventLedger, outbox: store.outbox,
+      recipients: { async resolveVerified() { return [{ type: 'family-link', linkId: 'link-a', familyId: 'family-a', personId: 'person-a', telegramUserId: '5' }] } },
+      membership: { async isActiveMember() { return true } }, channel: store.channel,
+      renderer: renderEvent, delivery: { send() { return new Promise((_, reject) => { rejectSend = reject }) } },
+      clock: () => new Date(now), workerId: 'late-403', logger: { info() {}, error() {} },
+    })
+    await service.accept(event())
+    const running = service.runOne()
+    while (!rejectSend) await new Promise((resolve) => setTimeout(resolve, 0))
+    await store.channel.confirmReachable({ senderId: '5', updateId: 11, observedAt: Date.parse(now) + 2_000 })
+    const forbidden = Object.assign(new Error('forbidden'), { safeCode: 'channel_unavailable' })
+    rejectSend(forbidden)
+    await running
+    expect(await store.channel.getState('5')).toMatchObject({ status: 'available', version: 1 })
+    expect([...store.jobs.values()][0]).toMatchObject({ state: 'retry_wait', safeErrorCode: 'channel_state_changed' })
+    expect(store.links.get('link-a').status).toBe('active')
+  })
+
+  it('returns the actual count of newly created jobs for memory and Firestore ledger adapters', async () => {
+    const memory = createMemoryStore()
+    const memoryEvent = event()
+    const existing = { jobId: `${memoryEvent.eventId}_link-a`, eventId: memoryEvent.eventId, linkId: 'link-a', familyId: 'family-a', personId: 'person-a', childId: 'child-a', telegramUserId: '5', state: 'pending', attempts: 0, nextAttemptAt: now }
+    memory.jobs.set(existing.jobId, existing)
+    await memory.registry.registerAccount({ senderId: '5', username: '', firstName: '', at: now })
+    memory.addActiveLink({ linkId: 'link-a', familyId: 'family-a', personId: 'person-a', telegramUserId: '5' })
+    const memoryResult = await memory.eventLedger.recordIfAbsent({ event: memoryEvent, jobs: [existing] })
+    expect(memoryResult.queued).toBe(0)
+
+    const db = new FakeFirestore()
+    const adapters = createFirestoreAdapters(db)
+    await db.doc('telegramBotFamilyLinks/link-a').set({ familyId: 'family-a', personId: 'person-a', telegramUserId: '5', status: 'active' })
+    await db.doc('families/family-a/members/person-a').set({ active: true, role: 'parent', childIds: ['child-a'] })
+    await db.doc(`telegramNotificationOutbox/${existing.jobId}`).set(existing)
+    const firestoreResult = await adapters.eventLedger.recordIfAbsent({ event: memoryEvent, jobs: [existing] })
+    expect(firestoreResult.queued).toBe(0)
   })
 
   it('redacts non-whitelisted private fields and URLs from rendered text', () => {
@@ -330,8 +547,9 @@ describe('Telegram notification vertical slice', () => {
   it('configures grammY request timeouts and maps its real HttpError to a retryable failure', async () => {
     const calls = []
     class FakeBot {
-      constructor(token, options) { calls.push(['bot', token, options]); this.api = { config: { use() {} } } }
-      command() {}
+      constructor(token, options) { calls.push(['bot', token, options]); this.api = { config: { use() {} } }; this.handlers = {} }
+      command(name, callback) { this.handlers[`command:${name}`] = callback }
+      on(name, callback) { this.handlers[`on:${name}`] = callback }
       callbackQuery() {}
       catch() {}
       async start(options) { calls.push(['poll', options]) }
@@ -349,6 +567,29 @@ describe('Telegram notification vertical slice', () => {
     expect(calls).toContainEqual(['api', 'test-only', { timeoutSeconds: 20 }])
     expect(calls).toContainEqual(['poll', { timeout: 10 }])
     await expect(createTelegramDelivery('test-only', { ApiClass: FakeApi }).send({ chatId: 1, text: 'x' })).rejects.toMatchObject({ safeCode: 'telegram_temporary' })
+    class ForbiddenApi extends FakeApi { async sendMessage() { throw { error_code: 403 } } }
+    await expect(createTelegramDelivery('test-only', { ApiClass: ForbiddenApi }).send({ chatId: 1, text: 'x' })).rejects.toMatchObject({ safeCode: 'channel_unavailable' })
+  })
+
+  it('wires Telegram start metadata and authentic private my_chat_member updates to channel state', async () => {
+    const captured = { starts: [], membership: [] }
+    const identity = {
+      async start(input) { captured.starts.push(input); return { code: 'registered' } },
+      async observeChannelMembership(input) { captured.membership.push(input); return { updated: true } },
+      async requestStop() {}, async confirmStop() {},
+    }
+    let bot
+    class FakeBot {
+      constructor() { this.api = { config: { use() {} } }; this.handlers = {} ; bot = this }
+      command(name, callback) { this.handlers[`command:${name}`] = callback }
+      on(name, callback) { this.handlers[`on:${name}`] = callback }
+      callbackQuery() {} catch() {} async start() {} async stop() {}
+    }
+    createTelegramAdapter({ token: 'test-only', identity, BotClass: FakeBot })
+    await bot.handlers['command:start']({ chat: { type: 'private' }, from: { id: 5 }, update: { update_id: 8 }, message: { date: 1_792_153_200 }, match: '', reply() {} })
+    await bot.handlers['on:my_chat_member']({ chat: { type: 'private' }, from: { id: 5 }, me: { id: 99 }, update: { update_id: 9 }, myChatMember: { date: 1_792_153_201, chat: { id: 5, type: 'private' }, from: { id: 5 }, new_chat_member: { status: 'kicked', user: { id: 99 } } } })
+    expect(captured.starts[0]).toMatchObject({ senderId: 5, updateId: 8, occurredAt: new Date(1_792_153_200_000).toISOString() })
+    expect(captured.membership[0]).toMatchObject({ senderId: 5, chatId: 5, actorId: 5, botUserId: 99, expectedBotUserId: 99, updateId: 9, status: 'blocked' })
   })
 })
 

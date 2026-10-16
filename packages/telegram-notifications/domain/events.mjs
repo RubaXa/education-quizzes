@@ -49,7 +49,7 @@ export function createDomainEvent(input) {
     privacyClass: input.privacyClass,
     fields: safeFields(input.eventType, input.fields),
     contextRefs: Array.isArray(input.contextRefs) ? input.contextRefs.filter((ref) =>
-      ref && ['day', 'task', 'grade'].includes(ref.kind) && typeof ref.id === 'string' && ref.id.trim()).map(({ kind, id }) => ({ kind, id: sha(id) })) : [],
+      ref && ['day', 'task', 'grade'].includes(ref.kind) && typeof ref.id === 'string' && ref.id.trim()).map(({ kind, id }) => ({ kind, id: input.identityEncoding === 'sha256-v1' && /^[a-f0-9]{64}$/.test(id) ? id : sha(id) })) : [],
   })
 }
 
