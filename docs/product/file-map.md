@@ -32,6 +32,8 @@
 | [day/grade-publication.test.mjs](../../day/grade-publication.test.mjs) | [Средний балл](grades.md) | Регрессия исчезновения комментариев при переходе на следующий день, обе роли и идемпотентность | Vitest; разработчик |
 | [day/grade-reconciliation.mjs](../../day/grade-reconciliation.mjs) | [Средний балл](grades.md) | Сверка среза МЭШ, подробности подтверждённой отметки и обнаружение изменений | `scripts/day.mjs`; уведомления |
 | [day/grade-reconciliation.test.mjs](../../day/grade-reconciliation.test.mjs) | [Средний балл](grades.md) | Проверка барьера, одинаковых отметок с разными работами и изменений | Vitest; разработчик |
+| [day/grade-snapshot.mjs](../../day/grade-snapshot.mjs) | [Средний балл](grades.md) | Чистое предложение только новых подтверждённых отметок из полного снимка МЭШ | `scripts/grade-snapshot.mjs` |
+| [day/grade-snapshot.test.mjs](../../day/grade-snapshot.test.mjs) | [Средний балл](grades.md) | Идемпотентность и барьер против потери/изменения оценки | Vitest; разработчик |
 | [day/homework-kind.d.mts](../../day/homework-kind.d.mts) | [Формирование плана](plan-generation.md) | Типы единого определения явного ЦДЗ и письменного задания | TypeScript; клиент |
 | [day/homework-kind.mjs](../../day/homework-kind.mjs) | [Формирование плана](plan-generation.md) | Общее правило классификации МЭШ для сборки и интерфейса | `day/build.mjs`; `src/lib/dayStore.ts`; `day/merge.mjs` |
 | [day/homework-reference.mjs](../../day/homework-reference.mjs) | [Формирование плана](plan-generation.md) | Разрешение ссылки МЭШ на ранее назначенное ДЗ | `day/build.mjs`; `scripts/day.mjs` |
@@ -83,6 +85,7 @@
 | [docs/architecture/school-diary-port-adapter.md](../architecture/school-diary-port-adapter.md) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Граница получения данных МЭШ | Агент; разработчик |
 | [docs/architecture/shared-artifact-pipeline.md](../architecture/shared-artifact-pipeline.md) | [Общие артефакты](../architecture/shared-artifact-pipeline.md) | Стадии исходников, общего обогащения и адресных связей | `skills/education-sync`; синхронизатор; разработчик |
 | [docs/product/ui-decisions/mesh-requirement-trace-2026-10-16.md](../../docs/product/ui-decisions/mesh-requirement-trace-2026-10-16.md) | [Основания проверки](review-criteria-provenance.md) | Решение о структуре разбора отдельных требований МЭШ и роли фото | Агент; UI-контракт |
+| [docs/product/ui-decisions/stable-grade-snapshot-command-2026-10-16.md](../../docs/product/ui-decisions/stable-grade-snapshot-command-2026-10-16.md) | [Средний балл](grades.md) | Решение о штатном обновлении числового среза без одноразового скрипта | Агент; UI-контракт |
 | [docs/product/README.md](README.md) | [Карта спецификаций](README.md) | Навигация между контрактами | Агент; разработчик |
 | [docs/product/component-system.md](component-system.md) | [Система компонентов](component-system.md) | Роли компонентов, основания переиспользования и барьеры нового UI | Агент; React; проверка карты |
 | [docs/product/education-pipeline.md](education-pipeline.md) | [Сквозной протокол](education-pipeline.md) | Порядок стадий, проверяемые барьеры и пределы автоматизации | Навык синхронизации; операторы; разработчик |
@@ -168,6 +171,7 @@
 | [scripts/check-spec-map.mjs](../../scripts/check-spec-map.mjs) | [Система компонентов](component-system.md) | Покрытие файлов, ссылки React/CSS на контракт и единый загрузчик изображений | npm check; агент |
 | [scripts/connect.mjs](../../scripts/connect.mjs) | [Порт дневника](../architecture/school-diary-port-adapter.md) | Выпуск приглашений и проверенный приём взрослых | Оператор; Firestore |
 | [scripts/day.mjs](../../scripts/day.mjs) | [Граф самопроверок](assessment-decision-graph.md) | Выпуск дня, проверка подтверждённого намерения теста, сверка индекса и аудит ссылок с ограниченной параллельностью, кэшем и замером | Оператор; Firestore; `src/DayDashboard.tsx`; `NotificationBell` |
+| [scripts/grade-snapshot.mjs](../../scripts/grade-snapshot.mjs) | [Средний балл](grades.md) | Штатный предпросмотр и запись аддитивного среза МЭШ после постоянного отчёта | Оператор Education Sync; `day reconcile-grades` |
 | [scripts/direct-upload-worker.mjs](../../scripts/direct-upload-worker.mjs) | [Семейная библиотека](family-library.md) | Выдача адресов и проверка фото работ и семейных PDF, общий архив по SHA | Клиенты загрузки; очереди |
 | [scripts/ensure-book-upload-index.mjs](../../scripts/ensure-book-upload-index.mjs) | [Local-first синхронизация](../architecture/local-first-sync.md) | Аддитивная установка индекса активных PDF-заявок с сохранением существующих настроек поля | Оператор; `direct-upload-worker.mjs` |
 | [scripts/sync-inbox.mjs](../../scripts/sync-inbox.mjs) | [Сквозной протокол](education-pipeline.md) | Общий снимок очередей PDF, работ и открытых ответов; ограниченно параллельные владельцы и замер вызовов SDK | Операторский полный запуск `education-sync`; `sync/help-request-cache.mjs` |

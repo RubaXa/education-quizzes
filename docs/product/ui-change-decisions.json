@@ -959,6 +959,20 @@
         "evidence": "Родитель 15.10.2026 прямо потребовал отдельный результат каждого назначенного номера МЭШ и необязательность дополнительных действий учебника."
       }
     },
+    "day/grade-snapshot.mjs": {
+      "sha256": "411c56357084b964d084d9de64c8119c1ee9c6ae2db2adac7698b49952e29e14",
+      "record": "docs/product/ui-decisions/stable-grade-snapshot-command-2026-10-16.md",
+      "specs": ["docs/product/grades.md"],
+      "tests": ["day/grade-snapshot.test.mjs", "day/grade-reconciliation.test.mjs"],
+      "authorization": { "status": "direct-request", "evidence": "Родитель 16.10.2026 попросил штатные повторяемые команды Education вместо одноразовых inline-скриптов." }
+    },
+    "scripts/grade-snapshot.mjs": {
+      "sha256": "b175f8e9a3c964b98fdb9df3995b8d7d4f52f7d42e8b0b7992751b95df57af78",
+      "record": "docs/product/ui-decisions/stable-grade-snapshot-command-2026-10-16.md",
+      "specs": ["docs/product/grades.md"],
+      "tests": ["day/grade-snapshot.test.mjs", "day/grade-publication.test.mjs"],
+      "authorization": { "status": "direct-request", "evidence": "Родитель 16.10.2026 попросил штатные повторяемые команды Education вместо одноразовых inline-скриптов." }
+    },
     "storage/review-requirements.mjs": {
       "sha256": "f5f28c2d14bc5c4285e44b9685762c6098b86cd492a5894b8ab269d0e414b43c",
       "record": "docs/product/ui-decisions/mesh-requirement-trace-2026-10-16.md",
