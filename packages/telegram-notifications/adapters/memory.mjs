@@ -2,7 +2,7 @@ import { randomBytes } from 'node:crypto'
 
 /** @see ../../../docs/services/telegram-bot/event-ledger-outbox.md#состояния @see ../../../docs/services/telegram-bot/identity-and-linking.md#состояния @see ../../../docs/services/telegram-bot/ports-and-events.md#контракт-портов */
 export function createMemoryStore() {
-  const accounts = new Map(), links = new Map(), challenges = new Map(), events = new Map(), jobs = new Map()
+  const accounts = new Map(), links = new Map(), challenges = new Map(), pairChallenges = new Map(), events = new Map(), jobs = new Map()
   const registry = {
     async registerAccount(account) {
       const previous = accounts.get(account.senderId)
@@ -42,6 +42,19 @@ export function createMemoryStore() {
     },
     async listActiveLinks(senderId) { return [...links.values()].filter((link) => link.telegramUserId === senderId && link.status === 'active') },
     async createStopChallenge(challenge) { challenges.set(challenge.tokenHash, { ...challenge, usedAt: null }) },
+    async createPairChallenge(challenge) {
+      const account = accounts.get(challenge.senderId)
+      if (!account) return { issued: false }
+      const lastIssued = Date.parse(account.pairCodeIssuedAt ?? '')
+      const issuedAt = Date.parse(challenge.issuedAt)
+      if (!Number.isFinite(issuedAt) || (Number.isFinite(lastIssued) && issuedAt < lastIssued + 60_000)) return { issued: false }
+      if (/^[a-f0-9]{64}$/.test(account.currentPairCodeHash ?? '')) pairChallenges.delete(account.currentPairCodeHash)
+      pairChallenges.set(challenge.tokenHash, { ...challenge, usedAt: null })
+      account.currentPairCodeHash = challenge.tokenHash
+      account.pairCodeIssuedAt = challenge.issuedAt
+      account.pairCodeExpiresAt = challenge.expiresAt
+      return { issued: true }
+    },
     async consumeStopChallenge({ tokenHash, senderId, now }) {
       const c = challenges.get(tokenHash)
       if (!c || c.senderId !== senderId || c.usedAt || c.expiresAt <= now) return { code: 'invalid_confirmation' }
@@ -50,6 +63,31 @@ export function createMemoryStore() {
       if (!link || link.telegramUserId !== senderId || link.status !== 'active') return { code: 'link_unavailable' }
       link.status = 'disconnected'; link.disconnectedAt = now
       return { code: 'disconnected' }
+    },
+    async redeemPairChallenge({ tokenHash, familyId, personId, now }) {
+      const challenge = pairChallenges.get(tokenHash)
+      const expiresAt = Date.parse(challenge?.expiresAt ?? '')
+      const issuedAt = Date.parse(challenge?.issuedAt ?? '')
+      if (!challenge || challenge.usedAt || !Number.isFinite(expiresAt) || !Number.isFinite(issuedAt)
+        || Date.parse(now) < issuedAt || Date.parse(now) >= expiresAt || expiresAt - issuedAt <= 0
+        || expiresAt - issuedAt > 10 * 60_000) return { code: 'invalid_pairing' }
+      const account = accounts.get(challenge.senderId)
+      if (!account || account.status === 'disconnected' || account.currentPairCodeHash !== tokenHash
+        || account.pairCodeExpiresAt !== challenge.expiresAt || (account.channelStatus ?? 'available') !== 'available') return { code: 'invalid_pairing' }
+      const sameFamily = [...links.values()].filter((link) => link.telegramUserId === challenge.senderId
+        && link.familyId === familyId && link.status === 'active')
+      if (sameFamily.length) {
+        challenge.usedAt = now
+        account.currentPairCodeHash = null; account.pairCodeExpiresAt = null
+        return sameFamily.every((link) => link.personId === personId) ? { code: 'already_linked' } : { code: 'pairing_conflict' }
+      }
+      challenge.usedAt = now
+      account.currentPairCodeHash = null; account.pairCodeExpiresAt = null
+      const linkId = `${challenge.senderId}:${familyId}`
+      const old = links.get(linkId)
+      if (old?.status === 'active') return { code: 'already_linked' }
+      links.set(linkId, { linkId, telegramUserId: challenge.senderId, familyId, personId, status: 'active', linkedAt: now })
+      return { code: 'linked', linkId }
     },
   }
   const channel = {
@@ -88,7 +126,7 @@ export function createMemoryStore() {
   }
   function owned(id, workerId, leaseToken, now) { const row = jobs.get(id); if (!row || row.state !== 'leased' || row.leaseOwner !== workerId || row.leaseToken !== leaseToken || row.leaseUntil <= now) { const error = new Error('stale_lease'); error.safeCode = 'stale_lease'; throw error } return row }
   return {
-    registry, channel, outbox, events, jobs, links, accounts,
+    registry, channel, outbox, events, jobs, links, accounts, pairChallenges,
     eventLedger: { async recordIfAbsent({ event, jobs: jobRows }) { if (events.has(event.eventId)) return { created: false, eventId: event.eventId }; events.set(event.eventId, structuredClone(event)); const queued = jobRows.filter((job) => !jobs.has(job.jobId)).length; await outbox.enqueue(jobRows); return { created: true, eventId: event.eventId, queued } } },
     addActiveLink(link) { links.set(link.linkId, { status: 'active', ...link }) },
   }

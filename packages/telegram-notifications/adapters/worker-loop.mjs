@@ -1,5 +1,6 @@
 /** @see ../../../docs/services/telegram-bot/operations.md#runtime-boundary */
-export async function runWorker({ runtime, enableDelivery, logger, processLike = process, random = Math.random, shutdownMs = 25_000 }) {
+export async function runWorker({ runtime, enableDelivery, logger, processLike = process, random = Math.random,
+  shutdownMs = 25_000, shutdownCleanupMs = 5_000, lock = null, telemetry = null, onShutdown = null }) {
   let running = true
   let stopPromise
   let drainTask = Promise.resolve()
@@ -11,44 +12,58 @@ export async function runWorker({ runtime, enableDelivery, logger, processLike =
   let failure = false
   let requestShutdown
   const shutdownRequested = new Promise((resolve) => { requestShutdown = resolve })
+  const lockMonitor = lock?.lost?.then((error) => {
+    if (error) {
+      failure = true
+      logger.error({ code: 'worker_lock_lost' })
+      void stop().catch(() => { failure = true; logger.error({ code: 'shutdown_failed' }) })
+    }
+  })
   const stop = () => {
     if (stopPromise) return stopPromise
     running = false
     wakeIdle?.()
     requestShutdown()
+    try { onShutdown?.() } catch { failure = true; logger.error({ code: 'shutdown_signal_failed' }) }
     sourceCloseTask = Promise.resolve().then(() => runtime.sourceCoordinator?.close?.()).catch(() => {
       failure = true
       logger.error({ code: 'source_stop_failed' })
     })
     stopPromise = (async () => {
       let timedOut = false
-      let timer
+      let timer, cleanupTimer
       const deadline = new Promise((resolve) => {
         timer = setTimeout(() => { timedOut = true; resolve(false) }, shutdownMs)
         timer.unref?.()
       })
-      try {
-        if (runtime.telegram.bot.isRunning() || pollStartAttempted) {
-          const stopResult = await Promise.race([
-            runtime.telegram.stop().then(() => true, () => { failure = true; logger.error({ code: 'telegram_stop_failed' }); return true }),
-            deadline,
-          ])
-          if (!stopResult) timedOut = true
+      const stages = [
+        ...(runtime.telegram.bot.isRunning() || pollStartAttempted ? [['telegram_stop', () => runtime.telegram.stop()]] : []),
+        ['source_close', () => sourceCloseTask], ['source_start', () => sourceTask],
+        ['delivery_drain', () => drainTask], ['telegram_poll', () => pollTask],
+      ]
+      const stageResults = await Promise.all(stages.map(async ([stage, work]) => {
+        try {
+          const completed = await runShutdownStage(telemetry, stage, work, deadline)
+          if (!completed) logger.error({ code: `shutdown_timeout_${stage}` })
+          return completed
+        } catch {
+          failure = true
+          logger.error({ code: stage === 'telegram_stop' ? 'telegram_stop_failed' : `shutdown_stage_failed_${stage}` })
+          return true
         }
-      } catch {
-        failure = true
-        logger.error({ code: 'telegram_stop_failed' })
-      }
-      if (!timedOut) {
-        const drained = await Promise.race([Promise.allSettled([sourceCloseTask, sourceTask, drainTask, pollTask]).then(() => true), deadline])
-        if (!drained) timedOut = true
-      }
+      }))
+      timedOut = stageResults.includes(false)
       if (timedOut) { failure = true; logger.error({ code: 'shutdown_deadline_exceeded' }) }
       try {
-        const terminated = await Promise.race([runtime.db.terminate().then(() => true, () => false), deadline])
-        if (!terminated) { failure = true; logger.error({ code: 'firestore_shutdown_failed' }) }
+        const cleanupDeadline = new Promise((resolve) => {
+          cleanupTimer = setTimeout(() => resolve(false), shutdownCleanupMs)
+          cleanupTimer.unref?.()
+        })
+        const terminated = await runShutdownStage(telemetry, 'firestore_terminate', () => runtime.db.terminate(), cleanupDeadline)
+        if (!terminated) { failure = true; logger.error({ code: 'shutdown_timeout_firestore_terminate' }) }
       } catch { failure = true; logger.error({ code: 'firestore_shutdown_failed' }) }
       clearTimeout(timer)
+      if (cleanupTimer) clearTimeout(cleanupTimer)
       if (failure && typeof processLike.exit === 'function') processLike.exit(1)
       return !failure
     })()
@@ -98,7 +113,7 @@ export async function runWorker({ runtime, enableDelivery, logger, processLike =
       logger.error({ code: 'telegram_polling_failed' })
       void stop().catch(() => { failure = true; logger.error({ code: 'shutdown_failed' }) })
     })
-    await Promise.race([Promise.all([sourceTask, pollTask]), shutdownRequested])
+    await Promise.race([Promise.all([sourceTask, pollTask]), shutdownRequested, ...(lockMonitor ? [lockMonitor] : [])])
   } catch {
     failure = true
     logger.error({ code: 'worker_start_failed' })
@@ -106,6 +121,29 @@ export async function runWorker({ runtime, enableDelivery, logger, processLike =
     processLike.removeListener('SIGINT', onSignal)
     processLike.removeListener('SIGTERM', onSignal)
     await stop()
+    try { lock?.assertHeld?.() } catch { failure = true }
   }
   return { ok: !failure }
+}
+
+async function runShutdownStage(telemetry, stage, work, deadline) {
+  const operation = `telegram.shutdown.${stage}`
+  const measured = async () => {
+    const result = await Promise.race([
+      Promise.resolve().then(work).then((value) => ({ ok: true, value }), (error) => ({ ok: false, error })),
+      deadline.then(() => ({ timeout: true })),
+    ])
+    if (result?.timeout) throw Object.assign(new Error('shutdown_stage_timeout'), { safeCode: 'shutdown_stage_timeout' })
+    if (!result.ok) throw result.error
+    return result.value
+  }
+  if (!telemetry?.span) return measured().then(() => true, (error) => {
+    if (error?.safeCode === 'shutdown_stage_timeout') return false
+    throw error
+  })
+  try { await telemetry.span(operation, measured, { stage }); return true }
+  catch (error) {
+    if (error?.safeCode === 'shutdown_stage_timeout') return false
+    throw error
+  }
 }

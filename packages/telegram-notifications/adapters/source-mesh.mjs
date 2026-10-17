@@ -2,21 +2,22 @@ import { createHash } from 'node:crypto'
 
 /** @see ../../../docs/services/telegram-bot/adapters/mesh.md#контракт-снимка @see ../../../docs/services/telegram-bot/adapters/mesh.md#ошибки-и-восстановление */
 /** Pure projection of complete Mesh adapter results; never accepts or returns credentials/raw payloads. */
-export function normalizeMeshObservation({ scope, schedule, assignments, marks, childName = '', source = 'mesh', observedAt = new Date().toISOString() }) {
-  if (source !== 'mesh' || !validScopeShape(scope) || !validInstant(observedAt)) return null
+export function normalizeMeshObservation({ scope, schedule, assignments, marks, childName = '', source = 'mesh', observedAt = new Date().toISOString(), onInvalid = () => {} }) {
+  const invalid = (reason) => { try { onInvalid(reason) } catch { /* diagnostics cannot affect validation */ } return null }
+  if (source !== 'mesh' || !validScopeShape(scope) || !validInstant(observedAt)) return invalid('invalid_observation_shape')
   if (scope.kind === 'grades' ? !Array.isArray(marks)
-    : !Array.isArray(schedule) || (scope.kind === 'homework' && !Array.isArray(assignments))) return null
+    : !Array.isArray(schedule) || (scope.kind === 'homework' && !Array.isArray(assignments))) return invalid('required_collection_missing')
   const records = []
   if (scope.kind === 'grades') {
     for (const subject of marks) {
-      if (!safeDate(subject?.start)) return null
+      if (!safeDate(subject?.start)) return invalid('invalid_grade_period')
       if (scope.periodKey && subject.start !== scope.periodKey) continue
       if (scope.subjectId !== undefined && String(subject.subject_id) !== String(scope.subjectId)) continue
       if (!subject || !stableId(subject.subject_id) || !Array.isArray(subject.marks)
-        || !Number.isInteger(subject.count) || subject.count !== subject.marks.length) return null
+        || !Number.isInteger(subject.count) || subject.count !== subject.marks.length) return invalid('invalid_grade_record')
       for (const mark of subject.marks) {
         const value = gradeValue(mark?.value)
-        if (!stableId(mark?.id) || value === null) return null
+        if (!stableId(mark?.id) || value === null) return invalid('invalid_mark_record')
         const date = safeDate(mark.date)
         const subjectName = safeText(subject.subject_name, 120)
         const key = digest(['mesh-grade-v1', scope.sourceAccountId, scope.sourcePersonId, scope.childId,
@@ -31,8 +32,10 @@ export function normalizeMeshObservation({ scope, schedule, assignments, marks, 
   } else if (scope.kind === 'schedule') {
     const lessons = new Map()
     for (const lesson of schedule) {
-      if (!stableId(lesson?.id) || !canonicalTime(lesson.start_at) || !canonicalTime(lesson.finish_at)
-        || safeDate(lesson.start_at) !== scope.date) return null
+      if (!stableId(lesson?.id)) return invalid('schedule_id_missing')
+      if (!canonicalTime(lesson.start_at)) return invalid('schedule_start_invalid')
+      if (!canonicalTime(lesson.finish_at)) return invalid('schedule_finish_invalid')
+      if (safeDate(lesson.start_at) !== scope.date) return invalid('schedule_date_mismatch')
       const lessonId = String(lesson.id)
       lessons.set(lessonId, lesson)
       const subject = safeText(lesson.subject_name, 120)
@@ -48,9 +51,9 @@ export function normalizeMeshObservation({ scope, schedule, assignments, marks, 
   } else {
     const lessons = new Map(schedule.map((lesson) => [String(lesson?.id ?? ''), lesson]))
     for (const item of assignments) {
-      if (!item || !stableId(item.sourceItemId) || item.detailStatus !== 'loaded' || !Array.isArray(item.homeworkEntries) || !Array.isArray(item.teacherFiles)) return null
+      if (!item || !stableId(item.sourceItemId) || item.detailStatus !== 'loaded' || !Array.isArray(item.homeworkEntries) || !Array.isArray(item.teacherFiles)) return invalid('invalid_homework_item')
       const lesson = lessons.get(String(item.sourceItemId))
-      if (!lesson || !canonicalTime(lesson.start_at) || !canonicalTime(lesson.finish_at) || safeDate(lesson.start_at) !== scope.date) return null
+      if (!lesson || !canonicalTime(lesson.start_at) || !canonicalTime(lesson.finish_at) || safeDate(lesson.start_at) !== scope.date) return invalid('invalid_homework_lesson')
       const subject = safeText(item.subjectName || lesson.subject_name, 120)
       const descriptions = (Array.isArray(item.descriptions) ? item.descriptions : []).map(canonicalText).filter(Boolean).sort()
       const entries = item.homeworkEntries.map((entry) => {
@@ -59,12 +62,12 @@ export function normalizeMeshObservation({ scope, schedule, assignments, marks, 
         const positionalFallback = idValue.startsWith(`${item.sourceItemId}-`) && /^\d+$/.test(idValue.slice(String(item.sourceItemId).length + 1))
         return [positionalFallback || !stableId(entry.id) ? null : idValue, canonicalText(entry.description), safeDate(entry.updatedAt)]
       })
-      if (entries.some((entry) => !entry)) return null
+      if (entries.some((entry) => !entry)) return invalid('invalid_homework_entry')
       entries.sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)))
       const files = item.teacherFiles.map((file) => file && stableId(file.id) ? [String(file.id), canonicalText(file.title)] : null).sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)))
-      if (files.includes(null)) return null
+      if (files.includes(null)) return invalid('invalid_teacher_file')
       const date = safeDate(item.lessonDate || lesson.start_at)
-      if (date !== scope.date) return null
+      if (date !== scope.date) return invalid('invalid_homework_date')
       const body = [...descriptions, ...entries.map((entry) => entry[1])].filter(Boolean).join('; ')
       records.push({ recordKey: digest(['mesh-homework-v1', scope.sourceAccountId, scope.sourcePersonId, scope.childId, String(item.sourceItemId)]),
         kind: 'assignment', semanticHash: digest(['mesh-homework-content-v1', date, descriptions, entries, files]),
@@ -88,10 +91,13 @@ export function createMeshSourceAdapter({ resolver, now = () => new Date(), rand
   pollMs = 15 * 60_000, jitterMs = 60_000, setTimer = setTimeout, clearTimer = clearTimeout, pollConcurrency = 4, onHealth = () => {}, projectionCache = new Map() } = {}) {
   if (!resolver || typeof resolver.validateScope !== 'function' || typeof resolver.withChildAdapter !== 'function'
     || pollMs < 1_000 || jitterMs < 0 || !Number.isInteger(pollConcurrency) || pollConcurrency < 1) throw new Error('invalid_mesh_source_config')
-  async function validateScope(scope) { return Boolean(meshScopeKey(scope) && await resolver.validateScope(scope)) }
+  async function validateScope(scope, options = {}) {
+    if (options.signal?.aborted) return false
+    return Boolean(meshScopeKey(scope) && await resolver.validateScope(scope, options))
+  }
   if (!(projectionCache instanceof Map)) throw new Error('invalid_mesh_projection_cache')
   const gradeCache = projectionCache, gradeInflight = new Map()
-  async function getGradeProjection(baseScope) {
+  async function getGradeProjection(baseScope, signal = null) {
     const key = meshScopeKey({ ...baseScope, periodKey: undefined, subjectId: undefined })
     const nowMs = now().valueOf()
     for (const [cacheKey, value] of gradeCache) {
@@ -101,13 +107,14 @@ export function createMeshSourceAdapter({ resolver, now = () => new Date(), rand
     if (cached && cached.expiresAt > nowMs) return cached
     if (gradeInflight.has(key)) return gradeInflight.get(key)
     const task = (async () => {
-      if (!await validateScope(baseScope)) throw sourceError('scope_unavailable')
+      if (!await validateScope(baseScope, { signal })) throw sourceError(signal?.aborted ? 'worker_shutdown' : 'scope_unavailable')
       const result = await resolver.withChildAdapter(baseScope, async (adapter, context = {}) => ({
         marks: await adapter.getMarks(), childName: context.childName ?? '',
-      }))
+      }), { signal })
       const { marks, childName } = result ?? {}
-      const normalized = normalizeMeshObservation({ scope: { ...baseScope, periodKey: undefined, subjectId: undefined }, marks, childName, observedAt: now().toISOString() })
-      if (!normalized) throw sourceError('mesh_incomplete')
+      let invalidReason = null
+      const normalized = normalizeMeshObservation({ scope: { ...baseScope, periodKey: undefined, subjectId: undefined }, marks, childName, observedAt: now().toISOString(), onInvalid: (reason) => { invalidReason = reason } })
+      if (!normalized) throw sourceError('mesh_incomplete', invalidReason)
       const scopes = [...new Map(marks.map((subject) => [`${subject.subject_id}:${subject.start}`, {
         ...baseScope, subjectId: String(subject.subject_id), periodKey: subject.start,
       }])).values()].sort((a, b) => `${a.subjectId}/${a.periodKey}`.localeCompare(`${b.subjectId}/${b.periodKey}`))
@@ -118,11 +125,12 @@ export function createMeshSourceAdapter({ resolver, now = () => new Date(), rand
     gradeInflight.set(key, task)
     try { return await task } finally { if (gradeInflight.get(key) === task) gradeInflight.delete(key) }
   }
-  async function discoverGradeScopes(baseScope) {
+  async function discoverGradeScopes(baseScope, { signal = null } = {}) {
     if (!validScopeShape(baseScope) || baseScope.kind !== 'grades' || baseScope.periodKey !== undefined) throw new Error('invalid_mesh_grade_scope')
+    if (signal?.aborted) throw sourceError('worker_shutdown')
     const key = meshScopeKey(baseScope)
     try {
-      const result = await getGradeProjection(baseScope)
+      const result = await getGradeProjection(baseScope, signal)
       return result.scopes.map((scope) => ({ ...scope }))
     } catch (error) {
       const code = safeErrorCode(error?.code)
@@ -130,34 +138,39 @@ export function createMeshSourceAdapter({ resolver, now = () => new Date(), rand
       throw sourceError(code)
     }
   }
-  async function observe(scope) {
+  async function observe(scope, { signal = null } = {}) {
     const scopeKey = meshScopeKey(scope)
     const base = { source: 'mesh', scopeKey, familyId: scope?.familyId, childId: scope?.childId }
+    if (signal?.aborted) return { ...base, completeness: 'partial', errorCode: 'mesh_unavailable', records: [] }
     if (!scopeKey || (scope?.kind === 'grades' && (!scope.periodKey || !scope.subjectId))) return { ...base, completeness: 'partial', errorCode: 'invalid_scope', records: [] }
     try {
-      if (!await validateScope(scope)) return { ...base, completeness: 'partial', records: [] }
+      if (!await validateScope(scope, { signal })) return { ...base, completeness: 'partial', records: [] }
       if (scope.kind === 'grades') {
-        const projection = await getGradeProjection({ ...scope, periodKey: undefined, subjectId: undefined })
-        if (!await validateScope(scope)) return { ...base, completeness: 'partial', records: [] }
+        const projection = await getGradeProjection({ ...scope, periodKey: undefined, subjectId: undefined }, signal)
+        if (signal?.aborted || !await validateScope(scope, { signal })) return { ...base, completeness: 'partial', errorCode: 'mesh_unavailable', records: [] }
         const partitionKey = digest([String(scope.subjectId), String(scope.periodKey)])
         return { ...base, completeness: 'complete', observedAt: now().toISOString(),
           records: projection.records.filter((record) => record.partitionKey === partitionKey) }
       }
+      let invalidReason = null
       const projected = await resolver.withChildAdapter(scope, async (adapter, context = {}) => {
         const childName = context.childName ?? ''
         const schedule = await adapter.getSchedule(scope.date)
         if (!Array.isArray(schedule)) return null
-        if (scope.kind === 'schedule') return normalizeMeshObservation({ scope, schedule, childName, observedAt: now().toISOString() })
+        if (scope.kind === 'schedule') return normalizeMeshObservation({ scope, schedule, childName, observedAt: now().toISOString(), onInvalid: (reason) => { invalidReason = reason } })
         const assignments = await adapter.getAssignments(scope.date)
         if (!Array.isArray(assignments)) return null
-        return normalizeMeshObservation({ scope, schedule, assignments, childName, observedAt: now().toISOString() })
-      })
-      if (!projected || !await validateScope(scope)) return { ...base, completeness: 'partial', records: [] }
+        return normalizeMeshObservation({ scope, schedule, assignments, childName, observedAt: now().toISOString(), onInvalid: (reason) => { invalidReason = reason } })
+      }, { signal })
+      if (!projected) return { ...base, completeness: 'partial', errorCode: 'mesh_incomplete', diagnosticCode: invalidReason ?? 'required_collection_missing', records: [] }
+      if (signal?.aborted) return { ...base, completeness: 'partial', errorCode: 'mesh_unavailable', records: [] }
+      if (!await validateScope(scope, { signal })) return { ...base, completeness: 'partial', errorCode: signal?.aborted ? 'mesh_unavailable' : 'scope_unavailable', records: [] }
       return projected
     } catch (error) {
       const code = safeErrorCode(error?.code)
       try { onHealth({ source: 'mesh', scopeKey, code }) } catch { /* health reporting must not hide source failure */ }
-      return { ...base, completeness: 'partial', errorCode: code, records: [] }
+      return { ...base, completeness: 'partial', errorCode: code,
+        ...(safeDiagnosticCode(error?.diagnosticCode) ? { diagnosticCode: safeDiagnosticCode(error.diagnosticCode) } : {}), records: [] }
     }
   }
   function subscribe({ scopes, onSignal, onError = () => {} } = {}) {
@@ -215,4 +228,5 @@ function id(value) { return typeof value === 'string' && /^[A-Za-z0-9_-]{1,128}$
 function gradeValue(value) { const n = typeof value === 'number' ? value : typeof value === 'string' && /^\d+$/.test(value) ? Number(value) : NaN; return Number.isInteger(n) && n >= 1 && n <= 5 ? n : null }
 function digest(value) { return createHash('sha256').update(typeof value === 'string' ? value : JSON.stringify(value)).digest('hex') }
 function safeErrorCode(value) { return ['scope_unavailable', 'credentials_unavailable', 'credentials_mismatch', 'mesh_unavailable', 'mesh_incomplete', 'mesh_access_unverified', 'child_profile_unavailable', 'scope_changed', 'credential_refresh_invalid', 'credential_refresh_persist_failed'].includes(value) ? value : 'mesh_unavailable' }
-function sourceError(code) { const error = new Error(code); error.code = code; return error }
+function safeDiagnosticCode(value) { return ['invalid_observation_shape', 'required_collection_missing', 'invalid_grade_period', 'invalid_grade_record', 'invalid_mark_record', 'invalid_schedule_record', 'schedule_id_missing', 'schedule_start_invalid', 'schedule_finish_invalid', 'schedule_date_mismatch', 'invalid_homework_item', 'invalid_homework_lesson', 'invalid_homework_entry', 'invalid_teacher_file', 'invalid_homework_date'].includes(value) ? value : null }
+function sourceError(code, diagnosticCode = null) { const error = new Error(code); error.code = code; error.diagnosticCode = safeDiagnosticCode(diagnosticCode); return error }

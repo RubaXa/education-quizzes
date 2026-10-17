@@ -86,6 +86,34 @@ describe('Mesh safe source projection', () => {
     expect(project({ schedule: [lesson({ finish_at: 'unreadable' })], assignments: [] })).toBeNull()
   })
 
+  it('distinguishes schedule validation failures without accepting malformed snapshots', () => {
+    const cases = [
+      [lesson({ id: null }), 'schedule_id_missing'],
+      [lesson({ start_at: 'unreadable' }), 'schedule_start_invalid'],
+      [lesson({ finish_at: 'unreadable' }), 'schedule_finish_invalid'],
+      [lesson({ start_at: '2026-10-18T09:00:00Z' }), 'schedule_date_mismatch'],
+    ]
+    for (const [badLesson, expected] of cases) {
+      let diagnostic
+      const result = normalizeMeshObservation({ scope, schedule: [badLesson], observedAt: '2026-10-17T12:00:00Z',
+        onInvalid(reason) { diagnostic = reason } })
+      expect(result).toBeNull()
+      expect(diagnostic).toBe(expected)
+    }
+  })
+
+  it('returns a bounded validation diagnostic without relaxing partial-data rejection', async () => {
+    const diagnosticScope = { ...scope, kind: 'homework' }
+    const source = createMeshSourceAdapter({ resolver: { async validateScope() { return true }, async withChildAdapter(_scope, run) {
+      return run({ async getSchedule(date) { return [lesson({ start_at: `${date}T09:00:00Z`, finish_at: `${date}T09:45:00Z` })] },
+        async getAssignments() { return [assignment({ detailStatus: 'stale' })] } })
+    } } })
+    const observation = await source.observe(diagnosticScope)
+    expect(observation.completeness).toBe('partial')
+    expect(observation.errorCode).toBe('mesh_incomplete')
+    expect(observation.diagnosticCode).toBe('invalid_homework_item')
+  })
+
   it('emits individual grades only when stable IDs and full counts are present', () => {
     const marksScope = { ...scope, kind: 'grades', subjectId: '4', periodKey: '2026-09-01' }
     const marks = [{ subject_id: 4, subject_name: 'Математика', start: '2026-09-01', count: 1, marks: [{ id: 12, value: '5', date: '2026-10-13', weight: 1, comment: 'private' }] }]

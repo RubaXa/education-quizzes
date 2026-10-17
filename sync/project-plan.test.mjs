@@ -1,20 +1,21 @@
 import { describe, expect, it } from 'vitest'
 import { collectedProjectSummary, dateWindow, mapBounded, projectTargets } from './project-plan.mjs'
+import { meshChildIdentityId, meshParentAccountId } from '../packages/education-runtime/identity.mjs'
 
 describe('global project inventory', () => {
   const input = {
     families: [{ id: 'family-1' }, { id: 'family-2' }],
-    children: [{ familyId: 'family-1', id: 'child-1' }, { familyId: 'family-1', id: 'child-2' }, { familyId: 'family-2', id: 'child-3' }],
+    children: [{ familyId: 'family-1', id: 'child-1', meshPersonId: 'mesh-1' }, { familyId: 'family-1', id: 'child-2', meshPersonId: 'mesh-2' }, { familyId: 'family-2', id: 'child-3', meshPersonId: 'mesh-3' }],
     identities: [
-      { familyId: 'family-1', childId: 'child-1', sourcePersonId: 'mesh-1' },
-      { familyId: 'family-1', childId: 'child-2', sourcePersonId: 'mesh-2' },
-      { familyId: 'family-2', childId: 'child-3', sourcePersonId: 'mesh-3' },
+      { id: meshChildIdentityId('mesh-1'), source: 'mesh', familyId: 'family-1', childId: 'child-1', sourcePersonId: 'mesh-1' },
+      { id: meshChildIdentityId('mesh-2'), source: 'mesh', familyId: 'family-1', childId: 'child-2', sourcePersonId: 'mesh-2' },
+      { id: meshChildIdentityId('mesh-3'), source: 'mesh', familyId: 'family-2', childId: 'child-3', sourcePersonId: 'mesh-3' },
     ],
-    accounts: [{ id: 'account-1', familyId: 'family-1', personId: 'adult-1', source: 'mesh' }],
+    accounts: [{ id: meshParentAccountId('adult-mesh-1'), familyId: 'family-1', personId: 'adult-1', source: 'mesh', sourcePersonId: 'adult-mesh-1' }],
     members: [{ familyId: 'family-1', id: 'adult-1', active: true, role: 'parent', childIds: ['child-1', 'child-2'] }],
-    localAccounts: ['account-1'], legacy: null,
+    localAccounts: [meshParentAccountId('adult-mesh-1')], legacy: null,
   }
-  it('includes every child and chooses one shared parent account without merging children', () => {
+  it('includes every registered child and chooses one shared parent account without merging children', () => {
     const targets = projectTargets(input)
     expect(targets.map((item) => item.state)).toEqual(['queued', 'queued', 'blocked'])
     expect(targets[0].sourceAccountId).toBe(targets[1].sourceAccountId)
@@ -22,6 +23,18 @@ describe('global project inventory', () => {
   })
   it('does not accept duplicate source identities', () => {
     expect(() => projectTargets({ ...input, identities: [...input.identities, input.identities[0]] })).toThrow(/несколько/)
+  })
+  it('excludes inactive graph nodes and identity/account bindings that do not match the exact child', () => {
+    const changed = { ...input,
+      families: [...input.families, { id: 'family-off', active: false }],
+      children: [...input.children, { familyId: 'family-1', id: 'child-off', meshPersonId: 'mesh-off', active: false },
+        { familyId: 'family-off', id: 'child-off-family', meshPersonId: 'mesh-family-off' }],
+      identities: input.identities.map((identity) => identity.childId === 'child-1'
+        ? { ...identity, sourcePersonId: 'other-person' } : identity),
+    }
+    expect(projectTargets(changed).map((item) => `${item.familyId}/${item.childId}`)).toEqual([
+      'family-1/child-1', 'family-1/child-2', 'family-2/child-3',
+    ])
   })
   it('rechecks Monday through six full weeks even when started midweek', () => {
     for (const today of ['2026-10-12', '2026-10-15', '2026-10-18']) {

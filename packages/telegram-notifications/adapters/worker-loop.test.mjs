@@ -106,4 +106,23 @@ describe('worker source lifecycle', () => {
     expect(terminated).toBe(true)
     expect(logger.error).toHaveBeenCalledWith({ code: 'source_stop_failed' })
   })
+
+  it('stops Telegram and fails closed when the lock broker exits', async () => {
+    const processLike = new EventEmitter()
+    processLike.exit = vi.fn()
+    let finishTelegram
+    let terminated = false
+    const runtime = {
+      sourceCoordinator: { async start() {}, async close() {} },
+      telegram: { bot: { isRunning: () => true }, async start() { await new Promise((resolve) => { finishTelegram = resolve }) },
+        async stop() { finishTelegram() } },
+      db: { async terminate() { terminated = true } },
+    }
+    const lock = { lost: Promise.resolve(Object.assign(new Error('worker_lock_lost'), { safeCode: 'worker_lock_lost' })),
+      assertHeld() { throw new Error('worker_lock_lost') } }
+    await expect(runWorker({ runtime, enableDelivery: false, logger, processLike, lock })).resolves.toEqual({ ok: false })
+    expect(terminated).toBe(true)
+    expect(processLike.exit).toHaveBeenCalledWith(1)
+    expect(logger.error).toHaveBeenCalledWith({ code: 'worker_lock_lost' })
+  })
 })

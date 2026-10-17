@@ -12,6 +12,8 @@ import { HttpError } from 'grammy'
 import { createTelegramAdapter, createTelegramDelivery } from './adapters/telegram.mjs'
 import { runWorker } from './adapters/worker-loop.mjs'
 import { EventEmitter } from 'node:events'
+import { createHash } from 'node:crypto'
+import { createTelemetry } from '../education-runtime/telemetry.mjs'
 
 /** @see ../../docs/services/telegram-bot/ports-and-events.md */
 
@@ -135,6 +137,50 @@ describe('Telegram notification vertical slice', () => {
     expect(await adapters.registry.markChannelUnavailable({ senderId: '5', attemptStartedAt: Date.parse(now), expectedVersion: 2 })).toMatchObject({ applied: true, state: 'unavailable', version: 3 })
     expect(await adapters.channel.getState('5')).toMatchObject({ status: 'unavailable', version: 3 })
     expect((await db.doc('telegramBotAccounts/5').get()).data().status).toBe('registered')
+  })
+
+  it('redeems a short Telegram pairing code once for an active PETR parent and child', async () => {
+    const db = new FakeFirestore()
+    const adapters = createFirestoreAdapters(db)
+    const identity = new IdentityService({ registry: adapters.registry, clock: () => new Date(now) })
+    const { pairingCode } = await identity.start({ senderId: 12345, chatType: 'private', updateId: 1, occurredAt: now })
+    db.records.set('families/family-a', { active: true })
+    db.records.set('families/family-a/members/parent-a', { active: true, role: 'parent', childIds: ['child-a'] })
+    db.records.set('families/family-a/children/child-a', { active: true })
+    const challenge = [...db.records.entries()].find(([path]) => path.startsWith('telegramBotPairChallenges/'))
+    expect(challenge).toBeTruthy()
+    const tokenHash = challenge[0].split('/').at(-1)
+    expect(tokenHash).not.toBe(pairingCode)
+    await expect(identity.redeemPairing({ pairingCode, familyId: 'family-a', personId: 'parent-a' })).resolves.toEqual({ code: 'linked' })
+    const link = [...db.records.entries()].find(([path, value]) => path.startsWith('telegramBotFamilyLinks/') && value.status === 'active')
+    expect(link?.[1]).toMatchObject({ telegramUserId: '12345', familyId: 'family-a', personId: 'parent-a', verifiedBy: 'operator_pairing' })
+    expect(db.records.get(challenge[0]).usedAt).toBe(now)
+    await expect(identity.redeemPairing({ pairingCode, familyId: 'family-a', personId: 'parent-a' })).resolves.toEqual({ code: 'invalid_pairing' })
+  })
+
+  it('atomically rate-limits concurrent Start codes and rejects challenges without valid expiry metadata', async () => {
+    const db = new FakeFirestore()
+    const adapters = createFirestoreAdapters(db)
+    const identity = new IdentityService({ registry: adapters.registry, clock: () => new Date(now) })
+    const results = await Promise.all(Array.from({ length: 5 }, () => identity.start({ senderId: 12345, chatType: 'private', updateId: 1, occurredAt: now })))
+    expect(results.filter((result) => result.code === 'pairing_required')).toHaveLength(1)
+    expect(results.filter((result) => result.code === 'pairing_rate_limited')).toHaveLength(4)
+    const account = db.records.get('telegramBotAccounts/12345')
+    const hash = 'f'.repeat(64)
+    db.records.set(`telegramBotPairChallenges/${hash}`, { action: 'link-family', senderId: '12345', usedAt: null, issuedAt: now })
+    account.currentPairCodeHash = hash
+    await expect(adapters.registry.redeemPairChallenge({ tokenHash: hash, familyId: 'family-a', personId: 'parent-a', now })).resolves.toEqual({ code: 'invalid_pairing' })
+  })
+
+  it('can claim a probe job by exact ID without claiming unrelated outbox work', async () => {
+    const db = new FakeFirestore()
+    const adapters = createFirestoreAdapters(db)
+    db.records.set('telegramNotificationOutbox/probe-job', { jobId: 'probe-job', state: 'pending', nextAttemptAt: now, attempts: 0 })
+    db.records.set('telegramNotificationOutbox/unrelated-job', { jobId: 'unrelated-job', state: 'pending', nextAttemptAt: now, attempts: 0 })
+    const claimed = await adapters.outbox.claim({ workerId: 'probe', now, leaseMs: 10_000, jobId: 'probe-job' })
+    expect(claimed.jobId).toBe('probe-job')
+    expect(db.records.get('telegramNotificationOutbox/unrelated-job').state).toBe('pending')
+    await expect(adapters.outbox.claim({ workerId: 'probe', now, leaseMs: 10_000, jobId: '../unrelated-job' })).rejects.toMatchObject({ safeCode: 'job_unavailable' })
   })
 
   it('accepts Telegram update_id reset only after a week of trusted update time', async () => {
@@ -288,6 +334,34 @@ describe('Telegram notification vertical slice', () => {
     const replacement = await store.outbox.claim({ workerId: 'old', now: reclaimAt, leaseMs: 50 })
     await expect(store.outbox.finish({ jobId: 'stale-job', workerId: 'old', leaseToken: claim.leaseToken, now: reclaimAt, result: { state: 'sent' } })).rejects.toThrow('stale_lease')
     expect(replacement.leaseToken).not.toBe(claim.leaseToken)
+  })
+
+  it('correlates separate acceptance and delivery traces with event ID and opaque job hash', async () => {
+    const exported = []
+    const telemetry = createTelemetry({ sink: (row) => { if (row.kind === 'span') exported.push(row) } })
+    const store = createMemoryStore()
+    store.addActiveLink({ linkId: 'private-link', familyId: 'family-a', personId: 'person-a', telegramUserId: '5512345' })
+    const service = new NotificationService({ eventLedger: store.eventLedger, outbox: store.outbox,
+      recipients: { async resolveVerified() { return [{ type: 'family-link', linkId: 'private-link', familyId: 'family-a', personId: 'person-a', telegramUserId: '5512345' }] } },
+      membership: { async isActiveMember() { return true } }, renderer: renderEvent,
+      delivery: { async send() { return { messageId: 19 } } }, telemetry,
+      clock: () => new Date(now), workerId: 'telemetry-test', logger: { info() {}, error() {} },
+    })
+    const item = event()
+    await telemetry.trace('telegram.notification.accept', () => service.accept(item), { eventId: item.eventId })
+    await telemetry.trace('telegram.notification.run-one', () => service.runOne(), { eventId: item.eventId })
+    const accept = exported.find((span) => span.operation === 'telegram.notification.accept')
+    const run = exported.find((span) => span.operation === 'telegram.notification.run-one')
+    const job = exported.find((span) => span.operation === 'telegram.notification.job')
+    expect(accept.attributes.eventId).toBe(item.eventId)
+    expect(run.attributes.eventId).toBe(item.eventId)
+    expect(job.attributes).toEqual({ eventId: item.eventId,
+      jobId: createHash('sha256').update(`${item.eventId}_private-link`).digest('hex') })
+    expect(accept.traceId).not.toBe(job.traceId)
+    const output = JSON.stringify(exported)
+    expect(output).not.toContain('private-link')
+    expect(output).not.toContain('5512345')
+    expect(output).not.toContain('Ученик А')
   })
 
   it('does not send when the independent channel gate knows the account is unavailable', async () => {
@@ -616,6 +690,7 @@ class FakeFirestore {
       create: (ref, data) => ref.create(data),
       set: (ref, data, options) => ref.set(data, options),
       update: (ref, data) => ref.update(data),
+      delete: (ref) => ref.delete(),
     }))
     this.tail = result.catch(() => undefined)
     return result
@@ -640,6 +715,7 @@ class FakeDocument {
   async create(data) { if (this.db.records.has(this.path)) throw new Error('already_exists'); this.db.records.set(this.path, structuredClone(data)) }
   async set(data, options = {}) { this.db.records.set(this.path, options.merge ? { ...this.db.records.get(this.path), ...structuredClone(data) } : structuredClone(data)) }
   async update(data) { if (!this.db.records.has(this.path)) throw new Error('missing'); this.db.records.set(this.path, { ...this.db.records.get(this.path), ...structuredClone(data) }) }
+  async delete() { this.db.records.delete(this.path) }
 }
 class FakeDocumentSnapshot {
   constructor(ref, data) { this.ref = ref; this.id = ref.id; this.exists = data !== undefined; this._data = data }

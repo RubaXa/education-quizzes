@@ -14,6 +14,7 @@ code:
 parent: product.education
 uses:
   - shared.toolchain
+  - shared.server-runtime
   - service.telegram-bot.ports-and-events
   - service.telegram-bot.firestore
   - service.telegram-bot.mesh
@@ -34,8 +35,7 @@ sections:
 ---
 # Архитектура сервиса уведомлений `@agi_edu_bot`
 
-**Статус:** архитектура частично реализована: account registry, подтверждённый `/stop`, typed event/diff/renderer и Firestore ledger/outbox primitives доступны. Production source observation и deployment не объявлены.
-**Исправления 17 октября:** strict snapshot completeness, идемпотентные context refs и учёт доступности канала реализованы и покрыты регрессиями; [решение и проверки](../../decisions/telegram-review-fixes-2026-10-17.md). Source wiring, link issuer/UI и rollout остаются незавершёнными.
+**Статус:** частично реализован и запущен на согласованном Mac: dynamic Firestore/МЭШ sources, account registry, локальная подтверждённая привязка, stop, deterministic event pipeline и outbox. Реальные технические Firestore→Telegram и МЭШ→Telegram пробы завершены `sent` с readback; [аудит и границы](../../audits/server-core-review-2026-10-17.md). Полный Mesh source-check остаётся partial:90/93 области,3 schedule_date_mismatch. Web linking UI, team routing, grouping и hosted alerting отсутствуют.
 **Владелец:** отдельный Node.js worker в Education.
 **Бизнес-контракт и решения интервью:** [спецификация сервиса](petr-private:docs/product/agi-edu-bot-service-spec.md).
 
@@ -105,7 +105,7 @@ flowchart LR
 
 ## Порты ядра
 
-Имена ниже — логические порты, не готовые интерфейсы кода. Реализация должна сохранить эти границы.
+Имена ниже описывают границы; фактическая минимальная реализация и оставшиеся части перечислены в дочерних контрактах. Общие source/session/telemetry механизмы принадлежат [серверному ядру](../../shared/server-runtime.md).
 
 | Порт | Операции/ответственность | Первые адаптеры |
 |---|---|---|
@@ -155,21 +155,21 @@ subject?, title?, before?, after?, contextRefs[], privacyClass
 |---|---|---|
 | A | Архитектура, события, privacy boundary, deployment decision | Спецификация в работе; данный документ — целевая граница |
 | B | Core contracts, Firestore ledger/outbox, тестируемая идемпотентность | Реализован core/ledger; эксплуатационный rollout отдельно |
-| C | Telegram `/start`, реестр аккаунтов и безопасная семейная привязка | Частично; registry/disconnect есть, issuer UI отсутствует |
-| D | Firestore observation, затем МЭШ polling и source mappings | Реализованы локальные adapters/pipeline и opt-in wiring; реальные интеграции/rollout не подтверждены |
+| C | Telegram `/start`, реестр аккаунтов и безопасная семейная привязка | Локальный CLI issuer/registry/disconnect есть; web UI отсутствует |
+| D | Firestore observation, затем МЭШ polling и source mappings | Реализованы локальные adapters/pipeline и opt-in wiring; технические живые цепочки проверены,3 schedule scopes неполны |
 | E | Routing, structured templates, retry/recovery и team alerts | Частично; family renderer/outbox есть, grouping/team route отсутствуют |
-| F | Операционный запуск, минимальные IAM/secrets, мониторинг и контролируемый rollout | Не реализовано |
+| F | Операционный запуск, минимальные IAM/secrets, мониторинг и контролируемый rollout | Mac LaunchAgent установлен, реальные probes/readiness проверены; внешние alerts отсутствуют |
 
-Установка npm-пакета или документированный контракт не означает, что worker работает. Только явно запущенный `worker` принимает команды; delivery выключена по умолчанию. Сервис не является действующим наблюдателем.
+Установка npm-пакета или документированный контракт не означает, что worker работает. Только явно запущенный `worker` принимает команды; delivery выключена по умолчанию. Фактический работающий режим подтверждается status и source health, а не документацией.
 
-Первый срез: `node scripts/telegram-bot.mjs check` делает read-only `getMe` и сверяет `agi_edu_bot` без создания Firestore client. Явный `worker` использует ADC, проверяет project access до polling, поддерживает `/start` и sender-bound одноразовый `/stop`; linking token может быть погашен только внедрённым trusted authorizer, которого в текущем UI нет. `--enable-delivery` отдельно включает обработку уже подтверждённых outbox jobs; Firestore/МЭШ observers включаются отдельными флагами, источники обнаруживаются автоматически; UI linking, team resolver и grouping/digest planned.
+Первый срез: `node scripts/telegram-bot.mjs check` делает read-only `getMe` и сверяет `agi_edu_bot` без создания Firestore client. Явный `worker` использует ADC, проверяет project access до polling, поддерживает `/start` и sender-bound одноразовый `/stop`; pairing code погашается только trusted локальным CLI с доказанным source owner; web UI отсутствует. `--enable-delivery` отдельно включает обработку уже подтверждённых outbox jobs; Firestore/МЭШ observers включаются отдельными флагами, источники обнаруживаются автоматически; UI linking, team resolver и grouping/digest planned.
 
 ## Решения, ожидающие подтверждения/проверки
 
 Независимая сверка документации и локального кода за 2026-10-16 зафиксирована в [аудите Telegram self-review](../../audits/telegram-self-review-2026-10-16.md); он сохраняет состояние foundation до подключения источников. Последующий increment описан в [решении о source wiring](../../decisions/telegram-source-wiring-2026-10-17.md); вопросы эксплуатации остаются открытыми.
 
-- Размещение и процессный режим: постоянный worker рекомендован, хостинг ещё не выбран.
-- Срок одноразового токена и точные правила отзыва.
+- Постоянный локальный LaunchAgent реализован; доступность выключенного/спящего Mac не гарантируется.
+- Web linking flow и retention; локальный код уже имеет TTL10минут и cooldown60секунд.
 - Реальные Firestore paths/owners/revisions и корректность event mappings.
 - Схема связей, ledger и outbox, включая retention и доступ к персональным данным.
 - Категорийные шаблоны, ссылки и окончательный формат родительского/командного дайджеста.

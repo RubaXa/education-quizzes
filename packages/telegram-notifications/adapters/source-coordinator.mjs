@@ -36,11 +36,14 @@ export class SourceCoordinator {
     this.timer = null
     this.inflight = new Set()
     this.reconciles = new Set()
+    this.reconcilePromise = null
     this.retryTimers = new Map()
     this.retryAttempts = new Map()
     this.childHealth = new Map()
     this.startPromise = null
     this.closePromise = null
+    this.abortController = new AbortController()
+    this.abortSignal = this.abortController.signal
   }
 
   start() {
@@ -56,18 +59,25 @@ export class SourceCoordinator {
 
   async reconcile() {
     if (!this.running || this.closed) return { status: 'closed' }
-    const task = this.#reconcile()
+    if (this.reconcilePromise) return this.reconcilePromise
+    const task = Promise.resolve().then(() => this.#reconcile())
+    this.reconcilePromise = task
     this.reconciles.add(task)
-    try { return await task } finally { this.reconciles.delete(task) }
+    try { return await task } finally {
+      this.reconciles.delete(task)
+      if (this.reconcilePromise === task) this.reconcilePromise = null
+    }
   }
 
   async #reconcile() {
     if (!this.running || this.closed) return
     let inventory
     try {
-      inventory = await this.enumerate()
+      inventory = await this.enumerate({ signal: this.abortSignal })
+      if (this.abortSignal.aborted || this.closed) return { status: 'closed' }
       if (!inventory || !Array.isArray(inventory.scopes) || !Array.isArray(inventory.families)) throw new Error('inventory_incomplete')
     } catch (error) {
+      if (this.abortSignal.aborted || this.closed) return { status: 'closed' }
       this.#health('inventory_unavailable', { source: safeSource(error?.source) })
       return { status: 'incomplete' }
     }
@@ -99,14 +109,15 @@ export class SourceCoordinator {
             && !isFailedContext(item.source, item.scope, inventory.failedContexts ?? [])),
           scopes: inventory.scopes.filter((item) => goodFamilies.has(item.scope.familyId)
             && !isFailedContext(item.source, item.scope, inventory.failedContexts ?? [])) } : inventory
-        prepared = await this.discoveryStore.prepare(discoveryInventory)
+        prepared = await this.discoveryStore.prepare(discoveryInventory, { signal: this.abortSignal })
         inventory = { ...inventory, scopes: [...prepared.scopes, ...retainedPartialScopes] }
       } catch {
+        if (this.abortSignal.aborted || this.closed) return { status: 'closed' }
         this.#health('inventory_unavailable', { source: 'firestore' })
         return { status: 'incomplete' }
       }
     }
-    if (!this.running || this.closed) return { status: 'closed' }
+    if (!this.running || this.closed || this.abortSignal.aborted) return { status: 'closed' }
 
     const nextBySource = new Map([...this.sources.keys()].map((kind) => [kind, new Map()]))
     for (const item of inventory.scopes) {
@@ -136,13 +147,13 @@ export class SourceCoordinator {
       this.#health('source_listener_unavailable', { source: 'unknown' })
       return { status: 'listener_error' }
     }
-    if (!this.running || this.closed) {
+    if (!this.running || this.closed || this.abortSignal.aborted) {
       for (const item of additions) await bestEffort(item.unsubscribe)
       return { status: 'closed' }
     }
     if (prepared) {
       try {
-        const confirmed = await this.discoveryStore.confirm(prepared)
+        const confirmed = await this.discoveryStore.confirm(prepared, { signal: this.abortSignal })
         const originByKey = new Map(confirmed.scopes.map((item) => [
           `${item.source}:${this.sources.get(item.source).scopeKey(item.scope)}`, item.origin,
         ]))
@@ -152,11 +163,12 @@ export class SourceCoordinator {
       }
       catch {
         for (const item of additions) await bestEffort(item.unsubscribe)
+        if (this.abortSignal.aborted || this.closed) return { status: 'closed' }
         this.#health('inventory_unavailable', { source: 'firestore' })
         return { status: 'incomplete' }
       }
     }
-    if (!this.running || this.closed) {
+    if (!this.running || this.closed || this.abortSignal.aborted) {
       for (const item of additions) await bestEffort(item.unsubscribe)
       return { status: 'closed' }
     }
@@ -197,6 +209,7 @@ export class SourceCoordinator {
     if (this.closePromise) return this.closePromise
     this.closed = true
     this.running = false
+    this.abortController.abort()
     if (this.timer) this.clearTimer(this.timer)
     this.timer = null
     for (const timer of this.retryTimers.values()) this.clearTimer(timer)
@@ -237,7 +250,8 @@ export class SourceCoordinator {
         try {
           const pipeline = this.pipelines?.[item.kind]
           if (!pipeline || typeof pipeline.process !== 'function') throw new Error('source_pipeline_unavailable')
-          const result = await pipeline.process(item.scope, { origin: item.origin })
+          const result = await pipeline.process(item.scope, { origin: item.origin, signal: this.abortSignal })
+          if (this.abortSignal.aborted || this.closed) return
           if (result?.status === 'incomplete') {
             const reasonCode = ['source_snapshot_incomplete', 'source_snapshot_too_large'].includes(result.reasonCode) ? result.reasonCode : undefined
             this.#health('source_observation_blocked', { source: safeSource(item.kind),
@@ -246,6 +260,7 @@ export class SourceCoordinator {
           } else if (result?.status === 'busy') this.#scheduleRetry(entry[0], item)
           else this.retryAttempts.delete(entry[0])
         } catch (error) {
+          if (this.abortSignal.aborted || this.closed) return
           this.#health('source_observation_failed', { source: safeSource(item.kind), scopeKey: scopeKeyForHealth(this.sources.get(item.kind), item.scope), errorCode: safeCode(error?.message) })
           this.#scheduleRetry(entry[0], item)
         } finally {

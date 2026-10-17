@@ -42,6 +42,25 @@ describe('SourceCoordinator', () => {
     await h.coordinator.close()
   })
 
+  it('coalesces overlapping reconciliations into one in-flight inventory confirmation', async () => {
+    const h = harness()
+    let calls = 0, release
+    const gate = new Promise((resolve) => { release = resolve })
+    h.coordinator.enumerate = async () => {
+      calls++
+      await gate
+      return { complete: true, families: [{ familyId: 'fam-a' }], scopes: [] }
+    }
+    const first = h.coordinator.start()
+    await vi.waitFor(() => expect(calls).toBe(1))
+    const second = h.coordinator.reconcile()
+    expect(calls).toBe(1)
+    release()
+    await Promise.all([first, second])
+    expect(calls).toBe(1)
+    await h.coordinator.close()
+  })
+
   it('keeps confirmed listeners on partial inventory and reports a safe health code', async () => {
     const h = harness()
     h.coordinator.enumerate = async () => ({ complete: true, families: [{ familyId: 'fam-a' }], scopes: [{ source: 'firestore', scope: { key: 'family-a', familyId: 'fam-a' } }] })
@@ -182,22 +201,49 @@ describe('SourceCoordinator', () => {
 
   it('waits for an in-progress inventory and unsubscribes late listeners before close resolves', async () => {
     const h = harness()
-    let releaseConfirm
-    const confirmGate = new Promise((resolve) => { releaseConfirm = resolve })
-    h.coordinator.discoveryStore = { prepare: async (inventory) => ({ ...inventory, scopes: inventory.scopes }),
-      confirm: async (prepared) => { await confirmGate; return { scopes: prepared.scopes } } }
-    h.coordinator.enumerate = async () => ({ complete: true, families: [{ familyId: 'fam-a' }],
-      scopes: [{ source: 'firestore', scope: { key: 'late', familyId: 'fam-a' } }] })
+    let discoverySignal, enumerateSignal, confirmEntered
+    const entered = new Promise((resolve) => { confirmEntered = resolve })
+    h.coordinator.discoveryStore = { prepare: async (inventory, { signal }) => {
+      expect(signal).toBe(h.coordinator.abortSignal)
+      return { ...inventory, scopes: inventory.scopes }
+    }, confirm: async (prepared, { signal }) => {
+      discoverySignal = signal
+      confirmEntered()
+      await new Promise((resolve) => signal.addEventListener('abort', resolve, { once: true }))
+      return { scopes: prepared.scopes }
+    } }
+    h.coordinator.enumerate = async ({ signal }) => {
+      enumerateSignal = signal
+      return { complete: true, families: [{ familyId: 'fam-a' }],
+        scopes: [{ source: 'firestore', scope: { key: 'late', familyId: 'fam-a' } }] }
+    }
     const starting = h.coordinator.start()
-    await vi.waitFor(() => expect(h.source.subscribe).toHaveBeenCalledOnce())
+    await entered
+    expect(enumerateSignal).toBe(h.coordinator.abortSignal)
+    expect(discoverySignal).toBe(h.coordinator.abortSignal)
     const closing = h.coordinator.close()
-    let closed = false
-    void closing.then(() => { closed = true })
-    await Promise.resolve()
-    expect(closed).toBe(false)
-    releaseConfirm()
     await Promise.all([starting, closing])
-    expect(closed).toBe(true)
+    expect(discoverySignal.aborted).toBe(true)
     expect(h.scopes.has('late')).toBe(false)
+    expect(h.health).not.toContainEqual(expect.objectContaining({ code: 'inventory_unavailable' }))
+  })
+
+  it('passes its close signal to baseline pipeline work and suppresses abort health', async () => {
+    const h = harness()
+    h.coordinator.enumerate = async () => ({ complete: true, families: [{ familyId: 'fam-a' }],
+      scopes: [{ source: 'firestore', scope: { key: 'abort-me', familyId: 'fam-a' } }] })
+    let receivedSignal, finish
+    h.pipeline.process.mockImplementation((_scope, { signal }) => {
+      receivedSignal = signal
+      return new Promise((resolve) => { finish = resolve })
+    })
+    await h.coordinator.start()
+    await vi.waitFor(() => expect(receivedSignal).toBeDefined())
+    const closing = h.coordinator.close()
+    expect(receivedSignal).toBe(h.coordinator.abortSignal)
+    expect(receivedSignal.aborted).toBe(true)
+    finish({ status: 'incomplete' })
+    await closing
+    expect(h.health).toEqual([])
   })
 })

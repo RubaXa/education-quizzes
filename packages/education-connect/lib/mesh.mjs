@@ -4,12 +4,26 @@ import { fetchMeshRead } from './network-retry.mjs'
 
 const allowedHosts = new Set(['login.mos.ru', 'school.mos.ru', 'dnevnik.mos.ru'])
 
-function meshFetch(url, options = {}) {
+function retryObserver(telemetry) {
+  if (!telemetry?.count) return undefined
+  return {
+    onAttempt: () => telemetry.count('mesh.http.attempts'),
+    onRetry: ({ reason }) => {
+      telemetry.count('mesh.http.retries')
+      if (reason === 'network') telemetry.count('mesh.http.network-retries')
+      else telemetry.count('mesh.http.status-retries')
+    },
+  }
+}
+
+function meshFetch(url, options = {}, telemetry = null, shutdownSignal = null) {
   const address = new URL(url)
   if (address.protocol !== 'https:' || !allowedHosts.has(address.hostname)) {
     throw new Error('МЭШ запросил неизвестный адрес')
   }
-  return fetchMeshRead(address, options)
+  const timeoutSignal = options.signal ?? AbortSignal.timeout(30_000)
+  const signal = shutdownSignal ? AbortSignal.any([timeoutSignal, shutdownSignal]) : timeoutSignal
+  return fetchMeshRead(address, { ...options, signal }, { observer: retryObserver(telemetry) })
 }
 
 function childLabel(profile) {
@@ -91,10 +105,11 @@ export function normalizeSubjectPeriods(subjects, date = new Intl.DateTimeFormat
 }
 
 /** @see ../../../docs/modules/school-diary/README.md#diary-adapter */
-export async function loginToMesh({ username, password, askSmsCode, chooseProfile }) {
-  const auth = await authenticate({ fetch: meshFetch, username, password, askSmsCode, onProgress: () => {} })
+export async function loginToMesh({ username, password, askSmsCode, chooseProfile }, { telemetry = null } = {}) {
+  const fetch = (url, options) => meshFetch(url, options, telemetry)
+  const auth = await authenticate({ fetch, username, password, askSmsCode, onProgress: () => {} })
   if (!auth.token || !auth.personId) throw new Error('Вход прошёл, но профиль МЭШ не найден')
-  const api = new MeshAPI({ token: auth.token, profileId: '0', fetch: meshFetch })
+  const api = new MeshAPI({ token: auth.token, profileId: '0', fetch })
   const profiles = await api.getStudentProfiles(auth.personId)
   if (!Array.isArray(profiles) || profiles.length === 0) throw new Error('Нет доступных ученических профилей')
   const index = await chooseProfile(profiles.map((profile) => ({ id: String(profile.id), name: childLabel(profile) })))
@@ -113,7 +128,7 @@ export async function loginToMesh({ username, password, askSmsCode, chooseProfil
   }
 }
 
-async function refreshToken(secret) {
+async function refreshToken(secret, telemetry = null, shutdownSignal = null) {
   if (!secret.clientId || !secret.clientSecret) return null
   const authorization = `Basic ${Buffer.from(`${secret.clientId}:${secret.clientSecret}`).toString('base64')}`
   const request = async (body) => {
@@ -121,7 +136,7 @@ async function refreshToken(secret) {
       method: 'POST',
       headers: { Authorization: authorization, 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams(body),
-    })
+    }, telemetry, shutdownSignal)
     return response.ok ? response.json() : null
   }
   let mos = await request({ grant_type: 'client_credentials', scope: 'openid profile' })
@@ -133,32 +148,34 @@ async function refreshToken(secret) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ user_authentication_for_mobile_request: { mos_access_token: mos.access_token } }),
-  })
+  }, telemetry, shutdownSignal)
   if (!response.ok) return null
   const data = await response.json()
   const token = data.user_authentication_for_mobile_response?.mesh_access_token
   if (!token) return null
   const activation = await meshFetch('https://dnevnik.mos.ru/acl/api/users/profile_info', {
     headers: { 'auth-token': token, 'partner-source-id': 'MOBILE', Accept: '*/*' },
-  })
+  }, telemetry, shutdownSignal)
   if (!activation.ok) return null
   return { token, refreshToken: mos.refresh_token || secret.refreshToken }
 }
 
 /** @see ../../../docs/modules/school-diary/README.md#diary-adapter */
 export class MeshDiaryAdapter {
-  constructor(secret, saveSecret) {
+  constructor(secret, saveSecret, { telemetry = null, signal = null } = {}) {
     this.secret = secret
     this.saveSecret = saveSecret
+    this.telemetry = telemetry
+    this.signal = signal
     this.scheduleCache = new Map()
     this.api = new MeshAPI({
       token: secret.token,
       studentId: secret.studentId,
       profileId: secret.profileId,
       personId: secret.personId,
-      fetch: meshFetch,
+      fetch: (url, options) => meshFetch(url, options, this.telemetry, this.signal),
       onUnauthorized: async () => {
-        const updated = await refreshToken(this.secret)
+        const updated = await refreshToken(this.secret, this.telemetry, this.signal)
         if (!updated) return null
         this.secret = { ...this.secret, ...updated }
         this.saveSecret(this.secret)
@@ -168,6 +185,7 @@ export class MeshDiaryAdapter {
   }
 
   async verifyAccess() {
+    return observeMesh(this.telemetry, 'mesh.verify-access', async () => {
     const actorPersonId = this.secret.actorPersonId || this.secret.personId
     const profiles = await this.api.getStudentProfiles(actorPersonId)
     const selected = Array.isArray(profiles)
@@ -177,7 +195,7 @@ export class MeshDiaryAdapter {
 
     const response = await meshFetch('https://dnevnik.mos.ru/acl/api/users/profile_info', {
       headers: { 'auth-token': this.api.token, 'partner-source-id': 'MOBILE', Accept: '*/*' },
-    })
+    }, this.telemetry, this.signal)
     if (!response.ok) throw new Error('ACCESS_NOT_VERIFIED: роль аккаунта не определена')
     const roles = await response.json()
     if (!Array.isArray(roles) || !roles.some((role) => role.type === 'ParentProfile')) {
@@ -206,28 +224,36 @@ export class MeshDiaryAdapter {
     this.api.studentId = this.secret.studentId
     this.saveSecret(this.secret)
     return { accountRole: 'parent', studentLinked: true, childrenCount: family.children.length }
+    })
   }
 
-  async getProfile() { return this.api.getProfile() }
+  async getProfile() { return observeMesh(this.telemetry, 'mesh.get-profile', () => this.api.getProfile()) }
   async getSchedule(date) {
-    const events = await this.api.getSchedule(date, date, { expand: 'marks,homework', mesRole: 'parent' })
-    this.scheduleCache.set(date, events)
-    return events
+    return observeMesh(this.telemetry, 'mesh.get-schedule', async () => {
+      const events = await this.api.getSchedule(date, date, { expand: 'marks,homework', mesRole: 'parent' })
+      this.scheduleCache.set(date, events)
+      return events
+    })
   }
   async getMarks() {
-    const url = new URL('https://school.mos.ru/api/family/mobile/v1/subject_marks')
-    url.searchParams.set('student_id', this.secret.studentId)
-    url.searchParams.set('profile_id', this.secret.profileId)
-    const data = await this.api.apiFetch(url.toString())
-    return normalizeSubjectPeriods(data.payload || data)
+    return observeMesh(this.telemetry, 'mesh.get-marks', async () => {
+      const url = new URL('https://school.mos.ru/api/family/mobile/v1/subject_marks')
+      url.searchParams.set('student_id', this.secret.studentId)
+      url.searchParams.set('profile_id', this.secret.profileId)
+      const data = await this.api.apiFetch(url.toString())
+      return normalizeSubjectPeriods(data.payload || data)
+    })
   }
   async getLessonDetails(event) {
-    const url = new URL(`https://school.mos.ru/api/family/mobile/v1/lesson_schedule_items/${encodeURIComponent(String(event.id))}`)
-    url.searchParams.set('student_id', this.secret.studentId)
-    url.searchParams.set('type', event.source || 'PLAN')
-    return this.api.apiFetch(url.toString(), { headers: { 'profile-id': this.secret.parentProfileId } })
+    return observeMesh(this.telemetry, 'mesh.get-lesson-details', async () => {
+      const url = new URL(`https://school.mos.ru/api/family/mobile/v1/lesson_schedule_items/${encodeURIComponent(String(event.id))}`)
+      url.searchParams.set('student_id', this.secret.studentId)
+      url.searchParams.set('type', event.source || 'PLAN')
+      return this.api.apiFetch(url.toString(), { headers: { 'profile-id': this.secret.parentProfileId } })
+    })
   }
   async getAssignments(date, previous = []) {
+    return observeMesh(this.telemetry, 'mesh.get-assignments', async () => {
     const events = this.scheduleCache.get(date) || await this.getSchedule(date)
     if (!Array.isArray(events)) throw new Error('Расписание МЭШ не является списком')
     const lessons = events.filter((event) => String(event.start_at).slice(0, 10) === date)
@@ -277,7 +303,12 @@ export class MeshDiaryAdapter {
       throw failure
     }
     return output
+    })
   }
+}
+
+function observeMesh(telemetry, operation, work) {
+  return telemetry?.span ? telemetry.span(operation, work, { source: 'mesh' }) : work()
 }
 
 export async function probeMesh() {

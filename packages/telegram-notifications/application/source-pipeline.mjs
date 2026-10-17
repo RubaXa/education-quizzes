@@ -24,8 +24,9 @@ export class SourcePipeline {
     this.clearTimer = clearTimer
   }
 
-  async process(scope, { origin = scope.origin ?? 'bootstrap' } = {}) {
+  async process(scope, { origin = scope.origin ?? 'bootstrap', signal = null } = {}) {
     if (!['bootstrap', 'live'].includes(origin)) throw new Error('invalid_source_origin')
+    assertRunning(signal)
     const scopeKey = this.source.scopeKey(scope)
     const namespace = this.namespace
     const ownerBinding = bindingFor(scope, this.source.kind)
@@ -36,7 +37,8 @@ export class SourcePipeline {
       setTimer: this.setTimer, clearTimer: this.clearTimer })
     heartbeat.start()
     try {
-      const validOwner = await this.source.validateScope(scope)
+      const validOwner = await this.source.validateScope(scope, { signal })
+      assertRunning(signal)
       heartbeat.assertHealthy()
       if (!validOwner) {
         await heartbeat.stop()
@@ -44,9 +46,10 @@ export class SourcePipeline {
         await this.checkpoints.invalidateOwner({ ...args, now: this.clock().toISOString() })
         return { status: 'owner_changed', scopeKey }
       }
-      if (lease.pending) return await this.#replayPending(scope, args, lease.pending, heartbeat)
+      if (lease.pending) return await this.#replayPending(scope, args, lease.pending, heartbeat, signal)
 
-      const observation = await this.source.observe(scope)
+      const observation = await this.source.observe(scope, { signal })
+      assertRunning(signal)
       heartbeat.assertHealthy()
       if (!observation || observation.completeness !== 'complete' || observation.source !== this.source.kind
         || observation.scopeKey !== scopeKey
@@ -75,7 +78,8 @@ export class SourcePipeline {
       const pending = { sequence, events, candidateBaseline: current, ownerBinding }
       if (Buffer.byteLength(JSON.stringify(pending)) > this.maxPendingBytes) return incompleteResult(lease.sequence ?? 0, scopeKey, 'source_snapshot_too_large')
       if (this.mode === 'shadow') {
-        const stillValid = await this.source.validateScope(scope)
+        const stillValid = await this.source.validateScope(scope, { signal })
+        assertRunning(signal)
         heartbeat.assertHealthy()
         if (!stillValid) {
           await heartbeat.stop()
@@ -85,19 +89,24 @@ export class SourcePipeline {
         }
         await heartbeat.stop()
         heartbeat.assertHealthy()
+        assertRunning(signal)
         await this.checkpoints.advance({ ...args, now: this.clock().toISOString(), sequence, baseline: current })
         return { status: 'advanced', sequence, events: 0, scopeKey }
       }
+      assertRunning(signal)
       await this.checkpoints.savePending({ ...args, now: this.clock().toISOString(), pending })
-      return await this.#replayPending(scope, args, pending, heartbeat, { initial: true })
+      assertRunning(signal)
+      return await this.#replayPending(scope, args, pending, heartbeat, signal, { initial: true })
     } finally {
       await heartbeat.stop()
       await this.checkpoints.release(args)
     }
   }
 
-  async #replayPending(scope, args, pending, heartbeat, { initial = false } = {}) {
-    const initialOwnerValid = await this.source.validateScope(scope)
+  async #replayPending(scope, args, pending, heartbeat, signal, { initial = false } = {}) {
+    assertRunning(signal)
+    const initialOwnerValid = await this.source.validateScope(scope, { signal })
+    assertRunning(signal)
     heartbeat.assertHealthy()
     if (!initialOwnerValid) {
       await heartbeat.stop()
@@ -106,7 +115,8 @@ export class SourcePipeline {
       return { status: 'owner_changed', scopeKey: args.scopeKey }
     }
     for (const event of pending.events ?? []) {
-      const ownerValid = await this.source.validateScope(scope)
+      const ownerValid = await this.source.validateScope(scope, { signal })
+      assertRunning(signal)
       heartbeat.assertHealthy()
       if (!ownerValid) {
         await heartbeat.stop()
@@ -114,9 +124,12 @@ export class SourcePipeline {
         await this.checkpoints.invalidateOwner({ ...args, now: this.clock().toISOString() })
         return { status: 'owner_changed', scopeKey: args.scopeKey }
       }
+      assertRunning(signal)
       await this.accept(event)
+      assertRunning(signal)
     }
-    const finalOwnerValid = await this.source.validateScope(scope)
+    const finalOwnerValid = await this.source.validateScope(scope, { signal })
+    assertRunning(signal)
     heartbeat.assertHealthy()
     if (!finalOwnerValid) {
       await heartbeat.stop()
@@ -126,8 +139,17 @@ export class SourcePipeline {
     }
     await heartbeat.stop()
     heartbeat.assertHealthy()
+    assertRunning(signal)
     await this.checkpoints.advance({ ...args, now: this.clock().toISOString(), sequence: pending.sequence, baseline: pending.candidateBaseline })
     return { status: initial ? 'advanced' : 'replayed', sequence: pending.sequence, events: pending.events?.length ?? 0, scopeKey: args.scopeKey }
+  }
+}
+
+function assertRunning(signal) {
+  if (signal?.aborted) {
+    const error = new Error('worker_shutdown')
+    error.code = 'worker_shutdown'
+    throw error
   }
 }
 
@@ -174,10 +196,11 @@ function safeRecords(records) {
     upload: new Set(['childName', 'subject', 'status']),
     quiz: new Set(['childName', 'subject', 'title', 'status']),
     review: new Set(['childName', 'subject', 'status']),
+    probe: new Set(),
   }
   for (const record of records) {
     if (!record || typeof record.recordKey !== 'string' || !/^[a-f0-9]{64}$/.test(record.recordKey)
-      || !['grade', 'schedule', 'assignment', 'upload', 'quiz', 'review'].includes(record.kind)
+      || !['grade', 'schedule', 'assignment', 'upload', 'quiz', 'review', 'probe'].includes(record.kind)
       || (record.eventType !== undefined && !EVENT_TYPE_SET.has(record.eventType))
       || (record.semanticHash !== undefined && !/^[a-f0-9]{64}$/.test(record.semanticHash))
       || (record.occurredAt !== undefined && (typeof record.occurredAt !== 'string' || Number.isNaN(Date.parse(record.occurredAt))))) return null
@@ -188,6 +211,7 @@ function safeRecords(records) {
       schedule: ['schedule.created', 'schedule.changed', 'schedule.cancelled'],
       assignment: ['homework.assigned', 'homework.changed', 'homework.cancelled'],
       upload: ['upload.confirmed'], quiz: ['quiz.started', 'quiz.submitted'], review: ['review.changed'],
+      probe: ['technical.probe'],
     }
     if (record.eventType && !allowedEvents[record.kind].includes(record.eventType)) return null
     if (record.kind === 'quiz' && record.eventType

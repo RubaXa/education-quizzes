@@ -359,21 +359,17 @@
       }
     },
     "sync/run-context.mjs": {
-      "sha256": "3d2ba34b78cb8d4eccbba20f71ace0087df77bd046db9ecda2f30c65a72ba30c",
-      "record": "docs/decisions/operator-tool-trial-2026-10-16.md",
+      "sha256": "13e5bb730a0002d59a64331d2ff9a114a1c48b74edb199492be9282ed94908db",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
       "specs": [
-        "docs/modules/synchronization/global-sync.md"
+        "docs/shared/server-runtime.md"
       ],
       "tests": [
         "sync/run-context.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 16.10.2026 поручил измерить и улучшить повторяемые инструменты синхронизации без потери качества."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "994ed5f2a5a64b377ecf1d8bf80d1d58cc0ee62c6e32d2880cf76612b9393169"
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
       }
     },
     "day/pipeline-contract.mjs": {
@@ -471,26 +467,17 @@
       }
     },
     "operator/run-operation.mjs": {
-      "sha256": "8f2119f9d7fbb602d8112ae87cc0aa72468f7172c577bb728324891259756cb2",
-      "record": "docs/decisions/operator-tool-trial-2026-10-16.md",
+      "sha256": "cba40356f38c149f9d258e61d4d1bb3392bb2a304bc841081cae046d1c12cc15",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
       "specs": [
-        "docs/services/operator-cli/README.md",
-        "docs/modules/assessments/assessment-decision-graph.md"
+        "docs/shared/server-runtime.md"
       ],
       "tests": [
         "operator/run-operation.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 16.10.2026 потребовал исправить связанный тест через проверяемую стандартную команду с обратным чтением."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "2172aab0c3e7491d811471c03cf06b98d982b2379b56ff2e8093a25af335c6ce"
-      },
-      "specificationLifecycle": {
-        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
-        "previousSha256": "27ce342b2172465043b79c032bb70b9f7e62a94fe39faadb508fc78823da77db"
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
       }
     },
     "scripts/education.mjs": {
@@ -1429,25 +1416,18 @@
       }
     },
     "packages/education-connect/lib/mesh.mjs": {
-      "sha256": "678efda0c71cd2cbe7e1763bac2ead3533e2024bcc27fbebb7f6d664018d821d",
-      "record": "docs/decisions/education-sync-performance-2026-10-15.md",
+      "sha256": "82e3cb9e7b30c9fcab8e4bc0af96ff6f8146f578a06354974db7e34fa2c8b998",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
       "specs": [
-        "docs/modules/synchronization/global-sync.md"
+        "docs/shared/server-runtime.md"
       ],
       "tests": [
-        "packages/education-connect/lib/mesh-assignments.test.mjs"
+        "packages/telegram-notifications/adapters/runtime.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 15.10.2026 прямо потребовал повторный полный Education Sync с таймерами, расследование узких мест и ускорение процесса без потери подтверждённых данных."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "eb40fead4a90ff35b1ec47328f33e3f9fcd2a668ba502d634af6aa3167f1c585"
-      },
-      "evidence": [
-        "docs/audits/education-sync-latency-audit-2026-10-15.md"
-      ]
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+      }
     },
     "scripts/day.mjs": {
       "sha256": "15f25d98d886fa4c0ee05c0c3b5a4e5665e776e4674ef3ae81a408298376f377",
@@ -1661,31 +1641,17 @@
       ]
     },
     "scripts/sync-project.mjs": {
-      "sha256": "a0a81e485f4bbfcbb4622021601fc8ab911a4a59467c5180fb6dc230d637e53b",
-      "record": "docs/decisions/operator-tool-trial-2026-10-16.md",
+      "sha256": "bfb77db7b8a98c5a13058c38013f6f5e93c0a3ff04c2d2e2f8f55c1669b4abcd",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
       "specs": [
-        "docs/modules/synchronization/global-sync.md"
+        "docs/shared/server-runtime.md"
       ],
       "tests": [
-        "sync/project-plan.test.mjs",
-        "sync/publication-audit.test.mjs",
-        "sync/run-context.test.mjs",
-        "packages/education-connect/lib/mesh-assignments.test.mjs"
+        "packages/telegram-notifications/adapters/runtime.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 15.10.2026 прямо потребовал повторный полный Education Sync с таймерами, расследование узких мест и ускорение процесса без потери подтверждённых данных."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "8883220c419b0399ae6580c9af5b5db630e42a3d83ccde167a1b9386f86a15a6"
-      },
-      "evidence": [
-        "docs/audits/education-sync-latency-audit-2026-10-15.md"
-      ],
-      "specificationLifecycle": {
-        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
-        "previousSha256": "f47ba354ba2915c33f36aaee75351f92e78028ff0c5f025bf79ede0a72d209dc"
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
       }
     },
     "storage/review-challenge.mjs": {
@@ -2392,22 +2358,17 @@
       }
     },
     "packages/education-connect/lib/network-retry.mjs": {
-      "sha256": "61996b9c4b46a469cbcc2df76d7c5f6119ee64e5463940f4ca50211a015bbe31",
-      "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
+      "sha256": "89379dde4144b0e2176cb322d1e239a8a3732236c230090d43c7b0994da3e699",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
       "specs": [
-        "docs/shared/specification-system.md"
+        "docs/shared/server-runtime.md"
       ],
       "tests": [
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
+        "packages/education-connect/lib/network-retry.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя 16.10.2026 внедрить согласованную структуру спецификаций, перенести ссылки в коде и проверить сохранность требований; изменение предметного поведения не выполнялось."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "b475ef0878cf4455478f4cdc5d36873e902593009496b2c4b7cb6db10b424788"
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
       }
     },
     "packages/education-connect/lib/prompts.mjs": {
@@ -2765,22 +2726,17 @@
       }
     },
     "scripts/lib/admin-firebase.mjs": {
-      "sha256": "650a5b85f82331a54658c72e4ef2953cef7c0abb7117a642878ef3a2cf52e00b",
-      "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
+      "sha256": "8c26b2636d2e12e4b054c0c6a74709a9d81f99412485d74d314b755d95f44598",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
       "specs": [
-        "docs/shared/specification-system.md"
+        "docs/shared/server-runtime.md"
       ],
       "tests": [
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
+        "packages/telegram-notifications/adapters/runtime.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя 16.10.2026 внедрить согласованную структуру спецификаций, перенести ссылки в коде и проверить сохранность требований; изменение предметного поведения не выполнялось."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "264b65dcfc965d10059e40d8fd786bb9e03c3cb3eecea89a4416ce8ed385bb7d"
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
       }
     },
     "scripts/notifications.mjs": {
@@ -4164,22 +4120,17 @@
       }
     },
     "sync/project-plan.mjs": {
-      "sha256": "2e2e28963e8562319da0ded728734adbc06503feb73c3fb1f3deae58837466ef",
-      "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
+      "sha256": "c4bc8b430f7833c3cea6f89fd0dc2803a3d640ebbb49b22c2afdde555e12266c",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
       "specs": [
-        "docs/shared/specification-system.md"
+        "docs/shared/server-runtime.md"
       ],
       "tests": [
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
+        "sync/project-plan.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя 16.10.2026 внедрить согласованную структуру спецификаций, перенести ссылки в коде и проверить сохранность требований; изменение предметного поведения не выполнялось."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "c09e6e1f19e6240cdc118a0c0f27158431b17d3aca21955f86080ebbee1ae410"
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
       }
     },
     "sync/publication-audit.mjs": {
@@ -4299,211 +4250,145 @@
       }
     },
     "packages/telegram-notifications/adapters/config.mjs": {
-      "sha256": "e9128905113b7c12552e146b48d559dc6a29f6c921973a3431c63f051ae0f93f",
-      "record": "docs/decisions/telegram-source-wiring-2026-10-17.md",
+      "sha256": "6a496bd94573a880cdb15ff2bd480f73ed726d28351b7688d206b8e8b56dc8a9",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
       "specs": [
-        "docs/services/telegram-bot/README.md",
-        "docs/services/telegram-bot/ports-and-events.md",
-        "docs/services/telegram-bot/adapters/firestore.md",
-        "docs/services/telegram-bot/adapters/mesh.md",
         "docs/services/telegram-bot/operations.md"
       ],
       "tests": [
-        "packages/telegram-notifications/adapters/mesh-credentials.test.mjs",
-        "packages/telegram-notifications/adapters/runtime.test.mjs",
-        "packages/telegram-notifications/adapters/source-coordinator.test.mjs",
-        "packages/telegram-notifications/adapters/source-discovery-firestore.test.mjs",
-        "packages/telegram-notifications/adapters/source-inventory-firestore.test.mjs",
-        "packages/telegram-notifications/adapters/source-mesh.test.mjs",
-        "packages/telegram-notifications/adapters/worker-loop.test.mjs",
-        "packages/telegram-notifications/notifications.test.mjs",
-        "packages/telegram-notifications/source-mesh-integration.test.mjs",
-        "packages/telegram-notifications/source-pipeline.test.mjs",
-        "scripts/telegram-bot.test.mjs"
+        "packages/telegram-notifications/adapters/config.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь17.10.2026 поручил через Luna подключить Firestore, затем МЭШ, добавить тесты, проверить и выполнить commit/push; отдельно потребовал динамическое подключение всех семей/детей без ручного allowlist."
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
       }
     },
     "packages/telegram-notifications/adapters/firestore.mjs": {
-      "sha256": "aee219cc83639faa82d724a84c92dc5b7403c8c23364f0df1013b515bd02fa82",
-      "record": "docs/decisions/telegram-review-fixes-2026-10-17.md",
+      "sha256": "79b0c9d5f7b3274b3ffb0a763b5c26a32cf034ca20635822484f33e47a74d467",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
       "specs": [
-        "docs/services/telegram-bot/ports-and-events.md",
-        "docs/services/telegram-bot/identity-and-linking.md",
-        "docs/services/telegram-bot/event-ledger-outbox.md"
+        "docs/services/telegram-bot/operations.md"
       ],
       "tests": [
-        "packages/telegram-notifications/notifications.test.mjs"
+        "packages/telegram-notifications/adapters/runtime.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо запросил исправить найденные проблемы через Luna Worker, добавить тесты, обновить спецификации, прогнать проверки и выполнить commit/push."
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
       }
     },
     "packages/telegram-notifications/adapters/memory.mjs": {
-      "sha256": "ac04e00a1763a2555212c20c890107d52eae4c0d2af99d583c98a3e8fbfe2d73",
-      "record": "docs/decisions/telegram-review-fixes-2026-10-17.md",
+      "sha256": "083c49277dc562f7ed674f18e3e8da15ef40407fab30848f319da622c4de4060",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
       "specs": [
-        "docs/services/telegram-bot/ports-and-events.md",
-        "docs/services/telegram-bot/identity-and-linking.md",
-        "docs/services/telegram-bot/event-ledger-outbox.md"
+        "docs/services/telegram-bot/operations.md"
       ],
       "tests": [
-        "packages/telegram-notifications/notifications.test.mjs"
+        "packages/telegram-notifications/adapters/runtime.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо запросил исправить найденные проблемы через Luna Worker, добавить тесты, обновить спецификации, прогнать проверки и выполнить commit/push."
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
       }
     },
     "packages/telegram-notifications/adapters/runtime.mjs": {
-      "sha256": "296a42d5b6987d6730db9d2b24b5503107d5a686b1fba2cf5ec2f81728767bdf",
-      "record": "docs/decisions/telegram-source-wiring-2026-10-17.md",
+      "sha256": "4323e6affad3ad3c4ea6efd368b46106c0c84805a8c8d04f5916ef4ca1ff2642",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
       "specs": [
-        "docs/services/telegram-bot/README.md",
-        "docs/services/telegram-bot/ports-and-events.md",
-        "docs/services/telegram-bot/adapters/firestore.md",
-        "docs/services/telegram-bot/adapters/mesh.md",
         "docs/services/telegram-bot/operations.md"
       ],
       "tests": [
-        "packages/telegram-notifications/adapters/mesh-credentials.test.mjs",
-        "packages/telegram-notifications/adapters/runtime.test.mjs",
-        "packages/telegram-notifications/adapters/source-coordinator.test.mjs",
-        "packages/telegram-notifications/adapters/source-discovery-firestore.test.mjs",
-        "packages/telegram-notifications/adapters/source-inventory-firestore.test.mjs",
-        "packages/telegram-notifications/adapters/source-mesh.test.mjs",
-        "packages/telegram-notifications/adapters/worker-loop.test.mjs",
-        "packages/telegram-notifications/notifications.test.mjs",
-        "packages/telegram-notifications/source-mesh-integration.test.mjs",
-        "packages/telegram-notifications/source-pipeline.test.mjs",
-        "scripts/telegram-bot.test.mjs"
+        "packages/telegram-notifications/adapters/runtime.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь17.10.2026 поручил через Luna подключить Firestore, затем МЭШ, добавить тесты, проверить и выполнить commit/push; отдельно потребовал динамическое подключение всех семей/детей без ручного allowlist."
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
       }
     },
     "packages/telegram-notifications/adapters/telegram.mjs": {
-      "sha256": "8a77f808fbc3a0d88450de5f37e174b2c89854d4d18c23ab84cf317dc740ebbe",
-      "record": "docs/decisions/telegram-review-fixes-2026-10-17.md",
+      "sha256": "e8b8c0376403468c2c20d8a013fcc036374e784b9b25ad6f8b5d4fe3c6fcb058",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
       "specs": [
-        "docs/services/telegram-bot/ports-and-events.md",
-        "docs/services/telegram-bot/identity-and-linking.md",
-        "docs/services/telegram-bot/event-ledger-outbox.md"
+        "docs/services/telegram-bot/operations.md"
       ],
       "tests": [
-        "packages/telegram-notifications/notifications.test.mjs"
+        "packages/telegram-notifications/adapters/runtime.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо запросил исправить найденные проблемы через Luna Worker, добавить тесты, обновить спецификации, прогнать проверки и выполнить commit/push."
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
       }
     },
     "packages/telegram-notifications/adapters/worker-loop.mjs": {
-      "sha256": "d54a00cca1da814f1864c02dfc2845bf55aede288689565baa3d523142648133",
-      "record": "docs/decisions/telegram-source-wiring-2026-10-17.md",
+      "sha256": "09b9da0128d7b64e56716781905ee8ecd3084d2ba2eee2a6ad1f54fad821c396",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
       "specs": [
-        "docs/services/telegram-bot/README.md",
-        "docs/services/telegram-bot/ports-and-events.md",
-        "docs/services/telegram-bot/adapters/firestore.md",
-        "docs/services/telegram-bot/adapters/mesh.md",
         "docs/services/telegram-bot/operations.md"
       ],
       "tests": [
-        "packages/telegram-notifications/adapters/mesh-credentials.test.mjs",
-        "packages/telegram-notifications/adapters/runtime.test.mjs",
-        "packages/telegram-notifications/adapters/source-coordinator.test.mjs",
-        "packages/telegram-notifications/adapters/source-discovery-firestore.test.mjs",
-        "packages/telegram-notifications/adapters/source-inventory-firestore.test.mjs",
-        "packages/telegram-notifications/adapters/source-mesh.test.mjs",
-        "packages/telegram-notifications/adapters/worker-loop.test.mjs",
-        "packages/telegram-notifications/notifications.test.mjs",
-        "packages/telegram-notifications/source-mesh-integration.test.mjs",
-        "packages/telegram-notifications/source-pipeline.test.mjs",
-        "scripts/telegram-bot.test.mjs"
+        "packages/telegram-notifications/adapters/worker-loop.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь17.10.2026 поручил через Luna подключить Firestore, затем МЭШ, добавить тесты, проверить и выполнить commit/push; отдельно потребовал динамическое подключение всех семей/детей без ручного allowlist."
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
       }
     },
     "packages/telegram-notifications/application/identity.mjs": {
-      "sha256": "1a8e8f263c7343769d2b6c0032e103c615fe0d133e02fcb36a240b7868a7d0ab",
-      "record": "docs/decisions/telegram-review-fixes-2026-10-17.md",
+      "sha256": "def406777fab9646e3dd7b9ead9ae0a715b6c090fd70b80732147c7ecc3f091d",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
       "specs": [
-        "docs/services/telegram-bot/ports-and-events.md",
-        "docs/services/telegram-bot/identity-and-linking.md",
-        "docs/services/telegram-bot/event-ledger-outbox.md"
-      ],
-      "tests": [
-        "packages/telegram-notifications/notifications.test.mjs"
-      ],
-      "authorization": {
-        "status": "direct-request",
-        "evidence": "Пользователь прямо запросил исправить найденные проблемы через Luna Worker, добавить тесты, обновить спецификации, прогнать проверки и выполнить commit/push."
-      }
-    },
-    "packages/telegram-notifications/application/notifications.mjs": {
-      "sha256": "f5892b13c97c922f436bf50a4829394b3e16cd8fc20912709cb964a461a926cd",
-      "record": "docs/decisions/telegram-review-fixes-2026-10-17.md",
-      "specs": [
-        "docs/services/telegram-bot/ports-and-events.md",
-        "docs/services/telegram-bot/identity-and-linking.md",
-        "docs/services/telegram-bot/event-ledger-outbox.md"
-      ],
-      "tests": [
-        "packages/telegram-notifications/notifications.test.mjs"
-      ],
-      "authorization": {
-        "status": "direct-request",
-        "evidence": "Пользователь прямо запросил исправить найденные проблемы через Luna Worker, добавить тесты, обновить спецификации, прогнать проверки и выполнить commit/push."
-      }
-    },
-    "packages/telegram-notifications/domain/diff.mjs": {
-      "sha256": "1742e178615b5cecb79f100c9c1de5898d19950b3513a04b644289343d30b181",
-      "record": "docs/decisions/telegram-source-wiring-2026-10-17.md",
-      "specs": [
-        "docs/services/telegram-bot/README.md",
-        "docs/services/telegram-bot/ports-and-events.md",
-        "docs/services/telegram-bot/adapters/firestore.md",
-        "docs/services/telegram-bot/adapters/mesh.md",
         "docs/services/telegram-bot/operations.md"
       ],
       "tests": [
-        "packages/telegram-notifications/adapters/mesh-credentials.test.mjs",
-        "packages/telegram-notifications/adapters/runtime.test.mjs",
-        "packages/telegram-notifications/adapters/source-coordinator.test.mjs",
-        "packages/telegram-notifications/adapters/source-discovery-firestore.test.mjs",
-        "packages/telegram-notifications/adapters/source-inventory-firestore.test.mjs",
-        "packages/telegram-notifications/adapters/source-mesh.test.mjs",
-        "packages/telegram-notifications/adapters/worker-loop.test.mjs",
-        "packages/telegram-notifications/notifications.test.mjs",
-        "packages/telegram-notifications/source-mesh-integration.test.mjs",
-        "packages/telegram-notifications/source-pipeline.test.mjs",
-        "scripts/telegram-bot.test.mjs"
+        "packages/telegram-notifications/identity-pairing.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь17.10.2026 поручил через Luna подключить Firestore, затем МЭШ, добавить тесты, проверить и выполнить commit/push; отдельно потребовал динамическое подключение всех семей/детей без ручного allowlist."
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
       }
     },
-    "packages/telegram-notifications/domain/events.mjs": {
-      "sha256": "a008341391b8c20af8db70697000941359e2fa832556c2541651a955728a0bbf",
-      "record": "docs/decisions/telegram-review-fixes-2026-10-17.md",
+    "packages/telegram-notifications/application/notifications.mjs": {
+      "sha256": "93d438164a2b54dc22484b4cabdfd5a6ea507d98af27cd20aca68f077492243a",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
       "specs": [
-        "docs/services/telegram-bot/ports-and-events.md",
-        "docs/services/telegram-bot/identity-and-linking.md",
-        "docs/services/telegram-bot/event-ledger-outbox.md"
+        "docs/services/telegram-bot/operations.md"
       ],
       "tests": [
         "packages/telegram-notifications/notifications.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо запросил исправить найденные проблемы через Luna Worker, добавить тесты, обновить спецификации, прогнать проверки и выполнить commit/push."
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+      }
+    },
+    "packages/telegram-notifications/domain/diff.mjs": {
+      "sha256": "ee996b751a8b83cc7c3d69d64b7ab05eaa2b31364a40218e9be63ce5e12ff8b0",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "specs": [
+        "docs/services/telegram-bot/operations.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/technical-probe.test.mjs",
+        "packages/telegram-notifications/notifications.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+      }
+    },
+    "packages/telegram-notifications/domain/events.mjs": {
+      "sha256": "0b8998da59c7d6acdd98d95f3558d60b28aad8b2fd82ae4e8aa396dcef1ad2ac",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "specs": [
+        "docs/services/telegram-bot/operations.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/technical-probe.test.mjs",
+        "packages/telegram-notifications/notifications.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
       }
     },
     "packages/telegram-notifications/domain/ports.mjs": {
@@ -4535,73 +4420,46 @@
       }
     },
     "packages/telegram-notifications/domain/renderer.mjs": {
-      "sha256": "84c29b40b13f2fe41d08e8511379a653134c19a7e4484fc120b43f721aab7987",
-      "record": "docs/decisions/telegram-foundation-2026-10-16.md",
+      "sha256": "0137ec4019b236147a5f5980b3be81e6e42f08981237a1d44799c385094fa7d4",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
       "specs": [
-        "docs/services/telegram-bot/delivery.md"
+        "docs/services/telegram-bot/operations.md"
       ],
       "tests": [
+        "packages/telegram-notifications/technical-probe.test.mjs",
         "packages/telegram-notifications/notifications.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо запросил начать реализацию Telegram-сервиса и сообщил о локально заданной AGI_EDU_BOT; значение секрета не включается в доказательство."
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
       }
     },
     "scripts/telegram-bot.mjs": {
-      "sha256": "080347b86ee0669c95859d511200b37b767f0c6c5b5755638c570f512c6b68ef",
-      "record": "docs/decisions/telegram-source-wiring-2026-10-17.md",
+      "sha256": "083cdb47a7de520471ef801c274cd2c6457101867c111f8160a815c83e38c411",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
       "specs": [
-        "docs/services/telegram-bot/README.md",
-        "docs/services/telegram-bot/ports-and-events.md",
-        "docs/services/telegram-bot/adapters/firestore.md",
-        "docs/services/telegram-bot/adapters/mesh.md",
         "docs/services/telegram-bot/operations.md"
       ],
       "tests": [
-        "packages/telegram-notifications/adapters/mesh-credentials.test.mjs",
-        "packages/telegram-notifications/adapters/runtime.test.mjs",
-        "packages/telegram-notifications/adapters/source-coordinator.test.mjs",
-        "packages/telegram-notifications/adapters/source-discovery-firestore.test.mjs",
-        "packages/telegram-notifications/adapters/source-inventory-firestore.test.mjs",
-        "packages/telegram-notifications/adapters/source-mesh.test.mjs",
-        "packages/telegram-notifications/adapters/worker-loop.test.mjs",
-        "packages/telegram-notifications/notifications.test.mjs",
-        "packages/telegram-notifications/source-mesh-integration.test.mjs",
-        "packages/telegram-notifications/source-pipeline.test.mjs",
         "scripts/telegram-bot.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь17.10.2026 поручил через Luna подключить Firestore, затем МЭШ, добавить тесты, проверить и выполнить commit/push; отдельно потребовал динамическое подключение всех семей/детей без ручного allowlist."
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
       }
     },
     "packages/telegram-notifications/adapters/mesh-credentials.mjs": {
-      "sha256": "f334c307baa920fd979727584bb96db135c9d20ff413e25ace0dd018ce5fe053",
-      "record": "docs/decisions/telegram-source-wiring-2026-10-17.md",
+      "sha256": "72e62c92febdc538bb794a5f04c630eff39f6a63e3ca0da3186698e157d9a87f",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
       "specs": [
-        "docs/services/telegram-bot/README.md",
-        "docs/services/telegram-bot/ports-and-events.md",
-        "docs/services/telegram-bot/adapters/firestore.md",
-        "docs/services/telegram-bot/adapters/mesh.md",
         "docs/services/telegram-bot/operations.md"
       ],
       "tests": [
-        "packages/telegram-notifications/adapters/mesh-credentials.test.mjs",
-        "packages/telegram-notifications/adapters/runtime.test.mjs",
-        "packages/telegram-notifications/adapters/source-coordinator.test.mjs",
-        "packages/telegram-notifications/adapters/source-discovery-firestore.test.mjs",
-        "packages/telegram-notifications/adapters/source-inventory-firestore.test.mjs",
-        "packages/telegram-notifications/adapters/source-mesh.test.mjs",
-        "packages/telegram-notifications/adapters/worker-loop.test.mjs",
-        "packages/telegram-notifications/notifications.test.mjs",
-        "packages/telegram-notifications/source-mesh-integration.test.mjs",
-        "packages/telegram-notifications/source-pipeline.test.mjs",
-        "scripts/telegram-bot.test.mjs"
+        "packages/telegram-notifications/adapters/mesh-credentials.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь17.10.2026 поручил через Luna подключить Firestore, затем МЭШ, добавить тесты, проверить и выполнить commit/push; отдельно потребовал динамическое подключение всех семей/детей без ручного allowlist."
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
       }
     },
     "packages/telegram-notifications/adapters/source-checkpoint-firestore.mjs": {
@@ -4633,59 +4491,31 @@
       }
     },
     "packages/telegram-notifications/adapters/source-coordinator.mjs": {
-      "sha256": "a15853d01bbfb9b1550d8e8fb15230a49fe302530fe43072b8082dd9634e41e3",
-      "record": "docs/decisions/telegram-source-wiring-2026-10-17.md",
+      "sha256": "9c33aef8ab164ab2dec6d177633da5739d41639572c049f5457d4b8a78b349b9",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
       "specs": [
-        "docs/services/telegram-bot/README.md",
-        "docs/services/telegram-bot/ports-and-events.md",
-        "docs/services/telegram-bot/adapters/firestore.md",
-        "docs/services/telegram-bot/adapters/mesh.md",
         "docs/services/telegram-bot/operations.md"
       ],
       "tests": [
-        "packages/telegram-notifications/adapters/mesh-credentials.test.mjs",
-        "packages/telegram-notifications/adapters/runtime.test.mjs",
-        "packages/telegram-notifications/adapters/source-coordinator.test.mjs",
-        "packages/telegram-notifications/adapters/source-discovery-firestore.test.mjs",
-        "packages/telegram-notifications/adapters/source-inventory-firestore.test.mjs",
-        "packages/telegram-notifications/adapters/source-mesh.test.mjs",
-        "packages/telegram-notifications/adapters/worker-loop.test.mjs",
-        "packages/telegram-notifications/notifications.test.mjs",
-        "packages/telegram-notifications/source-mesh-integration.test.mjs",
-        "packages/telegram-notifications/source-pipeline.test.mjs",
-        "scripts/telegram-bot.test.mjs"
+        "packages/telegram-notifications/adapters/source-coordinator.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь17.10.2026 поручил через Luna подключить Firestore, затем МЭШ, добавить тесты, проверить и выполнить commit/push; отдельно потребовал динамическое подключение всех семей/детей без ручного allowlist."
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
       }
     },
     "packages/telegram-notifications/adapters/source-discovery-firestore.mjs": {
-      "sha256": "9d7f2f9a45d902274337dacf601c00d972d29746afdbcb4ce6635aaf73dd99e8",
-      "record": "docs/decisions/telegram-source-wiring-2026-10-17.md",
+      "sha256": "647ed77ca8230c00cfcadfc2f1782f449fed7843d0c0063131ea59cc4aae075c",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
       "specs": [
-        "docs/services/telegram-bot/README.md",
-        "docs/services/telegram-bot/ports-and-events.md",
-        "docs/services/telegram-bot/adapters/firestore.md",
-        "docs/services/telegram-bot/adapters/mesh.md",
         "docs/services/telegram-bot/operations.md"
       ],
       "tests": [
-        "packages/telegram-notifications/adapters/mesh-credentials.test.mjs",
-        "packages/telegram-notifications/adapters/runtime.test.mjs",
-        "packages/telegram-notifications/adapters/source-coordinator.test.mjs",
-        "packages/telegram-notifications/adapters/source-discovery-firestore.test.mjs",
-        "packages/telegram-notifications/adapters/source-inventory-firestore.test.mjs",
-        "packages/telegram-notifications/adapters/source-mesh.test.mjs",
-        "packages/telegram-notifications/adapters/worker-loop.test.mjs",
-        "packages/telegram-notifications/notifications.test.mjs",
-        "packages/telegram-notifications/source-mesh-integration.test.mjs",
-        "packages/telegram-notifications/source-pipeline.test.mjs",
-        "scripts/telegram-bot.test.mjs"
+        "packages/telegram-notifications/adapters/source-discovery-firestore.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь17.10.2026 поручил через Luna подключить Firestore, затем МЭШ, добавить тесты, проверить и выполнить commit/push; отдельно потребовал динамическое подключение всех семей/детей без ручного allowlist."
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
       }
     },
     "packages/telegram-notifications/adapters/source-firestore.mjs": {
@@ -4717,87 +4547,326 @@
       }
     },
     "packages/telegram-notifications/adapters/source-inventory-firestore.mjs": {
-      "sha256": "6b92eb39d9358fc221dc0368534f6f7c2359f08f067d9ee60e464a521b625083",
-      "record": "docs/decisions/telegram-source-wiring-2026-10-17.md",
+      "sha256": "8f14d6139e7d617bd162ecf845fa9492cb793d1e53bf41398dcd8088a40eee60",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
       "specs": [
-        "docs/services/telegram-bot/README.md",
-        "docs/services/telegram-bot/ports-and-events.md",
-        "docs/services/telegram-bot/adapters/firestore.md",
-        "docs/services/telegram-bot/adapters/mesh.md",
         "docs/services/telegram-bot/operations.md"
       ],
       "tests": [
-        "packages/telegram-notifications/adapters/mesh-credentials.test.mjs",
-        "packages/telegram-notifications/adapters/runtime.test.mjs",
-        "packages/telegram-notifications/adapters/source-coordinator.test.mjs",
-        "packages/telegram-notifications/adapters/source-discovery-firestore.test.mjs",
-        "packages/telegram-notifications/adapters/source-inventory-firestore.test.mjs",
-        "packages/telegram-notifications/adapters/source-mesh.test.mjs",
-        "packages/telegram-notifications/adapters/worker-loop.test.mjs",
-        "packages/telegram-notifications/notifications.test.mjs",
-        "packages/telegram-notifications/source-mesh-integration.test.mjs",
-        "packages/telegram-notifications/source-pipeline.test.mjs",
-        "scripts/telegram-bot.test.mjs"
+        "packages/telegram-notifications/adapters/source-inventory-firestore.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь17.10.2026 поручил через Luna подключить Firestore, затем МЭШ, добавить тесты, проверить и выполнить commit/push; отдельно потребовал динамическое подключение всех семей/детей без ручного allowlist."
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
       }
     },
     "packages/telegram-notifications/adapters/source-mesh.mjs": {
-      "sha256": "efc6fbbe9644d106b687611a3f54811a40aa9672649d80cc5b1da4c523cbcc16",
-      "record": "docs/decisions/telegram-source-wiring-2026-10-17.md",
+      "sha256": "c4ea156cebc2b7de106bfef663189aca36df956a730043164636e1bb33f701cb",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
       "specs": [
-        "docs/services/telegram-bot/README.md",
-        "docs/services/telegram-bot/ports-and-events.md",
-        "docs/services/telegram-bot/adapters/firestore.md",
-        "docs/services/telegram-bot/adapters/mesh.md",
         "docs/services/telegram-bot/operations.md"
       ],
       "tests": [
-        "packages/telegram-notifications/adapters/mesh-credentials.test.mjs",
-        "packages/telegram-notifications/adapters/runtime.test.mjs",
-        "packages/telegram-notifications/adapters/source-coordinator.test.mjs",
-        "packages/telegram-notifications/adapters/source-discovery-firestore.test.mjs",
-        "packages/telegram-notifications/adapters/source-inventory-firestore.test.mjs",
-        "packages/telegram-notifications/adapters/source-mesh.test.mjs",
-        "packages/telegram-notifications/adapters/worker-loop.test.mjs",
-        "packages/telegram-notifications/notifications.test.mjs",
-        "packages/telegram-notifications/source-mesh-integration.test.mjs",
-        "packages/telegram-notifications/source-pipeline.test.mjs",
-        "scripts/telegram-bot.test.mjs"
+        "packages/telegram-notifications/adapters/source-mesh.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь17.10.2026 поручил через Luna подключить Firestore, затем МЭШ, добавить тесты, проверить и выполнить commit/push; отдельно потребовал динамическое подключение всех семей/детей без ручного allowlist."
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
       }
     },
     "packages/telegram-notifications/application/source-pipeline.mjs": {
-      "sha256": "3971f06705d0170befa7abd75649d76fcdb77c8cfcebb39ef69bb7084399a685",
-      "record": "docs/decisions/telegram-source-wiring-2026-10-17.md",
+      "sha256": "a22d321573241ee678cec5f0dad3ccdaf037426b1bc231f6efecf121e8bef5f8",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
       "specs": [
-        "docs/services/telegram-bot/README.md",
-        "docs/services/telegram-bot/ports-and-events.md",
-        "docs/services/telegram-bot/adapters/firestore.md",
-        "docs/services/telegram-bot/adapters/mesh.md",
         "docs/services/telegram-bot/operations.md"
       ],
       "tests": [
-        "packages/telegram-notifications/adapters/mesh-credentials.test.mjs",
-        "packages/telegram-notifications/adapters/runtime.test.mjs",
-        "packages/telegram-notifications/adapters/source-coordinator.test.mjs",
-        "packages/telegram-notifications/adapters/source-discovery-firestore.test.mjs",
-        "packages/telegram-notifications/adapters/source-inventory-firestore.test.mjs",
-        "packages/telegram-notifications/adapters/source-mesh.test.mjs",
-        "packages/telegram-notifications/adapters/worker-loop.test.mjs",
-        "packages/telegram-notifications/notifications.test.mjs",
-        "packages/telegram-notifications/source-mesh-integration.test.mjs",
-        "packages/telegram-notifications/source-pipeline.test.mjs",
-        "scripts/telegram-bot.test.mjs"
+        "packages/telegram-notifications/source-pipeline.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь17.10.2026 поручил через Luna подключить Firestore, затем МЭШ, добавить тесты, проверить и выполнить commit/push; отдельно потребовал динамическое подключение всех семей/детей без ручного allowlist."
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+      }
+    },
+    "packages/education-runtime/credentials.mjs": {
+      "sha256": "eac09da8bb065ca8233fb2dda06e2669c28831c84f8e73b3254ddb40392fd6a4",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "specs": [
+        "docs/shared/server-runtime.md"
+      ],
+      "tests": [
+        "packages/education-runtime/credentials.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+      }
+    },
+    "packages/education-runtime/family-graph.mjs": {
+      "sha256": "b5f1e9ea9b60bf6f71d1bb956ddf0508927fa163a4fff7999183c4105434983d",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "specs": [
+        "docs/shared/server-runtime.md"
+      ],
+      "tests": [
+        "packages/education-runtime/family-graph.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+      }
+    },
+    "packages/education-runtime/firestore.mjs": {
+      "sha256": "1e1d884d824a45081fc4b677fb474aea1fdf2d4331d39a7e7c6f62b244e8d7fd",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "specs": [
+        "docs/shared/server-runtime.md"
+      ],
+      "tests": [
+        "packages/education-runtime/firestore.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+      }
+    },
+    "packages/education-runtime/identity.mjs": {
+      "sha256": "ef69fd2dd4b426b8a714711ea5820f56665728950d252b39261e0b01c32d8c4f",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "specs": [
+        "docs/shared/server-runtime.md"
+      ],
+      "tests": [
+        "packages/education-runtime/identity.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+      }
+    },
+    "packages/education-runtime/mesh-session.mjs": {
+      "sha256": "9404aeccd21bd1fe3271888480cf1e57968d210b7f8efc8d20cd36f25d4c1b88",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "specs": [
+        "docs/shared/server-runtime.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/adapters/mesh-credentials.test.mjs",
+        "packages/education-runtime/credentials.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+      }
+    },
+    "packages/education-runtime/telemetry.mjs": {
+      "sha256": "f15d3c60a08ebd316a607032c763bb242d845b8aa5fa3e3522a3c80e7400e038",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "specs": [
+        "docs/shared/server-runtime.md"
+      ],
+      "tests": [
+        "packages/education-runtime/telemetry.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+      }
+    },
+    "packages/telegram-notifications/adapters/probe-recipient-firestore.mjs": {
+      "sha256": "abf95002a800bbd00ddb5d3cc2e74d59ca59b466b7f45dc617c22cd31496ab6d",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "specs": [
+        "docs/services/telegram-bot/operations.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/adapters/runtime.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+      }
+    },
+    "packages/telegram-notifications/application/probe-notifications.mjs": {
+      "sha256": "4c6c11765ca38f67de72155f9bb4317be2faba9f8f6420a0b2798997a0708326",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "specs": [
+        "docs/services/telegram-bot/operations.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/probe-notifications.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+      }
+    },
+    "packages/telegram-notifications/operations/launch-agent.mjs": {
+      "sha256": "b83b152b2875039aaec7582feb6f7faeed7373cdb03215fec90e3dcd5f739354",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "specs": [
+        "docs/services/telegram-bot/operations.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/operations/launch-agent.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+      }
+    },
+    "packages/telegram-notifications/operations/private-logger.mjs": {
+      "sha256": "8aab0f509220cd3136bfc537c49b89211f26aba6e1d90e2c12eac14c1c57304d",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "specs": [
+        "docs/services/telegram-bot/operations.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/operations/private-logger.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+      }
+    },
+    "packages/telegram-notifications/operations/probe-runner.mjs": {
+      "sha256": "d5085a0164206cf145b55419c0ca4201f8e7b3df01287399ff09d4aef611a061",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "specs": [
+        "docs/services/telegram-bot/operations.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/operations/probe-runner.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+      }
+    },
+    "packages/telegram-notifications/operations/probe-source.mjs": {
+      "sha256": "d2dcc91fa597fff076dfa29639d26daa649d7272fc28963a04963b7fc6d9caac",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "specs": [
+        "docs/services/telegram-bot/operations.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/operations/probe-source.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+      }
+    },
+    "packages/telegram-notifications/operations/probe-target.mjs": {
+      "sha256": "008b9652f466cea35b0dcad8d82234369a0159f8acfaec785d4efc027df02fd0",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "specs": [
+        "docs/services/telegram-bot/operations.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/adapters/runtime.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+      }
+    },
+    "packages/telegram-notifications/operations/process-lock.mjs": {
+      "sha256": "6d8100a8e2d0f7727f1fe73af2cf2a457f7ca1445830197d6100a8a04baede73",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "specs": [
+        "docs/services/telegram-bot/operations.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/operations/process-lock.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+      }
+    },
+    "packages/telegram-notifications/operations/readiness.mjs": {
+      "sha256": "0d4f2ea492e707fe3dd6633d0e4a48f54d0523ee747229de3183899fdd4aaf9a",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "specs": [
+        "docs/services/telegram-bot/operations.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/operations/readiness.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+      }
+    },
+    "packages/telegram-notifications/operations/source-check.mjs": {
+      "sha256": "ad7e16c990abc26c0d36c9de18e2abea06053c6391485125dedeb7b2d2a23b8a",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "specs": [
+        "docs/services/telegram-bot/operations.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/operations/source-check.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+      }
+    },
+    "scripts/benchmark-server-runtime.mjs": {
+      "sha256": "44282e209c2bfc967685df90b2d295debf809d810ad277b683e1ba87c0cea9aa",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "specs": [
+        "docs/shared/server-runtime.md"
+      ],
+      "tests": [
+        "scripts/benchmark-server-runtime.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+      }
+    },
+    "scripts/telegram-pair.mjs": {
+      "sha256": "00e02302b37ee4f1c4a93a0729cca17f3d095bdff2154183e66b51592eade892",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "specs": [
+        "docs/services/telegram-bot/operations.md"
+      ],
+      "tests": [
+        "scripts/telegram-pair.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+      }
+    },
+    "scripts/telegram-runtime.mjs": {
+      "sha256": "fa6a11780445b8025fea986f021d9b443c2e1dafaf91c9a8154b69a107130a06",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "specs": [
+        "docs/services/telegram-bot/operations.md"
+      ],
+      "tests": [
+        "scripts/telegram-runtime.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+      }
+    },
+    "scripts/telegram-indexes.mjs": {
+      "sha256": "0600663064d291719f1347f48424c71729a9e781a19e1b3329d46cd46842c8a6",
+      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "specs": [
+        "docs/services/telegram-bot/operations.md"
+      ],
+      "tests": [
+        "scripts/telegram-indexes.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
       }
     }
   }

@@ -7,9 +7,22 @@
   "bin": {
     "education-connect": "bin/education-connect.mjs"
   },
-  "files": ["bin", "lib/envelope.mjs", "lib/handoff-store.mjs", "lib/mesh.mjs", "lib/prompts.mjs", "README.md"],
-  "engines": { "node": ">=20" },
-  "publishConfig": { "registry": "https://registry.npmjs.org/", "access": "public" },
+  "files": [
+    "bin",
+    "lib/envelope.mjs",
+    "lib/handoff-store.mjs",
+    "lib/mesh.mjs",
+    "lib/prompts.mjs",
+    "README.md",
+    "lib/network-retry.mjs"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
   "dependencies": {
     "firebase": "12.19.0",
     "mesh-diary": "https://codeload.github.com/voenniy/mesh-diary/tar.gz/319c44ff25a156dacd3afdf2773959db31ca29dc"

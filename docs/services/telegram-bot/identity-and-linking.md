@@ -13,10 +13,12 @@ code:
   - "packages/telegram-notifications/adapters/telegram.mjs"
   - "packages/telegram-notifications/adapters/firestore.mjs"
   - "packages/telegram-notifications/adapters/memory.mjs"
+  - scripts/telegram-pair.mjs
 parent: service.telegram-bot
 uses:
   - service.telegram-bot
   - service.telegram-bot.ports-and-events
+  - shared.server-runtime
 sections:
   - модель-идентичности
   - состояния
@@ -28,9 +30,9 @@ sections:
 # Реестр Telegram identity и семейная привязка
 
 **Родитель:** [корневая архитектура](README.md); [порты и события](ports-and-events.md); [семейная модель](../../modules/families/README.md).
-**Статус:** целевой сценарий частично реализован. Account registration and confirmed `/stop` exist; family linking does not.
+**Статус:** регистрация, подтверждённый `/stop` и локальная доверенная привязка реализованы; web UI привязки отсутствует. Реальная отправка требует отдельно подтверждённой связи.
 
-Выпуск и погашение семейного link token не включены: оба пользовательских UI flow отсутствуют, поэтому бот не доверяет произвольному `familyId` и требует внедрённый trusted `FamilyLinkAuthorizationPort` с подтверждённым PETR actor и live membership. Без такого порта `/start <payload>` не создаёт семейную связь.
+При private `/start` без активной связи бот выдаёт одноразовый код для локального оператора. Он не доверяет произвольному `familyId` из Telegram. Общие доказательства владельца источника принадлежат [серверному ядру](../../shared/server-runtime.md#авторизация-и-совместимость).
 
 ## Модель идентичности
 
@@ -59,9 +61,9 @@ Account хранит `channelStatus`, `channelStatusVersion`, `channelStatusChan
 
 ## Привязка и подтверждение
 
-Поддерживаются два направления: авторизованный PETR пользователь создаёт токен для Telegram deep link; либо Telegram получает короткий токен/ссылку, после чего вошедший в PETR пользователь явно подтверждает конкретный account. В обоих случаях доверенная серверная операция связывает авторизованную PETR identity и Telegram account. Нельзя принимать ручной `familyId`/`childId` от пользователя как доказательство доступа.
+Реализовано направление Telegram → доверенный локальный CLI: пользователь получает код в private чате, оператор выполняет `npm run telegram:pair -- --family FAMILY_ID --person PERSON_ID` и вводит код через скрытый stdin. Код не передаётся в argv, журнал или Git. Локальный authorizer требует точного parent mapping в family-access, действующего source owner и текущего семейного registry/member/child/identity; произвольного знания familyId недостаточно. Web PETR-first/deep-link flow остаётся целевым.
 
-Token requirements: криптографически случайный, одноразовый, хранимый только как hash, ограниченный по сроку, account и ожидаемому действию; атомарное погашение; защита от повторного использования; отзыв/повторный выпуск; rate limit. Точный TTL и конкретная UI-последовательность остаются открытыми решениями.
+Код содержит16 hex криптографической случайности; хранится SHA-256, точный отправитель, действие `link-family`, время выпуска и TTL10 минут. Транзакционный cooldown60 секунд ограничивает повторный Start; перевыпуск инвалидирует прежний код. Транзакция погашения повторно проверяет срок, доступность account, действие, текущий hash, отсутствие использования и семейные права. Стабильный linkId определяется парой sender/family; конфликт другого person отклоняется. Погашение и append-only история атомарны. Отключённая связь не возобновляется от простого Start.
 
 ## Отключение
 
@@ -76,7 +78,7 @@ Token requirements: криптографически случайный, одн�
 
 ## Данные и доступ
 
-Реализация первого среза использует `telegramBotAccounts/{telegramUserId}`, `telegramBotFamilyLinks/{linkId}`, `telegramBotStopChallenges/{sha256(callbackToken)}` и append-only `telegramBotLinkHistory/{linkId_tokenHash}`. `tokenHash` — SHA-256 подтверждения, он не раскрывает raw callback token. Семейная связь должна быть создана только trusted `FamilyLinkAuthorizationPort`; его production adapter/issuer пока отсутствует. Membership проверяется заново по `families/{familyId}/members/{personId}`: `active`, роль `parent` и точное наличие `childId`. Перед enqueue и каждым отправляемым part проверяются также текущие `telegramBotFamilyLinks` state/owner. Уникальность активной пары account/family и выпуск токенов остаются ответственностью trusted issuer, который ещё не реализован.
+Хранилища: `telegramBotAccounts`, `telegramBotFamilyLinks`, `telegramBotPairChallenges` (hash ключ), `telegramBotStopChallenges` и append-only `telegramBotLinkHistory`. Точные имена и поля определяет Firestore adapter. Непрозрачные исторические links сохраняются, автоматически не мигрируются и не реактивируются. Перед enqueue и каждым part проверяются текущие link, активный parent membership и точный childId; подтверждение Start само по себе семейных прав не даёт.
 
 Не логировать токен, приватные Telegram updates, контакты или raw message body. Username обновлять как метаданные и не использовать в авторизации. При удалении/отзыве сохранять минимальную историю, необходимую для аудита, с retention policy, которую надо утвердить.
 

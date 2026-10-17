@@ -3,7 +3,7 @@ id: architecture.education
 status: accepted
 implementation: not-applicable
 created: 2026-10-16
-updated: 2026-10-16
+updated: 2026-10-17
 consumers:
   - "Education agent"
   - "developer"
@@ -16,6 +16,7 @@ uses:
   - service.upload-worker
   - service.telegram-bot
   - shared.data
+  - shared.server-runtime
   - shared.design
   - shared.access-and-privacy
   - shared.specification-system
@@ -35,9 +36,9 @@ Education соединяет семейный доступ, данные шко�
 | Сервис | Код | Реальное состояние |
 |---|---|---|
 | [Web app](docs/services/web-app/README.md) | `src/`, `pwa/` | React/PWA читает Firestore и отправляет файлы на Диск; конфигурация экранов и часть local-first архитектуры остаются целевыми |
-| [Operator CLI](docs/services/operator-cli/README.md) | `operator/`, `scripts/education.mjs`, предметные CLI | Повторяемые операции и ручной запуск EducationSync; агент выполняет предметные решения по данным |
+| [Operator CLI](docs/services/operator-cli/README.md) | `operator/`, `scripts/education.mjs`, предметные CLI | Повторяемые операции и ручной запуск EducationSync; `sync:project` использует общее server runtime; агент выполняет предметные решения по данным |
 | [Upload worker](docs/services/upload-worker/README.md) | `scripts/direct-upload-worker.mjs`, `storage/` | Локальный процесс выдаёт адреса и подтверждает передачу файлов; не проверяет учебное содержание |
-| [Telegram bot](docs/services/telegram-bot/README.md) | Runtime пока отсутствует | Есть целевые контракты и зависимости, работающий наблюдатель и доставка ещё не реализованы |
+| [Telegram bot](docs/services/telegram-bot/README.md) | `packages/telegram-notifications/`, `scripts/telegram-bot.mjs` | Worker runtime и source/delivery пути есть в исходниках; он делит server runtime с sync. Deployment и live delivery этим не подтверждены |
 
 ```mermaid
 flowchart LR
@@ -46,12 +47,14 @@ flowchart LR
   Mesh[МЭШ] --> Diary[School diary adapter]
   Diary --> CLI
   CLI --> DB[Firestore]
+  CLI --> Core[Shared server runtime]
+  Telegram --> Core
   DB --> Web
   Web --> Disk[Яндекс.Диск]
   Worker[Upload worker] --> DB
   Worker --> Disk
   CLI --> Disk
-  Telegram[Telegram bot: planned] -.-> DB
+  Telegram[Telegram worker: source implementation] -.-> DB
   Telegram -.-> Diary
   Telegram -.-> BotAPI[Telegram Bot API]
 ```
@@ -74,9 +77,9 @@ flowchart LR
 ## Правила зависимостей и расширения
 
 1. Продуктовый сценарий ссылается на сервисы и модули, которые его реализуют. Изменение технической структуры не меняет смысл принятого сценария.
-2. Сервис связывает модули и адаптеры. Порт дневника должен переиспользоваться существующим CLI и будущим наблюдателем; расписание процесса и авторизация остаются его отдельной ответственностью.
+2. Сервис связывает модули и адаптеры. Operator sync и Telegram runtime используют общий [server runtime](docs/shared/server-runtime.md) для Firestore/ADC, family graph, owner predicates, Mesh session/credentials и telemetry; расписание процесса, outbox и предметное решение остаются ответственностью каждого consumer.
 3. Общий контракт данных и приватности один: модуль определяет предметное поле, [Firestore](docs/shared/data/firestore.md) — связи/совместимость, правила доступа — допустимую запись/чтение.
-4. Доменный слой будущего Telegram worker зависит от портов; внешние SDK остаются в адаптерах. Это целевая граница, а не утверждение, что весь существующий код уже разделён по ней.
+4. Telegram domain/application layers используют порты и adapters; shared server runtime не содержит Telegram domain/outbox. Исходная реализация worker ещё не доказывает deployment или live message delivery.
 5. Новый модуль выделяется при самостоятельной ответственности или повторном использовании. Не переносить Telegram outbox в общий слой до появления второго реального потребителя.
 6. Шаблоны, источники, код и проверки связаны через [систему спецификаций](docs/shared/specification-system.md); [производный граф](docs/generated/graph.mmd) показывает всю структуру.
 

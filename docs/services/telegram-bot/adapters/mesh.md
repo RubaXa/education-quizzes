@@ -12,7 +12,8 @@ code:
   - packages/telegram-notifications/adapters/source-mesh.mjs
   - packages/telegram-notifications/adapters/mesh-credentials.mjs
 parent: service.telegram-bot
-uses: []
+uses:
+  - shared.server-runtime
 sections:
   - ответственность-и-режим
   - контракт-снимка
@@ -53,9 +54,9 @@ sections:
 
 ### Автоматическая семейная адресация
 
-Семьи, дети и источники обнаруживаются динамически из Education registry, без ручного allowlist. `sourceAccounts.personId` — внутренний ID взрослого Education, а `sourceAccounts.sourcePersonId` — actor ID МЭШ. Проверяются активный parent membership, точный childId, child.meshPersonId и `sourceIdentities` с той же парой. Локальные полномочия `.local/mesh-connections/{accountId}.json` должны соответствовать хэшу actor ID; отсутствующие credentials отображаются как блокировка источника этой семьи, а не исключение ребёнка из охвата. Общая legacy `.local/diary` не выбирается автоматически.
+Семьи, дети и источники обнаруживаются динамически из Education registry, без ручного allowlist. `sourceAccounts.personId` — внутренний ID взрослого Education, а `sourceAccounts.sourcePersonId` — actor ID МЭШ. Проверяются активный parent membership, точный childId, child.meshPersonId и `sourceIdentities` с той же парой. Локальные полномочия `.local/mesh-connections/{accountId}.json` должны соответствовать хэшу actor ID; отсутствующие credentials отображаются как блокировка источника этой семьи, а не исключение ребёнка из охвата. Legacy `.local/diary` допустим только через общий codec с точным подтверждением исторического owner/actor в текущем registry; произвольного fallback между семьями нет.
 
-Для каждого ребёнка создаётся отдельный MeshDiaryAdapter, профиль выбирается по подтверждённому sourcePersonId и проходит verifyAccess. Один родительский account может обслуживать нескольких детей; обновление token/refreshToken сохраняется адресно/атомарно с правами0600, не перезаписывая child profile IDs в общей записи. Внутри одного процесса работа одного account сериализуется (межпроцессная credential lease ещё отсутствует), другие семьи могут обрабатываться параллельно в ограниченной очереди.
+Для каждого ребёнка создаётся отдельный MeshDiaryAdapter, профиль выбирается по подтверждённому sourcePersonId и проходит verifyAccess. Один родительский account может обслуживать нескольких детей; обновление token/refreshToken сохраняется адресно/атомарно с правами0600, не перезаписывая child profile IDs в общей записи. Общий Mesh session service сериализует account между процессами sync и worker через kernel advisory lock Python3/fcntl на одном хосте; inode не удаляется по mtime/PID. Потеря lock запрещает сохранение refresh. Другие семьи могут обрабатываться параллельно. Контракт credentials/lock принадлежит [серверному ядру](../../../shared/server-runtime.md#авторизация-и-совместимость).
 
 Grade discovery получает subject_id/start из полного getMarks, без предположений о датах четвертей. Безопасная проекция результатов разделяется между observers через60-секундный cache/in-flight dedup; raw marks в checkpoint не попадают. Новый date/period scope всегда начинает тихий baseline. Из нескольких подходящих взрослых аккаунтов выбирается один детерминированный source account на ребёнка, исключая дубли одной школьной записи.
 

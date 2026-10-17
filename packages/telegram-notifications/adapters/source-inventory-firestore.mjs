@@ -1,8 +1,10 @@
 import { FieldPath } from '@google-cloud/firestore'
-import { createHash } from 'node:crypto'
 import { dateWindow } from '../../../sync/project-plan.mjs'
+import { createFamilyGraphRepository } from '../../education-runtime/family-graph.mjs'
+import { eligibleMeshAccounts, isActiveParentForChild, isRegisteredMeshChild,
+  isRegisteredMeshParentAccount, meshChildIdentityId } from '../../education-runtime/identity.mjs'
 
-/** @see ../../../docs/services/telegram-bot/adapters/firestore.md#области-данных-для-валидации */
+/** @see ../../../docs/shared/server-runtime.md#границы-и-порты @see ../../../docs/services/telegram-bot/adapters/firestore.md#области-данных-для-валидации */
 const ID = /^[A-Za-z0-9_-]{1,128}$/
 
 /**
@@ -11,11 +13,12 @@ const ID = /^[A-Za-z0-9_-]{1,128}$/
  * callers must retain their last confirmed listener set on incomplete results.
  */
 export function createFirestoreSourceInventory(db, { pageSize = 250, includeFirestore = true, includeMesh = false,
-  now = () => new Date(), meshSource = null } = {}) {
+  now = () => new Date(), meshSource = null, telemetry = null } = {}) {
   if (!db || !Number.isInteger(pageSize) || pageSize < 1 || pageSize > 1000
     || includeMesh && typeof meshSource?.discoverGradeScopes !== 'function') throw new Error('invalid_source_inventory_config')
+  const familyGraph = createFamilyGraphRepository(db, { pageSize, telemetry })
 
-  async function enumerate() {
+  async function enumerate({ signal = null } = {}) {
     const scopes = []
     const families = []
     const contexts = []
@@ -23,67 +26,68 @@ export function createFirestoreSourceInventory(db, { pageSize = 250, includeFire
     const sourceAccounts = []
     const failures = []
     const failedContexts = []
-    try {
-      for await (const familyDoc of pages(project(db.collection('families'), 'active'), pageSize)) {
-        const familyId = familyDoc.id
-        if (!ID.test(familyId) || familyDoc.data()?.active === false) continue
-        const base = `families/${familyId}`
-        try {
-          const [memberDocs, childDocs, accountDocs] = await Promise.all([
-            collect(project(db.collection(`${base}/members`), 'role', 'active', 'childIds'), pageSize),
-            collect(project(db.collection(`${base}/children`), 'active', 'meshPersonId'), pageSize),
-            collect(project(db.collection('sourceAccounts').where('familyId', '==', familyId), 'source', 'disconnectedAt', 'personId', 'sourcePersonId'), pageSize),
-          ])
-          const members = new Map(memberDocs.filter((doc) => ID.test(doc.id)).map((doc) => [doc.id, doc.data() ?? {}]))
-          const children = new Map(childDocs.filter((doc) => ID.test(doc.id)).map((doc) => [doc.id, doc.data() ?? {}]))
-          const familyScopes = []
-          const childStatuses = []
-          for (const [childId, child] of children) {
-            if (child.active === false) continue
-            const parentMembers = [...members].filter(([, member]) => member.role === 'parent' && member.active === true
-              && Array.isArray(member.childIds) && member.childIds.includes(childId)).map(([personId]) => personId)
-            childStatuses.push({ familyId, childId, parentMembers, hasMeshIdentity: Boolean(safeId(child.meshPersonId)) })
-          }
-          const accountParents = new Set()
-          const meshAccounts = []
-          for (const doc of accountDocs) {
-            const account = doc.data() ?? {}
-            const member = members.get(account.personId)
-            if (account.source !== 'mesh' || account.disconnectedAt || !ID.test(account.personId) || !member
-              || member.role !== 'parent' || member.active !== true || !ID.test(doc.id)
-              || !safeId(account.sourcePersonId) || accountIdForActor(account.sourcePersonId) !== doc.id) continue
-            sourceAccounts.push({ familyId, accountId: doc.id, personId: account.personId,
-              sourcePersonId: safeId(account.sourcePersonId) })
-            meshAccounts.push({ accountId: doc.id, personId: account.personId, actorId: safeId(account.sourcePersonId) })
-            accountParents.add(account.personId)
-          }
-          for (const status of childStatuses) registeredChildren.push({ familyId: status.familyId, childId: status.childId,
-            hasMeshIdentity: status.hasMeshIdentity, hasMeshAccount: status.parentMembers.some((personId) => accountParents.has(personId)) })
-          if (includeFirestore) {
-            try { await addFamilyScopes(db, familyId, children, familyScopes, pageSize) }
-            catch (error) {
-              failures.push({ familyId, source: 'firestore', code: safeErrorCode(error) })
-              failedContexts.push({ source: 'firestore', familyId })
-            }
-          }
-          if (includeMesh) {
-            const result = await addMeshScopes(db, familyId, children, members, meshAccounts, familyScopes, now, meshSource)
-            failures.push(...result.failures)
-            failedContexts.push(...result.failedContexts)
-          }
-          scopes.push(...familyScopes)
-          for (const [childId, child] of children) if (child.active !== false) {
-            if (includeFirestore) contexts.push({ source: 'firestore', scope: { familyId, childId } })
-          }
-          for (const { scope } of familyScopes) if (scope.source === 'mesh') contexts.push({ source: 'mesh',
-            scope: { familyId: scope.familyId, childId: scope.childId, sourceAccountId: scope.sourceAccountId, sourcePersonId: scope.sourcePersonId } })
-          families.push({ familyId })
-        } catch (error) {
-          failures.push({ code: safeErrorCode(error) })
+    if (signal?.aborted) throw Object.assign(new Error('worker_shutdown'), { code: 'worker_shutdown' })
+    const graph = await familyGraph.enumerate({ includeInactiveFamilies: false, includeInactiveChildren: false, signal })
+    failures.push(...graph.failures.map((failure) => ({ ...(failure.familyId ? { familyId: failure.familyId } : {}),
+      ...(failure.source === 'children' || failure.source === 'members' || failure.source === 'accounts' || failure.source === 'identities'
+        ? { source: 'firestore' } : {}), code: failure.code })))
+    failedContexts.push(...graph.failures.filter((failure) => failure.familyId).map((failure) => ({
+      source: 'firestore', familyId: failure.familyId })))
+    const failedFamilies = new Set(graph.failures.map((failure) => failure.familyId).filter(Boolean))
+    for (const family of graph.families) {
+      if (signal?.aborted) throw Object.assign(new Error('worker_shutdown'), { code: 'worker_shutdown' })
+      const familyId = family.id
+      if (failedFamilies.has(familyId)) continue
+      const children = new Map(graph.children.filter((child) => child.familyId === familyId && ID.test(child.id))
+        .map((child) => [child.id, child]))
+      const members = graph.members.filter((member) => member.familyId === familyId && ID.test(member.id))
+      const accounts = graph.accounts.filter((account) => account.familyId === familyId)
+      const identities = graph.identities.filter((identity) => identity.familyId === familyId)
+      const familyScopes = []
+      const childStatuses = []
+      for (const [childId, child] of children) {
+        const parentMembers = members.filter((member) => isActiveParentForChild(member, childId)).map((member) => member.id)
+        const sourcePersonId = safeId(child.meshPersonId)
+        const identity = sourcePersonId ? identities.find((item) => item.id === meshChildIdentityId(sourcePersonId)) : null
+        const hasRegisteredIdentity = Boolean(sourcePersonId && isRegisteredMeshChild({ familyId, childId,
+          family, child, identity }))
+        const hasMeshLinkEvidence = Boolean(sourcePersonId || identities.some((item) => item.childId === childId && item.source === 'mesh'))
+        childStatuses.push({ familyId, childId, child, identity, parentMembers,
+          hasMeshIdentity: Boolean(sourcePersonId), hasRegisteredIdentity, hasMeshLinkEvidence })
+      }
+      const meshAccounts = []
+      for (const account of accounts) {
+        const member = members.find((item) => item.id === account.personId)
+        if (!isRegisteredMeshParentAccount({ familyId, family, account, member })) continue
+        sourceAccounts.push({ familyId, accountId: account.id, personId: account.personId, sourcePersonId: account.sourcePersonId })
+        meshAccounts.push({ ...account, actorId: account.sourcePersonId })
+      }
+      for (const status of childStatuses) {
+        const hasMeshAccount = status.hasRegisteredIdentity && eligibleMeshAccounts({ familyId, childId: status.childId,
+          family, child: status.child, members, identities: [status.identity], accounts }).length > 0
+        const meshStatus = !status.hasMeshLinkEvidence ? 'not-linked'
+          : !status.hasRegisteredIdentity ? 'identity-unregistered'
+            : !hasMeshAccount ? 'owner-unavailable' : 'eligible'
+        registeredChildren.push({ familyId, childId: status.childId,
+          hasMeshIdentity: status.hasMeshIdentity, hasMeshAccount, meshStatus })
+      }
+      if (includeFirestore) {
+        try { await addFamilyScopes(db, familyId, children, familyScopes, pageSize) }
+        catch (error) {
+          failures.push({ familyId, source: 'firestore', code: safeErrorCode(error) })
+          failedContexts.push({ source: 'firestore', familyId })
         }
       }
-    } catch (error) {
-      failures.push({ code: safeErrorCode(error) })
+      if (includeMesh) {
+        const result = await addMeshScopes(db, family, children, members, meshAccounts, identities, familyScopes, now, meshSource, signal)
+        failures.push(...result.failures)
+        failedContexts.push(...result.failedContexts)
+      }
+      scopes.push(...familyScopes)
+      for (const childId of children.keys()) if (includeFirestore) contexts.push({ source: 'firestore', scope: { familyId, childId } })
+      for (const { scope } of familyScopes) if (scope.source === 'mesh') contexts.push({ source: 'mesh',
+        scope: { familyId: scope.familyId, childId: scope.childId, sourceAccountId: scope.sourceAccountId, sourcePersonId: scope.sourcePersonId } })
+      families.push({ familyId })
     }
     const uniqueContexts = [...new Map(contexts.map((item) => [`${item.source}:${JSON.stringify(item.scope)}`, item])).values()]
     return Object.freeze({ complete: failures.length === 0, scopes: Object.freeze(scopes), contexts: Object.freeze(uniqueContexts),
@@ -119,37 +123,27 @@ async function addFamilyScopes(db, familyId, children, output, pageSize) {
   }
 }
 
-async function addMeshScopes(db, familyId, children, members, accounts, output, now, meshSource) {
+async function addMeshScopes(db, family, children, members, accounts, identities, output, now, meshSource, signal = null) {
+  const familyId = family.id
   const today = formatMoscowDate(now())
   const dates = dateWindow(today)
   const failedContexts = []
   const failures = []
   for (const [childId, child] of children) {
+    if (signal?.aborted) throw Object.assign(new Error('worker_shutdown'), { code: 'worker_shutdown' })
     const sourcePersonId = safeId(child.meshPersonId)
-    if (child.active === false || !sourcePersonId) continue
-    const identityId = createHash('sha256').update(`mesh-child:${sourcePersonId}`).digest('hex')
-    let identity
-    try { identity = await db.doc(`sourceIdentities/${identityId}`).get() }
-    catch (error) {
-      failures.push({ familyId, source: 'mesh', code: safeErrorCode(error) })
-      failedContexts.push({ source: 'mesh', familyId, childId })
-      continue
-    }
-    if (!identity?.exists) continue
-    const identityData = identity.data() ?? {}
-    if (identityData.source !== 'mesh' || identityData.familyId !== familyId || identityData.childId !== childId
-      || identityData.sourcePersonId !== sourcePersonId) continue
-    const eligibleAccounts = accounts.filter((account) => {
-      const member = members.get(account.personId)
-      return Boolean(account.actorId && member?.active === true && member.role === 'parent'
-        && Array.isArray(member.childIds) && member.childIds.includes(childId))
-    }).sort((left, right) => left.accountId.localeCompare(right.accountId))
+    if (!sourcePersonId) continue
+    const identity = identities.find((item) => item.id === meshChildIdentityId(sourcePersonId))
+    if (!isRegisteredMeshChild({ familyId, childId, family, child, identity })) continue
+    const eligibleAccounts = eligibleMeshAccounts({ familyId, childId, family, child,
+      members: members.filter((member) => member.familyId === familyId), identities: [identity], accounts })
+      .map((account) => ({ accountId: account.id, personId: account.personId, actorId: account.sourcePersonId }))
     const account = eligibleAccounts[0]
     if (account) {
       const descriptor = { source: 'mesh', familyId, childId, sourceAccountId: account.accountId, sourcePersonId }
       let contextReady = true
       try {
-        const gradeScopes = await meshSource.discoverGradeScopes({ ...descriptor, kind: 'grades' })
+        const gradeScopes = await meshSource.discoverGradeScopes({ ...descriptor, kind: 'grades' }, { signal })
         if (!Array.isArray(gradeScopes)) throw new Error('source_grade_inventory_invalid')
         const validated = gradeScopes.map((scope) => {
           if (scope.source !== 'mesh' || scope.familyId !== familyId || scope.childId !== childId
@@ -197,7 +191,6 @@ async function* pages(query, pageSize) {
 }
 
 function safeId(value) { return typeof value === 'string' && ID.test(value) ? value : null }
-function accountIdForActor(actorId) { return createHash('sha256').update(`mesh-parent:${actorId}`).digest('hex') }
 function formatMoscowDate(date) {
   if (!(date instanceof Date) || Number.isNaN(date.valueOf())) throw new Error('source_clock_invalid')
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Moscow', year: 'numeric', month: '2-digit', day: '2-digit' }).format(date)

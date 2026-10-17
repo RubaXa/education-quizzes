@@ -9,7 +9,11 @@ export function createTelegramAdapter({ token, identity, logger = { error() {} }
     if (ctx.chat?.type !== 'private') return
     try {
       const result = await identity.start({ senderId: ctx.from.id, chatType: ctx.chat.type, username: ctx.from.username, firstName: ctx.from.first_name, startToken: ctx.match || undefined, updateId: ctx.update.update_id, occurredAt: new Date(ctx.message.date * 1000).toISOString() })
-      return ctx.reply(result.code === 'linking_unavailable'
+      if (result.code === 'pairing_required') {
+        return ctx.reply(`Telegram зарегистрирован. Одноразовый код привязки: ${result.pairingCode}. Передайте его оператору PETR для подтверждения семейной связи. Код действует 10 минут.`)
+      }
+      if (result.code === 'pairing_rate_limited') return ctx.reply('Новый код можно запросить через минуту. Повторите /start позже.')
+      return ctx.reply(result.code === 'linking_unavailable' || result.code === 'pairing_unavailable'
         ? 'Telegram зарегистрирован. Подключение семьи пока недоступно.'
         : 'Telegram зарегистрирован. Чтобы отключить одну семейную связь, используйте /stop.')
     } catch {
