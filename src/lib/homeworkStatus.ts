@@ -3,7 +3,7 @@ import { materialRequestView } from './materialRequest'
 import { cdzResultLabel, isCdzTask, uploadMatchesTask } from './dayStore'
 import type { DayTask, DayUpload, DayWorkReview } from './dayStore'
 import { activeProcessing, workCoverageComplete } from './reviewPresentation'
-import { parentAccepted, requiredFamilyActions, stageCompletion, variantRequired } from './parentCompletion'
+import { parentAccepted, requiredFamilyActions, stageCompletion, practiceRequired } from './parentCompletion'
 import type { ParentCompletionEvent } from './parentCompletion'
 import { lessonSubjectKey } from '../../day/subject-identity.mjs'
 import { quizPassed } from './quizCompletion'
@@ -56,7 +56,7 @@ export function lessonWorkItems(tasks: DayTask[], uploads: DayUpload[], reviews:
     // @see ../../docs/modules/school-diary/dashboard.md#reference-only-homework
     if (task.referenceDate) return []
     if (task.problems?.length) return [
-      ...task.problems.filter((problem) => !problem.variantId || variantRequired(task.id, problem.variantId, decisions)).map((problem) => {
+      ...task.problems.filter((problem) => !problem.variantId || practiceRequired(task, problem.variantId, decisions)).map((problem) => {
       const review = reviews.find((item) => item.taskId === problem.id)
       const pending = uploads.some((upload) => uploadMatchesTask(upload, problem.id) && ['requested', 'awaiting-upload', 'uploaded', 'pending'].includes(upload.status))
       const criterionPending = review?.assessmentBasis?.outcome === 'unresolved'

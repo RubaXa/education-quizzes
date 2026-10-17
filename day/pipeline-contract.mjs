@@ -77,7 +77,7 @@ export function assertPublishedPageAligned(source, page, role) {
     const topology = (subjects) => subjects?.map((subject) => ({ id: subject.id,
       tasks: subject.tasks?.map((task) => ({ id: task.id, meshText: task.meshText,
         kind: task.kind, outputKind: task.outputKind,
-        practiceVariants: task.practiceVariants?.map((variant) => ({ id: variant.id, title: variant.title })),
+        practiceVariants: task.practiceVariants?.map((variant) => ({ id: variant.id, title: variant.title, optionalByTeacher: variant.optionalByTeacher })),
         problems: task.problems?.map((problem) => ({ id: problem.id, variantId: problem.variantId,
           number: problem.number, title: problem.title, original: problem.original && {
             attachmentRef: problem.original.attachmentRef, text: problem.original.text,

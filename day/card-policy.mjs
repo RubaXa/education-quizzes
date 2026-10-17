@@ -87,6 +87,7 @@ export function practiceVariantErrors(task) {
   const ids = new Set()
   const errors = []
   for (const variant of variants) {
+    if (variant.optionalByTeacher && (!variant.optionalByTeacher.sourceRef?.trim() || !variant.optionalByTeacher.excerpt?.trim())) errors.push('Выбор учителя требует точную ссылку на источник и цитату.')
     if (typeof variant.id !== 'string' || !new RegExp(`^${task.id}-v[1-9][0-9]*$`).test(variant.id)
       || ids.has(variant.id) || !variant.title?.trim()) errors.push('У варианта нужен устойчивый ID и заголовок.')
     ids.add(variant.id)

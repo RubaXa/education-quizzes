@@ -329,6 +329,31 @@
       "path": "docs/decisions/specification-lifecycle-2026-10-16.md"
     },
     {
+      "id": "decision.teacher-choice-practice-2026-10-17",
+      "status": "accepted",
+      "implementation": "not-applicable",
+      "created": "2026-10-17",
+      "updated": "2026-10-17",
+      "parent": "module.reviews.card-generation-policy",
+      "uses": [
+        "module.school-diary.day-page"
+      ],
+      "consumers": [
+        "Education operator",
+        "parent",
+        "student"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/teacher-choice-practice-2026-10-17.md"
+    },
+    {
       "id": "decision.telegram-foundation",
       "status": "accepted",
       "implementation": "not-applicable",
@@ -7255,6 +7280,11 @@
       "type": "uses"
     },
     {
+      "from": "decision.teacher-choice-practice-2026-10-17",
+      "to": "module.school-diary.day-page",
+      "type": "uses"
+    },
+    {
       "from": "decision.telegram-foundation",
       "to": "service.telegram-bot.delivery",
       "type": "uses"
@@ -10533,6 +10563,11 @@
       "from": "module.reviews.card-flow-certification",
       "to": "module.reviews.problem-card-design-decisions",
       "type": "uses"
+    },
+    {
+      "from": "module.reviews.card-generation-policy",
+      "to": "decision.teacher-choice-practice-2026-10-17",
+      "type": "contains"
     },
     {
       "from": "module.reviews.card-generation-policy",

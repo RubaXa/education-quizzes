@@ -174,6 +174,26 @@ it('preserves resolved source photos and observations beside the linked quiz for
 })
 
 describe('day page: teacher sheet and linked self-check', () => {
+  it('shows teacher-selected source tasks as optional for both roles and preserves the originals', async()=>{
+    const task=scene.page!.subjects[0].tasks[0]
+    task.practiceVariants=task.practiceVariants!.map(variant=>({...variant,optionalByTeacher:{sourceRef:'teacher-sheet',excerpt:'Реши сколько получится.'}}))
+    scene.decisions=[]
+    for (const parent of [false,true]) {
+      sessionStorage.setItem('education-day-initial-tab','homework')
+      const view=await renderPage(parent)
+      try {
+        await act(async()=>view.host.querySelector<HTMLButtonElement>('.problem-group-toggle')?.click())
+        const variants=Array.from(view.host.querySelectorAll('.day-practice-variant-shell'))
+        expect(variants).toHaveLength(2)
+        for(const variant of variants) {
+          expect(variant.textContent).toContain('По желанию')
+          if(parent) expect(variant.querySelector('[role="switch"]')?.getAttribute('aria-checked')).toBe('false')
+          else expect(variant.querySelector('[role="switch"]')).toBeNull()
+        }
+        expect(view.host.querySelector('.day-problem-list')).not.toBeNull()
+      } finally {await view.cleanup()}
+    }
+  })
   it('does not count reviewed written work or a verified platform result as remaining work', async()=>{
     scene.page!.subjects[0].tasks=[
       {id:'written',kind:'written',status:'unknown',title:'Запись',detail:'',source:'МЭШ'},
