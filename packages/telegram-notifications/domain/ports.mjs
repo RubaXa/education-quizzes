@@ -2,6 +2,7 @@
 export const PORTS = Object.freeze([
   'IdentityRegistryPort', 'ChannelAvailabilityPort', 'FamilyLinkAuthorizationPort', 'MembershipAuthorizationPort',
   'EventLedgerPort', 'DeliveryOutboxPort', 'TelegramDeliveryPort', 'ClockPort', 'LoggerPort',
+  'SourceObservationPort', 'SourceCheckpointPort', 'SourceDiscoveryPort',
 ])
 
 export function assertPort(port, methods) {

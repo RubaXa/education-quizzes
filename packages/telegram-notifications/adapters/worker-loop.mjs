@@ -4,6 +4,9 @@ export async function runWorker({ runtime, enableDelivery, logger, processLike =
   let stopPromise
   let drainTask = Promise.resolve()
   let pollTask = Promise.resolve()
+  let sourceTask = Promise.resolve()
+  let sourceCloseTask = Promise.resolve()
+  let pollStartAttempted = false
   let wakeIdle
   let failure = false
   let requestShutdown
@@ -13,6 +16,10 @@ export async function runWorker({ runtime, enableDelivery, logger, processLike =
     running = false
     wakeIdle?.()
     requestShutdown()
+    sourceCloseTask = Promise.resolve().then(() => runtime.sourceCoordinator?.close?.()).catch(() => {
+      failure = true
+      logger.error({ code: 'source_stop_failed' })
+    })
     stopPromise = (async () => {
       let timedOut = false
       let timer
@@ -21,7 +28,7 @@ export async function runWorker({ runtime, enableDelivery, logger, processLike =
         timer.unref?.()
       })
       try {
-        if (runtime.telegram.bot.isRunning()) {
+        if (runtime.telegram.bot.isRunning() || pollStartAttempted) {
           const stopResult = await Promise.race([
             runtime.telegram.stop().then(() => true, () => { failure = true; logger.error({ code: 'telegram_stop_failed' }); return true }),
             deadline,
@@ -33,7 +40,7 @@ export async function runWorker({ runtime, enableDelivery, logger, processLike =
         logger.error({ code: 'telegram_stop_failed' })
       }
       if (!timedOut) {
-        const drained = await Promise.race([Promise.allSettled([drainTask, pollTask]).then(() => true), deadline])
+        const drained = await Promise.race([Promise.allSettled([sourceCloseTask, sourceTask, drainTask, pollTask]).then(() => true), deadline])
         if (!drained) timedOut = true
       }
       if (timedOut) { failure = true; logger.error({ code: 'shutdown_deadline_exceeded' }) }
@@ -52,31 +59,49 @@ export async function runWorker({ runtime, enableDelivery, logger, processLike =
   processLike.once('SIGINT', onSignal)
   processLike.once('SIGTERM', onSignal)
   try {
+    sourceTask = Promise.resolve().then(async () => {
+      if (!running) return
+      await runtime.sourceCoordinator?.start?.()
+    }).catch(() => {
+      failure = true
+      logger.error({ code: 'source_start_failed' })
+      wakeIdle?.()
+      void stop().catch(() => { failure = true; logger.error({ code: 'shutdown_failed' }) })
+    })
     if (enableDelivery) {
-      drainTask = (async () => {
-        let idleMs = 1_000
+      drainTask = Promise.resolve().then(async () => {
+        let loopIdleMs = 1_000
         while (running) {
           const didWork = await runtime.notificationService.runOne()
-          if (didWork) idleMs = 1_000
+          if (!running) break
+          if (didWork) loopIdleMs = 1_000
           else {
-            const jitter = Math.floor(random() * Math.max(1, idleMs / 5))
+            const jitter = Math.floor(random() * Math.max(1, loopIdleMs / 5))
             await new Promise((resolve) => {
               let settled = false
               const finish = () => { if (settled) return; settled = true; clearTimeout(timer); wakeIdle = null; resolve() }
-              const timer = setTimeout(finish, idleMs + jitter)
+              const timer = setTimeout(finish, loopIdleMs + jitter)
               timer.unref?.()
               wakeIdle = finish
             })
-            idleMs = Math.min(60_000, idleMs * 2)
+            loopIdleMs = Math.min(60_000, loopIdleMs * 2)
           }
         }
-      })().catch(() => { failure = true; running = false; logger.error({ code: 'outbox_loop_failed' }); wakeIdle?.(); void stop() })
+      }).catch(() => { failure = true; logger.error({ code: 'outbox_loop_failed' }); wakeIdle?.(); void stop().catch(() => { failure = true; logger.error({ code: 'shutdown_failed' }) }) })
     }
-    pollTask = Promise.resolve().then(() => runtime.telegram.start())
-    await Promise.race([pollTask, shutdownRequested])
+    pollTask = Promise.resolve().then(async () => {
+      if (!running) return
+      pollStartAttempted = true
+      await runtime.telegram.start()
+    }).catch(() => {
+      failure = true
+      logger.error({ code: 'telegram_polling_failed' })
+      void stop().catch(() => { failure = true; logger.error({ code: 'shutdown_failed' }) })
+    })
+    await Promise.race([Promise.all([sourceTask, pollTask]), shutdownRequested])
   } catch {
     failure = true
-    logger.error({ code: 'telegram_polling_failed' })
+    logger.error({ code: 'worker_start_failed' })
   } finally {
     processLike.removeListener('SIGINT', onSignal)
     processLike.removeListener('SIGTERM', onSignal)

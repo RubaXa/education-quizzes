@@ -13,6 +13,10 @@ code:
   - "packages/telegram-notifications/domain/diff.mjs"
   - "packages/telegram-notifications/domain/ports.mjs"
   - "packages/telegram-notifications/application/notifications.mjs"
+  - packages/telegram-notifications/application/source-pipeline.mjs
+  - packages/telegram-notifications/adapters/source-checkpoint-firestore.mjs
+  - packages/telegram-notifications/adapters/source-discovery-firestore.mjs
+  - packages/telegram-notifications/adapters/source-coordinator.mjs
 parent: service.telegram-bot
 uses:
   - service.telegram-bot
@@ -29,7 +33,7 @@ sections:
 # Порты и события Telegram notification service
 
 **Родитель:** [корневая архитектура](README.md).
-**Статус:** normalized event validation, stable identity, snapshot diff and application ports implemented; source adapters do not yet produce observations.
+**Статус:** normalized event validation, stable identity, snapshot diff and application ports implemented; source adapters and durable pipeline produce observations in explicit opt-in runtime; live rollout is unverified.
 
 ## Назначение
 
@@ -61,7 +65,7 @@ source, scopeKey, completeness, observedAt, sourceRevision?, cursor?, records[]
 - `cursor` opaque и принадлежит адаптеру; ядро хранит/передаёт его, но не интерпретирует.
 - Сетевой сбой не является observation и не очищает последний полный snapshot.
 
-Это целевая граница источника, а не текущая сигнатура snapshot-diff. Реализованный `diffCompleteSnapshots` в `packages/telegram-notifications/domain/diff.mjs` принимает `current.complete: boolean`, `current.observationSequence` и отдельный `detectedAt`; он также получает `source`, `scopeKey`, `familyId` и `childId` как отдельные аргументы. Адаптер, который преобразует DTO выше в этот вызов, пока отсутствует. При таком преобразовании `completeness === 'complete'` становится `complete: true`; `partial`/`unknown` должны отклоняться без продвижения baseline. Sequence берётся из durable checkpoint по scope, а не выводится из `observedAt`, `fetchedAt` или случайного значения. `detectedAt` — время обнаружения worker и не заменяет время observation/источника. Scope должен сохранять изоляцию семьи и ребёнка; идентичность `sourceAccountId` входит в `scopeKey` для источников с отдельными учётными записями.
+Это целевая граница источника, а не текущая сигнатура snapshot-diff. Реализованный `diffCompleteSnapshots` в `packages/telegram-notifications/domain/diff.mjs` принимает `current.complete: boolean`, `current.observationSequence` и отдельный `detectedAt`; он также получает `source`, `scopeKey`, `familyId` и `childId` как отдельные аргументы. SourcePipeline преобразует DTO выше в этот вызов после проверки полноты и владения. При таком преобразовании `completeness === 'complete'` становится `complete: true`; `partial`/`unknown` должны отклоняться без продвижения baseline. Sequence берётся из durable checkpoint по scope, а не выводится из `observedAt`, `fetchedAt` или случайного значения. `detectedAt` — время обнаружения worker и не заменяет время observation/источника. Scope должен сохранять изоляцию семьи и ребёнка; идентичность `sourceAccountId` входит в `scopeKey` для источников с отдельными учётными записями.
 
 **Исправление по fact-check 17 октября:** только `complete === true` у current и previous допускает продвижение baseline; строки, числа и объекты не считаются подтверждением полноты. Отрицательные тесты передают валидный `detectedAt`, чтобы достигать этой проверки. [Исходное воспроизведение](../../audits/telegram-self-review-2026-10-16.md#recheck-2026-10-17) сохраняется как история до ремонта.
 
@@ -88,18 +92,34 @@ source, scopeKey, completeness, observedAt, sourceRevision?, cursor?, records[]
 
 | Порт / capability | Реализованный минимум | Planned / не подключено |
 |---|---|---|
-| `SourceObservationPort` | `diffCompleteSnapshots` валидирует snapshot и строит события из последовательных полных снимков; `createDomainEvent` нормализует event | `start(emit)`, `stop()`, чтение источников, checkpoint lifecycle, DTO bridge и управляемые ошибки источника |
+| `SourceObservationPort` | Firestore/МЭШ `observe/subscribe`, динамический coordinator, durable checkpoint/sequence/pending replay и DTO bridge; `diffCompleteSnapshots` и event normalization | Hosted readiness и эксплуатационные integration checks |
 | `IdentityRegistryPort`, `FamilyLinkAuthorizationPort` | Регистрация Telegram account, чтение уже существующих links, stop challenge и отзыв одной link | Выдача/погашение семейного link token, PETR UI issuer и production trusted authorization adapter |
-| `EventLedgerPort`, `DeliveryOutboxPort` | `recordIfAbsent`, job claim/finish/reschedule, lease, recovery и per-part receipts в Firestore adapter | Source checkpoint storage и групповые записи/доставка дайджеста |
+| `EventLedgerPort`, `DeliveryOutboxPort` | `recordIfAbsent`, job claim/finish/reschedule, lease, recovery и per-part receipts в Firestore adapter | Групповые записи/доставка дайджеста |
 | `RecipientResolverPort`, `MembershipAuthorizationPort` | Проверка активной семейной связи и membership родителя/ребёнка | Team resolver, team recipient configuration и раздельная route policy |
 | `MessageRendererPort` | Детерминированная family summary whitelist и разделение длинного текста | Полные `recipientView`/locale templates, approved context links и grouped digest renderer |
-| `TelegramDeliveryPort` | grammY transport, классификация ошибок, ограниченный retry и явная доставка из существующего outbox | End-to-end source-to-message поток и production rollout |
+| `TelegramDeliveryPort` | grammY transport, классификация ошибок, ограниченный retry и явная доставка из существующего outbox | Реальная внешняя интеграция и production rollout |
 | `ChannelAvailabilityPort` | `getState` и version-fenced `markUnavailable`; private update ordering в registry; runtime всегда инжектирует Firestore adapter | Реальные Telegram/Firestore integration и полный channel audit/retention |
 | `ClockPort`, `LoggerPort` | Внедряемые clock/logger в application services | Политика окон группировки и операционные метрики/readiness |
 
 Целевые сигнатуры остаются: `RecipientResolverPort` возвращает только проверенных получателей и privacy views; `MessageRendererPort` — `(event, recipientView, locale) → MessagePart[]`; `TelegramDeliveryPort` — `(chatId, MessagePart) → DeliveryReceipt`. Это описание будущих границ и не меняет фактический минимальный runtime composition.
 
-В текущем `diffCompleteSnapshots` implicit mapping предусмотрен только для `grade`, `schedule` и `assignment` (`created`/`changed`). Для `upload`, `quiz` и `review` адаптер должен передать явный известный `eventType`; автоматическое выведение этих типов из `kind` отсутствует. Firebase source mapping и передача таких records пока не подключены.
+В текущем `diffCompleteSnapshots` implicit mapping предусмотрен только для `grade`, `schedule` и `assignment` (`created`/`changed`). Для `upload`, `quiz` и `review` адаптер должен передать явный известный `eventType`; автоматическое выведение этих типов из `kind` отсутствует. Firestore source adapter передаёт эти явные типы после проверки lifecycle/status.
+
+### Source observation и checkpoint
+
+`SourceObservationPort` имеет `kind`, чистый `scopeKey(scope)`, `validateScope(scope)` и `observe(scope)`. Scope — внутренняя единица динамического inventory; пользователь не поддерживает список семей или детей. Полная observation обязана совпасть с арендованным scope по source/scopeKey/familyId/childId. Неполный или неверно адресованный снимок не продвигает baseline, в том числе первый.
+
+`SourceCheckpointPort` предоставляет acquire, savePending, renew, advance, invalidateOwner и release. Scope lease получает fencing token/version/expiry до внешнего чтения. Все изменения проверяют актуальный token/version и срок. Sequence выделяется из persistent state, не из времени fetch. Pending batch и кандидат безопасной baseline записываются до приёма событий; повтор после сбоя использует те же event IDs. Продвижение baseline следует только за успешным идемпотентным приёмом. Старый worker не может продвинуть состояние или освободить lease нового.
+
+Checkpoint хранит минимальные безопасные записи и hashed source references; raw day/quiz access tokens, ответы, файлы, credentials и закрытые разборы запрещены. Копирование whitelist полей не отменяет sanitization, проверку типов и предельного размера одной записи. Число маленьких checkpoint единиц не ограничивает число семей; технические batch/page limits должны проходить все данные, а не обрезать их.
+
+Shadow и notify состояния изолированы. Первое наблюдение новой семьи не рассылает историю. Новая entity у уже наблюдаемого родителя отличается от bootstrap через persistent discovery state, включая перезапуск. Отсутствие документа не становится удалением. Изменение owner binding сбрасывает прошлую baseline/pending и не переносит её новому владельцу.
+
+`semanticHash` — необязательный SHA-256 meaningful projection записи: учитывает изменения, которые не помещаются в короткий display text, но не раскрывает исходный объект. В diff допускается только 64 hex; перестановка и транспортный шум не меняют hash. Hash не является отображаемым значением оценки или текстом сообщения.
+
+Текущие checkpoint единицы ограничены безопасным размером документа: 2000 records и512000 serialized bytes для pending, общий store budget900000 bytes с baseline/envelope. Это защитные границы одной единицы, не фильтр семей: превышение не обрезает данные и не продвигает baseline, а выдаёт finite reasonCode/health для оператора. Firestore разделён по исходным документам, МЭШ — по датам и предметам/периодам; если одна такая область перерастёт budget, требуется дальнейшее sharding, а не молчаливое исключение семьи.
+
+Lease heartbeat обновляет аренду примерно TTL/3, имеет один renew in-flight и останавливается/drain перед advance/release. Потеря lease не даёт начать новый accept; уже принятый event восстанавливается по durable pending без нового job. Heartbeat не заменяет deadline зависшего сетевого источника.
 
 ## Ошибки и обратная совместимость
 

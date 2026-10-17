@@ -1,6 +1,12 @@
 /** @see ../../../docs/services/telegram-bot/operations.md#конфигурация */
 export function loadConfig(env = process.env) {
-  return Object.freeze({ ...loadTelegramConfig(env), projectId: requiredProject(env), instanceId: workerId(env) })
+  return Object.freeze({ ...loadTelegramConfig(env), projectId: requiredProject(env), instanceId: workerId(env),
+    sourcePageSize: boundedInteger(env.TELEGRAM_SOURCE_PAGE_SIZE, 250, 1, 1000, 'source_page_size_invalid'),
+    sourceConcurrency: boundedInteger(env.TELEGRAM_SOURCE_CONCURRENCY, 4, 1, 128, 'source_concurrency_invalid'),
+    sourceReconcileMs: boundedInteger(env.TELEGRAM_SOURCE_RECONCILE_MS, 30_000, 5_000, 3_600_000, 'source_reconcile_interval_invalid'),
+    meshPollMs: boundedInteger(env.TELEGRAM_MESH_POLL_MS, 900_000, 60_000, 86_400_000, 'mesh_poll_interval_invalid'),
+    meshConnectionDirectory: connectionDirectory(env.TELEGRAM_MESH_CONNECTION_DIRECTORY),
+  })
 }
 
 export function loadTelegramConfig(env = process.env) {
@@ -22,5 +28,19 @@ function workerId(env) {
   return instanceId
 }
 
-const SAFE_CODES = new Set(['bot_token_missing', 'bot_token_invalid', 'firestore_project_missing', 'worker_id_invalid', 'telegram_identity_mismatch', 'dependency_unavailable', 'private_chat_required', 'invalid_sender', 'startup_failed'])
+const SAFE_CODES = new Set(['bot_token_missing', 'bot_token_invalid', 'firestore_project_missing', 'worker_id_invalid', 'telegram_identity_mismatch', 'dependency_unavailable', 'private_chat_required', 'invalid_sender', 'startup_failed', 'source_adapter_unavailable', 'source_page_size_invalid', 'source_concurrency_invalid', 'source_reconcile_interval_invalid', 'mesh_poll_interval_invalid', 'mesh_connection_directory_invalid', 'worker_flag_unknown', 'worker_flag_duplicate'])
 export function safeFailureCode(error) { return SAFE_CODES.has(error?.message) ? error.message : 'startup_failed' }
+
+function boundedInteger(value, fallback, min, max, code) {
+  if (value == null || value === '') return fallback
+  if (!/^[0-9]+$/.test(String(value))) throw new Error(code)
+  const number = Number(value)
+  if (!Number.isSafeInteger(number) || number < min || number > max) throw new Error(code)
+  return number
+}
+
+function connectionDirectory(value) {
+  const directory = value ?? '.local/mesh-connections'
+  if (typeof directory !== 'string' || !directory.trim() || directory.includes('\0')) throw new Error('mesh_connection_directory_invalid')
+  return directory
+}

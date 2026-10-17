@@ -4299,17 +4299,31 @@
       }
     },
     "packages/telegram-notifications/adapters/config.mjs": {
-      "sha256": "02ed4b5a34b5566a4e32547c212da8699cb6b4b0fb51aa282a7b46df68e06b44",
-      "record": "docs/decisions/telegram-foundation-2026-10-16.md",
+      "sha256": "e9128905113b7c12552e146b48d559dc6a29f6c921973a3431c63f051ae0f93f",
+      "record": "docs/decisions/telegram-source-wiring-2026-10-17.md",
       "specs": [
+        "docs/services/telegram-bot/README.md",
+        "docs/services/telegram-bot/ports-and-events.md",
+        "docs/services/telegram-bot/adapters/firestore.md",
+        "docs/services/telegram-bot/adapters/mesh.md",
         "docs/services/telegram-bot/operations.md"
       ],
       "tests": [
-        "packages/telegram-notifications/notifications.test.mjs"
+        "packages/telegram-notifications/adapters/mesh-credentials.test.mjs",
+        "packages/telegram-notifications/adapters/runtime.test.mjs",
+        "packages/telegram-notifications/adapters/source-coordinator.test.mjs",
+        "packages/telegram-notifications/adapters/source-discovery-firestore.test.mjs",
+        "packages/telegram-notifications/adapters/source-inventory-firestore.test.mjs",
+        "packages/telegram-notifications/adapters/source-mesh.test.mjs",
+        "packages/telegram-notifications/adapters/worker-loop.test.mjs",
+        "packages/telegram-notifications/notifications.test.mjs",
+        "packages/telegram-notifications/source-mesh-integration.test.mjs",
+        "packages/telegram-notifications/source-pipeline.test.mjs",
+        "scripts/telegram-bot.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо запросил начать реализацию Telegram-сервиса и сообщил о локально заданной AGI_EDU_BOT; значение секрета не включается в доказательство."
+        "evidence": "Пользователь17.10.2026 поручил через Luna подключить Firestore, затем МЭШ, добавить тесты, проверить и выполнить commit/push; отдельно потребовал динамическое подключение всех семей/детей без ручного allowlist."
       }
     },
     "packages/telegram-notifications/adapters/firestore.mjs": {
@@ -4345,19 +4359,31 @@
       }
     },
     "packages/telegram-notifications/adapters/runtime.mjs": {
-      "sha256": "f3c3f95fb4b2bc0941e748f25fd818aee56d27c7955cf55e364b2ac357c7b263",
-      "record": "docs/decisions/telegram-review-fixes-2026-10-17.md",
+      "sha256": "296a42d5b6987d6730db9d2b24b5503107d5a686b1fba2cf5ec2f81728767bdf",
+      "record": "docs/decisions/telegram-source-wiring-2026-10-17.md",
       "specs": [
+        "docs/services/telegram-bot/README.md",
         "docs/services/telegram-bot/ports-and-events.md",
-        "docs/services/telegram-bot/identity-and-linking.md",
-        "docs/services/telegram-bot/event-ledger-outbox.md"
+        "docs/services/telegram-bot/adapters/firestore.md",
+        "docs/services/telegram-bot/adapters/mesh.md",
+        "docs/services/telegram-bot/operations.md"
       ],
       "tests": [
-        "packages/telegram-notifications/notifications.test.mjs"
+        "packages/telegram-notifications/adapters/mesh-credentials.test.mjs",
+        "packages/telegram-notifications/adapters/runtime.test.mjs",
+        "packages/telegram-notifications/adapters/source-coordinator.test.mjs",
+        "packages/telegram-notifications/adapters/source-discovery-firestore.test.mjs",
+        "packages/telegram-notifications/adapters/source-inventory-firestore.test.mjs",
+        "packages/telegram-notifications/adapters/source-mesh.test.mjs",
+        "packages/telegram-notifications/adapters/worker-loop.test.mjs",
+        "packages/telegram-notifications/notifications.test.mjs",
+        "packages/telegram-notifications/source-mesh-integration.test.mjs",
+        "packages/telegram-notifications/source-pipeline.test.mjs",
+        "scripts/telegram-bot.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо запросил исправить найденные проблемы через Luna Worker, добавить тесты, обновить спецификации, прогнать проверки и выполнить commit/push."
+        "evidence": "Пользователь17.10.2026 поручил через Luna подключить Firestore, затем МЭШ, добавить тесты, проверить и выполнить commit/push; отдельно потребовал динамическое подключение всех семей/детей без ручного allowlist."
       }
     },
     "packages/telegram-notifications/adapters/telegram.mjs": {
@@ -4377,18 +4403,31 @@
       }
     },
     "packages/telegram-notifications/adapters/worker-loop.mjs": {
-      "sha256": "ab56f29b4b1db16d9a6f83bc48576ff0fce771174130a4e42daeffa6ce025a94",
-      "record": "docs/decisions/telegram-foundation-2026-10-16.md",
+      "sha256": "d54a00cca1da814f1864c02dfc2845bf55aede288689565baa3d523142648133",
+      "record": "docs/decisions/telegram-source-wiring-2026-10-17.md",
       "specs": [
-        "docs/services/telegram-bot/operations.md",
-        "docs/services/telegram-bot/event-ledger-outbox.md"
+        "docs/services/telegram-bot/README.md",
+        "docs/services/telegram-bot/ports-and-events.md",
+        "docs/services/telegram-bot/adapters/firestore.md",
+        "docs/services/telegram-bot/adapters/mesh.md",
+        "docs/services/telegram-bot/operations.md"
       ],
       "tests": [
-        "packages/telegram-notifications/notifications.test.mjs"
+        "packages/telegram-notifications/adapters/mesh-credentials.test.mjs",
+        "packages/telegram-notifications/adapters/runtime.test.mjs",
+        "packages/telegram-notifications/adapters/source-coordinator.test.mjs",
+        "packages/telegram-notifications/adapters/source-discovery-firestore.test.mjs",
+        "packages/telegram-notifications/adapters/source-inventory-firestore.test.mjs",
+        "packages/telegram-notifications/adapters/source-mesh.test.mjs",
+        "packages/telegram-notifications/adapters/worker-loop.test.mjs",
+        "packages/telegram-notifications/notifications.test.mjs",
+        "packages/telegram-notifications/source-mesh-integration.test.mjs",
+        "packages/telegram-notifications/source-pipeline.test.mjs",
+        "scripts/telegram-bot.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо запросил начать реализацию Telegram-сервиса и сообщил о локально заданной AGI_EDU_BOT; значение секрета не включается в доказательство."
+        "evidence": "Пользователь17.10.2026 поручил через Luna подключить Firestore, затем МЭШ, добавить тесты, проверить и выполнить commit/push; отдельно потребовал динамическое подключение всех семей/детей без ручного allowlist."
       }
     },
     "packages/telegram-notifications/application/identity.mjs": {
@@ -4424,19 +4463,31 @@
       }
     },
     "packages/telegram-notifications/domain/diff.mjs": {
-      "sha256": "4e59fb65ddd35a7671cc45c097f71abb9438f2120237f0ac606d89277ace8b58",
-      "record": "docs/decisions/telegram-review-fixes-2026-10-17.md",
+      "sha256": "1742e178615b5cecb79f100c9c1de5898d19950b3513a04b644289343d30b181",
+      "record": "docs/decisions/telegram-source-wiring-2026-10-17.md",
       "specs": [
+        "docs/services/telegram-bot/README.md",
         "docs/services/telegram-bot/ports-and-events.md",
-        "docs/services/telegram-bot/identity-and-linking.md",
-        "docs/services/telegram-bot/event-ledger-outbox.md"
+        "docs/services/telegram-bot/adapters/firestore.md",
+        "docs/services/telegram-bot/adapters/mesh.md",
+        "docs/services/telegram-bot/operations.md"
       ],
       "tests": [
-        "packages/telegram-notifications/notifications.test.mjs"
+        "packages/telegram-notifications/adapters/mesh-credentials.test.mjs",
+        "packages/telegram-notifications/adapters/runtime.test.mjs",
+        "packages/telegram-notifications/adapters/source-coordinator.test.mjs",
+        "packages/telegram-notifications/adapters/source-discovery-firestore.test.mjs",
+        "packages/telegram-notifications/adapters/source-inventory-firestore.test.mjs",
+        "packages/telegram-notifications/adapters/source-mesh.test.mjs",
+        "packages/telegram-notifications/adapters/worker-loop.test.mjs",
+        "packages/telegram-notifications/notifications.test.mjs",
+        "packages/telegram-notifications/source-mesh-integration.test.mjs",
+        "packages/telegram-notifications/source-pipeline.test.mjs",
+        "scripts/telegram-bot.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо запросил исправить найденные проблемы через Luna Worker, добавить тесты, обновить спецификации, прогнать проверки и выполнить commit/push."
+        "evidence": "Пользователь17.10.2026 поручил через Luna подключить Firestore, затем МЭШ, добавить тесты, проверить и выполнить commit/push; отдельно потребовал динамическое подключение всех семей/детей без ручного allowlist."
       }
     },
     "packages/telegram-notifications/domain/events.mjs": {
@@ -4456,19 +4507,31 @@
       }
     },
     "packages/telegram-notifications/domain/ports.mjs": {
-      "sha256": "0a8e0dc5e1c2f0b5d972895577f440f42a7baca9df06902f452645203bbafb8a",
-      "record": "docs/decisions/telegram-review-fixes-2026-10-17.md",
+      "sha256": "48a2df6fdfc53a8cfd42b5b279d773c231f490effd26578e007c8dcb452f1e3d",
+      "record": "docs/decisions/telegram-source-wiring-2026-10-17.md",
       "specs": [
+        "docs/services/telegram-bot/README.md",
         "docs/services/telegram-bot/ports-and-events.md",
-        "docs/services/telegram-bot/identity-and-linking.md",
-        "docs/services/telegram-bot/event-ledger-outbox.md"
+        "docs/services/telegram-bot/adapters/firestore.md",
+        "docs/services/telegram-bot/adapters/mesh.md",
+        "docs/services/telegram-bot/operations.md"
       ],
       "tests": [
-        "packages/telegram-notifications/notifications.test.mjs"
+        "packages/telegram-notifications/adapters/mesh-credentials.test.mjs",
+        "packages/telegram-notifications/adapters/runtime.test.mjs",
+        "packages/telegram-notifications/adapters/source-coordinator.test.mjs",
+        "packages/telegram-notifications/adapters/source-discovery-firestore.test.mjs",
+        "packages/telegram-notifications/adapters/source-inventory-firestore.test.mjs",
+        "packages/telegram-notifications/adapters/source-mesh.test.mjs",
+        "packages/telegram-notifications/adapters/worker-loop.test.mjs",
+        "packages/telegram-notifications/notifications.test.mjs",
+        "packages/telegram-notifications/source-mesh-integration.test.mjs",
+        "packages/telegram-notifications/source-pipeline.test.mjs",
+        "scripts/telegram-bot.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо запросил исправить найденные проблемы через Luna Worker, добавить тесты, обновить спецификации, прогнать проверки и выполнить commit/push."
+        "evidence": "Пользователь17.10.2026 поручил через Luna подключить Firestore, затем МЭШ, добавить тесты, проверить и выполнить commit/push; отдельно потребовал динамическое подключение всех семей/детей без ручного allowlist."
       }
     },
     "packages/telegram-notifications/domain/renderer.mjs": {
@@ -4486,17 +4549,255 @@
       }
     },
     "scripts/telegram-bot.mjs": {
-      "sha256": "28fa375a63f53c45033aaa5246b97945305d4de3196f0ad15aad5ff99ad32203",
-      "record": "docs/decisions/telegram-foundation-2026-10-16.md",
+      "sha256": "080347b86ee0669c95859d511200b37b767f0c6c5b5755638c570f512c6b68ef",
+      "record": "docs/decisions/telegram-source-wiring-2026-10-17.md",
       "specs": [
+        "docs/services/telegram-bot/README.md",
+        "docs/services/telegram-bot/ports-and-events.md",
+        "docs/services/telegram-bot/adapters/firestore.md",
+        "docs/services/telegram-bot/adapters/mesh.md",
         "docs/services/telegram-bot/operations.md"
       ],
       "tests": [
-        "packages/telegram-notifications/notifications.test.mjs"
+        "packages/telegram-notifications/adapters/mesh-credentials.test.mjs",
+        "packages/telegram-notifications/adapters/runtime.test.mjs",
+        "packages/telegram-notifications/adapters/source-coordinator.test.mjs",
+        "packages/telegram-notifications/adapters/source-discovery-firestore.test.mjs",
+        "packages/telegram-notifications/adapters/source-inventory-firestore.test.mjs",
+        "packages/telegram-notifications/adapters/source-mesh.test.mjs",
+        "packages/telegram-notifications/adapters/worker-loop.test.mjs",
+        "packages/telegram-notifications/notifications.test.mjs",
+        "packages/telegram-notifications/source-mesh-integration.test.mjs",
+        "packages/telegram-notifications/source-pipeline.test.mjs",
+        "scripts/telegram-bot.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо запросил начать реализацию Telegram-сервиса и сообщил о локально заданной AGI_EDU_BOT; значение секрета не включается в доказательство."
+        "evidence": "Пользователь17.10.2026 поручил через Luna подключить Firestore, затем МЭШ, добавить тесты, проверить и выполнить commit/push; отдельно потребовал динамическое подключение всех семей/детей без ручного allowlist."
+      }
+    },
+    "packages/telegram-notifications/adapters/mesh-credentials.mjs": {
+      "sha256": "f334c307baa920fd979727584bb96db135c9d20ff413e25ace0dd018ce5fe053",
+      "record": "docs/decisions/telegram-source-wiring-2026-10-17.md",
+      "specs": [
+        "docs/services/telegram-bot/README.md",
+        "docs/services/telegram-bot/ports-and-events.md",
+        "docs/services/telegram-bot/adapters/firestore.md",
+        "docs/services/telegram-bot/adapters/mesh.md",
+        "docs/services/telegram-bot/operations.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/adapters/mesh-credentials.test.mjs",
+        "packages/telegram-notifications/adapters/runtime.test.mjs",
+        "packages/telegram-notifications/adapters/source-coordinator.test.mjs",
+        "packages/telegram-notifications/adapters/source-discovery-firestore.test.mjs",
+        "packages/telegram-notifications/adapters/source-inventory-firestore.test.mjs",
+        "packages/telegram-notifications/adapters/source-mesh.test.mjs",
+        "packages/telegram-notifications/adapters/worker-loop.test.mjs",
+        "packages/telegram-notifications/notifications.test.mjs",
+        "packages/telegram-notifications/source-mesh-integration.test.mjs",
+        "packages/telegram-notifications/source-pipeline.test.mjs",
+        "scripts/telegram-bot.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь17.10.2026 поручил через Luna подключить Firestore, затем МЭШ, добавить тесты, проверить и выполнить commit/push; отдельно потребовал динамическое подключение всех семей/детей без ручного allowlist."
+      }
+    },
+    "packages/telegram-notifications/adapters/source-checkpoint-firestore.mjs": {
+      "sha256": "bf80618fbcf85a2b15de98ec7a0516080d07d535c314a9db7a147ffbceae152f",
+      "record": "docs/decisions/telegram-source-wiring-2026-10-17.md",
+      "specs": [
+        "docs/services/telegram-bot/README.md",
+        "docs/services/telegram-bot/ports-and-events.md",
+        "docs/services/telegram-bot/adapters/firestore.md",
+        "docs/services/telegram-bot/adapters/mesh.md",
+        "docs/services/telegram-bot/operations.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/adapters/mesh-credentials.test.mjs",
+        "packages/telegram-notifications/adapters/runtime.test.mjs",
+        "packages/telegram-notifications/adapters/source-coordinator.test.mjs",
+        "packages/telegram-notifications/adapters/source-discovery-firestore.test.mjs",
+        "packages/telegram-notifications/adapters/source-inventory-firestore.test.mjs",
+        "packages/telegram-notifications/adapters/source-mesh.test.mjs",
+        "packages/telegram-notifications/adapters/worker-loop.test.mjs",
+        "packages/telegram-notifications/notifications.test.mjs",
+        "packages/telegram-notifications/source-mesh-integration.test.mjs",
+        "packages/telegram-notifications/source-pipeline.test.mjs",
+        "scripts/telegram-bot.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь17.10.2026 поручил через Luna подключить Firestore, затем МЭШ, добавить тесты, проверить и выполнить commit/push; отдельно потребовал динамическое подключение всех семей/детей без ручного allowlist."
+      }
+    },
+    "packages/telegram-notifications/adapters/source-coordinator.mjs": {
+      "sha256": "a15853d01bbfb9b1550d8e8fb15230a49fe302530fe43072b8082dd9634e41e3",
+      "record": "docs/decisions/telegram-source-wiring-2026-10-17.md",
+      "specs": [
+        "docs/services/telegram-bot/README.md",
+        "docs/services/telegram-bot/ports-and-events.md",
+        "docs/services/telegram-bot/adapters/firestore.md",
+        "docs/services/telegram-bot/adapters/mesh.md",
+        "docs/services/telegram-bot/operations.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/adapters/mesh-credentials.test.mjs",
+        "packages/telegram-notifications/adapters/runtime.test.mjs",
+        "packages/telegram-notifications/adapters/source-coordinator.test.mjs",
+        "packages/telegram-notifications/adapters/source-discovery-firestore.test.mjs",
+        "packages/telegram-notifications/adapters/source-inventory-firestore.test.mjs",
+        "packages/telegram-notifications/adapters/source-mesh.test.mjs",
+        "packages/telegram-notifications/adapters/worker-loop.test.mjs",
+        "packages/telegram-notifications/notifications.test.mjs",
+        "packages/telegram-notifications/source-mesh-integration.test.mjs",
+        "packages/telegram-notifications/source-pipeline.test.mjs",
+        "scripts/telegram-bot.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь17.10.2026 поручил через Luna подключить Firestore, затем МЭШ, добавить тесты, проверить и выполнить commit/push; отдельно потребовал динамическое подключение всех семей/детей без ручного allowlist."
+      }
+    },
+    "packages/telegram-notifications/adapters/source-discovery-firestore.mjs": {
+      "sha256": "9d7f2f9a45d902274337dacf601c00d972d29746afdbcb4ce6635aaf73dd99e8",
+      "record": "docs/decisions/telegram-source-wiring-2026-10-17.md",
+      "specs": [
+        "docs/services/telegram-bot/README.md",
+        "docs/services/telegram-bot/ports-and-events.md",
+        "docs/services/telegram-bot/adapters/firestore.md",
+        "docs/services/telegram-bot/adapters/mesh.md",
+        "docs/services/telegram-bot/operations.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/adapters/mesh-credentials.test.mjs",
+        "packages/telegram-notifications/adapters/runtime.test.mjs",
+        "packages/telegram-notifications/adapters/source-coordinator.test.mjs",
+        "packages/telegram-notifications/adapters/source-discovery-firestore.test.mjs",
+        "packages/telegram-notifications/adapters/source-inventory-firestore.test.mjs",
+        "packages/telegram-notifications/adapters/source-mesh.test.mjs",
+        "packages/telegram-notifications/adapters/worker-loop.test.mjs",
+        "packages/telegram-notifications/notifications.test.mjs",
+        "packages/telegram-notifications/source-mesh-integration.test.mjs",
+        "packages/telegram-notifications/source-pipeline.test.mjs",
+        "scripts/telegram-bot.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь17.10.2026 поручил через Luna подключить Firestore, затем МЭШ, добавить тесты, проверить и выполнить commit/push; отдельно потребовал динамическое подключение всех семей/детей без ручного allowlist."
+      }
+    },
+    "packages/telegram-notifications/adapters/source-firestore.mjs": {
+      "sha256": "eebaeddee84d2fd72dbd14dbd05c10034c2501061a451d17ff3b58589608ec02",
+      "record": "docs/decisions/telegram-source-wiring-2026-10-17.md",
+      "specs": [
+        "docs/services/telegram-bot/README.md",
+        "docs/services/telegram-bot/ports-and-events.md",
+        "docs/services/telegram-bot/adapters/firestore.md",
+        "docs/services/telegram-bot/adapters/mesh.md",
+        "docs/services/telegram-bot/operations.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/adapters/mesh-credentials.test.mjs",
+        "packages/telegram-notifications/adapters/runtime.test.mjs",
+        "packages/telegram-notifications/adapters/source-coordinator.test.mjs",
+        "packages/telegram-notifications/adapters/source-discovery-firestore.test.mjs",
+        "packages/telegram-notifications/adapters/source-inventory-firestore.test.mjs",
+        "packages/telegram-notifications/adapters/source-mesh.test.mjs",
+        "packages/telegram-notifications/adapters/worker-loop.test.mjs",
+        "packages/telegram-notifications/notifications.test.mjs",
+        "packages/telegram-notifications/source-mesh-integration.test.mjs",
+        "packages/telegram-notifications/source-pipeline.test.mjs",
+        "scripts/telegram-bot.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь17.10.2026 поручил через Luna подключить Firestore, затем МЭШ, добавить тесты, проверить и выполнить commit/push; отдельно потребовал динамическое подключение всех семей/детей без ручного allowlist."
+      }
+    },
+    "packages/telegram-notifications/adapters/source-inventory-firestore.mjs": {
+      "sha256": "6b92eb39d9358fc221dc0368534f6f7c2359f08f067d9ee60e464a521b625083",
+      "record": "docs/decisions/telegram-source-wiring-2026-10-17.md",
+      "specs": [
+        "docs/services/telegram-bot/README.md",
+        "docs/services/telegram-bot/ports-and-events.md",
+        "docs/services/telegram-bot/adapters/firestore.md",
+        "docs/services/telegram-bot/adapters/mesh.md",
+        "docs/services/telegram-bot/operations.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/adapters/mesh-credentials.test.mjs",
+        "packages/telegram-notifications/adapters/runtime.test.mjs",
+        "packages/telegram-notifications/adapters/source-coordinator.test.mjs",
+        "packages/telegram-notifications/adapters/source-discovery-firestore.test.mjs",
+        "packages/telegram-notifications/adapters/source-inventory-firestore.test.mjs",
+        "packages/telegram-notifications/adapters/source-mesh.test.mjs",
+        "packages/telegram-notifications/adapters/worker-loop.test.mjs",
+        "packages/telegram-notifications/notifications.test.mjs",
+        "packages/telegram-notifications/source-mesh-integration.test.mjs",
+        "packages/telegram-notifications/source-pipeline.test.mjs",
+        "scripts/telegram-bot.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь17.10.2026 поручил через Luna подключить Firestore, затем МЭШ, добавить тесты, проверить и выполнить commit/push; отдельно потребовал динамическое подключение всех семей/детей без ручного allowlist."
+      }
+    },
+    "packages/telegram-notifications/adapters/source-mesh.mjs": {
+      "sha256": "efc6fbbe9644d106b687611a3f54811a40aa9672649d80cc5b1da4c523cbcc16",
+      "record": "docs/decisions/telegram-source-wiring-2026-10-17.md",
+      "specs": [
+        "docs/services/telegram-bot/README.md",
+        "docs/services/telegram-bot/ports-and-events.md",
+        "docs/services/telegram-bot/adapters/firestore.md",
+        "docs/services/telegram-bot/adapters/mesh.md",
+        "docs/services/telegram-bot/operations.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/adapters/mesh-credentials.test.mjs",
+        "packages/telegram-notifications/adapters/runtime.test.mjs",
+        "packages/telegram-notifications/adapters/source-coordinator.test.mjs",
+        "packages/telegram-notifications/adapters/source-discovery-firestore.test.mjs",
+        "packages/telegram-notifications/adapters/source-inventory-firestore.test.mjs",
+        "packages/telegram-notifications/adapters/source-mesh.test.mjs",
+        "packages/telegram-notifications/adapters/worker-loop.test.mjs",
+        "packages/telegram-notifications/notifications.test.mjs",
+        "packages/telegram-notifications/source-mesh-integration.test.mjs",
+        "packages/telegram-notifications/source-pipeline.test.mjs",
+        "scripts/telegram-bot.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь17.10.2026 поручил через Luna подключить Firestore, затем МЭШ, добавить тесты, проверить и выполнить commit/push; отдельно потребовал динамическое подключение всех семей/детей без ручного allowlist."
+      }
+    },
+    "packages/telegram-notifications/application/source-pipeline.mjs": {
+      "sha256": "3971f06705d0170befa7abd75649d76fcdb77c8cfcebb39ef69bb7084399a685",
+      "record": "docs/decisions/telegram-source-wiring-2026-10-17.md",
+      "specs": [
+        "docs/services/telegram-bot/README.md",
+        "docs/services/telegram-bot/ports-and-events.md",
+        "docs/services/telegram-bot/adapters/firestore.md",
+        "docs/services/telegram-bot/adapters/mesh.md",
+        "docs/services/telegram-bot/operations.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/adapters/mesh-credentials.test.mjs",
+        "packages/telegram-notifications/adapters/runtime.test.mjs",
+        "packages/telegram-notifications/adapters/source-coordinator.test.mjs",
+        "packages/telegram-notifications/adapters/source-discovery-firestore.test.mjs",
+        "packages/telegram-notifications/adapters/source-inventory-firestore.test.mjs",
+        "packages/telegram-notifications/adapters/source-mesh.test.mjs",
+        "packages/telegram-notifications/adapters/worker-loop.test.mjs",
+        "packages/telegram-notifications/notifications.test.mjs",
+        "packages/telegram-notifications/source-mesh-integration.test.mjs",
+        "packages/telegram-notifications/source-pipeline.test.mjs",
+        "scripts/telegram-bot.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь17.10.2026 поручил через Luna подключить Firestore, затем МЭШ, добавить тесты, проверить и выполнить commit/push; отдельно потребовал динамическое подключение всех семей/детей без ручного allowlist."
       }
     }
   }

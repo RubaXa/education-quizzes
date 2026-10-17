@@ -37,6 +37,7 @@ function validSnapshot(snapshot) {
   for (const record of snapshot.records) {
     if (!record || typeof record.recordKey !== 'string' || !record.recordKey.trim() || !['grade', 'schedule', 'assignment', 'upload', 'quiz', 'review'].includes(record.kind)) return false
     if (record.eventType && !EVENT_TYPE_SET.has(record.eventType)) return false
+    if (record.semanticHash !== undefined && (typeof record.semanticHash !== 'string' || !/^[a-f0-9]{64}$/.test(record.semanticHash))) return false
     if (record.fields !== undefined && (!record.fields || typeof record.fields !== 'object' || Array.isArray(record.fields))) return false
     if (seen.has(record.recordKey)) return false
     seen.add(record.recordKey)
@@ -46,6 +47,7 @@ function validSnapshot(snapshot) {
 const stable = (record) => JSON.stringify({
   kind: record.kind,
   eventType: record.eventType ?? null,
+  semanticHash: record.semanticHash ?? null,
   occurredAt: canonicalInstant(record.occurredAt),
   fields: canonicalFields(record.fields ?? {}),
 })

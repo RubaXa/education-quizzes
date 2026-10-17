@@ -387,6 +387,34 @@
       "path": "docs/decisions/telegram-review-fixes-2026-10-17.md"
     },
     {
+      "id": "decision.telegram-source-wiring-2026-10-17",
+      "status": "accepted",
+      "implementation": "not-applicable",
+      "created": "2026-10-17",
+      "updated": "2026-10-17",
+      "parent": "service.telegram-bot",
+      "uses": [
+        "service.telegram-bot.ports-and-events",
+        "service.telegram-bot.firestore",
+        "service.telegram-bot.mesh",
+        "service.telegram-bot.operations"
+      ],
+      "consumers": [
+        "Telegram developer",
+        "Technical lead",
+        "Bot operator"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/telegram-source-wiring-2026-10-17.md"
+    },
+    {
       "id": "decisions.compact-homework-copy-2026-10-16",
       "status": "reference",
       "implementation": "not-applicable",
@@ -1814,11 +1842,102 @@
       "consumer": "Vitest; application core"
     },
     {
+      "id": "file:packages/telegram-notifications/adapters/mesh-credentials.mjs",
+      "path": "packages/telegram-notifications/adapters/mesh-credentials.mjs",
+      "kind": "artifact",
+      "purpose": "МЭШ: нормализация и детская изоляция источников",
+      "consumer": "Source inventory; source pipeline"
+    },
+    {
+      "id": "file:packages/telegram-notifications/adapters/mesh-credentials.test.mjs",
+      "path": "packages/telegram-notifications/adapters/mesh-credentials.test.mjs",
+      "kind": "verification",
+      "purpose": "МЭШ: нормализация и детская изоляция источников",
+      "consumer": "Source coordinator; Luna review; Vitest"
+    },
+    {
       "id": "file:packages/telegram-notifications/adapters/runtime.mjs",
       "path": "packages/telegram-notifications/adapters/runtime.mjs",
       "kind": "artifact",
       "purpose": "Связка Firestore adapters, identity, delivery service и Telegram transport",
       "consumer": "`scripts/telegram-bot.mjs`"
+    },
+    {
+      "id": "file:packages/telegram-notifications/adapters/runtime.test.mjs",
+      "path": "packages/telegram-notifications/adapters/runtime.test.mjs",
+      "kind": "verification",
+      "purpose": "Проверка source wiring и безопасного жизненного цикла",
+      "consumer": "Runtime; Vitest; техлид"
+    },
+    {
+      "id": "file:packages/telegram-notifications/adapters/source-checkpoint-firestore.mjs",
+      "path": "packages/telegram-notifications/adapters/source-checkpoint-firestore.mjs",
+      "kind": "artifact",
+      "purpose": "Durable source processing, checkpoints, discovery и управление очередью",
+      "consumer": "Runtime; source adapters; Vitest"
+    },
+    {
+      "id": "file:packages/telegram-notifications/adapters/source-coordinator.mjs",
+      "path": "packages/telegram-notifications/adapters/source-coordinator.mjs",
+      "kind": "artifact",
+      "purpose": "Durable source processing, checkpoints, discovery и управление очередью",
+      "consumer": "Runtime; source adapters; Vitest"
+    },
+    {
+      "id": "file:packages/telegram-notifications/adapters/source-coordinator.test.mjs",
+      "path": "packages/telegram-notifications/adapters/source-coordinator.test.mjs",
+      "kind": "verification",
+      "purpose": "Durable source processing, checkpoints, discovery и управление очередью",
+      "consumer": "Runtime; source adapters; Vitest"
+    },
+    {
+      "id": "file:packages/telegram-notifications/adapters/source-discovery-firestore.mjs",
+      "path": "packages/telegram-notifications/adapters/source-discovery-firestore.mjs",
+      "kind": "artifact",
+      "purpose": "Durable source processing, checkpoints, discovery и управление очередью",
+      "consumer": "Runtime; source adapters; Vitest"
+    },
+    {
+      "id": "file:packages/telegram-notifications/adapters/source-discovery-firestore.test.mjs",
+      "path": "packages/telegram-notifications/adapters/source-discovery-firestore.test.mjs",
+      "kind": "verification",
+      "purpose": "Durable source processing, checkpoints, discovery и управление очередью",
+      "consumer": "Runtime; source adapters; Vitest"
+    },
+    {
+      "id": "file:packages/telegram-notifications/adapters/source-firestore.mjs",
+      "path": "packages/telegram-notifications/adapters/source-firestore.mjs",
+      "kind": "artifact",
+      "purpose": "Owner-checked document listeners и безопасная нормализация загрузок, тестов и проверок",
+      "consumer": "SourcePipeline; coordinator"
+    },
+    {
+      "id": "file:packages/telegram-notifications/adapters/source-inventory-firestore.mjs",
+      "path": "packages/telegram-notifications/adapters/source-inventory-firestore.mjs",
+      "kind": "artifact",
+      "purpose": "Полный динамический обход семей и источников без ручного списка",
+      "consumer": "Source coordinator; Vitest"
+    },
+    {
+      "id": "file:packages/telegram-notifications/adapters/source-inventory-firestore.test.mjs",
+      "path": "packages/telegram-notifications/adapters/source-inventory-firestore.test.mjs",
+      "kind": "verification",
+      "purpose": "Полный динамический обход семей и источников без ручного списка",
+      "consumer": "Source coordinator; Vitest"
+    },
+    {
+      "id": "file:packages/telegram-notifications/adapters/source-mesh.mjs",
+      "path": "packages/telegram-notifications/adapters/source-mesh.mjs",
+      "kind": "artifact",
+      "purpose": "МЭШ: нормализация и детская изоляция источников",
+      "consumer": "Source inventory; source pipeline"
+    },
+    {
+      "id": "file:packages/telegram-notifications/adapters/source-mesh.test.mjs",
+      "path": "packages/telegram-notifications/adapters/source-mesh.test.mjs",
+      "kind": "verification",
+      "purpose": "МЭШ: нормализация и детская изоляция источников",
+      "consumer": "Source coordinator; Luna review; Vitest"
     },
     {
       "id": "file:packages/telegram-notifications/adapters/telegram.mjs",
@@ -1835,6 +1954,13 @@
       "consumer": "CLI worker; `scripts/telegram-bot.mjs`"
     },
     {
+      "id": "file:packages/telegram-notifications/adapters/worker-loop.test.mjs",
+      "path": "packages/telegram-notifications/adapters/worker-loop.test.mjs",
+      "kind": "verification",
+      "purpose": "Явный opt-in runtime, shutdown и проверка конфигурации",
+      "consumer": "Оператор; Vitest"
+    },
+    {
       "id": "file:packages/telegram-notifications/application/identity.mjs",
       "path": "packages/telegram-notifications/application/identity.mjs",
       "kind": "artifact",
@@ -1847,6 +1973,13 @@
       "kind": "artifact",
       "purpose": "Идемпотентная запись event и обработка outbox jobs",
       "consumer": "Worker; event ledger; delivery port"
+    },
+    {
+      "id": "file:packages/telegram-notifications/application/source-pipeline.mjs",
+      "path": "packages/telegram-notifications/application/source-pipeline.mjs",
+      "kind": "artifact",
+      "purpose": "Durable source processing, checkpoints, discovery и управление очередью",
+      "consumer": "Runtime; source adapters; Vitest"
     },
     {
       "id": "file:packages/telegram-notifications/domain/diff.mjs",
@@ -1889,6 +2022,20 @@
       "kind": "verification",
       "purpose": "Проверка регистрации, event/outbox core, приватности и портов на memory store",
       "consumer": "Vitest; разработчик"
+    },
+    {
+      "id": "file:packages/telegram-notifications/source-mesh-integration.test.mjs",
+      "path": "packages/telegram-notifications/source-mesh-integration.test.mjs",
+      "kind": "verification",
+      "purpose": "Проверка source wiring и безопасного жизненного цикла",
+      "consumer": "Runtime; Vitest; техлид"
+    },
+    {
+      "id": "file:packages/telegram-notifications/source-pipeline.test.mjs",
+      "path": "packages/telegram-notifications/source-pipeline.test.mjs",
+      "kind": "verification",
+      "purpose": "Durable source processing, checkpoints, discovery и управление очередью",
+      "consumer": "Runtime; source adapters; Vitest"
     },
     {
       "id": "file:public/icons/education-180.png",
@@ -2323,6 +2470,13 @@
       "kind": "artifact",
       "purpose": "Команды read-only `check` и явного `worker`; доставка выключена по умолчанию",
       "consumer": "Оператор; локальный worker"
+    },
+    {
+      "id": "file:scripts/telegram-bot.test.mjs",
+      "path": "scripts/telegram-bot.test.mjs",
+      "kind": "verification",
+      "purpose": "Явный opt-in runtime, shutdown и проверка конфигурации",
+      "consumer": "Оператор; Vitest"
     },
     {
       "id": "file:scripts/verify-upload-flow.mjs",
@@ -5696,7 +5850,7 @@
         "service.telegram-bot"
       ],
       "type": "product-spec",
-      "updated": "2026-10-16",
+      "updated": "2026-10-17",
       "sections": [
         "цель",
         "аудитории-и-охват",
@@ -6347,15 +6501,18 @@
     {
       "id": "service.telegram-bot.firestore",
       "status": "accepted",
-      "implementation": "planned",
+      "implementation": "partial",
       "created": "2026-10-16",
-      "updated": "2026-10-16",
+      "updated": "2026-10-17",
       "consumers": [
         "Telegram service implementer",
         "bot operator",
         "parents and guardians"
       ],
-      "code": [],
+      "code": [
+        "packages/telegram-notifications/adapters/source-firestore.mjs",
+        "packages/telegram-notifications/adapters/source-inventory-firestore.mjs"
+      ],
       "parent": "service.telegram-bot",
       "uses": [],
       "sections": [
@@ -6403,15 +6560,18 @@
     {
       "id": "service.telegram-bot.mesh",
       "status": "accepted",
-      "implementation": "planned",
+      "implementation": "partial",
       "created": "2026-10-16",
-      "updated": "2026-10-16",
+      "updated": "2026-10-17",
       "consumers": [
         "Telegram service implementer",
         "bot operator",
         "parents and guardians"
       ],
-      "code": [],
+      "code": [
+        "packages/telegram-notifications/adapters/source-mesh.mjs",
+        "packages/telegram-notifications/adapters/mesh-credentials.mjs"
+      ],
       "parent": "service.telegram-bot",
       "uses": [],
       "sections": [
@@ -6428,7 +6588,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-16",
-      "updated": "2026-10-16",
+      "updated": "2026-10-17",
       "consumers": [
         "Telegram service implementer",
         "bot operator",
@@ -6438,7 +6598,8 @@
         "packages/telegram-notifications/adapters/config.mjs",
         "packages/telegram-notifications/adapters/runtime.mjs",
         "packages/telegram-notifications/adapters/telegram.mjs",
-        "scripts/telegram-bot.mjs"
+        "scripts/telegram-bot.mjs",
+        "packages/telegram-notifications/adapters/worker-loop.mjs"
       ],
       "parent": "service.telegram-bot",
       "uses": [
@@ -6469,7 +6630,11 @@
         "packages/telegram-notifications/domain/events.mjs",
         "packages/telegram-notifications/domain/diff.mjs",
         "packages/telegram-notifications/domain/ports.mjs",
-        "packages/telegram-notifications/application/notifications.mjs"
+        "packages/telegram-notifications/application/notifications.mjs",
+        "packages/telegram-notifications/application/source-pipeline.mjs",
+        "packages/telegram-notifications/adapters/source-checkpoint-firestore.mjs",
+        "packages/telegram-notifications/adapters/source-discovery-firestore.mjs",
+        "packages/telegram-notifications/adapters/source-coordinator.mjs"
       ],
       "parent": "service.telegram-bot",
       "uses": [
@@ -7135,6 +7300,26 @@
       "type": "uses"
     },
     {
+      "from": "decision.telegram-source-wiring-2026-10-17",
+      "to": "service.telegram-bot.firestore",
+      "type": "uses"
+    },
+    {
+      "from": "decision.telegram-source-wiring-2026-10-17",
+      "to": "service.telegram-bot.mesh",
+      "type": "uses"
+    },
+    {
+      "from": "decision.telegram-source-wiring-2026-10-17",
+      "to": "service.telegram-bot.operations",
+      "type": "uses"
+    },
+    {
+      "from": "decision.telegram-source-wiring-2026-10-17",
+      "to": "service.telegram-bot.ports-and-events",
+      "type": "uses"
+    },
+    {
       "from": "decisions.flat-numbered-sheet-2026-10-14",
       "to": "decisions.restore-numbered-original-2026-10-14",
       "type": "uses"
@@ -7645,6 +7830,11 @@
       "type": "implements"
     },
     {
+      "from": "file:packages/telegram-notifications/adapters/mesh-credentials.mjs",
+      "to": "service.telegram-bot.mesh",
+      "type": "implements"
+    },
+    {
       "from": "file:packages/telegram-notifications/adapters/runtime.mjs",
       "to": "service.telegram-bot.operations",
       "type": "implements"
@@ -7652,6 +7842,36 @@
     {
       "from": "file:packages/telegram-notifications/adapters/runtime.mjs",
       "to": "service.telegram-bot",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/adapters/source-checkpoint-firestore.mjs",
+      "to": "service.telegram-bot.ports-and-events",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/adapters/source-coordinator.mjs",
+      "to": "service.telegram-bot.ports-and-events",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/adapters/source-discovery-firestore.mjs",
+      "to": "service.telegram-bot.ports-and-events",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/adapters/source-firestore.mjs",
+      "to": "service.telegram-bot.firestore",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/adapters/source-inventory-firestore.mjs",
+      "to": "service.telegram-bot.firestore",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/adapters/source-mesh.mjs",
+      "to": "service.telegram-bot.mesh",
       "type": "implements"
     },
     {
@@ -7691,6 +7911,11 @@
     },
     {
       "from": "file:packages/telegram-notifications/application/notifications.mjs",
+      "to": "service.telegram-bot.ports-and-events",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/application/source-pipeline.mjs",
       "to": "service.telegram-bot.ports-and-events",
       "type": "implements"
     },
@@ -11650,6 +11875,11 @@
       "type": "uses"
     },
     {
+      "from": "service.telegram-bot.firestore",
+      "to": "file:packages/telegram-notifications/adapters/source-inventory-firestore.test.mjs",
+      "type": "verified-by"
+    },
+    {
       "from": "service.telegram-bot.identity-and-linking",
       "to": "service.telegram-bot.ports-and-events",
       "type": "uses"
@@ -11660,9 +11890,54 @@
       "type": "uses"
     },
     {
+      "from": "service.telegram-bot.mesh",
+      "to": "file:packages/telegram-notifications/adapters/mesh-credentials.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "service.telegram-bot.mesh",
+      "to": "file:packages/telegram-notifications/adapters/source-mesh.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "service.telegram-bot.mesh",
+      "to": "file:packages/telegram-notifications/source-mesh-integration.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "service.telegram-bot.operations",
+      "to": "file:packages/telegram-notifications/adapters/runtime.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "service.telegram-bot.operations",
+      "to": "file:packages/telegram-notifications/adapters/worker-loop.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "service.telegram-bot.operations",
+      "to": "file:scripts/telegram-bot.test.mjs",
+      "type": "verified-by"
+    },
+    {
       "from": "service.telegram-bot.operations",
       "to": "service.telegram-bot",
       "type": "uses"
+    },
+    {
+      "from": "service.telegram-bot.ports-and-events",
+      "to": "file:packages/telegram-notifications/adapters/source-coordinator.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "service.telegram-bot.ports-and-events",
+      "to": "file:packages/telegram-notifications/adapters/source-discovery-firestore.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "service.telegram-bot.ports-and-events",
+      "to": "file:packages/telegram-notifications/source-pipeline.test.mjs",
+      "type": "verified-by"
     },
     {
       "from": "service.telegram-bot.ports-and-events",
@@ -11682,6 +11957,11 @@
     {
       "from": "service.telegram-bot",
       "to": "decision.telegram-review-fixes-2026-10-17",
+      "type": "contains"
+    },
+    {
+      "from": "service.telegram-bot",
+      "to": "decision.telegram-source-wiring-2026-10-17",
       "type": "contains"
     },
     {

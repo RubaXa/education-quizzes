@@ -229,6 +229,17 @@ describe('Telegram notification vertical slice', () => {
     expect(call(before, snap(2, { occurredAt: before.records[0].occurredAt, eventType: 'schedule.cancelled' })).events[0].eventType).toBe('schedule.cancelled')
   })
 
+  it('treats a validated source semantic hash as a stable diff input without storing raw source details', () => {
+    const snap = (seq, semanticHash) => ({ complete: true, observationSequence: seq, records: [{ recordKey: 'review-a', kind: 'review', eventType: 'review.changed', semanticHash, fields: { status: 'verified' } }] })
+    const call = (previous, current) => diffCompleteSnapshots({ source: 'firestore', scopeKey: 's', familyId: 'f', childId: 'c', previous, current, detectedAt: now })
+    const first = snap(1, 'a'.repeat(64))
+    expect(call(first, snap(2, 'a'.repeat(64))).events).toEqual([])
+    const changed = call(first, snap(2, 'b'.repeat(64)))
+    expect(changed.events).toHaveLength(1)
+    expect(changed.events[0]).toMatchObject({ eventType: 'review.changed', fields: {} })
+    expect(call(first, snap(2, 'not-a-hash')).advanced).toBe(false)
+  })
+
   it('requires durable snapshot sequence for event identity and rejects malformed complete snapshots', () => {
     const current = { complete: true, records: [{ recordKey: 'g', kind: 'grade', fields: { value: '4' } }] }
     const result = diffCompleteSnapshots({ source: 'mesh', scopeKey: 's', familyId: 'f', childId: 'c', current, detectedAt: now })

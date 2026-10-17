@@ -56,6 +56,7 @@ sections:
 - Получатель определяется только через проверенную связь Telegram account → семья → роль/ребёнок. Имя, username и текст источника не являются доказательством доступа.
 - Первая версия уведомляет родителей/опекунов и команду PETR. Прямой канал ребёнку, действия из сообщений и запуск Education/Codex остаются за границей.
 - Начальный снимок источника задаёт базовую точку и не рассылается как история.
+- Число семей и детей не ограничивается списком в конфигурации. Authoritative registry автоматически добавляет/снимает внутренние единицы наблюдения без restart; pagination и concurrency — техническое управление нагрузкой, не фильтр пользователей.
 - Учебные документы остаются источником истины; реестр Telegram, события и outbox — отдельные служебные данные.
 
 ## Контекст и поток
@@ -153,19 +154,19 @@ subject?, title?, before?, after?, contextRefs[], privacyClass
 | Этап | Результат | Статус |
 |---|---|---|
 | A | Архитектура, события, privacy boundary, deployment decision | Спецификация в работе; данный документ — целевая граница |
-| B | Core contracts, Firestore ledger/outbox, тестируемая идемпотентность | Частично; source wiring planned |
+| B | Core contracts, Firestore ledger/outbox, тестируемая идемпотентность | Реализован core/ledger; эксплуатационный rollout отдельно |
 | C | Telegram `/start`, реестр аккаунтов и безопасная семейная привязка | Частично; registry/disconnect есть, issuer UI отсутствует |
-| D | Firestore observation, затем МЭШ polling и source mappings | Не реализовано |
+| D | Firestore observation, затем МЭШ polling и source mappings | Реализованы локальные adapters/pipeline и opt-in wiring; реальные интеграции/rollout не подтверждены |
 | E | Routing, structured templates, retry/recovery и team alerts | Частично; family renderer/outbox есть, grouping/team route отсутствуют |
 | F | Операционный запуск, минимальные IAM/secrets, мониторинг и контролируемый rollout | Не реализовано |
 
 Установка npm-пакета или документированный контракт не означает, что worker работает. Только явно запущенный `worker` принимает команды; delivery выключена по умолчанию. Сервис не является действующим наблюдателем.
 
-Первый срез: `node scripts/telegram-bot.mjs check` делает read-only `getMe` и сверяет `agi_edu_bot` без создания Firestore client. Явный `worker` использует ADC, проверяет project access до polling, поддерживает `/start` и sender-bound одноразовый `/stop`; linking token может быть погашен только внедрённым trusted authorizer, которого в текущем UI нет. `--enable-delivery` отдельно включает обработку уже подтверждённых outbox jobs; Firestore/МЭШ observers, UI linking, team resolver и grouping/digest planned.
+Первый срез: `node scripts/telegram-bot.mjs check` делает read-only `getMe` и сверяет `agi_edu_bot` без создания Firestore client. Явный `worker` использует ADC, проверяет project access до polling, поддерживает `/start` и sender-bound одноразовый `/stop`; linking token может быть погашен только внедрённым trusted authorizer, которого в текущем UI нет. `--enable-delivery` отдельно включает обработку уже подтверждённых outbox jobs; Firestore/МЭШ observers включаются отдельными флагами, источники обнаруживаются автоматически; UI linking, team resolver и grouping/digest planned.
 
 ## Решения, ожидающие подтверждения/проверки
 
-Независимая сверка документации и локального кода за 2026-10-16 зафиксирована в [аудите Telegram self-review](../../audits/telegram-self-review-2026-10-16.md); он различает реализованный foundation, planned source wiring и вопросы, требующие решения.
+Независимая сверка документации и локального кода за 2026-10-16 зафиксирована в [аудите Telegram self-review](../../audits/telegram-self-review-2026-10-16.md); он сохраняет состояние foundation до подключения источников. Последующий increment описан в [решении о source wiring](../../decisions/telegram-source-wiring-2026-10-17.md); вопросы эксплуатации остаются открытыми.
 
 - Размещение и процессный режим: постоянный worker рекомендован, хостинг ещё не выбран.
 - Срок одноразового токена и точные правила отзыва.
