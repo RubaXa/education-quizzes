@@ -1,5 +1,15 @@
 {
   "files": {
+    "scripts/lib/inspect-family-access.mjs": {
+      "sha256": "d365beb24158d8247c823bfe02bf3488ae9d0a696ec6a74490cfcd3419a91c5a",
+      "record": "docs/decisions/personal-identity-transition-2026-10-18.md",
+      "specs": ["docs/modules/families/access-and-state.md"],
+      "tests": ["scripts/lib/inspect-family-access.test.mjs"],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель18.10 требует проверить веб-интерфейс сверху вниз, реальные роли и возможные неправильные связи через стандартные инструменты и тесты."
+      }
+    },
     "day/learning-route-identity.mjs": {
       "sha256": "37bd5fd384b1e5d7a402f10d683e817bf6a2bc3892d9d6f53526139c31eb5bf7",
       "record": "docs/decisions/authenticated-learning-routes-2026-10-18.md",
@@ -2647,13 +2657,14 @@
       }
     },
     "scripts/family.mjs": {
-      "sha256": "ff6f729a757b316781c97630c9a193c4207a778b79d5205bae3981207ba8edb7",
-      "record": "docs/decisions/authenticated-learning-routes-2026-10-18.md",
+      "sha256": "e1542606a965ce142b3563058bd2fbfac8aca581290c0ae316b8d6259b9b88ff",
+      "record": "docs/decisions/personal-identity-transition-2026-10-18.md",
       "specs": [
         "docs/modules/families/access-and-state.md",
         "docs/shared/specification-system.md"
       ],
       "tests": [
+        "scripts/lib/inspect-family-access.test.mjs",
         "src/components/LearningRoute.integration.test.tsx",
         "src/lib/learningRoute.test.ts",
         "day/learning-route-identity.test.mjs",
@@ -3713,13 +3724,15 @@
       }
     },
     "src/lib/personalAccess.ts": {
-      "sha256": "25b31880f8df2c67973b4cf9fde3a0ab248489cec26c3ffa0159536320be4232",
-      "record": "docs/decisions/authenticated-learning-routes-2026-10-18.md",
+      "sha256": "cdcf8215071609606cafe6a9cbfa6e05ddbee4a4a7ba82134e05f6cbaafd0f37",
+      "record": "docs/decisions/personal-identity-transition-2026-10-18.md",
       "specs": [
         "docs/modules/families/access-and-state.md",
         "docs/shared/specification-system.md"
       ],
       "tests": [
+        "src/lib/personalAccess.identityRace.test.ts",
+        "src/components/LearningRoute.weekend.integration.test.tsx",
         "src/lib/personalAccess.readBudget.test.ts",
         "src/components/LearningRoute.integration.test.tsx",
         "src/lib/learningRoute.test.ts",

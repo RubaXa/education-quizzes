@@ -1217,6 +1217,35 @@
       "path": "docs/decisions/personal-entry-role-confirmation-2026-10-18.md"
     },
     {
+      "id": "decisions.personal-identity-transition-2026-10-18",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-18",
+      "updated": "2026-10-18",
+      "parent": "module.families.access-and-state",
+      "uses": [
+        "shared.access-and-privacy"
+      ],
+      "consumers": [
+        "parent",
+        "student",
+        "web-app access flow",
+        "family access operator"
+      ],
+      "code": [
+        "src/lib/personalAccess.ts",
+        "scripts/lib/inspect-family-access.mjs"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/personal-identity-transition-2026-10-18.md"
+    },
+    {
       "id": "decisions.quiz-attempt-time-icon-2026-10-15",
       "status": "reference",
       "implementation": "not-applicable",
@@ -3080,6 +3109,20 @@
       "consumer": "`family.mjs`; `connect.mjs`; operator CLI"
     },
     {
+      "id": "file:scripts/lib/inspect-family-access.mjs",
+      "path": "scripts/lib/inspect-family-access.mjs",
+      "kind": "artifact",
+      "purpose": "Адресный read-only аудит членства и связей ролевых проекций без секретов",
+      "consumer": "family inspect-access; оператор"
+    },
+    {
+      "id": "file:scripts/lib/inspect-family-access.test.mjs",
+      "path": "scripts/lib/inspect-family-access.test.mjs",
+      "kind": "verification",
+      "purpose": "Проверка коллизий, выходных, приватности и бюджета чтений",
+      "consumer": "Vitest; оператор"
+    },
+    {
       "id": "file:scripts/notifications.mjs",
       "path": "scripts/notifications.mjs",
       "kind": "artifact",
@@ -3463,6 +3506,13 @@
       "kind": "artifact",
       "purpose": "Проверка сессии и ролевой экран одного учебного ресурса",
       "consumer": "App; родитель; ребёнок"
+    },
+    {
+      "id": "file:src/components/LearningRoute.weekend.integration.test.tsx",
+      "path": "src/components/LearningRoute.weekend.integration.test.tsx",
+      "kind": "verification",
+      "purpose": "Общая ссылка через реальные календарь, выходной слот, карточку, разбор и живую проверку; IO заменён на границе",
+      "consumer": "Vitest; родитель; ребёнок"
     },
     {
       "id": "file:src/components/MaterialReader.test.tsx",
@@ -4324,6 +4374,13 @@
       "kind": "artifact",
       "purpose": "Выбор ближайшего учебного дня по первому уроку конкретного ребёнка",
       "consumer": "`useParentChildOverview.ts`; кабинет родителя"
+    },
+    {
+      "id": "file:src/lib/personalAccess.identityRace.test.ts",
+      "path": "src/lib/personalAccess.identityRace.test.ts",
+      "kind": "verification",
+      "purpose": "Гонка личного входа и параллельного восстановления прежнего человека в том же браузере",
+      "consumer": "Vitest; вход; календарь"
     },
     {
       "id": "file:src/lib/personalAccess.readBudget.test.ts",
@@ -8494,6 +8551,11 @@
       "type": "uses"
     },
     {
+      "from": "decisions.personal-identity-transition-2026-10-18",
+      "to": "shared.access-and-privacy",
+      "type": "uses"
+    },
+    {
       "from": "decisions.quiz-threshold-85-2026-10-14",
       "to": "decisions.quiz-threshold-and-page-slider-2026-10-14",
       "type": "uses"
@@ -9646,6 +9708,16 @@
     {
       "from": "file:scripts/lib/admin-firebase.mjs",
       "to": "shared.server-runtime",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/lib/inspect-family-access.mjs",
+      "to": "decisions.personal-identity-transition-2026-10-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/lib/inspect-family-access.mjs",
+      "to": "module.families.access-and-state",
       "type": "implements"
     },
     {
@@ -11055,6 +11127,11 @@
     },
     {
       "from": "file:src/lib/personalAccess.ts",
+      "to": "decisions.personal-identity-transition-2026-10-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/personalAccess.ts",
       "to": "module.families",
       "type": "implements"
     },
@@ -11765,6 +11842,11 @@
     },
     {
       "from": "module.families.access-and-state",
+      "to": "decisions.personal-identity-transition-2026-10-18",
+      "type": "contains"
+    },
+    {
+      "from": "module.families.access-and-state",
       "to": "file:day/learning-route-identity.test.mjs",
       "type": "verified-by"
     },
@@ -11775,7 +11857,17 @@
     },
     {
       "from": "module.families.access-and-state",
+      "to": "file:scripts/lib/inspect-family-access.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.families.access-and-state",
       "to": "file:src/components/LearningRoute.integration.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.families.access-and-state",
+      "to": "file:src/components/LearningRoute.weekend.integration.test.tsx",
       "type": "verified-by"
     },
     {
@@ -11786,6 +11878,11 @@
     {
       "from": "module.families.access-and-state",
       "to": "file:src/lib/learningRoute.test.ts",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.families.access-and-state",
+      "to": "file:src/lib/personalAccess.identityRace.test.ts",
       "type": "verified-by"
     },
     {

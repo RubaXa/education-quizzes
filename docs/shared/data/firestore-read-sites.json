@@ -2714,7 +2714,7 @@
   {
     "id": "scripts/family.mjs#admin.get#749116f6a6b2",
     "file": "scripts/family.mjs",
-    "line": 147,
+    "line": 148,
     "api": "admin.get",
     "target": "db.doc(`accessLinks/${link}`)",
     "group": "operator-other",
@@ -2726,7 +2726,7 @@
   {
     "id": "scripts/family.mjs#admin.get#749116f6a6b2-2",
     "file": "scripts/family.mjs",
-    "line": 161,
+    "line": 162,
     "api": "admin.get",
     "target": "db.doc(`accessLinks/${link}`)",
     "group": "operator-other",
@@ -2738,7 +2738,7 @@
   {
     "id": "scripts/family.mjs#admin.get#c010c1a692f0",
     "file": "scripts/family.mjs",
-    "line": 162,
+    "line": 163,
     "api": "admin.get",
     "target": "db.collection('deviceSessions').where('linkToken', '==', link).count()",
     "group": "operator-other",
@@ -2750,7 +2750,7 @@
   {
     "id": "scripts/family.mjs#admin.get#749116f6a6b2-3",
     "file": "scripts/family.mjs",
-    "line": 177,
+    "line": 178,
     "api": "admin.get",
     "target": "db.doc(`accessLinks/${link}`)",
     "group": "operator-other",
@@ -2762,7 +2762,7 @@
   {
     "id": "scripts/family.mjs#admin.get#6faaf15e4f89",
     "file": "scripts/family.mjs",
-    "line": 180,
+    "line": 181,
     "api": "admin.get",
     "target": "db.collection('deviceSessions').where('linkToken', '==', newest).count()",
     "group": "operator-other",
@@ -2774,7 +2774,7 @@
   {
     "id": "scripts/family.mjs#admin.get#749116f6a6b2-4",
     "file": "scripts/family.mjs",
-    "line": 196,
+    "line": 197,
     "api": "admin.get",
     "target": "db.doc(`accessLinks/${link}`)",
     "group": "operator-other",
@@ -2786,7 +2786,7 @@
   {
     "id": "scripts/family.mjs#admin.get#b73cabf04823",
     "file": "scripts/family.mjs",
-    "line": 231,
+    "line": 232,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${pair.student}`)",
     "group": "operator-other",
@@ -2798,7 +2798,7 @@
   {
     "id": "scripts/family.mjs#admin.get#6f4399142777",
     "file": "scripts/family.mjs",
-    "line": 232,
+    "line": 233,
     "api": "admin.get",
     "target": "db.doc(`dayOwners/${pair.student}`)",
     "group": "operator-other",
@@ -2810,7 +2810,7 @@
   {
     "id": "scripts/family.mjs#admin.get#c86b2386694a",
     "file": "scripts/family.mjs",
-    "line": 251,
+    "line": 252,
     "api": "admin.get",
     "target": "db.doc(`families/${familyId}/members/${personId}`)",
     "group": "operator-other",
@@ -2822,7 +2822,7 @@
   {
     "id": "scripts/family.mjs#admin.get#b8f8fc5ae8da",
     "file": "scripts/family.mjs",
-    "line": 267,
+    "line": 268,
     "api": "admin.get",
     "target": "db.doc(`${collection}/${token}`)",
     "group": "operator-other",
@@ -2854,6 +2854,18 @@
     "policy": "aggregate-count",
     "refresh": "on explicit audit or source change",
     "note": "Агрегация читает индекс, не бесплатна; хранить проверенный счётчик/манифест при записи и периодически сверять."
+  },
+  {
+    "id": "scripts/lib/inspect-family-access.mjs#admin.get#41cfc7bd8c96",
+    "file": "scripts/lib/inspect-family-access.mjs",
+    "line": 14,
+    "api": "admin.get",
+    "target": "db.doc(path)",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "operator-point",
+    "refresh": "explicit inspect-access invocation",
+    "note": "Адресный read-only аудит одного зарегистрированного участника: профиль, семейное членство, shortcuts, две проекции дня/календаря, weekend sources и его grants. Один get на уникальный путь, чужие childIds не обходятся. Нет клиентского polling, чтения книг/работ, записей или вывода секретов."
   },
   {
     "id": "scripts/notifications.mjs#admin.get#2e328b2ae906",
@@ -5342,7 +5354,7 @@
   {
     "id": "src/lib/personalAccess.ts#getDoc#9290ff8cd3f8",
     "file": "src/lib/personalAccess.ts",
-    "line": 173,
+    "line": 180,
     "api": "getDoc",
     "target": "doc(db, 'accessLinks', linkToken)",
     "group": "client-access",
@@ -5354,7 +5366,7 @@
   {
     "id": "src/lib/personalAccess.ts#getDoc#a031cc72eb42",
     "file": "src/lib/personalAccess.ts",
-    "line": 201,
+    "line": 211,
     "api": "getDoc",
     "target": "reference",
     "group": "client-access",
@@ -5366,7 +5378,7 @@
   {
     "id": "src/lib/personalAccess.ts#getDoc#55eca3546993",
     "file": "src/lib/personalAccess.ts",
-    "line": 253,
+    "line": 267,
     "api": "getDoc",
     "target": "doc(db, 'deviceSessions', deviceUid)",
     "group": "client-access",
@@ -5378,7 +5390,7 @@
   {
     "id": "src/lib/personalAccess.ts#getDoc#597358094a96",
     "file": "src/lib/personalAccess.ts",
-    "line": 273,
+    "line": 287,
     "api": "getDoc",
     "target": "doc(db, 'users', session.personId)",
     "group": "client-access",
@@ -5390,7 +5402,7 @@
   {
     "id": "src/lib/personalAccess.ts#getDocs#c04990b4354a",
     "file": "src/lib/personalAccess.ts",
-    "line": 277,
+    "line": 291,
     "api": "getDocs",
     "target": "collection(db, 'users', session.personId, 'families')",
     "group": "client-access",
@@ -5402,7 +5414,7 @@
   {
     "id": "src/lib/personalAccess.ts#getDoc#5d1a89a83476",
     "file": "src/lib/personalAccess.ts",
-    "line": 281,
+    "line": 295,
     "api": "getDoc",
     "target": "doc(db, 'families', familyId, 'members', session.personId)",
     "group": "client-access",
@@ -5414,7 +5426,7 @@
   {
     "id": "src/lib/personalAccess.ts#getDoc#1eef01645270",
     "file": "src/lib/personalAccess.ts",
-    "line": 289,
+    "line": 303,
     "api": "getDoc",
     "target": "doc(db, 'families', familyId, 'children', childId)",
     "group": "client-access",
@@ -5426,7 +5438,7 @@
   {
     "id": "src/lib/personalAccess.ts#getDoc#0aeaca741ec9",
     "file": "src/lib/personalAccess.ts",
-    "line": 290,
+    "line": 304,
     "api": "getDoc",
     "target": "doc(db, 'users', session.personId, 'families', familyId, 'shortcuts', childId)",
     "group": "client-access",
