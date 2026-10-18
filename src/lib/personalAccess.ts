@@ -1,6 +1,7 @@
 
 /**
  * @see ../../docs/shared/access-and-privacy.md
+ * @see ../../docs/decisions/personal-identity-transition-2026-10-18.md
  */
 import { getAuth, signInAnonymously } from 'firebase/auth'
 import { collection, doc, getDoc, getDocs, serverTimestamp, setDoc } from 'firebase/firestore'
@@ -61,6 +62,12 @@ export function readCachedPersonalContext(): CachedPersonalContext | null {
 }
 
 export function rememberPersonalContext(context: PersonalContext): void {
+  if (context.profile.personId !== context.session.personId
+    || pendingRedemption && pendingRedemption.linkToken !== context.session.linkToken
+    || activeSession && (activeSession.personId !== context.session.personId
+      || activeSession.deviceUid !== context.session.deviceUid || activeSession.linkToken !== context.session.linkToken)) {
+    throw new Error('Личная сессия изменилась. Повторите вход.')
+  }
   activeSession = context.session
   try { localStorage.setItem(localContextKey, JSON.stringify({ ...context, savedAt: Date.now() })) }
   catch { /* The current session still works without durable storage. */ }
@@ -194,6 +201,9 @@ export async function redeemPersonalLink(value: string): Promise<PersonalSession
   forgetPersonalViews()
   forgetCachedPersonalContext()
   rememberPersonalDashboardRoute('#/')
+  // A concurrent restore must not resurrect the former person while the
+  // replacement grant is being checked on this same Firebase UID.
+  activeSession = null
   const expectedRevision = sessionRevision
   const promise = (async () => {
     const deviceUid = await authUid()
@@ -218,6 +228,9 @@ export async function redeemPersonalLink(value: string): Promise<PersonalSession
 export async function restorePersonalContext(): Promise<{ session: PersonalSession; profile: PersonalProfile } | null> {
   const auth = getAuth()
   await auth.authStateReady()
+  // Entry, calendar and inbox may restore simultaneously during link login.
+  // Join that identity transition before consulting either memory or disk.
+  if (pendingRedemption) await pendingRedemption.promise
   const uid = auth.currentUser?.uid
   if (!uid) return null
   const cached = readCachedPersonalContext()
@@ -241,6 +254,7 @@ export async function restorePersonalContext(): Promise<{ session: PersonalSessi
 export async function restorePersonalSession(): Promise<PersonalSession | null> {
   const auth = getAuth()
   await auth.authStateReady()
+  if (pendingRedemption) await pendingRedemption.promise
   const deviceUid = auth.currentUser?.uid
   if (!deviceUid) return null
   if (activeSession?.deviceUid === deviceUid) return activeSession
