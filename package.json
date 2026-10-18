@@ -41,6 +41,7 @@
     "family": "node scripts/family.mjs",
     "family:access": "node scripts/access-management.mjs",
     "family:audit": "node scripts/audit-family-links.mjs",
+    "diagnostics:browser": "node scripts/browser-access-trace.mjs",
     "family:library": "node scripts/family-library.mjs",
     "sync:inbox": "node scripts/sync-inbox.mjs",
     "sync:project": "node scripts/sync-project.mjs",

@@ -4,6 +4,8 @@ import { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { PersonalProfile } from '@/lib/personalAccess'
+import { webcrypto } from 'node:crypto'
+import { initializeAccessTrace } from '@/lib/browserAccessTrace'
 
 const scene = vi.hoisted(() => ({
   cached: null as PersonalProfile | null, server: null as PersonalProfile | null,
@@ -74,6 +76,22 @@ async function confirmSession() {
   await confirm('deviceSessions/device', { linkToken: 'secret' })
 }
 describe('root personal entry uses confirmed role through the real task card', () => {
+  it('exports the actual cache, server membership and card decisions as a local LDD chain without secrets', async () => {
+    vi.stubGlobal('crypto', webcrypto)
+    initializeAccessTrace()
+    const host = await render()
+    await confirmSession()
+    await confirm('families/family/members/person', { active: true, role: 'parent', childIds: ['child'] })
+    const receipt = JSON.parse(await (window as any).educationDiagnostics.export())
+    expect(receipt.events.some((row: any) => row.event === 'role.selected' && row.detail.role === 'parent')).toBe(true)
+    expect(receipt.events.some((row: any) => row.event === 'access.resolved' && row.detail.source === 'member-server' && row.detail.role === 'parent' && row.detail.scope)).toBe(true)
+    expect(receipt.events.some((row: any) => row.event === 'view.rendered' && row.detail.source === 'card' && row.detail.role === 'parent')).toBe(true)
+    expect(host.textContent).toContain('Разбор для родителя')
+    expect(receipt.observation.parentGuide).toBe(true)
+    expect(JSON.stringify(receipt)).not.toContain('linkToken')
+    expect(JSON.stringify(receipt)).not.toContain('Проверяем пары')
+    vi.unstubAllGlobals()
+  })
   it('does not redeem an old entry URL again after another tab changed the profile', async () => {
     scene.cached = null; scene.server = profile('student')
     const host = await render('old-student-link')

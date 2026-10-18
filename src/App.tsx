@@ -38,6 +38,7 @@ import EducationImage from './components/EducationImage'
 import QuizCard from './components/QuizCard'
 import { quizRoot, type QuizCardAttempt } from '@/lib/quizCardViewModel'
 import { reportUiError } from '@/lib/uiErrors'
+import { traceAccess } from '@/lib/browserAccessTrace'
 import './App.css'
 
 type Route = { kind: 'test' | 'preview' | 'dashboard' | 'my' | 'review' | 'day' | 'day-parent' | 'days' | 'days-parent' | 'enter' | 'connect'; token: string } | { kind: 'home' | 'ui-kit' }
@@ -752,6 +753,7 @@ function App() {
     return routeFromHash()
   })
   const [headerReturnTarget, setHeaderReturnTarget] = useState<HTMLDivElement | null>(null)
+  useEffect(() => { traceAccess('route.selected', { source: 'app', route: route.kind }) }, [route.kind])
   const [testReturn, setTestReturn] = useState(() => quizReturnHash(history.state?.educationQuizReturnHash))
   useEffect(() => {
     let previousRoute = routeFromHash()

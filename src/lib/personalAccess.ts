@@ -11,6 +11,7 @@ import { createRequestSingleFlight } from './requestSingleFlight'
 import { clearCachedLessonStatuses } from './dayDashboardLessonCache'
 import { clearCachedDashboardView } from './dayDashboardViewCache'
 import { clearCachedInbox } from './inboxCache'
+import { traceAccess, traceAccessContext, traceProfile } from './browserAccessTrace'
 
 /** @see ../../docs/modules/families/README.md#link-login */
 export type PersonalSession = { personId: string; deviceUid: string; linkToken: string }
@@ -48,6 +49,7 @@ function changedInAnotherTab(event: StorageEvent) {
   sessionRevision++
   activeSession = null
   startupContext.clear()
+  traceAccess('identity.changed', { source: 'storage', reason: 'context-changed' })
   contextObservers.forEach((changed) => changed())
 }
 
@@ -95,6 +97,7 @@ export function rememberPersonalContext(context: PersonalContext): void {
     throw new Error('Личная сессия изменилась. Повторите вход.')
   }
   activeSession = context.session
+  traceProfile(context.profile, context.session.deviceUid)
   try { localStorage.setItem(localContextKey, JSON.stringify({ ...context, savedAt: Date.now() })) }
   catch { /* The current session still works without durable storage. */ }
 }
@@ -155,6 +158,7 @@ export function currentEducationPersonId(): string {
 
 /** Forget a revoked personal grant without deleting the device's Firebase UID. */
 export function clearPersonalSession(): void {
+  traceAccess('identity.changed', { source: 'memory', reason: 'context-cleared' })
   sessionRevision++
   activeSession = null
   startupContext.clear()
@@ -212,6 +216,7 @@ async function sessionFromGrant(linkToken: string, deviceUid: string, expectedRe
     throw new Error('Личная ссылка закрыта. Попросите новую ссылку.')
   }
   activeSession = { personId, deviceUid, linkToken }
+  traceAccessContext('identity.resolved', { source: 'grant-server', reason: 'grant-valid' }, activeSession)
   return activeSession
 }
 
@@ -222,6 +227,7 @@ export function personalEntryUrl(session: PersonalSession): string {
 
 /** A link is a bearer credential. Its grant is checked again by Firestore rules on every read. */
 export async function redeemPersonalLink(value: string): Promise<PersonalSession> {
+  traceAccess('identity.changed', { source: 'entry', reason: 'redemption-start' })
   const linkToken = secretFromPersonalLink(value)
   if (pendingRedemption?.linkToken === linkToken) return pendingRedemption.promise
   sessionRevision++
@@ -254,17 +260,19 @@ export async function redeemPersonalLink(value: string): Promise<PersonalSession
  * @see ../../docs/plans/local-first-release-plan-2026-10-12.md
  */
 export async function restorePersonalContext(): Promise<{ session: PersonalSession; profile: PersonalProfile } | null> {
+  traceAccess('identity.resolved', { source: 'memory', reason: 'restore-start', role: 'pending' })
   const auth = getAuth()
   await auth.authStateReady()
   // Entry, calendar and inbox may restore simultaneously during link login.
   // Join that identity transition before consulting either memory or disk.
   if (pendingRedemption) await pendingRedemption.promise
   const uid = auth.currentUser?.uid
-  if (!uid) return null
+  if (!uid) { traceAccess('identity.resolved', { source: 'memory', role: 'none', reason: 'cache-miss' }); return null }
   const cached = readCachedPersonalContext()
-  if (cached && cached.session.deviceUid !== uid) clearPersonalSession()
+  if (cached && cached.session.deviceUid !== uid) { traceAccess('identity.resolved', { source: 'local', reason: 'uid-mismatch' }); clearPersonalSession() }
   else if (cached && Date.now() - cached.savedAt < localContextMaxAgeMs) {
     activeSession = cached.session
+    traceProfile(cached.profile, cached.session.deviceUid, 'local')
     return { session: cached.session, profile: cached.profile }
   }
   return startupContext.get(uid, async () => {
