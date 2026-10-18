@@ -16,6 +16,10 @@
   --edu-card-border: #e4ddef;
   --edu-hover: #f1edfb;
   --edu-focus: #7750e9;
+  /* Calendar category, not a completion/assessment status. */
+  --edu-calendar-vacation-bg: #edf7f8;
+  --edu-calendar-vacation-border: #c5dfe3;
+  --edu-calendar-vacation-ink: #315b63;
   --edu-success-bg: #e8f6ed;
   --edu-success-ink: #236b46;
   --edu-warning-bg: #fff2dd;

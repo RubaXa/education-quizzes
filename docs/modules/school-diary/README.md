@@ -52,6 +52,7 @@ sections:
 | [`diary/application/sync.mjs`](../../../diary/application/sync.mjs) | полный снимок → сверенный дневник | [README.md](README.md) |
 | [`src/components/HomeworkOverview.tsx`](../../../src/components/HomeworkOverview.tsx) | опубликованный дневной план → сводка ДЗ | [dashboard.md](dashboard.md) |
 | [`src/lib/dayStore.ts`](../../../src/lib/dayStore.ts) | Firestore day documents → состояние страницы дня | [day-page.md](day-page.md) |
+| [`sync/school-calendar.mjs`](../../../sync/school-calendar.mjs) | персональный МЭШ-календарь → подтверждённые периоды каникул | [school-calendar.md](school-calendar.md) |
 
 
 ## Подключение школьного дневника: порт и адаптеры

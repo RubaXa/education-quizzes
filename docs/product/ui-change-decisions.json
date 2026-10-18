@@ -1,5 +1,73 @@
 {
   "files": {
+    "day/school-calendar.mjs": {
+      "sha256": "f36927c3cf475c56a13a856cedb29a030d2c7057adf38366aad302f8c3603905",
+      "record": "docs/decisions/pupil-vacations-2026-10-19.md",
+      "specs": [
+        "docs/modules/school-diary/school-calendar.md"
+      ],
+      "tests": [
+        "day/school-calendar.test.mjs",
+        "sync/school-calendar-publication.test.mjs",
+        "src/components/DayCalendar.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь19.10 просит выделить каникулы красивым блоком дней, получая даты только из МЭШ конкретного ученика."
+      }
+    },
+    "src/components/DayCalendar.tsx": {
+      "sha256": "cbda3b26288138a8551971b63c88ce3ef2da005042db71fe55dbc2672776ec98",
+      "record": "docs/decisions/pupil-vacations-2026-10-19.md",
+      "specs": [
+        "docs/modules/school-diary/school-calendar.md"
+      ],
+      "tests": [
+        "day/school-calendar.test.mjs",
+        "sync/school-calendar-publication.test.mjs",
+        "src/components/DayCalendar.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь19.10 просит выделить каникулы красивым блоком дней, получая даты только из МЭШ конкретного ученика."
+      }
+    },
+    "sync/school-calendar-publication.mjs": {
+      "sha256": "d3bee6c656addd991e871890028c311ee55e6a20a105c331bb8a125dd3f746f0",
+      "record": "docs/decisions/pupil-vacations-2026-10-19.md",
+      "specs": [
+        "docs/modules/school-diary/school-calendar.md"
+      ],
+      "tests": [
+        "day/school-calendar.test.mjs",
+        "sync/school-calendar-publication.test.mjs",
+        "src/components/DayCalendar.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь19.10 просит выделить каникулы красивым блоком дней, получая даты только из МЭШ конкретного ученика."
+      }
+    },
+    "sync/school-calendar.mjs": {
+      "sha256": "333786cec9d1162537855fc18b047ec3df0084b9033a563f0b3a8098082f519e",
+      "record": "docs/decisions/pupil-vacations-2026-10-19.md",
+      "specs": [
+        "docs/modules/school-diary/school-calendar.md"
+      ],
+      "tests": [
+        "day/school-calendar.test.mjs",
+        "sync/school-calendar-publication.test.mjs",
+        "src/components/DayCalendar.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь19.10 просит выделить каникулы красивым блоком дней, получая даты только из МЭШ конкретного ученика."
+      }
+    },
     "src/components/DiagnosticsCopyButton.tsx": {
       "sha256": "fa9a176a43016f28fe76ca4bf046d4f83a6d1f0d7bf1f144c0e942dc1152db93",
       "record": "docs/decisions/ldd-copy-button-2026-10-19.md",
@@ -370,47 +438,37 @@
       }
     },
     "src/education-design-tokens.css": {
-      "sha256": "035f6f717e1f5216996654997864a7c5e76a292f1663349c0c40f610cfce96dc",
-      "record": "docs/decisions/compact-results-ui-kit-2026-10-16.md",
+      "sha256": "080373d2683670773fdaef282ca28213c7c9e8c8094deaa33d2b5d91e8f99a32",
+      "record": "docs/decisions/pupil-vacations-2026-10-19.md",
       "specs": [
-        "docs/modules/assessments/result-presentation-proposal.md",
-        "docs/modules/assessments/quiz-chain-proposal.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/school-diary/school-calendar.md"
       ],
       "tests": [
-        "src/components/QuizCard.history.test.tsx",
-        "src/components/ui/result.test.tsx",
-        "src/lib/watchQuizOutcome.test.ts",
-        "src/UiKit.test.tsx"
-      ],
-      "authorization": {
-        "status": "approved-mockup",
-        "evidence": "Родитель 16.10.2026 утвердил уплотнённую таблицу и цветовую шкалу словами «стало намного лучше, закрепляй вариант» и прямо запросил интерактивный UI Kit."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "52250db89fcbeb8222fc289ea8ce7aa97373a270f79fae2b8034ee2a107d206d"
-      }
-    },
-    "src/UiKit.tsx": {
-      "sha256": "950f0301db957552bdee167c219b989093d23c109b61b9c6d06114cc3a1c861e",
-      "record": "docs/decisions/work-photo-expand-2026-10-18.md",
-      "specs": [
-        "docs/modules/school-diary/day-page.md",
-        "docs/shared/design/components.md",
-        "docs/product/ui-change-control.md"
-      ],
-      "tests": [
-        "src/components/WorkPhotoGallery.test.tsx",
-        "src/WeekendMathSlot.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/UiKit.test.tsx",
-        "scripts/work-photo-consumers.test.mjs",
-        "src/components/WorkPhotoGallery.layout.test.mjs"
+        "day/school-calendar.test.mjs",
+        "sync/school-calendar-publication.test.mjs",
+        "src/components/DayCalendar.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 18.10 передал жалобу ребёнка: пропало раскрытие собственных фото; требует восстановить действие и изменить процесс для предотвращения повторения."
+        "evidence": "Пользователь19.10 просит выделить каникулы красивым блоком дней, получая даты только из МЭШ конкретного ученика."
+      }
+    },
+    "src/UiKit.tsx": {
+      "sha256": "de004e48d21e38359db8e47a0633d69aec60879def14c3bf1f0ed64b006fe1d8",
+      "record": "docs/decisions/pupil-vacations-2026-10-19.md",
+      "specs": [
+        "docs/modules/school-diary/school-calendar.md"
+      ],
+      "tests": [
+        "day/school-calendar.test.mjs",
+        "sync/school-calendar-publication.test.mjs",
+        "src/components/DayCalendar.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь19.10 просит выделить каникулы красивым блоком дней, получая даты только из МЭШ конкретного ученика."
       }
     },
     "src/UiKit.css": {
@@ -429,25 +487,20 @@
       }
     },
     "src/lib/uiKitExamples.ts": {
-      "sha256": "b809c5e713602677127eec481bf84393726cfa878d8766411336fe7f2b85307a",
-      "record": "docs/decisions/compact-homework-copy-2026-10-16.md",
+      "sha256": "2bfcc88aee5a529bd1223c36d474feb34d7cd9b61f048042bb6234e85e071dbb",
+      "record": "docs/decisions/pupil-vacations-2026-10-19.md",
       "specs": [
-        "docs/modules/school-diary/dashboard.md",
-        "docs/shared/design/README.md"
+        "docs/modules/school-diary/school-calendar.md"
       ],
       "tests": [
-        "src/components/HomeworkOverview.test.tsx",
-        "src/DayDashboard.warmStart.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/UiKit.test.tsx"
+        "day/school-calendar.test.mjs",
+        "sync/school-calendar-publication.test.mjs",
+        "src/components/DayCalendar.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель16.10.2026 прямо отверг длинные повторяющиеся подписи про учебный день и уроки и потребовал структурировать существующую карточку."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "466649674384ca8e41cf5fe584048965cfb58764d3b32fbb07754143e1d96525"
+        "evidence": "Пользователь19.10 просит выделить каникулы красивым блоком дней, получая даты только из МЭШ конкретного ученика."
       }
     },
     "scripts/storage.mjs": {
@@ -1053,29 +1106,20 @@
       }
     },
     "src/DayDashboard.tsx": {
-      "sha256": "24121cac899d3ef48cda065468c2aa4a4a80c4ede719bc25f106fefa1ebe3e96",
-      "record": "docs/decisions/authenticated-learning-routes-2026-10-18.md",
+      "sha256": "62a8d2895a9552b7fc9a9f456d987efcd8ca0ca000cbf1e2fbd33788c11a4bd6",
+      "record": "docs/decisions/pupil-vacations-2026-10-19.md",
       "specs": [
-        "docs/modules/school-diary/grades.md",
-        "docs/shared/design/ui-kit.md",
-        "docs/modules/families/access-and-state.md",
-        "docs/modules/school-diary/dashboard.md",
-        "docs/shared/design/README.md"
+        "docs/modules/school-diary/school-calendar.md"
       ],
       "tests": [
-        "src/DayPage.gradeBadge.test.tsx",
-        "src/DayDashboard.warmStart.test.tsx",
-        "src/components/LearningRoute.integration.test.tsx",
-        "src/lib/learningRoute.test.ts",
-        "day/learning-route-identity.test.mjs",
-        "src/components/ProblemTaskCard.contract.test.tsx",
-        "src/components/HomeworkOverview.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/UiKit.test.tsx"
+        "day/school-calendar.test.mjs",
+        "sync/school-calendar-publication.test.mjs",
+        "src/components/DayCalendar.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь запросил единый компонент и согласованное отображение средних; тот же чип используется на предметной странице и в сводке."
+        "evidence": "Пользователь19.10 просит выделить каникулы красивым блоком дней, получая даты только из МЭШ конкретного ученика."
       }
     },
     "src/components/QuizCard.css": {
@@ -1549,58 +1593,37 @@
       }
     },
     "packages/education-connect/lib/mesh.mjs": {
-      "sha256": "c42d547c1185530e834864e8f1642cb3159f3b42df5616f8bff1ac4c8b74fd80",
-      "record": "docs/decisions/mesh-calendar-date-scopes-2026-10-18.md",
+      "sha256": "7c8a96018f27b2cb2cc8c3cfb99168d59abd34a6e4808abf5c4cea64044c14af",
+      "record": "docs/decisions/pupil-vacations-2026-10-19.md",
       "specs": [
-        "docs/modules/school-diary/README.md"
+        "docs/modules/school-diary/school-calendar.md"
       ],
       "tests": [
-        "packages/education-connect/lib/mesh-assignments.test.mjs",
-        "diary/application/sync.test.mjs"
+        "day/school-calendar.test.mjs",
+        "sync/school-calendar-publication.test.mjs",
+        "src/components/DayCalendar.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь18.10.2026 поручил исправить три области МЭШ с несовпадающими датами через Luna Worker, проверить результат, добавить тесты, обновить спецификации, выполнить проверки, коммит и пуш."
+        "evidence": "Пользователь19.10 просит выделить каникулы красивым блоком дней, получая даты только из МЭШ конкретного ученика."
       }
     },
     "scripts/day.mjs": {
-      "sha256": "f4051ef5c0a543d54726d44b0ba04eedf011f82d886da74f2fe39724d76c70d7",
-      "record": "docs/decisions/review-prose-coverage-2026-10-19.md",
+      "sha256": "9a587fbdef80fbd8f9476922a755ff7f6811646dc5ebfdc3c59c5b073d1dbd6c",
+      "record": "docs/decisions/pupil-vacations-2026-10-19.md",
       "specs": [
-        "docs/modules/families/access-and-state.md",
-        "docs/modules/synchronization/plan-generation.md",
-        "docs/modules/materials/material-clarification.md",
-        "docs/modules/reviews/review-criteria-provenance.md"
+        "docs/modules/school-diary/school-calendar.md"
       ],
       "tests": [
-        "src/components/LearningRoute.integration.test.tsx",
-        "src/lib/learningRoute.test.ts",
-        "day/learning-route-identity.test.mjs",
-        "src/components/ProblemTaskCard.contract.test.tsx",
-        "day/assignment-routing.test.mjs",
-        "src/lib/materialRequest.test.ts",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/lib/homeworkStatus.test.ts",
-        "src/lib/photoUploadPolicy.test.ts",
-        "src/UiKit.test.tsx",
-        "storage/submission-inbox.test.mjs",
-        "storage/review-projection.test.mjs",
-        "storage/review-readback.test.mjs",
-        "day/build-assignments.test.mjs",
-        "src/lib/reviewProse.test.ts",
-        "src/components/ReviewProse.integration.test.tsx"
+        "day/school-calendar.test.mjs",
+        "sync/school-calendar-publication.test.mjs",
+        "src/components/DayCalendar.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 подтвердил родительский вход, прислал склейки слов и чисел в разборе и прямо потребовал проверить и исправить их во многих местах."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "47c95f9b14fc7897cba37674b1e9eade4e58a7949c7f56307d92ae1418990649"
-      },
-      "specificationLifecycle": {
-        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
-        "previousSha256": "e4470ef9b960fe6248ab1b905f4f088f767a8669795334e232473ad6b5cd9d61"
+        "evidence": "Пользователь19.10 просит выделить каникулы красивым блоком дней, получая даты только из МЭШ конкретного ученика."
       }
     },
     "src/lib/dayStore.ts": {
@@ -1618,19 +1641,20 @@
       }
     },
     "src/DayDashboard.css": {
-      "sha256": "5b5740a4d1c407f9efbc3261957ebab7cf4d2e8f1aac278c20f6bde6811603bc",
-      "record": "docs/decisions/grade-average-ui-kit-2026-10-18.md",
+      "sha256": "b180dd5b04e04a84fd78b250576c0c81e754ddefef4ba40cb967e5b23d5435ad",
+      "record": "docs/decisions/pupil-vacations-2026-10-19.md",
       "specs": [
-        "docs/modules/school-diary/grades.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/school-diary/school-calendar.md"
       ],
       "tests": [
-        "src/DayPage.gradeBadge.test.tsx",
+        "day/school-calendar.test.mjs",
+        "sync/school-calendar-publication.test.mjs",
+        "src/components/DayCalendar.test.tsx",
         "src/DayDashboard.warmStart.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь запросил единый компонент и согласованное отображение средних; тот же чип используется на предметной странице и в сводке."
+        "evidence": "Пользователь19.10 просит выделить каникулы красивым блоком дней, получая даты только из МЭШ конкретного ученика."
       }
     },
     "src/lib/assignmentPresentation.ts": {
@@ -1767,17 +1791,20 @@
       ]
     },
     "scripts/sync-project.mjs": {
-      "sha256": "bfb77db7b8a98c5a13058c38013f6f5e93c0a3ff04c2d2e2f8f55c1669b4abcd",
-      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "sha256": "fe40d4a9a66f8ad52500386d997d01e760bb0f1cb54149ee53fb2b5967c05e3f",
+      "record": "docs/decisions/pupil-vacations-2026-10-19.md",
       "specs": [
-        "docs/shared/server-runtime.md"
+        "docs/modules/school-diary/school-calendar.md"
       ],
       "tests": [
-        "packages/telegram-notifications/adapters/runtime.test.mjs"
+        "day/school-calendar.test.mjs",
+        "sync/school-calendar-publication.test.mjs",
+        "src/components/DayCalendar.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+        "evidence": "Пользователь19.10 просит выделить каникулы красивым блоком дней, получая даты только из МЭШ конкретного ученика."
       }
     },
     "storage/review-challenge.mjs": {
@@ -1966,33 +1993,20 @@
       }
     },
     "day/data-contract.mjs": {
-      "sha256": "3ad154ae6e6bb9151acc6ab9fb5ba844bb743a3510b41b0fe025421a0c2a19a2",
-      "record": "docs/decisions/material-clarification-2026-10-16.md",
+      "sha256": "bfd9c4601c1cbb9f8edb4559bcb9c0aedbec145e5a5bb8d8504a5645bfd52f6c",
+      "record": "docs/decisions/pupil-vacations-2026-10-19.md",
       "specs": [
-        "docs/modules/materials/material-clarification.md"
+        "docs/modules/school-diary/school-calendar.md"
       ],
       "tests": [
-        "src/lib/materialRequest.test.ts",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/lib/homeworkStatus.test.ts",
-        "src/lib/photoUploadPolicy.test.ts",
-        "src/UiKit.test.tsx",
-        "storage/submission-inbox.test.mjs",
-        "storage/review-projection.test.mjs",
-        "storage/review-readback.test.mjs",
-        "day/build-assignments.test.mjs"
+        "day/school-calendar.test.mjs",
+        "sync/school-calendar-publication.test.mjs",
+        "src/components/DayCalendar.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 16.10.2026 прямо потребовал вопрос ученику в карточке и ответ фото записей через стандартную загрузку с обработкой следующей синхронизацией."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "2b5032846c2a5c9a3bcc5ab26dea3cbe7d43eed623a1a55e6dbdc7d13f135418"
-      },
-      "specificationLifecycle": {
-        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
-        "previousSha256": "0c35aa4563db984b6ab2c1940c81951cb63424a6bfc25b1837a9615dd5e251f4"
+        "evidence": "Пользователь19.10 просит выделить каникулы красивым блоком дней, получая даты только из МЭШ конкретного ученика."
       }
     },
     "src/lib/photoUploadPolicy.ts": {
@@ -2147,29 +2161,20 @@
       }
     },
     "day/dashboard-index.mjs": {
-      "sha256": "a4024ea923fb5fac6240a42b9f0fa478015c940cfa302964af6ed334ba5d6506",
-      "record": "docs/decisions/authenticated-learning-routes-2026-10-18.md",
+      "sha256": "6d962a4f0da3d5508c9c09a1afda28fa01d7b0be5518c859dd9591eea65b73b5",
+      "record": "docs/decisions/pupil-vacations-2026-10-19.md",
       "specs": [
-        "docs/modules/families/access-and-state.md",
-        "docs/modules/synchronization/plan-generation.md",
-        "docs/shared/specification-system.md"
+        "docs/modules/school-diary/school-calendar.md"
       ],
       "tests": [
-        "src/components/LearningRoute.integration.test.tsx",
-        "src/lib/learningRoute.test.ts",
-        "day/learning-route-identity.test.mjs",
-        "src/components/ProblemTaskCard.contract.test.tsx",
-        "day/assignment-routing.test.mjs",
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
+        "day/school-calendar.test.mjs",
+        "sync/school-calendar-publication.test.mjs",
+        "src/components/DayCalendar.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10.2026 прямо требует определять родительский и ученический вид по авторизованной роли, а учебные ссылки сделать одинаковыми для обеих ролей."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "54b45354b4071db55163efcb4dc03ab5fa2b154f95614cca16cc832f4b39fc42"
+        "evidence": "Пользователь19.10 просит выделить каникулы красивым блоком дней, получая даты только из МЭШ конкретного ученика."
       }
     },
     "day/family-source-graph.mjs": {
@@ -3507,46 +3512,37 @@
       }
     },
     "src/lib/dayCompatibility.ts": {
-      "sha256": "830c821713f5e05099ba581eaed78d2b08d58fb845041b06ec964f95c006c59d",
-      "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
+      "sha256": "4f691737b0ea006f48e5a8375377f8a921757f4dde622a0f1ea3f7453e952fe0",
+      "record": "docs/decisions/pupil-vacations-2026-10-19.md",
       "specs": [
-        "docs/shared/specification-system.md"
+        "docs/modules/school-diary/school-calendar.md"
       ],
       "tests": [
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
+        "day/school-calendar.test.mjs",
+        "sync/school-calendar-publication.test.mjs",
+        "src/components/DayCalendar.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя 16.10.2026 внедрить согласованную структуру спецификаций, перенести ссылки в коде и проверить сохранность требований; изменение предметного поведения не выполнялось."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "14be36b97cd348c53422ffe89d7ed7bf827c40395c440f10faa9834ae6c59738"
+        "evidence": "Пользователь19.10 просит выделить каникулы красивым блоком дней, получая даты только из МЭШ конкретного ученика."
       }
     },
     "src/lib/dayDashboardStore.ts": {
-      "sha256": "558eaaefdcad8c099cef70f2ea2b7ab89233470d2fe0c72625218d8dd2b8f777",
-      "record": "docs/decisions/authenticated-learning-routes-2026-10-18.md",
+      "sha256": "03d86878a2b5e7401847074ff3fb80fdddfd1dd85f893804fe2d6ff21a4562fe",
+      "record": "docs/decisions/pupil-vacations-2026-10-19.md",
       "specs": [
-        "docs/modules/families/access-and-state.md",
-        "docs/shared/specification-system.md"
+        "docs/modules/school-diary/school-calendar.md"
       ],
       "tests": [
-        "src/components/LearningRoute.integration.test.tsx",
-        "src/lib/learningRoute.test.ts",
-        "day/learning-route-identity.test.mjs",
-        "src/components/ProblemTaskCard.contract.test.tsx",
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
+        "day/school-calendar.test.mjs",
+        "sync/school-calendar-publication.test.mjs",
+        "src/components/DayCalendar.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10.2026 прямо требует определять родительский и ученический вид по авторизованной роли, а учебные ссылки сделать одинаковыми для обеих ролей."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "9150b235f9747e4b9baecb3b5a4856a9d015c9a07ff3384a93cd539e828432b4"
+        "evidence": "Пользователь19.10 просит выделить каникулы красивым блоком дней, получая даты только из МЭШ конкретного ученика."
       }
     },
     "src/lib/dayDashboardViewCache.ts": {
@@ -4773,18 +4769,20 @@
       }
     },
     "packages/education-runtime/mesh-session.mjs": {
-      "sha256": "9404aeccd21bd1fe3271888480cf1e57968d210b7f8efc8d20cd36f25d4c1b88",
-      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "sha256": "746252793780a2e6ec296eee0a63a654dbc6bbc4b1a048d842215c729d52ddf2",
+      "record": "docs/decisions/pupil-vacations-2026-10-19.md",
       "specs": [
-        "docs/shared/server-runtime.md"
+        "docs/modules/school-diary/school-calendar.md"
       ],
       "tests": [
-        "packages/telegram-notifications/adapters/mesh-credentials.test.mjs",
-        "packages/education-runtime/credentials.test.mjs"
+        "day/school-calendar.test.mjs",
+        "sync/school-calendar-publication.test.mjs",
+        "src/components/DayCalendar.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+        "evidence": "Пользователь19.10 просит выделить каникулы красивым блоком дней, получая даты только из МЭШ конкретного ученика."
       }
     },
     "packages/education-runtime/telemetry.mjs": {

@@ -1,5 +1,14 @@
 import type { CachedHomeworkRow } from './dayDashboardViewCache'
 import type { QuizCardAttempt } from './quizCardViewModel'
+import type { IndexedDay } from './dayDashboardStore'
+import type { SchoolCalendar } from '../../day/school-calendar.mjs'
+
+/** Synthetic dates for the real calendar control, never a general vacation fallback.
+ * @see ../../docs/modules/school-diary/school-calendar.md#представление */
+export const uiKitCalendar: SchoolCalendar = { schemaVersion: 1, source: 'mesh', from: '2026-09-01', to: '2027-08-31',
+  checkedAt: '2026-10-19T12:00:00Z', revision: 'a'.repeat(64), vacations: [{ from: '2026-10-24', to: '2026-10-27', title: 'Каникулы · пример' }] }
+export const uiKitCalendarDays: IndexedDay[] = Array.from({length: 8}, (_, index) => ({ date: `2026-10-${String(22 + index).padStart(2, '0')}`,
+  complete: false, checkedAt: null, sourceRevision: null, schedule: [], homework: [], dayToken: null, homeworkDayToken: null }))
 
 /** Arithmetic-consistent fictional data only. Never import a family export here.
  * @see ../../docs/shared/design/ui-kit.md */

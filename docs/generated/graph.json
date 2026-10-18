@@ -520,6 +520,36 @@
       "path": "docs/decisions/mesh-calendar-date-scopes-2026-10-18.md"
     },
     {
+      "id": "decision.pupil-vacations-2026-10-19",
+      "status": "accepted",
+      "implementation": "implemented",
+      "parent": "module.school-diary.school-calendar",
+      "uses": [
+        "module.school-diary.dashboard",
+        "shared.design.ui-kit"
+      ],
+      "created": "2026-10-19",
+      "updated": "2026-10-19",
+      "consumers": [
+        "parent",
+        "student",
+        "sync operator"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "code": [
+        "src/components/DayCalendar.tsx",
+        "src/DayDashboard.tsx",
+        "scripts/sync-project.mjs"
+      ],
+      "path": "docs/decisions/pupil-vacations-2026-10-19.md"
+    },
+    {
       "id": "decision.review-prose-coverage-2026-10-19",
       "status": "accepted",
       "implementation": "implemented",
@@ -2241,6 +2271,27 @@
       "consumer": "Vitest; разработчик"
     },
     {
+      "id": "file:day/school-calendar.d.mts",
+      "path": "day/school-calendar.d.mts",
+      "kind": "artifact",
+      "purpose": "Общий публичный тип календаря",
+      "consumer": "TypeScript frontend"
+    },
+    {
+      "id": "file:day/school-calendar.mjs",
+      "path": "day/school-calendar.mjs",
+      "kind": "artifact",
+      "purpose": "Строгая нормализация, проекция и группировка персональных периодов",
+      "consumer": "Collector; day publisher; DayCalendar"
+    },
+    {
+      "id": "file:day/school-calendar.test.mjs",
+      "path": "day/school-calendar.test.mjs",
+      "kind": "verification",
+      "purpose": "Источник, принадлежность, полнота, непрерывность и сохранение дней",
+      "consumer": "Vitest"
+    },
+    {
       "id": "file:day/subject-identity.d.mts",
       "path": "day/subject-identity.d.mts",
       "kind": "artifact",
@@ -2533,6 +2584,13 @@
       "kind": "verification",
       "purpose": "Проверка календарной классификации, полного raw schedule, порядка и блокирования неполных карточек МЭШ",
       "consumer": "Vitest; разработчик"
+    },
+    {
+      "id": "file:packages/education-connect/lib/mesh-calendar.test.mjs",
+      "path": "packages/education-connect/lib/mesh-calendar.test.mjs",
+      "kind": "verification",
+      "purpose": "Точные from/to и pupil credentials без SDK date bug",
+      "consumer": "Vitest"
     },
     {
       "id": "file:packages/education-connect/lib/mesh-marks.test.mjs",
@@ -3793,6 +3851,20 @@
       "kind": "artifact",
       "purpose": "Блокировка несовместимой версии с явным обновлением",
       "consumer": "`DayPage`; `DayDashboard`"
+    },
+    {
+      "id": "file:src/components/DayCalendar.test.tsx",
+      "path": "src/components/DayCalendar.test.tsx",
+      "kind": "verification",
+      "purpose": "Интерактивный выбор и сохранение текущего дня/работы для разных источников",
+      "consumer": "Vitest"
+    },
+    {
+      "id": "file:src/components/DayCalendar.tsx",
+      "path": "src/components/DayCalendar.tsx",
+      "kind": "artifact",
+      "purpose": "Общая полоса дат с подтверждёнными каникульными группами",
+      "consumer": "DayDashboard; UI Kit"
     },
     {
       "id": "file:src/components/DiagnosticsCopyButton.test.tsx",
@@ -5587,6 +5659,34 @@
       "consumer": "Vitest; оператор"
     },
     {
+      "id": "file:sync/school-calendar-publication.mjs",
+      "path": "sync/school-calendar-publication.mjs",
+      "kind": "artifact",
+      "purpose": "Атомарная адресная публикация с owner guard и readback",
+      "consumer": "sync:project"
+    },
+    {
+      "id": "file:sync/school-calendar-publication.test.mjs",
+      "path": "sync/school-calendar-publication.test.mjs",
+      "kind": "verification",
+      "purpose": "Обе роли, идемпотентность, владелец и сохранение работы",
+      "consumer": "Vitest"
+    },
+    {
+      "id": "file:sync/school-calendar.mjs",
+      "path": "sync/school-calendar.mjs",
+      "kind": "artifact",
+      "purpose": "Адресный календарный источник без догадок",
+      "consumer": "sync:project; dashboard"
+    },
+    {
+      "id": "file:sync/school-calendar.test.mjs",
+      "path": "sync/school-calendar.test.mjs",
+      "kind": "verification",
+      "purpose": "Границы запроса, одиночный scoped вызов, ошибка и безопасная сводка",
+      "consumer": "Vitest"
+    },
+    {
       "id": "file:tsconfig.app.json",
       "path": "tsconfig.app.json",
       "kind": "artifact",
@@ -6837,6 +6937,36 @@
         "оценки-на-dashboard"
       ],
       "path": "docs/modules/school-diary/grades.md"
+    },
+    {
+      "id": "module.school-diary.school-calendar",
+      "status": "accepted",
+      "implementation": "implemented",
+      "parent": "module.school-diary",
+      "uses": [
+        "shared.server-runtime",
+        "module.school-diary.dashboard"
+      ],
+      "created": "2026-10-19",
+      "updated": "2026-10-19",
+      "consumers": [
+        "parent",
+        "student",
+        "sync operator"
+      ],
+      "code": [
+        "day/school-calendar.mjs",
+        "sync/school-calendar-publication.mjs",
+        "src/components/DayCalendar.tsx",
+        "sync/school-calendar.mjs",
+        "scripts/sync-project.mjs"
+      ],
+      "sections": [
+        "источник",
+        "сбор",
+        "представление"
+      ],
+      "path": "docs/modules/school-diary/school-calendar.md"
     },
     {
       "id": "module.synchronization",
@@ -9037,6 +9167,16 @@
       "type": "uses"
     },
     {
+      "from": "decision.pupil-vacations-2026-10-19",
+      "to": "module.school-diary.dashboard",
+      "type": "uses"
+    },
+    {
+      "from": "decision.pupil-vacations-2026-10-19",
+      "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
       "from": "decision.review-prose-coverage-2026-10-19",
       "to": "shared.design",
       "type": "uses"
@@ -9539,6 +9679,16 @@
     {
       "from": "file:day/public-projection.mjs",
       "to": "module.reviews.subject-aware-guidance",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/school-calendar.d.mts",
+      "to": "module.school-diary.school-calendar",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/school-calendar.mjs",
+      "to": "module.school-diary.school-calendar",
       "type": "implements"
     },
     {
@@ -10588,6 +10738,16 @@
     },
     {
       "from": "file:scripts/sync-project.mjs",
+      "to": "decision.pupil-vacations-2026-10-19",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/sync-project.mjs",
+      "to": "module.school-diary.school-calendar",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/sync-project.mjs",
       "to": "module.synchronization.global-sync",
       "type": "implements"
     },
@@ -10799,6 +10959,16 @@
     {
       "from": "file:src/components/DataCompatibilityNotice.tsx",
       "to": "shared.data.firestore",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/DayCalendar.tsx",
+      "to": "decision.pupil-vacations-2026-10-19",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/DayCalendar.tsx",
+      "to": "module.school-diary.school-calendar",
       "type": "implements"
     },
     {
@@ -11539,6 +11709,11 @@
     {
       "from": "file:src/DayDashboard.css",
       "to": "shared.design",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayDashboard.tsx",
+      "to": "decision.pupil-vacations-2026-10-19",
       "type": "implements"
     },
     {
@@ -12499,6 +12674,16 @@
     {
       "from": "file:sync/run-context.mjs",
       "to": "module.synchronization.global-sync",
+      "type": "implements"
+    },
+    {
+      "from": "file:sync/school-calendar-publication.mjs",
+      "to": "module.school-diary.school-calendar",
+      "type": "implements"
+    },
+    {
+      "from": "file:sync/school-calendar.mjs",
+      "to": "module.school-diary.school-calendar",
       "type": "implements"
     },
     {
@@ -13557,6 +13742,46 @@
       "type": "uses"
     },
     {
+      "from": "module.school-diary.school-calendar",
+      "to": "decision.pupil-vacations-2026-10-19",
+      "type": "contains"
+    },
+    {
+      "from": "module.school-diary.school-calendar",
+      "to": "file:day/school-calendar.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.school-diary.school-calendar",
+      "to": "file:packages/education-connect/lib/mesh-calendar.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.school-diary.school-calendar",
+      "to": "file:src/components/DayCalendar.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.school-diary.school-calendar",
+      "to": "file:sync/school-calendar-publication.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.school-diary.school-calendar",
+      "to": "file:sync/school-calendar.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.school-diary.school-calendar",
+      "to": "module.school-diary.dashboard",
+      "type": "uses"
+    },
+    {
+      "from": "module.school-diary.school-calendar",
+      "to": "shared.server-runtime",
+      "type": "uses"
+    },
+    {
       "from": "module.school-diary",
       "to": "file:diary/application/sync.test.mjs",
       "type": "verified-by"
@@ -13589,6 +13814,11 @@
     {
       "from": "module.school-diary",
       "to": "module.school-diary.grades",
+      "type": "contains"
+    },
+    {
+      "from": "module.school-diary",
+      "to": "module.school-diary.school-calendar",
       "type": "contains"
     },
     {

@@ -251,6 +251,20 @@ export class MeshDiaryAdapter {
   }
 
   async getProfile() { return observeMesh(this.telemetry, 'mesh.get-profile', () => this.api.getProfile()) }
+  /** @see ../../../docs/modules/school-diary/school-calendar.md#источник */
+  async getSchoolCalendar(from, to) {
+    if (!validMeshDate(from) || !validMeshDate(to) || from > to) throw new Error('invalid_calendar_range')
+    return observeMesh(this.telemetry, 'mesh.get-school-calendar', async () => {
+      // Live MESH requires `from`/`to`; the pinned SDK still sends from_date/to_date.
+      const url = new URL('https://school.mos.ru/api/family/mobile/v1/periods_schedules')
+      url.searchParams.set('student_id', this.secret.studentId)
+      url.searchParams.set('profile_id', this.secret.profileId)
+      url.searchParams.set('from', from)
+      url.searchParams.set('to', to)
+      const data = await this.api.apiFetch(url.toString(), { headers: { 'profile-id': this.secret.parentProfileId } })
+      return data?.payload ?? data
+    })
+  }
   async getSchedule(date) {
     return observeMesh(this.telemetry, 'mesh.get-schedule', async () => {
       const events = await this.api.getSchedule(date, date, { expand: 'marks,homework', mesRole: 'parent' })
