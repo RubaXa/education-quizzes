@@ -123,6 +123,39 @@ async function renderPage(parent: boolean) {
   return { host, root, cleanup: async () => { await act(async () => root.unmount()); host.remove() } }
 }
 
+it.each([false, true])('keeps the file at its upload origin and shows only references elsewhere, parent=%s', async (parent) => {
+  const view = await renderPage(parent)
+  try {
+    await act(async () => view.host.querySelector<HTMLButtonElement>('.problem-group-toggle')!.click())
+    const origin = view.host.querySelector<HTMLElement>(`#${firstProblemIds[0]}`)!
+    expect(origin.querySelectorAll('.day-upload-chip')).toHaveLength(1)
+    for (const id of firstProblemIds.slice(1)) {
+      const other = view.host.querySelector<HTMLElement>(`#${id}`)!
+      expect(other.querySelector('.day-upload-list')).toBeNull()
+      expect(other.querySelector('.linked-work-photos')?.textContent).toContain('Марки Ивана')
+      expect(other.querySelector('.linked-work-photos .education-image')).toBeNull()
+      expect(other.querySelector('.linked-work-photos .day-upload-delete')).toBeNull()
+    }
+    expect(view.host.querySelector('.problem-group-toggle')?.getAttribute('aria-label')).toContain('5 из 5')
+  } finally { await view.cleanup() }
+})
+
+it.each([false, true])('keeps ordinary task galleries separate when one photo proves another task, parent=%s', async (parent) => {
+  scene.page!.subjects[0].tasks = ['origin', 'other'].map((id) => ({ id, kind: 'written', status: 'unknown', title: id === 'origin' ? 'Запись в тетради' : 'Другая работа', detail: '', source: 'МЭШ' }))
+  scene.page!.testPlacements = []
+  scene.uploads = [{ id: 'student-token:shared-photo', taskId: 'origin', coveredTaskIds: ['other'], status: 'reviewed' }]
+  scene.reviews = [{ id: 'review-other', taskId: 'other', status: 'verified', uploadIds: ['shared-photo'] }]
+  const view = await renderPage(parent)
+  try {
+    const origin = view.host.querySelector('#day-task-origin')!
+    const other = view.host.querySelector('#day-task-other')!
+    expect(origin.querySelectorAll('.day-upload-chip')).toHaveLength(1)
+    expect(other.querySelector('.day-upload-list')).toBeNull()
+    expect(other.querySelector('.linked-work-photos')?.textContent).toContain('Запись в тетради')
+    expect(other.textContent).toContain('Готово')
+  } finally { await view.cleanup() }
+})
+
 /** @see ../docs/modules/materials/material-clarification.md */
 it('asks the child for missing source material through the standard uploader, without grading it', async () => {
   scene.page!.subjects = [{id:'literature',name:'Литература',icon:'📖',materials:'',mesh:'Повторить записи по последней теме.',summary:'',tasks:[{

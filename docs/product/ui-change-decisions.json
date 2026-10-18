@@ -358,19 +358,23 @@
       }
     },
     "src/UiKit.tsx": {
-      "sha256": "1e1ba84bde106e039efb2b70499ea1d9b9f354cc5ab7cfbf63367b9391933971",
-      "record": "docs/decisions/telegram-design-system-2026-10-18.md",
+      "sha256": "fe11b73d19b40c0bb90a2739bdd6cadc83c7793615eab76b7f6eea6eb215a7a4",
+      "record": "docs/decisions/upload-origin-links-2026-10-18.md",
       "specs": [
-        "docs/shared/design/telegram.md",
-        "docs/shared/design/statuses.md"
+        "docs/modules/materials/storage-privacy.md",
+        "docs/modules/school-diary/day-page.md",
+        "docs/shared/design/components.md"
       ],
       "tests": [
-        "src/UiKit.test.tsx",
-        "src/components/TelegramNotificationPreview.layout.test.ts"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/WeekendMathSlot.test.tsx",
+        "src/lib/taskUploadPresentation.test.ts",
+        "src/components/LinkedWorkPhotos.test.tsx",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10 прямо разрешил Luna реализацию единого Telegram дизайна, UI Kit, реальные примеры, тесты и выпуск main."
+        "evidence": "Родитель 18.10: файл должен оставаться только в месте загрузки; в других заданиях нужны связи на него, без перемешивания элементов загрузки."
       }
     },
     "src/UiKit.css": {
@@ -633,27 +637,23 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "2f9b77968f2ff1a6753701507b290b61ffcb2410d0c781da62f715c62b5da6a7",
-      "record": "docs/decisions/role-projection-diagnostics-2026-10-18.md",
+      "sha256": "e6d54c046a9742a9f41022c8a5980c7a5f9f7190ac60906df2d64d04492a5aa2",
+      "record": "docs/decisions/upload-origin-links-2026-10-18.md",
       "specs": [
-        "docs/modules/school-diary/grades.md",
-        "docs/shared/design/ui-kit.md",
-        "docs/modules/families/access-and-state.md",
-        "docs/modules/reviews/card-generation-policy.md"
+        "docs/modules/materials/storage-privacy.md",
+        "docs/modules/school-diary/day-page.md",
+        "docs/shared/design/components.md"
       ],
       "tests": [
-        "src/DayPage.gradeBadge.test.tsx",
-        "src/DayDashboard.warmStart.test.tsx",
-        "src/lib/personalAccess.readBudget.test.ts",
-        "src/components/LearningRoute.integration.test.tsx",
-        "src/lib/learningRoute.test.ts",
-        "day/learning-route-identity.test.mjs",
-        "src/components/ProblemTaskCard.contract.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/WeekendMathSlot.test.tsx",
+        "src/lib/taskUploadPresentation.test.ts",
+        "src/components/LinkedWorkPhotos.test.tsx",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь запросил единый компонент и согласованное отображение средних; тот же чип используется на предметной странице и в сводке."
+        "evidence": "Родитель 18.10: файл должен оставаться только в месте загрузки; в других заданиях нужны связи на него, без перемешивания элементов загрузки."
       }
     },
     "src/DayPage.css": {
@@ -888,27 +888,23 @@
       }
     },
     "src/WeekendMathSlot.tsx": {
-      "sha256": "60f9bd3b35ba771665540977b1c302c975eab06fb6be5a77137253b08dbad53e",
-      "record": "docs/decisions/role-projection-diagnostics-2026-10-18.md",
+      "sha256": "b0e9fff4b977b56f72460749dfadd058dd6c175b4d14d07ef4c701e8cbd87b15",
+      "record": "docs/decisions/upload-origin-links-2026-10-18.md",
       "specs": [
-        "docs/modules/families/access-and-state.md",
-        "docs/modules/school-diary/dashboard.md",
-        "docs/modules/reviews/card-generation-policy.md"
+        "docs/modules/materials/storage-privacy.md",
+        "docs/modules/school-diary/day-page.md",
+        "docs/shared/design/components.md"
       ],
       "tests": [
-        "src/lib/personalAccess.readBudget.test.ts",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
         "src/WeekendMathSlot.test.tsx",
-        "src/components/ProblemTaskCard.contract.test.tsx",
-        "src/components/ProblemGroup.layout.test.tsx",
-        "src/components/ProblemStatement.provenance.test.tsx"
+        "src/lib/taskUploadPresentation.test.ts",
+        "src/components/LinkedWorkPhotos.test.tsx",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10.2026 требует определять вид и доступ к разбору по авторизованной роли именно этого ребёнка, а не по URL или чужому членству."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "e35045f46e826bc41c673a470bf2c78afc2a8b1c175f8da336cc0029e83979e6"
+        "evidence": "Родитель 18.10: файл должен оставаться только в месте загрузки; в других заданиях нужны связи на него, без перемешивания элементов загрузки."
       }
     },
     "src/WeekendMathSlot.css": {
@@ -5203,6 +5199,66 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Родитель 18.10 прислал скриншот с из30объектов и от0до30,если и потребовал исправить нечитаемую типографику обратной связи."
+      }
+    },
+    "src/lib/taskUploadPresentation.ts": {
+      "sha256": "7be4c820a02efbc2b2790f989272774e5140fd1f81176cdc778873d9a4393e58",
+      "record": "docs/decisions/upload-origin-links-2026-10-18.md",
+      "specs": [
+        "docs/modules/materials/storage-privacy.md",
+        "docs/modules/school-diary/day-page.md",
+        "docs/shared/design/components.md"
+      ],
+      "tests": [
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/WeekendMathSlot.test.tsx",
+        "src/lib/taskUploadPresentation.test.ts",
+        "src/components/LinkedWorkPhotos.test.tsx",
+        "src/UiKit.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 18.10: файл должен оставаться только в месте загрузки; в других заданиях нужны связи на него, без перемешивания элементов загрузки."
+      }
+    },
+    "src/components/LinkedWorkPhotos.tsx": {
+      "sha256": "8418b5b9725edbadb81527d83721daefc97419502c90cc2b585f09e6cc4d6cf6",
+      "record": "docs/decisions/upload-origin-links-2026-10-18.md",
+      "specs": [
+        "docs/modules/materials/storage-privacy.md",
+        "docs/modules/school-diary/day-page.md",
+        "docs/shared/design/components.md"
+      ],
+      "tests": [
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/WeekendMathSlot.test.tsx",
+        "src/lib/taskUploadPresentation.test.ts",
+        "src/components/LinkedWorkPhotos.test.tsx",
+        "src/UiKit.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 18.10: файл должен оставаться только в месте загрузки; в других заданиях нужны связи на него, без перемешивания элементов загрузки."
+      }
+    },
+    "src/components/LinkedWorkPhotos.css": {
+      "sha256": "7773c81e7a72119c86a6630df8e3e79dc6d644536576a4670348b3964637ea02",
+      "record": "docs/decisions/upload-origin-links-2026-10-18.md",
+      "specs": [
+        "docs/modules/materials/storage-privacy.md",
+        "docs/modules/school-diary/day-page.md",
+        "docs/shared/design/components.md"
+      ],
+      "tests": [
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/WeekendMathSlot.test.tsx",
+        "src/lib/taskUploadPresentation.test.ts",
+        "src/components/LinkedWorkPhotos.test.tsx",
+        "src/UiKit.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 18.10: файл должен оставаться только в месте загрузки; в других заданиях нужны связи на него, без перемешивания элементов загрузки."
       }
     }
   }

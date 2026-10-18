@@ -2,6 +2,15 @@
 
 | Файл | Спецификация | Назначение | Потребитель |
 |---|---|---|---|
+| [src/lib/taskUploadPresentation.ts](../src/lib/taskUploadPresentation.ts) | [Место загрузки и покрытие](modules/materials/storage-privacy.md) | Отдельные владение галереей, педагогические свидетельства и ссылки | День; выходные; LinkedWorkPhotos |
+| [src/lib/taskUploadPresentation.test.ts](../src/lib/taskUploadPresentation.test.ts) | [Место загрузки и покрытие](modules/materials/storage-privacy.md) | Legacy, классификация, неизменность места, источник | Vitest |
+| [src/components/LinkedWorkPhotos.tsx](../src/components/LinkedWorkPhotos.tsx) | [Место загрузки и покрытие](modules/materials/storage-privacy.md) | Просмотр ссылок на решения из другого задания | День; выходные; UI Kit |
+| [src/components/LinkedWorkPhotos.css](../src/components/LinkedWorkPhotos.css) | [Место загрузки и покрытие](modules/materials/storage-privacy.md) | Компактная ссылка без элементов галереи | LinkedWorkPhotos |
+| [src/components/LinkedWorkPhotos.test.tsx](../src/components/LinkedWorkPhotos.test.tsx) | [Место загрузки и покрытие](modules/materials/storage-privacy.md) | Отложенный просмотр без управления исходным вложением | Vitest |
+| [docs/decisions/upload-origin-links-2026-10-18.md](decisions/upload-origin-links-2026-10-18.md) | [Место загрузки и покрытие](modules/materials/storage-privacy.md) | Отмена размножения галерей и сохранение coverage | Разработчик |
+
+| Файл | Спецификация | Назначение | Потребитель |
+|---|---|---|---|
 | [src/lib/reviewProse.ts](../src/lib/reviewProse.ts) | [Читаемая обратная связь](modules/reviews/review-criteria-provenance.md) | Общие пробелы в авторских пояснениях и проверка новых публикаций | WorkReview; submissions |
 | [src/lib/reviewProse.test.ts](../src/lib/reviewProse.test.ts) | [Читаемая обратная связь](modules/reviews/review-criteria-provenance.md) | Склейки, формулы, сохранность значений и литералов | Vitest |
 | [docs/decisions/readable-review-prose-2026-10-18.md](decisions/readable-review-prose-2026-10-18.md) | [Читаемая обратная связь](modules/reviews/review-criteria-provenance.md) | Основание типографической правки | Разработчик; оператор |

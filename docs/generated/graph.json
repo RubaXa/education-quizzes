@@ -1578,6 +1578,37 @@
       "path": "docs/decisions/two-pass-written-review-2026-10-15.md"
     },
     {
+      "id": "decisions.upload-origin-links-2026-10-18",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-18",
+      "updated": "2026-10-18",
+      "parent": "module.materials.storage-privacy",
+      "uses": [
+        "shared.design.components"
+      ],
+      "consumers": [
+        "student",
+        "parent"
+      ],
+      "code": [
+        "src/lib/taskUploadPresentation.ts",
+        "src/components/LinkedWorkPhotos.tsx",
+        "src/components/LinkedWorkPhotos.css",
+        "src/DayPage.tsx",
+        "src/WeekendMathSlot.tsx",
+        "src/UiKit.tsx"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/upload-origin-links-2026-10-18.md"
+    },
+    {
       "id": "docs.education",
       "status": "accepted",
       "implementation": "not-applicable",
@@ -3629,6 +3660,27 @@
       "consumer": "Vitest; родитель; ребёнок"
     },
     {
+      "id": "file:src/components/LinkedWorkPhotos.css",
+      "path": "src/components/LinkedWorkPhotos.css",
+      "kind": "artifact",
+      "purpose": "Компактная ссылка без элементов галереи",
+      "consumer": "LinkedWorkPhotos"
+    },
+    {
+      "id": "file:src/components/LinkedWorkPhotos.test.tsx",
+      "path": "src/components/LinkedWorkPhotos.test.tsx",
+      "kind": "verification",
+      "purpose": "Отложенный просмотр без управления исходным вложением",
+      "consumer": "Vitest"
+    },
+    {
+      "id": "file:src/components/LinkedWorkPhotos.tsx",
+      "path": "src/components/LinkedWorkPhotos.tsx",
+      "kind": "artifact",
+      "purpose": "Просмотр ссылок на решения из другого задания",
+      "consumer": "День; выходные; UI Kit"
+    },
+    {
       "id": "file:src/components/MaterialReader.test.tsx",
       "path": "src/components/MaterialReader.test.tsx",
       "kind": "verification",
@@ -4735,6 +4787,20 @@
       "consumer": "`src/App.tsx`"
     },
     {
+      "id": "file:src/lib/taskUploadPresentation.test.ts",
+      "path": "src/lib/taskUploadPresentation.test.ts",
+      "kind": "verification",
+      "purpose": "Legacy, классификация, неизменность места, источник",
+      "consumer": "Vitest"
+    },
+    {
+      "id": "file:src/lib/taskUploadPresentation.ts",
+      "path": "src/lib/taskUploadPresentation.ts",
+      "kind": "artifact",
+      "purpose": "Отдельные владение галереей, педагогические свидетельства и ссылки",
+      "consumer": "День; выходные; LinkedWorkPhotos"
+    },
+    {
       "id": "file:src/lib/uiErrors.ts",
       "path": "src/lib/uiErrors.ts",
       "kind": "artifact",
@@ -5715,7 +5781,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-08",
-      "updated": "2026-10-16",
+      "updated": "2026-10-18",
       "consumers": [
         "parent",
         "student",
@@ -5731,6 +5797,9 @@
         "scripts/submissions.mjs",
         "scripts/verify-upload-flow.mjs",
         "src/lib/dayStore.ts",
+        "src/lib/taskUploadPresentation.ts",
+        "src/components/LinkedWorkPhotos.tsx",
+        "src/components/LinkedWorkPhotos.css",
         "src/lib/networkRetry.ts",
         "storage/review-coverage.mjs",
         "storage/submission-inbox.mjs",
@@ -8771,6 +8840,11 @@
       "type": "uses"
     },
     {
+      "from": "decisions.upload-origin-links-2026-10-18",
+      "to": "shared.design.components",
+      "type": "uses"
+    },
+    {
       "from": "docs.education",
       "to": "architecture.education",
       "type": "uses"
@@ -10431,6 +10505,26 @@
       "type": "implements"
     },
     {
+      "from": "file:src/components/LinkedWorkPhotos.css",
+      "to": "decisions.upload-origin-links-2026-10-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/LinkedWorkPhotos.css",
+      "to": "module.materials.storage-privacy",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/LinkedWorkPhotos.tsx",
+      "to": "decisions.upload-origin-links-2026-10-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/LinkedWorkPhotos.tsx",
+      "to": "module.materials.storage-privacy",
+      "type": "implements"
+    },
+    {
       "from": "file:src/components/MaterialReader.tsx",
       "to": "module.materials.family-library",
       "type": "implements"
@@ -11037,6 +11131,11 @@
     },
     {
       "from": "file:src/DayPage.tsx",
+      "to": "decisions.upload-origin-links-2026-10-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayPage.tsx",
       "to": "module.families.access-and-state",
       "type": "implements"
     },
@@ -11541,6 +11640,16 @@
       "type": "implements"
     },
     {
+      "from": "file:src/lib/taskUploadPresentation.ts",
+      "to": "decisions.upload-origin-links-2026-10-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/taskUploadPresentation.ts",
+      "to": "module.materials.storage-privacy",
+      "type": "implements"
+    },
+    {
       "from": "file:src/lib/uiErrors.ts",
       "to": "shared.design",
       "type": "implements"
@@ -11657,6 +11766,11 @@
     },
     {
       "from": "file:src/UiKit.tsx",
+      "to": "decisions.upload-origin-links-2026-10-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/UiKit.tsx",
       "to": "shared.design.ui-kit",
       "type": "implements"
     },
@@ -11668,6 +11782,11 @@
     {
       "from": "file:src/WeekendMathSlot.css",
       "to": "module.reviews.problem-card-design-decisions",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/WeekendMathSlot.tsx",
+      "to": "decisions.upload-origin-links-2026-10-18",
       "type": "implements"
     },
     {
@@ -12232,7 +12351,22 @@
     },
     {
       "from": "module.materials.storage-privacy",
+      "to": "decisions.upload-origin-links-2026-10-18",
+      "type": "contains"
+    },
+    {
+      "from": "module.materials.storage-privacy",
       "to": "file:scripts/check-privacy.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.materials.storage-privacy",
+      "to": "file:src/components/LinkedWorkPhotos.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.materials.storage-privacy",
+      "to": "file:src/lib/taskUploadPresentation.test.ts",
       "type": "verified-by"
     },
     {

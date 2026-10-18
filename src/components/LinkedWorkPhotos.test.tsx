@@ -1,0 +1,34 @@
+// @vitest-environment jsdom
+// @see ../../docs/modules/materials/storage-privacy.md#multi-task-photo
+import { act } from 'react'
+import { createRoot } from 'react-dom/client'
+import { describe, expect, it, vi } from 'vitest'
+import LinkedWorkPhotos from './LinkedWorkPhotos'
+import type { DayUpload } from '@/lib/dayStore'
+
+(globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true
+vi.mock('./ArtifactAvatar', () => ({ WorkArtifactImage: ({ upload }: { upload: DayUpload }) => <output data-photo={upload.id}>Исходное фото</output> }))
+
+describe('read-only photo reference', () => {
+  it('loads the original only on request, has no upload/delete action and closes on a second click', async () => {
+    const host = document.createElement('div')
+    const root = createRoot(host)
+    const upload = { id: 'day:photo', taskId: 'p1', coveredTaskIds: ['p1', 'p2'], status: 'reviewed' } as DayUpload
+    try {
+      await act(async () => root.render(<LinkedWorkPhotos taskId="p2" uploads={[upload]} pages={[]} />))
+      expect(host.textContent).toContain('Фото загружено в «другое задание»')
+      expect(host.querySelector('[data-photo]')).toBeNull()
+      expect(host.querySelector('input')).toBeNull()
+      const reference = host.querySelector<HTMLButtonElement>('button')!
+      await act(async () => reference.click())
+      expect(reference.getAttribute('aria-expanded')).toBe('true')
+      expect(host.querySelector('[data-photo]')?.getAttribute('data-photo')).toBe(upload.id)
+      expect(host.textContent).toContain('файл остаётся в месте загрузки')
+      expect(host.querySelectorAll('button')).toHaveLength(1)
+      await act(async () => reference.click())
+      expect(host.querySelector('[data-photo]')).toBeNull()
+      await act(async () => root.render(<LinkedWorkPhotos taskId="p1" uploads={[upload]} pages={[]} />))
+      expect(host.querySelector('.linked-work-photos')).toBeNull()
+    } finally { await act(async () => root.unmount()) }
+  })
+})

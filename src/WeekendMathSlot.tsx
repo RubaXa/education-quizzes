@@ -1,3 +1,4 @@
+/* @see ../docs/decisions/upload-origin-links-2026-10-18.md */
 import { useEffect, useRef, useState } from 'react'
 import { X } from 'lucide-react'
 import { removePendingDayPhoto, requestDayHelp, uploadDayPhoto, uploadMatchesTask, watchDayHelp, watchDayPage, watchDayTaskGuides } from '@/lib/dayStore'
@@ -8,6 +9,8 @@ import ArtifactAvatar, { WorkArtifactImage } from '@/components/ArtifactAvatar'
 import MaterialReader, { canReadInside } from '@/components/MaterialReader'
 import ProblemGroup from '@/components/ProblemGroup'
 import ProblemTaskCard from '@/components/ProblemTaskCard'
+import LinkedWorkPhotos from '@/components/LinkedWorkPhotos'
+import { taskUploadPresentation } from '@/lib/taskUploadPresentation'
 import { artifactAvatarLabel, artifactAvatarState, localArtifactAvatarState, problemCardState } from '@/lib/reviewPresentation'
 import { useDayEvidence } from '@/lib/useDayEvidence'
 import { useParentCompletions } from '@/lib/useParentCompletions'
@@ -26,7 +29,7 @@ export default function WeekendMathSlot({ token, taskIds, parent, lessonDate, du
   const [local, setLocal] = useState<LocalPhoto[]>([])
   const previewUrls = useRef(new Set<string>())
   const [error, setError] = useState('')
-  const { studentToken, evidenceKey, uploads, reviews, ready: evidenceReady } = useDayEvidence(page, token, setError)
+  const { studentToken, evidenceKey, uploads, reviews, evidencePages, ready: evidenceReady } = useDayEvidence(page, token, setError)
   const taskPrivate = parent && helpRole === 'parent' && guideSnapshot.token === studentToken ? guideSnapshot.guides : {}
   const parentDecisions = useParentCompletions(evidenceKey, Boolean(page) && helpRole !== 'checking' && helpRole !== 'none')
   const [statusNow, setStatusNow] = useState(() => Date.now())
@@ -104,13 +107,14 @@ export default function WeekendMathSlot({ token, taskIds, parent, lessonDate, du
       <h4 className="weekend-math-list-title edu-visually-hidden">Задания из листа · {task.problems?.length}</h4>
       <div className="weekend-math-problems">{task.problems?.map((problem) => {
         const photos = uploads.filter((upload) => uploadMatchesTask(upload, problem.id))
-        const previews = local.filter((item) => item.taskId === problem.id && !photos.some((upload) => upload.id === `${studentToken}:${item.id}`))
+        const ownPhotos = taskUploadPresentation(uploads, problem.id).owned
+        const previews = local.filter((item) => item.taskId === problem.id && !ownPhotos.some((upload) => upload.id === `${studentToken}:${item.id}`))
         const review = reviews.find((item) => item.taskId === problem.id)
         const accepted = parentAccepted(review, parentDecisions.events)
         const state = problemCardState(photos, review, previews.some((photo) => photo.state === 'uploading'), statusNow, accepted)
         return <ProblemTaskCard owner={{ familyId: page.familyId, childId: page.childId }} problem={problem} state={state} key={problem.id} links={taskLinks} parent={parent} guide={taskPrivate[problem.id]?.guide} sourceResearch={taskPrivate[problem.id]?.sourceResearch} help={helpRequests.find((item) => item.taskId === problem.id)} review={review} uploads={photos} accepted={accepted} canDecide={helpRole === 'parent'} onDecision={parent && canAcceptCorrectAnswer(review) && review ? (action) => recordParentCompletion(review, action) : undefined} decisions={parentDecisions.events} onRequirementChoice={parent && review?.assessmentBasis?.disputedRequirements?.length ? (id, action) => recordRequirementChoice(review, id, action) : undefined} helpAccess={helpRole === 'checking' ? 'checking' : helpRole === 'student' ? 'ready' : 'login-required'} onRequestHelp={!parent && helpRole === 'student' ? (taskId, revision, kind, text) => requestDayHelp(studentToken, taskId, revision, kind, text) : undefined} onPhotos={(files) => addPhotos(problem.id, files)}>
-          {(photos.length > 0 || previews.length > 0) && <div className="weekend-math-photos" aria-label={`Фото задачи № ${problem.number}`}>
-            {photos.map((photo, index) => {
+          {(ownPhotos.length > 0 || previews.length > 0) && <div className="weekend-math-photos" aria-label={`Фото задачи № ${problem.number}`}>
+            {ownPhotos.map((photo, index) => {
               const localPhoto = local.find((item) => photo.id === `${studentToken}:${item.id}`)
               const state = artifactAvatarState(photo, review, statusNow)
               return <span className="weekend-math-photo-item" key={photo.id} title={`Фото ${index + 1} · ${artifactAvatarLabel(state)}`}>
@@ -120,6 +124,7 @@ export default function WeekendMathSlot({ token, taskIds, parent, lessonDate, du
             })}
             {previews.map((photo) => <span className="weekend-math-photo-item" key={photo.id} title={photo.error ?? artifactAvatarLabel(localArtifactAvatarState(photo.state))}><ArtifactAvatar state={localArtifactAvatarState(photo.state)}><EducationImage source={photo.url} alt="Новое фото" compact /></ArtifactAvatar></span>)}
           </div>}
+          <LinkedWorkPhotos taskId={problem.id} uploads={uploads} pages={[page, ...(evidencePages ?? [])]} />
           {previews.some((photo) => photo.state === 'failed') && <small className="weekend-math-error">Фото не загрузилось. Выберите его ещё раз.</small>}
         </ProblemTaskCard>
       })}</div>
