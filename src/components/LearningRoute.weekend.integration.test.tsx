@@ -7,14 +7,16 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { PersonalProfile } from '@/lib/personalAccess'
 import type { DayPageData, DayWorkReview } from '@/lib/dayStore'
 
-const scene = vi.hoisted(() => ({ role: 'parent' as 'parent' | 'student', profile: null as PersonalProfile | null, reviews: [] as DayWorkReview[], guideReads: [] as string[], reviewRoles: [] as boolean[], reviewListeners: new Set<(reviews: DayWorkReview[]) => void>() }))
+const scene = vi.hoisted(() => ({ role: 'parent' as 'parent' | 'student', profile: null as PersonalProfile | null, reviews: [] as DayWorkReview[], guideReads: [] as string[], reviewRoles: [] as boolean[], reviewListeners: new Set<(reviews: DayWorkReview[]) => void>(), diagnostics: false, diagnosticWrites: [] as Record<string, unknown>[] }))
 vi.mock('@/lib/firebase', () => ({ db: {} }))
 vi.mock('firebase/auth', () => ({ getAuth: () => ({ currentUser: { uid: 'device' }, authStateReady: async () => {} }) }))
 vi.mock('firebase/firestore', () => ({
+  serverTimestamp: () => 'SERVER',
+  setDoc: async (_ref: unknown, data: Record<string, unknown>) => { scene.diagnosticWrites.push(data) },
   doc: (_db: unknown, ...parts: string[]) => ({ path: parts.join('/') }),
   onSnapshot: (ref: { path: string }, _options: unknown, changed: (snapshot: unknown) => void) => {
     const data = ref.path.startsWith('accessLinks/') ? { active: true, personId: 'person' }
-      : ref.path.startsWith('deviceSessions/') ? { linkToken: 'secret' } : { active: true, role: scene.role, childIds: ['child'] }
+      : ref.path.startsWith('deviceSessions/') ? { linkToken: 'secret' } : { active: true, role: scene.role, childIds: ['child'], ...(scene.diagnostics ? { accessDiagnosticsUntil: { toMillis: () => Date.now() + 60000 } } : {}) }
     changed({ exists: () => true, data: () => data, metadata: { fromCache: false } }); return () => {}
   },
 }))
@@ -65,7 +67,7 @@ import LearningRoute from './LearningRoute'
 const roots: Array<() => void> = []
 beforeEach(() => {
   vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime(new Date('2026-10-18T09:00:00Z'))
-  localStorage.clear(); sessionStorage.clear(); scene.reviews = []; scene.guideReads = []; scene.reviewRoles = []; scene.reviewListeners.clear()
+  localStorage.clear(); sessionStorage.clear(); scene.reviews = []; scene.guideReads = []; scene.reviewRoles = []; scene.reviewListeners.clear(); scene.diagnostics = false; scene.diagnosticWrites = []
 })
 afterEach(async () => { await act(async () => roots.splice(0).forEach((close) => close())); vi.useRealTimers() })
 async function render(role: 'parent' | 'student') {
@@ -79,6 +81,13 @@ async function render(role: 'parent' | 'student') {
   return host
 }
 describe('shared calendar with the actual weekend task composition', () => {
+  it('measures the actual parent leaf through the same member listener only when enabled', async () => {
+    scene.diagnostics = true
+    await render('parent')
+    expect(scene.diagnosticWrites.length).toBeGreaterThan(0)
+    expect(scene.diagnosticWrites.at(-1)).toMatchObject({ memberRole: 'parent', renderedRole: 'parent', hasGuide: true, familyId: 'family', childId: 'child' })
+    expect(JSON.stringify(scene.diagnosticWrites)).not.toContain('1100')
+  })
   it.each(['parent', 'student'] as const)('keeps %s actions throughout the whole composition on the same URL', async (role) => {
     const host = await render(role)
     expect(host.querySelector('.problem-card')).not.toBeNull()

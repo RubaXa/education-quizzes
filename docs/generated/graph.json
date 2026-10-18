@@ -1433,6 +1433,34 @@
       "path": "docs/decisions/restore-textbook-strip-2026-10-15.md"
     },
     {
+      "id": "decisions.role-projection-diagnostics-2026-10-18",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-18",
+      "updated": "2026-10-18",
+      "parent": "module.families.access-and-state",
+      "uses": [
+        "shared.access-and-privacy"
+      ],
+      "consumers": [
+        "parent",
+        "student",
+        "access incident operator"
+      ],
+      "code": [
+        "src/lib/roleDiagnostics.ts",
+        "scripts/lib/role-diagnostics.mjs"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/role-projection-diagnostics-2026-10-18.md"
+    },
+    {
       "id": "decisions.stable-grade-snapshot-command-2026-10-16",
       "status": "reference",
       "implementation": "not-applicable",
@@ -3082,6 +3110,13 @@
       "consumer": "Vitest; выпуск правил"
     },
     {
+      "id": "file:scripts/firestore-rules-role-diagnostics.test.mjs",
+      "path": "scripts/firestore-rules-role-diagnostics.test.mjs",
+      "kind": "verification",
+      "purpose": "Статическая защита own-UID, участника, expiry и запрета чтения/учебных полей; компиляция при deploy",
+      "consumer": "Vitest; выпуск rules"
+    },
+    {
       "id": "file:scripts/firestore-rules-stage-choice.test.mjs",
       "path": "scripts/firestore-rules-stage-choice.test.mjs",
       "kind": "verification",
@@ -3156,6 +3191,20 @@
       "path": "scripts/lib/inspect-family-access.test.mjs",
       "kind": "verification",
       "purpose": "Проверка коллизий, выходных, приватности и бюджета чтений",
+      "consumer": "Vitest; оператор"
+    },
+    {
+      "id": "file:scripts/lib/role-diagnostics.mjs",
+      "path": "scripts/lib/role-diagnostics.mjs",
+      "kind": "artifact",
+      "purpose": "Адресные start/read/stop с TTL и readback без изменения роли",
+      "consumer": "family CLI; оператор"
+    },
+    {
+      "id": "file:scripts/lib/role-diagnostics.test.mjs",
+      "path": "scripts/lib/role-diagnostics.test.mjs",
+      "kind": "verification",
+      "purpose": "Ограниченное окно, точный scope и единственное изменяемое поле",
       "consumer": "Vitest; оператор"
     },
     {
@@ -4599,6 +4648,20 @@
       "kind": "artifact",
       "purpose": "Текст и цвет вердиктов",
       "consumer": "`WorkReview`; `ProblemCard`"
+    },
+    {
+      "id": "file:src/lib/roleDiagnostics.test.ts",
+      "path": "src/lib/roleDiagnostics.test.ts",
+      "kind": "verification",
+      "purpose": "Expiry, дедупликация, приватность, чужой child/Auth и cleanup",
+      "consumer": "Vitest; диагностика"
+    },
+    {
+      "id": "file:src/lib/roleDiagnostics.ts",
+      "path": "src/lib/roleDiagnostics.ts",
+      "kind": "artifact",
+      "purpose": "Временное измерение реальной проекции по уже подтверждённому member snapshot",
+      "consumer": "LearningRoute; PersonalEntry; ProblemTaskCard"
     },
     {
       "id": "file:src/lib/spellingFeedback.test.ts",
@@ -8653,6 +8716,11 @@
       "type": "uses"
     },
     {
+      "from": "decisions.role-projection-diagnostics-2026-10-18",
+      "to": "shared.access-and-privacy",
+      "type": "uses"
+    },
+    {
       "from": "docs.education",
       "to": "architecture.education",
       "type": "uses"
@@ -9814,6 +9882,16 @@
     },
     {
       "from": "file:scripts/lib/inspect-family-access.mjs",
+      "to": "module.families.access-and-state",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/lib/role-diagnostics.mjs",
+      "to": "decisions.role-projection-diagnostics-2026-10-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/lib/role-diagnostics.mjs",
       "to": "module.families.access-and-state",
       "type": "implements"
     },
@@ -11373,6 +11451,16 @@
       "type": "implements"
     },
     {
+      "from": "file:src/lib/roleDiagnostics.ts",
+      "to": "decisions.role-projection-diagnostics-2026-10-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/roleDiagnostics.ts",
+      "to": "module.families.access-and-state",
+      "type": "implements"
+    },
+    {
       "from": "file:src/lib/spellingFeedback.ts",
       "to": "module.assessments.quizzes",
       "type": "implements"
@@ -11944,6 +12032,11 @@
     },
     {
       "from": "module.families.access-and-state",
+      "to": "decisions.role-projection-diagnostics-2026-10-18",
+      "type": "contains"
+    },
+    {
+      "from": "module.families.access-and-state",
       "to": "file:day/learning-route-identity.test.mjs",
       "type": "verified-by"
     },
@@ -11954,7 +12047,17 @@
     },
     {
       "from": "module.families.access-and-state",
+      "to": "file:scripts/firestore-rules-role-diagnostics.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.families.access-and-state",
       "to": "file:scripts/lib/inspect-family-access.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.families.access-and-state",
+      "to": "file:scripts/lib/role-diagnostics.test.mjs",
       "type": "verified-by"
     },
     {
@@ -11980,6 +12083,11 @@
     {
       "from": "module.families.access-and-state",
       "to": "file:src/lib/personalAccess.identityRace.test.ts",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.families.access-and-state",
+      "to": "file:src/lib/roleDiagnostics.test.ts",
       "type": "verified-by"
     },
     {
