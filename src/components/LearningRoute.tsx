@@ -4,7 +4,7 @@
 import { useEffect, useState } from 'react'
 import { doc, onSnapshot } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
-import { clearPersonalSession, loadPersonalProfile, readCachedPersonalContext, rememberPersonalContext, rememberPersonalDashboardRoute, watchPersonalContextChanges } from '@/lib/personalAccess'
+import { clearPersonalSession, recoverPersonalContext, loadPersonalProfile, readCachedPersonalContext, rememberPersonalContext, rememberPersonalDashboardRoute, watchPersonalContextChanges } from '@/lib/personalAccess'
 import { LearningAccessError, learningHash, loadLearningAccess, readCachedLearningAccess } from '@/lib/learningRoute'
 import type { LearningAccess, LearningMode } from '@/lib/learningRoute'
 import type { PersonalSession } from '@/lib/personalAccess'
@@ -38,12 +38,18 @@ export default function LearningRoute({ mode, token, headerReturnTarget }: { mod
     let monitoredSession: PersonalSession | undefined
     let stopDiagnostics = () => {}
     const revoke = () => {
-      if (!active) return
+      if (!active || revoked) return
       revoked = true
       stopDiagnostics()
-      if (clearPersonalSession(monitoredSession) === false) return
       setAccess(undefined)
-      setError('Доступ изменился. Откройте свою личную ссылку Education.')
+      void (monitoredSession ? recoverPersonalContext(monitoredSession) : Promise.resolve(false)).then((recovered) => {
+        if (!active || recovered) return
+        if (clearPersonalSession(monitoredSession) === false) return
+        setError('Доступ изменился. Откройте свою личную ссылку Education.')
+      }).catch((cause) => {
+        if (!active) return
+        setError(reportUiError(cause, 'Восстановление текущего входа'))
+      })
     }
     void loadLearningAccess(mode, token).then((result) => {
       if (!active) return

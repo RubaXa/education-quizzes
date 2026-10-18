@@ -386,6 +386,32 @@
       "path": "docs/decisions/course-placement-2026-10-18.md"
     },
     {
+      "id": "decision.device-binding-recovery-2026-10-18",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-18",
+      "updated": "2026-10-18",
+      "consumers": [
+        "Education developer",
+        "parent",
+        "student"
+      ],
+      "code": [],
+      "parent": "module.families",
+      "uses": [
+        "module.families.access-and-state",
+        "module.families.browser-access-trace"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/device-binding-recovery-2026-10-18.md"
+    },
+    {
       "id": "decision.documentation-precommit",
       "status": "accepted",
       "implementation": "not-applicable",
@@ -8881,6 +8907,16 @@
       "type": "uses"
     },
     {
+      "from": "decision.device-binding-recovery-2026-10-18",
+      "to": "module.families.access-and-state",
+      "type": "uses"
+    },
+    {
+      "from": "decision.device-binding-recovery-2026-10-18",
+      "to": "module.families.browser-access-trace",
+      "type": "uses"
+    },
+    {
       "from": "decision.documentation-precommit",
       "to": "shared.specification-system",
       "type": "uses"
@@ -12713,6 +12749,11 @@
     {
       "from": "module.families",
       "to": "decision.browser-role-ldd-2026-10-18",
+      "type": "contains"
+    },
+    {
+      "from": "module.families",
+      "to": "decision.device-binding-recovery-2026-10-18",
       "type": "contains"
     },
     {

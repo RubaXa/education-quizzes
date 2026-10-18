@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { PersonalProfile } from '@/lib/personalAccess'
 import type { DayPageData, DayWorkReview } from '@/lib/dayStore'
 
-const scene = vi.hoisted(() => ({ role: 'parent' as 'parent' | 'student', personId: 'person', link: 'p'.repeat(43), profile: null as PersonalProfile | null, callbacks: new Map<string, (snapshot: any) => void>(), reviews: [] as DayWorkReview[], guideReads: [] as string[], reviewRoles: [] as boolean[], reviewListeners: new Set<(reviews: DayWorkReview[]) => void>(), diagnostics: false, diagnosticWrites: [] as Record<string, unknown>[] }))
+const scene = vi.hoisted(() => ({ role: 'parent' as 'parent' | 'student', personId: 'person', link: 'p'.repeat(43), profile: null as PersonalProfile | null, forbidPrevious: false, callbacks: new Map<string, (snapshot: any) => void>(), reviews: [] as DayWorkReview[], guideReads: [] as string[], reviewRoles: [] as boolean[], reviewListeners: new Set<(reviews: DayWorkReview[]) => void>(), diagnostics: false, diagnosticWrites: [] as Record<string, unknown>[] }))
 vi.mock('@/lib/firebase', () => ({ db: {} }))
 vi.mock('@/lib/dayGuidance', () => ({ watchDayGuidance: (_token: string, changed: (items: unknown[]) => void) => { changed([]); return () => {} }, sendDayGuidance: vi.fn() }))
 vi.mock('firebase/auth', () => ({ getAuth: () => ({ currentUser: { uid: 'device' }, authStateReady: async () => {} }) }))
@@ -21,6 +21,7 @@ vi.mock('firebase/firestore', () => ({
   collection: (_db: unknown, ...parts: string[]) => ({ path: parts.join('/') }),
   getDocs: async () => ({ docs: [{ id: 'family' }] }),
   getDoc: async (ref: { path: string }) => {
+    if (scene.forbidPrevious && ref.path.startsWith('users/previous-person')) throw Object.assign(new Error('Old identity has no access'), { code: 'permission-denied' })
     const data = ref.path.startsWith('deviceSessions/') ? { linkToken: scene.link }
       : ref.path.startsWith('accessLinks/') ? { active: true, personId: scene.personId }
         : ref.path.includes('/members/') ? { active: true, role: scene.role, childIds: ['child'] }
@@ -79,23 +80,43 @@ const roots: Array<() => void> = []
 beforeEach(() => {
   vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime(new Date('2026-10-18T09:00:00Z'))
   localStorage.clear(); sessionStorage.clear(); scene.reviews = []; scene.guideReads = []; scene.reviewRoles = []; scene.reviewListeners.clear(); scene.diagnostics = false; scene.diagnosticWrites = []
-  clearPersonalSession(); scene.callbacks.clear(); scene.personId = 'person'
+  clearPersonalSession(); scene.callbacks.clear(); scene.personId = 'person'; scene.forbidPrevious = false
 })
 afterEach(async () => { await act(async () => roots.splice(0).forEach((close) => close())); vi.useRealTimers() })
-async function render(role: 'parent' | 'student', options: { cold?: boolean; cachedRole?: 'parent' | 'student' } = {}) {
+async function render(role: 'parent' | 'student', options: { cold?: boolean; cachedRole?: 'parent' | 'student'; staleIdentity?: boolean; expired?: boolean } = {}) {
   scene.role = role
   scene.link = (role === 'parent' ? 'p' : 's').repeat(43)
   const cachedRole = options.cachedRole ?? role
   scene.profile = { personId: 'person', displayName: 'Person', children: [{ familyId: 'family', childId: 'child', displayName: 'Child', role: cachedRole, dashboardToken: `${cachedRole}-dashboard`, dashboardTokens: { parent: 'parent-dashboard', student: 'shared-dashboard' } }] }
-  if (!options.cold) rememberPersonalContext({ session: { personId: scene.personId, deviceUid: 'device', linkToken: scene.link }, profile: scene.profile })
+  if (options.staleIdentity) scene.profile.personId = 'previous-person'
+  if (!options.cold) rememberPersonalContext({ session: { personId: scene.profile.personId, deviceUid: 'device', linkToken: options.staleIdentity ? 'o'.repeat(43) : scene.link }, profile: scene.profile })
+  if (options.expired) {
+    scene.forbidPrevious = true
+    localStorage.setItem('education-personal-context-v1', JSON.stringify({ ...readCachedPersonalContext(), savedAt: Date.now() - 31 * 60_000 }))
+  }
   history.replaceState(null, '', '/#/days/shared-dashboard')
   const host = document.createElement('div'); document.body.append(host); const root = createRoot(host)
   roots.push(() => { root.unmount(); host.remove() })
   await act(async () => root.render(<LearningRoute mode="days" token="shared-dashboard" />))
-  await act(async () => host.querySelector<HTMLButtonElement>('.problem-group-toggle')!.click())
+  await act(async () => host.querySelector<HTMLButtonElement>('.problem-group-toggle')?.click())
   return host
 }
 describe('shared calendar with the actual weekend task composition', () => {
+  it.each(['parent', 'student'] as const)('recovers %s when the expired old profile is denied before access listeners can mount', async (role) => {
+    const host = await render(role, { cachedRole: role === 'parent' ? 'student' : 'parent', staleIdentity: true, expired: true })
+    expect(host.textContent).toContain(role === 'parent' ? 'Разбор для родителя' : 'Добавить фото решения')
+    expect(readCachedPersonalContext()?.session.personId).toBe('person')
+    expect(host.textContent).not.toContain(role === 'parent' ? 'Добавить фото решения' : 'Разбор для родителя')
+  })
+  it.each(['parent', 'student'] as const)('recovers the server-bound %s identity from an opposite stale browser login without a new link', async (role) => {
+    const host = await render(role, { cachedRole: role === 'parent' ? 'student' : 'parent', staleIdentity: true })
+    expect(host.textContent).toContain(role === 'parent' ? 'Разбор для родителя' : 'Добавить фото решения')
+    expect(host.textContent).not.toContain(role === 'parent' ? 'Добавить фото решения' : 'Разбор для родителя')
+    expect(readCachedPersonalContext()?.session.personId).toBe('person')
+    expect(readCachedPersonalContext()?.profile.children[0].role).toBe(role)
+    expect(host.textContent).not.toContain('Откройте свою личную ссылку')
+    expect(location.hash).toBe('#/days/shared-dashboard')
+  })
   it('still closes a genuinely revoked current parent session without exposing a student fallback', async () => {
     const host = await render('parent')
     await act(async () => scene.callbacks.get('families/family/members/person')!({ exists: () => true, data: () => ({ active: false }), metadata: { fromCache: false } }))

@@ -6,7 +6,7 @@ import { Check, ClipboardPaste, Copy, KeyRound } from 'lucide-react'
 import { Button } from './ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card'
 import { Input } from './ui/input'
-import { clearPersonalSession, loadPersonalProfile, personalEntryUrl, readCachedPersonalContext, redeemPersonalLink, rememberPersonalContext, restorePersonalContext, secretFromPastedPersonalLink, watchPersonalContextChanges } from '../lib/personalAccess'
+import { clearPersonalSession, recoverPersonalContext, loadPersonalProfile, personalEntryUrl, readCachedPersonalContext, redeemPersonalLink, rememberPersonalContext, restorePersonalContext, secretFromPastedPersonalLink, watchPersonalContextChanges } from '../lib/personalAccess'
 import type { PersonalProfile, PersonalSession } from '../lib/personalAccess'
 import { db } from '../lib/firebase'
 import DayDashboard from '../DayDashboard'
@@ -52,6 +52,7 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
   // Render this device's last saved view immediately; validate remotely in background.
   const [verifiedSession, setVerifiedSession] = useState<PersonalSession | null>(null)
   const [invalidProfile, setInvalidProfile] = useState<PersonalProfile | null>(null)
+  const [invalidSession, setInvalidSession] = useState<PersonalSession | null>(null)
   const [busy, setBusy] = useState(!initialContext)
   const [error, setError] = useState('')
   const [online, setOnline] = useState(navigator.onLine)
@@ -80,6 +81,7 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
     setProfile(next?.profile ?? null)
     setContextAvailable(Boolean(next))
     setInvalidProfile(null)
+    setInvalidSession(null)
     setError('')
     setRetry((value) => value + 1)
   }), [])
@@ -149,16 +151,25 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
     let invalid = false
     const stops: Array<() => void> = []
     setVerifiedSession(null)
+    setInvalidSession(null)
     const revoked = () => {
       if (!active || invalid) return
       invalid = true
-      if (clearPersonalSession(session) === false) return
       setVerifiedSession(null)
-      setInvalidProfile(null)
-      setSession(null)
-      setProfile(null)
-      setRetryable(false)
-      setError('Личная ссылка отозвана. Откройте новую ссылку, чтобы снова войти. Ваши работы сохранены.')
+      setInvalidSession(session)
+      void recoverPersonalContext(session).then((recovered) => {
+        if (!active || recovered) return
+        if (clearPersonalSession(session) === false) return
+        setInvalidProfile(null)
+        setInvalidSession(null)
+        setSession(null)
+        setProfile(null)
+        setRetryable(false)
+        setError('Личная ссылка отозвана. Откройте новую ссылку, чтобы снова войти. Ваши работы сохранены.')
+      }).catch((cause) => {
+        if (!active) return
+        setError(accessError(cause)); setRetryable(true)
+      })
     }
     const failed = (cause: { code?: string }) => {
       traceAccess('access.failed', { source: 'entry', code: accessTraceError(cause) })
@@ -219,9 +230,14 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
     }, (cause) => {
       if (!active) return
       if ((cause as { code?: string }).code === 'permission-denied') {
-        if (clearPersonalSession(session) === false) return
-        setSession(null)
-        setProfile(null)
+        setInvalidProfile(profile)
+        void recoverPersonalContext(session).then((recovered) => {
+          if (!active || recovered) return
+          if (clearPersonalSession(session) === false) return
+          setSession(null); setProfile(null); setInvalidProfile(null)
+          setError(accessError(cause)); setRetryable(true)
+        }).catch((failure) => { if (active) { setError(accessError(failure)); setRetryable(true) } })
+        return
       }
       setError(accessError(cause))
       setRetryable(true)
@@ -331,7 +347,7 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
     }
   }
 
-  if (profile && invalidProfile === profile) return error ? <p role="alert" className="personal-login-error">{error}</p> : null
+  if (profile && invalidProfile === profile || session && invalidSession === session) return error ? <p role="alert" className="personal-login-error">{error}</p> : null
 
   if (profile) {
     const parent = profile.children.some((child) => child.role === 'parent')

@@ -4982,7 +4982,7 @@
   {
     "id": "src/components/LearningRoute.tsx#onSnapshot#f4a41a412098",
     "file": "src/components/LearningRoute.tsx",
-    "line": 63,
+    "line": 69,
     "api": "onSnapshot",
     "target": "doc(db, 'accessLinks', session.linkToken)",
     "group": "client-access",
@@ -4994,7 +4994,7 @@
   {
     "id": "src/components/LearningRoute.tsx#onSnapshot#7c88d25fd3b3",
     "file": "src/components/LearningRoute.tsx",
-    "line": 67,
+    "line": 73,
     "api": "onSnapshot",
     "target": "doc(db, 'deviceSessions', session.deviceUid)",
     "group": "client-access",
@@ -5006,7 +5006,7 @@
   {
     "id": "src/components/LearningRoute.tsx#onSnapshot#ae32e1bad017",
     "file": "src/components/LearningRoute.tsx",
-    "line": 71,
+    "line": 77,
     "api": "onSnapshot",
     "target": "doc(db, 'families', child.familyId, 'members', session.personId)",
     "group": "client-access",
@@ -5018,7 +5018,7 @@
   {
     "id": "src/components/PersonalEntry.tsx#onSnapshot#277a67fd7173",
     "file": "src/components/PersonalEntry.tsx",
-    "line": 173,
+    "line": 184,
     "api": "onSnapshot",
     "target": "doc(db, 'accessLinks', session.linkToken)",
     "group": "client-access",
@@ -5030,7 +5030,7 @@
   {
     "id": "src/components/PersonalEntry.tsx#onSnapshot#e2a2ec860d83",
     "file": "src/components/PersonalEntry.tsx",
-    "line": 178,
+    "line": 189,
     "api": "onSnapshot",
     "target": "doc(db, 'deviceSessions', session.deviceUid)",
     "group": "client-access",
@@ -5042,7 +5042,7 @@
   {
     "id": "src/components/PersonalEntry.tsx#onSnapshot#80b6a5d81625",
     "file": "src/components/PersonalEntry.tsx",
-    "line": 193,
+    "line": 204,
     "api": "onSnapshot",
     "target": "doc(db, 'families', familyId, 'members', session.personId)",
     "group": "client-access",
@@ -5496,21 +5496,45 @@
     "note": "То же нажатие: одно адресное чтение текущей проверки, чтобы не переносить решение на новое фото. Правило записи повторно проверяет эту версию. Фактические платные чтения, включая Rules, ещё не замерены."
   },
   {
+    "id": "src/lib/personalAccess.ts#getDoc#29bfc1b9a72b",
+    "file": "src/lib/personalAccess.ts",
+    "line": 201,
+    "api": "getDoc",
+    "target": "doc(db, 'deviceSessions', expected.deviceUid)",
+    "group": "client-access",
+    "assessment": "conditional",
+    "policy": "confirmed-identity-mismatch",
+    "refresh": "only after confirmed access mismatch or permission-denied",
+    "note": "Один собственный device binding при несовпадении личности; параллельные recovery дедуплицированы. Не запускается при обычном тёплом старте. SDK fromCache отвергается, права не записываются."
+  },
+  {
     "id": "src/lib/personalAccess.ts#getDoc#9290ff8cd3f8",
     "file": "src/lib/personalAccess.ts",
-    "line": 224,
+    "line": 208,
+    "api": "getDoc",
+    "target": "doc(db, 'accessLinks', linkToken)",
+    "group": "client-access",
+    "assessment": "conditional",
+    "policy": "confirmed-identity-mismatch",
+    "refresh": "only when the current server device binding differs",
+    "note": "Один grant из подтверждённой собственной deviceSession, только при другом токене; проверяет active/person до загрузки нового профиля. Нет redemption и записи прав."
+  },
+  {
+    "id": "src/lib/personalAccess.ts#getDoc#9290ff8cd3f8-2",
+    "file": "src/lib/personalAccess.ts",
+    "line": 278,
     "api": "getDoc",
     "target": "doc(db, 'accessLinks', linkToken)",
     "group": "client-access",
     "assessment": "conditional",
     "policy": "startup-access-check",
     "refresh": "cold start or revoked session",
-    "note": "Данные доступа нужны для безопасности, но тёплый старт показывает проверенный локальный снимок; повторные lookup по семье/ребёнку оценить."
+    "note": "Прежний grant read при входе/холодном восстановлении. Тёплый сохранённый контекст не перечитывает профильный граф."
   },
   {
     "id": "src/lib/personalAccess.ts#getDoc#a031cc72eb42",
     "file": "src/lib/personalAccess.ts",
-    "line": 257,
+    "line": 311,
     "api": "getDoc",
     "target": "reference",
     "group": "client-access",
@@ -5522,7 +5546,7 @@
   {
     "id": "src/lib/personalAccess.ts#getDoc#55eca3546993",
     "file": "src/lib/personalAccess.ts",
-    "line": 315,
+    "line": 380,
     "api": "getDoc",
     "target": "doc(db, 'deviceSessions', deviceUid)",
     "group": "client-access",
@@ -5534,7 +5558,7 @@
   {
     "id": "src/lib/personalAccess.ts#getDoc#597358094a96",
     "file": "src/lib/personalAccess.ts",
-    "line": 335,
+    "line": 400,
     "api": "getDoc",
     "target": "doc(db, 'users', session.personId)",
     "group": "client-access",
@@ -5546,7 +5570,7 @@
   {
     "id": "src/lib/personalAccess.ts#getDocs#c04990b4354a",
     "file": "src/lib/personalAccess.ts",
-    "line": 339,
+    "line": 404,
     "api": "getDocs",
     "target": "collection(db, 'users', session.personId, 'families')",
     "group": "client-access",
@@ -5558,7 +5582,7 @@
   {
     "id": "src/lib/personalAccess.ts#getDoc#5d1a89a83476",
     "file": "src/lib/personalAccess.ts",
-    "line": 343,
+    "line": 408,
     "api": "getDoc",
     "target": "doc(db, 'families', familyId, 'members', session.personId)",
     "group": "client-access",
@@ -5570,7 +5594,7 @@
   {
     "id": "src/lib/personalAccess.ts#getDoc#1eef01645270",
     "file": "src/lib/personalAccess.ts",
-    "line": 351,
+    "line": 416,
     "api": "getDoc",
     "target": "doc(db, 'families', familyId, 'children', childId)",
     "group": "client-access",
@@ -5582,7 +5606,7 @@
   {
     "id": "src/lib/personalAccess.ts#getDoc#0aeaca741ec9",
     "file": "src/lib/personalAccess.ts",
-    "line": 352,
+    "line": 417,
     "api": "getDoc",
     "target": "doc(db, 'users', session.personId, 'families', familyId, 'shortcuts', childId)",
     "group": "client-access",

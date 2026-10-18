@@ -3,16 +3,17 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const parentLink = 'p'.repeat(43), childLink = 's'.repeat(43)
-const scene = vi.hoisted(() => ({ reads: [] as string[], deviceLink: 's'.repeat(43), deviceReadGate: null as Promise<void> | null }))
+const scene = vi.hoisted(() => ({ reads: [] as string[], writes: 0, deviceLink: 's'.repeat(43), deviceReadGate: null as Promise<void> | null, deviceFromCache: false, failure: null as string | null }))
 vi.mock('./firebase', () => ({ db: {} }))
 vi.mock('firebase/auth', () => ({ getAuth: () => ({ currentUser: { uid: 'same-browser' }, authStateReady: async () => {} }), signInAnonymously: vi.fn() }))
 vi.mock('firebase/firestore', () => ({
   doc: (_db: unknown, ...parts: string[]) => ({ path: parts.join('/') }),
   collection: (_db: unknown, ...parts: string[]) => ({ path: parts.join('/') }),
   serverTimestamp: () => null,
-  setDoc: async (_ref: unknown, data: { linkToken: string }) => { scene.deviceLink = data.linkToken },
+  setDoc: async (_ref: unknown, data: { linkToken: string }) => { scene.writes++; scene.deviceLink = data.linkToken },
   getDoc: async ({ path }: { path: string }) => {
     scene.reads.push(path)
+    if (scene.failure) throw Object.assign(new Error('Injected IO failure'), { code: scene.failure })
     let value: object
     if (path.startsWith('deviceSessions/')) { if (scene.deviceReadGate) await scene.deviceReadGate; value = { linkToken: scene.deviceLink } }
     else if (path.startsWith('accessLinks/')) value = { active: true, personId: path.endsWith('p'.repeat(43)) ? 'parent' : 'child' }
@@ -21,7 +22,7 @@ vi.mock('firebase/firestore', () => ({
     else if (path.includes('/shortcuts/')) value = { dashboardToken: path.startsWith('users/parent/') ? 'parent-calendar' : 'shared-calendar', dashboardTokens: { parent: 'parent-calendar', student: 'shared-calendar' } }
     else if (path.includes('/children/')) value = { displayName: 'Learner' }
     else throw new Error(`Unexpected ${path}`)
-    return { exists: () => true, data: () => value }
+    return { exists: () => true, data: () => value, metadata: { fromCache: path.startsWith('deviceSessions/') && scene.deviceFromCache } }
   },
   getDocs: async () => ({ docs: [{ id: 'family' }] }),
 }))
@@ -30,7 +31,7 @@ let api: typeof import('./personalAccess')
 function deferred() { let resolve!: () => void; const promise = new Promise<void>((done) => { resolve = done }); return { promise, resolve } }
 async function flush() { for (let i = 0; i < 12; i++) await Promise.resolve() }
 beforeEach(async () => {
-  vi.resetModules(); localStorage.clear(); scene.reads = []; scene.deviceLink = childLink; scene.deviceReadGate = null
+  vi.resetModules(); localStorage.clear(); scene.reads = []; scene.writes = 0; scene.deviceLink = childLink; scene.deviceReadGate = null; scene.deviceFromCache = false; scene.failure = null
   api = await import('./personalAccess')
   api.rememberPersonalContext({ session: { personId: 'child', deviceUid: 'same-browser', linkToken: childLink }, profile: { personId: 'child', displayName: 'Learner', children: [
     { familyId: 'family', childId: 'learner', displayName: 'Learner', role: 'student', dashboardToken: 'shared-calendar', dashboardTokens: { student: 'shared-calendar', parent: 'parent-calendar' } },
@@ -38,6 +39,37 @@ beforeEach(async () => {
 })
 
 describe('personal identity during a link redemption', () => {
+  it('joins concurrent recovery consumers and never writes a device binding or redeems a link', async () => {
+    const previous = api.readCachedPersonalContext()!.session
+    scene.deviceLink = parentLink
+    expect(await Promise.all([api.recoverPersonalContext(previous), api.recoverPersonalContext(previous)])).toEqual([true, true])
+    expect(api.readCachedPersonalContext()?.session.personId).toBe('parent')
+    expect(scene.reads.filter(path => path.startsWith('deviceSessions/'))).toHaveLength(1)
+    expect(scene.writes).toBe(0)
+  })
+  it('does not treat an offline cached device binding as server authorization', async () => {
+    const previous = api.readCachedPersonalContext()!.session
+    scene.deviceLink = parentLink; scene.deviceFromCache = true
+    await expect(api.recoverPersonalContext(previous)).rejects.toMatchObject({ code: 'unavailable' })
+    expect(api.readCachedPersonalContext()?.session.personId).toBe('child')
+    expect(scene.reads.some(path => path.startsWith('users/parent'))).toBe(false)
+    expect(scene.writes).toBe(0)
+  })
+  it('retains the local context on a transient recovery failure and does not invent a parent role', async () => {
+    scene.failure = 'unavailable'
+    await expect(api.recoverPersonalContext(api.readCachedPersonalContext()!.session)).rejects.toMatchObject({ code: 'unavailable' })
+    expect(api.readCachedPersonalContext()?.profile.children[0].role).toBe('student')
+  })
+  it('does not restore a replacement after the current session was revoked during its read', async () => {
+    const previous = api.readCachedPersonalContext()!.session
+    scene.deviceLink = parentLink
+    const gate = deferred(); scene.deviceReadGate = gate.promise
+    const recovery = api.recoverPersonalContext(previous)
+    await flush(); api.clearPersonalSession(); gate.resolve()
+    await recovery
+    expect(api.readCachedPersonalContext()).toBeNull()
+    expect(scene.writes).toBe(0)
+  })
   it('prefers the saved sibling-tab identity even when no entry observer was mounted', async () => {
     const previous = api.readCachedPersonalContext()!
     localStorage.setItem('education-personal-context-v1', JSON.stringify({

@@ -5,7 +5,8 @@ import { createRoot } from 'react-dom/client'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 const probe = vi.hoisted(() => ({ listeners: new Map<string, (snapshot: unknown) => void>(), reads: 0,
-  authGate: null as Promise<void> | null, uid: 'device' as string | null }))
+  authGate: null as Promise<void> | null, uid: 'device' as string | null,
+  replacement: null as 'parent' | 'student' | null, recoveryReads: [] as string[], failures: new Map<string, (cause: { code: string }) => void>() }))
 ;(globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true
 
 vi.mock('../lib/firebase', () => ({ db: {} }))
@@ -17,12 +18,22 @@ vi.mock('firebase/auth', () => ({
 vi.mock('firebase/firestore', () => ({
   doc: (_db: unknown, ...parts: string[]) => ({ path: parts.join('/') }),
   collection: (_db: unknown, ...parts: string[]) => ({ path: parts.join('/') }),
-  onSnapshot: (ref: { path: string }, _options: unknown, change: (snapshot: unknown) => void) => {
+  onSnapshot: (ref: { path: string }, _options: unknown, change: (snapshot: unknown) => void, failed: (cause: { code: string }) => void) => {
     probe.listeners.set(ref.path, change)
+    probe.failures.set(ref.path, failed)
     probe.reads++
     return () => { probe.listeners.delete(ref.path) }
   },
-  getDoc: vi.fn(), getDocs: vi.fn(), setDoc: vi.fn(), serverTimestamp: vi.fn(),
+  getDoc: async (ref: { path: string }) => {
+    probe.recoveryReads.push(ref.path)
+    const role = probe.replacement
+    const data = ref.path.startsWith('deviceSessions/') ? { linkToken: role ? 'r'.repeat(43) : 'a'.repeat(43) }
+      : ref.path.startsWith('accessLinks/') ? { active: true, personId: 'replacement' }
+        : ref.path.includes('/members/') ? { active: true, role, childIds: ['child'] }
+          : ref.path.includes('/shortcuts/') ? { dashboardToken: `${role}-dashboard` }
+            : { displayName: 'Recovered' }
+    return { exists: () => true, data: () => data, metadata: { fromCache: false } }
+  }, getDocs: async () => ({ docs: [{ id: 'family' }] }), setDoc: vi.fn(), serverTimestamp: vi.fn(),
 }))
 vi.mock('./ParentHome', () => ({ ParentHome: ({ profile }: { profile: { displayName: string } }) => <main>Кабинет {profile.displayName}</main> }))
 vi.mock('../DayDashboard', () => ({ default: () => <main>Кабинет ученика</main> }))
@@ -30,7 +41,7 @@ vi.mock('../DayDashboard', () => ({ default: () => <main>Кабинет учен
 import { clearPersonalSession, readCachedPersonalContext, rememberPersonalContext } from '../lib/personalAccess'
 import { PersonalEntry } from './PersonalEntry'
 
-afterEach(() => { clearPersonalSession(); localStorage.clear(); probe.listeners.clear(); probe.reads = 0; probe.authGate = null; probe.uid = 'device' })
+afterEach(() => { clearPersonalSession(); localStorage.clear(); probe.listeners.clear(); probe.reads = 0; probe.authGate = null; probe.uid = 'device'; probe.replacement = null; probe.recoveryReads = []; probe.failures.clear(); vi.unstubAllGlobals() })
 
 describe('personal cold start — no saved session', () => {
   it('does not invent a parent dashboard before Auth and shows link entry after an empty restore', async () => {
@@ -53,6 +64,31 @@ describe('personal cold start — no saved session', () => {
 })
 
 describe('personal warm start — verified saved session', () => {
+  const recoveryCases = (['parent', 'student'] as const).flatMap(role => ['browser', 'standalone'].flatMap(surface => ['device', 'grant', 'permission'].map(signal => ({ role, surface, signal }))))
+  it.each(recoveryCases)('recovers the server-bound $role in $surface from a stale local identity after $signal without a pasted link', async ({ role, surface, signal }) => {
+    vi.stubGlobal('matchMedia', (query: string) => ({ matches: surface === 'standalone' && query === '(display-mode: standalone)' }))
+    probe.authGate = Promise.resolve()
+    probe.replacement = role
+    const oldRole = role === 'parent' ? 'student' : 'parent'
+    rememberPersonalContext({ session: { personId: 'previous', deviceUid: 'device', linkToken: 'o'.repeat(43) }, profile: { personId: 'previous', displayName: 'Old', children: [{ familyId: 'family', childId: 'child', displayName: 'Learner', role: oldRole, dashboardToken: `${oldRole}-dashboard` }] } })
+    const host = document.createElement('div'); document.body.append(host)
+    const root = createRoot(host)
+    try {
+      await act(async () => root.render(<PersonalEntry />))
+      if (signal === 'permission') {
+        // The grant listener can lose permission before the changed device binding is delivered.
+        await act(async () => probe.failures.get(`accessLinks/${'o'.repeat(43)}`)!({ code: 'permission-denied' }))
+      } else {
+        const path = signal === 'device' ? 'deviceSessions/device' : `accessLinks/${'o'.repeat(43)}`
+        await act(async () => probe.listeners.get(path)!({ exists: () => signal === 'device', data: () => ({ linkToken: 'r'.repeat(43) }), metadata: { fromCache: false } }))
+      }
+      expect(readCachedPersonalContext()?.session.personId).toBe('replacement')
+      expect(readCachedPersonalContext()?.profile.children[0].role).toBe(role)
+      expect(host.textContent).toContain(role === 'parent' ? 'Кабинет Recovered' : 'Кабинет ученика')
+      expect(host.textContent).not.toContain('Войти в Education')
+      expect(probe.recoveryReads.filter(path => path === 'deviceSessions/device')).toHaveLength(1)
+    } finally { await act(async () => root.unmount()); host.remove() }
+  })
   it.each(['parent', 'student'] as const)('does not erase a newly saved %s login when the old device listener fires before the storage event', async (nextRole) => {
     probe.authGate = Promise.resolve()
     const previousRole = nextRole === 'parent' ? 'student' : 'parent'

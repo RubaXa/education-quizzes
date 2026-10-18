@@ -21,6 +21,7 @@
 | [docs/decisions/compact-homework-copy-2026-10-16.md](../decisions/compact-homework-copy-2026-10-16.md) | 2026-10-16 | 2026-10-16 | reference | not-applicable | product implementer<br>service implementer |  |
 | [docs/decisions/compact-results-ui-kit-2026-10-16.md](../decisions/compact-results-ui-kit-2026-10-16.md) | 2026-10-16 | 2026-10-16 | reference | not-applicable | product implementer<br>service implementer |  |
 | [docs/decisions/course-placement-2026-10-18.md](../decisions/course-placement-2026-10-18.md) | 2026-10-18 | 2026-10-18 | accepted | not-applicable | Education operator<br>parent<br>student |  |
+| [docs/decisions/device-binding-recovery-2026-10-18.md](../decisions/device-binding-recovery-2026-10-18.md) | 2026-10-18 | 2026-10-18 | accepted | implemented | Education developer<br>parent<br>student |  |
 | [docs/decisions/documentation-precommit-2026-10-16.md](../decisions/documentation-precommit-2026-10-16.md) | 2026-10-16 | 2026-10-16 | accepted | not-applicable | product implementer<br>service implementer |  |
 | [docs/decisions/education-sync-performance-2026-10-15.md](../decisions/education-sync-performance-2026-10-15.md) | 2026-10-15 | 2026-10-16 | reference | not-applicable | product implementer<br>service implementer |  |
 | [docs/decisions/flat-numbered-sheet-2026-10-14.md](../decisions/flat-numbered-sheet-2026-10-14.md) | 2026-10-14 | 2026-10-16 | reference | not-applicable | product implementer<br>service implementer |  |
