@@ -337,6 +337,8 @@
 | [src/UiKit.tsx](../src/UiKit.tsx) | [Контракт](shared/design/ui-kit.md) | Интерактивные рабочие индикаторы, описание текущих токенов и пример истории | App; родитель; разработчик |
 | [src/WeekendMathSlot.css](../src/WeekendMathSlot.css) | [Адаптивная карточка](modules/reviews/adaptive-problem-card.md) | Оформление общего слота математики | `src/WeekendMathSlot.tsx` |
 | [src/WeekendMathSlot.tsx](../src/WeekendMathSlot.tsx) | [Dashboard](modules/school-diary/dashboard.md) | Переиспользуемая карточка только перечисленных ID своего урока с фото, проверками и сроком | Ученик; родитель; `ProblemGroup` |
+| [src/WeekendMathSlot.test.tsx](../src/WeekendMathSlot.test.tsx) | [Dashboard](modules/school-diary/dashboard.md) | Обе роли выходного спецкурса, выбор учителя, семейное включение и сохранность всех номеров | Vitest; общий `ProblemGroup` |
+| [docs/decisions/weekend-special-course-2026-10-18.md](decisions/weekend-special-course-2026-10-18.md) | [Dashboard](modules/school-diary/dashboard.md) | Причина восстановления выходного слота и единого подсчёта | Агент; оператор синхронизации |
 | [src/components/ArtifactAvatar.css](../src/components/ArtifactAvatar.css) | [Статусы фотографии](modules/school-diary/day-page.md) | Общая миниатюра и положение значка состояния | `src/components/ArtifactAvatar.tsx` |
 | [src/components/ArtifactAvatar.tsx](../src/components/ArtifactAvatar.tsx) | [Система компонентов](shared/design/components.md) | Общий статус и выбор источника фото работы без копии логики в двух маршрутах | День; слот выходных |
 | [src/components/AssignmentBrief.css](../src/components/AssignmentBrief.css) | [Дизайн-система](shared/design/README.md) | Оформление точного задания и источника | `AssignmentBrief.tsx` |

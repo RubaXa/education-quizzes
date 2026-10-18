@@ -46,6 +46,18 @@ function fixture() {
   return { root, write, git, spec }
 }
 describe('documentation pre-commit snapshot', () => {
+  it('runs fixture checks without inherited hook repository overrides', () => {
+    const inherited = process.env.GIT_DIR
+    process.env.GIT_DIR = join(tmpdir(), 'education-not-the-docs-fixture.git')
+    try {
+      const { root } = fixture()
+      expect(checkDocsInFixture(root, { staged: true }).problems).toEqual([])
+      expect(process.env.GIT_DIR).toBe(join(tmpdir(), 'education-not-the-docs-fixture.git'))
+    } finally {
+      if (inherited === undefined) delete process.env.GIT_DIR
+      else process.env.GIT_DIR = inherited
+    }
+  })
   it('accepts staged documents even if unstaged content is broken', () => {
     const { root, write } = fixture()
     write('target.md', '# Changed anchor\n')

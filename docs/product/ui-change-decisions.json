@@ -773,20 +773,21 @@
       }
     },
     "src/WeekendMathSlot.tsx": {
-      "sha256": "255d907bddb334af99107eb70afc326a6db405d2a55dc2f68c5773abb82e0817",
-      "record": "docs/decisions/flat-numbered-sheet-2026-10-14.md",
+      "sha256": "0cbb3099839aac6c8a8bb043f41c970771e590f58005e0b89261dc2b6e853e2b",
+      "record": "docs/decisions/weekend-special-course-2026-10-18.md",
       "specs": [
-        "docs/modules/reviews/problem-card-design-decisions.md",
-        "docs/shared/design/README.md"
+        "docs/modules/school-diary/dashboard.md",
+        "docs/modules/reviews/card-generation-policy.md"
       ],
       "tests": [
+        "src/WeekendMathSlot.test.tsx",
         "src/components/ProblemTaskCard.contract.test.tsx",
         "src/components/ProblemGroup.layout.test.tsx",
         "src/components/ProblemStatement.provenance.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 14.10.2026 повторно приложил согласованный макет и потребовал сверить с ним выпускаемую карточку."
+        "evidence": "Родитель 18.10.2026 прямо требует восстановить спецкурс на выходных по существующему правилу; общий подсчёт должен сохранить согласованный выбор учителя и все исходные номера."
       },
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",

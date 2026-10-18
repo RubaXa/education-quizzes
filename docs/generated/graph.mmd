@@ -20,522 +20,525 @@ flowchart TD
   s17["decision.telegram-foundation"]
   s18["decision.telegram-review-fixes-2026-10-17"]
   s19["decision.telegram-source-wiring-2026-10-17"]
-  s20["decisions.compact-homework-copy-2026-10-16"]
-  s21["decisions.compact-results-ui-kit-2026-10-16"]
-  s22["decisions.education-sync-performance-2026-10-15"]
-  s23["decisions.flat-numbered-sheet-2026-10-14"]
-  s24["decisions.grade-mark-details-2026-10-14"]
-  s25["decisions.grade-projection-reconciliation-2026-10-15"]
-  s26["decisions.history-default-universal-request-2026-10-16"]
-  s27["decisions.history-followup-volume-2026-10-16"]
-  s28["decisions.lesson-countdowns-2026-10-15"]
-  s29["decisions.local-first-hot-path-decision-2026-10-12"]
-  s30["decisions.material-clarification-2026-10-16"]
-  s31["decisions.mesh-assigned-units-2026-10-15"]
-  s32["decisions.mesh-requirement-trace-2026-10-16"]
-  s33["decisions.missing-evidence-homework-overview-2026-10-15"]
-  s34["decisions.notification-read-all-2026-10-14"]
-  s35["decisions.one-parent-review-and-safe-site-2026-10-14"]
-  s36["decisions.operator-core-cli-2026-10-16"]
-  s37["decisions.operator-tool-trial-2026-10-16"]
-  s38["decisions.optional-quiz-switch-2026-10-15"]
-  s39["decisions.parent-followup-button-release-2026-10-14"]
-  s40["decisions.quiz-attempt-time-icon-2026-10-15"]
-  s41["decisions.quiz-threshold-85-2026-10-14"]
-  s42["decisions.quiz-threshold-and-page-slider-2026-10-14"]
-  s43["decisions.quiz-time-row-2026-10-16"]
-  s44["decisions.requirement-switch-no-label-2026-10-16"]
-  s45["decisions.restore-numbered-original-2026-10-14"]
-  s46["decisions.restore-textbook-strip-2026-10-15"]
-  s47["decisions.stable-grade-snapshot-command-2026-10-16"]
-  s48["decisions.stage-switch-fresh-version-2026-10-14"]
-  s49["decisions.teacher-sheet-beside-quiz-2026-10-14"]
-  s50["decisions.two-pass-written-review-2026-10-15"]
-  s51["docs.education"]
-  s52["module.assessments"]
-  s53["module.assessments.assessment-decision-graph"]
-  s54["module.assessments.assessment-source-policy"]
-  s55["module.assessments.quiz-chain-proposal"]
-  s56["module.assessments.quizzes"]
-  s57["module.assessments.result-presentation-proposal"]
-  s58["module.assignments"]
-  s59["module.families"]
-  s60["module.families.access-and-state"]
-  s61["module.families.family-artifact-access"]
-  s62["module.materials"]
-  s63["module.materials.family-library"]
-  s64["module.materials.material-clarification"]
-  s65["module.materials.materials"]
-  s66["module.materials.storage-privacy"]
-  s67["module.notifications"]
-  s68["module.notifications.events"]
-  s69["module.notifications.inbox"]
-  s70["module.reviews"]
-  s71["module.reviews.adaptive-problem-card"]
-  s72["module.reviews.card-flow-certification"]
-  s73["module.reviews.card-generation-policy"]
-  s74["module.reviews.math-solution-route"]
-  s75["module.reviews.problem-card-design-decisions"]
-  s76["module.reviews.review-criteria-provenance"]
-  s77["module.reviews.russian-language-route"]
-  s78["module.reviews.special-course-card-overlay"]
-  s79["module.reviews.subject-aware-guidance"]
-  s80["module.reviews.subject-card-viewmodel"]
-  s81["module.school-diary"]
-  s82["module.school-diary.dashboard"]
-  s83["module.school-diary.day-page"]
-  s84["module.school-diary.grades"]
-  s85["module.synchronization"]
-  s86["module.synchronization.backend-driven-ui"]
-  s87["module.synchronization.change-detection-and-reconciliation"]
-  s88["module.synchronization.education-pipeline"]
-  s89["module.synchronization.firestore-read-paths"]
-  s90["module.synchronization.global-sync"]
-  s91["module.synchronization.plan-generation"]
-  s92["module.synchronization.shared-artifact-pipeline"]
-  s93["operations"]
-  s94["operations.deployment"]
-  s95["operations.education-sync"]
-  s96["operations.local-development"]
-  s97["operations.recovery"]
-  s98["plans.local-first-release-plan-2026-10-12"]
-  s99["product.assessments"]
-  s100["product.education"]
-  s101["product.families"]
-  s102["product.homework-review"]
-  s103["product.materials"]
-  s104["product.notifications"]
-  s105["product.pwa"]
-  s106["product.school-day"]
-  s107["product.ui-change-control"]
-  s108["research.adaptive-problem-critical-review"]
-  s109["research.adaptive-problem-scaffolding"]
-  s110["research.assessment-source-catalog"]
-  s111["research.condition-transcript-and-scaffold"]
-  s112["research.evidence-based-homework-review"]
-  s113["research.feedback-after-errors"]
-  s114["research.firestore-read-reduction-research-2026-10-12"]
-  s115["research.literature-card-options"]
-  s116["research.parent-card-subject-options"]
-  s117["research.photo-math-solution-review"]
-  s118["research.quiz-history-and-consolidation"]
-  s119["research.reading-only-self-checks"]
-  s120["research.result-colour-and-density"]
-  s121["research.special-course-source-provenance"]
-  s122["research.status-design-systems"]
-  s123["research.subject-specific-review-and-feedback"]
-  s124["research.two-pass-written-work-review"]
-  s125["research.ui-kit-structure"]
-  s126["research.vocabulary-dictation-practice"]
-  s127["service.operator-cli"]
-  s128["service.telegram-bot"]
-  s129["service.telegram-bot.delivery"]
-  s130["service.telegram-bot.event-ledger-outbox"]
-  s131["service.telegram-bot.firestore"]
-  s132["service.telegram-bot.identity-and-linking"]
-  s133["service.telegram-bot.mesh"]
-  s134["service.telegram-bot.operations"]
-  s135["service.telegram-bot.ports-and-events"]
-  s136["service.upload-worker"]
-  s137["service.web-app"]
-  s138["service.web-app.local-first-sync"]
-  s139["service.web-app.local-first-verification"]
-  s140["shared.access-and-privacy"]
-  s141["shared.data"]
-  s142["shared.data.firestore"]
-  s143["shared.data.revisions"]
-  s144["shared.design"]
-  s145["shared.design.components"]
-  s146["shared.design.statuses"]
-  s147["shared.design.ui-kit"]
-  s148["shared.media-storage"]
-  s149["shared.server-runtime"]
-  s150["shared.specification-system"]
-  s151["shared.toolchain"]
-  s0 -. uses .-> s127
+  s20["decision.weekend-special-course-2026-10-18"]
+  s21["decisions.compact-homework-copy-2026-10-16"]
+  s22["decisions.compact-results-ui-kit-2026-10-16"]
+  s23["decisions.education-sync-performance-2026-10-15"]
+  s24["decisions.flat-numbered-sheet-2026-10-14"]
+  s25["decisions.grade-mark-details-2026-10-14"]
+  s26["decisions.grade-projection-reconciliation-2026-10-15"]
+  s27["decisions.history-default-universal-request-2026-10-16"]
+  s28["decisions.history-followup-volume-2026-10-16"]
+  s29["decisions.lesson-countdowns-2026-10-15"]
+  s30["decisions.local-first-hot-path-decision-2026-10-12"]
+  s31["decisions.material-clarification-2026-10-16"]
+  s32["decisions.mesh-assigned-units-2026-10-15"]
+  s33["decisions.mesh-requirement-trace-2026-10-16"]
+  s34["decisions.missing-evidence-homework-overview-2026-10-15"]
+  s35["decisions.notification-read-all-2026-10-14"]
+  s36["decisions.one-parent-review-and-safe-site-2026-10-14"]
+  s37["decisions.operator-core-cli-2026-10-16"]
+  s38["decisions.operator-tool-trial-2026-10-16"]
+  s39["decisions.optional-quiz-switch-2026-10-15"]
+  s40["decisions.parent-followup-button-release-2026-10-14"]
+  s41["decisions.quiz-attempt-time-icon-2026-10-15"]
+  s42["decisions.quiz-threshold-85-2026-10-14"]
+  s43["decisions.quiz-threshold-and-page-slider-2026-10-14"]
+  s44["decisions.quiz-time-row-2026-10-16"]
+  s45["decisions.requirement-switch-no-label-2026-10-16"]
+  s46["decisions.restore-numbered-original-2026-10-14"]
+  s47["decisions.restore-textbook-strip-2026-10-15"]
+  s48["decisions.stable-grade-snapshot-command-2026-10-16"]
+  s49["decisions.stage-switch-fresh-version-2026-10-14"]
+  s50["decisions.teacher-sheet-beside-quiz-2026-10-14"]
+  s51["decisions.two-pass-written-review-2026-10-15"]
+  s52["docs.education"]
+  s53["module.assessments"]
+  s54["module.assessments.assessment-decision-graph"]
+  s55["module.assessments.assessment-source-policy"]
+  s56["module.assessments.quiz-chain-proposal"]
+  s57["module.assessments.quizzes"]
+  s58["module.assessments.result-presentation-proposal"]
+  s59["module.assignments"]
+  s60["module.families"]
+  s61["module.families.access-and-state"]
+  s62["module.families.family-artifact-access"]
+  s63["module.materials"]
+  s64["module.materials.family-library"]
+  s65["module.materials.material-clarification"]
+  s66["module.materials.materials"]
+  s67["module.materials.storage-privacy"]
+  s68["module.notifications"]
+  s69["module.notifications.events"]
+  s70["module.notifications.inbox"]
+  s71["module.reviews"]
+  s72["module.reviews.adaptive-problem-card"]
+  s73["module.reviews.card-flow-certification"]
+  s74["module.reviews.card-generation-policy"]
+  s75["module.reviews.math-solution-route"]
+  s76["module.reviews.problem-card-design-decisions"]
+  s77["module.reviews.review-criteria-provenance"]
+  s78["module.reviews.russian-language-route"]
+  s79["module.reviews.special-course-card-overlay"]
+  s80["module.reviews.subject-aware-guidance"]
+  s81["module.reviews.subject-card-viewmodel"]
+  s82["module.school-diary"]
+  s83["module.school-diary.dashboard"]
+  s84["module.school-diary.day-page"]
+  s85["module.school-diary.grades"]
+  s86["module.synchronization"]
+  s87["module.synchronization.backend-driven-ui"]
+  s88["module.synchronization.change-detection-and-reconciliation"]
+  s89["module.synchronization.education-pipeline"]
+  s90["module.synchronization.firestore-read-paths"]
+  s91["module.synchronization.global-sync"]
+  s92["module.synchronization.plan-generation"]
+  s93["module.synchronization.shared-artifact-pipeline"]
+  s94["operations"]
+  s95["operations.deployment"]
+  s96["operations.education-sync"]
+  s97["operations.local-development"]
+  s98["operations.recovery"]
+  s99["plans.local-first-release-plan-2026-10-12"]
+  s100["product.assessments"]
+  s101["product.education"]
+  s102["product.families"]
+  s103["product.homework-review"]
+  s104["product.materials"]
+  s105["product.notifications"]
+  s106["product.pwa"]
+  s107["product.school-day"]
+  s108["product.ui-change-control"]
+  s109["research.adaptive-problem-critical-review"]
+  s110["research.adaptive-problem-scaffolding"]
+  s111["research.assessment-source-catalog"]
+  s112["research.condition-transcript-and-scaffold"]
+  s113["research.evidence-based-homework-review"]
+  s114["research.feedback-after-errors"]
+  s115["research.firestore-read-reduction-research-2026-10-12"]
+  s116["research.literature-card-options"]
+  s117["research.parent-card-subject-options"]
+  s118["research.photo-math-solution-review"]
+  s119["research.quiz-history-and-consolidation"]
+  s120["research.reading-only-self-checks"]
+  s121["research.result-colour-and-density"]
+  s122["research.special-course-source-provenance"]
+  s123["research.status-design-systems"]
+  s124["research.subject-specific-review-and-feedback"]
+  s125["research.two-pass-written-work-review"]
+  s126["research.ui-kit-structure"]
+  s127["research.vocabulary-dictation-practice"]
+  s128["service.operator-cli"]
+  s129["service.telegram-bot"]
+  s130["service.telegram-bot.delivery"]
+  s131["service.telegram-bot.event-ledger-outbox"]
+  s132["service.telegram-bot.firestore"]
+  s133["service.telegram-bot.identity-and-linking"]
+  s134["service.telegram-bot.mesh"]
+  s135["service.telegram-bot.operations"]
+  s136["service.telegram-bot.ports-and-events"]
+  s137["service.upload-worker"]
+  s138["service.web-app"]
+  s139["service.web-app.local-first-sync"]
+  s140["service.web-app.local-first-verification"]
+  s141["shared.access-and-privacy"]
+  s142["shared.data"]
+  s143["shared.data.firestore"]
+  s144["shared.data.revisions"]
+  s145["shared.design"]
+  s146["shared.design.components"]
+  s147["shared.design.statuses"]
+  s148["shared.design.ui-kit"]
+  s149["shared.media-storage"]
+  s150["shared.server-runtime"]
+  s151["shared.specification-system"]
+  s152["shared.toolchain"]
   s0 -. uses .-> s128
-  s0 -. uses .-> s136
+  s0 -. uses .-> s129
   s0 -. uses .-> s137
-  s0 -. uses .-> s140
+  s0 -. uses .-> s138
   s0 -. uses .-> s141
-  s0 -. uses .-> s144
-  s0 -. uses .-> s149
+  s0 -. uses .-> s142
+  s0 -. uses .-> s145
   s0 -. uses .-> s150
-  s1 -. uses .-> s85
-  s1 -. uses .-> s127
+  s0 -. uses .-> s151
+  s1 -. uses .-> s86
   s1 -. uses .-> s128
+  s1 -. uses .-> s129
   s3 -. uses .-> s4
   s5 -. uses .-> s6
   s5 -. uses .-> s7
-  s9 -. uses .-> s150
-  s10 -. uses .-> s129
+  s9 -. uses .-> s151
   s10 -. uses .-> s130
-  s10 -. uses .-> s132
-  s10 -. uses .-> s134
+  s10 -. uses .-> s131
+  s10 -. uses .-> s133
   s10 -. uses .-> s135
-  s10 -. uses .-> s128
-  s10 -. uses .-> s150
-  s11 -. uses .-> s150
-  s12 -. uses .-> s81
-  s12 -. uses .-> s134
-  s13 -. uses .-> s85
-  s13 -. uses .-> s127
+  s10 -. uses .-> s136
+  s10 -. uses .-> s129
+  s10 -. uses .-> s151
+  s11 -. uses .-> s151
+  s12 -. uses .-> s82
+  s12 -. uses .-> s135
+  s13 -. uses .-> s86
   s13 -. uses .-> s128
-  s14 -. uses .-> s150
-  s15 -. uses .-> s150
-  s16 -. uses .-> s83
-  s17 -. uses .-> s129
+  s13 -. uses .-> s129
+  s14 -. uses .-> s151
+  s15 -. uses .-> s151
+  s16 -. uses .-> s84
   s17 -. uses .-> s130
-  s17 -. uses .-> s132
-  s17 -. uses .-> s134
+  s17 -. uses .-> s131
+  s17 -. uses .-> s133
   s17 -. uses .-> s135
-  s17 -. uses .-> s128
-  s18 -. uses .-> s130
-  s18 -. uses .-> s132
-  s18 -. uses .-> s135
-  s19 -. uses .-> s131
-  s19 -. uses .-> s133
+  s17 -. uses .-> s136
+  s17 -. uses .-> s129
+  s18 -. uses .-> s131
+  s18 -. uses .-> s133
+  s18 -. uses .-> s136
+  s19 -. uses .-> s132
   s19 -. uses .-> s134
   s19 -. uses .-> s135
-  s23 -. uses .-> s45
-  s41 -. uses .-> s42
-  s42 -. uses .-> s46
-  s51 -. uses .-> s0
-  s51 -. uses .-> s150
-  s53 -. uses .-> s55
-  s54 -. uses .-> s53
-  s55 -. uses .-> s53
-  s55 -. uses .-> s57
-  s56 -. uses .-> s53
-  s56 -. uses .-> s55
-  s56 -. uses .-> s57
-  s52 --> s53
-  s52 --> s54
-  s52 --> s55
-  s52 --> s56
-  s52 --> s57
-  s52 -. uses .-> s62
-  s52 -. uses .-> s70
-  s52 -. uses .-> s142
-  s58 -. uses .-> s56
-  s58 -. uses .-> s76
-  s58 -. uses .-> s83
-  s58 -. uses .-> s142
-  s60 -. uses .-> s59
-  s59 --> s60
-  s59 --> s61
-  s59 -. uses .-> s63
-  s59 -. uses .-> s142
-  s63 -. uses .-> s65
-  s63 -. uses .-> s66
-  s65 -. uses .-> s63
-  s65 -. uses .-> s66
+  s19 -. uses .-> s136
+  s20 -. uses .-> s74
+  s24 -. uses .-> s46
+  s42 -. uses .-> s43
+  s43 -. uses .-> s47
+  s52 -. uses .-> s0
+  s52 -. uses .-> s151
+  s54 -. uses .-> s56
+  s55 -. uses .-> s54
+  s56 -. uses .-> s54
+  s56 -. uses .-> s58
+  s57 -. uses .-> s54
+  s57 -. uses .-> s56
+  s57 -. uses .-> s58
+  s53 --> s54
+  s53 --> s55
+  s53 --> s56
+  s53 --> s57
+  s53 --> s58
+  s53 -. uses .-> s63
+  s53 -. uses .-> s71
+  s53 -. uses .-> s143
+  s59 -. uses .-> s57
+  s59 -. uses .-> s77
+  s59 -. uses .-> s84
+  s59 -. uses .-> s143
+  s61 -. uses .-> s60
+  s60 --> s61
+  s60 --> s62
+  s60 -. uses .-> s64
+  s60 -. uses .-> s143
+  s64 -. uses .-> s66
+  s64 -. uses .-> s67
   s66 -. uses .-> s64
-  s66 -. uses .-> s65
-  s62 -. uses .-> s59
-  s62 --> s63
-  s62 --> s64
-  s62 --> s65
-  s62 --> s66
-  s62 -. uses .-> s142
-  s68 -. uses .-> s69
-  s68 -. uses .-> s135
-  s67 --> s68
-  s67 --> s69
-  s67 -. uses .-> s81
-  s67 -. uses .-> s128
-  s67 -. uses .-> s142
-  s71 -. uses .-> s75
-  s71 -. uses .-> s79
-  s72 -. uses .-> s73
-  s72 -. uses .-> s75
-  s73 --> s16
-  s73 -. uses .-> s72
-  s73 -. uses .-> s77
-  s73 -. uses .-> s78
-  s73 -. uses .-> s79
-  s73 -. uses .-> s80
+  s66 -. uses .-> s67
+  s67 -. uses .-> s65
+  s67 -. uses .-> s66
+  s63 -. uses .-> s60
+  s63 --> s64
+  s63 --> s65
+  s63 --> s66
+  s63 --> s67
+  s63 -. uses .-> s143
+  s69 -. uses .-> s70
+  s69 -. uses .-> s136
+  s68 --> s69
+  s68 --> s70
+  s68 -. uses .-> s82
+  s68 -. uses .-> s129
+  s68 -. uses .-> s143
+  s72 -. uses .-> s76
+  s72 -. uses .-> s80
+  s73 -. uses .-> s74
+  s73 -. uses .-> s76
+  s74 --> s16
   s74 -. uses .-> s73
   s74 -. uses .-> s78
   s74 -. uses .-> s79
-  s75 -. uses .-> s71
-  s75 -. uses .-> s73
-  s76 -. uses .-> s71
-  s76 -. uses .-> s79
-  s77 -. uses .-> s73
-  s77 -. uses .-> s76
-  s78 -. uses .-> s73
-  s79 -. uses .-> s71
-  s79 -. uses .-> s73
+  s74 -. uses .-> s80
+  s74 -. uses .-> s81
+  s75 -. uses .-> s74
+  s75 -. uses .-> s79
+  s75 -. uses .-> s80
+  s76 -. uses .-> s72
+  s76 -. uses .-> s74
+  s77 -. uses .-> s72
+  s77 -. uses .-> s80
+  s78 -. uses .-> s74
+  s78 -. uses .-> s77
   s79 -. uses .-> s74
-  s79 -. uses .-> s76
-  s80 -. uses .-> s73
-  s70 -. uses .-> s52
-  s70 -. uses .-> s62
-  s70 --> s71
-  s70 --> s72
-  s70 --> s73
-  s70 --> s74
-  s70 --> s75
-  s70 --> s76
-  s70 --> s77
-  s70 --> s78
-  s70 --> s79
-  s70 --> s80
-  s70 -. uses .-> s142
-  s82 -. uses .-> s83
-  s82 -. uses .-> s84
-  s82 -. uses .-> s81
-  s83 -. uses .-> s82
+  s80 -. uses .-> s72
+  s80 -. uses .-> s74
+  s80 -. uses .-> s75
+  s80 -. uses .-> s77
+  s81 -. uses .-> s74
+  s71 -. uses .-> s53
+  s71 -. uses .-> s63
+  s71 --> s72
+  s71 --> s73
+  s71 --> s74
+  s71 --> s75
+  s71 --> s76
+  s71 --> s77
+  s71 --> s78
+  s71 --> s79
+  s71 --> s80
+  s71 --> s81
+  s71 -. uses .-> s143
+  s83 --> s20
   s83 -. uses .-> s84
+  s83 -. uses .-> s85
+  s83 -. uses .-> s82
   s84 -. uses .-> s83
-  s84 -. uses .-> s81
-  s81 -. uses .-> s59
-  s81 --> s82
-  s81 --> s83
-  s81 --> s84
-  s81 -. uses .-> s85
-  s87 -. uses .-> s91
-  s88 -. uses .-> s91
+  s84 -. uses .-> s85
+  s85 -. uses .-> s84
+  s85 -. uses .-> s82
+  s82 -. uses .-> s60
+  s82 --> s83
+  s82 --> s84
+  s82 --> s85
+  s82 -. uses .-> s86
   s88 -. uses .-> s92
-  s90 -. uses .-> s88
-  s90 -. uses .-> s92
-  s90 -. uses .-> s149
-  s91 -. uses .-> s88
-  s92 -. uses .-> s90
-  s85 -. uses .-> s62
-  s85 -. uses .-> s81
-  s85 --> s86
-  s85 --> s87
-  s85 --> s88
-  s85 --> s89
-  s85 --> s90
-  s85 --> s91
-  s85 --> s92
-  s85 -. uses .-> s142
-  s94 -. uses .-> s105
+  s89 -. uses .-> s92
+  s89 -. uses .-> s93
+  s91 -. uses .-> s89
+  s91 -. uses .-> s93
+  s91 -. uses .-> s150
+  s92 -. uses .-> s89
+  s93 -. uses .-> s91
+  s86 -. uses .-> s63
+  s86 -. uses .-> s82
+  s86 --> s87
+  s86 --> s88
+  s86 --> s89
+  s86 --> s90
+  s86 --> s91
+  s86 --> s92
+  s86 --> s93
+  s86 -. uses .-> s143
+  s95 -. uses .-> s106
+  s95 -. uses .-> s129
+  s95 -. uses .-> s137
+  s95 -. uses .-> s138
+  s96 -. uses .-> s89
+  s96 -. uses .-> s91
+  s96 -. uses .-> s128
+  s97 -. uses .-> s151
+  s97 -. uses .-> s152
+  s98 -. uses .-> s88
+  s98 -. uses .-> s128
+  s98 -. uses .-> s137
+  s94 --> s95
+  s94 --> s96
+  s94 --> s97
+  s94 --> s98
   s94 -. uses .-> s128
-  s94 -. uses .-> s136
+  s94 -. uses .-> s129
   s94 -. uses .-> s137
-  s95 -. uses .-> s88
-  s95 -. uses .-> s90
-  s95 -. uses .-> s127
-  s96 -. uses .-> s150
-  s96 -. uses .-> s151
-  s97 -. uses .-> s87
-  s97 -. uses .-> s127
-  s97 -. uses .-> s136
-  s93 --> s94
-  s93 --> s95
-  s93 --> s96
-  s93 --> s97
-  s93 -. uses .-> s127
-  s93 -. uses .-> s128
-  s93 -. uses .-> s136
-  s99 -. uses .-> s52
-  s100 --> s0
-  s100 --> s2
-  s100 --> s3
-  s100 --> s4
-  s100 --> s5
-  s100 --> s6
-  s100 --> s7
-  s100 --> s8
-  s100 --> s9
-  s100 --> s11
-  s100 --> s14
-  s100 --> s15
-  s100 --> s20
-  s100 --> s21
-  s100 --> s22
-  s100 --> s23
-  s100 --> s24
-  s100 --> s25
-  s100 --> s26
-  s100 --> s27
-  s100 --> s28
-  s100 --> s29
-  s100 --> s30
-  s100 --> s31
-  s100 --> s32
-  s100 --> s33
-  s100 --> s34
-  s100 --> s35
-  s100 --> s36
-  s100 --> s37
-  s100 --> s38
-  s100 --> s39
-  s100 --> s40
-  s100 --> s41
-  s100 --> s42
-  s100 --> s43
-  s100 --> s44
-  s100 --> s45
-  s100 --> s46
-  s100 --> s47
-  s100 --> s48
-  s100 --> s49
-  s100 --> s50
-  s100 --> s51
-  s100 --> s52
-  s100 -. uses .-> s52
-  s100 --> s58
-  s100 --> s59
-  s100 -. uses .-> s59
-  s100 --> s62
-  s100 -. uses .-> s62
-  s100 --> s67
-  s100 --> s70
-  s100 -. uses .-> s70
-  s100 --> s81
-  s100 -. uses .-> s81
-  s100 --> s85
-  s100 -. uses .-> s85
-  s100 --> s93
-  s100 --> s98
-  s100 --> s99
-  s100 -. uses .-> s99
-  s100 --> s101
-  s100 -. uses .-> s101
-  s100 --> s102
-  s100 -. uses .-> s102
-  s100 --> s103
-  s100 -. uses .-> s103
-  s100 --> s104
-  s100 -. uses .-> s104
-  s100 --> s105
-  s100 --> s106
-  s100 -. uses .-> s106
-  s100 --> s107
-  s100 --> s108
-  s100 --> s109
-  s100 --> s110
-  s100 --> s111
-  s100 --> s112
-  s100 --> s113
-  s100 --> s114
-  s100 --> s115
-  s100 --> s116
-  s100 --> s117
-  s100 --> s118
-  s100 --> s119
-  s100 --> s120
-  s100 --> s121
-  s100 --> s122
-  s100 --> s123
-  s100 --> s124
-  s100 --> s125
-  s100 --> s126
-  s100 --> s127
-  s100 -. uses .-> s127
-  s100 --> s128
-  s100 -. uses .-> s128
-  s100 --> s136
-  s100 -. uses .-> s136
-  s100 --> s137
-  s100 -. uses .-> s137
-  s100 --> s140
-  s100 --> s141
-  s100 -. uses .-> s141
-  s100 --> s144
-  s100 -. uses .-> s144
-  s100 --> s148
-  s100 --> s150
-  s100 --> s151
-  s101 -. uses .-> s59
-  s102 -. uses .-> s70
-  s103 -. uses .-> s62
-  s104 -. uses .-> s69
-  s104 -. uses .-> s87
-  s104 -. uses .-> s128
-  s105 -. uses .-> s100
-  s106 -. uses .-> s81
-  s120 -. uses .-> s118
-  s127 -. uses .-> s52
-  s127 -. uses .-> s70
-  s127 -. uses .-> s85
-  s127 -. uses .-> s142
-  s127 -. uses .-> s149
+  s100 -. uses .-> s53
+  s101 --> s0
+  s101 --> s2
+  s101 --> s3
+  s101 --> s4
+  s101 --> s5
+  s101 --> s6
+  s101 --> s7
+  s101 --> s8
+  s101 --> s9
+  s101 --> s11
+  s101 --> s14
+  s101 --> s15
+  s101 --> s21
+  s101 --> s22
+  s101 --> s23
+  s101 --> s24
+  s101 --> s25
+  s101 --> s26
+  s101 --> s27
+  s101 --> s28
+  s101 --> s29
+  s101 --> s30
+  s101 --> s31
+  s101 --> s32
+  s101 --> s33
+  s101 --> s34
+  s101 --> s35
+  s101 --> s36
+  s101 --> s37
+  s101 --> s38
+  s101 --> s39
+  s101 --> s40
+  s101 --> s41
+  s101 --> s42
+  s101 --> s43
+  s101 --> s44
+  s101 --> s45
+  s101 --> s46
+  s101 --> s47
+  s101 --> s48
+  s101 --> s49
+  s101 --> s50
+  s101 --> s51
+  s101 --> s52
+  s101 --> s53
+  s101 -. uses .-> s53
+  s101 --> s59
+  s101 --> s60
+  s101 -. uses .-> s60
+  s101 --> s63
+  s101 -. uses .-> s63
+  s101 --> s68
+  s101 --> s71
+  s101 -. uses .-> s71
+  s101 --> s82
+  s101 -. uses .-> s82
+  s101 --> s86
+  s101 -. uses .-> s86
+  s101 --> s94
+  s101 --> s99
+  s101 --> s100
+  s101 -. uses .-> s100
+  s101 --> s102
+  s101 -. uses .-> s102
+  s101 --> s103
+  s101 -. uses .-> s103
+  s101 --> s104
+  s101 -. uses .-> s104
+  s101 --> s105
+  s101 -. uses .-> s105
+  s101 --> s106
+  s101 --> s107
+  s101 -. uses .-> s107
+  s101 --> s108
+  s101 --> s109
+  s101 --> s110
+  s101 --> s111
+  s101 --> s112
+  s101 --> s113
+  s101 --> s114
+  s101 --> s115
+  s101 --> s116
+  s101 --> s117
+  s101 --> s118
+  s101 --> s119
+  s101 --> s120
+  s101 --> s121
+  s101 --> s122
+  s101 --> s123
+  s101 --> s124
+  s101 --> s125
+  s101 --> s126
+  s101 --> s127
+  s101 --> s128
+  s101 -. uses .-> s128
+  s101 --> s129
+  s101 -. uses .-> s129
+  s101 --> s137
+  s101 -. uses .-> s137
+  s101 --> s138
+  s101 -. uses .-> s138
+  s101 --> s141
+  s101 --> s142
+  s101 -. uses .-> s142
+  s101 --> s145
+  s101 -. uses .-> s145
+  s101 --> s149
+  s101 --> s151
+  s101 --> s152
+  s102 -. uses .-> s60
+  s103 -. uses .-> s71
+  s104 -. uses .-> s63
+  s105 -. uses .-> s70
+  s105 -. uses .-> s88
+  s105 -. uses .-> s129
+  s106 -. uses .-> s101
+  s107 -. uses .-> s82
+  s121 -. uses .-> s119
+  s128 -. uses .-> s53
+  s128 -. uses .-> s71
+  s128 -. uses .-> s86
+  s128 -. uses .-> s143
+  s128 -. uses .-> s150
+  s130 -. uses .-> s131
+  s130 -. uses .-> s136
+  s130 -. uses .-> s129
+  s131 -. uses .-> s136
+  s131 -. uses .-> s129
+  s133 -. uses .-> s136
+  s133 -. uses .-> s129
+  s133 -. uses .-> s150
+  s134 --> s12
+  s134 -. uses .-> s150
+  s135 -. uses .-> s129
+  s135 -. uses .-> s150
+  s136 -. uses .-> s129
+  s136 -. uses .-> s150
+  s129 --> s10
+  s129 --> s17
+  s129 --> s18
+  s129 --> s19
+  s129 --> s130
   s129 -. uses .-> s130
+  s129 --> s131
+  s129 -. uses .-> s131
+  s129 --> s132
+  s129 -. uses .-> s132
+  s129 --> s133
+  s129 -. uses .-> s133
+  s129 --> s134
+  s129 -. uses .-> s134
+  s129 --> s135
   s129 -. uses .-> s135
-  s129 -. uses .-> s128
-  s130 -. uses .-> s135
-  s130 -. uses .-> s128
-  s132 -. uses .-> s135
-  s132 -. uses .-> s128
-  s132 -. uses .-> s149
-  s133 --> s12
-  s133 -. uses .-> s149
-  s134 -. uses .-> s128
-  s134 -. uses .-> s149
-  s135 -. uses .-> s128
-  s135 -. uses .-> s149
-  s128 --> s10
-  s128 --> s17
-  s128 --> s18
-  s128 --> s19
-  s128 --> s129
-  s128 -. uses .-> s129
-  s128 --> s130
-  s128 -. uses .-> s130
-  s128 --> s131
-  s128 -. uses .-> s131
-  s128 --> s132
-  s128 -. uses .-> s132
-  s128 --> s133
-  s128 -. uses .-> s133
-  s128 --> s134
-  s128 -. uses .-> s134
-  s128 --> s135
-  s128 -. uses .-> s135
-  s128 -. uses .-> s149
-  s128 -. uses .-> s151
-  s136 -. uses .-> s63
-  s136 -. uses .-> s66
-  s136 -. uses .-> s142
-  s138 -. uses .-> s139
-  s139 -. uses .-> s138
-  s137 -. uses .-> s29
-  s137 -. uses .-> s52
-  s137 -. uses .-> s59
+  s129 --> s136
+  s129 -. uses .-> s136
+  s129 -. uses .-> s150
+  s129 -. uses .-> s152
+  s137 -. uses .-> s64
   s137 -. uses .-> s67
-  s137 -. uses .-> s81
-  s137 --> s138
-  s137 -. uses .-> s138
-  s137 --> s139
-  s137 -. uses .-> s139
-  s137 -. uses .-> s142
   s137 -. uses .-> s143
-  s137 -. uses .-> s144
-  s140 -. uses .-> s59
-  s140 -. uses .-> s66
-  s140 -. uses .-> s142
-  s143 -. uses .-> s142
-  s141 -. uses .-> s52
-  s141 -. uses .-> s59
-  s141 -. uses .-> s62
-  s141 -. uses .-> s70
-  s141 -. uses .-> s81
-  s141 -. uses .-> s85
-  s141 --> s142
-  s141 --> s143
-  s141 --> s149
+  s139 -. uses .-> s140
+  s140 -. uses .-> s139
+  s138 -. uses .-> s30
+  s138 -. uses .-> s53
+  s138 -. uses .-> s60
+  s138 -. uses .-> s68
+  s138 -. uses .-> s82
+  s138 --> s139
+  s138 -. uses .-> s139
+  s138 --> s140
+  s138 -. uses .-> s140
+  s138 -. uses .-> s143
+  s138 -. uses .-> s144
+  s138 -. uses .-> s145
+  s141 -. uses .-> s60
+  s141 -. uses .-> s67
+  s141 -. uses .-> s143
+  s144 -. uses .-> s143
+  s142 -. uses .-> s53
+  s142 -. uses .-> s60
+  s142 -. uses .-> s63
+  s142 -. uses .-> s71
+  s142 -. uses .-> s82
+  s142 -. uses .-> s86
+  s142 --> s143
+  s142 --> s144
+  s142 --> s150
+  s146 -. uses .-> s148
+  s146 -. uses .-> s145
+  s147 -. uses .-> s148
+  s148 -. uses .-> s145
+  s145 --> s146
+  s145 -. uses .-> s146
+  s145 --> s147
   s145 -. uses .-> s147
-  s145 -. uses .-> s144
-  s146 -. uses .-> s147
-  s147 -. uses .-> s144
-  s144 --> s145
-  s144 -. uses .-> s145
-  s144 --> s146
-  s144 -. uses .-> s146
-  s144 --> s147
-  s144 -. uses .-> s147
-  s148 -. uses .-> s66
-  s148 -. uses .-> s62
-  s148 -. uses .-> s136
-  s149 --> s1
-  s149 --> s13
-  s149 -. uses .-> s59
-  s149 -. uses .-> s81
-  s149 -. uses .-> s85
-  s151 -. uses .-> s150
+  s145 --> s148
+  s145 -. uses .-> s148
+  s149 -. uses .-> s67
+  s149 -. uses .-> s63
+  s149 -. uses .-> s137
+  s150 --> s1
+  s150 --> s13
+  s150 -. uses .-> s60
+  s150 -. uses .-> s82
+  s150 -. uses .-> s86
+  s152 -. uses .-> s151
