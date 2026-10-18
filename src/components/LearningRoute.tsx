@@ -7,6 +7,7 @@ import { clearPersonalSession, loadPersonalProfile, rememberPersonalContext, rem
 import { LearningAccessError, learningHash, loadLearningAccess } from '@/lib/learningRoute'
 import type { LearningAccess, LearningMode } from '@/lib/learningRoute'
 import { reportUiError } from '@/lib/uiErrors'
+import { configureRoleDiagnostics } from '@/lib/roleDiagnostics'
 import DayPage from '@/DayPage'
 import DayDashboard from '@/DayDashboard'
 
@@ -19,9 +20,11 @@ export default function LearningRoute({ mode, token, headerReturnTarget }: { mod
     setError('')
     const stops: Array<() => void> = []
     let revoked = false
+    let stopDiagnostics = () => {}
     const revoke = () => {
       if (!active) return
       revoked = true
+      stopDiagnostics()
       clearPersonalSession()
       setAccess(undefined)
       setError('Доступ изменился. Откройте свою личную ссылку Education.')
@@ -51,6 +54,9 @@ export default function LearningRoute({ mode, token, headerReturnTarget }: { mod
         const data = member.data()
         if (!member.exists() || data?.active !== true || !['parent', 'student'].includes(data?.role)
           || !Array.isArray(data?.childIds) || !data.childIds.includes(child.childId)) { revoke(); return }
+        const previousDiagnosticStop = stopDiagnostics
+        stopDiagnostics = configureRoleDiagnostics(session, child.familyId, data, current.child.role)
+        previousDiagnosticStop()
         memberRole = data.role
         if (memberRole === current.child.role && !refreshing) { ready('member'); return }
         confirmed.delete('member')
@@ -74,7 +80,7 @@ export default function LearningRoute({ mode, token, headerReturnTarget }: { mod
       if (location.hash !== canonical) history.replaceState(history.state, '', `${location.pathname}${location.search}${canonical}`)
       if (mode === 'days') rememberPersonalDashboardRoute(canonical)
     }).catch((cause) => { if (active) setError(cause instanceof LearningAccessError ? cause.message : reportUiError(cause, 'Личный учебный экран')) })
-    return () => { active = false; stops.forEach((stop) => stop()) }
+    return () => { active = false; stopDiagnostics(); stops.forEach((stop) => stop()) }
   }, [mode, token])
   if (error) return <div role="alert">{error} <a href="#/">На главную</a></div>
   if (!access) return <p>Проверяем личный доступ к учебному экрану…</p>

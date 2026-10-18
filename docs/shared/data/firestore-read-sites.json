@@ -2714,7 +2714,7 @@
   {
     "id": "scripts/family.mjs#admin.get#749116f6a6b2",
     "file": "scripts/family.mjs",
-    "line": 148,
+    "line": 149,
     "api": "admin.get",
     "target": "db.doc(`accessLinks/${link}`)",
     "group": "operator-other",
@@ -2726,7 +2726,7 @@
   {
     "id": "scripts/family.mjs#admin.get#749116f6a6b2-2",
     "file": "scripts/family.mjs",
-    "line": 162,
+    "line": 163,
     "api": "admin.get",
     "target": "db.doc(`accessLinks/${link}`)",
     "group": "operator-other",
@@ -2738,7 +2738,7 @@
   {
     "id": "scripts/family.mjs#admin.get#c010c1a692f0",
     "file": "scripts/family.mjs",
-    "line": 163,
+    "line": 164,
     "api": "admin.get",
     "target": "db.collection('deviceSessions').where('linkToken', '==', link).count()",
     "group": "operator-other",
@@ -2750,7 +2750,7 @@
   {
     "id": "scripts/family.mjs#admin.get#749116f6a6b2-3",
     "file": "scripts/family.mjs",
-    "line": 178,
+    "line": 179,
     "api": "admin.get",
     "target": "db.doc(`accessLinks/${link}`)",
     "group": "operator-other",
@@ -2762,7 +2762,7 @@
   {
     "id": "scripts/family.mjs#admin.get#6faaf15e4f89",
     "file": "scripts/family.mjs",
-    "line": 181,
+    "line": 182,
     "api": "admin.get",
     "target": "db.collection('deviceSessions').where('linkToken', '==', newest).count()",
     "group": "operator-other",
@@ -2774,7 +2774,7 @@
   {
     "id": "scripts/family.mjs#admin.get#749116f6a6b2-4",
     "file": "scripts/family.mjs",
-    "line": 197,
+    "line": 198,
     "api": "admin.get",
     "target": "db.doc(`accessLinks/${link}`)",
     "group": "operator-other",
@@ -2786,7 +2786,7 @@
   {
     "id": "scripts/family.mjs#admin.get#b73cabf04823",
     "file": "scripts/family.mjs",
-    "line": 232,
+    "line": 233,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${pair.student}`)",
     "group": "operator-other",
@@ -2798,7 +2798,7 @@
   {
     "id": "scripts/family.mjs#admin.get#6f4399142777",
     "file": "scripts/family.mjs",
-    "line": 233,
+    "line": 234,
     "api": "admin.get",
     "target": "db.doc(`dayOwners/${pair.student}`)",
     "group": "operator-other",
@@ -2810,7 +2810,7 @@
   {
     "id": "scripts/family.mjs#admin.get#c86b2386694a",
     "file": "scripts/family.mjs",
-    "line": 252,
+    "line": 253,
     "api": "admin.get",
     "target": "db.doc(`families/${familyId}/members/${personId}`)",
     "group": "operator-other",
@@ -2822,7 +2822,7 @@
   {
     "id": "scripts/family.mjs#admin.get#b8f8fc5ae8da",
     "file": "scripts/family.mjs",
-    "line": 268,
+    "line": 269,
     "api": "admin.get",
     "target": "db.doc(`${collection}/${token}`)",
     "group": "operator-other",
@@ -2866,6 +2866,42 @@
     "policy": "operator-point",
     "refresh": "explicit inspect-access invocation",
     "note": "Адресный read-only аудит одного зарегистрированного участника: профиль, семейное членство, shortcuts, две проекции дня/календаря, weekend sources и его grants. Один get на уникальный путь, чужие childIds не обходятся. Нет клиентского polling, чтения книг/работ, записей или вывода секретов."
+  },
+  {
+    "id": "scripts/lib/role-diagnostics.mjs#admin.get#65f673705cbd",
+    "file": "scripts/lib/role-diagnostics.mjs",
+    "line": 11,
+    "api": "admin.get",
+    "target": "ref",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "operator-point",
+    "refresh": "explicit diagnostic start/read/stop",
+    "note": "Подтверждение активного членства конкретного зарегистрированного участника перед диагностикой; не клиентский или периодический запрос."
+  },
+  {
+    "id": "scripts/lib/role-diagnostics.mjs#admin.get#65f673705cbd-2",
+    "file": "scripts/lib/role-diagnostics.mjs",
+    "line": 17,
+    "api": "admin.get",
+    "target": "ref",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "operator-point",
+    "refresh": "after explicit diagnostic expiry update",
+    "note": "Адресное обратное чтение единственного изменённого expiry; роли и учебные поля не меняются."
+  },
+  {
+    "id": "scripts/lib/role-diagnostics.mjs#admin.get#3f9ecea6f2e4",
+    "file": "scripts/lib/role-diagnostics.mjs",
+    "line": 22,
+    "api": "admin.get",
+    "target": "db.collection('clientRoleDiagnostics').where('familyId', '==', person.familyId).where('personId', '==', personId).limit(20)",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "bounded-operator-query",
+    "refresh": "explicit incident diagnostic read",
+    "note": "Одна query по personId и familyId, limit20, без listener или чтения работ; только для адресного расследования текущей роли."
   },
   {
     "id": "scripts/notifications.mjs#admin.get#2e328b2ae906",
@@ -4838,7 +4874,7 @@
   {
     "id": "src/components/LearningRoute.tsx#onSnapshot#f4a41a412098",
     "file": "src/components/LearningRoute.tsx",
-    "line": 41,
+    "line": 44,
     "api": "onSnapshot",
     "target": "doc(db, 'accessLinks', session.linkToken)",
     "group": "client-access",
@@ -4850,7 +4886,7 @@
   {
     "id": "src/components/LearningRoute.tsx#onSnapshot#7c88d25fd3b3",
     "file": "src/components/LearningRoute.tsx",
-    "line": 45,
+    "line": 48,
     "api": "onSnapshot",
     "target": "doc(db, 'deviceSessions', session.deviceUid)",
     "group": "client-access",
@@ -4862,7 +4898,7 @@
   {
     "id": "src/components/LearningRoute.tsx#onSnapshot#ae32e1bad017",
     "file": "src/components/LearningRoute.tsx",
-    "line": 49,
+    "line": 52,
     "api": "onSnapshot",
     "target": "doc(db, 'families', child.familyId, 'members', session.personId)",
     "group": "client-access",
@@ -4874,7 +4910,7 @@
   {
     "id": "src/components/PersonalEntry.tsx#onSnapshot#277a67fd7173",
     "file": "src/components/PersonalEntry.tsx",
-    "line": 148,
+    "line": 149,
     "api": "onSnapshot",
     "target": "doc(db, 'accessLinks', session.linkToken)",
     "group": "client-access",
@@ -4886,7 +4922,7 @@
   {
     "id": "src/components/PersonalEntry.tsx#onSnapshot#e2a2ec860d83",
     "file": "src/components/PersonalEntry.tsx",
-    "line": 153,
+    "line": 154,
     "api": "onSnapshot",
     "target": "doc(db, 'deviceSessions', session.deviceUid)",
     "group": "client-access",
@@ -4898,7 +4934,7 @@
   {
     "id": "src/components/PersonalEntry.tsx#onSnapshot#80b6a5d81625",
     "file": "src/components/PersonalEntry.tsx",
-    "line": 169,
+    "line": 171,
     "api": "onSnapshot",
     "target": "doc(db, 'families', familyId, 'members', session.personId)",
     "group": "client-access",

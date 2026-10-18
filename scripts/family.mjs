@@ -8,6 +8,7 @@ import { FieldValue, Timestamp } from 'firebase-admin/firestore'
 import { operatorFirestore } from './lib/admin-firebase.mjs'
 import { syncChildAccess } from './lib/access-projection.mjs'
 import { inspectFamilyAccess } from './lib/inspect-family-access.mjs'
+import { roleDiagnostics } from './lib/role-diagnostics.mjs'
 import { assertLearningRouteIdentity, learningDayAliases, learningRouteIdentity } from '../day/learning-route-identity.mjs'
 
 /** Agent-only provisioning; there is deliberately no browser administration route.
@@ -280,6 +281,9 @@ switch (command) {
   case 'link-url': await showLink(args[0]); break
   case 'link-status': await linkStatus(args[0]); break
   case 'inspect-access': console.log(JSON.stringify(await inspectFamilyAccess(db, registry, args[0]), null, 2)); break
+  case 'diagnostics-start': console.log(JSON.stringify(await roleDiagnostics(db, registry, args[0], 'start', args[1] ? Number(args[1]) : 30), null, 2)); break
+  case 'diagnostics-stop': console.log(JSON.stringify(await roleDiagnostics(db, registry, args[0], 'stop'), null, 2)); break
+  case 'diagnostics-read': console.log(JSON.stringify(await roleDiagnostics(db, registry, args[0], 'read'), null, 2)); break
   case 'revoke-old-links': await revokeOldLinks(args[0], args[1]); break
   case 'revoke-links': await revokeLinks(args[0], args[1]); break
   case 'attach-current-day': await attachCurrentDay(args[0], args[1]); break

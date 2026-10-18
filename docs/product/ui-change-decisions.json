@@ -1,5 +1,19 @@
 {
   "files": {
+    "src/lib/roleDiagnostics.ts": {
+      "sha256": "939bdb18ab422332959f99121b7d5e3e90dab7275996b316408cfff5bb81f610",
+      "record": "docs/decisions/role-projection-diagnostics-2026-10-18.md",
+      "specs": ["docs/modules/families/access-and-state.md"],
+      "tests": ["src/lib/roleDiagnostics.test.ts", "src/components/LearningRoute.weekend.integration.test.tsx"],
+      "authorization": { "status": "direct-request", "evidence": "Родитель18.10 требует измерить реальный веб-дефект сверху вниз без новых вопросов, альтернативных ссылок и изменения карточек." }
+    },
+    "scripts/lib/role-diagnostics.mjs": {
+      "sha256": "fdbb6932e7ec8aeac636c9ce64b6bb683e3e216172aa46db29006bb2e5762428",
+      "record": "docs/decisions/role-projection-diagnostics-2026-10-18.md",
+      "specs": ["docs/modules/families/access-and-state.md"],
+      "tests": ["scripts/lib/role-diagnostics.test.mjs", "scripts/firestore-rules-role-diagnostics.test.mjs"],
+      "authorization": { "status": "direct-request", "evidence": "Родитель18.10 требует стандартные инструменты и измерения для расследования неправильного родительского вида без новых уточнений." }
+    },
     "scripts/lib/inspect-family-access.mjs": {
       "sha256": "d365beb24158d8247c823bfe02bf3488ae9d0a696ec6a74490cfcd3419a91c5a",
       "record": "docs/decisions/personal-identity-transition-2026-10-18.md",
@@ -28,8 +42,8 @@
       }
     },
     "src/components/LearningRoute.tsx": {
-      "sha256": "955dd8c82f105fcdbbe2054af5d0fce18e720c626b94b7f4324cc3c03a63cc5a",
-      "record": "docs/decisions/personal-entry-role-confirmation-2026-10-18.md",
+      "sha256": "7cd2545f215c63ab4d3c21f43ac6d2feb274c5b2026317f4df57cb9251ccd727",
+      "record": "docs/decisions/role-projection-diagnostics-2026-10-18.md",
       "specs": [
         "docs/modules/families/access-and-state.md"
       ],
@@ -599,8 +613,8 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "e561918c90de2bcf832ca5635ea811bff6e9f397b29917699943bf21805692d5",
-      "record": "docs/decisions/authenticated-learning-routes-2026-10-18.md",
+      "sha256": "2f9b77968f2ff1a6753701507b290b61ffcb2410d0c781da62f715c62b5da6a7",
+      "record": "docs/decisions/role-projection-diagnostics-2026-10-18.md",
       "specs": [
         "docs/modules/school-diary/grades.md",
         "docs/shared/design/ui-kit.md",
@@ -854,8 +868,8 @@
       }
     },
     "src/WeekendMathSlot.tsx": {
-      "sha256": "7d411bf0eaf0325314a80e07cb4d70f87d9197ce73ca26c42611f307e1f188bb",
-      "record": "docs/decisions/authenticated-learning-routes-2026-10-18.md",
+      "sha256": "60f9bd3b35ba771665540977b1c302c975eab06fb6be5a77137253b08dbad53e",
+      "record": "docs/decisions/role-projection-diagnostics-2026-10-18.md",
       "specs": [
         "docs/modules/families/access-and-state.md",
         "docs/modules/school-diary/dashboard.md",
@@ -1267,8 +1281,8 @@
       }
     },
     "src/components/ProblemTaskCard.tsx": {
-      "sha256": "2438210321f1ddf0cc46b444d9949c4a5847c198297b4a67801efbc95df7736a",
-      "record": "docs/decisions/restore-numbered-original-2026-10-14.md",
+      "sha256": "1f50bfdf46f6b2f78b7db01ab12842f59ae6412234a9357120c1dbf45f46f771",
+      "record": "docs/decisions/role-projection-diagnostics-2026-10-18.md",
       "specs": [
         "docs/modules/reviews/adaptive-problem-card.md",
         "docs/modules/reviews/problem-card-design-decisions.md",
@@ -2657,8 +2671,8 @@
       }
     },
     "scripts/family.mjs": {
-      "sha256": "e1542606a965ce142b3563058bd2fbfac8aca581290c0ae316b8d6259b9b88ff",
-      "record": "docs/decisions/personal-identity-transition-2026-10-18.md",
+      "sha256": "8944ad137eb2cf78959d89f7c09c452907af58776522e0d46ab446c3f0d22ec0",
+      "record": "docs/decisions/role-projection-diagnostics-2026-10-18.md",
       "specs": [
         "docs/modules/families/access-and-state.md",
         "docs/shared/specification-system.md"
@@ -3174,8 +3188,8 @@
       }
     },
     "src/components/PersonalEntry.tsx": {
-      "sha256": "bfc8ad24be9a7cf3b432880c46894d6a3cccbfea9a68c152ca356637b2047133",
-      "record": "docs/decisions/personal-entry-role-confirmation-2026-10-18.md",
+      "sha256": "f01c9e34ce30bd0b13fc81791b4137ac630460f5abf31e0f77bdb9e20d701b38",
+      "record": "docs/decisions/role-projection-diagnostics-2026-10-18.md",
       "specs": [
         "docs/modules/families/access-and-state.md"
       ],
