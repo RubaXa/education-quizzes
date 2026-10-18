@@ -3,7 +3,7 @@ id: shared.design
 status: accepted
 implementation: partial
 created: 2026-10-11
-updated: 2026-10-16
+updated: 2026-10-18
 consumers:
   - "React UI components"
   - "frontend developer"
@@ -49,6 +49,7 @@ uses:
   - shared.design.components
   - shared.design.statuses
   - shared.design.ui-kit
+  - shared.design.telegram
 sections:
   - tokens
   - shell
@@ -168,3 +169,5 @@ sections:
 ## Короткие заголовки
 
 [Сводка ДЗ](../../modules/school-diary/dashboard.md#compact-homework) называет объект один раз и выносит дату отдельной строкой. Не повторять смысл в подзаголовке и баннере. Состояние, задание и причина — разные визуальные строки; подробный текст остаётся доступен в своей карточке. Счётчик относится к группе, а не к длинной поясняющей фразе.
+
+[Telegram-уведомления](telegram.md) — канал общей дизайн-системы: общая семантика состояний, читаемая иерархия и проверенный переход. CSS сайта и нативная тема Telegram различаются, словарь смысла остаётся единым.

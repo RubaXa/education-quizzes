@@ -830,7 +830,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-firestore.mjs#admin.getAll#5718b4ad2931",
     "file": "packages/telegram-notifications/adapters/source-firestore.mjs",
-    "line": 10,
+    "line": 11,
     "api": "admin.getAll",
     "target": "db",
     "group": "operator-other",
@@ -842,7 +842,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-firestore.mjs#admin.get#f2c4103d5d1b",
     "file": "packages/telegram-notifications/adapters/source-firestore.mjs",
-    "line": 28,
+    "line": 29,
     "api": "admin.get",
     "target": "db.doc(`families/${scope.familyId}`)",
     "group": "operator-other",
@@ -854,7 +854,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-firestore.mjs#admin.get#8f6404b39725",
     "file": "packages/telegram-notifications/adapters/source-firestore.mjs",
-    "line": 29,
+    "line": 30,
     "api": "admin.get",
     "target": "db.doc(`families/${scope.familyId}/children/${scope.childId}`)",
     "group": "operator-other",
@@ -866,7 +866,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-firestore.mjs#admin.onSnapshot#100795890a98",
     "file": "packages/telegram-notifications/adapters/source-firestore.mjs",
-    "line": 132,
+    "line": 133,
     "api": "admin.onSnapshot",
     "target": "ref",
     "group": "operator-other",
@@ -4390,6 +4390,30 @@
     "policy": "delta-or-explicit-audit",
     "refresh": "per changed item; full scan explicit",
     "note": "Широкий обход дорого повторять в рабочем цикле; перейти на локальный курсор/активный индекс и оставить полный обход для явной сверки."
+  },
+  {
+    "id": "scripts/telegram-design-preview.mjs#admin.get#78891f564654",
+    "file": "scripts/telegram-design-preview.mjs",
+    "line": 52,
+    "api": "admin.get",
+    "target": "db.doc(`telegramNotificationOutbox/${jobId}`)",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "explicit-design-preview-receipt",
+    "refresh": "explicit-command-only",
+    "note": "Адресный outbox readback перед/после явно разрешённых примеров или receipt-only; aggregate report, без новых семейных данных."
+  },
+  {
+    "id": "scripts/telegram-design-preview.mjs#admin.get#78891f564654-2",
+    "file": "scripts/telegram-design-preview.mjs",
+    "line": 75,
+    "api": "admin.get",
+    "target": "db.doc(`telegramNotificationOutbox/${jobId}`)",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "explicit-design-preview-receipt",
+    "refresh": "explicit-command-only",
+    "note": "Адресный outbox readback перед/после явно разрешённых примеров или receipt-only; aggregate report, без новых семейных данных."
   },
   {
     "id": "scripts/telegram-runtime.mjs#admin.get#b8a8c75cc706",

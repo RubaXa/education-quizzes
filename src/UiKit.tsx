@@ -4,11 +4,12 @@ import HomeworkOverview from '@/components/HomeworkOverview'
 import MaterialRequest from '@/components/MaterialRequest'
 import PhotoUploadControl from '@/components/PhotoUploadControl'
 import { useState } from 'react'
-import { BookOpen, ChevronRight, CircleHelp, Layers3, Palette } from 'lucide-react'
+import { BellRing, BookOpen, ChevronRight, CircleHelp, Layers3, Palette } from 'lucide-react'
 import { ResultBadge, ResultMeter, ResultPoints } from '@/components/ui/result'
 import QuizCard from '@/components/QuizCard'
 import GradeAverage from '@/components/GradeAverage'
 import GradeAverageSlider from '@/components/GradeAverageSlider'
+import TelegramNotificationPreview from '@/components/TelegramNotificationPreview'
 import { uiKitQuizExamples, uiKitHomeworkRows } from '@/lib/uiKitExamples'
 import type { ResultInput } from '@/lib/resultPresentation'
 import tokenCss from './education-design-tokens.css?raw'
@@ -26,6 +27,7 @@ const topicGroups = [
     {id:'homework',title:'Сводка ДЗ',icon:BookOpen},
     {id:'material',title:'Уточнение материала',icon:BookOpen},
     {id:'quiz',title:'История тестов',icon:Layers3},
+    {id:'telegram',title:'Telegram-уведомления',icon:BellRing},
   ]},
 ] as const
 type UiKitSection = (typeof topicGroups)[number]['topics'][number]['id']
@@ -102,6 +104,7 @@ export default function UiKit() {
       {section==='material' && <section aria-labelledby="kit-material-title"><h2 id="kit-material-title">Уточнение материала</h2><p>Пример с условными данными. Выбранные файлы остаются в этой демонстрации и не отправляются в Education.</p><MaterialRequest request={{id:'demo-notes',state:'open',question:'Какая последняя тема записана в тетради? Пришли фото записей с последнего урока.',photoPrompt:'Заголовок темы и все страницы последних записей целиком. Переписывать ничего не нужно.'}} label={demoFiles.length ? 'Материал выбран · пример' : 'Нужен материал для уточнения'} detail={demoFiles.length ? `Выбрано файлов: ${demoFiles.length}. На рабочей странице они будут переданы на Диск и попадут в следующий запуск синхронизации.` : 'Это вопрос для уточнения источника, а не требование учителя сдать письменную работу.'} /><PhotoUploadControl label="Добавить фото записей" onPhotos={files=>setDemoFiles(files.map(file=>file.name))}/><p>Фото помогает установить тему и увидеть записи. Само получение материала не отмечает домашнее задание выполненным.</p></section>}
       {section==='quiz' && <section aria-labelledby="kit-quiz-title"><h2 id="kit-quiz-title">История тестов</h2><p>Пример с условными данными. Тот же QuizCard используется на странице урока и в списке тестов. Нажмите название попытки для разбора, часы — для дат.</p><QuizCard chain={uiKitQuizExamples} parent={false} linksEnabled={false} context="Пример темы" assignment={<div className="edu-kit-assignment"><strong>Задание учителя · пример</strong><p>Повторить назначенную тему. Дополнительные упражнения не становятся обязательным домашним заданием.</p></div>} materials={<p>Демонстрационный материал. Персональных страниц и ответов здесь нет.</p>} />
       <h3>Что сохраняется при изменении дизайна</h3><ul><li>Корень цепочки, роли, обязательность и исходное задание учителя.</li><li>Верные ответы, баллы и вопросы считаются отдельно.</li><li>История идёт от новых завершений к старым. Поздний разбор не меняет порядок.</li><li>Просмотр дат и раскрытие ошибок не открывают новые подписки Firebase.</li></ul></section>}
+      {section==='telegram' && <TelegramNotificationPreview />}
     </div></div>
   </div>
 }

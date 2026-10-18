@@ -209,12 +209,12 @@ describe('source observation pipeline', () => {
     db.set('families/family-a', { familyId: 'family-a' })
     db.set('families/family-a/children/child-a', { displayName: 'Ученик A' })
     db.set('dayOwners/day-a', { familyId: 'family-a', childId: 'child-a', date: '2026-10-21', targetDate: '2026-10-22' })
-    db.set('dayPages/day-a', { kind: 'student', date: '2026-10-21', targetDate: '2026-10-22', taskIds: ['task-a'], subjects: [{ id: 'math', name: 'Математика', tasks: [{ id: 'task-a', title: 'Пример' }] }] })
-    db.set('dayUploads/day-a/files/upload-a', { taskId: 'task-a', status: 'pending', sha256: 'private-hash', deviceUid: 'private-device',
+    db.set('dayPages/day-a', { kind: 'student', familyId: 'family-a', childId: 'child-a', viewTokens: { student: 'day-a', parent: 'parent-day-a' }, date: '2026-10-21', targetDate: '2026-10-22', taskIds: ['task:a.v1'], subjects: [{ id: 'math', name: 'Математика', tasks: [{ id: 'task:a.v1', title: 'Пример' }] }] })
+    db.set('dayUploads/day-a/files/upload-a', { taskId: 'task:a.v1', status: 'pending', sha256: 'private-hash', deviceUid: 'private-device',
       storage: { provider: 'yandex-disk', state: 'stored', path: 'private-path', publicUrl: 'https://private.example/photo', syncedAt: new Date(now) } })
-    db.set('dayUploads/day-a/files/upload-b', { taskId: 'task-a', status: 'pending', sha256: 'private-hash', deviceUid: 'private-device' })
-    db.set('dayProgress/day-a/items/task-a', { status: 'verified', checkedAt: new Date(now), summary: 'private review', history: [{ answer: 'private' }] })
-    db.set('dayReviewPrivate/day-a/items/task-a', { status: 'verified', answer: 'secret' })
+    db.set('dayUploads/day-a/files/upload-b', { taskId: 'task:a.v1', status: 'pending', sha256: 'private-hash', deviceUid: 'private-device' })
+    db.set('dayProgress/day-a/items/task:a.v1', { status: 'verified', checkedAt: new Date(now), summary: 'private review', history: [{ answer: 'private' }] })
+    db.set('dayReviewPrivate/day-a/items/task:a.v1', { status: 'verified', answer: 'secret' })
     db.set('assignments/quiz-a', { familyId: 'family-a', childId: 'child-a', status: 'submitted', startedAt: new Date(now), submittedAt: new Date(now), answers: { q: 'secret' }, questions: [{ prompt: 'secret' }], title: 'Проверочная', subject: 'Математика' })
     const uploadScope = { familyId: 'family-a', childId: 'child-a', kind: 'upload', dayToken: 'day-a', recordId: 'upload-a' }
     const adapter = createFirestoreSourceAdapter(db)
@@ -222,12 +222,13 @@ describe('source observation pipeline', () => {
     expect(observation).toMatchObject({ completeness: 'complete', familyId: 'family-a', childId: 'child-a' })
     expect(observation.records).toEqual([expect.objectContaining({ kind: 'upload', eventType: 'upload.confirmed',
       occurredAt: now, fields: { childName: 'Ученик A', subject: 'Математика', title: 'Пример', status: 'confirmed', occurredLabel: 'Задание к 2026-10-22' } })])
-    expect(JSON.stringify(observation.records)).not.toMatch(/private-hash|private-device|private-path|private\.example|private review|secret|answers|history|upload-a|task-a/)
+    expect(observation.records[0].navigationContext).toEqual({ kind: 'day', dayToken: 'day-a' })
+    expect(JSON.stringify(observation.records)).not.toMatch(/private-hash|private-device|private-path|private\.example|private review|secret|answers|history|upload-a/)
     expect(db.reads.some((read) => read.includes('dayReviewPrivate'))).toBe(false)
     expect(db.reads).toContain('dayOwners/day-a')
     expect(db.reads).toContain('dayUploads/day-a/files/upload-a')
     expect(db.reads).toContain('fieldMask:dayUploads/day-a/files/upload-a:status,taskId,storage.provider,storage.state,storage.syncedAt')
-    expect(db.reads).toContain('fieldMask:dayPages/day-a:kind,familyId,childId,date,targetDate,taskIds,subjects')
+    expect(db.reads).toContain('fieldMask:dayPages/day-a:kind,familyId,childId,date,targetDate,taskIds,subjects,viewTokens')
     expect(db.reads.some((read) => read.startsWith('dayUploads/day-a/files/') && read.endsWith('upload-b'))).toBe(false)
     const pending = await adapter.observe({ ...uploadScope, recordId: 'upload-b' })
     expect(pending).toMatchObject({ completeness: 'complete', records: [] })
@@ -235,6 +236,28 @@ describe('source observation pipeline', () => {
     expect(quiz.records).toEqual([expect.objectContaining({ kind: 'quiz', eventType: 'quiz.submitted' })])
     expect(JSON.stringify(quiz.records)).not.toMatch(/secret|answers/)
     expect(db.reads).toContain('fieldMask:assignments/quiz-a:familyId,childId,status,startedAt,submittedAt,title,subject')
+  })
+
+  it('omits education navigation for legacy or mismatched day aliases without dropping a verified upload', async () => {
+    const pages = [
+      { kind: 'student', date: '2026-10-21', targetDate: '2026-10-22', taskIds: ['task-a'], subjects: [{ name: 'Математика', tasks: [{ id: 'task-a', title: 'Упражнение' }] }] },
+      { kind: 'student', familyId: 'family-a', childId: 'child-a', viewTokens: { student: 'another-day', parent: 'parent-day-a' }, date: '2026-10-21', targetDate: '2026-10-22', taskIds: ['task-a'], subjects: [{ name: 'Математика', tasks: [{ id: 'task-a', title: 'Упражнение' }] }] },
+      { kind: 'student', familyId: 'family-b', childId: 'child-b', viewTokens: { student: 'day-a', parent: 'parent-day-a' }, date: '2026-10-21', targetDate: '2026-10-22', taskIds: ['task-a'], subjects: [{ name: 'Математика', tasks: [{ id: 'task-a', title: 'Упражнение' }] }] },
+      { kind: 'student', familyId: 'family-a', childId: 'child-a', viewTokens: { student: 'day-a', parent: 'https://unsafe.example/path' }, date: '2026-10-21', targetDate: '2026-10-22', taskIds: ['task-a'], subjects: [{ name: 'Математика', tasks: [{ id: 'task-a', title: 'Упражнение' }] }] },
+    ]
+    for (const page of pages) {
+      const db = new FakeFirestore()
+      db.set('families/family-a', {})
+      db.set('families/family-a/children/child-a', { displayName: 'Ученик A' })
+      db.set('dayOwners/day-a', { familyId: 'family-a', childId: 'child-a', date: '2026-10-21', targetDate: '2026-10-22' })
+      db.set('dayPages/day-a', page)
+      db.set('dayUploads/day-a/files/upload-a', { taskId: 'task-a', status: 'pending', storage: { provider: 'yandex-disk', state: 'stored', syncedAt: new Date(now) } })
+
+      const observation = await createFirestoreSourceAdapter(db).observe({ familyId: 'family-a', childId: 'child-a', kind: 'upload', dayToken: 'day-a', recordId: 'upload-a' })
+      expect(observation.completeness).toBe('complete')
+      expect(observation.records).toEqual([expect.objectContaining({ kind: 'upload', eventType: 'upload.confirmed', fields: expect.objectContaining({ status: 'confirmed' }) })])
+      expect(observation.records[0]).not.toHaveProperty('navigationContext')
+    }
   })
 
   it('does not infer quiz transitions from first-seen snapshots, jitter, rollback, or foreign owners', async () => {

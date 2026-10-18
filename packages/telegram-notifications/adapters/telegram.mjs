@@ -75,18 +75,47 @@ export function createTelegramDelivery(token, { ApiClass = Api } = {}) {
   const api = new ApiClass(token, { timeoutSeconds: 20 })
   api.config.use(autoRetry({ maxRetryAttempts: 1, maxDelaySeconds: 2, rethrowHttpErrors: true, rethrowInternalServerErrors: true }))
   return {
-    async send({ chatId, text }) {
+    async send({ chatId, text, part }) {
+      if (part) {
+        try {
+          if (typeof api.sendRichMessage !== 'function') return await sendFallback(chatId, part)
+          const message = await api.sendRichMessage(chatId, part.rich_message, {})
+          return { messageId: message.message_id, method: 'sendRichMessage', format: 'rich_message' }
+        } catch (cause) {
+          if (unsupportedRichMessage(cause)) return await sendFallback(chatId, part)
+          throw deliveryError(cause)
+        }
+      }
       try {
         const message = await api.sendMessage(chatId, text, { link_preview_options: { is_disabled: true } })
         return { messageId: message.message_id }
       } catch (cause) {
-        const error = new Error('telegram_delivery_failed')
-        if (cause?.error_code === 403) error.safeCode = 'channel_unavailable'
-        else if (cause?.parameters?.retry_after) { error.safeCode = 'rate_limited'; error.retryAfterMs = cause.parameters.retry_after * 1000 }
-        else if (cause instanceof HttpError || cause?.error_code >= 500) error.safeCode = 'telegram_temporary'
-        else error.safeCode = 'delivery_failed'
-        throw error
+        throw deliveryError(cause)
       }
     },
   }
+
+  async function sendFallback(chatId, part) {
+    try {
+      const message = await api.sendMessage(chatId, part.html, { parse_mode: 'HTML', link_preview_options: { is_disabled: true }, ...(part.keyboard ? { reply_markup: { inline_keyboard: [part.keyboard.buttons] } } : {}) })
+      return { messageId: message.message_id, method: 'sendMessage', format: 'html-fallback' }
+    } catch (cause) {
+      throw deliveryError(cause)
+    }
+  }
+}
+function unsupportedRichMessage(error) {
+  const description = String(error?.description ?? error?.message ?? '').toLowerCase()
+  if (error?.error_code === 404 || error?.status === 404) return /sendrichmessage|method not found|unknown method|unsupported method/.test(description)
+  if (error?.error_code !== 400 && error?.status !== 400) return false
+  return /(?:method|sendrichmessage).{0,40}(?:not found|unsupported|unknown)|(?:not found|unsupported|unknown).{0,40}(?:method|sendrichmessage)/.test(description)
+}
+
+function deliveryError(cause) {
+  const error = new Error('telegram_delivery_failed')
+  if (cause?.error_code === 403) error.safeCode = 'channel_unavailable'
+  else if (cause?.parameters?.retry_after) { error.safeCode = 'rate_limited'; error.retryAfterMs = cause.parameters.retry_after * 1000 }
+  else if (cause instanceof HttpError || cause?.error_code >= 500 || cause?.status >= 500 || cause?.name === 'TimeoutError') error.safeCode = 'telegram_temporary'
+  else error.safeCode = 'delivery_failed'
+  return error
 }

@@ -3,7 +3,7 @@ import { createFirestoreAdapters } from './firestore.mjs'
 import { createTelegramAdapter, createTelegramDelivery } from './telegram.mjs'
 import { IdentityService } from '../application/identity.mjs'
 import { NotificationService } from '../application/notifications.mjs'
-import { renderEvent } from '../domain/renderer.mjs'
+import { renderNotificationParts } from '../domain/renderer.mjs'
 import { SourcePipeline } from '../application/source-pipeline.mjs'
 import { createFirestoreSourceAdapter } from './source-firestore.mjs'
 import { createFirestoreSourceCheckpointStore } from './source-checkpoint-firestore.mjs'
@@ -33,7 +33,7 @@ export function createRuntime(config, { logger = console, linkAuthorizer = null,
     recipients: adapters.recipients,
     membership: adapters.membership,
     channel: adapters.channel,
-    renderer: renderEvent,
+    renderer: renderNotificationParts,
     delivery: createTelegramDelivery(config.token),
     clock,
     logger,

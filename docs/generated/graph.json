@@ -546,6 +546,33 @@
       "path": "docs/decisions/teacher-choice-practice-2026-10-17.md"
     },
     {
+      "id": "decision.telegram-design-system-2026-10-18",
+      "status": "accepted",
+      "implementation": "not-applicable",
+      "created": "2026-10-18",
+      "updated": "2026-10-18",
+      "parent": "shared.design.telegram",
+      "uses": [
+        "service.telegram-bot.delivery",
+        "service.telegram-bot.event-ledger-outbox",
+        "shared.design.ui-kit"
+      ],
+      "consumers": [
+        "Education parent",
+        "Telegram implementer",
+        "UI gate"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/telegram-design-system-2026-10-18.md"
+    },
+    {
       "id": "decision.telegram-foundation",
       "status": "accepted",
       "implementation": "not-applicable",
@@ -2132,6 +2159,27 @@
       "consumer": "Приглашённый; оператор"
     },
     {
+      "id": "file:packages/education-presentation/notification.d.mts",
+      "path": "packages/education-presentation/notification.d.mts",
+      "kind": "artifact",
+      "purpose": "Общая модель оформления, визуальный каталог и его регрессии",
+      "consumer": "Renderer; UI Kit; оператор; Vitest"
+    },
+    {
+      "id": "file:packages/education-presentation/notification.mjs",
+      "path": "packages/education-presentation/notification.mjs",
+      "kind": "artifact",
+      "purpose": "Общая модель оформления, визуальный каталог и его регрессии",
+      "consumer": "Renderer; UI Kit; оператор; Vitest"
+    },
+    {
+      "id": "file:packages/education-presentation/notification.test.mjs",
+      "path": "packages/education-presentation/notification.test.mjs",
+      "kind": "verification",
+      "purpose": "Общая модель оформления, визуальный каталог и его регрессии",
+      "consumer": "Renderer; UI Kit; оператор; Vitest"
+    },
+    {
       "id": "file:packages/education-runtime/credentials.mjs",
       "path": "packages/education-runtime/credentials.mjs",
       "kind": "artifact",
@@ -2573,6 +2621,13 @@
       "consumer": "Vitest; разработчик"
     },
     {
+      "id": "file:packages/telegram-notifications/renderer.test.mjs",
+      "path": "packages/telegram-notifications/renderer.test.mjs",
+      "kind": "verification",
+      "purpose": "Rich schema и транспортные регрессии",
+      "consumer": "Renderer; UI Kit; оператор; Vitest"
+    },
+    {
       "id": "file:packages/telegram-notifications/source-mesh-integration.test.mjs",
       "path": "packages/telegram-notifications/source-mesh-integration.test.mjs",
       "kind": "verification",
@@ -2587,11 +2642,25 @@
       "consumer": "Runtime; source adapters; Vitest"
     },
     {
+      "id": "file:packages/telegram-notifications/structured-delivery.test.mjs",
+      "path": "packages/telegram-notifications/structured-delivery.test.mjs",
+      "kind": "verification",
+      "purpose": "Real service v1/v2, restart, immutable receipts and revoked membership",
+      "consumer": "Vitest"
+    },
+    {
       "id": "file:packages/telegram-notifications/technical-probe.test.mjs",
       "path": "packages/telegram-notifications/technical-probe.test.mjs",
       "kind": "verification",
       "purpose": "Регрессии: Контракт технического event/renderer",
       "consumer": "Vitest; разработчик"
+    },
+    {
+      "id": "file:packages/telegram-notifications/telegram-rich-transport.test.mjs",
+      "path": "packages/telegram-notifications/telegram-rich-transport.test.mjs",
+      "kind": "verification",
+      "purpose": "Rich schema и транспортные регрессии",
+      "consumer": "Renderer; UI Kit; оператор; Vitest"
     },
     {
       "id": "file:public/icons/education-180.png",
@@ -2781,6 +2850,13 @@
       "kind": "artifact",
       "purpose": "Проверка полноты контрактов, навигации, метаданных и производного графа",
       "consumer": "npm check:spec; Vitest"
+    },
+    {
+      "id": "file:scripts/check-telegram-preview-viewport.mjs",
+      "path": "scripts/check-telegram-preview-viewport.mjs",
+      "kind": "artifact",
+      "purpose": "Повторяемая проверка и реальные демонстрации оформления",
+      "consumer": "Renderer; UI Kit; оператор; Vitest"
     },
     {
       "id": "file:scripts/check-ui-contract.mjs",
@@ -3068,6 +3144,20 @@
       "kind": "verification",
       "purpose": "Явный opt-in runtime, shutdown и проверка конфигурации",
       "consumer": "Оператор; Vitest"
+    },
+    {
+      "id": "file:scripts/telegram-design-preview.mjs",
+      "path": "scripts/telegram-design-preview.mjs",
+      "kind": "artifact",
+      "purpose": "Повторяемая проверка и реальные демонстрации оформления",
+      "consumer": "Renderer; UI Kit; оператор; Vitest"
+    },
+    {
+      "id": "file:scripts/telegram-design-preview.test.mjs",
+      "path": "scripts/telegram-design-preview.test.mjs",
+      "kind": "verification",
+      "purpose": "Повторяемая проверка и реальные демонстрации оформления",
+      "consumer": "Renderer; UI Kit; оператор; Vitest"
     },
     {
       "id": "file:scripts/telegram-indexes.mjs",
@@ -3642,6 +3732,27 @@
       "kind": "artifact",
       "purpose": "Только выбранные взрослым этапы в общей форме маршрута задачи",
       "consumer": "`src/DayPage.tsx`; `ProblemTaskCard.tsx`"
+    },
+    {
+      "id": "file:src/components/TelegramNotificationPreview.css",
+      "path": "src/components/TelegramNotificationPreview.css",
+      "kind": "artifact",
+      "purpose": "Общая модель оформления, визуальный каталог и его регрессии",
+      "consumer": "Renderer; UI Kit; оператор; Vitest"
+    },
+    {
+      "id": "file:src/components/TelegramNotificationPreview.layout.test.ts",
+      "path": "src/components/TelegramNotificationPreview.layout.test.ts",
+      "kind": "verification",
+      "purpose": "Общая модель оформления, визуальный каталог и его регрессии",
+      "consumer": "Renderer; UI Kit; оператор; Vitest"
+    },
+    {
+      "id": "file:src/components/TelegramNotificationPreview.tsx",
+      "path": "src/components/TelegramNotificationPreview.tsx",
+      "kind": "artifact",
+      "purpose": "Общая модель оформления, визуальный каталог и его регрессии",
+      "consumer": "Renderer; UI Kit; оператор; Vitest"
     },
     {
       "id": "file:src/components/ui/badge.tsx",
@@ -7192,7 +7303,8 @@
       "uses": [
         "service.telegram-bot",
         "service.telegram-bot.ports-and-events",
-        "service.telegram-bot.event-ledger-outbox"
+        "service.telegram-bot.event-ledger-outbox",
+        "shared.design.telegram"
       ],
       "sections": [
         "разделение-ответственности",
@@ -7209,7 +7321,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-16",
-      "updated": "2026-10-17",
+      "updated": "2026-10-18",
       "consumers": [
         "Telegram service implementer",
         "bot operator",
@@ -7336,6 +7448,7 @@
         "parents and guardians"
       ],
       "code": [
+        "scripts/telegram-design-preview.mjs",
         "packages/telegram-notifications/adapters/config.mjs",
         "packages/telegram-notifications/adapters/runtime.mjs",
         "packages/telegram-notifications/adapters/telegram.mjs",
@@ -7643,7 +7756,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-11",
-      "updated": "2026-10-16",
+      "updated": "2026-10-18",
       "consumers": [
         "React UI components",
         "frontend developer",
@@ -7690,7 +7803,8 @@
       "uses": [
         "shared.design.components",
         "shared.design.statuses",
-        "shared.design.ui-kit"
+        "shared.design.ui-kit",
+        "shared.design.telegram"
       ],
       "sections": [
         "tokens",
@@ -7742,7 +7856,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-14",
-      "updated": "2026-10-16",
+      "updated": "2026-10-18",
       "consumers": [
         "React UI components",
         "frontend developer",
@@ -7791,11 +7905,43 @@
       "path": "docs/shared/design/statuses.md"
     },
     {
+      "id": "shared.design.telegram",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-18",
+      "updated": "2026-10-18",
+      "parent": "shared.design",
+      "uses": [
+        "shared.design.statuses",
+        "shared.design.ui-kit",
+        "service.telegram-bot.delivery"
+      ],
+      "consumers": [
+        "Telegram renderer",
+        "Education UI Kit",
+        "notification implementer"
+      ],
+      "code": [
+        "packages/education-presentation/notification.mjs",
+        "scripts/check-telegram-preview-viewport.mjs",
+        "scripts/telegram-design-preview.mjs",
+        "src/components/TelegramNotificationPreview.css",
+        "src/components/TelegramNotificationPreview.tsx"
+      ],
+      "sections": [
+        "назначение",
+        "визуальная-система",
+        "совместимость-и-безопасность",
+        "приёмка"
+      ],
+      "path": "docs/shared/design/telegram.md"
+    },
+    {
       "id": "shared.design.ui-kit",
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-16",
-      "updated": "2026-10-16",
+      "updated": "2026-10-18",
       "consumers": [
         "React UI components",
         "frontend developer",
@@ -7820,7 +7966,8 @@
         "уточнение-материала-ученика",
         "сводка-дз",
         "school-grade-average",
-        "school-grade-average-slider"
+        "school-grade-average-slider",
+        "telegram-уведомления"
       ],
       "path": "docs/shared/design/ui-kit.md"
     },
@@ -8139,6 +8286,21 @@
     {
       "from": "decision.teacher-choice-practice-2026-10-17",
       "to": "module.school-diary.day-page",
+      "type": "uses"
+    },
+    {
+      "from": "decision.telegram-design-system-2026-10-18",
+      "to": "service.telegram-bot.delivery",
+      "type": "uses"
+    },
+    {
+      "from": "decision.telegram-design-system-2026-10-18",
+      "to": "service.telegram-bot.event-ledger-outbox",
+      "type": "uses"
+    },
+    {
+      "from": "decision.telegram-design-system-2026-10-18",
+      "to": "shared.design.ui-kit",
       "type": "uses"
     },
     {
@@ -8732,6 +8894,16 @@
       "type": "implements"
     },
     {
+      "from": "file:packages/education-presentation/notification.d.mts",
+      "to": "shared.design.telegram",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-presentation/notification.mjs",
+      "to": "shared.design.telegram",
+      "type": "implements"
+    },
+    {
       "from": "file:packages/education-runtime/credentials.mjs",
       "to": "shared.server-runtime",
       "type": "implements"
@@ -9119,6 +9291,11 @@
     {
       "from": "file:scripts/check-spec-map.mjs",
       "to": "shared.specification-system",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/check-telegram-preview-viewport.mjs",
+      "to": "shared.design.telegram",
       "type": "implements"
     },
     {
@@ -9524,6 +9701,16 @@
     {
       "from": "file:scripts/telegram-bot.mjs",
       "to": "service.telegram-bot",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/telegram-design-preview.mjs",
+      "to": "service.telegram-bot.operations",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/telegram-design-preview.mjs",
+      "to": "shared.design.telegram",
       "type": "implements"
     },
     {
@@ -10219,6 +10406,16 @@
     {
       "from": "file:src/components/TaskGuidance.tsx",
       "to": "module.reviews.subject-card-viewmodel",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/TelegramNotificationPreview.css",
+      "to": "shared.design.telegram",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/TelegramNotificationPreview.tsx",
+      "to": "shared.design.telegram",
       "type": "implements"
     },
     {
@@ -13038,6 +13235,21 @@
     },
     {
       "from": "service.telegram-bot.delivery",
+      "to": "file:packages/telegram-notifications/renderer.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "service.telegram-bot.delivery",
+      "to": "file:packages/telegram-notifications/structured-delivery.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "service.telegram-bot.delivery",
+      "to": "file:packages/telegram-notifications/telegram-rich-transport.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "service.telegram-bot.delivery",
       "to": "service.telegram-bot.event-ledger-outbox",
       "type": "uses"
     },
@@ -13049,6 +13261,11 @@
     {
       "from": "service.telegram-bot.delivery",
       "to": "service.telegram-bot",
+      "type": "uses"
+    },
+    {
+      "from": "service.telegram-bot.delivery",
+      "to": "shared.design.telegram",
       "type": "uses"
     },
     {
@@ -13562,6 +13779,41 @@
       "type": "uses"
     },
     {
+      "from": "shared.design.telegram",
+      "to": "decision.telegram-design-system-2026-10-18",
+      "type": "contains"
+    },
+    {
+      "from": "shared.design.telegram",
+      "to": "file:packages/education-presentation/notification.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "shared.design.telegram",
+      "to": "file:scripts/telegram-design-preview.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "shared.design.telegram",
+      "to": "file:src/components/TelegramNotificationPreview.layout.test.ts",
+      "type": "verified-by"
+    },
+    {
+      "from": "shared.design.telegram",
+      "to": "service.telegram-bot.delivery",
+      "type": "uses"
+    },
+    {
+      "from": "shared.design.telegram",
+      "to": "shared.design.statuses",
+      "type": "uses"
+    },
+    {
+      "from": "shared.design.telegram",
+      "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
       "from": "shared.design.ui-kit",
       "to": "file:src/UiKit.test.tsx",
       "type": "verified-by"
@@ -13609,6 +13861,16 @@
     {
       "from": "shared.design",
       "to": "shared.design.statuses",
+      "type": "uses"
+    },
+    {
+      "from": "shared.design",
+      "to": "shared.design.telegram",
+      "type": "contains"
+    },
+    {
+      "from": "shared.design",
+      "to": "shared.design.telegram",
       "type": "uses"
     },
     {

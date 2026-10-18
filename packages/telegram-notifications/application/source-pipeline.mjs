@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto'
 import { diffCompleteSnapshots } from '../domain/diff.mjs'
 import { EVENT_TYPES } from '../domain/events.mjs'
+import { isValidEducationDayToken } from '../../education-presentation/notification.mjs'
 
 /** @see ../../../docs/services/telegram-bot/ports-and-events.md#контракт-observation @see ../../../docs/services/telegram-bot/adapters/firestore.md#подписка-и-обработка-сигнала */
 export class SourcePipeline {
@@ -219,6 +220,10 @@ export function normalizeSourceRecords(records) {
     if (record.kind === 'quiz' && record.eventType
       && ((record.eventType === 'quiz.started' && record.fields?.status !== 'started')
         || (record.eventType === 'quiz.submitted' && record.fields?.status !== 'submitted'))) return null
+    if (record.navigationContext !== undefined && (!record.navigationContext || record.kind !== 'upload'
+      || record.navigationContext.kind !== 'day'
+      || !isValidEducationDayToken(record.navigationContext.dayToken)
+      || Object.keys(record.navigationContext).some((key) => !['kind', 'dayToken'].includes(key)))) return null
     if (record.fields !== undefined && (!record.fields || typeof record.fields !== 'object' || Array.isArray(record.fields)
       || Object.keys(record.fields).some((key) => !fieldsByKind[record.kind].has(key)))) return null
     const fields = {}
@@ -227,7 +232,10 @@ export function normalizeSourceRecords(records) {
       if (typeof value === 'string' && value.length <= 500) fields[key] = sanitizeText(value)
       else if (value !== undefined) return null
     }
-    safe.push({ recordKey: record.recordKey, kind: record.kind, ...(record.eventType ? { eventType: record.eventType } : {}), ...(record.occurredAt ? { occurredAt: record.occurredAt } : {}), ...(record.semanticHash ? { semanticHash: record.semanticHash } : {}), fields })
+    const navigationContext = record.kind === 'upload' && record.navigationContext?.kind === 'day'
+      && isValidEducationDayToken(record.navigationContext.dayToken)
+      ? { kind: 'day', dayToken: record.navigationContext.dayToken } : null
+    safe.push({ recordKey: record.recordKey, kind: record.kind, ...(record.eventType ? { eventType: record.eventType } : {}), ...(record.occurredAt ? { occurredAt: record.occurredAt } : {}), ...(record.semanticHash ? { semanticHash: record.semanticHash } : {}), fields, ...(navigationContext ? { navigationContext } : {}) })
   }
   return safe
 }

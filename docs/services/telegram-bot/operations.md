@@ -9,6 +9,7 @@ consumers:
   - "bot operator"
   - "parents and guardians"
 code:
+  - scripts/telegram-design-preview.mjs
   - "packages/telegram-notifications/adapters/config.mjs"
   - "packages/telegram-notifications/adapters/runtime.mjs"
   - "packages/telegram-notifications/adapters/telegram.mjs"
@@ -143,3 +144,7 @@ Mac должен быть включён, доступен и находитьс
 ## Подмодули
 
 Общие IO/session/telemetry принадлежат серверному ядру. Отдельный host runbook выносится при появлении второго deployment; новые on-call контракты создаются по реальной потребности.
+
+`node scripts/telegram-design-preview.mjs --target-digest HASH --run-id ID [--apply|--receipt-only]` — официальный явный выпуск4условных дизайнерских примеров в выбранную действующую семейную связь. Без apply выполняет только проверку адресата/шаблонов. Apply создаёт technical.probe (не фиктивные учебные события), использует ProbeNotificationService, общий immutable outbox/NotificationService/transport и адресный readback всех receipts. Один run-id идемпотентен; неполная доставка остаётся в штатной очереди и не объявляется успехом. Вывод агрегированный, без ID участников или работ. Режим receipt-only только читает агрегат состояния ранее вычисленного job без записи/отправки. CLI не запускает второго polling worker.
+
+18.10 дизайнерская приёмка:4условных примера в подтверждённом чате,4receipts,format=rich_message; [факты и совместимость](../../decisions/telegram-design-system-2026-10-18.md). Это проверка оформления и transport, не создание новых оценок или проверок ребёнка.

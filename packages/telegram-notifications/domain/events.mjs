@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto'
+import { isValidEducationDayToken } from '../../education-presentation/notification.mjs'
 
 /** @see ../../../docs/services/telegram-bot/ports-and-events.md#domain-event-contract */
 export const EVENT_TYPES = Object.freeze([
@@ -50,6 +51,7 @@ export function createDomainEvent(input) {
     fields: safeFields(input.eventType, input.fields),
     contextRefs: Array.isArray(input.contextRefs) ? input.contextRefs.filter((ref) =>
       ref && ['day', 'task', 'grade'].includes(ref.kind) && typeof ref.id === 'string' && ref.id.trim()).map(({ kind, id }) => ({ kind, id: input.identityEncoding === 'sha256-v1' && /^[a-f0-9]{64}$/.test(id) ? id : sha(id) })) : [],
+    ...(safeNavigationContext(input.navigationContext, input.source, input.eventType) ? { navigationContext: safeNavigationContext(input.navigationContext, input.source, input.eventType) } : {}),
   })
 }
 
@@ -68,16 +70,25 @@ const safeFields = (eventType, fields) => {
     'homework.changed': ['childName', 'subject', 'title', 'occurredLabel'],
     'homework.cancelled': ['childName', 'subject', 'title', 'occurredLabel'],
     'upload.confirmed': ['childName', 'subject', 'title', 'occurredLabel'],
-    'quiz.started': ['childName', 'subject'],
-    'quiz.submitted': ['childName', 'subject'],
-    'review.changed': ['childName', 'subject'],
+    'review.changed': ['childName', 'subject', 'status'],
+    'quiz.started': ['childName', 'subject', 'status'],
+    'quiz.submitted': ['childName', 'subject', 'status'],
     'technical.probe': [],
   }
   for (const key of allowedByType[eventType] ?? []) {
     if (typeof fields[key] === 'string' && fields[key].trim()) result[key] = sanitizeField(fields[key]).slice(0, 500)
   }
+  if (eventType === 'review.changed' && !['verified', 'needs-fix', 'partial', 'cannot-assess'].includes(result.status)) delete result.status
+  if (eventType.startsWith('quiz.') && !['started', 'submitted', 'not_started'].includes(result.status)) delete result.status
   if (eventType.startsWith('grade.') && result.value && !/^[1-5](?:[+-])?$/.test(result.value.trim())) delete result.value
   return result
+}
+
+function safeNavigationContext(context, source, eventType) {
+  if (source !== 'firestore' || eventType !== 'upload.confirmed' || !context || context.kind !== 'day'
+    || !isValidEducationDayToken(context.dayToken)) return null
+  const result = { kind: 'day', dayToken: context.dayToken }
+  return Object.freeze(result)
 }
 
 function sanitizeField(value) {
