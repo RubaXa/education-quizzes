@@ -57,18 +57,20 @@ export class SourcePipeline {
         || typeof observation.scopeKey !== 'string' || !Array.isArray(observation.records)) {
         return incompleteResult(lease.sequence ?? 0, scopeKey)
       }
-      const currentRecords = safeRecords(observation.records)
+      const currentRecords = normalizeSourceRecords(observation.records)
       if (!currentRecords) return incompleteResult(lease.sequence ?? 0, scopeKey)
       if (currentRecords.length > this.maxRecords) return incompleteResult(lease.sequence ?? 0, scopeKey, 'source_snapshot_too_large')
       const sequence = (lease.sequence ?? 0) + 1
       const records = mergeKnownRecords(lease.baseline?.records ?? [], currentRecords)
       if (records.length > this.maxRecords) return incompleteResult(lease.sequence ?? 0, scopeKey, 'source_snapshot_too_large')
-      const current = { complete: true, observationSequence: sequence, records }
+      const current = { complete: true, observationSequence: sequence, sourceProjectionVersion: 2, records }
       let events = []
       if (this.mode === 'notify' && (lease.baseline || origin === 'live')) {
         const priorRecords = lease.baseline?.records ?? []
         const priorByKey = new Map(priorRecords.map((record) => [record.recordKey, record]))
-        const diffRecords = records.filter((record) => shouldDiffRecord(record, priorByKey.get(record.recordKey)))
+        const diffRecords = records.filter((record) => shouldDiffRecord(record, priorByKey.get(record.recordKey), {
+          origin, previousProjectionVersion: lease.baseline?.sourceProjectionVersion ?? null,
+        }))
         const previous = lease.baseline ?? { complete: true, observationSequence: 0, records: [] }
         const diff = diffCompleteSnapshots({ source: observation.source, scopeKey: observation.scopeKey, familyId: scope.familyId, childId: scope.childId,
           previous, current: { ...current, records: diffRecords }, detectedAt: this.clock().toISOString() })
@@ -186,14 +188,14 @@ function createLeaseHeartbeat({ checkpoints, args, clock, leaseMs, setTimer, cle
   }
 }
 
-function safeRecords(records) {
+export function normalizeSourceRecords(records) {
   const safe = []
   const seen = new Set()
   const fieldsByKind = {
     grade: new Set(['childName', 'subject', 'value', 'occurredLabel']),
     schedule: new Set(['childName', 'subject', 'title', 'occurredLabel']),
     assignment: new Set(['childName', 'subject', 'title', 'occurredLabel']),
-    upload: new Set(['childName', 'subject', 'status']),
+    upload: new Set(['childName', 'subject', 'title', 'status', 'occurredLabel']),
     quiz: new Set(['childName', 'subject', 'title', 'status']),
     review: new Set(['childName', 'subject', 'status']),
     probe: new Set(),
@@ -230,7 +232,14 @@ function safeRecords(records) {
   return safe
 }
 
-function shouldDiffRecord(record, before) {
+function shouldDiffRecord(record, before, { origin, previousProjectionVersion } = {}) {
+  if (record.kind === 'upload') {
+    // Upload projection v2 adds stable stored uploads and task context.
+    // Existing baselines are enriched quietly. A legacy empty bootstrap is
+    // migrated quietly once; live origin remains eligible for a new upload.
+    if (before) return false
+    return !(origin === 'bootstrap' && previousProjectionVersion !== 2)
+  }
   if (record.kind === 'quiz') {
     if (!record.eventType) return false
     const rank = { not_started: 0, started: 1, submitted: 2 }

@@ -208,9 +208,10 @@ describe('source observation pipeline', () => {
     const db = new FakeFirestore()
     db.set('families/family-a', { familyId: 'family-a' })
     db.set('families/family-a/children/child-a', { displayName: 'Ученик A' })
-    db.set('dayOwners/day-a', { familyId: 'family-a', childId: 'child-a', date: '2026-10-17' })
-    db.set('dayPages/day-a', { familyId: 'family-a', childId: 'child-a', targetDate: '2026-10-17', kind: 'student', subjects: [{ id: 'math', name: 'Математика', tasks: [{ id: 'task-a', title: 'Пример' }] }] })
-    db.set('dayUploads/day-a/files/upload-a', { taskId: 'task-a', status: 'uploaded', sha256: 'private-hash', deviceUid: 'private-device' })
+    db.set('dayOwners/day-a', { familyId: 'family-a', childId: 'child-a', date: '2026-10-21', targetDate: '2026-10-22' })
+    db.set('dayPages/day-a', { kind: 'student', date: '2026-10-21', targetDate: '2026-10-22', taskIds: ['task-a'], subjects: [{ id: 'math', name: 'Математика', tasks: [{ id: 'task-a', title: 'Пример' }] }] })
+    db.set('dayUploads/day-a/files/upload-a', { taskId: 'task-a', status: 'pending', sha256: 'private-hash', deviceUid: 'private-device',
+      storage: { provider: 'yandex-disk', state: 'stored', path: 'private-path', publicUrl: 'https://private.example/photo', syncedAt: new Date(now) } })
     db.set('dayUploads/day-a/files/upload-b', { taskId: 'task-a', status: 'pending', sha256: 'private-hash', deviceUid: 'private-device' })
     db.set('dayProgress/day-a/items/task-a', { status: 'verified', checkedAt: new Date(now), summary: 'private review', history: [{ answer: 'private' }] })
     db.set('dayReviewPrivate/day-a/items/task-a', { status: 'verified', answer: 'secret' })
@@ -219,11 +220,14 @@ describe('source observation pipeline', () => {
     const adapter = createFirestoreSourceAdapter(db)
     const observation = await adapter.observe(uploadScope)
     expect(observation).toMatchObject({ completeness: 'complete', familyId: 'family-a', childId: 'child-a' })
-    expect(observation.records).toEqual([expect.objectContaining({ kind: 'upload', eventType: 'upload.confirmed' })])
-    expect(JSON.stringify(observation.records)).not.toMatch(/private-hash|private-device|private review|secret|answers|history/)
+    expect(observation.records).toEqual([expect.objectContaining({ kind: 'upload', eventType: 'upload.confirmed',
+      occurredAt: now, fields: { childName: 'Ученик A', subject: 'Математика', title: 'Пример', status: 'confirmed', occurredLabel: 'Задание к 2026-10-22' } })])
+    expect(JSON.stringify(observation.records)).not.toMatch(/private-hash|private-device|private-path|private\.example|private review|secret|answers|history|upload-a|task-a/)
     expect(db.reads.some((read) => read.includes('dayReviewPrivate'))).toBe(false)
     expect(db.reads).toContain('dayOwners/day-a')
     expect(db.reads).toContain('dayUploads/day-a/files/upload-a')
+    expect(db.reads).toContain('fieldMask:dayUploads/day-a/files/upload-a:status,taskId,storage.provider,storage.state,storage.syncedAt')
+    expect(db.reads).toContain('fieldMask:dayPages/day-a:kind,familyId,childId,date,targetDate,taskIds,subjects')
     expect(db.reads.some((read) => read.startsWith('dayUploads/day-a/files/') && read.endsWith('upload-b'))).toBe(false)
     const pending = await adapter.observe({ ...uploadScope, recordId: 'upload-b' })
     expect(pending).toMatchObject({ completeness: 'complete', records: [] })
@@ -303,13 +307,17 @@ describe('source observation pipeline', () => {
     db.set('families/family-a/children/child-b', { displayName: 'Ученик B', privateNote: 'private B' })
     db.set('dayOwners/day-a', { familyId: 'family-a', childId: 'child-a', date: '2026-10-17' })
     db.set('dayOwners/day-b', { familyId: 'family-a', childId: 'child-b', date: '2026-10-17' })
-    db.set('dayUploads/day-a/files/upload-a', { status: 'uploaded' })
-    db.set('dayUploads/day-b/files/upload-b', { status: 'uploaded' })
+    db.set('dayPages/day-a', { kind: 'student', date: '2026-10-17', taskIds: ['task-a'], targetDate: '2026-10-18', subjects: [{ name: 'Математика', tasks: [{ id: 'task-a', title: 'Первое задание' }] }] })
+    db.set('dayPages/day-b', { kind: 'student', date: '2026-10-17', taskIds: ['task-b'], targetDate: '2026-10-18', subjects: [{ name: 'Русский язык', tasks: [{ id: 'task-b', title: 'Второе задание' }] }] })
+    db.set('dayUploads/day-a/files/upload-a', { taskId: 'task-a', status: 'pending', storage: { provider: 'yandex-disk', state: 'stored', syncedAt: new Date(now) } })
+    db.set('dayUploads/day-b/files/upload-b', { taskId: 'task-b', status: 'pending', storage: { provider: 'yandex-disk', state: 'stored', syncedAt: new Date(now) } })
     const adapter = createFirestoreSourceAdapter(db)
     const first = await adapter.observe({ familyId: 'family-a', childId: 'child-a', kind: 'upload', dayToken: 'day-a', recordId: 'upload-a' })
     const second = await adapter.observe({ familyId: 'family-a', childId: 'child-b', kind: 'upload', dayToken: 'day-b', recordId: 'upload-b' })
     expect(first.records[0].fields.childName).toBe('Ученик A')
     expect(second.records[0].fields.childName).toBe('Ученик B')
+    expect(first.records[0].fields).toMatchObject({ subject: 'Математика', title: 'Первое задание' })
+    expect(second.records[0].fields).toMatchObject({ subject: 'Русский язык', title: 'Второе задание' })
     expect(JSON.stringify(first.records)).not.toContain('Ученик B')
     expect(JSON.stringify(second.records)).not.toContain('Ученик A')
     expect(JSON.stringify(first.records)).not.toContain('private')
@@ -473,11 +481,78 @@ describe('source observation pipeline', () => {
     expect(JSON.stringify(stored)).not.toContain('quiz-a')
   })
 
+  it('quietly upgrades legacy bootstrap upload baselines but accepts live uploads', async () => {
+    const record = { recordKey: 'b'.repeat(64), kind: 'upload', eventType: 'upload.confirmed', occurredAt: now,
+      fields: { childName: 'Ученик', subject: 'Математика', title: 'Задание', status: 'confirmed', occurredLabel: '2026-10-17' } }
+    const source = { kind: 'firestore', scopeKey() { return 'upload-scope' }, async validateScope() { return true },
+      async observe() { return { source: 'firestore', scopeKey: 'upload-scope', familyId: 'family-a', childId: 'child-a', completeness: 'complete', records: [record] } } }
+    const migrated = new MemoryCheckpoints()
+    const legacy = migrated.ensure('upload-scope', 'notify')
+    legacy.sequence = 4
+    legacy.baseline = { complete: true, observationSequence: 4, records: [] }
+    const bootstrapAccept = vi.fn()
+    const bootstrap = new SourcePipeline({ source, checkpoints: migrated, accept: bootstrapAccept, mode: 'notify', workerId: 'worker', clock: () => new Date(now) })
+    await expect(bootstrap.process({ familyId: 'family-a', childId: 'child-a', kind: 'upload', dayToken: 'day-a', recordId: 'upload-a' }, { origin: 'bootstrap' }))
+      .resolves.toMatchObject({ status: 'advanced', events: 0 })
+    expect(bootstrapAccept).not.toHaveBeenCalled()
+    expect(migrated.row('upload-scope', 'notify').baseline.sourceProjectionVersion).toBe(2)
+
+    const fresh = new MemoryCheckpoints()
+    const liveAccept = vi.fn()
+    const live = new SourcePipeline({ source, checkpoints: fresh, accept: liveAccept, mode: 'notify', workerId: 'worker', clock: () => new Date(now) })
+    await expect(live.process({ familyId: 'family-a', childId: 'child-a', kind: 'upload', dayToken: 'day-a', recordId: 'upload-a' }, { origin: 'live' }))
+      .resolves.toMatchObject({ status: 'advanced', events: 1 })
+    expect(liveAccept).toHaveBeenCalledTimes(1)
+  })
+
+  it('enriches an existing upload baseline with task context without re-notifying', async () => {
+    const record = { recordKey: 'c'.repeat(64), kind: 'upload', eventType: 'upload.confirmed', occurredAt: now,
+      semanticHash: 'd'.repeat(64), fields: { childName: 'Ученик', subject: 'Математика', title: 'Новое название', status: 'confirmed', occurredLabel: '2026-10-17' } }
+    const source = { kind: 'firestore', scopeKey() { return 'upload-scope' }, async validateScope() { return true },
+      async observe() { return { source: 'firestore', scopeKey: 'upload-scope', familyId: 'family-a', childId: 'child-a', completeness: 'complete', records: [record] } } }
+    const checkpoints = new MemoryCheckpoints()
+    const prior = checkpoints.ensure('upload-scope', 'notify')
+    prior.sequence = 3
+    prior.baseline = { complete: true, observationSequence: 3, records: [{ recordKey: record.recordKey, kind: 'upload', eventType: 'upload.confirmed', fields: { childName: 'Ученик', status: 'confirmed' } }] }
+    const accept = vi.fn()
+    const pipeline = new SourcePipeline({ source, checkpoints, accept, mode: 'notify', workerId: 'worker', clock: () => new Date(now) })
+    await expect(pipeline.process({ familyId: 'family-a', childId: 'child-a', kind: 'upload', dayToken: 'day-a', recordId: 'upload-a' }, { origin: 'live' }))
+      .resolves.toMatchObject({ status: 'advanced', events: 0 })
+    expect(accept).not.toHaveBeenCalled()
+  })
+
+  it('bounds long linked task titles before the real upload source reaches safeRecords', async () => {
+    const db = new FakeFirestore()
+    db.set('families/family-a', {})
+    db.set('families/family-a/children/child-a', { displayName: 'Ученик A' })
+    db.set('dayOwners/day-a', { familyId: 'family-a', childId: 'child-a', date: '2026-10-21', targetDate: '2026-10-22' })
+    const longTitle = 'Задание '.repeat(100)
+    db.set('dayPages/day-a', { kind: 'student', date: '2026-10-21', targetDate: '2026-10-22', taskIds: ['task-a'],
+      subjects: [{ name: 'Математика', tasks: [{ id: 'task-a', title: longTitle }] }] })
+    db.set('dayUploads/day-a/files/upload-a', { taskId: 'task-a', status: 'pending',
+      storage: { provider: 'yandex-disk', state: 'stored', syncedAt: new Date(now) } })
+    const uploadScope = { familyId: 'family-a', childId: 'child-a', kind: 'upload', dayToken: 'day-a', recordId: 'upload-a' }
+    const source = createFirestoreSourceAdapter(db)
+    const checkpoints = new MemoryCheckpoints()
+    const accept = vi.fn(async () => {})
+    const pipeline = new SourcePipeline({ source, checkpoints, accept, mode: 'notify', workerId: 'long-title-worker',
+      clock: () => new Date(now) })
+
+    const observation = await source.observe(uploadScope)
+    expect(observation.completeness).toBe('complete')
+    expect(observation.records[0].fields.title).toHaveLength(160)
+    await expect(pipeline.process(uploadScope, { origin: 'live' })).resolves.toMatchObject({ status: 'advanced', events: 1 })
+    expect(accept).toHaveBeenCalledTimes(1)
+    expect(accept.mock.calls[0][0].fields.title.length).toBeLessThanOrEqual(160)
+    expect(checkpoints.row(source.scopeKey(uploadScope), 'notify').baseline.sourceProjectionVersion).toBe(2)
+  })
+
   it('connects a confirmed Firestore upload through the ledger/outbox and sends one structured fake delivery after crash replay', async () => {
     const db = new FakeFirestore()
     db.set('families/family-a', {})
-    db.set('families/family-a/children/child-a', {})
-    db.set('dayOwners/day-a', { familyId: 'family-a', childId: 'child-a', date: '2026-10-17' })
+    db.set('families/family-a/children/child-a', { displayName: 'Ученик A' })
+    db.set('dayOwners/day-a', { familyId: 'family-a', childId: 'child-a', date: '2026-10-21', targetDate: '2026-10-22' })
+    db.set('dayPages/day-a', { kind: 'student', date: '2026-10-21', targetDate: '2026-10-22', taskIds: ['task-a'], subjects: [{ name: 'Математика', tasks: [{ id: 'task-a', title: 'Упражнение № 2' }] }] })
     db.set('dayUploads/day-a/files/upload-a', { taskId: 'task-a', status: 'requested' })
     const uploadScope = { familyId: 'family-a', childId: 'child-a', kind: 'upload', dayToken: 'day-a', recordId: 'upload-a' }
     const source = createFirestoreSourceAdapter(db)
@@ -505,7 +580,7 @@ describe('source observation pipeline', () => {
     await expect(pipeline.process(uploadScope, { origin: 'bootstrap' })).resolves.toMatchObject({ status: 'advanced', events: 0 })
     expect(store.jobs.size).toBe(0)
 
-    db.set('dayUploads/day-a/files/upload-a', { taskId: 'task-a', status: 'uploaded' })
+    db.set('dayUploads/day-a/files/upload-a', { taskId: 'task-a', status: 'pending', storage: { provider: 'yandex-disk', state: 'stored', path: 'private-path', publicUrl: 'https://private.example/photo', syncedAt: new Date(now) } })
     failAfterAccept = true
     await expect(pipeline.process(uploadScope)).rejects.toThrow('simulated_process_crash')
     expect(store.jobs.size).toBe(1)
@@ -515,8 +590,13 @@ describe('source observation pipeline', () => {
     expect(sourceEventIds[0]).toBe(sourceEventIds[1])
     expect(store.jobs.size).toBe(1)
     await expect(service.runOne()).resolves.toBe(true)
-    expect(deliveries).toEqual([{ chatId: '55', text: '📚 Изменения в PETR\n\nУченик\n• Файл загружен' }])
+    expect(deliveries).toEqual([{ chatId: '55', text: '📚 Изменения Education\n\nУченик A\n• Загружено фото работы: Математика\n  Упражнение № 2\n  Задание к 2026-10-22' }])
+    expect(JSON.stringify(deliveries)).not.toMatch(/private-path|private\.example|upload-a|task-a/)
     expect([...store.jobs.values()][0]).toMatchObject({ state: 'sent', partReceipts: [{ messageId: 901 }] })
+    db.set('dayUploads/day-a/files/upload-a', { taskId: 'task-a', status: 'reviewed', storage: { provider: 'yandex-disk', state: 'stored', path: 'private-path', publicUrl: 'https://private.example/photo', syncedAt: new Date(now) } })
+    await expect(pipeline.process(uploadScope)).resolves.toMatchObject({ status: 'advanced', events: 0 })
+    expect(store.events.size).toBe(1)
+    expect(store.jobs.size).toBe(1)
   })
 })
 
@@ -551,7 +631,19 @@ class FakeFirestore {
       this.reads.push(`fieldMask:${ref.path}:${options.fieldMask.join(',')}`)
       const data = this.records.get(ref.path)
       if (data === undefined) return new FakeSnapshot(ref, undefined)
-      return new FakeSnapshot(ref, Object.fromEntries(options.fieldMask.filter((key) => Object.hasOwn(data, key)).map((key) => [key, structuredClone(data[key])])))
+      const masked = {}
+      for (const key of options.fieldMask) {
+        const parts = key.split('.')
+        let source = data, target = masked
+        for (const part of parts.slice(0, -1)) {
+          source = source?.[part]
+          target[part] ??= {}
+          target = target[part]
+        }
+        const leaf = parts.at(-1)
+        if (source && Object.hasOwn(source, leaf)) target[leaf] = structuredClone(source[leaf])
+      }
+      return new FakeSnapshot(ref, masked)
     })
   }
   runTransaction(fn) { return fn({ get: (ref) => ref.get(), set: (ref, data, options) => ref.set(data, options), create: (ref, data) => ref.create(data), update: (ref, data) => ref.update(data) }) }

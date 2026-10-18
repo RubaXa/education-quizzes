@@ -61,4 +61,28 @@ describe('telegram runtime operator commands', () => {
     expect(exitCode).toBe(2)
     expect(JSON.parse(output[0])).toMatchObject({ code: 'usage' })
   })
+
+  it('exposes an aggregate-only upload-check command without writes or sends', async () => {
+    const output = []
+    let terminated = false
+    const scope = { familyId: 'private-family', childId: 'private-child', kind: 'upload', dayToken: 'private-day', recordId: 'private-upload' }
+    const record = { recordKey: 'a'.repeat(64), kind: 'upload', eventType: 'upload.confirmed', semanticHash: 'b'.repeat(64),
+      occurredAt: '2026-10-18T06:37:55.000Z', fields: { childName: 'Private Name', subject: 'Math', title: 'Private title' } }
+    const exitCode = await main(['upload-check', '--since', '2026-10-18T00:00:00Z'], {
+      root: '/tmp/project', env: { TELEGRAM_FIRESTORE_PROJECT_ID: 'education-prod' }, db: { async terminate() { terminated = true } },
+      inventory: { async enumerate() { return { complete: true, failures: [], families: [], scopes: [{ source: 'firestore', scope }] } } },
+      discoveryStore: { async prepare(inventory) { return { ...inventory, scopes: [{ source: 'firestore', scope, origin: 'live' }] } } },
+      source: { scopeKey: () => 'opaque-scope', async inspectUpload() { return { completeness: 'complete', state: 'confirmed', occurredAt: record.occurredAt } },
+        async observe() { return { completeness: 'complete', scopeKey: 'opaque-scope', familyId: scope.familyId, childId: scope.childId, records: [record] } } },
+      readCheckpoint: async () => ({ baseline: { complete: true, observationSequence: 1, sourceProjectionVersion: 2, records: [] } }),
+      readLedgerEventsByRecord: async () => [], readOutboxJobs: async () => [],
+      write(value) { output.push(value) },
+    })
+    const result = JSON.parse(output[0])
+    expect(exitCode).toBe(0)
+    expect(terminated).toBe(true)
+    expect(result).toMatchObject({ diagnosticOnly: true, writes: 0, sends: 0, coverageComplete: false, diagnosticComplete: true,
+      counts: { recentConfirmed: 1, wouldEmit: 1, ledgerMissing: 1, outboxAbsent: 1 } })
+    expect(JSON.stringify(result)).not.toMatch(/private-family|private-child|private-day|private-upload|Private Name|Private title|Math/)
+  })
 })

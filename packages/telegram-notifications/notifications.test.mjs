@@ -466,7 +466,7 @@ describe('Telegram notification vertical slice', () => {
     const long = createDomainEvent({ source: 'firestore', scopeKey: 'scope', familyId: 'family-a', childId: 'child-a', sourceEventKey: 'task', sourceRevision: 'rev', eventType: 'homework.assigned', privacyClass: 'family-summary', detectedAt: now, fields: { title: 'А'.repeat(500) } })
     const parts = renderEvent(long, 'family', { maxChars: 100 })
     expect(parts.length).toBeGreaterThan(1)
-    expect(parts.every((part, index) => part.startsWith(`📚 PETR · часть ${index + 1}/${parts.length}\n`) && [...part].length <= 100)).toBe(true)
+    expect(parts.every((part, index) => part.startsWith(`📚 Education · часть ${index + 1}/${parts.length}\n`) && [...part].length <= 100)).toBe(true)
   })
 
   it('normalizes application input before persistence and never stores caller private fields', async () => {

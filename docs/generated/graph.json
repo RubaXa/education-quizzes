@@ -600,6 +600,33 @@
       "path": "docs/decisions/telegram-source-wiring-2026-10-17.md"
     },
     {
+      "id": "decision.upload-notification-lifecycle-2026-10-18",
+      "status": "accepted",
+      "implementation": "not-applicable",
+      "created": "2026-10-18",
+      "updated": "2026-10-18",
+      "parent": "service.telegram-bot.firestore",
+      "uses": [
+        "service.telegram-bot.delivery",
+        "service.telegram-bot.ports-and-events",
+        "module.notifications.events"
+      ],
+      "consumers": [
+        "Education team",
+        "Telegram implementer",
+        "UI gate"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/upload-notification-lifecycle-2026-10-18.md"
+    },
+    {
       "id": "decision.weekend-special-course-2026-10-18",
       "status": "accepted",
       "implementation": "not-applicable",
@@ -2136,6 +2163,13 @@
       "consumer": "Sync collector; Telegram Mesh adapter"
     },
     {
+      "id": "file:packages/education-runtime/task-context.mjs",
+      "path": "packages/education-runtime/task-context.mjs",
+      "kind": "artifact",
+      "purpose": "Общая чистая связь точного задания/подпункта с предметом и заголовком",
+      "consumer": "Inbox; Telegram upload source"
+    },
+    {
       "id": "file:packages/education-runtime/telemetry.mjs",
       "path": "packages/education-runtime/telemetry.mjs",
       "kind": "artifact",
@@ -2251,7 +2285,7 @@
       "id": "file:packages/telegram-notifications/adapters/source-firestore.mjs",
       "path": "packages/telegram-notifications/adapters/source-firestore.mjs",
       "kind": "artifact",
-      "purpose": "Owner-checked document listeners и безопасная нормализация загрузок, тестов и проверок",
+      "purpose": "Owner-checked listeners, подтверждённый storage upload/task context, quiz и review проекции",
       "consumer": "SourcePipeline; coordinator"
     },
     {
@@ -2484,6 +2518,20 @@
       "kind": "verification",
       "purpose": "Регрессии: Чтение всех МЭШ областей, честный охват и безопасная диагностика календарных дат",
       "consumer": "Vitest; разработчик"
+    },
+    {
+      "id": "file:packages/telegram-notifications/operations/upload-check.mjs",
+      "path": "packages/telegram-notifications/operations/upload-check.mjs",
+      "kind": "artifact",
+      "purpose": "Read-only сверка upload origin, baseline, ledger и фактических delivery receipts",
+      "consumer": "Оператор Education; Telegram runtime"
+    },
+    {
+      "id": "file:packages/telegram-notifications/operations/upload-check.test.mjs",
+      "path": "packages/telegram-notifications/operations/upload-check.test.mjs",
+      "kind": "verification",
+      "purpose": "Регрессии диагностического окна, quiet migration, actual receipts и приватности",
+      "consumer": "Vitest; техлид"
     },
     {
       "id": "file:packages/telegram-notifications/probe-notifications.test.mjs",
@@ -5281,14 +5329,15 @@
         "расширение"
       ],
       "created": "2026-10-16",
-      "updated": "2026-10-16",
+      "updated": "2026-10-18",
       "consumers": [
         "notification publisher",
         "in-app inbox",
         "Telegram service implementer"
       ],
       "code": [
-        "storage/inbox-notifications.mjs"
+        "storage/inbox-notifications.mjs",
+        "packages/education-runtime/task-context.mjs"
       ],
       "path": "docs/modules/notifications/events.md"
     },
@@ -6004,7 +6053,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-13",
-      "updated": "2026-10-17",
+      "updated": "2026-10-18",
       "consumers": [
         "Education sync operator",
         "sync-project CLI",
@@ -7088,7 +7137,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-16",
-      "updated": "2026-10-17",
+      "updated": "2026-10-18",
       "consumers": [
         "Telegram service implementer",
         "bot operator",
@@ -7195,6 +7244,7 @@
         "packages/telegram-notifications/operations/process-lock.mjs",
         "packages/telegram-notifications/operations/readiness.mjs",
         "packages/telegram-notifications/operations/source-check.mjs",
+        "packages/telegram-notifications/operations/upload-check.mjs",
         "packages/telegram-notifications/operations/probe-runner.mjs",
         "packages/telegram-notifications/operations/probe-target.mjs",
         "packages/telegram-notifications/operations/private-logger.mjs"
@@ -7220,7 +7270,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-16",
-      "updated": "2026-10-17",
+      "updated": "2026-10-18",
       "consumers": [
         "Telegram service implementer",
         "bot operator",
@@ -8035,6 +8085,21 @@
       "type": "uses"
     },
     {
+      "from": "decision.upload-notification-lifecycle-2026-10-18",
+      "to": "module.notifications.events",
+      "type": "uses"
+    },
+    {
+      "from": "decision.upload-notification-lifecycle-2026-10-18",
+      "to": "service.telegram-bot.delivery",
+      "type": "uses"
+    },
+    {
+      "from": "decision.upload-notification-lifecycle-2026-10-18",
+      "to": "service.telegram-bot.ports-and-events",
+      "type": "uses"
+    },
+    {
       "from": "decision.weekend-special-course-2026-10-18",
       "to": "module.reviews.card-generation-policy",
       "type": "uses"
@@ -8570,6 +8635,11 @@
       "type": "implements"
     },
     {
+      "from": "file:packages/education-runtime/task-context.mjs",
+      "to": "module.notifications.events",
+      "type": "implements"
+    },
+    {
       "from": "file:packages/education-runtime/telemetry.mjs",
       "to": "shared.server-runtime",
       "type": "implements"
@@ -8761,6 +8831,11 @@
     },
     {
       "from": "file:packages/telegram-notifications/operations/source-check.mjs",
+      "to": "service.telegram-bot.operations",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/operations/upload-check.mjs",
       "to": "service.telegram-bot.operations",
       "type": "implements"
     },
@@ -12791,6 +12866,11 @@
     },
     {
       "from": "service.telegram-bot.firestore",
+      "to": "decision.upload-notification-lifecycle-2026-10-18",
+      "type": "contains"
+    },
+    {
+      "from": "service.telegram-bot.firestore",
       "to": "file:packages/telegram-notifications/adapters/source-inventory-firestore.test.mjs",
       "type": "verified-by"
     },
@@ -12892,6 +12972,11 @@
     {
       "from": "service.telegram-bot.operations",
       "to": "file:packages/telegram-notifications/operations/source-check.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "service.telegram-bot.operations",
+      "to": "file:packages/telegram-notifications/operations/upload-check.test.mjs",
       "type": "verified-by"
     },
     {

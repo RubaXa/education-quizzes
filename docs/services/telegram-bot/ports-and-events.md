@@ -3,7 +3,7 @@ id: service.telegram-bot.ports-and-events
 status: accepted
 implementation: partial
 created: 2026-10-16
-updated: 2026-10-17
+updated: 2026-10-18
 consumers:
   - "Telegram service implementer"
   - "bot operator"
@@ -34,7 +34,7 @@ sections:
 # Порты и события Telegram notification service
 
 **Родитель:** [корневая архитектура](README.md).
-**Статус:** normalized event validation, stable identity, snapshot diff and application ports implemented; source adapters and durable pipeline produce observations in explicit opt-in runtime; live rollout is unverified.
+**Статус:** normalized event validation, stable identity, snapshot diff and application ports implemented; source adapters and durable pipeline работают в постоянном Mac runtime; реальная доставка5upload событий подтверждена18.10 ([приёмка](../../decisions/upload-notification-lifecycle-2026-10-18.md)). Остальные незавершённые возможности перечислены в корневой спецификации.
 
 ## Назначение
 
@@ -70,6 +70,8 @@ source, scopeKey, completeness, observedAt, sourceRevision?, cursor?, records[]
 
 **Исправление по fact-check 17 октября:** только `complete === true` у current и previous допускает продвижение baseline; строки, числа и объекты не считаются подтверждением полноты. Отрицательные тесты передают валидный `detectedAt`, чтобы достигать этой проверки. [Исходное воспроизведение](../../audits/telegram-self-review-2026-10-16.md#recheck-2026-10-17) сохраняется как история до ремонта.
 
+Для upload baseline сохраняет `sourceProjectionVersion: 2`. Первый переход старой пустой bootstrap-проекции без этой версии выполняется тихо и сохраняет подтверждённую запись; новый live scope получает обычное событие. После фиксации версии2 переход от пустой baseline к подтверждённому файлу снова считается новым фактом даже для bootstrap scope. Это одноразовая защита от исторической рассылки при исправлении ошибочного фильтра, а не постоянное подавление загрузок. Для live scope отсутствие baseline означает восстановление пропущенного факта без ограничения по возрасту: простой процесса не должен терять события. Окно `upload-check --since` ограничивает только диагностический отчёт и не управляет доставкой.
+
 ## Domain event contract
 
 Корневая схема определяет общие поля. Здесь фиксируются семантика и правила идентичности:
@@ -83,7 +85,9 @@ source, scopeKey, completeness, observedAt, sourceRevision?, cursor?, records[]
 | `familyId`, `childId` | Разрешаются из проверенного owner map и сохраняются как идентичность адресации |
 | `privacyClass` | Минимальная политика раскрытия: `family-summary`, `team-summary`, `restricted`; renderer проверяет её перед выводом |
 
-Если значимое поле события меняется, появляется новая ревизия/событие. Дублирующийся сигнал той же ревизии возвращает существующий `eventId`. Неполные payload не становятся `deleted` или `cancelled`.
+Для обновляемых предметных фактов изменение значимого поля создаёт новую ревизию/событие. Исключение `upload.confirmed`: уже известный recordKey означает тот же переданный файл; смена статуса проверки и обогащение контекста не создают новый факт загрузки. `title`, `subject`, `occurredLabel` разрешены для безопасного upload summary и проходят общий whitelist.
+
+Если значимое поле события меняется, появляется новая ревизия/событие только согласно политике его семейства. Дублирующийся сигнал той же ревизии возвращает существующий `eventId`. Неполные payload не становятся `deleted` или `cancelled`.
 
 Нормализация идемпотентна для всего DTO, включая `contextRefs.id`: сырые ID хэшируются; при `identityEncoding: sha256-v1` уже нормализованный 64-символьный hex ID сохраняется. `NotificationService.accept` может безопасно повторно нормализовать event до записи. Это не означает наличия context links в renderer: их источник и разрешённый resolver пока planned.
 
@@ -127,6 +131,8 @@ Lease heartbeat обновляет аренду примерно TTL/3, имее
 `technical.probe` — отдельный тип с явным диагностическим текстом. Firestore probe слушает отдельный служебный документ; МЭШ probe сначала читает реальную подтверждённую область. Оба проходят SourcePipeline, ledger, outbox и доставку ровно одному проверенному адресату. Проба не создаёт фиктивную оценку/ДЗ, не рассылается остальным родителям и не доказывает наблюдение естественного изменения. Доставка требует точного job claim и readback `sent` с message receipts; посторонняя очередь не дренируется.
 
 Общие FamilyGraph, MeshSession, credential store, Firestore factory и TelemetryPort описаны в [серверном ядре](../../shared/server-runtime.md). Входы operator/Telegram подключают эти механизмы через внедряемые порты; педагогическая проверка не запускается ботом.
+
+Общая очередь coordinator приоритизирует доступные live scopes перед bootstrap. После максимум восьми последовательных live dispatch запускается ожидающий bootstrap; внутри класса сохраняется циклический выбор и запрет параллельной обработки одного ключа. Это политика всей очереди, без списков семей или типов источников.
 
 ## Ошибки и обратная совместимость
 

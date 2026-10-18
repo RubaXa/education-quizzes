@@ -67,7 +67,7 @@ const safeFields = (eventType, fields) => {
     'homework.assigned': ['childName', 'subject', 'title', 'occurredLabel'],
     'homework.changed': ['childName', 'subject', 'title', 'occurredLabel'],
     'homework.cancelled': ['childName', 'subject', 'title', 'occurredLabel'],
-    'upload.confirmed': ['childName', 'subject'],
+    'upload.confirmed': ['childName', 'subject', 'title', 'occurredLabel'],
     'quiz.started': ['childName', 'subject'],
     'quiz.submitted': ['childName', 'subject'],
     'review.changed': ['childName', 'subject'],

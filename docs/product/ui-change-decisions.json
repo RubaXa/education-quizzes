@@ -54,16 +54,30 @@
     "day/assignment-routing.mjs": {
       "sha256": "72db26096a24474aa94650808aea264f6ea32173169630443f5fcbb419eb105b",
       "record": "docs/decisions/course-placement-2026-10-18.md",
-      "specs": ["docs/modules/synchronization/plan-generation.md"],
-      "tests": ["day/assignment-routing.test.mjs"],
-      "authorization": { "status": "direct-request", "evidence": "Родитель18.10 прямо требует связать лист спецкурса с четвергом и показывать его на выходных, сохранив исходную работу." }
+      "specs": [
+        "docs/modules/synchronization/plan-generation.md"
+      ],
+      "tests": [
+        "day/assignment-routing.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель18.10 прямо требует связать лист спецкурса с четвергом и показывать его на выходных, сохранив исходную работу."
+      }
     },
     "scripts/route-assignment.mjs": {
       "sha256": "4fe594f511525e59565b267b25e3f9e81eb9cef1e02a8a13e599b034158216c3",
       "record": "docs/decisions/course-placement-2026-10-18.md",
-      "specs": ["docs/modules/synchronization/plan-generation.md"],
-      "tests": ["day/assignment-routing.test.mjs"],
-      "authorization": { "status": "direct-request", "evidence": "Родитель18.10 требует правильную привязку спецкурса; повторяемый перенос выполняется штатным проверяемым CLI по действующему правилу." }
+      "specs": [
+        "docs/modules/synchronization/plan-generation.md"
+      ],
+      "tests": [
+        "day/assignment-routing.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель18.10 требует правильную привязку спецкурса; повторяемый перенос выполняется штатным проверяемым CLI по действующему правилу."
+      }
     },
     "assessment/decision-graph.mjs": {
       "sha256": "a3322d3299bdfdadadb80b5755aa618798a89023c53ae84608016736653f18df",
@@ -4023,26 +4037,17 @@
       }
     },
     "storage/inbox-notifications.mjs": {
-      "sha256": "cc767aa4c155360255907cb67b5f74206b9d7e38eb709de82ca4ac1ec267f1a9",
-      "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
+      "sha256": "cf47a7e10daf5b8b597cee641989caf09f55f34e477f469cdf370c3c1d3bcac3",
+      "record": "docs/decisions/upload-notification-lifecycle-2026-10-18.md",
       "specs": [
-        "docs/shared/specification-system.md"
+        "docs/modules/notifications/events.md"
       ],
       "tests": [
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
+        "packages/telegram-notifications/source-pipeline.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя 16.10.2026 внедрить согласованную структуру спецификаций, перенести ссылки в коде и проверить сохранность требований; изменение предметного поведения не выполнялось."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "b23e062e8ee4dccf86d85073daf6bdeade32c9a54d30dd4e494c24d00e02b7e1"
-      },
-      "specificationLifecycle": {
-        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
-        "previousSha256": "d5e5e14531f829453d8e454bc227291f9da3ba523da095d42f049f909a22cfa4"
+        "evidence": "Родитель18.10.2026 сообщил об отсутствии Telegram уведомления о только что загруженном решении и контекста задания; исправление семейной цепочки и проверка реальной доставки необходимы для согласованного сервиса. Название команды/продукта Education прямо уточнено пользователем."
       }
     },
     "storage/material-pages.mjs": {
@@ -4455,18 +4460,17 @@
       }
     },
     "packages/telegram-notifications/domain/events.mjs": {
-      "sha256": "0b8998da59c7d6acdd98d95f3558d60b28aad8b2fd82ae4e8aa396dcef1ad2ac",
-      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "sha256": "0931b1e7f07d56c29f0efe3df4daec3fc4bfe64853cbd37626370c7ad47c2b3b",
+      "record": "docs/decisions/upload-notification-lifecycle-2026-10-18.md",
       "specs": [
-        "docs/services/telegram-bot/operations.md"
+        "docs/services/telegram-bot/ports-and-events.md"
       ],
       "tests": [
-        "packages/telegram-notifications/technical-probe.test.mjs",
-        "packages/telegram-notifications/notifications.test.mjs"
+        "packages/telegram-notifications/source-pipeline.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+        "evidence": "Родитель18.10.2026 сообщил об отсутствии Telegram уведомления о только что загруженном решении и контекста задания; исправление семейной цепочки и проверка реальной доставки необходимы для согласованного сервиса. Название команды/продукта Education прямо уточнено пользователем."
       }
     },
     "packages/telegram-notifications/domain/ports.mjs": {
@@ -4498,18 +4502,18 @@
       }
     },
     "packages/telegram-notifications/domain/renderer.mjs": {
-      "sha256": "0137ec4019b236147a5f5980b3be81e6e42f08981237a1d44799c385094fa7d4",
-      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "sha256": "968dbf227f3285314161adf01882652d42ade94b25bf25f35956e45a6b17db63",
+      "record": "docs/decisions/upload-notification-lifecycle-2026-10-18.md",
       "specs": [
-        "docs/services/telegram-bot/operations.md"
+        "docs/services/telegram-bot/delivery.md"
       ],
       "tests": [
-        "packages/telegram-notifications/technical-probe.test.mjs",
-        "packages/telegram-notifications/notifications.test.mjs"
+        "packages/telegram-notifications/source-pipeline.test.mjs",
+        "packages/telegram-notifications/technical-probe.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+        "evidence": "Родитель18.10.2026 сообщил об отсутствии Telegram уведомления о только что загруженном решении и контекста задания; исправление семейной цепочки и проверка реальной доставки необходимы для согласованного сервиса. Название команды/продукта Education прямо уточнено пользователем."
       }
     },
     "scripts/telegram-bot.mjs": {
@@ -4569,17 +4573,17 @@
       }
     },
     "packages/telegram-notifications/adapters/source-coordinator.mjs": {
-      "sha256": "9c33aef8ab164ab2dec6d177633da5739d41639572c049f5457d4b8a78b349b9",
-      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "sha256": "4db1d7a6a05ed20e903d36e1a93ab4a093381e1d91eb3545f5c5f6d4cc141da7",
+      "record": "docs/decisions/upload-notification-lifecycle-2026-10-18.md",
       "specs": [
-        "docs/services/telegram-bot/operations.md"
+        "docs/services/telegram-bot/ports-and-events.md"
       ],
       "tests": [
         "packages/telegram-notifications/adapters/source-coordinator.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+        "evidence": "Родитель18.10 требует реальное своевременное уведомление о загрузке решения; общая очередь не должна задерживать новые live события за стартовой историей."
       }
     },
     "packages/telegram-notifications/adapters/source-discovery-firestore.mjs": {
@@ -4597,31 +4601,18 @@
       }
     },
     "packages/telegram-notifications/adapters/source-firestore.mjs": {
-      "sha256": "eebaeddee84d2fd72dbd14dbd05c10034c2501061a451d17ff3b58589608ec02",
-      "record": "docs/decisions/telegram-source-wiring-2026-10-17.md",
+      "sha256": "bac6c20e0b7b82c80bc3a90a153ad122cae7bbcc1d08167f15420923b2c3acef",
+      "record": "docs/decisions/upload-notification-lifecycle-2026-10-18.md",
       "specs": [
-        "docs/services/telegram-bot/README.md",
-        "docs/services/telegram-bot/ports-and-events.md",
-        "docs/services/telegram-bot/adapters/firestore.md",
-        "docs/services/telegram-bot/adapters/mesh.md",
-        "docs/services/telegram-bot/operations.md"
+        "docs/services/telegram-bot/adapters/firestore.md"
       ],
       "tests": [
-        "packages/telegram-notifications/adapters/mesh-credentials.test.mjs",
-        "packages/telegram-notifications/adapters/runtime.test.mjs",
-        "packages/telegram-notifications/adapters/source-coordinator.test.mjs",
-        "packages/telegram-notifications/adapters/source-discovery-firestore.test.mjs",
-        "packages/telegram-notifications/adapters/source-inventory-firestore.test.mjs",
-        "packages/telegram-notifications/adapters/source-mesh.test.mjs",
-        "packages/telegram-notifications/adapters/worker-loop.test.mjs",
-        "packages/telegram-notifications/notifications.test.mjs",
-        "packages/telegram-notifications/source-mesh-integration.test.mjs",
         "packages/telegram-notifications/source-pipeline.test.mjs",
-        "scripts/telegram-bot.test.mjs"
+        "packages/telegram-notifications/source-mesh-integration.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь17.10.2026 поручил через Luna подключить Firestore, затем МЭШ, добавить тесты, проверить и выполнить commit/push; отдельно потребовал динамическое подключение всех семей/детей без ручного allowlist."
+        "evidence": "Родитель18.10.2026 сообщил об отсутствии Telegram уведомления о только что загруженном решении и контекста задания; исправление семейной цепочки и проверка реальной доставки необходимы для согласованного сервиса. Название команды/продукта Education прямо уточнено пользователем."
       }
     },
     "packages/telegram-notifications/adapters/source-inventory-firestore.mjs": {
@@ -4653,17 +4644,17 @@
       }
     },
     "packages/telegram-notifications/application/source-pipeline.mjs": {
-      "sha256": "a22d321573241ee678cec5f0dad3ccdaf037426b1bc231f6efecf121e8bef5f8",
-      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "sha256": "138f3761f8ce03a1fcef9120898b79e792d15c050b2cfb1b1a04f4bdd01bed70",
+      "record": "docs/decisions/upload-notification-lifecycle-2026-10-18.md",
       "specs": [
-        "docs/services/telegram-bot/operations.md"
+        "docs/services/telegram-bot/ports-and-events.md"
       ],
       "tests": [
         "packages/telegram-notifications/source-pipeline.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+        "evidence": "Родитель18.10.2026 сообщил об отсутствии Telegram уведомления о только что загруженном решении и контекста задания; исправление семейной цепочки и проверка реальной доставки необходимы для согласованного сервиса. Название команды/продукта Education прямо уточнено пользователем."
       }
     },
     "packages/education-runtime/credentials.mjs": {
@@ -4920,8 +4911,8 @@
       }
     },
     "scripts/telegram-runtime.mjs": {
-      "sha256": "f830e34eee272b13ff54884c94f4f4cfc5c49abbeb661b867fbbc38c7571a0b1",
-      "record": "docs/decisions/mesh-calendar-date-scopes-2026-10-18.md",
+      "sha256": "691eee3a82a891882f95726ee725320f97042663063feaf3bf81fee5ed2a8097",
+      "record": "docs/decisions/upload-notification-lifecycle-2026-10-18.md",
       "specs": [
         "docs/services/telegram-bot/operations.md"
       ],
@@ -4930,7 +4921,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь18.10.2026 поручил исправить три области МЭШ с несовпадающими датами через Luna Worker, проверить результат, добавить тесты, обновить спецификации, выполнить проверки, коммит и пуш."
+        "evidence": "Родитель18.10.2026 сообщил об отсутствии Telegram уведомления о только что загруженном решении и контекста задания; исправление семейной цепочки и проверка реальной доставки необходимы для согласованного сервиса. Название команды/продукта Education прямо уточнено пользователем."
       }
     },
     "scripts/telegram-indexes.mjs": {
@@ -4945,6 +4936,34 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+      }
+    },
+    "packages/education-runtime/task-context.mjs": {
+      "sha256": "caab7057cd92cfc1c1cb1a2028ec081b260d759c6756572bf067c05243ed85a3",
+      "record": "docs/decisions/upload-notification-lifecycle-2026-10-18.md",
+      "specs": [
+        "docs/modules/notifications/events.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/source-pipeline.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель18.10.2026 сообщил об отсутствии Telegram уведомления о только что загруженном решении и контекста задания; исправление семейной цепочки и проверка реальной доставки необходимы для согласованного сервиса. Название команды/продукта Education прямо уточнено пользователем."
+      }
+    },
+    "packages/telegram-notifications/operations/upload-check.mjs": {
+      "sha256": "492477d24ee4ef70440d9e5282931b9c667286d89a5bda61f79c313e15946a35",
+      "record": "docs/decisions/upload-notification-lifecycle-2026-10-18.md",
+      "specs": [
+        "docs/services/telegram-bot/operations.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/operations/upload-check.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель18.10.2026 сообщил об отсутствии Telegram уведомления о только что загруженном решении и контекста задания; исправление семейной цепочки и проверка реальной доставки необходимы для согласованного сервиса. Название команды/продукта Education прямо уточнено пользователем."
       }
     }
   }

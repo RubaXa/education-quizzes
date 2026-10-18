@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto'
+import { taskContext } from '../../education-runtime/task-context.mjs'
 
 /** @see ../../../docs/services/telegram-bot/adapters/firestore.md#области-данных-для-валидации @see ../../../docs/services/telegram-bot/ports-and-events.md#контракт-observation */
 export function createFirestoreSourceAdapter(db, { baseBackoffMs = 1_000, maxBackoffMs = 60_000, setTimer = setTimeout, clearTimer = clearTimeout } = {}) {
@@ -53,11 +54,57 @@ export function createFirestoreSourceAdapter(db, { baseBackoffMs = 1_000, maxBac
       if (!snap.exists) return { ...base, completeness: 'complete', observedAt: new Date().toISOString(), records: [] }
       const data = snap.data()
       if (scope.kind === 'quiz' && (data.familyId !== scope.familyId || data.childId !== scope.childId)) return { ...base, completeness: 'partial', records: [] }
-      const record = project(scope, data, childName)
+      const record = scope.kind === 'upload'
+        ? await projectUpload(scope, data, childName)
+        : project(scope, data, childName)
       if (record === INVALID_SOURCE_STATE) return { ...base, completeness: 'partial', records: [] }
       return { ...base, completeness: 'complete', observedAt: new Date().toISOString(), records: record ? [record] : [] }
     } catch {
       return { ...base, completeness: 'partial', records: [] }
+    }
+  }
+
+  async function inspectUpload(scope) {
+    if (!validDescriptor(scope) || scope.kind !== 'upload') return { completeness: 'partial', state: 'invalid_scope' }
+    try {
+      if (!await validateScope(scope)) return { completeness: 'partial', state: 'owner_unverified' }
+      const snapshot = await getMasked(recordRef(scope), fieldMask('upload'))
+      if (!snapshot.exists) return { completeness: 'complete', state: 'missing' }
+      const data = snapshot.data() ?? {}
+      const occurredAt = canonicalTime(data.storage?.syncedAt)
+      const stored = data.storage?.provider === 'yandex-disk' && data.storage?.state === 'stored' && occurredAt !== null
+      const state = (data.status === 'pending' || data.status === 'reviewed') && stored ? 'confirmed'
+        : data.status === 'uploaded' ? 'uploading'
+          : ['requested', 'awaiting-upload'].includes(data.status) ? 'awaiting_transfer'
+            : data.status === 'pending' ? 'awaiting_storage_confirmation' : 'ignored'
+      return { completeness: 'complete', state, ...(occurredAt ? { occurredAt } : {}) }
+    } catch { return { completeness: 'partial', state: 'observation_failed' } }
+  }
+
+  async function projectUpload(scope, data, childName) {
+    const record = project(scope, data, childName)
+    if (!record) return null
+    const ownerSnapshot = await getMasked(ownerRef(scope), ['familyId', 'childId', 'date', 'targetDate'])
+    const owner = ownerSnapshot.data() ?? {}
+    if (!ownerSnapshot.exists || owner.familyId !== scope.familyId || owner.childId !== scope.childId || !validDay(owner.date)) return INVALID_SOURCE_STATE
+    const pageSnapshot = await getMasked(db.doc(`dayPages/${scope.dayToken}`), ['kind', 'familyId', 'childId', 'date', 'targetDate', 'taskIds', 'subjects'])
+    if (!pageSnapshot.exists) return INVALID_SOURCE_STATE
+    const page = pageSnapshot.data() ?? {}
+    if (page.kind !== 'student' || page.date !== owner.date
+      || (page.familyId !== undefined && page.familyId !== scope.familyId)
+      || (page.childId !== undefined && page.childId !== scope.childId)
+      || !Array.isArray(page.taskIds) || !page.taskIds.includes(data.taskId)
+      || !Array.isArray(page.subjects)) return INVALID_SOURCE_STATE
+    const task = taskContext({ subjects: page.subjects }, data.taskId)
+    const subject = safeLabel(task?.subject)
+    const title = safeLabel(task?.title)
+    if (!subject || !title) return INVALID_SOURCE_STATE
+    const dueDate = page.targetDate ?? owner.targetDate
+    if (dueDate !== undefined && !validDay(dueDate)) return INVALID_SOURCE_STATE
+    return {
+      ...record,
+      fields: { ...record.fields, subject, title,
+        ...(dueDate ? { occurredLabel: `Задание к ${dueDate}` } : {}) },
     }
   }
 
@@ -91,7 +138,7 @@ export function createFirestoreSourceAdapter(db, { baseBackoffMs = 1_000, maxBac
     return async () => { disposed = true; if (timer) clearTimer(timer); timer = null; stop() }
   }
 
-  return Object.freeze({ kind: 'firestore', scopeKey, validateScope, observe, subscribe })
+  return Object.freeze({ kind: 'firestore', scopeKey, validateScope, observe, inspectUpload, subscribe })
 }
 
 function binding(scope) {
@@ -102,14 +149,18 @@ function validDay(value) { return typeof value === 'string' && /^\d{4}-\d{2}-\d{
 function sourceRecordKey(kind, scope, id) { return createHash('sha256').update(JSON.stringify([kind, scope, id])).digest('hex') }
 function fieldMask(kind) {
   if (kind === 'quiz') return ['familyId', 'childId', 'status', 'startedAt', 'submittedAt', 'title', 'subject']
-  if (kind === 'upload') return ['status', 'taskId']
+  if (kind === 'upload') return ['status', 'taskId', 'storage.provider', 'storage.state', 'storage.syncedAt']
   return ['status', 'checkedAt']
 }
 const INVALID_SOURCE_STATE = Symbol('invalid_source_state')
 function project(scope, data, childName = '') {
   if (scope.kind === 'upload') {
-    if (!['uploaded', 'reviewed'].includes(data.status)) return null
-    return { recordKey: sourceRecordKey('upload', scope.dayToken, scope.recordId), kind: 'upload', eventType: 'upload.confirmed', fields: { ...(childName ? { childName } : {}), status: 'confirmed' } }
+    const syncedAt = canonicalTime(data.storage?.syncedAt)
+    const stored = data.storage?.provider === 'yandex-disk' && data.storage?.state === 'stored' && syncedAt !== null
+    if (!(data.status === 'pending' && stored) && !(data.status === 'reviewed' && stored)) return null
+    return { recordKey: sourceRecordKey('upload', scope.dayToken, scope.recordId), kind: 'upload', eventType: 'upload.confirmed',
+      semanticHash: createHash('sha256').update(JSON.stringify(['confirmed-upload-v1', scope.dayToken, scope.recordId])).digest('hex'),
+      occurredAt: syncedAt, fields: { ...(childName ? { childName } : {}), status: 'confirmed' } }
   }
   if (scope.kind === 'progress') {
     if (!['verified', 'needs-fix', 'partial', 'cannot-assess'].includes(data.status)) return null

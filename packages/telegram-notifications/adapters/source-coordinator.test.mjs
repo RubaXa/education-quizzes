@@ -88,6 +88,35 @@ describe('SourceCoordinator', () => {
     await h.coordinator.close()
   })
 
+  it('prioritizes new live work over a long bootstrap queue and bounds bootstrap starvation', async () => {
+    const h = harness()
+    h.coordinator.concurrency = 1
+    h.coordinator.maxLiveBurst = 3
+    let releaseFirst
+    const firstGate = new Promise((resolve) => { releaseFirst = resolve })
+    h.pipeline.process.mockImplementation(async (scope, options) => {
+      h.processed.push([scope.key, options.origin])
+      if (scope.key === 'bootstrap-0') await firstGate
+    })
+    const bootstrapScopes = Array.from({ length: 20 }, (_, index) => ({ source: 'firestore',
+      scope: { key: `bootstrap-${index}`, familyId: `family-${index % 2}` }, origin: 'bootstrap' }))
+    let inventory = { complete: true, families: [{ familyId: 'family-0' }, { familyId: 'family-1' }], scopes: bootstrapScopes }
+    h.coordinator.enumerate = async () => inventory
+    await h.coordinator.start()
+    await vi.waitFor(() => expect(h.processed).toContainEqual(['bootstrap-0', 'bootstrap']))
+
+    const liveScopes = Array.from({ length: 6 }, (_, index) => ({ source: 'firestore',
+      scope: { key: `live-${index}`, familyId: `family-${index % 2}` }, origin: 'live' }))
+    inventory = { ...inventory, scopes: [...bootstrapScopes, ...liveScopes] }
+    await h.coordinator.reconcile()
+    releaseFirst()
+
+    await vi.waitFor(() => expect(h.processed.slice(0, 5)).toEqual([
+      ['bootstrap-0', 'bootstrap'], ['live-0', 'live'], ['live-1', 'live'], ['live-2', 'live'], ['bootstrap-1', 'bootstrap'],
+    ]))
+    await h.coordinator.close()
+  })
+
   it('retains only failed source-child scopes while refreshing healthy sources and siblings', async () => {
     const watched = new Map()
     const makeSource = (kind) => ({ kind, scopeKey: (scope) => scope.key,

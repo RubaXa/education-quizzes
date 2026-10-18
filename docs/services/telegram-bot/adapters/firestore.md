@@ -3,7 +3,7 @@ id: service.telegram-bot.firestore
 status: accepted
 implementation: partial
 created: 2026-10-16
-updated: 2026-10-17
+updated: 2026-10-18
 consumers:
   - "Telegram service implementer"
   - "bot operator"
@@ -59,11 +59,19 @@ Listener наблюдает только согласованные Firestore pa
 
 Runtime автоматически обнаруживает семьи, детей, подключённые источники и опубликованные владельцы дней через authoritative Education registry. Ручных списков family/child/scopes и продуктового лимита их числа нет. Новая семья или ребёнок добавляется без правки конфигурации и restart; отзыв источника снимает наблюдение. Внутренние descriptors создаёт inventory manager, они не являются operator allowlist. Все IDs валидируются; для каждого дня canonical `dayOwners/{dayToken}` подтверждает точную пару владельца; family/child documents должны существовать. Каноническое quiz назначение должно иметь ту же пару; legacy assignment без пары не наблюдается: для него ещё нужна отдельная подтверждённая owner linkage. Queries scoped по семье/ребёнку, страницы и очереди обрабатываются до конца; технический page size/concurrency регулирует нагрузку, но не исключает семьи. Ошибка/неполнота inventory видна в health и не становится ложным пустым списком. Failed context изолируется по source/family/child/account: сохраняется его прежний graph, а здоровые источники и дети продолжают обработку, в том числе Firestore при недоступном МЭШ.
 
-Listener даёт только сигнал перечитать текущее состояние. Нормализация допускает подтверждённую загрузку (`uploaded`/`reviewed`), монотонный жизненный цикл quiz (`not_started → started → submitted`) и явно подтверждённый публичный status проверки. `requested`, `awaiting-upload`, `pending` и ошибки не доказывают загрузку. Редакция timestamp сама по себе не новый quiz start. `dayReviewPrivate`, questions/answers, оригиналы и URL не попадают в checkpoint/event/log. Exact event enum берётся из domain catalog: `upload.confirmed`, `quiz.started`, `quiz.submitted`, `review.changed`.
+Listener даёт только сигнал перечитать текущее состояние. Нормализация допускает подтверждённую загрузку (`pending`/`reviewed` с `storage.provider=yandex-disk`, `storage.state=stored` и валидным `storage.syncedAt`), монотонный жизненный цикл quiz (`not_started → started → submitted`) и явно подтверждённый публичный status проверки. `requested`, `awaiting-upload`, промежуточный `uploaded`, ошибки и `pending` без подтверждённых storage полей не доказывают загрузку. Стабильный `pending+stored` означает успешно переданный и проверенный storage worker файл, ожидающий педагогического разбора; это не оценка решения. Редакция timestamp сама по себе не новый quiz start. `dayReviewPrivate`, questions/answers, оригиналы и URL не попадают в checkpoint/event/log. Exact event enum берётся из domain catalog: `upload.confirmed`, `quiz.started`, `quiz.submitted`, `review.changed`.
 
 Source pipeline сначала получает scope lease, затем читает полный допустимый snapshot. Durable sequence и безопасный pending batch сохраняются до `accept`; после сбоя повторяется тот же event ID. Baseline продвигается только после идемпотентного приёма всех events. Перед replay/accept повторно подтверждается владелец; смена владельца сбрасывает baseline/pending и не переносит прежние события новой семье. Absence не удаляет известный факт; checkpoint делится на ограниченные технические единицы/записи, чтобы предел документа Firestore не становился пределом семьи. Каждая страница/единица проходит до конца; partial/error сохраняют последнее подтверждённое состояние и явно отражаются в health. Существующий initial inventory не рассылается как история; новая entity у уже действующей подписки должна отличаться от исторического bootstrap, включая restart.
 
 Shadow и notify используют разные checkpoint namespaces: shadow никогда не вызывает `accept` и не создаёт outbox; первый notify snapshot тоже тихий. Перезапуск прежнего notify namespace сохраняет recovery, а не начинает заново историю. Локальные регрессии и wiring проверяются общим gate; реальные IAM/index/listener checks остаются отдельным эксплуатационным подтверждением.
+
+### Контекст загрузки и защита от повторов
+
+Реальный upload lifecycle описан в [контракте хранения](../../../modules/materials/storage-privacy.md#review-queue): после передачи `uploaded` быстро меняется на подтверждённый `pending`. Listener может перечитать уже это конечное состояние. Нельзя требовать, чтобы адаптер успел увидеть промежуточный `uploaded`.
+
+Сообщение связывает точный `taskId` загрузки с заданием/подпунктом только в проверенной `dayPages/{dayToken}` того же owner. `page.kind=student`, `page.date=owner.date`, taskId входит в page.taskIds; `targetDate` — срок задания, он может отличаться от даты страницы. Имеющиеся поля familyId/childId страницы не должны противоречить owner. Общая чистая функция task context используется inbox и Telegram; оригиналы, URL/пути хранения, ID и содержимое фото не входят в проекцию. Разрешены краткие `subject`, `title`, дата задания и имя ребёнка. Соседние задачи (`relatedTasks`) не означают решённые номера; служебные processing lists не расширяют утверждение сообщения о содержимом фото.
+
+`upload.confirmed` — однократный логический факт появления конкретного файла. Переход `uploaded→pending→reviewed`, обогащение заголовка/предмета, перестановка и повторный сигнал не становятся повторной загрузкой. Известная запись обновляет baseline без нового upload event. Первая история нового ребёнка остаётся тихой; миграция прежней пустой bootstrap-проекции не должна массово разослать старые файлы. Новая загрузка уже подтверждённого live-контекста должна породить событие, в том числе после исправления неверного фильтра статусов. Миграционная неопределённость отражается явно, без выдуманной истории.
 
 ## Пределы доступа и приватность
 

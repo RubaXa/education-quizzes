@@ -10,7 +10,7 @@ describe('technical Telegram probe message', () => {
   it('renders only fixed service text for the family and never exposes payload fields', () => {
     const event = createDomainEvent(base)
     const rendered = renderEvent(event, 'family')
-    expect(rendered).toEqual(['PETR: техническая проверка уведомлений. Это служебное сообщение; учебные данные не использовались.'])
+    expect(rendered).toEqual(['Education: техническая проверка уведомлений. Это служебное сообщение; учебные данные не использовались.'])
     expect(rendered.join(' ')).not.toContain('must never be rendered')
     expect(rendered.join(' ')).not.toContain('5')
     expect(renderEvent(event, 'team')).toEqual([])

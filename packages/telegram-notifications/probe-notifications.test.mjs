@@ -33,7 +33,7 @@ describe('narrow technical probe notification', () => {
     const [{ event: saved, jobs }] = recordIfAbsent.mock.calls[0]
     expect(jobs).toHaveLength(1)
     expect(jobs[0]).toMatchObject({ linkId: 'opaque-link-id', familyId: 'family-a', personId: 'parent-a', telegramUserId: '12345' })
-    expect(jobs[0].messageParts).toEqual(['PETR: техническая проверка уведомлений. Это служебное сообщение; учебные данные не использовались.'])
+    expect(jobs[0].messageParts).toEqual(['Education: техническая проверка уведомлений. Это служебное сообщение; учебные данные не использовались.'])
     expect(saved.eventType).toBe('technical.probe')
   })
 

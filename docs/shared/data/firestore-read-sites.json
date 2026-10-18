@@ -542,7 +542,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#915844384df9",
     "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
-    "line": 98,
+    "line": 101,
     "api": "admin.get",
     "target": "this.sources",
     "group": "operator-other",
@@ -554,7 +554,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#915844384df9-2",
     "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
-    "line": 124,
+    "line": 127,
     "api": "admin.get",
     "target": "this.sources",
     "group": "operator-other",
@@ -566,7 +566,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#0869f8ccba6e",
     "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
-    "line": 135,
+    "line": 138,
     "api": "admin.get",
     "target": "this.listeners",
     "group": "operator-other",
@@ -578,7 +578,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#915844384df9-3",
     "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
-    "line": 137,
+    "line": 140,
     "api": "admin.get",
     "target": "this.sources",
     "group": "operator-other",
@@ -590,7 +590,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#915844384df9-4",
     "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
-    "line": 158,
+    "line": 161,
     "api": "admin.get",
     "target": "this.sources",
     "group": "operator-other",
@@ -602,7 +602,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#0869f8ccba6e-2",
     "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
-    "line": 176,
+    "line": 179,
     "api": "admin.get",
     "target": "this.listeners",
     "group": "operator-other",
@@ -614,7 +614,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#236fbcfd9e39",
     "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
-    "line": 181,
+    "line": 184,
     "api": "admin.get",
     "target": "this.known",
     "group": "operator-other",
@@ -626,7 +626,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#915844384df9-5",
     "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
-    "line": 195,
+    "line": 198,
     "api": "admin.get",
     "target": "this.sources",
     "group": "operator-other",
@@ -638,7 +638,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#236fbcfd9e39-2",
     "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
-    "line": 197,
+    "line": 200,
     "api": "admin.get",
     "target": "this.known",
     "group": "operator-other",
@@ -650,7 +650,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#475679681877",
     "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
-    "line": 199,
+    "line": 202,
     "api": "admin.get",
     "target": "this.retryTimers",
     "group": "operator-other",
@@ -662,7 +662,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#3bcc43c7d25e",
     "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
-    "line": 203,
+    "line": 206,
     "api": "admin.get",
     "target": "this.known.get(kind)",
     "group": "operator-other",
@@ -674,7 +674,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#236fbcfd9e39-3",
     "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
-    "line": 203,
+    "line": 206,
     "api": "admin.get",
     "target": "this.known",
     "group": "operator-other",
@@ -686,7 +686,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#915844384df9-6",
     "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
-    "line": 229,
+    "line": 232,
     "api": "admin.get",
     "target": "this.sources",
     "group": "operator-other",
@@ -698,7 +698,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#51bb4566ea30",
     "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
-    "line": 231,
+    "line": 234,
     "api": "admin.get",
     "target": "this.pending",
     "group": "operator-other",
@@ -710,7 +710,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#915844384df9-7",
     "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
-    "line": 258,
+    "line": 275,
     "api": "admin.get",
     "target": "this.sources",
     "group": "operator-other",
@@ -722,7 +722,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#915844384df9-8",
     "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
-    "line": 264,
+    "line": 281,
     "api": "admin.get",
     "target": "this.sources",
     "group": "operator-other",
@@ -734,7 +734,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#90af6326f7dd",
     "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
-    "line": 290,
+    "line": 307,
     "api": "admin.get",
     "target": "this.retryAttempts",
     "group": "operator-other",
@@ -746,7 +746,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#236fbcfd9e39-4",
     "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
-    "line": 297,
+    "line": 314,
     "api": "admin.get",
     "target": "this.known",
     "group": "operator-other",
@@ -758,7 +758,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#915844384df9-9",
     "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
-    "line": 297,
+    "line": 314,
     "api": "admin.get",
     "target": "this.sources",
     "group": "operator-other",
@@ -770,7 +770,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#236fbcfd9e39-5",
     "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
-    "line": 313,
+    "line": 330,
     "api": "admin.get",
     "target": "this.known",
     "group": "operator-other",
@@ -782,7 +782,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#af15f03cc6ba",
     "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
-    "line": 333,
+    "line": 350,
     "api": "admin.get",
     "target": "this.childHealth",
     "group": "operator-other",
@@ -830,19 +830,19 @@
   {
     "id": "packages/telegram-notifications/adapters/source-firestore.mjs#admin.getAll#5718b4ad2931",
     "file": "packages/telegram-notifications/adapters/source-firestore.mjs",
-    "line": 9,
+    "line": 10,
     "api": "admin.getAll",
     "target": "db",
     "group": "operator-other",
     "assessment": "justified",
     "policy": "source-authoritative-reread",
     "refresh": "on source signal/reconnect and before accept",
-    "note": "Узкий документный listener даёт сигнал; getAll использует fieldMask для source payload. Family/child и owner перечитываются, raw SDK snapshot не сохраняется и не логируется. Повторы/reconnect и множественные listeners требуют live measurement."
+    "note": "Masked reread after source signal/explicit diagnosis: confirmed upload storage provider/state/syncedAt, exact owner/day page/task context; no storage paths/URLs or photo content. Adds addressed dayPage/owner reads for confirmed files; current authority revalidated. See Telegram Firestore adapter contract."
   },
   {
     "id": "packages/telegram-notifications/adapters/source-firestore.mjs#admin.get#f2c4103d5d1b",
     "file": "packages/telegram-notifications/adapters/source-firestore.mjs",
-    "line": 27,
+    "line": 28,
     "api": "admin.get",
     "target": "db.doc(`families/${scope.familyId}`)",
     "group": "operator-other",
@@ -854,7 +854,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-firestore.mjs#admin.get#8f6404b39725",
     "file": "packages/telegram-notifications/adapters/source-firestore.mjs",
-    "line": 28,
+    "line": 29,
     "api": "admin.get",
     "target": "db.doc(`families/${scope.familyId}/children/${scope.childId}`)",
     "group": "operator-other",
@@ -866,7 +866,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-firestore.mjs#admin.onSnapshot#100795890a98",
     "file": "packages/telegram-notifications/adapters/source-firestore.mjs",
-    "line": 85,
+    "line": 132,
     "api": "admin.onSnapshot",
     "target": "ref",
     "group": "operator-other",
@@ -4392,9 +4392,45 @@
     "note": "Широкий обход дорого повторять в рабочем цикле; перейти на локальный курсор/активный индекс и оставить полный обход для явной сверки."
   },
   {
+    "id": "scripts/telegram-runtime.mjs#admin.get#b8a8c75cc706",
+    "file": "scripts/telegram-runtime.mjs",
+    "line": 69,
+    "api": "admin.get",
+    "target": "db.doc(`telegramNotificationSourceCheckpoints/notify_${hash}`)",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "explicit-operator-upload-diagnosis",
+    "refresh": "explicit-command-only",
+    "note": "Read-only upload-check, only after confirmed family inventory and explicit incident window; addressed checkpoint or stable record/event lookup, whitelisted fields, aggregate output, no writes/sends. See docs/services/telegram-bot/operations.md."
+  },
+  {
+    "id": "scripts/telegram-runtime.mjs#admin.get#e5f72688cc87",
+    "file": "scripts/telegram-runtime.mjs",
+    "line": 75,
+    "api": "admin.get",
+    "target": "db.collection('telegramNotificationEvents').where('sourceEventKey', '==', sourceEventKey) .select('eventId', 'eventType', 'source', 'sourceEventKey', 'scopeKey', 'familyId', 'childId')",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "explicit-operator-upload-diagnosis",
+    "refresh": "explicit-command-only",
+    "note": "Read-only upload-check, only after confirmed family inventory and explicit incident window; addressed checkpoint or stable record/event lookup, whitelisted fields, aggregate output, no writes/sends. See docs/services/telegram-bot/operations.md."
+  },
+  {
+    "id": "scripts/telegram-runtime.mjs#admin.get#70bd884e8044",
+    "file": "scripts/telegram-runtime.mjs",
+    "line": 84,
+    "api": "admin.get",
+    "target": "db.collection('telegramNotificationOutbox').where('eventId', '==', eventId).select('state', 'partReceipts')",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "explicit-operator-upload-diagnosis",
+    "refresh": "explicit-command-only",
+    "note": "Read-only upload-check, only after confirmed family inventory and explicit incident window; addressed checkpoint or stable record/event lookup, whitelisted fields, aggregate output, no writes/sends. See docs/services/telegram-bot/operations.md."
+  },
+  {
     "id": "scripts/telegram-runtime.mjs#admin.get#f6b12bf0da0d",
     "file": "scripts/telegram-runtime.mjs",
-    "line": 136,
+    "line": 193,
     "api": "admin.get",
     "target": "db.collection('sourceAccounts').where('familyId', '==', legacy.familyId)",
     "group": "operator-other",
@@ -4406,7 +4442,7 @@
   {
     "id": "scripts/telegram-runtime.mjs#admin.get#e5967c6609ea",
     "file": "scripts/telegram-runtime.mjs",
-    "line": 197,
+    "line": 254,
     "api": "admin.get",
     "target": "db.doc(`telegramNotificationOutbox/${jobId}`)",
     "group": "operator-other",

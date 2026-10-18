@@ -3,6 +3,7 @@
  */
 import { createHash } from 'node:crypto'
 import { Timestamp } from 'firebase-admin/firestore'
+import { taskContext as resolveTaskContext } from '../packages/education-runtime/task-context.mjs'
 
 /** One changing review notice per attempt; separate immutable notices for corrections and releases.
  * @see ../docs/modules/notifications/inbox.md#notification-producers
@@ -16,12 +17,7 @@ export function reviewAttemptKey(ownerId, uploadIds, taskIds) {
 }
 
 export function taskContext(page, taskId) {
-  for (const subject of page.subjects ?? []) for (const task of subject.tasks ?? []) {
-    if (task.id === taskId) return { subject: subject.name, title: task.title }
-    const problem = task.problems?.find((item) => item.id === taskId)
-    if (problem) return { subject: subject.name, title: `№ ${problem.number}. ${problem.title}` }
-  }
-  return { subject: '', title: 'Работа' }
+  return resolveTaskContext(page, taskId) ?? { subject: '', title: 'Работа' }
 }
 
 export async function stageFamilyNotice(db, batch, { familyId, childId, roles = ['parent', 'student'], key, data, mode = 'replace' }) {

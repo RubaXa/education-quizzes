@@ -3,7 +3,7 @@ id: module.synchronization.firestore-read-paths
 status: accepted
 implementation: partial
 created: 2026-10-13
-updated: 2026-10-17
+updated: 2026-10-18
 consumers:
   - "Education sync operator"
   - "sync-project CLI"
@@ -51,6 +51,12 @@ AST-проход по продуктовым `src/`, `scripts/`, `sync/`, `packa
 Outbox poll работает только при `--enable-delivery`: claim выбирает не более 20 due jobs, затем перед выдачей lease транзакционно перепроверяет состояние каждого кандидата. При простое worker ждёт с jitter и backoff от 1 до 60 секунд. Восстановление истёкших leases выполняется не чаще раза в минуту, одной выборкой не более 200 записей с транзакционной проверкой перед возвратом каждой записи в очередь. Если очередь восстановления больше лимита, остаток проверяется следующей минутной итерацией. Это ограниченный opt-in цикл, не наблюдение школьных источников.
 
 Два composite index для outbox claim и recovery перечислены в [конфигурации индексов](../../../packages/telegram-notifications/firestore.indexes.json) и карте файлов. Все 18 новых site классифицированы по конкретной функции и границе выше; `Map.get()` в in-memory registry не является Firestore чтением и не включается в список.
+
+### Подтверждение upload и адресная диагностика — 18 октября
+
+Для подтверждённого upload observer адресно перечитывает owner и дневную страницу этого токена, чтобы проверить дату/вид страницы, taskIds и точное название задания. Это чтение выполняется только для подтверждённого storage-файла; оно добавляет серверные reads к обработке сигнала, не клиентские subscriptions. Storage mask содержит только provider/state/syncedAt, без оригинала, path/URL или хэша файла. Одна и та же чистая task-context функция используется inbox и Telegram.
+
+Операторский upload-check явно запускается по запросу разбора инцидента: проходит общий семейный inventory, выбирает недавние upload записи и адресно проверяет discovery origin, checkpoint и связанные ledger/outbox. Он не вызывает SourcePipeline.process/accept, не пишет baseline или jobs и не отправляет сообщений. Изменение числа семей не ограничивается ручными IDs; фильтр времени задаёт диагностический охват, который не подменяет полный мониторинг. Конкретные SDK reads и решения фиксируются в машинном реестре; это не замер billed reads.
 
 ### Подключение Telegram source adapters — 17 октября
 

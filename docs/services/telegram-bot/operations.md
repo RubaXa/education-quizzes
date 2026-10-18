@@ -20,6 +20,7 @@ code:
   - packages/telegram-notifications/operations/process-lock.mjs
   - packages/telegram-notifications/operations/readiness.mjs
   - packages/telegram-notifications/operations/source-check.mjs
+  - packages/telegram-notifications/operations/upload-check.mjs
   - packages/telegram-notifications/operations/probe-runner.mjs
   - packages/telegram-notifications/operations/probe-target.mjs
   - packages/telegram-notifications/operations/private-logger.mjs
@@ -39,7 +40,7 @@ sections:
 # Runtime и эксплуатация Telegram notification service
 
 **Родитель:** [корневая архитектура](README.md).
-**Статус:** worker, readiness/source-check/probe и macOS LaunchAgent tooling реализованы. 18.10 установлен release94a5f463ca87291bb5ab5e57, полный МЭШ source-check93/93complete, readiness running/readyForDelivery и оба outbox query ready подтверждены; [исправление и факты](../../decisions/mesh-calendar-date-scopes-2026-10-18.md). Реальные technical probes sent/receipt1 подтверждены17.10 ([первичный аудит](../../audits/server-core-review-2026-10-17.md#результаты-проверки)). Внешние alerts не настроены.
+**Статус:** worker, readiness/source-check/probe и macOS LaunchAgent tooling реализованы. 18.10 установлен release94a5f463ca87291bb5ab5e57, полный МЭШ source-check93/93complete, readiness running/readyForDelivery и оба outbox query ready подтверждены; [исправление и факты](../../decisions/mesh-calendar-date-scopes-2026-10-18.md). Реальные technical probes sent/receipt1 подтверждены17.10 ([первичный аудит](../../audits/server-core-review-2026-10-17.md#результаты-проверки)). Последующее исправление upload flow установлено в release327c01c8022f3bb0febbc769:5реальных uploads подтверждены ledger/outboxSent/Telegram receipts,34файла release совпали с проверенным checkout, readiness readyForDelivery; [приёмка](../../decisions/upload-notification-lifecycle-2026-10-18.md). Внешние alerts не настроены.
 
 ## Runtime boundary
 
@@ -116,6 +117,7 @@ Rollback выключает source processing и сохраняет ledger/outbo
 ```bash
 npm run telegram:runtime -- readiness
 npm run telegram:runtime -- source-check
+npm run telegram:runtime -- upload-check --since 2026-10-18T06:30:00Z
 npm run telegram:runtime -- source-check --diagnose-schedule-dates --date 2026-10-13 --date 2026-10-14 --date 2026-10-15
 npm run telegram:runtime -- probe --source firestore --target-digest TARGET_HASH
 npm run telegram:runtime -- probe --source mesh --target-digest TARGET_HASH --apply
@@ -129,6 +131,8 @@ npm run telegram:runtime -- uninstall --apply
 `source-check` читает динамический graph и реальные МЭШ observations всех доступных подключений без SourcePipeline/academic/outbox writes или отправок; refresh может обновить локальные tokens. Неполный охват обязан быть видимым. Сумма `excludedCalendarEvents` показывает подтверждённые календарные записи, не входящие в уроки; это не потерянные уроки и не отправки.
 
 `--diagnose-schedule-dates` добавляет только безопасные признаки несовпадения даты: requested/start date, валидированные ISO start/finish с offset, source из конечного набора, булевы признаки предмета/ДЗ/типа и SHA256(source,id). Исходные ID, название, описание, адрес, URL и credentials не выводятся. Диагностика доступна и для complete observation после корректной классификации. Повторяемый `--date` разрешён только с этим флагом и применяется ко всем автоматически обнаруженным семьям. Это частичное диагностическое чтение: `diagnosticOnly=true`, `coverageComplete=false`, явно указаны inventory/selected/unobserved scopes и allFamilies. Такой отчёт не доказывает полный охват; для него запускается `source-check` без фильтра. Фильтр дат не настраивает runtime и не ограничивает число семей.
+
+`upload-check [--since ISO]` проверяет текущие uploads всех автоматически найденных семей: подтверждение storage, точный контекст задания, durable bootstrap/live origin, checkpoint и фактические ledger/outbox записи по устойчивому sourceEventKey. Сверка receipts работает и после того, как файл уже вошёл в baseline; предсказание следующего eventId не подменяет поиск реальной доставки. Отчёт содержит только агрегаты, без ID/имён/заданий/URL; reads используют whitelists. `wouldEmit` — отдельная гипотеза следующего прохода; общий с pipeline нормализатор проверяет whitelist/размеры, отказ учитывается в `pipelineRejected` и запрещает diagnosticComplete. `diagnosticComplete` означает завершённую проверку выбранного окна, `coverageComplete=false` сохраняется: это не глобальный мониторинг всех событий. Команда не меняет origin/checkpoint/ledger и не отправляет сообщений (`writes=0,sends=0`).
 
 Probe dry-run не пишет; apply использует явное `technical.probe`, точную подтверждённую link по opaque digest, отдельный служебный Firestore документ либо реальное чтение МЭШ, затем общий pipeline/ledger/outbox/transport. Exact job claim не дренирует постороннюю очередь; успешность требует readback `sent` и receipt. Это проверка технической цепочки, не естественного изменения оценки.
 

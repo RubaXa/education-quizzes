@@ -43,7 +43,7 @@ describe('Mesh source to notification delivery', () => {
     expect(store.events.size).toBe(1)
     expect(store.jobs.size).toBe(1)
     await expect(service.runOne()).resolves.toBe(true)
-    expect(deliveries).toEqual([{ chatId: '55', text: '📚 Изменения в PETR\n\nУченик\n• Изменено расписание: Математика\n  Математика · 09:00–10:00\n  2026-10-17' }])
+    expect(deliveries).toEqual([{ chatId: '55', text: '📚 Изменения Education\n\nУченик\n• Изменено расписание: Математика\n  Математика · 09:00–10:00\n  2026-10-17' }])
     expect([...store.jobs.values()][0]).toMatchObject({ state: 'sent', partReceipts: [{ messageId: 42 }] })
   })
 })

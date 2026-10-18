@@ -2,7 +2,7 @@
 const LABELS = Object.freeze({
   'schedule.created': 'Добавлено расписание', 'schedule.changed': 'Изменено расписание', 'schedule.cancelled': 'Расписание отменено',
   'homework.assigned': 'Назначено ДЗ', 'homework.changed': 'Изменено ДЗ', 'homework.cancelled': 'ДЗ отменено',
-  'grade.created': 'Новая оценка', 'grade.changed': 'Изменена оценка', 'upload.confirmed': 'Файл загружен',
+  'grade.created': 'Новая оценка', 'grade.changed': 'Изменена оценка', 'upload.confirmed': 'Загружено фото работы',
   'quiz.started': 'Тест начат', 'quiz.submitted': 'Тест отправлен', 'review.changed': 'Обновлена проверка',
   'technical.probe': 'Техническая проверка уведомлений',
 })
@@ -12,18 +12,18 @@ export function renderEvent(event, audience, { maxChars = 3900 } = {}) {
   if (!Object.hasOwn(LABELS, event.eventType) || event.privacyClass === 'restricted') return []
   if (event.eventType === 'technical.probe') {
     if (audience !== 'family' || event.privacyClass !== 'family-summary') return []
-    return ['PETR: техническая проверка уведомлений. Это служебное сообщение; учебные данные не использовались.']
+    return ['Education: техническая проверка уведомлений. Это служебное сообщение; учебные данные не использовались.']
   }
   if (audience === 'family' && event.privacyClass !== 'family-summary') return []
   if (audience === 'team' && event.privacyClass !== 'team-summary') return []
   const fields = event.fields ?? {}
   const lines = audience === 'team'
-    ? ['📚 Событие PETR', `• ${LABELS[event.eventType]}`]
-    : ['📚 Изменения в PETR', '', safeText(fields.childName) || 'Ученик',
+    ? ['📚 Событие Education', `• ${LABELS[event.eventType]}`]
+    : ['📚 Изменения Education', '', safeText(fields.childName) || 'Ученик',
       `• ${LABELS[event.eventType]}${safeText(fields.subject) ? `: ${safeText(fields.subject)}` : ''}`]
   if (audience === 'team') return splitText(lines.join('\n'), maxChars)
   // Never render before/after, raw payload, URLs, identifiers, or arbitrary object values.
-  if (['schedule.created', 'schedule.changed', 'schedule.cancelled', 'homework.assigned', 'homework.changed', 'homework.cancelled'].includes(event.eventType) && safeText(fields.title)) lines.push(`  ${safeText(fields.title)}`)
+  if (['schedule.created', 'schedule.changed', 'schedule.cancelled', 'homework.assigned', 'homework.changed', 'homework.cancelled', 'upload.confirmed'].includes(event.eventType) && safeText(fields.title)) lines.push(`  ${safeText(fields.title)}`)
   if (event.eventType.startsWith('grade.') && safeGrade(fields.value)) lines.push(`  Оценка: ${safeGrade(fields.value)}`)
   if (safeText(fields.occurredLabel)) lines.push(`  ${safeText(fields.occurredLabel)}`)
   return splitText(lines.join('\n'), maxChars)
@@ -48,5 +48,5 @@ function splitText(text, maxChars) {
   const chunks = []
   for (let start = 0; start < chars.length; start += bodyLimit) chunks.push(chars.slice(start, start + bodyLimit).join(''))
   const count = chunks.length
-  return chunks.map((chunk, index) => `📚 PETR · часть ${index + 1}/${count}\n${chunk}`)
+  return chunks.map((chunk, index) => `📚 Education · часть ${index + 1}/${count}\n${chunk}`)
 }

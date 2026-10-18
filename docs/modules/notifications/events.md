@@ -10,13 +10,14 @@ sections:
   - расширение
 
 created: 2026-10-16
-updated: 2026-10-16
+updated: 2026-10-18
 consumers:
   - "notification publisher"
   - "in-app inbox"
   - "Telegram service implementer"
 code:
   - "storage/inbox-notifications.mjs"
+  - packages/education-runtime/task-context.mjs
 ---
 
 # Каталог событий: действующий inbox и целевой Telegram
@@ -35,6 +36,8 @@ code:
 `ActivityType` (`page_opened`, `test_started`, `submission_uploaded` и другие) — отдельный журнал действий; наличие типа не означает работающий автономный producer или семейную рассылку. Не смешивать activity, inbox и будущие domain events.
 
 `notificationId(key)` вычисляет устойчивый inbox ID, `stageFamilyNotice` выбирает активные семейные связи и роли; политика повторной записи зависит от mode. Это действующая механика inbox, не Telegram outbox и не гарантия exactly-once.
+
+Общий чистый resolver `packages/education-runtime/task-context.mjs` связывает точный taskId с предметом/заголовком задания или подпункта в уже проверенной странице. Он не читает SDK, не угадывает соседние номера и возвращает null при отсутствии точной связи. Inbox сохраняет свой legacy fallback «Работа» в wrapper; Telegram требует подтверждённого контекста.
 
 ## Расширение
 

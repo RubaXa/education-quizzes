@@ -8,10 +8,11 @@ import { createHash } from 'node:crypto'
  */
 export class SourceCoordinator {
   constructor({ sources, pipelines, enumerate, discoveryStore = null, onHealth = () => {}, clock = () => Date.now(),
-    reconcileMs = 30_000, concurrency = 4, setTimer = setTimeout, clearTimer = clearTimeout,
+    reconcileMs = 30_000, concurrency = 4, maxLiveBurst = 8, setTimer = setTimeout, clearTimer = clearTimeout,
     random = Math.random }) {
     if (!Array.isArray(sources) || !sources.length || typeof enumerate !== 'function'
-      || !Number.isInteger(concurrency) || concurrency < 1 || !Number.isFinite(reconcileMs) || reconcileMs < 1_000) {
+      || !Number.isInteger(concurrency) || concurrency < 1 || !Number.isInteger(maxLiveBurst) || maxLiveBurst < 1
+      || !Number.isFinite(reconcileMs) || reconcileMs < 1_000) {
       throw new Error('invalid_source_coordinator_config')
     }
     this.sources = new Map(sources.map((source) => [source.kind, source]))
@@ -22,6 +23,7 @@ export class SourceCoordinator {
     this.clock = clock
     this.reconcileMs = reconcileMs
     this.concurrency = concurrency
+    this.maxLiveBurst = maxLiveBurst
     this.setTimer = setTimer
     this.clearTimer = clearTimer
     this.random = random
@@ -31,6 +33,7 @@ export class SourceCoordinator {
     this.activeKeys = new Set()
     this.active = 0
     this.cursor = 0
+    this.liveDispatchBurst = 0
     this.running = false
     this.closed = false
     this.timer = null
@@ -235,12 +238,26 @@ export class SourceCoordinator {
   #pump() {
     while (this.running && this.active < this.concurrency && this.pending.size) {
       const entries = [...this.pending.entries()]
-      let offset = 0
-      while (offset < entries.length && this.activeKeys.has(entries[(this.cursor + offset) % entries.length][0])) offset++
-      if (offset === entries.length) return
-      const selectedIndex = (this.cursor + offset) % entries.length
+      const available = entries.map(([key, item], index) => ({ key, item, index }))
+        .filter(({ key }) => !this.activeKeys.has(key))
+      if (!available.length) return
+      const bootstrapAvailable = available.some(({ item }) => item.origin !== 'live')
+      const preferBootstrap = bootstrapAvailable && this.liveDispatchBurst >= this.maxLiveBurst
+      const desiredOrigin = preferBootstrap ? 'bootstrap'
+        : available.some(({ item }) => item.origin === 'live') ? 'live' : 'bootstrap'
+      const candidates = available.filter(({ item }) => (item.origin === 'live' ? 'live' : 'bootstrap') === desiredOrigin)
+      const selected = candidates.reduce((best, candidate) => {
+        const distance = (candidate.index - this.cursor + entries.length) % entries.length
+        const bestDistance = best ? (best.index - this.cursor + entries.length) % entries.length : Infinity
+        return distance < bestDistance ? candidate : best
+      }, null)
+      const selectedIndex = selected.index
       const entry = entries[selectedIndex]
-      this.cursor = (this.cursor + 1) % Math.max(entries.length, 1)
+      // After removal, the following entry occupies this index. Keep the cursor
+      // there so items within each origin class retain cyclic fairness.
+      this.cursor = selectedIndex % Math.max(entries.length - 1, 1)
+      if (desiredOrigin === 'live') this.liveDispatchBurst = Math.min(this.maxLiveBurst, this.liveDispatchBurst + 1)
+      else this.liveDispatchBurst = 0
       this.pending.delete(entry[0])
       const item = entry[1]
       this.activeKeys.add(entry[0])
