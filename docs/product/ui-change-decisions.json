@@ -18,7 +18,7 @@
       }
     },
     "src/components/LearningRoute.tsx": {
-      "sha256": "10361a9c5e56e56577360d834ab08b5439da225e45dc5e57fd1b0d9d66076c5f",
+      "sha256": "cab7f549c2ae8d314e67a42568647d14545c65df7f8e6d5e5a18f9503b5f658a",
       "record": "docs/decisions/authenticated-learning-routes-2026-10-18.md",
       "specs": [
         "docs/modules/families/access-and-state.md"

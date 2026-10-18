@@ -5,7 +5,7 @@ import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { PersonalProfile } from '@/lib/personalAccess'
 
-const scene = vi.hoisted(() => ({ profile: null as PersonalProfile | null, cached: false, callbacks: new Map<string, (value: any) => void>(), reads: [] as string[], closed: 0 }))
+const scene = vi.hoisted(() => ({ profile: null as PersonalProfile | null, cached: false, callbacks: new Map<string, (value: any) => void>(), records: new Map<string, object>(), options: [] as any[], reads: [] as string[], closed: 0 }))
 vi.mock('@/lib/firebase', () => ({ db: {} }))
 vi.mock('@/lib/personalAccess', () => ({
   restorePersonalContext: async () => scene.profile ? { session: { personId: 'person', deviceUid: 'device', linkToken: 'secret' }, profile: scene.profile } : null,
@@ -15,11 +15,14 @@ vi.mock('@/lib/personalAccess', () => ({
 vi.mock('firebase/firestore', () => ({
   doc: (_db: unknown, ...parts: string[]) => ({ path: parts.join('/') }),
   getDoc: async (ref: { path: string }) => { scene.reads.push(ref.path); return { exists: () => true, data: () => ({ familyId: 'family', childId: 'child', viewTokens: { student: 'shared-day', parent: 'parent-day' } }) } },
-  onSnapshot: (ref: { path: string }, changed: (value: any) => void) => {
+  onSnapshot: (ref: { path: string }, options: any, handler?: (value: any) => void) => {
+    const changed = typeof options === 'function' ? options : handler!
+    scene.options.push(typeof options === 'function' ? null : options)
     scene.callbacks.set(ref.path, changed)
     const data = ref.path.startsWith('accessLinks/') ? { active: true, personId: 'person' }
       : ref.path.startsWith('deviceSessions/') ? { linkToken: 'secret' }
         : { active: true, role: scene.profile?.children[0].role, childIds: ['child'] }
+    scene.records.set(ref.path, data)
     changed({ exists: () => true, data: () => data, metadata: { fromCache: scene.cached } })
     return () => { scene.callbacks.delete(ref.path) }
   },
@@ -43,7 +46,7 @@ import LearningRoute from './LearningRoute'
 
 const roots: Array<() => void> = []
 beforeEach(() => {
-  scene.cached = false; scene.callbacks.clear(); scene.reads = []; scene.closed = 0
+  scene.cached = false; scene.callbacks.clear(); scene.records.clear(); scene.options = []; scene.reads = []; scene.closed = 0
   scene.profile = { personId: 'person', displayName: 'Person', children: [{ familyId: 'family', childId: 'child', displayName: 'Child', role: 'parent', dashboardToken: 'parent-dashboard', dashboardTokens: { student: 'shared-dashboard', parent: 'parent-dashboard' } }] }
 })
 afterEach(async () => { await act(async () => { roots.splice(0).forEach((close) => close()) }) })
@@ -92,6 +95,18 @@ describe('authenticated route through the real problem card', () => {
     expect(host.textContent).not.toContain('Разбор для родителя')
     expect(host.textContent).toContain('Доступ изменился')
     expect(scene.closed).toBe(1)
+  })
+  it('finishes a warm-cache access check when the server confirms unchanged documents', async () => {
+    scene.cached = true
+    const host = await render()
+    expect(host.querySelector('[data-view-token]')).toBeNull()
+    expect(scene.options).toHaveLength(3)
+    expect(scene.options.every((options) => options?.includeMetadataChanges === true)).toBe(true)
+    await act(async () => {
+      for (const [path, changed] of scene.callbacks) changed({ exists: () => true, data: () => scene.records.get(path), metadata: { fromCache: false } })
+    })
+    expect(host.textContent).toContain('Разбор для родителя')
+    expect(host.textContent).not.toContain('Добавить фото решения')
   })
   it('requires a personal login instead of guessing from the shared token', async () => {
     scene.profile = null

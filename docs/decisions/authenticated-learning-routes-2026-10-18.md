@@ -41,6 +41,8 @@ day/learning-route-identity.mjs — общее ядро идентичности
 
 ## Проверки
 
+Серверное подтверждение неизменных cached access-документов приходит как metadata-only update. Все три access-listener используют includeMetadataChanges; отдельная интеграционная регрессия сначала падала без этого флага и затем проверяет переход от ожидания к родительской карточке. Устранение ложного ожидания не ослабляет необходимость подтвердить членство.
+
 src/components/LearningRoute.integration.test.tsx проводит одну ссылку под двумя сессиями через реальный ProblemTaskCard; проверяет отсутствие запрещённых контролов/ответа, ожидание серверной проверки, вход, исторический alias и отзыв. src/lib/learningRoute.test.ts проверяет точного ребёнка, смешанные роли разных семей и чужой ресурс. day/learning-route-identity.test.mjs проверяет общий ресурс, mapping и readback. Существующие src/components/ProblemTaskCard.contract.test.tsx, src/DayDashboard.warmStart.test.tsx, src/components/ParentHome.readBudget.test.tsx и src/lib/personalAccess.readBudget.test.ts сохраняют карточку/бюджет, обновляя только старые ожидания role-prefixed URL. Прежние моки parent=true доказывали компонент, но не связку адрес→сессия→карточка; поэтому старый полный gate не поймал этот дефект.
 
 ## Согласование
