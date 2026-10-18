@@ -1,5 +1,5 @@
 // @see ../docs/shared/specification-system.md
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { execFileSync } from 'node:child_process'
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync, readFileSync, copyFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -7,7 +7,18 @@ import { join } from 'node:path'
 import { checkDocs } from './check-docs.mjs'
 
 const fixtures = []
-afterEach(() => { for (const path of fixtures.splice(0)) rmSync(path, { recursive: true, force: true }) })
+let inheritedGitEnv = {}
+// A linked-worktree hook exports absolute Git paths. None may reach fixture
+// git commands, checkDocs, or a nested Lefthook invocation in a temporary repo.
+beforeEach(() => {
+  inheritedGitEnv = Object.fromEntries(Object.entries(process.env).filter(([key]) => key.startsWith('GIT_')))
+  for (const key of Object.keys(inheritedGitEnv)) delete process.env[key]
+})
+afterEach(() => {
+  for (const path of fixtures.splice(0)) rmSync(path, { recursive: true, force: true })
+  for (const key of Object.keys(process.env).filter((key) => key.startsWith('GIT_'))) delete process.env[key]
+  Object.assign(process.env, inheritedGitEnv)
+})
 function fixture() {
   const root = mkdtempSync(join(tmpdir(), 'education-docs-')); fixtures.push(root)
   const git = (...args) => execFileSync('git', args, { cwd: root, stdio: 'pipe' })
@@ -25,6 +36,11 @@ function fixture() {
   return { root, write, git, spec }
 }
 describe('documentation pre-commit snapshot', () => {
+  it('runs fixture checks without inherited hook repository overrides', () => {
+    expect(Object.keys(process.env).filter((key) => key.startsWith('GIT_'))).toEqual([])
+    const { root } = fixture()
+    expect(checkDocs(root, { staged: true }).problems).toEqual([])
+  })
   it('accepts staged documents even if unstaged content is broken', () => {
     const { root, write } = fixture()
     write('target.md', '# Changed anchor\n')

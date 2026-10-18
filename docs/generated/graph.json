@@ -440,6 +440,31 @@
       "path": "docs/decisions/telegram-source-wiring-2026-10-17.md"
     },
     {
+      "id": "decision.weekend-special-course-2026-10-18",
+      "status": "accepted",
+      "implementation": "not-applicable",
+      "created": "2026-10-18",
+      "updated": "2026-10-18",
+      "parent": "module.school-diary.dashboard",
+      "uses": [
+        "module.reviews.card-generation-policy"
+      ],
+      "consumers": [
+        "parent",
+        "student",
+        "Education operator"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/weekend-special-course-2026-10-18.md"
+    },
+    {
       "id": "decisions.compact-homework-copy-2026-10-16",
       "status": "reference",
       "implementation": "not-applicable",
@@ -3839,6 +3864,13 @@
       "kind": "artifact",
       "purpose": "Оформление общего слота математики",
       "consumer": "`src/WeekendMathSlot.tsx`"
+    },
+    {
+      "id": "file:src/WeekendMathSlot.test.tsx",
+      "path": "src/WeekendMathSlot.test.tsx",
+      "kind": "verification",
+      "purpose": "Обе роли выходного спецкурса, выбор учителя, семейное включение и сохранность всех номеров",
+      "consumer": "Vitest; общий `ProblemGroup`"
     },
     {
       "id": "file:src/WeekendMathSlot.tsx",
@@ -7350,6 +7382,11 @@
       "type": "uses"
     },
     {
+      "from": "decision.weekend-special-course-2026-10-18",
+      "to": "module.reviews.card-generation-policy",
+      "type": "uses"
+    },
+    {
       "from": "decisions.flat-numbered-sheet-2026-10-14",
       "to": "decisions.restore-numbered-original-2026-10-14",
       "type": "uses"
@@ -10791,6 +10828,11 @@
     },
     {
       "from": "module.school-diary.dashboard",
+      "to": "decision.weekend-special-course-2026-10-18",
+      "type": "contains"
+    },
+    {
+      "from": "module.school-diary.dashboard",
       "to": "file:day/dashboard-index.test.mjs",
       "type": "verified-by"
     },
@@ -10842,6 +10884,11 @@
     {
       "from": "module.school-diary.dashboard",
       "to": "file:src/lib/useDelayedRefresh.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.school-diary.dashboard",
+      "to": "file:src/WeekendMathSlot.test.tsx",
       "type": "verified-by"
     },
     {

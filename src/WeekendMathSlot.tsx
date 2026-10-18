@@ -11,7 +11,7 @@ import ProblemTaskCard from '@/components/ProblemTaskCard'
 import { artifactAvatarLabel, artifactAvatarState, localArtifactAvatarState, problemCardState } from '@/lib/reviewPresentation'
 import { useDayEvidence } from '@/lib/useDayEvidence'
 import { useParentCompletions } from '@/lib/useParentCompletions'
-import { canAcceptCorrectAnswer, parentAccepted, recordParentCompletion, recordRequirementChoice } from '@/lib/parentCompletion'
+import { canAcceptCorrectAnswer, parentAccepted, practiceRequired, recordParentCompletion, recordRequirementChoice } from '@/lib/parentCompletion'
 import { reportUiError } from '@/lib/uiErrors'
 import './WeekendMathSlot.css'
 
@@ -87,12 +87,16 @@ export default function WeekendMathSlot({ token, taskIds, parent, lessonDate, du
       const taskLinks = page.materialLinks?.[task.id] ?? []
       const teacherLinks = taskLinks.filter((link) => link.sourceType === 'teacher-attachment' && canReadInside(link))
       const problems = task.problems ?? []
+      // @see ../docs/modules/school-diary/dashboard.md#weekend-work-contract
+      // The weekend is a projection of the same task and family choices.
+      const requiredProblems = problems.filter((problem) => !problem.variantId || practiceRequired(task, problem.variantId, parentDecisions.events))
+      const teacherChoice = task.practiceVariants?.some((variant) => variant.optionalByTeacher)
       const problemIds = new Set(problems.map((problem) => problem.id))
       const localPendingCount = local.filter((photo) => problemIds.has(photo.taskId) && !uploads.some((upload) => upload.id === `${studentToken}:${photo.id}` && upload.status === 'reviewed')).length
       const sourceCount = new Set(taskLinks.filter((link) => link.sourceType === 'teacher-attachment').map((link) => link.url)).size
       /** @see ../docs/modules/school-diary/day-page.md#completed-problem-group
        * @see ../docs/modules/reviews/problem-card-design-decisions.md#flat-numbered-sheet */
-      return <ProblemGroup key={task.id} id={task.id} title={`${subject.icon} ${subject.name}`} problems={problems} uploads={uploads} reviews={reviews} decisions={parentDecisions.events} localPendingCount={localPendingCount} sourceCount={sourceCount} ready={evidenceReady && parentDecisions.ready}>
+      return <ProblemGroup key={task.id} id={task.id} title={`${subject.icon} ${subject.name}`} problems={problems} requiredProblems={requiredProblems} numberLabel={teacherChoice ? `Задачи по выбору · ${problems.length}` : undefined} uploads={uploads} reviews={reviews} decisions={parentDecisions.events} localPendingCount={localPendingCount} sourceCount={sourceCount} ready={evidenceReady && parentDecisions.ready}>
       <div className="weekend-math-group">
       <p>{subject.summary || task.detail}</p>
       {teacherLinks.length > 0 && <details className="day-teacher-sheet"><summary><span>▤ &nbsp;Лист учителя</span><span>{teacherLinks.length} {teacherLinks.length === 1 ? 'лист' : 'листа'} · открыть ↗</span></summary><MaterialReader links={teacherLinks} parent={parent} statement /></details>}
