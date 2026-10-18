@@ -6,7 +6,7 @@
       "status": "accepted",
       "implementation": "not-applicable",
       "created": "2026-10-16",
-      "updated": "2026-10-16",
+      "updated": "2026-10-17",
       "consumers": [
         "Education agent",
         "developer"
@@ -19,6 +19,7 @@
         "service.upload-worker",
         "service.telegram-bot",
         "shared.data",
+        "shared.server-runtime",
         "shared.design",
         "shared.access-and-privacy",
         "shared.specification-system"
@@ -30,6 +31,33 @@
         "источники-истины-и-выпуск"
       ],
       "path": "ARCHITECTURE.md"
+    },
+    {
+      "id": "audit.server-core-review-2026-10-17",
+      "status": "accepted",
+      "implementation": "not-applicable",
+      "created": "2026-10-17",
+      "updated": "2026-10-17",
+      "parent": "shared.server-runtime",
+      "uses": [
+        "service.operator-cli",
+        "service.telegram-bot",
+        "module.synchronization"
+      ],
+      "consumers": [
+        "Technical lead",
+        "Runtime maintainer",
+        "Education operator"
+      ],
+      "code": [],
+      "sections": [
+        "исходное-состояние",
+        "единые-владельцы",
+        "критерии-приёмки",
+        "результаты-проверки",
+        "пределы-доказательства"
+      ],
+      "path": "docs/audits/server-core-review-2026-10-17.md"
     },
     {
       "id": "audits.education-sync-latency-audit-2026-10-15",
@@ -277,6 +305,59 @@
         "согласование"
       ],
       "path": "docs/decisions/documentation-precommit-2026-10-16.md"
+    },
+    {
+      "id": "decision.mesh-calendar-date-scopes-2026-10-18",
+      "status": "accepted",
+      "implementation": "not-applicable",
+      "created": "2026-10-18",
+      "updated": "2026-10-18",
+      "parent": "service.telegram-bot.mesh",
+      "uses": [
+        "module.school-diary",
+        "service.telegram-bot.operations"
+      ],
+      "consumers": [
+        "МЭШ adapter maintainer",
+        "Telegram operator",
+        "UI gate"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/mesh-calendar-date-scopes-2026-10-18.md"
+    },
+    {
+      "id": "decision.shared-server-runtime-2026-10-17",
+      "status": "accepted",
+      "implementation": "not-applicable",
+      "created": "2026-10-17",
+      "updated": "2026-10-17",
+      "parent": "shared.server-runtime",
+      "uses": [
+        "service.telegram-bot",
+        "service.operator-cli",
+        "module.synchronization"
+      ],
+      "consumers": [
+        "Technical lead",
+        "UI gate",
+        "Runtime maintainer"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/shared-server-runtime-2026-10-17.md"
     },
     {
       "id": "decision.specification-graph-migration",
@@ -1199,6 +1280,13 @@
       "consumer": "Git; проверка приватности"
     },
     {
+      "id": "file:.nvmrc",
+      "path": ".nvmrc",
+      "kind": "artifact",
+      "purpose": "Закреплённая версия Node.js LTS",
+      "consumer": "nvm; разработчик; installer"
+    },
+    {
       "id": "file:.oxlintrc.json",
       "path": ".oxlintrc.json",
       "kind": "artifact",
@@ -1626,6 +1714,13 @@
       "consumer": "Синхронизатор; план дня"
     },
     {
+      "id": "file:docs/audits/server-runtime-load-2026-10-17.json",
+      "path": "docs/audits/server-runtime-load-2026-10-17.json",
+      "kind": "artifact",
+      "purpose": "Параметры, fingerprints и измерения synthetic нагрузки на Node24",
+      "consumer": "Техлид; повторный benchmark"
+    },
+    {
       "id": "file:docs/audits/specification-lifecycle-2026-10-16.json",
       "path": "docs/audits/specification-lifecycle-2026-10-16.json",
       "kind": "artifact",
@@ -1818,7 +1913,7 @@
       "id": "file:packages/education-connect/lib/mesh-assignments.test.mjs",
       "path": "packages/education-connect/lib/mesh-assignments.test.mjs",
       "kind": "verification",
-      "purpose": "Проверка порядка, лимита чтений и блокирования неполных карточек МЭШ",
+      "purpose": "Проверка календарной классификации, полного raw schedule, порядка и блокирования неполных карточек МЭШ",
       "consumer": "Vitest; разработчик"
     },
     {
@@ -1832,7 +1927,7 @@
       "id": "file:packages/education-connect/lib/mesh.mjs",
       "path": "packages/education-connect/lib/mesh.mjs",
       "kind": "artifact",
-      "purpose": "Общий адаптер входа, чтения МЭШ и полного журнала оценок текущего периода; подробности уроков с пределом трёх одновременных чтений внутри дня",
+      "purpose": "Общий адаптер МЭШ: полный календарь, общая классификация calendar-only и чтение подробностей уроков/оценок",
       "consumer": "Пакет; синхронизатор дневника"
     },
     {
@@ -1871,11 +1966,95 @@
       "consumer": "Приглашённый; оператор"
     },
     {
+      "id": "file:packages/education-runtime/credentials.mjs",
+      "path": "packages/education-runtime/credentials.mjs",
+      "kind": "artifact",
+      "purpose": "Канонические Mesh credentials, exact-owner legacy codec, token-only atomic refresh и persistent-inode Python/fcntl account lock",
+      "consumer": "Sync operator; Telegram worker"
+    },
+    {
+      "id": "file:packages/education-runtime/credentials.test.mjs",
+      "path": "packages/education-runtime/credentials.test.mjs",
+      "kind": "verification",
+      "purpose": "Проверка canonical/legacy owner boundaries, refresh persistence и cross-process lock cleanup/contention",
+      "consumer": "Vitest; разработчик"
+    },
+    {
+      "id": "file:packages/education-runtime/family-graph.mjs",
+      "path": "packages/education-runtime/family-graph.mjs",
+      "kind": "artifact",
+      "purpose": "Полная keyset pagination семейного графа и изоляция partial failure по семье",
+      "consumer": "Sync operator; Telegram source inventory"
+    },
+    {
+      "id": "file:packages/education-runtime/family-graph.test.mjs",
+      "path": "packages/education-runtime/family-graph.test.mjs",
+      "kind": "verification",
+      "purpose": "Проверка pagination, фильтрации и продолжения после частичного сбоя семьи",
+      "consumer": "Vitest; разработчик"
+    },
+    {
+      "id": "file:packages/education-runtime/firestore.mjs",
+      "path": "packages/education-runtime/firestore.mjs",
+      "kind": "artifact",
+      "purpose": "Google Firestore/ADC factory с явным project ID и без отдельного Admin SDK; безопасная телеметрия SDK reads/writes",
+      "consumer": "Operator wrapper; sync; Telegram worker"
+    },
+    {
+      "id": "file:packages/education-runtime/firestore.test.mjs",
+      "path": "packages/education-runtime/firestore.test.mjs",
+      "kind": "verification",
+      "purpose": "Проверка ADC, factory compatibility, SDK instrumentation и разделения returned/projection counters",
+      "consumer": "Vitest; разработчик"
+    },
+    {
+      "id": "file:packages/education-runtime/identity.mjs",
+      "path": "packages/education-runtime/identity.mjs",
+      "kind": "artifact",
+      "purpose": "Общие строгие predicates для family/child/parent/source account/source identity ownership",
+      "consumer": "Sync project plan; Telegram inventory and probe"
+    },
+    {
+      "id": "file:packages/education-runtime/identity.test.mjs",
+      "path": "packages/education-runtime/identity.test.mjs",
+      "kind": "verification",
+      "purpose": "Контракты точной Mesh identity, actor hash, действующей семьи и родительского членства",
+      "consumer": "Vitest; разработчик"
+    },
+    {
+      "id": "file:packages/education-runtime/mesh-session.mjs",
+      "path": "packages/education-runtime/mesh-session.mjs",
+      "kind": "artifact",
+      "purpose": "Строгая source ownership validation и отдельный свежий Mesh adapter на child session",
+      "consumer": "Sync collector; Telegram Mesh adapter"
+    },
+    {
+      "id": "file:packages/education-runtime/telemetry.mjs",
+      "path": "packages/education-runtime/telemetry.mjs",
+      "kind": "artifact",
+      "purpose": "Trace/span context, monotonic timings, safe counters и закрытый rotating JSONL sink",
+      "consumer": "Sync operator; Telegram worker; operator runtime"
+    },
+    {
+      "id": "file:packages/education-runtime/telemetry.test.mjs",
+      "path": "packages/education-runtime/telemetry.test.mjs",
+      "kind": "verification",
+      "purpose": "Проверка trace parentage, безопасных атрибутов, агрегации и ротации файлов",
+      "consumer": "Vitest; разработчик"
+    },
+    {
       "id": "file:packages/telegram-notifications/adapters/config.mjs",
       "path": "packages/telegram-notifications/adapters/config.mjs",
       "kind": "artifact",
       "purpose": "Проверка локальных параметров бота, Firestore project и instance ID",
       "consumer": "`scripts/telegram-bot.mjs`"
+    },
+    {
+      "id": "file:packages/telegram-notifications/adapters/config.test.mjs",
+      "path": "packages/telegram-notifications/adapters/config.test.mjs",
+      "kind": "verification",
+      "purpose": "Регрессии: Проверка конфигурации и закрытого token file",
+      "consumer": "Vitest; разработчик"
     },
     {
       "id": "file:packages/telegram-notifications/adapters/firestore.mjs",
@@ -1904,6 +2083,13 @@
       "kind": "verification",
       "purpose": "МЭШ: нормализация и детская изоляция источников",
       "consumer": "Source coordinator; Luna review; Vitest"
+    },
+    {
+      "id": "file:packages/telegram-notifications/adapters/probe-recipient-firestore.mjs",
+      "path": "packages/telegram-notifications/adapters/probe-recipient-firestore.mjs",
+      "kind": "artifact",
+      "purpose": "Проверка одной диагностической link и актуальных семейных прав",
+      "consumer": "Telegram runtime; оператор"
     },
     {
       "id": "file:packages/telegram-notifications/adapters/runtime.mjs",
@@ -1979,14 +2165,14 @@
       "id": "file:packages/telegram-notifications/adapters/source-mesh.mjs",
       "path": "packages/telegram-notifications/adapters/source-mesh.mjs",
       "kind": "artifact",
-      "purpose": "МЭШ: нормализация и детская изоляция источников",
+      "purpose": "МЭШ: дневная проекция уроков, календарная классификация и детская изоляция источников",
       "consumer": "Source inventory; source pipeline"
     },
     {
       "id": "file:packages/telegram-notifications/adapters/source-mesh.test.mjs",
       "path": "packages/telegram-notifications/adapters/source-mesh.test.mjs",
       "kind": "verification",
-      "purpose": "МЭШ: нормализация и детская изоляция источников",
+      "purpose": "МЭШ: дневная проекция уроков, календарная классификация и детская изоляция источников",
       "consumer": "Source coordinator; Luna review; Vitest"
     },
     {
@@ -2023,6 +2209,13 @@
       "kind": "artifact",
       "purpose": "Идемпотентная запись event и обработка outbox jobs",
       "consumer": "Worker; event ledger; delivery port"
+    },
+    {
+      "id": "file:packages/telegram-notifications/application/probe-notifications.mjs",
+      "path": "packages/telegram-notifications/application/probe-notifications.mjs",
+      "kind": "artifact",
+      "purpose": "Адресный enqueue технической пробы через общий ledger",
+      "consumer": "Telegram runtime; оператор"
     },
     {
       "id": "file:packages/telegram-notifications/application/source-pipeline.mjs",
@@ -2067,10 +2260,129 @@
       "consumer": "Оператор Firestore; Telegram worker"
     },
     {
+      "id": "file:packages/telegram-notifications/identity-pairing.test.mjs",
+      "path": "packages/telegram-notifications/identity-pairing.test.mjs",
+      "kind": "verification",
+      "purpose": "Регрессии: Регрессии одноразовой доверенной привязки и повторного Start",
+      "consumer": "Vitest; разработчик"
+    },
+    {
       "id": "file:packages/telegram-notifications/notifications.test.mjs",
       "path": "packages/telegram-notifications/notifications.test.mjs",
       "kind": "verification",
       "purpose": "Проверка регистрации, event/outbox core, приватности и портов на memory store",
+      "consumer": "Vitest; разработчик"
+    },
+    {
+      "id": "file:packages/telegram-notifications/operations/launch-agent.mjs",
+      "path": "packages/telegram-notifications/operations/launch-agent.mjs",
+      "kind": "artifact",
+      "purpose": "План, установка, статус и откат закрытого macOS runtime",
+      "consumer": "Telegram runtime; оператор"
+    },
+    {
+      "id": "file:packages/telegram-notifications/operations/launch-agent.test.mjs",
+      "path": "packages/telegram-notifications/operations/launch-agent.test.mjs",
+      "kind": "verification",
+      "purpose": "Регрессии: План, установка, статус и откат закрытого macOS runtime",
+      "consumer": "Vitest; разработчик"
+    },
+    {
+      "id": "file:packages/telegram-notifications/operations/private-logger.mjs",
+      "path": "packages/telegram-notifications/operations/private-logger.mjs",
+      "kind": "artifact",
+      "purpose": "Приватный ротируемый журнал с разрешёнными полями",
+      "consumer": "Telegram runtime; оператор"
+    },
+    {
+      "id": "file:packages/telegram-notifications/operations/private-logger.test.mjs",
+      "path": "packages/telegram-notifications/operations/private-logger.test.mjs",
+      "kind": "verification",
+      "purpose": "Регрессии: Приватный ротируемый журнал с разрешёнными полями",
+      "consumer": "Vitest; разработчик"
+    },
+    {
+      "id": "file:packages/telegram-notifications/operations/probe-runner.mjs",
+      "path": "packages/telegram-notifications/operations/probe-runner.mjs",
+      "kind": "artifact",
+      "purpose": "Техническая цепочка source/pipeline/outbox/receipt readback",
+      "consumer": "Telegram runtime; оператор"
+    },
+    {
+      "id": "file:packages/telegram-notifications/operations/probe-runner.test.mjs",
+      "path": "packages/telegram-notifications/operations/probe-runner.test.mjs",
+      "kind": "verification",
+      "purpose": "Регрессии: Техническая цепочка source/pipeline/outbox/receipt readback",
+      "consumer": "Vitest; разработчик"
+    },
+    {
+      "id": "file:packages/telegram-notifications/operations/probe-source.mjs",
+      "path": "packages/telegram-notifications/operations/probe-source.mjs",
+      "kind": "artifact",
+      "purpose": "Явная техническая observation без фиктивных учебных изменений",
+      "consumer": "Telegram runtime; оператор"
+    },
+    {
+      "id": "file:packages/telegram-notifications/operations/probe-source.test.mjs",
+      "path": "packages/telegram-notifications/operations/probe-source.test.mjs",
+      "kind": "verification",
+      "purpose": "Регрессии: Явная техническая observation без фиктивных учебных изменений",
+      "consumer": "Vitest; разработчик"
+    },
+    {
+      "id": "file:packages/telegram-notifications/operations/probe-target.mjs",
+      "path": "packages/telegram-notifications/operations/probe-target.mjs",
+      "kind": "artifact",
+      "purpose": "Точный выбор подтверждённого получателя и источника",
+      "consumer": "Telegram runtime; оператор"
+    },
+    {
+      "id": "file:packages/telegram-notifications/operations/process-lock.mjs",
+      "path": "packages/telegram-notifications/operations/process-lock.mjs",
+      "kind": "artifact",
+      "purpose": "Singleton kernel lock, обнаружение потери broker и освобождение",
+      "consumer": "Telegram runtime; оператор"
+    },
+    {
+      "id": "file:packages/telegram-notifications/operations/process-lock.test.mjs",
+      "path": "packages/telegram-notifications/operations/process-lock.test.mjs",
+      "kind": "verification",
+      "purpose": "Регрессии: Singleton kernel lock, обнаружение потери broker и освобождение",
+      "consumer": "Vitest; разработчик"
+    },
+    {
+      "id": "file:packages/telegram-notifications/operations/readiness.mjs",
+      "path": "packages/telegram-notifications/operations/readiness.mjs",
+      "kind": "artifact",
+      "purpose": "Агрегированная проверка готовности Firestore/Telegram/host",
+      "consumer": "Telegram runtime; оператор"
+    },
+    {
+      "id": "file:packages/telegram-notifications/operations/readiness.test.mjs",
+      "path": "packages/telegram-notifications/operations/readiness.test.mjs",
+      "kind": "verification",
+      "purpose": "Регрессии: Агрегированная проверка готовности Firestore/Telegram/host",
+      "consumer": "Vitest; разработчик"
+    },
+    {
+      "id": "file:packages/telegram-notifications/operations/source-check.mjs",
+      "path": "packages/telegram-notifications/operations/source-check.mjs",
+      "kind": "artifact",
+      "purpose": "Чтение всех МЭШ областей, честный охват и безопасная диагностика календарных дат",
+      "consumer": "Telegram runtime; оператор"
+    },
+    {
+      "id": "file:packages/telegram-notifications/operations/source-check.test.mjs",
+      "path": "packages/telegram-notifications/operations/source-check.test.mjs",
+      "kind": "verification",
+      "purpose": "Регрессии: Чтение всех МЭШ областей, честный охват и безопасная диагностика календарных дат",
+      "consumer": "Vitest; разработчик"
+    },
+    {
+      "id": "file:packages/telegram-notifications/probe-notifications.test.mjs",
+      "path": "packages/telegram-notifications/probe-notifications.test.mjs",
+      "kind": "verification",
+      "purpose": "Регрессии: Адресный enqueue технической пробы через общий ledger",
       "consumer": "Vitest; разработчик"
     },
     {
@@ -2086,6 +2398,13 @@
       "kind": "verification",
       "purpose": "Durable source processing, checkpoints, discovery и управление очередью",
       "consumer": "Runtime; source adapters; Vitest"
+    },
+    {
+      "id": "file:packages/telegram-notifications/technical-probe.test.mjs",
+      "path": "packages/telegram-notifications/technical-probe.test.mjs",
+      "kind": "verification",
+      "purpose": "Регрессии: Контракт технического event/renderer",
+      "consumer": "Vitest; разработчик"
     },
     {
       "id": "file:public/icons/education-180.png",
@@ -2163,6 +2482,20 @@
       "kind": "artifact",
       "purpose": "Адресная миграция компактных семейных манифестов с сухим прогоном и проверкой старых страниц",
       "consumer": "Оператор; первый запуск книги на новом устройстве"
+    },
+    {
+      "id": "file:scripts/benchmark-server-runtime.mjs",
+      "path": "scripts/benchmark-server-runtime.mjs",
+      "kind": "artifact",
+      "purpose": "Воспроизводимая синтетическая нагрузка graph/coordinator/pipeline/outbox",
+      "consumer": "Telegram runtime; оператор"
+    },
+    {
+      "id": "file:scripts/benchmark-server-runtime.test.mjs",
+      "path": "scripts/benchmark-server-runtime.test.mjs",
+      "kind": "verification",
+      "purpose": "Регрессии: Воспроизводимая синтетическая нагрузка graph/coordinator/pipeline/outbox",
+      "consumer": "Vitest; разработчик"
     },
     {
       "id": "file:scripts/build-inputs.mjs",
@@ -2406,8 +2739,8 @@
       "id": "file:scripts/lib/admin-firebase.mjs",
       "path": "scripts/lib/admin-firebase.mjs",
       "kind": "artifact",
-      "purpose": "Локальные административные полномочия Firebase",
-      "consumer": "`family.mjs`; `connect.mjs`"
+      "purpose": "Совместимая операторская оболочка общего Google Firestore/ADC factory для старых CLI вызывающих сторон",
+      "consumer": "`family.mjs`; `connect.mjs`; operator CLI"
     },
     {
       "id": "file:scripts/notifications.mjs",
@@ -2504,7 +2837,7 @@
       "id": "file:scripts/sync-project.mjs",
       "path": "scripts/sync-project.mjs",
       "kind": "artifact",
-      "purpose": "Инвентаризация семей с метриками, полный сбор МЭШ, проверка опубликованных оценок и продвижение стадий",
+      "purpose": "Инвентаризация через shared family graph, strict Mesh sessions, трассировка стадий, полный сбор и аудит опубликованных данных",
       "consumer": "`skills/education-sync`; операторский CLI"
     },
     {
@@ -2527,6 +2860,48 @@
       "kind": "verification",
       "purpose": "Явный opt-in runtime, shutdown и проверка конфигурации",
       "consumer": "Оператор; Vitest"
+    },
+    {
+      "id": "file:scripts/telegram-indexes.mjs",
+      "path": "scripts/telegram-indexes.mjs",
+      "kind": "artifact",
+      "purpose": "Read-only list/plan и additive apply точных scoped outbox indexes с bounded readiness polling",
+      "consumer": "Firestore operator; Telegram worker"
+    },
+    {
+      "id": "file:scripts/telegram-indexes.test.mjs",
+      "path": "scripts/telegram-indexes.test.mjs",
+      "kind": "verification",
+      "purpose": "Проверка exact index matching, dry-run, additive create, readiness timeout и safe output на fake Admin API",
+      "consumer": "Vitest; разработчик"
+    },
+    {
+      "id": "file:scripts/telegram-pair.mjs",
+      "path": "scripts/telegram-pair.mjs",
+      "kind": "artifact",
+      "purpose": "Локальная привязка по скрытому коду и доказанному source owner",
+      "consumer": "Telegram runtime; оператор"
+    },
+    {
+      "id": "file:scripts/telegram-pair.test.mjs",
+      "path": "scripts/telegram-pair.test.mjs",
+      "kind": "verification",
+      "purpose": "Регрессии: Локальная привязка по скрытому коду и доказанному source owner",
+      "consumer": "Vitest; разработчик"
+    },
+    {
+      "id": "file:scripts/telegram-runtime.mjs",
+      "path": "scripts/telegram-runtime.mjs",
+      "kind": "artifact",
+      "purpose": "Операционные команды проверки, probe и постоянного процесса",
+      "consumer": "Telegram runtime; оператор"
+    },
+    {
+      "id": "file:scripts/telegram-runtime.test.mjs",
+      "path": "scripts/telegram-runtime.test.mjs",
+      "kind": "verification",
+      "purpose": "Регрессии: Операционные команды проверки, probe и постоянного процесса",
+      "consumer": "Vitest; разработчик"
     },
     {
       "id": "file:scripts/verify-upload-flow.mjs",
@@ -4121,7 +4496,7 @@
       "id": "file:sync/project-plan.mjs",
       "path": "sync/project-plan.mjs",
       "kind": "artifact",
-      "purpose": "Детерминированный выбор источника, окно дат и ограничитель параллельности",
+      "purpose": "Детерминированный выбор строго подтверждённого Mesh source, окно дат и ограничитель параллельности",
       "consumer": "`scripts/sync-project.mjs`"
     },
     {
@@ -4149,7 +4524,7 @@
       "id": "file:sync/run-context.mjs",
       "path": "sync/run-context.mjs",
       "kind": "artifact",
-      "purpose": "Один профиль и журнал оценок на ребёнка за запуск без сокращения календарного обхода",
+      "purpose": "Успешный getProfile/getMarks cache только на один child/run, с отдельными hit/miss telemetry counters и полным календарным обходом",
       "consumer": "`scripts/sync-project.mjs`"
     },
     {
@@ -5200,7 +5575,7 @@
         "module.synchronization"
       ],
       "type": "architecture-proposal",
-      "updated": "2026-10-16",
+      "updated": "2026-10-18",
       "related": [
         "../../../README.md",
         "../../product/README.md"
@@ -5509,7 +5884,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-13",
-      "updated": "2026-10-16",
+      "updated": "2026-10-17",
       "consumers": [
         "Education sync operator",
         "sync-project CLI",
@@ -5530,7 +5905,8 @@
       "parent": "module.synchronization",
       "uses": [
         "module.synchronization.shared-artifact-pipeline",
-        "module.synchronization.education-pipeline"
+        "module.synchronization.education-pipeline",
+        "shared.server-runtime"
       ],
       "sections": [
         "inventory",
@@ -5634,9 +6010,11 @@
         "service.telegram-bot",
         "product.pwa"
       ],
-      "sections": [],
+      "sections": [
+        "короткие-итерации"
+      ],
       "created": "2026-10-16",
-      "updated": "2026-10-16",
+      "updated": "2026-10-18",
       "consumers": [
         "release operator",
         "upload worker operator",
@@ -6424,7 +6802,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-16",
-      "updated": "2026-10-16",
+      "updated": "2026-10-17",
       "consumers": [
         "Education operator",
         "operator CLI",
@@ -6440,7 +6818,8 @@
         "module.synchronization",
         "module.assessments",
         "module.reviews",
-        "shared.data.firestore"
+        "shared.data.firestore",
+        "shared.server-runtime"
       ],
       "sections": [
         "почему-нужен-единый-путь",
@@ -6471,6 +6850,7 @@
       "parent": "product.education",
       "uses": [
         "shared.toolchain",
+        "shared.server-runtime",
         "service.telegram-bot.ports-and-events",
         "service.telegram-bot.firestore",
         "service.telegram-bot.mesh",
@@ -6597,12 +6977,14 @@
         "packages/telegram-notifications/application/identity.mjs",
         "packages/telegram-notifications/adapters/telegram.mjs",
         "packages/telegram-notifications/adapters/firestore.mjs",
-        "packages/telegram-notifications/adapters/memory.mjs"
+        "packages/telegram-notifications/adapters/memory.mjs",
+        "scripts/telegram-pair.mjs"
       ],
       "parent": "service.telegram-bot",
       "uses": [
         "service.telegram-bot",
-        "service.telegram-bot.ports-and-events"
+        "service.telegram-bot.ports-and-events",
+        "shared.server-runtime"
       ],
       "sections": [
         "модель-идентичности",
@@ -6619,7 +7001,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-16",
-      "updated": "2026-10-17",
+      "updated": "2026-10-18",
       "consumers": [
         "Telegram service implementer",
         "bot operator",
@@ -6630,7 +7012,9 @@
         "packages/telegram-notifications/adapters/mesh-credentials.mjs"
       ],
       "parent": "service.telegram-bot",
-      "uses": [],
+      "uses": [
+        "shared.server-runtime"
+      ],
       "sections": [
         "ответственность-и-режим",
         "контракт-снимка",
@@ -6645,7 +7029,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-16",
-      "updated": "2026-10-17",
+      "updated": "2026-10-18",
       "consumers": [
         "Telegram service implementer",
         "bot operator",
@@ -6656,15 +7040,26 @@
         "packages/telegram-notifications/adapters/runtime.mjs",
         "packages/telegram-notifications/adapters/telegram.mjs",
         "scripts/telegram-bot.mjs",
-        "packages/telegram-notifications/adapters/worker-loop.mjs"
+        "packages/telegram-notifications/adapters/worker-loop.mjs",
+        "scripts/telegram-runtime.mjs",
+        "scripts/telegram-indexes.mjs",
+        "packages/telegram-notifications/operations/launch-agent.mjs",
+        "packages/telegram-notifications/operations/process-lock.mjs",
+        "packages/telegram-notifications/operations/readiness.mjs",
+        "packages/telegram-notifications/operations/source-check.mjs",
+        "packages/telegram-notifications/operations/probe-runner.mjs",
+        "packages/telegram-notifications/operations/probe-target.mjs",
+        "packages/telegram-notifications/operations/private-logger.mjs"
       ],
       "parent": "service.telegram-bot",
       "uses": [
-        "service.telegram-bot"
+        "service.telegram-bot",
+        "shared.server-runtime"
       ],
       "sections": [
         "runtime-boundary",
         "конфигурация",
+        "index-readiness",
         "iam-и-данные",
         "здоровье-и-сигналы",
         "развёртывание-и-rollout",
@@ -6695,7 +7090,8 @@
       ],
       "parent": "service.telegram-bot",
       "uses": [
-        "service.telegram-bot"
+        "service.telegram-bot",
+        "shared.server-runtime"
       ],
       "sections": [
         "назначение",
@@ -6866,7 +7262,7 @@
         "data-contracts"
       ],
       "created": "2026-10-16",
-      "updated": "2026-10-16",
+      "updated": "2026-10-17",
       "consumers": [
         "Firestore publisher",
         "web-app data readers",
@@ -7149,6 +7545,40 @@
       "path": "docs/shared/media-storage.md"
     },
     {
+      "id": "shared.server-runtime",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-10-17",
+      "updated": "2026-10-17",
+      "parent": "shared.data",
+      "uses": [
+        "module.families",
+        "module.school-diary",
+        "module.synchronization"
+      ],
+      "consumers": [
+        "education-sync operator CLI",
+        "Telegram worker",
+        "runtime operator"
+      ],
+      "code": [
+        "packages/education-runtime/credentials.mjs",
+        "packages/education-runtime/family-graph.mjs",
+        "packages/education-runtime/firestore.mjs",
+        "packages/education-runtime/identity.mjs",
+        "packages/education-runtime/mesh-session.mjs",
+        "packages/education-runtime/telemetry.mjs"
+      ],
+      "sections": [
+        "назначение",
+        "границы-и-порты",
+        "авторизация-и-совместимость",
+        "телеметрия",
+        "проверка-и-эксплуатация"
+      ],
+      "path": "docs/shared/server-runtime.md"
+    },
+    {
       "id": "shared.specification-system",
       "status": "accepted",
       "implementation": "implemented",
@@ -7188,7 +7618,7 @@
         "ограничения"
       ],
       "created": "2026-10-16",
-      "updated": "2026-10-16",
+      "updated": "2026-10-17",
       "consumers": [
         "frontend developer",
         "repository maintainer",
@@ -7238,7 +7668,27 @@
     },
     {
       "from": "architecture.education",
+      "to": "shared.server-runtime",
+      "type": "uses"
+    },
+    {
+      "from": "architecture.education",
       "to": "shared.specification-system",
+      "type": "uses"
+    },
+    {
+      "from": "audit.server-core-review-2026-10-17",
+      "to": "module.synchronization",
+      "type": "uses"
+    },
+    {
+      "from": "audit.server-core-review-2026-10-17",
+      "to": "service.operator-cli",
+      "type": "uses"
+    },
+    {
+      "from": "audit.server-core-review-2026-10-17",
+      "to": "service.telegram-bot",
       "type": "uses"
     },
     {
@@ -7299,6 +7749,31 @@
     {
       "from": "decision.documentation-precommit",
       "to": "shared.specification-system",
+      "type": "uses"
+    },
+    {
+      "from": "decision.mesh-calendar-date-scopes-2026-10-18",
+      "to": "module.school-diary",
+      "type": "uses"
+    },
+    {
+      "from": "decision.mesh-calendar-date-scopes-2026-10-18",
+      "to": "service.telegram-bot.operations",
+      "type": "uses"
+    },
+    {
+      "from": "decision.shared-server-runtime-2026-10-17",
+      "to": "module.synchronization",
+      "type": "uses"
+    },
+    {
+      "from": "decision.shared-server-runtime-2026-10-17",
+      "to": "service.operator-cli",
+      "type": "uses"
+    },
+    {
+      "from": "decision.shared-server-runtime-2026-10-17",
+      "to": "service.telegram-bot",
       "type": "uses"
     },
     {
@@ -7424,6 +7899,11 @@
     {
       "from": "file:.gitignore",
       "to": "module.materials.storage-privacy",
+      "type": "implements"
+    },
+    {
+      "from": "file:.nvmrc",
+      "to": "shared.toolchain",
       "type": "implements"
     },
     {
@@ -7717,6 +8197,11 @@
       "type": "implements"
     },
     {
+      "from": "file:docs/audits/server-runtime-load-2026-10-17.json",
+      "to": "audit.server-core-review-2026-10-17",
+      "type": "implements"
+    },
+    {
       "from": "file:docs/audits/specification-lifecycle-2026-10-16.json",
       "to": "shared.specification-system",
       "type": "implements"
@@ -7872,6 +8357,36 @@
       "type": "implements"
     },
     {
+      "from": "file:packages/education-runtime/credentials.mjs",
+      "to": "shared.server-runtime",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-runtime/family-graph.mjs",
+      "to": "shared.server-runtime",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-runtime/firestore.mjs",
+      "to": "shared.server-runtime",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-runtime/identity.mjs",
+      "to": "shared.server-runtime",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-runtime/mesh-session.mjs",
+      "to": "shared.server-runtime",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-runtime/telemetry.mjs",
+      "to": "shared.server-runtime",
+      "type": "implements"
+    },
+    {
       "from": "file:packages/telegram-notifications/adapters/config.mjs",
       "to": "service.telegram-bot.operations",
       "type": "implements"
@@ -7899,6 +8414,11 @@
     {
       "from": "file:packages/telegram-notifications/adapters/mesh-credentials.mjs",
       "to": "service.telegram-bot.mesh",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/adapters/probe-recipient-firestore.mjs",
+      "to": "service.telegram-bot.operations",
       "type": "implements"
     },
     {
@@ -7982,6 +8502,11 @@
       "type": "implements"
     },
     {
+      "from": "file:packages/telegram-notifications/application/probe-notifications.mjs",
+      "to": "service.telegram-bot.operations",
+      "type": "implements"
+    },
+    {
       "from": "file:packages/telegram-notifications/application/source-pipeline.mjs",
       "to": "service.telegram-bot.ports-and-events",
       "type": "implements"
@@ -8008,6 +8533,46 @@
     },
     {
       "from": "file:packages/telegram-notifications/firestore.indexes.json",
+      "to": "service.telegram-bot.operations",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/operations/launch-agent.mjs",
+      "to": "service.telegram-bot.operations",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/operations/private-logger.mjs",
+      "to": "service.telegram-bot.operations",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/operations/probe-runner.mjs",
+      "to": "service.telegram-bot.operations",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/operations/probe-source.mjs",
+      "to": "service.telegram-bot.operations",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/operations/probe-target.mjs",
+      "to": "service.telegram-bot.operations",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/operations/process-lock.mjs",
+      "to": "service.telegram-bot.operations",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/operations/readiness.mjs",
+      "to": "service.telegram-bot.operations",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/operations/source-check.mjs",
       "to": "service.telegram-bot.operations",
       "type": "implements"
     },
@@ -8074,6 +8639,11 @@
     {
       "from": "file:scripts/backfill-book-manifests.mjs",
       "to": "plans.local-first-release-plan-2026-10-12",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/benchmark-server-runtime.mjs",
+      "to": "shared.server-runtime",
       "type": "implements"
     },
     {
@@ -8392,6 +8962,11 @@
       "type": "implements"
     },
     {
+      "from": "file:scripts/lib/admin-firebase.mjs",
+      "to": "shared.server-runtime",
+      "type": "implements"
+    },
+    {
       "from": "file:scripts/notifications.mjs",
       "to": "module.notifications.inbox",
       "type": "implements"
@@ -8549,6 +9124,21 @@
     {
       "from": "file:scripts/telegram-bot.mjs",
       "to": "service.telegram-bot",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/telegram-indexes.mjs",
+      "to": "service.telegram-bot.operations",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/telegram-pair.mjs",
+      "to": "service.telegram-bot.identity-and-linking",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/telegram-runtime.mjs",
+      "to": "service.telegram-bot.operations",
       "type": "implements"
     },
     {
@@ -11008,6 +11598,11 @@
     },
     {
       "from": "module.school-diary",
+      "to": "file:packages/education-connect/lib/mesh-assignments.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.school-diary",
       "to": "module.families",
       "type": "uses"
     },
@@ -11088,11 +11683,6 @@
     },
     {
       "from": "module.synchronization.global-sync",
-      "to": "file:packages/education-connect/lib/mesh-assignments.test.mjs",
-      "type": "verified-by"
-    },
-    {
-      "from": "module.synchronization.global-sync",
       "to": "file:packages/education-connect/lib/network-retry.test.mjs",
       "type": "verified-by"
     },
@@ -11119,6 +11709,11 @@
     {
       "from": "module.synchronization.global-sync",
       "to": "module.synchronization.shared-artifact-pipeline",
+      "type": "uses"
+    },
+    {
+      "from": "module.synchronization.global-sync",
+      "to": "shared.server-runtime",
       "type": "uses"
     },
     {
@@ -11927,6 +12522,11 @@
       "type": "uses"
     },
     {
+      "from": "service.operator-cli",
+      "to": "shared.server-runtime",
+      "type": "uses"
+    },
+    {
       "from": "service.telegram-bot.delivery",
       "to": "service.telegram-bot.event-ledger-outbox",
       "type": "uses"
@@ -11963,6 +12563,16 @@
     },
     {
       "from": "service.telegram-bot.identity-and-linking",
+      "to": "file:packages/telegram-notifications/identity-pairing.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "service.telegram-bot.identity-and-linking",
+      "to": "file:scripts/telegram-pair.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "service.telegram-bot.identity-and-linking",
       "to": "service.telegram-bot.ports-and-events",
       "type": "uses"
     },
@@ -11970,6 +12580,16 @@
       "from": "service.telegram-bot.identity-and-linking",
       "to": "service.telegram-bot",
       "type": "uses"
+    },
+    {
+      "from": "service.telegram-bot.identity-and-linking",
+      "to": "shared.server-runtime",
+      "type": "uses"
+    },
+    {
+      "from": "service.telegram-bot.mesh",
+      "to": "decision.mesh-calendar-date-scopes-2026-10-18",
+      "type": "contains"
     },
     {
       "from": "service.telegram-bot.mesh",
@@ -11987,6 +12607,16 @@
       "type": "verified-by"
     },
     {
+      "from": "service.telegram-bot.mesh",
+      "to": "shared.server-runtime",
+      "type": "uses"
+    },
+    {
+      "from": "service.telegram-bot.operations",
+      "to": "file:packages/telegram-notifications/adapters/config.test.mjs",
+      "type": "verified-by"
+    },
+    {
       "from": "service.telegram-bot.operations",
       "to": "file:packages/telegram-notifications/adapters/runtime.test.mjs",
       "type": "verified-by"
@@ -11998,12 +12628,72 @@
     },
     {
       "from": "service.telegram-bot.operations",
+      "to": "file:packages/telegram-notifications/operations/launch-agent.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "service.telegram-bot.operations",
+      "to": "file:packages/telegram-notifications/operations/private-logger.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "service.telegram-bot.operations",
+      "to": "file:packages/telegram-notifications/operations/probe-runner.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "service.telegram-bot.operations",
+      "to": "file:packages/telegram-notifications/operations/probe-source.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "service.telegram-bot.operations",
+      "to": "file:packages/telegram-notifications/operations/process-lock.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "service.telegram-bot.operations",
+      "to": "file:packages/telegram-notifications/operations/readiness.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "service.telegram-bot.operations",
+      "to": "file:packages/telegram-notifications/operations/source-check.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "service.telegram-bot.operations",
+      "to": "file:packages/telegram-notifications/probe-notifications.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "service.telegram-bot.operations",
+      "to": "file:packages/telegram-notifications/technical-probe.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "service.telegram-bot.operations",
       "to": "file:scripts/telegram-bot.test.mjs",
       "type": "verified-by"
     },
     {
       "from": "service.telegram-bot.operations",
+      "to": "file:scripts/telegram-indexes.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "service.telegram-bot.operations",
+      "to": "file:scripts/telegram-runtime.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "service.telegram-bot.operations",
       "to": "service.telegram-bot",
+      "type": "uses"
+    },
+    {
+      "from": "service.telegram-bot.operations",
+      "to": "shared.server-runtime",
       "type": "uses"
     },
     {
@@ -12024,6 +12714,11 @@
     {
       "from": "service.telegram-bot.ports-and-events",
       "to": "service.telegram-bot",
+      "type": "uses"
+    },
+    {
+      "from": "service.telegram-bot.ports-and-events",
+      "to": "shared.server-runtime",
       "type": "uses"
     },
     {
@@ -12114,6 +12809,11 @@
     {
       "from": "service.telegram-bot",
       "to": "service.telegram-bot.ports-and-events",
+      "type": "uses"
+    },
+    {
+      "from": "service.telegram-bot",
+      "to": "shared.server-runtime",
       "type": "uses"
     },
     {
@@ -12307,6 +13007,11 @@
       "type": "contains"
     },
     {
+      "from": "shared.data",
+      "to": "shared.server-runtime",
+      "type": "contains"
+    },
+    {
       "from": "shared.design.components",
       "to": "shared.design.ui-kit",
       "type": "uses"
@@ -12404,6 +13109,61 @@
     {
       "from": "shared.media-storage",
       "to": "service.upload-worker",
+      "type": "uses"
+    },
+    {
+      "from": "shared.server-runtime",
+      "to": "audit.server-core-review-2026-10-17",
+      "type": "contains"
+    },
+    {
+      "from": "shared.server-runtime",
+      "to": "decision.shared-server-runtime-2026-10-17",
+      "type": "contains"
+    },
+    {
+      "from": "shared.server-runtime",
+      "to": "file:packages/education-runtime/credentials.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "shared.server-runtime",
+      "to": "file:packages/education-runtime/family-graph.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "shared.server-runtime",
+      "to": "file:packages/education-runtime/firestore.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "shared.server-runtime",
+      "to": "file:packages/education-runtime/identity.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "shared.server-runtime",
+      "to": "file:packages/education-runtime/telemetry.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "shared.server-runtime",
+      "to": "file:scripts/benchmark-server-runtime.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "shared.server-runtime",
+      "to": "module.families",
+      "type": "uses"
+    },
+    {
+      "from": "shared.server-runtime",
+      "to": "module.school-diary",
+      "type": "uses"
+    },
+    {
+      "from": "shared.server-runtime",
+      "to": "module.synchronization",
       "type": "uses"
     },
     {

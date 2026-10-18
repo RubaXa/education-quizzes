@@ -20,6 +20,7 @@ code:
 parent: service.telegram-bot
 uses:
   - service.telegram-bot
+  - shared.server-runtime
 sections:
   - назначение
   - направление-зависимостей
@@ -93,13 +94,13 @@ source, scopeKey, completeness, observedAt, sourceRevision?, cursor?, records[]
 | Порт / capability | Реализованный минимум | Planned / не подключено |
 |---|---|---|
 | `SourceObservationPort` | Firestore/МЭШ `observe/subscribe`, динамический coordinator, durable checkpoint/sequence/pending replay и DTO bridge; `diffCompleteSnapshots` и event normalization | Hosted readiness и эксплуатационные integration checks |
-| `IdentityRegistryPort`, `FamilyLinkAuthorizationPort` | Регистрация Telegram account, чтение уже существующих links, stop challenge и отзыв одной link | Выдача/погашение семейного link token, PETR UI issuer и production trusted authorization adapter |
+| `IdentityRegistryPort`, `FamilyLinkAuthorizationPort` | Регистрация, hashed private pairing challenge, доверенное локальное погашение, stop challenge и отзыв одной link | Web PETR UI issuer |
 | `EventLedgerPort`, `DeliveryOutboxPort` | `recordIfAbsent`, job claim/finish/reschedule, lease, recovery и per-part receipts в Firestore adapter | Групповые записи/доставка дайджеста |
 | `RecipientResolverPort`, `MembershipAuthorizationPort` | Проверка активной семейной связи и membership родителя/ребёнка | Team resolver, team recipient configuration и раздельная route policy |
 | `MessageRendererPort` | Детерминированная family summary whitelist и разделение длинного текста | Полные `recipientView`/locale templates, approved context links и grouped digest renderer |
 | `TelegramDeliveryPort` | grammY transport, классификация ошибок, ограниченный retry и явная доставка из существующего outbox | Реальная внешняя интеграция и production rollout |
 | `ChannelAvailabilityPort` | `getState` и version-fenced `markUnavailable`; private update ordering в registry; runtime всегда инжектирует Firestore adapter | Реальные Telegram/Firestore integration и полный channel audit/retention |
-| `ClockPort`, `LoggerPort` | Внедряемые clock/logger в application services | Политика окон группировки и операционные метрики/readiness |
+| `ClockPort`, `LoggerPort` | Внедряемые clock/logger в application services | Политика окон группировки и внешние alerts |
 
 Целевые сигнатуры остаются: `RecipientResolverPort` возвращает только проверенных получателей и privacy views; `MessageRendererPort` — `(event, recipientView, locale) → MessagePart[]`; `TelegramDeliveryPort` — `(chatId, MessagePart) → DeliveryReceipt`. Это описание будущих границ и не меняет фактический минимальный runtime composition.
 
@@ -120,6 +121,12 @@ Shadow и notify состояния изолированы. Первое наб�
 Текущие checkpoint единицы ограничены безопасным размером документа: 2000 records и512000 serialized bytes для pending, общий store budget900000 bytes с baseline/envelope. Это защитные границы одной единицы, не фильтр семей: превышение не обрезает данные и не продвигает baseline, а выдаёт finite reasonCode/health для оператора. Firestore разделён по исходным документам, МЭШ — по датам и предметам/периодам; если одна такая область перерастёт budget, требуется дальнейшее sharding, а не молчаливое исключение семьи.
 
 Lease heartbeat обновляет аренду примерно TTL/3, имеет один renew in-flight и останавливается/drain перед advance/release. Потеря lease не даёт начать новый accept; уже принятый event восстанавливается по durable pending без нового job. Heartbeat не заменяет deadline зависшего сетевого источника.
+
+### Техническая проверка цепочки
+
+`technical.probe` — отдельный тип с явным диагностическим текстом. Firestore probe слушает отдельный служебный документ; МЭШ probe сначала читает реальную подтверждённую область. Оба проходят SourcePipeline, ledger, outbox и доставку ровно одному проверенному адресату. Проба не создаёт фиктивную оценку/ДЗ, не рассылается остальным родителям и не доказывает наблюдение естественного изменения. Доставка требует точного job claim и readback `sent` с message receipts; посторонняя очередь не дренируется.
+
+Общие FamilyGraph, MeshSession, credential store, Firestore factory и TelemetryPort описаны в [серверном ядре](../../shared/server-runtime.md). Входы operator/Telegram подключают эти механизмы через внедряемые порты; педагогическая проверка не запускается ботом.
 
 ## Ошибки и обратная совместимость
 

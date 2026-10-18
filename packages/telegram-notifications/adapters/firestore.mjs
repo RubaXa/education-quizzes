@@ -1,4 +1,5 @@
 import { randomBytes } from 'node:crypto'
+import { createHash } from 'node:crypto'
 import { FieldValue } from '@google-cloud/firestore'
 
 /** @see ../../../docs/services/telegram-bot/event-ledger-outbox.md#логические-записи @see ../../../docs/services/telegram-bot/identity-and-linking.md#состояния @see ../../../docs/services/telegram-bot/ports-and-events.md#контракт-портов */
@@ -56,6 +57,81 @@ export function createFirestoreAdapters(db, { eventCollection = 'telegramNotific
     async createStopChallenge(challenge) {
       await db.collection('telegramBotStopChallenges').doc(challenge.tokenHash).create({ ...challenge, usedAt: null, createdAt: FieldValue.serverTimestamp() })
     },
+    async createPairChallenge(challenge) {
+      const accountRef = accounts.doc(challenge.senderId)
+      const challengeRef = db.collection('telegramBotPairChallenges').doc(challenge.tokenHash)
+      return db.runTransaction(async (tx) => {
+        const accountSnap = await tx.get(accountRef)
+        if (!accountSnap.exists || accountSnap.data()?.status === 'disconnected') return { issued: false }
+        const account = accountSnap.data()
+        const lastIssued = Date.parse(account.pairCodeIssuedAt ?? '')
+        const issuedAt = Date.parse(challenge.issuedAt)
+        if (!Number.isFinite(issuedAt) || (Number.isFinite(lastIssued) && issuedAt < lastIssued + 60_000)) return { issued: false }
+        const previousHash = account.currentPairCodeHash
+        const previousRef = /^[a-f0-9]{64}$/.test(previousHash ?? '')
+          ? db.collection('telegramBotPairChallenges').doc(previousHash) : null
+        const previousSnap = previousRef ? await tx.get(previousRef) : null
+        tx.create(challengeRef, { ...challenge, usedAt: null, createdAt: FieldValue.serverTimestamp(), action: 'link-family' })
+        if (previousSnap?.exists) tx.delete(previousRef)
+        tx.update(accountRef, { currentPairCodeHash: challenge.tokenHash, pairCodeIssuedAt: challenge.issuedAt,
+          pairCodeExpiresAt: challenge.expiresAt })
+        return { issued: true }
+      })
+    },
+    async redeemPairChallenge({ tokenHash, familyId, personId, now }) {
+      if (!/^[a-f0-9]{64}$/.test(tokenHash ?? '') || !validPathId(familyId) || !validPathId(personId)) return { code: 'invalid_pairing' }
+      const challengeRef = db.collection('telegramBotPairChallenges').doc(tokenHash)
+      return db.runTransaction(async (tx) => {
+        const challengeSnap = await tx.get(challengeRef)
+        if (!challengeSnap.exists) return { code: 'invalid_pairing' }
+        const challenge = challengeSnap.data()
+        const expiresAt = Date.parse(challenge.expiresAt ?? '')
+        const issuedAt = Date.parse(challenge.issuedAt ?? '')
+        if (challenge.action !== 'link-family' || challenge.usedAt || !Number.isFinite(expiresAt)
+          || !Number.isFinite(issuedAt) || Date.parse(now) < issuedAt || Date.parse(now) >= expiresAt
+          || expiresAt - issuedAt <= 0 || expiresAt - issuedAt > 10 * 60_000
+          || !validTelegramId(challenge.senderId)) return { code: 'invalid_pairing' }
+        const senderId = String(challenge.senderId)
+        const accountRef = accounts.doc(senderId)
+        const familyRef = db.doc(`families/${familyId}`)
+        const memberRef = db.doc(`families/${familyId}/members/${personId}`)
+        const [accountSnap, familySnap, memberSnap] = await Promise.all([tx.get(accountRef), tx.get(familyRef), tx.get(memberRef)])
+        if (!accountSnap.exists || accountSnap.data()?.status === 'disconnected'
+          || accountSnap.data()?.currentPairCodeHash !== tokenHash || accountSnap.data()?.pairCodeExpiresAt !== challenge.expiresAt
+          || (accountSnap.data()?.channelStatus ?? 'available') !== 'available'
+          || !familySnap.exists || familySnap.data()?.active === false || !memberSnap.exists) return { code: 'pairing_owner_unavailable' }
+        const member = memberSnap.data()
+        if (member?.active !== true || member.role !== 'parent' || !Array.isArray(member.childIds)) return { code: 'pairing_owner_unavailable' }
+        const childIds = [...new Set(member.childIds.filter(validPathId))]
+        if (!childIds.length) return { code: 'pairing_owner_unavailable' }
+        const childSnaps = await Promise.all(childIds.map((id) => tx.get(db.doc(`families/${familyId}/children/${id}`))))
+        if (!childSnaps.some((snap) => snap.exists && snap.data()?.active !== false)) return { code: 'pairing_owner_unavailable' }
+        const existingSnap = await tx.get(familyLinks.where('telegramUserId', '==', senderId))
+        const existing = (existingSnap.docs ?? []).map((doc) => ({ id: doc.id, ...doc.data() }))
+          .filter((link) => link.familyId === familyId && link.status === 'active')
+        if (existing.length) {
+          const same = existing.every((link) => link.personId === personId)
+          if (!same) return { code: 'pairing_conflict' }
+          tx.update(challengeRef, { usedAt: now, linkId: existing[0].id })
+          tx.update(accountRef, { currentPairCodeHash: null, pairCodeExpiresAt: null })
+          return { code: 'already_linked' }
+        }
+        const linkId = createHash('sha256').update(JSON.stringify(['telegram-link-v1', senderId, familyId])).digest('hex').slice(0, 32)
+        const linkRef = familyLinks.doc(linkId)
+        const linkSnap = await tx.get(linkRef)
+        if (linkSnap.exists && linkSnap.data()?.status === 'active') {
+          return { code: 'pairing_conflict' }
+        }
+        tx.set(linkRef, { telegramUserId: senderId, familyId, personId, status: 'active', linkedAt: now,
+          verifiedAt: now, verifiedBy: 'operator_pairing', channelStatusAtLink: accountSnap.data()?.channelStatus ?? 'available' })
+        tx.update(challengeRef, { usedAt: now, linkId })
+        tx.update(accountRef, { currentPairCodeHash: null, pairCodeExpiresAt: null })
+        tx.create(db.collection('telegramBotLinkHistory').doc(`${linkId}_${tokenHash}`), {
+          linkId, familyId, personId, action: 'linked', at: now, actorTelegramUserId: senderId, method: 'operator_pairing',
+        })
+        return { code: 'linked', linkId }
+      })
+    },
     async consumeStopChallenge({ tokenHash, senderId, now }) {
       const challengeRef = db.collection('telegramBotStopChallenges').doc(tokenHash)
       return db.runTransaction(async (tx) => {
@@ -86,22 +162,25 @@ export function createFirestoreAdapters(db, { eventCollection = 'telegramNotific
     async markUnavailable(input) { return registry.markChannelUnavailable(input) },
   }
   const outbox = {
-    async claim({ workerId, now, leaseMs, maxAttempts = 8 }) {
-      const snap = await jobs.where('state', 'in', ['pending', 'retry_wait']).where('nextAttemptAt', '<=', now).orderBy('nextAttemptAt').limit(20).get()
-      for (const candidate of snap.docs) {
+    async claim({ workerId, now, leaseMs, maxAttempts = 8, jobId = null }) {
+      if (jobId !== null && !validPathId(jobId)) throw safeError('job_unavailable')
+      const candidates = jobId ? [{ ref: jobs.doc(jobId) }]
+        : (await jobs.where('state', 'in', ['pending', 'retry_wait']).where('nextAttemptAt', '<=', now).orderBy('nextAttemptAt').limit(20).get()).docs
+      for (const candidate of candidates) {
+        const candidateRef = candidate.ref
         const leaseToken = randomBytes(32).toString('base64url')
         const claimed = await db.runTransaction(async (tx) => {
-          const fresh = await tx.get(candidate.ref)
+          const fresh = await tx.get(candidateRef)
           if (!fresh.exists) return null
           const row = fresh.data()
           if (!['pending', 'retry_wait'].includes(row.state) || row.nextAttemptAt > now) return null
           if ((row.attempts ?? 0) >= maxAttempts) {
-            tx.update(candidate.ref, { state: 'dead_letter', safeErrorCode: 'retry_limit_reached', exhaustedAt: now })
+            tx.update(candidateRef, { state: 'dead_letter', safeErrorCode: 'retry_limit_reached', exhaustedAt: now })
             return null
           }
           const leaseUntil = new Date(Date.parse(now) + leaseMs).toISOString()
           const attempts = (row.attempts ?? 0) + 1
-          tx.update(candidate.ref, { state: 'leased', attempts, leaseOwner: workerId, leaseToken, leaseUntil, claimedAt: now })
+          tx.update(candidateRef, { state: 'leased', attempts, leaseOwner: workerId, leaseToken, leaseUntil, claimedAt: now })
           return { ...row, state: 'leased', attempts, leaseOwner: workerId, leaseToken, leaseUntil }
         })
         if (claimed) return claimed

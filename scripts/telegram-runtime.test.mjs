@@ -1,0 +1,64 @@
+import { describe, expect, it } from 'vitest'
+import { main } from './telegram-runtime.mjs'
+
+describe('telegram runtime operator commands', () => {
+  it('runs source-check in read-only mode and emits aggregate trace data only', async () => {
+    let terminated = false
+    const output = []
+    const telemetry = {
+      async trace(_operation, work) { return work() },
+      span(_operation, work) { return work() },
+      count() {},
+      current() { return { traceId: 'a'.repeat(32) } },
+      snapshot() { return { spanCount: 2, counters: {}, spans: {}, exporterErrors: 0 } },
+    }
+    const exitCode = await main(['source-check'], { root: '/tmp/project', env: { TELEGRAM_FIRESTORE_PROJECT_ID: 'education-prod' },
+      db: { async terminate() { terminated = true } }, keepOpen: false, telemetry, legacyCodec: {},
+      inventory: { async enumerate() { return { complete: true, families: [{ familyId: 'private-family' }],
+        registeredChildren: [{ familyId: 'private-family', childId: 'private-child', meshStatus: 'eligible' }],
+        sourceAccounts: [{ accountId: 'private-account' }], failures: [],
+        scopes: [{ scope: { source: 'mesh', familyId: 'private-family', childId: 'private-child' } }] } } },
+      meshSource: { async observe() { return { completeness: 'complete', familyId: 'private-family', childId: 'private-child',
+        records: [{ fields: { grade: '5' } }] } } },
+      write(value) { output.push(value) },
+    })
+    const result = JSON.parse(output[0])
+    expect(exitCode).toBe(0)
+    expect(terminated).toBe(true)
+    expect(result).toMatchObject({ coverageComplete: true, writes: 0, sends: 0, meshScopes: 1, observedRecords: 1,
+      telemetry: { traceId: 'a'.repeat(32), spanCount: 2 } })
+    expect(JSON.stringify(result)).not.toContain('private-family')
+    expect(JSON.stringify(result)).not.toContain('private-account')
+    expect(JSON.stringify(result)).not.toContain('grade')
+  })
+
+  it('offers an opt-in schedule date diagnostic through the shared source-check path', async () => {
+    const output = []
+    let observed = 0
+    const telemetry = { async trace(_name, work) { return work() }, span(_name, work) { return work() },
+      current() { return { traceId: 'b'.repeat(32) } }, snapshot() { return { spanCount: 1, counters: {}, spans: {}, exporterErrors: 0 } } }
+    const exitCode = await main(['source-check', '--diagnose-schedule-dates', '--date', '2026-10-17'], { root: '/tmp/project',
+      env: { TELEGRAM_FIRESTORE_PROJECT_ID: 'education-prod' }, db: { async terminate() {} }, telemetry,
+      inventory: { async enumerate() { return { complete: true, families: [{ familyId: 'f' }],
+        registeredChildren: [{ familyId: 'f', childId: 'c', hasMeshIdentity: true, hasMeshAccount: true }], sourceAccounts: [], failures: [],
+        scopes: [{ scope: { source: 'mesh', familyId: 'f', childId: 'c', sourceAccountId: 'a', sourcePersonId: 'p', kind: 'schedule', date: '2026-10-17' } },
+          { scope: { source: 'mesh', familyId: 'f', childId: 'c', sourceAccountId: 'a', sourcePersonId: 'p', kind: 'schedule', date: '2026-10-18' } }] } } },
+      meshSource: { async observe() { observed += 1; return { completeness: 'complete', familyId: 'f', childId: 'c', records: [], scheduleDateDiagnostics: [] } } },
+      write(value) { output.push(value) },
+    })
+    const result = JSON.parse(output[0])
+    expect(exitCode).toBe(1)
+    expect(observed).toBe(1)
+    expect(result).toMatchObject({ meshScopes: 2, completeObservations: 1, coverageComplete: false,
+      diagnosticOnly: true, diagnosticScopeCount: 1, unobservedScopes: 1, scheduleDateDiagnostics: [] })
+  })
+
+  it('rejects impossible requested dates before connecting to sources', async () => {
+    const output = []
+    const exitCode = await main(['source-check', '--diagnose-schedule-dates', '--date', '2026-02-30'], {
+      write(value) { output.push(value) },
+    })
+    expect(exitCode).toBe(2)
+    expect(JSON.parse(output[0])).toMatchObject({ code: 'usage' })
+  })
+})

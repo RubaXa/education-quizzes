@@ -4,11 +4,16 @@ const LABELS = Object.freeze({
   'homework.assigned': 'Назначено ДЗ', 'homework.changed': 'Изменено ДЗ', 'homework.cancelled': 'ДЗ отменено',
   'grade.created': 'Новая оценка', 'grade.changed': 'Изменена оценка', 'upload.confirmed': 'Файл загружен',
   'quiz.started': 'Тест начат', 'quiz.submitted': 'Тест отправлен', 'review.changed': 'Обновлена проверка',
+  'technical.probe': 'Техническая проверка уведомлений',
 })
 
 export function renderEvent(event, audience, { maxChars = 3900 } = {}) {
   if (!['family', 'team'].includes(audience)) throw new Error('invalid_audience')
   if (!Object.hasOwn(LABELS, event.eventType) || event.privacyClass === 'restricted') return []
+  if (event.eventType === 'technical.probe') {
+    if (audience !== 'family' || event.privacyClass !== 'family-summary') return []
+    return ['PETR: техническая проверка уведомлений. Это служебное сообщение; учебные данные не использовались.']
+  }
   if (audience === 'family' && event.privacyClass !== 'family-summary') return []
   if (audience === 'team' && event.privacyClass !== 'team-summary') return []
   const fields = event.fields ?? {}

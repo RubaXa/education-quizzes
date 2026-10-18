@@ -1,9 +1,10 @@
+import { createHash } from 'node:crypto'
 import { assertPort } from '../domain/ports.mjs'
 import { createDomainEvent } from '../domain/events.mjs'
 
 /** @see ../../../docs/services/telegram-bot/event-ledger-outbox.md#атомарность-и-идемпотентность @see ../../../docs/services/telegram-bot/delivery.md#разделение-ответственности @see ../../../docs/services/telegram-bot/ports-and-events.md#контракт-портов */
 export class NotificationService {
-  constructor({ eventLedger, outbox, recipients, membership, channel = null, renderer, delivery, clock = () => new Date(), logger = { info() {}, error() {} }, workerId, retryMaxAttempts = 8, leaseMs = 120_000, recoveryIntervalMs = 60_000 }) {
+  constructor({ eventLedger, outbox, recipients, membership, channel = null, renderer, delivery, clock = () => new Date(), logger = { info() {}, error() {} }, workerId, retryMaxAttempts = 8, leaseMs = 120_000, recoveryIntervalMs = 60_000, telemetry = null }) {
     this.ledger = assertPort(eventLedger, ['recordIfAbsent'])
     this.outbox = assertPort(outbox, ['claim', 'finish', 'reschedule', 'recoverExpired', 'renew', 'savePartReceipt'])
     this.recipients = assertPort(recipients, ['resolveVerified'])
@@ -17,6 +18,7 @@ export class NotificationService {
     this.retryMaxAttempts = retryMaxAttempts
     this.leaseMs = leaseMs
     this.recoveryIntervalMs = recoveryIntervalMs
+    this.telemetry = telemetry
     this.lastRecoveryAt = 0
   }
 
@@ -50,14 +52,23 @@ export class NotificationService {
     return this.ledger.recordIfAbsent({ event: normalized, jobs })
   }
 
-  async runOne() {
+  async runOne({ jobId = null, skipRecovery = false } = {}) {
     const startedAt = this.clock().valueOf()
-    if (startedAt - this.lastRecoveryAt >= this.recoveryIntervalMs) {
+    if (!skipRecovery && startedAt - this.lastRecoveryAt >= this.recoveryIntervalMs) {
       await this.outbox.recoverExpired(this.clock().toISOString(), { maxAttempts: this.retryMaxAttempts, recoveryDelayMs: 1_000 })
       this.lastRecoveryAt = startedAt
     }
-    const job = await this.outbox.claim({ workerId: this.workerId, now: this.clock().toISOString(), leaseMs: this.leaseMs, maxAttempts: this.retryMaxAttempts })
+    const job = await this.outbox.claim({ workerId: this.workerId, now: this.clock().toISOString(), leaseMs: this.leaseMs, maxAttempts: this.retryMaxAttempts,
+      ...(jobId ? { jobId } : {}) })
     if (!job) return false
+    const processClaimed = () => this.processClaimedJob(job)
+    const eventId = /^[a-f0-9]{64}$/.test(job.eventId ?? '') ? job.eventId : undefined
+    const safeJobId = typeof job.jobId === 'string' ? createHash('sha256').update(job.jobId).digest('hex') : undefined
+    return this.telemetry?.span ? this.telemetry.span('telegram.notification.job', processClaimed,
+      { ...(eventId ? { eventId } : {}), ...(safeJobId ? { jobId: safeJobId } : {}) }) : processClaimed()
+  }
+
+  async processClaimedJob(job) {
     let channelAttempt = null
     let channelCheckInProgress = false
     try {

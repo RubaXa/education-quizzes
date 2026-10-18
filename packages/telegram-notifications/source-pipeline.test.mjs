@@ -12,6 +12,26 @@ const scope = { familyId: 'family-a', childId: 'child-a', kind: 'quiz', quizToke
 const quizStarted = { recordKey: 'a'.repeat(64), kind: 'quiz', eventType: 'quiz.started', fields: { status: 'started', title: 'Проверочная' } }
 
 describe('source observation pipeline', () => {
+  it('does not advance or accept an observation that finishes after shutdown begins', async () => {
+    const checkpoints = new MemoryCheckpoints()
+    let resolveObservation
+    const source = { kind: 'firestore', scopeKey() { return 'scope-a' }, async validateScope() { return true },
+      observe() { return new Promise((resolve) => { resolveObservation = resolve }) } }
+    const accept = vi.fn()
+    const pipeline = new SourcePipeline({ source, checkpoints, mode: 'notify', workerId: 'worker-a',
+      clock: () => new Date(now), accept })
+    const controller = new AbortController()
+    const processing = pipeline.process(scope, { origin: 'live', signal: controller.signal })
+    await vi.waitFor(() => expect(resolveObservation).toBeTypeOf('function'))
+    controller.abort()
+    resolveObservation({ source: 'firestore', scopeKey: 'scope-a', familyId: scope.familyId, childId: scope.childId,
+      completeness: 'complete', records: [quizStarted] })
+    await expect(processing).rejects.toThrow('worker_shutdown')
+    expect(accept).not.toHaveBeenCalled()
+    expect(checkpoints.row('scope-a', 'notify').sequence).toBe(0)
+    expect(checkpoints.row('scope-a', 'notify').pending).toBeNull()
+  })
+
   it('renews a long observation lease serially and drains heartbeat before advancing', async () => {
     vi.useFakeTimers()
     try {

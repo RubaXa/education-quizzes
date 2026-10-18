@@ -1,11 +1,15 @@
 import { describe, expect, it } from 'vitest'
+import { execFile } from 'node:child_process'
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { resolve } from 'node:path'
+import { promisify } from 'node:util'
 import { executeOperation } from './run-operation.mjs'
+import { createTelemetry, parseTraceContext } from '../packages/education-runtime/telemetry.mjs'
 
 const request = (operation, input = {}) => ({ schemaVersion: 1, operation, input })
 const workspace = () => mkdtempSync(resolve(tmpdir(), 'education-run-'))
+const execChild = promisify(execFile)
 
 describe('operator execution receipts', () => {
   it('preserves the full scan snapshot privately without a second inbox query', async () => {
@@ -31,6 +35,49 @@ describe('operator execution receipts', () => {
       expect(result.status).toBe('partial')
       expect(result.summary).toMatchObject({ sourceState: 'partially-collected',
         sourceJournal: '.local/source-run.json', timing: { elapsedMs: 15 } })
+    } finally { rmSync(root, { recursive: true, force: true }) }
+  })
+
+  it('propagates a safe trace parent to the child CLI and preserves the legacy metrics shape', async () => {
+    const root = workspace()
+    const events = []
+    let childContext
+    try {
+      const result = await executeOperation(request('inbox.snapshot'), { root,
+        telemetry: createTelemetry({ sink: (event) => events.push(event) }),
+        run: async (_script, _argv, _cwd, options) => {
+          childContext = parseTraceContext(options.env.EDUCATION_TRACE_CONTEXT)
+          return { stdout: JSON.stringify({ complete: true, counts: { review: 0 } }), stderr: '' }
+        } })
+      expect(result.metrics).toMatchObject({ elapsedMs: expect.any(Number), preflightMs: null,
+        stdoutBytes: expect.any(Number), stderrBytes: expect.any(Number) })
+      expect(result.traceId).toMatch(/^[a-f0-9]{32}$/)
+      expect(childContext.traceId).toBe(result.traceId)
+      expect(childContext.spanId).toMatch(/^[a-f0-9]{32}$/)
+      expect(result.telemetry.spans['operator.command'].count).toBe(1)
+      expect(readFileSync(result.journal, 'utf8')).toContain('"traceId"')
+      expect(events.some((event) => event.operation === 'operator.command')).toBe(true)
+    } finally { rmSync(root, { recursive: true, force: true }) }
+  })
+
+  it('propagates the active span through the production subprocess runner to a real child process', async () => {
+    const root = workspace()
+    const events = []
+    const script = resolve(root, 'trace-child.mjs')
+    writeFileSync(script, "process.stdout.write(JSON.stringify(JSON.parse(process.env.EDUCATION_TRACE_CONTEXT)))\n")
+    try {
+      const result = await executeOperation(request('inbox.snapshot'), { root,
+        telemetry: createTelemetry({ sink: (event) => events.push(event) }),
+        // Keep the production runner's environment composition; redirect only the executable script for this test.
+        execFileRunner: (_file, _args, options) => execChild(process.execPath, [script], options),
+      })
+      const privateReceipt = JSON.parse(readFileSync(result.journal, 'utf8'))
+      const childContext = JSON.parse(privateReceipt.stdout)
+      const commandSpan = events.find((event) => event.kind === 'span' && event.operation === 'operator.command')
+      expect(childContext.traceId).toBe(result.traceId)
+      expect(childContext.spanId).toBe(commandSpan.spanId)
+      expect(childContext.parentSpanId).toBe(commandSpan.parentSpanId)
+      expect(privateReceipt.stdout).toMatch(/^\{"traceId":"[a-f0-9]{32}","spanId":"[a-f0-9]{32}","parentSpanId":"[a-f0-9]{32}"\}$/)
     } finally { rmSync(root, { recursive: true, force: true }) }
   })
 

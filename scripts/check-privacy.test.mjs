@@ -6,16 +6,24 @@ import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 const fixtures = []
 afterEach(() => { for (const root of fixtures.splice(0)) rmSync(root, { recursive: true, force: true }) })
+const sourceRoot = join(import.meta.dirname, '..')
+const gitLocalEnv = new Set(execFileSync('git', ['rev-parse', '--local-env-vars'], {
+  cwd: sourceRoot, encoding: 'utf8',
+}).trim().split(/\s+/).filter(Boolean))
+for (const name of ['GIT_DIR', 'GIT_WORK_TREE', 'GIT_INDEX_FILE', 'GIT_COMMON_DIR', 'GIT_PREFIX',
+  'GIT_OBJECT_DIRECTORY', 'GIT_ALTERNATE_OBJECT_DIRECTORIES']) gitLocalEnv.add(name)
+function cleanGitEnv() {
+  const env = { ...process.env }
+  for (const name of Object.keys(env)) if (gitLocalEnv.has(name) || name.startsWith('GIT_CONFIG_')) delete env[name]
+  return env
+}
 function check(path, content, history = false) {
   const root = mkdtempSync(join(tmpdir(), 'education-privacy-')); fixtures.push(root)
-  // Hooks in a linked worktree export an absolute GIT_DIR. A fixture must never
-  // initialize or stage into that repository instead of its own temporary one.
-  const env = Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith('GIT_')))
-  execFileSync('git', ['init', '-q'], { cwd: root, env })
+  execFileSync('git', ['init', '-q'], { cwd: root, env: cleanGitEnv() })
   mkdirSync(dirname(join(root, path)), { recursive: true }); writeFileSync(join(root, path), content)
-  execFileSync('git', ['add', '-f', path], { cwd: root, env })
-  if (history) execFileSync('git', ['-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', '-c', 'core.hooksPath=/dev/null', 'commit', '-qm', 'fixture'], { cwd: root, env })
-  return spawnSync(process.execPath, [join(import.meta.dirname, 'check-privacy.mjs'), ...(history ? ['--history'] : [])], { cwd: root, env, encoding: 'utf8' })
+  execFileSync('git', ['add', '-f', path], { cwd: root, env: cleanGitEnv() })
+  if (history) execFileSync('git', ['-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', '-c', 'core.hooksPath=/dev/null', 'commit', '-qm', 'fixture'], { cwd: root, env: cleanGitEnv() })
+  return spawnSync(process.execPath, [join(import.meta.dirname, 'check-privacy.mjs'), ...(history ? ['--history'] : [])], { cwd: root, env: cleanGitEnv(), encoding: 'utf8' })
 }
 it('isolates fixture repositories from an absolute Git hook environment',()=>{
   const previous=process.env.GIT_DIR

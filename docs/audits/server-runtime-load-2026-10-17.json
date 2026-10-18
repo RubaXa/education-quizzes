@@ -1,0 +1,629 @@
+{
+  "schemaVersion": 1,
+  "benchmark": "education.server-runtime.synthetic",
+  "generatedAt": "2026-10-17T08:39:58.817Z",
+  "environment": {
+    "node": "v24.21.0",
+    "platform": "darwin",
+    "arch": "arm64"
+  },
+  "configuration": {
+    "familyCounts": [
+      1,
+      100,
+      1000
+    ],
+    "childrenPerFamily": 2,
+    "scopesPerChild": 1,
+    "densityScenarios": [
+      {
+        "families": 50,
+        "scopesPerChild": 85
+      }
+    ],
+    "concurrency": 8,
+    "duplicateSignals": 2,
+    "injectTransientError": true
+  },
+  "source": {
+    "baseCommit": "1fea52eef78797d910ce3f9bee328552081619da",
+    "dirty": true,
+    "sha256": {
+      "packages/education-runtime/family-graph.mjs": "b5f1e9ea9b60bf6f71d1bb956ddf0508927fa163a4fff7999183c4105434983d",
+      "packages/education-runtime/telemetry.mjs": "f15d3c60a08ebd316a607032c763bb242d845b8aa5fa3e3522a3c80e7400e038",
+      "packages/telegram-notifications/adapters/source-coordinator.mjs": "9c33aef8ab164ab2dec6d177633da5739d41639572c049f5457d4b8a78b349b9",
+      "packages/telegram-notifications/adapters/memory.mjs": "083c49277dc562f7ed674f18e3e8da15ef40407fab30848f319da622c4de4060",
+      "packages/telegram-notifications/application/source-pipeline.mjs": "a22d321573241ee678cec5f0dad3ccdaf037426b1bc231f6efecf121e8bef5f8",
+      "packages/telegram-notifications/application/notifications.mjs": "93d438164a2b54dc22484b4cabdfd5a6ea507d98af27cd20aca68f077492243a",
+      "scripts/benchmark-server-runtime.mjs": "44282e209c2bfc967685df90b2d295debf809d810ad277b683e1ba87c0cea9aa"
+    }
+  },
+  "measurementNotes": {
+    "billing": "not_measured",
+    "firestore": "in_memory_firestore_double_sdk_operation_counts",
+    "telegram": "memory_outbox_only_no_network_delivery",
+    "network": "no_real_sdk_or_network",
+    "quota": "not_measured",
+    "scopeUnit": "one synthetic mesh child-scope processed by the shared coordinator and pipeline",
+    "caps": "none"
+  },
+  "scenarios": [
+    {
+      "scenarioType": "family_scale",
+      "families": 1,
+      "childrenPerFamily": 2,
+      "scopesPerChild": 1,
+      "children": 2,
+      "scopes": 2,
+      "scopeUnits": 2,
+      "concurrency": 8,
+      "duplicateSignalsPerScope": 2,
+      "duplicateSignalsAccepted": 4,
+      "transientSourceErrors": 1,
+      "completed": true,
+      "assertions": {
+        "allScopesUpdated": true,
+        "outboxExactlyOnce": true,
+        "outboxDrained": true,
+        "allScopeKindsCovered": true
+      },
+      "durations": {
+        "elapsedMs": 1021.3770000000001,
+        "familyGraphMs": 7.644499999999994,
+        "initialWaveMs": 1004.4832500000001,
+        "updateWaveMs": 6.597667000000001,
+        "notificationDrainMs": 0.847208000000137,
+        "pipeline": {
+          "count": 7,
+          "totalMs": 6.914666000000153,
+          "p50Ms": 1.1430829999999332,
+          "p95Ms": 2.175791000000004
+        },
+        "completionSpreadMs": 0.0049579999999878055
+      },
+      "memoryBytes": {
+        "initialHeapUsed": 22823416,
+        "initialRss": 99827712,
+        "finalHeapUsed": 21608656,
+        "finalRss": 104923136,
+        "peakHeapUsedObserved": 23257968,
+        "peakRssObserved": 104923136
+      },
+      "firestoreSynthetic": {
+        "queryCalls": 5,
+        "documentsReturned": 7,
+        "sdkOperations": 5,
+        "billedReads": "not_measured"
+      },
+      "source": {
+        "observeCalls": 7,
+        "updatedScopes": 2,
+        "retryRecoveredTransientErrors": 1,
+        "cache": {
+          "hits": 0,
+          "misses": 7,
+          "policy": "source_adapter_does_not_cache_observations"
+        }
+      },
+      "telegramMemoryOutbox": {
+        "events": 2,
+        "uniqueEventIds": 2,
+        "duplicateAccepts": 0,
+        "jobs": 2,
+        "deliveredJobs": 2,
+        "undeliveredJobs": 0,
+        "operations": {
+          "claim": 3,
+          "renew": 2,
+          "savePartReceipt": 2,
+          "finish": 2
+        }
+      },
+      "fairness": {
+        "totalScopes": 2,
+        "updatedScopes": 2,
+        "coverage": 1,
+        "completionSpreadMs": 0.0049579999999878055,
+        "queueCoverageByScopeKind": {
+          "schedule.changed": {
+            "expected": 2,
+            "accepted": 2
+          }
+        }
+      },
+      "telemetry": {
+        "spanCount": 14,
+        "droppedSpans": 0,
+        "counters": {
+          "firestore.graph.documents.projected": 7,
+          "firestore.graph.query.pages": 5
+        },
+        "spans": {
+          "firestore.families": {
+            "count": 1,
+            "totalMs": 0.16212500000000318,
+            "p50Ms": 0.16212500000000318,
+            "p95Ms": 0.16212500000000318
+          },
+          "firestore.family.children": {
+            "count": 1,
+            "totalMs": 7.021874999999994,
+            "p50Ms": 7.021874999999994,
+            "p95Ms": 7.021874999999994
+          },
+          "firestore.family.members": {
+            "count": 1,
+            "totalMs": 0.17433299999999008,
+            "p50Ms": 0.17433299999999008,
+            "p95Ms": 0.17433299999999008
+          },
+          "firestore.family.sourceAccounts": {
+            "count": 1,
+            "totalMs": 0.07925000000000182,
+            "p50Ms": 0.07925000000000182,
+            "p95Ms": 0.07925000000000182
+          },
+          "firestore.family.sourceIdentities": {
+            "count": 1,
+            "totalMs": 0.04349999999999454,
+            "p50Ms": 0.04349999999999454,
+            "p95Ms": 0.04349999999999454
+          },
+          "benchmark.family-graph": {
+            "count": 1,
+            "totalMs": 7.5487090000000165,
+            "p50Ms": 7.5487090000000165,
+            "p95Ms": 7.5487090000000165
+          },
+          "benchmark.coordinator.start": {
+            "count": 1,
+            "totalMs": 2.7012080000000083,
+            "p50Ms": 2.7012080000000083,
+            "p95Ms": 2.7012080000000083
+          },
+          "benchmark.source-pipeline.process": {
+            "count": 7,
+            "totalMs": 7.177790999999871,
+            "p50Ms": 1.1510829999999714,
+            "p95Ms": 2.287040999999988
+          }
+        }
+      }
+    },
+    {
+      "scenarioType": "family_scale",
+      "families": 100,
+      "childrenPerFamily": 2,
+      "scopesPerChild": 1,
+      "children": 200,
+      "scopes": 200,
+      "scopeUnits": 200,
+      "concurrency": 8,
+      "duplicateSignalsPerScope": 2,
+      "duplicateSignalsAccepted": 400,
+      "transientSourceErrors": 1,
+      "completed": true,
+      "assertions": {
+        "allScopesUpdated": true,
+        "outboxExactlyOnce": true,
+        "outboxDrained": true,
+        "allScopeKindsCovered": true
+      },
+      "durations": {
+        "elapsedMs": 1033.514167,
+        "familyGraphMs": 2.9087919999999485,
+        "initialWaveMs": 1002.2885000000003,
+        "updateWaveMs": 18.983458000000155,
+        "notificationDrainMs": 7.2802090000000135,
+        "pipeline": {
+          "count": 409,
+          "totalMs": 180.48913100000414,
+          "p50Ms": 0.42650000000003274,
+          "p95Ms": 0.9455000000002656
+        },
+        "completionSpreadMs": 16.607166999999663
+      },
+      "memoryBytes": {
+        "initialHeapUsed": 21672784,
+        "initialRss": 104972288,
+        "finalHeapUsed": 23517536,
+        "finalRss": 129843200,
+        "peakHeapUsedObserved": 37612536,
+        "peakRssObserved": 129843200
+      },
+      "firestoreSynthetic": {
+        "queryCalls": 401,
+        "documentsReturned": 700,
+        "sdkOperations": 401,
+        "billedReads": "not_measured"
+      },
+      "source": {
+        "observeCalls": 409,
+        "updatedScopes": 200,
+        "retryRecoveredTransientErrors": 1,
+        "cache": {
+          "hits": 0,
+          "misses": 409,
+          "policy": "source_adapter_does_not_cache_observations"
+        }
+      },
+      "telegramMemoryOutbox": {
+        "events": 200,
+        "uniqueEventIds": 200,
+        "duplicateAccepts": 0,
+        "jobs": 200,
+        "deliveredJobs": 200,
+        "undeliveredJobs": 0,
+        "operations": {
+          "claim": 201,
+          "renew": 200,
+          "savePartReceipt": 200,
+          "finish": 200
+        }
+      },
+      "fairness": {
+        "totalScopes": 200,
+        "updatedScopes": 200,
+        "coverage": 1,
+        "completionSpreadMs": 16.607166999999663,
+        "queueCoverageByScopeKind": {
+          "schedule.changed": {
+            "expected": 200,
+            "accepted": 200
+          }
+        }
+      },
+      "telemetry": {
+        "spanCount": 812,
+        "droppedSpans": 0,
+        "counters": {
+          "firestore.graph.documents.projected": 700,
+          "firestore.graph.query.pages": 401
+        },
+        "spans": {
+          "firestore.families": {
+            "count": 1,
+            "totalMs": 0.05999999999994543,
+            "p50Ms": 0.05999999999994543,
+            "p95Ms": 0.05999999999994543
+          },
+          "firestore.family.children": {
+            "count": 100,
+            "totalMs": 2.207577999998648,
+            "p50Ms": 0.018749999999954525,
+            "p95Ms": 0.04275000000006912
+          },
+          "firestore.family.members": {
+            "count": 100,
+            "totalMs": 1.8464610000019093,
+            "p50Ms": 0.01495799999997871,
+            "p95Ms": 0.03899999999998727
+          },
+          "firestore.family.sourceAccounts": {
+            "count": 100,
+            "totalMs": 1.393833000001223,
+            "p50Ms": 0.011958000000049651,
+            "p95Ms": 0.03041599999983191
+          },
+          "firestore.family.sourceIdentities": {
+            "count": 100,
+            "totalMs": 0.8958780000002662,
+            "p50Ms": 0.007499999999936335,
+            "p95Ms": 0.020291999999926702
+          },
+          "benchmark.family-graph": {
+            "count": 1,
+            "totalMs": 2.899165999999923,
+            "p50Ms": 2.899165999999923,
+            "p95Ms": 2.899165999999923
+          },
+          "benchmark.coordinator.start": {
+            "count": 1,
+            "totalMs": 0.8739999999997963,
+            "p50Ms": 0.8739999999997963,
+            "p95Ms": 0.8739999999997963
+          },
+          "benchmark.source-pipeline.process": {
+            "count": 409,
+            "totalMs": 184.51120999999785,
+            "p50Ms": 0.43416700000034325,
+            "p95Ms": 0.9519159999999829
+          }
+        }
+      }
+    },
+    {
+      "scenarioType": "family_scale",
+      "families": 1000,
+      "childrenPerFamily": 2,
+      "scopesPerChild": 1,
+      "children": 2000,
+      "scopes": 2000,
+      "scopeUnits": 2000,
+      "concurrency": 8,
+      "duplicateSignalsPerScope": 2,
+      "duplicateSignalsAccepted": 4000,
+      "transientSourceErrors": 1,
+      "completed": true,
+      "assertions": {
+        "allScopesUpdated": true,
+        "outboxExactlyOnce": true,
+        "outboxDrained": true,
+        "allScopeKindsCovered": true
+      },
+      "durations": {
+        "elapsedMs": 1514.7465000000002,
+        "familyGraphMs": 49.10445800000025,
+        "initialWaveMs": 1009.7135000000003,
+        "updateWaveMs": 208.66491700000006,
+        "notificationDrainMs": 182.6448750000004,
+        "pipeline": {
+          "count": 4009,
+          "totalMs": 1998.8013599999967,
+          "p50Ms": 0.4823750000000473,
+          "p95Ms": 0.8136669999998958
+        },
+        "completionSpreadMs": 204.35733299999993
+      },
+      "memoryBytes": {
+        "initialHeapUsed": 24169216,
+        "initialRss": 129859584,
+        "finalHeapUsed": 48749552,
+        "finalRss": 184516608,
+        "peakHeapUsedObserved": 69047064,
+        "peakRssObserved": 184516608
+      },
+      "firestoreSynthetic": {
+        "queryCalls": 4006,
+        "documentsReturned": 7000,
+        "sdkOperations": 4006,
+        "billedReads": "not_measured"
+      },
+      "source": {
+        "observeCalls": 4009,
+        "updatedScopes": 2000,
+        "retryRecoveredTransientErrors": 1,
+        "cache": {
+          "hits": 0,
+          "misses": 4009,
+          "policy": "source_adapter_does_not_cache_observations"
+        }
+      },
+      "telegramMemoryOutbox": {
+        "events": 2000,
+        "uniqueEventIds": 2000,
+        "duplicateAccepts": 0,
+        "jobs": 2000,
+        "deliveredJobs": 2000,
+        "undeliveredJobs": 0,
+        "operations": {
+          "claim": 2001,
+          "renew": 2000,
+          "savePartReceipt": 2000,
+          "finish": 2000
+        }
+      },
+      "fairness": {
+        "totalScopes": 2000,
+        "updatedScopes": 2000,
+        "coverage": 1,
+        "completionSpreadMs": 204.35733299999993,
+        "queueCoverageByScopeKind": {
+          "schedule.changed": {
+            "expected": 2000,
+            "accepted": 2000
+          }
+        }
+      },
+      "telemetry": {
+        "spanCount": 8012,
+        "droppedSpans": 0,
+        "counters": {
+          "firestore.graph.documents.projected": 7000,
+          "firestore.graph.query.pages": 4006
+        },
+        "spans": {
+          "firestore.families": {
+            "count": 1,
+            "totalMs": 0.6114590000001954,
+            "p50Ms": 0.6114590000001954,
+            "p95Ms": 0.6114590000001954
+          },
+          "firestore.family.children": {
+            "count": 1000,
+            "totalMs": 44.74644599998828,
+            "p50Ms": 0.03979200000003402,
+            "p95Ms": 0.05425000000013824
+          },
+          "firestore.family.members": {
+            "count": 1000,
+            "totalMs": 41.90653899999552,
+            "p50Ms": 0.037333000000217,
+            "p95Ms": 0.05016599999999016
+          },
+          "firestore.family.sourceAccounts": {
+            "count": 1000,
+            "totalMs": 39.75862199998619,
+            "p50Ms": 0.03545799999983501,
+            "p95Ms": 0.046916000000237545
+          },
+          "firestore.family.sourceIdentities": {
+            "count": 1000,
+            "totalMs": 25.712009000008948,
+            "p50Ms": 0.023417000000335975,
+            "p95Ms": 0.02874999999994543
+          },
+          "benchmark.family-graph": {
+            "count": 1,
+            "totalMs": 49.08583399999998,
+            "p50Ms": 49.08583399999998,
+            "p95Ms": 49.08583399999998
+          },
+          "benchmark.coordinator.start": {
+            "count": 1,
+            "totalMs": 2.4820830000003298,
+            "p50Ms": 2.4820830000003298,
+            "p95Ms": 2.4820830000003298
+          },
+          "benchmark.source-pipeline.process": {
+            "count": 4009,
+            "totalMs": 2053.558888000017,
+            "p50Ms": 0.49729100000013204,
+            "p95Ms": 0.8228749999998399
+          }
+        }
+      }
+    },
+    {
+      "scenarioType": "scope_density",
+      "families": 50,
+      "childrenPerFamily": 2,
+      "scopesPerChild": 85,
+      "children": 100,
+      "scopes": 8500,
+      "scopeUnits": 8500,
+      "concurrency": 8,
+      "duplicateSignalsPerScope": 2,
+      "duplicateSignalsAccepted": 17000,
+      "transientSourceErrors": 1,
+      "completed": true,
+      "assertions": {
+        "allScopesUpdated": true,
+        "outboxExactlyOnce": true,
+        "outboxDrained": true,
+        "allScopeKindsCovered": true
+      },
+      "durations": {
+        "elapsedMs": 5895.803,
+        "familyGraphMs": 0.9618329999998423,
+        "initialWaveMs": 1235.0992500000002,
+        "updateWaveMs": 1650.619208,
+        "notificationDrainMs": 2992.901500000001,
+        "pipeline": {
+          "count": 17009,
+          "totalMs": 13907.892460999634,
+          "p50Ms": 0.7839999999996508,
+          "p95Ms": 1.398207999999613
+        },
+        "completionSpreadMs": 1635.6400830000002
+      },
+      "memoryBytes": {
+        "initialHeapUsed": 52444304,
+        "initialRss": 184614912,
+        "finalHeapUsed": 82034880,
+        "finalRss": 292749312,
+        "peakHeapUsedObserved": 135882440,
+        "peakRssObserved": 292749312
+      },
+      "firestoreSynthetic": {
+        "queryCalls": 201,
+        "documentsReturned": 350,
+        "sdkOperations": 201,
+        "billedReads": "not_measured"
+      },
+      "source": {
+        "observeCalls": 17009,
+        "updatedScopes": 8500,
+        "retryRecoveredTransientErrors": 1,
+        "cache": {
+          "hits": 0,
+          "misses": 17009,
+          "policy": "source_adapter_does_not_cache_observations"
+        }
+      },
+      "telegramMemoryOutbox": {
+        "events": 8500,
+        "uniqueEventIds": 8500,
+        "duplicateAccepts": 0,
+        "jobs": 8500,
+        "deliveredJobs": 8500,
+        "undeliveredJobs": 0,
+        "operations": {
+          "claim": 8501,
+          "renew": 8500,
+          "savePartReceipt": 8500,
+          "finish": 8500
+        }
+      },
+      "fairness": {
+        "totalScopes": 8500,
+        "updatedScopes": 8500,
+        "coverage": 1,
+        "completionSpreadMs": 1635.6400830000002,
+        "queueCoverageByScopeKind": {
+          "schedule.changed": {
+            "expected": 4200,
+            "accepted": 4200
+          },
+          "homework.changed": {
+            "expected": 4200,
+            "accepted": 4200
+          },
+          "grade.changed": {
+            "expected": 100,
+            "accepted": 100
+          }
+        }
+      },
+      "telemetry": {
+        "spanCount": 17212,
+        "droppedSpans": 7212,
+        "counters": {
+          "firestore.graph.documents.projected": 350,
+          "firestore.graph.query.pages": 201,
+          "telemetry.spans.dropped": 7212
+        },
+        "spans": {
+          "firestore.families": {
+            "count": 1,
+            "totalMs": 0.017374999999901775,
+            "p50Ms": 0.017374999999901775,
+            "p95Ms": 0.017374999999901775
+          },
+          "firestore.family.children": {
+            "count": 50,
+            "totalMs": 0.7342069999999694,
+            "p50Ms": 0.01499999999987267,
+            "p95Ms": 0.01783400000022084
+          },
+          "firestore.family.members": {
+            "count": 50,
+            "totalMs": 0.617585000001327,
+            "p50Ms": 0.012708000000202446,
+            "p95Ms": 0.01445899999998801
+          },
+          "firestore.family.sourceAccounts": {
+            "count": 50,
+            "totalMs": 0.5163779999998042,
+            "p50Ms": 0.010582999999769527,
+            "p95Ms": 0.011958000000049651
+          },
+          "firestore.family.sourceIdentities": {
+            "count": 50,
+            "totalMs": 0.35320699999965655,
+            "p50Ms": 0.0071250000000873115,
+            "p95Ms": 0.00829199999998309
+          },
+          "benchmark.family-graph": {
+            "count": 1,
+            "totalMs": 0.9582920000002559,
+            "p50Ms": 0.9582920000002559,
+            "p95Ms": 0.9582920000002559
+          },
+          "benchmark.coordinator.start": {
+            "count": 1,
+            "totalMs": 13.019999999999982,
+            "p50Ms": 13.019999999999982,
+            "p95Ms": 13.019999999999982
+          },
+          "benchmark.source-pipeline.process": {
+            "count": 9797,
+            "totalMs": 6492.057883999994,
+            "p50Ms": 0.6390410000003612,
+            "p95Ms": 1.168416999999863
+          }
+        }
+      }
+    }
+  ]
+}

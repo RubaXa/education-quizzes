@@ -3,7 +3,7 @@ id: service.operator-cli
 status: accepted
 implementation: partial
 created: 2026-10-16
-updated: 2026-10-16
+updated: 2026-10-17
 consumers:
   - "Education operator"
   - "operator CLI"
@@ -18,6 +18,7 @@ uses:
   - module.assessments
   - module.reviews
   - shared.data.firestore
+  - shared.server-runtime
 sections:
   - почему-нужен-единый-путь
   - data-model
@@ -107,6 +108,8 @@ flowchart TD
 ## Состояние и следующие ограничения
 
 Введены CLI-ядро, типизированный реестр, закрытые квитанции, метрики времени, защита от повторной публикации одного теста/разбора и отдельная проверка `submissions validate`. Старые команды продолжают работать, чтобы не менять живые данные или UI. Это первая совместимая оболочка, а не объявление всей синхронизации автоматической: `project.collect` ещё требует человеческой сверки нового ДЗ и семейного издания; числовой `grades:snapshot` пока обслуживает прежнее локальное рабочее пространство; единого хранилища `EvidenceBundle` и атомарной аренды педагогической проверки нет. Эти пункты нельзя закрывать пустым отчётом или новой карточкой по догадке. Следующий перенос — общий семейно-адресный числовой срез и автоматический рецепт публикации только бесспорных изменений расписания/оценок, после тестов на две семьи и повторный запуск.
+
+Операторский `sync:project` и Telegram runtime теперь используют общий [server runtime](../../shared/server-runtime.md) для Google Firestore/ADC, семейного графа, Mesh credentials/session и телеметрии. `scripts/lib/admin-firebase.mjs` сохраняет совместимый вызов старых семейных CLI. Исторический `.local/diary` допускается только при явном exact-owner подтверждении через `family-access.legacyDayOwner`, actor hash и source registry; другой файл credentials автоматически не подбирается. Межпроцессная lock защищает один физический account между sync и worker на одном macOS/Linux хосте через Python3/fcntl. Эти изменения описывают код и локальные проверки, не deployment или live end-to-end.
 
 
 ## Entrypoints and effects

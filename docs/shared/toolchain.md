@@ -10,7 +10,7 @@ sections:
   - ограничения
 
 created: 2026-10-16
-updated: 2026-10-16
+updated: 2026-10-17
 consumers:
   - "frontend developer"
   - "repository maintainer"
@@ -21,7 +21,7 @@ code:
 
 # Toolchain и конфигурация репозитория
 
-Источник списка зависимостей и команд — `package.json`, зафиксированных версий — `package-lock.json`. Клиент использует React/TypeScript/Vite/Firebase Web SDK; операторские CLI — Node ESM и Firebase Admin; МЭШ изолирован через `mesh-diary`. Для будущего Telegram worker установлены grammY, auto-retry и прямой серверный Firestore SDK, но runtime ещё не создан.
+Источник списка зависимостей и команд — `package.json`, зафиксированных версий — `package-lock.json`. Клиент использует React/TypeScript/Vite/Firebase Web SDK; операторские CLI — Node ESM, общий server runtime и прямой Google Cloud Firestore SDK; Firebase Admin остаётся dev-инструментом совместимости; МЭШ изолирован через `mesh-diary`. Telegram worker использует grammY, auto-retry и тот же server Firestore bootstrap; его live/deployment статус описан в операционном контракте.
 
 ## Действующий запуск
 
@@ -31,4 +31,4 @@ code:
 
 ## Ограничения
 
-Версия Node пока не закреплена через `.nvmrc`/`.node-version`; предыдущая установка на Node 26 дала engine warning для транзитивного dev-инструмента. Этот документ фиксирует пробел и не объявляет новый runtime поддержанным без проверки. Host будущего Telegram worker и его production secret manager остаются открытым решением. Метаданные пакета не доказывают deployment.
+Node закреплён в `.nvmrc` как24.21.0, engines —24.x начиная с этой patch; `nvm install && nvm use` выбирают версию. Выбрана [линейка24 LTS](https://github.com/nodejs/Release#release-schedule), установленная из официального архива с проверкой checksum. Команды checks/bench/deploy выполняются этим Node, installer сохраняет абсолютный process.execPath. Python3/fcntl нужен для общей account lock на macOS/Linux. Прочие хосты требуют отдельного LockPort adapter. Наличие runtime файлов и успешные unit tests не доказывают живой deployment.

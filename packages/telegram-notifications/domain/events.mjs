@@ -5,7 +5,7 @@ export const EVENT_TYPES = Object.freeze([
   'schedule.created', 'schedule.changed', 'schedule.cancelled',
   'homework.assigned', 'homework.changed', 'homework.cancelled',
   'grade.created', 'grade.changed', 'upload.confirmed',
-  'quiz.started', 'quiz.submitted', 'review.changed',
+  'quiz.started', 'quiz.submitted', 'review.changed', 'technical.probe',
 ])
 
 const allowedTypes = new Set(EVENT_TYPES)
@@ -71,6 +71,7 @@ const safeFields = (eventType, fields) => {
     'quiz.started': ['childName', 'subject'],
     'quiz.submitted': ['childName', 'subject'],
     'review.changed': ['childName', 'subject'],
+    'technical.probe': [],
   }
   for (const key of allowedByType[eventType] ?? []) {
     if (typeof fields[key] === 'string' && fields[key].trim()) result[key] = sanitizeField(fields[key]).slice(0, 500)

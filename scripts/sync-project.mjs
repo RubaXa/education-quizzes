@@ -1,15 +1,20 @@
 #!/usr/bin/env node
 /**
  * @see ../docs/modules/synchronization/README.md
+ * @see ../docs/modules/synchronization/global-sync.md#inventory
  * @see ../docs/operations/education-sync.md
+ * @see ../docs/shared/server-runtime.md
  */
-import { createHash, randomUUID } from 'node:crypto'
-import { existsSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
-import { basename, dirname, resolve } from 'node:path'
+import { randomUUID } from 'node:crypto'
+import { existsSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
+import { dirname, resolve } from 'node:path'
 import { performance } from 'node:perf_hooks'
-import { Timestamp } from 'firebase-admin/firestore'
+import { Timestamp } from '@google-cloud/firestore'
 import { operatorFirestore } from './lib/admin-firebase.mjs'
-import { MeshDiaryAdapter } from '../packages/education-connect/lib/mesh.mjs'
+import { createTelemetryFromEnvironment, createRotatingJsonlSink } from '../packages/education-runtime/telemetry.mjs'
+import { createFamilyGraphRepository } from '../packages/education-runtime/family-graph.mjs'
+import { createLegacyMeshCredentialCodec } from '../packages/education-runtime/credentials.mjs'
+import { createMeshSessionService } from '../packages/education-runtime/mesh-session.mjs'
 import { syncDiary } from '../diary/application/sync.mjs'
 import { ensureDataDir, readJson, writeJson } from '../diary/local-store.mjs'
 import { collectedProjectSummary, dateWindow, mapBounded, projectTargets } from '../sync/project-plan.mjs'
@@ -24,10 +29,14 @@ import { reuseRunContext } from '../sync/run-context.mjs'
  * @see ../docs/modules/synchronization/global-sync.md#inventory
  * @see ../docs/modules/synchronization/global-sync.md#status
  */
-const db = operatorFirestore()
 const local = resolve('.local')
+const telemetry = createTelemetryFromEnvironment({ sink: createRotatingJsonlSink(resolve(local, 'operator-runs', 'telemetry.jsonl')) })
+const db = operatorFirestore({ telemetry })
 const connections = resolve(local, 'mesh-connections')
 const runDir = resolve(local, 'project-sync')
+const legacyCodec = createLegacyMeshCredentialCodec({ familyAccessPath: resolve(local, 'family-access.json'),
+  credentialsPath: resolve(local, 'diary', 'secret.json') })
+const meshSessions = createMeshSessionService({ db, connectionsDir: connections, legacyCodec, telemetry })
 const command = process.argv[2] || 'plan'
 if (!['plan', 'collect', 'phase'].includes(command)) throw new Error('Использование: npm run sync:project -- plan | collect | phase --run ID --family ID --child ID --to PHASE')
 
@@ -41,7 +50,7 @@ function newTiming() {
 async function measure(timing, stage, work) {
   const started = performance.now()
   let failed = false
-  try { return await work() }
+  try { return await telemetry.span(`sync.${stage}`, work, { consumer: 'operator' }) }
   catch (error) { failed = true; throw error }
   finally {
     const entry = timing.stages[stage] ?? { calls: 0, elapsedMs: 0, failures: 0 }
@@ -56,85 +65,60 @@ async function measure(timing, stage, work) {
     timing.stages[stage] = entry
   }
 }
-function count(timing, name, amount = 1) { timing.counts[name] = (timing.counts[name] ?? 0) + amount }
+function count(timing, name, amount = 1) {
+  timing.counts[name] = (timing.counts[name] ?? 0) + amount
+  telemetry.count(`sync.${name}`, amount)
+}
 function finishTiming(timing) {
   if (timing.finishedAt) return timing
   timing.finishedAt = new Date().toISOString()
   timing.wallMs = Math.round((performance.now() - timing[timingStart]) * 100) / 100
+  timing.trace = telemetry.snapshot()
   return timing
 }
 
-function json(file) { return JSON.parse(readFileSync(file, 'utf8')) }
-function sourceKey(value) { return createHash('sha256').update(`mesh-parent:${value}`).digest('hex') }
 function moscowToday() {
   return new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'Europe/Moscow' }).format(new Date())
 }
 function safeReason(error) {
   const message = String(error?.message || '')
-  if (/429|RATE_LIMITED/.test(message)) return 'rate-limited'
-  if (/AUTH_REQUIRED|ACCESS_NOT_VERIFIED|401|403/.test(message)) return 'auth-required'
-  if (/INCOMPLETE_DETAIL/.test(message)) return 'incomplete-mesh'
+  if (/429|RATE_LIMITED/.test(message) || error?.code === 'RATE_LIMITED') return 'rate-limited'
+  if (/AUTH_REQUIRED|ACCESS_NOT_VERIFIED|401|403/.test(message)
+    || ['credentials_unavailable', 'credentials_mismatch', 'mesh_access_unverified', 'child_profile_unavailable'].includes(error?.code)) return 'auth-required'
+  if (/INCOMPLETE_DETAIL/.test(message) || error?.code === 'mesh_incomplete') return 'incomplete-mesh'
   return 'source-error'
 }
 async function inventory(timing) {
-  const [familyDocs, accountDocs, identityDocs] = await Promise.all([
-    db.collection('families').get(), db.collection('sourceAccounts').get(), db.collection('sourceIdentities').get(),
-  ])
-  const families = familyDocs.docs.map((doc) => ({ id: doc.id }))
-  const nested = await Promise.all(families.map(async (family) => {
-    const [children, members] = await Promise.all([
-      db.collection(`families/${family.id}/children`).get(), db.collection(`families/${family.id}/members`).get(),
-    ])
-    return {
-      children: children.docs.map((doc) => ({ ...doc.data(), id: doc.id, familyId: family.id })),
-      members: members.docs.map((doc) => ({ ...doc.data(), id: doc.id, familyId: family.id })),
-    }
-  }))
-  count(timing, 'inventoryQueryCalls', 3 + 2 * families.length)
-  count(timing, 'inventoryDocumentsDelivered', familyDocs.size + accountDocs.size + identityDocs.size
-    + nested.reduce((sum, item) => sum + item.children.length + item.members.length, 0))
-  const access = readJson(local, 'family-access.json')
-  const oldSecret = readJson(resolve(local, 'diary'), 'secret.json')
-  const legacy = access?.legacyDayOwner && oldSecret?.actorPersonId
-    ? { ...access.legacyDayOwner, accountId: sourceKey(oldSecret.actorPersonId) } : null
-  const localAccounts = existsSync(connections) ? readdirSync(connections).filter((name) => /^[a-f0-9]{64}\.json$/.test(name)).map((name) => name.slice(0, -5)) : []
-  const targets = projectTargets({ families,
-    children: nested.flatMap((item) => item.children),
-    members: nested.flatMap((item) => item.members),
-    accounts: accountDocs.docs.map((doc) => ({ ...doc.data(), id: doc.id })),
-    identities: identityDocs.docs.map((doc) => ({ ...doc.data(), id: doc.id })), localAccounts, legacy })
-  return { families, accounts: accountDocs.size, targets }
+  const graph = await measure(timing, 'familyGraph', () => createFamilyGraphRepository(db, { telemetry }).enumerate({
+    includeInactiveFamilies: false, includeInactiveChildren: false }))
+  const globalFailures = graph.failures.filter((failure) => !failure.familyId)
+  if (globalFailures.length) throw new Error(`FAMILY_GRAPH_INCOMPLETE: ${globalFailures.map((failure) => failure.code).join(',')}`)
+  const failedFamilies = new Set(graph.failures.map((failure) => failure.familyId).filter(Boolean))
+  const families = graph.families.filter((family) => !failedFamilies.has(family.id))
+  count(timing, 'inventoryDocumentsDelivered', graph.families.length + graph.children.length + graph.members.length
+    + graph.accounts.length + graph.identities.length)
+  const legacy = legacyCodec.describeOwner()
+  const localAccounts = existsSync(connections) ? readdirSync(connections).filter((name) => /^[a-f0-9]{64}\.json$/.test(name))
+    .map((name) => name.slice(0, -5)).filter((accountId) => meshSessions.credentials.hasCanonical(accountId)) : []
+  const targets = projectTargets({ families, children: graph.children.filter((child) => !failedFamilies.has(child.familyId)),
+    members: graph.members.filter((member) => !failedFamilies.has(member.familyId)),
+    accounts: graph.accounts.filter((account) => !failedFamilies.has(account.familyId)),
+    identities: graph.identities.filter((identity) => !failedFamilies.has(identity.familyId)), localAccounts, legacy })
+  return { families, accounts: graph.accounts.filter((account) => !failedFamilies.has(account.familyId)).length, targets,
+    inventoryFailures: graph.failures.map(({ familyId, source, code }) => ({ ...(familyId ? { familyId } : {}), ...(source ? { source } : {}), code })) }
 }
 function publicSummary(data) {
   const reasons = {}
   for (const item of data.targets.filter((target) => target.state === 'blocked')) reasons[item.reason] = (reasons[item.reason] || 0) + 1
   return { families: data.families.length, children: data.targets.length, sourceAccounts: data.accounts,
-    queued: data.targets.filter((target) => target.state === 'queued').length, blocked: reasons }
+    queued: data.targets.filter((target) => target.state === 'queued').length, blocked: reasons,
+    inventoryFailures: data.inventoryFailures.length }
 }
 function statusRef(target) {
   return db.doc(`families/${target.familyId}/children/${target.childId}/syncStatus/current`)
 }
 async function status(target, runId, phase, extra = {}) {
   await statusRef(target).set({ runId, phase, updatedAt: Timestamp.now(), ...extra }, { merge: true })
-}
-function credentialRecord(accountId, kind) {
-  if (kind === 'legacy') {
-    const file = resolve(local, 'diary', 'secret.json')
-    const state = { file, credentials: json(file), save: (updated) => {
-      state.credentials = { ...state.credentials, token: updated.token, refreshToken: updated.refreshToken }
-      writeJson(dirname(file), basename(file), state.credentials)
-    } }
-    return state
-  }
-  const file = resolve(connections, `${accountId}.json`)
-  const record = json(file)
-  if (sourceKey(record.credentials?.actorPersonId) !== accountId) throw new Error('Локальные полномочия не совпали с источником.')
-  const state = { file, credentials: record.credentials, save: (updated) => {
-    state.credentials = { ...state.credentials, token: updated.token, refreshToken: updated.refreshToken }
-    record.credentials = state.credentials
-    writeJson(dirname(file), basename(file), record)
-  } }
-  return state
 }
 async function auditPublishedDays(dir, dates, asOf, timing) {
   const workspace = dirname(dir)
@@ -194,21 +178,15 @@ async function publishCalendarChecks(target, candidates, timing) {
   return new Set(owned.flatMap(({ snapshot, days }) => days.filter((day, index) =>
     day.checkedAt !== snapshot.data().days[index]?.checkedAt).map((day) => day.date))).size
 }
-async function collectChild(target, context, runId, today, timing) {
+async function collectChild(target, adapter, runId, today, timing) {
   const dates = dateWindow(today)
   count(timing, 'datesPlanned', dates.length)
   await measure(timing, 'statusWrite', () => status(target, runId, 'fetching', { checkedDates: 0, currentDate: null, totalDates: dates.length, reason: null }))
-  const profile = context.profiles.find((item) => String(item.person_id) === target.sourcePersonId)
-  if (!profile) throw new Error('ACCESS_NOT_VERIFIED: ребёнок отсутствует у подключённого взрослого.')
-  const secret = { ...context.credentials, personId: String(profile.person_id),
-    profileId: String(profile.id), studentId: String(profile.id) }
-  const adapter = new MeshDiaryAdapter(secret, context.save)
-  await measure(timing, 'verifyAccess', () => adapter.verifyAccess())
   for (const method of ['getProfile', 'getMarks', 'getSchedule', 'getAssignments', 'getLessonDetails']) {
     const original = adapter[method].bind(adapter)
     adapter[method] = (...args) => measure(timing, method, () => original(...args))
   }
-  reuseRunContext(adapter, (method) => count(timing, `${method}Reused`))
+  reuseRunContext(adapter, (method) => count(timing, `${method}Reused`), telemetry)
   const dir = target.credentialKind === 'legacy' ? resolve(local, 'diary')
     : resolve(runDir, 'sources', target.familyId, target.childId, 'diary')
   if (target.credentialKind !== 'legacy') writeJson(dirname(dir), 'context.json', {
@@ -285,16 +263,16 @@ async function collectChild(target, context, runId, today, timing) {
 async function collectAccount(accountId, targets, runId, today) {
   const timing = newTiming()
   try {
-    const record = await measure(timing, 'credentialLoad', () => credentialRecord(accountId, targets[0].credentialKind))
-    const initial = new MeshDiaryAdapter(record.credentials, record.save)
-    const profiles = await measure(timing, 'profileListing', () => initial.api.getStudentProfiles(record.credentials.actorPersonId))
-    if (!Array.isArray(profiles)) throw new Error('ACCESS_NOT_VERIFIED: список детей МЭШ не получен.')
-    const context = { get credentials() { return record.credentials }, profiles, save: record.save }
     const results = []
     for (const target of targets) {
       const childTiming = newTiming()
       try {
-        const result = await measure(timing, 'childCollection', () => collectChild(target, context, runId, today, childTiming))
+        const scope = { source: 'mesh', familyId: target.familyId, childId: target.childId,
+          sourceAccountId: accountId, sourcePersonId: target.sourcePersonId }
+        const legacyOwner = target.credentialKind === 'legacy'
+          ? { kind: 'legacy', familyId: target.familyId, childId: target.childId, accountId } : null
+        const result = await measure(timing, 'childCollection', () => meshSessions.withChildAdapter(scope,
+          (adapter) => collectChild(target, adapter, runId, today, childTiming), { legacyOwner }))
         results.push({ target, result: { ...result, timing: finishTiming(childTiming) } })
         if (result.reason === 'rate-limited' || result.reason === 'auth-required') {
           for (const remaining of targets.slice(results.length)) {

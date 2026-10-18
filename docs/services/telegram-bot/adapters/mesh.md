@@ -3,7 +3,7 @@ id: service.telegram-bot.mesh
 status: accepted
 implementation: partial
 created: 2026-10-16
-updated: 2026-10-17
+updated: 2026-10-18
 consumers:
   - "Telegram service implementer"
   - "bot operator"
@@ -12,7 +12,8 @@ code:
   - packages/telegram-notifications/adapters/source-mesh.mjs
   - packages/telegram-notifications/adapters/mesh-credentials.mjs
 parent: service.telegram-bot
-uses: []
+uses:
+  - shared.server-runtime
 sections:
   - ответственность-и-режим
   - контракт-снимка
@@ -23,7 +24,7 @@ sections:
 # Адаптер источника МЭШ
 
 **Родитель:** [корневая архитектура](../README.md); [порты и события](../ports-and-events.md); [порт дневника](../../../modules/school-diary/README.md).
-**Статус:** adapter поверх существующего MeshDiaryAdapter реализован и подключается opt-in к динамическому inventory; круглосуточный deployment и реальные API limits не подтверждены.
+**Статус:** adapter поверх общего MeshDiaryAdapter реализован, подключён к динамическому inventory и установлен на согласованном Mac. Работа зависит от доступности Mac; реальные API limits не подтверждены. Проверка и исправление календарной классификации описаны в [решении](../../../decisions/mesh-calendar-date-scopes-2026-10-18.md).
 
 ## Ответственность и режим
 
@@ -41,6 +42,14 @@ sections:
 - Исчезновение записи становится событием только если контрактом доказана полнота области и источником подтверждён её статус; иначе открыть reconciliation signal.
 - При первом успешном полном снимке записать baseline без исторической рассылки.
 
+### Календарные события и дневная область уроков
+
+`getSchedule(date)` читает календарный endpoint МЭШ, который возвращает также события, пересекающие запрошенный день. Дата начала многодневного события не обязана совпадать с `date`. Общий `isCalendarOnlyEvent` в education-connect используется и сбором подробностей ДЗ, и Telegram projection: подтверждённый `source=OLYMPIAD`, отсутствие признаков предмета/ДЗ/типа урока, валидный интервал с концом позже начала и пересечение московского дня `[00:00+03:00, следующие 00:00+03:00)`. Сравниваются моменты времени, включая offset; окончание ровно в полночь следующего дня не означает пересечения этого следующего дня.
+
+Исходный календарный ответ и снимки sync сохраняют такое событие. В scope `schedule` уведомлений находятся уроки: подтверждённые calendar-only записи исключаются с явным `excludedCalendarEvents`, не превращаются в безымянный «Урок» и не создают `schedule.*`. Счётчик не входит в content revision. Отдельное семейство календарных уведомлений пока не реализовано; для него потребуется собственная идентичность и дедупликация между днями.
+
+Неизвестный source, неполный `PLAN`, `OLYMPIAD` с признаками урока/ДЗ, невалидный интервал или отсутствие пересечения не дают права на исключение. Для настоящего урока сохраняется строгая проверка даты начала; несовпадение делает снимок partial и сохраняет предыдущую baseline. Исправление не выводит отмену из исчезновения прежней ошибочной calendar-проекции: действующий diff не считает отсутствие записи доказанной отменой. Повторное чтение и перестановка уроков не создают изменения.
+
 ## Начальный event mapping
 
 | Семейство данных | Возможные event types | Значимое изменение | Ограничение |
@@ -53,9 +62,9 @@ sections:
 
 ### Автоматическая семейная адресация
 
-Семьи, дети и источники обнаруживаются динамически из Education registry, без ручного allowlist. `sourceAccounts.personId` — внутренний ID взрослого Education, а `sourceAccounts.sourcePersonId` — actor ID МЭШ. Проверяются активный parent membership, точный childId, child.meshPersonId и `sourceIdentities` с той же парой. Локальные полномочия `.local/mesh-connections/{accountId}.json` должны соответствовать хэшу actor ID; отсутствующие credentials отображаются как блокировка источника этой семьи, а не исключение ребёнка из охвата. Общая legacy `.local/diary` не выбирается автоматически.
+Семьи, дети и источники обнаруживаются динамически из Education registry, без ручного allowlist. `sourceAccounts.personId` — внутренний ID взрослого Education, а `sourceAccounts.sourcePersonId` — actor ID МЭШ. Проверяются активный parent membership, точный childId, child.meshPersonId и `sourceIdentities` с той же парой. Локальные полномочия `.local/mesh-connections/{accountId}.json` должны соответствовать хэшу actor ID; отсутствующие credentials отображаются как блокировка источника этой семьи, а не исключение ребёнка из охвата. Legacy `.local/diary` допустим только через общий codec с точным подтверждением исторического owner/actor в текущем registry; произвольного fallback между семьями нет.
 
-Для каждого ребёнка создаётся отдельный MeshDiaryAdapter, профиль выбирается по подтверждённому sourcePersonId и проходит verifyAccess. Один родительский account может обслуживать нескольких детей; обновление token/refreshToken сохраняется адресно/атомарно с правами0600, не перезаписывая child profile IDs в общей записи. Внутри одного процесса работа одного account сериализуется (межпроцессная credential lease ещё отсутствует), другие семьи могут обрабатываться параллельно в ограниченной очереди.
+Для каждого ребёнка создаётся отдельный MeshDiaryAdapter, профиль выбирается по подтверждённому sourcePersonId и проходит verifyAccess. Один родительский account может обслуживать нескольких детей; обновление token/refreshToken сохраняется адресно/атомарно с правами0600, не перезаписывая child profile IDs в общей записи. Общий Mesh session service сериализует account между процессами sync и worker через kernel advisory lock Python3/fcntl на одном хосте; inode не удаляется по mtime/PID. Потеря lock запрещает сохранение refresh. Другие семьи могут обрабатываться параллельно. Контракт credentials/lock принадлежит [серверному ядру](../../../shared/server-runtime.md#авторизация-и-совместимость).
 
 Grade discovery получает subject_id/start из полного getMarks, без предположений о датах четвертей. Безопасная проекция результатов разделяется между observers через60-секундный cache/in-flight dedup; raw marks в checkpoint не попадают. Новый date/period scope всегда начинает тихий baseline. Из нескольких подходящих взрослых аккаунтов выбирается один детерминированный source account на ребёнка, исключая дубли одной школьной записи.
 

@@ -35,7 +35,7 @@ function validSnapshot(snapshot) {
   if (!snapshot || snapshot.complete !== true || !Array.isArray(snapshot.records) || !Number.isSafeInteger(snapshot.observationSequence) || snapshot.observationSequence < 0) return false
   const seen = new Set()
   for (const record of snapshot.records) {
-    if (!record || typeof record.recordKey !== 'string' || !record.recordKey.trim() || !['grade', 'schedule', 'assignment', 'upload', 'quiz', 'review'].includes(record.kind)) return false
+    if (!record || typeof record.recordKey !== 'string' || !record.recordKey.trim() || !['grade', 'schedule', 'assignment', 'upload', 'quiz', 'review', 'probe'].includes(record.kind)) return false
     if (record.eventType && !EVENT_TYPE_SET.has(record.eventType)) return false
     if (record.semanticHash !== undefined && (typeof record.semanticHash !== 'string' || !/^[a-f0-9]{64}$/.test(record.semanticHash))) return false
     if (record.fields !== undefined && (!record.fields || typeof record.fields !== 'object' || Array.isArray(record.fields))) return false

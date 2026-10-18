@@ -60,7 +60,7 @@ Education помогает семье видеть учебный день, по
 | [Web app](../services/web-app/README.md) | Клиентская оболочка Education; implementation не означает production deployment. |
 | [Operator CLI](../services/operator-cli/README.md) | Повторяемые локальные операции и контролируемая публикация. |
 | [Upload worker](../services/upload-worker/README.md) | Выдача адресов и техническое подтверждение файлов. |
-| [Telegram bot](../services/telegram-bot/README.md) | Целевой сервис уведомлений; см. его точный статус в спецификации. |
+| [Telegram bot](../services/telegram-bot/README.md) | Частично реализованный сервис уведомлений; source/runtime/linking и подтверждения эксплуатации см. в его спецификации. |
 | [Общие данные](../shared/data/README.md) | Firestore и ревизии. |
 | [Дизайн и компоненты](../shared/design/README.md) | Общие UI контракты и компоненты. |
 

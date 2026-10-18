@@ -65,7 +65,7 @@ describe('Firestore source inventory', () => {
     const inventory = await createFirestoreSourceInventory(fakeDb({ families: [d('fam-a')], 'families/fam-a/members': [],
       'families/fam-a/children': [], sourceAccounts: [] }, 'families/fam-a/children')).enumerate()
     expect(inventory.complete).toBe(false)
-    expect(inventory.failures).toEqual([{ code: 'unavailable' }])
+    expect(inventory.failures).toEqual([{ familyId: 'fam-a', source: 'firestore', code: 'unavailable' }])
   })
 
   it('continues to later families when one scoped family inventory fails', async () => {
@@ -97,6 +97,33 @@ describe('Firestore source inventory', () => {
     expect(inventory.complete).toBe(true)
     expect(inventory.sourceAccounts).toHaveLength(1)
     expect(inventory.scopes).toEqual([])
+  })
+
+  it('reports Mesh coverage from exact child identity and eligible parent-account ownership', async () => {
+    const actor = 'actor-ready'
+    const account = accountId(actor)
+    const identityId = createHash('sha256').update('mesh-child:mesh-ready').digest('hex')
+    const rows = {
+      families: [d('fam-a')],
+      'families/fam-a/members': [d('parent-a', { role: 'parent', active: true, childIds: ['kid-ready'] })],
+      'families/fam-a/children': [d('kid-none'), d('kid-unregistered', { meshPersonId: 'mesh-unregistered' }),
+        d('kid-owner', { meshPersonId: 'mesh-owner' }), d('kid-ready', { meshPersonId: 'mesh-ready' })],
+      sourceAccounts: [d(account, { source: 'mesh', familyId: 'fam-a', personId: 'parent-a', sourcePersonId: actor })],
+      sourceIdentities: [d(createHash('sha256').update('mesh-child:mesh-owner').digest('hex'),
+        { source: 'mesh', familyId: 'fam-a', childId: 'kid-owner', sourcePersonId: 'mesh-owner' }),
+      d(identityId, { source: 'mesh', familyId: 'fam-a', childId: 'kid-ready', sourcePersonId: 'mesh-ready' })],
+    }
+    const inventory = await createFirestoreSourceInventory(fakeDb(rows), { includeFirestore: false, includeMesh: true,
+      now: () => new Date('2026-10-17T03:00:00.000Z'), meshSource: { discoverGradeScopes: async (scope) => [{ ...scope, subjectId: 'math', periodKey: '2026-09-01' }] } }).enumerate()
+    expect(inventory.registeredChildren.map(({ childId, meshStatus, hasMeshIdentity, hasMeshAccount }) =>
+      ({ childId, meshStatus, hasMeshIdentity, hasMeshAccount }))).toEqual([
+      { childId: 'kid-none', meshStatus: 'not-linked', hasMeshIdentity: false, hasMeshAccount: false },
+      { childId: 'kid-owner', meshStatus: 'owner-unavailable', hasMeshIdentity: true, hasMeshAccount: false },
+      { childId: 'kid-ready', meshStatus: 'eligible', hasMeshIdentity: true, hasMeshAccount: true },
+      { childId: 'kid-unregistered', meshStatus: 'identity-unregistered', hasMeshIdentity: true, hasMeshAccount: false },
+    ])
+    expect(inventory.scopes.filter(({ scope }) => scope.kind === 'grades')).toHaveLength(1)
+    expect(inventory.scopes.filter(({ scope }) => scope.kind === 'grades')[0].scope.childId).toBe('kid-ready')
   })
 
   it('discovers every date and stable grades scope for each verified child/account pair', async () => {

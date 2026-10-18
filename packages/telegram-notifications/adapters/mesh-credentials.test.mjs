@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 import { createMeshCredentialResolver } from './mesh-credentials.mjs'
+import { createLegacyMeshCredentialCodec } from '../../education-runtime/credentials.mjs'
 
 /** @see ../../../docs/services/telegram-bot/adapters/mesh.md#автоматическая-семейная-адресация */
 
@@ -15,7 +16,8 @@ const identityId = hash(`mesh-child:${sourcePersonId}`)
 let roots = []
 afterEach(() => { for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true }) })
 
-function fixture({ failWrite = false, verifyDelay = 0, track = null, noRefreshToken = false, refreshOnProfileLookup = false } = {}) {
+function fixture({ failWrite = false, verifyDelay = 0, track = null, noRefreshToken = false, refreshOnProfileLookup = false,
+  canonicalCredentials = true, legacyOwner = false } = {}) {
   const root = mkdtempSync(join(tmpdir(), 'mesh-resolver-test-'))
   roots.push(root)
   const connectionsDir = join(root, 'mesh-connections')
@@ -24,7 +26,7 @@ function fixture({ failWrite = false, verifyDelay = 0, track = null, noRefreshTo
   if (!noRefreshToken) credentials.refreshToken = 'refresh'
   const record = { schemaVersion: 1, source: 'mesh', keep: 'wrapper', credentials }
   const file = join(connectionsDir, `${accountId}.json`)
-  writeFileSync(file, JSON.stringify(record), { mode: 0o600 })
+  if (canonicalCredentials) writeFileSync(file, JSON.stringify(record), { mode: 0o600 })
   const values = new Map([
     ['families/f1', {}],
     ['families/f1/children/c1', { meshPersonId: sourcePersonId }],
@@ -32,7 +34,14 @@ function fixture({ failWrite = false, verifyDelay = 0, track = null, noRefreshTo
     ['sourceIdentities/' + identityId, { source: 'mesh', sourcePersonId, familyId: 'f1', childId: 'c1' }],
     ['families/f1/members/parent-internal', { active: true, role: 'parent', childIds: ['c1'] }],
   ])
-  const db = { doc(path) { return { id: path.split('/').at(-1), async get() { const value = values.get(path); return { id: this.id, exists: value !== undefined, data: () => value } } } } }
+  const db = {
+    doc(path) { return { id: path.split('/').at(-1), async get() { const value = values.get(path); return { id: this.id, exists: value !== undefined, data: () => value } } } },
+    collection(name) { return { where(field, operator, expected) { return { async get() {
+      const docs = [...values.entries()].filter(([path, value]) => path.startsWith(`${name}/`) && operator === '==' && value?.[field] === expected)
+        .map(([path, value]) => ({ id: path.slice(name.length + 1), data: () => value }))
+      return { docs }
+    } } } } },
+  }
   const fs = {
     readFileSync,
     writeFileSync(...args) { if (failWrite) throw new Error('disk fail'); return writeFileSync(...args) },
@@ -55,7 +64,14 @@ function fixture({ failWrite = false, verifyDelay = 0, track = null, noRefreshTo
       if (track) track.active -= 1
     },
   })
-  const resolver = createMeshCredentialResolver({ db, connectionsDir, fs, adapterFactory })
+  let legacyCodec = null
+  if (legacyOwner) {
+    const accessPath = join(root, 'family-access.json'), secretPath = join(root, 'secret.json')
+    writeFileSync(accessPath, JSON.stringify({ legacyDayOwner: { familyId: legacyOwner.familyId ?? 'f1', childId: legacyOwner.childId ?? 'c1' } }))
+    writeFileSync(secretPath, JSON.stringify({ actorPersonId: actor, token: 'old' }))
+    legacyCodec = createLegacyMeshCredentialCodec({ familyAccessPath: accessPath, credentialsPath: secretPath, fs })
+  }
+  const resolver = createMeshCredentialResolver({ db, connectionsDir, fs, adapterFactory, legacyCodec })
   return { resolver, file, values, connectionsDir }
 }
 
@@ -65,6 +81,32 @@ describe('Mesh credential scope resolver', () => {
     const { resolver } = fixture()
     expect(await resolver.validateScope(scope)).toBe(true)
     expect(await resolver.validateScope({ ...scope, familyId: 'wrong' })).toBe(false)
+  })
+
+  it('resolves a pairing owner only from an active local account document and its exact parent member', async () => {
+    const { resolver, values } = fixture()
+    await expect(resolver.resolveLocalSourceOwner({ familyId: 'f1', personId: 'parent-internal' }))
+      .resolves.toEqual({ familyId: 'f1', personId: 'parent-internal', sourceAccountId: accountId })
+    values.set('families/f1/members/parent-internal', { active: false, role: 'parent' })
+    await expect(resolver.resolveLocalSourceOwner({ familyId: 'f1', personId: 'parent-internal' })).resolves.toBeNull()
+    values.set('families/f1/members/parent-internal', { active: true, role: 'parent' })
+    values.set(`sourceAccounts/${accountId}`, { source: 'mesh', sourcePersonId: actor, familyId: 'f1', personId: 'another-parent' })
+    await expect(resolver.resolveLocalSourceOwner({ familyId: 'f1', personId: 'parent-internal' })).resolves.toBeNull()
+  })
+
+  it('accepts an explicitly registered legacy owner only when canonical credentials are absent', async () => {
+    const { resolver, values } = fixture({ canonicalCredentials: false, legacyOwner: true })
+    await expect(resolver.resolveLocalSourceOwner({ familyId: 'f1', personId: 'parent-internal' }))
+      .resolves.toEqual({ familyId: 'f1', personId: 'parent-internal', sourceAccountId: accountId })
+    await expect(resolver.withChildAdapter(scope, async () => 'legacy-ok')).resolves.toBe('legacy-ok')
+    values.set('families/f1/members/parent-internal', { active: false, role: 'parent', childIds: ['c1'] })
+    await expect(resolver.resolveLocalSourceOwner({ familyId: 'f1', personId: 'parent-internal' })).resolves.toBeNull()
+  })
+
+  it('does not fall back to legacy credentials when a canonical credential file is malformed or rebound', async () => {
+    const { resolver, file } = fixture({ canonicalCredentials: false, legacyOwner: true })
+    writeFileSync(file, JSON.stringify({ credentials: { actorPersonId: 'different-actor', token: 'wrong' } }))
+    await expect(resolver.resolveLocalSourceOwner({ familyId: 'f1', personId: 'parent-internal' })).resolves.toBeNull()
   })
 
   it('uses shared account credentials only to create a fresh child adapter and persists tokens without child profile overwrite', async () => {

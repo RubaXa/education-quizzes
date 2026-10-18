@@ -31,7 +31,7 @@ describe('полнота снимка МЭШ', () => {
       return detail
     })
     mesh.getSchedule = async () => [
-      { id: 17, start_at: '2026-10-15T08:00:00Z', source: 'OLYMPIAD' },
+      { id: 17, start_at: '2026-10-15T08:00:00Z', finish_at: '2026-10-15T09:00:00Z', source: 'OLYMPIAD' },
       lesson,
     ]
     const assignments = await mesh.getAssignments('2026-10-15')

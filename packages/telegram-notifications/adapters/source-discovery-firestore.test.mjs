@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { createFirestoreSourceDiscoveryStore } from './source-discovery-firestore.mjs'
 
 function storeDb() {
@@ -129,5 +129,144 @@ describe('Firestore source discovery manifest', () => {
     await Promise.all([one.confirm(first), two.confirm(second)])
     const restarted = await createFirestoreSourceDiscoveryStore(db).prepare(input)
     expect(restarted.scopes[0].origin).toBe('bootstrap')
+  })
+
+  it('confirms a large scope inventory with bounded concurrency and covers every scope', async () => {
+    const data = new Map()
+    let active = 0, maxActive = 0, started = 0, release
+    const gate = new Promise((resolve) => { release = resolve })
+    const db = {
+      doc(path) { return { path, get: async () => ({ exists: data.has(path), data: () => data.get(path), ref: { path } }) } },
+      async runTransaction(callback) {
+        active++; started++; maxActive = Math.max(maxActive, active)
+        try {
+          await gate
+          const writes = []
+          const tx = {
+            get: async (ref) => ({ exists: data.has(ref.path), data: () => data.get(ref.path) }),
+            create: (ref, value) => writes.push([ref.path, value]),
+          }
+          const result = await callback(tx)
+          for (const [path, value] of writes) if (!data.has(path)) data.set(path, value)
+          return result
+        } finally { active-- }
+      },
+    }
+    const scopes = Array.from({ length: 1_000 }, (_, index) => ({ source: 'firestore',
+      scope: { familyId: 'fam-a', childId: 'kid-a', kind: 'quiz', quizToken: `quiz-${index}` }, origin: 'bootstrap' }))
+    const store = createFirestoreSourceDiscoveryStore(db)
+    const prepared = await store.prepare({ complete: true, families: [{ familyId: 'fam-a' }], scopes })
+    const confirming = store.confirm(prepared)
+    await vi.waitFor(() => expect(started).toBe(8))
+    expect(maxActive).toBe(8)
+    release()
+    const confirmed = await confirming
+    expect(confirmed.scopes).toHaveLength(1_000)
+    expect(confirmed.scopes.every(({ origin }) => origin === 'bootstrap')).toBe(true)
+    expect(started).toBe(1_001) // 1,000 scope origins, then one context completion marker.
+    expect([...data.values()].filter((item) => item.kind === 'scope')).toHaveLength(1_000)
+    expect([...data.values()].filter((item) => item.kind === 'context')).toHaveLength(1)
+  })
+
+  it('stops launching confirms on abort, leaves context incomplete, and reuses durable origins on restart', async () => {
+    const data = new Map()
+    let started = 0, release
+    const gate = new Promise((resolve) => { release = resolve })
+    const db = {
+      doc(path) { return { path, get: async () => ({ exists: data.has(path), data: () => data.get(path), ref: { path } }) } },
+      async runTransaction(callback) {
+        started++
+        if (started > 1) await gate
+        const writes = []
+        const tx = {
+          get: async (ref) => ({ exists: data.has(ref.path), data: () => data.get(ref.path) }),
+          create: (ref, value) => writes.push([ref.path, value]),
+        }
+        const result = await callback(tx)
+        for (const [path, value] of writes) if (!data.has(path)) data.set(path, value)
+        return result
+      },
+    }
+    const sourceInventory = { complete: true, families: [{ familyId: 'fam-a' }], scopes: Array.from({ length: 6 }, (_, index) => ({
+      source: 'firestore', scope: { familyId: 'fam-a', childId: 'kid-a', kind: 'quiz', quizToken: `quiz-${index}` }, origin: 'bootstrap',
+    })) }
+    const store = createFirestoreSourceDiscoveryStore(db, { confirmConcurrency: 2 })
+    const prepared = await store.prepare(sourceInventory)
+    const controller = new AbortController()
+    const confirming = store.confirm(prepared, { signal: controller.signal })
+    await vi.waitFor(() => expect(started).toBe(3))
+    controller.abort()
+    release()
+    await expect(confirming).rejects.toMatchObject({ code: 'source_discovery_aborted' })
+    expect(started).toBe(3)
+    expect([...data.values()].filter((item) => item.kind === 'context')).toHaveLength(0)
+    expect([...data.values()].filter((item) => item.kind === 'scope')).toHaveLength(1)
+
+    const restarted = await createFirestoreSourceDiscoveryStore(db, { confirmConcurrency: 2 }).prepare(sourceInventory)
+    expect(restarted.scopes.map((item) => item.origin)).toEqual(Array(6).fill('bootstrap'))
+    await createFirestoreSourceDiscoveryStore(db, { confirmConcurrency: 2 }).confirm(restarted)
+    expect([...data.values()].filter((item) => item.kind === 'scope')).toHaveLength(6)
+    expect([...data.values()].filter((item) => item.kind === 'context')).toHaveLength(1)
+  })
+
+  it('aborts a paginated preparation after the current bounded read batch settles', async () => {
+    let gets = 0, release
+    const gate = new Promise((resolve) => { release = resolve })
+    const db = { doc(path) { return { path, get: async () => {
+      gets++
+      await gate
+      return { exists: false, data: () => undefined, ref: { path } }
+    } } } }
+    const controller = new AbortController()
+    const scopes = Array.from({ length: 450 }, (_, index) => ({ source: 'firestore',
+      scope: { familyId: 'fam-a', childId: 'kid-a', kind: 'quiz', quizToken: `quiz-${index}` }, origin: 'bootstrap' }))
+    const preparing = createFirestoreSourceDiscoveryStore(db).prepare({ complete: true,
+      families: [{ familyId: 'fam-a' }], scopes }, { signal: controller.signal })
+    await vi.waitFor(() => expect(gets).toBe(200))
+    controller.abort()
+    release()
+    await expect(preparing).rejects.toMatchObject({ code: 'source_discovery_aborted' })
+    expect(gets).toBe(200)
+  })
+
+  it('stops context completion on abort after all scope origins are durable', async () => {
+    const data = new Map()
+    let contextReads = 0, releaseSecondContext
+    const secondContext = new Promise((resolve) => { releaseSecondContext = resolve })
+    const db = {
+      doc(path) { return { path, get: async () => ({ exists: data.has(path), data: () => data.get(path), ref: { path } }) } },
+      async runTransaction(callback) {
+        const writes = []
+        const tx = {
+          get: async (ref) => {
+            if (ref.path.includes('_context_') && ++contextReads === 2) await secondContext
+            return { exists: data.has(ref.path), data: () => data.get(ref.path) }
+          },
+          create: (ref, value) => writes.push([ref.path, value]),
+        }
+        const result = await callback(tx)
+        for (const [path, value] of writes) if (!data.has(path)) data.set(path, value)
+        return result
+      },
+    }
+    const sourceInventory = { complete: true, families: [{ familyId: 'fam-a' }], scopes: Array.from({ length: 3 }, (_, index) => ({
+      source: 'firestore', scope: { familyId: 'fam-a', childId: `kid-${index}`, kind: 'quiz', quizToken: `quiz-${index}` }, origin: 'bootstrap',
+    })) }
+    const store = createFirestoreSourceDiscoveryStore(db)
+    const prepared = await store.prepare(sourceInventory)
+    const controller = new AbortController()
+    const confirming = store.confirm(prepared, { signal: controller.signal })
+    await vi.waitFor(() => expect(contextReads).toBe(2))
+    controller.abort()
+    releaseSecondContext()
+    await expect(confirming).rejects.toMatchObject({ code: 'source_discovery_aborted' })
+    expect(contextReads).toBe(2)
+    expect([...data.values()].filter((item) => item.kind === 'scope')).toHaveLength(3)
+    expect([...data.values()].filter((item) => item.kind === 'context')).toHaveLength(1)
+
+    const resumed = await createFirestoreSourceDiscoveryStore(db).prepare(sourceInventory)
+    expect(resumed.scopes.map((item) => item.origin)).toEqual(Array(3).fill('bootstrap'))
+    await createFirestoreSourceDiscoveryStore(db).confirm(resumed)
+    expect([...data.values()].filter((item) => item.kind === 'context')).toHaveLength(3)
   })
 })

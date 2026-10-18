@@ -1,3 +1,5 @@
+import { eligibleMeshAccounts, isRegisteredMeshChild, meshParentAccountId } from '../packages/education-runtime/identity.mjs'
+
 /** Pure inventory and scheduling rules for one global Education run.
  * @see ../docs/modules/synchronization/global-sync.md#inventory
  * @see ../docs/modules/synchronization/global-sync.md#dag
@@ -5,31 +7,35 @@
 const idPattern = /^[A-Za-z0-9_-]{1,120}$/
 
 export function projectTargets({ families, children, accounts, identities, members, localAccounts, legacy }) {
-  const familyIds = new Set(families.map((item) => item.id))
+  const familyById = new Map(families.filter((item) => item.active !== false).map((item) => [item.id, item]))
+  const familyIds = new Set(familyById.keys())
   const identityByChild = new Map()
   for (const identity of identities) {
-    if (!familyIds.has(identity.familyId) || !idPattern.test(identity.childId ?? '')) continue
+    if (!familyIds.has(identity.familyId) || !idPattern.test(identity.childId ?? '') || identity.source !== 'mesh') continue
     const key = `${identity.familyId}/${identity.childId}`
     if (identityByChild.has(key)) throw new Error(`У ребёнка ${key} несколько исходных идентичностей МЭШ.`)
     identityByChild.set(key, identity)
   }
-  const memberByKey = new Map(members.map((item) => [`${item.familyId}/${item.id}`, item]))
   const local = new Set(localAccounts)
   const targets = []
   for (const child of children) {
-    if (!familyIds.has(child.familyId) || !idPattern.test(child.familyId) || !idPattern.test(child.id)) throw new Error('Недействительная семейная связь ребёнка.')
+    if (!familyIds.has(child.familyId) || !idPattern.test(child.familyId) || !idPattern.test(child.id)) continue
+    if (child.active === false) continue
     const key = `${child.familyId}/${child.id}`
     const identity = identityByChild.get(key)
-    if (!identity?.sourcePersonId) {
+    const family = familyById.get(child.familyId)
+    if (!identity?.sourcePersonId || !isRegisteredMeshChild({ familyId: child.familyId, childId: child.id, family, child, identity })) {
       targets.push({ familyId: child.familyId, childId: child.id, state: 'blocked', reason: 'source-identity-required' })
       continue
     }
-    const candidates = accounts.filter((account) => account.familyId === child.familyId && account.source === 'mesh' && !account.disconnectedAt)
-      .filter((account) => {
-        const member = memberByKey.get(`${account.familyId}/${account.personId}`)
-        return member?.active === true && member.role === 'parent' && member.childIds?.includes(child.id)
-      }).sort((a, b) => a.id.localeCompare(b.id))
-    const available = candidates.filter((account) => local.has(account.id) || legacy?.accountId === account.id && legacy.familyId === child.familyId && legacy.childId === child.id)
+    const familyAccounts = accounts.filter((account) => account.familyId === child.familyId)
+    const familyMembers = members.filter((member) => member.familyId === child.familyId)
+    const candidates = eligibleMeshAccounts({ familyId: child.familyId, childId: child.id, family, child,
+      members: familyMembers, identities: [identity], accounts: familyAccounts })
+    const available = candidates.filter((account) => local.has(account.id)
+      || legacy?.kind === 'legacy' && legacy.accountId === account.id
+        && legacy.familyId === child.familyId && legacy.childId === child.id
+        && meshParentAccountId(legacy.actorPersonId) === account.id)
     const selected = available[0]
     targets.push(selected
       ? { familyId: child.familyId, childId: child.id, sourceAccountId: selected.id,

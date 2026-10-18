@@ -45,6 +45,103 @@ describe('Mesh safe source projection', () => {
     expect(diff.events).toHaveLength(1)
   })
 
+  it('diagnoses the same overlapping OLYMPIAD across adjacent requested dates without inventing lessons', async () => {
+    const calendar = lesson({ source: 'OLYMPIAD', subject_name: undefined, subject_id: undefined,
+      start_at: '2026-10-12T09:00:00+03:00', finish_at: '2026-10-15T21:30:00+03:00', homework: undefined })
+    const source = createMeshSourceAdapter({ includeScheduleDateDiagnostics: true,
+      resolver: { async validateScope() { return true }, async withChildAdapter(_scope, run) {
+        return run({ async getSchedule() { return [calendar] } })
+      } } })
+    const observations = await Promise.all(['2026-10-13', '2026-10-14', '2026-10-15'].map((date) =>
+      source.observe({ ...scope, date })))
+    const firstDay = normalizeMeshObservation({ scope: { ...scope, date: '2026-10-12' }, schedule: [calendar], observedAt: '2026-10-17T12:00:00Z' })
+    expect(firstDay.completeness).toBe('complete')
+    expect(firstDay.records).toEqual([])
+    expect(firstDay.excludedCalendarEvents).toBe(1)
+    expect(observations.map((observation) => observation.completeness)).toEqual(Array(3).fill('complete'))
+    expect(observations.map((observation) => observation.excludedCalendarEvents)).toEqual(Array(3).fill(1))
+    expect(observations.map((observation) => observation.scheduleDateDiagnostics[0])).toEqual([
+      expect.objectContaining({ requestedDate: '2026-10-13', startDate: '2026-10-12',
+        startsAt: '2026-10-12T09:00:00+03:00', finishesAt: '2026-10-15T21:30:00+03:00', eventClass: 'calendar', source: 'OLYMPIAD', hasSubject: false }),
+      expect.objectContaining({ requestedDate: '2026-10-14', eventClass: 'calendar', source: 'OLYMPIAD' }),
+      expect.objectContaining({ requestedDate: '2026-10-15', eventClass: 'calendar', source: 'OLYMPIAD' }),
+    ])
+    expect(new Set(observations.map((item) => item.scheduleDateDiagnostics[0].eventDigest)).size).toBe(1)
+    expect(observations.every((item) => item.records.length === 0)).toBe(true)
+    const afterEnd = await source.observe({ ...scope, date: '2026-10-16' })
+    expect(afterEnd.completeness).toBe('partial')
+    expect(afterEnd.scheduleDateDiagnostics[0].eventClass).toBe('lesson')
+    expect(project({ schedule: [lesson({ start_at: '2026-10-18T09:00:00+03:00', source: 'PLAN', subject_name: undefined, subject_id: undefined })] })).toBeNull()
+  })
+
+  it('keeps the real lesson stable when an excluded overlapping OLYMPIAD is repeated or reordered', () => {
+    const calendar = { id: 801, source: 'OLYMPIAD', start_at: '2026-10-12T09:00:00+03:00',
+      finish_at: '2026-10-15T21:30:00+03:00' }
+    const currentScope = { ...scope, date: '2026-10-13' }
+    const first = normalizeMeshObservation({ scope: currentScope, schedule: [calendar, lesson({ start_at: '2026-10-13T09:00:00+03:00',
+      finish_at: '2026-10-13T09:45:00+03:00' })], observedAt: '2026-10-17T12:00:00Z' })
+    const repeated = normalizeMeshObservation({ scope: currentScope, schedule: [lesson({ start_at: '2026-10-13T09:00:00+03:00',
+      finish_at: '2026-10-13T09:45:00+03:00' }), calendar], observedAt: '2026-10-17T12:01:00Z' })
+    expect(first.records).toEqual(repeated.records)
+    expect(first.excludedCalendarEvents).toBe(1)
+    expect(repeated.excludedCalendarEvents).toBe(1)
+    const diff = diffCompleteSnapshots({ source: 'mesh', scopeKey: first.scopeKey, familyId: 'f1', childId: 'c1',
+      previous: { complete: true, observationSequence: 1, records: first.records },
+      current: { complete: true, observationSequence: 2, records: repeated.records }, detectedAt: '2026-10-17T13:00:00Z' })
+    expect(diff.events).toEqual([])
+  })
+
+  it('keeps ambiguous and lesson-like OLYMPIAD records fail-closed on foreign dates', async () => {
+    const base = { id: 90, source: 'OLYMPIAD', start_at: '2026-10-12T09:00:00+03:00',
+      finish_at: '2026-10-15T21:30:00+03:00' }
+    const cases = [
+      { ...base, lesson_type: 'lesson' },
+      { ...base, course_lesson_type: 'lesson' },
+      { ...base, homework: { descriptions: ['assignment'] } },
+      { ...base, subject_name: 'subject' },
+      { ...base, subject_id: 7 },
+      { ...base, homework: { total_count: 1 } },
+      { ...base, source: 'UNKNOWN' },
+      { ...base, source: 'PLAN' },
+    ]
+    for (const record of cases) {
+      const result = normalizeMeshObservation({ scope: { ...scope, date: '2026-10-13' }, schedule: [record], observedAt: '2026-10-17T12:00:00Z' })
+      expect(result).toBeNull()
+    }
+    const source = createMeshSourceAdapter({ includeScheduleDateDiagnostics: true,
+      resolver: { async validateScope() { return true }, async withChildAdapter(_scope, run) {
+        return run({ async getSchedule() { return [{ ...base, subject_id: 0 }] } })
+      } } })
+    const observation = await source.observe({ ...scope, date: '2026-10-13' })
+    expect(observation.scheduleDateDiagnostics[0]).toMatchObject({ eventClass: 'lesson', hasSubject: true })
+  })
+
+  it('rejects an impossible calendar date in a mismatched PLAN timestamp and sanitizes it to null', async () => {
+    const source = createMeshSourceAdapter({ includeScheduleDateDiagnostics: true,
+      resolver: { async validateScope() { return true }, async withChildAdapter(_scope, run) {
+        return run({ async getSchedule() { return [lesson({ source: 'PLAN', start_at: '2026-02-30T09:00:00Z',
+          finish_at: '2026-03-02T10:00:00Z' })] } })
+      } } })
+    const observation = await source.observe({ ...scope, date: '2026-02-28' })
+    expect(observation).toMatchObject({ completeness: 'partial', diagnosticCode: 'schedule_date_mismatch' })
+    expect(observation.scheduleDateDiagnostics[0]).toMatchObject({ startsAt: null,
+      finishesAt: '2026-03-02T10:00:00Z', source: 'PLAN', eventClass: 'lesson' })
+  })
+
+  it('advances a legacy calendar-plus-lesson baseline without treating the calendar record as cancelled', () => {
+    const calendarKey = 'legacy-calendar-record'
+    const lessonRecord = project({ schedule: [lesson()] }).records[0]
+    const current = project({ schedule: [lesson()] })
+    const result = diffCompleteSnapshots({ source: 'mesh', scopeKey: current.scopeKey, familyId: 'f1', childId: 'c1',
+      previous: { complete: true, observationSequence: 4, records: [
+        lessonRecord,
+        { recordKey: calendarKey, kind: 'schedule', semanticHash: 'c'.repeat(64), fields: { title: 'calendar fixture' } },
+      ] },
+      current: { complete: true, observationSequence: 5, records: current.records }, detectedAt: '2026-10-17T13:00:00Z' })
+    expect(result.advanced).toBe(true)
+    expect(result.events).toEqual([])
+  })
+
   it('keeps homework changes out of the schedule record digest', () => {
     const a = project({ schedule: [lesson({ homework: { descriptions: ['a'] } })], assignments: [] })
     const b = project({ schedule: [lesson({ homework: { descriptions: ['b'] } })], assignments: [] })
@@ -84,6 +181,51 @@ describe('Mesh safe source projection', () => {
   it('rejects incomplete homework details and malformed schedule times', () => {
     expect(project({ s: { ...scope, kind: 'homework' }, assignments: [assignment({ detailStatus: 'stale' })] })).toBeNull()
     expect(project({ schedule: [lesson({ finish_at: 'unreadable' })], assignments: [] })).toBeNull()
+  })
+
+  it('distinguishes schedule validation failures without accepting malformed snapshots', () => {
+    const cases = [
+      [lesson({ id: null }), 'schedule_id_missing'],
+      [lesson({ start_at: 'unreadable' }), 'schedule_start_invalid'],
+      [lesson({ finish_at: 'unreadable' }), 'schedule_finish_invalid'],
+      [lesson({ start_at: '2026-10-18T09:00:00Z', finish_at: '2026-10-18T09:45:00Z' }), 'schedule_date_mismatch'],
+    ]
+    for (const [badLesson, expected] of cases) {
+      let diagnostic
+      const result = normalizeMeshObservation({ scope, schedule: [badLesson], observedAt: '2026-10-17T12:00:00Z',
+        onInvalid(reason) { diagnostic = reason } })
+      expect(result).toBeNull()
+      expect(diagnostic).toBe(expected)
+    }
+  })
+
+  it('returns a bounded validation diagnostic without relaxing partial-data rejection', async () => {
+    const diagnosticScope = { ...scope, kind: 'homework' }
+    const source = createMeshSourceAdapter({ resolver: { async validateScope() { return true }, async withChildAdapter(_scope, run) {
+      return run({ async getSchedule(date) { return [lesson({ start_at: `${date}T09:00:00Z`, finish_at: `${date}T09:45:00Z` })] },
+        async getAssignments() { return [assignment({ detailStatus: 'stale' })] } })
+    } } })
+    const observation = await source.observe(diagnosticScope)
+    expect(observation.completeness).toBe('partial')
+    expect(observation.errorCode).toBe('mesh_incomplete')
+    expect(observation.diagnosticCode).toBe('invalid_homework_item')
+  })
+
+  it('exposes only date and event-class metadata for schedule mismatches in diagnostic mode', async () => {
+    const bad = lesson({ start_at: '2026-10-18T09:00:00+03:00', finish_at: '2026-10-18T09:45:00+03:00',
+      source: 'PLAN', id: 'private-event-id', subject_name: 'private subject', comment: 'private comment' })
+    const source = createMeshSourceAdapter({ includeScheduleDateDiagnostics: true,
+      resolver: { async validateScope() { return true }, async withChildAdapter(_scope, run) {
+        return run({ async getSchedule() { return [bad] } })
+      } } })
+    const observation = await source.observe(scope)
+    expect(observation.completeness).toBe('partial')
+    expect(observation.diagnosticCode).toBe('schedule_date_mismatch')
+    expect(observation.scheduleDateDiagnostics).toEqual([{ requestedDate: scope.date,
+      startsAt: '2026-10-18T09:00:00+03:00', finishesAt: '2026-10-18T09:45:00+03:00',
+      startDate: '2026-10-18', eventClass: 'lesson', source: 'PLAN', hasSubject: true, hasLessonType: false, hasHomework: false,
+      eventDigest: expect.stringMatching(/^[a-f0-9]{64}$/) }])
+    expect(JSON.stringify(observation)).not.toMatch(/private-event-id|private subject|private comment/)
   })
 
   it('emits individual grades only when stable IDs and full counts are present', () => {

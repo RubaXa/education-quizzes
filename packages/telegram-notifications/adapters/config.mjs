@@ -1,3 +1,5 @@
+import { readFileSync, statSync } from 'node:fs'
+
 /** @see ../../../docs/services/telegram-bot/operations.md#конфигурация */
 export function loadConfig(env = process.env) {
   return Object.freeze({ ...loadTelegramConfig(env), projectId: requiredProject(env), instanceId: workerId(env),
@@ -10,7 +12,17 @@ export function loadConfig(env = process.env) {
 }
 
 export function loadTelegramConfig(env = process.env) {
-  const token = env.AGI_EDU_BOT
+  let token = env.AGI_EDU_BOT
+  if (!token && typeof env.TELEGRAM_TOKEN_FILE === 'string' && env.TELEGRAM_TOKEN_FILE.trim()) {
+    try {
+      const info = statSync(env.TELEGRAM_TOKEN_FILE)
+      if (!info.isFile() || (info.mode & 0o077) !== 0 || (typeof process.getuid === 'function' && info.uid !== process.getuid())) {
+        throw new Error('token_file_permissions_invalid')
+      }
+      token = readFileSync(env.TELEGRAM_TOKEN_FILE, 'utf8').trim()
+    }
+    catch { throw new Error('bot_token_missing') }
+  }
   if (typeof token !== 'string' || !token.trim()) throw new Error('bot_token_missing')
   if (!/^\d{5,}:[A-Za-z0-9_-]{20,}$/.test(token)) throw new Error('bot_token_invalid')
   return Object.freeze({ token })

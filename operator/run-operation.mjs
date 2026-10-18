@@ -9,6 +9,7 @@ import { mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { performance } from 'node:perf_hooks'
 import { promisify } from 'node:util'
+import { createRotatingJsonlSink, createTelemetry, parseTraceContext } from '../packages/education-runtime/telemetry.mjs'
 import { operationCommand, operationFingerprint, validateOperationRequest } from './operation-contract.mjs'
 
 const exec = promisify(execFile)
@@ -55,19 +56,26 @@ const publicSummary = (operation, value) => {
   return { parsed: true }
 }
 
-export async function executeOperation(request, { apply = false, root = resolve(import.meta.dirname, '..'),
-  journalDir = resolve(root, '.local/operator-runs'), run = (script, argv, cwd) => exec(process.execPath,
-    [script, ...argv], { cwd, maxBuffer: 16 * 1024 * 1024, timeout: 10 * 60 * 1000 }) } = {}) {
+async function executeOperationInternal(request, { apply = false, root = resolve(import.meta.dirname, '..'),
+  journalDir = resolve(root, '.local/operator-runs'), run = (script, argv, cwd, child = {}) => exec(process.execPath,
+    [script, ...argv], { cwd, env: { ...process.env, ...child.env }, maxBuffer: 16 * 1024 * 1024, timeout: 10 * 60 * 1000 }), telemetry } = {}) {
   const descriptor = validateOperationRequest(request)
   const command = operationCommand(request, apply)
   const fingerprint = operationFingerprint(request, root)
   mkdirSync(journalDir, { recursive: true, mode: 0o700 })
+  const invoke = (stage, script, argv) => {
+    const call = () => run(resolve(root, script), argv, root, { env: {
+      EDUCATION_TRACE_CONTEXT: telemetry?.serializeContext?.() ?? '',
+    } })
+    return telemetry?.span ? telemetry.span(`operator.${stage}`, call, { stage }) : call()
+  }
   const receipt = resolve(journalDir, `${fingerprint}.json`)
   if (apply && descriptor.effect === 'create') {
     let previous = null
     try { previous = JSON.parse(readFileSync(receipt, 'utf8')) } catch { /* First attempt. */ }
     if (previous?.status === 'succeeded') return { status: 'reused', operation: request.operation,
-      fingerprint, journal: receipt, summary: previous.summary, metrics: previous.metrics }
+      fingerprint, journal: receipt, summary: previous.summary, metrics: previous.metrics,
+      traceId: telemetry?.current?.().traceId ?? null, telemetry: telemetry?.snapshot?.() ?? null }
     if (previous) throw new Error(`Previous ${request.operation} attempt needs readback: ${receipt}`)
   }
   const runId = randomUUID()
@@ -75,6 +83,7 @@ export async function executeOperation(request, { apply = false, root = resolve(
   const startedAt = now()
   const started = performance.now()
   const base = { schemaVersion: 1, runId, operation: request.operation, fingerprint, apply,
+    traceId: telemetry?.current?.().traceId ?? null,
     request, command, startedAt }
   let preflightMs = null
   if (apply && descriptor.preflight) {
@@ -83,11 +92,12 @@ export async function executeOperation(request, { apply = false, root = resolve(
       const validationArgv = request.operation === 'quiz.revise-open'
         ? [descriptor.preflight, request.input.specPath]
         : [descriptor.preflight, ...descriptor.argv(request.input, false)]
-      await run(resolve(root, descriptor.script), validationArgv, root)
+      await invoke('preflight', descriptor.script, validationArgv)
       preflightMs = Math.round(performance.now() - preflightStarted)
     } catch (error) {
       const failure = { ...base, finishedAt: now(), status: 'invalid',
         metrics: { elapsedMs: Math.round(performance.now() - started), preflightMs: Math.round(performance.now() - preflightStarted) },
+        telemetry: telemetry?.snapshot?.() ?? null,
         error: String(error?.message ?? error), stdout: error?.stdout ?? '', stderr: error?.stderr ?? '' }
       writePrivateJson(journal, failure)
       throw new Error(`${request.operation} validation failed; inspect private journal ${journal}`)
@@ -95,7 +105,7 @@ export async function executeOperation(request, { apply = false, root = resolve(
   }
   if (apply && descriptor.effect === 'create') writePrivateJson(receipt, { ...base, status: 'started' })
   try {
-    const { stdout = '', stderr = '' } = await run(resolve(root, command.script), command.argv, root)
+    const { stdout = '', stderr = '' } = await invoke('command', command.script, command.argv)
     const metrics = { elapsedMs: Math.round(performance.now() - started), preflightMs,
       stdoutBytes: Buffer.byteLength(stdout),
       stderrBytes: Buffer.byteLength(stderr) }
@@ -110,26 +120,53 @@ export async function executeOperation(request, { apply = false, root = resolve(
       throw new Error('Quiz revision did not confirm role-index readback.')
     }
     if (request.operation === 'day.audit' && summary.verified !== true) throw new Error('Published day audit is incomplete or contains problems.')
-    const result = { ...base, finishedAt: now(), status: 'succeeded', summary, metrics, stdout, stderr }
+    const telemetrySummary = telemetry?.snapshot?.() ?? null
+    const result = { ...base, finishedAt: now(), status: 'succeeded', summary, metrics,
+      telemetry: telemetrySummary, stdout, stderr }
     writePrivateJson(journal, result)
     if (apply && descriptor.effect === 'create') writePrivateJson(receipt, { ...base, finishedAt: result.finishedAt,
-      status: 'succeeded', summary, metrics, journal })
-    return { status: 'succeeded', operation: request.operation, fingerprint, journal, summary, metrics }
+      status: 'succeeded', summary, metrics, telemetry: telemetrySummary, journal })
+    return { status: 'succeeded', operation: request.operation, fingerprint, journal, summary, metrics,
+      traceId: base.traceId, telemetry: telemetrySummary }
   } catch (error) {
     const partial = request.operation === 'project.collect' ? parseJson(error?.stdout ?? '') : null
     if (partial?.runId && ['blocked', 'partially-collected'].includes(partial.state)) {
       const summary = publicSummary(request.operation, error.stdout)
       const metrics = { elapsedMs: Math.round(performance.now() - started) }
-      writePrivateJson(journal, { ...base, finishedAt: now(), status: 'partial', summary, metrics,
+      const telemetrySummary = telemetry?.snapshot?.() ?? null
+      writePrivateJson(journal, { ...base, finishedAt: now(), status: 'partial', summary, metrics, telemetry: telemetrySummary,
         stdout: error.stdout, stderr: error.stderr ?? '' })
-      return { status: 'partial', operation: request.operation, fingerprint, journal, summary, metrics }
+      return { status: 'partial', operation: request.operation, fingerprint, journal, summary, metrics,
+        traceId: base.traceId, telemetry: telemetrySummary }
     }
+    const telemetrySummary = telemetry?.snapshot?.() ?? null
     const result = { ...base, finishedAt: now(), status: descriptor.effect === 'create' ? 'needs-readback' : 'failed',
       metrics: { elapsedMs: Math.round(performance.now() - started) },
+      telemetry: telemetrySummary,
       error: String(error?.message ?? error), stdout: error?.stdout ?? '', stderr: error?.stderr ?? '' }
     writePrivateJson(journal, result)
     if (apply && descriptor.effect === 'create') writePrivateJson(receipt, { ...base,
       status: 'needs-readback', journal, finishedAt: result.finishedAt })
     throw new Error(`${request.operation} did not confirm completion; inspect private journal ${journal}`)
   }
+}
+
+/** One trace per operator request; children receive only opaque trace identifiers. */
+export async function executeOperation(request, options = {}) {
+  const root = options.root ?? resolve(import.meta.dirname, '..')
+  const journalDir = options.journalDir ?? resolve(root, '.local/operator-runs')
+  mkdirSync(journalDir, { recursive: true, mode: 0o700 })
+  const propagated = parseTraceContext(process.env.EDUCATION_TRACE_CONTEXT)
+  const telemetry = options.telemetry ?? createTelemetry({
+    sink: createRotatingJsonlSink(resolve(journalDir, 'telemetry.jsonl')),
+    traceId: propagated?.traceId,
+    parentSpanId: propagated?.spanId,
+  })
+  const { telemetry: _ignored, ...rest } = options
+  const childExec = options.execFileRunner ?? exec
+  const run = options.run ?? ((script, argv, cwd, child = {}) => childExec(process.execPath, [script, ...argv], {
+    cwd, env: { ...process.env, ...child.env }, maxBuffer: 16 * 1024 * 1024, timeout: 10 * 60 * 1000,
+  }))
+  return telemetry.trace('operator.operation', () => executeOperationInternal(request,
+    { ...rest, root, journalDir, telemetry, run }), { operation: request?.operation, consumer: 'operator' })
 }
