@@ -3,6 +3,7 @@
  */
 /** @see ../docs/modules/school-diary/dashboard.md#compact-homework */
 /** @see ../docs/modules/materials/material-clarification.md */
+/** @see ../docs/decisions/pupil-vacations-2026-10-19.md */
 import { useEffect, useRef, useState } from 'react'
 import { getAuth } from 'firebase/auth'
 import { ArrowRight, CalendarDays, ChevronDown, Clock3, Hourglass, Sparkles, Timer } from 'lucide-react'
@@ -27,6 +28,8 @@ import DataCompatibilityNotice from './components/DataCompatibilityNotice'
 import StatusIcon from './components/StatusIcon'
 import HomeworkOverview from './components/HomeworkOverview'
 import GradeAverage, { gradeAverageTone } from './components/GradeAverage'
+import DayCalendar, { vacationRange } from './components/DayCalendar'
+import { vacationOn } from '../day/school-calendar.mjs'
 
 function moscowToday() {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Moscow', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
@@ -55,7 +58,6 @@ function word(count: number, one: string, few: string, many: string) {
   if (n >= 11 && n <= 14) return many
   return count % 10 === 1 ? one : count % 10 >= 2 && count % 10 <= 4 ? few : many
 }
-function isWeekend(date: string) { return [0, 6].includes(new Date(`${date}T12:00:00Z`).getUTCDay()) }
 function lessonTime(iso: string) {
   if (!iso) return ''
   const time = new Date(iso)
@@ -358,14 +360,10 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
   if (error === DATA_UPDATE_MESSAGE) return <DataCompatibilityNotice />
   if (error && !index) return <div className="day-dashboard-error"><h1>Не получилось открыть dashboard</h1><p>{error}</p></div>
   if (!index) return <p className="day-dashboard-loading">Загружаем dashboard…</p>
+  const selectedVacation = vacationOn(index.schoolCalendar, selectedDate)
   return <div className="day-dashboard">
     {error && <p className="day-dashboard-error" role="alert">{error}</p>}
-    <section className="day-dashboard-calendar" aria-label="Выбор дня">
-      <div className="day-dashboard-heading"><div><CalendarDays size={20} /><h2>Выберите день</h2></div></div>
-      <div className="day-dashboard-dates" ref={datesRef}>{index.days.map((day) => <button key={day.date} type="button" className={`day-dashboard-date ${day.date === today ? 'today' : ''} ${day.date === selectedDate ? 'selected' : ''} ${isWeekend(day.date) ? 'weekend' : ''}`} aria-current={day.date === today ? 'date' : undefined} aria-pressed={day.date === selectedDate} onClick={() => chooseDay(day.date)}>
-        <span>{dateLabel(day.date, { weekday: 'short' })}</span><strong>{dateLabel(day.date, { day: 'numeric' })}</strong><small>{day.homework.length ? `${day.homework.length} ДЗ` : day.schedule.length ? 'уроки' : '—'}</small>
-      </button>)}</div>
-    </section>
+    <DayCalendar days={index.days} schoolCalendar={index.schoolCalendar} today={today} selectedDate={selectedDate} onSelect={chooseDay} stripRef={datesRef} />
 
     <div className={`day-dashboard-selected-heading${parent ? ' parent' : ''}`}>{personalParent && <a className="day-dashboard-parent-home" href="#/">← Все дети</a>}<div className="day-dashboard-kicker">{parent ? 'Панель родителя' : 'Мой план'} · выбранный день</div><h1>{dateLabel(selectedDate, { weekday: 'long', day: 'numeric', month: 'long' })}</h1></div>
 
@@ -374,7 +372,7 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
     <div className="day-dashboard-grid">
       <div className="day-dashboard-main">
       <section className="day-dashboard-card" aria-label="Расписание выбранного дня" data-collapsed={scheduleCollapsed}>
-        <div className="day-dashboard-heading"><div><CalendarDays size={20} /><h2>Расписание</h2></div><small>{dateLabel(selectedDate)}<br />МЭШ проверен: {checkedLabel(selectedEntry?.checkedAt ?? null)}</small></div>
+        <div className="day-dashboard-heading"><div><CalendarDays size={20} /><h2>Расписание</h2></div><small>{dateLabel(selectedDate)}<br />{selectedVacation && !selectedEntry?.checkedAt ? 'Календарь МЭШ' : 'МЭШ проверен'}: {checkedLabel(selectedEntry?.checkedAt ?? (selectedVacation ? index.schoolCalendar?.checkedAt : null) ?? null)}</small></div>
         {Boolean(selectedEntry?.schedule.length) && <button className="day-dashboard-schedule-toggle" type="button" aria-expanded={!scheduleCollapsed} onClick={() => setScheduleOverride({ date: selectedDate, open: scheduleCollapsed })}>{scheduleCollapsed ? `Показать уроки · ${lessonRows.length}` : 'Свернуть расписание'} <ChevronDown size={16} aria-hidden="true" /></button>}
         {!scheduleCollapsed && (selectedEntry?.schedule.length ? <div className="day-dashboard-lesson-groups">
           {groupFinishedLessons && <div className="day-dashboard-past-group">
@@ -384,7 +382,7 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
             {pastLessonsExpanded && <ul className="day-dashboard-lessons day-dashboard-past-lessons">{finishedLessonRows.map(renderLesson)}</ul>}
           </div>}
           <ul className="day-dashboard-lessons day-dashboard-current-lessons">{visibleLessonRows.map(renderLesson)}</ul>
-        </div> : <p className="day-dashboard-empty">{selectedEntry?.complete ? 'Уроков на эту дату нет.' : `Расписание ещё не подтверждено. Последняя проверка: ${checkedLabel(selectedEntry?.checkedAt ?? null)}.`}</p>)}
+        </div> : <p className="day-dashboard-empty">{selectedVacation ? `Каникулы · ${vacationRange(selectedVacation)}. По календарю МЭШ.` : selectedEntry?.complete ? 'Уроков на эту дату нет.' : `Расписание ещё не подтверждено. Последняя проверка: ${checkedLabel(selectedEntry?.checkedAt ?? null)}.`}</p>)}
         {!scheduleCollapsed && selectedEntry?.dayToken && <button className="day-dashboard-detail-link" type="button" onClick={() => openDay(selectedEntry.dayToken!)}>Открыть подробное расписание <ArrowRight size={17} /></button>}
       </section>
       <HomeworkOverview date={nextEntry ? nextDate : undefined} rows={homeworkRows} unconfirmed={unprojectedHomework}

@@ -2,6 +2,18 @@
 
 | Файл | Спецификация | Назначение | Потребитель |
 |---|---|---|---|
+| [day/school-calendar.mjs](../day/school-calendar.mjs) | [Каникулы МЭШ](modules/school-diary/school-calendar.md) | Строгая нормализация, проекция и группировка персональных периодов | Collector; day publisher; DayCalendar |
+| [day/school-calendar.d.mts](../day/school-calendar.d.mts) | [Каникулы МЭШ](modules/school-diary/school-calendar.md) | Общий публичный тип календаря | TypeScript frontend |
+| [day/school-calendar.test.mjs](../day/school-calendar.test.mjs) | [Каникулы МЭШ](modules/school-diary/school-calendar.md) | Источник, принадлежность, полнота, непрерывность и сохранение дней | Vitest |
+| [sync/school-calendar-publication.mjs](../sync/school-calendar-publication.mjs) | [Каникулы МЭШ](modules/school-diary/school-calendar.md) | Атомарная адресная публикация с owner guard и readback | sync:project |
+| [sync/school-calendar-publication.test.mjs](../sync/school-calendar-publication.test.mjs) | [Каникулы МЭШ](modules/school-diary/school-calendar.md) | Обе роли, идемпотентность, владелец и сохранение работы | Vitest |
+| [packages/education-connect/lib/mesh-calendar.test.mjs](../packages/education-connect/lib/mesh-calendar.test.mjs) | [Каникулы МЭШ](modules/school-diary/school-calendar.md) | Точные from/to и pupil credentials без SDK date bug | Vitest |
+| [src/components/DayCalendar.tsx](../src/components/DayCalendar.tsx) | [Каникулы МЭШ](modules/school-diary/school-calendar.md) | Общая полоса дат с подтверждёнными каникульными группами | DayDashboard; UI Kit |
+| [src/components/DayCalendar.test.tsx](../src/components/DayCalendar.test.tsx) | [Каникулы МЭШ](modules/school-diary/school-calendar.md) | Интерактивный выбор и сохранение текущего дня/работы для разных источников | Vitest |
+| [docs/decisions/pupil-vacations-2026-10-19.md](decisions/pupil-vacations-2026-10-19.md) | [Каникулы МЭШ](modules/school-diary/school-calendar.md) | Прямое основание и границы видимого блока | Разработчик; выпуск |
+| [sync/school-calendar.mjs](../sync/school-calendar.mjs) | [Каникулы МЭШ](modules/school-diary/school-calendar.md) | Адресный календарный источник без догадок | sync:project; dashboard |
+| [sync/school-calendar.test.mjs](../sync/school-calendar.test.mjs) | [Каникулы МЭШ](modules/school-diary/school-calendar.md) | Границы запроса, одиночный scoped вызов, ошибка и безопасная сводка | Vitest |
+| [docs/modules/school-diary/school-calendar.md](modules/school-diary/school-calendar.md) | [Каникулы МЭШ](modules/school-diary/school-calendar.md) | Происхождение персональных интервалов и контракт отображения | Синхронизация; web/PWA |
 | [docs/decisions/review-prose-coverage-2026-10-19.md](decisions/review-prose-coverage-2026-10-19.md) | [Читаемая обратная связь](modules/reviews/review-criteria-provenance.md) | Причина неполной прежней правки и границы всех авторских текстов | Разработчик; оператор |
 | [src/components/ReviewProse.integration.test.tsx](../src/components/ReviewProse.integration.test.tsx) | [Читаемая обратная связь](modules/reviews/review-criteria-provenance.md) | Реальная карточка обеих ролей, legacy, preview/send и сохранение источников | Vitest |
 | [docs/decisions/device-binding-recovery-2026-10-18.md](decisions/device-binding-recovery-2026-10-18.md) | [Доступ и состояние](modules/families/access-and-state.md) | Восстановление действующего server binding вместо потери входа при старой локальной личности | Разработчик; выпуск |

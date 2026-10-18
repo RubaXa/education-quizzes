@@ -3,6 +3,7 @@
  */
 /** @see ../docs/modules/materials/material-clarification.md */
 import { materialRequestErrors } from '../src/lib/materialRequest.ts'
+import { validSchoolCalendar } from './school-calendar.mjs'
 /** Runtime shape of the current Firestore projection. Optional additive fields are
  * accepted so older clients and already published documents keep working.
  * Cross-document edges are checked by placement-integrity.mjs.
@@ -53,6 +54,7 @@ export function dayDashboardShapeErrors(index) {
   if (index.schemaVersion !== DAY_SCHEMA_VERSION) errors.push('Неизвестная версия календаря.')
   if (!roles.has(index.kind)) errors.push('Неизвестная роль календаря.')
   if (!text(index.timezone)) errors.push('У календаря нет часового пояса.')
+  if (index.schoolCalendar != null && !validSchoolCalendar(index.schoolCalendar)) errors.push('Каникулы требуют подтверждённый календарь МЭШ.')
   if (!Array.isArray(index.days)) return [...errors, 'Дни календаря должны быть массивом.']
   const seen = new Set()
   for (const day of index.days) {

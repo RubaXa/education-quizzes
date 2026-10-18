@@ -146,7 +146,7 @@ function guardMeshAdapter(adapter, lease) {
       }
     } })
   }
-  for (const method of ['verifyAccess', 'getProfile', 'getMarks', 'getSchedule', 'getAssignments', 'getLessonDetails']) {
+  for (const method of ['verifyAccess', 'getProfile', 'getMarks', 'getSchedule', 'getAssignments', 'getLessonDetails', 'getSchoolCalendar']) {
     if (typeof adapter[method] !== 'function') continue
     const original = adapter[method].bind(adapter)
     adapter[method] = async (...args) => {

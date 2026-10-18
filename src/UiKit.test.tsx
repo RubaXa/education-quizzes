@@ -53,7 +53,7 @@ it('demonstrates one attachment and read-only references using the real shared c
 it('preserves grouped navigation and the shared grade average simulator',async()=>{
  document.body.append(host);root=createRoot(host);await act(async()=>root!.render(<UiKit/>))
  expect([...host.querySelectorAll('nav small')].map(node=>node.textContent)).toEqual(['Основы','Компоненты','Составные сценарии'])
- expect(host.querySelectorAll('nav button')).toHaveLength(8)
+ expect(host.querySelectorAll('nav button')).toHaveLength(9)
  await act(async()=>[...host.querySelectorAll<HTMLButtonElement>('nav button')].find(button=>button.textContent==='Средний балл')!.click())
  const range=host.querySelector<HTMLInputElement>('input[type="range"]')!
  expect([range.min,range.max,range.step]).toEqual(['200','500','1'])
@@ -69,6 +69,17 @@ it('previews the real homework component and its existing click targets',async()
  await act(async()=>host.querySelector<HTMLButtonElement>('.day-dashboard-homework-row')!.click())
  expect(host.querySelector('[role="status"]')?.textContent).toContain('Английский язык')
  expect(host.querySelector<HTMLDetailsElement>('.day-dashboard-homework-complete')?.open).toBe(false)
+})
+
+/** @see ../docs/modules/school-diary/school-calendar.md#представление */
+it('demonstrates the shared calendar with local selection and explicit synthetic data',async()=>{
+ document.body.append(host);root=createRoot(host);await act(async()=>root!.render(<UiKit/>))
+ await act(async()=>[...host.querySelectorAll<HTMLButtonElement>('nav button')].find(button=>button.textContent==='Календарь и каникулы')!.click())
+ expect(host.textContent).toContain('Условный пример, не календарь семьи')
+ expect(host.querySelectorAll('.day-dashboard-vacation')).toHaveLength(1)
+ await act(async()=>host.querySelector<HTMLButtonElement>('[data-date="2026-10-26"]')!.click())
+ expect(host.querySelector('[role="status"]')?.textContent).toBe('Выбрана дата: 2026-10-26')
+ expect(host.querySelector('[aria-pressed="true"]')?.getAttribute('data-date')).toBe('2026-10-26')
 })
 
 /** @see ../docs/modules/materials/material-clarification.md */

@@ -1,6 +1,7 @@
 import { doc, onSnapshot } from 'firebase/firestore'
 import { db } from './firebase'
 import { normalizeDayDashboard } from './dayCompatibility'
+import type { SchoolCalendar } from '../../day/school-calendar.mjs'
 
 export type IndexedHomework = { subject: string; text: string }
 export type IndexedLesson = { subject: string; start: string; end: string }
@@ -22,6 +23,7 @@ export type DayDashboardData = {
   today: string
   timezone: string
   days: IndexedDay[]
+  schoolCalendar?: SchoolCalendar
   weekendWork?: { dates: string[]; dayToken: string; taskIds: string[]; lessonDate: string; dueDate: string; title: string }[]
   updatedAt?: unknown
 }

@@ -39,6 +39,31 @@ beforeEach(() => { vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime(new 
 afterEach(() => { probe.selected = null; probe.next = null; probe.grade = null; probe.dashboardError = null; for (const day of allDays) delete (day as typeof day & { homeworkUpdate?: unknown }).homeworkUpdate; allDays[0].schedule.splice(1); index.days = allDays; localStorage.clear(); sessionStorage.clear(); window.location.hash = ''; Element.prototype.scrollIntoView = originalScrollIntoView; vi.useRealTimers(); vi.restoreAllMocks() })
 
 describe('schedule warm start', () => {
+  /** @see ../docs/modules/school-diary/school-calendar.md#представление */
+  it('shows MESH vacations in both roles without losing the next real homework date', async () => {
+    vi.setSystemTime(new Date('2026-10-24T09:00:00Z'))
+    const calendar = { schemaVersion: 1, source: 'mesh', from: '2026-09-01', to: '2027-08-31', revision: 'a'.repeat(64),
+      checkedAt: '2026-10-19T10:00:00Z', vacations: [{ from: '2026-10-24', to: '2026-11-01', title: 'Первые каникулы' }] }
+    Object.assign(index, { schoolCalendar: calendar })
+    index.days = [{ ...allDays[0], date: '2026-10-24', schedule: [], homework: [], dayToken: null, homeworkDayToken: null } as any,
+      { ...allDays[0], date: '2026-10-25', schedule: [], homework: [], dayToken: null, homeworkDayToken: null } as any,
+      { ...allDays[1], date: '2026-11-02' }]
+    probe.selected = base(); probe.next = base()
+    try {
+      for (const parent of [true, false]) {
+        const host = document.createElement('div'); document.body.append(host); const root = createRoot(host)
+        try {
+          await act(async () => root.render(<DayDashboard token="calendar" parent={parent} />))
+          expect(host.querySelector('.day-dashboard-vacation')?.textContent).toContain('Каникулы')
+          expect(host.textContent).toContain('По календарю МЭШ')
+          expect(host.querySelector('[aria-label="Домашнее задание"] time')?.getAttribute('datetime')).toBe('2026-11-02')
+          await act(async () => host.querySelector<HTMLButtonElement>('[data-date="2026-10-25"]')!.click())
+          expect(host.querySelector('[aria-pressed="true"]')?.getAttribute('data-date')).toBe('2026-10-25')
+          expect(host.querySelector('[aria-current="date"]')?.getAttribute('data-date')).toBe('2026-10-24')
+        } finally { await act(async () => root.unmount()); host.remove(); sessionStorage.clear() }
+      }
+    } finally { delete (index as typeof index & { schoolCalendar?: unknown }).schoolCalendar }
+  })
   /** @see ../docs/modules/school-diary/dashboard.md#compact-homework */
   it('uses the same compact card in both roles and keeps Monday after Friday', async () => {
     vi.setSystemTime(new Date('2026-10-16T12:00:00.000Z'))

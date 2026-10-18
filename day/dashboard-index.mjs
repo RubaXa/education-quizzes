@@ -5,6 +5,7 @@ import { daySourceRevision } from '../sync/day-source-revision.mjs'
 import { referencedHomeworkDate } from './homework-reference.mjs'
 import { assignmentRouteEvidence } from './assignment-routing.mjs'
 import { learningDayAliases } from './learning-route-identity.mjs'
+import { applySchoolCalendar, publicSchoolCalendar } from './school-calendar.mjs'
 
 function readJson(file) { return JSON.parse(readFileSync(file, 'utf8')) }
 function dateOnly(value) { return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Moscow', year: 'numeric', month: '2-digit', day: '2-digit' }).format(value) }
@@ -18,7 +19,7 @@ function validDate(value) { return /^\d{4}-\d{2}-\d{2}$/.test(value ?? '') && !N
  * Интерфейс читает этот документ из Firestore и не хранит расписание в коде.
  * @see ../docs/modules/school-diary/dashboard.md#firestore-model
  */
-export function buildDayDashboardIndex(local, links, role, now = new Date()) {
+export function buildDayDashboardIndex(local, links, role, now = new Date(), retainedCalendar = null) {
   const today = dateOnly(now)
   const weekStart = monday(today)
   const snapshotDir = resolve(local, 'diary')
@@ -133,7 +134,15 @@ export function buildDayDashboardIndex(local, links, role, now = new Date()) {
       dueDate, title: slot.title }]
   })
   const dayCanonicalTokens = learningDayAliases(links)
-  return { schemaVersion: 1, kind: role, today, timezone: 'Europe/Moscow', days, weekendWork, dayCanonicalTokens }
+  const index = { schemaVersion: 1, kind: role, today, timezone: 'Europe/Moscow', days, weekendWork, dayCanonicalTokens }
+  const calendarFile = resolve(snapshotDir, 'school-calendar.json')
+  if (existsSync(calendarFile)) {
+    const contextFile = resolve(local, 'context.json'), accessFile = resolve(local, 'family-access.json')
+    const owner = existsSync(contextFile) ? readJson(contextFile) : existsSync(accessFile) ? readJson(accessFile).legacyDayOwner : null
+    return applySchoolCalendar(index, publicSchoolCalendar(readJson(calendarFile), owner), today)
+  }
+  // A missing local cache is not evidence that MESH withdrew the published calendar.
+  return applySchoolCalendar(index, retainedCalendar, today)
 }
 
 /** An absent local source must not silently erase work already visible to the family.

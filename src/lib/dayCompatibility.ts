@@ -1,5 +1,6 @@
 import type { DayPageData, DayTask, DayTestPlacement } from './dayStore'
 import type { DayDashboardData } from './dayDashboardStore'
+import { validSchoolCalendar } from '../../day/school-calendar.mjs'
 
 export const DATA_UPDATE_MESSAGE = 'Версия данных несовместима с этим приложением. Обновите Education.'
 
@@ -48,5 +49,6 @@ export function normalizeDayDashboard(raw: unknown): DayDashboardData {
     || !['student', 'parent'].includes(data.kind) || !Array.isArray(data.days)) {
     throw new UnsupportedDataSchemaError('календарь', data?.schemaVersion)
   }
-  return { ...data, schemaVersion: 1, weekendWork: data.weekendWork ?? [] }
+  const { schoolCalendar, ...base } = data
+  return { ...base, schemaVersion: 1, weekendWork: data.weekendWork ?? [], ...(validSchoolCalendar(schoolCalendar) ? { schoolCalendar } : {}) }
 }

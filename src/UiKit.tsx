@@ -3,6 +3,7 @@
 /** @see ../docs/decisions/grade-average-ui-kit-2026-10-18.md */
 /** @see ../docs/shared/design/ui-kit.md#school-grade-average */
 import HomeworkOverview from '@/components/HomeworkOverview'
+import DayCalendar from '@/components/DayCalendar'
 import MaterialRequest from '@/components/MaterialRequest'
 import PhotoUploadControl from '@/components/PhotoUploadControl'
 import LinkedWorkPhotos from '@/components/LinkedWorkPhotos'
@@ -15,7 +16,7 @@ import QuizCard from '@/components/QuizCard'
 import GradeAverage from '@/components/GradeAverage'
 import GradeAverageSlider from '@/components/GradeAverageSlider'
 import TelegramNotificationPreview from '@/components/TelegramNotificationPreview'
-import { uiKitQuizExamples, uiKitHomeworkRows } from '@/lib/uiKitExamples'
+import { uiKitQuizExamples, uiKitHomeworkRows, uiKitCalendar, uiKitCalendarDays } from '@/lib/uiKitExamples'
 import type { ResultInput } from '@/lib/resultPresentation'
 import tokenCss from './education-design-tokens.css?raw'
 import './UiKit.css'
@@ -33,6 +34,7 @@ const topicGroups = [
     {id:'grades',title:'Средний балл',icon:CircleHelp},
   ]},
   {id:'scenarios',title:'Составные сценарии',topics:[
+    {id:'calendar',title:'Календарь и каникулы',icon:BookOpen},
     {id:'homework',title:'Сводка ДЗ',icon:BookOpen},
     {id:'material',title:'Уточнение материала',icon:BookOpen},
     {id:'photos',title:'Связанные фото',icon:BookOpen},
@@ -46,6 +48,7 @@ const colourRoles = [
   ['waiting','Ожидание','Результат ещё не проверен'],['accent','Выполнение','Заполняются ответы'],['neutral','Неизвестно','Данных для результата нет'],
 ] as const
 const coreTokens: Record<string,string> = {
+  '--edu-calendar-vacation-bg':'Фон подтверждённого периода каникул', '--edu-calendar-vacation-border':'Контур каникульного периода', '--edu-calendar-vacation-ink':'Текст и знак каникул; не оценка результата',
   '--edu-canvas':'Фон страницы', '--edu-surface':'Поверхность карточки', '--edu-ink':'Основной текст', '--edu-text-primary':'Основной текст, смысловой псевдоним',
   '--edu-muted':'Вторичный текст', '--edu-text-secondary':'Вторичный текст, смысловой псевдоним', '--edu-brand':'Фирменный акцент Education', '--edu-accent-ink':'Второстепенное действие и ссылка',
   '--edu-primary-bg':'Фон основной кнопки','--edu-primary-ink':'Текст основной кнопки','--edu-control-border':'Контур контрола','--edu-card-border':'Разделитель или контур карточки',
@@ -81,11 +84,13 @@ export default function UiKit() {
   const [state,setState] = useState('score')
   const [demoTarget,setDemoTarget] = useState('')
   const [demoFiles,setDemoFiles] = useState<string[]>([])
+  const [demoDate,setDemoDate] = useState('2026-10-24')
   const input:ResultInput = state==='score' ? {kind:'score',points,maxPoints:max} : state==='answers' ? {kind:'answers',answered:points,total:max} : {kind:state==='waiting'?'waiting':'unknown'}
   return <div className="edu-kit">
     <header className="edu-kit-intro"><span><BookOpen size={18} aria-hidden="true" /> Education UI Kit</span><h1>Компоненты и правила</h1><p>Живые компоненты приложения, их состояния и смысл токенов. Каталог расширяется по мере унификации интерфейса.</p><a href="#/">На главную</a></header>
     <div className="edu-kit-layout"><nav aria-label="Разделы UI Kit">{topicGroups.map(group => <div className="edu-kit-nav-group" key={group.id}><small>{group.title}</small>{group.topics.map(topic => <button key={topic.id} type="button" aria-current={section===topic.id?'page':undefined} onClick={()=>setSection(topic.id)}><topic.icon size={16} aria-hidden="true" />{topic.title}<ChevronRight size={14} aria-hidden="true" /></button>)}</div>)}</nav>
     <div className="edu-kit-content">
+      {section==='calendar' && <section aria-label="Пример календаря"><h2>Календарь и каникулы</h2><p>Условный пример, не календарь семьи. В приложении периоды приходят только из МЭШ конкретного ученика. Пустое расписание не означает каникулы.</p><DayCalendar days={uiKitCalendarDays} schoolCalendar={uiKitCalendar} today="2026-10-24" selectedDate={demoDate} onSelect={setDemoDate}/><p role="status">Выбрана дата: {demoDate}</p><p>Период объединён рамкой, знаком солнца и подписью. Текущий день сохраняет контур, выбранный — фирменное заполнение. Любой день доступен для просмотра работ; каникулы не закрывают и не удаляют задания.</p></section>}
       {section==='results' && <section aria-labelledby="kit-results-title"><h2 id="kit-results-title">Индикаторы результата</h2><p>Метка, баллы и полоса используют одну политику цвета. Заполнение ответов и ожидание проверки — самостоятельные состояния.</p>
         <div className="edu-kit-playground"><div className="edu-kit-controls"><label>Состояние<select value={state} onChange={event=>setState(event.target.value)}><option value="score">Проверенный результат</option><option value="answers">Заполнение ответов</option><option value="waiting">Ожидание проверки</option><option value="unknown">Нет результата</option></select></label><label>{state==='answers'?'Ответов':'Баллов'}<input type="number" step="0.01" value={Number.isNaN(points)?'':points} disabled={state==='waiting'||state==='unknown'} onChange={event=>setPoints(event.target.valueAsNumber)} /></label><label>Всего<input type="number" min="1" step="0.01" value={Number.isNaN(max)?'':max} disabled={state==='waiting'||state==='unknown'} onChange={event=>setMax(event.target.valueAsNumber)} /></label></div>
         <div className="edu-kit-presets" aria-label="Примеры значений">{[0,50,84.99,85,100].map(value=><button type="button" key={value} onClick={()=>{setPoints(value);setMax(100);setState('score')}}>{value}%</button>)}</div>

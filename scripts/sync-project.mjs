@@ -4,6 +4,8 @@
  * @see ../docs/modules/synchronization/global-sync.md#inventory
  * @see ../docs/operations/education-sync.md
  * @see ../docs/shared/server-runtime.md
+ * @see ../docs/modules/school-diary/school-calendar.md
+ * @see ../docs/decisions/pupil-vacations-2026-10-19.md
  */
 import { randomUUID } from 'node:crypto'
 import { existsSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
@@ -24,6 +26,8 @@ import { assertGradeSnapshotAligned } from '../day/grade-reconciliation.mjs'
 import { pendingPublicationDates, refreshedCalendarChecks } from '../sync/publication-audit.mjs'
 import { enqueueSyncJob, setSyncJob, syncFingerprint } from '../sync/job-queue.mjs'
 import { reuseRunContext } from '../sync/run-context.mjs'
+import { calendarFailure, calendarShape, captureSchoolCalendar, normalizeSchoolCalendar } from '../sync/school-calendar.mjs'
+import { publishSchoolCalendar } from '../sync/school-calendar-publication.mjs'
 
 /** Global source collection. Enrichment and publication remain separate checked phases.
  * @see ../docs/modules/synchronization/global-sync.md#inventory
@@ -38,7 +42,7 @@ const legacyCodec = createLegacyMeshCredentialCodec({ familyAccessPath: resolve(
   credentialsPath: resolve(local, 'diary', 'secret.json') })
 const meshSessions = createMeshSessionService({ db, connectionsDir: connections, legacyCodec, telemetry })
 const command = process.argv[2] || 'plan'
-if (!['plan', 'collect', 'phase'].includes(command)) throw new Error('Использование: npm run sync:project -- plan | collect | phase --run ID --family ID --child ID --to PHASE')
+if (!['plan', 'collect', 'phase', 'calendar'].includes(command)) throw new Error('Использование: npm run sync:project -- plan | collect | calendar | phase --run ID --family ID --child ID --to PHASE')
 
 // Timings are confined to the private run manifest. These count adapter
 // operations, not underlying HTTP requests or billed Firestore document reads.
@@ -117,6 +121,28 @@ function publicSummary(data) {
 function statusRef(target) {
   return db.doc(`families/${target.familyId}/children/${target.childId}/syncStatus/current`)
 }
+function sourceDirectory(target) {
+  return target.credentialKind === 'legacy' ? resolve(local, 'diary')
+    : resolve(runDir, 'sources', target.familyId, target.childId, 'diary')
+}
+async function collectChildCalendar(target, adapter, today, timing, publish = false) {
+  const dir = sourceDirectory(target)
+  const owner = { source: 'mesh', familyId: target.familyId, childId: target.childId,
+    sourceAccountId: target.sourceAccountId, sourcePersonId: target.sourcePersonId }
+  if (target.credentialKind !== 'legacy') writeJson(dirname(dir), 'context.json', owner)
+  const capture = { ...await measure(timing, 'getSchoolCalendar', () => captureSchoolCalendar(adapter, today,
+    () => new Date().toISOString(), failure => writeJson(dir, 'school-calendar-failure.json', failure))), owner }
+  writeJson(dir, 'school-calendar-attempt.json', capture)
+  const calendar = normalizeSchoolCalendar(capture, owner)
+  writeJson(dir, 'school-calendar-capture.json', capture)
+  writeJson(dir, 'school-calendar.json', calendar)
+  const tokens = readJson(dirname(dir), 'day-dashboard-links.json')
+  if (publish && (!tokens?.student || !tokens?.parent)) throw Error('calendar_dashboards_required')
+  const publication = publish && tokens?.student && tokens?.parent
+    ? await measure(timing, 'publishSchoolCalendar', () => publishSchoolCalendar({ db, tokens, owner, calendar, today })) : null
+  return { state: publication ? 'complete' : 'captured', query: capture.query, shape: calendarShape(capture.payload),
+    checkedAt: calendar.checkedAt, vacations: calendar.vacations, publication }
+}
 async function status(target, runId, phase, extra = {}) {
   await statusRef(target).set({ runId, phase, updatedAt: Timestamp.now(), ...extra }, { merge: true })
 }
@@ -187,12 +213,16 @@ async function collectChild(target, adapter, runId, today, timing) {
     adapter[method] = (...args) => measure(timing, method, () => original(...args))
   }
   reuseRunContext(adapter, (method) => count(timing, `${method}Reused`), telemetry)
-  const dir = target.credentialKind === 'legacy' ? resolve(local, 'diary')
-    : resolve(runDir, 'sources', target.familyId, target.childId, 'diary')
+  const dir = sourceDirectory(target)
   if (target.credentialKind !== 'legacy') writeJson(dirname(dir), 'context.json', {
     familyId: target.familyId, childId: target.childId,
     sourceAccountId: target.sourceAccountId, sourcePersonId: target.sourcePersonId,
   })
+  // One source request per pupil/run, independent of the 42 daily schedule reads.
+  // A calendar outage must not prevent checking newly submitted homework.
+  let schoolCalendar
+  try { schoolCalendar = await collectChildCalendar(target, adapter, today, timing, true) }
+  catch (error) { schoolCalendar = { state: 'blocked', diagnostic: calendarFailure(error) } }
   const changes = { lessons: 0, grades: 0, assignments: 0 }
   const changedGradeKeys = new Set()
   const changedDates = []
@@ -205,7 +235,7 @@ async function collectChild(target, adapter, runId, today, timing) {
       const reason = Object.values(result.errors).includes('RATE_LIMITED') ? 'rate-limited'
         : Object.values(result.errors).includes('AUTH_REQUIRED') ? 'auth-required' : 'incomplete-mesh'
       await measure(timing, 'statusWrite', () => status(target, runId, 'blocked', { reason, checkedDates: checked, currentDate: date, lastFullMeshAt: lastFull }))
-      return { state: 'blocked', reason, checkedDates: checked, lastFullMeshAt: lastFull, changes }
+      return { state: 'blocked', reason, checkedDates: checked, lastFullMeshAt: lastFull, changes, schoolCalendar }
     }
     await measure(timing, 'persistCapture', () => persistMeshCapture({ runDir, runId, familyId: target.familyId, childId: target.childId, snapshot: result }))
     captures++
@@ -249,14 +279,14 @@ async function collectChild(target, adapter, runId, today, timing) {
     await measure(timing, 'statusWrite', () => status(target, runId, 'complete', { checkedDates: checked, totalDates: dates.length,
       currentDate: dates.at(-1), lastFullMeshAt: lastFull, pendingPublicationCount: 0,
       reason: null, verifiedAt: Timestamp.now() }))
-    return { state: 'complete', checkedDates: checked, privateCaptures: captures, calendarChecksPublished,
+    return { state: 'complete', checkedDates: checked, privateCaptures: captures, calendarChecksPublished, schoolCalendar,
       checkedFrom: dates[0], checkedThrough: dates.at(-1), lastFullMeshAt: lastFull,
       changes, changedDates, pendingPublicationDates: pendingPublicationDatesByDay, sourceDir: dir }
   }
   await measure(timing, 'statusWrite', () => status(target, runId, 'awaiting-review', { checkedDates: checked, totalDates: dates.length,
     currentDate: dates.at(-1), lastFullMeshAt: lastFull,
     pendingPublicationCount: pendingPublicationDatesByDay.length, reason: 'source-review-required' }))
-  return { state: 'awaiting-enrichment', checkedDates: checked, privateCaptures: captures, calendarChecksPublished,
+  return { state: 'awaiting-enrichment', checkedDates: checked, privateCaptures: captures, calendarChecksPublished, schoolCalendar,
     checkedFrom: dates[0], checkedThrough: dates.at(-1), lastFullMeshAt: lastFull,
     changes, changedDates, pendingPublicationDates: pendingPublicationDatesByDay, sourceDir: dir }
 }
@@ -353,7 +383,23 @@ if (command === 'phase') await markPhase()
 else {
 const runTiming = newTiming()
 const data = await measure(runTiming, 'inventory', () => inventory(runTiming))
-if (command === 'plan') {
+if (command === 'calendar') {
+  const results = []
+  for (const target of data.targets) {
+    if (target.state !== 'queued') { results.push({ state: 'blocked', reason: target.reason }); continue }
+    try {
+      const scope = { source: 'mesh', familyId: target.familyId, childId: target.childId,
+        sourceAccountId: target.sourceAccountId, sourcePersonId: target.sourcePersonId }
+      const legacyOwner = target.credentialKind === 'legacy'
+        ? { kind: 'legacy', familyId: target.familyId, childId: target.childId, accountId: target.sourceAccountId } : null
+      const result = await meshSessions.withChildAdapter(scope, adapter => collectChildCalendar(target, adapter, moscowToday(),
+        runTiming, process.argv.includes('--publish')), { legacyOwner })
+      results.push(result)
+    } catch (error) { results.push({ state: 'blocked', reason: safeReason(error), diagnostic: calendarFailure(error) }) }
+  }
+  console.log(JSON.stringify({ ...publicSummary(data), calendar: results, readOnly: !process.argv.includes('--publish'), measurements: finishTiming(runTiming) }, null, 2))
+  if (results.some(result => result.state === 'blocked')) process.exitCode = 2
+} else if (command === 'plan') {
   const timing = finishTiming(runTiming)
   console.log(JSON.stringify({ readOnly: true, ...publicSummary(data),
     measurements: { totalMs: timing.wallMs, inventoryMs: timing.stages.inventory?.elapsedMs ?? null,
@@ -402,15 +448,16 @@ if (command === 'plan') {
       })) }
     writeJson(runDir, `run-${runId}.json`, manifest)
     const blocked = results.filter((item) => item.result.state === 'blocked').length
+    const calendarsBlocked = results.filter((item) => item.result.schoolCalendar?.state === 'blocked').length
     console.log(JSON.stringify({ runId, families: data.families.length, children: data.targets.length,
-      fetched: results.length - blocked, blocked,
+      fetched: results.length - blocked, blocked, calendarsBlocked,
       report: collectedProjectSummary(manifest), timing: runTiming,
       changedDates: results.reduce((sum, item) => sum + (item.result.changedDates?.length ?? 0), 0),
       pendingPublicationDates: results.reduce((sum, item) => sum + (item.result.pendingPublicationDates?.length ?? 0), 0),
-      state: blocked === results.length ? 'blocked' : blocked ? 'partially-collected'
+      state: blocked === results.length ? 'blocked' : blocked || calendarsBlocked ? 'partially-collected'
         : results.every((item) => item.result.state === 'complete') ? 'complete' : 'awaiting-enrichment-and-publication',
       journal: `project-sync/run-${runId}.json` }, null, 2))
-    if (blocked) process.exitCode = 2
+    if (blocked || calendarsBlocked) process.exitCode = 2
   } finally { rmSync(lock, { force: true }) }
 }
 }

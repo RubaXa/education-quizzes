@@ -25,6 +25,14 @@
 .day-dashboard-date.selected small{color:#efe7ff}
 .day-dashboard-date.today.selected{box-shadow:0 0 0 3px #fff0d1}
 .day-dashboard-date:focus-visible,.day-dashboard-detail-link:focus-visible,.day-dashboard-homework-row:focus-visible,.day-dashboard-homework-complete summary:focus-visible{outline:3px solid #ad8ce5;outline-offset:3px}
+/* @see ../docs/modules/school-diary/school-calendar.md#представление */
+.day-dashboard-dates{align-items:flex-end}
+.day-dashboard-vacation{flex:none;display:grid;gap:7px;padding:8px;border:1px solid var(--edu-calendar-vacation-border);border-radius:18px;background:var(--edu-calendar-vacation-bg);color:var(--edu-calendar-vacation-ink)}
+.day-dashboard-vacation-heading{display:flex;align-items:center;gap:6px;font-size:.73rem;line-height:1.4}
+.day-dashboard-vacation-heading span{margin-left:auto;white-space:nowrap}
+.day-dashboard-vacation-days{display:flex;gap:8px}
+.day-dashboard-vacation-days .day-dashboard-date:not(.selected){background:var(--edu-surface);color:var(--edu-calendar-vacation-ink)}
+.day-dashboard-vacation-days .day-dashboard-date:not(.selected):not(.today){border-color:var(--edu-calendar-vacation-border)}
 .day-dashboard-grid{display:grid;min-width:0;grid-template-columns:minmax(0,1fr) 290px;gap:18px;margin-top:20px;align-items:start}
 .day-dashboard-main{display:grid;gap:16px;min-width:0}
 .day-dashboard-card{padding:20px}

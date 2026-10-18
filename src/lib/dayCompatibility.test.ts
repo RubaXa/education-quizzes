@@ -7,6 +7,17 @@ const page = () => ({ schemaVersion: 1, kind: 'parent', date: '2026-10-12', targ
   testPlacements: [{ taskId: 'mesh-7', subjectId: 'history', token: `old-slug~${b}` }, { taskId: 'mesh-7', subjectId: 'history', token: a }] })
 
 describe('совместимость дневных данных', () => {
+  /** @see ../../docs/modules/school-diary/school-calendar.md */
+  it('keeps the confirmed calendar through the ordinary dashboard adapter, omitting malformed or guessed metadata', () => {
+    const source = { schemaVersion: 1, source: 'mesh', from: '2026-09-01', to: '2027-08-31', checkedAt: '2026-10-19T00:00:00Z',
+      revision: 'a'.repeat(64), vacations: [{ from: '2026-10-24', to: '2026-11-01', title: 'Каникулы' }] }
+    const dashboard = { schemaVersion: 1, kind: 'parent', days: [] }
+    expect(normalizeDayDashboard({ ...dashboard, schoolCalendar: source }).schoolCalendar).toEqual(source)
+    for (const schoolCalendar of [{ ...source, source: 'general' }, { ...source, vacations: [{ from: '2026-11-02', to: '2026-11-01', title: 'Ошибка' }] }]) {
+      expect(normalizeDayDashboard({ ...dashboard, schoolCalendar }).schoolCalendar).toBeUndefined()
+      expect(normalizeDayDashboard({ ...dashboard, schoolCalendar }).days).toEqual([])
+    }
+  })
   it('читает legacy-дубликат, оставляя только токен действующего задания', () => {
     const normalized = normalizeDayPage(page())
     expect(normalized.testPlacements).toEqual([{ taskId: 'mesh-7', subjectId: 'history', token: a }])

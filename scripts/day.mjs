@@ -135,7 +135,8 @@ async function addDashboardDocuments(batch, links, tokens, stagedPages = {}, gra
       },
     }))
     const previousDays = new Map((previous?.days ?? []).map((day) => [day.date, day]))
-    const index = buildDayDashboardIndex(local, links, role)
+    const retainedCalendar = previous?.familyId === owner.familyId && previous?.childId === owner.childId ? previous.schoolCalendar : null
+    const index = buildDayDashboardIndex(local, links, role, new Date(), retainedCalendar)
     const indexErrors = dayDashboardShapeErrors(index)
     if (indexErrors.length) fail(`Неверная схема календаря ${role}: ${indexErrors.join(' ')}`)
     const removalFile = resolve(local, 'weekend-slot-removals.json')
@@ -220,15 +221,18 @@ async function verifyPublishedDay(source, pair, indexTokens, links) {
 }
 async function verifyPublishedIndex(links, indexTokens) {
   for (const role of ['student', 'parent']) {
-    const expected = buildDayDashboardIndex(local, links, role)
     const published = (await db.doc(`dayDashboards/${indexTokens[role]}`).get()).data()
+    const owner = ownerContext()
+    const retainedCalendar = published?.familyId === owner?.familyId && published?.childId === owner?.childId ? published.schoolCalendar : null
+    const expected = buildDayDashboardIndex(local, links, role, new Date(), retainedCalendar)
     const shapeErrors = dayDashboardShapeErrors(published)
     if (shapeErrors.length) fail(`Неверная опубликованная схема календаря ${role}: ${shapeErrors.join(' ')}`)
     const keys = ['date', 'checkedAt', 'complete', 'sourceRevision', 'schedule', 'homework', 'dayToken', 'homeworkDayToken']
     const comparable = (days) => days?.map((day) => Object.fromEntries(keys.map((key) => [key, day[key]])))
     if (published?.kind !== role
       || JSON.stringify(comparable(published.days)) !== JSON.stringify(comparable(expected.days))
-      || JSON.stringify(published.weekendWork) !== JSON.stringify(expected.weekendWork)) {
+      || JSON.stringify(published.weekendWork) !== JSON.stringify(expected.weekendWork)
+      || JSON.stringify(published.schoolCalendar ?? null) !== JSON.stringify(expected.schoolCalendar ?? null)) {
       fail(`Опубликованный индекс ${role} не совпадает с полным проверенным горизонтом.`)
     }
   }
