@@ -34,6 +34,7 @@ export type PersonalProfile = {
 let activeSession: PersonalSession | null = null
 let sessionRevision = 0
 let pendingRedemption: { linkToken: string; promise: Promise<PersonalSession> } | null = null
+let pendingRecovery: { session: PersonalSession; promise: Promise<boolean> } | null = null
 const startupContext = createRequestSingleFlight<string, { session: PersonalSession; profile: PersonalProfile } | null>(3_000)
 const secretPattern = /^[A-Za-z0-9_-]{43}$/
 const localContextKey = 'education-personal-context-v1'
@@ -42,6 +43,7 @@ const localContextMaxAgeMs = 30 * 60_000
 type PersonalContext = { session: PersonalSession; profile: PersonalProfile }
 type CachedPersonalContext = PersonalContext & { savedAt: number }
 const contextObservers = new Set<() => void>()
+const sameSession = (left: PersonalSession, right: PersonalSession) => left.personId === right.personId && left.deviceUid === right.deviceUid && left.linkToken === right.linkToken
 function changedInAnotherTab(event: StorageEvent) {
   if (event.key !== null && event.key !== localContextKey) return
   // localStorage is shared, but module memory and mounted routes are not.
@@ -179,6 +181,58 @@ export function clearPersonalSession(expected?: PersonalSession): boolean {
   return true
 }
 
+/** Recover an already authorized replacement binding; never redeem a link or write rights.
+ * Local-first remains the normal path. This addressed read runs only after a confirmed
+ * device/grant/member mismatch, including permission-denied arriving before the device listener.
+ * @see ../../docs/modules/families/access-and-state.md#authenticated-learning-routes */
+export async function recoverPersonalContext(expected: PersonalSession): Promise<boolean> {
+  const saved = readCachedPersonalContext()?.session
+  if (saved && !sameSession(saved, expected)) {
+    clearPersonalSession(expected) // Invalidate the old memory, preserve and announce the newer login.
+    return true
+  }
+  if (pendingRedemption) { await pendingRedemption.promise; return true }
+  if (pendingRecovery && sameSession(pendingRecovery.session, expected)) return pendingRecovery.promise
+  const revision = sessionRevision
+  const promise = (async () => {
+    const auth = getAuth()
+    await auth.authStateReady()
+    if (auth.currentUser?.uid !== expected.deviceUid) return false
+    const device = await getDoc(doc(db, 'deviceSessions', expected.deviceUid))
+    if (revision !== sessionRevision || pendingRedemption) return true
+    // A cached binding is not evidence of a remote replacement or revocation.
+    if (device.metadata?.fromCache) throw Object.assign(new Error('Не удалось сверить текущий вход устройства.'), { code: 'unavailable' })
+    const linkToken = device.data()?.linkToken
+    if (!device.exists() || typeof linkToken !== 'string' || !secretPattern.test(linkToken) || linkToken === expected.linkToken) return false
+    traceAccess('identity.changed', { source: 'device-server', reason: 'device-binding-changed' })
+    const grant = await getDoc(doc(db, 'accessLinks', linkToken))
+    if (revision !== sessionRevision || pendingRedemption) return true
+    if (grant.metadata?.fromCache) throw Object.assign(new Error('Не удалось подтвердить действующий вход.'), { code: 'unavailable' })
+    const personId = grant.data()?.personId
+    if (!grant.exists() || grant.data()?.active !== true || typeof personId !== 'string') return false
+    const session = { deviceUid: expected.deviceUid, linkToken, personId }
+    const profile = await loadPersonalProfile(session)
+    if (revision !== sessionRevision || pendingRedemption || auth.currentUser?.uid !== expected.deviceUid) return true
+    const current = readCachedPersonalContext()?.session
+    if (current && !sameSession(current, expected)) { clearPersonalSession(expected); return true }
+    sessionRevision++
+    startupContext.clear()
+    forgetPersonalViews()
+    forgetCachedPersonalContext()
+    activeSession = null
+    rememberPersonalContext({ session, profile })
+    traceAccessContext('identity.resolved', { source: 'device-server', reason: 'device-binding-recovered' }, session)
+    contextObservers.forEach((changed) => changed())
+    return true
+  })().catch((cause: unknown) => {
+    if (cause && typeof cause === 'object' && 'code' in cause && cause.code === 'permission-denied') return false
+    throw cause
+  })
+  pendingRecovery = { session: expected, promise }
+  try { return await promise }
+  finally { if (pendingRecovery?.promise === promise) pendingRecovery = null }
+}
+
 export function secretFromPersonalLink(value: string): string {
   const trimmed = value.trim()
   if (!trimmed) throw new Error('Ссылка не найдена. Скопируйте личную ссылку родителя или ребёнка и попробуйте снова.')
@@ -291,10 +345,21 @@ export async function restorePersonalContext(): Promise<{ session: PersonalSessi
     const expectedRevision = sessionRevision
     const session = await restorePersonalSession()
     if (!session) return null
-    const profile = await loadPersonalProfile(session)
-    if (expectedRevision !== sessionRevision) return null
-    rememberPersonalContext({ session, profile })
-    return { session, profile }
+    try {
+      const profile = await loadPersonalProfile(session)
+      if (expectedRevision !== sessionRevision) return null
+      rememberPersonalContext({ session, profile })
+      return { session, profile }
+    } catch (cause) {
+      // An expired browser cache can reference the previous person. Its profile
+      // is denied before LearningRoute has mounted any access listener.
+      if (cause && typeof cause === 'object' && 'code' in cause && cause.code === 'permission-denied'
+        && await recoverPersonalContext(session)) {
+        const replacement = readCachedPersonalContext()
+        return replacement?.session.deviceUid === uid ? replacement : null
+      }
+      throw cause
+    }
   })
 }
 

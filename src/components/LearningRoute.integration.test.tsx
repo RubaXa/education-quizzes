@@ -9,6 +9,7 @@ const scene = vi.hoisted(() => ({ profile: null as PersonalProfile | null, serve
 vi.mock('@/lib/firebase', () => ({ db: {} }))
 vi.mock('firebase/auth', () => ({ getAuth: () => ({ currentUser: { uid: 'device' } }) }))
 vi.mock('@/lib/personalAccess', async (original) => ({
+  recoverPersonalContext: async () => false,
   watchPersonalContextChanges: (await original<typeof import('@/lib/personalAccess')>()).watchPersonalContextChanges,
   readCachedPersonalContext: () => scene.profile ? { session: { personId: 'person', deviceUid: 'device', linkToken: 'secret' }, profile: scene.profile } : null,
   restorePersonalContext: async () => { if (scene.restoreError) throw scene.restoreError; return scene.profile ? { session: { personId: 'person', deviceUid: 'device', linkToken: 'secret' }, profile: scene.profile } : null },

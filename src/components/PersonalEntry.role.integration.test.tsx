@@ -23,6 +23,7 @@ vi.mock('@/lib/personalAccess', async (original) => ({
   loadPersonalProfile: async () => { scene.refreshes++; return scene.server },
   rememberPersonalContext: (context: { profile: PersonalProfile }) => { scene.cached = context.profile },
   clearPersonalSession: () => { scene.closed++; scene.cached = null },
+  recoverPersonalContext: async () => false,
   redeemPersonalLink: async () => { scene.redemptions++; return session }, personalEntryUrl: () => '#/enter/example', secretFromPastedPersonalLink: (value: string) => value,
 }))
 vi.mock('firebase/firestore', () => ({

@@ -1,6 +1,7 @@
 # Карта файлов, контрактов и потребителей
 
 | Файл | Спецификация | Назначение | Потребитель |
+| [docs/decisions/device-binding-recovery-2026-10-18.md](decisions/device-binding-recovery-2026-10-18.md) | [Доступ и состояние](modules/families/access-and-state.md) | Восстановление действующего server binding вместо потери входа при старой локальной личности | Разработчик; выпуск |
 |---|---|---|---|
 | [docs/decisions/session-owned-revocation-2026-10-18.md](decisions/session-owned-revocation-2026-10-18.md) | [Доступ и состояние](modules/families/access-and-state.md) | Воспроизведённое стирание нового входа старым callback и матрица обеих ролей | Разработчик; выпуск |
 | [public/access-snapshot.js](../public/access-snapshot.js) | [Локальная LDD-трасса](modules/families/browser-access-trace.md) | Read-only collector старой вкладки без обновления её приложения | Штатный diagnostics:browser snippet |
