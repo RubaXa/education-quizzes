@@ -546,6 +546,38 @@
       "path": "docs/decisions/teacher-choice-practice-2026-10-17.md"
     },
     {
+      "id": "decision.telegram-compact-digest-2026-10-18",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-18",
+      "updated": "2026-10-18",
+      "parent": "shared.design.telegram",
+      "uses": [
+        "service.telegram-bot.delivery",
+        "shared.design.ui-kit"
+      ],
+      "consumers": [
+        "Telegram renderer",
+        "Education UI Kit",
+        "product change gate"
+      ],
+      "code": [
+        "packages/education-presentation/notification.mjs",
+        "packages/telegram-notifications/domain/renderer.mjs",
+        "packages/telegram-notifications/adapters/telegram.mjs",
+        "src/components/TelegramNotificationPreview.tsx",
+        "src/components/TelegramNotificationPreview.css"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/telegram-compact-digest-2026-10-18.md"
+    },
+    {
       "id": "decision.telegram-design-system-2026-10-18",
       "status": "accepted",
       "implementation": "not-applicable",
@@ -2584,6 +2616,20 @@
       "kind": "verification",
       "purpose": "Регрессии: Агрегированная проверка готовности Firestore/Telegram/host",
       "consumer": "Vitest; разработчик"
+    },
+    {
+      "id": "file:packages/telegram-notifications/operations/review-check.mjs",
+      "path": "packages/telegram-notifications/operations/review-check.mjs",
+      "kind": "artifact",
+      "purpose": "Read-only агрегированная диагностика контекста проверок и групповой доставки",
+      "consumer": "Оператор Education"
+    },
+    {
+      "id": "file:packages/telegram-notifications/operations/review-check.test.mjs",
+      "path": "packages/telegram-notifications/operations/review-check.test.mjs",
+      "kind": "verification",
+      "purpose": "Окна диагностики, неизвестная причина повторов и приватность",
+      "consumer": "Vitest; техлид"
     },
     {
       "id": "file:packages/telegram-notifications/operations/source-check.mjs",
@@ -6693,7 +6739,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-08",
-      "updated": "2026-10-16",
+      "updated": "2026-10-18",
       "consumers": [
         "parent",
         "student",
@@ -8291,6 +8337,16 @@
       "type": "uses"
     },
     {
+      "from": "decision.telegram-compact-digest-2026-10-18",
+      "to": "service.telegram-bot.delivery",
+      "type": "uses"
+    },
+    {
+      "from": "decision.telegram-compact-digest-2026-10-18",
+      "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
       "from": "decision.telegram-design-system-2026-10-18",
       "to": "service.telegram-bot.delivery",
       "type": "uses"
@@ -8902,6 +8958,11 @@
     },
     {
       "from": "file:packages/education-presentation/notification.mjs",
+      "to": "decision.telegram-compact-digest-2026-10-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-presentation/notification.mjs",
       "to": "shared.design.telegram",
       "type": "implements"
     },
@@ -9017,6 +9078,11 @@
     },
     {
       "from": "file:packages/telegram-notifications/adapters/telegram.mjs",
+      "to": "decision.telegram-compact-digest-2026-10-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/adapters/telegram.mjs",
       "to": "service.telegram-bot.delivery",
       "type": "implements"
     },
@@ -9082,6 +9148,11 @@
     },
     {
       "from": "file:packages/telegram-notifications/domain/renderer.mjs",
+      "to": "decision.telegram-compact-digest-2026-10-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/domain/renderer.mjs",
       "to": "service.telegram-bot.delivery",
       "type": "implements"
     },
@@ -9122,6 +9193,11 @@
     },
     {
       "from": "file:packages/telegram-notifications/operations/readiness.mjs",
+      "to": "service.telegram-bot.operations",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/operations/review-check.mjs",
       "to": "service.telegram-bot.operations",
       "type": "implements"
     },
@@ -10412,7 +10488,17 @@
     },
     {
       "from": "file:src/components/TelegramNotificationPreview.css",
+      "to": "decision.telegram-compact-digest-2026-10-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/TelegramNotificationPreview.css",
       "to": "shared.design.telegram",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/TelegramNotificationPreview.tsx",
+      "to": "decision.telegram-compact-digest-2026-10-18",
       "type": "implements"
     },
     {
@@ -13392,6 +13478,11 @@
     },
     {
       "from": "service.telegram-bot.operations",
+      "to": "file:packages/telegram-notifications/operations/review-check.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "service.telegram-bot.operations",
       "to": "file:packages/telegram-notifications/operations/source-check.test.mjs",
       "type": "verified-by"
     },
@@ -13779,6 +13870,11 @@
       "from": "shared.design.statuses",
       "to": "shared.design.ui-kit",
       "type": "uses"
+    },
+    {
+      "from": "shared.design.telegram",
+      "to": "decision.telegram-compact-digest-2026-10-18",
+      "type": "contains"
     },
     {
       "from": "shared.design.telegram",

@@ -87,6 +87,8 @@ source, scopeKey, completeness, observedAt, sourceRevision?, cursor?, records[]
 
 Для обновляемых предметных фактов изменение значимого поля создаёт новую ревизию/событие. Исключение `upload.confirmed`: уже известный recordKey означает тот же переданный файл; смена статуса проверки и обогащение контекста не создают новый факт загрузки. `title`, `subject`, `occurredLabel` разрешены для безопасного upload summary и проходят общий whitelist.
 
+`review.changed` переносит подтверждённые subject/title/status/дату задания. Нельзя отправлять лишь имя ребёнка и статус. Точный task context берётся из источника; отсутствующий контекст не восстанавливается renderer-ом. Новая смена статуса или новый meaningful fingerprint при том же статусе создают результат; fingerprint включает статус, отсортированный набор хэшированных `uploadIds` и SHA-256 содержимого ученически доступных `summary`/`nextStep`. Он не переносит эти ID или тексты в event/checkpoint. `checkedAt` и обогащение прежнего контекста сами по себе тихие. `reviewProjectionVersion` отдельно мигрирует прежние status-only baselines: прежний статус и текущий отпечаток принимаются один раз без повторной отправки, но реальная смена статуса не подавляется. Событие при новом результате с прежним статусом получает только whitelist-маркер `fields.changeKind: "updated"`; digest сообщает «разбор обновлён · {статус}», не раскрывая summary.
+
 Если значимое поле события меняется, появляется новая ревизия/событие только согласно политике его семейства. Дублирующийся сигнал той же ревизии возвращает существующий `eventId`. Неполные payload не становятся `deleted` или `cancelled`.
 
 Нормализация идемпотентна для всего DTO, включая `contextRefs.id`: сырые ID хэшируются; при `identityEncoding: sha256-v1` уже нормализованный 64-символьный hex ID сохраняется. `NotificationService.accept` может безопасно повторно нормализовать event до записи. Отдельный navigationContext допускается только для подтверждённого Firestore day scope: kind=day, проверенный dayToken с доказанными metadata обеих ролей. Он не подменяет хэшированные contextRefs и не принимает произвольный URL. Renderer строит канонический маршрут Education; приложение отдельно проверяет семейный доступ. Смена только навигации не является новым учебным фактом.
@@ -99,12 +101,12 @@ source, scopeKey, completeness, observedAt, sourceRevision?, cursor?, records[]
 |---|---|---|
 | `SourceObservationPort` | Firestore/МЭШ `observe/subscribe`, динамический coordinator, durable checkpoint/sequence/pending replay и DTO bridge; `diffCompleteSnapshots` и event normalization | Hosted readiness и эксплуатационные integration checks |
 | `IdentityRegistryPort`, `FamilyLinkAuthorizationPort` | Регистрация, hashed private pairing challenge, доверенное локальное погашение, stop challenge и отзыв одной link | Web PETR UI issuer |
-| `EventLedgerPort`, `DeliveryOutboxPort` | `recordIfAbsent`, job claim/finish/reschedule, lease, recovery и per-part receipts в Firestore adapter | Групповые записи/доставка дайджеста |
+| `EventLedgerPort`, `DeliveryOutboxPort` | `recordIfAbsent`, job claim/finish/reschedule, lease, recovery и per-part receipts в Firestore adapter | Группировка реализована через persistent group/pointer и immutable digest; retention не утверждён |
 | `RecipientResolverPort`, `MembershipAuthorizationPort` | Проверка активной семейной связи и membership родителя/ребёнка | Team resolver, team recipient configuration и раздельная route policy |
-| `MessageRendererPort` | Детерминированная family summary whitelist и разделение длинного текста | Полные `recipientView`/locale templates, approved context links и grouped digest renderer |
-| `TelegramDeliveryPort` | grammY transport, классификация ошибок, ограниченный retry и явная доставка из существующего outbox | Реальная внешняя интеграция и production rollout |
+| `MessageRendererPort` | Детерминированная family summary whitelist и разделение длинного текста | Полные `recipientView`/locale templates; compact digest renderer и подтверждённые day links реализованы |
+| `TelegramDeliveryPort` | grammY transport, классификация ошибок, ограниченный retry и явная доставка из существующего outbox | Hosted rollout; Mac runtime и реальные receipts подтверждены |
 | `ChannelAvailabilityPort` | `getState` и version-fenced `markUnavailable`; private update ordering в registry; runtime всегда инжектирует Firestore adapter | Реальные Telegram/Firestore integration и полный channel audit/retention |
-| `ClockPort`, `LoggerPort` | Внедряемые clock/logger в application services | Политика окон группировки и внешние alerts |
+| `ClockPort`, `LoggerPort` | Внедряемые clock/logger в application services | Внешние alerts; durable окно30/60с реализовано |
 
 Целевые сигнатуры остаются: `RecipientResolverPort` возвращает только проверенных получателей и privacy views; `MessageRendererPort` — `(event, recipientView, locale) → MessagePart[]`; `TelegramDeliveryPort` — `(chatId, MessagePart) → DeliveryReceipt`. Это описание будущих границ и не меняет фактический минимальный runtime composition.
 

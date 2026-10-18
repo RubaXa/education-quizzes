@@ -20,10 +20,14 @@ export function diffCompleteSnapshots({ source, scopeKey, familyId, childId, pre
     const from = before ? stable(before) : 'absent'
     const to = stable(record)
     const revision = createHash('sha256').update(JSON.stringify([current.observationSequence, from, to])).digest('hex')
+    const fields = { ...record.fields,
+      ...(record.kind === 'review' && ['verified', 'needs-fix', 'partial', 'cannot-assess'].includes(record.fields?.status)
+        && before?.fields?.status === record.fields?.status
+        && before.semanticHash !== record.semanticHash ? { changeKind: 'updated' } : {}) }
     events.push(createDomainEvent({
       source, scopeKey, familyId, childId, sourceEventKey: recordKey,
       sourceRevision: revision, eventType, occurredAt: record.occurredAt, detectedAt,
-      privacyClass: 'family-summary', fields: record.fields, navigationContext: record.navigationContext,
+      privacyClass: 'family-summary', fields, navigationContext: record.navigationContext,
     }))
   }
   // Deletions are deliberately omitted: disappearance alone is not proof of deletion.

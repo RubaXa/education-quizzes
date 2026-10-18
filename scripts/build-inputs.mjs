@@ -4,7 +4,7 @@ import { join, relative, resolve } from 'node:path'
 
 const root = resolve('.')
 const inputs = [
-  'src', 'public', 'pwa', 'scripts/generate-sw.mjs', 'index.html', 'vite.config.ts', 'package.json',
+  'src', 'public', 'pwa', 'packages', 'day', 'scripts/generate-sw.mjs', 'index.html', 'vite.config.ts', 'package.json',
   'package-lock.json', 'tsconfig.json', 'tsconfig.app.json', 'tsconfig.node.json',
 ]
 
@@ -13,18 +13,18 @@ export function isBuildInput(path) {
   return !/\.(?:test|spec)\.[cm]?[jt]sx?$/.test(path)
 }
 
-function addInput(hash, path) {
+function addInput(hash, path, baseRoot) {
   if (!existsSync(path)) return
   if (statSync(path).isDirectory()) {
-    for (const entry of readdirSync(path).sort()) addInput(hash, join(path, entry))
+    for (const entry of readdirSync(path).sort()) addInput(hash, join(path, entry), baseRoot)
     return
   }
   if (!isBuildInput(path)) return
-  hash.update(relative(root, path)).update('\0').update(readFileSync(path)).update('\0')
+  hash.update(relative(baseRoot, path)).update('\0').update(readFileSync(path)).update('\0')
 }
 
-export function buildFingerprint() {
+export function buildFingerprint(projectRoot = root) {
   const hash = createHash('sha256')
-  for (const input of inputs) addInput(hash, resolve(input))
+  for (const input of inputs) addInput(hash, resolve(projectRoot, input), projectRoot)
   return hash.digest('hex')
 }

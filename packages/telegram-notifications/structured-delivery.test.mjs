@@ -17,7 +17,7 @@ function twoStructuredParts(item) {
   const second = structuredClone(first)
   second.plaintext += '\nДемонстрационная часть 2'
   second.html += '\n<i>Демонстрационная часть 2</i>'
-  second.rich_message.blocks.push({ type: 'footer', text: { type: 'italic', text: 'Демонстрационная часть 2' } })
+  second.rich_message.blocks[0].text += '\nДемонстрационная часть 2'
   return [first, second]
 }
 function harness(store, { renderer = renderNotificationParts, delivery, membership = async () => true, clock = () => new Date(now), workerId = 'structured-worker' }) {

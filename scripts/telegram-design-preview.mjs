@@ -5,7 +5,7 @@ import { resolveProbeTarget } from '../packages/telegram-notifications/operation
 import { createRuntime } from '../packages/telegram-notifications/adapters/runtime.mjs'
 import { createFirestoreProbeRecipientResolver } from '../packages/telegram-notifications/adapters/probe-recipient-firestore.mjs'
 import { ProbeNotificationService } from '../packages/telegram-notifications/application/probe-notifications.mjs'
-import { renderNotificationParts } from '../packages/telegram-notifications/domain/renderer.mjs'
+import { renderNotificationDigestParts } from '../packages/telegram-notifications/domain/renderer.mjs'
 import { NOTIFICATION_EXAMPLES } from '../packages/education-presentation/notification.mjs'
 
 /** @see ../docs/shared/design/telegram.md#приёмка @see ../docs/services/telegram-bot/operations.md */
@@ -57,12 +57,18 @@ export async function main(args = process.argv.slice(2), dependencies = {}) {
       return 0
     }
     stage = 'templates'
-    const eventTypes = ['upload.confirmed', 'grade.created', 'homework.assigned', 'review.changed']
-    const examples = eventTypes.map((type) => NOTIFICATION_EXAMPLES.find((sample) => sample.event.eventType === type))
-    if (examples.some((sample) => !sample)) throw new Error('preview_examples_unavailable')
-    const parts = examples.flatMap(({ event }) => renderNotificationParts(event, 'family', { demo: true,
-      action: { label: 'Открыть UI Kit', url: 'https://rubaxa.github.io/education-quizzes/#/ui-kit' } }))
-    if (!parts.length) throw new Error('preview_examples_unavailable')
+    const template = NOTIFICATION_EXAMPLES.find((sample) => sample.event.eventType === 'review.changed')
+    if (!template) throw new Error('preview_examples_unavailable')
+    const examples = [
+      { title: '№3 · Шестьдесят горшков', status: 'verified' },
+      { title: '№1 · Книги на полках', status: 'needs-fix' },
+      { title: '№5 · Периметр прямоугольника', status: 'verified' },
+    ]
+    const digestEvents = examples.map((fields) => ({ ...template.event,
+      fields: { childName: 'Ученик А', subject: 'Математика', ...fields } }))
+    const parts = renderNotificationDigestParts(digestEvents, 'family', { demo: true,
+      action: { label: 'Открыть UI Kit', url: 'https://rubaxa.github.io/education-quizzes/#/ui-kit' } })
+    if (parts.length !== 1) throw new Error('preview_examples_unavailable')
     if (!options.apply) { emit({ schemaVersion: 1, status: 'ready', runId: options.runId, examples: examples.length, parts: parts.length, writes: 0, sends: 0 }); return 0 }
     stage = 'runtime'
     const runtime = dependencies.runtime ?? createRuntime({ token: env.AGI_EDU_BOT, projectId, instanceId: `design-preview-${process.pid}` }, { firestore: db })

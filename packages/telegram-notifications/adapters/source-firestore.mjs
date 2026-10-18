@@ -4,7 +4,9 @@ import { learningRouteIdentity } from '../../../day/learning-route-identity.mjs'
 
 /** @see ../../../docs/services/telegram-bot/adapters/firestore.md#области-данных-для-валидации @see ../../../docs/services/telegram-bot/ports-and-events.md#контракт-observation */
 export function createFirestoreSourceAdapter(db, { baseBackoffMs = 1_000, maxBackoffMs = 60_000, setTimer = setTimeout, clearTimer = clearTimeout } = {}) {
-  const validRefId = (value) => typeof value === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(value)
+  const validRefId = (value) => typeof value === 'string' && value.length > 0 && value.length <= 128
+    // eslint-disable-next-line no-control-regex -- Reject control bytes in Firestore document IDs.
+    && value !== '.' && value !== '..' && !value.includes('/') && !value.includes('\\') && !/[\u0000-\u001f\u007f]/.test(value)
   const scopeKey = (scope) => createHash('sha256').update(JSON.stringify(binding(scope))).digest('hex')
   const ownerRef = (scope) => db.doc(`dayOwners/${scope.dayToken}`)
   const getMasked = async (ref, fieldMask) => {
@@ -57,7 +59,7 @@ export function createFirestoreSourceAdapter(db, { baseBackoffMs = 1_000, maxBac
       if (scope.kind === 'quiz' && (data.familyId !== scope.familyId || data.childId !== scope.childId)) return { ...base, completeness: 'partial', records: [] }
       const record = scope.kind === 'upload'
         ? await projectUpload(scope, data, childName)
-        : project(scope, data, childName)
+        : scope.kind === 'progress' ? await projectReview(scope, data, childName) : project(scope, data, childName)
       if (record === INVALID_SOURCE_STATE) return { ...base, completeness: 'partial', records: [] }
       return { ...base, completeness: 'complete', observedAt: new Date().toISOString(), records: record ? [record] : [] }
     } catch {
@@ -80,6 +82,21 @@ export function createFirestoreSourceAdapter(db, { baseBackoffMs = 1_000, maxBac
             : data.status === 'pending' ? 'awaiting_storage_confirmation' : 'ignored'
       return { completeness: 'complete', state, ...(occurredAt ? { occurredAt } : {}) }
     } catch { return { completeness: 'partial', state: 'observation_failed' } }
+  }
+
+  async function inspectReview(scope) {
+    if (!validDescriptor(scope) || scope.kind !== 'progress') return { completeness: 'partial', state: 'invalid_scope', contextState: 'invalid' }
+    try {
+      if (!await validateScope(scope)) return { completeness: 'partial', state: 'owner_unverified', contextState: 'invalid' }
+      const snapshot = await getMasked(recordRef(scope), fieldMask('progress'))
+      if (!snapshot.exists) return { completeness: 'complete', state: 'missing', contextState: 'missing', checkedAtPresent: false }
+      const data = snapshot.data() ?? {}
+      if (data.purpose === 'source-material') return { completeness: 'complete', state: 'ignored', contextState: 'not_applicable', checkedAtPresent: canonicalTime(data.checkedAt) !== null }
+      const validStatus = ['verified', 'needs-fix', 'partial', 'cannot-assess'].includes(data.status)
+      const resolved = await reviewContext(scope, data)
+      return { completeness: resolved.context ? 'complete' : 'partial', state: validStatus ? data.status : 'invalid',
+        contextState: resolved.context ? 'exact' : 'missing', contextReason: resolved.reason, checkedAtPresent: canonicalTime(data.checkedAt) !== null }
+    } catch { return { completeness: 'partial', state: 'observation_failed', contextState: 'missing' } }
   }
 
   async function projectUpload(scope, data, childName) {
@@ -107,6 +124,42 @@ export function createFirestoreSourceAdapter(db, { baseBackoffMs = 1_000, maxBac
         ...(dueDate ? { occurredLabel: `Задание к ${dueDate}` } : {}) },
       ...(navigationContext ? { navigationContext } : {}),
     }
+  }
+
+  async function reviewContext(scope, data) {
+    if (typeof data.taskId !== 'string' || !data.taskId) return { context: null, reason: 'task_id_missing' }
+    if (data.taskId !== scope.recordId) return { context: null, reason: 'task_id_mismatch' }
+    const [ownerSnapshot, pageSnapshot] = await Promise.all([
+      getMasked(ownerRef(scope), ['familyId', 'childId', 'date', 'targetDate']),
+      getMasked(db.doc(`dayPages/${scope.dayToken}`), ['kind', 'familyId', 'childId', 'date', 'targetDate', 'taskIds', 'subjects']),
+    ])
+    if (!pageSnapshot.exists) return { context: null, reason: 'page_missing' }
+    const owner = ownerSnapshot.data() ?? {}
+    const page = pageSnapshot.data() ?? {}
+    if (!ownerSnapshot.exists || owner.familyId !== scope.familyId || owner.childId !== scope.childId || !validDay(owner.date)
+      || page.familyId !== scope.familyId || page.childId !== scope.childId) return { context: null, reason: 'owner_mismatch' }
+    if (page.kind !== 'student') return { context: null, reason: 'page_kind' }
+    if (page.date !== owner.date) return { context: null, reason: 'date_mismatch' }
+    if (!Array.isArray(page.taskIds) || !page.taskIds.includes(scope.recordId)) return { context: null, reason: 'task_not_in_page' }
+    if (!Array.isArray(page.subjects)) return { context: null, reason: 'task_context_missing' }
+    const exactTask = taskContext({ subjects: page.subjects }, scope.recordId)
+    const subject = safeLabel(exactTask?.subject)
+    const title = safeLabel(exactTask?.title)
+    const dueDate = page.targetDate ?? owner.targetDate
+    if (dueDate !== undefined && !validDay(dueDate)) return { context: null, reason: 'task_context_missing' }
+    const resolvedContext = subject && title ? { subject, title, ...(dueDate ? { occurredLabel: `Задание к ${dueDate}` } : {}) } : null
+    return resolvedContext ? { context: resolvedContext, reason: 'exact' } : { context: null, reason: 'task_context_missing' }
+  }
+
+  async function projectReview(scope, data, childName) {
+    if (data.purpose === 'source-material') return null
+    if (!['verified', 'needs-fix', 'partial', 'cannot-assess'].includes(data.status)) return null
+    const resolved = await reviewContext(scope, data)
+    if (!resolved.context) return INVALID_SOURCE_STATE
+    const semanticHash = reviewFingerprint(data)
+    if (!semanticHash) return INVALID_SOURCE_STATE
+    return { recordKey: sourceRecordKey('review', scope.dayToken, scope.recordId), kind: 'review', eventType: 'review.changed', semanticHash,
+      fields: { ...(childName ? { childName } : {}), ...resolved.context, status: data.status } }
   }
 
   function subscribe({ scopes, onSignal, onError = () => {} } = {}) {
@@ -139,7 +192,7 @@ export function createFirestoreSourceAdapter(db, { baseBackoffMs = 1_000, maxBac
     return async () => { disposed = true; if (timer) clearTimer(timer); timer = null; stop() }
   }
 
-  return Object.freeze({ kind: 'firestore', scopeKey, validateScope, observe, inspectUpload, subscribe })
+  return Object.freeze({ kind: 'firestore', scopeKey, validateScope, observe, inspectUpload, inspectReview, subscribe })
 }
 
 function safeDayNavigationContext(page, scope) {
@@ -163,7 +216,22 @@ function sourceRecordKey(kind, scope, id) { return createHash('sha256').update(J
 function fieldMask(kind) {
   if (kind === 'quiz') return ['familyId', 'childId', 'status', 'startedAt', 'submittedAt', 'title', 'subject']
   if (kind === 'upload') return ['status', 'taskId', 'storage.provider', 'storage.state', 'storage.syncedAt']
-  return ['status', 'checkedAt']
+  return ['status', 'checkedAt', 'taskId', 'purpose', 'uploadIds', 'summary', 'nextStep']
+}
+function reviewFingerprint(data) {
+  let uploadIds = []
+  if (data.uploadIds !== undefined) {
+    if (!Array.isArray(data.uploadIds) || data.uploadIds.length > 100
+      || data.uploadIds.some((id) => typeof id !== 'string' || !id.trim() || id.length > 256)) return null
+    uploadIds = [...new Set(data.uploadIds.map((id) => createHash('sha256').update(id).digest('hex')))].sort()
+  }
+  const publicText = (value) => value === undefined || value === null
+    ? ''
+    : typeof value === 'string' && value.length <= 50_000 ? value.trim() : null
+  const summary = publicText(data.summary)
+  const nextStep = publicText(data.nextStep)
+  if (summary === null || nextStep === null) return null
+  return createHash('sha256').update(JSON.stringify({ version: 2, status: data.status, uploadIds, summary, nextStep })).digest('hex')
 }
 const INVALID_SOURCE_STATE = Symbol('invalid_source_state')
 function project(scope, data, childName = '') {
@@ -174,12 +242,6 @@ function project(scope, data, childName = '') {
     return { recordKey: sourceRecordKey('upload', scope.dayToken, scope.recordId), kind: 'upload', eventType: 'upload.confirmed',
       semanticHash: createHash('sha256').update(JSON.stringify(['confirmed-upload-v1', scope.dayToken, scope.recordId])).digest('hex'),
       occurredAt: syncedAt, fields: { ...(childName ? { childName } : {}), status: 'confirmed' } }
-  }
-  if (scope.kind === 'progress') {
-    if (!['verified', 'needs-fix', 'partial', 'cannot-assess'].includes(data.status)) return null
-    const checkedAt = canonicalTime(data.checkedAt)
-    const semanticHash = createHash('sha256').update(JSON.stringify({ status: data.status, checkedAt })).digest('hex')
-    return { recordKey: sourceRecordKey('review', scope.dayToken, scope.recordId), kind: 'review', eventType: 'review.changed', semanticHash, fields: { ...(childName ? { childName } : {}), status: data.status } }
   }
   let phase
   if (data.status === 'submitted') phase = canonicalTime(data.submittedAt) ? 'submitted' : INVALID_SOURCE_STATE

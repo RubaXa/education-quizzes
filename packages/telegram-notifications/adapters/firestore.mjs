@@ -1,12 +1,15 @@
 import { randomBytes } from 'node:crypto'
 import { createHash } from 'node:crypto'
 import { FieldValue } from '@google-cloud/firestore'
+import { renderNotificationDigestParts, notificationMessageVersion } from '../domain/renderer.mjs'
 
 /** @see ../../../docs/services/telegram-bot/event-ledger-outbox.md#логические-записи @see ../../../docs/services/telegram-bot/identity-and-linking.md#состояния @see ../../../docs/services/telegram-bot/ports-and-events.md#контракт-портов */
-export function createFirestoreAdapters(db, { eventCollection = 'telegramNotificationEvents', outboxCollection = 'telegramNotificationOutbox', accountCollection = 'telegramBotAccounts' } = {}) {
+export function createFirestoreAdapters(db, { eventCollection = 'telegramNotificationEvents', outboxCollection = 'telegramNotificationOutbox', accountCollection = 'telegramBotAccounts', groupCollection = 'telegramNotificationGroups', groupPointerCollection = 'telegramNotificationGroupPointers' } = {}) {
   const events = db.collection(eventCollection)
   const jobs = db.collection(outboxCollection)
   const accounts = db.collection(accountCollection)
+  const groups = db.collection(groupCollection)
+  const groupPointers = db.collection(groupPointerCollection)
   const familyLinks = db.collection('telegramBotFamilyLinks')
   const registry = {
     async registerAccount({ senderId, username, firstName, at }) {
@@ -164,10 +167,16 @@ export function createFirestoreAdapters(db, { eventCollection = 'telegramNotific
   const outbox = {
     async claim({ workerId, now, leaseMs, maxAttempts = 8, jobId = null }) {
       if (jobId !== null && !validPathId(jobId)) throw safeError('job_unavailable')
-      const candidates = jobId ? [{ ref: jobs.doc(jobId) }]
+      const candidates = jobId ? [await jobs.doc(jobId).get()]
         : (await jobs.where('state', 'in', ['pending', 'retry_wait']).where('nextAttemptAt', '<=', now).orderBy('nextAttemptAt').limit(20).get()).docs
       for (const candidate of candidates) {
         const candidateRef = candidate.ref
+        const candidateRow = candidate.data?.() ?? null
+        if (candidateRow?.groupId && !candidateRow.isDigest) {
+          const groupedClaim = await claimDigest(candidateRow.groupId, { workerId, now, leaseMs, maxAttempts })
+          if (groupedClaim) return groupedClaim
+          continue
+        }
         const leaseToken = randomBytes(32).toString('base64url')
         const claimed = await db.runTransaction(async (tx) => {
           const fresh = await tx.get(candidateRef)
@@ -223,6 +232,76 @@ export function createFirestoreAdapters(db, { eventCollection = 'telegramNotific
       return snap.size
     },
   }
+  async function claimDigest(groupId, { workerId, now, leaseMs, maxAttempts }) {
+    if (!validPathId(groupId)) return null
+    const groupRef = groups.doc(groupId)
+    const leaseToken = randomBytes(32).toString('base64url')
+    return db.runTransaction(async (tx) => {
+      const groupSnap = await tx.get(groupRef)
+      if (!groupSnap.exists) return null
+      const group = groupSnap.data()
+      if (group.state !== 'open' || Date.parse(group.flushAt) > Date.parse(now)) return null
+      const pendingQuery = jobs.where('groupId', '==', groupId).where('state', '==', 'pending')
+      const pendingSnap = await tx.get(pendingQuery)
+      const rows = pendingSnap.docs.map((doc) => ({ ref: doc.ref, row: doc.data() }))
+        .sort((a, b) => String(a.row.event?.detectedAt ?? '').localeCompare(String(b.row.event?.detectedAt ?? '')) || a.row.jobId.localeCompare(b.row.jobId))
+      if (!rows.length) {
+        tx.update(groupRef, { state: 'empty', frozenAt: now })
+        return null
+      }
+      const first = rows[0].row
+      if (rows.some(({ row }) => row.messageVersion !== 2 || row.telegramUserId !== first.telegramUserId
+        || row.familyId !== first.familyId || row.childId !== first.childId || row.linkId !== first.linkId)) {
+        tx.update(groupRef, { state: 'dead_letter', safeErrorCode: 'group_membership_mismatch', failedAt: now })
+        for (const { ref } of rows) tx.update(ref, { state: 'dead_letter', safeErrorCode: 'group_membership_mismatch', failedAt: now })
+        return null
+      }
+      const eventIds = rows.map(({ row }) => row.eventId)
+      const eventDocs = await Promise.all(rows.map(({ row }) => tx.get(events.doc(row.eventId))))
+      if (eventDocs.some((snap) => !snap.exists || snap.data()?.familyId !== first.familyId || snap.data()?.childId !== first.childId)) {
+        tx.update(groupRef, { state: 'dead_letter', safeErrorCode: 'group_event_mismatch', failedAt: now })
+        for (const { ref } of rows) tx.update(ref, { state: 'dead_letter', safeErrorCode: 'group_event_mismatch', failedAt: now })
+        return null
+      }
+      const digestId = `digest_${createHash('sha256').update(groupId).digest('hex')}`
+      const digestRef = jobs.doc(digestId)
+      const existingDigest = await tx.get(digestRef)
+      if (existingDigest.exists) {
+        const current = existingDigest.data()
+        if (!['pending', 'retry_wait'].includes(current.state)) return null
+        if ((current.attempts ?? 0) >= maxAttempts) {
+          tx.update(digestRef, { state: 'dead_letter', safeErrorCode: 'retry_limit_reached', exhaustedAt: now,
+            leaseOwner: null, leaseToken: null, leaseUntil: null })
+          tx.update(groupRef, { state: 'dead_letter', safeErrorCode: 'retry_limit_reached', failedAt: now })
+          return null
+        }
+        const leaseUntil = new Date(Date.parse(now) + leaseMs).toISOString()
+        const attempts = (current.attempts ?? 0) + 1
+        tx.update(digestRef, { state: 'leased', attempts, leaseOwner: workerId, leaseToken, leaseUntil, claimedAt: now })
+        tx.update(groupRef, { state: 'frozen', digestJobId: digestId, frozenAt: group.frozenAt ?? now })
+        return { ...current, state: 'leased', attempts, leaseOwner: workerId, leaseToken, leaseUntil }
+      }
+      const eventsForDigest = eventDocs.map((snap) => snap.data())
+      const messageParts = renderNotificationDigestParts(eventsForDigest, 'family')
+      const messageVersion = notificationMessageVersion(messageParts)
+      if (!messageVersion) {
+        tx.update(groupRef, { state: 'dead_letter', safeErrorCode: 'group_render_invalid', failedAt: now })
+        for (const { ref } of rows) tx.update(ref, { state: 'dead_letter', safeErrorCode: 'group_render_invalid', failedAt: now })
+        return null
+      }
+      const attempts = 1
+      const leaseUntil = new Date(Date.parse(now) + leaseMs).toISOString()
+      const digest = { jobId: digestId, eventId: first.eventId, event: eventsForDigest[0], eventIds, isDigest: true,
+        eventJobIds: rows.map(({ row }) => row.jobId), groupId, familyId: first.familyId, personId: first.personId,
+        childId: first.childId, linkId: first.linkId, telegramUserId: first.telegramUserId,
+        messageVersion, messageParts, partReceipts: [], state: 'leased', attempts, nextAttemptAt: now,
+        leaseOwner: workerId, leaseToken, leaseUntil, claimedAt: now }
+      tx.create(digestRef, digest)
+      for (const { ref } of rows) tx.update(ref, { state: 'grouped', groupedInto: digestId, groupedAt: now })
+      tx.update(groupRef, { state: 'frozen', digestJobId: digestId, frozenAt: now, eventIds, eventJobIds: digest.eventJobIds })
+      return digest
+    })
+  }
   const eventLedger = {
     async recordIfAbsent({ event, jobs: jobRows }) {
       const eventRef = events.doc(event.eventId)
@@ -237,6 +316,18 @@ export function createFirestoreAdapters(db, { eventCollection = 'telegramNotific
           Promise.all(linkRefs.map((ref) => tx.get(ref))),
           Promise.all(memberRefs.map((ref) => tx.get(ref))),
         ])
+        const groupingEnabled = jobRows.map((job) => Boolean(job.groupingKey && job.messageVersion === 2 && event.eventType !== 'technical.probe'))
+        const groupKeys = jobRows.map((job, index) => groupingEnabled[index] ? job.groupingKey : null)
+        const pointerRefs = groupKeys.map((key) => key ? groupPointers.doc(key) : null)
+        const pointerSnaps = await Promise.all(pointerRefs.map((ref) => ref ? tx.get(ref) : null))
+        const activeGroups = await Promise.all(pointerSnaps.map((snap) => {
+          const groupId = snap?.exists ? snap.data()?.activeGroupId : null
+          return groupId ? tx.get(groups.doc(groupId)) : null
+        }))
+        const activeMembers = await Promise.all(activeGroups.map((snap) => {
+          const active = snap?.exists ? snap.data() : null
+          return active?.state === 'open' ? tx.get(jobs.where('groupId', '==', active.groupId).where('state', '==', 'pending')) : null
+        }))
         const verified = jobRows.map((job, index) => {
           const link = linkSnaps[index].exists ? linkSnaps[index].data() : null
           const member = memberSnaps[index].exists ? memberSnaps[index].data() : null
@@ -245,7 +336,37 @@ export function createFirestoreAdapters(db, { eventCollection = 'telegramNotific
             && member.role === 'parent' && Array.isArray(member.childIds) && member.childIds.includes(job.childId)
         })
         tx.create(eventRef, { ...event, createdAt: FieldValue.serverTimestamp() })
-        for (let i = 0; i < jobRows.length; i += 1) if (verified[i] && !existingJobs[i].exists) tx.create(jobRefs[i], jobRows[i])
+        for (let i = 0; i < jobRows.length; i += 1) if (verified[i] && !existingJobs[i].exists) {
+          const job = jobRows[i]
+          if (!groupingEnabled[i]) {
+            tx.create(jobRefs[i], job)
+            continue
+          }
+          const acceptedAt = job.groupingAt ?? event.detectedAt
+          const nowMs = Date.parse(acceptedAt)
+          const pointer = pointerSnaps[i].exists ? pointerSnaps[i].data() : {}
+          const activeSnap = activeGroups[i]
+          const active = activeSnap?.exists ? activeSnap.data() : null
+          const eventBytes = Buffer.byteLength(JSON.stringify({ event, job }))
+          const activeFirst = Date.parse(active?.firstEventAt ?? '')
+          const activeFlush = Date.parse(active?.flushAt ?? '')
+          const reusable = active?.state === 'open' && Number.isFinite(activeFirst) && Number.isFinite(activeFlush)
+            && nowMs < activeFlush && nowMs < activeFirst + 60_000
+            && (active.eventCount ?? 0) < 50 && (active.eventBytes ?? 0) + eventBytes <= 256 * 1024
+          const groupId = reusable ? pointer.activeGroupId : `group_${createHash('sha256').update(JSON.stringify([groupKeys[i], event.eventId])).digest('hex')}`
+          const groupRef = groups.doc(groupId)
+          const firstEventAt = reusable ? active.firstEventAt : acceptedAt
+          const flushAt = new Date(Math.min(nowMs + 30_000, Date.parse(firstEventAt) + 60_000)).toISOString()
+          if (!reusable) tx.create(groupRef, { groupId, state: 'open', groupingKey: groupKeys[i],
+            familyId: job.familyId, personId: job.personId, childId: job.childId, linkId: job.linkId,
+            telegramUserId: job.telegramUserId, firstEventAt, lastEventAt: acceptedAt, flushAt,
+            eventCount: 1, eventBytes, createdAt: acceptedAt })
+          else tx.update(groupRef, { lastEventAt: acceptedAt, flushAt,
+            eventCount: (active.eventCount ?? 0) + 1, eventBytes: (active.eventBytes ?? 0) + eventBytes })
+          tx.set(pointerRefs[i], { activeGroupId: groupId, updatedAt: event.detectedAt }, { merge: true })
+          if (reusable) for (const member of activeMembers[i]?.docs ?? []) tx.update(member.ref, { nextAttemptAt: flushAt })
+          tx.create(jobRefs[i], { ...job, groupId, nextAttemptAt: flushAt, groupedAt: null })
+        }
         return { created: true, eventId: event.eventId, queued: verified.filter((ok, index) => ok && !existingJobs[index].exists).length }
       })
     },

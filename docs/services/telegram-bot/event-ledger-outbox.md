@@ -29,7 +29,7 @@ sections:
 **Родитель:** [корневая архитектура](README.md); [порты и события](ports-and-events.md).
 **Статус:** целевой контракт частично реализован.
 
-Первый срез включает event/job transaction, idempotency по deterministic eventId, lease fencing token, expiry recovery, bounded retry states и durable per-part receipts. Runtime delivery остаётся opt-in; источники и grouping не реализованы.
+Первый срез включает event/job transaction, idempotency по deterministic eventId, lease fencing token, expiry recovery, bounded retry states и durable per-part receipts. Источники работают в Mac runtime; семейные compact digests добавляют устойчивую группировку. Team routing и retention остаются незавершёнными.
 
 ## Задача
 
@@ -40,9 +40,10 @@ sections:
 - `telegramNotificationEvents/{eventId}`: schema version, source identity/revision, normalized domain event projection, detection time.
 - `telegramNotificationOutbox/{jobId}`: event/recipient link identity and child scope, `state`, attempts, `nextAttemptAt`, lease owner/token/expiry, part receipts and safe error code.
 - `checkpoints/{scopeKey}`: source adapter cursor или snapshot revision, completeness, last success time.
-- `groups/{groupKey}`: recipient, event references, first event time, last event time, flush deadline, status.
+- `telegramNotificationGroups/{groupId}`: точная link/person/family/child/chat область, first/last accepted time, flush deadline, счётчик/бюджет, open/frozen/empty/dead_letter.
+- `telegramNotificationGroupPointers/{groupingKey}`: указатель текущей открытой группы в этой области.
 
-Эти коллекции — реализация текущего среза. Job сохраняет неизменяемые `messageParts` и формат при enqueue: `messageVersion: 1` — прежний массив текстовых строк, `messageVersion: 2` — строго валидированные structured parts [Telegram дизайна](../../shared/design/telegram.md). Старые pending jobs v1 остаются исполнимыми и не перерендериваются. Неизвестная/смешанная схема попадает в dead_letter. Индексы частей и receipts постоянны; Rich/HTML transport не создаёт вторую job и не меняет уже отправленные части. Автоматическая миграция неизвестных jobs не поддерживается. Перед delivery opt-in адресно объединить [индексы worker](../../../packages/telegram-notifications/firestore.indexes.json) с имеющимися индексами после проверки целевого проекта; автоматически заменять global Firebase index manifest этим scoped-файлом нельзя. Retention policy не утверждена.
+Эти коллекции — реализация текущего среза. Обычная legacy/probe job сохраняет неизменяемые `messageParts` и формат при enqueue; source job группы служит учётной связью события, а окончательные неизменяемые части digest фиксируются при freeze: `messageVersion: 1` — прежний массив текстовых строк, `messageVersion: 2` — строго валидированные structured parts [Telegram дизайна](../../shared/design/telegram.md). Старые pending jobs v1 остаются исполнимыми и не перерендериваются. Неизвестная/смешанная схема попадает в dead_letter. Индексы частей и receipts постоянны; Rich/HTML transport не создаёт вторую job и не меняет уже отправленные части. Автоматическая миграция неизвестных jobs не поддерживается. Перед delivery opt-in адресно объединить [индексы worker](../../../packages/telegram-notifications/firestore.indexes.json) с имеющимися индексами после проверки целевого проекта; автоматически заменять global Firebase index manifest этим scoped-файлом нельзя. Retention policy не утверждена.
 
 ## Атомарность и идемпотентность
 
@@ -55,7 +56,11 @@ sections:
 4. Worker захватывает job атомарной lease с непредсказуемым fencing token; только тот же worker с тем же token и непросроченной lease может продлить её, записать receipt или завершить/перенести job.
 5. После отправки сохраняется receipt. Падение между фактическим `sendMessage` и записью receipt может привести к повторной отправке: Telegram send API не является транзакцией с Firestore. Повтор минимизируется и маркируется, но exactly-once обещать нельзя.
 
-Для группового дайджеста стабильный `groupKey` вычисляется по recipient + окну/периоду; добавление событий не создаёт параллельный дайджест той же группы. Очередь должна ограничивать конкурентные отправки на chat и соблюдать Telegram rate limits.
+Для семейного дайджеста ключ изолирует chat + family + person + link + child; при отзыве/перепривязке получатели не смешиваются. Приём события атомарно создаёт ledger и source job, добавляет её в открытую группу либо создаёт следующую. Время окна берётся из приёма worker, а не старого detectedAt восстановленного события. Quiet deadline30с ограничен60с от первого приёма; nextAttemptAt всех ещё открытых source jobs переносится в той же транзакции. Неготовые группы не занимают первые20due jobs.
+
+При наступлении срока claim транзакционно замораживает группу: создаёт один неизменяемый digest job, сохраняет eventIds/eventJobIds и переводит исходные jobs в `grouped` с `groupedInto`. Новое событие после заморозки идёт в следующую группу; старые части не перерендериваются. Дайджест проходит прежний delivery lifecycle, проверку membership/channel перед каждой частью и receipts. Перезапуск находит due source jobs или уже замороженный pending/retry digest. Диагностика исходного события следует по groupedInto и проверяет обратную связь eventJobIds.
+
+Одна группа ограничена50событиями/256KiB подготовленных данных; превышение открывает следующую группу без потери событий и без ограничения числа семей. Длинная сводка разделяется по строкам на Telegram-safe части с сохранением порядка. Старые v1/v2 jobs и technical.probe не объединяются повторно: их сохранённые части остаются неизменными. Ограничения группы защищают Firestore transaction/document budgets, а не устанавливают allowlist пользователей.
 
 ## Состояния
 

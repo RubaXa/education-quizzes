@@ -1,6 +1,6 @@
 /** Browser regression for the Telegram UI Kit at mobile and narrow desktop widths.
  * Run with: node scripts/check-telegram-preview-viewport.mjs
- * @see ../docs/shared/design/telegram.md#визуальная-система
+ * @see ../docs/shared/design/telegram.md#компактная-сводка
  */
 import { spawn } from 'node:child_process'
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
@@ -73,22 +73,35 @@ try {
       await delay(1000)
       await send('Runtime.evaluate', { returnByValue: true, expression: `(()=>{const button=[...document.querySelectorAll('nav button')].find(item=>item.textContent.includes('Telegram-уведомления'));if(!button)throw Error('Telegram UI Kit section missing');button.click()})()` })
       await delay(100)
+      await send('Runtime.evaluate', { returnByValue: true, expression: `(()=>{const select=document.querySelector('select[aria-label="Шаблон уведомления"]');if(!select)throw Error('template selector missing');select.value='review';select.dispatchEvent(new Event('change',{bubbles:true}))})()` })
+      await delay(100)
 
       for (const mode of ['short', 'long', 'no-context']) {
-        const changed = await send('Runtime.evaluate', { returnByValue: true, expression: `(()=>{const select=document.querySelector('select[aria-label="Содержание уведомления"]');if(!select)throw Error('content selector missing');select.value=${JSON.stringify(mode)};select.dispatchEvent(new Event('change',{bubbles:true}));return true})()` })
+        const changed = await send('Runtime.evaluate', { returnByValue: true, expression: `(()=>{const select=document.querySelector('select[aria-label="Содержание уведомления"]');if(!select)throw Error('content selector missing');select.value=${JSON.stringify(mode)};select.dispatchEvent(new Event('input',{bubbles:true}));select.dispatchEvent(new Event('change',{bubbles:true}));return true})()` })
         if (!changed.result?.value) throw new Error(`Could not switch preview to ${mode}`)
         await delay(120)
-        const measured = await send('Runtime.evaluate', { returnByValue: true, expression: `JSON.stringify((()=>{const stage=document.querySelector('.edu-telegram-stage'),message=document.querySelector('.edu-telegram-message'),primary=document.querySelector('.edu-telegram-primary-content');const rect=e=>{const r=e.getBoundingClientRect();return{left:r.left,right:r.right,width:r.width,scroll:e.scrollWidth,client:e.clientWidth}};return{viewport:innerWidth,document:document.documentElement.scrollWidth,stage:rect(stage),message:rect(message),primary:primary?rect(primary):null,headline:document.querySelector('.edu-telegram-message-heading h3')?.textContent}})())` })
+        const measured = await send('Runtime.evaluate', { returnByValue: true, expression: `JSON.stringify((()=>{const stage=document.querySelector('.edu-telegram-stage'),message=document.querySelector('.edu-telegram-message'),text=document.querySelector('.edu-telegram-message-text'),header=document.querySelector('.edu-telegram-message-header'),empty=document.querySelector('.edu-telegram-no-message');const rect=e=>{if(!e)return null;const r=e.getBoundingClientRect();return{left:r.left,right:r.right,width:r.width,height:r.height,scroll:e.scrollWidth,client:e.clientWidth}};const style=text?getComputedStyle(text):null;return{viewport:innerWidth,document:document.documentElement.scrollWidth,stage:rect(stage),message:rect(message),text:rect(text),empty:empty?.textContent??null,content:text?.textContent??null,lines:text?.textContent.split('\\n').length??0,fontSize:style?.fontSize,fontWeight:style?.fontWeight,headerWeight:header?getComputedStyle(header).fontWeight:null,overflowWrap:style?.overflowWrap}})())` })
         if (measured.exceptionDetails || !measured.result?.value) throw new Error('Chrome не смог измерить предпросмотр.')
         const layout = JSON.parse(measured.result.value)
         if (layout.viewport !== width || layout.document > width || layout.stage.left < 0 || layout.stage.right > width + 1 ||
-          layout.message.left < layout.stage.left || layout.message.right > layout.stage.right + 1 ||
-          layout.primary && layout.primary.scroll > layout.primary.client + 1) {
+          mode === 'no-context' && (layout.message !== null || !layout.empty) ||
+          mode !== 'no-context' && (!layout.message || layout.message.left < layout.stage.left || layout.message.right > layout.stage.right + 1 || layout.text.scroll > layout.text.client + 1)) {
           throw new Error(`Telegram preview overflow at ${width}px (${mode}): ${JSON.stringify(layout)}`)
+        }
+        if (mode === 'short' && width >= 390 && layout.message.height > 200) throw new Error(`Short digest is too tall at ${width}px: ${JSON.stringify(layout)}`)
+        if (mode === 'short' && width === 320 && layout.message.height > 240) throw new Error(`Short digest exceeds the narrow-screen height budget: ${JSON.stringify(layout)}`)
+        if (mode === 'short' && (layout.lines !== 4 || !layout.content.includes('№3 · Шестьдесят горшков') || !layout.content.includes('№1 · Книги на полках'))) {
+          throw new Error(`Short digest lost its task rows: ${JSON.stringify(layout)}`)
+        }
+        if (mode === 'long' && (!layout.content.includes('обратным действием') || !layout.content.includes('демонстрационное имя') || layout.overflowWrap !== 'anywhere')) {
+          throw new Error(`Long digest did not retain and wrap its content: ${JSON.stringify(layout)}`)
+        }
+        if (mode !== 'no-context' && (Number.parseFloat(layout.fontSize) < 16 || Number.parseFloat(layout.fontSize) > 17 || Number(layout.fontWeight) !== 400 || Number(layout.headerWeight) < 600)) {
+          throw new Error(`Digest must use normal 16–17px text with a compact bold header: ${JSON.stringify(layout)}`)
         }
         const shot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true })
         writeFileSync(join(screenshotDir, `telegram-preview-${width}-${mode}.png`), Buffer.from(shot.data, 'base64'))
-        console.log(`${width}px / ${mode}: document=${layout.document}px, message=${Math.round(layout.message.width)}px, title=${layout.headline}`)
+        console.log(`${width}px / ${mode}: document=${layout.document}px, message=${layout.message ? `${Math.round(layout.message.width)}×${Math.round(layout.message.height)}px` : 'omitted'}, lines=${layout.lines}`)
       }
     }
     if (externalRequests.length) throw new Error(`Предпросмотр вызвал внешние запросы: ${externalRequests.join(', ')}`)

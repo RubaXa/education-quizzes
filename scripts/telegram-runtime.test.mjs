@@ -85,4 +85,62 @@ describe('telegram runtime operator commands', () => {
       counts: { recentConfirmed: 1, wouldEmit: 1, ledgerMissing: 1, outboxAbsent: 1 } })
     expect(JSON.stringify(result)).not.toMatch(/private-family|private-child|private-day|private-upload|Private Name|Private title|Math/)
   })
+
+  it('follows only a proven grouped upload receipt and excludes the duplicate digest query row', async () => {
+    for (const proven of [true, false]) {
+      const output = []
+      const scope = { familyId: 'family-a', childId: 'child-a', kind: 'upload', dayToken: 'day-a', recordId: 'upload-a' }
+      const record = { recordKey: 'a'.repeat(64), kind: 'upload', eventType: 'upload.confirmed',
+        occurredAt: '2026-10-18T08:00:00.000Z', fields: { subject: 'Математика', title: 'Задание №3' } }
+      const digestId = `digest_${'b'.repeat(64)}`
+      const digest = { isDigest: true, state: 'sent', partReceipts: [{ messageId: 42 }], eventJobIds: proven ? ['job-a'] : ['other-job'] }
+      const sourceDoc = { id: 'job-a', data: () => ({ state: 'grouped', groupedInto: digestId }) }
+      const digestDoc = { id: digestId, data: () => digest }
+      const query = { where() { return this }, select() { return this }, get: async () => ({ docs: [sourceDoc, digestDoc] }) }
+      const code = await main(['upload-check', '--since', '2026-10-18T00:00:00Z'], {
+        root: '/tmp/project', env: { TELEGRAM_FIRESTORE_PROJECT_ID: 'education-prod' },
+        db: { collection: () => query, doc: path => ({ path }), terminate: async () => {},
+          getAll: async (ref, options) => {
+            expect(ref.path).toBe(`telegramNotificationOutbox/${digestId}`)
+            expect(options.fieldMask).toContain('eventJobIds')
+            return [{ exists: true, data: () => digest }]
+          } },
+        inventory: { enumerate: async () => ({ complete: true, failures: [], families: [], scopes: [] }) },
+        discoveryStore: { prepare: async () => ({ scopes: [{ scope, origin: 'live' }] }) },
+        source: { scopeKey: () => 'opaque', inspectUpload: async () => ({ completeness: 'complete', state: 'confirmed', occurredAt: record.occurredAt }),
+          observe: async () => ({ completeness: 'complete', records: [record] }) },
+        readCheckpoint: async () => ({ baseline: { records: [record], sourceProjectionVersion: 2 } }),
+        readLedgerEventsByRecord: async () => [{ eventId: 'event-a' }], write: text => output.push(JSON.parse(text)),
+      })
+      expect(code).toBe(0)
+      expect(output[0].counts.outboxSent).toBe(proven ? 1 : 0)
+      expect(output[0].counts.sentReceipts).toBe(proven ? 1 : 0)
+      expect(JSON.stringify(output)).not.toMatch(/job-a|other-job|digest_/)
+    }
+  })
+
+  it('exposes a read-only aggregate review-check command', async () => {
+    const output = []
+    let terminated = false
+    const scope = { familyId: 'private-family', childId: 'private-child', kind: 'progress', dayToken: 'private-day', recordId: 'private-task' }
+    const exitCode = await main(['review-check', '--since', '2026-10-18T00:00:00Z'], {
+      root: '/tmp/project', env: { TELEGRAM_FIRESTORE_PROJECT_ID: 'education-prod' }, db: { async terminate() { terminated = true } },
+      inventory: { async enumerate() { return { complete: true, failures: [], families: [], scopes: [{ source: 'firestore', scope }] } } },
+      discoveryStore: { async prepare(inventory) { return { ...inventory, scopes: [{ source: 'firestore', scope, origin: 'live' }] } } },
+      source: { scopeKey: () => 'opaque-scope', async inspectReview() { return { completeness: 'complete', state: 'verified', checkedAt: '2026-10-18T08:00:00Z' } },
+        async observe() { return { completeness: 'complete', familyId: scope.familyId, childId: scope.childId,
+          records: [{ recordKey: 'a'.repeat(64), kind: 'review', eventType: 'review.changed', semanticHash: 'b'.repeat(64),
+            fields: { subject: 'Math', title: 'Private title', status: 'verified' } }] } } },
+      readCheckpoint: async () => ({ baseline: { records: [] } }),
+      readLedgerEventsByRecord: async () => [{ eventId: 'event-private', detectedAt: '2026-10-18T08:00:00Z',
+        sourceRevision: 'revision-private', fields: { status: 'verified', subject: 'Math' } }], readOutboxJobs: async () => [],
+      write(value) { output.push(value) },
+    })
+    const result = JSON.parse(output[0])
+    expect(exitCode).toBe(0)
+    expect(terminated).toBe(true)
+    expect(result).toMatchObject({ diagnosticOnly: true, writes: 0, sends: 0, coverageComplete: false,
+      diagnosticComplete: true, counts: { reviewScopes: 1, recentReviewed: 1, missingSubjectOrTitle: 0, ledgerPresent: 1, outboxAbsent: 1 } })
+    expect(JSON.stringify(result)).not.toMatch(/private-family|private-child|private-day|private-task|Private title|Math/)
+  })
 })

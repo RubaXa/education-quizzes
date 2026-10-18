@@ -1,3 +1,4 @@
+/* @see ../../docs/decisions/telegram-compact-digest-2026-10-18.md */
 /** @see ../../docs/shared/design/telegram.md#визуальная-система @see ../../docs/shared/design/statuses.md#matrix */
 export const STATUS_PRESENTATION = Object.freeze({
   ready: status('ready', 'Не начато', 'neutral', 'Circle'),
@@ -19,7 +20,7 @@ export const NOTIFICATION_EXAMPLES = Object.freeze([
   example('upload', 'Фото получено', 'upload.confirmed', { childName: 'Ученик А', subject: 'Математика', title: 'Упражнение № 2', occurredLabel: 'Задание к 2026-10-22' }, 'waiting'),
   example('grade', 'Оценка', 'grade.created', { childName: 'Ученик Б', subject: 'Русский язык', value: '5', occurredLabel: 'Сегодня' }, 'complete'),
   example('homework', 'Домашнее задание', 'homework.assigned', { childName: 'Ученик А', subject: 'Математика', title: 'Страница 18' }, 'new'),
-  example('review', 'Проверка', 'review.changed', { childName: 'Ученик Б', subject: 'Математика' }, 'needs-fix'),
+  example('review', 'Проверка', 'review.changed', { childName: 'Ученик Б', subject: 'Математика', title: 'Упражнение № 3' }, 'needs-fix'),
   example('quiz', 'Тест отправлен', 'quiz.submitted', { childName: 'Ученик А', subject: 'Окружающий мир' }, 'waiting'),
   example('schedule', 'Расписание', 'schedule.changed', { childName: 'Ученик Б', subject: 'Музыка', title: 'Урок перенесён' }, null),
   example('technical', 'Демонстрация', 'technical.probe', {}, null),
@@ -54,9 +55,53 @@ export function getNotificationPresentation(event, { demo = false, action = null
     occurredLabel: occurredLabel || null,
     status: statusId ? STATUS_PRESENTATION[statusId] : null,
     value: eventType.startsWith('grade.') && /^[1-5][+-]?$/.test(safeString(fields.value, 3)) ? fields.value : null,
+    reviewChangeKind: eventType === 'review.changed' && fields.changeKind === 'updated' ? 'updated' : null,
     action: validAction,
     demo: demo === true,
   }
+}
+
+/** Stable, compact model shared by Telegram digest delivery and the preview. */
+export function getNotificationDigestPresentation(events) {
+  if (!Array.isArray(events) || events.length === 0) return null
+  const models = events.map((event) => getNotificationPresentation(event))
+  const valid = models.map((item, index) => ({ item, event: events[index] })).filter(({ item, event }) =>
+    event?.eventType !== 'review.changed' || (item.subject && item.title && item.status))
+  if (!valid.length) return null
+  const childNames = [...new Set(valid.map(({ item }) => item.childName))]
+  const subjects = [...new Set(valid.map(({ item }) => item.subject))]
+  const childName = childNames.length === 1 && childNames[0] ? childNames[0] : null
+  const subject = subjects.length === 1 && subjects[0] ? subjects[0] : null
+  const entries = valid.map(({ item }) => ({
+    eventType: item.eventType,
+    childName: item.childName,
+    subject: item.subject,
+    eventEmoji: item.eventEmoji,
+    headline: item.headline,
+    title: item.title,
+    value: item.value,
+    occurredLabel: item.occurredLabel,
+    reviewChangeKind: item.reviewChangeKind,
+    status: item.status ? { id: item.status.id, label: item.status.label, emoji: item.status.emoji } : null,
+  }))
+  const header = [childName, subject].filter(Boolean).join(' · ')
+  const text = [header, ...entries.map((entry) => {
+    const identity = [entry.childName && childName === null ? entry.childName : null,
+      entry.subject && subject === null ? entry.subject : null].filter(Boolean).join(' · ')
+    if (entry.eventType === 'review.changed') {
+      const status = entry.status.label.toLocaleLowerCase('ru-RU')
+      const result = entry.reviewChangeKind === 'updated' ? `разбор обновлён · ${status}` : status
+      return `${entry.status.emoji} ${[identity, entry.title].filter(Boolean).join(' · ')} — ${result}${entry.occurredLabel ? ` · ${entry.occurredLabel}` : ''}`
+    }
+    if (entry.eventType === 'upload.confirmed') return `${entry.eventEmoji} ${[identity, entry.title].filter(Boolean).join(' · ') || 'Фото работы'} — фото получено, ${entry.status?.label.toLocaleLowerCase('ru-RU') ?? 'ждёт проверки'}${entry.occurredLabel ? ` · ${entry.occurredLabel}` : ''}`
+    if (entry.eventType.startsWith('grade.')) {
+      const context = [identity, entry.title].filter(Boolean).join(' · ')
+      const result = entry.value ? `${entry.eventType === 'grade.changed' ? 'Оценка изменена:' : 'Новая оценка'} ${entry.value}` : entry.headline
+      return `${entry.status?.emoji ?? entry.eventEmoji} ${context ? `${context} — ` : ''}${result}${entry.occurredLabel ? ` · ${entry.occurredLabel}` : ''}`
+    }
+    return `${entry.status?.emoji ?? entry.eventEmoji} ${[identity, entry.headline, entry.title].filter(Boolean).join(' · ')}${entry.occurredLabel ? ` · ${entry.occurredLabel}` : ''}`
+  })].filter(Boolean).join('\n')
+  return { childName, subject, entries, text }
 }
 
 export function validateNotificationAction(action, { demo = false } = {}) { return validateAction(action, { demo }) }

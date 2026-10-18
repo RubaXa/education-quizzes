@@ -6,6 +6,9 @@
 
 | Файл | Спецификация | Зачем существует | Потребитель |
 |---|---|---|---|
+| [docs/decisions/telegram-compact-digest-2026-10-18.md](decisions/telegram-compact-digest-2026-10-18.md) | [Telegram дизайн](shared/design/telegram.md) | Причина регрессии, компактная сводка и критерии приёмки | Разработчик; оператор; UI Kit |
+| [packages/telegram-notifications/operations/review-check.mjs](../packages/telegram-notifications/operations/review-check.mjs) | [Операции бота](services/telegram-bot/operations.md) | Read-only агрегированная диагностика контекста проверок и групповой доставки | Оператор Education |
+| [packages/telegram-notifications/operations/review-check.test.mjs](../packages/telegram-notifications/operations/review-check.test.mjs) | [Операции бота](services/telegram-bot/operations.md) | Окна диагностики, неизвестная причина повторов и приватность | Vitest; техлид |
 | [packages/telegram-notifications/structured-delivery.test.mjs](../packages/telegram-notifications/structured-delivery.test.mjs) | [Telegram delivery](services/telegram-bot/delivery.md) | Real service v1/v2, restart, immutable receipts and revoked membership | Vitest |
 | [docs/decisions/telegram-design-system-2026-10-18.md](decisions/telegram-design-system-2026-10-18.md) | [Telegram Education](shared/design/telegram.md) | Принятый Telegram дизайн и основания итерации | Renderer; UI Kit; оператор; Vitest |
 | [docs/shared/design/telegram.md](shared/design/telegram.md) | [Telegram Education](shared/design/telegram.md) | Принятый Telegram дизайн и основания итерации | Renderer; UI Kit; оператор; Vitest |

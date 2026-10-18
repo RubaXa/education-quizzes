@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { getNotificationPresentation, NOTIFICATION_EXAMPLES, STATUS_PRESENTATION, validateNotificationAction } from './notification.mjs'
+import { getNotificationPresentation, getNotificationDigestPresentation, NOTIFICATION_EXAMPLES, STATUS_PRESENTATION, validateNotificationAction } from './notification.mjs'
 
 describe('shared notification presentation', () => {
   it('shares the complete Education status vocabulary, CSS tones and Lucide names', () => {
@@ -35,5 +35,37 @@ describe('shared notification presentation', () => {
     }
     expect(validateNotificationAction({ label: 'Демо', url: 'https://rubaxa.github.io/education-quizzes/#/ui-kit' }, { demo: true })).not.toBeNull()
     expect(validateNotificationAction({ label: 'Демо', url: 'https://rubaxa.github.io/education-quizzes/#/day/a' }, { demo: true })).toBeNull()
+  })
+
+  it('does not repeat a shared subject in grade rows and retains change type and date', () => {
+    const grades = [
+      { eventType: 'grade.created', fields: { childName: 'Ученик А', subject: 'Математика', value: '5', occurredLabel: 'Сегодня' } },
+      { eventType: 'grade.changed', fields: { childName: 'Ученик А', subject: 'Математика', value: '4' } },
+    ]
+    const digest = getNotificationDigestPresentation(grades)
+    expect(digest.text.match(/Математика/g)).toHaveLength(1)
+    expect(digest.text).toContain('Новая оценка 5 · Сегодня')
+    expect(digest.text).toContain('Оценка изменена: 4')
+    const mixed = getNotificationDigestPresentation([grades[0], { ...grades[1], fields: { ...grades[1].fields, subject: 'Русский язык' } }])
+    expect(mixed.text.match(/Математика/g)).toHaveLength(1)
+    expect(mixed.text.match(/Русский язык/g)).toHaveLength(1)
+  })
+
+  it('builds compact review rows from exact context and never attributes a missing subject', () => {
+    const review = getNotificationDigestPresentation([{ eventType: 'review.changed', fields: {
+      childName: 'Ученик А', subject: 'Математика', title: '№ 3 · Книги на разных полках', status: 'needs-fix',
+    } }])
+    expect(review.text).toBe('Ученик А · Математика\n🟠 № 3 · Книги на разных полках — нужна правка')
+    expect(getNotificationDigestPresentation([{ eventType: 'review.changed', fields: { childName: 'Ученик А', status: 'verified' } }])).toBeNull()
+
+    const mixed = getNotificationDigestPresentation([
+      { eventType: 'grade.created', fields: { childName: 'Ученик А', value: '5' } },
+      { eventType: 'grade.created', fields: { subject: 'Русский язык', value: '4' } },
+    ])
+    expect(mixed.childName).toBeNull()
+    expect(mixed.subject).toBeNull()
+    expect(mixed.text).toContain('Ученик А')
+    expect(mixed.text).toContain('Русский язык')
+    expect(mixed.text).not.toMatch(/^.*Русский язык.*\n/)
   })
 })
