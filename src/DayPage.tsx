@@ -1,24 +1,24 @@
+/* @see ../docs/decisions/work-photo-expand-2026-10-18.md */
 /* @see ../docs/decisions/upload-origin-links-2026-10-18.md */
 /** @see ../docs/modules/materials/material-clarification.md */
 import MaterialRequest from '@/components/MaterialRequest'
 import LinkedWorkPhotos from '@/components/LinkedWorkPhotos'
+import WorkPhotoGallery from '@/components/WorkPhotoGallery'
 import { taskUploadPresentation } from '@/lib/taskUploadPresentation'
 import { materialRequestView } from '@/lib/materialRequest'
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
-import { BookOpen, ChevronDown, Clock3, ExternalLink, RotateCcw, Trash2, X } from 'lucide-react'
+import { BookOpen, ChevronDown, Clock3, ExternalLink } from 'lucide-react'
 import StatusIcon from './components/StatusIcon'
 import GradeAverage, { gradeAverageTone } from './components/GradeAverage'
 // @see ../docs/shared/design/statuses.md#components
 import { cdzEvidenceLabel, cdzResultLabel, isCdzTask, removePendingDayPhoto, requestDayHelp, uploadDayPhoto, uploadMatchesTask, watchDayHelp, watchDayPage, watchDayTaskGuides, watchMaterialPages, withVerifiedPlatformResult } from '@/lib/dayStore'
 import { groupAdjacentMaterialPages, unresolvedMaterialPageRefs } from '@/lib/dayMaterialRefs'
 import { isSubjectExpanded, visibleGuideTaskIds } from '@/lib/guideReadPolicy'
-import type { DayHelp, DayInstruction, DayMaterialLink, DayPageData, DayProblem, DayTask, DayUpload, DayWorkReview, ParentTaskPrivate } from '@/lib/dayStore'
+import type { DayHelp, DayInstruction, DayMaterialLink, DayPageData, DayProblem, DayTask, ParentTaskPrivate } from '@/lib/dayStore'
 import { dayHelpSessionRole } from '@/lib/personalAccess'
 import { useDayQuizOutcomes } from '@/lib/useDayQuizOutcomes'
 import MaterialReader, { canReadInside } from '@/components/MaterialReader'
-import EducationImage from '@/components/EducationImage'
-import ArtifactAvatar, { WorkArtifactImage } from '@/components/ArtifactAvatar'
 import WorkReview from '@/components/WorkReview'
 import ProblemGroup from '@/components/ProblemGroup'
 import ProblemTaskCard from '@/components/ProblemTaskCard'
@@ -35,7 +35,7 @@ import { lessonWorkItems, quizRequirement, requiredQuizRequirement } from '@/lib
 import { pupilCanAddPhoto } from '@/lib/photoUploadPolicy'
 import { assignmentProgress, assignmentTitle } from '@/lib/assignmentPresentation'
 import { canAcceptCorrectAnswer, parentAccepted, recordParentCompletion, recordRequirementChoice, recordStageChoice, recordVariantChoice, requiredFamilyActions, requirementChoice, stageCompletion, practiceRequired } from '@/lib/parentCompletion'
-import { activeProcessing, artifactAvatarLabel, artifactAvatarState, localArtifactAvatarState, problemCardState, showSeparateWorkReview, workCoverageComplete } from '@/lib/reviewPresentation'
+import { activeProcessing, problemCardState, showSeparateWorkReview, workCoverageComplete } from '@/lib/reviewPresentation'
 import './DayPage.css'
 import { reportUiError } from '@/lib/uiErrors'
 import { DATA_UPDATE_MESSAGE } from '@/lib/dayCompatibility'
@@ -45,72 +45,6 @@ import type { DayGuidance } from '@/lib/dayGuidance'
 
 type TestItem = QuizCardAttempt & { subject: string }
 type LocalPhoto = { id: string; taskId: string; file: File; previewUrl: string; state: 'uploading' | 'saved' | 'failed' | 'deleting'; error?: string }
-
-/**
- * Разделяет технический статус снимка и педагогический результат задания.
- * @see ../docs/modules/school-diary/day-page.md#photo-status
- */
-function PhotoStrip({ taskTitle, evidenceLabel = 'Фото работы', studentToken, uploads, localPhotos, review, now, onRetry, onDelete }: {
-  taskTitle: string; evidenceLabel?: string; studentToken: string; uploads: DayUpload[]; localPhotos: LocalPhoto[]; review?: DayWorkReview; now: number;
-  onRetry: (photo: LocalPhoto) => void; onDelete: (uploadId: string) => Promise<void>
-}) {
-  const [selectedId, setSelectedId] = useState<string | null>(null)
-  const [removingId, setRemovingId] = useState<string | null>(null)
-  const [deleteError, setDeleteError] = useState('')
-  const [removedIds, setRemovedIds] = useState<string[]>([])
-  const visibleUploads = uploads.filter((upload) => !removedIds.includes(upload.id))
-  const localOnly = localPhotos.filter((photo) => !removedIds.includes(`${studentToken}:${photo.id}`) && !visibleUploads.some((upload) => upload.id === `${studentToken}:${photo.id}`))
-  if (!visibleUploads.length && !localOnly.length) return null
-  const photoCount = visibleUploads.length + localOnly.length
-  const reviewedCount = visibleUploads.filter((upload) => upload.status === 'reviewed').length
-  const processingCount = visibleUploads.filter((upload) => artifactAvatarState(upload, review, now) === 'processing').length
-  const waitingCount = visibleUploads.filter((upload) => artifactAvatarState(upload, review, now) === 'waiting').length
-  const pausedCount = visibleUploads.filter((upload) => artifactAvatarState(upload, review, now) === 'paused').length
-  const uploadingCount = visibleUploads.filter((upload) => ['requested', 'awaiting-upload', 'uploaded'].includes(upload.status)).length + localOnly.filter((photo) => photo.state === 'uploading' || photo.state === 'saved').length
-  const failedCount = visibleUploads.filter((upload) => upload.status === 'upload-error').length + localOnly.filter((photo) => photo.state === 'failed').length
-  const summary = [processingCount && `${processingCount} в разборе`, waitingCount && `${waitingCount} ${waitingCount === 1 ? 'ждёт' : 'ждут'} проверки`, pausedCount && `${pausedCount} с задержкой проверки`, uploadingCount && `${uploadingCount} загружается`, failedCount && `${failedCount} не загрузилось`].filter(Boolean).join(' · ')
-  const selectedUpload = visibleUploads.find((upload) => upload.id === selectedId)
-  const selectedLocal = localOnly.find((photo) => `${studentToken}:${photo.id}` === selectedId)
-  async function deletePhoto(id: string) {
-    if (!window.confirm('Удалить это фото из задания?')) return
-    setRemovingId(id)
-    setDeleteError('')
-    try {
-      await onDelete(id)
-      setRemovedIds((current) => [...current, id])
-      setSelectedId(null)
-    } catch (cause) {
-      setDeleteError(reportUiError(cause, 'Удаление фото'))
-    } finally {
-      setRemovingId(null)
-    }
-  }
-  const cdzProof = evidenceLabel === 'Подтверждение ЦДЗ'
-  return <div className="day-upload-list" aria-label={`Фото задания «${taskTitle}»`}>
-    <div className="day-upload-head"><strong>{evidenceLabel}</strong><span>{reviewedCount} из {photoCount} фото проверено</span></div>
-    {cdzProof && <small className="day-upload-context">Снимок результата МЭШ, присланный ребёнком. Кнопки внутри снимка относятся к МЭШ.</small>}
-    <div className="day-upload-strip">
-      {visibleUploads.map((upload, index) => {
-        const state = artifactAvatarState(upload, review, now)
-        const status = artifactAvatarLabel(state)
-        return <button className="day-upload-chip" type="button" key={upload.id} title={`${upload.origin === 'archive' ? 'Ранее загруженная работа' : `Фото ${index + 1}`} · ${status}`} aria-label={`Открыть фото ${index + 1}: ${status}`} aria-expanded={selectedId === upload.id} onClick={() => setSelectedId(selectedId === upload.id ? null : upload.id)}><ArtifactAvatar state={state}><WorkArtifactImage upload={upload} title={taskTitle} index={index} compact /></ArtifactAvatar></button>
-      })}
-      {localOnly.map((photo, index) => {
-        const id = `${studentToken}:${photo.id}`
-        const state = localArtifactAvatarState(photo.state)
-        const status = artifactAvatarLabel(state)
-        return <button className="day-upload-chip" type="button" key={photo.id} title={`Фото ${visibleUploads.length + index + 1} · ${status}`} aria-label={`Открыть фото ${visibleUploads.length + index + 1}: ${status}`} aria-expanded={selectedId === id} onClick={() => setSelectedId(selectedId === id ? null : id)}><ArtifactAvatar state={state}><EducationImage source={photo.previewUrl} alt="" compact retryControl={false} /></ArtifactAvatar></button>
-      })}
-    </div>
-    {summary && <small className="day-upload-summary">{summary}</small>}
-    {(selectedUpload || selectedLocal) && <div className="day-upload-expanded"><button className="day-upload-close" type="button" aria-label="Закрыть фото" onClick={() => setSelectedId(null)}><X size={17} aria-hidden="true" /></button>
-      {selectedUpload ? <><WorkArtifactImage upload={selectedUpload} title={taskTitle} index={visibleUploads.indexOf(selectedUpload)} /><p>{selectedUpload.status === 'reviewed' ? cdzProof ? 'Результат ЦДЗ указан в карточке задания.' : review?.purpose === 'source-material' ? 'Это материал для самопроверки; наблюдения о записях показаны рядом. Фото не является результатом теста.' : 'Разбор этого задания показан в блоке «Проверка работы».' : selectedUpload.status === 'upload-error' ? selectedUpload.error ?? 'Не удалось передать фото. Удалите запись и загрузите снимок снова.' : selectedUpload.status === 'pending' ? activeProcessing(review, [selectedUpload]) ? 'Сейчас проверяем фото.' : 'Фото ждёт разбора.' : 'Исходное фото передаётся напрямую на Яндекс.Диск; дождитесь подтверждения.'} {selectedUpload.storage?.state === 'stored' ? 'Файл на Яндекс.Диске.' : 'Исходник остаётся на этом устройстве до передачи.'}</p>{selectedUpload.storage?.publicUrl && <a className="day-upload-original" href={selectedUpload.storage.publicUrl} target="_blank" rel="noopener noreferrer">Открыть на Яндекс.Диске <ExternalLink size={13} aria-hidden="true" /></a>}</>
-        : selectedLocal && <><EducationImage source={selectedLocal.previewUrl} alt={`Новое фото по заданию «${taskTitle}»`} className="day-upload-photo" /><p>{selectedLocal.state === 'failed' ? selectedLocal.error ?? 'Не удалось загрузить фото.' : selectedLocal.state === 'saved' ? 'Фото сохранено и ждёт разбора.' : selectedLocal.state === 'deleting' ? 'Удаляем фото…' : 'Фото загружается…'}</p>{selectedLocal.state === 'failed' && removingId !== selectedId && <button type="button" className="day-upload-retry" onClick={() => onRetry(selectedLocal)}><RotateCcw size={14} aria-hidden="true" /> Повторить</button>}</>}
-      {(selectedUpload && selectedUpload.status !== 'reviewed' || selectedLocal) && <button className="day-upload-delete" type="button" disabled={removingId === selectedId} onClick={() => selectedId && void deletePhoto(selectedId)}><Trash2 size={14} aria-hidden="true" /> {removingId === selectedId ? 'Удаляем…' : 'Удалить фото'}</button>}
-      {deleteError && <p className="day-upload-delete-error" role="alert">{deleteError}</p>}
-    </div>}
-  </div>
-}
 
 /** Adapter from a task's exact MESH instruction and family pages to the shared quiz card.
  * @see ../docs/modules/reviews/card-generation-policy.md#quiz-adapter
@@ -474,7 +408,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
     if (!task || request?.state !== 'resolved') return undefined
     const review = reviews.find(item => item.taskId === task.id && item.purpose === 'source-material')
     return <><MaterialRequest request={request} label="Тема уточнена" detail={request.resolvedTopic ?? ''} analysis={review?.sourceAnalysis} />
-      <PhotoStrip taskTitle={task.title} evidenceLabel="Материал для самопроверки" studentToken={studentToken} uploads={taskUploadPresentation(uploads, task.id).owned} localPhotos={localPhotos.filter(photo => photo.taskId === task.id)} review={review} now={statusNow} onRetry={queuePhotoUpload} onDelete={deletePhoto} /><LinkedWorkPhotos taskId={task.id} uploads={uploads} pages={[page, ...(evidencePages ?? [])]} /></>
+      <WorkPhotoGallery taskTitle={task.title} evidenceLabel="Материал для самопроверки" studentToken={studentToken} uploads={taskUploadPresentation(uploads, task.id).owned} localPhotos={localPhotos.filter(photo => photo.taskId === task.id)} review={review} now={statusNow} onRetry={queuePhotoUpload} onDelete={deletePhoto} /><LinkedWorkPhotos taskId={task.id} uploads={uploads} pages={[page, ...(evidencePages ?? [])]} /></>
   }
   if (error === DATA_UPDATE_MESSAGE) return <DataCompatibilityNotice />
   if (error && !page) return <div className="day-error"><h1>Не получилось открыть страницу</h1><p>{error}</p></div>
@@ -614,7 +548,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
                 const problemAccepted = parentAccepted(problemReview, parentDecisions.events)
                 const state = problemCardState(problemUploads, problemReview, problemPhotos.some((photo) => photo.state === 'uploading'), statusNow, problemAccepted)
                 return <ProblemTaskCard owner={{ familyId: page.familyId, childId: page.childId }} problem={problem} state={state} key={problem.id} links={taskLinks} parent={parent} guide={taskGuides[problem.id]?.guide} guidance={guidance.filter((item) => item.taskId === problem.id)} guidanceReady={guidanceReady} onSendGuidance={parent && taskGuides[problem.id]?.guide ? (stage, level) => sendDayGuidance(studentToken, problem.id, taskGuides[problem.id]!.guide!, stage.id, level) : undefined} onStageChoice={parent && helpRole === 'parent' && problemReview && taskGuides[problem.id]?.guide ? (stage, required) => recordStageChoice(problemReview, taskGuides[problem.id]!.guide!, stage.id, required) : undefined} sourceResearch={taskGuides[problem.id]?.sourceResearch} help={helpRequests.find((item) => item.taskId === problem.id)} review={problemReview} uploads={problemUploads} accepted={problemAccepted} canDecide={helpRole === 'parent'} onDecision={parent && canAcceptCorrectAnswer(problemReview) && problemReview ? (action) => recordParentCompletion(problemReview, action) : undefined} decisions={parentDecisions.events} onRequirementChoice={parent && problemReview?.assessmentBasis?.disputedRequirements?.length ? (id, action) => recordRequirementChoice(problemReview, id, action) : undefined} helpAccess={helpRole === 'checking' ? 'checking' : helpRole === 'student' ? 'ready' : 'login-required'} onRequestHelp={!parent && subject.id === 'special' && helpRole === 'student' ? (taskId, revision, kind, text) => requestDayHelp(studentToken, taskId, revision, kind, text) : undefined} onPhotos={(files) => attach(problem, files)}>
-                  <PhotoStrip taskTitle={`№ ${problem.number}. ${problem.title}`} studentToken={studentToken} uploads={taskUploadPresentation(uploads, problem.id).owned} localPhotos={problemPhotos} review={problemReview} now={statusNow} onRetry={queuePhotoUpload} onDelete={deletePhoto} /><LinkedWorkPhotos taskId={problem.id} uploads={uploads} pages={[page, ...(evidencePages ?? [])]} />
+                  <WorkPhotoGallery taskTitle={`№ ${problem.number}. ${problem.title}`} studentToken={studentToken} uploads={taskUploadPresentation(uploads, problem.id).owned} localPhotos={problemPhotos} review={problemReview} now={statusNow} onRetry={queuePhotoUpload} onDelete={deletePhoto} /><LinkedWorkPhotos taskId={problem.id} uploads={uploads} pages={[page, ...(evidencePages ?? [])]} />
                 </ProblemTaskCard>
               }
               const taskCard = <article className={`day-task ${task.problems?.length ? 'has-problems' : ''} ${verified || workCovered ? 'done' : submitted ? 'submitted' : ''}`} id={`day-task-${task.id}`} key={task.id}>
@@ -666,7 +600,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
                   {task.kind === 'read' && task.testToken && task.testSlug && <a className="day-quiz-link" href={parent && linkedTest?.status !== 'submitted' && linkedTest?.previewToken ? `#/preview/${task.testSlug}~${linkedTest.previewToken}` : `#/t/${task.testSlug}~${task.testToken}`}>{parent ? linkedTest?.status === 'submitted' ? 'Результат' : 'Посмотреть вопросы' : linkedTest?.status === 'submitted' ? 'Результат' : linkedTest?.answered ? 'Продолжить тест' : 'Пройти короткий тест'} <ExternalLink size={15} /></a>}
                   {parent && !task.problems?.length && <span className="day-parent-status">{materialView ? materialView.label : task.referenceDate ? 'Состояние взято из исходного дня; новой работы МЭШ не назначил' : task.kind === 'written' ? taskStatus === 'verified' ? 'Работа проверена' : newWork ? 'Новая загрузка ожидает проверки' : priorWork ? 'Работа разобрана; подробности выше' : 'Подтверждённого фото пока нет' : task.kind === 'read' ? readPassed ? 'Чтение подтверждено тестом' : 'Чтение тестом пока не подтверждено' : cdzTask ? task.platformResult?.state === 'completed' ? cdzEvidenceLabel(task.platformResult) : newWork ? 'Скриншот ЦДЗ ожидает проверки' : 'Результат ЦДЗ пока не подтверждён' : 'Статус сдачи не сообщён'}</span>}
                 </div>
-                {!task.referenceDate && <><PhotoStrip taskTitle={task.title} evidenceLabel={task.materialRequest ? 'Материал для уточнения' : cdzTask ? 'Подтверждение ЦДЗ' : 'Фото работы'} studentToken={studentToken} uploads={taskUploadPresentation(uploads, task.id).owned} localPhotos={localTaskPhotos} review={review} now={statusNow} onRetry={queuePhotoUpload} onDelete={deletePhoto} /><LinkedWorkPhotos taskId={task.id} uploads={uploads} pages={[page, ...(evidencePages ?? [])]} /></>}
+                {!task.referenceDate && <><WorkPhotoGallery taskTitle={task.title} evidenceLabel={task.materialRequest ? 'Материал для уточнения' : cdzTask ? 'Подтверждение ЦДЗ' : 'Фото работы'} studentToken={studentToken} uploads={taskUploadPresentation(uploads, task.id).owned} localPhotos={localTaskPhotos} review={review} now={statusNow} onRetry={queuePhotoUpload} onDelete={deletePhoto} /><LinkedWorkPhotos taskId={task.id} uploads={uploads} pages={[page, ...(evidencePages ?? [])]} /></>}
                 {parent && <small className="day-source"><BookOpen size={14} /> {task.source}</small>}
               </article>
               if (!task.problems?.length) return taskCard

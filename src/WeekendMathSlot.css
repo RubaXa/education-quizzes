@@ -1,3 +1,4 @@
+/* @see ../docs/decisions/work-photo-expand-2026-10-18.md */
 .weekend-math-slot{min-width:0;margin-top:20px;padding:19px;border:1px solid #ded6eb;border-radius:22px;background:#fff;color:#34295c;box-shadow:0 10px 28px #3f306c0b}
 .weekend-math-slot header{display:flex;justify-content:space-between;gap:12px}
 .weekend-math-kicker{color:#694e9f;font-size:.76rem;font-weight:800}
@@ -7,9 +8,6 @@
 .weekend-math-group{margin-top:15px;padding:14px;border:1px solid #e8e1ef;border-radius:16px;background:#faf8fd}
 .weekend-math-problems{display:grid;gap:8px;margin-top:12px}
 .weekend-math-list-title{margin:14px 0 4px;color:#49347e;font-size:.9rem}
-.weekend-math-photos{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
-.weekend-math-photo-item{box-sizing:border-box;position:relative;display:block;width:38px;height:38px}
-.weekend-math-photos button{position:absolute;right:-4px;top:-5px;display:grid;place-items:center;width:16px;height:16px;padding:0;border:1px solid #ddcbd6;border-radius:50%;background:#fff;color:#933a50;cursor:pointer}
 .weekend-math-error{color:#9d3348!important}
 @media(max-width:640px){.weekend-math-slot{padding:12px}.weekend-math-group{padding:10px}}
 /* @see ../docs/modules/reviews/problem-card-design-decisions.md#flat-numbered-sheet */

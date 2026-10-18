@@ -2,6 +2,15 @@
 
 | Файл | Спецификация | Назначение | Потребитель |
 |---|---|---|---|
+| [src/components/WorkPhotoGallery.tsx](../src/components/WorkPhotoGallery.tsx) | [Фото и действия](modules/school-diary/day-page.md) | Единая галерея: открыть, сменить, закрыть, повторить и удалить по прежним правам | День; выходные; UI Kit |
+| [src/components/WorkPhotoGallery.css](../src/components/WorkPhotoGallery.css) | [Фото и действия](modules/school-diary/day-page.md) | Прежнее оформление галереи и компактного режима | WorkPhotoGallery |
+| [src/components/WorkPhotoGallery.test.tsx](../src/components/WorkPhotoGallery.test.tsx) | [Фото и действия](modules/school-diary/day-page.md) | Local→server, просмотр, повтор передачи, права удаления | Vitest |
+| [src/components/WorkPhotoGallery.layout.test.mjs](../src/components/WorkPhotoGallery.layout.test.mjs) | [Сохраняемые действия](product/ui-change-control.md) | Кнопка закрытия поверх позиционированного изображения | Vitest; браузерное ревью |
+| [scripts/work-photo-consumers.test.mjs](../scripts/work-photo-consumers.test.mjs) | [Сохраняемые действия](product/ui-change-control.md) | Запрет отдельных статичных копий собственного фото в маршрутах | Vitest; pre-push |
+| [docs/decisions/work-photo-expand-2026-10-18.md](decisions/work-photo-expand-2026-10-18.md) | [Компоненты](shared/design/components.md) | Причина пропуска действия, объединение и матрица сценариев | Разработчик |
+
+| Файл | Спецификация | Назначение | Потребитель |
+|---|---|---|---|
 | [src/lib/taskUploadPresentation.ts](../src/lib/taskUploadPresentation.ts) | [Место загрузки и покрытие](modules/materials/storage-privacy.md) | Отдельные владение галереей, педагогические свидетельства и ссылки | День; выходные; LinkedWorkPhotos |
 | [src/lib/taskUploadPresentation.test.ts](../src/lib/taskUploadPresentation.test.ts) | [Место загрузки и покрытие](modules/materials/storage-privacy.md) | Legacy, классификация, неизменность места, источник | Vitest |
 | [src/components/LinkedWorkPhotos.tsx](../src/components/LinkedWorkPhotos.tsx) | [Место загрузки и покрытие](modules/materials/storage-privacy.md) | Просмотр ссылок на решения из другого задания | День; выходные; UI Kit |

@@ -358,23 +358,24 @@
       }
     },
     "src/UiKit.tsx": {
-      "sha256": "fe11b73d19b40c0bb90a2739bdd6cadc83c7793615eab76b7f6eea6eb215a7a4",
-      "record": "docs/decisions/upload-origin-links-2026-10-18.md",
+      "sha256": "950f0301db957552bdee167c219b989093d23c109b61b9c6d06114cc3a1c861e",
+      "record": "docs/decisions/work-photo-expand-2026-10-18.md",
       "specs": [
-        "docs/modules/materials/storage-privacy.md",
         "docs/modules/school-diary/day-page.md",
-        "docs/shared/design/components.md"
+        "docs/shared/design/components.md",
+        "docs/product/ui-change-control.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/WorkPhotoGallery.test.tsx",
         "src/WeekendMathSlot.test.tsx",
-        "src/lib/taskUploadPresentation.test.ts",
-        "src/components/LinkedWorkPhotos.test.tsx",
-        "src/UiKit.test.tsx"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/UiKit.test.tsx",
+        "scripts/work-photo-consumers.test.mjs",
+        "src/components/WorkPhotoGallery.layout.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 18.10: файл должен оставаться только в месте загрузки; в других заданиях нужны связи на него, без перемешивания элементов загрузки."
+        "evidence": "Родитель 18.10 передал жалобу ребёнка: пропало раскрытие собственных фото; требует восстановить действие и изменить процесс для предотвращения повторения."
       }
     },
     "src/UiKit.css": {
@@ -637,39 +638,45 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "e6d54c046a9742a9f41022c8a5980c7a5f9f7190ac60906df2d64d04492a5aa2",
-      "record": "docs/decisions/upload-origin-links-2026-10-18.md",
+      "sha256": "c4829bcff1d1c3f0dbeff078a17eecd2116a9ae97136ea38e4c2b27d402617d7",
+      "record": "docs/decisions/work-photo-expand-2026-10-18.md",
       "specs": [
-        "docs/modules/materials/storage-privacy.md",
         "docs/modules/school-diary/day-page.md",
-        "docs/shared/design/components.md"
+        "docs/shared/design/components.md",
+        "docs/product/ui-change-control.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/WorkPhotoGallery.test.tsx",
         "src/WeekendMathSlot.test.tsx",
-        "src/lib/taskUploadPresentation.test.ts",
-        "src/components/LinkedWorkPhotos.test.tsx",
-        "src/UiKit.test.tsx"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/UiKit.test.tsx",
+        "scripts/work-photo-consumers.test.mjs",
+        "src/components/WorkPhotoGallery.layout.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 18.10: файл должен оставаться только в месте загрузки; в других заданиях нужны связи на него, без перемешивания элементов загрузки."
+        "evidence": "Родитель 18.10 передал жалобу ребёнка: пропало раскрытие собственных фото; требует восстановить действие и изменить процесс для предотвращения повторения."
       }
     },
     "src/DayPage.css": {
-      "sha256": "976f355edf0a1519856165411a063704d2edaa682b62f598153fc94d0aa761e9",
-      "record": "docs/decisions/grade-average-ui-kit-2026-10-18.md",
+      "sha256": "2321d09c346456def017b239f57095314d0d5c6ae24060444e692321f40e247a",
+      "record": "docs/decisions/work-photo-expand-2026-10-18.md",
       "specs": [
-        "docs/modules/school-diary/grades.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/school-diary/day-page.md",
+        "docs/shared/design/components.md",
+        "docs/product/ui-change-control.md"
       ],
       "tests": [
-        "src/DayPage.gradeBadge.test.tsx",
-        "src/DayDashboard.warmStart.test.tsx"
+        "src/components/WorkPhotoGallery.test.tsx",
+        "src/WeekendMathSlot.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/UiKit.test.tsx",
+        "scripts/work-photo-consumers.test.mjs",
+        "src/components/WorkPhotoGallery.layout.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь запросил единый компонент и согласованное отображение средних; тот же чип используется на предметной странице и в сводке."
+        "evidence": "Родитель 18.10 передал жалобу ребёнка: пропало раскрытие собственных фото; требует восстановить действие и изменить процесс для предотвращения повторения."
       }
     },
     "src/components/AssignmentBrief.tsx": {
@@ -888,44 +895,45 @@
       }
     },
     "src/WeekendMathSlot.tsx": {
-      "sha256": "b0e9fff4b977b56f72460749dfadd058dd6c175b4d14d07ef4c701e8cbd87b15",
-      "record": "docs/decisions/upload-origin-links-2026-10-18.md",
+      "sha256": "10c23acd272423d87fc668099c371e6c5c79f2ccf2944052d46a1846d5a92ed6",
+      "record": "docs/decisions/work-photo-expand-2026-10-18.md",
       "specs": [
-        "docs/modules/materials/storage-privacy.md",
         "docs/modules/school-diary/day-page.md",
-        "docs/shared/design/components.md"
+        "docs/shared/design/components.md",
+        "docs/product/ui-change-control.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/WorkPhotoGallery.test.tsx",
         "src/WeekendMathSlot.test.tsx",
-        "src/lib/taskUploadPresentation.test.ts",
-        "src/components/LinkedWorkPhotos.test.tsx",
-        "src/UiKit.test.tsx"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/UiKit.test.tsx",
+        "scripts/work-photo-consumers.test.mjs",
+        "src/components/WorkPhotoGallery.layout.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 18.10: файл должен оставаться только в месте загрузки; в других заданиях нужны связи на него, без перемешивания элементов загрузки."
+        "evidence": "Родитель 18.10 передал жалобу ребёнка: пропало раскрытие собственных фото; требует восстановить действие и изменить процесс для предотвращения повторения."
       }
     },
     "src/WeekendMathSlot.css": {
-      "sha256": "fd1cb4c158711ae362b22b3011d3f9d0b542ff2c74baf3a3c6bf23a4253b0070",
-      "record": "docs/decisions/flat-numbered-sheet-2026-10-14.md",
+      "sha256": "3527020fa64fa51291a415b8ec785ce94df987508c96152c162e218dba855a13",
+      "record": "docs/decisions/work-photo-expand-2026-10-18.md",
       "specs": [
-        "docs/modules/reviews/problem-card-design-decisions.md",
-        "docs/shared/design/README.md"
+        "docs/modules/school-diary/day-page.md",
+        "docs/shared/design/components.md",
+        "docs/product/ui-change-control.md"
       ],
       "tests": [
-        "src/components/ProblemTaskCard.contract.test.tsx",
-        "src/components/ProblemGroup.layout.test.tsx",
-        "src/components/ProblemStatement.provenance.test.tsx"
+        "src/components/WorkPhotoGallery.test.tsx",
+        "src/WeekendMathSlot.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/UiKit.test.tsx",
+        "scripts/work-photo-consumers.test.mjs",
+        "src/components/WorkPhotoGallery.layout.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 14.10.2026 повторно приложил согласованный макет и потребовал сверить с ним выпускаемую карточку."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "bbde59e525e577dd22ebfc19579868f4fd35f9a1b6614666672077bd12853cc2"
+        "evidence": "Родитель 18.10 передал жалобу ребёнка: пропало раскрытие собственных фото; требует восстановить действие и изменить процесс для предотвращения повторения."
       }
     },
     "scripts/quiz.mjs": {
@@ -5259,6 +5267,48 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Родитель 18.10: файл должен оставаться только в месте загрузки; в других заданиях нужны связи на него, без перемешивания элементов загрузки."
+      }
+    },
+    "src/components/WorkPhotoGallery.tsx": {
+      "sha256": "6087a047ef96588e9156a1ce04a03f1ce98d1fac977d8d32070cdd3bf16339e4",
+      "record": "docs/decisions/work-photo-expand-2026-10-18.md",
+      "specs": [
+        "docs/modules/school-diary/day-page.md",
+        "docs/shared/design/components.md",
+        "docs/product/ui-change-control.md"
+      ],
+      "tests": [
+        "src/components/WorkPhotoGallery.test.tsx",
+        "src/WeekendMathSlot.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/UiKit.test.tsx",
+        "scripts/work-photo-consumers.test.mjs",
+        "src/components/WorkPhotoGallery.layout.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 18.10 передал жалобу ребёнка: пропало раскрытие собственных фото; требует восстановить действие и изменить процесс для предотвращения повторения."
+      }
+    },
+    "src/components/WorkPhotoGallery.css": {
+      "sha256": "3b07b28b09a871215f604e39224bd59b21b9961ce5c58916d7038b2a4ec7d5c5",
+      "record": "docs/decisions/work-photo-expand-2026-10-18.md",
+      "specs": [
+        "docs/modules/school-diary/day-page.md",
+        "docs/shared/design/components.md",
+        "docs/product/ui-change-control.md"
+      ],
+      "tests": [
+        "src/components/WorkPhotoGallery.test.tsx",
+        "src/WeekendMathSlot.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/UiKit.test.tsx",
+        "scripts/work-photo-consumers.test.mjs",
+        "src/components/WorkPhotoGallery.layout.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 18.10 передал жалобу ребёнка: пропало раскрытие собственных фото; требует восстановить действие и изменить процесс для предотвращения повторения."
       }
     }
   }

@@ -1,17 +1,16 @@
+/* @see ../docs/decisions/work-photo-expand-2026-10-18.md */
 /* @see ../docs/decisions/upload-origin-links-2026-10-18.md */
 import { useEffect, useRef, useState } from 'react'
-import { X } from 'lucide-react'
 import { removePendingDayPhoto, requestDayHelp, uploadDayPhoto, uploadMatchesTask, watchDayHelp, watchDayPage, watchDayTaskGuides } from '@/lib/dayStore'
 import type { DayHelp, DayPageData, ParentTaskPrivate } from '@/lib/dayStore'
 import { dayHelpSessionRole } from '@/lib/personalAccess'
-import EducationImage from '@/components/EducationImage'
-import ArtifactAvatar, { WorkArtifactImage } from '@/components/ArtifactAvatar'
+import WorkPhotoGallery from '@/components/WorkPhotoGallery'
 import MaterialReader, { canReadInside } from '@/components/MaterialReader'
 import ProblemGroup from '@/components/ProblemGroup'
 import ProblemTaskCard from '@/components/ProblemTaskCard'
 import LinkedWorkPhotos from '@/components/LinkedWorkPhotos'
 import { taskUploadPresentation } from '@/lib/taskUploadPresentation'
-import { artifactAvatarLabel, artifactAvatarState, localArtifactAvatarState, problemCardState } from '@/lib/reviewPresentation'
+import { problemCardState } from '@/lib/reviewPresentation'
 import { useDayEvidence } from '@/lib/useDayEvidence'
 import { useParentCompletions } from '@/lib/useParentCompletions'
 import { canAcceptCorrectAnswer, parentAccepted, practiceRequired, recordParentCompletion, recordRequirementChoice } from '@/lib/parentCompletion'
@@ -113,17 +112,7 @@ export default function WeekendMathSlot({ token, taskIds, parent, lessonDate, du
         const accepted = parentAccepted(review, parentDecisions.events)
         const state = problemCardState(photos, review, previews.some((photo) => photo.state === 'uploading'), statusNow, accepted)
         return <ProblemTaskCard owner={{ familyId: page.familyId, childId: page.childId }} problem={problem} state={state} key={problem.id} links={taskLinks} parent={parent} guide={taskPrivate[problem.id]?.guide} sourceResearch={taskPrivate[problem.id]?.sourceResearch} help={helpRequests.find((item) => item.taskId === problem.id)} review={review} uploads={photos} accepted={accepted} canDecide={helpRole === 'parent'} onDecision={parent && canAcceptCorrectAnswer(review) && review ? (action) => recordParentCompletion(review, action) : undefined} decisions={parentDecisions.events} onRequirementChoice={parent && review?.assessmentBasis?.disputedRequirements?.length ? (id, action) => recordRequirementChoice(review, id, action) : undefined} helpAccess={helpRole === 'checking' ? 'checking' : helpRole === 'student' ? 'ready' : 'login-required'} onRequestHelp={!parent && helpRole === 'student' ? (taskId, revision, kind, text) => requestDayHelp(studentToken, taskId, revision, kind, text) : undefined} onPhotos={(files) => addPhotos(problem.id, files)}>
-          {(ownPhotos.length > 0 || previews.length > 0) && <div className="weekend-math-photos" aria-label={`Фото задачи № ${problem.number}`}>
-            {ownPhotos.map((photo, index) => {
-              const localPhoto = local.find((item) => photo.id === `${studentToken}:${item.id}`)
-              const state = artifactAvatarState(photo, review, statusNow)
-              return <span className="weekend-math-photo-item" key={photo.id} title={`Фото ${index + 1} · ${artifactAvatarLabel(state)}`}>
-                <ArtifactAvatar state={state}><WorkArtifactImage upload={photo} title={problem.title} index={index} fallbackUrl={localPhoto?.url} compact retryControl /></ArtifactAvatar>
-                {!parent && photo.status !== 'reviewed' && <button type="button" aria-label={`Удалить фото ${index + 1}`} onClick={() => { void removePendingDayPhoto(photo.id.split(':')[0], photo.id.split(':')[1]).catch((cause) => setError(reportUiError(cause, 'Удаление фото'))) }}><X size={11} /></button>}
-              </span>
-            })}
-            {previews.map((photo) => <span className="weekend-math-photo-item" key={photo.id} title={photo.error ?? artifactAvatarLabel(localArtifactAvatarState(photo.state))}><ArtifactAvatar state={localArtifactAvatarState(photo.state)}><EducationImage source={photo.url} alt="Новое фото" compact /></ArtifactAvatar></span>)}
-          </div>}
+          <WorkPhotoGallery compact taskTitle={`№ ${problem.number}. ${problem.title}`} studentToken={studentToken} uploads={ownPhotos} localPhotos={previews.map((photo) => ({ ...photo, previewUrl: photo.url }))} review={review} now={statusNow} onDelete={!parent ? (qualifiedId) => { const [sourceToken, photoId] = qualifiedId.split(':'); return removePendingDayPhoto(sourceToken, photoId) } : undefined} />
           <LinkedWorkPhotos taskId={problem.id} uploads={uploads} pages={[page, ...(evidencePages ?? [])]} />
           {previews.some((photo) => photo.state === 'failed') && <small className="weekend-math-error">Фото не загрузилось. Выберите его ещё раз.</small>}
         </ProblemTaskCard>
