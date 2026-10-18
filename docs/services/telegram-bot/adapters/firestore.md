@@ -84,3 +84,7 @@ Shadow и notify используют разные checkpoint namespaces: shadow
 ## Проверки перед активацией
 
 Фикстуры на создание/изменение/удаление, отсутствующий owner, смену owner, out-of-order revision, repeated trigger, transient listener failure и reconnect reconciliation. Сначала запускать adapter в режиме наблюдения без отправки; сравнить events с подтверждёнными документами и журналом.
+
+Для подтверждённого upload source добавляет navigationContext только после owner/dayPage/exact task membership проверки. Порт переносит лишь kind=day, dayToken и валидный taskId; произвольные source URL не становятся кнопкой. Контекст не меняет устойчивую семантику загрузки и не вызывает повторную рассылку при обогащении baseline.
+
+Кнопка появляется только после проверки точных page.familyId/childId и viewTokens: student совпадает с scope.dayToken, обе роли имеют разные допустимые tokens. Для legacy страницы без полной metadata либо с неподтверждённым alias факт загрузки и сообщение сохраняются, navigationContext опускается. Поле viewTokens добавлено к маске уже существующего адресного чтения без нового запроса.

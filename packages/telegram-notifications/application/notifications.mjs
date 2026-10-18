@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto'
 import { assertPort } from '../domain/ports.mjs'
 import { createDomainEvent } from '../domain/events.mjs'
+import { notificationMessageVersion } from '../domain/renderer.mjs'
 
 /** @see ../../../docs/services/telegram-bot/event-ledger-outbox.md#атомарность-и-идемпотентность @see ../../../docs/services/telegram-bot/delivery.md#разделение-ответственности @see ../../../docs/services/telegram-bot/ports-and-events.md#контракт-портов */
 export class NotificationService {
@@ -35,12 +36,15 @@ export class NotificationService {
         || !await this.membership.isActiveMember({ ...target, childId: normalized.childId })) continue
       safeTargets.push(target)
     }
+    const messageParts = this.renderer(normalized, 'family')
+    const messageVersion = notificationMessageVersion(messageParts)
+    if (!messageVersion) throw new Error('invalid_notification_render')
     const jobs = safeTargets.map((target) => ({
       jobId: `${normalized.eventId}_${target.linkId}`,
       eventId: normalized.eventId,
       event: normalized,
-      messageVersion: 1,
-      messageParts: this.renderer(normalized, 'family'),
+      messageVersion,
+      messageParts,
       linkId: target.linkId,
       familyId: target.familyId,
       personId: target.personId,
@@ -83,7 +87,7 @@ export class NotificationService {
         await this.outbox.finish({ jobId: job.jobId, workerId: this.workerId, leaseToken: job.leaseToken, now: this.clock().toISOString(), result: { state: 'blocked', safeErrorCode: 'channel_unavailable' } })
         return true
       }
-      if (job.messageVersion !== 1 || !Array.isArray(job.messageParts) || job.messageParts.length === 0 || job.messageParts.some((part) => typeof part !== 'string')) {
+      if (notificationMessageVersion(job.messageParts) !== job.messageVersion) {
         await this.outbox.finish({ jobId: job.jobId, workerId: this.workerId, leaseToken: job.leaseToken, now: this.clock().toISOString(), result: { state: 'dead_letter', safeErrorCode: 'unsupported_job_schema' } })
         return true
       }
@@ -104,7 +108,9 @@ export class NotificationService {
         }
         await this.outbox.renew({ jobId: job.jobId, workerId: this.workerId, leaseToken: job.leaseToken, now: beforePart, leaseMs: this.leaseMs })
         channelAttempt = { senderId: job.telegramUserId, attemptStartedAt: Date.parse(beforePart), expectedVersion: beforeState.version }
-        const receipt = await this.delivery.send({ chatId: job.telegramUserId, text: messages[index] })
+        const receipt = job.messageVersion === 2
+          ? await this.delivery.send({ chatId: job.telegramUserId, part: messages[index] })
+          : await this.delivery.send({ chatId: job.telegramUserId, text: messages[index] })
         channelAttempt = null
         const afterPart = this.clock().toISOString()
         await this.outbox.savePartReceipt({ jobId: job.jobId, workerId: this.workerId, leaseToken: job.leaseToken, index, receipt, now: afterPart, leaseMs: this.leaseMs })

@@ -3,7 +3,7 @@ id: service.telegram-bot.event-ledger-outbox
 status: accepted
 implementation: partial
 created: 2026-10-16
-updated: 2026-10-17
+updated: 2026-10-18
 consumers:
   - "Telegram service implementer"
   - "bot operator"
@@ -42,7 +42,7 @@ sections:
 - `checkpoints/{scopeKey}`: source adapter cursor или snapshot revision, completeness, last success time.
 - `groups/{groupKey}`: recipient, event references, first event time, last event time, flush deadline, status.
 
-Эти коллекции — реализация текущего среза. Job сохраняет `messageVersion: 1` и неизменяемые `messageParts` при enqueue, поэтому receipts относятся к постоянным индексам и текстам. Старые jobs без этой схемы переводятся в `dead_letter`; автоматическая миграция не поддерживается. Перед delivery opt-in адресно объединить [индексы worker](../../../packages/telegram-notifications/firestore.indexes.json) с имеющимися индексами после проверки целевого проекта; автоматически заменять global Firebase index manifest этим scoped-файлом нельзя. Retention policy не утверждена.
+Эти коллекции — реализация текущего среза. Job сохраняет неизменяемые `messageParts` и формат при enqueue: `messageVersion: 1` — прежний массив текстовых строк, `messageVersion: 2` — строго валидированные structured parts [Telegram дизайна](../../shared/design/telegram.md). Старые pending jobs v1 остаются исполнимыми и не перерендериваются. Неизвестная/смешанная схема попадает в dead_letter. Индексы частей и receipts постоянны; Rich/HTML transport не создаёт вторую job и не меняет уже отправленные части. Автоматическая миграция неизвестных jobs не поддерживается. Перед delivery opt-in адресно объединить [индексы worker](../../../packages/telegram-notifications/firestore.indexes.json) с имеющимися индексами после проверки целевого проекта; автоматически заменять global Firebase index manifest этим scoped-файлом нельзя. Retention policy не утверждена.
 
 ## Атомарность и идемпотентность
 

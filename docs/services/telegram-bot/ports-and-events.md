@@ -89,7 +89,7 @@ source, scopeKey, completeness, observedAt, sourceRevision?, cursor?, records[]
 
 Если значимое поле события меняется, появляется новая ревизия/событие только согласно политике его семейства. Дублирующийся сигнал той же ревизии возвращает существующий `eventId`. Неполные payload не становятся `deleted` или `cancelled`.
 
-Нормализация идемпотентна для всего DTO, включая `contextRefs.id`: сырые ID хэшируются; при `identityEncoding: sha256-v1` уже нормализованный 64-символьный hex ID сохраняется. `NotificationService.accept` может безопасно повторно нормализовать event до записи. Это не означает наличия context links в renderer: их источник и разрешённый resolver пока planned.
+Нормализация идемпотентна для всего DTO, включая `contextRefs.id`: сырые ID хэшируются; при `identityEncoding: sha256-v1` уже нормализованный 64-символьный hex ID сохраняется. `NotificationService.accept` может безопасно повторно нормализовать event до записи. Отдельный navigationContext допускается только для подтверждённого Firestore day scope: kind=day, проверенный dayToken с доказанными metadata обеих ролей. Он не подменяет хэшированные contextRefs и не принимает произвольный URL. Renderer строит канонический маршрут Education; приложение отдельно проверяет семейный доступ. Смена только навигации не является новым учебным фактом.
 
 ## Контракт портов
 

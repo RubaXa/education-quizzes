@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto'
 import { taskContext } from '../../education-runtime/task-context.mjs'
+import { learningRouteIdentity } from '../../../day/learning-route-identity.mjs'
 
 /** @see ../../../docs/services/telegram-bot/adapters/firestore.md#области-данных-для-валидации @see ../../../docs/services/telegram-bot/ports-and-events.md#контракт-observation */
 export function createFirestoreSourceAdapter(db, { baseBackoffMs = 1_000, maxBackoffMs = 60_000, setTimer = setTimeout, clearTimer = clearTimeout } = {}) {
@@ -87,12 +88,10 @@ export function createFirestoreSourceAdapter(db, { baseBackoffMs = 1_000, maxBac
     const ownerSnapshot = await getMasked(ownerRef(scope), ['familyId', 'childId', 'date', 'targetDate'])
     const owner = ownerSnapshot.data() ?? {}
     if (!ownerSnapshot.exists || owner.familyId !== scope.familyId || owner.childId !== scope.childId || !validDay(owner.date)) return INVALID_SOURCE_STATE
-    const pageSnapshot = await getMasked(db.doc(`dayPages/${scope.dayToken}`), ['kind', 'familyId', 'childId', 'date', 'targetDate', 'taskIds', 'subjects'])
+    const pageSnapshot = await getMasked(db.doc(`dayPages/${scope.dayToken}`), ['kind', 'familyId', 'childId', 'date', 'targetDate', 'taskIds', 'subjects', 'viewTokens'])
     if (!pageSnapshot.exists) return INVALID_SOURCE_STATE
     const page = pageSnapshot.data() ?? {}
     if (page.kind !== 'student' || page.date !== owner.date
-      || (page.familyId !== undefined && page.familyId !== scope.familyId)
-      || (page.childId !== undefined && page.childId !== scope.childId)
       || !Array.isArray(page.taskIds) || !page.taskIds.includes(data.taskId)
       || !Array.isArray(page.subjects)) return INVALID_SOURCE_STATE
     const task = taskContext({ subjects: page.subjects }, data.taskId)
@@ -101,10 +100,12 @@ export function createFirestoreSourceAdapter(db, { baseBackoffMs = 1_000, maxBac
     if (!subject || !title) return INVALID_SOURCE_STATE
     const dueDate = page.targetDate ?? owner.targetDate
     if (dueDate !== undefined && !validDay(dueDate)) return INVALID_SOURCE_STATE
+    const navigationContext = safeDayNavigationContext(page, scope)
     return {
       ...record,
       fields: { ...record.fields, subject, title,
         ...(dueDate ? { occurredLabel: `Задание к ${dueDate}` } : {}) },
+      ...(navigationContext ? { navigationContext } : {}),
     }
   }
 
@@ -140,6 +141,18 @@ export function createFirestoreSourceAdapter(db, { baseBackoffMs = 1_000, maxBac
 
   return Object.freeze({ kind: 'firestore', scopeKey, validateScope, observe, inspectUpload, subscribe })
 }
+
+function safeDayNavigationContext(page, scope) {
+  if (page.familyId !== scope.familyId || page.childId !== scope.childId) return null
+  const student = page.viewTokens?.student
+  const parent = page.viewTokens?.parent
+  if (!validRouteToken(student) || !validRouteToken(parent) || student !== scope.dayToken || student === parent) return null
+  try {
+    const identity = learningRouteIdentity({ student, parent }, { familyId: page.familyId, childId: page.childId })
+    return identity.canonicalToken === scope.dayToken ? { kind: 'day', dayToken: identity.canonicalToken } : null
+  } catch { return null }
+}
+function validRouteToken(value) { return typeof value === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(value) }
 
 function binding(scope) {
   return { source: 'firestore', familyId: scope.familyId, childId: scope.childId, kind: scope.kind,

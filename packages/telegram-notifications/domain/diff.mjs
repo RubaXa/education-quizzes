@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto'
 import { createDomainEvent, EVENT_TYPES } from './events.mjs'
+import { isValidEducationDayToken } from '../../education-presentation/notification.mjs'
 
 /** @see ../../../docs/services/telegram-bot/ports-and-events.md#контракт-observation @see ../../../docs/services/telegram-bot/adapters/mesh.md#контракт-снимка */
 export function diffCompleteSnapshots({ source, scopeKey, familyId, childId, previous, current, detectedAt }) {
@@ -22,7 +23,7 @@ export function diffCompleteSnapshots({ source, scopeKey, familyId, childId, pre
     events.push(createDomainEvent({
       source, scopeKey, familyId, childId, sourceEventKey: recordKey,
       sourceRevision: revision, eventType, occurredAt: record.occurredAt, detectedAt,
-      privacyClass: 'family-summary', fields: record.fields,
+      privacyClass: 'family-summary', fields: record.fields, navigationContext: record.navigationContext,
     }))
   }
   // Deletions are deliberately omitted: disappearance alone is not proof of deletion.
@@ -37,6 +38,9 @@ function validSnapshot(snapshot) {
   for (const record of snapshot.records) {
     if (!record || typeof record.recordKey !== 'string' || !record.recordKey.trim() || !['grade', 'schedule', 'assignment', 'upload', 'quiz', 'review', 'probe'].includes(record.kind)) return false
     if (record.eventType && !EVENT_TYPE_SET.has(record.eventType)) return false
+    if (record.navigationContext !== undefined && (record.kind !== 'upload' || record.navigationContext?.kind !== 'day'
+      || !isValidEducationDayToken(record.navigationContext.dayToken)
+      || Object.keys(record.navigationContext).some((key) => !['kind', 'dayToken'].includes(key)))) return false
     if (record.semanticHash !== undefined && (typeof record.semanticHash !== 'string' || !/^[a-f0-9]{64}$/.test(record.semanticHash))) return false
     if (record.fields !== undefined && (!record.fields || typeof record.fields !== 'object' || Array.isArray(record.fields))) return false
     if (seen.has(record.recordKey)) return false
@@ -50,6 +54,7 @@ const stable = (record) => JSON.stringify({
   semanticHash: record.semanticHash ?? null,
   occurredAt: canonicalInstant(record.occurredAt),
   fields: canonicalFields(record.fields ?? {}),
+  navigationContext: record.navigationContext ?? null,
 })
 function canonicalInstant(value) {
   if (value === undefined || value === null || value === '') return null

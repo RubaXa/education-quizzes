@@ -315,18 +315,19 @@
       }
     },
     "src/UiKit.tsx": {
-      "sha256": "8680a838ab22395a600ec3a1d520d808b6463c451cf4d991ad244086c0e78ef0",
-      "record": "docs/decisions/grade-average-ui-kit-2026-10-18.md",
+      "sha256": "1e1ba84bde106e039efb2b70499ea1d9b9f354cc5ab7cfbf63367b9391933971",
+      "record": "docs/decisions/telegram-design-system-2026-10-18.md",
       "specs": [
-        "docs/modules/school-diary/grades.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/shared/design/telegram.md",
+        "docs/shared/design/statuses.md"
       ],
       "tests": [
-        "src/UiKit.test.tsx"
+        "src/UiKit.test.tsx",
+        "src/components/TelegramNotificationPreview.layout.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь запросил общую шкалу среднего балла в UI Kit, затем прямо указал на повторяющиеся заголовки категорий и потребовал сгруппировать каждый раздел один раз."
+        "evidence": "Родитель18.10 прямо разрешил Luna реализацию единого Telegram дизайна, UI Kit, реальные примеры, тесты и выпуск main."
       }
     },
     "src/UiKit.css": {
@@ -3277,22 +3278,19 @@
       }
     },
     "src/components/StatusIcon.tsx": {
-      "sha256": "9fbca1fcaeccd2f8f3032f5fb27036d0479daf143320963214f2269d55e57294",
-      "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
+      "sha256": "ec6fb48850b28d3d62b551a82e4995fdd773da05c6c4f4fb09553f0618f0cb8b",
+      "record": "docs/decisions/telegram-design-system-2026-10-18.md",
       "specs": [
-        "docs/shared/specification-system.md"
+        "docs/shared/design/telegram.md",
+        "docs/shared/design/statuses.md"
       ],
       "tests": [
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
+        "src/UiKit.test.tsx",
+        "src/components/TelegramNotificationPreview.layout.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя 16.10.2026 внедрить согласованную структуру спецификаций, перенести ссылки в коде и проверить сохранность требований; изменение предметного поведения не выполнялось."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "6c39d23e736a25b506e248efc998bc6ed8a7cd055cbcd2d35452c30cdf91166f"
+        "evidence": "Родитель18.10 прямо разрешил Luna реализацию единого Telegram дизайна, UI Kit, реальные примеры, тесты и выпуск main."
       }
     },
     "src/components/SubjectTheme.tsx": {
@@ -4352,31 +4350,35 @@
       }
     },
     "packages/telegram-notifications/adapters/runtime.mjs": {
-      "sha256": "4323e6affad3ad3c4ea6efd368b46106c0c84805a8c8d04f5916ef4ca1ff2642",
-      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "sha256": "5a138ba3278766acf5c1a5403acbbe900674e14fcd68cfae1d8e1d1ffd2d8153",
+      "record": "docs/decisions/telegram-design-system-2026-10-18.md",
       "specs": [
-        "docs/services/telegram-bot/operations.md"
+        "docs/shared/design/telegram.md",
+        "docs/services/telegram-bot/delivery.md"
       ],
       "tests": [
-        "packages/telegram-notifications/adapters/runtime.test.mjs"
+        "packages/telegram-notifications/renderer.test.mjs",
+        "packages/education-presentation/notification.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+        "evidence": "Родитель18.10 прямо разрешил Luna реализацию единого Telegram дизайна, UI Kit, реальные примеры, тесты и выпуск main."
       }
     },
     "packages/telegram-notifications/adapters/telegram.mjs": {
-      "sha256": "e8b8c0376403468c2c20d8a013fcc036374e784b9b25ad6f8b5d4fe3c6fcb058",
-      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "sha256": "874b42fa5d8fa0d229d5b719dcdd3e7ed8404d5e8b6fd4fdc34ceb2a0d3f3310",
+      "record": "docs/decisions/telegram-design-system-2026-10-18.md",
       "specs": [
-        "docs/services/telegram-bot/operations.md"
+        "docs/shared/design/telegram.md",
+        "docs/services/telegram-bot/delivery.md"
       ],
       "tests": [
-        "packages/telegram-notifications/adapters/runtime.test.mjs"
+        "packages/telegram-notifications/renderer.test.mjs",
+        "packages/education-presentation/notification.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+        "evidence": "Родитель18.10 прямо разрешил Luna реализацию единого Telegram дизайна, UI Kit, реальные примеры, тесты и выпуск main."
       }
     },
     "packages/telegram-notifications/adapters/worker-loop.mjs": {
@@ -4408,46 +4410,51 @@
       }
     },
     "packages/telegram-notifications/application/notifications.mjs": {
-      "sha256": "93d438164a2b54dc22484b4cabdfd5a6ea507d98af27cd20aca68f077492243a",
-      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "sha256": "aeced18a735a145311123e6109a75f5d6fcd26ecd5f0a5b996d91f2668ca408b",
+      "record": "docs/decisions/telegram-design-system-2026-10-18.md",
       "specs": [
-        "docs/services/telegram-bot/operations.md"
+        "docs/shared/design/telegram.md",
+        "docs/services/telegram-bot/delivery.md"
       ],
       "tests": [
-        "packages/telegram-notifications/notifications.test.mjs"
+        "packages/telegram-notifications/renderer.test.mjs",
+        "packages/education-presentation/notification.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+        "evidence": "Родитель18.10 прямо разрешил Luna реализацию единого Telegram дизайна, UI Kit, реальные примеры, тесты и выпуск main."
       }
     },
     "packages/telegram-notifications/domain/diff.mjs": {
-      "sha256": "ee996b751a8b83cc7c3d69d64b7ab05eaa2b31364a40218e9be63ce5e12ff8b0",
-      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "sha256": "9de8182df4027758c9f1b8ad98a75cf6ae3eb493d2ee06642fc51708fe7821f5",
+      "record": "docs/decisions/telegram-design-system-2026-10-18.md",
       "specs": [
-        "docs/services/telegram-bot/operations.md"
+        "docs/shared/design/telegram.md",
+        "docs/services/telegram-bot/delivery.md"
       ],
       "tests": [
-        "packages/telegram-notifications/technical-probe.test.mjs",
-        "packages/telegram-notifications/notifications.test.mjs"
+        "packages/telegram-notifications/renderer.test.mjs",
+        "packages/education-presentation/notification.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+        "evidence": "Родитель18.10 прямо разрешил Luna реализацию единого Telegram дизайна, UI Kit, реальные примеры, тесты и выпуск main."
       }
     },
     "packages/telegram-notifications/domain/events.mjs": {
-      "sha256": "0931b1e7f07d56c29f0efe3df4daec3fc4bfe64853cbd37626370c7ad47c2b3b",
-      "record": "docs/decisions/upload-notification-lifecycle-2026-10-18.md",
+      "sha256": "605fa780619cc34b1e957b65bd9e2169c6c5cb671a6cd1fdf44e4a8397575e9c",
+      "record": "docs/decisions/telegram-design-system-2026-10-18.md",
       "specs": [
-        "docs/services/telegram-bot/ports-and-events.md"
+        "docs/shared/design/telegram.md",
+        "docs/services/telegram-bot/delivery.md"
       ],
       "tests": [
-        "packages/telegram-notifications/source-pipeline.test.mjs"
+        "packages/telegram-notifications/renderer.test.mjs",
+        "packages/education-presentation/notification.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10.2026 сообщил об отсутствии Telegram уведомления о только что загруженном решении и контекста задания; исправление семейной цепочки и проверка реальной доставки необходимы для согласованного сервиса. Название команды/продукта Education прямо уточнено пользователем."
+        "evidence": "Родитель18.10 прямо разрешил Luna реализацию единого Telegram дизайна, UI Kit, реальные примеры, тесты и выпуск main."
       }
     },
     "packages/telegram-notifications/domain/ports.mjs": {
@@ -4479,18 +4486,19 @@
       }
     },
     "packages/telegram-notifications/domain/renderer.mjs": {
-      "sha256": "968dbf227f3285314161adf01882652d42ade94b25bf25f35956e45a6b17db63",
-      "record": "docs/decisions/upload-notification-lifecycle-2026-10-18.md",
+      "sha256": "41a00faf8ee672e3907ec326d22724d681863a5b4153a8bd0cd737a33953f0da",
+      "record": "docs/decisions/telegram-design-system-2026-10-18.md",
       "specs": [
+        "docs/shared/design/telegram.md",
         "docs/services/telegram-bot/delivery.md"
       ],
       "tests": [
-        "packages/telegram-notifications/source-pipeline.test.mjs",
-        "packages/telegram-notifications/technical-probe.test.mjs"
+        "packages/telegram-notifications/renderer.test.mjs",
+        "packages/education-presentation/notification.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10.2026 сообщил об отсутствии Telegram уведомления о только что загруженном решении и контекста задания; исправление семейной цепочки и проверка реальной доставки необходимы для согласованного сервиса. Название команды/продукта Education прямо уточнено пользователем."
+        "evidence": "Родитель18.10 прямо разрешил Luna реализацию единого Telegram дизайна, UI Kit, реальные примеры, тесты и выпуск main."
       }
     },
     "scripts/telegram-bot.mjs": {
@@ -4578,18 +4586,19 @@
       }
     },
     "packages/telegram-notifications/adapters/source-firestore.mjs": {
-      "sha256": "bac6c20e0b7b82c80bc3a90a153ad122cae7bbcc1d08167f15420923b2c3acef",
-      "record": "docs/decisions/upload-notification-lifecycle-2026-10-18.md",
+      "sha256": "cbecbce85c9fbdf42266ce114705d1bc3f0d4dd4cdc480a46f0dbd725ad61ae6",
+      "record": "docs/decisions/telegram-design-system-2026-10-18.md",
       "specs": [
-        "docs/services/telegram-bot/adapters/firestore.md"
+        "docs/shared/design/telegram.md",
+        "docs/services/telegram-bot/delivery.md"
       ],
       "tests": [
-        "packages/telegram-notifications/source-pipeline.test.mjs",
-        "packages/telegram-notifications/source-mesh-integration.test.mjs"
+        "packages/telegram-notifications/renderer.test.mjs",
+        "packages/education-presentation/notification.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10.2026 сообщил об отсутствии Telegram уведомления о только что загруженном решении и контекста задания; исправление семейной цепочки и проверка реальной доставки необходимы для согласованного сервиса. Название команды/продукта Education прямо уточнено пользователем."
+        "evidence": "Родитель18.10 прямо разрешил Luna реализацию единого Telegram дизайна, UI Kit, реальные примеры, тесты и выпуск main."
       }
     },
     "packages/telegram-notifications/adapters/source-inventory-firestore.mjs": {
@@ -4621,17 +4630,19 @@
       }
     },
     "packages/telegram-notifications/application/source-pipeline.mjs": {
-      "sha256": "138f3761f8ce03a1fcef9120898b79e792d15c050b2cfb1b1a04f4bdd01bed70",
-      "record": "docs/decisions/upload-notification-lifecycle-2026-10-18.md",
+      "sha256": "000cd2ccac25faa3c03221ec9d6f5a68ff99376c2f9eb0aabe8dcec2cb44c6a0",
+      "record": "docs/decisions/telegram-design-system-2026-10-18.md",
       "specs": [
-        "docs/services/telegram-bot/ports-and-events.md"
+        "docs/shared/design/telegram.md",
+        "docs/services/telegram-bot/delivery.md"
       ],
       "tests": [
-        "packages/telegram-notifications/source-pipeline.test.mjs"
+        "packages/telegram-notifications/renderer.test.mjs",
+        "packages/education-presentation/notification.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10.2026 сообщил об отсутствии Telegram уведомления о только что загруженном решении и контекста задания; исправление семейной цепочки и проверка реальной доставки необходимы для согласованного сервиса. Название команды/продукта Education прямо уточнено пользователем."
+        "evidence": "Родитель18.10 прямо разрешил Luna реализацию единого Telegram дизайна, UI Kit, реальные примеры, тесты и выпуск main."
       }
     },
     "packages/education-runtime/credentials.mjs": {
@@ -4734,17 +4745,19 @@
       }
     },
     "packages/telegram-notifications/application/probe-notifications.mjs": {
-      "sha256": "4c6c11765ca38f67de72155f9bb4317be2faba9f8f6420a0b2798997a0708326",
-      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "sha256": "0bac7d54f0c99b9082c264e55c9a00738bb7ddb2d12ff37b4b8c1b1ff654fc92",
+      "record": "docs/decisions/telegram-design-system-2026-10-18.md",
       "specs": [
+        "docs/shared/design/telegram.md",
         "docs/services/telegram-bot/operations.md"
       ],
       "tests": [
+        "scripts/telegram-design-preview.test.mjs",
         "packages/telegram-notifications/probe-notifications.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+        "evidence": "Родитель18.10 прямо разрешил Luna реализацию единого Telegram дизайна, UI Kit, реальные примеры, тесты и выпуск main."
       }
     },
     "packages/telegram-notifications/operations/launch-agent.mjs": {
@@ -5029,6 +5042,86 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Родитель18.10 требует восстановить корректные родительские карточки без утраты согласованного дизайна; объединённый выпуск защищён от повторного затирания."
+      }
+    },
+    "packages/education-presentation/notification.mjs": {
+      "sha256": "7fb59b103a49b8c27dd6b757f2196759bf1631a9edb2698931e934bdbbd14744",
+      "record": "docs/decisions/telegram-design-system-2026-10-18.md",
+      "specs": [
+        "docs/shared/design/telegram.md",
+        "docs/services/telegram-bot/delivery.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/renderer.test.mjs",
+        "packages/education-presentation/notification.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель18.10 прямо разрешил Luna реализацию единого Telegram дизайна, UI Kit, реальные примеры, тесты и выпуск main."
+      }
+    },
+    "scripts/check-telegram-preview-viewport.mjs": {
+      "sha256": "96bb85ad152e4dbe7af99a8a1ef06cbc30d10d6c495c8d9923c1ecd9e9d7d578",
+      "record": "docs/decisions/telegram-design-system-2026-10-18.md",
+      "specs": [
+        "docs/shared/design/telegram.md",
+        "docs/services/telegram-bot/delivery.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/renderer.test.mjs",
+        "packages/education-presentation/notification.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель18.10 прямо разрешил Luna реализацию единого Telegram дизайна, UI Kit, реальные примеры, тесты и выпуск main."
+      }
+    },
+    "scripts/telegram-design-preview.mjs": {
+      "sha256": "77a7c7b7349abc27c2b035f74db08fec854916496a3913e9df68a46e3f3dcbed",
+      "record": "docs/decisions/telegram-design-system-2026-10-18.md",
+      "specs": [
+        "docs/shared/design/telegram.md",
+        "docs/services/telegram-bot/operations.md"
+      ],
+      "tests": [
+        "scripts/telegram-design-preview.test.mjs",
+        "packages/telegram-notifications/probe-notifications.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель18.10 прямо разрешил Luna реализацию единого Telegram дизайна, UI Kit, реальные примеры, тесты и выпуск main."
+      }
+    },
+    "src/components/TelegramNotificationPreview.css": {
+      "sha256": "c28bc1fdfe9145fa5b6c9831f4668fc04b76a29b25cf03adbcff0458d3e24d2b",
+      "record": "docs/decisions/telegram-design-system-2026-10-18.md",
+      "specs": [
+        "docs/shared/design/telegram.md",
+        "docs/shared/design/statuses.md"
+      ],
+      "tests": [
+        "src/UiKit.test.tsx",
+        "src/components/TelegramNotificationPreview.layout.test.ts"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель18.10 прямо разрешил Luna реализацию единого Telegram дизайна, UI Kit, реальные примеры, тесты и выпуск main."
+      }
+    },
+    "src/components/TelegramNotificationPreview.tsx": {
+      "sha256": "357e586c850507fcd64189db0fd0e5e981b918b210c470a39c72283b7c0f3e69",
+      "record": "docs/decisions/telegram-design-system-2026-10-18.md",
+      "specs": [
+        "docs/shared/design/telegram.md",
+        "docs/shared/design/statuses.md"
+      ],
+      "tests": [
+        "src/UiKit.test.tsx",
+        "src/components/TelegramNotificationPreview.layout.test.ts"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель18.10 прямо разрешил Luna реализацию единого Telegram дизайна, UI Kit, реальные примеры, тесты и выпуск main."
       }
     }
   }

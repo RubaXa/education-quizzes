@@ -3,7 +3,7 @@ id: shared.design.statuses
 status: accepted
 implementation: partial
 created: 2026-10-14
-updated: 2026-10-16
+updated: 2026-10-18
 consumers:
   - "React UI components"
   - "frontend developer"
@@ -48,7 +48,7 @@ sections:
 ---
 # Матрица статусов Education
 
-Этот контракт связывает вычисленное состояние, знак Lucide, цветовой токен, короткое представление и полное объяснение. [Исследовательские основания](../../research/status-design-systems.md). Реализация словаря — `src/components/StatusIcon.tsx`, значения — `src/education-design-tokens.css`. Проекция фактов остаётся в `src/lib/homeworkStatus.ts`, `reviewPresentation.ts` и `quizCardViewModel.ts`; значок не вычисляет учебный результат.
+Этот контракт связывает вычисленное состояние, знак Lucide, цветовой токен, короткое представление и полное объяснение. [Исследовательские основания](../../research/status-design-systems.md). Чистый словарь `STATUS_PRESENTATION` — `packages/education-presentation/notification.mjs`: семантика, подпись, tone, Lucide name и Telegram fallback symbol. `src/components/StatusIcon.tsx` выбирает форму из этого словаря; значения цветов — `src/education-design-tokens.css`. [Telegram ViewModel](telegram.md) использует те же состояния. Проекция фактов остаётся в `src/lib/homeworkStatus.ts`, `reviewPresentation.ts` и `quizCardViewModel.ts`; значок не вычисляет учебный результат.
 
 <a id="matrix"></a>
 ## Матрица
