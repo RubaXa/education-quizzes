@@ -17,7 +17,7 @@ vi.mock('firebase/auth', () => ({
 vi.mock('firebase/firestore', () => ({
   doc: (_db: unknown, ...parts: string[]) => ({ path: parts.join('/') }),
   collection: (_db: unknown, ...parts: string[]) => ({ path: parts.join('/') }),
-  onSnapshot: (ref: { path: string }, change: (snapshot: unknown) => void) => {
+  onSnapshot: (ref: { path: string }, _options: unknown, change: (snapshot: unknown) => void) => {
     probe.listeners.set(ref.path, change)
     probe.reads++
     return () => { probe.listeners.delete(ref.path) }
@@ -53,7 +53,9 @@ describe('personal cold start — no saved session', () => {
 })
 
 describe('personal warm start — verified saved session', () => {
-  it('renders the saved parent cabinet before Firebase Auth settles, then closes on confirmed revocation', async () => {
+  it('waits for Auth and three authoritative confirmations, then closes on confirmed revocation', async () => {
+    let release!: () => void
+    probe.authGate = new Promise<void>((resolve) => { release = resolve })
     rememberPersonalContext({
       session: { personId: 'person', deviceUid: 'device', linkToken: 'a'.repeat(43) },
       profile: { personId: 'person', displayName: 'Взрослый', children: [{ familyId: 'family', childId: 'child', displayName: 'ученик', role: 'parent', dashboardToken: 'dashboard' }] },
@@ -62,8 +64,18 @@ describe('personal warm start — verified saved session', () => {
     document.body.append(host)
     const root = createRoot(host)
     await act(async () => { root.render(<PersonalEntry />) })
+    expect(host.textContent).toContain('Проверяем личный доступ')
+    expect(host.textContent).not.toContain('Кабинет Взрослый')
+    expect(probe.reads).toBe(0)
+    await act(async () => { release() })
+    await act(async () => {
+      probe.listeners.get(`accessLinks/${'a'.repeat(43)}`)?.({ metadata: { fromCache: false }, exists: () => true, data: () => ({ active: true, personId: 'person' }) })
+      probe.listeners.get('deviceSessions/device')?.({ metadata: { fromCache: false }, exists: () => true, data: () => ({ linkToken: 'a'.repeat(43) }) })
+    })
+    await act(async () => {
+      probe.listeners.get('families/family/members/person')?.({ metadata: { fromCache: false }, exists: () => true, data: () => ({ active: true, role: 'parent', childIds: ['child'] }) })
+    })
     expect(host.textContent).toContain('Кабинет Взрослый')
-    expect(host.textContent).not.toContain('Проверяем личный доступ')
     expect(probe.reads).toBe(3) // grant, device binding, family membership
     await act(async () => {
       probe.listeners.get(`accessLinks/${'a'.repeat(43)}`)?.({ metadata: { fromCache: false }, exists: () => false })

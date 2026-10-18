@@ -18,20 +18,19 @@
       }
     },
     "src/components/LearningRoute.tsx": {
-      "sha256": "cab7f549c2ae8d314e67a42568647d14545c65df7f8e6d5e5a18f9503b5f658a",
-      "record": "docs/decisions/authenticated-learning-routes-2026-10-18.md",
+      "sha256": "955dd8c82f105fcdbbe2054af5d0fce18e720c626b94b7f4324cc3c03a63cc5a",
+      "record": "docs/decisions/personal-entry-role-confirmation-2026-10-18.md",
       "specs": [
         "docs/modules/families/access-and-state.md"
       ],
       "tests": [
-        "src/components/LearningRoute.integration.test.tsx",
-        "src/lib/learningRoute.test.ts",
-        "day/learning-route-identity.test.mjs",
-        "src/components/ProblemTaskCard.contract.test.tsx"
+        "src/components/PersonalEntry.role.integration.test.tsx",
+        "src/components/PersonalEntry.localFirst.test.tsx",
+        "src/components/LearningRoute.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10.2026 прямо требует определять родительский и ученический вид по авторизованной роли, а учебные ссылки сделать одинаковыми для обеих ролей."
+        "evidence": "Родитель18.10 повторно требует вернуть родительский разбор по авторизованной роли и самостоятельно воспроизвести сценарии тестами без нового скриншота."
       }
     },
     "src/lib/learningRoute.ts": {
@@ -3164,22 +3163,19 @@
       }
     },
     "src/components/PersonalEntry.tsx": {
-      "sha256": "cc609099b8f287f0a2d15941ec64a1c685346e37c7901660f462a16169942c5d",
-      "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
+      "sha256": "bfc8ad24be9a7cf3b432880c46894d6a3cccbfea9a68c152ca356637b2047133",
+      "record": "docs/decisions/personal-entry-role-confirmation-2026-10-18.md",
       "specs": [
-        "docs/shared/specification-system.md"
+        "docs/modules/families/access-and-state.md"
       ],
       "tests": [
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
+        "src/components/PersonalEntry.role.integration.test.tsx",
+        "src/components/PersonalEntry.localFirst.test.tsx",
+        "src/components/LearningRoute.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя 16.10.2026 внедрить согласованную структуру спецификаций, перенести ссылки в коде и проверить сохранность требований; изменение предметного поведения не выполнялось."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "af41b2f2e2151f00291de63610d941d00b963fd0b28facd45c52a75bbfc7a595"
+        "evidence": "Родитель18.10 повторно требует вернуть родительский разбор по авторизованной роли и самостоятельно воспроизвести сценарии тестами без нового скриншота."
       }
     },
     "src/components/PhotoUploadControl.tsx": {
