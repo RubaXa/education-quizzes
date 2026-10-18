@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { ArrowRight, BookOpen, ChevronDown } from 'lucide-react'
 import type { CachedHomeworkRow } from '@/lib/dayDashboardViewCache'
+import { formatReviewProse } from '@/lib/reviewProse'
 import StatusIcon from './StatusIcon'
 import '../DayDashboard.css'
 
@@ -30,7 +31,7 @@ export default function HomeworkOverview({ date, rows = [], unconfirmed = [], fa
       <span className="day-dashboard-homework-row-body"><strong>{subject.name}</strong>
         <span className="day-dashboard-homework-status"><StatusIcon size={14} status={group === 'complete' ? 'complete' : next?.state === 'checking' ? 'waiting' : next?.state === 'unclear' ? 'unknown' : done ? 'partial' : 'ready'} />{status}</span>
         <span className="day-dashboard-homework-next">{next?.title ?? subject.tasks.map(task => task.title).join(' · ')}</span>
-        {reason && <span className="day-dashboard-homework-reason">{reason}</span>}
+        {reason && <span className="day-dashboard-homework-reason">{formatReviewProse(reason)}</span>}
       </span><ArrowRight size={18} aria-hidden="true" />
     </button>
   }

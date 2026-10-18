@@ -45,3 +45,12 @@ it('does not repeat a generic action as a second explanation',async()=>{
  expect(host.querySelector('.day-dashboard-homework-reason')).toBeNull()
  expect(host.textContent).toContain('Упр. 218 и 223')
 })
+it('formats a legacy authored reason without rewriting the task source or click target',async()=>{
+ const item=row('Русский','waiting'),open=vi.fn();item.items[0].detail='Видно2слова.';item.items[0].title='Учитель:выпиши2слова.'
+ document.body.append(host);root=createRoot(host);await act(async()=>root!.render(<HomeworkOverview rows={[item]} onOpen={open}/>))
+ expect(host.querySelector('.day-dashboard-homework-reason')?.textContent).toBe('Видно 2 слова.')
+ expect(host.querySelector('.day-dashboard-homework-next')?.textContent).toBe('Учитель:выпиши2слова.')
+ await act(async()=>host.querySelector<HTMLButtonElement>('.day-dashboard-homework-row')!.click())
+ expect(open).toHaveBeenCalledWith(item,'Русский-task')
+ expect(item.items[0].detail).toBe('Видно2слова.')
+})

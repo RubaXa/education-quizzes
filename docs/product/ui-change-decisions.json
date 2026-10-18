@@ -818,21 +818,24 @@
       }
     },
     "src/components/ProblemStatement.tsx": {
-      "sha256": "76f3ebe4279c55387cc25f8099d604506510c17d2cef4799075fea43dff6e2b4",
-      "record": "docs/decisions/restore-numbered-original-2026-10-14.md",
+      "sha256": "67cf49d09da25678dcbf2a866a148382b0cfb8817f1516285b00c0d63367e246",
+      "record": "docs/decisions/review-prose-coverage-2026-10-19.md",
       "specs": [
         "docs/modules/reviews/adaptive-problem-card.md",
         "docs/modules/reviews/problem-card-design-decisions.md",
-        "docs/shared/design/README.md"
+        "docs/shared/design/README.md",
+        "docs/modules/reviews/review-criteria-provenance.md"
       ],
       "tests": [
         "src/components/ProblemTaskCard.contract.test.tsx",
         "src/components/ProblemStatement.provenance.test.tsx",
-        "src/components/ProblemCard.test.tsx"
+        "src/components/ProblemCard.test.tsx",
+        "src/lib/reviewProse.test.ts",
+        "src/components/ReviewProse.integration.test.tsx"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "Родитель 14.10.2026 после просмотра конкретного макета с видимым исходным кропом ответил «Да, стало лучше, очень лучше» и потребовал доделать этот вариант, убрав макетную родительскую кнопку загрузки фото."
+        "status": "direct-request",
+        "evidence": "Пользователь19.10 подтвердил родительский вход, прислал склейки слов и чисел в разборе и прямо потребовал проверить и исправить их во многих местах."
       },
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
@@ -906,8 +909,8 @@
       }
     },
     "src/components/ParentTaskGuide.tsx": {
-      "sha256": "316e4daa7f3d1b7f70f3235b4ea0be01604ac2573d2ece040f09c489cce6675b",
-      "record": "docs/decisions/mesh-requirement-trace-2026-10-16.md",
+      "sha256": "27c33120220420b03fe0ed41609a3c7cccd9207b3428b22313c2bcf662b094c5",
+      "record": "docs/decisions/review-prose-coverage-2026-10-19.md",
       "specs": [
         "docs/modules/reviews/review-criteria-provenance.md",
         "docs/shared/design/README.md"
@@ -915,11 +918,13 @@
       "tests": [
         "storage/review-requirements.test.mjs",
         "storage/review-projection.test.mjs",
-        "src/components/WorkReview.requirements.test.tsx"
+        "src/components/WorkReview.requirements.test.tsx",
+        "src/lib/reviewProse.test.ts",
+        "src/components/ReviewProse.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 16.10.2026 прямо попросил перепроверить русскую работу и сделать структурный разбор по каждому требованию МЭШ, материалу и фото."
+        "evidence": "Пользователь19.10 подтвердил родительский вход, прислал склейки слов и чисел в разборе и прямо потребовал проверить и исправить их во многих местах."
       },
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
@@ -1375,8 +1380,8 @@
       }
     },
     "src/lib/reviewPresentation.ts": {
-      "sha256": "f9beb4f16ce3dc62861e8cddef57af664151c96555b10aedbd2401c4f85cf71e",
-      "record": "docs/decisions/missing-evidence-homework-overview-2026-10-15.md",
+      "sha256": "0817aed6836c579e45fa82fc526b8aa22770b4735317dce38ef05c16f77e3c5e",
+      "record": "docs/decisions/review-prose-coverage-2026-10-19.md",
       "specs": [
         "docs/modules/school-diary/dashboard.md",
         "docs/modules/reviews/review-criteria-provenance.md"
@@ -1385,11 +1390,13 @@
         "src/DayDashboard.warmStart.test.tsx",
         "src/lib/homeworkStatus.test.ts",
         "src/lib/reviewPresentation.test.ts",
-        "storage/review-projection.test.mjs"
+        "storage/review-projection.test.mjs",
+        "src/lib/reviewProse.test.ts",
+        "src/components/ReviewProse.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 15.10.2026 показал неверный статус русского ДЗ, потребовал ясный разбор результата и исправление обзора."
+        "evidence": "Пользователь19.10 подтвердил родительский вход, прислал склейки слов и чисел в разборе и прямо потребовал проверить и исправить их во многих местах."
       },
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
@@ -1557,12 +1564,13 @@
       }
     },
     "scripts/day.mjs": {
-      "sha256": "bfa03d9d8b8ba2e54a4b4c5455fa9ee09e550bb0ae61eb74acd7d960c27dec23",
-      "record": "docs/decisions/authenticated-learning-routes-2026-10-18.md",
+      "sha256": "f4051ef5c0a543d54726d44b0ba04eedf011f82d886da74f2fe39724d76c70d7",
+      "record": "docs/decisions/review-prose-coverage-2026-10-19.md",
       "specs": [
         "docs/modules/families/access-and-state.md",
         "docs/modules/synchronization/plan-generation.md",
-        "docs/modules/materials/material-clarification.md"
+        "docs/modules/materials/material-clarification.md",
+        "docs/modules/reviews/review-criteria-provenance.md"
       ],
       "tests": [
         "src/components/LearningRoute.integration.test.tsx",
@@ -1578,11 +1586,13 @@
         "storage/submission-inbox.test.mjs",
         "storage/review-projection.test.mjs",
         "storage/review-readback.test.mjs",
-        "day/build-assignments.test.mjs"
+        "day/build-assignments.test.mjs",
+        "src/lib/reviewProse.test.ts",
+        "src/components/ReviewProse.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10.2026 прямо требует определять родительский и ученический вид по авторизованной роли, а учебные ссылки сделать одинаковыми для обеих ролей."
+        "evidence": "Пользователь19.10 подтвердил родительский вход, прислал склейки слов и чисел в разборе и прямо потребовал проверить и исправить их во многих местах."
       },
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
@@ -1791,35 +1801,37 @@
       }
     },
     "scripts/submissions.mjs": {
-      "sha256": "6bf600125b12eab6670c0c9c7a49da1a3c21d8a7cdaaaa6aaab138c8cc3cacf8",
-      "record": "docs/decisions/readable-review-prose-2026-10-18.md",
+      "sha256": "9ff9813a7e80716e0446e3a8a74a63b5b9a83bbb8067d6f0df21a6f70311f7d7",
+      "record": "docs/decisions/review-prose-coverage-2026-10-19.md",
       "specs": [
         "docs/modules/reviews/review-criteria-provenance.md",
         "docs/shared/design/README.md"
       ],
       "tests": [
         "src/lib/reviewProse.test.ts",
-        "src/components/WorkReview.requirements.test.tsx"
+        "src/components/WorkReview.requirements.test.tsx",
+        "src/components/ReviewProse.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 18.10 прислал скриншот с из30объектов и от0до30,если и потребовал исправить нечитаемую типографику обратной связи."
+        "evidence": "Пользователь19.10 подтвердил родительский вход, прислал склейки слов и чисел в разборе и прямо потребовал проверить и исправить их во многих местах."
       }
     },
     "src/components/WorkReview.tsx": {
-      "sha256": "eae3ad1f0a3623e208a4dc43485dbc5488550babc5c661d2a79543b899b2de64",
-      "record": "docs/decisions/readable-review-prose-2026-10-18.md",
+      "sha256": "914a12edb9fb16698029ac4fc6b0963f9f55b4e12227f5bbcbcf49d3e097c10e",
+      "record": "docs/decisions/review-prose-coverage-2026-10-19.md",
       "specs": [
         "docs/modules/reviews/review-criteria-provenance.md",
         "docs/shared/design/README.md"
       ],
       "tests": [
         "src/lib/reviewProse.test.ts",
-        "src/components/WorkReview.requirements.test.tsx"
+        "src/components/WorkReview.requirements.test.tsx",
+        "src/components/ReviewProse.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 18.10 прислал скриншот с из30объектов и от0до30,если и потребовал исправить нечитаемую типографику обратной связи."
+        "evidence": "Пользователь19.10 подтвердил родительский вход, прислал склейки слов и чисел в разборе и прямо потребовал проверить и исправить их во многих местах."
       }
     },
     "storage/review-projection.mjs": {
@@ -2036,10 +2048,11 @@
       }
     },
     "src/components/MaterialRequest.tsx": {
-      "sha256": "97d5ed0e6692cecc6ea9fb61d8d7d224d060afc8b38860d6e28ce360b5caf99e",
-      "record": "docs/decisions/material-clarification-2026-10-16.md",
+      "sha256": "0b52e31da13ff984be074054245d58ba3b175030750203aaf582d648f5d8b0b5",
+      "record": "docs/decisions/review-prose-coverage-2026-10-19.md",
       "specs": [
-        "docs/modules/materials/material-clarification.md"
+        "docs/modules/materials/material-clarification.md",
+        "docs/modules/reviews/review-criteria-provenance.md"
       ],
       "tests": [
         "src/lib/materialRequest.test.ts",
@@ -2050,11 +2063,13 @@
         "storage/submission-inbox.test.mjs",
         "storage/review-projection.test.mjs",
         "storage/review-readback.test.mjs",
-        "day/build-assignments.test.mjs"
+        "day/build-assignments.test.mjs",
+        "src/lib/reviewProse.test.ts",
+        "src/components/ReviewProse.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 16.10.2026 прямо потребовал вопрос ученику в карточке и ответ фото записей через стандартную загрузку с обработкой следующей синхронизацией."
+        "evidence": "Пользователь19.10 подтвердил родительский вход, прислал склейки слов и чисел в разборе и прямо потребовал проверить и исправить их во многих местах."
       },
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
@@ -2088,21 +2103,24 @@
       }
     },
     "src/components/HomeworkOverview.tsx": {
-      "sha256": "38263502920bf5171e46a0291252aa385a3b10d85a4da073c7f2f1c6de7c3ef8",
-      "record": "docs/decisions/compact-homework-copy-2026-10-16.md",
+      "sha256": "7f7a90542bc933bf7cf1df7a6ad7a7e29936e3b2a27ed3afa481f8ef8f3aedb5",
+      "record": "docs/decisions/review-prose-coverage-2026-10-19.md",
       "specs": [
         "docs/modules/school-diary/dashboard.md",
-        "docs/shared/design/README.md"
+        "docs/shared/design/README.md",
+        "docs/modules/reviews/review-criteria-provenance.md"
       ],
       "tests": [
         "src/components/HomeworkOverview.test.tsx",
         "src/DayDashboard.warmStart.test.tsx",
         "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/UiKit.test.tsx"
+        "src/UiKit.test.tsx",
+        "src/lib/reviewProse.test.ts",
+        "src/components/ReviewProse.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель16.10.2026 прямо отверг длинные повторяющиеся подписи про учебный день и уроки и потребовал структурировать существующую карточку."
+        "evidence": "Пользователь19.10 подтвердил родительский вход, прислал склейки слов и чисел в разборе и прямо потребовал проверить и исправить их во многих местах."
       },
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
@@ -3391,18 +3409,21 @@
       }
     },
     "src/components/TaskGuidance.tsx": {
-      "sha256": "994d472c93bc3896d5b3f5badc6638f920f838758461d995c86ce98cda931b21",
-      "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
+      "sha256": "72b71fe5e8b6de1cbc5b7936fc544aef07aa4260be747a8cf4253191a6e781ae",
+      "record": "docs/decisions/review-prose-coverage-2026-10-19.md",
       "specs": [
-        "docs/shared/specification-system.md"
+        "docs/shared/specification-system.md",
+        "docs/modules/reviews/review-criteria-provenance.md"
       ],
       "tests": [
         "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
+        "scripts/check-ui-contract.test.mjs",
+        "src/lib/reviewProse.test.ts",
+        "src/components/ReviewProse.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя 16.10.2026 внедрить согласованную структуру спецификаций, перенести ссылки в коде и проверить сохранность требований; изменение предметного поведения не выполнялось."
+        "evidence": "Пользователь19.10 подтвердил родительский вход, прислал склейки слов и чисел в разборе и прямо потребовал проверить и исправить их во многих местах."
       },
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
@@ -5216,19 +5237,20 @@
       }
     },
     "src/lib/reviewProse.ts": {
-      "sha256": "7fe0595ac3913987a792e245a4537fc8364969c0fd159454ccc34aebb0f05900",
-      "record": "docs/decisions/readable-review-prose-2026-10-18.md",
+      "sha256": "3bd3030c1d3006b9eef747f59030f0392321a4cea087192f23872f1a010efeeb",
+      "record": "docs/decisions/review-prose-coverage-2026-10-19.md",
       "specs": [
         "docs/modules/reviews/review-criteria-provenance.md",
         "docs/shared/design/README.md"
       ],
       "tests": [
         "src/lib/reviewProse.test.ts",
-        "src/components/WorkReview.requirements.test.tsx"
+        "src/components/WorkReview.requirements.test.tsx",
+        "src/components/ReviewProse.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 18.10 прислал скриншот с из30объектов и от0до30,если и потребовал исправить нечитаемую типографику обратной связи."
+        "evidence": "Пользователь19.10 подтвердил родительский вход, прислал склейки слов и чисел в разборе и прямо потребовал проверить и исправить их во многих местах."
       }
     },
     "src/lib/taskUploadPresentation.ts": {

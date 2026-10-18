@@ -4,6 +4,7 @@
  */
 /** @see ../docs/modules/materials/material-clarification.md */
 import { materialRequestErrors, openMaterialRequest } from '../src/lib/materialRequest.ts'
+import { parentGuideProseErrors, taskSupportProseErrors } from '../src/lib/reviewProse.ts'
 import { createHash, randomBytes } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
@@ -308,6 +309,8 @@ function validateAssignedInstruction(item, task, sourceDocument) {
 /** Parent-only reference material must be anchored to this exact task and family-linked pages.
  * @see ../docs/modules/reviews/subject-aware-guidance.md#parent-card */
 function validateParentGuide(guide, task, sourceDocument, problem, subjectId) {
+  const proseErrors = parentGuideProseErrors(guide)
+  if (proseErrors.length) fail(proseErrors.join('\n'))
   if (task.id.startsWith('mesh-') && task.instructionStatus?.state !== 'reviewed' || !['structured-notes', 'worked-solution', 'text-structure'].includes(guide.kind)
     || !guide.overview?.trim() || !Array.isArray(guide.stages) || !guide.stages.length) fail(`У ${task.id} родительский ориентир не сверен.`)
   const ids = new Set()
@@ -366,7 +369,7 @@ function validate(source, { allowUnchangedLegacyTeacherLinks = false } = {}) {
     for (const task of subject.tasks) {
       if (!/^[a-z0-9-]+$/.test(task.id ?? '') || ids.has(task.id) || !task.title) fail('Нужны уникальные id и названия действий.')
       ids.add(task.id)
-      const requestErrors = materialRequestErrors(task)
+      const requestErrors = [...materialRequestErrors(task), ...taskSupportProseErrors(task)]
       if (requestErrors.length) fail(requestErrors.join(' '))
       if (task.assessmentIntent) {
         const intent = task.assessmentIntent
@@ -422,6 +425,8 @@ function validate(source, { allowUnchangedLegacyTeacherLinks = false } = {}) {
         }
         const numbers = new Set()
         for (const problem of task.problems) {
+          const proseErrors = taskSupportProseErrors(problem)
+          if (proseErrors.length) fail(proseErrors.join('\n'))
           if (!/^[a-z0-9-]+$/.test(problem.id ?? '') || !problem.id.startsWith(`${task.id}-p`) || ids.has(problem.id)
             || !Number.isInteger(problem.number) || numbers.has(`${problem.variantId ?? ''}:${problem.number}`)
             || !problem.title?.trim() || !problem.detail?.trim() || !problem.source?.trim()) fail(`У ${task.id} каждый номер должен иметь устойчивый ID, условие и источник.`)
