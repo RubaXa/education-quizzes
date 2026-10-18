@@ -62,14 +62,37 @@ function lessonFiles(detail) {
   return [...new Map(files.map((file) => [file.url, file])).values()]
 }
 
-function isCalendarOnlyEvent(event) {
-  const hasSubject = Boolean(event.subject_name || event.subject_id || event.subject?.name)
-  const hasHomework = Boolean(event.homework?.total_count || event.homework?.descriptions?.length)
-  const hasLessonType = Boolean(event.lesson_type || event.course_lesson_type)
+export function isCalendarOnlyEvent(event, requestedDate = null) {
+  if (!event || typeof event !== 'object' || !validMeshDate(requestedDate)) return false
+  const { hasSubject, hasHomework, hasLessonType } = meshEventSignals(event)
   // МЭШ помещает в расписание также события без урока (например, OLYMPIAD).
   // Для них endpoint lesson_schedule_items может вернуть внутреннюю ошибку 500.
   // Если признаки ДЗ есть, событие не скрываем: подробная карточка обязательна.
-  return !hasSubject && !hasHomework && !hasLessonType
+  // PLAN/FACT identify lesson records. Keep malformed lesson records visible to
+  // downstream validation instead of treating missing descriptive fields as proof
+  // that they are calendar-only.
+  const startMs = isZonedTimestamp(event.start_at) ? Date.parse(event.start_at) : NaN
+  const finishMs = isZonedTimestamp(event.finish_at) ? Date.parse(event.finish_at) : NaN
+  const dayStart = Date.parse(`${requestedDate}T00:00:00+03:00`)
+  const dayEnd = dayStart + 24 * 60 * 60 * 1000
+  const validInterval = Number.isFinite(startMs) && Number.isFinite(finishMs) && finishMs > startMs
+    && Number.isFinite(dayStart) && startMs < dayEnd && finishMs > dayStart
+  return event.source === 'OLYMPIAD' && validInterval && !hasSubject && !hasHomework && !hasLessonType
+}
+export function meshEventSignals(event) {
+  return { hasSubject: Boolean(event?.subject_name || event?.subject?.name || event?.subject_id != null || event?.subject?.id != null),
+    hasHomework: Boolean(event?.homework?.total_count || event?.homework?.descriptions?.length),
+    hasLessonType: Boolean(event?.lesson_type || event?.course_lesson_type) }
+}
+function validMeshDate(value) {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false
+  const date = new Date(`${value}T00:00:00.000Z`)
+  return !Number.isNaN(date.valueOf()) && date.toISOString().slice(0, 10) === value
+}
+function isZonedTimestamp(value) {
+  return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?(?:Z|[+-]\d{2}:\d{2})$/.test(value)
+    && validMeshDate(value.slice(0, 10))
+    && !Number.isNaN(Date.parse(value))
 }
 
 // Preserve source order while bounding requests to the lesson detail endpoint.
@@ -260,7 +283,7 @@ export class MeshDiaryAdapter {
       .filter((event) => !event.cancelled)
     const output = []
     const incompleteDetails = []
-    const detailed = await mapBounded(lessons.filter((event) => !isCalendarOnlyEvent(event)), 3, async (event) => {
+    const detailed = await mapBounded(lessons.filter((event) => !isCalendarOnlyEvent(event, date)), 3, async (event) => {
       try {
         const detail = await this.getLessonDetails(event)
         if (!detail || typeof detail !== 'object') throw new Error('Пустая подробная карточка урока')

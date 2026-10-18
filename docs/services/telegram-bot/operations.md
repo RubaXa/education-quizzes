@@ -3,7 +3,7 @@ id: service.telegram-bot.operations
 status: accepted
 implementation: partial
 created: 2026-10-16
-updated: 2026-10-17
+updated: 2026-10-18
 consumers:
   - "Telegram service implementer"
   - "bot operator"
@@ -39,7 +39,7 @@ sections:
 # Runtime и эксплуатация Telegram notification service
 
 **Родитель:** [корневая архитектура](README.md).
-**Статус:** worker, readiness/source-check/probe и macOS LaunchAgent tooling реализованы. 17.10 на согласованном Mac установлен releasef87008027b4453cf68b56e8a; оба outbox index READY, реальные технические probes sent/receipt1 и readiness running/readyForDelivery подтверждены. [Факты и ограничения](../../audits/server-core-review-2026-10-17.md#результаты-проверки). Внешние alerts не настроены.
+**Статус:** worker, readiness/source-check/probe и macOS LaunchAgent tooling реализованы. 18.10 установлен release94a5f463ca87291bb5ab5e57, полный МЭШ source-check93/93complete, readiness running/readyForDelivery и оба outbox query ready подтверждены; [исправление и факты](../../decisions/mesh-calendar-date-scopes-2026-10-18.md). Реальные technical probes sent/receipt1 подтверждены17.10 ([первичный аудит](../../audits/server-core-review-2026-10-17.md#результаты-проверки)). Внешние alerts не настроены.
 
 ## Runtime boundary
 
@@ -116,6 +116,7 @@ Rollback выключает source processing и сохраняет ledger/outbo
 ```bash
 npm run telegram:runtime -- readiness
 npm run telegram:runtime -- source-check
+npm run telegram:runtime -- source-check --diagnose-schedule-dates --date 2026-10-13 --date 2026-10-14 --date 2026-10-15
 npm run telegram:runtime -- probe --source firestore --target-digest TARGET_HASH
 npm run telegram:runtime -- probe --source mesh --target-digest TARGET_HASH --apply
 npm run telegram:install-worker
@@ -125,7 +126,11 @@ npm run telegram:stop
 npm run telegram:runtime -- uninstall --apply
 ```
 
-`source-check` читает динамический graph и реальные МЭШ observations всех доступных подключений без SourcePipeline/academic/outbox writes или отправок; refresh может обновить локальные tokens. Неполный охват обязан быть видимым. Probe dry-run не пишет; apply использует явное `technical.probe`, точную подтверждённую link по opaque digest, отдельный служебный Firestore документ либо реальное чтение МЭШ, затем общий pipeline/ledger/outbox/transport. Exact job claim не дренирует постороннюю очередь; успешность требует readback `sent` и receipt. Это проверка технической цепочки, не естественного изменения оценки.
+`source-check` читает динамический graph и реальные МЭШ observations всех доступных подключений без SourcePipeline/academic/outbox writes или отправок; refresh может обновить локальные tokens. Неполный охват обязан быть видимым. Сумма `excludedCalendarEvents` показывает подтверждённые календарные записи, не входящие в уроки; это не потерянные уроки и не отправки.
+
+`--diagnose-schedule-dates` добавляет только безопасные признаки несовпадения даты: requested/start date, валидированные ISO start/finish с offset, source из конечного набора, булевы признаки предмета/ДЗ/типа и SHA256(source,id). Исходные ID, название, описание, адрес, URL и credentials не выводятся. Диагностика доступна и для complete observation после корректной классификации. Повторяемый `--date` разрешён только с этим флагом и применяется ко всем автоматически обнаруженным семьям. Это частичное диагностическое чтение: `diagnosticOnly=true`, `coverageComplete=false`, явно указаны inventory/selected/unobserved scopes и allFamilies. Такой отчёт не доказывает полный охват; для него запускается `source-check` без фильтра. Фильтр дат не настраивает runtime и не ограничивает число семей.
+
+Probe dry-run не пишет; apply использует явное `technical.probe`, точную подтверждённую link по opaque digest, отдельный служебный Firestore документ либо реальное чтение МЭШ, затем общий pipeline/ledger/outbox/transport. Exact job claim не дренирует постороннюю очередь; успешность требует readback `sent` и receipt. Это проверка технической цепочки, не естественного изменения оценки.
 
 Installer сначала возвращает план. Apply создаёт content-addressed runtime release в закрытом Application Support, production dependencies и secret file0600. Plist содержит пути, абсолютный Node и только несекретную конфигурацию. Общие ADC/Mesh vault остаются по тем же путям, что у sync. Singleton kernel lock запрещает второй poller; потеря broker приводит к остановке. LaunchAgent RunAtLoad/KeepAlive перезапускает аварийный процесс с throttle; SIGTERM выполняет общий shutdown. Журналы и telemetry ротируются. Stop/uninstall сохраняют release, секрет и Firestore ledger/outbox для обратимого восстановления. Повторная install предыдущей версии — rollback к её content hash.
 

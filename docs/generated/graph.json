@@ -307,6 +307,32 @@
       "path": "docs/decisions/documentation-precommit-2026-10-16.md"
     },
     {
+      "id": "decision.mesh-calendar-date-scopes-2026-10-18",
+      "status": "accepted",
+      "implementation": "not-applicable",
+      "created": "2026-10-18",
+      "updated": "2026-10-18",
+      "parent": "service.telegram-bot.mesh",
+      "uses": [
+        "module.school-diary",
+        "service.telegram-bot.operations"
+      ],
+      "consumers": [
+        "МЭШ adapter maintainer",
+        "Telegram operator",
+        "UI gate"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/mesh-calendar-date-scopes-2026-10-18.md"
+    },
+    {
       "id": "decision.shared-server-runtime-2026-10-17",
       "status": "accepted",
       "implementation": "not-applicable",
@@ -1837,7 +1863,7 @@
       "id": "file:packages/education-connect/lib/mesh-assignments.test.mjs",
       "path": "packages/education-connect/lib/mesh-assignments.test.mjs",
       "kind": "verification",
-      "purpose": "Проверка порядка, лимита чтений и блокирования неполных карточек МЭШ",
+      "purpose": "Проверка календарной классификации, полного raw schedule, порядка и блокирования неполных карточек МЭШ",
       "consumer": "Vitest; разработчик"
     },
     {
@@ -1851,7 +1877,7 @@
       "id": "file:packages/education-connect/lib/mesh.mjs",
       "path": "packages/education-connect/lib/mesh.mjs",
       "kind": "artifact",
-      "purpose": "Общий адаптер входа, чтения МЭШ и полного журнала оценок текущего периода; подробности уроков с пределом трёх одновременных чтений внутри дня",
+      "purpose": "Общий адаптер МЭШ: полный календарь, общая классификация calendar-only и чтение подробностей уроков/оценок",
       "consumer": "Пакет; синхронизатор дневника"
     },
     {
@@ -2089,14 +2115,14 @@
       "id": "file:packages/telegram-notifications/adapters/source-mesh.mjs",
       "path": "packages/telegram-notifications/adapters/source-mesh.mjs",
       "kind": "artifact",
-      "purpose": "МЭШ: нормализация и детская изоляция источников",
+      "purpose": "МЭШ: дневная проекция уроков, календарная классификация и детская изоляция источников",
       "consumer": "Source inventory; source pipeline"
     },
     {
       "id": "file:packages/telegram-notifications/adapters/source-mesh.test.mjs",
       "path": "packages/telegram-notifications/adapters/source-mesh.test.mjs",
       "kind": "verification",
-      "purpose": "МЭШ: нормализация и детская изоляция источников",
+      "purpose": "МЭШ: дневная проекция уроков, календарная классификация и детская изоляция источников",
       "consumer": "Source coordinator; Luna review; Vitest"
     },
     {
@@ -2292,14 +2318,14 @@
       "id": "file:packages/telegram-notifications/operations/source-check.mjs",
       "path": "packages/telegram-notifications/operations/source-check.mjs",
       "kind": "artifact",
-      "purpose": "Реальное чтение динамических МЭШ областей и проверка охвата",
+      "purpose": "Чтение всех МЭШ областей, честный охват и безопасная диагностика календарных дат",
       "consumer": "Telegram runtime; оператор"
     },
     {
       "id": "file:packages/telegram-notifications/operations/source-check.test.mjs",
       "path": "packages/telegram-notifications/operations/source-check.test.mjs",
       "kind": "verification",
-      "purpose": "Регрессии: Реальное чтение динамических МЭШ областей и проверка охвата",
+      "purpose": "Регрессии: Чтение всех МЭШ областей, честный охват и безопасная диагностика календарных дат",
       "consumer": "Vitest; разработчик"
     },
     {
@@ -5492,7 +5518,7 @@
         "module.synchronization"
       ],
       "type": "architecture-proposal",
-      "updated": "2026-10-16",
+      "updated": "2026-10-18",
       "related": [
         "../../../README.md",
         "../../product/README.md"
@@ -6916,7 +6942,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-16",
-      "updated": "2026-10-17",
+      "updated": "2026-10-18",
       "consumers": [
         "Telegram service implementer",
         "bot operator",
@@ -6944,7 +6970,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-16",
-      "updated": "2026-10-17",
+      "updated": "2026-10-18",
       "consumers": [
         "Telegram service implementer",
         "bot operator",
@@ -7664,6 +7690,16 @@
     {
       "from": "decision.documentation-precommit",
       "to": "shared.specification-system",
+      "type": "uses"
+    },
+    {
+      "from": "decision.mesh-calendar-date-scopes-2026-10-18",
+      "to": "module.school-diary",
+      "type": "uses"
+    },
+    {
+      "from": "decision.mesh-calendar-date-scopes-2026-10-18",
+      "to": "service.telegram-bot.operations",
       "type": "uses"
     },
     {
@@ -11478,6 +11514,11 @@
     },
     {
       "from": "module.school-diary",
+      "to": "file:packages/education-connect/lib/mesh-assignments.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.school-diary",
       "to": "module.families",
       "type": "uses"
     },
@@ -11554,11 +11595,6 @@
     {
       "from": "module.synchronization.firestore-read-paths",
       "to": "file:sync/help-request-cache.test.mjs",
-      "type": "verified-by"
-    },
-    {
-      "from": "module.synchronization.global-sync",
-      "to": "file:packages/education-connect/lib/mesh-assignments.test.mjs",
       "type": "verified-by"
     },
     {
@@ -12465,6 +12501,11 @@
       "from": "service.telegram-bot.identity-and-linking",
       "to": "shared.server-runtime",
       "type": "uses"
+    },
+    {
+      "from": "service.telegram-bot.mesh",
+      "to": "decision.mesh-calendar-date-scopes-2026-10-18",
+      "type": "contains"
     },
     {
       "from": "service.telegram-bot.mesh",

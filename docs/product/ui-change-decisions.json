@@ -1416,17 +1416,18 @@
       }
     },
     "packages/education-connect/lib/mesh.mjs": {
-      "sha256": "82e3cb9e7b30c9fcab8e4bc0af96ff6f8146f578a06354974db7e34fa2c8b998",
-      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "sha256": "c42d547c1185530e834864e8f1642cb3159f3b42df5616f8bff1ac4c8b74fd80",
+      "record": "docs/decisions/mesh-calendar-date-scopes-2026-10-18.md",
       "specs": [
-        "docs/shared/server-runtime.md"
+        "docs/modules/school-diary/README.md"
       ],
       "tests": [
-        "packages/telegram-notifications/adapters/runtime.test.mjs"
+        "packages/education-connect/lib/mesh-assignments.test.mjs",
+        "diary/application/sync.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+        "evidence": "Пользователь18.10.2026 поручил исправить три области МЭШ с несовпадающими датами через Luna Worker, проверить результат, добавить тесты, обновить спецификации, выполнить проверки, коммит и пуш."
       }
     },
     "scripts/day.mjs": {
@@ -4561,17 +4562,17 @@
       }
     },
     "packages/telegram-notifications/adapters/source-mesh.mjs": {
-      "sha256": "c4ea156cebc2b7de106bfef663189aca36df956a730043164636e1bb33f701cb",
-      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "sha256": "708d6fec02f84871b560fd23cffad9f47d91b16aeb65d9d5de79e63e6c6f9af4",
+      "record": "docs/decisions/mesh-calendar-date-scopes-2026-10-18.md",
       "specs": [
-        "docs/services/telegram-bot/operations.md"
+        "docs/services/telegram-bot/adapters/mesh.md"
       ],
       "tests": [
         "packages/telegram-notifications/adapters/source-mesh.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+        "evidence": "Пользователь18.10.2026 поручил исправить три области МЭШ с несовпадающими датами через Luna Worker, проверить результат, добавить тесты, обновить спецификации, выполнить проверки, коммит и пуш."
       }
     },
     "packages/telegram-notifications/application/source-pipeline.mjs": {
@@ -4800,8 +4801,8 @@
       }
     },
     "packages/telegram-notifications/operations/source-check.mjs": {
-      "sha256": "ad7e16c990abc26c0d36c9de18e2abea06053c6391485125dedeb7b2d2a23b8a",
-      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "sha256": "7a260c56aa7e56efbcaeb96dcc75cb4140253cc20c0cf09c092fadb3681a6194",
+      "record": "docs/decisions/mesh-calendar-date-scopes-2026-10-18.md",
       "specs": [
         "docs/services/telegram-bot/operations.md"
       ],
@@ -4810,7 +4811,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+        "evidence": "Пользователь18.10.2026 поручил исправить три области МЭШ с несовпадающими датами через Luna Worker, проверить результат, добавить тесты, обновить спецификации, выполнить проверки, коммит и пуш."
       }
     },
     "scripts/benchmark-server-runtime.mjs": {
@@ -4842,8 +4843,8 @@
       }
     },
     "scripts/telegram-runtime.mjs": {
-      "sha256": "fa6a11780445b8025fea986f021d9b443c2e1dafaf91c9a8154b69a107130a06",
-      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "sha256": "f830e34eee272b13ff54884c94f4f4cfc5c49abbeb661b867fbbc38c7571a0b1",
+      "record": "docs/decisions/mesh-calendar-date-scopes-2026-10-18.md",
       "specs": [
         "docs/services/telegram-bot/operations.md"
       ],
@@ -4852,7 +4853,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+        "evidence": "Пользователь18.10.2026 поручил исправить три области МЭШ с несовпадающими датами через Luna Worker, проверить результат, добавить тесты, обновить спецификации, выполнить проверки, коммит и пуш."
       }
     },
     "scripts/telegram-indexes.mjs": {

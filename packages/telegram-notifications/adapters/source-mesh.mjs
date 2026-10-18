@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto'
+import { isCalendarOnlyEvent, meshEventSignals } from '../../education-connect/lib/mesh.mjs'
 
 /** @see ../../../docs/services/telegram-bot/adapters/mesh.md#контракт-снимка @see ../../../docs/services/telegram-bot/adapters/mesh.md#ошибки-и-восстановление */
 /** Pure projection of complete Mesh adapter results; never accepts or returns credentials/raw payloads. */
@@ -8,6 +9,7 @@ export function normalizeMeshObservation({ scope, schedule, assignments, marks, 
   if (scope.kind === 'grades' ? !Array.isArray(marks)
     : !Array.isArray(schedule) || (scope.kind === 'homework' && !Array.isArray(assignments))) return invalid('required_collection_missing')
   const records = []
+  let excludedCalendarEvents = 0
   if (scope.kind === 'grades') {
     for (const subject of marks) {
       if (!safeDate(subject?.start)) return invalid('invalid_grade_period')
@@ -35,6 +37,8 @@ export function normalizeMeshObservation({ scope, schedule, assignments, marks, 
       if (!stableId(lesson?.id)) return invalid('schedule_id_missing')
       if (!canonicalTime(lesson.start_at)) return invalid('schedule_start_invalid')
       if (!canonicalTime(lesson.finish_at)) return invalid('schedule_finish_invalid')
+      if (Date.parse(lesson.finish_at) <= Date.parse(lesson.start_at)) return invalid('schedule_finish_invalid')
+      if (isCalendarOnlyEvent(lesson, scope.date)) { excludedCalendarEvents += 1; continue }
       if (safeDate(lesson.start_at) !== scope.date) return invalid('schedule_date_mismatch')
       const lessonId = String(lesson.id)
       lessons.set(lessonId, lesson)
@@ -77,7 +81,8 @@ export function normalizeMeshObservation({ scope, schedule, assignments, marks, 
     }
   }
   return { source, scopeKey: meshScopeKey(scope), familyId: scope.familyId, childId: scope.childId,
-    completeness: 'complete', observedAt: new Date(observedAt).toISOString(), records }
+    completeness: 'complete', observedAt: new Date(observedAt).toISOString(), records,
+    ...(scope.kind === 'schedule' ? { excludedCalendarEvents } : {}) }
 }
 
 export function meshScopeKey(scope) {
@@ -88,7 +93,7 @@ export function meshScopeKey(scope) {
 
 /** @see ../../../docs/services/telegram-bot/adapters/mesh.md#ответственность-и-режим @see ../../../docs/services/telegram-bot/adapters/mesh.md#ошибки-и-восстановление */
 export function createMeshSourceAdapter({ resolver, now = () => new Date(), random = Math.random,
-  pollMs = 15 * 60_000, jitterMs = 60_000, setTimer = setTimeout, clearTimer = clearTimeout, pollConcurrency = 4, onHealth = () => {}, projectionCache = new Map() } = {}) {
+  pollMs = 15 * 60_000, jitterMs = 60_000, setTimer = setTimeout, clearTimer = clearTimeout, pollConcurrency = 4, onHealth = () => {}, projectionCache = new Map(), includeScheduleDateDiagnostics = false } = {}) {
   if (!resolver || typeof resolver.validateScope !== 'function' || typeof resolver.withChildAdapter !== 'function'
     || pollMs < 1_000 || jitterMs < 0 || !Number.isInteger(pollConcurrency) || pollConcurrency < 1) throw new Error('invalid_mesh_source_config')
   async function validateScope(scope, options = {}) {
@@ -157,12 +162,19 @@ export function createMeshSourceAdapter({ resolver, now = () => new Date(), rand
         const childName = context.childName ?? ''
         const schedule = await adapter.getSchedule(scope.date)
         if (!Array.isArray(schedule)) return null
-        if (scope.kind === 'schedule') return normalizeMeshObservation({ scope, schedule, childName, observedAt: now().toISOString(), onInvalid: (reason) => { invalidReason = reason } })
+        const scheduleDateDiagnostics = includeScheduleDateDiagnostics && scope.kind === 'schedule'
+          ? findScheduleDateMismatches(scope.date, schedule) : []
+        if (scope.kind === 'schedule') {
+          const normalized = normalizeMeshObservation({ scope, schedule, childName, observedAt: now().toISOString(), onInvalid: (reason) => { invalidReason = reason } })
+          return normalized ? { ...normalized, ...(scheduleDateDiagnostics.length ? { scheduleDateDiagnostics } : {}) }
+            : (scheduleDateDiagnostics.length ? { scheduleDateDiagnostics } : null)
+        }
         const assignments = await adapter.getAssignments(scope.date)
         if (!Array.isArray(assignments)) return null
         return normalizeMeshObservation({ scope, schedule, assignments, childName, observedAt: now().toISOString(), onInvalid: (reason) => { invalidReason = reason } })
       }, { signal })
-      if (!projected) return { ...base, completeness: 'partial', errorCode: 'mesh_incomplete', diagnosticCode: invalidReason ?? 'required_collection_missing', records: [] }
+      if (!projected?.completeness) return { ...base, completeness: 'partial', errorCode: 'mesh_incomplete', diagnosticCode: invalidReason ?? 'required_collection_missing', records: [],
+        ...(projected?.scheduleDateDiagnostics?.length ? { scheduleDateDiagnostics: projected.scheduleDateDiagnostics } : {}) }
       if (signal?.aborted) return { ...base, completeness: 'partial', errorCode: 'mesh_unavailable', records: [] }
       if (!await validateScope(scope, { signal })) return { ...base, completeness: 'partial', errorCode: signal?.aborted ? 'mesh_unavailable' : 'scope_unavailable', records: [] }
       return projected
@@ -212,6 +224,29 @@ function validScopeShape(scope) {
       || (/^\d{4}-\d{2}-\d{2}$/.test(scope.periodKey ?? '') && id(String(scope.subjectId ?? '')))
       : ['schedule', 'homework'].includes(scope.kind) && /^\d{4}-\d{2}-\d{2}$/.test(scope.date ?? ''))
 }
+function findScheduleDateMismatches(requestedDate, schedule) {
+  return schedule.flatMap((event) => {
+    const startsAt = canonicalTime(event?.start_at), finishesAt = canonicalTime(event?.finish_at)
+    const startDate = safeDate(event?.start_at)
+    if (!startsAt || !finishesAt || startDate === requestedDate) return []
+    const signals = meshEventSignals(event)
+    return [{ requestedDate, startDate, startsAt: safeSourceTimestamp(event?.start_at),
+      finishesAt: safeSourceTimestamp(event?.finish_at), eventClass: isCalendarOnlyEvent(event, requestedDate) ? 'calendar' : 'lesson',
+      source: safeEventSource(event?.source), ...signals,
+      eventDigest: digest([safeEventSource(event?.source), String(event?.id ?? '')]) }]
+  })
+}
+function safeSourceTimestamp(value) {
+  return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?(?:Z|[+-]\d{2}:\d{2})$/.test(value)
+    && validIsoDate(value.slice(0, 10))
+    && !Number.isNaN(Date.parse(value)) ? value : null
+}
+function validIsoDate(value) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false
+  const date = new Date(`${value}T00:00:00.000Z`)
+  return !Number.isNaN(date.valueOf()) && date.toISOString().slice(0, 10) === value
+}
+function safeEventSource(value) { return ['PLAN', 'FACT', 'OLYMPIAD'].includes(value) ? value : 'other' }
 function canonicalText(value) {
   if (typeof value !== 'string') return ''
   // Intentionally strips control bytes from user-visible source text.

@@ -26,7 +26,10 @@ export async function main(args = process.argv.slice(2), dependencies = {}) {
   const write = dependencies.write ?? process.stdout.write.bind(process.stdout)
   if (command === 'readiness' && !rest.length) return readiness(dependencies, write)
   if (command === 'probe') return probe(rest, dependencies, write)
-  if (command === 'source-check' && !rest.length) return sourceCheck(dependencies, write)
+  if (command === 'source-check') {
+    const options = parseSourceCheckArgs(rest)
+    if (options) return sourceCheck(dependencies, write, options)
+  }
   const operations = dependencies.launchAgent ?? createLaunchAgentOperations({ root: dependencies.root ?? process.cwd(),
     env: dependencies.env ?? process.env, home: dependencies.home, uid: dependencies.uid,
     fs: dependencies.launchFs, exec: dependencies.exec, nodePath: dependencies.nodePath, platform: dependencies.platform })
@@ -34,11 +37,11 @@ export async function main(args = process.argv.slice(2), dependencies = {}) {
   if (command === 'status' && !rest.length) return launchCommand(rest, () => operations.status(), write)
   if (command === 'stop' && !rest.length) return launchCommand(rest, () => operations.stop(), write)
   if (command === 'uninstall') return launchCommand(rest, () => operations.uninstall({ apply: hasApply(rest) }), write)
-  emit({ code: 'usage', usage: 'node scripts/telegram-runtime.mjs readiness | source-check | probe --source firestore|mesh --target-digest HASH [--apply] | install [--apply] | status | stop | uninstall [--apply]' }, write)
+  emit({ code: 'usage', usage: 'node scripts/telegram-runtime.mjs readiness | source-check [--diagnose-schedule-dates [--date YYYY-MM-DD ...]] | probe --source firestore|mesh --target-digest HASH [--apply] | install [--apply] | status | stop | uninstall [--apply]' }, write)
   return 2
 }
 
-async function sourceCheck(dependencies, write) {
+async function sourceCheck(dependencies, write, options = { diagnoseScheduleDates: false, scheduleDates: null }) {
   let db = null
   try {
     const root = dependencies.root ?? process.cwd()
@@ -54,11 +57,11 @@ async function sourceCheck(dependencies, write) {
       familyAccessPath: resolve(env.TELEGRAM_FAMILY_ACCESS_PATH ?? resolve(root, '.local/family-access.json')),
       credentialsPath: resolve(env.TELEGRAM_LEGACY_CREDENTIALS_PATH ?? resolve(root, '.local/diary/secret.json')) })
     const resolver = dependencies.meshResolver ?? createMeshCredentialResolver({ db, connectionsDir: meshDirectory, legacyCodec, telemetry })
-    const meshSource = dependencies.meshSource ?? createMeshSourceAdapter({ resolver, pollMs: 60_000, jitterMs: 0 })
+    const meshSource = dependencies.meshSource ?? createMeshSourceAdapter({ resolver, pollMs: 60_000, jitterMs: 0, includeScheduleDateDiagnostics: options.diagnoseScheduleDates })
     const inventory = dependencies.inventory ?? createFirestoreSourceInventory(db, { includeFirestore: false, includeMesh: true,
       meshSource, telemetry })
     const traced = await telemetry.trace('telegram.operational.source_check', async () => ({
-      result: await runMeshSourceCheck({ inventory, meshSource, telemetry }), traceId: telemetry.current().traceId,
+      result: await runMeshSourceCheck({ inventory, meshSource, telemetry, ...options }), traceId: telemetry.current().traceId,
     }), { source: 'mesh' })
     const snapshot = telemetry.snapshot()
     emit({ ...traced.result, telemetry: { traceId: traced.traceId, spanCount: snapshot.spanCount,
@@ -72,6 +75,25 @@ async function sourceCheck(dependencies, write) {
   } finally {
     if (db && dependencies.keepOpen !== true) { try { await db.terminate?.() } catch { /* result already captured */ } }
   }
+}
+
+function parseSourceCheckArgs(args) {
+  let diagnoseScheduleDates = false
+  const scheduleDates = []
+  for (let index = 0; index < args.length; index += 1) {
+    if (args[index] === '--diagnose-schedule-dates' && !diagnoseScheduleDates) { diagnoseScheduleDates = true; continue }
+    if (args[index] === '--date' && isCalendarDate(args[index + 1])) {
+      scheduleDates.push(args[index + 1]); index += 1; continue
+    }
+    return null
+  }
+  if (scheduleDates.length && !diagnoseScheduleDates) return null
+  return { diagnoseScheduleDates, scheduleDates: scheduleDates.length ? [...new Set(scheduleDates)] : null }
+}
+function isCalendarDate(value) {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false
+  const date = new Date(`${value}T00:00:00.000Z`)
+  return !Number.isNaN(date.valueOf()) && date.toISOString().slice(0, 10) === value
 }
 
 function hasApply(args) { return args.length === 1 && args[0] === '--apply' }
