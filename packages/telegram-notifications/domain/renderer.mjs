@@ -1,6 +1,6 @@
 /* @see ../../../docs/decisions/telegram-compact-digest-2026-10-18.md */
 /** @see ../../../docs/services/telegram-bot/delivery.md#структурный-вид */
-import { getNotificationPresentation, getNotificationDigestPresentation, validateNotificationAction } from '../../education-presentation/notification.mjs'
+import { getNotificationPresentation, getNotificationDigestPresentation, validateNotificationAction, isValidWorkRef, isValidWorkOrder } from '../../education-presentation/notification.mjs'
 
 const LABELS = Object.freeze({
   'schedule.created': 'Добавлено расписание', 'schedule.changed': 'Изменено расписание', 'schedule.cancelled': 'Расписание отменено',
@@ -38,7 +38,7 @@ export function renderNotificationParts(event, audience, { maxChars = 1200, demo
 }
 
 /** Compact durable digest renderer. User-facing text is ordinary HTML with explicit newlines. */
-export function renderNotificationDigestParts(events, audience, { maxChars = 1200, demo = false, action = null } = {}) {
+export function renderNotificationDigestParts(events, audience, { maxChars = 1200, demo = false } = {}) {
   if (!['family', 'team'].includes(audience)) throw new Error('invalid_audience')
   if (!Array.isArray(events) || !events.length || events.some((event) => !Object.hasOwn(LABELS, event.eventType)
     || event.privacyClass === 'restricted' || event.privacyClass !== 'family-summary')) return []
@@ -48,40 +48,49 @@ export function renderNotificationDigestParts(events, audience, { maxChars = 120
   const vm = getNotificationDigestPresentation(events)
   if (!vm) return []
   if (!Number.isInteger(maxChars) || maxChars < 100) throw new Error('invalid_message_limit')
-  let header = [vm.childName, vm.subject].filter(Boolean).join(' · ')
-  let lines = vm.text.split('\n').filter(Boolean).slice(header ? 1 : 0)
+  let header = vm.header
+  let context = vm.context
+  let facts = vm.entries.filter((entry) => entry.text)
   if (demo && header) header = `Пример · ${header}`
   if (events.length === 1 && events[0].eventType === 'technical.probe') {
     header = ''
-    lines = ['🧪 Демонстрация уведомления', 'Это служебное сообщение; учебные данные не использовались.']
+    context = ''
+    facts = [{ text: '🧪 Демонстрация уведомления' }, { text: 'Это служебное сообщение; учебные данные не использовались.' }]
   }
-  if (demo && lines.length && !header && !(events.length === 1 && events[0].eventType === 'technical.probe')) lines[0] = `Пример · ${lines[0]}`
+  if (demo && facts.length && !header && !(events.length === 1 && events[0].eventType === 'technical.probe')) facts[0] = { ...facts[0], text: `Пример · ${facts[0].text}` }
   const chunks = []
   let chunk = []
-  let chunkLength = [...header].length
-  for (const line of lines) {
+  let chunkLength = [...header].length + [...context].length
+  for (const fact of facts) {
+    const line = fact.text
     if ([...line].length > maxChars - 80) throw new Error('notification_entry_too_long')
-    const extra = [...line].length + (chunk.length ? 1 : header ? 1 : 0)
+    const extra = [...line].length + (chunk.length ? 1 : (header || context) ? 1 : 0)
     if (chunk.length && (chunk.length >= 6 || chunkLength + extra > maxChars - 50)) {
       chunks.push(chunk)
       chunk = []
-      chunkLength = [...header].length
+      chunkLength = [...header].length + [...context].length
     }
-    chunk.push(line)
+    chunk.push(fact)
     chunkLength += extra
   }
   if (chunk.length || !chunks.length) chunks.push(chunk)
   const partCount = chunks.length
-  const parts = chunks.map((linesForPart, index) => {
+  const parts = chunks.map((factsForPart, index) => {
+    const linesForPart = factsForPart.map((fact) => fact.text)
     const partHeader = partCount > 1 ? `${header ? `${header} · ` : ''}часть ${index + 1}/${partCount}` : header
-    const plainText = [partHeader, ...linesForPart].filter(Boolean).join('\n')
-    const html = `${partHeader ? `<b>${escapeHtml(partHeader)}</b>${linesForPart.length ? '\n' : ''}` : ''}${linesForPart.map(escapeHtml).join('\n')}`
+    const plainText = [partHeader, context, ...linesForPart].filter(Boolean).join('\n')
+    const html = `${partHeader ? `<b>${escapeHtml(partHeader)}</b>${context || linesForPart.length ? '\n' : ''}` : ''}${context ? `${escapeHtml(context)}${linesForPart.length ? '\n' : ''}` : ''}${linesForPart.map(escapeHtml).join('\n')}`
     const blocks = [{ type: 'paragraph', text: plainText }]
-    const part = { plaintext: plainText, html, format: 'html', rich_message: { blocks }, demo: demo === true }
+    const workRefs = [...new Map(factsForPart.map((entry) => entry.workRef).filter(isValidWorkRef).map((ref) => [ref.id, ref])).values()]
+    const workOrderBindings = factsForPart.filter((entry) => isValidWorkRef(entry.workRef))
+      .flatMap((entry) => (entry.workOrders ?? (entry.workOrder ? [entry.workOrder] : []))
+        .map((order) => ({ workRef: { ...entry.workRef }, order })))
+    const part = { plaintext: plainText, html, format: 'html', rich_message: { blocks }, demo: demo === true,
+      ...(workRefs.length ? { workRefs } : {}), ...(workOrderBindings.length ? { workOrderBindings } : {}) }
     return part
   })
   const event = events[0]
-  const actionCandidate = demo ? action : events.length === 1 ? getNotificationPresentation(event).action : null
+  const actionCandidate = !demo && events.length === 1 ? getNotificationPresentation(event).action : null
   if (actionCandidate) {
     const validAction = validateNotificationAction(actionCandidate, { demo })
     if (validAction) {
@@ -148,7 +157,13 @@ export function isValidNotificationPart(part) {
     if (!part.demo || fallbackButton?.url !== 'https://rubaxa.github.io/education-quizzes/#/ui-kit'
       || richButton(part)?.url !== fallbackButton.url || richButton(part)?.text !== fallbackButton.text) return false
   } else if (part.navigationContext !== undefined) return false
-  return Object.keys(part).every((key) => ['plaintext', 'html', 'format', 'rich_message', 'keyboard', 'demo', 'actionKind', 'navigationContext'].includes(key))
+  if (part.workRefs !== undefined && (!Array.isArray(part.workRefs) || part.workRefs.some((ref) => !isValidWorkRef(ref)))) return false
+  if (part.workOrderBindings !== undefined && (!Array.isArray(part.workOrderBindings) || part.workOrderBindings.some((binding) =>
+    !binding || Object.keys(binding).some((key) => !['workRef', 'order'].includes(key)) || !isValidWorkRef(binding.workRef)
+      || !isValidWorkOrder({ eventId: typeof binding.order === 'string' ? binding.order.slice(-64) : '', detectedAt: typeof binding.order === 'string' ? binding.order.slice(0, -65) : '' })
+      || !part.workRefs?.some((ref) => ref.id === binding.workRef.id)))) return false
+  if (part.replyToMessageId !== undefined && (!Number.isSafeInteger(part.replyToMessageId) || part.replyToMessageId <= 0)) return false
+  return Object.keys(part).every((key) => ['plaintext', 'html', 'format', 'rich_message', 'keyboard', 'demo', 'actionKind', 'navigationContext', 'workRefs', 'workOrderBindings', 'replyToMessageId'].includes(key))
 }
 function richButton(part) { return part.rich_message.blocks.find((block) => block.type === 'buttons')?.buttons?.[0] ?? null }
 

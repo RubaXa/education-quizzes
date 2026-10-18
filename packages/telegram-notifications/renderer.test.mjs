@@ -47,12 +47,14 @@ describe('notification renderers', () => {
     expect([...part.plaintext].length).toBeLessThanOrEqual(3900)
   })
 
-  it('generates only checked day action links and has no grade action without context', () => {
+  it('generates only checked day action links and has no UI Kit demo action', () => {
     const upload = renderNotificationParts(event('upload.confirmed', { title: 'Работа' }, { navigationContext: { kind: 'day', dayToken: 'day-22' } }), 'family')[0]
     expect(upload.keyboard.buttons[0].url).toBe('https://rubaxa.github.io/education-quizzes/#/day/day-22')
     const demo = renderNotificationParts(event('homework.assigned', { title: 'Условная работа' }), 'family', { demo: true, action: { label: 'Открыть пример', url: 'https://rubaxa.github.io/education-quizzes/#/ui-kit' } })[0]
-    expect(demo.plaintext).toContain('Пример · 🟣 Новое домашнее задание')
+    expect(demo.plaintext).toContain('Пример · 1 изменение')
+    expect(demo.plaintext).toContain('📅 Новое домашнее задание')
     expect(demo.plaintext.match(/Пример/g)).toHaveLength(1)
+    expect(demo.keyboard).toBeUndefined()
     expect(notificationMessageVersion([demo])).toBe(2)
     const grade = renderNotificationParts(event('grade.created', { value: '5' }), 'family')[0]
     expect(grade.keyboard).toBeUndefined()
@@ -64,9 +66,10 @@ describe('notification renderers', () => {
     expect(notificationMessageVersion(['plain text'])).toBe(1)
     expect(notificationMessageVersion([{ plaintext: 'x', html: 'x', rich_message: { blocks: [{ type: 'heading', size: 9, text: 'x' }] }, demo: false }])).toBeNull()
     expect(notificationMessageVersion([{ plaintext: 'x', html: 'x', rich_message: { blocks: [{ type: 'paragraph', text: 'x' }, { type: 'photo', url: 'https://evil' }] }, demo: false }])).toBeNull()
-    const valid = renderNotificationParts(event('upload.confirmed', { title: 'Работа' }, { navigationContext: { kind: 'day', dayToken: 'owned-day' } }), 'family')[0]
-    valid.rich_message.blocks.find((block) => block.type === 'buttons').buttons[0].url = 'https://rubaxa.github.io/education-quizzes/#/day/other-day'
-    expect(notificationMessageVersion([valid])).toBeNull()
+    const invalidRef = { ...renderNotificationParts(event('upload.confirmed', { title: 'Работа' }), 'family')[0], workRefs: [{ kind: 'day-task', id: 'not-a-hash' }] }
+    expect(notificationMessageVersion([invalidRef])).toBeNull()
+    const invalidReply = { ...renderNotificationParts(event('upload.confirmed', { title: 'Работа' }), 'family')[0], replyToMessageId: 0 }
+    expect(notificationMessageVersion([invalidReply])).toBeNull()
   })
 
   it('splits large digests into compact six-row parts without losing event facts', () => {
@@ -75,15 +78,31 @@ describe('notification renderers', () => {
     }))
     const parts = renderNotificationDigestParts(events, 'family')
     expect(parts.length).toBeGreaterThan(1)
-    const titles = parts.flatMap((part) => part.plaintext.split('\n').slice(1))
+    const titles = parts.flatMap((part) => part.plaintext.split('\n').slice(2))
     expect(titles).toHaveLength(50)
     for (let index = 1; index <= 50; index += 1) expect(titles.join('\n')).toContain(`Задание ${index}`)
     for (const part of parts) {
-      const rows = part.plaintext.split('\n').slice(1)
+      const rows = part.plaintext.split('\n').slice(2)
       expect(rows.length).toBeLessThanOrEqual(6)
       expect([...part.plaintext].length).toBeLessThanOrEqual(1200)
       expect(part.plaintext).toMatch(/часть \d+\/\d+/)
       expect(notificationMessageVersion([part])).toBe(2)
     }
+  })
+
+  it('keeps exact event-to-work bindings on every digest part without title matching', () => {
+    const events = Array.from({ length: 8 }, (_, index) => event('review.changed', {
+      childName: 'Ученик А', subject: 'Математика', title: 'Одинаковое название', status: index % 2 ? 'needs-fix' : 'verified',
+    }, { workRef: { kind: 'day-task', id: String(index + 1).padStart(64, '0') }, eventId: String(index + 1).padStart(64, '0'), detectedAt: `2026-10-18T08:00:0${index}.000Z` }))
+    const parts = renderNotificationDigestParts(events, 'family')
+    expect(parts).toHaveLength(2)
+    expect(parts[0].workRefs.map(ref => ref.id)).toEqual(events.slice(0, 6).map(item => item.workRef.id))
+    expect(parts[1].workRefs.map(ref => ref.id)).toEqual(events.slice(6).map(item => item.workRef.id))
+    expect(parts[0].workOrderBindings).toEqual(events.slice(0, 6).map(item => ({ workRef: item.workRef, order: `${item.detectedAt}:${item.eventId}` })))
+    expect(parts[1].workOrderBindings).toEqual(events.slice(6).map(item => ({ workRef: item.workRef, order: `${item.detectedAt}:${item.eventId}` })))
+    expect(parts.every(part => !Object.hasOwn(part, 'replyToMessageId'))).toBe(true)
+    const bound = { ...parts[0], replyToMessageId: 42 }
+    expect(notificationMessageVersion([bound])).toBe(2)
+    expect(notificationMessageVersion([{ ...bound, replyToMessageId: Number.MAX_SAFE_INTEGER + 1 }])).toBeNull()
   })
 })

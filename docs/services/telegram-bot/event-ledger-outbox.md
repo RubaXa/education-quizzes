@@ -13,6 +13,7 @@ code:
   - "packages/telegram-notifications/adapters/firestore.mjs"
 parent: service.telegram-bot
 uses:
+  - service.telegram-bot.work-history
   - service.telegram-bot
   - service.telegram-bot.ports-and-events
 sections:
@@ -42,6 +43,8 @@ sections:
 - `checkpoints/{scopeKey}`: source adapter cursor или snapshot revision, completeness, last success time.
 - `telegramNotificationGroups/{groupId}`: точная link/person/family/child/chat область, first/last accepted time, flush deadline, счётчик/бюджет, open/frozen/empty/dead_letter.
 - `telegramNotificationGroupPointers/{groupingKey}`: указатель текущей открытой группы в этой области.
+- `telegramNotificationWorkStreams/{streamId}`: fenced ownership сериализованной очереди получателя, удерживается при retry до terminal.
+- `telegramNotificationWorkHistory/{historyKey}`: последний подтверждённый receipt конкретной работы, изолированный по получателю/link; [контракт](work-history.md).
 
 Эти коллекции — реализация текущего среза. Обычная legacy/probe job сохраняет неизменяемые `messageParts` и формат при enqueue; source job группы служит учётной связью события, а окончательные неизменяемые части digest фиксируются при freeze: `messageVersion: 1` — прежний массив текстовых строк, `messageVersion: 2` — строго валидированные structured parts [Telegram дизайна](../../shared/design/telegram.md). Старые pending jobs v1 остаются исполнимыми и не перерендериваются. Неизвестная/смешанная схема попадает в dead_letter. Индексы частей и receipts постоянны; Rich/HTML transport не создаёт вторую job и не меняет уже отправленные части. Автоматическая миграция неизвестных jobs не поддерживается. Перед delivery opt-in адресно объединить [индексы worker](../../../packages/telegram-notifications/firestore.indexes.json) с имеющимися индексами после проверки целевого проекта; автоматически заменять global Firebase index manifest этим scoped-файлом нельзя. Retention policy не утверждена.
 
@@ -56,7 +59,7 @@ sections:
 4. Worker захватывает job атомарной lease с непредсказуемым fencing token; только тот же worker с тем же token и непросроченной lease может продлить её, записать receipt или завершить/перенести job.
 5. После отправки сохраняется receipt. Падение между фактическим `sendMessage` и записью receipt может привести к повторной отправке: Telegram send API не является транзакцией с Firestore. Повтор минимизируется и маркируется, но exactly-once обещать нельзя.
 
-Для семейного дайджеста ключ изолирует chat + family + person + link + child; при отзыве/перепривязке получатели не смешиваются. Приём события атомарно создаёт ledger и source job, добавляет её в открытую группу либо создаёт следующую. Время окна берётся из приёма worker, а не старого detectedAt восстановленного события. Quiet deadline30с ограничен60с от первого приёма; nextAttemptAt всех ещё открытых source jobs переносится в той же транзакции. Неготовые группы не занимают первые20due jobs.
+Для семейного дайджеста ключ изолирует chat + family + person + link + child; при отзыве/перепривязке получатели не смешиваются. Приём события атомарно создаёт ledger и source job, добавляет её в открытую группу либо создаёт следующую. Время окна берётся из приёма worker, а не старого detectedAt восстановленного события. Quiet deadline30с ограничен60с от первого приёма; nextAttemptAt всех ещё открытых source jobs переносится в той же транзакции. Неготовые группы не занимают первые20due jobs. Claim читает не более4страниц по20due rows; локальный cursor продолжает обход в следующих ticks и оборачивается в конец, поэтому занятые streams не исключают остальные семьи.
 
 При наступлении срока claim транзакционно замораживает группу: создаёт один неизменяемый digest job, сохраняет eventIds/eventJobIds и переводит исходные jobs в `grouped` с `groupedInto`. Новое событие после заморозки идёт в следующую группу; старые части не перерендериваются. Дайджест проходит прежний delivery lifecycle, проверку membership/channel перед каждой частью и receipts. Перезапуск находит due source jobs или уже замороженный pending/retry digest. Диагностика исходного события следует по groupedInto и проверяет обратную связь eventJobIds.
 
@@ -81,6 +84,8 @@ Retry policy ограничивает число попыток, включая 
 ## Метрики и проверочные сценарии
 
 Считать pending age, retries, dead-letter count, expired leases, duplicate suppression, event-to-send latency и recovery backlog без содержимого оценок/работ. Проверить падение на каждой границе записи/отправки, гонку двух worker, повторный сигнал, истечение lease, 429, permanent blocked recipient, длинный outage и восстановление группировки.
+
+Связь частей с конкретными работами, подтверждённые переходы и атомарная история отправок описаны в [модуле истории работы](work-history.md).
 
 ## Подмодули
 

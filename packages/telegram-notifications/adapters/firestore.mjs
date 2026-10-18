@@ -2,6 +2,7 @@ import { randomBytes } from 'node:crypto'
 import { createHash } from 'node:crypto'
 import { FieldValue } from '@google-cloud/firestore'
 import { renderNotificationDigestParts, notificationMessageVersion } from '../domain/renderer.mjs'
+import { createFirestoreWorkHistoryAdapter } from './work-history-firestore.mjs'
 
 /** @see ../../../docs/services/telegram-bot/event-ledger-outbox.md#логические-записи @see ../../../docs/services/telegram-bot/identity-and-linking.md#состояния @see ../../../docs/services/telegram-bot/ports-and-events.md#контракт-портов */
 export function createFirestoreAdapters(db, { eventCollection = 'telegramNotificationEvents', outboxCollection = 'telegramNotificationOutbox', accountCollection = 'telegramBotAccounts', groupCollection = 'telegramNotificationGroups', groupPointerCollection = 'telegramNotificationGroupPointers' } = {}) {
@@ -11,6 +12,8 @@ export function createFirestoreAdapters(db, { eventCollection = 'telegramNotific
   const groups = db.collection(groupCollection)
   const groupPointers = db.collection(groupPointerCollection)
   const familyLinks = db.collection('telegramBotFamilyLinks')
+  const workHistory = createFirestoreWorkHistoryAdapter(db, { outboxCollection })
+  const claimCursors = new Map()
   const registry = {
     async registerAccount({ senderId, username, firstName, at }) {
       const ref = accounts.doc(senderId)
@@ -167,9 +170,9 @@ export function createFirestoreAdapters(db, { eventCollection = 'telegramNotific
   const outbox = {
     async claim({ workerId, now, leaseMs, maxAttempts = 8, jobId = null }) {
       if (jobId !== null && !validPathId(jobId)) throw safeError('job_unavailable')
-      const candidates = jobId ? [await jobs.doc(jobId).get()]
-        : (await jobs.where('state', 'in', ['pending', 'retry_wait']).where('nextAttemptAt', '<=', now).orderBy('nextAttemptAt').limit(20).get()).docs
-      for (const candidate of candidates) {
+      const claimCandidates = async (candidates, onProcessed = () => {}) => {
+        for (const candidate of candidates) {
+        onProcessed(candidate)
         const candidateRef = candidate.ref
         const candidateRow = candidate.data?.() ?? null
         if (candidateRow?.groupId && !candidateRow.isDigest) {
@@ -184,23 +187,58 @@ export function createFirestoreAdapters(db, { eventCollection = 'telegramNotific
           const row = fresh.data()
           if (!['pending', 'retry_wait'].includes(row.state) || row.nextAttemptAt > now) return null
           if ((row.attempts ?? 0) >= maxAttempts) {
+            await workHistory.releaseHeldInTransaction(tx, row, { now })
             tx.update(candidateRef, { state: 'dead_letter', safeErrorCode: 'retry_limit_reached', exhaustedAt: now })
             return null
           }
           const leaseUntil = new Date(Date.parse(now) + leaseMs).toISOString()
           const attempts = (row.attempts ?? 0) + 1
-          tx.update(candidateRef, { state: 'leased', attempts, leaseOwner: workerId, leaseToken, leaseUntil, claimedAt: now })
-          return { ...row, state: 'leased', attempts, leaseOwner: workerId, leaseToken, leaseUntil }
+          const gate = row.isDigest && row.messageParts?.some((part) => part.workRefs?.length)
+            ? await workHistory.acquireInTransaction(tx, { ...row, leaseOwner: workerId }, { now, leaseToken, leaseUntil })
+            : { acquired: true, fence: null }
+          if (!gate.acquired) return null
+          tx.update(candidateRef, { state: 'leased', attempts, leaseOwner: workerId, leaseToken, leaseUntil, claimedAt: now,
+            ...(gate.fence ? { workHistoryFence: gate.fence } : {}) })
+          return { ...row, state: 'leased', attempts, leaseOwner: workerId, leaseToken, leaseUntil,
+            ...(gate.fence ? { workHistoryFence: gate.fence } : {}) }
         })
         if (claimed) return claimed
+        }
+        return null
+      }
+      if (jobId !== null) return claimCandidates([await jobs.doc(jobId).get()])
+      const query = jobs.where('state', 'in', ['pending', 'retry_wait']).where('nextAttemptAt', '<=', now).orderBy('nextAttemptAt')
+      let cursor = claimCursors.get(workerId) ?? null
+      let wrapped = false
+      for (let pageIndex = 0; pageIndex < 4; pageIndex += 1) {
+        const page = await (cursor ? query.startAfter(cursor) : query).limit(20).get()
+        if (!page.docs.length) {
+          if (cursor && !wrapped) { cursor = null; wrapped = true; claimCursors.set(workerId, null); continue }
+          return null
+        }
+        const claimed = await claimCandidates(page.docs, (doc) => { cursor = doc; claimCursors.set(workerId, doc) })
+        if (claimed) return claimed
+        if (page.docs.length < 20) {
+          if (cursor && !wrapped) { cursor = null; wrapped = true; claimCursors.set(workerId, null); continue }
+          return null
+        }
+        cursor = page.docs.at(-1)
+        claimCursors.set(workerId, cursor)
       }
       return null
     },
     async finish({ jobId, workerId, leaseToken, result, now = new Date().toISOString() }) {
-      await withOwnedLease(db, jobs.doc(jobId), workerId, leaseToken, now, (tx, ref) => tx.update(ref, { ...result, leaseOwner: null, leaseToken: null, leaseUntil: null, finishedAt: now }))
+      await withOwnedLease(db, jobs.doc(jobId), workerId, leaseToken, now, async (tx, ref, row) => {
+        await workHistory.releaseInTransaction(tx, ref, row, { leaseToken, now })
+        tx.update(ref, { ...result, leaseOwner: null, leaseToken: null, leaseUntil: null, finishedAt: now })
+      })
     },
     async renew({ jobId, workerId, leaseToken, now, leaseMs }) {
-      await withOwnedLease(db, jobs.doc(jobId), workerId, leaseToken, now, (tx, ref) => tx.update(ref, { leaseUntil: new Date(Date.parse(now) + leaseMs).toISOString() }))
+      await withOwnedLease(db, jobs.doc(jobId), workerId, leaseToken, now, async (tx, ref, row) => {
+        const leaseUntil = new Date(Date.parse(now) + leaseMs).toISOString()
+        await workHistory.renewInTransaction(tx, row, { leaseToken, fence: row.workHistoryFence, now, leaseUntil })
+        tx.update(ref, { leaseUntil })
+      })
     },
     async savePartReceipt({ jobId, workerId, leaseToken, index, receipt, now, leaseMs }) {
       await db.runTransaction(async (tx) => {
@@ -212,11 +250,17 @@ export function createFirestoreAdapters(db, { eventCollection = 'telegramNotific
         const receipts = row.partReceipts ?? []
         if (index < receipts.length) return
         if (index !== receipts.length) throw safeError('part_order_invalid')
-        tx.update(ref, { partReceipts: [...receipts, receipt], leaseUntil: new Date(Date.parse(now) + leaseMs).toISOString() })
+        const nextLeaseUntil = new Date(Date.parse(now) + leaseMs).toISOString()
+        if (row.messageParts?.[index]?.workRefs?.length) await workHistory.savePartInTransaction(tx, row,
+          row.messageParts[index], receipt, { now, leaseToken, fence: row.workHistoryFence, leaseUntil: nextLeaseUntil })
+        tx.update(ref, { partReceipts: [...receipts, receipt], leaseUntil: nextLeaseUntil })
       })
     },
     async reschedule({ jobId, workerId, leaseToken, attempts, nextAttemptAt, safeErrorCode, now = new Date().toISOString() }) {
-      await withOwnedLease(db, jobs.doc(jobId), workerId, leaseToken, now, (tx, ref) => tx.update(ref, { state: 'retry_wait', attempts, nextAttemptAt, safeErrorCode, leaseOwner: null, leaseToken: null, leaseUntil: null }))
+      await withOwnedLease(db, jobs.doc(jobId), workerId, leaseToken, now, async (tx, ref, row) => {
+        await workHistory.holdForRetryInTransaction(tx, row, { leaseToken, now })
+        tx.update(ref, { state: 'retry_wait', attempts, nextAttemptAt, safeErrorCode, leaseOwner: null, leaseToken: null, leaseUntil: null })
+      })
     },
     async recoverExpired(now, { maxAttempts = 8, recoveryDelayMs = 1_000 } = {}) {
       const snap = await jobs.where('state', '==', 'leased').where('leaseUntil', '<=', now).limit(200).get()
@@ -224,9 +268,13 @@ export function createFirestoreAdapters(db, { eventCollection = 'telegramNotific
         const fresh = await tx.get(doc.ref)
         if (fresh.exists && fresh.data().state === 'leased' && fresh.data().leaseUntil <= now) {
           const row = fresh.data()
-          tx.update(doc.ref, row.attempts >= maxAttempts
-            ? { state: 'dead_letter', safeErrorCode: 'retry_limit_reached', leaseOwner: null, leaseToken: null, leaseUntil: null, recoveredAt: now }
-            : { state: 'retry_wait', safeErrorCode: 'worker_lease_expired', nextAttemptAt: new Date(Date.parse(now) + recoveryDelayMs).toISOString(), leaseOwner: null, leaseToken: null, leaseUntil: null, recoveredAt: now })
+          if (row.attempts >= maxAttempts) {
+            await workHistory.releaseInTransaction(tx, doc.ref, row, { leaseToken: row.leaseToken, now })
+            tx.update(doc.ref, { state: 'dead_letter', safeErrorCode: 'retry_limit_reached', leaseOwner: null, leaseToken: null, leaseUntil: null, recoveredAt: now })
+          } else {
+            await workHistory.holdForRetryInTransaction(tx, row, { leaseToken: row.leaseToken, now })
+            tx.update(doc.ref, { state: 'retry_wait', safeErrorCode: 'worker_lease_expired', nextAttemptAt: new Date(Date.parse(now) + recoveryDelayMs).toISOString(), leaseOwner: null, leaseToken: null, leaseUntil: null, recoveredAt: now })
+          }
         }
       })
       return snap.size
@@ -270,19 +318,28 @@ export function createFirestoreAdapters(db, { eventCollection = 'telegramNotific
         const current = existingDigest.data()
         if (!['pending', 'retry_wait'].includes(current.state)) return null
         if ((current.attempts ?? 0) >= maxAttempts) {
+          await workHistory.releaseHeldInTransaction(tx, current, { now })
           tx.update(digestRef, { state: 'dead_letter', safeErrorCode: 'retry_limit_reached', exhaustedAt: now,
             leaseOwner: null, leaseToken: null, leaseUntil: null })
           tx.update(groupRef, { state: 'dead_letter', safeErrorCode: 'retry_limit_reached', failedAt: now })
           return null
         }
+        const gate = current.messageParts?.some((part) => part.workRefs?.length)
+          ? await workHistory.acquireInTransaction(tx, { ...current, jobId: digestId, leaseOwner: workerId }, {
+            now, leaseToken, leaseUntil: new Date(Date.parse(now) + leaseMs).toISOString() }) : { acquired: true, fence: null }
+        if (!gate.acquired) return null
         const leaseUntil = new Date(Date.parse(now) + leaseMs).toISOString()
         const attempts = (current.attempts ?? 0) + 1
-        tx.update(digestRef, { state: 'leased', attempts, leaseOwner: workerId, leaseToken, leaseUntil, claimedAt: now })
+        tx.update(digestRef, { state: 'leased', attempts, leaseOwner: workerId, leaseToken, leaseUntil, claimedAt: now,
+          ...(gate.fence ? { workHistoryFence: gate.fence } : {}) })
         tx.update(groupRef, { state: 'frozen', digestJobId: digestId, frozenAt: group.frozenAt ?? now })
-        return { ...current, state: 'leased', attempts, leaseOwner: workerId, leaseToken, leaseUntil }
+        return { ...current, state: 'leased', attempts, leaseOwner: workerId, leaseToken, leaseUntil,
+          ...(gate.fence ? { workHistoryFence: gate.fence } : {}) }
       }
       const eventsForDigest = eventDocs.map((snap) => snap.data())
-      const messageParts = renderNotificationDigestParts(eventsForDigest, 'family')
+      const buckets = await workHistory.historyBucketsInTransaction(tx, { ...first, telegramUserId: first.telegramUserId }, eventsForDigest)
+      const messageParts = buckets.flatMap((bucket) => renderNotificationDigestParts(bucket.events, 'family')
+        .map((part) => ({ ...part, ...(bucket.replyToMessageId ? { replyToMessageId: bucket.replyToMessageId } : {}) })))
       const messageVersion = notificationMessageVersion(messageParts)
       if (!messageVersion) {
         tx.update(groupRef, { state: 'dead_letter', safeErrorCode: 'group_render_invalid', failedAt: now })
@@ -291,11 +348,15 @@ export function createFirestoreAdapters(db, { eventCollection = 'telegramNotific
       }
       const attempts = 1
       const leaseUntil = new Date(Date.parse(now) + leaseMs).toISOString()
+      const gate = eventsForDigest.some((event) => event.workRef)
+        ? await workHistory.acquireInTransaction(tx, { ...first, jobId: digestId, telegramUserId: first.telegramUserId, leaseOwner: workerId }, { now, leaseToken, leaseUntil })
+        : { acquired: true, fence: null }
+      if (!gate.acquired) return null
       const digest = { jobId: digestId, eventId: first.eventId, event: eventsForDigest[0], eventIds, isDigest: true,
         eventJobIds: rows.map(({ row }) => row.jobId), groupId, familyId: first.familyId, personId: first.personId,
         childId: first.childId, linkId: first.linkId, telegramUserId: first.telegramUserId,
         messageVersion, messageParts, partReceipts: [], state: 'leased', attempts, nextAttemptAt: now,
-        leaseOwner: workerId, leaseToken, leaseUntil, claimedAt: now }
+        leaseOwner: workerId, leaseToken, leaseUntil, claimedAt: now, ...(gate.fence ? { workHistoryFence: gate.fence } : {}) }
       tx.create(digestRef, digest)
       for (const { ref } of rows) tx.update(ref, { state: 'grouped', groupedInto: digestId, groupedAt: now })
       tx.update(groupRef, { state: 'frozen', digestJobId: digestId, frozenAt: now, eventIds, eventJobIds: digest.eventJobIds })
@@ -406,7 +467,7 @@ async function withOwnedLease(db, ref, workerId, leaseToken, now, update) {
     if (!snap.exists) throw safeError('job_unavailable')
     const row = snap.data()
     if (row.state !== 'leased' || row.leaseOwner !== workerId || row.leaseToken !== leaseToken || row.leaseUntil <= now) throw safeError('stale_lease')
-    update(tx, ref, row)
+    await update(tx, ref, row)
   })
 }
 

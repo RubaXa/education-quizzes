@@ -78,9 +78,9 @@ try {
 
       for (const mode of ['short', 'long', 'no-context']) {
         const changed = await send('Runtime.evaluate', { returnByValue: true, expression: `(()=>{const select=document.querySelector('select[aria-label="Содержание уведомления"]');if(!select)throw Error('content selector missing');select.value=${JSON.stringify(mode)};select.dispatchEvent(new Event('input',{bubbles:true}));select.dispatchEvent(new Event('change',{bubbles:true}));return true})()` })
-        if (!changed.result?.value) throw new Error(`Could not switch preview to ${mode}`)
+        if (!changed.result?.value) throw new Error(`Could not switch preview to ${mode}: ${JSON.stringify(changed)}`)
         await delay(120)
-        const measured = await send('Runtime.evaluate', { returnByValue: true, expression: `JSON.stringify((()=>{const stage=document.querySelector('.edu-telegram-stage'),message=document.querySelector('.edu-telegram-message'),text=document.querySelector('.edu-telegram-message-text'),header=document.querySelector('.edu-telegram-message-header'),empty=document.querySelector('.edu-telegram-no-message');const rect=e=>{if(!e)return null;const r=e.getBoundingClientRect();return{left:r.left,right:r.right,width:r.width,height:r.height,scroll:e.scrollWidth,client:e.clientWidth}};const style=text?getComputedStyle(text):null;return{viewport:innerWidth,document:document.documentElement.scrollWidth,stage:rect(stage),message:rect(message),text:rect(text),empty:empty?.textContent??null,content:text?.textContent??null,lines:text?.textContent.split('\\n').length??0,fontSize:style?.fontSize,fontWeight:style?.fontWeight,headerWeight:header?getComputedStyle(header).fontWeight:null,overflowWrap:style?.overflowWrap}})())` })
+        const measured = await send('Runtime.evaluate', { returnByValue: true, expression: `JSON.stringify((()=>{const stage=document.querySelector('.edu-telegram-stage'),message=document.querySelector('.edu-telegram-message'),text=document.querySelector('.edu-telegram-message-text'),header=document.querySelector('.edu-telegram-message-header'),historyText=document.querySelector('.edu-telegram-history-text'),empty=document.querySelector('.edu-telegram-no-message');const rect=e=>{if(!e)return null;const r=e.getBoundingClientRect();return{left:r.left,right:r.right,width:r.width,height:r.height,scroll:e.scrollWidth,client:e.clientWidth}};const style=text?getComputedStyle(text):null,historyStyle=historyText?getComputedStyle(historyText):null;return{viewport:innerWidth,document:document.documentElement.scrollWidth,stage:rect(stage),message:rect(message),text:rect(text),historyText:rect(historyText),empty:empty?.textContent??null,content:text?.textContent??null,lines:text?.textContent.split('\\n').length??0,fontSize:style?.fontSize,fontWeight:style?.fontWeight,headerWeight:header?getComputedStyle(header).fontWeight:null,historyFontSize:historyStyle?.fontSize,historyFontWeight:historyStyle?.fontWeight,overflowWrap:style?.overflowWrap}})())` })
         if (measured.exceptionDetails || !measured.result?.value) throw new Error('Chrome не смог измерить предпросмотр.')
         const layout = JSON.parse(measured.result.value)
         if (layout.viewport !== width || layout.document > width || layout.stage.left < 0 || layout.stage.right > width + 1 ||
@@ -90,7 +90,10 @@ try {
         }
         if (mode === 'short' && width >= 390 && layout.message.height > 200) throw new Error(`Short digest is too tall at ${width}px: ${JSON.stringify(layout)}`)
         if (mode === 'short' && width === 320 && layout.message.height > 240) throw new Error(`Short digest exceeds the narrow-screen height budget: ${JSON.stringify(layout)}`)
-        if (mode === 'short' && (layout.lines !== 4 || !layout.content.includes('№3 · Шестьдесят горшков') || !layout.content.includes('№1 · Книги на полках'))) {
+        if (mode !== 'no-context' && (!layout.historyText || Number.parseFloat(layout.historyFontSize) < 16 || Number.parseFloat(layout.historyFontSize) > 17 || Number(layout.historyFontWeight) !== 400)) {
+          throw new Error(`Linked history must use normal 16–17px text: ${JSON.stringify(layout)}`)
+        }
+        if (mode === 'short' && (layout.lines < 5 || layout.lines > 6 || !layout.content.includes('№3 · Шестьдесят горшков') || !layout.content.includes('№1 · Книги на полках — Ожидало проверки → нужна правка'))) {
           throw new Error(`Short digest lost its task rows: ${JSON.stringify(layout)}`)
         }
         if (mode === 'long' && (!layout.content.includes('обратным действием') || !layout.content.includes('демонстрационное имя') || layout.overflowWrap !== 'anywhere')) {

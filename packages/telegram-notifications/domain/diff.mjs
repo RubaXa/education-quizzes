@@ -21,13 +21,16 @@ export function diffCompleteSnapshots({ source, scopeKey, familyId, childId, pre
     const to = stable(record)
     const revision = createHash('sha256').update(JSON.stringify([current.observationSequence, from, to])).digest('hex')
     const fields = { ...record.fields,
+      ...(before?.fields?.status ? { previousStatus: before.fields.status } : {}),
+      ...(before?.fields?.value ? { previousValue: before.fields.value } : {}),
+      ...(before?.fields?.title ? { previousTitle: before.fields.title } : {}),
       ...(record.kind === 'review' && ['verified', 'needs-fix', 'partial', 'cannot-assess'].includes(record.fields?.status)
         && before?.fields?.status === record.fields?.status
         && before.semanticHash !== record.semanticHash ? { changeKind: 'updated' } : {}) }
     events.push(createDomainEvent({
       source, scopeKey, familyId, childId, sourceEventKey: recordKey,
       sourceRevision: revision, eventType, occurredAt: record.occurredAt, detectedAt,
-      privacyClass: 'family-summary', fields, navigationContext: record.navigationContext,
+      privacyClass: 'family-summary', fields, navigationContext: record.navigationContext, workRef: record.workRef,
     }))
   }
   // Deletions are deliberately omitted: disappearance alone is not proof of deletion.
@@ -35,7 +38,7 @@ export function diffCompleteSnapshots({ source, scopeKey, familyId, childId, pre
 }
 
 const EVENT_TYPE_SET = new Set(EVENT_TYPES)
-const fieldKeys = ['childName', 'subject', 'title', 'value', 'status', 'occurredLabel']
+const fieldKeys = ['childName', 'subject', 'title', 'value', 'status', 'occurredLabel', 'summary', 'nextStep']
 function validSnapshot(snapshot) {
   if (!snapshot || snapshot.complete !== true || !Array.isArray(snapshot.records) || !Number.isSafeInteger(snapshot.observationSequence) || snapshot.observationSequence < 0) return false
   const seen = new Set()
@@ -46,6 +49,8 @@ function validSnapshot(snapshot) {
       || !isValidEducationDayToken(record.navigationContext.dayToken)
       || Object.keys(record.navigationContext).some((key) => !['kind', 'dayToken'].includes(key)))) return false
     if (record.semanticHash !== undefined && (typeof record.semanticHash !== 'string' || !/^[a-f0-9]{64}$/.test(record.semanticHash))) return false
+    if (record.workRef !== undefined && (!['upload', 'review'].includes(record.kind) || !record.workRef || record.workRef.kind !== 'day-task'
+      || !/^[a-f0-9]{64}$/.test(record.workRef.id) || Object.keys(record.workRef).some((key) => !['kind', 'id'].includes(key)))) return false
     if (record.fields !== undefined && (!record.fields || typeof record.fields !== 'object' || Array.isArray(record.fields))) return false
     if (seen.has(record.recordKey)) return false
     seen.add(record.recordKey)
@@ -59,6 +64,7 @@ const stable = (record) => JSON.stringify({
   occurredAt: canonicalInstant(record.occurredAt),
   fields: canonicalFields(record.fields ?? {}),
   navigationContext: record.navigationContext ?? null,
+  workRef: record.workRef ?? null,
 })
 function canonicalInstant(value) {
   if (value === undefined || value === null || value === '') return null

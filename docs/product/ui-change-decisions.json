@@ -4345,17 +4345,19 @@
       }
     },
     "packages/telegram-notifications/adapters/firestore.mjs": {
-      "sha256": "ec8473add376fdb8e6870dfb375b5e04965b13254111033450528025bf218b33",
-      "record": "docs/decisions/telegram-compact-digest-2026-10-18.md",
+      "sha256": "a1bf82307e5429d8082934975dac524bfba7571e53049313d798608345d0c47f",
+      "record": "docs/decisions/telegram-linked-work-history-2026-10-18.md",
       "specs": [
-        "docs/services/telegram-bot/event-ledger-outbox.md"
+        "docs/services/telegram-bot/work-history.md",
+        "docs/shared/design/telegram.md"
       ],
       "tests": [
-        "packages/telegram-notifications/notifications.test.mjs"
+        "packages/telegram-notifications/notifications.test.mjs",
+        "packages/telegram-notifications/source-pipeline.test.mjs"
       ],
       "authorization": {
-        "status": "direct-request",
-        "evidence": "Родитель18.10 требует исправить реальные огромные неинформативные Telegram уведомления; ранее прямо разрешил Luna реализацию, тесты, UI Kit, реальные примеры и выпуск main."
+        "status": "approved-mockup",
+        "evidence": "Пользователь18.10.2026 выбрал сводку изменений и связанную историю каждой работы, прямо потребовал убрать кнопку UI Kit, внедрить через Luna, обновить спецификации/тесты и выпустить в main с согласованием сессий."
       }
     },
     "packages/telegram-notifications/adapters/memory.mjs": {
@@ -4389,18 +4391,18 @@
       }
     },
     "packages/telegram-notifications/adapters/telegram.mjs": {
-      "sha256": "0732a7e7c033dca628998f6f05242dfaf788c84bc6d80f4c1281e87bf423ea20",
-      "record": "docs/decisions/telegram-compact-digest-2026-10-18.md",
+      "sha256": "98ff1769f50b0be235d0de66c9eb3b413f0ae31bfbbc8a01c0c131d06cf172e0",
+      "record": "docs/decisions/telegram-linked-work-history-2026-10-18.md",
       "specs": [
-        "docs/services/telegram-bot/delivery.md"
+        "docs/services/telegram-bot/work-history.md",
+        "docs/shared/design/telegram.md"
       ],
       "tests": [
-        "packages/telegram-notifications/telegram-rich-transport.test.mjs",
-        "packages/telegram-notifications/renderer.test.mjs"
+        "packages/telegram-notifications/telegram-rich-transport.test.mjs"
       ],
       "authorization": {
-        "status": "direct-request",
-        "evidence": "Родитель18.10 требует исправить реальные огромные неинформативные Telegram уведомления; ранее прямо разрешил Luna реализацию, тесты, UI Kit, реальные примеры и выпуск main."
+        "status": "approved-mockup",
+        "evidence": "Пользователь18.10.2026 выбрал сводку изменений и связанную историю каждой работы, прямо потребовал убрать кнопку UI Kit, внедрить через Luna, обновить спецификации/тесты и выпустить в main с согласованием сессий."
       }
     },
     "packages/telegram-notifications/adapters/worker-loop.mjs": {
@@ -4446,31 +4448,35 @@
       }
     },
     "packages/telegram-notifications/domain/diff.mjs": {
-      "record": "docs/decisions/telegram-compact-digest-2026-10-18.md",
+      "sha256": "a55627a30c97870d844af9f44e6da676d4c354f12e0254949b6cce8f8cfa7d4e",
+      "record": "docs/decisions/telegram-linked-work-history-2026-10-18.md",
       "specs": [
-        "docs/services/telegram-bot/ports-and-events.md"
+        "docs/services/telegram-bot/work-history.md",
+        "docs/shared/design/telegram.md"
       ],
       "tests": [
-        "packages/telegram-notifications/notifications.test.mjs"
-      ],
-      "authorization": {
-        "status": "direct-request",
-        "evidence": "Родитель18.10 требует исправить реальные огромные и неинформативные Telegram уведомления; разрешены Luna, тесты, спецификации и выпуск main."
-      },
-      "sha256": "a84f2986ea40ad1e8f44359c3ef42cf6c8dab316c970fd9d9e7bf956a81810ed"
-    },
-    "packages/telegram-notifications/domain/events.mjs": {
-      "sha256": "1e7828bbbea1ffd6ae66f2dc4ea5059e7ccc5cfcc48f4c10a1af2e265aacefd9",
-      "record": "docs/decisions/telegram-compact-digest-2026-10-18.md",
-      "specs": [
-        "docs/services/telegram-bot/ports-and-events.md"
-      ],
-      "tests": [
+        "packages/telegram-notifications/notifications.test.mjs",
         "packages/telegram-notifications/source-pipeline.test.mjs"
       ],
       "authorization": {
-        "status": "direct-request",
-        "evidence": "Родитель18.10 требует исправить реальные огромные неинформативные Telegram уведомления; ранее прямо разрешил Luna реализацию, тесты, UI Kit, реальные примеры и выпуск main."
+        "status": "approved-mockup",
+        "evidence": "Пользователь18.10.2026 выбрал сводку изменений и связанную историю каждой работы, прямо потребовал убрать кнопку UI Kit, внедрить через Luna, обновить спецификации/тесты и выпустить в main с согласованием сессий."
+      }
+    },
+    "packages/telegram-notifications/domain/events.mjs": {
+      "sha256": "8acc66f83680759485072b615b51da13bbfd7baee069d49f56e0622030f6ef91",
+      "record": "docs/decisions/telegram-linked-work-history-2026-10-18.md",
+      "specs": [
+        "docs/services/telegram-bot/work-history.md",
+        "docs/shared/design/telegram.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/notifications.test.mjs",
+        "packages/telegram-notifications/source-pipeline.test.mjs"
+      ],
+      "authorization": {
+        "status": "approved-mockup",
+        "evidence": "Пользователь18.10.2026 выбрал сводку изменений и связанную историю каждой работы, прямо потребовал убрать кнопку UI Kit, внедрить через Luna, обновить спецификации/тесты и выпустить в main с согласованием сессий."
       }
     },
     "packages/telegram-notifications/domain/ports.mjs": {
@@ -4502,18 +4508,19 @@
       }
     },
     "packages/telegram-notifications/domain/renderer.mjs": {
-      "sha256": "e44d747dcc3c878ccef2a46d687e21d5529eb9e8f9841aef5700d9e718d1705f",
-      "record": "docs/decisions/telegram-compact-digest-2026-10-18.md",
+      "sha256": "018278fe103cc72a63c8370779e2e9215eb9ebd90acd583157286db3b98ab38c",
+      "record": "docs/decisions/telegram-linked-work-history-2026-10-18.md",
       "specs": [
-        "docs/services/telegram-bot/delivery.md"
+        "docs/services/telegram-bot/work-history.md",
+        "docs/shared/design/telegram.md"
       ],
       "tests": [
-        "packages/telegram-notifications/telegram-rich-transport.test.mjs",
-        "packages/telegram-notifications/renderer.test.mjs"
+        "packages/telegram-notifications/renderer.test.mjs",
+        "packages/telegram-notifications/notifications.test.mjs"
       ],
       "authorization": {
-        "status": "direct-request",
-        "evidence": "Родитель18.10 требует исправить реальные огромные неинформативные Telegram уведомления; ранее прямо разрешил Luna реализацию, тесты, UI Kit, реальные примеры и выпуск main."
+        "status": "approved-mockup",
+        "evidence": "Пользователь18.10.2026 выбрал сводку изменений и связанную историю каждой работы, прямо потребовал убрать кнопку UI Kit, внедрить через Luna, обновить спецификации/тесты и выпустить в main с согласованием сессий."
       }
     },
     "scripts/telegram-bot.mjs": {
@@ -4601,17 +4608,19 @@
       }
     },
     "packages/telegram-notifications/adapters/source-firestore.mjs": {
-      "sha256": "6c9f5d6ae62b0ecdc492c91fe8c895b3973f809f67efa5db8dff8b84afb410d0",
-      "record": "docs/decisions/telegram-compact-digest-2026-10-18.md",
+      "sha256": "a6086dc1da8764a5eff661711971bdb2e65dc17c6cff5ec84a30b2493284396d",
+      "record": "docs/decisions/telegram-linked-work-history-2026-10-18.md",
       "specs": [
-        "docs/services/telegram-bot/adapters/firestore.md"
+        "docs/services/telegram-bot/work-history.md",
+        "docs/shared/design/telegram.md"
       ],
       "tests": [
+        "packages/telegram-notifications/notifications.test.mjs",
         "packages/telegram-notifications/source-pipeline.test.mjs"
       ],
       "authorization": {
-        "status": "direct-request",
-        "evidence": "Родитель18.10 требует исправить реальные огромные неинформативные Telegram уведомления; ранее прямо разрешил Luna реализацию, тесты, UI Kit, реальные примеры и выпуск main."
+        "status": "approved-mockup",
+        "evidence": "Пользователь18.10.2026 выбрал сводку изменений и связанную историю каждой работы, прямо потребовал убрать кнопку UI Kit, внедрить через Luna, обновить спецификации/тесты и выпустить в main с согласованием сессий."
       }
     },
     "packages/telegram-notifications/adapters/source-inventory-firestore.mjs": {
@@ -4629,31 +4638,34 @@
       }
     },
     "packages/telegram-notifications/adapters/source-mesh.mjs": {
-      "sha256": "708d6fec02f84871b560fd23cffad9f47d91b16aeb65d9d5de79e63e6c6f9af4",
-      "record": "docs/decisions/mesh-calendar-date-scopes-2026-10-18.md",
+      "sha256": "b29dae02b2c146eaf61bb619d689e8237d9c10b01258ba740cd77e27caae3407",
+      "record": "docs/decisions/telegram-linked-work-history-2026-10-18.md",
       "specs": [
-        "docs/services/telegram-bot/adapters/mesh.md"
-      ],
-      "tests": [
-        "packages/telegram-notifications/adapters/source-mesh.test.mjs"
-      ],
-      "authorization": {
-        "status": "direct-request",
-        "evidence": "Пользователь18.10.2026 поручил исправить три области МЭШ с несовпадающими датами через Luna Worker, проверить результат, добавить тесты, обновить спецификации, выполнить проверки, коммит и пуш."
-      }
-    },
-    "packages/telegram-notifications/application/source-pipeline.mjs": {
-      "sha256": "ad022f31425c6f08db84ad83e0f778078b154fd9947f3060433906b7b7edc943",
-      "record": "docs/decisions/telegram-compact-digest-2026-10-18.md",
-      "specs": [
-        "docs/services/telegram-bot/ports-and-events.md"
+        "docs/services/telegram-bot/work-history.md",
+        "docs/shared/design/telegram.md"
       ],
       "tests": [
         "packages/telegram-notifications/source-pipeline.test.mjs"
       ],
       "authorization": {
-        "status": "direct-request",
-        "evidence": "Родитель18.10 требует исправить реальные огромные неинформативные Telegram уведомления; ранее прямо разрешил Luna реализацию, тесты, UI Kit, реальные примеры и выпуск main."
+        "status": "approved-mockup",
+        "evidence": "Пользователь18.10.2026 выбрал сводку изменений и связанную историю каждой работы, прямо потребовал убрать кнопку UI Kit, внедрить через Luna, обновить спецификации/тесты и выпустить в main с согласованием сессий."
+      }
+    },
+    "packages/telegram-notifications/application/source-pipeline.mjs": {
+      "sha256": "372f8eb4597d95a5306e4be0ec5753fb04aeb8ae3c796b0af78b8d8d9fe39882",
+      "record": "docs/decisions/telegram-linked-work-history-2026-10-18.md",
+      "specs": [
+        "docs/services/telegram-bot/work-history.md",
+        "docs/shared/design/telegram.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/notifications.test.mjs",
+        "packages/telegram-notifications/source-pipeline.test.mjs"
+      ],
+      "authorization": {
+        "status": "approved-mockup",
+        "evidence": "Пользователь18.10.2026 выбрал сводку изменений и связанную историю каждой работы, прямо потребовал убрать кнопку UI Kit, внедрить через Luna, обновить спецификации/тесты и выпустить в main с согласованием сессий."
       }
     },
     "packages/education-runtime/credentials.mjs": {
@@ -5056,73 +5068,80 @@
       }
     },
     "packages/education-presentation/notification.mjs": {
-      "sha256": "a21080116f53cd4271eb0a3bfab8eed5b0753fa794dbbe1b9ef712f3db73b50f",
-      "record": "docs/decisions/telegram-compact-digest-2026-10-18.md",
+      "sha256": "fbc5ac06f39aafda652eca19fcbdb1971e66f3f897bda00ed53dab7e7a3a8a1a",
+      "record": "docs/decisions/telegram-linked-work-history-2026-10-18.md",
       "specs": [
+        "docs/services/telegram-bot/work-history.md",
         "docs/shared/design/telegram.md"
       ],
       "tests": [
         "packages/education-presentation/notification.test.mjs"
       ],
       "authorization": {
-        "status": "direct-request",
-        "evidence": "Родитель18.10 требует исправить реальные огромные неинформативные Telegram уведомления; ранее прямо разрешил Luna реализацию, тесты, UI Kit, реальные примеры и выпуск main."
+        "status": "approved-mockup",
+        "evidence": "Пользователь18.10.2026 выбрал сводку изменений и связанную историю каждой работы, прямо потребовал убрать кнопку UI Kit, внедрить через Luna, обновить спецификации/тесты и выпустить в main с согласованием сессий."
       }
     },
     "scripts/check-telegram-preview-viewport.mjs": {
-      "sha256": "c9019c4f26cd2c02cc7f9593a0db2264d5c7b476da8fbab25c12c0d004895c63",
-      "record": "docs/decisions/telegram-compact-digest-2026-10-18.md",
+      "sha256": "a880584e2d2a1e8a1d2799dc026b8c95960c5b167eade67de51030239d85ffa9",
+      "record": "docs/decisions/telegram-linked-work-history-2026-10-18.md",
       "specs": [
+        "docs/services/telegram-bot/work-history.md",
         "docs/shared/design/telegram.md"
       ],
       "tests": [
         "src/components/TelegramNotificationPreview.layout.test.ts"
       ],
       "authorization": {
-        "status": "direct-request",
-        "evidence": "Родитель18.10 требует исправить реальные огромные неинформативные Telegram уведомления; ранее прямо разрешил Luna реализацию, тесты, UI Kit, реальные примеры и выпуск main."
+        "status": "approved-mockup",
+        "evidence": "Пользователь18.10.2026 выбрал сводку изменений и связанную историю каждой работы, прямо потребовал убрать кнопку UI Kit, внедрить через Luna, обновить спецификации/тесты и выпустить в main с согласованием сессий."
       }
     },
     "scripts/telegram-design-preview.mjs": {
-      "sha256": "6bba9360cc12418da2854d8cc403e974426840c7572762bb57ab2cf15d4bd87a",
-      "record": "docs/decisions/telegram-compact-digest-2026-10-18.md",
+      "sha256": "62f3b04ec737a8137e4bc7cf25d65db818c4384d94250411e7a2be5bd92aec3e",
+      "record": "docs/decisions/telegram-linked-work-history-2026-10-18.md",
       "specs": [
+        "docs/services/telegram-bot/work-history.md",
         "docs/shared/design/telegram.md"
       ],
       "tests": [
         "scripts/telegram-design-preview.test.mjs"
       ],
       "authorization": {
-        "status": "direct-request",
-        "evidence": "Родитель18.10 требует исправить реальные огромные неинформативные Telegram уведомления; ранее прямо разрешил Luna реализацию, тесты, UI Kit, реальные примеры и выпуск main."
+        "status": "approved-mockup",
+        "evidence": "Пользователь18.10.2026 выбрал сводку изменений и связанную историю каждой работы, прямо потребовал убрать кнопку UI Kit, внедрить через Luna, обновить спецификации/тесты и выпустить в main с согласованием сессий."
       }
     },
     "src/components/TelegramNotificationPreview.css": {
-      "sha256": "c09671baf979d6042643579712671e5962f33dc95e317fa9344502026d4fd70f",
-      "record": "docs/decisions/telegram-compact-digest-2026-10-18.md",
+      "sha256": "0d8343d1a32fde66a575a41918042b411eb928ff2aec1af275321593c1f802ea",
+      "record": "docs/decisions/telegram-linked-work-history-2026-10-18.md",
       "specs": [
+        "docs/services/telegram-bot/work-history.md",
         "docs/shared/design/telegram.md"
       ],
       "tests": [
-        "src/components/TelegramNotificationPreview.layout.test.ts"
+        "src/components/TelegramNotificationPreview.layout.test.ts",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
-        "status": "direct-request",
-        "evidence": "Родитель18.10 требует исправить реальные огромные неинформативные Telegram уведомления; ранее прямо разрешил Luna реализацию, тесты, UI Kit, реальные примеры и выпуск main."
+        "status": "approved-mockup",
+        "evidence": "Пользователь18.10.2026 выбрал сводку изменений и связанную историю каждой работы, прямо потребовал убрать кнопку UI Kit, внедрить через Luna, обновить спецификации/тесты и выпустить в main с согласованием сессий."
       }
     },
     "src/components/TelegramNotificationPreview.tsx": {
-      "sha256": "f2da2381c8b1e51d71940866476e89b2cc3a6d67bdd2b096ee08071489d34a19",
-      "record": "docs/decisions/telegram-compact-digest-2026-10-18.md",
+      "sha256": "a17629fe0048a66b2cee728d33ab96e90f72e363f5ab9331cd273abd3af7eafe",
+      "record": "docs/decisions/telegram-linked-work-history-2026-10-18.md",
       "specs": [
+        "docs/services/telegram-bot/work-history.md",
         "docs/shared/design/telegram.md"
       ],
       "tests": [
-        "src/components/TelegramNotificationPreview.layout.test.ts"
+        "src/components/TelegramNotificationPreview.layout.test.ts",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
-        "status": "direct-request",
-        "evidence": "Родитель18.10 требует исправить реальные огромные неинформативные Telegram уведомления; ранее прямо разрешил Luna реализацию, тесты, UI Kit, реальные примеры и выпуск main."
+        "status": "approved-mockup",
+        "evidence": "Пользователь18.10.2026 выбрал сводку изменений и связанную историю каждой работы, прямо потребовал убрать кнопку UI Kit, внедрить через Luna, обновить спецификации/тесты и выпустить в main с согласованием сессий."
       }
     },
     "packages/telegram-notifications/operations/review-check.mjs": {
@@ -5152,6 +5171,22 @@
         "evidence": "Родитель18.10 требует исправить реальные огромные и неинформативные Telegram уведомления; разрешены Luna, тесты, спецификации и выпуск main."
       },
       "sha256": "ab5d30c05db642563c96a73344945c9c9150d27916d7219ecbd10a9c7f932470"
+    },
+    "packages/telegram-notifications/adapters/work-history-firestore.mjs": {
+      "sha256": "db88a4785da38692e993b15751f2f6a09a9791cbb7479eadacaa5e408864a5c0",
+      "record": "docs/decisions/telegram-linked-work-history-2026-10-18.md",
+      "specs": [
+        "docs/services/telegram-bot/work-history.md",
+        "docs/shared/design/telegram.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/notifications.test.mjs",
+        "packages/telegram-notifications/source-pipeline.test.mjs"
+      ],
+      "authorization": {
+        "status": "approved-mockup",
+        "evidence": "Пользователь18.10.2026 выбрал сводку изменений и связанную историю каждой работы, прямо потребовал убрать кнопку UI Kit, внедрить через Luna, обновить спецификации/тесты и выпустить в main с согласованием сессий."
+      }
     }
   }
 }

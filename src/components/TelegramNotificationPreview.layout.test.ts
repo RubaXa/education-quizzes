@@ -15,12 +15,22 @@ it('fits three short task entries into a compact shared production digest', () =
     review('№5 · Периметр прямоугольника', 'verified'),
   ])
   expect(digest?.text.split('\n')).toEqual([
-    'Ученик А · Математика',
+    'Ученик А · 3 изменения',
+    'Математика',
     '🟢 №3 · Шестьдесят горшков — проверено',
     '🟠 №1 · Книги на полках — нужна правка',
     '🟢 №5 · Периметр прямоугольника — проверено',
   ])
   expect(digest?.text).not.toMatch(/\n{2,}|Education|Проверка работы/)
+})
+
+it('shows a linked upload and review history in the demo and never attaches a UI Kit action', () => {
+  const source = readFileSync(resolve(import.meta.dirname, 'TelegramNotificationPreview.tsx'), 'utf8')
+  expect(source).toContain('История одной работы')
+  expect(source).toContain('linkedHistoryEvents().map')
+  expect(source).toContain('previous.detail')
+  expect(source).toContain('Не объяснён второй случай.')
+  expect(source).not.toContain('#/ui-kit')
 })
 
 it('keeps long names and task titles available while wrapping at 320px', () => {

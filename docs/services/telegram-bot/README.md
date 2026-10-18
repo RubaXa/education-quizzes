@@ -21,6 +21,7 @@ uses:
   - service.telegram-bot.identity-and-linking
   - service.telegram-bot.event-ledger-outbox
   - service.telegram-bot.delivery
+  - service.telegram-bot.work-history
   - service.telegram-bot.operations
 sections:
   - назначение
@@ -102,6 +103,8 @@ flowchart LR
 | Runtime и operations | Конфигурация, жизненный цикл, секреты, здоровье и эксплуатационные сигналы | [Runtime и эксплуатация](operations.md) |
 
 Каждый дочерний контракт должен оставаться самостоятельным и обычно короче 500 строк. Если у одного контракта появляются разные источники, протоколы или циклы выпуска, вынести их в подмодули, оставив родителю только инварианты и ссылки. Не копировать один контракт в несколько документов.
+
+Сводка и продолжения конкретной работы имеют самостоятельный контракт: [история работы](work-history.md).
 
 ## Порты ядра
 

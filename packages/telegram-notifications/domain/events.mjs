@@ -31,6 +31,7 @@ export function createDomainEvent(input) {
   for (const key of ['familyId', 'childId', 'scopeKey', 'sourceEventKey', 'sourceRevision']) {
     if (typeof input[key] !== 'string' || !input[key].trim()) throw new Error('invalid_event_identity')
   }
+  if (input.workRef !== undefined && !safeWorkRef(input.workRef, input.source, input.eventType)) throw new Error('invalid_work_ref')
   const detectedAt = safeIso(input.detectedAt)
   if (!detectedAt) throw new Error('detected_at_required')
   const eventId = stableEventId(input)
@@ -49,6 +50,7 @@ export function createDomainEvent(input) {
     detectedAt,
     privacyClass: input.privacyClass,
     fields: safeFields(input.eventType, input.fields),
+    ...(safeWorkRef(input.workRef, input.source, input.eventType) ? { workRef: safeWorkRef(input.workRef, input.source, input.eventType) } : {}),
     contextRefs: Array.isArray(input.contextRefs) ? input.contextRefs.filter((ref) =>
       ref && ['day', 'task', 'grade'].includes(ref.kind) && typeof ref.id === 'string' && ref.id.trim()).map(({ kind, id }) => ({ kind, id: input.identityEncoding === 'sha256-v1' && /^[a-f0-9]{64}$/.test(id) ? id : sha(id) })) : [],
     ...(safeNavigationContext(input.navigationContext, input.source, input.eventType) ? { navigationContext: safeNavigationContext(input.navigationContext, input.source, input.eventType) } : {}),
@@ -61,16 +63,16 @@ const safeFields = (eventType, fields) => {
   const result = {}
   if (!fields || typeof fields !== 'object') return result
   const allowedByType = {
-    'grade.created': ['childName', 'subject', 'value', 'occurredLabel'],
-    'grade.changed': ['childName', 'subject', 'value', 'occurredLabel'],
+    'grade.created': ['childName', 'subject', 'title', 'previousTitle', 'value', 'previousValue', 'occurredLabel'],
+    'grade.changed': ['childName', 'subject', 'title', 'previousTitle', 'value', 'previousValue', 'occurredLabel'],
     'schedule.created': ['childName', 'subject', 'title', 'occurredLabel'],
-    'schedule.changed': ['childName', 'subject', 'title', 'occurredLabel'],
-    'schedule.cancelled': ['childName', 'subject', 'title', 'occurredLabel'],
+    'schedule.changed': ['childName', 'subject', 'title', 'previousTitle', 'occurredLabel'],
+    'schedule.cancelled': ['childName', 'subject', 'title', 'previousTitle', 'occurredLabel'],
     'homework.assigned': ['childName', 'subject', 'title', 'occurredLabel'],
-    'homework.changed': ['childName', 'subject', 'title', 'occurredLabel'],
-    'homework.cancelled': ['childName', 'subject', 'title', 'occurredLabel'],
-    'upload.confirmed': ['childName', 'subject', 'title', 'occurredLabel'],
-    'review.changed': ['childName', 'subject', 'title', 'occurredLabel', 'status', 'changeKind'],
+    'homework.changed': ['childName', 'subject', 'title', 'previousTitle', 'occurredLabel'],
+    'homework.cancelled': ['childName', 'subject', 'title', 'previousTitle', 'occurredLabel'],
+    'upload.confirmed': ['childName', 'subject', 'title', 'previousTitle', 'occurredLabel', 'previousStatus'],
+    'review.changed': ['childName', 'subject', 'title', 'previousTitle', 'occurredLabel', 'status', 'previousStatus', 'summary', 'nextStep', 'changeKind'],
     'quiz.started': ['childName', 'subject', 'title', 'status'],
     'quiz.submitted': ['childName', 'subject', 'title', 'status'],
     'technical.probe': [],
@@ -78,11 +80,22 @@ const safeFields = (eventType, fields) => {
   for (const key of allowedByType[eventType] ?? []) {
     if (typeof fields[key] === 'string' && fields[key].trim()) result[key] = sanitizeField(fields[key]).slice(0, 500)
   }
+  for (const key of ['summary', 'nextStep']) if (typeof result[key] === 'string') result[key] = result[key].slice(0, 300)
   if (eventType === 'review.changed' && !['verified', 'needs-fix', 'partial', 'cannot-assess'].includes(result.status)) delete result.status
+  if (eventType === 'review.changed' && !['verified', 'needs-fix', 'partial', 'cannot-assess'].includes(result.previousStatus)) delete result.previousStatus
+  if (eventType === 'upload.confirmed' && result.previousStatus !== 'confirmed') delete result.previousStatus
   if (eventType === 'review.changed' && result.changeKind !== 'updated') delete result.changeKind
   if (eventType.startsWith('quiz.') && !['started', 'submitted', 'not_started'].includes(result.status)) delete result.status
   if (eventType.startsWith('grade.') && result.value && !/^[1-5](?:[+-])?$/.test(result.value.trim())) delete result.value
+  if (eventType.startsWith('grade.') && result.previousValue && !/^[1-5](?:[+-])?$/.test(result.previousValue.trim())) delete result.previousValue
   return result
+}
+
+function safeWorkRef(value, source, eventType) {
+  if (source !== 'firestore' || !['upload.confirmed', 'review.changed'].includes(eventType) || !value
+    || value.kind !== 'day-task' || !/^[a-f0-9]{64}$/.test(value.id)
+    || Object.keys(value).some((key) => !['kind', 'id'].includes(key))) return null
+  return Object.freeze({ kind: 'day-task', id: value.id })
 }
 
 function safeNavigationContext(context, source, eventType) {

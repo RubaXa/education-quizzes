@@ -108,7 +108,7 @@ export function createFirestoreSourceAdapter(db, { baseBackoffMs = 1_000, maxBac
     const pageSnapshot = await getMasked(db.doc(`dayPages/${scope.dayToken}`), ['kind', 'familyId', 'childId', 'date', 'targetDate', 'taskIds', 'subjects', 'viewTokens'])
     if (!pageSnapshot.exists) return INVALID_SOURCE_STATE
     const page = pageSnapshot.data() ?? {}
-    if (page.kind !== 'student' || page.date !== owner.date
+    if (page.kind !== 'student' || page.familyId !== scope.familyId || page.childId !== scope.childId || page.date !== owner.date
       || !Array.isArray(page.taskIds) || !page.taskIds.includes(data.taskId)
       || !Array.isArray(page.subjects)) return INVALID_SOURCE_STATE
     const task = taskContext({ subjects: page.subjects }, data.taskId)
@@ -120,6 +120,7 @@ export function createFirestoreSourceAdapter(db, { baseBackoffMs = 1_000, maxBac
     const navigationContext = safeDayNavigationContext(page, scope)
     return {
       ...record,
+      workRef: dayTaskWorkRef(scope, data.taskId),
       fields: { ...record.fields, subject, title,
         ...(dueDate ? { occurredLabel: `Задание к ${dueDate}` } : {}) },
       ...(navigationContext ? { navigationContext } : {}),
@@ -159,7 +160,10 @@ export function createFirestoreSourceAdapter(db, { baseBackoffMs = 1_000, maxBac
     const semanticHash = reviewFingerprint(data)
     if (!semanticHash) return INVALID_SOURCE_STATE
     return { recordKey: sourceRecordKey('review', scope.dayToken, scope.recordId), kind: 'review', eventType: 'review.changed', semanticHash,
-      fields: { ...(childName ? { childName } : {}), ...resolved.context, status: data.status } }
+      workRef: dayTaskWorkRef(scope),
+      fields: { ...(childName ? { childName } : {}), ...resolved.context, status: data.status,
+        ...(publicDetail(data.summary) ? { summary: publicDetail(data.summary) } : {}),
+        ...(publicDetail(data.nextStep) ? { nextStep: publicDetail(data.nextStep) } : {}) } }
   }
 
   function subscribe({ scopes, onSignal, onError = () => {} } = {}) {
@@ -213,6 +217,24 @@ function binding(scope) {
 }
 function validDay(value) { return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value) }
 function sourceRecordKey(kind, scope, id) { return createHash('sha256').update(JSON.stringify([kind, scope, id])).digest('hex') }
+function dayTaskWorkRef(scope, taskId = scope?.recordId) {
+  if (!scope || !['upload', 'progress'].includes(scope.kind) || !validPathId(scope.familyId) || !validPathId(scope.childId)
+    || !validDayToken(scope.dayToken) || !validPathId(taskId)) return null
+  return { kind: 'day-task', id: createHash('sha256').update(JSON.stringify(['firestore-day-task-v1', scope.familyId, scope.childId, scope.dayToken, taskId])).digest('hex') }
+}
+function validPathId(value) { return typeof value === 'string' && value.length > 0 && value.length <= 128 && value !== '.' && value !== '..' && !value.includes('/') && !value.includes('\\') && !containsControlBytes(value) }
+function containsControlBytes(value) {
+  // eslint-disable-next-line no-control-regex -- Firestore document IDs cannot contain control bytes.
+  return /[\u0000-\u001f\u007f]/.test(value)
+}
+function publicDetail(value) {
+  if (typeof value !== 'string' || !value.trim() || value.length > 50_000) return ''
+  // Only learner-facing summary/nextStep fields are projected. Strip link-like and credential-like text before persistence.
+  // eslint-disable-next-line no-control-regex -- Remove control bytes from source-controlled public detail.
+  return value.replace(/[\u0000-\u001F\u007F]/g, ' ').replace(/https?:\/\/\S+/gi, '[ссылка скрыта]')
+    .replace(/\b(?:token|secret|password|answer|key|ответы|ключ)[=: ]+\S+/gi, '[данные скрыты]').trim().slice(0, 300)
+}
+function validDayToken(value) { return typeof value === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(value) }
 function fieldMask(kind) {
   if (kind === 'quiz') return ['familyId', 'childId', 'status', 'startedAt', 'submittedAt', 'title', 'subject']
   if (kind === 'upload') return ['status', 'taskId', 'storage.provider', 'storage.state', 'storage.syncedAt']

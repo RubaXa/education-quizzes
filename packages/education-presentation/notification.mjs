@@ -64,15 +64,27 @@ export function getNotificationPresentation(event, { demo = false, action = null
 /** Stable, compact model shared by Telegram digest delivery and the preview. */
 export function getNotificationDigestPresentation(events) {
   if (!Array.isArray(events) || events.length === 0) return null
-  const models = events.map((event) => getNotificationPresentation(event))
-  const valid = models.map((item, index) => ({ item, event: events[index] })).filter(({ item, event }) =>
+  const uniqueEvents = []
+  const seenEventIds = new Set()
+  for (const event of events) {
+    if (isValidWorkOrder(event)) {
+      if (seenEventIds.has(event.eventId)) continue
+      seenEventIds.add(event.eventId)
+    }
+    uniqueEvents.push(event)
+  }
+  const models = uniqueEvents.map((event) => getNotificationPresentation(event))
+  const valid = models.map((item, index) => ({ item, event: uniqueEvents[index] })).filter(({ item, event }) =>
     event?.eventType !== 'review.changed' || (item.subject && item.title && item.status))
   if (!valid.length) return null
   const childNames = [...new Set(valid.map(({ item }) => item.childName))]
   const subjects = [...new Set(valid.map(({ item }) => item.subject))]
   const childName = childNames.length === 1 && childNames[0] ? childNames[0] : null
   const subject = subjects.length === 1 && subjects[0] ? subjects[0] : null
-  const entries = valid.map(({ item }) => ({
+  const entries = valid.map(({ item, event }) => {
+    const fields = event?.fields && typeof event.fields === 'object' ? event.fields : {}
+    const previousStatus = statusFor('review.changed', { status: fields.previousStatus })
+    return ({
     eventType: item.eventType,
     childName: item.childName,
     subject: item.subject,
@@ -83,29 +95,82 @@ export function getNotificationDigestPresentation(events) {
     occurredLabel: item.occurredLabel,
     reviewChangeKind: item.reviewChangeKind,
     status: item.status ? { id: item.status.id, label: item.status.label, emoji: item.status.emoji } : null,
-  }))
-  const header = [childName, subject].filter(Boolean).join(' · ')
-  const text = [header, ...entries.map((entry) => {
+    previousStatus: previousStatus ? { id: previousStatus, label: STATUS_PRESENTATION[previousStatus].label, emoji: STATUS_PRESENTATION[previousStatus].emoji } : null,
+    previousValue: validGrade(fields.previousValue) || null,
+    previousTitle: safeString(fields.previousTitle, 300) || null,
+    detail: safeString(fields.nextStep, 180) || safeString(fields.summary, 180) || null,
+    workRef: isValidWorkRef(event?.workRef) ? { ...event.workRef } : null,
+    workOrder: isValidWorkOrder(event) ? `${new Date(event.detectedAt).toISOString()}:${event.eventId}` : null,
+    workOrders: isValidWorkOrder(event) ? [`${new Date(event.detectedAt).toISOString()}:${event.eventId}`] : [],
+    uploadCount: 1,
+  })
+  })
+  const groupedUploads = new Map()
+  const rowsWithUploadGroups = []
+  for (const entry of entries) {
+    if (entry.eventType !== 'upload.confirmed' || !entry.workRef || !entry.workOrder) {
+      rowsWithUploadGroups.push(entry)
+      continue
+    }
+    const key = entry.workRef.id
+    const group = groupedUploads.get(key)
+    if (group) {
+      group.uploadCount += 1
+      group.workOrders.push(...entry.workOrders)
+    } else {
+      groupedUploads.set(key, entry)
+      rowsWithUploadGroups.push(entry)
+    }
+  }
+  entries.splice(0, entries.length, ...rowsWithUploadGroups)
+  const dueLabels = [...new Set(entries.map((entry) => entry.occurredLabel).filter(Boolean))]
+  const dueContext = entries.every((entry) => entry.occurredLabel) && dueLabels.length === 1 ? dueLabels[0] : null
+  const changeCount = valid.length
+  const header = [childName, `${changeCount} ${pluralChanges(changeCount)}`].filter(Boolean).join(' · ')
+  const context = [subject, dueContext].filter(Boolean).join(' · ')
+  const rows = entries.map((entry) => {
     const identity = [entry.childName && childName === null ? entry.childName : null,
       entry.subject && subject === null ? entry.subject : null].filter(Boolean).join(' · ')
     if (entry.eventType === 'review.changed') {
       const status = entry.status.label.toLocaleLowerCase('ru-RU')
-      const result = entry.reviewChangeKind === 'updated' ? `разбор обновлён · ${status}` : status
-      return `${entry.status.emoji} ${[identity, entry.title].filter(Boolean).join(' · ')} — ${result}${entry.occurredLabel ? ` · ${entry.occurredLabel}` : ''}`
+      const previousLabel = entry.previousStatus?.id === 'waiting' ? 'Ожидало проверки' : entry.previousStatus?.label
+      const result = entry.previousStatus ? `${previousLabel} → ${status}` : entry.reviewChangeKind === 'updated' ? `разбор обновлён · ${status}` : status
+      return `${entry.status.emoji} ${[identity, entry.title ?? entry.previousTitle].filter(Boolean).join(' · ')} — ${result}${entry.detail ? `\n${entry.detail}` : ''}`
     }
-    if (entry.eventType === 'upload.confirmed') return `${entry.eventEmoji} ${[identity, entry.title].filter(Boolean).join(' · ') || 'Фото работы'} — фото получено, ${entry.status?.label.toLocaleLowerCase('ru-RU') ?? 'ждёт проверки'}${entry.occurredLabel ? ` · ${entry.occurredLabel}` : ''}`
+    if (entry.eventType === 'upload.confirmed') return `📷 ${[identity, entry.title].filter(Boolean).join(' · ') || 'Фото работы'} — получено ${entry.uploadCount} ${pluralFiles(entry.uploadCount)} · ждут проверки`
     if (entry.eventType.startsWith('grade.')) {
       const context = [identity, entry.title].filter(Boolean).join(' · ')
-      const result = entry.value ? `${entry.eventType === 'grade.changed' ? 'Оценка изменена:' : 'Новая оценка'} ${entry.value}` : entry.headline
-      return `${entry.status?.emoji ?? entry.eventEmoji} ${context ? `${context} — ` : ''}${result}${entry.occurredLabel ? ` · ${entry.occurredLabel}` : ''}`
+      const result = entry.value ? (entry.eventType === 'grade.changed'
+        ? `Оценка изменена: ${entry.previousValue ? `${entry.previousValue} → ` : ''}${entry.value}`
+        : `Новая оценка ${entry.value}`) : entry.headline
+      return `📝 ${context ? `${context} — ` : ''}${result}`
     }
-    return `${entry.status?.emoji ?? entry.eventEmoji} ${[identity, entry.headline, entry.title].filter(Boolean).join(' · ')}${entry.occurredLabel ? ` · ${entry.occurredLabel}` : ''}`
-  })].filter(Boolean).join('\n')
-  return { childName, subject, entries, text }
+    if (entry.eventType.startsWith('homework.')) {
+      const title = entry.title || entry.previousTitle
+      if (entry.eventType === 'homework.changed' && entry.previousTitle && entry.title && entry.previousTitle !== entry.title) {
+        return `📅 ${identity ? `${identity} — ` : ''}ДЗ изменено\nБыло: ${entry.previousTitle}\nСтало: ${entry.title}`
+      }
+      return `📅 ${[identity, entry.headline, title].filter(Boolean).join(' · ')}`
+    }
+    const icon = entry.eventType.startsWith('homework.') ? '📅' : (entry.status?.emoji ?? entry.eventEmoji)
+    return `${icon} ${[identity, entry.headline, entry.title].filter(Boolean).join(' · ')}`
+  })
+  const displayRows = rows.map((row, index) => !dueContext && entries[index].occurredLabel ? `${row} · ${entries[index].occurredLabel}` : row)
+  entries.forEach((entry, index) => { entry.text = displayRows[index] })
+  const text = [header, context, ...displayRows].filter(Boolean).join('\n')
+  return { childName, subject, dueContext, changeCount, header, context, entries, text }
 }
 
 export function validateNotificationAction(action, { demo = false } = {}) { return validateAction(action, { demo }) }
 export function isValidEducationDayToken(value) { return typeof value === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(value) }
+export function isValidWorkRef(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false
+  const prototype = Object.getPrototypeOf(value)
+  return (prototype === Object.prototype || prototype === null) && Object.keys(value).length === 2
+    && Object.hasOwn(value, 'kind') && value.kind === 'day-task'
+    && Object.hasOwn(value, 'id') && typeof value.id === 'string' && /^[a-f0-9]{64}$/.test(value.id)
+}
+export function isValidWorkOrder(event) { return Boolean(event && typeof event.eventId === 'string' && /^[a-f0-9]{64}$/.test(event.eventId) && typeof event.detectedAt === 'string' && !Number.isNaN(Date.parse(event.detectedAt))) }
 
 function status(id, label, tone, icon) {
   const emoji = { neutral: '⚪', accent: '🟣', waiting: '🔵', success: '🟢', attention: '🟠', error: '🔴' }[tone]
@@ -120,7 +185,7 @@ function safeString(value, max) {
     .replace(/(?:token|secret|password|ответы|ключ)[=: ]+\S+/gi, '[данные скрыты]').trim().slice(0, max) : ''
 }
 function statusFor(type, fields) {
-  if (type === 'review.changed') return ({ verified: 'complete', 'needs-fix': 'needs-fix', partial: 'partial', 'cannot-assess': 'unknown' })[fields.status] ?? null
+  if (type === 'review.changed') return ({ waiting: 'waiting', processing: 'processing', verified: 'complete', 'needs-fix': 'needs-fix', partial: 'partial', 'cannot-assess': 'unknown' })[fields.status] ?? null
   return EVENT_STATUS[type] ?? null
 }
 function formatOccurred(label) {
@@ -130,6 +195,19 @@ function formatOccurred(label) {
   if (date.getUTCFullYear() !== Number(match[1]) || date.getUTCMonth() + 1 !== Number(match[2]) || date.getUTCDate() !== Number(match[3])) return label
   const month = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'][date.getUTCMonth()]
   return `К ${['воскресенью', 'понедельнику', 'вторнику', 'среде', 'четвергу', 'пятнице', 'субботе'][date.getUTCDay()]}, ${date.getUTCDate()} ${month}`
+}
+function validGrade(value) { return typeof value === 'string' && /^[1-5](?:[+-])?$/.test(value.trim()) ? value.trim() : '' }
+function pluralChanges(count) {
+  const lastTwo = count % 100
+  if (lastTwo >= 11 && lastTwo <= 14) return 'изменений'
+  const last = count % 10
+  return last === 1 ? 'изменение' : last >= 2 && last <= 4 ? 'изменения' : 'изменений'
+}
+function pluralFiles(count) {
+  const lastTwo = count % 100
+  const last = count % 10
+  if (lastTwo >= 11 && lastTwo <= 14) return 'файлов'
+  return last === 1 ? 'файл' : last >= 2 && last <= 4 ? 'файла' : 'файлов'
 }
 function validateAction(action, { demo = false } = {}) {
   if (!action || typeof action.label !== 'string' || typeof action.url !== 'string') return null

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { diffCompleteSnapshots } from './domain/diff.mjs'
 import { createDomainEvent } from './domain/events.mjs'
-import { renderEvent, renderNotificationParts } from './domain/renderer.mjs'
+import { renderEvent, renderNotificationParts, renderNotificationDigestParts } from './domain/renderer.mjs'
 import { IdentityService } from './application/identity.mjs'
 import { NotificationService } from './application/notifications.mjs'
 import { ProbeNotificationService } from './application/probe-notifications.mjs'
@@ -92,13 +92,18 @@ describe('Telegram notification vertical slice', () => {
     expect(diffCompleteSnapshots({ source: 'mesh', scopeKey: 's', familyId: 'f', childId: 'c', current: { complete: true, observationSequence: 2, records: [] }, detectedAt: 'not-a-time' })).toMatchObject({ advanced: false, baseline: undefined, events: [] })
   })
 
-  it('normalizes context reference IDs idempotently while hashing raw source IDs', () => {
-    const raw = { source: 'firestore', scopeKey: 'scope', familyId: 'family-a', childId: 'child-a', sourceEventKey: 'event', sourceRevision: 'rev', eventType: 'homework.assigned', privacyClass: 'family-summary', detectedAt: now, contextRefs: [{ kind: 'task', id: 'private-task-id' }] }
+  it('normalizes context and work references idempotently while rejecting raw work IDs', () => {
+    const workRef = { kind: 'day-task', id: createHash('sha256').update('verified-work').digest('hex') }
+    const raw = { source: 'firestore', scopeKey: 'scope', familyId: 'family-a', childId: 'child-a', sourceEventKey: 'event', sourceRevision: 'rev', eventType: 'upload.confirmed', privacyClass: 'family-summary', detectedAt: now, workRef,
+      contextRefs: [{ kind: 'task', id: 'private-task-id' }] }
     const once = createDomainEvent(raw)
     const twice = createDomainEvent(once)
     expect(twice.contextRefs).toEqual(once.contextRefs)
     expect(once.eventId).toBe(twice.eventId)
     expect(once.contextRefs[0].id).not.toBe('private-task-id')
+    expect(twice.workRef).toEqual(workRef)
+    expect(() => createDomainEvent({ ...raw, workRef: { kind: 'day-task', id: 'raw-task-id' } })).toThrow('invalid_work_ref')
+    expect(() => createDomainEvent({ ...raw, eventType: 'homework.assigned', workRef })).toThrow('invalid_work_ref')
   })
 
   it('tracks private Telegram reachability separately from family links and rejects stale or unbound membership updates', async () => {
@@ -488,6 +493,293 @@ describe('Telegram notification vertical slice', () => {
       .filter((row) => !row.isDigest).every((row) => row.state === 'grouped' && row.groupedInto === digest.jobId)).toBe(true)
   })
 
+  it('persists linked work receipts and partitions one mixed digest by each confirmed reply chain', async () => {
+    const db = new FakeFirestore()
+    const adapters = createFirestoreAdapters(db)
+    await db.doc('telegramBotFamilyLinks/link-a').set({ familyId: 'family-a', personId: 'person-a', telegramUserId: '5', status: 'active' })
+    await db.doc('families/family-a/members/person-a').set({ active: true, role: 'parent', childIds: ['child-a'] })
+    let instant = now
+    let nextMessageId = 100
+    const sent = []
+    const service = new NotificationService({ eventLedger: adapters.eventLedger, outbox: adapters.outbox,
+      recipients: adapters.recipients, membership: adapters.membership, renderer: renderNotificationParts,
+      delivery: { async send({ part }) { const messageId = nextMessageId++; sent.push({ part: structuredClone(part), messageId }); return { messageId } } },
+      clock: () => new Date(instant), workerId: 'work-history-test' })
+    const workA = { kind: 'day-task', id: 'a'.repeat(64) }
+    const workB = { kind: 'day-task', id: 'b'.repeat(64) }
+    const submit = async (key, workRef, title, detectedAt = instant) => service.accept(createDomainEvent({ source: 'firestore', scopeKey: 'scope',
+      familyId: 'family-a', childId: 'child-a', sourceEventKey: key, sourceRevision: `rev-${key}`,
+      eventType: 'upload.confirmed', privacyClass: 'family-summary', detectedAt, workRef,
+      fields: { childName: 'Ученик А', subject: 'Математика', title, status: 'загружено' } }))
+    const flush = async () => {
+      const groups = [...db.records.entries()].filter(([path, row]) => path.startsWith('telegramNotificationGroups/') && row.state === 'open').map(([, row]) => row)
+      instant = new Date(Math.max(...groups.map((row) => Date.parse(row.flushAt))) + 1).toISOString()
+      await service.runOne()
+    }
+
+    await submit('a-first', workA, 'Работа A')
+    await flush()
+    await submit('b-first', workB, 'Работа B')
+    await flush()
+    expect([...db.records.entries()].filter(([path]) => path.startsWith('telegramNotificationWorkHistory/')).map(([, row]) => row.messageId).sort())
+      .toEqual([100, 101])
+
+    await submit('a-update', workA, 'Работа A')
+    await submit('b-update', workB, 'Работа B')
+    await flush()
+    const chainedParts = sent.slice(-2).map((row) => row.part)
+    expect(chainedParts).toHaveLength(2)
+    expect(chainedParts.map((part) => part.replyToMessageId).sort()).toEqual([100, 101])
+    expect(chainedParts.every((part) => part.workRefs?.length === 1)).toBe(true)
+    const history = [...db.records.entries()].filter(([path]) => path.startsWith('telegramNotificationWorkHistory/')).map(([, row]) => row)
+    const messageForA = sent.find((row) => row.part.workRefs?.some((ref) => ref.id === workA.id) && row.messageId > 101).messageId
+    for (const workRef of [workA, workB]) {
+      const row = history.find((item) => item.workRefHash === workRef.id)
+      const sentPart = sent.find((item) => item.messageId > 101 && item.part.workRefs?.some((ref) => ref.id === workRef.id))
+      const binding = sentPart.part.workOrderBindings.filter((item) => item.workRef.id === workRef.id)
+        .map((item) => item.order).sort().at(-1)
+      expect(row).toMatchObject({ messageId: sentPart.messageId, latestOrder: binding,
+        latestDetectedAt: binding.slice(0, -65), eventId: binding.slice(-64) })
+    }
+
+    await submit('a-delayed-old', workA, 'Работа A', now)
+    await flush()
+    expect([...db.records.entries()].find(([path, row]) => path.startsWith('telegramNotificationWorkHistory/') && row.workRefHash === workA.id)[1].messageId).toBe(messageForA)
+  })
+
+  it('keeps per-event work-order bindings on the exact compact part that contains each entry', () => {
+    const workRef = { kind: 'day-task', id: 'c'.repeat(64) }
+    const events = Array.from({ length: 7 }, (_, index) => createDomainEvent({
+      source: 'firestore', scopeKey: 'renderer-bindings', familyId: 'family-a', childId: 'child-a',
+      sourceEventKey: `review-${index}`, sourceRevision: `rev-${index}`, eventType: 'review.changed',
+      privacyClass: 'family-summary', detectedAt: `2026-10-18T10:0${index}:00.000Z`, workRef,
+      fields: { childName: 'Ученик А', subject: 'Математика', title: `Задача ${index}`, status: 'verified' },
+    }))
+    const parts = renderNotificationDigestParts(events, 'family', { maxChars: 1200 })
+    expect(parts).toHaveLength(2)
+    expect(parts.map((part) => part.workOrderBindings.length)).toEqual([6, 1])
+    expect(parts.map((part) => part.workRefs)).toEqual([[workRef], [workRef]])
+    expect(parts.flatMap((part) => part.workOrderBindings.map((binding) => binding.order)).sort())
+      .toEqual(events.map((event) => `${new Date(event.detectedAt).toISOString()}:${event.eventId}`).sort())
+    expect(parts.every((part) => part.workOrderBindings.every((binding) => part.workRefs.some((ref) => ref.id === binding.workRef.id)))).toBe(true)
+  })
+
+  it('holds a recipient stream gate through retries and releases it only with a terminal receipt', async () => {
+    const db = new FakeFirestore()
+    const adapters = createFirestoreAdapters(db)
+    await db.doc('telegramBotFamilyLinks/link-a').set({ familyId: 'family-a', personId: 'person-a', telegramUserId: '5', status: 'active' })
+    await db.doc('families/family-a/members/person-a').set({ active: true, role: 'parent', childIds: ['child-a'] })
+    let instant = now
+    const workRef = { kind: 'day-task', id: 'c'.repeat(64) }
+    const service = new NotificationService({ eventLedger: adapters.eventLedger, outbox: adapters.outbox,
+      recipients: adapters.recipients, membership: adapters.membership, renderer: renderNotificationParts,
+      delivery: { async send() { return { messageId: 200 } } }, clock: () => new Date(instant), workerId: 'gate-test' })
+    const submit = (key) => service.accept(createDomainEvent({ source: 'firestore', scopeKey: 'scope', familyId: 'family-a', childId: 'child-a',
+      sourceEventKey: key, sourceRevision: key, eventType: 'upload.confirmed', privacyClass: 'family-summary', detectedAt: instant,
+      workRef, fields: { title: 'Работа C', status: 'загружено' } }))
+    await submit('gate-first')
+    const firstGroup = [...db.records.entries()].find(([path]) => path.startsWith('telegramNotificationGroups/'))[1]
+    instant = new Date(Date.parse(firstGroup.flushAt) + 1).toISOString()
+    const first = await adapters.outbox.claim({ workerId: 'gate-test', now: instant, leaseMs: 60_000 })
+    expect(first).toMatchObject({ isDigest: true, workHistoryFence: 1 })
+
+    const receipt = { messageId: 200 }
+    await expect(adapters.outbox.savePartReceipt({ jobId: first.jobId, workerId: 'gate-test', leaseToken: 'wrong-token',
+      index: 0, receipt, now: instant, leaseMs: 60_000 })).rejects.toThrow('stale_lease')
+    expect([...db.records.entries()].some(([path]) => path.startsWith('telegramNotificationWorkHistory/'))).toBe(false)
+    await expect(adapters.outbox.savePartReceipt({ jobId: first.jobId, workerId: 'gate-test', leaseToken: first.leaseToken,
+      index: 0, receipt, now: new Date(Date.parse(instant) + 60_001).toISOString(), leaseMs: 60_000 })).rejects.toThrow('stale_lease')
+    expect([...db.records.entries()].some(([path]) => path.startsWith('telegramNotificationWorkHistory/'))).toBe(false)
+    const [streamPath, streamBeforeTamper] = [...db.records.entries()].find(([path]) => path.startsWith('telegramNotificationWorkStreams/'))
+    await db.doc(streamPath).set({ ...streamBeforeTamper, leaseTokenHash: 'tampered-token-hash' })
+    await expect(adapters.outbox.savePartReceipt({ jobId: first.jobId, workerId: 'gate-test', leaseToken: first.leaseToken,
+      index: 0, receipt, now: instant, leaseMs: 60_000 })).rejects.toThrow('work_history_gate_lost')
+    expect((await db.doc(`telegramNotificationOutbox/${first.jobId}`).get()).data().partReceipts).toHaveLength(0)
+    expect([...db.records.entries()].some(([path]) => path.startsWith('telegramNotificationWorkHistory/'))).toBe(false)
+    await db.doc(streamPath).set({ ...streamBeforeTamper, fence: streamBeforeTamper.fence + 1 })
+    await expect(adapters.outbox.savePartReceipt({ jobId: first.jobId, workerId: 'gate-test', leaseToken: first.leaseToken,
+      index: 0, receipt, now: instant, leaseMs: 60_000 })).rejects.toThrow('work_history_gate_lost')
+    expect((await db.doc(`telegramNotificationOutbox/${first.jobId}`).get()).data().partReceipts).toHaveLength(0)
+    expect([...db.records.entries()].some(([path]) => path.startsWith('telegramNotificationWorkHistory/'))).toBe(false)
+    await db.doc(streamPath).set(streamBeforeTamper)
+
+    await submit('gate-next')
+    const nextGroup = [...db.records.entries()].filter(([path, row]) => path.startsWith('telegramNotificationGroups/') && row.state === 'open').map(([, row]) => row)[0]
+    instant = new Date(Date.parse(nextGroup.flushAt) + 1).toISOString()
+    await expect(adapters.outbox.claim({ workerId: 'second-worker', now: instant, leaseMs: 60_000 })).resolves.toBeNull()
+
+    await adapters.outbox.savePartReceipt({ jobId: first.jobId, workerId: 'gate-test', leaseToken: first.leaseToken,
+      index: 0, receipt, now: instant, leaseMs: 60_000 })
+    await adapters.outbox.finish({ jobId: first.jobId, workerId: 'gate-test', leaseToken: first.leaseToken,
+      result: { state: 'sent' }, now: instant })
+    const next = await adapters.outbox.claim({ workerId: 'second-worker', now: instant, leaseMs: 60_000 })
+    expect(next).toMatchObject({ isDigest: true, messageParts: [expect.objectContaining({ replyToMessageId: 200 })] })
+  })
+
+  it('reacquires the same digest gate after a rate-limit retry and restart', async () => {
+    const db = new FakeFirestore()
+    const adapters = createFirestoreAdapters(db)
+    await db.doc('telegramBotFamilyLinks/link-a').set({ familyId: 'family-a', personId: 'person-a', telegramUserId: '5', status: 'active' })
+    await db.doc('families/family-a/members/person-a').set({ active: true, role: 'parent', childIds: ['child-a'] })
+    let instant = now
+    let fail = true
+    const sent = []
+    const workRef = { kind: 'day-task', id: 'd'.repeat(64) }
+    const service = (workerId) => new NotificationService({ eventLedger: adapters.eventLedger, outbox: adapters.outbox,
+      recipients: adapters.recipients, membership: adapters.membership, renderer: renderNotificationParts,
+      delivery: { async send({ part }) {
+        if (fail) { fail = false; const error = new Error('rate limited'); error.safeCode = 'rate_limited'; error.retryAfterMs = 1000; throw error }
+        sent.push(structuredClone(part)); return { messageId: 300 }
+      } }, clock: () => new Date(instant), workerId })
+    const original = service('first-worker')
+    await original.accept(createDomainEvent({ source: 'firestore', scopeKey: 'scope', familyId: 'family-a', childId: 'child-a',
+      sourceEventKey: 'rate-limited-work', sourceRevision: 'rev', eventType: 'upload.confirmed', privacyClass: 'family-summary',
+      detectedAt: instant, workRef, fields: { title: 'Работа D', status: 'загружено' } }))
+    const group = [...db.records.entries()].find(([path]) => path.startsWith('telegramNotificationGroups/'))[1]
+    instant = new Date(Date.parse(group.flushAt) + 1).toISOString()
+    await original.runOne()
+    const digest = [...db.records.entries()].find(([path, row]) => path.startsWith('telegramNotificationOutbox/') && row.isDigest)[1]
+    expect(digest).toMatchObject({ state: 'retry_wait', partReceipts: [] })
+    expect([...db.records.entries()].find(([path]) => path.startsWith('telegramNotificationWorkStreams/'))[1]).toMatchObject({ heldForRetry: true })
+
+    instant = new Date(Date.parse(digest.nextAttemptAt) + 1).toISOString()
+    await service('restarted-worker').runOne()
+    const completed = (await db.doc(`telegramNotificationOutbox/${digest.jobId}`).get()).data()
+    expect(completed.state).toBe('sent')
+    expect(sent).toHaveLength(1)
+    expect([...db.records.entries()].find(([path, row]) => path.startsWith('telegramNotificationWorkHistory/') && row.workRefHash === workRef.id)[1].messageId).toBe(300)
+  })
+
+  it('resumes only the unreceipted work-history part after a partial digest retry and restart', async () => {
+    const db = new FakeFirestore()
+    const adapters = createFirestoreAdapters(db)
+    await db.doc('telegramBotFamilyLinks/link-a').set({ familyId: 'family-a', personId: 'person-a', telegramUserId: '5', status: 'active' })
+    await db.doc('families/family-a/members/person-a').set({ active: true, role: 'parent', childIds: ['child-a'] })
+    let instant = now
+    let nextMessageId = 400
+    let failWorkId = null
+    const sends = []
+    const service = (workerId) => new NotificationService({ eventLedger: adapters.eventLedger, outbox: adapters.outbox,
+      recipients: adapters.recipients, membership: adapters.membership, renderer: renderNotificationParts,
+      delivery: { async send({ part }) {
+        const workId = part.workRefs?.[0]?.id
+        if (workId === failWorkId) { failWorkId = null; const error = new Error('temporary timeout'); error.safeCode = 'rate_limited'; error.retryAfterMs = 1000; throw error }
+        const messageId = nextMessageId++
+        sends.push({ workId, messageId })
+        return { messageId }
+      } }, clock: () => new Date(instant), workerId })
+    const original = service('partial-first-worker')
+    const workA = { kind: 'day-task', id: 'e'.repeat(64) }
+    const workB = { kind: 'day-task', id: 'f'.repeat(64) }
+    const submit = (key, workRef, detectedAt = instant) => original.accept(createDomainEvent({ source: 'firestore', scopeKey: 'scope',
+      familyId: 'family-a', childId: 'child-a', sourceEventKey: key, sourceRevision: key, eventType: 'upload.confirmed',
+      privacyClass: 'family-summary', detectedAt, workRef, fields: { title: key, status: 'загружено' } }))
+    const flush = async () => {
+      const group = [...db.records.entries()].filter(([path, row]) => path.startsWith('telegramNotificationGroups/') && row.state === 'open').map(([, row]) => row)[0]
+      instant = new Date(Date.parse(group.flushAt) + 1).toISOString()
+      await original.runOne()
+    }
+
+    await submit('e-first', workA); await flush()
+    await submit('f-first', workB); await flush()
+    const initialMessages = Object.fromEntries(sends.map(({ workId, messageId }) => [workId, messageId]))
+    await submit('e-update', workA); await submit('f-update', workB)
+    failWorkId = workB.id
+    await flush()
+    const retryJob = [...db.records.entries()].find(([path, row]) => path.startsWith('telegramNotificationOutbox/') && row.isDigest && row.state === 'retry_wait')[1]
+    expect(retryJob.partReceipts).toHaveLength(1)
+    const afterFirstPart = Object.fromEntries([...db.records.entries()].filter(([path]) => path.startsWith('telegramNotificationWorkHistory/'))
+      .map(([, row]) => [row.workRefHash, row.messageId]))
+    expect(afterFirstPart[workA.id]).not.toBe(initialMessages[workA.id])
+    expect(afterFirstPart[workB.id]).toBe(initialMessages[workB.id])
+    const sendsBeforeRestart = sends.length
+
+    instant = new Date(Date.parse(retryJob.nextAttemptAt) + 1).toISOString()
+    await service('partial-restarted-worker').runOne()
+    expect(sends).toHaveLength(sendsBeforeRestart + 1)
+    expect(sends.at(-1).workId).toBe(workB.id)
+    const finalHistory = Object.fromEntries([...db.records.entries()].filter(([path]) => path.startsWith('telegramNotificationWorkHistory/'))
+      .map(([, row]) => [row.workRefHash, row.messageId]))
+    expect(finalHistory[workA.id]).toBe(afterFirstPart[workA.id])
+    expect(finalHistory[workB.id]).toBe(sends.at(-1).messageId)
+  })
+
+  it('isolates one work reference across linked recipients', async () => {
+    const db = new FakeFirestore()
+    const adapters = createFirestoreAdapters(db)
+    await db.doc('telegramBotFamilyLinks/link-a').set({ familyId: 'family-a', personId: 'person-a', telegramUserId: '5', status: 'active' })
+    await db.doc('telegramBotFamilyLinks/link-b').set({ familyId: 'family-a', personId: 'person-b', telegramUserId: '6', status: 'active' })
+    await db.doc('families/family-a/members/person-a').set({ active: true, role: 'parent', childIds: ['child-a'] })
+    await db.doc('families/family-a/members/person-b').set({ active: true, role: 'parent', childIds: ['child-a'] })
+    let instant = now
+    let nextMessageId = 500
+    const sent = []
+    const service = new NotificationService({ eventLedger: adapters.eventLedger, outbox: adapters.outbox,
+      recipients: adapters.recipients, membership: adapters.membership, renderer: renderNotificationParts,
+      delivery: { async send({ chatId, part }) { const messageId = nextMessageId++; sent.push({ chatId: String(chatId), part, messageId }); return { messageId } } },
+      clock: () => new Date(instant), workerId: 'link-isolation-worker' })
+    const workRef = { kind: 'day-task', id: '9'.repeat(64) }
+    const submit = (key, detectedAt) => service.accept(createDomainEvent({ source: 'firestore', scopeKey: 'scope',
+      familyId: 'family-a', childId: 'child-a', sourceEventKey: key, sourceRevision: key,
+      eventType: 'upload.confirmed', privacyClass: 'family-summary', detectedAt, workRef,
+      fields: { title: 'Одна работа', status: key } }))
+    const flush = async () => {
+      instant = new Date(Date.parse(instant) + 60_000).toISOString()
+      for (let attempt = 0; attempt < 8; attempt += 1) if (!await service.runOne()) break
+    }
+
+    await submit('link-first', instant); await flush()
+    const firstByChat = Object.fromEntries(sent.map(({ chatId, messageId }) => [chatId, messageId]))
+    expect(Object.keys(firstByChat).sort()).toEqual(['5', '6'])
+    await submit('link-update', instant); await flush()
+    const linkedRows = [...db.records.entries()].filter(([path]) => path.startsWith('telegramNotificationWorkHistory/')).map(([, row]) => row)
+    expect(linkedRows).toHaveLength(2)
+    expect(new Set(linkedRows.map((row) => row.linkId))).toEqual(new Set(['link-a', 'link-b']))
+    for (const row of linkedRows) {
+      const chatId = row.telegramUserId
+      const update = sent.find((item) => item.chatId === chatId && item.messageId !== firstByChat[chatId])
+      expect(update.part.replyToMessageId).toBe(firstByChat[chatId])
+      expect(row.messageId).toBe(update.messageId)
+    }
+  })
+
+  it('starts a fresh reply chain when the same chat and person receive a replacement link', async () => {
+    const db = new FakeFirestore()
+    const adapters = createFirestoreAdapters(db)
+    await db.doc('telegramBotFamilyLinks/link-old').set({ familyId: 'family-a', personId: 'person-a', telegramUserId: '5', status: 'active' })
+    await db.doc('families/family-a/members/person-a').set({ active: true, role: 'parent', childIds: ['child-a'] })
+    let instant = now
+    let nextMessageId = 600
+    const sent = []
+    const service = new NotificationService({ eventLedger: adapters.eventLedger, outbox: adapters.outbox,
+      recipients: adapters.recipients, membership: adapters.membership, renderer: renderNotificationParts,
+      delivery: { async send({ chatId, part }) { const messageId = nextMessageId++; sent.push({ chatId: String(chatId), part, messageId }); return { messageId } } },
+      clock: () => new Date(instant), workerId: 'link-replacement-worker' })
+    const workRef = { kind: 'day-task', id: '8'.repeat(64) }
+    const submit = (key) => service.accept(createDomainEvent({ source: 'firestore', scopeKey: 'scope',
+      familyId: 'family-a', childId: 'child-a', sourceEventKey: key, sourceRevision: key,
+      eventType: 'upload.confirmed', privacyClass: 'family-summary', detectedAt: instant, workRef,
+      fields: { title: 'Работа', status: key } }))
+    const flush = async () => {
+      const group = [...db.records.entries()].find(([path, row]) => path.startsWith('telegramNotificationGroups/') && row.state === 'open')?.[1]
+      instant = new Date(Math.max(Date.parse(instant), Date.parse(group.flushAt)) + 1).toISOString()
+      await service.runOne()
+    }
+
+    await submit('old-link-event'); await flush()
+    const oldMessageId = sent[0].messageId
+    await db.doc('telegramBotFamilyLinks/link-old').set({ familyId: 'family-a', personId: 'person-a', telegramUserId: '5', status: 'revoked' })
+    await db.doc('telegramBotFamilyLinks/link-new').set({ familyId: 'family-a', personId: 'person-a', telegramUserId: '5', status: 'active' })
+    await submit('new-link-event'); await flush()
+
+    expect(sent).toHaveLength(2)
+    expect(sent.map((item) => item.chatId)).toEqual(['5', '5'])
+    expect(sent[1].part.replyToMessageId).toBeUndefined()
+    expect([...db.records.entries()].filter(([path]) => path.startsWith('telegramNotificationWorkHistory/')).map(([, row]) => row)
+      .sort((a, b) => a.linkId.localeCompare(b.linkId)).map((row) => [row.linkId, row.messageId]))
+      .toEqual([['link-new', sent[1].messageId], ['link-old', oldMessageId]])
+  })
+
   it('keeps future group rows out of the bounded ready query so a due legacy job is not starved', async () => {
     const db = new FakeFirestore()
     const adapters = createFirestoreAdapters(db)
@@ -500,6 +792,40 @@ describe('Telegram notification vertical slice', () => {
       messageVersion: 1, messageParts: ['already rendered'], attempts: 0 })
     const claimed = await adapters.outbox.claim({ workerId: 'fair-claim', now, leaseMs: 1000 })
     expect(claimed).toMatchObject({ jobId: 'due-legacy', messageParts: ['already rendered'], state: 'leased' })
+  })
+
+  it('continues ready-query pages when the first twenty candidates are blocked groups', async () => {
+    const db = new FakeFirestore()
+    const adapters = createFirestoreAdapters(db)
+    for (let index = 0; index < 21; index += 1) {
+      await db.doc(`telegramNotificationOutbox/blocked-${String(index).padStart(2, '0')}`).set({
+        jobId: `blocked-${String(index).padStart(2, '0')}`, state: 'pending',
+        nextAttemptAt: now, groupId: `missing-group-${index}`,
+        messageVersion: 2, attempts: 0,
+      })
+    }
+    await db.doc('telegramNotificationOutbox/due-after-page').set({ jobId: 'due-after-page', state: 'pending',
+      nextAttemptAt: now, messageVersion: 1, messageParts: ['legacy'], attempts: 0 })
+    await expect(adapters.outbox.claim({ workerId: 'page-fair', now, leaseMs: 1000 })).resolves.toMatchObject({
+      jobId: 'due-after-page', state: 'leased', messageParts: ['legacy'],
+    })
+  })
+
+  it('resumes the ready-query cursor across claims beyond four blocked pages', async () => {
+    const db = new FakeFirestore()
+    const adapters = createFirestoreAdapters(db)
+    for (let index = 0; index < 85; index += 1) {
+      await db.doc(`telegramNotificationOutbox/blocked-${String(index).padStart(3, '0')}`).set({
+        jobId: `blocked-${String(index).padStart(3, '0')}`, state: 'pending', nextAttemptAt: now,
+        groupId: `missing-group-${index}`, messageVersion: 2, attempts: 0,
+      })
+    }
+    await db.doc('telegramNotificationOutbox/zz-due-after-cursor').set({ jobId: 'zz-due-after-cursor', state: 'pending',
+      nextAttemptAt: now, messageVersion: 1, messageParts: ['legacy'], attempts: 0 })
+    await expect(adapters.outbox.claim({ workerId: 'cursor-fair', now, leaseMs: 1000 })).resolves.toBeNull()
+    await expect(adapters.outbox.claim({ workerId: 'cursor-fair', now, leaseMs: 1000 })).resolves.toMatchObject({
+      jobId: 'zz-due-after-cursor', state: 'leased', messageParts: ['legacy'],
+    })
   })
 
   it('rolls over bounded groups and atomically prevents two workers claiming the same digest', async () => {
@@ -838,15 +1164,19 @@ class FakeFirestore {
   doc(path) { return new FakeDocument(this, path) }
   collectionGroup(name) { return new FakeCollection(this, name) }
   runTransaction(callback) {
-    const result = this.tail.then(() => {
-      let wrote = false
-      return callback({
-        get: (ref) => { if (wrote) throw new Error('fake_transaction_read_after_write'); return ref.get() },
-        create: (ref, data) => { wrote = true; return ref.create(data) },
-        set: (ref, data, options) => { wrote = true; return ref.set(data, options) },
-        update: (ref, data) => { wrote = true; return ref.update(data) },
-        delete: (ref) => { wrote = true; return ref.delete() },
+    const result = this.tail.then(async () => {
+      let wrote = false, operations = 0
+      const staged = []
+      const count = () => { operations += 1; if (operations > 500) throw new Error('fake_transaction_operation_limit') }
+      const response = await callback({
+        get: (ref) => { count(); if (wrote) throw new Error('fake_transaction_read_after_write'); return ref.get() },
+        create: (ref, data) => { count(); wrote = true; staged.push(() => ref.create(data)) },
+        set: (ref, data, options) => { count(); wrote = true; staged.push(() => ref.set(data, options)) },
+        update: (ref, data) => { count(); wrote = true; staged.push(() => ref.update(data)) },
+        delete: (ref) => { count(); wrote = true; staged.push(() => ref.delete()) },
       })
+      for (const apply of staged) await apply()
+      return response
     })
     this.tail = result.catch(() => undefined)
     return result
@@ -854,15 +1184,27 @@ class FakeFirestore {
   batch() { const writes = []; return { create: (ref, data) => writes.push(() => ref.create(data)), set: (ref, data, options) => writes.push(() => ref.set(data, options)), update: (ref, data) => writes.push(() => ref.update(data)), commit: async () => Promise.all(writes.map((write) => write())) } }
 }
 class FakeCollection {
-  constructor(db, path) { this.db = db; this.path = path; this.filters = []; this.limitCount = null; this.order = null }
+  constructor(db, path) { this.db = db; this.path = path; this.filters = []; this.limitCount = null; this.order = null; this.afterPath = null; this.afterValue = undefined; this.afterId = null }
   doc(id) { return new FakeDocument(this.db, `${this.path}/${id}`) }
-  where(field, op, value) { const clone = new FakeCollection(this.db, this.path); clone.filters = [...this.filters, [field, op, value]]; clone.limitCount = this.limitCount; clone.order = this.order; return clone }
+  where(field, op, value) { const clone = new FakeCollection(this.db, this.path); clone.filters = [...this.filters, [field, op, value]]; clone.limitCount = this.limitCount; clone.order = this.order; clone.afterPath = this.afterPath; clone.afterValue = this.afterValue; clone.afterId = this.afterId; return clone }
   limit(count) { this.limitCount = count; return this }
   orderBy(field, direction = 'asc') { this.order = [field, direction]; return this }
+  startAfter(snapshot) { const clone = new FakeCollection(this.db, this.path); clone.filters = [...this.filters]; clone.limitCount = this.limitCount; clone.order = this.order; clone.afterPath = snapshot.ref.path; clone.afterValue = this.order ? snapshot.data()?.[this.order[0]] : undefined; clone.afterId = snapshot.id; return clone }
   async get() {
     const prefix = `${this.path}/`
     let entries = [...this.db.records.entries()].filter(([path, data]) => path.startsWith(prefix) && !path.slice(prefix.length).includes('/') && this.filters.every(([field, op, value]) => op === '==' ? data[field] === value : op === '<=' ? data[field] <= value : op === 'in' ? value.includes(data[field]) : false))
     if (this.order) { const [field, direction] = this.order; entries.sort((a, b) => String(a[1][field] ?? '').localeCompare(String(b[1][field] ?? '')) * (direction === 'desc' ? -1 : 1)) }
+    if (this.afterPath) {
+      const [field, direction] = this.order ?? []
+      entries = entries.filter(([path, data]) => {
+        const id = path.split('/').at(-1)
+        if (!field) return id.localeCompare(this.afterId) > 0
+        const value = String(data[field] ?? '')
+        const cursorValue = String(this.afterValue ?? '')
+        const comparison = value.localeCompare(cursorValue) * (direction === 'desc' ? -1 : 1)
+        return comparison > 0 || (comparison === 0 && id.localeCompare(this.afterId) > 0)
+      })
+    }
     if (this.limitCount !== null) entries = entries.slice(0, this.limitCount)
     const docs = entries.map(([path, data]) => new FakeDocumentSnapshot(new FakeDocument(this.db, path), data))
     return { docs, size: docs.length }

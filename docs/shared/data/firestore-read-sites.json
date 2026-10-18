@@ -110,7 +110,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 18,
+    "line": 21,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -122,7 +122,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-2",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 27,
+    "line": 30,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -134,7 +134,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-3",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 46,
+    "line": 49,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -146,7 +146,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#10dc9c274e6c",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 57,
+    "line": 60,
     "api": "admin.get",
     "target": "familyLinks.where('telegramUserId', '==', senderId)",
     "group": "operator-other",
@@ -158,7 +158,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-4",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 67,
+    "line": 70,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -170,7 +170,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-5",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 76,
+    "line": 79,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -182,7 +182,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-6",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 88,
+    "line": 91,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -194,7 +194,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-7",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 101,
+    "line": 104,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -206,7 +206,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-8",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 101,
+    "line": 104,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -218,7 +218,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-9",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 101,
+    "line": 104,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -230,7 +230,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-10",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 110,
+    "line": 113,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -242,7 +242,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-11",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 112,
+    "line": 115,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -254,7 +254,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-12",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 124,
+    "line": 127,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -266,7 +266,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-13",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 141,
+    "line": 144,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -278,7 +278,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-14",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 146,
+    "line": 149,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -290,7 +290,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#428aa877ac7a",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 158,
+    "line": 161,
     "api": "admin.get",
     "target": "accounts.doc(String(senderId))",
     "group": "operator-other",
@@ -300,33 +300,9 @@
     "note": "Адресное чтение одного account перед job/частью: известный unavailable/blocked канал не получает повторную отправку. Старый account без channelStatus совместим; отсутствующий account недоступен. Это дополнительные чтения пропорционально jobs/parts, без observer или сканирования."
   },
   {
-    "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#8469b696c4b5",
-    "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 170,
-    "api": "admin.get",
-    "target": "jobs.doc(jobId)",
-    "group": "operator-other",
-    "assessment": "conditional",
-    "policy": "scoped-telegram-transaction",
-    "refresh": "on-event-accept-or-due-delivery",
-    "note": "Due outbox claim: exact job for explicit probe or bounded20 state/time query; group source jobs stay delayed until durable flushAt."
-  },
-  {
-    "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#aa3dda10699d",
-    "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 171,
-    "api": "admin.get",
-    "target": "jobs.where('state', 'in', ['pending', 'retry_wait']).where('nextAttemptAt', '<=', now).orderBy('nextAttemptAt').limit(20)",
-    "group": "operator-other",
-    "assessment": "conditional",
-    "policy": "scoped-telegram-transaction",
-    "refresh": "on-event-accept-or-due-delivery",
-    "note": "Due outbox claim: exact job for explicit probe or bounded20 state/time query; group source jobs stay delayed until durable flushAt."
-  },
-  {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-15",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 182,
+    "line": 185,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -336,9 +312,33 @@
     "note": "Due outbox claim: exact job for explicit probe or bounded20 state/time query; group source jobs stay delayed until durable flushAt."
   },
   {
+    "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#8469b696c4b5",
+    "file": "packages/telegram-notifications/adapters/firestore.mjs",
+    "line": 209,
+    "api": "admin.get",
+    "target": "jobs.doc(jobId)",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "scoped-telegram-transaction",
+    "refresh": "on-event-accept-or-due-delivery",
+    "note": "Due outbox claim: exact job for explicit probe or bounded20 state/time query; group source jobs stay delayed until durable flushAt."
+  },
+  {
+    "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#70a1e544d455",
+    "file": "packages/telegram-notifications/adapters/firestore.mjs",
+    "line": 214,
+    "api": "admin.get",
+    "target": "(cursor ? query.startAfter(cursor) : query).limit(20)",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "scoped-telegram-transaction",
+    "refresh": "on-due-delivery",
+    "note": "Страничный запрос due outbox по state/nextAttemptAt, по20строк с snapshot cursor; проходит занятые recipient streams без загрузки семейных данных. Технический batch не исключает семьи, claim/lease подтверждаются транзакцией."
+  },
+  {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-16",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 208,
+    "line": 246,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -350,7 +350,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#79f1478d85f7",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 222,
+    "line": 266,
     "api": "admin.get",
     "target": "jobs.where('state', '==', 'leased').where('leaseUntil', '<=', now).limit(200)",
     "group": "operator-other",
@@ -362,7 +362,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-17",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 224,
+    "line": 268,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -374,7 +374,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-18",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 240,
+    "line": 288,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -386,7 +386,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-19",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 245,
+    "line": 293,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -398,7 +398,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-20",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 260,
+    "line": 308,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -410,7 +410,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-21",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 268,
+    "line": 316,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -422,7 +422,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-22",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 312,
+    "line": 373,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -434,7 +434,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-23",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 315,
+    "line": 376,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -446,7 +446,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-24",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 316,
+    "line": 377,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -458,7 +458,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-25",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 317,
+    "line": 378,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -470,7 +470,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-26",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 322,
+    "line": 383,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -482,7 +482,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-27",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 325,
+    "line": 386,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -494,7 +494,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-28",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 329,
+    "line": 390,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -506,7 +506,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#ee8efaa3a706",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 376,
+    "line": 437,
     "api": "admin.get",
     "target": "familyLinks.where('familyId', '==', event.familyId)",
     "group": "operator-other",
@@ -518,7 +518,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#e06f851a5504",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 391,
+    "line": 452,
     "api": "admin.get",
     "target": "familyLinks.doc(linkId)",
     "group": "operator-other",
@@ -530,7 +530,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#203c2b3aac79",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 395,
+    "line": 456,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -542,7 +542,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-29",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 405,
+    "line": 466,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -962,7 +962,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-firestore.mjs#admin.onSnapshot#100795890a98",
     "file": "packages/telegram-notifications/adapters/source-firestore.mjs",
-    "line": 186,
+    "line": 190,
     "api": "admin.onSnapshot",
     "target": "ref",
     "group": "operator-other",
@@ -994,6 +994,114 @@
     "policy": "not-firestore",
     "refresh": "none",
     "note": "Локальный TTL cache безопасной проекции МЭШ; Map.get не читает Firestore, expired записи удаляются без лимита детей."
+  },
+  {
+    "id": "packages/telegram-notifications/adapters/work-history-firestore.mjs#admin.get#d276aa58dcbf",
+    "file": "packages/telegram-notifications/adapters/work-history-firestore.mjs",
+    "line": 17,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "scoped-telegram-work-history-transaction",
+    "refresh": "on-digest-claim-retry-or-part-receipt",
+    "note": "Адресные transaction reads stream holder и точных hashed work pointers; без family scan/listener. Claim читает максимум одну запись на уникальную работу (group cap50), receipt — на workRefs конкретной части; retry/renew/terminal читают один stream. Transaction conflict может повторить чтения; кэш не заменяет fencing."
+  },
+  {
+    "id": "packages/telegram-notifications/adapters/work-history-firestore.mjs#admin.get#d276aa58dcbf-2",
+    "file": "packages/telegram-notifications/adapters/work-history-firestore.mjs",
+    "line": 22,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "scoped-telegram-work-history-transaction",
+    "refresh": "on-digest-claim-retry-or-part-receipt",
+    "note": "Адресные transaction reads stream holder и точных hashed work pointers; без family scan/listener. Claim читает максимум одну запись на уникальную работу (group cap50), receipt — на workRefs конкретной части; retry/renew/terminal читают один stream. Transaction conflict может повторить чтения; кэш не заменяет fencing."
+  },
+  {
+    "id": "packages/telegram-notifications/adapters/work-history-firestore.mjs#admin.get#d276aa58dcbf-3",
+    "file": "packages/telegram-notifications/adapters/work-history-firestore.mjs",
+    "line": 33,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "scoped-telegram-work-history-transaction",
+    "refresh": "on-digest-claim-retry-or-part-receipt",
+    "note": "Адресные transaction reads stream holder и точных hashed work pointers; без family scan/listener. Claim читает максимум одну запись на уникальную работу (group cap50), receipt — на workRefs конкретной части; retry/renew/terminal читают один stream. Transaction conflict может повторить чтения; кэш не заменяет fencing."
+  },
+  {
+    "id": "packages/telegram-notifications/adapters/work-history-firestore.mjs#admin.get#d276aa58dcbf-4",
+    "file": "packages/telegram-notifications/adapters/work-history-firestore.mjs",
+    "line": 51,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "scoped-telegram-work-history-transaction",
+    "refresh": "on-digest-claim-retry-or-part-receipt",
+    "note": "Адресные transaction reads stream holder и точных hashed work pointers; без family scan/listener. Claim читает максимум одну запись на уникальную работу (group cap50), receipt — на workRefs конкретной части; retry/renew/terminal читают один stream. Transaction conflict может повторить чтения; кэш не заменяет fencing."
+  },
+  {
+    "id": "packages/telegram-notifications/adapters/work-history-firestore.mjs#admin.get#d276aa58dcbf-5",
+    "file": "packages/telegram-notifications/adapters/work-history-firestore.mjs",
+    "line": 56,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "scoped-telegram-work-history-transaction",
+    "refresh": "on-digest-claim-retry-or-part-receipt",
+    "note": "Адресные transaction reads stream holder и точных hashed work pointers; без family scan/listener. Claim читает максимум одну запись на уникальную работу (group cap50), receipt — на workRefs конкретной части; retry/renew/terminal читают один stream. Transaction conflict может повторить чтения; кэш не заменяет fencing."
+  },
+  {
+    "id": "packages/telegram-notifications/adapters/work-history-firestore.mjs#admin.get#d276aa58dcbf-6",
+    "file": "packages/telegram-notifications/adapters/work-history-firestore.mjs",
+    "line": 78,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "scoped-telegram-work-history-transaction",
+    "refresh": "on-digest-claim-retry-or-part-receipt",
+    "note": "Адресные transaction reads stream holder и точных hashed work pointers; без family scan/listener. Claim читает максимум одну запись на уникальную работу (group cap50), receipt — на workRefs конкретной части; retry/renew/terminal читают один stream. Transaction conflict может повторить чтения; кэш не заменяет fencing."
+  },
+  {
+    "id": "packages/telegram-notifications/adapters/work-history-firestore.mjs#admin.get#d276aa58dcbf-7",
+    "file": "packages/telegram-notifications/adapters/work-history-firestore.mjs",
+    "line": 86,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "scoped-telegram-work-history-transaction",
+    "refresh": "on-digest-claim-retry-or-part-receipt",
+    "note": "Адресные transaction reads stream holder и точных hashed work pointers; без family scan/listener. Claim читает максимум одну запись на уникальную работу (group cap50), receipt — на workRefs конкретной части; retry/renew/terminal читают один stream. Transaction conflict может повторить чтения; кэш не заменяет fencing."
+  },
+  {
+    "id": "packages/telegram-notifications/adapters/work-history-firestore.mjs#admin.get#d276aa58dcbf-8",
+    "file": "packages/telegram-notifications/adapters/work-history-firestore.mjs",
+    "line": 94,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "scoped-telegram-work-history-transaction",
+    "refresh": "on-digest-claim-retry-or-part-receipt",
+    "note": "Адресные transaction reads stream holder и точных hashed work pointers; без family scan/listener. Claim читает максимум одну запись на уникальную работу (group cap50), receipt — на workRefs конкретной части; retry/renew/terminal читают один stream. Transaction conflict может повторить чтения; кэш не заменяет fencing."
+  },
+  {
+    "id": "packages/telegram-notifications/adapters/work-history-firestore.mjs#admin.get#d276aa58dcbf-9",
+    "file": "packages/telegram-notifications/adapters/work-history-firestore.mjs",
+    "line": 102,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "scoped-telegram-work-history-transaction",
+    "refresh": "on-digest-claim-retry-or-part-receipt",
+    "note": "Адресные transaction reads stream holder и точных hashed work pointers; без family scan/listener. Claim читает максимум одну запись на уникальную работу (group cap50), receipt — на workRefs конкретной части; retry/renew/terminal читают один stream. Transaction conflict может повторить чтения; кэш не заменяет fencing."
   },
   {
     "id": "packages/telegram-notifications/operations/probe-runner.mjs#admin.get#2518cac4354b",
@@ -4560,16 +4668,16 @@
     "note": "Адресный outbox readback перед/после явно разрешённых примеров или receipt-only; aggregate report, без новых семейных данных."
   },
   {
-    "id": "scripts/telegram-design-preview.mjs#admin.get#78891f564654-2",
+    "id": "scripts/telegram-design-preview.mjs#admin.get#d7fe1c313f17",
     "file": "scripts/telegram-design-preview.mjs",
-    "line": 81,
+    "line": 64,
     "api": "admin.get",
-    "target": "db.doc(`telegramNotificationOutbox/${jobId}`)",
+    "target": "db.doc(`telegramNotificationOutbox/${getJobId(event)}`)",
     "group": "operator-other",
-    "assessment": "justified",
-    "policy": "explicit-design-preview-receipt",
+    "assessment": "conditional",
+    "policy": "operator-explicit-telegram-example-receipt",
     "refresh": "explicit-command-only",
-    "note": "Адресный outbox readback перед/после явно разрешённых примеров или receipt-only; aggregate report, без новых семейных данных."
+    "note": "Операторская демонстрация читает только1или2 детерминированных technical.probe jobs подтверждённого target. Receipt-only не пишет/не отправляет; native reply строится только из фактически прочитанного sent receipt. Нет сканирования чужой очереди."
   },
   {
     "id": "scripts/telegram-runtime.mjs#admin.get#b8a8c75cc706",
