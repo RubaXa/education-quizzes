@@ -1,9 +1,11 @@
+/* @see ../docs/decisions/weekend-parent-actions-2026-10-18.md */
 /* @see ../docs/decisions/work-photo-expand-2026-10-18.md */
 /* @see ../docs/decisions/upload-origin-links-2026-10-18.md */
 import { useEffect, useRef, useState } from 'react'
 import { removePendingDayPhoto, requestDayHelp, uploadDayPhoto, uploadMatchesTask, watchDayHelp, watchDayPage, watchDayTaskGuides } from '@/lib/dayStore'
 import type { DayHelp, DayPageData, ParentTaskPrivate } from '@/lib/dayStore'
 import { dayHelpSessionRole } from '@/lib/personalAccess'
+import { useTaskGuidance } from '@/lib/useTaskGuidance'
 import WorkPhotoGallery from '@/components/WorkPhotoGallery'
 import MaterialReader, { canReadInside } from '@/components/MaterialReader'
 import ProblemGroup from '@/components/ProblemGroup'
@@ -13,7 +15,7 @@ import { taskUploadPresentation } from '@/lib/taskUploadPresentation'
 import { problemCardState } from '@/lib/reviewPresentation'
 import { useDayEvidence } from '@/lib/useDayEvidence'
 import { useParentCompletions } from '@/lib/useParentCompletions'
-import { canAcceptCorrectAnswer, parentAccepted, practiceRequired, recordParentCompletion, recordRequirementChoice } from '@/lib/parentCompletion'
+import { canAcceptCorrectAnswer, parentAccepted, practiceRequired, recordParentCompletion, recordRequirementChoice, recordStageChoice } from '@/lib/parentCompletion'
 import { reportUiError } from '@/lib/uiErrors'
 import './WeekendMathSlot.css'
 
@@ -29,6 +31,7 @@ export default function WeekendMathSlot({ token, taskIds, parent, lessonDate, du
   const previewUrls = useRef(new Set<string>())
   const [error, setError] = useState('')
   const { studentToken, evidenceKey, uploads, reviews, evidencePages, ready: evidenceReady } = useDayEvidence(page, token, setError)
+  const guidance = useTaskGuidance(studentToken, helpRole, setError)
   const taskPrivate = parent && helpRole === 'parent' && guideSnapshot.token === studentToken ? guideSnapshot.guides : {}
   const parentDecisions = useParentCompletions(evidenceKey, Boolean(page) && helpRole !== 'checking' && helpRole !== 'none')
   const [statusNow, setStatusNow] = useState(() => Date.now())
@@ -111,7 +114,7 @@ export default function WeekendMathSlot({ token, taskIds, parent, lessonDate, du
         const review = reviews.find((item) => item.taskId === problem.id)
         const accepted = parentAccepted(review, parentDecisions.events)
         const state = problemCardState(photos, review, previews.some((photo) => photo.state === 'uploading'), statusNow, accepted)
-        return <ProblemTaskCard owner={{ familyId: page.familyId, childId: page.childId }} problem={problem} state={state} key={problem.id} links={taskLinks} parent={parent} guide={taskPrivate[problem.id]?.guide} sourceResearch={taskPrivate[problem.id]?.sourceResearch} help={helpRequests.find((item) => item.taskId === problem.id)} review={review} uploads={photos} accepted={accepted} canDecide={helpRole === 'parent'} onDecision={parent && canAcceptCorrectAnswer(review) && review ? (action) => recordParentCompletion(review, action) : undefined} decisions={parentDecisions.events} onRequirementChoice={parent && review?.assessmentBasis?.disputedRequirements?.length ? (id, action) => recordRequirementChoice(review, id, action) : undefined} helpAccess={helpRole === 'checking' ? 'checking' : helpRole === 'student' ? 'ready' : 'login-required'} onRequestHelp={!parent && helpRole === 'student' ? (taskId, revision, kind, text) => requestDayHelp(studentToken, taskId, revision, kind, text) : undefined} onPhotos={(files) => addPhotos(problem.id, files)}>
+        return <ProblemTaskCard owner={{ familyId: page.familyId, childId: page.childId }} problem={problem} state={state} key={problem.id} links={taskLinks} parent={parent} guide={taskPrivate[problem.id]?.guide} {...guidance.forTask(problem.id, taskPrivate[problem.id]?.guide)} onStageChoice={parent && helpRole === 'parent' && review && taskPrivate[problem.id]?.guide ? (stage, required) => recordStageChoice(review, taskPrivate[problem.id]!.guide!, stage.id, required) : undefined} sourceResearch={taskPrivate[problem.id]?.sourceResearch} help={helpRequests.find((item) => item.taskId === problem.id)} review={review} uploads={photos} accepted={accepted} canDecide={helpRole === 'parent'} onDecision={parent && canAcceptCorrectAnswer(review) && review ? (action) => recordParentCompletion(review, action) : undefined} decisions={parentDecisions.events} onRequirementChoice={parent && review?.assessmentBasis?.disputedRequirements?.length ? (id, action) => recordRequirementChoice(review, id, action) : undefined} helpAccess={helpRole === 'checking' ? 'checking' : helpRole === 'student' ? 'ready' : 'login-required'} onRequestHelp={!parent && helpRole === 'student' ? (taskId, revision, kind, text) => requestDayHelp(studentToken, taskId, revision, kind, text) : undefined} onPhotos={(files) => addPhotos(problem.id, files)}>
           <WorkPhotoGallery compact taskTitle={`№ ${problem.number}. ${problem.title}`} studentToken={studentToken} uploads={ownPhotos} localPhotos={previews.map((photo) => ({ ...photo, previewUrl: photo.url }))} review={review} now={statusNow} onDelete={!parent ? (qualifiedId) => { const [sourceToken, photoId] = qualifiedId.split(':'); return removePendingDayPhoto(sourceToken, photoId) } : undefined} />
           <LinkedWorkPhotos taskId={problem.id} uploads={uploads} pages={[page, ...(evidencePages ?? [])]} />
           {previews.some((photo) => photo.state === 'failed') && <small className="weekend-math-error">Фото не загрузилось. Выберите его ещё раз.</small>}

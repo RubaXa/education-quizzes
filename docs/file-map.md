@@ -715,3 +715,7 @@
 | [packages/telegram-notifications/operations/upload-check.test.mjs](../packages/telegram-notifications/operations/upload-check.test.mjs) | [Контракт](services/telegram-bot/operations.md) | Регрессии диагностического окна, quiet migration, actual receipts и приватности | Vitest; техлид |
 
 | [docs/decisions/local-first-role-recovery-2026-10-18.md](decisions/local-first-role-recovery-2026-10-18.md) | [Доступ и состояние](modules/families/access-and-state.md) | Отмена несогласованного экрана, локальный кадр и смена профиля между вкладками | Разработчик; выпуск |
+
+| [src/lib/useTaskGuidance.ts](../src/lib/useTaskGuidance.ts) | [Адресная помощь](modules/reviews/subject-aware-guidance.md) | Общая привязка истории, готовности и команды отправки этапа по исходному token/taskId | DayPage; WeekendMathSlot |
+| [src/WeekendMathSlot.guidance.integration.test.tsx](../src/WeekendMathSlot.guidance.integration.test.tsx) | [Адресная помощь](modules/reviews/subject-aware-guidance.md) | Реальный путь выбора/отправки, batch/inbox, ученический фрагмент, история, ошибки и выбор этапа | Vitest; выпуск |
+| [docs/decisions/weekend-parent-actions-2026-10-18.md](decisions/weekend-parent-actions-2026-10-18.md) | [Адресная помощь](modules/reviews/subject-aware-guidance.md) | Коммит происхождения пропуска и единое подключение команд двух контейнеров | Разработчик; выпуск |

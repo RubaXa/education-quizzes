@@ -9,6 +9,7 @@ import type { DayPageData, DayWorkReview } from '@/lib/dayStore'
 
 const scene = vi.hoisted(() => ({ role: 'parent' as 'parent' | 'student', profile: null as PersonalProfile | null, reviews: [] as DayWorkReview[], guideReads: [] as string[], reviewRoles: [] as boolean[], reviewListeners: new Set<(reviews: DayWorkReview[]) => void>(), diagnostics: false, diagnosticWrites: [] as Record<string, unknown>[] }))
 vi.mock('@/lib/firebase', () => ({ db: {} }))
+vi.mock('@/lib/dayGuidance', () => ({ watchDayGuidance: (_token: string, changed: (items: unknown[]) => void) => { changed([]); return () => {} }, sendDayGuidance: vi.fn() }))
 vi.mock('firebase/auth', () => ({ getAuth: () => ({ currentUser: { uid: 'device' }, authStateReady: async () => {} }) }))
 vi.mock('firebase/firestore', () => ({
   serverTimestamp: () => 'SERVER',

@@ -17,6 +17,7 @@ vi.mock('./lib/dayStore', async (original) => ({
   uploadDayPhoto: vi.fn(async () => {}),
 }))
 vi.mock('./lib/personalAccess', () => ({ dayHelpSessionRole: async () => scene.role }))
+vi.mock('./lib/dayGuidance', () => ({ watchDayGuidance: (_token: string, changed: (items: unknown[]) => void) => { changed([]); return () => {} }, sendDayGuidance: vi.fn() }))
 vi.mock('./lib/useDayEvidence', () => ({ useDayEvidence: () => ({ studentToken: 'student-token', evidenceKey: 'student-token', uploads: scene.uploads, reviews: [], evidencePages: [], ready: true }) }))
 vi.mock('./lib/useParentCompletions', () => ({ useParentCompletions: () => ({ events: scene.decisions, ready: true }) }))
 vi.mock('./components/ProblemTaskCard', async (original) => {
