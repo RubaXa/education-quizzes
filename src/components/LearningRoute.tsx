@@ -32,15 +32,15 @@ export default function LearningRoute({ mode, token, headerReturnTarget }: { mod
         if (cause.code === 'permission-denied') revoke()
         else { revoked = true; setAccess(undefined); setError(reportUiError(cause, 'Проверка личного доступа')) }
       }
-      stops.push(onSnapshot(doc(db, 'accessLinks', session.linkToken), (grant) => {
+      stops.push(onSnapshot(doc(db, 'accessLinks', session.linkToken), { includeMetadataChanges: true }, (grant) => {
         if (!grant.metadata.fromCache && (!grant.exists() || grant.data()?.active !== true || grant.data()?.personId !== session.personId)) revoke()
         else if (!grant.metadata.fromCache) ready('grant')
       }, remoteError))
-      stops.push(onSnapshot(doc(db, 'deviceSessions', session.deviceUid), (device) => {
+      stops.push(onSnapshot(doc(db, 'deviceSessions', session.deviceUid), { includeMetadataChanges: true }, (device) => {
         if (!device.metadata.fromCache && (!device.exists() || device.data()?.linkToken !== session.linkToken)) revoke()
         else if (!device.metadata.fromCache) ready('device')
       }, remoteError))
-      stops.push(onSnapshot(doc(db, 'families', child.familyId, 'members', session.personId), (member) => {
+      stops.push(onSnapshot(doc(db, 'families', child.familyId, 'members', session.personId), { includeMetadataChanges: true }, (member) => {
         if (!member.metadata.fromCache && (!member.exists() || member.data()?.active !== true || member.data()?.role !== child.role || !member.data()?.childIds?.includes(child.childId))) revoke()
         else if (!member.metadata.fromCache) ready('member')
       }, remoteError))

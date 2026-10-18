@@ -327,9 +327,10 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
   const hasPage = Boolean(page)
   useEffect(() => {
     let active = true
-    void dayHelpSessionRole().then((role) => { if (active) setHelpRole(role ?? 'none') })
+    if (!page) return
+    void dayHelpSessionRole({ familyId: page.familyId, childId: page.childId }).then((role) => { if (active) setHelpRole(role ?? 'none') })
     return () => { active = false }
-  }, [])
+  }, [page])
   useEffect(() => {
     if (!hasPage || helpRole === 'checking' || helpRole === 'none') return
     return watchDayHelp(evidenceKey.split('|'), setHelpRequests, (cause) => {

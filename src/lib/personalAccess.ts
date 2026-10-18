@@ -258,14 +258,13 @@ export async function restorePersonalSession(): Promise<PersonalSession | null> 
 }
 
 /** @see ../../docs/modules/reviews/adaptive-problem-card.md#показ-ученику */
-export async function dayHelpSessionRole(): Promise<'student' | 'parent' | null> {
+export async function dayHelpSessionRole(owner?: { familyId?: string; childId?: string }): Promise<'student' | 'parent' | null> {
   try {
-    const session = await restorePersonalSession()
-    if (!session) return null
-    const profile = await loadPersonalProfile(session)
-    return profile.children.find((child) => child.role === 'student')?.role
-      ?? profile.children.find((child) => child.role === 'parent')?.role
-      ?? null
+    const context = await restorePersonalContext()
+    if (!context) return null
+    const children = owner ? context.profile.children.filter((child) => child.familyId === owner.familyId && child.childId === owner.childId) : context.profile.children
+    const roles = [...new Set(children.map((child) => child.role))]
+    return roles.length === 1 ? roles[0] : null
   } catch { return null }
 }
 
