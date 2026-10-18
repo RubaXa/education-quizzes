@@ -1,0 +1,7 @@
+/* @see ../../docs/decisions/upload-origin-links-2026-10-18.md */
+/* @see ../../docs/modules/materials/storage-privacy.md#multi-task-photo */
+.linked-work-photos{display:grid;gap:6px;margin:10px 0;font-size:.84rem;line-height:1.5}
+.linked-work-photo-reference{display:inline-flex;align-items:flex-start;gap:6px;min-height:var(--edu-touch-target);max-width:100%;padding:7px 0;border:0;background:transparent;color:var(--edu-accent-ink);font:inherit;text-align:left;cursor:pointer}
+.linked-work-photo-reference svg{flex:none;margin-top:3px}.linked-work-photo-reference span{overflow-wrap:anywhere;text-decoration:underline;text-underline-offset:3px}
+.linked-work-photo-reference:focus-visible{outline:2px solid var(--edu-focus);outline-offset:3px;border-radius:4px}
+.linked-work-photo-view{padding:8px 0}.linked-work-photo-view p{margin:0 0 8px;color:var(--edu-text-secondary)}

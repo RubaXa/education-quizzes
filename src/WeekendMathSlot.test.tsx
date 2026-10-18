@@ -3,12 +3,12 @@
 import { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { DayPageData } from './lib/dayStore'
+import type { DayPageData, DayUpload } from './lib/dayStore'
 import type { ParentCompletionEvent } from './lib/parentCompletion'
 import WeekendMathSlot from './WeekendMathSlot'
 
 (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true
-const scene = vi.hoisted(() => ({ page: null as DayPageData | null, role: 'parent', decisions: [] as ParentCompletionEvent[] }))
+const scene = vi.hoisted(() => ({ page: null as DayPageData | null, role: 'parent', decisions: [] as ParentCompletionEvent[], uploads: [] as DayUpload[] }))
 vi.mock('./lib/dayStore', async (original) => ({
   ...await original<typeof import('./lib/dayStore')>(),
   watchDayPage: (_token: string, changed: (page: DayPageData) => void) => { changed(scene.page!); return () => {} },
@@ -16,13 +16,17 @@ vi.mock('./lib/dayStore', async (original) => ({
   watchDayTaskGuides: (_token: string, changed: (items: object) => void) => { changed({}); return () => {} },
 }))
 vi.mock('./lib/personalAccess', () => ({ dayHelpSessionRole: async () => scene.role }))
-vi.mock('./lib/useDayEvidence', () => ({ useDayEvidence: () => ({ studentToken: 'student-token', evidenceKey: 'student-token', uploads: [], reviews: [], ready: true }) }))
+vi.mock('./lib/useDayEvidence', () => ({ useDayEvidence: () => ({ studentToken: 'student-token', evidenceKey: 'student-token', uploads: scene.uploads, reviews: [], evidencePages: [], ready: true }) }))
 vi.mock('./lib/useParentCompletions', () => ({ useParentCompletions: () => ({ events: scene.decisions, ready: true }) }))
-vi.mock('./components/ProblemTaskCard', () => ({ default: ({ problem }: { problem: { id: string; title: string } }) => <article data-problem={problem.id}>{problem.title}</article> }))
+vi.mock('./components/ProblemTaskCard', async (original) => {
+  const { default: Actual } = await original<typeof import('./components/ProblemTaskCard')>()
+  return { default: (props: Parameters<typeof Actual>[0]) => <article data-problem={props.problem.id}><Actual {...props} /></article> }
+})
 
 beforeEach(() => {
   scene.role = 'parent'
   scene.decisions = []
+  scene.uploads = []
   scene.page = { targetDate: '2026-10-19', studentToken: 'student-token', subjects: [{ id: 'math', name: 'Математика', icon: '∑', summary: '', tasks: [{
     id: 'combinatorics', title: 'Комбинаторика', detail: 'Реши сколько получится', source: 'МЭШ', kind: 'check', status: 'unknown',
     practiceVariants: Array.from({ length: 8 }, (_, i) => ({ id: `v${i + 1}`, title: `№${i + 1}`, optionalByTeacher: { sourceRef: 'sheet', excerpt: 'Реши сколько получится' } })),
@@ -39,6 +43,19 @@ async function renderSlot(parent = true) {
 }
 
 describe('weekend source-selected practice', () => {
+  it.each([false, true])('keeps an upload in its original task after coverage excludes that origin, parent=%s', async (parent) => {
+    scene.role = parent ? 'parent' : 'student'
+    scene.uploads = [{ id: 'student-token:photo', taskId: 'p1', processingTaskIds: ['p2'], status: 'pending' }]
+    const { host, close } = await renderSlot(parent)
+    try {
+      await act(async () => host.querySelector<HTMLButtonElement>('.problem-group-toggle')!.click())
+      expect(host.querySelector('[data-problem="p1"] .weekend-math-photos')).not.toBeNull()
+      expect(host.querySelector('[data-problem="p2"] .weekend-math-photos')).toBeNull()
+      expect(host.querySelector('[data-problem="p2"] .linked-work-photos')?.textContent).toContain('Задача 1')
+      expect(host.querySelector('[data-problem="p2"] .linked-work-photos .artifact-avatar')).toBeNull()
+      expect(host.querySelector('[data-problem="p2"] .day-review-progress')?.textContent).toContain('ждёт проверки')
+    } finally { close() }
+  })
   it.each([true, false])('keeps all eight numbers visible and optional for parent=%s', async (parent) => {
     scene.role = parent ? 'parent' : 'student'
     const { host, close } = await renderSlot(parent)
