@@ -49,7 +49,8 @@ describe('weekend source-selected practice', () => {
       expect(host.textContent).toContain('урок 19 октября · сдать 19 октября')
       await act(async () => toggle.click())
       expect(host.querySelectorAll('[data-problem]')).toHaveLength(8)
-      expect(host.textContent).toContain('Задачи по выбору · 8')
+      expect(host.textContent).toContain('Реши сколько получится · по выбору учителя')
+      expect(host.textContent).not.toContain('исключены из обязательного семейного плана')
     } finally { close() }
   })
   it('counts the same explicit family inclusion as the detailed day while retaining every number', async () => {

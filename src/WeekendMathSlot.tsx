@@ -96,7 +96,7 @@ export default function WeekendMathSlot({ token, taskIds, parent, lessonDate, du
       const sourceCount = new Set(taskLinks.filter((link) => link.sourceType === 'teacher-attachment').map((link) => link.url)).size
       /** @see ../docs/modules/school-diary/day-page.md#completed-problem-group
        * @see ../docs/modules/reviews/problem-card-design-decisions.md#flat-numbered-sheet */
-      return <ProblemGroup key={task.id} id={task.id} title={`${subject.icon} ${subject.name}`} problems={problems} requiredProblems={requiredProblems} numberLabel={teacherChoice ? `Задачи по выбору · ${problems.length}` : undefined} uploads={uploads} reviews={reviews} decisions={parentDecisions.events} localPendingCount={localPendingCount} sourceCount={sourceCount} ready={evidenceReady && parentDecisions.ready}>
+      return <ProblemGroup key={task.id} id={task.id} title={`${subject.icon} ${subject.name}`} subtitle={teacherChoice && !requiredProblems.length ? 'Реши сколько получится · по выбору учителя' : undefined} problems={problems} requiredProblems={requiredProblems} numberLabel={teacherChoice ? `Задачи по выбору · ${problems.length}` : undefined} uploads={uploads} reviews={reviews} decisions={parentDecisions.events} localPendingCount={localPendingCount} sourceCount={sourceCount} ready={evidenceReady && parentDecisions.ready}>
       <div className="weekend-math-group">
       <p>{subject.summary || task.detail}</p>
       {teacherLinks.length > 0 && <details className="day-teacher-sheet"><summary><span>▤ &nbsp;Лист учителя</span><span>{teacherLinks.length} {teacherLinks.length === 1 ? 'лист' : 'листа'} · открыть ↗</span></summary><MaterialReader links={teacherLinks} parent={parent} statement /></details>}
