@@ -34,7 +34,7 @@ vi.mock('firebase/firestore', () => {
   }
 })
 
-import { clearPersonalSession, readCachedPersonalContext, readLastPersonalDashboardRoute, rememberPersonalDashboardRoute, restorePersonalContext } from './personalAccess'
+import { clearPersonalSession, dayHelpSessionRole, readCachedPersonalContext, readLastPersonalDashboardRoute, rememberPersonalContext, rememberPersonalDashboardRoute, restorePersonalContext } from './personalAccess'
 
 const storage = new Map<string, string>()
 vi.stubGlobal('localStorage', {
@@ -72,6 +72,17 @@ describe('personal cold start — no saved profile', () => {
 })
 
 describe('personal warm start — saved profile and route', () => {
+  it('uses this child membership for guidance even when the same person is a student elsewhere, without reloading the profile graph', async () => {
+    rememberPersonalContext({ session: { personId: 'person', deviceUid: 'device', linkToken: 'a'.repeat(43) }, profile: { personId: 'person', displayName: 'Person', children: [
+      { familyId: 'other-family', childId: 'other-child', displayName: 'Other', role: 'student' },
+      { familyId: 'family', childId: 'child', displayName: 'Child', role: 'parent' },
+    ] } })
+    expect(await dayHelpSessionRole({ familyId: 'family', childId: 'child' })).toBe('parent')
+    expect(await dayHelpSessionRole({ familyId: 'other-family', childId: 'other-child' })).toBe('student')
+    expect(await dayHelpSessionRole({ familyId: 'missing', childId: 'child' })).toBeNull()
+    expect(await dayHelpSessionRole()).toBeNull()
+    expect(probe.delivered).toBe(0)
+  })
   it('opens the warm personal profile without fetching the seven-document graph again', async () => {
     await restorePersonalContext()
     expect(probe.delivered).toBe(7)

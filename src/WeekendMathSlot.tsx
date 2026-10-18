@@ -33,9 +33,10 @@ export default function WeekendMathSlot({ token, taskIds, parent, lessonDate, du
   useEffect(() => watchDayPage(token, (data) => { setPage(data); setError('') }, (cause) => setError(reportUiError(cause, 'Задание на выходные'))), [token])
   useEffect(() => {
     let active = true
-    void dayHelpSessionRole().then((role) => { if (active) setHelpRole(role ?? 'none') })
+    if (!page) return
+    void dayHelpSessionRole({ familyId: page.familyId, childId: page.childId }).then((role) => { if (active) setHelpRole(role ?? 'none') })
     return () => { active = false }
-  }, [])
+  }, [page])
   useEffect(() => page && helpRole !== 'checking' && helpRole !== 'none' ? watchDayHelp(evidenceKey.split('|'), setHelpRequests, (cause) => {
     if ((cause as Error & { code?: string }).code === 'permission-denied') { setHelpRole('none'); setHelpRequests([]) }
     else setError(reportUiError(cause, 'Задание на выходные'))
