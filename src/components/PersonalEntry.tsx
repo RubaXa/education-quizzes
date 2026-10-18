@@ -59,12 +59,14 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
   const [contextAvailable, setContextAvailable] = useState(true)
   const automaticRetries = useRef(0)
   const pendingLink = useRef<string | null>(null)
+  const initialLinkToRedeem = useRef(initialLink)
   const [copied, setCopied] = useState(false)
   const [selectedChild, setSelectedChild] = useState<string | null>(null)
   const [manualEntry, setManualEntry] = useState(false)
   const manualInput = useRef<HTMLInputElement>(null)
 
   useEffect(() => watchPersonalContextChanges(() => {
+    initialLinkToRedeem.current = undefined
     const cached = readCachedPersonalContext()
     const uid = getAuth().currentUser?.uid
     const next = cached && (!uid || uid === cached.session.deviceUid) ? cached : null
@@ -98,13 +100,15 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
       setError('')
       setRetryable(false)
       try {
+        const loginLink = initialLinkToRedeem.current
         // The bearer secret is removed from browser history as soon as we have captured it.
-        if (initialLink) history.replaceState(null, '', `${location.pathname}${location.search}#/`)
-        const restored = initialLink ? await redeemPersonalLink(initialLink) : null
-        const context = initialLink ? restored ? { session: restored, profile: await loadPersonalProfile(restored) } : null : await restorePersonalContext()
+        if (loginLink) history.replaceState(null, '', `${location.pathname}${location.search}#/`)
+        const restored = loginLink ? await redeemPersonalLink(loginLink) : null
+        const context = loginLink ? restored ? { session: restored, profile: await loadPersonalProfile(restored) } : null : await restorePersonalContext()
         if (!alive) return
         if (context) {
-          if (initialLink) rememberPersonalContext(context)
+          if (loginLink) rememberPersonalContext(context)
+          initialLinkToRedeem.current = undefined
           setSession((previous) => previous?.linkToken === context.session.linkToken && previous.deviceUid === context.session.deviceUid ? previous : context.session)
           setProfile((previous) => JSON.stringify(previous) === JSON.stringify(context.profile) ? previous : context.profile)
           automaticRetries.current = 0
@@ -237,6 +241,7 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
   }, [session])
 
   const openLink = async (value: string) => {
+    initialLinkToRedeem.current = undefined
     pendingLink.current = value
     setBusy(true)
     setError('')

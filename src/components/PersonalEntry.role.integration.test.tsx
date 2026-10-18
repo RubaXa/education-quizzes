@@ -9,7 +9,7 @@ const scene = vi.hoisted(() => ({
   cached: null as PersonalProfile | null, server: null as PersonalProfile | null,
   callbacks: new Map<string, (snapshot: any) => void>(), options: [] as any[],
   failures: new Map<string, (cause: { code: string }) => void>(),
-  refreshes: 0, restores: 0, closed: 0, uid: 'device',
+  refreshes: 0, restores: 0, redemptions: 0, closed: 0, uid: 'device',
 }))
 const session = { personId: 'person', deviceUid: 'device', linkToken: 'secret' }
 vi.mock('@/lib/firebase', () => ({ db: {} }))
@@ -21,7 +21,7 @@ vi.mock('@/lib/personalAccess', async (original) => ({
   loadPersonalProfile: async () => { scene.refreshes++; return scene.server },
   rememberPersonalContext: (context: { profile: PersonalProfile }) => { scene.cached = context.profile },
   clearPersonalSession: () => { scene.closed++; scene.cached = null },
-  redeemPersonalLink: async () => session, personalEntryUrl: () => '#/enter/example', secretFromPastedPersonalLink: (value: string) => value,
+  redeemPersonalLink: async () => { scene.redemptions++; return session }, personalEntryUrl: () => '#/enter/example', secretFromPastedPersonalLink: (value: string) => value,
 }))
 vi.mock('firebase/firestore', () => ({
   doc: (_db: unknown, ...parts: string[]) => ({ path: parts.join('/') }),
@@ -57,7 +57,7 @@ const profile = (role: 'parent' | 'student'): PersonalProfile => ({ personId: 'p
 beforeEach(() => {
   scene.cached = profile('parent'); scene.server = profile('parent'); scene.callbacks.clear(); scene.options = []
   scene.failures.clear()
-  scene.refreshes = 0; scene.restores = 0; scene.closed = 0; scene.uid = 'device'
+  scene.refreshes = 0; scene.restores = 0; scene.redemptions = 0; scene.closed = 0; scene.uid = 'device'
 })
 afterEach(async () => { await act(async () => cleanup.splice(0).forEach((close) => close())) })
 async function render(initialLink?: string) {
@@ -74,6 +74,17 @@ async function confirmSession() {
   await confirm('deviceSessions/device', { linkToken: 'secret' })
 }
 describe('root personal entry uses confirmed role through the real task card', () => {
+  it('does not redeem an old entry URL again after another tab changed the profile', async () => {
+    scene.cached = null; scene.server = profile('student')
+    const host = await render('old-student-link')
+    expect(host.textContent).toContain('Добавить фото решения')
+    expect(scene.redemptions).toBe(1)
+    scene.cached = profile('parent'); scene.server = profile('parent')
+    await act(async () => window.dispatchEvent(new StorageEvent('storage', { key: 'education-personal-context-v1' })))
+    expect(host.textContent).toContain('Разбор для родителя')
+    expect(host.textContent).not.toContain('Добавить фото решения')
+    expect(scene.redemptions).toBe(1)
+  })
   it('keeps the local guide on a network failure but closes it on permission denial', async () => {
     const host = await render()
     const failed = scene.failures.get('families/family/members/person')!

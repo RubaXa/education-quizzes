@@ -3200,7 +3200,7 @@
       }
     },
     "src/components/PersonalEntry.tsx": {
-      "sha256": "ff46e853666674a6503c14cffe9686323c45c8b1d68a8aa97fe422656cbc8ce7",
+      "sha256": "11c5a0a3e261e021d00c4d6634f2e0de12ada67e2190698d10bcf324102172b9",
       "record": "docs/decisions/local-first-role-recovery-2026-10-18.md",
       "specs": [
         "docs/modules/families/access-and-state.md",

@@ -5018,7 +5018,7 @@
   {
     "id": "src/components/PersonalEntry.tsx#onSnapshot#277a67fd7173",
     "file": "src/components/PersonalEntry.tsx",
-    "line": 162,
+    "line": 166,
     "api": "onSnapshot",
     "target": "doc(db, 'accessLinks', session.linkToken)",
     "group": "client-access",
@@ -5030,7 +5030,7 @@
   {
     "id": "src/components/PersonalEntry.tsx#onSnapshot#e2a2ec860d83",
     "file": "src/components/PersonalEntry.tsx",
-    "line": 166,
+    "line": 170,
     "api": "onSnapshot",
     "target": "doc(db, 'deviceSessions', session.deviceUid)",
     "group": "client-access",
@@ -5042,7 +5042,7 @@
   {
     "id": "src/components/PersonalEntry.tsx#onSnapshot#80b6a5d81625",
     "file": "src/components/PersonalEntry.tsx",
-    "line": 180,
+    "line": 184,
     "api": "onSnapshot",
     "target": "doc(db, 'families', familyId, 'members', session.personId)",
     "group": "client-access",
