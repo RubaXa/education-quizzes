@@ -97,6 +97,8 @@
 | [docs/audits/telegram-self-review-2026-10-16.md](audits/telegram-self-review-2026-10-16.md) | [Telegram self-review](services/telegram-bot/README.md) | Независимая сверка локального кода, спецификаций, ограничений и рисков Telegram-сервиса | Техлид; разработчик; оператор |
 | [docs/decisions/compact-homework-copy-2026-10-16.md](decisions/compact-homework-copy-2026-10-16.md) | [Компактная сводка ДЗ](modules/school-diary/dashboard.md) | Основание кратких заголовков и сохранённые сценарии | UI gate; разработчик |
 | [docs/decisions/compact-results-ui-kit-2026-10-16.md](decisions/compact-results-ui-kit-2026-10-16.md) | [Контракт](shared/design/ui-kit.md) | Основание согласованной таблицы и первого набора UI Kit | Барьер изменений; ревью |
+| [docs/decisions/grade-average-ui-kit-2026-10-18.md](decisions/grade-average-ui-kit-2026-10-18.md) | [Средний балл](modules/school-diary/grades.md) | Основание, единые тона, границы компонента и интеграция среднего в UI Kit | Product; frontend; UI review |
+| [docs/research/grade-average-visual-scale-2026-10-18.md](research/grade-average-visual-scale-2026-10-18.md) | [Средний балл](modules/school-diary/grades.md) | Рекомендации доступности, ролевые токены и происхождение визуальных диапазонов 2–5 | Product; design review |
 | [docs/decisions/education-sync-performance-2026-10-15.md](decisions/education-sync-performance-2026-10-15.md) | [Глобальная синхронизация](modules/synchronization/global-sync.md) | Решение о таймерах и ограниченной параллельности без смены учебного поведения | Проверка продуктового контракта; разработчик |
 | [docs/decisions/flat-numbered-sheet-2026-10-14.md](decisions/flat-numbered-sheet-2026-10-14.md) | [Плоская секция](modules/reviews/problem-card-design-decisions.md) | Основание, состав, роли и проверка исправления вложенности | `ui-change-decisions.json`; ревью |
 | [docs/decisions/grade-mark-details-2026-10-14.md](decisions/grade-mark-details-2026-10-14.md) | [Средний балл](modules/school-diary/grades.md) | Решение о раскрытии работы и комментария у конкретной оценки | `ui-change-decisions.json`; ревью выпуска |
@@ -319,6 +321,8 @@
 | [scripts/lib/admin-firebase.mjs](../scripts/lib/admin-firebase.mjs) | [Общее серверное ядро](shared/server-runtime.md) | Совместимая операторская оболочка общего Google Firestore/ADC factory для старых CLI вызывающих сторон | `family.mjs`; `connect.mjs`; operator CLI |
 | [scripts/notifications.mjs](../scripts/notifications.mjs) | [Центр обновлений](modules/notifications/inbox.md) | Выпуск изменений продукта и сверенный backfill результата/родительского решения | Оператор; Firestore; `NotificationBell` |
 | [scripts/publish-pages.mjs](../scripts/publish-pages.mjs) | [PWA](product/pwa.md) | Публикация и сверка GitHub Pages | Оператор; браузер |
+| [scripts/publish-source-gate.mjs](../scripts/publish-source-gate.mjs) | [Выпуск](operations/deployment.md) | Проверка чистого актуального main перед сборкой и push | Pages publisher |
+| [scripts/publish-source-gate.test.mjs](../scripts/publish-source-gate.test.mjs) | [Выпуск](operations/deployment.md) | Запрет старого, неполного и незакоммиченного выпуска | Vitest; оператор |
 | [scripts/push-and-publish.mjs](../scripts/push-and-publish.mjs) | [PWA](product/pwa.md) | Push исходников и выпуск сайта | Оператор |
 | [scripts/quiz-access.mjs](../scripts/quiz-access.mjs) | [Тесты](modules/assessments/quizzes.md) | Проверка доступа к попытке и роли | Quiz CLI |
 | [scripts/quiz-access.test.mjs](../scripts/quiz-access.test.mjs) | [Тесты](modules/assessments/quizzes.md) | Проверка ролевого доступа к тесту | Vitest; разработчик |
@@ -346,6 +350,10 @@
 | [src/UiKit.css](../src/UiKit.css) | [Контракт](shared/design/ui-kit.md) | Адаптивная композиция каталога на общих токенах | UiKit |
 | [src/UiKit.test.tsx](../src/UiKit.test.tsx) | [Контракт](shared/design/ui-kit.md) | Регрессия примеров, навигации, локальных входов и токенов | Vitest |
 | [src/UiKit.tsx](../src/UiKit.tsx) | [Контракт](shared/design/ui-kit.md) | Интерактивные рабочие индикаторы, описание текущих токенов и пример истории | App; родитель; разработчик |
+| [src/components/GradeAverage.tsx](../src/components/GradeAverage.tsx) | [Средний балл](modules/school-diary/grades.md) | Общая отображающая метка школьного среднего с нейтральным, внимательным и отличным тоном | DayPage; DayDashboard; UI Kit |
+| [src/components/GradeAverage.css](../src/components/GradeAverage.css) | [Средний балл](modules/school-diary/grades.md) | Единая чип-оболочка и статусные пары токенов среднего балла | GradeAverage |
+| [src/components/GradeAverageSlider.tsx](../src/components/GradeAverageSlider.tsx) | [UI Kit](shared/design/ui-kit.md) | Локальный слайдер 2,00–5,00 для динамической проверки компонентов шкалы среднего | UI Kit |
+| [src/components/GradeAverageSlider.css](../src/components/GradeAverageSlider.css) | [UI Kit](shared/design/ui-kit.md) | Доступный стиль поля диапазона, маркеров, подтверждений и живого результата | GradeAverageSlider |
 | [src/WeekendMathSlot.css](../src/WeekendMathSlot.css) | [Адаптивная карточка](modules/reviews/adaptive-problem-card.md) | Оформление общего слота математики | `src/WeekendMathSlot.tsx` |
 | [src/WeekendMathSlot.tsx](../src/WeekendMathSlot.tsx) | [Dashboard](modules/school-diary/dashboard.md) | Переиспользуемая карточка только перечисленных ID своего урока с фото, проверками и сроком | Ученик; родитель; `ProblemGroup` |
 | [src/WeekendMathSlot.test.tsx](../src/WeekendMathSlot.test.tsx) | [Dashboard](modules/school-diary/dashboard.md) | Обе роли выходного спецкурса, выбор учителя, семейное включение и сохранность всех номеров | Vitest; общий `ProblemGroup` |
