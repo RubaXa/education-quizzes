@@ -1,0 +1,103 @@
+// @vitest-environment jsdom
+/** @see ../../docs/modules/families/access-and-state.md#authenticated-learning-routes */
+import { act } from 'react'
+import { createRoot } from 'react-dom/client'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import type { PersonalProfile } from '@/lib/personalAccess'
+
+const scene = vi.hoisted(() => ({ profile: null as PersonalProfile | null, cached: false, callbacks: new Map<string, (value: any) => void>(), reads: [] as string[], closed: 0 }))
+vi.mock('@/lib/firebase', () => ({ db: {} }))
+vi.mock('@/lib/personalAccess', () => ({
+  restorePersonalContext: async () => scene.profile ? { session: { personId: 'person', deviceUid: 'device', linkToken: 'secret' }, profile: scene.profile } : null,
+  loadPersonalProfile: async () => scene.profile,
+  rememberPersonalContext: vi.fn(), rememberPersonalDashboardRoute: vi.fn(), clearPersonalSession: () => { scene.closed++ },
+}))
+vi.mock('firebase/firestore', () => ({
+  doc: (_db: unknown, ...parts: string[]) => ({ path: parts.join('/') }),
+  getDoc: async (ref: { path: string }) => { scene.reads.push(ref.path); return { exists: () => true, data: () => ({ familyId: 'family', childId: 'child', viewTokens: { student: 'shared-day', parent: 'parent-day' } }) } },
+  onSnapshot: (ref: { path: string }, changed: (value: any) => void) => {
+    scene.callbacks.set(ref.path, changed)
+    const data = ref.path.startsWith('accessLinks/') ? { active: true, personId: 'person' }
+      : ref.path.startsWith('deviceSessions/') ? { linkToken: 'secret' }
+        : { active: true, role: scene.profile?.children[0].role, childIds: ['child'] }
+    changed({ exists: () => true, data: () => data, metadata: { fromCache: scene.cached } })
+    return () => { scene.callbacks.delete(ref.path) }
+  },
+}))
+vi.mock('@/DayDashboard', async () => {
+  const { default: ProblemTaskCard } = await import('./ProblemTaskCard')
+  return { default: ({ parent, token }: { parent: boolean; token: string }) => <section data-view-token={token}>
+    <ProblemTaskCard parent={parent} problem={{ id: 'problem', number: 1, title: 'Книги', detail: 'Выбрать пару', source: 'Лист учителя', support: {
+      skill: 'Выбор пары', state: 'unknown', evidence: 'Источник', evidenceRefs: ['sheet'], facts: [{ label: 'Полка', value: '10 книг' }], find: 'Число пар', revision: 1,
+    } } as any} state={{ tone: 'ready', label: 'Не начато' }} links={[]} uploads={[]} helpAccess="ready" onPhotos={() => undefined} onRequestHelp={async () => undefined}
+      guide={{ title: 'Разбор для родителя', revision: 1, presentation: 'math-route', stages: [
+        { id: 'data', role: 'given', title: 'Данные', expected: 'Различаем полки', rows: [], source: { label: 'Учитель' } },
+        { id: 'answer', role: 'answer', title: 'Ответ и проверка', expected: 'Проверяем пары', rows: [], answer: '1100', verification: ['Проверка'], source: { label: 'Учитель' } },
+      ] } as any} />
+  </section> }
+})
+vi.mock('@/DayPage', async () => ({ default: (await import('@/DayDashboard')).default }))
+import LearningRoute from './LearningRoute'
+
+(globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true
+
+const roots: Array<() => void> = []
+beforeEach(() => {
+  scene.cached = false; scene.callbacks.clear(); scene.reads = []; scene.closed = 0
+  scene.profile = { personId: 'person', displayName: 'Person', children: [{ familyId: 'family', childId: 'child', displayName: 'Child', role: 'parent', dashboardToken: 'parent-dashboard', dashboardTokens: { student: 'shared-dashboard', parent: 'parent-dashboard' } }] }
+})
+afterEach(async () => { await act(async () => { roots.splice(0).forEach((close) => close()) }) })
+async function render(mode: 'day' | 'days' = 'days', token = 'shared-dashboard') {
+  history.replaceState(null, '', `/#/${mode}/${token}`)
+  const host = document.createElement('div'); document.body.append(host)
+  const root = createRoot(host); roots.push(() => { root.unmount(); host.remove() })
+  await act(async () => { root.render(<LearningRoute mode={mode} token={token} />) })
+  return host
+}
+describe('authenticated route through the real problem card', () => {
+  it('shows a parent guide and no student controls on the shared /days URL', async () => {
+    const host = await render()
+    expect(host.querySelector('[data-view-token]')?.getAttribute('data-view-token')).toBe('parent-dashboard')
+    expect(host.textContent).toContain('Разбор для родителя')
+    expect(host.textContent).not.toContain('Добавить фото решения')
+    expect(host.textContent).not.toContain('Нужен ориентир?')
+    expect(location.hash).toBe('#/days/shared-dashboard')
+    expect(scene.reads).toEqual([])
+  })
+  it('shows upload/help and no guide on exactly the same URL for a student', async () => {
+    scene.profile!.children[0].role = 'student'; scene.profile!.children[0].dashboardToken = 'shared-dashboard'
+    const host = await render()
+    expect(host.textContent).toContain('Добавить фото решения')
+    expect(host.textContent).toContain('Нужен ориентир?')
+    expect(host.textContent).not.toContain('Разбор для родителя')
+    expect(host.textContent).not.toContain('1100')
+    expect(location.hash).toBe('#/days/shared-dashboard')
+  })
+  it('uses the same role for historical days and normalizes a legacy parent token', async () => {
+    const host = await render('day', 'parent-day')
+    expect(host.textContent).toContain('Разбор для родителя')
+    expect(location.hash).toBe('#/day/shared-day')
+    expect(scene.reads).toEqual(['dayPages/parent-day'])
+  })
+  it('does not flash the student card while server access is unconfirmed', async () => {
+    scene.cached = true
+    const host = await render()
+    expect(host.textContent).toContain('Проверяем личный доступ')
+    expect(host.textContent).not.toContain('Добавить фото')
+    expect(host.querySelector('[data-view-token]')).toBeNull()
+  })
+  it('closes the prepared parent view when membership is revoked', async () => {
+    const host = await render()
+    await act(async () => scene.callbacks.get('families/family/members/person')!({ exists: () => true, data: () => ({ active: false }), metadata: { fromCache: false } }))
+    expect(host.textContent).not.toContain('Разбор для родителя')
+    expect(host.textContent).toContain('Доступ изменился')
+    expect(scene.closed).toBe(1)
+  })
+  it('requires a personal login instead of guessing from the shared token', async () => {
+    scene.profile = null
+    const host = await render()
+    expect(host.textContent).toContain('личную ссылку')
+    expect(host.querySelector('[data-view-token]')).toBeNull()
+    expect(scene.callbacks.size).toBe(0)
+  })
+})

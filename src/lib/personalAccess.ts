@@ -19,6 +19,8 @@ export type PersonalChild = {
   role: 'parent' | 'student'
   dashboardToken?: string
   dayToken?: string
+  dashboardTokens?: { student?: string; parent?: string }
+  dayTokens?: { student?: string; parent?: string }
 }
 export type PersonalProfile = {
   personId: string
@@ -97,8 +99,8 @@ export function readLastPersonalDashboardRoute(): string | null {
     const route = localStorage.getItem(lastDashboardRouteKey)
     const match = route?.match(/^#\/(days|days-parent)\/([A-Za-z0-9_-]+)$/)
     if (!match) return null
-    const kind = match[1] === 'days-parent' ? 'parent' : 'student'
-    return cached.profile.children.some((child) => child.role === kind && child.dashboardToken === match[2]) ? route : null
+    const child = cached.profile.children.find((child) => child.dashboardToken === match[2] || Object.values(child.dashboardTokens ?? {}).includes(match[2]))
+    return child ? `#/days/${child.dashboardTokens?.student ?? match[2]}` : null
   } catch { return null }
 }
 
@@ -294,6 +296,8 @@ export async function loadPersonalProfile(session: PersonalSession): Promise<Per
         displayName: typeof child.data().displayName === 'string' ? child.data().displayName : 'Ученик',
         dashboardToken: typeof shortcut.data()?.dashboardToken === 'string' ? shortcut.data()?.dashboardToken : undefined,
         dayToken: typeof shortcut.data()?.dayToken === 'string' ? shortcut.data()?.dayToken : undefined,
+        ...(shortcut.data()?.dashboardTokens ? { dashboardTokens: shortcut.data()?.dashboardTokens } : {}),
+        ...(shortcut.data()?.dayTokens ? { dayTokens: shortcut.data()?.dayTokens } : {}),
       })
     }
   }

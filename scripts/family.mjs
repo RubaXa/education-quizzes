@@ -7,6 +7,7 @@ import { resolve } from 'node:path'
 import { FieldValue, Timestamp } from 'firebase-admin/firestore'
 import { operatorFirestore } from './lib/admin-firebase.mjs'
 import { syncChildAccess } from './lib/access-projection.mjs'
+import { assertLearningRouteIdentity, learningDayAliases, learningRouteIdentity } from '../day/learning-route-identity.mjs'
 
 /** Agent-only provisioning; there is deliberately no browser administration route.
  * @see ../docs/modules/families/README.md#provisioning
@@ -232,13 +233,16 @@ async function attachCurrentDay(familyId, childId) {
     ])
     if (!page.exists || page.data().kind !== 'student' || page.data().date !== dayDate) fail(`Ученическая страница ${dayDate} не совпадает с реестром.`)
     if (previous.exists && (previous.data().familyId !== familyId || previous.data().childId !== childId)) fail(`Страница ${dayDate} уже закреплена за другим ребёнком.`)
-    ownerEntries.push({ ref: db.doc(`dayOwners/${pair.student}`), date: dayDate, targetDate: page.data().targetDate })
+    ownerEntries.push({ ref: db.doc(`dayOwners/${pair.student}`), pair, date: dayDate, targetDate: page.data().targetDate })
   }
   const ownerBatch = db.batch()
-  for (const item of ownerEntries) ownerBatch.set(item.ref, {
-    schemaVersion: 1, familyId, childId, date: item.date, targetDate: item.targetDate, updatedAt: now,
-  }, { merge: true })
-  if (ownerEntries.length > 400) fail('Слишком много страниц для одной операции привязки.')
+  for (const item of ownerEntries) {
+    ownerBatch.set(item.ref, { schemaVersion: 1, familyId, childId, date: item.date, targetDate: item.targetDate, updatedAt: now }, { merge: true })
+    const identity = learningRouteIdentity(item.pair, { familyId, childId })
+    for (const token of [item.pair.student, item.pair.parent]) ownerBatch.update(db.doc(`dayPages/${token}`), identity)
+  }
+  if (dashboards.student && dashboards.parent) for (const token of [dashboards.student, dashboards.parent]) ownerBatch.update(db.doc(`dayDashboards/${token}`), { ...learningRouteIdentity(dashboards, { familyId, childId }), dayCanonicalTokens: learningDayAliases(days) })
+  if (ownerEntries.length * 3 + 2 > 500) fail('Слишком много страниц для одной операции привязки.')
   await ownerBatch.commit()
   const batch = db.batch()
   let count = 0
@@ -246,13 +250,22 @@ async function attachCurrentDay(familyId, childId) {
     if (entry.familyId !== familyId) continue
     const member = await db.doc(`families/${familyId}/members/${personId}`).get()
     if (!member.data()?.childIds?.includes(childId)) continue
+    const role = member.data().role
+    if (!['parent', 'student'].includes(role)) fail('У участника нет подтверждённой роли.')
     batch.set(db.doc(`users/${personId}/families/${familyId}/shortcuts/${childId}`), {
-      dayToken: links[entry.role], dashboardToken: dashboards[entry.role] ?? null, sourceDate: date, updatedAt: now,
+      dayToken: links[role], dashboardToken: dashboards[role] ?? null, sourceDate: date, updatedAt: now,
+      dashboardTokens: { student: dashboards.student, parent: dashboards.parent }, dayTokens: { student: links.student, parent: links.parent },
     })
     count++
   }
   await batch.commit()
   registry.legacyDayOwner = { familyId, childId }
+  // Exact readback of the canonical calendar and current day; no content rewrites.
+  for (const pair of [links, dashboards]) if (pair.student && pair.parent) {
+    const collection = pair === links ? 'dayPages' : 'dayDashboards'
+    const expected = learningRouteIdentity(pair, { familyId, childId })
+    for (const token of [pair.student, pair.parent]) assertLearningRouteIdentity((await db.doc(`${collection}/${token}`).get()).data(), expected)
+  }
   saveRegistry()
   console.log(`Личные переходы к странице ${date} опубликованы для ${count} профилей.`)
 }

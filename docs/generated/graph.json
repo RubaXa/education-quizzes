@@ -311,6 +311,32 @@
       "path": "docs/audits/telegram-self-review-2026-10-16.md"
     },
     {
+      "id": "decision.authenticated-learning-routes-2026-10-18",
+      "status": "accepted",
+      "implementation": "not-applicable",
+      "created": "2026-10-18",
+      "updated": "2026-10-18",
+      "parent": "module.families.access-and-state",
+      "uses": [
+        "module.school-diary.dashboard",
+        "module.reviews.problem-card-design-decisions"
+      ],
+      "consumers": [
+        "parent",
+        "student",
+        "Education operator"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/authenticated-learning-routes-2026-10-18.md"
+    },
+    {
       "id": "decision.course-placement-2026-10-18",
       "status": "accepted",
       "implementation": "not-applicable",
@@ -1590,6 +1616,20 @@
       "kind": "artifact",
       "purpose": "Разрешение ссылки МЭШ на ранее назначенное ДЗ",
       "consumer": "`day/build.mjs`; `scripts/day.mjs`"
+    },
+    {
+      "id": "file:day/learning-route-identity.mjs",
+      "path": "day/learning-route-identity.mjs",
+      "kind": "artifact",
+      "purpose": "Единая модель канонического ресурса и адресный readback",
+      "consumer": "Day publisher; family CLI; dashboard index"
+    },
+    {
+      "id": "file:day/learning-route-identity.test.mjs",
+      "path": "day/learning-route-identity.test.mjs",
+      "kind": "verification",
+      "purpose": "Ролевые aliases одного владельца без приватных данных",
+      "consumer": "Vitest"
     },
     {
       "id": "file:day/material-access.mjs",
@@ -3125,6 +3165,20 @@
       "consumer": "DayDashboard; UI Kit"
     },
     {
+      "id": "file:src/components/LearningRoute.integration.test.tsx",
+      "path": "src/components/LearningRoute.integration.test.tsx",
+      "kind": "verification",
+      "purpose": "Одна ссылка и реальный ProblemTaskCard под двумя ролями, ожидание и отзыв",
+      "consumer": "Vitest"
+    },
+    {
+      "id": "file:src/components/LearningRoute.tsx",
+      "path": "src/components/LearningRoute.tsx",
+      "kind": "artifact",
+      "purpose": "Проверка сессии и ролевой экран одного учебного ресурса",
+      "consumer": "App; родитель; ребёнок"
+    },
+    {
       "id": "file:src/components/MaterialReader.test.tsx",
       "path": "src/components/MaterialReader.test.tsx",
       "kind": "verification",
@@ -3851,6 +3905,20 @@
       "kind": "artifact",
       "purpose": "Последний inbox одного пользователя и монотонные локальные квитанции чтения",
       "consumer": "`educationStore`; `ParentHome`; `NotificationBell`"
+    },
+    {
+      "id": "file:src/lib/learningRoute.test.ts",
+      "path": "src/lib/learningRoute.test.ts",
+      "kind": "verification",
+      "purpose": "Aliases, общий URL, чужой ребёнок и разные семейные роли",
+      "consumer": "Vitest"
+    },
+    {
+      "id": "file:src/lib/learningRoute.ts",
+      "path": "src/lib/learningRoute.ts",
+      "kind": "artifact",
+      "purpose": "Разрешение ресурса по точному членству вместо URL роли",
+      "consumer": "LearningRoute"
     },
     {
       "id": "file:src/lib/localFirstPilot.test.ts",
@@ -4927,6 +4995,9 @@
         "day/placement-integrity.mjs",
         "scripts/day.mjs",
         "src/App.tsx",
+        "src/components/LearningRoute.tsx",
+        "src/lib/learningRoute.ts",
+        "day/learning-route-identity.mjs",
         "src/DayPage.tsx",
         "src/components/DataCompatibilityNotice.tsx",
         "src/lib/dayCompatibility.ts",
@@ -7839,6 +7910,16 @@
       "type": "uses"
     },
     {
+      "from": "decision.authenticated-learning-routes-2026-10-18",
+      "to": "module.reviews.problem-card-design-decisions",
+      "type": "uses"
+    },
+    {
+      "from": "decision.authenticated-learning-routes-2026-10-18",
+      "to": "module.school-diary.dashboard",
+      "type": "uses"
+    },
+    {
       "from": "decision.course-placement-2026-10-18",
       "to": "module.school-diary.dashboard",
       "type": "uses"
@@ -8186,6 +8267,11 @@
     {
       "from": "file:day/homework-reference.mjs",
       "to": "module.synchronization.plan-generation",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/learning-route-identity.mjs",
+      "to": "module.families.access-and-state",
       "type": "implements"
     },
     {
@@ -9479,6 +9565,11 @@
       "type": "implements"
     },
     {
+      "from": "file:src/components/LearningRoute.tsx",
+      "to": "module.families.access-and-state",
+      "type": "implements"
+    },
+    {
       "from": "file:src/components/MaterialReader.tsx",
       "to": "module.materials.family-library",
       "type": "implements"
@@ -10314,6 +10405,11 @@
       "type": "implements"
     },
     {
+      "from": "file:src/lib/learningRoute.ts",
+      "to": "module.families.access-and-state",
+      "type": "implements"
+    },
+    {
       "from": "file:src/lib/localFirstPilot.ts",
       "to": "service.web-app.local-first-sync",
       "type": "implements"
@@ -11065,7 +11161,27 @@
     },
     {
       "from": "module.families.access-and-state",
+      "to": "decision.authenticated-learning-routes-2026-10-18",
+      "type": "contains"
+    },
+    {
+      "from": "module.families.access-and-state",
+      "to": "file:day/learning-route-identity.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.families.access-and-state",
       "to": "file:day/merge.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.families.access-and-state",
+      "to": "file:src/components/LearningRoute.integration.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.families.access-and-state",
+      "to": "file:src/lib/learningRoute.test.ts",
       "type": "verified-by"
     },
     {

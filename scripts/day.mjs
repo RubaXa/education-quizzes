@@ -13,6 +13,7 @@ import { applicationDefault, initializeApp } from 'firebase-admin/app'
 import { getFirestore, Timestamp } from 'firebase-admin/firestore'
 import { linksFile as pageLinksFile, materialLinks, materialPlan, preparePages, taskPageRefs } from '../storage/material-pages.mjs'
 import { buildDaySource, rawMeshKind } from '../day/build.mjs'
+import { learningRouteIdentity } from '../day/learning-route-identity.mjs'
 import { assertWeekendWorkRetention, buildDayDashboardIndex } from '../day/dashboard-index.mjs'
 import { mergeDayPage } from '../day/merge.mjs'
 import { assertAssignmentLinksExist } from '../day/placement-integrity.mjs'
@@ -116,6 +117,7 @@ async function addDashboardDocuments(batch, links, tokens, stagedPages = {}, gra
       if (access.active !== true || !access.childIds?.includes(owner.childId) || !['student', 'parent'].includes(access.role)) continue
       batch.set(db.doc(`users/${member.id}/families/${owner.familyId}/shortcuts/${owner.childId}`), {
         dayToken: latestPair[access.role], dashboardToken: tokens[access.role], sourceDate: latestDate, updatedAt: Timestamp.now(),
+        dashboardTokens: { student: tokens.student, parent: tokens.parent }, dayTokens: { student: latestPair.student, parent: latestPair.parent },
       })
     }
   }
@@ -165,6 +167,7 @@ async function addDashboardDocuments(batch, links, tokens, stagedPages = {}, gra
     })
     batch.set(ref, {
       ...index, days,
+      ...learningRouteIdentity(tokens, owner),
       familyId: owner.familyId, childId: owner.childId, updatedAt: Timestamp.now(),
       ...(gradeProjection ? { gradeProjectionFingerprint: gradeProjection.fingerprint } : {}),
     })
@@ -673,8 +676,9 @@ async function stagePublish(date, batch, links, indexTokens, stagedPages, notify
     }
   }
   for (const taskId of priorGuideTasks) if (!currentGuideTasks.has(taskId)) batch.delete(db.doc(`dayTaskGuides/${pair.student}/items/${taskId}`))
-  const studentPage = mergeDayPage(oldStudent.data(), { ...base, subjects: publicPageSubjects(source.subjects), kind: 'student', boardToken: boardToken('student') })
-  const parentPage = mergeDayPage(oldParent.data(), { ...base, kind: 'parent', studentToken: pair.student, boardToken: boardToken('parent'), parentNotes: source.parentNotes ?? [] })
+  const routeIdentity = learningRouteIdentity(pair, legacyOwner)
+  const studentPage = mergeDayPage(oldStudent.data(), { ...base, ...routeIdentity, subjects: publicPageSubjects(source.subjects), kind: 'student', boardToken: boardToken('student') })
+  const parentPage = mergeDayPage(oldParent.data(), { ...base, ...routeIdentity, kind: 'parent', studentToken: pair.student, boardToken: boardToken('parent'), parentNotes: source.parentNotes ?? [] })
   studentPage.subjects = publicPageSubjects(studentPage.subjects)
   parentPage.subjects = publicPageSubjects(parentPage.subjects)
   await Promise.all([assertAssignmentLinksExist(db, studentPage), assertAssignmentLinksExist(db, parentPage)])

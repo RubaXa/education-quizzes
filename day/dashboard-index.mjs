@@ -4,6 +4,7 @@ import { lessonVisibility } from '../diary/application/lesson-visibility.mjs'
 import { daySourceRevision } from '../sync/day-source-revision.mjs'
 import { referencedHomeworkDate } from './homework-reference.mjs'
 import { assignmentRouteEvidence } from './assignment-routing.mjs'
+import { learningDayAliases } from './learning-route-identity.mjs'
 
 function readJson(file) { return JSON.parse(readFileSync(file, 'utf8')) }
 function dateOnly(value) { return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Moscow', year: 'numeric', month: '2-digit', day: '2-digit' }).format(value) }
@@ -131,7 +132,8 @@ export function buildDayDashboardIndex(local, links, role, now = new Date()) {
     return [{ dates: slot.dates, dayToken: pair[role], taskIds: slot.taskIds, lessonDate: source.targetDate,
       dueDate, title: slot.title }]
   })
-  return { schemaVersion: 1, kind: role, today, timezone: 'Europe/Moscow', days, weekendWork }
+  const dayCanonicalTokens = learningDayAliases(links)
+  return { schemaVersion: 1, kind: role, today, timezone: 'Europe/Moscow', days, weekendWork, dayCanonicalTokens }
 }
 
 /** An absent local source must not silently erase work already visible to the family.

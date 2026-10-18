@@ -1,5 +1,56 @@
 {
   "files": {
+    "day/learning-route-identity.mjs": {
+      "sha256": "37bd5fd384b1e5d7a402f10d683e817bf6a2bc3892d9d6f53526139c31eb5bf7",
+      "record": "docs/decisions/authenticated-learning-routes-2026-10-18.md",
+      "specs": [
+        "docs/modules/families/access-and-state.md"
+      ],
+      "tests": [
+        "src/components/LearningRoute.integration.test.tsx",
+        "src/lib/learningRoute.test.ts",
+        "day/learning-route-identity.test.mjs",
+        "src/components/ProblemTaskCard.contract.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель18.10.2026 прямо требует определять родительский и ученический вид по авторизованной роли, а учебные ссылки сделать одинаковыми для обеих ролей."
+      }
+    },
+    "src/components/LearningRoute.tsx": {
+      "sha256": "10361a9c5e56e56577360d834ab08b5439da225e45dc5e57fd1b0d9d66076c5f",
+      "record": "docs/decisions/authenticated-learning-routes-2026-10-18.md",
+      "specs": [
+        "docs/modules/families/access-and-state.md"
+      ],
+      "tests": [
+        "src/components/LearningRoute.integration.test.tsx",
+        "src/lib/learningRoute.test.ts",
+        "day/learning-route-identity.test.mjs",
+        "src/components/ProblemTaskCard.contract.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель18.10.2026 прямо требует определять родительский и ученический вид по авторизованной роли, а учебные ссылки сделать одинаковыми для обеих ролей."
+      }
+    },
+    "src/lib/learningRoute.ts": {
+      "sha256": "b35813179f4b6b19cebedfa2e58554f08045390dc3b81a7012b974f6db5a58c3",
+      "record": "docs/decisions/authenticated-learning-routes-2026-10-18.md",
+      "specs": [
+        "docs/modules/families/access-and-state.md"
+      ],
+      "tests": [
+        "src/components/LearningRoute.integration.test.tsx",
+        "src/lib/learningRoute.test.ts",
+        "day/learning-route-identity.test.mjs",
+        "src/components/ProblemTaskCard.contract.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель18.10.2026 прямо требует определять родительский и ученический вид по авторизованной роли, а учебные ссылки сделать одинаковыми для обеих ролей."
+      }
+    },
     "day/assignment-routing.mjs": {
       "sha256": "72db26096a24474aa94650808aea264f6ea32173169630443f5fcbb419eb105b",
       "record": "docs/decisions/course-placement-2026-10-18.md",
@@ -539,17 +590,22 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "87081086f6a302bac993b95e758470a2e21bf890e01dec747aea6c4507fdba45",
-      "record": "docs/decisions/teacher-choice-practice-2026-10-17.md",
+      "sha256": "d1296174e6d8de9c4d6efa3c1059b482fecf1a707fcfa9b88a2b9f6708b55156",
+      "record": "docs/decisions/authenticated-learning-routes-2026-10-18.md",
       "specs": [
+        "docs/modules/families/access-and-state.md",
         "docs/modules/reviews/card-generation-policy.md"
       ],
       "tests": [
+        "src/components/LearningRoute.integration.test.tsx",
+        "src/lib/learningRoute.test.ts",
+        "day/learning-route-identity.test.mjs",
+        "src/components/ProblemTaskCard.contract.test.tsx",
         "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель прямо требует обязательность только по МЭШ/учителю и опциональность дополнительных пунктов;полный sync17.10 получил лист с прямым выбором «Реши сколько получится». Существующий тумблер и единый подсчёт сохранены."
+        "evidence": "Родитель18.10.2026 прямо требует определять родительский и ученический вид по авторизованной роли, а учебные ссылки сделать одинаковыми для обеих ролей."
       }
     },
     "src/DayPage.css": {
@@ -882,22 +938,27 @@
       }
     },
     "src/App.tsx": {
-      "sha256": "ddf3f5a1bb363bf3ce58d8c15709efcb85fb5a12d878e4a7df497bc095702c4b",
-      "record": "docs/decisions/compact-results-ui-kit-2026-10-16.md",
+      "sha256": "56c473de573c3473dc74633a07c330dd8bd9efcfec3663fd5b0ee04311dadb9f",
+      "record": "docs/decisions/authenticated-learning-routes-2026-10-18.md",
       "specs": [
+        "docs/modules/families/access-and-state.md",
         "docs/modules/assessments/result-presentation-proposal.md",
         "docs/modules/assessments/quiz-chain-proposal.md",
         "docs/shared/design/ui-kit.md"
       ],
       "tests": [
+        "src/components/LearningRoute.integration.test.tsx",
+        "src/lib/learningRoute.test.ts",
+        "day/learning-route-identity.test.mjs",
+        "src/components/ProblemTaskCard.contract.test.tsx",
         "src/components/QuizCard.history.test.tsx",
         "src/components/ui/result.test.tsx",
         "src/lib/watchQuizOutcome.test.ts",
         "src/UiKit.test.tsx"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "Родитель 16.10.2026 утвердил уплотнённую таблицу и цветовую шкалу словами «стало намного лучше, закрепляй вариант» и прямо запросил интерактивный UI Kit."
+        "status": "direct-request",
+        "evidence": "Родитель18.10.2026 прямо требует определять родительский и ученический вид по авторизованной роли, а учебные ссылки сделать одинаковыми для обеих ролей."
       },
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
@@ -909,13 +970,18 @@
       }
     },
     "src/DayDashboard.tsx": {
-      "sha256": "66e8bf761603bde0f1ade24a725425067a287440079400779a55660ba05555c5",
-      "record": "docs/decisions/compact-homework-copy-2026-10-16.md",
+      "sha256": "57f14bcba3575583b6d4b1897865ec16d020a34a4bc71d97025851b33f2fecc9",
+      "record": "docs/decisions/authenticated-learning-routes-2026-10-18.md",
       "specs": [
+        "docs/modules/families/access-and-state.md",
         "docs/modules/school-diary/dashboard.md",
         "docs/shared/design/README.md"
       ],
       "tests": [
+        "src/components/LearningRoute.integration.test.tsx",
+        "src/lib/learningRoute.test.ts",
+        "day/learning-route-identity.test.mjs",
+        "src/components/ProblemTaskCard.contract.test.tsx",
         "src/components/HomeworkOverview.test.tsx",
         "src/DayDashboard.warmStart.test.tsx",
         "src/DayPage.assignmentQuiz.integration.test.tsx",
@@ -923,7 +989,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель16.10.2026 прямо отверг длинные повторяющиеся подписи про учебный день и уроки и потребовал структурировать существующую карточку."
+        "evidence": "Родитель18.10.2026 прямо требует определять родительский и ученический вид по авторизованной роли, а учебные ссылки сделать одинаковыми для обеих ролей."
       },
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
@@ -1272,20 +1338,25 @@
       }
     },
     "src/components/NotificationBell.tsx": {
-      "sha256": "f71532ae9914dcba666b196bbfc206aa64e0c977ca9f7ede7b2720cfc7550fae",
-      "record": "docs/decisions/notification-read-all-2026-10-14.md",
+      "sha256": "932e87a32c49d022d731c6e1aeb6faf6bb3a6c47fe8943619bb1534f1b662b13",
+      "record": "docs/decisions/authenticated-learning-routes-2026-10-18.md",
       "specs": [
+        "docs/modules/families/access-and-state.md",
         "docs/modules/notifications/inbox.md",
         "docs/shared/design/README.md"
       ],
       "tests": [
+        "src/components/LearningRoute.integration.test.tsx",
+        "src/lib/learningRoute.test.ts",
+        "day/learning-route-identity.test.mjs",
+        "src/components/ProblemTaskCard.contract.test.tsx",
         "src/components/NotificationBell.test.tsx",
         "src/lib/educationStore.inbox.test.ts",
         "src/components/NotificationBell.layout.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 14.10.2026: в открытом колокольчике рядом с «Обновления» нужен контроль «Прочитать все»."
+        "evidence": "Родитель18.10.2026 прямо требует определять родительский и ученический вид по авторизованной роли, а учебные ссылки сделать одинаковыми для обеих ролей."
       },
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
@@ -1413,13 +1484,18 @@
       }
     },
     "scripts/day.mjs": {
-      "sha256": "eb8f9bb524a91d4c81ae5912b504bfd90a9124c8ae0511aea0341f9765101737",
-      "record": "docs/decisions/course-placement-2026-10-18.md",
+      "sha256": "bfa03d9d8b8ba2e54a4b4c5455fa9ee09e550bb0ae61eb74acd7d960c27dec23",
+      "record": "docs/decisions/authenticated-learning-routes-2026-10-18.md",
       "specs": [
+        "docs/modules/families/access-and-state.md",
         "docs/modules/synchronization/plan-generation.md",
         "docs/modules/materials/material-clarification.md"
       ],
       "tests": [
+        "src/components/LearningRoute.integration.test.tsx",
+        "src/lib/learningRoute.test.ts",
+        "day/learning-route-identity.test.mjs",
+        "src/components/ProblemTaskCard.contract.test.tsx",
         "day/assignment-routing.test.mjs",
         "src/lib/materialRequest.test.ts",
         "src/DayPage.assignmentQuiz.integration.test.tsx",
@@ -1433,7 +1509,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 16.10.2026 прямо потребовал вопрос ученику в карточке и ответ фото записей через стандартную загрузку с обработкой следующей синхронизацией."
+        "evidence": "Родитель18.10.2026 прямо требует определять родительский и ученический вид по авторизованной роли, а учебные ссылки сделать одинаковыми для обеих ролей."
       },
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
@@ -2005,20 +2081,25 @@
       }
     },
     "day/dashboard-index.mjs": {
-      "sha256": "f70e9aeeffe1eb67706b9aa2396ca4c5b96881c32018d9a0f927cfe53d9e5ff9",
-      "record": "docs/decisions/course-placement-2026-10-18.md",
+      "sha256": "a4024ea923fb5fac6240a42b9f0fa478015c940cfa302964af6ed334ba5d6506",
+      "record": "docs/decisions/authenticated-learning-routes-2026-10-18.md",
       "specs": [
+        "docs/modules/families/access-and-state.md",
         "docs/modules/synchronization/plan-generation.md",
         "docs/shared/specification-system.md"
       ],
       "tests": [
+        "src/components/LearningRoute.integration.test.tsx",
+        "src/lib/learningRoute.test.ts",
+        "day/learning-route-identity.test.mjs",
+        "src/components/ProblemTaskCard.contract.test.tsx",
         "day/assignment-routing.test.mjs",
         "scripts/spec-graph.test.mjs",
         "scripts/check-ui-contract.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10 прямо требует привязку листа спецкурса к четверговому занятию с показом на выходных и сохранением исходного расписания."
+        "evidence": "Родитель18.10.2026 прямо требует определять родительский и ученический вид по авторизованной роли, а учебные ссылки сделать одинаковыми для обеих ролей."
       },
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
@@ -2576,18 +2657,23 @@
       }
     },
     "scripts/family.mjs": {
-      "sha256": "a345f19a24afc2e2e9e1b20bb8e8ad48a975ab68741e92746e34c36fc7cd68a5",
-      "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
+      "sha256": "ff6f729a757b316781c97630c9a193c4207a778b79d5205bae3981207ba8edb7",
+      "record": "docs/decisions/authenticated-learning-routes-2026-10-18.md",
       "specs": [
+        "docs/modules/families/access-and-state.md",
         "docs/shared/specification-system.md"
       ],
       "tests": [
+        "src/components/LearningRoute.integration.test.tsx",
+        "src/lib/learningRoute.test.ts",
+        "day/learning-route-identity.test.mjs",
+        "src/components/ProblemTaskCard.contract.test.tsx",
         "scripts/spec-graph.test.mjs",
         "scripts/check-ui-contract.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя 16.10.2026 внедрить согласованную структуру спецификаций, перенести ссылки в коде и проверить сохранность требований; изменение предметного поведения не выполнялось."
+        "evidence": "Родитель18.10.2026 прямо требует определять родительский и ученический вид по авторизованной роли, а учебные ссылки сделать одинаковыми для обеих ролей."
       },
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
@@ -2599,18 +2685,23 @@
       }
     },
     "scripts/firestore-read-index.mjs": {
-      "sha256": "db6c1550efd05f13902fea747cb8929db8e8a3916952d64471e8a2e7c976ef0b",
-      "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
+      "sha256": "26b41672894bb26ec853bfec3bdcf259f0a8965e719acef24e9b3d3bee5c5c68",
+      "record": "docs/decisions/authenticated-learning-routes-2026-10-18.md",
       "specs": [
+        "docs/modules/families/access-and-state.md",
         "docs/shared/specification-system.md"
       ],
       "tests": [
+        "src/components/LearningRoute.integration.test.tsx",
+        "src/lib/learningRoute.test.ts",
+        "day/learning-route-identity.test.mjs",
+        "src/components/ProblemTaskCard.contract.test.tsx",
         "scripts/spec-graph.test.mjs",
         "scripts/check-ui-contract.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя 16.10.2026 внедрить согласованную структуру спецификаций, перенести ссылки в коде и проверить сохранность требований; изменение предметного поведения не выполнялось."
+        "evidence": "Родитель18.10.2026 прямо требует определять родительский и ученический вид по авторизованной роли, а учебные ссылки сделать одинаковыми для обеих ролей."
       },
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
@@ -3058,18 +3149,23 @@
       }
     },
     "src/components/ParentHome.tsx": {
-      "sha256": "d9b71fc9e39e344c10ca021afc2f7a68eacfb5160e1fc47c3d3bbc5a1ed47c31",
-      "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
+      "sha256": "c33412afcdf8cd78d39be32579ccb62ece9e6394de04a49d5b1d8cb756c9b718",
+      "record": "docs/decisions/authenticated-learning-routes-2026-10-18.md",
       "specs": [
+        "docs/modules/families/access-and-state.md",
         "docs/shared/specification-system.md"
       ],
       "tests": [
+        "src/components/LearningRoute.integration.test.tsx",
+        "src/lib/learningRoute.test.ts",
+        "day/learning-route-identity.test.mjs",
+        "src/components/ProblemTaskCard.contract.test.tsx",
         "scripts/spec-graph.test.mjs",
         "scripts/check-ui-contract.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя 16.10.2026 внедрить согласованную структуру спецификаций, перенести ссылки в коде и проверить сохранность требований; изменение предметного поведения не выполнялось."
+        "evidence": "Родитель18.10.2026 прямо требует определять родительский и ученический вид по авторизованной роли, а учебные ссылки сделать одинаковыми для обеих ролей."
       },
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
@@ -3362,18 +3458,23 @@
       }
     },
     "src/lib/dayDashboardStore.ts": {
-      "sha256": "2c0cd99e0a6a21d0804f08071d3698138182066ae4b50195e64be202e8472643",
-      "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
+      "sha256": "558eaaefdcad8c099cef70f2ea2b7ab89233470d2fe0c72625218d8dd2b8f777",
+      "record": "docs/decisions/authenticated-learning-routes-2026-10-18.md",
       "specs": [
+        "docs/modules/families/access-and-state.md",
         "docs/shared/specification-system.md"
       ],
       "tests": [
+        "src/components/LearningRoute.integration.test.tsx",
+        "src/lib/learningRoute.test.ts",
+        "day/learning-route-identity.test.mjs",
+        "src/components/ProblemTaskCard.contract.test.tsx",
         "scripts/spec-graph.test.mjs",
         "scripts/check-ui-contract.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя 16.10.2026 внедрить согласованную структуру спецификаций, перенести ссылки в коде и проверить сохранность требований; изменение предметного поведения не выполнялось."
+        "evidence": "Родитель18.10.2026 прямо требует определять родительский и ученический вид по авторизованной роли, а учебные ссылки сделать одинаковыми для обеих ролей."
       },
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
@@ -3628,18 +3729,23 @@
       }
     },
     "src/lib/personalAccess.ts": {
-      "sha256": "4299c9e975d28567611c921dc9a4b4469e9a58928d0c8e060d02917083b615d3",
-      "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
+      "sha256": "777c7f112bffc20d55b67577b55e003e129d86b5a7aaf6237bd06941d3ae9b18",
+      "record": "docs/decisions/authenticated-learning-routes-2026-10-18.md",
       "specs": [
+        "docs/modules/families/access-and-state.md",
         "docs/shared/specification-system.md"
       ],
       "tests": [
+        "src/components/LearningRoute.integration.test.tsx",
+        "src/lib/learningRoute.test.ts",
+        "day/learning-route-identity.test.mjs",
+        "src/components/ProblemTaskCard.contract.test.tsx",
         "scripts/spec-graph.test.mjs",
         "scripts/check-ui-contract.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя 16.10.2026 внедрить согласованную структуру спецификаций, перенести ссылки в коде и проверить сохранность требований; изменение предметного поведения не выполнялось."
+        "evidence": "Родитель18.10.2026 прямо требует определять родительский и ученический вид по авторизованной роли, а учебные ссылки сделать одинаковыми для обеих ролей."
       },
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",

@@ -6,7 +6,6 @@
  */
 import { useEffect, useRef, useState } from 'react'
 import { getAuth } from 'firebase/auth'
-import { doc, onSnapshot } from 'firebase/firestore'
 import { ArrowLeft, CircleHelp, ClipboardCopy, Clock3, RefreshCw, Send, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { CodeBlock } from '@/components/CodeBlock'
@@ -26,10 +25,8 @@ import { readLocalQuiz, writeLocalQuizAssignment, writeLocalQuizDraft } from '@/
 import type { Answer, AnswerKey, Assignment, ManualReview, QuizQuestion, QuizVisual } from '@/lib/quiz'
 import type { BoardDetails } from '@/lib/store'
 import type { QuizOutcome } from '@/lib/watchQuizOutcome'
-import { clearPersonalSession, loadPersonalProfile, readCachedPersonalContext, readLastPersonalDashboardRoute, rememberPersonalDashboardRoute, restorePersonalSession } from '@/lib/personalAccess'
-import { db } from '@/lib/firebase'
-import DayPage from './DayPage'
-import DayDashboard from './DayDashboard'
+import { loadPersonalProfile, readLastPersonalDashboardRoute, rememberPersonalDashboardRoute, restorePersonalSession } from '@/lib/personalAccess'
+import LearningRoute from './components/LearningRoute'
 import { PwaConnectionNotice, PwaInstallButton, PwaUpdateNotice } from './components/PwaControls'
 import { PersonalEntry } from './components/PersonalEntry'
 import NotificationBell from './components/NotificationBell'
@@ -776,40 +773,7 @@ function App() {
     window.addEventListener('hashchange', updateRoute)
     return () => window.removeEventListener('hashchange', updateRoute)
   }, [])
-  useEffect(() => {
-    if (route.kind !== 'days' && route.kind !== 'days-parent') return
-    const cached = readCachedPersonalContext()
-    const role = route.kind === 'days-parent' ? 'parent' : 'student'
-    if (!cached?.profile.children.some((child) => child.role === role && child.dashboardToken === route.token)) return
-    let active = true
-    let stops: Array<() => void> = []
-    const close = () => {
-      if (!active) return
-      clearPersonalSession()
-      window.location.hash = '#/'
-    }
-    void getAuth().authStateReady().then(() => {
-      if (!active) return
-      if (getAuth().currentUser?.uid !== cached.session.deviceUid) { close(); return }
-      const { session } = cached
-      stops = [
-        onSnapshot(doc(db, 'accessLinks', session.linkToken), (grant) => {
-          if (!grant.metadata.fromCache && (!grant.exists() || grant.data()?.active !== true || grant.data()?.personId !== session.personId)) close()
-        }, (cause) => { if (cause.code === 'permission-denied') close() }),
-        onSnapshot(doc(db, 'deviceSessions', session.deviceUid), (device) => {
-          if (!device.metadata.fromCache && (!device.exists() || device.data()?.linkToken !== session.linkToken)) close()
-        }, (cause) => { if (cause.code === 'permission-denied') close() }),
-      ]
-      for (const familyId of new Set(cached.profile.children.filter((child) => child.role === role && child.dashboardToken === route.token).map((child) => child.familyId))) {
-        stops.push(onSnapshot(doc(db, 'families', familyId, 'members', session.personId), (member) => {
-          if (!member.metadata.fromCache && (!member.exists() || member.data()?.active !== true || member.data()?.role !== role ||
-            !member.data()?.childIds?.includes(cached.profile.children.find((child) => child.familyId === familyId && child.dashboardToken === route.token)?.childId))) close()
-        }, (cause) => { if (cause.code === 'permission-denied') close() }))
-      }
-    })
-    return () => { active = false; stops.forEach((stop) => stop()) }
-  }, [route])
-  return <Shell dayRoute={route.kind === 'day' || route.kind === 'day-parent'} quizBack={route.kind === 'test' || route.kind === 'preview' ? testReturn : undefined} onHeaderTarget={setHeaderReturnTarget}>{route.kind === 'ui-kit' ? <UiKit /> : route.kind === 'test' ? <QuizAccess key={route.token} token={route.token} /> : route.kind === 'preview' ? <Preview token={route.token} /> : route.kind === 'dashboard' || route.kind === 'my' || route.kind === 'review' ? <Dashboard key={`${route.kind}-${route.token}`} token={route.token} parent={route.kind === 'review'} /> : route.kind === 'days' || route.kind === 'days-parent' ? <DayDashboard key={`${route.kind}-${route.token}`} token={route.token} parent={route.kind === 'days-parent'} /> : route.kind === 'day' || route.kind === 'day-parent' ? <DayPage key={`${route.kind}-${route.token}`} token={route.token} parent={route.kind === 'day-parent'} headerReturnTarget={headerReturnTarget} /> : route.kind === 'enter' ? <PersonalEntry key={route.token} initialLink={route.token} /> : route.kind === 'connect' ? <ConnectionInvite key={route.token} code={route.token} /> : <Home />}</Shell>
+  return <Shell dayRoute={route.kind === 'day' || route.kind === 'day-parent'} quizBack={route.kind === 'test' || route.kind === 'preview' ? testReturn : undefined} onHeaderTarget={setHeaderReturnTarget}>{route.kind === 'ui-kit' ? <UiKit /> : route.kind === 'test' ? <QuizAccess key={route.token} token={route.token} /> : route.kind === 'preview' ? <Preview token={route.token} /> : route.kind === 'dashboard' || route.kind === 'my' || route.kind === 'review' ? <Dashboard key={`${route.kind}-${route.token}`} token={route.token} parent={route.kind === 'review'} /> : route.kind === 'days' || route.kind === 'days-parent' ? <LearningRoute key={`days-${route.token}`} mode="days" token={route.token} /> : route.kind === 'day' || route.kind === 'day-parent' ? <LearningRoute key={`day-${route.token}`} mode="day" token={route.token} headerReturnTarget={headerReturnTarget} /> : route.kind === 'enter' ? <PersonalEntry key={route.token} initialLink={route.token} /> : route.kind === 'connect' ? <ConnectionInvite key={route.token} code={route.token} /> : <Home />}</Shell>
 }
 
 export default App

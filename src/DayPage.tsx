@@ -218,7 +218,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
   })
   const [returnToDashboard] = useState(() => {
     const saved = sessionStorage.getItem('education-day-dashboard-return') ?? ''
-    return new RegExp(`^#/${parent ? 'days-parent' : 'days'}/[A-Za-z0-9_-]{20,}$`).test(saved) ? saved : ''
+    return /^#\/days(?:-parent)?\/[A-Za-z0-9_-]{20,}$/.test(saved) ? saved.replace('#/days-parent/', '#/days/') : ''
   })
   const [page, setPage] = useState<DayPageData>()
   const [catalogState, setCatalogState] = useState<{ key: string; pages: Record<string, DayMaterialLink> }>({ key: '', pages: {} })
