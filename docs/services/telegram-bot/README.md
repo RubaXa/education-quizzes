@@ -3,7 +3,7 @@ id: service.telegram-bot
 status: accepted
 implementation: partial
 created: 2026-10-16
-updated: 2026-10-17
+updated: 2026-10-18
 consumers:
   - "Telegram service implementer"
   - "bot operator"
@@ -35,13 +35,13 @@ sections:
 ---
 # Архитектура сервиса уведомлений `@agi_edu_bot`
 
-**Статус:** частично реализован и запущен на согласованном Mac: dynamic Firestore/МЭШ sources, account registry, локальная подтверждённая привязка, stop, deterministic event pipeline и outbox. Реальные технические Firestore→Telegram и МЭШ→Telegram пробы завершены `sent` с readback; [аудит и границы](../../audits/server-core-review-2026-10-17.md). Полный Mesh source-check остаётся partial:90/93 области,3 schedule_date_mismatch. Web linking UI, team routing, grouping и hosted alerting отсутствуют.
+**Статус:** частично реализован и запущен на согласованном Mac: dynamic Firestore/МЭШ sources, account registry, локальная подтверждённая привязка, stop, deterministic event pipeline и outbox. Реальные технические Firestore→Telegram и МЭШ→Telegram пробы завершены `sent` с readback; [аудит и границы](../../audits/server-core-review-2026-10-17.md). Последняя полная Mesh source-check18.10:93/93complete,0partial; [текущий аудит](../../audits/education-bot-readiness-2026-10-18.md) фиксирует доказательства и пробел командного потока. Web linking UI, team routing, grouping и hosted alerting отсутствуют.
 **Владелец:** отдельный Node.js worker в Education.
 **Бизнес-контракт и решения интервью:** [спецификация сервиса](petr-private:docs/product/agi-edu-bot-service-spec.md).
 
 ## Назначение
 
-Сервис детерминированно обнаруживает подтверждённые изменения в источниках PETR, связывает их с семьёй и ребёнком, сохраняет событие и доставляет родителям и команде структурированные Telegram-сообщения. LLM не участвует в обнаружении, классификации, маршрутизации или отправке. Сервис не изменяет учебные данные и не запускает педагогическую проверку.
+Сервис детерминированно обнаруживает подтверждённые изменения в источниках Education, связывает их с семьёй и ребёнком, сохраняет событие и доставляет родителям и команде структурированные Telegram-сообщения. LLM не участвует в обнаружении, классификации, маршрутизации или отправке. Сервис не изменяет учебные данные и не запускает педагогическую проверку.
 
 Этот документ — корневой архитектурный контракт. Он фиксирует устойчивые границы, правила зависимостей и точки расширения; подробности принадлежат дочерним спецификациям. Дочерний документ может иметь собственные подмодули. Поддерживать этот файл короче 700 строк; предпочтительный размер — до 300.
 
@@ -54,7 +54,7 @@ sections:
 - События идентифицируются устойчивым ключом источника и ревизии; повторный сигнал не создаёт повторную доставку.
 - Сначала сохраняется событие и задание доставки, затем выполняется отправка. Ошибка Telegram не теряет подтверждённое событие.
 - Получатель определяется только через проверенную связь Telegram account → семья → роль/ребёнок. Имя, username и текст источника не являются доказательством доступа.
-- Первая версия уведомляет родителей/опекунов и команду PETR. Прямой канал ребёнку, действия из сообщений и запуск Education/Codex остаются за границей.
+- Первая версия уведомляет родителей/опекунов и команду Education. Прямой канал ребёнку, действия из сообщений и запуск Education/Codex остаются за границей.
 - Начальный снимок источника задаёт базовую точку и не рассылается как история.
 - Число семей и детей не ограничивается списком в конфигурации. Authoritative registry автоматически добавляет/снимает внутренние единицы наблюдения без restart; pagination и concurrency — техническое управление нагрузкой, не фильтр пользователей.
 - Учебные документы остаются источником истины; реестр Telegram, события и outbox — отдельные служебные данные.
@@ -156,7 +156,7 @@ subject?, title?, before?, after?, contextRefs[], privacyClass
 | A | Архитектура, события, privacy boundary, deployment decision | Спецификация в работе; данный документ — целевая граница |
 | B | Core contracts, Firestore ledger/outbox, тестируемая идемпотентность | Реализован core/ledger; эксплуатационный rollout отдельно |
 | C | Telegram `/start`, реестр аккаунтов и безопасная семейная привязка | Локальный CLI issuer/registry/disconnect есть; web UI отсутствует |
-| D | Firestore observation, затем МЭШ polling и source mappings | Реализованы локальные adapters/pipeline и opt-in wiring; технические живые цепочки проверены,3 schedule scopes неполны |
+| D | Firestore observation, затем МЭШ polling и source mappings | Реализованы локальные adapters/pipeline и opt-in wiring; технические живые цепочки проверены, полный source-check18.10 —93/93 |
 | E | Routing, structured templates, retry/recovery и team alerts | Частично; family renderer/outbox есть, grouping/team route отсутствуют |
 | F | Операционный запуск, минимальные IAM/secrets, мониторинг и контролируемый rollout | Mac LaunchAgent установлен, реальные probes/readiness проверены; внешние alerts отсутствуют |
 

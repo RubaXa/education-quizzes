@@ -3,7 +3,7 @@ id: service.telegram-bot.delivery
 status: accepted
 implementation: partial
 created: 2026-10-16
-updated: 2026-10-16
+updated: 2026-10-18
 consumers:
   - "Telegram service implementer"
   - "bot operator"
@@ -57,7 +57,7 @@ sections:
 ## Структурный вид
 
 ```text
-📚 Изменения в PETR · {время/период}
+📚 Изменения в Education · {время/период}
 
 {имя ребёнка}
 • {читаемый тип}: {предмет или задание}

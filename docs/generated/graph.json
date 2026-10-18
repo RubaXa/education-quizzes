@@ -6,7 +6,7 @@
       "status": "accepted",
       "implementation": "not-applicable",
       "created": "2026-10-16",
-      "updated": "2026-10-17",
+      "updated": "2026-10-18",
       "consumers": [
         "Education agent",
         "developer"
@@ -31,6 +31,34 @@
         "источники-истины-и-выпуск"
       ],
       "path": "ARCHITECTURE.md"
+    },
+    {
+      "id": "audit.education-bot-readiness-2026-10-18",
+      "status": "reference",
+      "implementation": "not-applicable",
+      "created": "2026-10-18",
+      "updated": "2026-10-18",
+      "parent": "service.telegram-bot",
+      "uses": [
+        "service.telegram-bot.delivery",
+        "service.telegram-bot.operations",
+        "product.notifications"
+      ],
+      "consumers": [
+        "Education development team",
+        "Telegram implementer",
+        "release operator"
+      ],
+      "code": [],
+      "sections": [
+        "метод-и-факты",
+        "результат-сверки",
+        "почему-нет-командных-сообщений",
+        "следующий-законченный-инкремент",
+        "критерии-приёмки",
+        "оставшиеся-пробелы"
+      ],
+      "path": "docs/audits/education-bot-readiness-2026-10-18.md"
     },
     {
       "id": "audit.server-core-review-2026-10-17",
@@ -6334,7 +6362,7 @@
         "service.telegram-bot"
       ],
       "type": "product-spec",
-      "updated": "2026-10-17",
+      "updated": "2026-10-18",
       "sections": [
         "цель",
         "аудитории-и-охват",
@@ -6886,7 +6914,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-16",
-      "updated": "2026-10-17",
+      "updated": "2026-10-18",
       "consumers": [
         "Telegram service implementer",
         "bot operator",
@@ -6926,7 +6954,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-16",
-      "updated": "2026-10-16",
+      "updated": "2026-10-18",
       "consumers": [
         "Telegram service implementer",
         "bot operator",
@@ -7723,6 +7751,21 @@
     {
       "from": "architecture.education",
       "to": "shared.specification-system",
+      "type": "uses"
+    },
+    {
+      "from": "audit.education-bot-readiness-2026-10-18",
+      "to": "product.notifications",
+      "type": "uses"
+    },
+    {
+      "from": "audit.education-bot-readiness-2026-10-18",
+      "to": "service.telegram-bot.delivery",
+      "type": "uses"
+    },
+    {
+      "from": "audit.education-bot-readiness-2026-10-18",
+      "to": "service.telegram-bot.operations",
       "type": "uses"
     },
     {
@@ -12794,6 +12837,11 @@
       "from": "service.telegram-bot.ports-and-events",
       "to": "shared.server-runtime",
       "type": "uses"
+    },
+    {
+      "from": "service.telegram-bot",
+      "to": "audit.education-bot-readiness-2026-10-18",
+      "type": "contains"
     },
     {
       "from": "service.telegram-bot",

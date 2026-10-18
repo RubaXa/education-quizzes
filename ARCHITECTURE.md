@@ -3,7 +3,7 @@ id: architecture.education
 status: accepted
 implementation: not-applicable
 created: 2026-10-16
-updated: 2026-10-17
+updated: 2026-10-18
 consumers:
   - "Education agent"
   - "developer"
@@ -38,7 +38,7 @@ Education соединяет семейный доступ, данные шко�
 | [Web app](docs/services/web-app/README.md) | `src/`, `pwa/` | React/PWA читает Firestore и отправляет файлы на Диск; конфигурация экранов и часть local-first архитектуры остаются целевыми |
 | [Operator CLI](docs/services/operator-cli/README.md) | `operator/`, `scripts/education.mjs`, предметные CLI | Повторяемые операции и ручной запуск EducationSync; `sync:project` использует общее server runtime; агент выполняет предметные решения по данным |
 | [Upload worker](docs/services/upload-worker/README.md) | `scripts/direct-upload-worker.mjs`, `storage/` | Локальный процесс выдаёт адреса и подтверждает передачу файлов; не проверяет учебное содержание |
-| [Telegram bot](docs/services/telegram-bot/README.md) | `packages/telegram-notifications/`, `scripts/telegram-bot.mjs` | Worker runtime и source/delivery пути есть в исходниках; он делит server runtime с sync. Deployment и live delivery этим не подтверждены |
+| [Telegram bot](docs/services/telegram-bot/README.md) | `packages/telegram-notifications/`, `scripts/telegram-bot.mjs` | Семейный worker установлен на Mac и делит server runtime с sync; технические доставки подтверждены. Командные release alerts отсутствуют; [актуальный аудит](docs/audits/education-bot-readiness-2026-10-18.md) |
 
 ```mermaid
 flowchart LR
