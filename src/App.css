@@ -68,7 +68,7 @@ body {
   font-size: .85rem;
 }
 .header-actions{display:flex;align-items:center;gap:12px}
-.notification-bell-slot{display:grid;place-items:center;flex:none;width:var(--edu-touch-target);height:var(--edu-touch-target)}
+.notification-bell-slot{display:flex;align-items:center;gap:.25rem;flex:none;min-width:var(--edu-touch-target);height:var(--edu-touch-target)}
 #day-header-return{display:none}
 .quiz-back-link{display:inline-flex;align-items:center;justify-content:center;gap:.35rem;margin-left:auto;padding:.45rem .7rem;border:1px solid var(--edu-control-border);border-radius:999px;background:var(--edu-surface);color:#493582;font-weight:700;text-decoration:none;white-space:nowrap}
 .quiz-back-link:hover,.quiz-back-link:focus-visible{background:var(--edu-hover);border-color:#9b86d0}
@@ -503,7 +503,7 @@ body {
 }
 
 @media (max-width: 640px) {
-  .site-header { padding: 1rem; }
+  .site-header { padding: 1rem; gap:.5rem; flex-wrap:wrap; }
   .header-actions{order:1;}
   .notification-bell-slot{margin-left:auto;order:2;}
   .day-route .site-header{gap:.5rem}

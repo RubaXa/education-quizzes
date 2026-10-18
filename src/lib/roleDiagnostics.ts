@@ -11,7 +11,7 @@ type Scope = { session: PersonalSession; role: string; profileRole: string; chil
 type DiagnosticMember = { active?: boolean; role?: string; childIds?: string[]; accessDiagnosticsUntil?: { toMillis?: () => number } }
 const scopes = new Map<string, Scope>()
 export function configureRoleDiagnostics(session: PersonalSession, familyId: string, member: DiagnosticMember, profileRole: string) {
-  for (const childId of Array.isArray(member.childIds) ? member.childIds.filter((id) => typeof id === 'string') : []) traceAccessContext('access.resolved', { source: 'member-server', role: member.role, active: member.active, previousRole: profileRole,
+  for (const childId of Array.isArray(member.childIds) ? member.childIds.filter((id) => typeof id === 'string') : []) traceAccessContext('access.resolved', { atFunction: 'configureRoleDiagnostics', previousState: 'checking', state: member.role === profileRole ? 'resolved' : 'changed', source: 'member-server', fromCache: false, role: member.role, active: member.active, previousRole: profileRole,
     reason: member.role === profileRole ? 'member-valid' : 'role-mismatch' }, { ...session, familyId, childId })
   const until = member.accessDiagnosticsUntil
   if (!member.active || !member.role || !['parent', 'student'].includes(member.role) || !Array.isArray(member.childIds)) return () => {}
@@ -29,7 +29,7 @@ export function configureRoleDiagnostics(session: PersonalSession, familyId: str
 }
 
 export function reportRoleProjection(owner: { familyId?: string; childId?: string } | undefined, parent: boolean, hasGuide: boolean) {
-  traceAccessContext('view.rendered', { source: 'card', role: parent ? 'parent' : 'student', hasGuide, route: location.hash.split('/')[1] || 'home', reason: 'role-projection' }, owner ?? {})
+  traceAccessContext('view.rendered', { atFunction: 'reportRoleProjection', previousState: 'selected', state: 'rendered', source: 'card', role: parent ? 'parent' : 'student', hasGuide, route: location.hash.split('/')[1] || 'home', reason: 'role-projection' }, owner ?? {})
   if (!owner?.familyId || !owner.childId) return
   const scope = scopes.get(owner.familyId)
   if (!scope || !scope.children.includes(owner.childId)
