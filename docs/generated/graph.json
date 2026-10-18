@@ -283,6 +283,31 @@
       "path": "docs/audits/telegram-self-review-2026-10-16.md"
     },
     {
+      "id": "decision.course-placement-2026-10-18",
+      "status": "accepted",
+      "implementation": "not-applicable",
+      "created": "2026-10-18",
+      "updated": "2026-10-18",
+      "parent": "module.synchronization.plan-generation",
+      "uses": [
+        "module.school-diary.dashboard"
+      ],
+      "consumers": [
+        "Education operator",
+        "parent",
+        "student"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/course-placement-2026-10-18.md"
+    },
+    {
       "id": "decision.documentation-precommit",
       "status": "accepted",
       "implementation": "not-applicable",
@@ -1369,6 +1394,20 @@
       "kind": "artifact",
       "purpose": "Настройки базовых UI-компонентов",
       "consumer": "Генератор компонентов"
+    },
+    {
+      "id": "file:day/assignment-routing.mjs",
+      "path": "day/assignment-routing.mjs",
+      "kind": "artifact",
+      "purpose": "Перенос одного владельца с сохранением происхождения, оригиналов и доказательств",
+      "consumer": "day CLI; build; dashboard"
+    },
+    {
+      "id": "file:day/assignment-routing.test.mjs",
+      "path": "day/assignment-routing.test.mjs",
+      "kind": "verification",
+      "purpose": "Исходный, целевой и выходной день обеих ролей, повторный build и повреждённые связи",
+      "consumer": "Vitest"
     },
     {
       "id": "file:day/assignment-structure.mjs",
@@ -2790,6 +2829,13 @@
       "kind": "artifact",
       "purpose": "Единая проверка закрытого описания выпуска до сайта и Firestore",
       "consumer": "`publish-pages.mjs`; `notifications.mjs`"
+    },
+    {
+      "id": "file:scripts/route-assignment.mjs",
+      "path": "scripts/route-assignment.mjs",
+      "kind": "artifact",
+      "purpose": "Dry run и применение пакета к двум локальным планам с резервной копией",
+      "consumer": "Оператор Education"
     },
     {
       "id": "file:scripts/spec-graph.mjs",
@@ -5932,6 +5978,8 @@
         "day/build.mjs",
         "day/homework-kind.mjs",
         "day/pipeline-contract.mjs",
+        "day/assignment-routing.mjs",
+        "scripts/route-assignment.mjs",
         "scripts/day.mjs",
         "src/lib/dayStore.ts"
       ],
@@ -5945,6 +5993,7 @@
         "результат-одного-задания-на-нескольких-страницах-дня",
         "сверка-перед-подробным-планом",
         "барьер-перед-публикацией",
+        "assignment-routing",
         "неопределённость-и-помощь-агента"
       ],
       "path": "docs/modules/synchronization/plan-generation.md"
@@ -7747,6 +7796,11 @@
       "type": "uses"
     },
     {
+      "from": "decision.course-placement-2026-10-18",
+      "to": "module.school-diary.dashboard",
+      "type": "uses"
+    },
+    {
       "from": "decision.documentation-precommit",
       "to": "shared.specification-system",
       "type": "uses"
@@ -7959,6 +8013,11 @@
     {
       "from": "file:components.json",
       "to": "module.synchronization.backend-driven-ui",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/assignment-routing.mjs",
+      "to": "module.synchronization.plan-generation",
       "type": "implements"
     },
     {
@@ -8994,6 +9053,11 @@
     {
       "from": "file:scripts/release-note.mjs",
       "to": "module.notifications.inbox",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/route-assignment.mjs",
+      "to": "module.synchronization.plan-generation",
       "type": "implements"
     },
     {
@@ -11715,6 +11779,16 @@
       "from": "module.synchronization.global-sync",
       "to": "shared.server-runtime",
       "type": "uses"
+    },
+    {
+      "from": "module.synchronization.plan-generation",
+      "to": "decision.course-placement-2026-10-18",
+      "type": "contains"
+    },
+    {
+      "from": "module.synchronization.plan-generation",
+      "to": "file:day/assignment-routing.test.mjs",
+      "type": "verified-by"
     },
     {
       "from": "module.synchronization.plan-generation",

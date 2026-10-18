@@ -6,6 +6,10 @@
 
 | Файл | Спецификация | Зачем существует | Потребитель |
 |---|---|---|---|
+| [day/assignment-routing.mjs](../day/assignment-routing.mjs) | [Привязка курса](modules/synchronization/plan-generation.md) | Перенос одного владельца с сохранением происхождения, оригиналов и доказательств | day CLI; build; dashboard |
+| [day/assignment-routing.test.mjs](../day/assignment-routing.test.mjs) | [Привязка курса](modules/synchronization/plan-generation.md) | Исходный, целевой и выходной день обеих ролей, повторный build и повреждённые связи | Vitest |
+| [scripts/route-assignment.mjs](../scripts/route-assignment.mjs) | [Привязка курса](modules/synchronization/plan-generation.md) | Dry run и применение пакета к двум локальным планам с резервной копией | Оператор Education |
+| [docs/decisions/course-placement-2026-10-18.md](decisions/course-placement-2026-10-18.md) | [Привязка курса](modules/synchronization/plan-generation.md) | Решение о различии происхождения МЭШ и четвергового курса | Оператор; разработчик |
 | [docs/decisions/teacher-choice-practice-2026-10-17.md](decisions/teacher-choice-practice-2026-10-17.md) | [Выбор практики](modules/reviews/card-generation-policy.md) | Источник опциональности от учителя и приоритет семейного решения | Оператор; общий селектор; UI gate |
 | [.env.example](../.env.example) | [Порт дневника](modules/school-diary/README.md) | Шаблон локальной конфигурации интеграции | Оператор CLI |
 | [.firebaserc](../.firebaserc) | [Семейная модель](modules/families/README.md) | Идентификатор проекта Firebase для команд | Firebase CLI |

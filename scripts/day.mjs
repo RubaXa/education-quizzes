@@ -24,7 +24,7 @@ import { ownerMigrationFields } from '../day/owner-repair.mjs'
 import { publicPageSubjects, publicProblem } from '../day/public-projection.mjs'
 import { isExplicitCdzTask } from '../day/homework-kind.mjs'
 import { cardPolicyModules, mathRouteProfile, mathRouteProfiles, missingMathRoutes, practiceVariantErrors, sourceInventoryErrors, validLearningRoute } from '../day/card-policy.mjs'
-import { assertPublishedPageAligned, assertSourceAligned, sourcePlanFingerprint, textbookRefError } from '../day/pipeline-contract.mjs'
+import { assertPublishedPageAligned, assertSourceAligned as assertSourceAlignedContract, sourcePlanFingerprint, textbookRefError } from '../day/pipeline-contract.mjs'
 import { chooseGradeJournal, detectGradeChange, gradeDetailRows, gradeProjectionPatch } from '../day/grade-reconciliation.mjs'
 import { stageGradeProjectionForRole } from '../day/grade-publication.mjs'
 import { YandexDiskStorage } from '../storage/yandex-disk.mjs'
@@ -43,6 +43,13 @@ const [command, date, third] = process.argv.slice(2)
 
 function fail(message) { throw new Error(message) }
 function json(path) { return JSON.parse(readFileSync(path, 'utf8')) }
+/** @see ../docs/modules/synchronization/plan-generation.md#assignment-routing */
+function assertSourceAligned(source, snapshot) {
+  return assertSourceAlignedContract(source, snapshot, {
+    readSource: (date) => json(resolve(local, `day-source-${date}.json`)),
+    readSnapshot: (date) => json(resolve(local, `diary/snapshot-${date}.json`)),
+  })
+}
 function ownerContext() {
   if (scoped) {
     const file = resolve(local, 'context.json')
@@ -620,6 +627,7 @@ async function stagePublish(date, batch, links, indexTokens, stagedPages, notify
     practiceVariantIds: source.subjects.flatMap((subject) => subject.tasks.flatMap((task) => (task.practiceVariants ?? []).map((variant) => variant.id))),
     testPlacements: source.testPlacements ?? [], notices: source.notices ?? [],
     sourceOnlyEntries: source.sourceOnlyEntries ?? [], retiredTaskIds: source.retiredTaskIds ?? [],
+    assignmentRoutes: source.assignmentRoutes ?? [],
     weekendSlot: source.weekendSlot ?? null, sourcePlanFingerprint: sourcePlanFingerprint(source),
     materialLinks: allMaterialLinks, materialLinkReplacements: source.materialLinkReplacements ?? [],
     taskPageRefs: pageRefs,

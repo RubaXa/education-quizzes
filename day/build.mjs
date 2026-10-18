@@ -102,11 +102,17 @@ export function buildDaySource(local, date) {
       subject = { id, name, icon, materials: 'Материалы задания уточняются', mesh: '', summary: 'Точная запись МЭШ. Подробный разбор готовится.', tasks: [] }
       subjects.push(subject)
     }
-    subject.mesh = descriptions.map((item) => item.description).join('; ')
+    subject.mesh = descriptions.filter((entry) => !current?.assignmentRoutes?.some((route) => route.taskId === `mesh-${entry.id}` && route.fromDate === targetDate)).map((item) => item.description).join('; ')
     if (assignment.teacherFiles?.length) subject.materials = [...new Set(teacherLinks(local, lessonDate, assignment.teacherFiles).map((item) => item.title))].join('; ')
     for (const entry of descriptions) {
       const taskId = `mesh-${entry.id}`
       const description = entry.description.trim()
+      // @see ../docs/modules/synchronization/plan-generation.md#assignment-routing
+      const route = current?.assignmentRoutes?.find((item) => item.taskId === taskId && item.fromDate === targetDate)
+      if (route) {
+        if (route.meshText !== description) throw new Error(`МЭШ изменил перенесённое задание ${taskId}; сначала пересмотрите привязку.`)
+        continue
+      }
       const entryFiles = teacherFilesForEntry(assignment, entry, descriptions)
       const referenceDate = referencedHomeworkDate(description, lessonDate)
       // A bare attachment pointer names the same teacher file; it assigns no extra work.
@@ -193,6 +199,9 @@ export function buildDaySource(local, date) {
     }
   }
   const assigned = assignments.filter(({ assignment }) => (assignment.homeworkEntries?.length || assignment.descriptions?.length) > 0).length
+  for (const subject of subjects) if (current?.assignmentRoutes?.some((route) => route.fromDate === targetDate && route.fromSubjectId === subject.id)) {
+    subject.materials = [...new Set(subject.tasks.flatMap((task) => materialLinks[task.id] ?? []).map((link) => link.title))].join('; ')
+  }
   const assignmentWord = assigned % 10 === 1 && assigned % 100 !== 11 ? 'назначение'
     : assigned % 10 >= 2 && assigned % 10 <= 4 && (assigned % 100 < 12 || assigned % 100 > 14) ? 'назначения' : 'назначений'
   const notices = [`МЭШ на ${targetDate}: сейчас ${assigned} ${assignmentWord} ДЗ. Учителя могут добавить задания позже; повторный запуск сохранит эту работу.`]

@@ -1,5 +1,19 @@
 {
   "files": {
+    "day/assignment-routing.mjs": {
+      "sha256": "72db26096a24474aa94650808aea264f6ea32173169630443f5fcbb419eb105b",
+      "record": "docs/decisions/course-placement-2026-10-18.md",
+      "specs": ["docs/modules/synchronization/plan-generation.md"],
+      "tests": ["day/assignment-routing.test.mjs"],
+      "authorization": { "status": "direct-request", "evidence": "Родитель18.10 прямо требует связать лист спецкурса с четвергом и показывать его на выходных, сохранив исходную работу." }
+    },
+    "scripts/route-assignment.mjs": {
+      "sha256": "4fe594f511525e59565b267b25e3f9e81eb9cef1e02a8a13e599b034158216c3",
+      "record": "docs/decisions/course-placement-2026-10-18.md",
+      "specs": ["docs/modules/synchronization/plan-generation.md"],
+      "tests": ["day/assignment-routing.test.mjs"],
+      "authorization": { "status": "direct-request", "evidence": "Родитель18.10 требует правильную привязку спецкурса; повторяемый перенос выполняется штатным проверяемым CLI по действующему правилу." }
+    },
     "assessment/decision-graph.mjs": {
       "sha256": "a3322d3299bdfdadadb80b5755aa618798a89023c53ae84608016736653f18df",
       "record": "docs/decisions/history-default-universal-request-2026-10-16.md",
@@ -373,17 +387,19 @@
       }
     },
     "day/pipeline-contract.mjs": {
-      "sha256": "a0201f97dd0d7f42149653697ff1f2a0fe76ef7dfe3c51845168021ecb7c02cd",
-      "record": "docs/decisions/teacher-choice-practice-2026-10-17.md",
+      "sha256": "b998eb9ddd58d2ddce7668e9af81b82b228629949805b56815dbff34036f20b8",
+      "record": "docs/decisions/course-placement-2026-10-18.md",
       "specs": [
+        "docs/modules/synchronization/plan-generation.md",
         "docs/modules/reviews/card-generation-policy.md"
       ],
       "tests": [
+        "day/assignment-routing.test.mjs",
         "day/pipeline-contract.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель прямо требует обязательность только по МЭШ/учителю и опциональность дополнительных пунктов;полный sync17.10 получил лист с прямым выбором «Реши сколько получится». Существующий тумблер и единый подсчёт сохранены."
+        "evidence": "Родитель18.10 требует привязку листа спецкурса к четвергу, с сохранением происхождения МЭШ, опциональности учителя и прежней работы."
       }
     },
     "assessment/followup-contract.mjs": {
@@ -1397,12 +1413,14 @@
       }
     },
     "scripts/day.mjs": {
-      "sha256": "15f25d98d886fa4c0ee05c0c3b5a4e5665e776e4674ef3ae81a408298376f377",
-      "record": "docs/decisions/material-clarification-2026-10-16.md",
+      "sha256": "eb8f9bb524a91d4c81ae5912b504bfd90a9124c8ae0511aea0341f9765101737",
+      "record": "docs/decisions/course-placement-2026-10-18.md",
       "specs": [
+        "docs/modules/synchronization/plan-generation.md",
         "docs/modules/materials/material-clarification.md"
       ],
       "tests": [
+        "day/assignment-routing.test.mjs",
         "src/lib/materialRequest.test.ts",
         "src/DayPage.assignmentQuiz.integration.test.tsx",
         "src/lib/homeworkStatus.test.ts",
@@ -1780,12 +1798,14 @@
       }
     },
     "day/build.mjs": {
-      "sha256": "c1b91c9125554c800f0fdc94ae6f7ea42a5d9ddb01ece690b32ae7b1423fdbbd",
-      "record": "docs/decisions/material-clarification-2026-10-16.md",
+      "sha256": "78ee16884177367ae04bfcda36055134149a82ef405f5dc036b335dc5edbcd27",
+      "record": "docs/decisions/course-placement-2026-10-18.md",
       "specs": [
+        "docs/modules/synchronization/plan-generation.md",
         "docs/modules/materials/material-clarification.md"
       ],
       "tests": [
+        "day/assignment-routing.test.mjs",
         "src/lib/materialRequest.test.ts",
         "src/DayPage.assignmentQuiz.integration.test.tsx",
         "src/lib/homeworkStatus.test.ts",
@@ -1985,18 +2005,20 @@
       }
     },
     "day/dashboard-index.mjs": {
-      "sha256": "33ba795aa248b3db5dd0fe19f9a33c97a2cd9fa07fcc70f77321742be7b09af7",
-      "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
+      "sha256": "f70e9aeeffe1eb67706b9aa2396ca4c5b96881c32018d9a0f927cfe53d9e5ff9",
+      "record": "docs/decisions/course-placement-2026-10-18.md",
       "specs": [
+        "docs/modules/synchronization/plan-generation.md",
         "docs/shared/specification-system.md"
       ],
       "tests": [
+        "day/assignment-routing.test.mjs",
         "scripts/spec-graph.test.mjs",
         "scripts/check-ui-contract.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя 16.10.2026 внедрить согласованную структуру спецификаций, перенести ссылки в коде и проверить сохранность требований; изменение предметного поведения не выполнялось."
+        "evidence": "Родитель18.10 прямо требует привязку листа спецкурса к четверговому занятию с показом на выходных и сохранением исходного расписания."
       },
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",

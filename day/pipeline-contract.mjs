@@ -5,6 +5,7 @@
 import { createHash } from 'node:crypto'
 import { lessonVisibility } from '../diary/application/lesson-visibility.mjs'
 import { publicPageSubjects } from './public-projection.mjs'
+import { assignmentRouteEvidence } from './assignment-routing.mjs'
 
 /** Explain the failing field and canonical page IDs without weakening source checks.
  * @see ../docs/modules/synchronization/plan-generation.md#review-gate */
@@ -29,17 +30,19 @@ export function meshEntries(snapshot) {
 }
 
 /** A source may explain an assignment, but cannot silently omit or rewrite it. */
-export function assertSourceAligned(source, snapshot) {
+export function assertSourceAligned(source, snapshot, routeContext = {}) {
   if (source.targetDate !== snapshot?.date) throw new Error('Дата урока в плане не совпадает со снимком МЭШ.')
   const expected = meshEntries(snapshot)
+  const routed = assignmentRouteEvidence(source, routeContext.readSource, routeContext.readSnapshot)
   if (source.meshAlignment?.state === 'legacy-manual') {
     if (!source.meshAlignment.reason?.trim()) throw new Error('Для старого ручного плана нужна причина исключения из ID-сверки.')
     return { legacy: true, count: expected.length }
   }
   const tasks = source.subjects?.flatMap((subject) => subject.tasks ?? []) ?? []
   const represented = [...tasks.map((task) => ({ id: task.id, text: task.meshText?.trim() })),
-    ...(source.sourceOnlyEntries ?? []).map((entry) => ({ id: entry.id, text: entry.rawText?.trim() }))]
+    ...(source.sourceOnlyEntries ?? []).map((entry) => ({ id: entry.id, text: entry.rawText?.trim() })), ...routed.exports]
   const expectedById = new Map(expected.map((entry) => [entry.id, entry.text]))
+  for (const entry of routed.imports) expectedById.set(entry.id, entry.text)
   for (const entry of expected) {
     if (!represented.some((item) => item.id === entry.id && item.text === entry.text)) {
       throw new Error(`План не содержит актуальную запись МЭШ ${entry.id}. Запустите day build и сверьте её до выпуска.`)
@@ -59,6 +62,7 @@ export function sourcePlanFingerprint(source) {
   const plan = {
     targetDate: source.targetDate, subjects: source.subjects, sourceOnlyEntries: source.sourceOnlyEntries ?? [],
     retiredTaskIds: source.retiredTaskIds ?? [], materialLinks: source.materialLinks ?? {},
+    ...(source.assignmentRoutes?.length ? { assignmentRoutes: source.assignmentRoutes } : {}),
     testPlacements: source.testPlacements ?? [], weekendSlot: source.weekendSlot ?? null,
   }
   return createHash('sha256').update(JSON.stringify(plan)).digest('hex')

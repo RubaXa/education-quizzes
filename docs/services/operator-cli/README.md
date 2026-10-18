@@ -30,6 +30,8 @@ sections:
 ---
 # Операторское ядро Education {#operator-core}
 
+Для подтверждённого семьёй переноса листа между курсами: `npm run day:route -- REQUEST.json` (dry run), затем `--apply` и указанный в квитанции `day publish-batch`. [Схема пакета и ограничения](../../modules/synchronization/plan-generation.md#assignment-routing) сохраняют исходный МЭШ, единственного владельца и прежние доказательства. Это обогащение назначения, не сбор нового снимка и не изменение ответа ребёнка.
+
 Статус: **единый CLI-контракт введён; существующие доменные обработчики подключаются поэтапно**. Этот документ описывает фактическую границу между механической работой CLI и решениями учебного агента. Он связан с [глобальной синхронизацией](../../modules/synchronization/global-sync.md), [исходниками и семейными правами](../../modules/synchronization/shared-artifact-pipeline.md), [графом самопроверок](../../modules/assessments/assessment-decision-graph.md) и [основаниями проверки](../../modules/reviews/review-criteria-provenance.md).
 
 ## Почему нужен единый путь

@@ -29,6 +29,7 @@
     "preview": "vite preview",
     "quiz": "node scripts/quiz.mjs",
     "day": "node scripts/day.mjs",
+    "day:route": "node scripts/route-assignment.mjs",
     "storage": "node scripts/storage.mjs",
     "storage:worker": "node scripts/direct-upload-worker.mjs",
     "storage:install-worker": "node scripts/install-upload-worker.mjs",

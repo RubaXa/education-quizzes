@@ -3,6 +3,7 @@ import { resolve } from 'node:path'
 import { lessonVisibility } from '../diary/application/lesson-visibility.mjs'
 import { daySourceRevision } from '../sync/day-source-revision.mjs'
 import { referencedHomeworkDate } from './homework-reference.mjs'
+import { assignmentRouteEvidence } from './assignment-routing.mjs'
 
 function readJson(file) { return JSON.parse(readFileSync(file, 'utf8')) }
 function dateOnly(value) { return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Moscow', year: 'numeric', month: '2-digit', day: '2-digit' }).format(value) }
@@ -30,10 +31,16 @@ export function buildDayDashboardIndex(local, links, role, now = new Date()) {
     }
   }
   const homeworkSources = new Map()
+  const assignmentRoutes = new Map()
   for (const [sourceDate, pair] of Object.entries(links)) {
     const file = resolve(local, `day-source-${sourceDate}.json`)
     if (!pair?.[role] || !existsSync(file)) continue
-    const targetDate = readJson(file).targetDate
+    const plan = readJson(file)
+    const targetDate = plan.targetDate
+    if (plan.assignmentRoutes?.length) {
+      assignmentRouteEvidence(plan, (date) => readJson(resolve(local, `day-source-${date}.json`)), (date) => snapshots.get(date))
+      for (const route of plan.assignmentRoutes) assignmentRoutes.set(`${route.fromDate}:${route.taskId}`, route)
+    }
     if (/^\d{4}-\d{2}-\d{2}$/.test(targetDate ?? '') && (!homeworkSources.has(targetDate) || sourceDate > homeworkSources.get(targetDate).sourceDate)) {
       homeworkSources.set(targetDate, { sourceDate, token: pair[role] })
     }
@@ -58,8 +65,12 @@ export function buildDayDashboardIndex(local, links, role, now = new Date()) {
       const entries = assignment.homeworkEntries?.length
         ? assignment.homeworkEntries.map((entry) => entry.description)
         : assignment.descriptions || []
-      return entries.filter((text) => typeof text === 'string' && text.trim()).map((text) => ({ subject: conciseSubject(assignment.subjectName || assignment.subject_name), text: text.trim(), referenceDate: referencedHomeworkDate(text, date) }))
+      return entries.filter((text) => typeof text === 'string' && text.trim())
+        .filter((text) => ![...assignmentRoutes.values()].some((route) => route.fromDate === date && route.meshText === text.trim()
+          && route.fromSubjectName === conciseSubject(assignment.subjectName || assignment.subject_name)))
+        .map((text) => ({ subject: conciseSubject(assignment.subjectName || assignment.subject_name), text: text.trim(), referenceDate: referencedHomeworkDate(text, date) }))
     })
+    for (const route of assignmentRoutes.values()) if (route.toDate === date) homeworkEntries.push({ subject: route.toSubjectName, text: route.meshText, referenceDate: null })
     const homeworkBySubject = new Map()
     for (const item of homeworkEntries) {
       const texts = homeworkBySubject.get(item.subject) ?? []
