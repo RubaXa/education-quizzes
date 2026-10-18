@@ -14,14 +14,21 @@ import type { ResultInput } from '@/lib/resultPresentation'
 import tokenCss from './education-design-tokens.css?raw'
 import './UiKit.css'
 
-const topics = [
-  {id:'tokens',group:'Основы',title:'Цвета и токены',icon:Palette},
-  {id:'results',group:'Компоненты',title:'Индикаторы результата',icon:CircleHelp},
-  {id:'grades',group:'Компоненты',title:'Средний балл',icon:CircleHelp},
-  {id:'homework',group:'Составные сценарии',title:'Сводка ДЗ',icon:BookOpen},
-  {id:'material',group:'Составные сценарии',title:'Уточнение материала',icon:BookOpen},
-  {id:'quiz',group:'Составные сценарии',title:'История тестов',icon:Layers3},
+const topicGroups = [
+  {id:'foundations',title:'Основы',topics:[
+    {id:'tokens',title:'Цвета и токены',icon:Palette},
+  ]},
+  {id:'components',title:'Компоненты',topics:[
+    {id:'results',title:'Индикаторы результата',icon:CircleHelp},
+    {id:'grades',title:'Средний балл',icon:CircleHelp},
+  ]},
+  {id:'scenarios',title:'Составные сценарии',topics:[
+    {id:'homework',title:'Сводка ДЗ',icon:BookOpen},
+    {id:'material',title:'Уточнение материала',icon:BookOpen},
+    {id:'quiz',title:'История тестов',icon:Layers3},
+  ]},
 ] as const
+type UiKitSection = (typeof topicGroups)[number]['topics'][number]['id']
 const colourRoles = [
   ['success','Зачтено','85–100% проверенных баллов'],['attention','Нужно повторить','50–менее 85%'],['error','Нужна тренировка','Менее 50%'],
   ['waiting','Ожидание','Результат ещё не проверен'],['accent','Выполнение','Заполняются ответы'],['neutral','Неизвестно','Данных для результата нет'],
@@ -56,7 +63,7 @@ function tokenMeaning(name: string) {
 /** Small living documentation page. Examples import the shipped components and never access family data.
  * @see ../docs/shared/design/ui-kit.md */
 export default function UiKit() {
-  const [section,setSection] = useState<(typeof topics)[number]['id']>('results')
+  const [section,setSection] = useState<UiKitSection>('results')
   const [points,setPoints] = useState(34)
   const [max,setMax] = useState(39)
   const [state,setState] = useState('score')
@@ -65,7 +72,7 @@ export default function UiKit() {
   const input:ResultInput = state==='score' ? {kind:'score',points,maxPoints:max} : state==='answers' ? {kind:'answers',answered:points,total:max} : {kind:state==='waiting'?'waiting':'unknown'}
   return <div className="edu-kit">
     <header className="edu-kit-intro"><span><BookOpen size={18} aria-hidden="true" /> Education UI Kit</span><h1>Компоненты и правила</h1><p>Живые компоненты приложения, их состояния и смысл токенов. Каталог расширяется по мере унификации интерфейса.</p><a href="#/">На главную</a></header>
-    <div className="edu-kit-layout"><nav aria-label="Разделы UI Kit">{topics.map(topic => <div key={topic.id}><small>{topic.group}</small><button type="button" aria-current={section===topic.id?'page':undefined} onClick={()=>setSection(topic.id)}><topic.icon size={16} aria-hidden="true" />{topic.title}<ChevronRight size={14} aria-hidden="true" /></button></div>)}</nav>
+    <div className="edu-kit-layout"><nav aria-label="Разделы UI Kit">{topicGroups.map(group => <div className="edu-kit-nav-group" key={group.id}><small>{group.title}</small>{group.topics.map(topic => <button key={topic.id} type="button" aria-current={section===topic.id?'page':undefined} onClick={()=>setSection(topic.id)}><topic.icon size={16} aria-hidden="true" />{topic.title}<ChevronRight size={14} aria-hidden="true" /></button>)}</div>)}</nav>
     <div className="edu-kit-content">
       {section==='results' && <section aria-labelledby="kit-results-title"><h2 id="kit-results-title">Индикаторы результата</h2><p>Метка, баллы и полоса используют одну политику цвета. Заполнение ответов и ожидание проверки — самостоятельные состояния.</p>
         <div className="edu-kit-playground"><div className="edu-kit-controls"><label>Состояние<select value={state} onChange={event=>setState(event.target.value)}><option value="score">Проверенный результат</option><option value="answers">Заполнение ответов</option><option value="waiting">Ожидание проверки</option><option value="unknown">Нет результата</option></select></label><label>{state==='answers'?'Ответов':'Баллов'}<input type="number" step="0.01" value={Number.isNaN(points)?'':points} disabled={state==='waiting'||state==='unknown'} onChange={event=>setPoints(event.target.valueAsNumber)} /></label><label>Всего<input type="number" min="1" step="0.01" value={Number.isNaN(max)?'':max} disabled={state==='waiting'||state==='unknown'} onChange={event=>setMax(event.target.valueAsNumber)} /></label></div>

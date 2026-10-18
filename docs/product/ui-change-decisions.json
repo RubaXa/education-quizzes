@@ -315,7 +315,7 @@
       }
     },
     "src/UiKit.tsx": {
-      "sha256": "54acef72bd3f2b933a2d02d300a8785f87b9b9a32ad30d2251bf6b159e471a76",
+      "sha256": "8680a838ab22395a600ec3a1d520d808b6463c451cf4d991ad244086c0e78ef0",
       "record": "docs/decisions/grade-average-ui-kit-2026-10-18.md",
       "specs": [
         "docs/modules/school-diary/grades.md",
@@ -326,11 +326,11 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо запросил шкалу среднего балла, отдельный интерактивный слайдер и добавление компонента в production UI Kit."
+        "evidence": "Пользователь запросил общую шкалу среднего балла в UI Kit, затем прямо указал на повторяющиеся заголовки категорий и потребовал сгруппировать каждый раздел один раз."
       }
     },
     "src/UiKit.css": {
-      "sha256": "d0f92cabfbf3a083aaac8448eed57c44651298166ba6c44353d773642396ba7f",
+      "sha256": "48c1e2fd8acba71b7eaee0a3e32b8e455d0c1de76a45057b4a6c68ea2c0d2fd3",
       "record": "docs/decisions/grade-average-ui-kit-2026-10-18.md",
       "specs": [
         "docs/modules/school-diary/grades.md",
@@ -341,7 +341,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо запросил шкалу среднего балла, отдельный интерактивный слайдер и добавление компонента в production UI Kit."
+        "evidence": "Пользователь запросил общую шкалу среднего балла в UI Kit, затем прямо указал на повторяющиеся заголовки категорий и потребовал сгруппировать каждый раздел один раз."
       }
     },
     "src/lib/uiKitExamples.ts": {
