@@ -31,7 +31,15 @@ vi.mock('firebase/firestore', () => ({
       : ref.path === 'dayOwners/source' ? { familyId: 'family', childId: 'child', targetDate: '2026-10-22' } : null
     return { exists: () => Boolean(data), data: () => data }
   },
-  getDocs: async () => ({ docs: [{ id: 'learner', data: () => ({ active: true, role: 'student', childIds: ['child'] }) }] }),
+  getDocs: async (ref: { path: string }) => {
+    scene.reads.push(ref.path)
+    return { docs: [
+      { id: 'learner', data: () => ({ active: true, role: 'student', childIds: ['child'] }) },
+      { id: 'other-child', data: () => ({ active: true, role: 'student', childIds: ['other'] }) },
+      { id: 'adult', data: () => ({ active: true, role: 'parent', childIds: ['child'] }) },
+      { id: 'inactive', data: () => ({ active: false, role: 'student', childIds: ['child'] }) },
+    ] }
+  },
   writeBatch: () => {
     const writes: any[] = []
     const batch = { set: (ref: { path: string }, data: any) => { writes.push({ path: ref.path, data }); return batch }, commit: async () => {
@@ -154,6 +162,8 @@ describe('weekend uses the complete parent guidance flow', () => {
     await act(async () => { send.click(); await vi.waitFor(() => expect(scene.events).toHaveLength(1)) })
     expect(scene.events).toHaveLength(1)
     expect(scene.events[0].data).toMatchObject({ taskId: 'problem', stageId: 'choices', level: 'hint', text: scene.guide!.stages[0].hintPreview, actorPersonId: 'adult' })
+    expect(scene.inbox).toHaveLength(1)
+    expect(scene.reads).toContain('families/family/members')
     expect(scene.inbox[0]).toMatchObject({ path: `users/learner/inbox/${scene.events[0].id}`, data: { type: 'parent_guidance', taskId: 'problem', studentToken: 'source' } })
     expect(parent.textContent).toContain('Помощь отправлена')
     expect(parent.querySelector('[aria-label^="Выбрать подсказку"]')).toBeNull()
