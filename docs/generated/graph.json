@@ -1609,6 +1609,39 @@
       "path": "docs/decisions/upload-origin-links-2026-10-18.md"
     },
     {
+      "id": "decisions.work-photo-expand-2026-10-18",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-18",
+      "updated": "2026-10-18",
+      "parent": "shared.design.components",
+      "uses": [
+        "product.ui-change-control",
+        "module.materials.storage-privacy"
+      ],
+      "consumers": [
+        "parent",
+        "student"
+      ],
+      "code": [
+        "src/components/WorkPhotoGallery.tsx",
+        "src/components/WorkPhotoGallery.css",
+        "src/DayPage.tsx",
+        "src/DayPage.css",
+        "src/WeekendMathSlot.tsx",
+        "src/WeekendMathSlot.css",
+        "src/UiKit.tsx"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/work-photo-expand-2026-10-18.md"
+    },
+    {
       "id": "docs.education",
       "status": "accepted",
       "implementation": "not-applicable",
@@ -3471,6 +3504,13 @@
       "consumer": "Оператор; агент"
     },
     {
+      "id": "file:scripts/work-photo-consumers.test.mjs",
+      "path": "scripts/work-photo-consumers.test.mjs",
+      "kind": "verification",
+      "purpose": "Запрет отдельных статичных копий собственного фото в маршрутах",
+      "consumer": "Vitest; pre-push"
+    },
+    {
       "id": "file:src/App.css",
       "path": "src/App.css",
       "kind": "artifact",
@@ -4134,6 +4174,34 @@
       "kind": "verification",
       "purpose": "Проверка ученического источника, выборочной помощи и единого процента теста",
       "consumer": "Vitest; разработчик"
+    },
+    {
+      "id": "file:src/components/WorkPhotoGallery.css",
+      "path": "src/components/WorkPhotoGallery.css",
+      "kind": "artifact",
+      "purpose": "Прежнее оформление галереи и компактного режима",
+      "consumer": "WorkPhotoGallery"
+    },
+    {
+      "id": "file:src/components/WorkPhotoGallery.layout.test.mjs",
+      "path": "src/components/WorkPhotoGallery.layout.test.mjs",
+      "kind": "verification",
+      "purpose": "Кнопка закрытия поверх позиционированного изображения",
+      "consumer": "Vitest; браузерное ревью"
+    },
+    {
+      "id": "file:src/components/WorkPhotoGallery.test.tsx",
+      "path": "src/components/WorkPhotoGallery.test.tsx",
+      "kind": "verification",
+      "purpose": "Local→server, просмотр, повтор передачи, права удаления",
+      "consumer": "Vitest"
+    },
+    {
+      "id": "file:src/components/WorkPhotoGallery.tsx",
+      "path": "src/components/WorkPhotoGallery.tsx",
+      "kind": "artifact",
+      "purpose": "Единая галерея: открыть, сменить, закрыть, повторить и удалить по прежним правам",
+      "consumer": "День; выходные; UI Kit"
     },
     {
       "id": "file:src/components/WorkReview.requirements.test.tsx",
@@ -7117,6 +7185,7 @@
         "trace",
         "numbered-card-matrix",
         "mechanical-gate",
+        "photo-interactions",
         "coverage-limit"
       ],
       "path": "docs/product/ui-change-control.md"
@@ -8224,6 +8293,8 @@
       "code": [
         "scripts/check-spec-map.mjs",
         "src/components/ArtifactAvatar.tsx",
+        "src/components/WorkPhotoGallery.tsx",
+        "src/components/WorkPhotoGallery.css",
         "src/components/ProblemCard.tsx"
       ],
       "parent": "shared.design",
@@ -8842,6 +8913,16 @@
     {
       "from": "decisions.upload-origin-links-2026-10-18",
       "to": "shared.design.components",
+      "type": "uses"
+    },
+    {
+      "from": "decisions.work-photo-expand-2026-10-18",
+      "to": "module.materials.storage-privacy",
+      "type": "uses"
+    },
+    {
+      "from": "decisions.work-photo-expand-2026-10-18",
+      "to": "product.ui-change-control",
       "type": "uses"
     },
     {
@@ -11025,6 +11106,36 @@
       "type": "implements"
     },
     {
+      "from": "file:src/components/WorkPhotoGallery.css",
+      "to": "decisions.work-photo-expand-2026-10-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/WorkPhotoGallery.css",
+      "to": "module.school-diary.day-page",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/WorkPhotoGallery.css",
+      "to": "shared.design.components",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/WorkPhotoGallery.tsx",
+      "to": "decisions.work-photo-expand-2026-10-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/WorkPhotoGallery.tsx",
+      "to": "module.school-diary.day-page",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/WorkPhotoGallery.tsx",
+      "to": "shared.design.components",
+      "type": "implements"
+    },
+    {
       "from": "file:src/components/WorkReview.tsx",
       "to": "decisions.readable-review-prose-2026-10-18",
       "type": "implements"
@@ -11091,6 +11202,11 @@
     },
     {
       "from": "file:src/DayPage.css",
+      "to": "decisions.work-photo-expand-2026-10-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayPage.css",
       "to": "module.materials.materials",
       "type": "implements"
     },
@@ -11132,6 +11248,11 @@
     {
       "from": "file:src/DayPage.tsx",
       "to": "decisions.upload-origin-links-2026-10-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayPage.tsx",
+      "to": "decisions.work-photo-expand-2026-10-18",
       "type": "implements"
     },
     {
@@ -11771,7 +11892,17 @@
     },
     {
       "from": "file:src/UiKit.tsx",
+      "to": "decisions.work-photo-expand-2026-10-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/UiKit.tsx",
       "to": "shared.design.ui-kit",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/WeekendMathSlot.css",
+      "to": "decisions.work-photo-expand-2026-10-18",
       "type": "implements"
     },
     {
@@ -11787,6 +11918,11 @@
     {
       "from": "file:src/WeekendMathSlot.tsx",
       "to": "decisions.upload-origin-links-2026-10-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/WeekendMathSlot.tsx",
+      "to": "decisions.work-photo-expand-2026-10-18",
       "type": "implements"
     },
     {
@@ -12856,6 +12992,11 @@
     },
     {
       "from": "module.school-diary.day-page",
+      "to": "file:src/components/WorkPhotoGallery.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.school-diary.day-page",
       "to": "file:src/DayPage.assignmentQuiz.integration.test.tsx",
       "type": "verified-by"
     },
@@ -13850,6 +13991,16 @@
       "type": "verified-by"
     },
     {
+      "from": "product.ui-change-control",
+      "to": "file:scripts/work-photo-consumers.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "product.ui-change-control",
+      "to": "file:src/components/WorkPhotoGallery.layout.test.mjs",
+      "type": "verified-by"
+    },
+    {
       "from": "research.grade-average-visual-scale-2026-10-18",
       "to": "module.school-diary.grades",
       "type": "uses"
@@ -14472,6 +14623,11 @@
     {
       "from": "shared.data",
       "to": "shared.server-runtime",
+      "type": "contains"
+    },
+    {
+      "from": "shared.design.components",
+      "to": "decisions.work-photo-expand-2026-10-18",
       "type": "contains"
     },
     {

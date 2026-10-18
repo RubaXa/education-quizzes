@@ -129,6 +129,10 @@ it.each([false, true])('keeps the file at its upload origin and shows only refer
     await act(async () => view.host.querySelector<HTMLButtonElement>('.problem-group-toggle')!.click())
     const origin = view.host.querySelector<HTMLElement>(`#${firstProblemIds[0]}`)!
     expect(origin.querySelectorAll('.day-upload-chip')).toHaveLength(1)
+    await act(async () => origin.querySelector<HTMLButtonElement>('.day-upload-chip')!.click())
+    expect(origin.querySelector('.day-upload-expanded')).not.toBeNull()
+    await act(async () => origin.querySelector<HTMLButtonElement>('[aria-label="Закрыть фото"]')!.click())
+    expect(origin.querySelector('.day-upload-expanded')).toBeNull()
     for (const id of firstProblemIds.slice(1)) {
       const other = view.host.querySelector<HTMLElement>(`#${id}`)!
       expect(other.querySelector('.day-upload-list')).toBeNull()
