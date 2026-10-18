@@ -468,6 +468,32 @@
       "path": "docs/decisions/mesh-calendar-date-scopes-2026-10-18.md"
     },
     {
+      "id": "decision.session-owned-revocation-2026-10-18",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-18",
+      "updated": "2026-10-18",
+      "consumers": [
+        "Education developer",
+        "parent",
+        "student"
+      ],
+      "code": [],
+      "parent": "module.families",
+      "uses": [
+        "module.families.access-and-state",
+        "module.families.browser-access-trace"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/session-owned-revocation-2026-10-18.md"
+    },
+    {
       "id": "decision.shared-server-runtime-2026-10-17",
       "status": "accepted",
       "implementation": "not-applicable",
@@ -8885,6 +8911,16 @@
       "type": "uses"
     },
     {
+      "from": "decision.session-owned-revocation-2026-10-18",
+      "to": "module.families.access-and-state",
+      "type": "uses"
+    },
+    {
+      "from": "decision.session-owned-revocation-2026-10-18",
+      "to": "module.families.browser-access-trace",
+      "type": "uses"
+    },
+    {
       "from": "decision.shared-server-runtime-2026-10-17",
       "to": "module.synchronization",
       "type": "uses"
@@ -12677,6 +12713,11 @@
     {
       "from": "module.families",
       "to": "decision.browser-role-ldd-2026-10-18",
+      "type": "contains"
+    },
+    {
+      "from": "module.families",
+      "to": "decision.session-owned-revocation-2026-10-18",
       "type": "contains"
     },
     {

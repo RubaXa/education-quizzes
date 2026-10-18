@@ -7,26 +7,33 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { PersonalProfile } from '@/lib/personalAccess'
 import type { DayPageData, DayWorkReview } from '@/lib/dayStore'
 
-const scene = vi.hoisted(() => ({ role: 'parent' as 'parent' | 'student', profile: null as PersonalProfile | null, reviews: [] as DayWorkReview[], guideReads: [] as string[], reviewRoles: [] as boolean[], reviewListeners: new Set<(reviews: DayWorkReview[]) => void>(), diagnostics: false, diagnosticWrites: [] as Record<string, unknown>[] }))
+const scene = vi.hoisted(() => ({ role: 'parent' as 'parent' | 'student', personId: 'person', link: 'p'.repeat(43), profile: null as PersonalProfile | null, callbacks: new Map<string, (snapshot: any) => void>(), reviews: [] as DayWorkReview[], guideReads: [] as string[], reviewRoles: [] as boolean[], reviewListeners: new Set<(reviews: DayWorkReview[]) => void>(), diagnostics: false, diagnosticWrites: [] as Record<string, unknown>[] }))
 vi.mock('@/lib/firebase', () => ({ db: {} }))
 vi.mock('@/lib/dayGuidance', () => ({ watchDayGuidance: (_token: string, changed: (items: unknown[]) => void) => { changed([]); return () => {} }, sendDayGuidance: vi.fn() }))
 vi.mock('firebase/auth', () => ({ getAuth: () => ({ currentUser: { uid: 'device' }, authStateReady: async () => {} }) }))
 vi.mock('firebase/firestore', () => ({
   serverTimestamp: () => 'SERVER',
-  setDoc: async (_ref: unknown, data: Record<string, unknown>) => { scene.diagnosticWrites.push(data) },
-  doc: (_db: unknown, ...parts: string[]) => ({ path: parts.join('/') }),
-  onSnapshot: (ref: { path: string }, _options: unknown, changed: (snapshot: unknown) => void) => {
-    const data = ref.path.startsWith('accessLinks/') ? { active: true, personId: 'person' }
-      : ref.path.startsWith('deviceSessions/') ? { linkToken: 'secret' } : { active: true, role: scene.role, childIds: ['child'], ...(scene.diagnostics ? { accessDiagnosticsUntil: { toMillis: () => Date.now() + 60000 } } : {}) }
-    changed({ exists: () => true, data: () => data, metadata: { fromCache: false } }); return () => {}
+  setDoc: async (ref: { path: string }, data: Record<string, unknown>) => {
+    if (ref.path.startsWith('clientRoleDiagnostics/')) scene.diagnosticWrites.push(data)
+    else if (ref.path.startsWith('deviceSessions/')) scene.link = String(data.linkToken)
   },
-}))
-vi.mock('@/lib/personalAccess', async (original) => ({
-  watchPersonalContextChanges: (await original<typeof import('@/lib/personalAccess')>()).watchPersonalContextChanges,
-  restorePersonalContext: async () => ({ session: { personId: 'person', deviceUid: 'device', linkToken: 'secret' }, profile: scene.profile }),
-  loadPersonalProfile: async () => scene.profile,
-  rememberPersonalContext: vi.fn(), rememberPersonalDashboardRoute: vi.fn(), clearPersonalSession: vi.fn(),
-  currentEducationPersonId: () => 'person', readCachedPersonalContext: () => null, dayHelpSessionRole: async () => scene.role,
+  doc: (_db: unknown, ...parts: string[]) => ({ path: parts.join('/') }),
+  collection: (_db: unknown, ...parts: string[]) => ({ path: parts.join('/') }),
+  getDocs: async () => ({ docs: [{ id: 'family' }] }),
+  getDoc: async (ref: { path: string }) => {
+    const data = ref.path.startsWith('deviceSessions/') ? { linkToken: scene.link }
+      : ref.path.startsWith('accessLinks/') ? { active: true, personId: scene.personId }
+        : ref.path.includes('/members/') ? { active: true, role: scene.role, childIds: ['child'] }
+          : ref.path.includes('/shortcuts/') ? { dashboardToken: scene.role === 'parent' ? 'parent-dashboard' : 'shared-dashboard', dashboardTokens: { parent: 'parent-dashboard', student: 'shared-dashboard' } }
+            : { displayName: 'Person' }
+    return { exists: () => true, data: () => data, metadata: { fromCache: false } }
+  },
+  onSnapshot: (ref: { path: string }, _options: unknown, changed: (snapshot: unknown) => void) => {
+    scene.callbacks.set(ref.path, changed)
+    const data = ref.path.startsWith('accessLinks/') ? { active: true, personId: scene.personId }
+      : ref.path.startsWith('deviceSessions/') ? { linkToken: scene.link } : { active: true, role: scene.role, childIds: ['child'], ...(scene.diagnostics ? { accessDiagnosticsUntil: { toMillis: () => Date.now() + 60000 } } : {}) }
+    changed({ exists: () => true, data: () => data, metadata: { fromCache: false } }); return () => { if (scene.callbacks.get(ref.path) === changed) scene.callbacks.delete(ref.path) }
+  },
 }))
 vi.mock('@/lib/dayDashboardStore', () => ({
   clearCachedDayDashboard: vi.fn(), readCachedDayDashboard: () => null,
@@ -52,8 +59,9 @@ vi.mock('@/lib/dayStore', async (original) => ({
   watchDayReviews: (_tokens: string[], changed: (value: DayWorkReview[]) => void, _error: unknown, parent: boolean) => {
     scene.reviewRoles.push(parent); scene.reviewListeners.add(changed); changed(scene.reviews); return () => { scene.reviewListeners.delete(changed) }
   },
-  watchDayTaskGuides: (token: string, changed: (value: object) => void) => {
+  watchDayTaskGuides: (token: string, changed: (value: object) => void, failed: (error: unknown) => void) => {
     scene.guideReads.push(token)
+    if (scene.role !== 'parent') { failed({ code: 'permission-denied' }); return () => {} }
     changed({ problem: { guide: { kind: 'worked-solution', overview: 'Три независимых случая', revision: 1, presentation: 'math-route', stages: [
       { id: 'cases', role: 'solution', title: 'Случаи и подсчёт', expected: 'Три пары полок', rows: [], source: { kind: 'teacher-file', label: 'Лист', ref: 'sheet', excerpt: 'С разных полок' } },
       { id: 'answer', role: 'answer', title: 'Ответ и проверка', expected: 'Проверка', rows: [], answer: '1100', verification: [{ value: 'Проверка' }], source: { kind: 'teacher-file', label: 'Лист', ref: 'sheet', excerpt: 'Число пар' } },
@@ -64,17 +72,22 @@ vi.mock('@/lib/parentCompletion', async (original) => ({ ...await original<typeo
   watchParentCompletions: (_tokens: string[], changed: (events: unknown[]) => void) => { changed([]); return () => {} },
 }))
 import LearningRoute from './LearningRoute'
+import { clearPersonalSession, rememberPersonalContext, readCachedPersonalContext } from '@/lib/personalAccess'
 
 (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true
 const roots: Array<() => void> = []
 beforeEach(() => {
   vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime(new Date('2026-10-18T09:00:00Z'))
   localStorage.clear(); sessionStorage.clear(); scene.reviews = []; scene.guideReads = []; scene.reviewRoles = []; scene.reviewListeners.clear(); scene.diagnostics = false; scene.diagnosticWrites = []
+  clearPersonalSession(); scene.callbacks.clear(); scene.personId = 'person'
 })
 afterEach(async () => { await act(async () => roots.splice(0).forEach((close) => close())); vi.useRealTimers() })
-async function render(role: 'parent' | 'student') {
+async function render(role: 'parent' | 'student', options: { cold?: boolean; cachedRole?: 'parent' | 'student' } = {}) {
   scene.role = role
-  scene.profile = { personId: 'person', displayName: 'Person', children: [{ familyId: 'family', childId: 'child', displayName: 'Child', role, dashboardToken: `${role}-dashboard`, dashboardTokens: { parent: 'parent-dashboard', student: 'shared-dashboard' } }] }
+  scene.link = (role === 'parent' ? 'p' : 's').repeat(43)
+  const cachedRole = options.cachedRole ?? role
+  scene.profile = { personId: 'person', displayName: 'Person', children: [{ familyId: 'family', childId: 'child', displayName: 'Child', role: cachedRole, dashboardToken: `${cachedRole}-dashboard`, dashboardTokens: { parent: 'parent-dashboard', student: 'shared-dashboard' } }] }
+  if (!options.cold) rememberPersonalContext({ session: { personId: scene.personId, deviceUid: 'device', linkToken: scene.link }, profile: scene.profile })
   history.replaceState(null, '', '/#/days/shared-dashboard')
   const host = document.createElement('div'); document.body.append(host); const root = createRoot(host)
   roots.push(() => { root.unmount(); host.remove() })
@@ -83,6 +96,45 @@ async function render(role: 'parent' | 'student') {
   return host
 }
 describe('shared calendar with the actual weekend task composition', () => {
+  it('still closes a genuinely revoked current parent session without exposing a student fallback', async () => {
+    const host = await render('parent')
+    await act(async () => scene.callbacks.get('families/family/members/person')!({ exists: () => true, data: () => ({ active: false }), metadata: { fromCache: false } }))
+    expect(readCachedPersonalContext()).toBeNull()
+    expect(host.textContent).not.toContain('Разбор для родителя')
+    expect(host.textContent).not.toContain('Добавить фото')
+    expect(host.textContent).toContain('Доступ изменился')
+  })
+  it.each(['parent', 'student'] as const)('restores %s from the device/grant/profile graph with no local cache', async (role) => {
+    const host = await render(role, { cold: true })
+    expect(host.textContent).toContain(role === 'parent' ? 'Разбор для родителя' : 'Добавить фото решения')
+    expect(host.textContent).not.toContain(role === 'parent' ? 'Добавить фото решения' : 'Разбор для родителя')
+    expect(readCachedPersonalContext()?.profile.children[0].role).toBe(role)
+  })
+  it.each(['parent', 'student'] as const)('reconciles an opposite stale cached role to %s through the real profile reader', async (role) => {
+    const host = await render(role, { cachedRole: role === 'parent' ? 'student' : 'parent' })
+    expect(host.textContent).toContain(role === 'parent' ? 'Разбор для родителя' : 'Добавить фото решения')
+    expect(host.textContent).not.toContain(role === 'parent' ? 'Добавить фото решения' : 'Разбор для родителя')
+    expect(readCachedPersonalContext()?.profile.children[0].role).toBe(role)
+  })
+  it.each((['parent', 'student'] as const).flatMap(nextRole => (['device', 'grant', 'member'] as const).flatMap(signal => [false, true].map(storageFirst => ({ nextRole, signal, storageFirst })))))('keeps the new $nextRole identity through an old $signal callback (storageFirst=$storageFirst)', async ({ nextRole, signal, storageFirst }) => {
+    const host = await render(nextRole === 'parent' ? 'student' : 'parent')
+    const path = signal === 'device' ? 'deviceSessions/device' : signal === 'grant' ? `accessLinks/${scene.link}` : 'families/family/members/person'
+    const oldCallback = scene.callbacks.get(path)!
+    expect(oldCallback).toBeTypeOf('function')
+    scene.role = nextRole; scene.personId = `replacement-${nextRole}`; scene.link = (nextRole === 'parent' ? 'n' : 'c').repeat(43)
+    const nextProfile: PersonalProfile = { personId: scene.personId, displayName: 'Replacement', children: [{ familyId: 'family', childId: 'child', displayName: 'Child', role: nextRole, dashboardToken: nextRole === 'parent' ? 'parent-dashboard' : 'shared-dashboard', dashboardTokens: { parent: 'parent-dashboard', student: 'shared-dashboard' } }] }
+    localStorage.setItem('education-personal-context-v1', JSON.stringify({ session: { personId: scene.personId, deviceUid: 'device', linkToken: scene.link }, profile: nextProfile, savedAt: Date.now() }))
+    if (storageFirst) await act(async () => window.dispatchEvent(new StorageEvent('storage', { key: 'education-personal-context-v1' })))
+    await act(async () => oldCallback({ exists: () => signal !== 'grant', data: () => signal === 'device' ? { linkToken: scene.link } : { active: false }, metadata: { fromCache: false } }))
+    expect(readCachedPersonalContext()?.session.personId).toBe(scene.personId)
+    const group = host.querySelector<HTMLButtonElement>('.problem-group-toggle')
+    if (group?.getAttribute('aria-expanded') === 'false') await act(async () => group.click())
+    expect(host.textContent).toContain(nextRole === 'parent' ? 'Разбор для родителя' : 'Добавить фото решения')
+    expect(host.textContent).not.toContain(nextRole === 'parent' ? 'Добавить фото решения' : 'Разбор для родителя')
+    if (nextRole === 'student') expect(host.textContent).not.toContain('1100')
+    expect(host.textContent).not.toContain('Доступ изменился')
+    expect(location.hash).toBe('#/days/shared-dashboard')
+  })
   it('measures the actual parent leaf through the same member listener only when enabled', async () => {
     scene.diagnostics = true
     await render('parent')

@@ -7,6 +7,7 @@ import { db } from '@/lib/firebase'
 import { clearPersonalSession, loadPersonalProfile, readCachedPersonalContext, rememberPersonalContext, rememberPersonalDashboardRoute, watchPersonalContextChanges } from '@/lib/personalAccess'
 import { LearningAccessError, learningHash, loadLearningAccess, readCachedLearningAccess } from '@/lib/learningRoute'
 import type { LearningAccess, LearningMode } from '@/lib/learningRoute'
+import type { PersonalSession } from '@/lib/personalAccess'
 import { reportUiError } from '@/lib/uiErrors'
 import { configureRoleDiagnostics } from '@/lib/roleDiagnostics'
 import { traceAccessContext, traceAccess, accessTraceError } from '@/lib/browserAccessTrace'
@@ -34,12 +35,13 @@ export default function LearningRoute({ mode, token, headerReturnTarget }: { mod
     if (!contextAvailable) return
     const stops: Array<() => void> = []
     let revoked = false
+    let monitoredSession: PersonalSession | undefined
     let stopDiagnostics = () => {}
     const revoke = () => {
       if (!active) return
       revoked = true
       stopDiagnostics()
-      clearPersonalSession()
+      if (clearPersonalSession(monitoredSession) === false) return
       setAccess(undefined)
       setError('Доступ изменился. Откройте свою личную ссылку Education.')
     }
@@ -47,6 +49,7 @@ export default function LearningRoute({ mode, token, headerReturnTarget }: { mod
       if (!active) return
       setAccess(result)
       const { session, child } = result
+      monitoredSession = session
       let current = result
       let refreshing = false
       let memberRole = child.role

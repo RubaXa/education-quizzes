@@ -53,6 +53,28 @@ describe('personal cold start — no saved session', () => {
 })
 
 describe('personal warm start — verified saved session', () => {
+  it.each(['parent', 'student'] as const)('does not erase a newly saved %s login when the old device listener fires before the storage event', async (nextRole) => {
+    probe.authGate = Promise.resolve()
+    const previousRole = nextRole === 'parent' ? 'student' : 'parent'
+    const previous: Parameters<typeof rememberPersonalContext>[0] = { session: { personId: `old-${previousRole}`, deviceUid: 'device', linkToken: 'o'.repeat(43) }, profile: { personId: `old-${previousRole}`, displayName: 'Old', children: [{ familyId: 'family', childId: 'child', displayName: 'Learner', role: previousRole, dashboardToken: `${previousRole}-dashboard` }] } }
+    rememberPersonalContext(previous)
+    const host = document.createElement('div'); document.body.append(host)
+    const root = createRoot(host)
+    try {
+      await act(async () => root.render(<PersonalEntry />))
+      const oldDevice = probe.listeners.get('deviceSessions/device')!
+      expect(oldDevice).toBeTypeOf('function')
+      const next = { session: { personId: `new-${nextRole}`, deviceUid: 'device', linkToken: 'n'.repeat(43) }, profile: { personId: `new-${nextRole}`, displayName: 'New', children: [{ familyId: 'family', childId: 'child', displayName: 'Learner', role: nextRole, dashboardToken: `${nextRole}-dashboard` }] }, savedAt: Date.now() }
+      // The sibling's durable write is visible before its StorageEvent reaches this tab.
+      localStorage.setItem('education-personal-context-v1', JSON.stringify(next))
+      await act(async () => oldDevice({ exists: () => true, data: () => ({ linkToken: next.session.linkToken }), metadata: { fromCache: false } }))
+      expect(readCachedPersonalContext()?.session.personId).toBe(`new-${nextRole}`)
+      expect(host.textContent).toContain(nextRole === 'parent' ? 'Кабинет New' : 'Кабинет ученика')
+      expect(host.textContent).not.toContain('отозвана')
+      await act(async () => window.dispatchEvent(new StorageEvent('storage', { key: 'education-personal-context-v1' })))
+      expect(host.textContent).toContain(nextRole === 'parent' ? 'Кабинет New' : 'Кабинет ученика')
+    } finally { await act(async () => root.unmount()); host.remove() }
+  })
   it('renders the saved parent view before Auth/server, then closes on confirmed revocation', async () => {
     let release!: () => void
     probe.authGate = new Promise<void>((resolve) => { release = resolve })
