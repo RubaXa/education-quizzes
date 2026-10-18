@@ -11,6 +11,7 @@ import { db } from '../lib/firebase'
 import DayDashboard from '../DayDashboard'
 import { ParentHome } from './ParentHome'
 import { reportUiError } from '@/lib/uiErrors'
+import { configureRoleDiagnostics } from '@/lib/roleDiagnostics'
 
 function accessError(cause: unknown): string {
   const detail = reportUiError(cause, 'Личный вход')
@@ -166,9 +167,13 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
     const familyIds = [...new Set(profile.children.map((child) => child.familyId))]
     const confirmed = new Set<string>()
     setVerifiedProfile(familyIds.length ? null : profile)
+    const diagnosticStops = new Map<string, () => void>()
     const stops = familyIds.map((familyId) => onSnapshot(doc(db, 'families', familyId, 'members', session.personId), { includeMetadataChanges: true }, (member) => {
       if (member.metadata.fromCache || !active) return
       const previous = profile.children.filter((child) => child.familyId === familyId)
+      const previousDiagnosticStop = diagnosticStops.get(familyId)
+      diagnosticStops.set(familyId, configureRoleDiagnostics(session, familyId, member.data() ?? {}, previous[0]?.role ?? 'unknown'))
+      previousDiagnosticStop?.()
       const ids = Array.isArray(member.data()?.childIds) ? member.data()!.childIds.filter((id: unknown): id is string => typeof id === 'string').sort() : []
       const changed = !member.exists() || member.data()?.active !== true ||
         member.data()?.role !== previous[0]?.role ||
@@ -199,7 +204,7 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
       setError(accessError(cause))
       setRetryable(true)
     }))
-    return () => { active = false; stops.forEach((stop) => stop()) }
+    return () => { active = false; stops.forEach((stop) => stop()); diagnosticStops.forEach((stop) => stop()) }
   }, [session, profile, verifiedSession, retry])
 
   useEffect(() => {

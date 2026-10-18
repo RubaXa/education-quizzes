@@ -123,6 +123,29 @@ service cloud.firestore {
     // @see docs/modules/synchronization/global-sync.md#operator-queue
     match /operatorSyncJobs/{jobId} { allow read, write: if false; }
 
+    // Temporary, operator-enabled role measurements. No client reads or lesson data.
+    // @see docs/modules/families/access-and-state.md#access-diagnostics
+    match /clientRoleDiagnostics/{authUid} {
+      allow read, delete: if false;
+      allow create, update: if request.auth != null && request.auth.uid == authUid
+        && activeSession()
+        && request.resource.data.keys().hasOnly(['schemaVersion', 'probeVersion', 'personId', 'familyId', 'childId', 'memberRole', 'profileRole', 'renderedRole', 'hasGuide', 'surface', 'sampledAt', 'expiresAt'])
+        && request.resource.data.keys().hasAll(['schemaVersion', 'probeVersion', 'personId', 'familyId', 'childId', 'memberRole', 'profileRole', 'renderedRole', 'hasGuide', 'surface', 'sampledAt', 'expiresAt'])
+        && request.resource.data.schemaVersion == 1
+        && request.resource.data.probeVersion == 'role-projection-v1'
+        && request.resource.data.personId == currentPersonId()
+        && request.resource.data.familyId is string && request.resource.data.childId is string
+        && childMember(request.resource.data.familyId, request.resource.data.childId)
+        && request.resource.data.memberRole == get(memberPath(request.resource.data.familyId)).data.role
+        && request.resource.data.profileRole in ['parent', 'student']
+        && request.resource.data.renderedRole in ['parent', 'student']
+        && request.resource.data.hasGuide is bool
+        && request.resource.data.surface in ['day', 'day-parent', 'days', 'days-parent', 'home']
+        && request.resource.data.sampledAt == request.time
+        && request.resource.data.expiresAt == get(memberPath(request.resource.data.familyId)).data.accessDiagnosticsUntil
+        && request.time < request.resource.data.expiresAt;
+    }
+
     match /accessLinks/{secret} {
       allow get: if activeSession()
         && get(/databases/$(database)/documents/deviceSessions/$(request.auth.uid)).data.linkToken == secret;
