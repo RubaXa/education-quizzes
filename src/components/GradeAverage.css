@@ -1,0 +1,9 @@
+/* @see ../../docs/decisions/grade-average-ui-kit-2026-10-18.md */
+/* @see ../../docs/modules/school-diary/grades.md#grade-badge */
+.edu-grade-average{display:inline-flex;align-items:center;justify-content:center;min-height:32px;padding:3px 9px;border-radius:10px;font-variant-numeric:tabular-nums;font-weight:800;line-height:1;white-space:nowrap}
+.edu-grade-average-error{background:var(--edu-status-error-bg);color:var(--edu-status-error-ink)}
+.edu-grade-average-neutral{background:var(--edu-status-neutral-bg);color:var(--edu-status-neutral-ink)}
+.edu-grade-average-accent{background:var(--edu-status-accent-bg);color:var(--edu-status-accent-ink)}
+.edu-grade-average-attention{background:var(--edu-status-attention-bg);color:var(--edu-status-attention-ink)}
+.edu-grade-average-success{background:var(--edu-status-success-bg);color:var(--edu-status-success-ink)}
+.edu-grade-average-star{margin-left:2px}

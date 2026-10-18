@@ -386,6 +386,38 @@
       "path": "docs/decisions/documentation-precommit-2026-10-16.md"
     },
     {
+      "id": "decision.grade-average-ui-kit-2026-10-18",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-18",
+      "updated": "2026-10-18",
+      "parent": "module.school-diary.grades",
+      "consumers": [
+        "Education UI",
+        "Education UI Kit",
+        "frontend developer"
+      ],
+      "uses": [
+        "module.school-diary.grades",
+        "shared.design",
+        "shared.design.ui-kit"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование",
+        "затронутые-файлы"
+      ],
+      "code": [
+        "src/components/GradeAverage.tsx",
+        "src/components/GradeAverageSlider.tsx",
+        "src/UiKit.tsx"
+      ],
+      "path": "docs/decisions/grade-average-ui-kit-2026-10-18.md"
+    },
+    {
       "id": "decision.mesh-calendar-date-scopes-2026-10-18",
       "status": "accepted",
       "implementation": "not-applicable",
@@ -3199,6 +3231,34 @@
       "consumer": "`ParentHome.tsx`"
     },
     {
+      "id": "file:src/components/GradeAverage.css",
+      "path": "src/components/GradeAverage.css",
+      "kind": "artifact",
+      "purpose": "Единая чип-оболочка и статусные пары токенов среднего балла",
+      "consumer": "GradeAverage"
+    },
+    {
+      "id": "file:src/components/GradeAverage.tsx",
+      "path": "src/components/GradeAverage.tsx",
+      "kind": "artifact",
+      "purpose": "Общая отображающая метка школьного среднего с нейтральным, внимательным и отличным тоном",
+      "consumer": "DayPage; DayDashboard; UI Kit"
+    },
+    {
+      "id": "file:src/components/GradeAverageSlider.css",
+      "path": "src/components/GradeAverageSlider.css",
+      "kind": "artifact",
+      "purpose": "Доступный стиль поля диапазона, маркеров, подтверждений и живого результата",
+      "consumer": "GradeAverageSlider"
+    },
+    {
+      "id": "file:src/components/GradeAverageSlider.tsx",
+      "path": "src/components/GradeAverageSlider.tsx",
+      "kind": "artifact",
+      "purpose": "Локальный слайдер 2,00–5,00 для динамической проверки компонентов шкалы среднего",
+      "consumer": "UI Kit"
+    },
+    {
       "id": "file:src/components/HomeworkOverview.test.tsx",
       "path": "src/components/HomeworkOverview.test.tsx",
       "kind": "verification",
@@ -5924,7 +5984,11 @@
         "src/DayDashboard.css",
         "src/DayDashboard.tsx",
         "src/DayPage.css",
-        "src/DayPage.tsx"
+        "src/DayPage.tsx",
+        "src/components/GradeAverage.tsx",
+        "src/components/GradeAverage.css",
+        "src/components/GradeAverageSlider.tsx",
+        "src/components/GradeAverageSlider.css"
       ],
       "parent": "module.school-diary",
       "uses": [
@@ -6742,6 +6806,29 @@
         "выпуск-1210"
       ],
       "path": "docs/research/firestore-read-reduction-research-2026-10-12.md"
+    },
+    {
+      "id": "research.grade-average-visual-scale-2026-10-18",
+      "status": "reference",
+      "implementation": "not-applicable",
+      "created": "2026-10-18",
+      "updated": "2026-10-18",
+      "parent": "product.education",
+      "consumers": [
+        "Education product design",
+        "Education UI Kit"
+      ],
+      "uses": [
+        "shared.design",
+        "module.school-diary.grades"
+      ],
+      "code": [],
+      "sections": [
+        "источники",
+        "выводы",
+        "предложенная-шкала"
+      ],
+      "path": "docs/research/grade-average-visual-scale-2026-10-18.md"
     },
     {
       "id": "research.literature-card-options",
@@ -7701,7 +7788,9 @@
       "code": [
         "src/UiKit.css",
         "src/UiKit.tsx",
-        "src/lib/uiKitExamples.ts"
+        "src/lib/uiKitExamples.ts",
+        "src/components/GradeAverageSlider.css",
+        "src/components/GradeAverageSlider.tsx"
       ],
       "parent": "shared.design",
       "uses": [
@@ -7713,7 +7802,9 @@
         "первый-набор",
         "регрессии-и-развитие",
         "уточнение-материала-ученика",
-        "сводка-дз"
+        "сводка-дз",
+        "school-grade-average",
+        "school-grade-average-slider"
       ],
       "path": "docs/shared/design/ui-kit.md"
     },
@@ -7977,6 +8068,21 @@
     {
       "from": "decision.documentation-precommit",
       "to": "shared.specification-system",
+      "type": "uses"
+    },
+    {
+      "from": "decision.grade-average-ui-kit-2026-10-18",
+      "to": "module.school-diary.grades",
+      "type": "uses"
+    },
+    {
+      "from": "decision.grade-average-ui-kit-2026-10-18",
+      "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
+      "from": "decision.grade-average-ui-kit-2026-10-18",
+      "to": "shared.design",
       "type": "uses"
     },
     {
@@ -9635,6 +9741,46 @@
       "type": "implements"
     },
     {
+      "from": "file:src/components/GradeAverage.css",
+      "to": "module.school-diary.grades",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/GradeAverage.tsx",
+      "to": "decision.grade-average-ui-kit-2026-10-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/GradeAverage.tsx",
+      "to": "module.school-diary.grades",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/GradeAverageSlider.css",
+      "to": "module.school-diary.grades",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/GradeAverageSlider.css",
+      "to": "shared.design.ui-kit",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/GradeAverageSlider.tsx",
+      "to": "decision.grade-average-ui-kit-2026-10-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/GradeAverageSlider.tsx",
+      "to": "module.school-diary.grades",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/GradeAverageSlider.tsx",
+      "to": "shared.design.ui-kit",
+      "type": "implements"
+    },
+    {
       "from": "file:src/components/HomeworkOverview.tsx",
       "to": "module.school-diary.dashboard",
       "type": "implements"
@@ -10806,6 +10952,11 @@
     },
     {
       "from": "file:src/UiKit.tsx",
+      "to": "decision.grade-average-ui-kit-2026-10-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/UiKit.tsx",
       "to": "shared.design.ui-kit",
       "type": "implements"
     },
@@ -11851,6 +12002,11 @@
     },
     {
       "from": "module.school-diary.grades",
+      "to": "decision.grade-average-ui-kit-2026-10-18",
+      "type": "contains"
+    },
+    {
+      "from": "module.school-diary.grades",
       "to": "file:day/grade-publication.test.mjs",
       "type": "verified-by"
     },
@@ -12601,6 +12757,11 @@
     },
     {
       "from": "product.education",
+      "to": "research.grade-average-visual-scale-2026-10-18",
+      "type": "contains"
+    },
+    {
+      "from": "product.education",
       "to": "research.literature-card-options",
       "type": "contains"
     },
@@ -12788,6 +12949,16 @@
       "from": "product.ui-change-control",
       "to": "file:scripts/check-ui-contract.test.mjs",
       "type": "verified-by"
+    },
+    {
+      "from": "research.grade-average-visual-scale-2026-10-18",
+      "to": "module.school-diary.grades",
+      "type": "uses"
+    },
+    {
+      "from": "research.grade-average-visual-scale-2026-10-18",
+      "to": "shared.design",
+      "type": "uses"
     },
     {
       "from": "research.result-colour-and-density",

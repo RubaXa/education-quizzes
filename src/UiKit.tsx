@@ -1,3 +1,5 @@
+/** @see ../docs/decisions/grade-average-ui-kit-2026-10-18.md */
+/** @see ../docs/shared/design/ui-kit.md#school-grade-average */
 import HomeworkOverview from '@/components/HomeworkOverview'
 import MaterialRequest from '@/components/MaterialRequest'
 import PhotoUploadControl from '@/components/PhotoUploadControl'
@@ -5,6 +7,8 @@ import { useState } from 'react'
 import { BookOpen, ChevronRight, CircleHelp, Layers3, Palette } from 'lucide-react'
 import { ResultBadge, ResultMeter, ResultPoints } from '@/components/ui/result'
 import QuizCard from '@/components/QuizCard'
+import GradeAverage from '@/components/GradeAverage'
+import GradeAverageSlider from '@/components/GradeAverageSlider'
 import { uiKitQuizExamples, uiKitHomeworkRows } from '@/lib/uiKitExamples'
 import type { ResultInput } from '@/lib/resultPresentation'
 import tokenCss from './education-design-tokens.css?raw'
@@ -13,6 +17,7 @@ import './UiKit.css'
 const topics = [
   {id:'tokens',group:'Основы',title:'Цвета и токены',icon:Palette},
   {id:'results',group:'Компоненты',title:'Индикаторы результата',icon:CircleHelp},
+  {id:'grades',group:'Компоненты',title:'Средний балл',icon:CircleHelp},
   {id:'homework',group:'Составные сценарии',title:'Сводка ДЗ',icon:BookOpen},
   {id:'material',group:'Составные сценарии',title:'Уточнение материала',icon:BookOpen},
   {id:'quiz',group:'Составные сценарии',title:'История тестов',icon:Layers3},
@@ -59,7 +64,7 @@ export default function UiKit() {
   const [demoFiles,setDemoFiles] = useState<string[]>([])
   const input:ResultInput = state==='score' ? {kind:'score',points,maxPoints:max} : state==='answers' ? {kind:'answers',answered:points,total:max} : {kind:state==='waiting'?'waiting':'unknown'}
   return <div className="edu-kit">
-    <header className="edu-kit-intro"><span><BookOpen size={18} aria-hidden="true" /> Education UI Kit</span><h1>Компоненты и правила</h1><p>Живые компоненты приложения, их состояния и смысл токенов. Начинаем с результатов; каталог расширяется постепенно.</p><a href="#/">На главную</a></header>
+    <header className="edu-kit-intro"><span><BookOpen size={18} aria-hidden="true" /> Education UI Kit</span><h1>Компоненты и правила</h1><p>Живые компоненты приложения, их состояния и смысл токенов. Каталог расширяется по мере унификации интерфейса.</p><a href="#/">На главную</a></header>
     <div className="edu-kit-layout"><nav aria-label="Разделы UI Kit">{topics.map(topic => <div key={topic.id}><small>{topic.group}</small><button type="button" aria-current={section===topic.id?'page':undefined} onClick={()=>setSection(topic.id)}><topic.icon size={16} aria-hidden="true" />{topic.title}<ChevronRight size={14} aria-hidden="true" /></button></div>)}</nav>
     <div className="edu-kit-content">
       {section==='results' && <section aria-labelledby="kit-results-title"><h2 id="kit-results-title">Индикаторы результата</h2><p>Метка, баллы и полоса используют одну политику цвета. Заполнение ответов и ожидание проверки — самостоятельные состояния.</p>
@@ -69,6 +74,20 @@ export default function UiKit() {
         <h3>Когда использовать</h3><ul><li><b>Метка результата:</b> процент в компактном списке или заголовке. Цвет дополняется числом и знаком.</li><li><b>Баллы:</b> набрано / максимум. Это не число полностью верных вопросов.</li><li><b>Полоса результата:</b> фактическая доля баллов; 0% остаётся пустой полосой с видимой меткой.</li><li><b>Заполнение:</b> пять ответов из пяти ещё не означают пять верных ответов. Поэтому полный черновик фиолетовый.</li><li><b>Ожидание:</b> без фиктивных 0% и без полосы результата.</li></ul>
         <h3>Границы</h3><p>Зачёт — от 85%. Янтарный — от 50% до порога зачёта. Красный — ниже 50%. Сравнение выполняется до округления: 84,99% не превращается в зелёные 85%. Эти границы относятся к тестам; школьный средний не переводится в проценты.</p>
       </section>}
+      {section==='grades' && <section aria-labelledby="kit-grades-title"><h2 id="kit-grades-title">Шкала среднего балла</h2><p>Фиксированные примеры показывают ключевые рубежи, а отдельный слайдер позволяет проверить каждый промежуточный балл от 2 до 5.</p>
+        <h3>Примеры диапазонов</h3><div className="edu-kit-grade-examples" aria-label="Фиксированные примеры среднего балла">{[
+          {value:'2,00',tone:'error' as const,label:'Диапазон двоек · нужна поддержка'},
+          {value:'3,00',tone:'attention' as const,label:'Начало диапазона троек'},
+          {value:'4,00',tone:'neutral' as const,label:'Диапазон четвёрок'},
+          {value:'4,50',tone:'accent' as const,label:'Уже хорошо'},
+          {value:'4,60',tone:'success' as const,label:'Устойчиво высокий средний'},
+          {value:'5,00',tone:'success' as const,label:'Все отметки — пятёрки',excellent:true},
+        ].map(item=><div key={item.value}><GradeAverage value={item.value} tone={item.tone} excellent={item.excellent}/><span>{item.label}</span></div>)}</div>
+        <GradeAverageSlider />
+        <h3>Пограничные значения</h3><div className="edu-kit-grade-boundaries"><span>2,99 <b>→</b> 3,00</span><span>3,99 <b>→</b> 4,00</span><span>4,49 <b>→</b> 4,50</span><span>4,59 <b>→</b> 4,60</span><span>4,99 <b>→</b> 5,00</span></div>
+        <ol><li><b>2,00–2,99:</b> красный <code>error</code> — заметный сигнал, что по предмету нужна помощь.</li><li><b>3,00–3,99:</b> янтарный <code>attention</code> — средний на уровне троек.</li><li><b>4,00–4,49:</b> спокойный <code>neutral</code> — четвёрочный диапазон ниже выбранного рубежа «хорошо».</li><li><b>4,50–4,59:</b> фиолетовый <code>accent</code> — уже хорошо; до следующего ориентира ещё есть шаг.</li><li><b>4,60–4,99:</b> зелёный <code>success</code> — устойчиво высокий средний.</li><li><b>5,00 + allFives:</b> ✨ после числа — все отметки в срезе пятёрки.</li></ol>
+        <p>Это визуальная шкала сохранённого среднего, не нормативная формула годовой отметки. Границы 4,50 и 4,60 показывают выбранные ориентиры; «твёрдую пятёрку» нельзя обещать без подтверждённых школьных правил. Подробное основание: <a href="https://www.w3.org/WAI/WCAG22/Understanding/use-of-color.html">W3C о цвете</a>, <a href="https://www.carbondesignsystem.com/building-blocks/core/patterns/status-indicators">Carbon об индикаторах</a> и <a href="https://design-system.service.gov.uk/components/tag/">GOV.UK о цветовых метках</a>. Уровень риска <code>watch</code> в реальных данных сохраняет приоритет. Изменения ползунка, watch и allFives действуют только в демонстрации.</p>
+        <h3>Декомпозиция</h3><p><code>GradeAverageSlider</code> меняет значение локально, <code>gradeAverageTone</code> выбирает действующий цветовой токен, <code>GradeAverage</code> показывает число и явный знак всех пятёрок. DayPage/DayDashboard сохраняют управление оценкой, источник, watch-сигнал и раскрытие; UI Kit не записывает данные семьи.</p></section>}
       {section==='tokens' && <section aria-labelledby="kit-tokens-title"><h2 id="kit-tokens-title">Цвета и токены</h2><p>Базовое значение → смысловая роль → компонент. Компонент берёт цвет по смыслу, например success, а не выбирает свой зелёный.</p><div className="edu-kit-roles">{colourRoles.map(([role,label,description])=><div key={role} className={`edu-result-tone-${role}`}><span className="edu-kit-swatch" /><strong>{label}</strong><small>{description}</small><code>--edu-status-{role}-bg / ink</code></div>)}</div>
       <h3>Текущие CSS-токены</h3><p>Значения ниже получены из общего файла приложения. Изменение токена обновляет примеры и потребителей одновременно.</p><dl className="edu-kit-token-list">{tokenDefinitions.map(token=><div key={token.name}><dt><code>{token.name}</code><span className="edu-kit-token-preview" style={{background:token.name.endsWith('-bg')||token.name.endsWith('-ink')||token.name==='--edu-canvas'?`var(${token.name})`:undefined}} aria-hidden="true" /></dt><dd><code>{token.value}</code><p>{tokenMeaning(token.name)}</p></dd></div>)}</dl>
       </section>}
