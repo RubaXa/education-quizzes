@@ -32,6 +32,18 @@ it('has internally consistent example points and counts',()=>{
  for(const test of uiKitQuizExamples){const score=summarize(test.results!);expect(score.earned).toBe(test.points);expect(score.possible).toBe(test.maxPoints)}
 })
 
+/** @see ../docs/shared/design/ui-kit.md */
+it('preserves grouped navigation and the shared grade average simulator',async()=>{
+ document.body.append(host);root=createRoot(host);await act(async()=>root!.render(<UiKit/>))
+ expect([...host.querySelectorAll('nav small')].map(node=>node.textContent)).toEqual(['Основы','Компоненты','Составные сценарии'])
+ expect(host.querySelectorAll('nav button')).toHaveLength(6)
+ await act(async()=>[...host.querySelectorAll<HTMLButtonElement>('nav button')].find(button=>button.textContent==='Средний балл')!.click())
+ const range=host.querySelector<HTMLInputElement>('input[type="range"]')!
+ expect([range.min,range.max,range.step]).toEqual(['200','500','1'])
+ expect(host.querySelector('.edu-grade-slider output')?.textContent).toBe('4,50')
+ expect(host.querySelector('.edu-grade-slider')).not.toBeNull()
+})
+
 /** @see ../docs/modules/school-diary/dashboard.md#compact-homework */
 it('previews the real homework component and its existing click targets',async()=>{
  document.body.append(host);root=createRoot(host);await act(async()=>root!.render(<UiKit/>))

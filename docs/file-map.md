@@ -347,9 +347,9 @@
 | [src/DayPage.css](../src/DayPage.css) | [Страница дня](modules/school-diary/day-page.md) | Оформление заданий и фокуса после перехода из расписания | `src/DayPage.tsx` |
 | [src/DayPage.gradeBadge.test.tsx](../src/DayPage.gradeBadge.test.tsx) | [Средний балл](modules/school-diary/grades.md) | Регрессия раскрытия среднего независимо от цвета и проверка сценария | Vitest; разработчик |
 | [src/DayPage.tsx](../src/DayPage.tsx) | [Страница дня](modules/school-diary/day-page.md) | Компоновка дня из Firestore, отдельный срок сдачи, семейная доработка и фокус задания | Ученик; родитель; `ProblemGroup` |
-| [src/UiKit.css](../src/UiKit.css) | [Контракт](shared/design/ui-kit.md) | Адаптивная композиция каталога на общих токенах | UiKit |
+| [src/UiKit.css](../src/UiKit.css) | [Контракт](shared/design/ui-kit.md) | Адаптивная композиция каталога и единожды подписанных навигационных групп | UiKit |
 | [src/UiKit.test.tsx](../src/UiKit.test.tsx) | [Контракт](shared/design/ui-kit.md) | Регрессия примеров, навигации, локальных входов и токенов | Vitest |
-| [src/UiKit.tsx](../src/UiKit.tsx) | [Контракт](shared/design/ui-kit.md) | Интерактивные рабочие индикаторы, описание текущих токенов и пример истории | App; родитель; разработчик |
+| [src/UiKit.tsx](../src/UiKit.tsx) | [Контракт](shared/design/ui-kit.md) | Группированная навигация и интерактивные рабочие компоненты с условными примерами | App; родитель; разработчик |
 | [src/components/GradeAverage.tsx](../src/components/GradeAverage.tsx) | [Средний балл](modules/school-diary/grades.md) | Общая отображающая метка школьного среднего с нейтральным, внимательным и отличным тоном | DayPage; DayDashboard; UI Kit |
 | [src/components/GradeAverage.css](../src/components/GradeAverage.css) | [Средний балл](modules/school-diary/grades.md) | Единая чип-оболочка и статусные пары токенов среднего балла | GradeAverage |
 | [src/components/GradeAverageSlider.tsx](../src/components/GradeAverageSlider.tsx) | [UI Kit](shared/design/ui-kit.md) | Локальный слайдер 2,00–5,00 для динамической проверки компонентов шкалы среднего | UI Kit |
