@@ -64,13 +64,14 @@ export class SourcePipeline {
       const sequence = (lease.sequence ?? 0) + 1
       const records = mergeKnownRecords(lease.baseline?.records ?? [], currentRecords)
       if (records.length > this.maxRecords) return incompleteResult(lease.sequence ?? 0, scopeKey, 'source_snapshot_too_large')
-      const current = { complete: true, observationSequence: sequence, sourceProjectionVersion: 2, records }
+      const current = { complete: true, observationSequence: sequence, sourceProjectionVersion: 2, reviewProjectionVersion: 2, records }
       let events = []
       if (this.mode === 'notify' && (lease.baseline || origin === 'live')) {
         const priorRecords = lease.baseline?.records ?? []
         const priorByKey = new Map(priorRecords.map((record) => [record.recordKey, record]))
         const diffRecords = records.filter((record) => shouldDiffRecord(record, priorByKey.get(record.recordKey), {
           origin, previousProjectionVersion: lease.baseline?.sourceProjectionVersion ?? null,
+          previousReviewProjectionVersion: lease.baseline?.reviewProjectionVersion ?? null,
         }))
         const previous = lease.baseline ?? { complete: true, observationSequence: 0, records: [] }
         const diff = diffCompleteSnapshots({ source: observation.source, scopeKey: observation.scopeKey, familyId: scope.familyId, childId: scope.childId,
@@ -198,7 +199,7 @@ export function normalizeSourceRecords(records) {
     assignment: new Set(['childName', 'subject', 'title', 'occurredLabel']),
     upload: new Set(['childName', 'subject', 'title', 'status', 'occurredLabel']),
     quiz: new Set(['childName', 'subject', 'title', 'status']),
-    review: new Set(['childName', 'subject', 'status']),
+    review: new Set(['childName', 'subject', 'title', 'occurredLabel', 'status']),
     probe: new Set(),
   }
   for (const record of records) {
@@ -240,7 +241,7 @@ export function normalizeSourceRecords(records) {
   return safe
 }
 
-function shouldDiffRecord(record, before, { origin, previousProjectionVersion } = {}) {
+function shouldDiffRecord(record, before, { origin, previousProjectionVersion, previousReviewProjectionVersion } = {}) {
   if (record.kind === 'upload') {
     // Upload projection v2 adds stable stored uploads and task context.
     // Existing baselines are enriched quietly. A legacy empty bootstrap is
@@ -254,6 +255,14 @@ function shouldDiffRecord(record, before, { origin, previousProjectionVersion } 
     const next = rank[record.fields?.status]
     const prior = rank[before?.fields?.status]
     return Number.isInteger(next) && (prior === undefined || next > prior)
+  }
+  if (record.kind === 'review') {
+    // Legacy status-only baselines migrate once without replay; after migration,
+    // another accepted review can be new even when its public status is unchanged.
+    if (!before) return origin === 'live'
+    if (before.fields?.status !== record.fields?.status) return true
+    if (previousReviewProjectionVersion !== 2) return false
+    return before.semanticHash !== record.semanticHash
   }
   if (record.eventType) return true
   return ['grade', 'schedule', 'assignment'].includes(record.kind)

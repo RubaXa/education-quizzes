@@ -1,5 +1,6 @@
+/* @see ../../../docs/decisions/telegram-compact-digest-2026-10-18.md */
 /** @see ../../../docs/services/telegram-bot/delivery.md#структурный-вид */
-import { getNotificationPresentation, validateNotificationAction } from '../../education-presentation/notification.mjs'
+import { getNotificationPresentation, getNotificationDigestPresentation, validateNotificationAction } from '../../education-presentation/notification.mjs'
 
 const LABELS = Object.freeze({
   'schedule.created': 'Добавлено расписание', 'schedule.changed': 'Изменено расписание', 'schedule.cancelled': 'Расписание отменено',
@@ -32,48 +33,66 @@ export function renderEvent(event, audience, { maxChars = 3900 } = {}) {
 }
 
 /** New immutable outbox representation. Each part is plain JSON and can be replayed without rerendering. */
-export function renderNotificationParts(event, audience, { maxChars = 3900, demo = false, action = null } = {}) {
+export function renderNotificationParts(event, audience, { maxChars = 1200, demo = false, action = null } = {}) {
+  return renderNotificationDigestParts([event], audience, { maxChars, demo, action })
+}
+
+/** Compact durable digest renderer. User-facing text is ordinary HTML with explicit newlines. */
+export function renderNotificationDigestParts(events, audience, { maxChars = 1200, demo = false, action = null } = {}) {
   if (!['family', 'team'].includes(audience)) throw new Error('invalid_audience')
-  if (!Object.hasOwn(LABELS, event.eventType) || event.privacyClass === 'restricted') return []
-  if (audience === 'team' || (audience === 'family' && event.privacyClass !== 'family-summary')) return []
-  const vm = getNotificationPresentation(event, { demo, action: demo ? action : null })
-  const pieces = [
-    `${vm.eventEmoji} ${vm.headline}`,
-    [vm.childName, vm.subject].filter(Boolean).join(' · ') || null,
-    vm.title ? `Задание: ${vm.title}` : null,
-    vm.value ? `Оценка: ${vm.value}` : null,
-    vm.occurredLabel,
-    vm.status ? `${vm.status.emoji} ${vm.status.label}` : null,
-    vm.demo ? 'Демонстрация · условный пример' : null,
-  ].filter(Boolean)
-  if (event.eventType === 'technical.probe') pieces.splice(0, pieces.length, '📚 Демонстрация уведомления', 'Это служебное сообщение; учебные данные не использовались.')
-  const plainText = pieces.join('\n')
-  if ([...plainText].length > maxChars) throw new Error('notification_part_too_long')
-  const escaped = pieces.map((piece, index) => index === 0 || piece === `Задание: ${vm.title}` || piece === `Оценка: ${vm.value}`
-    ? `<b>${escapeHtml(piece)}</b>` : piece === vm.occurredLabel ? `<i>${escapeHtml(piece)}</i>` : escapeHtml(piece))
-  const blocks = [
-    { type: 'heading', size: 4, text: `${vm.eventEmoji} ${vm.headline}` },
-    ...([vm.childName, vm.subject].filter(Boolean).length ? [{ type: 'paragraph', text: [vm.childName, vm.subject].filter(Boolean).join(' · ') }] : []),
-    ...(vm.title ? [{ type: 'heading', size: 3, text: { type: 'bold', text: `Задание: ${vm.title}` } }] : []),
-    ...(vm.value ? [{ type: 'paragraph', text: { type: 'bold', text: `Оценка: ${vm.value}` } }] : []),
-    ...(vm.occurredLabel ? [{ type: 'footer', text: { type: 'italic', text: vm.occurredLabel } }] : []),
-    ...(vm.status ? [{ type: 'divider' }, { type: 'paragraph', text: `${vm.status.emoji} ${vm.status.label}` }] : []),
-    ...(vm.demo ? [{ type: 'footer', text: 'Демонстрация · условный пример' }] : []),
-  ]
-  if (event.eventType === 'technical.probe') {
-    blocks.splice(0, blocks.length, { type: 'heading', size: 3, text: '🧪 Демонстрация уведомления' }, { type: 'paragraph', text: 'Это служебное сообщение; учебные данные не использовались.' })
+  if (!Array.isArray(events) || !events.length || events.some((event) => !Object.hasOwn(LABELS, event.eventType)
+    || event.privacyClass === 'restricted' || event.privacyClass !== 'family-summary')) return []
+  if (audience !== 'family') return []
+  if (events.some((event) => event.eventType === 'review.changed'
+    && (!safeText(event.fields?.subject) || !safeText(event.fields?.title)))) return []
+  const vm = getNotificationDigestPresentation(events)
+  if (!vm) return []
+  if (!Number.isInteger(maxChars) || maxChars < 100) throw new Error('invalid_message_limit')
+  let header = [vm.childName, vm.subject].filter(Boolean).join(' · ')
+  let lines = vm.text.split('\n').filter(Boolean).slice(header ? 1 : 0)
+  if (demo && header) header = `Пример · ${header}`
+  if (events.length === 1 && events[0].eventType === 'technical.probe') {
+    header = ''
+    lines = ['🧪 Демонстрация уведомления', 'Это служебное сообщение; учебные данные не использовались.']
   }
-  const part = { plaintext: plainText, html: escaped.join('\n'), rich_message: { blocks }, demo: vm.demo }
-  if (vm.action) {
-    const validAction = validateNotificationAction(vm.action, { demo: vm.demo })
+  if (demo && lines.length && !header && !(events.length === 1 && events[0].eventType === 'technical.probe')) lines[0] = `Пример · ${lines[0]}`
+  const chunks = []
+  let chunk = []
+  let chunkLength = [...header].length
+  for (const line of lines) {
+    if ([...line].length > maxChars - 80) throw new Error('notification_entry_too_long')
+    const extra = [...line].length + (chunk.length ? 1 : header ? 1 : 0)
+    if (chunk.length && (chunk.length >= 6 || chunkLength + extra > maxChars - 50)) {
+      chunks.push(chunk)
+      chunk = []
+      chunkLength = [...header].length
+    }
+    chunk.push(line)
+    chunkLength += extra
+  }
+  if (chunk.length || !chunks.length) chunks.push(chunk)
+  const partCount = chunks.length
+  const parts = chunks.map((linesForPart, index) => {
+    const partHeader = partCount > 1 ? `${header ? `${header} · ` : ''}часть ${index + 1}/${partCount}` : header
+    const plainText = [partHeader, ...linesForPart].filter(Boolean).join('\n')
+    const html = `${partHeader ? `<b>${escapeHtml(partHeader)}</b>${linesForPart.length ? '\n' : ''}` : ''}${linesForPart.map(escapeHtml).join('\n')}`
+    const blocks = [{ type: 'paragraph', text: plainText }]
+    const part = { plaintext: plainText, html, format: 'html', rich_message: { blocks }, demo: demo === true }
+    return part
+  })
+  const event = events[0]
+  const actionCandidate = demo ? action : events.length === 1 ? getNotificationPresentation(event).action : null
+  if (actionCandidate) {
+    const validAction = validateNotificationAction(actionCandidate, { demo })
     if (validAction) {
+      const part = parts[0]
       part.keyboard = { buttons: [{ text: validAction.label, url: validAction.url }] }
-      part.actionKind = vm.demo && validAction.url.endsWith('#/ui-kit') ? 'demo' : 'education'
+      part.actionKind = demo && validAction.url.endsWith('#/ui-kit') ? 'demo' : 'education'
       if (part.actionKind === 'education') part.navigationContext = { kind: 'day', dayToken: event.navigationContext.dayToken }
-      blocks.push({ type: 'buttons', buttons: [{ text: validAction.label, url: validAction.url, style: 'primary' }] })
+      part.rich_message.blocks.push({ type: 'buttons', buttons: [{ text: validAction.label, url: validAction.url, style: 'primary' }] })
     }
   }
-  return [part]
+  return parts
 }
 
 export function notificationMessageVersion(parts) {
@@ -90,6 +109,9 @@ export function isValidNotificationPart(part) {
     || (part.html.match(/<i>/g)?.length ?? 0) !== (part.html.match(/<\/i>/g)?.length ?? 0)
     || !part.rich_message || !Array.isArray(part.rich_message.blocks) || !part.rich_message.blocks.length
     || Object.keys(part.rich_message).some((key) => key !== 'blocks')
+    || (part.format !== undefined && part.format !== 'html')
+    || (part.format === 'html' && (part.rich_message.blocks.filter((block) => block?.type === 'heading' || block?.type === 'divider' || block?.type === 'footer').length > 0
+      || part.rich_message.blocks.filter((block) => block?.type === 'paragraph').length !== 1))
     || part.rich_message.blocks.length > 20 || part.rich_message.media !== undefined || typeof part.demo !== 'boolean') return false
   for (const block of part.rich_message.blocks) {
     if (block?.type === 'divider') { if (Object.keys(block).length !== 1) return false; continue }
@@ -126,7 +148,7 @@ export function isValidNotificationPart(part) {
     if (!part.demo || fallbackButton?.url !== 'https://rubaxa.github.io/education-quizzes/#/ui-kit'
       || richButton(part)?.url !== fallbackButton.url || richButton(part)?.text !== fallbackButton.text) return false
   } else if (part.navigationContext !== undefined) return false
-  return Object.keys(part).every((key) => ['plaintext', 'html', 'rich_message', 'keyboard', 'demo', 'actionKind', 'navigationContext'].includes(key))
+  return Object.keys(part).every((key) => ['plaintext', 'html', 'format', 'rich_message', 'keyboard', 'demo', 'actionKind', 'navigationContext'].includes(key))
 }
 function richButton(part) { return part.rich_message.blocks.find((block) => block.type === 'buttons')?.buttons?.[0] ?? null }
 

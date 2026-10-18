@@ -6,7 +6,7 @@ import { afterEach, expect, it, vi } from 'vitest'
 import UiKit from './UiKit'
 import { uiKitQuizExamples } from './lib/uiKitExamples'
 import { summarize } from '@/lib/quiz'
-import { getNotificationPresentation, NOTIFICATION_EXAMPLES } from '../packages/education-presentation/notification.mjs'
+import { getNotificationDigestPresentation, NOTIFICATION_EXAMPLES } from '../packages/education-presentation/notification.mjs'
 vi.mock('@/lib/store',()=>({requestQuizFollowup:vi.fn(),setQuizRequired:vi.fn()}))
 vi.mock('./education-design-tokens.css?raw',async()=>({default:(await import('node:fs')).readFileSync('src/education-design-tokens.css','utf8')}))
 Object.assign(globalThis,{IS_REACT_ACT_ENVIRONMENT:true})
@@ -68,44 +68,48 @@ it('previews the source question using the shared local photo control',async()=>
  expect(host.textContent).not.toContain('Работа проверена')
 })
 
-/** @see ../docs/shared/design/telegram.md#визуальная-система */
-it('matches all seven shared notification examples and keeps preview actions local',async()=>{
+/** @see ../docs/shared/design/telegram.md#компактная-сводка */
+it('matches all seven templates through the shared compact digest and keeps controls local',async()=>{
  const fetchMock=vi.fn();vi.stubGlobal('fetch',fetchMock)
  document.body.append(host);root=createRoot(host);await act(async()=>root!.render(<UiKit/>))
  await act(async()=>[...host.querySelectorAll<HTMLButtonElement>('nav button')].find(button=>button.textContent?.includes('Telegram-уведомления'))!.click())
  const template=host.querySelector<HTMLSelectElement>('select[aria-label="Шаблон уведомления"]')!
  expect(template.options).toHaveLength(7)
- const localAction={label:'Посмотреть пример',url:'https://rubaxa.github.io/education-quizzes/#/ui-kit'}
  for(const example of NOTIFICATION_EXAMPLES){
   await act(async()=>{template.value=example.id;template.dispatchEvent(new Event('change',{bubbles:true}))})
-  const model=getNotificationPresentation(example.event,{demo:true,action:localAction})
-  expect(model.eventEmoji).toMatch(/\S/)
-  expect(host.querySelector('.edu-telegram-message-heading h3')?.textContent).toBe(model.headline)
-  expect(host.querySelector('.edu-telegram-event-icon')?.getAttribute('data-event-icon')).toBe(model.eventIcon)
-  expect(host.querySelector('.edu-telegram-meta')?.textContent ?? '').toContain(model.childName ?? '')
-  expect(host.querySelector('.edu-telegram-meta')?.textContent ?? '').toContain(model.subject ?? '')
-  expect(host.querySelector('.edu-telegram-primary-content')?.textContent ?? '').toContain(model.title ?? '')
-  expect(host.querySelector('.edu-telegram-primary-content')?.textContent ?? '').toContain(model.value ? `Оценка: ${model.value}` : '')
-  expect(host.querySelector('.edu-telegram-date')?.textContent ?? '').toBe(model.occurredLabel ?? '')
-  expect(host.querySelector('.edu-telegram-status')?.getAttribute('data-status') ?? null).toBe(model.status?.id ?? null)
-  expect(host.querySelector('.edu-telegram-status')?.textContent ?? '').toBe(model.status?.label ?? '')
+  const output=host.querySelector('.edu-telegram-message-text')?.textContent ?? ''
+  if(example.id==='review'){
+   expect(output.split('\n')).toEqual([
+    'Ученик А · Математика',
+    '🟢 №3 · Шестьдесят горшков — проверено',
+    '🟠 №1 · Книги на полках — нужна правка',
+    '🟢 №5 · Периметр прямоугольника — проверено',
+   ])
+  }else{
+   const fields:Record<string,unknown>={...example.event.fields,childName:'Ученик А',subject:'Математика'}
+   const event={...example.event,source:'demo',fields}
+   const model=getNotificationDigestPresentation([event])
+   expect(model?.text).toBe(output)
+   expect(model?.text).toContain('Ученик А · Математика')
+  }
+  expect(host.querySelector('.edu-telegram-stage')?.querySelectorAll('a[href]')).toHaveLength(0)
+  expect(host.querySelector('.edu-telegram-message-heading')).toBeNull()
  }
  await act(async()=>{template.value='upload';template.dispatchEvent(new Event('change',{bubbles:true}))})
- expect(host.querySelector('.edu-telegram-status')?.textContent).toContain('Ждёт проверки')
- expect(host.querySelector('.edu-telegram-status')?.getAttribute('data-status')).toBe('waiting')
- expect(host.querySelector('.edu-telegram-status')?.getAttribute('data-status')).not.toBe('complete')
- expect(host.textContent).toContain('Демонстрация. Реальный вид зависит от темы Telegram')
+ expect(host.querySelector('.edu-telegram-message-text')?.textContent).toContain('ждёт проверки')
+ expect(host.querySelector('.edu-telegram-message-text')?.textContent).not.toContain('проверено')
+ expect(host.textContent).toContain('Демонстрация. Шрифт и цвета Telegram задаёт выбранная тема клиента.')
  const content=host.querySelector<HTMLSelectElement>('select[aria-label="Содержание уведомления"]')!
  await act(async()=>{content.value='long';content.dispatchEvent(new Event('change',{bubbles:true}))})
  expect(host.textContent).toContain('Проверить и решить задания по теме')
- expect(host.textContent).toContain('Ученик А — демонстрационное имя с длинной подписью')
+ expect(host.textContent).toContain('Александр Иванов — демонстрационное имя с длинной подписью')
  await act(async()=>{content.value='no-context';content.dispatchEvent(new Event('change',{bubbles:true}))})
- expect(host.textContent).not.toContain('Ученик А')
+ expect(host.querySelector('.edu-telegram-message')).toBeNull()
+ expect(host.querySelector('.edu-telegram-no-message')?.textContent).toContain('не включено в Telegram-сводку')
+ await act(async()=>{template.value='review';template.dispatchEvent(new Event('change',{bubbles:true}))})
  await act(async()=>{content.value='short';content.dispatchEvent(new Event('change',{bubbles:true}))})
- const action=host.querySelector<HTMLButtonElement>('.edu-telegram-action')!
- expect(action.textContent).toContain('Посмотреть пример')
- await act(async()=>action.click())
- expect(host.querySelector('.edu-telegram-feedback')?.textContent).toContain('переход не выполняется')
+ expect(host.querySelector('.edu-telegram-message-text')?.textContent).toContain('№3 · Шестьдесят горшков')
+ expect(host.querySelector('.edu-telegram-stage')?.querySelectorAll('.edu-telegram-action, a[href]')).toHaveLength(0)
  expect(fetchMock).not.toHaveBeenCalled()
  vi.unstubAllGlobals()
 })

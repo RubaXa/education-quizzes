@@ -4,7 +4,8 @@ import { createFirestoreSourceAdapter } from './adapters/source-firestore.mjs'
 import { createFirestoreSourceCheckpointStore } from './adapters/source-checkpoint-firestore.mjs'
 import { NotificationService } from './application/notifications.mjs'
 import { createMemoryStore } from './adapters/memory.mjs'
-import { renderEvent } from './domain/renderer.mjs'
+import { renderEvent, renderNotificationParts } from './domain/renderer.mjs'
+import { createDomainEvent } from './domain/events.mjs'
 
 /** @see ../../docs/services/telegram-bot/ports-and-events.md#контракт-observation @see ../../docs/services/telegram-bot/adapters/firestore.md#области-данных-для-валидации */
 const now = '2026-10-17T12:00:00.000Z'
@@ -213,7 +214,7 @@ describe('source observation pipeline', () => {
     db.set('dayUploads/day-a/files/upload-a', { taskId: 'task:a.v1', status: 'pending', sha256: 'private-hash', deviceUid: 'private-device',
       storage: { provider: 'yandex-disk', state: 'stored', path: 'private-path', publicUrl: 'https://private.example/photo', syncedAt: new Date(now) } })
     db.set('dayUploads/day-a/files/upload-b', { taskId: 'task:a.v1', status: 'pending', sha256: 'private-hash', deviceUid: 'private-device' })
-    db.set('dayProgress/day-a/items/task:a.v1', { status: 'verified', checkedAt: new Date(now), summary: 'private review', history: [{ answer: 'private' }] })
+    db.set('dayProgress/day-a/items/task:a.v1', { taskId: 'task:a.v1', status: 'verified', checkedAt: new Date(now), summary: 'private review', history: [{ answer: 'private' }] })
     db.set('dayReviewPrivate/day-a/items/task:a.v1', { status: 'verified', answer: 'secret' })
     db.set('assignments/quiz-a', { familyId: 'family-a', childId: 'child-a', status: 'submitted', startedAt: new Date(now), submittedAt: new Date(now), answers: { q: 'secret' }, questions: [{ prompt: 'secret' }], title: 'Проверочная', subject: 'Математика' })
     const uploadScope = { familyId: 'family-a', childId: 'child-a', kind: 'upload', dayToken: 'day-a', recordId: 'upload-a' }
@@ -224,6 +225,8 @@ describe('source observation pipeline', () => {
       occurredAt: now, fields: { childName: 'Ученик A', subject: 'Математика', title: 'Пример', status: 'confirmed', occurredLabel: 'Задание к 2026-10-22' } })])
     expect(observation.records[0].navigationContext).toEqual({ kind: 'day', dayToken: 'day-a' })
     expect(JSON.stringify(observation.records)).not.toMatch(/private-hash|private-device|private-path|private\.example|private review|secret|answers|history|upload-a/)
+    const review = await adapter.observe({ familyId: 'family-a', childId: 'child-a', kind: 'progress', dayToken: 'day-a', recordId: 'task:a.v1' })
+    expect(review.records).toEqual([expect.objectContaining({ kind: 'review', fields: { childName: 'Ученик A', subject: 'Математика', title: 'Пример', occurredLabel: 'Задание к 2026-10-22', status: 'verified' } })])
     expect(db.reads.some((read) => read.includes('dayReviewPrivate'))).toBe(false)
     expect(db.reads).toContain('dayOwners/day-a')
     expect(db.reads).toContain('dayUploads/day-a/files/upload-a')
@@ -287,23 +290,132 @@ describe('source observation pipeline', () => {
     db.set('families/family-a', {})
     db.set('families/family-a/children/child-a', {})
     db.set('dayOwners/day-a', { familyId: 'family-a', childId: 'child-a', date: '2026-10-17' })
-    db.set('dayProgress/day-a/items/task-a', { status: 'verified', checkedAt: new Date(now), summary: 'private', history: [{ answer: 'secret' }] })
+    db.set('dayPages/day-a', { kind: 'student', familyId: 'family-a', childId: 'child-a', date: '2026-10-17', taskIds: ['task-a'], subjects: [{ name: 'Математика', tasks: [{ id: 'task-a', title: 'Упражнение № 3' }] }] })
+    db.set('dayProgress/day-a/items/task-a', { taskId: 'task-a', status: 'verified', checkedAt: new Date(now), uploadIds: ['upload-z', 'upload-a'],
+      summary: 'Подтверждённый вывод', nextStep: 'Проверь запись', history: [{ answer: 'secret' }] })
     db.set('dayReviewPrivate/day-a/items/task-a', { answer: 'secret' })
     const adapter = createFirestoreSourceAdapter(db)
     const progressScope = { familyId: 'family-a', childId: 'child-a', kind: 'progress', dayToken: 'day-a', recordId: 'task-a' }
     const observation = await adapter.observe(progressScope)
-    expect(observation.records).toEqual([expect.objectContaining({ kind: 'review', eventType: 'review.changed', fields: { status: 'verified' } })])
+    expect(observation.records).toEqual([expect.objectContaining({ kind: 'review', eventType: 'review.changed', fields: { subject: 'Математика', title: 'Упражнение № 3', status: 'verified' } })])
     expect(JSON.stringify(observation.records)).not.toMatch(/private|secret|history/)
     expect(db.reads).toContain('dayProgress/day-a/items/task-a')
-    expect(db.reads).toContain('fieldMask:dayProgress/day-a/items/task-a:status,checkedAt')
+    expect(db.reads).toContain('fieldMask:dayProgress/day-a/items/task-a:status,checkedAt,taskId,purpose,uploadIds,summary,nextStep')
     expect(db.reads.some((path) => path.includes('dayReviewPrivate'))).toBe(false)
     const firstHash = observation.records[0].semanticHash
-    db.set('dayProgress/day-a/items/task-a', { status: 'verified', checkedAt: now, summary: 'different private text', history: [] })
+    expect(JSON.stringify(observation.records)).not.toMatch(/upload-a|upload-z|Подтверждённый вывод|Проверь запись/)
+    db.set('dayProgress/day-a/items/task-a', { taskId: 'task-a', status: 'verified', checkedAt: now, uploadIds: ['upload-a', 'upload-z'],
+      summary: 'Подтверждённый вывод', nextStep: 'Проверь запись', history: [] })
     expect((await adapter.observe(progressScope)).records[0].semanticHash).toBe(firstHash)
-    db.set('dayProgress/day-a/items/task-a', { status: 'verified', checkedAt: new Date(Date.parse(now) + 1000), summary: 'private', history: [] })
+    db.set('dayPages/day-a', { kind: 'student', familyId: 'family-a', childId: 'child-a', date: '2026-10-17', taskIds: ['task-a'], subjects: [{ name: 'Математика', tasks: [{ id: 'task-a', title: 'Обновлённое название' }] }] })
+    const contextOnly = await adapter.observe(progressScope)
+    expect(contextOnly.records[0].fields.title).toBe('Обновлённое название')
+    expect(contextOnly.records[0].semanticHash).toBe(firstHash)
+    db.set('dayProgress/day-a/items/task-a', { taskId: 'task-a', status: 'verified', checkedAt: new Date(Date.parse(now) + 1000),
+      uploadIds: ['upload-a', 'upload-z'], summary: 'Изменённый вывод', nextStep: 'Проверь запись', history: [] })
+    const newSummary = await adapter.observe(progressScope)
+    expect(newSummary.records[0].semanticHash).not.toBe(firstHash)
+    expect(JSON.stringify(newSummary.records)).not.toMatch(/upload-a|upload-z|Изменённый вывод|Проверь запись/)
+    db.set('dayProgress/day-a/items/task-a', { taskId: 'task-a', status: 'verified', checkedAt: now,
+      uploadIds: ['upload-b', 'upload-z'], summary: 'Подтверждённый вывод', nextStep: 'Проверь запись', history: [] })
     expect((await adapter.observe(progressScope)).records[0].semanticHash).not.toBe(firstHash)
     expect(await adapter.observe({ ...progressScope, familyId: 'family-b' })).toMatchObject({ completeness: 'partial', records: [] })
     expect(await adapter.validateScope({ ...progressScope, kind: 'assignment' })).toBe(false)
+    db.set('dayProgress/day-a/items/task-a', { taskId: 'task-a', purpose: 'source-material', status: 'verified', checkedAt: now })
+    expect(await adapter.observe(progressScope)).toMatchObject({ completeness: 'complete', records: [] })
+    expect(await adapter.inspectReview(progressScope)).toMatchObject({ completeness: 'complete', state: 'ignored', contextState: 'not_applicable' })
+  })
+
+  it('keeps review observation partial until exact day page and task context are available', async () => {
+    const db = new FakeFirestore()
+    db.set('families/family-a', {})
+    db.set('families/family-a/children/child-a', { displayName: 'Ученик A' })
+    db.set('dayOwners/day-a', { familyId: 'family-a', childId: 'child-a', date: '2026-10-17' })
+    db.set('dayProgress/day-a/items/task-a', { taskId: 'task-a', status: 'needs-fix' })
+    const adapter = createFirestoreSourceAdapter(db)
+    const progressScope = { familyId: 'family-a', childId: 'child-a', kind: 'progress', dayToken: 'day-a', recordId: 'task-a' }
+    expect(await adapter.observe(progressScope)).toMatchObject({ completeness: 'partial', records: [] })
+    db.set('dayPages/day-a', { kind: 'student', familyId: 'family-a', childId: 'child-a', date: '2026-10-16', taskIds: ['task-a'], subjects: [{ name: 'Математика', tasks: [{ id: 'task-a', title: '№ 3' }] }] })
+    expect(await adapter.observe(progressScope)).toMatchObject({ completeness: 'partial', records: [] })
+    db.set('dayPages/day-a', { kind: 'student', familyId: 'family-a', childId: 'child-a', date: '2026-10-17', taskIds: ['task-b'], subjects: [{ name: 'Математика', tasks: [{ id: 'task-a', title: '№ 3' }] }] })
+    expect(await adapter.observe(progressScope)).toMatchObject({ completeness: 'partial', records: [] })
+    db.set('dayPages/day-a', { kind: 'student', familyId: 'family-a', childId: 'child-a', date: '2026-10-17', taskIds: ['task-a'], subjects: [{ name: 'Математика', tasks: [{ id: 'task-a', title: '№ 3' }] }] })
+    expect(await adapter.observe(progressScope)).toMatchObject({ completeness: 'complete', records: [{ fields: { subject: 'Математика', title: '№ 3', status: 'needs-fix' } }] })
+    expect(await adapter.inspectReview(progressScope)).toMatchObject({ completeness: 'complete', contextState: 'exact', state: 'needs-fix' })
+  })
+
+  it('does not emit a review again for checkedAt-only changes or quiet context enrichment', async () => {
+    const checkpoints = new MemoryCheckpoints()
+    const reviewKey = 'c'.repeat(64)
+    const baseline = { complete: true, observationSequence: 1, sourceProjectionVersion: 2, records: [{ recordKey: reviewKey, kind: 'review',
+      eventType: 'review.changed', semanticHash: 'a'.repeat(64), fields: { childName: 'Ученик A', status: 'verified' } }] }
+    checkpoints.ensure('scope-a', 'notify').sequence = 1
+    checkpoints.ensure('scope-a', 'notify').baseline = baseline
+    let reviewedRecord = {
+        recordKey: reviewKey, kind: 'review', eventType: 'review.changed', semanticHash: 'b'.repeat(64),
+        fields: { childName: 'Ученик A', subject: 'Математика', title: '№ 3', occurredLabel: 'К пятнице', status: 'verified' },
+    }
+    const source = { kind: 'firestore', scopeKey: () => 'scope-a', async validateScope() { return true }, async observe() { return {
+      source: 'firestore', scopeKey: 'scope-a', familyId: 'family-a', childId: 'child-a', completeness: 'complete', records: [reviewedRecord],
+    } } }
+    const accept = vi.fn()
+    const pipeline = new SourcePipeline({ source, checkpoints, accept, mode: 'notify', workerId: 'worker-a', clock: () => new Date(now) })
+    const outcome = await pipeline.process({ familyId: 'family-a', childId: 'child-a', kind: 'progress', dayToken: 'day-a', recordId: 'task-a' }, { origin: 'live' })
+    expect(outcome).toMatchObject({ status: 'advanced', events: 0, scopeKey: 'scope-a', sequence: 2 })
+    expect(accept).not.toHaveBeenCalled()
+    expect(checkpoints.row('scope-a', 'notify').baseline).toMatchObject({ reviewProjectionVersion: 2,
+      records: [expect.objectContaining({ semanticHash: 'b'.repeat(64) })] })
+    reviewedRecord = { ...reviewedRecord, semanticHash: 'c'.repeat(64), fields: { ...reviewedRecord.fields, status: 'needs-fix' } }
+    await expect(pipeline.process({ familyId: 'family-a', childId: 'child-a', kind: 'progress', dayToken: 'day-a', recordId: 'task-a' }, { origin: 'live' }))
+      .resolves.toMatchObject({ status: 'advanced', events: 1 })
+    expect(accept).toHaveBeenCalledTimes(1)
+    expect(accept.mock.calls[0][0].fields.status).toBe('needs-fix')
+    expect(accept.mock.calls[0][0].fields.changeKind).toBeUndefined()
+    expect(renderNotificationParts(accept.mock.calls[0][0], 'family')[0].plaintext).toContain('🟠 № 3 — нужна правка')
+  })
+
+  it('emits a same-status review fingerprint change, persists it, and stays quiet after restart', async () => {
+    const checkpoints = new MemoryCheckpoints()
+    const reviewKey = 'e'.repeat(64)
+    const row = checkpoints.ensure('scope-a', 'notify')
+    row.sequence = 1
+    row.baseline = { complete: true, observationSequence: 1, sourceProjectionVersion: 2, reviewProjectionVersion: 2,
+      records: [{ recordKey: reviewKey, kind: 'review', eventType: 'review.changed', semanticHash: 'a'.repeat(64),
+        fields: { childName: 'Ученик A', subject: 'Математика', title: '№ 3', status: 'verified' } }] }
+    const record = { recordKey: reviewKey, kind: 'review', eventType: 'review.changed', semanticHash: 'b'.repeat(64),
+      fields: { childName: 'Ученик A', subject: 'Математика', title: '№ 3', status: 'verified' } }
+    const source = { kind: 'firestore', scopeKey: () => 'scope-a', async validateScope() { return true }, async observe() { return {
+      source: 'firestore', scopeKey: 'scope-a', familyId: 'family-a', childId: 'child-a', completeness: 'complete', records: [record],
+    } } }
+    const accepted = []
+    const makePipeline = (workerId) => new SourcePipeline({ source, checkpoints, mode: 'notify', workerId,
+      clock: () => new Date(now), accept: async (event) => accepted.push(event) })
+    await expect(makePipeline('worker-a').process({ familyId: 'family-a', childId: 'child-a', kind: 'progress', dayToken: 'day-a', recordId: 'task-a' }, { origin: 'live' }))
+      .resolves.toMatchObject({ status: 'advanced', events: 1 })
+    expect(accepted).toHaveLength(1)
+    expect(accepted[0].fields).toEqual({ ...record.fields, changeKind: 'updated' })
+    expect(renderNotificationParts(accepted[0], 'family')[0].plaintext).toContain('🟢 № 3 — разбор обновлён · проверено')
+    expect(checkpoints.row('scope-a', 'notify').baseline.records[0].semanticHash).toBe('b'.repeat(64))
+
+    await expect(makePipeline('worker-b').process({ familyId: 'family-a', childId: 'child-a', kind: 'progress', dayToken: 'day-a', recordId: 'task-a' }, { origin: 'live' }))
+      .resolves.toMatchObject({ status: 'advanced', events: 0 })
+    expect(accepted).toHaveLength(1)
+
+    record.semanticHash = 'c'.repeat(64)
+    await expect(makePipeline('worker-c').process({ familyId: 'family-a', childId: 'child-a', kind: 'progress', dayToken: 'day-a', recordId: 'task-a' }, { origin: 'live' }))
+      .resolves.toMatchObject({ status: 'advanced', events: 1 })
+    expect(accepted).toHaveLength(2)
+  })
+
+  it('accepts only the updated review change marker and ignores it on other event types', () => {
+    const common = { source: 'firestore', scopeKey: 'scope-a', familyId: 'family-a', childId: 'child-a',
+      sourceEventKey: 'review-a', sourceRevision: 'r1', privacyClass: 'family-summary', detectedAt: now }
+    expect(createDomainEvent({ ...common, eventType: 'review.changed', fields: { subject: 'Математика', title: '№ 3', status: 'verified', changeKind: 'updated' } }).fields.changeKind)
+      .toBe('updated')
+    expect(createDomainEvent({ ...common, eventType: 'review.changed', fields: { subject: 'Математика', title: '№ 3', status: 'verified', changeKind: 'invented' } }).fields)
+      .not.toHaveProperty('changeKind')
+    expect(createDomainEvent({ ...common, eventType: 'grade.changed', fields: { value: '5', changeKind: 'updated' } }).fields)
+      .not.toHaveProperty('changeKind')
   })
 
   it('rejects Firestore scopes when the family or child is inactive', async () => {

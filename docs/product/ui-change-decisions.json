@@ -4318,17 +4318,17 @@
       }
     },
     "packages/telegram-notifications/adapters/firestore.mjs": {
-      "sha256": "79b0c9d5f7b3274b3ffb0a763b5c26a32cf034ca20635822484f33e47a74d467",
-      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "sha256": "ec8473add376fdb8e6870dfb375b5e04965b13254111033450528025bf218b33",
+      "record": "docs/decisions/telegram-compact-digest-2026-10-18.md",
       "specs": [
-        "docs/services/telegram-bot/operations.md"
+        "docs/services/telegram-bot/event-ledger-outbox.md"
       ],
       "tests": [
-        "packages/telegram-notifications/adapters/runtime.test.mjs"
+        "packages/telegram-notifications/notifications.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+        "evidence": "Родитель18.10 требует исправить реальные огромные неинформативные Telegram уведомления; ранее прямо разрешил Luna реализацию, тесты, UI Kit, реальные примеры и выпуск main."
       }
     },
     "packages/telegram-notifications/adapters/memory.mjs": {
@@ -4362,19 +4362,18 @@
       }
     },
     "packages/telegram-notifications/adapters/telegram.mjs": {
-      "sha256": "874b42fa5d8fa0d229d5b719dcdd3e7ed8404d5e8b6fd4fdc34ceb2a0d3f3310",
-      "record": "docs/decisions/telegram-design-system-2026-10-18.md",
+      "sha256": "0732a7e7c033dca628998f6f05242dfaf788c84bc6d80f4c1281e87bf423ea20",
+      "record": "docs/decisions/telegram-compact-digest-2026-10-18.md",
       "specs": [
-        "docs/shared/design/telegram.md",
         "docs/services/telegram-bot/delivery.md"
       ],
       "tests": [
-        "packages/telegram-notifications/renderer.test.mjs",
-        "packages/education-presentation/notification.test.mjs"
+        "packages/telegram-notifications/telegram-rich-transport.test.mjs",
+        "packages/telegram-notifications/renderer.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10 прямо разрешил Luna реализацию единого Telegram дизайна, UI Kit, реальные примеры, тесты и выпуск main."
+        "evidence": "Родитель18.10 требует исправить реальные огромные неинформативные Telegram уведомления; ранее прямо разрешил Luna реализацию, тесты, UI Kit, реальные примеры и выпуск main."
       }
     },
     "packages/telegram-notifications/adapters/worker-loop.mjs": {
@@ -4406,51 +4405,45 @@
       }
     },
     "packages/telegram-notifications/application/notifications.mjs": {
-      "sha256": "aeced18a735a145311123e6109a75f5d6fcd26ecd5f0a5b996d91f2668ca408b",
-      "record": "docs/decisions/telegram-design-system-2026-10-18.md",
+      "sha256": "30c1644cb880e1e8a3056a1506c39f4662408707bccfca25fad9c50c99b2334b",
+      "record": "docs/decisions/telegram-compact-digest-2026-10-18.md",
       "specs": [
-        "docs/shared/design/telegram.md",
-        "docs/services/telegram-bot/delivery.md"
+        "docs/shared/design/telegram.md"
       ],
       "tests": [
-        "packages/telegram-notifications/renderer.test.mjs",
-        "packages/education-presentation/notification.test.mjs"
+        "packages/telegram-notifications/notifications.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10 прямо разрешил Luna реализацию единого Telegram дизайна, UI Kit, реальные примеры, тесты и выпуск main."
+        "evidence": "Родитель18.10 требует исправить реальные огромные неинформативные Telegram уведомления; ранее прямо разрешил Luna реализацию, тесты, UI Kit, реальные примеры и выпуск main."
       }
     },
     "packages/telegram-notifications/domain/diff.mjs": {
-      "sha256": "9de8182df4027758c9f1b8ad98a75cf6ae3eb493d2ee06642fc51708fe7821f5",
-      "record": "docs/decisions/telegram-design-system-2026-10-18.md",
+      "record": "docs/decisions/telegram-compact-digest-2026-10-18.md",
       "specs": [
-        "docs/shared/design/telegram.md",
-        "docs/services/telegram-bot/delivery.md"
+        "docs/services/telegram-bot/ports-and-events.md"
       ],
       "tests": [
-        "packages/telegram-notifications/renderer.test.mjs",
-        "packages/education-presentation/notification.test.mjs"
+        "packages/telegram-notifications/notifications.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10 прямо разрешил Luna реализацию единого Telegram дизайна, UI Kit, реальные примеры, тесты и выпуск main."
-      }
+        "evidence": "Родитель18.10 требует исправить реальные огромные и неинформативные Telegram уведомления; разрешены Luna, тесты, спецификации и выпуск main."
+      },
+      "sha256": "a84f2986ea40ad1e8f44359c3ef42cf6c8dab316c970fd9d9e7bf956a81810ed"
     },
     "packages/telegram-notifications/domain/events.mjs": {
-      "sha256": "605fa780619cc34b1e957b65bd9e2169c6c5cb671a6cd1fdf44e4a8397575e9c",
-      "record": "docs/decisions/telegram-design-system-2026-10-18.md",
+      "sha256": "1e7828bbbea1ffd6ae66f2dc4ea5059e7ccc5cfcc48f4c10a1af2e265aacefd9",
+      "record": "docs/decisions/telegram-compact-digest-2026-10-18.md",
       "specs": [
-        "docs/shared/design/telegram.md",
-        "docs/services/telegram-bot/delivery.md"
+        "docs/services/telegram-bot/ports-and-events.md"
       ],
       "tests": [
-        "packages/telegram-notifications/renderer.test.mjs",
-        "packages/education-presentation/notification.test.mjs"
+        "packages/telegram-notifications/source-pipeline.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10 прямо разрешил Luna реализацию единого Telegram дизайна, UI Kit, реальные примеры, тесты и выпуск main."
+        "evidence": "Родитель18.10 требует исправить реальные огромные неинформативные Telegram уведомления; ранее прямо разрешил Luna реализацию, тесты, UI Kit, реальные примеры и выпуск main."
       }
     },
     "packages/telegram-notifications/domain/ports.mjs": {
@@ -4482,19 +4475,18 @@
       }
     },
     "packages/telegram-notifications/domain/renderer.mjs": {
-      "sha256": "41a00faf8ee672e3907ec326d22724d681863a5b4153a8bd0cd737a33953f0da",
-      "record": "docs/decisions/telegram-design-system-2026-10-18.md",
+      "sha256": "e44d747dcc3c878ccef2a46d687e21d5529eb9e8f9841aef5700d9e718d1705f",
+      "record": "docs/decisions/telegram-compact-digest-2026-10-18.md",
       "specs": [
-        "docs/shared/design/telegram.md",
         "docs/services/telegram-bot/delivery.md"
       ],
       "tests": [
-        "packages/telegram-notifications/renderer.test.mjs",
-        "packages/education-presentation/notification.test.mjs"
+        "packages/telegram-notifications/telegram-rich-transport.test.mjs",
+        "packages/telegram-notifications/renderer.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10 прямо разрешил Luna реализацию единого Telegram дизайна, UI Kit, реальные примеры, тесты и выпуск main."
+        "evidence": "Родитель18.10 требует исправить реальные огромные неинформативные Telegram уведомления; ранее прямо разрешил Luna реализацию, тесты, UI Kit, реальные примеры и выпуск main."
       }
     },
     "scripts/telegram-bot.mjs": {
@@ -4582,19 +4574,17 @@
       }
     },
     "packages/telegram-notifications/adapters/source-firestore.mjs": {
-      "sha256": "cbecbce85c9fbdf42266ce114705d1bc3f0d4dd4cdc480a46f0dbd725ad61ae6",
-      "record": "docs/decisions/telegram-design-system-2026-10-18.md",
+      "sha256": "6c9f5d6ae62b0ecdc492c91fe8c895b3973f809f67efa5db8dff8b84afb410d0",
+      "record": "docs/decisions/telegram-compact-digest-2026-10-18.md",
       "specs": [
-        "docs/shared/design/telegram.md",
-        "docs/services/telegram-bot/delivery.md"
+        "docs/services/telegram-bot/adapters/firestore.md"
       ],
       "tests": [
-        "packages/telegram-notifications/renderer.test.mjs",
-        "packages/education-presentation/notification.test.mjs"
+        "packages/telegram-notifications/source-pipeline.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10 прямо разрешил Luna реализацию единого Telegram дизайна, UI Kit, реальные примеры, тесты и выпуск main."
+        "evidence": "Родитель18.10 требует исправить реальные огромные неинформативные Telegram уведомления; ранее прямо разрешил Luna реализацию, тесты, UI Kit, реальные примеры и выпуск main."
       }
     },
     "packages/telegram-notifications/adapters/source-inventory-firestore.mjs": {
@@ -4626,19 +4616,17 @@
       }
     },
     "packages/telegram-notifications/application/source-pipeline.mjs": {
-      "sha256": "000cd2ccac25faa3c03221ec9d6f5a68ff99376c2f9eb0aabe8dcec2cb44c6a0",
-      "record": "docs/decisions/telegram-design-system-2026-10-18.md",
+      "sha256": "ad022f31425c6f08db84ad83e0f778078b154fd9947f3060433906b7b7edc943",
+      "record": "docs/decisions/telegram-compact-digest-2026-10-18.md",
       "specs": [
-        "docs/shared/design/telegram.md",
-        "docs/services/telegram-bot/delivery.md"
+        "docs/services/telegram-bot/ports-and-events.md"
       ],
       "tests": [
-        "packages/telegram-notifications/renderer.test.mjs",
-        "packages/education-presentation/notification.test.mjs"
+        "packages/telegram-notifications/source-pipeline.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10 прямо разрешил Luna реализацию единого Telegram дизайна, UI Kit, реальные примеры, тесты и выпуск main."
+        "evidence": "Родитель18.10 требует исправить реальные огромные неинформативные Telegram уведомления; ранее прямо разрешил Luna реализацию, тесты, UI Kit, реальные примеры и выпуск main."
       }
     },
     "packages/education-runtime/credentials.mjs": {
@@ -4841,8 +4829,8 @@
       }
     },
     "packages/telegram-notifications/operations/readiness.mjs": {
-      "sha256": "0d4f2ea492e707fe3dd6633d0e4a48f54d0523ee747229de3183899fdd4aaf9a",
-      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "sha256": "28c3e8f78d5e2a8df5f16d4df23f94d6fd962a9546319d96949cf668378ae89d",
+      "record": "docs/decisions/telegram-compact-digest-2026-10-18.md",
       "specs": [
         "docs/services/telegram-bot/operations.md"
       ],
@@ -4851,7 +4839,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+        "evidence": "Родитель18.10 требует исправить реальные огромные неинформативные Telegram уведомления; ранее прямо разрешил Luna реализацию, тесты, UI Kit, реальные примеры и выпуск main."
       }
     },
     "packages/telegram-notifications/operations/source-check.mjs": {
@@ -4897,8 +4885,8 @@
       }
     },
     "scripts/telegram-runtime.mjs": {
-      "sha256": "691eee3a82a891882f95726ee725320f97042663063feaf3bf81fee5ed2a8097",
-      "record": "docs/decisions/upload-notification-lifecycle-2026-10-18.md",
+      "sha256": "232c1451bce82a4569c6bafe039858a21e39cd273c9d1d58e63b69150112e4bc",
+      "record": "docs/decisions/telegram-compact-digest-2026-10-18.md",
       "specs": [
         "docs/services/telegram-bot/operations.md"
       ],
@@ -4907,7 +4895,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10.2026 сообщил об отсутствии Telegram уведомления о только что загруженном решении и контекста задания; исправление семейной цепочки и проверка реальной доставки необходимы для согласованного сервиса. Название команды/продукта Education прямо уточнено пользователем."
+        "evidence": "Родитель18.10 требует исправить реальные огромные неинформативные Telegram уведомления; ранее прямо разрешил Luna реализацию, тесты, UI Kit, реальные примеры и выпуск main."
       }
     },
     "scripts/telegram-indexes.mjs": {
@@ -5041,84 +5029,102 @@
       }
     },
     "packages/education-presentation/notification.mjs": {
-      "sha256": "7fb59b103a49b8c27dd6b757f2196759bf1631a9edb2698931e934bdbbd14744",
-      "record": "docs/decisions/telegram-design-system-2026-10-18.md",
+      "sha256": "a21080116f53cd4271eb0a3bfab8eed5b0753fa794dbbe1b9ef712f3db73b50f",
+      "record": "docs/decisions/telegram-compact-digest-2026-10-18.md",
       "specs": [
-        "docs/shared/design/telegram.md",
-        "docs/services/telegram-bot/delivery.md"
+        "docs/shared/design/telegram.md"
       ],
       "tests": [
-        "packages/telegram-notifications/renderer.test.mjs",
         "packages/education-presentation/notification.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10 прямо разрешил Luna реализацию единого Telegram дизайна, UI Kit, реальные примеры, тесты и выпуск main."
+        "evidence": "Родитель18.10 требует исправить реальные огромные неинформативные Telegram уведомления; ранее прямо разрешил Luna реализацию, тесты, UI Kit, реальные примеры и выпуск main."
       }
     },
     "scripts/check-telegram-preview-viewport.mjs": {
-      "sha256": "96bb85ad152e4dbe7af99a8a1ef06cbc30d10d6c495c8d9923c1ecd9e9d7d578",
-      "record": "docs/decisions/telegram-design-system-2026-10-18.md",
+      "sha256": "c9019c4f26cd2c02cc7f9593a0db2264d5c7b476da8fbab25c12c0d004895c63",
+      "record": "docs/decisions/telegram-compact-digest-2026-10-18.md",
       "specs": [
-        "docs/shared/design/telegram.md",
-        "docs/services/telegram-bot/delivery.md"
+        "docs/shared/design/telegram.md"
       ],
       "tests": [
-        "packages/telegram-notifications/renderer.test.mjs",
-        "packages/education-presentation/notification.test.mjs"
+        "src/components/TelegramNotificationPreview.layout.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10 прямо разрешил Luna реализацию единого Telegram дизайна, UI Kit, реальные примеры, тесты и выпуск main."
+        "evidence": "Родитель18.10 требует исправить реальные огромные неинформативные Telegram уведомления; ранее прямо разрешил Luna реализацию, тесты, UI Kit, реальные примеры и выпуск main."
       }
     },
     "scripts/telegram-design-preview.mjs": {
-      "sha256": "77a7c7b7349abc27c2b035f74db08fec854916496a3913e9df68a46e3f3dcbed",
-      "record": "docs/decisions/telegram-design-system-2026-10-18.md",
+      "sha256": "6bba9360cc12418da2854d8cc403e974426840c7572762bb57ab2cf15d4bd87a",
+      "record": "docs/decisions/telegram-compact-digest-2026-10-18.md",
       "specs": [
-        "docs/shared/design/telegram.md",
-        "docs/services/telegram-bot/operations.md"
+        "docs/shared/design/telegram.md"
       ],
       "tests": [
-        "scripts/telegram-design-preview.test.mjs",
-        "packages/telegram-notifications/probe-notifications.test.mjs"
+        "scripts/telegram-design-preview.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10 прямо разрешил Luna реализацию единого Telegram дизайна, UI Kit, реальные примеры, тесты и выпуск main."
+        "evidence": "Родитель18.10 требует исправить реальные огромные неинформативные Telegram уведомления; ранее прямо разрешил Luna реализацию, тесты, UI Kit, реальные примеры и выпуск main."
       }
     },
     "src/components/TelegramNotificationPreview.css": {
-      "sha256": "c28bc1fdfe9145fa5b6c9831f4668fc04b76a29b25cf03adbcff0458d3e24d2b",
-      "record": "docs/decisions/telegram-design-system-2026-10-18.md",
+      "sha256": "c09671baf979d6042643579712671e5962f33dc95e317fa9344502026d4fd70f",
+      "record": "docs/decisions/telegram-compact-digest-2026-10-18.md",
       "specs": [
-        "docs/shared/design/telegram.md",
-        "docs/shared/design/statuses.md"
+        "docs/shared/design/telegram.md"
       ],
       "tests": [
-        "src/UiKit.test.tsx",
         "src/components/TelegramNotificationPreview.layout.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10 прямо разрешил Luna реализацию единого Telegram дизайна, UI Kit, реальные примеры, тесты и выпуск main."
+        "evidence": "Родитель18.10 требует исправить реальные огромные неинформативные Telegram уведомления; ранее прямо разрешил Luna реализацию, тесты, UI Kit, реальные примеры и выпуск main."
       }
     },
     "src/components/TelegramNotificationPreview.tsx": {
-      "sha256": "357e586c850507fcd64189db0fd0e5e981b918b210c470a39c72283b7c0f3e69",
-      "record": "docs/decisions/telegram-design-system-2026-10-18.md",
+      "sha256": "f2da2381c8b1e51d71940866476e89b2cc3a6d67bdd2b096ee08071489d34a19",
+      "record": "docs/decisions/telegram-compact-digest-2026-10-18.md",
       "specs": [
-        "docs/shared/design/telegram.md",
-        "docs/shared/design/statuses.md"
+        "docs/shared/design/telegram.md"
       ],
       "tests": [
-        "src/UiKit.test.tsx",
         "src/components/TelegramNotificationPreview.layout.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10 прямо разрешил Luna реализацию единого Telegram дизайна, UI Kit, реальные примеры, тесты и выпуск main."
+        "evidence": "Родитель18.10 требует исправить реальные огромные неинформативные Telegram уведомления; ранее прямо разрешил Luna реализацию, тесты, UI Kit, реальные примеры и выпуск main."
       }
+    },
+    "packages/telegram-notifications/operations/review-check.mjs": {
+      "sha256": "a86675eb37450bb34768c01e2f7ae30222af281b59c027698244064b1e5c03db",
+      "record": "docs/decisions/telegram-compact-digest-2026-10-18.md",
+      "specs": [
+        "docs/services/telegram-bot/operations.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/operations/review-check.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель18.10 требует исправить реальные огромные неинформативные Telegram уведомления; ранее прямо разрешил Luna реализацию, тесты, UI Kit, реальные примеры и выпуск main."
+      }
+    },
+    "scripts/build-inputs.mjs": {
+      "record": "docs/decisions/telegram-compact-digest-2026-10-18.md",
+      "specs": [
+        "docs/product/pwa.md"
+      ],
+      "tests": [
+        "scripts/build-inputs.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель18.10 требует исправить реальные огромные и неинформативные Telegram уведомления; разрешены Luna, тесты, спецификации и выпуск main."
+      },
+      "sha256": "ab5d30c05db642563c96a73344945c9c9150d27916d7219ecbd10a9c7f932470"
     }
   }
 }

@@ -50,6 +50,8 @@ export class NotificationService {
       personId: target.personId,
       childId: normalized.childId,
       telegramUserId: String(target.telegramUserId),
+      groupingKey: createHash('sha256').update(JSON.stringify([String(target.telegramUserId), target.familyId, target.personId, target.linkId, normalized.childId])).digest('hex'),
+      groupingAt: this.clock().toISOString(),
       partReceipts: [],
       state: 'pending', attempts: 0, nextAttemptAt: this.clock().toISOString(),
     }))

@@ -35,7 +35,7 @@ sections:
 ---
 # Архитектура сервиса уведомлений `@agi_edu_bot`
 
-**Статус:** частично реализован и запущен на согласованном Mac: dynamic Firestore/МЭШ sources, account registry, локальная подтверждённая привязка, stop, deterministic event pipeline и outbox. Реальные технические Firestore→Telegram и МЭШ→Telegram пробы завершены `sent` с readback; [аудит и границы](../../audits/server-core-review-2026-10-17.md). Последняя полная Mesh source-check18.10:93/93complete,0partial; [текущий аудит](../../audits/education-bot-readiness-2026-10-18.md) фиксирует доказательства и пробел командного потока. Web linking UI, team routing, grouping и hosted alerting отсутствуют.
+**Статус:** частично реализован и запущен на согласованном Mac: dynamic Firestore/МЭШ sources, account registry, локальная подтверждённая привязка, stop, deterministic event pipeline и outbox. Реальные технические Firestore→Telegram и МЭШ→Telegram пробы завершены `sent` с readback; [аудит и границы](../../audits/server-core-review-2026-10-17.md). Последняя полная Mesh source-check18.10:93/93complete,0partial; [текущий аудит](../../audits/education-bot-readiness-2026-10-18.md) фиксирует доказательства и пробел командного потока. Web linking UI, team routing и hosted alerting отсутствуют. Семейная durable группировка30/60с реализована в compact digest increment; статус выпуска — в [решении](../../decisions/telegram-compact-digest-2026-10-18.md).
 **Владелец:** отдельный Node.js worker в Education.
 **Бизнес-контракт и решения интервью:** [спецификация сервиса](petr-private:docs/product/agi-edu-bot-service-spec.md).
 
@@ -157,12 +157,12 @@ subject?, title?, before?, after?, contextRefs[], privacyClass
 | B | Core contracts, Firestore ledger/outbox, тестируемая идемпотентность | Реализован core/ledger; эксплуатационный rollout отдельно |
 | C | Telegram `/start`, реестр аккаунтов и безопасная семейная привязка | Локальный CLI issuer/registry/disconnect есть; web UI отсутствует |
 | D | Firestore observation, затем МЭШ polling и source mappings | Реализованы локальные adapters/pipeline и opt-in wiring; технические живые цепочки проверены, полный source-check18.10 —93/93 |
-| E | Routing, structured templates, retry/recovery и team alerts | Частично; family renderer/outbox есть, grouping/team route отсутствуют |
+| E | Routing, structured templates, retry/recovery и team alerts | Частично; family renderer/outbox есть, durable grouping и compact renderer есть; team route отсутствует |
 | F | Операционный запуск, минимальные IAM/secrets, мониторинг и контролируемый rollout | Mac LaunchAgent установлен, реальные probes/readiness проверены; внешние alerts отсутствуют |
 
 Установка npm-пакета или документированный контракт не означает, что worker работает. Только явно запущенный `worker` принимает команды; delivery выключена по умолчанию. Фактический работающий режим подтверждается status и source health, а не документацией.
 
-Первый срез: `node scripts/telegram-bot.mjs check` делает read-only `getMe` и сверяет `agi_edu_bot` без создания Firestore client. Явный `worker` использует ADC, проверяет project access до polling, поддерживает `/start` и sender-bound одноразовый `/stop`; pairing code погашается только trusted локальным CLI с доказанным source owner; web UI отсутствует. `--enable-delivery` отдельно включает обработку уже подтверждённых outbox jobs; Firestore/МЭШ observers включаются отдельными флагами, источники обнаруживаются автоматически; UI linking, team resolver и grouping/digest planned.
+Первый срез: `node scripts/telegram-bot.mjs check` делает read-only `getMe` и сверяет `agi_edu_bot` без создания Firestore client. Явный `worker` использует ADC, проверяет project access до polling, поддерживает `/start` и sender-bound одноразовый `/stop`; pairing code погашается только trusted локальным CLI с доказанным source owner; web UI отсутствует. `--enable-delivery` отдельно включает обработку уже подтверждённых outbox jobs; Firestore/МЭШ observers включаются отдельными флагами, источники обнаруживаются автоматически; UI linking и team resolver planned; grouping/digest реализованы для семейных событий.
 
 ## Решения, ожидающие подтверждения/проверки
 

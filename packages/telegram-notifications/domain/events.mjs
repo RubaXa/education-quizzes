@@ -70,15 +70,16 @@ const safeFields = (eventType, fields) => {
     'homework.changed': ['childName', 'subject', 'title', 'occurredLabel'],
     'homework.cancelled': ['childName', 'subject', 'title', 'occurredLabel'],
     'upload.confirmed': ['childName', 'subject', 'title', 'occurredLabel'],
-    'review.changed': ['childName', 'subject', 'status'],
-    'quiz.started': ['childName', 'subject', 'status'],
-    'quiz.submitted': ['childName', 'subject', 'status'],
+    'review.changed': ['childName', 'subject', 'title', 'occurredLabel', 'status', 'changeKind'],
+    'quiz.started': ['childName', 'subject', 'title', 'status'],
+    'quiz.submitted': ['childName', 'subject', 'title', 'status'],
     'technical.probe': [],
   }
   for (const key of allowedByType[eventType] ?? []) {
     if (typeof fields[key] === 'string' && fields[key].trim()) result[key] = sanitizeField(fields[key]).slice(0, 500)
   }
   if (eventType === 'review.changed' && !['verified', 'needs-fix', 'partial', 'cannot-assess'].includes(result.status)) delete result.status
+  if (eventType === 'review.changed' && result.changeKind !== 'updated') delete result.changeKind
   if (eventType.startsWith('quiz.') && !['started', 'submitted', 'not_started'].includes(result.status)) delete result.status
   if (eventType.startsWith('grade.') && result.value && !/^[1-5](?:[+-])?$/.test(result.value.trim())) delete result.value
   return result

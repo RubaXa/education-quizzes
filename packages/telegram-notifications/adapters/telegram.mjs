@@ -1,3 +1,4 @@
+/* @see ../../../docs/decisions/telegram-compact-digest-2026-10-18.md */
 import { Api, Bot, HttpError, InlineKeyboard } from 'grammy'
 import { autoRetry } from '@grammyjs/auto-retry'
 
@@ -77,6 +78,7 @@ export function createTelegramDelivery(token, { ApiClass = Api } = {}) {
   return {
     async send({ chatId, text, part }) {
       if (part) {
+        if (part.format === 'html') return await sendFallback(chatId, part, 'html')
         try {
           if (typeof api.sendRichMessage !== 'function') return await sendFallback(chatId, part)
           const message = await api.sendRichMessage(chatId, part.rich_message, {})
@@ -95,10 +97,10 @@ export function createTelegramDelivery(token, { ApiClass = Api } = {}) {
     },
   }
 
-  async function sendFallback(chatId, part) {
+  async function sendFallback(chatId, part, format = 'html-fallback') {
     try {
       const message = await api.sendMessage(chatId, part.html, { parse_mode: 'HTML', link_preview_options: { is_disabled: true }, ...(part.keyboard ? { reply_markup: { inline_keyboard: [part.keyboard.buttons] } } : {}) })
-      return { messageId: message.message_id, method: 'sendMessage', format: 'html-fallback' }
+      return { messageId: message.message_id, method: 'sendMessage', format }
     } catch (cause) {
       throw deliveryError(cause)
     }

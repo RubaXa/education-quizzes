@@ -4,12 +4,13 @@ import { main } from '../../../scripts/telegram-runtime.mjs'
 
 const secret = '987654321:NEVER_INCLUDE_TOKEN_IN_OUTPUT'
 
-function fakeDb({ accounts = [], links = [], members = {}, telegramAccounts = {}, outboxFailure = null } = {}) {
+function fakeDb({ accounts = [], links = [], members = {}, telegramAccounts = {}, outboxFailure = null, groupFailure = null } = {}) {
   const db = {
     collection(name) {
       if (name === 'telegramNotificationOutbox') {
-        const query = { where() { return query }, orderBy() { return query }, limit() { return query },
-          async get() { if (outboxFailure) throw outboxFailure; return { size: 0, docs: [] } } }
+        let isGroup = false
+        const query = { where(field) { if (field === 'groupId') isGroup = true; return query }, orderBy() { return query }, limit() { return query },
+          async get() { if (outboxFailure) throw outboxFailure; if (isGroup && groupFailure) throw groupFailure; return { size: 0, docs: [] } } }
         return query
       }
       const rows = name === 'telegramBotAccounts' ? accounts : name === 'telegramBotFamilyLinks' ? links : []
@@ -39,6 +40,14 @@ function fakeFs() {
 }
 
 describe('Telegram readiness inventory', () => {
+  it('checks the actual group query even when claim and recovery indexes work', async () => {
+    const result = await inspectTelegramReadiness({ root: '/repo', env: { AGI_EDU_BOT: secret }, fs: fakeFs(),
+      db: fakeDb({ groupFailure: Object.assign(new Error('index required private-url'), { code: 'failed-precondition' }) }) })
+    expect(result.outbox).toMatchObject({ claimQueryReady: true, recoveryQueryReady: true, groupQueryReady: false })
+    expect(result.readyForDelivery).toBe(false)
+    expect(JSON.stringify(result)).not.toContain('private-url')
+  })
+
   it('counts active links only when a current parent membership authorizes children', async () => {
     const db = fakeDb({ accounts: [{ telegramUserId: '12345', username: 'private-name' }], links: [
       { familyId: 'family-a', personId: 'parent-a', telegramUserId: '12345', status: 'active' },
@@ -95,7 +104,7 @@ describe('Telegram readiness inventory', () => {
     }), launchAgentPath: '/repo/agent.plist', launchAgentStatus: { installed: true, loaded: false, running: false, state: 'exited', lastExitCode: 2 } })
     expect(result.runtime).toMatchObject({ launchAgentInstalled: true, loaded: false, running: false, state: 'exited', lastExitCode: 2 })
     expect(result.outbox).toMatchObject({ claimQueryReady: false, recoveryQueryReady: false,
-      blockedReasons: ['firestore_outbox_index_required', 'firestore_outbox_index_required'] })
+      blockedReasons: ['firestore_outbox_index_required', 'firestore_outbox_index_required', 'firestore_outbox_index_required'] })
     expect(result.readyForDelivery).toBe(false)
     expect(JSON.stringify(result)).not.toContain('secret-url')
     expect(result.blockers).toContain('persistent_runtime_not_running')

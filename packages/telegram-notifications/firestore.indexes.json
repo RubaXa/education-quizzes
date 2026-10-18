@@ -15,6 +15,14 @@
         { "fieldPath": "state", "order": "ASCENDING" },
         { "fieldPath": "leaseUntil", "order": "ASCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "telegramNotificationOutbox",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "groupId", "order": "ASCENDING" },
+        { "fieldPath": "state", "order": "ASCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

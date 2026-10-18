@@ -42,7 +42,7 @@ export async function inspectTelegramReadiness({ root = process.cwd(), env = pro
     runtime: { launchAgentInstalled, loaded: runtimeStatus.loaded === true, running: runtimeStatus.running === true,
       state: safeLaunchState(runtimeStatus.state), ...(Number.isSafeInteger(runtimeStatus.lastExitCode) ? { lastExitCode: runtimeStatus.lastExitCode } : {}) },
     linkIssuerAvailable: linkIssuerAvailable === true,
-    outbox: { claimQueryReady: null, recoveryQueryReady: null, blockedReasons: [] },
+    outbox: { claimQueryReady: null, recoveryQueryReady: null, groupQueryReady: null, blockedReasons: [] },
     readyForDelivery: false,
     blockers: [],
   }
@@ -95,7 +95,7 @@ export async function inspectTelegramReadiness({ root = process.cwd(), env = pro
   result.readyForDelivery = result.tokenAvailable && result.credentials.applicationDefaultCredentialsAvailable
     && (meshAccounts.length > 0 || explicitlyVerified)
     && result.firestore.activeAuthorizedLinks > 0 && launchAgentInstalled && runtimeStatus.loaded === true
-    && runtimeStatus.running === true && result.outbox.claimQueryReady === true && result.outbox.recoveryQueryReady === true
+    && runtimeStatus.running === true && result.outbox.claimQueryReady === true && result.outbox.recoveryQueryReady === true && result.outbox.groupQueryReady === true
     && result.blockers.length === 0
   if (result.firestore.activeAuthorizedLinks === 0) result.blockers.push('no_active_authorized_telegram_links')
   if (!result.readyForDelivery && !result.blockers.length) result.blockers.push('trusted_link_issuer_unavailable')
@@ -103,7 +103,7 @@ export async function inspectTelegramReadiness({ root = process.cwd(), env = pro
 }
 
 async function inspectOutboxQueries(db) {
-  const result = { claimQueryReady: false, recoveryQueryReady: false, blockedReasons: [] }
+  const result = { claimQueryReady: false, recoveryQueryReady: false, groupQueryReady: false, blockedReasons: [] }
   const now = new Date().toISOString()
   try {
     await db.collection('telegramNotificationOutbox').where('state', 'in', ['pending', 'retry_wait'])
@@ -114,6 +114,11 @@ async function inspectOutboxQueries(db) {
     await db.collection('telegramNotificationOutbox').where('state', '==', 'leased')
       .where('leaseUntil', '<=', now).limit(1).get()
     result.recoveryQueryReady = true
+  } catch (error) { result.blockedReasons.push(classifyQueryFailure(error)) }
+  try {
+    await db.collection('telegramNotificationOutbox').where('groupId', '==', 'readiness-only-nonexistent-group')
+      .where('state', '==', 'pending').limit(1).get()
+    result.groupQueryReady = true
   } catch (error) { result.blockedReasons.push(classifyQueryFailure(error)) }
   return result
 }
