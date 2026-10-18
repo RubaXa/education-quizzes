@@ -263,6 +263,8 @@ async function publishProgress(filename, phase) {
 
 /** @see ../docs/modules/reviews/review-criteria-provenance.md#second-pass */
 function validateReviewResult(review, page, guide, { requireChallenge = false } = {}) {
+  const proseErrors = reviewProseErrors(review)
+  if (proseErrors.length) throw new Error(proseErrors.join('\n'))
   const sourceTask = page.subjects?.flatMap(subject => subject.tasks ?? []).find(task => task.id === review.taskId)
   const sourceErrors = sourceReviewErrors(review, sourceTask ?? {})
   if (sourceErrors.length) throw new Error(sourceErrors.join(' '))
@@ -302,8 +304,6 @@ function validateReviewResult(review, page, guide, { requireChallenge = false } 
   validateAssessmentBasis(review)
   validateRequirementChecks(review)
   validateWorkCoverage(review)
-  const proseErrors = reviewProseErrors(review)
-  if (proseErrors.length) throw new Error(proseErrors.join('\n'))
   if (['needs-fix', 'partial'].includes(review.status)) validateStudentFeedback(review)
   const subject = page.subjects?.find((entry) => entry.tasks?.some((task) => task.id === review.taskId || task.problems?.some((problem) => problem.id === review.taskId)))
   const task = subject?.tasks?.find((entry) => entry.id === review.taskId || entry.problems?.some((problem) => problem.id === review.taskId))

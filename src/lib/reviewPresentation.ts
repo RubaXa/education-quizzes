@@ -1,4 +1,5 @@
 import type { DayUpload, DayWorkReview } from './dayStore'
+import { formatReviewProse } from './reviewProse'
 
 export type ReviewTone = 'success' | 'partial' | 'error' | 'neutral'
 export type ProblemCardState = { label: string; tone: 'ready' | 'uploading' | 'waiting' | 'processing' | 'verified' | 'partial' | 'error' }
@@ -85,7 +86,7 @@ export function reviewHeadline(review: DayWorkReview): string {
   if (review.assessmentBasis?.outcome === 'unresolved') return workCoverageComplete(review) ? 'Работа сдана · критерий оценки неясен'
     : review.nextStep && review.items?.some((item) => item.status === 'cannot-assess') ? 'Часть задания не подтверждена'
       : 'Работа разобрана · критерий неясен'
-  if (review.studentFeedback?.title) return review.studentFeedback.title
+  if (review.studentFeedback?.title) return formatReviewProse(review.studentFeedback.title)
   if (review.mathReasoning) {
     const { answer, argument } = review.mathReasoning
     if (answer === 'correct' && argument === 'not-required') return 'Ответ верен'

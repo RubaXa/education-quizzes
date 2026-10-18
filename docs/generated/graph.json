@@ -520,6 +520,31 @@
       "path": "docs/decisions/mesh-calendar-date-scopes-2026-10-18.md"
     },
     {
+      "id": "decision.review-prose-coverage-2026-10-19",
+      "status": "accepted",
+      "implementation": "implemented",
+      "parent": "module.reviews.review-criteria-provenance",
+      "uses": [
+        "shared.design"
+      ],
+      "created": "2026-10-19",
+      "updated": "2026-10-19",
+      "consumers": [
+        "parent",
+        "student",
+        "review operator"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/review-prose-coverage-2026-10-19.md"
+    },
+    {
       "id": "decision.session-owned-revocation-2026-10-18",
       "status": "accepted",
       "implementation": "implemented",
@@ -4211,6 +4236,13 @@
       "consumer": "`ParentTaskGuide.tsx`; `WorkReview.tsx`; `QuizCard.tsx`"
     },
     {
+      "id": "file:src/components/ReviewProse.integration.test.tsx",
+      "path": "src/components/ReviewProse.integration.test.tsx",
+      "kind": "verification",
+      "purpose": "Реальная карточка обеих ролей, legacy, preview/send и сохранение источников",
+      "consumer": "Vitest"
+    },
+    {
       "id": "file:src/components/SourceFragment.css",
       "path": "src/components/SourceFragment.css",
       "kind": "artifact",
@@ -5026,8 +5058,8 @@
       "id": "file:src/lib/reviewProse.ts",
       "path": "src/lib/reviewProse.ts",
       "kind": "artifact",
-      "purpose": "Общие пробелы в авторских пояснениях и проверка новых публикаций",
-      "consumer": "WorkReview; submissions"
+      "purpose": "Общие пробелы, границы наблюдения/цитат и проверка новых авторских полей",
+      "consumer": "Родительские/ученические карточки; day; submissions"
     },
     {
       "id": "file:src/lib/roleDiagnostics.test.ts",
@@ -6452,7 +6484,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-11",
-      "updated": "2026-10-16",
+      "updated": "2026-10-19",
       "consumers": [
         "student",
         "parent",
@@ -9002,6 +9034,11 @@
     {
       "from": "decision.mesh-calendar-date-scopes-2026-10-18",
       "to": "service.telegram-bot.operations",
+      "type": "uses"
+    },
+    {
+      "from": "decision.review-prose-coverage-2026-10-19",
+      "to": "shared.design",
       "type": "uses"
     },
     {
@@ -13156,8 +13193,18 @@
     },
     {
       "from": "module.reviews.review-criteria-provenance",
+      "to": "decision.review-prose-coverage-2026-10-19",
+      "type": "contains"
+    },
+    {
+      "from": "module.reviews.review-criteria-provenance",
       "to": "decisions.readable-review-prose-2026-10-18",
       "type": "contains"
+    },
+    {
+      "from": "module.reviews.review-criteria-provenance",
+      "to": "file:src/components/ReviewProse.integration.test.tsx",
+      "type": "verified-by"
     },
     {
       "from": "module.reviews.review-criteria-provenance",

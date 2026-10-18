@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import { BookOpen, Lightbulb } from 'lucide-react'
 import type { DayHelp, DayMaterialLink, DayProblem, DayWorkReview } from '@/lib/dayStore'
 import { reportUiError } from '@/lib/uiErrors'
+import { formatReviewProse } from '@/lib/reviewProse'
 import SourceFragment from './SourceFragment'
 import './ProblemStatement.css'
 
@@ -72,10 +73,10 @@ export default function ProblemStatement({ problem, links, parent, help, review,
     </div>
     {support && <div className="problem-statement-education">
       <div className="problem-statement-label"><Lightbulb size={16} aria-hidden="true" /><strong>Как читать условие</strong></div>
-      {!!facts.length && <div className="problem-statement-facts" aria-label="Дано">{facts.map((fact) => <div key={fact.label}><strong>{fact.value}</strong><small>{fact.label}</small></div>)}</div>}
-      {support.find && <div className="problem-statement-find"><small>Найти</small><strong>{support.find}</strong></div>}
+      {!!facts.length && <div className="problem-statement-facts" aria-label="Дано">{facts.map((fact) => <div key={fact.label}><strong>{formatReviewProse(fact.value)}</strong><small>{formatReviewProse(fact.label)}</small></div>)}</div>}
+      {support.find && <div className="problem-statement-find"><small>Найти</small><strong>{formatReviewProse(support.find)}</strong></div>}
       {parent || finished || !onRequestHelp ? null
-          : opened ? <div className="problem-statement-help-result"><strong>Первый ориентир</strong><p>{support.firstQuestion}</p><small>Этот вопрос подготовлен к задаче заранее. Твой запрос сохранён для следующего разбора.</small></div>
+          : opened ? <div className="problem-statement-help-result"><strong>Первый ориентир</strong><p>{formatReviewProse(support.firstQuestion)}</p><small>Этот вопрос подготовлен к задаче заранее. Твой запрос сохранён для следующего разбора.</small></div>
             : helpAccess === 'checking' ? <p className="problem-statement-rationale">Проверяем личный вход…</p>
               : helpAccess === 'login-required' ? <p className="problem-statement-rationale">Чтобы попросить ориентир, зайди по личной ссылке ученика Education.</p>
                 : <details className="problem-statement-help"><summary>Нужен ориентир?</summary><form onSubmit={(event) => void requestHelp(event)}><fieldset><legend>На чём ты остановился?</legend>{helpKinds.map((option) => <label key={option.value}><input type="radio" name={`help-${problem.id}`} value={option.value} checked={kind === option.value} onChange={() => setKind(option.value)} />{option.label}</label>)}</fieldset><label className="problem-statement-help-note">Что уже пробовал? Можно написать «Пока не знаю».<textarea value={note} maxLength={800} onChange={(event) => setNote(event.target.value)} placeholder="Моя мысль или вопрос" /></label><button type="submit" className="problem-statement-help-button" disabled={requesting || !onRequestHelp}>{requesting ? 'Отправляем…' : 'Отправить'}</button></form></details>}

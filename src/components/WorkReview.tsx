@@ -7,7 +7,7 @@ import { activeProcessing, elapsedLabel, processingIsStale, reviewHeadline, revi
 import { ArtifactStatusGlyph } from './ArtifactAvatar'
 import StatusIcon from './StatusIcon'
 import RequirementSwitch from './RequirementSwitch'
-import { formatReviewProse } from '@/lib/reviewProse'
+import { formatReviewObservation, formatReviewProse } from '@/lib/reviewProse'
 
 const itemLabels = { correct: 'Верно', partial: 'Частично верно', incorrect: 'Неверно', 'cannot-assess': 'Не удалось проверить' }
 
@@ -88,12 +88,12 @@ export default function WorkReview({ review, uploads, accepted = false, canDecid
           <h4>Что задано в МЭШ и что видно на фото</h4>
           <p>Подтверждено {review.requirementChecks.filter((check) => check.result === 'confirmed').length} из {review.requirementChecks.length} обязательных пунктов. Невидимую часть не считаем ошибкой.</p>
           <ol>{review.requirementChecks.map((check) => <li key={check.id}>
-            <strong>{check.action}</strong>
+            <strong>{formatReviewProse(check.action)}</strong>
             <span><b>МЭШ:</b> {check.meshExcerpt}</span>
             <span><b>Учебник уточняет:</b> {check.materialExcerpt}</span>
-            <span><b>На фото:</b> {check.evidence.observation}</span>
+            <span><b>На фото:</b> {formatReviewObservation(check.evidence.observation)}</span>
             <span className={`day-work-review-requirement-result ${check.result}`}><StatusIcon size={15} status={check.result === 'confirmed' ? 'complete' : check.result === 'not-met' ? 'needs-fix' : check.result === 'partial' ? 'partial' : 'unknown'} />{check.result === 'confirmed' ? 'Требование выполнено' : check.result === 'unknown' ? 'Не можем установить по фото' : check.result === 'partial' ? 'Часть требования подтверждена' : 'Требование не выполнено'}</span>
-            <span>{check.explanation}</span>
+            <span>{formatReviewProse(check.explanation)}</span>
           </li>)}</ol>
         </section>}
         {review.mathReasoning && <div className="day-work-review-verdicts" aria-label="Результат проверки">
@@ -102,13 +102,13 @@ export default function WorkReview({ review, uploads, accepted = false, canDecid
         </div>}
         {familyDone && <p className="day-work-review-accepted">Все пункты семейного плана подтверждены. {familyStages?.optional ? `${familyStages.optional} пункт(а) оставлены по желанию родителя.` : ''} Исходный разбор фото сохранён.</p>}
         {accepted && <p className="day-work-review-accepted">Задача завершена по решению родителя. Ответ верен; обоснование хода в работе осталось неполным.</p>}
-        {basis?.outcome === 'unresolved' && <p className="day-work-review-unprepared">{workCoverageComplete(review) ? `Работа предъявлена полностью: ${review.workCoverage?.note} ` : `Разбор загруженного фото завершён. ${review.summary ?? ''} `}{requiredActions.length ? 'Родитель назначил доработку для семейного плана; она указана ниже.' : workCoverageComplete(review) ? 'Дополнительных действий от ученика сейчас не требуется.' : review.nextStep ?? 'Если есть другая страница работы, добавьте её фото для проверки.'}</p>}
+        {basis?.outcome === 'unresolved' && <p className="day-work-review-unprepared">{formatReviewProse(workCoverageComplete(review) ? `Работа предъявлена полностью: ${review.workCoverage?.note} ` : `Разбор загруженного фото завершён. ${review.summary ?? ''} `)}{requiredActions.length ? 'Родитель назначил доработку для семейного плана; она указана ниже.' : workCoverageComplete(review) ? 'Дополнительных действий от ученика сейчас не требуется.' : formatReviewProse(review.nextStep ?? 'Если есть другая страница работы, добавьте её фото для проверки.')}</p>}
         {basis?.disputedRequirements?.map((item) => {
           const choice = requirementChoice(review, item.id, decisions)
           if (!parent && !choice) return null
           return <section className="day-work-review-dispute" key={item.id}>
-            <strong>{parent ? item.action : choice === 'require' ? `Сделай по решению родителя: ${item.action}` : `Можно по желанию: ${item.action}`}</strong>
-            {parent && item.meshExcerpt && <><p><b>МЭШ:</b> «{item.meshExcerpt}»</p><p><b>{item.sourceKind === 'textbook' ? 'Учебник' : 'Предположение Education'}:</b> «{item.sourceExcerpt}»</p><p>{item.uncertainty}</p><small>{item.sourceRef}</small></>}
+            <strong>{formatReviewProse(parent ? item.action : choice === 'require' ? `Сделай по решению родителя: ${item.action}` : `Можно по желанию: ${item.action}`)}</strong>
+            {parent && item.meshExcerpt && <><p><b>МЭШ:</b> «{item.meshExcerpt}»</p><p><b>{item.sourceKind === 'textbook' ? 'Учебник' : 'Предположение Education'}:</b> «{item.sourceExcerpt}»</p><p>{formatReviewProse(item.uncertainty ?? '')}</p><small>{item.sourceRef}</small></>}
             <p><b>Решение семьи:</b> {choice === 'require' ? 'Доработать' : 'По желанию'}</p>
             {parent && <RequirementSwitch label={`Учитывать доработку «${item.action}» в семейном плане`} checked={choice === 'require'} disabled={!canDecide || saving} onChange={(checked) => void chooseRequirement(item.id, checked ? 'require' : 'optional')} />}
           </section>
@@ -122,14 +122,14 @@ export default function WorkReview({ review, uploads, accepted = false, canDecid
           ? <p className="day-work-review-unprepared">Работа проверена. Адресный вопрос к этой попытке ещё уточняется.</p>
           : null}
         {basis?.requirement && !review.requirementChecks?.length && <div className="day-work-review-basis">
-          <p><b>Что требовалось</b><span>{basis.requirement}</span></p>
-          <p><b>Что видно в работе</b><span>{basis.observed}</span></p>
-          <p><b>{basis.outcome === 'unresolved' ? 'Что осталось неясным' : 'Почему такой результат'}</b><span>{basis.comparison}</span></p>
-          {(visibleSources.length > 0 || basis.limitation) && <details><summary>На чём основана проверка</summary>{visibleSources.length > 0 && <ul>{visibleSources.map((source, index) => <li key={`${source.ref}-${index}`}><b>{source.kind === 'mesh' ? 'МЭШ' : source.kind === 'textbook' ? 'Учебник' : source.kind === 'teacher' ? 'Учитель' : source.kind === 'curriculum' ? 'Программа' : 'Методическое пособие'}</b>: «{source.excerpt}» <small>{source.ref}</small></li>)}</ul>}{basis.limitation && <p>{basis.limitation}</p>}</details>}
+          <p><b>Что требовалось</b><span>{formatReviewProse(basis.requirement)}</span></p>
+          <p><b>Что видно в работе</b><span>{formatReviewObservation(basis.observed ?? '')}</span></p>
+          <p><b>{basis.outcome === 'unresolved' ? 'Что осталось неясным' : 'Почему такой результат'}</b><span>{formatReviewProse(basis.comparison ?? '')}</span></p>
+          {(visibleSources.length > 0 || basis.limitation) && <details><summary>На чём основана проверка</summary>{visibleSources.length > 0 && <ul>{visibleSources.map((source, index) => <li key={`${source.ref}-${index}`}><b>{source.kind === 'mesh' ? 'МЭШ' : source.kind === 'textbook' ? 'Учебник' : source.kind === 'teacher' ? 'Учитель' : source.kind === 'curriculum' ? 'Программа' : 'Методическое пособие'}</b>: «{source.excerpt}» <small>{source.ref}</small></li>)}</ul>}{basis.limitation && <p>{formatReviewProse(basis.limitation)}</p>}</details>}
         </div>}
         {!review.requirementChecks?.length && !feedback && review.status !== 'needs-fix' && review.status !== 'partial' && items.length > 0 && <ol>{items.map((item, index) => <li className={`day-work-review-item ${item.status}`} key={`${item.label}-${index}`}>
           <span className="day-work-review-item-icon"><StatusIcon size={14} status={item.status === 'correct' ? 'complete' : item.status === 'incorrect' ? 'incorrect' : item.status === 'partial' ? 'partial' : 'unknown'} /></span>
-          <div><strong>{item.label} · {basis?.outcome === 'unresolved' && item.status === 'cannot-assess' ? basis.unresolvedReason === 'missing-evidence' ? 'Не видно на фото' : basis.unresolvedReason === 'criterion-unclear' ? 'Критерий требует уточнения' : 'Итог не установлен' : itemLabels[item.status]}</strong>{item.observed && <small><b>В работе:</b> {item.observed}</small>}</div>
+          <div><strong>{formatReviewProse(item.label)} · {basis?.outcome === 'unresolved' && item.status === 'cannot-assess' ? basis.unresolvedReason === 'missing-evidence' ? 'Не видно на фото' : basis.unresolvedReason === 'criterion-unclear' ? 'Критерий требует уточнения' : 'Итог не установлен' : itemLabels[item.status]}</strong>{item.observed && <small><b>В работе:</b> {formatReviewObservation(item.observed)}</small>}</div>
         </li>)}</ol>}
         {!!review.history?.length && <details className="day-review-history"><summary>Предыдущие попытки · {review.history.length}</summary><ol>{[...review.history].reverse().map((entry, index) => <li key={index}><strong>{formatReviewProse(entry.studentFeedback?.title ?? (entry.status === 'verified' ? 'Верно' : entry.status === 'partial' ? 'Частично' : entry.status === 'needs-fix' ? 'Нужна правка' : 'Не удалось оценить'))}</strong>{entry.studentFeedback?.focus && <small>{formatReviewProse(entry.studentFeedback.focus)}</small>}</li>)}</ol></details>}
         {onDecision && <div className="day-review-parent-decision">

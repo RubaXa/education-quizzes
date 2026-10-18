@@ -2,6 +2,8 @@
 
 | Файл | Спецификация | Назначение | Потребитель |
 |---|---|---|---|
+| [docs/decisions/review-prose-coverage-2026-10-19.md](decisions/review-prose-coverage-2026-10-19.md) | [Читаемая обратная связь](modules/reviews/review-criteria-provenance.md) | Причина неполной прежней правки и границы всех авторских текстов | Разработчик; оператор |
+| [src/components/ReviewProse.integration.test.tsx](../src/components/ReviewProse.integration.test.tsx) | [Читаемая обратная связь](modules/reviews/review-criteria-provenance.md) | Реальная карточка обеих ролей, legacy, preview/send и сохранение источников | Vitest |
 | [docs/decisions/device-binding-recovery-2026-10-18.md](decisions/device-binding-recovery-2026-10-18.md) | [Доступ и состояние](modules/families/access-and-state.md) | Восстановление действующего server binding вместо потери входа при старой локальной личности | Разработчик; выпуск |
 | [docs/decisions/ldd-copy-button-2026-10-19.md](decisions/ldd-copy-button-2026-10-19.md) | [Локальная LDD-трасса](modules/families/browser-access-trace.md) | Прямое уточнение простого LDD и одной кнопки копирования | Разработчик; выпуск |
 | [src/components/DiagnosticsCopyButton.tsx](../src/components/DiagnosticsCopyButton.tsx) | [Локальная LDD-трасса](modules/families/browser-access-trace.md) | Копировать безопасный локальный журнал одним кликом | Общая шапка; web/PWA |
@@ -33,7 +35,7 @@
 
 | Файл | Спецификация | Назначение | Потребитель |
 |---|---|---|---|
-| [src/lib/reviewProse.ts](../src/lib/reviewProse.ts) | [Читаемая обратная связь](modules/reviews/review-criteria-provenance.md) | Общие пробелы в авторских пояснениях и проверка новых публикаций | WorkReview; submissions |
+| [src/lib/reviewProse.ts](../src/lib/reviewProse.ts) | [Читаемая обратная связь](modules/reviews/review-criteria-provenance.md) | Общие пробелы, границы наблюдения/цитат и проверка новых авторских полей | Родительские/ученические карточки; day; submissions |
 | [src/lib/reviewProse.test.ts](../src/lib/reviewProse.test.ts) | [Читаемая обратная связь](modules/reviews/review-criteria-provenance.md) | Склейки, формулы, сохранность значений и литералов | Vitest |
 | [docs/decisions/readable-review-prose-2026-10-18.md](decisions/readable-review-prose-2026-10-18.md) | [Читаемая обратная связь](modules/reviews/review-criteria-provenance.md) | Основание типографической правки | Разработчик; оператор |
 
