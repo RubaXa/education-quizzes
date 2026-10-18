@@ -337,6 +337,30 @@
       "path": "docs/decisions/authenticated-learning-routes-2026-10-18.md"
     },
     {
+      "id": "decision.browser-role-ldd-2026-10-18",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-10-18",
+      "updated": "2026-10-18",
+      "consumers": [
+        "Education developer",
+        "family access operator"
+      ],
+      "code": [],
+      "parent": "module.families",
+      "uses": [
+        "module.families.browser-access-trace"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/browser-role-ldd-2026-10-18.md"
+    },
+    {
       "id": "decision.course-placement-2026-10-18",
       "status": "accepted",
       "implementation": "not-applicable",
@@ -2982,6 +3006,13 @@
       "consumer": "Renderer; UI Kit; оператор; Vitest"
     },
     {
+      "id": "file:public/access-snapshot.js",
+      "path": "public/access-snapshot.js",
+      "kind": "artifact",
+      "purpose": "Read-only collector старой вкладки без обновления её приложения",
+      "consumer": "Штатный diagnostics:browser snippet"
+    },
+    {
       "id": "file:public/icons/education-180.png",
       "path": "public/icons/education-180.png",
       "kind": "artifact",
@@ -3071,6 +3102,20 @@
       "kind": "verification",
       "purpose": "Регрессии: Воспроизводимая синтетическая нагрузка graph/coordinator/pipeline/outbox",
       "consumer": "Vitest; разработчик"
+    },
+    {
+      "id": "file:scripts/browser-access-trace.mjs",
+      "path": "scripts/browser-access-trace.mjs",
+      "kind": "artifact",
+      "purpose": "Штатный read-only сбор baseline старой/новой вкладки и анализ receipt",
+      "consumer": "Оператор; родитель при ручном сборе"
+    },
+    {
+      "id": "file:scripts/browser-access-trace.test.mjs",
+      "path": "scripts/browser-access-trace.test.mjs",
+      "kind": "verification",
+      "purpose": "Реальное выполнение collector с canary-секретами и безопасная сводка",
+      "consumer": "Vitest"
     },
     {
       "id": "file:scripts/build-inputs.mjs",
@@ -4366,6 +4411,20 @@
       "kind": "artifact",
       "purpose": "Выбор одного проверенного манифеста с откатом к отдельным страницам v1",
       "consumer": "`FamilyLibrary.tsx`"
+    },
+    {
+      "id": "file:src/lib/browserAccessTrace.test.ts",
+      "path": "src/lib/browserAccessTrace.test.ts",
+      "kind": "verification",
+      "purpose": "Порядок, приватность, границы запуска/ребёнка, поздние hashes и отказ storage",
+      "consumer": "Vitest"
+    },
+    {
+      "id": "file:src/lib/browserAccessTrace.ts",
+      "path": "src/lib/browserAccessTrace.ts",
+      "kind": "artifact",
+      "purpose": "Ограниченный журнал переходов, fingerprints, экспорт и безопасная интерпретация",
+      "consumer": "Личный вход; LearningRoute; общая карточка; оператор"
     },
     {
       "id": "file:src/lib/dayCompatibility.test.ts",
@@ -5735,6 +5794,32 @@
         "совместимость-схемы"
       ],
       "path": "docs/modules/families/access-and-state.md"
+    },
+    {
+      "id": "module.families.browser-access-trace",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-10-18",
+      "updated": "2026-10-18",
+      "consumers": [
+        "web-app access flow",
+        "family access operator"
+      ],
+      "code": [
+        "src/lib/browserAccessTrace.ts",
+        "scripts/browser-access-trace.mjs",
+        "public/access-snapshot.js"
+      ],
+      "parent": "module.families",
+      "uses": [
+        "module.families.access-and-state",
+        "shared.access-and-privacy"
+      ],
+      "sections": [
+        "контракт",
+        "интерпретация"
+      ],
+      "path": "docs/modules/families/browser-access-trace.md"
     },
     {
       "id": "module.families.family-artifact-access",
@@ -8760,6 +8845,11 @@
       "type": "uses"
     },
     {
+      "from": "decision.browser-role-ldd-2026-10-18",
+      "to": "module.families.browser-access-trace",
+      "type": "uses"
+    },
+    {
       "from": "decision.course-placement-2026-10-18",
       "to": "module.school-diary.dashboard",
       "type": "uses"
@@ -9770,6 +9860,11 @@
       "type": "implements"
     },
     {
+      "from": "file:public/access-snapshot.js",
+      "to": "module.families.browser-access-trace",
+      "type": "implements"
+    },
+    {
       "from": "file:public/icons/education-180.png",
       "to": "product.pwa",
       "type": "implements"
@@ -9837,6 +9932,11 @@
     {
       "from": "file:scripts/benchmark-server-runtime.mjs",
       "to": "shared.server-runtime",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/browser-access-trace.mjs",
+      "to": "module.families.browser-access-trace",
       "type": "implements"
     },
     {
@@ -11435,6 +11535,11 @@
       "type": "implements"
     },
     {
+      "from": "file:src/lib/browserAccessTrace.ts",
+      "to": "module.families.browser-access-trace",
+      "type": "implements"
+    },
+    {
       "from": "file:src/lib/dayCompatibility.ts",
       "to": "module.families.access-and-state",
       "type": "implements"
@@ -12550,8 +12655,38 @@
       "type": "uses"
     },
     {
+      "from": "module.families.browser-access-trace",
+      "to": "file:scripts/browser-access-trace.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.families.browser-access-trace",
+      "to": "file:src/lib/browserAccessTrace.test.ts",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.families.browser-access-trace",
+      "to": "module.families.access-and-state",
+      "type": "uses"
+    },
+    {
+      "from": "module.families.browser-access-trace",
+      "to": "shared.access-and-privacy",
+      "type": "uses"
+    },
+    {
+      "from": "module.families",
+      "to": "decision.browser-role-ldd-2026-10-18",
+      "type": "contains"
+    },
+    {
       "from": "module.families",
       "to": "module.families.access-and-state",
+      "type": "contains"
+    },
+    {
+      "from": "module.families",
+      "to": "module.families.browser-access-trace",
       "type": "contains"
     },
     {

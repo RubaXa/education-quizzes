@@ -1,0 +1,62 @@
+// @vitest-environment jsdom
+/** @see ../../docs/modules/families/browser-access-trace.md */
+import { beforeEach, expect, it, vi } from 'vitest'
+import { createAccessTrace, inspectAccessTrace } from './browserAccessTrace'
+
+beforeEach(() => sessionStorage.clear())
+it('records ordered decisions, persists across reload and exports no arbitrary payload or credentials', () => {
+  const journal = createAccessTrace({ storage: sessionStorage, now: () => 1000, runId: 'run-one' })
+  journal.record('identity.resolved', { role: 'parent', source: 'local', reason: 'cache-hit', linkToken: 'SECRET', personId: 'PERSON' } as any)
+  journal.record('view.rendered', { role: 'student', source: 'card', hasGuide: false })
+  expect(journal.snapshot().events.map((event) => event.sequence)).toEqual([1, 2])
+  expect(JSON.stringify(journal.snapshot())).not.toMatch(/SECRET|PERSON|linkToken|personId/)
+  const reloaded = createAccessTrace({ storage: sessionStorage, now: () => 1001, runId: 'run-two' })
+  expect(reloaded.snapshot().events).toHaveLength(2)
+  expect(inspectAccessTrace(reloaded.snapshot()).findings).toContain('parent-context-student-view')
+})
+it('rejects poisoned stored data and values, keeps only a bounded journal and survives denied storage', () => {
+  sessionStorage.setItem('education-access-trace-v1', JSON.stringify({ events: [{ event: 'view.rendered', detail: { role: 'SECRET' } }] }))
+  const journal = createAccessTrace({ storage: sessionStorage, now: () => 1000, runId: 'run' })
+  journal.record('view.rendered', { role: 'SECRET', source: 'https://secret', reason: 'TOKEN' } as any)
+  expect(JSON.stringify(journal.snapshot())).not.toMatch(/SECRET|https|TOKEN/)
+  for (let index = 0; index < 250; index++) journal.record('view.rendered', { role: 'parent' })
+  expect(journal.snapshot().events.length).toBe(200)
+  const denied = createAccessTrace({ storage: { getItem: () => { throw Error() }, setItem: () => { throw Error() } }, now: () => 1000, runId: 'run' })
+  expect(() => denied.record('access.resolved', { role: 'parent' })).not.toThrow()
+})
+it('distinguishes local student identity from a proven parent projection failure and separate runs', () => {
+  const journal = createAccessTrace({ now: () => 1000, runId: 'run' })
+  journal.record('identity.resolved', { role: 'student', source: 'local' })
+  journal.record('access.resolved', { role: 'student', source: 'member-server' })
+  journal.record('view.rendered', { role: 'student', source: 'card' })
+  expect(inspectAccessTrace(journal.snapshot()).findings).toContain('student-membership-student-view')
+  expect(inspectAccessTrace(journal.snapshot()).findings).not.toContain('parent-context-student-view')
+  expect(inspectAccessTrace({ schemaVersion: 1, events: [] }).status).toBe('insufficient-evidence')
+  const next = createAccessTrace({ storage: sessionStorage, now: () => 1001, runId: 'next' })
+  next.record('view.rendered', { role: 'student' })
+  expect(inspectAccessTrace(next.snapshot()).findings).not.toContain('parent-context-student-view')
+})
+it('does not claim a role contradiction for different children or overwrite one card with another', () => {
+  const journal = createAccessTrace({ now: () => 1000, runId: 'run' })
+  journal.record('access.resolved', { role: 'parent', scope: 'a'.repeat(24), source: 'member-server' })
+  journal.record('view.rendered', { role: 'student', scope: 'b'.repeat(24), source: 'card' })
+  expect(inspectAccessTrace(journal.snapshot()).findings).not.toContain('parent-context-student-view')
+  expect(vi.isMockFunction(journal.record)).toBe(false)
+})
+it('retains decision order when hashes arrive later and compares a mounted view with later membership', () => {
+  const journal = createAccessTrace({ now: () => 1000, runId: 'run' })
+  const first = journal.record('view.rendered', { role: 'student', source: 'card' })
+  journal.record('access.resolved', { role: 'parent', scope: 'a'.repeat(24), source: 'member-server' })
+  journal.enrich(first, { scope: 'a'.repeat(24) })
+  expect(journal.snapshot().events.map(event => event.event)).toEqual(['view.rendered', 'access.resolved'])
+  expect(inspectAccessTrace(journal.snapshot()).findings).toContain('parent-context-student-view')
+})
+it('sanitizes the local logger sink too and ignores sink failure and expired history', () => {
+  const emit = vi.fn()
+  const journal = createAccessTrace({ storage: sessionStorage, now: () => 1000, runId: 'run', emit })
+  journal.record('identity.resolved', { role: 'parent', linkToken: 'SECRET' } as any)
+  expect(JSON.stringify(emit.mock.calls)).not.toContain('SECRET')
+  expect(createAccessTrace({ storage: sessionStorage, now: () => 25 * 60 * 60_000, runId: 'next' }).snapshot().events).toHaveLength(0)
+  const broken = createAccessTrace({ emit: () => { throw Error() } })
+  expect(() => broken.record('app.loaded', {})).not.toThrow()
+})

@@ -4982,7 +4982,7 @@
   {
     "id": "src/components/LearningRoute.tsx#onSnapshot#f4a41a412098",
     "file": "src/components/LearningRoute.tsx",
-    "line": 55,
+    "line": 60,
     "api": "onSnapshot",
     "target": "doc(db, 'accessLinks', session.linkToken)",
     "group": "client-access",
@@ -4994,7 +4994,7 @@
   {
     "id": "src/components/LearningRoute.tsx#onSnapshot#7c88d25fd3b3",
     "file": "src/components/LearningRoute.tsx",
-    "line": 59,
+    "line": 64,
     "api": "onSnapshot",
     "target": "doc(db, 'deviceSessions', session.deviceUid)",
     "group": "client-access",
@@ -5006,7 +5006,7 @@
   {
     "id": "src/components/LearningRoute.tsx#onSnapshot#ae32e1bad017",
     "file": "src/components/LearningRoute.tsx",
-    "line": 63,
+    "line": 68,
     "api": "onSnapshot",
     "target": "doc(db, 'families', child.familyId, 'members', session.personId)",
     "group": "client-access",
@@ -5018,7 +5018,7 @@
   {
     "id": "src/components/PersonalEntry.tsx#onSnapshot#277a67fd7173",
     "file": "src/components/PersonalEntry.tsx",
-    "line": 166,
+    "line": 173,
     "api": "onSnapshot",
     "target": "doc(db, 'accessLinks', session.linkToken)",
     "group": "client-access",
@@ -5030,7 +5030,7 @@
   {
     "id": "src/components/PersonalEntry.tsx#onSnapshot#e2a2ec860d83",
     "file": "src/components/PersonalEntry.tsx",
-    "line": 170,
+    "line": 178,
     "api": "onSnapshot",
     "target": "doc(db, 'deviceSessions', session.deviceUid)",
     "group": "client-access",
@@ -5042,7 +5042,7 @@
   {
     "id": "src/components/PersonalEntry.tsx#onSnapshot#80b6a5d81625",
     "file": "src/components/PersonalEntry.tsx",
-    "line": 184,
+    "line": 193,
     "api": "onSnapshot",
     "target": "doc(db, 'families', familyId, 'members', session.personId)",
     "group": "client-access",
@@ -5498,7 +5498,7 @@
   {
     "id": "src/lib/personalAccess.ts#getDoc#9290ff8cd3f8",
     "file": "src/lib/personalAccess.ts",
-    "line": 208,
+    "line": 212,
     "api": "getDoc",
     "target": "doc(db, 'accessLinks', linkToken)",
     "group": "client-access",
@@ -5510,7 +5510,7 @@
   {
     "id": "src/lib/personalAccess.ts#getDoc#a031cc72eb42",
     "file": "src/lib/personalAccess.ts",
-    "line": 239,
+    "line": 245,
     "api": "getDoc",
     "target": "reference",
     "group": "client-access",
@@ -5522,7 +5522,7 @@
   {
     "id": "src/lib/personalAccess.ts#getDoc#55eca3546993",
     "file": "src/lib/personalAccess.ts",
-    "line": 295,
+    "line": 303,
     "api": "getDoc",
     "target": "doc(db, 'deviceSessions', deviceUid)",
     "group": "client-access",
@@ -5534,7 +5534,7 @@
   {
     "id": "src/lib/personalAccess.ts#getDoc#597358094a96",
     "file": "src/lib/personalAccess.ts",
-    "line": 315,
+    "line": 323,
     "api": "getDoc",
     "target": "doc(db, 'users', session.personId)",
     "group": "client-access",
@@ -5546,7 +5546,7 @@
   {
     "id": "src/lib/personalAccess.ts#getDocs#c04990b4354a",
     "file": "src/lib/personalAccess.ts",
-    "line": 319,
+    "line": 327,
     "api": "getDocs",
     "target": "collection(db, 'users', session.personId, 'families')",
     "group": "client-access",
@@ -5558,7 +5558,7 @@
   {
     "id": "src/lib/personalAccess.ts#getDoc#5d1a89a83476",
     "file": "src/lib/personalAccess.ts",
-    "line": 323,
+    "line": 331,
     "api": "getDoc",
     "target": "doc(db, 'families', familyId, 'members', session.personId)",
     "group": "client-access",
@@ -5570,7 +5570,7 @@
   {
     "id": "src/lib/personalAccess.ts#getDoc#1eef01645270",
     "file": "src/lib/personalAccess.ts",
-    "line": 331,
+    "line": 339,
     "api": "getDoc",
     "target": "doc(db, 'families', familyId, 'children', childId)",
     "group": "client-access",
@@ -5582,7 +5582,7 @@
   {
     "id": "src/lib/personalAccess.ts#getDoc#0aeaca741ec9",
     "file": "src/lib/personalAccess.ts",
-    "line": 332,
+    "line": 340,
     "api": "getDoc",
     "target": "doc(db, 'users', session.personId, 'families', familyId, 'shortcuts', childId)",
     "group": "client-access",

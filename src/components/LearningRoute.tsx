@@ -9,6 +9,7 @@ import { LearningAccessError, learningHash, loadLearningAccess, readCachedLearni
 import type { LearningAccess, LearningMode } from '@/lib/learningRoute'
 import { reportUiError } from '@/lib/uiErrors'
 import { configureRoleDiagnostics } from '@/lib/roleDiagnostics'
+import { traceAccessContext, traceAccess, accessTraceError } from '@/lib/browserAccessTrace'
 import DayPage from '@/DayPage'
 import DayDashboard from '@/DayDashboard'
 
@@ -17,6 +18,9 @@ export default function LearningRoute({ mode, token, headerReturnTarget }: { mod
   const [error, setError] = useState('')
   const [contextRevision, setContextRevision] = useState(0)
   const [contextAvailable, setContextAvailable] = useState(true)
+  useEffect(() => {
+    if (access) traceAccessContext('route.selected', { source: 'route', route: mode, role: access.parent ? 'parent' : 'student', reason: 'role-projection' }, { ...access.session, ...access.child })
+  }, [access, mode])
   useEffect(() => watchPersonalContextChanges(() => {
     const next = readCachedLearningAccess(mode, token)
     setAccess(next)
@@ -49,6 +53,7 @@ export default function LearningRoute({ mode, token, headerReturnTarget }: { mod
       const confirmed = new Set<string>()
       const ready = (part: string) => { confirmed.add(part); if (active && !revoked && !refreshing && confirmed.size === 3) setAccess(current) }
       const remoteError = (cause: { code?: string }) => {
+        traceAccess('access.failed', { source: 'route', code: accessTraceError(cause) })
         if (cause.code === 'permission-denied') revoke()
         else { reportUiError(cause, 'Фоновая проверка личного доступа') }
       }

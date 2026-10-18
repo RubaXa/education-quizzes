@@ -2,6 +2,13 @@
 
 | Файл | Спецификация | Назначение | Потребитель |
 |---|---|---|---|
+| [public/access-snapshot.js](../public/access-snapshot.js) | [Локальная LDD-трасса](modules/families/browser-access-trace.md) | Read-only collector старой вкладки без обновления её приложения | Штатный diagnostics:browser snippet |
+| [docs/modules/families/browser-access-trace.md](modules/families/browser-access-trace.md) | [Локальная LDD-трасса](modules/families/browser-access-trace.md) | Контракт наблюдения фактической браузерной ветки без новых прав | Разработчик; оператор |
+| [src/lib/browserAccessTrace.ts](../src/lib/browserAccessTrace.ts) | [Локальная LDD-трасса](modules/families/browser-access-trace.md) | Ограниченный журнал переходов, fingerprints, экспорт и безопасная интерпретация | Личный вход; LearningRoute; общая карточка; оператор |
+| [src/lib/browserAccessTrace.test.ts](../src/lib/browserAccessTrace.test.ts) | [Локальная LDD-трасса](modules/families/browser-access-trace.md) | Порядок, приватность, границы запуска/ребёнка, поздние hashes и отказ storage | Vitest |
+| [scripts/browser-access-trace.mjs](../scripts/browser-access-trace.mjs) | [Локальная LDD-трасса](modules/families/browser-access-trace.md) | Штатный read-only сбор baseline старой/новой вкладки и анализ receipt | Оператор; родитель при ручном сборе |
+| [scripts/browser-access-trace.test.mjs](../scripts/browser-access-trace.test.mjs) | [Локальная LDD-трасса](modules/families/browser-access-trace.md) | Реальное выполнение collector с canary-секретами и безопасная сводка | Vitest |
+| [docs/decisions/browser-role-ldd-2026-10-18.md](decisions/browser-role-ldd-2026-10-18.md) | [Локальная LDD-трасса](modules/families/browser-access-trace.md) | Прямое основание LDD, граница наблюдения и неизменность ролей/экрана | Разработчик; оператор |
 | [src/components/WorkPhotoGallery.tsx](../src/components/WorkPhotoGallery.tsx) | [Фото и действия](modules/school-diary/day-page.md) | Единая галерея: открыть, сменить, закрыть, повторить и удалить по прежним правам | День; выходные; UI Kit |
 | [src/components/WorkPhotoGallery.css](../src/components/WorkPhotoGallery.css) | [Фото и действия](modules/school-diary/day-page.md) | Прежнее оформление галереи и компактного режима | WorkPhotoGallery |
 | [src/components/WorkPhotoGallery.test.tsx](../src/components/WorkPhotoGallery.test.tsx) | [Фото и действия](modules/school-diary/day-page.md) | Local→server, просмотр, повтор передачи, права удаления | Vitest |
