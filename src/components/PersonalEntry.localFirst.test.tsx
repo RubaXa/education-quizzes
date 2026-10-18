@@ -41,7 +41,7 @@ describe('personal cold start — no saved session', () => {
     document.body.append(host)
     const root = createRoot(host)
     await act(async () => { root.render(<PersonalEntry />) })
-    expect(host.textContent).toContain('Проверяем личный доступ')
+    expect(host.textContent).not.toContain('Проверяем личный доступ')
     expect(host.textContent).not.toContain('Кабинет')
     expect(probe.reads).toBe(0)
     await act(async () => { release() })
@@ -53,7 +53,7 @@ describe('personal cold start — no saved session', () => {
 })
 
 describe('personal warm start — verified saved session', () => {
-  it('waits for Auth and three authoritative confirmations, then closes on confirmed revocation', async () => {
+  it('renders the saved parent view before Auth/server, then closes on confirmed revocation', async () => {
     let release!: () => void
     probe.authGate = new Promise<void>((resolve) => { release = resolve })
     rememberPersonalContext({
@@ -64,8 +64,8 @@ describe('personal warm start — verified saved session', () => {
     document.body.append(host)
     const root = createRoot(host)
     await act(async () => { root.render(<PersonalEntry />) })
-    expect(host.textContent).toContain('Проверяем личный доступ')
-    expect(host.textContent).not.toContain('Кабинет Взрослый')
+    expect(host.textContent).not.toContain('Проверяем личный доступ')
+    expect(host.textContent).toContain('Кабинет Взрослый')
     expect(probe.reads).toBe(0)
     await act(async () => { release() })
     await act(async () => {

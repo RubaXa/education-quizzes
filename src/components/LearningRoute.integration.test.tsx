@@ -5,10 +5,13 @@ import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { PersonalProfile } from '@/lib/personalAccess'
 
-const scene = vi.hoisted(() => ({ profile: null as PersonalProfile | null, serverProfile: null as PersonalProfile | null, cached: false, callbacks: new Map<string, (value: any) => void>(), records: new Map<string, object>(), options: [] as any[], reads: [] as string[], closed: 0, refreshes: 0 }))
+const scene = vi.hoisted(() => ({ profile: null as PersonalProfile | null, serverProfile: null as PersonalProfile | null, cached: false, restoreError: null as { code: string } | null, callbacks: new Map<string, (value: any) => void>(), records: new Map<string, object>(), options: [] as any[], reads: [] as string[], closed: 0, refreshes: 0 }))
 vi.mock('@/lib/firebase', () => ({ db: {} }))
-vi.mock('@/lib/personalAccess', () => ({
-  restorePersonalContext: async () => scene.profile ? { session: { personId: 'person', deviceUid: 'device', linkToken: 'secret' }, profile: scene.profile } : null,
+vi.mock('firebase/auth', () => ({ getAuth: () => ({ currentUser: { uid: 'device' } }) }))
+vi.mock('@/lib/personalAccess', async (original) => ({
+  watchPersonalContextChanges: (await original<typeof import('@/lib/personalAccess')>()).watchPersonalContextChanges,
+  readCachedPersonalContext: () => scene.profile ? { session: { personId: 'person', deviceUid: 'device', linkToken: 'secret' }, profile: scene.profile } : null,
+  restorePersonalContext: async () => { if (scene.restoreError) throw scene.restoreError; return scene.profile ? { session: { personId: 'person', deviceUid: 'device', linkToken: 'secret' }, profile: scene.profile } : null },
   loadPersonalProfile: async () => { scene.refreshes++; return scene.serverProfile ?? scene.profile },
   rememberPersonalContext: (context: { profile: PersonalProfile }) => { scene.profile = context.profile }, rememberPersonalDashboardRoute: vi.fn(), clearPersonalSession: () => { scene.closed++ },
 }))
@@ -47,7 +50,7 @@ import LearningRoute from './LearningRoute'
 const roots: Array<() => void> = []
 beforeEach(() => {
   scene.cached = false; scene.callbacks.clear(); scene.records.clear(); scene.options = []; scene.reads = []; scene.closed = 0
-  scene.serverProfile = null; scene.refreshes = 0
+  scene.serverProfile = null; scene.refreshes = 0; scene.restoreError = null
   scene.profile = { personId: 'person', displayName: 'Person', children: [{ familyId: 'family', childId: 'child', displayName: 'Child', role: 'parent', dashboardToken: 'parent-dashboard', dashboardTokens: { student: 'shared-dashboard', parent: 'parent-dashboard' } }] }
 })
 afterEach(async () => { await act(async () => { roots.splice(0).forEach((close) => close()) }) })
@@ -59,6 +62,37 @@ async function render(mode: 'day' | 'days' = 'days', token = 'shared-dashboard')
   return host
 }
 describe('authenticated route through the real problem card', () => {
+  it('keeps the saved guide when background profile restoration is offline', async () => {
+    scene.restoreError = { code: 'unavailable' }
+    const host = await render()
+    expect(host.textContent).toContain('Разбор для родителя')
+    expect(host.textContent).not.toContain('Добавить фото решения')
+    expect(host.textContent).not.toContain('Проверяем личный доступ')
+    expect(scene.closed).toBe(0)
+    expect(scene.options).toHaveLength(0)
+  })
+  it('also restores a known current day locally without an identity request while offline', async () => {
+    scene.profile!.children[0].dayToken = 'parent-day'
+    scene.profile!.children[0].dayTokens = { parent: 'parent-day', student: 'shared-day' }
+    scene.restoreError = { code: 'unavailable' }
+    const host = await render('day', 'shared-day')
+    expect(host.textContent).toContain('Разбор для родителя')
+    expect(host.textContent).not.toContain('Добавить фото решения')
+    expect(scene.reads).toEqual([])
+  })
+  it('updates the same mounted calendar when the role is saved in a sibling tab', async () => {
+    scene.cached = true
+    scene.profile!.children[0].role = 'student'
+    scene.profile!.children[0].dashboardToken = 'shared-dashboard'
+    const host = await render()
+    expect(host.textContent).toContain('Добавить фото решения')
+    scene.profile!.children[0].role = 'parent'
+    scene.profile!.children[0].dashboardToken = 'parent-dashboard'
+    await act(async () => window.dispatchEvent(new StorageEvent('storage', { key: 'education-personal-context-v1' })))
+    expect(host.textContent).toContain('Разбор для родителя')
+    expect(host.textContent).not.toContain('Добавить фото решения')
+    expect(location.hash).toBe('#/days/shared-dashboard')
+  })
   it.each(['parent', 'student'] as const)('reconciles stale cached role to authoritative %s on the same shared URL', async (role) => {
     scene.serverProfile = structuredClone(scene.profile!)
     scene.serverProfile.children[0].role = role
@@ -97,12 +131,12 @@ describe('authenticated route through the real problem card', () => {
     expect(location.hash).toBe('#/day/shared-day')
     expect(scene.reads).toEqual(['dayPages/parent-day'])
   })
-  it('does not flash the student card while server access is unconfirmed', async () => {
+  it('renders the saved parent card while server access is unconfirmed', async () => {
     scene.cached = true
     const host = await render()
-    expect(host.textContent).toContain('Проверяем личный доступ')
+    expect(host.textContent).not.toContain('Проверяем личный доступ')
     expect(host.textContent).not.toContain('Добавить фото')
-    expect(host.querySelector('[data-view-token]')).toBeNull()
+    expect(host.textContent).toContain('Разбор для родителя')
   })
   it('closes the prepared parent view when membership is revoked', async () => {
     const host = await render()
@@ -114,7 +148,7 @@ describe('authenticated route through the real problem card', () => {
   it('finishes a warm-cache access check when the server confirms unchanged documents', async () => {
     scene.cached = true
     const host = await render()
-    expect(host.querySelector('[data-view-token]')).toBeNull()
+    expect(host.textContent).toContain('Разбор для родителя')
     expect(scene.options).toHaveLength(3)
     expect(scene.options.every((options) => options?.includeMetadataChanges === true)).toBe(true)
     await act(async () => {

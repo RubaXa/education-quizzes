@@ -20,7 +20,8 @@ vi.mock('firebase/firestore', () => ({
     changed({ exists: () => true, data: () => data, metadata: { fromCache: false } }); return () => {}
   },
 }))
-vi.mock('@/lib/personalAccess', () => ({
+vi.mock('@/lib/personalAccess', async (original) => ({
+  watchPersonalContextChanges: (await original<typeof import('@/lib/personalAccess')>()).watchPersonalContextChanges,
   restorePersonalContext: async () => ({ session: { personId: 'person', deviceUid: 'device', linkToken: 'secret' }, profile: scene.profile }),
   loadPersonalProfile: async () => scene.profile,
   rememberPersonalContext: vi.fn(), rememberPersonalDashboardRoute: vi.fn(), clearPersonalSession: vi.fn(),

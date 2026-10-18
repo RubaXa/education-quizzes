@@ -997,6 +997,36 @@
       "path": "docs/decisions/local-first-hot-path-decision-2026-10-12.md"
     },
     {
+      "id": "decisions.local-first-role-recovery-2026-10-18",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-18",
+      "updated": "2026-10-18",
+      "parent": "module.families.access-and-state",
+      "uses": [
+        "plans.local-first-release-plan-2026-10-12"
+      ],
+      "consumers": [
+        "parent",
+        "student",
+        "web-app access flow"
+      ],
+      "code": [
+        "src/components/PersonalEntry.tsx",
+        "src/components/LearningRoute.tsx",
+        "src/lib/personalAccess.ts",
+        "src/lib/learningRoute.ts"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/local-first-role-recovery-2026-10-18.md"
+    },
+    {
       "id": "decisions.material-clarification-2026-10-16",
       "status": "reference",
       "implementation": "not-applicable",
@@ -1219,7 +1249,7 @@
     },
     {
       "id": "decisions.personal-entry-role-confirmation-2026-10-18",
-      "status": "accepted",
+      "status": "superseded",
       "implementation": "implemented",
       "created": "2026-10-18",
       "updated": "2026-10-18",
@@ -3829,7 +3859,7 @@
       "id": "file:src/components/PersonalEntry.tsx",
       "path": "src/components/PersonalEntry.tsx",
       "kind": "artifact",
-      "purpose": "Вход по личной ссылке",
+      "purpose": "Локальный первый кадр, вход и принятие профиля другой вкладки",
       "consumer": "Личная стартовая страница"
     },
     {
@@ -4515,7 +4545,7 @@
       "id": "file:src/lib/learningRoute.ts",
       "path": "src/lib/learningRoute.ts",
       "kind": "artifact",
-      "purpose": "Разрешение ресурса по точному членству вместо URL роли",
+      "purpose": "Локальный ролевой первый кадр и разрешение ресурса по точному членству",
       "consumer": "LearningRoute"
     },
     {
@@ -4613,7 +4643,7 @@
       "id": "file:src/lib/personalAccess.identityRace.test.ts",
       "path": "src/lib/personalAccess.identityRace.test.ts",
       "kind": "verification",
-      "purpose": "Гонка личного входа и параллельного восстановления прежнего человека в том же браузере",
+      "purpose": "Гонка личного входа, межвкладочная инвалидация и позднее сохранение прежнего человека",
       "consumer": "Vitest; вход; календарь"
     },
     {
@@ -4627,7 +4657,7 @@
       "id": "file:src/lib/personalAccess.ts",
       "path": "src/lib/personalAccess.ts",
       "kind": "artifact",
-      "purpose": "Личная сессия и роли",
+      "purpose": "Личная сессия, роли и межвкладочная инвалидация памяти",
       "consumer": "Стартовая страница; день"
     },
     {
@@ -8881,6 +8911,11 @@
       "type": "uses"
     },
     {
+      "from": "decisions.local-first-role-recovery-2026-10-18",
+      "to": "plans.local-first-release-plan-2026-10-12",
+      "type": "uses"
+    },
+    {
       "from": "decisions.personal-entry-role-confirmation-2026-10-18",
       "to": "plans.local-first-release-plan-2026-10-12",
       "type": "uses"
@@ -10577,6 +10612,11 @@
     },
     {
       "from": "file:src/components/LearningRoute.tsx",
+      "to": "decisions.local-first-role-recovery-2026-10-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/LearningRoute.tsx",
       "to": "decisions.personal-entry-role-confirmation-2026-10-18",
       "type": "implements"
     },
@@ -10743,6 +10783,11 @@
     {
       "from": "file:src/components/ParentTaskGuide.tsx",
       "to": "shared.design.statuses",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/PersonalEntry.tsx",
+      "to": "decisions.local-first-role-recovery-2026-10-18",
       "type": "implements"
     },
     {
@@ -11522,6 +11567,11 @@
     },
     {
       "from": "file:src/lib/learningRoute.ts",
+      "to": "decisions.local-first-role-recovery-2026-10-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/learningRoute.ts",
       "to": "module.families.access-and-state",
       "type": "implements"
     },
@@ -11578,6 +11628,11 @@
     {
       "from": "file:src/lib/parentFocusDay.ts",
       "to": "module.school-diary.dashboard",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/personalAccess.ts",
+      "to": "decisions.local-first-role-recovery-2026-10-18",
       "type": "implements"
     },
     {
@@ -12343,6 +12398,11 @@
     {
       "from": "module.families.access-and-state",
       "to": "decision.authenticated-learning-routes-2026-10-18",
+      "type": "contains"
+    },
+    {
+      "from": "module.families.access-and-state",
+      "to": "decisions.local-first-role-recovery-2026-10-18",
       "type": "contains"
     },
     {

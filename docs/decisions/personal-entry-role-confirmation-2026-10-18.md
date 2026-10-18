@@ -1,6 +1,6 @@
 ---
 id: decisions.personal-entry-role-confirmation-2026-10-18
-status: accepted
+status: superseded
 implementation: implemented
 created: 2026-10-18
 updated: 2026-10-18
@@ -22,6 +22,8 @@ sections:
   - согласование
 ---
 # Подтверждённая роль при входе с главной страницы
+
+Это историческое решение заменено [local-first решением](local-first-role-recovery-2026-10-18.md): пользователь отверг блокирующий экран. Описанное ниже ожидание сервера больше не является действующим контрактом.
 
 ## Основание
 

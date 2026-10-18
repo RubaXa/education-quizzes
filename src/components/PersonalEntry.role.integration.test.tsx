@@ -8,14 +8,16 @@ import type { PersonalProfile } from '@/lib/personalAccess'
 const scene = vi.hoisted(() => ({
   cached: null as PersonalProfile | null, server: null as PersonalProfile | null,
   callbacks: new Map<string, (snapshot: any) => void>(), options: [] as any[],
-  refreshes: 0, closed: 0, uid: 'device',
+  failures: new Map<string, (cause: { code: string }) => void>(),
+  refreshes: 0, restores: 0, closed: 0, uid: 'device',
 }))
 const session = { personId: 'person', deviceUid: 'device', linkToken: 'secret' }
 vi.mock('@/lib/firebase', () => ({ db: {} }))
 vi.mock('firebase/auth', () => ({ getAuth: () => ({ currentUser: { uid: scene.uid }, authStateReady: async () => undefined }) }))
-vi.mock('@/lib/personalAccess', () => ({
+vi.mock('@/lib/personalAccess', async (original) => ({
+  watchPersonalContextChanges: (await original<typeof import('@/lib/personalAccess')>()).watchPersonalContextChanges,
   readCachedPersonalContext: () => scene.cached ? { session, profile: scene.cached, savedAt: Date.now() } : null,
-  restorePersonalContext: async () => scene.cached ? { session, profile: scene.cached } : null,
+  restorePersonalContext: async () => { scene.restores++; return scene.cached ? { session, profile: scene.cached } : null },
   loadPersonalProfile: async () => { scene.refreshes++; return scene.server },
   rememberPersonalContext: (context: { profile: PersonalProfile }) => { scene.cached = context.profile },
   clearPersonalSession: () => { scene.closed++; scene.cached = null },
@@ -23,8 +25,9 @@ vi.mock('@/lib/personalAccess', () => ({
 }))
 vi.mock('firebase/firestore', () => ({
   doc: (_db: unknown, ...parts: string[]) => ({ path: parts.join('/') }),
-  onSnapshot: (ref: { path: string }, options: any, handler?: (snapshot: any) => void) => {
+  onSnapshot: (ref: { path: string }, options: any, handler?: (snapshot: any) => void, failed?: (cause: { code: string }) => void) => {
     scene.callbacks.set(ref.path, typeof options === 'function' ? options : handler!)
+    if (failed) scene.failures.set(ref.path, failed)
     scene.options.push(typeof options === 'function' ? null : options)
     return () => { scene.callbacks.delete(ref.path) }
   },
@@ -53,7 +56,8 @@ const profile = (role: 'parent' | 'student'): PersonalProfile => ({ personId: 'p
 ] })
 beforeEach(() => {
   scene.cached = profile('parent'); scene.server = profile('parent'); scene.callbacks.clear(); scene.options = []
-  scene.refreshes = 0; scene.closed = 0; scene.uid = 'device'
+  scene.failures.clear()
+  scene.refreshes = 0; scene.restores = 0; scene.closed = 0; scene.uid = 'device'
 })
 afterEach(async () => { await act(async () => cleanup.splice(0).forEach((close) => close())) })
 async function render(initialLink?: string) {
@@ -70,14 +74,44 @@ async function confirmSession() {
   await confirm('deviceSessions/device', { linkToken: 'secret' })
 }
 describe('root personal entry uses confirmed role through the real task card', () => {
-  it('does not mount student actions from a warm profile before authoritative membership', async () => {
+  it('keeps the local guide on a network failure but closes it on permission denial', async () => {
+    const host = await render()
+    const failed = scene.failures.get('families/family/members/person')!
+    await act(async () => failed({ code: 'unavailable' }))
+    expect(host.textContent).toContain('Разбор для родителя')
+    expect(scene.closed).toBe(0)
+    await act(async () => failed({ code: 'permission-denied' }))
+    expect(host.textContent).not.toContain('Разбор для родителя')
+    expect(host.textContent).not.toContain('Добавить фото решения')
+    expect(scene.closed).toBe(1)
+  })
+  it('replaces an open student card after a sibling tab saved the parent profile', async () => {
     scene.cached = profile('student')
     const host = await render()
+    expect(host.textContent).toContain('Добавить фото решения')
+    const oldMember = scene.callbacks.get('families/family/members/person')!
+    scene.cached = profile('parent')
+    await act(async () => window.dispatchEvent(new StorageEvent('storage', { key: 'education-personal-context-v1' })))
+    expect(host.textContent).toContain('Разбор для родителя')
     expect(host.textContent).not.toContain('Добавить фото решения')
-    expect(host.textContent).toContain('Проверяем личный доступ')
+    await act(async () => oldMember({ exists: () => false, data: () => null, metadata: { fromCache: false } }))
+    expect(host.textContent).toContain('Разбор для родителя')
+    expect(scene.closed).toBe(0)
+    const restores = scene.restores
+    scene.cached = null
+    await act(async () => window.dispatchEvent(new StorageEvent('storage', { key: 'education-personal-context-v1' })))
+    expect(host.textContent).not.toContain('Разбор для родителя')
+    expect(host.textContent).toContain('Войти в Education')
+    expect(scene.restores).toBe(restores) // Do not resurrect the old server binding mid-login.
+  })
+  it('renders the last saved role locally and reconciles a changed member in background', async () => {
+    scene.cached = profile('student')
+    const host = await render()
+    expect(host.textContent).toContain('Добавить фото решения')
+    expect(host.textContent).not.toContain('Проверяем личный доступ')
     await confirmSession()
     await confirm('families/family/members/person', { active: true, role: 'parent', childIds: ['child'] }, true)
-    expect(host.textContent).not.toContain('Добавить фото решения')
+    expect(host.textContent).toContain('Добавить фото решения')
     // Unchanged SDK cache data gets only a metadata confirmation from the server.
     expect(scene.options.every((options) => options?.includeMetadataChanges)).toBe(true)
     await confirm('families/family/members/person', { active: true, role: 'parent', childIds: ['child'] })
@@ -90,7 +124,7 @@ describe('root personal entry uses confirmed role through the real task card', (
   it('does not expose a cached parent guide after downgrade to student', async () => {
     scene.server = profile('student')
     const host = await render()
-    expect(host.textContent).not.toContain('Разбор для родителя')
+    expect(host.textContent).toContain('Разбор для родителя')
     await confirmSession()
     await confirm('families/family/members/person', { active: true, role: 'student', childIds: ['child'] })
     await confirmSession()
@@ -102,7 +136,7 @@ describe('root personal entry uses confirmed role through the real task card', (
   it('opens the existing parent card after personal-link login and closes on revocation', async () => {
     scene.cached = null
     const host = await render('secret')
-    expect(host.textContent).not.toContain('Разбор для родителя')
+    expect(host.textContent).toContain('Разбор для родителя')
     await confirmSession()
     await confirm('families/family/members/person', { active: true, role: 'parent', childIds: ['child'] })
     expect(host.textContent).toContain('Разбор для родителя')
@@ -118,14 +152,14 @@ describe('root personal entry uses confirmed role through the real task card', (
     expect(scene.options).toHaveLength(3)
     expect(scene.refreshes).toBe(0)
   })
-  it('waits through cached grant/device/member snapshots and accepts metadata-only confirmations', async () => {
+  it('keeps the local parent guide through cached grant/device/member snapshots', async () => {
     const host = await render()
     await confirm('accessLinks/secret', { active: true, personId: 'person' }, true)
     await confirm('deviceSessions/device', { linkToken: 'secret' }, true)
-    expect(host.textContent).not.toContain('Разбор для родителя')
+    expect(host.textContent).toContain('Разбор для родителя')
     await confirmSession()
     await confirm('families/family/members/person', { active: true, role: 'parent', childIds: ['child'] }, true)
-    expect(host.textContent).not.toContain('Разбор для родителя')
+    expect(host.textContent).toContain('Разбор для родителя')
     await confirm('families/family/members/person', { active: true, role: 'parent', childIds: ['child'] })
     expect(host.textContent).toContain('Разбор для родителя')
   })

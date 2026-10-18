@@ -38,6 +38,32 @@ beforeEach(async () => {
 })
 
 describe('personal identity during a link redemption', () => {
+  it('prefers the saved sibling-tab identity even when no entry observer was mounted', async () => {
+    const previous = api.readCachedPersonalContext()!
+    localStorage.setItem('education-personal-context-v1', JSON.stringify({
+      ...previous, session: { ...previous.session, personId: 'parent', linkToken: parentLink },
+      profile: { ...previous.profile, personId: 'parent' },
+    }))
+    expect(() => api.currentEducationPersonId()).toThrow()
+    expect(await api.restorePersonalSession()).toMatchObject({ personId: 'parent', linkToken: parentLink })
+    expect(api.currentEducationPersonId()).toBe('parent')
+  })
+  it('adopts a profile changed in another tab instead of retaining the old active person', async () => {
+    const previous = api.readCachedPersonalContext()!
+    const parent = { session: { personId: 'parent', deviceUid: 'same-browser', linkToken: parentLink },
+      profile: { ...previous.profile, personId: 'parent', children: previous.profile.children.map((child) => ({ ...child, role: 'parent', dashboardToken: 'parent-calendar' })) }, savedAt: Date.now() }
+    const changed = vi.fn()
+    // Subscribe before the simulated login in a sibling tab.
+    const stop = api.watchPersonalContextChanges(changed)
+    localStorage.setItem('education-personal-context-v1', JSON.stringify(parent))
+    window.dispatchEvent(new StorageEvent('storage', { key: 'education-personal-context-v1' }))
+    expect(changed).toHaveBeenCalledOnce()
+    expect(() => api.currentEducationPersonId()).toThrow()
+    expect((await api.restorePersonalContext())?.profile.children[0].role).toBe('parent')
+    expect(api.currentEducationPersonId()).toBe('parent')
+    expect(() => api.rememberPersonalContext(previous)).toThrow()
+    stop()
+  })
   it('does not restore the old child while parent login is in flight', async () => {
     const gate = deferred(); scene.deviceReadGate = gate.promise
     const login = api.redeemPersonalLink(parentLink)

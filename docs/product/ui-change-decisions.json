@@ -62,36 +62,43 @@
       }
     },
     "src/components/LearningRoute.tsx": {
-      "sha256": "7cd2545f215c63ab4d3c21f43ac6d2feb274c5b2026317f4df57cb9251ccd727",
-      "record": "docs/decisions/role-projection-diagnostics-2026-10-18.md",
+      "sha256": "fa21fb18131faf48873d64e7346f92b5b89f683f5126bf54f67b21cca0138760",
+      "record": "docs/decisions/local-first-role-recovery-2026-10-18.md",
       "specs": [
-        "docs/modules/families/access-and-state.md"
+        "docs/modules/families/access-and-state.md",
+        "docs/shared/access-and-privacy.md"
       ],
       "tests": [
-        "src/components/PersonalEntry.role.integration.test.tsx",
         "src/components/PersonalEntry.localFirst.test.tsx",
-        "src/components/LearningRoute.integration.test.tsx"
+        "src/components/PersonalEntry.role.integration.test.tsx",
+        "src/components/LearningRoute.integration.test.tsx",
+        "src/components/LearningRoute.weekend.integration.test.tsx",
+        "src/lib/personalAccess.identityRace.test.ts",
+        "src/lib/personalAccess.readBudget.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10 повторно требует вернуть родительский разбор по авторизованной роли и самостоятельно воспроизвести сценарии тестами без нового скриншота."
+        "evidence": "Родитель18.10 отверг несогласованный экран проверки прав, требует local-first и одинаковую роль в вебе/приложении без новых ссылок и действий."
       }
     },
     "src/lib/learningRoute.ts": {
-      "sha256": "b35813179f4b6b19cebedfa2e58554f08045390dc3b81a7012b974f6db5a58c3",
-      "record": "docs/decisions/authenticated-learning-routes-2026-10-18.md",
+      "sha256": "6e1a3177e54b9d2c6925ee632227e9c90a5aefb06beefc0ef8d22de5d2ddef11",
+      "record": "docs/decisions/local-first-role-recovery-2026-10-18.md",
       "specs": [
-        "docs/modules/families/access-and-state.md"
+        "docs/modules/families/access-and-state.md",
+        "docs/shared/access-and-privacy.md"
       ],
       "tests": [
+        "src/components/PersonalEntry.localFirst.test.tsx",
+        "src/components/PersonalEntry.role.integration.test.tsx",
         "src/components/LearningRoute.integration.test.tsx",
-        "src/lib/learningRoute.test.ts",
-        "day/learning-route-identity.test.mjs",
-        "src/components/ProblemTaskCard.contract.test.tsx"
+        "src/components/LearningRoute.weekend.integration.test.tsx",
+        "src/lib/personalAccess.identityRace.test.ts",
+        "src/lib/personalAccess.readBudget.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10.2026 прямо требует определять родительский и ученический вид по авторизованной роли, а учебные ссылки сделать одинаковыми для обеих ролей."
+        "evidence": "Родитель18.10 отверг несогласованный экран проверки прав, требует local-first и одинаковую роль в вебе/приложении без новых ссылок и действий."
       }
     },
     "day/assignment-routing.mjs": {
@@ -3193,19 +3200,23 @@
       }
     },
     "src/components/PersonalEntry.tsx": {
-      "sha256": "f01c9e34ce30bd0b13fc81791b4137ac630460f5abf31e0f77bdb9e20d701b38",
-      "record": "docs/decisions/role-projection-diagnostics-2026-10-18.md",
+      "sha256": "ff46e853666674a6503c14cffe9686323c45c8b1d68a8aa97fe422656cbc8ce7",
+      "record": "docs/decisions/local-first-role-recovery-2026-10-18.md",
       "specs": [
-        "docs/modules/families/access-and-state.md"
+        "docs/modules/families/access-and-state.md",
+        "docs/shared/access-and-privacy.md"
       ],
       "tests": [
-        "src/components/PersonalEntry.role.integration.test.tsx",
         "src/components/PersonalEntry.localFirst.test.tsx",
-        "src/components/LearningRoute.integration.test.tsx"
+        "src/components/PersonalEntry.role.integration.test.tsx",
+        "src/components/LearningRoute.integration.test.tsx",
+        "src/components/LearningRoute.weekend.integration.test.tsx",
+        "src/lib/personalAccess.identityRace.test.ts",
+        "src/lib/personalAccess.readBudget.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10 повторно требует вернуть родительский разбор по авторизованной роли и самостоятельно воспроизвести сценарии тестами без нового скриншота."
+        "evidence": "Родитель18.10 отверг несогласованный экран проверки прав, требует local-first и одинаковую роль в вебе/приложении без новых ссылок и действий."
       }
     },
     "src/components/PhotoUploadControl.tsx": {
@@ -3743,34 +3754,23 @@
       }
     },
     "src/lib/personalAccess.ts": {
-      "sha256": "cdcf8215071609606cafe6a9cbfa6e05ddbee4a4a7ba82134e05f6cbaafd0f37",
-      "record": "docs/decisions/personal-identity-transition-2026-10-18.md",
+      "sha256": "6ffe6250e1bdc821a2a18534eeb0a6ddb01ae524562db660282fec84b87637ca",
+      "record": "docs/decisions/local-first-role-recovery-2026-10-18.md",
       "specs": [
         "docs/modules/families/access-and-state.md",
-        "docs/shared/specification-system.md"
+        "docs/shared/access-and-privacy.md"
       ],
       "tests": [
-        "src/lib/personalAccess.identityRace.test.ts",
-        "src/components/LearningRoute.weekend.integration.test.tsx",
-        "src/lib/personalAccess.readBudget.test.ts",
+        "src/components/PersonalEntry.localFirst.test.tsx",
+        "src/components/PersonalEntry.role.integration.test.tsx",
         "src/components/LearningRoute.integration.test.tsx",
-        "src/lib/learningRoute.test.ts",
-        "day/learning-route-identity.test.mjs",
-        "src/components/ProblemTaskCard.contract.test.tsx",
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
+        "src/components/LearningRoute.weekend.integration.test.tsx",
+        "src/lib/personalAccess.identityRace.test.ts",
+        "src/lib/personalAccess.readBudget.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10.2026 требует определять вид и доступ к разбору по авторизованной роли именно этого ребёнка, а не по URL или чужому членству."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "68e331f2ec6817181f6b042f41df55b305b5caad5632a6e3c2c7ad0dcaccccd5"
-      },
-      "specificationLifecycle": {
-        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
-        "previousSha256": "50ece8c966bf626ce2dc6057470e67105e6c013dc874928f4446149f022e83b1"
+        "evidence": "Родитель18.10 отверг несогласованный экран проверки прав, требует local-first и одинаковую роль в вебе/приложении без новых ссылок и действий."
       }
     },
     "src/lib/problemGroupSummary.ts": {
