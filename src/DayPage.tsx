@@ -1,3 +1,4 @@
+/* @see ../docs/decisions/weekend-parent-actions-2026-10-18.md */
 /* @see ../docs/decisions/work-photo-expand-2026-10-18.md */
 /* @see ../docs/decisions/upload-origin-links-2026-10-18.md */
 /** @see ../docs/modules/materials/material-clarification.md */
@@ -40,8 +41,7 @@ import './DayPage.css'
 import { reportUiError } from '@/lib/uiErrors'
 import { DATA_UPDATE_MESSAGE } from '@/lib/dayCompatibility'
 import DataCompatibilityNotice from './components/DataCompatibilityNotice'
-import { sendDayGuidance, watchDayGuidance } from '@/lib/dayGuidance'
-import type { DayGuidance } from '@/lib/dayGuidance'
+import { useTaskGuidance } from '@/lib/useTaskGuidance'
 
 type TestItem = QuizCardAttempt & { subject: string }
 type LocalPhoto = { id: string; taskId: string; file: File; previewUrl: string; state: 'uploading' | 'saved' | 'failed' | 'deleting'; error?: string }
@@ -162,7 +162,6 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
   const [catalogState, setCatalogState] = useState<{ key: string; pages: Record<string, DayMaterialLink> }>({ key: '', pages: {} })
   const [helpRequests, setHelpRequests] = useState<DayHelp[]>([])
   const [guideSnapshot, setGuideSnapshot] = useState<{ token: string; guides: Record<string, ParentTaskPrivate> }>({ token: '', guides: {} })
-  const [guidanceSnapshot, setGuidanceSnapshot] = useState<{ token: string; items: DayGuidance[] }>({ token: '', items: [] })
   const [helpRole, setHelpRole] = useState<'checking' | 'student' | 'parent' | 'none'>('checking')
   /** @see ../docs/modules/school-diary/day-page.md#completed-subjects */
   const [subjectOpen, setSubjectOpen] = useState<Record<string, boolean>>({})
@@ -188,12 +187,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
   const { studentToken, evidenceKey, uploads, reviews, evidencePages, ready: evidenceReady } = useDayEvidence(page, token, setError)
   const parentDecisions = useParentCompletions(evidenceKey, Boolean(page) && helpRole !== 'checking' && helpRole !== 'none')
   const taskGuides = parent && helpRole === 'parent' && guideSnapshot.token === studentToken ? guideSnapshot.guides : {}
-  useEffect(() => {
-    if (!page || helpRole === 'checking' || helpRole === 'none') return
-    return watchDayGuidance(studentToken, (items) => setGuidanceSnapshot({ token: studentToken, items }), (cause) => setError(reportUiError(cause, 'Подсказки к заданиям')))
-  }, [page, helpRole, studentToken])
-  const guidance = guidanceSnapshot.token === studentToken ? guidanceSnapshot.items : []
-  const guidanceReady = guidanceSnapshot.token === studentToken
+  const { items: guidance, ready: guidanceReady, forTask: guidanceForTask } = useTaskGuidance(studentToken, helpRole, setError)
   const [localPhotos, setLocalPhotos] = useState<LocalPhoto[]>([])
   const [statusNow, setStatusNow] = useState(() => Date.now())
   const photoUrls = useRef(new Set<string>())
@@ -547,7 +541,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
                 const problemReview = reviews.find((item) => item.taskId === problem.id)
                 const problemAccepted = parentAccepted(problemReview, parentDecisions.events)
                 const state = problemCardState(problemUploads, problemReview, problemPhotos.some((photo) => photo.state === 'uploading'), statusNow, problemAccepted)
-                return <ProblemTaskCard owner={{ familyId: page.familyId, childId: page.childId }} problem={problem} state={state} key={problem.id} links={taskLinks} parent={parent} guide={taskGuides[problem.id]?.guide} guidance={guidance.filter((item) => item.taskId === problem.id)} guidanceReady={guidanceReady} onSendGuidance={parent && taskGuides[problem.id]?.guide ? (stage, level) => sendDayGuidance(studentToken, problem.id, taskGuides[problem.id]!.guide!, stage.id, level) : undefined} onStageChoice={parent && helpRole === 'parent' && problemReview && taskGuides[problem.id]?.guide ? (stage, required) => recordStageChoice(problemReview, taskGuides[problem.id]!.guide!, stage.id, required) : undefined} sourceResearch={taskGuides[problem.id]?.sourceResearch} help={helpRequests.find((item) => item.taskId === problem.id)} review={problemReview} uploads={problemUploads} accepted={problemAccepted} canDecide={helpRole === 'parent'} onDecision={parent && canAcceptCorrectAnswer(problemReview) && problemReview ? (action) => recordParentCompletion(problemReview, action) : undefined} decisions={parentDecisions.events} onRequirementChoice={parent && problemReview?.assessmentBasis?.disputedRequirements?.length ? (id, action) => recordRequirementChoice(problemReview, id, action) : undefined} helpAccess={helpRole === 'checking' ? 'checking' : helpRole === 'student' ? 'ready' : 'login-required'} onRequestHelp={!parent && subject.id === 'special' && helpRole === 'student' ? (taskId, revision, kind, text) => requestDayHelp(studentToken, taskId, revision, kind, text) : undefined} onPhotos={(files) => attach(problem, files)}>
+                return <ProblemTaskCard owner={{ familyId: page.familyId, childId: page.childId }} problem={problem} state={state} key={problem.id} links={taskLinks} parent={parent} guide={taskGuides[problem.id]?.guide} {...guidanceForTask(problem.id, taskGuides[problem.id]?.guide)} onStageChoice={parent && helpRole === 'parent' && problemReview && taskGuides[problem.id]?.guide ? (stage, required) => recordStageChoice(problemReview, taskGuides[problem.id]!.guide!, stage.id, required) : undefined} sourceResearch={taskGuides[problem.id]?.sourceResearch} help={helpRequests.find((item) => item.taskId === problem.id)} review={problemReview} uploads={problemUploads} accepted={problemAccepted} canDecide={helpRole === 'parent'} onDecision={parent && canAcceptCorrectAnswer(problemReview) && problemReview ? (action) => recordParentCompletion(problemReview, action) : undefined} decisions={parentDecisions.events} onRequirementChoice={parent && problemReview?.assessmentBasis?.disputedRequirements?.length ? (id, action) => recordRequirementChoice(problemReview, id, action) : undefined} helpAccess={helpRole === 'checking' ? 'checking' : helpRole === 'student' ? 'ready' : 'login-required'} onRequestHelp={!parent && subject.id === 'special' && helpRole === 'student' ? (taskId, revision, kind, text) => requestDayHelp(studentToken, taskId, revision, kind, text) : undefined} onPhotos={(files) => attach(problem, files)}>
                   <WorkPhotoGallery taskTitle={`№ ${problem.number}. ${problem.title}`} studentToken={studentToken} uploads={taskUploadPresentation(uploads, problem.id).owned} localPhotos={problemPhotos} review={problemReview} now={statusNow} onRetry={queuePhotoUpload} onDelete={deletePhoto} /><LinkedWorkPhotos taskId={problem.id} uploads={uploads} pages={[page, ...(evidencePages ?? [])]} />
                 </ProblemTaskCard>
               }
@@ -557,7 +551,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
                 {!task.problems?.length && <h3>{task.title}</h3>}{(!task.problems?.length || !readerGroups.some((group) => group[0].sourceType === 'teacher-attachment')) && <AssignmentBrief task={task} materialLinks={taskLinks} compact={Boolean(task.problems?.length)} />}
                 {task.referenceDate && referencedItems.length > 0 && <div className="day-reference-results"><strong>Результаты ДЗ за {dayMonth(task.referenceDate)}</strong>{referencedItems.map((item) => <div className="day-reference-result" key={item.id}><span className={item.state === 'done' ? 'complete' : 'pending'}>{item.state === 'done' ? '✓' : '•'} {item.title}</span><small>{item.detail}</small></div>)}</div>}
                 {!parent && <TaskGuidance items={guidance.filter((item) => item.taskId === task.id)} />}
-                {parent && taskGuides[task.id]?.guide && <ParentTaskGuide guide={taskGuides[task.id]!.guide!} review={review} decisions={parentDecisions.events} guidance={guidance.filter((item) => item.taskId === task.id)} guidanceReady={guidanceReady} onSend={(stage, level) => sendDayGuidance(studentToken, task.id, taskGuides[task.id]!.guide!, stage.id, level)} onStageChoice={helpRole === 'parent' && review ? (stage, required) => recordStageChoice(review, taskGuides[task.id]!.guide!, stage.id, required) : undefined} />}
+                {parent && taskGuides[task.id]?.guide && <ParentTaskGuide guide={taskGuides[task.id]!.guide!} review={review} decisions={parentDecisions.events} guidance={guidance.filter((item) => item.taskId === task.id)} guidanceReady={guidanceReady} onSend={guidanceForTask(task.id, taskGuides[task.id]!.guide).onSendGuidance} onStageChoice={helpRole === 'parent' && review ? (stage, required) => recordStageChoice(review, taskGuides[task.id]!.guide!, stage.id, required) : undefined} />}
                 {/* @see ../docs/modules/reviews/russian-language-route.md#review-in-one-route the parent route owns its verdict; keep WorkReview for the learner and for parent decisions. */}
                 {review?.purpose !== 'source-material' && showSeparateWorkReview(parent, taskGuides[task.id]?.guide?.presentation, canAcceptCorrectAnswer(review), Boolean(review?.assessmentBasis?.disputedRequirements?.length || review?.requirementChecks?.length)) && <WorkReview review={review} uploads={taskUploads} accepted={accepted} canDecide={helpRole === 'parent' && !taskUploads.some((upload) => upload.status === 'pending')} onDecision={parent && canAcceptCorrectAnswer(review) && review ? (action) => recordParentCompletion(review, action) : undefined} decisions={parentDecisions.events} parent={parent} onRequirementChoice={parent && review?.assessmentBasis?.disputedRequirements?.length ? (id, action) => recordRequirementChoice(review, id, action) : undefined} />}
                 {familyActions.length > 0 && <div className="day-submission-instructions"><strong>Доработка по решению родителя</strong><ol>{familyActions.map((action) => <li key={action}>{action}</li>)}</ol><p>Это семейное решение по спорному требованию. В МЭШ такого уточнения нет.</p></div>}

@@ -4989,7 +4989,7 @@
     "assessment": "justified",
     "policy": "server-confirmed-role-and-revocation",
     "refresh": "while-this-personal-or-learning-screen-is-mounted",
-    "note": "Existing scoped grant/device/member listeners; metadata-only server confirmation gates role rendering. Warm start has no full-profile reads unless membership changes; no polling. See personal-entry-role-confirmation-2026-10-18."
+    "note": "Existing grant/device/member listeners validate the saved local role in background. Confirmed revocation closes the view; transient network failure preserves it. No full-profile reads on warm start unless membership changes. See local-first-role-recovery-2026-10-18."
   },
   {
     "id": "src/components/LearningRoute.tsx#onSnapshot#7c88d25fd3b3",
@@ -5001,7 +5001,7 @@
     "assessment": "justified",
     "policy": "server-confirmed-role-and-revocation",
     "refresh": "while-this-personal-or-learning-screen-is-mounted",
-    "note": "Existing scoped grant/device/member listeners; metadata-only server confirmation gates role rendering. Warm start has no full-profile reads unless membership changes; no polling. See personal-entry-role-confirmation-2026-10-18."
+    "note": "Existing grant/device/member listeners validate the saved local role in background. Confirmed revocation closes the view; transient network failure preserves it. No full-profile reads on warm start unless membership changes. See local-first-role-recovery-2026-10-18."
   },
   {
     "id": "src/components/LearningRoute.tsx#onSnapshot#ae32e1bad017",
@@ -5013,7 +5013,7 @@
     "assessment": "justified",
     "policy": "server-confirmed-role-and-revocation",
     "refresh": "while-this-personal-or-learning-screen-is-mounted",
-    "note": "Existing scoped grant/device/member listeners; metadata-only server confirmation gates role rendering. Warm start has no full-profile reads unless membership changes; no polling. See personal-entry-role-confirmation-2026-10-18."
+    "note": "Existing grant/device/member listeners validate the saved local role in background. Confirmed revocation closes the view; transient network failure preserves it. No full-profile reads on warm start unless membership changes. See local-first-role-recovery-2026-10-18."
   },
   {
     "id": "src/components/PersonalEntry.tsx#onSnapshot#277a67fd7173",
@@ -5025,7 +5025,7 @@
     "assessment": "justified",
     "policy": "server-confirmed-role-and-revocation",
     "refresh": "while-this-personal-or-learning-screen-is-mounted",
-    "note": "Existing scoped grant/device/member listeners; metadata-only server confirmation gates role rendering. Warm start has no full-profile reads unless membership changes; no polling. See personal-entry-role-confirmation-2026-10-18."
+    "note": "Existing grant/device/member listeners validate the saved local role in background. Confirmed revocation closes the view; transient network failure preserves it. No full-profile reads on warm start unless membership changes. See local-first-role-recovery-2026-10-18."
   },
   {
     "id": "src/components/PersonalEntry.tsx#onSnapshot#e2a2ec860d83",
@@ -5037,7 +5037,7 @@
     "assessment": "justified",
     "policy": "server-confirmed-role-and-revocation",
     "refresh": "while-this-personal-or-learning-screen-is-mounted",
-    "note": "Existing scoped grant/device/member listeners; metadata-only server confirmation gates role rendering. Warm start has no full-profile reads unless membership changes; no polling. See personal-entry-role-confirmation-2026-10-18."
+    "note": "Existing grant/device/member listeners validate the saved local role in background. Confirmed revocation closes the view; transient network failure preserves it. No full-profile reads on warm start unless membership changes. See local-first-role-recovery-2026-10-18."
   },
   {
     "id": "src/components/PersonalEntry.tsx#onSnapshot#80b6a5d81625",
@@ -5049,7 +5049,7 @@
     "assessment": "justified",
     "policy": "server-confirmed-role-and-revocation",
     "refresh": "while-this-personal-or-learning-screen-is-mounted",
-    "note": "Existing scoped grant/device/member listeners; metadata-only server confirmation gates role rendering. Warm start has no full-profile reads unless membership changes; no polling. See personal-entry-role-confirmation-2026-10-18."
+    "note": "Existing grant/device/member listeners validate the saved local role in background. Confirmed revocation closes the view; transient network failure preserves it. No full-profile reads on warm start unless membership changes. See local-first-role-recovery-2026-10-18."
   },
   {
     "id": "src/lib/dayDashboardStore.ts#onSnapshot#f50728f05c6a",

@@ -645,24 +645,21 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "c4829bcff1d1c3f0dbeff078a17eecd2116a9ae97136ea38e4c2b27d402617d7",
-      "record": "docs/decisions/work-photo-expand-2026-10-18.md",
+      "sha256": "a5cf9b54da24d5db64117ee5aa1be839c8df823938e4119ff68373ec0d9f14ab",
+      "record": "docs/decisions/weekend-parent-actions-2026-10-18.md",
       "specs": [
-        "docs/modules/school-diary/day-page.md",
-        "docs/shared/design/components.md",
-        "docs/product/ui-change-control.md"
+        "docs/modules/reviews/subject-aware-guidance.md",
+        "docs/modules/school-diary/dashboard.md"
       ],
       "tests": [
-        "src/components/WorkPhotoGallery.test.tsx",
-        "src/WeekendMathSlot.test.tsx",
+        "src/WeekendMathSlot.guidance.integration.test.tsx",
         "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/UiKit.test.tsx",
-        "scripts/work-photo-consumers.test.mjs",
-        "src/components/WorkPhotoGallery.layout.test.mjs"
+        "src/WeekendMathSlot.test.tsx",
+        "src/components/LearningRoute.weekend.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 18.10 передал жалобу ребёнка: пропало раскрытие собственных фото; требует восстановить действие и изменить процесс для предотвращения повторения."
+        "evidence": "Родитель18.10: в родительском разборе PWA невозможно отправить подсказку; просит найти нарушивший контракт коммит и устранить расхождения данных/действий в вебе и PWA."
       }
     },
     "src/DayPage.css": {
@@ -902,24 +899,21 @@
       }
     },
     "src/WeekendMathSlot.tsx": {
-      "sha256": "10c23acd272423d87fc668099c371e6c5c79f2ccf2944052d46a1846d5a92ed6",
-      "record": "docs/decisions/work-photo-expand-2026-10-18.md",
+      "sha256": "f8f9a12b70a39a80ae10a55364f62333aff46f2833c0a205a3e1052f3f9e631a",
+      "record": "docs/decisions/weekend-parent-actions-2026-10-18.md",
       "specs": [
-        "docs/modules/school-diary/day-page.md",
-        "docs/shared/design/components.md",
-        "docs/product/ui-change-control.md"
+        "docs/modules/reviews/subject-aware-guidance.md",
+        "docs/modules/school-diary/dashboard.md"
       ],
       "tests": [
-        "src/components/WorkPhotoGallery.test.tsx",
-        "src/WeekendMathSlot.test.tsx",
+        "src/WeekendMathSlot.guidance.integration.test.tsx",
         "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/UiKit.test.tsx",
-        "scripts/work-photo-consumers.test.mjs",
-        "src/components/WorkPhotoGallery.layout.test.mjs"
+        "src/WeekendMathSlot.test.tsx",
+        "src/components/LearningRoute.weekend.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 18.10 передал жалобу ребёнка: пропало раскрытие собственных фото; требует восстановить действие и изменить процесс для предотвращения повторения."
+        "evidence": "Родитель18.10: в родительском разборе PWA невозможно отправить подсказку; просит найти нарушивший контракт коммит и устранить расхождения данных/действий в вебе и PWA."
       }
     },
     "src/WeekendMathSlot.css": {
@@ -5309,6 +5303,24 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Родитель 18.10 передал жалобу ребёнка: пропало раскрытие собственных фото; требует восстановить действие и изменить процесс для предотвращения повторения."
+      }
+    },
+    "src/lib/useTaskGuidance.ts": {
+      "sha256": "9fa93da462fda47da50e8a7d192de3befc4679c1431a32d3a40f902616c059ed",
+      "record": "docs/decisions/weekend-parent-actions-2026-10-18.md",
+      "specs": [
+        "docs/modules/reviews/subject-aware-guidance.md",
+        "docs/modules/school-diary/dashboard.md"
+      ],
+      "tests": [
+        "src/WeekendMathSlot.guidance.integration.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/WeekendMathSlot.test.tsx",
+        "src/components/LearningRoute.weekend.integration.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель18.10: в родительском разборе PWA невозможно отправить подсказку; просит найти нарушивший контракт коммит и устранить расхождения данных/действий в вебе и PWA."
       }
     }
   }

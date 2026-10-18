@@ -19,6 +19,7 @@ const scene = vi.hoisted(() => ({
   choiceCalls: [] as boolean[],
   quizOptional: false,
   quizChoiceCalls: [] as boolean[],
+  guidanceCalls: [] as unknown[][],
 }))
 
 vi.mock('./lib/dayStore', async (importOriginal) => ({
@@ -33,6 +34,7 @@ vi.mock('./lib/dayStore', async (importOriginal) => ({
 vi.mock('./lib/dayGuidance', async (importOriginal) => ({
   ...await importOriginal<typeof import('./lib/dayGuidance')>(),
   watchDayGuidance: (_token: string, onChange: (items: unknown[]) => void) => { onChange([]); return () => {} },
+  sendDayGuidance: async (...args: unknown[]) => { scene.guidanceCalls.push(args) },
 }))
 vi.mock('./lib/personalAccess', async (importOriginal) => ({
   ...await importOriginal<typeof import('./lib/personalAccess')>(),
@@ -110,6 +112,7 @@ beforeEach(() => {
   scene.choiceCalls = []
   scene.quizOptional = false
   scene.quizChoiceCalls = []
+  scene.guidanceCalls = []
   sessionStorage.clear()
   sessionStorage.setItem('education-day-initial-tab', 'homework')
 })
@@ -122,6 +125,25 @@ async function renderPage(parent: boolean) {
   await act(async () => { root.render(<DayPage token="student-token" parent={parent} headerReturnTarget={null} />) })
   return { host, root, cleanup: async () => { await act(async () => root.unmount()); host.remove() } }
 }
+
+it('keeps the ordinary parent day wired to the same prepared guidance command', async () => {
+  const guide = { kind: 'worked-solution', presentation: 'math-route', revision: 1, overview: 'Разбор', stages: [{
+    id: 'data', title: 'Данные', role: 'given', expected: 'Полный ход', rows: [], hintPreview: 'Какие величины даны?', revealPreview: 'Доли на диаграмме.',
+    source: { kind: 'teacher-file', label: 'Учитель', ref: 'sheet', excerpt: 'Диаграмма' },
+  }] }
+  scene.guides = { [firstProblemIds[0]]: { guide } }
+  const view = await renderPage(true)
+  try {
+    await act(async () => view.host.querySelector<HTMLButtonElement>('.problem-group-toggle')!.click())
+    const card = view.host.querySelector<HTMLElement>(`#${firstProblemIds[0]}`)!
+    await act(async () => card.querySelector<HTMLButtonElement>('[aria-label^="Выбрать подсказку"]')!.click())
+    const send = card.querySelector<HTMLButtonElement>('.day-learning-route-preview button')!
+    expect(send.disabled).toBe(false)
+    await act(async () => send.click())
+    expect(scene.guidanceCalls).toEqual([['student-token', firstProblemIds[0], guide, 'data', 'hint']])
+    expect(card.textContent).toContain('Помощь отправлена')
+  } finally { await view.cleanup() }
+})
 
 it.each([false, true])('keeps the file at its upload origin and shows only references elsewhere, parent=%s', async (parent) => {
   const view = await renderPage(parent)

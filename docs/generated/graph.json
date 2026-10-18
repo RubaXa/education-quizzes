@@ -1639,6 +1639,35 @@
       "path": "docs/decisions/upload-origin-links-2026-10-18.md"
     },
     {
+      "id": "decisions.weekend-parent-actions-2026-10-18",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-18",
+      "updated": "2026-10-18",
+      "parent": "module.reviews.subject-aware-guidance",
+      "uses": [
+        "module.school-diary.dashboard"
+      ],
+      "consumers": [
+        "parent",
+        "student",
+        "web-app developer"
+      ],
+      "code": [
+        "src/lib/useTaskGuidance.ts",
+        "src/DayPage.tsx",
+        "src/WeekendMathSlot.tsx"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/weekend-parent-actions-2026-10-18.md"
+    },
+    {
       "id": "decisions.work-photo-expand-2026-10-18",
       "status": "accepted",
       "implementation": "implemented",
@@ -4962,6 +4991,13 @@
       "consumer": "`src/DayPage.tsx`; `src/WeekendMathSlot.tsx`; `src/DayDashboard.tsx`"
     },
     {
+      "id": "file:src/lib/useTaskGuidance.ts",
+      "path": "src/lib/useTaskGuidance.ts",
+      "kind": "artifact",
+      "purpose": "Общая привязка истории, готовности и команды отправки этапа по исходному token/taskId",
+      "consumer": "DayPage; WeekendMathSlot"
+    },
+    {
       "id": "file:src/lib/utils.ts",
       "path": "src/lib/utils.ts",
       "kind": "artifact",
@@ -5058,6 +5094,13 @@
       "kind": "artifact",
       "purpose": "Оформление общего слота математики",
       "consumer": "`src/WeekendMathSlot.tsx`"
+    },
+    {
+      "id": "file:src/WeekendMathSlot.guidance.integration.test.tsx",
+      "path": "src/WeekendMathSlot.guidance.integration.test.tsx",
+      "kind": "verification",
+      "purpose": "Реальный путь выбора/отправки, batch/inbox, ученический фрагмент, история, ошибки и выбор этапа",
+      "consumer": "Vitest; выпуск"
     },
     {
       "id": "file:src/WeekendMathSlot.test.tsx",
@@ -6315,7 +6358,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-13",
-      "updated": "2026-10-16",
+      "updated": "2026-10-18",
       "consumers": [
         "student",
         "parent",
@@ -6329,6 +6372,7 @@
         "src/components/ProblemStatement.css",
         "src/components/TaskGuidance.tsx",
         "src/lib/dayGuidance.ts",
+        "src/lib/useTaskGuidance.ts",
         "src/lib/dayStore.ts"
       ],
       "parent": "module.reviews",
@@ -8951,6 +8995,11 @@
       "type": "uses"
     },
     {
+      "from": "decisions.weekend-parent-actions-2026-10-18",
+      "to": "module.school-diary.dashboard",
+      "type": "uses"
+    },
+    {
       "from": "decisions.work-photo-expand-2026-10-18",
       "to": "module.materials.storage-privacy",
       "type": "uses"
@@ -11297,6 +11346,11 @@
     },
     {
       "from": "file:src/DayPage.tsx",
+      "to": "decisions.weekend-parent-actions-2026-10-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayPage.tsx",
       "to": "decisions.work-photo-expand-2026-10-18",
       "type": "implements"
     },
@@ -11896,6 +11950,16 @@
       "type": "implements"
     },
     {
+      "from": "file:src/lib/useTaskGuidance.ts",
+      "to": "decisions.weekend-parent-actions-2026-10-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/useTaskGuidance.ts",
+      "to": "module.reviews.subject-aware-guidance",
+      "type": "implements"
+    },
+    {
       "from": "file:src/lib/utils.ts",
       "to": "module.synchronization.backend-driven-ui",
       "type": "implements"
@@ -11973,6 +12037,11 @@
     {
       "from": "file:src/WeekendMathSlot.tsx",
       "to": "decisions.upload-origin-links-2026-10-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/WeekendMathSlot.tsx",
+      "to": "decisions.weekend-parent-actions-2026-10-18",
       "type": "implements"
     },
     {
@@ -12852,12 +12921,22 @@
     },
     {
       "from": "module.reviews.subject-aware-guidance",
+      "to": "decisions.weekend-parent-actions-2026-10-18",
+      "type": "contains"
+    },
+    {
+      "from": "module.reviews.subject-aware-guidance",
       "to": "file:day/public-projection.test.mjs",
       "type": "verified-by"
     },
     {
       "from": "module.reviews.subject-aware-guidance",
       "to": "file:src/lib/dayStore.guideRead.test.ts",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.reviews.subject-aware-guidance",
+      "to": "file:src/WeekendMathSlot.guidance.integration.test.tsx",
       "type": "verified-by"
     },
     {
