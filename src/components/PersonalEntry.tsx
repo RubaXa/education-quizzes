@@ -33,6 +33,8 @@ function transientAccessError(cause: unknown): boolean {
 
 /** @see ../../docs/modules/families/README.md#link-login
  *  @see ../../docs/modules/families/README.md#parent-home
+ *  @see ../../docs/modules/families/access-and-state.md#authenticated-learning-routes
+ *  @see ../../docs/decisions/personal-entry-role-confirmation-2026-10-18.md
  *  @see ../../docs/shared/design/README.md#shell */
 export function PersonalEntry({ initialLink }: { initialLink?: string }) {
   const [initialContext] = useState(() => {
@@ -44,6 +46,9 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
   const [link, setLink] = useState('')
   const [profile, setProfile] = useState<PersonalProfile | null>(initialContext?.profile ?? null)
   const [session, setSession] = useState<PersonalSession | null>(initialContext?.session ?? null)
+  // A cached profile is a candidate, never authority for mounting role-specific actions.
+  const [verifiedSession, setVerifiedSession] = useState<PersonalSession | null>(null)
+  const [verifiedProfile, setVerifiedProfile] = useState<PersonalProfile | null>(null)
   const [busy, setBusy] = useState(!initialContext)
   const [error, setError] = useState('')
   const [online, setOnline] = useState(navigator.onLine)
@@ -111,72 +116,91 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
   }, [initialLink, retry, initialContext])
 
   useEffect(() => {
-    if (!initialContext) return
-    let active = true
-    void getAuth().authStateReady().then(() => {
-      if (!active) return
-      if (getAuth().currentUser?.uid !== initialContext.session.deviceUid) {
-        clearPersonalSession()
-        setSession(null)
-        setProfile(null)
-      }
-    })
-    return () => { active = false }
-  }, [initialContext])
-
-  useEffect(() => {
     if (!session) return
+    let active = true
+    let invalid = false
+    const stops: Array<() => void> = []
+    const confirmed = new Set<string>()
+    setVerifiedSession(null)
     const revoked = () => {
+      if (!active || invalid) return
+      invalid = true
       clearPersonalSession()
+      setVerifiedSession(null)
+      setVerifiedProfile(null)
       setSession(null)
       setProfile(null)
       setRetryable(false)
       setError('Личная ссылка отозвана. Откройте новую ссылку, чтобы снова войти. Ваши работы сохранены.')
     }
-    const stopGrant = onSnapshot(doc(db, 'accessLinks', session.linkToken), (grant) => {
-      if (grant.metadata.fromCache) return
-      if (!grant.exists() || grant.data()?.active !== true || grant.data()?.personId !== session.personId) revoked()
-    }, (cause) => {
+    const ready = (part: string) => {
+      confirmed.add(part)
+      if (active && !invalid && confirmed.size === 2) setVerifiedSession(session)
+    }
+    const failed = (cause: { code?: string }) => {
+      if (!active || invalid) return
       if (cause.code === 'permission-denied') revoked()
-      else setError(accessError(cause))
-    })
-    const stopDevice = onSnapshot(doc(db, 'deviceSessions', session.deviceUid), (device) => {
-      if (!device.metadata.fromCache && (!device.exists() || device.data()?.linkToken !== session.linkToken)) revoked()
-    }, (cause) => { if (cause.code === 'permission-denied') revoked() })
-    return () => { stopGrant(); stopDevice() }
-  }, [session])
+      else { setVerifiedSession(null); setError(accessError(cause)); setRetryable(true) }
+    }
+    void getAuth().authStateReady().then(() => {
+      if (!active) return
+      if (getAuth().currentUser?.uid !== session.deviceUid) { revoked(); return }
+      stops.push(onSnapshot(doc(db, 'accessLinks', session.linkToken), { includeMetadataChanges: true }, (grant) => {
+        if (grant.metadata.fromCache || !active || invalid) return
+        if (!grant.exists() || grant.data()?.active !== true || grant.data()?.personId !== session.personId) revoked()
+        else ready('grant')
+      }, failed))
+      stops.push(onSnapshot(doc(db, 'deviceSessions', session.deviceUid), { includeMetadataChanges: true }, (device) => {
+        if (device.metadata.fromCache || !active || invalid) return
+        if (!device.exists() || device.data()?.linkToken !== session.linkToken) revoked()
+        else ready('device')
+      }, failed))
+    }).catch(failed)
+    return () => { active = false; stops.forEach((stop) => stop()) }
+  }, [session, retry])
 
   useEffect(() => {
-    if (!session || !profile) return
+    if (!session || !profile || verifiedSession !== session) return
     let active = true
     let refreshing = false
     const familyIds = [...new Set(profile.children.map((child) => child.familyId))]
-    const stops = familyIds.map((familyId) => onSnapshot(doc(db, 'families', familyId, 'members', session.personId), (member) => {
+    const confirmed = new Set<string>()
+    setVerifiedProfile(familyIds.length ? null : profile)
+    const stops = familyIds.map((familyId) => onSnapshot(doc(db, 'families', familyId, 'members', session.personId), { includeMetadataChanges: true }, (member) => {
       if (member.metadata.fromCache || !active) return
       const previous = profile.children.filter((child) => child.familyId === familyId)
       const ids = Array.isArray(member.data()?.childIds) ? member.data()!.childIds.filter((id: unknown): id is string => typeof id === 'string').sort() : []
       const changed = !member.exists() || member.data()?.active !== true ||
         member.data()?.role !== previous[0]?.role ||
         JSON.stringify(ids) !== JSON.stringify(previous.map((child) => child.childId).sort())
-      if (!changed || refreshing) return
-      refreshing = true
-      // Remove revoked family content before fetching the replacement profile.
-      if (!member.exists() || member.data()?.active !== true) {
-        setProfile((current) => current ? { ...current, children: current.children.filter((child) => child.familyId !== familyId) } : current)
+      if (!changed) {
+        confirmed.add(familyId)
+        if (!refreshing && confirmed.size === familyIds.length) setVerifiedProfile(profile)
+        return
       }
+      confirmed.delete(familyId)
+      setVerifiedProfile(null)
+      if (refreshing) return
+      refreshing = true
+      // One reconciliation on a confirmed mismatch, not a periodic full-profile read.
       void loadPersonalProfile(session).then((updated) => {
         if (!active) return
+        if (JSON.stringify(updated) === JSON.stringify(profile)) {
+          throw new Error('Не удалось подтвердить актуальные права профиля. Повторите подключение.')
+        }
         rememberPersonalContext({ session, profile: updated })
         setProfile(updated)
-      }).catch((cause) => { if (active) setError(accessError(cause)) })
+      }).catch((cause) => { if (active) { setError(accessError(cause)); setRetryable(true) } })
         .finally(() => { refreshing = false })
     }, (cause) => {
-      if (cause.code === 'permission-denied' && active) {
-        setProfile((current) => current ? { ...current, children: current.children.filter((child) => child.familyId !== familyId) } : current)
-      }
+      if (!active) return
+      confirmed.delete(familyId)
+      setVerifiedProfile(null)
+      setError(accessError(cause))
+      setRetryable(true)
     }))
     return () => { active = false; stops.forEach((stop) => stop()) }
-  }, [session, profile])
+  }, [session, profile, verifiedSession, retry])
 
   useEffect(() => {
     if (!session) return
@@ -277,6 +301,13 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
       setError('Не удалось скопировать ссылку. Откройте исходную личную ссылку и скопируйте её вручную.')
     }
   }
+
+  if (profile && (verifiedSession !== session || verifiedProfile !== profile)) return <div className="personal-entry-loading">
+    <p role="status">Проверяем личный доступ и загружаем кабинет…</p>
+    {!online && <p className="personal-offline">Нет сети. Роль и доступ подтвердятся после подключения.</p>}
+    {error && <p role="alert" className="personal-login-error">{error}</p>}
+    {retryable && <Button type="button" variant="outline" disabled={busy} onClick={retryConnection}>Повторить подключение</Button>}
+  </div>
 
   if (profile) {
     const parent = profile.children.some((child) => child.role === 'parent')

@@ -5,12 +5,12 @@ import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { PersonalProfile } from '@/lib/personalAccess'
 
-const scene = vi.hoisted(() => ({ profile: null as PersonalProfile | null, cached: false, callbacks: new Map<string, (value: any) => void>(), records: new Map<string, object>(), options: [] as any[], reads: [] as string[], closed: 0 }))
+const scene = vi.hoisted(() => ({ profile: null as PersonalProfile | null, serverProfile: null as PersonalProfile | null, cached: false, callbacks: new Map<string, (value: any) => void>(), records: new Map<string, object>(), options: [] as any[], reads: [] as string[], closed: 0, refreshes: 0 }))
 vi.mock('@/lib/firebase', () => ({ db: {} }))
 vi.mock('@/lib/personalAccess', () => ({
   restorePersonalContext: async () => scene.profile ? { session: { personId: 'person', deviceUid: 'device', linkToken: 'secret' }, profile: scene.profile } : null,
-  loadPersonalProfile: async () => scene.profile,
-  rememberPersonalContext: vi.fn(), rememberPersonalDashboardRoute: vi.fn(), clearPersonalSession: () => { scene.closed++ },
+  loadPersonalProfile: async () => { scene.refreshes++; return scene.serverProfile ?? scene.profile },
+  rememberPersonalContext: (context: { profile: PersonalProfile }) => { scene.profile = context.profile }, rememberPersonalDashboardRoute: vi.fn(), clearPersonalSession: () => { scene.closed++ },
 }))
 vi.mock('firebase/firestore', () => ({
   doc: (_db: unknown, ...parts: string[]) => ({ path: parts.join('/') }),
@@ -21,7 +21,7 @@ vi.mock('firebase/firestore', () => ({
     scene.callbacks.set(ref.path, changed)
     const data = ref.path.startsWith('accessLinks/') ? { active: true, personId: 'person' }
       : ref.path.startsWith('deviceSessions/') ? { linkToken: 'secret' }
-        : { active: true, role: scene.profile?.children[0].role, childIds: ['child'] }
+        : { active: true, role: (scene.serverProfile ?? scene.profile)?.children[0].role, childIds: ['child'] }
     scene.records.set(ref.path, data)
     changed({ exists: () => true, data: () => data, metadata: { fromCache: scene.cached } })
     return () => { scene.callbacks.delete(ref.path) }
@@ -47,6 +47,7 @@ import LearningRoute from './LearningRoute'
 const roots: Array<() => void> = []
 beforeEach(() => {
   scene.cached = false; scene.callbacks.clear(); scene.records.clear(); scene.options = []; scene.reads = []; scene.closed = 0
+  scene.serverProfile = null; scene.refreshes = 0
   scene.profile = { personId: 'person', displayName: 'Person', children: [{ familyId: 'family', childId: 'child', displayName: 'Child', role: 'parent', dashboardToken: 'parent-dashboard', dashboardTokens: { student: 'shared-dashboard', parent: 'parent-dashboard' } }] }
 })
 afterEach(async () => { await act(async () => { roots.splice(0).forEach((close) => close()) }) })
@@ -58,6 +59,20 @@ async function render(mode: 'day' | 'days' = 'days', token = 'shared-dashboard')
   return host
 }
 describe('authenticated route through the real problem card', () => {
+  it.each(['parent', 'student'] as const)('reconciles stale cached role to authoritative %s on the same shared URL', async (role) => {
+    scene.serverProfile = structuredClone(scene.profile!)
+    scene.serverProfile.children[0].role = role
+    scene.serverProfile.children[0].dashboardToken = role === 'parent' ? 'parent-dashboard' : 'shared-dashboard'
+    scene.profile!.children[0].role = role === 'parent' ? 'student' : 'parent'
+    scene.profile!.children[0].dashboardToken = role === 'parent' ? 'shared-dashboard' : 'parent-dashboard'
+    const host = await render()
+    expect(host.textContent).toContain(role === 'parent' ? 'Разбор для родителя' : 'Добавить фото решения')
+    expect(host.textContent).not.toContain(role === 'parent' ? 'Добавить фото решения' : 'Разбор для родителя')
+    expect(scene.closed).toBe(0)
+    expect(scene.refreshes).toBe(1)
+    expect(scene.options).toHaveLength(3)
+    expect(scene.reads).toEqual([])
+  })
   it('shows a parent guide and no student controls on the shared /days URL', async () => {
     const host = await render()
     expect(host.querySelector('[data-view-token]')?.getAttribute('data-view-token')).toBe('parent-dashboard')

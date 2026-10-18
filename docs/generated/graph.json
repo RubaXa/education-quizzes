@@ -1189,6 +1189,34 @@
       "path": "docs/decisions/parent-followup-button-release-2026-10-14.md"
     },
     {
+      "id": "decisions.personal-entry-role-confirmation-2026-10-18",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-18",
+      "updated": "2026-10-18",
+      "parent": "module.families.access-and-state",
+      "uses": [
+        "plans.local-first-release-plan-2026-10-12"
+      ],
+      "consumers": [
+        "parent",
+        "student",
+        "web-app access flow"
+      ],
+      "code": [
+        "src/components/PersonalEntry.tsx",
+        "src/components/LearningRoute.tsx"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/personal-entry-role-confirmation-2026-10-18.md"
+    },
+    {
       "id": "decisions.quiz-attempt-time-icon-2026-10-15",
       "status": "reference",
       "implementation": "not-applicable",
@@ -3535,6 +3563,13 @@
       "consumer": "Разработчик; выпуск личного кабинета"
     },
     {
+      "id": "file:src/components/PersonalEntry.role.integration.test.tsx",
+      "path": "src/components/PersonalEntry.role.integration.test.tsx",
+      "kind": "verification",
+      "purpose": "Корневой вход с настоящей карточкой, устаревшая роль, metadata-only подтверждение, отзыв и бюджет",
+      "consumer": "Vitest; личный вход"
+    },
+    {
       "id": "file:src/components/PersonalEntry.tsx",
       "path": "src/components/PersonalEntry.tsx",
       "kind": "artifact",
@@ -5262,7 +5297,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-08",
-      "updated": "2026-10-16",
+      "updated": "2026-10-18",
       "consumers": [
         "parent",
         "student",
@@ -5275,6 +5310,7 @@
         "scripts/day.mjs",
         "src/App.tsx",
         "src/components/LearningRoute.tsx",
+        "src/components/PersonalEntry.tsx",
         "src/lib/learningRoute.ts",
         "day/learning-route-identity.mjs",
         "src/DayPage.tsx",
@@ -6534,7 +6570,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-13",
-      "updated": "2026-10-16",
+      "updated": "2026-10-18",
       "consumers": [
         "Education operator",
         "developer",
@@ -8452,6 +8488,11 @@
       "type": "uses"
     },
     {
+      "from": "decisions.personal-entry-role-confirmation-2026-10-18",
+      "to": "plans.local-first-release-plan-2026-10-12",
+      "type": "uses"
+    },
+    {
       "from": "decisions.quiz-threshold-85-2026-10-14",
       "to": "decisions.quiz-threshold-and-page-slider-2026-10-14",
       "type": "uses"
@@ -10078,6 +10119,11 @@
     },
     {
       "from": "file:src/components/LearningRoute.tsx",
+      "to": "decisions.personal-entry-role-confirmation-2026-10-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/LearningRoute.tsx",
       "to": "module.families.access-and-state",
       "type": "implements"
     },
@@ -10219,6 +10265,16 @@
     {
       "from": "file:src/components/ParentTaskGuide.tsx",
       "to": "shared.design.statuses",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/PersonalEntry.tsx",
+      "to": "decisions.personal-entry-role-confirmation-2026-10-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/PersonalEntry.tsx",
+      "to": "module.families.access-and-state",
       "type": "implements"
     },
     {
@@ -11703,6 +11759,11 @@
     },
     {
       "from": "module.families.access-and-state",
+      "to": "decisions.personal-entry-role-confirmation-2026-10-18",
+      "type": "contains"
+    },
+    {
+      "from": "module.families.access-and-state",
       "to": "file:day/learning-route-identity.test.mjs",
       "type": "verified-by"
     },
@@ -11714,6 +11775,11 @@
     {
       "from": "module.families.access-and-state",
       "to": "file:src/components/LearningRoute.integration.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.families.access-and-state",
+      "to": "file:src/components/PersonalEntry.role.integration.test.tsx",
       "type": "verified-by"
     },
     {
