@@ -80,23 +80,29 @@ it('matches all seven templates through the shared compact digest and keeps cont
   const output=host.querySelector('.edu-telegram-message-text')?.textContent ?? ''
   if(example.id==='review'){
    expect(output.split('\n')).toEqual([
-    'Ученик А · Математика',
+    'Ученик А · 3 изменения',
+    'Спецкурс · К четвергу, 22 октября',
     '🟢 №3 · Шестьдесят горшков — проверено',
-    '🟠 №1 · Книги на полках — нужна правка',
-    '🟢 №5 · Периметр прямоугольника — проверено',
+    '🟠 №1 · Книги на полках — Ожидало проверки → нужна правка',
+    'Не объяснён второй случай.',
+    '🟢 №5 · Периметр — проверено',
    ])
+   expect(host.querySelectorAll('.edu-telegram-history-bubble')).toHaveLength(3)
+   expect(host.querySelector('.edu-telegram-history')?.textContent).toContain('📷 №1 · Книги на полках — получено 1 файл · ждут проверки')
+   expect(host.querySelector('.edu-telegram-history')?.textContent).toContain('Объяснение добавлено. Замечание снято.')
   }else{
    const fields:Record<string,unknown>={...example.event.fields,childName:'Ученик А',subject:'Математика'}
    const event={...example.event,source:'demo',fields}
    const model=getNotificationDigestPresentation([event])
    expect(model?.text).toBe(output)
-   expect(model?.text).toContain('Ученик А · Математика')
+   expect(model?.header).toContain('Ученик А · 1 изменение')
+   expect(model?.context).toContain('Математика')
   }
   expect(host.querySelector('.edu-telegram-stage')?.querySelectorAll('a[href]')).toHaveLength(0)
   expect(host.querySelector('.edu-telegram-message-heading')).toBeNull()
  }
  await act(async()=>{template.value='upload';template.dispatchEvent(new Event('change',{bubbles:true}))})
- expect(host.querySelector('.edu-telegram-message-text')?.textContent).toContain('ждёт проверки')
+ expect(host.querySelector('.edu-telegram-message-text')?.textContent).toContain('получено 1 файл · ждут проверки')
  expect(host.querySelector('.edu-telegram-message-text')?.textContent).not.toContain('проверено')
  expect(host.textContent).toContain('Демонстрация. Шрифт и цвета Telegram задаёт выбранная тема клиента.')
  const content=host.querySelector<HTMLSelectElement>('select[aria-label="Содержание уведомления"]')!

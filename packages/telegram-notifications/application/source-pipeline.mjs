@@ -194,12 +194,12 @@ export function normalizeSourceRecords(records) {
   const safe = []
   const seen = new Set()
   const fieldsByKind = {
-    grade: new Set(['childName', 'subject', 'value', 'occurredLabel']),
+    grade: new Set(['childName', 'subject', 'title', 'value', 'occurredLabel']),
     schedule: new Set(['childName', 'subject', 'title', 'occurredLabel']),
     assignment: new Set(['childName', 'subject', 'title', 'occurredLabel']),
     upload: new Set(['childName', 'subject', 'title', 'status', 'occurredLabel']),
     quiz: new Set(['childName', 'subject', 'title', 'status']),
-    review: new Set(['childName', 'subject', 'title', 'occurredLabel', 'status']),
+    review: new Set(['childName', 'subject', 'title', 'occurredLabel', 'status', 'summary', 'nextStep']),
     probe: new Set(),
   }
   for (const record of records) {
@@ -207,6 +207,7 @@ export function normalizeSourceRecords(records) {
       || !['grade', 'schedule', 'assignment', 'upload', 'quiz', 'review', 'probe'].includes(record.kind)
       || (record.eventType !== undefined && !EVENT_TYPE_SET.has(record.eventType))
       || (record.semanticHash !== undefined && !/^[a-f0-9]{64}$/.test(record.semanticHash))
+      || (record.workRef !== undefined && (!['upload', 'review'].includes(record.kind) || !validWorkRef(record.workRef)))
       || (record.occurredAt !== undefined && (typeof record.occurredAt !== 'string' || Number.isNaN(Date.parse(record.occurredAt))))) return null
     if (seen.has(record.recordKey)) return null
     seen.add(record.recordKey)
@@ -228,17 +229,22 @@ export function normalizeSourceRecords(records) {
     if (record.fields !== undefined && (!record.fields || typeof record.fields !== 'object' || Array.isArray(record.fields)
       || Object.keys(record.fields).some((key) => !fieldsByKind[record.kind].has(key)))) return null
     const fields = {}
-    for (const key of ['childName', 'subject', 'title', 'value', 'status', 'occurredLabel']) {
+    for (const key of ['childName', 'subject', 'title', 'value', 'status', 'occurredLabel', 'summary', 'nextStep']) {
       const value = record.fields?.[key]
-      if (typeof value === 'string' && value.length <= 500) fields[key] = sanitizeText(value)
+      if (typeof value === 'string' && value.length <= 500) fields[key] = sanitizeText(value).slice(0, ['summary', 'nextStep'].includes(key) ? 300 : 500)
       else if (value !== undefined) return null
     }
     const navigationContext = record.kind === 'upload' && record.navigationContext?.kind === 'day'
       && isValidEducationDayToken(record.navigationContext.dayToken)
       ? { kind: 'day', dayToken: record.navigationContext.dayToken } : null
-    safe.push({ recordKey: record.recordKey, kind: record.kind, ...(record.eventType ? { eventType: record.eventType } : {}), ...(record.occurredAt ? { occurredAt: record.occurredAt } : {}), ...(record.semanticHash ? { semanticHash: record.semanticHash } : {}), fields, ...(navigationContext ? { navigationContext } : {}) })
+    safe.push({ recordKey: record.recordKey, kind: record.kind, ...(record.eventType ? { eventType: record.eventType } : {}), ...(record.occurredAt ? { occurredAt: record.occurredAt } : {}), ...(record.semanticHash ? { semanticHash: record.semanticHash } : {}), ...(record.workRef ? { workRef: { ...record.workRef } } : {}), fields, ...(navigationContext ? { navigationContext } : {}) })
   }
   return safe
+}
+
+function validWorkRef(value) {
+  return value && typeof value === 'object' && !Array.isArray(value) && value.kind === 'day-task'
+    && /^[a-f0-9]{64}$/.test(value.id) && Object.keys(value).every((key) => ['kind', 'id'].includes(key))
 }
 
 function shouldDiffRecord(record, before, { origin, previousProjectionVersion, previousReviewProjectionVersion } = {}) {

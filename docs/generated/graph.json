@@ -636,6 +636,35 @@
       "path": "docs/decisions/telegram-foundation-2026-10-16.md"
     },
     {
+      "id": "decision.telegram-linked-work-history-2026-10-18",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-18",
+      "updated": "2026-10-18",
+      "parent": "shared.design.telegram",
+      "uses": [
+        "service.telegram-bot.work-history",
+        "service.telegram-bot.delivery",
+        "shared.design.ui-kit"
+      ],
+      "consumers": [
+        "Telegram renderer",
+        "Education UI Kit",
+        "bot operator"
+      ],
+      "code": [
+        "packages/telegram-notifications/adapters/work-history-firestore.mjs"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/telegram-linked-work-history-2026-10-18.md"
+    },
+    {
       "id": "decision.telegram-review-fixes-2026-10-17",
       "status": "accepted",
       "implementation": "not-applicable",
@@ -2491,6 +2520,13 @@
       "kind": "artifact",
       "purpose": "Приватные команды бота, идентичность Bot API и транспорт сообщений",
       "consumer": "Telegram worker; grammY"
+    },
+    {
+      "id": "file:packages/telegram-notifications/adapters/work-history-firestore.mjs",
+      "path": "packages/telegram-notifications/adapters/work-history-firestore.mjs",
+      "kind": "artifact",
+      "purpose": "Fenced stream lease и транзакционные pointers фактически доставленных работ",
+      "consumer": "Firestore outbox"
     },
     {
       "id": "file:packages/telegram-notifications/adapters/worker-loop.mjs",
@@ -7408,6 +7444,7 @@
         "service.telegram-bot.identity-and-linking",
         "service.telegram-bot.event-ledger-outbox",
         "service.telegram-bot.delivery",
+        "service.telegram-bot.work-history",
         "service.telegram-bot.operations"
       ],
       "sections": [
@@ -7441,6 +7478,7 @@
       ],
       "parent": "service.telegram-bot",
       "uses": [
+        "service.telegram-bot.work-history",
         "service.telegram-bot",
         "service.telegram-bot.ports-and-events",
         "service.telegram-bot.event-ledger-outbox",
@@ -7473,6 +7511,7 @@
       ],
       "parent": "service.telegram-bot",
       "uses": [
+        "service.telegram-bot.work-history",
         "service.telegram-bot",
         "service.telegram-bot.ports-and-events"
       ],
@@ -7644,6 +7683,7 @@
       ],
       "parent": "service.telegram-bot",
       "uses": [
+        "service.telegram-bot.work-history",
         "service.telegram-bot",
         "shared.server-runtime"
       ],
@@ -7658,6 +7698,37 @@
         "подмодули"
       ],
       "path": "docs/services/telegram-bot/ports-and-events.md"
+    },
+    {
+      "id": "service.telegram-bot.work-history",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-18",
+      "updated": "2026-10-18",
+      "parent": "service.telegram-bot",
+      "uses": [
+        "service.telegram-bot.delivery",
+        "service.telegram-bot.event-ledger-outbox",
+        "service.telegram-bot.ports-and-events",
+        "shared.design.telegram"
+      ],
+      "consumers": [
+        "parent",
+        "Telegram worker",
+        "Education UI Kit"
+      ],
+      "code": [
+        "packages/telegram-notifications/adapters/work-history-firestore.mjs"
+      ],
+      "sections": [
+        "решение-пользователя",
+        "идентичность-работы",
+        "сводка-и-продолжение",
+        "подтверждённая-история",
+        "ошибки-и-совместимость",
+        "проверки"
+      ],
+      "path": "docs/services/telegram-bot/work-history.md"
     },
     {
       "id": "service.upload-worker",
@@ -8056,7 +8127,8 @@
       "uses": [
         "shared.design.statuses",
         "shared.design.ui-kit",
-        "service.telegram-bot.delivery"
+        "service.telegram-bot.delivery",
+        "service.telegram-bot.work-history"
       ],
       "consumers": [
         "Telegram renderer",
@@ -8483,6 +8555,21 @@
     {
       "from": "decision.telegram-foundation",
       "to": "service.telegram-bot",
+      "type": "uses"
+    },
+    {
+      "from": "decision.telegram-linked-work-history-2026-10-18",
+      "to": "service.telegram-bot.delivery",
+      "type": "uses"
+    },
+    {
+      "from": "decision.telegram-linked-work-history-2026-10-18",
+      "to": "service.telegram-bot.work-history",
+      "type": "uses"
+    },
+    {
+      "from": "decision.telegram-linked-work-history-2026-10-18",
+      "to": "shared.design.ui-kit",
       "type": "uses"
     },
     {
@@ -9198,6 +9285,16 @@
     {
       "from": "file:packages/telegram-notifications/adapters/telegram.mjs",
       "to": "service.telegram-bot.operations",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/adapters/work-history-firestore.mjs",
+      "to": "decision.telegram-linked-work-history-2026-10-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/adapters/work-history-firestore.mjs",
+      "to": "service.telegram-bot.work-history",
       "type": "implements"
     },
     {
@@ -13512,6 +13609,11 @@
     },
     {
       "from": "service.telegram-bot.delivery",
+      "to": "service.telegram-bot.work-history",
+      "type": "uses"
+    },
+    {
+      "from": "service.telegram-bot.delivery",
       "to": "service.telegram-bot",
       "type": "uses"
     },
@@ -13528,6 +13630,11 @@
     {
       "from": "service.telegram-bot.event-ledger-outbox",
       "to": "service.telegram-bot.ports-and-events",
+      "type": "uses"
+    },
+    {
+      "from": "service.telegram-bot.event-ledger-outbox",
+      "to": "service.telegram-bot.work-history",
       "type": "uses"
     },
     {
@@ -13707,12 +13814,37 @@
     },
     {
       "from": "service.telegram-bot.ports-and-events",
+      "to": "service.telegram-bot.work-history",
+      "type": "uses"
+    },
+    {
+      "from": "service.telegram-bot.ports-and-events",
       "to": "service.telegram-bot",
       "type": "uses"
     },
     {
       "from": "service.telegram-bot.ports-and-events",
       "to": "shared.server-runtime",
+      "type": "uses"
+    },
+    {
+      "from": "service.telegram-bot.work-history",
+      "to": "service.telegram-bot.delivery",
+      "type": "uses"
+    },
+    {
+      "from": "service.telegram-bot.work-history",
+      "to": "service.telegram-bot.event-ledger-outbox",
+      "type": "uses"
+    },
+    {
+      "from": "service.telegram-bot.work-history",
+      "to": "service.telegram-bot.ports-and-events",
+      "type": "uses"
+    },
+    {
+      "from": "service.telegram-bot.work-history",
+      "to": "shared.design.telegram",
       "type": "uses"
     },
     {
@@ -13808,6 +13940,16 @@
     {
       "from": "service.telegram-bot",
       "to": "service.telegram-bot.ports-and-events",
+      "type": "uses"
+    },
+    {
+      "from": "service.telegram-bot",
+      "to": "service.telegram-bot.work-history",
+      "type": "contains"
+    },
+    {
+      "from": "service.telegram-bot",
+      "to": "service.telegram-bot.work-history",
       "type": "uses"
     },
     {
@@ -14047,6 +14189,11 @@
     },
     {
       "from": "shared.design.telegram",
+      "to": "decision.telegram-linked-work-history-2026-10-18",
+      "type": "contains"
+    },
+    {
+      "from": "shared.design.telegram",
       "to": "file:packages/education-presentation/notification.test.mjs",
       "type": "verified-by"
     },
@@ -14063,6 +14210,11 @@
     {
       "from": "shared.design.telegram",
       "to": "service.telegram-bot.delivery",
+      "type": "uses"
+    },
+    {
+      "from": "shared.design.telegram",
+      "to": "service.telegram-bot.work-history",
       "type": "uses"
     },
     {

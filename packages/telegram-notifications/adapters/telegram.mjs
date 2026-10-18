@@ -81,7 +81,7 @@ export function createTelegramDelivery(token, { ApiClass = Api } = {}) {
         if (part.format === 'html') return await sendFallback(chatId, part, 'html')
         try {
           if (typeof api.sendRichMessage !== 'function') return await sendFallback(chatId, part)
-          const message = await api.sendRichMessage(chatId, part.rich_message, {})
+          const message = await api.sendRichMessage(chatId, withoutButtons(part.rich_message), replyParameters(part))
           return { messageId: message.message_id, method: 'sendRichMessage', format: 'rich_message' }
         } catch (cause) {
           if (unsupportedRichMessage(cause)) return await sendFallback(chatId, part)
@@ -99,13 +99,31 @@ export function createTelegramDelivery(token, { ApiClass = Api } = {}) {
 
   async function sendFallback(chatId, part, format = 'html-fallback') {
     try {
-      const message = await api.sendMessage(chatId, part.html, { parse_mode: 'HTML', link_preview_options: { is_disabled: true }, ...(part.keyboard ? { reply_markup: { inline_keyboard: [part.keyboard.buttons] } } : {}) })
+      const keyboard = safeKeyboard(part.keyboard)
+      const message = await api.sendMessage(chatId, part.html, { parse_mode: 'HTML', link_preview_options: { is_disabled: true }, ...(keyboard ? { reply_markup: { inline_keyboard: [keyboard.buttons] } } : {}), ...replyParameters(part) })
       return { messageId: message.message_id, method: 'sendMessage', format }
     } catch (cause) {
       throw deliveryError(cause)
     }
   }
 }
+function replyParameters(part) {
+  return Number.isSafeInteger(part?.replyToMessageId) && part.replyToMessageId > 0
+    ? { reply_parameters: { message_id: part.replyToMessageId, allow_sending_without_reply: true } }
+    : {}
+}
+function withoutButtons(message) {
+  if (!message || !Array.isArray(message.blocks)) return message
+  return { ...message, blocks: message.blocks.map((block) => block?.type === 'buttons'
+    ? { ...block, buttons: block.buttons.filter((button) => !isUiKitUrl(button?.url)) }
+    : block).filter((block) => block?.type !== 'buttons' || block.buttons.length > 0) }
+}
+function safeKeyboard(keyboard) {
+  if (!keyboard || !Array.isArray(keyboard.buttons)) return null
+  const buttons = keyboard.buttons.filter((button) => !isUiKitUrl(button?.url))
+  return buttons.length ? { ...keyboard, buttons } : null
+}
+function isUiKitUrl(value) { return typeof value === 'string' && value.endsWith('#/ui-kit') }
 function unsupportedRichMessage(error) {
   const description = String(error?.description ?? error?.message ?? '').toLowerCase()
   if (error?.error_code === 404 || error?.status === 404) return /sendrichmessage|method not found|unknown method|unsupported method/.test(description)

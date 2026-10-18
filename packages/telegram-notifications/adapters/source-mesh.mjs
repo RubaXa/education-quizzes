@@ -22,13 +22,13 @@ export function normalizeMeshObservation({ scope, schedule, assignments, marks, 
         if (!stableId(mark?.id) || value === null) return invalid('invalid_mark_record')
         const date = safeDate(mark.date)
         const subjectName = safeText(subject.subject_name, 120)
+        const title = safeText(mark.control_form_name, 160)
         const key = digest(['mesh-grade-v1', scope.sourceAccountId, scope.sourcePersonId, scope.childId,
           String(subject.subject_id), String(subject.start), String(mark.id)])
-        const semanticHash = digest(['mesh-grade-content-v1', String(value), date, mark.weight ?? null,
-          safeText(mark.control_form_name, 160)])
+        const semanticHash = digest(['mesh-grade-content-v1', String(value), date, mark.weight ?? null, title])
         const partitionKey = digest([String(subject.subject_id), String(subject.start)])
         records.push({ recordKey: key, kind: 'grade', partitionKey, semanticHash, ...(date ? { occurredAt: `${date}T12:00:00.000Z` } : {}),
-          fields: { ...(childName ? { childName: safeText(childName, 120) } : {}), ...(subjectName ? { subject: subjectName } : {}), value: String(value), ...(date ? { occurredLabel: date } : {}) } })
+          fields: { ...(childName ? { childName: safeText(childName, 120) } : {}), ...(subjectName ? { subject: subjectName } : {}), ...(title ? { title } : {}), value: String(value), ...(date ? { occurredLabel: date } : {}) } })
       }
     }
   } else if (scope.kind === 'schedule') {

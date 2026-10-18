@@ -8,6 +8,15 @@
 .edu-telegram-message{box-sizing:border-box;width:min(100%,520px);min-width:0;margin:0 auto;padding:12px 14px;border:1px solid var(--edu-card-border);border-radius:12px;background:var(--edu-surface);color:var(--edu-text-primary)}
 .edu-telegram-message-text{min-width:0;margin:0;font:inherit;font-size:1rem;font-weight:400;line-height:1.32;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word}
 .edu-telegram-message-header{font-weight:700}
+.edu-telegram-message-context{color:var(--edu-text-secondary);font-size:.875rem}
+.edu-telegram-history{width:min(100%,520px);margin:14px auto 0}
+.edu-telegram-history h3{margin:0 0 7px;color:var(--edu-text-secondary);font-size:.82rem;font-weight:650}
+.edu-telegram-history-chat{display:grid;gap:7px;padding:10px;border-radius:12px;background:var(--edu-canvas)}
+.edu-telegram-history-bubble{min-width:0;padding:9px 11px;border:1px solid var(--edu-card-border);border-radius:11px 11px 11px 3px;background:var(--edu-surface);overflow-wrap:anywhere}
+.edu-telegram-history-text{margin:0;font:inherit;font-weight:400;line-height:1.35;white-space:pre-wrap;overflow-wrap:anywhere}
+.edu-telegram-reply{margin-bottom:5px;padding-left:8px;border-left:2px solid var(--edu-accent-ink);color:var(--edu-accent-ink);font-size:.8rem}
+.edu-telegram-history-detail{margin-top:4px;color:var(--edu-text-secondary)}
+.edu-telegram-history-bubble time{display:block;margin-top:2px;text-align:right;color:var(--edu-text-secondary);font-size:.72rem}
 .edu-telegram-demo-note,.edu-telegram-no-message{margin:8px 0 0;color:var(--edu-text-secondary);font-size:.74rem;line-height:1.35}
 .edu-telegram-no-message{padding:2px 0}
 @media(max-width:420px){.edu-telegram-controls{grid-template-columns:minmax(0,1fr)}.edu-telegram-stage{padding:8px}.edu-telegram-message{padding:10px 11px}}

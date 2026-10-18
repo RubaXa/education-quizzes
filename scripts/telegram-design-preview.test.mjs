@@ -5,6 +5,7 @@ import { renderNotificationParts, renderNotificationDigestParts } from '../packa
 import { NOTIFICATION_EXAMPLES } from '../packages/education-presentation/notification.mjs'
 
 const args = ['--target-digest', 'a'.repeat(16), '--run-id', 'design-example']
+const historyArgs = [...args, '--history-demo']
 function fixture({ target = {}, existing = false, fail = false } = {}) {
   const outputs = []
   const send = vi.fn(async () => {})
@@ -18,6 +19,50 @@ function fixture({ target = {}, existing = false, fail = false } = {}) {
     write: (text) => outputs.push(JSON.parse(text)),
   }
   return { deps, outputs, send }
+}
+
+function historyFixture({ failReply = false } = {}) {
+  const jobs = new Map()
+  const sends = []
+  const reads = []
+  const outputs = []
+  let shouldFailReply = failReply
+  const recordIfAbsent = vi.fn(async ({ jobs: newJobs }) => {
+    let queued = 0
+    for (const job of newJobs) {
+      if (!jobs.has(job.jobId)) { jobs.set(job.jobId, { ...job, state: 'pending', partReceipts: [] }); queued += 1 }
+    }
+    return { created: queued > 0, queued }
+  })
+  const deps = {
+    env: { AGI_EDU_BOT: 'test-only', TELEGRAM_FIRESTORE_PROJECT_ID: 'demo-project' },
+    db: { terminate: vi.fn() },
+    resolveTarget: vi.fn(async () => ({ familyId: 'family-a', childId: 'child-a', linkId: 'link-a', personId: 'parent-a', telegramUserId: '55' })),
+    recipientResolver: { resolve: vi.fn(async () => ({ familyId: 'family-a', childId: 'child-a', linkId: 'link-a', personId: 'parent-a', telegramUserId: '55' })) },
+    runtime: {
+      adapters: { eventLedger: { recordIfAbsent } },
+      notificationService: { runOne: vi.fn(async ({ jobId }) => {
+        const job = jobs.get(jobId)
+        sends.push(jobId)
+        if (job.messageParts[0].replyToMessageId) expect(job.messageParts[0].replyToMessageId).toBe(101)
+        if (job.messageParts[0].replyToMessageId && shouldFailReply) {
+          job.state = 'retry_wait'
+          return true
+        }
+        job.state = 'sent'
+        job.partReceipts = [{ messageId: job.messageParts[0].replyToMessageId ? 202 : 101, format: 'html' }]
+        return true
+      }) },
+    },
+    readReceipt: vi.fn(async (jobId) => {
+      reads.push(jobId)
+      const job = jobs.get(jobId)
+      return job ? { state: job.state, partReceipts: job.partReceipts } : null
+    }),
+    write: (text) => outputs.push(JSON.parse(text)),
+    keepOpen: true,
+  }
+  return { deps, outputs, jobs, sends, reads, recordIfAbsent, setFailReply(value) { shouldFailReply = value } }
 }
 
 describe('Telegram design examples CLI', () => {
@@ -45,7 +90,9 @@ describe('Telegram design examples CLI', () => {
       fields: { childName: 'Ученик А', subject: 'Математика', ...item } })), 'family', { demo: true })
     expect(parts).toHaveLength(1)
     expect(parts[0].format).toBe('html')
-    expect(parts[0].plaintext.split('\n')).toHaveLength(4)
+    expect(parts[0].keyboard).toBeUndefined()
+    expect(parts[0].plaintext).not.toContain('#/ui-kit')
+    expect(parts[0].plaintext.split('\n')).toHaveLength(5)
     expect(parts[0].plaintext).toContain('№1 · Книги на полках — нужна правка')
     expect(parts[0].rich_message.blocks.some(block => ['heading', 'divider', 'footer'].includes(block.type))).toBe(false)
   })
@@ -62,7 +109,9 @@ describe('Telegram design examples CLI', () => {
 
   it('requires one explicit opaque target and stable run id', () => {
     expect(parseDesignPreviewArgs(args)).toMatchObject({ targetDigest: 'a'.repeat(16), runId: 'design-example', apply: false })
+    expect(parseDesignPreviewArgs(historyArgs)).toMatchObject({ historyDemo: true })
     for (const bad of [[], [...args, '--apply', '--apply'], ['--target-digest', '123'], [...args, '--run-id', 'again']]) expect(() => parseDesignPreviewArgs(bad)).toThrow('preview_usage')
+    expect(() => parseDesignPreviewArgs([...historyArgs, '--history-demo'])).toThrow('preview_usage')
   })
   it('dry run checks recipient and exact templates without writing or sending', async () => {
     const f = fixture()
@@ -94,5 +143,64 @@ describe('Telegram design examples CLI', () => {
     expect(await main([...args, '--apply'], f.deps)).toBe(1)
     expect(f.send).not.toHaveBeenCalled()
     expect(f.outputs[0]).toMatchObject({ code: 'preview_recipient_unavailable' })
+  })
+
+  it('dry-runs history demo without enqueueing either technical probe', async () => {
+    const f = historyFixture()
+    expect(await main(historyArgs, f.deps)).toBe(0)
+    expect(f.outputs[0]).toMatchObject({ status: 'ready', historyDemo: true, examples: 0, parts: 2, writes: 0, sends: 0 })
+    expect(f.recordIfAbsent).not.toHaveBeenCalled()
+    expect(f.sends).toEqual([])
+  })
+
+  it('uses the first technical delivery receipt as the native reply target for the second technical demo', async () => {
+    const f = historyFixture()
+    expect(await main([...historyArgs, '--apply'], f.deps)).toBe(0)
+    expect(f.jobs.size).toBe(2)
+    const [firstJob, replyJob] = [...f.jobs.values()]
+    expect([firstJob.event.eventType, replyJob.event.eventType]).toEqual(['technical.probe', 'technical.probe'])
+    expect(firstJob.event.fields).toEqual({})
+    expect(replyJob.event.fields).toEqual({})
+    expect(firstJob.partReceipts[0].messageId).toBe(101)
+    expect(firstJob.messageParts[0].plaintext).toContain('Пример · Ученик А · 3 изменения')
+    expect(firstJob.messageParts[0].plaintext).toContain('получено 1 файл · ждут проверки')
+    expect(firstJob.messageParts[0].plaintext).toContain('Условная работа B')
+    expect(replyJob.messageParts[0].plaintext).toContain('Пример · Ученик А · 1 изменение')
+    expect(replyJob.messageParts[0].plaintext).toContain('Условная работа B')
+    expect(replyJob.messageParts[0].plaintext).toContain('Нужна правка → проверено')
+    expect(replyJob.messageParts[0].plaintext).toContain('Пояснение добавлено. Замечание снято.')
+    expect(replyJob.messageParts[0].replyToMessageId).toBe(101)
+    expect(firstJob.messageParts[0].workRefs).toBeUndefined()
+    expect(firstJob.messageParts[0].workOrderBindings).toBeUndefined()
+    expect(replyJob.messageParts[0].workRefs).toBeUndefined()
+    expect(replyJob.messageParts[0].workOrderBindings).toBeUndefined()
+    expect(firstJob.messageParts[0].keyboard).toBeUndefined()
+    expect(replyJob.messageParts[0].keyboard).toBeUndefined()
+    expect(firstJob.messageParts[0].rich_message.blocks.some(block => block.type === 'buttons')).toBe(false)
+    expect(replyJob.messageParts[0].rich_message.blocks.some(block => block.type === 'buttons')).toBe(false)
+    expect(firstJob.messageParts[0].plaintext + replyJob.messageParts[0].plaintext).not.toMatch(/Математика|Книги|Периметр/)
+    expect(f.sends).toEqual([firstJob.jobId, replyJob.jobId])
+    expect(f.outputs[0]).toMatchObject({ status: 'sent', historyDemo: true, parts: 2, sends: 2, first: { receiptParts: 1 }, reply: { receiptParts: 1 } })
+
+    expect(await main([...historyArgs, '--apply'], f.deps)).toBe(0)
+    expect(f.sends).toEqual([firstJob.jobId, replyJob.jobId])
+    expect(f.jobs.size).toBe(2)
+
+    const acceptedCount = f.recordIfAbsent.mock.calls.length
+    expect(await main([...historyArgs, '--receipt-only'], f.deps)).toBe(0)
+    expect(f.recordIfAbsent).toHaveBeenCalledTimes(acceptedCount)
+    expect(f.reads.slice(-2)).toEqual([firstJob.jobId, replyJob.jobId])
+    expect(f.outputs[2]).toMatchObject({ status: 'diagnostic', historyDemo: true, first: { state: 'sent' }, reply: { state: 'sent' }, writes: 0, sends: 0 })
+  })
+
+  it('restarts after a first receipt and retries only the second reply job', async () => {
+    const f = historyFixture({ failReply: true })
+    expect(await main([...historyArgs, '--apply'], f.deps)).toBe(1)
+    const [firstJob, replyJob] = [...f.jobs.values()]
+    expect(f.outputs[0]).toMatchObject({ status: 'incomplete', first: { state: 'sent' }, reply: { state: 'retry_wait' } })
+    f.setFailReply(false)
+    expect(await main([...historyArgs, '--apply'], f.deps)).toBe(0)
+    expect(f.sends).toEqual([firstJob.jobId, replyJob.jobId, replyJob.jobId])
+    expect(f.outputs[1]).toMatchObject({ status: 'sent', first: { state: 'sent' }, reply: { state: 'sent' } })
   })
 })
