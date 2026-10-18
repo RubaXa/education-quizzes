@@ -373,26 +373,17 @@
       }
     },
     "day/pipeline-contract.mjs": {
-      "sha256": "f2719f4dfeea19ae74be3d9609dbcae1899740c56ba395a4160e011033ae0de6",
-      "record": "docs/decisions/operator-tool-trial-2026-10-16.md",
+      "sha256": "a0201f97dd0d7f42149653697ff1f2a0fe76ef7dfe3c51845168021ecb7c02cd",
+      "record": "docs/decisions/teacher-choice-practice-2026-10-17.md",
       "specs": [
-        "docs/modules/synchronization/plan-generation.md",
-        "docs/modules/reviews/card-flow-certification.md"
+        "docs/modules/reviews/card-generation-policy.md"
       ],
       "tests": [
         "day/pipeline-contract.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 16.10.2026 поручил испытать инструменты, их результат и инструкции и улучшить непонятную диагностику."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "0565dfdf94b82dd3c3cdab458536f09838d4f64be84ade32555d673cee20ecbe"
-      },
-      "specificationLifecycle": {
-        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
-        "previousSha256": "9ce13a325c45dccc8f51b317aa840470b2874e9f1b79754ef7e6469a44663960"
+        "evidence": "Родитель прямо требует обязательность только по МЭШ/учителю и опциональность дополнительных пунктов;полный sync17.10 получил лист с прямым выбором «Реши сколько получится». Существующий тумблер и единый подсчёт сохранены."
       }
     },
     "assessment/followup-contract.mjs": {
@@ -532,26 +523,17 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "eef585aee6996eeaf6339b233a3cc1ba31e36a065d975bdcd3b495ffafc0011b",
-      "record": "docs/decisions/material-clarification-2026-10-16.md",
+      "sha256": "87081086f6a302bac993b95e758470a2e21bf890e01dec747aea6c4507fdba45",
+      "record": "docs/decisions/teacher-choice-practice-2026-10-17.md",
       "specs": [
-        "docs/modules/materials/material-clarification.md",
-        "docs/modules/school-diary/dashboard.md",
-        "docs/shared/design/README.md"
+        "docs/modules/reviews/card-generation-policy.md"
       ],
       "tests": [
-        "src/components/HomeworkOverview.test.tsx",
-        "src/DayDashboard.warmStart.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/UiKit.test.tsx"
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель потребовал сохранить исходные фото и разборы при появлении самопроверки;16.10 запросил полный цикл и тесты по новым материалам. Исправлено исчезновение уже показанного материала при разрешении запроса."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "ea6eab86aef43d43c068205e3309373fa4ed2e9d5ecdd79109af28d549ec3766"
+        "evidence": "Родитель прямо требует обязательность только по МЭШ/учителю и опциональность дополнительных пунктов;полный sync17.10 получил лист с прямым выбором «Реши сколько получится». Существующий тумблер и единый подсчёт сохранены."
       }
     },
     "src/DayPage.css": {
@@ -1000,29 +982,18 @@
       }
     },
     "src/lib/homeworkStatus.ts": {
-      "sha256": "79dc4635728df8926425c4130ecd66aae1be802f36154742eff02449cb9d638d",
-      "record": "docs/decisions/material-clarification-2026-10-16.md",
+      "sha256": "8b2c463cecb80beefcfc37805c0e9ed0bdabd6aec336db1eb81c52315404a80d",
+      "record": "docs/decisions/teacher-choice-practice-2026-10-17.md",
       "specs": [
-        "docs/modules/materials/material-clarification.md"
+        "docs/modules/reviews/card-generation-policy.md"
       ],
       "tests": [
-        "src/lib/materialRequest.test.ts",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/lib/homeworkStatus.test.ts",
-        "src/lib/photoUploadPolicy.test.ts",
-        "src/UiKit.test.tsx",
-        "storage/submission-inbox.test.mjs",
-        "storage/review-projection.test.mjs",
-        "storage/review-readback.test.mjs",
-        "day/build-assignments.test.mjs"
+        "src/lib/parentCompletion.test.ts",
+        "src/lib/homeworkStatus.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 16.10.2026 прямо потребовал вопрос ученику в карточке и ответ фото записей через стандартную загрузку с обработкой следующей синхронизацией."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "a827e55d6ccff6ad9c7dfd0b9e747f2ad8a65d311a1810bbeb3e3c291f5d21a5"
+        "evidence": "Родитель прямо требует обязательность только по МЭШ/учителю и опциональность дополнительных пунктов;полный sync17.10 получил лист с прямым выбором «Реши сколько получится». Существующий тумблер и единый подсчёт сохранены."
       }
     },
     "src/lib/quiz.ts": {
@@ -1270,23 +1241,17 @@
       }
     },
     "src/lib/parentCompletion.ts": {
-      "sha256": "030659af1d6c0c2f242eccd8bb6695cf599edd3a41dca31f4974299111219150",
-      "record": "docs/decisions/stage-switch-fresh-version-2026-10-14.md",
+      "sha256": "5dee3607b63530df0b4ef2da517a77c0eecb78b6ca7d303ea731038672c1f751",
+      "record": "docs/decisions/teacher-choice-practice-2026-10-17.md",
       "specs": [
-        "docs/modules/school-diary/day-page.md",
-        "docs/shared/design/README.md"
+        "docs/modules/reviews/card-generation-policy.md"
       ],
       "tests": [
-        "src/lib/parentCompletion.test.ts",
-        "src/components/ParentTaskGuide.test.tsx"
+        "src/lib/parentCompletion.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 14.10.2026: переключатель этапа снова не работает, на снимке отказ «Нет доступа. Проверьте личную ссылку»."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "9f3f7efe6936211f06048b03c87db2ef4817e81f2f2fc9bc736291d13cffb329"
+        "evidence": "Родитель прямо требует обязательность только по МЭШ/учителю и опциональность дополнительных пунктов;полный sync17.10 получил лист с прямым выбором «Реши сколько получится». Существующий тумблер и единый подсчёт сохранены."
       }
     },
     "src/components/NotificationBell.tsx": {
@@ -1461,29 +1426,17 @@
       }
     },
     "src/lib/dayStore.ts": {
-      "sha256": "d3ba1e67161480cd0a389f9559bddd87fe1f74cf4a4333bc1d6a6f4e5e57b109",
-      "record": "docs/decisions/material-clarification-2026-10-16.md",
+      "sha256": "d455131160f8848b3d1770b66022688e218fa567c851c05d574333b10feeaf8b",
+      "record": "docs/decisions/teacher-choice-practice-2026-10-17.md",
       "specs": [
-        "docs/modules/materials/material-clarification.md"
+        "docs/modules/reviews/card-generation-policy.md"
       ],
       "tests": [
-        "src/lib/materialRequest.test.ts",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/lib/homeworkStatus.test.ts",
-        "src/lib/photoUploadPolicy.test.ts",
-        "src/UiKit.test.tsx",
-        "storage/submission-inbox.test.mjs",
-        "storage/review-projection.test.mjs",
-        "storage/review-readback.test.mjs",
-        "day/build-assignments.test.mjs"
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 16.10.2026 прямо потребовал вопрос ученику в карточке и ответ фото записей через стандартную загрузку с обработкой следующей синхронизацией."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "ab5796f38d569bbb89c3187c2ab637e46f8337d9c82b3b2ee0dd369fa9fa293b"
+        "evidence": "Родитель прямо требует обязательность только по МЭШ/учителю и опциональность дополнительных пунктов;полный sync17.10 получил лист с прямым выбором «Реши сколько получится». Существующий тумблер и единый подсчёт сохранены."
       }
     },
     "src/DayDashboard.css": {
@@ -1753,22 +1706,17 @@
       }
     },
     "day/card-policy.mjs": {
-      "sha256": "a7e184fe3a5cd4c3d06d4ba458ee96eb945b84ce2a76582d18f833b36d0f48b0",
-      "record": "docs/decisions/mesh-assigned-units-2026-10-15.md",
+      "sha256": "a5ebe3ed5eab4503d2412134e3bf3840fb65d6cd0d1fd9b6c97741dff51fe11b",
+      "record": "docs/decisions/teacher-choice-practice-2026-10-17.md",
       "specs": [
-        "docs/modules/reviews/card-generation-policy.md",
-        "docs/modules/reviews/review-criteria-provenance.md"
+        "docs/modules/reviews/card-generation-policy.md"
       ],
       "tests": [
         "day/card-policy.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 15.10.2026 прямо потребовал отдельный результат каждого назначенного номера МЭШ и необязательность дополнительных действий учебника."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "1de22ca631c7af77b70369ae957b5c294a8e0b01d58654fe7d4e4c9ca9c61be4"
+        "evidence": "Родитель прямо требует обязательность только по МЭШ/учителю и опциональность дополнительных пунктов;полный sync17.10 получил лист с прямым выбором «Реши сколько получится». Существующий тумблер и единый подсчёт сохранены."
       }
     },
     "day/grade-snapshot.mjs": {

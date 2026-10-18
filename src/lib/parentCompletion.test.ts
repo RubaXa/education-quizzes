@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { DayTask, DayWorkReview } from './dayStore'
-import { currentStageChoice, requiredFamilyActions, stageCompletion, variantRequired, type ParentCompletionEvent } from './parentCompletion'
+import { currentStageChoice, requiredFamilyActions, stageCompletion, variantRequired, practiceRequired, type ParentCompletionEvent } from './parentCompletion'
 import { lessonWorkItems } from './homeworkStatus'
 
 const at = (seconds: number) => ({ seconds, nanoseconds: 0 })
@@ -14,6 +14,16 @@ const review = {
 } as DayWorkReview
 
 describe('family review stage choices', () => {
+  it('keeps teacher-selected practice optional until the family explicitly includes it', () => {
+    const task={id:'sheet',practiceVariants:[{id:'sheet-v1',title:'Задача 1',optionalByTeacher:{sourceRef:'teacher-sheet',excerpt:'Реши сколько получится.'}}]}
+    expect(practiceRequired(task,'sheet-v1',[])).toBe(false)
+    const required={id:'include',taskId:'sheet',variantId:'sheet-v1',action:'variant-required',reviewCheckedAt:null,decidedAt:at(200)} as ParentCompletionEvent
+    expect(practiceRequired(task,'sheet-v1',[required])).toBe(true)
+    expect(practiceRequired({id:'sheet',practiceVariants:[{id:'sheet-v1',title:'Вариант'}]},'sheet-v1',[])).toBe(true)
+    const withProblem={...task,kind:'check',status:'unknown',title:'Лист',detail:'',source:'МЭШ',problems:[{id:'sheet-p1',number:1,title:'Задача',detail:'',source:'Лист',variantId:'sheet-v1'}]} as DayTask
+    expect(lessonWorkItems([withProblem],[],[],[],{},{})).toEqual([])
+    expect(lessonWorkItems([withProblem],[],[],[required],{},{})).toHaveLength(1)
+  })
   it('credits the completed MESH number while the other number remains unreadable', () => {
     const numbered = { ...review, status: 'cannot-assess', checkableStageIds: ['mesh-218', 'mesh-223'],
       items: [{ stageId: 'mesh-218', label: '№ 218', status: 'correct' },

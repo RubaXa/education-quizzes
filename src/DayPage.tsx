@@ -30,7 +30,7 @@ import { useParentCompletions } from '@/lib/useParentCompletions'
 import { lessonWorkItems, quizRequirement, requiredQuizRequirement } from '@/lib/homeworkStatus'
 import { pupilCanAddPhoto } from '@/lib/photoUploadPolicy'
 import { assignmentProgress, assignmentTitle } from '@/lib/assignmentPresentation'
-import { canAcceptCorrectAnswer, parentAccepted, recordParentCompletion, recordRequirementChoice, recordStageChoice, recordVariantChoice, requiredFamilyActions, requirementChoice, stageCompletion, variantRequired } from '@/lib/parentCompletion'
+import { canAcceptCorrectAnswer, parentAccepted, recordParentCompletion, recordRequirementChoice, recordStageChoice, recordVariantChoice, requiredFamilyActions, requirementChoice, stageCompletion, practiceRequired } from '@/lib/parentCompletion'
 import { activeProcessing, artifactAvatarLabel, artifactAvatarState, localArtifactAvatarState, problemCardState, showSeparateWorkReview, workCoverageComplete } from '@/lib/reviewPresentation'
 import './DayPage.css'
 import { reportUiError } from '@/lib/uiErrors'
@@ -529,7 +529,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
         const doneCount = subjectItems.filter((item) => item.state === 'done').length
         const assignments = assignmentProgress(subject.tasks, (task) => workItems([task]))
         const numberedSheet = subject.tasks.length === 1 && Boolean(subject.tasks[0].problems?.length)
-        const numberedProblemIds = new Set(numberedSheet ? subject.tasks[0].problems!.filter((problem) => !problem.variantId || variantRequired(subject.tasks[0].id, problem.variantId, parentDecisions.events)).map((problem) => problem.id) : [])
+        const numberedProblemIds = new Set(numberedSheet ? subject.tasks[0].problems!.filter((problem) => !problem.variantId || practiceRequired(subject.tasks[0], problem.variantId, parentDecisions.events)).map((problem) => problem.id) : [])
         const numberedDone = subjectItems.filter((item) => numberedProblemIds.has(item.id) && item.state === 'done').length
         const meshOnlyTasks = subject.tasks.filter((task) => !task.problems?.length)
         const subjectDone = assignments.multiple ? assignments.complete : subjectItems.length > 0 && subjectItems.every((item) => item.state === 'done')
@@ -638,7 +638,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
                       const review = reviews.find((item) => item.taskId === problem.id)
                       return review?.status === 'verified' || parentAccepted(review, parentDecisions.events)
                     }).length
-                    const required = variantRequired(task.id, variant.id, parentDecisions.events)
+                    const required = practiceRequired(task, variant.id, parentDecisions.events)
                     return <div className="day-practice-variant-shell" key={variant.id}>
                       <details className="day-practice-variant" open={variantProblems.some((problem) => problem.id === focusTaskId) || undefined}>
                         <summary><strong>{variant.title}</strong><span aria-label={required ? `${completed} из ${variantProblems.length} задач завершено` : 'Вариант по желанию'}>{required && <StatusIcon size={15} status={completed === variantProblems.length ? 'complete' : completed ? 'partial' : 'ready'} />}{required ? `${completed} из ${variantProblems.length}` : 'По желанию'}</span><ChevronDown className="day-practice-variant-chevron" size={17} aria-hidden="true" /></summary>
@@ -667,11 +667,12 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
               if (!task.problems?.length) return taskCard
               /** @see ../docs/modules/school-diary/day-page.md#completed-problem-group */
               const requiredProblems = task.practiceVariants?.length ? task.problems.filter((problem) =>
-                problem.variantId && variantRequired(task.id, problem.variantId, parentDecisions.events)) : task.problems
+                problem.variantId && practiceRequired(task, problem.variantId, parentDecisions.events)) : task.problems
               const problemIds = new Set(requiredProblems.map((problem) => problem.id))
               const localPendingCount = localPhotos.filter((photo) => problemIds.has(photo.taskId) && !uploads.some((upload) => upload.id === `${studentToken}:${photo.id}` && upload.status === 'reviewed')).length
               const sourceCount = new Set(taskLinks.filter((link) => link.sourceType === 'teacher-attachment').map((link) => link.url)).size
-              return <ProblemGroup key={task.id} id={task.id} title={task.practiceVariants?.length ? assignmentTitle(task, assignmentIndex, assignments.total).replace(/^Подготовиться к (?:самостоятельной|контрольной)(?: работе)?:/i, 'Подготовка:') : assignmentTitle(task, assignmentIndex, assignments.total)} subtitle={task.practiceVariants?.length ? `${task.practiceVariants.length} варианта из листа учителя` : undefined} problems={task.problems} requiredProblems={requiredProblems} numberLabel={task.practiceVariants?.length ? `${task.practiceVariants.length} варианта` : undefined} uploads={uploads} reviews={reviews} decisions={parentDecisions.events} localPendingCount={localPendingCount} sourceCount={sourceCount} ready={evidenceReady && parentDecisions.ready} focusTaskId={focusTaskId}>{taskCard}</ProblemGroup>
+              const teacherChoice = task.practiceVariants?.length && task.practiceVariants.every(variant => variant.optionalByTeacher)
+              return <ProblemGroup key={task.id} id={task.id} title={task.practiceVariants?.length ? assignmentTitle(task, assignmentIndex, assignments.total).replace(/^Подготовиться к (?:самостоятельной|контрольной)(?: работе)?:/i, 'Подготовка:') : assignmentTitle(task, assignmentIndex, assignments.total)} subtitle={teacherChoice ? 'Реши сколько получится · по выбору учителя' : task.practiceVariants?.length ? `${task.practiceVariants.length} варианта из листа учителя` : undefined} problems={task.problems} requiredProblems={requiredProblems} numberLabel={teacherChoice ? `${task.problems.length} задач по выбору` : task.practiceVariants?.length ? `${task.practiceVariants.length} варианта` : undefined} uploads={uploads} reviews={reviews} decisions={parentDecisions.events} localPendingCount={localPendingCount} sourceCount={sourceCount} ready={evidenceReady && parentDecisions.ready} focusTaskId={focusTaskId}>{taskCard}</ProblemGroup>
             })}
             {currentPlacements.filter((placement) => placement.subjectId === subject.id && !placement.taskId).map((placement) => {
               const test = tests.find((item) => item.token === placement.token)

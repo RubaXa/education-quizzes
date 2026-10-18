@@ -25,6 +25,12 @@ function check(path, content, history = false) {
   if (history) execFileSync('git', ['-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', '-c', 'core.hooksPath=/dev/null', 'commit', '-qm', 'fixture'], { cwd: root, env: cleanGitEnv() })
   return spawnSync(process.execPath, [join(import.meta.dirname, 'check-privacy.mjs'), ...(history ? ['--history'] : [])], { cwd: root, env: cleanGitEnv(), encoding: 'utf8' })
 }
+it('isolates fixture repositories from an absolute Git hook environment',()=>{
+  const previous=process.env.GIT_DIR
+  process.env.GIT_DIR=join(tmpdir(),'education-not-the-fixture.git')
+  try {expect(check('docs/modules/materials/README.md','# Generic contract',true).status).toBe(0)}
+  finally {if(previous===undefined) delete process.env.GIT_DIR;else process.env.GIT_DIR=previous}
+})
 it('allows generic material specifications while still scanning their content', () => {
   expect(check('docs/modules/materials/README.md', '# Generic contract').status).toBe(0)
   expect(check('docs/modules/materials/README.md', 'Пе' + 'тя').status).toBe(1)

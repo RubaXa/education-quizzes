@@ -6,6 +6,7 @@
 
 | Файл | Спецификация | Зачем существует | Потребитель |
 |---|---|---|---|
+| [docs/decisions/teacher-choice-practice-2026-10-17.md](decisions/teacher-choice-practice-2026-10-17.md) | [Выбор практики](modules/reviews/card-generation-policy.md) | Источник опциональности от учителя и приоритет семейного решения | Оператор; общий селектор; UI gate |
 | [.env.example](../.env.example) | [Порт дневника](modules/school-diary/README.md) | Шаблон локальной конфигурации интеграции | Оператор CLI |
 | [.firebaserc](../.firebaserc) | [Семейная модель](modules/families/README.md) | Идентификатор проекта Firebase для команд | Firebase CLI |
 | [.gitignore](../.gitignore) | [Хранение и приватность](modules/materials/storage-privacy.md) | Исключение секретов и локальных оригиналов | Git; проверка приватности |

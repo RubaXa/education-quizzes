@@ -1,7 +1,7 @@
 import { collection, doc, getDocFromServer, getDocs, onSnapshot, serverTimestamp, writeBatch } from 'firebase/firestore'
 import { db } from './firebase'
 import { currentEducationPersonId } from './personalAccess'
-import type { DayWorkReview } from './dayStore'
+import type { DayTask, DayWorkReview } from './dayStore'
 
 /** A parent's completion decision is separate from the evidence-based review. @see ../../docs/modules/school-diary/day-page.md#parent-acceptance */
 export type ParentCompletionEvent = {
@@ -60,11 +60,17 @@ export function requiredFamilyActions(review: DayWorkReview | undefined, events:
 
 /** Family practice is selected before a photo exists; the teacher assignment stays intact.
  * @see ../../docs/modules/reviews/card-generation-policy.md#practice-variants */
-export function variantRequired(taskId: string, variantId: string, events: ParentCompletionEvent[]): boolean {
+export function variantRequired(taskId: string, variantId: string, events: ParentCompletionEvent[], requiredByDefault = true): boolean {
   const latest = events.filter((event) => event.taskId === taskId && event.variantId === variantId
     && ['variant-required', 'variant-optional'].includes(event.action) && stamp(event.decidedAt))
     .sort((a, b) => stamp(b.decidedAt).localeCompare(stamp(a.decidedAt)) || b.id.localeCompare(a.id))[0]
-  return latest?.action !== 'variant-optional'
+  return latest ? latest.action !== 'variant-optional' : requiredByDefault
+}
+
+/** A teacher's explicit choice comes before the family's later override.
+ * @see ../../docs/modules/reviews/card-generation-policy.md#practice-variants */
+export function practiceRequired(task: Pick<DayTask, 'id' | 'practiceVariants'>, variantId: string, events: ParentCompletionEvent[]): boolean {
+  return variantRequired(task.id, variantId, events, !task.practiceVariants?.find(variant => variant.id === variantId)?.optionalByTeacher)
 }
 
 export async function recordVariantChoice(studentToken: string, taskId: string, variantId: string, required: boolean) {

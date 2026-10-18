@@ -4982,7 +4982,7 @@
   {
     "id": "src/lib/parentCompletion.ts#onSnapshot#3f1bd3d80123",
     "file": "src/lib/parentCompletion.ts",
-    "line": 107,
+    "line": 113,
     "api": "onSnapshot",
     "target": "collection(db, 'dayParentDecisions', studentToken, 'events')",
     "group": "client-day",
@@ -4994,7 +4994,7 @@
   {
     "id": "src/lib/parentCompletion.ts#getDocFromServer#eada5c202adf",
     "file": "src/lib/parentCompletion.ts",
-    "line": 120,
+    "line": 126,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayProgress', studentToken, 'items', review.taskId)",
     "group": "client-day",
@@ -5006,7 +5006,7 @@
   {
     "id": "src/lib/parentCompletion.ts#getDocFromServer#edc004be4e76",
     "file": "src/lib/parentCompletion.ts",
-    "line": 123,
+    "line": 129,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayOwners', studentToken)",
     "group": "client-day",
@@ -5018,7 +5018,7 @@
   {
     "id": "src/lib/parentCompletion.ts#getDocs#4ab891a7985e",
     "file": "src/lib/parentCompletion.ts",
-    "line": 128,
+    "line": 134,
     "api": "getDocs",
     "target": "collection(db, 'families', familyId, 'members')",
     "group": "client-day",
@@ -5030,7 +5030,7 @@
   {
     "id": "src/lib/parentCompletion.ts#getDocFromServer#eada5c202adf-2",
     "file": "src/lib/parentCompletion.ts",
-    "line": 152,
+    "line": 158,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayProgress', studentToken, 'items', review.taskId)",
     "group": "client-day",
@@ -5042,7 +5042,7 @@
   {
     "id": "src/lib/parentCompletion.ts#getDocFromServer#edc004be4e76-2",
     "file": "src/lib/parentCompletion.ts",
-    "line": 156,
+    "line": 162,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayOwners', studentToken)",
     "group": "client-day",
@@ -5054,7 +5054,7 @@
   {
     "id": "src/lib/parentCompletion.ts#getDocs#4ab891a7985e-2",
     "file": "src/lib/parentCompletion.ts",
-    "line": 159,
+    "line": 165,
     "api": "getDocs",
     "target": "collection(db, 'families', familyId, 'members')",
     "group": "client-day",
@@ -5066,7 +5066,7 @@
   {
     "id": "src/lib/parentCompletion.ts#getDocFromServer#7fd571a5ea71",
     "file": "src/lib/parentCompletion.ts",
-    "line": 182,
+    "line": 188,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayTaskGuides', studentToken, 'items', review.taskId)",
     "group": "client-day",
@@ -5078,7 +5078,7 @@
   {
     "id": "src/lib/parentCompletion.ts#getDocFromServer#eada5c202adf-3",
     "file": "src/lib/parentCompletion.ts",
-    "line": 183,
+    "line": 189,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayProgress', studentToken, 'items', review.taskId)",
     "group": "client-day",
