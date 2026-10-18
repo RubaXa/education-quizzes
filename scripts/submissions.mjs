@@ -1,9 +1,11 @@
 /**
  * @see ../docs/product/homework-review.md
  * @see ../docs/modules/reviews/README.md
+ * @see ../docs/decisions/readable-review-prose-2026-10-18.md
  */
 /** @see ../docs/modules/materials/material-clarification.md */
 import { sourceReviewErrors } from '../src/lib/materialRequest.ts'
+import { reviewProseErrors } from '../src/lib/reviewProse.ts'
 import { createHash } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -300,6 +302,8 @@ function validateReviewResult(review, page, guide, { requireChallenge = false } 
   validateAssessmentBasis(review)
   validateRequirementChecks(review)
   validateWorkCoverage(review)
+  const proseErrors = reviewProseErrors(review)
+  if (proseErrors.length) throw new Error(proseErrors.join('\n'))
   if (['needs-fix', 'partial'].includes(review.status)) validateStudentFeedback(review)
   const subject = page.subjects?.find((entry) => entry.tasks?.some((task) => task.id === review.taskId || task.problems?.some((problem) => problem.id === review.taskId)))
   const task = subject?.tasks?.find((entry) => entry.id === review.taskId || entry.problems?.some((problem) => problem.id === review.taskId))

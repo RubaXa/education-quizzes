@@ -3,22 +3,42 @@
     "src/lib/roleDiagnostics.ts": {
       "sha256": "939bdb18ab422332959f99121b7d5e3e90dab7275996b316408cfff5bb81f610",
       "record": "docs/decisions/role-projection-diagnostics-2026-10-18.md",
-      "specs": ["docs/modules/families/access-and-state.md"],
-      "tests": ["src/lib/roleDiagnostics.test.ts", "src/components/LearningRoute.weekend.integration.test.tsx"],
-      "authorization": { "status": "direct-request", "evidence": "Родитель18.10 требует измерить реальный веб-дефект сверху вниз без новых вопросов, альтернативных ссылок и изменения карточек." }
+      "specs": [
+        "docs/modules/families/access-and-state.md"
+      ],
+      "tests": [
+        "src/lib/roleDiagnostics.test.ts",
+        "src/components/LearningRoute.weekend.integration.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель18.10 требует измерить реальный веб-дефект сверху вниз без новых вопросов, альтернативных ссылок и изменения карточек."
+      }
     },
     "scripts/lib/role-diagnostics.mjs": {
       "sha256": "fdbb6932e7ec8aeac636c9ce64b6bb683e3e216172aa46db29006bb2e5762428",
       "record": "docs/decisions/role-projection-diagnostics-2026-10-18.md",
-      "specs": ["docs/modules/families/access-and-state.md"],
-      "tests": ["scripts/lib/role-diagnostics.test.mjs", "scripts/firestore-rules-role-diagnostics.test.mjs"],
-      "authorization": { "status": "direct-request", "evidence": "Родитель18.10 требует стандартные инструменты и измерения для расследования неправильного родительского вида без новых уточнений." }
+      "specs": [
+        "docs/modules/families/access-and-state.md"
+      ],
+      "tests": [
+        "scripts/lib/role-diagnostics.test.mjs",
+        "scripts/firestore-rules-role-diagnostics.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель18.10 требует стандартные инструменты и измерения для расследования неправильного родительского вида без новых уточнений."
+      }
     },
     "scripts/lib/inspect-family-access.mjs": {
       "sha256": "d365beb24158d8247c823bfe02bf3488ae9d0a696ec6a74490cfcd3419a91c5a",
       "record": "docs/decisions/personal-identity-transition-2026-10-18.md",
-      "specs": ["docs/modules/families/access-and-state.md"],
-      "tests": ["scripts/lib/inspect-family-access.test.mjs"],
+      "specs": [
+        "docs/modules/families/access-and-state.md"
+      ],
+      "tests": [
+        "scripts/lib/inspect-family-access.test.mjs"
+      ],
       "authorization": {
         "status": "direct-request",
         "evidence": "Родитель18.10 требует проверить веб-интерфейс сверху вниз, реальные роли и возможные неправильные связи через стандартные инструменты и тесты."
@@ -1738,54 +1758,35 @@
       }
     },
     "scripts/submissions.mjs": {
-      "sha256": "453406a1fd97dfe599628812ebe99ca56db80049ffc8bc3d1c4980684e9360fa",
-      "record": "docs/decisions/material-clarification-2026-10-16.md",
-      "specs": [
-        "docs/modules/materials/material-clarification.md"
-      ],
-      "tests": [
-        "src/lib/materialRequest.test.ts",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/lib/homeworkStatus.test.ts",
-        "src/lib/photoUploadPolicy.test.ts",
-        "src/UiKit.test.tsx",
-        "storage/submission-inbox.test.mjs",
-        "storage/review-projection.test.mjs",
-        "storage/review-readback.test.mjs",
-        "day/build-assignments.test.mjs"
-      ],
-      "authorization": {
-        "status": "direct-request",
-        "evidence": "Родитель 16.10.2026 прямо потребовал вопрос ученику в карточке и ответ фото записей через стандартную загрузку с обработкой следующей синхронизацией."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "64c3cf410a07bc049ebc78071b8208c510f255f04dafc5f19b3da4b478bb9fe4"
-      },
-      "specificationLifecycle": {
-        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
-        "previousSha256": "5f946bf288cc372f70beadff657996494a9e0db957de4219948d93839e69fdcc"
-      }
-    },
-    "src/components/WorkReview.tsx": {
-      "sha256": "35875fa6fad2ea6d83a01cee9af1721d10e1b60c281d4c30833fec8ae3b3c12b",
-      "record": "docs/decisions/mesh-requirement-trace-2026-10-16.md",
+      "sha256": "6bf600125b12eab6670c0c9c7a49da1a3c21d8a7cdaaaa6aaab138c8cc3cacf8",
+      "record": "docs/decisions/readable-review-prose-2026-10-18.md",
       "specs": [
         "docs/modules/reviews/review-criteria-provenance.md",
         "docs/shared/design/README.md"
       ],
       "tests": [
-        "storage/review-requirements.test.mjs",
-        "storage/review-projection.test.mjs",
+        "src/lib/reviewProse.test.ts",
         "src/components/WorkReview.requirements.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 16.10.2026 прямо попросил перепроверить русскую работу и сделать структурный разбор по каждому требованию МЭШ, материалу и фото."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "80800411b8f303db7be935430c25eabbcb275baa70b3bb12fe10a6d3884a5bd9"
+        "evidence": "Родитель 18.10 прислал скриншот с из30объектов и от0до30,если и потребовал исправить нечитаемую типографику обратной связи."
+      }
+    },
+    "src/components/WorkReview.tsx": {
+      "sha256": "eae3ad1f0a3623e208a4dc43485dbc5488550babc5c661d2a79543b899b2de64",
+      "record": "docs/decisions/readable-review-prose-2026-10-18.md",
+      "specs": [
+        "docs/modules/reviews/review-criteria-provenance.md",
+        "docs/shared/design/README.md"
+      ],
+      "tests": [
+        "src/lib/reviewProse.test.ts",
+        "src/components/WorkReview.requirements.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 18.10 прислал скриншот с из30объектов и от0до30,если и потребовал исправить нечитаемую типографику обратной связи."
       }
     },
     "storage/review-projection.mjs": {
@@ -5186,6 +5187,22 @@
       "authorization": {
         "status": "approved-mockup",
         "evidence": "Пользователь18.10.2026 выбрал сводку изменений и связанную историю каждой работы, прямо потребовал убрать кнопку UI Kit, внедрить через Luna, обновить спецификации/тесты и выпустить в main с согласованием сессий."
+      }
+    },
+    "src/lib/reviewProse.ts": {
+      "sha256": "7fe0595ac3913987a792e245a4537fc8364969c0fd159454ccc34aebb0f05900",
+      "record": "docs/decisions/readable-review-prose-2026-10-18.md",
+      "specs": [
+        "docs/modules/reviews/review-criteria-provenance.md",
+        "docs/shared/design/README.md"
+      ],
+      "tests": [
+        "src/lib/reviewProse.test.ts",
+        "src/components/WorkReview.requirements.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 18.10 прислал скриншот с из30объектов и от0до30,если и потребовал исправить нечитаемую типографику обратной связи."
       }
     }
   }

@@ -1367,6 +1367,35 @@
       "path": "docs/decisions/quiz-time-row-2026-10-16.md"
     },
     {
+      "id": "decisions.readable-review-prose-2026-10-18",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-18",
+      "updated": "2026-10-18",
+      "parent": "module.reviews.review-criteria-provenance",
+      "uses": [
+        "shared.design"
+      ],
+      "consumers": [
+        "parent",
+        "student",
+        "review operator"
+      ],
+      "code": [
+        "src/lib/reviewProse.ts",
+        "src/components/WorkReview.tsx",
+        "scripts/submissions.mjs"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/readable-review-prose-2026-10-18.md"
+    },
+    {
       "id": "decisions.requirement-switch-no-label-2026-10-16",
       "status": "reference",
       "implementation": "not-applicable",
@@ -4650,6 +4679,20 @@
       "consumer": "`WorkReview`; `ProblemCard`"
     },
     {
+      "id": "file:src/lib/reviewProse.test.ts",
+      "path": "src/lib/reviewProse.test.ts",
+      "kind": "verification",
+      "purpose": "Склейки, формулы, сохранность значений и литералов",
+      "consumer": "Vitest"
+    },
+    {
+      "id": "file:src/lib/reviewProse.ts",
+      "path": "src/lib/reviewProse.ts",
+      "kind": "artifact",
+      "purpose": "Общие пробелы в авторских пояснениях и проверка новых публикаций",
+      "consumer": "WorkReview; submissions"
+    },
+    {
       "id": "file:src/lib/roleDiagnostics.test.ts",
       "path": "src/lib/roleDiagnostics.test.ts",
       "kind": "verification",
@@ -6029,6 +6072,7 @@
         "src/lib/dayStore.ts",
         "src/lib/parentCompletion.ts",
         "src/lib/reviewPresentation.ts",
+        "src/lib/reviewProse.ts",
         "storage/review-challenge.mjs",
         "storage/review-requirements.mjs"
       ],
@@ -6038,6 +6082,7 @@
         "module.reviews.subject-aware-guidance"
       ],
       "sections": [
+        "readable-feedback",
         "два-прохода-для-письменной-работы",
         "источник-пакет-перед-вердиктом",
         "решение-и-спор",
@@ -8716,6 +8761,11 @@
       "type": "uses"
     },
     {
+      "from": "decisions.readable-review-prose-2026-10-18",
+      "to": "shared.design",
+      "type": "uses"
+    },
+    {
       "from": "decisions.role-projection-diagnostics-2026-10-18",
       "to": "shared.access-and-privacy",
       "type": "uses"
@@ -9962,6 +10012,11 @@
     },
     {
       "from": "file:scripts/submissions.mjs",
+      "to": "decisions.readable-review-prose-2026-10-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/submissions.mjs",
       "to": "module.materials.material-clarification",
       "type": "implements"
     },
@@ -10877,6 +10932,11 @@
     },
     {
       "from": "file:src/components/WorkReview.tsx",
+      "to": "decisions.readable-review-prose-2026-10-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/WorkReview.tsx",
       "to": "module.reviews.review-criteria-provenance",
       "type": "implements"
     },
@@ -11448,6 +11508,16 @@
     {
       "from": "file:src/lib/reviewPresentation.ts",
       "to": "shared.design.statuses",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/reviewProse.ts",
+      "to": "decisions.readable-review-prose-2026-10-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/reviewProse.ts",
+      "to": "module.reviews.review-criteria-provenance",
       "type": "implements"
     },
     {
@@ -12392,7 +12462,17 @@
     },
     {
       "from": "module.reviews.review-criteria-provenance",
+      "to": "decisions.readable-review-prose-2026-10-18",
+      "type": "contains"
+    },
+    {
+      "from": "module.reviews.review-criteria-provenance",
       "to": "file:src/components/WorkReview.requirements.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.reviews.review-criteria-provenance",
+      "to": "file:src/lib/reviewProse.test.ts",
       "type": "verified-by"
     },
     {

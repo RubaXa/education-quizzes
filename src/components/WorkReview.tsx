@@ -7,6 +7,7 @@ import { activeProcessing, elapsedLabel, processingIsStale, reviewHeadline, revi
 import { ArtifactStatusGlyph } from './ArtifactAvatar'
 import StatusIcon from './StatusIcon'
 import RequirementSwitch from './RequirementSwitch'
+import { formatReviewProse } from '@/lib/reviewProse'
 
 const itemLabels = { correct: 'Верно', partial: 'Частично верно', incorrect: 'Неверно', 'cannot-assess': 'Не удалось проверить' }
 
@@ -16,6 +17,7 @@ const itemLabels = { correct: 'Верно', partial: 'Частично верн�
  * @see ../../docs/modules/school-diary/day-page.md#homework-review
  * @see ../../docs/shared/design/statuses.md#components
  * @see ../../docs/modules/reviews/review-criteria-provenance.md
+ * @see ../../docs/decisions/readable-review-prose-2026-10-18.md
  */
 export default function WorkReview({ review, uploads, accepted = false, canDecide = false, onDecision, decisions = [], onRequirementChoice, parent = false }: {
   review?: DayWorkReview; uploads: DayUpload[]; accepted?: boolean; canDecide?: boolean; onDecision?: (action: 'accept' | 'reopen') => Promise<void>;
@@ -78,7 +80,7 @@ export default function WorkReview({ review, uploads, accepted = false, canDecid
     {review?.status && <details className={`day-work-review ${tone}`} open={review.requirementChecks?.length ? true : undefined}>
       <summary>
         <span className="day-work-review-icon"><StatusIcon size={17} status={tone === 'success' ? 'complete' : tone === 'partial' ? 'partial' : tone === 'error' ? 'needs-fix' : 'unknown'} /></span>
-        <span className="day-work-review-title"><b>{pending.length ? 'Предыдущая проверка' : 'Итог разбора'}</b><span>{requiredActions.length ? 'Доработать по решению родителя' : familyDone ? `Готово по семейному плану · ${familyStages?.confirmed} из ${familyStages?.required}` : accepted ? 'Засчитано родителем · ход неполон' : reviewHeadline(review)}</span></span>
+        <span className="day-work-review-title"><b>{pending.length ? 'Предыдущая проверка' : 'Итог разбора'}</b><span>{requiredActions.length ? 'Доработать по решению родителя' : familyDone ? `Готово по семейному плану · ${familyStages?.confirmed} из ${familyStages?.required}` : accepted ? 'Засчитано родителем · ход неполон' : formatReviewProse(reviewHeadline(review))}</span></span>
         <ChevronDown className="day-work-review-chevron" size={18} aria-hidden="true" />
       </summary>
       <div className="day-work-review-body">
@@ -113,9 +115,9 @@ export default function WorkReview({ review, uploads, accepted = false, canDecid
         })}
         {decisionError && <small role="alert">{decisionError}</small>}
         {!accepted && !familyDone && feedback ? <div className="day-work-review-feedback">
-          <p><b>Уже получилось</b><span>{feedback.confirmed}</span></p>
-          <p><b>Проверь здесь</b><span>{feedback.focus}</span></p>
-          <p><b>Один вопрос</b><span>{feedback.question}</span></p>
+          <p><b>Уже получилось</b><span>{formatReviewProse(feedback.confirmed)}</span></p>
+          <p><b>Проверь здесь</b><span>{formatReviewProse(feedback.focus)}</span></p>
+          <p><b>Один вопрос</b><span>{formatReviewProse(feedback.question)}</span></p>
         </div> : !accepted && (review.status === 'needs-fix' || review.status === 'partial')
           ? <p className="day-work-review-unprepared">Работа проверена. Адресный вопрос к этой попытке ещё уточняется.</p>
           : null}
@@ -129,7 +131,7 @@ export default function WorkReview({ review, uploads, accepted = false, canDecid
           <span className="day-work-review-item-icon"><StatusIcon size={14} status={item.status === 'correct' ? 'complete' : item.status === 'incorrect' ? 'incorrect' : item.status === 'partial' ? 'partial' : 'unknown'} /></span>
           <div><strong>{item.label} · {basis?.outcome === 'unresolved' && item.status === 'cannot-assess' ? basis.unresolvedReason === 'missing-evidence' ? 'Не видно на фото' : basis.unresolvedReason === 'criterion-unclear' ? 'Критерий требует уточнения' : 'Итог не установлен' : itemLabels[item.status]}</strong>{item.observed && <small><b>В работе:</b> {item.observed}</small>}</div>
         </li>)}</ol>}
-        {!!review.history?.length && <details className="day-review-history"><summary>Предыдущие попытки · {review.history.length}</summary><ol>{[...review.history].reverse().map((entry, index) => <li key={index}><strong>{entry.studentFeedback?.title ?? (entry.status === 'verified' ? 'Верно' : entry.status === 'partial' ? 'Частично' : entry.status === 'needs-fix' ? 'Нужна правка' : 'Не удалось оценить')}</strong>{entry.studentFeedback?.focus && <small>{entry.studentFeedback.focus}</small>}</li>)}</ol></details>}
+        {!!review.history?.length && <details className="day-review-history"><summary>Предыдущие попытки · {review.history.length}</summary><ol>{[...review.history].reverse().map((entry, index) => <li key={index}><strong>{formatReviewProse(entry.studentFeedback?.title ?? (entry.status === 'verified' ? 'Верно' : entry.status === 'partial' ? 'Частично' : entry.status === 'needs-fix' ? 'Нужна правка' : 'Не удалось оценить'))}</strong>{entry.studentFeedback?.focus && <small>{formatReviewProse(entry.studentFeedback.focus)}</small>}</li>)}</ol></details>}
         {onDecision && <div className="day-review-parent-decision">
           <button type="button" disabled={!canDecide || saving} onClick={() => void decide(accepted ? 'reopen' : 'accept')}>{saving ? 'Сохраняем…' : accepted ? 'Вернуть задачу в работу' : 'Засчитать задачу'}</button>
           {!canDecide && <small>{pending.length ? 'Сначала дождитесь проверки нового фото.' : 'Для решения откройте личную ссылку родителя.'}</small>}
