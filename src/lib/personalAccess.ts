@@ -1,5 +1,6 @@
 
 /**
+ * @see ../../docs/decisions/local-first-role-recovery-2026-10-18.md
  * @see ../../docs/shared/access-and-privacy.md
  * @see ../../docs/decisions/personal-identity-transition-2026-10-18.md
  */
@@ -39,6 +40,29 @@ const lastDashboardRouteKey = 'education-last-dashboard-route-v1'
 const localContextMaxAgeMs = 30 * 60_000
 type PersonalContext = { session: PersonalSession; profile: PersonalProfile }
 type CachedPersonalContext = PersonalContext & { savedAt: number }
+const contextObservers = new Set<() => void>()
+function changedInAnotherTab(event: StorageEvent) {
+  if (event.key !== null && event.key !== localContextKey) return
+  // localStorage is shared, but module memory and mounted routes are not.
+  // Invalidate pending old reads before notifying the visible consumers.
+  sessionRevision++
+  activeSession = null
+  startupContext.clear()
+  contextObservers.forEach((changed) => changed())
+}
+
+/** Reconcile an open tab with an already saved login/logout in a sibling tab.
+ * No remote request, promotion of role, or new authorization is performed here.
+ * @see ../../docs/modules/families/access-and-state.md#authenticated-learning-routes
+ */
+export function watchPersonalContextChanges(changed: () => void): () => void {
+  if (!contextObservers.size) window.addEventListener('storage', changedInAnotherTab)
+  contextObservers.add(changed)
+  return () => {
+    contextObservers.delete(changed)
+    if (!contextObservers.size) window.removeEventListener('storage', changedInAnotherTab)
+  }
+}
 
 /** A device-scoped last known view. Firestore rules remain the authority for every remote read/write.
  * @see ../../docs/plans/local-first-release-plan-2026-10-12.md#personal-startup
@@ -62,8 +86,10 @@ export function readCachedPersonalContext(): CachedPersonalContext | null {
 }
 
 export function rememberPersonalContext(context: PersonalContext): void {
+  const saved = readCachedPersonalContext()?.session
   if (context.profile.personId !== context.session.personId
     || pendingRedemption && pendingRedemption.linkToken !== context.session.linkToken
+    || saved && (saved.personId !== context.session.personId || saved.deviceUid !== context.session.deviceUid || saved.linkToken !== context.session.linkToken)
     || activeSession && (activeSession.personId !== context.session.personId
       || activeSession.deviceUid !== context.session.deviceUid || activeSession.linkToken !== context.session.linkToken)) {
     throw new Error('Личная сессия изменилась. Повторите вход.')
@@ -119,7 +145,9 @@ export function rememberPersonalDashboardRoute(route: string): void {
 }
 
 export function currentEducationPersonId(): string {
-  if (!activeSession || getAuth().currentUser?.uid !== activeSession.deviceUid) {
+  const saved = readCachedPersonalContext()?.session
+  if (!activeSession || getAuth().currentUser?.uid !== activeSession.deviceUid
+    || saved && (saved.personId !== activeSession.personId || saved.deviceUid !== activeSession.deviceUid || saved.linkToken !== activeSession.linkToken)) {
     throw new Error('Откройте личную ссылку Education.')
   }
   return activeSession.personId
@@ -257,12 +285,12 @@ export async function restorePersonalSession(): Promise<PersonalSession | null> 
   if (pendingRedemption) await pendingRedemption.promise
   const deviceUid = auth.currentUser?.uid
   if (!deviceUid) return null
-  if (activeSession?.deviceUid === deviceUid) return activeSession
   const cached = readCachedPersonalContext()
   if (cached?.session.deviceUid === deviceUid) {
     activeSession = cached.session
     return activeSession
   }
+  if (activeSession?.deviceUid === deviceUid) return activeSession
   const expectedRevision = sessionRevision
   const snapshot = await getDoc(doc(db, 'deviceSessions', deviceUid))
   if (expectedRevision !== sessionRevision) return null

@@ -1,10 +1,11 @@
-/** @see ../../docs/modules/families/access-and-state.md#authenticated-learning-routes
+/** @see ../../docs/decisions/local-first-role-recovery-2026-10-18.md
+ *  @see ../../docs/modules/families/access-and-state.md#authenticated-learning-routes
  *  @see ../../docs/decisions/personal-entry-role-confirmation-2026-10-18.md */
 import { useEffect, useState } from 'react'
 import { doc, onSnapshot } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
-import { clearPersonalSession, loadPersonalProfile, rememberPersonalContext, rememberPersonalDashboardRoute } from '@/lib/personalAccess'
-import { LearningAccessError, learningHash, loadLearningAccess } from '@/lib/learningRoute'
+import { clearPersonalSession, loadPersonalProfile, readCachedPersonalContext, rememberPersonalContext, rememberPersonalDashboardRoute, watchPersonalContextChanges } from '@/lib/personalAccess'
+import { LearningAccessError, learningHash, loadLearningAccess, readCachedLearningAccess } from '@/lib/learningRoute'
 import type { LearningAccess, LearningMode } from '@/lib/learningRoute'
 import { reportUiError } from '@/lib/uiErrors'
 import { configureRoleDiagnostics } from '@/lib/roleDiagnostics'
@@ -12,12 +13,21 @@ import DayPage from '@/DayPage'
 import DayDashboard from '@/DayDashboard'
 
 export default function LearningRoute({ mode, token, headerReturnTarget }: { mode: LearningMode; token: string; headerReturnTarget?: HTMLDivElement | null }) {
-  const [access, setAccess] = useState<LearningAccess>()
+  const [access, setAccess] = useState<LearningAccess | undefined>(() => readCachedLearningAccess(mode, token))
   const [error, setError] = useState('')
+  const [contextRevision, setContextRevision] = useState(0)
+  const [contextAvailable, setContextAvailable] = useState(true)
+  useEffect(() => watchPersonalContextChanges(() => {
+    const next = readCachedLearningAccess(mode, token)
+    setAccess(next)
+    setContextAvailable(Boolean(readCachedPersonalContext()))
+    setContextRevision((value) => value + 1)
+  }), [mode, token])
   useEffect(() => {
     let active = true
-    setAccess(undefined)
+    setAccess(readCachedLearningAccess(mode, token))
     setError('')
+    if (!contextAvailable) return
     const stops: Array<() => void> = []
     let revoked = false
     let stopDiagnostics = () => {}
@@ -31,6 +41,7 @@ export default function LearningRoute({ mode, token, headerReturnTarget }: { mod
     }
     void loadLearningAccess(mode, token).then((result) => {
       if (!active) return
+      setAccess(result)
       const { session, child } = result
       let current = result
       let refreshing = false
@@ -39,7 +50,7 @@ export default function LearningRoute({ mode, token, headerReturnTarget }: { mod
       const ready = (part: string) => { confirmed.add(part); if (active && !revoked && !refreshing && confirmed.size === 3) setAccess(current) }
       const remoteError = (cause: { code?: string }) => {
         if (cause.code === 'permission-denied') revoke()
-        else { revoked = true; setAccess(undefined); setError(reportUiError(cause, 'Проверка личного доступа')) }
+        else { reportUiError(cause, 'Фоновая проверка личного доступа') }
       }
       stops.push(onSnapshot(doc(db, 'accessLinks', session.linkToken), { includeMetadataChanges: true }, (grant) => {
         if (!grant.metadata.fromCache && (!grant.exists() || grant.data()?.active !== true || grant.data()?.personId !== session.personId)) revoke()
@@ -79,11 +90,18 @@ export default function LearningRoute({ mode, token, headerReturnTarget }: { mod
       const canonical = learningHash(mode, result.canonicalToken)
       if (location.hash !== canonical) history.replaceState(history.state, '', `${location.pathname}${location.search}${canonical}`)
       if (mode === 'days') rememberPersonalDashboardRoute(canonical)
-    }).catch((cause) => { if (active) setError(cause instanceof LearningAccessError ? cause.message : reportUiError(cause, 'Личный учебный экран')) })
+    }).catch((cause) => {
+      if (!active) return
+      const code = (cause as { code?: string })?.code
+      const transient = ['unavailable', 'deadline-exceeded', 'auth/network-request-failed'].includes(code ?? '')
+      if (transient && readCachedLearningAccess(mode, token)) { reportUiError(cause, 'Фоновая сверка учебного экрана'); return }
+      setAccess(undefined)
+      setError(cause instanceof LearningAccessError ? cause.message : reportUiError(cause, 'Личный учебный экран'))
+    })
     return () => { active = false; stopDiagnostics(); stops.forEach((stop) => stop()) }
-  }, [mode, token])
+  }, [mode, token, contextRevision, contextAvailable])
   if (error) return <div role="alert">{error} <a href="#/">На главную</a></div>
-  if (!access) return <p>Проверяем личный доступ к учебному экрану…</p>
+  if (!access) return null
   return mode === 'days' ? <DayDashboard token={access.token} parent={access.parent} />
     : <DayPage token={access.token} parent={access.parent} headerReturnTarget={headerReturnTarget ?? null} />
 }

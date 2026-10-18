@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/local-first-role-recovery-2026-10-18.md */
 import { useEffect, useRef, useState } from 'react'
 import { getAuth } from 'firebase/auth'
 import { doc, onSnapshot } from 'firebase/firestore'
@@ -5,7 +6,7 @@ import { Check, ClipboardPaste, Copy, KeyRound } from 'lucide-react'
 import { Button } from './ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card'
 import { Input } from './ui/input'
-import { clearPersonalSession, loadPersonalProfile, personalEntryUrl, readCachedPersonalContext, redeemPersonalLink, rememberPersonalContext, restorePersonalContext, secretFromPastedPersonalLink } from '../lib/personalAccess'
+import { clearPersonalSession, loadPersonalProfile, personalEntryUrl, readCachedPersonalContext, redeemPersonalLink, rememberPersonalContext, restorePersonalContext, secretFromPastedPersonalLink, watchPersonalContextChanges } from '../lib/personalAccess'
 import type { PersonalProfile, PersonalSession } from '../lib/personalAccess'
 import { db } from '../lib/firebase'
 import DayDashboard from '../DayDashboard'
@@ -47,20 +48,35 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
   const [link, setLink] = useState('')
   const [profile, setProfile] = useState<PersonalProfile | null>(initialContext?.profile ?? null)
   const [session, setSession] = useState<PersonalSession | null>(initialContext?.session ?? null)
-  // A cached profile is a candidate, never authority for mounting role-specific actions.
+  // Render this device's last saved view immediately; validate remotely in background.
   const [verifiedSession, setVerifiedSession] = useState<PersonalSession | null>(null)
-  const [verifiedProfile, setVerifiedProfile] = useState<PersonalProfile | null>(null)
+  const [invalidProfile, setInvalidProfile] = useState<PersonalProfile | null>(null)
   const [busy, setBusy] = useState(!initialContext)
   const [error, setError] = useState('')
   const [online, setOnline] = useState(navigator.onLine)
   const [retry, setRetry] = useState(0)
   const [retryable, setRetryable] = useState(false)
+  const [contextAvailable, setContextAvailable] = useState(true)
   const automaticRetries = useRef(0)
   const pendingLink = useRef<string | null>(null)
+  const initialLinkToRedeem = useRef(initialLink)
   const [copied, setCopied] = useState(false)
   const [selectedChild, setSelectedChild] = useState<string | null>(null)
   const [manualEntry, setManualEntry] = useState(false)
   const manualInput = useRef<HTMLInputElement>(null)
+
+  useEffect(() => watchPersonalContextChanges(() => {
+    initialLinkToRedeem.current = undefined
+    const cached = readCachedPersonalContext()
+    const uid = getAuth().currentUser?.uid
+    const next = cached && (!uid || uid === cached.session.deviceUid) ? cached : null
+    setSession(next?.session ?? null)
+    setProfile(next?.profile ?? null)
+    setContextAvailable(Boolean(next))
+    setInvalidProfile(null)
+    setError('')
+    setRetry((value) => value + 1)
+  }), [])
 
   useEffect(() => {
     const reconnect = () => { setOnline(true); if (!profile) setRetry((value) => value + 1) }
@@ -74,6 +90,9 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
   }, [profile])
 
   useEffect(() => {
+    // Removal can be the first half of a sibling tab's login. Do not restore
+    // its previous server binding while that replacement is still in flight.
+    if (!contextAvailable) { setBusy(false); return }
     let alive = true
     let retryTimer: number | undefined
     const open = async () => {
@@ -81,13 +100,15 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
       setError('')
       setRetryable(false)
       try {
+        const loginLink = initialLinkToRedeem.current
         // The bearer secret is removed from browser history as soon as we have captured it.
-        if (initialLink) history.replaceState(null, '', `${location.pathname}${location.search}#/`)
-        const restored = initialLink ? await redeemPersonalLink(initialLink) : null
-        const context = initialLink ? restored ? { session: restored, profile: await loadPersonalProfile(restored) } : null : await restorePersonalContext()
+        if (loginLink) history.replaceState(null, '', `${location.pathname}${location.search}#/`)
+        const restored = loginLink ? await redeemPersonalLink(loginLink) : null
+        const context = loginLink ? restored ? { session: restored, profile: await loadPersonalProfile(restored) } : null : await restorePersonalContext()
         if (!alive) return
         if (context) {
-          if (initialLink) rememberPersonalContext(context)
+          if (loginLink) rememberPersonalContext(context)
+          initialLinkToRedeem.current = undefined
           setSession((previous) => previous?.linkToken === context.session.linkToken && previous.deviceUid === context.session.deviceUid ? previous : context.session)
           setProfile((previous) => JSON.stringify(previous) === JSON.stringify(context.profile) ? previous : context.profile)
           automaticRetries.current = 0
@@ -114,47 +135,41 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
     }
     void open()
     return () => { alive = false; if (retryTimer) window.clearTimeout(retryTimer) }
-  }, [initialLink, retry, initialContext])
+  }, [initialLink, retry, initialContext, contextAvailable])
 
   useEffect(() => {
     if (!session) return
     let active = true
     let invalid = false
     const stops: Array<() => void> = []
-    const confirmed = new Set<string>()
     setVerifiedSession(null)
     const revoked = () => {
       if (!active || invalid) return
       invalid = true
       clearPersonalSession()
       setVerifiedSession(null)
-      setVerifiedProfile(null)
+      setInvalidProfile(null)
       setSession(null)
       setProfile(null)
       setRetryable(false)
       setError('Личная ссылка отозвана. Откройте новую ссылку, чтобы снова войти. Ваши работы сохранены.')
     }
-    const ready = (part: string) => {
-      confirmed.add(part)
-      if (active && !invalid && confirmed.size === 2) setVerifiedSession(session)
-    }
     const failed = (cause: { code?: string }) => {
       if (!active || invalid) return
       if (cause.code === 'permission-denied') revoked()
-      else { setVerifiedSession(null); setError(accessError(cause)); setRetryable(true) }
+      else { setError(accessError(cause)); setRetryable(true) }
     }
     void getAuth().authStateReady().then(() => {
       if (!active) return
       if (getAuth().currentUser?.uid !== session.deviceUid) { revoked(); return }
+      setVerifiedSession(session)
       stops.push(onSnapshot(doc(db, 'accessLinks', session.linkToken), { includeMetadataChanges: true }, (grant) => {
         if (grant.metadata.fromCache || !active || invalid) return
         if (!grant.exists() || grant.data()?.active !== true || grant.data()?.personId !== session.personId) revoked()
-        else ready('grant')
       }, failed))
       stops.push(onSnapshot(doc(db, 'deviceSessions', session.deviceUid), { includeMetadataChanges: true }, (device) => {
         if (device.metadata.fromCache || !active || invalid) return
         if (!device.exists() || device.data()?.linkToken !== session.linkToken) revoked()
-        else ready('device')
       }, failed))
     }).catch(failed)
     return () => { active = false; stops.forEach((stop) => stop()) }
@@ -165,8 +180,6 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
     let active = true
     let refreshing = false
     const familyIds = [...new Set(profile.children.map((child) => child.familyId))]
-    const confirmed = new Set<string>()
-    setVerifiedProfile(familyIds.length ? null : profile)
     const diagnosticStops = new Map<string, () => void>()
     const stops = familyIds.map((familyId) => onSnapshot(doc(db, 'families', familyId, 'members', session.personId), { includeMetadataChanges: true }, (member) => {
       if (member.metadata.fromCache || !active) return
@@ -179,12 +192,9 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
         member.data()?.role !== previous[0]?.role ||
         JSON.stringify(ids) !== JSON.stringify(previous.map((child) => child.childId).sort())
       if (!changed) {
-        confirmed.add(familyId)
-        if (!refreshing && confirmed.size === familyIds.length) setVerifiedProfile(profile)
         return
       }
-      confirmed.delete(familyId)
-      setVerifiedProfile(null)
+      setInvalidProfile(profile)
       if (refreshing) return
       refreshing = true
       // One reconciliation on a confirmed mismatch, not a periodic full-profile read.
@@ -199,8 +209,11 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
         .finally(() => { refreshing = false })
     }, (cause) => {
       if (!active) return
-      confirmed.delete(familyId)
-      setVerifiedProfile(null)
+      if ((cause as { code?: string }).code === 'permission-denied') {
+        clearPersonalSession()
+        setSession(null)
+        setProfile(null)
+      }
       setError(accessError(cause))
       setRetryable(true)
     }))
@@ -228,6 +241,7 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
   }, [session])
 
   const openLink = async (value: string) => {
+    initialLinkToRedeem.current = undefined
     pendingLink.current = value
     setBusy(true)
     setError('')
@@ -238,6 +252,7 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
       rememberPersonalContext({ session: redeemed, profile: loaded })
       setProfile(loaded)
       setSession(redeemed)
+      setContextAvailable(true)
       pendingLink.current = null
       automaticRetries.current = 0
       setLink('')
@@ -307,12 +322,7 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
     }
   }
 
-  if (profile && (verifiedSession !== session || verifiedProfile !== profile)) return <div className="personal-entry-loading">
-    <p role="status">Проверяем личный доступ и загружаем кабинет…</p>
-    {!online && <p className="personal-offline">Нет сети. Роль и доступ подтвердятся после подключения.</p>}
-    {error && <p role="alert" className="personal-login-error">{error}</p>}
-    {retryable && <Button type="button" variant="outline" disabled={busy} onClick={retryConnection}>Повторить подключение</Button>}
-  </div>
+  if (profile && invalidProfile === profile) return error ? <p role="alert" className="personal-login-error">{error}</p> : null
 
   if (profile) {
     const parent = profile.children.some((child) => child.role === 'parent')
@@ -333,7 +343,7 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
     </div>
   }
 
-  if (busy && !error) return <div className="personal-entry-loading" role="status">Проверяем личный доступ и загружаем кабинет…</div>
+  if (busy && !error) return null
 
   return <Card className="personal-login mx-auto max-w-2xl">
     <CardHeader>

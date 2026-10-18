@@ -1,7 +1,9 @@
-/** @see ../../docs/modules/families/access-and-state.md#authenticated-learning-routes */
+/** @see ../../docs/decisions/local-first-role-recovery-2026-10-18.md
+ * @see ../../docs/modules/families/access-and-state.md#authenticated-learning-routes */
 import { doc, getDoc } from 'firebase/firestore'
+import { getAuth } from 'firebase/auth'
 import { db } from './firebase'
-import { loadPersonalProfile, rememberPersonalContext, restorePersonalContext } from './personalAccess'
+import { loadPersonalProfile, readCachedPersonalContext, rememberPersonalContext, restorePersonalContext } from './personalAccess'
 import type { PersonalChild, PersonalProfile, PersonalSession } from './personalAccess'
 
 export type LearningMode = 'day' | 'days'
@@ -32,6 +34,24 @@ export function dayTarget(profile: PersonalProfile, identity: LearningPageIdenti
 }
 
 export function learningHash(mode: LearningMode, token: string) { return `#/${mode}/${token}` }
+
+/** The last saved role selects the first local frame, never a role encoded in a URL.
+ * Unknown historic-day identities still need their one exact identity read.
+ */
+export function readCachedLearningAccess(mode: LearningMode, token: string): LearningAccess | undefined {
+  const context = readCachedPersonalContext()
+  const uid = getAuth().currentUser?.uid
+  if (!context || uid && uid !== context.session.deviceUid) return
+  if (mode === 'days') {
+    const target = dashboardTarget(context.profile, token)
+    return target ? { ...target, session: context.session } : undefined
+  }
+  const matches = context.profile.children.filter((child) => child.dayToken === token || Object.values(child.dayTokens ?? {}).includes(token))
+  if (matches.length !== 1) return
+  const child = matches[0]
+  if (!child.dayTokens?.student || !child.dayTokens?.[child.role]) return
+  return { ...dayTarget(context.profile, { familyId: child.familyId, childId: child.childId, viewTokens: child.dayTokens }), session: context.session }
+}
 
 /** Resolve aliases to the same resource, then use this child's membership, never a URL role. */
 export async function loadLearningAccess(mode: LearningMode, token: string): Promise<LearningAccess> {
