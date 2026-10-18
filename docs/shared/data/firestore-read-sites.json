@@ -4658,74 +4658,74 @@
   {
     "id": "src/components/LearningRoute.tsx#onSnapshot#f4a41a412098",
     "file": "src/components/LearningRoute.tsx",
-    "line": 35,
+    "line": 41,
     "api": "onSnapshot",
     "target": "doc(db, 'accessLinks', session.linkToken)",
     "group": "client-access",
     "assessment": "justified",
-    "policy": "scoped-access-revocation",
-    "refresh": "while-this-learning-screen-is-mounted",
-    "note": "One of three exact access guards moved from App; checks grant/device/member before role rendering and on revocation. No collection scan."
+    "policy": "server-confirmed-role-and-revocation",
+    "refresh": "while-this-personal-or-learning-screen-is-mounted",
+    "note": "Existing scoped grant/device/member listeners; metadata-only server confirmation gates role rendering. Warm start has no full-profile reads unless membership changes; no polling. See personal-entry-role-confirmation-2026-10-18."
   },
   {
     "id": "src/components/LearningRoute.tsx#onSnapshot#7c88d25fd3b3",
     "file": "src/components/LearningRoute.tsx",
-    "line": 39,
+    "line": 45,
     "api": "onSnapshot",
     "target": "doc(db, 'deviceSessions', session.deviceUid)",
     "group": "client-access",
     "assessment": "justified",
-    "policy": "scoped-access-revocation",
-    "refresh": "while-this-learning-screen-is-mounted",
-    "note": "One of three exact access guards moved from App; checks grant/device/member before role rendering and on revocation. No collection scan."
+    "policy": "server-confirmed-role-and-revocation",
+    "refresh": "while-this-personal-or-learning-screen-is-mounted",
+    "note": "Existing scoped grant/device/member listeners; metadata-only server confirmation gates role rendering. Warm start has no full-profile reads unless membership changes; no polling. See personal-entry-role-confirmation-2026-10-18."
   },
   {
     "id": "src/components/LearningRoute.tsx#onSnapshot#ae32e1bad017",
     "file": "src/components/LearningRoute.tsx",
-    "line": 43,
+    "line": 49,
     "api": "onSnapshot",
     "target": "doc(db, 'families', child.familyId, 'members', session.personId)",
     "group": "client-access",
     "assessment": "justified",
-    "policy": "scoped-access-revocation",
-    "refresh": "while-this-learning-screen-is-mounted",
-    "note": "One of three exact access guards moved from App; checks grant/device/member before role rendering and on revocation. No collection scan."
+    "policy": "server-confirmed-role-and-revocation",
+    "refresh": "while-this-personal-or-learning-screen-is-mounted",
+    "note": "Existing scoped grant/device/member listeners; metadata-only server confirmation gates role rendering. Warm start has no full-profile reads unless membership changes; no polling. See personal-entry-role-confirmation-2026-10-18."
   },
   {
     "id": "src/components/PersonalEntry.tsx#onSnapshot#277a67fd7173",
     "file": "src/components/PersonalEntry.tsx",
-    "line": 136,
+    "line": 148,
     "api": "onSnapshot",
     "target": "doc(db, 'accessLinks', session.linkToken)",
     "group": "client-access",
-    "assessment": "conditional",
-    "policy": "security-listener",
-    "refresh": "while session active",
-    "note": "Отзыв доступа требует живого сигнала; проверить дубли между корнем приложения и экраном входа и снять подписку после закрытия."
+    "assessment": "justified",
+    "policy": "server-confirmed-role-and-revocation",
+    "refresh": "while-this-personal-or-learning-screen-is-mounted",
+    "note": "Existing scoped grant/device/member listeners; metadata-only server confirmation gates role rendering. Warm start has no full-profile reads unless membership changes; no polling. See personal-entry-role-confirmation-2026-10-18."
   },
   {
     "id": "src/components/PersonalEntry.tsx#onSnapshot#e2a2ec860d83",
     "file": "src/components/PersonalEntry.tsx",
-    "line": 143,
+    "line": 153,
     "api": "onSnapshot",
     "target": "doc(db, 'deviceSessions', session.deviceUid)",
     "group": "client-access",
-    "assessment": "conditional",
-    "policy": "security-listener",
-    "refresh": "while session active",
-    "note": "Отзыв доступа требует живого сигнала; проверить дубли между корнем приложения и экраном входа и снять подписку после закрытия."
+    "assessment": "justified",
+    "policy": "server-confirmed-role-and-revocation",
+    "refresh": "while-this-personal-or-learning-screen-is-mounted",
+    "note": "Existing scoped grant/device/member listeners; metadata-only server confirmation gates role rendering. Warm start has no full-profile reads unless membership changes; no polling. See personal-entry-role-confirmation-2026-10-18."
   },
   {
     "id": "src/components/PersonalEntry.tsx#onSnapshot#80b6a5d81625",
     "file": "src/components/PersonalEntry.tsx",
-    "line": 154,
+    "line": 169,
     "api": "onSnapshot",
     "target": "doc(db, 'families', familyId, 'members', session.personId)",
     "group": "client-access",
-    "assessment": "conditional",
-    "policy": "security-listener",
-    "refresh": "while session active",
-    "note": "Отзыв доступа требует живого сигнала; проверить дубли между корнем приложения и экраном входа и снять подписку после закрытия."
+    "assessment": "justified",
+    "policy": "server-confirmed-role-and-revocation",
+    "refresh": "while-this-personal-or-learning-screen-is-mounted",
+    "note": "Existing scoped grant/device/member listeners; metadata-only server confirmation gates role rendering. Warm start has no full-profile reads unless membership changes; no polling. See personal-entry-role-confirmation-2026-10-18."
   },
   {
     "id": "src/lib/dayDashboardStore.ts#onSnapshot#f50728f05c6a",
