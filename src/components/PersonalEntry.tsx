@@ -68,8 +68,8 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
   const manualInput = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    if (profile) traceProfile(profile, session?.deviceUid, initialContext?.profile === profile ? 'local' : 'profile')
-    traceAccess('role.selected', { source: 'entry', role: profile ? profile.children.some((child) => child.role === 'parent') ? 'parent' : 'student' : 'none', reason: profile ? 'ready' : 'waiting' })
+    if (profile) traceProfile(profile, session?.deviceUid, initialContext?.profile === profile ? 'local' : 'profile', 'PersonalEntry#profileEffect')
+    traceAccess('role.selected', { atFunction: 'PersonalEntry#profileEffect', previousState: 'resolved', state: 'selected', source: 'entry', role: profile ? profile.children.some((child) => child.role === 'parent') ? 'parent' : 'student' : 'none', reason: profile ? 'ready' : 'waiting' })
   }, [profile, session, initialContext])
 
   useEffect(() => watchPersonalContextChanges(() => {
@@ -172,7 +172,7 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
       })
     }
     const failed = (cause: { code?: string }) => {
-      traceAccess('access.failed', { source: 'entry', code: accessTraceError(cause) })
+      traceAccess('access.failed', { atFunction: 'PersonalEntry#accessSnapshot', previousState: 'checking', state: 'failed', source: 'entry', code: accessTraceError(cause) })
       if (!active || invalid) return
       if (cause.code === 'permission-denied') revoked()
       else { setError(accessError(cause)); setRetryable(true) }
@@ -182,12 +182,14 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
       if (getAuth().currentUser?.uid !== session.deviceUid) { revoked(); return }
       setVerifiedSession(session)
       stops.push(onSnapshot(doc(db, 'accessLinks', session.linkToken), { includeMetadataChanges: true }, (grant) => {
-        traceAccessContext('access.resolved', { source: 'grant-server', fromCache: grant.metadata.fromCache, matches: grant.exists() && grant.data()?.active === true && grant.data()?.personId === session.personId }, session)
+        const matches = grant.exists() && grant.data()?.active === true && grant.data()?.personId === session.personId
+        traceAccessContext('access.resolved', { atFunction: 'PersonalEntry#accessSnapshot', previousState: 'checking', state: grant.metadata.fromCache ? 'cached' : matches ? 'resolved' : 'changed', source: 'grant-server', fromCache: grant.metadata.fromCache, matches }, session)
         if (grant.metadata.fromCache || !active || invalid) return
         if (!grant.exists() || grant.data()?.active !== true || grant.data()?.personId !== session.personId) revoked()
       }, failed))
       stops.push(onSnapshot(doc(db, 'deviceSessions', session.deviceUid), { includeMetadataChanges: true }, (device) => {
-        traceAccessContext('access.resolved', { source: 'device-server', fromCache: device.metadata.fromCache, matches: device.exists() && device.data()?.linkToken === session.linkToken }, session)
+        const matches = device.exists() && device.data()?.linkToken === session.linkToken
+        traceAccessContext('access.resolved', { atFunction: 'PersonalEntry#accessSnapshot', previousState: 'checking', state: device.metadata.fromCache ? 'cached' : matches ? 'resolved' : 'changed', source: 'device-server', fromCache: device.metadata.fromCache, matches }, session)
         if (device.metadata.fromCache || !active || invalid) return
         if (!device.exists() || device.data()?.linkToken !== session.linkToken) revoked()
       }, failed))

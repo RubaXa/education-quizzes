@@ -11,7 +11,7 @@ import { createRequestSingleFlight } from './requestSingleFlight'
 import { clearCachedLessonStatuses } from './dayDashboardLessonCache'
 import { clearCachedDashboardView } from './dayDashboardViewCache'
 import { clearCachedInbox } from './inboxCache'
-import { traceAccess, traceAccessContext, traceProfile } from './browserAccessTrace'
+import { accessTraceError, traceAccess, traceAccessContext, traceProfile } from './browserAccessTrace'
 
 /** @see ../../docs/modules/families/README.md#link-login */
 export type PersonalSession = { personId: string; deviceUid: string; linkToken: string }
@@ -51,7 +51,7 @@ function changedInAnotherTab(event: StorageEvent) {
   sessionRevision++
   activeSession = null
   startupContext.clear()
-  traceAccess('identity.changed', { source: 'storage', reason: 'context-changed' })
+  traceAccess('identity.changed', { atFunction: 'changedInAnotherTab', previousState: 'resolved', state: 'changed', source: 'storage', reason: 'context-changed' })
   contextObservers.forEach((changed) => changed())
 }
 
@@ -99,7 +99,7 @@ export function rememberPersonalContext(context: PersonalContext): void {
     throw new Error('Личная сессия изменилась. Повторите вход.')
   }
   activeSession = context.session
-  traceProfile(context.profile, context.session.deviceUid)
+  traceProfile(context.profile, context.session.deviceUid, 'profile', 'rememberPersonalContext')
   try { localStorage.setItem(localContextKey, JSON.stringify({ ...context, savedAt: Date.now() })) }
   catch { /* The current session still works without durable storage. */ }
 }
@@ -167,11 +167,11 @@ export function clearPersonalSession(expected?: PersonalSession): boolean {
     sessionRevision++
     activeSession = null
     startupContext.clear()
-    traceAccess('identity.changed', { source: 'storage', reason: 'stale-revocation-ignored' })
+    traceAccess('identity.changed', { atFunction: 'clearPersonalSession', previousState: 'checking', state: 'changed', source: 'storage', reason: 'stale-revocation-ignored' })
     contextObservers.forEach((changed) => changed())
     return false
   }
-  traceAccess('identity.changed', { source: 'memory', reason: 'context-cleared' })
+  traceAccess('identity.changed', { atFunction: 'clearPersonalSession', previousState: 'resolved', state: 'cleared', source: 'memory', reason: 'context-cleared' })
   sessionRevision++
   activeSession = null
   startupContext.clear()
@@ -204,7 +204,7 @@ export async function recoverPersonalContext(expected: PersonalSession): Promise
     if (device.metadata?.fromCache) throw Object.assign(new Error('Не удалось сверить текущий вход устройства.'), { code: 'unavailable' })
     const linkToken = device.data()?.linkToken
     if (!device.exists() || typeof linkToken !== 'string' || !secretPattern.test(linkToken) || linkToken === expected.linkToken) return false
-    traceAccess('identity.changed', { source: 'device-server', reason: 'device-binding-changed' })
+    traceAccess('identity.changed', { atFunction: 'recoverPersonalContext', previousState: 'checking', state: 'changed', source: 'device-server', reason: 'device-binding-changed' })
     const grant = await getDoc(doc(db, 'accessLinks', linkToken))
     if (revision !== sessionRevision || pendingRedemption) return true
     if (grant.metadata?.fromCache) throw Object.assign(new Error('Не удалось подтвердить действующий вход.'), { code: 'unavailable' })
@@ -221,7 +221,7 @@ export async function recoverPersonalContext(expected: PersonalSession): Promise
     forgetCachedPersonalContext()
     activeSession = null
     rememberPersonalContext({ session, profile })
-    traceAccessContext('identity.resolved', { source: 'device-server', reason: 'device-binding-recovered' }, session)
+    traceAccessContext('identity.resolved', { atFunction: 'recoverPersonalContext', previousState: 'changed', state: 'resolved', source: 'device-server', reason: 'device-binding-recovered' }, session)
     contextObservers.forEach((changed) => changed())
     return true
   })().catch((cause: unknown) => {
@@ -275,6 +275,7 @@ async function authUid(): Promise<string> {
 }
 
 async function sessionFromGrant(linkToken: string, deviceUid: string, expectedRevision = sessionRevision): Promise<PersonalSession> {
+  traceAccessContext('identity.resolved', { atFunction: 'sessionFromGrant', previousState: 'idle', state: 'checking', source: 'grant-server' }, { deviceUid, linkToken })
   const grant = await getDoc(doc(db, 'accessLinks', linkToken))
   if (expectedRevision !== sessionRevision) throw new Error('Личная сессия изменилась. Повторите вход.')
   const personId = grant.data()?.personId
@@ -282,7 +283,7 @@ async function sessionFromGrant(linkToken: string, deviceUid: string, expectedRe
     throw new Error('Личная ссылка закрыта. Попросите новую ссылку.')
   }
   activeSession = { personId, deviceUid, linkToken }
-  traceAccessContext('identity.resolved', { source: 'grant-server', reason: 'grant-valid' }, activeSession)
+  traceAccessContext('identity.resolved', { atFunction: 'sessionFromGrant', previousState: 'checking', state: 'resolved', source: 'grant-server', reason: 'grant-valid' }, activeSession)
   return activeSession
 }
 
@@ -293,7 +294,7 @@ export function personalEntryUrl(session: PersonalSession): string {
 
 /** A link is a bearer credential. Its grant is checked again by Firestore rules on every read. */
 export async function redeemPersonalLink(value: string): Promise<PersonalSession> {
-  traceAccess('identity.changed', { source: 'entry', reason: 'redemption-start' })
+  traceAccess('identity.changed', { atFunction: 'redeemPersonalLink', previousState: 'idle', state: 'redeeming', source: 'entry', reason: 'redemption-start' })
   const linkToken = secretFromPersonalLink(value)
   if (pendingRedemption?.linkToken === linkToken) return pendingRedemption.promise
   sessionRevision++
@@ -317,7 +318,14 @@ export async function redeemPersonalLink(value: string): Promise<PersonalSession
     return sessionFromGrant(linkToken, deviceUid, expectedRevision)
   })()
   pendingRedemption = { linkToken, promise }
-  try { return await promise }
+  try {
+    const session = await promise
+    traceAccessContext('identity.resolved', { atFunction: 'redeemPersonalLink', previousState: 'redeeming', state: 'resolved', source: 'grant-server', reason: 'grant-valid' }, session)
+    return session
+  } catch (cause) {
+    traceAccess('access.failed', { atFunction: 'redeemPersonalLink', previousState: 'redeeming', state: 'failed', source: 'entry', code: accessTraceError(cause) })
+    throw cause
+  }
   finally { if (pendingRedemption?.promise === promise) pendingRedemption = null }
 }
 
@@ -326,19 +334,19 @@ export async function redeemPersonalLink(value: string): Promise<PersonalSession
  * @see ../../docs/plans/local-first-release-plan-2026-10-12.md
  */
 export async function restorePersonalContext(): Promise<{ session: PersonalSession; profile: PersonalProfile } | null> {
-  traceAccess('identity.resolved', { source: 'memory', reason: 'restore-start', role: 'pending' })
+  traceAccess('identity.resolved', { atFunction: 'restorePersonalContext', previousState: 'idle', state: 'restoring', source: 'memory', reason: 'restore-start', role: 'pending' })
   const auth = getAuth()
   await auth.authStateReady()
   // Entry, calendar and inbox may restore simultaneously during link login.
   // Join that identity transition before consulting either memory or disk.
   if (pendingRedemption) await pendingRedemption.promise
   const uid = auth.currentUser?.uid
-  if (!uid) { traceAccess('identity.resolved', { source: 'memory', role: 'none', reason: 'cache-miss' }); return null }
+  if (!uid) { traceAccess('identity.resolved', { atFunction: 'restorePersonalContext', previousState: 'restoring', state: 'empty', source: 'memory', role: 'none', reason: 'cache-miss' }); return null }
   const cached = readCachedPersonalContext()
-  if (cached && cached.session.deviceUid !== uid) { traceAccess('identity.resolved', { source: 'local', reason: 'uid-mismatch' }); clearPersonalSession() }
+  if (cached && cached.session.deviceUid !== uid) { traceAccess('identity.resolved', { atFunction: 'restorePersonalContext', previousState: 'restoring', state: 'changed', source: 'local', reason: 'uid-mismatch' }); clearPersonalSession() }
   else if (cached && Date.now() - cached.savedAt < localContextMaxAgeMs) {
     activeSession = cached.session
-    traceProfile(cached.profile, cached.session.deviceUid, 'local')
+    traceProfile(cached.profile, cached.session.deviceUid, 'local', 'restorePersonalContext')
     return { session: cached.session, profile: cached.profile }
   }
   return startupContext.get(uid, async () => {
@@ -351,6 +359,7 @@ export async function restorePersonalContext(): Promise<{ session: PersonalSessi
       rememberPersonalContext({ session, profile })
       return { session, profile }
     } catch (cause) {
+      traceAccess('access.failed', { atFunction: 'restorePersonalContext', previousState: 'loading', state: 'failed', source: 'profile', code: accessTraceError(cause) })
       // An expired browser cache can reference the previous person. Its profile
       // is denied before LearningRoute has mounted any access listener.
       if (cause && typeof cause === 'object' && 'code' in cause && cause.code === 'permission-denied'
@@ -365,6 +374,7 @@ export async function restorePersonalContext(): Promise<{ session: PersonalSessi
 
 /** @see ../../docs/modules/families/README.md#authorization */
 export async function restorePersonalSession(): Promise<PersonalSession | null> {
+  traceAccess('identity.resolved', { atFunction: 'restorePersonalSession', previousState: 'idle', state: 'restoring', source: 'memory', reason: 'restore-start' })
   const auth = getAuth()
   await auth.authStateReady()
   if (pendingRedemption) await pendingRedemption.promise
@@ -373,6 +383,7 @@ export async function restorePersonalSession(): Promise<PersonalSession | null> 
   const cached = readCachedPersonalContext()
   if (cached?.session.deviceUid === deviceUid) {
     activeSession = cached.session
+    traceAccessContext('identity.resolved', { atFunction: 'restorePersonalSession', previousState: 'restoring', state: 'cached', source: 'local', reason: 'cache-hit' }, activeSession)
     return activeSession
   }
   if (activeSession?.deviceUid === deviceUid) return activeSession
@@ -397,35 +408,45 @@ export async function dayHelpSessionRole(owner?: { familyId?: string; childId?: 
 
 /** @see ../../docs/modules/families/README.md#collections */
 export async function loadPersonalProfile(session: PersonalSession): Promise<PersonalProfile> {
-  const person = await getDoc(doc(db, 'users', session.personId))
-  if (!person.exists()) throw new Error('Профиль ещё не опубликован.')
-  const displayName = person.data().displayName
-  if (typeof displayName !== 'string') throw new Error('У профиля нет имени.')
-  const families = await getDocs(collection(db, 'users', session.personId, 'families'))
-  const children: PersonalChild[] = []
-  for (const family of families.docs) {
-    const familyId = family.id
-    const member = await getDoc(doc(db, 'families', familyId, 'members', session.personId))
-    const role = member.data()?.role
-    const childIds = member.data()?.childIds
-    if (!member.exists() || member.data()?.active !== true ||
-      (role !== 'parent' && role !== 'student') || !Array.isArray(childIds)) continue
-    for (const childId of childIds) {
-      if (typeof childId !== 'string') continue
-      const [child, shortcut] = await Promise.all([
-        getDoc(doc(db, 'families', familyId, 'children', childId)),
-        getDoc(doc(db, 'users', session.personId, 'families', familyId, 'shortcuts', childId)),
-      ])
-      if (!child.exists()) continue
-      children.push({
-        familyId, childId, role,
-        displayName: typeof child.data().displayName === 'string' ? child.data().displayName : 'Ученик',
-        dashboardToken: typeof shortcut.data()?.dashboardToken === 'string' ? shortcut.data()?.dashboardToken : undefined,
-        dayToken: typeof shortcut.data()?.dayToken === 'string' ? shortcut.data()?.dayToken : undefined,
-        ...(shortcut.data()?.dashboardTokens ? { dashboardTokens: shortcut.data()?.dashboardTokens } : {}),
-        ...(shortcut.data()?.dayTokens ? { dayTokens: shortcut.data()?.dayTokens } : {}),
-      })
+  traceAccessContext('identity.resolved', { atFunction: 'loadPersonalProfile', previousState: 'idle', state: 'loading', source: 'profile' }, session)
+  try {
+    const person = await getDoc(doc(db, 'users', session.personId))
+    if (!person.exists()) throw new Error('Профиль ещё не опубликован.')
+    const displayName = person.data().displayName
+    if (typeof displayName !== 'string') throw new Error('У профиля нет имени.')
+    const families = await getDocs(collection(db, 'users', session.personId, 'families'))
+    const children: PersonalChild[] = []
+    for (const family of families.docs) {
+      const familyId = family.id
+      const member = await getDoc(doc(db, 'families', familyId, 'members', session.personId))
+      const role = member.data()?.role
+      const childIds = member.data()?.childIds
+      traceAccessContext('access.resolved', { atFunction: 'loadPersonalProfile', previousState: 'loading', state: 'resolved', source: member.metadata?.fromCache === false ? 'member-server' : 'member-cache', fromCache: member.metadata?.fromCache, role, active: member.data()?.active === true,
+        count: Array.isArray(childIds) ? childIds.length : 0, reason: member.exists() && member.data()?.active === true ? 'member-valid' : 'member-invalid' }, { ...session, familyId })
+      if (!member.exists() || member.data()?.active !== true ||
+        (role !== 'parent' && role !== 'student') || !Array.isArray(childIds)) continue
+      for (const childId of childIds) {
+        if (typeof childId !== 'string') continue
+        const [child, shortcut] = await Promise.all([
+          getDoc(doc(db, 'families', familyId, 'children', childId)),
+          getDoc(doc(db, 'users', session.personId, 'families', familyId, 'shortcuts', childId)),
+        ])
+        if (!child.exists()) continue
+        children.push({
+          familyId, childId, role,
+          displayName: typeof child.data().displayName === 'string' ? child.data().displayName : 'Ученик',
+          dashboardToken: typeof shortcut.data()?.dashboardToken === 'string' ? shortcut.data()?.dashboardToken : undefined,
+          dayToken: typeof shortcut.data()?.dayToken === 'string' ? shortcut.data()?.dayToken : undefined,
+          ...(shortcut.data()?.dashboardTokens ? { dashboardTokens: shortcut.data()?.dashboardTokens } : {}),
+          ...(shortcut.data()?.dayTokens ? { dayTokens: shortcut.data()?.dayTokens } : {}),
+        })
+      }
     }
+    const profile = { personId: session.personId, displayName, children }
+    traceProfile(profile, session.deviceUid, 'profile', 'loadPersonalProfile')
+    return profile
+  } catch (cause) {
+    traceAccess('access.failed', { atFunction: 'loadPersonalProfile', previousState: 'loading', state: 'failed', source: 'profile', code: accessTraceError(cause) })
+    throw cause
   }
-  return { personId: session.personId, displayName, children }
 }

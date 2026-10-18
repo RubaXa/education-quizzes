@@ -1,8 +1,12 @@
 # Карта файлов, контрактов и потребителей
 
 | Файл | Спецификация | Назначение | Потребитель |
-| [docs/decisions/device-binding-recovery-2026-10-18.md](decisions/device-binding-recovery-2026-10-18.md) | [Доступ и состояние](modules/families/access-and-state.md) | Восстановление действующего server binding вместо потери входа при старой локальной личности | Разработчик; выпуск |
 |---|---|---|---|
+| [docs/decisions/device-binding-recovery-2026-10-18.md](decisions/device-binding-recovery-2026-10-18.md) | [Доступ и состояние](modules/families/access-and-state.md) | Восстановление действующего server binding вместо потери входа при старой локальной личности | Разработчик; выпуск |
+| [docs/decisions/ldd-copy-button-2026-10-19.md](decisions/ldd-copy-button-2026-10-19.md) | [Локальная LDD-трасса](modules/families/browser-access-trace.md) | Прямое уточнение простого LDD и одной кнопки копирования | Разработчик; выпуск |
+| [src/components/DiagnosticsCopyButton.tsx](../src/components/DiagnosticsCopyButton.tsx) | [Локальная LDD-трасса](modules/families/browser-access-trace.md) | Копировать безопасный локальный журнал одним кликом | Общая шапка; web/PWA |
+| [src/components/DiagnosticsCopyButton.test.tsx](../src/components/DiagnosticsCopyButton.test.tsx) | [Локальная LDD-трасса](modules/families/browser-access-trace.md) | Один клик, успех, ошибка и сохранение иконки | Vitest |
+| [src/lib/browserAccessTrace.clipboard.test.ts](../src/lib/browserAccessTrace.clipboard.test.ts) | [Локальная LDD-трасса](modules/families/browser-access-trace.md) | Жест ClipboardItem, delayed hashes и исключение секретов | Vitest |
 | [docs/decisions/session-owned-revocation-2026-10-18.md](decisions/session-owned-revocation-2026-10-18.md) | [Доступ и состояние](modules/families/access-and-state.md) | Воспроизведённое стирание нового входа старым callback и матрица обеих ролей | Разработчик; выпуск |
 | [public/access-snapshot.js](../public/access-snapshot.js) | [Локальная LDD-трасса](modules/families/browser-access-trace.md) | Read-only collector старой вкладки без обновления её приложения | Штатный diagnostics:browser snippet |
 | [docs/modules/families/browser-access-trace.md](modules/families/browser-access-trace.md) | [Локальная LDD-трасса](modules/families/browser-access-trace.md) | Контракт наблюдения фактической браузерной ветки без новых прав | Разработчик; оператор |

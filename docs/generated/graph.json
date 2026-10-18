@@ -468,6 +468,32 @@
       "path": "docs/decisions/grade-average-ui-kit-2026-10-18.md"
     },
     {
+      "id": "decision.ldd-copy-button-2026-10-19",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-19",
+      "updated": "2026-10-19",
+      "consumers": [
+        "parent",
+        "student",
+        "Education developer"
+      ],
+      "code": [],
+      "parent": "module.families",
+      "uses": [
+        "module.families.browser-access-trace",
+        "shared.design"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/ldd-copy-button-2026-10-19.md"
+    },
+    {
       "id": "decision.mesh-calendar-date-scopes-2026-10-18",
       "status": "accepted",
       "implementation": "not-applicable",
@@ -3744,6 +3770,20 @@
       "consumer": "`DayPage`; `DayDashboard`"
     },
     {
+      "id": "file:src/components/DiagnosticsCopyButton.test.tsx",
+      "path": "src/components/DiagnosticsCopyButton.test.tsx",
+      "kind": "verification",
+      "purpose": "Один клик, успех, ошибка и сохранение иконки",
+      "consumer": "Vitest"
+    },
+    {
+      "id": "file:src/components/DiagnosticsCopyButton.tsx",
+      "path": "src/components/DiagnosticsCopyButton.tsx",
+      "kind": "artifact",
+      "purpose": "Копировать безопасный локальный журнал одним кликом",
+      "consumer": "Общая шапка; web/PWA"
+    },
+    {
       "id": "file:src/components/EducationImage.css",
       "path": "src/components/EducationImage.css",
       "kind": "artifact",
@@ -4463,6 +4503,13 @@
       "kind": "artifact",
       "purpose": "Выбор одного проверенного манифеста с откатом к отдельным страницам v1",
       "consumer": "`FamilyLibrary.tsx`"
+    },
+    {
+      "id": "file:src/lib/browserAccessTrace.clipboard.test.ts",
+      "path": "src/lib/browserAccessTrace.clipboard.test.ts",
+      "kind": "verification",
+      "purpose": "Жест ClipboardItem, delayed hashes и исключение секретов",
+      "consumer": "Vitest"
     },
     {
       "id": "file:src/lib/browserAccessTrace.test.ts",
@@ -5852,7 +5899,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-18",
-      "updated": "2026-10-18",
+      "updated": "2026-10-19",
       "consumers": [
         "web-app access flow",
         "family access operator"
@@ -5860,7 +5907,8 @@
       "code": [
         "src/lib/browserAccessTrace.ts",
         "scripts/browser-access-trace.mjs",
-        "public/access-snapshot.js"
+        "public/access-snapshot.js",
+        "src/components/DiagnosticsCopyButton.tsx"
       ],
       "parent": "module.families",
       "uses": [
@@ -8937,6 +8985,16 @@
       "type": "uses"
     },
     {
+      "from": "decision.ldd-copy-button-2026-10-19",
+      "to": "module.families.browser-access-trace",
+      "type": "uses"
+    },
+    {
+      "from": "decision.ldd-copy-button-2026-10-19",
+      "to": "shared.design",
+      "type": "uses"
+    },
+    {
       "from": "decision.mesh-calendar-date-scopes-2026-10-18",
       "to": "module.school-diary",
       "type": "uses"
@@ -10704,6 +10762,11 @@
     {
       "from": "file:src/components/DataCompatibilityNotice.tsx",
       "to": "shared.data.firestore",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/DiagnosticsCopyButton.tsx",
+      "to": "module.families.browser-access-trace",
       "type": "implements"
     },
     {
@@ -12733,6 +12796,16 @@
     },
     {
       "from": "module.families.browser-access-trace",
+      "to": "file:src/components/DiagnosticsCopyButton.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.families.browser-access-trace",
+      "to": "file:src/lib/browserAccessTrace.clipboard.test.ts",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.families.browser-access-trace",
       "to": "file:src/lib/browserAccessTrace.test.ts",
       "type": "verified-by"
     },
@@ -12754,6 +12827,11 @@
     {
       "from": "module.families",
       "to": "decision.device-binding-recovery-2026-10-18",
+      "type": "contains"
+    },
+    {
+      "from": "module.families",
+      "to": "decision.ldd-copy-button-2026-10-19",
       "type": "contains"
     },
     {

@@ -1,9 +1,31 @@
 // @vitest-environment jsdom
 /** @see ../../docs/modules/families/browser-access-trace.md */
 import { beforeEach, expect, it, vi } from 'vitest'
-import { createAccessTrace, inspectAccessTrace } from './browserAccessTrace'
+import { createAccessTrace, formatAccessLog, inspectAccessTrace } from './browserAccessTrace'
 
 beforeEach(() => sessionStorage.clear())
+it('prints the function, state transition and decision details without draft scope APIs', () => {
+  const journal = createAccessTrace({ now: () => 1000, runId: 'run' })
+  journal.record('access.resolved', { atFunction: 'configureRoleDiagnostics', previousState: 'checking', state: 'resolved', role: 'student', previousRole: 'student', source: 'member-server', fromCache: false })
+  const row = journal.snapshot().events[0]
+  expect(formatAccessLog(row)).toBe('[configureRoleDiagnostics] [checking → resolved] Use role from membership document')
+  expect(row.detail).toMatchObject({ role: 'student', previousRole: 'student', fromCache: false })
+})
+it('rejects arbitrary function names and state strings before logging', () => {
+  const journal = createAccessTrace({ now: () => 1000, runId: 'run' })
+  journal.record('access.failed', { atFunction: 'SECRET_LINK', previousState: 'private-token', state: 'student-work-text', code: 'permission-denied' })
+  expect(JSON.stringify(journal.snapshot())).not.toMatch(/SECRET_LINK|private-token|student-work-text/)
+})
+it('marks a truncated local journal incomplete and preserves its dropped count on reload', () => {
+  const journal = createAccessTrace({ storage: sessionStorage, now: () => 1000, runId: 'run' })
+  for (let index = 0; index < 215; index++) journal.record('view.rendered', { role: 'student' })
+  expect(journal.coverage()).toEqual({ complete: false, droppedRecords: 15 })
+  expect(createAccessTrace({ storage: sessionStorage, now: () => 1001, runId: 'next' }).coverage()).toEqual({ complete: false, droppedRecords: 15 })
+})
+it('does not claim complete coverage for a legacy journal without a truncation counter', () => {
+  sessionStorage.setItem('education-access-trace-v1', JSON.stringify({ schemaVersion: 1, events: [{ runId: 'old', sequence: 1, at: 999, event: 'app.loaded', detail: {} }] }))
+  expect(createAccessTrace({ storage: sessionStorage, now: () => 1000, runId: 'new' }).coverage()).toMatchObject({ complete: false, coverageUnknown: true })
+})
 it('records ordered decisions, persists across reload and exports no arbitrary payload or credentials', () => {
   const journal = createAccessTrace({ storage: sessionStorage, now: () => 1000, runId: 'run-one' })
   journal.record('identity.resolved', { role: 'parent', source: 'local', reason: 'cache-hit', linkToken: 'SECRET', personId: 'PERSON' } as any)
@@ -35,6 +57,13 @@ it('distinguishes local student identity from a proven parent projection failure
   const next = createAccessTrace({ storage: sessionStorage, now: () => 1001, runId: 'next' })
   next.record('view.rendered', { role: 'student' })
   expect(inspectAccessTrace(next.snapshot()).findings).not.toContain('parent-context-student-view')
+})
+it('does not let a later local cache hit erase authoritative membership evidence', () => {
+  const journal = createAccessTrace({ now: () => 1000, runId: 'run' })
+  journal.record('access.resolved', { role: 'student', source: 'member-server', fromCache: false })
+  journal.record('identity.resolved', { role: 'student', source: 'local' })
+  journal.record('view.rendered', { role: 'student', source: 'card' })
+  expect(inspectAccessTrace(journal.snapshot()).findings).toContain('student-membership-student-view')
 })
 it('does not claim a role contradiction for different children or overwrite one card with another', () => {
   const journal = createAccessTrace({ now: () => 1000, runId: 'run' })

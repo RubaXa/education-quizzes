@@ -9,7 +9,9 @@ export const browserTraceSnippet = "copy(await import('/education-quizzes/access
 export function summarizeReceipt(input) {
   if (!input || input.schemaVersion !== 1 || !Array.isArray(input.events)) throw new Error('Expected Education access trace schemaVersion 1')
   const baseline = input.baseline ?? {}
-  return { ...inspectAccessTrace(input), baseline: {
+  return { ...inspectAccessTrace(input), complete: input.complete === true,
+    droppedRecords: Number.isSafeInteger(input.droppedRecords) && input.droppedRecords >= 0 ? input.droppedRecords : null,
+    coverageUnknown: input.coverageUnknown === true || input.complete === undefined, baseline: {
     roles: Array.isArray(baseline.roles) ? baseline.roles.filter(role => ['parent','student'].includes(role)) : [],
     bundles: Array.isArray(baseline.bundles) ? baseline.bundles.filter(file => typeof file === 'string' && /^index-[A-Za-z0-9_-]{1,64}\.js$/.test(file)) : [],
     parentGuide: baseline.parentGuide === true, studentUpload: baseline.studentUpload === true,

@@ -1,5 +1,12 @@
 {
   "files": {
+    "src/components/DiagnosticsCopyButton.tsx": {
+      "sha256": "fa9a176a43016f28fe76ca4bf046d4f83a6d1f0d7bf1f144c0e942dc1152db93",
+      "record": "docs/decisions/ldd-copy-button-2026-10-19.md",
+      "specs": ["docs/modules/families/browser-access-trace.md", "docs/shared/design/README.md"],
+      "tests": ["src/components/DiagnosticsCopyButton.test.tsx", "src/lib/browserAccessTrace.clipboard.test.ts"],
+      "authorization": {"status": "direct-request", "evidence": "Пользователь19.10 прямо требует кнопку 🐞, которая одним кликом копирует логи без Console."}
+    },
     "src/main.tsx": {
       "sha256": "f92237bdeb6038ad1e7eb563c7cf8ddec78cbe3d523bc99b58f20b03cefaa71e",
       "record": "docs/decisions/browser-role-ldd-2026-10-18.md",
@@ -8,22 +15,22 @@
       "authorization": {"status": "direct-request", "evidence": "Пользователь18.10 прямо требует внедрить LDD и собрать трассу проблемной вкладки, сохраняя существующий интерфейс."}
     },
     "src/lib/browserAccessTrace.ts": {
-      "sha256": "35927a83c93b105c820c1a44e6093c3f44ab90d6a08c65cf135d3828e6a4c1e2",
-      "record": "docs/decisions/device-binding-recovery-2026-10-18.md",
+      "sha256": "95164bad5bd302b4de2c5cf446128efe13d8d94e96a0fa61c0adfd20716873f8",
+      "record": "docs/decisions/ldd-copy-button-2026-10-19.md",
       "specs": ["docs/modules/families/browser-access-trace.md"],
       "tests": ["src/lib/browserAccessTrace.test.ts", "src/components/PersonalEntry.role.integration.test.tsx"],
       "authorization": {"status": "direct-request", "evidence": "Пользователь18.10 прямо требует внедрить LDD и собрать трассу проблемной вкладки, сохраняя существующий интерфейс."}
     },
     "scripts/browser-access-trace.mjs": {
-      "sha256": "96b747365fd94c277cef7156712fa108a984f153c668482ef2b527771c5727c8",
-      "record": "docs/decisions/browser-role-ldd-2026-10-18.md",
+      "sha256": "acffa97d218ddec21027c347d02d0cbefdb4423dd8b9e4308a6397f4f788d3cd",
+      "record": "docs/decisions/ldd-copy-button-2026-10-19.md",
       "specs": ["docs/modules/families/browser-access-trace.md"],
       "tests": ["scripts/browser-access-trace.test.mjs"],
       "authorization": {"status": "direct-request", "evidence": "Пользователь18.10 прямо требует внедрить LDD и собрать трассу проблемной вкладки, сохраняя существующий интерфейс."}
     },
     "src/lib/roleDiagnostics.ts": {
-      "sha256": "b0e31815b915ebaa1bec004fe53db78f76ac00c721291a372705d511e9999d1d",
-      "record": "docs/decisions/browser-role-ldd-2026-10-18.md",
+      "sha256": "b11fab6c636aa31086d3c24ae97c08a12da7e6fe2ffa59235bf39f2ab101a56e",
+      "record": "docs/decisions/ldd-copy-button-2026-10-19.md",
       "specs": [
         "docs/modules/families/access-and-state.md"
       ],
@@ -83,8 +90,8 @@
       }
     },
     "src/components/LearningRoute.tsx": {
-      "sha256": "d5901c2ec41db8b3d648a019a89469581955eeeb5edbba01d1df03396271d455",
-      "record": "docs/decisions/device-binding-recovery-2026-10-18.md",
+      "sha256": "7ede217a955b040c69b5b3a54b447c26d462622311a08df12ea4c076ca650f3f",
+      "record": "docs/decisions/ldd-copy-button-2026-10-19.md",
       "specs": [
         "docs/modules/families/access-and-state.md",
         "docs/shared/access-and-privacy.md"
@@ -179,8 +186,8 @@
       }
     },
     "src/App.css": {
-      "sha256": "1f893aa6c50cdcd31a336b75a328611fbeba5b4235b5aa25499620fa920eb2f9",
-      "record": "docs/decisions/compact-results-ui-kit-2026-10-16.md",
+      "sha256": "b635511bad005ab696e0862438827fcd9447cbca6f2a2c7a5ee66e629e64e783",
+      "record": "docs/decisions/ldd-copy-button-2026-10-19.md",
       "specs": [
         "docs/modules/assessments/result-presentation-proposal.md",
         "docs/modules/assessments/quiz-chain-proposal.md",
@@ -1009,8 +1016,8 @@
       }
     },
     "src/App.tsx": {
-      "sha256": "031b474814ae6c8a85e4497a371136039d02588618c45ee186fcbdc67759473a",
-      "record": "docs/decisions/browser-role-ldd-2026-10-18.md",
+      "sha256": "439929089ae2bf49e84567966aef6989425fa558fbfa3c8557c017836c997fc6",
+      "record": "docs/decisions/ldd-copy-button-2026-10-19.md",
       "specs": [
         "docs/modules/families/access-and-state.md",
         "docs/modules/assessments/result-presentation-proposal.md",
@@ -3215,8 +3222,8 @@
       }
     },
     "src/components/PersonalEntry.tsx": {
-      "sha256": "1ec477cdfeaefaa8d68d5139e46c9305b03074ba069f0396bd60aaaf5fb890f2",
-      "record": "docs/decisions/device-binding-recovery-2026-10-18.md",
+      "sha256": "8f74ca72cc20fb688acf1b37c85680701b4ebd611249cdfb8af94b127ea44fa2",
+      "record": "docs/decisions/ldd-copy-button-2026-10-19.md",
       "specs": [
         "docs/modules/families/access-and-state.md",
         "docs/shared/access-and-privacy.md"
@@ -3769,8 +3776,8 @@
       }
     },
     "src/lib/personalAccess.ts": {
-      "sha256": "134fbf530a4f56aec746da7670db401e534a95ef70b28cb89c313c534312789f",
-      "record": "docs/decisions/device-binding-recovery-2026-10-18.md",
+      "sha256": "dc4576ad3e154550483fadd8ad1f4e85b9737c8cb018663302ee7585d69c97f5",
+      "record": "docs/decisions/ldd-copy-button-2026-10-19.md",
       "specs": [
         "docs/modules/families/access-and-state.md",
         "docs/shared/access-and-privacy.md"

@@ -30,6 +30,7 @@ import LearningRoute from './components/LearningRoute'
 import { PwaConnectionNotice, PwaInstallButton, PwaUpdateNotice } from './components/PwaControls'
 import { PersonalEntry } from './components/PersonalEntry'
 import NotificationBell from './components/NotificationBell'
+import { DiagnosticsCopyButton } from './components/DiagnosticsCopyButton'
 import ResultCard from './components/QuizResultCard'
 import { ResultBadge, ResultMeter, ResultPoints } from './components/ui/result'
 import UiKit from './UiKit'
@@ -108,7 +109,7 @@ function Shell({ children, dayRoute = false, quizBack, onHeaderTarget }: { child
         <a className="brand" href="#/" aria-label="Education — на главную"><span className="brand-mark">✳</span><span className="brand-long">Учусь и проверяю</span><span className="brand-short">Education</span></a>
         <div id="day-header-return" ref={onHeaderTarget} />
         {quizBack && <a className="quiz-back-link" href={quizBack}><ArrowLeft size={17} aria-hidden="true" /> Назад</a>}
-        <div className="notification-bell-slot"><NotificationBell routeKey={location.hash} /></div>
+        <div className="notification-bell-slot"><DiagnosticsCopyButton /><NotificationBell routeKey={location.hash} /></div>
         <div className="header-actions"><span className="header-note">Маленькие шаги. Большой прогресс.</span><PwaInstallButton /></div>
       </header>
       <main className="page-wrap">{children}</main>
@@ -753,7 +754,7 @@ function App() {
     return routeFromHash()
   })
   const [headerReturnTarget, setHeaderReturnTarget] = useState<HTMLDivElement | null>(null)
-  useEffect(() => { traceAccess('route.selected', { source: 'app', route: route.kind }) }, [route.kind])
+  useEffect(() => { traceAccess('route.selected', { atFunction: 'App#routeEffect', previousState: 'resolved', state: 'selected', source: 'app', route: route.kind }) }, [route.kind])
   const [testReturn, setTestReturn] = useState(() => quizReturnHash(history.state?.educationQuizReturnHash))
   useEffect(() => {
     let previousRoute = routeFromHash()

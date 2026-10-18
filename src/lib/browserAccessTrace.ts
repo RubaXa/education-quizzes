@@ -7,19 +7,32 @@ const sources = ['local', 'memory', 'device-server', 'grant-server', 'member-ser
 const reasons = ['cache-hit', 'cache-miss', 'uid-mismatch', 'context-changed', 'stale-revocation-ignored', 'device-binding-changed', 'device-binding-recovered', 'context-saved', 'context-cleared', 'grant-valid', 'grant-invalid', 'device-valid', 'device-invalid', 'member-valid', 'member-invalid', 'role-mismatch', 'profile-loaded', 'role-projection', 'restore-start', 'redemption-start', 'restore-failed', 'waiting', 'ready']
 const routes = ['home', 'enter', 'day', 'day-parent', 'days', 'days-parent', 'test', 'preview', 'my', 'review', 'dashboard', 'connect', 'ui-kit', 'unknown']
 const errorCodes = ['permission-denied', 'unavailable', 'deadline-exceeded', 'auth/network-request-failed', 'unauthenticated', 'unknown']
-export type AccessDetail = { role?: string; previousRole?: string; source?: string; reason?: string; route?: string; code?: string; scope?: string; person?: string; device?: string; hasGuide?: boolean; active?: boolean; fromCache?: boolean; matches?: boolean; count?: number; durationMs?: number; bundle?: string }
+const functions = ['initializeAccessTrace', 'traceProfile', 'restorePersonalContext', 'restorePersonalSession', 'redeemPersonalLink', 'sessionFromGrant', 'loadPersonalProfile', 'recoverPersonalContext', 'rememberPersonalContext', 'clearPersonalSession', 'changedInAnotherTab', 'PersonalEntry#profileEffect', 'PersonalEntry#accessSnapshot', 'LearningRoute#resolve', 'configureRoleDiagnostics', 'reportRoleProjection', 'App#routeEffect'] as const
+const states = ['idle', 'restoring', 'cached', 'checking', 'redeeming', 'loading', 'resolved', 'selected', 'rendered', 'changed', 'cleared', 'failed', 'empty'] as const
+export type AccessDetail = { role?: string; previousRole?: string; source?: string; reason?: string; route?: string; code?: string; scope?: string; person?: string; device?: string; grant?: string; hasGuide?: boolean; studentUpload?: boolean; active?: boolean; fromCache?: boolean; matches?: boolean; count?: number; durationMs?: number; bundle?: string; atFunction?: string; previousState?: string; state?: string }
 type TraceEvent = { runId: string; sequence: number; at: number; event: EventName; detail: AccessDetail }
 export type AccessTrace = { schemaVersion: 1; events: TraceEvent[] }
+export function formatAccessLog(row: TraceEvent): string {
+  const detail = safeDetail(row.detail)
+  const explanations: Record<EventName, string> = {
+    'app.loaded': 'Load application bundle', 'identity.resolved': detail.source === 'local' ? 'Use saved identity for this device' : 'Resolve identity from the selected source',
+    'identity.changed': 'Reconcile a changed credential or device binding', 'access.resolved': detail.source === 'member-server' ? 'Use role from membership document' : 'Compare current access with the selected identity',
+    'role.selected': 'Choose the interface from profile membership', 'route.selected': 'Open the resource for the selected identity',
+    'view.rendered': 'Observe the committed task card projection', 'access.failed': 'Access operation failed; preserve safe error code',
+  }
+  const explanation = detail.state === 'restoring' ? 'Restore saved session for current device' : detail.state === 'redeeming' ? 'Redeem supplied personal credential' : detail.state === 'loading' ? 'Read profile and memberships for selected identity' : explanations[row.event]
+  return `[${detail.atFunction ?? 'traceProfile'}] [${detail.previousState ?? 'checking'} → ${detail.state ?? 'resolved'}] ${explanation}`
+}
 const key = 'education-access-trace-v1'
 const maxAge = 24 * 60 * 60_000
 function safeDetail(input: AccessDetail): AccessDetail {
   const output: AccessDetail = {}
-  for (const [field, choices] of Object.entries({ role: roles, previousRole: roles, source: sources, reason: reasons, route: routes, code: errorCodes })) {
+  for (const [field, choices] of Object.entries({ role: roles, previousRole: roles, source: sources, reason: reasons, route: routes, code: errorCodes, atFunction: functions, state: states, previousState: states })) {
     const value = input[field as keyof AccessDetail]
-    if (typeof value === 'string' && choices.includes(value)) Object.assign(output, { [field]: value })
+    if (typeof value === 'string' && (choices as readonly string[]).includes(value)) Object.assign(output, { [field]: value })
   }
-  for (const field of ['scope', 'person', 'device'] as const) if (typeof input[field] === 'string' && /^[a-f0-9]{24}$/.test(input[field]!)) output[field] = input[field]
-  for (const field of ['hasGuide', 'active', 'fromCache', 'matches'] as const) if (typeof input[field] === 'boolean') output[field] = input[field]
+  for (const field of ['scope', 'person', 'device', 'grant'] as const) if (typeof input[field] === 'string' && /^[a-f0-9]{24}$/.test(input[field]!)) output[field] = input[field]
+  for (const field of ['hasGuide', 'studentUpload', 'active', 'fromCache', 'matches'] as const) if (typeof input[field] === 'boolean') output[field] = input[field]
   for (const field of ['count', 'durationMs'] as const) if (typeof input[field] === 'number' && Number.isFinite(input[field]) && input[field]! >= 0 && input[field]! < 1e8) output[field] = Math.round(input[field]!)
   if (typeof input.bundle === 'string' && /^index-[A-Za-z0-9_-]{1,64}\.js$/.test(input.bundle)) output.bundle = input.bundle
   return output
@@ -36,12 +49,18 @@ export function createAccessTrace({ storage, now = Date.now, runId = 'unavailabl
   try { initial = JSON.parse(storage?.getItem(key) ?? 'null') } catch { initial = null }
   let rows = sanitizeAccessTrace(initial, now()).events
   let sequence = Math.max(0, ...rows.filter((row) => row.runId === runId).map((row) => row.sequence))
-  const persist = () => { try { storage?.setItem(key, JSON.stringify({ schemaVersion: 1, events: rows })) } catch { /* Optional trace cannot break access. */ } }
+  let droppedRecords = Number.isSafeInteger((initial as { droppedRecords?: number })?.droppedRecords) ? Math.max(0, (initial as { droppedRecords: number }).droppedRecords) : 0
+  const coverageUnknown = (initial as { coverageUnknown?: boolean })?.coverageUnknown === true || Boolean((initial as AccessTrace)?.events?.length && !Number.isSafeInteger((initial as { droppedRecords?: number }).droppedRecords))
+  const persist = () => { try { storage?.setItem(key, JSON.stringify({ schemaVersion: 1, events: rows, droppedRecords, coverageUnknown })) } catch { /* Optional trace cannot break access. */ } }
   const publish = (row: TraceEvent) => { try { emit?.(row) } catch { /* Optional local sink. */ } }
   return {
+    runId,
+    coverage: () => ({ complete: droppedRecords === 0 && !coverageUnknown, droppedRecords, ...(coverageUnknown ? { coverageUnknown: true } : {}) }),
     record(event: EventName, detail: AccessDetail) {
       const item = { runId, sequence: ++sequence, at: now(), event, detail: safeDetail(detail) }
-      rows = sanitizeAccessTrace({ schemaVersion: 1, events: [...rows, item] }, now()).events
+      const candidates = [...rows, item]
+      rows = sanitizeAccessTrace({ schemaVersion: 1, events: candidates }, now()).events
+      droppedRecords += candidates.length - rows.length
       persist()
       publish(item)
       return item.sequence
@@ -72,7 +91,11 @@ export function inspectAccessTrace(input: unknown) {
     if (event.event === 'identity.changed') {
       for (const key of states.keys()) if (key.startsWith(`${event.runId}:`)) { states.delete(key); views.delete(key) }
     }
-    if ((event.event === 'identity.resolved' || event.event === 'access.resolved') && event.detail.active !== false && ['parent', 'student'].includes(event.detail.role ?? '')) states.set(scope, event.detail)
+    if ((event.event === 'identity.resolved' || event.event === 'access.resolved') && event.detail.active !== false && ['parent', 'student'].includes(event.detail.role ?? '')) {
+      const previous = states.get(scope)
+      const authoritative = event.detail.source === 'member-server' && event.detail.fromCache !== true
+      if (authoritative || previous?.source !== 'member-server') states.set(scope, event.detail)
+    }
     if (event.event === 'view.rendered' && event.detail.source === 'card') {
       views.set(scope, event.detail)
     }
@@ -95,7 +118,7 @@ function localJournal() {
     let storage: Storage | undefined
     try { storage = sessionStorage } catch { /* Browser can block storage. */ }
     journal = createAccessTrace({ storage, runId: typeof crypto?.randomUUID === 'function' ? crypto.randomUUID() : `run-${Date.now()}`,
-      emit: (event) => console.debug('[Education LDD]', JSON.stringify(event)) })
+      emit: (event) => console.debug(`[Education LDD] ${formatAccessLog(event)}`, JSON.stringify(event)) })
   }
   return journal
 }
@@ -107,16 +130,17 @@ export async function accessFingerprint(value: string) {
   const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value))
   return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('').slice(0, 24)
 }
-export function traceAccessContext(event: EventName, detail: AccessDetail, context: { personId?: string; deviceUid?: string; familyId?: string; childId?: string }) {
+export function traceAccessContext(event: EventName, detail: AccessDetail, context: { personId?: string; deviceUid?: string; linkToken?: string; familyId?: string; childId?: string }) {
   // Hash asynchronously without delaying the view or retaining raw identities in storage.
   if (typeof window === 'undefined') return
   const sequence = localJournal().record(event, detail)
-  pendingContext = pendingContext.then(() => Promise.all([context.personId ? accessFingerprint(context.personId) : undefined, context.deviceUid ? accessFingerprint(context.deviceUid) : undefined,
+  pendingContext = pendingContext.then(() => Promise.all([context.personId ? accessFingerprint(context.personId) : undefined, context.deviceUid ? accessFingerprint(context.deviceUid) : undefined, context.linkToken ? accessFingerprint(context.linkToken) : undefined,
     context.familyId && context.childId ? accessFingerprint(`${context.familyId}/${context.childId}`) : undefined])
-    .then(([person, device, scope]) => localJournal().enrich(sequence, { person, device, scope }))).catch(() => {})
+    .then(([person, device, grant, scope]) => localJournal().enrich(sequence, { person, device, grant, scope }))).catch(() => {})
 }
-export function traceProfile(profile: { personId: string; children: Array<{ familyId: string; childId: string; role: string }> }, deviceUid?: string, source = 'profile') {
-  for (const child of profile.children) traceAccessContext('identity.resolved', { source, role: child.role, reason: source === 'local' ? 'cache-hit' : 'profile-loaded' }, { personId: profile.personId, deviceUid, ...child })
+
+export function traceProfile(profile: { personId: string; children: Array<{ familyId: string; childId: string; role: string }> }, deviceUid?: string, source = 'profile', atFunction: typeof functions[number] = 'traceProfile') {
+  for (const child of profile.children) traceAccessContext('identity.resolved', { atFunction, previousState: source === 'local' ? 'restoring' : 'loading', state: source === 'local' ? 'cached' : 'resolved', source, role: child.role, reason: source === 'local' ? 'cache-hit' : 'profile-loaded' }, { personId: profile.personId, deviceUid, ...child })
 }
 export function accessTraceError(cause: unknown) {
   const code = cause && typeof cause === 'object' && 'code' in cause ? String(cause.code) : 'unknown'
@@ -124,11 +148,26 @@ export function accessTraceError(cause: unknown) {
 }
 export function accessRoute() { const route = location.hash.split('/')[1] || 'home'; return routes.includes(route) ? route : 'unknown' }
 export function initializeAccessTrace() {
-  traceAccess('app.loaded', { source: 'app', route: accessRoute(), bundle: [...document.scripts].map((script) => script.src.split('/').pop()).find((file) => /^index-[A-Za-z0-9_-]+\.js$/.test(file ?? '')) })
-  const api = Object.freeze({ export: async () => { await pendingContext; return JSON.stringify({ ...localJournal().snapshot(), observation: {
+  traceAccess('app.loaded', { atFunction: 'initializeAccessTrace', previousState: 'idle', state: 'resolved', source: 'app', route: accessRoute(), bundle: [...document.scripts].map((script) => script.src.split('/').pop()).find((file) => /^index-[A-Za-z0-9_-]+\.js$/.test(file ?? '')) })
+  const api = Object.freeze({ export: exportAccessDiagnostics })
+  Object.defineProperty(window, 'educationDiagnostics', { value: api, configurable: true })
+}
+
+export async function exportAccessDiagnostics(): Promise<string> {
+  await pendingContext
+  return JSON.stringify({ ...localJournal().snapshot(), ...localJournal().coverage(), observation: {
     parentGuide: Boolean(document.querySelector('.day-parent-guide')),
     studentUpload: [...document.querySelectorAll('button')].some((button) => /Добавить фото (?:решения|исправления)/.test(button.textContent ?? '')),
     route: accessRoute(),
-  } }, null, 2) } })
-  Object.defineProperty(window, 'educationDiagnostics', { value: api, configurable: true })
+  } }, null, 2)
+}
+
+/** Start the clipboard write inside the click gesture, including Safari/PWA. */
+export async function copyAccessDiagnostics(): Promise<void> {
+  const receipt = exportAccessDiagnostics()
+  if (typeof ClipboardItem !== 'undefined' && navigator.clipboard?.write) {
+    await navigator.clipboard.write([new ClipboardItem({ 'text/plain': receipt.then(text => new Blob([text], { type: 'text/plain' })) })])
+  } else {
+    await navigator.clipboard.writeText(await receipt)
+  }
 }

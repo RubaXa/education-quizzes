@@ -74,6 +74,7 @@ vi.mock('@/lib/parentCompletion', async (original) => ({ ...await original<typeo
 }))
 import LearningRoute from './LearningRoute'
 import { clearPersonalSession, rememberPersonalContext, readCachedPersonalContext } from '@/lib/personalAccess'
+import { exportAccessDiagnostics, inspectAccessTrace } from '@/lib/browserAccessTrace'
 
 (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true
 const roots: Array<() => void> = []
@@ -102,6 +103,15 @@ async function render(role: 'parent' | 'student', options: { cold?: boolean; cac
   return host
 }
 describe('shared calendar with the actual weekend task composition', () => {
+  it('characterizes the supplied incident: local student and confirmed server student produce the student card, not a parent rendering defect', async () => {
+    const host = await render('student')
+    const receipt = JSON.parse(await exportAccessDiagnostics())
+    expect(receipt.events.some((row: any) => row.event === 'access.resolved' && row.detail.source === 'member-server' && row.detail.role === 'student' && row.detail.fromCache === false)).toBe(true)
+    expect(inspectAccessTrace(receipt).findings).toContain('student-membership-student-view')
+    expect(inspectAccessTrace(receipt).findings).not.toContain('parent-context-student-view')
+    expect(host.textContent).toContain('Добавить фото решения')
+    expect(host.textContent).not.toContain('Разбор для родителя')
+  })
   it.each(['parent', 'student'] as const)('recovers %s when the expired old profile is denied before access listeners can mount', async (role) => {
     const host = await render(role, { cachedRole: role === 'parent' ? 'student' : 'parent', staleIdentity: true, expired: true })
     expect(host.textContent).toContain(role === 'parent' ? 'Разбор для родителя' : 'Добавить фото решения')

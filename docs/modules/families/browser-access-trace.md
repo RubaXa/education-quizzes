@@ -3,7 +3,7 @@ id: module.families.browser-access-trace
 status: accepted
 implementation: partial
 created: 2026-10-18
-updated: 2026-10-18
+updated: 2026-10-19
 consumers:
   - "web-app access flow"
   - "family access operator"
@@ -11,6 +11,7 @@ code:
   - "src/lib/browserAccessTrace.ts"
   - "scripts/browser-access-trace.mjs"
   - "public/access-snapshot.js"
+  - "src/components/DiagnosticsCopyButton.tsx"
 parent: module.families
 uses:
   - module.families.access-and-state
@@ -25,6 +26,10 @@ sections:
 ## Контракт
 
 LDD (Log-Driven Development) связывает фактический запуск с выбором роли и наблюдаемой проекцией. Последовательность: app.loaded → identity.resolved → access.resolved → role.selected → route.selected → view.rendered. На ветвлениях записываются стабильные source/reason, состояние и безопасный код ошибки. Сам журнал не назначает полномочия и не доказывает корректность интерфейса без сверки с видимым результатом.
+
+Прямое уточнение19.10: `[имяФункции] [предыдущее → новое состояние] Пояснение решения`, затем безопасные детали. Логировать вход, существенную ветку, внешнее обращение, выход и ошибку в реальном месте исполнения. Имена должны соответствовать коду. Новые scope API, декораторы и архитектура вызовов ради LDD не нужны. Пример: `[restorePersonalContext] [idle → restoring] Restore saved session for current device`; `[configureRoleDiagnostics] [checking → resolved] Use role from membership document` с `{previousRole: student, role: student, fromCache: false}`.
+
+Кнопка 🐞 в общей шапке одним кликом копирует локальный JSON без Console. Экспорт ждёт hashes, содержит current DOM-флаги, `complete` и `droppedRecords`; для старого журнала неизвестной полноты — `coverageUnknown`. Ничего автоматически не отправляет. ClipboardItem начинает write непосредственно в user gesture (Safari/PWA), иначе используется writeText. Успех и ошибка доступны через tooltip/status, без нового экрана. Отпечатки person/device/grant позволяют различить входы без вывода credentials. Более поздний cache-hit не отменяет server member evidence; смена identity отменяет прежнее основание.
 
 Один ограниченный журнал в sessionStorage этой вкладки, максимум200событий/24часа. Новый запуск имеет новый runId; порядок внутри запуска монотонный. Один локальный debug sink печатает только whitelist события с префиксом `[Education LDD]`; поздние hashes обогащают журнал с тем же runId/sequence без второго console-события. Экспорт явно вызывается через `await window.educationDiagnostics.export()`. Сбор не вызывает сеть, Firestore или новые подписки, не изменяет вход, не показывает новых экранов и не задерживает локальный первый кадр. Ошибка хранилища/хеширования/sink не влияет на приложение. Ни remote probe, ни её права этим контрактом не включаются.
 

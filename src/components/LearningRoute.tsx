@@ -20,7 +20,7 @@ export default function LearningRoute({ mode, token, headerReturnTarget }: { mod
   const [contextRevision, setContextRevision] = useState(0)
   const [contextAvailable, setContextAvailable] = useState(true)
   useEffect(() => {
-    if (access) traceAccessContext('route.selected', { source: 'route', route: mode, role: access.parent ? 'parent' : 'student', reason: 'role-projection' }, { ...access.session, ...access.child })
+    if (access) traceAccessContext('route.selected', { atFunction: 'LearningRoute#resolve', previousState: 'resolved', state: 'selected', source: 'route', route: mode, role: access.parent ? 'parent' : 'student', reason: 'role-projection' }, { ...access.session, ...access.child })
   }, [access, mode])
   useEffect(() => watchPersonalContextChanges(() => {
     const next = readCachedLearningAccess(mode, token)
@@ -62,7 +62,7 @@ export default function LearningRoute({ mode, token, headerReturnTarget }: { mod
       const confirmed = new Set<string>()
       const ready = (part: string) => { confirmed.add(part); if (active && !revoked && !refreshing && confirmed.size === 3) setAccess(current) }
       const remoteError = (cause: { code?: string }) => {
-        traceAccess('access.failed', { source: 'route', code: accessTraceError(cause) })
+        traceAccess('access.failed', { atFunction: 'LearningRoute#resolve', previousState: 'checking', state: 'failed', source: 'route', code: accessTraceError(cause) })
         if (cause.code === 'permission-denied') revoke()
         else { reportUiError(cause, 'Фоновая проверка личного доступа') }
       }
