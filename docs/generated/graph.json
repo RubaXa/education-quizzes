@@ -7645,9 +7645,11 @@
         "shared.data.firestore",
         "module.materials.storage-privacy"
       ],
-      "sections": [],
+      "sections": [
+        "общий-ресурс-права-из-авторизации"
+      ],
       "created": "2026-10-16",
-      "updated": "2026-10-16",
+      "updated": "2026-10-18",
       "consumers": [
         "parent",
         "student",
