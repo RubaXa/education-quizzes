@@ -2,6 +2,7 @@
 
 | Файл | Спецификация | Назначение | Потребитель |
 |---|---|---|---|
+| [docs/decisions/session-owned-revocation-2026-10-18.md](decisions/session-owned-revocation-2026-10-18.md) | [Доступ и состояние](modules/families/access-and-state.md) | Воспроизведённое стирание нового входа старым callback и матрица обеих ролей | Разработчик; выпуск |
 | [public/access-snapshot.js](../public/access-snapshot.js) | [Локальная LDD-трасса](modules/families/browser-access-trace.md) | Read-only collector старой вкладки без обновления её приложения | Штатный diagnostics:browser snippet |
 | [docs/modules/families/browser-access-trace.md](modules/families/browser-access-trace.md) | [Локальная LDD-трасса](modules/families/browser-access-trace.md) | Контракт наблюдения фактической браузерной ветки без новых прав | Разработчик; оператор |
 | [src/lib/browserAccessTrace.ts](../src/lib/browserAccessTrace.ts) | [Локальная LDD-трасса](modules/families/browser-access-trace.md) | Ограниченный журнал переходов, fingerprints, экспорт и безопасная интерпретация | Личный вход; LearningRoute; общая карточка; оператор |

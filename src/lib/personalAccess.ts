@@ -156,8 +156,19 @@ export function currentEducationPersonId(): string {
   return activeSession.personId
 }
 
-/** Forget a revoked personal grant without deleting the device's Firebase UID. */
-export function clearPersonalSession(): void {
+/** Revoke only the session owned by a callback. A sibling can save its replacement
+ * before the storage event reaches this tab; the old callback must not erase it.
+ * @see ../../docs/modules/families/access-and-state.md#authenticated-learning-routes */
+export function clearPersonalSession(expected?: PersonalSession): boolean {
+  const saved = readCachedPersonalContext()?.session
+  if (expected && saved && (saved.personId !== expected.personId || saved.deviceUid !== expected.deviceUid || saved.linkToken !== expected.linkToken)) {
+    sessionRevision++
+    activeSession = null
+    startupContext.clear()
+    traceAccess('identity.changed', { source: 'storage', reason: 'stale-revocation-ignored' })
+    contextObservers.forEach((changed) => changed())
+    return false
+  }
   traceAccess('identity.changed', { source: 'memory', reason: 'context-cleared' })
   sessionRevision++
   activeSession = null
@@ -165,6 +176,7 @@ export function clearPersonalSession(): void {
   forgetPersonalViews()
   forgetCachedPersonalContext()
   rememberPersonalDashboardRoute('#/')
+  return true
 }
 
 export function secretFromPersonalLink(value: string): string {

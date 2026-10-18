@@ -8,8 +8,8 @@
       "authorization": {"status": "direct-request", "evidence": "Пользователь18.10 прямо требует внедрить LDD и собрать трассу проблемной вкладки, сохраняя существующий интерфейс."}
     },
     "src/lib/browserAccessTrace.ts": {
-      "sha256": "d0c1306f2af2da962653821b1e98bfd0853985165d3107018909cd56b360a662",
-      "record": "docs/decisions/browser-role-ldd-2026-10-18.md",
+      "sha256": "5f5c2a02b718170e12c47a2238efde6535f1a8f43eea6dd117ea0293d774d099",
+      "record": "docs/decisions/session-owned-revocation-2026-10-18.md",
       "specs": ["docs/modules/families/browser-access-trace.md"],
       "tests": ["src/lib/browserAccessTrace.test.ts", "src/components/PersonalEntry.role.integration.test.tsx"],
       "authorization": {"status": "direct-request", "evidence": "Пользователь18.10 прямо требует внедрить LDD и собрать трассу проблемной вкладки, сохраняя существующий интерфейс."}
@@ -83,8 +83,8 @@
       }
     },
     "src/components/LearningRoute.tsx": {
-      "sha256": "4da5c4e186ba39ceb54c717d421ea7fb6f30a6f0df67089a8936499d8490e7f1",
-      "record": "docs/decisions/browser-role-ldd-2026-10-18.md",
+      "sha256": "90f348a344ec2984dddba521e340bcf7b9f1d85f453b67f2398c3812783ee81e",
+      "record": "docs/decisions/session-owned-revocation-2026-10-18.md",
       "specs": [
         "docs/modules/families/access-and-state.md",
         "docs/shared/access-and-privacy.md"
@@ -3215,8 +3215,8 @@
       }
     },
     "src/components/PersonalEntry.tsx": {
-      "sha256": "0e790446efb58534d8fc3ae455e42ede49434c18044d5997671fbc59926927f8",
-      "record": "docs/decisions/browser-role-ldd-2026-10-18.md",
+      "sha256": "68cb497a818c074192a679e7cc0a5985f7f92e5f00f8930f46bd16ce7b5bbfb9",
+      "record": "docs/decisions/session-owned-revocation-2026-10-18.md",
       "specs": [
         "docs/modules/families/access-and-state.md",
         "docs/shared/access-and-privacy.md"
@@ -3769,8 +3769,8 @@
       }
     },
     "src/lib/personalAccess.ts": {
-      "sha256": "f35e2d51a3b8a34574818f539151ec0e0226b2910ae2da231bfaae86cf1c3af3",
-      "record": "docs/decisions/browser-role-ldd-2026-10-18.md",
+      "sha256": "45c9a6c0339940c6b0e13d41049292242e69a4adc1f27454cf4602ee77ff88d7",
+      "record": "docs/decisions/session-owned-revocation-2026-10-18.md",
       "specs": [
         "docs/modules/families/access-and-state.md",
         "docs/shared/access-and-privacy.md"

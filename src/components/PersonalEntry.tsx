@@ -119,7 +119,7 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
           setProfile((previous) => JSON.stringify(previous) === JSON.stringify(context.profile) ? previous : context.profile)
           automaticRetries.current = 0
         } else if (initialContext) {
-          clearPersonalSession()
+          if (clearPersonalSession(initialContext.session) === false) return
           setSession(null)
           setProfile(null)
         }
@@ -152,7 +152,7 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
     const revoked = () => {
       if (!active || invalid) return
       invalid = true
-      clearPersonalSession()
+      if (clearPersonalSession(session) === false) return
       setVerifiedSession(null)
       setInvalidProfile(null)
       setSession(null)
@@ -219,7 +219,7 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
     }, (cause) => {
       if (!active) return
       if ((cause as { code?: string }).code === 'permission-denied') {
-        clearPersonalSession()
+        if (clearPersonalSession(session) === false) return
         setSession(null)
         setProfile(null)
       }
