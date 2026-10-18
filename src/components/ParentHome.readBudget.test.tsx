@@ -162,7 +162,7 @@ describe('parent home warm start — complete local snapshot', () => {
     expect(host.textContent).toContain('1 осталось')
     expect(host.textContent).not.toContain('Сверяем изменения')
     expect(host.querySelector('.parent-child-refresh')).toBeNull()
-    expect(host.querySelector<HTMLAnchorElement>('.parent-child-open')?.getAttribute('href')).toBe('#/days-parent/calendar')
+    expect(host.querySelector<HTMLAnchorElement>('.parent-child-open')?.getAttribute('href')).toBe('#/days/calendar')
     await act(async () => { host.querySelector<HTMLAnchorElement>('.parent-child-open')?.click() })
     const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Moscow', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
     expect(sessionStorage.getItem('education-dashboard-selected-date')).toBe(today)

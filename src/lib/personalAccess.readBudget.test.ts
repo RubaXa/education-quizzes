@@ -90,16 +90,18 @@ describe('personal warm start — saved profile and route', () => {
   it('discards the durable profile when access is revoked locally', async () => {
     await restorePersonalContext()
     rememberPersonalDashboardRoute('#/days-parent/dashboard')
-    expect(readLastPersonalDashboardRoute()).toBe('#/days-parent/dashboard')
+    expect(readLastPersonalDashboardRoute()).toBe('#/days/dashboard')
     expect(readCachedPersonalContext()).not.toBeNull()
     clearPersonalSession()
     expect(readCachedPersonalContext()).toBeNull()
     expect(readLastPersonalDashboardRoute()).toBeNull()
   })
 
-  it('refuses a saved dashboard from the wrong role or an invalid local schema', async () => {
+  it('normalizes a known resource across legacy role prefixes and refuses an unknown resource or invalid cache', async () => {
     await restorePersonalContext()
     rememberPersonalDashboardRoute('#/days/dashboard')
+    expect(readLastPersonalDashboardRoute()).toBe('#/days/dashboard')
+    rememberPersonalDashboardRoute('#/days/foreign-dashboard')
     expect(readLastPersonalDashboardRoute()).toBeNull()
     storage.set('education-personal-context-v1', '{broken')
     expect(readCachedPersonalContext()).toBeNull()

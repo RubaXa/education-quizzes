@@ -57,7 +57,7 @@ describe('schedule warm start', () => {
       expect(host.textContent).not.toContain('следующий учебный день')
       expect(host.querySelector('.day-dashboard-source')).toBeNull()
       await act(async()=>card.querySelector<HTMLButtonElement>('.day-dashboard-homework-row')!.click())
-      expect(window.location.hash).toBe(`#/${parent?'day-parent':'day'}/work-14`)
+      expect(window.location.hash).toBe('#/day/work-14')
       await act(async()=>root.unmount());host.remove()
     }
   })

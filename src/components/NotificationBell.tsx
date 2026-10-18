@@ -169,7 +169,7 @@ export default function NotificationBell({ routeKey }: { routeKey: string }) {
     setOpen(false)
     setShowHistory(false)
     setExpanded(null)
-    const target = `#/${child.role === 'parent' ? 'days-parent' : 'days'}/${child.dashboardToken}`
+    const target = `#/days/${child.dashboardTokens?.student ?? child.dashboardToken}`
     if (window.location.hash === target) window.dispatchEvent(new Event('education-notification-navigation'))
     else window.location.hash = target
   }

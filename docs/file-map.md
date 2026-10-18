@@ -6,6 +6,13 @@
 
 | Файл | Спецификация | Зачем существует | Потребитель |
 |---|---|---|---|
+| [src/components/LearningRoute.tsx](../src/components/LearningRoute.tsx) | [Общая ссылка и авторизованная роль](modules/families/access-and-state.md) | Проверка сессии и ролевой экран одного учебного ресурса | App; родитель; ребёнок |
+| [src/components/LearningRoute.integration.test.tsx](../src/components/LearningRoute.integration.test.tsx) | [Общая ссылка и авторизованная роль](modules/families/access-and-state.md) | Одна ссылка и реальный ProblemTaskCard под двумя ролями, ожидание и отзыв | Vitest |
+| [src/lib/learningRoute.ts](../src/lib/learningRoute.ts) | [Общая ссылка и авторизованная роль](modules/families/access-and-state.md) | Разрешение ресурса по точному членству вместо URL роли | LearningRoute |
+| [src/lib/learningRoute.test.ts](../src/lib/learningRoute.test.ts) | [Общая ссылка и авторизованная роль](modules/families/access-and-state.md) | Aliases, общий URL, чужой ребёнок и разные семейные роли | Vitest |
+| [day/learning-route-identity.mjs](../day/learning-route-identity.mjs) | [Общая ссылка и авторизованная роль](modules/families/access-and-state.md) | Единая модель канонического ресурса и адресный readback | Day publisher; family CLI; dashboard index |
+| [day/learning-route-identity.test.mjs](../day/learning-route-identity.test.mjs) | [Общая ссылка и авторизованная роль](modules/families/access-and-state.md) | Ролевые aliases одного владельца без приватных данных | Vitest |
+| [docs/decisions/authenticated-learning-routes-2026-10-18.md](decisions/authenticated-learning-routes-2026-10-18.md) | [Общая ссылка и авторизованная роль](modules/families/access-and-state.md) | Причина ошибки URL роли, общий маршрут и границы проверки | Разработчик; оператор |
 | [day/assignment-routing.mjs](../day/assignment-routing.mjs) | [Привязка курса](modules/synchronization/plan-generation.md) | Перенос одного владельца с сохранением происхождения, оригиналов и доказательств | day CLI; build; dashboard |
 | [day/assignment-routing.test.mjs](../day/assignment-routing.test.mjs) | [Привязка курса](modules/synchronization/plan-generation.md) | Исходный, целевой и выходной день обеих ролей, повторный build и повреждённые связи | Vitest |
 | [scripts/route-assignment.mjs](../scripts/route-assignment.mjs) | [Привязка курса](modules/synchronization/plan-generation.md) | Dry run и применение пакета к двум локальным планам с резервной копией | Оператор Education |

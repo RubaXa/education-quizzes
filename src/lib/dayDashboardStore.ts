@@ -17,6 +17,8 @@ export type IndexedDay = {
 export type DayDashboardData = {
   schemaVersion: number
   kind: 'student' | 'parent'
+  canonicalToken?: string
+  dayCanonicalTokens?: Record<string, string>
   today: string
   timezone: string
   days: IndexedDay[]

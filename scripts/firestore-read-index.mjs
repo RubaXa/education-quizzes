@@ -16,7 +16,7 @@ const webReads = new Set([
 ])
 const groupFor = (file) => {
   if (file.startsWith('src/')) {
-    if (/personalAccess|PersonalEntry|App\.tsx|ConnectionInvite|FamilyAccessCards/.test(file)) return 'client-access'
+    if (/personalAccess|PersonalEntry|learningRoute|LearningRoute|App\.tsx|ConnectionInvite|FamilyAccessCards/.test(file)) return 'client-access'
     if (/familyLibrary|FamilyLibrary|familyBookUpload/.test(file)) return 'client-books'
     if (/dayGuidance|dayDashboardStore|dayStore|parentCompletion/.test(file)) return 'client-day'
     if (/educationStore/.test(file)) return 'client-views-inbox'

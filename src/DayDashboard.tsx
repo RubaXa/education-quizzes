@@ -165,10 +165,10 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
     const taskId = sessionStorage.getItem('education-dashboard-focus-task')
     if (!taskId || !selectedPage || !homeworkToken) return
     sessionStorage.removeItem('education-dashboard-focus-task')
-    sessionStorage.setItem('education-day-dashboard-return', `#/${parent ? 'days-parent' : 'days'}/${token}`)
+    sessionStorage.setItem('education-day-dashboard-return', `#/days/${index?.canonicalToken ?? token}`)
     sessionStorage.setItem('education-day-initial-tab', 'homework')
     sessionStorage.setItem('education-day-focus-task', JSON.stringify({ dayToken: homeworkToken, taskId }))
-    window.location.hash = `#/${parent ? 'day-parent' : 'day'}/${homeworkToken}`
+    window.location.hash = `#/day/${index?.dayCanonicalTokens?.[homeworkToken] ?? homeworkToken}`
   }, [selectedPage, homeworkToken, parent, token])
   useEffect(() => {
     if (![...reviews, ...nextWork.reviews].some((review) => review.processing)) return
@@ -346,12 +346,12 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
   }
   function openDay(dayToken: string, tab?: 'homework', taskId?: string, viewed?: { date: string; subject: string }) {
     if (viewed) acknowledgeHomeworkUpdate(viewed.date, viewed.subject)
-    sessionStorage.setItem('education-day-dashboard-return', `#/${parent ? 'days-parent' : 'days'}/${token}`)
+    sessionStorage.setItem('education-day-dashboard-return', `#/days/${index?.canonicalToken ?? token}`)
     if (tab) sessionStorage.setItem('education-day-initial-tab', tab)
     else sessionStorage.removeItem('education-day-initial-tab')
     if (taskId) sessionStorage.setItem('education-day-focus-task', JSON.stringify({ dayToken, taskId }))
     else sessionStorage.removeItem('education-day-focus-task')
-    window.location.hash = `#/${parent ? 'day-parent' : 'day'}/${dayToken}`
+    window.location.hash = `#/day/${index?.dayCanonicalTokens?.[dayToken] ?? dayToken}`
   }
 
   if (error === DATA_UPDATE_MESSAGE) return <DataCompatibilityNotice />
