@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { BookOpen, ChevronDown, Clock3, ExternalLink, RotateCcw, Trash2, X } from 'lucide-react'
 import StatusIcon from './components/StatusIcon'
+import GradeAverage, { gradeAverageTone } from './components/GradeAverage'
 // @see ../docs/shared/design/statuses.md#components
 import { cdzEvidenceLabel, cdzResultLabel, isCdzTask, removePendingDayPhoto, requestDayHelp, uploadDayPhoto, uploadMatchesTask, watchDayHelp, watchDayPage, watchDayTaskGuides, watchMaterialPages, withVerifiedPlatformResult } from '@/lib/dayStore'
 import { groupAdjacentMaterialPages, unresolvedMaterialPageRefs } from '@/lib/dayMaterialRefs'
@@ -167,8 +168,8 @@ const scheduleGradeIds: Record<string, string> = {
   'Технология': 'technology', 'Изобразительное искусство': 'art', 'ИЗО': 'art',
   'География': 'geography',
 }
-function isExcellent(summary: GradeSummary) { return summary.allFives ?? summary.average >= 4.99 }
-function needsAttention(summary: GradeSummary) { return !isExcellent(summary) && (summary.watch ?? summary.average < 4.7) }
+function isExcellent(summary: GradeSummary) { return summary.allFives === true }
+function needsAttention(summary: GradeSummary) { return !isExcellent(summary) && summary.watch === true }
 function canForecast(summary: GradeSummary, details?: GradeDetails) {
   if (!details?.scenario_verified || !details.grades?.length || details.grades.some(({ mark, weight }) => !Number.isFinite(mark) || !Number.isFinite(weight) || weight <= 0)) return false
   const points = details.grades.reduce((sum, { mark, weight }) => sum + mark * weight, 0)
@@ -185,11 +186,11 @@ export function GradeBadge({ summary, details, threshold, asOf }: { summary?: Gr
   const [nextWeight, setNextWeight] = useState(1)
   if (!summary) return null
   const excellent = isExcellent(summary)
-  const tone = excellent ? ' excellent' : needsAttention(summary) ? ' watch' : ''
+  const tone = gradeAverageTone(summary.average, needsAttention(summary), excellent)
   const reliable = canForecast(summary, details) && threshold != null && threshold > 0 && threshold < 5
   const result = reliable ? forecast(details!.grades, nextMark, nextWeight, threshold!) : null
   return <>
-    <button type="button" className={`day-grade${tone} day-grade-button`} aria-expanded={open} aria-label={`Средний по предмету ${formatAverage(summary.average)}. ${open ? 'Скрыть' : 'Показать'} сценарий следующей оценки`} onClick={() => setOpen((value) => !value)}><span>{formatAverage(summary.average)}</span><ChevronDown size={14} aria-hidden="true" /></button>
+    <button type="button" className="day-grade-button" aria-expanded={open} aria-label={`Средний по предмету ${formatAverage(summary.average)}. ${open ? 'Скрыть' : 'Показать'} сценарий следующей оценки`} onClick={() => setOpen((value) => !value)}><GradeAverage value={formatAverage(summary.average)} tone={tone} excellent={excellent} /><ChevronDown size={14} aria-hidden="true" /></button>
     {open && <div className="day-grade-expand"><div className="day-grade-box">
       {result ? <>
         <div className="day-grade-toolbar"><span className="day-grade-expand-title">Оценка</span><div className="day-grade-choices" role="group" aria-label="Следующая оценка">{[3, 4, 5].map((mark) => <button key={mark} type="button" aria-pressed={nextMark === mark} onClick={() => setNextMark(mark)}>{mark}</button>)}</div><label className="day-grade-weight">Вес <select aria-label="Вес следующей оценки: ×1 обычная, ×2 условная" value={nextWeight} onChange={(event) => setNextWeight(Number(event.target.value))}><option value="1">×1</option><option value="2">×2</option></select></label></div>

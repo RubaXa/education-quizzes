@@ -26,6 +26,7 @@ import { homeworkUpdateKey, markHomeworkUpdateSeen, wasHomeworkUpdateSeen } from
 import DataCompatibilityNotice from './components/DataCompatibilityNotice'
 import StatusIcon from './components/StatusIcon'
 import HomeworkOverview from './components/HomeworkOverview'
+import GradeAverage, { gradeAverageTone } from './components/GradeAverage'
 
 function moscowToday() {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Moscow', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
@@ -399,7 +400,7 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
         <section className="day-dashboard-card" aria-label="Оценки по предметам"><div className="day-dashboard-heading"><div><Sparkles size={20} /><h2>Оценки</h2></div>{gradeRows.length > 0 && <small>{gradeRows.length} {word(gradeRows.length, 'предмет', 'предмета', 'предметов')}</small>}</div>
           {gradeRows.length ? <div className="day-dashboard-grades">{gradeRows.map((grade) => {
             const marks = gradeDetails.get(grade.id)?.grades ?? []
-            return <details key={grade.id} className="day-dashboard-grade"><summary><span>{grade.name}</span><strong className={grade.allFives ? 'excellent' : grade.watch ? 'watch' : ''}>{grade.allFives && '✨ '}{grade.average.toFixed(2).replace('.', ',')}</strong><ChevronDown size={16} aria-hidden="true" /></summary>
+            return <details key={grade.id} className="day-dashboard-grade"><summary><span>{grade.name}</span><GradeAverage value={grade.average.toFixed(2).replace('.', ',')} tone={gradeAverageTone(grade.average, grade.watch, grade.allFives)} excellent={grade.allFives} /><ChevronDown size={16} aria-hidden="true" /></summary>
               <div className="day-dashboard-grade-detail">{marks.length ? <><p>{marks.length} {word(marks.length, 'оценка', 'оценки', 'оценок')} в сохранённом срезе:</p><ul>{marks.map(({ mark, weight, date }, index) => <li key={`${index}-${mark}-${weight}`} className={`mark-${mark}`}><button type="button" aria-label={`Оценка ${mark}, вес ${weight}${date ? `, ${dateLabel(date)}` : ''}. Показать, за что поставлена`} aria-expanded={selectedGrade?.subjectId === grade.id && selectedGrade.index === index} onClick={() => setSelectedGrade((current) => current?.subjectId === grade.id && current.index === index ? null : { subjectId: grade.id, index })}>{mark}{weight !== 1 && <small>вес {weight}</small>}</button></li>)}</ul>{selectedGrade?.subjectId === grade.id && marks[selectedGrade.index] && <div className="day-dashboard-mark-detail" role="region" aria-label={`Подробности оценки ${marks[selectedGrade.index].mark}`}>
                 {marks[selectedGrade.index].date && <span>{dateLabel(marks[selectedGrade.index].date!)}</span>}
                 <strong>{marks[selectedGrade.index].workType || 'Вид работы в МЭШ не указан'}</strong>

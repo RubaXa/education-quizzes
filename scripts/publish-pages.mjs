@@ -1,9 +1,11 @@
+/** @see ../docs/operations/deployment.md */
 import { execFileSync } from 'node:child_process'
 import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 import { buildFingerprint } from './build-inputs.mjs'
 import { loadReleaseNote } from './release-note.mjs'
+import { confirmReleaseSource } from './publish-source-gate.mjs'
 
 const remote = 'https://github.com/RubaXa/education-quizzes.git'
 const pagesDir = resolve('.local/pages')
@@ -62,10 +64,12 @@ function preparePagesBranch() {
   }
 }
 
+const releaseSource = !dryRun && !prepareOnly ? confirmReleaseSource() : null
 preparePagesBranch()
 const currentFingerprint = buildFingerprint()
 if (existsSync(buildMarker) && readFileSync(buildMarker, 'utf8').trim() === currentFingerprint) {
   console.log('Сайт уже собран из этих исходников. Повторная сборка не нужна.')
+  if (releaseSource) confirmReleaseSource(releaseSource)
   await announceRelease()
   process.exit(0)
 }
@@ -90,12 +94,14 @@ for (const entry of readdirSync(distDir)) {
 }
 writeFileSync(resolve(pagesDir, '.nojekyll'), '')
 writeFileSync(buildMarker, `${currentFingerprint}\n`)
+if (releaseSource) writeFileSync(resolve(pagesDir, '.source-release.json'), `${JSON.stringify({ ...releaseSource, buildFingerprint: currentFingerprint }, null, 2)}\n`)
 
 git('add', '-A')
 const changed = execFileSync('git', ['diff', '--cached', '--name-only'], { cwd: pagesDir, encoding: 'utf8' }).trim()
 if (changed) {
   git('commit', '-m', 'Publish quiz site')
   if (!prepareOnly) {
+    confirmReleaseSource(releaseSource)
     execFileSync('node', [resolve('scripts/check-privacy.mjs'), '--history'], { cwd: pagesDir, stdio: 'inherit' })
     git('push', '-u', 'origin', 'gh-pages')
   }

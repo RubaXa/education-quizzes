@@ -47,10 +47,10 @@
 @media(max-width:640px){.day-reader-thumb .education-image{height:80px}.day-reader-statement .day-reader-thumb .education-image{height:auto}}
 @media(max-width:640px){.day-tabs{flex-wrap:wrap}.day-tabs button{max-width:100%;white-space:normal}}
 .day-subject-head{flex-wrap:wrap}
-.day-grade-button{display:inline-flex;align-items:center;justify-content:center;gap:4px;font-family:inherit;font-size:.86rem;font-weight:800;line-height:inherit;min-height:0;cursor:pointer;vertical-align:middle}
+.day-grade-button{display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:0;border:0;background:transparent;font-family:inherit;font-size:.86rem;line-height:inherit;min-height:0;cursor:pointer;vertical-align:middle}
 .day-grade-button svg{display:block;flex:none;transition:transform .18s ease}
 .day-grade-button[aria-expanded=true] svg{transform:rotate(180deg)}
-.day-grade-button:hover{background:#fcead0}
+.day-grade-button:hover .edu-grade-average-attention{filter:brightness(.97)}
 .day-grade-button:focus-visible,.day-grade-choices button:focus-visible,.day-grade-weight select:focus-visible{outline:3px solid #ae91e8;outline-offset:2px}
 .day-grade-expand{flex:0 0 100%;width:100%;min-width:0;order:3;color:#483d5c}
 .day-grade-box{width:100%;max-width:430px;border:1px solid #e9e1f1;border-radius:12px;background:#faf8fe;padding:10px 12px}
@@ -294,8 +294,7 @@
 .day-subject-status .day-subject-assignment-count:not(.is-complete){border-color:#e5def2;background:#fff;color:#655c78}
 .day-subject-status .day-grade-button{grid-column:2;grid-row:1;order:0;justify-self:start;min-height:36px;min-width:86px;margin:0;white-space:nowrap;font-variant-numeric:tabular-nums}
 .day-subject-status .day-grade-expand{grid-column:1 / -1;grid-row:2;order:0;width:100%;margin:0;min-width:0}
-.day-grade-button:not(.watch):hover{background:#f3eef9}
-.day-grade-button.excellent:hover{background:#daf3e5}
+.day-grade-button:not(:has(.edu-grade-average-attention)):hover .edu-grade-average{filter:brightness(.97)}
 .day-task-row{flex-wrap:wrap;justify-content:flex-start}
 .day-task-state:not(.as-text),.day-task-type{white-space:nowrap}
 .day-task-state.as-text{order:2;flex-basis:100%;padding:0;border-radius:0;background:none;line-height:1.4;white-space:normal}

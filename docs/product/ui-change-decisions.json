@@ -315,48 +315,33 @@
       }
     },
     "src/UiKit.tsx": {
-      "sha256": "37a5de6339e49d648416dc360dd389d2bac28d6e3014df47e1798dba4405294b",
-      "record": "docs/decisions/compact-homework-copy-2026-10-16.md",
+      "sha256": "54acef72bd3f2b933a2d02d300a8785f87b9b9a32ad30d2251bf6b159e471a76",
+      "record": "docs/decisions/grade-average-ui-kit-2026-10-18.md",
       "specs": [
-        "docs/modules/school-diary/dashboard.md",
-        "docs/shared/design/README.md"
+        "docs/modules/school-diary/grades.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/components/HomeworkOverview.test.tsx",
-        "src/DayDashboard.warmStart.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
         "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель16.10.2026 прямо отверг длинные повторяющиеся подписи про учебный день и уроки и потребовал структурировать существующую карточку."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "599deaa35a211bac2936e64dce3ad11a633e4107cfa1e320da58f2b3df837d2c"
+        "evidence": "Пользователь прямо запросил шкалу среднего балла, отдельный интерактивный слайдер и добавление компонента в production UI Kit."
       }
     },
     "src/UiKit.css": {
-      "sha256": "9e3181f84c10b95e2e717f87e81d09f8aa08a131292c00e34f0460b5e62dbdd7",
-      "record": "docs/decisions/compact-results-ui-kit-2026-10-16.md",
+      "sha256": "d0f92cabfbf3a083aaac8448eed57c44651298166ba6c44353d773642396ba7f",
+      "record": "docs/decisions/grade-average-ui-kit-2026-10-18.md",
       "specs": [
-        "docs/modules/assessments/result-presentation-proposal.md",
-        "docs/modules/assessments/quiz-chain-proposal.md",
+        "docs/modules/school-diary/grades.md",
         "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/components/QuizCard.history.test.tsx",
-        "src/components/ui/result.test.tsx",
-        "src/lib/watchQuizOutcome.test.ts",
         "src/UiKit.test.tsx"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "Родитель 16.10.2026 утвердил уплотнённую таблицу и цветовую шкалу словами «стало намного лучше, закрепляй вариант» и прямо запросил интерактивный UI Kit."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "a4bceaf99852c58aed167570f9019191755861dac860cb561afe6baab34451b5"
+        "status": "direct-request",
+        "evidence": "Пользователь прямо запросил шкалу среднего балла, отдельный интерактивный слайдер и добавление компонента в production UI Kit."
       }
     },
     "src/lib/uiKitExamples.ts": {
@@ -604,13 +589,17 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "c2389957d40a8812ab91be5372477772ed979f5849a685a14f63b22955278c5a",
+      "sha256": "e561918c90de2bcf832ca5635ea811bff6e9f397b29917699943bf21805692d5",
       "record": "docs/decisions/authenticated-learning-routes-2026-10-18.md",
       "specs": [
+        "docs/modules/school-diary/grades.md",
+        "docs/shared/design/ui-kit.md",
         "docs/modules/families/access-and-state.md",
         "docs/modules/reviews/card-generation-policy.md"
       ],
       "tests": [
+        "src/DayPage.gradeBadge.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx",
         "src/lib/personalAccess.readBudget.test.ts",
         "src/components/LearningRoute.integration.test.tsx",
         "src/lib/learningRoute.test.ts",
@@ -620,28 +609,23 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10.2026 требует определять вид и доступ к разбору по авторизованной роли именно этого ребёнка, а не по URL или чужому членству."
+        "evidence": "Пользователь запросил единый компонент и согласованное отображение средних; тот же чип используется на предметной странице и в сводке."
       }
     },
     "src/DayPage.css": {
-      "sha256": "3da9265f39f8be8505a22e006c7510e8e057267cdadcbc0f042719550319ece8",
-      "record": "docs/decisions/mesh-requirement-trace-2026-10-16.md",
+      "sha256": "976f355edf0a1519856165411a063704d2edaa682b62f598153fc94d0aa761e9",
+      "record": "docs/decisions/grade-average-ui-kit-2026-10-18.md",
       "specs": [
-        "docs/modules/reviews/review-criteria-provenance.md",
-        "docs/shared/design/README.md"
+        "docs/modules/school-diary/grades.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "storage/review-requirements.test.mjs",
-        "storage/review-projection.test.mjs",
-        "src/components/WorkReview.requirements.test.tsx"
+        "src/DayPage.gradeBadge.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 16.10.2026 прямо попросил перепроверить русскую работу и сделать структурный разбор по каждому требованию МЭШ, материалу и фото."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "4dd4c8cbabb9f097e0a57ad84bb212a29b52e474263f3d9ae33c977d594232ea"
+        "evidence": "Пользователь запросил единый компонент и согласованное отображение средних; тот же чип используется на предметной странице и в сводке."
       }
     },
     "src/components/AssignmentBrief.tsx": {
@@ -987,34 +971,29 @@
       }
     },
     "src/DayDashboard.tsx": {
-      "sha256": "57f14bcba3575583b6d4b1897865ec16d020a34a4bc71d97025851b33f2fecc9",
+      "sha256": "24121cac899d3ef48cda065468c2aa4a4a80c4ede719bc25f106fefa1ebe3e96",
       "record": "docs/decisions/authenticated-learning-routes-2026-10-18.md",
       "specs": [
+        "docs/modules/school-diary/grades.md",
+        "docs/shared/design/ui-kit.md",
         "docs/modules/families/access-and-state.md",
         "docs/modules/school-diary/dashboard.md",
         "docs/shared/design/README.md"
       ],
       "tests": [
+        "src/DayPage.gradeBadge.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx",
         "src/components/LearningRoute.integration.test.tsx",
         "src/lib/learningRoute.test.ts",
         "day/learning-route-identity.test.mjs",
         "src/components/ProblemTaskCard.contract.test.tsx",
         "src/components/HomeworkOverview.test.tsx",
-        "src/DayDashboard.warmStart.test.tsx",
         "src/DayPage.assignmentQuiz.integration.test.tsx",
         "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10.2026 прямо требует определять родительский и ученический вид по авторизованной роли, а учебные ссылки сделать одинаковыми для обеих ролей."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "8a08c95a15764ba0686a201d0bd91f2bc3700bb973b8d9f2428d776d2762f047"
-      },
-      "specificationLifecycle": {
-        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
-        "previousSha256": "ddec1e5d9802d74b9eecb1c0797463878d39102639258f87a5e86ac7d775b7dd"
+        "evidence": "Пользователь запросил единый компонент и согласованное отображение средних; тот же чип используется на предметной странице и в сводке."
       }
     },
     "src/components/QuizCard.css": {
@@ -1552,25 +1531,19 @@
       }
     },
     "src/DayDashboard.css": {
-      "sha256": "85eb8263bee5c0b9f394cf1ee731f20e40634650e647564d32a286d2948ac065",
-      "record": "docs/decisions/compact-homework-copy-2026-10-16.md",
+      "sha256": "5b5740a4d1c407f9efbc3261957ebab7cf4d2e8f1aac278c20f6bde6811603bc",
+      "record": "docs/decisions/grade-average-ui-kit-2026-10-18.md",
       "specs": [
-        "docs/modules/school-diary/dashboard.md",
-        "docs/shared/design/README.md"
+        "docs/modules/school-diary/grades.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/components/HomeworkOverview.test.tsx",
-        "src/DayDashboard.warmStart.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/UiKit.test.tsx"
+        "src/DayPage.gradeBadge.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель16.10.2026 прямо отверг длинные повторяющиеся подписи про учебный день и уроки и потребовал структурировать существующую карточку."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "a4e71958bad63c4ad5dd29a979739777e025b0afc53f28842e90daeb389612fb"
+        "evidence": "Пользователь запросил единый компонент и согласованное отображение средних; тот же чип используется на предметной странице и в сводке."
       }
     },
     "src/lib/assignmentPresentation.ts": {
@@ -4968,6 +4941,94 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Родитель18.10.2026 сообщил об отсутствии Telegram уведомления о только что загруженном решении и контекста задания; исправление семейной цепочки и проверка реальной доставки необходимы для согласованного сервиса. Название команды/продукта Education прямо уточнено пользователем."
+      }
+    },
+    "src/components/GradeAverage.tsx": {
+      "sha256": "5028e9eedc1a0c9bdb59245ace925383cc99493b5d28815ed8d981a0a01d0ae4",
+      "record": "docs/decisions/grade-average-ui-kit-2026-10-18.md",
+      "specs": [
+        "docs/modules/school-diary/grades.md",
+        "docs/shared/design/ui-kit.md"
+      ],
+      "tests": [
+        "src/UiKit.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь прямо запросил шкалу среднего балла, отдельный интерактивный слайдер и добавление компонента в production UI Kit."
+      }
+    },
+    "src/components/GradeAverage.css": {
+      "sha256": "514be6c79ab427f41ec39d66f7edcfec5dcb6974f9af83227e20951b39a3f700",
+      "record": "docs/decisions/grade-average-ui-kit-2026-10-18.md",
+      "specs": [
+        "docs/modules/school-diary/grades.md",
+        "docs/shared/design/ui-kit.md"
+      ],
+      "tests": [
+        "src/UiKit.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь прямо запросил шкалу среднего балла, отдельный интерактивный слайдер и добавление компонента в production UI Kit."
+      }
+    },
+    "src/components/GradeAverageSlider.tsx": {
+      "sha256": "907338e6ae4a11d369e9a48acaae1203733439f00534754b239c0b6e41881b0a",
+      "record": "docs/decisions/grade-average-ui-kit-2026-10-18.md",
+      "specs": [
+        "docs/modules/school-diary/grades.md",
+        "docs/shared/design/ui-kit.md"
+      ],
+      "tests": [
+        "src/UiKit.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь прямо запросил шкалу среднего балла, отдельный интерактивный слайдер и добавление компонента в production UI Kit."
+      }
+    },
+    "src/components/GradeAverageSlider.css": {
+      "sha256": "0cdc4a06ddd0ee01fdb24cc3b1585959abe955bc76e874cb7cfd5cb52df7478d",
+      "record": "docs/decisions/grade-average-ui-kit-2026-10-18.md",
+      "specs": [
+        "docs/modules/school-diary/grades.md",
+        "docs/shared/design/ui-kit.md"
+      ],
+      "tests": [
+        "src/UiKit.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь прямо запросил шкалу среднего балла, отдельный интерактивный слайдер и добавление компонента в production UI Kit."
+      }
+    },
+    "scripts/publish-pages.mjs": {
+      "sha256": "0739b8e77bdd65ffbd410e0b4f557ea84e1da5126a5a414222e63da5a0bb1a07",
+      "record": "docs/decisions/authenticated-learning-routes-2026-10-18.md",
+      "specs": [
+        "docs/operations/deployment.md"
+      ],
+      "tests": [
+        "scripts/publish-source-gate.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель18.10 требует восстановить корректные родительские карточки без утраты согласованного дизайна; объединённый выпуск защищён от повторного затирания."
+      }
+    },
+    "scripts/publish-source-gate.mjs": {
+      "sha256": "99ab0356884d23965385bd64567f550d5923f783de8c6a6f7044ee59235ffd51",
+      "record": "docs/decisions/authenticated-learning-routes-2026-10-18.md",
+      "specs": [
+        "docs/operations/deployment.md"
+      ],
+      "tests": [
+        "scripts/publish-source-gate.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель18.10 требует восстановить корректные родительские карточки без утраты согласованного дизайна; объединённый выпуск защищён от повторного затирания."
       }
     }
   }

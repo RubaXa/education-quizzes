@@ -1,0 +1,61 @@
+---
+id: decision.grade-average-ui-kit-2026-10-18
+status: accepted
+implementation: implemented
+created: 2026-10-18
+updated: 2026-10-18
+parent: module.school-diary.grades
+consumers:
+  - "Education UI"
+  - "Education UI Kit"
+  - "frontend developer"
+uses:
+  - module.school-diary.grades
+  - shared.design
+  - shared.design.ui-kit
+sections:
+  - основание
+  - было--стало
+  - действия-и-роли
+  - проверки
+  - согласование
+  - затронутые-файлы
+code:
+  - "src/components/GradeAverage.tsx"
+  - "src/components/GradeAverageSlider.tsx"
+  - "src/UiKit.tsx"
+---
+# Шкала и общая метка среднего в Education
+
+## Основание
+
+18.10.2026 родитель показал экран оценок и прямо попросил проверить повторы, унифицировать фон меток, разложить шкалу от двоек до пятёрок с пограничными значениями, исследовать токены/доступность, а также добавить отдельный интерактивный слайдер от 2 до 5.
+
+## Было → стало
+
+В расписании и dashboard средние рисовались отдельной разметкой: отличное и watch-состояния имели фон, обычное значение оставалось текстом. Обе поверхности используют `GradeAverage` и один `gradeAverageTone`. UI Kit показывает всю шкалу и соседние пограничные значения 2,99/3,00, 3,99/4,00, 4,49/4,50, 4,59/4,60, 4,99/5,00. Все пары цветов — существующие статусные токены.
+
+## Действия и роли
+
+Чип отображает форматированное число и тон. Категории: ниже 3 error; 3–менее4 attention; 4–менее4,50 neutral; 4,50–менее4,60 accent; от4,60 success. Явный watch сохраняет attention, allFives — success. ✨ после числа и показывается только при allFives; 4,99 не домысливает пять пятёрок. Новый `GradeAverageSlider` позволяет локально менять сотые от 2,00 до 5,00, видеть чип и диапазон, переключать демонстрационные watch/allFives; несколько фиксированных примеров и пограничные значения остаются рядом. Контейнеры владеют сохранением, действием и прогнозом; категория не объявляет годовую оценку. Утверждения W3C, Carbon и GOV.UK поддерживают роли, но не устанавливают академические пороги; пороги 4,50 и 4,60 — пользовательские визуальные ориентиры.
+
+## Проверки
+
+`npm run check:spec` проверяет карту и граф спецификаций; затронутые существующие сценарии представлены в `src/DayPage.gradeBadge.test.tsx`, `src/DayDashboard.warmStart.test.tsx`, `src/UiKit.test.tsx`. Во время изменения общий spec gate находит другие незарегистрированные файлы в текущем рабочем дереве, перечисленные в статусе задачи. Источники доступности и карта порогов записаны в `docs/research/grade-average-visual-scale-2026-10-18.md`.
+
+## Согласование
+
+Прямой запрос родителя 18.10.2026 на исследование, пограничные значения, палитру из текущих токенов и запись в UI Kit. Публикация локального предпросмотра не означает подтверждение школьной формулы годовой отметки.
+
+## Затронутые файлы
+
+- `src/components/GradeAverage.tsx`
+- `src/components/GradeAverage.css`
+- `src/components/GradeAverageSlider.tsx`
+- `src/components/GradeAverageSlider.css`
+- `src/DayPage.tsx`
+- `src/DayPage.css`
+- `src/DayDashboard.tsx`
+- `src/DayDashboard.css`
+- `src/UiKit.tsx`
+- `src/UiKit.css`
