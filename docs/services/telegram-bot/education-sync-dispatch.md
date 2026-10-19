@@ -1,7 +1,7 @@
 ---
 id: service.telegram-bot.education-sync-dispatch
 status: accepted
-implementation: partial
+implementation: implemented
 created: 2026-10-19
 updated: 2026-10-19
 parent: service.telegram-bot
@@ -64,3 +64,6 @@ Opt-in задаёт `EDUCATION_SYNC_CODEX_PATH` (абсолютный испол
 Живой выпуск требует три отдельных доказательства: natural Mesh ledger → точный outbox/digest receipt; CLI → ответ **того же** существующего чата; durable dispatch request → claimed/running → фактический результат workflow → complete либо явная блокировка. Демонстрационная technical.probe не заменяет первое доказательство. До получения всей цепочки implementation остаётся partial; локально проходящие тесты не объявляются выпущенной возможностью.
 
 Live readback19.10: main3a7ac5b/worker40e370396896d1ce33e2085b,39файлов совпали;5naturalMesh events доставлены одной сводкой. Постоянный worker сам поставил один запрос generation5 в существующий EducationSync: queued→claimed/running и heartbeat подтверждены. Workflow собрал42дня и опубликовал три новые оценки с readback; перенос конкретного teacher attachment на пользовательский Диск отклонён auto-review, запрошено точное разрешение. Пользователь затем прямо подтвердил этот конкретный перенос и постоянную стандартную синхронизацию; разрешение передано исполняющему чату. Полное завершение подтверждается отдельным durable acknowledgement, а не этим разрешением. Этот реальный сценарий потребовал отдельного blocked/explicit-resume состояния вместо бесконечных минутных повторов.
+
+
+Итоговый readback19.10: после main75b425c установлен worker34b3a4c68e7bf9b4556e1429;39файлов release совпадают с исходниками. Все93области успешно прочитаны, checkpointFresh93, неизвестных/просроченных0. Пять natural events покрыты одной уникальной Telegram receipt; pending/retry0. Автоматически созданный запрос44320156-3b17-47e7-8498-846d469d282d прошёл claim/heartbeat и фактический полный цикл42дней. Workflow самостоятельно записал completed19.10 в11:33:53UTC; итоговые очереди0/0/0. Разрешённый оригинал учителя опубликован и перечитан. Обнаруженный пропуск inbox уведомлений после сверки оценок восстановлен [штатной адресной командой](../../decisions/grade-notice-recovery-2026-10-19.md):6документов для3оценок, повтор created0/verifiedtrue. Эти факты завершают требуемую живую цепочку; доступность Mac/Codex остаётся эксплуатационным условием.

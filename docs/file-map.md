@@ -254,7 +254,7 @@
 | [docs/modules/synchronization/shared-artifact-pipeline.md](modules/synchronization/shared-artifact-pipeline.md) | [Общие артефакты](modules/synchronization/shared-artifact-pipeline.md) | Стадии исходников, общего обогащения и адресных связей | `skills/education-sync`; синхронизатор; разработчик |
 | [docs/operations/README.md](operations/README.md) | [Контракт](operations/README.md) | Контракт и связи области | Агент; разработчик |
 | [docs/operations/deployment.md](operations/deployment.md) | [Контракт](operations/deployment.md) | Контракт и связи области | Агент; разработчик |
-| [docs/operations/education-sync.md](operations/education-sync.md) | [Контракт](operations/education-sync.md) | Контракт и связи области | Агент; разработчик |
+| [docs/operations/education-sync.md](operations/education-sync.md) | [Контракт](operations/education-sync.md) | Общий ручной/автоматический цикл, постоянная авторизация стандартных материалов | Агент; разработчик |
 | [docs/operations/local-development.md](operations/local-development.md) | [Контракт](operations/local-development.md) | Контракт и связи области | Агент; разработчик |
 | [docs/operations/recovery.md](operations/recovery.md) | [Контракт](operations/recovery.md) | Контракт и связи области | Агент; разработчик |
 | [docs/plans/local-first-release-plan-2026-10-12.md](plans/local-first-release-plan-2026-10-12.md) | [Поэтапный план local-first](plans/local-first-release-plan-2026-10-12.md) | Повторяемый порог 20%, шаги, контроль выпуска и откат | Агент; разработчик; родительский кабинет; EducationSync |

@@ -991,7 +991,7 @@
     {
       "id": "decision.telegram-sync-recovery-2026-10-19",
       "status": "accepted",
-      "implementation": "partial",
+      "implementation": "implemented",
       "created": "2026-10-19",
       "updated": "2026-10-19",
       "parent": "service.telegram-bot",
@@ -7488,11 +7488,12 @@
       "uses": [
         "service.operator-cli",
         "module.synchronization.global-sync",
-        "module.synchronization.education-pipeline"
+        "module.synchronization.education-pipeline",
+        "service.telegram-bot.education-sync-dispatch"
       ],
       "sections": [],
       "created": "2026-10-16",
-      "updated": "2026-10-16",
+      "updated": "2026-10-19",
       "consumers": [
         "Education sync operator",
         "sync-project CLI",
@@ -8389,7 +8390,7 @@
     {
       "id": "service.telegram-bot.education-sync-dispatch",
       "status": "accepted",
-      "implementation": "partial",
+      "implementation": "implemented",
       "created": "2026-10-19",
       "updated": "2026-10-19",
       "parent": "service.telegram-bot",
@@ -14446,6 +14447,11 @@
     {
       "from": "operations.education-sync",
       "to": "service.operator-cli",
+      "type": "uses"
+    },
+    {
+      "from": "operations.education-sync",
+      "to": "service.telegram-bot.education-sync-dispatch",
       "type": "uses"
     },
     {
