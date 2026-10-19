@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
+import { EventEmitter } from 'node:events'
 import { createRuntime } from './runtime.mjs'
+import { runWorker } from './worker-loop.mjs'
 import { createEducationEventHandlers } from '../application/education-event-routing.mjs'
 import { createTelemetry } from '../../education-runtime/telemetry.mjs'
 
@@ -72,6 +74,30 @@ describe('unified education event runtime wiring', () => {
     await runtime.legacyEventReconciler.runOne()
     expect(telemetry.snapshot().spans).toHaveProperty('telegram.upload.reconcile')
     expect(telemetry.snapshot().spans).toHaveProperty('telegram.education-event.legacy-reconcile')
+  })
+
+  it('starts the real event consumer through the worker and shuts down within the configured bound', async () => {
+    const db = fakeDb()
+    const telemetry = createTelemetry()
+    const runtime = createRuntime(config, { firestore: db, telemetry, enableFirestoreSource: true, enableDelivery: true })
+    const processLike = new EventEmitter()
+    processLike.exitCode = 0
+    const logger = { info() {}, error: vi.fn() }
+    let finishPolling
+    runtime.telegram.start = () => new Promise((resolve) => { finishPolling = resolve })
+    runtime.telegram.stop = vi.fn(async () => finishPolling?.())
+
+    const worker = runWorker({ runtime, enableDelivery: true, logger, processLike, shutdownMs: 250, shutdownCleanupMs: 100 })
+    await vi.waitFor(() => expect(db.listeners).toHaveLength(1))
+    expect(runtime.educationEventConsumer).toBeTruthy()
+    expect(runtime.educationEventConsumer.runOne.__workerWatchdog).toBe(true)
+    expect(runtime.educationEventConsumer.runOne.__operationDeadline).toBe(true)
+    expect(runtime.telegram.stop).not.toHaveBeenCalled()
+
+    processLike.emit('SIGTERM')
+    await expect(worker).resolves.toEqual({ ok: true })
+    expect(runtime.telegram.stop).toHaveBeenCalledOnce()
+    expect(db.listeners).toHaveLength(0)
   })
 
   it('routes Mesh queue events through notification and the shared EducationSync dispatcher', async () => {

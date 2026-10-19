@@ -1400,7 +1400,7 @@
       }
     },
     "packages/telegram-notifications/operations/operation-deadline.mjs": {
-      "sha256": "cbf81d50d27c4b617dabf26fc7d3c9fd929d1e6e1e56eae8ec92d236c8ff2886",
+      "sha256": "9c1719901156d72ec714789563929149bad2d7136595873db60e833a95e8f0aa",
       "record": "docs/decisions/telegram-sync-recovery-2026-10-19.md",
       "specs": [
         "docs/services/telegram-bot/operations.md",
@@ -1409,7 +1409,8 @@
       "tests": [
         "packages/telegram-notifications/operations/operation-deadline.test.mjs",
         "packages/telegram-notifications/adapters/worker-loop.test.mjs",
-        "packages/telegram-notifications/source-pipeline.test.mjs"
+        "packages/telegram-notifications/source-pipeline.test.mjs",
+        "packages/telegram-notifications/adapters/runtime.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",

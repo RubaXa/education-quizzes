@@ -1,6 +1,6 @@
 /** @see ../../../docs/services/telegram-bot/operations.md#runtime-boundary */
 
-const OPERATIONS = new Set(['startup_verify', 'source_start', 'source_reconcile', 'source_pipeline', 'delivery_run_one', 'education_sync_dispatch'])
+const OPERATIONS = new Set(['startup_verify', 'source_start', 'source_reconcile', 'source_pipeline', 'delivery_run_one', 'education_sync_dispatch', 'education_event_dispatch'])
 
 /** Guard one active operation. A timeout requests process termination because an
  * underlying SDK promise may still complete and write after its caller gives up.

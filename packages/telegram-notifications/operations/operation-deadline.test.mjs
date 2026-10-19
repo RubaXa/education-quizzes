@@ -31,4 +31,11 @@ describe('active operation deadlines', () => {
     expect(() => withOperationDeadline(() => {}, { timeoutMs: 1, operation: 'private_data', onTimeout: timedOut }))
       .toThrow('operation_name_invalid')
   })
+
+  it('accepts the education event consumer operation used by the worker', async () => {
+    const operation = withOperationDeadline(async () => 'dispatched', {
+      timeoutMs: 50, operation: 'education_event_dispatch', onTimeout: vi.fn(),
+    })
+    await expect(operation()).resolves.toBe('dispatched')
+  })
 })

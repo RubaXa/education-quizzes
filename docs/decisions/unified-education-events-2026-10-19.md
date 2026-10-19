@@ -60,6 +60,9 @@ sections:
 - `packages/telegram-notifications/adapters/runtime.mjs`
 - `packages/telegram-notifications/adapters/worker-loop.mjs`
 - `packages/telegram-notifications/application/education-event-routing.mjs`
+- `packages/telegram-notifications/operations/operation-deadline.mjs`
+- `packages/telegram-notifications/operations/operation-deadline.test.mjs`
+- `packages/telegram-notifications/adapters/runtime.test.mjs`
 - `packages/telegram-notifications/adapters/runtime.mjs`
 - `packages/telegram-notifications/adapters/runtime.test.mjs`
 - `packages/telegram-notifications/application/education-sync-dispatcher.mjs`
