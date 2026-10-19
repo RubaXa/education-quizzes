@@ -46,6 +46,41 @@ describe('Firestore source discovery manifest', () => {
     expect([...db.data.keys()].every((key) => /^(notify|shadow)_(context|scope)_[a-f0-9]{64}$/.test(key.split('/').at(-1)))).toBe(true)
   })
 
+  it('classifies collection snapshot candidates live only for a durably initialized child context', async () => {
+    const db = storeDb()
+    const store = createFirestoreSourceDiscoveryStore(db)
+    const initial = await store.prepare(inventory('fam-a', 'kid-a', 'quiz-a'))
+    await store.confirm(initial)
+
+    const restarted = createFirestoreSourceDiscoveryStore(db)
+    await expect(restarted.confirmCandidate('firestore', { familyId: 'fam-a', childId: 'kid-a',
+      kind: 'upload', dayToken: 'day-a', recordId: 'new-file' })).resolves.toEqual({ status: 'confirmed', origin: 'live' })
+    await expect(restarted.confirmCandidate('firestore', { familyId: 'fam-a', childId: 'new-kid',
+      kind: 'upload', dayToken: 'day-b', recordId: 'old-file' })).resolves.toEqual({ status: 'context_unconfirmed' })
+    expect([...db.data.values()].filter((value) => value.kind === 'context')).toHaveLength(1)
+  })
+
+  it('does not retain a speculative origin from an aborted transaction attempt', async () => {
+    const db = storeDb()
+    const scope = { familyId: 'fam-a', childId: 'kid-a', kind: 'upload', dayToken: 'day-a', recordId: 'file-a' }
+    let attempt = 0
+    db.runTransaction = async (callback) => {
+      let result
+      for (let currentAttempt = 1; currentAttempt <= 2; currentAttempt++) {
+        attempt++
+        const tx = {
+          get: async (ref) => ({ exists: currentAttempt === 1 && ref.path.includes('context_'), data: () => ({}) }),
+          create: () => {},
+        }
+        result = await callback(tx)
+      }
+      return result
+    }
+    const store = createFirestoreSourceDiscoveryStore(db)
+    await expect(store.confirmCandidate('firestore', scope)).resolves.toEqual({ status: 'context_unconfirmed' })
+    expect(attempt).toBe(2)
+  })
+
   it('does not store raw family, child, or day tokens in manifest paths or values', async () => {
     const db = storeDb()
     const store = createFirestoreSourceDiscoveryStore(db)

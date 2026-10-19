@@ -110,7 +110,7 @@ export async function listEvents(db, since, { createInventory = createFirestoreS
   const query = db.collection('telegramNotificationEvents').where('detectedAt', '>=', new Date(since).toISOString())
     .orderBy('detectedAt', 'desc').limit(101)
   if (typeof query.select !== 'function') throw new Error('event_listing_unavailable')
-  const selected = query.select('eventId', 'source', 'eventType', 'detectedAt', 'familyId', 'childId')
+  const selected = query.select('eventId', 'source', 'eventType', 'occurredAt', 'detectedAt', 'familyId', 'childId')
   const snapshot = await selected.get()
   const docs = snapshot.docs.map((doc) => doc.data() ?? {})
   const inventory = await createInventory(db, { includeFirestore: false, includeMesh: false }).enumerate()
@@ -123,8 +123,20 @@ export async function listEvents(db, since, { createInventory = createFirestoreS
       && /^[A-Za-z0-9_-]{1,128}$/.test(event.childId ?? '')
       && (event.source === 'firestore' ? eligibleOwners.has(`${event.familyId}/${event.childId}`)
         : eligibleOwners.get(`${event.familyId}/${event.childId}`) === true))
-    .map((event) => ({ eventId: event.eventId, source: event.source, eventType: event.eventType, detectedAt: event.detectedAt }))
+    .map((event) => ({ eventId: event.eventId, source: event.source, eventType: event.eventType, detectedAt: event.detectedAt,
+      ...workSourceTiming(event) }))
   return { events: events.slice(0, 100), truncated: docs.length > 100, scanned: docs.length }
+}
+
+function workSourceTiming(event) {
+  // Mesh occurredAt is a school date, not a transport timestamp. Work events
+  // use the confirmed upload/submission time from their normalized source.
+  if (event.source !== 'firestore' || typeof event.occurredAt !== 'string'
+    || !/^\d{4}-\d{2}-\d{2}T/.test(event.occurredAt)) return {}
+  const occurred = Date.parse(event.occurredAt), detected = Date.parse(event.detectedAt)
+  if (!Number.isFinite(occurred) || !Number.isFinite(detected)) return {}
+  return { sourceOccurredAt: new Date(occurred).toISOString(),
+    ...(detected >= occurred ? { sourceToDetectionMs: detected - occurred } : {}) }
 }
 
 function readClaimFile(projectRoot, suppliedPath, requestId) {

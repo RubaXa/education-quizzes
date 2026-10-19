@@ -506,7 +506,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#ee8efaa3a706",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 437,
+    "line": 441,
     "api": "admin.get",
     "target": "familyLinks.where('familyId', '==', event.familyId)",
     "group": "operator-other",
@@ -518,7 +518,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#e06f851a5504",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 452,
+    "line": 456,
     "api": "admin.get",
     "target": "familyLinks.doc(linkId)",
     "group": "operator-other",
@@ -530,7 +530,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#203c2b3aac79",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 456,
+    "line": 460,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -542,7 +542,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-29",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 466,
+    "line": 470,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -638,7 +638,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#915844384df9",
     "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
-    "line": 101,
+    "line": 117,
     "api": "admin.get",
     "target": "this.sources",
     "group": "operator-other",
@@ -650,7 +650,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#915844384df9-2",
     "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
-    "line": 127,
+    "line": 143,
     "api": "admin.get",
     "target": "this.sources",
     "group": "operator-other",
@@ -662,7 +662,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#0869f8ccba6e",
     "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
-    "line": 138,
+    "line": 154,
     "api": "admin.get",
     "target": "this.listeners",
     "group": "operator-other",
@@ -674,7 +674,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#915844384df9-3",
     "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
-    "line": 140,
+    "line": 155,
     "api": "admin.get",
     "target": "this.sources",
     "group": "operator-other",
@@ -686,7 +686,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#915844384df9-4",
     "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
-    "line": 161,
+    "line": 177,
     "api": "admin.get",
     "target": "this.sources",
     "group": "operator-other",
@@ -698,7 +698,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#0869f8ccba6e-2",
     "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
-    "line": 179,
+    "line": 195,
     "api": "admin.get",
     "target": "this.listeners",
     "group": "operator-other",
@@ -710,7 +710,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#236fbcfd9e39",
     "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
-    "line": 184,
+    "line": 200,
     "api": "admin.get",
     "target": "this.known",
     "group": "operator-other",
@@ -722,7 +722,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#915844384df9-5",
     "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
-    "line": 198,
+    "line": 227,
     "api": "admin.get",
     "target": "this.sources",
     "group": "operator-other",
@@ -734,7 +734,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#236fbcfd9e39-2",
     "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
-    "line": 200,
+    "line": 229,
     "api": "admin.get",
     "target": "this.known",
     "group": "operator-other",
@@ -744,9 +744,21 @@
     "note": "Локальный Map источников, очереди, listeners/retries/health; удалённого Firestore чтения нет."
   },
   {
+    "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#3124b7c61eea",
+    "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
+    "line": 229,
+    "api": "admin.get",
+    "target": "this.discovered",
+    "group": "operator-other",
+    "assessment": "excluded",
+    "policy": "not-firestore",
+    "refresh": "none",
+    "note": "Локальный Map известных/обнаруженных scopes или source adapters; сетевого чтения здесь нет."
+  },
+  {
     "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#475679681877",
     "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
-    "line": 202,
+    "line": 231,
     "api": "admin.get",
     "target": "this.retryTimers",
     "group": "operator-other",
@@ -758,7 +770,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#3bcc43c7d25e",
     "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
-    "line": 206,
+    "line": 235,
     "api": "admin.get",
     "target": "this.known.get(kind)",
     "group": "operator-other",
@@ -770,7 +782,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#236fbcfd9e39-3",
     "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
-    "line": 206,
+    "line": 235,
     "api": "admin.get",
     "target": "this.known",
     "group": "operator-other",
@@ -780,9 +792,33 @@
     "note": "Локальный Map источников, очереди, listeners/retries/health; удалённого Firestore чтения нет."
   },
   {
+    "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#01326ead2225",
+    "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
+    "line": 235,
+    "api": "admin.get",
+    "target": "this.discovered.get(kind)",
+    "group": "operator-other",
+    "assessment": "excluded",
+    "policy": "not-firestore",
+    "refresh": "none",
+    "note": "Локальный Map известных/обнаруженных scopes или source adapters; сетевого чтения здесь нет."
+  },
+  {
+    "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#3124b7c61eea-2",
+    "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
+    "line": 235,
+    "api": "admin.get",
+    "target": "this.discovered",
+    "group": "operator-other",
+    "assessment": "excluded",
+    "policy": "not-firestore",
+    "refresh": "none",
+    "note": "Локальный Map известных/обнаруженных scopes или source adapters; сетевого чтения здесь нет."
+  },
+  {
     "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#915844384df9-6",
     "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
-    "line": 232,
+    "line": 268,
     "api": "admin.get",
     "target": "this.sources",
     "group": "operator-other",
@@ -794,7 +830,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#51bb4566ea30",
     "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
-    "line": 234,
+    "line": 270,
     "api": "admin.get",
     "target": "this.pending",
     "group": "operator-other",
@@ -806,7 +842,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#915844384df9-7",
     "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
-    "line": 275,
+    "line": 311,
     "api": "admin.get",
     "target": "this.sources",
     "group": "operator-other",
@@ -818,7 +854,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#915844384df9-8",
     "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
-    "line": 281,
+    "line": 317,
     "api": "admin.get",
     "target": "this.sources",
     "group": "operator-other",
@@ -830,7 +866,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#90af6326f7dd",
     "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
-    "line": 307,
+    "line": 343,
     "api": "admin.get",
     "target": "this.retryAttempts",
     "group": "operator-other",
@@ -842,7 +878,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#236fbcfd9e39-4",
     "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
-    "line": 314,
+    "line": 350,
     "api": "admin.get",
     "target": "this.known",
     "group": "operator-other",
@@ -854,7 +890,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#915844384df9-9",
     "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
-    "line": 314,
+    "line": 350,
     "api": "admin.get",
     "target": "this.sources",
     "group": "operator-other",
@@ -864,9 +900,33 @@
     "note": "Локальный Map источников, очереди, listeners/retries/health; удалённого Firestore чтения нет."
   },
   {
+    "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#3124b7c61eea-3",
+    "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
+    "line": 351,
+    "api": "admin.get",
+    "target": "this.discovered",
+    "group": "operator-other",
+    "assessment": "excluded",
+    "policy": "not-firestore",
+    "refresh": "none",
+    "note": "Локальный Map известных/обнаруженных scopes или source adapters; сетевого чтения здесь нет."
+  },
+  {
+    "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#915844384df9-10",
+    "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
+    "line": 351,
+    "api": "admin.get",
+    "target": "this.sources",
+    "group": "operator-other",
+    "assessment": "excluded",
+    "policy": "not-firestore",
+    "refresh": "none",
+    "note": "Локальный Map известных/обнаруженных scopes или source adapters; сетевого чтения здесь нет."
+  },
+  {
     "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#236fbcfd9e39-5",
     "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
-    "line": 330,
+    "line": 367,
     "api": "admin.get",
     "target": "this.known",
     "group": "operator-other",
@@ -876,9 +936,21 @@
     "note": "Локальный Map источников, очереди, listeners/retries/health; удалённого Firestore чтения нет."
   },
   {
+    "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#3124b7c61eea-4",
+    "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
+    "line": 367,
+    "api": "admin.get",
+    "target": "this.discovered",
+    "group": "operator-other",
+    "assessment": "excluded",
+    "policy": "not-firestore",
+    "refresh": "none",
+    "note": "Локальный Map известных/обнаруженных scopes или source adapters; сетевого чтения здесь нет."
+  },
+  {
     "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#af15f03cc6ba",
     "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
-    "line": 350,
+    "line": 387,
     "api": "admin.get",
     "target": "this.childHealth",
     "group": "operator-other",
@@ -886,6 +958,78 @@
     "policy": "not-firestore",
     "refresh": "none",
     "note": "Локальный Map источников, очереди, listeners/retries/health; удалённого Firestore чтения нет."
+  },
+  {
+    "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#915844384df9-11",
+    "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
+    "line": 398,
+    "api": "admin.get",
+    "target": "this.sources",
+    "group": "operator-other",
+    "assessment": "excluded",
+    "policy": "not-firestore",
+    "refresh": "none",
+    "note": "Локальный Map известных/обнаруженных scopes или source adapters; сетевого чтения здесь нет."
+  },
+  {
+    "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#915844384df9-12",
+    "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
+    "line": 444,
+    "api": "admin.get",
+    "target": "this.sources",
+    "group": "operator-other",
+    "assessment": "excluded",
+    "policy": "not-firestore",
+    "refresh": "none",
+    "note": "Локальный Map известных/обнаруженных scopes или source adapters; сетевого чтения здесь нет."
+  },
+  {
+    "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#236fbcfd9e39-6",
+    "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
+    "line": 448,
+    "api": "admin.get",
+    "target": "this.known",
+    "group": "operator-other",
+    "assessment": "excluded",
+    "policy": "not-firestore",
+    "refresh": "none",
+    "note": "Локальный Map известных/обнаруженных scopes или source adapters; сетевого чтения здесь нет."
+  },
+  {
+    "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#3124b7c61eea-5",
+    "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
+    "line": 449,
+    "api": "admin.get",
+    "target": "this.discovered",
+    "group": "operator-other",
+    "assessment": "excluded",
+    "policy": "not-firestore",
+    "refresh": "none",
+    "note": "Локальный Map известных/обнаруженных scopes или source adapters; сетевого чтения здесь нет."
+  },
+  {
+    "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#915844384df9-13",
+    "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
+    "line": 469,
+    "api": "admin.get",
+    "target": "this.sources",
+    "group": "operator-other",
+    "assessment": "excluded",
+    "policy": "not-firestore",
+    "refresh": "none",
+    "note": "Локальный Map известных/обнаруженных scopes или source adapters; сетевого чтения здесь нет."
+  },
+  {
+    "id": "packages/telegram-notifications/adapters/source-coordinator.mjs#admin.get#3124b7c61eea-6",
+    "file": "packages/telegram-notifications/adapters/source-coordinator.mjs",
+    "line": 474,
+    "api": "admin.get",
+    "target": "this.discovered",
+    "group": "operator-other",
+    "assessment": "excluded",
+    "policy": "not-firestore",
+    "refresh": "none",
+    "note": "Локальный Map известных/обнаруженных scopes или source adapters; сетевого чтения здесь нет."
   },
   {
     "id": "packages/telegram-notifications/adapters/source-discovery-firestore.mjs#admin.get#2a91c7d59f52",
@@ -912,9 +1056,33 @@
     "note": "Транзакционно читает live marker только при новой/unconfirmed scope перед записью marker, а не при каждой обычной сверке. Новые scope origins подтверждаются не более8 транзакциями одновременно; отмена прекращает новые операции, context marker следует только после всех origins."
   },
   {
+    "id": "packages/telegram-notifications/adapters/source-discovery-firestore.mjs#admin.get#2a91c7d59f52-3",
+    "file": "packages/telegram-notifications/adapters/source-discovery-firestore.mjs",
+    "line": 113,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "source-discovery-candidate-origin",
+    "refresh": "once per unknown candidate; transaction retry on contention",
+    "note": "Два точечных чтения context/scope marker после проверки текущего owner. Требует уже подтверждённый context, создаёт только scope origin; не завершает bootstrap семьи. Candidate concurrency bounded, известные IDs обходятся без этой транзакции. Результат возвращается из завершённой транзакции без speculative state."
+  },
+  {
+    "id": "packages/telegram-notifications/adapters/source-discovery-firestore.mjs#admin.get#2a91c7d59f52-4",
+    "file": "packages/telegram-notifications/adapters/source-discovery-firestore.mjs",
+    "line": 116,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "source-discovery-candidate-origin",
+    "refresh": "once per unknown candidate; transaction retry on contention",
+    "note": "Два точечных чтения context/scope marker после проверки текущего owner. Требует уже подтверждённый context, создаёт только scope origin; не завершает bootstrap семьи. Candidate concurrency bounded, известные IDs обходятся без этой транзакции. Результат возвращается из завершённой транзакции без speculative state."
+  },
+  {
     "id": "packages/telegram-notifications/adapters/source-discovery-firestore.mjs#admin.get#3a142ce2933e",
     "file": "packages/telegram-notifications/adapters/source-discovery-firestore.mjs",
-    "line": 112,
+    "line": 138,
     "api": "admin.get",
     "target": "item",
     "group": "operator-other",
@@ -926,7 +1094,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-firestore.mjs#admin.getAll#5718b4ad2931",
     "file": "packages/telegram-notifications/adapters/source-firestore.mjs",
-    "line": 13,
+    "line": 10,
     "api": "admin.getAll",
     "target": "db",
     "group": "operator-other",
@@ -938,7 +1106,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-firestore.mjs#admin.get#f2c4103d5d1b",
     "file": "packages/telegram-notifications/adapters/source-firestore.mjs",
-    "line": 31,
+    "line": 28,
     "api": "admin.get",
     "target": "db.doc(`families/${scope.familyId}`)",
     "group": "operator-other",
@@ -950,7 +1118,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-firestore.mjs#admin.get#8f6404b39725",
     "file": "packages/telegram-notifications/adapters/source-firestore.mjs",
-    "line": 32,
+    "line": 29,
     "api": "admin.get",
     "target": "db.doc(`families/${scope.familyId}/children/${scope.childId}`)",
     "group": "operator-other",
@@ -962,7 +1130,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-firestore.mjs#admin.onSnapshot#100795890a98",
     "file": "packages/telegram-notifications/adapters/source-firestore.mjs",
-    "line": 190,
+    "line": 194,
     "api": "admin.onSnapshot",
     "target": "ref",
     "group": "operator-other",
@@ -972,9 +1140,21 @@
     "note": "Узкий документный listener даёт сигнал; getAll использует fieldMask для source payload. Family/child и owner перечитываются, raw SDK snapshot не сохраняется и не логируется. Повторы/reconnect и множественные listeners требуют live measurement."
   },
   {
+    "id": "packages/telegram-notifications/adapters/source-firestore.mjs#admin.onSnapshot#f3e4a8891798",
+    "file": "packages/telegram-notifications/adapters/source-firestore.mjs",
+    "line": 232,
+    "api": "admin.onSnapshot",
+    "target": "query",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "source-scoped-collection-discovery",
+    "refresh": "initial snapshot; changed documents; reconnect",
+    "note": "Только assignments/dayOwners заданной familyId и files/items точного canonical dayToken, включая пустые коллекции. Initial snapshots и deltas добавляют SDK reads; record listeners сохранены для отказоустойчивости. Известные IDs не запускают второй pipeline, guard refs дедуплицированы. Нет collectionGroup или межсемейного scan на новый файл; новые owner/family bindings обнаруживает отдельный authoritative inventory. См. решение firestore-live-discovery-2026-10-19."
+  },
+  {
     "id": "packages/telegram-notifications/adapters/source-inventory-firestore.mjs#admin.get#271386940323",
     "file": "packages/telegram-notifications/adapters/source-inventory-firestore.mjs",
-    "line": 185,
+    "line": 193,
     "api": "admin.get",
     "target": "pageQuery",
     "group": "operator-other",
@@ -1130,7 +1310,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#9c790211fd82",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 173,
+    "line": 175,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -1142,7 +1322,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-3",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 178,
+    "line": 180,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1154,7 +1334,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-4",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 218,
+    "line": 220,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1166,7 +1346,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-5",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 228,
+    "line": 230,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1178,7 +1358,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-6",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 237,
+    "line": 239,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1190,7 +1370,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-7",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 250,
+    "line": 252,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1202,7 +1382,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-8",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 259,
+    "line": 261,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1214,7 +1394,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-9",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 272,
+    "line": 274,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1226,7 +1406,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-10",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 283,
+    "line": 285,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1238,7 +1418,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-11",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 293,
+    "line": 295,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1250,7 +1430,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-12",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 304,
+    "line": 306,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -3986,7 +4166,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#4be1de83ec10",
     "file": "scripts/submissions.mjs",
-    "line": 50,
+    "line": 51,
     "api": "admin.get",
     "target": "db.collection('dayOwners')",
     "group": "operator-other",
@@ -3998,7 +4178,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#59159c16605e",
     "file": "scripts/submissions.mjs",
-    "line": 56,
+    "line": 57,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${ownerDoc.id}`)",
     "group": "operator-other",
@@ -4010,7 +4190,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#6fc899531654",
     "file": "scripts/submissions.mjs",
-    "line": 57,
+    "line": 58,
     "api": "admin.get",
     "target": "db.doc(`families/${owner.familyId}/children/${owner.childId}`)",
     "group": "operator-other",
@@ -4022,7 +4202,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#da34de8cc7c1",
     "file": "scripts/submissions.mjs",
-    "line": 58,
+    "line": 59,
     "api": "admin.get",
     "target": "db.collection(`dayUploads/${ownerDoc.id}/files`)",
     "group": "operator-other",
@@ -4034,7 +4214,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#48821996c703",
     "file": "scripts/submissions.mjs",
-    "line": 78,
+    "line": 79,
     "api": "admin.get",
     "target": "db.doc(`dayProgress/${owner.id}/items/${context.taskId}`)",
     "group": "operator-other",
@@ -4046,7 +4226,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#4be1de83ec10-2",
     "file": "scripts/submissions.mjs",
-    "line": 97,
+    "line": 98,
     "api": "admin.get",
     "target": "db.collection('dayOwners')",
     "group": "operator-other",
@@ -4058,7 +4238,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#59159c16605e-2",
     "file": "scripts/submissions.mjs",
-    "line": 103,
+    "line": 104,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${ownerDoc.id}`)",
     "group": "operator-other",
@@ -4070,7 +4250,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#6fc899531654-2",
     "file": "scripts/submissions.mjs",
-    "line": 104,
+    "line": 105,
     "api": "admin.get",
     "target": "db.doc(`families/${owner.familyId}/children/${owner.childId}`)",
     "group": "operator-other",
@@ -4082,7 +4262,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#7b18b93f35fc",
     "file": "scripts/submissions.mjs",
-    "line": 105,
+    "line": 106,
     "api": "admin.get",
     "target": "db.collection(`dayHelp/${ownerDoc.id}/items`)",
     "group": "operator-other",
@@ -4094,7 +4274,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#4be1de83ec10-3",
     "file": "scripts/submissions.mjs",
-    "line": 125,
+    "line": 126,
     "api": "admin.get",
     "target": "db.collection('dayOwners')",
     "group": "operator-other",
@@ -4106,7 +4286,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#59159c16605e-3",
     "file": "scripts/submissions.mjs",
-    "line": 131,
+    "line": 132,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${ownerDoc.id}`)",
     "group": "operator-other",
@@ -4118,7 +4298,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#6c639949eca8",
     "file": "scripts/submissions.mjs",
-    "line": 133,
+    "line": 134,
     "api": "admin.get",
     "target": "db.collection(`dayProgress/${ownerDoc.id}/items`)",
     "group": "operator-other",
@@ -4130,7 +4310,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#4be1de83ec10-4",
     "file": "scripts/submissions.mjs",
-    "line": 147,
+    "line": 148,
     "api": "admin.get",
     "target": "db.collection('dayOwners')",
     "group": "operator-other",
@@ -4142,7 +4322,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#59159c16605e-4",
     "file": "scripts/submissions.mjs",
-    "line": 151,
+    "line": 152,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${ownerDoc.id}`)",
     "group": "operator-other",
@@ -4154,7 +4334,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#6c639949eca8-2",
     "file": "scripts/submissions.mjs",
-    "line": 153,
+    "line": 154,
     "api": "admin.get",
     "target": "db.collection(`dayProgress/${ownerDoc.id}/items`)",
     "group": "operator-other",
@@ -4166,7 +4346,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#415411e2ddd3",
     "file": "scripts/submissions.mjs",
-    "line": 186,
+    "line": 187,
     "api": "admin.get",
     "target": "db.collection('dayOwners').where('date', '==', review.date)",
     "group": "operator-other",
@@ -4178,7 +4358,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#47958261b931",
     "file": "scripts/submissions.mjs",
-    "line": 190,
+    "line": 191,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -4190,7 +4370,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#25e51139e6a0",
     "file": "scripts/submissions.mjs",
-    "line": 195,
+    "line": 196,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${owner.id}`)",
     "group": "operator-other",
@@ -4202,7 +4382,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#47958261b931-2",
     "file": "scripts/submissions.mjs",
-    "line": 245,
+    "line": 246,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -4214,7 +4394,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#15ecdbe99851",
     "file": "scripts/submissions.mjs",
-    "line": 256,
+    "line": 257,
     "api": "admin.get",
     "target": "coverage",
     "group": "operator-other",
@@ -4226,7 +4406,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#25bdc495e077",
     "file": "scripts/submissions.mjs",
-    "line": 413,
+    "line": 414,
     "api": "admin.get",
     "target": "db.collection('dayOwners').where('date', '==', correction.date)",
     "group": "operator-other",
@@ -4238,7 +4418,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#25e51139e6a0-2",
     "file": "scripts/submissions.mjs",
-    "line": 417,
+    "line": 418,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${owner.id}`)",
     "group": "operator-other",
@@ -4250,7 +4430,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#b1a0a9da7b59",
     "file": "scripts/submissions.mjs",
-    "line": 417,
+    "line": 418,
     "api": "admin.get",
     "target": "db.doc(`dayProgress/${owner.id}/items/${correction.taskId}`)",
     "group": "operator-other",
@@ -4262,7 +4442,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#83f5a667c8e7",
     "file": "scripts/submissions.mjs",
-    "line": 418,
+    "line": 419,
     "api": "admin.get",
     "target": "db.doc(`dayReviewPrivate/${owner.id}/items/${correction.taskId}`)",
     "group": "operator-other",
@@ -4274,7 +4454,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#3a710fa54a19",
     "file": "scripts/submissions.mjs",
-    "line": 419,
+    "line": 420,
     "api": "admin.get",
     "target": "db.doc(`dayUploads/${owner.id}/files/${id}`)",
     "group": "operator-other",
@@ -4286,7 +4466,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#cb5a9eebcb34",
     "file": "scripts/submissions.mjs",
-    "line": 444,
+    "line": 445,
     "api": "admin.get",
     "target": "db.doc(`dayTaskGuides/${owner.id}/items/${correction.taskId}`)",
     "group": "operator-other",
@@ -4298,7 +4478,7 @@
   {
     "id": "scripts/submissions.mjs#admin.getAll#58c06df7cc4b",
     "file": "scripts/submissions.mjs",
-    "line": 481,
+    "line": 482,
     "api": "admin.getAll",
     "target": "db",
     "group": "operator-other",
@@ -4310,7 +4490,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#47958261b931-3",
     "file": "scripts/submissions.mjs",
-    "line": 499,
+    "line": 500,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -4322,7 +4502,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#d4c1114e5c5e",
     "file": "scripts/submissions.mjs",
-    "line": 499,
+    "line": 500,
     "api": "admin.get",
     "target": "reviewRefs[index]",
     "group": "operator-other",
@@ -4334,7 +4514,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#15ecdbe99851-2",
     "file": "scripts/submissions.mjs",
-    "line": 510,
+    "line": 511,
     "api": "admin.get",
     "target": "coverage",
     "group": "operator-other",
@@ -4346,7 +4526,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#15ecdbe99851-3",
     "file": "scripts/submissions.mjs",
-    "line": 510,
+    "line": 511,
     "api": "admin.get",
     "target": "coverage",
     "group": "operator-other",
@@ -4358,7 +4538,7 @@
   {
     "id": "scripts/submissions.mjs#admin.getAll#58c06df7cc4b-2",
     "file": "scripts/submissions.mjs",
-    "line": 514,
+    "line": 515,
     "api": "admin.getAll",
     "target": "db",
     "group": "operator-other",
@@ -4370,7 +4550,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#4be1de83ec10-5",
     "file": "scripts/submissions.mjs",
-    "line": 525,
+    "line": 526,
     "api": "admin.get",
     "target": "db.collection('dayOwners')",
     "group": "operator-other",
@@ -4382,7 +4562,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#25e51139e6a0-3",
     "file": "scripts/submissions.mjs",
-    "line": 531,
+    "line": 532,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${owner.id}`)",
     "group": "operator-other",
@@ -4394,7 +4574,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#4aecce90adb9",
     "file": "scripts/submissions.mjs",
-    "line": 533,
+    "line": 534,
     "api": "admin.get",
     "target": "db.collection(`dayProgress/${owner.id}/items`)",
     "group": "operator-other",
@@ -4406,7 +4586,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#a278bb5bedbf",
     "file": "scripts/submissions.mjs",
-    "line": 539,
+    "line": 540,
     "api": "admin.get",
     "target": "privateRef",
     "group": "operator-other",

@@ -116,7 +116,27 @@ describe('education sync dispatch CLI', () => {
     expect(result.events[0]).not.toHaveProperty('familyId')
     expect(selected).toContainEqual(['where', 'detectedAt', '>=', '2026-10-19T20:20:00.000Z'])
     expect(selected).toContainEqual(['limit', 101])
-    expect(selected.at(-1)).toEqual(['select', 'eventId', 'source', 'eventType', 'detectedAt', 'familyId', 'childId'])
+    expect(selected.at(-1)).toEqual(['select', 'eventId', 'source', 'eventType', 'occurredAt', 'detectedAt', 'familyId', 'childId'])
+  })
+
+  it.each([
+    ['firestore', 'upload.confirmed', '2026-10-19T20:20:00.000Z', 61_000],
+    ['firestore', 'quiz.submitted', '2026-10-19T20:20:00.000Z', 61_000],
+    ['mesh', 'grade.created', '2026-10-19T20:20:00.000Z', undefined],
+    ['firestore', 'upload.confirmed', 'invalid', undefined],
+  ])('reports safe source-to-detection timing for %s %s only when meaningful', async (source, eventType, occurredAt, expectedLag) => {
+    const event = { eventId: 'a'.repeat(64), source, eventType, occurredAt, detectedAt: '2026-10-19T20:21:01.000Z', familyId: 'family-a', childId: 'child-a' }
+    const query = { where: () => query, orderBy: () => query, limit: () => query, select: () => query,
+      get: async () => ({ docs: [{ data: () => event }] }) }
+    const result = await listEvents({ collection: () => query }, '2026-10-19T20:20:00.000Z', {
+      createInventory: () => ({ enumerate: async () => ({ complete: true, registeredChildren: [
+        { familyId: 'family-a', childId: 'child-a', hasMeshAccount: true },
+      ] }) }),
+    })
+    expect(result.events).toHaveLength(1)
+    expect(result.events[0].sourceToDetectionMs).toBe(expectedLag)
+    if (expectedLag === undefined) expect(result.events[0].sourceOccurredAt).toBeUndefined()
+    else expect(result.events[0].sourceOccurredAt).toBe(occurredAt)
   })
 
   it('does not report an apparently complete event list from an incomplete owner inventory', async () => {

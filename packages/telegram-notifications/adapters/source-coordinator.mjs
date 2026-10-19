@@ -29,6 +29,17 @@ export class SourceCoordinator {
     this.random = random
     this.listeners = new Map()
     this.known = new Map()
+    this.discovered = new Map([...this.sources.keys()].map((kind) => [kind, new Map()]))
+    this.discoveryWatch = null
+    this.discoveryWatchFailed = false
+    this.discoveryWatchReady = false
+    this.discoveryWatchGeneration = 0
+    this.discoveryTasks = new Set()
+    this.discoveryPending = new Map()
+    this.discoveryTaskKeys = new Set()
+    this.discoveryActive = 0
+    this.discoverySequence = 0
+    this.inventoryRefreshRequested = false
     this.pending = new Map()
     this.activeKeys = new Set()
     this.active = 0
@@ -69,11 +80,16 @@ export class SourceCoordinator {
     try { return await task } finally {
       this.reconciles.delete(task)
       if (this.reconcilePromise === task) this.reconcilePromise = null
+      if (this.inventoryRefreshRequested && this.running && !this.closed) {
+        this.inventoryRefreshRequested = false
+        queueMicrotask(() => { if (this.running && !this.closed) void this.reconcile() })
+      }
     }
   }
 
   async #reconcile() {
     if (!this.running || this.closed) return
+    const discoverySequenceAtStart = this.discoverySequence
     let inventory
     try {
       inventory = await this.enumerate({ signal: this.abortSignal })
@@ -136,8 +152,8 @@ export class SourceCoordinator {
     try {
       for (const [kind, scopes] of nextBySource) {
         const previous = this.listeners.get(kind)
-        if (sameKeys(previous?.scopes, scopes)) continue
         const source = this.sources.get(kind)
+        if (sameKeys(previous?.scopes, scopes)) continue
         const unsubscribe = scopes.size ? source.subscribe({
           scopes: [...scopes.values()].map((value) => value.scope),
           onSignal: (scope) => this.signal(kind, scope),
@@ -187,6 +203,19 @@ export class SourceCoordinator {
       // woken by their document listeners or by the adapter's reconnect pass.
       for (const [key, value] of scopes) if (!previous.has(key)) this.#enqueue(kind, value.scope, value.origin)
     }
+    if (!partial) {
+      for (const [kind, scopes] of this.discovered) for (const [key, value] of scopes) {
+        if ((value.sequence ?? 0) <= discoverySequenceAtStart || nextBySource.get(kind)?.has(key)) scopes.delete(key)
+      }
+    }
+    const successfulFamilies = new Set(inventory.families.map(({ familyId }) => familyId))
+    const failedDiscoveryTarget = (target) => !successfulFamilies.has(target.familyId)
+      || isFailedContext('firestore', target, inventory.failedContexts ?? [])
+    const discoveryTargets = partial
+      ? [...(this.discoveryWatch?.targets ?? []).filter(failedDiscoveryTarget),
+        ...(inventory.discoveryTargets ?? []).filter((target) => !failedDiscoveryTarget(target))]
+      : inventory.discoveryTargets ?? []
+    await this.#replaceDiscoveryWatch(discoveryTargets)
     this.#pruneRemovedScopes()
     this.#publishChildHealth(inventory.registeredChildren ?? [], inventory.complete === true)
     this.#pump()
@@ -197,13 +226,14 @@ export class SourceCoordinator {
     if (!this.running || this.closed || !this.sources.has(kind)) return false
     const source = this.sources.get(kind)
     const key = source.scopeKey(scope)
-    if (!this.known.get(kind)?.has(key)) return false
+    if (!this.known.get(kind)?.has(key) && !this.discovered.get(kind)?.has(key)) return false
     const queueKey = `${kind}:${key}`
     const retryTimer = this.retryTimers.get(queueKey)
     if (retryTimer) this.clearTimer(retryTimer)
     this.retryTimers.delete(queueKey)
     this.retryAttempts.delete(queueKey)
-    this.#enqueue(kind, scope, origin === 'live' ? 'live' : this.known.get(kind).get(key).origin)
+    const known = this.known.get(kind)?.get(key) ?? this.discovered.get(kind)?.get(key)
+    this.#enqueue(kind, scope, origin === 'live' ? 'live' : known.origin)
     this.#pump()
     return true
   }
@@ -218,11 +248,17 @@ export class SourceCoordinator {
     for (const timer of this.retryTimers.values()) this.clearTimer(timer)
     this.retryTimers.clear()
     this.pending.clear()
+    this.discoveryPending.clear()
     this.closePromise = (async () => {
       const listeners = [...this.listeners.values()]
       this.listeners.clear()
-      const unsubscribeResults = await Promise.allSettled(listeners.map(({ unsubscribe }) => unsubscribe?.()))
-      await Promise.allSettled([...(this.startPromise ? [this.startPromise] : []), ...this.reconciles, ...this.inflight])
+      const discoveryWatch = this.discoveryWatch
+      this.discoveryWatch = null
+      this.discoveryWatchGeneration++
+      this.discoveryWatchReady = false
+      const unsubscribeResults = await Promise.allSettled([...listeners.map(({ unsubscribe }) => unsubscribe?.()),
+        discoveryWatch?.unsubscribe?.()])
+      await Promise.allSettled([...(this.startPromise ? [this.startPromise] : []), ...this.reconciles, ...this.inflight, ...this.discoveryTasks])
       if (unsubscribeResults.some((result) => result.status === 'rejected')) throw new Error('source_stop_failed')
     })()
     return this.closePromise
@@ -311,7 +347,8 @@ export class SourceCoordinator {
     const timer = this.setTimer(() => {
       this.retryTimers.delete(queueKey)
       if (!this.running || this.closed) return
-      if (!this.known.get(item.kind)?.has(this.sources.get(item.kind).scopeKey(item.scope))) {
+      if (!this.known.get(item.kind)?.has(this.sources.get(item.kind).scopeKey(item.scope))
+        && !this.discovered.get(item.kind)?.has(this.sources.get(item.kind).scopeKey(item.scope))) {
         this.retryAttempts.delete(queueKey)
         return
       }
@@ -327,7 +364,7 @@ export class SourceCoordinator {
       const separator = queueKey.indexOf(':')
       const kind = queueKey.slice(0, separator)
       const key = queueKey.slice(separator + 1)
-      return this.known.get(kind)?.has(key) === true
+      return this.known.get(kind)?.has(key) === true || this.discovered.get(kind)?.has(key) === true
     }
     for (const key of this.pending.keys()) if (!isKnown(key)) this.pending.delete(key)
     for (const [key, timer] of this.retryTimers) if (!isKnown(key)) {
@@ -355,6 +392,104 @@ export class SourceCoordinator {
       this.#health('registered_child_removed', { source: 'firestore', scopeKey: key })
     }
     this.childHealth = complete ? current : new Map([...this.childHealth, ...current])
+  }
+
+  async #replaceDiscoveryWatch(targets) {
+    const source = this.sources.get('firestore')
+    if (!source?.subscribeDiscovery) return false
+    const normalized = [...new Map((Array.isArray(targets) ? targets : []).map((target) => [JSON.stringify(target), target])).values()]
+    const signature = JSON.stringify(normalized)
+    if (this.discoveryWatch?.signature === signature && this.discoveryWatchReady && !this.discoveryWatchFailed) return true
+    const generation = ++this.discoveryWatchGeneration
+    this.discoveryWatchReady = false
+    let unsubscribe
+    try {
+      unsubscribe = source.subscribeDiscovery({ targets: normalized,
+        onCandidate: (scope) => this.#receiveCandidate(scope),
+        onInventoryChange: () => this.#requestInventoryRefresh(),
+        onReady: ({ targetCount } = {}) => {
+          if (generation === this.discoveryWatchGeneration && this.running && !this.closed) {
+            this.discoveryWatchReady = true
+            this.discoveryWatchFailed = false
+            this.#health('firestore_discovery_listening', { source: 'firestore', targetCount: Number.isInteger(targetCount) ? targetCount : normalized.length })
+          }
+        },
+        onError: (error) => {
+          if (generation !== this.discoveryWatchGeneration) return
+          this.discoveryWatchFailed = true
+          this.discoveryWatchReady = false
+          this.#health('source_listener_unavailable', { source: 'firestore', errorCode: safeCode(error?.code) })
+          this.#requestInventoryRefresh()
+        },
+      })
+    } catch {
+      if (generation !== this.discoveryWatchGeneration) return false
+      this.discoveryWatchFailed = true
+      this.discoveryWatchReady = false
+      this.#health('source_listener_unavailable', { source: 'firestore' })
+      return false
+    }
+    if (!this.running || this.closed || this.abortSignal.aborted || generation !== this.discoveryWatchGeneration) {
+      await bestEffort(unsubscribe)
+      return false
+    }
+    const previous = this.discoveryWatch
+    this.discoveryWatch = { signature, unsubscribe, targets: normalized }
+    await bestEffort(previous?.unsubscribe)
+    return true
+  }
+
+  #receiveCandidate(scope) {
+    if (!this.running || this.closed || this.abortSignal.aborted) return false
+    const source = this.sources.get('firestore')
+    if (!source || !scope) return false
+    let key
+    try { key = source.scopeKey(scope) } catch { return false }
+    if (this.known.get('firestore')?.has(key)) return true
+    if (this.discovered.get('firestore')?.has(key)) {
+      this.signal('firestore', scope)
+      return true
+    }
+    const candidateKey = `firestore:${key}`
+    if (this.discoveryTaskKeys.has(candidateKey)) return true
+    this.discoveryTaskKeys.add(candidateKey)
+    this.discoveryPending.set(candidateKey, { key, scope, sequence: ++this.discoverySequence })
+    this.#pumpDiscoveryCandidates()
+    return true
+  }
+
+  #pumpDiscoveryCandidates() {
+    while (this.running && !this.closed && this.discoveryActive < this.concurrency && this.discoveryPending.size) {
+      const [candidateKey, candidate] = this.discoveryPending.entries().next().value
+      this.discoveryPending.delete(candidateKey)
+      this.discoveryActive++
+      let task
+      task = Promise.resolve().then(async () => {
+        const { key, scope, sequence } = candidate
+        const source = this.sources.get('firestore')
+        if (typeof source.validateScope !== 'function' || !await source.validateScope(scope)) return
+        if (!this.running || this.closed || this.abortSignal.aborted) return
+        const result = await this.discoveryStore?.confirmCandidate?.('firestore', scope, { signal: this.abortSignal })
+        if (!this.running || this.closed || this.abortSignal.aborted || result?.status !== 'confirmed') return
+        this.discovered.get('firestore').set(key, { scope, origin: result.origin, sequence })
+        this.#enqueue('firestore', scope, result.origin)
+        this.#pump()
+      }).catch(() => {
+        if (this.running && !this.closed) this.#health('inventory_unavailable', { source: 'firestore' })
+      }).finally(() => {
+        this.discoveryTasks.delete(task)
+        this.discoveryTaskKeys.delete(candidateKey)
+        this.discoveryActive--
+        this.#pumpDiscoveryCandidates()
+      })
+      this.discoveryTasks.add(task)
+    }
+  }
+
+  #requestInventoryRefresh() {
+    if (!this.running || this.closed) return
+    if (this.reconcilePromise) { this.inventoryRefreshRequested = true; return }
+    void this.reconcile()
   }
 }
 

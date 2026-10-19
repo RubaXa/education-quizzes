@@ -24,6 +24,7 @@ export function createFirestoreSourceInventory(db, { pageSize = 250, includeFire
     const contexts = []
     const registeredChildren = []
     const sourceAccounts = []
+    const discoveryTargets = []
     const failures = []
     const failedContexts = []
     if (signal?.aborted) throw Object.assign(new Error('worker_shutdown'), { code: 'worker_shutdown' })
@@ -72,7 +73,7 @@ export function createFirestoreSourceInventory(db, { pageSize = 250, includeFire
           hasMeshIdentity: status.hasMeshIdentity, hasMeshAccount, meshStatus })
       }
       if (includeFirestore) {
-        try { await addFamilyScopes(db, familyId, children, familyScopes, pageSize) }
+        try { await addFamilyScopes(db, familyId, children, familyScopes, discoveryTargets, pageSize) }
         catch (error) {
           failures.push({ familyId, source: 'firestore', code: safeErrorCode(error) })
           failedContexts.push({ source: 'firestore', familyId })
@@ -91,6 +92,7 @@ export function createFirestoreSourceInventory(db, { pageSize = 250, includeFire
     }
     const uniqueContexts = [...new Map(contexts.map((item) => [`${item.source}:${JSON.stringify(item.scope)}`, item])).values()]
     return Object.freeze({ complete: failures.length === 0, scopes: Object.freeze(scopes), contexts: Object.freeze(uniqueContexts),
+      discoveryTargets: Object.freeze(discoveryTargets),
       failedFamilyCount: new Set(failures.map(({ familyId }) => familyId).filter(Boolean)).size + failures.filter(({ familyId }) => !familyId).length,
       failedContexts: Object.freeze(failedContexts),
       families: Object.freeze(families), registeredChildren: Object.freeze(registeredChildren),
@@ -99,7 +101,10 @@ export function createFirestoreSourceInventory(db, { pageSize = 250, includeFire
   return Object.freeze({ enumerate })
 }
 
-async function addFamilyScopes(db, familyId, children, output, pageSize) {
+async function addFamilyScopes(db, familyId, children, output, discoveryTargets, pageSize) {
+  discoveryTargets.push({ kind: 'assignments', familyId })
+  const ownerTarget = { kind: 'dayOwners', familyId, ownerIds: [] }
+  discoveryTargets.push(ownerTarget)
   // Assignments are read only from this family's projection. Every candidate
   // must carry the exact family/child pair and refer to a registered child.
   for await (const doc of pages(project(db.collection('assignments').where('familyId', '==', familyId), 'familyId', 'childId'), pageSize)) {
@@ -113,6 +118,9 @@ async function addFamilyScopes(db, familyId, children, output, pageSize) {
     if (!ID.test(doc.id) || owner.familyId !== familyId || !children.has(owner.childId)
       || children.get(owner.childId)?.active === false || !validDay(owner.date)) continue
     const dayToken = doc.id
+    ownerTarget.ownerIds.push(dayToken)
+    discoveryTargets.push({ kind: 'uploads', familyId, childId: owner.childId, dayToken },
+      { kind: 'progress', familyId, childId: owner.childId, dayToken })
     const [uploads, progress] = await Promise.all([
       collect(project(db.collection(`dayUploads/${dayToken}/files`)), pageSize), collect(project(db.collection(`dayProgress/${dayToken}/items`)), pageSize),
     ])

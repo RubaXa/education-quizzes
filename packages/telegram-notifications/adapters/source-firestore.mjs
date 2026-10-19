@@ -4,9 +4,6 @@ import { learningRouteIdentity } from '../../../day/learning-route-identity.mjs'
 
 /** @see ../../../docs/services/telegram-bot/adapters/firestore.md#области-данных-для-валидации @see ../../../docs/services/telegram-bot/ports-and-events.md#контракт-observation */
 export function createFirestoreSourceAdapter(db, { baseBackoffMs = 1_000, maxBackoffMs = 60_000, setTimer = setTimeout, clearTimer = clearTimeout } = {}) {
-  const validRefId = (value) => typeof value === 'string' && value.length > 0 && value.length <= 128
-    // eslint-disable-next-line no-control-regex -- Reject control bytes in Firestore document IDs.
-    && value !== '.' && value !== '..' && !value.includes('/') && !value.includes('\\') && !/[\u0000-\u001f\u007f]/.test(value)
   const scopeKey = (scope) => createHash('sha256').update(JSON.stringify(binding(scope))).digest('hex')
   const ownerRef = (scope) => db.doc(`dayOwners/${scope.dayToken}`)
   const getMasked = async (ref, fieldMask) => {
@@ -183,12 +180,95 @@ export function createFirestoreSourceAdapter(db, { baseBackoffMs = 1_000, maxBac
       if (disposed) return
       stop()
       try {
+        const refsByPath = new Map()
         for (const scope of normalized) {
-          const refs = scope.kind === 'quiz'
-            ? [db.doc(`families/${scope.familyId}`), db.doc(`families/${scope.familyId}/children/${scope.childId}`), recordRef(scope)]
-            : [db.doc(`families/${scope.familyId}`), db.doc(`families/${scope.familyId}/children/${scope.childId}`), ownerRef(scope), recordRef(scope)]
-          for (const ref of refs) unsubs.push(ref.onSnapshot(() => { delay = baseBackoffMs; signal(scope) }, fail))
+          const refs = [db.doc(`families/${scope.familyId}`), db.doc(`families/${scope.familyId}/children/${scope.childId}`),
+            ...(scope.kind === 'quiz' ? [] : [ownerRef(scope)]), recordRef(scope)]
+          for (const ref of refs) {
+            const entry = refsByPath.get(ref.path) ?? { ref, scopes: [] }
+            entry.scopes.push(scope)
+            refsByPath.set(ref.path, entry)
+          }
           signal(scope) // Reconcile from authoritative reads after every reconnect.
+        }
+        for (const { ref, scopes } of refsByPath.values()) unsubs.push(ref.onSnapshot(() => {
+          delay = baseBackoffMs
+          for (const scope of scopes) signal(scope)
+        }, fail))
+      } catch { fail() }
+    }
+    reconnect()
+    return async () => { disposed = true; if (timer) clearTimer(timer); timer = null; stop() }
+  }
+
+  function subscribeDiscovery({ targets, onCandidate, onInventoryChange = () => {}, onError = () => {}, onReady = () => {} } = {}) {
+    if (!Array.isArray(targets) || typeof onCandidate !== 'function') throw new Error('invalid_source_discovery_targets')
+    const normalized = [...new Map(targets.map((target) => [JSON.stringify(target), Object.freeze({ ...target })])).values()]
+    if (normalized.some((target) => !validDiscoveryTarget(target))) throw new Error('invalid_source_discovery_targets')
+    let disposed = false, timer = null, delay = baseBackoffMs, unsubs = [], generation = 0
+    const stop = () => { for (const unsubscribe of unsubs.splice(0)) { try { unsubscribe() } catch { /* best-effort disposal */ } } }
+    const fail = () => {
+      if (disposed || timer) return
+      generation++
+      stop()
+      onError({ code: 'source_listener_unavailable' })
+      timer = setTimer(() => { timer = null; reconnect(); delay = Math.min(maxBackoffMs, delay * 2) }, delay)
+    }
+    const reconnect = () => {
+      if (disposed) return
+      stop()
+      const currentGeneration = ++generation
+      const pendingReady = new Set(normalized.map((target) => JSON.stringify(target)))
+      let readyPublished = false
+      try {
+        for (const target of normalized) {
+          const query = target.kind === 'assignments'
+            ? db.collection('assignments').where('familyId', '==', target.familyId)
+            : target.kind === 'dayOwners'
+              ? db.collection('dayOwners').where('familyId', '==', target.familyId)
+              : db.collection(target.kind === 'uploads'
+                ? `dayUploads/${target.dayToken}/files` : `dayProgress/${target.dayToken}/items`)
+          let initial = true
+          unsubs.push(query.onSnapshot((snapshot) => {
+            if (disposed || generation !== currentGeneration) return
+            delay = baseBackoffMs
+            if (initial) {
+              pendingReady.delete(JSON.stringify(target))
+              if (!pendingReady.size && !readyPublished) {
+                readyPublished = true
+                onReady({ targetCount: normalized.length })
+              }
+            }
+            const changes = typeof snapshot?.docChanges === 'function'
+              ? snapshot.docChanges() : (snapshot?.docs ?? []).map((doc) => ({ type: 'added', doc }))
+            for (const change of changes) {
+              const data = change.doc?.data?.() ?? {}
+              if (target.kind === 'dayOwners') {
+                const isKnownOwner = Array.isArray(target.ownerIds) && target.ownerIds.includes(change.doc.id)
+                const validOwnerCandidate = data.familyId === target.familyId && validRefId(data.childId) && validDay(data.date)
+                if (!initial && (change.type === 'removed' || validOwnerCandidate)
+                  || initial && !isKnownOwner && validOwnerCandidate) {
+                  Promise.resolve(onInventoryChange(target.familyId)).catch(() => onError({ code: 'source_signal_handler_failed' }))
+                }
+                continue
+              }
+              if (change.type === 'removed') continue
+              if (target.kind === 'assignments') {
+                if (data.familyId !== target.familyId || !validRefId(data.childId)) continue
+                Promise.resolve(onCandidate({ familyId: target.familyId, childId: data.childId,
+                  kind: 'quiz', quizToken: change.doc.id })).catch(() => onError({ code: 'source_signal_handler_failed' }))
+              } else {
+                Promise.resolve(onCandidate({ familyId: target.familyId, childId: target.childId,
+                  kind: target.kind === 'uploads' ? 'upload' : 'progress', dayToken: target.dayToken,
+                  recordId: change.doc.id })).catch(() => onError({ code: 'source_signal_handler_failed' }))
+              }
+            }
+            initial = false
+          }, () => { if (!disposed && generation === currentGeneration) fail() }))
+        }
+        if (!pendingReady.size && !readyPublished) {
+          readyPublished = true
+          onReady({ targetCount: normalized.length })
         }
       } catch { fail() }
     }
@@ -196,7 +276,15 @@ export function createFirestoreSourceAdapter(db, { baseBackoffMs = 1_000, maxBac
     return async () => { disposed = true; if (timer) clearTimer(timer); timer = null; stop() }
   }
 
-  return Object.freeze({ kind: 'firestore', scopeKey, validateScope, observe, inspectUpload, inspectReview, subscribe })
+  return Object.freeze({ kind: 'firestore', scopeKey, validateScope, observe, inspectUpload, inspectReview, subscribe, subscribeDiscovery })
+}
+
+function validDiscoveryTarget(target) {
+  return Boolean(target && validRefId(target.familyId) && (target.kind === 'assignments'
+    ? target.childId === undefined && target.dayToken === undefined
+    : target.kind === 'dayOwners' ? target.childId === undefined && target.dayToken === undefined
+      && Array.isArray(target.ownerIds) && target.ownerIds.every(validRefId)
+    : ['uploads', 'progress'].includes(target.kind) && validRefId(target.childId) && validRefId(target.dayToken)))
 }
 
 function safeDayNavigationContext(page, scope) {
@@ -210,6 +298,11 @@ function safeDayNavigationContext(page, scope) {
   } catch { return null }
 }
 function validRouteToken(value) { return typeof value === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(value) }
+function validRefId(value) {
+  // eslint-disable-next-line no-control-regex -- Reject control bytes in Firestore document IDs.
+  return typeof value === 'string' && value.length > 0 && value.length <= 128 && value !== '.' && value !== '..'
+    && !value.includes('/') && !value.includes('\\') && !/[\u0000-\u001f\u007f]/.test(value)
+}
 
 function binding(scope) {
   return { source: 'firestore', familyId: scope.familyId, childId: scope.childId, kind: scope.kind,

@@ -22,6 +22,23 @@ function harness() {
 }
 
 describe('SourceCoordinator', () => {
+  it('adds healthy discovery targets while retaining failed Firestore contexts during a partial inventory', async () => {
+    const h = harness()
+    h.source.subscribeDiscovery = vi.fn(() => async () => {})
+    const oldTarget = { kind: 'uploads', familyId: 'fam-a', childId: 'kid-a', dayToken: 'day-a' }
+    const newTarget = { kind: 'uploads', familyId: 'fam-b', childId: 'kid-b', dayToken: 'day-b' }
+    let inventory = { complete: true, families: [{ familyId: 'fam-a' }], scopes: [], discoveryTargets: [oldTarget] }
+    h.coordinator.enumerate = async () => inventory
+    await h.coordinator.start()
+    inventory = { complete: false, families: [{ familyId: 'fam-a' }, { familyId: 'fam-b' }], scopes: [],
+      failedContexts: [{ source: 'firestore', familyId: 'fam-a' }, { source: 'mesh', familyId: 'fam-b' }],
+      discoveryTargets: [newTarget] }
+    await h.coordinator.reconcile()
+    expect(h.source.subscribeDiscovery).toHaveBeenCalledTimes(2)
+    expect(h.source.subscribeDiscovery.mock.calls[1][0].targets).toEqual([oldTarget, newTarget])
+    await h.coordinator.close()
+  })
+
   it('subscribes before processing and adds newly discovered scopes without restart', async () => {
     const h = harness()
     let inventory = { complete: true, families: [{ familyId: 'fam-a' }], scopes: [{ source: 'firestore', scope: { key: 'child-a', familyId: 'fam-a' }, origin: 'bootstrap' }] }
@@ -40,6 +57,135 @@ describe('SourceCoordinator', () => {
     expect(h.scopes.has('child-a')).toBe(true)
     expect(h.scopes.has('child-b')).toBe(true)
     await h.coordinator.close()
+  })
+
+  it('discovers an upload in an already watched empty collection without a full inventory pass', async () => {
+    const h = harness()
+    let discovery
+    let enumerations = 0
+    h.source.validateScope = vi.fn(async () => true)
+    h.source.subscribeDiscovery = vi.fn(({ onCandidate }) => { discovery = onCandidate; return async () => {} })
+    h.coordinator.discoveryStore = {
+      prepare: async (inventory) => inventory,
+      confirm: async () => ({ scopes: [] }),
+      confirmCandidate: async () => ({ status: 'confirmed', origin: 'live' }),
+    }
+    h.coordinator.enumerate = async () => {
+      enumerations++
+      return { complete: true, families: [{ familyId: 'fam-a' }], contexts: [], scopes: [],
+        discoveryTargets: [{ kind: 'uploads', familyId: 'fam-a', childId: 'kid-a', dayToken: 'day-a' }] }
+    }
+    await h.coordinator.start()
+    discovery({ key: 'new-upload', familyId: 'fam-a', childId: 'kid-a', kind: 'upload', dayToken: 'day-a', recordId: 'file-a' })
+    await vi.waitFor(() => expect(h.processed).toContainEqual(['new-upload', 'live']))
+    expect(enumerations).toBe(1)
+    expect(h.source.validateScope).toHaveBeenCalledOnce()
+    await h.coordinator.close()
+  })
+
+  it('keeps known per-document listeners when collection discovery installation fails', async () => {
+    const h = harness()
+    h.source.subscribeDiscovery = vi.fn(() => { throw new Error('listener unavailable') })
+    const scope = { key: 'known-upload', familyId: 'fam-a' }
+    h.coordinator.enumerate = async () => ({ complete: true, families: [{ familyId: 'fam-a' }],
+      scopes: [{ source: 'firestore', scope }], discoveryTargets: [{ kind: 'uploads', familyId: 'fam-a', childId: 'kid-a', dayToken: 'day-a' }] })
+    await h.coordinator.start()
+    await vi.waitFor(() => expect(h.processed).toContainEqual(['known-upload', 'bootstrap']))
+    h.scopes.get('known-upload').onSignal(scope)
+    await vi.waitFor(() => expect(h.processed.filter(([key]) => key === 'known-upload')).toHaveLength(2))
+    expect(h.health).toContainEqual(expect.objectContaining({ code: 'source_listener_unavailable', source: 'firestore' }))
+    await h.coordinator.close()
+  })
+
+  it('retains a live collection candidate that arrives while reconciliation is in flight', async () => {
+    const h = harness()
+    let discovery
+    let releaseInventory, releasePipeline
+    let block = false
+    h.coordinator.concurrency = 1
+    h.source.validateScope = vi.fn(async () => true)
+    h.source.subscribeDiscovery = vi.fn(({ onCandidate }) => { discovery = onCandidate; return async () => {} })
+    h.pipeline.process.mockImplementation(async (scope, options) => {
+      h.processed.push([scope.key, options.origin])
+      if (scope.key === 'blocker') await new Promise((resolve) => { releasePipeline = resolve })
+    })
+    h.coordinator.discoveryStore = {
+      prepare: async (inventory) => inventory,
+      confirm: async () => ({ scopes: [] }),
+      confirmCandidate: async () => ({ status: 'confirmed', origin: 'live' }),
+    }
+    h.coordinator.enumerate = async () => {
+      if (block) await new Promise((resolve) => { releaseInventory = resolve })
+      return { complete: true, families: [{ familyId: 'fam-a' }], contexts: [],
+        scopes: block ? [] : [{ source: 'firestore', scope: { key: 'blocker', familyId: 'fam-a' }, origin: 'bootstrap' }],
+        discoveryTargets: [{ kind: 'uploads', familyId: 'fam-a', childId: 'kid-a', dayToken: 'day-a' }] }
+    }
+    await h.coordinator.start()
+    await vi.waitFor(() => expect(releasePipeline).toBeTypeOf('function'))
+    block = true
+    const reconciliation = h.coordinator.reconcile()
+    await vi.waitFor(() => expect(releaseInventory).toBeTypeOf('function'))
+    discovery({ key: 'racing-upload', familyId: 'fam-a', childId: 'kid-a', kind: 'upload', dayToken: 'day-a', recordId: 'file-race' })
+    await vi.waitFor(() => expect(h.coordinator.discovered.get('firestore')?.has('racing-upload')).toBe(true))
+    expect(h.coordinator.pending.has('firestore:racing-upload')).toBe(true)
+    releaseInventory()
+    await reconciliation
+    expect(h.coordinator.discovered.get('firestore')?.has('racing-upload')).toBe(true)
+    releasePipeline()
+    await vi.waitFor(() => expect(h.processed).toContainEqual(['racing-upload', 'live']))
+    await h.coordinator.close()
+  })
+
+  it('bounds concurrent candidate validation, rejects invalid owners and stops queued candidates at close', async () => {
+    const h = harness()
+    h.coordinator.concurrency = 2
+    let discovery, active = 0, peak = 0
+    const releases = []
+    h.source.validateScope = vi.fn(async (scope) => {
+      active++
+      peak = Math.max(peak, active)
+      await new Promise((resolve) => releases.push(resolve))
+      active--
+      return scope.valid !== false
+    })
+    h.source.subscribeDiscovery = vi.fn(({ onCandidate }) => { discovery = onCandidate; return async () => {} })
+    const confirmCandidate = vi.fn(async () => ({ status: 'confirmed', origin: 'live' }))
+    h.coordinator.discoveryStore = { prepare: async (inventory) => inventory, confirm: async () => ({ scopes: [] }), confirmCandidate }
+    h.coordinator.enumerate = async () => ({ complete: true, families: [{ familyId: 'fam-a' }], contexts: [], scopes: [], discoveryTargets: [] })
+    await h.coordinator.start()
+    for (let index = 0; index < 5; index++) discovery({ key: `candidate-${index}`, familyId: 'fam-a', childId: 'kid-a', valid: index !== 4 })
+    await vi.waitFor(() => expect(releases).toHaveLength(2))
+    expect(peak).toBe(2)
+    releases.shift()()
+    await vi.waitFor(() => expect(releases).toHaveLength(2))
+    releases.shift()()
+    await vi.waitFor(() => expect(releases).toHaveLength(2))
+    releases.shift()()
+    await vi.waitFor(() => expect(releases).toHaveLength(2))
+    releases.shift()()
+    await vi.waitFor(() => expect(releases).toHaveLength(1))
+    releases.shift()()
+    await vi.waitFor(() => expect(confirmCandidate).toHaveBeenCalledTimes(4))
+    await vi.waitFor(() => expect(h.processed.filter(([key]) => key.startsWith('candidate-'))).toHaveLength(4))
+    expect(peak).toBe(2)
+    await h.coordinator.close()
+
+    const closed = harness()
+    let lateCandidate, validateRelease
+    closed.source.validateScope = vi.fn(() => new Promise((resolve) => { validateRelease = resolve }))
+    closed.source.subscribeDiscovery = vi.fn(({ onCandidate }) => { lateCandidate = onCandidate; return async () => {} })
+    const closedConfirm = vi.fn(async () => ({ status: 'confirmed', origin: 'live' }))
+    closed.coordinator.discoveryStore = { prepare: async (inventory) => inventory, confirm: async () => ({ scopes: [] }), confirmCandidate: closedConfirm }
+    closed.coordinator.enumerate = async () => ({ complete: true, families: [{ familyId: 'fam-a' }], contexts: [], scopes: [], discoveryTargets: [] })
+    await closed.coordinator.start()
+    lateCandidate({ key: 'late-candidate', familyId: 'fam-a', childId: 'kid-a' })
+    await vi.waitFor(() => expect(validateRelease).toBeTypeOf('function'))
+    const closing = closed.coordinator.close()
+    expect(lateCandidate({ key: 'after-close', familyId: 'fam-a', childId: 'kid-a' })).toBe(false)
+    validateRelease(true)
+    await closing
+    expect(closedConfirm).not.toHaveBeenCalled()
+    expect(closed.pipeline.process).not.toHaveBeenCalled()
   })
 
   it('coalesces overlapping reconciliations into one in-flight inventory confirmation', async () => {

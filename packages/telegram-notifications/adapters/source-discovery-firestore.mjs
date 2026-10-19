@@ -101,7 +101,33 @@ export function createFirestoreSourceDiscoveryStore(db, { collection = 'telegram
     return Object.freeze({ scopes: Object.freeze(scopes) })
   }
 
-  return Object.freeze({ prepare, confirm })
+  async function confirmCandidate(source, scope, { signal } = {}) {
+    throwIfAborted(signal)
+    if (source !== 'firestore' || !scope?.familyId || !scope?.childId) return { status: 'invalid' }
+    const context = contextHash(source, scope)
+    const key = scopeHash(source, scope)
+    const contextRef = ref(`context_${context}`)
+    const scopeRef = ref(`scope_${key}`)
+    const origin = await db.runTransaction(async (tx) => {
+      throwIfAborted(signal)
+      const contextDoc = await tx.get(contextRef)
+      throwIfAborted(signal)
+      if (!contextDoc.exists) return null
+      const scopeDoc = await tx.get(scopeRef)
+      throwIfAborted(signal)
+      if (scopeDoc.exists) {
+        const persistedOrigin = scopeDoc.data()?.origin
+        return ['bootstrap', 'live'].includes(persistedOrigin) ? persistedOrigin : 'live'
+      } else {
+        tx.create(scopeRef, { kind: 'scope', origin: 'live', confirmedAt: clock() })
+        return 'live'
+      }
+    })
+    throwIfAborted(signal)
+    return origin ? { status: 'confirmed', origin } : { status: 'context_unconfirmed' }
+  }
+
+  return Object.freeze({ prepare, confirm, confirmCandidate })
 }
 
 async function getInBatches(refs, size, signal) {

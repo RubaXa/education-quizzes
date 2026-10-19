@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { createRuntime } from './runtime.mjs'
+import { createRuntime, createSourceCoordinatorFacade } from './runtime.mjs'
 import { createTelemetry } from '../../education-runtime/telemetry.mjs'
 
 function fakeDb() {
@@ -12,6 +12,25 @@ const config = { token: '12345:abcdefghijklmnopqrstuvwxyz_1234567890', projectId
   instanceId: 'worker', meshConnectionDirectory: '/tmp/test-mesh-connections', meshPollMs: 900_000 }
 
 describe('source runtime wiring', () => {
+  it('keeps Firestore startup independent while Mesh inventory is blocked', async () => {
+    let meshStarted = false
+    const firestoreCoordinator = {
+      sources: new Map([['firestore', {}]]), pipelines: { firestore: {} },
+      start: vi.fn(async () => ({ status: 'complete' })), reconcile: vi.fn(async () => ({ status: 'complete' })),
+      signal: vi.fn(() => true), close: vi.fn(async () => {}),
+    }
+    const meshCoordinator = {
+      sources: new Map([['mesh', {}]]), pipelines: { mesh: {} },
+      start: vi.fn(() => { meshStarted = true; return new Promise(() => {}) }),
+      reconcile: vi.fn(() => new Promise(() => {})), signal: vi.fn(() => true), close: vi.fn(async () => {}),
+    }
+    const facade = createSourceCoordinatorFacade({ firestoreCoordinator, meshCoordinator })
+    await expect(facade.start()).resolves.toMatchObject({ status: 'complete' })
+    expect(meshStarted).toBe(true)
+    expect(firestoreCoordinator.start).toHaveBeenCalledOnce()
+    await facade.close()
+  })
+
   it.each(['firestore', 'mesh'])('wakes %s consumers only after their durable writes finish', async (source) => {
     let acceptCommit, dispatchCommit
     const acceptance = new Promise((resolve) => { acceptCommit = resolve })

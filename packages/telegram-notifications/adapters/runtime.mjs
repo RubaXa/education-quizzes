@@ -101,14 +101,36 @@ export function createRuntime(config, { logger = console, linkAuthorizer = null,
         source: 'mesh', scopeHash: pipelines.mesh.source.scopeKey(scope),
       }), 'trace')
     }
-    const inventory = createFirestoreSourceInventory(db, { pageSize: config.sourcePageSize ?? 250, telemetry,
-      includeFirestore: enableFirestoreSource, includeMesh: enableMeshSource, meshSource })
-    sourceCoordinator = new SourceCoordinator({ sources, pipelines,
-      enumerate: ({ signal } = {}) => inventory.enumerate({ signal }), discoveryStore: createFirestoreSourceDiscoveryStore(db, {
-        namespace: enableDelivery ? 'notify' : 'shadow', scopeKey: (kind, scope) => sources.find((source) => source.kind === kind)?.scopeKey(scope),
-      }),
-      onHealth: (event) => logger.error(event), reconcileMs: config.sourceReconcileMs ?? 30_000,
-      concurrency: config.sourceConcurrency ?? 4, random })
+    const makeCoordinator = (kinds) => {
+      const selectedSources = sources.filter((source) => kinds.includes(source.kind))
+      const selectedPipelines = Object.fromEntries(kinds.filter((kind) => pipelines[kind]).map((kind) => [kind, pipelines[kind]]))
+      if (!selectedSources.length) return null
+      const includeFirestore = selectedSources.some((source) => source.kind === 'firestore')
+      const includeMesh = selectedSources.some((source) => source.kind === 'mesh')
+      const inventory = createFirestoreSourceInventory(db, { pageSize: config.sourcePageSize ?? 250, telemetry,
+        includeFirestore, includeMesh, meshSource })
+      const coordinator = new SourceCoordinator({ sources: selectedSources, pipelines: selectedPipelines,
+        enumerate: ({ signal } = {}) => inventory.enumerate({ signal }), discoveryStore: createFirestoreSourceDiscoveryStore(db, {
+          namespace: enableDelivery ? 'notify' : 'shadow', scopeKey: (kind, scope) => selectedSources.find((source) => source.kind === kind)?.scopeKey(scope),
+        }),
+        onHealth: (event) => event.code === 'firestore_discovery_listening'
+          ? (logger.info ?? logger.log ?? logger.error).call(logger, event) : logger.error(event),
+        reconcileMs: config.sourceReconcileMs ?? 30_000,
+        concurrency: config.sourceConcurrency ?? 4, random })
+      const reconcile = coordinator.reconcile
+      coordinator.reconcile = withOperationDeadline(reconcile, {
+        timeoutMs: config.sourceOperationTimeoutMs ?? 600_000, operation: 'source_reconcile',
+        onTimeout: () => { logger.error({ code: 'source_operation_timeout', source: kinds[0] }); process.exit(1) },
+      })
+      wrapMethod(coordinator, 'reconcile', telemetry, 'telegram.source-coordinator.reconcile', () => ({ source: kinds[0] }), 'trace')
+      wrapMethod(coordinator, 'signal', telemetry, 'telegram.source-coordinator.signal', (kind, scope) => ({
+        source: kind, scopeHash: opaqueHash(`${scope?.familyId ?? ''}/${scope?.childId ?? ''}`),
+      }))
+      return coordinator
+    }
+    const firestoreCoordinator = makeCoordinator(['firestore'])
+    const meshCoordinator = makeCoordinator(['mesh'])
+    sourceCoordinator = createSourceCoordinatorFacade({ firestoreCoordinator, meshCoordinator })
   }
   if (sourceCoordinator) {
     for (const [method, operation] of [['start', 'source_start'], ['reconcile', 'source_reconcile']]) {
@@ -135,6 +157,34 @@ export function createRuntime(config, { logger = console, linkAuthorizer = null,
       workerWakeDelivery = delivery
       workerWakeEducationSync = educationSync
     } }
+}
+
+export function createSourceCoordinatorFacade({ firestoreCoordinator, meshCoordinator }) {
+  const coordinators = [firestoreCoordinator, meshCoordinator].filter(Boolean)
+  const byKind = new Map()
+  for (const coordinator of coordinators) for (const kind of coordinator.sources.keys()) byKind.set(kind, coordinator)
+  const facade = {
+    sources: new Map(coordinators.flatMap((coordinator) => [...coordinator.sources])),
+    pipelines: Object.assign({}, ...coordinators.map((coordinator) => coordinator.pipelines)),
+    async start() {
+      if (!firestoreCoordinator) return meshCoordinator?.start()
+      const meshStart = meshCoordinator?.start()
+      if (meshStart) void meshStart.catch(() => {})
+      return firestoreCoordinator.start()
+    },
+    async reconcile() {
+      if (!firestoreCoordinator) return meshCoordinator?.reconcile()
+      const meshReconcile = meshCoordinator?.reconcile()
+      if (meshReconcile) void meshReconcile.catch(() => {})
+      return firestoreCoordinator.reconcile()
+    },
+    signal(kind, scope, options) { return byKind.get(kind)?.signal(kind, scope, options) ?? false },
+    async close() {
+      const results = await Promise.allSettled(coordinators.map((coordinator) => coordinator.close()))
+      if (results.some((result) => result.status === 'rejected')) throw new Error('source_stop_failed')
+    },
+  }
+  return facade
 }
 
 function wrapMethod(target, name, telemetry, operation, attrs = () => ({}), kind = 'span') {

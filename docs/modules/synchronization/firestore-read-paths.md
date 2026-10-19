@@ -3,7 +3,7 @@ id: module.synchronization.firestore-read-paths
 status: accepted
 implementation: partial
 created: 2026-10-13
-updated: 2026-10-18
+updated: 2026-10-19
 consumers:
   - "Education sync operator"
   - "sync-project CLI"
@@ -50,6 +50,8 @@ AST-проход по продуктовым `src/`, `scripts/`, `sync/`, `packa
 Реестр охватывает Web SDK `getDoc/getDocs/onSnapshot`, серверные `get/getAll/onSnapshot`, агрегаты `count().get()`, транзакционные `get` и другие прямые варианты. Тесты и фикстуры не включаются. Новый способ чтения SDK требует расширить сканер, реестр и этот контракт. При изменении файла пересчитывается отпечаток вызова; прежнее решение не переносится без просмотра. Исторические данные по [нагрузке](../../audits/firestore-usage-2026-10-12.md) и [плану этапов](../../plans/local-first-release-plan-2026-10-12.md) дают исходные гипотезы, но не заменяют причинное сравнение.
 
 ## Telegram recovery и EducationSync19.10
+
+Новые IDs Firestore обнаруживаются collection listeners только внутри подтверждённых семей и canonical dayOwners: assignments/dayOwners по familyId, files/items по точному dayToken. Snapshot payload остаётся в адаптере, наружу выходят descriptors. Начальный query snapshot и последующие deltas/reconnect создают дополнительные SDK reads; существующие record listeners сохраняются для безопасного восстановления при ошибке discovery. Callback известного ID не запускает повторный pipeline; owner/child guard refs дедуплицированы по пути. Новый candidate проходит адресную проверку владельца, затем транзакционно читает ровно context/scope origin marker; нового context-complete marker эта операция не создаёт. Активные candidate операции ограничены concurrency. Firestore и Mesh имеют независимые очереди и inventory, переиспользуя общий family graph/адаптеры; фоновые registry/fallback чтения не объявляются бесплатными. Read counters и фактическая тарификация различаются. [Решение](../../decisions/firestore-live-discovery-2026-10-19.md).
 
 `mesh-delivery-check` — явная read-only диагностика: все разрешённые scopes из общего registry, один notify checkpoint на scope, адресные ledger queries по sourceEventKey с последующей строгой проверкой family/child/scope, outbox по eventId и точный groupedInto digest с проверкой eventJobIds. Окно detectedAt определяет отчёт; технический limit явно делает охват неполным. Проверка не добавляет фоновых observers и не вызывается из PWA. SDK counters не выдаются за billed reads.
 
