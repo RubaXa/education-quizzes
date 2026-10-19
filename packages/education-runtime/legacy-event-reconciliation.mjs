@@ -164,7 +164,7 @@ async function reconcileQuizSubmit({ db, doc, publish }) {
   if (await receiptMatches(db, assignment, 'quiz.submitted', doc.ref.path, assignment.submittedAt)) return
   const review = await db.doc(`reviews/${doc.id}`).get()
   const reviewData = review.data()
-  if (reviewData && pendingManualQuestionIds(assignment, reviewData).length === 0) return
+  if (pendingManualQuestionIds(assignment, reviewData).length === 0) return
   const event = { eventType: 'quiz.submitted', familyId: assignment.familyId, childId: assignment.childId,
     source: 'firestore', sourceRef: { kind: 'quiz', documentPath: `assignments/${doc.id}`, quizToken: doc.id },
     operationId: assignment.eventOperationId || `quiz-submit:${doc.id}`, actor: { type: 'system', id: 'server' },

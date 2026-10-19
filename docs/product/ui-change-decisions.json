@@ -880,7 +880,7 @@
       }
     },
     "packages/education-runtime/legacy-event-reconciliation.mjs": {
-      "sha256": "f636808a4b535e890e8c7e6a6bacce8ccf5956152ea2aafacfbf6b3c86274df9",
+      "sha256": "090b8b4f67eab900fc4aeb897469393869c50b206b343c135ac3720e5b9f9ae8",
       "record": "docs/decisions/unified-education-events-2026-10-19.md",
       "specs": [
         "docs/modules/synchronization/event-queue.md"

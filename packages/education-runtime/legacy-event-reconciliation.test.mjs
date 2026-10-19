@@ -153,4 +153,26 @@ describe('legacy Education event reconciliation', () => {
     expect(published).toEqual(['quiz.followup_requested', 'quiz.submitted'])
     expect(logger).not.toHaveBeenCalled()
   })
+
+  it('does not publish auto-scored or already-reviewed quiz submissions', async () => {
+    const submittedAt = stamp('2026-10-19T10:00:00.000Z')
+    const autoScored = { path: 'assignments/auto-quiz', data: {
+      status: 'submitted', familyId: 'family-1', childId: 'child-1', submittedAt,
+      questions: [{ id: 'q1', kind: 'single-choice', points: 1 }], answers: { q1: 'a' },
+    } }
+    const reviewedManual = { path: 'assignments/manual-quiz', data: {
+      status: 'submitted', familyId: 'family-1', childId: 'child-1', submittedAt,
+      questions: [{ id: 'q2', kind: 'long', points: 2 }], answers: { q2: 'Ответ' },
+    } }
+    const { db, rows } = fixture({ items: [autoScored, reviewedManual] })
+    rows.set('reviews/manual-quiz', { entries: { q2: { points: 2, explanation: 'Проверено' } } })
+    const logger = vi.fn()
+    const bridge = createLegacyEducationEventReconciler({ db, logger,
+      clock: () => Date.parse('2026-10-19T12:00:00.000Z') })
+
+    await bridge.runOne()
+
+    expect([...rows.keys()].filter((path) => path.startsWith(`${EDUCATION_EVENT_COLLECTION}/`))).toEqual([])
+    expect(logger).not.toHaveBeenCalled()
+  })
 })
