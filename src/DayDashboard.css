@@ -27,12 +27,16 @@
 .day-dashboard-date:focus-visible,.day-dashboard-detail-link:focus-visible,.day-dashboard-homework-row:focus-visible,.day-dashboard-homework-complete summary:focus-visible{outline:3px solid #ad8ce5;outline-offset:3px}
 /* @see ../docs/modules/school-diary/school-calendar.md#представление */
 /* @see ../docs/decisions/calendar-fixed-height-2026-10-19.md */
+/* @see ../docs/decisions/calendar-vacation-inset-2026-10-19.md */
 .day-dashboard-calendar .day-dashboard-heading>div{flex:none}
+/* Reuse the existing 14px heading gap: 6px gap + 11px strip padding replaces 14px + 3px. */
+.day-dashboard-calendar .day-dashboard-heading{margin-bottom:6px}
+.day-dashboard-dates{padding-top:11px}
 .day-dashboard-vacation-legend{display:flex;align-items:center;gap:5px;min-width:0;color:var(--edu-calendar-vacation-ink);font-size:.73rem;font-weight:750;white-space:nowrap}
 .day-dashboard-vacation-legend svg{flex:none}
 .day-dashboard-vacation-legend>span{min-width:0;overflow:hidden;text-overflow:ellipsis}
 .day-dashboard-vacation-range{font-weight:500}
-.day-dashboard-vacation{flex:none;display:flex;border-radius:15px;background:var(--edu-calendar-vacation-bg);color:var(--edu-calendar-vacation-ink);box-shadow:inset 0 0 0 1px var(--edu-calendar-vacation-border)}
+.day-dashboard-vacation{flex:none;display:flex;padding:8px;margin-block:-8px;border-radius:23px;background:var(--edu-calendar-vacation-bg);color:var(--edu-calendar-vacation-ink);box-shadow:inset 0 0 0 1px var(--edu-calendar-vacation-border)}
 .day-dashboard-vacation-days{display:grid;grid-auto-flow:column;grid-auto-columns:68px;gap:8px}
 .day-dashboard-vacation-days .day-dashboard-date:not(.selected){background:var(--edu-surface);color:var(--edu-calendar-vacation-ink)}
 .day-dashboard-vacation-days .day-dashboard-date:not(.selected):not(.today){border-color:var(--edu-calendar-vacation-border)}

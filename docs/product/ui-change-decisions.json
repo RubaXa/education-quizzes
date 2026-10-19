@@ -1641,20 +1641,19 @@
       }
     },
     "src/DayDashboard.css": {
-      "sha256": "6575f1fb6a3fb4667cb861c260a27f2ddc761d098d071595b003c44d89a1a501",
-      "record": "docs/decisions/calendar-fixed-height-2026-10-19.md",
+      "sha256": "3449428540e8990061489d43edd48cc67d68d4c41f44237dc5048ee2ffd657d8",
+      "record": "docs/decisions/calendar-vacation-inset-2026-10-19.md",
       "specs": [
         "docs/modules/school-diary/school-calendar.md",
         "docs/shared/design/README.md"
       ],
       "tests": [
         "scripts/check-schedule-viewport.test.mjs",
-        "src/components/DayCalendar.test.tsx",
-        "src/DayDashboard.warmStart.test.tsx"
+        "src/components/DayCalendar.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель19.10 показал рост высоты/невыровненные дни и прямо требует сохранить прежние размеры календаря при выделении каникул."
+        "evidence": "Родитель19.10 отверг убранный padding и прямо требует сохранить отступ вокруг дней, не увеличивая высоту календаря."
       }
     },
     "src/lib/assignmentPresentation.ts": {
@@ -1750,20 +1749,19 @@
       }
     },
     "scripts/check-schedule-viewport.mjs": {
-      "sha256": "899c2aaeb0fa0e836e1c62a8bd9d28257cbf413917fdd598ea18662b972ae345",
-      "record": "docs/decisions/calendar-fixed-height-2026-10-19.md",
+      "sha256": "298ee59f6fa9415c2390fde02e8af1ab9e788c3fca1f9077ec5cd8991562d429",
+      "record": "docs/decisions/calendar-vacation-inset-2026-10-19.md",
       "specs": [
         "docs/modules/school-diary/school-calendar.md",
         "docs/shared/design/README.md"
       ],
       "tests": [
         "scripts/check-schedule-viewport.test.mjs",
-        "src/components/DayCalendar.test.tsx",
-        "src/DayDashboard.warmStart.test.tsx"
+        "src/components/DayCalendar.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель19.10 показал рост высоты/невыровненные дни и прямо требует сохранить прежние размеры календаря при выделении каникул."
+        "evidence": "Родитель19.10 отверг убранный padding и прямо требует сохранить отступ вокруг дней, не увеличивая высоту календаря."
       }
     },
     "scripts/sync-inbox.mjs": {
