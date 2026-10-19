@@ -145,8 +145,12 @@ export function createLaunchAgentOperations({ root = process.cwd(), home = homed
         '--registry=https://registry.npmjs.org'], { cwd: release.releasePath, stdio: 'pipe',
         env: Object.fromEntries(Object.entries(env).filter(([key]) => !['AGI_EDU_BOT', 'TELEGRAM_TOKEN_FILE'].includes(key))) })
     }
-    exec(nodePath, ['--input-type=module', '-e', `await import(${JSON.stringify(pathToFileURL(resolve(release.releasePath, ENTRY)).href)})`],
-      { cwd: release.releasePath, stdio: 'pipe' })
+    const preflight = runtimeAssemblyPreflight(release.releasePath)
+    try {
+      exec(nodePath, ['--input-type=module', '-e', preflight], { cwd: release.releasePath, stdio: 'pipe',
+        env: { PATH: env.PATH ?? process.env.PATH ?? '', GOOGLE_APPLICATION_CREDENTIALS: values.adcPath,
+          TELEGRAM_PREFLIGHT_PROJECT_ID: values.projectId, TELEGRAM_PREFLIGHT_MESH_DIRECTORY: values.meshDirectory } })
+    } catch { throw safeError('runtime_preflight_failed') }
     writePrivate(release.tokenPath, `${values.token}\n`, fs)
     fs.mkdirSync(logDirectory, { recursive: true, mode: 0o700 })
     const environment = {
@@ -179,6 +183,23 @@ export function createLaunchAgentOperations({ root = process.cwd(), home = homed
     fs.writeFileSync(nextPlist, plist, { mode: 0o600 })
     fs.renameSync(nextPlist, plistPath)
     const readinessStartedAt = clock()
+    const restorePreviousRelease = ({ requirePriorLoaded = true } = {}) => {
+      try {
+        if (status().loaded) {
+          try { exec('launchctl', ['bootout', `${domain}/${SERVICE_LABEL}`], { stdio: 'ignore' }) }
+          catch { if (status().loaded) throw safeError('launchagent_stop_failed') }
+          waitUntilUnloaded()
+        }
+        if (previousPlist) {
+          fs.writeFileSync(nextPlist, previousPlist, { mode: 0o600 })
+          fs.renameSync(nextPlist, plistPath)
+          if (previousLoaded) {
+            try { bootstrapWithRetry(plistPath) }
+            catch { if (requirePriorLoaded) throw safeError('prior_launchagent_restore_failed') }
+          }
+        } else fs.rmSync(plistPath, { force: true })
+      } catch { throw safeError('launchagent_rollback_failed') }
+    }
     try {
       if (previousLoaded) {
         try { exec('launchctl', ['bootout', `${domain}/${SERVICE_LABEL}`], { stdio: 'ignore' }) }
@@ -190,22 +211,19 @@ export function createLaunchAgentOperations({ root = process.cwd(), home = homed
       bootstrapWithRetry(plistPath)
     }
     catch {
-      if (previousPlist) {
-        fs.writeFileSync(nextPlist, previousPlist, { mode: 0o600 })
-        fs.renameSync(nextPlist, plistPath)
-        if (previousLoaded) {
-          try {
-            waitUntilUnloaded()
-            bootstrapWithRetry(plistPath)
-          } catch { /* Prior plist is restored; status exposes whether launchd loaded it. */ }
-        }
-      } else fs.rmSync(plistPath, { force: true })
+      restorePreviousRelease({ requirePriorLoaded: false })
       throw safeError('launchagent_bootstrap_failed')
     }
     const waitForReady = waitForQueueReady ?? defaultWaitForQueueReady
-    const ready = waitForReady({ startedAt: readinessStartedAt, timeoutMs: 30_000, clock, sleep,
-      readLog: () => readQueueLog(resolve(logDirectory, 'worker.jsonl')), getStatus: status })
-    if (ready !== true) throw safeError('education_event_queue_readiness_timeout')
+    let ready = false
+    try {
+      ready = waitForReady({ startedAt: readinessStartedAt, timeoutMs: 30_000, clock, sleep,
+        readLog: () => readQueueLog(resolve(logDirectory, 'worker.jsonl')), getStatus: status }) === true
+    } catch { ready = false }
+    if (!ready) {
+      restorePreviousRelease()
+      throw safeError('education_event_queue_readiness_timeout')
+    }
     const legacyUploadWorker = retireLegacyUploadWorker({ home, uid, platform, fs, exec, sleep, clock })
     return { applied: true, ...release, state: 'bootstrapped', legacyUploadWorker }
   }
@@ -336,6 +354,31 @@ export function dependencyClosure(root, entry = ENTRY, fs = defaultFs) {
     }
   }
   return [...found].sort()
+}
+
+function runtimeAssemblyPreflight(releasePath) {
+  const runtimeUrl = pathToFileURL(resolve(releasePath, 'packages/telegram-notifications/adapters/runtime.mjs')).href
+  const telemetryUrl = pathToFileURL(resolve(releasePath, 'packages/education-runtime/telemetry.mjs')).href
+  const diskUrl = pathToFileURL(resolve(releasePath, 'storage/yandex-disk.mjs')).href
+  return `import { createRuntime } from ${JSON.stringify(runtimeUrl)}
+import { createTelemetryFromEnvironment } from ${JSON.stringify(telemetryUrl)}
+import { YandexDiskStorage } from ${JSON.stringify(diskUrl)}
+const runtime = createRuntime({
+  token: '123456:preflight_dummy_token_1234567890',
+  projectId: process.env.TELEGRAM_PREFLIGHT_PROJECT_ID,
+  instanceId: 'launchagent-preflight',
+  meshConnectionDirectory: process.env.TELEGRAM_PREFLIGHT_MESH_DIRECTORY,
+  educationSync: { codexPath: '/preflight/codex', threadId: '00000000-0000-4000-8000-000000000001', projectRoot: '/preflight', remote: null },
+}, {
+  logger: { info() {}, error() {} },
+  enableFirestoreSource: true,
+  enableMeshSource: true,
+  enableDelivery: true,
+  telemetry: createTelemetryFromEnvironment({ sink: () => {} }),
+  uploadDisk: new YandexDiskStorage('preflight_dummy_disk_token'),
+})
+await runtime.db.terminate()
+`
 }
 
 export function makePlist({ label, nodePath, scriptPath, args, workingDirectory, environment, logPath }) {

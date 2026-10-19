@@ -72,7 +72,18 @@ describe('launch agent release operations', () => {
     expect(plist).toContain(process.execPath)
     expect(calls.map((call) => call[1][0])).toEqual([process.execPath, '--input-type=module', 'bootstrap'])
     expect(calls[0][1]).toContain('--ignore-scripts')
-    expect(calls[1][1][2]).toContain('await import(')
+    const preflightCall = calls[1]
+    const preflightSource = preflightCall[1][2]
+    expect(preflightSource).toContain('createRuntime')
+    expect(preflightSource).toContain('createTelemetryFromEnvironment')
+    expect(preflightSource).toContain('new YandexDiskStorage')
+    expect(preflightSource).toContain('enableFirestoreSource: true')
+    expect(preflightSource).toContain('enableMeshSource: true')
+    expect(preflightSource).toContain('enableDelivery: true')
+    expect(preflightSource).toContain('await runtime.db.terminate()')
+    expect(preflightSource).not.toContain(secret)
+    expect(preflightCall[2].env).toMatchObject({ GOOGLE_APPLICATION_CREDENTIALS: f.adcPath,
+      TELEGRAM_PREFLIGHT_PROJECT_ID: 'education-9d7c6', TELEGRAM_PREFLIGHT_MESH_DIRECTORY: resolve(f.root, '.local/mesh-connections') })
     expect(parseBotArguments(PERMANENT_WORKER_ARGUMENTS)).toEqual({ command: 'worker', workerFlags: {
       enableDelivery: true, enableFirestoreSource: true, enableMeshSource: true,
     } })
@@ -141,6 +152,60 @@ describe('launch agent release operations', () => {
     expect(() => operations.install({ apply: true })).toThrow('launchagent_bootstrap_failed')
     expect(readFileSync(operations.paths.plistPath, 'utf8')).toBe('prior plist')
     expect(operations.status()).toMatchObject({ installed: true, loaded: false, running: false })
+  })
+
+  it('runs production assembly preflight before stopping the prior bot', () => {
+    const f = fixture()
+    const launchAgents = join(f.home, 'Library/LaunchAgents')
+    mkdirSync(launchAgents, { recursive: true })
+    writeFileSync(join(launchAgents, 'com.petr.education.telegram-worker.plist'), 'prior bot plist')
+    const calls = []
+    const operations = createLaunchAgentOperations({ root: f.root, home: f.home, uid: statSync(f.adcPath).uid,
+      platform: 'darwin', pythonPath: process.execPath, npmCliPath: process.execPath,
+      env: { AGI_EDU_BOT: '123456:abcdefghijklmnopqrstuvwx', GOOGLE_APPLICATION_CREDENTIALS: f.adcPath },
+      exec: (_binary, args) => {
+        calls.push(args)
+        if (args[0] === 'print') return 'state = running\\npid = 42'
+        if (args.includes('-e')) throw new Error('private module load failure')
+      } })
+    expect(() => operations.install({ apply: true })).toThrow('runtime_preflight_failed')
+    expect(calls.some((args) => args[0] === 'bootout')).toBe(false)
+    expect(readFileSync(operations.paths.plistPath, 'utf8')).toBe('prior bot plist')
+  })
+
+  it.each([
+    ['false', () => false],
+    ['throws', () => { throw new Error('private readiness detail') }],
+  ])('restores and reloads the prior bot release when readiness %s', (_name, waitForQueueReady) => {
+    const f = fixture()
+    const launchAgents = join(f.home, 'Library/LaunchAgents')
+    mkdirSync(launchAgents, { recursive: true })
+    let loaded = true
+    const bootouts = [], bootstraps = []
+    const operations = createLaunchAgentOperations({ root: f.root, home: f.home, uid: statSync(f.adcPath).uid,
+      platform: 'darwin', pythonPath: process.execPath, npmCliPath: process.execPath,
+      env: { AGI_EDU_BOT: '123456:abcdefghijklmnopqrstuvwx', GOOGLE_APPLICATION_CREDENTIALS: f.adcPath },
+      waitForQueueReady,
+      exec: (_binary, args) => {
+        if (args[0] === 'print') {
+          if (loaded) return 'state = running\npid = 4242'
+          throw Object.assign(new Error('not loaded'), { status: 3 })
+        }
+        if (args[0] === 'bootout') { bootouts.push(args[1]); loaded = false }
+        if (args[0] === 'bootstrap') {
+          bootstraps.push(readFileSync(operations.paths.plistPath, 'utf8'))
+          loaded = true
+        }
+      } })
+    writeFileSync(operations.paths.plistPath, 'prior bot plist')
+
+    expect(() => operations.install({ apply: true })).toThrow('education_event_queue_readiness_timeout')
+    expect(readFileSync(operations.paths.plistPath, 'utf8')).toBe('prior bot plist')
+    expect(operations.status()).toMatchObject({ installed: true, loaded: true, running: true })
+    expect(bootouts).toHaveLength(2)
+    expect(bootstraps).toHaveLength(2)
+    expect(bootstraps[0]).not.toBe('prior bot plist')
+    expect(bootstraps[1]).toBe('prior bot plist')
   })
 
   it('retires the legacy upload agent idempotently and preserves its plist as disabled', () => {
@@ -222,10 +287,13 @@ describe('launch agent release operations', () => {
           throw Object.assign(new Error('not loaded'), { status: 3 })
         }
         if (args[0] === 'bootstrap') newLoaded = true
-        if (args[0] === 'bootout') bootouts.push(args[1])
+        if (args[0] === 'bootout') {
+          bootouts.push(args[1])
+          if (args[1].endsWith('com.petr.education.telegram-worker')) newLoaded = false
+        }
       } })
     expect(() => operations.install({ apply: true })).toThrow('education_event_queue_readiness_timeout')
-    expect(bootouts).toEqual([])
+    expect(bootouts).toEqual([`gui/${statSync(f.adcPath).uid}/com.petr.education.telegram-worker`])
     expect(existsSync(oldPlist)).toBe(true)
     expect(oldLoaded).toBe(true)
   })

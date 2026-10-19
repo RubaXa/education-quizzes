@@ -3222,14 +3222,14 @@
       "id": "file:packages/telegram-notifications/adapters/runtime.mjs",
       "path": "packages/telegram-notifications/adapters/runtime.mjs",
       "kind": "artifact",
-      "purpose": "Раздельные Firestore/Mesh coordinators за общим facade; Firestore discovery readiness и EducationSync wakeups",
+      "purpose": "Композиция production adapters, telemetry instrumentation и facade для immutable reconcilers",
       "consumer": "`scripts/telegram-bot.mjs`; Vitest"
     },
     {
       "id": "file:packages/telegram-notifications/adapters/runtime.test.mjs",
       "path": "packages/telegram-notifications/adapters/runtime.test.mjs",
       "kind": "verification",
-      "purpose": "Проверка независимого Firestore startup при заблокированном Mesh и source wiring",
+      "purpose": "Проверка source wiring и старта production runtime с telemetry, upload broker и frozen legacy reconciler",
       "consumer": "Runtime; Vitest; техлид"
     },
     {
@@ -3460,14 +3460,14 @@
       "id": "file:packages/telegram-notifications/operations/launch-agent.mjs",
       "path": "packages/telegram-notifications/operations/launch-agent.mjs",
       "kind": "artifact",
-      "purpose": "План и установка runtime с queue readiness gate; безопасное retirement старого upload LaunchAgent после единственной подписки",
+      "purpose": "Production runtime constructor preflight, восстановление прежнего бота при queue readiness failure и retirement старого upload LaunchAgent только после ACK",
       "consumer": "Telegram runtime; оператор"
     },
     {
       "id": "file:packages/telegram-notifications/operations/launch-agent.test.mjs",
       "path": "packages/telegram-notifications/operations/launch-agent.test.mjs",
       "kind": "verification",
-      "purpose": "Readiness gate PID/queue ACK, сохранение старого агента при timeout и идемпотентное отключение plist",
+      "purpose": "Production preflight ordering, rollback прежнего plist/загруженного бота при readiness false/throw и retirement только после ACK",
       "consumer": "Vitest; разработчик"
     },
     {
@@ -4314,7 +4314,7 @@
       "id": "file:scripts/telegram-runtime.mjs",
       "path": "scripts/telegram-runtime.mjs",
       "kind": "artifact",
-      "purpose": "Операционные команды проверки, probe и постоянного процесса",
+      "purpose": "Операционные команды; безопасное отображение readiness, rollback и install diagnostics",
       "consumer": "Telegram runtime; оператор"
     },
     {

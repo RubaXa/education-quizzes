@@ -60,12 +60,14 @@ export function createRuntime(config, { logger = console, linkAuthorizer = null,
   if (educationSyncDispatcher) wrapMethod(educationSyncDispatcher, 'runOne', telemetry, 'telegram.education-sync.dispatch')
   const uploadBroker = uploadDisk ? createUploadBroker({ db, disk: uploadDisk, logger: (event) => logger.error(event),
     reconciliation: uploadReconciliation }) : null
+  let uploadReconciler = uploadBroker?.reconciler ?? null
+  if (uploadReconciler) uploadReconciler = wrapMethod(uploadReconciler, 'runOne', telemetry, 'telegram.upload.reconcile') ?? uploadReconciler
   if (educationSyncDispatcher) wrapMethod(educationSyncDispatcher, 'enqueueAction', telemetry, 'telegram.education-sync.action-prepare',
     (event) => ({ eventType: event?.eventType }))
-  if (uploadBroker?.reconciler) wrapMethod(uploadBroker.reconciler, 'runOne', telemetry, 'telegram.upload.reconcile')
-  const legacyEventReconciler = enableDelivery ? createLegacyEducationEventReconciler({ db,
+  let legacyEventReconciler = enableDelivery ? createLegacyEducationEventReconciler({ db,
     logger: (event) => logger.error(event) }) : null
-  if (legacyEventReconciler) wrapMethod(legacyEventReconciler, 'runOne', telemetry, 'telegram.education-event.legacy-reconcile')
+  if (legacyEventReconciler) legacyEventReconciler = wrapMethod(legacyEventReconciler, 'runOne', telemetry,
+    'telegram.education-event.legacy-reconcile') ?? legacyEventReconciler
   let sourceCoordinator = null
   const firestoreSource = enableFirestoreSource ? createFirestoreSourceAdapter(db) : null
   const firestorePipeline = firestoreSource ? new SourcePipeline({ source: firestoreSource, checkpoints: createFirestoreSourceCheckpointStore(db),
@@ -150,7 +152,7 @@ export function createRuntime(config, { logger = console, linkAuthorizer = null,
     }))
   }
   return { db, adapters, identity, telegram, notificationService, sourceCoordinator, educationSyncDispatcher, educationEventConsumer,
-    firestorePipeline, uploadReconciler: uploadBroker?.reconciler ?? null, legacyEventReconciler, verifyFirestore,
+    firestorePipeline, uploadReconciler, legacyEventReconciler, verifyFirestore,
     setWorkerWakeHandlers({ delivery = () => {}, educationSync = () => {} } = {}) {
       workerWakeDelivery = delivery
       workerWakeEducationSync = educationSync
@@ -186,13 +188,30 @@ export function createSourceCoordinatorFacade({ firestoreCoordinator, meshCoordi
 }
 
 function wrapMethod(target, name, telemetry, operation, attrs = () => ({}), kind = 'span') {
-  if (typeof target?.[name] !== 'function' || !telemetry?.span) return
+  if (typeof target?.[name] !== 'function' || !telemetry?.span) return target
   const operationDeadline = target[name].__operationDeadline === true
   const original = target[name].bind(target)
   const wrapped = (...args) => (kind === 'trace' && telemetry.trace ? telemetry.trace : telemetry.span)(operation,
     () => original(...args), attrs(...args))
   if (operationDeadline) Object.defineProperty(wrapped, '__operationDeadline', { value: true })
-  target[name] = wrapped
+  const descriptor = Object.getOwnPropertyDescriptor(target, name)
+  if (descriptor?.writable || (!descriptor && Object.isExtensible(target))) {
+    try {
+      target[name] = wrapped
+      if (target[name] === wrapped) return target
+    } catch { /* use the immutable facade below */ }
+  } else if (descriptor?.configurable) {
+    try {
+      Object.defineProperty(target, name, { ...descriptor, value: wrapped })
+      return target
+    } catch { /* use the immutable facade below */ }
+  }
+
+  // Frozen adapters own their lifecycle methods. A small frozen facade adds
+  // instrumentation without changing the adapter's public contract or state.
+  const facade = Object.create(target)
+  Object.defineProperty(facade, name, { value: wrapped, enumerable: true })
+  return Object.freeze(facade)
 }
 
 function opaqueHash(value) {

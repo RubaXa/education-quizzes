@@ -60,6 +60,8 @@ sections:
 - `packages/telegram-notifications/adapters/runtime.mjs`
 - `packages/telegram-notifications/adapters/worker-loop.mjs`
 - `packages/telegram-notifications/application/education-event-routing.mjs`
+- `packages/telegram-notifications/adapters/runtime.mjs`
+- `packages/telegram-notifications/adapters/runtime.test.mjs`
 - `packages/telegram-notifications/application/education-sync-dispatcher.mjs`
 - `packages/telegram-notifications/operations/launch-agent.mjs`
 - `packages/telegram-notifications/operations/private-logger.mjs`
@@ -86,6 +88,8 @@ sections:
 - `firestore.rules`
 - `scripts/firestore-rules-education-events.test.mjs`
 - `scripts/education-events.test.mjs`
+- `packages/telegram-notifications/operations/launch-agent.test.mjs`
+- `scripts/telegram-runtime.test.mjs`
 - `packages/education-runtime/event-queue.mjs`
 - `packages/education-runtime/event-queue.test.mjs`
 - `packages/telegram-notifications/application/education-event-routing.mjs`

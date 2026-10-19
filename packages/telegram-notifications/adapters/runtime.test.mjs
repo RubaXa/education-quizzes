@@ -7,9 +7,11 @@ function fakeDb() {
   const listeners = []
   const ref = (path) => ({ id: path.split('/').at(-1), path, get: async () => ({ exists: false, data: () => undefined }) })
   const query = () => ({ where() { return this }, orderBy() { return this }, limit() { return this },
-    async get() { return { docs: [] } }, onSnapshot(callback) { listeners.push(callback); callback({ docs: [] }); return () => { listeners.splice(listeners.indexOf(callback), 1) } } })
+    async get() { return { docs: [], size: 0 } }, onSnapshot(callback) { listeners.push(callback); callback({ docs: [] }); return () => { listeners.splice(listeners.indexOf(callback), 1) } } })
   const collection = (path) => ({ doc: (id = 'auto') => ref(`${path}/${id}`), where: () => query() })
-  return { collection, doc: ref, listeners, getAll: async () => [], runTransaction: async () => {}, terminate: async () => {} }
+  return { collection, collectionGroup: () => query(), doc: ref, listeners, getAll: async () => [],
+    runTransaction: async (callback) => callback({ get: async () => ({ exists: false, data: () => undefined }), create() {}, update() {} }),
+    terminate: async () => {} }
 }
 
 const config = { token: '12345:abcdefghijklmnopqrstuvwxyz_1234567890', projectId: 'petr-education',
@@ -49,6 +51,27 @@ describe('unified education event runtime wiring', () => {
       .rejects.toThrow('invalid_source_origin')
     expect(JSON.stringify(telemetry.snapshot())).not.toContain('family-secret')
     expect(JSON.stringify(telemetry.snapshot())).not.toContain('child-secret')
+  })
+
+  it('constructs and instruments the fully enabled production runtime with a frozen legacy reconciler', async () => {
+    const telemetry = createTelemetry()
+    const runtimeConfig = { ...config, educationSync: {
+      threadId: '01a150dc-e067-7cc2-b08f-f573bf83e6e3', codexPath: '/usr/local/bin/codex', projectRoot: '/tmp/petr-education',
+    } }
+    const runtime = createRuntime(runtimeConfig, { firestore: fakeDb(), telemetry, enableFirestoreSource: true,
+      enableMeshSource: true, enableDelivery: true, uploadDisk: { request: vi.fn() } })
+
+    expect(runtime.educationEventConsumer).toBeTruthy()
+    expect(runtime.educationSyncDispatcher).toBeTruthy()
+    expect(runtime.uploadReconciler).toBeTruthy()
+    expect(runtime.legacyEventReconciler).toBeTruthy()
+    expect(Object.isFrozen(Object.getPrototypeOf(runtime.legacyEventReconciler))).toBe(true)
+    expect(runtime.legacyEventReconciler.runOne).not.toBe(Object.getPrototypeOf(runtime.legacyEventReconciler).runOne)
+    expect(typeof runtime.uploadReconciler.runOne).toBe('function')
+    await runtime.uploadReconciler.runOne()
+    await runtime.legacyEventReconciler.runOne()
+    expect(telemetry.snapshot().spans).toHaveProperty('telegram.upload.reconcile')
+    expect(telemetry.snapshot().spans).toHaveProperty('telegram.education-event.legacy-reconcile')
   })
 
   it('routes Mesh queue events through notification and the shared EducationSync dispatcher', async () => {

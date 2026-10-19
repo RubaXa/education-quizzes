@@ -1028,10 +1028,11 @@
       }
     },
     "packages/telegram-notifications/adapters/runtime.mjs": {
-      "sha256": "5fa576e0ce1dd98987e6da0a61f66c69c5902855307c2a4daf83480f24ca89fc",
+      "sha256": "0f126b9133decf600d59810e13859c5c2e8d2f493e7197afde2c11ea5929720d",
       "record": "docs/decisions/unified-education-events-2026-10-19.md",
       "specs": [
-        "docs/modules/synchronization/event-queue.md"
+        "docs/modules/synchronization/event-queue.md",
+        "docs/services/telegram-bot/operations.md"
       ],
       "tests": [
         "packages/telegram-notifications/adapters/runtime.test.mjs"
@@ -1368,10 +1369,11 @@
       }
     },
     "packages/telegram-notifications/operations/launch-agent.mjs": {
-      "sha256": "9d1fd3e7e8d94bb53dc162c0c721ab5af1b8371002c4867504b555c02efa185e",
+      "sha256": "f79f259db1ce25a107e3fa44895dea0bc52d731f42d9e3c017475af36f9f7cc6",
       "record": "docs/decisions/unified-education-events-2026-10-19.md",
       "specs": [
-        "docs/modules/synchronization/event-queue.md"
+        "docs/modules/synchronization/event-queue.md",
+        "docs/services/telegram-bot/operations.md"
       ],
       "tests": [
         "packages/telegram-notifications/operations/launch-agent.test.mjs"
@@ -2481,10 +2483,11 @@
       }
     },
     "scripts/telegram-runtime.mjs": {
-      "sha256": "032c891197427aed04f809594243375bc9dddf95d7d2de04f009eeabac1aee5f",
+      "sha256": "48f8b14b4f79ba4f3ff70a16141a11427f8cfbd7db756781b0f96dcb3f020444",
       "record": "docs/decisions/unified-education-events-2026-10-19.md",
       "specs": [
-        "docs/modules/synchronization/event-queue.md"
+        "docs/modules/synchronization/event-queue.md",
+        "docs/services/telegram-bot/operations.md"
       ],
       "tests": [
         "scripts/telegram-runtime.test.mjs"

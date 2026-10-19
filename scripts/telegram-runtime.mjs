@@ -324,7 +324,8 @@ function launchCommand(args, work, write) {
   catch (error) {
     const safe = new Set(['launchagent_macos_required', 'firebase_project_unavailable', 'bot_token_unavailable',
       'application_credentials_unavailable', 'runtime_dependency_missing', 'release_integrity_failed', 'launchagent_stop_failed',
-      'launchagent_bootstrap_failed', 'education_event_queue_readiness_timeout', 'legacy_upload_worker_stop_failed',
+      'launchagent_bootstrap_failed', 'launchagent_rollback_failed', 'runtime_preflight_failed',
+      'education_event_queue_readiness_timeout', 'legacy_upload_worker_stop_failed',
       'legacy_upload_worker_stop_timeout', 'legacy_upload_worker_disable_failed', 'python_runtime_unavailable',
       'npm_runtime_unavailable', 'mesh_credentials_path_unavailable'])
     emit({ schemaVersion: 1, error: safe.has(error?.safeCode) ? error.safeCode : 'launchagent_operation_failed' }, write)
