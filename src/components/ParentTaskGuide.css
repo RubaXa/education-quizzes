@@ -14,6 +14,7 @@
 .day-parent-guide-why,.day-parent-guide-observed{color:var(--edu-muted)}
 .day-parent-guide summary:focus-visible{outline:3px solid var(--edu-focus);outline-offset:2px}
 /* One configurable route reuses Education tokens and the existing original above it.
+ * @see ../../docs/decisions/released-stage-parity-2026-10-20.md
  * @see ../../docs/modules/reviews/problem-card-design-decisions.md#role-projection
  * @see ../../docs/modules/reviews/card-generation-policy.md#math-adapter
  * @see ../../docs/modules/reviews/card-generation-policy.md#russian-adapter
@@ -77,6 +78,7 @@
 .day-learning-route-preview small{display:block;color:var(--edu-muted)}
 .day-learning-route-preview button:disabled{opacity:.55;cursor:wait}
 .day-learning-route-source{display:block;margin-top:11px;color:var(--edu-muted);font-size:.7rem}
+.day-guidance-release-content>strong{display:block;margin-bottom:8px}.day-guidance-release-content>p{margin:0 0 8px}.day-guidance-release-content .day-learning-route-source{margin-top:8px}
 .day-learning-route-sent{margin:9px 0;color:var(--edu-status-success-ink);font-weight:750}
 .day-learning-route-error{margin:10px 0;color:var(--edu-status-error-ink)}
 .day-parent-learning-route-body>.day-parent-guide-boundary{margin:12px 0 0;font-size:.75rem;line-height:1.45}

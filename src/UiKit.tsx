@@ -2,6 +2,7 @@
 /* @see ../docs/decisions/upload-origin-links-2026-10-18.md */
 /** @see ../docs/decisions/grade-average-ui-kit-2026-10-18.md */
 /** @see ../docs/shared/design/ui-kit.md#school-grade-average */
+/** @see ../docs/decisions/released-stage-parity-2026-10-20.md */
 import HomeworkOverview from '@/components/HomeworkOverview'
 import DayCalendar from '@/components/DayCalendar'
 import MaterialRequest from '@/components/MaterialRequest'
@@ -16,6 +17,10 @@ import QuizCard from '@/components/QuizCard'
 import GradeAverage from '@/components/GradeAverage'
 import GradeAverageSlider from '@/components/GradeAverageSlider'
 import TelegramNotificationPreview from '@/components/TelegramNotificationPreview'
+import ParentTaskGuide from '@/components/ParentTaskGuide'
+import TaskGuidance from '@/components/TaskGuidance'
+import type { ParentTaskGuide as Guide } from '@/lib/dayStore'
+import { projectGuidanceReveal } from '../day/guidance-release.mjs'
 import { uiKitQuizExamples, uiKitHomeworkRows, uiKitCalendar, uiKitCalendarDays } from '@/lib/uiKitExamples'
 import type { ResultInput } from '@/lib/resultPresentation'
 import tokenCss from './education-design-tokens.css?raw'
@@ -24,6 +29,12 @@ import './UiKit.css'
 const demoSharedPhoto: DayUpload = { id: 'demo:shared-photo', taskId: 'demo-p1', coveredTaskIds: ['demo-p1', 'demo-p2', 'demo-p3'], status: 'reviewed',
   dataUrl: `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="240" viewBox="0 0 400 240"><rect width="400" height="240" fill="white"/><text x="25" y="60" font-size="24">Пример: № 1, № 2, № 3</text><path d="M25 100h300m-300 40h250m-250 40h280" stroke="#70698b" stroke-width="3"/></svg>')}` }
 const demoPhotoPage = { subjects: [{ tasks: [{ id: 'demo-sheet', title: 'Условный лист', problems: [{ id: 'demo-p1', number: 1, title: 'Место загрузки' }] }] }] } as DayPageData
+const guidanceDemo: Guide = { kind: 'worked-solution', presentation: 'math-route', routeProfile: 'standard', revision: 2,
+  overview: 'Пример полного раскрытия выбранного этапа', stages: [{ id: 'given', title: 'Прямая и направления', role: 'calculation',
+    expected: 'Переходы ±1, ±2, ±4, ±8, ±16 дм', rows: [{ label: 'Симметрия', value: 'Можно считать последний переход равным +16' }],
+    why: 'Парные переходы равны по длине и направлены в противоположные стороны.', hintPreview: 'Сравни длины парных переходов.',
+    revealPreview: 'Учитывай направление каждого перехода: равные по длине отрезки могут иметь разные знаки.',
+    source: { kind: 'teacher-file', label: 'Лист учителя №2', ref: 'demo-only:teacher-sheet', excerpt: 'Демонстрационный источник' } }] }
 
 const topicGroups = [
   {id:'foundations',title:'Основы',topics:[
@@ -38,6 +49,7 @@ const topicGroups = [
     {id:'homework',title:'Сводка ДЗ',icon:BookOpen},
     {id:'material',title:'Уточнение материала',icon:BookOpen},
     {id:'photos',title:'Связанные фото',icon:BookOpen},
+    {id:'guidance',title:'Подсказка и раскрытие',icon:BookOpen},
     {id:'quiz',title:'История тестов',icon:Layers3},
     {id:'telegram',title:'Telegram-уведомления',icon:BellRing},
   ]},
@@ -116,6 +128,7 @@ export default function UiKit() {
       <h3>Текущие CSS-токены</h3><p>Значения ниже получены из общего файла приложения. Изменение токена обновляет примеры и потребителей одновременно.</p><dl className="edu-kit-token-list">{tokenDefinitions.map(token=><div key={token.name}><dt><code>{token.name}</code><span className="edu-kit-token-preview" style={{background:token.name.endsWith('-bg')||token.name.endsWith('-ink')||token.name==='--edu-canvas'?`var(${token.name})`:undefined}} aria-hidden="true" /></dt><dd><code>{token.value}</code><p>{tokenMeaning(token.name)}</p></dd></div>)}</dl>
       </section>}
       {section==='photos' && <section aria-label="Пример связанных фото"><h2>Связанные фото</h2><p>Условный снимок содержит решения трёх задач. Файл остаётся в задаче № 1. В остальных — только ссылки для просмотра, без повторной загрузки или удаления.</p><h3>№ 1. Место загрузки</h3><WorkPhotoGallery compact taskTitle="Общий снимок" studentToken="demo" uploads={[demoSharedPhoto]} localPhotos={[]} now={0} /><h3>№ 2. Решение найдено на общем фото</h3><LinkedWorkPhotos taskId="demo-p2" uploads={[demoSharedPhoto]} pages={[demoPhotoPage]} /><h3>№ 3. Другое решение на том же фото</h3><LinkedWorkPhotos taskId="demo-p3" uploads={[demoSharedPhoto]} pages={[demoPhotoPage]} /></section>}
+      {section==='guidance' && <section aria-label="Пример выбранной подсказки и полного раскрытия"><h2>Подсказка и полное раскрытие</h2><p>Демонстрационный этап «Прямая и направления». Родительский предпросмотр и ученическая запись используют один состав содержания. Источник показан короткой подписью; внутренний адрес и выдержка остаются закрытыми.</p><h3>Родитель</h3><ParentTaskGuide guide={guidanceDemo}/><h3>Ученик · полный шаг уже отправлен</h3><TaskGuidance items={[{ id: 'demo-release', taskId: 'demo-task', stageId: 'given', stageIndex: 0, level: 'reveal', text: guidanceDemo.stages[0].revealPreview!, revealContent: projectGuidanceReveal(guidanceDemo.stages[0]), guideRevision: 2, actorPersonId: 'demo-parent', createdAt: null }]} /></section>}
       {section==='homework' && <section aria-label="Пример сводки ДЗ"><h2>Сводка ДЗ</h2><p>Условные данные. Заголовок, дата и статусы используют тот же компонент, что и главная страница.</p><HomeworkOverview date="2026-10-19" rows={uiKitHomeworkRows} onOpen={row=>setDemoTarget(row.subject.name)} onOpenAll={()=>setDemoTarget('Все задания')}/>{demoTarget && <p role="status">Демонстрация перехода: {demoTarget}</p>}<p>Статус, задание и причина показаны отдельно. Длинный текст — короткий предпросмотр; полный разбор открывается нажатием на предмет.</p></section>}
       {section==='material' && <section aria-labelledby="kit-material-title"><h2 id="kit-material-title">Уточнение материала</h2><p>Пример с условными данными. Выбранные файлы остаются в этой демонстрации и не отправляются в Education.</p><MaterialRequest request={{id:'demo-notes',state:'open',question:'Какая последняя тема записана в тетради? Пришли фото записей с последнего урока.',photoPrompt:'Заголовок темы и все страницы последних записей целиком. Переписывать ничего не нужно.'}} label={demoFiles.length ? 'Материал выбран · пример' : 'Нужен материал для уточнения'} detail={demoFiles.length ? `Выбрано файлов: ${demoFiles.length}. На рабочей странице они будут переданы на Диск и попадут в следующий запуск синхронизации.` : 'Это вопрос для уточнения источника, а не требование учителя сдать письменную работу.'} /><PhotoUploadControl label="Добавить фото записей" onPhotos={files=>setDemoFiles(files.map(file=>file.name))}/><p>Фото помогает установить тему и увидеть записи. Само получение материала не отмечает домашнее задание выполненным.</p></section>}
       {section==='quiz' && <section aria-labelledby="kit-quiz-title"><h2 id="kit-quiz-title">История тестов</h2><p>Пример с условными данными. Тот же QuizCard используется на странице урока и в списке тестов. Нажмите название попытки для разбора, часы — для дат.</p><QuizCard chain={uiKitQuizExamples} parent={false} linksEnabled={false} context="Пример темы" assignment={<div className="edu-kit-assignment"><strong>Задание учителя · пример</strong><p>Повторить назначенную тему. Дополнительные упражнения не становятся обязательным домашним заданием.</p></div>} materials={<p>Демонстрационный материал. Персональных страниц и ответов здесь нет.</p>} />

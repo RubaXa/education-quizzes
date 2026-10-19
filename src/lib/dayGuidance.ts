@@ -1,27 +1,42 @@
 import { collection, doc, getDocFromServer, getDocs, onSnapshot, serverTimestamp, writeBatch } from 'firebase/firestore'
 import { getAuth } from 'firebase/auth'
 import { db } from './firebase'
+/** @see ../../docs/decisions/released-stage-parity-2026-10-20.md */
 import { currentEducationPersonId } from './personalAccess'
-import type { ParentTaskGuide } from './dayStore'
+import type { DayGuidanceRevealContent, ParentTaskGuide } from './dayStore'
+import { projectGuidanceReveal } from '../../day/guidance-release.mjs'
 import { prepareEducationEvent, stagePreparedEducationEvent } from './educationEventProducer'
 
 export type DayGuidance = {
   id: string; taskId: string; stageId: string; stageIndex: number; level: 'hint' | 'reveal';
   text: string; guideRevision: number; actorPersonId: string; createdAt: unknown;
+  /** Present only for a parent-selected full reveal; contains one stage's public allowlisted fields. */
+  revealContent?: DayGuidanceRevealContent;
+}
+
+function guidanceTime(item: DayGuidance) {
+  const stamp = item.createdAt as { toMillis?: () => number; seconds?: number; nanoseconds?: number } | undefined
+  return stamp?.toMillis?.() ?? (stamp?.seconds ?? 0) * 1000 + (stamp?.nanoseconds ?? 0) / 1_000_000
+}
+/** Stable ordering for separately written help levels sharing a Firestore timestamp second. */
+export function compareDayGuidanceChronology(a: DayGuidance, b: DayGuidance) {
+  return guidanceTime(a) - guidanceTime(b)
+    || (a.level === b.level ? 0 : a.level === 'hint' ? -1 : 1)
+    || a.id.localeCompare(b.id)
 }
 
 /** Read-only on the learner route; the guide and neighboring stages remain private.
  * @see ../../docs/modules/reviews/subject-aware-guidance.md#math-route */
 export function watchDayGuidance(studentToken: string, onChange: (items: DayGuidance[]) => void, onError: (error: Error) => void) {
   return onSnapshot(collection(db, 'dayGuidance', studentToken, 'items'), (snapshot) => {
-    onChange(snapshot.docs.map((entry) => ({ id: entry.id, ...entry.data() } as DayGuidance))
-      .sort((a, b) => ((a.createdAt as { seconds?: number } | undefined)?.seconds ?? 0) - ((b.createdAt as { seconds?: number } | undefined)?.seconds ?? 0) || a.id.localeCompare(b.id)))
+    onChange(snapshot.docs.map((entry) => ({ id: entry.id, ...entry.data() } as DayGuidance)).sort(compareDayGuidanceChronology))
   }, onError)
 }
 
-/** One immutable release per stage and prepared wording, shared by both help buttons. */
-async function guidanceEventId(studentToken: string, taskId: string, stage: ParentTaskGuide['stages'][number]) {
-  const source = JSON.stringify([studentToken, taskId, stage.id, stage.hintPreview ?? '', stage.revealPreview ?? ''])
+/** One immutable event per stage, wording, reveal snapshot and help level. */
+async function guidanceEventId(studentToken: string, taskId: string, stage: ParentTaskGuide['stages'][number], level: DayGuidance['level']) {
+  const selectedReveal = level === 'reveal' ? projectGuidanceReveal(stage) : null
+  const source = JSON.stringify([studentToken, taskId, stage.id, stage.hintPreview ?? '', stage.revealPreview ?? '', level, selectedReveal])
   const bytes = new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(source))).slice(0, 16)
   bytes[6] = (bytes[6] & 0x0f) | 0x50
   bytes[8] = (bytes[8] & 0x3f) | 0x80
@@ -36,8 +51,11 @@ export async function sendDayGuidance(studentToken: string, taskId: string, guid
   if (!['math-route', 'learning-route'].includes(guide.presentation ?? '') || !Number.isInteger(guide.revision) || stageIndex < 0 || !text?.trim()) throw new Error('У этого этапа нет подготовленного текста помощи.')
   const latest = await getDocFromServer(doc(db, 'dayTaskGuides', studentToken, 'items', taskId))
   const current = latest.data()?.guide as ParentTaskGuide | undefined
-  if (!latest.exists() || !current || current.revision !== guide.revision || current.stages[stageIndex]?.id !== stageId
-    || (level === 'hint' ? current.stages[stageIndex].hintPreview : current.stages[stageIndex].revealPreview) !== text) {
+  const freshStage = current?.stages?.[stageIndex]
+  const freshText = level === 'hint' ? freshStage?.hintPreview : freshStage?.revealPreview
+  const freshContent = level === 'reveal' && freshStage ? projectGuidanceReveal(freshStage) : undefined
+  if (!latest.exists() || !current || current.revision !== guide.revision || freshStage?.id !== stageId
+    || freshText !== text || (level === 'reveal' && JSON.stringify(freshContent) !== JSON.stringify(projectGuidanceReveal(stage!)))) {
     throw new Error('Разбор изменился. Откройте свежую версию карточки.')
   }
   const owner = await getDocFromServer(doc(db, 'dayOwners', studentToken))
@@ -46,7 +64,7 @@ export async function sendDayGuidance(studentToken: string, taskId: string, guid
   const members = await getDocs(collection(db, 'families', familyId, 'members'))
   const learners = members.docs.filter((member) => member.data().active === true && member.data().role === 'student' && member.data().childIds?.includes(childId))
   if (!learners.length) throw new Error('Личный вход ребёнка не найден.')
-  const eventId = await guidanceEventId(studentToken, taskId, stage)
+  const eventId = await guidanceEventId(studentToken, taskId, stage, level)
   const batch = writeBatch(db)
   const actorPersonId = currentEducationPersonId()
   const uid = getAuth().currentUser?.uid
@@ -57,7 +75,7 @@ export async function sendDayGuidance(studentToken: string, taskId: string, guid
     operationId: eventId, actor: { type: 'user', uid },
   })
   batch.set(doc(db, 'dayGuidance', studentToken, 'items', eventId), {
-    taskId, stageId, stageIndex, level, text, guideRevision: guide.revision, actorPersonId, createdAt: serverTimestamp(),
+    taskId, stageId, stageIndex, level, text, ...(level === 'reveal' ? { revealContent: freshContent } : {}), guideRevision: guide.revision, actorPersonId, createdAt: serverTimestamp(),
     eventOperationId: eventId, eventReceiptId: envelope.eventId, eventProducerVersion: 1,
   })
   for (const learner of learners) batch.set(doc(db, 'users', learner.id, 'inbox', eventId), {

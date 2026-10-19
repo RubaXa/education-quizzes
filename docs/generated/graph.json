@@ -733,6 +733,47 @@
       "path": "docs/decisions/question-guidance-2026-10-19.md"
     },
     {
+      "id": "decision.released-stage-parity-2026-10-20",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-20",
+      "updated": "2026-10-20",
+      "parent": "module.reviews.subject-aware-guidance",
+      "consumers": [
+        "student",
+        "parent",
+        "Education operator"
+      ],
+      "uses": [
+        "module.reviews.subject-aware-guidance",
+        "shared.design"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование",
+        "затронутые-файлы"
+      ],
+      "code": [
+        "src/components/ParentTaskGuide.tsx",
+        "src/components/ParentTaskGuide.css",
+        "src/components/TaskGuidance.tsx",
+        "src/components/TaskGuidance.css",
+        "src/components/GuidanceStageContent.tsx",
+        "src/lib/dayGuidance.ts",
+        "src/lib/dayStore.ts",
+        "src/UiKit.tsx",
+        "firestore.rules",
+        "day/guidance-release.mjs",
+        "day/guidance-repair.mjs",
+        "scripts/check-problem-variant-viewport.mjs",
+        "scripts/day.mjs"
+      ],
+      "path": "docs/decisions/released-stage-parity-2026-10-20.md"
+    },
+    {
       "id": "decision.review-prose-coverage-2026-10-19",
       "status": "accepted",
       "implementation": "implemented",
@@ -2498,6 +2539,41 @@
       "consumer": "Vitest; разработчик"
     },
     {
+      "id": "file:day/guidance-release.d.mts",
+      "path": "day/guidance-release.d.mts",
+      "kind": "artifact",
+      "purpose": "Тип общего проектора раскрытия этапа",
+      "consumer": "TypeScript; writer"
+    },
+    {
+      "id": "file:day/guidance-release.mjs",
+      "path": "day/guidance-release.mjs",
+      "kind": "artifact",
+      "purpose": "Allowlist выбранного этапа без соседних и приватных данных",
+      "consumer": "`dayGuidance.ts`; UI; repair CLI"
+    },
+    {
+      "id": "file:day/guidance-release.test.mjs",
+      "path": "day/guidance-release.test.mjs",
+      "kind": "verification",
+      "purpose": "Allowlist, приватные ссылки и answer-only данные",
+      "consumer": "Vitest"
+    },
+    {
+      "id": "file:day/guidance-repair.mjs",
+      "path": "day/guidance-repair.mjs",
+      "kind": "artifact",
+      "purpose": "Dry-run и адресное восстановление prose-only reveal с обратным чтением",
+      "consumer": "`scripts/day.mjs`; оператор"
+    },
+    {
+      "id": "file:day/guidance-repair.test.mjs",
+      "path": "day/guidance-repair.test.mjs",
+      "kind": "verification",
+      "purpose": "Предусловия, allowlist и идемпотентность ремонта",
+      "consumer": "Vitest"
+    },
+    {
       "id": "file:day/homework-kind.d.mts",
       "path": "day/homework-kind.d.mts",
       "kind": "artifact",
@@ -4010,6 +4086,13 @@
       "consumer": "Vitest; выпуск правил"
     },
     {
+      "id": "file:scripts/firestore-rules-guidance.test.mjs",
+      "path": "scripts/firestore-rules-guidance.test.mjs",
+      "kind": "verification",
+      "purpose": "Регрессия точного allowlist reveal, hint и отсутствия приватных данных в Firestore Rules",
+      "consumer": "Vitest; выпуск правил"
+    },
+    {
       "id": "file:scripts/firestore-rules-optional-quiz.test.mjs",
       "path": "scripts/firestore-rules-optional-quiz.test.mjs",
       "kind": "verification",
@@ -4521,6 +4604,13 @@
       "consumer": "UI Kit"
     },
     {
+      "id": "file:src/components/GuidanceStageContent.tsx",
+      "path": "src/components/GuidanceStageContent.tsx",
+      "kind": "artifact",
+      "purpose": "Общий рендер разрешённых полей этапа в preview и ученическом раскрытии",
+      "consumer": "`ParentTaskGuide`; `TaskGuidance`"
+    },
+    {
       "id": "file:src/components/HomeworkOverview.test.tsx",
       "path": "src/components/HomeworkOverview.test.tsx",
       "kind": "verification",
@@ -4934,6 +5024,13 @@
       "consumer": "`TaskGuidance.tsx`"
     },
     {
+      "id": "file:src/components/TaskGuidance.test.tsx",
+      "path": "src/components/TaskGuidance.test.tsx",
+      "kind": "verification",
+      "purpose": "Legacy prose, полное раскрытие и история на один этап",
+      "consumer": "Vitest"
+    },
+    {
       "id": "file:src/components/TaskGuidance.tsx",
       "path": "src/components/TaskGuidance.tsx",
       "kind": "artifact",
@@ -5247,6 +5344,13 @@
       "kind": "artifact",
       "purpose": "Выборочная передача этапа и подписка на помощь ребёнку",
       "consumer": "`DayPage.tsx`; `TaskGuidance.tsx`; Firebase"
+    },
+    {
+      "id": "file:src/lib/dayGuidance.writer.test.ts",
+      "path": "src/lib/dayGuidance.writer.test.ts",
+      "kind": "verification",
+      "purpose": "Atomic writer, свежий snapshot и раздельные hint/reveal ID",
+      "consumer": "Vitest"
     },
     {
       "id": "file:src/lib/dayMaterialRefs.test.ts",
@@ -7321,7 +7425,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-13",
-      "updated": "2026-10-18",
+      "updated": "2026-10-20",
       "consumers": [
         "student",
         "parent",
@@ -7330,13 +7434,20 @@
       ],
       "code": [
         "day/public-projection.mjs",
+        "firestore.rules",
         "scripts/day.mjs",
+        "src/components/ParentTaskGuide.tsx",
         "src/components/ParentTaskGuide.css",
+        "src/components/GuidanceStageContent.tsx",
         "src/components/ProblemStatement.css",
         "src/components/TaskGuidance.tsx",
+        "src/components/TaskGuidance.css",
         "src/lib/dayGuidance.ts",
         "src/lib/useTaskGuidance.ts",
-        "src/lib/dayStore.ts"
+        "src/lib/dayStore.ts",
+        "day/guidance-release.mjs",
+        "day/guidance-release.d.mts",
+        "day/guidance-repair.mjs"
       ],
       "parent": "module.reviews",
       "uses": [
@@ -9593,7 +9704,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-16",
-      "updated": "2026-10-18",
+      "updated": "2026-10-20",
       "consumers": [
         "React UI components",
         "frontend developer",
@@ -9603,6 +9714,8 @@
         "src/UiKit.css",
         "src/UiKit.tsx",
         "src/lib/uiKitExamples.ts",
+        "src/components/ParentTaskGuide.tsx",
+        "src/components/TaskGuidance.tsx",
         "src/components/GradeAverageSlider.css",
         "src/components/GradeAverageSlider.tsx"
       ],
@@ -9619,7 +9732,8 @@
         "сводка-дз",
         "school-grade-average",
         "school-grade-average-slider",
-        "telegram-уведомления"
+        "telegram-уведомления",
+        "помощь-по-этапам"
       ],
       "path": "docs/shared/design/ui-kit.md"
     },
@@ -10003,6 +10117,16 @@
     {
       "from": "decision.pupil-vacations-2026-10-19",
       "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
+      "from": "decision.released-stage-parity-2026-10-20",
+      "to": "module.reviews.subject-aware-guidance",
+      "type": "uses"
+    },
+    {
+      "from": "decision.released-stage-parity-2026-10-20",
+      "to": "shared.design",
       "type": "uses"
     },
     {
@@ -10501,6 +10625,31 @@
       "type": "implements"
     },
     {
+      "from": "file:day/guidance-release.d.mts",
+      "to": "module.reviews.subject-aware-guidance",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/guidance-release.mjs",
+      "to": "decision.released-stage-parity-2026-10-20",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/guidance-release.mjs",
+      "to": "module.reviews.subject-aware-guidance",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/guidance-repair.mjs",
+      "to": "decision.released-stage-parity-2026-10-20",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/guidance-repair.mjs",
+      "to": "module.reviews.subject-aware-guidance",
+      "type": "implements"
+    },
+    {
       "from": "file:day/homework-kind.d.mts",
       "to": "module.synchronization.plan-generation",
       "type": "implements"
@@ -10708,6 +10857,16 @@
     {
       "from": "file:firebase.json",
       "to": "module.families",
+      "type": "implements"
+    },
+    {
+      "from": "file:firestore.rules",
+      "to": "decision.released-stage-parity-2026-10-20",
+      "type": "implements"
+    },
+    {
+      "from": "file:firestore.rules",
+      "to": "module.reviews.subject-aware-guidance",
       "type": "implements"
     },
     {
@@ -11262,6 +11421,11 @@
     },
     {
       "from": "file:scripts/check-problem-variant-viewport.mjs",
+      "to": "decision.released-stage-parity-2026-10-20",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/check-problem-variant-viewport.mjs",
       "to": "module.reviews.problem-card-design-decisions",
       "type": "implements"
     },
@@ -11343,6 +11507,11 @@
     {
       "from": "file:scripts/connect.mjs",
       "to": "module.school-diary",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/day.mjs",
+      "to": "decision.released-stage-parity-2026-10-20",
       "type": "implements"
     },
     {
@@ -12106,6 +12275,16 @@
       "type": "implements"
     },
     {
+      "from": "file:src/components/GuidanceStageContent.tsx",
+      "to": "decision.released-stage-parity-2026-10-20",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/GuidanceStageContent.tsx",
+      "to": "module.reviews.subject-aware-guidance",
+      "type": "implements"
+    },
+    {
       "from": "file:src/components/HomeworkOverview.tsx",
       "to": "module.school-diary.dashboard",
       "type": "implements"
@@ -12232,6 +12411,11 @@
     },
     {
       "from": "file:src/components/ParentTaskGuide.css",
+      "to": "decision.released-stage-parity-2026-10-20",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ParentTaskGuide.css",
       "to": "module.reviews.card-generation-policy",
       "type": "implements"
     },
@@ -12258,6 +12442,11 @@
     {
       "from": "file:src/components/ParentTaskGuide.css",
       "to": "shared.design",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ParentTaskGuide.tsx",
+      "to": "decision.released-stage-parity-2026-10-20",
       "type": "implements"
     },
     {
@@ -12293,6 +12482,11 @@
     {
       "from": "file:src/components/ParentTaskGuide.tsx",
       "to": "shared.design.statuses",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ParentTaskGuide.tsx",
+      "to": "shared.design.ui-kit",
       "type": "implements"
     },
     {
@@ -12552,12 +12746,27 @@
     },
     {
       "from": "file:src/components/TaskGuidance.css",
+      "to": "decision.released-stage-parity-2026-10-20",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/TaskGuidance.css",
       "to": "module.reviews.problem-card-design-decisions",
       "type": "implements"
     },
     {
       "from": "file:src/components/TaskGuidance.css",
+      "to": "module.reviews.subject-aware-guidance",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/TaskGuidance.css",
       "to": "shared.design",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/TaskGuidance.tsx",
+      "to": "decision.released-stage-parity-2026-10-20",
       "type": "implements"
     },
     {
@@ -12573,6 +12782,11 @@
     {
       "from": "file:src/components/TaskGuidance.tsx",
       "to": "module.reviews.subject-card-viewmodel",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/TaskGuidance.tsx",
+      "to": "shared.design.ui-kit",
       "type": "implements"
     },
     {
@@ -12952,6 +13166,11 @@
     },
     {
       "from": "file:src/lib/dayGuidance.ts",
+      "to": "decision.released-stage-parity-2026-10-20",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/dayGuidance.ts",
       "to": "module.reviews.math-solution-route",
       "type": "implements"
     },
@@ -12963,6 +13182,11 @@
     {
       "from": "file:src/lib/dayMaterialRefs.ts",
       "to": "module.materials.materials",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/dayStore.ts",
+      "to": "decision.released-stage-parity-2026-10-20",
       "type": "implements"
     },
     {
@@ -13503,6 +13727,11 @@
     {
       "from": "file:src/UiKit.tsx",
       "to": "decision.grade-average-ui-kit-2026-10-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/UiKit.tsx",
+      "to": "decision.released-stage-parity-2026-10-20",
       "type": "implements"
     },
     {
@@ -14557,6 +14786,11 @@
     },
     {
       "from": "module.reviews.subject-aware-guidance",
+      "to": "decision.released-stage-parity-2026-10-20",
+      "type": "contains"
+    },
+    {
+      "from": "module.reviews.subject-aware-guidance",
       "to": "decision.reviews.guidance-hint-then-reveal",
       "type": "contains"
     },
@@ -14567,7 +14801,32 @@
     },
     {
       "from": "module.reviews.subject-aware-guidance",
+      "to": "file:day/guidance-release.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.reviews.subject-aware-guidance",
+      "to": "file:day/guidance-repair.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.reviews.subject-aware-guidance",
       "to": "file:day/public-projection.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.reviews.subject-aware-guidance",
+      "to": "file:scripts/firestore-rules-guidance.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.reviews.subject-aware-guidance",
+      "to": "file:src/components/TaskGuidance.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.reviews.subject-aware-guidance",
+      "to": "file:src/lib/dayGuidance.writer.test.ts",
       "type": "verified-by"
     },
     {

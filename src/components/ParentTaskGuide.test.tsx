@@ -92,6 +92,27 @@ describe('one parent route component', () => {
     expect(markup).toContain('Не заменяет прилагательное')
   })
 
+  it('offers the changed full-stage snapshot only after a newly checked attempt', () => {
+    const guide: Guide = { kind: 'worked-solution', presentation: 'math-route', revision: 2, overview: 'Разбор', stages: [{
+      id: 'given', title: 'Прямая и направления', role: 'calculation', expected: 'Переходы ±1, ±2, ±4, ±8, ±16 дм',
+      rows: [{ label: 'Симметрия', value: 'Новое содержимое строки' }], revealPreview: 'Тот же поясняющий текст.',
+      source: { kind: 'teacher-file', label: 'Лист учителя №2', ref: 'sheet', excerpt: 'original' },
+    }] }
+    const guidance = [{ id: 'old', taskId: 'task', stageId: 'given', stageIndex: 0, level: 'reveal' as const,
+      text: 'Тот же поясняющий текст.', guideRevision: 1, actorPersonId: 'parent', createdAt: { seconds: 100 },
+      revealContent: { title: 'Прямая и направления', expected: 'Переходы ±1, ±2, ±4, ±8, ±16 дм',
+        rows: [{ label: 'Симметрия', value: 'Старое содержимое строки' }], role: 'calculation' as const,
+        why: '', answer: '', verification: [], sourceLabel: 'Лист учителя №2' } }]
+    const beforeNewAttempt = renderToStaticMarkup(<ParentTaskGuide guide={guide} guidance={guidance} review={{ id: 'review', taskId: 'task', checkedAt: { seconds: 100 } }} />)
+    const afterNewAttempt = renderToStaticMarkup(<ParentTaskGuide guide={guide} guidance={guidance} review={{ id: 'review2', taskId: 'task', checkedAt: { seconds: 101 } }} />)
+    const reorderedSnapshot = [{ ...guidance[0], revealContent: { sourceLabel: 'Лист учителя №2', verification: [], answer: '', why: '', role: 'calculation' as const,
+      rows: [{ value: 'Новое содержимое строки', label: 'Симметрия' }], expected: 'Переходы ±1, ±2, ±4, ±8, ±16 дм', title: 'Прямая и направления' } }]
+    const reorderedAfterAttempt = renderToStaticMarkup(<ParentTaskGuide guide={guide} guidance={reorderedSnapshot} review={{ id: 'review3', taskId: 'task', checkedAt: { seconds: 101 } }} />)
+    expect(beforeNewAttempt).not.toContain('Выбрать показ полного шага')
+    expect(reorderedAfterAttempt).not.toContain('Выбрать показ полного шага')
+    expect(afterNewAttempt).toContain('Выбрать показ полного шага для этапа «Прямая и направления»')
+  })
+
   it('excludes only the parent-disabled error from the compact family status', () => {
     const guide: Guide = { kind: 'structured-notes', presentation: 'learning-route', pattern: 'source-evidence', revision: 2,
       overview: 'Проверка ответа', stages: [{ id: 'evidence', title: 'Сверить шесть ответов с требованием', expected: 'Сверить слова',

@@ -34,6 +34,8 @@ import { stageFamilyNotice } from '../storage/inbox-notifications.mjs'
 import { lessonVisibility } from '../diary/application/lesson-visibility.mjs'
 import { stageSchoolAlerts } from '../diary/application/school-alerts.mjs'
 import { buildFamilySourceGraph } from '../day/family-source-graph.mjs'
+import { isDeepStrictEqual } from 'node:util'
+import { findGuidanceTarget, planRevealGuidanceRepair } from '../day/guidance-repair.mjs'
 
 const sharedLocal = resolve('.local')
 const scoped = Boolean(process.env.EDUCATION_CHILD_WORKSPACE)
@@ -1317,7 +1319,93 @@ async function publishGuideUpgrade() {
   console.log(JSON.stringify({ taskId, dates, published: true, preserved: 'task IDs, photos, reviews, statuses, dashboards' }))
 }
 
-if (!['refresh', 'build', 'validate', 'publish', 'publish-batch', 'guide-upgrade', 'problem-support', 'dashboard', 'reconcile-grades', 'pull', 'seed-evidence', 'audit', 'repair-placements', 'repair-teacher-projections', 'repair-owner'].includes(command)) fail('Команды: refresh YYYY-MM-DD | build YYYY-MM-DD | validate YYYY-MM-DD | publish YYYY-MM-DD | publish-batch YYYY-MM-DD YYYY-MM-DD ... | audit [YYYY-MM-DD] | reconcile-grades [--apply] | repair-placements YYYY-MM-DD [--apply] | repair-teacher-projections YYYY-MM-DD [--apply] | repair-owner YYYY-MM-DD [--apply] | guide-upgrade YYYY-MM-DD[,YYYY-MM-DD] task-id [--dry-run] | problem-support YYYY-MM-DD | dashboard | pull YYYY-MM-DD [папка] | seed-evidence YYYY-MM-DD')
+/** Add the already-approved stage presentation to one existing reveal event, in place.
+ * No inbox/event/timestamp documents are created or changed.
+ * @see ../docs/modules/reviews/subject-aware-guidance.md#data-contract */
+async function repairReleasedGuidance() {
+  const taskId = third
+  const stageId = process.argv[5]
+  const apply = process.argv.includes('--apply')
+  const dryRun = process.argv.includes('--dry-run') || !apply
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date ?? '') || !/^[a-z0-9-]+$/.test(taskId ?? '')
+    || !/^[a-z0-9-]+$/.test(stageId ?? '') || apply && process.argv.includes('--dry-run')) {
+    fail('Укажите repair-guidance YYYY-MM-DD task-id stage-id [--dry-run|--apply].')
+  }
+  const source = json(resolve(local, `day-source-${date}.json`))
+  validate(source, { allowUnchangedLegacyTeacherLinks: true })
+  const target = findGuidanceTarget(source, taskId)
+  if (!target) fail('В сохранённом источнике нет единственного родительского маршрута для выбранного задания или номера.')
+  const { task, problem, guide } = target
+  if (!Number.isInteger(guide.revision)) fail('У сохранённого маршрута отсутствует целая версия.')
+  const pair = json(linksFile)[date]
+  if (!pair?.student || !pair?.parent) fail('Нет двух опубликованных страниц выбранного дня.')
+  const eventCollection = db.collection(`dayGuidance/${pair.student}/items`)
+  const [ownerSnap, pageSnap, guideSnap, events] = await Promise.all([
+    db.doc(`dayOwners/${pair.student}`).get(), db.doc(`dayPages/${pair.student}`).get(),
+    db.doc(`dayTaskGuides/${pair.student}/items/${taskId}`).get(), (async () => {
+      const found = []
+      let page = await eventCollection.where('taskId', '==', taskId).limit(100).get()
+      while (!page.empty) {
+        found.push(...page.docs)
+        if (page.size < 100) break
+        page = await eventCollection.where('taskId', '==', taskId).limit(100).startAfter(page.docs.at(-1)).get()
+      }
+      return found
+    })(),
+  ])
+  const owner = ownerSnap.data()
+  const savedGuide = guideSnap.data()?.guide
+  if (!ownerSnap.exists || !owner?.familyId || !owner?.childId || owner.targetDate !== source.targetDate
+    || !pageSnap.exists || pageSnap.data()?.kind !== 'student' || pageSnap.data()?.targetDate !== source.targetDate
+    || pageSnap.data()?.familyId !== owner.familyId || pageSnap.data()?.childId !== owner.childId
+    || pageSnap.data()?.sourcePlanFingerprint && pageSnap.data().sourcePlanFingerprint !== sourcePlanFingerprint(source)
+    || !guideSnap.exists || !isDeepStrictEqual(savedGuide, guide)) {
+    fail('Владелец, опубликованная страница или сохранённый закрытый маршрут не совпали с локальным источником; ремонт остановлен.')
+  }
+  const publishedMatches = pageSnap.data().subjects?.flatMap((subject) => subject.tasks.flatMap((item) => {
+    if (item.id !== task.id || item.meshText !== task.meshText) return []
+    if (target.kind === 'task') return item.id === taskId ? [item] : []
+    return (item.problems ?? []).filter((entry) => entry.id === taskId && entry.number === problem.number
+      && entry.title === problem.title && entry.original?.text === problem.original?.text
+      && entry.original?.attachmentRef === problem.original?.attachmentRef)
+  })) ?? []
+  if (publishedMatches.length !== 1) fail('Задание или номер на опубликованной ученической странице не совпало с источником.')
+  const candidates = events.filter((snapshot) => {
+    const event = snapshot.data()
+    return event.taskId === taskId && event.stageId === stageId && event.level === 'reveal'
+  })
+  if (candidates.length !== 1) {
+    console.log(JSON.stringify({ date, taskId, stageId, status: 'skipped', reason: candidates.length ? 'ambiguous-release' : 'no-existing-release', applied: false }))
+    return
+  }
+  const eventSnap = candidates[0]
+  const plan = planRevealGuidanceRepair({ event: eventSnap.data(), guide: savedGuide, taskId, stageId })
+  if (plan.status !== 'repair') {
+    console.log(JSON.stringify({ date, taskId, stageId, status: plan.status, reason: plan.reason ?? 'already-current', applied: false }))
+    return
+  }
+  const summary = { date, taskId, stageId, status: 'ready', fields: ['revealContent'], applied: false }
+  if (dryRun) { console.log(JSON.stringify(summary)); return }
+  await db.runTransaction(async (transaction) => {
+    const [currentOwner, currentPage, currentGuide, currentEvent] = await Promise.all([
+      transaction.get(ownerSnap.ref), transaction.get(pageSnap.ref), transaction.get(guideSnap.ref), transaction.get(eventSnap.ref),
+    ])
+    if (![ownerSnap, pageSnap, guideSnap, eventSnap].every((prior, index) => {
+      const current = [currentOwner, currentPage, currentGuide, currentEvent][index]
+      return current.exists && current.updateTime?.isEqual(prior.updateTime)
+    })) fail('Связь владельца, страницы, маршрута или выбранный выпуск изменились после предпросмотра.')
+    const currentGuideValue = currentGuide.data()?.guide
+    const currentPlan = planRevealGuidanceRepair({ event: currentEvent.data(), guide: currentGuideValue, taskId, stageId })
+    if (!isDeepStrictEqual(currentGuideValue, guide) || currentPlan.status !== 'repair'
+      || !isDeepStrictEqual(currentPlan.revealContent, plan.revealContent)) fail('Предусловия выбранного выпуска изменились; запись отменена.')
+    transaction.update(eventSnap.ref, { revealContent: plan.revealContent })
+  })
+  const readback = (await eventSnap.ref.get()).data()
+  if (!isDeepStrictEqual(readback?.revealContent, plan.revealContent)) fail('Обратное чтение показа этапа не совпало с ожидаемым содержимым.')
+  console.log(JSON.stringify({ ...summary, status: 'repaired', applied: true }))
+}
+
+if (!['refresh', 'build', 'validate', 'publish', 'publish-batch', 'guide-upgrade', 'repair-guidance', 'problem-support', 'dashboard', 'reconcile-grades', 'pull', 'seed-evidence', 'audit', 'repair-placements', 'repair-teacher-projections', 'repair-owner'].includes(command)) fail('Команды: refresh YYYY-MM-DD | build YYYY-MM-DD | validate YYYY-MM-DD | publish YYYY-MM-DD | publish-batch YYYY-MM-DD YYYY-MM-DD ... | audit [YYYY-MM-DD] | reconcile-grades [--apply] | repair-placements YYYY-MM-DD [--apply] | repair-teacher-projections YYYY-MM-DD [--apply] | repair-owner YYYY-MM-DD [--apply] | guide-upgrade YYYY-MM-DD[,YYYY-MM-DD] task-id [--dry-run] | repair-guidance YYYY-MM-DD task-id stage-id [--dry-run|--apply] | problem-support YYYY-MM-DD | dashboard | pull YYYY-MM-DD [папка] | seed-evidence YYYY-MM-DD')
 if (command === 'build') {
   console.log(JSON.stringify(buildDaySource(local, date), null, 2))
   process.exit(0)
@@ -1339,6 +1427,7 @@ else if (command === 'reconcile-grades') await reconcilePublishedGrades(date ===
 else if (command === 'pull') await pull()
 else if (command === 'problem-support') await publishProblemSupport()
 else if (command === 'guide-upgrade') await publishGuideUpgrade()
+else if (command === 'repair-guidance') await repairReleasedGuidance()
 else if (command === 'audit') await auditPublishedDays()
 else if (command === 'repair-placements') await repairPublishedPlacements()
 else if (command === 'repair-teacher-projections') await repairTeacherProjections()
@@ -1355,3 +1444,4 @@ if (command === 'refresh') {
   try { runLocal('scripts/storage.mjs', ['sync', date]) }
   catch { console.warn('Архив новых фото на Диске не завершён; фото остались в Education, повторите sync.') }
 }
+// @see ../docs/decisions/released-stage-parity-2026-10-20.md

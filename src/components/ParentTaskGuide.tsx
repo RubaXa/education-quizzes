@@ -6,9 +6,15 @@ import type { ParentCompletionEvent } from '@/lib/parentCompletion'
 import type { DayGuidance } from '@/lib/dayGuidance'
 import { reportUiError } from '@/lib/uiErrors'
 import { formatReviewObservation, formatReviewProse } from '@/lib/reviewProse'
+import GuidanceStageContent from './GuidanceStageContent'
+import { projectGuidanceReveal, sameGuidanceRevealContent } from '../../day/guidance-release.mjs'
 import RequirementSwitch from './RequirementSwitch'
 import StatusIcon from './StatusIcon'
 import './ParentTaskGuide.css'
+
+/** @see ../../docs/modules/reviews/subject-aware-guidance.md */
+/** @see ../../docs/decisions/released-stage-parity-2026-10-20.md */
+/** @see ../../docs/shared/design/ui-kit.md#помощь-по-этапам */
 
 type Stage = Guide['stages'][number]
 type Level = 'hint' | 'reveal'
@@ -39,7 +45,7 @@ export default function ParentTaskGuide({ guide, review, decisions = [], guidanc
   const [preview, setPreview] = useState<{ id: string; level: Level } | null>(null)
   const [sending, setSending] = useState(false)
   const [error, setError] = useState('')
-  const [sent, setSent] = useState<{ stageId: string; level: Level; text: string; at: number }[]>([])
+  const [sent, setSent] = useState<{ stageId: string; level: Level; text: string; revealContent?: DayGuidance['revealContent']; at: number }[]>([])
   const [stageSaving, setStageSaving] = useState('')
   const [pendingChoices, setPendingChoices] = useState<Record<string, { required: boolean; reviewVersion: number }>>({})
   const [stageError, setStageError] = useState<{ id: string; reviewVersion: number; message: string } | null>(null)
@@ -71,14 +77,17 @@ export default function ParentTaskGuide({ guide, review, decisions = [], guidanc
   const completion = stageCompletion(review, decisions)
   const isRequired = (stage: Stage) => unresolvedChoices[stage.id]?.required ?? stageRequired(review, stage.id, decisions)
   const alreadySent = (stage: Stage, level: Level) => {
-    const previous = guidance.filter((item) => item.stageId === stage.id && item.level === level)
-      .map((item) => ({ text: item.text, at: timeOf(item.createdAt) }))
+    const previous: { text: string; revealContent?: DayGuidance['revealContent']; at: number }[] = guidance.filter((item) => item.stageId === stage.id && item.level === level)
+      .map((item) => ({ text: item.text, revealContent: item.revealContent, at: timeOf(item.createdAt) }))
     previous.push(...sent.filter((item) => item.stageId === stage.id && item.level === level))
     if (!previous.length) return false
     const latest = previous.reduce((a, b) => a.at >= b.at ? a : b)
     const currentText = level === 'hint' ? stage.hintPreview : stage.revealPreview
+    const currentReveal = level === 'reveal' ? projectGuidanceReveal(stage) : undefined
+    const sameRelease = currentText === latest.text && (level === 'hint' || !latest.revealContent
+      || sameGuidanceRevealContent(currentReveal, latest.revealContent))
     // A revised guide alone must not resend help; the next checked attempt must also offer new wording.
-    return currentText === latest.text || timeOf(review?.checkedAt) <= latest.at
+    return sameRelease || timeOf(review?.checkedAt) <= latest.at
   }
 
   async function chooseStage(stage: Stage, required: boolean) {
@@ -122,7 +131,8 @@ export default function ParentTaskGuide({ guide, review, decisions = [], guidanc
     try {
       await onSend(stage, level)
       setSent((current) => [...current.filter((item) => item.stageId !== stage.id || item.level !== level), {
-        stageId: stage.id, level, text: (level === 'hint' ? stage.hintPreview : stage.revealPreview) ?? '', at: timeOf(review?.checkedAt),
+        stageId: stage.id, level, text: (level === 'hint' ? stage.hintPreview : stage.revealPreview) ?? '',
+        revealContent: level === 'reveal' ? projectGuidanceReveal(stage) : undefined, at: timeOf(review?.checkedAt),
       }])
       setPreview(null)
     }
@@ -162,18 +172,14 @@ export default function ParentTaskGuide({ guide, review, decisions = [], guidanc
         <div className="day-learning-route-body">
           {stageError?.id === stage.id && stageError.reviewVersion === reviewVersion && <p className="day-learning-route-error" role="alert">{stageError.message}</p>}
           {result?.observed && <p className="day-learning-route-observed"><b>В работе:</b> {formatReviewObservation(result.observed)}{result.note && <small className="day-guide-review-note">{formatReviewProse(result.note)}</small>}</p>}
-          {stage.rows?.length ? <div className={`day-learning-route-rows day-learning-route-rows-${stage.role ?? 'plain'}`}>{stage.rows.map((row, rowIndex) => <div key={`${stage.id}-${rowIndex}`}><div>{row.label && <small>{formatReviewProse(row.label)}</small>}<strong>{formatReviewProse(row.value)}</strong></div>{row.explanation && <p>{formatReviewProse(row.explanation)}</p>}</div>)}</div> : <p>{formatReviewProse(stage.expected)}</p>}
-          {stage.role === 'answer' && stage.answer && <div className="day-learning-route-answer"><small>Ответ</small><strong>{formatReviewProse(stage.answer)}</strong></div>}
-          {stage.role === 'answer' && !!stage.verification?.length && <details className="day-learning-route-check"><summary>Проверка по условию</summary>{stage.verification.map((row, rowIndex) => <p key={rowIndex}>{row.label && <b>{formatReviewProse(row.label)}: </b>}{formatReviewProse(row.value)}</p>)}</details>}
-          {stage.why && <p className="day-learning-route-why">{formatReviewProse(stage.why)}</p>}
+          <GuidanceStageContent content={{ ...stage, sourceLabel: stage.source.label }} />
           {guidanceReady && !revealSent && <div className="day-learning-route-actions">
             {stage.hintPreview && !hintSent && <button type="button" aria-label={`Выбрать подсказку для этапа «${stage.title}»`} onClick={() => { setPreview({ id: stage.id, level: 'hint' }); setError('') }}>Подсказка</button>}
             {stage.revealPreview && !revealSent && <button type="button" aria-label={`Выбрать ${stage.role === 'answer' ? 'показ ответа' : 'показ полного шага'} для этапа «${stage.title}»`} onClick={() => { setPreview({ id: stage.id, level: 'reveal' }); setError('') }}>{stage.role === 'answer' ? 'Ответ' : 'Весь шаг'}</button>}
           </div>}
-          {guidanceReady && active && previewText && <div className="day-learning-route-preview"><b>{active.level === 'hint' ? 'Подсказка Пете' : 'Показать Пете'}</b><p>{formatReviewProse(previewText)}</p><button type="button" disabled={sending || !onSend} onClick={() => void send(stage, active.level)}>{sending ? 'Отправляем…' : 'Отправить Пете'}</button>{!onSend && <small>Отправка пока недоступна.</small>}</div>}
+          {guidanceReady && active && previewText && <div className="day-learning-route-preview"><b>{active.level === 'hint' ? 'Подсказка Пете' : 'Показать Пете'}</b>{active.level === 'hint' ? <p>{formatReviewProse(previewText)}</p> : <><GuidanceStageContent content={projectGuidanceReveal(stage)} showTitle /><p>{formatReviewProse(previewText)}</p></>}<button type="button" disabled={sending || !onSend} onClick={() => void send(stage, active.level)}>{sending ? 'Отправляем…' : 'Отправить Пете'}</button>{!onSend && <small>Отправка пока недоступна.</small>}</div>}
           {hintSent && <p className="day-learning-route-sent" role="status">Подсказка отправлена Пете.</p>}
           {revealSent && <p className="day-learning-route-sent" role="status">{stage.role === 'answer' ? 'Ответ отправлен Пете.' : 'Весь шаг отправлен Пете.'}</p>}
-          <small className="day-learning-route-source">Источник: {stage.source.label}</small>
         </div>
       </details>{checkable && <RequirementSwitch label={`Учитывать пункт «${stage.title}» при проверке`} checked={required} disabled={!onStageChoice || Boolean(stageSaving) || stage.id in unresolvedChoices} onChange={(checked) => void chooseStage(stage, checked)} />}</div>
     })}</div>

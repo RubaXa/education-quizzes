@@ -1,4 +1,7 @@
 /* @see ../../docs/modules/reviews/problem-card-design-decisions.md#role-projection */
+/* @see ../../docs/modules/reviews/subject-aware-guidance.md */
+/* @see ../../docs/decisions/released-stage-parity-2026-10-20.md */
 .day-task-guidance.day-parent-learning-route{padding:0;background:var(--edu-surface)}
 .day-task-guidance .day-learning-route-stage>summary{padding-right:12px}
 .day-task-guidance .day-learning-route-body>p{margin:0;overflow-wrap:anywhere}
+.day-guidance-previous{margin-top:10px;border-top:1px solid var(--edu-card-border)}.day-guidance-previous>summary{min-height:var(--edu-touch-target);padding-top:8px;color:var(--edu-muted);font-size:.77rem;font-weight:750;cursor:pointer}.day-guidance-release-event{padding:8px 0;border-top:1px solid var(--edu-card-border)}.day-guidance-release-event>small{display:block;margin-bottom:6px;color:var(--edu-muted);font-size:.73rem;font-weight:750}

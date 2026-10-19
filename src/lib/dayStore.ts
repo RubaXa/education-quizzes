@@ -24,6 +24,7 @@ export type DayProblem = {
 /** One data contract powers 2–4 stage mathematics and language routes.
  * Math answers belong only to the final stage; dayPages must never contain this type.
  * @see ../../docs/modules/reviews/card-generation-policy.md#math-adapter */
+/** @see ../../docs/decisions/released-stage-parity-2026-10-20.md */
 export type ParentTaskGuide = {
   kind: 'structured-notes' | 'worked-solution' | 'text-structure';
   presentation?: 'math-route' | 'learning-route'; pattern?: 'spelling' | 'syntax' | 'text-plan' | 'composition' | 'short-interpretation' | 'evidence-response' | 'concept-function' | 'vocabulary-list' | 'written-exercise' | 'source-analysis' | 'map-analysis' | 'source-evidence' | 'source-units'; routeProfile?: 'compact' | 'standard' | 'extended'; depthReason?: string;
@@ -36,6 +37,13 @@ export type ParentTaskGuide = {
     answer?: string; verification?: { label?: string; value: string }[];
     source: { kind: 'mesh' | 'textbook' | 'teacher-file'; label: string; ref: string; excerpt: string };
   }[];
+}
+/** Public allowlist for a parent-approved full-stage reveal; never contains source refs/excerpts or review labels.
+ * @see ../../docs/modules/reviews/subject-aware-guidance.md#data-contract */
+export type DayGuidanceRevealContent = {
+  title: string; expected: string; rows: { label?: string; value: string; explanation?: string }[];
+  role: 'plain' | 'given' | 'relations' | 'calculation' | 'solution' | 'answer';
+  why: string; answer: string; verification: { label?: string; value: string }[]; sourceLabel: string;
 }
 export type ParentTaskPrivate = { guide?: ParentTaskGuide; sourceResearch?: DaySourceResearch }
 export type PlatformResult = { state: 'completed'; points?: number; maxPoints?: number; durationMinutes?: number; observedDate?: string; source: string; evidenceKind?: 'screenshot' | 'mesh' }

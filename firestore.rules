@@ -241,6 +241,59 @@ service cloud.firestore {
           get(/databases/$(database)/documents/dayOwners/$(studentToken)).data.familyId,
           get(/databases/$(database)/documents/dayOwners/$(studentToken)).data.childId);
     }
+    // Cache the authorization chain and the selected stage once. The REST
+    // Rules evaluator (and Firestore itself) has a finite expression budget;
+    // repeating activeSession/parentMember/get(guide) inline can exhaust it.
+    function validDayGuidanceCreate(studentToken, eventId, data) {
+      let session = get(/databases/$(database)/documents/deviceSessions/$(request.auth.uid)).data;
+      let link = get(/databases/$(database)/documents/accessLinks/$(session.linkToken)).data;
+      let owner = get(/databases/$(database)/documents/dayOwners/$(studentToken)).data;
+      let member = get(/databases/$(database)/documents/families/$(owner.familyId)/members/$(link.personId)).data;
+      let page = get(/databases/$(database)/documents/dayPages/$(studentToken)).data;
+      let guide = get(/databases/$(database)/documents/dayTaskGuides/$(studentToken)/items/$(data.taskId)).data.guide;
+      let stage = guide.stages[data.stageIndex];
+      return request.auth != null
+        && link.active == true
+        && owner.familyId is string
+        && owner.childId is string
+        && member.active == true
+        && member.role == 'parent'
+        && member.childIds.hasAny([owner.childId])
+        && data.taskId in page.taskIds
+        && eventId.matches('^[a-f0-9-]{36}$')
+        && data.keys().hasOnly(['taskId', 'stageId', 'stageIndex', 'level', 'text', 'revealContent', 'guideRevision', 'actorPersonId', 'createdAt', 'eventOperationId', 'eventReceiptId', 'eventProducerVersion'])
+        && data.keys().hasAll(['taskId', 'stageId', 'stageIndex', 'level', 'text', 'guideRevision', 'actorPersonId', 'createdAt'])
+        && data.taskId is string
+        && data.stageId is string
+        && data.stageIndex is int
+        && data.stageIndex >= 0
+        && data.stageIndex < 24
+        && data.level in ['hint', 'reveal']
+        && data.text is string
+        && data.text.size() > 0
+        && data.text.size() <= 1200
+        && data.actorPersonId == link.personId
+        && data.createdAt == request.time
+        && guide.presentation in ['math-route', 'learning-route']
+        && data.guideRevision == guide.revision
+        && data.stageIndex < guide.stages.size()
+        && data.stageId == stage.id
+        && data.text == (data.level == 'hint' ? stage.hintPreview : stage.revealPreview)
+        && (data.level == 'hint'
+          ? !data.keys().hasAny(['revealContent'])
+          : data.revealContent is map
+            && data.revealContent.keys().hasOnly(['title', 'expected', 'rows', 'role', 'why', 'answer', 'verification', 'sourceLabel'])
+            && data.revealContent.keys().hasAll(['title', 'expected', 'rows', 'role', 'why', 'answer', 'verification', 'sourceLabel'])
+            && data.revealContent.title == stage.title
+            && data.revealContent.expected == stage.expected
+            && data.revealContent.rows == stage.get('rows', [])
+            && data.revealContent.role == stage.get('role', 'plain')
+            && data.revealContent.why == stage.get('why', '')
+            && data.revealContent.answer == (stage.get('role', '') == 'answer' ? stage.get('answer', '') : '')
+            && data.revealContent.verification == (stage.get('role', '') == 'answer' ? stage.get('verification', []) : [])
+            && data.revealContent.sourceLabel == stage.source.label)
+        && legacyOrEducationEventReceipt('parent.guidance_sent', eventId, 'dayGuidance/' + studentToken + '/items/' + eventId);
+    }
     // A stage choice needs one read per source document. Repeated nested access
     // checks can exceed Firestore's per-write document-access limit.
     // @see docs/modules/school-diary/day-page.md#review-stage-switch
@@ -795,36 +848,12 @@ service cloud.firestore {
     }
 
     // The parent can release exactly one prepared hint or solution stage.
-    // The learner sees only this selected text, never the complete guide.
+    // The learner sees the selected hint text or full selected-stage projection, never the complete guide.
     // @see docs/modules/reviews/subject-aware-guidance.md#math-route
+    // @see docs/decisions/released-stage-parity-2026-10-20.md
     match /dayGuidance/{studentToken}/items/{eventId} {
       allow get, list: if dayUploadOwner(studentToken);
-      allow create: if dayUploadOwner(studentToken)
-        && parentMember(get(/databases/$(database)/documents/dayOwners/$(studentToken)).data.familyId)
-        && eventId.matches('^[a-f0-9-]{36}$')
-        && request.resource.data.keys().hasOnly(['taskId', 'stageId', 'stageIndex', 'level', 'text', 'guideRevision', 'actorPersonId', 'createdAt', 'eventOperationId', 'eventReceiptId', 'eventProducerVersion'])
-        && request.resource.data.keys().hasAll(['taskId', 'stageId', 'stageIndex', 'level', 'text', 'guideRevision', 'actorPersonId', 'createdAt'])
-        && request.resource.data.taskId is string
-        && request.resource.data.taskId in get(/databases/$(database)/documents/dayPages/$(studentToken)).data.taskIds
-        && request.resource.data.stageId is string
-        && request.resource.data.stageIndex is int
-        && request.resource.data.stageIndex >= 0
-        && request.resource.data.stageIndex < 24
-        && request.resource.data.level in ['hint', 'reveal']
-        && request.resource.data.text is string
-        && request.resource.data.text.size() > 0
-        && request.resource.data.text.size() <= 1200
-        && request.resource.data.actorPersonId == currentPersonId()
-        && request.resource.data.createdAt == request.time
-        && exists(/databases/$(database)/documents/dayTaskGuides/$(studentToken)/items/$(request.resource.data.taskId))
-        && get(/databases/$(database)/documents/dayTaskGuides/$(studentToken)/items/$(request.resource.data.taskId)).data.guide.presentation in ['math-route', 'learning-route']
-        && request.resource.data.guideRevision == get(/databases/$(database)/documents/dayTaskGuides/$(studentToken)/items/$(request.resource.data.taskId)).data.guide.revision
-        && request.resource.data.stageIndex < get(/databases/$(database)/documents/dayTaskGuides/$(studentToken)/items/$(request.resource.data.taskId)).data.guide.stages.size()
-        && request.resource.data.stageId == get(/databases/$(database)/documents/dayTaskGuides/$(studentToken)/items/$(request.resource.data.taskId)).data.guide.stages[request.resource.data.stageIndex].id
-        && request.resource.data.text == (request.resource.data.level == 'hint'
-          ? get(/databases/$(database)/documents/dayTaskGuides/$(studentToken)/items/$(request.resource.data.taskId)).data.guide.stages[request.resource.data.stageIndex].hintPreview
-          : get(/databases/$(database)/documents/dayTaskGuides/$(studentToken)/items/$(request.resource.data.taskId)).data.guide.stages[request.resource.data.stageIndex].revealPreview)
-        && legacyOrEducationEventReceipt('parent.guidance_sent', eventId, 'dayGuidance/' + studentToken + '/items/' + eventId);
+      allow create: if validDayGuidanceCreate(studentToken, eventId, request.resource.data);
       allow update, delete: if false;
     }
 

@@ -53,12 +53,29 @@ it('demonstrates one attachment and read-only references using the real shared c
 it('preserves grouped navigation and the shared grade average simulator',async()=>{
  document.body.append(host);root=createRoot(host);await act(async()=>root!.render(<UiKit/>))
  expect([...host.querySelectorAll('nav small')].map(node=>node.textContent)).toEqual(['Основы','Компоненты','Составные сценарии'])
- expect(host.querySelectorAll('nav button')).toHaveLength(9)
+ expect(host.querySelectorAll('nav button')).toHaveLength(10)
  await act(async()=>[...host.querySelectorAll<HTMLButtonElement>('nav button')].find(button=>button.textContent==='Средний балл')!.click())
  const range=host.querySelector<HTMLInputElement>('input[type="range"]')!
  expect([range.min,range.max,range.step]).toEqual(['200','500','1'])
  expect(host.querySelector('.edu-grade-slider output')?.textContent).toBe('4,50')
  expect(host.querySelector('.edu-grade-slider')).not.toBeNull()
+})
+
+/** @see ../docs/modules/reviews/subject-aware-guidance.md#data-contract */
+it('shows matching parent preview and learner disclosure for the selected full stage', async () => {
+ document.body.append(host);root=createRoot(host);await act(async()=>root!.render(<UiKit/>))
+ await act(async()=>[...host.querySelectorAll<HTMLButtonElement>('nav button')].find(button=>button.textContent==='Подсказка и раскрытие')!.click())
+ expect(host.textContent).toContain('Прямая и направления')
+ expect(host.textContent).toContain('Переходы ±1, ±2, ±4, ±8, ±16 дм')
+ expect(host.textContent).toContain('Можно считать последний переход равным +16')
+ expect(host.textContent).toContain('Лист учителя №2')
+ expect(host.textContent).not.toContain('demo-only:teacher-sheet')
+ expect(host.textContent).not.toContain('Демонстрационный источник')
+ await act(async()=>[...host.querySelectorAll<HTMLButtonElement>('button')].find(button=>button.textContent==='Весь шаг')!.click())
+ const preview=host.querySelector('.day-learning-route-preview')!
+ expect(preview.textContent).toContain('Прямая и направления')
+ expect(preview.textContent).toContain('Можно считать последний переход равным +16')
+ expect(preview.textContent).toContain('Лист учителя №2')
 })
 
 /** @see ../docs/modules/school-diary/dashboard.md#compact-homework */

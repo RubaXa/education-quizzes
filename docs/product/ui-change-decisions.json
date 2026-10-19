@@ -1758,21 +1758,25 @@
       }
     },
     "scripts/check-problem-variant-viewport.mjs": {
-      "sha256": "f9d899470e5feaa1359cd3187831e26c8cfb33afb90f3504e1d73156e93d2858",
-      "record": "docs/decisions/restore-numbered-original-2026-10-14.md",
+      "sha256": "a62a6808e0bf6a8c9dd64c6b8c5622b76bf81b1a8f9bf8a3885e7a85d2bd3cf2",
+      "record": "docs/decisions/released-stage-parity-2026-10-20.md",
       "specs": [
-        "docs/modules/reviews/adaptive-problem-card.md",
+        "docs/modules/reviews/subject-aware-guidance.md",
         "docs/modules/reviews/problem-card-design-decisions.md",
+        "docs/shared/design/ui-kit.md",
         "docs/shared/design/README.md"
       ],
       "tests": [
-        "src/components/ProblemTaskCard.contract.test.tsx",
-        "src/components/ProblemStatement.provenance.test.tsx",
-        "src/components/ProblemCard.test.tsx"
+        "src/lib/dayGuidance.writer.test.ts",
+        "day/guidance-release.test.mjs",
+        "day/guidance-repair.test.mjs",
+        "src/components/ParentTaskGuide.test.tsx",
+        "src/components/TaskGuidance.test.tsx",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "Родитель 14.10.2026 после просмотра конкретного макета с видимым исходным кропом ответил «Да, стало лучше, очень лучше» и потребовал доделать этот вариант, убрав макетную родительскую кнопку загрузки фото."
+        "status": "direct-request",
+        "evidence": "Прямой запрос пользователя 20.10.2026: в ученическом раскрытии должен появляться полный выбранный этап с переходами, строкой симметрии, причиной и источником; родительский предпросмотр должен совпадать с фактическим раскрытием."
       },
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
@@ -1889,20 +1893,25 @@
       }
     },
     "scripts/day.mjs": {
-      "sha256": "9a587fbdef80fbd8f9476922a755ff7f6811646dc5ebfdc3c59c5b073d1dbd6c",
-      "record": "docs/decisions/pupil-vacations-2026-10-19.md",
+      "sha256": "49b2ed0c28dfdbd94a410c60db8af22d0b4d24f4b902d68e31e696f0ef2f21a3",
+      "record": "docs/decisions/released-stage-parity-2026-10-20.md",
       "specs": [
-        "docs/modules/school-diary/school-calendar.md"
+        "docs/modules/reviews/subject-aware-guidance.md",
+        "docs/modules/reviews/problem-card-design-decisions.md",
+        "docs/shared/design/ui-kit.md",
+        "docs/shared/design/README.md"
       ],
       "tests": [
-        "day/school-calendar.test.mjs",
-        "sync/school-calendar-publication.test.mjs",
-        "src/components/DayCalendar.test.tsx",
-        "src/DayDashboard.warmStart.test.tsx"
+        "src/lib/dayGuidance.writer.test.ts",
+        "day/guidance-release.test.mjs",
+        "day/guidance-repair.test.mjs",
+        "src/components/ParentTaskGuide.test.tsx",
+        "src/components/TaskGuidance.test.tsx",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 просит выделить каникулы красивым блоком дней, получая даты только из МЭШ конкретного ученика."
+        "evidence": "Прямой запрос пользователя 20.10.2026: в ученическом раскрытии должен появляться полный выбранный этап с переходами, строкой симметрии, причиной и источником; родительский предпросмотр должен совпадать с фактическим раскрытием."
       }
     },
     "scripts/direct-upload-worker.mjs": {
@@ -2658,20 +2667,25 @@
       }
     },
     "src/UiKit.tsx": {
-      "sha256": "de004e48d21e38359db8e47a0633d69aec60879def14c3bf1f0ed64b006fe1d8",
-      "record": "docs/decisions/pupil-vacations-2026-10-19.md",
+      "sha256": "24f02a69a05e3c767e89d76b549c38b99523b25c289a62eb21ca5f844e4316e5",
+      "record": "docs/decisions/released-stage-parity-2026-10-20.md",
       "specs": [
-        "docs/modules/school-diary/school-calendar.md"
+        "docs/modules/reviews/subject-aware-guidance.md",
+        "docs/modules/reviews/problem-card-design-decisions.md",
+        "docs/shared/design/ui-kit.md",
+        "docs/shared/design/README.md"
       ],
       "tests": [
-        "day/school-calendar.test.mjs",
-        "sync/school-calendar-publication.test.mjs",
-        "src/components/DayCalendar.test.tsx",
-        "src/DayDashboard.warmStart.test.tsx"
+        "src/lib/dayGuidance.writer.test.ts",
+        "day/guidance-release.test.mjs",
+        "day/guidance-repair.test.mjs",
+        "src/components/ParentTaskGuide.test.tsx",
+        "src/components/TaskGuidance.test.tsx",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 просит выделить каникулы красивым блоком дней, получая даты только из МЭШ конкретного ученика."
+        "evidence": "Прямой запрос пользователя 20.10.2026: в ученическом раскрытии должен появляться полный выбранный этап с переходами, строкой симметрии, причиной и источником; родительский предпросмотр должен совпадать с фактическим раскрытием."
       }
     },
     "src/WeekendMathSlot.css": {
@@ -3308,18 +3322,25 @@
       }
     },
     "src/components/ParentTaskGuide.css": {
-      "sha256": "ead1e2bb5d35ebcbb4543643ffe5b0a741e960f172e3511b61b3258c449ba565",
-      "record": "docs/decisions/stage-switch-fresh-version-2026-10-14.md",
+      "sha256": "8608885f3a5cfe2a07c38b55d170ae517d5bbb7e274cf789ec3ac708907766f1",
+      "record": "docs/decisions/released-stage-parity-2026-10-20.md",
       "specs": [
-        "docs/modules/reviews/russian-language-route.md",
+        "docs/modules/reviews/subject-aware-guidance.md",
+        "docs/modules/reviews/problem-card-design-decisions.md",
+        "docs/shared/design/ui-kit.md",
         "docs/shared/design/README.md"
       ],
       "tests": [
-        "src/components/ParentTaskGuide.test.tsx"
+        "src/lib/dayGuidance.writer.test.ts",
+        "day/guidance-release.test.mjs",
+        "day/guidance-repair.test.mjs",
+        "src/components/ParentTaskGuide.test.tsx",
+        "src/components/TaskGuidance.test.tsx",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 14.10.2026: выключенный конкретный пункт не должен сохранять вид активной ошибки."
+        "evidence": "Прямой запрос пользователя 20.10.2026: в ученическом раскрытии должен появляться полный выбранный этап с переходами, строкой симметрии, причиной и источником; родительский предпросмотр должен совпадать с фактическим раскрытием."
       },
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
@@ -3327,18 +3348,25 @@
       }
     },
     "src/components/ParentTaskGuide.tsx": {
-      "sha256": "d61efa71ce2ce35e96d71303ba1f289b1a61b9080401ec44eed9d876ea09b812",
-      "record": "docs/decisions/guidance-hint-then-reveal-2026-10-19.md",
+      "sha256": "c2d012e21864503a0ee5f90de613aa1a7ecdacdb9b05cc12dd98868f1ab39907",
+      "record": "docs/decisions/released-stage-parity-2026-10-20.md",
       "specs": [
-        "docs/modules/reviews/subject-aware-guidance.md"
+        "docs/modules/reviews/subject-aware-guidance.md",
+        "docs/modules/reviews/problem-card-design-decisions.md",
+        "docs/shared/design/ui-kit.md",
+        "docs/shared/design/README.md"
       ],
       "tests": [
+        "src/lib/dayGuidance.writer.test.ts",
+        "day/guidance-release.test.mjs",
+        "day/guidance-repair.test.mjs",
         "src/components/ParentTaskGuide.test.tsx",
-        "src/WeekendMathSlot.guidance.integration.test.tsx"
+        "src/components/TaskGuidance.test.tsx",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 19.10.2026 прямо попросил после отправки подсказки оставить кнопку «Отправить весь шаг» для того же этапа."
+        "evidence": "Прямой запрос пользователя 20.10.2026: в ученическом раскрытии должен появляться полный выбранный этап с переходами, строкой симметрии, причиной и источником; родительский предпросмотр должен совпадать с фактическим раскрытием."
       },
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
@@ -3775,18 +3803,25 @@
       }
     },
     "src/components/TaskGuidance.css": {
-      "sha256": "229939aecbc2161dcd2690bb0f47560d6100e29a8f3ec37d54051d7e5791cceb",
-      "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
+      "sha256": "bdd6cf363529085873b09c10ab261d30e4d03edf07507591c1a11ab4dd8521d9",
+      "record": "docs/decisions/released-stage-parity-2026-10-20.md",
       "specs": [
-        "docs/shared/specification-system.md"
+        "docs/modules/reviews/subject-aware-guidance.md",
+        "docs/modules/reviews/problem-card-design-decisions.md",
+        "docs/shared/design/ui-kit.md",
+        "docs/shared/design/README.md"
       ],
       "tests": [
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
+        "src/lib/dayGuidance.writer.test.ts",
+        "day/guidance-release.test.mjs",
+        "day/guidance-repair.test.mjs",
+        "src/components/ParentTaskGuide.test.tsx",
+        "src/components/TaskGuidance.test.tsx",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя 16.10.2026 внедрить согласованную структуру спецификаций, перенести ссылки в коде и проверить сохранность требований; изменение предметного поведения не выполнялось."
+        "evidence": "Прямой запрос пользователя 20.10.2026: в ученическом раскрытии должен появляться полный выбранный этап с переходами, строкой симметрии, причиной и источником; родительский предпросмотр должен совпадать с фактическим раскрытием."
       },
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
@@ -3794,21 +3829,25 @@
       }
     },
     "src/components/TaskGuidance.tsx": {
-      "sha256": "72b71fe5e8b6de1cbc5b7936fc544aef07aa4260be747a8cf4253191a6e781ae",
-      "record": "docs/decisions/review-prose-coverage-2026-10-19.md",
+      "sha256": "5eb9c53ef6df12da7dae6cbd7dcd83c625baa040e82dec6cafbd5d8263bbaf44",
+      "record": "docs/decisions/released-stage-parity-2026-10-20.md",
       "specs": [
-        "docs/shared/specification-system.md",
-        "docs/modules/reviews/review-criteria-provenance.md"
+        "docs/modules/reviews/subject-aware-guidance.md",
+        "docs/modules/reviews/problem-card-design-decisions.md",
+        "docs/shared/design/ui-kit.md",
+        "docs/shared/design/README.md"
       ],
       "tests": [
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs",
-        "src/lib/reviewProse.test.ts",
-        "src/components/ReviewProse.integration.test.tsx"
+        "src/lib/dayGuidance.writer.test.ts",
+        "day/guidance-release.test.mjs",
+        "day/guidance-repair.test.mjs",
+        "src/components/ParentTaskGuide.test.tsx",
+        "src/components/TaskGuidance.test.tsx",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 подтвердил родительский вход, прислал склейки слов и чисел в разборе и прямо потребовал проверить и исправить их во многих местах."
+        "evidence": "Прямой запрос пользователя 20.10.2026: в ученическом раскрытии должен появляться полный выбранный этап с переходами, строкой симметрии, причиной и источником; родительский предпросмотр должен совпадать с фактическим раскрытием."
       },
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
@@ -4166,17 +4205,25 @@
       }
     },
     "src/lib/dayGuidance.ts": {
-      "sha256": "7e864638b6ab20afed91acd4bd7b64f70b9c14284933ceb35754909d7db490a1",
-      "record": "docs/decisions/unified-education-events-2026-10-19.md",
+      "sha256": "d036d5e14e0bd5278a3efd88653fa08c14a25f31ecc57cdffb3cd9927f2048a5",
+      "record": "docs/decisions/released-stage-parity-2026-10-20.md",
       "specs": [
-        "docs/modules/synchronization/event-queue.md"
+        "docs/modules/reviews/subject-aware-guidance.md",
+        "docs/modules/reviews/problem-card-design-decisions.md",
+        "docs/shared/design/ui-kit.md",
+        "docs/shared/design/README.md"
       ],
       "tests": [
-        "src/WeekendMathSlot.guidance.integration.test.tsx"
+        "src/lib/dayGuidance.writer.test.ts",
+        "day/guidance-release.test.mjs",
+        "day/guidance-repair.test.mjs",
+        "src/components/ParentTaskGuide.test.tsx",
+        "src/components/TaskGuidance.test.tsx",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 требует одну внутреннюю очередь событий и одну подписку вместо множества source watchers; ранее поручил реализацию через Luna с проверкой root, тестами, спецификациями и выпуском в main."
+        "evidence": "Прямой запрос пользователя 20.10.2026: в ученическом раскрытии должен появляться полный выбранный этап с переходами, строкой симметрии, причиной и источником; родительский предпросмотр должен совпадать с фактическим раскрытием."
       }
     },
     "src/lib/dayMaterialRefs.ts": {
@@ -4202,17 +4249,25 @@
       }
     },
     "src/lib/dayStore.ts": {
-      "sha256": "26eb9e4acefe895a2404b4c06394728a390714304ef7da99ca5b1aa4bda17797",
-      "record": "docs/decisions/unified-education-events-2026-10-19.md",
+      "sha256": "c5cb71b28b1652dab74a9ed7a115982f6788a33b48604757e7c9a8b63ff6e666",
+      "record": "docs/decisions/released-stage-parity-2026-10-20.md",
       "specs": [
-        "docs/modules/synchronization/event-queue.md"
+        "docs/modules/reviews/subject-aware-guidance.md",
+        "docs/modules/reviews/problem-card-design-decisions.md",
+        "docs/shared/design/ui-kit.md",
+        "docs/shared/design/README.md"
       ],
       "tests": [
-        "src/lib/educationEventProducers.test.ts"
+        "src/lib/dayGuidance.writer.test.ts",
+        "day/guidance-release.test.mjs",
+        "day/guidance-repair.test.mjs",
+        "src/components/ParentTaskGuide.test.tsx",
+        "src/components/TaskGuidance.test.tsx",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 требует одну внутреннюю очередь событий и одну подписку вместо множества source watchers; ранее поручил реализацию через Luna с проверкой root, тестами, спецификациями и выпуском в main."
+        "evidence": "Прямой запрос пользователя 20.10.2026: в ученическом раскрытии должен появляться полный выбранный этап с переходами, строкой симметрии, причиной и источником; родительский предпросмотр должен совпадать с фактическим раскрытием."
       }
     },
     "src/lib/educationEventProducer.ts": {
@@ -5598,6 +5653,72 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Пользователь19.10 просит выделить каникулы красивым блоком дней, получая даты только из МЭШ конкретного ученика."
+      }
+    },
+    "day/guidance-release.mjs": {
+      "sha256": "0b03e2e0f10f9644cacbef06bf2fe20cd95bb5ae3f91fd86799b2d1a82eef0ca",
+      "record": "docs/decisions/released-stage-parity-2026-10-20.md",
+      "specs": [
+        "docs/modules/reviews/subject-aware-guidance.md",
+        "docs/modules/reviews/problem-card-design-decisions.md",
+        "docs/shared/design/ui-kit.md",
+        "docs/shared/design/README.md"
+      ],
+      "tests": [
+        "src/lib/dayGuidance.writer.test.ts",
+        "day/guidance-release.test.mjs",
+        "day/guidance-repair.test.mjs",
+        "src/components/ParentTaskGuide.test.tsx",
+        "src/components/TaskGuidance.test.tsx",
+        "src/UiKit.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос пользователя 20.10.2026: в ученическом раскрытии должен появляться полный выбранный этап с переходами, строкой симметрии, причиной и источником; родительский предпросмотр должен совпадать с фактическим раскрытием."
+      }
+    },
+    "day/guidance-repair.mjs": {
+      "sha256": "1a63391c493935f3686c8e4097d10ed8707c3f8183558a024e9316287d88e10c",
+      "record": "docs/decisions/released-stage-parity-2026-10-20.md",
+      "specs": [
+        "docs/modules/reviews/subject-aware-guidance.md",
+        "docs/modules/reviews/problem-card-design-decisions.md",
+        "docs/shared/design/ui-kit.md",
+        "docs/shared/design/README.md"
+      ],
+      "tests": [
+        "src/lib/dayGuidance.writer.test.ts",
+        "day/guidance-release.test.mjs",
+        "day/guidance-repair.test.mjs",
+        "src/components/ParentTaskGuide.test.tsx",
+        "src/components/TaskGuidance.test.tsx",
+        "src/UiKit.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос пользователя 20.10.2026: в ученическом раскрытии должен появляться полный выбранный этап с переходами, строкой симметрии, причиной и источником; родительский предпросмотр должен совпадать с фактическим раскрытием."
+      }
+    },
+    "src/components/GuidanceStageContent.tsx": {
+      "sha256": "ef0b65005ee52d6ef0834545fcf724c0f1fa2ce3bc91c363533917c383de2e69",
+      "record": "docs/decisions/released-stage-parity-2026-10-20.md",
+      "specs": [
+        "docs/modules/reviews/subject-aware-guidance.md",
+        "docs/modules/reviews/problem-card-design-decisions.md",
+        "docs/shared/design/ui-kit.md",
+        "docs/shared/design/README.md"
+      ],
+      "tests": [
+        "src/lib/dayGuidance.writer.test.ts",
+        "day/guidance-release.test.mjs",
+        "day/guidance-repair.test.mjs",
+        "src/components/ParentTaskGuide.test.tsx",
+        "src/components/TaskGuidance.test.tsx",
+        "src/UiKit.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос пользователя 20.10.2026: в ученическом раскрытии должен появляться полный выбранный этап с переходами, строкой симметрии, причиной и источником; родительский предпросмотр должен совпадать с фактическим раскрытием."
       }
     }
   }
