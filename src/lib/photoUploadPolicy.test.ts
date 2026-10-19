@@ -10,20 +10,24 @@ describe('student photo upload availability', () => {
     expect(pupilCanAddPhoto({ ...english, status: 'partial' }, false)).toBe(true)
     expect(pupilCanAddPhoto({ ...english, status: 'needs-fix' }, false)).toBe(true)
   })
-  it('uses the same entry point only for student written tasks', () => {
+  it('keeps upload available for every current non-test task, independent of classification or status', () => {
     expect(pupilCanAddPhoto(english, true)).toBe(false)
     expect(pupilCanAddPhoto({ ...english, referenceDate: '2026-10-12' }, false)).toBe(false)
-    expect(pupilCanAddPhoto({ ...english, kind: 'read' }, false)).toBe(false)
+    expect(pupilCanAddPhoto({ ...english, kind: 'read' }, false)).toBe(true)
+    expect(pupilCanAddPhoto({ ...english, kind: 'check' }, false)).toBe(true)
+    expect(pupilCanAddPhoto({ ...english, kind: 'read', status: 'unknown' }, false)).toBe(true)
+    expect(pupilCanAddPhoto({ ...english, kind: 'read', status: 'verified' }, false)).toBe(true)
+    expect(pupilCanAddPhoto({ ...english, problems: [{ id: 'p1' }] } as DayTask, false)).toBe(false)
   })
   it('keeps a separate upload for a second written sheet after the first sheet is complete', () => {
     const ratios = { ...english, id: 'mesh-351493954', title: 'Пропорции из PDF', kind: 'written' as const }
     expect(pupilCanAddPhoto(ratios, false)).toBe(true)
     expect(pupilCanAddPhoto({ ...ratios, status: 'partial' }, false)).toBe(true)
   })
-  it('lets only the learner answer an explicit source request using the same uploader', () => {
+  it('lets only the learner submit evidence through the same uploader before or after material clarification', () => {
     const request = { ...english, kind:'read' as const, assessmentIntent:{state:'needs-topic' as const}, materialRequest:{id:'notes-1',state:'open' as const,question:'Какая последняя тема записана в тетради?',photoPrompt:'Пришли страницы последних записей целиком.'} }
     expect(pupilCanAddPhoto(request,false)).toBe(true)
     expect(pupilCanAddPhoto(request,true)).toBe(false)
-    expect(pupilCanAddPhoto({...request,materialRequest:{...request.materialRequest,state:'resolved',resolvedTopic:'Баллада',uploadIds:['photo']}},false)).toBe(false)
+    expect(pupilCanAddPhoto({...request,materialRequest:{...request.materialRequest,state:'resolved',resolvedTopic:'Баллада',uploadIds:['photo']}},false)).toBe(true)
   })
 })

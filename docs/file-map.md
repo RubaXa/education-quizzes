@@ -39,6 +39,7 @@
 | [src/components/WorkPhotoGallery.layout.test.mjs](../src/components/WorkPhotoGallery.layout.test.mjs) | [Сохраняемые действия](product/ui-change-control.md) | Кнопка закрытия поверх позиционированного изображения | Vitest; браузерное ревью |
 | [scripts/work-photo-consumers.test.mjs](../scripts/work-photo-consumers.test.mjs) | [Сохраняемые действия](product/ui-change-control.md) | Запрет отдельных статичных копий собственного фото в маршрутах | Vitest; pre-push |
 | [docs/decisions/work-photo-expand-2026-10-18.md](decisions/work-photo-expand-2026-10-18.md) | [Компоненты](shared/design/components.md) | Причина пропуска действия, объединение и матрица сценариев | Разработчик |
+| [docs/decisions/non-test-result-upload-2026-10-19.md](decisions/non-test-result-upload-2026-10-19.md) | [Страница дня](modules/school-diary/day-page.md) | Ученическая загрузка результата для каждого текущего задания, кроме отдельного теста | Разработчик; Vitest |
 
 | Файл | Спецификация | Назначение | Потребитель |
 |---|---|---|---|

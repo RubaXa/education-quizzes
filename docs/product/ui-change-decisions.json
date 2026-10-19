@@ -769,21 +769,18 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "a5cf9b54da24d5db64117ee5aa1be839c8df823938e4119ff68373ec0d9f14ab",
-      "record": "docs/decisions/weekend-parent-actions-2026-10-18.md",
+      "sha256": "a9b84aae8a7b3a7015d102ffbb88f36099f50dab78c6809e4164fa16cf4d5637",
+      "record": "docs/decisions/non-test-result-upload-2026-10-19.md",
       "specs": [
-        "docs/modules/reviews/subject-aware-guidance.md",
-        "docs/modules/school-diary/dashboard.md"
+        "docs/modules/school-diary/day-page.md",
+        "docs/modules/materials/storage-privacy.md"
       ],
       "tests": [
-        "src/WeekendMathSlot.guidance.integration.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/WeekendMathSlot.test.tsx",
-        "src/components/LearningRoute.weekend.integration.test.tsx"
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10: в родительском разборе PWA невозможно отправить подсказку; просит найти нарушивший контракт коммит и устранить расхождения данных/действий в вебе и PWA."
+        "evidence": "Пользователь19.10 прямо потребовал кнопку загрузки результата у нетестового задания, чтобы письменную работу можно было предъявить и проверить."
       }
     },
     "src/DayPage.css": {
@@ -2036,29 +2033,19 @@
       }
     },
     "src/lib/photoUploadPolicy.ts": {
-      "sha256": "21341cdefbca9325fcd6eccfd0a76e5e8d504057f855e409a6c4fd0780fec1af",
-      "record": "docs/decisions/material-clarification-2026-10-16.md",
+      "sha256": "b2dba38d5f3099ffec050fb848f4eb88175729d4c23308d682851b0562648852",
+      "record": "docs/decisions/non-test-result-upload-2026-10-19.md",
       "specs": [
-        "docs/modules/materials/material-clarification.md"
+        "docs/modules/school-diary/day-page.md",
+        "docs/modules/materials/storage-privacy.md"
       ],
       "tests": [
-        "src/lib/materialRequest.test.ts",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/lib/homeworkStatus.test.ts",
         "src/lib/photoUploadPolicy.test.ts",
-        "src/UiKit.test.tsx",
-        "storage/submission-inbox.test.mjs",
-        "storage/review-projection.test.mjs",
-        "storage/review-readback.test.mjs",
-        "day/build-assignments.test.mjs"
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 16.10.2026 прямо потребовал вопрос ученику в карточке и ответ фото записей через стандартную загрузку с обработкой следующей синхронизацией."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "e0f177ce13a2bbac321e9c0aecb56ff12c8d68c4827a92f7d75df8626edb2f91"
+        "evidence": "Пользователь19.10 прямо потребовал кнопку загрузки результата у нетестового задания, чтобы письменную работу можно было предъявить и проверить."
       }
     },
     "storage/submission-inbox.mjs": {

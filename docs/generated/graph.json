@@ -1454,6 +1454,34 @@
       "path": "docs/decisions/missing-evidence-homework-overview-2026-10-15.md"
     },
     {
+      "id": "decisions.non-test-result-upload-2026-10-19",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-19",
+      "updated": "2026-10-19",
+      "parent": "module.school-diary.day-page",
+      "uses": [
+        "product.ui-change-control",
+        "module.materials.storage-privacy"
+      ],
+      "consumers": [
+        "student",
+        "parent"
+      ],
+      "code": [
+        "src/DayPage.tsx",
+        "src/lib/photoUploadPolicy.ts"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/non-test-result-upload-2026-10-19.md"
+    },
+    {
       "id": "decisions.notification-read-all-2026-10-14",
       "status": "reference",
       "implementation": "not-applicable",
@@ -9752,6 +9780,16 @@
       "type": "uses"
     },
     {
+      "from": "decisions.non-test-result-upload-2026-10-19",
+      "to": "module.materials.storage-privacy",
+      "type": "uses"
+    },
+    {
+      "from": "decisions.non-test-result-upload-2026-10-19",
+      "to": "product.ui-change-control",
+      "type": "uses"
+    },
+    {
       "from": "decisions.personal-entry-role-confirmation-2026-10-18",
       "to": "plans.local-first-release-plan-2026-10-12",
       "type": "uses"
@@ -12263,6 +12301,11 @@
     },
     {
       "from": "file:src/DayPage.tsx",
+      "to": "decisions.non-test-result-upload-2026-10-19",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayPage.tsx",
       "to": "decisions.upload-origin-links-2026-10-18",
       "type": "implements"
     },
@@ -12649,6 +12692,11 @@
     {
       "from": "file:src/lib/photoOutbox.ts",
       "to": "module.materials.storage-privacy",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/photoUploadPolicy.ts",
+      "to": "decisions.non-test-result-upload-2026-10-19",
       "type": "implements"
     },
     {
@@ -14150,6 +14198,11 @@
       "from": "module.school-diary.dashboard",
       "to": "module.school-diary",
       "type": "uses"
+    },
+    {
+      "from": "module.school-diary.day-page",
+      "to": "decisions.non-test-result-upload-2026-10-19",
+      "type": "contains"
     },
     {
       "from": "module.school-diary.day-page",

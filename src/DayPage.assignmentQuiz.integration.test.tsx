@@ -204,6 +204,30 @@ it('asks the child for missing source material through the standard uploader, wi
   }
 })
 
+/** @see ../docs/modules/school-diary/day-page.md#upload-queue */
+it('lets a pupil submit a written result even when Mesh classifies the task as reading', async () => {
+  scene.page!.subjects = [{ id: 'russian', name: 'Русский язык', icon: 'А', materials: '',
+    mesh: 'Найти 5 пословиц или поговорок с исконно русскими словами. Объяснить их смысл.', summary: '',
+    tasks: [{ id: 'proverbs', kind: 'read', status: 'unknown', title: 'Пять пословиц или поговорок: слова и смысл',
+      detail: '', source: 'МЭШ', meshText: 'Найти 5 пословиц или поговорок с исконно русскими словами. Объяснить их смысл.' }] }]
+  scene.page!.testPlacements = []
+  scene.page!.materialLinks = {}
+  for (const parent of [false, true]) {
+    sessionStorage.setItem('education-day-initial-tab', 'homework')
+    const view = await renderPage(parent)
+    try {
+      const task = view.host.querySelector<HTMLElement>('#day-task-proverbs')!
+      expect(task.textContent).toContain('Объяснить их смысл')
+      const upload = task.querySelector<HTMLInputElement>('.day-upload input[type="file"]')
+      expect(Boolean(upload)).toBe(!parent)
+      if (upload) {
+        expect(upload.multiple).toBe(true)
+        expect(task.querySelector('.day-upload')?.textContent).toContain('Загрузить результат')
+      }
+    } finally { await view.cleanup() }
+  }
+})
+
 /** @see ../docs/modules/materials/material-clarification.md */
 it('preserves resolved source photos and observations beside the linked quiz for both roles', async () => {
   scene.page!.subjects[0].tasks = [{id:'notes',kind:'read',status:'unknown',title:'Повторить записи',detail:'',source:'МЭШ',meshText:'Повторить записи по последней теме.',testToken:'diagrams-test',
@@ -339,6 +363,7 @@ describe('day page: teacher sheet and linked self-check', () => {
       expect(view.host.querySelectorAll('.day-quiz-lineage')).toHaveLength(1)
       expect(view.host.querySelectorAll('.day-task')).toHaveLength(0)
       expect(view.host.querySelector('.day-quiz-lineage')?.textContent).toContain('Прочитать § 7.')
+      expect(view.host.querySelector('.day-quiz-lineage input[type="file"]')).toBeNull()
     } finally { await view.cleanup() }
   })
 
