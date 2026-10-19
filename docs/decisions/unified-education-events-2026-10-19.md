@@ -83,3 +83,5 @@ sections:
 - `sync/event-task-artifact.mjs`
 - `sync/event-task-export.mjs`
 - `sync/legacy-help-identity.mjs`
+- `firestore.rules`
+- `scripts/firestore-rules-education-events.test.mjs`

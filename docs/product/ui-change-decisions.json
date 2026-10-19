@@ -1213,13 +1213,16 @@
       }
     },
     "packages/telegram-notifications/application/education-sync-dispatcher.mjs": {
-      "sha256": "3125d70d0cf2b1f43767ff532550ddfddac58944e07daa306a8265740dc4de72",
+      "sha256": "54cd5306b2409608dd4536a55e4fb98671c5f5b9067e20a6d8e751591477bdef",
       "record": "docs/decisions/unified-education-events-2026-10-19.md",
       "specs": [
-        "docs/modules/synchronization/event-queue.md"
+        "docs/modules/synchronization/event-queue.md",
+        "docs/services/telegram-bot/education-sync-dispatch.md",
+        "docs/shared/server-runtime.md"
       ],
       "tests": [
-        "packages/telegram-notifications/application/education-sync-dispatcher.test.mjs"
+        "packages/telegram-notifications/application/education-sync-dispatcher.test.mjs",
+        "scripts/telegram-runtime-dependencies.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",

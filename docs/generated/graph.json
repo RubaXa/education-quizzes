@@ -2907,8 +2907,8 @@
       "id": "file:package.json",
       "path": "package.json",
       "kind": "artifact",
-      "purpose": "Команды Education; runtime-зависимости Firestore/Telegram; `firebase-admin` остаётся dev-зависимостью для CLI",
-      "consumer": "npm; будущий worker; CLI"
+      "purpose": "Команды Education; runtime-зависимости Firestore/Telegram; `firebase-admin` остаётся dev-зависимостью для совместимости CLI",
+      "consumer": "npm; worker; CLI"
     },
     {
       "id": "file:packages/education-connect/bin/education-connect.mjs",
@@ -3999,7 +3999,7 @@
       "id": "file:scripts/firestore-rules-education-events.test.mjs",
       "path": "scripts/firestore-rules-education-events.test.mjs",
       "kind": "verification",
-      "purpose": "Общий конверт, атомарные действия, единая подписка и детерминированная маршрутизация",
+      "purpose": "Общий конверт, source receipt, а также лексическая балансировка delimiters Rules (не emulator proof)",
       "consumer": "Приложение; dispatcher; Vitest"
     },
     {
@@ -4301,6 +4301,13 @@
       "path": "scripts/telegram-pair.test.mjs",
       "kind": "verification",
       "purpose": "Регрессии: Локальная привязка по скрытому коду и доказанному source owner",
+      "consumer": "Vitest; разработчик"
+    },
+    {
+      "id": "file:scripts/telegram-runtime-dependencies.test.mjs",
+      "path": "scripts/telegram-runtime-dependencies.test.mjs",
+      "kind": "verification",
+      "purpose": "Регрессия production dependency closure для Telegram worker и dispatch CLI; запрет dev-only импортов",
       "consumer": "Vitest; разработчик"
     },
     {
@@ -7742,6 +7749,7 @@
         "packages/education-runtime/legacy-event-reconciliation.mjs",
         "packages/telegram-notifications/application/education-event-routing.mjs",
         "src/lib/educationEventProducer.ts",
+        "firestore.rules",
         "scripts/education-events.mjs"
       ],
       "sections": [
@@ -10705,6 +10713,11 @@
     {
       "from": "file:firestore.rules",
       "to": "module.school-diary.day-page",
+      "type": "implements"
+    },
+    {
+      "from": "file:firestore.rules",
+      "to": "module.synchronization.event-queue",
       "type": "implements"
     },
     {
@@ -16090,6 +16103,11 @@
     {
       "from": "service.telegram-bot.education-sync-dispatch",
       "to": "file:scripts/education-sync-dispatch.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "service.telegram-bot.education-sync-dispatch",
+      "to": "file:scripts/telegram-runtime-dependencies.test.mjs",
       "type": "verified-by"
     },
     {

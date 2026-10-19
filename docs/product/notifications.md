@@ -127,7 +127,7 @@ sections:
 
 - **`grammy`** — основной Telegram Bot API framework. Поддерживает Node.js, JavaScript/TypeScript, long polling и webhooks. Для постоянно работающего Node-процесса предлагается начать с long polling: он не требует публичного HTTPS endpoint и проще в эксплуатации. Webhook оставить доступным вариантом смены размещения.
 - **`@google-cloud/firestore`** — прямой серверный клиент Firestore для worker. Боту нужны доверенные чтения/записи Firestore, но он не использует Firebase Auth API; Admin SDK не следует тащить в production-граф только ради Firestore.
-- **`firebase-admin`** — оставить в `devDependencies`: существующие локальные CLI-скрипты его используют. Бот не должен импортировать этот пакет.
+- **`firebase-admin`** — оставить в `devDependencies`: существующие локальные CLI-скрипты его используют. Ни Telegram worker, ни его production import graph не должны импортировать этот пакет.
 - **Существующий `mesh-diary`** — переиспользовать текущий адаптер МЭШ, закреплённый в `education-quizzes/package.json`; отдельный MЭШ SDK не добавлять. До использования в круглосуточном многосемейном сервисе проверить входные учётные данные, изоляцию `(familyId, childId, sourceAccountId)` и лимиты источника.
 - **`@grammyjs/auto-retry`** — небольшой рекомендуемый дополнительный модуль для Telegram 429, `retry_after`, временных сетевых ошибок и 5xx. Он не заменяет собственную очередь отправки, дедупликацию и повторы источников.
 
@@ -142,7 +142,7 @@ sections:
 | Пакет | Состояние проекта | Решение |
 |---|---|---|
 | `firebase` | Есть в `dependencies` как клиентская библиотека | Не использовать на backend бота |
-| `firebase-admin` | Есть в `devDependencies` как `^14.5.0` | Оставить для существующих CLI; в Telegram worker не импортировать |
+| `firebase-admin` | Есть в `devDependencies` как `^14.5.0` | Оставить для существующих CLI; Telegram worker и dispatch CLI используют общий `@google-cloud/firestore` runtime |
 | `@google-cloud/firestore` | Добавлен в `dependencies` как `^9.3.1` | Использовать в worker для Firestore; production audit после замены: 0 уязвимостей |
 | `mesh-diary` | Есть в `dependencies`, привязан к Git commit | Переиспользовать, аудитировать многосемейную работу |
 | `grammy` | Добавлен в `dependencies` как `^1.46.0` | Использовать как framework бота |

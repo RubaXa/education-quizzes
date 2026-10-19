@@ -57,6 +57,50 @@ test('versioned source writes require their event receipt while unmarked old cli
   assert.match(helper, /affectedKeys\(\)\.hasAny\(\['eventOperationId', 'eventReceiptId', 'eventProducerVersion'\]\)/)
 })
 
+test('Firestore Rules delimiters remain balanced, including the event helpers', () => {
+  const rules = readFileSync(new URL('../firestore.rules', import.meta.url), 'utf8')
+  const stack = []
+  const pairs = { ')': '(', ']': '[', '}': '{' }
+  let quote = null
+  let lineComment = false
+  let blockComment = false
+  for (let index = 0; index < rules.length; index += 1) {
+    const char = rules[index]
+    const next = rules[index + 1]
+    if (lineComment) {
+      if (char === '\n') lineComment = false
+      continue
+    }
+    if (blockComment) {
+      if (char === '*' && next === '/') {
+        blockComment = false
+        index += 1
+      }
+      continue
+    }
+    if (quote) {
+      if (char === '\\') index += 1
+      else if (char === quote) quote = null
+      continue
+    }
+    if (char === '/' && next === '/') {
+      lineComment = true
+      index += 1
+    } else if (char === '/' && next === '*') {
+      blockComment = true
+      index += 1
+    } else if (char === "'" || char === '"') quote = char
+    else if ('([{'.includes(char)) stack.push({ char, index })
+    else if (Object.hasOwn(pairs, char)) {
+      const opening = stack.pop()
+      assert.ok(opening && opening.char === pairs[char], `unexpected ${char} at line ${rules.slice(0, index).split('\n').length}`)
+    }
+  }
+  assert.equal(quote, null, 'unterminated string in Firestore Rules')
+  assert.equal(blockComment, false, 'unterminated block comment in Firestore Rules')
+  assert.equal(stack.length, 0, `unclosed delimiter ${stack.at(-1)?.char ?? ''}`)
+})
+
 // firebase.json configures no Firestore emulator and @firebase/rules-unit-testing
 // is not installed here. These static checks document the constraints; they do
 // not claim emulator-level proof of Rules evaluation.

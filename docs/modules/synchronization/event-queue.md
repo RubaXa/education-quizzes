@@ -21,6 +21,7 @@ code:
   - packages/education-runtime/legacy-event-reconciliation.mjs
   - packages/telegram-notifications/application/education-event-routing.mjs
   - src/lib/educationEventProducer.ts
+  - firestore.rules
   - scripts/education-events.mjs
 sections:
   - назначение-и-единственная-подписка

@@ -2,7 +2,7 @@ import { createHash, randomUUID } from 'node:crypto'
 import { spawn } from 'node:child_process'
 import { dirname, resolve } from 'node:path'
 import { chmodSync, mkdirSync, renameSync, rmSync, writeFileSync } from 'node:fs'
-import { Timestamp } from 'firebase-admin/firestore'
+import { Timestamp } from '@google-cloud/firestore'
 import { prepareEventTaskArtifact } from '../../../sync/event-task-artifact.mjs'
 
 /** @see ../../../docs/services/telegram-bot/education-sync-dispatch.md */

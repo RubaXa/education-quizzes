@@ -869,7 +869,7 @@ service cloud.firestore {
             && get(/databases/$(database)/documents/dayProgress/$(studentToken)/items/$(request.resource.data.taskId)).data.assessmentBasis.disputedRequirementIds is list
             && get(/databases/$(database)/documents/dayProgress/$(studentToken)/items/$(request.resource.data.taskId)).data.assessmentBasis.disputedRequirementIds.size() <= 10
             && request.resource.data.requirementId in get(/databases/$(database)/documents/dayProgress/$(studentToken)/items/$(request.resource.data.taskId)).data.assessmentBasis.disputedRequirementIds)
-          ))
+          )))
         && legacyOrEducationEventReceipt('parent.decision', eventId, 'dayParentDecisions/' + studentToken + '/events/' + eventId);
       allow update, delete: if false;
     }
