@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { guidanceErrors, questionGuidanceErrors, repairQuestionGuidance } from './question-guidance.mjs'
+import { guidanceErrors, questionGuidanceErrors, repairQuestionGuidance, publishedAnswer } from './question-guidance.mjs'
 const guidance = { observation: 'Сравни длительность подъёма воды с условием.', question: 'Какой признак отличает ежегодный подъём от кратковременного?',
   source: { title: 'География. Алексеев и др.', edition: '2024', section: '§ 35', pages: '114 (PDF 115)', locator: 'Первый абзац под заголовком о режиме реки.' } }
 const entry = { guidance, sourceEvidence: ['checked-original/page-115.png'] }
@@ -19,11 +19,15 @@ describe('checked question guidance', () => {
     const original = JSON.stringify({ assignment, key })
     const result = repairQuestionGuidance(assignment, key, request)
     expect(result.changed).toEqual(['q'])
-    expect(result.key.entries.q).toEqual({ ...key.entries.q, ...entry })
+    expect(result.key.entries.q).toEqual({ ...key.entries.q, guidance })
+    expect(result.key.entries.q).not.toHaveProperty('sourceEvidence')
     expect(JSON.stringify({ assignment, key })).toBe(original)
     expect(repairQuestionGuidance(assignment, result.key, request).changed).toEqual([])
     expect(() => repairQuestionGuidance(assignment, key, { ...request, testId: 'other' })).toThrow()
     expect(() => repairQuestionGuidance(assignment, key, { ...request, entries: {} })).toThrow()
     expect(() => repairQuestionGuidance(assignment, key, { ...request, entries: { q: { ...entry, correct: 'different' } } })).toThrow()
+  })
+  it('keeps sourceEvidence outside all published key projections', () => {
+    expect(publishedAnswer({ correct: 'closed-key', ...entry })).toEqual({ correct: 'closed-key', guidance })
   })
 })

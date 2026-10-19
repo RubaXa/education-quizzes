@@ -12,7 +12,7 @@ import { assertFollowupCoverage, assertOpenRevisionReadback, openQuizRevision } 
 import { assertLineageContinuation, quizLineageStatistics } from '../assessment/quiz-lineage.mjs'
 import { grade, summarize } from '../src/lib/quiz.ts'
 import { canonicalShortKeyRepair, correctionFingerprint } from '../assessment/canonical-short-key.mjs'
-import { questionGuidanceErrors, repairQuestionGuidance } from '../assessment/question-guidance.mjs'
+import { publishedAnswer, questionGuidanceErrors, repairQuestionGuidance } from '../assessment/question-guidance.mjs'
 import { needsQuizFollowup } from '../src/lib/quizCompletion.ts'
 
 const projectId = 'education-9d7c6'
@@ -209,7 +209,7 @@ async function create(specPath, studentPersonId) {
   const ownerToken = dashboardToken()
   const testId = token(12)
   const publicQuestions = spec.questions.map(({ answer: _answer, ...question }) => question)
-  const entries = Object.fromEntries(spec.questions.map((question) => [question.id, question.answer ?? {}]))
+  const entries = Object.fromEntries(spec.questions.map((question) => [question.id, publishedAnswer(question.answer)]))
   const createdAt = Timestamp.now()
   const assignment = {
     schemaVersion: 1,

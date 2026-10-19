@@ -372,7 +372,7 @@
         "status": "direct-request",
         "evidence": "Родитель19.10 требует вместо одинаковой копипасты точное расхождение, наводящий вопрос и проверяемое место оригинала каждого вопроса."
       },
-      "sha256": "af652a564f74dc7cc6abd42c2233362399f34f2a85bca1be12dfb887f6000e4d"
+      "sha256": "6ebc41deb0aa28adceb8249bd8a3d095356c7bac1d73266b0e0fed6554893821"
     },
     "src/components/ui/result.tsx": {
       "sha256": "8c175a0008de5e48bc53568c5ebb4c0ac58c9f51a01c71433049c5dc2f604f3f",
@@ -642,28 +642,19 @@
       }
     },
     "assessment/followup-contract.mjs": {
-      "sha256": "29499ba10ac538660d938f529f376e0903b39935b87203963f854fd3154c80e2",
-      "record": "docs/decisions/history-followup-volume-2026-10-16.md",
+      "record": "docs/decisions/question-guidance-2026-10-19.md",
       "specs": [
-        "docs/modules/assessments/assessment-decision-graph.md",
         "docs/modules/assessments/quizzes.md"
       ],
       "tests": [
-        "assessment/followup-contract.test.mjs",
-        "src/lib/quizCompletion.test.ts"
+        "src/components/QuizResultCard.test.tsx",
+        "assessment/question-guidance.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 16.10.2026 потребовал отдельную новую проверку каждой ошибки и сохранность уже выданного теста."
+        "evidence": "Родитель19.10 требует вместо одинаковой копипасты точное расхождение, наводящий вопрос и проверяемое место оригинала каждого вопроса."
       },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "d865d1b369d8dd4c5d9055887aabe1ed3eedcb397129fe2096370564ccb53e60"
-      },
-      "specificationLifecycle": {
-        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
-        "previousSha256": "7a2ca0ed895b704aa71a5c6528224a187c569dadba236fdd1de72ce34e38df4d"
-      }
+      "sha256": "b67b9527510f614938d1701e5a25f9e3060df54151f331fa8e7abca8db0619fe"
     },
     "assessment/quiz-lineage.mjs": {
       "sha256": "bfa3bf6df1123917bbe57a420edae48a4b40185087e0d2801759419d2244add5",
@@ -1088,7 +1079,7 @@
         "status": "direct-request",
         "evidence": "Родитель19.10 требует вместо одинаковой копипасты точное расхождение, наводящий вопрос и проверяемое место оригинала каждого вопроса."
       },
-      "sha256": "2e9643bd5c5ea7125dbc59d32708de4c933fc1b72a26fc2b20df437b77618905"
+      "sha256": "8824a96d7cbd04dba614c364bc3b549946c49887fc67264b2ebee867143c0057"
     },
     "scripts/sync-queue.mjs": {
       "sha256": "67d8b7092e5b75e6eacd58e85b8c6b71c967f3e76d7e518fc0aaf6a4e1460ce3",
@@ -5507,7 +5498,7 @@
         "status": "direct-request",
         "evidence": "Родитель19.10 требует вместо одинаковой копипасты точное расхождение, наводящий вопрос и проверяемое место оригинала каждого вопроса."
       },
-      "sha256": "c595bc9e6e14c6dd51c87b0dd5bf74e3ca2b7c46ba5f84c8ed7d2b581b2b433d"
+      "sha256": "d5a2390f6c7caaa584d35274fd89dd8065f5e664a032eb3ac8f543330550a3cb"
     }
   }
 }

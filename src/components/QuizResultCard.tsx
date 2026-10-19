@@ -3,7 +3,6 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ResultPoints } from '@/components/ui/result'
 import { spellingFeedback } from '@/lib/spellingFeedback'
-import { formatReviewObservation } from '@/lib/reviewProse'
 import type { Answer, QuizQuestion, QuestionResult } from '@/lib/quiz'
 import { CodeBlock } from './CodeBlock'
 import StatusIcon from './StatusIcon'
@@ -39,7 +38,7 @@ export default function ResultCard({ result, index }: { result: QuestionResult; 
           </Badge>
           <span className="text-sm">{skipped ? 'Без оценки' : <ResultPoints points={pending ? undefined : result.points ?? undefined} maxPoints={result.question.points} />}</span>
         </div>
-        <CardTitle className="text-lg leading-snug">{index + 1}. {formatReviewObservation(result.question.prompt).replace(/§\s*(?=\d)/g, '§ ')}</CardTitle>
+        <CardTitle className="text-lg leading-snug">{index + 1}. {result.question.prompt}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4 text-sm sm:text-base">
         {result.question.code && <CodeBlock code={result.question.code} />}
@@ -64,9 +63,10 @@ export default function ResultCard({ result, index }: { result: QuestionResult; 
               </div>
             </div>
           </section>
-        ) : !pending && !skipped && guidance ? (
+        ) : null}
+        {!pending && !skipped && guidance ? (
           <section className="result-learning" aria-label="Ориентир для самостоятельной проверки">
-            {needsReflection && <div className="result-rule">
+            {needsReflection && !spelling && <div className="result-rule">
               <h3>Что проверить</h3>
               <p>{guidance.observation}</p>
               <h3>Наводящий вопрос</h3>
@@ -83,7 +83,7 @@ export default function ResultCard({ result, index }: { result: QuestionResult; 
               </div>
             </div>
           </section>
-        ) : needsReflection && <p role="status">Для этого вопроса ещё нет проверенного разбора с точным источником.</p>}
+        ) : needsReflection && !spelling && <p role="status">Для этого вопроса ещё нет проверенного разбора с точным источником.</p>}
       </CardContent>
     </Card>
   )

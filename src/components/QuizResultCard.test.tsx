@@ -29,4 +29,17 @@ describe('specific quiz feedback', () => {
   it('also exposes the provenance of a correct question', () => {
     expect(render({ entries: { unit: { correct: '%', guidance } } })).toContain(guidance.source.locator)
   })
+  it('preserves formulas and literal source notation in the prompt', () => {
+    const question = { ...assignment.questions[0], prompt: 'Сравни Н2О и А1:что означает запись?' }
+    const result = grade({ ...assignment, questions: [question] }, { entries: { unit: { correct: '%', guidance } } })[0]
+    expect(renderToStaticMarkup(createElement(ResultCard, { result, index: 0 }))).toContain(question.prompt)
+  })
+  it('shows the exact checked source alongside the spelling-specific review', () => {
+    const question = { ...assignment.questions[0], topic: 'Словарный диктант', prompt: 'Напиши слово по подсказке.' }
+    const result = grade({ ...assignment, questions: [question], answers: { unit: 'wrod' } }, { entries: { unit: { correct: 'word', guidance } } })[0]
+    const html = renderToStaticMarkup(createElement(ResultCard, { result, index: 0 }))
+    expect(html).toContain('Как пишется')
+    expect(html).toContain(guidance.source.title)
+    expect(html).toContain(guidance.source.locator)
+  })
 })

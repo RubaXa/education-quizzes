@@ -2133,7 +2133,7 @@
       "id": "file:assessment/followup-contract.mjs",
       "path": "assessment/followup-contract.mjs",
       "kind": "artifact",
-      "purpose": "Покрытие каждой ошибки отдельным вопросом и безопасная ревизия не начатого теста",
+      "purpose": "Покрытие каждой ошибки, безопасная ревизия не начатого теста и исключение локальных доказательств из ключа/readback",
       "consumer": "`scripts/quiz.mjs`"
     },
     {

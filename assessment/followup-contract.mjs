@@ -2,6 +2,7 @@
  * @see ../docs/modules/assessments/assessment-decision-graph.md#followup-threshold
  * @see ../docs/modules/assessments/quiz-chain-proposal.md#связь-с-кодом-и-проверками */
 import { isDeepStrictEqual } from 'node:util'
+import { publishedAnswer } from './question-guidance.mjs'
 export function assertFollowupCoverage(plan, spec, sourceTestId, errorQuestionIds) {
   const coverage = plan?.followupCoverage
   if (coverage?.sourceTestId !== sourceTestId || !Array.isArray(coverage.errors)) {
@@ -43,7 +44,7 @@ export function openQuizRevision({ current, spec, owner, revisedAt }) {
   return {
     assignment: { title: spec.title, description: spec.description, visual: spec.visual ?? null,
       reading: spec.reading ?? null, questions, revisedAt },
-    answerKey: { entries: Object.fromEntries(spec.questions.map((question) => [question.id, question.answer ?? {}])) },
+    answerKey: { entries: Object.fromEntries(spec.questions.map((question) => [question.id, publishedAnswer(question.answer)])) },
     preview: { title: spec.title, description: spec.description, visual: spec.visual ?? null,
       reading: spec.reading ?? null, questions, revisedAt },
     index: { title: spec.title, description: spec.description, board: spec.board, revisedAt },
@@ -54,7 +55,7 @@ export function assertOpenRevisionReadback({ assignment, answerKey, preview, ind
   const ids = spec.questions.map((question) => question.id)
   const sameIds = (questions) => JSON.stringify(questions?.map((question) => question.id)) === JSON.stringify(ids)
   const questions = spec.questions.map(({ answer: _answer, ...question }) => question)
-  const entries = Object.fromEntries(spec.questions.map((question) => [question.id, question.answer ?? {}]))
+  const entries = Object.fromEntries(spec.questions.map((question) => [question.id, publishedAnswer(question.answer)]))
   if (assignment?.status !== 'open' || Object.keys(assignment.answers ?? {}).length
     || !sameIds(assignment.questions) || !sameIds(preview?.questions)
     || !isDeepStrictEqual(assignment.questions, questions) || !isDeepStrictEqual(preview.questions, questions)

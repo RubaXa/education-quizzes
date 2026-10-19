@@ -34,6 +34,12 @@ export function questionGuidanceErrors(questions) {
   return errors
 }
 
+/** Author evidence is local-only: legacy keys are readable after submission. */
+export function publishedAnswer(answer = {}) {
+  const { sourceEvidence: _sourceEvidence, ...entry } = answer
+  return entry
+}
+
 export function repairQuestionGuidance(assignment, key, request) {
   if (!assignment?.testId || request?.testId !== assignment.testId || !request.reason?.trim()) throw new Error('Exact test identity and reason required.')
   const ids = assignment.questions.map((question) => question.id)
@@ -47,7 +53,7 @@ export function repairQuestionGuidance(assignment, key, request) {
   if (errors.length) throw new Error(errors.join('\n'))
   const entries = { ...key.entries }, changed = []
   for (const { id, answer } of questions) {
-    const updated = { ...entries[id], ...answer }
+    const updated = { ...entries[id], guidance: answer.guidance }
     if (JSON.stringify(updated) !== JSON.stringify(entries[id])) changed.push(id)
     entries[id] = updated
   }
