@@ -39,9 +39,18 @@ export async function main(args = process.argv.slice(2), { env = process.env, ou
           ? await store.heartbeatClaim({ requestId: values.request, tokenHash, now: new Date().toISOString() })
           : await store.failClaim({ requestId: values.request, tokenHash, now: new Date().toISOString(), retryAt: new Date(Date.now() + 60_000).toISOString() })
       if (['completed', 'pending'].includes(result.status)) rmSync(resolve(root, '.local/education-sync-dispatch/claims', `${values.request}.json`), { force: true })
+    } else if (command === 'block' && validRequest(values.request) && typeof values['claim-file'] === 'string'
+      && ['permission_required', 'source_unavailable', 'manual_review_required'].includes(values.reason)
+      && Object.keys(values).length === 3) {
+      const claim = readClaimFile(root, values['claim-file'], values.request)
+      const tokenHash = createHash('sha256').update(claim.token).digest('hex')
+      result = await store.blockClaim({ requestId: values.request, tokenHash, reasonCode: values.reason, now: new Date().toISOString() })
+      if (result.status === 'blocked') rmSync(resolve(root, '.local/education-sync-dispatch/claims', `${values.request}.json`), { force: true })
+    } else if (command === 'resume' && validRequest(values.request) && Object.keys(values).length === 1) {
+      result = await store.resumeBlocked({ requestId: values.request, now: new Date().toISOString() })
     } else throw new Error('usage_invalid')
     out.write(`${JSON.stringify(result)}\n`)
-    return result.status === 'invalid_claim' || result.status === 'stale_request' ? 1 : 0
+    return ['invalid_claim', 'stale_request', 'invalid_reason', 'not_blocked'].includes(result.status) ? 1 : 0
   } catch (error) {
     err.write(`${safeError(error)}\n`)
     return 1
@@ -105,14 +114,15 @@ function readClaimFile(projectRoot, suppliedPath, requestId) {
 function summarize(state) {
   return { status: state.status, generation: state.generation ?? 0,
     ...(state.requestId ? { requestId: state.requestId } : {}), ...(state.retryAt ? { retryAt: state.retryAt } : {}),
-    ...(state.lastErrorCode ? { lastErrorCode: state.lastErrorCode } : {}) }
+    ...(state.lastErrorCode ? { lastErrorCode: state.lastErrorCode } : {}),
+    ...(state.blockedReasonCode ? { blockedReasonCode: state.blockedReasonCode } : {}) }
 }
 
 function parse(tokens) {
   const result = {}
   for (let index = 0; index < tokens.length; index += 1) {
     const name = tokens[index]
-    if (!['--request', '--claim-file', '--event-id'].includes(name) || result[name.slice(2)] !== undefined
+    if (!['--request', '--claim-file', '--event-id', '--reason'].includes(name) || result[name.slice(2)] !== undefined
       || typeof tokens[index + 1] !== 'string' || tokens[index + 1].startsWith('--')) throw new Error('usage_invalid')
     result[name.slice(2)] = tokens[++index]
   }

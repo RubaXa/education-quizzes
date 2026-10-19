@@ -8,7 +8,7 @@ export class EducationSyncDispatcher {
   constructor({ store, threadId, codexPath, projectRoot, remote = null, clock = () => new Date(), uuid = randomUUID,
     spawnProcess = spawn, debounceMs = 20_000, timeoutMs = 15_000, terminationGraceMs = 2_000,
     forcedSettlementMs = 4_000, maxOutputBytes = 16_384, env = process.env }) {
-    if (!store || !['recordMeshChange', 'read', 'claim', 'markQueued', 'markUncertain', 'complete', 'fail', 'claimRequest', 'release'].every((key) => typeof store[key] === 'function')) throw new Error('education_sync_store_unavailable')
+    if (!store || !['recordMeshChange', 'read', 'claim', 'markQueued', 'markUncertain', 'fail', 'claimRequest'].every((key) => typeof store[key] === 'function')) throw new Error('education_sync_store_unavailable')
     if (!isUuid(threadId) || typeof codexPath !== 'string' || !codexPath.startsWith('/')
       || typeof projectRoot !== 'string' || !projectRoot.startsWith('/')) throw new Error('education_sync_codex_config_invalid')
     if (remote !== null && (typeof remote !== 'string' || !remote.startsWith('unix://'))) throw new Error('education_sync_remote_invalid')
@@ -42,39 +42,28 @@ export class EducationSyncDispatcher {
     const item = await this.store.claim({ now, workerId: this.uuid() })
     if (!item) return { status: 'idle' }
     const requestId = item.requestId ?? this.uuid()
+    const workerId = item.workerId
     try {
       const args = ['queue', '--thread', this.threadId, '--message', buildMessage(requestId, this.claimScriptPath)]
       if (this.remote) args.push('--remote', this.remote)
       const output = await this.#run(args)
       const receipt = output.match(/\bQueued message ([0-9a-f-]{36})\b/i)?.[1] ?? null
-      await this.store.markQueued({ requestId, now: this.clock().toISOString(), ...(receipt ? { queueReceiptId: receipt } : {}) })
+      await this.store.markQueued({ requestId, workerId, now: this.clock().toISOString(), ...(receipt ? { queueReceiptId: receipt } : {}) })
       return { status: 'queued', requestId }
     } catch (error) {
       if (error?.code === 'codex_spawn_failed') {
         const retryAt = new Date(Date.parse(this.clock().toISOString()) + 60_000).toISOString()
-        await this.store.fail({ requestId, now: this.clock().toISOString(), retryAt })
+        await this.store.fail({ requestId, workerId, now: this.clock().toISOString(), retryAt })
         return { status: 'retry', requestId, code: safeCode(error) }
       }
       // The CLI may have queued the message before a timeout or pipe failure. Keep the same
       // request ID so retries are recognizable and never claim sync completion here.
-      await this.store.markUncertain({ requestId, now: this.clock().toISOString(), code: safeCode(error) })
+      await this.store.markUncertain({ requestId, workerId, now: this.clock().toISOString(), code: safeCode(error) })
       return { status: 'uncertain', requestId, code: safeCode(error) }
     }
   }
 
   async runOne() { const result = await this.dispatchDue(); return result.status !== 'idle' }
-
-  /** Called only by the EducationSync workflow after its full sync succeeds. */
-  async acknowledgeComplete(requestId) {
-    if (typeof requestId !== 'string' || !requestId) throw new Error('education_sync_request_id_invalid')
-    return this.store.complete({ requestId, now: this.clock().toISOString() })
-  }
-
-  /** Explicit workflow failure is retryable; ambiguous Codex transport is not. */
-  async acknowledgeFailure(requestId, retryAt) {
-    if (typeof requestId !== 'string' || !requestId || !Number.isFinite(Date.parse(retryAt))) throw new Error('education_sync_retry_invalid')
-    return this.store.fail({ requestId, now: this.clock().toISOString(), retryAt })
-  }
 
   async claimRequest(requestId) {
     if (typeof requestId !== 'string' || !requestId) throw new Error('education_sync_request_id_invalid')
@@ -155,7 +144,7 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
         const snap = await tx.get(ref)
         const state = snap.exists ? snap.data() : { generation: 0, status: 'idle' }
         const generation = (state.generation ?? 0) + 1
-        const holdState = ['queued', 'sending', 'uncertain', 'running'].includes(state.status)
+        const holdState = ['queued', 'sending', 'uncertain', 'running', 'blocked'].includes(state.status)
         tx.create(eventRef, { acceptedAt: now })
         tx.set(ref, { ...state, generation, changedAt: now, debounceUntil,
           status: holdState ? state.status : 'pending', retryAt: holdState ? state.retryAt ?? null : null }, { merge: false })
@@ -197,36 +186,26 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
         const requestId = state.requestId ?? randomUUID()
         tx.set(ref, { ...state, status: 'sending', requestId, sendingGeneration: state.generation,
           workerId, leaseUntil }, { merge: false })
-        return { requestId, generation: state.generation }
+        return { requestId, generation: state.generation, workerId }
       })
     },
-    async markQueued({ requestId, now }) {
+    async markQueued({ requestId, workerId, now, queueReceiptId = null }) {
       await db.runTransaction(async (tx) => {
         const snap = await tx.get(ref)
-        if (!snap.exists || snap.data().requestId !== requestId || snap.data().status !== 'sending') return
+        if (!snap.exists || snap.data().requestId !== requestId || snap.data().workerId !== workerId
+          || snap.data().status !== 'sending' || !(snap.data().leaseUntil > now)) return
         const state = snap.data()
-        tx.set(ref, { ...state, status: 'queued', queuedAt: now, leaseUntil: null, retryAt: null }, { merge: false })
+        tx.set(ref, { ...state, status: 'queued', queuedAt: now, leaseUntil: null, retryAt: null,
+          ...(queueReceiptId ? { queueReceiptId } : {}) }, { merge: false })
       })
     },
-    async markUncertain({ requestId, now, code }) {
+    async markUncertain({ requestId, workerId, now, code }) {
       await db.runTransaction(async (tx) => {
         const snap = await tx.get(ref)
-        if (!snap.exists || snap.data().requestId !== requestId || snap.data().status !== 'sending') return
+        if (!snap.exists || snap.data().requestId !== requestId || snap.data().workerId !== workerId || snap.data().status !== 'sending') return
         const state = snap.data()
         tx.set(ref, { ...state, status: 'uncertain', uncertainAt: now, lastErrorCode: code,
           retryAt: new Date(Date.parse(now) + 60_000).toISOString(), leaseUntil: null }, { merge: false })
-      })
-    },
-    async complete({ requestId, now }) {
-      return db.runTransaction(async (tx) => {
-        const snap = await tx.get(ref)
-        if (!snap.exists || snap.data().requestId !== requestId || snap.data().status !== 'sending') return { status: 'stale_request' }
-        const state = snap.data()
-        const hasNewChanges = (state.generation ?? 0) > (state.sendingGeneration ?? 0)
-        tx.set(ref, { ...state, status: hasNewChanges ? 'pending' : 'completed', completedRequestId: requestId,
-          completedAt: now, requestId: null, retryAt: null, leaseUntil: null,
-          ...(hasNewChanges ? { debounceUntil: state.debounceUntil } : {}) }, { merge: false })
-        return { status: hasNewChanges ? 'pending' : 'completed' }
       })
     },
     async claimRequest({ requestId, tokenHash, now }) {
@@ -273,21 +252,35 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
         return { status: 'pending' }
       })
     },
-    async fail({ requestId, now, retryAt }) {
+    async blockClaim({ requestId, tokenHash, reasonCode, now }) {
+      if (!['permission_required', 'source_unavailable', 'manual_review_required'].includes(reasonCode)) return { status: 'invalid_reason' }
       return db.runTransaction(async (tx) => {
         const snap = await tx.get(ref)
-        if (!snap.exists || snap.data().requestId !== requestId || snap.data().status !== 'sending') return { status: 'stale_request' }
+        if (!snap.exists || snap.data().requestId !== requestId || snap.data().claimTokenHash !== tokenHash
+          || snap.data().status !== 'running' || !(snap.data().workflowLeaseUntil > now)) return { status: 'invalid_claim' }
+        tx.set(ref, { ...snap.data(), status: 'blocked', blockedReasonCode: reasonCode, blockedAt: now,
+          claimTokenHash: null, workflowLeaseUntil: null, retryAt: null }, { merge: false })
+        return { status: 'blocked', reasonCode }
+      })
+    },
+    async resumeBlocked({ requestId, now }) {
+      return db.runTransaction(async (tx) => {
+        const snap = await tx.get(ref)
+        if (!snap.exists || snap.data().requestId !== requestId || snap.data().status !== 'blocked') return { status: 'not_blocked' }
+        const state = snap.data()
+        tx.set(ref, { ...state, status: 'pending', blockedReasonCode: null, resumedAt: now,
+          sendingGeneration: state.generation ?? 0, retryAt: null,
+          debounceUntil: state.debounceUntil > now ? state.debounceUntil : now }, { merge: false })
+        return { status: 'pending', requestId }
+      })
+    },
+    async fail({ requestId, workerId, now, retryAt }) {
+      return db.runTransaction(async (tx) => {
+        const snap = await tx.get(ref)
+        if (!snap.exists || snap.data().requestId !== requestId || snap.data().workerId !== workerId || snap.data().status !== 'sending') return { status: 'stale_request' }
         const state = snap.data()
         tx.set(ref, { ...state, status: 'pending', retryAt, failedAt: now, leaseUntil: null }, { merge: false })
         return { status: 'pending' }
-      })
-    },
-    async release({ requestId, now, retryAt }) {
-      await db.runTransaction(async (tx) => {
-        const snap = await tx.get(ref)
-        if (!snap.exists || snap.data().requestId !== requestId) return
-        const state = snap.data()
-        tx.set(ref, { ...state, status: 'pending', retryAt, leaseUntil: null, releasedAt: now }, { merge: false })
       })
     },
   })
@@ -296,7 +289,7 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
 export function buildMessage(requestId, claimScriptPath = '/PATH/scripts/education-sync-dispatch.mjs') {
   const run = (action) => `${shellQuote(process.execPath)} ${shellQuote(claimScriptPath)} ${action}`
   const claimFile = '"/ABSOLUTE/CLAIM/PATH/FROM/COMMAND/OUTPUT"'
-  return `Run $education-sync now for the confirmed Mesh changes, using its normal safeguards and complete global connected-family scope with no family cap. This message is only a dispatch request. Request ID: ${requestId}. First claim it with: ${run(`claim --request ${requestId}`)}. If the result is busy, running, completed, or anything other than claimed, stop without syncing. Keep the private claim file path returned by claim. Renew the claim with ${run(`heartbeat --request ${requestId} --claim-file ${claimFile}`)} between long workflow stages. After the full sync succeeds, run ${run(`complete --request ${requestId} --claim-file ${claimFile}`)}. If the sync is blocked or fails, report the truthful failure and run ${run(`fail --request ${requestId} --claim-file ${claimFile}`)}. A successful queue acknowledgement never means the sync completed.`
+  return `Run $education-sync now for the confirmed Mesh changes, using its normal safeguards and complete global connected-family scope with no family cap. The user has authorized standard Mesh material synchronization using the established family archive and public-link workflow without per-file confirmation prompts; continue that standard scope. This message is only a dispatch request. Request ID: ${requestId}. First claim it with: ${run(`claim --request ${requestId}`)}. If the result is busy, running, completed, blocked, or anything other than claimed, stop without syncing. Keep the private claim file path returned by claim. Renew the claim with ${run(`heartbeat --request ${requestId} --claim-file ${claimFile}`)} between long workflow stages. After the full sync succeeds, run ${run(`complete --request ${requestId} --claim-file ${claimFile}`)}. Block only for a genuine runtime/credentials failure, an explicit external tool policy denial, or a human review requirement that applies beyond the already authorized standard flow; do not block to ask for per-file confirmation. Report the actual blocker and run ${run(`block --request ${requestId} --claim-file ${claimFile} --reason permission_required`)} (use source_unavailable or manual_review_required when those apply). For an ordinary retryable workflow failure, use ${run(`fail --request ${requestId} --claim-file ${claimFile}`)}. A successful queue acknowledgement never means the sync completed.`
 }
 
 function digest(value) { return createHash('sha256').update(value).digest('hex') }

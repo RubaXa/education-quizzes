@@ -1106,7 +1106,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 153,
+    "line": 142,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1118,7 +1118,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-2",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 155,
+    "line": 144,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1130,7 +1130,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#9c790211fd82",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 166,
+    "line": 155,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -1142,7 +1142,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-3",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 171,
+    "line": 160,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1154,7 +1154,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-4",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 205,
+    "line": 194,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1166,7 +1166,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-5",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 213,
+    "line": 204,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1178,7 +1178,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-6",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 222,
+    "line": 213,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1190,7 +1190,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-7",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 234,
+    "line": 226,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1202,7 +1202,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-8",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 247,
+    "line": 235,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1214,7 +1214,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-9",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 256,
+    "line": 247,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1226,7 +1226,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-10",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 268,
+    "line": 258,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1238,7 +1238,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-11",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 278,
+    "line": 268,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1250,7 +1250,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-12",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 287,
+    "line": 279,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -2834,7 +2834,7 @@
   {
     "id": "scripts/education-sync-dispatch.mjs#admin.get#9441ebbcf2fa",
     "file": "scripts/education-sync-dispatch.mjs",
-    "line": 75,
+    "line": 84,
     "api": "admin.get",
     "target": "db.collection('telegramNotificationEvents').doc(eventId)",
     "group": "operator-other",

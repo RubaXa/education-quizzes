@@ -93,16 +93,16 @@ describe('Firestore EducationSync dispatch store state machine', () => {
     const { store } = setup()
     await store.recordMeshChange({ eventDigest: digest(20), now: iso(), debounceUntil: iso(20_000) })
     const first = await store.claim({ now: iso(21_000), workerId: 'worker-a' })
-    await store.markUncertain({ requestId: first.requestId, now: iso(22_000), code: 'codex_timeout' })
+    await store.markUncertain({ requestId: first.requestId, workerId: first.workerId, now: iso(22_000), code: 'codex_timeout' })
     const waiting = await store.claim({ now: iso(60_000), workerId: 'worker-a' })
     expect(waiting).toBeNull()
     const retry = await store.claim({ now: iso(83_000), workerId: 'worker-b' })
     expect(retry.requestId).toBe(first.requestId)
     await store.claimRequest({ requestId: retry.requestId, tokenHash: digest(98), now: iso(84_000) })
-    await store.markQueued({ requestId: first.requestId, now: iso(84_500) })
+    await store.markQueued({ requestId: first.requestId, workerId: first.workerId, now: iso(84_500) })
     expect(await store.read()).toMatchObject({ status: 'running' })
     await store.completeClaim({ requestId: retry.requestId, tokenHash: digest(98), now: iso(85_000) })
-    await store.markQueued({ requestId: first.requestId, now: iso(86_000) })
+    await store.markQueued({ requestId: first.requestId, workerId: first.workerId, now: iso(86_000) })
     expect(await store.read()).toMatchObject({ status: 'completed', completedRequestId: first.requestId })
   })
 
@@ -126,9 +126,29 @@ describe('Firestore EducationSync dispatch store state machine', () => {
       .toEqual({ status: 'invalid_claim' })
   })
 
+  it('does not let a late queue acknowledgement from before block/resume claim the resumed dispatch', async () => {
+    const { store } = setup()
+    await store.recordMeshChange({ eventDigest: digest(40), now: iso(), debounceUntil: iso(20_000) })
+    const original = await store.claim({ now: iso(21_000), workerId: 'worker-a' })
+    await store.claimRequest({ requestId: original.requestId, tokenHash: digest(41), now: iso(22_000) })
+    await store.blockClaim({ requestId: original.requestId, tokenHash: digest(41), reasonCode: 'permission_required', now: iso(23_000) })
+    await store.recordMeshChange({ eventDigest: digest(42), now: iso(24_000), debounceUntil: iso(44_000) })
+    await store.resumeBlocked({ requestId: original.requestId, now: iso(45_000) })
+    const resumed = await store.claim({ now: iso(45_001), workerId: 'worker-b' })
+    expect(resumed.requestId).toBe(original.requestId)
+
+    // This acknowledgement belongs to the original queue attempt, but requestId
+    // is intentionally stable across resume and the replacement attempt is sending.
+    await store.markQueued({ requestId: original.requestId, workerId: original.workerId, now: iso(45_002) })
+    await store.markUncertain({ requestId: original.requestId, workerId: original.workerId, now: iso(45_003), code: 'codex_timeout' })
+    expect(await store.fail({ requestId: original.requestId, workerId: original.workerId, now: iso(45_004), retryAt: iso(90_000) }))
+      .toEqual({ status: 'stale_request' })
+    expect(await store.read()).toMatchObject({ status: 'sending' })
+  })
+
   it('returns idle without spawning or immediately requeueing when there is no due work', async () => {
     const store = { recordMeshChange: vi.fn(), read: vi.fn(async () => null), claim: vi.fn(async () => null),
-      markQueued: vi.fn(), markUncertain: vi.fn(), complete: vi.fn(), fail: vi.fn(), claimRequest: vi.fn(), release: vi.fn() }
+      markQueued: vi.fn(), markUncertain: vi.fn(), fail: vi.fn(), claimRequest: vi.fn() }
     const spawnProcess = vi.fn()
     const dispatcher = new EducationSyncDispatcher({ store, threadId: '01a150dc-e067-7cc2-b08f-f573bf83e6e3',
       codexPath: '/opt/codex', projectRoot: '/workspace/PETR', spawnProcess })
@@ -136,5 +156,47 @@ describe('Firestore EducationSync dispatch store state machine', () => {
     expect(await dispatcher.runOne()).toBe(false)
     expect(store.claim).toHaveBeenCalledTimes(2)
     expect(spawnProcess).not.toHaveBeenCalled()
+  })
+
+  it('holds a blocked request and new source generations until explicit resume', async () => {
+    const { store } = setup()
+    await store.recordMeshChange({ eventDigest: digest(40), now: iso(), debounceUntil: iso(20_000) })
+    const dispatch = await store.claim({ now: iso(21_000), workerId: 'worker-a' })
+    await store.claimRequest({ requestId: dispatch.requestId, tokenHash: digest(41), now: iso(22_000) })
+    expect(await store.blockClaim({ requestId: dispatch.requestId, tokenHash: digest(41),
+      reasonCode: 'permission_required', now: iso(23_000) })).toEqual({ status: 'blocked', reasonCode: 'permission_required' })
+
+    await store.recordMeshChange({ eventDigest: digest(42), now: iso(30_000), debounceUntil: iso(50_000) })
+    expect(await store.read()).toMatchObject({ status: 'blocked', generation: 2, requestId: dispatch.requestId,
+      blockedReasonCode: 'permission_required' })
+    expect(await store.claim({ now: iso(60_000), workerId: 'worker-a' })).toBeNull()
+    expect(await store.claimRequest({ requestId: dispatch.requestId, tokenHash: digest(43), now: iso(31_000) }))
+      .toEqual({ status: 'blocked' })
+    expect(await store.heartbeatClaim({ requestId: dispatch.requestId, tokenHash: digest(41), now: iso(32_000) }))
+      .toEqual({ status: 'invalid_claim' })
+    expect(await store.failClaim({ requestId: dispatch.requestId, tokenHash: digest(41), now: iso(33_000), retryAt: iso(90_000) }))
+      .toEqual({ status: 'invalid_claim' })
+    expect(await store.completeClaim({ requestId: dispatch.requestId, tokenHash: digest(41), now: iso(34_000) }))
+      .toEqual({ status: 'invalid_claim' })
+    await store.markQueued({ requestId: dispatch.requestId, workerId: dispatch.workerId, now: iso(35_000) })
+    expect(await store.read()).toMatchObject({ status: 'blocked', generation: 2 })
+
+    expect(await store.resumeBlocked({ requestId: dispatch.requestId, now: iso(60_000) }))
+      .toEqual({ status: 'pending', requestId: dispatch.requestId })
+    expect(await store.claim({ now: iso(60_000), workerId: 'worker-a' })).toMatchObject({
+      requestId: dispatch.requestId, generation: 2,
+    })
+    expect(await store.read()).toMatchObject({ status: 'sending', sendingGeneration: 2 })
+  })
+
+  it('rejects a block with an unrecognized reason or an expired claim', async () => {
+    const { store } = setup()
+    await store.recordMeshChange({ eventDigest: digest(50), now: iso(), debounceUntil: iso(20_000) })
+    const dispatch = await store.claim({ now: iso(21_000), workerId: 'worker-a' })
+    await store.claimRequest({ requestId: dispatch.requestId, tokenHash: digest(51), now: iso(22_000) })
+    expect(await store.blockClaim({ requestId: dispatch.requestId, tokenHash: digest(51),
+      reasonCode: 'arbitrary text', now: iso(23_000) })).toEqual({ status: 'invalid_reason' })
+    expect(await store.blockClaim({ requestId: dispatch.requestId, tokenHash: digest(51),
+      reasonCode: 'permission_required', now: iso(6 * 60 * 60_000 + 23_000) })).toEqual({ status: 'invalid_claim' })
   })
 })
