@@ -1,9 +1,42 @@
-import { describe, expect, it } from 'vitest'
+// @vitest-environment jsdom
+import { act } from 'react'
+import { createRoot } from 'react-dom/client'
+import { describe, expect, it, vi } from 'vitest'
 import { renderToStaticMarkup } from 'react-dom/server'
 import ParentTaskGuide from './ParentTaskGuide'
 import type { ParentTaskGuide as Guide } from '@/lib/dayStore'
 
 describe('one parent route component', () => {
+  it('keeps the full-step action available after sending a hint, then closes both after reveal', async () => {
+    const guide: Guide = {
+      kind: 'worked-solution', presentation: 'math-route', routeProfile: 'standard', revision: 1,
+      overview: 'Разбор', stages: [{ id: 'solution', title: 'Решение', role: 'solution', expected: 'Полный шаг',
+        hintPreview: 'Подумай о связи', revealPreview: 'Покажи полный переход',
+        source: { kind: 'teacher-file', label: 'Лист', ref: 'sheet', excerpt: 'условие' } }],
+    }
+    const onSend = vi.fn(async (_stage: Guide['stages'][number], _level: 'hint' | 'reveal') => {})
+    const host = document.createElement('div')
+    const root = createRoot(host)
+    try {
+      await act(async () => root.render(<ParentTaskGuide guide={guide} onSend={onSend} />))
+      await act(async () => host.querySelector<HTMLButtonElement>('[aria-label="Выбрать подсказку для этапа «Решение»"]')!.click())
+      await act(async () => [...host.querySelectorAll<HTMLButtonElement>('button')].find((button) => button.textContent === 'Отправить Пете')!.click())
+      expect(host.querySelector('[aria-label="Выбрать подсказку для этапа «Решение»"]')).toBeNull()
+      expect(host.querySelector('[aria-label="Выбрать показ полного шага для этапа «Решение»"]')).not.toBeNull()
+      expect(host.textContent).toContain('Подсказка отправлена Пете.')
+
+      await act(async () => host.querySelector<HTMLButtonElement>('[aria-label="Выбрать показ полного шага для этапа «Решение»"]')!.click())
+      await act(async () => [...host.querySelectorAll<HTMLButtonElement>('button')].find((button) => button.textContent === 'Отправить Пете')!.click())
+      expect(host.querySelector('[aria-label="Выбрать подсказку для этапа «Решение»"]')).toBeNull()
+      expect(host.querySelector('[aria-label="Выбрать показ полного шага для этапа «Решение»"]')).toBeNull()
+      expect(host.textContent).toContain('Весь шаг отправлен Пете.')
+      expect(onSend.mock.calls.map(([stage, level]) => [stage.id, level])).toEqual([['solution', 'hint'], ['solution', 'reveal']])
+    } finally {
+      await act(async () => root.unmount())
+      host.remove()
+    }
+  })
+
   it('keeps the parent route and every math stage closed until opened', () => {
     const guide: Guide = {
       kind: 'worked-solution', presentation: 'math-route', routeProfile: 'standard', revision: 1,

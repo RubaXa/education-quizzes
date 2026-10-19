@@ -730,6 +730,32 @@
       "path": "docs/decisions/review-prose-coverage-2026-10-19.md"
     },
     {
+      "id": "decision.reviews.guidance-hint-then-reveal",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-19",
+      "updated": "2026-10-19",
+      "parent": "module.reviews.subject-aware-guidance",
+      "uses": [
+        "module.reviews.math-solution-route"
+      ],
+      "consumers": [
+        "parent",
+        "learner"
+      ],
+      "code": [
+        "src/components/ParentTaskGuide.tsx"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/guidance-hint-then-reveal-2026-10-19.md"
+    },
+    {
       "id": "decision.reviews.math-parent-stage-review",
       "status": "accepted",
       "implementation": "implemented",
@@ -9649,6 +9675,11 @@
       "type": "uses"
     },
     {
+      "from": "decision.reviews.guidance-hint-then-reveal",
+      "to": "module.reviews.math-solution-route",
+      "type": "uses"
+    },
+    {
       "from": "decision.reviews.math-parent-stage-review",
       "to": "module.reviews.subject-aware-guidance",
       "type": "uses"
@@ -11821,6 +11852,11 @@
     {
       "from": "file:src/components/ParentTaskGuide.css",
       "to": "shared.design",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ParentTaskGuide.tsx",
+      "to": "decision.reviews.guidance-hint-then-reveal",
       "type": "implements"
     },
     {
@@ -14087,6 +14123,11 @@
       "from": "module.reviews.special-course-card-overlay",
       "to": "module.reviews.card-generation-policy",
       "type": "uses"
+    },
+    {
+      "from": "module.reviews.subject-aware-guidance",
+      "to": "decision.reviews.guidance-hint-then-reveal",
+      "type": "contains"
     },
     {
       "from": "module.reviews.subject-aware-guidance",

@@ -141,7 +141,8 @@ it('keeps the ordinary parent day wired to the same prepared guidance command', 
     expect(send.disabled).toBe(false)
     await act(async () => send.click())
     expect(scene.guidanceCalls).toEqual([['student-token', firstProblemIds[0], guide, 'data', 'hint']])
-    expect(card.textContent).toContain('Помощь отправлена')
+    expect(card.textContent).toContain('Подсказка отправлена')
+    expect(card.querySelector('[aria-label^="Выбрать показ полного шага"]')).not.toBeNull()
   } finally { await view.cleanup() }
 })
 

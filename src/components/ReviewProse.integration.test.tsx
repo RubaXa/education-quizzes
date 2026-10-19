@@ -79,7 +79,8 @@ it('formats the preview while sending the original stage and keeping duplicate-s
     await act(async () => button.click())
     expect(send).toHaveBeenCalledExactlyOnceWith(guide.stages[0], 'hint')
     expect(guide.stages[0].hintPreview).toBe('Сколько от0до14?')
-    expect(host.textContent).toContain('Помощь отправлена Пете.')
+    expect(host.textContent).toContain('Подсказка отправлена Пете.')
     expect(host.querySelector('button[aria-label^="Выбрать подсказку"]')).toBeNull()
+    expect(host.querySelector('button[aria-label^="Выбрать показ"]')).not.toBeNull()
   } finally { await act(async () => root.unmount()); host.remove() }
 })

@@ -33,6 +33,7 @@
 | [docs/decisions/grade-mark-details-2026-10-14.md](../decisions/grade-mark-details-2026-10-14.md) | 2026-10-14 | 2026-10-16 | reference | not-applicable | product implementer<br>service implementer |  |
 | [docs/decisions/grade-notice-recovery-2026-10-19.md](../decisions/grade-notice-recovery-2026-10-19.md) | 2026-10-19 | 2026-10-19 | accepted | implemented | Education sync operator |  |
 | [docs/decisions/grade-projection-reconciliation-2026-10-15.md](../decisions/grade-projection-reconciliation-2026-10-15.md) | 2026-10-15 | 2026-10-16 | reference | not-applicable | product implementer<br>service implementer |  |
+| [docs/decisions/guidance-hint-then-reveal-2026-10-19.md](../decisions/guidance-hint-then-reveal-2026-10-19.md) | 2026-10-19 | 2026-10-19 | accepted | implemented | parent<br>learner | [src/components/ParentTaskGuide.tsx](../../src/components/ParentTaskGuide.tsx) |
 | [docs/decisions/history-default-universal-request-2026-10-16.md](../decisions/history-default-universal-request-2026-10-16.md) | 2026-10-16 | 2026-10-16 | reference | not-applicable | product implementer<br>service implementer |  |
 | [docs/decisions/history-followup-volume-2026-10-16.md](../decisions/history-followup-volume-2026-10-16.md) | 2026-10-16 | 2026-10-16 | reference | not-applicable | product implementer<br>service implementer |  |
 | [docs/decisions/ldd-copy-button-2026-10-19.md](../decisions/ldd-copy-button-2026-10-19.md) | 2026-10-19 | 2026-10-19 | accepted | implemented | parent<br>student<br>Education developer |  |
