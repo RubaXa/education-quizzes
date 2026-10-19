@@ -7412,6 +7412,34 @@
       "path": "docs/modules/synchronization/education-pipeline.md"
     },
     {
+      "id": "module.synchronization.execution-artifact",
+      "status": "accepted",
+      "implementation": "planned",
+      "created": "2026-10-19",
+      "updated": "2026-10-19",
+      "parent": "module.synchronization",
+      "uses": [
+        "module.synchronization.global-sync",
+        "module.synchronization.shared-artifact-pipeline",
+        "service.telegram-bot.education-sync-dispatch",
+        "service.operator-cli"
+      ],
+      "consumers": [
+        "EducationSync workflow",
+        "Telegram source watcher",
+        "Education sync operator"
+      ],
+      "sections": [
+        "responsibility",
+        "manifest",
+        "freshness",
+        "lifecycle",
+        "acceptance"
+      ],
+      "code": [],
+      "path": "docs/modules/synchronization/execution-artifact.md"
+    },
+    {
       "id": "module.synchronization.firestore-read-paths",
       "status": "accepted",
       "implementation": "partial",
@@ -7462,6 +7490,7 @@
       ],
       "parent": "module.synchronization",
       "uses": [
+        "module.synchronization.execution-artifact",
         "module.synchronization.shared-artifact-pipeline",
         "module.synchronization.education-pipeline",
         "shared.server-runtime"
@@ -7526,6 +7555,7 @@
       ],
       "parent": "module.synchronization",
       "uses": [
+        "module.synchronization.execution-artifact",
         "module.synchronization.global-sync"
       ],
       "sections": [
@@ -7598,6 +7628,7 @@
       "uses": [
         "service.operator-cli",
         "module.synchronization.global-sync",
+        "module.synchronization.execution-artifact",
         "module.synchronization.education-pipeline",
         "service.telegram-bot.education-sync-dispatch"
       ],
@@ -8500,7 +8531,7 @@
     {
       "id": "service.telegram-bot.education-sync-dispatch",
       "status": "accepted",
-      "implementation": "implemented",
+      "implementation": "partial",
       "created": "2026-10-19",
       "updated": "2026-10-19",
       "parent": "service.telegram-bot",
@@ -8508,7 +8539,8 @@
         "shared.server-runtime",
         "service.telegram-bot.operations",
         "service.telegram-bot.mesh",
-        "service.operator-cli"
+        "service.operator-cli",
+        "module.synchronization.execution-artifact"
       ],
       "consumers": [
         "Telegram worker",
@@ -14430,6 +14462,26 @@
       "type": "uses"
     },
     {
+      "from": "module.synchronization.execution-artifact",
+      "to": "module.synchronization.global-sync",
+      "type": "uses"
+    },
+    {
+      "from": "module.synchronization.execution-artifact",
+      "to": "module.synchronization.shared-artifact-pipeline",
+      "type": "uses"
+    },
+    {
+      "from": "module.synchronization.execution-artifact",
+      "to": "service.operator-cli",
+      "type": "uses"
+    },
+    {
+      "from": "module.synchronization.execution-artifact",
+      "to": "service.telegram-bot.education-sync-dispatch",
+      "type": "uses"
+    },
+    {
       "from": "module.synchronization.firestore-read-paths",
       "to": "file:scripts/firestore-usage-window.test.mjs",
       "type": "verified-by"
@@ -14496,6 +14548,11 @@
     },
     {
       "from": "module.synchronization.global-sync",
+      "to": "module.synchronization.execution-artifact",
+      "type": "uses"
+    },
+    {
+      "from": "module.synchronization.global-sync",
       "to": "module.synchronization.shared-artifact-pipeline",
       "type": "uses"
     },
@@ -14531,6 +14588,11 @@
     },
     {
       "from": "module.synchronization.shared-artifact-pipeline",
+      "to": "module.synchronization.execution-artifact",
+      "type": "uses"
+    },
+    {
+      "from": "module.synchronization.shared-artifact-pipeline",
       "to": "module.synchronization.global-sync",
       "type": "uses"
     },
@@ -14557,6 +14619,11 @@
     {
       "from": "module.synchronization",
       "to": "module.synchronization.education-pipeline",
+      "type": "contains"
+    },
+    {
+      "from": "module.synchronization",
+      "to": "module.synchronization.execution-artifact",
       "type": "contains"
     },
     {
@@ -14612,6 +14679,11 @@
     {
       "from": "operations.education-sync",
       "to": "module.synchronization.education-pipeline",
+      "type": "uses"
+    },
+    {
+      "from": "operations.education-sync",
+      "to": "module.synchronization.execution-artifact",
       "type": "uses"
     },
     {
@@ -15413,6 +15485,11 @@
       "from": "service.telegram-bot.education-sync-dispatch",
       "to": "file:scripts/education-sync-dispatch.test.mjs",
       "type": "verified-by"
+    },
+    {
+      "from": "service.telegram-bot.education-sync-dispatch",
+      "to": "module.synchronization.execution-artifact",
+      "type": "uses"
     },
     {
       "from": "service.telegram-bot.education-sync-dispatch",

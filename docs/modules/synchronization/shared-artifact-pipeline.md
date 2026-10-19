@@ -12,6 +12,7 @@ code:
   - "sync/artifact-capture.mjs"
 parent: module.synchronization
 uses:
+  - module.synchronization.execution-artifact
   - module.synchronization.global-sync
 sections:
   - boundaries
@@ -22,7 +23,7 @@ sections:
 ---
 # Общие артефакты и семейные связи Education {#shared-artifacts}
 
-Статус: **контракт по стадиям; первый этап сохранения исходников реализован, общий реестр разборов ещё не подключён**. Этот документ дополняет [глобальный запуск](global-sync.md), [семейную библиотеку](../materials/family-library.md) и [доступ к файлам](../families/family-artifact-access.md). Один запуск обходит все семьи, но его содержательная работа адресуется отдельным источникам и артефактам, а не копирует готовый разбор в каждую семью.
+Статус: **контракт по стадиям; первый этап сохранения исходников реализован, общий реестр разборов ещё не подключён**. Этот документ дополняет [глобальный запуск](global-sync.md), [контракт execution artifact](execution-artifact.md), [семейную библиотеку](../materials/family-library.md) и [доступ к файлам](../families/family-artifact-access.md). Один запуск обходит все семьи, но его содержательная работа адресуется отдельным источникам и артефактам, а не копирует готовый разбор в каждую семью.
 
 ## Границы данных {#boundaries}
 

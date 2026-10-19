@@ -21,6 +21,7 @@ code:
   - "sync/run-context.mjs"
 parent: module.synchronization
 uses:
+  - module.synchronization.execution-artifact
   - module.synchronization.shared-artifact-pipeline
   - module.synchronization.education-pipeline
   - shared.server-runtime
@@ -33,7 +34,9 @@ sections:
 ---
 # Глобальная синхронизация Education {#global-sync}
 
-Статус: **действующий целевой контракт; реализация по фазам**. Единственная пользовательская команда — просьба агенту «Запусти education-sync». Она относится ко **всем** активным семьям, детям, подключённым источникам и очередям проекта. Внутренние задания имеют контекст `(familyId, childId, sourceAccountId)`; пользователь не выбирает одного ребёнка для полного запуска. Стадии и повторное использование — в [графе общих артефактов](shared-artifact-pipeline.md#stages). Общие правила выпуска — [сквозной протокол](education-pipeline.md), изоляция — [семейная модель](../families/README.md#collections), команды — [операторская карта](petr-private:skills/education-sync/references/operator-runbook.md).
+Статус: **действующий целевой контракт; реализация по фазам**. Единственная пользовательская команда — просьба агенту «Запусти education-sync». Она относится ко **всем** активным семьям, детям, подключённым источникам и очередям проекта. Внутренние задания имеют контекст `(familyId, childId, sourceAccountId)`; пользователь не выбирает одного ребёнка для полного запуска. Стадии и повторное использование — в [графе общих артефактов](shared-artifact-pipeline.md#stages); готовый закрытый список конкретных задач и его свежесть — в [контракте execution artifact](execution-artifact.md). Общие правила выпуска — [сквозной протокол](education-pipeline.md), изоляция — [семейная модель](../families/README.md#collections), команды — [операторская карта](petr-private:skills/education-sync/references/operator-runbook.md).
+
+Для автоматического исполнения принятый целевой вход — свежий полный execution artifact. Описанные ниже `discover`, inbox scans и полные Mesh-сборы характеризуют существующие источники/очередь и текущие пути реализации; они не предписывают повторно обнаруживать уже подтверждённые задачи при исполнении свежего артефакта.
 
 ## Инвентаризация и очередь {#inventory}
 

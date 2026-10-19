@@ -1,7 +1,7 @@
 ---
 id: service.telegram-bot.education-sync-dispatch
 status: accepted
-implementation: implemented
+implementation: partial
 created: 2026-10-19
 updated: 2026-10-19
 parent: service.telegram-bot
@@ -10,6 +10,7 @@ uses:
   - service.telegram-bot.operations
   - service.telegram-bot.mesh
   - service.operator-cli
+  - module.synchronization.execution-artifact
 consumers:
   - Telegram worker
   - EducationSync workflow
@@ -27,9 +28,11 @@ sections:
 
 # Автоматический запрос EducationSync
 
+Контракт готового закрытого плана исполнения, freshness и no-op dispatch задаёт [execution artifact](../../modules/synchronization/execution-artifact.md). Диспетчеризация общего запроса не считается готовым execution artifact.
+
 ## Назначение и границы
 
-Прямое решение пользователя19.10 расширяет прежнюю границу Telegram: подтверждённое изменение МЭШ запрашивает полный цикл существующего EducationSync. Обнаружение, классификация и уведомление остаются детерминированными; LLM не стоит между источником и Telegram. Диспетчер не копирует загрузчик МЭШ, Firebase публикацию или педагогические правила. Выполняющий чат использует `$education-sync` и штатный operator CLI, общий registry/session/credentials/телеметрию.
+Прямое решение пользователя19.10 расширяет прежнюю границу Telegram: источник наблюдает Mesh и пользовательские действия Firebase, а watcher детерминированно собирает полный execution artifact до dispatch. EducationSync исполняет только проверенные задачи артефакта; свежий артефакт не запускает routine discovery. Обнаружение, классификация и уведомление остаются детерминированными; LLM не стоит между источником и Telegram. Диспетчер не копирует загрузчик МЭШ, Firebase публикацию или педагогические правила. Выполняющий чат использует `$education-sync` и штатный operator CLI, общий registry/session/credentials/телеметрию.
 
 Общий workflow обслуживает все подключённые семьи. Конкретный существующий чат задаётся конфигурацией маршрута исполнения; это не список разрешённых семей или детей. Новый чат самопроизвольно не создаётся. Командный текст формируется из доверенного шаблона и ID запроса; текст ДЗ, имена и credentials в него не подставляются.
 
@@ -57,9 +60,11 @@ Opt-in задаёт `EDUCATION_SYNC_CODEX_PATH` (абсолютный испол
 
 Операторские команды `node scripts/education-sync-dispatch.mjs status|claim|heartbeat|complete|fail|block|resume` показывают различимые стадии; credential token не выводится. `events --since ISO` выдаёт ограниченный список последних opaque event IDs без payload. `enqueue-event --event-id HASH` адресно читает ledger, проверяет допустимый Mesh или подтверждённый Firestore work type и текущего зарегистрированного владельца. Work дедуплицируется по хешированным scope/work identity/type, чтобы метаданные не запускали повторную работу. Это не создание фиктивной оценки или ДЗ.
 
-Для Firestore `upload.confirmed` и `quiz.submitted` запускается только узкий inbox review (`npm run sync:inbox`). `quiz.started`, `review.changed`, `technical.probe` и shadow mode запрос не создают. Mesh и смешанные пачки сохраняют полный текущий `$education-sync` путь. Классификация конечной пачки (`mesh`, `work`) фиксируется при claim; новые события накапливаются отдельно для следующего поколения. `status` показывает эти ограниченные виды без source payload. В legacy state без kind arrays активное незавершённое поколение консервативно считается Mesh, чтобы не потерять ранее принятое Mesh work; завершённые state начинают новый batch чисто.
+В нынешней реализации для Firestore `upload.confirmed` и `quiz.submitted` запускается только узкий inbox review (`npm run sync:inbox`). `quiz.started`, `review.changed`, `technical.probe` и shadow mode запрос не создают. Mesh и смешанные пачки сохраняют полный текущий `$education-sync` путь. Классификация конечной пачки (`mesh`, `work`) фиксируется при claim; новые события накапливаются отдельно для следующего поколения. `status` показывает эти ограниченные виды без source payload. В legacy state без kind arrays активное незавершённое поколение консервативно считается Mesh, чтобы не потерять ранее принятое Mesh work; завершённые state начинают новый batch чисто. Это текущее поведение не удовлетворяет контракту готового артефакта и его проверки свежести.
 
 Этот узкий триггер не реализует все адресные change plans для экономии полного Mesh workflow; Mesh и смешанный запуск остаются существующим полным безопасным сценарием.
+
+Поэтому реализация диспетчера отмечена как `partial` относительно принятого контракта: приведённые ниже live readback receipts остаются историческими подтверждениями прежнего dispatch/workflow, но не подтверждают наличие готового execution artifact или freshness validator.
 
 ## Проверки и статус выпуска
 
