@@ -4,5 +4,23 @@
   "rules": {
     "react/rules-of-hooks": "error",
     "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
+  },
+  "overrides": [
+    {
+      "files": [
+        "packages/education-runtime/**/*.mjs",
+        "packages/telegram-notifications/**/*.mjs",
+        "sync/**/*.mjs",
+        "storage/**/*.mjs"
+      ],
+      "env": {
+        "builtin": true,
+        "node": true,
+        "browser": true
+      },
+      "rules": {
+        "no-undef": "error"
+      }
+    }
+  ]
 }

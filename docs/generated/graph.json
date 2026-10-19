@@ -2228,7 +2228,7 @@
       "id": "file:.oxlintrc.json",
       "path": ".oxlintrc.json",
       "kind": "artifact",
-      "purpose": "Правила статического анализа кода",
+      "purpose": "Правила статического анализа; проверка no-undef для backend runtime графов",
       "consumer": "oxlint"
     },
     {

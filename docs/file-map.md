@@ -123,7 +123,7 @@
 | [.env.example](../.env.example) | [Порт дневника](modules/school-diary/README.md) | Шаблон локальной конфигурации интеграции | Оператор CLI |
 | [.firebaserc](../.firebaserc) | [Семейная модель](modules/families/README.md) | Идентификатор проекта Firebase для команд | Firebase CLI |
 | [.gitignore](../.gitignore) | [Хранение и приватность](modules/materials/storage-privacy.md) | Исключение секретов и локальных оригиналов | Git; проверка приватности |
-| [.oxlintrc.json](../.oxlintrc.json) | [Карта спецификаций](product/README.md) | Правила статического анализа кода | oxlint |
+| [.oxlintrc.json](../.oxlintrc.json) | [Карта спецификаций](product/README.md) | Правила статического анализа; проверка no-undef для backend runtime графов | oxlint |
 | [AGENTS.md](../AGENTS.md) | [Система компонентов](shared/design/components.md) | Короткие правила сохранения согласованных решений и поиска контрактов до правки | Агент Codex |
 | [ARCHITECTURE.md](../ARCHITECTURE.md) | [Продукт Education](product/README.md) | Карта приложений, модулей и правил зависимостей | Агент; разработчик |
 | [README.md](../README.md) | [Карта спецификаций](product/README.md) | Вход в репозиторий и команды | Разработчик; агент |

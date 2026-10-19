@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { Timestamp } from '@google-cloud/firestore'
 import { createLegacyEducationEventReconciler } from './legacy-event-reconciliation.mjs'
+import { EDUCATION_EVENT_COLLECTION } from './event-queue.mjs'
 
 function fixture({ items = [], pagesize = 25 } = {}) {
   const rows = new Map(items.map(({ path, data }) => [path, data]))
@@ -48,7 +49,7 @@ function fixture({ items = [], pagesize = 25 } = {}) {
     doc: ref,
     collectionGroup: (name) => queryFor(name, true),
     collection(name) {
-      if (!collections.has(name)) collections.set(name, { where: (...args) => queryFor(name).where(...args) })
+      if (!collections.has(name)) collections.set(name, { doc: (id = 'auto') => ref(`${name}/${id}`), where: (...args) => queryFor(name).where(...args) })
       return collections.get(name)
     },
     async runTransaction(work) {
@@ -131,5 +132,25 @@ describe('legacy Education event reconciliation', () => {
     await bridge.runOne()
     expect(publish).toHaveBeenCalledTimes(3)
     expect(rows.get('educationEventReconciliation/legacyActions').failedPaths.help).not.toContain(first.path)
+  })
+
+  it('publishes unresolved quiz submit and follow-up events with the production queue writer', async () => {
+    const submittedAt = stamp('2026-10-19T10:00:00.000Z')
+    const followupRequestedAt = stamp('2026-10-19T10:01:00.000Z')
+    const assignment = { path: 'assignments/quiz-1', data: {
+      status: 'submitted', familyId: 'family-1', childId: 'child-1', submittedAt, followupRequestedAt,
+      testId: 'test-1', questions: [{ id: 'q1', kind: 'long', points: 2 }], answers: { q1: 'Ответ' },
+    } }
+    const { db, rows } = fixture({ items: [assignment] })
+    const logger = vi.fn()
+    const bridge = createLegacyEducationEventReconciler({ db, logger,
+      clock: () => Date.parse('2026-10-19T12:00:00.000Z') })
+
+    await bridge.runOne()
+
+    const published = [...rows.entries()].filter(([path]) => path.startsWith(`${EDUCATION_EVENT_COLLECTION}/`))
+      .map(([, event]) => event.eventType).sort()
+    expect(published).toEqual(['quiz.followup_requested', 'quiz.submitted'])
+    expect(logger).not.toHaveBeenCalled()
   })
 })
