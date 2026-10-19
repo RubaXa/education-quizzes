@@ -1,17 +1,61 @@
 /** @see ../../../docs/services/telegram-bot/operations.md#runtime-boundary */
+import { withOperationDeadline } from '../operations/operation-deadline.mjs'
+
 export async function runWorker({ runtime, enableDelivery, logger, processLike = process, random = Math.random,
-  shutdownMs = 25_000, shutdownCleanupMs = 5_000, lock = null, telemetry = null, onShutdown = null }) {
+  shutdownMs = 25_000, shutdownCleanupMs = 5_000, sourceOperationTimeoutMs = 600_000,
+  deliveryOperationTimeoutMs = 600_000, educationSyncOperationTimeoutMs = 60_000,
+  lock = null, telemetry = null, onShutdown = null }) {
   let running = true
   let stopPromise
   let drainTask = Promise.resolve()
+  let educationSyncTask = Promise.resolve()
   let pollTask = Promise.resolve()
   let sourceTask = Promise.resolve()
   let sourceCloseTask = Promise.resolve()
   let pollStartAttempted = false
-  let wakeIdle
+  const idleWakers = new Set()
+  const wakeIdle = () => { for (const wake of [...idleWakers]) wake() }
   let failure = false
   let requestShutdown
   const shutdownRequested = new Promise((resolve) => { requestShutdown = resolve })
+  const onOperationTimeout = (operation) => {
+    failure = true
+    const code = operation === 'delivery_run_one' ? 'delivery_operation_timeout'
+      : operation === 'education_sync_dispatch' ? 'education_sync_dispatch_timeout' : 'source_operation_timeout'
+    logger.error({ code })
+    // Process termination is the cancellation boundary: SDK/transport work may
+    // not support AbortSignal, so it must not continue into a replacement run.
+    if (typeof processLike.exit === 'function') processLike.exit(1)
+    else processLike.exitCode = 1
+  }
+  const guardSourceOperations = () => {
+    const coordinator = runtime.sourceCoordinator
+    if (!coordinator) return
+    for (const [name, operation] of [['reconcile', 'source_reconcile'], ['start', 'source_start']]) {
+      const original = coordinator[name]
+      if (typeof original === 'function' && !original.__workerWatchdog && !original.__operationDeadline) {
+        const wrapped = withOperationDeadline(original, { timeoutMs: sourceOperationTimeoutMs, operation, onTimeout: onOperationTimeout })
+        Object.defineProperty(wrapped, '__workerWatchdog', { value: true })
+        coordinator[name] = wrapped
+      }
+    }
+    for (const pipeline of Object.values(coordinator.pipelines ?? {})) {
+      const original = pipeline?.process
+      if (typeof original === 'function' && !original.__workerWatchdog && !original.__operationDeadline) {
+        const wrapped = withOperationDeadline(original, { timeoutMs: sourceOperationTimeoutMs, operation: 'source_pipeline', onTimeout: onOperationTimeout })
+        Object.defineProperty(wrapped, '__workerWatchdog', { value: true })
+        pipeline.process = wrapped
+      }
+    }
+  }
+  guardSourceOperations()
+  if (enableDelivery && typeof runtime.notificationService?.runOne === 'function'
+    && !runtime.notificationService.runOne.__workerWatchdog && !runtime.notificationService.runOne.__operationDeadline) {
+    const wrapped = withOperationDeadline(runtime.notificationService.runOne, {
+      timeoutMs: deliveryOperationTimeoutMs, operation: 'delivery_run_one', onTimeout: onOperationTimeout })
+    Object.defineProperty(wrapped, '__workerWatchdog', { value: true })
+    runtime.notificationService.runOne = wrapped
+  }
   const lockMonitor = lock?.lost?.then((error) => {
     if (error) {
       failure = true
@@ -39,7 +83,7 @@ export async function runWorker({ runtime, enableDelivery, logger, processLike =
       const stages = [
         ...(runtime.telegram.bot.isRunning() || pollStartAttempted ? [['telegram_stop', () => runtime.telegram.stop()]] : []),
         ['source_close', () => sourceCloseTask], ['source_start', () => sourceTask],
-        ['delivery_drain', () => drainTask], ['telegram_poll', () => pollTask],
+        ['delivery_drain', () => drainTask], ['education_sync_dispatch', () => educationSyncTask], ['telegram_poll', () => pollTask],
       ]
       const stageResults = await Promise.all(stages.map(async ([stage, work]) => {
         try {
@@ -94,15 +138,45 @@ export async function runWorker({ runtime, enableDelivery, logger, processLike =
             const jitter = Math.floor(random() * Math.max(1, loopIdleMs / 5))
             await new Promise((resolve) => {
               let settled = false
-              const finish = () => { if (settled) return; settled = true; clearTimeout(timer); wakeIdle = null; resolve() }
+              const finish = () => { if (settled) return; settled = true; clearTimeout(timer); idleWakers.delete(finish); resolve() }
               const timer = setTimeout(finish, loopIdleMs + jitter)
               timer.unref?.()
-              wakeIdle = finish
+              idleWakers.add(finish)
             })
             loopIdleMs = Math.min(60_000, loopIdleMs * 2)
           }
         }
       }).catch(() => { failure = true; logger.error({ code: 'outbox_loop_failed' }); wakeIdle?.(); void stop().catch(() => { failure = true; logger.error({ code: 'shutdown_failed' }) }) })
+    }
+    if (typeof runtime.educationSyncDispatcher?.runOne === 'function') {
+      const dispatcher = runtime.educationSyncDispatcher
+      if (!dispatcher.runOne.__workerWatchdog && !dispatcher.runOne.__operationDeadline) {
+        const wrapped = withOperationDeadline(dispatcher.runOne, {
+          timeoutMs: educationSyncOperationTimeoutMs,
+          operation: 'education_sync_dispatch', onTimeout: onOperationTimeout,
+        })
+        Object.defineProperty(wrapped, '__workerWatchdog', { value: true })
+        dispatcher.runOne = wrapped
+      }
+      educationSyncTask = Promise.resolve().then(async () => {
+        let loopIdleMs = 1_000
+        while (running) {
+          const didWork = await dispatcher.runOne()
+          if (!running) break
+          if (didWork) loopIdleMs = 1_000
+          else {
+            const jitter = Math.floor(random() * Math.max(1, loopIdleMs / 5))
+            await new Promise((resolve) => {
+              let settled = false
+              const finish = () => { if (settled) return; settled = true; clearTimeout(timer); idleWakers.delete(finish); resolve() }
+              const timer = setTimeout(finish, loopIdleMs + jitter)
+              timer.unref?.()
+              idleWakers.add(finish)
+            })
+            loopIdleMs = Math.min(60_000, loopIdleMs * 2)
+          }
+        }
+      }).catch(() => { failure = true; logger.error({ code: 'education_sync_dispatch_failed' }); wakeIdle?.(); void stop().catch(() => { failure = true; logger.error({ code: 'shutdown_failed' }) }) })
     }
     pollTask = Promise.resolve().then(async () => {
       if (!running) return

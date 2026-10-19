@@ -13,11 +13,14 @@ import { SourceCoordinator } from './source-coordinator.mjs'
 import { createMeshSourceAdapter } from './source-mesh.mjs'
 import { createMeshCredentialResolver } from './mesh-credentials.mjs'
 import { createHash } from 'node:crypto'
+import { EducationSyncDispatcher, createFirestoreEducationSyncStore } from '../application/education-sync-dispatcher.mjs'
+import { withOperationDeadline } from '../operations/operation-deadline.mjs'
 
 /** @see ../../../docs/shared/server-runtime.md @see ../../../docs/services/telegram-bot/README.md @see ../../../docs/services/telegram-bot/operations.md#runtime-boundary */
 export function createRuntime(config, { logger = console, linkAuthorizer = null, firestore = null,
   enableFirestoreSource = false, enableMeshSource = false, enableDelivery = false, random = Math.random,
-  telemetry = null, legacyCodec = null, shutdownSignal = null } = {}) {
+  telemetry = null, legacyCodec = null, shutdownSignal = null,
+  educationSyncDispatcherFactory = (options) => new EducationSyncDispatcher(options) } = {}) {
   const db = firestore ?? createEducationFirestore({ projectId: config.projectId, telemetry })
   const verifyFirestore = async () => {
     // A single non-sensitive document lookup resolves ADC/project access before polling.
@@ -45,6 +48,10 @@ export function createRuntime(config, { logger = console, linkAuthorizer = null,
   }))
   wrapMethod(notificationService, 'runOne', telemetry, 'telegram.notification.run-one', undefined, 'trace')
   wrapMethod(notificationService.delivery, 'send', telemetry, 'telegram.delivery.send')
+  const educationSyncDispatcher = config.educationSync && enableMeshSource && enableDelivery
+    ? educationSyncDispatcherFactory({ store: createFirestoreEducationSyncStore(db), threadId: config.educationSync.threadId,
+      codexPath: config.educationSync.codexPath, projectRoot: config.educationSync.projectRoot, remote: config.educationSync.remote }) : null
+  if (educationSyncDispatcher) wrapMethod(educationSyncDispatcher, 'runOne', telemetry, 'telegram.education-sync.dispatch')
   let sourceCoordinator = null
   if (enableFirestoreSource || enableMeshSource) {
     const sources = []
@@ -68,7 +75,14 @@ export function createRuntime(config, { logger = console, linkAuthorizer = null,
           ...(typeof scopeKey === 'string' && /^[a-f0-9]{64}$/.test(scopeKey) ? { scopeKey } : {}), errorCode: safeMeshErrorCode(code) }) })
       sources.push(meshSource)
       pipelines.mesh = new SourcePipeline({ source: meshSource, checkpoints: createFirestoreSourceCheckpointStore(db),
-        accept: (event) => notificationService.accept(event), mode: enableDelivery ? 'notify' : 'shadow',
+        accept: async (event) => {
+          const result = await notificationService.accept(event)
+          if (educationSyncDispatcher && event?.source === 'mesh' && event.eventType !== 'technical.probe'
+            && /^[a-f0-9]{64}$/.test(event.eventId ?? '')) {
+            await educationSyncDispatcher.enqueueMeshChange(event.eventId)
+          }
+          return result
+        }, mode: enableDelivery ? 'notify' : 'shadow',
         workerId: config.instanceId, clock })
       wrapMethod(pipelines.mesh, 'process', telemetry, 'telegram.source-pipeline.process', (scope) => ({
         source: 'mesh', scopeHash: pipelines.mesh.source.scopeKey(scope),
@@ -84,19 +98,36 @@ export function createRuntime(config, { logger = console, linkAuthorizer = null,
       concurrency: config.sourceConcurrency ?? 4, random })
   }
   if (sourceCoordinator) {
+    for (const [method, operation] of [['start', 'source_start'], ['reconcile', 'source_reconcile']]) {
+      const original = sourceCoordinator[method]
+      if (typeof original === 'function') sourceCoordinator[method] = withOperationDeadline(original, {
+        timeoutMs: config.sourceOperationTimeoutMs ?? 600_000, operation,
+        onTimeout: () => { logger.error({ code: 'source_operation_timeout' }); process.exit(1) },
+      })
+    }
+    for (const pipeline of Object.values(sourceCoordinator.pipelines ?? {})) {
+      const original = pipeline?.process
+      if (typeof original === 'function') pipeline.process = withOperationDeadline(original, {
+        timeoutMs: config.sourceOperationTimeoutMs ?? 600_000, operation: 'source_pipeline',
+        onTimeout: () => { logger.error({ code: 'source_operation_timeout' }); process.exit(1) },
+      })
+    }
     wrapMethod(sourceCoordinator, 'reconcile', telemetry, 'telegram.source-coordinator.reconcile', undefined, 'trace')
     wrapMethod(sourceCoordinator, 'signal', telemetry, 'telegram.source-coordinator.signal', (_kind, scope) => ({
       source: _kind, scopeHash: opaqueHash(`${scope?.familyId ?? ''}/${scope?.childId ?? ''}`),
     }))
   }
-  return { db, adapters, identity, telegram, notificationService, sourceCoordinator, verifyFirestore }
+  return { db, adapters, identity, telegram, notificationService, sourceCoordinator, educationSyncDispatcher, verifyFirestore }
 }
 
 function wrapMethod(target, name, telemetry, operation, attrs = () => ({}), kind = 'span') {
   if (typeof target?.[name] !== 'function' || !telemetry?.span) return
+  const operationDeadline = target[name].__operationDeadline === true
   const original = target[name].bind(target)
-  target[name] = (...args) => (kind === 'trace' && telemetry.trace ? telemetry.trace : telemetry.span)(operation,
+  const wrapped = (...args) => (kind === 'trace' && telemetry.trace ? telemetry.trace : telemetry.span)(operation,
     () => original(...args), attrs(...args))
+  if (operationDeadline) Object.defineProperty(wrapped, '__operationDeadline', { value: true })
+  target[name] = wrapped
 }
 
 function opaqueHash(value) {

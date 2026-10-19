@@ -23,6 +23,7 @@ import { runUploadCheck, parseUploadCheckArgs } from '../packages/telegram-notif
 import { createFirestoreSourceAdapter } from '../packages/telegram-notifications/adapters/source-firestore.mjs'
 import { createFirestoreSourceDiscoveryStore } from '../packages/telegram-notifications/adapters/source-discovery-firestore.mjs'
 import { runReviewCheck, parseReviewCheckArgs } from '../packages/telegram-notifications/operations/review-check.mjs'
+import { runMeshDeliveryCheck } from '../packages/telegram-notifications/operations/mesh-delivery-check.mjs'
 
 /** @see ../docs/services/telegram-bot/operations.md */
 export async function main(args = process.argv.slice(2), dependencies = {}) {
@@ -42,6 +43,10 @@ export async function main(args = process.argv.slice(2), dependencies = {}) {
     const options = parseReviewCheckArgs(rest)
     if (options) return reviewCheck(dependencies, write, options)
   }
+  if (command === 'mesh-delivery-check') {
+    const options = parseMeshDeliveryCheckArgs(rest)
+    if (options) return meshDeliveryCheck(dependencies, write, options)
+  }
   const operations = dependencies.launchAgent ?? createLaunchAgentOperations({ root: dependencies.root ?? process.cwd(),
     env: dependencies.env ?? process.env, home: dependencies.home, uid: dependencies.uid,
     fs: dependencies.launchFs, exec: dependencies.exec, nodePath: dependencies.nodePath, platform: dependencies.platform })
@@ -49,9 +54,88 @@ export async function main(args = process.argv.slice(2), dependencies = {}) {
   if (command === 'status' && !rest.length) return launchCommand(rest, () => operations.status(), write)
   if (command === 'stop' && !rest.length) return launchCommand(rest, () => operations.stop(), write)
   if (command === 'uninstall') return launchCommand(rest, () => operations.uninstall({ apply: hasApply(rest) }), write)
-  emit({ code: 'usage', usage: 'node scripts/telegram-runtime.mjs readiness | source-check [--diagnose-schedule-dates [--date YYYY-MM-DD ...]] | upload-check [--since ISO] | review-check [--since ISO] | probe --source firestore|mesh --target-digest HASH [--apply] | install [--apply] | status | stop | uninstall [--apply]' }, write)
+  emit({ code: 'usage', usage: 'node scripts/telegram-runtime.mjs readiness | source-check [--diagnose-schedule-dates [--date YYYY-MM-DD ...]] | upload-check [--since ISO] | review-check [--since ISO] | mesh-delivery-check [--since ISO] [--limit N] | probe --source firestore|mesh --target-digest HASH [--apply] | install [--apply] | status | stop | uninstall [--apply]' }, write)
   return 2
 }
+
+async function meshDeliveryCheck(dependencies, write, options) {
+  let db = null
+  try {
+    const root = dependencies.root ?? process.cwd()
+    const env = dependencies.env ?? process.env
+    const projectId = env.TELEGRAM_FIRESTORE_PROJECT_ID ?? readFirebaseProject(root)
+    if (!projectId) throw safeError('firebase_project_unavailable')
+    const factory = dependencies.dbFactory ?? (await import('./lib/admin-firebase.mjs')).operatorFirestore
+    db = dependencies.db ?? factory({ cwd: root, projectId })
+    const meshDirectory = resolve(root, env.TELEGRAM_MESH_CONNECTION_DIRECTORY ?? '.local/mesh-connections')
+    const meshSource = dependencies.meshSource ?? createMeshSource({ db, root, meshDirectory, telemetry: dependencies.telemetry })
+    const inventory = dependencies.inventory ?? createFirestoreSourceInventory(db, { includeFirestore: false, includeMesh: true, meshSource })
+    const discoveryStore = dependencies.discoveryStore ?? createFirestoreSourceDiscoveryStore(db, {
+      namespace: 'notify', scopeKey: (_kind, scope) => meshSource.scopeKey(scope),
+    })
+    const result = await runMeshDeliveryCheck({ ...options, inventory, discoveryStore, source: meshSource,
+      readCheckpoint: dependencies.readCheckpoint ?? (async (scopeKey) => {
+        const hash = createHash('sha256').update(scopeKey).digest('hex')
+        const snapshot = await db.doc(`telegramNotificationSourceCheckpoints/notify_${hash}`).get()
+        return snapshot.exists ? snapshot.data() : null
+      }),
+      readLedgerEventsByRecord: dependencies.readLedgerEventsByRecord ?? (async (recordKey, scopeKey, scope) => {
+        const sourceEventKey = createHash('sha256').update(recordKey).digest('hex')
+        const scopeHash = createHash('sha256').update(scopeKey).digest('hex')
+        const snapshot = await db.collection('telegramNotificationEvents').where('sourceEventKey', '==', sourceEventKey)
+          .select('eventId', 'eventType', 'detectedAt', 'source', 'sourceEventKey', 'scopeKey', 'familyId', 'childId').get()
+        return snapshot.docs.map((doc) => doc.data() ?? {}).filter((event) => event.source === 'mesh'
+          && event.sourceEventKey === sourceEventKey && event.scopeKey === scopeHash
+          && event.familyId === scope.familyId && event.childId === scope.childId
+          && typeof event.eventId === 'string' && /^[a-f0-9]{64}$/.test(event.eventId))
+          .map((event) => ({ eventId: event.eventId, eventType: event.eventType,
+            detectedAt: event.detectedAt?.toDate?.()?.toISOString?.() ?? event.detectedAt ?? null }))
+      }),
+      readOutboxJobs: dependencies.readOutboxJobs ?? (async (eventId) => {
+        const snapshot = await db.collection('telegramNotificationOutbox').where('eventId', '==', eventId)
+          .select('state', 'partReceipts', 'groupedInto', 'isDigest').get()
+        const rows = snapshot.docs.filter((doc) => doc.data()?.isDigest !== true)
+        return Promise.all(rows.map(async (doc) => {
+          let row = doc.data() ?? {}
+          if (row.state === 'grouped' && /^digest_[a-f0-9]{64}$/.test(row.groupedInto ?? '')) {
+            const [digestSnapshot] = await db.getAll(db.doc(`telegramNotificationOutbox/${row.groupedInto}`),
+              { fieldMask: ['state', 'partReceipts', 'eventJobIds', 'isDigest'] })
+            const digest = digestSnapshot.exists ? digestSnapshot.data() : null
+            if (digest?.isDigest === true && Array.isArray(digest.eventJobIds) && digest.eventJobIds.includes(doc.id))
+              row = { ...digest, jobId: row.groupedInto }
+          }
+          return { jobId: typeof row.jobId === 'string' ? row.jobId : doc.id, state: row.state,
+            receiptCount: Array.isArray(row.partReceipts) ? row.partReceipts.length : 0,
+            receiptIds: Array.isArray(row.partReceipts) ? row.partReceipts.map((receipt) => receipt?.messageId)
+              .filter((id) => Number.isSafeInteger(id) && id > 0) : [] }
+        }))
+      }) })
+    emit(result, write)
+    return result.diagnosticComplete ? 0 : 1
+  } catch (error) {
+    const allowed = new Set(['firebase_project_unavailable', 'mesh_delivery_check_unavailable'])
+    emit({ schemaVersion: 1, diagnosticOnly: true, coverageComplete: false, diagnosticComplete: false,
+      blockedReasons: { [allowed.has(error?.safeCode) ? error.safeCode : 'mesh_delivery_check_failed']: 1 }, writes: 0, sends: 0 }, write)
+    return 1
+  } finally {
+    if (db && dependencies.keepOpen !== true) { try { await db.terminate?.() } catch { /* diagnostic result is already captured */ } }
+  }
+}
+
+export function parseMeshDeliveryCheckArgs(args, now = new Date()) {
+  let since = new Date(now.valueOf() - 72 * 60 * 60_000).toISOString(), limit = null
+  const seen = new Set()
+  for (let index = 0; index < args.length; index += 1) {
+    const flag = args[index]
+    if (!['--since', '--limit'].includes(flag) || seen.has(flag) || !args[index + 1]) return null
+    seen.add(flag)
+    const value = args[++index]
+    if (flag === '--since') { if (!validInstantArg(value)) return null; since = new Date(value).toISOString() }
+    else { if (!/^\d+$/.test(value) || Number(value) < 1 || Number(value) > 10_000) return null; limit = Number(value) }
+  }
+  return { since, limit }
+}
+function validInstantArg(value) { return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/.test(value) && Number.isFinite(Date.parse(value)) }
 
 async function uploadCheck(dependencies, write, options) {
   let db = null

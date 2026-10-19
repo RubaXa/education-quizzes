@@ -1,10 +1,106 @@
 import { EventEmitter } from 'node:events'
+import { spawnSync } from 'node:child_process'
+import { existsSync, mkdtempSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { describe, expect, it, vi } from 'vitest'
 import { runWorker } from './worker-loop.mjs'
 
 const logger = { info() {}, error: vi.fn() }
 
 describe('worker source lifecycle', () => {
+  it('requests process replacement when a source reconciliation remains active past its operation deadline', async () => {
+    vi.useFakeTimers()
+    const processLike = new EventEmitter()
+    processLike.exit = vi.fn()
+    const events = []
+    let finishStart
+    const runtime = {
+      sourceCoordinator: { start() { return new Promise((resolve) => { finishStart = resolve }) }, async close() { events.push('source-close') } },
+      telegram: { bot: { isRunning: () => false }, async start() {}, async stop() {} },
+      db: { async terminate() { events.push('db-terminate') } },
+    }
+    const running = runWorker({ runtime, enableDelivery: false, logger, processLike, sourceOperationTimeoutMs: 25 })
+    await vi.waitFor(() => expect(finishStart).toBeTypeOf('function'))
+    await vi.advanceTimersByTimeAsync(25)
+    expect(processLike.exit).toHaveBeenCalledWith(1)
+    expect(logger.error).toHaveBeenCalledWith({ code: 'source_operation_timeout' })
+    // The fake exit does not terminate Node; release the promise to let this unit test clean up.
+    finishStart()
+    processLike.emit('SIGTERM')
+    await running
+    expect(events).toContain('db-terminate')
+  })
+
+  it('requests process replacement when a delivery operation remains active past its deadline', async () => {
+    vi.useFakeTimers()
+    const processLike = new EventEmitter()
+    processLike.exit = vi.fn()
+    let finishDelivery
+    let finishTelegram
+    const runtime = {
+      sourceCoordinator: { async start() {}, async close() {} },
+      notificationService: { runOne: () => new Promise((resolve) => { finishDelivery = resolve }) },
+      telegram: { bot: { isRunning: () => true }, async start() { await new Promise((resolve) => { finishTelegram = resolve }) },
+        async stop() { finishTelegram() } },
+      db: { async terminate() {} },
+    }
+    const running = runWorker({ runtime, enableDelivery: true, logger, processLike, deliveryOperationTimeoutMs: 25 })
+    await vi.waitFor(() => expect(finishDelivery).toBeTypeOf('function'))
+    await vi.advanceTimersByTimeAsync(25)
+    expect(processLike.exit).toHaveBeenCalledWith(1)
+    expect(logger.error).toHaveBeenCalledWith({ code: 'delivery_operation_timeout' })
+    // The fake exit does not enforce process isolation; only a real exit prevents a late write.
+    finishDelivery(false)
+    processLike.emit('SIGTERM')
+    await running
+  })
+
+  it('runs the education-sync dispatcher independently and gives its active claim a bounded deadline', async () => {
+    vi.useFakeTimers()
+    const processLike = new EventEmitter()
+    processLike.exit = vi.fn()
+    let finishDispatch
+    let finishTelegram
+    const runtime = {
+      sourceCoordinator: { async start() {}, async close() {} },
+      educationSyncDispatcher: { runOne: () => new Promise((resolve) => { finishDispatch = resolve }) },
+      telegram: { bot: { isRunning: () => true }, async start() { await new Promise((resolve) => { finishTelegram = resolve }) },
+        async stop() { finishTelegram() } },
+      db: { async terminate() {} },
+    }
+    const running = runWorker({ runtime, enableDelivery: false, logger, processLike, educationSyncOperationTimeoutMs: 25 })
+    await vi.waitFor(() => expect(finishDispatch).toBeTypeOf('function'))
+    await vi.advanceTimersByTimeAsync(25)
+    expect(processLike.exit).toHaveBeenCalledWith(1)
+    expect(logger.error).toHaveBeenCalledWith({ code: 'education_sync_dispatch_timeout' })
+    finishDispatch(false)
+    processLike.emit('SIGTERM')
+    await running
+  })
+
+  it('terminates a real worker before a timed-out operation can perform a late write', () => {
+    const root = mkdtempSync(join(tmpdir(), 'telegram-worker-deadline-'))
+    const marker = join(root, 'late-write')
+    try {
+      const workerUrl = new URL('./worker-loop.mjs', import.meta.url).href
+      const script = `
+        import { writeFileSync } from 'node:fs'
+        const { runWorker } = await import(${JSON.stringify(workerUrl)})
+        const runtime = {
+          sourceCoordinator: { start() { setTimeout(() => writeFileSync(${JSON.stringify(marker)}, 'late'), 150); return new Promise(() => {}) }, async close() {} },
+          telegram: { bot: { isRunning: () => false }, start() { return new Promise(() => {}) }, async stop() {} },
+          db: { async terminate() {} },
+        }
+        await runWorker({ runtime, enableDelivery: false, logger: { info() {}, error() {} }, sourceOperationTimeoutMs: 25 })
+      `
+      const child = spawnSync(process.execPath, ['--input-type=module', '-e', script], { encoding: 'utf8', timeout: 2_000 })
+      expect(child.error).toBeUndefined()
+      expect(child.status).toBe(1)
+      expect(existsSync(marker)).toBe(false)
+    } finally { rmSync(root, { recursive: true, force: true }) }
+  })
+
   it('starts source initialization and Telegram concurrently, then drains before database shutdown', async () => {
     const events = []
     const processLike = new EventEmitter()

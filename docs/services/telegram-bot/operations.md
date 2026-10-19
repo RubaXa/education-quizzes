@@ -3,7 +3,7 @@ id: service.telegram-bot.operations
 status: accepted
 implementation: partial
 created: 2026-10-16
-updated: 2026-10-18
+updated: 2026-10-19
 consumers:
   - "Telegram service implementer"
   - "bot operator"
@@ -16,6 +16,8 @@ code:
   - "scripts/telegram-bot.mjs"
   - packages/telegram-notifications/adapters/worker-loop.mjs
   - scripts/telegram-runtime.mjs
+  - packages/telegram-notifications/operations/mesh-delivery-check.mjs
+  - packages/telegram-notifications/operations/operation-deadline.mjs
   - scripts/telegram-indexes.mjs
   - packages/telegram-notifications/operations/launch-agent.mjs
   - packages/telegram-notifications/operations/process-lock.mjs
@@ -28,6 +30,7 @@ code:
 parent: service.telegram-bot
 uses:
   - service.telegram-bot
+  - service.telegram-bot.education-sync-dispatch
   - shared.server-runtime
 sections:
   - runtime-boundary
@@ -37,6 +40,9 @@ sections:
   - здоровье-и-сигналы
   - развёртывание-и-rollout
   - подмодули
+  - восстановление-зависших-операций
+  - проверка-реальных-изменений-мэш
+  - education-sync-dispatch
 ---
 # Runtime и эксплуатация Telegram notification service
 
@@ -154,3 +160,29 @@ Mac должен быть включён, доступен и находитьс
 `node scripts/telegram-runtime.mjs review-check [--since ISO]` — read-only диагностика всех зарегистрированных progress scopes: точность task context, finite причины пробелов, наличие baseline, свежие ledger revisions и фактические outbox/digest receipts. Только счётчики, writes=0/sends=0; missing context не считается доставкой. `sameStatusRevisions` не доказывает timestamp-only: причина явно unknown, исходный checkedAt не сохранялся в ledger. `sentDigestJobs` считает уникальные дайджесты, `eventCoveredReceipts` — покрытие исходных событий, их нельзя суммировать как отдельные Telegram-сообщения. Source-material записи не являются проверкой решения и учитываются отдельно.
 
 Опция `--history-demo` того же CLI отправляет максимум2 явно условных сообщения: сводку трёх разных работ и продолжение одной из них через native reply на фактически прочитанный sent receipt. События ledger остаются technical.probe с пустыми fields, рабочие workRefs в outbox демо не сохраняются. Повтор стабильного run-id не пересылает sent job, частичный запуск продолжает только незавершённую часть; `--receipt-only --history-demo` читает ровно2известных job без записи/отправки. Это проверка внешнего транспорта и оформления, а не доказательство естественного учебного изменения или production history transaction; последнюю проверяют интеграционные тесты [истории работы](work-history.md).
+
+
+## Восстановление зависших операций
+
+19.10 подтверждён эксплуатационный сбой: процесс оставался running, но завершённые source/outbox spans отсутствовали больше часа. Остановка превысила бюджеты source close, delivery drain и Firestore terminate. Перезапуск восстановил обработку; транспортная первопричина пока не доказана. PID и возможность нового диагностического подключения не подтверждают здоровье старого клиента.
+
+Проверки Telegram identity и Firestore до старта worker ограничены `TELEGRAM_STARTUP_OPERATION_TIMEOUT_MS` (600000мс) и при зависании также завершают процесс.
+
+Deadline относится к **активной операции**, а не отсутствию изменений. Source start/reconcile и каждый source pipeline process ограничены `TELEGRAM_SOURCE_OPERATION_TIMEOUT_MS` (по умолчанию600000мс), одна итерация доставки — `TELEGRAM_DELIVERY_OPERATION_TIMEOUT_MS` (600000мс), отдельная итерация EducationSync dispatcher — `TELEGRAM_EDUCATION_SYNC_OPERATION_TIMEOUT_MS` (60000мс). Большой inventory требует подходящего операторского бюджета; количество семей не ограничивается. Настройки проверяются до запуска и передаются постоянному процессу installer.
+
+При превышении срока worker пишет безопасный timeout code и завершает **процесс** с exit1. LaunchAgent KeepAlive запускает замену. Одного Promise.race недостаточно: неотменяемый SDK callback мог бы поздно записать данные или отправить сообщение. Новый процесс восстанавливает durable pending/outbox после истечения leases; event IDs, recipient fences и сохранённые receipts препятствуют повторной обработке. Это ограничивает зависание, но не обещает exactly-once внешнего Telegram API при потере ответа после отправки.
+
+Обычный простой не считается зависанием; здоровая операция снимает таймер. JSONL telemetry содержит UTC `at` наряду с monotonic duration. Проверка исходников и тест с отдельным завершаемым процессом не заменяют наблюдение постоянного процесса после выпуска. Readiness проверяет предпосылки доставки; сама по себе она не доказывает свежий МЭШ poll или получение сообщения человеком.
+
+## Проверка реальных изменений МЭШ
+
+`node scripts/telegram-runtime.mjs mesh-delivery-check --since ISO` читает все обнаруженные разрешённые Mesh scopes, notify checkpoints, связанные natural ledger events и outbox receipts. Сравнение использует общий normalizer/diff; текущий delta не выдаётся за уже сохранённое событие. Первый bootstrap остаётся тихим. Политика disappearance не превращает отсутствие записи в удаление.
+
+Окно применяется к `detectedAt`: оценка за прошлый день может быть получена сегодня. После baseline advance доставка проверяется по ledger и receipts, включая точное членство event job в digest. Состояние sent без фактической квитанции не является доказательством доставки; одно групповое сообщение и несколько покрытых событий учитываются отдельно. Отчёт не выводит имена, исходный текст работ, chat IDs или credentials. Event IDs — служебные opaque hashes для адресной операторской сверки.
+
+`--limit N` ограничивает только диагностический запуск и явно выставляет truncated/incomplete; это не ограничение семей сервиса. Lease updatedAt не доказывает успешного наблюдения: отсутствующий timestamp baseline учитывается как unknown. Команда не пишет checkpoints, ledger или outbox и не отправляет сообщений. Повторное включение уже подтверждённого события в EducationSync выполняется отдельной явной командой [диспетчера](education-sync-dispatch.md).
+
+
+## Education sync dispatch
+
+[Диспетчер и подтверждение запуска](education-sync-dispatch.md) описывают отдельную устойчивую очередь запросов в существующий чат Codex, конфигурацию и границы доказательств.

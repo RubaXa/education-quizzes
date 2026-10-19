@@ -49,7 +49,9 @@ describe('launch agent release operations', () => {
     const calls = []
     const operations = createLaunchAgentOperations({ root: f.root, home: f.home, uid: statSync(f.adcPath).uid, platform: 'darwin',
       nodePath: process.execPath, npmCliPath: process.execPath, pythonPath: process.execPath,
-      env: { AGI_EDU_BOT: secret, GOOGLE_APPLICATION_CREDENTIALS: f.adcPath },
+      env: { AGI_EDU_BOT: secret, GOOGLE_APPLICATION_CREDENTIALS: f.adcPath,
+        EDUCATION_SYNC_CODEX_PATH: process.execPath, EDUCATION_SYNC_THREAD_ID: '01a150dc-e067-7cc2-b08f-f573bf83e6e3',
+        EDUCATION_SYNC_PROJECT_ROOT: f.root },
       exec: (...args) => calls.push(args) })
     const result = operations.install({ apply: true })
     const plist = readFileSync(operations.paths.plistPath, 'utf8')
@@ -59,6 +61,9 @@ describe('launch agent release operations', () => {
     expect(statSync(result.tokenPath).mode & 0o077).toBe(0)
     expect(plist).not.toContain(secret)
     expect(plist).toContain(result.tokenPath)
+    expect(plist).toContain('<key>EDUCATION_SYNC_CODEX_PATH</key>')
+    expect(plist).toContain('<key>EDUCATION_SYNC_THREAD_ID</key>')
+    expect(plist).toContain('<key>EDUCATION_SYNC_PROJECT_ROOT</key>')
     expect(plist).toContain(process.execPath)
     expect(calls.map((call) => call[1][0])).toEqual([process.execPath, '--input-type=module', 'bootstrap'])
     expect(calls[0][1]).toContain('--ignore-scripts')

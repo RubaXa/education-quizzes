@@ -40,6 +40,7 @@ export function createLaunchAgentOperations({ root = process.cwd(), home = homed
     const meshDirectory = resolve(absoluteRoot, env.TELEGRAM_MESH_CONNECTION_DIRECTORY || '.local/mesh-connections')
     const familyAccessPath = resolve(absoluteRoot, env.TELEGRAM_FAMILY_ACCESS_PATH || '.local/family-access.json')
     const legacyCredentialsPath = resolve(absoluteRoot, env.TELEGRAM_LEGACY_CREDENTIALS_PATH || '.local/diary/secret.json')
+    const educationSync = resolveEducationSync(env, fs)
     let python
     try { python = pythonPath ?? resolvePythonExecutable(env, fs) } catch { throw safeError('python_runtime_unavailable') }
     if (!python || !fs.existsSync(python) || !fs.statSync(python).isFile() || (fs.statSync(python).mode & 0o111) === 0) {
@@ -55,7 +56,7 @@ export function createLaunchAgentOperations({ root = process.cwd(), home = homed
       if (!canonicalAvailable) fs.accessSync(legacyCredentialsPath, fs.constants?.R_OK ?? constants.R_OK)
     } catch { throw safeError('mesh_credentials_path_unavailable') }
     return { projectId, token, adcPath: resolve(adcPath), meshDirectory, familyAccessPath, legacyCredentialsPath,
-      pythonPath: fs.realpathSync ? fs.realpathSync(python) : realpathSync(python), npmCliPath: resolve(npm) }
+      pythonPath: fs.realpathSync ? fs.realpathSync(python) : realpathSync(python), npmCliPath: resolve(npm), educationSync }
   }
 
   function plan() {
@@ -112,6 +113,16 @@ export function createLaunchAgentOperations({ root = process.cwd(), home = homed
       TELEGRAM_LEGACY_CREDENTIALS_PATH: values.legacyCredentialsPath,
       TELEGRAM_LOG_DIRECTORY: logDirectory,
       TELEGRAM_LOCK_PYTHON: values.pythonPath,
+    }
+    if (values.educationSync) {
+      environment.EDUCATION_SYNC_CODEX_PATH = values.educationSync.codexPath
+      environment.EDUCATION_SYNC_THREAD_ID = values.educationSync.threadId
+      environment.EDUCATION_SYNC_PROJECT_ROOT = values.educationSync.projectRoot
+      if (values.educationSync.remote) environment.EDUCATION_SYNC_REMOTE = values.educationSync.remote
+    }
+    for (const key of ['TELEGRAM_STARTUP_OPERATION_TIMEOUT_MS', 'TELEGRAM_SOURCE_OPERATION_TIMEOUT_MS',
+      'TELEGRAM_DELIVERY_OPERATION_TIMEOUT_MS', 'TELEGRAM_EDUCATION_SYNC_OPERATION_TIMEOUT_MS']) {
+      if (env[key] !== undefined) environment[key] = String(env[key])
     }
     const plist = makePlist({ label: SERVICE_LABEL, nodePath, scriptPath: resolve(release.releasePath, ENTRY),
       args: PERMANENT_WORKER_ARGUMENTS, workingDirectory: release.releasePath, environment, logPath: '/dev/null' })
@@ -208,6 +219,21 @@ export function createLaunchAgentOperations({ root = process.cwd(), home = homed
   function assertHost() {
     if (platform !== 'darwin' || !domain) throw safeError('launchagent_macos_required')
   }
+}
+
+function resolveEducationSync(env, fs) {
+  const codexPath = env.EDUCATION_SYNC_CODEX_PATH
+  const threadId = env.EDUCATION_SYNC_THREAD_ID
+  if (!codexPath && !threadId) return null
+  if (typeof codexPath !== 'string' || !codexPath.startsWith('/') || !fs.existsSync(codexPath)) throw safeError('education_sync_config_unavailable')
+  const executable = fs.statSync(codexPath)
+  if (!executable.isFile() || (executable.mode & 0o111) === 0) throw safeError('education_sync_config_unavailable')
+  if (typeof threadId !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(threadId)) throw safeError('education_sync_config_unavailable')
+  const projectRoot = env.EDUCATION_SYNC_PROJECT_ROOT
+  if (typeof projectRoot !== 'string' || !projectRoot.startsWith('/') || !fs.existsSync(projectRoot) || !fs.statSync(projectRoot).isDirectory()) throw safeError('education_sync_config_unavailable')
+  const remote = env.EDUCATION_SYNC_REMOTE || null
+  if (remote !== null && !remote.startsWith('unix://')) throw safeError('education_sync_config_unavailable')
+  return { codexPath, threadId, projectRoot, remote }
 }
 
 export function dependencyClosure(root, entry = ENTRY, fs = defaultFs) {

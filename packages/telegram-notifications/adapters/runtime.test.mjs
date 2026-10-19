@@ -34,4 +34,19 @@ describe('source runtime wiring', () => {
     expect(JSON.stringify(span)).not.toContain('family-secret')
     expect(JSON.stringify(span)).not.toContain('child-secret')
   })
+
+  it('queues only accepted natural Mesh events when delivery is active', async () => {
+    const queued = []
+    const dispatcher = { enqueueMeshChange: async (eventId) => queued.push(eventId), runOne: async () => false }
+    const runtime = createRuntime({ ...config, educationSync: { threadId: '01a150dc-e067-7cc2-b08f-f573bf83e6e3',
+      codexPath: '/opt/codex', projectRoot: '/workspace/PETR', remote: null } }, {
+      firestore: fakeDb(), enableMeshSource: true, enableDelivery: true,
+      educationSyncDispatcherFactory: () => dispatcher,
+    })
+    runtime.notificationService.accept = async () => ({ status: 'accepted' })
+    await runtime.sourceCoordinator.pipelines.mesh.accept({ source: 'mesh', eventId: 'a'.repeat(64), eventType: 'grade.changed' })
+    await runtime.sourceCoordinator.pipelines.mesh.accept({ source: 'mesh', eventId: 'b'.repeat(64), eventType: 'technical.probe' })
+    await runtime.sourceCoordinator.pipelines.mesh.accept({ source: 'firestore', eventId: 'c'.repeat(64), eventType: 'grade.changed' })
+    expect(queued).toEqual(['a'.repeat(64)])
+  })
 })

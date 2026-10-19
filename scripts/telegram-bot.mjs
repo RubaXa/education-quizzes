@@ -7,6 +7,7 @@ import { createLegacyMeshCredentialCodec } from '../packages/education-runtime/c
 import { createRotatingJsonlSink, createTelemetryFromEnvironment } from '../packages/education-runtime/telemetry.mjs'
 import { acquireWorkerLock } from '../packages/telegram-notifications/operations/process-lock.mjs'
 import { createPrivateLogger, sanitizeOperationalLog } from '../packages/telegram-notifications/operations/private-logger.mjs'
+import { withOperationDeadline } from '../packages/telegram-notifications/operations/operation-deadline.mjs'
 
 /** @see ../docs/product/notifications.md @see ../docs/services/telegram-bot/README.md @see ../docs/services/telegram-bot/operations.md#развёртывание-и-rollout */
 const jsonLog = (level, data = {}) => {
@@ -55,12 +56,17 @@ try {
         enableFirestoreSource: workerFlags.enableFirestoreSource, enableMeshSource: workerFlags.enableMeshSource,
         enableDelivery: workerFlags.enableDelivery, telemetry, legacyCodec, shutdownSignal: shutdownController.signal })
       workerLock.assertHeld()
-      const bot = await runtime.telegram.verifyIdentity()
-      await runtime.verifyFirestore()
+      const startupDeadline = (work) => withOperationDeadline(work, { timeoutMs: config.startupOperationTimeoutMs ?? 600_000,
+        operation: 'startup_verify', onTimeout: () => { activeLogger.error({ code: 'startup_operation_timeout' }); processLike.exit(1) } })
+      const bot = await startupDeadline(runtime.telegram.verifyIdentity).call(runtime.telegram)
+      await startupDeadline(runtime.verifyFirestore).call(runtime)
       activeLogger.info({ code: 'telegram_worker_starting', username: bot.username, deliveryEnabled: workerFlags.enableDelivery,
         firestoreSourceEnabled: workerFlags.enableFirestoreSource, meshSourceEnabled: workerFlags.enableMeshSource })
       workerLock.assertHeld()
       const result = await runWorker({ runtime, enableDelivery: workerFlags.enableDelivery, logger: activeLogger, processLike,
+        sourceOperationTimeoutMs: config.sourceOperationTimeoutMs,
+        deliveryOperationTimeoutMs: config.deliveryOperationTimeoutMs,
+        educationSyncOperationTimeoutMs: config.educationSyncOperationTimeoutMs,
         lock: workerLock, telemetry, onShutdown: () => shutdownController.abort() })
       if (!result.ok) processLike.exitCode = 1
     } catch (error) {
