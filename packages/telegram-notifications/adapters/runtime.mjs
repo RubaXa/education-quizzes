@@ -48,7 +48,7 @@ export function createRuntime(config, { logger = console, linkAuthorizer = null,
   }))
   wrapMethod(notificationService, 'runOne', telemetry, 'telegram.notification.run-one', undefined, 'trace')
   wrapMethod(notificationService.delivery, 'send', telemetry, 'telegram.delivery.send')
-  const educationSyncDispatcher = config.educationSync && enableMeshSource && enableDelivery
+  const educationSyncDispatcher = config.educationSync && (enableMeshSource || enableFirestoreSource) && enableDelivery
     ? educationSyncDispatcherFactory({ store: createFirestoreEducationSyncStore(db), threadId: config.educationSync.threadId,
       codexPath: config.educationSync.codexPath, projectRoot: config.educationSync.projectRoot, remote: config.educationSync.remote }) : null
   if (educationSyncDispatcher) wrapMethod(educationSyncDispatcher, 'runOne', telemetry, 'telegram.education-sync.dispatch')
@@ -62,7 +62,14 @@ export function createRuntime(config, { logger = console, linkAuthorizer = null,
       firestoreSource = createFirestoreSourceAdapter(db)
       sources.push(firestoreSource)
       pipelines.firestore = new SourcePipeline({ source: firestoreSource, checkpoints: createFirestoreSourceCheckpointStore(db),
-        accept: (event) => notificationService.accept(event), mode: enableDelivery ? 'notify' : 'shadow',
+        accept: async (event) => {
+          const result = await notificationService.accept(event)
+          if (educationSyncDispatcher && event?.source === 'firestore'
+            && ['upload.confirmed', 'quiz.submitted'].includes(event.eventType) && /^[a-f0-9]{64}$/.test(event.eventId ?? '')) {
+            await educationSyncDispatcher.enqueueWorkChange(event)
+          }
+          return result
+        }, mode: enableDelivery ? 'notify' : 'shadow',
         workerId: config.instanceId, clock })
       wrapMethod(pipelines.firestore, 'process', telemetry, 'telegram.source-pipeline.process', (scope) => ({
         source: 'firestore', scopeHash: pipelines.firestore.source.scopeKey(scope),

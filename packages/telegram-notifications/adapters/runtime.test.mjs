@@ -43,10 +43,48 @@ describe('source runtime wiring', () => {
       firestore: fakeDb(), enableMeshSource: true, enableDelivery: true,
       educationSyncDispatcherFactory: () => dispatcher,
     })
-    runtime.notificationService.accept = async () => ({ status: 'accepted' })
+    runtime.notificationService.accept = async () => ({ created: true, eventId: 'ledger-id' })
     await runtime.sourceCoordinator.pipelines.mesh.accept({ source: 'mesh', eventId: 'a'.repeat(64), eventType: 'grade.changed' })
     await runtime.sourceCoordinator.pipelines.mesh.accept({ source: 'mesh', eventId: 'b'.repeat(64), eventType: 'technical.probe' })
     await runtime.sourceCoordinator.pipelines.mesh.accept({ source: 'firestore', eventId: 'c'.repeat(64), eventType: 'grade.changed' })
     expect(queued).toEqual(['a'.repeat(64)])
+  })
+
+  it('queues accepted Firestore work events when delivery is active, even without Mesh enabled', async () => {
+    const queued = []
+    const dispatcher = { enqueueMeshChange: async (eventId) => queued.push(['mesh', eventId]),
+      enqueueWorkChange: async (eventId) => queued.push(['work', eventId]), runOne: async () => false }
+    const runtime = createRuntime({ ...config, educationSync: { threadId: '01a150dc-e067-7cc2-b08f-f573bf83e6e3',
+      codexPath: '/opt/codex', projectRoot: '/workspace/PETR' } }, {
+      firestore: fakeDb(), enableFirestoreSource: true, enableDelivery: true,
+      educationSyncDispatcherFactory: () => dispatcher,
+    })
+    runtime.notificationService.accept = async () => ({ created: true, eventId: 'ledger-id' })
+    const workEvent = { source: 'firestore', eventId: 'a'.repeat(64), eventType: 'upload.confirmed',
+      scopeKey: 'b'.repeat(64), sourceEventKey: 'c'.repeat(64) }
+    await runtime.sourceCoordinator.pipelines.firestore.accept(workEvent)
+    const quizEvent = { ...workEvent, eventId: 'e'.repeat(64), sourceEventKey: 'f'.repeat(64), eventType: 'quiz.submitted' }
+    await runtime.sourceCoordinator.pipelines.firestore.accept(quizEvent)
+    runtime.notificationService.accept = async () => ({ created: false, eventId: 'ledger-id' })
+    await runtime.sourceCoordinator.pipelines.firestore.accept(workEvent)
+    for (const eventType of ['quiz.started', 'review.changed', 'technical.probe']) {
+      await runtime.sourceCoordinator.pipelines.firestore.accept({ ...workEvent, eventType, eventId: 'd'.repeat(64) })
+    }
+    expect(queued).toEqual([['work', workEvent], ['work', quizEvent], ['work', workEvent]])
+  })
+
+  it('retries dispatch after a ledger duplicate replay if the first dispatcher write failed', async () => {
+    let attempts = 0
+    const runtime = createRuntime({ ...config, educationSync: { threadId: '01a150dc-e067-7cc2-b08f-f573bf83e6e3',
+      codexPath: '/opt/codex', projectRoot: '/workspace/PETR' } }, {
+      firestore: fakeDb(), enableFirestoreSource: true, enableDelivery: true,
+      educationSyncDispatcherFactory: () => ({ enqueueWorkChange: async () => { attempts += 1; if (attempts === 1) throw new Error('temporary') }, runOne: async () => false }),
+    })
+    runtime.notificationService.accept = async () => ({ created: attempts === 0, eventId: 'ledger-id' })
+    const event = { source: 'firestore', eventId: 'a'.repeat(64), eventType: 'upload.confirmed',
+      scopeKey: 'b'.repeat(64), sourceEventKey: 'c'.repeat(64) }
+    await expect(runtime.sourceCoordinator.pipelines.firestore.accept(event)).rejects.toThrow('temporary')
+    expect(await runtime.sourceCoordinator.pipelines.firestore.accept(event)).toMatchObject({ created: false })
+    expect(attempts).toBe(2)
   })
 })

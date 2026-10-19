@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { createFirestoreEducationSyncStore } from './education-sync-dispatcher.mjs'
+import { createFirestoreEducationSyncStore, workEventDigest } from './education-sync-dispatcher.mjs'
 import { EducationSyncDispatcher } from './education-sync-dispatcher.mjs'
 
 class TransactionalFirestoreFake {
@@ -85,7 +85,7 @@ describe('Firestore EducationSync dispatch store state machine', () => {
     }
     expect(await store.completeClaim({ requestId: claimed.requestId, tokenHash: digest(99), now: iso(30_000) }))
       .toEqual({ status: 'pending' })
-    expect(await store.read()).toMatchObject({ status: 'pending', generation: 6, sendingGeneration: 1,
+    expect(await store.read()).toMatchObject({ status: 'pending', generation: 6, sendingGeneration: null,
       requestId: null, debounceUntil: iso(43_015) })
   })
 
@@ -104,6 +104,102 @@ describe('Firestore EducationSync dispatch store state machine', () => {
     await store.completeClaim({ requestId: retry.requestId, tokenHash: digest(98), now: iso(85_000) })
     await store.markQueued({ requestId: first.requestId, workerId: first.workerId, now: iso(86_000) })
     expect(await store.read()).toMatchObject({ status: 'completed', completedRequestId: first.requestId })
+  })
+
+  it('freezes work-only request classification and generation through retry while preserving later Mesh work', async () => {
+    const { store } = setup()
+    await store.recordSourceChange({ eventDigest: digest(81), kind: 'work', now: iso(), debounceUntil: iso(20_000) })
+    const dispatch = await store.claim({ now: iso(21_000), workerId: 'worker-a' })
+    expect(dispatch.workKinds).toEqual(['work'])
+    await store.markUncertain({ requestId: dispatch.requestId, workerId: dispatch.workerId, now: iso(22_000), code: 'codex_timeout' })
+    await store.recordSourceChange({ eventDigest: digest(82), kind: 'mesh', now: iso(23_000), debounceUntil: iso(43_000) })
+    const retry = await store.claim({ now: iso(83_000), workerId: 'worker-b' })
+    expect(retry).toMatchObject({ requestId: dispatch.requestId, generation: 1, workKinds: ['work'] })
+    expect(await store.read()).toMatchObject({ sendingGeneration: 1, sendingKinds: ['work'], pendingKinds: ['mesh'] })
+  })
+
+  it('starts the next batch with its own kinds after completing the frozen batch', async () => {
+    const { store } = setup()
+    await store.recordSourceChange({ eventDigest: digest(91), kind: 'work', now: iso(), debounceUntil: iso(20_000) })
+    const first = await store.claim({ now: iso(21_000), workerId: 'worker-a' })
+    await store.claimRequest({ requestId: first.requestId, tokenHash: digest(92), now: iso(22_000) })
+    await store.recordSourceChange({ eventDigest: digest(93), kind: 'mesh', now: iso(23_000), debounceUntil: iso(23_000) })
+    await store.completeClaim({ requestId: first.requestId, tokenHash: digest(92), now: iso(24_000) })
+    const second = await store.claim({ now: iso(25_000), workerId: 'worker-b' })
+    expect(second).toMatchObject({ generation: 2, workKinds: ['mesh'] })
+  })
+
+  it('keeps work-only classification and later generations through fail, block, and explicit resume', async () => {
+    const { store } = setup()
+    await store.recordSourceChange({ eventDigest: digest(111), kind: 'work', now: iso(), debounceUntil: iso(20_000) })
+    const first = await store.claim({ now: iso(21_000), workerId: 'worker-a' })
+    await store.claimRequest({ requestId: first.requestId, tokenHash: digest(112), now: iso(21_500) })
+    await store.failClaim({ requestId: first.requestId, tokenHash: digest(112), now: iso(22_000), retryAt: iso(23_000) })
+    const retry = await store.claim({ now: iso(24_000), workerId: 'worker-b' })
+    expect(retry).toMatchObject({ generation: 1, workKinds: ['work'] })
+    await store.claimRequest({ requestId: retry.requestId, tokenHash: digest(113), now: iso(25_000) })
+    await store.recordSourceChange({ eventDigest: digest(114), kind: 'mesh', now: iso(26_000), debounceUntil: iso(46_000) })
+    await store.blockClaim({ requestId: retry.requestId, tokenHash: digest(113), reasonCode: 'manual_review_required', now: iso(27_000) })
+    await store.resumeBlocked({ requestId: retry.requestId, now: iso(48_000) })
+    const resumed = await store.claim({ now: iso(48_001), workerId: 'worker-c' })
+    expect(resumed).toMatchObject({ requestId: retry.requestId, generation: 1, workKinds: ['work'] })
+    expect(await store.read()).toMatchObject({ sendingGeneration: 1, sendingKinds: ['work'], pendingKinds: ['mesh'] })
+  })
+
+  it.each(['queued', 'running', 'uncertain'])('safely retries legacy %s request with missing kind metadata as Mesh, retaining later work', async (status) => {
+    const { db, store } = setup()
+    const legacyRequest = '01a150dc-e067-7cc2-b08f-f573bf83e6e3'
+    db.documents.set('educationSyncDispatch/current', { status, generation: 5, requestId: legacyRequest,
+      sendingGeneration: 3, ...(status === 'queued' ? { queuedAt: iso(-11 * 60_000) } : {}),
+      ...(status === 'running' ? { workflowLeaseUntil: iso(-1) } : {}),
+      ...(status === 'uncertain' ? { retryAt: iso(-1) } : {}) })
+    await store.recordSourceChange({ eventDigest: digest(121), kind: 'work', now: iso(), debounceUntil: iso(20_000) })
+    let claim = await store.claim({ now: iso(21_000), workerId: 'worker-a' })
+    if (status !== 'uncertain') claim = await store.claim({ now: iso(21_001), workerId: 'worker-a' })
+    expect(claim).toMatchObject({ requestId: legacyRequest, generation: 3, workKinds: ['mesh'] })
+    expect(await store.read()).toMatchObject({ sendingGeneration: 3, sendingKinds: ['mesh'], pendingKinds: ['work'] })
+    await store.claimRequest({ requestId: legacyRequest, tokenHash: digest(122), now: iso(22_000) })
+    await store.completeClaim({ requestId: legacyRequest, tokenHash: digest(122), now: iso(23_000) })
+    const next = await store.claim({ now: iso(44_000), workerId: 'worker-b' })
+    expect(next).toMatchObject({ generation: 6, workKinds: ['work'] })
+  })
+
+  it('clears stale legacy sending metadata from a completed generation before accepting new work-only', async () => {
+    const { db, store } = setup()
+    db.documents.set('educationSyncDispatch/current', { status: 'completed', generation: 5, sendingGeneration: 5 })
+    await store.recordSourceChange({ eventDigest: digest(131), kind: 'work', now: iso(), debounceUntil: iso(20_000) })
+    const next = await store.claim({ now: iso(21_000), workerId: 'worker-a' })
+    expect(next).toMatchObject({ generation: 6, workKinds: ['work'] })
+  })
+
+  it.each(['workflow-fail', 'spawn-fail'])('preserves a frozen work retry after a new Mesh event arrives during %s backoff', async (failure) => {
+    const { store } = setup()
+    await store.recordSourceChange({ eventDigest: digest(141), kind: 'work', now: iso(), debounceUntil: iso(20_000) })
+    const first = await store.claim({ now: iso(21_000), workerId: 'worker-a' })
+    if (failure === 'workflow-fail') {
+      await store.claimRequest({ requestId: first.requestId, tokenHash: digest(142), now: iso(22_000) })
+      await store.failClaim({ requestId: first.requestId, tokenHash: digest(142), now: iso(23_000), retryAt: iso(60_000) })
+    } else {
+      await store.fail({ requestId: first.requestId, workerId: first.workerId, now: iso(23_000), retryAt: iso(60_000) })
+    }
+    await store.recordSourceChange({ eventDigest: digest(143), kind: 'mesh', now: iso(24_000), debounceUntil: iso(44_000) })
+    expect(await store.claim({ now: iso(59_999), workerId: 'worker-b' })).toBeNull()
+    const retry = await store.claim({ now: iso(60_000), workerId: 'worker-b' })
+    expect(retry).toMatchObject({ generation: 1, workKinds: ['work'] })
+    expect(await store.read()).toMatchObject({ sendingGeneration: 1, sendingKinds: ['work'], pendingKinds: ['mesh'] })
+  })
+
+  it('deduplicates metadata revisions by immutable Firestore work identity and admits distinct work', async () => {
+    const { store } = setup()
+    const work = { source: 'firestore', eventType: 'upload.confirmed', scopeKey: digest(101), sourceEventKey: digest(102), eventId: digest(103) }
+    const digestA = workEventDigest(work)
+    const digestMetadataRevision = workEventDigest({ ...work, eventId: digest(104) })
+    expect(digestMetadataRevision).toBe(digestA)
+    expect(workEventDigest({ ...work, sourceEventKey: digest(105) })).not.toBe(digestA)
+    await store.recordSourceChange({ eventDigest: digestA, kind: 'work', now: iso(), debounceUntil: iso(20_000) })
+    expect(await store.recordSourceChange({ eventDigest: digestMetadataRevision, kind: 'work', now: iso(1), debounceUntil: iso(20_001) }))
+      .toEqual({ status: 'duplicate' })
+    expect((await store.read()).generation).toBe(1)
   })
 
   it('prevents duplicate request claims and invalidates the expired workflow token after recovery', async () => {
@@ -147,7 +243,7 @@ describe('Firestore EducationSync dispatch store state machine', () => {
   })
 
   it('returns idle without spawning or immediately requeueing when there is no due work', async () => {
-    const store = { recordMeshChange: vi.fn(), read: vi.fn(async () => null), claim: vi.fn(async () => null),
+    const store = { recordSourceChange: vi.fn(), read: vi.fn(async () => null), claim: vi.fn(async () => null),
       markQueued: vi.fn(), markUncertain: vi.fn(), fail: vi.fn(), claimRequest: vi.fn() }
     const spawnProcess = vi.fn()
     const dispatcher = new EducationSyncDispatcher({ store, threadId: '01a150dc-e067-7cc2-b08f-f573bf83e6e3',
@@ -184,9 +280,9 @@ describe('Firestore EducationSync dispatch store state machine', () => {
     expect(await store.resumeBlocked({ requestId: dispatch.requestId, now: iso(60_000) }))
       .toEqual({ status: 'pending', requestId: dispatch.requestId })
     expect(await store.claim({ now: iso(60_000), workerId: 'worker-a' })).toMatchObject({
-      requestId: dispatch.requestId, generation: 2,
+      requestId: dispatch.requestId, generation: 1, workKinds: ['mesh'],
     })
-    expect(await store.read()).toMatchObject({ status: 'sending', sendingGeneration: 2 })
+    expect(await store.read()).toMatchObject({ status: 'sending', sendingGeneration: 1, pendingKinds: ['mesh'] })
   })
 
   it('rejects a block with an unrecognized reason or an expired claim', async () => {

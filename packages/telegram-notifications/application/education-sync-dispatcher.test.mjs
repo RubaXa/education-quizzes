@@ -6,7 +6,7 @@ const THREAD = '01a150dc-e067-7cc2-b08f-f573bf83e6e3'
 
 function fakeStore() {
   const state = { status: 'pending', generation: 1, requestId: 'req-1' }
-  return { state, recordMeshChange: vi.fn(async () => ({ status: 'accepted' })), read: vi.fn(async () => state),
+  return { state, recordSourceChange: vi.fn(async () => ({ status: 'accepted' })), read: vi.fn(async () => state),
     claim: vi.fn(async ({ workerId }) => ({ requestId: state.requestId, generation: state.generation, workerId })),
     markQueued: vi.fn(async (patch) => Object.assign(state, { status: 'queued', ...patch })),
     markUncertain: vi.fn(async (patch) => Object.assign(state, { status: 'uncertain', ...patch })),
@@ -105,5 +105,11 @@ describe('EducationSyncDispatcher', () => {
     expect(message).not.toContain('familyId')
     expect(message).not.toContain('GOOGLE_APPLICATION_CREDENTIALS')
     expect(message).not.toContain('TELEGRAM_FIRESTORE_PROJECT_ID=')
+  })
+
+  it('uses the narrow inbox route for a work-only dispatch', () => {
+    const message = buildMessage('req-work', '/workspace/PETR/scripts/education-sync-dispatch.mjs', ['work'])
+    expect(message).toContain('npm run sync:inbox')
+    expect(message).toContain('do not run full project.collect or collect Mesh')
   })
 })

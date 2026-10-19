@@ -4434,16 +4434,16 @@
       }
     },
     "packages/telegram-notifications/adapters/runtime.mjs": {
-      "sha256": "b31e7615235d51a3e09a1ee3d2764960b548c709e858914668474d117f34bafe",
+      "sha256": "e53316bb596d18cac433e10d872936218d885287be94afb90c289d5da664c195",
       "record": "docs/decisions/telegram-sync-recovery-2026-10-19.md",
       "specs": [
-        "docs/services/telegram-bot/operations.md",
-        "docs/shared/server-runtime.md"
+        "docs/services/telegram-bot/education-sync-dispatch.md"
       ],
       "tests": [
-        "packages/telegram-notifications/operations/operation-deadline.test.mjs",
-        "packages/telegram-notifications/adapters/worker-loop.test.mjs",
-        "packages/telegram-notifications/source-pipeline.test.mjs"
+        "packages/telegram-notifications/adapters/runtime.test.mjs",
+        "packages/telegram-notifications/application/education-sync-dispatch-store.test.mjs",
+        "packages/telegram-notifications/application/education-sync-dispatcher.test.mjs",
+        "scripts/education-sync-dispatch.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
@@ -5406,13 +5406,13 @@
       }
     },
     "packages/telegram-notifications/application/education-sync-dispatcher.mjs": {
-      "sha256": "ef271a19b988bd92f30491faae328e2ae90c238a1f8e3a21d8a8a61d6793a98b",
+      "sha256": "78efeefe474151c24c2315165ce0a380abdd09e013105bd6bd2ba2dbf291f9eb",
       "record": "docs/decisions/telegram-sync-recovery-2026-10-19.md",
       "specs": [
-        "docs/services/telegram-bot/education-sync-dispatch.md",
-        "docs/shared/server-runtime.md"
+        "docs/services/telegram-bot/education-sync-dispatch.md"
       ],
       "tests": [
+        "packages/telegram-notifications/adapters/runtime.test.mjs",
         "packages/telegram-notifications/application/education-sync-dispatch-store.test.mjs",
         "packages/telegram-notifications/application/education-sync-dispatcher.test.mjs",
         "scripts/education-sync-dispatch.test.mjs"
@@ -5456,13 +5456,13 @@
       }
     },
     "scripts/education-sync-dispatch.mjs": {
-      "sha256": "581e2f3055be7d3c805f891d69eac97252a33dcfee9b5dad6194974b54b1f8c9",
+      "sha256": "ed80e364bdd8cfc89bd4cd7b27d004f8bcc2ada4ee816a07da1b682c4b542aea",
       "record": "docs/decisions/telegram-sync-recovery-2026-10-19.md",
       "specs": [
-        "docs/services/telegram-bot/education-sync-dispatch.md",
-        "docs/shared/server-runtime.md"
+        "docs/services/telegram-bot/education-sync-dispatch.md"
       ],
       "tests": [
+        "packages/telegram-notifications/adapters/runtime.test.mjs",
         "packages/telegram-notifications/application/education-sync-dispatch-store.test.mjs",
         "packages/telegram-notifications/application/education-sync-dispatcher.test.mjs",
         "scripts/education-sync-dispatch.test.mjs"

@@ -55,7 +55,11 @@ sections:
 
 Opt-in задаёт `EDUCATION_SYNC_CODEX_PATH` (абсолютный исполняемый CLI), `EDUCATION_SYNC_THREAD_ID` (существующий UUID), `EDUCATION_SYNC_PROJECT_ROOT` (актуальный основной checkout Education с операторским CLI). Допустим опциональный `EDUCATION_SYNC_REMOTE` с локальным unix endpoint; отсутствие remote использует стандартный transport CLI. Частичная/неверная конфигурация отклоняется. Installer проверяет пути и переносит настройки в постоянный LaunchAgent; claim workflow работает из основного checkout, не из сокращённого worker release.
 
-Операторские команды `node scripts/education-sync-dispatch.mjs status|claim|heartbeat|complete|fail|block|resume` показывают различимые стадии; credential token не выводится. `enqueue-event --event-id HASH` предназначен для явного восстановления уже принятого естественного события: адресно читает ledger, проверяет Mesh type и текущего зарегистрированного владельца. Это не создание фиктивной оценки или ДЗ. Повтор события идемпотентен. Read-only [mesh-delivery-check](operations.md#проверка-реальных-изменений-мэш) даёт event IDs и фактические квитанции без повторной отправки.
+Операторские команды `node scripts/education-sync-dispatch.mjs status|claim|heartbeat|complete|fail|block|resume` показывают различимые стадии; credential token не выводится. `events --since ISO` выдаёт ограниченный список последних opaque event IDs без payload. `enqueue-event --event-id HASH` адресно читает ledger, проверяет допустимый Mesh или подтверждённый Firestore work type и текущего зарегистрированного владельца. Work дедуплицируется по хешированным scope/work identity/type, чтобы метаданные не запускали повторную работу. Это не создание фиктивной оценки или ДЗ.
+
+Для Firestore `upload.confirmed` и `quiz.submitted` запускается только узкий inbox review (`npm run sync:inbox`). `quiz.started`, `review.changed`, `technical.probe` и shadow mode запрос не создают. Mesh и смешанные пачки сохраняют полный текущий `$education-sync` путь. Классификация конечной пачки (`mesh`, `work`) фиксируется при claim; новые события накапливаются отдельно для следующего поколения. `status` показывает эти ограниченные виды без source payload. В legacy state без kind arrays активное незавершённое поколение консервативно считается Mesh, чтобы не потерять ранее принятое Mesh work; завершённые state начинают новый batch чисто.
+
+Этот узкий триггер не реализует все адресные change plans для экономии полного Mesh workflow; Mesh и смешанный запуск остаются существующим полным безопасным сценарием.
 
 ## Проверки и статус выпуска
 
