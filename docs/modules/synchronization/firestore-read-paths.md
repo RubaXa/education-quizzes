@@ -51,7 +51,7 @@ AST-проход по продуктовым `src/`, `scripts/`, `sync/`, `packa
 
 `mesh-delivery-check` — явная read-only диагностика: все разрешённые scopes из общего registry, один notify checkpoint на scope, адресные ledger queries по sourceEventKey с последующей строгой проверкой family/child/scope, outbox по eventId и точный groupedInto digest с проверкой eventJobIds. Окно detectedAt определяет отчёт; технический limit явно делает охват неполным. Проверка не добавляет фоновых observers и не вызывается из PWA. SDK counters не выдаются за billed reads.
 
-EducationSync dispatcher — opt-in административный consumer: транзакционно читает один event-dedupe документ и один current queue документ при принятом Mesh delta; в idle loop читает только current с bounded backoff, не сканирует школьные данные. Claim/heartbeat/complete/fail читают тот же точный request и проверяют state/token fencing. Явный enqueue-event адресно читает существующий natural Mesh ledger event и текущий семейный registry для owner validation. Полная синхронизация использует прежний operator workflow; отдельного повторного сканера учебных данных нет.
+EducationSync dispatcher — opt-in административный consumer: транзакционно читает один event-dedupe документ и один current queue документ при принятом Mesh delta; в idle loop читает только current с bounded backoff, не сканирует школьные данные. Claim/heartbeat/complete/fail/block/resume читают тот же точный request и проверяют state/token fencing. Явный enqueue-event адресно читает существующий natural Mesh ledger event и текущий семейный registry для owner validation. Полная синхронизация использует прежний operator workflow; отдельного повторного сканера учебных данных нет.
 
 ## Решение по текущим классам данных
 

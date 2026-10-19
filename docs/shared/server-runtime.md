@@ -3,7 +3,7 @@ id: shared.server-runtime
 status: accepted
 implementation: partial
 created: 2026-10-17
-updated: 2026-10-17
+updated: 2026-10-19
 parent: shared.data
 uses:
   - module.families
@@ -50,10 +50,12 @@ Token refresh сохраняет только общие token/refreshToken, а�
 
 Один `TelemetryPort` для обоих consumers: trace/span/parent IDs, monotonic duration, operation/stage, consumer/source, safe outcome и счётчики SDK/HTTP attempts, retries, cache hits/misses и ожидания account lock. Одинаковые операции используют общие имена и единицы. Идентичности — opaque hashes; имён, исходных URL, текста сообщений, токенов, ответов и raw exceptions в trace нет. Общая wall duration и перекрывающиеся spans показываются отдельно; суммы parallel spans не объявляются временем запуска. Firestore SDK returned-document counters учитываются инструментированным клиентом один раз; graph projection/page counters отдельны. SDK calls/document delivery не выдаются за billed Firestore reads.
 
+Каждая завершённая JSONL запись содержит UTC at и monotonic duration; отсутствие завершённых операций нельзя подменять проверкой PID. Active operation watchdog Telegram завершает зависший процесс, а постоянный host восстанавливает его по [операционному контракту](../services/telegram-bot/operations.md#восстановление-зависших-операций).
+
 Локальный JSONL sink с rotation и0600 — первый exporter, интерфейс допускает внешний exporter без изменения use cases. Trace context передаётся из operator wrapper в дочерний CLI и из source observation в логи приёма/доставки через устойчивые event IDs. Ошибка exporter не должна менять учебные данные или ломать доставку; пропуски telemetry видимы счётчиком.
 
 ## Проверка и эксплуатация
 
 Проверки исходников покрывают owner/revocation/legacy/multiple-account cases, pagination/partial family failure, child-isolated sessions, cross-process account contention, refresh persistence failure и redaction/counter contracts. Это регрессии реализации, не нагрузочное доказательство. Synthetic load run с параметрами графа, p50/p95, wall time, memory/read counts и пределами доказательства ещё нужен; продуктового cap семей нет, ёмкость одного хоста не установлена.
 
-Ограниченная реальная end-to-end цепочка и load evidence ещё не выполнены этим изменением; диагностические данные не маскируются под оценки/ДЗ. Постоянный процесс должен получать секреты вне Git/argv/plist, поддерживать singleton/restart/backoff, ротацию журналов, status и rollback. Локальный LaunchAgent работает только при доступном Mac/сеансе; это не обещание доступности выключенного хоста. Telegram привязка требует подтверждения пользователя в личном чате и текущего семейного права; тестовый получатель не выводится из username или догадки.
+Первый срез17.10 сам не доказывал реальную цепочку. Актуальная [приёмка19.10](../decisions/telegram-sync-recovery-2026-10-19.md) различает93/93complete Mesh scopes,5natural событий с1Telegram receipt и отдельно подтверждённый запуск общего EducationSync. Полная публикация sync имеет собственные зависимости/блокировки; диагностические данные не маскируются под оценки/ДЗ. Постоянный процесс должен получать секреты вне Git/argv/plist, поддерживать singleton/restart/backoff, ротацию журналов, status и rollback. Локальный LaunchAgent работает только при доступном Mac/сеансе; это не обещание доступности выключенного хоста. Telegram привязка требует подтверждения пользователя в личном чате и текущего семейного права; тестовый получатель не выводится из username или догадки.

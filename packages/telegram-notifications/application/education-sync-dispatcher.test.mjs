@@ -7,12 +7,12 @@ const THREAD = '01a150dc-e067-7cc2-b08f-f573bf83e6e3'
 function fakeStore() {
   const state = { status: 'pending', generation: 1, requestId: 'req-1' }
   return { state, recordMeshChange: vi.fn(async () => ({ status: 'accepted' })), read: vi.fn(async () => state),
-    claim: vi.fn(async () => ({ requestId: state.requestId, generation: state.generation })),
+    claim: vi.fn(async ({ workerId }) => ({ requestId: state.requestId, generation: state.generation, workerId })),
     markQueued: vi.fn(async (patch) => Object.assign(state, { status: 'queued', ...patch })),
     markUncertain: vi.fn(async (patch) => Object.assign(state, { status: 'uncertain', ...patch })),
-    complete: vi.fn(async () => ({ status: 'completed' })), fail: vi.fn(async () => ({ status: 'pending' })),
+    fail: vi.fn(async () => ({ status: 'pending' })),
     claimRequest: vi.fn(async () => ({ status: 'claimed' })),
-    release: vi.fn() }
+  }
 }
 
 describe('EducationSyncDispatcher', () => {
@@ -38,8 +38,7 @@ describe('EducationSyncDispatcher', () => {
         GOOGLE_APPLICATION_CREDENTIALS: '/private/adc.json', AWS_ACCESS_KEY_ID: 'secret-id' },
       clock: () => new Date('2026-10-19T10:00:00Z') })
     expect(await dispatcher.dispatchDue()).toEqual({ status: 'queued', requestId: 'req-1' })
-    expect(store.markQueued).toHaveBeenCalledWith({ requestId: 'req-1', now: '2026-10-19T10:00:00.000Z' })
-    expect(store.complete).not.toHaveBeenCalled()
+    expect(store.markQueued).toHaveBeenCalledWith({ requestId: 'req-1', workerId: expect.any(String), now: '2026-10-19T10:00:00.000Z' })
     expect(childOptions.env).toMatchObject({ PATH: '/bin', CODEX_HOME: '/Users/test/.codex' })
     expect(childOptions.env).not.toHaveProperty('AGI_EDU_BOT')
     expect(childOptions.env).not.toHaveProperty('TELEGRAM_TOKEN_FILE')
@@ -54,7 +53,7 @@ describe('EducationSyncDispatcher', () => {
       projectRoot: '/workspace/PETR',
       spawnProcess: () => { queueMicrotask(() => child.emit('close', 1)); return child } })
     expect(await dispatcher.dispatchDue()).toEqual({ status: 'uncertain', requestId: 'req-1', code: 'codex_exit_nonzero' })
-    expect(store.markUncertain).toHaveBeenCalledWith({ requestId: 'req-1', now: expect.any(String), code: 'codex_exit_nonzero' })
+    expect(store.markUncertain).toHaveBeenCalledWith({ requestId: 'req-1', workerId: expect.any(String), now: expect.any(String), code: 'codex_exit_nonzero' })
   })
 
   it('waits through TERM and KILL before fencing a hung CLI attempt as uncertain', async () => {
@@ -83,7 +82,7 @@ describe('EducationSyncDispatcher', () => {
     const dispatcher = new EducationSyncDispatcher({ store, threadId: THREAD, codexPath: '/missing/codex', projectRoot: '/workspace/PETR',
       spawnProcess: () => { queueMicrotask(() => child.emit('error', Object.assign(new Error('ENOENT'), { code: 'ENOENT' }))); return child } })
     expect(await dispatcher.dispatchDue()).toEqual({ status: 'retry', requestId: 'req-1', code: 'codex_spawn_failed' })
-    expect(store.fail).toHaveBeenCalledWith(expect.objectContaining({ requestId: 'req-1' }))
+    expect(store.fail).toHaveBeenCalledWith(expect.objectContaining({ requestId: 'req-1', workerId: expect.any(String) }))
   })
 
   it('stores the bounded official queue receipt identifier', async () => {
@@ -93,7 +92,7 @@ describe('EducationSyncDispatcher', () => {
     const dispatcher = new EducationSyncDispatcher({ store, threadId: THREAD, codexPath: '/opt/codex', projectRoot: '/workspace/PETR',
       spawnProcess: () => { queueMicrotask(() => { child.stdout.emit('data', Buffer.from(`Queued message ${receipt}\n`)); child.emit('close', 0) }); return child } })
     expect(await dispatcher.dispatchDue()).toMatchObject({ status: 'queued' })
-    expect(store.markQueued).toHaveBeenCalledWith(expect.objectContaining({ queueReceiptId: receipt }))
+    expect(store.markQueued).toHaveBeenCalledWith(expect.objectContaining({ workerId: expect.any(String), queueReceiptId: receipt }))
   })
 
   it('does not interpolate source values into the queued prompt', () => {
@@ -101,7 +100,10 @@ describe('EducationSyncDispatcher', () => {
     expect(message).toContain('$education-sync')
     expect(message).toContain('req-1')
     expect(message).toContain(`'${process.execPath}' '/workspace/PETR/scripts/education-sync-dispatch.mjs'`)
+    expect(message).toContain('block --request req-1')
+    expect(message).toContain('--reason permission_required')
     expect(message).not.toContain('familyId')
-    expect(message).not.toContain('credentials')
+    expect(message).not.toContain('GOOGLE_APPLICATION_CREDENTIALS')
+    expect(message).not.toContain('TELEGRAM_FIRESTORE_PROJECT_ID=')
   })
 })

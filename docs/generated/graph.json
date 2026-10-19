@@ -9108,7 +9108,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-17",
-      "updated": "2026-10-17",
+      "updated": "2026-10-19",
       "parent": "shared.data",
       "uses": [
         "module.families",
