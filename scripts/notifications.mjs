@@ -7,6 +7,8 @@ import { YandexDiskStorage } from '../storage/yandex-disk.mjs'
 import { notificationId, stageFamilyNotice, taskContext } from '../storage/inbox-notifications.mjs'
 import { loadReleaseNote } from './release-note.mjs'
 import { stageSchoolAlerts } from '../diary/application/school-alerts.mjs'
+import { assertGradeNoticeOwner, createGradeNotices, gradeNoticeBackfill } from '../day/grade-notice-backfill.mjs'
+import { meshChildIdentityId } from '../packages/education-runtime/identity.mjs'
 
 /** Publish meaningful, source-linked notices as Firestore data; image bytes live on Yandex Disk.
  * @see ../docs/modules/notifications/inbox.md#notification-producers
@@ -158,8 +160,39 @@ async function publishSchoolAlerts() {
   console.log(JSON.stringify({ sourceDate: snapshots[0].fetchedAt, recipients }))
 }
 
-if (command === 'publish' && first && !second) await publishRelease(first)
+/** @see ../docs/modules/notifications/inbox.md#notification-producers */
+async function backfillGrades(beforePath, afterPath) {
+  const sourceRoot = resolve(local, 'diary')
+  for (const path of [beforePath, afterPath]) if (!resolve(path).startsWith(`${sourceRoot}/`)) fail('Нужны сохранённые журналы текущего локального ребёнка.')
+  const before = JSON.parse(readFileSync(resolve(beforePath), 'utf8'))
+  const after = JSON.parse(readFileSync(resolve(afterPath), 'utf8'))
+  const ledger = JSON.parse(readFileSync(resolve('../learner/grade-snapshot.json'), 'utf8'))
+  const owner = JSON.parse(readFileSync(resolve(local, 'family-access.json'), 'utf8')).legacyDayOwner
+  if (!owner?.familyId || !owner?.childId) fail('Нет подтверждённой семейной связи.')
+  const family = await db.doc(`families/${owner.familyId}`).get()
+  const child = await db.doc(`families/${owner.familyId}/children/${owner.childId}`).get()
+  const identityId = meshChildIdentityId(child.data()?.meshPersonId)
+  if (!family.exists || !child.exists || !identityId) fail('Нет действующего владельца МЭШ.')
+  const identity = await db.doc(`sourceIdentities/${identityId}`).get()
+  assertGradeNoticeOwner(before, after, { ...owner, family: family.data(), child: child.data(),
+    identity: identity.exists ? { ...identity.data(), id: identity.id } : null })
+  const notices = gradeNoticeBackfill(before, after, ledger, owner.childId)
+  const members = await db.collection(`families/${owner.familyId}/members`).get()
+  const recipients = members.docs.filter((member) => member.data().active === true
+    && ['parent', 'student'].includes(member.data().role) && member.data().childIds?.includes(owner.childId))
+  if (notices.length && !recipients.length) fail('Нет подтверждённых адресатов.')
+  const refs = notices.flatMap((notice) => recipients.map((member) => db.doc(`users/${member.id}/inbox/${notificationId(notice.key)}`)))
+  const created = await createGradeNotices(db, owner, notices)
+  const readback = refs.length ? await db.getAll(...refs) : []
+  if (readback.some((doc) => !doc.exists || doc.data().familyId !== owner.familyId
+    || doc.data().childId !== owner.childId || doc.data().type !== 'grade_added')) fail('Уведомления оценок не подтвердились.')
+  console.log(JSON.stringify({ grades: notices.length, recipientDocuments: refs.length,
+    created, verified: true }))
+}
+
+if (command === 'backfill-grades' && first && second) await backfillGrades(first, second)
+else if (command === 'publish' && first && !second) await publishRelease(first)
 else if (command === 'backfill-review' && first && second) await backfillReview(first, second)
 else if (command === 'backfill-parent' && !first) await backfillParentDecisions()
 else if (command === 'school-alerts' && !first) await publishSchoolAlerts()
-else fail('Использование: notifications publish .local/release.json | backfill-review YYYY-MM-DD taskId | backfill-parent | school-alerts')
+else fail('Использование: notifications publish .local/release.json | backfill-review YYYY-MM-DD taskId | backfill-grades BEFORE.json AFTER.json | backfill-parent | school-alerts')

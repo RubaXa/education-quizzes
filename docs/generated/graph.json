@@ -557,6 +557,29 @@
       "path": "docs/decisions/grade-average-ui-kit-2026-10-18.md"
     },
     {
+      "id": "decision.grade-notice-recovery-2026-10-19",
+      "status": "accepted",
+      "implementation": "implemented",
+      "parent": "module.notifications.inbox",
+      "uses": [
+        "module.school-diary.grades"
+      ],
+      "created": "2026-10-19",
+      "updated": "2026-10-19",
+      "consumers": [
+        "Education sync operator"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/grade-notice-recovery-2026-10-19.md"
+    },
+    {
       "id": "decision.ldd-copy-button-2026-10-19",
       "status": "accepted",
       "implementation": "implemented",
@@ -2211,6 +2234,20 @@
       "consumer": "`scripts/day.mjs`"
     },
     {
+      "id": "file:day/grade-notice-backfill.mjs",
+      "path": "day/grade-notice-backfill.mjs",
+      "kind": "artifact",
+      "purpose": "Восстановление пропущенных событий новых оценок по двум полным журналам с прежним ключом дедупликации",
+      "consumer": "`notifications backfill-grades`"
+    },
+    {
+      "id": "file:day/grade-notice-backfill.test.mjs",
+      "path": "day/grade-notice-backfill.test.mjs",
+      "kind": "verification",
+      "purpose": "Проверки добавления задним числом, повторов, исправлений и неполных источников",
+      "consumer": "Vitest"
+    },
+    {
       "id": "file:day/grade-publication.mjs",
       "path": "day/grade-publication.mjs",
       "kind": "artifact",
@@ -3754,7 +3791,7 @@
       "id": "file:scripts/notifications.mjs",
       "path": "scripts/notifications.mjs",
       "kind": "artifact",
-      "purpose": "Выпуск изменений продукта и сверенный backfill результата/родительского решения",
+      "purpose": "Выпуск изменений продукта и сверенный backfill результата, оценок и родительского решения",
       "consumer": "Оператор; Firestore; `NotificationBell`"
     },
     {
@@ -6532,6 +6569,7 @@
         "web inbox frontend"
       ],
       "code": [
+        "day/grade-notice-backfill.mjs",
         "scripts/day.mjs",
         "scripts/notifications.mjs",
         "scripts/release-note.mjs",
@@ -9401,6 +9439,11 @@
       "type": "uses"
     },
     {
+      "from": "decision.grade-notice-recovery-2026-10-19",
+      "to": "module.school-diary.grades",
+      "type": "uses"
+    },
+    {
       "from": "decision.ldd-copy-button-2026-10-19",
       "to": "module.families.browser-access-trace",
       "type": "uses"
@@ -9853,6 +9896,11 @@
     {
       "from": "file:day/family-source-graph.mjs",
       "to": "module.materials.family-library",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/grade-notice-backfill.mjs",
+      "to": "module.notifications.inbox",
       "type": "implements"
     },
     {
@@ -13559,6 +13607,16 @@
       "from": "module.notifications.events",
       "to": "service.telegram-bot.ports-and-events",
       "type": "uses"
+    },
+    {
+      "from": "module.notifications.inbox",
+      "to": "decision.grade-notice-recovery-2026-10-19",
+      "type": "contains"
+    },
+    {
+      "from": "module.notifications.inbox",
+      "to": "file:day/grade-notice-backfill.test.mjs",
+      "type": "verified-by"
     },
     {
       "from": "module.notifications.inbox",
