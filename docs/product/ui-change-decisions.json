@@ -18,20 +18,20 @@
       }
     },
     "src/components/DayCalendar.tsx": {
-      "sha256": "cbda3b26288138a8551971b63c88ce3ef2da005042db71fe55dbc2672776ec98",
-      "record": "docs/decisions/pupil-vacations-2026-10-19.md",
+      "sha256": "44952177dac279eaa5dc4bef9d13214ea63ef7c59e0fb32f9203218cace3aa97",
+      "record": "docs/decisions/calendar-fixed-height-2026-10-19.md",
       "specs": [
-        "docs/modules/school-diary/school-calendar.md"
+        "docs/modules/school-diary/school-calendar.md",
+        "docs/shared/design/README.md"
       ],
       "tests": [
-        "day/school-calendar.test.mjs",
-        "sync/school-calendar-publication.test.mjs",
+        "scripts/check-schedule-viewport.test.mjs",
         "src/components/DayCalendar.test.tsx",
         "src/DayDashboard.warmStart.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 просит выделить каникулы красивым блоком дней, получая даты только из МЭШ конкретного ученика."
+        "evidence": "Родитель19.10 показал рост высоты/невыровненные дни и прямо требует сохранить прежние размеры календаря при выделении каникул."
       }
     },
     "sync/school-calendar-publication.mjs": {
@@ -1641,20 +1641,20 @@
       }
     },
     "src/DayDashboard.css": {
-      "sha256": "b180dd5b04e04a84fd78b250576c0c81e754ddefef4ba40cb967e5b23d5435ad",
-      "record": "docs/decisions/pupil-vacations-2026-10-19.md",
+      "sha256": "6575f1fb6a3fb4667cb861c260a27f2ddc761d098d071595b003c44d89a1a501",
+      "record": "docs/decisions/calendar-fixed-height-2026-10-19.md",
       "specs": [
-        "docs/modules/school-diary/school-calendar.md"
+        "docs/modules/school-diary/school-calendar.md",
+        "docs/shared/design/README.md"
       ],
       "tests": [
-        "day/school-calendar.test.mjs",
-        "sync/school-calendar-publication.test.mjs",
+        "scripts/check-schedule-viewport.test.mjs",
         "src/components/DayCalendar.test.tsx",
         "src/DayDashboard.warmStart.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 просит выделить каникулы красивым блоком дней, получая даты только из МЭШ конкретного ученика."
+        "evidence": "Родитель19.10 показал рост высоты/невыровненные дни и прямо требует сохранить прежние размеры календаря при выделении каникул."
       }
     },
     "src/lib/assignmentPresentation.ts": {
@@ -1750,23 +1750,20 @@
       }
     },
     "scripts/check-schedule-viewport.mjs": {
-      "sha256": "c5994b021af9b8a3719cf620f600486f93ddf4aadeed78b8807802cbd303f53a",
-      "record": "docs/decisions/lesson-countdowns-2026-10-15.md",
+      "sha256": "899c2aaeb0fa0e836e1c62a8bd9d28257cbf413917fdd598ea18662b972ae345",
+      "record": "docs/decisions/calendar-fixed-height-2026-10-19.md",
       "specs": [
-        "docs/modules/school-diary/dashboard.md",
-        "docs/shared/design/README.md",
-        "docs/shared/design/statuses.md"
+        "docs/modules/school-diary/school-calendar.md",
+        "docs/shared/design/README.md"
       ],
       "tests": [
+        "scripts/check-schedule-viewport.test.mjs",
+        "src/components/DayCalendar.test.tsx",
         "src/DayDashboard.warmStart.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 15.10.2026 со скриншотами расписания: песочные часы и отсчёт только у ближайшего будущего урока, таймер и отсчёт до конца вместо слова «Идёт» у текущего."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "699ecfd1dd6dad5e22d82905d494cc254811ef35023c2d9d1daea5a1618af008"
+        "evidence": "Родитель19.10 показал рост высоты/невыровненные дни и прямо требует сохранить прежние размеры календаря при выделении каникул."
       }
     },
     "scripts/sync-inbox.mjs": {

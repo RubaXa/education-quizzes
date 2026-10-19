@@ -1,5 +1,6 @@
 /** @see ../../docs/modules/school-diary/school-calendar.md#представление */
 /** @see ../../docs/decisions/pupil-vacations-2026-10-19.md */
+/** @see ../../docs/decisions/calendar-fixed-height-2026-10-19.md */
 import type { Ref } from 'react'
 import { CalendarDays, Sun } from 'lucide-react'
 import type { IndexedDay } from '@/lib/dayDashboardStore'
@@ -18,6 +19,9 @@ export default function DayCalendar({ days, schoolCalendar, today, selectedDate,
   days: IndexedDay[]; schoolCalendar?: SchoolCalendar; today: string; selectedDate: string;
   onSelect: (date: string) => void; stripRef?: Ref<HTMLDivElement>
 }) {
+  const groups = schoolCalendarGroups(days, schoolCalendar)
+  const vacationDescription = groups.filter(group => group.vacation).map(group => `${group.vacation!.title}: ${vacationRange(group.vacation!)} · МЭШ`).join('; ')
+  const vacationDates = groups.filter(group => group.vacation).map(group => vacationRange(group.vacation!)).join('; ')
   function renderDay(day: IndexedDay, vacation?: Vacation) {
     const weekend = [0, 6].includes(new Date(`${day.date}T12:00:00Z`).getUTCDay())
     return <button key={day.date} data-date={day.date} type="button"
@@ -29,10 +33,11 @@ export default function DayCalendar({ days, schoolCalendar, today, selectedDate,
     </button>
   }
   return <section className="day-dashboard-calendar" aria-label="Выбор дня">
-    <div className="day-dashboard-heading"><div><CalendarDays size={20} /><h2>Выберите день</h2></div></div>
-    <div className="day-dashboard-dates" ref={stripRef}>{schoolCalendarGroups(days, schoolCalendar).map(group => group.vacation
-      ? <div className="day-dashboard-vacation" key={group.days[0].date} role="group" aria-label={`${group.vacation.title}: ${vacationRange(group.vacation)} · МЭШ`}>
-        <div className="day-dashboard-vacation-heading" title={group.vacation.title}><Sun size={15} aria-hidden="true" /><b>Каникулы</b><span>{vacationRange(group.vacation)}</span></div>
+    <div className="day-dashboard-heading"><div><CalendarDays size={20} /><h2>Выберите день</h2></div>
+      {vacationDescription && <span className="day-dashboard-vacation-legend" title={vacationDescription} aria-label={vacationDescription}><Sun size={15} aria-hidden="true" /><span>Каникулы</span><span className="day-dashboard-vacation-range">{vacationDates}</span></span>}
+    </div>
+    <div className="day-dashboard-dates" ref={stripRef}>{groups.map(group => group.vacation
+      ? <div className="day-dashboard-vacation" key={group.days[0].date} role="group" title={`${group.vacation.title}: ${vacationRange(group.vacation)}`} aria-label={`${group.vacation.title}: ${vacationRange(group.vacation)} · МЭШ`}>
         <div className="day-dashboard-vacation-days">{group.days.map(day => renderDay(day, group.vacation))}</div>
       </div> : renderDay(group.days[0]))}</div>
   </section>

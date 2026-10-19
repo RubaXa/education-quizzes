@@ -20,6 +20,9 @@ describe('pupil calendar control', () => {
     try {
       await act(async () => root.render(<DayCalendar days={days} schoolCalendar={calendar} today="2026-10-24" selectedDate="2026-10-25" onSelect={onSelect} stripRef={ref} />))
       expect(host.querySelectorAll('.day-dashboard-vacation')).toHaveLength(1)
+      expect(host.querySelector('.day-dashboard-vacation .day-dashboard-vacation-heading')).toBeNull()
+      expect(host.querySelector('.day-dashboard-heading .day-dashboard-vacation-legend')?.textContent).toContain('Каникулы')
+      expect(host.querySelector('.day-dashboard-vacation-legend')?.getAttribute('title')).toContain('24 окт. — 1 нояб.')
       expect(host.querySelector('.day-dashboard-vacation')?.getAttribute('aria-label')).toContain('24 окт. — 1 нояб.')
       expect(host.querySelectorAll('.day-dashboard-vacation button')).toHaveLength(2)
       expect(host.querySelector('[aria-current="date"]')?.getAttribute('data-date')).toBe('2026-10-24')
