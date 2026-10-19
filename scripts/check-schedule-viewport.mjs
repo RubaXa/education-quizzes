@@ -1,11 +1,15 @@
 /** Browser geometry regression for compact schedule rows.
  * @see ../docs/shared/design/README.md#mobile-card-headings
+ * @see ../docs/decisions/calendar-fixed-height-2026-10-19.md
  */
 import { spawn } from 'node:child_process'
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
+import { createElement } from 'react'
+import { renderToStaticMarkup } from 'react-dom/server'
+import { createServer } from 'vite'
 
 const root = resolve(import.meta.dirname, '..')
 const css = readFileSync(resolve(root, 'src/DayDashboard.css'), 'utf8')
@@ -26,6 +30,38 @@ const rows = [
   ['Физическая культура', '⸻', 'none'],
 ]
 const screenshotDir = process.env.SCHEDULE_SCREENSHOT_DIR
+// Render the shipped calendar rather than duplicating its JSX in a fixture.
+// @see ../docs/modules/school-diary/school-calendar.md#представление
+const vite = await createServer({ root, server: { middlewareMode: true, hmr: false }, appType: 'custom' })
+let calendarFixture
+try {
+  const { default: Calendar } = await vite.ssrLoadModule('/src/components/DayCalendar.tsx')
+  const calendar = { schemaVersion: 1, source: 'mesh', from: '2026-09-01', to: '2027-08-31', revision: 'a'.repeat(64),
+    checkedAt: '2026-10-19T00:00:00Z', vacations: [{ from: '2026-10-24', to: '2026-11-01', title: 'Каникулы · геометрический пример' }] }
+  const days = Array.from({ length: 18 }, (_, i) => ({ date: new Date(Date.UTC(2026, 9, 17 + i)).toISOString().slice(0, 10),
+    complete: false, schedule: i % 3 ? [{ subject: 'Пример' }] : [], homework: i % 4 ? [] : [{ subject: 'Пример', text: 'Пример' }] }))
+  calendarFixture = (vacations, selectedDate, fontSize) => `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>
+    @font-face{font-family:'Geist Variable';src:url(data:font/woff2;base64,${cyrillicFont}) format('woff2');font-weight:100 900;unicode-range:U+0400-052F,U+2DE0-2DFF,U+A640-A69F}
+    @font-face{font-family:'Geist Variable';src:url(data:font/woff2;base64,${latinFont}) format('woff2');font-weight:100 900;unicode-range:U+0000-00FF}
+    ${tokens}${css}\nhtml{font-size:${fontSize}px}body{margin:0;padding:8px;font-family:'Geist Variable',sans-serif}button{font:inherit}
+    </style><div class="day-dashboard">${renderToStaticMarkup(createElement(Calendar, { days, schoolCalendar: vacations ? calendar : undefined,
+      today: '2026-10-19', selectedDate, onSelect: () => {} }))}</div>`
+} finally { await vite.close() }
+
+const calendarMeasurement = `JSON.stringify((()=>{const box=s=>{const r=document.querySelector(s).getBoundingClientRect();return{top:r.top,height:r.height}},strip=document.querySelector('.day-dashboard-dates');return{
+  card:box('.day-dashboard-calendar'),strip:box('.day-dashboard-dates'),pageWidth:document.documentElement.scrollWidth,
+  buttons:[...document.querySelectorAll('[data-date]')].map((b,index,all)=>{const r=b.getBoundingClientRect();return{date:b.dataset.date,top:r.top,width:r.width,height:r.height,gap:index?r.left-all[index-1].getBoundingClientRect().right:null}}),
+  scroll:strip.scrollLeft,canScroll:strip.scrollWidth>strip.clientWidth}})())`
+function assertCalendarGeometry(layout, baseline, width, phase) {
+  const near = (a, b) => Math.abs(a - b) <= 0.5
+  const changed = layout.buttons.find((button, index) => {
+    const saved = baseline.buttons[index]
+    return !saved || button.date !== saved.date || !near(button.top, saved.top) || !near(button.width, saved.width) || !near(button.height, saved.height)
+      || button.gap !== null && !near(button.gap, saved.gap)
+  })
+  if (!near(layout.card.height, baseline.card.height) || !near(layout.strip.height, baseline.strip.height)
+    || layout.pageWidth > width || changed) throw Error(`Каникулы изменили геометрию: ${JSON.stringify({ width, phase, card: layout.card, baselineCard: baseline.card, changed })}`)
+}
 // @see ../docs/shared/design/statuses.md#matrix — fixture mirrors the icon/count/chevron columns.
 const statusIcon = (status) => {
   const path = status === 'complete' ? '<circle cx="12" cy="12" r="10"/><path d="m8 12 3 3 5-6"/>'
@@ -87,6 +123,30 @@ try {
     socket.send(JSON.stringify({ id, method, params }))
   })
   try {
+    for (const width of [320, 390, 540, 1024, 1600]) for (const fontSize of [16, 20]) {
+      await send('Emulation.setDeviceMetricsOverride', { width, height: 844, deviceScaleFactor: 1, mobile: width < 600 })
+      let baseline
+      for (const vacations of [false, true]) for (const selectedDate of ['2026-10-18', '2026-10-25']) {
+        await send('Page.navigate', { url: `data:text/html;base64,${Buffer.from(calendarFixture(vacations, selectedDate, fontSize)).toString('base64')}` })
+        await delay(80)
+        await send('Runtime.evaluate', { expression: 'document.fonts.ready', awaitPromise: true })
+        const measured = await send('Runtime.evaluate', { expression: calendarMeasurement, returnByValue: true })
+        if (measured.exceptionDetails || !measured.result?.value) throw Error('Calendar geometry measurement failed')
+        const layout = JSON.parse(measured.result.value)
+        baseline ??= layout
+        assertCalendarGeometry(layout, baseline, width, { vacations, selectedDate, fontSize })
+        await send('Runtime.evaluate', { expression: "document.querySelector('.day-dashboard-dates').scrollLeft=100000" })
+        const scrolled = JSON.parse((await send('Runtime.evaluate', { expression: calendarMeasurement, returnByValue: true })).result.value)
+        assertCalendarGeometry(scrolled, baseline, width, 'horizontal-scroll')
+        if (scrolled.canScroll && scrolled.scroll <= 0) throw Error('Calendar stopped scrolling horizontally')
+        if (screenshotDir && vacations && selectedDate === '2026-10-18' && fontSize === 16) {
+          const shot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true })
+          mkdirSync(screenshotDir, { recursive: true })
+          writeFileSync(join(screenshotDir, `calendar-${width}.png`), Buffer.from(shot.data, 'base64'))
+        }
+      }
+      console.log(`Календарь ${width}px / шрифт ${fontSize}px: высота, размеры и линия дней сохраняются`)
+    }
     for (const width of [320, 390, 540]) for (const pastExpanded of [false, true]) for (const open of [false, true]) {
       await send('Emulation.setDeviceMetricsOverride', { width, height: 844, deviceScaleFactor: 1, mobile: true })
       await send('Page.navigate', { url: `data:text/html;base64,${Buffer.from(fixture(open, pastExpanded)).toString('base64')}` })

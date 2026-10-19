@@ -54,7 +54,8 @@ describe('schedule warm start', () => {
         const host = document.createElement('div'); document.body.append(host); const root = createRoot(host)
         try {
           await act(async () => root.render(<DayDashboard token="calendar" parent={parent} />))
-          expect(host.querySelector('.day-dashboard-vacation')?.textContent).toContain('Каникулы')
+          expect(host.querySelector('.day-dashboard-vacation')?.getAttribute('aria-label')).toContain('Первые каникулы')
+          expect(host.querySelector('.day-dashboard-heading .day-dashboard-vacation-legend')?.textContent).toContain('Каникулы')
           expect(host.textContent).toContain('По календарю МЭШ')
           expect(host.querySelector('[aria-label="Домашнее задание"] time')?.getAttribute('datetime')).toBe('2026-11-02')
           await act(async () => host.querySelector<HTMLButtonElement>('[data-date="2026-10-25"]')!.click())

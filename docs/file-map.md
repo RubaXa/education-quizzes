@@ -2,6 +2,8 @@
 
 | Файл | Спецификация | Назначение | Потребитель |
 |---|---|---|---|
+| [scripts/check-schedule-viewport.test.mjs](../scripts/check-schedule-viewport.test.mjs) | [Каникулы и геометрия](modules/school-diary/school-calendar.md) | Обязательный запуск геометрии реального календаря и расписания в обычном npm test/check | Vitest; pre-push gate |
+| [docs/decisions/calendar-fixed-height-2026-10-19.md](decisions/calendar-fixed-height-2026-10-19.md) | [Каникулы и геометрия](modules/school-diary/school-calendar.md) | Причина скачка высоты и сохранение исходной геометрии | Разработчик; выпуск |
 | [day/school-calendar.mjs](../day/school-calendar.mjs) | [Каникулы МЭШ](modules/school-diary/school-calendar.md) | Строгая нормализация, проекция и группировка персональных периодов | Collector; day publisher; DayCalendar |
 | [day/school-calendar.d.mts](../day/school-calendar.d.mts) | [Каникулы МЭШ](modules/school-diary/school-calendar.md) | Общий публичный тип календаря | TypeScript frontend |
 | [day/school-calendar.test.mjs](../day/school-calendar.test.mjs) | [Каникулы МЭШ](modules/school-diary/school-calendar.md) | Источник, принадлежность, полнота, непрерывность и сохранение дней | Vitest |
@@ -366,7 +368,7 @@
 | [scripts/check-privacy.mjs](../scripts/check-privacy.mjs) | [Хранение и приватность](modules/materials/storage-privacy.md) | Запрет секретов и персональных файлов в Git | Git hooks; публикация |
 | [scripts/check-problem-variant-viewport.mjs](../scripts/check-problem-variant-viewport.mjs) | [Карточки и состояния](shared/design/README.md) | Проверка загруженных пикселей фрагмента, сетки фактов и цепочки вариант → номер → закрытый разбор на мобильных ширинах | Chrome; разработчик |
 | [scripts/check-quiz-switch-viewport.mjs](../scripts/check-quiz-switch-viewport.mjs) | [Дизайн-система](shared/design/README.md) | Chrome-проверка одной строки и границ шапки общего теста на 320, 390, 540 px | `npm run test:quiz-switch-viewport` |
-| [scripts/check-schedule-viewport.mjs](../scripts/check-schedule-viewport.mjs) | [Дизайн-система](shared/design/README.md) | Браузерная проверка геометрии строк, временных значков и группы прошедших уроков на 320–540 px в свёрнутых и раскрытых состояниях; по запросу снимки через `SCHEDULE_SCREENSHOT_DIR` | `npm run test:schedule-viewport`; разработчик |
+| [scripts/check-schedule-viewport.mjs](../scripts/check-schedule-viewport.mjs) | [Каникулы и геометрия](modules/school-diary/school-calendar.md) | Реальный DayCalendar через Vite SSR: сравнение высоты, размеров/линии дней до/после каникул на320–1600px и двух шрифтах; прежние проверки расписания; снимки через `SCHEDULE_SCREENSHOT_DIR` | `npm run test:schedule-viewport`; Vitest; pre-push |
 | [scripts/check-source-fragment-viewport.mjs](../scripts/check-source-fragment-viewport.mjs) | [Изображения](shared/design/README.md) | Браузерная проверка координат фрагмента листа в миниатюре и просмотрщике на 320–540 px | `npm run test:source-fragment-viewport`; разработчик |
 | [scripts/check-spec-map.mjs](../scripts/check-spec-map.mjs) | [Система спецификаций](shared/specification-system.md) | Проверка полноты контрактов, навигации, метаданных и производного графа | npm check:spec; Vitest |
 | [scripts/check-ui-contract.mjs](../scripts/check-ui-contract.mjs) | [Управление UI](product/ui-change-control.md) | Останавливает незаявленную правку или добавление продуктового кода | `npm run check:spec`; разработчик |

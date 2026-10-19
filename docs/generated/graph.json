@@ -361,6 +361,36 @@
       "path": "docs/decisions/browser-role-ldd-2026-10-18.md"
     },
     {
+      "id": "decision.calendar-fixed-height-2026-10-19",
+      "status": "accepted",
+      "implementation": "implemented",
+      "parent": "module.school-diary.school-calendar",
+      "uses": [
+        "shared.design",
+        "decision.pupil-vacations-2026-10-19"
+      ],
+      "created": "2026-10-19",
+      "updated": "2026-10-19",
+      "consumers": [
+        "parent",
+        "student",
+        "developer"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "code": [
+        "src/components/DayCalendar.tsx",
+        "src/DayDashboard.css",
+        "scripts/check-schedule-viewport.mjs"
+      ],
+      "path": "docs/decisions/calendar-fixed-height-2026-10-19.md"
+    },
+    {
       "id": "decision.course-placement-2026-10-18",
       "status": "accepted",
       "implementation": "not-applicable",
@@ -3359,8 +3389,15 @@
       "id": "file:scripts/check-schedule-viewport.mjs",
       "path": "scripts/check-schedule-viewport.mjs",
       "kind": "artifact",
-      "purpose": "Браузерная проверка геометрии строк, временных значков и группы прошедших уроков на 320–540 px в свёрнутых и раскрытых состояниях; по запросу снимки через `SCHEDULE_SCREENSHOT_DIR`",
-      "consumer": "`npm run test:schedule-viewport`; разработчик"
+      "purpose": "Реальный DayCalendar через Vite SSR: сравнение высоты, размеров/линии дней до/после каникул на320–1600px и двух шрифтах; прежние проверки расписания; снимки через `SCHEDULE_SCREENSHOT_DIR`",
+      "consumer": "`npm run test:schedule-viewport`; Vitest; pre-push"
+    },
+    {
+      "id": "file:scripts/check-schedule-viewport.test.mjs",
+      "path": "scripts/check-schedule-viewport.test.mjs",
+      "kind": "verification",
+      "purpose": "Обязательный запуск геометрии реального календаря и расписания в обычном npm test/check",
+      "consumer": "Vitest; pre-push gate"
     },
     {
       "id": "file:scripts/check-source-fragment-viewport.mjs",
@@ -9112,6 +9149,16 @@
       "type": "uses"
     },
     {
+      "from": "decision.calendar-fixed-height-2026-10-19",
+      "to": "decision.pupil-vacations-2026-10-19",
+      "type": "uses"
+    },
+    {
+      "from": "decision.calendar-fixed-height-2026-10-19",
+      "to": "shared.design",
+      "type": "uses"
+    },
+    {
       "from": "decision.course-placement-2026-10-18",
       "to": "module.school-diary.dashboard",
       "type": "uses"
@@ -10323,6 +10370,16 @@
     },
     {
       "from": "file:scripts/check-schedule-viewport.mjs",
+      "to": "decision.calendar-fixed-height-2026-10-19",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/check-schedule-viewport.mjs",
+      "to": "module.school-diary.school-calendar",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/check-schedule-viewport.mjs",
       "to": "shared.design.statuses",
       "type": "implements"
     },
@@ -10959,6 +11016,11 @@
     {
       "from": "file:src/components/DataCompatibilityNotice.tsx",
       "to": "shared.data.firestore",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/DayCalendar.tsx",
+      "to": "decision.calendar-fixed-height-2026-10-19",
       "type": "implements"
     },
     {
@@ -11689,6 +11751,11 @@
     {
       "from": "file:src/components/WorkReview.tsx",
       "to": "shared.design.statuses",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayDashboard.css",
+      "to": "decision.calendar-fixed-height-2026-10-19",
       "type": "implements"
     },
     {
@@ -13743,6 +13810,11 @@
     },
     {
       "from": "module.school-diary.school-calendar",
+      "to": "decision.calendar-fixed-height-2026-10-19",
+      "type": "contains"
+    },
+    {
+      "from": "module.school-diary.school-calendar",
       "to": "decision.pupil-vacations-2026-10-19",
       "type": "contains"
     },
@@ -13754,6 +13826,11 @@
     {
       "from": "module.school-diary.school-calendar",
       "to": "file:packages/education-connect/lib/mesh-calendar.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.school-diary.school-calendar",
+      "to": "file:scripts/check-schedule-viewport.test.mjs",
       "type": "verified-by"
     },
     {
