@@ -9,6 +9,7 @@ it('keeps the real calendar at its original height and preserves schedule geomet
   })
   for (const width of [320, 390, 540, 1024, 1600]) for (const font of [16, 20]) {
     expect(output).toContain(`Календарь ${width}px / шрифт ${font}px: высота, размеры и линия дней сохраняются`)
+    expect(output).toContain(`Sticky ${width}px / шрифт ${font}px: до группы скрыта, слева следует, правым краем ограничена, после группы скрыта`)
   }
   expect(output).toContain('540px, прошли раскрыты, уроки раскрыты: 8 строк')
 })

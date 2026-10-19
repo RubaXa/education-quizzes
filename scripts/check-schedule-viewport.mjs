@@ -2,6 +2,7 @@
  * @see ../docs/shared/design/README.md#mobile-card-headings
  * @see ../docs/decisions/calendar-fixed-height-2026-10-19.md
  * @see ../docs/decisions/calendar-vacation-inset-2026-10-19.md
+ * @see ../docs/decisions/calendar-vacation-sticky-2026-10-19.md
  */
 import { spawn } from 'node:child_process'
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
@@ -41,11 +42,12 @@ try {
     checkedAt: '2026-10-19T00:00:00Z', vacations: [{ from: '2026-10-24', to: '2026-11-01', title: 'Каникулы · геометрический пример' }] }
   const days = Array.from({ length: 18 }, (_, i) => ({ date: new Date(Date.UTC(2026, 9, 17 + i)).toISOString().slice(0, 10),
     complete: false, schedule: i % 3 ? [{ subject: 'Пример' }] : [], homework: i % 4 ? [] : [{ subject: 'Пример', text: 'Пример' }] }))
-  calendarFixture = (vacations, selectedDate, fontSize) => `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>
+  const extendedDays = Array.from({ length: 90 }, (_, i) => ({ ...days[i % days.length], date: new Date(Date.UTC(2026, 8, 1 + i)).toISOString().slice(0, 10) }))
+  calendarFixture = (vacations, selectedDate, fontSize, extended = false) => `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>
     @font-face{font-family:'Geist Variable';src:url(data:font/woff2;base64,${cyrillicFont}) format('woff2');font-weight:100 900;unicode-range:U+0400-052F,U+2DE0-2DFF,U+A640-A69F}
     @font-face{font-family:'Geist Variable';src:url(data:font/woff2;base64,${latinFont}) format('woff2');font-weight:100 900;unicode-range:U+0000-00FF}
     ${tokens}${css}\nhtml{font-size:${fontSize}px}body{margin:0;padding:8px;font-family:'Geist Variable',sans-serif}button{font:inherit}
-    </style><div class="day-dashboard">${renderToStaticMarkup(createElement(Calendar, { days, schoolCalendar: vacations ? calendar : undefined,
+    </style><div class="day-dashboard">${renderToStaticMarkup(createElement(Calendar, { days: extended ? extendedDays : days, schoolCalendar: vacations ? calendar : undefined,
       today: '2026-10-19', selectedDate, onSelect: () => {} }))}</div>`
 } finally { await vite.close() }
 
@@ -69,6 +71,10 @@ function assertCalendarGeometry(layout, baseline, width, phase) {
     throw Error(`Каникульная рамка требует видимый отступ8px с каждой стороны: ${JSON.stringify({ width, phase, groups: layout.groups })}`)
   }
 }
+
+const stickyMeasurement = `JSON.stringify((()=>{const s=document.querySelector('.day-dashboard-dates'),g=s.querySelector('.day-dashboard-vacation'),l=g?.querySelector('.day-dashboard-vacation-legend');if(!l)return null;
+const rect=n=>{const r=n.getBoundingClientRect();return{left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width}},sr=rect(s),gr=rect(g),lr=rect(l);return{strip:sr,group:gr,label:lr,scroll:s.scrollLeft,heading:rect(document.querySelector('.day-dashboard-heading')),
+visible:lr.right>sr.left&&lr.left<sr.right&&lr.bottom>sr.top&&lr.top<sr.bottom}})())`
 // @see ../docs/shared/design/statuses.md#matrix — fixture mirrors the icon/count/chevron columns.
 const statusIcon = (status) => {
   const path = status === 'complete' ? '<circle cx="12" cy="12" r="10"/><path d="m8 12 3 3 5-6"/>'
@@ -153,6 +159,33 @@ try {
         }
       }
       console.log(`Календарь ${width}px / шрифт ${fontSize}px: высота, размеры и линия дней сохраняются; отступ каникул 8px виден`)
+      await send('Page.navigate', { url: `data:text/html;base64,${Buffer.from(calendarFixture(true, '2026-10-18', fontSize, true)).toString('base64')}` })
+      await delay(80)
+      await send('Runtime.evaluate', { expression: 'document.fonts.ready', awaitPromise: true })
+      const snapshot = async () => JSON.parse((await send('Runtime.evaluate', { expression: stickyMeasurement, returnByValue: true })).result.value)
+      const start = await snapshot()
+      if (!start) throw Error('Подпись каникул должна находиться внутри своей группы, а не в общем заголовке')
+      const groupStart = start.group.left - start.strip.left + start.scroll, groupEnd = groupStart + start.group.width
+      for (const [phase, position] of [
+        ['before', groupStart - start.strip.width - 30], ['enter', groupStart - start.strip.width + 60],
+        ['start', groupStart - 30], ['middle', groupStart + start.group.width * .4],
+        ['end', groupEnd - 8 - start.label.width / 2], ['after', groupEnd + 30],
+      ]) {
+        await send('Runtime.evaluate', { expression: `document.querySelector('.day-dashboard-dates').scrollLeft=${Math.max(0, position)}` })
+        await delay(35)
+        const live = await snapshot()
+        const expectedLeft = Math.min(Math.max(live.group.left + 8, live.strip.left + 3), live.group.right - 8 - live.label.width)
+        if (Math.abs(live.label.left - expectedLeft) > 1 || live.label.top < live.strip.top || live.label.bottom > live.group.top
+          || live.label.top < live.heading.bottom || phase === 'before' && live.visible || phase === 'after' && live.visible
+          || ['start', 'middle', 'end'].includes(phase) && !live.visible) {
+          throw Error(`Sticky-подпись нарушила границы: ${JSON.stringify({ width, fontSize, phase, expectedLeft, live })}`)
+        }
+        if (screenshotDir && [320, 1024].includes(width) && fontSize === 16 && phase !== 'enter') {
+          const shot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true })
+          writeFileSync(join(screenshotDir, `calendar-sticky-${width}-${phase}.png`), Buffer.from(shot.data, 'base64'))
+        }
+      }
+      console.log(`Sticky ${width}px / шрифт ${fontSize}px: до группы скрыта, слева следует, правым краем ограничена, после группы скрыта`)
     }
     for (const width of [320, 390, 540]) for (const pastExpanded of [false, true]) for (const open of [false, true]) {
       await send('Emulation.setDeviceMetricsOverride', { width, height: 844, deviceScaleFactor: 1, mobile: true })

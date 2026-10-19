@@ -2,6 +2,7 @@
 
 | Файл | Спецификация | Назначение | Потребитель |
 |---|---|---|---|
+| [docs/decisions/calendar-vacation-sticky-2026-10-19.md](decisions/calendar-vacation-sticky-2026-10-19.md) | [Каникулы и геометрия](modules/school-diary/school-calendar.md) | Подпись своего периода: sticky слева с остановкой справа, без роста высоты | Разработчик; выпуск |
 | [docs/decisions/calendar-vacation-inset-2026-10-19.md](decisions/calendar-vacation-inset-2026-10-19.md) | [Каникулы и геометрия](modules/school-diary/school-calendar.md) | Уточнение родителя: реальные отступы рамки без роста внешней высоты | Разработчик; выпуск |
 | [scripts/check-schedule-viewport.test.mjs](../scripts/check-schedule-viewport.test.mjs) | [Каникулы и геометрия](modules/school-diary/school-calendar.md) | Обязательный запуск геометрии реального календаря и расписания в обычном npm test/check | Vitest; pre-push gate |
 | [docs/decisions/calendar-fixed-height-2026-10-19.md](decisions/calendar-fixed-height-2026-10-19.md) | [Каникулы и геометрия](modules/school-diary/school-calendar.md) | Причина скачка высоты и сохранение исходной геометрии | Разработчик; выпуск |

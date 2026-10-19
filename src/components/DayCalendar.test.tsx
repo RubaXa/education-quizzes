@@ -15,13 +15,31 @@ const days = ['2026-10-23', '2026-10-24', '2026-10-25', '2026-11-02'].map(date =
   dayToken: null, homeworkDayToken: null, complete: false, checkedAt: null })) as IndexedDay[]
 
 describe('pupil calendar control', () => {
+  it('keeps each vacation label inside its own independent date group', async () => {
+    const host = document.createElement('div'), root = createRoot(host)
+    const source = { ...calendar, vacations: [{ from: '2026-10-24', to: '2026-10-24', title: 'Первый период отдыха' },
+      { from: '2026-11-02', to: '2026-11-02', title: 'Второй период отдыха' }] }
+    try {
+      await act(async () => root.render(<DayCalendar days={days} schoolCalendar={source} today="2026-10-24" selectedDate="2026-10-24" onSelect={() => {}} />))
+      const groups = [...host.querySelectorAll('.day-dashboard-vacation')]
+      expect(groups).toHaveLength(2)
+      for (const [index, group] of groups.entries()) {
+        const label = group.querySelector('.day-dashboard-vacation-label-track .day-dashboard-vacation-legend')
+        expect(label).not.toBeNull()
+        expect(label?.getAttribute('title')).toContain(source.vacations[index].title)
+        expect(group.querySelector('[data-date]')?.getAttribute('data-date')).toBe(source.vacations[index].from)
+      }
+      expect(host.querySelector('.day-dashboard-heading .day-dashboard-vacation-legend')).toBeNull()
+    } finally { await act(async () => root.unmount()) }
+  })
   it('groups confirmed dates and keeps selection, today, keyboard buttons and homework', async () => {
     const host = document.createElement('div'), root = createRoot(host), onSelect = vi.fn(), ref = createRef<HTMLDivElement>()
     try {
       await act(async () => root.render(<DayCalendar days={days} schoolCalendar={calendar} today="2026-10-24" selectedDate="2026-10-25" onSelect={onSelect} stripRef={ref} />))
       expect(host.querySelectorAll('.day-dashboard-vacation')).toHaveLength(1)
       expect(host.querySelector('.day-dashboard-vacation .day-dashboard-vacation-heading')).toBeNull()
-      expect(host.querySelector('.day-dashboard-heading .day-dashboard-vacation-legend')?.textContent).toContain('Каникулы')
+      expect(host.querySelector('.day-dashboard-heading .day-dashboard-vacation-legend')).toBeNull()
+      expect(host.querySelector('.day-dashboard-vacation .day-dashboard-vacation-legend')?.textContent).toContain('Каникулы')
       expect(host.querySelector('.day-dashboard-vacation-legend')?.getAttribute('title')).toContain('24 окт. — 1 нояб.')
       expect(host.querySelector('.day-dashboard-vacation')?.getAttribute('aria-label')).toContain('24 окт. — 1 нояб.')
       expect(host.querySelectorAll('.day-dashboard-vacation button')).toHaveLength(2)

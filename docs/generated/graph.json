@@ -420,6 +420,36 @@
       "path": "docs/decisions/calendar-vacation-inset-2026-10-19.md"
     },
     {
+      "id": "decision.calendar-vacation-sticky-2026-10-19",
+      "status": "accepted",
+      "implementation": "implemented",
+      "parent": "module.school-diary.school-calendar",
+      "uses": [
+        "decision.calendar-vacation-inset-2026-10-19",
+        "shared.design"
+      ],
+      "created": "2026-10-19",
+      "updated": "2026-10-19",
+      "consumers": [
+        "parent",
+        "student",
+        "developer"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "code": [
+        "src/components/DayCalendar.tsx",
+        "src/DayDashboard.css",
+        "scripts/check-schedule-viewport.mjs"
+      ],
+      "path": "docs/decisions/calendar-vacation-sticky-2026-10-19.md"
+    },
+    {
       "id": "decision.course-placement-2026-10-18",
       "status": "accepted",
       "implementation": "not-applicable",
@@ -9326,6 +9356,16 @@
       "type": "uses"
     },
     {
+      "from": "decision.calendar-vacation-sticky-2026-10-19",
+      "to": "decision.calendar-vacation-inset-2026-10-19",
+      "type": "uses"
+    },
+    {
+      "from": "decision.calendar-vacation-sticky-2026-10-19",
+      "to": "shared.design",
+      "type": "uses"
+    },
+    {
       "from": "decision.course-placement-2026-10-18",
       "to": "module.school-diary.dashboard",
       "type": "uses"
@@ -10577,6 +10617,11 @@
     },
     {
       "from": "file:scripts/check-schedule-viewport.mjs",
+      "to": "decision.calendar-vacation-sticky-2026-10-19",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/check-schedule-viewport.mjs",
       "to": "module.school-diary.school-calendar",
       "type": "implements"
     },
@@ -11228,6 +11273,11 @@
     {
       "from": "file:src/components/DayCalendar.tsx",
       "to": "decision.calendar-fixed-height-2026-10-19",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/DayCalendar.tsx",
+      "to": "decision.calendar-vacation-sticky-2026-10-19",
       "type": "implements"
     },
     {
@@ -11968,6 +12018,11 @@
     {
       "from": "file:src/DayDashboard.css",
       "to": "decision.calendar-vacation-inset-2026-10-19",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayDashboard.css",
+      "to": "decision.calendar-vacation-sticky-2026-10-19",
       "type": "implements"
     },
     {
@@ -14028,6 +14083,11 @@
     {
       "from": "module.school-diary.school-calendar",
       "to": "decision.calendar-vacation-inset-2026-10-19",
+      "type": "contains"
+    },
+    {
+      "from": "module.school-diary.school-calendar",
+      "to": "decision.calendar-vacation-sticky-2026-10-19",
       "type": "contains"
     },
     {

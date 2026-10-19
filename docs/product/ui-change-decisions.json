@@ -18,8 +18,8 @@
       }
     },
     "src/components/DayCalendar.tsx": {
-      "sha256": "44952177dac279eaa5dc4bef9d13214ea63ef7c59e0fb32f9203218cace3aa97",
-      "record": "docs/decisions/calendar-fixed-height-2026-10-19.md",
+      "sha256": "8e573a0a17a95b9851550e154f0b4789f71c5d98a284b50ee29ce00b2cc1a913",
+      "record": "docs/decisions/calendar-vacation-sticky-2026-10-19.md",
       "specs": [
         "docs/modules/school-diary/school-calendar.md",
         "docs/shared/design/README.md"
@@ -31,7 +31,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель19.10 показал рост высоты/невыровненные дни и прямо требует сохранить прежние размеры календаря при выделении каникул."
+        "evidence": "Родитель19.10 требует привязать текст каникул к своей группе, держать его sticky слева при прокрутке и останавливать у правого края периода."
       }
     },
     "sync/school-calendar-publication.mjs": {
@@ -1673,19 +1673,20 @@
       }
     },
     "src/DayDashboard.css": {
-      "sha256": "3449428540e8990061489d43edd48cc67d68d4c41f44237dc5048ee2ffd657d8",
-      "record": "docs/decisions/calendar-vacation-inset-2026-10-19.md",
+      "sha256": "9245dd1c4e006568d6bac9560e9c081808af29282b146d9e218e8216b37fefab",
+      "record": "docs/decisions/calendar-vacation-sticky-2026-10-19.md",
       "specs": [
         "docs/modules/school-diary/school-calendar.md",
         "docs/shared/design/README.md"
       ],
       "tests": [
         "scripts/check-schedule-viewport.test.mjs",
-        "src/components/DayCalendar.test.tsx"
+        "src/components/DayCalendar.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель19.10 отверг убранный padding и прямо требует сохранить отступ вокруг дней, не увеличивая высоту календаря."
+        "evidence": "Родитель19.10 требует привязать текст каникул к своей группе, держать его sticky слева при прокрутке и останавливать у правого края периода."
       }
     },
     "src/lib/assignmentPresentation.ts": {
@@ -1781,19 +1782,20 @@
       }
     },
     "scripts/check-schedule-viewport.mjs": {
-      "sha256": "298ee59f6fa9415c2390fde02e8af1ab9e788c3fca1f9077ec5cd8991562d429",
-      "record": "docs/decisions/calendar-vacation-inset-2026-10-19.md",
+      "sha256": "f266876a69e375f810b7c21d31620de168816a53956ece527df8b4c7ee3d4653",
+      "record": "docs/decisions/calendar-vacation-sticky-2026-10-19.md",
       "specs": [
         "docs/modules/school-diary/school-calendar.md",
         "docs/shared/design/README.md"
       ],
       "tests": [
         "scripts/check-schedule-viewport.test.mjs",
-        "src/components/DayCalendar.test.tsx"
+        "src/components/DayCalendar.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель19.10 отверг убранный padding и прямо требует сохранить отступ вокруг дней, не увеличивая высоту календаря."
+        "evidence": "Родитель19.10 требует привязать текст каникул к своей группе, держать его sticky слева при прокрутке и останавливать у правого края периода."
       }
     },
     "scripts/sync-inbox.mjs": {
