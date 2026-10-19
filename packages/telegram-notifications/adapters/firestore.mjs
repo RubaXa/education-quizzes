@@ -397,10 +397,12 @@ export function createFirestoreAdapters(db, { eventCollection = 'telegramNotific
             && member.role === 'parent' && Array.isArray(member.childIds) && member.childIds.includes(job.childId)
         })
         tx.create(eventRef, { ...event, createdAt: FieldValue.serverTimestamp() })
+        const dueHints = []
         for (let i = 0; i < jobRows.length; i += 1) if (verified[i] && !existingJobs[i].exists) {
           const job = jobRows[i]
           if (!groupingEnabled[i]) {
             tx.create(jobRefs[i], job)
+            dueHints.push(job.nextAttemptAt)
             continue
           }
           const acceptedAt = job.groupingAt ?? event.detectedAt
@@ -427,8 +429,10 @@ export function createFirestoreAdapters(db, { eventCollection = 'telegramNotific
           tx.set(pointerRefs[i], { activeGroupId: groupId, updatedAt: event.detectedAt }, { merge: true })
           if (reusable) for (const member of activeMembers[i]?.docs ?? []) tx.update(member.ref, { nextAttemptAt: flushAt })
           tx.create(jobRefs[i], { ...job, groupId, nextAttemptAt: flushAt, groupedAt: null })
+          dueHints.push(flushAt)
         }
-        return { created: true, eventId: event.eventId, queued: verified.filter((ok, index) => ok && !existingJobs[index].exists).length }
+        return { created: true, eventId: event.eventId, queued: dueHints.length,
+          ...(dueHints.length ? { nextDueAt: dueHints.sort()[0] } : {}) }
       })
     },
   }

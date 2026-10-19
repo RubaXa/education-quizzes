@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { createRuntime } from './runtime.mjs'
 import { createTelemetry } from '../../education-runtime/telemetry.mjs'
 
@@ -12,6 +12,48 @@ const config = { token: '12345:abcdefghijklmnopqrstuvwxyz_1234567890', projectId
   instanceId: 'worker', meshConnectionDirectory: '/tmp/test-mesh-connections', meshPollMs: 900_000 }
 
 describe('source runtime wiring', () => {
+  it.each(['firestore', 'mesh'])('wakes %s consumers only after their durable writes finish', async (source) => {
+    let acceptCommit, dispatchCommit
+    const acceptance = new Promise((resolve) => { acceptCommit = resolve })
+    const queued = new Promise((resolve) => { dispatchCommit = resolve })
+    const enqueue = vi.fn(() => queued)
+    const runtime = createRuntime({ ...config, educationSync: { threadId: '01a150dc-e067-7cc2-b08f-f573bf83e6e3',
+      codexPath: '/opt/codex', projectRoot: '/workspace/PETR' } }, {
+      firestore: fakeDb(), enableFirestoreSource: true, enableMeshSource: true, enableDelivery: true,
+      educationSyncDispatcherFactory: () => ({ enqueueWorkChange: enqueue, enqueueMeshChange: enqueue, runOne: async () => false }),
+    })
+    const delivery = vi.fn(), educationSync = vi.fn()
+    runtime.setWorkerWakeHandlers({ delivery, educationSync })
+    runtime.notificationService.accept = () => acceptance
+    const pending = runtime.sourceCoordinator.pipelines[source].accept({ source, eventId: 'a'.repeat(64),
+      eventType: source === 'firestore' ? 'upload.confirmed' : 'grade.changed' })
+    expect(delivery).not.toHaveBeenCalled()
+    expect(enqueue).not.toHaveBeenCalled()
+    const deliveryDue = '2026-10-19T10:00:30.000Z'
+    const syncDue = '2026-10-19T10:00:20.000Z'
+    acceptCommit({ created: true, queued: 1, nextDueAt: deliveryDue })
+    await vi.waitFor(() => expect(enqueue).toHaveBeenCalledOnce())
+    expect(delivery).toHaveBeenCalledExactlyOnceWith(deliveryDue)
+    expect(educationSync).not.toHaveBeenCalled()
+    dispatchCommit({ status: 'accepted', nextDueAt: syncDue })
+    await pending
+    expect(educationSync).toHaveBeenCalledExactlyOnceWith(syncDue)
+
+    delivery.mockClear(); educationSync.mockClear()
+    runtime.notificationService.accept = async () => ({ created: false })
+    enqueue.mockResolvedValue({ status: 'duplicate' })
+    await runtime.sourceCoordinator.pipelines[source].accept({ source, eventId: 'b'.repeat(64),
+      eventType: source === 'firestore' ? 'upload.confirmed' : 'grade.changed' })
+    expect(delivery).not.toHaveBeenCalled()
+    expect(educationSync).not.toHaveBeenCalled()
+    runtime.notificationService.accept = async () => ({ created: true, queued: 0 })
+    enqueue.mockResolvedValue({ status: 'accepted', generation: 2 })
+    await runtime.sourceCoordinator.pipelines[source].accept({ source, eventId: 'c'.repeat(64),
+      eventType: source === 'firestore' ? 'upload.confirmed' : 'grade.changed' })
+    expect(delivery).not.toHaveBeenCalled()
+    expect(educationSync).not.toHaveBeenCalled()
+  })
+
   it('keeps all sources off unless explicitly enabled', () => {
     const runtime = createRuntime(config, { firestore: fakeDb() })
     expect(runtime.sourceCoordinator).toBeNull()

@@ -15,6 +15,9 @@ export async function runWorker({ runtime, enableDelivery, logger, processLike =
   let pollStartAttempted = false
   const idleWakers = new Set()
   const wakeIdle = () => { for (const wake of [...idleWakers]) wake() }
+  const deliveryWake = createDueWake()
+  const educationSyncWake = createDueWake()
+  runtime.setWorkerWakeHandlers?.({ delivery: (dueAt) => deliveryWake.signal(dueAt), educationSync: (dueAt) => educationSyncWake.signal(dueAt) })
   let failure = false
   let requestShutdown
   const shutdownRequested = new Promise((resolve) => { requestShutdown = resolve })
@@ -67,6 +70,9 @@ export async function runWorker({ runtime, enableDelivery, logger, processLike =
     if (stopPromise) return stopPromise
     running = false
     wakeIdle?.()
+    deliveryWake.clear()
+    educationSyncWake.clear()
+    runtime.setWorkerWakeHandlers?.({})
     requestShutdown()
     try { onShutdown?.() } catch { failure = true; logger.error({ code: 'shutdown_signal_failed' }) }
     sourceCloseTask = Promise.resolve().then(() => runtime.sourceCoordinator?.close?.()).catch(() => {
@@ -131,18 +137,13 @@ export async function runWorker({ runtime, enableDelivery, logger, processLike =
       drainTask = Promise.resolve().then(async () => {
         let loopIdleMs = 1_000
         while (running) {
+          const wakeVersion = deliveryWake.version()
           const didWork = await runtime.notificationService.runOne()
           if (!running) break
           if (didWork) loopIdleMs = 1_000
           else {
             const jitter = Math.floor(random() * Math.max(1, loopIdleMs / 5))
-            await new Promise((resolve) => {
-              let settled = false
-              const finish = () => { if (settled) return; settled = true; clearTimeout(timer); idleWakers.delete(finish); resolve() }
-              const timer = setTimeout(finish, loopIdleMs + jitter)
-              timer.unref?.()
-              idleWakers.add(finish)
-            })
+            await deliveryWake.wait(loopIdleMs + jitter, idleWakers, wakeVersion)
             loopIdleMs = Math.min(60_000, loopIdleMs * 2)
           }
         }
@@ -161,18 +162,13 @@ export async function runWorker({ runtime, enableDelivery, logger, processLike =
       educationSyncTask = Promise.resolve().then(async () => {
         let loopIdleMs = 1_000
         while (running) {
+          const wakeVersion = educationSyncWake.version()
           const didWork = await dispatcher.runOne()
           if (!running) break
           if (didWork) loopIdleMs = 1_000
           else {
             const jitter = Math.floor(random() * Math.max(1, loopIdleMs / 5))
-            await new Promise((resolve) => {
-              let settled = false
-              const finish = () => { if (settled) return; settled = true; clearTimeout(timer); idleWakers.delete(finish); resolve() }
-              const timer = setTimeout(finish, loopIdleMs + jitter)
-              timer.unref?.()
-              idleWakers.add(finish)
-            })
+            await educationSyncWake.wait(loopIdleMs + jitter, idleWakers, wakeVersion)
             loopIdleMs = Math.min(60_000, loopIdleMs * 2)
           }
         }
@@ -198,6 +194,57 @@ export async function runWorker({ runtime, enableDelivery, logger, processLike =
     try { lock?.assertHeld?.() } catch { failure = true }
   }
   return { ok: !failure }
+}
+
+function createDueWake(clock = Date.now) {
+  let generation = 0
+  let closed = false
+  const dueTimes = new Set()
+  const waiters = new Set()
+  return {
+    version() { return generation },
+    signal(value) {
+      if (closed) return
+      generation += 1
+      const parsed = typeof value === 'string' ? Date.parse(value) : Number.NaN
+      if (Number.isFinite(parsed)) dueTimes.add(parsed)
+      for (const resolve of [...waiters]) resolve('signal')
+    },
+    async wait(fallbackMs, sharedWakers, observed = generation) {
+      let earliest = Infinity
+      let expiredHint = false
+      for (const due of dueTimes) {
+        if (due <= clock()) { dueTimes.delete(due); expiredHint = true }
+        else if (due < earliest) earliest = due
+      }
+      // If an in-flight runOne crossed a due deadline, immediately recheck once.
+      // The hint is consumed here, so a stale hint cannot create a hot loop.
+      if (expiredHint) return
+      if (generation !== observed) return
+      const deadline = Math.max(0, earliest - clock())
+      const timeoutMs = Math.min(fallbackMs, deadline)
+      if (timeoutMs === 0) return
+      await new Promise((resolve) => {
+        let settled = false
+        const finish = (reason) => {
+          if (settled) return
+          settled = true
+          clearTimeout(timer)
+          waiters.delete(onSignal)
+          sharedWakers.delete(onSignal)
+          if (reason === 'due') for (const due of dueTimes) if (due <= clock()) dueTimes.delete(due)
+          resolve()
+        }
+        const onSignal = () => finish('signal')
+        const timer = setTimeout(() => finish(deadline <= fallbackMs ? 'due' : 'fallback'), timeoutMs)
+        timer.unref?.()
+        waiters.add(onSignal)
+        sharedWakers.add(onSignal)
+        if (generation !== observed) onSignal()
+      })
+    },
+    clear() { closed = true; dueTimes.clear(); generation += 1 },
+  }
 }
 
 async function runShutdownStage(telemetry, stage, work, deadline) {

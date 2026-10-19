@@ -460,6 +460,7 @@ describe('Telegram notification vertical slice', () => {
     await db.doc(`telegramNotificationOutbox/${existing.jobId}`).set(existing)
     const firestoreResult = await adapters.eventLedger.recordIfAbsent({ event: memoryEvent, jobs: [existing] })
     expect(firestoreResult.queued).toBe(0)
+    expect(firestoreResult.nextDueAt).toBeUndefined()
   })
 
   it('persists recipient groups and freezes a burst into one digest after restart', async () => {
@@ -472,9 +473,11 @@ describe('Telegram notification vertical slice', () => {
       recipients: adapters.recipients, membership: adapters.membership, renderer: renderNotificationParts,
       delivery: { async send() { return { messageId: 1 } } }, clock: () => new Date(instant), workerId: 'group-test' })
     for (let index = 0; index < 3; index += 1) {
-      await service.accept(createDomainEvent({ source: 'firestore', scopeKey: 'scope', familyId: 'family-a', childId: 'child-a',
+      const accepted = await service.accept(createDomainEvent({ source: 'firestore', scopeKey: 'scope', familyId: 'family-a', childId: 'child-a',
         sourceEventKey: `grade-${index}`, sourceRevision: 'revision', eventType: 'grade.created', privacyClass: 'family-summary',
         detectedAt: instant, fields: { childName: 'Ученик А', subject: 'Математика', value: String(index + 3) } }))
+      expect(accepted).toMatchObject({ created: true, queued: 1,
+        nextDueAt: new Date(Date.parse(now) + [30_000, 50_000, 60_000][index]).toISOString() })
       instant = new Date(Date.parse(instant) + 20_000).toISOString()
     }
     const rows = [...db.records.entries()].filter(([path]) => path.startsWith('telegramNotificationOutbox/')).map(([, row]) => row)

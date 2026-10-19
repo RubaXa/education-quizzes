@@ -36,6 +36,8 @@ sections:
 
 Стало: active startup/source/delivery/dispatch deadlines ограничивают зависание и требуют завершения процесса для безопасной замены LaunchAgent. UTC telemetry и baseline observedAt дают различимые временные факты. Отдельный устойчивый dispatcher собирает natural Mesh events, адресует существующий EducationSync через официальный CLI и требует claim/heartbeat/complete. Read-only diagnostic проверяет natural ledger/outbox/digest receipts без синтетических учебных изменений.
 
+Следующий инцидент19.10 выявил задержку, а не потерю события: новый upload был принят, но idle consumer продолжал ждать fallback поверх окна группировки. После фикса durable ledger/dispatcher возвращают `nextDueAt`, source handler сигнализирует worker только после commit, а ожидание прерывается к сроку готовности. Группировка30/60с, debounce20с и retry fences сохранены. Внешние изменения подхватывает прежний fallback60с с jitter до20%; готовый execution artifact остаётся отдельным планируемым механизмом.
+
 ## Действия и роли
 
 Нет LLM в классификации/доставке уведомлений. Полная синхронизация переиспользует общий skill/CLI/runtime; новые семьи обнаруживаются registry без allowlist/cap. Первое наблюдение тихое, technical.probe/shadow не запускают workflow. Auth/owner/revocation, stable event IDs, delivery fences, история работы, компактная сводка и отсутствие кнопки UI Kit сохраняются. Дедупликация и подтверждение workflow отделены от факта queue acceptance. UI/Pages/Rules этим изменением не выпускаются.
@@ -44,12 +46,15 @@ sections:
 
 Luna реализует крупные участки; техлид проверяет код и отрицательные сценарии. Отдельный transactional-store тест выявил принятие complete с истёкшим workflow lease; оно должно отклоняться. Проверяются фактический child-process exit до поздней записи, source/delivery/startup hanging, durable dedupe/coalescing, queue/claim races и retry, CLI/private file, receiptless sent и grouped receipt membership, since по detectedAt.
 
+Дополнительные регрессии прогревают idle до60с и проверяют due wake для доставки/dispatch, перенос группового срока, сигнал во время запроса, пересечение срока самим запросом, отсутствие горячего цикла и cleanup. Runtime-тесты проверяют обе source ветки и порядок «commit → wake»; transactional store — максимум debounce/retry и отсутствие due для held состояний. Независимая Luna и техлид проверяют ожидания тестов, включая отрицательный прогон без исправления.
+
 19.10 до установки нового кода source-check подтвердил93/93complete, natural delivery audit нашёл5новых событий (3grade.created, homework.changed и homework.assigned),0pending/retry,1уникальную Telegram receipt сводку. Эти события были реально обнаружены после operational restart, без изменения исходных МЭШ данных; более старые occurredAt не выдаются за новые школьные даты. Официальный codex queue получил ответ EDUCATION_SYNC_BRIDGE_CONNECTED от того же EducationSync чата. На этой стадии полный automatic workflow и окончательный main release ещё требовали отдельного readback после интеграции.
 
 
 Затронутые файлы:
 
 - `packages/telegram-notifications/adapters/config.mjs`.
+- `packages/telegram-notifications/adapters/firestore.mjs`.
 - `packages/telegram-notifications/adapters/runtime.mjs`.
 - `packages/telegram-notifications/adapters/worker-loop.mjs`.
 - `scripts/telegram-bot.mjs`.

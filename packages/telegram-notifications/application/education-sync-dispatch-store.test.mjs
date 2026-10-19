@@ -56,9 +56,20 @@ const iso = (offsetMs = 0) => new Date(base + offsetMs).toISOString()
 const digest = (n) => n.toString(16).padStart(64, '0')
 
 describe('Firestore EducationSync dispatch store state machine', () => {
+  it.each(['queued', 'sending', 'uncertain', 'running', 'blocked'])('does not schedule a new dispatch while %s holds the active request', async (status) => {
+    const { db, store } = setup()
+    db.documents.set('educationSyncDispatch/current', { status, generation: 1, sendingGeneration: 1,
+      sendingKinds: ['work'], pendingKinds: [], retryAt: iso(60_000) })
+    const accepted = await store.recordSourceChange({ eventDigest: digest(199), kind: 'work', now: iso(), debounceUntil: iso(20_000) })
+    expect(accepted).toMatchObject({ status: 'accepted', generation: 2 })
+    expect(accepted.nextDueAt).toBeUndefined()
+    expect(await store.read()).toMatchObject({ status, pendingKinds: ['work'], retryAt: iso(60_000) })
+  })
+
   it('durably deduplicates accepted events while coalescing new generations inside the debounce window', async () => {
     const { db, store } = setup()
-    await store.recordMeshChange({ eventDigest: digest(1), now: iso(), debounceUntil: iso(20_000) })
+    expect(await store.recordMeshChange({ eventDigest: digest(1), now: iso(), debounceUntil: iso(20_000) }))
+      .toMatchObject({ status: 'accepted', nextDueAt: iso(20_000) })
     await store.recordMeshChange({ eventDigest: digest(2), now: iso(5_000), debounceUntil: iso(25_000) })
     const duplicateResults = await Promise.all([1, 2].map(() => store.recordMeshChange({
       eventDigest: digest(2), now: iso(6_000), debounceUntil: iso(26_000),
@@ -182,7 +193,8 @@ describe('Firestore EducationSync dispatch store state machine', () => {
     } else {
       await store.fail({ requestId: first.requestId, workerId: first.workerId, now: iso(23_000), retryAt: iso(60_000) })
     }
-    await store.recordSourceChange({ eventDigest: digest(143), kind: 'mesh', now: iso(24_000), debounceUntil: iso(44_000) })
+    expect(await store.recordSourceChange({ eventDigest: digest(143), kind: 'mesh', now: iso(24_000), debounceUntil: iso(44_000) }))
+      .toMatchObject({ status: 'accepted', nextDueAt: iso(60_000) })
     expect(await store.claim({ now: iso(59_999), workerId: 'worker-b' })).toBeNull()
     const retry = await store.claim({ now: iso(60_000), workerId: 'worker-b' })
     expect(retry).toMatchObject({ generation: 1, workKinds: ['work'] })
