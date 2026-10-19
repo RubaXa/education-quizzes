@@ -185,6 +185,178 @@ describe('worker source lifecycle', () => {
     }
   })
 
+  it('wakes a long idle delivery wait on source accept but respects the durable grouping due time', async () => {
+    vi.useFakeTimers()
+    try {
+      const processLike = new EventEmitter()
+      let handlers
+      let finishTelegram
+      let eligibleRuns = 0
+      let dueAt = Infinity
+      const runtime = {
+        setWorkerWakeHandlers(value) { handlers = value },
+        sourceCoordinator: { async start() {}, async close() {} },
+        notificationService: { async runOne() { if (Date.now() >= dueAt) eligibleRuns += 1; return false } },
+        telegram: { bot: { isRunning: () => true }, async start() { await new Promise((resolve) => { finishTelegram = resolve }) },
+          async stop() { finishTelegram() } },
+        db: { async terminate() {} },
+      }
+      const running = runWorker({ runtime, enableDelivery: true, logger, processLike, random: () => 0 })
+      await vi.advanceTimersByTimeAsync(63_000)
+      dueAt = Date.now() + 30_000
+      handlers.delivery(new Date(dueAt).toISOString())
+      const lateHandlers = handlers
+      await vi.advanceTimersByTimeAsync(29_999)
+      expect(eligibleRuns).toBe(0)
+      await vi.advanceTimersByTimeAsync(1_000)
+      expect(eligibleRuns).toBeGreaterThan(0)
+      processLike.emit('SIGTERM')
+      await expect(running).resolves.toEqual({ ok: true })
+      expect(vi.getTimerCount()).toBe(0)
+      lateHandlers.delivery(new Date(Date.now() + 5_000).toISOString())
+      expect(vi.getTimerCount()).toBe(0)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('keeps later grouped due hints after an earlier flush wake', async () => {
+    vi.useFakeTimers()
+    try {
+      const processLike = new EventEmitter()
+      let handlers
+      let finishTelegram
+      let firstDue = Infinity
+      let secondDue = Infinity
+      let eligibleRuns = 0
+      const runtime = {
+        setWorkerWakeHandlers(value) { handlers = value },
+        sourceCoordinator: { async start() {}, async close() {} },
+        notificationService: { async runOne() { if (Date.now() >= secondDue) eligibleRuns += 1; return false } },
+        telegram: { bot: { isRunning: () => true }, async start() { await new Promise((resolve) => { finishTelegram = resolve }) },
+          async stop() { finishTelegram() } },
+        db: { async terminate() {} },
+      }
+      const running = runWorker({ runtime, enableDelivery: true, logger, processLike, random: () => 0 })
+      await vi.advanceTimersByTimeAsync(63_000)
+      firstDue = Date.now() + 30_000
+      secondDue = Date.now() + 50_000
+      handlers.delivery(new Date(firstDue).toISOString())
+      handlers.delivery(new Date(secondDue).toISOString())
+      await vi.advanceTimersByTimeAsync(29_999)
+      expect(eligibleRuns).toBe(0)
+      await vi.advanceTimersByTimeAsync(20_001)
+      expect(eligibleRuns).toBeGreaterThan(0)
+      processLike.emit('SIGTERM')
+      await expect(running).resolves.toEqual({ ok: true })
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('does not lose a wake that arrives inside runOne before the loop waits', async () => {
+    vi.useFakeTimers()
+    try {
+      const processLike = new EventEmitter()
+      let handlers
+      let finishTelegram
+      let calls = 0
+      const runtime = {
+        setWorkerWakeHandlers(value) { handlers = value },
+        sourceCoordinator: { async start() {}, async close() {} },
+        notificationService: { async runOne() {
+          calls += 1
+          if (calls === 1) handlers.delivery(new Date(Date.now() + 60_000).toISOString())
+          return false
+        } },
+        telegram: { bot: { isRunning: () => true }, async start() { await new Promise((resolve) => { finishTelegram = resolve }) },
+          async stop() { finishTelegram() } },
+        db: { async terminate() {} },
+      }
+      const running = runWorker({ runtime, enableDelivery: true, logger, processLike, random: () => 0 })
+      for (let index = 0; index < 8; index += 1) await Promise.resolve()
+      expect(calls).toBe(2)
+      await vi.advanceTimersByTimeAsync(500)
+      expect(calls).toBe(2)
+      processLike.emit('SIGTERM')
+      await expect(running).resolves.toEqual({ ok: true })
+      expect(vi.getTimerCount()).toBe(0)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('rechecks once when an in-flight runOne crosses its due deadline', async () => {
+    vi.useFakeTimers()
+    try {
+      const processLike = new EventEmitter()
+      let handlers
+      let finishTelegram
+      let finishSecondRun
+      let calls = 0
+      const dueAt = Date.now() + 10_000
+      const runtime = {
+        setWorkerWakeHandlers(value) { handlers = value },
+        sourceCoordinator: { async start() {}, async close() {} },
+        notificationService: { runOne() {
+          calls += 1
+          return calls === 2 ? new Promise((resolve) => { finishSecondRun = resolve }) : Promise.resolve(false)
+        } },
+        telegram: { bot: { isRunning: () => true }, async start() { await new Promise((resolve) => { finishTelegram = resolve }) },
+          async stop() { finishTelegram() } },
+        db: { async terminate() {} },
+      }
+      const running = runWorker({ runtime, enableDelivery: true, logger, processLike, random: () => 0 })
+      await vi.advanceTimersByTimeAsync(0)
+      expect(calls).toBe(1)
+      handlers.delivery(new Date(dueAt).toISOString())
+      await vi.advanceTimersByTimeAsync(0)
+      expect(calls).toBe(2)
+      expect(finishSecondRun).toBeTypeOf('function')
+      await vi.advanceTimersByTimeAsync(10_002)
+      finishSecondRun(false)
+      await vi.advanceTimersByTimeAsync(0)
+      expect(calls).toBe(3)
+      await vi.advanceTimersByTimeAsync(500)
+      expect(calls).toBe(3)
+      processLike.emit('SIGTERM')
+      await expect(running).resolves.toEqual({ ok: true })
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('wakes the EducationSync dispatcher at its 20 second debounce deadline', async () => {
+    vi.useFakeTimers()
+    try {
+      const processLike = new EventEmitter()
+      let handlers
+      let finishTelegram
+      let eligibleRuns = 0
+      let dueAt = Infinity
+      const runtime = {
+        setWorkerWakeHandlers(value) { handlers = value },
+        sourceCoordinator: { async start() {}, async close() {} },
+        educationSyncDispatcher: { async runOne() { if (Date.now() >= dueAt) eligibleRuns += 1; return false } },
+        telegram: { bot: { isRunning: () => true }, async start() { await new Promise((resolve) => { finishTelegram = resolve }) },
+          async stop() { finishTelegram() } },
+        db: { async terminate() {} },
+      }
+      const running = runWorker({ runtime, enableDelivery: false, logger, processLike, random: () => 0 })
+      await vi.advanceTimersByTimeAsync(63_000)
+      dueAt = Date.now() + 20_000
+      handlers.educationSync(new Date(dueAt).toISOString())
+      await vi.advanceTimersByTimeAsync(19_999)
+      expect(eligibleRuns).toBe(0)
+      await vi.advanceTimersByTimeAsync(1)
+      expect(eligibleRuns).toBeGreaterThan(0)
+      processLike.emit('SIGTERM')
+      await expect(running).resolves.toEqual({ ok: true })
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('reports source close failure and still terminates Firestore', async () => {
     const processLike = new EventEmitter()
     let finishTelegram

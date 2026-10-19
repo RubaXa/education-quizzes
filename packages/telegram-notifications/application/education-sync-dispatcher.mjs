@@ -166,7 +166,9 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
         tx.set(ref, { ...state, generation, pendingKinds, changedAt: now, debounceUntil,
           status: holdState ? state.status : 'pending', retryAt: preserveRetry ? state.retryAt ?? null : null,
           ...(clearStaleBatch ? { sendingGeneration: null, sendingKinds: null } : {}) }, { merge: false })
-        return { status: 'accepted', generation }
+        const retryDue = preserveRetry && state.retryAt ? state.retryAt : null
+        const nextDueAt = [debounceUntil, retryDue].filter(Boolean).sort().at(-1)
+        return { status: 'accepted', generation, ...(!holdState ? { nextDueAt } : {}) }
       })
     },
     async read() {

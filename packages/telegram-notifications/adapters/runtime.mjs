@@ -43,6 +43,8 @@ export function createRuntime(config, { logger = console, linkAuthorizer = null,
     workerId: config.instanceId,
     telemetry,
   })
+  let workerWakeDelivery = () => {}
+  let workerWakeEducationSync = () => {}
   wrapMethod(notificationService, 'accept', telemetry, 'telegram.notification.accept', (event) => ({
     eventId: event?.eventId, scopeHash: opaqueHash(`${event?.familyId ?? ''}/${event?.childId ?? ''}`),
   }))
@@ -64,9 +66,11 @@ export function createRuntime(config, { logger = console, linkAuthorizer = null,
       pipelines.firestore = new SourcePipeline({ source: firestoreSource, checkpoints: createFirestoreSourceCheckpointStore(db),
         accept: async (event) => {
           const result = await notificationService.accept(event)
+          if (result?.created && result.queued > 0 && result.nextDueAt) workerWakeDelivery(result.nextDueAt)
           if (educationSyncDispatcher && event?.source === 'firestore'
             && ['upload.confirmed', 'quiz.submitted'].includes(event.eventType) && /^[a-f0-9]{64}$/.test(event.eventId ?? '')) {
-            await educationSyncDispatcher.enqueueWorkChange(event)
+            const queued = await educationSyncDispatcher.enqueueWorkChange(event)
+            if (queued?.status === 'accepted' && queued.nextDueAt) workerWakeEducationSync(queued.nextDueAt)
           }
           return result
         }, mode: enableDelivery ? 'notify' : 'shadow',
@@ -84,9 +88,11 @@ export function createRuntime(config, { logger = console, linkAuthorizer = null,
       pipelines.mesh = new SourcePipeline({ source: meshSource, checkpoints: createFirestoreSourceCheckpointStore(db),
         accept: async (event) => {
           const result = await notificationService.accept(event)
+          if (result?.created && result.queued > 0 && result.nextDueAt) workerWakeDelivery(result.nextDueAt)
           if (educationSyncDispatcher && event?.source === 'mesh' && event.eventType !== 'technical.probe'
             && /^[a-f0-9]{64}$/.test(event.eventId ?? '')) {
-            await educationSyncDispatcher.enqueueMeshChange(event.eventId)
+            const queued = await educationSyncDispatcher.enqueueMeshChange(event.eventId)
+            if (queued?.status === 'accepted' && queued.nextDueAt) workerWakeEducationSync(queued.nextDueAt)
           }
           return result
         }, mode: enableDelivery ? 'notify' : 'shadow',
@@ -124,7 +130,11 @@ export function createRuntime(config, { logger = console, linkAuthorizer = null,
       source: _kind, scopeHash: opaqueHash(`${scope?.familyId ?? ''}/${scope?.childId ?? ''}`),
     }))
   }
-  return { db, adapters, identity, telegram, notificationService, sourceCoordinator, educationSyncDispatcher, verifyFirestore }
+  return { db, adapters, identity, telegram, notificationService, sourceCoordinator, educationSyncDispatcher, verifyFirestore,
+    setWorkerWakeHandlers({ delivery = () => {}, educationSync = () => {} } = {}) {
+      workerWakeDelivery = delivery
+      workerWakeEducationSync = educationSync
+    } }
 }
 
 function wrapMethod(target, name, telemetry, operation, attrs = () => ({}), kind = 'span') {

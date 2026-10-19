@@ -4398,8 +4398,8 @@
       }
     },
     "packages/telegram-notifications/adapters/firestore.mjs": {
-      "sha256": "a1bf82307e5429d8082934975dac524bfba7571e53049313d798608345d0c47f",
-      "record": "docs/decisions/telegram-linked-work-history-2026-10-18.md",
+      "sha256": "4eb589e5d559beee4cdda5736899c4e3dbc43d526cc1b7c463cb157cabd53274",
+      "record": "docs/decisions/telegram-sync-recovery-2026-10-19.md",
       "specs": [
         "docs/services/telegram-bot/work-history.md",
         "docs/shared/design/telegram.md"
@@ -4409,8 +4409,8 @@
         "packages/telegram-notifications/source-pipeline.test.mjs"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "Пользователь18.10.2026 выбрал сводку изменений и связанную историю каждой работы, прямо потребовал убрать кнопку UI Kit, внедрить через Luna, обновить спецификации/тесты и выпустить в main с согласованием сессий."
+        "status": "direct-request",
+        "evidence": "Пользователь19.10 сообщил повторную задержку Firebase upload → Telegram/EducationSync и ранее разрешил Luna исправления, тесты, проверки и выпуск main с обновлением постоянного процесса."
       }
     },
     "packages/telegram-notifications/adapters/memory.mjs": {
@@ -4428,7 +4428,7 @@
       }
     },
     "packages/telegram-notifications/adapters/runtime.mjs": {
-      "sha256": "e53316bb596d18cac433e10d872936218d885287be94afb90c289d5da664c195",
+      "sha256": "b43caed8d5c9b3a8f47cf1bdf8eacdcd7ad0f057ff7009baf1b7d02de374d4c3",
       "record": "docs/decisions/telegram-sync-recovery-2026-10-19.md",
       "specs": [
         "docs/services/telegram-bot/education-sync-dispatch.md"
@@ -4441,7 +4441,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 требует через Luna исправить зависание, подключить автоматический EducationSync, проверить реальные Mesh notifications, добавить tests/specs и выпустить main."
+        "evidence": "Пользователь19.10 сообщил повторную задержку Firebase upload → Telegram/EducationSync и ранее разрешил Luna исправления, тесты, проверки и выпуск main с обновлением постоянного процесса."
       }
     },
     "packages/telegram-notifications/adapters/telegram.mjs": {
@@ -4460,7 +4460,7 @@
       }
     },
     "packages/telegram-notifications/adapters/worker-loop.mjs": {
-      "sha256": "34aa3d2cdd0ed91ac59f013765cb943b6050127611e6e5854465ffdedf3cac95",
+      "sha256": "cb23740d00d459c6f71681c1297bc1b602b853f6c8a492aae90c296c4d027522",
       "record": "docs/decisions/telegram-sync-recovery-2026-10-19.md",
       "specs": [
         "docs/services/telegram-bot/operations.md",
@@ -4473,7 +4473,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 требует через Luna исправить зависание, подключить автоматический EducationSync, проверить реальные Mesh notifications, добавить tests/specs и выпустить main."
+        "evidence": "Пользователь19.10 сообщил повторную задержку Firebase upload → Telegram/EducationSync и ранее разрешил Luna исправления, тесты, проверки и выпуск main с обновлением постоянного процесса."
       }
     },
     "packages/telegram-notifications/application/identity.mjs": {
@@ -5400,7 +5400,7 @@
       }
     },
     "packages/telegram-notifications/application/education-sync-dispatcher.mjs": {
-      "sha256": "78efeefe474151c24c2315165ce0a380abdd09e013105bd6bd2ba2dbf291f9eb",
+      "sha256": "d5bdfa609afb46a1b2bcf297fff1bc95a0a135934630c0f189af71d255fd60cd",
       "record": "docs/decisions/telegram-sync-recovery-2026-10-19.md",
       "specs": [
         "docs/services/telegram-bot/education-sync-dispatch.md"
@@ -5413,7 +5413,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 требует через Luna исправить зависание, подключить автоматический EducationSync, проверить реальные Mesh notifications, добавить tests/specs и выпустить main."
+        "evidence": "Пользователь19.10 сообщил повторную задержку Firebase upload → Telegram/EducationSync и ранее разрешил Luna исправления, тесты, проверки и выпуск main с обновлением постоянного процесса."
       }
     },
     "packages/telegram-notifications/operations/mesh-delivery-check.mjs": {

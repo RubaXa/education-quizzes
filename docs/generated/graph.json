@@ -3201,8 +3201,8 @@
       "id": "file:packages/telegram-notifications/adapters/worker-loop.mjs",
       "path": "packages/telegram-notifications/adapters/worker-loop.mjs",
       "kind": "artifact",
-      "purpose": "Прерываемый цикл outbox и корректное завершение с ожиданием обработки",
-      "consumer": "CLI worker; `scripts/telegram-bot.mjs`"
+      "purpose": "Прерываемые outbox/dispatcher loops с локальным wake по due time, bounded fallback и корректным завершением",
+      "consumer": "CLI worker; runtime source handlers"
     },
     {
       "id": "file:packages/telegram-notifications/adapters/worker-loop.test.mjs",
