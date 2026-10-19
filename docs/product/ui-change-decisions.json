@@ -71,30 +71,62 @@
     "src/components/DiagnosticsCopyButton.tsx": {
       "sha256": "fa9a176a43016f28fe76ca4bf046d4f83a6d1f0d7bf1f144c0e942dc1152db93",
       "record": "docs/decisions/ldd-copy-button-2026-10-19.md",
-      "specs": ["docs/modules/families/browser-access-trace.md", "docs/shared/design/README.md"],
-      "tests": ["src/components/DiagnosticsCopyButton.test.tsx", "src/lib/browserAccessTrace.clipboard.test.ts"],
-      "authorization": {"status": "direct-request", "evidence": "Пользователь19.10 прямо требует кнопку 🐞, которая одним кликом копирует логи без Console."}
+      "specs": [
+        "docs/modules/families/browser-access-trace.md",
+        "docs/shared/design/README.md"
+      ],
+      "tests": [
+        "src/components/DiagnosticsCopyButton.test.tsx",
+        "src/lib/browserAccessTrace.clipboard.test.ts"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь19.10 прямо требует кнопку 🐞, которая одним кликом копирует логи без Console."
+      }
     },
     "src/main.tsx": {
       "sha256": "f92237bdeb6038ad1e7eb563c7cf8ddec78cbe3d523bc99b58f20b03cefaa71e",
       "record": "docs/decisions/browser-role-ldd-2026-10-18.md",
-      "specs": ["docs/modules/families/browser-access-trace.md"],
-      "tests": ["src/lib/browserAccessTrace.test.ts", "src/components/PersonalEntry.role.integration.test.tsx"],
-      "authorization": {"status": "direct-request", "evidence": "Пользователь18.10 прямо требует внедрить LDD и собрать трассу проблемной вкладки, сохраняя существующий интерфейс."}
+      "specs": [
+        "docs/modules/families/browser-access-trace.md"
+      ],
+      "tests": [
+        "src/lib/browserAccessTrace.test.ts",
+        "src/components/PersonalEntry.role.integration.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь18.10 прямо требует внедрить LDD и собрать трассу проблемной вкладки, сохраняя существующий интерфейс."
+      }
     },
     "src/lib/browserAccessTrace.ts": {
       "sha256": "95164bad5bd302b4de2c5cf446128efe13d8d94e96a0fa61c0adfd20716873f8",
       "record": "docs/decisions/ldd-copy-button-2026-10-19.md",
-      "specs": ["docs/modules/families/browser-access-trace.md"],
-      "tests": ["src/lib/browserAccessTrace.test.ts", "src/components/PersonalEntry.role.integration.test.tsx"],
-      "authorization": {"status": "direct-request", "evidence": "Пользователь18.10 прямо требует внедрить LDD и собрать трассу проблемной вкладки, сохраняя существующий интерфейс."}
+      "specs": [
+        "docs/modules/families/browser-access-trace.md"
+      ],
+      "tests": [
+        "src/lib/browserAccessTrace.test.ts",
+        "src/components/PersonalEntry.role.integration.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь18.10 прямо требует внедрить LDD и собрать трассу проблемной вкладки, сохраняя существующий интерфейс."
+      }
     },
     "scripts/browser-access-trace.mjs": {
       "sha256": "acffa97d218ddec21027c347d02d0cbefdb4423dd8b9e4308a6397f4f788d3cd",
       "record": "docs/decisions/ldd-copy-button-2026-10-19.md",
-      "specs": ["docs/modules/families/browser-access-trace.md"],
-      "tests": ["scripts/browser-access-trace.test.mjs"],
-      "authorization": {"status": "direct-request", "evidence": "Пользователь18.10 прямо требует внедрить LDD и собрать трассу проблемной вкладки, сохраняя существующий интерфейс."}
+      "specs": [
+        "docs/modules/families/browser-access-trace.md"
+      ],
+      "tests": [
+        "scripts/browser-access-trace.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь18.10 прямо требует внедрить LDD и собрать трассу проблемной вкладки, сохраняя существующий интерфейс."
+      }
     },
     "src/lib/roleDiagnostics.ts": {
       "sha256": "b11fab6c636aa31086d3c24ae97c08a12da7e6fe2ffa59235bf39f2ab101a56e",
@@ -4372,17 +4404,20 @@
       }
     },
     "packages/telegram-notifications/adapters/config.mjs": {
-      "sha256": "6a496bd94573a880cdb15ff2bd480f73ed726d28351b7688d206b8e8b56dc8a9",
-      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "sha256": "d82ec8bc8057f64fb09403bce4dc6eca228d82bfaf0b05da18d11511d16c4ffe",
+      "record": "docs/decisions/telegram-sync-recovery-2026-10-19.md",
       "specs": [
-        "docs/services/telegram-bot/operations.md"
+        "docs/services/telegram-bot/operations.md",
+        "docs/shared/server-runtime.md"
       ],
       "tests": [
-        "packages/telegram-notifications/adapters/config.test.mjs"
+        "packages/telegram-notifications/operations/operation-deadline.test.mjs",
+        "packages/telegram-notifications/adapters/worker-loop.test.mjs",
+        "packages/telegram-notifications/source-pipeline.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+        "evidence": "Пользователь19.10 требует через Luna исправить зависание, подключить автоматический EducationSync, проверить реальные Mesh notifications, добавить tests/specs и выпустить main."
       }
     },
     "packages/telegram-notifications/adapters/firestore.mjs": {
@@ -4416,19 +4451,20 @@
       }
     },
     "packages/telegram-notifications/adapters/runtime.mjs": {
-      "sha256": "5a138ba3278766acf5c1a5403acbbe900674e14fcd68cfae1d8e1d1ffd2d8153",
-      "record": "docs/decisions/telegram-design-system-2026-10-18.md",
+      "sha256": "b31e7615235d51a3e09a1ee3d2764960b548c709e858914668474d117f34bafe",
+      "record": "docs/decisions/telegram-sync-recovery-2026-10-19.md",
       "specs": [
-        "docs/shared/design/telegram.md",
-        "docs/services/telegram-bot/delivery.md"
+        "docs/services/telegram-bot/operations.md",
+        "docs/shared/server-runtime.md"
       ],
       "tests": [
-        "packages/telegram-notifications/renderer.test.mjs",
-        "packages/education-presentation/notification.test.mjs"
+        "packages/telegram-notifications/operations/operation-deadline.test.mjs",
+        "packages/telegram-notifications/adapters/worker-loop.test.mjs",
+        "packages/telegram-notifications/source-pipeline.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10 прямо разрешил Luna реализацию единого Telegram дизайна, UI Kit, реальные примеры, тесты и выпуск main."
+        "evidence": "Пользователь19.10 требует через Luna исправить зависание, подключить автоматический EducationSync, проверить реальные Mesh notifications, добавить tests/specs и выпустить main."
       }
     },
     "packages/telegram-notifications/adapters/telegram.mjs": {
@@ -4447,17 +4483,20 @@
       }
     },
     "packages/telegram-notifications/adapters/worker-loop.mjs": {
-      "sha256": "09b9da0128d7b64e56716781905ee8ecd3084d2ba2eee2a6ad1f54fad821c396",
-      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "sha256": "34aa3d2cdd0ed91ac59f013765cb943b6050127611e6e5854465ffdedf3cac95",
+      "record": "docs/decisions/telegram-sync-recovery-2026-10-19.md",
       "specs": [
-        "docs/services/telegram-bot/operations.md"
+        "docs/services/telegram-bot/operations.md",
+        "docs/shared/server-runtime.md"
       ],
       "tests": [
-        "packages/telegram-notifications/adapters/worker-loop.test.mjs"
+        "packages/telegram-notifications/operations/operation-deadline.test.mjs",
+        "packages/telegram-notifications/adapters/worker-loop.test.mjs",
+        "packages/telegram-notifications/source-pipeline.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+        "evidence": "Пользователь19.10 требует через Luna исправить зависание, подключить автоматический EducationSync, проверить реальные Mesh notifications, добавить tests/specs и выпустить main."
       }
     },
     "packages/telegram-notifications/application/identity.mjs": {
@@ -4565,17 +4604,20 @@
       }
     },
     "scripts/telegram-bot.mjs": {
-      "sha256": "083cdb47a7de520471ef801c274cd2c6457101867c111f8160a815c83e38c411",
-      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "sha256": "d8f36afeff29d75a3c15391a0e2c05bebfd5ca5345c193dd0d5b4aff9a2c7caa",
+      "record": "docs/decisions/telegram-sync-recovery-2026-10-19.md",
       "specs": [
-        "docs/services/telegram-bot/operations.md"
+        "docs/services/telegram-bot/operations.md",
+        "docs/shared/server-runtime.md"
       ],
       "tests": [
-        "scripts/telegram-bot.test.mjs"
+        "packages/telegram-notifications/operations/operation-deadline.test.mjs",
+        "packages/telegram-notifications/adapters/worker-loop.test.mjs",
+        "packages/telegram-notifications/source-pipeline.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+        "evidence": "Пользователь19.10 требует через Luna исправить зависание, подключить автоматический EducationSync, проверить реальные Mesh notifications, добавить tests/specs и выпустить main."
       }
     },
     "packages/telegram-notifications/adapters/mesh-credentials.mjs": {
@@ -4694,19 +4736,20 @@
       }
     },
     "packages/telegram-notifications/application/source-pipeline.mjs": {
-      "sha256": "372f8eb4597d95a5306e4be0ec5753fb04aeb8ae3c796b0af78b8d8d9fe39882",
-      "record": "docs/decisions/telegram-linked-work-history-2026-10-18.md",
+      "sha256": "e53abf24f46ae6bf12243d953bf39acd71ebf451d097a53d70317b88668247ea",
+      "record": "docs/decisions/telegram-sync-recovery-2026-10-19.md",
       "specs": [
-        "docs/services/telegram-bot/work-history.md",
-        "docs/shared/design/telegram.md"
+        "docs/services/telegram-bot/operations.md",
+        "docs/shared/server-runtime.md"
       ],
       "tests": [
-        "packages/telegram-notifications/notifications.test.mjs",
+        "packages/telegram-notifications/operations/operation-deadline.test.mjs",
+        "packages/telegram-notifications/adapters/worker-loop.test.mjs",
         "packages/telegram-notifications/source-pipeline.test.mjs"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "Пользователь18.10.2026 выбрал сводку изменений и связанную историю каждой работы, прямо потребовал убрать кнопку UI Kit, внедрить через Luna, обновить спецификации/тесты и выпустить в main с согласованием сессий."
+        "status": "direct-request",
+        "evidence": "Пользователь19.10 требует через Luna исправить зависание, подключить автоматический EducationSync, проверить реальные Mesh notifications, добавить tests/specs и выпустить main."
       }
     },
     "packages/education-runtime/credentials.mjs": {
@@ -4783,17 +4826,20 @@
       }
     },
     "packages/education-runtime/telemetry.mjs": {
-      "sha256": "f15d3c60a08ebd316a607032c763bb242d845b8aa5fa3e3522a3c80e7400e038",
-      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "sha256": "57703e6fd50ddbd54aadd89b419baf2f66090280d0c53dc2a08570cd9aaf762b",
+      "record": "docs/decisions/telegram-sync-recovery-2026-10-19.md",
       "specs": [
+        "docs/services/telegram-bot/operations.md",
         "docs/shared/server-runtime.md"
       ],
       "tests": [
-        "packages/education-runtime/telemetry.test.mjs"
+        "packages/telegram-notifications/operations/operation-deadline.test.mjs",
+        "packages/telegram-notifications/adapters/worker-loop.test.mjs",
+        "packages/telegram-notifications/source-pipeline.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+        "evidence": "Пользователь19.10 требует через Luna исправить зависание, подключить автоматический EducationSync, проверить реальные Mesh notifications, добавить tests/specs и выпустить main."
       }
     },
     "packages/telegram-notifications/adapters/probe-recipient-firestore.mjs": {
@@ -4827,31 +4873,37 @@
       }
     },
     "packages/telegram-notifications/operations/launch-agent.mjs": {
-      "sha256": "b83b152b2875039aaec7582feb6f7faeed7373cdb03215fec90e3dcd5f739354",
-      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "sha256": "5298030d5f0809456327c6efbc48798a61fed3fe747eb9696e074d5047fd015a",
+      "record": "docs/decisions/telegram-sync-recovery-2026-10-19.md",
       "specs": [
-        "docs/services/telegram-bot/operations.md"
+        "docs/services/telegram-bot/operations.md",
+        "docs/shared/server-runtime.md"
       ],
       "tests": [
-        "packages/telegram-notifications/operations/launch-agent.test.mjs"
+        "packages/telegram-notifications/operations/operation-deadline.test.mjs",
+        "packages/telegram-notifications/adapters/worker-loop.test.mjs",
+        "packages/telegram-notifications/source-pipeline.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+        "evidence": "Пользователь19.10 требует через Luna исправить зависание, подключить автоматический EducationSync, проверить реальные Mesh notifications, добавить tests/specs и выпустить main."
       }
     },
     "packages/telegram-notifications/operations/private-logger.mjs": {
-      "sha256": "8aab0f509220cd3136bfc537c49b89211f26aba6e1d90e2c12eac14c1c57304d",
-      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "sha256": "99e4b7fd572e0d10a71e68cd1c6a4eec0e189354fb5083abd275b34c6bc46305",
+      "record": "docs/decisions/telegram-sync-recovery-2026-10-19.md",
       "specs": [
-        "docs/services/telegram-bot/operations.md"
+        "docs/services/telegram-bot/operations.md",
+        "docs/shared/server-runtime.md"
       ],
       "tests": [
-        "packages/telegram-notifications/operations/private-logger.test.mjs"
+        "packages/telegram-notifications/operations/operation-deadline.test.mjs",
+        "packages/telegram-notifications/adapters/worker-loop.test.mjs",
+        "packages/telegram-notifications/source-pipeline.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+        "evidence": "Пользователь19.10 требует через Luna исправить зависание, подключить автоматический EducationSync, проверить реальные Mesh notifications, добавить tests/specs и выпустить main."
       }
     },
     "packages/telegram-notifications/operations/probe-runner.mjs": {
@@ -4967,17 +5019,19 @@
       }
     },
     "scripts/telegram-runtime.mjs": {
-      "sha256": "232c1451bce82a4569c6bafe039858a21e39cd273c9d1d58e63b69150112e4bc",
-      "record": "docs/decisions/telegram-compact-digest-2026-10-18.md",
+      "sha256": "916f6218e5d64b6ba6886db95c22b08d084fb8f66bc2629ad353d40704766258",
+      "record": "docs/decisions/telegram-sync-recovery-2026-10-19.md",
       "specs": [
-        "docs/services/telegram-bot/operations.md"
+        "docs/services/telegram-bot/operations.md",
+        "docs/shared/server-runtime.md"
       ],
       "tests": [
+        "packages/telegram-notifications/operations/mesh-delivery-check.test.mjs",
         "scripts/telegram-runtime.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10 требует исправить реальные огромные неинформативные Telegram уведомления; ранее прямо разрешил Luna реализацию, тесты, UI Kit, реальные примеры и выпуск main."
+        "evidence": "Пользователь19.10 требует через Luna исправить зависание, подключить автоматический EducationSync, проверить реальные Mesh notifications, добавить tests/specs и выпустить main."
       }
     },
     "scripts/telegram-indexes.mjs": {
@@ -5366,6 +5420,73 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Родитель18.10: в родительском разборе PWA невозможно отправить подсказку; просит найти нарушивший контракт коммит и устранить расхождения данных/действий в вебе и PWA."
+      }
+    },
+    "packages/telegram-notifications/application/education-sync-dispatcher.mjs": {
+      "sha256": "3fedcb08fe9e84101e0fd94f3376c72a58280185036c3c7bf0e6eb6bcdb2b227",
+      "record": "docs/decisions/telegram-sync-recovery-2026-10-19.md",
+      "specs": [
+        "docs/services/telegram-bot/education-sync-dispatch.md",
+        "docs/shared/server-runtime.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/application/education-sync-dispatch-store.test.mjs",
+        "packages/telegram-notifications/application/education-sync-dispatcher.test.mjs",
+        "scripts/education-sync-dispatch.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь19.10 требует через Luna исправить зависание, подключить автоматический EducationSync, проверить реальные Mesh notifications, добавить tests/specs и выпустить main."
+      }
+    },
+    "packages/telegram-notifications/operations/mesh-delivery-check.mjs": {
+      "sha256": "790c1d23b85a160f8ca6bed12e80d7f1bc5bfe3a22390403d1a3fad8e33c3b97",
+      "record": "docs/decisions/telegram-sync-recovery-2026-10-19.md",
+      "specs": [
+        "docs/services/telegram-bot/operations.md",
+        "docs/shared/server-runtime.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/operations/mesh-delivery-check.test.mjs",
+        "scripts/telegram-runtime.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь19.10 требует через Luna исправить зависание, подключить автоматический EducationSync, проверить реальные Mesh notifications, добавить tests/specs и выпустить main."
+      }
+    },
+    "packages/telegram-notifications/operations/operation-deadline.mjs": {
+      "sha256": "cbf81d50d27c4b617dabf26fc7d3c9fd929d1e6e1e56eae8ec92d236c8ff2886",
+      "record": "docs/decisions/telegram-sync-recovery-2026-10-19.md",
+      "specs": [
+        "docs/services/telegram-bot/operations.md",
+        "docs/shared/server-runtime.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/operations/operation-deadline.test.mjs",
+        "packages/telegram-notifications/adapters/worker-loop.test.mjs",
+        "packages/telegram-notifications/source-pipeline.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь19.10 требует через Luna исправить зависание, подключить автоматический EducationSync, проверить реальные Mesh notifications, добавить tests/specs и выпустить main."
+      }
+    },
+    "scripts/education-sync-dispatch.mjs": {
+      "sha256": "8d10182e49675a1e05fd9a3316554c1828baaf3dfdc9ec5c7d7b11de2aec9cf9",
+      "record": "docs/decisions/telegram-sync-recovery-2026-10-19.md",
+      "specs": [
+        "docs/services/telegram-bot/education-sync-dispatch.md",
+        "docs/shared/server-runtime.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/application/education-sync-dispatch-store.test.mjs",
+        "packages/telegram-notifications/application/education-sync-dispatcher.test.mjs",
+        "scripts/education-sync-dispatch.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь19.10 требует через Luna исправить зависание, подключить автоматический EducationSync, проверить реальные Mesh notifications, добавить tests/specs и выпустить main."
       }
     }
   }

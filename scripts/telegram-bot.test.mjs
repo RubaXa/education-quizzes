@@ -1,5 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
 import { EventEmitter } from 'node:events'
+import { spawnSync } from 'node:child_process'
+import { existsSync, mkdtempSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { main, parseWorkerFlags } from './telegram-bot.mjs'
 import { loadConfig } from '../packages/telegram-notifications/adapters/config.mjs'
 
@@ -25,8 +29,40 @@ describe('telegram worker flags and technical settings', () => {
     expect(config.sourceReconcileMs).toBe(30_000)
     expect(config.meshPollMs).toBe(900_000)
     expect(config.meshConnectionDirectory).toBe('.local/mesh-connections')
+    expect(config.startupOperationTimeoutMs).toBe(600_000)
     expect(() => loadConfig({ AGI_EDU_BOT: '123456:abcdefghijklmnopqrstuvwxyz', TELEGRAM_FIRESTORE_PROJECT_ID: 'education-prod', TELEGRAM_SOURCE_PAGE_SIZE: '1001' }))
       .toThrow('source_page_size_invalid')
+  })
+
+  it('terminates a worker whose startup Firestore verification hangs before late work can resume', () => {
+    const root = mkdtempSync(join(tmpdir(), 'telegram-startup-deadline-'))
+    const marker = join(root, 'late-startup-write')
+    try {
+      const moduleUrl = new URL('./telegram-bot.mjs', import.meta.url).href
+      const script = `
+        import { writeFileSync } from 'node:fs'
+        const { main } = await import(${JSON.stringify(moduleUrl)})
+        const runtime = {
+          telegram: { async verifyIdentity() { return { username: 'agi_edu_bot' } } },
+          verifyFirestore() { setTimeout(() => writeFileSync(${JSON.stringify(marker)}, 'late'), 150); return new Promise(() => {}) },
+          db: { async terminate() {} },
+        }
+        await main(['worker'], {
+          root: ${JSON.stringify(root)},
+          env: {},
+          configLoader: () => ({ token: '123456:abcdefghijklmnopqrstuvwxyz', projectId: 'education-prod', instanceId: 'test',
+            meshConnectionDirectory: '.local/mesh-connections', startupOperationTimeoutMs: 25,
+            sourceOperationTimeoutMs: 30000, deliveryOperationTimeoutMs: 30000, educationSyncOperationTimeoutMs: 1000 }),
+          runtimeFactory: () => runtime,
+          lockFactory: async () => ({ assertHeld() {}, async release() {} }),
+          legacyCodec: {}, logger: { info() {}, error() {} },
+        })
+      `
+      const child = spawnSync(process.execPath, ['--input-type=module', '-e', script], { encoding: 'utf8', timeout: 2_000 })
+      expect(child.error).toBeUndefined()
+      expect(child.status).toBe(1)
+      expect(existsSync(marker)).toBe(false)
+    } finally { rmSync(root, { recursive: true, force: true }) }
   })
 
   it('stops Telegram and terminates Firestore when identity verification fails', async () => {

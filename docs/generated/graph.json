@@ -966,6 +966,32 @@
       "path": "docs/decisions/telegram-source-wiring-2026-10-17.md"
     },
     {
+      "id": "decision.telegram-sync-recovery-2026-10-19",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-10-19",
+      "updated": "2026-10-19",
+      "parent": "service.telegram-bot",
+      "uses": [
+        "service.telegram-bot.operations",
+        "service.telegram-bot.education-sync-dispatch",
+        "shared.server-runtime"
+      ],
+      "consumers": [
+        "Education team",
+        "bot operator"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/telegram-sync-recovery-2026-10-19.md"
+    },
+    {
       "id": "decision.upload-notification-lifecycle-2026-10-18",
       "status": "accepted",
       "implementation": "not-applicable",
@@ -2997,6 +3023,27 @@
       "consumer": "Оператор; Vitest"
     },
     {
+      "id": "file:packages/telegram-notifications/application/education-sync-dispatch-store.test.mjs",
+      "path": "packages/telegram-notifications/application/education-sync-dispatch-store.test.mjs",
+      "kind": "verification",
+      "purpose": "Устойчивый запуск, восстановление и регрессии Education",
+      "consumer": "Оператор; runtime; Vitest"
+    },
+    {
+      "id": "file:packages/telegram-notifications/application/education-sync-dispatcher.mjs",
+      "path": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
+      "kind": "artifact",
+      "purpose": "Реализация: устойчивое восстановление и проверка цепочки Mesh/Telegram/EducationSync",
+      "consumer": "Telegram runtime; оператор; Vitest"
+    },
+    {
+      "id": "file:packages/telegram-notifications/application/education-sync-dispatcher.test.mjs",
+      "path": "packages/telegram-notifications/application/education-sync-dispatcher.test.mjs",
+      "kind": "verification",
+      "purpose": "Регрессии: устойчивое восстановление и проверка цепочки Mesh/Telegram/EducationSync",
+      "consumer": "Telegram runtime; оператор; Vitest"
+    },
+    {
       "id": "file:packages/telegram-notifications/application/identity.mjs",
       "path": "packages/telegram-notifications/application/identity.mjs",
       "kind": "artifact",
@@ -3086,6 +3133,34 @@
       "kind": "verification",
       "purpose": "Регрессии: План, установка, статус и откат закрытого macOS runtime",
       "consumer": "Vitest; разработчик"
+    },
+    {
+      "id": "file:packages/telegram-notifications/operations/mesh-delivery-check.mjs",
+      "path": "packages/telegram-notifications/operations/mesh-delivery-check.mjs",
+      "kind": "artifact",
+      "purpose": "Реализация: устойчивое восстановление и проверка цепочки Mesh/Telegram/EducationSync",
+      "consumer": "Telegram runtime; оператор; Vitest"
+    },
+    {
+      "id": "file:packages/telegram-notifications/operations/mesh-delivery-check.test.mjs",
+      "path": "packages/telegram-notifications/operations/mesh-delivery-check.test.mjs",
+      "kind": "verification",
+      "purpose": "Регрессии: устойчивое восстановление и проверка цепочки Mesh/Telegram/EducationSync",
+      "consumer": "Telegram runtime; оператор; Vitest"
+    },
+    {
+      "id": "file:packages/telegram-notifications/operations/operation-deadline.mjs",
+      "path": "packages/telegram-notifications/operations/operation-deadline.mjs",
+      "kind": "artifact",
+      "purpose": "Реализация: устойчивое восстановление и проверка цепочки Mesh/Telegram/EducationSync",
+      "consumer": "Telegram runtime; оператор; Vitest"
+    },
+    {
+      "id": "file:packages/telegram-notifications/operations/operation-deadline.test.mjs",
+      "path": "packages/telegram-notifications/operations/operation-deadline.test.mjs",
+      "kind": "verification",
+      "purpose": "Регрессии: устойчивое восстановление и проверка цепочки Mesh/Telegram/EducationSync",
+      "consumer": "Telegram runtime; оператор; Vitest"
     },
     {
       "id": "file:packages/telegram-notifications/operations/private-logger.mjs",
@@ -3513,6 +3588,20 @@
       "kind": "artifact",
       "purpose": "Выдача адресов и проверка фото работ и семейных PDF, общий архив по SHA",
       "consumer": "Клиенты загрузки; очереди"
+    },
+    {
+      "id": "file:scripts/education-sync-dispatch.mjs",
+      "path": "scripts/education-sync-dispatch.mjs",
+      "kind": "artifact",
+      "purpose": "Реализация: устойчивое восстановление и проверка цепочки Mesh/Telegram/EducationSync",
+      "consumer": "Telegram runtime; оператор; Vitest"
+    },
+    {
+      "id": "file:scripts/education-sync-dispatch.test.mjs",
+      "path": "scripts/education-sync-dispatch.test.mjs",
+      "kind": "verification",
+      "purpose": "Регрессии: устойчивое восстановление и проверка цепочки Mesh/Telegram/EducationSync",
+      "consumer": "Telegram runtime; оператор; Vitest"
     },
     {
       "id": "file:scripts/education.mjs",
@@ -7192,6 +7281,7 @@
       "uses": [],
       "sections": [
         "что-индексируется-и-чего-индекс-не-доказывает",
+        "telegram-recovery-и-educationsync1910",
         "решение-по-текущим-классам-данных",
         "варианты-из-первичных-источников-и-границы-их-применения",
         "очерёдность-и-условия-изменения",
@@ -8187,7 +8277,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-16",
-      "updated": "2026-10-18",
+      "updated": "2026-10-19",
       "consumers": [
         "Telegram service implementer",
         "bot operator",
@@ -8208,7 +8298,8 @@
         "service.telegram-bot.event-ledger-outbox",
         "service.telegram-bot.delivery",
         "service.telegram-bot.work-history",
-        "service.telegram-bot.operations"
+        "service.telegram-bot.operations",
+        "service.telegram-bot.education-sync-dispatch"
       ],
       "sections": [
         "назначение",
@@ -8256,6 +8347,37 @@
         "будущие-расширения"
       ],
       "path": "docs/services/telegram-bot/delivery.md"
+    },
+    {
+      "id": "service.telegram-bot.education-sync-dispatch",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-10-19",
+      "updated": "2026-10-19",
+      "parent": "service.telegram-bot",
+      "uses": [
+        "shared.server-runtime",
+        "service.telegram-bot.operations",
+        "service.telegram-bot.mesh",
+        "service.operator-cli"
+      ],
+      "consumers": [
+        "Telegram worker",
+        "EducationSync workflow",
+        "Education operator"
+      ],
+      "code": [
+        "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
+        "scripts/education-sync-dispatch.mjs"
+      ],
+      "sections": [
+        "назначение-и-границы",
+        "события-и-устойчивость",
+        "запуск-и-подтверждение",
+        "конфигурация-и-эксплуатация",
+        "проверки-и-статус-выпуска"
+      ],
+      "path": "docs/services/telegram-bot/education-sync-dispatch.md"
     },
     {
       "id": "service.telegram-bot.event-ledger-outbox",
@@ -8383,7 +8505,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-16",
-      "updated": "2026-10-18",
+      "updated": "2026-10-19",
       "consumers": [
         "Telegram service implementer",
         "bot operator",
@@ -8397,6 +8519,8 @@
         "scripts/telegram-bot.mjs",
         "packages/telegram-notifications/adapters/worker-loop.mjs",
         "scripts/telegram-runtime.mjs",
+        "packages/telegram-notifications/operations/mesh-delivery-check.mjs",
+        "packages/telegram-notifications/operations/operation-deadline.mjs",
         "scripts/telegram-indexes.mjs",
         "packages/telegram-notifications/operations/launch-agent.mjs",
         "packages/telegram-notifications/operations/process-lock.mjs",
@@ -8410,6 +8534,7 @@
       "parent": "service.telegram-bot",
       "uses": [
         "service.telegram-bot",
+        "service.telegram-bot.education-sync-dispatch",
         "shared.server-runtime"
       ],
       "sections": [
@@ -8419,7 +8544,10 @@
         "iam-и-данные",
         "здоровье-и-сигналы",
         "развёртывание-и-rollout",
-        "подмодули"
+        "подмодули",
+        "восстановление-зависших-операций",
+        "проверка-реальных-изменений-мэш",
+        "education-sync-dispatch"
       ],
       "path": "docs/services/telegram-bot/operations.md"
     },
@@ -8428,7 +8556,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-16",
-      "updated": "2026-10-18",
+      "updated": "2026-10-19",
       "consumers": [
         "Telegram service implementer",
         "bot operator",
@@ -9453,6 +9581,21 @@
       "type": "uses"
     },
     {
+      "from": "decision.telegram-sync-recovery-2026-10-19",
+      "to": "service.telegram-bot.education-sync-dispatch",
+      "type": "uses"
+    },
+    {
+      "from": "decision.telegram-sync-recovery-2026-10-19",
+      "to": "service.telegram-bot.operations",
+      "type": "uses"
+    },
+    {
+      "from": "decision.telegram-sync-recovery-2026-10-19",
+      "to": "shared.server-runtime",
+      "type": "uses"
+    },
+    {
       "from": "decision.upload-notification-lifecycle-2026-10-18",
       "to": "module.notifications.events",
       "type": "uses"
@@ -10193,6 +10336,11 @@
       "type": "implements"
     },
     {
+      "from": "file:packages/telegram-notifications/application/education-sync-dispatcher.mjs",
+      "to": "service.telegram-bot.education-sync-dispatch",
+      "type": "implements"
+    },
+    {
       "from": "file:packages/telegram-notifications/application/identity.mjs",
       "to": "service.telegram-bot.identity-and-linking",
       "type": "implements"
@@ -10254,6 +10402,16 @@
     },
     {
       "from": "file:packages/telegram-notifications/operations/launch-agent.mjs",
+      "to": "service.telegram-bot.operations",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/operations/mesh-delivery-check.mjs",
+      "to": "service.telegram-bot.operations",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/operations/operation-deadline.mjs",
       "to": "service.telegram-bot.operations",
       "type": "implements"
     },
@@ -10625,6 +10783,11 @@
     {
       "from": "file:scripts/direct-upload-worker.mjs",
       "to": "shared.media-storage",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/education-sync-dispatch.mjs",
+      "to": "service.telegram-bot.education-sync-dispatch",
       "type": "implements"
     },
     {
@@ -14998,6 +15161,41 @@
       "type": "uses"
     },
     {
+      "from": "service.telegram-bot.education-sync-dispatch",
+      "to": "file:packages/telegram-notifications/application/education-sync-dispatch-store.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "service.telegram-bot.education-sync-dispatch",
+      "to": "file:packages/telegram-notifications/application/education-sync-dispatcher.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "service.telegram-bot.education-sync-dispatch",
+      "to": "file:scripts/education-sync-dispatch.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "service.telegram-bot.education-sync-dispatch",
+      "to": "service.operator-cli",
+      "type": "uses"
+    },
+    {
+      "from": "service.telegram-bot.education-sync-dispatch",
+      "to": "service.telegram-bot.mesh",
+      "type": "uses"
+    },
+    {
+      "from": "service.telegram-bot.education-sync-dispatch",
+      "to": "service.telegram-bot.operations",
+      "type": "uses"
+    },
+    {
+      "from": "service.telegram-bot.education-sync-dispatch",
+      "to": "shared.server-runtime",
+      "type": "uses"
+    },
+    {
       "from": "service.telegram-bot.event-ledger-outbox",
       "to": "file:packages/telegram-notifications/notifications.test.mjs",
       "type": "verified-by"
@@ -15099,6 +15297,16 @@
     },
     {
       "from": "service.telegram-bot.operations",
+      "to": "file:packages/telegram-notifications/operations/mesh-delivery-check.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "service.telegram-bot.operations",
+      "to": "file:packages/telegram-notifications/operations/operation-deadline.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "service.telegram-bot.operations",
       "to": "file:packages/telegram-notifications/operations/private-logger.test.mjs",
       "type": "verified-by"
     },
@@ -15161,6 +15369,11 @@
       "from": "service.telegram-bot.operations",
       "to": "file:scripts/telegram-runtime.test.mjs",
       "type": "verified-by"
+    },
+    {
+      "from": "service.telegram-bot.operations",
+      "to": "service.telegram-bot.education-sync-dispatch",
+      "type": "uses"
     },
     {
       "from": "service.telegram-bot.operations",
@@ -15249,12 +15462,27 @@
     },
     {
       "from": "service.telegram-bot",
+      "to": "decision.telegram-sync-recovery-2026-10-19",
+      "type": "contains"
+    },
+    {
+      "from": "service.telegram-bot",
       "to": "service.telegram-bot.delivery",
       "type": "contains"
     },
     {
       "from": "service.telegram-bot",
       "to": "service.telegram-bot.delivery",
+      "type": "uses"
+    },
+    {
+      "from": "service.telegram-bot",
+      "to": "service.telegram-bot.education-sync-dispatch",
+      "type": "contains"
+    },
+    {
+      "from": "service.telegram-bot",
+      "to": "service.telegram-bot.education-sync-dispatch",
       "type": "uses"
     },
     {

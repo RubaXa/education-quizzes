@@ -14,6 +14,7 @@ parent: module.synchronization
 uses: []
 sections:
   - что-индексируется-и-чего-индекс-не-доказывает
+  - telegram-recovery-и-educationsync1910
   - решение-по-текущим-классам-данных
   - варианты-из-первичных-источников-и-границы-их-применения
   - очерёдность-и-условия-изменения
@@ -45,6 +46,12 @@ sections:
 AST-проход по продуктовым `src/`, `scripts/`, `sync/`, `packages/` нашёл **346 кандидатов**: 45 предварительно оправданных действий, 283 условно оправданных, 11 путей высокого риска и 7 совпадений, не относящихся к Firestore. Категория `conditional` означает «нужно проверить размер результата, частоту и альтернативу», а `high-risk` — направление аудита, **не** доказанную долю в счёте. Вызовы `Map.get()` отдельно исключены или помечены `excluded`; проверки `get()/exists()` в Firestore Rules и внутренние чтения SDK этим AST-проходом не охвачены. Динамическое создание `ref` может скрывать точный путь, поэтому реестр содержит исходное выражение, а не обещает полностью вычисленный URL.
 
 Реестр охватывает Web SDK `getDoc/getDocs/onSnapshot`, серверные `get/getAll/onSnapshot`, агрегаты `count().get()`, транзакционные `get` и другие прямые варианты. Тесты и фикстуры не включаются. Новый способ чтения SDK требует расширить сканер, реестр и этот контракт. При изменении файла пересчитывается отпечаток вызова; прежнее решение не переносится без просмотра. Исторические данные по [нагрузке](../../audits/firestore-usage-2026-10-12.md) и [плану этапов](../../plans/local-first-release-plan-2026-10-12.md) дают исходные гипотезы, но не заменяют причинное сравнение.
+
+## Telegram recovery и EducationSync19.10
+
+`mesh-delivery-check` — явная read-only диагностика: все разрешённые scopes из общего registry, один notify checkpoint на scope, адресные ledger queries по sourceEventKey с последующей строгой проверкой family/child/scope, outbox по eventId и точный groupedInto digest с проверкой eventJobIds. Окно detectedAt определяет отчёт; технический limit явно делает охват неполным. Проверка не добавляет фоновых observers и не вызывается из PWA. SDK counters не выдаются за billed reads.
+
+EducationSync dispatcher — opt-in административный consumer: транзакционно читает один event-dedupe документ и один current queue документ при принятом Mesh delta; в idle loop читает только current с bounded backoff, не сканирует школьные данные. Claim/heartbeat/complete/fail читают тот же точный request и проверяют state/token fencing. Явный enqueue-event адресно читает существующий natural Mesh ledger event и текущий семейный registry для owner validation. Полная синхронизация использует прежний operator workflow; отдельного повторного сканера учебных данных нет.
 
 ## Решение по текущим классам данных
 

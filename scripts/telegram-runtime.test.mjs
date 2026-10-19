@@ -1,7 +1,85 @@
 import { describe, expect, it } from 'vitest'
-import { main } from './telegram-runtime.mjs'
+import { createHash } from 'node:crypto'
+import { main, parseMeshDeliveryCheckArgs } from './telegram-runtime.mjs'
 
 describe('telegram runtime operator commands', () => {
+  it('parses a read-only Mesh delivery audit with an optional explicit scope cap', () => {
+    expect(parseMeshDeliveryCheckArgs([], new Date('2026-10-19T12:00:00Z'))).toEqual({
+      since: '2026-10-16T12:00:00.000Z', limit: null })
+    expect(parseMeshDeliveryCheckArgs(['--since', '2026-10-18T00:00:00Z', '--limit', '25'])).toEqual({
+      since: '2026-10-18T00:00:00.000Z', limit: 25 })
+    expect(parseMeshDeliveryCheckArgs(['--limit', '0'])).toBeNull()
+    expect(parseMeshDeliveryCheckArgs(['--apply'])).toBeNull()
+  })
+
+  it('runs mesh-delivery-check against injected adapters and reports read-only aggregate', async () => {
+    let terminated = false
+    const output = []
+    const record = { recordKey: 'a'.repeat(64), kind: 'grade', semanticHash: 'b'.repeat(64),
+      occurredAt: '2026-10-18T12:00:00.000Z', fields: { subject: 'Математика', title: 'Проверочная', value: '5' } }
+    const exitCode = await main(['mesh-delivery-check'], { root: '/tmp/project', env: { TELEGRAM_FIRESTORE_PROJECT_ID: 'education-prod' },
+      db: { async terminate() { terminated = true } }, inventory: { async enumerate() { return { complete: true,
+        scopes: [{ source: 'mesh', scope: { familyId: 'private-family', childId: 'private-child', kind: 'grades' } }] } } },
+      discoveryStore: { async prepare(input) { return { ...input, scopes: [{ ...input.scopes[0], origin: 'live' }] } } },
+      meshSource: { scopeKey: () => 'opaque', async observe() { return { source: 'mesh', scopeKey: 'opaque', familyId: 'private-family',
+        childId: 'private-child', completeness: 'complete', records: [record] } } },
+      readCheckpoint: async () => null, readLedgerEventsByRecord: async () => [], readOutboxJobs: async () => [],
+      write(value) { output.push(value) },
+    })
+    const result = JSON.parse(output[0])
+    expect(exitCode).toBe(0)
+    expect(terminated).toBe(true)
+    expect(result).toMatchObject({ coverageComplete: true, writes: 0, sends: 0, counts: { candidateEvents: 1 } })
+    expect(JSON.stringify(result)).not.toMatch(/private-family|private-child|Проверочная/)
+  })
+
+  it('resolves a grouped outbox receipt only when the digest contains the exact event job', async () => {
+    const eventId = 'e'.repeat(64)
+    const recordKey = 'a'.repeat(64)
+    const scopeKey = 'opaque-scope'
+    const sourceEventKey = createHash('sha256').update(recordKey).digest('hex')
+    const scopeHash = createHash('sha256').update(scopeKey).digest('hex')
+    const digestId = `digest_${'d'.repeat(64)}`
+    let digestRead = false
+    const db = {
+      doc(path) { return { path, async get() { return { exists: true, data: () => ({ baseline: {
+        complete: true, observationSequence: 4, sourceProjectionVersion: 2, observedAt: '2026-10-18T23:00:00.000Z',
+        records: [{ recordKey, kind: 'grade', semanticHash: 'b'.repeat(64), occurredAt: '2026-10-18T12:00:00Z',
+          fields: { subject: 'Математика', value: '5', title: 'Тест' } }],
+      } }) } } } },
+      collection(name) { return { where(field, _op, value) {
+        const isLedger = name === 'telegramNotificationEvents'
+        return { select() { return this }, async get() {
+          if (isLedger) return { docs: [{ id: 'ledger-doc', data: () => ({ eventId, sourceEventKey, scopeKey: scopeHash,
+            familyId: 'private-family', childId: 'private-child', source: 'mesh', eventType: 'grade.created',
+            detectedAt: '2026-10-19T00:00:00Z' }) }] }
+          return { docs: [{ id: 'event-job-id', data: () => ({ eventId: value, state: 'grouped', groupedInto: digestId, isDigest: false }) }] }
+        } }
+      } } },
+      async getAll(ref) { digestRead = true; expect(ref.path).toBe(`telegramNotificationOutbox/${digestId}`)
+        return [{ exists: true, data: () => ({ isDigest: true, state: 'sent', eventJobIds: ['event-job-id'],
+          partReceipts: [{ messageId: 321 }] }) }] },
+      async terminate() {},
+    }
+    const output = []
+    const exitCode = await main(['mesh-delivery-check', '--since', '2026-10-19T00:00:00Z'], {
+      root: '/tmp/project', env: { TELEGRAM_FIRESTORE_PROJECT_ID: 'education-prod' }, db, keepOpen: true,
+      inventory: { async enumerate() { return { complete: true, scopes: [{ source: 'mesh', scope: {
+        familyId: 'private-family', childId: 'private-child', kind: 'grades' } }] } } },
+      discoveryStore: { async prepare(input) { return { ...input, scopes: [{ ...input.scopes[0], origin: 'live' }] } } },
+      meshSource: { scopeKey: () => scopeKey, async observe() { return { source: 'mesh', scopeKey, familyId: 'private-family',
+        childId: 'private-child', completeness: 'complete', records: [{ recordKey, kind: 'grade', semanticHash: 'b'.repeat(64),
+          occurredAt: '2026-10-18T12:00:00Z', fields: { subject: 'Математика', value: '5', title: 'Тест' } }] } } },
+      write(value) { output.push(value) },
+    })
+    const result = JSON.parse(output[0])
+    expect(exitCode).toBe(0)
+    expect(digestRead).toBe(true)
+    expect(result.records[0]).toMatchObject({ eventIds: [eventId], sent: true, eventCoveredReceipts: 1 })
+    expect(result.counts).toMatchObject({ uniqueTelegramMessages: 1, eventCoveredReceipts: 1 })
+    expect(JSON.stringify(result)).not.toMatch(/private-family|private-child|event-job-id|321/)
+  })
+
   it('runs source-check in read-only mode and emits aggregate trace data only', async () => {
     let terminated = false
     const output = []

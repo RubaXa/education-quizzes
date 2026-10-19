@@ -750,3 +750,25 @@
 | [src/lib/useTaskGuidance.ts](../src/lib/useTaskGuidance.ts) | [Адресная помощь](modules/reviews/subject-aware-guidance.md) | Общая привязка истории, готовности и команды отправки этапа по исходному token/taskId | DayPage; WeekendMathSlot |
 | [src/WeekendMathSlot.guidance.integration.test.tsx](../src/WeekendMathSlot.guidance.integration.test.tsx) | [Адресная помощь](modules/reviews/subject-aware-guidance.md) | Реальный путь выбора/отправки, batch/inbox, ученический фрагмент, история, ошибки и выбор этапа | Vitest; выпуск |
 | [docs/decisions/weekend-parent-actions-2026-10-18.md](decisions/weekend-parent-actions-2026-10-18.md) | [Адресная помощь](modules/reviews/subject-aware-guidance.md) | Коммит происхождения пропуска и единое подключение команд двух контейнеров | Разработчик; выпуск |
+
+| [docs/services/telegram-bot/education-sync-dispatch.md](services/telegram-bot/education-sync-dispatch.md) | [Telegram service](services/telegram-bot/README.md) | Диспетчер общего EducationSync: очередь, claim, подтверждения и эксплуатация | Команда Education; оператор |
+
+| [packages/telegram-notifications/application/education-sync-dispatcher.mjs](../packages/telegram-notifications/application/education-sync-dispatcher.mjs) | [Контракт](services/telegram-bot/education-sync-dispatch.md) | Реализация: устойчивое восстановление и проверка цепочки Mesh/Telegram/EducationSync | Telegram runtime; оператор; Vitest |
+
+| [packages/telegram-notifications/application/education-sync-dispatcher.test.mjs](../packages/telegram-notifications/application/education-sync-dispatcher.test.mjs) | [Контракт](services/telegram-bot/education-sync-dispatch.md) | Регрессии: устойчивое восстановление и проверка цепочки Mesh/Telegram/EducationSync | Telegram runtime; оператор; Vitest |
+
+| [packages/telegram-notifications/operations/mesh-delivery-check.mjs](../packages/telegram-notifications/operations/mesh-delivery-check.mjs) | [Контракт](services/telegram-bot/operations.md) | Реализация: устойчивое восстановление и проверка цепочки Mesh/Telegram/EducationSync | Telegram runtime; оператор; Vitest |
+
+| [packages/telegram-notifications/operations/mesh-delivery-check.test.mjs](../packages/telegram-notifications/operations/mesh-delivery-check.test.mjs) | [Контракт](services/telegram-bot/operations.md) | Регрессии: устойчивое восстановление и проверка цепочки Mesh/Telegram/EducationSync | Telegram runtime; оператор; Vitest |
+
+| [packages/telegram-notifications/operations/operation-deadline.mjs](../packages/telegram-notifications/operations/operation-deadline.mjs) | [Контракт](services/telegram-bot/operations.md) | Реализация: устойчивое восстановление и проверка цепочки Mesh/Telegram/EducationSync | Telegram runtime; оператор; Vitest |
+
+| [packages/telegram-notifications/operations/operation-deadline.test.mjs](../packages/telegram-notifications/operations/operation-deadline.test.mjs) | [Контракт](services/telegram-bot/operations.md) | Регрессии: устойчивое восстановление и проверка цепочки Mesh/Telegram/EducationSync | Telegram runtime; оператор; Vitest |
+
+| [scripts/education-sync-dispatch.mjs](../scripts/education-sync-dispatch.mjs) | [Контракт](services/telegram-bot/education-sync-dispatch.md) | Реализация: устойчивое восстановление и проверка цепочки Mesh/Telegram/EducationSync | Telegram runtime; оператор; Vitest |
+
+| [scripts/education-sync-dispatch.test.mjs](../scripts/education-sync-dispatch.test.mjs) | [Контракт](services/telegram-bot/education-sync-dispatch.md) | Регрессии: устойчивое восстановление и проверка цепочки Mesh/Telegram/EducationSync | Telegram runtime; оператор; Vitest |
+
+| [packages/telegram-notifications/application/education-sync-dispatch-store.test.mjs](../packages/telegram-notifications/application/education-sync-dispatch-store.test.mjs) | [Контракт](services/telegram-bot/education-sync-dispatch.md) | Устойчивый запуск, восстановление и регрессии Education | Оператор; runtime; Vitest |
+
+| [docs/decisions/telegram-sync-recovery-2026-10-19.md](decisions/telegram-sync-recovery-2026-10-19.md) | [Telegram service](services/telegram-bot/README.md) | Решение и приёмка восстановления worker и запуска EducationSync | Команда Education; оператор |

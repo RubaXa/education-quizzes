@@ -188,7 +188,7 @@ export function createRotatingJsonlSink(path, { maxBytes = 5 * 1024 * 1024, maxF
   if (!Number.isInteger(maxFiles) || maxFiles < 1 || maxFiles > 20) throw new TypeError('maxFiles must be between 1 and 20')
   return {
     write(event) {
-      const line = `${JSON.stringify(safeExportEvent(event))}\n`
+      const line = `${JSON.stringify({ at: new Date().toISOString(), ...safeExportEvent(event) })}\n`
       mkdirSync(dirname(target), { recursive: true, mode: 0o700 })
       const currentBytes = existsSync(target) ? statSync(target).size : 0
       if (currentBytes + Buffer.byteLength(line) > maxBytes) {

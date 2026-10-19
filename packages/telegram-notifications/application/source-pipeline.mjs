@@ -64,7 +64,8 @@ export class SourcePipeline {
       const sequence = (lease.sequence ?? 0) + 1
       const records = mergeKnownRecords(lease.baseline?.records ?? [], currentRecords)
       if (records.length > this.maxRecords) return incompleteResult(lease.sequence ?? 0, scopeKey, 'source_snapshot_too_large')
-      const current = { complete: true, observationSequence: sequence, sourceProjectionVersion: 2, reviewProjectionVersion: 2, records }
+      const current = { complete: true, observationSequence: sequence, observedAt: this.clock().toISOString(),
+        sourceProjectionVersion: 2, reviewProjectionVersion: 2, records }
       let events = []
       if (this.mode === 'notify' && (lease.baseline || origin === 'live')) {
         const priorRecords = lease.baseline?.records ?? []
