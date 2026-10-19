@@ -75,6 +75,7 @@ sections:
 - `scripts/submissions.mjs`
 - `scripts/telegram-bot.mjs`
 - `scripts/telegram-indexes.mjs`
+- `scripts/telegram-indexes.test.mjs`
 - `scripts/telegram-runtime.mjs`
 - `src/lib/dayGuidance.ts`
 - `src/lib/dayStore.ts`

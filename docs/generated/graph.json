@@ -4279,14 +4279,14 @@
       "id": "file:scripts/telegram-indexes.mjs",
       "path": "scripts/telegram-indexes.mjs",
       "kind": "artifact",
-      "purpose": "Read-only list/plan и additive apply точных scoped outbox indexes с bounded readiness polling",
+      "purpose": "Read-only plan/apply с canonical resource validation для collection groups и field overrides",
       "consumer": "Firestore operator; Telegram worker"
     },
     {
       "id": "file:scripts/telegram-indexes.test.mjs",
       "path": "scripts/telegram-indexes.test.mjs",
       "kind": "verification",
-      "purpose": "Проверка exact index matching, dry-run, additive create, readiness timeout и safe output на fake Admin API",
+      "purpose": "Cross-group same-field regression, canonical resource validation, additive create и readiness на fake Admin API",
       "consumer": "Vitest; разработчик"
     },
     {

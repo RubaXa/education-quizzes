@@ -2456,10 +2456,10 @@
       }
     },
     "scripts/telegram-indexes.mjs": {
-      "sha256": "8d81e25d75fe14b736dc57ce89ab042e612a313fd05c17d84b73322ec3104173",
+      "sha256": "ac6a0fd64404b51ac603f345254e543668243ad5b26c01483a06f4ac22e144be",
       "record": "docs/decisions/unified-education-events-2026-10-19.md",
       "specs": [
-        "docs/modules/synchronization/event-queue.md"
+        "docs/services/telegram-bot/operations.md"
       ],
       "tests": [
         "scripts/telegram-indexes.test.mjs"

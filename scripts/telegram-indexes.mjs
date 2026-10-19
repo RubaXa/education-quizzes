@@ -67,6 +67,8 @@ export function createIndexManager({ client, projectId, expected, sleep = async 
 
   async function inspect() {
     const current = new Map()
+    const seenIndexNames = new Set()
+    const expectedGroups = new Set(expected.filter((index) => !index.fieldOverride).map((index) => index.collectionGroup))
     for (const collectionGroup of [...new Set(expected.filter((index) => !index.fieldOverride).map((index) => index.collectionGroup))]) {
       const parent = collectionGroupName(projectId, collectionGroup)
       let iterator
@@ -74,7 +76,10 @@ export function createIndexManager({ client, projectId, expected, sleep = async 
       catch (error) { throw safeApiError(error) }
       try {
         for await (const index of iterator) {
-          const key = indexKey({ ...index, collectionGroup })
+          const actualGroup = collectionGroupFromIndexName(index?.name, projectId)
+          if (!actualGroup || !expectedGroups.has(actualGroup) || seenIndexNames.has(index.name)) continue
+          seenIndexNames.add(index.name)
+          const key = indexKey({ ...index, collectionGroup: actualGroup })
           if (!key) continue
           const rows = current.get(key) ?? []
           rows.push(index)
@@ -90,9 +95,11 @@ export function createIndexManager({ client, projectId, expected, sleep = async 
     })
     for (const spec of expected.filter((item) => item.fieldOverride)) {
       let field
-      try { [field] = await client.getField({ name: fieldName(projectId, spec) }) }
+      const requestedName = fieldName(projectId, spec)
+      try { [field] = await client.getField({ name: requestedName }) }
       catch (error) { throw safeApiError(error) }
-      const matches = (field.indexConfig?.indexes ?? []).filter((index) => fieldIndexMatches(index, spec))
+      const matches = field?.name === requestedName
+        ? (field.indexConfig?.indexes ?? []).filter((index) => fieldIndexMatches(index, spec)) : []
       const state = !matches.length ? 'MISSING' : matches.some((index) => stateName(index.state) === 'READY') ? 'READY' : stateName(matches[0].state)
       indexes.push({ collectionGroup: spec.collectionGroup, fields: [spec.fieldPath], queryScope: spec.queryScope,
         key: indexKey(spec), state, fieldOverride: true })
@@ -112,7 +119,8 @@ export function createIndexManager({ client, projectId, expected, sleep = async 
         if (spec.fieldOverride) {
           const name = fieldName(projectId, spec)
           const [field] = await client.getField({ name })
-          const indexes = field.indexConfig?.indexes ?? []
+          if (field?.name !== name) throw safeError('index_field_response_mismatch')
+          const indexes = field?.indexConfig?.indexes ?? []
           if (!indexes.some((index) => fieldIndexMatches(index, spec))) {
             // Keep every existing field index; append just the explicitly declared group scope.
             const retained = indexes.map(({ name: _name, state: _state, ...definition }) => definition)
@@ -122,6 +130,7 @@ export function createIndexManager({ client, projectId, expected, sleep = async 
           }
         } else await client.createIndex({ parent: collectionGroupName(projectId, spec.collectionGroup), index: apiIndex(spec) })
       } catch (error) {
+        if (error?.code === 'index_field_response_mismatch') throw error
         if (!isAlreadyExists(error)) throw safeApiError(error)
       }
     }
@@ -193,6 +202,12 @@ function createAdminClient({ projectId, cwd, env }) {
 
 function collectionGroupName(projectId, collectionGroup) {
   return `projects/${projectId}/databases/(default)/collectionGroups/${collectionGroup}`
+}
+function collectionGroupFromIndexName(name, projectId) {
+  const match = typeof name === 'string'
+    ? /^projects\/([^/]+)\/databases\/\(default\)\/collectionGroups\/([A-Za-z][A-Za-z0-9_]{0,127})\/indexes\/[^/]+$/.exec(name)
+    : null
+  return match?.[1] === projectId ? match[2] : null
 }
 function apiIndex(spec) { return { queryScope: spec.queryScope, fields: spec.fields.map((field) => ({ ...field })) } }
 function indexKey(index) {
@@ -267,6 +282,7 @@ if (process.argv[1] && resolve(process.argv[1]) === resolve(fileURLToPath(import
 function safeErrorCode(error) {
   return ['firestore_project_required', 'invalid_command', 'invalid_apply_mode', 'invalid_arguments',
     'index_manifest_invalid', 'index_manifest_duplicate', 'invalid_index_manager_config', 'index_plan_mismatch',
+    'index_field_response_mismatch',
     'ok', 'cancelled', 'unknown', 'invalid_argument', 'deadline_exceeded', 'not_found', 'already_exists',
     'permission_denied', 'resource_exhausted', 'failed_precondition', 'aborted', 'out_of_range',
     'unimplemented', 'internal', 'unavailable', 'data_loss', 'unauthenticated', 'firestore_index_api_failed'].includes(error?.code)
