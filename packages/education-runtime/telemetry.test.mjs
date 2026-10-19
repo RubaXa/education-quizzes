@@ -123,6 +123,8 @@ describe('shared telemetry', () => {
       expect(statSync(`${path}.1`).mode & 0o777).toBe(0o600)
       expect(statSync(`${path}.2`).mode & 0o777).toBe(0o600)
       expect(readFileSync(path, 'utf8').trim().split('\n').length).toBeGreaterThan(0)
+      const newest = JSON.parse(readFileSync(path, 'utf8').trim().split('\n').at(-1))
+      expect(newest.at).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/)
       expect(readFileSync(path, 'utf8')).not.toContain('private.example')
       expect(readFileSync(path, 'utf8')).not.toContain('raw-error')
     } finally { rmSync(directory, { recursive: true, force: true }) }

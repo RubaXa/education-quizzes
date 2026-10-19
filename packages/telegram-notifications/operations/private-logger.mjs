@@ -11,6 +11,7 @@ const SAFE_OPERATION_CODES = new Set([
   'mesh_access_unverified', 'child_profile_unavailable', 'scope_changed', 'credential_refresh_invalid',
   'credential_refresh_persist_failed', 'source_grade_inventory_invalid', 'account_lock_lost', 'worker_shutdown',
   'account_lock_timeout', 'account_lock_unavailable', 'inventory_read_failed', 'family_graph_read_failed',
+  'source_operation_timeout', 'delivery_operation_timeout', 'education_sync_dispatch_timeout', 'education_sync_dispatch_failed',
 ])
 const SAFE_REASON_CODES = new Set(['source_snapshot_incomplete', 'source_snapshot_too_large'])
 

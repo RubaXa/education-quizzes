@@ -14,6 +14,25 @@ const scope = { familyId: 'family-a', childId: 'child-a', kind: 'quiz', quizToke
 const quizStarted = { recordKey: 'a'.repeat(64), kind: 'quiz', eventType: 'quiz.started', fields: { status: 'started', title: 'Проверочная' } }
 
 describe('source observation pipeline', () => {
+  it('records successful observation time without refreshing it for an incomplete source read', async () => {
+    const checkpoints = new MemoryCheckpoints()
+    let instant = now, complete = true
+    const source = { kind: 'firestore', scopeKey: () => 'scope-a', validateScope: async () => true,
+      observe: async () => ({ source: 'firestore', scopeKey: 'scope-a', familyId: scope.familyId, childId: scope.childId,
+        completeness: complete ? 'complete' : 'partial', records: [] }) }
+    const pipeline = new SourcePipeline({ source, checkpoints, mode: 'notify', workerId: 'worker-a',
+      clock: () => new Date(instant), accept: async () => {} })
+    await pipeline.process(scope)
+    expect(checkpoints.row('scope-a', 'notify').baseline.observedAt).toBe(now)
+    instant = '2026-10-17T13:00:00.000Z'
+    complete = false
+    await expect(pipeline.process(scope)).resolves.toMatchObject({ status: 'incomplete' })
+    expect(checkpoints.row('scope-a', 'notify').baseline.observedAt).toBe(now)
+    complete = true
+    await pipeline.process(scope)
+    expect(checkpoints.row('scope-a', 'notify').baseline.observedAt).toBe(instant)
+  })
+
   it('does not advance or accept an observation that finishes after shutdown begins', async () => {
     const checkpoints = new MemoryCheckpoints()
     let resolveObservation

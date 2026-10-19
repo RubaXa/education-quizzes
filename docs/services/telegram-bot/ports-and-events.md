@@ -3,7 +3,7 @@ id: service.telegram-bot.ports-and-events
 status: accepted
 implementation: partial
 created: 2026-10-16
-updated: 2026-10-18
+updated: 2026-10-19
 consumers:
   - "Telegram service implementer"
   - "bot operator"
@@ -72,6 +72,8 @@ source, scopeKey, completeness, observedAt, sourceRevision?, cursor?, records[]
 **Исправление по fact-check 17 октября:** только `complete === true` у current и previous допускает продвижение baseline; строки, числа и объекты не считаются подтверждением полноты. Отрицательные тесты передают валидный `detectedAt`, чтобы достигать этой проверки. [Исходное воспроизведение](../../audits/telegram-self-review-2026-10-16.md#recheck-2026-10-17) сохраняется как история до ремонта.
 
 Для upload baseline сохраняет `sourceProjectionVersion: 2`. Первый переход старой пустой bootstrap-проекции без этой версии выполняется тихо и сохраняет подтверждённую запись; новый live scope получает обычное событие. После фиксации версии2 переход от пустой baseline к подтверждённому файлу снова считается новым фактом даже для bootstrap scope. Это одноразовая защита от исторической рассылки при исправлении ошибочного фильтра, а не постоянное подавление загрузок. Для live scope отсутствие baseline означает восстановление пропущенного факта без ограничения по возрасту: простой процесса не должен терять события. Окно `upload-check --since` ограничивает только диагностический отчёт и не управляет доставкой.
+
+Baseline сохраняет `observedAt` — время успешного полного чтения, подтверждённого pipeline. Lease renew/неполное наблюдение не меняют это поле; старый baseline без него имеет неизвестную свежесть до следующего полного чтения. Это служебная диагностика и не часть identity/semantic hash события.
 
 ## Domain event contract
 
