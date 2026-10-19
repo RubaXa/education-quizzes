@@ -1,7 +1,7 @@
 ---
 id: decision.telegram-sync-recovery-2026-10-19
 status: accepted
-implementation: partial
+implementation: implemented
 created: 2026-10-19
 updated: 2026-10-19
 parent: service.telegram-bot
@@ -44,7 +44,7 @@ sections:
 
 Luna реализует крупные участки; техлид проверяет код и отрицательные сценарии. Отдельный transactional-store тест выявил принятие complete с истёкшим workflow lease; оно должно отклоняться. Проверяются фактический child-process exit до поздней записи, source/delivery/startup hanging, durable dedupe/coalescing, queue/claim races и retry, CLI/private file, receiptless sent и grouped receipt membership, since по detectedAt.
 
-19.10 до установки нового кода source-check подтвердил93/93complete, natural delivery audit нашёл5новых событий (3grade.created, homework.changed и homework.assigned),0pending/retry,1уникальную Telegram receipt сводку. Эти события были реально обнаружены после operational restart, без изменения исходных МЭШ данных; более старые occurredAt не выдаются за новые школьные даты. Официальный codex queue получил ответ EDUCATION_SYNC_BRIDGE_CONNECTED от того же EducationSync чата. Полный automatic workflow/окончательный main release пока требуют отдельного readback после интеграции.
+19.10 до установки нового кода source-check подтвердил93/93complete, natural delivery audit нашёл5новых событий (3grade.created, homework.changed и homework.assigned),0pending/retry,1уникальную Telegram receipt сводку. Эти события были реально обнаружены после operational restart, без изменения исходных МЭШ данных; более старые occurredAt не выдаются за новые школьные даты. Официальный codex queue получил ответ EDUCATION_SYNC_BRIDGE_CONNECTED от того же EducationSync чата. На этой стадии полный automatic workflow и окончательный main release ещё требовали отдельного readback после интеграции.
 
 
 Затронутые файлы:
@@ -70,3 +70,6 @@ Luna реализует крупные участки; техлид провер
 Реальный запуск выявил отдельную бизнес-блокировку: auto-review требует разрешение на конкретный перенос вложения на Диск. Вместо повторного полного sync каждую минуту добавлены fenced block с конечной причиной и explicit resume; новые поколения сохраняются, Telegram не блокируется. Удалены альтернативные неиспользуемые unfenced acknowledgement API. Regression проверяет отсутствие повторного dispatch, coalescing новых событий в blocked и стабильный request ID после явного resume. Это исправление наблюдённого lifecycle, не доказательство завершения заблокированной публикации.
 
 Последнее прямое уточнение пользователя19.10: стандартная синхронизация подтверждённых материалов МЭШ и размещение в его каталоге Яндекс.Диска должны выполняться постоянно, без повторного вопроса по каждому вложению. Точный спорный файл/destination/public link были представлены и разрешены. Автоматическая проверка действий внешнего инструмента не становится продуктовым ограничением или произвольным ручным gate Education; новые полномочия/назначения и технические проверки доступа не выдумываются.
+
+
+Финальная проверка19.10: PR34 и PR36 объединены в main; worker34b3a4c68e7bf9b4556e1429 постоянно работает из LaunchAgent,39файлов совпадают с main75b425c. После установки93/93областей имеют свежие успешные baseline,5реальных изменений покрыты1уникальной Telegram receipt, pending/retry0. Созданный самим worker запрос44320156-3b17-47e7-8498-846d469d282d самостоятельно завершён EducationSync со статусом completed в11:33:53UTC после42-дневного цикла, публикации оригинала учителя и адресного readback; очереди0/0/0. В ходе приёмки выявлен и исправлен [пропуск inbox уведомлений оценок](grade-notice-recovery-2026-10-19.md); повтор восстановления created0/verifiedtrue. Это подтверждает выпуск данного инкремента, а не устранение ещё не доказанной транспортной первопричины или облачную доступность выключенного Mac.

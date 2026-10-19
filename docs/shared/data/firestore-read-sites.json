@@ -3182,7 +3182,7 @@
   {
     "id": "scripts/notifications.mjs#admin.get#2e328b2ae906",
     "file": "scripts/notifications.mjs",
-    "line": 48,
+    "line": 50,
     "api": "admin.get",
     "target": "db.collection('families')",
     "group": "operator-other",
@@ -3194,7 +3194,7 @@
   {
     "id": "scripts/notifications.mjs#admin.get#1eb405d51ad8",
     "file": "scripts/notifications.mjs",
-    "line": 50,
+    "line": 52,
     "api": "admin.get",
     "target": "db.collection(`families/${family.id}/members`)",
     "group": "operator-other",
@@ -3206,7 +3206,7 @@
   {
     "id": "scripts/notifications.mjs#admin.getAll#417923434c47",
     "file": "scripts/notifications.mjs",
-    "line": 64,
+    "line": 66,
     "api": "admin.getAll",
     "target": "db",
     "group": "operator-other",
@@ -3218,7 +3218,7 @@
   {
     "id": "scripts/notifications.mjs#admin.get#ef4c88392ee4",
     "file": "scripts/notifications.mjs",
-    "line": 82,
+    "line": 84,
     "api": "admin.get",
     "target": "db.collection('dayOwners')",
     "group": "operator-other",
@@ -3230,7 +3230,7 @@
   {
     "id": "scripts/notifications.mjs#admin.get#0742e8686308",
     "file": "scripts/notifications.mjs",
-    "line": 85,
+    "line": 87,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${owner.id}`)",
     "group": "operator-other",
@@ -3242,7 +3242,7 @@
   {
     "id": "scripts/notifications.mjs#admin.get#b207287dfd58",
     "file": "scripts/notifications.mjs",
-    "line": 86,
+    "line": 88,
     "api": "admin.get",
     "target": "db.doc(`dayProgress/${owner.id}/items/${taskId}`)",
     "group": "operator-other",
@@ -3254,7 +3254,7 @@
   {
     "id": "scripts/notifications.mjs#admin.get#ef4c88392ee4-2",
     "file": "scripts/notifications.mjs",
-    "line": 111,
+    "line": 113,
     "api": "admin.get",
     "target": "db.collection('dayOwners')",
     "group": "operator-other",
@@ -3266,7 +3266,7 @@
   {
     "id": "scripts/notifications.mjs#admin.get#4708b7291cb7",
     "file": "scripts/notifications.mjs",
-    "line": 114,
+    "line": 116,
     "api": "admin.get",
     "target": "db.collection(`dayParentDecisions/${owner.id}/events`)",
     "group": "operator-other",
@@ -3278,7 +3278,7 @@
   {
     "id": "scripts/notifications.mjs#admin.get#049fa1f07b54",
     "file": "scripts/notifications.mjs",
-    "line": 124,
+    "line": 126,
     "api": "admin.get",
     "target": "db.doc(`dayProgress/${owner.id}/items/${value.taskId}`)",
     "group": "operator-other",
@@ -3290,7 +3290,7 @@
   {
     "id": "scripts/notifications.mjs#admin.get#2012aedb9e5d",
     "file": "scripts/notifications.mjs",
-    "line": 126,
+    "line": 128,
     "api": "admin.get",
     "target": "db.collection(`families/${owner.data().familyId}/members`)",
     "group": "operator-other",
@@ -3302,7 +3302,7 @@
   {
     "id": "scripts/notifications.mjs#admin.get#dfca90db9132",
     "file": "scripts/notifications.mjs",
-    "line": 132,
+    "line": 134,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -3310,6 +3310,66 @@
     "policy": "point-write-guard",
     "refresh": "on mutation",
     "note": "Адресное чтение перед изменением или проверкой целостности; сверить, нельзя ли взять уже прочитанную ревизию без потери защиты от гонок."
+  },
+  {
+    "id": "scripts/notifications.mjs#admin.get#bdc82296f0cf",
+    "file": "scripts/notifications.mjs",
+    "line": 172,
+    "api": "admin.get",
+    "target": "db.doc(`families/${owner.familyId}`)",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "point-write-guard",
+    "refresh": "explicit grade notice recovery",
+    "note": "Адресная проверка активности подтверждённой семьи до восстановления её уведомлений."
+  },
+  {
+    "id": "scripts/notifications.mjs#admin.get#2267b2d28b70",
+    "file": "scripts/notifications.mjs",
+    "line": 173,
+    "api": "admin.get",
+    "target": "db.doc(`families/${owner.familyId}/children/${owner.childId}`)",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "point-write-guard",
+    "refresh": "explicit grade notice recovery",
+    "note": "Адресная проверка активности ребёнка и его meshPersonId; оба локальных полных журнала должны содержать ровно эту исходную личность, неоднозначность останавливает запись."
+  },
+  {
+    "id": "scripts/notifications.mjs#admin.get#4465318cc25e",
+    "file": "scripts/notifications.mjs",
+    "line": 176,
+    "api": "admin.get",
+    "target": "db.doc(`sourceIdentities/${identityId}`)",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "point-write-guard",
+    "refresh": "explicit grade notice recovery",
+    "note": "Адресный sourceIdentity по meshChildIdentityId; общий isRegisteredMeshChild проверяет точный familyId/childId/sourcePersonId до уведомлений."
+  },
+  {
+    "id": "scripts/notifications.mjs#admin.get#76454ec9e28a",
+    "file": "scripts/notifications.mjs",
+    "line": 180,
+    "api": "admin.get",
+    "target": "db.collection(`families/${owner.familyId}/members`)",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "bounded-operator-query",
+    "refresh": "explicit grade notice recovery",
+    "note": "Одна подтверждённая семья локального ребёнка; активные parent/student с childIds. Явная команда восстановления, без глобального опроса и клиентской подписки."
+  },
+  {
+    "id": "scripts/notifications.mjs#admin.getAll#417923434c47-2",
+    "file": "scripts/notifications.mjs",
+    "line": 186,
+    "api": "admin.getAll",
+    "target": "db",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "point-write-guard",
+    "refresh": "explicit grade notice recovery",
+    "note": "Адресный readback уведомлений после create-only записи; количество равно число событий × число подтверждённых адресатов. Путь -2 пересверен после удаления прежнего pre-read; повтор сохраняет readAt."
   },
   {
     "id": "scripts/quiz.mjs#admin.get#ffa52efd6c07",

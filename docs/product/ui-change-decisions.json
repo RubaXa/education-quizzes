@@ -1,5 +1,12 @@
 {
   "files": {
+    "day/grade-notice-backfill.mjs": {
+      "sha256": "b8ecea11a436771964f4e21e91f286019aa27c44f3e1779f82b8a89488030e9f",
+      "record": "docs/decisions/grade-notice-recovery-2026-10-19.md",
+      "specs": ["docs/modules/notifications/inbox.md"],
+      "tests": ["day/grade-notice-backfill.test.mjs"],
+      "authorization": {"status":"direct-request","evidence":"Пользователь19.10 поручил полный EducationSync44320156 с обычными safeguards и приложил навык, требующий адресные уведомления оценок и разрешающий узкую штатную команду с контрактом и тестом при отсутствии операции."}
+    },
     "day/school-calendar.mjs": {
       "sha256": "f36927c3cf475c56a13a856cedb29a030d2c7057adf38366aad302f8c3603905",
       "record": "docs/decisions/pupil-vacations-2026-10-19.md",
@@ -2904,18 +2911,17 @@
       }
     },
     "scripts/notifications.mjs": {
-      "sha256": "48a6b937d2eae2848578293c82fe99e8456341b6bf5782922533b651c7036a4c",
-      "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
+      "sha256": "73cf40a519a868179207df6e4cf2a79bef9b1312e36e2b363c1ad1decec12d35",
+      "record": "docs/decisions/grade-notice-recovery-2026-10-19.md",
       "specs": [
-        "docs/shared/specification-system.md"
+        "docs/modules/notifications/inbox.md"
       ],
       "tests": [
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
+        "day/grade-notice-backfill.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя 16.10.2026 внедрить согласованную структуру спецификаций, перенести ссылки в коде и проверить сохранность требований; изменение предметного поведения не выполнялось."
+        "evidence": "Пользователь19.10 поручил полный EducationSync44320156 с обычными safeguards и приложил навык, требующий адресные уведомления оценок и разрешающий узкую штатную команду с контрактом и тестом при отсутствии операции."
       },
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",

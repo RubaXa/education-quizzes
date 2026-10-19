@@ -254,7 +254,7 @@
 | [docs/modules/synchronization/shared-artifact-pipeline.md](modules/synchronization/shared-artifact-pipeline.md) | [Общие артефакты](modules/synchronization/shared-artifact-pipeline.md) | Стадии исходников, общего обогащения и адресных связей | `skills/education-sync`; синхронизатор; разработчик |
 | [docs/operations/README.md](operations/README.md) | [Контракт](operations/README.md) | Контракт и связи области | Агент; разработчик |
 | [docs/operations/deployment.md](operations/deployment.md) | [Контракт](operations/deployment.md) | Контракт и связи области | Агент; разработчик |
-| [docs/operations/education-sync.md](operations/education-sync.md) | [Контракт](operations/education-sync.md) | Контракт и связи области | Агент; разработчик |
+| [docs/operations/education-sync.md](operations/education-sync.md) | [Контракт](operations/education-sync.md) | Общий ручной/автоматический цикл, постоянная авторизация стандартных материалов | Агент; разработчик |
 | [docs/operations/local-development.md](operations/local-development.md) | [Контракт](operations/local-development.md) | Контракт и связи области | Агент; разработчик |
 | [docs/operations/recovery.md](operations/recovery.md) | [Контракт](operations/recovery.md) | Контракт и связи области | Агент; разработчик |
 | [docs/plans/local-first-release-plan-2026-10-12.md](plans/local-first-release-plan-2026-10-12.md) | [Поэтапный план local-first](plans/local-first-release-plan-2026-10-12.md) | Повторяемый порог 20%, шаги, контроль выпуска и откат | Агент; разработчик; родительский кабинет; EducationSync |
@@ -405,7 +405,10 @@
 | [scripts/install-upload-worker.mjs](../scripts/install-upload-worker.mjs) | [Хранение и приватность](modules/materials/storage-privacy.md) | Установка локального процесса загрузки | Оператор Mac |
 | [scripts/lib/access-projection.mjs](../scripts/lib/access-projection.mjs) | [Семейная модель](modules/families/README.md) | Безопасная проекция детских ссылок для взрослых семьи | `family.mjs`; `access-management.mjs` |
 | [scripts/lib/admin-firebase.mjs](../scripts/lib/admin-firebase.mjs) | [Общее серверное ядро](shared/server-runtime.md) | Совместимая операторская оболочка общего Google Firestore/ADC factory для старых CLI вызывающих сторон | `family.mjs`; `connect.mjs`; operator CLI |
-| [scripts/notifications.mjs](../scripts/notifications.mjs) | [Центр обновлений](modules/notifications/inbox.md) | Выпуск изменений продукта и сверенный backfill результата/родительского решения | Оператор; Firestore; `NotificationBell` |
+| [scripts/notifications.mjs](../scripts/notifications.mjs) | [Центр обновлений](modules/notifications/inbox.md) | Выпуск изменений продукта и сверенный backfill результата, оценок и родительского решения | Оператор; Firestore; `NotificationBell` |
+| [day/grade-notice-backfill.mjs](../day/grade-notice-backfill.mjs) | [Центр обновлений](modules/notifications/inbox.md) | Восстановление пропущенных событий новых оценок по двум полным журналам с прежним ключом дедупликации | `notifications backfill-grades` |
+| [day/grade-notice-backfill.test.mjs](../day/grade-notice-backfill.test.mjs) | [Центр обновлений](modules/notifications/inbox.md) | Проверки добавления задним числом, повторов, исправлений и неполных источников | Vitest |
+| [docs/decisions/grade-notice-recovery-2026-10-19.md](decisions/grade-notice-recovery-2026-10-19.md) | [Центр обновлений](modules/notifications/inbox.md) | Основание узкого восстановления событий оценок после сверки проекций | Оператор; проверка контрактов |
 | [scripts/publish-pages.mjs](../scripts/publish-pages.mjs) | [PWA](product/pwa.md) | Публикация и сверка GitHub Pages | Оператор; браузер |
 | [scripts/publish-source-gate.mjs](../scripts/publish-source-gate.mjs) | [Выпуск](operations/deployment.md) | Проверка чистого актуального main перед сборкой и push | Pages publisher |
 | [scripts/publish-source-gate.test.mjs](../scripts/publish-source-gate.test.mjs) | [Выпуск](operations/deployment.md) | Запрет старого, неполного и незакоммиченного выпуска | Vitest; оператор |
