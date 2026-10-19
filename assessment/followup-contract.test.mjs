@@ -4,7 +4,7 @@ import { followupQuestionCount } from '../src/lib/quizCompletion.ts'
 
 const spec = { slug: 'same-link', subject: 'История', linkedToTestId: 'source', title: 'Новый раунд',
   description: 'Адресный повтор', board: { purpose: 'Проверка' }, questions: [
-    { id: 'new-a', kind: 'short', answer: { correct: 'a' } },
+    { id: 'new-a', kind: 'short', answer: { correct: 'a', sourceEvidence: ['PRIVATE-LOCAL-SOURCE'] } },
     { id: 'new-b', kind: 'single', answer: { correct: 'b' } },
     { id: 'transfer', kind: 'single', answer: { correct: 'c' } },
   ] }
@@ -46,6 +46,8 @@ describe('follow-up coverage and unopened revision', () => {
     const patch = openQuizRevision({ current, spec, owner: { familyId: 'family', childId: 'child' }, revisedAt: 'now' })
     expect(patch.assignment.questions).toHaveLength(3)
     expect(patch.assignment.questions[0]).not.toHaveProperty('answer')
+    expect(JSON.stringify(patch)).not.toContain('PRIVATE-LOCAL-SOURCE')
+    expect(patch.answerKey.entries['new-a']).not.toHaveProperty('sourceEvidence')
     expect(assertOpenRevisionReadback({ assignment: { ...current, ...patch.assignment }, answerKey: patch.answerKey,
       preview: patch.preview, indexes: [patch.index], spec }).verified).toBe(true)
     expect(() => assertOpenRevisionReadback({ assignment: { ...current, ...patch.assignment },

@@ -4,6 +4,13 @@
  */
 export type Answer = string | string[]
 
+/** Manually checked, student-safe feedback. Never derive it from the closed solution. */
+export type QuestionGuidance = {
+  observation: string
+  question: string
+  source: { title: string; edition: string; section: string; pages: string; locator: string; url?: string }
+}
+
 export type QuizOption = {
   id: string
   label: string
@@ -76,6 +83,7 @@ export type AnswerKey = {
     explanation?: string
     source?: string
     learning?: LearningGuide
+    guidance?: QuestionGuidance
   }>
 }
 
@@ -108,6 +116,7 @@ export type QuestionResult = {
   explanation?: string
   source?: string
   learning?: LearningGuide
+  guidance?: QuestionGuidance
 }
 
 function normalize(value: string): string {
@@ -133,6 +142,7 @@ export function grade(
     if (!answered) {
       const skipped = assignment.assessment?.unansweredPolicy === 'optional'
       return { question, answer, points: skipped ? null : 0, skipped,
+        guidance: skipped ? undefined : expected?.guidance,
         correctAnswer: skipped ? undefined : expected?.correct,
         explanation: skipped ? undefined : expected?.explanation,
         source: skipped ? undefined : expected?.source,
@@ -145,6 +155,7 @@ export function grade(
         answer,
         correctAnswer: expected?.correct,
         points: manual ? Math.max(0, Math.min(question.points, manual.points)) : null,
+        guidance: expected?.guidance,
         explanation: manual?.explanation,
         source: manual?.source ?? expected?.source,
         learning: manual ? manual.learning ?? expected?.learning : undefined,
@@ -177,6 +188,7 @@ export function grade(
       answer,
       correctAnswer: expected.correct,
       points: correct ? question.points : 0,
+      guidance: expected.guidance,
       explanation: correct ? undefined : expected.explanation,
       source: correct ? undefined : expected.source,
       learning: correct ? undefined : expected.learning,
