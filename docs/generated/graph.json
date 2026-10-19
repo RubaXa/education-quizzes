@@ -730,6 +730,33 @@
       "path": "docs/decisions/review-prose-coverage-2026-10-19.md"
     },
     {
+      "id": "decision.reviews.math-parent-stage-review",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-19",
+      "updated": "2026-10-19",
+      "parent": "module.reviews.math-solution-route",
+      "uses": [
+        "module.reviews.subject-aware-guidance"
+      ],
+      "consumers": [
+        "parent",
+        "review operator"
+      ],
+      "code": [
+        "src/components/ParentTaskGuide.tsx",
+        "scripts/submissions.mjs"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/math-parent-stage-review-2026-10-19.md"
+    },
+    {
       "id": "decision.session-owned-revocation-2026-10-18",
       "status": "accepted",
       "implementation": "implemented",
@@ -9622,6 +9649,11 @@
       "type": "uses"
     },
     {
+      "from": "decision.reviews.math-parent-stage-review",
+      "to": "module.reviews.subject-aware-guidance",
+      "type": "uses"
+    },
+    {
       "from": "decision.session-owned-revocation-2026-10-18",
       "to": "module.families.access-and-state",
       "type": "uses"
@@ -11193,6 +11225,11 @@
     },
     {
       "from": "file:scripts/submissions.mjs",
+      "to": "decision.reviews.math-parent-stage-review",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/submissions.mjs",
       "to": "decisions.readable-review-prose-2026-10-18",
       "type": "implements"
     },
@@ -11784,6 +11821,11 @@
     {
       "from": "file:src/components/ParentTaskGuide.css",
       "to": "shared.design",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ParentTaskGuide.tsx",
+      "to": "decision.reviews.math-parent-stage-review",
       "type": "implements"
     },
     {
@@ -13935,6 +13977,11 @@
       "from": "module.reviews.card-generation-policy",
       "to": "module.reviews.subject-card-viewmodel",
       "type": "uses"
+    },
+    {
+      "from": "module.reviews.math-solution-route",
+      "to": "decision.reviews.math-parent-stage-review",
+      "type": "contains"
     },
     {
       "from": "module.reviews.math-solution-route",

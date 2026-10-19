@@ -27,6 +27,7 @@ function timeOf(value: unknown): number {
  * @see ../../docs/modules/reviews/card-generation-policy.md#russian-adapter
  * @see ../../docs/modules/reviews/problem-card-design-decisions.md#role-projection
  * @see ../../docs/modules/reviews/problem-card-design-decisions.md#flat-numbered-sheet
+ * @see ../../docs/decisions/math-parent-stage-review-2026-10-19.md
  * @see ../../docs/modules/school-diary/day-page.md#review-stage-switch
  * @see ../../docs/shared/design/statuses.md#components */
 export default function ParentTaskGuide({ guide, review, decisions = [], guidance = [], guidanceReady = true, onSend, onStageChoice }: {
@@ -132,15 +133,15 @@ export default function ParentTaskGuide({ guide, review, decisions = [], guidanc
       <strong>{review.status === 'verified' ? 'Работа подтверждена' : review.status === 'cannot-assess' && review.assessmentBasis?.unresolvedReason === 'missing-evidence' ? 'Разбор завершён · часть работы не видна' : review.status === 'cannot-assess' ? 'Итог пока не установлен' : 'Что осталось сделать'}</strong>
       <p>{formatReviewProse(review.nextStep ?? review.summary ?? '')}</p>
     </div>}
-    {matched.length > 0 && <div className="day-learning-route-progress" aria-label="Состояние проверки фото">
+    {review && <div className="day-learning-route-progress" aria-label="Состояние проверки фото">
       {mathematics && <><span>Ответ: <b>{review?.mathReasoning?.answer === 'correct' ? 'верен' : review?.mathReasoning?.answer === 'incorrect' ? 'неверен' : 'не подтверждён'}</b></span>
       <span>Ход: <b>{review?.mathReasoning?.argument === 'sufficient' ? 'подтверждён' : review?.mathReasoning?.argument === 'incomplete' ? 'неполон' : review?.mathReasoning?.argument === 'not-shown' ? 'не показан' : review?.mathReasoning?.argument === 'unreadable' ? 'не читается' : 'пока неясен'}</b></span></>}
       <small>{completion && !mathematics ? completion.complete
         ? `${completion.confirmed} из ${completion.required} пунктов подтверждено${completion.optional ? `; ${completion.optional} по желанию` : ''}. Работа выполнена по семейному плану.`
         : `${completion.confirmed} из ${completion.required} пунктов подтверждено${completion.optional ? `; ${completion.optional} по желанию` : ''}.`
         : disputedCriterion ? 'Все части задания предъявлены. Критерий формы спорен; от ребёнка пока ничего не требуется.'
-        : firstAttention >= 0 ? `${correct} из ${matched.length} сопоставленных этапов подтверждено. Ниже — первое место, требующее внимания.`
-          : `${correct} из ${matched.length} сопоставленных этапов подтверждено.`}</small>
+        : firstAttention >= 0 ? `${correct} из ${matched.length} сопоставленных этапов подтверждено; ${guide.stages.length - matched.length} пока без результата. Ниже — первое место, требующее внимания.`
+          : `${correct} из ${matched.length} сопоставленных этапов подтверждено; ${guide.stages.length - matched.length} пока без результата.`}</small>
     </div>}
     <div className="day-learning-route-stages">{guide.stages.map((stage, index) => {
       const result = observed.get(stage.id)
@@ -151,7 +152,7 @@ export default function ParentTaskGuide({ guide, review, decisions = [], guidanc
       const required = isRequired(stage)
       const choicePending = checkable && (stageSaving === stage.id || stage.id in unresolvedChoices)
       return <div className="day-learning-route-stage-shell" key={stage.id}><details className={`day-learning-route-stage ${result?.status ? `day-learning-route-${result.status}` : ''}${checkable && !required ? ' day-learning-route-optional' : ''}`} open={stageError?.id === stage.id && stageError.reviewVersion === reviewVersion}>
-        <summary><span className="day-learning-route-number">{result ? <StatusIcon size={17} status={choicePending ? 'waiting' : checkable && !required ? 'ready' : result.status === 'correct' ? 'complete' : result.status === 'incorrect' ? 'needs-fix' : result.status === 'partial' ? 'partial' : 'unknown'} /> : index + 1}</span><span className="day-learning-route-stage-title"><b>{formatReviewProse(stage.title)}</b>{choicePending ? <small role="status">{stageSaving === stage.id ? 'Сохраняем выбор…' : 'Ждём подтверждения…'}</small> : result && <small>{checkable && !required ? 'По желанию · не входит в итог' : disputedCriterion && result.status === 'cannot-assess' ? 'Критерий формы спорен' : !mathematics && result.status === 'cannot-assess' ? 'Пока не подтверждено' : statusText[result.status]}</small>}</span>
+        <summary><span className="day-learning-route-number">{result ? <StatusIcon size={17} status={choicePending ? 'waiting' : checkable && !required ? 'ready' : result.status === 'correct' ? 'complete' : result.status === 'incorrect' ? 'needs-fix' : result.status === 'partial' ? 'partial' : 'unknown'} /> : review ? <StatusIcon size={17} status="unknown" /> : index + 1}</span><span className="day-learning-route-stage-title"><b>{formatReviewProse(stage.title)}</b>{choicePending ? <small role="status">{stageSaving === stage.id ? 'Сохраняем выбор…' : 'Ждём подтверждения…'}</small> : result ? <small>{checkable && !required ? 'По желанию · не входит в итог' : disputedCriterion && result.status === 'cannot-assess' ? 'Критерий формы спорен' : !mathematics && result.status === 'cannot-assess' ? 'Пока не подтверждено' : statusText[result.status]}</small> : review && <small>Этап пока не сопоставлен с проверкой</small>}</span>
         </summary>
         <div className="day-learning-route-body">
           {stageError?.id === stage.id && stageError.reviewVersion === reviewVersion && <p className="day-learning-route-error" role="alert">{stageError.message}</p>}
