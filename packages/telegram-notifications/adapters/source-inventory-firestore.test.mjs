@@ -59,6 +59,22 @@ describe('Firestore source inventory', () => {
     expect(inventory.scopes.map((item) => item.scope).map((scope) => scope.kind).sort())
       .toEqual(['progress', 'quiz', 'quiz', 'upload', 'upload'])
     expect(inventory.scopes.every((item) => item.scope.familyId === 'fam-a' && item.scope.childId === 'kid-a')).toBe(true)
+    expect(inventory.discoveryTargets).toContainEqual({ kind: 'uploads', familyId: 'fam-a', childId: 'kid-a', dayToken: 'day-a' })
+    expect(inventory.discoveryTargets).toContainEqual({ kind: 'progress', familyId: 'fam-a', childId: 'kid-a', dayToken: 'day-a' })
+    expect(inventory.discoveryTargets).toContainEqual({ kind: 'dayOwners', familyId: 'fam-a', ownerIds: ['day-a'] })
+  })
+
+  it('watches empty collections for a validated owner day', async () => {
+    const inventory = await createFirestoreSourceInventory(fakeDb({ families: [d('fam-a')],
+      'families/fam-a/members': [d('parent-a', { role: 'parent', active: true, childIds: ['kid-a'] })],
+      'families/fam-a/children': [d('kid-a')], sourceAccounts: [],
+      dayOwners: [d('day-empty', { familyId: 'fam-a', childId: 'kid-a', date: '2026-10-19' })],
+      'dayUploads/day-empty/files': [], 'dayProgress/day-empty/items': [],
+    })).enumerate()
+    expect(inventory.complete).toBe(true)
+    expect(inventory.scopes).toEqual([])
+    expect(inventory.discoveryTargets).toContainEqual({ kind: 'uploads', familyId: 'fam-a', childId: 'kid-a', dayToken: 'day-empty' })
+    expect(inventory.discoveryTargets).toContainEqual({ kind: 'progress', familyId: 'fam-a', childId: 'kid-a', dayToken: 'day-empty' })
   })
 
   it('marks failed enumeration incomplete so callers retain confirmed watchers', async () => {

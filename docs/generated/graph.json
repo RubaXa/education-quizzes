@@ -546,6 +546,33 @@
       "path": "docs/decisions/documentation-precommit-2026-10-16.md"
     },
     {
+      "id": "decision.firestore-live-discovery-2026-10-19",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-19",
+      "updated": "2026-10-19",
+      "parent": "service.telegram-bot",
+      "uses": [
+        "service.telegram-bot.firestore",
+        "service.telegram-bot.operations",
+        "service.telegram-bot.education-sync-dispatch",
+        "module.synchronization.firestore-read-paths"
+      ],
+      "consumers": [
+        "Telegram worker maintainer",
+        "Education operator"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/firestore-live-discovery-2026-10-19.md"
+    },
+    {
       "id": "decision.grade-average-ui-kit-2026-10-18",
       "status": "accepted",
       "implementation": "implemented",
@@ -3103,14 +3130,14 @@
       "id": "file:packages/telegram-notifications/adapters/runtime.mjs",
       "path": "packages/telegram-notifications/adapters/runtime.mjs",
       "kind": "artifact",
-      "purpose": "Связка принятых Firestore work/Mesh events с dispatcher; также Firestore adapters, identity и Telegram delivery",
-      "consumer": "`scripts/telegram-bot.mjs`"
+      "purpose": "Раздельные Firestore/Mesh coordinators за общим facade; Firestore discovery readiness и EducationSync wakeups",
+      "consumer": "`scripts/telegram-bot.mjs`; Vitest"
     },
     {
       "id": "file:packages/telegram-notifications/adapters/runtime.test.mjs",
       "path": "packages/telegram-notifications/adapters/runtime.test.mjs",
       "kind": "verification",
-      "purpose": "Проверка source wiring и безопасного жизненного цикла",
+      "purpose": "Проверка независимого Firestore startup при заблокированном Mesh и source wiring",
       "consumer": "Runtime; Vitest; техлид"
     },
     {
@@ -3124,7 +3151,7 @@
       "id": "file:packages/telegram-notifications/adapters/source-coordinator.mjs",
       "path": "packages/telegram-notifications/adapters/source-coordinator.mjs",
       "kind": "artifact",
-      "purpose": "Durable source processing, checkpoints, discovery и управление очередью",
+      "purpose": "Раздельные очереди Firestore/Mesh, durable source processing, discovery и управление listeners",
       "consumer": "Runtime; source adapters; Vitest"
     },
     {
@@ -3152,14 +3179,21 @@
       "id": "file:packages/telegram-notifications/adapters/source-firestore.mjs",
       "path": "packages/telegram-notifications/adapters/source-firestore.mjs",
       "kind": "artifact",
-      "purpose": "Owner-checked listeners, подтверждённый storage upload/task context, quiz и review проекции",
+      "purpose": "Owner-checked scope listeners и scoped collection discovery для новых upload/progress/quiz записей",
       "consumer": "SourcePipeline; coordinator"
+    },
+    {
+      "id": "file:packages/telegram-notifications/adapters/source-firestore.test.mjs",
+      "path": "packages/telegram-notifications/adapters/source-firestore.test.mjs",
+      "kind": "verification",
+      "purpose": "Scoped collection candidates, owner refresh gap, reconnect и unsubscribe",
+      "consumer": "Vitest"
     },
     {
       "id": "file:packages/telegram-notifications/adapters/source-inventory-firestore.mjs",
       "path": "packages/telegram-notifications/adapters/source-inventory-firestore.mjs",
       "kind": "artifact",
-      "purpose": "Полный динамический обход семей и источников без ручного списка",
+      "purpose": "Полный динамический обход семей и owner-bound discovery targets без ручного списка",
       "consumer": "Source coordinator; Vitest"
     },
     {
@@ -7497,7 +7531,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-13",
-      "updated": "2026-10-18",
+      "updated": "2026-10-19",
       "consumers": [
         "Education sync operator",
         "sync-project CLI",
@@ -8650,7 +8684,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-16",
-      "updated": "2026-10-18",
+      "updated": "2026-10-19",
       "consumers": [
         "Telegram service implementer",
         "bot operator",
@@ -9620,6 +9654,26 @@
       "type": "uses"
     },
     {
+      "from": "decision.firestore-live-discovery-2026-10-19",
+      "to": "module.synchronization.firestore-read-paths",
+      "type": "uses"
+    },
+    {
+      "from": "decision.firestore-live-discovery-2026-10-19",
+      "to": "service.telegram-bot.education-sync-dispatch",
+      "type": "uses"
+    },
+    {
+      "from": "decision.firestore-live-discovery-2026-10-19",
+      "to": "service.telegram-bot.firestore",
+      "type": "uses"
+    },
+    {
+      "from": "decision.firestore-live-discovery-2026-10-19",
+      "to": "service.telegram-bot.operations",
+      "type": "uses"
+    },
+    {
       "from": "decision.grade-average-ui-kit-2026-10-18",
       "to": "module.school-diary.grades",
       "type": "uses"
@@ -10532,11 +10586,6 @@
     {
       "from": "file:packages/telegram-notifications/adapters/probe-recipient-firestore.mjs",
       "to": "service.telegram-bot.operations",
-      "type": "implements"
-    },
-    {
-      "from": "file:packages/telegram-notifications/adapters/runtime.mjs",
-      "to": "service.telegram-bot.education-sync-dispatch",
       "type": "implements"
     },
     {
@@ -15626,6 +15675,11 @@
     },
     {
       "from": "service.telegram-bot.firestore",
+      "to": "file:packages/telegram-notifications/adapters/source-firestore.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "service.telegram-bot.firestore",
       "to": "file:packages/telegram-notifications/adapters/source-inventory-firestore.test.mjs",
       "type": "verified-by"
     },
@@ -15847,6 +15901,11 @@
     {
       "from": "service.telegram-bot",
       "to": "audits.telegram-self-review-2026-10-16",
+      "type": "contains"
+    },
+    {
+      "from": "service.telegram-bot",
+      "to": "decision.firestore-live-discovery-2026-10-19",
       "type": "contains"
     },
     {

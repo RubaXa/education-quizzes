@@ -4428,20 +4428,21 @@
       }
     },
     "packages/telegram-notifications/adapters/runtime.mjs": {
-      "sha256": "b43caed8d5c9b3a8f47cf1bdf8eacdcd7ad0f057ff7009baf1b7d02de374d4c3",
-      "record": "docs/decisions/telegram-sync-recovery-2026-10-19.md",
+      "sha256": "02bd95b3d3e8efb9bdab33a822e052c083dcbab2b9ee737b7bc2481fe3a0f1f9",
+      "record": "docs/decisions/firestore-live-discovery-2026-10-19.md",
       "specs": [
-        "docs/services/telegram-bot/education-sync-dispatch.md"
+        "docs/services/telegram-bot/adapters/firestore.md",
+        "docs/services/telegram-bot/operations.md"
       ],
       "tests": [
-        "packages/telegram-notifications/adapters/runtime.test.mjs",
-        "packages/telegram-notifications/application/education-sync-dispatch-store.test.mjs",
-        "packages/telegram-notifications/application/education-sync-dispatcher.test.mjs",
-        "scripts/education-sync-dispatch.test.mjs"
+        "packages/telegram-notifications/adapters/source-coordinator.test.mjs",
+        "packages/telegram-notifications/adapters/source-firestore.test.mjs",
+        "packages/telegram-notifications/adapters/source-discovery-firestore.test.mjs",
+        "packages/telegram-notifications/adapters/runtime.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 сообщил повторную задержку Firebase upload → Telegram/EducationSync и ранее разрешил Luna исправления, тесты, проверки и выпуск main с обновлением постоянного процесса."
+        "evidence": "Прямой запрос19.10: новая загрузка более минуты без реакции; Firebase должен иметь постоянную подписку. Ранее разрешены Luna implementation, независимое/root review, тесты и выпуск main с постоянным worker."
       }
     },
     "packages/telegram-notifications/adapters/telegram.mjs": {
@@ -4640,53 +4641,64 @@
       }
     },
     "packages/telegram-notifications/adapters/source-coordinator.mjs": {
-      "sha256": "4db1d7a6a05ed20e903d36e1a93ab4a093381e1d91eb3545f5c5f6d4cc141da7",
-      "record": "docs/decisions/upload-notification-lifecycle-2026-10-18.md",
+      "sha256": "059515a02ac44fd37029f65166304c61b5f3f7414b7784b871fa1577310cb1db",
+      "record": "docs/decisions/firestore-live-discovery-2026-10-19.md",
       "specs": [
-        "docs/services/telegram-bot/ports-and-events.md"
-      ],
-      "tests": [
-        "packages/telegram-notifications/adapters/source-coordinator.test.mjs"
-      ],
-      "authorization": {
-        "status": "direct-request",
-        "evidence": "Родитель18.10 требует реальное своевременное уведомление о загрузке решения; общая очередь не должна задерживать новые live события за стартовой историей."
-      }
-    },
-    "packages/telegram-notifications/adapters/source-discovery-firestore.mjs": {
-      "sha256": "647ed77ca8230c00cfcadfc2f1782f449fed7843d0c0063131ea59cc4aae075c",
-      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
-      "specs": [
+        "docs/services/telegram-bot/adapters/firestore.md",
         "docs/services/telegram-bot/operations.md"
       ],
       "tests": [
-        "packages/telegram-notifications/adapters/source-discovery-firestore.test.mjs"
+        "packages/telegram-notifications/adapters/source-coordinator.test.mjs",
+        "packages/telegram-notifications/adapters/source-firestore.test.mjs",
+        "packages/telegram-notifications/adapters/source-discovery-firestore.test.mjs",
+        "packages/telegram-notifications/adapters/runtime.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+        "evidence": "Прямой запрос19.10: новая загрузка более минуты без реакции; Firebase должен иметь постоянную подписку. Ранее разрешены Luna implementation, независимое/root review, тесты и выпуск main с постоянным worker."
+      }
+    },
+    "packages/telegram-notifications/adapters/source-discovery-firestore.mjs": {
+      "sha256": "6dda2e81fb7a1093cbdeef28a347a885e0e07dc989ed7c8fd88d4ca3bab20cba",
+      "record": "docs/decisions/firestore-live-discovery-2026-10-19.md",
+      "specs": [
+        "docs/services/telegram-bot/adapters/firestore.md",
+        "docs/services/telegram-bot/operations.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/adapters/source-coordinator.test.mjs",
+        "packages/telegram-notifications/adapters/source-firestore.test.mjs",
+        "packages/telegram-notifications/adapters/source-discovery-firestore.test.mjs",
+        "packages/telegram-notifications/adapters/runtime.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос19.10: новая загрузка более минуты без реакции; Firebase должен иметь постоянную подписку. Ранее разрешены Luna implementation, независимое/root review, тесты и выпуск main с постоянным worker."
       }
     },
     "packages/telegram-notifications/adapters/source-firestore.mjs": {
-      "sha256": "a6086dc1da8764a5eff661711971bdb2e65dc17c6cff5ec84a30b2493284396d",
-      "record": "docs/decisions/telegram-linked-work-history-2026-10-18.md",
+      "sha256": "ef2a1c311408d8fee65eb9527635e3e486a7d44ebc9d8d8bac5e8a598a466945",
+      "record": "docs/decisions/firestore-live-discovery-2026-10-19.md",
       "specs": [
-        "docs/services/telegram-bot/work-history.md",
-        "docs/shared/design/telegram.md"
+        "docs/services/telegram-bot/adapters/firestore.md",
+        "docs/services/telegram-bot/operations.md"
       ],
       "tests": [
-        "packages/telegram-notifications/notifications.test.mjs",
-        "packages/telegram-notifications/source-pipeline.test.mjs"
+        "packages/telegram-notifications/adapters/source-coordinator.test.mjs",
+        "packages/telegram-notifications/adapters/source-firestore.test.mjs",
+        "packages/telegram-notifications/adapters/source-discovery-firestore.test.mjs",
+        "packages/telegram-notifications/adapters/runtime.test.mjs"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "Пользователь18.10.2026 выбрал сводку изменений и связанную историю каждой работы, прямо потребовал убрать кнопку UI Kit, внедрить через Luna, обновить спецификации/тесты и выпустить в main с согласованием сессий."
+        "status": "direct-request",
+        "evidence": "Прямой запрос19.10: новая загрузка более минуты без реакции; Firebase должен иметь постоянную подписку. Ранее разрешены Luna implementation, независимое/root review, тесты и выпуск main с постоянным worker."
       }
     },
     "packages/telegram-notifications/adapters/source-inventory-firestore.mjs": {
-      "sha256": "8f14d6139e7d617bd162ecf845fa9492cb793d1e53bf41398dcd8088a40eee60",
-      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "sha256": "03fc8b6192cbba0843fb6636bc3e0c6e465b5f77bc2d06de16e41ce41a9a8b30",
+      "record": "docs/decisions/firestore-live-discovery-2026-10-19.md",
       "specs": [
+        "docs/services/telegram-bot/adapters/firestore.md",
         "docs/services/telegram-bot/operations.md"
       ],
       "tests": [
@@ -4694,7 +4706,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+        "evidence": "Прямой запрос19.10: новая загрузка более минуты без реакции; Firebase должен иметь постоянную подписку. Ранее разрешены Luna implementation, независимое/root review, тесты и выпуск main с постоянным worker."
       }
     },
     "packages/telegram-notifications/adapters/source-mesh.mjs": {
@@ -5450,20 +5462,17 @@
       }
     },
     "scripts/education-sync-dispatch.mjs": {
-      "sha256": "ed80e364bdd8cfc89bd4cd7b27d004f8bcc2ada4ee816a07da1b682c4b542aea",
-      "record": "docs/decisions/telegram-sync-recovery-2026-10-19.md",
+      "sha256": "03f9260045521922cb5a0ff0ca38773a9e072793da8bb6bc7bc2e4409ec6362a",
+      "record": "docs/decisions/firestore-live-discovery-2026-10-19.md",
       "specs": [
         "docs/services/telegram-bot/education-sync-dispatch.md"
       ],
       "tests": [
-        "packages/telegram-notifications/adapters/runtime.test.mjs",
-        "packages/telegram-notifications/application/education-sync-dispatch-store.test.mjs",
-        "packages/telegram-notifications/application/education-sync-dispatcher.test.mjs",
         "scripts/education-sync-dispatch.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 требует через Luna исправить зависание, подключить автоматический EducationSync, проверить реальные Mesh notifications, добавить tests/specs и выпустить main."
+        "evidence": "Прямой запрос19.10: новая загрузка более минуты без реакции; Firebase должен иметь постоянную подписку. Ранее разрешены Luna implementation, независимое/root review, тесты и выпуск main с постоянным worker."
       }
     },
     "assessment/question-guidance.mjs": {
