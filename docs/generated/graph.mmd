@@ -122,175 +122,176 @@ flowchart TD
   s119["module.synchronization.backend-driven-ui"]
   s120["module.synchronization.change-detection-and-reconciliation"]
   s121["module.synchronization.education-pipeline"]
-  s122["module.synchronization.firestore-read-paths"]
-  s123["module.synchronization.global-sync"]
-  s124["module.synchronization.plan-generation"]
-  s125["module.synchronization.shared-artifact-pipeline"]
-  s126["operations"]
-  s127["operations.deployment"]
-  s128["operations.education-sync"]
-  s129["operations.local-development"]
-  s130["operations.recovery"]
-  s131["plans.local-first-release-plan-2026-10-12"]
-  s132["product.assessments"]
-  s133["product.education"]
-  s134["product.families"]
-  s135["product.homework-review"]
-  s136["product.materials"]
-  s137["product.notifications"]
-  s138["product.pwa"]
-  s139["product.school-day"]
-  s140["product.ui-change-control"]
-  s141["research.adaptive-problem-critical-review"]
-  s142["research.adaptive-problem-scaffolding"]
-  s143["research.assessment-source-catalog"]
-  s144["research.condition-transcript-and-scaffold"]
-  s145["research.evidence-based-homework-review"]
-  s146["research.feedback-after-errors"]
-  s147["research.firestore-read-reduction-research-2026-10-12"]
-  s148["research.grade-average-visual-scale-2026-10-18"]
-  s149["research.literature-card-options"]
-  s150["research.parent-card-subject-options"]
-  s151["research.photo-math-solution-review"]
-  s152["research.quiz-history-and-consolidation"]
-  s153["research.reading-only-self-checks"]
-  s154["research.result-colour-and-density"]
-  s155["research.special-course-source-provenance"]
-  s156["research.status-design-systems"]
-  s157["research.subject-specific-review-and-feedback"]
-  s158["research.two-pass-written-work-review"]
-  s159["research.ui-kit-structure"]
-  s160["research.vocabulary-dictation-practice"]
-  s161["service.operator-cli"]
-  s162["service.telegram-bot"]
-  s163["service.telegram-bot.delivery"]
-  s164["service.telegram-bot.education-sync-dispatch"]
-  s165["service.telegram-bot.event-ledger-outbox"]
-  s166["service.telegram-bot.firestore"]
-  s167["service.telegram-bot.identity-and-linking"]
-  s168["service.telegram-bot.mesh"]
-  s169["service.telegram-bot.operations"]
-  s170["service.telegram-bot.ports-and-events"]
-  s171["service.telegram-bot.work-history"]
-  s172["service.upload-worker"]
-  s173["service.web-app"]
-  s174["service.web-app.local-first-sync"]
-  s175["service.web-app.local-first-verification"]
-  s176["shared.access-and-privacy"]
-  s177["shared.data"]
-  s178["shared.data.firestore"]
-  s179["shared.data.revisions"]
-  s180["shared.design"]
-  s181["shared.design.components"]
-  s182["shared.design.statuses"]
-  s183["shared.design.telegram"]
-  s184["shared.design.ui-kit"]
-  s185["shared.media-storage"]
-  s186["shared.server-runtime"]
-  s187["shared.specification-system"]
-  s188["shared.toolchain"]
-  s0 -. uses .-> s161
+  s122["module.synchronization.execution-artifact"]
+  s123["module.synchronization.firestore-read-paths"]
+  s124["module.synchronization.global-sync"]
+  s125["module.synchronization.plan-generation"]
+  s126["module.synchronization.shared-artifact-pipeline"]
+  s127["operations"]
+  s128["operations.deployment"]
+  s129["operations.education-sync"]
+  s130["operations.local-development"]
+  s131["operations.recovery"]
+  s132["plans.local-first-release-plan-2026-10-12"]
+  s133["product.assessments"]
+  s134["product.education"]
+  s135["product.families"]
+  s136["product.homework-review"]
+  s137["product.materials"]
+  s138["product.notifications"]
+  s139["product.pwa"]
+  s140["product.school-day"]
+  s141["product.ui-change-control"]
+  s142["research.adaptive-problem-critical-review"]
+  s143["research.adaptive-problem-scaffolding"]
+  s144["research.assessment-source-catalog"]
+  s145["research.condition-transcript-and-scaffold"]
+  s146["research.evidence-based-homework-review"]
+  s147["research.feedback-after-errors"]
+  s148["research.firestore-read-reduction-research-2026-10-12"]
+  s149["research.grade-average-visual-scale-2026-10-18"]
+  s150["research.literature-card-options"]
+  s151["research.parent-card-subject-options"]
+  s152["research.photo-math-solution-review"]
+  s153["research.quiz-history-and-consolidation"]
+  s154["research.reading-only-self-checks"]
+  s155["research.result-colour-and-density"]
+  s156["research.special-course-source-provenance"]
+  s157["research.status-design-systems"]
+  s158["research.subject-specific-review-and-feedback"]
+  s159["research.two-pass-written-work-review"]
+  s160["research.ui-kit-structure"]
+  s161["research.vocabulary-dictation-practice"]
+  s162["service.operator-cli"]
+  s163["service.telegram-bot"]
+  s164["service.telegram-bot.delivery"]
+  s165["service.telegram-bot.education-sync-dispatch"]
+  s166["service.telegram-bot.event-ledger-outbox"]
+  s167["service.telegram-bot.firestore"]
+  s168["service.telegram-bot.identity-and-linking"]
+  s169["service.telegram-bot.mesh"]
+  s170["service.telegram-bot.operations"]
+  s171["service.telegram-bot.ports-and-events"]
+  s172["service.telegram-bot.work-history"]
+  s173["service.upload-worker"]
+  s174["service.web-app"]
+  s175["service.web-app.local-first-sync"]
+  s176["service.web-app.local-first-verification"]
+  s177["shared.access-and-privacy"]
+  s178["shared.data"]
+  s179["shared.data.firestore"]
+  s180["shared.data.revisions"]
+  s181["shared.design"]
+  s182["shared.design.components"]
+  s183["shared.design.statuses"]
+  s184["shared.design.telegram"]
+  s185["shared.design.ui-kit"]
+  s186["shared.media-storage"]
+  s187["shared.server-runtime"]
+  s188["shared.specification-system"]
+  s189["shared.toolchain"]
   s0 -. uses .-> s162
-  s0 -. uses .-> s172
+  s0 -. uses .-> s163
   s0 -. uses .-> s173
-  s0 -. uses .-> s176
+  s0 -. uses .-> s174
   s0 -. uses .-> s177
-  s0 -. uses .-> s180
-  s0 -. uses .-> s186
+  s0 -. uses .-> s178
+  s0 -. uses .-> s181
   s0 -. uses .-> s187
-  s1 -. uses .-> s137
-  s1 -. uses .-> s163
-  s1 -. uses .-> s169
+  s0 -. uses .-> s188
+  s1 -. uses .-> s138
+  s1 -. uses .-> s164
+  s1 -. uses .-> s170
   s2 -. uses .-> s118
-  s2 -. uses .-> s161
   s2 -. uses .-> s162
+  s2 -. uses .-> s163
   s4 -. uses .-> s5
   s6 -. uses .-> s7
   s6 -. uses .-> s8
-  s10 -. uses .-> s187
-  s11 -. uses .-> s163
-  s11 -. uses .-> s165
-  s11 -. uses .-> s167
-  s11 -. uses .-> s169
+  s10 -. uses .-> s188
+  s11 -. uses .-> s164
+  s11 -. uses .-> s166
+  s11 -. uses .-> s168
   s11 -. uses .-> s170
-  s11 -. uses .-> s162
-  s11 -. uses .-> s187
+  s11 -. uses .-> s171
+  s11 -. uses .-> s163
+  s11 -. uses .-> s188
   s12 -. uses .-> s107
   s12 -. uses .-> s114
   s13 -. uses .-> s92
   s14 -. uses .-> s25
-  s14 -. uses .-> s180
+  s14 -. uses .-> s181
   s15 -. uses .-> s14
-  s15 -. uses .-> s180
+  s15 -. uses .-> s181
   s16 -. uses .-> s15
-  s16 -. uses .-> s180
+  s16 -. uses .-> s181
   s18 -. uses .-> s114
   s19 -. uses .-> s91
   s19 -. uses .-> s92
-  s20 -. uses .-> s187
+  s20 -. uses .-> s188
   s21 -. uses .-> s116
-  s21 -. uses .-> s184
-  s21 -. uses .-> s180
+  s21 -. uses .-> s185
+  s21 -. uses .-> s181
   s22 -. uses .-> s116
   s23 -. uses .-> s92
-  s23 -. uses .-> s180
+  s23 -. uses .-> s181
   s24 -. uses .-> s113
-  s24 -. uses .-> s169
+  s24 -. uses .-> s170
   s25 -. uses .-> s114
-  s25 -. uses .-> s184
-  s27 -. uses .-> s180
+  s25 -. uses .-> s185
+  s27 -. uses .-> s181
   s28 -. uses .-> s91
   s28 -. uses .-> s92
   s29 -. uses .-> s118
-  s29 -. uses .-> s161
   s29 -. uses .-> s162
-  s30 -. uses .-> s187
-  s31 -. uses .-> s187
+  s29 -. uses .-> s163
+  s30 -. uses .-> s188
+  s31 -. uses .-> s188
   s32 -. uses .-> s115
-  s33 -. uses .-> s163
-  s33 -. uses .-> s184
-  s34 -. uses .-> s163
-  s34 -. uses .-> s165
-  s34 -. uses .-> s184
-  s35 -. uses .-> s163
-  s35 -. uses .-> s165
-  s35 -. uses .-> s167
-  s35 -. uses .-> s169
+  s33 -. uses .-> s164
+  s33 -. uses .-> s185
+  s34 -. uses .-> s164
+  s34 -. uses .-> s166
+  s34 -. uses .-> s185
+  s35 -. uses .-> s164
+  s35 -. uses .-> s166
+  s35 -. uses .-> s168
   s35 -. uses .-> s170
-  s35 -. uses .-> s162
-  s36 -. uses .-> s163
-  s36 -. uses .-> s171
-  s36 -. uses .-> s184
-  s37 -. uses .-> s165
-  s37 -. uses .-> s167
-  s37 -. uses .-> s170
-  s38 -. uses .-> s166
-  s38 -. uses .-> s168
+  s35 -. uses .-> s171
+  s35 -. uses .-> s163
+  s36 -. uses .-> s164
+  s36 -. uses .-> s172
+  s36 -. uses .-> s185
+  s37 -. uses .-> s166
+  s37 -. uses .-> s168
+  s37 -. uses .-> s171
+  s38 -. uses .-> s167
   s38 -. uses .-> s169
   s38 -. uses .-> s170
-  s39 -. uses .-> s164
-  s39 -. uses .-> s169
-  s39 -. uses .-> s186
+  s38 -. uses .-> s171
+  s39 -. uses .-> s165
+  s39 -. uses .-> s170
+  s39 -. uses .-> s187
   s40 -. uses .-> s100
-  s40 -. uses .-> s163
-  s40 -. uses .-> s170
+  s40 -. uses .-> s164
+  s40 -. uses .-> s171
   s41 -. uses .-> s105
   s45 -. uses .-> s72
-  s52 -. uses .-> s131
+  s52 -. uses .-> s132
   s57 -. uses .-> s98
-  s57 -. uses .-> s140
-  s64 -. uses .-> s131
-  s65 -. uses .-> s176
+  s57 -. uses .-> s141
+  s64 -. uses .-> s132
+  s65 -. uses .-> s177
   s67 -. uses .-> s68
   s68 -. uses .-> s73
-  s70 -. uses .-> s180
-  s74 -. uses .-> s176
-  s79 -. uses .-> s181
+  s70 -. uses .-> s181
+  s74 -. uses .-> s177
+  s79 -. uses .-> s182
   s80 -. uses .-> s114
   s81 -. uses .-> s98
-  s81 -. uses .-> s140
+  s81 -. uses .-> s141
   s82 -. uses .-> s0
-  s82 -. uses .-> s187
+  s82 -. uses .-> s188
   s84 -. uses .-> s86
   s85 -. uses .-> s84
   s86 -. uses .-> s84
@@ -307,11 +308,11 @@ flowchart TD
   s83 --> s88
   s83 -. uses .-> s94
   s83 -. uses .-> s102
-  s83 -. uses .-> s178
+  s83 -. uses .-> s179
   s89 -. uses .-> s87
   s89 -. uses .-> s108
   s89 -. uses .-> s115
-  s89 -. uses .-> s178
+  s89 -. uses .-> s179
   s91 --> s12
   s91 --> s52
   s91 --> s64
@@ -319,7 +320,7 @@ flowchart TD
   s91 --> s74
   s91 -. uses .-> s90
   s92 -. uses .-> s91
-  s92 -. uses .-> s176
+  s92 -. uses .-> s177
   s90 --> s13
   s90 --> s19
   s90 --> s23
@@ -328,7 +329,7 @@ flowchart TD
   s90 --> s92
   s90 --> s93
   s90 -. uses .-> s95
-  s90 -. uses .-> s178
+  s90 -. uses .-> s179
   s95 -. uses .-> s97
   s95 -. uses .-> s98
   s97 -. uses .-> s95
@@ -341,15 +342,15 @@ flowchart TD
   s94 --> s96
   s94 --> s97
   s94 --> s98
-  s94 -. uses .-> s178
+  s94 -. uses .-> s179
   s100 -. uses .-> s101
-  s100 -. uses .-> s170
+  s100 -. uses .-> s171
   s101 --> s22
   s99 --> s100
   s99 --> s101
   s99 -. uses .-> s113
-  s99 -. uses .-> s162
-  s99 -. uses .-> s178
+  s99 -. uses .-> s163
+  s99 -. uses .-> s179
   s103 -. uses .-> s107
   s103 -. uses .-> s111
   s104 -. uses .-> s105
@@ -390,7 +391,7 @@ flowchart TD
   s102 --> s110
   s102 --> s111
   s102 --> s112
-  s102 -. uses .-> s178
+  s102 -. uses .-> s179
   s114 --> s41
   s114 -. uses .-> s115
   s114 -. uses .-> s116
@@ -406,22 +407,28 @@ flowchart TD
   s117 --> s16
   s117 --> s25
   s117 -. uses .-> s114
-  s117 -. uses .-> s186
+  s117 -. uses .-> s187
   s113 -. uses .-> s90
   s113 --> s114
   s113 --> s115
   s113 --> s116
   s113 --> s117
   s113 -. uses .-> s118
-  s120 -. uses .-> s124
-  s121 -. uses .-> s124
+  s120 -. uses .-> s125
   s121 -. uses .-> s125
-  s123 -. uses .-> s121
-  s123 -. uses .-> s125
-  s123 -. uses .-> s186
-  s124 --> s18
+  s121 -. uses .-> s126
+  s122 -. uses .-> s124
+  s122 -. uses .-> s126
+  s122 -. uses .-> s162
+  s122 -. uses .-> s165
   s124 -. uses .-> s121
-  s125 -. uses .-> s123
+  s124 -. uses .-> s122
+  s124 -. uses .-> s126
+  s124 -. uses .-> s187
+  s125 --> s18
+  s125 -. uses .-> s121
+  s126 -. uses .-> s122
+  s126 -. uses .-> s124
   s118 -. uses .-> s94
   s118 -. uses .-> s113
   s118 --> s119
@@ -431,264 +438,267 @@ flowchart TD
   s118 --> s123
   s118 --> s124
   s118 --> s125
-  s118 -. uses .-> s178
-  s127 -. uses .-> s138
+  s118 --> s126
+  s118 -. uses .-> s179
+  s128 -. uses .-> s139
+  s128 -. uses .-> s163
+  s128 -. uses .-> s173
+  s128 -. uses .-> s174
+  s129 -. uses .-> s121
+  s129 -. uses .-> s122
+  s129 -. uses .-> s124
+  s129 -. uses .-> s162
+  s129 -. uses .-> s165
+  s130 -. uses .-> s188
+  s130 -. uses .-> s189
+  s131 -. uses .-> s120
+  s131 -. uses .-> s162
+  s131 -. uses .-> s173
+  s127 --> s128
+  s127 --> s129
+  s127 --> s130
+  s127 --> s131
   s127 -. uses .-> s162
-  s127 -. uses .-> s172
+  s127 -. uses .-> s163
   s127 -. uses .-> s173
-  s128 -. uses .-> s121
-  s128 -. uses .-> s123
-  s128 -. uses .-> s161
-  s128 -. uses .-> s164
-  s129 -. uses .-> s187
-  s129 -. uses .-> s188
-  s130 -. uses .-> s120
-  s130 -. uses .-> s161
-  s130 -. uses .-> s172
-  s126 --> s127
-  s126 --> s128
-  s126 --> s129
-  s126 --> s130
-  s126 -. uses .-> s161
-  s126 -. uses .-> s162
-  s126 -. uses .-> s172
-  s132 -. uses .-> s83
-  s133 --> s0
-  s133 --> s3
-  s133 --> s4
-  s133 --> s5
-  s133 --> s6
-  s133 --> s7
-  s133 --> s8
-  s133 --> s9
-  s133 --> s10
-  s133 --> s20
-  s133 --> s30
-  s133 --> s31
-  s133 --> s42
-  s133 --> s43
-  s133 --> s44
-  s133 --> s45
-  s133 --> s46
-  s133 --> s47
-  s133 --> s48
-  s133 --> s49
-  s133 --> s50
-  s133 --> s51
-  s133 --> s53
-  s133 --> s54
-  s133 --> s55
-  s133 --> s56
-  s133 --> s58
-  s133 --> s59
-  s133 --> s60
-  s133 --> s61
-  s133 --> s62
-  s133 --> s63
-  s133 --> s66
-  s133 --> s67
-  s133 --> s68
-  s133 --> s69
-  s133 --> s71
-  s133 --> s72
-  s133 --> s73
-  s133 --> s75
-  s133 --> s76
-  s133 --> s77
-  s133 --> s78
-  s133 --> s82
-  s133 --> s83
   s133 -. uses .-> s83
-  s133 --> s89
-  s133 --> s90
-  s133 -. uses .-> s90
-  s133 --> s94
-  s133 -. uses .-> s94
-  s133 --> s99
-  s133 --> s102
-  s133 -. uses .-> s102
-  s133 --> s113
-  s133 -. uses .-> s113
-  s133 --> s118
-  s133 -. uses .-> s118
-  s133 --> s126
-  s133 --> s131
-  s133 --> s132
-  s133 -. uses .-> s132
-  s133 --> s134
-  s133 -. uses .-> s134
-  s133 --> s135
-  s133 -. uses .-> s135
-  s133 --> s136
-  s133 -. uses .-> s136
-  s133 --> s137
-  s133 -. uses .-> s137
-  s133 --> s138
-  s133 --> s139
-  s133 -. uses .-> s139
-  s133 --> s140
-  s133 --> s141
-  s133 --> s142
-  s133 --> s143
-  s133 --> s144
-  s133 --> s145
-  s133 --> s146
-  s133 --> s147
-  s133 --> s148
-  s133 --> s149
-  s133 --> s150
-  s133 --> s151
-  s133 --> s152
-  s133 --> s153
-  s133 --> s154
-  s133 --> s155
-  s133 --> s156
-  s133 --> s157
-  s133 --> s158
-  s133 --> s159
-  s133 --> s160
-  s133 --> s161
-  s133 -. uses .-> s161
-  s133 --> s162
-  s133 -. uses .-> s162
-  s133 --> s172
-  s133 -. uses .-> s172
-  s133 --> s173
-  s133 -. uses .-> s173
-  s133 --> s176
-  s133 --> s177
-  s133 -. uses .-> s177
-  s133 --> s180
-  s133 -. uses .-> s180
-  s133 --> s185
-  s133 --> s187
-  s133 --> s188
+  s134 --> s0
+  s134 --> s3
+  s134 --> s4
+  s134 --> s5
+  s134 --> s6
+  s134 --> s7
+  s134 --> s8
+  s134 --> s9
+  s134 --> s10
+  s134 --> s20
+  s134 --> s30
+  s134 --> s31
+  s134 --> s42
+  s134 --> s43
+  s134 --> s44
+  s134 --> s45
+  s134 --> s46
+  s134 --> s47
+  s134 --> s48
+  s134 --> s49
+  s134 --> s50
+  s134 --> s51
+  s134 --> s53
+  s134 --> s54
+  s134 --> s55
+  s134 --> s56
+  s134 --> s58
+  s134 --> s59
+  s134 --> s60
+  s134 --> s61
+  s134 --> s62
+  s134 --> s63
+  s134 --> s66
+  s134 --> s67
+  s134 --> s68
+  s134 --> s69
+  s134 --> s71
+  s134 --> s72
+  s134 --> s73
+  s134 --> s75
+  s134 --> s76
+  s134 --> s77
+  s134 --> s78
+  s134 --> s82
+  s134 --> s83
+  s134 -. uses .-> s83
+  s134 --> s89
+  s134 --> s90
   s134 -. uses .-> s90
-  s135 -. uses .-> s102
-  s136 -. uses .-> s94
-  s137 -. uses .-> s101
-  s137 -. uses .-> s120
-  s137 -. uses .-> s162
-  s138 -. uses .-> s133
-  s139 -. uses .-> s113
-  s148 -. uses .-> s116
-  s148 -. uses .-> s180
-  s154 -. uses .-> s152
-  s161 -. uses .-> s83
-  s161 -. uses .-> s102
-  s161 -. uses .-> s118
-  s161 -. uses .-> s178
-  s161 -. uses .-> s186
-  s163 -. uses .-> s165
-  s163 -. uses .-> s170
-  s163 -. uses .-> s171
-  s163 -. uses .-> s162
-  s163 -. uses .-> s183
-  s164 -. uses .-> s161
-  s164 -. uses .-> s168
-  s164 -. uses .-> s169
-  s164 -. uses .-> s186
-  s165 -. uses .-> s170
-  s165 -. uses .-> s171
+  s134 --> s94
+  s134 -. uses .-> s94
+  s134 --> s99
+  s134 --> s102
+  s134 -. uses .-> s102
+  s134 --> s113
+  s134 -. uses .-> s113
+  s134 --> s118
+  s134 -. uses .-> s118
+  s134 --> s127
+  s134 --> s132
+  s134 --> s133
+  s134 -. uses .-> s133
+  s134 --> s135
+  s134 -. uses .-> s135
+  s134 --> s136
+  s134 -. uses .-> s136
+  s134 --> s137
+  s134 -. uses .-> s137
+  s134 --> s138
+  s134 -. uses .-> s138
+  s134 --> s139
+  s134 --> s140
+  s134 -. uses .-> s140
+  s134 --> s141
+  s134 --> s142
+  s134 --> s143
+  s134 --> s144
+  s134 --> s145
+  s134 --> s146
+  s134 --> s147
+  s134 --> s148
+  s134 --> s149
+  s134 --> s150
+  s134 --> s151
+  s134 --> s152
+  s134 --> s153
+  s134 --> s154
+  s134 --> s155
+  s134 --> s156
+  s134 --> s157
+  s134 --> s158
+  s134 --> s159
+  s134 --> s160
+  s134 --> s161
+  s134 --> s162
+  s134 -. uses .-> s162
+  s134 --> s163
+  s134 -. uses .-> s163
+  s134 --> s173
+  s134 -. uses .-> s173
+  s134 --> s174
+  s134 -. uses .-> s174
+  s134 --> s177
+  s134 --> s178
+  s134 -. uses .-> s178
+  s134 --> s181
+  s134 -. uses .-> s181
+  s134 --> s186
+  s134 --> s188
+  s134 --> s189
+  s135 -. uses .-> s90
+  s136 -. uses .-> s102
+  s137 -. uses .-> s94
+  s138 -. uses .-> s101
+  s138 -. uses .-> s120
+  s138 -. uses .-> s163
+  s139 -. uses .-> s134
+  s140 -. uses .-> s113
+  s149 -. uses .-> s116
+  s149 -. uses .-> s181
+  s155 -. uses .-> s153
+  s162 -. uses .-> s83
+  s162 -. uses .-> s102
+  s162 -. uses .-> s118
+  s162 -. uses .-> s179
+  s162 -. uses .-> s187
+  s164 -. uses .-> s166
+  s164 -. uses .-> s171
+  s164 -. uses .-> s172
+  s164 -. uses .-> s163
+  s164 -. uses .-> s184
+  s165 -. uses .-> s122
   s165 -. uses .-> s162
-  s166 --> s40
-  s167 -. uses .-> s170
-  s167 -. uses .-> s162
-  s167 -. uses .-> s186
-  s168 --> s24
-  s168 -. uses .-> s186
-  s169 -. uses .-> s164
-  s169 -. uses .-> s162
-  s169 -. uses .-> s186
-  s170 -. uses .-> s171
-  s170 -. uses .-> s162
-  s170 -. uses .-> s186
+  s165 -. uses .-> s169
+  s165 -. uses .-> s170
+  s165 -. uses .-> s187
+  s166 -. uses .-> s171
+  s166 -. uses .-> s172
+  s166 -. uses .-> s163
+  s167 --> s40
+  s168 -. uses .-> s171
+  s168 -. uses .-> s163
+  s168 -. uses .-> s187
+  s169 --> s24
+  s169 -. uses .-> s187
+  s170 -. uses .-> s165
+  s170 -. uses .-> s163
+  s170 -. uses .-> s187
+  s171 -. uses .-> s172
   s171 -. uses .-> s163
-  s171 -. uses .-> s165
-  s171 -. uses .-> s170
-  s171 -. uses .-> s183
-  s162 --> s1
-  s162 --> s11
-  s162 --> s35
-  s162 --> s37
-  s162 --> s38
-  s162 --> s39
-  s162 --> s163
-  s162 -. uses .-> s163
-  s162 --> s164
-  s162 -. uses .-> s164
-  s162 --> s165
-  s162 -. uses .-> s165
-  s162 --> s166
-  s162 -. uses .-> s166
-  s162 --> s167
-  s162 -. uses .-> s167
-  s162 --> s168
-  s162 -. uses .-> s168
-  s162 --> s169
-  s162 -. uses .-> s169
-  s162 --> s170
-  s162 -. uses .-> s170
-  s162 --> s171
-  s162 -. uses .-> s171
-  s162 -. uses .-> s186
-  s162 -. uses .-> s188
-  s172 -. uses .-> s95
-  s172 -. uses .-> s98
-  s172 -. uses .-> s178
-  s174 -. uses .-> s175
-  s175 -. uses .-> s174
-  s173 -. uses .-> s51
-  s173 -. uses .-> s83
-  s173 -. uses .-> s90
-  s173 -. uses .-> s99
-  s173 -. uses .-> s113
-  s173 --> s174
-  s173 -. uses .-> s174
-  s173 --> s175
-  s173 -. uses .-> s175
-  s173 -. uses .-> s178
+  s171 -. uses .-> s187
+  s172 -. uses .-> s164
+  s172 -. uses .-> s166
+  s172 -. uses .-> s171
+  s172 -. uses .-> s184
+  s163 --> s1
+  s163 --> s11
+  s163 --> s35
+  s163 --> s37
+  s163 --> s38
+  s163 --> s39
+  s163 --> s164
+  s163 -. uses .-> s164
+  s163 --> s165
+  s163 -. uses .-> s165
+  s163 --> s166
+  s163 -. uses .-> s166
+  s163 --> s167
+  s163 -. uses .-> s167
+  s163 --> s168
+  s163 -. uses .-> s168
+  s163 --> s169
+  s163 -. uses .-> s169
+  s163 --> s170
+  s163 -. uses .-> s170
+  s163 --> s171
+  s163 -. uses .-> s171
+  s163 --> s172
+  s163 -. uses .-> s172
+  s163 -. uses .-> s187
+  s163 -. uses .-> s189
+  s173 -. uses .-> s95
+  s173 -. uses .-> s98
   s173 -. uses .-> s179
-  s173 -. uses .-> s180
-  s176 -. uses .-> s90
-  s176 -. uses .-> s98
-  s176 -. uses .-> s178
-  s179 -. uses .-> s178
-  s177 -. uses .-> s83
+  s175 -. uses .-> s176
+  s176 -. uses .-> s175
+  s174 -. uses .-> s51
+  s174 -. uses .-> s83
+  s174 -. uses .-> s90
+  s174 -. uses .-> s99
+  s174 -. uses .-> s113
+  s174 --> s175
+  s174 -. uses .-> s175
+  s174 --> s176
+  s174 -. uses .-> s176
+  s174 -. uses .-> s179
+  s174 -. uses .-> s180
+  s174 -. uses .-> s181
   s177 -. uses .-> s90
-  s177 -. uses .-> s94
-  s177 -. uses .-> s102
-  s177 -. uses .-> s113
-  s177 -. uses .-> s118
-  s177 --> s178
-  s177 --> s179
-  s177 --> s186
-  s181 --> s81
+  s177 -. uses .-> s98
+  s177 -. uses .-> s179
+  s180 -. uses .-> s179
+  s178 -. uses .-> s83
+  s178 -. uses .-> s90
+  s178 -. uses .-> s94
+  s178 -. uses .-> s102
+  s178 -. uses .-> s113
+  s178 -. uses .-> s118
+  s178 --> s179
+  s178 --> s180
+  s178 --> s187
+  s182 --> s81
+  s182 -. uses .-> s185
+  s182 -. uses .-> s181
+  s183 -. uses .-> s185
+  s184 --> s33
+  s184 --> s34
+  s184 --> s36
+  s184 -. uses .-> s164
+  s184 -. uses .-> s172
+  s184 -. uses .-> s183
+  s184 -. uses .-> s185
+  s185 -. uses .-> s181
+  s181 --> s182
+  s181 -. uses .-> s182
+  s181 --> s183
+  s181 -. uses .-> s183
+  s181 --> s184
   s181 -. uses .-> s184
-  s181 -. uses .-> s180
-  s182 -. uses .-> s184
-  s183 --> s33
-  s183 --> s34
-  s183 --> s36
-  s183 -. uses .-> s163
-  s183 -. uses .-> s171
-  s183 -. uses .-> s182
-  s183 -. uses .-> s184
-  s184 -. uses .-> s180
-  s180 --> s181
-  s180 -. uses .-> s181
-  s180 --> s182
-  s180 -. uses .-> s182
-  s180 --> s183
-  s180 -. uses .-> s183
-  s180 --> s184
-  s180 -. uses .-> s184
-  s185 -. uses .-> s98
-  s185 -. uses .-> s94
-  s185 -. uses .-> s172
-  s186 --> s2
-  s186 --> s29
-  s186 -. uses .-> s90
-  s186 -. uses .-> s113
-  s186 -. uses .-> s118
-  s188 -. uses .-> s187
+  s181 --> s185
+  s181 -. uses .-> s185
+  s186 -. uses .-> s98
+  s186 -. uses .-> s94
+  s186 -. uses .-> s173
+  s187 --> s2
+  s187 --> s29
+  s187 -. uses .-> s90
+  s187 -. uses .-> s113
+  s187 -. uses .-> s118
+  s189 -. uses .-> s188

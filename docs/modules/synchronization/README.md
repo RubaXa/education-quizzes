@@ -38,6 +38,7 @@ code:
 - [backend-driven-ui](backend-driven-ui.md)
 - [change-detection-and-reconciliation](change-detection-and-reconciliation.md)
 - [education-pipeline](education-pipeline.md)
+- [execution-artifact](execution-artifact.md)
 - [firestore-read-paths](firestore-read-paths.md)
 - [global-sync](global-sync.md)
 - [plan-generation](plan-generation.md)
