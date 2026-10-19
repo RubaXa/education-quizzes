@@ -1106,7 +1106,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 142,
+    "line": 151,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1118,7 +1118,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-2",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 144,
+    "line": 153,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1130,7 +1130,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#9c790211fd82",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 155,
+    "line": 173,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -1142,7 +1142,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-3",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 160,
+    "line": 178,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1154,7 +1154,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-4",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 194,
+    "line": 218,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1166,7 +1166,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-5",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 204,
+    "line": 228,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1178,7 +1178,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-6",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 213,
+    "line": 237,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1190,7 +1190,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-7",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 226,
+    "line": 250,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1202,7 +1202,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-8",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 235,
+    "line": 259,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1214,7 +1214,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-9",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 247,
+    "line": 272,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1226,7 +1226,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-10",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 258,
+    "line": 283,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1238,7 +1238,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-11",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 268,
+    "line": 293,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1250,7 +1250,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-12",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 279,
+    "line": 304,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -2834,7 +2834,7 @@
   {
     "id": "scripts/education-sync-dispatch.mjs#admin.get#9441ebbcf2fa",
     "file": "scripts/education-sync-dispatch.mjs",
-    "line": 84,
+    "line": 86,
     "api": "admin.get",
     "target": "db.collection('telegramNotificationEvents').doc(eventId)",
     "group": "operator-other",
@@ -2842,6 +2842,18 @@
     "policy": "explicit-natural-event-recovery",
     "refresh": "operator-command-only",
     "note": "19.10: один точный ledger eventId по явной команде; проверка source/type/current registry перед enqueue, не фоновое чтение."
+  },
+  {
+    "id": "scripts/education-sync-dispatch.mjs#admin.get#c573803dc1ae",
+    "file": "scripts/education-sync-dispatch.mjs",
+    "line": 114,
+    "api": "admin.get",
+    "target": "selected",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "explicit-bounded-event-recovery-list",
+    "refresh": "operator-command-only",
+    "note": "Явная локальная команда events --since: читает только eventId/source/eventType/detectedAt/familyId/childId, detectedAt >= ISO, newest first, максимум101 для выдачи до100 с truncated. Затем сверяет текущий registered family/child inventory; неполный inventory отклоняет список. Source payload не читается/не выдаётся; нет клиентских подписок или фонового polling."
   },
   {
     "id": "scripts/family-library.mjs#admin.get#55fcdaa66421",
@@ -3374,7 +3386,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#ffa52efd6c07",
     "file": "scripts/quiz.mjs",
-    "line": 163,
+    "line": 171,
     "api": "admin.get",
     "target": "db.collection('assignments').where('testId', '==', spec.linkedToTestId)",
     "group": "operator-other",
@@ -3386,7 +3398,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#9ea2d7f73efd",
     "file": "scripts/quiz.mjs",
-    "line": 171,
+    "line": 179,
     "api": "admin.get",
     "target": "db.doc(`reviews/${parents.docs[0].id}`)",
     "group": "operator-other",
@@ -3398,7 +3410,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#67ef58f895e7",
     "file": "scripts/quiz.mjs",
-    "line": 171,
+    "line": 179,
     "api": "admin.get",
     "target": "db.doc(`answerKeys/${parents.docs[0].id}`)",
     "group": "operator-other",
@@ -3410,7 +3422,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#c7a806345120",
     "file": "scripts/quiz.mjs",
-    "line": 196,
+    "line": 204,
     "api": "admin.get",
     "target": "db.collection('assignments').where('linkedToTestId', '==', spec.linkedToTestId)",
     "group": "operator-other",
@@ -3422,7 +3434,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#62b9e3afebf5",
     "file": "scripts/quiz.mjs",
-    "line": 280,
+    "line": 288,
     "api": "admin.get",
     "target": "db.doc(`assignments/${learnerToken}`)",
     "group": "operator-other",
@@ -3434,7 +3446,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#93adc9e22f88",
     "file": "scripts/quiz.mjs",
-    "line": 306,
+    "line": 314,
     "api": "admin.get",
     "target": "db.doc(`assignments/${tokenToRead}`)",
     "group": "operator-other",
@@ -3446,7 +3458,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#a13ac351f175",
     "file": "scripts/quiz.mjs",
-    "line": 306,
+    "line": 314,
     "api": "admin.get",
     "target": "db.doc(`answerKeys/${tokenToRead}`)",
     "group": "operator-other",
@@ -3458,7 +3470,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#ef0cb380cd40",
     "file": "scripts/quiz.mjs",
-    "line": 307,
+    "line": 315,
     "api": "admin.get",
     "target": "db.doc(`reviews/${tokenToRead}`)",
     "group": "operator-other",
@@ -3470,7 +3482,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#0a2cf8c61005",
     "file": "scripts/quiz.mjs",
-    "line": 317,
+    "line": 325,
     "api": "admin.get",
     "target": "db.collection('assignments').where('testId', '==', assignment.linkedToTestId)",
     "group": "operator-other",
@@ -3482,7 +3494,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#5af2f146a13f",
     "file": "scripts/quiz.mjs",
-    "line": 352,
+    "line": 360,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -3494,7 +3506,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#5af2f146a13f-2",
     "file": "scripts/quiz.mjs",
-    "line": 352,
+    "line": 360,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -3506,7 +3518,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#5af2f146a13f-3",
     "file": "scripts/quiz.mjs",
-    "line": 352,
+    "line": 360,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -3518,7 +3530,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#5af2f146a13f-4",
     "file": "scripts/quiz.mjs",
-    "line": 362,
+    "line": 370,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -3530,7 +3542,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#5af2f146a13f-5",
     "file": "scripts/quiz.mjs",
-    "line": 362,
+    "line": 370,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -3542,7 +3554,7 @@
   {
     "id": "scripts/quiz.mjs#admin.getAll#b0c1c92f920c",
     "file": "scripts/quiz.mjs",
-    "line": 375,
+    "line": 383,
     "api": "admin.getAll",
     "target": "db",
     "group": "operator-other",
@@ -3554,7 +3566,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#2e47d8dc9017",
     "file": "scripts/quiz.mjs",
-    "line": 392,
+    "line": 400,
     "api": "admin.get",
     "target": "db.doc(`assignments/${item.token}`)",
     "group": "operator-other",
@@ -3566,7 +3578,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#73bcb67b3161",
     "file": "scripts/quiz.mjs",
-    "line": 419,
+    "line": 427,
     "api": "admin.get",
     "target": "db.collection(`dashboard/${ownerToken}/assignments`)",
     "group": "operator-other",
@@ -3578,7 +3590,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#b65d76738868",
     "file": "scripts/quiz.mjs",
-    "line": 421,
+    "line": 429,
     "api": "admin.get",
     "target": "db.doc(`assignments/${item.id}`)",
     "group": "operator-other",
@@ -3590,7 +3602,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#6f14da11a5d7",
     "file": "scripts/quiz.mjs",
-    "line": 435,
+    "line": 443,
     "api": "admin.get",
     "target": "db.collection(`dashboard/${board}/assignments`)",
     "group": "operator-other",
@@ -3602,7 +3614,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#b65d76738868-2",
     "file": "scripts/quiz.mjs",
-    "line": 437,
+    "line": 445,
     "api": "admin.get",
     "target": "db.doc(`assignments/${item.id}`)",
     "group": "operator-other",
@@ -3614,7 +3626,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#03a1fbb7fefa",
     "file": "scripts/quiz.mjs",
-    "line": 458,
+    "line": 466,
     "api": "admin.get",
     "target": "db.collection(`dashboard/${boardToken}/assignments`)",
     "group": "operator-other",
@@ -3626,7 +3638,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#5b369111a272",
     "file": "scripts/quiz.mjs",
-    "line": 462,
+    "line": 470,
     "api": "admin.get",
     "target": "db.doc(`assignments/${entry.id}`)",
     "group": "operator-other",
@@ -3638,7 +3650,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#7f9af9eb32fd",
     "file": "scripts/quiz.mjs",
-    "line": 480,
+    "line": 488,
     "api": "admin.get",
     "target": "db.collection(`dashboard/${learnerBoardToken()}/assignments`)",
     "group": "operator-other",
@@ -3650,7 +3662,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#b65d76738868-3",
     "file": "scripts/quiz.mjs",
-    "line": 483,
+    "line": 491,
     "api": "admin.get",
     "target": "db.doc(`assignments/${item.id}`)",
     "group": "operator-other",
@@ -3662,7 +3674,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#7710d62b032d",
     "file": "scripts/quiz.mjs",
-    "line": 497,
+    "line": 505,
     "api": "admin.get",
     "target": "db.doc(`dashboard/${learnerBoardToken()}/assignments/${placement.token}`)",
     "group": "operator-other",
@@ -3674,7 +3686,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#49263dc18a20",
     "file": "scripts/quiz.mjs",
-    "line": 500,
+    "line": 508,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -3686,7 +3698,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#62b9e3afebf5-2",
     "file": "scripts/quiz.mjs",
-    "line": 511,
+    "line": 519,
     "api": "admin.get",
     "target": "db.doc(`assignments/${learnerToken}`)",
     "group": "operator-other",
@@ -3698,7 +3710,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#0e6be1588830",
     "file": "scripts/quiz.mjs",
-    "line": 512,
+    "line": 520,
     "api": "admin.get",
     "target": "db.doc(`answerKeys/${learnerToken}`)",
     "group": "operator-other",
@@ -3710,7 +3722,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#f6f324f19b6f",
     "file": "scripts/quiz.mjs",
-    "line": 513,
+    "line": 521,
     "api": "admin.get",
     "target": "db.doc(`reviews/${learnerToken}`)",
     "group": "operator-other",
@@ -3722,7 +3734,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#a95d9b7de7f0",
     "file": "scripts/quiz.mjs",
-    "line": 532,
+    "line": 540,
     "api": "admin.get",
     "target": "assignmentRef",
     "group": "operator-other",
@@ -3734,7 +3746,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#91aa8173d754",
     "file": "scripts/quiz.mjs",
-    "line": 532,
+    "line": 540,
     "api": "admin.get",
     "target": "keyRef",
     "group": "operator-other",
@@ -3746,7 +3758,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#f6c6727e8147",
     "file": "scripts/quiz.mjs",
-    "line": 532,
+    "line": 540,
     "api": "admin.get",
     "target": "reviewRef",
     "group": "operator-other",
@@ -3758,7 +3770,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#5af2f146a13f-6",
     "file": "scripts/quiz.mjs",
-    "line": 547,
+    "line": 556,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -3770,7 +3782,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#5af2f146a13f-7",
     "file": "scripts/quiz.mjs",
-    "line": 547,
+    "line": 556,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -3782,7 +3794,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#a95d9b7de7f0-2",
     "file": "scripts/quiz.mjs",
-    "line": 555,
+    "line": 564,
     "api": "admin.get",
     "target": "assignmentRef",
     "group": "operator-other",
@@ -3794,7 +3806,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#91aa8173d754-2",
     "file": "scripts/quiz.mjs",
-    "line": 555,
+    "line": 564,
     "api": "admin.get",
     "target": "keyRef",
     "group": "operator-other",
@@ -3806,7 +3818,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#62b9e3afebf5-3",
     "file": "scripts/quiz.mjs",
-    "line": 566,
+    "line": 575,
     "api": "admin.get",
     "target": "db.doc(`assignments/${learnerToken}`)",
     "group": "operator-other",

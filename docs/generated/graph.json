@@ -3050,7 +3050,7 @@
       "id": "file:packages/telegram-notifications/adapters/runtime.mjs",
       "path": "packages/telegram-notifications/adapters/runtime.mjs",
       "kind": "artifact",
-      "purpose": "Связка Firestore adapters, identity, delivery service и Telegram transport",
+      "purpose": "Связка принятых Firestore work/Mesh events с dispatcher; также Firestore adapters, identity и Telegram delivery",
       "consumer": "`scripts/telegram-bot.mjs`"
     },
     {
@@ -10437,6 +10437,11 @@
     {
       "from": "file:packages/telegram-notifications/adapters/probe-recipient-firestore.mjs",
       "to": "service.telegram-bot.operations",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/adapters/runtime.mjs",
+      "to": "service.telegram-bot.education-sync-dispatch",
       "type": "implements"
     },
     {

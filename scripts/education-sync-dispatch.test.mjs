@@ -2,7 +2,7 @@ import { mkdtempSync, readFileSync, rmSync, statSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { resolve } from 'node:path'
 import { describe, expect, it, vi } from 'vitest'
-import { main } from './education-sync-dispatch.mjs'
+import { enqueueExistingEvent, listEvents, main } from './education-sync-dispatch.mjs'
 
 const REQUEST = '01a150dc-e067-7cc2-b08f-f573bf83e6e3'
 
@@ -78,5 +78,52 @@ describe('education sync dispatch CLI', () => {
       expect(store.resumeBlocked).toHaveBeenCalledWith(expect.objectContaining({ requestId: REQUEST }))
       expect(err.value()).toBe('')
     } finally { rmSync(root, { recursive: true, force: true }) }
+  })
+
+  it('recovers an accepted Firestore work event for a registered owner without requiring Mesh access', async () => {
+    const event = { eventId: 'a'.repeat(64), source: 'firestore', eventType: 'upload.confirmed', familyId: 'family-a', childId: 'child-a',
+      scopeKey: 'b'.repeat(64), sourceEventKey: 'c'.repeat(64) }
+    const store = { recordSourceChange: vi.fn(async () => ({ status: 'accepted' })) }
+    const db = { collection: () => ({ doc: () => ({ get: async () => ({ exists: true, data: () => event }) }) }) }
+    const createInventory = vi.fn(() => ({ enumerate: async () => ({ complete: true, families: [{ familyId: 'family-a' }],
+      registeredChildren: [{ familyId: 'family-a', childId: 'child-a', hasMeshAccount: false }] }) }))
+    await expect(enqueueExistingEvent(db, store, event.eventId, { createInventory })).resolves.toEqual({ status: 'accepted' })
+    expect(store.recordSourceChange).toHaveBeenCalledWith(expect.objectContaining({ kind: 'work', eventDigest: expect.any(String) }))
+  })
+
+  it('rejects recovery when the event owner is no longer registered', async () => {
+    const event = { eventId: 'a'.repeat(64), source: 'firestore', eventType: 'quiz.submitted', familyId: 'family-a', childId: 'child-a',
+      scopeKey: 'b'.repeat(64), sourceEventKey: 'c'.repeat(64) }
+    const store = { recordSourceChange: vi.fn() }
+    const db = { collection: () => ({ doc: () => ({ get: async () => ({ exists: true, data: () => event }) }) }) }
+    await expect(enqueueExistingEvent(db, store, event.eventId, { createInventory: () => ({ enumerate: async () => ({ complete: true,
+      families: [{ familyId: 'family-a' }], registeredChildren: [] }) }) })).rejects.toThrow('event_owner_unverified')
+    expect(store.recordSourceChange).not.toHaveBeenCalled()
+  })
+
+  it('lists only selected recent IDs for current owners and reports bounded truncation', async () => {
+    const selected = []
+    const docs = Array.from({ length: 101 }, (_, index) => ({ data: () => ({ eventId: index.toString(16).padStart(64, '0'),
+      source: 'firestore', eventType: 'upload.confirmed', detectedAt: '2026-10-19T20:21:00.000Z', familyId: 'family-a', childId: 'child-a' }) }))
+    const query = { where: (...args) => { selected.push(['where', ...args]); return query }, orderBy: (...args) => { selected.push(['orderBy', ...args]); return query },
+      limit: (...args) => { selected.push(['limit', ...args]); return query }, select: (...args) => { selected.push(['select', ...args]); return query },
+      get: async () => ({ docs }) }
+    const db = { collection: () => query }
+    const result = await listEvents(db, '2026-10-19T20:20:00.000Z', { createInventory: () => ({ enumerate: async () => ({ complete: true,
+      families: [{ familyId: 'family-a' }], registeredChildren: [{ familyId: 'family-a', childId: 'child-a', hasMeshAccount: false }] }) }) })
+    expect(result).toMatchObject({ truncated: true, scanned: 101 })
+    expect(result.events).toHaveLength(100)
+    expect(result.events[0]).not.toHaveProperty('familyId')
+    expect(selected).toContainEqual(['where', 'detectedAt', '>=', '2026-10-19T20:20:00.000Z'])
+    expect(selected).toContainEqual(['limit', 101])
+    expect(selected.at(-1)).toEqual(['select', 'eventId', 'source', 'eventType', 'detectedAt', 'familyId', 'childId'])
+  })
+
+  it('does not report an apparently complete event list from an incomplete owner inventory', async () => {
+    const query = { where: () => query, orderBy: () => query, limit: () => query, select: () => query,
+      get: async () => ({ docs: [] }) }
+    await expect(listEvents({ collection: () => query }, '2026-10-19T20:20:00.000Z', {
+      createInventory: () => ({ enumerate: async () => ({ complete: false, registeredChildren: [] }) }),
+    })).rejects.toThrow('event_owner_unverified')
   })
 })

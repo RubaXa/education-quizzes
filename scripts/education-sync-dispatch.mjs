@@ -3,7 +3,7 @@ import { chmodSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync, sta
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { createEducationFirestore } from '../packages/education-runtime/firestore.mjs'
-import { createFirestoreEducationSyncStore } from '../packages/telegram-notifications/application/education-sync-dispatcher.mjs'
+import { createFirestoreEducationSyncStore, workEventDigest } from '../packages/telegram-notifications/application/education-sync-dispatcher.mjs'
 import { createFirestoreSourceInventory } from '../packages/telegram-notifications/adapters/source-inventory-firestore.mjs'
 
 /** @see ../docs/services/telegram-bot/education-sync-dispatch.md */
@@ -29,6 +29,8 @@ export async function main(args = process.argv.slice(2), { env = process.env, ou
       result = await claimRequest(store, root, values.request)
     } else if (command === 'enqueue-event' && /^[a-f0-9]{64}$/.test(values['event-id'] ?? '') && Object.keys(values).length === 1) {
       result = await enqueueExistingEvent(db, store, values['event-id'])
+    } else if (command === 'events' && Object.keys(values).length === 1 && Number.isFinite(Date.parse(values.since ?? ''))) {
+    result = await listEvents(db, values.since)
     } else if (['complete', 'fail', 'heartbeat'].includes(command) && validRequest(values.request)
       && typeof values['claim-file'] === 'string' && Object.keys(values).length === 2) {
       const claim = readClaimFile(root, values['claim-file'], values.request)
@@ -80,24 +82,49 @@ async function claimRequest(store, projectRoot, requestId) {
   return { status: 'claimed', claimPath }
 }
 
-async function enqueueExistingEvent(db, store, eventId) {
+export async function enqueueExistingEvent(db, store, eventId, { createInventory = createFirestoreSourceInventory } = {}) {
   const eventDoc = await db.collection('telegramNotificationEvents').doc(eventId).get()
   if (!eventDoc.exists) throw new Error('event_not_eligible')
   const event = eventDoc.data() ?? {}
-  const eligibleTypes = new Set(['schedule.created', 'schedule.changed', 'schedule.cancelled',
+  const meshTypes = new Set(['schedule.created', 'schedule.changed', 'schedule.cancelled',
     'homework.assigned', 'homework.changed', 'homework.cancelled', 'grade.created', 'grade.changed'])
-  if (event.eventId !== eventId || event.source !== 'mesh' || !eligibleTypes.has(event.eventType)
+  const workTypes = new Set(['upload.confirmed', 'quiz.submitted'])
+  const kind = event.source === 'mesh' && meshTypes.has(event.eventType) ? 'mesh'
+    : event.source === 'firestore' && workTypes.has(event.eventType) ? 'work' : null
+  if (event.eventId !== eventId || !kind
     || !/^[A-Za-z0-9_-]{1,128}$/.test(event.familyId ?? '') || !/^[A-Za-z0-9_-]{1,128}$/.test(event.childId ?? '')) {
     throw new Error('event_not_eligible')
   }
-  const graph = await createFirestoreSourceInventory(db, { includeFirestore: false, includeMesh: false }).enumerate()
+  const graph = await createInventory(db, { includeFirestore: false, includeMesh: false }).enumerate()
   if (!graph.complete || !graph.families.some(({ familyId }) => familyId === event.familyId)
-    || !graph.registeredChildren.some((child) => child.familyId === event.familyId && child.childId === event.childId && child.hasMeshAccount)) {
+    || !graph.registeredChildren.some((child) => child.familyId === event.familyId && child.childId === event.childId
+      && (kind === 'work' || child.hasMeshAccount))) {
     throw new Error('event_owner_unverified')
   }
   const now = new Date().toISOString()
-  const eventDigest = createHash('sha256').update(eventId).digest('hex')
-  return store.recordMeshChange({ eventDigest, now, debounceUntil: new Date(Date.parse(now) + 20_000).toISOString() })
+  const eventDigest = kind === 'work' ? workEventDigest(event) : createHash('sha256').update(eventId).digest('hex')
+  return store.recordSourceChange({ eventDigest, kind, now, debounceUntil: new Date(Date.parse(now) + 20_000).toISOString() })
+}
+
+export async function listEvents(db, since, { createInventory = createFirestoreSourceInventory } = {}) {
+  const query = db.collection('telegramNotificationEvents').where('detectedAt', '>=', new Date(since).toISOString())
+    .orderBy('detectedAt', 'desc').limit(101)
+  if (typeof query.select !== 'function') throw new Error('event_listing_unavailable')
+  const selected = query.select('eventId', 'source', 'eventType', 'detectedAt', 'familyId', 'childId')
+  const snapshot = await selected.get()
+  const docs = snapshot.docs.map((doc) => doc.data() ?? {})
+  const inventory = await createInventory(db, { includeFirestore: false, includeMesh: false }).enumerate()
+  if (!inventory.complete) throw new Error('event_owner_unverified')
+  const eligibleOwners = new Map(inventory.registeredChildren.map(({ familyId, childId, hasMeshAccount }) => [`${familyId}/${childId}`, hasMeshAccount]))
+  const events = docs.filter((event) => Date.parse(event.detectedAt ?? '') >= Date.parse(since)
+    && (event.source === 'firestore' && ['upload.confirmed', 'quiz.submitted'].includes(event.eventType)
+      || event.source === 'mesh' && ['schedule.created', 'schedule.changed', 'schedule.cancelled', 'homework.assigned', 'homework.changed', 'homework.cancelled', 'grade.created', 'grade.changed'].includes(event.eventType)))
+    .filter((event) => /^[a-f0-9]{64}$/.test(event.eventId ?? '') && /^[A-Za-z0-9_-]{1,128}$/.test(event.familyId ?? '')
+      && /^[A-Za-z0-9_-]{1,128}$/.test(event.childId ?? '')
+      && (event.source === 'firestore' ? eligibleOwners.has(`${event.familyId}/${event.childId}`)
+        : eligibleOwners.get(`${event.familyId}/${event.childId}`) === true))
+    .map((event) => ({ eventId: event.eventId, source: event.source, eventType: event.eventType, detectedAt: event.detectedAt }))
+  return { events: events.slice(0, 100), truncated: docs.length > 100, scanned: docs.length }
 }
 
 function readClaimFile(projectRoot, suppliedPath, requestId) {
@@ -113,16 +140,21 @@ function readClaimFile(projectRoot, suppliedPath, requestId) {
 
 function summarize(state) {
   return { status: state.status, generation: state.generation ?? 0,
+    ...(Number.isInteger(state.sendingGeneration) ? { sendingGeneration: state.sendingGeneration } : {}),
+    ...(Array.isArray(state.pendingKinds) ? { pendingKinds: safeKinds(state.pendingKinds) } : {}),
+    ...(Array.isArray(state.sendingKinds) ? { sendingKinds: safeKinds(state.sendingKinds) } : {}),
     ...(state.requestId ? { requestId: state.requestId } : {}), ...(state.retryAt ? { retryAt: state.retryAt } : {}),
     ...(state.lastErrorCode ? { lastErrorCode: state.lastErrorCode } : {}),
     ...(state.blockedReasonCode ? { blockedReasonCode: state.blockedReasonCode } : {}) }
 }
 
+function safeKinds(value) { return [...new Set(value.filter((kind) => kind === 'mesh' || kind === 'work'))] }
+
 function parse(tokens) {
   const result = {}
-  for (let index = 0; index < tokens.length; index += 1) {
+    for (let index = 0; index < tokens.length; index += 1) {
     const name = tokens[index]
-    if (!['--request', '--claim-file', '--event-id', '--reason'].includes(name) || result[name.slice(2)] !== undefined
+    if (!['--request', '--claim-file', '--event-id', '--reason', '--since'].includes(name) || result[name.slice(2)] !== undefined
       || typeof tokens[index + 1] !== 'string' || tokens[index + 1].startsWith('--')) throw new Error('usage_invalid')
     result[name.slice(2)] = tokens[++index]
   }
