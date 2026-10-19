@@ -1,18 +1,32 @@
 {
   "files": {
     "assessment/canonical-short-key.mjs": {
-      "sha256":"2b56fffdc8d26c5ae73440eab1afdd6544becc7eabcc9bdd80ab1c2e5473a3a0",
-      "record":"docs/decisions/canonical-short-key-repair-2026-10-19.md",
-      "specs":["docs/modules/assessments/quizzes.md"],
-      "tests":["assessment/canonical-short-key.test.mjs"],
-      "authorization":{"status":"direct-request","evidence":"Пользователь19.10 поручил полный EducationSync28f41614 с приложенным навыком:проверить технические нули до выводов об ошибках,при отсутствии операции добавить узкую штатную команду с контрактом и тестом."}
+      "sha256": "2b56fffdc8d26c5ae73440eab1afdd6544becc7eabcc9bdd80ab1c2e5473a3a0",
+      "record": "docs/decisions/canonical-short-key-repair-2026-10-19.md",
+      "specs": [
+        "docs/modules/assessments/quizzes.md"
+      ],
+      "tests": [
+        "assessment/canonical-short-key.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь19.10 поручил полный EducationSync28f41614 с приложенным навыком:проверить технические нули до выводов об ошибках,при отсутствии операции добавить узкую штатную команду с контрактом и тестом."
+      }
     },
     "day/grade-notice-backfill.mjs": {
       "sha256": "b8ecea11a436771964f4e21e91f286019aa27c44f3e1779f82b8a89488030e9f",
       "record": "docs/decisions/grade-notice-recovery-2026-10-19.md",
-      "specs": ["docs/modules/notifications/inbox.md"],
-      "tests": ["day/grade-notice-backfill.test.mjs"],
-      "authorization": {"status":"direct-request","evidence":"Пользователь19.10 поручил полный EducationSync44320156 с обычными safeguards и приложил навык, требующий адресные уведомления оценок и разрешающий узкую штатную команду с контрактом и тестом при отсутствии операции."}
+      "specs": [
+        "docs/modules/notifications/inbox.md"
+      ],
+      "tests": [
+        "day/grade-notice-backfill.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь19.10 поручил полный EducationSync44320156 с обычными safeguards и приложил навык, требующий адресные уведомления оценок и разрешающий узкую штатную команду с контрактом и тестом при отсутствии операции."
+      }
     },
     "day/school-calendar.mjs": {
       "sha256": "f36927c3cf475c56a13a856cedb29a030d2c7057adf38366aad302f8c3603905",
@@ -346,27 +360,19 @@
       }
     },
     "src/components/QuizResultCard.tsx": {
-      "sha256": "0e854566001d838c8e1f02c5c597e272a6dab7f29bff168deec07ac05f252ff8",
-      "record": "docs/decisions/compact-results-ui-kit-2026-10-16.md",
+      "record": "docs/decisions/question-guidance-2026-10-19.md",
       "specs": [
-        "docs/modules/assessments/result-presentation-proposal.md",
-        "docs/modules/assessments/quiz-chain-proposal.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/assessments/quizzes.md"
       ],
       "tests": [
-        "src/components/QuizCard.history.test.tsx",
-        "src/components/ui/result.test.tsx",
-        "src/lib/watchQuizOutcome.test.ts",
-        "src/UiKit.test.tsx"
+        "src/components/QuizResultCard.test.tsx",
+        "assessment/question-guidance.test.mjs"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "Родитель 16.10.2026 утвердил уплотнённую таблицу и цветовую шкалу словами «стало намного лучше, закрепляй вариант» и прямо запросил интерактивный UI Kit."
+        "status": "direct-request",
+        "evidence": "Родитель19.10 требует вместо одинаковой копипасты точное расхождение, наводящий вопрос и проверяемое место оригинала каждого вопроса."
       },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "8a2fe11a30459cb2ad46aef82d572c3dc7665cd471f9ef5e054775d3a6c2591d"
-      }
+      "sha256": "af652a564f74dc7cc6abd42c2233362399f34f2a85bca1be12dfb887f6000e4d"
     },
     "src/components/ui/result.tsx": {
       "sha256": "8c175a0008de5e48bc53568c5ebb4c0ac58c9f51a01c71433049c5dc2f604f3f",
@@ -1070,29 +1076,19 @@
       }
     },
     "scripts/quiz.mjs": {
-      "sha256": "1c91947393ec3da0df59e464954f2240d3750b3fd8bcc6a70c62d3cb4aecbeba",
-      "record": "docs/decisions/canonical-short-key-repair-2026-10-19.md",
+      "record": "docs/decisions/question-guidance-2026-10-19.md",
       "specs": [
-        "docs/modules/assessments/quiz-chain-proposal.md",
-        "docs/modules/assessments/assessment-decision-graph.md",
         "docs/modules/assessments/quizzes.md"
       ],
       "tests": [
-        "src/components/QuizCard.history.test.tsx",
-        "src/components/QuizCard.test.tsx",
-        "src/lib/homeworkStatus.test.ts",
-        "src/lib/store.optionalQuiz.test.ts",
-        "assessment/quiz-lineage.test.mjs"
-        ,"assessment/canonical-short-key.test.mjs"
+        "src/components/QuizResultCard.test.tsx",
+        "assessment/question-guidance.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 16.10.2026 прямо требует закрытую по умолчанию историю и универсальную кнопку нового теста, включая100%, с учётом всех предыдущих попыток по общей автоматической политике."
+        "evidence": "Родитель19.10 требует вместо одинаковой копипасты точное расхождение, наводящий вопрос и проверяемое место оригинала каждого вопроса."
       },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "92e01c4f85dd6fc944d935b243c98c821f9321b62856eed2730eefa0877c6099"
-      }
+      "sha256": "2e9643bd5c5ea7125dbc59d32708de4c933fc1b72a26fc2b20df437b77618905"
     },
     "scripts/sync-queue.mjs": {
       "sha256": "67d8b7092e5b75e6eacd58e85b8c6b71c967f3e76d7e518fc0aaf6a4e1460ce3",
@@ -1249,24 +1245,19 @@
       }
     },
     "src/lib/quiz.ts": {
-      "sha256": "2466aa3c75a7905fbb38cbcab8bb64bc55040ff603144f853380ac5ceeb55a92",
-      "record": "docs/decisions/quiz-attempt-time-icon-2026-10-15.md",
+      "record": "docs/decisions/question-guidance-2026-10-19.md",
       "specs": [
-        "docs/modules/assessments/quizzes.md",
-        "docs/shared/design/README.md"
+        "docs/modules/assessments/quizzes.md"
       ],
       "tests": [
-        "src/components/QuizCard.time.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx"
+        "src/components/QuizResultCard.test.tsx",
+        "assessment/question-guidance.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 15.10.2026 после просмотра макета согласовал только значок времени в действующем общем компоненте теста, без изменения остального дизайна карточки."
+        "evidence": "Родитель19.10 требует вместо одинаковой копипасты точное расхождение, наводящий вопрос и проверяемое место оригинала каждого вопроса."
       },
-      "specificationLifecycle": {
-        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
-        "previousSha256": "e017ae899f9b65aea083848d347ed761aefbd58c2320b6f933d0189048d0e4fe"
-      }
+      "sha256": "7b47d6707b170b7307739599ad59f870900665fa83c0b3a922a4a18556909d9a"
     },
     "src/lib/quizCardViewModel.ts": {
       "sha256": "6cd9ebe6428ef63416b8a09fc8424483c21272c898ff2124cf9e83bcbd4c9d23",
@@ -5502,6 +5493,21 @@
         "status": "direct-request",
         "evidence": "Пользователь19.10 требует через Luna исправить зависание, подключить автоматический EducationSync, проверить реальные Mesh notifications, добавить tests/specs и выпустить main."
       }
+    },
+    "assessment/question-guidance.mjs": {
+      "record": "docs/decisions/question-guidance-2026-10-19.md",
+      "specs": [
+        "docs/modules/assessments/quizzes.md"
+      ],
+      "tests": [
+        "src/components/QuizResultCard.test.tsx",
+        "assessment/question-guidance.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель19.10 требует вместо одинаковой копипасты точное расхождение, наводящий вопрос и проверяемое место оригинала каждого вопроса."
+      },
+      "sha256": "c595bc9e6e14c6dd51c87b0dd5bf74e3ca2b7c46ba5f84c8ed7d2b581b2b433d"
     }
   }
 }

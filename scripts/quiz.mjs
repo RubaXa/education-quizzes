@@ -12,6 +12,7 @@ import { assertFollowupCoverage, assertOpenRevisionReadback, openQuizRevision } 
 import { assertLineageContinuation, quizLineageStatistics } from '../assessment/quiz-lineage.mjs'
 import { grade, summarize } from '../src/lib/quiz.ts'
 import { canonicalShortKeyRepair, correctionFingerprint } from '../assessment/canonical-short-key.mjs'
+import { questionGuidanceErrors, repairQuestionGuidance } from '../assessment/question-guidance.mjs'
 import { needsQuizFollowup } from '../src/lib/quizCompletion.ts'
 
 const projectId = 'education-9d7c6'
@@ -92,6 +93,8 @@ function validateSpec(spec, specPath) {
   if (!Array.isArray(spec.questions) || !spec.questions.length || spec.questions.length > 100) fail('Нужно от 1 до 100 вопросов.')
   const repeatedCopy = repeatedQuestionCopy(spec.questions)
   if (repeatedCopy.length) fail(repeatedCopy.join(' '))
+  const guidanceProblems = questionGuidanceErrors(spec.questions)
+  if (guidanceProblems.length) fail(guidanceProblems.join('\n'))
   if (spec.visual !== undefined) {
     if (!spec.visual || typeof spec.visual !== 'object' || Array.isArray(spec.visual)) fail('visual должен быть объектом.')
     if (spec.visual.preset && !['english', 'informatics', 'biology', 'literature', 'history', 'math', 'russian', 'geography', 'physics', 'chemistry', 'general'].includes(spec.visual.preset)) fail('Неизвестный visual.preset.')
@@ -116,6 +119,11 @@ function validateSpec(spec, specPath) {
     if (['single', 'multiple', 'figure'].includes(question.kind) && (!Array.isArray(question.options) || question.options.length < 2)) fail(`Нужно минимум два варианта в ${question.id}.`)
     const answer = question.answer
     if (!answer || typeof answer !== 'object' || Array.isArray(answer)) fail(`Нет разбора для вопроса ${question.id}.`)
+    if (question.kind === 'short' && answer.accepted !== undefined && (!Array.isArray(answer.accepted)
+      || !answer.accepted.some((value) => typeof value === 'string' && typeof answer.correct === 'string'
+        && value.trim().toLocaleLowerCase('ru-RU') === answer.correct.trim().toLocaleLowerCase('ru-RU')))) {
+      fail(`Основной correct должен входить в accepted: ${question.id}.`)
+    }
     for (const field of ['explanation', 'source']) {
       if (typeof answer[field] !== 'string' || !answer[field].trim()) fail(`Нет answer.${field} для вопроса ${question.id}.`)
     }
@@ -522,7 +530,7 @@ async function exportAttempt(learnerToken, outputPath) {
 }
 
 /** @see ../docs/modules/assessments/quizzes.md#canonical-short-repair */
-async function repairCanonicalShortAnswers(learnerToken, requestPath) {
+async function repairCanonicalShortAnswers(learnerToken, requestPath, guidanceOnly = false) {
   if (!learnerToken || !requestPath) fail('Нужны токен и JSON доказательств.')
   const request = loadJson(requestPath)
   const owner = assignmentOwner()
@@ -533,9 +541,10 @@ async function repairCanonicalShortAnswers(learnerToken, requestPath) {
   if (!assignmentDoc.exists || !keyDoc.exists) fail('Назначение или ключ отсутствует.')
   const assignment = assignmentDoc.data(), key = keyDoc.data(), review = reviewDoc.data() ?? null
   assertQuizOwner(assignment, owner)
-  const repaired = canonicalShortKeyRepair(assignment, key, request)
+  const repaired = guidanceOnly ? repairQuestionGuidance(assignment, key, request) : canonicalShortKeyRepair(assignment, key, request)
   const before = summarize(grade(assignment, key, review))
   const after = summarize(grade(assignment, repaired.key, review))
+  if (guidanceOnly && JSON.stringify(before) !== JSON.stringify(after)) fail('Разбор не может менять оценку.')
   const apply = process.argv.includes('--apply')
   let backup = null
   if (apply && repaired.changed.length) {
@@ -585,6 +594,7 @@ try {
   else if (command === 'export') await exportAttempt(first, second)
   else if (command === 'review') await reviewAttempt(first, second)
   else if (command === 'repair-canonical-short-answers') await repairCanonicalShortAnswers(first, second)
+  else if (command === 'repair-question-guidance') await repairCanonicalShortAnswers(first, second, true)
   else fail('Команды: validate SPEC.json | create SPEC.json [PERSON_ID] | revise-open TOKEN SPEC.json PERSON_ID | history TOKEN .local/OUTPUT.json [PLAN.json] | board-add MANIFEST.json | board-status | sync-links [--apply] | audit-access | list | export TOKEN OUTPUT.json | review TOKEN REVIEW.json')
 } catch (error) {
   console.error(error instanceof Error ? error.message : error)

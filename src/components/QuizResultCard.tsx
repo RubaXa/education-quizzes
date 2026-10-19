@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ResultPoints } from '@/components/ui/result'
 import { spellingFeedback } from '@/lib/spellingFeedback'
+import { formatReviewObservation } from '@/lib/reviewProse'
 import type { Answer, QuizQuestion, QuestionResult } from '@/lib/quiz'
 import { CodeBlock } from './CodeBlock'
 import StatusIcon from './StatusIcon'
@@ -27,9 +28,7 @@ export default function ResultCard({ result, index }: { result: QuestionResult; 
   const partial = !pending && !wrong && !skipped && result.points !== result.question.points
   const needsReflection = wrong || partial
   const spelling = spellingFeedback(result)
-  const reflectionQuestion = result.question.kind === 'single' || result.question.kind === 'multiple' || result.question.kind === 'figure'
-    ? 'Какой факт из задания подтверждает твой выбор? Найди его в назначенном материале и сравни со своим ответом.'
-    : 'На каком шаге твоя запись перестаёт следовать условию? Сверь этот шаг с назначенным материалом.'
+  const guidance = result.guidance
   return (
     <Card className="border-0 shadow-sm">
       <CardHeader className="gap-2">
@@ -40,7 +39,7 @@ export default function ResultCard({ result, index }: { result: QuestionResult; 
           </Badge>
           <span className="text-sm">{skipped ? 'Без оценки' : <ResultPoints points={pending ? undefined : result.points ?? undefined} maxPoints={result.question.points} />}</span>
         </div>
-        <CardTitle className="text-lg leading-snug">{index + 1}. {result.question.prompt}</CardTitle>
+        <CardTitle className="text-lg leading-snug">{index + 1}. {formatReviewObservation(result.question.prompt).replace(/§\s*(?=\d)/g, '§ ')}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4 text-sm sm:text-base">
         {result.question.code && <CodeBlock code={result.question.code} />}
@@ -65,21 +64,26 @@ export default function ResultCard({ result, index }: { result: QuestionResult; 
               </div>
             </div>
           </section>
-        ) : needsReflection && (
+        ) : !pending && !skipped && guidance ? (
           <section className="result-learning" aria-label="Ориентир для самостоятельной проверки">
-            <div className="result-rule">
-              <h3>Проверь свой ход</h3>
-              <p>{reflectionQuestion}</p>
-            </div>
+            {needsReflection && <div className="result-rule">
+              <h3>Что проверить</h3>
+              <p>{guidance.observation}</p>
+              <h3>Наводящий вопрос</h3>
+              <p>{guidance.question}</p>
+            </div>}
             <div className="result-material">
               <BookOpen className="size-5 shrink-0" aria-hidden="true" />
               <div>
-                <h3>Где искать</h3>
-                <p>Вернись к материалу, указанному в карточке теста. Он поможет проверить именно этот вопрос.</p>
+                <h3>Источник вопроса</h3>
+                <p>{guidance.source.title}. {guidance.source.edition}.</p>
+                <p>{guidance.source.section}. {guidance.source.pages}.</p>
+                <p>{guidance.source.locator}</p>
+                {guidance.source.url && <a href={guidance.source.url} target="_blank" rel="noopener noreferrer">Открыть источник</a>}
               </div>
             </div>
           </section>
-        )}
+        ) : needsReflection && <p role="status">Для этого вопроса ещё нет проверенного разбора с точным источником.</p>}
       </CardContent>
     </Card>
   )

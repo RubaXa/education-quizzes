@@ -683,6 +683,28 @@
       "path": "docs/decisions/pupil-vacations-2026-10-19.md"
     },
     {
+      "id": "decision.question-guidance-2026-10-19",
+      "status": "accepted",
+      "implementation": "implemented",
+      "parent": "module.assessments.quizzes",
+      "uses": [],
+      "created": "2026-10-19",
+      "updated": "2026-10-19",
+      "consumers": [
+        "quiz author",
+        "release operator"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/question-guidance-2026-10-19.md"
+    },
+    {
       "id": "decision.review-prose-coverage-2026-10-19",
       "status": "accepted",
       "implementation": "implemented",
@@ -2134,6 +2156,20 @@
       "kind": "verification",
       "purpose": "Регрессия на многократный заголовок словарного диктанта",
       "consumer": "Vitest; автор теста"
+    },
+    {
+      "id": "file:assessment/question-guidance.mjs",
+      "path": "assessment/question-guidance.mjs",
+      "kind": "artifact",
+      "purpose": "Проверка адресного безопасного разбора и изменение только его метаданных",
+      "consumer": "Quiz CLI"
+    },
+    {
+      "id": "file:assessment/question-guidance.test.mjs",
+      "path": "assessment/question-guidance.test.mjs",
+      "kind": "verification",
+      "purpose": "Источник, отсутствие заглушки, полный охват и сохранность ответа/ключа",
+      "consumer": "Vitest"
     },
     {
       "id": "file:assessment/quiz-lineage.mjs",
@@ -4530,6 +4566,13 @@
       "consumer": "`src/App.tsx`; `src/DayPage.tsx`"
     },
     {
+      "id": "file:src/components/QuizResultCard.test.tsx",
+      "path": "src/components/QuizResultCard.test.tsx",
+      "kind": "verification",
+      "purpose": "Сквозной grader → карточка: адресный разбор, источник и закрытое решение",
+      "consumer": "Vitest"
+    },
+    {
       "id": "file:src/components/QuizResultCard.tsx",
       "path": "src/components/QuizResultCard.tsx",
       "kind": "artifact",
@@ -6104,6 +6147,7 @@
         "assessment pipeline"
       ],
       "code": [
+        "assessment/question-guidance.mjs",
         "assessment/canonical-short-key.mjs",
         "assessment/question-copy.mjs",
         "day/merge.mjs",
@@ -6129,6 +6173,7 @@
         "module.assessments.result-presentation-proposal"
       ],
       "sections": [
+        "question-guidance",
         "canonical-short-repair",
         "публикация-без-новой-версии-приложения",
         "попытка-и-вопросы",
@@ -9827,6 +9872,11 @@
       "type": "implements"
     },
     {
+      "from": "file:assessment/question-guidance.mjs",
+      "to": "module.assessments.quizzes",
+      "type": "implements"
+    },
+    {
       "from": "file:assessment/quiz-lineage.mjs",
       "to": "module.assessments.assessment-decision-graph",
       "type": "implements"
@@ -13193,12 +13243,22 @@
     },
     {
       "from": "module.assessments.quizzes",
+      "to": "decision.question-guidance-2026-10-19",
+      "type": "contains"
+    },
+    {
+      "from": "module.assessments.quizzes",
       "to": "file:assessment/canonical-short-key.test.mjs",
       "type": "verified-by"
     },
     {
       "from": "module.assessments.quizzes",
       "to": "file:assessment/question-copy.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.assessments.quizzes",
+      "to": "file:assessment/question-guidance.test.mjs",
       "type": "verified-by"
     },
     {
@@ -13224,6 +13284,11 @@
     {
       "from": "module.assessments.quizzes",
       "to": "file:src/components/QuizCard.time.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.assessments.quizzes",
+      "to": "file:src/components/QuizResultCard.test.tsx",
       "type": "verified-by"
     },
     {
