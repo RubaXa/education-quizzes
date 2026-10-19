@@ -26,6 +26,24 @@ function fakeDb(rowsByState) {
   return { db, calls }
 }
 
+function failingDb(failAtGet, error) {
+  let gets = 0
+  return {
+    collection() {
+      return {
+        where() { return this },
+        orderBy() { return this },
+        limit() { return this },
+        async get() {
+          gets += 1
+          if (gets === failAtGet) throw error
+          return { docs: [] }
+        },
+      }
+    },
+  }
+}
+
 describe('education event queue status', () => {
   it('projects bounded read-only samples without private source, actor, or payload fields', async () => {
     const created = new Date('2026-10-19T10:00:00Z')
@@ -86,5 +104,32 @@ describe('education event queue status', () => {
       .toBe(0)
     expect(dbFactory).toHaveBeenCalledWith(expect.objectContaining({ projectId: 'education-test', cwd: '/no-local-credentials-read' }))
     expect(terminate).toHaveBeenCalledOnce()
+  })
+
+  it.each([
+    ['latest', 1], ['pending', 2], ['processing', 3], ['blocked', 4], ['dead_letter', 5],
+  ])('reports a redacted diagnostic for the %s query stage', async (stage, getNumber) => {
+    const write = vi.fn()
+    const error = Object.assign(new Error('secret project/path and private payload'), { code: 14 })
+    expect(await main(['status'], { db: failingDb(getNumber, error), write })).toBe(1)
+    const output = write.mock.calls[0][0]
+    expect(JSON.parse(output)).toEqual({ code: 'education_events_status_failed', stage, grpcCode: 14, retryable: true })
+    expect(output).not.toContain(error.message)
+  })
+
+  it('reports initialize stage and omits unrecognized gRPC codes', async () => {
+    const write = vi.fn()
+    const error = Object.assign(new Error('secret credential detail'), { code: 99, safeCode: 'private-sensitive-value' })
+    expect(await main(['status'], { dbFactory: () => { throw error }, write })).toBe(1)
+    const output = write.mock.calls[0][0]
+    expect(JSON.parse(output)).toEqual({ code: 'education_events_status_failed', stage: 'initialize', grpcCode: null, retryable: false })
+    expect(output).not.toContain(error.message)
+  })
+
+  it('marks only known transient gRPC status codes as retryable', async () => {
+    const write = vi.fn()
+    const error = Object.assign(new Error('private'), { code: 3 })
+    expect(await main(['status'], { db: failingDb(1, error), write })).toBe(1)
+    expect(JSON.parse(write.mock.calls[0][0])).toMatchObject({ grpcCode: 3, retryable: false, stage: 'latest' })
   })
 })

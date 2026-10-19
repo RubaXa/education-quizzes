@@ -824,7 +824,7 @@
       }
     },
     "packages/education-runtime/event-queue.mjs": {
-      "sha256": "d6767f11ab0c4ca0fd291245e8f1f617534ed170f55008d58a26223ca70f35ed",
+      "sha256": "dc9a988483147e0b3366d74c97910180168f18d71b14c371b969c284f141789d",
       "record": "docs/decisions/unified-education-events-2026-10-19.md",
       "specs": [
         "docs/modules/synchronization/event-queue.md"
@@ -1199,13 +1199,14 @@
       }
     },
     "packages/telegram-notifications/application/education-event-routing.mjs": {
-      "sha256": "5029b1032d5520df0b327c7278df957f489c08b7fef52c461485bd51c698d981",
+      "sha256": "fd1e877f9930f8dd6e9004f2fa5767abb785e326d721fc5f0896d907e25c1950",
       "record": "docs/decisions/unified-education-events-2026-10-19.md",
       "specs": [
         "docs/modules/synchronization/event-queue.md"
       ],
       "tests": [
-        "packages/telegram-notifications/application/education-event-routing.test.mjs"
+        "packages/telegram-notifications/application/education-event-routing.test.mjs",
+        "packages/education-runtime/event-queue.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
@@ -1917,7 +1918,7 @@
       }
     },
     "scripts/education-events.mjs": {
-      "sha256": "48552bb49054252b8987033a3fecaf52580c59ab9f06bb39c8525b177e155a44",
+      "sha256": "c80c40111c852c6a53d1c5da8f5852237a22506c5b2abdb7526903cbd2c3e790",
       "record": "docs/decisions/unified-education-events-2026-10-19.md",
       "specs": [
         "docs/modules/synchronization/event-queue.md"

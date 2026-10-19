@@ -11,6 +11,8 @@ import { createEducationFirestore } from '../packages/education-runtime/firestor
 import { EDUCATION_EVENT_TYPES } from '../packages/education-runtime/event-queue.mjs'
 
 const eventStates = Object.freeze(['pending', 'processing', 'blocked', 'dead_letter'])
+const diagnosticStages = new Set(['initialize', 'latest', ...eventStates])
+const retryableGrpcCodes = new Set([4, 8, 10, 14])
 const eventTypes = new Set(EDUCATION_EVENT_TYPES)
 const safeErrorCodes = new Set([
   'account_lock_lost', 'account_lock_required', 'account_lock_timeout', 'account_lock_unavailable',
@@ -39,13 +41,15 @@ const safeErrorCodes = new Set([
 ])
 
 /** Read a recent bounded sample and bounded samples of each active state. */
-export async function inspectEventQueue(db, { limit = 100 } = {}) {
+export async function inspectEventQueue(db, { limit = 100, onStage = () => {} } = {}) {
   if (!db || !Number.isInteger(limit) || limit < 1 || limit > 100) throw new TypeError('invalid_queue_status_options')
   const collection = db.collection('educationEvents')
+  onStage('latest')
   const latestSnapshot = await collection.orderBy('createdAt', 'desc').limit(limit + 1).get()
   const latest = latestSnapshot.docs.slice(0, limit).map(projectEvent)
   const active = {}
   for (const state of eventStates) {
+    onStage(state)
     const snapshot = await collection.where('state', '==', state).orderBy('createdAt', 'desc').limit(limit + 1).get()
     const docs = snapshot.docs.slice(0, limit)
     active[state] = { sampled: docs.length, truncated: snapshot.docs.length > limit,
@@ -69,6 +73,7 @@ export async function main(args = process.argv.slice(2), dependencies = {}) {
   }
   let db = dependencies.db ?? null
   let ownsDb = false
+  let stage = 'initialize'
   try {
     if (!db) {
       const root = dependencies.root ?? process.cwd()
@@ -79,11 +84,17 @@ export async function main(args = process.argv.slice(2), dependencies = {}) {
       db = (dependencies.dbFactory ?? createEducationFirestore)({ projectId, cwd: root, env })
       ownsDb = true
     }
-    const result = await inspectEventQueue(db)
+    const result = await inspectEventQueue(db, { onStage: (value) => { stage = diagnosticStages.has(value) ? value : 'initialize' } })
     write(`${JSON.stringify(result)}\n`)
     return 0
   } catch (error) {
-    write(`${JSON.stringify({ code: error?.safeCode ?? 'education_events_status_failed' })}\n`)
+    const grpcCode = Number.isInteger(error?.code) && error.code >= 0 && error.code <= 16 ? error.code : null
+    write(`${JSON.stringify({
+      code: safeCode(error?.safeCode) ?? 'education_events_status_failed',
+      stage: diagnosticStages.has(stage) ? stage : 'initialize',
+      grpcCode,
+      retryable: grpcCode !== null && retryableGrpcCodes.has(grpcCode),
+    })}\n`)
     return 1
   } finally {
     if (ownsDb) {

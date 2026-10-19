@@ -85,3 +85,7 @@ sections:
 - `sync/legacy-help-identity.mjs`
 - `firestore.rules`
 - `scripts/firestore-rules-education-events.test.mjs`
+- `scripts/education-events.test.mjs`
+- `packages/education-runtime/event-queue.mjs`
+- `packages/education-runtime/event-queue.test.mjs`
+- `packages/telegram-notifications/application/education-event-routing.mjs`

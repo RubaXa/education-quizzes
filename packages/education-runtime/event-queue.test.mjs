@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { Timestamp } from '@google-cloud/firestore'
 import { createFirestoreEducationEventStore, EducationEventConsumer, normalizeEducationEvent, publishEducationEvent } from './event-queue.mjs'
+import { createEducationEventHandlers } from '../telegram-notifications/application/education-event-routing.mjs'
 
 function memoryDb() {
   const rows = new Map()
@@ -216,6 +217,125 @@ describe('education event ingress and consumer', () => {
     ] }, workerId: 'worker-a', clock: () => new Date('2026-10-19T10:00:01.000Z') })
     await consumer.runOne()
     expect(checkpoint).toHaveBeenCalledOnce()
+    expect(nextPhase).not.toHaveBeenCalled()
+  })
+
+  it('runs and checkpoints EducationSync when source observation fails, then replays only observation', async () => {
+    const { db, rows } = memoryDb()
+    const store = createFirestoreEducationEventStore(db)
+    const published = await publishEducationEvent(db, event({ eventType: 'upload.confirmed', sourceRef: {
+      kind: 'upload', documentPath: 'dayUploads/day-1/files/file-1', dayToken: 'day-1', recordId: 'file-1', taskId: 'task-1',
+    } }), { timestamp: '2026-10-19T10:00:00.000Z' })
+    let now = new Date('2026-10-19T10:00:01.000Z')
+    const process = vi.fn().mockRejectedValueOnce(new Error('source unavailable')).mockResolvedValue({ status: 'advanced' })
+    const enqueueAction = vi.fn(async () => ({ status: 'accepted', jobId: 'c'.repeat(64) }))
+    const handlers = createEducationEventHandlers({ firestorePipeline: { process }, educationSyncDispatcher: { enqueueAction } })
+    const consumer = new EducationEventConsumer({ store, handlers, workerId: 'independent-fanout', retryBaseMs: 1,
+      clock: () => now })
+
+    await consumer.runOne()
+    expect(enqueueAction).toHaveBeenCalledOnce()
+    expect(rows.get(published.eventId).state).toBe('pending')
+    expect(rows.get(published.eventId).fanout['education-sync-action'].state).toBe('complete')
+    expect(rows.get(published.eventId).fanout['source-observation']).toBeUndefined()
+
+    now = new Date(now.valueOf() + 2)
+    await consumer.runOne()
+    expect(process).toHaveBeenCalledTimes(2)
+    expect(enqueueAction).toHaveBeenCalledOnce()
+    expect(rows.get(published.eventId).state).toBe('complete')
+  })
+
+  it('retries EducationSync without replaying a successful source observation', async () => {
+    const { db, rows } = memoryDb()
+    const store = createFirestoreEducationEventStore(db)
+    const published = await publishEducationEvent(db, event({ eventType: 'upload.confirmed', sourceRef: {
+      kind: 'upload', documentPath: 'dayUploads/day-1/files/file-1', dayToken: 'day-1', recordId: 'file-1', taskId: 'task-1',
+    } }), { timestamp: '2026-10-19T10:00:00.000Z' })
+    let now = new Date('2026-10-19T10:00:01.000Z')
+    const process = vi.fn(async () => ({ status: 'advanced' }))
+    const enqueueAction = vi.fn().mockRejectedValueOnce(new Error('sync unavailable')).mockResolvedValue({ status: 'accepted' })
+    const handlers = createEducationEventHandlers({ firestorePipeline: { process }, educationSyncDispatcher: { enqueueAction } })
+    const consumer = new EducationEventConsumer({ store, handlers, workerId: 'independent-fanout', retryBaseMs: 1,
+      clock: () => now })
+
+    await consumer.runOne()
+    expect(process).toHaveBeenCalledOnce()
+    expect(rows.get(published.eventId).fanout['source-observation'].state).toBe('complete')
+    expect(rows.get(published.eventId).state).toBe('pending')
+
+    now = new Date(now.valueOf() + 2)
+    await consumer.runOne()
+    expect(process).toHaveBeenCalledOnce()
+    expect(enqueueAction).toHaveBeenCalledTimes(2)
+    expect(rows.get(published.eventId).state).toBe('complete')
+  })
+
+  it('continues Mesh EducationSync when Telegram notification fails and checkpoints each phase independently', async () => {
+    const { db, rows } = memoryDb()
+    const store = createFirestoreEducationEventStore(db)
+    const payload = { scopeKey: 'b'.repeat(64), sourceEventKey: 'c'.repeat(64), sourceRevision: 'd'.repeat(64),
+      detectedAt: '2026-10-19T10:00:00.000Z', privacyClass: 'family-summary', fields: {} }
+    const published = await publishEducationEvent(db, event({ source: 'mesh', eventType: 'grade.created', payload,
+      sourceRef: { kind: 'mesh', documentPath: `meshEvents/${payload.scopeKey}/${payload.sourceEventKey}` } }),
+      { timestamp: '2026-10-19T10:00:00.000Z' })
+    let now = new Date('2026-10-19T10:00:01.000Z')
+    const accept = vi.fn().mockRejectedValueOnce(new Error('telegram unavailable')).mockResolvedValue({ created: true, queued: 1 })
+    const enqueueMeshChange = vi.fn(async () => ({ status: 'accepted' }))
+    const handlers = createEducationEventHandlers({ notificationService: { accept }, educationSyncDispatcher: { enqueueMeshChange } })
+    const consumer = new EducationEventConsumer({ store, handlers, workerId: 'mesh-independent-fanout', retryBaseMs: 1,
+      clock: () => now })
+
+    await consumer.runOne()
+    expect(enqueueMeshChange).toHaveBeenCalledOnce()
+    expect(rows.get(published.eventId).fanout['mesh-education-sync'].state).toBe('complete')
+    expect(rows.get(published.eventId).fanout['telegram-notification']).toBeUndefined()
+    now = new Date(now.valueOf() + 2)
+    await consumer.runOne()
+    expect(accept).toHaveBeenCalledTimes(2)
+    expect(enqueueMeshChange).toHaveBeenCalledOnce()
+    expect(rows.get(published.eventId).state).toBe('complete')
+  })
+
+  it('isolates a timed-out phase AbortController from the next phase', async () => {
+    const { db, rows } = memoryDb()
+    const store = createFirestoreEducationEventStore(db)
+    const published = await publishEducationEvent(db, event(), { timestamp: '2026-10-19T10:00:00.000Z' })
+    let timedOutSignal
+    let nextSignalAborted
+    const consumer = new EducationEventConsumer({ store, workerId: 'phase-deadline', handlerTimeoutMs: 5,
+      retryBaseMs: 1, clock: () => new Date('2026-10-19T10:00:01.000Z'), handlers: { 'help.requested': [
+        { phase: 'slow', handle: (_event, { signal }) => new Promise(() => { timedOutSignal = signal }) },
+        { phase: 'independent', handle: (_event, { signal }) => { nextSignalAborted = signal.aborted } },
+      ] } })
+
+    await consumer.runOne()
+    expect(timedOutSignal.aborted).toBe(true)
+    expect(nextSignalAborted).toBe(false)
+    expect(rows.get(published.eventId).fanout.independent.state).toBe('complete')
+    expect(rows.get(published.eventId).state).toBe('pending')
+  })
+
+  it('stops all remaining phases immediately when the consumer closes during a handler', async () => {
+    const { db } = memoryDb()
+    const store = createFirestoreEducationEventStore(db)
+    await publishEducationEvent(db, event(), { timestamp: '2026-10-19T10:00:00.000Z' })
+    let started
+    const phaseStarted = new Promise((resolve) => { started = resolve })
+    const nextPhase = vi.fn()
+    const consumer = new EducationEventConsumer({ store, workerId: 'close-fanout', handlerTimeoutMs: 10_000,
+      clock: () => new Date('2026-10-19T10:00:01.000Z'), handlers: { 'help.requested': [
+        { phase: 'waiting', handle: (_event, { signal }) => new Promise((resolve) => {
+          started()
+          signal.addEventListener('abort', () => resolve({ state: 'complete' }), { once: true })
+        }) },
+        { phase: 'after-close', handle: nextPhase },
+      ] } })
+
+    const running = consumer.runOne()
+    await phaseStarted
+    await consumer.close()
+    await running
     expect(nextPhase).not.toHaveBeenCalled()
   })
 

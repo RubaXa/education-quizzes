@@ -146,10 +146,12 @@ export function createFirestoreEducationEventStore(db, { collection = EDUCATION_
         return { ...row, ...claimed, eventId, claimedEnvelopeEventId: row.eventId }
       })
     },
-    async checkpoint({ eventId, workerId, leaseToken, fence, phase, receipt = null, now }) {
+    async checkpoint({ eventId, workerId, leaseToken, fence, phase, receipt = null, state = 'complete', safeErrorCode = null, now }) {
+      if (!['complete', 'blocked'].includes(state)) throw new Error('invalid_event_phase_state')
       return mutateOwned(db, events.doc(eventId), { workerId, leaseToken, fence }, now, (tx, ref, row) => {
         const safeReceipt = normalizePhaseReceipt(receipt)
-        tx.update(ref, { fanout: { ...(row.fanout ?? {}), [phase]: { state: 'complete', completedAt: now,
+        tx.update(ref, { fanout: { ...(row.fanout ?? {}), [phase]: { state, completedAt: now,
+          ...(state === 'blocked' && safeErrorCode ? { safeErrorCode } : {}),
           ...(safeReceipt ? { receipt: safeReceipt } : {}) } }, updatedAt: now })
         return true
       })
@@ -300,24 +302,45 @@ export class EducationEventConsumer {
     const heartbeat = setInterval(() => {
       if (this.closed || leaseLost) return
       void this.store.renew({ eventId, workerId: this.workerId, leaseToken: claim.leaseToken, fence: claim.fence,
-        now: this.clock().toISOString(), leaseMs: this.leaseMs }).then((result) => { if (!result) leaseLost = true }, () => { leaseLost = true })
+        now: this.clock().toISOString(), leaseMs: this.leaseMs }).then((result) => {
+        if (!result) { leaseLost = true; controller.abort(eventError('stale_lease')) }
+      }, () => { leaseLost = true; controller.abort(eventError('stale_lease')) })
     }, Math.max(1_000, Math.floor(this.leaseMs / 3)))
     heartbeat.unref?.()
     try {
       let blocked = false
       let blockCode = null
+      let retryError = null
+      for (const [, checkpoint] of Object.entries(claim.fanout ?? {})) {
+        if (checkpoint?.state === 'blocked') { blocked = true; blockCode ??= safeCode({ safeCode: checkpoint.safeErrorCode }) }
+      }
       for (const [phase, handler] of phases) {
-        if (claim.fanout?.[phase]?.state === 'complete') continue
+        if (['complete', 'blocked'].includes(claim.fanout?.[phase]?.state)) continue
         if (typeof handler !== 'function') continue
-        if (this.closed) return
-        const result = await runHandlerWithDeadline(handler, { ...claim, ...normalized },
-          { controller, timeoutMs: this.handlerTimeoutMs })
+        if (this.closed || leaseLost || controller.signal.aborted) return
+        let result
+        try {
+          result = await runHandlerWithDeadline(handler, { ...claim, ...normalized },
+            { signal: controller.signal, timeoutMs: this.handlerTimeoutMs })
+        } catch (error) {
+          if (this.closed || leaseLost || error?.safeCode === 'stale_lease' || controller.signal.aborted) return
+          retryError ??= error
+          continue
+        }
         if (this.closed || leaseLost) return
         if (result?.state === 'blocked') { blocked = true; blockCode = safeCode({ safeCode: result.safeErrorCode }) }
-        const checkpointed = await this.store.checkpoint({ eventId, workerId: this.workerId, leaseToken: claim.leaseToken,
-          fence: claim.fence, phase, receipt: result?.receipt, now: this.clock().toISOString() })
-        if (!checkpointed) throw eventError('stale_lease')
+        try {
+          const checkpointed = await this.store.checkpoint({ eventId, workerId: this.workerId, leaseToken: claim.leaseToken,
+            fence: claim.fence, phase, receipt: result?.receipt, state: result?.state === 'blocked' ? 'blocked' : 'complete',
+            safeErrorCode: result?.safeErrorCode, now: this.clock().toISOString() })
+          if (!checkpointed) throw eventError('stale_lease')
+        } catch (error) {
+          if (error?.safeCode === 'stale_lease' || this.closed || leaseLost) return
+          retryError ??= error
+        }
       }
+      if (this.closed || leaseLost || controller.signal.aborted) return
+      if (retryError) throw retryError
       const unknown = phases.length === 0 || phases.every(([, handler]) => typeof handler !== 'function')
       const finished = await this.store.finish({ eventId, workerId: this.workerId, leaseToken: claim.leaseToken, fence: claim.fence,
         state: unknown || blocked ? 'blocked' : 'complete', safeErrorCode: unknown ? 'unsupported_event_action' : blockCode,
@@ -342,12 +365,15 @@ export class EducationEventConsumer {
   }
 }
 
-function runHandlerWithDeadline(handler, event, { controller, timeoutMs }) {
+function runHandlerWithDeadline(handler, event, { signal, timeoutMs }) {
+  const controller = new AbortController()
   let timer
+  const abortFromParent = () => controller.abort(signal.reason ?? eventError('worker_shutdown'))
+  if (signal?.aborted) abortFromParent()
+  else signal?.addEventListener('abort', abortFromParent, { once: true })
   const deadline = new Promise((_, reject) => {
     timer = setTimeout(() => {
       const error = eventError('handler_deadline_exceeded')
-      // The handler can stop transport/SDK work immediately; subsequent queue writes remain fenced.
       controller.abort(error)
       reject(error)
     }, timeoutMs)
@@ -358,7 +384,7 @@ function runHandlerWithDeadline(handler, event, { controller, timeoutMs }) {
     else controller.signal.addEventListener('abort', () => reject(controller.signal.reason ?? eventError('worker_shutdown')), { once: true })
   })
   return Promise.race([Promise.resolve().then(() => handler(event, { signal: controller.signal })), deadline, aborted])
-    .finally(() => clearTimeout(timer))
+    .finally(() => { clearTimeout(timer); signal?.removeEventListener('abort', abortFromParent) })
 }
 
 async function mutateOwned(db, ref, { workerId, leaseToken, fence }, now, mutate) {

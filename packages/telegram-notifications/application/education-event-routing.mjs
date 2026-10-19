@@ -30,11 +30,11 @@ export function createEducationEventHandlers({ firestorePipeline = null, notific
     routes[eventType] = []
     const phases = routes[eventType]
     if (eventType === 'upload.confirmed' || eventType === 'quiz.started' || eventType === 'quiz.submitted' || eventType === 'review.published') {
-      phases.push(phase('source-observation', async (event) => {
+      phases.push(phase('source-observation', async (event, { signal } = {}) => {
         if (event.source !== 'firestore') return { state: 'complete' }
         const scope = sourceScope(event)
         if (!scope || !firestorePipeline) return { state: 'blocked', safeErrorCode: 'source_reference_invalid' }
-        const result = await firestorePipeline.process(scope, { origin: 'live' })
+        const result = await firestorePipeline.process(scope, { origin: 'live', ...(signal ? { signal } : {}) })
         if (result.status === 'owner_changed') return { state: 'blocked', safeErrorCode: 'source_owner_changed' }
         if (!['advanced', 'replayed'].includes(result.status)) throw retryable('source_observation_incomplete')
         return { state: 'complete' }

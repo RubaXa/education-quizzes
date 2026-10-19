@@ -3061,14 +3061,14 @@
       "id": "file:packages/education-runtime/event-queue.mjs",
       "path": "packages/education-runtime/event-queue.mjs",
       "kind": "artifact",
-      "purpose": "Общий конверт, атомарные действия, единая подписка и детерминированная маршрутизация",
+      "purpose": "Claim/lease, independent fanout checkpoints, retry только незавершённых фаз и фазовые deadlines",
       "consumer": "Приложение; dispatcher; Vitest"
     },
     {
       "id": "file:packages/education-runtime/event-queue.test.mjs",
       "path": "packages/education-runtime/event-queue.test.mjs",
       "kind": "verification",
-      "purpose": "Общий конверт, атомарные действия, единая подписка и детерминированная маршрутизация",
+      "purpose": "Проверка независимости source/action и Mesh fanout, replay, timeout и stale fence",
       "consumer": "Приложение; dispatcher; Vitest"
     },
     {
@@ -3341,7 +3341,7 @@
       "id": "file:packages/telegram-notifications/application/education-event-routing.mjs",
       "path": "packages/telegram-notifications/application/education-event-routing.mjs",
       "kind": "artifact",
-      "purpose": "Общий конверт, атомарные действия, единая подписка и детерминированная маршрутизация",
+      "purpose": "Передача abort signal source pipeline и маршрутизация независимых фаз Firestore/Mesh",
       "consumer": "Приложение; dispatcher; Vitest"
     },
     {
@@ -3936,14 +3936,14 @@
       "id": "file:scripts/education-events.mjs",
       "path": "scripts/education-events.mjs",
       "kind": "artifact",
-      "purpose": "Read-only status: bounded recent and per-state queue samples with privacy-safe event/fanout projections",
+      "purpose": "Read-only status: bounded samples, privacy-safe event projections and allowlisted error stage/gRPC diagnostics without raw messages",
       "consumer": "`npm run events:status`; оператор"
     },
     {
       "id": "file:scripts/education-events.test.mjs",
       "path": "scripts/education-events.test.mjs",
       "kind": "verification",
-      "purpose": "Проверяет bounded reads, отсутствие source scans/writes и приватную проекцию queue status",
+      "purpose": "Bounded reads, no source scans/writes, private projections and redacted error stage/gRPC diagnostics",
       "consumer": "Vitest"
     },
     {
