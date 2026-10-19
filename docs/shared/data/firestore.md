@@ -3,7 +3,7 @@ id: shared.data.firestore
 status: accepted
 implementation: partial
 created: 2026-10-13
-updated: 2026-10-16
+updated: 2026-10-19
 consumers:
   - "Firestore publisher"
   - "web-app data readers"
@@ -17,7 +17,9 @@ code:
   - "scripts/day.mjs"
   - "src/components/DataCompatibilityNotice.css"
 parent: shared.data
-uses: []
+uses:
+  - module.synchronization.event-queue
+  - module.synchronization.execution-artifact
 sections:
   - узлы-владелец-и-назначение
   - владелец-поля-и-направление-данных
@@ -36,6 +38,9 @@ sections:
 
 | Путь | ID документа | Что хранит | Кто может менять | Срок жизни |
 |---|---|---|---|---|
+| `educationEvents/{eventId}` | SHA-256 action/revision identity | единая бизнес-очередь, lease/fanout/ack; [контракт](../../modules/synchronization/event-queue.md) | приложение создаёт разрешённый source+event batch; dispatcher меняет состояние; client reads запрещены | устойчивое событие и технический receipt |
+| `operatorSyncTaskArtifacts/{artifactId}`, `operatorSyncTaskObservations/{eventId}` | хэш закрытых входов, event ID | неизменяемый адресный пакет и отдельная отметка свежести | доверенный dispatcher/CLI; client reads/writes запрещены | история входных ревизий |
+| `operatorSyncJobs/{jobId}` | kind/family/child/event identity | исполнение конкретной задачи и указатель на пакет; [контракт](../../modules/synchronization/execution-artifact.md) | доверенный dispatcher/исполнитель | до проверенного done, затем история |
 | `materialBooks/{bookId}` и `pages/{pdfPage}` | стабильный ID издания или листа, PDF-страница | общий дедублицированный оригинал учебника **или вложения учителя**, хэш, печатная страница, публичная ссылка изображения | индексатор | не зависит от семьи |
 | `families/{familyId}/children/{childId}/bookPages/{bookId}#{pdfPage}` | ID общего материала и PDF-страницы | видимая проекция: для учебника право следует из **собственной загрузки семьи**, для листа учителя — из назначения МЭШ | доверенный издатель страниц | пока действует основание доступа |
 | `dayPages/{dayToken}` | непрозрачный токен роли и даты | снимок задания, расписания, источников и ссылок, разрешённый роли | оператор публикации | исторические дни сохраняются |

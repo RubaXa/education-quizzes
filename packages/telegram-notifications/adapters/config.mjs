@@ -7,6 +7,7 @@ export function loadConfig(env = process.env) {
     startupOperationTimeoutMs: boundedInteger(env.TELEGRAM_STARTUP_OPERATION_TIMEOUT_MS, 600_000, 30_000, 86_400_000, 'startup_operation_timeout_invalid'),
     sourcePageSize: boundedInteger(env.TELEGRAM_SOURCE_PAGE_SIZE, 250, 1, 1000, 'source_page_size_invalid'),
     sourceConcurrency: boundedInteger(env.TELEGRAM_SOURCE_CONCURRENCY, 4, 1, 128, 'source_concurrency_invalid'),
+    eventConcurrency: boundedInteger(env.TELEGRAM_EVENT_CONCURRENCY, 4, 1, 16, 'event_concurrency_invalid'),
     sourceReconcileMs: boundedInteger(env.TELEGRAM_SOURCE_RECONCILE_MS, 30_000, 5_000, 3_600_000, 'source_reconcile_interval_invalid'),
     sourceOperationTimeoutMs: boundedInteger(env.TELEGRAM_SOURCE_OPERATION_TIMEOUT_MS, 600_000, 30_000, 86_400_000, 'source_operation_timeout_invalid'),
     deliveryOperationTimeoutMs: boundedInteger(env.TELEGRAM_DELIVERY_OPERATION_TIMEOUT_MS, 600_000, 30_000, 86_400_000, 'delivery_operation_timeout_invalid'),
@@ -58,7 +59,7 @@ function workerId(env) {
   return instanceId
 }
 
-const SAFE_CODES = new Set(['bot_token_missing', 'bot_token_invalid', 'firestore_project_missing', 'worker_id_invalid', 'telegram_identity_mismatch', 'dependency_unavailable', 'private_chat_required', 'invalid_sender', 'startup_failed', 'source_adapter_unavailable', 'source_page_size_invalid', 'source_concurrency_invalid', 'source_reconcile_interval_invalid', 'source_operation_timeout_invalid', 'delivery_operation_timeout_invalid', 'education_sync_operation_timeout_invalid', 'startup_operation_timeout_invalid', 'mesh_poll_interval_invalid', 'mesh_connection_directory_invalid', 'education_sync_config_invalid', 'worker_flag_unknown', 'worker_flag_duplicate'])
+const SAFE_CODES = new Set(['bot_token_missing', 'bot_token_invalid', 'firestore_project_missing', 'worker_id_invalid', 'telegram_identity_mismatch', 'dependency_unavailable', 'private_chat_required', 'invalid_sender', 'startup_failed', 'source_adapter_unavailable', 'source_page_size_invalid', 'source_concurrency_invalid', 'event_concurrency_invalid', 'source_reconcile_interval_invalid', 'source_operation_timeout_invalid', 'delivery_operation_timeout_invalid', 'education_sync_operation_timeout_invalid', 'startup_operation_timeout_invalid', 'mesh_poll_interval_invalid', 'mesh_connection_directory_invalid', 'education_sync_config_invalid', 'worker_flag_unknown', 'worker_flag_duplicate'])
 export function safeFailureCode(error) { return SAFE_CODES.has(error?.message) ? error.message : 'startup_failed' }
 
 function boundedInteger(value, fallback, min, max, code) {

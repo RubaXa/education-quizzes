@@ -3,6 +3,8 @@ import { loadConfig, loadTelegramConfig, safeFailureCode } from '../packages/tel
 import { createRuntime } from '../packages/telegram-notifications/adapters/runtime.mjs'
 import { runWorker } from '../packages/telegram-notifications/adapters/worker-loop.mjs'
 import { resolve } from 'node:path'
+import { existsSync, readFileSync } from 'node:fs'
+import { YandexDiskStorage } from '../storage/yandex-disk.mjs'
 import { createLegacyMeshCredentialCodec } from '../packages/education-runtime/credentials.mjs'
 import { createRotatingJsonlSink, createTelemetryFromEnvironment } from '../packages/education-runtime/telemetry.mjs'
 import { acquireWorkerLock } from '../packages/telegram-notifications/operations/process-lock.mjs'
@@ -52,9 +54,13 @@ try {
       const legacyCodec = options.legacyCodec ?? createLegacyMeshCredentialCodec({
         familyAccessPath: resolve(env.TELEGRAM_FAMILY_ACCESS_PATH ?? resolve(root, '.local/family-access.json')),
         credentialsPath: resolve(env.TELEGRAM_LEGACY_CREDENTIALS_PATH ?? resolve(root, '.local/diary/secret.json')) })
+      const diskTokenPath = env.EDUCATION_YANDEX_DISK_TOKEN_FILE || resolve(root, '.local/yandex-disk-token')
+      const diskToken = env.YANDEX_DISK_TOKEN || (existsSync(diskTokenPath) ? readFileSync(diskTokenPath, 'utf8').trim() : '')
+      if (workerFlags.enableDelivery && !diskToken) throw new Error('upload_storage_credentials_unavailable')
+      const uploadDisk = options.uploadDisk ?? (diskToken ? new YandexDiskStorage(diskToken) : null)
       runtime = runtimeFactory({ ...config, meshConnectionDirectory: meshDirectory }, { logger: activeLogger,
         enableFirestoreSource: workerFlags.enableFirestoreSource, enableMeshSource: workerFlags.enableMeshSource,
-        enableDelivery: workerFlags.enableDelivery, telemetry, legacyCodec, shutdownSignal: shutdownController.signal })
+        enableDelivery: workerFlags.enableDelivery, telemetry, legacyCodec, uploadDisk, shutdownSignal: shutdownController.signal })
       workerLock.assertHeld()
       const startupDeadline = (work) => withOperationDeadline(work, { timeoutMs: config.startupOperationTimeoutMs ?? 600_000,
         operation: 'startup_verify', onTimeout: () => { activeLogger.error({ code: 'startup_operation_timeout' }); processLike.exit(1) } })

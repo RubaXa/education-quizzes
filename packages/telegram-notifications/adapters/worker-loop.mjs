@@ -4,11 +4,16 @@ import { withOperationDeadline } from '../operations/operation-deadline.mjs'
 export async function runWorker({ runtime, enableDelivery, logger, processLike = process, random = Math.random,
   shutdownMs = 25_000, shutdownCleanupMs = 5_000, sourceOperationTimeoutMs = 600_000,
   deliveryOperationTimeoutMs = 600_000, educationSyncOperationTimeoutMs = 60_000,
+  educationEventOperationTimeoutMs = 600_000,
   lock = null, telemetry = null, onShutdown = null }) {
   let running = true
   let stopPromise
   let drainTask = Promise.resolve()
   let educationSyncTask = Promise.resolve()
+  let educationEventTask = Promise.resolve()
+  let educationEventCloseTask = Promise.resolve()
+  let uploadReconcileTask = Promise.resolve()
+  let uploadReconcileCloseTask = Promise.resolve()
   let pollTask = Promise.resolve()
   let sourceTask = Promise.resolve()
   let sourceCloseTask = Promise.resolve()
@@ -59,6 +64,14 @@ export async function runWorker({ runtime, enableDelivery, logger, processLike =
     Object.defineProperty(wrapped, '__workerWatchdog', { value: true })
     runtime.notificationService.runOne = wrapped
   }
+  if (typeof runtime.educationEventConsumer?.runOne === 'function'
+    && !runtime.educationEventConsumer.runOne.__workerWatchdog && !runtime.educationEventConsumer.runOne.__operationDeadline) {
+    const wrapped = withOperationDeadline(runtime.educationEventConsumer.runOne, {
+      timeoutMs: educationEventOperationTimeoutMs, operation: 'education_event_dispatch', onTimeout: onOperationTimeout,
+    })
+    Object.defineProperty(wrapped, '__workerWatchdog', { value: true })
+    runtime.educationEventConsumer.runOne = wrapped
+  }
   const lockMonitor = lock?.lost?.then((error) => {
     if (error) {
       failure = true
@@ -79,6 +92,14 @@ export async function runWorker({ runtime, enableDelivery, logger, processLike =
       failure = true
       logger.error({ code: 'source_stop_failed' })
     })
+    educationEventCloseTask = Promise.resolve().then(() => runtime.educationEventConsumer?.close?.()).catch(() => {
+      failure = true
+      logger.error({ code: 'education_event_consumer_stop_failed' })
+    })
+    uploadReconcileCloseTask = Promise.all([runtime.uploadReconciler?.stop?.(), runtime.legacyEventReconciler?.stop?.()]).catch(() => {
+      failure = true
+      logger.error({ code: 'upload_reconciliation_stop_failed' })
+    })
     stopPromise = (async () => {
       let timedOut = false
       let timer, cleanupTimer
@@ -88,7 +109,9 @@ export async function runWorker({ runtime, enableDelivery, logger, processLike =
       })
       const stages = [
         ...(runtime.telegram.bot.isRunning() || pollStartAttempted ? [['telegram_stop', () => runtime.telegram.stop()]] : []),
-        ['source_close', () => sourceCloseTask], ['source_start', () => sourceTask],
+        ['source_close', () => sourceCloseTask], ['education_event_drain', () => educationEventCloseTask],
+        ['upload_reconciliation_stop', () => uploadReconcileCloseTask], ['upload_reconciliation_start', () => uploadReconcileTask],
+        ['education_event_start', () => educationEventTask], ['source_start', () => sourceTask],
         ['delivery_drain', () => drainTask], ['education_sync_dispatch', () => educationSyncTask], ['telegram_poll', () => pollTask],
       ]
       const stageResults = await Promise.all(stages.map(async ([stage, work]) => {
@@ -130,6 +153,24 @@ export async function runWorker({ runtime, enableDelivery, logger, processLike =
     }).catch(() => {
       failure = true
       logger.error({ code: 'source_start_failed' })
+      wakeIdle?.()
+      void stop().catch(() => { failure = true; logger.error({ code: 'shutdown_failed' }) })
+    })
+    educationEventTask = Promise.resolve().then(async () => {
+      if (!running) return
+      await runtime.educationEventConsumer?.start?.()
+    }).catch(() => {
+      failure = true
+      logger.error({ code: 'education_event_consumer_start_failed' })
+      wakeIdle?.()
+      void stop().catch(() => { failure = true; logger.error({ code: 'shutdown_failed' }) })
+    })
+    uploadReconcileTask = Promise.resolve().then(async () => {
+      if (!running || !enableDelivery) return
+      await Promise.all([runtime.uploadReconciler?.start?.(), runtime.legacyEventReconciler?.start?.()])
+    }).catch(() => {
+      failure = true
+      logger.error({ code: 'upload_reconciliation_start_failed' })
       wakeIdle?.()
       void stop().catch(() => { failure = true; logger.error({ code: 'shutdown_failed' }) })
     })

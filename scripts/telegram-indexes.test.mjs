@@ -86,6 +86,39 @@ describe('scoped Telegram Firestore index tool', () => {
     expect(result.indexes[0].state).toBe('READY')
   })
 
+  it('adds a scoped single-field group index while preserving all current field indexes', async () => {
+    const current = [{ queryScope: 1, state: 2, fields: [{ fieldPath: 'status', order: 1 }] },
+      { queryScope: 1, state: 2, fields: [{ fieldPath: 'status', order: 2 }] }]
+    const scoped = { ...manifest, fieldOverrides: [{ collectionGroup: 'files', fieldPath: 'status',
+      indexes: [{ order: 'ASCENDING', queryScope: 'COLLECTION_GROUP' }] }] }
+    const admin = fakeAdmin()
+    let fieldIndexes = structuredClone(current)
+    const updates = []
+    admin.getField = async () => [{ indexConfig: { indexes: structuredClone(fieldIndexes) } }]
+    admin.updateField = async (request) => {
+      updates.push(request)
+      fieldIndexes = request.field.indexConfig.indexes.map((index) => ({ ...index, state: 'READY' }))
+    }
+    const manager = createIndexManager({ client: admin, projectId: 'safe-project', expected: validateManifest(scoped) })
+    const plan = await manager.inspect()
+    expect(plan.createCount).toBe(3)
+    await manager.createMissing(plan)
+    expect(updates).toHaveLength(1)
+    expect(updates[0].field.name).toBe('projects/safe-project/databases/(default)/collectionGroups/files/fields/status')
+    expect(updates[0].updateMask.paths).toEqual(['index_config'])
+    expect(updates[0].field.indexConfig.indexes.slice(0, 2)).toEqual(current.map(({ queryScope, fields }) => ({ queryScope, fields })))
+    expect((await manager.inspect()).indexes.find((index) => index.fieldOverride).state).toBe('READY')
+    await manager.createMissing(await manager.inspect())
+    expect(updates).toHaveLength(1)
+  })
+
+  it('rejects arbitrary field overrides and collection paths', () => {
+    expect(() => validateManifest({ ...manifest, fieldOverrides: [{ collectionGroup: '../files', fieldPath: 'status',
+      indexes: [{ order: 'ASCENDING', queryScope: 'COLLECTION_GROUP' }] }] })).toThrow('index_manifest_invalid')
+    expect(() => validateManifest({ ...manifest, fieldOverrides: [{ collectionGroup: 'files', fieldPath: 'status',
+      indexes: [{ arrayConfig: 'CONTAINS', queryScope: 'COLLECTION_GROUP' }] }] })).toThrow('index_manifest_invalid')
+  })
+
   it('returns nonzero when bounded readiness polling expires', async () => {
     const admin = fakeAdmin()
     const outputs = []

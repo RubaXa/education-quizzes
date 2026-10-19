@@ -9,90 +9,57 @@ consumers:
   - "bot operator"
   - "parents and guardians"
 code:
+  - packages/education-runtime/event-queue.mjs
+  - packages/education-runtime/legacy-event-reconciliation.mjs
   - packages/telegram-notifications/adapters/source-firestore.mjs
-  - packages/telegram-notifications/adapters/source-inventory-firestore.mjs
 parent: service.telegram-bot
-uses: []
+uses:
+  - shared.server-runtime
+  - module.synchronization.event-queue
 sections:
   - ответственность
-  - подписка-и-обработка-сигнала
-  - области-данных-для-валидации
-  - пределы-доступа-и-приватность
-  - масштабирование
-  - проверки-перед-активацией
+  - единый-вход-событий
+  - адресное-чтение-источника
+  - обратная-совместимость
+  - приватность-и-эксплуатация
 ---
-# Адаптер источника Firestore
+# Адаптер событий Education через Firestore
 
-**Родитель:** [корневая архитектура](../README.md); [порты и события](../ports-and-events.md).
-**Статус:** source observer, безопасная нормализация и автоматическое inventory работают в постоянном Mac runtime; реальные upload receipts подтверждены18.10. Это не подтверждает полноту всех типов изменений. Registry/ledger описан в [контракте event ledger/outbox](../event-ledger-outbox.md).
+**Родитель:** [корневая архитектура](../README.md); [порт и события](../ports-and-events.md); [контракт общей очереди](../../../modules/synchronization/event-queue.md).
+**Статус:** backend runtime подключён к единой очереди локально; producers, правила, индексы и постоянный release ещё проходят совместную проверку. Наличие кода не означает завершённую миграцию.
 
 ## Ответственность
 
-Listener наблюдает только согласованные Firestore paths, подтверждать владение записью через текущую модель семьи/владельцев, формировать нормализованные observations и передавать их в application port. Источники не определяют получателя сами и не отправляют сообщения.
+Приложение и доверенные серверные процессы записывают типизированные действия в `educationEvents/{eventId}`. Firestore используется как durable ingress, а не как runtime inventory источников. Очередь дедуплицирует устойчивую идентичность действия; один consumer подписывается на `state == pending`, упорядоченный по `availableAt`. Все действия и нормализованные МЭШ изменения используют этот ingress. В worker нет динамических source collection/document listeners.
 
-## Подписка и обработка сигнала
+Для каждого события consumer транзакционно захватывает lease с fencing token, выполняет ограниченные fanout-фазы и сохраняет checkpoint после каждой завершённой фазы. Повторы обрабатываются идемпотентно. Истёкшие lease обнаруживаются ограниченными запросами по расписанию. Обычное Telegram delivery остаётся отдельной durable outbox-работой и не удерживает ingress lease.
 
-- Для Node worker использовать серверный Firestore listener через `@google-cloud/firestore`; SDK скрыт за adapter boundary.
-- Подписываться на узкие document/query paths с ограниченной областью и индексами. Paths сверены с текущими моделями; live schema/IAM проверяются перед эксплуатацией.
-- Сигнал считается wake-up: получить актуальное состояние документа, проверить его owner/role links и revision, нормализовать допустимые поля.
-- Учитывать повторные и переставленные события; игнорировать устаревшую ревизию. Не выводить удаление только по отсутствию документа в ограниченном query.
-- Полная observation передаёт durable monotonic `observationSequence` из persistent checkpoint per scope; время fetch и случайный UUID не годятся. Повторный/меньший sequence не продвигает baseline. Sequence/checkpoint реализованы в общем SourcePipeline и Firestore checkpoint adapter.
-- Listener error закрывает readiness источника, сохраняет последний подтверждённый checkpoint, сообщает operations port и пересоздаёт listener с ограниченным exponential backoff и jitter.
-- При возобновлении подписки выполнить reconciliation текущего окна/курсора, чтобы закрыть разрыв между disconnect и новым snapshot.
+## Единый вход событий
 
-## Области данных для валидации
+События используют одну подписку очереди, описанную в [контракте](../../../modules/synchronization/event-queue.md#назначение-и-единственная-подписка). Этот раздел заменяет прежний graph source-listener.
 
-Источники текущего среза: загрузки `dayUploads/.../files/{uploadId}` с `dayOwners`/семейной связью; попытки `assignments/{quizToken}` и связанный список роли; статусы `dayProgress`. Пути сверены с локальным кодом; `dayReviewPrivate` не читается. Внешняя integration проверка остаётся отдельной.
+<a id="подписка-и-обработка-сигнала"></a>
 
-Перед включением каждой подписки записать:
+## Адресное чтение источника
 
-| Обязательное свойство | Требование |
-|---|---|
-| Path и владелец | Существующий schema owner и authoritative family/child resolution |
-| Сигнал | Какие поля реально меняются, откуда берётся revision и когда нужен reread |
-| Полнота | Можно ли достоверно определить новое/изменённое/удалённое состояние |
-| Доступ | IAM role worker и минимально необходимая коллекция/проект |
-| Privacy | Семейный/командный projection; поля, запрещённые к копированию |
-| Reconciliation | Как восстанавливается разрыв после падения worker |
+Событие содержит тип, семью/ребёнка, автора, операционный ID и точный `sourceRef`. Для `upload.confirmed`, `quiz.submitted` и `review.published` runtime читает только указанный источник через существующий Firestore source adapter и его проверку владельца. Эти reads — targeted reads из handler, они не создают подписок или глобального сканирования.
 
-### Реализованный increment — 17 октября
+`help.requested`, `quiz.followup_requested`, `upload.confirmed` и поддержанные material actions направляются в существующий typed `EducationSyncDispatcher` с точной ссылкой на источник и артефакт задачи. Неподдержанный action видимо блокируется; он не превращается в общий Mesh или inbox запрос. Parent guidance, decisions, review receipts и изменения требований не запускают новый LLM workflow.
 
-Runtime автоматически обнаруживает семьи, детей, подключённые источники и опубликованные владельцы дней через authoritative Education registry. Ручных списков family/child/scopes и продуктового лимита их числа нет. Новая семья или ребёнок добавляется без правки конфигурации и restart; отзыв источника снимает наблюдение. Внутренние descriptors создаёт inventory manager, они не являются operator allowlist. Все IDs валидируются; для каждого дня canonical `dayOwners/{dayToken}` подтверждает точную пару владельца; family/child documents должны существовать. Каноническое quiz назначение должно иметь ту же пару; legacy assignment без пары не наблюдается: для него ещё нужна отдельная подтверждённая owner linkage. Queries scoped по семье/ребёнку, страницы и очереди обрабатываются до конца; технический page size/concurrency регулирует нагрузку, но не исключает семьи. Ошибка/неполнота inventory видна в health и не становится ложным пустым списком. Failed context изолируется по source/family/child/account: сохраняется его прежний graph, а здоровые источники и дети продолжают обработку, в том числе Firestore при недоступном МЭШ.
+МЭШ остаётся отдельным HTTP poller. Его проверенные изменения публикуются в ту же `educationEvents` очередь, затем проходят общую NotificationService и typed dispatcher.
 
-Firestore inventory публикует discovery targets для семейных `assignments`, `dayOwners` и каждой подтверждённой owner-bound коллекции `dayUploads/{dayToken}/files` и `dayProgress/{dayToken}/items`, даже если она пока пуста. Это scoped collection listeners, не collection-group обход. Они обнаруживают неизвестный ID без ожидания полного периодического inventory; изменённый owner запускает reconciliation, а candidate перед durable origin и обработкой повторно проходит `validateScope`. Новая entity в уже подтверждённом family/child context получает durable `live`; ещё не подтверждённый context остаётся на полном inventory, первый исторический snapshot которого классифицируется `bootstrap` и не рассылается. Известные записи сохраняют per-document listeners, поэтому collection callbacks для них не запускают второй pipeline; дополнительные collection listener reads являются сознательной ценой немедленного обнаружения неизвестного ID. Listener graph заменяется после успешной установки нового, а partial inventory сохраняет старые targets. Firestore и Mesh имеют независимые coordinators и очереди; медленный Mesh discovery не занимает Firestore processing concurrency. Worker сообщает `firestore_discovery_listening` только после initial snapshot от каждого target в текущем подключении; ошибка listener отмечается отдельным `source_listener_unavailable`, успешный reconnect требует нового acknowledgement.
+## Обратная совместимость
 
-Listener даёт только сигнал перечитать текущее состояние. Нормализация допускает подтверждённую загрузку (`pending`/`reviewed` с `storage.provider=yandex-disk`, `storage.state=stored` и валидным `storage.syncedAt`), монотонный жизненный цикл quiz (`not_started → started → submitted`) и явно подтверждённый публичный status проверки. `requested`, `awaiting-upload`, промежуточный `uploaded`, ошибки и `pending` без подтверждённых storage полей не доказывают загрузку. Стабильный `pending+stored` означает успешно переданный и проверенный storage worker файл, ожидающий педагогического разбора; это не оценка решения. Редакция timestamp сама по себе не новый quiz start. `dayReviewPrivate`, questions/answers, оригиналы и URL не попадают в checkpoint/event/log. Exact event enum берётся из domain catalog: `upload.confirmed`, `quiz.started`, `quiz.submitted`, `review.changed`.
+Старые клиенты пока могут записывать исходные документы без queue envelope. Ограниченный reconciler раз в 15 секунд читает одну страницу за source и хранит cursor/ошибки в служебном checkpoint. Он охватывает legacy help/quiz actions; upload и book-upload совместимость обслуживает upload broker. Это временный polling bridge, а не collection listener. Первый запуск использует ограниченный 24-часовой lookback, пропускает уже разрешённую/обработанную работу и сохраняет неудачные item для повтора без блокировки следующих записей.
 
-Source pipeline сначала получает scope lease, затем читает полный допустимый snapshot. Durable sequence и безопасный pending batch сохраняются до `accept`; после сбоя повторяется тот же event ID. Baseline продвигается только после идемпотентного приёма всех events. Перед replay/accept повторно подтверждается владелец; смена владельца сбрасывает baseline/pending и не переносит прежние события новой семье. Absence не удаляет известный факт; checkpoint делится на ограниченные технические единицы/записи, чтобы предел документа Firestore не становился пределом семьи. Каждая страница/единица проходит до конца; partial/error сохраняют последнее подтверждённое состояние и явно отражаются в health. Существующий initial inventory не рассылается как история; новая entity у уже действующей подписки должна отличаться от исторического bootstrap, включая restart.
+Период совместимости завершается только после подтверждения producer coverage, правил и индексов, worker readiness и deployed PWA с новым producer. До этого событие queue runtime не считается полной миграцией всех клиентских действий.
 
-Shadow и notify используют разные checkpoint namespaces: shadow никогда не вызывает `accept` и не создаёт outbox; первый notify snapshot тоже тихий. Перезапуск прежнего notify namespace сохраняет recovery, а не начинает заново историю. Локальные регрессии и wiring проверяются общим gate; реальные IAM/index/listener checks остаются отдельным эксплуатационным подтверждением.
+<a id="области-данных-для-валидации"></a>
 
-### Контекст загрузки и защита от повторов
+## Приватность и эксплуатация
 
-Реальный upload lifecycle описан в [контракте хранения](../../../modules/materials/storage-privacy.md#review-queue): после передачи `uploaded` быстро меняется на подтверждённый `pending`. Listener может перечитать уже это конечное состояние. Нельзя требовать, чтобы адаптер успел увидеть промежуточный `uploaded`.
+Firestore transaction и Security Rules проверяют неизменяемую идентичность клиентского event и ограничивают допустимые поля. Серверные producers используют тот же канонический event ID и атомарно записывают envelope вместе с исходным действием, где это возможно. События не содержат свободных ответов или файлов; Mesh payload использует узкий whitelist. Worker повторно читает только разрешённую часть точного source document.
 
-Сообщение связывает точный `taskId` загрузки с заданием/подпунктом только в проверенной `dayPages/{dayToken}` того же owner. `page.kind=student`, `page.date=owner.date`, taskId входит в page.taskIds; `targetDate` — срок задания, он может отличаться от даты страницы. Имеющиеся поля familyId/childId страницы не должны противоречить owner. Общая чистая функция task context используется inbox и Telegram; оригиналы, URL/пути хранения, ID и содержимое фото не входят в проекцию. Разрешены краткие `subject`, `title`, дата задания и имя ребёнка. Соседние задачи (`relatedTasks`) не означают решённые номера; служебные processing lists не расширяют утверждение сообщения о содержимом фото.
+Оператор проверяет состояние через `npm run events:status` и Telegram runtime readiness. Queue listener acknowledgement подтверждает только подписку/первичный снимок, а не полноту producer миграции или фактическую доставку Telegram. Исторические source coordinator и inventory модули могут оставаться в checkout для явной диагностики/старого инструментария, но production runtime их не запускает.
 
-`upload.confirmed` — однократный логический факт появления конкретного файла. Переход `uploaded→pending→reviewed`, обогащение заголовка/предмета, перестановка и повторный сигнал не становятся повторной загрузкой. Известная запись обновляет baseline без нового upload event. Первая история нового ребёнка остаётся тихой; миграция прежней пустой bootstrap-проекции не должна массово разослать старые файлы. Новая загрузка уже подтверждённого live-контекста должна породить событие, в том числе после исправления неверного фильтра статусов. Миграционная неопределённость отражается явно, без выдуманной истории.
-
-### Контекст проверки и смысл изменения
-
-`review.changed` требует точной связи progress item с заданием той же страницы и владельца через общий `taskContext`. Статус без предмета и названия задания не является пригодным сообщением. Недоступная или противоречивая связь означает partial observation: baseline не продвигается, восстановление повторяет адресное чтение. Закрытые разборы и ответы для этого не читаются. Разрешены только краткие предмет, название, дата задания, имя ребёнка и публичный статус.
-
-Повторная запись `checkedAt` и добавление/изменение подтверждённого контекста задания не создают новое уведомление. Fingerprint результата учитывает статус, отсортированный набор `uploadIds`, а также содержимое ученически доступных `summary` и `nextStep`; весь fingerprint сохраняется только как SHA-256, сами upload ID и тексты в source record/checkpoint event не переносятся. Эти поля читаются одной маской с learner-readable `dayProgress`; `dayReviewPrivate` не читается. Новая версия review-проекции хранится в `reviewProjectionVersion`, отдельно от upload `sourceProjectionVersion: 2`. При первой миграции baseline без review-версии прежний status не переотправляется, но реальная смена статуса всегда создаёт событие. После тихой миграции новый fingerprint при том же статусе означает новый результат. Проверяются новая попытка с тем же статусом, смена набора фото/содержания, перестановка ID, timestamp/context-only, перезапуск и неполная страница.
-
-## Пределы доступа и приватность
-
-Серверный Firestore SDK авторизуется через IAM/ADC и обходит Firebase Security Rules. Worker получает отдельную минимально привилегированную identity. Не помещать service account key в репозиторий. Не логировать raw snapshot, ответы теста, закрытый разбор, токены и содержимое файла. Сохранять только необходимые source reference, revision и безопасный event projection.
-
-## Масштабирование
-
-Пока один worker владеет listeners и checkpoint namespaces. При горизонтальном масштабировании нужна явная lease/partition ownership для scope и независимая идемпотентность ledger; простое дублирование процесса даст повторные reads и лишние сигналы, даже если доставка дедуплицируется.
-
-## Проверки перед активацией
-
-Фикстуры на создание/изменение/удаление, отсутствующий owner, смену owner, out-of-order revision, repeated trigger, transient listener failure и reconnect reconciliation. Сначала запускать adapter в режиме наблюдения без отправки; сравнить events с подтверждёнными документами и журналом.
-
-Для подтверждённого upload source добавляет navigationContext только после owner/dayPage/exact task membership проверки. Порт переносит лишь kind=day, dayToken и валидный taskId; произвольные source URL не становятся кнопкой. Контекст не меняет устойчивую семантику загрузки и не вызывает повторную рассылку при обогащении baseline.
-
-Кнопка появляется только после проверки точных page.familyId/childId и viewTokens: student совпадает с scope.dayToken, обе роли имеют разные допустимые tokens. Для legacy страницы без полной metadata либо с неподтверждённым alias факт загрузки и сообщение сохраняются, navigationContext опускается. Поле viewTokens добавлено к маске уже существующего адресного чтения без нового запроса.
+<a id="масштабирование"></a>

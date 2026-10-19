@@ -8,18 +8,22 @@ import { SourcePipeline } from '../application/source-pipeline.mjs'
 import { createFirestoreSourceAdapter } from './source-firestore.mjs'
 import { createFirestoreSourceCheckpointStore } from './source-checkpoint-firestore.mjs'
 import { createFirestoreSourceInventory } from './source-inventory-firestore.mjs'
-import { createFirestoreSourceDiscoveryStore } from './source-discovery-firestore.mjs'
 import { SourceCoordinator } from './source-coordinator.mjs'
 import { createMeshSourceAdapter } from './source-mesh.mjs'
 import { createMeshCredentialResolver } from './mesh-credentials.mjs'
 import { createHash } from 'node:crypto'
 import { EducationSyncDispatcher, createFirestoreEducationSyncStore } from '../application/education-sync-dispatcher.mjs'
 import { withOperationDeadline } from '../operations/operation-deadline.mjs'
+import { EducationEventConsumer, createFirestoreEducationEventStore, publishEducationEvent } from '../../education-runtime/event-queue.mjs'
+import { createEducationEventHandlers } from '../application/education-event-routing.mjs'
+import { createUploadBroker } from '../../education-runtime/upload-broker.mjs'
+import { createLegacyEducationEventReconciler } from '../../education-runtime/legacy-event-reconciliation.mjs'
 
 /** @see ../../../docs/shared/server-runtime.md @see ../../../docs/services/telegram-bot/README.md @see ../../../docs/services/telegram-bot/operations.md#runtime-boundary */
 export function createRuntime(config, { logger = console, linkAuthorizer = null, firestore = null,
   enableFirestoreSource = false, enableMeshSource = false, enableDelivery = false, random = Math.random,
   telemetry = null, legacyCodec = null, shutdownSignal = null,
+  uploadDisk = null, uploadReconciliation = {},
   educationSyncDispatcherFactory = (options) => new EducationSyncDispatcher(options) } = {}) {
   const db = firestore ?? createEducationFirestore({ projectId: config.projectId, telemetry })
   const verifyFirestore = async () => {
@@ -51,87 +55,80 @@ export function createRuntime(config, { logger = console, linkAuthorizer = null,
   wrapMethod(notificationService, 'runOne', telemetry, 'telegram.notification.run-one', undefined, 'trace')
   wrapMethod(notificationService.delivery, 'send', telemetry, 'telegram.delivery.send')
   const educationSyncDispatcher = config.educationSync && (enableMeshSource || enableFirestoreSource) && enableDelivery
-    ? educationSyncDispatcherFactory({ store: createFirestoreEducationSyncStore(db), threadId: config.educationSync.threadId,
+    ? educationSyncDispatcherFactory({ db, store: createFirestoreEducationSyncStore(db), threadId: config.educationSync.threadId,
       codexPath: config.educationSync.codexPath, projectRoot: config.educationSync.projectRoot, remote: config.educationSync.remote }) : null
   if (educationSyncDispatcher) wrapMethod(educationSyncDispatcher, 'runOne', telemetry, 'telegram.education-sync.dispatch')
+  const uploadBroker = uploadDisk ? createUploadBroker({ db, disk: uploadDisk, logger: (event) => logger.error(event),
+    reconciliation: uploadReconciliation }) : null
+  if (educationSyncDispatcher) wrapMethod(educationSyncDispatcher, 'enqueueAction', telemetry, 'telegram.education-sync.action-prepare',
+    (event) => ({ eventType: event?.eventType }))
+  if (uploadBroker?.reconciler) wrapMethod(uploadBroker.reconciler, 'runOne', telemetry, 'telegram.upload.reconcile')
+  const legacyEventReconciler = enableDelivery ? createLegacyEducationEventReconciler({ db,
+    logger: (event) => logger.error(event) }) : null
+  if (legacyEventReconciler) wrapMethod(legacyEventReconciler, 'runOne', telemetry, 'telegram.education-event.legacy-reconcile')
   let sourceCoordinator = null
-  if (enableFirestoreSource || enableMeshSource) {
-    const sources = []
-    const pipelines = {}
-    let firestoreSource = null
-    let meshSource = null
-    if (enableFirestoreSource) {
-      firestoreSource = createFirestoreSourceAdapter(db)
-      sources.push(firestoreSource)
-      pipelines.firestore = new SourcePipeline({ source: firestoreSource, checkpoints: createFirestoreSourceCheckpointStore(db),
-        accept: async (event) => {
-          const result = await notificationService.accept(event)
-          if (result?.created && result.queued > 0 && result.nextDueAt) workerWakeDelivery(result.nextDueAt)
-          if (educationSyncDispatcher && event?.source === 'firestore'
-            && ['upload.confirmed', 'quiz.submitted'].includes(event.eventType) && /^[a-f0-9]{64}$/.test(event.eventId ?? '')) {
-            const queued = await educationSyncDispatcher.enqueueWorkChange(event)
-            if (queued?.status === 'accepted' && queued.nextDueAt) workerWakeEducationSync(queued.nextDueAt)
-          }
-          return result
-        }, mode: enableDelivery ? 'notify' : 'shadow',
-        workerId: config.instanceId, clock })
-      wrapMethod(pipelines.firestore, 'process', telemetry, 'telegram.source-pipeline.process', (scope) => ({
-        source: 'firestore', scopeHash: pipelines.firestore.source.scopeKey(scope),
-      }), 'trace')
-    }
-    if (enableMeshSource) {
-      const resolver = createMeshCredentialResolver({ db, connectionsDir: config.meshConnectionDirectory, telemetry, legacyCodec, shutdownSignal })
-      meshSource = createMeshSourceAdapter({ resolver, pollMs: config.meshPollMs ?? 15 * 60_000, random,
-        onHealth: ({ scopeKey, code }) => logger.error({ code: 'mesh_observation_unavailable', source: 'mesh',
-          ...(typeof scopeKey === 'string' && /^[a-f0-9]{64}$/.test(scopeKey) ? { scopeKey } : {}), errorCode: safeMeshErrorCode(code) }) })
-      sources.push(meshSource)
-      pipelines.mesh = new SourcePipeline({ source: meshSource, checkpoints: createFirestoreSourceCheckpointStore(db),
-        accept: async (event) => {
-          const result = await notificationService.accept(event)
-          if (result?.created && result.queued > 0 && result.nextDueAt) workerWakeDelivery(result.nextDueAt)
-          if (educationSyncDispatcher && event?.source === 'mesh' && event.eventType !== 'technical.probe'
-            && /^[a-f0-9]{64}$/.test(event.eventId ?? '')) {
-            const queued = await educationSyncDispatcher.enqueueMeshChange(event.eventId)
-            if (queued?.status === 'accepted' && queued.nextDueAt) workerWakeEducationSync(queued.nextDueAt)
-          }
-          return result
-        }, mode: enableDelivery ? 'notify' : 'shadow',
-        workerId: config.instanceId, clock })
-      wrapMethod(pipelines.mesh, 'process', telemetry, 'telegram.source-pipeline.process', (scope) => ({
-        source: 'mesh', scopeHash: pipelines.mesh.source.scopeKey(scope),
-      }), 'trace')
-    }
-    const makeCoordinator = (kinds) => {
-      const selectedSources = sources.filter((source) => kinds.includes(source.kind))
-      const selectedPipelines = Object.fromEntries(kinds.filter((kind) => pipelines[kind]).map((kind) => [kind, pipelines[kind]]))
-      if (!selectedSources.length) return null
-      const includeFirestore = selectedSources.some((source) => source.kind === 'firestore')
-      const includeMesh = selectedSources.some((source) => source.kind === 'mesh')
-      const inventory = createFirestoreSourceInventory(db, { pageSize: config.sourcePageSize ?? 250, telemetry,
-        includeFirestore, includeMesh, meshSource })
-      const coordinator = new SourceCoordinator({ sources: selectedSources, pipelines: selectedPipelines,
-        enumerate: ({ signal } = {}) => inventory.enumerate({ signal }), discoveryStore: createFirestoreSourceDiscoveryStore(db, {
-          namespace: enableDelivery ? 'notify' : 'shadow', scopeKey: (kind, scope) => selectedSources.find((source) => source.kind === kind)?.scopeKey(scope),
-        }),
-        onHealth: (event) => event.code === 'firestore_discovery_listening'
-          ? (logger.info ?? logger.log ?? logger.error).call(logger, event) : logger.error(event),
-        reconcileMs: config.sourceReconcileMs ?? 30_000,
-        concurrency: config.sourceConcurrency ?? 4, random })
-      const reconcile = coordinator.reconcile
-      coordinator.reconcile = withOperationDeadline(reconcile, {
-        timeoutMs: config.sourceOperationTimeoutMs ?? 600_000, operation: 'source_reconcile',
-        onTimeout: () => { logger.error({ code: 'source_operation_timeout', source: kinds[0] }); process.exit(1) },
-      })
-      wrapMethod(coordinator, 'reconcile', telemetry, 'telegram.source-coordinator.reconcile', () => ({ source: kinds[0] }), 'trace')
-      wrapMethod(coordinator, 'signal', telemetry, 'telegram.source-coordinator.signal', (kind, scope) => ({
-        source: kind, scopeHash: opaqueHash(`${scope?.familyId ?? ''}/${scope?.childId ?? ''}`),
-      }))
-      return coordinator
-    }
-    const firestoreCoordinator = makeCoordinator(['firestore'])
-    const meshCoordinator = makeCoordinator(['mesh'])
-    sourceCoordinator = createSourceCoordinatorFacade({ firestoreCoordinator, meshCoordinator })
+  const firestoreSource = enableFirestoreSource ? createFirestoreSourceAdapter(db) : null
+  const firestorePipeline = firestoreSource ? new SourcePipeline({ source: firestoreSource, checkpoints: createFirestoreSourceCheckpointStore(db),
+    accept: async (event) => {
+      const result = await notificationService.accept(event)
+      if (result?.created && result.queued > 0 && result.nextDueAt) workerWakeDelivery(result.nextDueAt)
+      return result
+    }, mode: enableDelivery ? 'notify' : 'shadow', workerId: config.instanceId, clock }) : null
+  if (firestorePipeline) wrapMethod(firestorePipeline, 'process', telemetry, 'telegram.source-pipeline.process', (scope) => ({
+    source: 'firestore', scopeHash: firestorePipeline.source.scopeKey(scope),
+  }), 'trace')
+
+  let meshSource = null
+  let meshPipeline = null
+  if (enableMeshSource) {
+    const resolver = createMeshCredentialResolver({ db, connectionsDir: config.meshConnectionDirectory, telemetry, legacyCodec, shutdownSignal })
+    meshSource = createMeshSourceAdapter({ resolver, pollMs: config.meshPollMs ?? 15 * 60_000, random,
+      onHealth: ({ scopeKey, code }) => logger.error({ code: 'mesh_observation_unavailable', source: 'mesh',
+        ...(typeof scopeKey === 'string' && /^[a-f0-9]{64}$/.test(scopeKey) ? { scopeKey } : {}), errorCode: safeMeshErrorCode(code) }) })
+    meshPipeline = new SourcePipeline({ source: meshSource, checkpoints: createFirestoreSourceCheckpointStore(db),
+      accept: async (event) => publishEducationEvent(db, {
+        source: 'mesh', sourceRef: { kind: 'mesh', documentPath: `meshEvents/${event.scopeKey}/${event.sourceEventKey}` },
+        familyId: event.familyId, childId: event.childId, actor: { type: 'system', id: 'mesh' },
+        operationId: event.sourceRevision, eventType: event.eventType, payload: event,
+      }), mode: enableDelivery ? 'notify' : 'shadow', workerId: config.instanceId, clock })
+    wrapMethod(meshPipeline, 'process', telemetry, 'telegram.source-pipeline.process', (scope) => ({
+      source: 'mesh', scopeHash: meshPipeline.source.scopeKey(scope),
+    }), 'trace')
+    const inventory = createFirestoreSourceInventory(db, { pageSize: config.sourcePageSize ?? 250, telemetry,
+      includeFirestore: false, includeMesh: true, meshSource })
+    const meshCoordinator = new SourceCoordinator({ sources: [meshSource], pipelines: { mesh: meshPipeline },
+      enumerate: ({ signal } = {}) => inventory.enumerate({ signal }),
+      onHealth: (event) => logger.error(event), reconcileMs: config.sourceReconcileMs ?? 30_000,
+      concurrency: config.sourceConcurrency ?? 4, random })
+    const reconcile = meshCoordinator.reconcile
+    meshCoordinator.reconcile = withOperationDeadline(reconcile, {
+      timeoutMs: config.sourceOperationTimeoutMs ?? 600_000, operation: 'source_reconcile',
+      onTimeout: () => { logger.error({ code: 'source_operation_timeout', source: 'mesh' }); process.exit(1) },
+    })
+    sourceCoordinator = meshCoordinator
+    wrapMethod(sourceCoordinator, 'reconcile', telemetry, 'telegram.source-coordinator.reconcile', () => ({ source: 'mesh' }), 'trace')
+    wrapMethod(sourceCoordinator, 'signal', telemetry, 'telegram.source-coordinator.signal', (_kind, scope) => ({
+      source: 'mesh', scopeHash: opaqueHash(`${scope?.familyId ?? ''}/${scope?.childId ?? ''}`),
+    }))
   }
+
+  const educationEventStore = enableDelivery ? createFirestoreEducationEventStore(db) : null
+  if (educationEventStore) {
+    wrapMethod(educationEventStore, 'listReady', telemetry, 'telegram.education-event.list-ready')
+    wrapMethod(educationEventStore, 'claim', telemetry, 'telegram.education-event.claim', (input) => ({
+      eventIdHash: opaqueHash(input?.eventId ?? ''),
+    }))
+  }
+  const educationEventConsumer = enableDelivery ? new EducationEventConsumer({
+    store: educationEventStore,
+    handlers: createEducationEventHandlers({ firestorePipeline, notificationService, educationSyncDispatcher,
+      onDeliveryQueued: (dueAt) => workerWakeDelivery(dueAt), onEducationSyncQueued: (dueAt) => workerWakeEducationSync(dueAt),
+      actionHandlers: { ...(uploadBroker?.handlers ?? {}), ...(config.educationEventHandlers ?? {}) } }),
+    workerId: config.instanceId, clock, leaseMs: config.educationEventLeaseMs ?? 120_000, concurrency: config.eventConcurrency ?? 4,
+    onReady: ({ subscriptionCount }) => logger.info?.({ code: 'education_event_queue_listening', source: 'educationEvents', subscriptionCount, processId: process.pid }),
+    onError: (event) => logger.error(event),
+  }) : null
+  if (educationEventConsumer) wrapMethod(educationEventConsumer, 'runOne', telemetry, 'telegram.education-event.run-one')
   if (sourceCoordinator) {
     for (const [method, operation] of [['start', 'source_start'], ['reconcile', 'source_reconcile']]) {
       const original = sourceCoordinator[method]
@@ -152,7 +149,8 @@ export function createRuntime(config, { logger = console, linkAuthorizer = null,
       source: _kind, scopeHash: opaqueHash(`${scope?.familyId ?? ''}/${scope?.childId ?? ''}`),
     }))
   }
-  return { db, adapters, identity, telegram, notificationService, sourceCoordinator, educationSyncDispatcher, verifyFirestore,
+  return { db, adapters, identity, telegram, notificationService, sourceCoordinator, educationSyncDispatcher, educationEventConsumer,
+    firestorePipeline, uploadReconciler: uploadBroker?.reconciler ?? null, legacyEventReconciler, verifyFirestore,
     setWorkerWakeHandlers({ delivery = () => {}, educationSync = () => {} } = {}) {
       workerWakeDelivery = delivery
       workerWakeEducationSync = educationSync

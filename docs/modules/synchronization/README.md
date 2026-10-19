@@ -12,7 +12,7 @@ sections:
   - спецификации
 
 created: 2026-10-16
-updated: 2026-10-16
+updated: 2026-10-19
 consumers:
   - "Education sync operator"
   - "sync-project CLI"
@@ -39,6 +39,7 @@ code:
 - [change-detection-and-reconciliation](change-detection-and-reconciliation.md)
 - [education-pipeline](education-pipeline.md)
 - [execution-artifact](execution-artifact.md)
+- [event-queue](event-queue.md) — единый вход действий приложения и МЭШ, одна подписка диспетчера
 - [firestore-read-paths](firestore-read-paths.md)
 - [global-sync](global-sync.md)
 - [plan-generation](plan-generation.md)

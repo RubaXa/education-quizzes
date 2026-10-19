@@ -47,15 +47,15 @@ sections:
 # Runtime и эксплуатация Telegram notification service
 
 **Родитель:** [корневая архитектура](README.md).
-**Статус:** worker, readiness/source-check/probe и macOS LaunchAgent tooling реализованы. 18.10 установлен release94a5f463ca87291bb5ab5e57, полный МЭШ source-check93/93complete, readiness running/readyForDelivery и оба outbox query ready подтверждены; [исправление и факты](../../decisions/mesh-calendar-date-scopes-2026-10-18.md). Реальные technical probes sent/receipt1 подтверждены17.10 ([первичный аудит](../../audits/server-core-review-2026-10-17.md#результаты-проверки)). Последующее исправление upload flow установлено в release327c01c8022f3bb0febbc769:5реальных uploads подтверждены ledger/outboxSent/Telegram receipts,34файла release совпали с проверенным checkout, readiness readyForDelivery; [приёмка](../../decisions/upload-notification-lifecycle-2026-10-18.md). Внешние alerts не настроены.
+**Статус:** worker, readiness/source-check/probe и macOS LaunchAgent tooling реализованы. Исторические live receipts подтверждают предыдущую Mesh/upload архитектуру. Unified `educationEvents` runtime подключён в checkout; постоянный release, producer/rules/index coverage и полная client migration ещё не подтверждены. Queue readiness поэтому не считается доказательством полной migration. Внешние alerts не настроены.
 
 ## Runtime boundary
 
 После durable приёма события source handler передаёт локальному consumer время готовности из ledger/dispatcher. Idle ожидание прерывается к этому сроку; транзакционный claim сохраняет quiet/debounce/retry ограничения. Сигнал во время активного запроса не теряется, истёкший hint потребляется однократно. При остановке таймеры и callbacks отключаются. Для рестарта и внешних записей остаётся fallback с базой до60с и jitter до20% (до72с плюс время запроса/планировщика), без постоянного частого polling. Семантика сроков описана в [outbox](event-ledger-outbox.md) и [dispatcher](education-sync-dispatch.md).
 
-Целевой runtime — один постоянно работающий Node.js worker с long polling Telegram, Firestore listeners и периодическим МЭШ poll. Source listeners/polling подключаются отдельными флагами; delivery выключена по умолчанию. Семьи, дети и источники обнаруживаются автоматически из Education registry, без allowlist и продуктового ограничения их количества. Локальный постоянный host — macOS LaunchAgent; Firebase Functions — отдельная альтернатива с иным scheduler/webhook контрактом, а не переключение одной переменной.
+Runtime — один Node.js worker с Telegram long polling, одной Firestore subscription на `educationEvents` при включённой delivery и периодическим Mesh HTTP poll. Bounded compatibility reconcilers покрывают старые PWA uploads/help/quiz actions без source listeners. Firestore handlers читают точный source по event `sourceRef`; dynamic discovery listeners не запускаются. Delivery выключена по умолчанию. Локальный постоянный host — macOS LaunchAgent; Firebase Functions — отдельная альтернатива с иным scheduler/webhook контрактом, а не переключение одной переменной.
 
-Runtime composition root загружает/валидирует config, создаёт registry/ledger/Telegram adapters и application services. Core modules не читают process.env. Firestore и Mesh используют отдельные source coordinators, reconcile deadlines и processing queues; старт Firestore ожидается независимо от долгого Mesh discovery, а facade сохраняет общий runtime API. Scoped collection listeners для assignments, dayOwners, uploads и progress принимают новые IDs между полными inventory; Health-сигнал `firestore_discovery_listening` публикуется после initial snapshot всех текущих targets; последующий отказ отмечается `source_listener_unavailable`. CLI readiness проверяет предпосылки, а acknowledgement доказывает отдельный журнал. Первоначальный inventory запускается параллельно Telegram polling и outbox: рост числа семей или медленный источник не задерживает приём команд и доставку уже поставленных jobs. Ошибка одного source/child discovery не блокирует здоровые источники/детей той же семьи; failed context сохраняет прежний подтверждённый graph и даёт health signal. SIGINT/SIGTERM interrupt idle wait, останавливают bot, в пределах25-секундного drain budget ждут polling promise (включая завершение in-flight handlers), закрытие inventory/listeners/pollers и текущий delivery drain, затем вызывают Firestore `terminate()` с отдельным5-секундным cleanup budget. LaunchAgent ExitTimeOut35с покрывает оба этапа; spans `telegram.shutdown.*` показывают фактического ожидающего. Ошибка drain/stop/terminate логируется безопасным кодом и выставляет failure exit status; при превышении deadline worker завершает процесс с failure code. Readiness доступна через CLI; hosted endpoint отсутствует.
+Runtime composition root validates configuration and creates identity, ledger, Telegram adapters and typed event handlers. Core modules do not read process.env. The event consumer waits for its initial subscription acknowledgement, then uses fenced event claims and durable phase checkpoints. New Firestore actions do not use source coordinators or discovery listeners; exact-source reads remain inside queue handlers. Mesh keeps its own bounded HTTP poll and source checkpoint. Shutdown stops Telegram polling, the queue consumer, reconcilers and active delivery within the drain budget, then terminates Firestore. Queue-listening readiness confirms only the subscription, not producer coverage or delivery.
 
 Discovery подтверждает scope origins не более чем8 транзакциями одновременно; context completion записывается только после всех scopes. Reconcile single-flight. Отмена при close останавливает новые страницы, read batches и транзакции; уже начатые SDK операции дожидаются в пределах shutdown budget. Mesh HTTP/retry wait и ожидание account lock принимают сигнал отмены; поздний refresh после отмены не сохраняется. При отмене ни event accept, ни baseline advance не выполняются; durable pending/origins доступны для resume.
 
@@ -83,17 +83,17 @@ npm run telegram:indexes -- plan --project PROJECT_ID
 npm run telegram:indexes -- plan --project PROJECT_ID --apply
 ```
 
-Вместо `--project` можно задать `TELEGRAM_FIRESTORE_PROJECT_ID`; проект не выводится из другого Firebase default. `list` показывает два составных индекса для `telegramNotificationOutbox` из Telegram manifest и их `READY`/`CREATING`/`MISSING` состояние. `plan` ничего не меняет, перечисляет отсутствующие точные составные индексы. Только `plan --apply` создаёт недостающие записи через Firestore Admin v1, используя общий локальный/ambient ADC resolver. Он не удаляет индексы, не обновляет индексы с другой формой и не заменяет project-wide manifest. После запроса команда опрашивает точное состояние не дольше 90 секунд; если index ещё не `READY`, печатает безопасный статус и завершается с ненулевым кодом. Создание требует права изменения indexes на выбранном проекте.
+Вместо `--project` можно задать `TELEGRAM_FIRESTORE_PROJECT_ID`; проект не выводится из другого Firebase default. `list` показывает все явно заданные составные индексы outbox/event queue/frozen action range и single-field group indexes переходной сверки из manifest, а также их `READY`/`CREATING`/`MISSING` состояние. `plan` ничего не меняет, перечисляет отсутствующие точные составные индексы. Только `plan --apply` создаёт недостающие записи через Firestore Admin v1, используя общий локальный/ambient ADC resolver. Для single-field `COLLECTION_GROUP` он добавляет нужную конфигурацию поля, сохраняя существующие field indexes. Контракт API: [Field patch](https://firebase.google.com/docs/firestore/reference/rest/v1/projects.databases.collectionGroups.fields/patch). Он не удаляет индексы, не обновляет индексы с другой формой и не заменяет project-wide manifest. После запроса команда опрашивает точное состояние не дольше 90 секунд; если index ещё не `READY`, печатает безопасный статус и завершается с ненулевым кодом. Создание требует права изменения indexes на выбранном проекте.
 
 ### Подключение источников
 
 ```bash
 npm run telegram:worker -- --enable-firestore-source
-npm run telegram:worker -- --enable-firestore-source --enable-mesh-source
-npm run telegram:worker -- --enable-firestore-source --enable-mesh-source --enable-delivery
+npm run telegram:worker -- --enable-mesh-source
+npm run telegram:worker -- --enable-mesh-source --enable-delivery
 ```
 
-Первые две команды — shadow: они читают источники и пишут только checkpoints/discovery. `--enable-delivery` включает notify namespace и outbox. Первое наблюдение существующей области тихое; notify и shadow имеют независимые baseline. Новые записи уже наблюдаемой семьи учитываются после bootstrap. Новая семья/ребёнок сначала получает тихий baseline, без исторической рассылки. Источник подключается при следующем reconciliation без изменения конфигурации и перезапуска.
+`--enable-firestore-source` enables targeted Firestore projection reads for supported queue events; it does not install listeners or scan an inventory. `--enable-mesh-source` runs the Mesh HTTP poller and writes normalized events to the shared queue. `--enable-delivery` starts the queue consumer, temporary old-client reconciliation, NotificationService outbox and EducationSync dispatcher. Only this shared consumer claims and acknowledges queue events.
 
 МЭШ использует общий [MeshSession/credential store](../../shared/server-runtime.md#авторизация-и-совместимость) с education-sync. Канонические credentials лежат в `.local/mesh-connections/{sourceAccountId}.json`; точный legacy owner разрешён общим codec. Ошибки не подменяются credentials другой семьи. Каждый ребёнок получает отдельный adapter, refresh сохраняет только tokens атомарно0600. Sync и worker сериализуют один account kernel lock Python3/fcntl на одном хосте; общие physical paths обязательны, независимую копию vault для daemon создавать нельзя.
 
@@ -101,7 +101,7 @@ npm run telegram:worker -- --enable-firestore-source --enable-mesh-source --enab
 
 ## IAM и данные
 
-Checkpoints хранятся в `telegramNotificationSourceCheckpoints`, обнаружение — в `telegramSourceDiscovery`; записи namespace-separated, scope/reference IDs хэшированы. Служебные state/baseline/pending не содержат исходные credentials, ответы тестов, оригиналы или URL. Firestore document listeners могут получить полный SDK snapshot; обработчик использует его только как сигнал и перечитывает разрешённые поля, raw payload не сохраняет и не логирует.
+Queue event state хранится в `educationEvents`; Mesh source checkpoints and temporary legacy action cursors remain separate. События содержат stable identity, typed `sourceRef` и ограниченный normalized payload. Исходные ответы, файлы, URL и credentials исключены; handler перечитывает только точный проверенный source path. Compatibility scans page-bounded and checkpointed.
 
 Отдельная workload identity с минимальными правами на согласованные source paths и служебные registry/ledger/outbox. Серверный SDK обходит Security Rules; правила клиента не ограничивают worker. Не выдавать project-wide Owner/Editor. Отделить read-only доступ к учебным источникам от ограниченного write доступа к служебным коллекциям настолько, насколько позволяет IAM/структура проекта.
 
@@ -119,6 +119,8 @@ Readiness учитывает текущую Telegram family authorization, Fires
 4. Проверить права всех автоматически обнаруженных семей и подтверждённые Telegram links; включить delivery отдельным флагом.
 5. Наблюдать latency, backlog и dead-letter при общем динамическом охвате. Ручные списки семей и детей не используются.
 
+На macOS installer не отключает старый upload agent при одном только успешном bootstrap нового процесса. Он ждёт до 30 секунд одновременно работающий Telegram worker и приватную запись `education_event_queue_listening` для его PID с `subscriptionCount=1`; только после этого выгружает `com.petr.education.upload-worker` из launchd и переименовывает plist в `.plist.disabled`. Если queue readiness не подтверждена или retirement завершается ошибкой, установка сообщает об ошибке. Старые release/assets и secrets сохраняются.
+
 Rollback выключает source processing и сохраняет ledger/outbox для дальнейшего разбора. Не удалять очередь/registry при rollback. Перед первой эксплуатацией определить retention, алертинг и владельца ручной обработки dead letters.
 
 ### Штатные команды
@@ -133,6 +135,7 @@ npm run telegram:runtime -- probe --source mesh --target-digest TARGET_HASH --ap
 npm run telegram:install-worker
 npm run telegram:install-worker -- --apply
 npm run telegram:status
+npm run events:status
 npm run telegram:stop
 npm run telegram:runtime -- uninstall --apply
 ```

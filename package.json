@@ -59,6 +59,7 @@
     "telegram:pair": "node scripts/telegram-pair.mjs",
     "telegram:install-worker": "node scripts/telegram-runtime.mjs install",
     "telegram:status": "node scripts/telegram-runtime.mjs status",
+    "events:status": "node scripts/education-events.mjs status",
     "telegram:stop": "node scripts/telegram-runtime.mjs stop",
     "bench:server-runtime": "node scripts/benchmark-server-runtime.mjs"
   },

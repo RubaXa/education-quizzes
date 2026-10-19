@@ -1,7 +1,9 @@
 import { collection, doc, getDocFromServer, getDocs, onSnapshot, serverTimestamp, writeBatch } from 'firebase/firestore'
+import { getAuth } from 'firebase/auth'
 import { db } from './firebase'
 import { currentEducationPersonId } from './personalAccess'
 import type { ParentTaskGuide } from './dayStore'
+import { prepareEducationEvent, stagePreparedEducationEvent } from './educationEventProducer'
 
 export type DayGuidance = {
   id: string; taskId: string; stageId: string; stageIndex: number; level: 'hint' | 'reveal';
@@ -47,12 +49,21 @@ export async function sendDayGuidance(studentToken: string, taskId: string, guid
   const eventId = await guidanceEventId(studentToken, taskId, stage)
   const batch = writeBatch(db)
   const actorPersonId = currentEducationPersonId()
+  const uid = getAuth().currentUser?.uid
+  if (!uid) throw new Error('Сначала откройте личную ссылку Education.')
+  const envelope = await prepareEducationEvent({
+    eventType: 'parent.guidance_sent', familyId, childId, source: 'firestore',
+    sourceRef: { kind: 'guidance', documentPath: `dayGuidance/${studentToken}/items/${eventId}`, dayToken: studentToken, taskId },
+    operationId: eventId, actor: { type: 'user', uid },
+  })
   batch.set(doc(db, 'dayGuidance', studentToken, 'items', eventId), {
     taskId, stageId, stageIndex, level, text, guideRevision: guide.revision, actorPersonId, createdAt: serverTimestamp(),
+    eventOperationId: eventId, eventReceiptId: envelope.eventId, eventProducerVersion: 1,
   })
   for (const learner of learners) batch.set(doc(db, 'users', learner.id, 'inbox', eventId), {
     familyId, childId, type: 'parent_guidance', entityId: taskId, taskId, studentToken, eventId, date,
     sourceRevision: 1, createdAt: serverTimestamp(),
   })
+  stagePreparedEducationEvent(batch, envelope)
   await batch.commit()
 }

@@ -1,8 +1,9 @@
 /** @see ../../docs/modules/materials/material-clarification.md */
 import type { MaterialRequest, SourceAnalysis } from './materialRequest'
-import { collection, doc, documentId, getDoc, getDocFromServer, onSnapshot, query, serverTimestamp, setDoc, updateDoc, where } from 'firebase/firestore'
-import { getAuth } from 'firebase/auth'
+import { collection, doc, documentId, getDoc, getDocFromServer, onSnapshot, query, serverTimestamp, where, writeBatch } from 'firebase/firestore'
 import { db } from './firebase'
+import { getAuth } from 'firebase/auth'
+import { prepareEducationEvent, stagePreparedEducationEvent } from './educationEventProducer'
 import { isExplicitCdzTask } from '../../day/homework-kind.mjs'
 import { removePhotoFromOutbox, resumePhotoTransfer, savePhotoForTransfer } from './photoOutbox'
 import { normalizeDayPage } from './dayCompatibility'
@@ -243,7 +244,31 @@ export function watchDayHelp(tokens: string[], onChange: (data: DayHelp[]) => vo
   return () => stops.forEach((stop) => stop())
 }
 export async function requestDayHelp(studentToken: string, taskId: string, revision: number, requestKind: NonNullable<DayHelp['requestKind']>, requestText: string) {
-  await setDoc(doc(db, 'dayHelp', studentToken, 'items', taskId), { taskId, revision, requestKind, requestText: requestText.trim().slice(0, 800), requestedAt: serverTimestamp() })
+  const owner = await getDocFromServer(doc(db, 'dayOwners', studentToken))
+  const { familyId, childId } = owner.data() ?? {}
+  const uid = getAuth().currentUser?.uid
+  if (!owner.exists() || typeof familyId !== 'string' || typeof childId !== 'string' || !uid) throw new Error('Семейная привязка запроса не найдена.')
+  const batch = writeBatch(db)
+  const input = {
+    eventType: 'help.requested', familyId, childId, source: 'firestore',
+    sourceRef: { kind: 'help', documentPath: `dayHelp/${studentToken}/items/${taskId}`, dayToken: studentToken, taskId },
+    operationId: crypto.randomUUID(), actor: { type: 'user', uid },
+  } as const
+  const envelope = await prepareEducationEvent(input)
+  const sourceRef = doc(db, 'dayHelp', studentToken, 'items', taskId)
+  const sourceText = requestText.trim().slice(0, 800)
+  batch.set(sourceRef, { taskId, revision, requestKind, requestText: sourceText, requestedAt: serverTimestamp(), eventOperationId: input.operationId, eventReceiptId: envelope.eventId, eventProducerVersion: 1 })
+  stagePreparedEducationEvent(batch, envelope)
+  try { await batch.commit() }
+  catch (cause) {
+    try {
+      const committed = await getDocFromServer(sourceRef)
+      const data = committed.data()
+      if (committed.exists() && data?.eventOperationId === input.operationId && data?.eventReceiptId === envelope.eventId
+        && data?.revision === revision && data?.requestKind === requestKind && data?.requestText === sourceText) return
+    } catch { /* Preserve the original commit error when readback is unavailable. */ }
+    throw cause
+  }
 }
 const photoTypes = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'])
 /** @see ../../docs/modules/materials/storage-privacy.md#upload-queue */
@@ -256,13 +281,26 @@ export async function uploadDayPhoto(studentToken: string, taskId: string, file:
   const sha256 = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', await file.arrayBuffer())), (byte) => byte.toString(16).padStart(2, '0')).join('')
   await savePhotoForTransfer(studentToken, uploadId, file)
   const ref = doc(db, 'dayUploads', studentToken, 'files', uploadId)
+  const owner = await getDocFromServer(doc(db, 'dayOwners', studentToken))
+  const { familyId, childId } = owner.data() ?? {}
+  if (!owner.exists() || typeof familyId !== 'string' || typeof childId !== 'string') throw new Error('Семейная привязка загрузки не найдена.')
+  const eventOperationId = `upload-transfer:${uploadId}:requested`
+  const envelope = await prepareEducationEvent({
+    eventType: 'upload.transfer_requested', familyId, childId, source: 'firestore',
+    sourceRef: { kind: 'upload', documentPath: `dayUploads/${studentToken}/files/${uploadId}`, dayToken: studentToken, recordId: uploadId, taskId },
+    operationId: eventOperationId, actor: { type: 'user', uid: deviceUid },
+  } as Parameters<typeof prepareEducationEvent>[0])
   try {
-    await setDoc(ref, { taskId, planRevision: revision, deviceUid, contentType: file.type, size: file.size, sha256,
-      status: 'requested', createdAt: serverTimestamp() })
+    const batch = writeBatch(db)
+    batch.set(ref, { taskId, planRevision: revision, deviceUid, contentType: file.type, size: file.size, sha256,
+      status: 'requested', createdAt: serverTimestamp(), eventOperationId, eventReceiptId: envelope.eventId, eventProducerVersion: 1 })
+    stagePreparedEducationEvent(batch, envelope)
+    await batch.commit()
   } catch (cause) {
     try {
       const saved = await getDocFromServer(ref)
-      if (saved.exists() && saved.data().taskId === taskId && saved.data().sha256 === sha256) return uploadId
+      if (saved.exists() && saved.data().taskId === taskId && saved.data().sha256 === sha256
+        && saved.data().eventOperationId === eventOperationId && saved.data().eventReceiptId === envelope.eventId) return uploadId
     } catch { /* Keep the original upload error for the per-photo retry UI. */ }
     throw cause
   }
@@ -278,6 +316,28 @@ export async function removePendingDayPhoto(studentToken: string, uploadId: stri
     return
   }
   if (current.data().status === 'reviewed') throw new Error('Проверенную работу удалить нельзя.')
-  await updateDoc(ref, { status: 'deleted', deletedAt: serverTimestamp() })
+  const owner = await getDocFromServer(doc(db, 'dayOwners', studentToken))
+  const { familyId, childId } = owner.data() ?? {}
+  const uid = getAuth().currentUser?.uid
+  if (!owner.exists() || typeof familyId !== 'string' || typeof childId !== 'string' || !uid) throw new Error('Семейная привязка загрузки не найдена.')
+  const operationId = `upload-delete:${uploadId}`
+  const envelope = await prepareEducationEvent({ eventType: 'upload.delete_requested', familyId, childId, source: 'firestore',
+    sourceRef: { kind: 'upload', documentPath: `dayUploads/${studentToken}/files/${uploadId}`, dayToken: studentToken, recordId: uploadId, taskId: current.data().taskId },
+    operationId, actor: { type: 'user', uid } })
+  const batch = writeBatch(db)
+  batch.update(ref, { status: 'deleted', deletedAt: serverTimestamp(), eventOperationId: operationId, eventReceiptId: envelope.eventId, eventProducerVersion: 1 })
+  stagePreparedEducationEvent(batch, envelope)
+  try { await batch.commit() }
+  catch (cause) {
+    try {
+      const committed = await getDocFromServer(ref)
+      if (committed.data()?.status === 'deleted' && committed.data()?.eventOperationId === operationId
+        && committed.data()?.eventReceiptId === envelope.eventId) {
+        await removePhotoFromOutbox(studentToken, uploadId)
+        return
+      }
+    } catch { /* Preserve the original error if commit readback is unavailable. */ }
+    throw cause
+  }
   await removePhotoFromOutbox(studentToken, uploadId)
 }

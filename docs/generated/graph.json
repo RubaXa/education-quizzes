@@ -6,7 +6,7 @@
       "status": "accepted",
       "implementation": "not-applicable",
       "created": "2026-10-16",
-      "updated": "2026-10-18",
+      "updated": "2026-10-19",
       "consumers": [
         "Education agent",
         "developer"
@@ -22,7 +22,8 @@
         "shared.server-runtime",
         "shared.design",
         "shared.access-and-privacy",
-        "shared.specification-system"
+        "shared.specification-system",
+        "module.synchronization.event-queue"
       ],
       "sections": [
         "приложения-и-процессы",
@@ -547,7 +548,7 @@
     },
     {
       "id": "decision.firestore-live-discovery-2026-10-19",
-      "status": "accepted",
+      "status": "superseded",
       "implementation": "implemented",
       "created": "2026-10-19",
       "updated": "2026-10-19",
@@ -1136,6 +1137,34 @@
         "согласование"
       ],
       "path": "docs/decisions/telegram-sync-recovery-2026-10-19.md"
+    },
+    {
+      "id": "decision.unified-education-events-2026-10-19",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-10-19",
+      "updated": "2026-10-19",
+      "parent": "module.synchronization",
+      "uses": [
+        "module.synchronization.event-queue",
+        "module.synchronization.execution-artifact",
+        "service.telegram-bot.education-sync-dispatch",
+        "service.upload-worker"
+      ],
+      "consumers": [
+        "Education developer",
+        "deterministic dispatcher",
+        "EducationSync operator"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/unified-education-events-2026-10-19.md"
     },
     {
       "id": "decision.upload-notification-lifecycle-2026-10-18",
@@ -2973,6 +3002,27 @@
       "consumer": "Приглашённый; оператор"
     },
     {
+      "id": "file:packages/education-events/envelope.d.mts",
+      "path": "packages/education-events/envelope.d.mts",
+      "kind": "artifact",
+      "purpose": "Общий конверт, атомарные действия, единая подписка и детерминированная маршрутизация",
+      "consumer": "Приложение; dispatcher; Vitest"
+    },
+    {
+      "id": "file:packages/education-events/envelope.mjs",
+      "path": "packages/education-events/envelope.mjs",
+      "kind": "artifact",
+      "purpose": "Общий конверт, атомарные действия, единая подписка и детерминированная маршрутизация",
+      "consumer": "Приложение; dispatcher; Vitest"
+    },
+    {
+      "id": "file:packages/education-events/envelope.test.mjs",
+      "path": "packages/education-events/envelope.test.mjs",
+      "kind": "verification",
+      "purpose": "Общий конверт, атомарные действия, единая подписка и детерминированная маршрутизация",
+      "consumer": "Приложение; dispatcher; Vitest"
+    },
+    {
       "id": "file:packages/education-presentation/notification.d.mts",
       "path": "packages/education-presentation/notification.d.mts",
       "kind": "artifact",
@@ -3006,6 +3056,20 @@
       "kind": "verification",
       "purpose": "Проверка canonical/legacy owner boundaries, refresh persistence и cross-process lock cleanup/contention",
       "consumer": "Vitest; разработчик"
+    },
+    {
+      "id": "file:packages/education-runtime/event-queue.mjs",
+      "path": "packages/education-runtime/event-queue.mjs",
+      "kind": "artifact",
+      "purpose": "Общий конверт, атомарные действия, единая подписка и детерминированная маршрутизация",
+      "consumer": "Приложение; dispatcher; Vitest"
+    },
+    {
+      "id": "file:packages/education-runtime/event-queue.test.mjs",
+      "path": "packages/education-runtime/event-queue.test.mjs",
+      "kind": "verification",
+      "purpose": "Общий конверт, атомарные действия, единая подписка и детерминированная маршрутизация",
+      "consumer": "Приложение; dispatcher; Vitest"
     },
     {
       "id": "file:packages/education-runtime/family-graph.mjs",
@@ -3050,6 +3114,20 @@
       "consumer": "Vitest; разработчик"
     },
     {
+      "id": "file:packages/education-runtime/legacy-event-reconciliation.mjs",
+      "path": "packages/education-runtime/legacy-event-reconciliation.mjs",
+      "kind": "artifact",
+      "purpose": "Ограниченный переходный producer старых действий без source subscriptions",
+      "consumer": "Единый runtime"
+    },
+    {
+      "id": "file:packages/education-runtime/legacy-event-reconciliation.test.mjs",
+      "path": "packages/education-runtime/legacy-event-reconciliation.test.mjs",
+      "kind": "verification",
+      "purpose": "Регрессии атомарных действий, переходной сверки и единственного runtime",
+      "consumer": "Vitest; разработчик"
+    },
+    {
       "id": "file:packages/education-runtime/mesh-session.mjs",
       "path": "packages/education-runtime/mesh-session.mjs",
       "kind": "artifact",
@@ -3075,6 +3153,20 @@
       "path": "packages/education-runtime/telemetry.test.mjs",
       "kind": "verification",
       "purpose": "Проверка trace parentage, безопасных атрибутов, агрегации и ротации файлов",
+      "consumer": "Vitest; разработчик"
+    },
+    {
+      "id": "file:packages/education-runtime/upload-broker.mjs",
+      "path": "packages/education-runtime/upload-broker.mjs",
+      "kind": "artifact",
+      "purpose": "Queue handlers для фото и семейных PDF, атомарные финальные receipts и bounded legacy-event producer",
+      "consumer": "Education event runtime; upload adapters"
+    },
+    {
+      "id": "file:packages/education-runtime/upload-broker.test.mjs",
+      "path": "packages/education-runtime/upload-broker.test.mjs",
+      "kind": "verification",
+      "purpose": "Регрессии link issuance, атомарного `upload.confirmed` и bounded reconciliation без source subscriptions",
       "consumer": "Vitest; разработчик"
     },
     {
@@ -3246,6 +3338,27 @@
       "consumer": "Оператор; Vitest"
     },
     {
+      "id": "file:packages/telegram-notifications/application/education-event-routing.mjs",
+      "path": "packages/telegram-notifications/application/education-event-routing.mjs",
+      "kind": "artifact",
+      "purpose": "Общий конверт, атомарные действия, единая подписка и детерминированная маршрутизация",
+      "consumer": "Приложение; dispatcher; Vitest"
+    },
+    {
+      "id": "file:packages/telegram-notifications/application/education-event-routing.test.mjs",
+      "path": "packages/telegram-notifications/application/education-event-routing.test.mjs",
+      "kind": "verification",
+      "purpose": "Общий конверт, атомарные действия, единая подписка и детерминированная маршрутизация",
+      "consumer": "Приложение; dispatcher; Vitest"
+    },
+    {
+      "id": "file:packages/telegram-notifications/application/education-sync-action-store.test.mjs",
+      "path": "packages/telegram-notifications/application/education-sync-action-store.test.mjs",
+      "kind": "verification",
+      "purpose": "Общий конверт, атомарные действия, единая подписка и детерминированная маршрутизация",
+      "consumer": "Приложение; dispatcher; Vitest"
+    },
+    {
       "id": "file:packages/telegram-notifications/application/education-sync-dispatch-store.test.mjs",
       "path": "packages/telegram-notifications/application/education-sync-dispatch-store.test.mjs",
       "kind": "verification",
@@ -3347,14 +3460,14 @@
       "id": "file:packages/telegram-notifications/operations/launch-agent.mjs",
       "path": "packages/telegram-notifications/operations/launch-agent.mjs",
       "kind": "artifact",
-      "purpose": "План, установка, статус и откат закрытого macOS runtime",
+      "purpose": "План и установка runtime с queue readiness gate; безопасное retirement старого upload LaunchAgent после единственной подписки",
       "consumer": "Telegram runtime; оператор"
     },
     {
       "id": "file:packages/telegram-notifications/operations/launch-agent.test.mjs",
       "path": "packages/telegram-notifications/operations/launch-agent.test.mjs",
       "kind": "verification",
-      "purpose": "Регрессии: План, установка, статус и откат закрытого macOS runtime",
+      "purpose": "Readiness gate PID/queue ACK, сохранение старого агента при timeout и идемпотентное отключение plist",
       "consumer": "Vitest; разработчик"
     },
     {
@@ -3552,6 +3665,13 @@
       "kind": "verification",
       "purpose": "Rich schema и транспортные регрессии",
       "consumer": "Renderer; UI Kit; оператор; Vitest"
+    },
+    {
+      "id": "file:packages/telegram-notifications/unified-events.integration.test.mjs",
+      "path": "packages/telegram-notifications/unified-events.integration.test.mjs",
+      "kind": "verification",
+      "purpose": "Общий конверт, атомарные действия, единая подписка и детерминированная маршрутизация",
+      "consumer": "Приложение; dispatcher; Vitest"
     },
     {
       "id": "file:public/access-snapshot.js",
@@ -3809,8 +3929,22 @@
       "id": "file:scripts/direct-upload-worker.mjs",
       "path": "scripts/direct-upload-worker.mjs",
       "kind": "artifact",
-      "purpose": "Выдача адресов и проверка фото работ и семейных PDF, общий архив по SHA",
-      "consumer": "Клиенты загрузки; очереди"
+      "purpose": "Совместимый статус и однократная bounded reconciliation командой; source listeners отсутствуют",
+      "consumer": "Оператор; общий runtime"
+    },
+    {
+      "id": "file:scripts/education-events.mjs",
+      "path": "scripts/education-events.mjs",
+      "kind": "artifact",
+      "purpose": "Read-only status: bounded recent and per-state queue samples with privacy-safe event/fanout projections",
+      "consumer": "`npm run events:status`; оператор"
+    },
+    {
+      "id": "file:scripts/education-events.test.mjs",
+      "path": "scripts/education-events.test.mjs",
+      "kind": "verification",
+      "purpose": "Проверяет bounded reads, отсутствие source scans/writes и приватную проекцию queue status",
+      "consumer": "Vitest"
     },
     {
       "id": "file:scripts/education-sync-dispatch.mjs",
@@ -3860,6 +3994,13 @@
       "kind": "artifact",
       "purpose": "AST-инвентаризация прямых чтений и запрет новых путей без оценки",
       "consumer": "`npm run check:reads`; разработчик"
+    },
+    {
+      "id": "file:scripts/firestore-rules-education-events.test.mjs",
+      "path": "scripts/firestore-rules-education-events.test.mjs",
+      "kind": "verification",
+      "purpose": "Общий конверт, атомарные действия, единая подписка и детерминированная маршрутизация",
+      "consumer": "Приложение; dispatcher; Vitest"
     },
     {
       "id": "file:scripts/firestore-rules-followup.test.mjs",
@@ -3928,8 +4069,15 @@
       "id": "file:scripts/install-upload-worker.mjs",
       "path": "scripts/install-upload-worker.mjs",
       "kind": "artifact",
-      "purpose": "Установка локального процесса загрузки",
+      "purpose": "Устаревший installer alias, перенаправляет на единый Education runtime и не устанавливает отдельный агент",
       "consumer": "Оператор Mac"
+    },
+    {
+      "id": "file:scripts/install-upload-worker.test.mjs",
+      "path": "scripts/install-upload-worker.test.mjs",
+      "kind": "verification",
+      "purpose": "Проверяет безопасный отказ старого installer alias без запуска отдельного агента",
+      "consumer": "Vitest"
     },
     {
       "id": "file:scripts/lib/access-projection.mjs",
@@ -5122,6 +5270,20 @@
       "consumer": "`src/DayPage.tsx`; `src/DayDashboard.tsx`"
     },
     {
+      "id": "file:src/lib/educationEventProducer.ts",
+      "path": "src/lib/educationEventProducer.ts",
+      "kind": "artifact",
+      "purpose": "Общий конверт, атомарные действия, единая подписка и детерминированная маршрутизация",
+      "consumer": "Приложение; dispatcher; Vitest"
+    },
+    {
+      "id": "file:src/lib/educationEventProducers.test.ts",
+      "path": "src/lib/educationEventProducers.test.ts",
+      "kind": "verification",
+      "purpose": "Регрессии атомарных действий, переходной сверки и единственного runtime",
+      "consumer": "Vitest; разработчик"
+    },
+    {
       "id": "file:src/lib/educationSchema.ts",
       "path": "src/lib/educationSchema.ts",
       "kind": "artifact",
@@ -5316,6 +5478,13 @@
       "kind": "artifact",
       "purpose": "Группировка повторных событий по заданию без удаления источников",
       "consumer": "`NotificationBell`"
+    },
+    {
+      "id": "file:src/lib/parentCompletion.producer.test.ts",
+      "path": "src/lib/parentCompletion.producer.test.ts",
+      "kind": "verification",
+      "purpose": "Регрессии атомарных действий, переходной сверки и единственного runtime",
+      "consumer": "Vitest; разработчик"
     },
     {
       "id": "file:src/lib/parentCompletion.test.ts",
@@ -5906,6 +6075,20 @@
       "consumer": "Vitest; разработчик"
     },
     {
+      "id": "file:storage/review-publication-event.mjs",
+      "path": "storage/review-publication-event.mjs",
+      "kind": "artifact",
+      "purpose": "Атомарная идемпотентная публикация результата проверки и её регрессия",
+      "consumer": "submissions; Vitest"
+    },
+    {
+      "id": "file:storage/review-publication-event.test.mjs",
+      "path": "storage/review-publication-event.test.mjs",
+      "kind": "verification",
+      "purpose": "Атомарная идемпотентная публикация результата проверки и её регрессия",
+      "consumer": "submissions; Vitest"
+    },
+    {
       "id": "file:storage/review-readback.mjs",
       "path": "storage/review-readback.mjs",
       "kind": "artifact",
@@ -6011,6 +6194,34 @@
       "consumer": "`day/dashboard-index.mjs`; `sync/publication-audit.test.mjs`"
     },
     {
+      "id": "file:sync/event-task-artifact.mjs",
+      "path": "sync/event-task-artifact.mjs",
+      "kind": "artifact",
+      "purpose": "Адресный закрытый пакет задачи, целостность, свежесть и приватный экспорт",
+      "consumer": "Dispatcher; EducationSync"
+    },
+    {
+      "id": "file:sync/event-task-artifact.test.mjs",
+      "path": "sync/event-task-artifact.test.mjs",
+      "kind": "verification",
+      "purpose": "Адресный закрытый пакет задачи, целостность, свежесть и приватный экспорт",
+      "consumer": "EducationSync; Vitest"
+    },
+    {
+      "id": "file:sync/event-task-export.mjs",
+      "path": "sync/event-task-export.mjs",
+      "kind": "artifact",
+      "purpose": "Адресный закрытый пакет задачи, целостность, свежесть и приватный экспорт",
+      "consumer": "Dispatcher; EducationSync"
+    },
+    {
+      "id": "file:sync/event-task-export.test.mjs",
+      "path": "sync/event-task-export.test.mjs",
+      "kind": "verification",
+      "purpose": "Адресный закрытый пакет задачи, целостность, свежесть и приватный экспорт",
+      "consumer": "EducationSync; Vitest"
+    },
+    {
       "id": "file:sync/help-request-cache.mjs",
       "path": "sync/help-request-cache.mjs",
       "kind": "artifact",
@@ -6030,6 +6241,13 @@
       "kind": "artifact",
       "purpose": "Устойчивые ID и ревизии заданий общей операторской очереди",
       "consumer": "`scripts/sync-queue.mjs`; Firestore"
+    },
+    {
+      "id": "file:sync/legacy-help-identity.mjs",
+      "path": "sync/legacy-help-identity.mjs",
+      "kind": "artifact",
+      "purpose": "Общая идентичность action старого запроса помощи для producer и freshness validator",
+      "consumer": "Legacy bridge; task capture"
     },
     {
       "id": "file:sync/project-plan.mjs",
@@ -6530,7 +6748,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-11",
-      "updated": "2026-10-16",
+      "updated": "2026-10-19",
       "consumers": [
         "parent",
         "student",
@@ -6552,7 +6770,8 @@
         "src/lib/familyLibrary.ts",
         "src/lib/materialPageCache.ts",
         "storage/family-book-projection.mjs",
-        "storage/family-book-upload.mjs"
+        "storage/family-book-upload.mjs",
+        "packages/education-runtime/upload-broker.mjs"
       ],
       "parent": "module.materials",
       "uses": [
@@ -7403,7 +7622,7 @@
         "спецификации"
       ],
       "created": "2026-10-16",
-      "updated": "2026-10-16",
+      "updated": "2026-10-19",
       "consumers": [
         "Education sync operator",
         "sync-project CLI",
@@ -7499,9 +7718,47 @@
       "path": "docs/modules/synchronization/education-pipeline.md"
     },
     {
+      "id": "module.synchronization.event-queue",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-10-19",
+      "updated": "2026-10-19",
+      "parent": "module.synchronization",
+      "uses": [
+        "shared.data.firestore",
+        "shared.server-runtime",
+        "module.synchronization.execution-artifact",
+        "service.telegram-bot.education-sync-dispatch"
+      ],
+      "consumers": [
+        "Education action producers",
+        "deterministic event dispatcher",
+        "EducationSync executor",
+        "Telegram notification service"
+      ],
+      "code": [
+        "packages/education-events/envelope.mjs",
+        "packages/education-runtime/event-queue.mjs",
+        "packages/education-runtime/legacy-event-reconciliation.mjs",
+        "packages/telegram-notifications/application/education-event-routing.mjs",
+        "src/lib/educationEventProducer.ts",
+        "scripts/education-events.mjs"
+      ],
+      "sections": [
+        "назначение-и-единственная-подписка",
+        "конверт-и-идентичность",
+        "производители-и-атомарность",
+        "маршрутизация-и-готовое-задание",
+        "обработка-и-восстановление",
+        "доступ-и-приватность",
+        "миграция-и-проверки"
+      ],
+      "path": "docs/modules/synchronization/event-queue.md"
+    },
+    {
       "id": "module.synchronization.execution-artifact",
       "status": "accepted",
-      "implementation": "planned",
+      "implementation": "partial",
       "created": "2026-10-19",
       "updated": "2026-10-19",
       "parent": "module.synchronization",
@@ -7509,7 +7766,8 @@
         "module.synchronization.global-sync",
         "module.synchronization.shared-artifact-pipeline",
         "service.telegram-bot.education-sync-dispatch",
-        "service.operator-cli"
+        "service.operator-cli",
+        "module.synchronization.event-queue"
       ],
       "consumers": [
         "EducationSync workflow",
@@ -7523,7 +7781,10 @@
         "lifecycle",
         "acceptance"
       ],
-      "code": [],
+      "code": [
+        "sync/event-task-artifact.mjs",
+        "sync/event-task-export.mjs"
+      ],
       "path": "docs/modules/synchronization/execution-artifact.md"
     },
     {
@@ -8691,18 +8952,21 @@
         "parents and guardians"
       ],
       "code": [
-        "packages/telegram-notifications/adapters/source-firestore.mjs",
-        "packages/telegram-notifications/adapters/source-inventory-firestore.mjs"
+        "packages/education-runtime/event-queue.mjs",
+        "packages/education-runtime/legacy-event-reconciliation.mjs",
+        "packages/telegram-notifications/adapters/source-firestore.mjs"
       ],
       "parent": "service.telegram-bot",
-      "uses": [],
+      "uses": [
+        "shared.server-runtime",
+        "module.synchronization.event-queue"
+      ],
       "sections": [
         "ответственность",
-        "подписка-и-обработка-сигнала",
-        "области-данных-для-валидации",
-        "пределы-доступа-и-приватность",
-        "масштабирование",
-        "проверки-перед-активацией"
+        "единый-вход-событий",
+        "адресное-чтение-источника",
+        "обратная-совместимость",
+        "приватность-и-эксплуатация"
       ],
       "path": "docs/services/telegram-bot/adapters/firestore.md"
     },
@@ -8892,7 +9156,7 @@
     {
       "id": "service.upload-worker",
       "status": "accepted",
-      "implementation": "implemented",
+      "implementation": "partial",
       "parent": "product.education",
       "uses": [
         "module.materials.family-library",
@@ -8901,14 +9165,16 @@
       ],
       "sections": [],
       "created": "2026-10-16",
-      "updated": "2026-10-16",
+      "updated": "2026-10-19",
       "consumers": [
-        "upload worker process",
+        "shared educationEvents runtime",
         "Education operator",
         "photo/book upload request producer"
       ],
       "code": [
-        "scripts/direct-upload-worker.mjs"
+        "scripts/direct-upload-worker.mjs",
+        "scripts/install-upload-worker.mjs",
+        "packages/education-runtime/upload-broker.mjs"
       ],
       "path": "docs/services/upload-worker/README.md"
     },
@@ -9065,7 +9331,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-13",
-      "updated": "2026-10-16",
+      "updated": "2026-10-19",
       "consumers": [
         "Firestore publisher",
         "web-app data readers",
@@ -9081,7 +9347,10 @@
         "src/components/DataCompatibilityNotice.css"
       ],
       "parent": "shared.data",
-      "uses": [],
+      "uses": [
+        "module.synchronization.event-queue",
+        "module.synchronization.execution-artifact"
+      ],
       "sections": [
         "узлы-владелец-и-назначение",
         "владелец-поля-и-направление-данных",
@@ -9458,6 +9727,11 @@
     }
   ],
   "edges": [
+    {
+      "from": "architecture.education",
+      "to": "module.synchronization.event-queue",
+      "type": "uses"
+    },
     {
       "from": "architecture.education",
       "to": "service.operator-cli",
@@ -9896,6 +10170,26 @@
     {
       "from": "decision.telegram-sync-recovery-2026-10-19",
       "to": "shared.server-runtime",
+      "type": "uses"
+    },
+    {
+      "from": "decision.unified-education-events-2026-10-19",
+      "to": "module.synchronization.event-queue",
+      "type": "uses"
+    },
+    {
+      "from": "decision.unified-education-events-2026-10-19",
+      "to": "module.synchronization.execution-artifact",
+      "type": "uses"
+    },
+    {
+      "from": "decision.unified-education-events-2026-10-19",
+      "to": "service.telegram-bot.education-sync-dispatch",
+      "type": "uses"
+    },
+    {
+      "from": "decision.unified-education-events-2026-10-19",
+      "to": "service.upload-worker",
       "type": "uses"
     },
     {
@@ -10504,6 +10798,16 @@
       "type": "implements"
     },
     {
+      "from": "file:packages/education-events/envelope.d.mts",
+      "to": "module.synchronization.event-queue",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-events/envelope.mjs",
+      "to": "module.synchronization.event-queue",
+      "type": "implements"
+    },
+    {
       "from": "file:packages/education-presentation/notification.d.mts",
       "to": "shared.design.telegram",
       "type": "implements"
@@ -10524,6 +10828,16 @@
       "type": "implements"
     },
     {
+      "from": "file:packages/education-runtime/event-queue.mjs",
+      "to": "module.synchronization.event-queue",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-runtime/event-queue.mjs",
+      "to": "service.telegram-bot.firestore",
+      "type": "implements"
+    },
+    {
       "from": "file:packages/education-runtime/family-graph.mjs",
       "to": "shared.server-runtime",
       "type": "implements"
@@ -10539,6 +10853,16 @@
       "type": "implements"
     },
     {
+      "from": "file:packages/education-runtime/legacy-event-reconciliation.mjs",
+      "to": "module.synchronization.event-queue",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-runtime/legacy-event-reconciliation.mjs",
+      "to": "service.telegram-bot.firestore",
+      "type": "implements"
+    },
+    {
       "from": "file:packages/education-runtime/mesh-session.mjs",
       "to": "shared.server-runtime",
       "type": "implements"
@@ -10551,6 +10875,16 @@
     {
       "from": "file:packages/education-runtime/telemetry.mjs",
       "to": "shared.server-runtime",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-runtime/upload-broker.mjs",
+      "to": "module.materials.family-library",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-runtime/upload-broker.mjs",
+      "to": "service.upload-worker",
       "type": "implements"
     },
     {
@@ -10661,6 +10995,11 @@
     {
       "from": "file:packages/telegram-notifications/adapters/worker-loop.mjs",
       "to": "service.telegram-bot.operations",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/application/education-event-routing.mjs",
+      "to": "module.synchronization.event-queue",
       "type": "implements"
     },
     {
@@ -11090,7 +11429,7 @@
     },
     {
       "from": "file:scripts/direct-upload-worker.mjs",
-      "to": "module.materials.family-library",
+      "to": "module.synchronization.event-queue",
       "type": "implements"
     },
     {
@@ -11111,6 +11450,11 @@
     {
       "from": "file:scripts/direct-upload-worker.mjs",
       "to": "shared.media-storage",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/education-events.mjs",
+      "to": "module.synchronization.event-queue",
       "type": "implements"
     },
     {
@@ -11190,17 +11534,17 @@
     },
     {
       "from": "file:scripts/install-upload-worker.mjs",
-      "to": "module.materials.storage-privacy",
-      "type": "implements"
-    },
-    {
-      "from": "file:scripts/install-upload-worker.mjs",
       "to": "module.synchronization.education-pipeline",
       "type": "implements"
     },
     {
       "from": "file:scripts/install-upload-worker.mjs",
       "to": "operations.deployment",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/install-upload-worker.mjs",
+      "to": "service.upload-worker",
       "type": "implements"
     },
     {
@@ -12664,6 +13008,11 @@
       "type": "implements"
     },
     {
+      "from": "file:src/lib/educationEventProducer.ts",
+      "to": "module.synchronization.event-queue",
+      "type": "implements"
+    },
+    {
       "from": "file:src/lib/educationSchema.ts",
       "to": "module.families",
       "type": "implements"
@@ -13264,6 +13613,11 @@
       "type": "implements"
     },
     {
+      "from": "file:storage/review-publication-event.mjs",
+      "to": "module.synchronization.event-queue",
+      "type": "implements"
+    },
+    {
       "from": "file:storage/review-readback.mjs",
       "to": "module.materials.material-clarification",
       "type": "implements"
@@ -13324,6 +13678,16 @@
       "type": "implements"
     },
     {
+      "from": "file:sync/event-task-artifact.mjs",
+      "to": "module.synchronization.execution-artifact",
+      "type": "implements"
+    },
+    {
+      "from": "file:sync/event-task-export.mjs",
+      "to": "module.synchronization.execution-artifact",
+      "type": "implements"
+    },
+    {
       "from": "file:sync/help-request-cache.mjs",
       "to": "module.synchronization.firestore-read-paths",
       "type": "implements"
@@ -13336,6 +13700,11 @@
     {
       "from": "file:sync/job-queue.mjs",
       "to": "module.synchronization.global-sync",
+      "type": "implements"
+    },
+    {
+      "from": "file:sync/legacy-help-identity.mjs",
+      "to": "module.synchronization.event-queue",
       "type": "implements"
     },
     {
@@ -14599,6 +14968,96 @@
       "type": "uses"
     },
     {
+      "from": "module.synchronization.event-queue",
+      "to": "file:packages/education-events/envelope.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.synchronization.event-queue",
+      "to": "file:packages/education-runtime/event-queue.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.synchronization.event-queue",
+      "to": "file:packages/education-runtime/legacy-event-reconciliation.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.synchronization.event-queue",
+      "to": "file:packages/telegram-notifications/application/education-event-routing.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.synchronization.event-queue",
+      "to": "file:packages/telegram-notifications/application/education-sync-action-store.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.synchronization.event-queue",
+      "to": "file:packages/telegram-notifications/unified-events.integration.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.synchronization.event-queue",
+      "to": "file:scripts/education-events.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.synchronization.event-queue",
+      "to": "file:scripts/firestore-rules-education-events.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.synchronization.event-queue",
+      "to": "file:src/lib/educationEventProducers.test.ts",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.synchronization.event-queue",
+      "to": "file:src/lib/parentCompletion.producer.test.ts",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.synchronization.event-queue",
+      "to": "file:storage/review-publication-event.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.synchronization.event-queue",
+      "to": "module.synchronization.execution-artifact",
+      "type": "uses"
+    },
+    {
+      "from": "module.synchronization.event-queue",
+      "to": "service.telegram-bot.education-sync-dispatch",
+      "type": "uses"
+    },
+    {
+      "from": "module.synchronization.event-queue",
+      "to": "shared.data.firestore",
+      "type": "uses"
+    },
+    {
+      "from": "module.synchronization.event-queue",
+      "to": "shared.server-runtime",
+      "type": "uses"
+    },
+    {
+      "from": "module.synchronization.execution-artifact",
+      "to": "file:sync/event-task-artifact.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.synchronization.execution-artifact",
+      "to": "file:sync/event-task-export.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.synchronization.execution-artifact",
+      "to": "module.synchronization.event-queue",
+      "type": "uses"
+    },
+    {
       "from": "module.synchronization.execution-artifact",
       "to": "module.synchronization.global-sync",
       "type": "uses"
@@ -14735,6 +15194,11 @@
     },
     {
       "from": "module.synchronization",
+      "to": "decision.unified-education-events-2026-10-19",
+      "type": "contains"
+    },
+    {
+      "from": "module.synchronization",
       "to": "module.materials",
       "type": "uses"
     },
@@ -14756,6 +15220,11 @@
     {
       "from": "module.synchronization",
       "to": "module.synchronization.education-pipeline",
+      "type": "contains"
+    },
+    {
+      "from": "module.synchronization",
+      "to": "module.synchronization.event-queue",
       "type": "contains"
     },
     {
@@ -15684,6 +16153,16 @@
       "type": "verified-by"
     },
     {
+      "from": "service.telegram-bot.firestore",
+      "to": "module.synchronization.event-queue",
+      "type": "uses"
+    },
+    {
+      "from": "service.telegram-bot.firestore",
+      "to": "shared.server-runtime",
+      "type": "uses"
+    },
+    {
       "from": "service.telegram-bot.identity-and-linking",
       "to": "file:packages/telegram-notifications/identity-pairing.test.mjs",
       "type": "verified-by"
@@ -16030,6 +16509,16 @@
     },
     {
       "from": "service.upload-worker",
+      "to": "file:packages/education-runtime/upload-broker.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "service.upload-worker",
+      "to": "file:scripts/install-upload-worker.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "service.upload-worker",
       "to": "module.materials.family-library",
       "type": "uses"
     },
@@ -16167,6 +16656,16 @@
       "from": "shared.data.firestore",
       "to": "file:src/lib/dayCompatibility.test.ts",
       "type": "verified-by"
+    },
+    {
+      "from": "shared.data.firestore",
+      "to": "module.synchronization.event-queue",
+      "type": "uses"
+    },
+    {
+      "from": "shared.data.firestore",
+      "to": "module.synchronization.execution-artifact",
+      "type": "uses"
     },
     {
       "from": "shared.data.revisions",

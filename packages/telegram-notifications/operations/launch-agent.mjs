@@ -8,14 +8,49 @@ import { pathToFileURL } from 'node:url'
 import { resolvePythonExecutable } from './process-lock.mjs'
 
 export const SERVICE_LABEL = 'com.petr.education.telegram-worker'
+export const LEGACY_UPLOAD_SERVICE_LABEL = 'com.petr.education.upload-worker'
 const ENTRY = 'scripts/telegram-bot.mjs'
 export const PERMANENT_WORKER_ARGUMENTS = Object.freeze(['worker', '--enable-firestore-source', '--enable-mesh-source', '--enable-delivery'])
+
+/** Stop the retired source-watching agent and disable its plist without deleting its assets or secrets. */
+export function retireLegacyUploadWorker({ home = homedir(), uid = process.getuid?.(), platform = process.platform,
+  fs = defaultFs, exec = execFileSync, sleep = sleepSync, clock = () => Date.now(), timeoutMs = 10_000 } = {}) {
+  if (platform !== 'darwin' || !Number.isInteger(uid)) throw safeError('launchagent_macos_required')
+  const domain = `gui/${uid}`
+  const plistPath = resolve(home, 'Library/LaunchAgents', `${LEGACY_UPLOAD_SERVICE_LABEL}.plist`)
+  const disabledPath = `${plistPath}.disabled`
+  const isLoaded = () => {
+    try { exec('launchctl', ['print', `${domain}/${LEGACY_UPLOAD_SERVICE_LABEL}`], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }); return true }
+    catch { return false }
+  }
+  let bootedOut = false
+  if (isLoaded()) {
+    try { exec('launchctl', ['bootout', `${domain}/${LEGACY_UPLOAD_SERVICE_LABEL}`], { stdio: 'pipe' }) }
+    catch { if (isLoaded()) throw safeError('legacy_upload_worker_stop_failed') }
+    const deadline = clock() + timeoutMs
+    while (isLoaded()) {
+      if (clock() >= deadline) throw safeError('legacy_upload_worker_stop_timeout')
+      sleep(Math.max(1, Math.min(250, deadline - clock())))
+    }
+    bootedOut = true
+  }
+  let plistDisabled = false
+  if (fs.existsSync(plistPath)) {
+    let destination = disabledPath
+    if (fs.existsSync(destination)) destination = `${disabledPath}.${clock()}`
+    try { fs.renameSync(plistPath, destination) }
+    catch { throw safeError('legacy_upload_worker_disable_failed') }
+    plistDisabled = true
+  }
+  return { retired: bootedOut || plistDisabled, bootedOut, plistDisabled }
+}
 
 /** Build a private, content-addressed LaunchAgent release. No secret enters the plist or argv. */
 export function createLaunchAgentOperations({ root = process.cwd(), home = homedir(), uid = process.getuid?.(),
   env = process.env, fs = defaultFs, exec = execFileSync, sleep = sleepSync,
   nodePath = process.execPath, npmCliPath = null, pythonPath = null, platform = process.platform,
-  teardownTimeoutMs = 35_000, bootstrapRetryMs = 8_000 } = {}) {
+  teardownTimeoutMs = 35_000, bootstrapRetryMs = 8_000, clock = () => Date.now(),
+  readQueueLog = (path) => fs.readFileSync(path, 'utf8'), waitForQueueReady = null } = {}) {
   const absoluteRoot = resolve(root)
   const support = resolve(home, 'Library/Application Support/PETR/telegram-worker')
   const agentDirectory = resolve(home, 'Library/LaunchAgents')
@@ -37,6 +72,16 @@ export function createLaunchAgentOperations({ root = process.cwd(), home = homed
       throw safeError('application_credentials_unavailable')
     }
     try { fs.accessSync(adcPath, fs.constants?.R_OK ?? constants.R_OK) } catch { throw safeError('application_credentials_unavailable') }
+    const yandexDiskTokenPath = resolve(env.EDUCATION_YANDEX_DISK_TOKEN_FILE || resolve(absoluteRoot, '.local/yandex-disk-token'))
+    if (!fs.existsSync(yandexDiskTokenPath)) throw safeError('upload_storage_credentials_unavailable')
+    const diskInfo = fs.statSync(yandexDiskTokenPath)
+    if (!diskInfo.isFile() || (diskInfo.mode & 0o077) !== 0 || (Number.isInteger(uid) && diskInfo.uid !== uid)) {
+      throw safeError('upload_storage_credentials_unavailable')
+    }
+    try {
+      fs.accessSync(yandexDiskTokenPath, fs.constants?.R_OK ?? constants.R_OK)
+      if (!fs.readFileSync(yandexDiskTokenPath, 'utf8').trim()) throw new Error()
+    } catch { throw safeError('upload_storage_credentials_unavailable') }
     const meshDirectory = resolve(absoluteRoot, env.TELEGRAM_MESH_CONNECTION_DIRECTORY || '.local/mesh-connections')
     const familyAccessPath = resolve(absoluteRoot, env.TELEGRAM_FAMILY_ACCESS_PATH || '.local/family-access.json')
     const legacyCredentialsPath = resolve(absoluteRoot, env.TELEGRAM_LEGACY_CREDENTIALS_PATH || '.local/diary/secret.json')
@@ -55,7 +100,7 @@ export function createLaunchAgentOperations({ root = process.cwd(), home = homed
       fs.accessSync(canonicalAvailable ? meshDirectory : familyAccessPath, fs.constants?.R_OK ?? constants.R_OK)
       if (!canonicalAvailable) fs.accessSync(legacyCredentialsPath, fs.constants?.R_OK ?? constants.R_OK)
     } catch { throw safeError('mesh_credentials_path_unavailable') }
-    return { projectId, token, adcPath: resolve(adcPath), meshDirectory, familyAccessPath, legacyCredentialsPath,
+    return { projectId, token, adcPath: resolve(adcPath), yandexDiskTokenPath, meshDirectory, familyAccessPath, legacyCredentialsPath,
       pythonPath: fs.realpathSync ? fs.realpathSync(python) : realpathSync(python), npmCliPath: resolve(npm), educationSync }
   }
 
@@ -108,6 +153,7 @@ export function createLaunchAgentOperations({ root = process.cwd(), home = homed
       TELEGRAM_FIRESTORE_PROJECT_ID: values.projectId,
       TELEGRAM_TOKEN_FILE: release.tokenPath,
       GOOGLE_APPLICATION_CREDENTIALS: values.adcPath,
+      EDUCATION_YANDEX_DISK_TOKEN_FILE: values.yandexDiskTokenPath,
       TELEGRAM_MESH_CONNECTION_DIRECTORY: values.meshDirectory,
       TELEGRAM_FAMILY_ACCESS_PATH: values.familyAccessPath,
       TELEGRAM_LEGACY_CREDENTIALS_PATH: values.legacyCredentialsPath,
@@ -132,6 +178,7 @@ export function createLaunchAgentOperations({ root = process.cwd(), home = homed
     const previousLoaded = Boolean(previousPlist && status().loaded)
     fs.writeFileSync(nextPlist, plist, { mode: 0o600 })
     fs.renameSync(nextPlist, plistPath)
+    const readinessStartedAt = clock()
     try {
       if (previousLoaded) {
         try { exec('launchctl', ['bootout', `${domain}/${SERVICE_LABEL}`], { stdio: 'ignore' }) }
@@ -155,7 +202,12 @@ export function createLaunchAgentOperations({ root = process.cwd(), home = homed
       } else fs.rmSync(plistPath, { force: true })
       throw safeError('launchagent_bootstrap_failed')
     }
-    return { applied: true, ...release, state: 'bootstrapped' }
+    const waitForReady = waitForQueueReady ?? defaultWaitForQueueReady
+    const ready = waitForReady({ startedAt: readinessStartedAt, timeoutMs: 30_000, clock, sleep,
+      readLog: () => readQueueLog(resolve(logDirectory, 'worker.jsonl')), getStatus: status })
+    if (ready !== true) throw safeError('education_event_queue_readiness_timeout')
+    const legacyUploadWorker = retireLegacyUploadWorker({ home, uid, platform, fs, exec, sleep, clock })
+    return { applied: true, ...release, state: 'bootstrapped', legacyUploadWorker }
   }
 
   function status() {
@@ -193,23 +245,23 @@ export function createLaunchAgentOperations({ root = process.cwd(), home = homed
   return Object.freeze({ plan, install, status, stop, uninstall, paths: Object.freeze({ plistPath, support, tokenDirectory }) })
 
   function waitUntilUnloaded() {
-    const deadline = Date.now() + teardownTimeoutMs
+    const deadline = clock() + teardownTimeoutMs
     while (status().loaded) {
-      if (Date.now() >= deadline) throw safeError('launchagent_stop_timeout')
-      const remaining = Math.max(1, Math.min(250, deadline - Date.now()))
+      if (clock() >= deadline) throw safeError('launchagent_stop_timeout')
+      const remaining = Math.max(1, Math.min(250, deadline - clock()))
       // Tests inject a no-delay clock; production always waits on launchd's state change.
       sleep(remaining)
     }
   }
 
   function bootstrapWithRetry(path) {
-    const deadline = Date.now() + bootstrapRetryMs
+    const deadline = clock() + bootstrapRetryMs
     let delay = 100
     while (true) {
       try { exec('launchctl', ['bootstrap', domain, path], { stdio: 'pipe' }); return }
       catch (error) {
-        if (!isTransientBootstrapBusy(error) || Date.now() >= deadline) throw error
-        const remaining = Math.max(1, Math.min(delay, deadline - Date.now()))
+        if (!isTransientBootstrapBusy(error) || clock() >= deadline) throw error
+        const remaining = Math.max(1, Math.min(delay, deadline - clock()))
         sleep(remaining)
         delay = Math.min(1_000, delay * 2)
       }
@@ -219,6 +271,35 @@ export function createLaunchAgentOperations({ root = process.cwd(), home = homed
   function assertHost() {
     if (platform !== 'darwin' || !domain) throw safeError('launchagent_macos_required')
   }
+}
+
+function defaultWaitForQueueReady({ startedAt, timeoutMs, clock, sleep, readLog, getStatus }) {
+  const deadline = clock() + timeoutMs
+  while (true) {
+    const worker = getStatus()
+    let contents = ''
+    try { contents = readLog() }
+    catch (error) {
+      // A first installation may have a running process before it creates its log.
+      if (error?.code !== 'ENOENT') throw safeError('education_event_queue_readiness_timeout')
+    }
+    if (worker.running && queueLogConfirmsSubscription(contents, startedAt, worker.pid)) return true
+    const now = clock()
+    if (now >= deadline) return false
+    sleep(Math.max(1, Math.min(250, deadline - now)))
+  }
+}
+
+function queueLogConfirmsSubscription(contents, startedAt, pid) {
+  if (typeof contents !== 'string' || !Number.isSafeInteger(pid)) return false
+  for (const line of contents.split('\n')) {
+    try {
+      const row = JSON.parse(line)
+      if (row.code === 'education_event_queue_listening' && row.source === 'educationEvents'
+        && row.subscriptionCount === 1 && row.processId === pid && Date.parse(row.at) >= startedAt) return true
+    } catch { /* A partial JSONL line is ignored until the next poll. */ }
+  }
+  return false
 }
 
 function resolveEducationSync(env, fs) {

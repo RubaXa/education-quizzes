@@ -1,4 +1,4 @@
-import { Timestamp } from 'firebase-admin/firestore'
+import { Timestamp } from '@google-cloud/firestore'
 
 export function validFamilyBookManifest(value, binding) {
   const sha = binding.pagesPublishedSha256

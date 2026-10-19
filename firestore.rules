@@ -43,6 +43,197 @@ service cloud.firestore {
       return childMember(familyId, childId)
         && get(memberPath(familyId)).data.role == 'student';
     }
+    function validEducationEventSource(data) {
+      let ref = data.sourceRef;
+      let sourcePath = /databases/$(database)/documents/$(ref.documentPath);
+      return data.source == 'firestore'
+        && ((data.eventType == 'help.requested'
+            && ref.kind == 'help' && ref.dayToken is string && ref.taskId is string
+            && ref.documentPath == 'dayHelp/' + ref.dayToken + '/items/' + ref.taskId
+            && existsAfter(/databases/$(database)/documents/dayOwners/$(ref.dayToken))
+            && get(/databases/$(database)/documents/dayOwners/$(ref.dayToken)).data.familyId == data.familyId
+            && get(/databases/$(database)/documents/dayOwners/$(ref.dayToken)).data.childId == data.childId
+            && quizStudent(data.familyId, data.childId)
+            && existsAfter(sourcePath)
+            && getAfter(sourcePath).data.taskId == ref.taskId
+            && getAfter(sourcePath).data.eventProducerVersion == 1
+            && getAfter(sourcePath).data.eventReceiptId == data.eventId
+            && getAfter(sourcePath).data.eventOperationId == data.operationId
+            && data.operationId.matches('^[A-Za-z0-9-]{36}$'))
+          || (data.eventType == 'quiz.submitted'
+            && ref.kind == 'quiz' && ref.quizToken is string
+            && ref.documentPath == 'assignments/' + ref.quizToken
+            && quizStudent(data.familyId, data.childId)
+            && existsAfter(sourcePath)
+            && getAfter(sourcePath).data.status == 'submitted'
+            && getAfter(sourcePath).data.familyId == data.familyId
+            && getAfter(sourcePath).data.childId == data.childId
+            && getAfter(sourcePath).data.eventProducerVersion == 1
+            && getAfter(sourcePath).data.eventReceiptId == data.eventId
+            && getAfter(sourcePath).data.eventOperationId == data.operationId
+            && data.operationId == 'quiz-submit:' + ref.quizToken)
+          || (data.eventType == 'quiz.started'
+            && ref.kind == 'quiz' && ref.quizToken is string
+            && ref.documentPath == 'assignments/' + ref.quizToken
+            && quizStudent(data.familyId, data.childId)
+            && existsAfter(sourcePath)
+            && getAfter(sourcePath).data.status == 'open'
+            && getAfter(sourcePath).data.startedAt == request.time
+            && getAfter(sourcePath).data.familyId == data.familyId
+            && getAfter(sourcePath).data.childId == data.childId
+            && getAfter(sourcePath).data.eventProducerVersion == 1
+            && getAfter(sourcePath).data.eventReceiptId == data.eventId
+            && getAfter(sourcePath).data.eventOperationId == data.operationId
+            && data.operationId == 'quiz-start:' + ref.quizToken)
+          || (data.eventType == 'quiz.followup_requested'
+            && ref.kind == 'quiz' && ref.quizToken is string
+            && ref.documentPath == 'assignments/' + ref.quizToken
+            && parentMember(data.familyId) && childMember(data.familyId, data.childId)
+            && existsAfter(sourcePath)
+            && getAfter(sourcePath).data.status == 'submitted'
+            && getAfter(sourcePath).data.familyId == data.familyId
+            && getAfter(sourcePath).data.childId == data.childId
+            && getAfter(sourcePath).data.followupRequestedBy == currentPersonId()
+            && getAfter(sourcePath).data.eventProducerVersion == 1
+            && getAfter(sourcePath).data.eventReceiptId == data.eventId
+            && getAfter(sourcePath).data.eventOperationId == data.operationId
+            && data.operationId == 'quiz-followup:' + ref.quizToken)
+          || (data.eventType == 'quiz.requirement_changed'
+            && ref.kind == 'quiz' && ref.quizToken is string
+            && ref.documentPath == 'assignments/' + ref.quizToken
+            && parentMember(data.familyId) && childMember(data.familyId, data.childId)
+            && existsAfter(sourcePath)
+            && getAfter(sourcePath).data.familyId == data.familyId
+            && getAfter(sourcePath).data.childId == data.childId
+            && getAfter(sourcePath).data.familyChoiceBy == currentPersonId()
+            && getAfter(sourcePath).data.eventProducerVersion == 1
+            && getAfter(sourcePath).data.eventReceiptId == data.eventId
+            && getAfter(sourcePath).data.eventOperationId == data.operationId)
+          || (data.eventType == 'parent.guidance_sent'
+            && ref.kind == 'guidance' && ref.dayToken is string && ref.taskId is string
+            && ref.documentPath == 'dayGuidance/' + ref.dayToken + '/items/' + data.operationId
+            && data.operationId.matches('^[A-Za-z0-9-]{36}$')
+            && parentMember(data.familyId) && childMember(data.familyId, data.childId)
+            && existsAfter(/databases/$(database)/documents/dayOwners/$(ref.dayToken))
+            && get(/databases/$(database)/documents/dayOwners/$(ref.dayToken)).data.familyId == data.familyId
+            && get(/databases/$(database)/documents/dayOwners/$(ref.dayToken)).data.childId == data.childId
+            && existsAfter(sourcePath)
+            && getAfter(sourcePath).data.actorPersonId == currentPersonId()
+            && getAfter(sourcePath).data.taskId == ref.taskId
+            && getAfter(sourcePath).data.eventProducerVersion == 1
+            && getAfter(sourcePath).data.eventReceiptId == data.eventId
+            && getAfter(sourcePath).data.eventOperationId == data.operationId)
+          || (data.eventType == 'parent.decision'
+            && ref.kind == 'parent-decision' && ref.dayToken is string && ref.taskId is string
+            && ref.documentPath == 'dayParentDecisions/' + ref.dayToken + '/events/' + data.operationId
+            && data.operationId.matches('^[A-Za-z0-9-]{36}$')
+            && parentMember(data.familyId) && childMember(data.familyId, data.childId)
+            && existsAfter(/databases/$(database)/documents/dayOwners/$(ref.dayToken))
+            && get(/databases/$(database)/documents/dayOwners/$(ref.dayToken)).data.familyId == data.familyId
+            && get(/databases/$(database)/documents/dayOwners/$(ref.dayToken)).data.childId == data.childId
+            && existsAfter(sourcePath)
+            && getAfter(sourcePath).data.actorPersonId == currentPersonId()
+            && getAfter(sourcePath).data.taskId == ref.taskId
+            && getAfter(sourcePath).data.eventProducerVersion == 1
+            && getAfter(sourcePath).data.eventReceiptId == data.eventId
+            && getAfter(sourcePath).data.eventOperationId == data.operationId)
+          || (data.eventType == 'material.upload_requested'
+            && ref.kind == 'material' && ref.recordId is string
+            && ref.documentPath == 'families/' + data.familyId + '/children/' + data.childId + '/bookUploads/' + ref.recordId
+            && parentMember(data.familyId) && childMember(data.familyId, data.childId)
+            && existsAfter(sourcePath)
+            && getAfter(sourcePath).data.deviceUid == request.auth.uid
+            && getAfter(sourcePath).data.status == 'requested'
+            && getAfter(sourcePath).data.eventProducerVersion == 1
+            && getAfter(sourcePath).data.eventReceiptId == data.eventId
+            && getAfter(sourcePath).data.eventOperationId == data.operationId
+            && data.operationId == 'material-upload:' + ref.recordId)
+          || (data.eventType in ['upload.transfer_requested', 'upload.bytes_uploaded', 'upload.delete_requested']
+            && ref.kind == 'upload' && ref.dayToken is string && ref.recordId is string && ref.taskId is string
+            && ref.documentPath == 'dayUploads/' + ref.dayToken + '/files/' + ref.recordId
+            && existsAfter(/databases/$(database)/documents/dayOwners/$(ref.dayToken))
+            && get(/databases/$(database)/documents/dayOwners/$(ref.dayToken)).data.familyId == data.familyId
+            && get(/databases/$(database)/documents/dayOwners/$(ref.dayToken)).data.childId == data.childId
+            && quizStudent(data.familyId, data.childId)
+            && existsAfter(sourcePath)
+            && getAfter(sourcePath).data.taskId == ref.taskId
+            && getAfter(sourcePath).data.deviceUid == request.auth.uid
+            && getAfter(sourcePath).data.eventProducerVersion == 1
+            && getAfter(sourcePath).data.eventReceiptId == data.eventId
+            && getAfter(sourcePath).data.eventOperationId == data.operationId
+            && ((data.eventType == 'upload.transfer_requested'
+              && getAfter(sourcePath).data.status == 'requested'
+              && data.operationId == 'upload-transfer:' + ref.recordId + ':requested')
+              || (data.eventType == 'upload.bytes_uploaded'
+                && getAfter(sourcePath).data.status == 'uploaded'
+                && data.operationId == 'upload-transfer:' + ref.recordId + ':uploaded')
+              || (data.eventType == 'upload.delete_requested'
+                && getAfter(sourcePath).data.status == 'deleted'
+                && data.operationId == 'upload-delete:' + ref.recordId)))
+          || (data.eventType == 'material.bytes_uploaded'
+            && ref.kind == 'material' && ref.recordId is string
+            && ref.documentPath == 'families/' + data.familyId + '/children/' + data.childId + '/bookUploads/' + ref.recordId
+            && parentMember(data.familyId) && childMember(data.familyId, data.childId)
+            && existsAfter(sourcePath)
+            && getAfter(sourcePath).data.deviceUid == request.auth.uid
+            && getAfter(sourcePath).data.status == 'uploaded'
+            && getAfter(sourcePath).data.eventProducerVersion == 1
+            && getAfter(sourcePath).data.eventReceiptId == data.eventId
+            && getAfter(sourcePath).data.eventOperationId == data.operationId
+            && data.operationId == 'material-upload:' + ref.recordId + ':uploaded')
+          || (data.eventType == 'material.requirement_changed'
+            && ref.kind == 'material' && ref.recordId is string
+            && ref.documentPath == 'families/' + data.familyId + '/children/' + data.childId + '/bookRequirements/' + ref.recordId
+            && parentMember(data.familyId) && childMember(data.familyId, data.childId)
+            && existsAfter(sourcePath)
+            && getAfter(sourcePath).data.actorPersonId == currentPersonId()
+            && getAfter(sourcePath).data.policy in ['required', 'no-book']
+            && getAfter(sourcePath).data.eventProducerVersion == 1
+            && getAfter(sourcePath).data.eventReceiptId == data.eventId
+            && getAfter(sourcePath).data.eventOperationId == data.operationId));
+    }
+    function validEducationEventCreate(eventId, data) {
+      return activeSession()
+        && data.keys().hasOnly(['schemaVersion', 'eventId', 'eventType', 'familyId', 'childId', 'source', 'sourceRef', 'operationId', 'actor', 'createdAt', 'state', 'availableAt', 'attempts'])
+        && data.keys().hasAll(['schemaVersion', 'eventId', 'eventType', 'familyId', 'childId', 'source', 'sourceRef', 'operationId', 'actor', 'createdAt', 'state', 'availableAt', 'attempts'])
+        && data.schemaVersion == 1
+        && eventId.matches('^[a-f0-9]{64}$') && data.eventId == eventId
+        && data.eventType in ['help.requested', 'quiz.started', 'quiz.submitted', 'quiz.followup_requested', 'quiz.requirement_changed', 'parent.guidance_sent', 'parent.decision', 'material.upload_requested', 'upload.transfer_requested', 'upload.bytes_uploaded', 'upload.delete_requested', 'material.bytes_uploaded', 'material.requirement_changed']
+        && data.familyId is string && data.childId is string
+        && data.operationId is string && data.operationId.size() > 0 && data.operationId.size() <= 200
+        && data.actor is map && data.actor.keys().hasOnly(['type', 'uid'])
+        && data.actor.keys().hasAll(['type', 'uid']) && data.actor.type == 'user'
+        && data.actor.uid == request.auth.uid
+        && childMember(data.familyId, data.childId)
+        && data.createdAt == request.time && data.availableAt == request.time
+        && data.state == 'pending' && data.attempts == 0
+        && data.sourceRef is map
+        && data.sourceRef.keys().hasOnly(['kind', 'documentPath', 'dayToken', 'recordId', 'quizToken', 'taskId'])
+        && data.sourceRef.keys().hasAll(['kind', 'documentPath'])
+        && validEducationEventSource(data);
+    }
+    function validEducationEventReceipt(data, eventType, operationId, documentPath) {
+      return data.eventProducerVersion == 1 && data.eventReceiptId is string
+        && data.eventOperationId == operationId
+        && existsAfter(/databases/$(database)/documents/educationEvents/$(data.eventReceiptId))
+        && getAfter(/databases/$(database)/documents/educationEvents/$(data.eventReceiptId)).data.eventId == data.eventReceiptId
+        && getAfter(/databases/$(database)/documents/educationEvents/$(data.eventReceiptId)).data.eventType == eventType
+        && getAfter(/databases/$(database)/documents/educationEvents/$(data.eventReceiptId)).data.operationId == operationId
+        && getAfter(/databases/$(database)/documents/educationEvents/$(data.eventReceiptId)).data.source == 'firestore'
+        && getAfter(/databases/$(database)/documents/educationEvents/$(data.eventReceiptId)).data.sourceRef.documentPath == documentPath
+        && getAfter(/databases/$(database)/documents/educationEvents/$(data.eventReceiptId)).data.actor.uid == request.auth.uid
+        && getAfter(/databases/$(database)/documents/educationEvents/$(data.eventReceiptId)).data.createdAt == request.time
+        && getAfter(/databases/$(database)/documents/educationEvents/$(data.eventReceiptId)).data.availableAt == request.time
+        && getAfter(/databases/$(database)/documents/educationEvents/$(data.eventReceiptId)).data.state == 'pending'
+        && getAfter(/databases/$(database)/documents/educationEvents/$(data.eventReceiptId)).data.attempts == 0;
+    }
+    function legacyOrEducationEventReceipt(type, operationId, documentPath) {
+      return (resource == null
+          ? !request.resource.data.keys().hasAny(['eventOperationId', 'eventReceiptId', 'eventProducerVersion'])
+            || validEducationEventReceipt(request.resource.data, type, operationId, documentPath)
+          : !request.resource.data.diff(resource.data).affectedKeys().hasAny(['eventOperationId', 'eventReceiptId', 'eventProducerVersion'])
+            || validEducationEventReceipt(request.resource.data, type, operationId, documentPath));
+    }
     function dayUploadOwner(studentToken) {
       return activeSession()
         && exists(/databases/$(database)/documents/dayOwners/$(studentToken))
@@ -72,7 +263,7 @@ service cloud.firestore {
         && data.action in ['stage-required', 'stage-optional']
         && data.actorPersonId == link.personId
         && data.decidedAt == request.time
-        && data.keys().hasOnly(['taskId', 'action', 'stageId', 'stageIndex', 'guideRevision', 'reviewCheckedAt', 'actorPersonId', 'decidedAt'])
+        && data.keys().hasOnly(['taskId', 'action', 'stageId', 'stageIndex', 'guideRevision', 'reviewCheckedAt', 'actorPersonId', 'decidedAt', 'eventOperationId', 'eventReceiptId', 'eventProducerVersion'])
         && data.keys().hasAll(['taskId', 'action', 'stageId', 'stageIndex', 'guideRevision', 'reviewCheckedAt', 'actorPersonId', 'decidedAt'])
         && data.stageId is string
         && data.stageIndex is int
@@ -84,7 +275,8 @@ service cloud.firestore {
         && data.stageId == guide.stages[data.stageIndex].id
         && review.checkableStageIds is list
         && data.stageId in review.checkableStageIds
-        && data.reviewCheckedAt == review.checkedAt;
+        && data.reviewCheckedAt == review.checkedAt
+        && legacyOrEducationEventReceipt('parent.decision', eventId, 'dayParentDecisions/' + studentToken + '/events/' + eventId);
     }
 
     // A random invite code is the only public route to the one-time encrypted handoff.
@@ -122,6 +314,15 @@ service cloud.firestore {
     match /sourceAccounts/{accountId} { allow read, write: if false; }
     // @see docs/modules/synchronization/global-sync.md#operator-queue
     match /operatorSyncJobs/{jobId} { allow read, write: if false; }
+
+    // One shared business-event queue. Clients can only append an atomic source
+    // event; the dispatcher alone reads, claims, retries, and acknowledges it.
+    // @see docs/modules/synchronization/event-queue.md#доступ-и-приватность
+    match /educationEvents/{eventId} {
+      allow get, list: if false;
+      allow create: if validEducationEventCreate(eventId, request.resource.data);
+      allow update, delete: if false;
+    }
 
     // Temporary, operator-enabled role measurements. No client reads or lesson data.
     // @see docs/modules/families/access-and-state.md#access-diagnostics
@@ -344,7 +545,7 @@ service cloud.firestore {
           allow create: if parentMember(familyId) && childMember(familyId, childId)
             && request.resource.data.keys().hasOnly([
               'subjectKey', 'originalName', 'contentType', 'size',
-              'sha256', 'deviceUid', 'status', 'createdAt'
+              'sha256', 'deviceUid', 'status', 'createdAt', 'eventOperationId', 'eventReceiptId', 'eventProducerVersion'
             ])
             && request.resource.data.keys().hasAll([
               'subjectKey', 'originalName', 'contentType', 'size',
@@ -364,25 +565,28 @@ service cloud.firestore {
             && request.resource.data.size <= 100000000
             && request.resource.data.sha256 is string
             && request.resource.data.sha256.matches('^[a-f0-9]{64}$')
-            && request.resource.data.createdAt == request.time;
+            && request.resource.data.createdAt == request.time
+            && legacyOrEducationEventReceipt('material.upload_requested', 'material-upload:' + uploadId, 'families/' + familyId + '/children/' + childId + '/bookUploads/' + uploadId);
           allow update: if parentMember(familyId) && childMember(familyId, childId)
             && resource.data.deviceUid == request.auth.uid
             && resource.data.status == 'awaiting-upload'
-            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
-            && request.resource.data.status == 'uploaded';
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'eventOperationId', 'eventReceiptId', 'eventProducerVersion'])
+            && request.resource.data.status == 'uploaded'
+            && legacyOrEducationEventReceipt('material.bytes_uploaded', 'material-upload:' + uploadId + ':uploaded', 'families/' + familyId + '/children/' + childId + '/bookUploads/' + uploadId);
           allow delete: if false;
         }
         match /bookRequirements/{subjectId} {
           allow get, list: if parentMember(familyId) && childMember(familyId, childId);
           allow create, update: if parentMember(familyId) && childMember(familyId, childId)
-            && request.resource.data.keys().hasOnly(['subjectKey', 'policy', 'updatedAt', 'actorPersonId'])
+            && request.resource.data.keys().hasOnly(['subjectKey', 'policy', 'updatedAt', 'actorPersonId', 'eventOperationId', 'eventReceiptId', 'eventProducerVersion'])
             && request.resource.data.keys().hasAll(['subjectKey', 'policy', 'updatedAt', 'actorPersonId'])
             && request.resource.data.subjectKey is string
             && request.resource.data.subjectKey.size() > 0
             && request.resource.data.subjectKey.size() <= 100
             && request.resource.data.policy in ['required', 'no-book']
             && request.resource.data.actorPersonId == currentPersonId()
-            && request.resource.data.updatedAt == request.time;
+            && request.resource.data.updatedAt == request.time
+        && legacyOrEducationEventReceipt('material.requirement_changed', request.resource.data.get('eventOperationId', 'legacy'), 'families/' + familyId + '/children/' + childId + '/bookRequirements/' + subjectId);
           allow delete: if false;
         }
 
@@ -452,7 +656,7 @@ service cloud.firestore {
         && resource.data.childId is string
         && quizStudent(resource.data.familyId, resource.data.childId)
         && request.resource.data.diff(resource.data).affectedKeys()
-          .hasOnly(['answers', 'status', 'startedAt', 'updatedAt', 'submittedAt'])
+          .hasOnly(['answers', 'status', 'startedAt', 'updatedAt', 'submittedAt', 'eventOperationId', 'eventReceiptId', 'eventProducerVersion'])
         && request.resource.data.answers is map
         && request.resource.data.answers.size() <= 100
         && request.resource.data.updatedAt == request.time
@@ -466,7 +670,14 @@ service cloud.firestore {
           ||
           (request.resource.data.status == 'submitted'
             && request.resource.data.submittedAt == request.time)
-        );
+        )
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['eventOperationId', 'eventReceiptId', 'eventProducerVersion'])
+          || (request.resource.data.status == 'submitted'
+            && legacyOrEducationEventReceipt('quiz.submitted', 'quiz-submit:' + linkToken, 'assignments/' + linkToken))
+          || (resource.data.startedAt == null
+            && request.resource.data.status == 'open'
+            && request.resource.data.startedAt == request.time
+            && legacyOrEducationEventReceipt('quiz.started', 'quiz-start:' + linkToken, 'assignments/' + linkToken)));
 
       // A parent may request one linked practice cycle after a submitted test.
       // The operator publishes questions; the browser cannot change a result.
@@ -477,10 +688,11 @@ service cloud.firestore {
         && parentMember(resource.data.familyId)
         && childMember(resource.data.familyId, resource.data.childId)
         && !('followupRequestedAt' in resource.data)
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['followupRequestedAt', 'followupRequestedBy'])
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['followupRequestedAt', 'followupRequestedBy', 'eventOperationId', 'eventReceiptId', 'eventProducerVersion'])
         && request.resource.data.diff(resource.data).affectedKeys().hasAll(['followupRequestedAt', 'followupRequestedBy'])
         && request.resource.data.followupRequestedAt == request.time
-        && request.resource.data.followupRequestedBy == currentPersonId();
+        && request.resource.data.followupRequestedBy == currentPersonId()
+        && legacyOrEducationEventReceipt('quiz.followup_requested', 'quiz-followup:' + linkToken, 'assignments/' + linkToken);
 
       // Only a parent may change whether a root self-check counts in the
       // family plan. Answers, scoring and the teacher task are untouched.
@@ -490,13 +702,14 @@ service cloud.firestore {
         && parentMember(resource.data.familyId)
         && childMember(resource.data.familyId, resource.data.childId)
         && (!('linkedToTestId' in resource.data) || resource.data.linkedToTestId == null)
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['familyOptional', 'familyChoiceAt', 'familyChoiceBy'])
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['familyOptional', 'familyChoiceAt', 'familyChoiceBy', 'eventOperationId', 'eventReceiptId', 'eventProducerVersion'])
         && request.resource.data.diff(resource.data).affectedKeys().hasAll(['familyOptional', 'familyChoiceAt'])
         && request.resource.data.familyOptional is bool
         && (('familyOptional' in resource.data && request.resource.data.familyOptional != resource.data.familyOptional)
           || (!('familyOptional' in resource.data) && request.resource.data.familyOptional == true))
         && request.resource.data.familyChoiceAt == request.time
-        && request.resource.data.familyChoiceBy == currentPersonId();
+        && request.resource.data.familyChoiceBy == currentPersonId()
+        && legacyOrEducationEventReceipt('quiz.requirement_changed', request.resource.data.get('eventOperationId', 'legacy'), 'assignments/' + linkToken);
     }
 
     match /answerKeys/{linkToken} {
@@ -589,7 +802,7 @@ service cloud.firestore {
       allow create: if dayUploadOwner(studentToken)
         && parentMember(get(/databases/$(database)/documents/dayOwners/$(studentToken)).data.familyId)
         && eventId.matches('^[a-f0-9-]{36}$')
-        && request.resource.data.keys().hasOnly(['taskId', 'stageId', 'stageIndex', 'level', 'text', 'guideRevision', 'actorPersonId', 'createdAt'])
+        && request.resource.data.keys().hasOnly(['taskId', 'stageId', 'stageIndex', 'level', 'text', 'guideRevision', 'actorPersonId', 'createdAt', 'eventOperationId', 'eventReceiptId', 'eventProducerVersion'])
         && request.resource.data.keys().hasAll(['taskId', 'stageId', 'stageIndex', 'level', 'text', 'guideRevision', 'actorPersonId', 'createdAt'])
         && request.resource.data.taskId is string
         && request.resource.data.taskId in get(/databases/$(database)/documents/dayPages/$(studentToken)).data.taskIds
@@ -610,7 +823,8 @@ service cloud.firestore {
         && request.resource.data.stageId == get(/databases/$(database)/documents/dayTaskGuides/$(studentToken)/items/$(request.resource.data.taskId)).data.guide.stages[request.resource.data.stageIndex].id
         && request.resource.data.text == (request.resource.data.level == 'hint'
           ? get(/databases/$(database)/documents/dayTaskGuides/$(studentToken)/items/$(request.resource.data.taskId)).data.guide.stages[request.resource.data.stageIndex].hintPreview
-          : get(/databases/$(database)/documents/dayTaskGuides/$(studentToken)/items/$(request.resource.data.taskId)).data.guide.stages[request.resource.data.stageIndex].revealPreview);
+          : get(/databases/$(database)/documents/dayTaskGuides/$(studentToken)/items/$(request.resource.data.taskId)).data.guide.stages[request.resource.data.stageIndex].revealPreview)
+        && legacyOrEducationEventReceipt('parent.guidance_sent', eventId, 'dayGuidance/' + studentToken + '/items/' + eventId);
       allow update, delete: if false;
     }
 
@@ -626,7 +840,7 @@ service cloud.firestore {
         && dayUploadOwner(studentToken)
         && parentMember(get(/databases/$(database)/documents/dayOwners/$(studentToken)).data.familyId)
         && eventId.matches('^[a-f0-9-]{36}$')
-        && request.resource.data.keys().hasOnly(['taskId', 'action', 'requirementId', 'variantId', 'stageId', 'stageIndex', 'guideRevision', 'reviewCheckedAt', 'actorPersonId', 'decidedAt'])
+        && request.resource.data.keys().hasOnly(['taskId', 'action', 'requirementId', 'variantId', 'stageId', 'stageIndex', 'guideRevision', 'reviewCheckedAt', 'actorPersonId', 'decidedAt', 'eventOperationId', 'eventReceiptId', 'eventProducerVersion'])
         && request.resource.data.keys().hasAll(['taskId', 'action', 'reviewCheckedAt', 'actorPersonId', 'decidedAt'])
         && request.resource.data.taskId is string
         && request.resource.data.taskId in get(/databases/$(database)/documents/dayPages/$(studentToken)).data.taskIds
@@ -634,7 +848,7 @@ service cloud.firestore {
         && request.resource.data.actorPersonId == currentPersonId()
         && request.resource.data.decidedAt == request.time
         && ((request.resource.data.action in ['variant-required', 'variant-optional']
-            && request.resource.data.keys().hasOnly(['taskId', 'action', 'variantId', 'reviewCheckedAt', 'actorPersonId', 'decidedAt'])
+            && request.resource.data.keys().hasOnly(['taskId', 'action', 'variantId', 'reviewCheckedAt', 'actorPersonId', 'decidedAt', 'eventOperationId', 'eventReceiptId', 'eventProducerVersion'])
             && request.resource.data.reviewCheckedAt == null
             && request.resource.data.variantId is string
             && request.resource.data.variantId.matches('^' + request.resource.data.taskId + '-v[1-9][0-9]*$')
@@ -655,7 +869,8 @@ service cloud.firestore {
             && get(/databases/$(database)/documents/dayProgress/$(studentToken)/items/$(request.resource.data.taskId)).data.assessmentBasis.disputedRequirementIds is list
             && get(/databases/$(database)/documents/dayProgress/$(studentToken)/items/$(request.resource.data.taskId)).data.assessmentBasis.disputedRequirementIds.size() <= 10
             && request.resource.data.requirementId in get(/databases/$(database)/documents/dayProgress/$(studentToken)/items/$(request.resource.data.taskId)).data.assessmentBasis.disputedRequirementIds)
-          )));
+          ))
+        && legacyOrEducationEventReceipt('parent.decision', eventId, 'dayParentDecisions/' + studentToken + '/events/' + eventId);
       allow update, delete: if false;
     }
 
@@ -667,7 +882,7 @@ service cloud.firestore {
         && get(memberPath(get(/databases/$(database)/documents/dayOwners/$(studentToken)).data.familyId)).data.role == 'student'
         && exists(/databases/$(database)/documents/dayPages/$(studentToken))
         && taskId in get(/databases/$(database)/documents/dayPages/$(studentToken)).data.taskIds
-        && request.resource.data.keys().hasOnly(['taskId', 'revision', 'requestedAt', 'requestKind', 'requestText'])
+        && request.resource.data.keys().hasOnly(['taskId', 'revision', 'requestedAt', 'requestKind', 'requestText', 'eventOperationId', 'eventReceiptId', 'eventProducerVersion'])
         && request.resource.data.keys().hasAll(['taskId', 'revision', 'requestedAt', 'requestKind', 'requestText'])
         && request.resource.data.taskId == taskId
         && request.resource.data.revision is int
@@ -678,7 +893,8 @@ service cloud.firestore {
         && request.resource.data.requestText.size() <= 800
         && request.resource.data.requestedAt == request.time
         && (resource == null || (resource.data.taskId == taskId
-          && request.resource.data.revision >= resource.data.revision));
+          && request.resource.data.revision >= resource.data.revision))
+        && legacyOrEducationEventReceipt('help.requested', request.resource.data.get('eventOperationId', 'legacy'), 'dayHelp/' + studentToken + '/items/' + taskId);
       allow delete: if false;
     }
 
@@ -688,7 +904,7 @@ service cloud.firestore {
         && get(memberPath(get(/databases/$(database)/documents/dayOwners/$(studentToken)).data.familyId)).data.role == 'student'
         && uploadId.matches('^[A-Za-z0-9_-]{20,80}$')
         && get(/databases/$(database)/documents/dayPages/$(studentToken)).data.kind == 'student'
-        && request.resource.data.keys().hasOnly(['taskId', 'planRevision', 'deviceUid', 'contentType', 'size', 'sha256', 'status', 'createdAt'])
+        && request.resource.data.keys().hasOnly(['taskId', 'planRevision', 'deviceUid', 'contentType', 'size', 'sha256', 'status', 'createdAt', 'eventOperationId', 'eventReceiptId', 'eventProducerVersion'])
         && request.resource.data.keys().hasAll(['taskId', 'planRevision', 'deviceUid', 'contentType', 'size', 'sha256', 'status', 'createdAt'])
         && request.resource.data.taskId is string
         && request.resource.data.taskId in get(/databases/$(database)/documents/dayPages/$(studentToken)).data.taskIds
@@ -701,7 +917,8 @@ service cloud.firestore {
         && request.resource.data.sha256 is string
         && request.resource.data.sha256.matches('^[a-f0-9]{64}$')
         && request.resource.data.status == 'requested'
-        && request.resource.data.createdAt == request.time;
+        && request.resource.data.createdAt == request.time
+        && legacyOrEducationEventReceipt('upload.transfer_requested', request.resource.data.get('eventOperationId', 'legacy'), 'dayUploads/' + studentToken + '/files/' + uploadId);
       allow update: if dayUploadOwner(studentToken)
         && exists(/databases/$(database)/documents/dayPages/$(studentToken))
         && get(/databases/$(database)/documents/dayPages/$(studentToken)).data.kind == 'student'
@@ -709,11 +926,13 @@ service cloud.firestore {
           (resource.data.status == 'awaiting-upload'
             && resource.data.deviceUid == request.auth.uid
             && request.resource.data.status == 'uploaded'
-            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']))
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'eventOperationId', 'eventReceiptId', 'eventProducerVersion'])
+            && legacyOrEducationEventReceipt('upload.bytes_uploaded', request.resource.data.get('eventOperationId', 'legacy'), 'dayUploads/' + studentToken + '/files/' + uploadId))
           || (resource.data.status in ['requested', 'awaiting-upload', 'uploaded', 'upload-error', 'pending']
             && request.resource.data.status == 'deleted'
             && request.resource.data.deletedAt == request.time
-            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'deletedAt']))
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'deletedAt', 'eventOperationId', 'eventReceiptId', 'eventProducerVersion'])
+            && legacyOrEducationEventReceipt('upload.delete_requested', request.resource.data.get('eventOperationId', 'legacy'), 'dayUploads/' + studentToken + '/files/' + uploadId))
         );
       allow delete: if false;
     }

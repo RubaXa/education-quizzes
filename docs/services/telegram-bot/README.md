@@ -37,7 +37,7 @@ sections:
 ---
 # Архитектура сервиса уведомлений `@agi_edu_bot`
 
-**Статус:** частично реализован и запущен на согласованном Mac: dynamic Firestore/МЭШ sources, account registry, локальная подтверждённая привязка, stop, deterministic event pipeline и outbox. Реальные технические Firestore→Telegram и МЭШ→Telegram пробы завершены `sent` с readback; [аудит и границы](../../audits/server-core-review-2026-10-17.md). Последняя полная Mesh source-check18.10:93/93complete,0partial; [текущий аудит](../../audits/education-bot-readiness-2026-10-18.md) фиксирует доказательства и пробел командного потока. Web linking UI, team routing и hosted alerting отсутствуют. Семейная durable группировка30/60с реализована в compact digest increment; статус выпуска — в [решении](../../decisions/telegram-compact-digest-2026-10-18.md).
+**Статус:** частично реализован и запущен на согласованном Mac: account registry, локальная подтверждённая привязка, stop, deterministic event pipeline и Telegram outbox. Backend подготовлен к единому `educationEvents` ingress для клиентских действий и МЭШ; producers/rules/indexes и постоянный release ещё требуют совместной проверки. Исторические Firestore source coordinators не запускаются production runtime; адресные reads происходят по event `sourceRef`, а bounded compatibility pollers временно покрывают старые клиенты. Исторические технические Firestore→Telegram и МЭШ→Telegram пробы завершены `sent` с readback; это не доказывает полноту новой миграции. См. [аудит и границы](../../audits/server-core-review-2026-10-17.md) и [контракт очереди](../../modules/synchronization/event-queue.md). Web linking UI, team routing и hosted alerting отсутствуют. Семейная durable группировка30/60с реализована в compact digest increment; статус выпуска — в [решении](../../decisions/telegram-compact-digest-2026-10-18.md).
 **Владелец:** отдельный Node.js worker в Education.
 **Бизнес-контракт и решения интервью:** [спецификация сервиса](petr-private:docs/product/agi-edu-bot-service-spec.md).
 
@@ -66,10 +66,12 @@ sections:
 ```mermaid
 flowchart LR
   TG[Telegram Bot API] <--> TGA[Telegram adapter]
-  MESH[МЭШ / mesh-diary] --> MA[МЭШ source adapter]
-  FS[Firestore] <--> FA[Firestore adapter]
+  MESH[МЭШ / mesh-diary] --> MA[МЭШ HTTP poller]
+  CLIENT[Клиентские действия] --> Q[educationEvents queue]
+  MA --> Q
+  FS[Firestore] <--> FA[Targeted source reads]
   TGA --> APP[Application services]
-  MA --> APP
+  Q --> APP
   FA --> APP
   APP --> CORE[Domain: links, events, routing]
   CORE --> PORTS[Ports]
@@ -81,10 +83,10 @@ flowchart LR
 
 Поток изменения:
 
-1. Источник выдаёт сигнал или новый полный снимок.
-2. Адаптер проверяет полноту и преобразует данные в `SourceObservation`.
-3. Доменный diff/classifier выдаёт ноль или несколько нормализованных `DomainEvent`.
-4. Event ledger атомарно фиксирует событие по idempotency key и создаёт delivery jobs.
+1. Клиентское действие или проверенный МЭШ delta фиксируется как durable event с устойчивым ID.
+2. Единый queue consumer захватывает event lease и проверяет envelope/version.
+3. Handler читает точный Firestore source по `sourceRef` и выполняет типизированные fanout-фазы.
+4. Event ledger атомарно фиксирует уведомление по idempotency key и создаёт delivery jobs.
 5. Router выбирает только активные, подтверждённые связи и получателей.
 6. Renderer создаёт структурированный текст из события и безопасного контекста.
 7. Telegram adapter отправляет части сообщения; результат и попытки записываются в outbox.
@@ -113,7 +115,7 @@ flowchart LR
 
 | Порт | Операции/ответственность | Первые адаптеры |
 |---|---|---|
-| `SourceObservationPort` | Запустить/остановить наблюдение, вернуть нормализованную observation и checkpoint | Firestore listener; МЭШ poller |
+| `SourceObservationPort` | Нормализовать адресное чтение source; сохранить checkpoint для Mesh/legacy poll | Точечные Firestore reads; МЭШ HTTP poller; bounded legacy bridge |
 | `IdentityRegistryPort` | Найти Telegram account, активные family links и адресатов; создать/отозвать link | Firestore registry |
 | `EventLedgerPort` | Атомарно записать уникальное событие и его исходные ссылки; читать прогресс обработки | Firestore ledger |
 | `DeliveryOutboxPort` | Создать/захватить/завершить job, записать попытку и `retryAt` | Firestore outbox |

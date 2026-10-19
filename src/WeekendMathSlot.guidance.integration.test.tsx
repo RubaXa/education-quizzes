@@ -6,7 +6,7 @@ import { webcrypto } from 'node:crypto'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { DayPageData, DayWorkReview, ParentTaskGuide } from './lib/dayStore'
 
-const scene = vi.hoisted(() => ({ role: 'parent', events: [] as any[], inbox: [] as any[],
+const scene = vi.hoisted(() => ({ role: 'parent', events: [] as any[], inbox: [] as any[], queue: [] as any[],
   listeners: new Set<(snapshot: any) => void>(), reads: [] as string[], guide: null as ParentTaskGuide | null,
   serverRevision: 1, fail: false, hold: false, commits: 0, stageChoices: [] as any[], reviews: [] as DayWorkReview[] }))
 const page = { kind: 'parent', date: '2026-10-21', meshFetchedAt: '', notices: [], gradeSummary: [], todaySchedule: [], targetSchedule: [], boardToken: 'board', familyId: 'family', childId: 'child', targetDate: '2026-10-22', studentToken: 'source',
@@ -47,6 +47,7 @@ vi.mock('firebase/firestore', () => ({
       if (scene.fail) throw new Error('Не удалось отправить')
       for (const write of writes) {
         if (write.path.startsWith('dayGuidance/')) scene.events.push({ id: write.path.split('/').at(-1), data: write.data })
+        else if (write.path.startsWith('educationEvents/')) scene.queue.push(write)
         else scene.inbox.push(write)
       }
       scene.listeners.forEach((changed) => changed(snapshot()))
@@ -71,7 +72,7 @@ import WeekendMathSlot from './WeekendMathSlot'
 const cleanup: Array<() => void> = []
 beforeEach(() => {
   Object.defineProperty(globalThis.crypto, 'subtle', { value: webcrypto.subtle, configurable: true })
-  scene.role = 'parent'; scene.events = []; scene.inbox = []; scene.reads = []; scene.listeners.clear()
+  scene.role = 'parent'; scene.events = []; scene.inbox = []; scene.queue = []; scene.reads = []; scene.listeners.clear()
   scene.serverRevision = 1; scene.fail = false; scene.hold = false; scene.commits = 0; scene.stageChoices = []; scene.reviews = []
   scene.guide = { revision: 1, presentation: 'math-route', kind: 'worked-solution', overview: 'Выбор', stages: [{
     id: 'choices', title: 'Два уровня выбора', role: 'solution', expected: 'Полный закрытый ход', rows: [],
@@ -136,6 +137,9 @@ describe('weekend uses the complete parent guidance flow', () => {
     await act(async () => { send.click(); await vi.waitFor(() => expect(scene.events).toHaveLength(1)) })
     expect(scene.events[0].data).toMatchObject({ level: 'reveal', text: scene.guide!.stages[0].revealPreview })
     expect(scene.inbox).toHaveLength(1)
+    expect(scene.queue).toHaveLength(1)
+    expect(scene.queue[0].data).toMatchObject({ eventType: 'parent.guidance_sent', familyId: 'family', childId: 'child', source: 'firestore', state: 'pending' })
+    expect(JSON.stringify(scene.queue[0].data)).not.toContain(scene.guide!.stages[0].revealPreview)
   })
   it('allows sending the full step after the hint for the same stage', async () => {
     const host = await render()
@@ -177,6 +181,7 @@ describe('weekend uses the complete parent guidance flow', () => {
     expect(scene.events).toHaveLength(1)
     expect(scene.events[0].data).toMatchObject({ taskId: 'problem', stageId: 'choices', level: 'hint', text: scene.guide!.stages[0].hintPreview, actorPersonId: 'adult' })
     expect(scene.inbox).toHaveLength(1)
+    expect(scene.queue).toHaveLength(1)
     expect(scene.reads).toContain('families/family/members')
     expect(scene.inbox[0]).toMatchObject({ path: `users/learner/inbox/${scene.events[0].id}`, data: { type: 'parent_guidance', taskId: 'problem', studentToken: 'source' } })
     expect(parent.textContent).toContain('Подсказка отправлена')

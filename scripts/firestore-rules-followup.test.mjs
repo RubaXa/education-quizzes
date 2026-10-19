@@ -14,6 +14,6 @@ test('parent follow-up write cannot alter answers or score', () => {
   assert.match(grant, /parentMember\(resource\.data\.familyId\)/)
   assert.match(grant, /childMember\(resource\.data\.familyId, resource\.data\.childId\)/)
   assert.match(grant, /!\('followupRequestedAt' in resource\.data\)/)
-  assert.match(grant, /affectedKeys\(\)\.hasOnly\(\['followupRequestedAt', 'followupRequestedBy'\]\)/)
+  assert.match(grant, /affectedKeys\(\)\.hasOnly\(\['followupRequestedAt', 'followupRequestedBy', 'eventOperationId', 'eventReceiptId', 'eventProducerVersion'\]\)/)
   assert.match(grant, /followupRequestedBy == currentPersonId\(\)/)
 })

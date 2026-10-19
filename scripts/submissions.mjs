@@ -21,6 +21,7 @@ import { validateRequirementChecks } from '../storage/review-requirements.mjs'
 import { assertReviewReadback } from '../storage/review-readback.mjs'
 import { YandexDiskStorage } from '../storage/yandex-disk.mjs'
 import { notificationId, reviewAttemptKey, stageFamilyNotice, taskContext } from '../storage/inbox-notifications.mjs'
+import { stageReviewPublishedEvents } from '../storage/review-publication-event.mjs'
 
 /** Private agent inbox; file bytes stay on Yandex Disk or in ignored .local.
  * @see ../docs/modules/materials/storage-privacy.md#review-queue
@@ -500,6 +501,7 @@ async function publishReview(filename) {
   const previous = await Promise.all(privateRefs.map(async (ref, index) => (await ref.get()).data() ?? (await reviewRefs[index].get()).data()))
   const now = Timestamp.now()
   const batch = db.batch()
+  await stageReviewPublishedEvents(db, batch, owner, entries)
   entries.forEach((entry, index) => {
     const full = resultRecord(entry, previous[index], now, review.date, review.planRevision)
     batch.set(privateRefs[index], full)

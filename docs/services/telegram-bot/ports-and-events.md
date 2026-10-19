@@ -102,7 +102,7 @@ Baseline сохраняет `observedAt` — время успешного по�
 
 | Порт / capability | Реализованный минимум | Planned / не подключено |
 |---|---|---|
-| `SourceObservationPort` | Firestore/МЭШ `observe/subscribe`, динамический coordinator, durable checkpoint/sequence/pending replay и DTO bridge; `diffCompleteSnapshots` и event normalization | Hosted readiness и эксплуатационные integration checks |
+| `SourceObservationPort` | Targeted Firestore source reads by queue `sourceRef`; Mesh HTTP poller with durable source checkpoint and DTO normalization; bounded legacy reconciliation bridge | Producer/rules/index rollout and hosted readiness checks |
 | `IdentityRegistryPort`, `FamilyLinkAuthorizationPort` | Регистрация, hashed private pairing challenge, доверенное локальное погашение, stop challenge и отзыв одной link | Web PETR UI issuer |
 | `EventLedgerPort`, `DeliveryOutboxPort` | `recordIfAbsent`, job claim/finish/reschedule, lease, recovery и per-part receipts в Firestore adapter | Группировка реализована через persistent group/pointer и immutable digest; retention не утверждён |
 | `RecipientResolverPort`, `MembershipAuthorizationPort` | Проверка активной семейной связи и membership родителя/ребёнка | Team resolver, team recipient configuration и раздельная route policy |
@@ -117,13 +117,13 @@ Baseline сохраняет `observedAt` — время успешного по�
 
 ### Source observation и checkpoint
 
-`SourceObservationPort` имеет `kind`, чистый `scopeKey(scope)`, `validateScope(scope)` и `observe(scope)`. Scope — внутренняя единица динамического inventory; пользователь не поддерживает список семей или детей. Полная observation обязана совпасть с арендованным scope по source/scopeKey/familyId/childId. Неполный или неверно адресованный снимок не продвигает baseline, в том числе первый.
+New Education actions enter through `educationEvents`; the worker maintains one pending-event subscription. Firestore source handlers validate and reread only the exact path in `sourceRef`. Mesh remains a separately polled full-snapshot source with durable checkpoint/sequence/pending replay. Temporary old-client reconciliation uses bounded cursor pages; it does not install Firestore listeners. Historical dynamic Firestore inventory/coordinator code may remain for diagnostics but is not part of production runtime.
 
 `SourceCheckpointPort` предоставляет acquire, savePending, renew, advance, invalidateOwner и release. Scope lease получает fencing token/version/expiry до внешнего чтения. Все изменения проверяют актуальный token/version и срок. Sequence выделяется из persistent state, не из времени fetch. Pending batch и кандидат безопасной baseline записываются до приёма событий; повтор после сбоя использует те же event IDs. Продвижение baseline следует только за успешным идемпотентным приёмом. Старый worker не может продвинуть состояние или освободить lease нового.
 
 Checkpoint хранит минимальные безопасные записи и hashed source references; raw day/quiz access tokens, ответы, файлы, credentials и закрытые разборы запрещены. Копирование whitelist полей не отменяет sanitization, проверку типов и предельного размера одной записи. Число маленьких checkpoint единиц не ограничивает число семей; технические batch/page limits должны проходить все данные, а не обрезать их.
 
-Shadow и notify состояния изолированы. Первое наблюдение новой семьи не рассылает историю. Новая entity у уже наблюдаемого родителя отличается от bootstrap через persistent discovery state, включая перезапуск. Отсутствие документа не становится удалением. Изменение owner binding сбрасывает прошлую baseline/pending и не переносит её новому владельцу.
+Mesh shadow and notify states are isolated. Its first observation does not notify history; source owner changes invalidate prior baseline/pending data. Queue Firestore events instead use a durable event identity and lease fencing; a missing source document blocks that exact action rather than generating an inferred deletion.
 
 `semanticHash` — необязательный SHA-256 meaningful projection записи: учитывает изменения, которые не помещаются в короткий display text, но не раскрывает исходный объект. В diff допускается только 64 hex; перестановка и транспортный шум не меняют hash. Hash не является отображаемым значением оценки или текстом сообщения.
 
@@ -133,11 +133,11 @@ Lease heartbeat обновляет аренду примерно TTL/3, имее
 
 ### Техническая проверка цепочки
 
-`technical.probe` — отдельный тип с явным диагностическим текстом. Firestore probe слушает отдельный служебный документ; МЭШ probe сначала читает реальную подтверждённую область. Оба проходят SourcePipeline, ledger, outbox и доставку ровно одному проверенному адресату. Проба не создаёт фиктивную оценку/ДЗ, не рассылается остальным родителям и не доказывает наблюдение естественного изменения. Доставка требует точного job claim и readback `sent` с message receipts; посторонняя очередь не дренируется.
+`technical.probe` — отдельный тип с явным диагностическим текстом. Probe events use the normal queue consumer and notification outbox; the Mesh probe first reads a real confirmed scope. Проба не создаёт фиктивную оценку/ДЗ, не рассылается остальным родителям и не доказывает наблюдение естественного изменения. Доставка требует точного job claim и readback `sent` с message receipts; посторонняя очередь не дренируется.
 
 Общие FamilyGraph, MeshSession, credential store, Firestore factory и TelemetryPort описаны в [серверном ядре](../../shared/server-runtime.md). Входы operator/Telegram подключают эти механизмы через внедряемые порты; педагогическая проверка не запускается ботом.
 
-Общая очередь coordinator приоритизирует доступные live scopes перед bootstrap. После максимум восьми последовательных live dispatch запускается ожидающий bootstrap; внутри класса сохраняется циклический выбор и запрет параллельной обработки одного ключа. Это политика всей очереди, без списков семей или типов источников.
+The shared event consumer uses bounded pages and per-event fenced claims. It drains all families without a family cap; Mesh source snapshot pagination remains independently bounded and resumable.
 
 ## Ошибки и обратная совместимость
 

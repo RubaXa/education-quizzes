@@ -22,13 +22,15 @@ export function sanitizeOperationalLog(input = {}) {
   for (const key of ['deliveryEnabled', 'firestoreSourceEnabled', 'meshSourceEnabled', 'hasMeshIdentity', 'hasMeshAccount']) {
     if (typeof input[key] === 'boolean') row[key] = input[key]
   }
+  if (Number.isSafeInteger(input.processId) && input.processId > 0) row.processId = input.processId
   if (typeof input.scopeKey === 'string' && /^[a-f0-9]{64}$/.test(input.scopeKey)) row.scopeKey = input.scopeKey
   for (const key of ['errorCode', 'reasonCode']) {
     const allowed = key === 'reasonCode' ? SAFE_REASON_CODES : SAFE_OPERATION_CODES
     if (typeof input[key] === 'string' && allowed.has(input[key])) row[key] = input[key]
   }
-  if (['firestore', 'mesh', 'unknown'].includes(input.source)) row.source = input.source
+  if (['firestore', 'mesh', 'unknown', 'educationEvents'].includes(input.source)) row.source = input.source
   if (Number.isSafeInteger(input.failedFamilies) && input.failedFamilies >= 0) row.failedFamilies = input.failedFamilies
+  if (Number.isSafeInteger(input.subscriptionCount) && input.subscriptionCount >= 0) row.subscriptionCount = input.subscriptionCount
   return row
 }
 

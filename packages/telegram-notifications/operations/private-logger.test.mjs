@@ -12,9 +12,9 @@ describe('private runtime logger', () => {
     const scopeKey = 'a'.repeat(64)
     expect(sanitizeOperationalLog({ code: 'inventory_partial', source: 'firestore', failedFamilies: 2,
       scopeKey, errorCode: 'deadline-exceeded', reasonCode: 'source_snapshot_too_large',
-      hasMeshIdentity: true, hasMeshAccount: false, rawError: 'private', error: 'PII', familyId: 'family-private' }))
+      hasMeshIdentity: true, hasMeshAccount: false, processId: 321, rawError: 'private', error: 'PII', familyId: 'family-private' }))
       .toEqual({ code: 'inventory_partial', source: 'firestore', failedFamilies: 2, scopeKey,
-        errorCode: 'deadline-exceeded', reasonCode: 'source_snapshot_too_large', hasMeshIdentity: true, hasMeshAccount: false })
+        errorCode: 'deadline-exceeded', reasonCode: 'source_snapshot_too_large', hasMeshIdentity: true, hasMeshAccount: false, processId: 321 })
     expect(sanitizeOperationalLog({ source: 'secret', scopeKey: 'not-a-hash', errorCode: 'private-message',
       reasonCode: 'invented', failedFamilies: -1, familyId: 'private' })).toEqual({})
   })

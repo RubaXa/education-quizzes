@@ -10,15 +10,25 @@ import {
   setDoc,
   updateDoc,
 } from 'firebase/firestore'
+import { getAuth } from 'firebase/auth'
 import { db } from './firebase'
 import { currentEducationPersonId } from './personalAccess'
 import type { Answer, AnswerKey, Assignment, ManualReview, QuizQuestion, QuizReading, QuizVisual } from './quiz'
 import { assertOpenAssignment } from './quizWrite'
+import { prepareEducationEvent, stagePreparedEducationEventInTransaction } from './educationEventProducer'
 
 export type BoardDetails = {
   materials: string[]
   review: string
   purpose: string
+}
+
+function sourceRevisionId(value: unknown): string {
+  if (!value || typeof value !== 'object') return 'initial'
+  const timestamp = value as { seconds?: number; nanoseconds?: number; _seconds?: number; _nanoseconds?: number }
+  const seconds = timestamp.seconds ?? timestamp._seconds
+  const nanos = timestamp.nanoseconds ?? timestamp._nanoseconds
+  return typeof seconds === 'number' && typeof nanos === 'number' ? `${seconds}-${nanos}` : 'initial'
 }
 
 function readBoardDetails(value: unknown): BoardDetails | null {
@@ -38,13 +48,23 @@ export async function loadAssignment(token: string): Promise<Assignment> {
 /** @see ../../docs/modules/assessments/quizzes.md#followup-request */
 export async function requestQuizFollowup(token: string, testId: string): Promise<void> {
   const reference = doc(db, 'assignments', token)
+  const operationId = `quiz-followup:${token}`
   await runTransaction(db, async (transaction) => {
     const snapshot = await transaction.get(reference)
     if (!snapshot.exists()) throw new Error('Исходный тест не найден.')
-    const current = snapshot.data() as Assignment
+    const current = snapshot.data() as Assignment & { familyId?: string; childId?: string }
     if (current.testId !== testId || current.status !== 'submitted') throw new Error('Результат теста изменился. Обновите страницу.')
     if (current.followupRequestedAt) return
-    transaction.update(reference, { followupRequestedAt: serverTimestamp(), followupRequestedBy: currentEducationPersonId() })
+    if (!current.familyId || !current.childId) throw new Error('Не найдена семейная привязка теста.')
+    const uid = getAuth().currentUser?.uid
+    if (!uid) throw new Error('Сначала откройте личную ссылку Education.')
+    const envelope = await prepareEducationEvent({
+      eventType: 'quiz.followup_requested', familyId: current.familyId, childId: current.childId, source: 'firestore',
+      sourceRef: { kind: 'quiz', documentPath: `assignments/${token}`, quizToken: token },
+      operationId, actor: { type: 'user', uid },
+    })
+    transaction.update(reference, { followupRequestedAt: serverTimestamp(), followupRequestedBy: currentEducationPersonId(), eventOperationId: operationId, eventReceiptId: envelope.eventId, eventProducerVersion: 1 })
+    stagePreparedEducationEventInTransaction(transaction, envelope)
   })
 }
 
@@ -65,7 +85,16 @@ export async function setQuizRequired(rootToken: string, activeToken: string, re
       throw new Error('Активный тест изменился. Обновите страницу.')
     }
     if (Boolean(origin.familyOptional) === !required) return
-    transaction.update(rootRef, { familyOptional: !required, familyChoiceAt: serverTimestamp(), familyChoiceBy: currentEducationPersonId() })
+    const operationId = `quiz-requirement:${rootToken}:${required ? 'required' : 'optional'}:${sourceRevisionId(origin.familyChoiceAt)}`
+    const uid = getAuth().currentUser?.uid
+    if (!uid) throw new Error('Сначала откройте личную ссылку Education.')
+    const envelope = await prepareEducationEvent({
+      eventType: 'quiz.requirement_changed', familyId: origin.familyId!, childId: origin.childId!, source: 'firestore',
+      sourceRef: { kind: 'quiz', documentPath: `assignments/${rootToken}`, quizToken: rootToken },
+      operationId, actor: { type: 'user', uid },
+    })
+    transaction.update(rootRef, { familyOptional: !required, familyChoiceAt: serverTimestamp(), familyChoiceBy: currentEducationPersonId(), eventOperationId: operationId, eventReceiptId: envelope.eventId, eventProducerVersion: 1 })
+    stagePreparedEducationEventInTransaction(transaction, envelope)
   })
 }
 
@@ -94,30 +123,60 @@ export async function saveDraft(token: string, changedAnswers: Record<string, An
     const snapshot = await transaction.get(reference)
     const current = snapshot.exists() ? snapshot.data() : undefined
     assertOpenAssignment(current)
-    transaction.update(reference, {
-      answers: { ...(current.answers ?? {}), ...changedAnswers },
+    const startsNow = current?.startedAt == null
+    let startEnvelope: Awaited<ReturnType<typeof prepareEducationEvent>> | undefined
+    let startOperationId: string | undefined
+    if (startsNow) {
+      const scoped = current as (Assignment & { familyId?: string; childId?: string }) | undefined
+      if (!scoped?.familyId || !scoped.childId) throw new Error('Не найдена семейная привязка теста.')
+      const uid = getAuth().currentUser?.uid
+      if (!uid) throw new Error('Сначала откройте личную ссылку Education.')
+      startOperationId = `quiz-start:${token}`
+      startEnvelope = await prepareEducationEvent({
+        eventType: 'quiz.started', familyId: scoped.familyId, childId: scoped.childId, source: 'firestore',
+        sourceRef: { kind: 'quiz', documentPath: `assignments/${token}`, quizToken: token },
+        operationId: startOperationId, actor: { type: 'user', uid },
+      })
+    }
+    const update = {
+      answers: { ...(current?.answers ?? {}), ...changedAnswers },
       status: 'open',
-      ...(current.startedAt == null ? { startedAt: serverTimestamp() } : {}),
+      ...(startsNow ? { startedAt: serverTimestamp(), eventOperationId: startOperationId!, eventReceiptId: startEnvelope!.eventId, eventProducerVersion: 1 } : {}),
       updatedAt: serverTimestamp(),
       submittedAt: null,
-    })
+    }
+    transaction.update(reference, update)
+    if (startEnvelope) stagePreparedEducationEventInTransaction(transaction, startEnvelope)
   })
 }
 
 /** @see ../../docs/modules/assessments/quizzes.md#quiz-runner */
 export async function submitAssignment(token: string) {
   const reference = doc(db, 'assignments', token)
+  const operationId = `quiz-submit:${token}`
   await runTransaction(db, async (transaction) => {
     const snapshot = await transaction.get(reference)
     if (!snapshot.exists()) throw new Error('Ссылка не найдена.')
-    const current = snapshot.data() as Assignment
+    const current = snapshot.data() as Assignment & { familyId?: string; childId?: string }
     if (current.status !== 'open') throw new Error('Этот тест уже отправлен.')
+    if (!current.familyId || !current.childId) throw new Error('Не найдена семейная привязка теста.')
+    const uid = getAuth().currentUser?.uid
+    if (!uid) throw new Error('Сначала откройте личную ссылку Education.')
+    const envelope = await prepareEducationEvent({
+      eventType: 'quiz.submitted', familyId: current.familyId, childId: current.childId, source: 'firestore',
+      sourceRef: { kind: 'quiz', documentPath: `assignments/${token}`, quizToken: token },
+      operationId, actor: { type: 'user', uid },
+    })
     transaction.update(reference, {
       status: 'submitted',
       startedAt: current.startedAt ?? serverTimestamp(),
       updatedAt: serverTimestamp(),
       submittedAt: serverTimestamp(),
+      eventReceiptId: envelope.eventId,
+      eventOperationId: operationId,
+      eventProducerVersion: 1,
     })
+    stagePreparedEducationEventInTransaction(transaction, envelope)
   })
 }
 

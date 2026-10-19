@@ -3,7 +3,7 @@ id: architecture.education
 status: accepted
 implementation: not-applicable
 created: 2026-10-16
-updated: 2026-10-18
+updated: 2026-10-19
 consumers:
   - "Education agent"
   - "developer"
@@ -20,6 +20,7 @@ uses:
   - shared.design
   - shared.access-and-privacy
   - shared.specification-system
+  - module.synchronization.event-queue
 sections:
   - приложения-и-процессы
   - предметные-модули
@@ -37,7 +38,7 @@ Education соединяет семейный доступ, данные шко�
 |---|---|---|
 | [Web app](docs/services/web-app/README.md) | `src/`, `pwa/` | React/PWA читает Firestore и отправляет файлы на Диск; конфигурация экранов и часть local-first архитектуры остаются целевыми |
 | [Operator CLI](docs/services/operator-cli/README.md) | `operator/`, `scripts/education.mjs`, предметные CLI | Повторяемые операции и ручной запуск EducationSync; `sync:project` использует общее server runtime; агент выполняет предметные решения по данным |
-| [Upload worker](docs/services/upload-worker/README.md) | `scripts/direct-upload-worker.mjs`, `storage/` | Локальный процесс выдаёт адреса и подтверждает передачу файлов; не проверяет учебное содержание |
+| [Upload broker](docs/services/upload-worker/README.md) | `packages/education-runtime/upload-broker.mjs`, `storage/` | Обработчики общего consumer выдают адреса и подтверждают байты; отдельный source-listener процесс заменён совместимым CLI |
 | [Telegram bot](docs/services/telegram-bot/README.md) | `packages/telegram-notifications/`, `scripts/telegram-bot.mjs` | Семейный worker установлен на Mac и делит server runtime с sync; технические доставки подтверждены. Командные release alerts отсутствуют; [актуальный аудит](docs/audits/education-bot-readiness-2026-10-18.md) |
 
 ```mermaid
@@ -51,12 +52,17 @@ flowchart LR
   Telegram --> Core
   DB --> Web
   Web --> Disk[Яндекс.Диск]
-  Worker[Upload worker] --> DB
+  Web --> Events[educationEvents: единая очередь]
+  Diary --> Events
+  Events --> Consumer[Одна subscription и dispatcher]
+  Consumer --> Worker[Upload broker handlers]
+  Consumer --> Tasks[Точные operatorSyncJobs и закрытые входы]
+  Tasks --> CLI
+  Worker --> DB
   Worker --> Disk
   CLI --> Disk
-  Telegram[Telegram worker: source implementation] -.-> DB
-  Telegram -.-> Diary
-  Telegram -.-> BotAPI[Telegram Bot API]
+  Consumer --> Telegram[Telegram ledger и outbox]
+  Telegram --> BotAPI[Telegram Bot API]
 ```
 
 Приватный PETR-контекст (`learner`, `events`, `work`, Skills) находится вне checkout Education. Он задаёт конкретную учебную цель и доказательства. Общие контракты сервиса должны читаться из самостоятельного checkout; provenance внешнего материала обозначается `petr-private:` и не делает его публичным источником.

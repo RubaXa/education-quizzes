@@ -26,6 +26,7 @@ sections:
 | Семья, роли и подключение источника | [Families](modules/families/README.md) | [Доступ и приватность](shared/access-and-privacy.md), [модель данных](shared/data/firestore.md) |
 | Дневник, расписание, ДЗ или оценки | [School diary](modules/school-diary/README.md) | [Synchronization](modules/synchronization/README.md), [Assignments](modules/assignments/README.md) |
 | Полная ручная синхронизация | [Operator CLI](services/operator-cli/README.md) | [Порядок запуска](operations/education-sync.md), [глобальный охват](modules/synchronization/global-sync.md) |
+| События действий, автоматический разбор, Telegram | [Единая очередь](modules/synchronization/event-queue.md) | [Готовое поручение](modules/synchronization/execution-artifact.md), [диспетчер](services/telegram-bot/education-sync-dispatch.md) |
 | Новое поле/подписка Firestore | [Общие данные](shared/data/README.md) | [Ревизии](shared/data/revisions.md), [реестр чтений](modules/synchronization/firestore-read-paths.md) |
 | Карточка, статус, экран или изображение | [Дизайн-система](shared/design/README.md) | [Компоненты](shared/design/components.md), [контроль UI](product/ui-change-control.md) |
 | Фото/PDF или передача на Диск | [Материалы](modules/materials/README.md) | [Upload worker](services/upload-worker/README.md), [хранение](shared/media-storage.md) |

@@ -1,10 +1,11 @@
 import { getAuth } from 'firebase/auth'
-import { doc, getDocFromServer, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore'
+import { doc, getDocFromServer, serverTimestamp, writeBatch } from 'firebase/firestore'
 import { db } from './firebase'
 import type { FamilyBookUpload } from './familyLibrary'
 import { currentEducationPersonId } from './personalAccess'
 import { fetchWithRetry } from './networkRetry'
 import { reportUiError } from './uiErrors'
+import { prepareEducationEvent, stagePreparedEducationEvent } from './educationEventProducer'
 
 /** @see ../../docs/modules/materials/family-library.md#upload */
 const allowed = new Set(['application/pdf'])
@@ -44,12 +45,27 @@ export async function requestFamilyBookUpload(familyId: string, childId: string,
   const uploadId = crypto.randomUUID()
   const sha256 = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', await file.arrayBuffer())), (byte) => byte.toString(16).padStart(2, '0')).join('')
   await outbox('readwrite', (store) => store.put(file, key(familyId, uploadId)))
+  const ref = doc(db, 'families', familyId, 'children', childId, 'bookUploads', uploadId)
+  const envelope = await prepareEducationEvent({
+    eventType: 'material.upload_requested', familyId, childId, source: 'firestore',
+    sourceRef: { kind: 'material', documentPath: `families/${familyId}/children/${childId}/bookUploads/${uploadId}`, recordId: uploadId },
+    operationId: `material-upload:${uploadId}`, actor: { type: 'user', uid: deviceUid },
+  })
   try {
-    await setDoc(doc(db, 'families', familyId, 'children', childId, 'bookUploads', uploadId), {
+    const batch = writeBatch(db)
+    batch.set(ref, {
       subjectKey, originalName: file.name.slice(0, 160), contentType: file.type,
-      size: file.size, sha256, deviceUid, status: 'requested', createdAt: serverTimestamp(),
+      size: file.size, sha256, deviceUid, status: 'requested', createdAt: serverTimestamp(), eventOperationId: `material-upload:${uploadId}`, eventReceiptId: envelope.eventId, eventProducerVersion: 1,
     })
+    stagePreparedEducationEvent(batch, envelope)
+    await batch.commit()
   } catch (cause) {
+    try {
+      const committed = await getDocFromServer(ref)
+      const data = committed.data()
+      if (committed.exists() && data?.deviceUid === deviceUid && data?.sha256 === sha256
+        && data?.eventOperationId === `material-upload:${uploadId}` && data?.eventReceiptId === envelope.eventId) return uploadId
+    } catch { /* Preserve the original commit error when readback is unavailable. */ }
     await outbox('readwrite', (store) => store.delete(key(familyId, uploadId)))
     throw cause
   }
@@ -57,9 +73,31 @@ export async function requestFamilyBookUpload(familyId: string, childId: string,
 }
 
 export async function setFamilyBookRequirement(familyId: string, childId: string, subjectKey: string, policy: 'required' | 'no-book') {
-  await setDoc(doc(db, 'families', familyId, 'children', childId, 'bookRequirements', encodeURIComponent(subjectKey)), {
-    subjectKey, policy, actorPersonId: currentEducationPersonId(), updatedAt: serverTimestamp(),
+  const subjectId = encodeURIComponent(subjectKey)
+  const ref = doc(db, 'families', familyId, 'children', childId, 'bookRequirements', subjectId)
+  const current = await getDocFromServer(ref)
+  if (current.data()?.policy === policy) return
+  const uid = getAuth().currentUser?.uid
+  if (!uid) throw new Error('Откройте личную ссылку родителя.')
+  const operationId = crypto.randomUUID()
+  const envelope = await prepareEducationEvent({
+    eventType: 'material.requirement_changed', familyId, childId, source: 'firestore',
+    sourceRef: { kind: 'material', documentPath: `families/${familyId}/children/${childId}/bookRequirements/${subjectId}`, recordId: subjectId },
+    operationId, actor: { type: 'user', uid },
   })
+  const batch = writeBatch(db)
+  batch.set(ref, { subjectKey, policy, actorPersonId: currentEducationPersonId(), updatedAt: serverTimestamp(),
+    eventOperationId: operationId, eventReceiptId: envelope.eventId, eventProducerVersion: 1 })
+  stagePreparedEducationEvent(batch, envelope)
+  try { await batch.commit() }
+  catch (cause) {
+    try {
+      const committed = await getDocFromServer(ref)
+      const data = committed.data()
+      if (committed.exists() && data?.policy === policy && data?.eventOperationId === operationId && data?.eventReceiptId === envelope.eventId) return
+    } catch { /* Preserve the original commit error when readback is unavailable. */ }
+    throw cause
+  }
 }
 
 /** The browser sends bytes straight to a short-lived Yandex URL; Firestore holds metadata only. */
@@ -80,7 +118,17 @@ export function resumeFamilyBookTransfer(familyId: string, childId: string, uplo
     const ref = doc(db, 'families', familyId, 'children', childId, 'bookUploads', upload.id)
     const latest = await getDocFromServer(ref)
     if (latest.data()?.status === 'awaiting-upload' && latest.data()?.upload?.href === upload.upload!.href) {
-      await updateDoc(ref, { status: 'uploaded' })
+      const uid = getAuth().currentUser?.uid
+      if (!uid) throw new Error('Сначала откройте личную ссылку родителя.')
+      const batch = writeBatch(db)
+      const envelope = await prepareEducationEvent({
+        eventType: 'material.bytes_uploaded', familyId, childId, source: 'firestore',
+        sourceRef: { kind: 'material', documentPath: `families/${familyId}/children/${childId}/bookUploads/${upload.id}`, recordId: upload.id },
+        operationId: `material-upload:${upload.id}:uploaded`, actor: { type: 'user', uid },
+      })
+      batch.update(ref, { status: 'uploaded', eventOperationId: `material-upload:${upload.id}:uploaded`, eventReceiptId: envelope.eventId, eventProducerVersion: 1 })
+      stagePreparedEducationEvent(batch, envelope)
+      await batch.commit()
     }
   })()
   active.set(id, job)

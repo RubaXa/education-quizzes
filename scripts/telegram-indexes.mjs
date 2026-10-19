@@ -67,7 +67,7 @@ export function createIndexManager({ client, projectId, expected, sleep = async 
 
   async function inspect() {
     const current = new Map()
-    for (const collectionGroup of [...new Set(expected.map((index) => index.collectionGroup))]) {
+    for (const collectionGroup of [...new Set(expected.filter((index) => !index.fieldOverride).map((index) => index.collectionGroup))]) {
       const parent = collectionGroupName(projectId, collectionGroup)
       let iterator
       try { iterator = client.listIndexesAsync({ parent }) }
@@ -82,12 +82,21 @@ export function createIndexManager({ client, projectId, expected, sleep = async 
         }
       } catch (error) { throw safeApiError(error) }
     }
-    const indexes = expected.map((spec) => {
+    const indexes = expected.filter((spec) => !spec.fieldOverride).map((spec) => {
       const matches = current.get(indexKey(spec)) ?? []
       const state = matches.length === 0 ? 'MISSING' : matches.length > 1 ? 'AMBIGUOUS' : stateName(matches[0].state)
       return Object.freeze({ collectionGroup: spec.collectionGroup,
         fields: Object.freeze(spec.fields.map((field) => field.fieldPath)), key: indexKey(spec), state })
     })
+    for (const spec of expected.filter((item) => item.fieldOverride)) {
+      let field
+      try { [field] = await client.getField({ name: fieldName(projectId, spec) }) }
+      catch (error) { throw safeApiError(error) }
+      const matches = (field.indexConfig?.indexes ?? []).filter((index) => fieldIndexMatches(index, spec))
+      const state = !matches.length ? 'MISSING' : matches.some((index) => stateName(index.state) === 'READY') ? 'READY' : stateName(matches[0].state)
+      indexes.push({ collectionGroup: spec.collectionGroup, fields: [spec.fieldPath], queryScope: spec.queryScope,
+        key: indexKey(spec), state, fieldOverride: true })
+    }
     const readyCount = indexes.filter((index) => index.state === 'READY').length
     const createCount = indexes.filter((index) => index.state === 'MISSING').length
     return Object.freeze({ ready: readyCount === indexes.length, createCount, readyCount,
@@ -100,7 +109,18 @@ export function createIndexManager({ client, projectId, expected, sleep = async 
       const spec = expected.find((item) => indexKey(item) === status.key)
       if (!spec) throw safeError('index_plan_mismatch')
       try {
-        await client.createIndex({ parent: collectionGroupName(projectId, spec.collectionGroup), index: apiIndex(spec) })
+        if (spec.fieldOverride) {
+          const name = fieldName(projectId, spec)
+          const [field] = await client.getField({ name })
+          const indexes = field.indexConfig?.indexes ?? []
+          if (!indexes.some((index) => fieldIndexMatches(index, spec))) {
+            // Keep every existing field index; append just the explicitly declared group scope.
+            const retained = indexes.map(({ name: _name, state: _state, ...definition }) => definition)
+            await client.updateField({ field: { name, indexConfig: { indexes: [...retained,
+              { queryScope: spec.queryScope, fields: [{ fieldPath: spec.fieldPath, order: spec.order }] }] } },
+            updateMask: { paths: ['index_config'] } })
+          }
+        } else await client.createIndex({ parent: collectionGroupName(projectId, spec.collectionGroup), index: apiIndex(spec) })
       } catch (error) {
         if (!isAlreadyExists(error)) throw safeApiError(error)
       }
@@ -124,7 +144,7 @@ export function validateManifest(manifest) {
   if (!manifest || !Array.isArray(manifest.indexes) || !manifest.indexes.length) throw safeError('index_manifest_invalid')
   const indexes = manifest.indexes.map((item) => {
     if (!/^[A-Za-z][A-Za-z0-9_]{0,127}$/.test(item?.collectionGroup ?? '')
-      || item.queryScope !== 'COLLECTION' || !Array.isArray(item.fields) || item.fields.length < 2) throw safeError('index_manifest_invalid')
+      || !['COLLECTION', 'COLLECTION_GROUP'].includes(item.queryScope) || !Array.isArray(item.fields) || item.fields.length < 2) throw safeError('index_manifest_invalid')
     const fields = item.fields.map((field) => {
       if (!/^[A-Za-z][A-Za-z0-9_]{0,127}$/.test(field?.fieldPath ?? '')
         || !['ASCENDING', 'DESCENDING'].includes(field.order) || field.arrayConfig || field.vectorConfig) {
@@ -135,6 +155,15 @@ export function validateManifest(manifest) {
     if (new Set(fields.map((field) => field.fieldPath)).size !== fields.length) throw safeError('index_manifest_invalid')
     return Object.freeze({ collectionGroup: item.collectionGroup, queryScope: item.queryScope, fields: Object.freeze(fields) })
   })
+  for (const field of manifest.fieldOverrides ?? []) {
+    if (!/^[A-Za-z][A-Za-z0-9_]{0,127}$/.test(field.collectionGroup ?? '')
+      || !/^[A-Za-z][A-Za-z0-9_]{0,127}$/.test(field.fieldPath ?? '') || !Array.isArray(field.indexes) || !field.indexes.length) throw safeError('index_manifest_invalid')
+    for (const index of field.indexes) {
+      if (index.queryScope !== 'COLLECTION_GROUP' || !['ASCENDING', 'DESCENDING'].includes(index.order)) throw safeError('index_manifest_invalid')
+      indexes.push(Object.freeze({ fieldOverride: true, collectionGroup: field.collectionGroup,
+        fieldPath: field.fieldPath, queryScope: index.queryScope, order: index.order }))
+    }
+  }
   if (new Set(indexes.map(indexKey)).size !== indexes.length) throw safeError('index_manifest_duplicate')
   return Object.freeze(indexes)
 }
@@ -167,6 +196,8 @@ function collectionGroupName(projectId, collectionGroup) {
 }
 function apiIndex(spec) { return { queryScope: spec.queryScope, fields: spec.fields.map((field) => ({ ...field })) } }
 function indexKey(index) {
+  if (index?.fieldOverride) return JSON.stringify({ collectionGroup: index.collectionGroup, fieldPath: index.fieldPath,
+    queryScope: normalizeScope(index.queryScope), order: normalizeOrder(index.order) })
   if (!index || typeof index.collectionGroup !== 'string' || !Array.isArray(index.fields)) return null
   const fields = index.fields.map((field) => ({ fieldPath: field.fieldPath, order: normalizeOrder(field.order),
     arrayConfig: field.arrayConfig ?? null, vectorConfig: field.vectorConfig ?? null }))
@@ -176,7 +207,13 @@ function indexKey(index) {
     fields })
 }
 function publicIndexes(result) {
-  return result.indexes.map(({ collectionGroup, fields, state }) => ({ collectionGroup, fields, state }))
+  return result.indexes.map(({ collectionGroup, fields, state, queryScope, fieldOverride }) => ({ collectionGroup, fields, state,
+    ...(fieldOverride ? { fieldOverride, queryScope } : {}) }))
+}
+function fieldName(projectId, spec) { return `${collectionGroupName(projectId, spec.collectionGroup)}/fields/${spec.fieldPath}` }
+function fieldIndexMatches(index, spec) {
+  return normalizeScope(index.queryScope) === spec.queryScope && index.fields?.length >= 1
+    && index.fields[0].fieldPath === spec.fieldPath && normalizeOrder(index.fields[0].order) === spec.order
 }
 function normalizeScope(value) {
   return ({ 1: 'COLLECTION', 2: 'COLLECTION_GROUP', 3: 'COLLECTION_RECURSIVE' })[value]

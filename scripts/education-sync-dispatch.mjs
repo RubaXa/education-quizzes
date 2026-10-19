@@ -5,6 +5,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 import { createEducationFirestore } from '../packages/education-runtime/firestore.mjs'
 import { createFirestoreEducationSyncStore, workEventDigest } from '../packages/telegram-notifications/application/education-sync-dispatcher.mjs'
 import { createFirestoreSourceInventory } from '../packages/telegram-notifications/adapters/source-inventory-firestore.mjs'
+import { exportEventTaskManifest } from '../sync/event-task-export.mjs'
 
 /** @see ../docs/services/telegram-bot/education-sync-dispatch.md */
 export async function main(args = process.argv.slice(2), { env = process.env, out = process.stdout,
@@ -31,6 +32,10 @@ export async function main(args = process.argv.slice(2), { env = process.env, ou
       result = await enqueueExistingEvent(db, store, values['event-id'])
     } else if (command === 'events' && Object.keys(values).length === 1 && Number.isFinite(Date.parse(values.since ?? ''))) {
     result = await listEvents(db, values.since)
+    } else if (command === 'tasks' && validRequest(values.request) && typeof values['claim-file'] === 'string' && Object.keys(values).length === 2) {
+      const claim = readClaimFile(root, values['claim-file'], values.request)
+      result = await exportEventTaskManifest(db, store, { root, requestId: values.request,
+        tokenHash: createHash('sha256').update(claim.token).digest('hex') })
     } else if (['complete', 'fail', 'heartbeat'].includes(command) && validRequest(values.request)
       && typeof values['claim-file'] === 'string' && Object.keys(values).length === 2) {
       const claim = readClaimFile(root, values['claim-file'], values.request)
@@ -52,7 +57,7 @@ export async function main(args = process.argv.slice(2), { env = process.env, ou
       result = await store.resumeBlocked({ requestId: values.request, now: new Date().toISOString() })
     } else throw new Error('usage_invalid')
     out.write(`${JSON.stringify(result)}\n`)
-    return ['invalid_claim', 'stale_request', 'invalid_reason', 'not_blocked'].includes(result.status) ? 1 : 0
+    return ['invalid_claim', 'stale_request', 'invalid_reason', 'not_blocked', 'incomplete_actions'].includes(result.status) ? 1 : 0
   } catch (error) {
     err.write(`${safeError(error)}\n`)
     return 1
@@ -179,7 +184,10 @@ function readFirebaseProject(root) {
   catch { return null }
 }
 function safeError(error) {
-  const known = new Set(['firestore_project_unavailable', 'usage_invalid', 'claim_file_invalid', 'claim_file_unavailable', 'event_not_eligible', 'event_owner_unverified'])
+  const known = new Set(['firestore_project_unavailable', 'usage_invalid', 'claim_file_invalid', 'claim_file_unavailable', 'event_not_eligible', 'event_owner_unverified',
+    'task_manifest_unavailable', 'task_manifest_incomplete', 'task_manifest_invalid', 'task_manifest_cursor_invalid',
+    'task_artifact_invalid', 'task_artifact_superseded', 'task_artifact_refresh_conflict', 'task_owner_mismatch',
+    'task_owner_unavailable', 'task_source_missing', 'task_source_superseded', 'task_source_not_reviewable', 'task_context_missing'])
   return known.has(error?.message) ? error.message : 'education_sync_dispatch_failed'
 }
 

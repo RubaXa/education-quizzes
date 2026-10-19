@@ -13,7 +13,7 @@ test('only a parent can toggle the root self-check requirement', () => {
   assert.match(grant, /parentMember\(resource\.data\.familyId\)/)
   assert.match(grant, /childMember\(resource\.data\.familyId, resource\.data\.childId\)/)
   assert.match(grant, /linkedToTestId/)
-  assert.match(grant, /affectedKeys\(\)\.hasOnly\(\['familyOptional', 'familyChoiceAt', 'familyChoiceBy'\]\)/)
+  assert.match(grant, /affectedKeys\(\)\.hasOnly\(\['familyOptional', 'familyChoiceAt', 'familyChoiceBy', 'eventOperationId', 'eventReceiptId', 'eventProducerVersion'\]\)/)
   assert.match(grant, /affectedKeys\(\)\.hasAll\(\['familyOptional', 'familyChoiceAt'\]\)/)
   assert.match(grant, /request\.resource\.data\.familyOptional is bool/)
   assert.match(grant, /request\.resource\.data\.familyChoiceBy == currentPersonId\(\)/)

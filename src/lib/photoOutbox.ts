@@ -1,10 +1,12 @@
-import { doc, getDocFromServer, updateDoc } from 'firebase/firestore'
+import { doc, getDocFromServer, writeBatch } from 'firebase/firestore'
+import { getAuth } from 'firebase/auth'
 import { db } from './firebase'
+import { prepareEducationEvent, stagePreparedEducationEvent } from './educationEventProducer'
 import { fetchWithRetry } from './networkRetry'
 import { reportUiError } from './uiErrors'
 
 type OutboxEntry = { id: string; file: Blob }
-type UploadState = { status: string; upload?: { href: string }; deviceUid?: string }
+type UploadState = { status: string; upload?: { href: string }; deviceUid?: string; taskId?: string }
 const active = new Map<string, Promise<void>>()
 const reportedFailures = new Set<string>()
 const dbName = 'education-photo-outbox-v1'
@@ -69,7 +71,29 @@ export function resumePhotoTransfer(studentToken: string, uploadId: string, data
     if (!response.ok && response.status !== 409) throw new Error(`Яндекс.Диск отклонил фото: HTTP ${response.status}.`)
     const latest = await getDocFromServer(ref)
     if (latest.data()?.status === 'awaiting-upload' && latest.data()?.upload?.href === data.upload!.href) {
-      await updateDoc(ref, { status: 'uploaded' })
+      const taskId = latest.data()?.taskId ?? data.taskId
+      const uid = getAuth().currentUser?.uid
+      const owner = await getDocFromServer(doc(db, 'dayOwners', studentToken))
+      const { familyId, childId } = owner.data() ?? {}
+      if (!taskId || !uid || !owner.exists() || typeof familyId !== 'string' || typeof childId !== 'string') {
+        throw new Error('Не удалось подтвердить семейную привязку передачи фото.')
+      }
+      const operationId = `upload-transfer:${uploadId}:uploaded`
+      const envelope = await prepareEducationEvent({ eventType: 'upload.bytes_uploaded', familyId, childId, source: 'firestore',
+        sourceRef: { kind: 'upload', documentPath: `dayUploads/${studentToken}/files/${uploadId}`, dayToken: studentToken, recordId: uploadId, taskId },
+        operationId, actor: { type: 'user', uid } })
+      const batch = writeBatch(db)
+      batch.update(ref, { status: 'uploaded', eventOperationId: operationId, eventReceiptId: envelope.eventId, eventProducerVersion: 1 })
+      stagePreparedEducationEvent(batch, envelope)
+      try { await batch.commit() }
+      catch (cause) {
+        try {
+          const committed = await getDocFromServer(ref)
+          if (committed.data()?.status === 'uploaded' && committed.data()?.eventOperationId === operationId
+            && committed.data()?.eventReceiptId === envelope.eventId) return
+        } catch { /* Preserve original error if commit readback is unavailable. */ }
+        throw cause
+      }
     }
   })()
   active.set(id, job)

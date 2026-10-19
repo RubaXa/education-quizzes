@@ -3,6 +3,15 @@ import { createHash } from 'node:crypto'
 import { main, parseMeshDeliveryCheckArgs } from './telegram-runtime.mjs'
 
 describe('telegram runtime operator commands', () => {
+  it('surfaces queue readiness and legacy retirement failures with safe actionable codes', async () => {
+    const output = []
+    const code = await main(['install', '--apply'], { launchAgent: { install() {
+      const error = new Error('failure'); error.safeCode = 'education_event_queue_readiness_timeout'; throw error
+    } }, write: (value) => output.push(value) })
+    expect(code).toBe(1)
+    expect(JSON.parse(output[0]).error).toBe('education_event_queue_readiness_timeout')
+  })
+
   it('parses a read-only Mesh delivery audit with an optional explicit scope cap', () => {
     expect(parseMeshDeliveryCheckArgs([], new Date('2026-10-19T12:00:00Z'))).toEqual({
       since: '2026-10-16T12:00:00.000Z', limit: null })

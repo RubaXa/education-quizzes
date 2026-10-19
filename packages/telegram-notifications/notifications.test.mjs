@@ -991,14 +991,15 @@ describe('Telegram notification vertical slice', () => {
     expect([...store.jobs.values()][0].partReceipts).toEqual([{ text: 'part-one' }, { text: 'part-two' }])
   })
 
-  it('uses safe startup codes and defines the two composite indexes required by its queries', () => {
+  it('uses safe startup codes and preserves all three outbox indexes alongside the shared queue indexes', () => {
     expect(safeFailureCode(new Error('privatevalue'))).toBe('startup_failed')
     expect(safeFailureCode(new Error('firestore_project_missing'))).toBe('firestore_project_missing')
     expect(() => loadConfig({ AGI_EDU_BOT: '123456:abcdefghijklmnopqrstuvwxyz' })).toThrow('firestore_project_missing')
     const indexFile = new URL('./firestore.indexes.json', import.meta.url)
     const manifest = JSON.parse(readFileSync(indexFile, 'utf8'))
-    expect(manifest.indexes).toHaveLength(3)
-    expect(manifest.indexes.map((index) => index.fields.map((field) => field.fieldPath))).toEqual([
+    const outboxIndexes = manifest.indexes.filter((index) => index.collectionGroup === 'telegramNotificationOutbox')
+    expect(outboxIndexes).toHaveLength(3)
+    expect(outboxIndexes.map((index) => index.fields.map((field) => field.fieldPath))).toEqual([
       ['state', 'nextAttemptAt'], ['state', 'leaseUntil'], ['groupId', 'state'],
     ])
   })
