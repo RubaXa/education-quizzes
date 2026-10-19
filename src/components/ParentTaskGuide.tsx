@@ -27,6 +27,8 @@ function timeOf(value: unknown): number {
  * @see ../../docs/modules/reviews/card-generation-policy.md#russian-adapter
  * @see ../../docs/modules/reviews/problem-card-design-decisions.md#role-projection
  * @see ../../docs/modules/reviews/problem-card-design-decisions.md#flat-numbered-sheet
+ * @see ../../docs/decisions/math-parent-stage-review-2026-10-19.md
+ * @see ../../docs/decisions/guidance-hint-then-reveal-2026-10-19.md
  * @see ../../docs/modules/school-diary/day-page.md#review-stage-switch
  * @see ../../docs/shared/design/statuses.md#components */
 export default function ParentTaskGuide({ guide, review, decisions = [], guidance = [], guidanceReady = true, onSend, onStageChoice }: {
@@ -37,7 +39,7 @@ export default function ParentTaskGuide({ guide, review, decisions = [], guidanc
   const [preview, setPreview] = useState<{ id: string; level: Level } | null>(null)
   const [sending, setSending] = useState(false)
   const [error, setError] = useState('')
-  const [sent, setSent] = useState<{ stageId: string; level: Level; text: string; at: number } | null>(null)
+  const [sent, setSent] = useState<{ stageId: string; level: Level; text: string; at: number }[]>([])
   const [stageSaving, setStageSaving] = useState('')
   const [pendingChoices, setPendingChoices] = useState<Record<string, { required: boolean; reviewVersion: number }>>({})
   const [stageError, setStageError] = useState<{ id: string; reviewVersion: number; message: string } | null>(null)
@@ -68,12 +70,13 @@ export default function ParentTaskGuide({ guide, review, decisions = [], guidanc
   const correct = matched.filter((stage) => observed.get(stage.id)?.status === 'correct').length
   const completion = stageCompletion(review, decisions)
   const isRequired = (stage: Stage) => unresolvedChoices[stage.id]?.required ?? stageRequired(review, stage.id, decisions)
-  const alreadySent = (stage: Stage) => {
-    const previous = guidance.filter((item) => item.stageId === stage.id).map((item) => ({ level: item.level, text: item.text, at: timeOf(item.createdAt) }))
-    if (sent?.stageId === stage.id) previous.push(sent)
+  const alreadySent = (stage: Stage, level: Level) => {
+    const previous = guidance.filter((item) => item.stageId === stage.id && item.level === level)
+      .map((item) => ({ text: item.text, at: timeOf(item.createdAt) }))
+    previous.push(...sent.filter((item) => item.stageId === stage.id && item.level === level))
     if (!previous.length) return false
     const latest = previous.reduce((a, b) => a.at >= b.at ? a : b)
-    const currentText = latest.level === 'hint' ? stage.hintPreview : stage.revealPreview
+    const currentText = level === 'hint' ? stage.hintPreview : stage.revealPreview
     // A revised guide alone must not resend help; the next checked attempt must also offer new wording.
     return currentText === latest.text || timeOf(review?.checkedAt) <= latest.at
   }
@@ -114,11 +117,13 @@ export default function ParentTaskGuide({ guide, review, decisions = [], guidanc
   const disputedCriterion = !mathematics && review?.assessmentBasis?.outcome === 'unresolved'
     && review?.workCoverage?.state === 'complete'
   async function send(stage: Stage, level: Level) {
-    if (!onSend || !guidanceReady || sending || alreadySent(stage)) return
+    if (!onSend || !guidanceReady || sending || alreadySent(stage, level)) return
     setSending(true); setError('')
     try {
       await onSend(stage, level)
-      setSent({ stageId: stage.id, level, text: (level === 'hint' ? stage.hintPreview : stage.revealPreview) ?? '', at: timeOf(review?.checkedAt) })
+      setSent((current) => [...current.filter((item) => item.stageId !== stage.id || item.level !== level), {
+        stageId: stage.id, level, text: (level === 'hint' ? stage.hintPreview : stage.revealPreview) ?? '', at: timeOf(review?.checkedAt),
+      }])
       setPreview(null)
     }
     catch (cause) { setError(cause instanceof Error ? cause.message : 'Не удалось отправить помощь.') }
@@ -132,26 +137,27 @@ export default function ParentTaskGuide({ guide, review, decisions = [], guidanc
       <strong>{review.status === 'verified' ? 'Работа подтверждена' : review.status === 'cannot-assess' && review.assessmentBasis?.unresolvedReason === 'missing-evidence' ? 'Разбор завершён · часть работы не видна' : review.status === 'cannot-assess' ? 'Итог пока не установлен' : 'Что осталось сделать'}</strong>
       <p>{formatReviewProse(review.nextStep ?? review.summary ?? '')}</p>
     </div>}
-    {matched.length > 0 && <div className="day-learning-route-progress" aria-label="Состояние проверки фото">
+    {review && <div className="day-learning-route-progress" aria-label="Состояние проверки фото">
       {mathematics && <><span>Ответ: <b>{review?.mathReasoning?.answer === 'correct' ? 'верен' : review?.mathReasoning?.answer === 'incorrect' ? 'неверен' : 'не подтверждён'}</b></span>
       <span>Ход: <b>{review?.mathReasoning?.argument === 'sufficient' ? 'подтверждён' : review?.mathReasoning?.argument === 'incomplete' ? 'неполон' : review?.mathReasoning?.argument === 'not-shown' ? 'не показан' : review?.mathReasoning?.argument === 'unreadable' ? 'не читается' : 'пока неясен'}</b></span></>}
       <small>{completion && !mathematics ? completion.complete
         ? `${completion.confirmed} из ${completion.required} пунктов подтверждено${completion.optional ? `; ${completion.optional} по желанию` : ''}. Работа выполнена по семейному плану.`
         : `${completion.confirmed} из ${completion.required} пунктов подтверждено${completion.optional ? `; ${completion.optional} по желанию` : ''}.`
         : disputedCriterion ? 'Все части задания предъявлены. Критерий формы спорен; от ребёнка пока ничего не требуется.'
-        : firstAttention >= 0 ? `${correct} из ${matched.length} сопоставленных этапов подтверждено. Ниже — первое место, требующее внимания.`
-          : `${correct} из ${matched.length} сопоставленных этапов подтверждено.`}</small>
+        : firstAttention >= 0 ? `${correct} из ${matched.length} сопоставленных этапов подтверждено; ${guide.stages.length - matched.length} пока без результата. Ниже — первое место, требующее внимания.`
+          : `${correct} из ${matched.length} сопоставленных этапов подтверждено; ${guide.stages.length - matched.length} пока без результата.`}</small>
     </div>}
     <div className="day-learning-route-stages">{guide.stages.map((stage, index) => {
       const result = observed.get(stage.id)
-      const stageSent = alreadySent(stage)
-      const active = !stageSent && preview?.id === stage.id ? preview : null
+      const hintSent = alreadySent(stage, 'hint')
+      const revealSent = alreadySent(stage, 'reveal')
+      const active = preview?.id === stage.id && !alreadySent(stage, preview.level) ? preview : null
       const previewText = active?.level === 'hint' ? stage.hintPreview : stage.revealPreview
       const checkable = !mathematics && Boolean(review?.checkableStageIds?.includes(stage.id))
       const required = isRequired(stage)
       const choicePending = checkable && (stageSaving === stage.id || stage.id in unresolvedChoices)
       return <div className="day-learning-route-stage-shell" key={stage.id}><details className={`day-learning-route-stage ${result?.status ? `day-learning-route-${result.status}` : ''}${checkable && !required ? ' day-learning-route-optional' : ''}`} open={stageError?.id === stage.id && stageError.reviewVersion === reviewVersion}>
-        <summary><span className="day-learning-route-number">{result ? <StatusIcon size={17} status={choicePending ? 'waiting' : checkable && !required ? 'ready' : result.status === 'correct' ? 'complete' : result.status === 'incorrect' ? 'needs-fix' : result.status === 'partial' ? 'partial' : 'unknown'} /> : index + 1}</span><span className="day-learning-route-stage-title"><b>{formatReviewProse(stage.title)}</b>{choicePending ? <small role="status">{stageSaving === stage.id ? 'Сохраняем выбор…' : 'Ждём подтверждения…'}</small> : result && <small>{checkable && !required ? 'По желанию · не входит в итог' : disputedCriterion && result.status === 'cannot-assess' ? 'Критерий формы спорен' : !mathematics && result.status === 'cannot-assess' ? 'Пока не подтверждено' : statusText[result.status]}</small>}</span>
+        <summary><span className="day-learning-route-number">{result ? <StatusIcon size={17} status={choicePending ? 'waiting' : checkable && !required ? 'ready' : result.status === 'correct' ? 'complete' : result.status === 'incorrect' ? 'needs-fix' : result.status === 'partial' ? 'partial' : 'unknown'} /> : review ? <StatusIcon size={17} status="unknown" /> : index + 1}</span><span className="day-learning-route-stage-title"><b>{formatReviewProse(stage.title)}</b>{choicePending ? <small role="status">{stageSaving === stage.id ? 'Сохраняем выбор…' : 'Ждём подтверждения…'}</small> : result ? <small>{checkable && !required ? 'По желанию · не входит в итог' : disputedCriterion && result.status === 'cannot-assess' ? 'Критерий формы спорен' : !mathematics && result.status === 'cannot-assess' ? 'Пока не подтверждено' : statusText[result.status]}</small> : review && <small>Этап пока не сопоставлен с проверкой</small>}</span>
         </summary>
         <div className="day-learning-route-body">
           {stageError?.id === stage.id && stageError.reviewVersion === reviewVersion && <p className="day-learning-route-error" role="alert">{stageError.message}</p>}
@@ -160,12 +166,13 @@ export default function ParentTaskGuide({ guide, review, decisions = [], guidanc
           {stage.role === 'answer' && stage.answer && <div className="day-learning-route-answer"><small>Ответ</small><strong>{formatReviewProse(stage.answer)}</strong></div>}
           {stage.role === 'answer' && !!stage.verification?.length && <details className="day-learning-route-check"><summary>Проверка по условию</summary>{stage.verification.map((row, rowIndex) => <p key={rowIndex}>{row.label && <b>{formatReviewProse(row.label)}: </b>}{formatReviewProse(row.value)}</p>)}</details>}
           {stage.why && <p className="day-learning-route-why">{formatReviewProse(stage.why)}</p>}
-          {guidanceReady && !stageSent && <div className="day-learning-route-actions">
-            {stage.hintPreview && <button type="button" aria-label={`Выбрать подсказку для этапа «${stage.title}»`} onClick={() => { setPreview({ id: stage.id, level: 'hint' }); setError('') }}>Подсказка</button>}
-            {stage.revealPreview && <button type="button" aria-label={`Выбрать ${stage.role === 'answer' ? 'показ ответа' : 'показ полного шага'} для этапа «${stage.title}»`} onClick={() => { setPreview({ id: stage.id, level: 'reveal' }); setError('') }}>{stage.role === 'answer' ? 'Ответ' : 'Весь шаг'}</button>}
+          {guidanceReady && !revealSent && <div className="day-learning-route-actions">
+            {stage.hintPreview && !hintSent && <button type="button" aria-label={`Выбрать подсказку для этапа «${stage.title}»`} onClick={() => { setPreview({ id: stage.id, level: 'hint' }); setError('') }}>Подсказка</button>}
+            {stage.revealPreview && !revealSent && <button type="button" aria-label={`Выбрать ${stage.role === 'answer' ? 'показ ответа' : 'показ полного шага'} для этапа «${stage.title}»`} onClick={() => { setPreview({ id: stage.id, level: 'reveal' }); setError('') }}>{stage.role === 'answer' ? 'Ответ' : 'Весь шаг'}</button>}
           </div>}
           {guidanceReady && active && previewText && <div className="day-learning-route-preview"><b>{active.level === 'hint' ? 'Подсказка Пете' : 'Показать Пете'}</b><p>{formatReviewProse(previewText)}</p><button type="button" disabled={sending || !onSend} onClick={() => void send(stage, active.level)}>{sending ? 'Отправляем…' : 'Отправить Пете'}</button>{!onSend && <small>Отправка пока недоступна.</small>}</div>}
-          {stageSent && <p className="day-learning-route-sent" role="status">Помощь отправлена Пете.</p>}
+          {hintSent && <p className="day-learning-route-sent" role="status">Подсказка отправлена Пете.</p>}
+          {revealSent && <p className="day-learning-route-sent" role="status">{stage.role === 'answer' ? 'Ответ отправлен Пете.' : 'Весь шаг отправлен Пете.'}</p>}
           <small className="day-learning-route-source">Источник: {stage.source.label}</small>
         </div>
       </details>{checkable && <RequirementSwitch label={`Учитывать пункт «${stage.title}» при проверке`} checked={required} disabled={!onStageChoice || Boolean(stageSaving) || stage.id in unresolvedChoices} onChange={(checked) => void chooseStage(stage, checked)} />}</div>

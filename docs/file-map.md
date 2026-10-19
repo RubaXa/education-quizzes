@@ -54,6 +54,8 @@
 |---|---|---|---|
 | [src/lib/reviewProse.ts](../src/lib/reviewProse.ts) | [Читаемая обратная связь](modules/reviews/review-criteria-provenance.md) | Общие пробелы, границы наблюдения/цитат и проверка новых авторских полей | Родительские/ученические карточки; day; submissions |
 | [src/lib/reviewProse.test.ts](../src/lib/reviewProse.test.ts) | [Читаемая обратная связь](modules/reviews/review-criteria-provenance.md) | Склейки, формулы, сохранность значений и литералов | Vitest |
+| [docs/decisions/guidance-hint-then-reveal-2026-10-19.md](decisions/guidance-hint-then-reveal-2026-10-19.md) | [Единая адресная помощь](modules/reviews/subject-aware-guidance.md) | Независимое состояние подсказки и полного шага для последовательной отправки родителем | `ParentTaskGuide.tsx`; ученическая карточка |
+| [docs/decisions/math-parent-stage-review-2026-10-19.md](decisions/math-parent-stage-review-2026-10-19.md) | [Математический маршрут родителя](modules/reviews/math-solution-route.md) | Поэтапное сопоставление ответа ученика с каждым шагом и обязательный барьер публикации | `ParentTaskGuide.tsx`; `scripts/submissions.mjs`; оператор разбора |
 | [docs/decisions/readable-review-prose-2026-10-18.md](decisions/readable-review-prose-2026-10-18.md) | [Читаемая обратная связь](modules/reviews/review-criteria-provenance.md) | Основание типографической правки | Разработчик; оператор |
 
 Это единственный реестр связей каждого файла checkout с ближайшим контрактом, назначением и потребителем. [Навигатор](README.md) и [правила графа](shared/specification-system.md) задают порядок чтения. Статус документа и состояние реализации различаются; исторический материал сам по себе не подтверждает работающую функцию.

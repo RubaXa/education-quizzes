@@ -2,6 +2,7 @@
  * @see ../docs/product/homework-review.md
  * @see ../docs/modules/reviews/README.md
  * @see ../docs/decisions/readable-review-prose-2026-10-18.md
+ * @see ../docs/decisions/math-parent-stage-review-2026-10-19.md
  */
 /** @see ../docs/modules/materials/material-clarification.md */
 import { sourceReviewErrors } from '../src/lib/materialRequest.ts'
@@ -293,12 +294,12 @@ function validateReviewResult(review, page, guide, { requireChallenge = false } 
     || review.items.some((item) => item.stageId && !review.checkableStageIds.includes(item.stageId)))) {
     throw new Error('Проверяемые этапы должны иметь устойчивые ID и сопоставленный пункт разбора.')
   }
-  if (guide?.presentation === 'learning-route') {
+  if (['learning-route', 'math-route'].includes(guide?.presentation)) {
     const stageIds = guide.stages.map((stage) => stage.id)
     if (!Array.isArray(review.checkableStageIds) || review.checkableStageIds.length !== stageIds.length
       || stageIds.some((id) => !review.checkableStageIds.includes(id)
         || !review.items.some((item) => item.stageId === id))) {
-      throw new Error('Каждый этап опубликованного родительского маршрута должен иметь проверяемый пункт разбора и включённый по умолчанию переключатель.')
+      throw new Error('Каждый этап опубликованного родительского маршрута должен иметь сопоставленный пункт разбора.')
     }
   }
   validateAssessmentBasis(review)

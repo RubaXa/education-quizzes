@@ -118,7 +118,7 @@ describe('weekend uses the complete parent guidance flow', () => {
     expect(send.disabled).toBe(false)
     scene.fail = false
     await act(async () => { send.click(); await vi.waitFor(() => expect(scene.events).toHaveLength(1)) })
-    expect(host.textContent).toContain('Помощь отправлена')
+    expect(host.textContent).toContain('Подсказка отправлена')
   })
   it('refuses a stale prepared guide before writing any release or notification', async () => {
     scene.serverRevision = 2
@@ -137,12 +137,26 @@ describe('weekend uses the complete parent guidance flow', () => {
     expect(scene.events[0].data).toMatchObject({ level: 'reveal', text: scene.guide!.stages[0].revealPreview })
     expect(scene.inbox).toHaveLength(1)
   })
-  it('keeps an already released stage closed to duplicate sending after reopening', async () => {
+  it('allows sending the full step after the hint for the same stage', async () => {
+    const host = await render()
+    const hintSend = await chooseHint(host)
+    await act(async () => { hintSend.click(); await vi.waitFor(() => expect(scene.events).toHaveLength(1)) })
+    expect(host.querySelector('[aria-label^="Выбрать подсказку"]')).toBeNull()
+    expect(host.querySelector('[aria-label^="Выбрать показ полного шага"]')).not.toBeNull()
+
+    await act(async () => host.querySelector<HTMLButtonElement>('[aria-label^="Выбрать показ полного шага"]')!.click())
+    const revealSend = host.querySelector<HTMLButtonElement>('.day-learning-route-preview button')!
+    await act(async () => { revealSend.click(); await vi.waitFor(() => expect(scene.events).toHaveLength(2)) })
+    expect(scene.events.map((event) => event.data.level)).toEqual(['hint', 'reveal'])
+    expect(scene.events[1].data.text).toBe(scene.guide!.stages[0].revealPreview)
+    expect(host.querySelector('[aria-label^="Выбрать показ"]')).toBeNull()
+  })
+  it('keeps an already released hint closed but leaves the full step available after reopening', async () => {
     scene.events = [{ id: 'old', data: { taskId: 'problem', stageId: 'choices', level: 'hint', text: scene.guide!.stages[0].hintPreview, guideRevision: 1, createdAt: { seconds: 100 } } }]
     const host = await render()
-    expect(host.textContent).toContain('Помощь отправлена')
+    expect(host.textContent).toContain('Подсказка отправлена')
     expect(host.querySelector('[aria-label^="Выбрать подсказку"]')).toBeNull()
-    expect(host.querySelector('[aria-label^="Выбрать показ"]')).toBeNull()
+    expect(host.querySelector('[aria-label^="Выбрать показ полного шага"]')).not.toBeNull()
     expect(scene.inbox).toHaveLength(0)
   })
   it('connects an existing checkable stage switch to the parent decision command', async () => {
@@ -165,7 +179,7 @@ describe('weekend uses the complete parent guidance flow', () => {
     expect(scene.inbox).toHaveLength(1)
     expect(scene.reads).toContain('families/family/members')
     expect(scene.inbox[0]).toMatchObject({ path: `users/learner/inbox/${scene.events[0].id}`, data: { type: 'parent_guidance', taskId: 'problem', studentToken: 'source' } })
-    expect(parent.textContent).toContain('Помощь отправлена')
+    expect(parent.textContent).toContain('Подсказка отправлена')
     expect(parent.querySelector('[aria-label^="Выбрать подсказку"]')).toBeNull()
     const student = await render(false)
     expect(student.textContent).toContain(scene.guide!.stages[0].hintPreview)

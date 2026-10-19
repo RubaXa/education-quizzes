@@ -1002,22 +1002,18 @@
       }
     },
     "src/components/ParentTaskGuide.tsx": {
-      "sha256": "27c33120220420b03fe0ed41609a3c7cccd9207b3428b22313c2bcf662b094c5",
-      "record": "docs/decisions/review-prose-coverage-2026-10-19.md",
+      "sha256": "d61efa71ce2ce35e96d71303ba1f289b1a61b9080401ec44eed9d876ea09b812",
+      "record": "docs/decisions/guidance-hint-then-reveal-2026-10-19.md",
       "specs": [
-        "docs/modules/reviews/review-criteria-provenance.md",
-        "docs/shared/design/README.md"
+        "docs/modules/reviews/subject-aware-guidance.md"
       ],
       "tests": [
-        "storage/review-requirements.test.mjs",
-        "storage/review-projection.test.mjs",
-        "src/components/WorkReview.requirements.test.tsx",
-        "src/lib/reviewProse.test.ts",
-        "src/components/ReviewProse.integration.test.tsx"
+        "src/components/ParentTaskGuide.test.tsx",
+        "src/WeekendMathSlot.guidance.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 подтвердил родительский вход, прислал склейки слов и чисел в разборе и прямо потребовал проверить и исправить их во многих местах."
+        "evidence": "Родитель 19.10.2026 прямо попросил после отправки подсказки оставить кнопку «Отправить весь шаг» для того же этапа."
       },
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
@@ -1851,20 +1847,18 @@
       }
     },
     "scripts/submissions.mjs": {
-      "sha256": "9ff9813a7e80716e0446e3a8a74a63b5b9a83bbb8067d6f0df21a6f70311f7d7",
-      "record": "docs/decisions/review-prose-coverage-2026-10-19.md",
+      "sha256": "7d149ea1a35be0a9a5529934b92093ef57fcd80c4a4e802eb0d36c3a49527176",
+      "record": "docs/decisions/math-parent-stage-review-2026-10-19.md",
       "specs": [
-        "docs/modules/reviews/review-criteria-provenance.md",
-        "docs/shared/design/README.md"
+        "docs/modules/reviews/math-solution-route.md"
       ],
       "tests": [
-        "src/lib/reviewProse.test.ts",
-        "src/components/WorkReview.requirements.test.tsx",
-        "src/components/ReviewProse.integration.test.tsx"
+        "src/components/ParentTaskGuide.test.tsx",
+        "src/components/WorkReview.requirements.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 подтвердил родительский вход, прислал склейки слов и чисел в разборе и прямо потребовал проверить и исправить их во многих местах."
+        "evidence": "Родитель 19.10.2026 попросил изучить историю/спецификации и прямо распорядился реализовать поэтапный разбор, если полного сопоставления шагов с его проверкой ещё нет."
       }
     },
     "src/components/WorkReview.tsx": {
