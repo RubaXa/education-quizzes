@@ -450,6 +450,27 @@
       "path": "docs/decisions/calendar-vacation-sticky-2026-10-19.md"
     },
     {
+      "id": "decision.canonical-short-key-repair-2026-10-19",
+      "status": "accepted",
+      "implementation": "implemented",
+      "parent": "module.assessments.quizzes",
+      "uses": [],
+      "created": "2026-10-19",
+      "updated": "2026-10-19",
+      "consumers": [
+        "Education sync operator"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/canonical-short-key-repair-2026-10-19.md"
+    },
+    {
       "id": "decision.course-placement-2026-10-18",
       "status": "accepted",
       "implementation": "not-applicable",
@@ -2057,6 +2078,20 @@
       "kind": "artifact",
       "purpose": "Короткие правила сохранения согласованных решений и поиска контрактов до правки",
       "consumer": "Агент Codex"
+    },
+    {
+      "id": "file:assessment/canonical-short-key.mjs",
+      "path": "assessment/canonical-short-key.mjs",
+      "kind": "artifact",
+      "purpose": "Узкое добавление уже заданного correct в accepted после смысловой сверки",
+      "consumer": "`scripts/quiz.mjs`"
+    },
+    {
+      "id": "file:assessment/canonical-short-key.test.mjs",
+      "path": "assessment/canonical-short-key.test.mjs",
+      "kind": "verification",
+      "purpose": "Технический ноль, сохранение ответа, идемпотентность и запрет расширения типа операции",
+      "consumer": "Vitest; оператор"
     },
     {
       "id": "file:assessment/decision-graph.mjs",
@@ -6069,6 +6104,7 @@
         "assessment pipeline"
       ],
       "code": [
+        "assessment/canonical-short-key.mjs",
         "assessment/question-copy.mjs",
         "day/merge.mjs",
         "scripts/check-quiz-switch-viewport.mjs",
@@ -6093,6 +6129,7 @@
         "module.assessments.result-presentation-proposal"
       ],
       "sections": [
+        "canonical-short-repair",
         "публикация-без-новой-версии-приложения",
         "попытка-и-вопросы",
         "возврат-из-теста",
@@ -9760,6 +9797,11 @@
       "type": "implements"
     },
     {
+      "from": "file:assessment/canonical-short-key.mjs",
+      "to": "module.assessments.quizzes",
+      "type": "implements"
+    },
+    {
       "from": "file:assessment/decision-graph.mjs",
       "to": "module.assessments.assessment-decision-graph",
       "type": "implements"
@@ -13143,6 +13185,16 @@
       "from": "module.assessments.quiz-chain-proposal",
       "to": "module.assessments.result-presentation-proposal",
       "type": "uses"
+    },
+    {
+      "from": "module.assessments.quizzes",
+      "to": "decision.canonical-short-key-repair-2026-10-19",
+      "type": "contains"
+    },
+    {
+      "from": "module.assessments.quizzes",
+      "to": "file:assessment/canonical-short-key.test.mjs",
+      "type": "verified-by"
     },
     {
       "from": "module.assessments.quizzes",

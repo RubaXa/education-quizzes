@@ -11,6 +11,7 @@ import { assignmentShapeErrors } from '../day/data-contract.mjs'
 import { assertFollowupCoverage, assertOpenRevisionReadback, openQuizRevision } from '../assessment/followup-contract.mjs'
 import { assertLineageContinuation, quizLineageStatistics } from '../assessment/quiz-lineage.mjs'
 import { grade, summarize } from '../src/lib/quiz.ts'
+import { canonicalShortKeyRepair, correctionFingerprint } from '../assessment/canonical-short-key.mjs'
 import { needsQuizFollowup } from '../src/lib/quizCompletion.ts'
 
 const projectId = 'education-9d7c6'
@@ -520,6 +521,44 @@ async function exportAttempt(learnerToken, outputPath) {
   console.log(`Результат сохранён в ${resolve(outputPath)}`)
 }
 
+/** @see ../docs/modules/assessments/quizzes.md#canonical-short-repair */
+async function repairCanonicalShortAnswers(learnerToken, requestPath) {
+  if (!learnerToken || !requestPath) fail('Нужны токен и JSON доказательств.')
+  const request = loadJson(requestPath)
+  const owner = assignmentOwner()
+  const assignmentRef = db.doc(`assignments/${learnerToken}`)
+  const keyRef = db.doc(`answerKeys/${learnerToken}`)
+  const reviewRef = db.doc(`reviews/${learnerToken}`)
+  const [assignmentDoc, keyDoc, reviewDoc] = await Promise.all([assignmentRef.get(), keyRef.get(), reviewRef.get()])
+  if (!assignmentDoc.exists || !keyDoc.exists) fail('Назначение или ключ отсутствует.')
+  const assignment = assignmentDoc.data(), key = keyDoc.data(), review = reviewDoc.data() ?? null
+  assertQuizOwner(assignment, owner)
+  const repaired = canonicalShortKeyRepair(assignment, key, request)
+  const before = summarize(grade(assignment, key, review))
+  const after = summarize(grade(assignment, repaired.key, review))
+  const apply = process.argv.includes('--apply')
+  let backup = null
+  if (apply && repaired.changed.length) {
+    const folder = resolve(localDir, 'quiz-corrections')
+    mkdirSync(folder, { recursive: true })
+    backup = resolve(folder, `${assignment.testId}-${Date.now()}.json`)
+    writeFileSync(backup, JSON.stringify({ owner, request, assignment, key, review, before, after, repairedKey: repaired.key }, null, 2), { mode: 0o600, flag: 'wx' })
+    await db.runTransaction(async (transaction) => {
+      const [currentAssignment, currentKey] = await Promise.all([transaction.get(assignmentRef), transaction.get(keyRef)])
+      assertQuizOwner(currentAssignment.data(), owner)
+      if (correctionFingerprint(currentAssignment.data()) !== correctionFingerprint(assignment)
+        || correctionFingerprint(currentKey.data()) !== correctionFingerprint(key)) fail('Состояние изменилось; перечитайте попытку и повторите проверку.')
+      transaction.update(keyRef, { entries: repaired.key.entries })
+    })
+  }
+  if (apply) {
+    const [actualAssignment, actualKey] = await Promise.all([assignmentRef.get(), keyRef.get()])
+    if (correctionFingerprint(actualAssignment.data()) !== correctionFingerprint(assignment)
+      || correctionFingerprint(actualKey.data()) !== correctionFingerprint(repaired.key)) fail('Исправление не подтверждено readback.')
+  }
+  console.log(JSON.stringify({ testId: assignment.testId, changed: repaired.changed, before, after, applied: apply, verified: apply, backup }))
+}
+
 async function reviewAttempt(learnerToken, reviewPath) {
   if (!learnerToken) fail('Укажите токен теста.')
   const review = loadJson(reviewPath)
@@ -545,6 +584,7 @@ try {
   else if (command === 'bind-family') await bindFamily(first, second, third)
   else if (command === 'export') await exportAttempt(first, second)
   else if (command === 'review') await reviewAttempt(first, second)
+  else if (command === 'repair-canonical-short-answers') await repairCanonicalShortAnswers(first, second)
   else fail('Команды: validate SPEC.json | create SPEC.json [PERSON_ID] | revise-open TOKEN SPEC.json PERSON_ID | history TOKEN .local/OUTPUT.json [PLAN.json] | board-add MANIFEST.json | board-status | sync-links [--apply] | audit-access | list | export TOKEN OUTPUT.json | review TOKEN REVIEW.json')
 } catch (error) {
   console.error(error instanceof Error ? error.message : error)

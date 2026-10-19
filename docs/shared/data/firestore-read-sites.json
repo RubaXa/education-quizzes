@@ -3374,7 +3374,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#ffa52efd6c07",
     "file": "scripts/quiz.mjs",
-    "line": 162,
+    "line": 163,
     "api": "admin.get",
     "target": "db.collection('assignments').where('testId', '==', spec.linkedToTestId)",
     "group": "operator-other",
@@ -3386,7 +3386,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#9ea2d7f73efd",
     "file": "scripts/quiz.mjs",
-    "line": 170,
+    "line": 171,
     "api": "admin.get",
     "target": "db.doc(`reviews/${parents.docs[0].id}`)",
     "group": "operator-other",
@@ -3398,7 +3398,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#67ef58f895e7",
     "file": "scripts/quiz.mjs",
-    "line": 170,
+    "line": 171,
     "api": "admin.get",
     "target": "db.doc(`answerKeys/${parents.docs[0].id}`)",
     "group": "operator-other",
@@ -3410,7 +3410,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#c7a806345120",
     "file": "scripts/quiz.mjs",
-    "line": 195,
+    "line": 196,
     "api": "admin.get",
     "target": "db.collection('assignments').where('linkedToTestId', '==', spec.linkedToTestId)",
     "group": "operator-other",
@@ -3422,7 +3422,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#62b9e3afebf5",
     "file": "scripts/quiz.mjs",
-    "line": 279,
+    "line": 280,
     "api": "admin.get",
     "target": "db.doc(`assignments/${learnerToken}`)",
     "group": "operator-other",
@@ -3434,7 +3434,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#93adc9e22f88",
     "file": "scripts/quiz.mjs",
-    "line": 305,
+    "line": 306,
     "api": "admin.get",
     "target": "db.doc(`assignments/${tokenToRead}`)",
     "group": "operator-other",
@@ -3446,7 +3446,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#a13ac351f175",
     "file": "scripts/quiz.mjs",
-    "line": 305,
+    "line": 306,
     "api": "admin.get",
     "target": "db.doc(`answerKeys/${tokenToRead}`)",
     "group": "operator-other",
@@ -3458,7 +3458,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#ef0cb380cd40",
     "file": "scripts/quiz.mjs",
-    "line": 306,
+    "line": 307,
     "api": "admin.get",
     "target": "db.doc(`reviews/${tokenToRead}`)",
     "group": "operator-other",
@@ -3470,7 +3470,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#0a2cf8c61005",
     "file": "scripts/quiz.mjs",
-    "line": 316,
+    "line": 317,
     "api": "admin.get",
     "target": "db.collection('assignments').where('testId', '==', assignment.linkedToTestId)",
     "group": "operator-other",
@@ -3482,7 +3482,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#5af2f146a13f",
     "file": "scripts/quiz.mjs",
-    "line": 351,
+    "line": 352,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -3494,7 +3494,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#5af2f146a13f-2",
     "file": "scripts/quiz.mjs",
-    "line": 351,
+    "line": 352,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -3506,7 +3506,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#5af2f146a13f-3",
     "file": "scripts/quiz.mjs",
-    "line": 351,
+    "line": 352,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -3518,7 +3518,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#5af2f146a13f-4",
     "file": "scripts/quiz.mjs",
-    "line": 361,
+    "line": 362,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -3530,7 +3530,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#5af2f146a13f-5",
     "file": "scripts/quiz.mjs",
-    "line": 361,
+    "line": 362,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -3542,7 +3542,7 @@
   {
     "id": "scripts/quiz.mjs#admin.getAll#b0c1c92f920c",
     "file": "scripts/quiz.mjs",
-    "line": 374,
+    "line": 375,
     "api": "admin.getAll",
     "target": "db",
     "group": "operator-other",
@@ -3554,7 +3554,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#2e47d8dc9017",
     "file": "scripts/quiz.mjs",
-    "line": 391,
+    "line": 392,
     "api": "admin.get",
     "target": "db.doc(`assignments/${item.token}`)",
     "group": "operator-other",
@@ -3566,7 +3566,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#73bcb67b3161",
     "file": "scripts/quiz.mjs",
-    "line": 418,
+    "line": 419,
     "api": "admin.get",
     "target": "db.collection(`dashboard/${ownerToken}/assignments`)",
     "group": "operator-other",
@@ -3578,7 +3578,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#b65d76738868",
     "file": "scripts/quiz.mjs",
-    "line": 420,
+    "line": 421,
     "api": "admin.get",
     "target": "db.doc(`assignments/${item.id}`)",
     "group": "operator-other",
@@ -3590,7 +3590,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#6f14da11a5d7",
     "file": "scripts/quiz.mjs",
-    "line": 434,
+    "line": 435,
     "api": "admin.get",
     "target": "db.collection(`dashboard/${board}/assignments`)",
     "group": "operator-other",
@@ -3602,7 +3602,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#b65d76738868-2",
     "file": "scripts/quiz.mjs",
-    "line": 436,
+    "line": 437,
     "api": "admin.get",
     "target": "db.doc(`assignments/${item.id}`)",
     "group": "operator-other",
@@ -3614,7 +3614,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#03a1fbb7fefa",
     "file": "scripts/quiz.mjs",
-    "line": 457,
+    "line": 458,
     "api": "admin.get",
     "target": "db.collection(`dashboard/${boardToken}/assignments`)",
     "group": "operator-other",
@@ -3626,7 +3626,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#5b369111a272",
     "file": "scripts/quiz.mjs",
-    "line": 461,
+    "line": 462,
     "api": "admin.get",
     "target": "db.doc(`assignments/${entry.id}`)",
     "group": "operator-other",
@@ -3638,7 +3638,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#7f9af9eb32fd",
     "file": "scripts/quiz.mjs",
-    "line": 479,
+    "line": 480,
     "api": "admin.get",
     "target": "db.collection(`dashboard/${learnerBoardToken()}/assignments`)",
     "group": "operator-other",
@@ -3650,7 +3650,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#b65d76738868-3",
     "file": "scripts/quiz.mjs",
-    "line": 482,
+    "line": 483,
     "api": "admin.get",
     "target": "db.doc(`assignments/${item.id}`)",
     "group": "operator-other",
@@ -3662,7 +3662,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#7710d62b032d",
     "file": "scripts/quiz.mjs",
-    "line": 496,
+    "line": 497,
     "api": "admin.get",
     "target": "db.doc(`dashboard/${learnerBoardToken()}/assignments/${placement.token}`)",
     "group": "operator-other",
@@ -3674,7 +3674,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#49263dc18a20",
     "file": "scripts/quiz.mjs",
-    "line": 499,
+    "line": 500,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -3686,7 +3686,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#62b9e3afebf5-2",
     "file": "scripts/quiz.mjs",
-    "line": 510,
+    "line": 511,
     "api": "admin.get",
     "target": "db.doc(`assignments/${learnerToken}`)",
     "group": "operator-other",
@@ -3698,7 +3698,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#0e6be1588830",
     "file": "scripts/quiz.mjs",
-    "line": 511,
+    "line": 512,
     "api": "admin.get",
     "target": "db.doc(`answerKeys/${learnerToken}`)",
     "group": "operator-other",
@@ -3710,7 +3710,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#f6f324f19b6f",
     "file": "scripts/quiz.mjs",
-    "line": 512,
+    "line": 513,
     "api": "admin.get",
     "target": "db.doc(`reviews/${learnerToken}`)",
     "group": "operator-other",
@@ -3720,9 +3720,93 @@
     "note": "Проверить кратность адресного чтения в одном EducationSync: локальный снимок/мемоизация по ID допустимы, если не нарушают актуальность перед записью."
   },
   {
+    "id": "scripts/quiz.mjs#admin.get#a95d9b7de7f0",
+    "file": "scripts/quiz.mjs",
+    "line": 532,
+    "api": "admin.get",
+    "target": "assignmentRef",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "operator-point",
+    "refresh": "explicit canonical-short repair only",
+    "note": "One owned submitted quiz: initial assignment/key/review, compare-and-set assignment/key and exact readback. No collection scan, polling or new client subscription; canonical-short-repair contract."
+  },
+  {
+    "id": "scripts/quiz.mjs#admin.get#91aa8173d754",
+    "file": "scripts/quiz.mjs",
+    "line": 532,
+    "api": "admin.get",
+    "target": "keyRef",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "operator-point",
+    "refresh": "explicit canonical-short repair only",
+    "note": "One owned submitted quiz: initial assignment/key/review, compare-and-set assignment/key and exact readback. No collection scan, polling or new client subscription; canonical-short-repair contract."
+  },
+  {
+    "id": "scripts/quiz.mjs#admin.get#f6c6727e8147",
+    "file": "scripts/quiz.mjs",
+    "line": 532,
+    "api": "admin.get",
+    "target": "reviewRef",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "operator-point",
+    "refresh": "explicit canonical-short repair only",
+    "note": "One owned submitted quiz: initial assignment/key/review, compare-and-set assignment/key and exact readback. No collection scan, polling or new client subscription; canonical-short-repair contract."
+  },
+  {
+    "id": "scripts/quiz.mjs#admin.get#5af2f146a13f-6",
+    "file": "scripts/quiz.mjs",
+    "line": 547,
+    "api": "admin.get",
+    "target": "transaction",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "operator-point",
+    "refresh": "explicit canonical-short repair only",
+    "note": "One owned submitted quiz: initial assignment/key/review, compare-and-set assignment/key and exact readback. No collection scan, polling or new client subscription; canonical-short-repair contract."
+  },
+  {
+    "id": "scripts/quiz.mjs#admin.get#5af2f146a13f-7",
+    "file": "scripts/quiz.mjs",
+    "line": 547,
+    "api": "admin.get",
+    "target": "transaction",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "operator-point",
+    "refresh": "explicit canonical-short repair only",
+    "note": "One owned submitted quiz: initial assignment/key/review, compare-and-set assignment/key and exact readback. No collection scan, polling or new client subscription; canonical-short-repair contract."
+  },
+  {
+    "id": "scripts/quiz.mjs#admin.get#a95d9b7de7f0-2",
+    "file": "scripts/quiz.mjs",
+    "line": 555,
+    "api": "admin.get",
+    "target": "assignmentRef",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "operator-point",
+    "refresh": "explicit canonical-short repair only",
+    "note": "One owned submitted quiz: initial assignment/key/review, compare-and-set assignment/key and exact readback. No collection scan, polling or new client subscription; canonical-short-repair contract."
+  },
+  {
+    "id": "scripts/quiz.mjs#admin.get#91aa8173d754-2",
+    "file": "scripts/quiz.mjs",
+    "line": 555,
+    "api": "admin.get",
+    "target": "keyRef",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "operator-point",
+    "refresh": "explicit canonical-short repair only",
+    "note": "One owned submitted quiz: initial assignment/key/review, compare-and-set assignment/key and exact readback. No collection scan, polling or new client subscription; canonical-short-repair contract."
+  },
+  {
     "id": "scripts/quiz.mjs#admin.get#62b9e3afebf5-3",
     "file": "scripts/quiz.mjs",
-    "line": 527,
+    "line": 566,
     "api": "admin.get",
     "target": "db.doc(`assignments/${learnerToken}`)",
     "group": "operator-other",

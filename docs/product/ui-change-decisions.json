@@ -1,5 +1,12 @@
 {
   "files": {
+    "assessment/canonical-short-key.mjs": {
+      "sha256":"2b56fffdc8d26c5ae73440eab1afdd6544becc7eabcc9bdd80ab1c2e5473a3a0",
+      "record":"docs/decisions/canonical-short-key-repair-2026-10-19.md",
+      "specs":["docs/modules/assessments/quizzes.md"],
+      "tests":["assessment/canonical-short-key.test.mjs"],
+      "authorization":{"status":"direct-request","evidence":"Пользователь19.10 поручил полный EducationSync28f41614 с приложенным навыком:проверить технические нули до выводов об ошибках,при отсутствии операции добавить узкую штатную команду с контрактом и тестом."}
+    },
     "day/grade-notice-backfill.mjs": {
       "sha256": "b8ecea11a436771964f4e21e91f286019aa27c44f3e1779f82b8a89488030e9f",
       "record": "docs/decisions/grade-notice-recovery-2026-10-19.md",
@@ -1063,8 +1070,8 @@
       }
     },
     "scripts/quiz.mjs": {
-      "sha256": "1a75e66f08b09dd1463cf44c8f80ffec449a2d15238b153a559fd0a28b736c60",
-      "record": "docs/decisions/history-default-universal-request-2026-10-16.md",
+      "sha256": "1c91947393ec3da0df59e464954f2240d3750b3fd8bcc6a70c62d3cb4aecbeba",
+      "record": "docs/decisions/canonical-short-key-repair-2026-10-19.md",
       "specs": [
         "docs/modules/assessments/quiz-chain-proposal.md",
         "docs/modules/assessments/assessment-decision-graph.md",
@@ -1076,6 +1083,7 @@
         "src/lib/homeworkStatus.test.ts",
         "src/lib/store.optionalQuiz.test.ts",
         "assessment/quiz-lineage.test.mjs"
+        ,"assessment/canonical-short-key.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
