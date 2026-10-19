@@ -1,6 +1,7 @@
 /** Browser geometry regression for compact schedule rows.
  * @see ../docs/shared/design/README.md#mobile-card-headings
  * @see ../docs/decisions/calendar-fixed-height-2026-10-19.md
+ * @see ../docs/decisions/calendar-vacation-inset-2026-10-19.md
  */
 import { spawn } from 'node:child_process'
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
@@ -50,17 +51,23 @@ try {
 
 const calendarMeasurement = `JSON.stringify((()=>{const box=s=>{const r=document.querySelector(s).getBoundingClientRect();return{top:r.top,height:r.height}},strip=document.querySelector('.day-dashboard-dates');return{
   card:box('.day-dashboard-calendar'),strip:box('.day-dashboard-dates'),pageWidth:document.documentElement.scrollWidth,
-  buttons:[...document.querySelectorAll('[data-date]')].map((b,index,all)=>{const r=b.getBoundingClientRect();return{date:b.dataset.date,top:r.top,width:r.width,height:r.height,gap:index?r.left-all[index-1].getBoundingClientRect().right:null}}),
+  buttons:[...document.querySelectorAll('[data-date]')].map((b,index,all)=>{const r=b.getBoundingClientRect();return{date:b.dataset.date,top:r.top,width:r.width,height:r.height,group:b.closest('.day-dashboard-vacation')?.getAttribute('aria-label')??null,gap:index?r.left-all[index-1].getBoundingClientRect().right:null}}),
+  groups:[...document.querySelectorAll('.day-dashboard-vacation')].map(g=>{const r=g.getBoundingClientRect(),b=[...g.querySelectorAll('[data-date]')],f=b[0].getBoundingClientRect(),l=b.at(-1).getBoundingClientRect(),s=strip.getBoundingClientRect();return{top:f.top-r.top,bottom:r.bottom-f.bottom,left:f.left-r.left,right:r.right-l.right,unclipped:r.top>=s.top&&r.bottom<=s.bottom}}),
   scroll:strip.scrollLeft,canScroll:strip.scrollWidth>strip.clientWidth}})())`
 function assertCalendarGeometry(layout, baseline, width, phase) {
   const near = (a, b) => Math.abs(a - b) <= 0.5
   const changed = layout.buttons.find((button, index) => {
     const saved = baseline.buttons[index]
+    const previousGroup = layout.buttons[index - 1]?.group
+    const extraGap = index && button.group !== previousGroup ? 8 * (Number(Boolean(button.group)) + Number(Boolean(previousGroup))) : 0
     return !saved || button.date !== saved.date || !near(button.top, saved.top) || !near(button.width, saved.width) || !near(button.height, saved.height)
-      || button.gap !== null && !near(button.gap, saved.gap)
+      || button.gap !== null && !near(button.gap, saved.gap + extraGap)
   })
   if (!near(layout.card.height, baseline.card.height) || !near(layout.strip.height, baseline.strip.height)
     || layout.pageWidth > width || changed) throw Error(`Каникулы изменили геометрию: ${JSON.stringify({ width, phase, card: layout.card, baselineCard: baseline.card, changed })}`)
+  if (layout.groups.some(group => !group.unclipped || ['top', 'bottom', 'left', 'right'].some(side => !near(group[side], 8)))) {
+    throw Error(`Каникульная рамка требует видимый отступ8px с каждой стороны: ${JSON.stringify({ width, phase, groups: layout.groups })}`)
+  }
 }
 // @see ../docs/shared/design/statuses.md#matrix — fixture mirrors the icon/count/chevron columns.
 const statusIcon = (status) => {
@@ -145,7 +152,7 @@ try {
           writeFileSync(join(screenshotDir, `calendar-${width}.png`), Buffer.from(shot.data, 'base64'))
         }
       }
-      console.log(`Календарь ${width}px / шрифт ${fontSize}px: высота, размеры и линия дней сохраняются`)
+      console.log(`Календарь ${width}px / шрифт ${fontSize}px: высота, размеры и линия дней сохраняются; отступ каникул 8px виден`)
     }
     for (const width of [320, 390, 540]) for (const pastExpanded of [false, true]) for (const open of [false, true]) {
       await send('Emulation.setDeviceMetricsOverride', { width, height: 844, deviceScaleFactor: 1, mobile: true })
