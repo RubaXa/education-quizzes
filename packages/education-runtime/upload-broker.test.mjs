@@ -105,6 +105,7 @@ describe('upload queue broker', () => {
     expect(finalized.storage.sha256).toBe(request.sha256)
     expect(finalized.eventProducerVersion).toBe(1)
     expect(finalized.eventReceiptId).toMatch(/^[a-f0-9]{64}$/)
+    expect(finalized.eventOperationId).toBe(`upload-confirmed:${id}`)
     const event = rows.get(`educationEvents/${finalized.eventReceiptId}`)
     expect(event.eventType).toBe('upload.confirmed')
     expect(event.operationId).toBe(`upload-confirmed:${id}`)

@@ -718,6 +718,38 @@
       "path": "docs/decisions/mesh-calendar-date-scopes-2026-10-18.md"
     },
     {
+      "id": "decision.photo-upload-authorization-and-freshness-2026-10-20",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-10-20",
+      "updated": "2026-10-20",
+      "parent": "module.materials.storage-privacy",
+      "uses": [
+        "module.synchronization.event-queue"
+      ],
+      "consumers": [
+        "student photo upload",
+        "Firestore Rules operator",
+        "web app maintainer"
+      ],
+      "code": [
+        "src/DayPage.tsx",
+        "src/WeekendMathSlot.tsx",
+        "src/lib/dayStore.ts",
+        "packages/education-runtime/upload-broker.mjs",
+        "firestore.rules",
+        "rules-test-fixtures/photo-upload-suite.mjs"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/photo-upload-authorization-and-freshness-2026-10-20.md"
+    },
+    {
       "id": "decision.pupil-vacations-2026-10-19",
       "status": "accepted",
       "implementation": "implemented",
@@ -3353,14 +3385,14 @@
       "id": "file:packages/education-runtime/upload-broker.mjs",
       "path": "packages/education-runtime/upload-broker.mjs",
       "kind": "artifact",
-      "purpose": "Queue handlers для фото и семейных PDF, атомарные финальные receipts и bounded legacy-event producer",
+      "purpose": "Queue handlers для фото и семейных PDF, атомарные финальные receipts с согласованными eventOperationId/eventReceiptId и bounded legacy-event producer",
       "consumer": "Education event runtime; upload adapters"
     },
     {
       "id": "file:packages/education-runtime/upload-broker.test.mjs",
       "path": "packages/education-runtime/upload-broker.test.mjs",
       "kind": "verification",
-      "purpose": "Регрессии link issuance, атомарного `upload.confirmed` и bounded reconciliation без source subscriptions",
+      "purpose": "Регрессии link issuance, атомарного `upload.confirmed` receipt identity и bounded reconciliation без source subscriptions",
       "consumer": "Vitest; разработчик"
     },
     {
@@ -3924,6 +3956,13 @@
       "consumer": "Разработчик; агент"
     },
     {
+      "id": "file:rules-test-fixtures/photo-upload-suite.mjs",
+      "path": "rules-test-fixtures/photo-upload-suite.mjs",
+      "kind": "artifact",
+      "purpose": "Переиспользуемые вымышленные Firestore Rules REST :test fixtures без секретов",
+      "consumer": "Operator diagnostic; Vitest"
+    },
+    {
       "id": "file:scripts/access-management.mjs",
       "path": "scripts/access-management.mjs",
       "kind": "artifact",
@@ -4216,6 +4255,13 @@
       "kind": "verification",
       "purpose": "Статическая проверка узкого родительского права без изменения ответов",
       "consumer": "Vitest; выпуск правил"
+    },
+    {
+      "id": "file:scripts/firestore-rules-photo-upload-suite.test.mjs",
+      "path": "scripts/firestore-rules-photo-upload-suite.test.mjs",
+      "kind": "verification",
+      "purpose": "Синтетическая REST :test матрица атомарной пары photo source/event и границ role/scope/device/task/path",
+      "consumer": "Vitest; Firestore Rules operator diagnostic"
     },
     {
       "id": "file:scripts/firestore-rules-role-diagnostics.test.mjs",
@@ -5495,8 +5541,8 @@
       "id": "file:src/lib/dayStore.ts",
       "path": "src/lib/dayStore.ts",
       "kind": "artifact",
-      "purpose": "Типы дня, подтверждённого намерения теста, результатов и подписка на страницы",
-      "consumer": "`src/DayPage.tsx`; `src/DayDashboard.tsx`"
+      "purpose": "Server-confirmed photo plan revision, task-condition freshness, atomic upload event and idempotent retry; day reads and types",
+      "consumer": "`src/DayPage.tsx`; `WeekendMathSlot.tsx`; `src/DayDashboard.tsx`"
     },
     {
       "id": "file:src/lib/educationEventProducer.ts",
@@ -8035,7 +8081,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-13",
-      "updated": "2026-10-19",
+      "updated": "2026-10-20",
       "consumers": [
         "Education sync operator",
         "sync-project CLI",
@@ -10253,6 +10299,11 @@
       "type": "uses"
     },
     {
+      "from": "decision.photo-upload-authorization-and-freshness-2026-10-20",
+      "to": "module.synchronization.event-queue",
+      "type": "uses"
+    },
+    {
       "from": "decision.pupil-vacations-2026-10-19",
       "to": "module.school-diary.dashboard",
       "type": "uses"
@@ -11079,6 +11130,11 @@
     },
     {
       "from": "file:firestore.rules",
+      "to": "decision.photo-upload-authorization-and-freshness-2026-10-20",
+      "type": "implements"
+    },
+    {
+      "from": "file:firestore.rules",
       "to": "decision.released-stage-parity-2026-10-20",
       "type": "implements"
     },
@@ -11265,6 +11321,11 @@
     {
       "from": "file:packages/education-runtime/telemetry.mjs",
       "to": "shared.server-runtime",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-runtime/upload-broker.mjs",
+      "to": "decision.photo-upload-authorization-and-freshness-2026-10-20",
       "type": "implements"
     },
     {
@@ -11555,6 +11616,16 @@
     {
       "from": "file:README.md",
       "to": "product.education",
+      "type": "implements"
+    },
+    {
+      "from": "file:rules-test-fixtures/photo-upload-suite.mjs",
+      "to": "decision.photo-upload-authorization-and-freshness-2026-10-20",
+      "type": "implements"
+    },
+    {
+      "from": "file:rules-test-fixtures/photo-upload-suite.mjs",
+      "to": "module.materials.storage-privacy",
       "type": "implements"
     },
     {
@@ -13274,6 +13345,11 @@
     },
     {
       "from": "file:src/DayPage.tsx",
+      "to": "decision.photo-upload-authorization-and-freshness-2026-10-20",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayPage.tsx",
       "to": "decisions.non-test-result-upload-2026-10-19",
       "type": "implements"
     },
@@ -13429,17 +13505,17 @@
     },
     {
       "from": "file:src/lib/dayStore.ts",
+      "to": "decision.photo-upload-authorization-and-freshness-2026-10-20",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/dayStore.ts",
       "to": "decision.released-stage-parity-2026-10-20",
       "type": "implements"
     },
     {
       "from": "file:src/lib/dayStore.ts",
       "to": "decisions.source-only-mesh-publication-2026-10-20",
-      "type": "implements"
-    },
-    {
-      "from": "file:src/lib/dayStore.ts",
-      "to": "module.assessments.assessment-decision-graph",
       "type": "implements"
     },
     {
@@ -14010,6 +14086,11 @@
     {
       "from": "file:src/WeekendMathSlot.css",
       "to": "module.reviews.problem-card-design-decisions",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/WeekendMathSlot.tsx",
+      "to": "decision.photo-upload-authorization-and-freshness-2026-10-20",
       "type": "implements"
     },
     {
@@ -14724,12 +14805,22 @@
     },
     {
       "from": "module.materials.storage-privacy",
+      "to": "decision.photo-upload-authorization-and-freshness-2026-10-20",
+      "type": "contains"
+    },
+    {
+      "from": "module.materials.storage-privacy",
       "to": "decisions.upload-origin-links-2026-10-18",
       "type": "contains"
     },
     {
       "from": "module.materials.storage-privacy",
       "to": "file:scripts/check-privacy.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.materials.storage-privacy",
+      "to": "file:scripts/firestore-rules-photo-upload-suite.test.mjs",
       "type": "verified-by"
     },
     {

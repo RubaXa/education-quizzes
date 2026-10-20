@@ -1,6 +1,7 @@
 /** @see ../../docs/modules/materials/material-clarification.md
  * @see ../../docs/decisions/family-essay-assignment-2026-10-20.md
- * @see ../../docs/decisions/source-only-mesh-publication-2026-10-20.md */
+ * @see ../../docs/decisions/source-only-mesh-publication-2026-10-20.md
+ * @see ../../docs/decisions/photo-upload-authorization-and-freshness-2026-10-20.md */
 import type { MaterialRequest, SourceAnalysis } from './materialRequest'
 import { collection, doc, documentId, getDoc, getDocFromServer, onSnapshot, query, serverTimestamp, where, writeBatch } from 'firebase/firestore'
 import { db } from './firebase'
@@ -9,6 +10,7 @@ import { prepareEducationEvent, stagePreparedEducationEvent } from './educationE
 import { isExplicitCdzTask } from '../../day/homework-kind.mjs'
 import { removePhotoFromOutbox, resumePhotoTransfer, savePhotoForTransfer } from './photoOutbox'
 import { normalizeDayPage } from './dayCompatibility'
+import { createEducationEventId } from '../../packages/education-events/envelope.mjs'
 
 export type DayInstruction = string | { text: string; source: { kind: 'mesh' | 'textbook' | 'review' | 'teacher-file' | 'family'; label: string; evidence?: string; excerpt?: string; ref?: string; certainty: 'confirmed' | 'uncertain' } }
 export type DaySubmission = { buttonLabel: string; lead?: string; items?: DayInstruction[]; photo?: string; description?: string }
@@ -95,6 +97,23 @@ export type DayUpload = { id: string; taskId: string; coveredTaskIds?: string[];
 export function uploadMatchesTask(upload: DayUpload, taskId: string) {
   return upload.coveredTaskIds ? upload.coveredTaskIds.includes(taskId)
     : upload.processingTaskIds ? upload.processingTaskIds.includes(taskId) : upload.taskId === taskId
+}
+function taskConditionOnPage(page: DayPageData | undefined, taskId: string): string | null {
+  if (!page) return null
+  for (const subject of page.subjects ?? []) for (const task of subject.tasks ?? []) {
+    if (task.id === taskId) return JSON.stringify({ id: task.id, title: task.title, detail: task.detail,
+      meshText: task.meshText ?? '', source: task.source, kind: task.kind,
+      problems: (task.problems ?? []).map((problem) => ({ id: problem.id, title: problem.title, detail: problem.detail,
+        originalText: problem.original?.text ?? '', attachmentRef: problem.original?.attachmentRef ?? '',
+        sourceSha256: problem.original?.crop?.sourceSha256 ?? '' })),
+      pageRefs: page.taskPageRefs?.[taskId] ?? [], materials: page.materialLinks?.[taskId] ?? [] })
+    const problem = task.problems?.find((item) => item.id === taskId)
+    if (problem) return JSON.stringify({ id: task.id, title: task.title, detail: task.detail, meshText: task.meshText ?? '',
+      problem: { id: problem.id, title: problem.title, detail: problem.detail, originalText: problem.original?.text ?? '',
+        attachmentRef: problem.original?.attachmentRef ?? '', sourceSha256: problem.original?.crop?.sourceSha256 ?? '' },
+      pageRefs: page.taskPageRefs?.[taskId] ?? [], materials: page.materialLinks?.[taskId] ?? [] })
+  }
+  return null
 }
 export type DayHelp = { id: string; taskId: string; revision: number; requestedAt?: unknown; requestKind?: 'condition' | 'start' | 'step' | 'check'; requestText?: string }
 export type DayWorkReview = {
@@ -282,24 +301,53 @@ export async function requestDayHelp(studentToken: string, taskId: string, revis
 }
 const photoTypes = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'])
 /** @see ../../docs/modules/materials/storage-privacy.md#upload-queue */
-export async function uploadDayPhoto(studentToken: string, taskId: string, file: File, uploadId: string = crypto.randomUUID(), planRevision?: number) {
+export async function uploadDayPhoto(studentToken: string, taskId: string, file: File, uploadId: string = crypto.randomUUID(), visiblePage?: DayPageData) {
   if (!photoTypes.has(file.type) || !file.size || file.size > 25_000_000) throw new Error('Выберите фото JPEG, PNG, WebP или HEIC размером до 25 МБ.')
   const deviceUid = getAuth().currentUser?.uid
   if (!deviceUid) throw new Error('Сначала откройте личную ссылку Education.')
-  const revision = planRevision ?? (await getDocFromServer(doc(db, 'dayPages', studentToken))).data()?.planRevision
-  if (!Number.isInteger(revision)) throw new Error('Не найдена текущая версия задания. Обновите страницу.')
   const sha256 = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', await file.arrayBuffer())), (byte) => byte.toString(16).padStart(2, '0')).join('')
   await savePhotoForTransfer(studentToken, uploadId, file)
   const ref = doc(db, 'dayUploads', studentToken, 'files', uploadId)
+  const eventOperationId = `upload-transfer:${uploadId}:requested`
   const owner = await getDocFromServer(doc(db, 'dayOwners', studentToken))
   const { familyId, childId } = owner.data() ?? {}
   if (!owner.exists() || typeof familyId !== 'string' || typeof childId !== 'string') throw new Error('Семейная привязка загрузки не найдена.')
-  const eventOperationId = `upload-transfer:${uploadId}:requested`
   const envelope = await prepareEducationEvent({
     eventType: 'upload.transfer_requested', familyId, childId, source: 'firestore',
     sourceRef: { kind: 'upload', documentPath: `dayUploads/${studentToken}/files/${uploadId}`, dayToken: studentToken, recordId: uploadId, taskId },
     operationId: eventOperationId, actor: { type: 'user', uid: deviceUid },
   } as Parameters<typeof prepareEducationEvent>[0])
+  const existing = await getDocFromServer(ref)
+  if (existing.exists()) {
+    const data = existing.data()
+    const transferEvent = data?.status === 'requested' || data?.status === 'awaiting-upload'
+      ? { eventType: 'upload.transfer_requested', operationId: eventOperationId }
+      : data?.status === 'uploaded'
+        ? { eventType: 'upload.bytes_uploaded', operationId: `upload-transfer:${uploadId}:uploaded` }
+        : ['pending', 'reviewed'].includes(data?.status)
+          ? { eventType: 'upload.confirmed', operationId: `upload-confirmed:${uploadId}` }
+          : undefined
+    const expectedReceiptId = transferEvent && await createEducationEventId({ ...transferEvent, familyId, childId,
+      source: 'firestore', sourceRef: envelope.sourceRef })
+    const legacyConfirmedOperationId = `upload-transfer:${uploadId}:uploaded`
+    const isLegacyConfirmedReceipt = ['pending', 'reviewed'].includes(data?.status)
+      && data?.eventOperationId === legacyConfirmedOperationId
+      && data?.storage?.state === 'stored' && data?.storage?.sha256 === sha256
+    if (transferEvent && data?.taskId === taskId && data?.sha256 === sha256 && data?.deviceUid === deviceUid
+      && (data?.eventOperationId === transferEvent.operationId || isLegacyConfirmedReceipt)
+      && data?.eventReceiptId === expectedReceiptId
+      && data?.eventProducerVersion === 1) return uploadId
+    if (data?.status === 'upload-error') throw new Error('Передача этого фото ожидает повтора обработчиком. Не создавайте новую заявку; попробуйте позже.')
+    throw new Error('Фото с таким идентификатором уже существует с другими данными. Обновите страницу и выберите фото заново.')
+  }
+  const pageSnapshot = await getDocFromServer(doc(db, 'dayPages', studentToken))
+  const currentPage = pageSnapshot.exists() ? normalizeDayPage(pageSnapshot.data()) : undefined
+  if (visiblePage && (!taskConditionOnPage(visiblePage, taskId) || !taskConditionOnPage(currentPage, taskId)
+    || taskConditionOnPage(visiblePage, taskId) !== taskConditionOnPage(currentPage, taskId))) {
+    throw new Error('Условие задания изменилось. Обновите страницу и проверьте карточку перед отправкой фото.')
+  }
+  const revision = currentPage?.planRevision
+  if (!Number.isInteger(revision)) throw new Error('Не найдена текущая версия задания. Обновите страницу.')
   try {
     const batch = writeBatch(db)
     batch.set(ref, { taskId, planRevision: revision, deviceUid, contentType: file.type, size: file.size, sha256,

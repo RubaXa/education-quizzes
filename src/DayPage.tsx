@@ -1,6 +1,7 @@
 /* @see ../docs/decisions/weekend-parent-actions-2026-10-18.md */
 /* @see ../docs/decisions/work-photo-expand-2026-10-18.md */
 /* @see ../docs/decisions/upload-origin-links-2026-10-18.md */
+/* @see ../docs/decisions/photo-upload-authorization-and-freshness-2026-10-20.md */
 /** @see ../docs/modules/materials/material-clarification.md */
 import MaterialRequest from '@/components/MaterialRequest'
 import LinkedWorkPhotos from '@/components/LinkedWorkPhotos'
@@ -354,7 +355,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
   async function sendPhoto(photo: LocalPhoto) {
     setLocalPhotos((current) => current.map((item) => item.id === photo.id && item.state !== 'deleting' ? { ...item, state: 'uploading', error: undefined } : item))
     try {
-      await uploadDayPhoto(studentToken, photo.taskId, photo.file, photo.id, page?.planRevision)
+      await uploadDayPhoto(studentToken, photo.taskId, photo.file, photo.id, page)
       setLocalPhotos((current) => current.map((item) => item.id === photo.id && item.state !== 'deleting' ? { ...item, state: 'saved' } : item))
     } catch (cause) {
       reportUiError(cause, 'Загрузка фото')

@@ -1,5 +1,6 @@
 import 'fake-indexeddb/auto'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { createEducationEventId } from '../../packages/education-events/envelope.mjs'
 
 const harness = vi.hoisted(() => ({
   docs: new Map<string, Record<string, any>>(),
@@ -53,7 +54,7 @@ function snapshot(path: string) {
   return { exists: () => Boolean(value), data: () => value }
 }
 
-import { requestDayHelp, uploadDayPhoto } from './dayStore'
+import { removePendingDayPhoto, requestDayHelp, uploadDayPhoto } from './dayStore'
 import { resumePhotoTransfer } from './photoOutbox'
 import { requestFamilyBookUpload, resumeFamilyBookTransfer } from './familyBookUpload'
 import type { FamilyBookUpload } from './familyLibrary'
@@ -69,6 +70,9 @@ describe('Firestore education event producers', () => {
     harness.failNextCommitAfterApply = false
     harness.timestamp = 0
     harness.docs.set('dayOwners/day-token', { familyId: 'family-1', childId: 'child-1' })
+    harness.docs.set('dayPages/day-token', { kind: 'student', date: '2026-10-20', targetDate: '2026-10-20',
+      subjects: [{ tasks: [{ id: 'task-1', title: 'Тема', detail: 'Условие', source: 'МЭШ', kind: 'written', status: 'unknown' }] }],
+      planRevision: 7, taskIds: ['task-1'] })
   })
 
   it('atomically records empty-text help requests, with separate operations for repeated requests', async () => {
@@ -90,7 +94,7 @@ describe('Firestore education event producers', () => {
   it('pairs a requested photo upload with the shared queue using source identifiers only', async () => {
     const file = new File(['private photo bytes'], 'work.png', { type: 'image/png' })
     const uploadId = 'upload-request-1234567890'
-    await uploadDayPhoto('day-token', 'task-1', file, uploadId, 7)
+    await uploadDayPhoto('day-token', 'task-1', file, uploadId)
     const source = harness.docs.get(`dayUploads/day-token/files/${uploadId}`)
     const event = eventDocs()[0]?.[1]
     expect(harness.batches[0]).toHaveLength(2)
@@ -102,10 +106,88 @@ describe('Firestore education event producers', () => {
     expect(JSON.stringify(event)).not.toContain(source?.sha256)
   })
 
+  it('accepts a refreshed plan revision when the visible task condition is unchanged', async () => {
+    const uploadId = 'upload-stale-revision-123456'
+    const visiblePage = harness.docs.get('dayPages/day-token') as any
+    harness.docs.set('dayPages/day-token', { ...visiblePage, planRevision: 8 })
+    await uploadDayPhoto('day-token', 'task-1', new File(['photo'], 'work.png', { type: 'image/png' }), uploadId, visiblePage)
+
+    expect(harness.docs.get(`dayUploads/day-token/files/${uploadId}`)?.planRevision).toBe(8)
+    expect(harness.batches[0]).toHaveLength(2)
+    expect(eventDocs()).toHaveLength(1)
+  })
+
+  it('requires refresh when the server task condition differs from the visible cached card', async () => {
+    const uploadId = 'upload-changed-condition-123456'
+    const visiblePage = harness.docs.get('dayPages/day-token') as any
+    harness.docs.set('dayPages/day-token', { ...visiblePage, planRevision: 8,
+      subjects: [{ tasks: [{ ...visiblePage.subjects[0].tasks[0], detail: 'Новое условие' }] }] })
+
+    await expect(uploadDayPhoto('day-token', 'task-1', new File(['photo'], 'work.png', { type: 'image/png' }), uploadId, visiblePage))
+      .rejects.toThrow(/условие задания изменилось/i)
+    expect(eventDocs()).toHaveLength(0)
+    expect(harness.batches).toHaveLength(0)
+  })
+
+  it('treats a repeated uploadId with the same source hash as an idempotent success', async () => {
+    const uploadId = 'upload-idempotent-retry-123456'
+    const file = new File(['same photo'], 'work.png', { type: 'image/png' })
+    await uploadDayPhoto('day-token', 'task-1', file, uploadId)
+    harness.docs.set('dayPages/day-token', { ...harness.docs.get('dayPages/day-token'), planRevision: 99 })
+
+    await expect(uploadDayPhoto('day-token', 'task-1', file, uploadId,
+      { kind: 'student', date: 'stale', targetDate: 'stale', subjects: [] } as any)).resolves.toBe(uploadId)
+    expect(harness.batches).toHaveLength(1)
+    expect(eventDocs()).toHaveLength(1)
+  })
+
+  it('recognizes the worker-confirmed receipt when retrying an already pending photo', async () => {
+    const uploadId = 'upload-confirmed-retry-123456'
+    const file = new File(['same photo'], 'work.png', { type: 'image/png' })
+    await uploadDayPhoto('day-token', 'task-1', file, uploadId)
+    const path = `dayUploads/day-token/files/${uploadId}`
+    const sourceRef = { kind: 'upload', documentPath: path, dayToken: 'day-token', recordId: uploadId, taskId: 'task-1' }
+    const operationId = `upload-confirmed:${uploadId}`
+    const eventId = await createEducationEventId({ eventType: 'upload.confirmed', familyId: 'family-1', childId: 'child-1',
+      source: 'firestore', sourceRef, operationId })
+    harness.docs.set(path, { ...harness.docs.get(path), status: 'pending', eventOperationId: operationId, eventReceiptId: eventId })
+
+    await expect(uploadDayPhoto('day-token', 'task-1', file, uploadId)).resolves.toBe(uploadId)
+    expect(harness.batches).toHaveLength(1)
+    expect(eventDocs()).toHaveLength(1)
+  })
+
+  it('accepts the historical confirmed receipt only with stored matching bytes and uploaded operation id', async () => {
+    const uploadId = 'upload-legacy-confirmed-123456'
+    const file = new File(['same photo'], 'work.png', { type: 'image/png' })
+    await uploadDayPhoto('day-token', 'task-1', file, uploadId)
+    const path = `dayUploads/day-token/files/${uploadId}`
+    const sourceRef = { kind: 'upload', documentPath: path, dayToken: 'day-token', recordId: uploadId, taskId: 'task-1' }
+    const confirmedOperation = `upload-confirmed:${uploadId}`
+    const confirmedReceipt = await createEducationEventId({ eventType: 'upload.confirmed', familyId: 'family-1', childId: 'child-1',
+      source: 'firestore', sourceRef, operationId: confirmedOperation })
+    harness.docs.set(path, { ...harness.docs.get(path), status: 'pending', eventOperationId: `upload-transfer:${uploadId}:uploaded`,
+      eventReceiptId: confirmedReceipt, storage: { state: 'stored', sha256: harness.docs.get(path)?.sha256 } })
+
+    await expect(uploadDayPhoto('day-token', 'task-1', file, uploadId)).resolves.toBe(uploadId)
+    expect(harness.batches).toHaveLength(1)
+  })
+
+  it('does not report an upload-error source as a successful retry', async () => {
+    const uploadId = 'upload-failed-retry-123456'
+    const file = new File(['same photo'], 'work.png', { type: 'image/png' })
+    await uploadDayPhoto('day-token', 'task-1', file, uploadId)
+    const path = `dayUploads/day-token/files/${uploadId}`
+    harness.docs.set(path, { ...harness.docs.get(path), status: 'upload-error' })
+
+    await expect(uploadDayPhoto('day-token', 'task-1', file, uploadId)).rejects.toThrow(/ожидает повтора обработчиком/i)
+    expect(harness.batches).toHaveLength(1)
+  })
+
   it('atomically appends bytes-uploaded after storage transfer and accepts ambiguous commit readback', async () => {
     const uploadId = 'upload-bytes-1234567890'
     const path = `dayUploads/day-token/files/${uploadId}`
-    await uploadDayPhoto('day-token', 'task-1', new File(['bytes'], 'work.png', { type: 'image/png' }), uploadId, 7)
+    await uploadDayPhoto('day-token', 'task-1', new File(['bytes'], 'work.png', { type: 'image/png' }), uploadId)
     harness.docs.set(path, { ...harness.docs.get(path), status: 'awaiting-upload', upload: { href: 'https://disk.yandex.net/upload/opaque' } })
     harness.failNextCommitAfterApply = true
     resumePhotoTransfer('day-token', uploadId, { status: 'awaiting-upload', taskId: 'task-1', upload: { href: 'https://disk.yandex.net/upload/opaque' } })
@@ -118,6 +200,18 @@ describe('Firestore education event producers', () => {
     expect(events).toHaveLength(2)
     expect(events[1]).toMatchObject({ eventType: 'upload.bytes_uploaded', eventId: source?.eventReceiptId,
       sourceRef: { documentPath: path, recordId: uploadId, taskId: 'task-1' } })
+  })
+
+  it('atomically pairs a student photo deletion with its queue event', async () => {
+    const uploadId = 'upload-delete-1234567890'
+    const path = `dayUploads/day-token/files/${uploadId}`
+    harness.docs.set(path, { taskId: 'task-1', status: 'pending', sha256: 'a'.repeat(64) })
+    await removePendingDayPhoto('day-token', uploadId)
+
+    expect(harness.docs.get(path)).toMatchObject({ status: 'deleted', eventOperationId: `upload-delete:${uploadId}`, eventProducerVersion: 1 })
+    expect(harness.batches.at(-1)).toHaveLength(2)
+    expect(eventDocs().at(-1)?.[1]).toMatchObject({ eventType: 'upload.delete_requested',
+      sourceRef: { documentPath: path, taskId: 'task-1' } })
   })
 
   it('pairs book upload request and uploaded-byte events with their status transitions', async () => {

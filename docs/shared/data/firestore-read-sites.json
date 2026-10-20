@@ -410,7 +410,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#c43126f49a65",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 59,
+    "line": 60,
     "api": "admin.get",
     "target": "query",
     "group": "operator-other",
@@ -422,7 +422,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#827619dfe3f5",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 120,
+    "line": 121,
     "api": "admin.get",
     "target": "ownerRef",
     "group": "operator-other",
@@ -434,7 +434,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#508a07455411",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 120,
+    "line": 121,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${parsed.studentToken}`)",
     "group": "operator-other",
@@ -446,7 +446,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#f8afc49f1528",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 120,
+    "line": 121,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -458,7 +458,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#f8afc49f1528-2",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 138,
+    "line": 139,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -470,7 +470,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#f58347da3eec",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 187,
+    "line": 188,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -482,7 +482,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#f8afc49f1528-3",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 212,
+    "line": 214,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -494,7 +494,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#f8afc49f1528-4",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 223,
+    "line": 225,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -506,7 +506,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#4bde4fd9ab7f",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 243,
+    "line": 245,
     "api": "admin.get",
     "target": "db.collection('materialBooks').where('sourceSha256', '==', request.sha256)",
     "group": "operator-other",
@@ -518,7 +518,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#22c2af0d0f5f",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 247,
+    "line": 249,
     "api": "admin.get",
     "target": "db.doc(`storedObjects/${request.sha256}`)",
     "group": "operator-other",
@@ -530,7 +530,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#f58347da3eec-2",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 265,
+    "line": 267,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -542,7 +542,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#0504d88282f5",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 306,
+    "line": 308,
     "api": "admin.get",
     "target": "db.doc(`dayOwners/${parsed.studentToken}`)",
     "group": "operator-other",
@@ -554,7 +554,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#a5383bba29c1",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 357,
+    "line": 359,
     "api": "admin.get",
     "target": "db.doc(`deviceSessions/${request.deviceUid}`)",
     "group": "operator-other",
@@ -566,7 +566,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#a84bae663097",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 359,
+    "line": 361,
     "api": "admin.get",
     "target": "db.doc(`accessLinks/${session.linkToken}`)",
     "group": "operator-other",
@@ -578,7 +578,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#183e333ab938",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 361,
+    "line": 363,
     "api": "admin.get",
     "target": "db.doc(`families/${owner.familyId}/members/${grant.personId}`)",
     "group": "operator-other",
@@ -590,7 +590,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#a5383bba29c1-2",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 367,
+    "line": 369,
     "api": "admin.get",
     "target": "db.doc(`deviceSessions/${request.deviceUid}`)",
     "group": "operator-other",
@@ -602,7 +602,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#a84bae663097-2",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 369,
+    "line": 371,
     "api": "admin.get",
     "target": "db.doc(`accessLinks/${session.linkToken}`)",
     "group": "operator-other",
@@ -614,7 +614,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#582a3e0cadab",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 371,
+    "line": 373,
     "api": "admin.get",
     "target": "db.doc(`families/${familyId}/members/${grant.personId}`)",
     "group": "operator-other",
@@ -626,7 +626,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#f58347da3eec-3",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 378,
+    "line": 380,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -638,7 +638,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#f58347da3eec-4",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 378,
+    "line": 380,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -650,7 +650,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#f58347da3eec-5",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 384,
+    "line": 386,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -662,7 +662,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#f58347da3eec-6",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 387,
+    "line": 389,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -674,7 +674,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#f58347da3eec-7",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 390,
+    "line": 392,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -686,7 +686,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#f58347da3eec-8",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 397,
+    "line": 399,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -698,7 +698,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#f58347da3eec-9",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 400,
+    "line": 402,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -710,7 +710,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#f58347da3eec-10",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 403,
+    "line": 405,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -6674,7 +6674,7 @@
   {
     "id": "src/lib/dayStore.ts#getDoc#6593dc56d36b",
     "file": "src/lib/dayStore.ts",
-    "line": 133,
+    "line": 152,
     "api": "getDoc",
     "target": "doc(db, 'dayPages', token)",
     "group": "client-day",
@@ -6686,7 +6686,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#1658e056615b",
     "file": "src/lib/dayStore.ts",
-    "line": 139,
+    "line": 158,
     "api": "onSnapshot",
     "target": "doc(db, 'dayPages', token)",
     "group": "client-day",
@@ -6698,7 +6698,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#c2b7cd8e3f9b",
     "file": "src/lib/dayStore.ts",
-    "line": 174,
+    "line": 193,
     "api": "onSnapshot",
     "target": "doc(db, 'families', familyId, 'children', childId, 'bookPages', ref)",
     "group": "client-day",
@@ -6710,7 +6710,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#b781e597a36b",
     "file": "src/lib/dayStore.ts",
-    "line": 191,
+    "line": 210,
     "api": "onSnapshot",
     "target": "collection(db, 'dayUploads', studentToken, 'files')",
     "group": "client-day",
@@ -6722,7 +6722,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#9c726eac32b0",
     "file": "src/lib/dayStore.ts",
-    "line": 215,
+    "line": 234,
     "api": "onSnapshot",
     "target": "collection(db, 'dayProgress', studentToken, 'items')",
     "group": "client-day",
@@ -6734,7 +6734,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#c6f7e46096c2",
     "file": "src/lib/dayStore.ts",
-    "line": 219,
+    "line": 238,
     "api": "onSnapshot",
     "target": "collection(db, 'dayReviewPrivate', studentToken, 'items')",
     "group": "client-day",
@@ -6746,7 +6746,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#592bd0712c2e",
     "file": "src/lib/dayStore.ts",
-    "line": 237,
+    "line": 256,
     "api": "onSnapshot",
     "target": "reference",
     "group": "client-day",
@@ -6758,7 +6758,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#d0e658ed1ab2",
     "file": "src/lib/dayStore.ts",
-    "line": 250,
+    "line": 269,
     "api": "onSnapshot",
     "target": "collection(db, 'dayHelp', studentToken, 'items')",
     "group": "client-day",
@@ -6770,7 +6770,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#d8f08464ae53",
     "file": "src/lib/dayStore.ts",
-    "line": 257,
+    "line": 276,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayOwners', studentToken)",
     "group": "client-day",
@@ -6782,7 +6782,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#318cf035a63b",
     "file": "src/lib/dayStore.ts",
-    "line": 275,
+    "line": 294,
     "api": "getDocFromServer",
     "target": "sourceRef",
     "group": "client-day",
@@ -6792,76 +6792,88 @@
     "note": "Адресное серверное чтение current owner/source receipt перед atomic source+event write либо после неоднозначного ответа. Это не фоновое наблюдение и не чтение глобальной очереди."
   },
   {
-    "id": "src/lib/dayStore.ts#getDocFromServer#705de0a8baee",
-    "file": "src/lib/dayStore.ts",
-    "line": 289,
-    "api": "getDocFromServer",
-    "target": "doc(db, 'dayPages', studentToken)",
-    "group": "client-day",
-    "assessment": "conditional",
-    "policy": "point-write-guard",
-    "refresh": "on mutation",
-    "note": "Адресное чтение перед изменением или проверкой целостности; сверить, нельзя ли взять уже прочитанную ревизию без потери защиты от гонок."
-  },
-  {
     "id": "src/lib/dayStore.ts#getDocFromServer#d8f08464ae53-2",
     "file": "src/lib/dayStore.ts",
-    "line": 294,
+    "line": 312,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayOwners', studentToken)",
     "group": "client-day",
     "assessment": "justified",
-    "policy": "user-action-owner-or-ambiguous-receipt-readback",
-    "refresh": "only on explicit action or ambiguous commit retry",
-    "note": "Адресное серверное чтение current owner/source receipt перед atomic source+event write либо после неоднозначного ответа. Это не фоновое наблюдение и не чтение глобальной очереди."
+    "policy": "photo-action-server-guard-and-receipt-readback",
+    "refresh": "only on explicit upload/delete action or ambiguous commit",
+    "note": "Адресное чтение владельца дня, актуальной серверной страницы, существующей заявки либо receipt после неоднозначного commit. Проверено: свежая ревизия нужна вместо cache, существующая заявка предотвращает повторную запись; нет polling или чтения глобальной очереди."
   },
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#249d93879c40",
     "file": "src/lib/dayStore.ts",
-    "line": 311,
+    "line": 320,
     "api": "getDocFromServer",
     "target": "ref",
     "group": "client-day",
-    "assessment": "conditional",
-    "policy": "point-write-guard",
-    "refresh": "on mutation",
-    "note": "Адресное чтение перед изменением или проверкой целостности; сверить, нельзя ли взять уже прочитанную ревизию без потери защиты от гонок."
+    "assessment": "justified",
+    "policy": "photo-action-server-guard-and-receipt-readback",
+    "refresh": "only on explicit upload/delete action or ambiguous commit",
+    "note": "Адресное чтение владельца дня, актуальной серверной страницы, существующей заявки либо receipt после неоднозначного commit. Проверено: свежая ревизия нужна вместо cache, существующая заявка предотвращает повторную запись; нет polling или чтения глобальной очереди."
+  },
+  {
+    "id": "src/lib/dayStore.ts#getDocFromServer#705de0a8baee",
+    "file": "src/lib/dayStore.ts",
+    "line": 343,
+    "api": "getDocFromServer",
+    "target": "doc(db, 'dayPages', studentToken)",
+    "group": "client-day",
+    "assessment": "justified",
+    "policy": "photo-action-server-guard-and-receipt-readback",
+    "refresh": "only on explicit upload/delete action or ambiguous commit",
+    "note": "Адресное чтение владельца дня, актуальной серверной страницы, существующей заявки либо receipt после неоднозначного commit. Проверено: свежая ревизия нужна вместо cache, существующая заявка предотвращает повторную запись; нет polling или чтения глобальной очереди."
   },
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#249d93879c40-2",
     "file": "src/lib/dayStore.ts",
-    "line": 323,
+    "line": 359,
     "api": "getDocFromServer",
     "target": "ref",
     "group": "client-day",
-    "assessment": "conditional",
-    "policy": "point-write-guard",
-    "refresh": "on mutation",
-    "note": "Адресное чтение перед изменением или проверкой целостности; сверить, нельзя ли взять уже прочитанную ревизию без потери защиты от гонок."
-  },
-  {
-    "id": "src/lib/dayStore.ts#getDocFromServer#d8f08464ae53-3",
-    "file": "src/lib/dayStore.ts",
-    "line": 329,
-    "api": "getDocFromServer",
-    "target": "doc(db, 'dayOwners', studentToken)",
-    "group": "client-day",
     "assessment": "justified",
-    "policy": "user-action-owner-or-ambiguous-receipt-readback",
-    "refresh": "only on explicit action or ambiguous commit retry",
-    "note": "Адресное серверное чтение current owner/source receipt перед atomic source+event write либо после неоднозначного ответа. Это не фоновое наблюдение и не чтение глобальной очереди."
+    "policy": "photo-action-server-guard-and-receipt-readback",
+    "refresh": "only on explicit upload/delete action or ambiguous commit",
+    "note": "Адресное чтение владельца дня, актуальной серверной страницы, существующей заявки либо receipt после неоднозначного commit. Проверено: свежая ревизия нужна вместо cache, существующая заявка предотвращает повторную запись; нет polling или чтения глобальной очереди."
   },
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#249d93879c40-3",
     "file": "src/lib/dayStore.ts",
-    "line": 343,
+    "line": 371,
     "api": "getDocFromServer",
     "target": "ref",
     "group": "client-day",
     "assessment": "justified",
-    "policy": "user-action-owner-or-ambiguous-receipt-readback",
-    "refresh": "only on explicit action or ambiguous commit retry",
-    "note": "Адресное серверное чтение current owner/source receipt перед atomic source+event write либо после неоднозначного ответа. Это не фоновое наблюдение и не чтение глобальной очереди."
+    "policy": "photo-action-server-guard-and-receipt-readback",
+    "refresh": "only on explicit upload/delete action or ambiguous commit",
+    "note": "Адресное чтение владельца дня, актуальной серверной страницы, существующей заявки либо receipt после неоднозначного commit. Проверено: свежая ревизия нужна вместо cache, существующая заявка предотвращает повторную запись; нет polling или чтения глобальной очереди."
+  },
+  {
+    "id": "src/lib/dayStore.ts#getDocFromServer#d8f08464ae53-3",
+    "file": "src/lib/dayStore.ts",
+    "line": 377,
+    "api": "getDocFromServer",
+    "target": "doc(db, 'dayOwners', studentToken)",
+    "group": "client-day",
+    "assessment": "justified",
+    "policy": "photo-action-server-guard-and-receipt-readback",
+    "refresh": "only on explicit upload/delete action or ambiguous commit",
+    "note": "Адресное чтение владельца дня, актуальной серверной страницы, существующей заявки либо receipt после неоднозначного commit. Проверено: свежая ревизия нужна вместо cache, существующая заявка предотвращает повторную запись; нет polling или чтения глобальной очереди."
+  },
+  {
+    "id": "src/lib/dayStore.ts#getDocFromServer#249d93879c40-4",
+    "file": "src/lib/dayStore.ts",
+    "line": 391,
+    "api": "getDocFromServer",
+    "target": "ref",
+    "group": "client-day",
+    "assessment": "justified",
+    "policy": "photo-action-server-guard-and-receipt-readback",
+    "refresh": "only on explicit upload/delete action or ambiguous commit",
+    "note": "Адресное чтение владельца дня, актуальной серверной страницы, существующей заявки либо receipt после неоднозначного commit. Проверено: свежая ревизия нужна вместо cache, существующая заявка предотвращает повторную запись; нет polling или чтения глобальной очереди."
   },
   {
     "id": "src/lib/educationStore.ts#onSnapshot#af6c439f215d",

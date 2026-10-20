@@ -5,6 +5,7 @@
  * @see ../../docs/services/upload-worker/README.md
  * @see ../../docs/modules/materials/family-library.md
  * @see ../../docs/modules/synchronization/event-queue.md
+ * @see ../../docs/decisions/photo-upload-authorization-and-freshness-2026-10-20.md
  */
 import { createHash } from 'node:crypto'
 import { FieldValue, Timestamp } from '@google-cloud/firestore'
@@ -197,7 +198,8 @@ async function finishPhoto({ db, disk, ref, event, request, path }) {
     const staged = await stageEducationEvent(tx, db, confirmed)
     tx.update(ref, { status: 'pending', storage: { provider: 'yandex-disk', state: 'stored', path,
       size: bytes.length, md5, sha256: request.sha256, publicUrl, syncedAt: Timestamp.now() },
-    upload: FieldValue.delete(), error: FieldValue.delete(), eventProducerVersion: 1, eventReceiptId: staged.eventId })
+    upload: FieldValue.delete(), error: FieldValue.delete(), eventProducerVersion: 1,
+    eventOperationId: confirmed.operationId, eventReceiptId: staged.eventId })
     return { done: true }
   })
   if (result?.cleanup) await disk.removeWorkAt(path, remote.md5)

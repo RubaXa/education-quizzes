@@ -1,6 +1,7 @@
 /* @see ../docs/decisions/weekend-parent-actions-2026-10-18.md */
 /* @see ../docs/decisions/work-photo-expand-2026-10-18.md */
 /* @see ../docs/decisions/upload-origin-links-2026-10-18.md */
+/* @see ../docs/decisions/photo-upload-authorization-and-freshness-2026-10-20.md */
 import { useEffect, useRef, useState } from 'react'
 import { removePendingDayPhoto, requestDayHelp, uploadDayPhoto, uploadMatchesTask, watchDayHelp, watchDayPage, watchDayTaskGuides } from '@/lib/dayStore'
 import type { DayHelp, DayPageData, ParentTaskPrivate } from '@/lib/dayStore'
@@ -74,7 +75,7 @@ export default function WeekendMathSlot({ token, taskIds, parent, lessonDate, du
       const url = URL.createObjectURL(file)
       previewUrls.current.add(url)
       setLocal((current) => [...current, { id, taskId, url, state: 'uploading' }])
-      void uploadDayPhoto(studentToken, taskId, file, id, page?.planRevision).catch((cause) => {
+      void uploadDayPhoto(studentToken, taskId, file, id, page).catch((cause) => {
         reportUiError(cause, 'Загрузка фото')
         setLocal((current) => current.map((item) => item.id === id ? { ...item, state: 'failed', error: cause instanceof Error ? cause.message : 'Фото не загрузилось.' } : item))
       })

@@ -916,17 +916,20 @@
       }
     },
     "packages/education-runtime/upload-broker.mjs": {
-      "sha256": "029bdd007e69dfa8c006353a43b6397d405919735a739f8974b2c3ad16c36720",
-      "record": "docs/decisions/unified-education-events-2026-10-19.md",
+      "sha256": "8a429f783bd40654f89d863fcf2b9073b7494f519f1c274f76965d4f519395fa",
+      "record": "docs/decisions/photo-upload-authorization-and-freshness-2026-10-20.md",
       "specs": [
+        "docs/modules/materials/storage-privacy.md",
         "docs/modules/synchronization/event-queue.md"
       ],
       "tests": [
-        "packages/education-runtime/upload-broker.test.mjs"
+        "src/lib/educationEventProducers.test.ts",
+        "packages/education-runtime/upload-broker.test.mjs",
+        "scripts/firestore-rules-photo-upload-suite.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 требует одну внутреннюю очередь событий и одну подписку вместо множества source watchers; ранее поручил реализацию через Luna с проверкой root, тестами, спецификациями и выпуском в main."
+        "evidence": "Прямое поручение 20.10.2026: исправить повторную регрессию ученической фотозагрузки, сохранив member scope, ownership и атомарную очередь."
       }
     },
     "packages/telegram-notifications/adapters/config.mjs": {
@@ -2600,17 +2603,20 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "fdeac3405b4dbd743420edf405189f1d1315e8d1c36810e684ed13f6a8fd3061",
-      "record": "docs/decisions/family-essay-assignment-2026-10-20.md",
+      "sha256": "c0da0af564080dd791d942f6bbb50b74e6dad45aea48b5f8c3c40e004dcdc91a",
+      "record": "docs/decisions/photo-upload-authorization-and-freshness-2026-10-20.md",
       "specs": [
-        "docs/modules/school-diary/day-page.md"
+        "docs/modules/materials/storage-privacy.md",
+        "docs/modules/synchronization/event-queue.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx"
+        "src/lib/educationEventProducers.test.ts",
+        "packages/education-runtime/upload-broker.test.mjs",
+        "scripts/firestore-rules-photo-upload-suite.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 20.10.2026: опубликовать семейную подготовку к сочинению к пятнице 23.10.2026 с самостоятельной работой ученика и загрузкой фотографии; не представлять её заданием МЭШ или учителя."
+        "evidence": "Прямое поручение 20.10.2026: исправить повторную регрессию ученической фотозагрузки, сохранив member scope, ownership и атомарную очередь."
       }
     },
     "src/UiKit.css": {
@@ -2672,21 +2678,20 @@
       }
     },
     "src/WeekendMathSlot.tsx": {
-      "sha256": "f8f9a12b70a39a80ae10a55364f62333aff46f2833c0a205a3e1052f3f9e631a",
-      "record": "docs/decisions/weekend-parent-actions-2026-10-18.md",
+      "sha256": "95d001a5783896baf6acc5b6fea88c1de7cc0acefa4d6176405dbf6526ecfbe8",
+      "record": "docs/decisions/photo-upload-authorization-and-freshness-2026-10-20.md",
       "specs": [
-        "docs/modules/reviews/subject-aware-guidance.md",
-        "docs/modules/school-diary/dashboard.md"
+        "docs/modules/materials/storage-privacy.md",
+        "docs/modules/synchronization/event-queue.md"
       ],
       "tests": [
-        "src/WeekendMathSlot.guidance.integration.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/WeekendMathSlot.test.tsx",
-        "src/components/LearningRoute.weekend.integration.test.tsx"
+        "src/lib/educationEventProducers.test.ts",
+        "packages/education-runtime/upload-broker.test.mjs",
+        "scripts/firestore-rules-photo-upload-suite.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10: в родительском разборе PWA невозможно отправить подсказку; просит найти нарушивший контракт коммит и устранить расхождения данных/действий в вебе и PWA."
+        "evidence": "Прямое поручение 20.10.2026: исправить повторную регрессию ученической фотозагрузки, сохранив member scope, ownership и атомарную очередь."
       }
     },
     "src/components/ArtifactAvatar.css": {
@@ -4212,17 +4217,20 @@
       }
     },
     "src/lib/dayStore.ts": {
-      "sha256": "263d5d85439feb56b37e7741605f2e765329a56ef0d075ec78084be0dd18c725",
-      "record": "docs/decisions/source-only-mesh-publication-2026-10-20.md",
+      "sha256": "f293de8928724787afda8d49f2e0038023a8d75c0346202e36dd60c55430e06f",
+      "record": "docs/decisions/photo-upload-authorization-and-freshness-2026-10-20.md",
       "specs": [
-        "docs/modules/synchronization/plan-generation.md"
+        "docs/modules/materials/storage-privacy.md",
+        "docs/modules/synchronization/event-queue.md"
       ],
       "tests": [
-        "day/source-only.test.mjs"
+        "src/lib/educationEventProducers.test.ts",
+        "packages/education-runtime/upload-broker.test.mjs",
+        "scripts/firestore-rules-photo-upload-suite.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь сообщил, что новые назначения МЭШ не отображаются в Education; действующий протокол разделяет точную фиксацию исходного задания и последующее подтверждённое обогащение."
+        "evidence": "Прямое поручение 20.10.2026: исправить повторную регрессию ученической фотозагрузки, сохранив member scope, ownership и атомарную очередь."
       }
     },
     "src/lib/educationEventProducer.ts": {

@@ -43,9 +43,15 @@ service cloud.firestore {
       return childMember(familyId, childId)
         && get(memberPath(familyId)).data.role == 'student';
     }
-    function validEducationEventSource(data) {
+    function validEducationEventSource(data, member, personId) {
       let ref = data.sourceRef;
-      let sourcePath = /databases/$(database)/documents/$(ref.documentPath);
+      let helpPath = /databases/$(database)/documents/dayHelp/$(ref.get('dayToken', 'unused'))/items/$(ref.get('taskId', 'unused'));
+      let quizPath = /databases/$(database)/documents/assignments/$(ref.get('quizToken', 'unused'));
+      let guidancePath = /databases/$(database)/documents/dayGuidance/$(ref.get('dayToken', 'unused'))/items/$(data.operationId);
+      let decisionPath = /databases/$(database)/documents/dayParentDecisions/$(ref.get('dayToken', 'unused'))/events/$(data.operationId);
+      let uploadPath = /databases/$(database)/documents/dayUploads/$(ref.get('dayToken', 'unused'))/files/$(ref.get('recordId', 'unused'));
+      let bookUploadPath = /databases/$(database)/documents/families/$(data.familyId)/children/$(data.childId)/bookUploads/$(ref.get('recordId', 'unused'));
+      let bookRequirementPath = /databases/$(database)/documents/families/$(data.familyId)/children/$(data.childId)/bookRequirements/$(ref.get('recordId', 'unused'));
       return data.source == 'firestore'
         && ((data.eventType == 'help.requested'
             && ref.kind == 'help' && ref.dayToken is string && ref.taskId is string
@@ -53,100 +59,100 @@ service cloud.firestore {
             && existsAfter(/databases/$(database)/documents/dayOwners/$(ref.dayToken))
             && get(/databases/$(database)/documents/dayOwners/$(ref.dayToken)).data.familyId == data.familyId
             && get(/databases/$(database)/documents/dayOwners/$(ref.dayToken)).data.childId == data.childId
-            && quizStudent(data.familyId, data.childId)
-            && existsAfter(sourcePath)
-            && getAfter(sourcePath).data.taskId == ref.taskId
-            && getAfter(sourcePath).data.eventProducerVersion == 1
-            && getAfter(sourcePath).data.eventReceiptId == data.eventId
-            && getAfter(sourcePath).data.eventOperationId == data.operationId
+            && member.role == 'student'
+            && existsAfter(helpPath)
+            && getAfter(helpPath).data.taskId == ref.taskId
+            && getAfter(helpPath).data.eventProducerVersion == 1
+            && getAfter(helpPath).data.eventReceiptId == data.eventId
+            && getAfter(helpPath).data.eventOperationId == data.operationId
             && data.operationId.matches('^[A-Za-z0-9-]{36}$'))
           || (data.eventType == 'quiz.submitted'
             && ref.kind == 'quiz' && ref.quizToken is string
             && ref.documentPath == 'assignments/' + ref.quizToken
-            && quizStudent(data.familyId, data.childId)
-            && existsAfter(sourcePath)
-            && getAfter(sourcePath).data.status == 'submitted'
-            && getAfter(sourcePath).data.familyId == data.familyId
-            && getAfter(sourcePath).data.childId == data.childId
-            && getAfter(sourcePath).data.eventProducerVersion == 1
-            && getAfter(sourcePath).data.eventReceiptId == data.eventId
-            && getAfter(sourcePath).data.eventOperationId == data.operationId
+            && member.role == 'student'
+            && existsAfter(quizPath)
+            && getAfter(quizPath).data.status == 'submitted'
+            && getAfter(quizPath).data.familyId == data.familyId
+            && getAfter(quizPath).data.childId == data.childId
+            && getAfter(quizPath).data.eventProducerVersion == 1
+            && getAfter(quizPath).data.eventReceiptId == data.eventId
+            && getAfter(quizPath).data.eventOperationId == data.operationId
             && data.operationId == 'quiz-submit:' + ref.quizToken)
           || (data.eventType == 'quiz.started'
             && ref.kind == 'quiz' && ref.quizToken is string
             && ref.documentPath == 'assignments/' + ref.quizToken
-            && quizStudent(data.familyId, data.childId)
-            && existsAfter(sourcePath)
-            && getAfter(sourcePath).data.status == 'open'
-            && getAfter(sourcePath).data.startedAt == request.time
-            && getAfter(sourcePath).data.familyId == data.familyId
-            && getAfter(sourcePath).data.childId == data.childId
-            && getAfter(sourcePath).data.eventProducerVersion == 1
-            && getAfter(sourcePath).data.eventReceiptId == data.eventId
-            && getAfter(sourcePath).data.eventOperationId == data.operationId
+            && member.role == 'student'
+            && existsAfter(quizPath)
+            && getAfter(quizPath).data.status == 'open'
+            && getAfter(quizPath).data.startedAt == request.time
+            && getAfter(quizPath).data.familyId == data.familyId
+            && getAfter(quizPath).data.childId == data.childId
+            && getAfter(quizPath).data.eventProducerVersion == 1
+            && getAfter(quizPath).data.eventReceiptId == data.eventId
+            && getAfter(quizPath).data.eventOperationId == data.operationId
             && data.operationId == 'quiz-start:' + ref.quizToken)
           || (data.eventType == 'quiz.followup_requested'
             && ref.kind == 'quiz' && ref.quizToken is string
             && ref.documentPath == 'assignments/' + ref.quizToken
-            && parentMember(data.familyId) && childMember(data.familyId, data.childId)
-            && existsAfter(sourcePath)
-            && getAfter(sourcePath).data.status == 'submitted'
-            && getAfter(sourcePath).data.familyId == data.familyId
-            && getAfter(sourcePath).data.childId == data.childId
-            && getAfter(sourcePath).data.followupRequestedBy == currentPersonId()
-            && getAfter(sourcePath).data.eventProducerVersion == 1
-            && getAfter(sourcePath).data.eventReceiptId == data.eventId
-            && getAfter(sourcePath).data.eventOperationId == data.operationId
+            && member.role == 'parent'
+            && existsAfter(quizPath)
+            && getAfter(quizPath).data.status == 'submitted'
+            && getAfter(quizPath).data.familyId == data.familyId
+            && getAfter(quizPath).data.childId == data.childId
+            && getAfter(quizPath).data.followupRequestedBy == personId
+            && getAfter(quizPath).data.eventProducerVersion == 1
+            && getAfter(quizPath).data.eventReceiptId == data.eventId
+            && getAfter(quizPath).data.eventOperationId == data.operationId
             && data.operationId == 'quiz-followup:' + ref.quizToken)
           || (data.eventType == 'quiz.requirement_changed'
             && ref.kind == 'quiz' && ref.quizToken is string
             && ref.documentPath == 'assignments/' + ref.quizToken
-            && parentMember(data.familyId) && childMember(data.familyId, data.childId)
-            && existsAfter(sourcePath)
-            && getAfter(sourcePath).data.familyId == data.familyId
-            && getAfter(sourcePath).data.childId == data.childId
-            && getAfter(sourcePath).data.familyChoiceBy == currentPersonId()
-            && getAfter(sourcePath).data.eventProducerVersion == 1
-            && getAfter(sourcePath).data.eventReceiptId == data.eventId
-            && getAfter(sourcePath).data.eventOperationId == data.operationId)
+            && member.role == 'parent'
+            && existsAfter(quizPath)
+            && getAfter(quizPath).data.familyId == data.familyId
+            && getAfter(quizPath).data.childId == data.childId
+            && getAfter(quizPath).data.familyChoiceBy == personId
+            && getAfter(quizPath).data.eventProducerVersion == 1
+            && getAfter(quizPath).data.eventReceiptId == data.eventId
+            && getAfter(quizPath).data.eventOperationId == data.operationId)
           || (data.eventType == 'parent.guidance_sent'
             && ref.kind == 'guidance' && ref.dayToken is string && ref.taskId is string
             && ref.documentPath == 'dayGuidance/' + ref.dayToken + '/items/' + data.operationId
             && data.operationId.matches('^[A-Za-z0-9-]{36}$')
-            && parentMember(data.familyId) && childMember(data.familyId, data.childId)
+            && member.role == 'parent'
             && existsAfter(/databases/$(database)/documents/dayOwners/$(ref.dayToken))
             && get(/databases/$(database)/documents/dayOwners/$(ref.dayToken)).data.familyId == data.familyId
             && get(/databases/$(database)/documents/dayOwners/$(ref.dayToken)).data.childId == data.childId
-            && existsAfter(sourcePath)
-            && getAfter(sourcePath).data.actorPersonId == currentPersonId()
-            && getAfter(sourcePath).data.taskId == ref.taskId
-            && getAfter(sourcePath).data.eventProducerVersion == 1
-            && getAfter(sourcePath).data.eventReceiptId == data.eventId
-            && getAfter(sourcePath).data.eventOperationId == data.operationId)
+            && existsAfter(guidancePath)
+            && getAfter(guidancePath).data.actorPersonId == personId
+            && getAfter(guidancePath).data.taskId == ref.taskId
+            && getAfter(guidancePath).data.eventProducerVersion == 1
+            && getAfter(guidancePath).data.eventReceiptId == data.eventId
+            && getAfter(guidancePath).data.eventOperationId == data.operationId)
           || (data.eventType == 'parent.decision'
             && ref.kind == 'parent-decision' && ref.dayToken is string && ref.taskId is string
             && ref.documentPath == 'dayParentDecisions/' + ref.dayToken + '/events/' + data.operationId
             && data.operationId.matches('^[A-Za-z0-9-]{36}$')
-            && parentMember(data.familyId) && childMember(data.familyId, data.childId)
+            && member.role == 'parent'
             && existsAfter(/databases/$(database)/documents/dayOwners/$(ref.dayToken))
             && get(/databases/$(database)/documents/dayOwners/$(ref.dayToken)).data.familyId == data.familyId
             && get(/databases/$(database)/documents/dayOwners/$(ref.dayToken)).data.childId == data.childId
-            && existsAfter(sourcePath)
-            && getAfter(sourcePath).data.actorPersonId == currentPersonId()
-            && getAfter(sourcePath).data.taskId == ref.taskId
-            && getAfter(sourcePath).data.eventProducerVersion == 1
-            && getAfter(sourcePath).data.eventReceiptId == data.eventId
-            && getAfter(sourcePath).data.eventOperationId == data.operationId)
+            && existsAfter(decisionPath)
+            && getAfter(decisionPath).data.actorPersonId == personId
+            && getAfter(decisionPath).data.taskId == ref.taskId
+            && getAfter(decisionPath).data.eventProducerVersion == 1
+            && getAfter(decisionPath).data.eventReceiptId == data.eventId
+            && getAfter(decisionPath).data.eventOperationId == data.operationId)
           || (data.eventType == 'material.upload_requested'
             && ref.kind == 'material' && ref.recordId is string
             && ref.documentPath == 'families/' + data.familyId + '/children/' + data.childId + '/bookUploads/' + ref.recordId
-            && parentMember(data.familyId) && childMember(data.familyId, data.childId)
-            && existsAfter(sourcePath)
-            && getAfter(sourcePath).data.deviceUid == request.auth.uid
-            && getAfter(sourcePath).data.status == 'requested'
-            && getAfter(sourcePath).data.eventProducerVersion == 1
-            && getAfter(sourcePath).data.eventReceiptId == data.eventId
-            && getAfter(sourcePath).data.eventOperationId == data.operationId
+            && member.role == 'parent'
+            && existsAfter(bookUploadPath)
+            && getAfter(bookUploadPath).data.deviceUid == request.auth.uid
+            && getAfter(bookUploadPath).data.status == 'requested'
+            && getAfter(bookUploadPath).data.eventProducerVersion == 1
+            && getAfter(bookUploadPath).data.eventReceiptId == data.eventId
+            && getAfter(bookUploadPath).data.eventOperationId == data.operationId
             && data.operationId == 'material-upload:' + ref.recordId)
           || (data.eventType in ['upload.transfer_requested', 'upload.bytes_uploaded', 'upload.delete_requested']
             && ref.kind == 'upload' && ref.dayToken is string && ref.recordId is string && ref.taskId is string
@@ -154,46 +160,52 @@ service cloud.firestore {
             && existsAfter(/databases/$(database)/documents/dayOwners/$(ref.dayToken))
             && get(/databases/$(database)/documents/dayOwners/$(ref.dayToken)).data.familyId == data.familyId
             && get(/databases/$(database)/documents/dayOwners/$(ref.dayToken)).data.childId == data.childId
-            && quizStudent(data.familyId, data.childId)
-            && existsAfter(sourcePath)
-            && getAfter(sourcePath).data.taskId == ref.taskId
-            && getAfter(sourcePath).data.deviceUid == request.auth.uid
-            && getAfter(sourcePath).data.eventProducerVersion == 1
-            && getAfter(sourcePath).data.eventReceiptId == data.eventId
-            && getAfter(sourcePath).data.eventOperationId == data.operationId
+            && member.role == 'student'
+            && existsAfter(uploadPath)
+            && getAfter(uploadPath).data.taskId == ref.taskId
+            && getAfter(uploadPath).data.deviceUid == request.auth.uid
+            && getAfter(uploadPath).data.eventProducerVersion == 1
+            && getAfter(uploadPath).data.eventReceiptId == data.eventId
+            && getAfter(uploadPath).data.eventOperationId == data.operationId
             && ((data.eventType == 'upload.transfer_requested'
-              && getAfter(sourcePath).data.status == 'requested'
+              && getAfter(uploadPath).data.status == 'requested'
               && data.operationId == 'upload-transfer:' + ref.recordId + ':requested')
               || (data.eventType == 'upload.bytes_uploaded'
-                && getAfter(sourcePath).data.status == 'uploaded'
+                && getAfter(uploadPath).data.status == 'uploaded'
                 && data.operationId == 'upload-transfer:' + ref.recordId + ':uploaded')
               || (data.eventType == 'upload.delete_requested'
-                && getAfter(sourcePath).data.status == 'deleted'
+                && getAfter(uploadPath).data.status == 'deleted'
                 && data.operationId == 'upload-delete:' + ref.recordId)))
           || (data.eventType == 'material.bytes_uploaded'
             && ref.kind == 'material' && ref.recordId is string
             && ref.documentPath == 'families/' + data.familyId + '/children/' + data.childId + '/bookUploads/' + ref.recordId
-            && parentMember(data.familyId) && childMember(data.familyId, data.childId)
-            && existsAfter(sourcePath)
-            && getAfter(sourcePath).data.deviceUid == request.auth.uid
-            && getAfter(sourcePath).data.status == 'uploaded'
-            && getAfter(sourcePath).data.eventProducerVersion == 1
-            && getAfter(sourcePath).data.eventReceiptId == data.eventId
-            && getAfter(sourcePath).data.eventOperationId == data.operationId
+            && member.role == 'parent'
+            && existsAfter(bookUploadPath)
+            && getAfter(bookUploadPath).data.deviceUid == request.auth.uid
+            && getAfter(bookUploadPath).data.status == 'uploaded'
+            && getAfter(bookUploadPath).data.eventProducerVersion == 1
+            && getAfter(bookUploadPath).data.eventReceiptId == data.eventId
+            && getAfter(bookUploadPath).data.eventOperationId == data.operationId
             && data.operationId == 'material-upload:' + ref.recordId + ':uploaded')
           || (data.eventType == 'material.requirement_changed'
             && ref.kind == 'material' && ref.recordId is string
             && ref.documentPath == 'families/' + data.familyId + '/children/' + data.childId + '/bookRequirements/' + ref.recordId
-            && parentMember(data.familyId) && childMember(data.familyId, data.childId)
-            && existsAfter(sourcePath)
-            && getAfter(sourcePath).data.actorPersonId == currentPersonId()
-            && getAfter(sourcePath).data.policy in ['required', 'no-book']
-            && getAfter(sourcePath).data.eventProducerVersion == 1
-            && getAfter(sourcePath).data.eventReceiptId == data.eventId
-            && getAfter(sourcePath).data.eventOperationId == data.operationId));
+            && member.role == 'parent'
+            && existsAfter(bookRequirementPath)
+            && getAfter(bookRequirementPath).data.actorPersonId == personId
+            && getAfter(bookRequirementPath).data.policy in ['required', 'no-book']
+            && getAfter(bookRequirementPath).data.eventProducerVersion == 1
+            && getAfter(bookRequirementPath).data.eventReceiptId == data.eventId
+            && getAfter(bookRequirementPath).data.eventOperationId == data.operationId));
     }
     function validEducationEventCreate(eventId, data) {
-      return activeSession()
+      let session = get(/databases/$(database)/documents/deviceSessions/$(request.auth.uid)).data;
+      let link = get(/databases/$(database)/documents/accessLinks/$(session.linkToken)).data;
+      let member = get(/databases/$(database)/documents/families/$(data.familyId)/members/$(link.personId)).data;
+      return request.auth != null
+        && link.active == true
+        && member.active == true
+        && member.childIds.hasAny([data.childId])
         && data.keys().hasOnly(['schemaVersion', 'eventId', 'eventType', 'familyId', 'childId', 'source', 'sourceRef', 'operationId', 'actor', 'createdAt', 'state', 'availableAt', 'attempts'])
         && data.keys().hasAll(['schemaVersion', 'eventId', 'eventType', 'familyId', 'childId', 'source', 'sourceRef', 'operationId', 'actor', 'createdAt', 'state', 'availableAt', 'attempts'])
         && data.schemaVersion == 1
@@ -204,13 +216,12 @@ service cloud.firestore {
         && data.actor is map && data.actor.keys().hasOnly(['type', 'uid'])
         && data.actor.keys().hasAll(['type', 'uid']) && data.actor.type == 'user'
         && data.actor.uid == request.auth.uid
-        && childMember(data.familyId, data.childId)
         && data.createdAt == request.time && data.availableAt == request.time
         && data.state == 'pending' && data.attempts == 0
         && data.sourceRef is map
         && data.sourceRef.keys().hasOnly(['kind', 'documentPath', 'dayToken', 'recordId', 'quizToken', 'taskId'])
         && data.sourceRef.keys().hasAll(['kind', 'documentPath'])
-        && validEducationEventSource(data);
+        && validEducationEventSource(data, member, link.personId);
     }
     function validEducationEventReceipt(data, eventType, operationId, documentPath) {
       return data.eventProducerVersion == 1 && data.eventReceiptId is string
@@ -371,6 +382,7 @@ service cloud.firestore {
     // One shared business-event queue. Clients can only append an atomic source
     // event; the dispatcher alone reads, claims, retries, and acknowledges it.
     // @see docs/modules/synchronization/event-queue.md#доступ-и-приватность
+    // @see docs/decisions/photo-upload-authorization-and-freshness-2026-10-20.md
     match /educationEvents/{eventId} {
       allow get, list: if false;
       allow create: if validEducationEventCreate(eventId, request.resource.data);
