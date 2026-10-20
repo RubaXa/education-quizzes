@@ -4,7 +4,8 @@
 /**
  * @see ../docs/modules/assignments/README.md
  */
-/** @see ../docs/modules/materials/material-clarification.md */
+/** @see ../docs/modules/materials/material-clarification.md
+ * @see ../docs/decisions/source-only-mesh-publication-2026-10-20.md */
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { writeJson } from '../diary/local-store.mjs'
@@ -147,6 +148,7 @@ export function buildDaySource(local, date) {
           delete old.cardPattern
           delete old.outputKind
           delete old.materialRequest // A changed teacher instruction invalidates the old source question.
+          delete old.sourceOnly // The explicit raw-source release must be reconsidered for the new wording.
           delete old.assessmentIntent // A changed teacher entry invalidates the prior quiz decision.
           delete old.problems // Old teacher sheet and personalized hints do not apply to a revised condition.
           delete old.practiceVariants
@@ -155,7 +157,11 @@ export function buildDaySource(local, date) {
           if (!['math', 'special'].includes(id) && old.kind === 'written') old.cardPolicyVersion = 1
           subject.summary = 'Условие МЭШ изменилось. Подробный разбор готовится.'
           if (!assignment.teacherFiles?.length) subject.materials = 'Материалы изменённого задания уточняются'
-          old.materialStatus = { state: 'textbook-page-needed', message: 'Учитель изменил условие. Страницы и действия нужно сверить заново перед публикацией.' }
+          old.materialStatus = entryFiles.length
+            ? { state: 'teacher-attachment-linked', message: 'Файл учителя сопоставлен с этой записью МЭШ.' }
+            : assignment.teacherFiles?.length
+              ? { state: 'teacher-attachment-needed', message: 'Файлы изменённого урока ещё не сопоставлены с этим заданием МЭШ.' }
+              : { state: 'textbook-page-needed', message: 'Учитель изменил условие. Страницы и действия нужно сверить заново перед публикацией.' }
           delete materialLinks[taskId]
           materialLinkReplacements.add(taskId)
         }
@@ -166,13 +172,24 @@ export function buildDaySource(local, date) {
           state: 'no-textbook', message: `Это указатель на ДЗ к ${referenceDate}, а не новое упражнение из учебника.`,
         }
         if (old.instructionStatus?.state === 'needs-review') old.kind = rawMeshKind(description)
+        if (old.instructionStatus?.state === 'needs-review'
+          && ['textbook-page-needed', 'teacher-attachment-needed'].includes(old.materialStatus?.state)) {
+          if (old.sourceOnly !== false) old.sourceOnly = true
+        }
+        else if (!['textbook-page-needed', 'teacher-attachment-needed'].includes(old.materialStatus?.state)) delete old.sourceOnly
         if (!isExplicitCdzTask(old)) delete old.platformResult
         old.lessonDate = lessonDate
         const deadline = deadlineFromMesh(assignment, lessonDate)
         old.dueDate = deadline.dueDate
         if (deadline.dueDateEvidence) old.dueDateEvidence = deadline.dueDateEvidence
         else delete old.dueDateEvidence
-        if (entryFiles.length) materialLinks[taskId] = teacherLinks(local, lessonDate, entryFiles)
+        if (entryFiles.length) {
+          materialLinks[taskId] = teacherLinks(local, lessonDate, entryFiles)
+          if (old.materialStatus?.state === 'teacher-attachment-needed') old.materialStatus = {
+            state: 'teacher-attachment-linked', message: 'Файл учителя сопоставлен с этой записью МЭШ.',
+          }
+          delete old.sourceOnly
+        }
         continue
       }
       subject.tasks.push({
@@ -186,6 +203,7 @@ export function buildDaySource(local, date) {
         // @see ../docs/modules/reviews/card-generation-policy.md#russian-adapter
         ...(!['math', 'special'].includes(id) && rawMeshKind(description) === 'written' ? { cardPolicyVersion: 1 } : {}),
         instructionStatus: { state: 'needs-review', message: '' },
+        ...(!referenceDate && !entryFiles.length ? { sourceOnly: true } : {}),
         source: `МЭШ, подробная карточка урока ${lessonDate}; запись ${entry.id}.`,
         meshText: description, originDate: targetDate, lessonDate, ...deadlineFromMesh(assignment, lessonDate),
         ...(referenceDate ? { referenceDate, materialStatus: { state: 'no-textbook', message: `Это указатель на ДЗ к ${referenceDate}, а не новое упражнение из учебника.` } }

@@ -183,14 +183,24 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
         const pendingKinds = [...new Set([...existingKinds, kind])]
         const hasFrozenBatch = (Array.isArray(state.sendingKinds) && state.sendingKinds.length > 0)
           || Number.isInteger(state.sendingGeneration)
+        // A genuinely new Mesh revision may recover only an explicitly typed,
+        // Mesh-only source-unavailable request. Ambiguous legacy batches, work,
+        // and action ranges still require their normal explicit recovery path.
+        const resumeSourceUnavailable = kind === 'mesh' && isExplicitMeshSourceUnavailableBlock(state, pendingKinds)
+        const nextPendingKinds = resumeSourceUnavailable
+          ? pendingKinds.filter((pendingKind) => pendingKind !== 'mesh')
+          : pendingKinds
         const clearStaleBatch = ['completed', 'idle'].includes(state.status) || !hasFrozenBatch
         const preserveRetry = holdState || hasFrozenBatch
-        tx.set(ref, { ...state, generation, pendingKinds, changedAt: now, debounceUntil,
-          status: holdState ? state.status : 'pending', retryAt: preserveRetry ? state.retryAt ?? null : null,
+        tx.set(ref, { ...state, generation, pendingKinds: nextPendingKinds, changedAt: now, debounceUntil,
+          status: resumeSourceUnavailable ? 'pending' : holdState ? state.status : 'pending',
+          retryAt: resumeSourceUnavailable ? null : preserveRetry ? state.retryAt ?? null : null,
+          ...(resumeSourceUnavailable ? { sendingGeneration: generation, sendingKinds: ['mesh'],
+            blockedReasonCode: null, blockedAt: null, resumedAt: now, resumeTrigger: 'new_mesh_event' } : {}),
           ...(clearStaleBatch ? { sendingGeneration: null, sendingKinds: null } : {}) }, { merge: false })
-        const retryDue = preserveRetry && state.retryAt ? state.retryAt : null
+        const retryDue = !resumeSourceUnavailable && preserveRetry && state.retryAt ? state.retryAt : null
         const nextDueAt = [debounceUntil, retryDue].filter(Boolean).sort().at(-1)
-        return { status: 'accepted', generation, ...(!holdState ? { nextDueAt } : {}) }
+        return { status: 'accepted', generation, ...(resumeSourceUnavailable || !holdState ? { nextDueAt } : {}) }
       })
     },
     async recordAction({ event, kind, artifact, now, debounceUntil }) {
@@ -418,7 +428,10 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
         const snap = await tx.get(ref)
         if (!snap.exists || snap.data().requestId !== requestId || snap.data().status !== 'blocked') return { status: 'not_blocked' }
         const state = snap.data()
+        const coalesceMeshGeneration = isExplicitMeshSourceUnavailableBlock(state, state.pendingKinds)
         tx.set(ref, { ...state, status: 'pending', blockedReasonCode: null, resumedAt: now,
+          ...(coalesceMeshGeneration ? { sendingGeneration: state.generation,
+            pendingKinds: state.pendingKinds.filter((kind) => kind !== 'mesh'), resumeTrigger: 'operator_resume_mesh_coalesced' } : {}),
           retryAt: null,
           debounceUntil: state.debounceUntil > now ? state.debounceUntil : now }, { merge: false })
         return { status: 'pending', requestId }
@@ -477,6 +490,22 @@ export function workEventDigest(event) {
     throw new Error('education_sync_event_key_invalid')
   }
   return digest(JSON.stringify(['firestore-work-v1', event.scopeKey, event.sourceEventKey, event.eventType]))
+}
+
+function isExplicitMeshSourceUnavailableBlock(state, pendingKinds) {
+  return state.status === 'blocked'
+    && state.blockedReasonCode === 'source_unavailable'
+    && Array.isArray(state.sendingKinds)
+    && state.sendingKinds.length === 1
+    && state.sendingKinds[0] === 'mesh'
+    && Array.isArray(pendingKinds)
+    && pendingKinds.every((pendingKind) => pendingKind === 'mesh')
+    && !Number.isInteger(state.sendingActionAfterGeneration)
+    && !Number.isInteger(state.sendingActionThroughGeneration)
+    && !Number.isInteger(state.pendingActionAfterGeneration)
+    && !Number.isInteger(state.pendingActionThroughGeneration)
+    && !Number.isInteger(state.actionAfterGeneration)
+    && !Number.isInteger(state.actionThroughGeneration)
 }
 
 function digest(value) { return createHash('sha256').update(value).digest('hex') }

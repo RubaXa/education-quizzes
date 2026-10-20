@@ -37,6 +37,7 @@ describe('сборка двух МЭШ-заданий с файлами уров
     expect(initial.materialLinks['mesh-one']).toBeUndefined()
     expect(initial.materialLinks['mesh-two']).toBeUndefined()
     expect(initial.subjects[0].tasks.every((task) => task.materialStatus.state === 'teacher-attachment-needed')).toBe(true)
+    expect(initial.subjects[0].tasks.every((task) => task.sourceOnly === true)).toBe(true)
 
     initial.materialLinks = {
       'mesh-one': [{ sourceType: 'teacher-attachment', sourceRef: 'mesh-attachment:geometry', url: 'https://example.org/geometry.png' }],
@@ -50,6 +51,7 @@ describe('сборка двух МЭШ-заданий с файлами уров
     const { local, assignment, source } = fixture()
     buildDaySource(local, '2026-10-13')
     const old = read(source)
+    old.subjects[0].tasks[0].sourceOnly = true
     old.subjects[0].tasks[0].practiceVariants = [{ id: 'mesh-one-v1', title: 'Вариант 1' }, { id: 'mesh-one-v2', title: 'Вариант 2' }]
     old.subjects[0].tasks[0].problems = [{ id: 'mesh-one-p-v1-1', variantId: 'mesh-one-v1', number: 1 }]
     old.subjects[0].tasks[0].materialRequest = { id:'notes-1', state:'open', question:'Прежний вопрос по прежнему условию', photoPrompt:'Фото прежнего материала' }
@@ -61,8 +63,18 @@ describe('сборка двух МЭШ-заданий с файлами уров
     buildDaySource(local, '2026-10-13')
     const revised = read(source).subjects[0].tasks[0]
     expect(revised.instructionStatus.state).toBe('needs-review')
+    expect(revised.sourceOnly).toBe(true)
     expect(revised.problems).toBeUndefined()
     expect(revised.practiceVariants).toBeUndefined()
     expect(revised.materialRequest).toBeUndefined()
+  })
+  it('сохраняет явный отказ от source-only режима при неизменной записи', () => {
+    const { local, source } = fixture()
+    buildDaySource(local, '2026-10-13')
+    const current = read(source)
+    current.subjects[0].tasks[0].sourceOnly = false
+    write(source, current)
+    buildDaySource(local, '2026-10-13')
+    expect(read(source).subjects[0].tasks[0].sourceOnly).toBe(false)
   })
 })

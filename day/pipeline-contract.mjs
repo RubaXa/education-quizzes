@@ -2,12 +2,14 @@
  * @see ../docs/modules/reviews/README.md
  * @see ../docs/modules/reviews/card-flow-certification.md
  * @see ../docs/decisions/family-essay-assignment-2026-10-20.md
+ * @see ../docs/decisions/source-only-mesh-publication-2026-10-20.md
  */
 import { createHash } from 'node:crypto'
 import { lessonVisibility } from '../diary/application/lesson-visibility.mjs'
 import { publicPageSubjects } from './public-projection.mjs'
 import { assignmentRouteEvidence } from './assignment-routing.mjs'
 import { familyAssignmentErrors, familyAssignmentProjectionSignature, stableFamilyProjectionJson } from './family-assignment.mjs'
+import { sourceOnlyPublicationErrors } from './source-only.mjs'
 
 /** Explain the failing field and canonical page IDs without weakening source checks.
  * @see ../docs/modules/synchronization/plan-generation.md#review-gate */
@@ -103,9 +105,15 @@ export function assertPublishedPageAligned(source, page, role, familyAssignments
     }
     // A matching copied fingerprint alone cannot prove that nested tasks survived
     // projection, writing and readback. Check the user-visible topology too.
+    for (const task of source.subjects?.flatMap((subject) => subject.tasks ?? []) ?? []) {
+      if (task.sourceOnly !== true) continue
+      const published = page.subjects?.flatMap((subject) => subject.tasks ?? []).find((item) => item.id === task.id)
+      const errors = sourceOnlyPublicationErrors(published)
+      if (errors.length) throw new Error(`Source-only задание ${task.id} на странице ${role} содержит недопустимые поля: ${errors.join(' ')}`)
+    }
     const topology = (subjects) => subjects?.map((subject) => ({ id: subject.id,
       tasks: subject.tasks?.map((task) => ({ id: task.id, meshText: task.meshText,
-        kind: task.kind, outputKind: task.outputKind,
+        kind: task.kind, outputKind: task.outputKind, sourceOnly: task.sourceOnly === true,
         practiceVariants: task.practiceVariants?.map((variant) => ({ id: variant.id, title: variant.title, optionalByTeacher: variant.optionalByTeacher })),
         problems: task.problems?.map((problem) => ({ id: problem.id, variantId: problem.variantId,
           number: problem.number, title: problem.title, original: problem.original && {

@@ -297,6 +297,78 @@ describe('Firestore EducationSync dispatch store state machine', () => {
     expect(await store.read()).toMatchObject({ status: 'sending', sendingGeneration: 1, pendingKinds: ['mesh'] })
   })
 
+  it('auto-resumes a distinct Mesh-only source-unavailable block once and coalesces the Mesh watermark', async () => {
+    const { db, store } = setup()
+    const requestId = '01a150dc-e067-7cc2-b08f-f573bf83e6e3'
+    db.documents.set('educationSyncDispatch/current', { status: 'blocked', generation: 1,
+      requestId, sendingGeneration: 1, sendingKinds: ['mesh'], pendingKinds: [],
+      blockedReasonCode: 'source_unavailable', blockedAt: iso(1_000) })
+
+    expect(await store.recordMeshChange({ eventDigest: digest(201), now: iso(2_000), debounceUntil: iso(22_000) }))
+      .toMatchObject({ status: 'accepted', generation: 2, nextDueAt: iso(22_000) })
+    expect(await store.read()).toMatchObject({ status: 'pending', generation: 2, requestId,
+      sendingGeneration: 2, sendingKinds: ['mesh'], pendingKinds: [], blockedReasonCode: null,
+      resumeTrigger: 'new_mesh_event' })
+
+    const resumed = await store.claim({ now: iso(22_000), workerId: 'worker-b' })
+    expect(resumed).toMatchObject({ requestId, generation: 2, workKinds: ['mesh'] })
+    await store.claimRequest({ requestId, tokenHash: digest(202), now: iso(23_000) })
+    expect(await store.completeClaim({ requestId, tokenHash: digest(202), now: iso(24_000) }))
+      .toEqual({ status: 'completed' })
+    expect(await store.read()).toMatchObject({ status: 'completed', generation: 2, pendingKinds: [] })
+  })
+
+  it('coalesces an explicit resume of a Mesh-only source-unavailable block through the latest Mesh generation', async () => {
+    const { db, store } = setup()
+    const requestId = '01a150dc-e067-7cc2-b08f-f573bf83e6e3'
+    db.documents.set('educationSyncDispatch/current', { status: 'blocked', generation: 31,
+      requestId, sendingGeneration: 19, sendingKinds: ['mesh'], pendingKinds: ['mesh'],
+      blockedReasonCode: 'source_unavailable', blockedAt: iso(1_000) })
+
+    expect(await store.resumeBlocked({ requestId, now: iso(2_000) }))
+      .toEqual({ status: 'pending', requestId })
+    expect(await store.read()).toMatchObject({ status: 'pending', generation: 31, requestId,
+      sendingGeneration: 31, sendingKinds: ['mesh'], pendingKinds: [], resumeTrigger: 'operator_resume_mesh_coalesced' })
+    const resumed = await store.claim({ now: iso(2_000), workerId: 'worker-b' })
+    expect(resumed).toMatchObject({ requestId, generation: 31, workKinds: ['mesh'] })
+    await store.claimRequest({ requestId, tokenHash: digest(231), now: iso(3_000) })
+    expect(await store.completeClaim({ requestId, tokenHash: digest(231), now: iso(4_000) }))
+      .toEqual({ status: 'completed' })
+    expect(await store.read()).toMatchObject({ status: 'completed', generation: 31, pendingKinds: [] })
+  })
+
+  it('does not auto-resume an ambiguous or non-source block on a new Mesh event', async () => {
+    const cases = [
+      { blockedReasonCode: 'permission_required', sendingKinds: ['mesh'], pendingKinds: [] },
+      { blockedReasonCode: 'manual_review_required', sendingKinds: ['mesh'], pendingKinds: [] },
+      { blockedReasonCode: 'source_unavailable', sendingKinds: ['mesh', 'work'], pendingKinds: ['mesh'] },
+      { blockedReasonCode: 'source_unavailable', sendingKinds: ['mesh'], pendingKinds: ['work'] },
+      { blockedReasonCode: 'source_unavailable', sendingKinds: ['mesh'], pendingKinds: [], sendingActionThroughGeneration: 1 },
+      { blockedReasonCode: 'source_unavailable', sendingKinds: null, pendingKinds: [] },
+    ]
+    for (const [index, batch] of cases.entries()) {
+      const { db, store } = setup()
+      db.documents.set('educationSyncDispatch/current', { status: 'blocked', generation: 1,
+        requestId: '01a150dc-e067-7cc2-b08f-f573bf83e6e3', sendingGeneration: 1,
+        ...batch })
+      await store.recordMeshChange({ eventDigest: digest(210 + index), now: iso(), debounceUntil: iso(20_000) })
+      expect(await store.read()).toMatchObject({ status: 'blocked', generation: 2,
+        blockedReasonCode: batch.blockedReasonCode })
+    }
+  })
+
+  it('keeps a blocked request held when its new Mesh signal is a duplicate', async () => {
+    const { db, store } = setup()
+    db.documents.set('educationSyncDispatch/current', { status: 'blocked', generation: 1,
+      requestId: '01a150dc-e067-7cc2-b08f-f573bf83e6e3', sendingGeneration: 1,
+      sendingKinds: ['mesh'], pendingKinds: [], blockedReasonCode: 'source_unavailable' })
+    db.documents.set(`educationSyncDispatchEvents/${digest(220)}`, { acceptedAt: iso() })
+    expect(await store.recordMeshChange({ eventDigest: digest(220), now: iso(), debounceUntil: iso(20_000) }))
+      .toEqual({ status: 'duplicate' })
+    expect(await store.read()).toMatchObject({ status: 'blocked', generation: 1,
+      blockedReasonCode: 'source_unavailable' })
+  })
+
   it('rejects a block with an unrecognized reason or an expired claim', async () => {
     const { store } = setup()
     await store.recordMeshChange({ eventDigest: digest(50), now: iso(), debounceUntil: iso(20_000) })

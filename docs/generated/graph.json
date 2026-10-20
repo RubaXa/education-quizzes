@@ -2073,6 +2073,38 @@
       "path": "docs/decisions/role-projection-diagnostics-2026-10-18.md"
     },
     {
+      "id": "decisions.source-only-mesh-publication-2026-10-20",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-10-20",
+      "updated": "2026-10-20",
+      "consumers": [
+        "Education sync operator",
+        "Firestore publisher"
+      ],
+      "code": [
+        "day/build.mjs",
+        "day/pipeline-contract.mjs",
+        "day/merge.mjs",
+        "day/source-only.mjs",
+        "scripts/day.mjs",
+        "src/lib/dayStore.ts"
+      ],
+      "parent": "module.synchronization.plan-generation",
+      "uses": [
+        "module.synchronization.education-pipeline"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование",
+        "файлы"
+      ],
+      "path": "docs/decisions/source-only-mesh-publication-2026-10-20.md"
+    },
+    {
       "id": "decisions.stable-grade-snapshot-command-2026-10-16",
       "status": "reference",
       "implementation": "not-applicable",
@@ -2698,8 +2730,8 @@
       "id": "file:day/merge.mjs",
       "path": "day/merge.mjs",
       "kind": "artifact",
-      "purpose": "Слияние без потери работы, ревизия выходного плана, снятие ошибочной карточки и удаление доказанной ссылки",
-      "consumer": "`scripts/day.mjs`"
+      "purpose": "Слияние с сохранением истории; source-only выпуск снимает старые инструкции, тесты и закрытые ориентиры",
+      "consumer": "`scripts/day.mjs`; Vitest"
     },
     {
       "id": "file:day/merge.test.mjs",
@@ -2798,6 +2830,20 @@
       "kind": "verification",
       "purpose": "Источник, принадлежность, полнота, непрерывность и сохранение дней",
       "consumer": "Vitest"
+    },
+    {
+      "id": "file:day/source-only.mjs",
+      "path": "day/source-only.mjs",
+      "kind": "artifact",
+      "purpose": "Строгая проверка публикации точной записи МЭШ при ожидающем сверки материале",
+      "consumer": "`scripts/day.mjs`; Vitest"
+    },
+    {
+      "id": "file:day/source-only.test.mjs",
+      "path": "day/source-only.test.mjs",
+      "kind": "verification",
+      "purpose": "Проверка raw-only границы, ожидания материала и независимости готовых заданий",
+      "consumer": "Vitest; разработчик"
     },
     {
       "id": "file:day/subject-identity.d.mts",
@@ -3517,7 +3563,7 @@
       "id": "file:packages/telegram-notifications/application/education-sync-dispatcher.mjs",
       "path": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
       "kind": "artifact",
-      "purpose": "Реализация: устойчивое восстановление и проверка цепочки Mesh/Telegram/EducationSync",
+      "purpose": "Реализация: устойчивое восстановление, узкий auto-resume нового Mesh-сигнала после source_unavailable и проверка цепочки Mesh/Telegram/EducationSync",
       "consumer": "Telegram runtime; оператор; Vitest"
     },
     {
@@ -6450,14 +6496,14 @@
       "id": "file:sync/publication-audit.mjs",
       "path": "sync/publication-audit.mjs",
       "kind": "artifact",
-      "purpose": "Сверка содержания и безопасное обновление времени проверки без потери опубликованных бейджей",
+      "purpose": "Проверка family-origin overlay по владельцу/датам, сверка содержания и безопасное обновление времени без потери бейджей",
       "consumer": "`scripts/sync-project.mjs`"
     },
     {
       "id": "file:sync/publication-audit.test.mjs",
       "path": "sync/publication-audit.test.mjs",
       "kind": "verification",
-      "purpose": "Проверка долга публикации, страницы ДЗ и неизменности содержания при продвижении времени",
+      "purpose": "Проверка family-origin overlay, реального Mesh расхождения, страницы ДЗ и продвижения времени",
       "consumer": "Vitest; разработчик"
     },
     {
@@ -8015,7 +8061,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-13",
-      "updated": "2026-10-17",
+      "updated": "2026-10-20",
       "consumers": [
         "Education sync operator",
         "sync-project CLI",
@@ -8064,6 +8110,8 @@
         "day/build.mjs",
         "day/homework-kind.mjs",
         "day/pipeline-contract.mjs",
+        "day/merge.mjs",
+        "day/source-only.mjs",
         "day/family-assignment.mjs",
         "day/assignment-routing.mjs",
         "scripts/route-assignment.mjs",
@@ -8076,6 +8124,7 @@
       ],
       "sections": [
         "точная-запись-до-разбора",
+        "source-only-publication",
         "запись-мэш-которая-указывает-только-на-материал",
         "результат-одного-задания-на-нескольких-страницах-дня",
         "сверка-перед-подробным-планом",
@@ -10489,6 +10538,11 @@
       "type": "uses"
     },
     {
+      "from": "decisions.source-only-mesh-publication-2026-10-20",
+      "to": "module.synchronization.education-pipeline",
+      "type": "uses"
+    },
+    {
       "from": "decisions.upload-origin-links-2026-10-18",
       "to": "shared.design.components",
       "type": "uses"
@@ -10611,6 +10665,11 @@
     {
       "from": "file:day/assignment-structure.mjs",
       "to": "module.school-diary.day-page",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/build.mjs",
+      "to": "decisions.source-only-mesh-publication-2026-10-20",
       "type": "implements"
     },
     {
@@ -10815,6 +10874,11 @@
     },
     {
       "from": "file:day/merge.mjs",
+      "to": "decisions.source-only-mesh-publication-2026-10-20",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/merge.mjs",
       "to": "module.assessments.quizzes",
       "type": "implements"
     },
@@ -10836,6 +10900,11 @@
     {
       "from": "file:day/pipeline-contract.mjs",
       "to": "decision.family-essay-assignment-2026-10-20",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/pipeline-contract.mjs",
+      "to": "decisions.source-only-mesh-publication-2026-10-20",
       "type": "implements"
     },
     {
@@ -10876,6 +10945,16 @@
     {
       "from": "file:day/school-calendar.mjs",
       "to": "module.school-diary.school-calendar",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/source-only.mjs",
+      "to": "decisions.source-only-mesh-publication-2026-10-20",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/source-only.mjs",
+      "to": "module.synchronization.plan-generation",
       "type": "implements"
     },
     {
@@ -11656,6 +11735,11 @@
     {
       "from": "file:scripts/day.mjs",
       "to": "decision.released-stage-parity-2026-10-20",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/day.mjs",
+      "to": "decisions.source-only-mesh-publication-2026-10-20",
       "type": "implements"
     },
     {
@@ -13346,6 +13430,11 @@
     {
       "from": "file:src/lib/dayStore.ts",
       "to": "decision.released-stage-parity-2026-10-20",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/dayStore.ts",
+      "to": "decisions.source-only-mesh-publication-2026-10-20",
       "type": "implements"
     },
     {
@@ -15615,12 +15704,22 @@
     },
     {
       "from": "module.synchronization.plan-generation",
+      "to": "decisions.source-only-mesh-publication-2026-10-20",
+      "type": "contains"
+    },
+    {
+      "from": "module.synchronization.plan-generation",
       "to": "file:day/assignment-routing.test.mjs",
       "type": "verified-by"
     },
     {
       "from": "module.synchronization.plan-generation",
       "to": "file:day/pipeline-contract.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.synchronization.plan-generation",
+      "to": "file:day/source-only.test.mjs",
       "type": "verified-by"
     },
     {

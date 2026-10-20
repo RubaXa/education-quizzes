@@ -23,7 +23,7 @@ import { collectedProjectSummary, dateWindow, mapBounded, projectTargets } from 
 import { persistMeshCapture } from '../sync/artifact-capture.mjs'
 import { buildDayDashboardIndex } from '../day/dashboard-index.mjs'
 import { assertGradeSnapshotAligned } from '../day/grade-reconciliation.mjs'
-import { pendingPublicationDates, refreshedCalendarChecks } from '../sync/publication-audit.mjs'
+import { pendingPublicationDates, publicationReconciliationCandidates, refreshedCalendarChecks, validatedFamilyDashboardAssignments } from '../sync/publication-audit.mjs'
 import { enqueueSyncJob, setSyncJob, syncFingerprint } from '../sync/job-queue.mjs'
 import { reuseRunContext } from '../sync/run-context.mjs'
 import { calendarFailure, calendarShape, captureSchoolCalendar, normalizeSchoolCalendar } from '../sync/school-calendar.mjs'
@@ -146,14 +146,22 @@ async function collectChildCalendar(target, adapter, today, timing, publish = fa
 async function status(target, runId, phase, extra = {}) {
   await statusRef(target).set({ runId, phase, updatedAt: Timestamp.now(), ...extra }, { merge: true })
 }
-async function auditPublishedDays(dir, dates, asOf, timing) {
+async function auditPublishedDays(dir, dates, asOf, timing, target) {
   const workspace = dirname(dir)
   const links = readJson(workspace, 'day-links.json') ?? {}
   const dashboardTokens = readJson(workspace, 'day-dashboard-links.json') ?? {}
+  const familyTaskSnapshot = await measure(timing, 'familyAssignmentAuditRead', () =>
+    db.collection(`families/${target.familyId}/children/${target.childId}/tasks`)
+      .where('dueDate', '>=', dates[0]).where('dueDate', '<=', dates.at(-1)).get())
+  const familyAssignments = validatedFamilyDashboardAssignments(
+    familyTaskSnapshot.docs.map((snapshot) => ({ ...snapshot.data(), id: snapshot.id })),
+    { familyId: target.familyId, childId: target.childId, dates })
   const pendingByDate = new Map()
   const freshness = []
+  let expectedByDate = null
   for (const role of ['student', 'parent']) {
-    const expected = buildDayDashboardIndex(workspace, links, role)
+    const expected = buildDayDashboardIndex(workspace, links, role, new Date(), null, familyAssignments)
+    if (role === 'student') expectedByDate = new Map((expected.days ?? []).map((day) => [day.date, day]))
     const token = dashboardTokens[role]
     const snapshot = token ? await measure(timing, 'publishedDashboardRead', () => db.doc(`dayDashboards/${token}`).get()) : null
     const published = snapshot?.data() ?? null
@@ -186,7 +194,7 @@ async function auditPublishedDays(dir, dates, asOf, timing) {
     }
   }
   return { pending: [...pendingByDate].sort(([a], [b]) => a.localeCompare(b))
-    .map(([date, reasons]) => ({ date, reasons: [...reasons].sort() })), freshness }
+    .map(([date, reasons]) => ({ date, reasons: [...reasons].sort() })), freshness, expectedByDate }
 }
 async function publishCalendarChecks(target, candidates, timing) {
   const owned = candidates.filter(({ snapshot }) => snapshot.data().familyId === target.familyId
@@ -261,16 +269,13 @@ async function collectChild(target, adapter, runId, today, timing) {
       await measure(timing, 'statusWrite', () => status(target, runId, 'fetching', { checkedDates: checked, totalDates: dates.length, currentDate: date, lastFullMeshAt: lastFull }))
     }
   }
-  const publication = await measure(timing, 'publicationAudit', () => auditPublishedDays(dir, dates, today, timing))
+  const publication = await measure(timing, 'publicationAudit', () => auditPublishedDays(dir, dates, today, timing, target))
   const pendingPublicationDatesByDay = publication.pending
   const calendarChecksPublished = await measure(timing, 'calendarCheckUpdate', () => publishCalendarChecks(target, publication.freshness, timing))
   count(timing, 'datesWithSourceChanges', changedDates.length)
   count(timing, 'datesPendingPublication', pendingPublicationDatesByDay.length)
   count(timing, 'calendarChecksPublished', calendarChecksPublished)
-  const expected = buildDayDashboardIndex(dirname(dir), readJson(dirname(dir), 'day-links.json') ?? {}, 'student')
-  const expectedByDate = new Map((expected.days ?? []).map((day) => [day.date, day]))
-  for (const date of new Set([...changedDates.map((item) => item.date), ...pendingPublicationDatesByDay.map((item) => item.date)])) {
-    const revision = expectedByDate.get(date)?.sourceRevision
+  for (const { date, revision } of publicationReconciliationCandidates(publication, changedDates)) {
     await measure(timing, 'enqueueDay', () => enqueueSyncJob(db, { kind: 'reconcile-day', familyId: target.familyId, childId: target.childId,
       sourceId: date, source: { type: 'mesh-day', date }, runId, priority: 25,
       fingerprint: syncFingerprint([date, revision ?? null]) }))

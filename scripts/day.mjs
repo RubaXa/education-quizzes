@@ -2,6 +2,7 @@
  * @see ../docs/product/school-day.md
  * @see ../docs/modules/families/README.md
  * @see ../docs/decisions/family-essay-assignment-2026-10-20.md
+ * @see ../docs/decisions/source-only-mesh-publication-2026-10-20.md
  * @see ../docs/modules/reviews/card-flow-certification.md
  */
 /** @see ../docs/modules/materials/material-clarification.md */
@@ -25,6 +26,7 @@ import { repairTaskPlacements } from '../day/placement-repair.mjs'
 import { dayDashboardShapeErrors } from '../day/data-contract.mjs'
 import { materialGrantError } from '../day/material-access.mjs'
 import { teacherAttachmentOwnershipErrors } from '../day/assignment-structure.mjs'
+import { canPublishSourceOnly, sourceOnlyPublicationErrors, taskMaterialPublicationError } from '../day/source-only.mjs'
 import { ownerMigrationFields } from '../day/owner-repair.mjs'
 import { publicPageSubjects, publicProblem } from '../day/public-projection.mjs'
 import { isExplicitCdzTask } from '../day/homework-kind.mjs'
@@ -485,6 +487,10 @@ function validate(source, { allowUnchangedLegacyTeacherLinks = false } = {}) {
         }
       }
       if (task.id.startsWith('mesh-')) {
+        if (task.sourceOnly === true) {
+          const sourceOnlyErrors = sourceOnlyPublicationErrors(task)
+          if (sourceOnlyErrors.length) fail(sourceOnlyErrors.join(' '))
+        }
         if (task.instructionStatus?.state === 'needs-review' && (task.detail !== task.meshText || task.kind !== rawMeshKind(task.meshText ?? '') || task.steps?.length || task.submission || task.parentGuide)) fail(`У ${task.id} разбор ещё не сверен: показывайте только точный текст МЭШ без добавленных действий и фото.`)
         if (task.instructionStatus?.state === 'reviewed') for (const step of task.steps ?? []) validateAssignedInstruction(step, task, source)
         for (const item of task.submission?.items ?? []) validateAssignedInstruction(item, task, source)
@@ -636,10 +642,8 @@ async function stagePublish(date, batch, links, indexTokens, stagedPages, notify
     const state = task.materialStatus?.state
     const hasPages = Boolean(pageRefs[task.id]?.length)
     const hasTeacherFile = source.materialLinks?.[task.id]?.some((link) => link.sourceType === 'teacher-attachment')
-    if (state === 'teacher-attachment-needed') fail(`Файлы урока ещё не сопоставлены с отдельным заданием ${task.id}; день не опубликован.`)
-    if (state === 'textbook-page-needed' || (task.id.startsWith('mesh-') && !hasPages && !hasTeacherFile && !['no-textbook', 'text-absent-from-textbook'].includes(state))) {
-      fail(`Источник ${task.id} ещё не сверён с учебником. Укажите точные страницы в .local/material-pages.json или причину отсутствия учебника; день не опубликован.`)
-    }
+    const materialError = taskMaterialPublicationError(task, { hasPages, hasTeacherFile })
+    if (materialError) fail(materialError)
     if (state === 'textbook-page-linked' && !hasPages) fail(`Для ${task.id} нет привязки к индексированной странице учебника.`)
     if (['no-textbook', 'text-absent-from-textbook'].includes(state) && !task.materialStatus?.message?.trim()) fail(`Для ${task.id} нужна причина отсутствия учебника.`)
   }

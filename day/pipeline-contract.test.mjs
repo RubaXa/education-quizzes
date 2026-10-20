@@ -36,6 +36,21 @@ describe('барьер публикации плана', () => {
     expect(() => assertPublishedPageAligned({ ...source, subjects: [] }, page, 'student')).toThrow(/отстаёт/)
     expect(() => assertPublishedPageAligned(source, { ...page, subjects: [{ tasks: [] }] }, 'student')).toThrow(/потеряла/)
   })
+  it('сохраняет source-only состояние в отпечатке и требует точную запись МЭШ при повторной сверке', () => {
+    const sourceOnly = { ...source, subjects: [{ tasks: [{ id: 'mesh-99', meshText: 'Решить № 4.', detail: 'Решить № 4.',
+      kind: 'check', instructionStatus: { state: 'needs-review' },
+      materialStatus: { state: 'teacher-attachment-needed', message: 'Файл ещё не сопоставлен.' }, sourceOnly: true }] }] }
+    const page = { kind: 'student', targetDate: sourceOnly.targetDate,
+      sourcePlanFingerprint: sourcePlanFingerprint(sourceOnly), subjects: structuredClone(sourceOnly.subjects) }
+    expect(() => assertSourceAligned(sourceOnly, snapshot)).not.toThrow()
+    expect(() => assertPublishedPageAligned(sourceOnly, page, 'student')).not.toThrow()
+    page.subjects[0].tasks[0].parentGuide = { stages: [{ id: 'old', answer: 'private' }] }
+    expect(() => assertPublishedPageAligned(sourceOnly, page, 'student')).toThrow(/недопустимые поля/)
+    delete page.subjects[0].tasks[0].parentGuide
+    page.subjects[0].tasks[0].sourceOnly = false
+    expect(() => assertPublishedPageAligned(sourceOnly, page, 'student')).toThrow(/недопустимые поля/)
+    expect(() => assertSourceAligned({ ...sourceOnly, subjects: [{ tasks: [{ ...sourceOnly.subjects[0].tasks[0], meshText: 'Решить № 5.' }] }] }, snapshot)).toThrow(/не содержит актуальную запись/)
+  })
   it('принимает только каноническое семейное задание поверх точного MESH fingerprint', () => {
     const plan = { targetDate: '2026-10-23', subjects: [{ id: 'russian', name: 'Русский язык', icon: '✍', tasks: [{ id: 'mesh-1', title: 'Упр. 1', detail: 'Упр. 1', kind: 'written', status: 'unknown', source: 'МЭШ', meshText: 'Упр. 1' }] }] }
     const assignment = { id: 'family-russian-essay-2026-10-23', familyId: 'family', childId: 'child', subjectId: 'russian',

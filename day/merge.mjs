@@ -1,4 +1,14 @@
 import { isExplicitCdzTask } from './homework-kind.mjs'
+import { canPublishSourceOnly } from './source-only.mjs'
+
+/** @see ../docs/modules/synchronization/plan-generation.md#source-only-publication
+ * @see ../docs/decisions/source-only-mesh-publication-2026-10-20.md */
+
+function stripSourceOnlyEnrichment(task) {
+  for (const key of ['steps', 'submission', 'parentGuide', 'problems', 'practiceVariants', 'cardPattern',
+    'outputKind', 'testToken', 'testSlug', 'requiredPoints', 'assessmentIntent', 'sourceInventory']) delete task[key]
+  return task
+}
 
 function uniqueBy(items, key) {
   return [...new Map(items.map((item) => [key(item), item])).values()]
@@ -22,6 +32,7 @@ function mergeSubjects(existing = [], incoming = [], retiredTaskIds = new Set())
         const old = tasks[position]
         const sameCondition = old.meshText === task.meshText && old.kind === task.kind
         const merged = sameCondition ? { ...old, ...task } : { ...task }
+        if (canPublishSourceOnly(task)) stripSourceOnlyEnrichment(merged)
         merged.status = sameCondition && task.status === 'unknown' && old.status !== 'unknown' ? old.status : task.status
         if (!isExplicitCdzTask(merged)) delete merged.platformResult
         tasks[position] = merged

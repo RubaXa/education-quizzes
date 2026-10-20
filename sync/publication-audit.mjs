@@ -1,6 +1,8 @@
 /**
  * @see ../docs/operations/recovery.md
  */
+import { familyAssignmentErrors } from '../day/family-assignment.mjs'
+
 /** Compare the current source projection with the last Firestore publication.
  * A fresh download alone must never clear an unpublished change.
  * @see ../docs/modules/synchronization/global-sync.md#reconciliation
@@ -27,6 +29,32 @@ export function pendingPublicationDates(expected, published, dates) {
     if (reasons.length) pending.push({ date, reasons })
   }
   return pending
+}
+
+/** Build the actual day-enqueue worklist from the completed publication audit. */
+export function publicationReconciliationCandidates(publication, changedDates = []) {
+  if (!(publication?.expectedByDate instanceof Map) || !Array.isArray(publication.pending)) {
+    throw new Error('publication_audit_incomplete')
+  }
+  const dates = new Set([...changedDates.map((item) => item.date), ...publication.pending.map((item) => item.date)])
+  return [...dates].map((date) => ({ date, revision: publication.expectedByDate.get(date)?.sourceRevision ?? null }))
+}
+
+/** Keep the dashboard audit's family-origin overlay aligned with day publication.
+ * MESH snapshots remain the source of MESH content; separately published family
+ * tasks are included only when their owner, date, and explicit projection pass
+ * the same validator as the day publisher.
+ * @see ../docs/decisions/family-essay-assignment-2026-10-20.md
+ */
+export function validatedFamilyDashboardAssignments(assignments, { familyId, childId, dates }) {
+  const dateSet = new Set(dates ?? [])
+  return (assignments ?? []).flatMap((task) => {
+    if (task?.publication !== 'active' || task.sourceSystem !== 'family' || task.dayProjectionVersion !== 1
+      || !dateSet.has(task.dueDate)) return []
+    const errors = familyAssignmentErrors(task, { familyId, childId, taskId: task.id })
+    if (errors.length) throw new Error(`Family dashboard assignment invalid: ${task.id}: ${errors.join(' ')}`)
+    return [task]
+  })
 }
 
 /** Refresh only check times for already published, byte-equivalent day content.

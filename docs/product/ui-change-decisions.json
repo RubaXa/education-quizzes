@@ -153,35 +153,17 @@
       }
     },
     "day/build.mjs": {
-      "sha256": "78ee16884177367ae04bfcda36055134149a82ef405f5dc036b335dc5edbcd27",
-      "record": "docs/decisions/course-placement-2026-10-18.md",
+      "sha256": "a43a4dfa27d54b1f43c03a126e24fc62b9ebeb4f983d175b3ae813ad65b9727f",
+      "record": "docs/decisions/source-only-mesh-publication-2026-10-20.md",
       "specs": [
-        "docs/modules/synchronization/plan-generation.md",
-        "docs/modules/materials/material-clarification.md"
+        "docs/modules/synchronization/plan-generation.md"
       ],
       "tests": [
-        "day/assignment-routing.test.mjs",
-        "src/lib/materialRequest.test.ts",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/lib/homeworkStatus.test.ts",
-        "src/lib/photoUploadPolicy.test.ts",
-        "src/UiKit.test.tsx",
-        "storage/submission-inbox.test.mjs",
-        "storage/review-projection.test.mjs",
-        "storage/review-readback.test.mjs",
         "day/build-assignments.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 16.10.2026 прямо потребовал вопрос ученику в карточке и ответ фото записей через стандартную загрузку с обработкой следующей синхронизацией."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "2c125726513a06a69335f72713cbdedf2be4f2a92fc109faa631fad5a3a42644"
-      },
-      "specificationLifecycle": {
-        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
-        "previousSha256": "ab2dbc2d77f03a53bfe42c0aca48b84b26a12ce2b811a9945f513b0fbde0a71d"
+        "evidence": "Пользователь сообщил, что новые назначения МЭШ не отображаются в Education; действующий протокол разделяет точную фиксацию исходного задания и последующее подтверждённое обогащение."
       }
     },
     "day/card-policy.mjs": {
@@ -397,22 +379,18 @@
       }
     },
     "day/merge.mjs": {
-      "sha256": "0064dc1eb1f5c1619104e1673a4945b24995bdad96991d867a566e8dd2955202",
-      "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
+      "sha256": "43aaa21d89432af249d4b975896f8489f67b79815a61de85009a30723b9c04f6",
+      "record": "docs/decisions/source-only-mesh-publication-2026-10-20.md",
       "specs": [
-        "docs/shared/specification-system.md"
+        "docs/modules/synchronization/plan-generation.md"
       ],
       "tests": [
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
+        "day/merge.test.mjs",
+        "day/pipeline-contract.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя 16.10.2026 внедрить согласованную структуру спецификаций, перенести ссылки в коде и проверить сохранность требований; изменение предметного поведения не выполнялось."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "46f29c8802a6a0cd3d4feff0ed93ef8d194aed7d7d157f0fb0b5dfe0b95fb807"
+        "evidence": "Пользователь сообщил, что новые назначения МЭШ не отображаются в Education; действующий протокол разделяет точную фиксацию исходного задания и последующее подтверждённое обогащение."
       }
     },
     "day/owner-repair.mjs": {
@@ -435,19 +413,17 @@
       }
     },
     "day/pipeline-contract.mjs": {
-      "sha256": "808ed743fa425058c70c8ccd52e833ccdf09b3601978e523152eda2547313564",
-      "record": "docs/decisions/family-essay-assignment-2026-10-20.md",
+      "sha256": "f79cc082598bbca67dd9714f42dc73f70721b0dc4b3881efd307e2aece1413e1",
+      "record": "docs/decisions/source-only-mesh-publication-2026-10-20.md",
       "specs": [
-        "docs/modules/synchronization/plan-generation.md",
-        "docs/modules/school-diary/day-page.md"
+        "docs/modules/synchronization/plan-generation.md"
       ],
       "tests": [
-        "day/pipeline-contract.test.mjs",
-        "day/family-assignment-boundaries.test.mjs"
+        "day/pipeline-contract.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 20.10.2026: опубликовать семейную подготовку к сочинению к пятнице 23.10.2026 с самостоятельной работой ученика и загрузкой фотографии; не представлять её заданием МЭШ или учителя."
+        "evidence": "Пользователь сообщил, что новые назначения МЭШ не отображаются в Education; действующий протокол разделяет точную фиксацию исходного задания и последующее подтверждённое обогащение."
       }
     },
     "day/placement-integrity.mjs": {
@@ -1213,7 +1189,7 @@
       }
     },
     "packages/telegram-notifications/application/education-sync-dispatcher.mjs": {
-      "sha256": "54cd5306b2409608dd4536a55e4fb98671c5f5b9067e20a6d8e751591477bdef",
+      "sha256": "255fa7feee659bb4f514ba93fc3316d8c09156eaaf65ea1f7680e532ca95aa7e",
       "record": "docs/decisions/unified-education-events-2026-10-19.md",
       "specs": [
         "docs/modules/synchronization/event-queue.md",
@@ -1221,8 +1197,7 @@
         "docs/shared/server-runtime.md"
       ],
       "tests": [
-        "packages/telegram-notifications/application/education-sync-dispatcher.test.mjs",
-        "scripts/telegram-runtime-dependencies.test.mjs"
+        "packages/telegram-notifications/application/education-sync-dispatch-store.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
@@ -1891,21 +1866,18 @@
       }
     },
     "scripts/day.mjs": {
-      "sha256": "7bf26830c432c94d141f98effe8e967e503d1c6c651656c9a231a54969f8f728",
-      "record": "docs/decisions/family-essay-assignment-2026-10-20.md",
+      "sha256": "3e182d645189afffc9f6d8200cf279c5e416037874c00cee063b8802f21f0ba8",
+      "record": "docs/decisions/source-only-mesh-publication-2026-10-20.md",
       "specs": [
-        "docs/modules/families/README.md",
         "docs/modules/synchronization/plan-generation.md"
       ],
       "tests": [
-        "day/family-assignment.test.mjs",
-        "day/family-assignment-boundaries.test.mjs",
-        "day/pipeline-contract.test.mjs",
-        "day/family-dashboard-delta.test.mjs"
+        "day/source-only.test.mjs",
+        "day/pipeline-contract.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 20.10.2026: опубликовать семейную подготовку к сочинению к пятнице 23.10.2026 с самостоятельной работой ученика и загрузкой фотографии; не представлять её заданием МЭШ или учителя."
+        "evidence": "Пользователь сообщил, что новые назначения МЭШ не отображаются в Education; действующий протокол разделяет точную фиксацию исходного задания и последующее подтверждённое обогащение."
       }
     },
     "scripts/direct-upload-worker.mjs": {
@@ -2387,16 +2359,13 @@
       ]
     },
     "scripts/sync-project.mjs": {
-      "sha256": "fe40d4a9a66f8ad52500386d997d01e760bb0f1cb54149ee53fb2b5967c05e3f",
+      "sha256": "f586ab2fa3abb898f2e20d314920832d9a07e4ede4c01513622e6f06eb60ec73",
       "record": "docs/decisions/pupil-vacations-2026-10-19.md",
       "specs": [
         "docs/modules/school-diary/school-calendar.md"
       ],
       "tests": [
-        "day/school-calendar.test.mjs",
-        "sync/school-calendar-publication.test.mjs",
-        "src/components/DayCalendar.test.tsx",
-        "src/DayDashboard.warmStart.test.tsx"
+        "sync/publication-audit.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
@@ -4243,19 +4212,17 @@
       }
     },
     "src/lib/dayStore.ts": {
-      "sha256": "484446e5a3c7f27fb334e5d6f121894be3bb141f1b9c6d01c5a6fe5106f19161",
-      "record": "docs/decisions/family-essay-assignment-2026-10-20.md",
+      "sha256": "263d5d85439feb56b37e7741605f2e765329a56ef0d075ec78084be0dd18c725",
+      "record": "docs/decisions/source-only-mesh-publication-2026-10-20.md",
       "specs": [
-        "docs/modules/school-diary/day-page.md",
-        "docs/modules/families/README.md"
+        "docs/modules/synchronization/plan-generation.md"
       ],
       "tests": [
-        "day/family-assignment.test.mjs",
-        "day/family-assignment-boundaries.test.mjs"
+        "day/source-only.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 20.10.2026: опубликовать семейную подготовку к сочинению к пятнице 23.10.2026 с самостоятельной работой ученика и загрузкой фотографии; не представлять её заданием МЭШ или учителя."
+        "evidence": "Пользователь сообщил, что новые назначения МЭШ не отображаются в Education; действующий протокол разделяет точную фиксацию исходного задания и последующее подтверждённое обогащение."
       }
     },
     "src/lib/educationEventProducer.ts": {
@@ -5573,14 +5540,13 @@
       }
     },
     "sync/publication-audit.mjs": {
-      "sha256": "77822b0df65575a74bad3f25f90878de50730ad0ab1e4353e4b0c5d09ecc756e",
+      "sha256": "42851a6d36448813d341f1e25ca04d1b1d2a0d90f79ca9c9eda8198d7ab7ddde",
       "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
       "specs": [
         "docs/shared/specification-system.md"
       ],
       "tests": [
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
+        "sync/publication-audit.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
@@ -5739,6 +5705,21 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Прямой запрос родителя 20.10.2026: семейная карточка должна обновлять срок в календаре без изменения несвязанных дат и документов."
+      }
+    },
+    "day/source-only.mjs": {
+      "sha256": "d308578a99f21814f1b1cd08bd39648b7aeca2b28fc3d71e21534d1ebdc1d3cb",
+      "record": "docs/decisions/source-only-mesh-publication-2026-10-20.md",
+      "specs": [
+        "docs/modules/synchronization/plan-generation.md"
+      ],
+      "tests": [
+        "day/source-only.test.mjs",
+        "day/merge.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь сообщил, что новые назначения МЭШ не отображаются в Education; действующий протокол разделяет точную фиксацию исходного задания и последующее подтверждённое обогащение."
       }
     }
   }

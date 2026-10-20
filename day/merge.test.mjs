@@ -57,6 +57,29 @@ describe('повторный выпуск страницы дня', () => {
     expect(merged.subjects[0].tasks[0].platformResult).toBeUndefined()
   })
 
+  it('снимает прежний разбор и закрытый ориентир с source-only карточки, сохраняя подтверждение и статус', () => {
+    const oldTask = { ...task('mesh-42-cdz', 'verified'), kind: 'check', meshText: 'ЦДЗ по теме',
+      steps: [{ text: 'Старый разбор' }], submission: { photo: 'Старое описание фото' },
+      parentGuide: { stages: [{ id: 'private', answer: 'закрыто' }] }, cardPattern: 'unknown',
+      outputKind: 'platform-result', testToken: 'a'.repeat(32), sourceInventory: { private: true },
+      platformResult: { state: 'completed', points: 8, maxPoints: 8, source: 'МЭШ' } }
+    const nextTask = { ...task('mesh-42-cdz'), kind: 'check', meshText: 'ЦДЗ по теме', detail: 'ЦДЗ по теме',
+      instructionStatus: { state: 'needs-review', message: 'Пока видна точная запись МЭШ.' },
+      materialStatus: { state: 'teacher-attachment-needed', message: 'Файл ещё не сопоставлен.' }, sourceOnly: true }
+    const old = { ...page([oldTask], ['today', 'earlier']), uploads: [{ id: 'upload-history' }], reviews: [{ taskId: 'mesh-42-cdz' }] }
+    const merged = mergeDayPage(old, page([nextTask]))
+    const published = merged.subjects[0].tasks[0]
+    for (const field of ['steps', 'submission', 'parentGuide', 'cardPattern', 'outputKind', 'testToken', 'sourceInventory']) {
+      expect(published[field]).toBeUndefined()
+    }
+    expect(published.status).toBe('verified')
+    expect(published.platformResult).toEqual(oldTask.platformResult)
+    expect(merged.uploads).toEqual(old.uploads)
+    expect(merged.reviews).toEqual(old.reviews)
+    expect(merged.evidenceDayTokens).toEqual(['today', 'earlier'])
+    expect(merged.testPlacements).toEqual([])
+  })
+
   it('заменяет старый testPlacement того же taskId, не оставляя несуществующую ссылку', () => {
     const oldToken = 'a'.repeat(32), newToken = 'b'.repeat(32)
     const old = { ...page([{ ...task('mesh-42'), kind: 'read', testToken: oldToken }]), testPlacements: [{ taskId: 'mesh-42', subjectId: 'math', token: oldToken }] }
