@@ -55,6 +55,7 @@ export function createLaunchAgentOperations({ root = process.cwd(), home = homed
   const support = resolve(home, 'Library/Application Support/PETR/telegram-worker')
   const agentDirectory = resolve(home, 'Library/LaunchAgents')
   const plistPath = resolve(agentDirectory, `${SERVICE_LABEL}.plist`)
+  const educationSyncConfigPath = resolve(support, 'education-sync-config.json')
   const domain = Number.isInteger(uid) ? `gui/${uid}` : null
   const tokenDirectory = resolve(support, 'secrets')
   const logDirectory = resolve(support, 'logs')
@@ -85,7 +86,7 @@ export function createLaunchAgentOperations({ root = process.cwd(), home = homed
     const meshDirectory = resolve(absoluteRoot, env.TELEGRAM_MESH_CONNECTION_DIRECTORY || '.local/mesh-connections')
     const familyAccessPath = resolve(absoluteRoot, env.TELEGRAM_FAMILY_ACCESS_PATH || '.local/family-access.json')
     const legacyCredentialsPath = resolve(absoluteRoot, env.TELEGRAM_LEGACY_CREDENTIALS_PATH || '.local/diary/secret.json')
-    const educationSync = resolveEducationSync(env, fs)
+    const educationSync = resolveEducationSync(env, fs, educationSyncConfigPath, uid)
     let python
     try { python = pythonPath ?? resolvePythonExecutable(env, fs) } catch { throw safeError('python_runtime_unavailable') }
     if (!python || !fs.existsSync(python) || !fs.statSync(python).isFile() || (fs.statSync(python).mode & 0o111) === 0) {
@@ -174,6 +175,7 @@ export function createLaunchAgentOperations({ root = process.cwd(), home = homed
       'TELEGRAM_DELIVERY_OPERATION_TIMEOUT_MS', 'TELEGRAM_EDUCATION_SYNC_OPERATION_TIMEOUT_MS']) {
       if (env[key] !== undefined) environment[key] = String(env[key])
     }
+    if (values.educationSync) writePrivate(educationSyncConfigPath, `${JSON.stringify(values.educationSync)}\n`, fs)
     const plist = makePlist({ label: SERVICE_LABEL, nodePath, scriptPath: resolve(release.releasePath, ENTRY),
       args: PERMANENT_WORKER_ARGUMENTS, workingDirectory: release.releasePath, environment, logPath: '/dev/null' })
     fs.mkdirSync(agentDirectory, { recursive: true, mode: 0o700 })
@@ -225,7 +227,8 @@ export function createLaunchAgentOperations({ root = process.cwd(), home = homed
       throw safeError('education_event_queue_readiness_timeout')
     }
     const legacyUploadWorker = retireLegacyUploadWorker({ home, uid, platform, fs, exec, sleep, clock })
-    return { applied: true, ...release, state: 'bootstrapped', legacyUploadWorker }
+    return { applied: true, ...release, state: 'bootstrapped', legacyUploadWorker,
+      educationSyncConfigured: Boolean(values.educationSync) }
   }
 
   function status() {
@@ -260,7 +263,8 @@ export function createLaunchAgentOperations({ root = process.cwd(), home = homed
     return { applied: true, uninstalled: true, releaseRetained: true, secretRetained: true }
   }
 
-  return Object.freeze({ plan, install, status, stop, uninstall, paths: Object.freeze({ plistPath, support, tokenDirectory }) })
+  return Object.freeze({ plan, install, status, stop, uninstall,
+    paths: Object.freeze({ plistPath, support, tokenDirectory, educationSyncConfigPath }) })
 
   function waitUntilUnloaded() {
     const deadline = clock() + teardownTimeoutMs
@@ -320,18 +324,28 @@ function queueLogConfirmsSubscription(contents, startedAt, pid) {
   return false
 }
 
-function resolveEducationSync(env, fs) {
-  const codexPath = env.EDUCATION_SYNC_CODEX_PATH
-  const threadId = env.EDUCATION_SYNC_THREAD_ID
-  if (!codexPath && !threadId) return null
+function resolveEducationSync(env, fs, configPath, uid) {
+  const configKeys = ['EDUCATION_SYNC_CODEX_PATH', 'EDUCATION_SYNC_THREAD_ID', 'EDUCATION_SYNC_PROJECT_ROOT', 'EDUCATION_SYNC_REMOTE']
+  const hasExplicitConfig = configKeys.some((key) => Object.hasOwn(env, key))
+  let source
+  if (hasExplicitConfig) source = env
+  else if (fs.existsSync(configPath)) {
+    try {
+      const info = fs.statSync(configPath)
+      if (!info.isFile() || (info.mode & 0o077) !== 0 || Number.isInteger(uid) && info.uid !== uid) throw new Error()
+      source = JSON.parse(fs.readFileSync(configPath, 'utf8'))
+    } catch { throw safeError('education_sync_config_unavailable') }
+  } else return null
+  const codexPath = source.EDUCATION_SYNC_CODEX_PATH ?? source.codexPath
+  const threadId = source.EDUCATION_SYNC_THREAD_ID ?? source.threadId
+  const projectRoot = source.EDUCATION_SYNC_PROJECT_ROOT ?? source.projectRoot
+  const remote = source.EDUCATION_SYNC_REMOTE ?? source.remote ?? null
   if (typeof codexPath !== 'string' || !codexPath.startsWith('/') || !fs.existsSync(codexPath)) throw safeError('education_sync_config_unavailable')
   const executable = fs.statSync(codexPath)
   if (!executable.isFile() || (executable.mode & 0o111) === 0) throw safeError('education_sync_config_unavailable')
   if (typeof threadId !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(threadId)) throw safeError('education_sync_config_unavailable')
-  const projectRoot = env.EDUCATION_SYNC_PROJECT_ROOT
   if (typeof projectRoot !== 'string' || !projectRoot.startsWith('/') || !fs.existsSync(projectRoot) || !fs.statSync(projectRoot).isDirectory()) throw safeError('education_sync_config_unavailable')
-  const remote = env.EDUCATION_SYNC_REMOTE || null
-  if (remote !== null && !remote.startsWith('unix://')) throw safeError('education_sync_config_unavailable')
+  if (remote !== null && (typeof remote !== 'string' || !remote.startsWith('unix://'))) throw safeError('education_sync_config_unavailable')
   return { codexPath, threadId, projectRoot, remote }
 }
 

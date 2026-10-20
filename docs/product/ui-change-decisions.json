@@ -1189,7 +1189,7 @@
       }
     },
     "packages/telegram-notifications/application/education-sync-dispatcher.mjs": {
-      "sha256": "255fa7feee659bb4f514ba93fc3316d8c09156eaaf65ea1f7680e532ca95aa7e",
+      "sha256": "eb68b15a1625ef66b35e231afa834f164e9c0703079107048336b2695b3e9a45",
       "record": "docs/decisions/unified-education-events-2026-10-19.md",
       "specs": [
         "docs/modules/synchronization/event-queue.md",
@@ -1342,7 +1342,7 @@
       }
     },
     "packages/telegram-notifications/operations/launch-agent.mjs": {
-      "sha256": "f79f259db1ce25a107e3fa44895dea0bc52d731f42d9e3c017475af36f9f7cc6",
+      "sha256": "f84c5d635e5e875c6d71e1629b32385fba8eb47d2567eb9df4c8e7cb580d5ba7",
       "record": "docs/decisions/unified-education-events-2026-10-19.md",
       "specs": [
         "docs/modules/synchronization/event-queue.md",

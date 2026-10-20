@@ -500,12 +500,12 @@ function isExplicitMeshSourceUnavailableBlock(state, pendingKinds) {
     && state.sendingKinds[0] === 'mesh'
     && Array.isArray(pendingKinds)
     && pendingKinds.every((pendingKind) => pendingKind === 'mesh')
-    && !Number.isInteger(state.sendingActionAfterGeneration)
-    && !Number.isInteger(state.sendingActionThroughGeneration)
-    && !Number.isInteger(state.pendingActionAfterGeneration)
-    && !Number.isInteger(state.pendingActionThroughGeneration)
-    && !Number.isInteger(state.actionAfterGeneration)
-    && !Number.isInteger(state.actionThroughGeneration)
+    && !hasActionThroughGeneration(state)
+}
+
+function hasActionThroughGeneration(state) {
+  return ['sendingActionThroughGeneration', 'pendingActionThroughGeneration', 'actionThroughGeneration']
+    .some((key) => state[key] !== undefined && state[key] !== null && state[key] !== 0)
 }
 
 function digest(value) { return createHash('sha256').update(value).digest('hex') }

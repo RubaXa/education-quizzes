@@ -323,6 +323,9 @@ describe('Firestore EducationSync dispatch store state machine', () => {
     const requestId = '01a150dc-e067-7cc2-b08f-f573bf83e6e3'
     db.documents.set('educationSyncDispatch/current', { status: 'blocked', generation: 31,
       requestId, sendingGeneration: 19, sendingKinds: ['mesh'], pendingKinds: ['mesh'],
+      sendingActionAfterGeneration: 18, sendingActionThroughGeneration: null,
+      pendingActionAfterGeneration: 18, pendingActionThroughGeneration: null,
+      actionAfterGeneration: 18, actionThroughGeneration: null,
       blockedReasonCode: 'source_unavailable', blockedAt: iso(1_000) })
 
     expect(await store.resumeBlocked({ requestId, now: iso(2_000) }))
@@ -344,6 +347,7 @@ describe('Firestore EducationSync dispatch store state machine', () => {
       { blockedReasonCode: 'source_unavailable', sendingKinds: ['mesh', 'work'], pendingKinds: ['mesh'] },
       { blockedReasonCode: 'source_unavailable', sendingKinds: ['mesh'], pendingKinds: ['work'] },
       { blockedReasonCode: 'source_unavailable', sendingKinds: ['mesh'], pendingKinds: [], sendingActionThroughGeneration: 1 },
+      { blockedReasonCode: 'source_unavailable', sendingKinds: ['mesh'], pendingKinds: [], sendingActionAfterGeneration: null, sendingActionThroughGeneration: 18 },
       { blockedReasonCode: 'source_unavailable', sendingKinds: null, pendingKinds: [] },
     ]
     for (const [index, batch] of cases.entries()) {

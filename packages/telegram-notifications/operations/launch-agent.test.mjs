@@ -90,6 +90,53 @@ describe('launch agent release operations', () => {
     expect(plist).toContain('<key>ExitTimeOut</key><integer>35</integer>')
   })
 
+  it('retains validated EducationSync settings across an environment-free reinstall', () => {
+    const f = fixture()
+    let loaded = false
+    const exec = (_binary, args) => {
+      if (args[0] === 'print') {
+        if (args[1]?.endsWith(LEGACY_UPLOAD_SERVICE_LABEL) || !loaded) throw Object.assign(new Error('not loaded'), { status: 3 })
+        return 'state = running\npid = 42'
+      }
+      if (args[0] === 'bootout') loaded = false
+      if (args[0] === 'bootstrap') loaded = true
+      return ''
+    }
+    const common = { root: f.root, home: f.home, uid: statSync(f.adcPath).uid, platform: 'darwin',
+      nodePath: process.execPath, npmCliPath: process.execPath, pythonPath: process.execPath,
+      waitForQueueReady: () => true, exec }
+    const first = createLaunchAgentOperations({ ...common, env: { AGI_EDU_BOT: '123456:abcdefghijklmnopqrstuvwx',
+      GOOGLE_APPLICATION_CREDENTIALS: f.adcPath, EDUCATION_SYNC_CODEX_PATH: process.execPath,
+      EDUCATION_SYNC_THREAD_ID: '01a150dc-e067-7cc2-b08f-f573bf83e6e3', EDUCATION_SYNC_PROJECT_ROOT: f.root,
+      EDUCATION_SYNC_REMOTE: 'unix:///tmp/codex.sock' } })
+    expect(first.install({ apply: true })).toMatchObject({ applied: true, educationSyncConfigured: true })
+    expect(statSync(first.paths.educationSyncConfigPath).mode & 0o077).toBe(0)
+
+    const second = createLaunchAgentOperations({ ...common, env: { AGI_EDU_BOT: '123456:abcdefghijklmnopqrstuvwx',
+      GOOGLE_APPLICATION_CREDENTIALS: f.adcPath } })
+    expect(second.install({ apply: true })).toMatchObject({ applied: true, educationSyncConfigured: true })
+    const plist = readFileSync(second.paths.plistPath, 'utf8')
+    expect(plist).toContain(`<key>EDUCATION_SYNC_CODEX_PATH</key><string>${process.execPath}</string>`)
+    expect(plist).toContain('<key>EDUCATION_SYNC_THREAD_ID</key><string>01a150dc-e067-7cc2-b08f-f573bf83e6e3</string>')
+    expect(plist).toContain(`<key>EDUCATION_SYNC_PROJECT_ROOT</key><string>${f.root}</string>`)
+    expect(plist).toContain('<key>EDUCATION_SYNC_REMOTE</key><string>unix:///tmp/codex.sock</string>')
+  })
+
+  it('fails on partial explicit or invalid persisted EducationSync configuration', () => {
+    const f = fixture()
+    const common = { root: f.root, home: f.home, uid: statSync(f.adcPath).uid, platform: 'darwin',
+      pythonPath: process.execPath, npmCliPath: process.execPath,
+      env: { AGI_EDU_BOT: '123456:abcdefghijklmnopqrstuvwx', GOOGLE_APPLICATION_CREDENTIALS: f.adcPath } }
+    const partial = createLaunchAgentOperations({ ...common, env: { ...common.env, EDUCATION_SYNC_CODEX_PATH: process.execPath } })
+    expect(() => partial.plan()).toThrow('education_sync_config_unavailable')
+
+    mkdirSync(partial.paths.support, { recursive: true })
+    writeFileSync(partial.paths.educationSyncConfigPath, JSON.stringify({ codexPath: process.execPath,
+      threadId: 'not-a-uuid', projectRoot: f.root }), { mode: 0o600 })
+    const noExplicitConfig = createLaunchAgentOperations(common)
+    expect(() => noExplicitConfig.plan()).toThrow('education_sync_config_unavailable')
+  })
+
   it('returns a narrow launchctl status and removes only the plist on uninstall', () => {
     const f = fixture()
     const operations = createLaunchAgentOperations({ root: f.root, home: f.home, uid: statSync(f.adcPath).uid, platform: 'darwin',
