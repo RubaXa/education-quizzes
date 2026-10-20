@@ -43,4 +43,21 @@ describe('dashboard homework references', () => {
       expect(index.days.find((day) => day.date === '2026-10-16').homeworkDayToken).toBe('thursday-page')
     } finally { rmSync(local, { recursive: true, force: true }) }
   })
+
+  it('routes a family task due Friday from Thursday and Friday dashboard entries to the Thursday page', () => {
+    const local = mkdtempSync(resolve(tmpdir(), 'education-family-homework-'))
+    try {
+      mkdirSync(resolve(local, 'diary'))
+      const snapshot = (date, assignments = []) => ({ complete: true, date, fetchedAt: `${date}T08:00:00Z`,
+        schedule: date === '2026-10-22' ? [{ subject_name: 'Русский язык', start_at: '09:00', finish_at: '09:45' }] : [], assignments })
+      for (const date of ['2026-10-22', '2026-10-23']) writeFileSync(resolve(local, 'diary', `snapshot-${date}.json`), JSON.stringify(snapshot(date)))
+      writeFileSync(resolve(local, 'day-source-2026-10-22.json'), JSON.stringify({ targetDate: '2026-10-23' }))
+      const familyTask = { id: 'family-russian-essay-2026-10-23', sourceSystem: 'family', dayProjectionVersion: 1, dueDate: '2026-10-23',
+        title: 'Подготовка к сочинению', publication: 'active' }
+      const index = buildDayDashboardIndex(local, { '2026-10-22': { student: 'thursday-page' } }, 'student', new Date('2026-10-22T10:00:00Z'), null, [familyTask])
+      expect(index.days.find((day) => day.date === '2026-10-23').homework).toContainEqual({ subject: 'Русский язык', text: 'Подготовка к сочинению' })
+      expect(index.days.find((day) => day.date === '2026-10-22').homeworkDayToken).toBeNull()
+      expect(index.days.find((day) => day.date === '2026-10-23').homeworkDayToken).toBe('thursday-page')
+    } finally { rmSync(local, { recursive: true, force: true }) }
+  })
 })

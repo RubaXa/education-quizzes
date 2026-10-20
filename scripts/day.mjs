@@ -1,5 +1,7 @@
 /**
  * @see ../docs/product/school-day.md
+ * @see ../docs/modules/families/README.md
+ * @see ../docs/decisions/family-essay-assignment-2026-10-20.md
  * @see ../docs/modules/reviews/card-flow-certification.md
  */
 /** @see ../docs/modules/materials/material-clarification.md */
@@ -14,8 +16,9 @@ import { applicationDefault, initializeApp } from 'firebase-admin/app'
 import { getFirestore, Timestamp } from 'firebase-admin/firestore'
 import { linksFile as pageLinksFile, materialLinks, materialPlan, preparePages, taskPageRefs } from '../storage/material-pages.mjs'
 import { buildDaySource, rawMeshKind } from '../day/build.mjs'
-import { learningRouteIdentity } from '../day/learning-route-identity.mjs'
+import { assertLearningRouteIdentity, learningRouteIdentity } from '../day/learning-route-identity.mjs'
 import { assertWeekendWorkRetention, buildDayDashboardIndex } from '../day/dashboard-index.mjs'
+import { familyDashboardDateDelta } from '../day/family-dashboard-delta.mjs'
 import { mergeDayPage } from '../day/merge.mjs'
 import { assertAssignmentLinksExist } from '../day/placement-integrity.mjs'
 import { repairTaskPlacements } from '../day/placement-repair.mjs'
@@ -36,6 +39,7 @@ import { stageSchoolAlerts } from '../diary/application/school-alerts.mjs'
 import { buildFamilySourceGraph } from '../day/family-source-graph.mjs'
 import { isDeepStrictEqual } from 'node:util'
 import { findGuidanceTarget, planRevealGuidanceRepair } from '../day/guidance-repair.mjs'
+import { familyAssignmentErrors, familyAssignmentProjectionSignature, familyAssignmentRecordSignature, familyAssignmentsWithOverlay, familyGuideErrors, mergeFamilyAssignments, stableFamilyProjectionJson } from '../day/family-assignment.mjs'
 
 const sharedLocal = resolve('.local')
 const scoped = Boolean(process.env.EDUCATION_CHILD_WORKSPACE)
@@ -103,6 +107,13 @@ function dashboardLinks() {
 async function addDashboardDocuments(batch, links, tokens, stagedPages = {}, gradeProjection = null) {
   const owner = ownerContext()
   if (!owner?.familyId || !owner?.childId) fail('Сначала привяжите страницы дня к ребёнку командой family attach-current-day.')
+  const targetDates = [...new Set(Object.keys(links).flatMap((sourceDate) => {
+    const file = resolve(local, `day-source-${sourceDate}.json`)
+    return existsSync(file) ? [json(file).targetDate] : []
+  }))]
+  const familyTaskPages = await Promise.all(targetDates.map((targetDate) =>
+    db.collection(`families/${owner.familyId}/children/${owner.childId}/tasks`).where('dueDate', '==', targetDate).get()))
+  const familyAssignments = [...new Map(familyTaskPages.flatMap((page) => page.docs.map((snapshot) => [snapshot.id, { id: snapshot.id, ...snapshot.data() }]))).values()]
   const members = await db.collection(`families/${owner.familyId}/members`).get()
   const pageCache = new Map(Object.entries(stagedPages))
   const loadPage = async (token) => {
@@ -138,7 +149,7 @@ async function addDashboardDocuments(batch, links, tokens, stagedPages = {}, gra
     }))
     const previousDays = new Map((previous?.days ?? []).map((day) => [day.date, day]))
     const retainedCalendar = previous?.familyId === owner.familyId && previous?.childId === owner.childId ? previous.schoolCalendar : null
-    const index = buildDayDashboardIndex(local, links, role, new Date(), retainedCalendar)
+    const index = buildDayDashboardIndex(local, links, role, new Date(), retainedCalendar, familyAssignments)
     const indexErrors = dayDashboardShapeErrors(index)
     if (indexErrors.length) fail(`Неверная схема календаря ${role}: ${indexErrors.join(' ')}`)
     const removalFile = resolve(local, 'weekend-slot-removals.json')
@@ -155,7 +166,7 @@ async function addDashboardDocuments(batch, links, tokens, stagedPages = {}, gra
       const snapshot = json(resolve(local, `diary/snapshot-${source.targetDate}.json`))
       assertSourceAligned(source, snapshot)
       const page = await loadPage(token)
-      assertPublishedPageAligned(source, page, role)
+      assertPublishedPageAligned(source, page, role, familyAssignments)
     }
     const notifications = []
     const days = index.days.map((day) => {
@@ -205,15 +216,19 @@ async function verifyGradeProjection(tokens, desired) {
 }
 /** Read back committed role documents before reporting a successful release. */
 async function verifyPublishedDay(source, pair, indexTokens, links) {
+  const owner = ownerContext()
+  const familyTasks = owner?.familyId && owner?.childId
+    ? (await db.collection(`families/${owner.familyId}/children/${owner.childId}/tasks`).where('dueDate', '==', source.targetDate).get()).docs.map((snapshot) => ({ id: snapshot.id, ...snapshot.data() }))
+    : []
   for (const role of ['student', 'parent']) {
     const token = pair[role]
     const [pageDoc, dashboardDoc] = await Promise.all([
       db.doc(`dayPages/${token}`).get(), db.doc(`dayDashboards/${indexTokens[role]}`).get(),
     ])
-    assertPublishedPageAligned(source, pageDoc.data(), role)
+    assertPublishedPageAligned(source, pageDoc.data(), role, familyTasks)
     await assertAssignmentLinksExist(db, pageDoc.data())
     const indexed = dashboardDoc.data()?.days?.find((item) => item.date === source.targetDate)
-    const expected = buildDayDashboardIndex(local, links, role).days.find((item) => item.date === source.targetDate)
+    const expected = buildDayDashboardIndex(local, links, role, new Date(), null, familyTasks).days.find((item) => item.date === source.targetDate)
     if (!indexed || !expected || indexed.sourceRevision !== expected.sourceRevision || indexed.dayToken !== expected.dayToken
       || indexed.homeworkDayToken !== expected.homeworkDayToken
       || JSON.stringify(indexed.homework) !== JSON.stringify(expected.homework)) {
@@ -222,11 +237,18 @@ async function verifyPublishedDay(source, pair, indexTokens, links) {
   }
 }
 async function verifyPublishedIndex(links, indexTokens) {
+  const owner = ownerContext()
+  const targetDates = [...new Set(Object.keys(links).flatMap((sourceDate) => {
+    const file = resolve(local, `day-source-${sourceDate}.json`)
+    return existsSync(file) ? [json(file).targetDate] : []
+  }))]
+  const familyPages = owner?.familyId && owner?.childId ? await Promise.all(targetDates.map((targetDate) =>
+    db.collection(`families/${owner.familyId}/children/${owner.childId}/tasks`).where('dueDate', '==', targetDate).get())) : []
+  const familyAssignments = familyPages.flatMap((page) => page.docs.map((snapshot) => ({ id: snapshot.id, ...snapshot.data() })))
   for (const role of ['student', 'parent']) {
     const published = (await db.doc(`dayDashboards/${indexTokens[role]}`).get()).data()
-    const owner = ownerContext()
     const retainedCalendar = published?.familyId === owner?.familyId && published?.childId === owner?.childId ? published.schoolCalendar : null
-    const expected = buildDayDashboardIndex(local, links, role, new Date(), retainedCalendar)
+    const expected = buildDayDashboardIndex(local, links, role, new Date(), retainedCalendar, familyAssignments)
     const shapeErrors = dayDashboardShapeErrors(published)
     if (shapeErrors.length) fail(`Неверная опубликованная схема календаря ${role}: ${shapeErrors.join(' ')}`)
     const keys = ['date', 'checkedAt', 'complete', 'sourceRevision', 'schedule', 'homework', 'dayToken', 'homeworkDayToken']
@@ -581,6 +603,15 @@ async function stagePublish(date, batch, links, indexTokens, stagedPages, notify
   const pageRefs = Object.fromEntries(Object.entries(taskPageRefs()).filter(([taskId]) => taskIds.includes(taskId)))
   // @see ../docs/modules/materials/family-library.md#source-graph
   const legacyOwner = ownerContext()
+  const familyTaskSnapshots = legacyOwner?.familyId && legacyOwner?.childId
+    ? await db.collection(`families/${legacyOwner.familyId}/children/${legacyOwner.childId}/tasks`).where('dueDate', '==', source.targetDate).get()
+    : { docs: [] }
+  const familyAssignments = familyTaskSnapshots.docs.map((snapshot) => ({ id: snapshot.id, ...snapshot.data() })).filter((task) =>
+    task.sourceSystem === 'family' && task.publication === 'active' && task.dayProjectionVersion === 1)
+  for (const task of familyAssignments) {
+    const errors = familyAssignmentErrors(task, { familyId: legacyOwner.familyId, childId: legacyOwner.childId, taskId: task.id })
+    if (errors.length) fail(`Семейное назначение ${task.id} не прошло проверку: ${errors.join(' ')}`)
+  }
   if (scoped) {
     const [account, child, identity] = await Promise.all([
       db.doc(`sourceAccounts/${legacyOwner.sourceAccountId}`).get(),
@@ -674,6 +705,7 @@ async function stagePublish(date, batch, links, indexTokens, stagedPages, notify
   const [oldStudent, oldParent] = await Promise.all([db.doc(`dayPages/${pair.student}`).get(), db.doc(`dayPages/${pair.parent}`).get()])
   const currentGuideTasks = new Set(source.subjects.flatMap((subject) => subject.tasks.flatMap((task) => [task.id, ...(task.problems ?? []).map((problem) => problem.id)])))
   const priorGuideTasks = new Set((oldParent.data()?.subjects ?? []).flatMap((subject) => subject.tasks.flatMap((task) => [task.id, ...(task.problems ?? []).map((problem) => problem.id)])))
+  for (const task of familyAssignments) currentGuideTasks.add(task.id)
   for (const task of source.subjects.flatMap((subject) => subject.tasks)) {
     for (const item of [task, ...(task.problems ?? [])]) {
       const ref = db.doc(`dayTaskGuides/${pair.student}/items/${item.id}`)
@@ -683,13 +715,25 @@ async function stagePublish(date, batch, links, indexTokens, stagedPages, notify
           ...(item.parentGuide ? { guide: item.parentGuide } : {}),
           ...(item.sourceResearch ? { sourceResearch: item.sourceResearch } : {}),
           sourcePlanFingerprint: sourcePlanFingerprint(source), updatedAt: Timestamp.now() })
-      } else batch.delete(ref)
+      } else if (!familyAssignments.some((assignment) => assignment.id === item.id)) batch.delete(ref)
+    }
+  }
+  for (const task of familyAssignments) {
+    if (task.parentGuide) {
+      const guideErrors = familyGuideErrors(task.parentGuide, task)
+      if (guideErrors.length) fail(guideErrors.join(' '))
+      batch.set(db.doc(`dayTaskGuides/${pair.student}/items/${task.id}`), { familyId: legacyOwner.familyId, childId: legacyOwner.childId,
+        taskId: task.id, guide: task.parentGuide, sourceRevision: task.sourceRevision, updatedAt: Timestamp.now() })
     }
   }
   for (const taskId of priorGuideTasks) if (!currentGuideTasks.has(taskId)) batch.delete(db.doc(`dayTaskGuides/${pair.student}/items/${taskId}`))
   const routeIdentity = learningRouteIdentity(pair, legacyOwner)
   const studentPage = mergeDayPage(oldStudent.data(), { ...base, ...routeIdentity, subjects: publicPageSubjects(source.subjects), kind: 'student', boardToken: boardToken('student') })
   const parentPage = mergeDayPage(oldParent.data(), { ...base, ...routeIdentity, kind: 'parent', studentToken: pair.student, boardToken: boardToken('parent'), parentNotes: source.parentNotes ?? [] })
+  const mergedStudentPage = mergeFamilyAssignments(studentPage, familyAssignments)
+  const mergedParentPage = mergeFamilyAssignments(parentPage, familyAssignments)
+  Object.assign(studentPage, mergedStudentPage)
+  Object.assign(parentPage, mergedParentPage)
   studentPage.subjects = publicPageSubjects(studentPage.subjects)
   parentPage.subjects = publicPageSubjects(parentPage.subjects)
   await Promise.all([assertAssignmentLinksExist(db, studentPage), assertAssignmentLinksExist(db, parentPage)])
@@ -753,6 +797,187 @@ async function publishDates(dates) {
     student: `${site}#/day/${pair.student}`, parent: `${site}#/day-parent/${pair.parent}`, tasks: taskIds.length })), null, 2))
 }
 async function publish() { return publishDates([date]) }
+
+/** Publish one explicit family-origin written task to the already-published
+ * page for its due date. MESH snapshots and source fingerprints are untouched. */
+async function publishFamilyAssignment() {
+  const requestFile = resolve(local, date ?? '')
+  const apply = process.argv.includes('--apply')
+  if (!date || !existsSync(requestFile) || process.argv.includes('--dry-run') && apply) {
+    fail('Укажите путь к JSON в `.local/` и ровно один режим: `family-assignment REQUEST.json [--dry-run|--apply]`.')
+  }
+  const request = json(requestFile)
+  if (request.schemaVersion !== 1 || !/^\d{4}-\d{2}-\d{2}$/.test(request.sourceDate ?? '') || !request.parentGuide) fail('Нужны schemaVersion 1, sourceDate и отдельный закрытый parentGuide.')
+  const owner = ownerContext()
+  if (!owner?.familyId || !owner?.childId) fail('Сначала подтвердите владельца через локальный family-access.')
+  const allowedTaskFields = new Set(['id', 'familyId', 'childId', 'sourceSystem', 'sourceId', 'sourceRevision', 'subjectId', 'subjectName', 'dueDate', 'title', 'originalText', 'studentText', 'publication', 'evidence', 'materialIds', 'steps', 'submission', 'cardPattern', 'cardPolicyVersion', 'outputKind', 'dayProjectionVersion'])
+  if (Object.keys(request.task ?? {}).some((key) => !allowedTaskFields.has(key))) fail('Каноническая задача содержит поля вне разрешённого семейного формата.')
+  if (request.task?.familyId !== owner.familyId || request.task?.childId !== owner.childId) fail('ID семьи и ребёнка в запросе должны точно совпасть с локальным owner; подмена владельца запрещена.')
+  const task = { ...request.task, dayProjectionVersion: 1,
+    sourceEvidence: { kind: 'parent-request', excerpt: request.parentGuide.stages?.[0]?.source?.excerpt ?? '' } }
+  const errors = familyAssignmentErrors(task, { familyId: owner.familyId, childId: owner.childId, taskId: task?.id })
+  if (errors.length) fail(errors.join(' '))
+  const links = json(linksFile)
+  const candidates = Object.entries(links).flatMap(([sourceDate, pair]) => {
+    if (sourceDate !== request.sourceDate) return []
+    const file = resolve(local, `day-source-${sourceDate}.json`)
+    if (!existsSync(file)) return []
+    const source = json(file)
+    return source.targetDate === task.dueDate ? [{ sourceDate, source, pair }] : []
+  }).sort((a, b) => b.sourceDate.localeCompare(a.sourceDate))
+  const selected = candidates[0]
+  if (!selected?.pair?.student || !selected.pair.parent) fail(`Нет опубликованной пары страниц для срока ${task.dueDate}.`)
+  const { sourceDate, source, pair } = selected
+  assertSourceAligned(source, json(resolve(local, `diary/snapshot-${source.targetDate}.json`)))
+  const taskRef = db.doc(`families/${owner.familyId}/children/${owner.childId}/tasks/${task.id}`)
+  const studentRef = db.doc(`dayPages/${pair.student}`), parentRef = db.doc(`dayPages/${pair.parent}`)
+  const guideRef = db.doc(`dayTaskGuides/${pair.student}/items/${task.id}`)
+  const [membership, ownerSnap, taskSnap, studentSnap, parentSnap, guideSnap] = await Promise.all([
+    db.collection(`families/${owner.familyId}/members`).get(), db.doc(`dayOwners/${pair.student}`).get(), taskRef.get(), studentRef.get(), parentRef.get(), guideRef.get(),
+  ])
+  const membershipSnap = membership.docs.find((item) => item.data().active === true && item.data().role === 'parent' && item.data().childIds?.includes(owner.childId))
+  if (!membershipSnap) fail('Для ребёнка нет активного родительского членства.')
+  if (!ownerSnap.exists || ownerSnap.data().familyId !== owner.familyId || ownerSnap.data().childId !== owner.childId || ownerSnap.data().targetDate !== task.dueDate) fail('Существующая карта владельца страницы не совпадает с семьёй, ребёнком и сроком.')
+  if (![studentSnap.data(), parentSnap.data()].every((page, index) => page?.kind === ['student', 'parent'][index]
+    && page.familyId === owner.familyId && page.childId === owner.childId && page.targetDate === task.dueDate)) fail('Опубликованные страницы не совпадают по роли, владельцу и дате.')
+  const { parentGuide: _parentGuide, ...storedTaskFields } = task
+  const storedTask = { ...storedTaskFields, checkedAt: Timestamp.now() }
+  const guideErrors = familyGuideErrors(request.parentGuide, task)
+  if (guideErrors.length) fail(guideErrors.join(' '))
+  const priorTask = taskSnap.data()
+  if (priorTask && priorTask.sourceSystem !== 'family') fail('Этот taskId уже принадлежит другому источнику.')
+  if (priorTask && task.sourceRevision < priorTask.sourceRevision) fail('Нельзя откатить ревизию семейного задания.')
+  if (priorTask && task.sourceRevision === priorTask.sourceRevision
+    && stableFamilyProjectionJson(familyAssignmentRecordSignature(priorTask)) !== stableFamilyProjectionJson(familyAssignmentRecordSignature(task))) {
+    fail('Содержимое семейного задания изменилось без увеличения sourceRevision.')
+  }
+  if (priorTask && task.sourceRevision > priorTask.sourceRevision) {
+    const [progress, privateReview, uploads] = await Promise.all([
+      db.doc(`dayProgress/${pair.student}/items/${task.id}`).get(),
+      db.doc(`dayReviewPrivate/${pair.student}/items/${task.id}`).get(),
+      db.collection(`dayUploads/${pair.student}/files`).get(),
+    ])
+    const hasTaskUpload = uploads.docs.some((snapshot) => snapshot.data()?.taskId === task.id
+      || snapshot.data()?.coveredTaskIds?.includes(task.id))
+    if (progress.exists || privateReview.exists || hasTaskUpload) {
+      fail('Нельзя менять текст семейного задания после отправки или проверки работы; создайте новое назначение с новым taskId.')
+    }
+  }
+  if (guideSnap.exists && guideSnap.data()?.sourceRevision === task.sourceRevision
+    && !isDeepStrictEqual(guideSnap.data()?.guide, request.parentGuide)) fail('Родительский маршрут изменился без увеличения sourceRevision задания.')
+  const studentPage = mergeFamilyAssignments(studentSnap.data(), [storedTask])
+  const parentPage = mergeFamilyAssignments(parentSnap.data(), [storedTask])
+  const summary = { date: sourceDate, targetDate: task.dueDate, taskId: task.id, roles: ['student', 'parent'], preflight: 'passed', applied: false }
+  const datedTasks = (await db.collection(`families/${owner.familyId}/children/${owner.childId}/tasks`).where('dueDate', '==', task.dueDate).get()).docs
+    .map((snapshot) => ({ id: snapshot.id, ...snapshot.data() }))
+  const projectedDatedTasks = familyAssignmentsWithOverlay(datedTasks, storedTask)
+  try {
+    assertPublishedPageAligned(source, studentPage, 'student', projectedDatedTasks)
+    assertPublishedPageAligned(source, parentPage, 'parent', projectedDatedTasks)
+  } catch (error) { fail(`Подготовленные семейные страницы не соответствуют проверенному плану МЭШ: ${error.message}`) }
+  const pageCurrent = [studentSnap, parentSnap].every((snapshot, index) => {
+    try { assertPublishedPageAligned(source, snapshot.data(), ['student', 'parent'][index], datedTasks); return true } catch { return false }
+  })
+  const taskCurrent = priorTask && stableFamilyProjectionJson(familyAssignmentRecordSignature(priorTask)) === stableFamilyProjectionJson(familyAssignmentRecordSignature(storedTask))
+  const guideCurrent = guideSnap.exists && guideSnap.data()?.sourceRevision === task.sourceRevision && isDeepStrictEqual(guideSnap.data()?.guide, request.parentGuide)
+  const dashboardTokens = existsSync(dashboardLinksFile) ? json(dashboardLinksFile) : null
+  if (!dashboardTokens?.student || !dashboardTokens?.parent) fail('Нет существующих ролевых токенов dashboard; сначала выпустите дневник штатной командой.')
+  const dashboardRefs = Object.fromEntries(['student', 'parent'].map((role) => [role, db.doc(`dayDashboards/${dashboardTokens[role]}`)]))
+  const dashboardSnaps = Object.fromEntries(await Promise.all(['student', 'parent'].map(async (role) => [role, await dashboardRefs[role].get()])))
+  const dashboardDeltas = {}
+  const expectedDashboardDays = {}
+  for (const role of ['student', 'parent']) {
+    const snapshot = dashboardSnaps[role], data = snapshot.data()
+    if (!snapshot.exists || data?.kind !== role || data.familyId !== owner.familyId || data.childId !== owner.childId) fail(`Dashboard ${role} не совпадает с подтверждённой семьёй и ребёнком.`)
+    try { assertLearningRouteIdentity(data, learningRouteIdentity(dashboardTokens, owner)) }
+    catch { fail(`Ссылки dashboard ${role} не совпадают с обеими ролевыми проекциями владельца.`) }
+    const expectedIndex = buildDayDashboardIndex(local, links, role, new Date(), data.schoolCalendar, projectedDatedTasks)
+    const expectedDay = expectedIndex.days.find((item) => item.date === task.dueDate)
+    const projectedTask = projectedDatedTasks.find((item) => item.id === task.id)
+    if (!expectedDay || expectedDay.homeworkDayToken !== pair[role]
+      || projectedTask?.title !== task.title
+      || !expectedDay.homework.some((item) => item.subject === (task.subjectName || 'Русский язык'))) {
+      fail(`Проверенный dashboard ${role} не маршрутизирует срок ${task.dueDate} к странице семейного задания.`)
+    }
+    expectedDashboardDays[role] = expectedDay
+    try {
+      dashboardDeltas[role] = familyDashboardDateDelta(data, expectedDay, {
+        familyId: owner.familyId, childId: owner.childId, role,
+        changedSubject: task.subjectName || 'Русский язык', at: new Date().toISOString(),
+      })
+    } catch (error) { fail(error.message) }
+  }
+  const dashboardCurrent = ['student', 'parent'].every((role) => dashboardDeltas[role] === null)
+  const taskPagesCurrent = Boolean(taskCurrent && pageCurrent && guideCurrent)
+  const alreadyPublished = taskPagesCurrent && dashboardCurrent
+  summary.writes = (taskPagesCurrent ? 0 : request.parentGuide ? 4 : 3) + ['student', 'parent'].filter((role) => dashboardDeltas[role]).length
+  summary.dashboardDateRows = ['student', 'parent'].filter((role) => dashboardDeltas[role]).length
+  if (!apply) { console.log(JSON.stringify(summary)); return }
+  if (!alreadyPublished) await db.runTransaction(async (transaction) => {
+    const reads = [
+      transaction.get(ownerSnap.ref), transaction.get(membershipSnap.ref), transaction.get(taskRef), transaction.get(studentRef), transaction.get(parentRef), transaction.get(guideRef),
+      ...(['student', 'parent'].filter((role) => dashboardDeltas[role]).map((role) => transaction.get(dashboardRefs[role]))),
+    ]
+    const current = await Promise.all(reads)
+    const [currentOwner, currentMembership, currentTask, currentStudent, currentParent, currentGuide] = current
+    const currentDashboards = Object.fromEntries(['student', 'parent'].filter((role) => dashboardDeltas[role])
+      .map((role, index) => [role, current[6 + index]]))
+    for (const role of Object.keys(currentDashboards)) {
+      const dashboard = currentDashboards[role]
+      if (!dashboard.exists || !dashboard.updateTime.isEqual(dashboardSnaps[role].updateTime)
+        || dashboard.data()?.kind !== role || dashboard.data()?.familyId !== owner.familyId || dashboard.data()?.childId !== owner.childId) {
+        fail(`Dashboard ${role} изменился после предпросмотра; адресное обновление отменено.`)
+      }
+      try { assertLearningRouteIdentity(dashboard.data(), learningRouteIdentity(dashboardTokens, owner)) }
+      catch { fail(`Ссылки dashboard ${role} изменились после предпросмотра.`) }
+    }
+    if (!currentOwner.updateTime.isEqual(ownerSnap.updateTime)
+      || !currentMembership.exists || !currentMembership.updateTime.isEqual(membershipSnap.updateTime)
+      || currentMembership.data().active !== true || currentMembership.data().role !== 'parent' || !currentMembership.data().childIds?.includes(owner.childId)
+      || currentTask.exists !== taskSnap.exists || currentTask.exists && !currentTask.updateTime.isEqual(taskSnap.updateTime)
+      || !currentStudent.updateTime.isEqual(studentSnap.updateTime) || !currentParent.updateTime.isEqual(parentSnap.updateTime)
+      || currentGuide.exists !== guideSnap.exists || currentGuide.exists && !currentGuide.updateTime.isEqual(guideSnap.updateTime)) fail('Владелец, задача или день изменились после предпросмотра; публикация отменена.')
+    if (!taskPagesCurrent) {
+      transaction.set(taskRef, storedTask)
+      transaction.set(studentRef, { ...studentPage, updatedAt: Timestamp.now() })
+      transaction.set(parentRef, { ...parentPage, updatedAt: Timestamp.now() })
+      if (request.parentGuide) transaction.set(guideRef, { familyId: owner.familyId, childId: owner.childId, taskId: task.id,
+        guide: request.parentGuide, sourcePlanFingerprint: sourcePlanFingerprint(source), sourceRevision: task.sourceRevision, updatedAt: Timestamp.now() })
+    }
+    for (const role of Object.keys(currentDashboards)) transaction.update(dashboardRefs[role], {
+      days: dashboardDeltas[role].days, updatedAt: Timestamp.now(),
+    })
+  })
+  if (!alreadyPublished) {
+    const [liveTask, liveStudent, liveParent] = await Promise.all([taskRef.get(), studentRef.get(), parentRef.get()])
+    if (liveTask.data()?.sourceSystem !== 'family' || ![liveStudent, liveParent].every((snap) => snap.data()?.taskIds?.includes(task.id))) fail('Обратное чтение семейного задания или taskIds не совпало.')
+  }
+  const liveDashboards = await Promise.all(['student', 'parent'].map((role) => dashboardRefs[role].get()))
+  for (const [index, role] of ['student', 'parent'].entries()) {
+    const data = liveDashboards[index].data()
+    try { assertLearningRouteIdentity(data, learningRouteIdentity(dashboardTokens, owner)) }
+    catch { fail(`Обратное чтение dashboard ${role} не совпало с владельцем.`) }
+    const day = data?.days?.find((item) => item.date === task.dueDate)
+    if (data?.kind !== role || data?.familyId !== owner.familyId || data?.childId !== owner.childId
+      || day?.homeworkDayToken !== pair[role]
+      || !isDeepStrictEqual(day?.homework ?? [], expectedDashboardDays[role].homework)) {
+      fail(`Обратное чтение dashboard ${role} не подтвердило адресную строку ${task.dueDate}.`)
+    }
+    const prior = dashboardSnaps[role].data()
+    const priorDaysOutsideTarget = prior.days.filter((item) => item.date !== task.dueDate)
+    const liveDaysOutsideTarget = data.days.filter((item) => item.date !== task.dueDate)
+    const omit = (value, fields) => Object.fromEntries(Object.entries(value ?? {}).filter(([key]) => !fields.includes(key)))
+    if (!isDeepStrictEqual(priorDaysOutsideTarget, liveDaysOutsideTarget)
+      || !isDeepStrictEqual(omit(prior, ['days', 'updatedAt']), omit(data, ['days', 'updatedAt']))) {
+      fail(`Адресное обновление dashboard ${role} изменило несвязанные даты или поля.`)
+    }
+    const priorTarget = prior.days.find((item) => item.date === task.dueDate)
+    if (!isDeepStrictEqual(omit(priorTarget, ['homework', 'homeworkDayToken', 'homeworkUpdate']), omit(day, ['homework', 'homeworkDayToken', 'homeworkUpdate']))) {
+      fail(`Адресное обновление dashboard ${role} изменило несвязанные поля даты ${task.dueDate}.`)
+    }
+  }
+  console.log(JSON.stringify({ ...summary, applied: true, changed: !alreadyPublished, parentGuide: Boolean(request.parentGuide), dashboard: dashboardCurrent ? 'already-current' : 'date-row-published-and-verified' }))
+}
 
 async function publishDashboard() {
   const links = existsSync(linksFile) ? json(linksFile) : {}
@@ -1249,6 +1474,11 @@ async function publishGuideUpgrade() {
     return { sourceDate, source, pair, subjectId: matches[0].subjectId, task: matches[0].task,
       before: sourcePlanFingerprint(baseline), after: sourcePlanFingerprint(source) }
   })
+  const upgradeOwner = ownerContext()
+  if (upgradeOwner?.familyId && upgradeOwner?.childId) await Promise.all(upgrades.map(async (item) => {
+    item.familyAssignments = (await db.collection(`families/${upgradeOwner.familyId}/children/${upgradeOwner.childId}/tasks`)
+      .where('dueDate', '==', item.source.targetDate).get()).docs.map((snapshot) => ({ id: snapshot.id, ...snapshot.data() }))
+  }))
   const inspect = async (transaction) => {
     const refs = upgrades.flatMap(({ pair }) => [db.doc(`dayPages/${pair.student}`), db.doc(`dayPages/${pair.parent}`)])
     const owners = upgrades.map(({ pair }) => db.doc(`dayOwners/${pair.student}`))
@@ -1287,7 +1517,7 @@ async function publishGuideUpgrade() {
           }),
         })
         const next = { ...page, familyId: owner.familyId, childId: owner.childId, subjects, sourcePlanFingerprint: item.after }
-        assertPublishedPageAligned(item.source, next, role)
+        assertPublishedPageAligned(item.source, next, role, item.familyAssignments ?? [])
         updates.push({ ref: refs[index * 2 + roleIndex], fields: { familyId: owner.familyId, childId: owner.childId, subjects, sourcePlanFingerprint: item.after, updatedAt: Timestamp.now() } })
       }
       item.owner = owner
@@ -1310,7 +1540,7 @@ async function publishGuideUpgrade() {
   for (const item of upgrades) {
     for (const role of ['student', 'parent']) {
       const page = (await db.doc(`dayPages/${item.pair[role]}`).get()).data()
-      assertPublishedPageAligned(item.source, page, role)
+      assertPublishedPageAligned(item.source, page, role, item.familyAssignments ?? [])
       if (page.subjects.flatMap((subject) => subject.tasks).some((task) => task.parentGuide)) fail('Закрытый разбор попал в публичную страницу.')
     }
     const guide = (await db.doc(`dayTaskGuides/${item.pair.student}/items/${taskId}`).get()).data()?.guide
@@ -1405,7 +1635,7 @@ async function repairReleasedGuidance() {
   console.log(JSON.stringify({ ...summary, status: 'repaired', applied: true }))
 }
 
-if (!['refresh', 'build', 'validate', 'publish', 'publish-batch', 'guide-upgrade', 'repair-guidance', 'problem-support', 'dashboard', 'reconcile-grades', 'pull', 'seed-evidence', 'audit', 'repair-placements', 'repair-teacher-projections', 'repair-owner'].includes(command)) fail('Команды: refresh YYYY-MM-DD | build YYYY-MM-DD | validate YYYY-MM-DD | publish YYYY-MM-DD | publish-batch YYYY-MM-DD YYYY-MM-DD ... | audit [YYYY-MM-DD] | reconcile-grades [--apply] | repair-placements YYYY-MM-DD [--apply] | repair-teacher-projections YYYY-MM-DD [--apply] | repair-owner YYYY-MM-DD [--apply] | guide-upgrade YYYY-MM-DD[,YYYY-MM-DD] task-id [--dry-run] | repair-guidance YYYY-MM-DD task-id stage-id [--dry-run|--apply] | problem-support YYYY-MM-DD | dashboard | pull YYYY-MM-DD [папка] | seed-evidence YYYY-MM-DD')
+  if (!['refresh', 'build', 'validate', 'publish', 'publish-batch', 'guide-upgrade', 'repair-guidance', 'problem-support', 'dashboard', 'reconcile-grades', 'pull', 'seed-evidence', 'audit', 'repair-placements', 'repair-teacher-projections', 'repair-owner', 'family-assignment'].includes(command)) fail('Команды: refresh YYYY-MM-DD | build YYYY-MM-DD | validate YYYY-MM-DD | publish YYYY-MM-DD | publish-batch YYYY-MM-DD YYYY-MM-DD ... | audit [YYYY-MM-DD] | reconcile-grades [--apply] | repair-placements YYYY-MM-DD [--apply] | repair-teacher-projections YYYY-MM-DD [--apply] | repair-owner YYYY-MM-DD [--apply] | guide-upgrade YYYY-MM-DD[,YYYY-MM-DD] task-id [--dry-run] | repair-guidance YYYY-MM-DD task-id stage-id [--dry-run|--apply] | family-assignment REQUEST.json [--dry-run|--apply] | problem-support YYYY-MM-DD | dashboard | pull YYYY-MM-DD [папка] | seed-evidence YYYY-MM-DD')
 if (command === 'build') {
   console.log(JSON.stringify(buildDaySource(local, date), null, 2))
   process.exit(0)
@@ -1432,6 +1662,7 @@ else if (command === 'audit') await auditPublishedDays()
 else if (command === 'repair-placements') await repairPublishedPlacements()
 else if (command === 'repair-teacher-projections') await repairTeacherProjections()
 else if (command === 'repair-owner') await repairPublishedOwner()
+else if (command === 'family-assignment') await publishFamilyAssignment()
 else await seedEvidence()
 if ((command === 'publish' || command === 'publish-batch' || command === 'refresh') && !scoped) {
   const owner = ownerContext()

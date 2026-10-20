@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { assertPublishedPageAligned, assertSourceAligned, sourcePlanFingerprint, textbookRefError } from './pipeline-contract.mjs'
 import { assertWeekendWorkRetention } from './dashboard-index.mjs'
+import { mergeFamilyAssignments } from './family-assignment.mjs'
 
 const snapshot = { complete: true, date: '2026-10-15', assignments: [{ sourceItemId: '42', subject_name: 'Математика', detailStatus: 'loaded',
   homeworkEntries: [{ id: '99', description: 'Решить № 4.' }] }] }
@@ -34,6 +35,22 @@ describe('барьер публикации плана', () => {
     expect(() => assertPublishedPageAligned(source, page, 'student')).not.toThrow()
     expect(() => assertPublishedPageAligned({ ...source, subjects: [] }, page, 'student')).toThrow(/отстаёт/)
     expect(() => assertPublishedPageAligned(source, { ...page, subjects: [{ tasks: [] }] }, 'student')).toThrow(/потеряла/)
+  })
+  it('принимает только каноническое семейное задание поверх точного MESH fingerprint', () => {
+    const plan = { targetDate: '2026-10-23', subjects: [{ id: 'russian', name: 'Русский язык', icon: '✍', tasks: [{ id: 'mesh-1', title: 'Упр. 1', detail: 'Упр. 1', kind: 'written', status: 'unknown', source: 'МЭШ', meshText: 'Упр. 1' }] }] }
+    const assignment = { id: 'family-russian-essay-2026-10-23', familyId: 'family', childId: 'child', subjectId: 'russian',
+      sourceSystem: 'family', sourceId: 'family-russian-essay-2026-10-23', sourceRevision: 1, dayProjectionVersion: 1, dueDate: plan.targetDate,
+      title: 'Подготовка к сочинению', originalText: 'Подготовка по просьбе родителя.', steps: ['Планируй'],
+      submission: { buttonLabel: 'Прикрепить', lead: 'Работа для отзыва.', photo: 'Все страницы.' }, publication: 'active', evidence: 'photo', materialIds: [] }
+    const page = mergeFamilyAssignments({ kind: 'student', familyId: 'family', childId: 'child', targetDate: plan.targetDate,
+      sourcePlanFingerprint: sourcePlanFingerprint(plan), subjects: structuredClone(plan.subjects), taskIds: ['mesh-1'] }, [assignment])
+    expect(() => assertPublishedPageAligned(plan, page, 'student', [assignment])).not.toThrow()
+    expect(() => assertPublishedPageAligned(plan, page, 'student')).toThrow(/каноническими семейными заданиями/)
+    page.subjects[0].tasks.find((item) => item.id === assignment.id).detail = 'Выдуманный текст'
+    expect(() => assertPublishedPageAligned(plan, page, 'student', [assignment])).toThrow(/каноническими семейными заданиями/)
+    page.subjects[0].tasks.find((item) => item.id === assignment.id).detail = assignment.originalText
+    page.subjects[0].tasks.find((item) => item.id === assignment.id).parentGuide = { stages: ['private'] }
+    expect(() => assertPublishedPageAligned(plan, page, 'student', [assignment])).toThrow(/каноническими семейными заданиями/)
   })
   it('не принимает потерянный пункт второго варианта даже с верным отпечатком', () => {
     const plan = { targetDate: '2026-10-15', subjects: [{ id: 'math', tasks: [{ id: 'mesh-1', kind: 'check',

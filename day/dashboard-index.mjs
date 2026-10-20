@@ -19,7 +19,7 @@ function validDate(value) { return /^\d{4}-\d{2}-\d{2}$/.test(value ?? '') && !N
  * Интерфейс читает этот документ из Firestore и не хранит расписание в коде.
  * @see ../docs/modules/school-diary/dashboard.md#firestore-model
  */
-export function buildDayDashboardIndex(local, links, role, now = new Date(), retainedCalendar = null) {
+export function buildDayDashboardIndex(local, links, role, now = new Date(), retainedCalendar = null, familyAssignments = []) {
   const today = dateOnly(now)
   const weekStart = monday(today)
   const snapshotDir = resolve(local, 'diary')
@@ -47,6 +47,16 @@ export function buildDayDashboardIndex(local, links, role, now = new Date(), ret
       homeworkSources.set(targetDate, { sourceDate, token: pair[role] })
     }
   }
+  // Only family tasks explicitly opted into this day projection participate.
+  // Other family Education tasks remain outside the diary index.
+  for (const task of familyAssignments) {
+    if (task?.publication !== 'active' || task.sourceSystem !== 'family' || task.dayProjectionVersion !== 1 || !validDate(task.dueDate)) continue
+    const candidates = Object.entries(links).filter(([sourceDate]) => {
+      const file = resolve(local, `day-source-${sourceDate}.json`)
+      return existsSync(file) && readJson(file).targetDate === task.dueDate
+    }).sort(([a], [b]) => b.localeCompare(a))
+    if (candidates.length) homeworkSources.set(task.dueDate, { sourceDate: candidates[0][0], token: candidates[0][1][role] })
+  }
   const dates = [...snapshots.keys()].sort()
   const lastScheduledDate = dates.filter((date) => {
     const snapshot = snapshots.get(date)
@@ -72,6 +82,9 @@ export function buildDayDashboardIndex(local, links, role, now = new Date(), ret
           && route.fromSubjectName === conciseSubject(assignment.subjectName || assignment.subject_name)))
         .map((text) => ({ subject: conciseSubject(assignment.subjectName || assignment.subject_name), text: text.trim(), referenceDate: referencedHomeworkDate(text, date) }))
     })
+    for (const task of familyAssignments) if (task?.publication === 'active' && task.sourceSystem === 'family' && task.dayProjectionVersion === 1 && task.dueDate === date) {
+      homeworkEntries.push({ subject: task.subjectName || 'Русский язык', text: task.title, referenceDate: null })
+    }
     for (const route of assignmentRoutes.values()) if (route.toDate === date) homeworkEntries.push({ subject: route.toSubjectName, text: route.meshText, referenceDate: null })
     const homeworkBySubject = new Map()
     for (const item of homeworkEntries) {
@@ -163,3 +176,5 @@ export function assertWeekendWorkRetention(previous = [], current = [], removals
     }
   }
 }
+/** @see ../docs/modules/school-diary/day-page.md
+ * @see ../docs/decisions/family-essay-assignment-2026-10-20.md */

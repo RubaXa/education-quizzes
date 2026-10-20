@@ -146,6 +146,30 @@ it('keeps the ordinary parent day wired to the same prepared guidance command', 
   } finally { await view.cleanup() }
 })
 
+it.each([false, true])('shows family task provenance without MESH wording, parent=%s', async (parent) => {
+  scene.page!.subjects = [{ id: 'russian', name: 'Русский язык', icon: '✍', materials: '', mesh: '', summary: '', tasks: [{
+    id: 'family-russian-essay', kind: 'written', status: 'unknown', title: 'Подготовка к сочинению',
+    detail: 'Это подготовка по просьбе родителя; точная школьная тема пока неизвестна.', source: 'Education · назначено родителем',
+    familyOrigin: { sourceSystem: 'family', sourceId: 'family-russian-essay', sourceRevision: 1 },
+    steps: ['Наблюдай за видом из окна', 'Составь собственный план'],
+    submission: { buttonLabel: 'Прикрепить работу', lead: 'Напиши свой черновик.', photo: 'Сфотографируй все страницы.' },
+  }] }]
+  scene.page!.testPlacements = []
+  scene.page!.materialLinks = {}
+  const view = await renderPage(parent)
+  try {
+    const task = view.host.querySelector<HTMLElement>('#day-task-family-russian-essay')!
+    expect(task.textContent).toContain('Подготовка Education')
+    expect(task.textContent).toContain('По просьбе родителя')
+    expect(task.textContent).not.toContain('Задание учителя')
+    expect(task.textContent).not.toContain('Как записано в МЭШ')
+    const source = task.querySelector<HTMLElement>('.day-instruction-source summary')!
+    expect(source.getAttribute('aria-label')).toContain('семейной подготовки по просьбе родителя')
+    await act(async () => source.click())
+    expect(task.textContent).toContain('Этот шаг относится к семейной практике и не является требованием учителя.')
+  } finally { await view.cleanup() }
+})
+
 it.each([false, true])('keeps the file at its upload origin and shows only references elsewhere, parent=%s', async (parent) => {
   const view = await renderPage(parent)
   try {

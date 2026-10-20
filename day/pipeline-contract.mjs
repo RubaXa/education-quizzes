@@ -1,11 +1,13 @@
 /**
  * @see ../docs/modules/reviews/README.md
  * @see ../docs/modules/reviews/card-flow-certification.md
+ * @see ../docs/decisions/family-essay-assignment-2026-10-20.md
  */
 import { createHash } from 'node:crypto'
 import { lessonVisibility } from '../diary/application/lesson-visibility.mjs'
 import { publicPageSubjects } from './public-projection.mjs'
 import { assignmentRouteEvidence } from './assignment-routing.mjs'
+import { familyAssignmentErrors, familyAssignmentProjectionSignature, stableFamilyProjectionJson } from './family-assignment.mjs'
 
 /** Explain the failing field and canonical page IDs without weakening source checks.
  * @see ../docs/modules/synchronization/plan-generation.md#review-gate */
@@ -68,10 +70,33 @@ export function sourcePlanFingerprint(source) {
   return createHash('sha256').update(JSON.stringify(plan)).digest('hex')
 }
 
-export function assertPublishedPageAligned(source, page, role) {
+function assertFamilyProjectionMatches(source, page, role, familyAssignments) {
+  const expectedFamily = familyAssignments.filter((task) => task.dueDate === source.targetDate && task.publication === 'active' && task.sourceSystem === 'family' && task.dayProjectionVersion === 1)
+  const familyErrors = expectedFamily.flatMap((task) => familyAssignmentErrors(task, { familyId: page.familyId, childId: page.childId, taskId: task.id }))
+  const actualFamily = page.subjects.flatMap((subject) => subject.tasks ?? []).filter((task) => task.familyOrigin)
+  const expectedIds = expectedFamily.map((task) => task.id).sort()
+  const actualIds = actualFamily.map((task) => task.id).sort()
+  const publicFields = new Set(['id', 'title', 'detail', 'kind', 'status', 'source', 'familyOrigin', 'steps', 'submission',
+    'cardPattern', 'cardPolicyVersion', 'outputKind', 'lessonDate', 'dueDate'])
+  const hasPrivateFields = actualFamily.some((task) => Object.keys(task).some((key) => !publicFields.has(key)))
+  const invalidFamilyOrigin = actualFamily.some((task) => !task.familyOrigin || Object.keys(task.familyOrigin).some((key) => !['sourceSystem', 'sourceId', 'sourceRevision', 'projectedSourceRevision'].includes(key))
+    || task.familyOrigin.sourceSystem !== 'family' || task.familyOrigin.projectedSourceRevision !== task.familyOrigin.sourceRevision)
+  if (familyErrors.length || hasPrivateFields || invalidFamilyOrigin || JSON.stringify(expectedIds) !== JSON.stringify(actualIds)
+    || expectedFamily.some((task) => {
+      const expected = familyAssignmentProjectionSignature(task)
+      const actual = actualFamily.find((item) => item.id === task.id)
+      return stableFamilyProjectionJson(familyAssignmentProjectionSignature(actual ?? {})) !== stableFamilyProjectionJson(expected)
+        || !page.taskIds?.includes(task.id)
+    })) {
+    throw new Error(`Опубликованная страница ${role} не совпадает с каноническими семейными заданиями на ${source.targetDate}.`)
+  }
+}
+
+export function assertPublishedPageAligned(source, page, role, familyAssignments = []) {
   if (!page || page.kind !== role || page.targetDate !== source.targetDate) {
     throw new Error(`Опубликованная страница ${role} не соответствует дате урока ${source.targetDate}.`)
   }
+  assertFamilyProjectionMatches(source, page, role, familyAssignments)
   if (page.sourcePlanFingerprint) {
     if (page.sourcePlanFingerprint !== sourcePlanFingerprint(source)) {
       throw new Error(`Опубликованная страница ${role} отстаёт от локального плана урока ${source.targetDate}. Сначала day publish.`)
@@ -88,7 +113,10 @@ export function assertPublishedPageAligned(source, page, role) {
           } })),
       })),
     }))
-    if (JSON.stringify(topology(page.subjects)) !== JSON.stringify(topology(publicPageSubjects(source.subjects)))) {
+    const meshSubjects = (subjects) => subjects?.map((subject) => ({ ...subject,
+      tasks: (subject.tasks ?? []).filter((task) => !task.familyOrigin),
+    })).filter((subject) => subject.tasks.length || source.subjects.some((item) => item.id === subject.id))
+    if (JSON.stringify(topology(meshSubjects(page.subjects))) !== JSON.stringify(topology(publicPageSubjects(source.subjects)))) {
       throw new Error(`Опубликованная страница ${role} потеряла задание, вариант или номер. Повторите публикацию и обратную сверку.`)
     }
     return

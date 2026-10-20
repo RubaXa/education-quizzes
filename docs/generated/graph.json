@@ -547,6 +547,43 @@
       "path": "docs/decisions/documentation-precommit-2026-10-16.md"
     },
     {
+      "id": "decision.family-essay-assignment-2026-10-20",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-20",
+      "updated": "2026-10-20",
+      "parent": "module.families",
+      "consumers": [
+        "student",
+        "parent",
+        "Education operator"
+      ],
+      "uses": [
+        "module.families",
+        "module.school-diary.day-page",
+        "module.synchronization.plan-generation"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование",
+        "затронутые-файлы"
+      ],
+      "code": [
+        "day/family-assignment.mjs",
+        "day/dashboard-index.mjs",
+        "day/family-dashboard-delta.mjs",
+        "day/pipeline-contract.mjs",
+        "scripts/day.mjs",
+        "src/lib/dayStore.ts",
+        "src/components/AssignmentBrief.tsx",
+        "src/DayPage.tsx"
+      ],
+      "path": "docs/decisions/family-essay-assignment-2026-10-20.md"
+    },
+    {
       "id": "decision.firestore-live-discovery-2026-10-19",
       "status": "superseded",
       "implementation": "implemented",
@@ -2451,14 +2488,14 @@
       "id": "file:day/dashboard-index.mjs",
       "path": "day/dashboard-index.mjs",
       "kind": "artifact",
-      "purpose": "Индекс и проверка явных ID выходных заданий, дат урока и срока",
+      "purpose": "Индекс МЭШ и семейных заданий, ссылки на день урока и срок",
       "consumer": "`scripts/day.mjs`; `src/DayDashboard.tsx`"
     },
     {
       "id": "file:day/dashboard-index.test.mjs",
       "path": "day/dashboard-index.test.mjs",
       "kind": "verification",
-      "purpose": "Проверка ссылки МЭШ на задание предыдущего учебного дня",
+      "purpose": "Проверка ссылок МЭШ и семейного задания на страницу предыдущего учебного дня",
       "consumer": "Vitest; разработчик"
     },
     {
@@ -2474,6 +2511,41 @@
       "kind": "verification",
       "purpose": "Регрессии схемы, ролей, версий и уникальных ID",
       "consumer": "Vitest; разработчик"
+    },
+    {
+      "id": "file:day/family-assignment-boundaries.test.mjs",
+      "path": "day/family-assignment-boundaries.test.mjs",
+      "kind": "verification",
+      "purpose": "Семейная задача на странице обеих ролей, пятничный маршрут, приватность и сохранение истории при повторной публикации",
+      "consumer": "Vitest"
+    },
+    {
+      "id": "file:day/family-assignment.mjs",
+      "path": "day/family-assignment.mjs",
+      "kind": "artifact",
+      "purpose": "Проверка family-origin задачи, публичная ученическая проекция и устойчивое слияние с днём МЭШ",
+      "consumer": "`scripts/day.mjs`; `DayPage`"
+    },
+    {
+      "id": "file:day/family-assignment.test.mjs",
+      "path": "day/family-assignment.test.mjs",
+      "kind": "verification",
+      "purpose": "Регрессии происхождения, карточки и сохранения стабильного taskId",
+      "consumer": "Vitest"
+    },
+    {
+      "id": "file:day/family-dashboard-delta.mjs",
+      "path": "day/family-dashboard-delta.mjs",
+      "kind": "artifact",
+      "purpose": "Узкое обновление одной строки домашней работы семейного назначения с сохранением остальных дат и данных индекса",
+      "consumer": "CLI семейной карточки"
+    },
+    {
+      "id": "file:day/family-dashboard-delta.test.mjs",
+      "path": "day/family-dashboard-delta.test.mjs",
+      "kind": "verification",
+      "purpose": "Изменение только адресной строки срока; повтор без записи; сохранность других дат, владельца и полей dashboard",
+      "consumer": "Vitest"
     },
     {
       "id": "file:day/family-source-graph.mjs",
@@ -3998,8 +4070,8 @@
       "id": "file:scripts/day.mjs",
       "path": "scripts/day.mjs",
       "kind": "artifact",
-      "purpose": "Выпуск дня, проверка подтверждённого намерения теста, сверка индекса и аудит ссылок с ограниченной параллельностью, кэшем и замером",
-      "consumer": "Оператор; Firestore; `src/DayDashboard.tsx`; `NotificationBell`"
+      "purpose": "Выпуск дня и семейной карточки; адресная строка dashboard без глобального пересбора",
+      "consumer": "Оператор; Firestore; `src/DayDashboard.tsx`"
     },
     {
       "id": "file:scripts/direct-upload-worker.mjs",
@@ -4460,14 +4532,14 @@
       "id": "file:src/components/AssignmentBrief.test.tsx",
       "path": "src/components/AssignmentBrief.test.tsx",
       "kind": "verification",
-      "purpose": "Проверка одного раскрытия дословной записи учителя и прежней формы обычного задания",
+      "purpose": "Дословная инструкция: семейный источник и компактное раскрытие родителя; прежняя формулировка задания МЭШ",
       "consumer": "Vitest; разработчик"
     },
     {
       "id": "file:src/components/AssignmentBrief.tsx",
       "path": "src/components/AssignmentBrief.tsx",
       "kind": "artifact",
-      "purpose": "Дословное задание и объяснение источника для обеих ролей",
+      "purpose": "Дословное задание и честное объяснение происхождения: семья или учитель/МЭШ",
       "consumer": "`src/DayPage.tsx`"
     },
     {
@@ -6695,7 +6767,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-08",
-      "updated": "2026-10-16",
+      "updated": "2026-10-20",
       "consumers": [
         "parent",
         "student",
@@ -6706,6 +6778,8 @@
         "scripts/access-management.mjs",
         "scripts/audit-family-links.mjs",
         "scripts/family.mjs",
+        "scripts/day.mjs",
+        "day/family-assignment.mjs",
         "scripts/lib/access-projection.mjs",
         "scripts/lib/admin-firebase.mjs",
         "src/components/FamilyAccessCards.tsx",
@@ -7480,7 +7554,8 @@
       ],
       "code": [
         "src/lib/quizCardViewModel.ts",
-        "src/lib/watchQuizOutcome.ts"
+        "src/lib/watchQuizOutcome.ts",
+        "src/components/AssignmentBrief.tsx"
       ],
       "parent": "module.reviews",
       "uses": [
@@ -7557,6 +7632,7 @@
       "code": [
         "day/build.mjs",
         "day/dashboard-index.mjs",
+        "day/family-dashboard-delta.mjs",
         "day/homework-reference.mjs",
         "day/subject-identity.mjs",
         "scripts/day.mjs",
@@ -7605,7 +7681,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-08",
-      "updated": "2026-10-16",
+      "updated": "2026-10-20",
       "consumers": [
         "parent",
         "student",
@@ -7614,6 +7690,8 @@
       ],
       "code": [
         "day/assignment-structure.mjs",
+        "day/family-assignment.mjs",
+        "day/dashboard-index.mjs",
         "scripts/day.mjs",
         "src/App.tsx",
         "src/DayPage.css",
@@ -7976,7 +8054,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-09",
-      "updated": "2026-10-16",
+      "updated": "2026-10-20",
       "consumers": [
         "Education sync operator",
         "sync-project CLI",
@@ -7986,6 +8064,7 @@
         "day/build.mjs",
         "day/homework-kind.mjs",
         "day/pipeline-contract.mjs",
+        "day/family-assignment.mjs",
         "day/assignment-routing.mjs",
         "scripts/route-assignment.mjs",
         "scripts/day.mjs",
@@ -10050,6 +10129,21 @@
       "type": "uses"
     },
     {
+      "from": "decision.family-essay-assignment-2026-10-20",
+      "to": "module.families",
+      "type": "uses"
+    },
+    {
+      "from": "decision.family-essay-assignment-2026-10-20",
+      "to": "module.school-diary.day-page",
+      "type": "uses"
+    },
+    {
+      "from": "decision.family-essay-assignment-2026-10-20",
+      "to": "module.synchronization.plan-generation",
+      "type": "uses"
+    },
+    {
       "from": "decision.firestore-live-discovery-2026-10-19",
       "to": "module.synchronization.firestore-read-paths",
       "type": "uses"
@@ -10581,7 +10675,17 @@
     },
     {
       "from": "file:day/dashboard-index.mjs",
+      "to": "decision.family-essay-assignment-2026-10-20",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/dashboard-index.mjs",
       "to": "module.school-diary.dashboard",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/dashboard-index.mjs",
+      "to": "module.school-diary.day-page",
       "type": "implements"
     },
     {
@@ -10597,6 +10701,36 @@
     {
       "from": "file:day/data-contract.mjs",
       "to": "shared.data",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/family-assignment.mjs",
+      "to": "decision.family-essay-assignment-2026-10-20",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/family-assignment.mjs",
+      "to": "module.families",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/family-assignment.mjs",
+      "to": "module.school-diary.day-page",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/family-assignment.mjs",
+      "to": "module.synchronization.plan-generation",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/family-dashboard-delta.mjs",
+      "to": "decision.family-essay-assignment-2026-10-20",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/family-dashboard-delta.mjs",
+      "to": "module.school-diary.dashboard",
       "type": "implements"
     },
     {
@@ -10697,6 +10831,11 @@
     {
       "from": "file:day/owner-repair.mjs",
       "to": "shared.data.firestore",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/pipeline-contract.mjs",
+      "to": "decision.family-essay-assignment-2026-10-20",
       "type": "implements"
     },
     {
@@ -11511,17 +11650,22 @@
     },
     {
       "from": "file:scripts/day.mjs",
+      "to": "decision.family-essay-assignment-2026-10-20",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/day.mjs",
       "to": "decision.released-stage-parity-2026-10-20",
       "type": "implements"
     },
     {
       "from": "file:scripts/day.mjs",
-      "to": "module.assessments.assessment-decision-graph",
+      "to": "module.families.access-and-state",
       "type": "implements"
     },
     {
       "from": "file:scripts/day.mjs",
-      "to": "module.families.access-and-state",
+      "to": "module.families",
       "type": "implements"
     },
     {
@@ -12072,6 +12216,11 @@
     {
       "from": "file:src/components/AssignmentBrief.css",
       "to": "shared.design",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/AssignmentBrief.tsx",
+      "to": "decision.family-essay-assignment-2026-10-20",
       "type": "implements"
     },
     {
@@ -13036,6 +13185,11 @@
     },
     {
       "from": "file:src/DayPage.tsx",
+      "to": "decision.family-essay-assignment-2026-10-20",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayPage.tsx",
       "to": "decisions.non-test-result-upload-2026-10-19",
       "type": "implements"
     },
@@ -13182,6 +13336,11 @@
     {
       "from": "file:src/lib/dayMaterialRefs.ts",
       "to": "module.materials.materials",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/dayStore.ts",
+      "to": "decision.family-essay-assignment-2026-10-20",
       "type": "implements"
     },
     {
@@ -14376,6 +14535,11 @@
     },
     {
       "from": "module.families",
+      "to": "decision.family-essay-assignment-2026-10-20",
+      "type": "contains"
+    },
+    {
+      "from": "module.families",
       "to": "decision.ldd-copy-button-2026-10-19",
       "type": "contains"
     },
@@ -14383,6 +14547,21 @@
       "from": "module.families",
       "to": "decision.session-owned-revocation-2026-10-18",
       "type": "contains"
+    },
+    {
+      "from": "module.families",
+      "to": "file:day/family-assignment-boundaries.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.families",
+      "to": "file:day/family-assignment.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.families",
+      "to": "file:day/family-dashboard-delta.test.mjs",
+      "type": "verified-by"
     },
     {
       "from": "module.families",
@@ -14696,11 +14875,6 @@
     },
     {
       "from": "module.reviews.problem-card-design-decisions",
-      "to": "file:src/components/AssignmentBrief.test.tsx",
-      "type": "verified-by"
-    },
-    {
-      "from": "module.reviews.problem-card-design-decisions",
       "to": "file:src/components/ProblemStatement.provenance.test.tsx",
       "type": "verified-by"
     },
@@ -14858,6 +15032,11 @@
       "from": "module.reviews.subject-aware-guidance",
       "to": "module.reviews.review-criteria-provenance",
       "type": "uses"
+    },
+    {
+      "from": "module.reviews.subject-card-viewmodel",
+      "to": "file:src/components/AssignmentBrief.test.tsx",
+      "type": "verified-by"
     },
     {
       "from": "module.reviews.subject-card-viewmodel",

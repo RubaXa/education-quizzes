@@ -54,21 +54,23 @@ function QuizLineageCard({ chain, parent, task, materialLinks = [], assignmentLa
   const context = task?.title.match(/Упр\.\s*\d+/i)?.[0] ?? task?.title ?? 'Самопроверка'
   const readerLinks = materialLinks.filter(canReadInside)
   const otherLinks = materialLinks.filter((link) => !canReadInside(link))
-  const materials = task && (task.steps?.length || readerLinks.length || otherLinks.length) ? <>{!!task.steps?.length && <ol className="day-task-steps">{task.steps.map((step, index) => <Instruction key={index} item={step} index={index} />)}</ol>}{groupAdjacentMaterialPages(readerLinks).map((group) => <MaterialReader key={group[0].url} links={group} parent={parent} />)}{otherLinks.map((link) => <a key={link.url} href={link.url} target="_blank" rel="noopener noreferrer">{link.title} <ExternalLink size={13} aria-hidden="true" /></a>)}</> : undefined
+  const materials = task && (task.steps?.length || readerLinks.length || otherLinks.length) ? <>{!!task.steps?.length && <ol className="day-task-steps">{task.steps.map((step, index) => <Instruction key={index} item={step} index={index} familyAssigned={Boolean(task.familyOrigin)} />)}</ol>}{groupAdjacentMaterialPages(readerLinks).map((group) => <MaterialReader key={group[0].url} links={group} parent={parent} />)}{otherLinks.map((link) => <a key={link.url} href={link.url} target="_blank" rel="noopener noreferrer">{link.title} <ExternalLink size={13} aria-hidden="true" /></a>)}</> : undefined
   // @see ../docs/modules/school-diary/day-page.md#numbered-sheet-and-quiz
   // A numbered teacher sheet remains its own task beside the linked quiz.
   return <QuizCard chain={chain} parent={parent} context={context} assignment={!separateAssignment && task && <>{assignmentLabel && <div className="day-task-assignment-heading">{assignmentLabel}</div>}<AssignmentBrief task={task} materialLinks={materialLinks} />{sourceEvidence}</>} materials={separateAssignment ? undefined : materials} id={task && !separateAssignment ? `day-task-${task.id}` : `day-quiz-${chain[0].token}`} />
 }
 
-/** @see ../docs/modules/school-diary/day-page.md#instruction-provenance */
-function Instruction({ item, index }: { item: DayInstruction; index: number }) {
+/** @see ../docs/modules/school-diary/day-page.md#instruction-provenance
+ * @see ../docs/decisions/family-essay-assignment-2026-10-20.md */
+function Instruction({ item, index, familyAssigned = false }: { item: DayInstruction; index: number; familyAssigned?: boolean }) {
   const source = typeof item === 'string' ? undefined : item.source
-  const uncertain = !source || source.certainty === 'uncertain'
+  const familyStep = familyAssigned && !source
+  const uncertain = !familyStep && (!source || source.certainty === 'uncertain')
   const text = typeof item === 'string' ? item : item.text
   return <li><span>{text}</span>{' '}
     <details className={`day-instruction-source${uncertain ? ' uncertain' : ''}`}>
-      <summary title={uncertain ? 'Источник не подтверждён. Показать пояснение' : `Откуда взят пункт ${index + 1}`} aria-label={uncertain ? `Источник пункта ${index + 1} не подтверждён. Показать пояснение` : `Откуда взят пункт ${index + 1}`}>?</summary>
-      <span className="day-instruction-source-body"><button className="day-instruction-source-close" type="button" aria-label="Закрыть пояснение" onClick={event => event.currentTarget.closest('details')?.removeAttribute('open')}>×</button>{source ? <><b>{source.label}</b><span>{source.evidence}</span>{source.ref && <small>{source.ref}</small>}{uncertain && <em>Это не подтверждённое требование учителя.</em>}</> : <><b>Источник не указан</b><span>Не считай это дополнительным требованием учителя, пока источник не сверят.</span></>}</span>
+      <summary title={familyStep ? 'Этап семейной подготовки' : uncertain ? 'Источник не подтверждён. Показать пояснение' : `Откуда взят пункт ${index + 1}`} aria-label={familyStep ? 'Пояснение: этап семейной подготовки по просьбе родителя' : uncertain ? `Источник пункта ${index + 1} не подтверждён. Показать пояснение` : `Откуда взят пункт ${index + 1}`}>?</summary>
+      <span className="day-instruction-source-body"><button className="day-instruction-source-close" type="button" aria-label="Закрыть пояснение" onClick={event => event.currentTarget.closest('details')?.removeAttribute('open')}>×</button>{familyStep ? <><b>Подготовка по просьбе родителя</b><span>Этот шаг относится к семейной практике и не является требованием учителя.</span></> : source ? <><b>{source.label}</b><span>{source.evidence}</span>{source.ref && <small>{source.ref}</small>}{uncertain && <em>Это не подтверждённое требование учителя.</em>}</> : <><b>Источник не указан</b><span>Не считай это дополнительным требованием учителя, пока источник не сверят.</span></>}</span>
     </details>
   </li>
 }
@@ -465,7 +467,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
         const numberedSheet = subject.tasks.length === 1 && Boolean(subject.tasks[0].problems?.length)
         const numberedProblemIds = new Set(numberedSheet ? subject.tasks[0].problems!.filter((problem) => !problem.variantId || practiceRequired(subject.tasks[0], problem.variantId, parentDecisions.events)).map((problem) => problem.id) : [])
         const numberedDone = subjectItems.filter((item) => numberedProblemIds.has(item.id) && item.state === 'done').length
-        const meshOnlyTasks = subject.tasks.filter((task) => !task.problems?.length)
+        const meshOnlyTasks = subject.tasks.filter((task) => !task.familyOrigin && !task.problems?.length)
         const subjectDone = assignments.multiple ? assignments.complete : subjectItems.length > 0 && subjectItems.every((item) => item.state === 'done')
         const focused = Boolean(focusTaskId && (subject.tasks.some((task) => task.id === focusTaskId || task.problems?.some((problem) => problem.id === focusTaskId)) || subjectPlacements.some((placement) => placement.token === focusedQuizPlacement?.token)))
         const expanded = isSubjectExpanded(subject.id, subjectDone, subjectOpen, focused)
@@ -555,7 +557,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
                 {/* @see ../docs/modules/reviews/russian-language-route.md#review-in-one-route the parent route owns its verdict; keep WorkReview for the learner and for parent decisions. */}
                 {review?.purpose !== 'source-material' && showSeparateWorkReview(parent, taskGuides[task.id]?.guide?.presentation, canAcceptCorrectAnswer(review), Boolean(review?.assessmentBasis?.disputedRequirements?.length || review?.requirementChecks?.length)) && <WorkReview review={review} uploads={taskUploads} accepted={accepted} canDecide={helpRole === 'parent' && !taskUploads.some((upload) => upload.status === 'pending')} onDecision={parent && canAcceptCorrectAnswer(review) && review ? (action) => recordParentCompletion(review, action) : undefined} decisions={parentDecisions.events} parent={parent} onRequirementChoice={parent && review?.assessmentBasis?.disputedRequirements?.length ? (id, action) => recordRequirementChoice(review, id, action) : undefined} />}
                 {familyActions.length > 0 && <div className="day-submission-instructions"><strong>Доработка по решению родителя</strong><ol>{familyActions.map((action) => <li key={action}>{action}</li>)}</ol><p>Это семейное решение по спорному требованию. В МЭШ такого уточнения нет.</p></div>}
-                {!!task.steps?.length && <ol className="day-task-steps">{task.steps.map((step, index) => <Instruction key={index} item={step} index={index} />)}</ol>}
+                {!!task.steps?.length && <ol className="day-task-steps">{task.steps.map((step, index) => <Instruction key={index} item={step} index={index} familyAssigned={Boolean(task.familyOrigin)} />)}</ol>}
                 {needsTextbook && <p className="day-material-warning">📖 {task.materialStatus?.message}</p>}
                 {needsTeacherAttachment && <p className="day-material-warning">📎 {task.materialStatus?.message}</p>}
                 {(task.materialStatus?.state === 'text-absent-from-textbook' || task.materialStatus?.state === 'no-textbook') && <p className="day-material-warning">📖 {task.materialStatus.message}</p>}
@@ -585,7 +587,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
                 {showSubmission && <div className="day-submission-instructions">
                   <strong>{priorWork && (taskStatus === 'needs-fix' || taskStatus === 'partial') ? 'Что исправить и сфотографировать' : 'Что сфотографировать'}</strong>
                   {submission?.lead && <p>{submission.lead}</p>}
-                  {!!submission?.items?.length && <ol>{submission.items.map((item, index) => <Instruction key={index} item={item} index={index} />)}</ol>}
+                  {!!submission?.items?.length && <ol>{submission.items.map((item, index) => <Instruction key={index} item={item} index={index} familyAssigned={Boolean(task.familyOrigin)} />)}</ol>}
                   {submission?.photo && <p className="day-submission-photo"><b>На фото</b><span>{submission.photo}</span></p>}
                   {!submission?.lead && !submission?.items?.length && !submission?.photo && <p>{submission?.description ?? `Страница тетради с результатом задания «${task.title}». Номер и ответ должны читаться.`}</p>}
                 </div>}

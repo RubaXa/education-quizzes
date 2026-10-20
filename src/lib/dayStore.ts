@@ -1,4 +1,5 @@
-/** @see ../../docs/modules/materials/material-clarification.md */
+/** @see ../../docs/modules/materials/material-clarification.md
+ * @see ../../docs/decisions/family-essay-assignment-2026-10-20.md */
 import type { MaterialRequest, SourceAnalysis } from './materialRequest'
 import { collection, doc, documentId, getDoc, getDocFromServer, onSnapshot, query, serverTimestamp, where, writeBatch } from 'firebase/firestore'
 import { db } from './firebase'
@@ -8,7 +9,7 @@ import { isExplicitCdzTask } from '../../day/homework-kind.mjs'
 import { removePhotoFromOutbox, resumePhotoTransfer, savePhotoForTransfer } from './photoOutbox'
 import { normalizeDayPage } from './dayCompatibility'
 
-export type DayInstruction = string | { text: string; source: { kind: 'mesh' | 'textbook' | 'review' | 'teacher-file'; label: string; evidence: string; excerpt?: string; ref?: string; certainty: 'confirmed' | 'uncertain' } }
+export type DayInstruction = string | { text: string; source: { kind: 'mesh' | 'textbook' | 'review' | 'teacher-file' | 'family'; label: string; evidence?: string; excerpt?: string; ref?: string; certainty: 'confirmed' | 'uncertain' } }
 export type DaySubmission = { buttonLabel: string; lead?: string; items?: DayInstruction[]; photo?: string; description?: string }
 export type DaySourceCrop = { x: number; y: number; width: number; height: number; sourceWidth: number; sourceHeight: number; sourceSha256: string }
 export type DaySourceResearch = { status: 'candidate' | 'verified' | 'not-found' | 'conflict'; title: string; url?: string; match: string; keyStatus: 'not-checked' | 'candidate' | 'verified' | 'unavailable'; note?: string }
@@ -35,7 +36,7 @@ export type ParentTaskGuide = {
     rows?: { label?: string; value: string; explanation?: string }[];
     hintPreview?: string; revealPreview?: string;
     answer?: string; verification?: { label?: string; value: string }[];
-    source: { kind: 'mesh' | 'textbook' | 'teacher-file'; label: string; ref: string; excerpt: string };
+    source: { kind: 'mesh' | 'textbook' | 'teacher-file' | 'family'; label: string; ref: string; excerpt: string };
   }[];
 }
 /** Public allowlist for a parent-approved full-stage reveal; never contains source refs/excerpts or review labels.
@@ -47,7 +48,7 @@ export type DayGuidanceRevealContent = {
 }
 export type ParentTaskPrivate = { guide?: ParentTaskGuide; sourceResearch?: DaySourceResearch }
 export type PlatformResult = { state: 'completed'; points?: number; maxPoints?: number; durationMinutes?: number; observedDate?: string; source: string; evidenceKind?: 'screenshot' | 'mesh' }
-export type DayTask = { materialRequest?: MaterialRequest; id: string; title: string; detail: string; meshText?: string; steps?: DayInstruction[]; problems?: DayProblem[]; practiceVariants?: { id: string; title: string; optionalByTeacher?: { sourceRef: string; excerpt: string } }[]; mathRoutePolicyVersion?: 1; cardPattern?: ParentTaskGuide['pattern']; cardPolicyVersion?: 1; outputKind?: 'worked-solution' | 'structured-notes' | 'text-structure' | 'evidence-only' | 'reading' | 'platform-result'; assessmentIntent?: { state: 'confirmed' | 'needs-topic' | 'needs-review'; mode?: 'ordinary' | 'control-diagnostic' | 'control-followup' | 'targeted-followup'; topic?: string; evidenceRef?: string }; status: 'verified' | 'needs-fix' | 'partial' | 'unknown'; kind: 'written' | 'read' | 'check'; referenceDate?: string; source: string; submission?: DaySubmission | null; instructionStatus?: { state: 'needs-review' | 'reviewed'; message: string }; testToken?: string; testSlug?: string; requiredPoints?: number; originDate?: string; lessonDate?: string; dueDate?: string; dueDateEvidence?: { kind: 'mesh'; excerpt: string }; platformResult?: PlatformResult; materialStatus?: { state: 'textbook-page-needed' | 'textbook-page-linked' | 'teacher-attachment-needed' | 'teacher-attachment-linked' | 'text-absent-from-textbook' | 'no-textbook'; message: string } }
+export type DayTask = { materialRequest?: MaterialRequest; id: string; title: string; detail: string; meshText?: string; familyOrigin?: { sourceSystem: 'family'; sourceId: string; sourceRevision: number }; steps?: DayInstruction[]; problems?: DayProblem[]; practiceVariants?: { id: string; title: string; optionalByTeacher?: { sourceRef: string; excerpt: string } }[]; mathRoutePolicyVersion?: 1; cardPattern?: ParentTaskGuide['pattern']; cardPolicyVersion?: 1; outputKind?: 'worked-solution' | 'structured-notes' | 'text-structure' | 'evidence-only' | 'reading' | 'platform-result'; assessmentIntent?: { state: 'confirmed' | 'needs-topic' | 'needs-review'; mode?: 'ordinary' | 'control-diagnostic' | 'control-followup' | 'targeted-followup'; topic?: string; evidenceRef?: string }; status: 'verified' | 'needs-fix' | 'partial' | 'unknown'; kind: 'written' | 'read' | 'check'; referenceDate?: string; source: string; submission?: DaySubmission | null; instructionStatus?: { state: 'needs-review' | 'reviewed'; message: string }; testToken?: string; testSlug?: string; requiredPoints?: number; originDate?: string; lessonDate?: string; dueDate?: string; dueDateEvidence?: { kind: 'mesh'; excerpt: string }; platformResult?: PlatformResult; materialStatus?: { state: 'textbook-page-needed' | 'textbook-page-linked' | 'teacher-attachment-needed' | 'teacher-attachment-linked' | 'text-absent-from-textbook' | 'no-textbook'; message: string } }
 /** @see ../../docs/modules/school-diary/day-page.md#cdz-proof */
 export function cdzResultLabel(result?: PlatformResult) {
   if (result?.state !== 'completed') return 'Ожидается подтверждение ЦДЗ'

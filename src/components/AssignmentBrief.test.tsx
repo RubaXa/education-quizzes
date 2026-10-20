@@ -23,4 +23,26 @@ describe('teacher wording in a numbered sheet', () => {
     expect(html).toContain(task.meshText)
     expect(html).not.toContain('<details')
   })
+
+  it('labels family-origin preparation truthfully and does not claim a MESH or textbook source', () => {
+    const familyTask = { ...task, id: 'family-essay', title: 'Подготовка к сочинению', meshText: undefined,
+      detail: 'Это подготовка по просьбе родителя; точная тема школьного сочинения пока неизвестна.',
+      familyOrigin: { sourceSystem: 'family', sourceId: 'family-essay', sourceRevision: 1 } } as DayTask
+    const html = renderToStaticMarkup(<AssignmentBrief task={familyTask} materialLinks={[{ sourceType: 'textbook-page' } as never]} />)
+    expect(html).toContain('<strong>Подготовка Education</strong><span>По просьбе родителя</span>')
+    expect(html).toContain(familyTask.detail)
+    expect(html).not.toContain('Задание учителя')
+    expect(html).not.toContain('МЭШ')
+    expect(html).not.toContain('Страницы учебника')
+  })
+
+  it('uses parent wording in the compact family disclosure', () => {
+    const familyTask = { ...task, id: 'family-essay', title: 'Подготовка к сочинению', meshText: undefined,
+      detail: 'Наблюдай, составь план, напиши свою версию.',
+      familyOrigin: { sourceSystem: 'family', sourceId: 'family-essay', sourceRevision: 1 } } as DayTask
+    const html = renderToStaticMarkup(<AssignmentBrief task={familyTask} compact />)
+    expect(html).toContain('<summary>Как назначено родителем</summary>')
+    expect(html).not.toContain('Как задано учителем')
+    expect(html).not.toContain('МЭШ')
+  })
 })

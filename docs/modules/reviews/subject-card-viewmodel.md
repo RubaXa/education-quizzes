@@ -12,6 +12,7 @@ consumers:
 code:
   - "src/lib/quizCardViewModel.ts"
   - "src/lib/watchQuizOutcome.ts"
+  - "src/components/AssignmentBrief.tsx"
 parent: module.reviews
 uses:
   - module.reviews.card-generation-policy
@@ -29,7 +30,7 @@ sections:
 
 | Данные | Публикация | Отображение |
 |---|---|---|
-| `dayPages/{roleToken}.subjects[].tasks[]`: устойчивые `id`, `meshText`, `kind`, `outputKind`, `cardPattern`, `cardPolicyVersion`, `steps`, `submission`, `materialStatus` | Одна и та же безопасная часть для обеих ролей. `parentGuide` удаляется `day/public-projection.mjs`. | `AssignmentBrief` показывает точную запись и источник; `DayPage` связывает материалы, статус и загрузку; `MaterialReader` открывает страницы. |
+| `dayPages/{roleToken}.subjects[].tasks[]`: устойчивые `id`, `meshText`, `familyOrigin`, `kind`, `outputKind`, `cardPattern`, `cardPolicyVersion`, `steps`, `submission`, `materialStatus` | Одна и та же безопасная часть для обеих ролей. `parentGuide` удаляется `day/public-projection.mjs`. | `AssignmentBrief` показывает дословную инструкцию и её подтверждённое происхождение: МЭШ/учитель либо отдельная семейная подготовка. Семейная карточка не выводит её как задание учителя/МЭШ и не приписывает материал учебника. `DayPage` связывает материалы, статус и загрузку; `MaterialReader` открывает страницы. |
 | `dayTaskGuides/{studentToken}/items/{taskId}`: закрытые этапы, проверенные источники, `hintPreview` и `revealPreview` | Читает только взрослый семьи. Никогда не копируется в `dayPages` или ученический `dayProgress`. | Один `ParentTaskGuide` для математики, русского, литературы, биологии и новых маршрутов. `review.items[].stageId` либо проверенные `reviewLabels` накладывают попытку на этап. |
 | `dayGuidance/{studentToken}/items/*`: только один выбранный взрослым текст этапа | После предпросмотра записывает взрослый; ученик читает событие и адресное уведомление. | Один `TaskGuidance` для нумерованных и обычных письменных карточек. Он использует форму свёрнутого родительского маршрута в том же месте карточки, но показывает только отправленные этапы. Запрос помощи ребёнком пока доступен только в спецкурсе. |
 | Назначения и ответы теста, `testPlacements`, связи попыток `linkedToTestId` | Данные Firestore с живой подпиской; предмет меняет вопросы и материалы, а не код виджета. | Один `QuizCard` и `QuizProgress` в ДЗ и личном списке: число вопросов, текущая попытка, процент **из баллов**, история, ссылка на результат и компактное копирование ученической ссылки. Нет процента, пока балл не известен. |

@@ -199,20 +199,18 @@
       }
     },
     "day/dashboard-index.mjs": {
-      "sha256": "6d962a4f0da3d5508c9c09a1afda28fa01d7b0be5518c859dd9591eea65b73b5",
-      "record": "docs/decisions/pupil-vacations-2026-10-19.md",
+      "sha256": "76bba1770b0bc5cb7dd1994ef3c1d8810e37261f9d1d25931d9931f8f8667468",
+      "record": "docs/decisions/family-essay-assignment-2026-10-20.md",
       "specs": [
-        "docs/modules/school-diary/school-calendar.md"
+        "docs/modules/school-diary/day-page.md"
       ],
       "tests": [
-        "day/school-calendar.test.mjs",
-        "sync/school-calendar-publication.test.mjs",
-        "src/components/DayCalendar.test.tsx",
-        "src/DayDashboard.warmStart.test.tsx"
+        "day/dashboard-index.test.mjs",
+        "day/family-assignment-boundaries.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 просит выделить каникулы красивым блоком дней, получая даты только из МЭШ конкретного ученика."
+        "evidence": "Прямой запрос родителя 20.10.2026: опубликовать семейную подготовку к сочинению к пятнице 23.10.2026 с самостоятельной работой ученика и загрузкой фотографии; не представлять её заданием МЭШ или учителя."
       }
     },
     "day/data-contract.mjs": {
@@ -437,19 +435,19 @@
       }
     },
     "day/pipeline-contract.mjs": {
-      "sha256": "b998eb9ddd58d2ddce7668e9af81b82b228629949805b56815dbff34036f20b8",
-      "record": "docs/decisions/course-placement-2026-10-18.md",
+      "sha256": "808ed743fa425058c70c8ccd52e833ccdf09b3601978e523152eda2547313564",
+      "record": "docs/decisions/family-essay-assignment-2026-10-20.md",
       "specs": [
         "docs/modules/synchronization/plan-generation.md",
-        "docs/modules/reviews/card-generation-policy.md"
+        "docs/modules/school-diary/day-page.md"
       ],
       "tests": [
-        "day/assignment-routing.test.mjs",
-        "day/pipeline-contract.test.mjs"
+        "day/pipeline-contract.test.mjs",
+        "day/family-assignment-boundaries.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10 требует привязку листа спецкурса к четвергу, с сохранением происхождения МЭШ, опциональности учителя и прежней работы."
+        "evidence": "Прямой запрос родителя 20.10.2026: опубликовать семейную подготовку к сочинению к пятнице 23.10.2026 с самостоятельной работой ученика и загрузкой фотографии; не представлять её заданием МЭШ или учителя."
       }
     },
     "day/placement-integrity.mjs": {
@@ -1893,25 +1891,21 @@
       }
     },
     "scripts/day.mjs": {
-      "sha256": "49b2ed0c28dfdbd94a410c60db8af22d0b4d24f4b902d68e31e696f0ef2f21a3",
-      "record": "docs/decisions/released-stage-parity-2026-10-20.md",
+      "sha256": "7bf26830c432c94d141f98effe8e967e503d1c6c651656c9a231a54969f8f728",
+      "record": "docs/decisions/family-essay-assignment-2026-10-20.md",
       "specs": [
-        "docs/modules/reviews/subject-aware-guidance.md",
-        "docs/modules/reviews/problem-card-design-decisions.md",
-        "docs/shared/design/ui-kit.md",
-        "docs/shared/design/README.md"
+        "docs/modules/families/README.md",
+        "docs/modules/synchronization/plan-generation.md"
       ],
       "tests": [
-        "src/lib/dayGuidance.writer.test.ts",
-        "day/guidance-release.test.mjs",
-        "day/guidance-repair.test.mjs",
-        "src/components/ParentTaskGuide.test.tsx",
-        "src/components/TaskGuidance.test.tsx",
-        "src/UiKit.test.tsx"
+        "day/family-assignment.test.mjs",
+        "day/family-assignment-boundaries.test.mjs",
+        "day/pipeline-contract.test.mjs",
+        "day/family-dashboard-delta.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос пользователя 20.10.2026: в ученическом раскрытии должен появляться полный выбранный этап с переходами, строкой симметрии, причиной и источником; родительский предпросмотр должен совпадать с фактическим раскрытием."
+        "evidence": "Прямой запрос родителя 20.10.2026: опубликовать семейную подготовку к сочинению к пятнице 23.10.2026 с самостоятельной работой ученика и загрузкой фотографии; не представлять её заданием МЭШ или учителя."
       }
     },
     "scripts/direct-upload-worker.mjs": {
@@ -2637,18 +2631,17 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "a9b84aae8a7b3a7015d102ffbb88f36099f50dab78c6809e4164fa16cf4d5637",
-      "record": "docs/decisions/non-test-result-upload-2026-10-19.md",
+      "sha256": "fdeac3405b4dbd743420edf405189f1d1315e8d1c36810e684ed13f6a8fd3061",
+      "record": "docs/decisions/family-essay-assignment-2026-10-20.md",
       "specs": [
-        "docs/modules/school-diary/day-page.md",
-        "docs/modules/materials/storage-privacy.md"
+        "docs/modules/school-diary/day-page.md"
       ],
       "tests": [
         "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 прямо потребовал кнопку загрузки результата у нетестового задания, чтобы письменную работу можно было предъявить и проверить."
+        "evidence": "Прямой запрос родителя 20.10.2026: опубликовать семейную подготовку к сочинению к пятнице 23.10.2026 с самостоятельной работой ученика и загрузкой фотографии; не представлять её заданием МЭШ или учителя."
       }
     },
     "src/UiKit.css": {
@@ -2787,10 +2780,11 @@
       }
     },
     "src/components/AssignmentBrief.tsx": {
-      "sha256": "33502b3caaa75e6df9fc5d4626e935548840e67f005b82fff0704badfc8cdb01",
-      "record": "docs/decisions/flat-numbered-sheet-2026-10-14.md",
+      "sha256": "98d1a0085c0aebad824585d11e2cb56fbdc89a1546c256414f1672d67312f25e",
+      "record": "docs/decisions/family-essay-assignment-2026-10-20.md",
       "specs": [
-        "docs/modules/reviews/problem-card-design-decisions.md",
+        "docs/modules/reviews/subject-card-viewmodel.md",
+        "docs/modules/families/README.md",
         "docs/shared/design/README.md"
       ],
       "tests": [
@@ -2800,7 +2794,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Запрос родителя 14.10.2026: вижу те же проблемы с вложенностью карточек; давай доделаем оставшееся."
+        "evidence": "Прямое поручение родителя 20.10.2026: семейная подготовка должна быть обозначена как запрос родителя, а не как задание учителя/МЭШ; существующие МЭШ-подписи должны сохраниться."
       },
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
@@ -4249,25 +4243,19 @@
       }
     },
     "src/lib/dayStore.ts": {
-      "sha256": "c5cb71b28b1652dab74a9ed7a115982f6788a33b48604757e7c9a8b63ff6e666",
-      "record": "docs/decisions/released-stage-parity-2026-10-20.md",
+      "sha256": "484446e5a3c7f27fb334e5d6f121894be3bb141f1b9c6d01c5a6fe5106f19161",
+      "record": "docs/decisions/family-essay-assignment-2026-10-20.md",
       "specs": [
-        "docs/modules/reviews/subject-aware-guidance.md",
-        "docs/modules/reviews/problem-card-design-decisions.md",
-        "docs/shared/design/ui-kit.md",
-        "docs/shared/design/README.md"
+        "docs/modules/school-diary/day-page.md",
+        "docs/modules/families/README.md"
       ],
       "tests": [
-        "src/lib/dayGuidance.writer.test.ts",
-        "day/guidance-release.test.mjs",
-        "day/guidance-repair.test.mjs",
-        "src/components/ParentTaskGuide.test.tsx",
-        "src/components/TaskGuidance.test.tsx",
-        "src/UiKit.test.tsx"
+        "day/family-assignment.test.mjs",
+        "day/family-assignment-boundaries.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос пользователя 20.10.2026: в ученическом раскрытии должен появляться полный выбранный этап с переходами, строкой симметрии, причиной и источником; родительский предпросмотр должен совпадать с фактическим раскрытием."
+        "evidence": "Прямой запрос родителя 20.10.2026: опубликовать семейную подготовку к сочинению к пятнице 23.10.2026 с самостоятельной работой ученика и загрузкой фотографии; не представлять её заданием МЭШ или учителя."
       }
     },
     "src/lib/educationEventProducer.ts": {
@@ -5719,6 +5707,38 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Прямой запрос пользователя 20.10.2026: в ученическом раскрытии должен появляться полный выбранный этап с переходами, строкой симметрии, причиной и источником; родительский предпросмотр должен совпадать с фактическим раскрытием."
+      }
+    },
+    "day/family-assignment.mjs": {
+      "sha256": "b73d404c620b9d640d97196ba95a96014993263de873a676065d902ff5d9da07",
+      "record": "docs/decisions/family-essay-assignment-2026-10-20.md",
+      "specs": [
+        "docs/modules/families/README.md",
+        "docs/modules/school-diary/day-page.md",
+        "docs/modules/synchronization/plan-generation.md"
+      ],
+      "tests": [
+        "day/family-assignment.test.mjs",
+        "day/family-assignment-boundaries.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя 20.10.2026: опубликовать семейную подготовку к сочинению к пятнице 23.10.2026 с самостоятельной работой ученика и загрузкой фотографии; не представлять её заданием МЭШ или учителя."
+      }
+    },
+    "day/family-dashboard-delta.mjs": {
+      "sha256": "a78993fcc7224ee7ab9fbfdbd4ff38771341e7f42fb9f9bae52259782dd0a55a",
+      "record": "docs/decisions/family-essay-assignment-2026-10-20.md",
+      "specs": [
+        "docs/modules/school-diary/dashboard.md",
+        "docs/modules/families/README.md"
+      ],
+      "tests": [
+        "day/family-dashboard-delta.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя 20.10.2026: семейная карточка должна обновлять срок в календаре без изменения несвязанных дат и документов."
       }
     }
   }

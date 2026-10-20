@@ -3,7 +3,7 @@ id: module.families
 status: accepted
 implementation: partial
 created: 2026-10-08
-updated: 2026-10-16
+updated: 2026-10-20
 consumers:
   - "parent"
   - "student"
@@ -13,6 +13,8 @@ code:
   - "scripts/access-management.mjs"
   - "scripts/audit-family-links.mjs"
   - "scripts/family.mjs"
+  - "scripts/day.mjs"
+  - "day/family-assignment.mjs"
   - "scripts/lib/access-projection.mjs"
   - "scripts/lib/admin-firebase.mjs"
   - "src/components/FamilyAccessCards.tsx"
@@ -76,7 +78,9 @@ Firestore хранит учебные факты, состояние работ�
 | `families/{familyId}/members/{personId}` | Роль `parent` или `student`, точный список доступных `childIds`, активность | агент через Admin SDK |
 | `families/{familyId}/children/{childId}` | Профиль ученика, учебный год, часовой пояс | сервер |
 | `families/{familyId}/children/{childId}/days/{yyyy-mm-dd}` | Расписание, исходное ДЗ, версии задания, проверенный план | синхронизатор / агент |
-| `families/{familyId}/children/{childId}/tasks/{taskId}` | Стабильная задача, срок, статус публикации, ссылка на источник | синхронизатор / агент |
+| `families/{familyId}/children/{childId}/tasks/{taskId}` | Стабильная задача, срок, статус публикации, ссылка на источник; семейное назначение имеет отдельный `sourceSystem:'family'` и не меняет запись МЭШ | синхронизатор / агент |
+
+Семейная задача не становится карточкой дня только из-за `sourceSystem:'family'`. Оператор явно включает дневную проекцию через `dayProjectionVersion: 1`; сборка и dashboard игнорируют остальные семейные задачи, даже если у них совпадает срок. Для выбранного формата оператор проверяет владельца, предмет, текст и способ сдачи перед включением проекции.
 | `families/{familyId}/children/{childId}/submissions/{submissionId}` | Фото/ответ, статус проверки, связь с задачей | пока сервер; запись из браузера откроется после безопасной загрузки на Диск |
 | `dayOwners/{studentToken}` | Закрытая переходная карта прежней страницы дня на `familyId` и `childId` для очереди разбора | агент через Admin SDK |
 | `families/{familyId}/children/{childId}/grades/{gradeId}` | Оценка, вес, предмет, дата, исходный идентификатор МЭШ | синхронизатор |
