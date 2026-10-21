@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/mesh-informational-entry-2026-10-21.md */
 /**
  * @see ../docs/modules/reviews/README.md
  * @see ../docs/modules/reviews/card-flow-certification.md
@@ -8,8 +9,10 @@ import { createHash } from 'node:crypto'
 import { lessonVisibility } from '../diary/application/lesson-visibility.mjs'
 import { publicPageSubjects } from './public-projection.mjs'
 import { assignmentRouteEvidence } from './assignment-routing.mjs'
+import { subjectPresentation } from './subject-identity.mjs'
 import { familyAssignmentErrors, familyAssignmentProjectionSignature, stableFamilyProjectionJson } from './family-assignment.mjs'
 import { sourceOnlyPublicationErrors } from './source-only.mjs'
+import { meshNoticeEntryErrors } from './mesh-notice.mjs'
 
 /** Explain the failing field and canonical page IDs without weakening source checks.
  * @see ../docs/modules/synchronization/plan-generation.md#review-gate */
@@ -28,8 +31,11 @@ export function meshEntries(snapshot) {
     const descriptions = assignment.homeworkEntries?.length
       ? assignment.homeworkEntries
       : (assignment.descriptions || []).map((description, index) => ({ id: `${assignment.sourceItemId}-${index}`, description }))
+    const subjectName = assignment.subjectName ?? assignment.subject_name
+    const [subjectId] = subjectPresentation(subjectName, assignment.subjectId)
     return descriptions.filter((entry) => typeof entry.description === 'string' && entry.description.trim())
-      .map((entry) => ({ id: `mesh-${entry.id}`, text: entry.description.trim() }))
+      .map((entry) => ({ id: `mesh-${entry.id}`, text: entry.description.trim(), subjectId, subjectName,
+        hasTeacherFiles: (assignment.teacherFiles?.length ?? 0) > 0 }))
   })
 }
 
@@ -50,6 +56,20 @@ export function assertSourceAligned(source, snapshot, routeContext = {}) {
   for (const entry of expected) {
     if (!represented.some((item) => item.id === entry.id && item.text === entry.text)) {
       throw new Error(`План не содержит актуальную запись МЭШ ${entry.id}. Запустите day build и сверьте её до выпуска.`)
+    }
+  }
+  for (const entry of source.sourceOnlyEntries ?? []) {
+    const expectedEntry = expected.find((item) => item.id === entry.id)
+    if (expectedById.get(entry.id) !== entry.rawText?.trim()
+      || entry.kind === 'notice' && (!expectedEntry || expectedEntry.hasTeacherFiles
+        || expectedEntry.subjectId !== entry.subjectId
+        && source.subjects.find((item) => item.id === entry.subjectId)?.name !== expectedEntry.subjectName)) {
+      throw new Error(`План содержит неподтверждённую запись ${entry.id}; сверьте точный текст МЭШ.`)
+    }
+    if (entry.kind === 'notice') {
+      const subject = source.subjects.find((item) => item.id === entry.subjectId)
+      const errors = meshNoticeEntryErrors(entry, { subject, tasks: subject?.tasks ?? [], hasTeacherFiles: expectedEntry?.hasTeacherFiles })
+      if (errors.length) throw new Error(errors.join(' '))
     }
   }
   for (const task of tasks.filter((item) => item.id?.startsWith('mesh-') && item.meshText)) {
@@ -99,6 +119,9 @@ export function assertPublishedPageAligned(source, page, role, familyAssignments
     throw new Error(`Опубликованная страница ${role} не соответствует дате урока ${source.targetDate}.`)
   }
   assertFamilyProjectionMatches(source, page, role, familyAssignments)
+  if (JSON.stringify(page.sourceOnlyEntries ?? []) !== JSON.stringify(source.sourceOnlyEntries ?? [])) {
+    throw new Error(`Опубликованная страница ${role} потеряла точное уведомление или ссылку МЭШ.`)
+  }
   if (page.sourcePlanFingerprint) {
     if (page.sourcePlanFingerprint !== sourcePlanFingerprint(source)) {
       throw new Error(`Опубликованная страница ${role} отстаёт от локального плана урока ${source.targetDate}. Сначала day publish.`)

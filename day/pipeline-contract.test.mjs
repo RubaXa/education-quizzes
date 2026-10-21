@@ -51,6 +51,28 @@ describe('барьер публикации плана', () => {
     expect(() => assertPublishedPageAligned(sourceOnly, page, 'student')).toThrow(/недопустимые поля/)
     expect(() => assertSourceAligned({ ...sourceOnly, subjects: [{ tasks: [{ ...sourceOnly.subjects[0].tasks[0], meshText: 'Решить № 5.' }] }] }, snapshot)).toThrow(/не содержит актуальную запись/)
   })
+  it('accepts a source-aligned notice, rejects invented or misrouted notices, and verifies both published roles', () => {
+    const noticeSnapshot = { complete: true, date: '2026-10-15', assignments: [{ sourceItemId: '42', subjectName: 'Математика',
+      subjectId: 33623635, detailStatus: 'loaded', homeworkEntries: [{ id: '99', description: 'Всем хороших каникул!' }] }] }
+    const notice = { kind: 'notice', id: 'mesh-99', subjectId: 'math', rawText: 'Всем хороших каникул!',
+      reason: 'Точная отдельная поздравительная запись МЭШ; в ней нет учебного действия.' }
+    const plan = { targetDate: '2026-10-15', subjects: [{ id: 'math', name: 'Математика', tasks: [], mesh: 'Всем хороших каникул!' }], sourceOnlyEntries: [notice] }
+    expect(assertSourceAligned(plan, noticeSnapshot)).toMatchObject({ legacy: false, count: 1 })
+    const legacySubjectPlan = { ...plan, subjects: [{ ...plan.subjects[0], id: 'legacy-math' }],
+      sourceOnlyEntries: [{ ...notice, subjectId: 'legacy-math' }] }
+    expect(() => assertSourceAligned(legacySubjectPlan, noticeSnapshot)).not.toThrow()
+    expect(() => assertSourceAligned(plan, { ...noticeSnapshot,
+      assignments: [{ ...noticeSnapshot.assignments[0], teacherFiles: [{ id: 'sheet' }] }] })).toThrow(/неподтверждённую запись/)
+    expect(() => assertSourceAligned({ ...plan, sourceOnlyEntries: [{ ...notice, id: 'mesh-100' }] }, noticeSnapshot)).toThrow(/не содержит актуальную запись|неподтверждённую запись/)
+    expect(() => assertSourceAligned({ ...plan, sourceOnlyEntries: [{ ...notice, subjectId: 'russian' }] }, noticeSnapshot)).toThrow(/неподтверждённую запись/)
+    for (const role of ['student', 'parent']) {
+      const page = { kind: role, targetDate: plan.targetDate, sourcePlanFingerprint: sourcePlanFingerprint(plan),
+        subjects: structuredClone(plan.subjects), sourceOnlyEntries: structuredClone(plan.sourceOnlyEntries) }
+      expect(() => assertPublishedPageAligned(plan, page, role)).not.toThrow()
+      page.sourceOnlyEntries = []
+      expect(() => assertPublishedPageAligned(plan, page, role)).toThrow(/потеряла точное уведомление/)
+    }
+  })
   it('принимает только каноническое семейное задание поверх точного MESH fingerprint', () => {
     const plan = { targetDate: '2026-10-23', subjects: [{ id: 'russian', name: 'Русский язык', icon: '✍', tasks: [{ id: 'mesh-1', title: 'Упр. 1', detail: 'Упр. 1', kind: 'written', status: 'unknown', source: 'МЭШ', meshText: 'Упр. 1' }] }] }
     const assignment = { id: 'family-russian-essay-2026-10-23', familyId: 'family', childId: 'child', subjectId: 'russian',

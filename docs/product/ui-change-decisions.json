@@ -153,17 +153,24 @@
       }
     },
     "day/build.mjs": {
-      "sha256": "a43a4dfa27d54b1f43c03a126e24fc62b9ebeb4f983d175b3ae813ad65b9727f",
-      "record": "docs/decisions/source-only-mesh-publication-2026-10-20.md",
+      "sha256": "ed5636f12fea546bfd43bb146c2be7865cdd14d93c5c2413c6a9dd417f1cfb65",
+      "record": "docs/decisions/mesh-informational-entry-2026-10-21.md",
       "specs": [
-        "docs/modules/synchronization/plan-generation.md"
+        "docs/modules/synchronization/plan-generation.md",
+        "docs/modules/school-diary/day-page.md"
       ],
       "tests": [
-        "day/build-assignments.test.mjs"
+        "day/mesh-notice.test.mjs",
+        "day/build-assignments.test.mjs",
+        "day/pipeline-contract.test.mjs",
+        "day/data-contract.test.mjs",
+        "day/merge.test.mjs",
+        "scripts/day.validate.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь сообщил, что новые назначения МЭШ не отображаются в Education; действующий протокол разделяет точную фиксацию исходного задания и последующее подтверждённое обогащение."
+        "evidence": "Прямое поручение пользователя через EducationSync 21.10.2026: сохранить информационную запись МЭШ «Всем хороших каникул!» без ложного учебного долга, с общим маршрутом классификации и проверками."
       }
     },
     "day/card-policy.mjs": {
@@ -196,20 +203,24 @@
       }
     },
     "day/data-contract.mjs": {
-      "sha256": "bfd9c4601c1cbb9f8edb4559bcb9c0aedbec145e5a5bb8d8504a5645bfd52f6c",
-      "record": "docs/decisions/pupil-vacations-2026-10-19.md",
+      "sha256": "6b3e44db18cccc7e80d9f2aeed4da3858a855b6e96a412445f1e695a4f754353",
+      "record": "docs/decisions/mesh-informational-entry-2026-10-21.md",
       "specs": [
-        "docs/modules/school-diary/school-calendar.md"
+        "docs/modules/synchronization/plan-generation.md",
+        "docs/modules/school-diary/day-page.md"
       ],
       "tests": [
-        "day/school-calendar.test.mjs",
-        "sync/school-calendar-publication.test.mjs",
-        "src/components/DayCalendar.test.tsx",
-        "src/DayDashboard.warmStart.test.tsx"
+        "day/mesh-notice.test.mjs",
+        "day/build-assignments.test.mjs",
+        "day/pipeline-contract.test.mjs",
+        "day/data-contract.test.mjs",
+        "day/merge.test.mjs",
+        "scripts/day.validate.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 просит выделить каникулы красивым блоком дней, получая даты только из МЭШ конкретного ученика."
+        "evidence": "Прямое поручение пользователя через EducationSync 21.10.2026: сохранить информационную запись МЭШ «Всем хороших каникул!» без ложного учебного долга, с общим маршрутом классификации и проверками."
       }
     },
     "day/family-source-graph.mjs": {
@@ -413,17 +424,24 @@
       }
     },
     "day/pipeline-contract.mjs": {
-      "sha256": "f79cc082598bbca67dd9714f42dc73f70721b0dc4b3881efd307e2aece1413e1",
-      "record": "docs/decisions/source-only-mesh-publication-2026-10-20.md",
+      "sha256": "114622307950540454b4fa2d4fdc990bf2c56262bef48a632cd6fa643939fb05",
+      "record": "docs/decisions/mesh-informational-entry-2026-10-21.md",
       "specs": [
-        "docs/modules/synchronization/plan-generation.md"
+        "docs/modules/synchronization/plan-generation.md",
+        "docs/modules/school-diary/day-page.md"
       ],
       "tests": [
-        "day/pipeline-contract.test.mjs"
+        "day/mesh-notice.test.mjs",
+        "day/build-assignments.test.mjs",
+        "day/pipeline-contract.test.mjs",
+        "day/data-contract.test.mjs",
+        "day/merge.test.mjs",
+        "scripts/day.validate.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь сообщил, что новые назначения МЭШ не отображаются в Education; действующий протокол разделяет точную фиксацию исходного задания и последующее подтверждённое обогащение."
+        "evidence": "Прямое поручение пользователя через EducationSync 21.10.2026: сохранить информационную запись МЭШ «Всем хороших каникул!» без ложного учебного долга, с общим маршрутом классификации и проверками."
       }
     },
     "day/placement-integrity.mjs": {
@@ -1871,18 +1889,24 @@
       }
     },
     "scripts/day.mjs": {
-      "sha256": "3e182d645189afffc9f6d8200cf279c5e416037874c00cee063b8802f21f0ba8",
-      "record": "docs/decisions/source-only-mesh-publication-2026-10-20.md",
+      "sha256": "2520ee7acd2a3e0ed79ef64e190db7ffff711f483417de4fa319ea5ac2abd6d7",
+      "record": "docs/decisions/mesh-informational-entry-2026-10-21.md",
       "specs": [
-        "docs/modules/synchronization/plan-generation.md"
+        "docs/modules/synchronization/plan-generation.md",
+        "docs/modules/school-diary/day-page.md"
       ],
       "tests": [
-        "day/source-only.test.mjs",
-        "day/pipeline-contract.test.mjs"
+        "day/mesh-notice.test.mjs",
+        "day/build-assignments.test.mjs",
+        "day/pipeline-contract.test.mjs",
+        "day/data-contract.test.mjs",
+        "day/merge.test.mjs",
+        "scripts/day.validate.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь сообщил, что новые назначения МЭШ не отображаются в Education; действующий протокол разделяет точную фиксацию исходного задания и последующее подтверждённое обогащение."
+        "evidence": "Прямое поручение пользователя через EducationSync 21.10.2026: сохранить информационную запись МЭШ «Всем хороших каникул!» без ложного учебного долга, с общим маршрутом классификации и проверками."
       }
     },
     "scripts/direct-upload-worker.mjs": {
@@ -2611,22 +2635,24 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "d572baecf8511077196219eb064287bfda69d56504b355e4222b9aa317c7e55c",
-      "record": "docs/decisions/collapsed-variant-status-2026-10-21.md",
+      "sha256": "d3fcbfba6c1115002147f6e367ed1911b2d7d1e4bcd4b642b4c2ae225329f5b0",
+      "record": "docs/decisions/mesh-informational-entry-2026-10-21.md",
       "specs": [
-        "docs/modules/school-diary/day-page.md",
-        "docs/shared/design/README.md"
+        "docs/modules/synchronization/plan-generation.md",
+        "docs/modules/school-diary/day-page.md"
       ],
       "tests": [
-        "src/lib/practiceVariantViewModel.test.ts",
-        "src/components/ProblemGroup.layout.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/DayDashboard.warmStart.test.tsx",
-        "scripts/check-requirement-copy.test.mjs"
+        "day/mesh-notice.test.mjs",
+        "day/build-assignments.test.mjs",
+        "day/pipeline-contract.test.mjs",
+        "day/data-contract.test.mjs",
+        "day/merge.test.mjs",
+        "scripts/day.validate.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос 21.10.2026: фактический статус виден в свёрнутых заголовках независимо от выбора; переключатель является единственным индикатором обязательности."
+        "evidence": "Прямое поручение пользователя через EducationSync 21.10.2026: сохранить информационную запись МЭШ «Всем хороших каникул!» без ложного учебного долга, с общим маршрутом классификации и проверками."
       }
     },
     "src/UiKit.css": {
@@ -4203,20 +4229,24 @@
       }
     },
     "src/lib/dayStore.ts": {
-      "sha256": "f293de8928724787afda8d49f2e0038023a8d75c0346202e36dd60c55430e06f",
-      "record": "docs/decisions/photo-upload-authorization-and-freshness-2026-10-20.md",
+      "sha256": "cfdbfb1bae6d103a1709a90a07c3bc9383f61f50a7ca9948ff373f660bcecb56",
+      "record": "docs/decisions/mesh-informational-entry-2026-10-21.md",
       "specs": [
-        "docs/modules/materials/storage-privacy.md",
-        "docs/modules/synchronization/event-queue.md"
+        "docs/modules/synchronization/plan-generation.md",
+        "docs/modules/school-diary/day-page.md"
       ],
       "tests": [
-        "src/lib/educationEventProducers.test.ts",
-        "packages/education-runtime/upload-broker.test.mjs",
-        "scripts/firestore-rules-photo-upload-suite.test.mjs"
+        "day/mesh-notice.test.mjs",
+        "day/build-assignments.test.mjs",
+        "day/pipeline-contract.test.mjs",
+        "day/data-contract.test.mjs",
+        "day/merge.test.mjs",
+        "scripts/day.validate.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение 20.10.2026: исправить повторную регрессию ученической фотозагрузки, сохранив member scope, ownership и атомарную очередь."
+        "evidence": "Прямое поручение пользователя через EducationSync 21.10.2026: сохранить информационную запись МЭШ «Всем хороших каникул!» без ложного учебного долга, с общим маршрутом классификации и проверками."
       }
     },
     "src/lib/educationEventProducer.ts": {
@@ -5820,6 +5850,27 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Прямой запрос пользователя 21.10.2026: показывать время загрузки каждой фотографии ребёнка в подсказке и доступном названии."
+      }
+    },
+    "day/mesh-notice.mjs": {
+      "sha256": "594026175822a74a0192d35136e83acec5817dddd9477bea00560c961c1ced73",
+      "record": "docs/decisions/mesh-informational-entry-2026-10-21.md",
+      "specs": [
+        "docs/modules/synchronization/plan-generation.md",
+        "docs/modules/school-diary/day-page.md"
+      ],
+      "tests": [
+        "day/mesh-notice.test.mjs",
+        "day/build-assignments.test.mjs",
+        "day/pipeline-contract.test.mjs",
+        "day/data-contract.test.mjs",
+        "day/merge.test.mjs",
+        "scripts/day.validate.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямое поручение пользователя через EducationSync 21.10.2026: сохранить информационную запись МЭШ «Всем хороших каникул!» без ложного учебного долга, с общим маршрутом классификации и проверками."
       }
     }
   }

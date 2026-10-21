@@ -855,3 +855,8 @@
 | [src/components/PracticeVariantStatus.css](../src/components/PracticeVariantStatus.css) | [Общие статусы](shared/design/statuses.md) | Общие цветовые токены проверенного, ожидающего и исправляемого варианта | День; UI Kit |
 
 | [docs/decisions/independent-action-dispatch-2026-10-21.md](decisions/independent-action-dispatch-2026-10-21.md) | [Диспетчер EducationSync](services/telegram-bot/education-sync-dispatch.md) | Независимая action lane при source_unavailable МЭШ, доказательства завершения и диагностика | Worker; оператор; EducationSync |
+
+| [day/mesh-notice.mjs](../day/mesh-notice.mjs) | [Формирование плана](modules/synchronization/plan-generation.md) | Единая консервативная классификация информационной записи МЭШ без учебного действия | Builder; preflight |
+| [day/mesh-notice.test.mjs](../day/mesh-notice.test.mjs) | [Формирование плана](modules/synchronization/plan-generation.md) | Пожелание, смешанная инструкция, вложения и запрет фиктивной связи | Vitest |
+| [scripts/day.validate.test.mjs](../scripts/day.validate.test.mjs) | [Формирование плана](modules/synchronization/plan-generation.md) | Настоящий CLI validate информационной записи без долга, материала и targetTaskId | Vitest; оператор |
+| [docs/decisions/mesh-informational-entry-2026-10-21.md](decisions/mesh-informational-entry-2026-10-21.md) | [Формирование плана](modules/synchronization/plan-generation.md) | Основание классификации, source identity, история, роли и выпуск | EducationSync; разработчик |

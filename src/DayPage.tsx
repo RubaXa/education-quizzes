@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/mesh-informational-entry-2026-10-21.md */
 /** @see ../docs/decisions/collapsed-variant-status-2026-10-21.md */
 /* @see ../docs/decisions/weekend-parent-actions-2026-10-18.md */
 /* @see ../docs/decisions/work-photo-expand-2026-10-18.md */
@@ -418,6 +419,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
     && !currentSubjects.some((subject) => subject.id === 'special')
   const currentTaskIds = new Set(currentSubjects.flatMap((subject) => subject.tasks.map((task) => task.id)))
   const lastChange = page.changes?.[0]
+  const sourceNotices = (page.sourceOnlyEntries ?? []).filter((entry) => entry.kind === 'notice')
   const currentAdded = lastChange?.added.filter((id) => currentTaskIds.has(id)) ?? []
   const currentChanged = lastChange?.changed.filter((id) => currentTaskIds.has(id)) ?? []
 
@@ -451,8 +453,12 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
       {parent && page.parentNotes?.[0] && <section className="day-attention"><h2>О задании</h2><p>{page.parentNotes[0]}</p></section>}
       {parent && (currentAdded.length > 0 || currentChanged.length > 0) && <section className="day-attention"><h2>Что изменилось</h2><p>Добавлено: {currentAdded.length}. Уточнено: {currentChanged.length}.</p></section>}
       {page.notices[0] && !parent && <div className="day-notices"><p>✳ {page.notices[0]}</p></div>}
+      {sourceNotices.map((entry) => {
+        const subjectName = page.subjects.find((subject) => subject.id === entry.subjectId)?.name
+        return <div className="day-notices" key={entry.id}><p>✳ <strong>МЭШ{subjectName ? ` · ${subjectName}` : ''}</strong> · {entry.rawText}</p></div>
+      })}
       <h2 className="day-homework-heading">По предметам</h2>
-      {currentSubjects.length === 0 && <div className="day-notices"><p>На эту дату задания в МЭШ пока не указаны.</p></div>}
+      {currentSubjects.length === 0 && sourceNotices.length === 0 && <div className="day-notices"><p>На эту дату задания в МЭШ пока не указаны.</p></div>}
 
       <div className="day-subject-list">{currentSubjects.map((subject) => {
         const summary = page.gradeSummary.find((item) => item.id === subject.id)

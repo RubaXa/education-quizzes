@@ -170,6 +170,21 @@ it.each([false, true])('shows family task provenance without MESH wording, paren
   } finally { await view.cleanup() }
 })
 
+it.each([false, true])('shows an exact non-action MESH notice without an empty card or debt, parent=%s', async (parent) => {
+  scene.page!.subjects = [{ id: 'math', name: 'Математика', icon: '∑', materials: '', mesh: 'Всем хороших каникул!', summary: '', tasks: [] }]
+  scene.page!.testPlacements = []
+  scene.page!.sourceOnlyEntries = [{ kind: 'notice', id: 'mesh-352682606', subjectId: 'math', rawText: 'Всем хороших каникул!',
+    reason: 'Точная отдельная поздравительная запись МЭШ; в ней нет учебного действия.' }]
+  const view = await renderPage(parent)
+  try {
+    expect(view.host.textContent).toContain('Всем хороших каникул!')
+    expect(view.host.textContent).toContain('МЭШ · Математика')
+    expect(view.host.querySelector('.day-summary strong')?.textContent).toBe('0')
+    expect(view.host.querySelectorAll('.day-task')).toHaveLength(0)
+    expect(view.host.textContent).not.toContain('На эту дату задания в МЭШ пока не указаны.')
+  } finally { await view.cleanup() }
+})
+
 it.each([false, true])('keeps the file at its upload origin and shows only references elsewhere, parent=%s', async (parent) => {
   const view = await renderPage(parent)
   try {

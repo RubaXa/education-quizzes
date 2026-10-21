@@ -36,6 +36,25 @@ describe('повторный выпуск страницы дня', () => {
     expect(second.subjects[0].tasks.map((item) => item.id)).toEqual(['old'])
   })
 
+  it('projects task→notice→task by the same source ID while retaining stored work history', () => {
+    const old = { ...page([task('mesh-352682606', 'verified')]), uploads: [{ id: 'upload-old', taskId: 'mesh-352682606' }],
+      reviews: [{ taskId: 'mesh-352682606', status: 'verified' }], testPlacements: [{ taskId: 'mesh-352682606', token: 'old-test', subjectId: 'math' }] }
+    const notice = { ...page([]), sourceOnlyEntries: [{ kind: 'notice', id: 'mesh-352682606', subjectId: 'math',
+      rawText: 'Всем хороших каникул!', reason: 'Exact notice' }] }
+    const duringNotice = mergeDayPage(old, notice)
+    expect(duringNotice.subjects[0].tasks).toEqual([])
+    expect(duringNotice.taskIds).toEqual([])
+    expect(duringNotice.sourceOnlyEntries).toEqual(notice.sourceOnlyEntries)
+    expect(duringNotice.uploads).toEqual(old.uploads)
+    expect(duringNotice.reviews).toEqual(old.reviews)
+    expect(duringNotice.testPlacements).toEqual([])
+    const restored = mergeDayPage(duringNotice, { ...page([task('mesh-352682606')]), sourceOnlyEntries: [] })
+    expect(restored.subjects[0].tasks.map((item) => item.id)).toEqual(['mesh-352682606'])
+    expect(restored.sourceOnlyEntries).toEqual([])
+    expect(restored.uploads).toEqual(old.uploads)
+    expect(restored.reviews).toEqual(old.reviews)
+  })
+
   it('повтор с теми же данными не создаёт новую ревизию', () => {
     const first = mergeDayPage(null, page([task('old')]))
     const second = mergeDayPage(first, page([task('old')]))

@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/mesh-informational-entry-2026-10-21.md */
 /**
  * @see ../docs/shared/data/README.md
  */
@@ -36,6 +37,11 @@ export function dayPageShapeErrors(page) {
     }
   }
   if (page.testPlacements != null && !Array.isArray(page.testPlacements)) errors.push('Связи тестов должны быть массивом.')
+  if (page.sourceOnlyEntries != null && (!Array.isArray(page.sourceOnlyEntries) || page.sourceOnlyEntries.some((entry) =>
+    !object(entry) || !text(entry.id) || !text(entry.subjectId) || !text(entry.rawText) || !text(entry.reason)
+    || entry.kind === 'notice' && entry.targetTaskId != null
+    || entry.kind !== undefined && entry.kind !== 'notice'
+    || entry.kind !== 'notice' && !text(entry.targetTaskId)))) errors.push('Ссылки и уведомления МЭШ должны сохранять точный текст и корректную связь.')
   if (page.materialLinks != null && !object(page.materialLinks)) errors.push('Ссылки материалов должны быть словарём по taskId.')
   if (page.taskPageRefs != null && !object(page.taskPageRefs)) errors.push('Страницы учебников должны быть словарём по taskId.')
   if (page.evidenceDayTokens != null && !Array.isArray(page.evidenceDayTokens)) errors.push('Предыдущие дни должны быть массивом ссылок.')

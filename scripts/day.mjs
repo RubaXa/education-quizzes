@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/mesh-informational-entry-2026-10-21.md */
 /**
  * @see ../docs/product/school-day.md
  * @see ../docs/modules/families/README.md
@@ -27,6 +28,7 @@ import { dayDashboardShapeErrors } from '../day/data-contract.mjs'
 import { materialGrantError } from '../day/material-access.mjs'
 import { teacherAttachmentOwnershipErrors } from '../day/assignment-structure.mjs'
 import { canPublishSourceOnly, sourceOnlyPublicationErrors, taskMaterialPublicationError } from '../day/source-only.mjs'
+import { meshNoticeEntryErrors } from '../day/mesh-notice.mjs'
 import { ownerMigrationFields } from '../day/owner-repair.mjs'
 import { publicPageSubjects, publicProblem } from '../day/public-projection.mjs'
 import { isExplicitCdzTask } from '../day/homework-kind.mjs'
@@ -515,6 +517,12 @@ function validate(source, { allowUnchangedLegacyTeacherLinks = false } = {}) {
   if (attachmentErrors.length) fail(attachmentErrors.join(' '))
   // @see ../docs/modules/synchronization/plan-generation.md#material-only-mesh-entries
   for (const entry of source.sourceOnlyEntries ?? []) {
+    if (entry.kind === 'notice') {
+      const subject = source.subjects.find((item) => item.id === entry.subjectId)
+      const errors = meshNoticeEntryErrors(entry, { subject, tasks: subject?.tasks ?? [] })
+      if (errors.length) fail(errors.join(' '))
+      continue
+    }
     const target = source.subjects.find((subject) => subject.id === entry.subjectId)?.tasks.find((task) => task.id === entry.targetTaskId)
     const subject = source.subjects.find((item) => item.id === entry.subjectId)
     if (!/^mesh-\d+$/.test(entry.id ?? '') || ids.has(entry.id) || !target || target.kind !== 'written'
@@ -567,11 +575,12 @@ async function reconcileEarlierEvidence(source, studentToken) {
   }
   for (const entry of source.sourceOnlyEntries ?? []) {
     for (const { token } of pages) {
-      const [progress, uploads] = await Promise.all([
+      const [progress, uploads, privateReview] = await Promise.all([
         db.doc(`dayProgress/${token}/items/${entry.id}`).get(),
         db.collection(`dayUploads/${token}/files`).get(),
+        db.doc(`dayReviewPrivate/${token}/items/${entry.id}`).get(),
       ])
-      if (progress.exists || uploads.docs.some((upload) => upload.data().status !== 'deleted'
+      if (progress.exists || privateReview.exists || uploads.docs.some((upload) => upload.data().status !== 'deleted'
         && (upload.data().taskId === entry.id || upload.data().coveredTaskIds?.includes(entry.id)))) {
         fail(`У ссылки МЭШ ${entry.id} уже есть работа или разбор; нельзя скрыть её как простой файл.`)
       }

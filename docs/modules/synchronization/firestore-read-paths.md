@@ -3,7 +3,7 @@ id: module.synchronization.firestore-read-paths
 status: accepted
 implementation: partial
 created: 2026-10-13
-updated: 2026-10-20
+updated: 2026-10-21
 consumers:
   - "Education sync operator"
   - "sync-project CLI"
@@ -21,6 +21,8 @@ sections:
   - продолжение-по-полной-истории-16102026
 ---
 # Реестр путей чтения Firestore и выбор способа обновления
+
+Перед публикацией перехода task → source-only notice оператор адресно проверяет `dayReviewPrivate/{studentToken}/items/{entryId}` вместе с существующими progress/uploads guard. Чтение ограничено затронутыми source entries и подтверждёнными собственными/history day tokens; оно запрещает скрытие прежнего закрытого разбора даже при отсутствии публичного progress. Подписки и глобальный скан не добавляются.
 
 Операторский `sync:queue list --id` адресно читает один `operatorSyncJobs/ID` и, при корректном artifactPath, один `operatorSyncTaskArtifacts/ID`. Это явно запрошенное оператором чтение без subscriptions, обновления артефакта и глобального скана; оно нужно для сопоставления события с уже проверяемой работой и исключения повторного разбора.
 

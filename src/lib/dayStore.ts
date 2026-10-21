@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/mesh-informational-entry-2026-10-21.md */
 /** @see ../../docs/modules/materials/material-clarification.md
  * @see ../../docs/decisions/family-essay-assignment-2026-10-20.md
  * @see ../../docs/decisions/source-only-mesh-publication-2026-10-20.md
@@ -83,7 +84,8 @@ export type DayPageData = {
   materialLinks?: Record<string, DayMaterialLink[]>;
   taskPageRefs?: Record<string, string[]>;
   /** Raw MESH entries that point to material already attached to another task. @see ../../docs/modules/synchronization/plan-generation.md#material-only-mesh-entries */
-  sourceOnlyEntries?: { id: string; subjectId: string; targetTaskId: string; rawText: string; reason: string }[];
+  sourceOnlyEntries?: ({ kind: 'notice'; id: string; subjectId: string; rawText: string; reason: string }
+    | { kind?: undefined; id: string; subjectId: string; targetTaskId: string; rawText: string; reason: string })[];
   retiredTaskIds?: string[];
   weekendSlot?: { dates: string[]; title: string; taskIds: string[]; dueDate?: string } | null;
   evidenceDayTokens?: string[]; planRevision?: number;

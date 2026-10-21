@@ -16,6 +16,13 @@ describe('строгий контракт основных документов 
     p.schemaVersion = 2
     expect(dayPageShapeErrors(p)).toContain('Неизвестная версия страницы дня.')
   })
+  it('accepts an exact public notice without a task target and rejects malformed discriminated entries', () => {
+    const p = page()
+    p.sourceOnlyEntries = [{ kind: 'notice', id: 'mesh-352682606', subjectId: 'math', rawText: 'Всем хороших каникул!', reason: 'Источник' }]
+    expect(dayPageShapeErrors(p)).toEqual([])
+    p.sourceOnlyEntries[0].targetTaskId = 'mesh-352682606'
+    expect(dayPageShapeErrors(p).join(' ')).toMatch(/Ссылки и уведомления МЭШ/)
+  })
   it('требует уникальные даты и вопросы', () => {
     const day = { date: '2026-10-13', schedule: [], homework: [], dayToken: null }
     expect(dayDashboardShapeErrors({ schemaVersion: 1, kind: 'parent', timezone: 'Europe/Moscow', days: [day, day] }).join(' ')).toMatch(/повторяется/)

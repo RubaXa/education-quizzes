@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/mesh-informational-entry-2026-10-21.md */
 /**
  * @see ../docs/product/materials.md
  */
@@ -14,6 +15,7 @@ import { isExplicitCdzTask, rawMeshKind } from './homework-kind.mjs'
 import { subjectPresentation } from './subject-identity.mjs'
 import { referencedHomeworkDate } from './homework-reference.mjs'
 import { teacherFilesForEntry } from './assignment-structure.mjs'
+import { classifyMeshNotice } from './mesh-notice.mjs'
 export { rawMeshKind } from './homework-kind.mjs'
 
 function json(file) { return JSON.parse(readFileSync(file, 'utf8')) }
@@ -90,6 +92,14 @@ export function buildDaySource(local, date) {
   let added = 0
   const assignments = lessonVisibility(target.assignments || []).conducted
     .map((assignment) => ({ assignment, lessonDate: targetDate }))
+  const currentEntryIds = new Set(assignments.flatMap(({ assignment }) => {
+    const entries = assignment.homeworkEntries?.length ? assignment.homeworkEntries
+      : (assignment.descriptions || []).map((description, index) => ({ id: `${assignment.sourceItemId}-${index}`, description }))
+    return entries.map((entry) => `mesh-${entry.id}`)
+  }))
+  for (let index = sourceOnlyEntries.length - 1; index >= 0; index -= 1) {
+    if (sourceOnlyEntries[index].kind === 'notice' && !currentEntryIds.has(sourceOnlyEntries[index].id)) sourceOnlyEntries.splice(index, 1)
+  }
   for (const { assignment, lessonDate } of assignments) {
     let [id, name, icon] = subjectInfo(assignment)
     const descriptions = assignment.homeworkEntries?.length
@@ -116,6 +126,25 @@ export function buildDaySource(local, date) {
       }
       const entryFiles = teacherFilesForEntry(assignment, entry, descriptions)
       const referenceDate = referencedHomeworkDate(description, lessonDate)
+      const notice = classifyMeshNotice(description, { hasTeacherFiles: (assignment.teacherFiles?.length ?? 0) > 0 })
+      if (notice) {
+        for (let index = sourceOnlyEntries.length - 1; index >= 0; index -= 1) {
+          if (sourceOnlyEntries[index].id === taskId) sourceOnlyEntries.splice(index, 1)
+        }
+        sourceOnlyEntries.push({ id: taskId, subjectId: id, rawText: description, ...notice })
+        subject.tasks = subject.tasks.filter((task) => task.id !== taskId)
+        delete materialLinks[taskId]
+        materialLinkReplacements.delete(taskId)
+        if (!subject.tasks.length) {
+          if (['Новое задание МЭШ. Подробный разбор готовится.', 'Точная запись МЭШ. Подробный разбор готовится.'].includes(subject.summary)) subject.summary = ''
+          if (!assignment.teacherFiles?.length) subject.materials = ''
+        }
+        continue
+      }
+      // A notice that has become an action is removed by its own stable source ID.
+      for (let index = sourceOnlyEntries.length - 1; index >= 0; index -= 1) {
+        if (sourceOnlyEntries[index].id === taskId && sourceOnlyEntries[index].kind === 'notice') sourceOnlyEntries.splice(index, 1)
+      }
       // A bare attachment pointer names the same teacher file; it assigns no extra work.
       // @see ../docs/modules/synchronization/plan-generation.md#material-only-mesh-entries
       const mainEntry = descriptions.find((candidate) => candidate.id !== entry.id && !/^файл здесь\.?$/i.test(candidate.description.trim()))
@@ -216,7 +245,12 @@ export function buildDaySource(local, date) {
       if (entryFiles.length) materialLinks[taskId] = teacherLinks(local, lessonDate, entryFiles)
     }
   }
-  const assigned = assignments.filter(({ assignment }) => (assignment.homeworkEntries?.length || assignment.descriptions?.length) > 0).length
+  const assigned = assignments.filter(({ assignment }) => {
+    const entries = assignment.homeworkEntries?.length ? assignment.homeworkEntries
+      : (assignment.descriptions || []).map((description, index) => ({ id: `${assignment.sourceItemId}-${index}`, description }))
+    return entries.some((entry) => !classifyMeshNotice(entry.description,
+      { hasTeacherFiles: (assignment.teacherFiles?.length ?? 0) > 0 }))
+  }).length
   for (const subject of subjects) if (current?.assignmentRoutes?.some((route) => route.fromDate === targetDate && route.fromSubjectId === subject.id)) {
     subject.materials = [...new Set(subject.tasks.flatMap((task) => materialLinks[task.id] ?? []).map((link) => link.title))].join('; ')
   }

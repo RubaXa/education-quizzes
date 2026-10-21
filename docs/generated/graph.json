@@ -789,6 +789,40 @@
       "path": "docs/decisions/mesh-calendar-date-scopes-2026-10-18.md"
     },
     {
+      "id": "decision.mesh-informational-entry-2026-10-21",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-21",
+      "updated": "2026-10-21",
+      "parent": "module.synchronization.plan-generation",
+      "uses": [
+        "module.school-diary.day-page",
+        "shared.design.components"
+      ],
+      "consumers": [
+        "EducationSync workflow",
+        "Education parent and student UI",
+        "Education operator"
+      ],
+      "code": [
+        "day/mesh-notice.mjs",
+        "day/build.mjs",
+        "day/pipeline-contract.mjs",
+        "day/data-contract.mjs",
+        "scripts/day.mjs",
+        "src/DayPage.tsx",
+        "src/lib/dayStore.ts"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/mesh-informational-entry-2026-10-21.md"
+    },
+    {
       "id": "decision.photo-upload-authorization-and-freshness-2026-10-20",
       "status": "accepted",
       "implementation": "partial",
@@ -2898,6 +2932,20 @@
       "consumer": "Vitest; разработчик"
     },
     {
+      "id": "file:day/mesh-notice.mjs",
+      "path": "day/mesh-notice.mjs",
+      "kind": "artifact",
+      "purpose": "Единая консервативная классификация информационной записи МЭШ без учебного действия",
+      "consumer": "Builder; preflight"
+    },
+    {
+      "id": "file:day/mesh-notice.test.mjs",
+      "path": "day/mesh-notice.test.mjs",
+      "kind": "verification",
+      "purpose": "Пожелание, смешанная инструкция, вложения и запрет фиктивной связи",
+      "consumer": "Vitest"
+    },
+    {
       "id": "file:day/owner-repair.mjs",
       "path": "day/owner-repair.mjs",
       "kind": "artifact",
@@ -4296,6 +4344,13 @@
       "kind": "artifact",
       "purpose": "Выпуск дня и семейной карточки; адресная строка dashboard без глобального пересбора",
       "consumer": "Оператор; Firestore; `src/DayDashboard.tsx`"
+    },
+    {
+      "id": "file:scripts/day.validate.test.mjs",
+      "path": "scripts/day.validate.test.mjs",
+      "kind": "verification",
+      "purpose": "Настоящий CLI validate информационной записи без долга, материала и targetTaskId",
+      "consumer": "Vitest; оператор"
     },
     {
       "id": "file:scripts/direct-upload-worker.mjs",
@@ -7961,7 +8016,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-08",
-      "updated": "2026-10-20",
+      "updated": "2026-10-21",
       "consumers": [
         "parent",
         "student",
@@ -8010,7 +8065,8 @@
         "фотография-работы",
         "несколько-страниц-одного-задания",
         "разбор-загруженной-работы",
-        "уточнение-материала-ученика"
+        "уточнение-материала-ученика",
+        "информационные-записи-мэш"
       ],
       "path": "docs/modules/school-diary/day-page.md"
     },
@@ -8269,7 +8325,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-13",
-      "updated": "2026-10-20",
+      "updated": "2026-10-21",
       "consumers": [
         "Education sync operator",
         "sync-project CLI",
@@ -8334,7 +8390,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-09",
-      "updated": "2026-10-20",
+      "updated": "2026-10-21",
       "consumers": [
         "Education sync operator",
         "sync-project CLI",
@@ -8359,6 +8415,7 @@
       "sections": [
         "точная-запись-до-разбора",
         "source-only-publication",
+        "информационная-запись-мэш-без-учебного-действия",
         "запись-мэш-которая-указывает-только-на-материал",
         "результат-одного-задания-на-нескольких-страницах-дня",
         "сверка-перед-подробным-планом",
@@ -10508,6 +10565,16 @@
       "type": "uses"
     },
     {
+      "from": "decision.mesh-informational-entry-2026-10-21",
+      "to": "module.school-diary.day-page",
+      "type": "uses"
+    },
+    {
+      "from": "decision.mesh-informational-entry-2026-10-21",
+      "to": "shared.design.components",
+      "type": "uses"
+    },
+    {
       "from": "decision.photo-upload-authorization-and-freshness-2026-10-20",
       "to": "module.synchronization.event-queue",
       "type": "uses"
@@ -10939,6 +11006,11 @@
     },
     {
       "from": "file:day/build.mjs",
+      "to": "decision.mesh-informational-entry-2026-10-21",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/build.mjs",
       "to": "decisions.source-only-mesh-publication-2026-10-20",
       "type": "implements"
     },
@@ -11015,6 +11087,11 @@
     {
       "from": "file:day/dashboard-index.mjs",
       "to": "module.school-diary.day-page",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/data-contract.mjs",
+      "to": "decision.mesh-informational-entry-2026-10-21",
       "type": "implements"
     },
     {
@@ -11163,6 +11240,16 @@
       "type": "implements"
     },
     {
+      "from": "file:day/mesh-notice.mjs",
+      "to": "decision.mesh-informational-entry-2026-10-21",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/mesh-notice.mjs",
+      "to": "module.synchronization.plan-generation",
+      "type": "implements"
+    },
+    {
       "from": "file:day/owner-repair.mjs",
       "to": "shared.data.firestore",
       "type": "implements"
@@ -11170,6 +11257,11 @@
     {
       "from": "file:day/pipeline-contract.mjs",
       "to": "decision.family-essay-assignment-2026-10-20",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/pipeline-contract.mjs",
+      "to": "decision.mesh-informational-entry-2026-10-21",
       "type": "implements"
     },
     {
@@ -12035,6 +12127,11 @@
     {
       "from": "file:scripts/day.mjs",
       "to": "decision.family-essay-assignment-2026-10-20",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/day.mjs",
+      "to": "decision.mesh-informational-entry-2026-10-21",
       "type": "implements"
     },
     {
@@ -13664,6 +13761,11 @@
     },
     {
       "from": "file:src/DayPage.tsx",
+      "to": "decision.mesh-informational-entry-2026-10-21",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayPage.tsx",
       "to": "decision.photo-upload-authorization-and-freshness-2026-10-20",
       "type": "implements"
     },
@@ -13820,6 +13922,11 @@
     {
       "from": "file:src/lib/dayStore.ts",
       "to": "decision.family-essay-assignment-2026-10-20",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/dayStore.ts",
+      "to": "decision.mesh-informational-entry-2026-10-21",
       "type": "implements"
     },
     {
@@ -16194,6 +16301,11 @@
     },
     {
       "from": "module.synchronization.plan-generation",
+      "to": "decision.mesh-informational-entry-2026-10-21",
+      "type": "contains"
+    },
+    {
+      "from": "module.synchronization.plan-generation",
       "to": "decisions.source-only-mesh-publication-2026-10-20",
       "type": "contains"
     },
@@ -16204,12 +16316,22 @@
     },
     {
       "from": "module.synchronization.plan-generation",
+      "to": "file:day/mesh-notice.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.synchronization.plan-generation",
       "to": "file:day/pipeline-contract.test.mjs",
       "type": "verified-by"
     },
     {
       "from": "module.synchronization.plan-generation",
       "to": "file:day/source-only.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.synchronization.plan-generation",
+      "to": "file:scripts/day.validate.test.mjs",
       "type": "verified-by"
     },
     {
