@@ -1192,7 +1192,7 @@
       }
     },
     "packages/telegram-notifications/application/education-sync-dispatcher.mjs": {
-      "sha256": "067769bf16bffce86e186aa2a0f48f40eaa91a1643c65553e17e91f102fbccee",
+      "sha256": "347352f6f752b6f146788d087d525dea24d70d1d90cda8128642d3a2a1fa4aaf",
       "record": "docs/decisions/independent-action-dispatch-2026-10-21.md",
       "specs": [
         "docs/services/telegram-bot/education-sync-dispatch.md",
