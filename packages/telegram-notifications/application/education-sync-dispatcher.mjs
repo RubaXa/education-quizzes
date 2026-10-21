@@ -1,3 +1,4 @@
+/** @see ../../../docs/decisions/independent-action-dispatch-2026-10-21.md */
 import { createHash, randomUUID } from 'node:crypto'
 import { spawn } from 'node:child_process'
 import { dirname, resolve } from 'node:path'
@@ -161,6 +162,22 @@ export class EducationSyncDispatcher {
   }
 }
 
+/** Resolve either the ordinary request claim or an independent action lane without interpreting outer blocked Mesh state as that claim. */
+export function resolveEducationSyncExecution(state, { requestId, tokenHash, now } = {}) {
+  if (!state || typeof requestId !== 'string') return null
+  const lane = state.actionLane?.requestId === requestId ? state.actionLane : null
+  const execution = lane ? { scope: 'action', ...lane,
+    actionAfterGeneration: lane.actionAfterGeneration ?? 0, actionThroughGeneration: lane.actionThroughGeneration }
+    : state.requestId === requestId ? { scope: 'request', status: state.status, claimTokenHash: state.claimTokenHash,
+      workflowLeaseUntil: state.workflowLeaseUntil, actionAfterGeneration: state.sendingActionAfterGeneration ?? 0,
+      actionThroughGeneration: state.sendingActionThroughGeneration }
+      : null
+  if (!execution || execution.status !== 'running' || !execution.claimTokenHash
+    || tokenHash !== undefined && execution.claimTokenHash !== tokenHash
+    || now !== undefined && !(execution.workflowLeaseUntil > now)) return null
+  return execution
+}
+
 export function createFirestoreEducationSyncStore(db, { collection = 'educationSyncDispatch' } = {}) {
   const ref = db.collection(collection).doc('current')
   const eventCollection = db.collection(`${collection}Events`)
@@ -220,8 +237,10 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
         const generation = (state.generation ?? 0) + 1
         const holdState = ['queued', 'sending', 'uncertain', 'running', 'blocked'].includes(state.status)
         const frozen = Number.isInteger(state.sendingGeneration) || Number.isInteger(state.actionThroughGeneration)
-        const pendingActionAfterGeneration = Number.isInteger(state.pendingActionAfterGeneration)
-          ? state.pendingActionAfterGeneration : (state.completedActionGeneration ?? 0)
+        const laneThrough = Number.isInteger(state.actionLane?.actionThroughGeneration) ? state.actionLane.actionThroughGeneration : null
+        const pendingAfter = state.pendingActionAfterGeneration
+        const pendingActionAfterGeneration = laneThrough !== null && (!Number.isInteger(pendingAfter) || pendingAfter < laneThrough)
+          ? laneThrough : Number.isInteger(pendingAfter) ? pendingAfter : (state.completedActionGeneration ?? 0)
         const pendingActionThroughGeneration = generation
         const task = { kind, familyId: event.familyId, childId: event.childId, sourceId: event.eventId,
           source: event.source, fingerprint: artifact.fingerprint, priority: 50, runId: null,
@@ -243,30 +262,32 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
           status: holdState ? state.status : 'pending', retryAt: holdState ? state.retryAt ?? null : null,
           ...(!frozen ? { sendingGeneration: null, sendingKinds: null, sendingActionAfterGeneration: null, sendingActionThroughGeneration: null } : {})
         }, { merge: false })
-        const nextDueAt = [debounceUntil, holdState ? state.retryAt : null].filter(Boolean).sort().at(-1)
-        return { status: 'accepted', generation, jobId, artifactId: artifact.artifactPath.split('/').at(-1), nextDueAt: holdState ? undefined : nextDueAt }
+        const parallelBlockedMesh = isBlockedMeshSourceUnavailable(state)
+        const laneBusy = ['sending', 'queued', 'running', 'blocked'].includes(state.actionLane?.status)
+        const nextDueAt = holdState && (!parallelBlockedMesh || laneBusy) ? undefined
+          : [debounceUntil, parallelBlockedMesh ? state.actionLane?.retryAt : holdState ? state.retryAt : null].filter(Boolean).sort().at(-1)
+        return { status: 'accepted', generation, jobId, artifactId: artifact.artifactPath.split('/').at(-1), nextDueAt }
       })
     },
     async read() {
       const snap = await ref.get()
       return snap.exists ? snap.data() : null
     },
-    async readActionTasks({ requestId, cursor = null, limit = 100 }) {
+    async readActionTasks({ requestId, cursor = null, limit = 100, now = new Date().toISOString() }) {
       if (!Number.isInteger(limit) || limit < 1 || limit > 100) throw new Error('education_sync_action_page_invalid')
       const snap = await ref.get()
       if (!snap.exists) throw new Error('education_sync_action_request_missing')
       const state = snap.data()
-      if (state.requestId !== requestId || state.status !== 'running' || !state.claimTokenHash
-        || !Number.isInteger(state.sendingActionThroughGeneration)) throw new Error('education_sync_action_request_unclaimed')
-      const lower = state.sendingActionAfterGeneration ?? 0
-      const upper = state.sendingActionThroughGeneration
+      const execution = resolveEducationSyncExecution(state, { requestId, now })
+      if (!execution || !Number.isInteger(execution.actionThroughGeneration)) throw new Error('education_sync_action_request_unclaimed')
+      const lower = execution.actionAfterGeneration ?? 0
+      const upper = execution.actionThroughGeneration
       const after = cursor ? decodeActionCursor(cursor) : { requestId, lower, upper, generation: lower, id: '' }
       if (after.requestId !== requestId || after.lower !== lower || after.upper !== upper) throw new Error('education_sync_action_cursor_invalid')
-      if (after.generation < (state.sendingActionAfterGeneration ?? 0)
-        || after.generation > state.sendingActionThroughGeneration) throw new Error('education_sync_action_cursor_invalid')
+      if (after.generation < lower || after.generation > upper) throw new Error('education_sync_action_cursor_invalid')
       let query = eventCollection.where('kind', '==', 'action')
-        .where('generation', '>', state.sendingActionAfterGeneration ?? 0)
-        .where('generation', '<=', state.sendingActionThroughGeneration)
+        .where('generation', '>', lower)
+        .where('generation', '<=', upper)
         .orderBy('generation').orderBy('__name__').limit(limit + 1)
       if (cursor) query = query.startAfter(after.generation, after.id)
       const page = await query.get()
@@ -282,6 +303,7 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
         const snap = await tx.get(ref)
         if (!snap.exists) return null
         const state = snap.data()
+        if (isBlockedMeshSourceUnavailable(state)) return claimActionLaneOnBlockedMesh({ tx, ref, state, now, workerId })
         if (state.status === 'sending') {
           if (state.leaseUntil > now) return null
           tx.set(ref, { ...state, status: 'uncertain', uncertainAt: now, lastErrorCode: 'dispatch_lease_expired',
@@ -327,6 +349,13 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
     async markQueued({ requestId, workerId, now, queueReceiptId = null }) {
       await db.runTransaction(async (tx) => {
         const snap = await tx.get(ref)
+        const actionLane = snap.exists && snap.data().actionLane?.requestId === requestId ? snap.data().actionLane : null
+        if (actionLane) {
+          if (actionLane.workerId !== workerId || actionLane.status !== 'sending' || !(actionLane.leaseUntil > now)) return
+          tx.set(ref, { ...snap.data(), actionLane: { ...actionLane, status: 'queued', queuedAt: now,
+            leaseUntil: null, retryAt: null, ...(queueReceiptId ? { queueReceiptId } : {}) } }, { merge: false })
+          return
+        }
         if (!snap.exists || snap.data().requestId !== requestId || snap.data().workerId !== workerId
           || snap.data().status !== 'sending' || !(snap.data().leaseUntil > now)) return
         const state = snap.data()
@@ -337,6 +366,13 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
     async markUncertain({ requestId, workerId, now, code }) {
       await db.runTransaction(async (tx) => {
         const snap = await tx.get(ref)
+        const actionLane = snap.exists && snap.data().actionLane?.requestId === requestId ? snap.data().actionLane : null
+        if (actionLane) {
+          if (actionLane.workerId !== workerId || actionLane.status !== 'sending') return
+          tx.set(ref, { ...snap.data(), actionLane: { ...actionLane, status: 'uncertain', uncertainAt: now,
+            lastErrorCode: code, retryAt: new Date(Date.parse(now) + 60_000).toISOString(), leaseUntil: null } }, { merge: false })
+          return
+        }
         if (!snap.exists || snap.data().requestId !== requestId || snap.data().workerId !== workerId || snap.data().status !== 'sending') return
         const state = snap.data()
         tx.set(ref, { ...state, status: 'uncertain', uncertainAt: now, lastErrorCode: code,
@@ -348,6 +384,14 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
         const snap = await tx.get(ref)
         if (!snap.exists) return { status: 'missing' }
         const state = snap.data()
+        const actionLane = state.actionLane?.requestId === requestId ? state.actionLane : null
+        if (actionLane) {
+          if (actionLane.status === 'running' && actionLane.workflowLeaseUntil > now) return { status: 'running' }
+          if (!['sending', 'queued', 'uncertain', 'running'].includes(actionLane.status)) return { status: actionLane.status }
+          tx.set(ref, { ...state, actionLane: { ...actionLane, status: 'running', claimTokenHash: tokenHash,
+            claimedAt: now, workflowLeaseUntil: new Date(Date.parse(now) + 6 * 60 * 60_000).toISOString() } }, { merge: false })
+          return { status: 'claimed', scope: 'action' }
+        }
         if (state.requestId !== requestId) return { status: 'stale_request' }
         if (state.status === 'running' && state.workflowLeaseUntil > now) return { status: 'running' }
         if (!['sending', 'queued', 'uncertain', 'running'].includes(state.status)) return { status: state.status }
@@ -359,6 +403,13 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
     async heartbeatClaim({ requestId, tokenHash, now }) {
       return db.runTransaction(async (tx) => {
         const snap = await tx.get(ref)
+        const actionLane = snap.exists && snap.data().actionLane?.requestId === requestId ? snap.data().actionLane : null
+        if (actionLane) {
+          if (actionLane.claimTokenHash !== tokenHash || actionLane.status !== 'running' || !(actionLane.workflowLeaseUntil > now)) return { status: 'invalid_claim' }
+          tx.set(ref, { ...snap.data(), actionLane: { ...actionLane,
+            workflowLeaseUntil: new Date(Date.parse(now) + 6 * 60 * 60_000).toISOString(), heartbeatAt: now } }, { merge: false })
+          return { status: 'running', scope: 'action' }
+        }
         if (!snap.exists || snap.data().requestId !== requestId || snap.data().claimTokenHash !== tokenHash
           || snap.data().status !== 'running' || !(snap.data().workflowLeaseUntil > now)) return { status: 'invalid_claim' }
         tx.set(ref, { ...snap.data(), workflowLeaseUntil: new Date(Date.parse(now) + 6 * 60 * 60_000).toISOString(), heartbeatAt: now }, { merge: false })
@@ -367,10 +418,11 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
     },
     async completeClaim({ requestId, tokenHash, now }) {
       const preliminary = await ref.get()
-      if (!preliminary.exists || preliminary.data().requestId !== requestId || preliminary.data().claimTokenHash !== tokenHash
-        || preliminary.data().status !== 'running') return { status: 'invalid_claim' }
-      const frozenAfter = preliminary.data().sendingActionAfterGeneration ?? 0
-      const frozenThrough = preliminary.data().sendingActionThroughGeneration
+      const snapshotState = preliminary.exists ? preliminary.data() : null
+      const execution = resolveEducationSyncExecution(snapshotState, { requestId, tokenHash, now })
+      if (!execution) return { status: 'invalid_claim' }
+      const frozenAfter = execution.actionAfterGeneration ?? 0
+      const frozenThrough = execution.actionThroughGeneration
       if (Number.isInteger(frozenThrough) && frozenThrough > frozenAfter) {
         let cursor = null
         while (true) {
@@ -388,15 +440,31 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
       }
       return db.runTransaction(async (tx) => {
         const snap = await tx.get(ref)
-        if (!snap.exists || snap.data().requestId !== requestId || snap.data().claimTokenHash !== tokenHash
-          || snap.data().status !== 'running' || !(snap.data().workflowLeaseUntil > now)) return { status: 'invalid_claim' }
-        const state = snap.data()
-        const completedActions = state.sendingActionThroughGeneration ?? state.completedActionGeneration ?? 0
-        const pending = (state.generation ?? 0) > (state.sendingGeneration ?? 0)
-          || (state.pendingActionThroughGeneration ?? 0) > completedActions
-        tx.set(ref, { ...state, status: pending ? 'pending' : 'completed', completedRequestId: requestId,
+        const state = snap.exists ? snap.data() : null
+        const currentExecution = resolveEducationSyncExecution(state, { requestId, tokenHash, now })
+        const currentLane = currentExecution?.scope === 'action' ? state.actionLane : null
+        if (currentLane) {
+          if (currentLane.actionAfterGeneration !== frozenAfter || currentLane.actionThroughGeneration !== frozenThrough) return { status: 'invalid_claim' }
+          const pendingThrough = Number.isInteger(state.pendingActionThroughGeneration) && state.pendingActionThroughGeneration > frozenThrough
+            ? state.pendingActionThroughGeneration : null
+          const pendingAfter = pendingThrough === null ? null : Math.max(state.pendingActionAfterGeneration ?? frozenThrough, frozenThrough)
+          const pendingKinds = pendingThrough === null ? (state.pendingKinds ?? []).filter((kind) => kind !== 'action')
+            : [...new Set([...(state.pendingKinds ?? []), 'action'])]
+          tx.set(ref, { ...state, completedActionGeneration: Math.max(state.completedActionGeneration ?? 0, frozenThrough),
+            pendingActionAfterGeneration: pendingAfter, pendingActionThroughGeneration: pendingThrough, pendingKinds,
+            actionAfterGeneration: pendingAfter, actionThroughGeneration: pendingThrough,
+            actionLane: { ...currentLane, status: 'completed', claimTokenHash: null, workflowLeaseUntil: null,
+              leaseUntil: null, retryAt: null, completedAt: now } }, { merge: false })
+          return { status: 'completed', scope: 'action' }
+        }
+        if (!currentExecution || currentExecution.scope !== 'request') return { status: 'invalid_claim' }
+        const currentState = snap.data()
+        const completedActions = currentState.sendingActionThroughGeneration ?? currentState.completedActionGeneration ?? 0
+        const pending = (currentState.generation ?? 0) > (currentState.sendingGeneration ?? 0)
+          || (currentState.pendingActionThroughGeneration ?? 0) > completedActions
+        tx.set(ref, { ...currentState, status: pending ? 'pending' : 'completed', completedRequestId: requestId,
           completedAt: now, requestId: null, claimTokenHash: null, workflowLeaseUntil: null, retryAt: null, leaseUntil: null,
-          completedActionGeneration: Math.max(state.completedActionGeneration ?? 0, completedActions),
+          completedActionGeneration: Math.max(currentState.completedActionGeneration ?? 0, completedActions),
           sendingKinds: null, sendingGeneration: null, sendingActionAfterGeneration: null, sendingActionThroughGeneration: null,
           actionAfterGeneration: null, actionThroughGeneration: null }, { merge: false })
         return { status: pending ? 'pending' : 'completed' }
@@ -405,6 +473,13 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
     async failClaim({ requestId, tokenHash, now, retryAt }) {
       return db.runTransaction(async (tx) => {
         const snap = await tx.get(ref)
+        const actionLane = snap.exists && snap.data().actionLane?.requestId === requestId ? snap.data().actionLane : null
+        if (actionLane) {
+          if (actionLane.claimTokenHash !== tokenHash || actionLane.status !== 'running' || !(actionLane.workflowLeaseUntil > now)) return { status: 'invalid_claim' }
+          tx.set(ref, { ...snap.data(), actionLane: { ...actionLane, status: 'pending', failedAt: now,
+            claimTokenHash: null, workflowLeaseUntil: null, retryAt } }, { merge: false })
+          return { status: 'pending', scope: 'action' }
+        }
         if (!snap.exists || snap.data().requestId !== requestId || snap.data().claimTokenHash !== tokenHash
           || snap.data().status !== 'running' || !(snap.data().workflowLeaseUntil > now)) return { status: 'invalid_claim' }
         const state = snap.data()
@@ -416,6 +491,13 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
       if (!['permission_required', 'source_unavailable', 'manual_review_required'].includes(reasonCode)) return { status: 'invalid_reason' }
       return db.runTransaction(async (tx) => {
         const snap = await tx.get(ref)
+        const actionLane = snap.exists && snap.data().actionLane?.requestId === requestId ? snap.data().actionLane : null
+        if (actionLane) {
+          if (actionLane.claimTokenHash !== tokenHash || actionLane.status !== 'running' || !(actionLane.workflowLeaseUntil > now)) return { status: 'invalid_claim' }
+          tx.set(ref, { ...snap.data(), actionLane: { ...actionLane, status: 'blocked', blockedReasonCode: reasonCode,
+            blockedAt: now, claimTokenHash: null, workflowLeaseUntil: null, retryAt: null } }, { merge: false })
+          return { status: 'blocked', reasonCode, scope: 'action' }
+        }
         if (!snap.exists || snap.data().requestId !== requestId || snap.data().claimTokenHash !== tokenHash
           || snap.data().status !== 'running' || !(snap.data().workflowLeaseUntil > now)) return { status: 'invalid_claim' }
         tx.set(ref, { ...snap.data(), status: 'blocked', blockedReasonCode: reasonCode, blockedAt: now,
@@ -426,8 +508,16 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
     async resumeBlocked({ requestId, now }) {
       return db.runTransaction(async (tx) => {
         const snap = await tx.get(ref)
+        const actionLane = snap.exists && snap.data().actionLane?.requestId === requestId ? snap.data().actionLane : null
+        if (actionLane) {
+          if (actionLane.status !== 'blocked') return { status: 'not_blocked' }
+          tx.set(ref, { ...snap.data(), actionLane: { ...actionLane, status: 'pending', blockedReasonCode: null,
+            resumedAt: now, retryAt: null } }, { merge: false })
+          return { status: 'pending', requestId, scope: 'action' }
+        }
         if (!snap.exists || snap.data().requestId !== requestId || snap.data().status !== 'blocked') return { status: 'not_blocked' }
         const state = snap.data()
+        if (['sending', 'queued', 'running', 'uncertain', 'pending', 'blocked'].includes(state.actionLane?.status)) return { status: 'action_busy' }
         const coalesceMeshGeneration = isExplicitMeshSourceUnavailableBlock(state, state.pendingKinds)
         tx.set(ref, { ...state, status: 'pending', blockedReasonCode: null, resumedAt: now,
           ...(coalesceMeshGeneration ? { sendingGeneration: state.generation,
@@ -440,6 +530,13 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
     async fail({ requestId, workerId, now, retryAt }) {
       return db.runTransaction(async (tx) => {
         const snap = await tx.get(ref)
+        const actionLane = snap.exists && snap.data().actionLane?.requestId === requestId ? snap.data().actionLane : null
+        if (actionLane) {
+          if (actionLane.workerId !== workerId || actionLane.status !== 'sending') return { status: 'stale_request' }
+          tx.set(ref, { ...snap.data(), actionLane: { ...actionLane, status: 'pending', retryAt,
+            failedAt: now, leaseUntil: null } }, { merge: false })
+          return { status: 'pending', scope: 'action' }
+        }
         if (!snap.exists || snap.data().requestId !== requestId || snap.data().workerId !== workerId || snap.data().status !== 'sending') return { status: 'stale_request' }
         const state = snap.data()
         tx.set(ref, { ...state, status: 'pending', retryAt, failedAt: now, leaseUntil: null }, { merge: false })
@@ -501,6 +598,55 @@ function isExplicitMeshSourceUnavailableBlock(state, pendingKinds) {
     && Array.isArray(pendingKinds)
     && pendingKinds.every((pendingKind) => pendingKind === 'mesh')
     && !hasActionThroughGeneration(state)
+}
+
+function isBlockedMeshSourceUnavailable(state) {
+  return state.status === 'blocked' && state.blockedReasonCode === 'source_unavailable'
+    && Array.isArray(state.sendingKinds) && state.sendingKinds.length === 1 && state.sendingKinds[0] === 'mesh'
+}
+
+function claimActionLaneOnBlockedMesh({ tx, ref, state, now, workerId }) {
+  const previous = state.actionLane ?? null
+  let lane = previous
+  if (lane && lane.status === 'sending') {
+    if (lane.leaseUntil > now) return null
+    lane = { ...lane, status: 'uncertain', uncertainAt: now, lastErrorCode: 'dispatch_lease_expired', retryAt: now, leaseUntil: null }
+    tx.set(ref, { ...state, actionLane: lane }, { merge: false })
+    return null
+  }
+  if (lane && lane.status === 'queued') {
+    const queuedAt = Date.parse(lane.queuedAt ?? '')
+    if (Number.isFinite(queuedAt) && Date.parse(now) >= queuedAt + 10 * 60_000) {
+      tx.set(ref, { ...state, actionLane: { ...lane, status: 'uncertain', uncertainAt: now,
+        lastErrorCode: 'queue_ack_expired', retryAt: now } }, { merge: false })
+    }
+    return null
+  }
+  if (lane && lane.status === 'running') {
+    if (lane.workflowLeaseUntil > now) return null
+    tx.set(ref, { ...state, actionLane: { ...lane, status: 'uncertain', uncertainAt: now,
+      lastErrorCode: 'workflow_lease_expired', claimTokenHash: null, workflowLeaseUntil: null, retryAt: now } }, { merge: false })
+    return null
+  }
+  if (lane?.status === 'blocked') return null
+  if (lane?.retryAt && lane.retryAt > now) return null
+
+  const retrying = lane && ['uncertain', 'pending'].includes(lane.status)
+  if (!retrying && state.debounceUntil > now) return null
+  const lower = retrying ? lane.actionAfterGeneration : state.pendingActionAfterGeneration
+  const upper = retrying ? lane.actionThroughGeneration : state.pendingActionThroughGeneration
+  if (!Number.isInteger(lower) || !Number.isInteger(upper) || upper <= lower
+    || !Array.isArray(state.pendingKinds) || !state.pendingKinds.includes('action')) return null
+  const requestId = retrying ? lane.requestId : randomUUID()
+  const actionLane = { ...(retrying ? lane : {}), requestId, generation: retrying ? lane.generation : state.generation,
+    sendingGeneration: retrying ? lane.sendingGeneration : state.generation, status: 'sending', workerId,
+    actionAfterGeneration: lower, actionThroughGeneration: upper,
+    leaseUntil: new Date(Date.parse(now) + 30_000).toISOString(), retryAt: null }
+  tx.set(ref, { ...state, actionLane,
+    pendingActionAfterGeneration: retrying ? state.pendingActionAfterGeneration ?? null : null,
+    pendingActionThroughGeneration: retrying ? state.pendingActionThroughGeneration ?? null : null }, { merge: false })
+  return { requestId, generation: actionLane.sendingGeneration, workKinds: ['action'],
+    actionAfterGeneration: lower, actionThroughGeneration: upper, workerId }
 }
 
 function hasActionThroughGeneration(state) {

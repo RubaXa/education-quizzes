@@ -1,15 +1,18 @@
+/** @see ../docs/decisions/independent-action-dispatch-2026-10-21.md */
 import { chmodSync, mkdirSync, renameSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { randomUUID } from 'node:crypto'
 import { prepareEventTaskArtifact, taskArtifactFingerprint, validateTaskArtifact } from './event-task-artifact.mjs'
+import { resolveEducationSyncExecution } from '../packages/telegram-notifications/application/education-sync-dispatcher.mjs'
 
 /** Materialize a frozen request as private pages, with no global source discovery.
  * @see ../docs/modules/synchronization/execution-artifact.md
  */
 export async function exportEventTaskManifest(db, store, { root, requestId, tokenHash, now = new Date().toISOString() }) {
   const state = await store.read()
-  if (!state || state.requestId !== requestId || state.status !== 'running' || state.claimTokenHash !== tokenHash
-    || !(state.workflowLeaseUntil > now)) throw new Error('claim_file_invalid')
+  const execution = resolveEducationSyncExecution(state, { requestId, tokenHash, now })
+  if (!execution) throw new Error('claim_file_invalid')
+  if (!Number.isInteger(execution.actionThroughGeneration)) throw new Error('education_sync_action_request_unclaimed')
   if (typeof store.readActionTasks !== 'function') throw new Error('task_manifest_unavailable')
   const directory = resolve(root, '.local/education-sync-dispatch/tasks', requestId)
   mkdirSync(directory, { recursive: true, mode: 0o700 })
@@ -17,7 +20,7 @@ export async function exportEventTaskManifest(db, store, { root, requestId, toke
   const pages = [], seenCursors = new Set()
   let cursor = null, taskCount = 0, doneCount = 0, legacyCount = 0
   do {
-    const page = await store.readActionTasks({ requestId, cursor, limit: 100 })
+    const page = await store.readActionTasks({ requestId, cursor, limit: 100, now })
     if (!page || !Array.isArray(page.tasks) || page.complete !== true || page.tasks.length > 100) throw new Error('task_manifest_incomplete')
     const tasks = []
     for (const row of page.tasks) {
@@ -79,11 +82,13 @@ export async function exportEventTaskManifest(db, store, { root, requestId, toke
     if (cursor) seenCursors.add(cursor)
   } while (cursor)
   const finalState = await store.read()
-  if (finalState?.requestId !== requestId || finalState.status !== 'running' || finalState.claimTokenHash !== tokenHash
-    || !(finalState.workflowLeaseUntil > now)) throw new Error('claim_file_invalid')
+  const finalExecution = resolveEducationSyncExecution(finalState, { requestId, tokenHash, now })
+  if (!finalExecution || finalExecution.scope !== execution.scope
+    || finalExecution.actionAfterGeneration !== execution.actionAfterGeneration
+    || finalExecution.actionThroughGeneration !== execution.actionThroughGeneration) throw new Error('claim_file_invalid')
   const manifest = { schemaVersion: 1, requestId, createdAt: now, state: legacyCount ? 'partial' : taskCount ? 'ready' : 'no-work',
-    coverage: { actionAfterGeneration: state.sendingActionAfterGeneration ?? state.actionAfterGeneration ?? null,
-      actionThroughGeneration: state.sendingActionThroughGeneration ?? state.actionThroughGeneration ?? null },
+    coverage: { actionAfterGeneration: execution.actionAfterGeneration ?? null,
+      actionThroughGeneration: execution.actionThroughGeneration ?? null },
     pages, taskCount, doneCount, legacyCount }
   const manifestPath = resolve(directory, 'manifest.json')
   writePrivate(manifestPath, manifest)

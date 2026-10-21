@@ -29,7 +29,7 @@
 | [src/lib/educationEventProducer.ts](../src/lib/educationEventProducer.ts) | [Очередь и исполнение](modules/synchronization/event-queue.md) | Общий конверт, атомарные действия, единая подписка и детерминированная маршрутизация | Приложение; dispatcher; Vitest |
 | [sync/event-task-artifact.mjs](../sync/event-task-artifact.mjs) | [Очередь и исполнение](modules/synchronization/execution-artifact.md) | Адресный закрытый пакет задачи, целостность, свежесть и приватный экспорт | Dispatcher; EducationSync |
 | [sync/event-task-artifact.test.mjs](../sync/event-task-artifact.test.mjs) | [Очередь и исполнение](modules/synchronization/execution-artifact.md) | Адресный закрытый пакет задачи, целостность, свежесть и приватный экспорт | EducationSync; Vitest |
-| [sync/event-task-export.mjs](../sync/event-task-export.mjs) | [Очередь и исполнение](modules/synchronization/execution-artifact.md) | Адресный закрытый пакет задачи, целостность, свежесть и приватный экспорт | Dispatcher; EducationSync |
+| [sync/event-task-export.mjs](../sync/event-task-export.mjs) | [Очередь и исполнение](modules/synchronization/execution-artifact.md) | Адресный закрытый пакет задачи с проверкой общего/action claim, точного диапазона и свежести | Dispatcher; EducationSync |
 | [sync/event-task-export.test.mjs](../sync/event-task-export.test.mjs) | [Очередь и исполнение](modules/synchronization/execution-artifact.md) | Адресный закрытый пакет задачи, целостность, свежесть и приватный экспорт | EducationSync; Vitest |
 | [docs/decisions/calendar-vacation-sticky-2026-10-19.md](decisions/calendar-vacation-sticky-2026-10-19.md) | [Каникулы и геометрия](modules/school-diary/school-calendar.md) | Подпись своего периода: sticky слева с остановкой справа, без роста высоты | Разработчик; выпуск |
 | [docs/decisions/calendar-vacation-inset-2026-10-19.md](decisions/calendar-vacation-inset-2026-10-19.md) | [Каникулы и геометрия](modules/school-diary/school-calendar.md) | Уточнение родителя: реальные отступы рамки без роста внешней высоты | Разработчик; выпуск |
@@ -824,7 +824,7 @@
 
 | [docs/services/telegram-bot/education-sync-dispatch.md](services/telegram-bot/education-sync-dispatch.md) | [Telegram service](services/telegram-bot/README.md) | Диспетчер общего EducationSync: очередь, claim, подтверждения и эксплуатация | Команда Education; оператор |
 
-| [packages/telegram-notifications/application/education-sync-dispatcher.mjs](../packages/telegram-notifications/application/education-sync-dispatcher.mjs) | [Контракт](services/telegram-bot/education-sync-dispatch.md) | Реализация: устойчивое восстановление, узкий auto-resume нового Mesh-сигнала после source_unavailable и проверка цепочки Mesh/Telegram/EducationSync | Telegram runtime; оператор; Vitest |
+| [packages/telegram-notifications/application/education-sync-dispatcher.mjs](../packages/telegram-notifications/application/education-sync-dispatcher.mjs) | [Контракт](services/telegram-bot/education-sync-dispatch.md) | Устойчивый dispatch и независимая action lane при source_unavailable МЭШ | Telegram runtime; оператор; Vitest |
 | [scripts/telegram-runtime-dependencies.test.mjs](../scripts/telegram-runtime-dependencies.test.mjs) | [Контракт](services/telegram-bot/education-sync-dispatch.md) | Регрессия production dependency closure для Telegram worker и dispatch CLI; запрет dev-only импортов | Vitest; разработчик |
 
 
@@ -838,7 +838,7 @@
 
 | [packages/telegram-notifications/operations/operation-deadline.test.mjs](../packages/telegram-notifications/operations/operation-deadline.test.mjs) | [Контракт](services/telegram-bot/operations.md) | Регрессии: устойчивое восстановление и проверка цепочки Mesh/Telegram/EducationSync | Telegram runtime; оператор; Vitest |
 
-| [scripts/education-sync-dispatch.mjs](../scripts/education-sync-dispatch.mjs) | [Контракт](services/telegram-bot/education-sync-dispatch.md) | Реализация: устойчивое восстановление и проверка цепочки Mesh/Telegram/EducationSync | Telegram runtime; оператор; Vitest |
+| [scripts/education-sync-dispatch.mjs](../scripts/education-sync-dispatch.mjs) | [Контракт](services/telegram-bot/education-sync-dispatch.md) | Безопасная диагностика Mesh/action запросов, watermark и адресный жизненный цикл claim | Telegram runtime; оператор; Vitest |
 
 | [scripts/education-sync-dispatch.test.mjs](../scripts/education-sync-dispatch.test.mjs) | [Контракт](services/telegram-bot/education-sync-dispatch.md) | Регрессии: устойчивое восстановление и проверка цепочки Mesh/Telegram/EducationSync | Telegram runtime; оператор; Vitest |
 
@@ -853,3 +853,5 @@
 | [scripts/check-requirement-copy.mjs](../scripts/check-requirement-copy.mjs) | [Управление](shared/design/README.md) | AST-проверка видимых подписей контролов, включая Git index при коммите | pre-commit; check:spec |
 | [scripts/check-requirement-copy.test.mjs](../scripts/check-requirement-copy.test.mjs) | [Управление](shared/design/README.md) | Новые запрещённые подписи отклоняются; доступность, цитаты и данные разрешены | Vitest |
 | [src/components/PracticeVariantStatus.css](../src/components/PracticeVariantStatus.css) | [Общие статусы](shared/design/statuses.md) | Общие цветовые токены проверенного, ожидающего и исправляемого варианта | День; UI Kit |
+
+| [docs/decisions/independent-action-dispatch-2026-10-21.md](decisions/independent-action-dispatch-2026-10-21.md) | [Диспетчер EducationSync](services/telegram-bot/education-sync-dispatch.md) | Независимая action lane при source_unavailable МЭШ, доказательства завершения и диагностика | Worker; оператор; EducationSync |

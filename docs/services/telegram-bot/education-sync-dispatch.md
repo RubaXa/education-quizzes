@@ -3,7 +3,7 @@ id: service.telegram-bot.education-sync-dispatch
 status: accepted
 implementation: partial
 created: 2026-10-19
-updated: 2026-10-19
+updated: 2026-10-21
 parent: service.telegram-bot
 uses:
   - shared.server-runtime
@@ -65,6 +65,8 @@ Opt-in задаёт `EDUCATION_SYNC_CODEX_PATH` (абсолютный испол
 Операторские команды `node scripts/education-sync-dispatch.mjs status|claim|heartbeat|complete|fail|block|resume` показывают различимые стадии; credential token не выводится. `events --since ISO` выдаёт ограниченный список последних opaque event IDs без payload. `enqueue-event --event-id HASH` адресно читает ledger, проверяет допустимый Mesh или подтверждённый Firestore work type и текущего зарегистрированного владельца. Work дедуплицируется по хешированным scope/work identity/type, чтобы метаданные не запускали повторную работу. Это не создание фиктивной оценки или ДЗ.
 
 Claim freezes the exact lower/upper action generation range. The existing EducationSync exporter reads these exact jobs by request and opaque page cursor; it does not scan a global inbox. Claim completion is rejected while any frozen action job is not `done`. Request output exposes counts and manifest path only; source payload/artifacts stay private. Mesh snapshot execution remains on its existing full `$education-sync` path where no typed action artifact applies.
+
+An explicitly typed `source_unavailable` Mesh-only block may carry a separate `actionLane` so new action jobs can run without resuming or rewriting the blocked Mesh request. Eligibility requires the original request to remain blocked with `sendingKinds: ['mesh']`, no action upper bound in its frozen batch, and no other pending source kind. The lane has its own request ID, claim and leases, and freezes only the pending action range. Export and completion resolve that lane by its ID and token; completion checks every job in the frozen range and advances only `completedActionGeneration`. Events received during the lane stay pending beyond its frozen upper bound for the next action lane. Expired leases and retries retain the lane ID and range, while stale claims are fenced. A blocked action lane requires explicit resume by its own request ID. Resuming the parent Mesh request while an action lane is queued, running, uncertain, pending or blocked returns `action_busy`. Permission, manual-review, mixed-source, and ambiguous/legacy blocks never gain this parallel path. Top-level Mesh claims use only their frozen `sendingAction*` range; live action watermarks cannot widen a claim or be exported as its work.
 
 Это не заявляет выпуск полного action-to-artifact workflow: локальная реализация и тесты не подтверждают deployed producer coverage, artifact freshness rollout или live completion для каждой action family.
 

@@ -1192,19 +1192,21 @@
       }
     },
     "packages/telegram-notifications/application/education-sync-dispatcher.mjs": {
-      "sha256": "eb68b15a1625ef66b35e231afa834f164e9c0703079107048336b2695b3e9a45",
-      "record": "docs/decisions/unified-education-events-2026-10-19.md",
+      "sha256": "83e7808236bf0a77b0d3d9081d86d38dbd011f478ec03497286887a0122f4d54",
+      "record": "docs/decisions/independent-action-dispatch-2026-10-21.md",
       "specs": [
-        "docs/modules/synchronization/event-queue.md",
         "docs/services/telegram-bot/education-sync-dispatch.md",
-        "docs/shared/server-runtime.md"
+        "docs/modules/synchronization/execution-artifact.md"
       ],
       "tests": [
-        "packages/telegram-notifications/application/education-sync-dispatch-store.test.mjs"
+        "packages/telegram-notifications/application/education-sync-action-store.test.mjs",
+        "packages/telegram-notifications/application/education-sync-dispatch-store.test.mjs",
+        "sync/event-task-export.test.mjs",
+        "scripts/education-sync-dispatch.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 требует одну внутреннюю очередь событий и одну подписку вместо множества source watchers; ранее поручил реализацию через Luna с проверкой root, тестами, спецификациями и выпуском в main."
+        "evidence": "По прямому поручению пользователя 21.10.2026 через EducationSync исправить удержание новых action задач блокировкой МЭШ, с независимым исполнением и честным сохранением blocked источника."
       }
     },
     "packages/telegram-notifications/application/identity.mjs": {
@@ -1913,17 +1915,21 @@
       }
     },
     "scripts/education-sync-dispatch.mjs": {
-      "sha256": "a18fc00474b05dc5c0e401784799dee76e34173cf592417913c93f2534b96a5f",
-      "record": "docs/decisions/unified-education-events-2026-10-19.md",
+      "sha256": "55a54b1e01841c82fd41beb332122d85c554685abb709c5446444d2af6905df2",
+      "record": "docs/decisions/independent-action-dispatch-2026-10-21.md",
       "specs": [
-        "docs/modules/synchronization/event-queue.md"
+        "docs/services/telegram-bot/education-sync-dispatch.md",
+        "docs/modules/synchronization/execution-artifact.md"
       ],
       "tests": [
+        "packages/telegram-notifications/application/education-sync-action-store.test.mjs",
+        "packages/telegram-notifications/application/education-sync-dispatch-store.test.mjs",
+        "sync/event-task-export.test.mjs",
         "scripts/education-sync-dispatch.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 требует одну внутреннюю очередь событий и одну подписку вместо множества source watchers; ранее поручил реализацию через Luna с проверкой root, тестами, спецификациями и выпуском в main."
+        "evidence": "По прямому поручению пользователя 21.10.2026 через EducationSync исправить удержание новых action задач блокировкой МЭШ, с независимым исполнением и честным сохранением blocked источника."
       }
     },
     "scripts/education.mjs": {
@@ -5455,18 +5461,21 @@
       }
     },
     "sync/event-task-export.mjs": {
-      "sha256": "0fa5d69e1db2d41e8587b38468619d6cbfd2919f86bf04ee6e7bc61676888813",
-      "record": "docs/decisions/unified-education-events-2026-10-19.md",
+      "sha256": "215676cbf6b74c707dad4804aacedacda40aa9cefbba4a9776a7ed749f32b5c5",
+      "record": "docs/decisions/independent-action-dispatch-2026-10-21.md",
       "specs": [
-        "docs/modules/synchronization/event-queue.md",
+        "docs/services/telegram-bot/education-sync-dispatch.md",
         "docs/modules/synchronization/execution-artifact.md"
       ],
       "tests": [
-        "sync/event-task-export.test.mjs"
+        "packages/telegram-notifications/application/education-sync-action-store.test.mjs",
+        "packages/telegram-notifications/application/education-sync-dispatch-store.test.mjs",
+        "sync/event-task-export.test.mjs",
+        "scripts/education-sync-dispatch.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 требует одну внутреннюю очередь событий и одну подписку вместо множества source watchers; ранее поручил реализацию через Luna с проверкой root, тестами, спецификациями и выпуском в main."
+        "evidence": "По прямому поручению пользователя 21.10.2026 через EducationSync исправить удержание новых action задач блокировкой МЭШ, с независимым исполнением и честным сохранением blocked источника."
       }
     },
     "sync/help-request-cache.mjs": {

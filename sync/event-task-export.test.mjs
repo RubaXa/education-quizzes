@@ -27,7 +27,7 @@ async function fixture() {
   rows.set(`operatorSyncJobs/${jobId}`, { familyId: 'f', childId: 'c', status: 'queued' })
   const task = { eventId: event.eventId, jobId, artifactPath: artifact.artifactPath, kind: 'review-quiz', generation: 3 }
   const state = { requestId: 'request', status: 'running', claimTokenHash: 'secret-hash', workflowLeaseUntil: '2026-10-19T10:10:00.000Z',
-    actionAfterGeneration: 2, actionThroughGeneration: 3 }
+    actionAfterGeneration: 2, actionThroughGeneration: 3, sendingActionAfterGeneration: 2, sendingActionThroughGeneration: 3 }
   const store = { read: vi.fn(async () => state), readActionTasks: vi.fn(async () => ({ tasks: [task], complete: true, nextCursor: null })) }
   return { root, db, rows, store, state, task, options: { root, requestId: 'request', tokenHash: 'secret-hash', now } }
 }
@@ -44,7 +44,30 @@ describe('request scoped task export', () => {
     const page = JSON.parse(readFileSync(pagePath, 'utf8'))
     expect(page.tasks[0].artifact.inputs.source.answers.q).toBe('4')
     expect(statSync(pagePath).mode & 0o777).toBe(0o600)
-    expect(store.readActionTasks).toHaveBeenCalledExactlyOnceWith({ requestId: 'request', cursor: null, limit: 100 })
+    expect(store.readActionTasks).toHaveBeenCalledExactlyOnceWith({ requestId: 'request', cursor: null, limit: 100, now })
+  })
+
+  it('exports a nested action lane while the outer Mesh request remains blocked', async () => {
+    const { db, store, options, state } = await fixture()
+    Object.assign(state, { requestId: 'blocked-mesh-request', status: 'blocked', blockedReasonCode: 'source_unavailable',
+      sendingKinds: ['mesh'], sendingGeneration: 19, pendingKinds: ['mesh', 'action'],
+      actionLane: { requestId: 'independent-action-request', status: 'running', claimTokenHash: 'secret-hash',
+        workflowLeaseUntil: '2026-10-19T10:10:00.000Z', generation: 162, sendingGeneration: 162,
+        actionAfterGeneration: 18, actionThroughGeneration: 43 } })
+    const result = await exportEventTaskManifest(db, store, { ...options, requestId: 'independent-action-request' })
+    expect(result).toMatchObject({ status: 'ready', requestId: 'independent-action-request', taskCount: 1 })
+    const manifest = JSON.parse(readFileSync(result.manifestPath, 'utf8'))
+    expect(manifest.coverage).toEqual({ actionAfterGeneration: 18, actionThroughGeneration: 43 })
+    expect(state).toMatchObject({ status: 'blocked', requestId: 'blocked-mesh-request', blockedReasonCode: 'source_unavailable' })
+  })
+
+  it('does not export pending action events as part of a running Mesh request without a frozen action range', async () => {
+    const { db, store, options, state } = await fixture()
+    Object.assign(state, { requestId: 'mesh-request', status: 'running', sendingKinds: ['mesh'], sendingGeneration: 19,
+      sendingActionAfterGeneration: 0, sendingActionThroughGeneration: null, actionAfterGeneration: 18, actionThroughGeneration: 43 })
+    await expect(exportEventTaskManifest(db, store, { ...options, requestId: 'mesh-request' }))
+      .rejects.toThrow('education_sync_action_request_unclaimed')
+    expect(store.readActionTasks).not.toHaveBeenCalled()
   })
 
   it('rejects a foreign or expired claim before reading tasks', async () => {
@@ -66,7 +89,7 @@ describe('request scoped task export', () => {
       .mockResolvedValueOnce({ tasks: [], complete: true, nextCursor: null })
     const result = await exportEventTaskManifest(db, store, options)
     expect(result).toMatchObject({ status: 'no-work', taskCount: 0, doneCount: 1 })
-    expect(store.readActionTasks).toHaveBeenLastCalledWith({ requestId: 'request', cursor: 'cursor', limit: 100 })
+    expect(store.readActionTasks).toHaveBeenLastCalledWith({ requestId: 'request', cursor: 'cursor', limit: 100, now })
   })
 
   it('rejects repeated cursors rather than spinning forever', async () => {

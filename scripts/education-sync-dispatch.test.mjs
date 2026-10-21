@@ -9,6 +9,31 @@ const REQUEST = '01a150dc-e067-7cc2-b08f-f573bf83e6e3'
 function output() { let value = ''; return { write: (part) => { value += part }, value: () => value } }
 
 describe('education sync dispatch CLI', () => {
+  it('reports action backlog and its independent lane without leaking private claim fields', async () => {
+    const out = output()
+    const state = { status: 'blocked', generation: 162, sendingGeneration: 19, pendingKinds: ['mesh', 'action', 'action', 'unknown'],
+      sendingKinds: ['mesh'], blockedReasonCode: 'source_unavailable', completedActionGeneration: 18,
+      pendingActionAfterGeneration: 18, pendingActionThroughGeneration: 43, claimTokenHash: 'PRIVATE_HASH',
+      actionLane: { status: 'running', requestId: REQUEST, actionAfterGeneration: 18, actionThroughGeneration: 43,
+        claimTokenHash: 'PRIVATE_LANE_HASH', sourcePayload: 'PRIVATE_PAYLOAD' } }
+    expect(await main(['status'], { env: { TELEGRAM_FIRESTORE_PROJECT_ID: 'petr-education' }, out, err: output(),
+      createDb: () => ({ terminate: async () => {} }), createStore: () => ({ read: async () => state }) })).toBe(0)
+    expect(JSON.parse(out.value())).toMatchObject({ status: 'blocked', pendingKinds: ['mesh', 'action'],
+      completedActionGeneration: 18, pendingActionThroughGeneration: 43,
+      actionLane: { status: 'running', requestId: REQUEST, actionAfterGeneration: 18, actionThroughGeneration: 43 } })
+    expect(out.value()).not.toContain('PRIVATE')
+    expect(out.value()).not.toContain('unknown')
+  })
+
+  it('returns a nonzero exit code when an active action lane prevents resuming Mesh', async () => {
+    const out = output()
+    const code = await main(['resume', '--request', REQUEST], { env: { TELEGRAM_FIRESTORE_PROJECT_ID: 'petr-education' },
+      out, err: output(), createDb: () => ({ terminate: async () => {} }),
+      createStore: () => ({ resumeBlocked: async () => ({ status: 'action_busy' }) }) })
+    expect(code).toBe(1)
+    expect(JSON.parse(out.value())).toEqual({ status: 'action_busy' })
+  })
+
   it('claims into a private file and completes only with its matching token', async () => {
     const root = mkdtempSync(resolve(tmpdir(), 'education-sync-claim-'))
     let out = output()

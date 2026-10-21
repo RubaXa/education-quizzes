@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/independent-action-dispatch-2026-10-21.md */
 import { createHash, randomUUID } from 'node:crypto'
 import { chmodSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
@@ -57,7 +58,7 @@ export async function main(args = process.argv.slice(2), { env = process.env, ou
       result = await store.resumeBlocked({ requestId: values.request, now: new Date().toISOString() })
     } else throw new Error('usage_invalid')
     out.write(`${JSON.stringify(result)}\n`)
-    return ['invalid_claim', 'stale_request', 'invalid_reason', 'not_blocked', 'incomplete_actions'].includes(result.status) ? 1 : 0
+    return ['invalid_claim', 'stale_request', 'invalid_reason', 'not_blocked', 'incomplete_actions', 'action_busy'].includes(result.status) ? 1 : 0
   } catch (error) {
     err.write(`${safeError(error)}\n`)
     return 1
@@ -162,10 +163,24 @@ function summarize(state) {
     ...(Array.isArray(state.sendingKinds) ? { sendingKinds: safeKinds(state.sendingKinds) } : {}),
     ...(state.requestId ? { requestId: state.requestId } : {}), ...(state.retryAt ? { retryAt: state.retryAt } : {}),
     ...(state.lastErrorCode ? { lastErrorCode: state.lastErrorCode } : {}),
-    ...(state.blockedReasonCode ? { blockedReasonCode: state.blockedReasonCode } : {}) }
+    ...(state.blockedReasonCode ? { blockedReasonCode: state.blockedReasonCode } : {}),
+    ...actionWatermarks(state),
+    ...(state.actionLane && typeof state.actionLane === 'object' ? { actionLane: summarizeActionLane(state.actionLane) } : {}) }
 }
 
-function safeKinds(value) { return [...new Set(value.filter((kind) => kind === 'mesh' || kind === 'work'))] }
+function actionWatermarks(state) {
+  const keys = ['completedActionGeneration', 'pendingActionAfterGeneration', 'pendingActionThroughGeneration',
+    'sendingActionAfterGeneration', 'sendingActionThroughGeneration']
+  return Object.fromEntries(keys.filter((key) => Number.isInteger(state[key]) && state[key] >= 0).map((key) => [key, state[key]]))
+}
+
+function summarizeActionLane(lane) {
+  const keys = ['status', 'requestId', 'generation', 'sendingGeneration', 'actionAfterGeneration', 'actionThroughGeneration',
+    'retryAt', 'lastErrorCode', 'blockedReasonCode']
+  return Object.fromEntries(keys.filter((key) => typeof lane[key] === 'string' || Number.isInteger(lane[key])).map((key) => [key, lane[key]]))
+}
+
+function safeKinds(value) { return [...new Set(value.filter((kind) => ['mesh', 'work', 'action'].includes(kind)))] }
 
 function parse(tokens) {
   const result = {}
