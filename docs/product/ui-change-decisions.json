@@ -2639,22 +2639,21 @@
       }
     },
     "src/UiKit.tsx": {
-      "sha256": "32aeaf22eed1b41b43e919de873e38a3f4316cd83ca7a34d165ebbf339503db3",
-      "record": "docs/decisions/collapsed-variant-status-2026-10-21.md",
+      "sha256": "5defbf01158a32580afb22331a09e0ea88155333961fab0404a379689c177b8e",
+      "record": "docs/decisions/upload-photo-timestamp-2026-10-21.md",
       "specs": [
         "docs/modules/school-diary/day-page.md",
-        "docs/shared/design/README.md"
+        "docs/shared/design/components.md"
       ],
       "tests": [
-        "src/lib/practiceVariantViewModel.test.ts",
-        "src/components/ProblemGroup.layout.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/DayDashboard.warmStart.test.tsx",
-        "scripts/check-requirement-copy.test.mjs"
+        "src/lib/uploadTimestamp.test.ts",
+        "src/components/WorkPhotoGallery.test.tsx",
+        "src/components/LinkedWorkPhotos.test.tsx",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос 21.10.2026: фактический статус виден в свёрнутых заголовках независимо от выбора; переключатель является единственным индикатором обязательности."
+        "evidence": "Прямой запрос пользователя 21.10.2026: показывать время загрузки каждой фотографии ребёнка в подсказке и доступном названии."
       }
     },
     "src/WeekendMathSlot.css": {
@@ -2696,41 +2695,39 @@
       }
     },
     "src/components/ArtifactAvatar.css": {
-      "sha256": "56c9be04a131d3c243693ff297849d3c9852ed6ba83ae3d31d3e2c74111c4a30",
-      "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
+      "sha256": "34417b0f7bbdfe1cae1dd669b6c1233b125ce960c2d5769bd85187909be46b23",
+      "record": "docs/decisions/upload-photo-timestamp-2026-10-21.md",
       "specs": [
-        "docs/shared/specification-system.md"
+        "docs/modules/school-diary/day-page.md",
+        "docs/shared/design/components.md"
       ],
       "tests": [
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
+        "src/lib/uploadTimestamp.test.ts",
+        "src/components/WorkPhotoGallery.test.tsx",
+        "src/components/LinkedWorkPhotos.test.tsx",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя 16.10.2026 внедрить согласованную структуру спецификаций, перенести ссылки в коде и проверить сохранность требований; изменение предметного поведения не выполнялось."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "342db27ddf1647d5c8a7220b9ce228e1b8ea2aca62044cfd8da97ce11861fa90"
+        "evidence": "Прямой запрос пользователя 21.10.2026: показывать время загрузки каждой фотографии ребёнка в подсказке и доступном названии."
       }
     },
     "src/components/ArtifactAvatar.tsx": {
-      "sha256": "cbd2274f3234eb55a996ac6b928137c922396a6cf8e01c016f6dcdc2aa9f3c1b",
-      "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
+      "sha256": "9b483a52c5b0b47ec5ef2037174627c05b6d32291a749eadabc4dc582cc0f4fb",
+      "record": "docs/decisions/upload-photo-timestamp-2026-10-21.md",
       "specs": [
-        "docs/shared/specification-system.md"
+        "docs/modules/school-diary/day-page.md",
+        "docs/shared/design/components.md"
       ],
       "tests": [
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
+        "src/lib/uploadTimestamp.test.ts",
+        "src/components/WorkPhotoGallery.test.tsx",
+        "src/components/LinkedWorkPhotos.test.tsx",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя 16.10.2026 внедрить согласованную структуру спецификаций, перенести ссылки в коде и проверить сохранность требований; изменение предметного поведения не выполнялось."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "26e0045a7289b12bbe83ac326e63de1d634e67af9f405ed3c84be85344a30666"
+        "evidence": "Прямой запрос пользователя 21.10.2026: показывать время загрузки каждой фотографии ребёнка в подсказке и доступном названии."
       }
     },
     "src/components/AssignmentBrief.css": {
@@ -3109,43 +3106,39 @@
       }
     },
     "src/components/LinkedWorkPhotos.css": {
-      "sha256": "7773c81e7a72119c86a6630df8e3e79dc6d644536576a4670348b3964637ea02",
-      "record": "docs/decisions/upload-origin-links-2026-10-18.md",
+      "sha256": "81054ffbfaf0c6f50db0415ff288edf0b252a21560062e7a23b0bef7811a9014",
+      "record": "docs/decisions/upload-photo-timestamp-2026-10-21.md",
       "specs": [
-        "docs/modules/materials/storage-privacy.md",
         "docs/modules/school-diary/day-page.md",
         "docs/shared/design/components.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/WeekendMathSlot.test.tsx",
-        "src/lib/taskUploadPresentation.test.ts",
+        "src/lib/uploadTimestamp.test.ts",
+        "src/components/WorkPhotoGallery.test.tsx",
         "src/components/LinkedWorkPhotos.test.tsx",
         "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 18.10: файл должен оставаться только в месте загрузки; в других заданиях нужны связи на него, без перемешивания элементов загрузки."
+        "evidence": "Прямой запрос пользователя 21.10.2026: показывать время загрузки каждой фотографии ребёнка в подсказке и доступном названии."
       }
     },
     "src/components/LinkedWorkPhotos.tsx": {
-      "sha256": "8418b5b9725edbadb81527d83721daefc97419502c90cc2b585f09e6cc4d6cf6",
-      "record": "docs/decisions/upload-origin-links-2026-10-18.md",
+      "sha256": "e7fba0a851853d0b0a12144edcc3ad9b486c15f4717d988589bc3f146e0d8a16",
+      "record": "docs/decisions/upload-photo-timestamp-2026-10-21.md",
       "specs": [
-        "docs/modules/materials/storage-privacy.md",
         "docs/modules/school-diary/day-page.md",
         "docs/shared/design/components.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/WeekendMathSlot.test.tsx",
-        "src/lib/taskUploadPresentation.test.ts",
+        "src/lib/uploadTimestamp.test.ts",
+        "src/components/WorkPhotoGallery.test.tsx",
         "src/components/LinkedWorkPhotos.test.tsx",
         "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 18.10: файл должен оставаться только в месте загрузки; в других заданиях нужны связи на него, без перемешивания элементов загрузки."
+        "evidence": "Прямой запрос пользователя 21.10.2026: показывать время загрузки каждой фотографии ребёнка в подсказке и доступном названии."
       }
     },
     "src/components/MaterialReader.tsx": {
@@ -3864,24 +3857,21 @@
       }
     },
     "src/components/WorkPhotoGallery.tsx": {
-      "sha256": "6087a047ef96588e9156a1ce04a03f1ce98d1fac977d8d32070cdd3bf16339e4",
-      "record": "docs/decisions/work-photo-expand-2026-10-18.md",
+      "sha256": "25532d7a0137ad2431235c93171e8226f1a9b8ce59ca950e9459e3d588333aff",
+      "record": "docs/decisions/upload-photo-timestamp-2026-10-21.md",
       "specs": [
         "docs/modules/school-diary/day-page.md",
-        "docs/shared/design/components.md",
-        "docs/product/ui-change-control.md"
+        "docs/shared/design/components.md"
       ],
       "tests": [
+        "src/lib/uploadTimestamp.test.ts",
         "src/components/WorkPhotoGallery.test.tsx",
-        "src/WeekendMathSlot.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/UiKit.test.tsx",
-        "scripts/work-photo-consumers.test.mjs",
-        "src/components/WorkPhotoGallery.layout.test.mjs"
+        "src/components/LinkedWorkPhotos.test.tsx",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 18.10 передал жалобу ребёнка: пропало раскрытие собственных фото; требует восстановить действие и изменить процесс для предотвращения повторения."
+        "evidence": "Прямой запрос пользователя 21.10.2026: показывать время загрузки каждой фотографии ребёнка в подсказке и доступном названии."
       }
     },
     "src/components/WorkReview.tsx": {
@@ -5803,6 +5793,24 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Прямой запрос 21.10.2026: фактический статус виден в свёрнутых заголовках независимо от выбора; переключатель является единственным индикатором обязательности."
+      }
+    },
+    "src/lib/uploadTimestamp.ts": {
+      "sha256": "a23707f6168025fd7fb08fc42f7b1a0ac4d9affa84f90ca72c92f50a435663c1",
+      "record": "docs/decisions/upload-photo-timestamp-2026-10-21.md",
+      "specs": [
+        "docs/modules/school-diary/day-page.md",
+        "docs/shared/design/components.md"
+      ],
+      "tests": [
+        "src/lib/uploadTimestamp.test.ts",
+        "src/components/WorkPhotoGallery.test.tsx",
+        "src/components/LinkedWorkPhotos.test.tsx",
+        "src/UiKit.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос пользователя 21.10.2026: показывать время загрузки каждой фотографии ребёнка в подсказке и доступном названии."
       }
     }
   }

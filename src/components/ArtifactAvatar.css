@@ -1,3 +1,4 @@
+/* @see ../../docs/decisions/upload-photo-timestamp-2026-10-21.md */
 /* @see ../../docs/shared/design/statuses.md#components — one status frame for day and weekend work images. */
 .artifact-avatar{box-sizing:border-box;position:relative;display:block;flex:none;width:38px;height:38px;padding:2px;border:1px solid #d9cfea;border-radius:7px;background:#fff}
 .artifact-avatar-image{display:grid;place-items:center;width:32px;height:32px;overflow:hidden;border-radius:4px}
@@ -7,3 +8,4 @@
 .artifact-avatar-indicator.reviewed{background:var(--edu-status-success-bg);color:var(--edu-status-success-ink)}
 .artifact-avatar-indicator.failed{background:var(--edu-status-error-bg);color:var(--edu-status-error-ink)}
 .artifact-avatar-indicator.paused{background:var(--edu-status-attention-bg);color:var(--edu-status-attention-ink)}
+.work-upload-time{margin:0 0 6px;color:var(--edu-text-secondary);font-size:.8rem;line-height:1.35}

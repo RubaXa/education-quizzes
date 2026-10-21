@@ -1,3 +1,4 @@
+/* @see ../../docs/decisions/upload-photo-timestamp-2026-10-21.md */
 /* @see ../../docs/decisions/upload-origin-links-2026-10-18.md */
 /* @see ../../docs/modules/materials/storage-privacy.md#multi-task-photo */
 .linked-work-photos{display:grid;gap:6px;margin:10px 0;font-size:.84rem;line-height:1.5}
@@ -5,3 +6,4 @@
 .linked-work-photo-reference svg{flex:none;margin-top:3px}.linked-work-photo-reference span{overflow-wrap:anywhere;text-decoration:underline;text-underline-offset:3px}
 .linked-work-photo-reference:focus-visible{outline:2px solid var(--edu-focus);outline-offset:3px;border-radius:4px}
 .linked-work-photo-view{padding:8px 0}.linked-work-photo-view p{margin:0 0 8px;color:var(--edu-text-secondary)}
+.linked-work-photo-view .work-upload-time{margin-bottom:6px}

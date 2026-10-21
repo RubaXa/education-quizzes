@@ -269,8 +269,9 @@ it('preserves resolved source photos and observations beside the linked quiz for
       expect(quiz).not.toBeNull()
       expect(quiz.textContent).toContain('Сказание о белгородском киселе')
       expect(quiz.textContent).toContain('Видны план старца и главная мысль.')
-      const photo=quiz.querySelector<HTMLButtonElement>('[aria-label="Открыть фото 1: Проверено"]')!
+      const photo=quiz.querySelector<HTMLButtonElement>('[aria-label^="Открыть Фото 1 · Проверено"]')!
       expect(photo).not.toBeNull()
+      expect(photo.getAttribute('aria-label')).toContain('Время загрузки неизвестно')
       await act(async()=>photo.click())
       expect(quiz.textContent).toContain('Фото не является результатом теста.')
       expect(quiz.textContent).not.toContain('Разбор этого задания показан в блоке «Проверка работы».')

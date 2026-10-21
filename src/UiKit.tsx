@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/upload-photo-timestamp-2026-10-21.md */
 /** @see ../docs/decisions/collapsed-variant-status-2026-10-21.md */
 /* @see ../docs/decisions/work-photo-expand-2026-10-18.md */
 /* @see ../docs/decisions/upload-origin-links-2026-10-18.md */
@@ -32,6 +33,7 @@ import './UiKit.css'
 import './DayPage.css'
 
 const demoSharedPhoto: DayUpload = { id: 'demo:shared-photo', taskId: 'demo-p1', coveredTaskIds: ['demo-p1', 'demo-p2', 'demo-p3'], status: 'reviewed',
+  createdAt: '2026-10-20T10:03:00.000Z',
   dataUrl: `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="240" viewBox="0 0 400 240"><rect width="400" height="240" fill="white"/><text x="25" y="60" font-size="24">Пример: № 1, № 2, № 3</text><path d="M25 100h300m-300 40h250m-250 40h280" stroke="#70698b" stroke-width="3"/></svg>')}` }
 const demoPhotoPage = { subjects: [{ tasks: [{ id: 'demo-sheet', title: 'Условный лист', problems: [{ id: 'demo-p1', number: 1, title: 'Место загрузки' }] }] }] } as DayPageData
 const variantStatusDemo = [

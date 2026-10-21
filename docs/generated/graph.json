@@ -1346,6 +1346,39 @@
       "path": "docs/decisions/upload-notification-lifecycle-2026-10-18.md"
     },
     {
+      "id": "decision.upload-photo-timestamp",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-21",
+      "updated": "2026-10-21",
+      "consumers": [
+        "Education parent and student UI",
+        "frontend developer"
+      ],
+      "code": [
+        "src/UiKit.tsx",
+        "src/components/ArtifactAvatar.css",
+        "src/components/ArtifactAvatar.tsx",
+        "src/components/LinkedWorkPhotos.css",
+        "src/components/LinkedWorkPhotos.tsx",
+        "src/components/WorkPhotoGallery.tsx",
+        "src/lib/uploadTimestamp.ts"
+      ],
+      "parent": "module.school-diary.day-page",
+      "uses": [
+        "shared.design.components",
+        "shared.design.ui-kit"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/upload-photo-timestamp-2026-10-21.md"
+    },
+    {
       "id": "decision.weekend-special-course-2026-10-18",
       "status": "accepted",
       "implementation": "not-applicable",
@@ -4694,8 +4727,8 @@
       "id": "file:src/components/ArtifactAvatar.tsx",
       "path": "src/components/ArtifactAvatar.tsx",
       "kind": "artifact",
-      "purpose": "Общий статус и выбор источника фото работы без копии логики в двух маршрутах",
-      "consumer": "День; слот выходных"
+      "purpose": "Общий статус, выбор источника фото и компактная метка server upload time",
+      "consumer": "День; слот выходных; ссылки"
     },
     {
       "id": "file:src/components/AssignmentBrief.css",
@@ -4897,21 +4930,21 @@
       "id": "file:src/components/LinkedWorkPhotos.css",
       "path": "src/components/LinkedWorkPhotos.css",
       "kind": "artifact",
-      "purpose": "Компактная ссылка без элементов галереи",
+      "purpose": "Компактная ссылка и время раскрытого фото",
       "consumer": "LinkedWorkPhotos"
     },
     {
       "id": "file:src/components/LinkedWorkPhotos.test.tsx",
       "path": "src/components/LinkedWorkPhotos.test.tsx",
       "kind": "verification",
-      "purpose": "Отложенный просмотр без управления исходным вложением",
+      "purpose": "Отложенный просмотр, accessible timestamp, отсутствие управления исходником",
       "consumer": "Vitest"
     },
     {
       "id": "file:src/components/LinkedWorkPhotos.tsx",
       "path": "src/components/LinkedWorkPhotos.tsx",
       "kind": "artifact",
-      "purpose": "Просмотр ссылок на решения из другого задания",
+      "purpose": "Просмотр ссылок на решения и доступное время исходного фото",
       "consumer": "День; выходные; UI Kit"
     },
     {
@@ -5408,7 +5441,7 @@
       "id": "file:src/components/WorkPhotoGallery.css",
       "path": "src/components/WorkPhotoGallery.css",
       "kind": "artifact",
-      "purpose": "Прежнее оформление галереи и компактного режима",
+      "purpose": "Оформление галереи, компактный режим и время раскрытого фото",
       "consumer": "WorkPhotoGallery"
     },
     {
@@ -5422,14 +5455,14 @@
       "id": "file:src/components/WorkPhotoGallery.test.tsx",
       "path": "src/components/WorkPhotoGallery.test.tsx",
       "kind": "verification",
-      "purpose": "Local→server, просмотр, повтор передачи, права удаления",
+      "purpose": "Local→server, доступная дата, просмотр, retry, права и unknown time",
       "consumer": "Vitest"
     },
     {
       "id": "file:src/components/WorkPhotoGallery.tsx",
       "path": "src/components/WorkPhotoGallery.tsx",
       "kind": "artifact",
-      "purpose": "Единая галерея: открыть, сменить, закрыть, повторить и удалить по прежним правам",
+      "purpose": "Единая галерея: действия и tooltip/доступное время фото",
       "consumer": "День; выходные; UI Kit"
     },
     {
@@ -6173,6 +6206,20 @@
       "kind": "artifact",
       "purpose": "Условные согласованные по баллам и вопросам примеры без персональных данных",
       "consumer": "UiKit; Vitest"
+    },
+    {
+      "id": "file:src/lib/uploadTimestamp.test.ts",
+      "path": "src/lib/uploadTimestamp.test.ts",
+      "kind": "verification",
+      "purpose": "Firestore, Date, ISO, ошибки, timezone и datetime",
+      "consumer": "Vitest"
+    },
+    {
+      "id": "file:src/lib/uploadTimestamp.ts",
+      "path": "src/lib/uploadTimestamp.ts",
+      "kind": "artifact",
+      "purpose": "Разбор server upload.createdAt и форматирование Europe/Moscow с явным МСК",
+      "consumer": "WorkArtifactImage; галереи"
     },
     {
       "id": "file:src/lib/useDashboardDayWork.ts",
@@ -10662,6 +10709,16 @@
       "type": "uses"
     },
     {
+      "from": "decision.upload-photo-timestamp",
+      "to": "shared.design.components",
+      "type": "uses"
+    },
+    {
+      "from": "decision.upload-photo-timestamp",
+      "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
       "from": "decision.weekend-special-course-2026-10-18",
       "to": "module.reviews.card-generation-policy",
       "type": "uses"
@@ -12473,12 +12530,22 @@
     },
     {
       "from": "file:src/components/ArtifactAvatar.css",
+      "to": "decision.upload-photo-timestamp",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ArtifactAvatar.css",
       "to": "module.school-diary.day-page",
       "type": "implements"
     },
     {
       "from": "file:src/components/ArtifactAvatar.css",
       "to": "shared.design.statuses",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ArtifactAvatar.tsx",
+      "to": "decision.upload-photo-timestamp",
       "type": "implements"
     },
     {
@@ -12748,12 +12815,22 @@
     },
     {
       "from": "file:src/components/LinkedWorkPhotos.css",
+      "to": "decision.upload-photo-timestamp",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/LinkedWorkPhotos.css",
       "to": "decisions.upload-origin-links-2026-10-18",
       "type": "implements"
     },
     {
       "from": "file:src/components/LinkedWorkPhotos.css",
       "to": "module.materials.storage-privacy",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/LinkedWorkPhotos.tsx",
+      "to": "decision.upload-photo-timestamp",
       "type": "implements"
     },
     {
@@ -13369,6 +13446,11 @@
     {
       "from": "file:src/components/WorkPhotoGallery.css",
       "to": "shared.design.components",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/WorkPhotoGallery.tsx",
+      "to": "decision.upload-photo-timestamp",
       "type": "implements"
     },
     {
@@ -14162,6 +14244,16 @@
       "type": "implements"
     },
     {
+      "from": "file:src/lib/uploadTimestamp.ts",
+      "to": "decision.upload-photo-timestamp",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/uploadTimestamp.ts",
+      "to": "module.school-diary.day-page",
+      "type": "implements"
+    },
+    {
       "from": "file:src/lib/useDashboardDayWork.ts",
       "to": "module.school-diary.dashboard",
       "type": "implements"
@@ -14279,6 +14371,11 @@
     {
       "from": "file:src/UiKit.tsx",
       "to": "decision.released-stage-parity-2026-10-20",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/UiKit.tsx",
+      "to": "decision.upload-photo-timestamp",
       "type": "implements"
     },
     {
@@ -15603,6 +15700,11 @@
     },
     {
       "from": "module.school-diary.day-page",
+      "to": "decision.upload-photo-timestamp",
+      "type": "contains"
+    },
+    {
+      "from": "module.school-diary.day-page",
       "to": "decisions.non-test-result-upload-2026-10-19",
       "type": "contains"
     },
@@ -15659,6 +15761,11 @@
     {
       "from": "module.school-diary.day-page",
       "to": "file:src/lib/reviewPresentation.test.ts",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.school-diary.day-page",
+      "to": "file:src/lib/uploadTimestamp.test.ts",
       "type": "verified-by"
     },
     {

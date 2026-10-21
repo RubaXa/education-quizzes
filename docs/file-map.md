@@ -62,9 +62,12 @@
 | [scripts/browser-access-trace.mjs](../scripts/browser-access-trace.mjs) | [Локальная LDD-трасса](modules/families/browser-access-trace.md) | Штатный read-only сбор baseline старой/новой вкладки и анализ receipt | Оператор; родитель при ручном сборе |
 | [scripts/browser-access-trace.test.mjs](../scripts/browser-access-trace.test.mjs) | [Локальная LDD-трасса](modules/families/browser-access-trace.md) | Реальное выполнение collector с canary-секретами и безопасная сводка | Vitest |
 | [docs/decisions/browser-role-ldd-2026-10-18.md](decisions/browser-role-ldd-2026-10-18.md) | [Локальная LDD-трасса](modules/families/browser-access-trace.md) | Прямое основание LDD, граница наблюдения и неизменность ролей/экрана | Разработчик; оператор |
-| [src/components/WorkPhotoGallery.tsx](../src/components/WorkPhotoGallery.tsx) | [Фото и действия](modules/school-diary/day-page.md) | Единая галерея: открыть, сменить, закрыть, повторить и удалить по прежним правам | День; выходные; UI Kit |
-| [src/components/WorkPhotoGallery.css](../src/components/WorkPhotoGallery.css) | [Фото и действия](modules/school-diary/day-page.md) | Прежнее оформление галереи и компактного режима | WorkPhotoGallery |
-| [src/components/WorkPhotoGallery.test.tsx](../src/components/WorkPhotoGallery.test.tsx) | [Фото и действия](modules/school-diary/day-page.md) | Local→server, просмотр, повтор передачи, права удаления | Vitest |
+| [src/components/WorkPhotoGallery.tsx](../src/components/WorkPhotoGallery.tsx) | [Фото и действия](modules/school-diary/day-page.md) | Единая галерея: действия и tooltip/доступное время фото | День; выходные; UI Kit |
+| [src/components/WorkPhotoGallery.css](../src/components/WorkPhotoGallery.css) | [Фото и действия](modules/school-diary/day-page.md) | Оформление галереи, компактный режим и время раскрытого фото | WorkPhotoGallery |
+| [src/components/WorkPhotoGallery.test.tsx](../src/components/WorkPhotoGallery.test.tsx) | [Фото и действия](modules/school-diary/day-page.md) | Local→server, доступная дата, просмотр, retry, права и unknown time | Vitest |
+| [src/lib/uploadTimestamp.ts](../src/lib/uploadTimestamp.ts) | [Время фото](modules/school-diary/day-page.md) | Разбор server upload.createdAt и форматирование Europe/Moscow с явным МСК | WorkArtifactImage; галереи |
+| [src/lib/uploadTimestamp.test.ts](../src/lib/uploadTimestamp.test.ts) | [Время фото](modules/school-diary/day-page.md) | Firestore, Date, ISO, ошибки, timezone и datetime | Vitest |
+| [docs/decisions/upload-photo-timestamp-2026-10-21.md](decisions/upload-photo-timestamp-2026-10-21.md) | [Время фото](modules/school-diary/day-page.md) | Источник времени, legacy/archive/pending и критерии проверки | Разработчик; UI Kit |
 | [src/components/WorkPhotoGallery.layout.test.mjs](../src/components/WorkPhotoGallery.layout.test.mjs) | [Сохраняемые действия](product/ui-change-control.md) | Кнопка закрытия поверх позиционированного изображения | Vitest; браузерное ревью |
 | [scripts/work-photo-consumers.test.mjs](../scripts/work-photo-consumers.test.mjs) | [Сохраняемые действия](product/ui-change-control.md) | Запрет отдельных статичных копий собственного фото в маршрутах | Vitest; pre-push |
 | [docs/decisions/work-photo-expand-2026-10-18.md](decisions/work-photo-expand-2026-10-18.md) | [Компоненты](shared/design/components.md) | Причина пропуска действия, объединение и матрица сценариев | Разработчик |
@@ -74,9 +77,9 @@
 |---|---|---|---|
 | [src/lib/taskUploadPresentation.ts](../src/lib/taskUploadPresentation.ts) | [Место загрузки и покрытие](modules/materials/storage-privacy.md) | Отдельные владение галереей, педагогические свидетельства и ссылки | День; выходные; LinkedWorkPhotos |
 | [src/lib/taskUploadPresentation.test.ts](../src/lib/taskUploadPresentation.test.ts) | [Место загрузки и покрытие](modules/materials/storage-privacy.md) | Legacy, классификация, неизменность места, источник | Vitest |
-| [src/components/LinkedWorkPhotos.tsx](../src/components/LinkedWorkPhotos.tsx) | [Место загрузки и покрытие](modules/materials/storage-privacy.md) | Просмотр ссылок на решения из другого задания | День; выходные; UI Kit |
-| [src/components/LinkedWorkPhotos.css](../src/components/LinkedWorkPhotos.css) | [Место загрузки и покрытие](modules/materials/storage-privacy.md) | Компактная ссылка без элементов галереи | LinkedWorkPhotos |
-| [src/components/LinkedWorkPhotos.test.tsx](../src/components/LinkedWorkPhotos.test.tsx) | [Место загрузки и покрытие](modules/materials/storage-privacy.md) | Отложенный просмотр без управления исходным вложением | Vitest |
+| [src/components/LinkedWorkPhotos.tsx](../src/components/LinkedWorkPhotos.tsx) | [Место загрузки и покрытие](modules/materials/storage-privacy.md) | Просмотр ссылок на решения и доступное время исходного фото | День; выходные; UI Kit |
+| [src/components/LinkedWorkPhotos.css](../src/components/LinkedWorkPhotos.css) | [Место загрузки и покрытие](modules/materials/storage-privacy.md) | Компактная ссылка и время раскрытого фото | LinkedWorkPhotos |
+| [src/components/LinkedWorkPhotos.test.tsx](../src/components/LinkedWorkPhotos.test.tsx) | [Место загрузки и покрытие](modules/materials/storage-privacy.md) | Отложенный просмотр, accessible timestamp, отсутствие управления исходником | Vitest |
 | [docs/decisions/upload-origin-links-2026-10-18.md](decisions/upload-origin-links-2026-10-18.md) | [Место загрузки и покрытие](modules/materials/storage-privacy.md) | Отмена размножения галерей и сохранение coverage | Разработчик |
 
 | Файл | Спецификация | Назначение | Потребитель |
@@ -507,7 +510,7 @@
 | [src/WeekendMathSlot.test.tsx](../src/WeekendMathSlot.test.tsx) | [Dashboard](modules/school-diary/dashboard.md) | Обе роли выходного спецкурса, выбор учителя, семейное включение и сохранность всех номеров | Vitest; общий `ProblemGroup` |
 | [docs/decisions/weekend-special-course-2026-10-18.md](decisions/weekend-special-course-2026-10-18.md) | [Dashboard](modules/school-diary/dashboard.md) | Причина восстановления выходного слота и единого подсчёта | Агент; оператор синхронизации |
 | [src/components/ArtifactAvatar.css](../src/components/ArtifactAvatar.css) | [Статусы фотографии](modules/school-diary/day-page.md) | Общая миниатюра и положение значка состояния | `src/components/ArtifactAvatar.tsx` |
-| [src/components/ArtifactAvatar.tsx](../src/components/ArtifactAvatar.tsx) | [Система компонентов](shared/design/components.md) | Общий статус и выбор источника фото работы без копии логики в двух маршрутах | День; слот выходных |
+| [src/components/ArtifactAvatar.tsx](../src/components/ArtifactAvatar.tsx) | [Система компонентов](shared/design/components.md) | Общий статус, выбор источника фото и компактная метка server upload time | День; слот выходных; ссылки |
 | [src/components/AssignmentBrief.css](../src/components/AssignmentBrief.css) | [Дизайн-система](shared/design/README.md) | Оформление точного задания и источника | `AssignmentBrief.tsx` |
 | [src/components/AssignmentBrief.test.tsx](../src/components/AssignmentBrief.test.tsx) | [Ученическая проекция](modules/reviews/subject-card-viewmodel.md) | Дословная инструкция: семейный источник и компактное раскрытие родителя; прежняя формулировка задания МЭШ | Vitest; разработчик |
 | [src/components/AssignmentBrief.tsx](../src/components/AssignmentBrief.tsx) | [Ученическая проекция](modules/reviews/subject-card-viewmodel.md) | Дословное задание и честное объяснение происхождения: семья или учитель/МЭШ | `src/DayPage.tsx` |

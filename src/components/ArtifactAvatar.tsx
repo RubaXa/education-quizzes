@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/upload-photo-timestamp-2026-10-21.md */
 import type { ReactNode } from 'react'
 import { Camera } from 'lucide-react'
 import type { ArtifactAvatarState } from '@/lib/reviewPresentation'
@@ -6,6 +7,7 @@ import { localPhotoForTransfer } from '@/lib/photoOutbox'
 import EducationImage from './EducationImage'
 import StatusIcon from './StatusIcon'
 import './ArtifactAvatar.css'
+import { formatUploadTimestamp } from '@/lib/uploadTimestamp'
 
 export function ArtifactStatusGlyph({ state, size = 10 }: { state: ArtifactAvatarState; size?: number }) {
   return <StatusIcon status={state === 'reviewed' ? 'complete' : state === 'failed' ? 'failed' : state} size={size} />
@@ -43,4 +45,20 @@ export function WorkArtifactImage({ upload, title, index, compact = false, fallb
     resolver={local ? localWorkImage : undefined} revokeResolvedUrl={local} size={compact ? 'S' : 'XXXL'}
     alt={`Работа по заданию «${title}», фото ${index + 1}`} compact={compact} retryControl={retryControl}
     className={compact ? '' : 'day-upload-photo'} />
+}
+
+/** Timestamp from upload.createdAt only; archive imports are named as archive additions. @see ../../docs/modules/school-diary/day-page.md#photo-timestamp */
+export function workUploadTimeLabel(upload: DayUpload): string {
+  const timestamp = formatUploadTimestamp(upload.createdAt)
+  if (!timestamp) return 'Время загрузки неизвестно'
+  if (upload.origin === 'archive') return `Добавлено в архив ${timestamp.label}`
+  if (upload.status === 'requested' || upload.status === 'awaiting-upload' || upload.status === 'upload-error') return `Заявка создана ${timestamp.label}`
+  return `Загружено ${timestamp.label}`
+}
+
+/** Compact timestamp shown only with the expanded image, so touch users can read it. */
+export function WorkUploadTime({ upload }: { upload: DayUpload }) {
+  const timestamp = formatUploadTimestamp(upload.createdAt)
+  if (!timestamp) return <p className="work-upload-time">Время загрузки неизвестно</p>
+  return <p className="work-upload-time"><time dateTime={timestamp.dateTime}>{workUploadTimeLabel(upload)}</time></p>
 }
