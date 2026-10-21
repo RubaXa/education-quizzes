@@ -6,6 +6,7 @@ import { familyAssignmentErrors } from '../day/family-assignment.mjs'
 /** Compare the current source projection with the last Firestore publication.
  * A fresh download alone must never clear an unpublished change.
  * @see ../docs/modules/synchronization/global-sync.md#reconciliation
+ * @see ../docs/decisions/project-publication-audit-2026-10-21.md
  */
 export function pendingPublicationDates(expected, published, dates) {
   const current = new Map((expected?.days ?? []).map((day) => [day.date, day]))
@@ -29,6 +30,27 @@ export function pendingPublicationDates(expected, published, dates) {
     if (reasons.length) pending.push({ date, reasons })
   }
   return pending
+}
+
+/** Project the full dashboard index to the audited manifest window.
+ * Publication diffing itself remains bounded by `dates`; this keeps historical
+ * dashboard rows from being mistaken for missing expected audit rows.
+ */
+export function projectExpectedByDateToWindow(publication, dates) {
+  if (!(publication?.expectedByDate instanceof Map) || !Array.isArray(dates)) {
+    throw new Error('publication_audit_incomplete')
+  }
+  const window = new Set(dates)
+  return { ...publication, expectedByDate: new Map([...publication.expectedByDate]
+    .filter(([date]) => window.has(date))) }
+}
+
+/** A clean readback must belong to this exact owner and audience role. */
+export function assertPublicationDashboardOwner(published, role, { familyId, childId }) {
+  if (!published || published.kind !== role || published.familyId !== familyId || published.childId !== childId) {
+    throw new Error(`publication_dashboard_owner_mismatch:${role}`)
+  }
+  return published
 }
 
 /** Build the actual day-enqueue worklist from the completed publication audit. */

@@ -2028,6 +2028,38 @@
       "path": "docs/decisions/personal-identity-transition-2026-10-18.md"
     },
     {
+      "id": "decisions.project-publication-audit-2026-10-21",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-21",
+      "updated": "2026-10-21",
+      "consumers": [
+        "Education sync operator",
+        "operator CLI",
+        "sync developer"
+      ],
+      "code": [
+        "scripts/sync-project.mjs",
+        "sync/project-audit.mjs",
+        "sync/publication-audit.mjs",
+        "operator/run-operation.mjs"
+      ],
+      "parent": "module.synchronization.global-sync",
+      "uses": [
+        "service.operator-cli",
+        "module.synchronization.firestore-read-paths"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование",
+        "файлы"
+      ],
+      "path": "docs/decisions/project-publication-audit-2026-10-21.md"
+    },
+    {
       "id": "decisions.queue-artifact-resolution-2026-10-20",
       "status": "reference",
       "implementation": "not-applicable",
@@ -3257,14 +3289,14 @@
       "id": "file:operator/operation-contract.mjs",
       "path": "operator/operation-contract.mjs",
       "kind": "artifact",
-      "purpose": "Типизированный реестр операций, безопасная ревизия открытого теста, проверка входа и отпечаток пакета",
+      "purpose": "Типизированный реестр операций, включая read-only аудит сохранённого проекта",
       "consumer": "`scripts/education.mjs`; `operator/run-operation.mjs`"
     },
     {
       "id": "file:operator/operation-contract.test.mjs",
       "path": "operator/operation-contract.test.mjs",
       "kind": "verification",
-      "purpose": "Проверка запрета произвольной команды и изменения отпечатка",
+      "purpose": "Проверка фиксированной команды и валидации входа аудита проекта",
       "consumer": "Vitest; разработчик"
     },
     {
@@ -3285,14 +3317,14 @@
       "id": "file:operator/run-operation.mjs",
       "path": "operator/run-operation.mjs",
       "kind": "artifact",
-      "purpose": "Исполнение фиксированной команды, замер, обратная проверка ревизии и закрытая квитанция",
+      "purpose": "Исполнение фиксированной команды и строгая проверка приватного receipt/readback аудита",
       "consumer": "`scripts/education.mjs`"
     },
     {
       "id": "file:operator/run-operation.test.mjs",
       "path": "operator/run-operation.test.mjs",
       "kind": "verification",
-      "purpose": "Проверка предпросмотра, валидации, повторов и квитанции",
+      "purpose": "Проверка receipt owner/path/permissions, pending/blocked аудита, предпросмотра и повторов",
       "consumer": "Vitest; разработчик"
     },
     {
@@ -4678,7 +4710,7 @@
       "id": "file:scripts/sync-project.mjs",
       "path": "scripts/sync-project.mjs",
       "kind": "artifact",
-      "purpose": "Инвентаризация через shared family graph, strict Mesh sessions, трассировка стадий, полный сбор и аудит опубликованных данных",
+      "purpose": "Инвентаризация, полный Mesh сбор, фазы и read-only аудит публикации сохранённого запуска",
       "consumer": "`skills/education-sync`; операторский CLI"
     },
     {
@@ -6768,6 +6800,20 @@
       "consumer": "Legacy bridge; task capture"
     },
     {
+      "id": "file:sync/project-audit.mjs",
+      "path": "sync/project-audit.mjs",
+      "kind": "artifact",
+      "purpose": "Валидация сохранённого run/window/owner и создание read-only publication receipt без завершения workflow",
+      "consumer": "`scripts/sync-project.mjs`; operator CLI"
+    },
+    {
+      "id": "file:sync/project-audit.test.mjs",
+      "path": "sync/project-audit.test.mjs",
+      "kind": "verification",
+      "purpose": "Регрессии 42-date audit, pending/blocked, path owner, снимков, статуса и приватного receipt",
+      "consumer": "Vitest; разработчик"
+    },
+    {
       "id": "file:sync/project-plan.mjs",
       "path": "sync/project-plan.mjs",
       "kind": "artifact",
@@ -6785,14 +6831,14 @@
       "id": "file:sync/publication-audit.mjs",
       "path": "sync/publication-audit.mjs",
       "kind": "artifact",
-      "purpose": "Проверка family-origin overlay по владельцу/датам, сверка содержания и безопасное обновление времени без потери бейджей",
+      "purpose": "Проверка family-origin overlay и точного owner/role dashboard, ограничение index на окно аудита, сверка содержания и безопасное обновление времени",
       "consumer": "`scripts/sync-project.mjs`"
     },
     {
       "id": "file:sync/publication-audit.test.mjs",
       "path": "sync/publication-audit.test.mjs",
       "kind": "verification",
-      "purpose": "Проверка family-origin overlay, реального Mesh расхождения, страницы ДЗ и продвижения времени",
+      "purpose": "Проверка owner/role, проекции historical index за пределами окна, Mesh расхождения, страницы ДЗ и продвижения времени",
       "consumer": "Vitest; разработчик"
     },
     {
@@ -8332,7 +8378,8 @@
         "Firestore publisher"
       ],
       "code": [
-        "scripts/firestore-read-index.mjs"
+        "scripts/firestore-read-index.mjs",
+        "scripts/sync-project.mjs"
       ],
       "parent": "module.synchronization",
       "uses": [],
@@ -8351,7 +8398,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-13",
-      "updated": "2026-10-20",
+      "updated": "2026-10-21",
       "consumers": [
         "Education sync operator",
         "sync-project CLI",
@@ -8366,6 +8413,7 @@
         "sync/day-source-revision.mjs",
         "sync/job-queue.mjs",
         "sync/project-plan.mjs",
+        "sync/project-audit.mjs",
         "sync/publication-audit.mjs",
         "sync/run-context.mjs"
       ],
@@ -8381,7 +8429,8 @@
         "dag",
         "status",
         "report",
-        "reconciliation"
+        "reconciliation",
+        "publication-audit"
       ],
       "path": "docs/modules/synchronization/global-sync.md"
     },
@@ -9308,7 +9357,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-16",
-      "updated": "2026-10-17",
+      "updated": "2026-10-21",
       "consumers": [
         "Education operator",
         "operator CLI",
@@ -9316,6 +9365,8 @@
       ],
       "code": [
         "scripts/education.mjs",
+        "operator/operation-contract.mjs",
+        "operator/run-operation.mjs",
         "scripts/submissions.mjs",
         "storage/review-readback.mjs"
       ],
@@ -10855,6 +10906,16 @@
       "type": "uses"
     },
     {
+      "from": "decisions.project-publication-audit-2026-10-21",
+      "to": "module.synchronization.firestore-read-paths",
+      "type": "uses"
+    },
+    {
+      "from": "decisions.project-publication-audit-2026-10-21",
+      "to": "service.operator-cli",
+      "type": "uses"
+    },
+    {
       "from": "decisions.quiz-threshold-85-2026-10-14",
       "to": "decisions.quiz-threshold-and-page-slider-2026-10-14",
       "type": "uses"
@@ -11482,6 +11543,11 @@
     {
       "from": "file:operator/recipes.mjs",
       "to": "service.operator-cli",
+      "type": "implements"
+    },
+    {
+      "from": "file:operator/run-operation.mjs",
+      "to": "decisions.project-publication-audit-2026-10-21",
       "type": "implements"
     },
     {
@@ -12546,7 +12612,17 @@
     },
     {
       "from": "file:scripts/sync-project.mjs",
+      "to": "decisions.project-publication-audit-2026-10-21",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/sync-project.mjs",
       "to": "module.school-diary.school-calendar",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/sync-project.mjs",
+      "to": "module.synchronization.firestore-read-paths",
       "type": "implements"
     },
     {
@@ -14755,8 +14831,23 @@
       "type": "implements"
     },
     {
+      "from": "file:sync/project-audit.mjs",
+      "to": "decisions.project-publication-audit-2026-10-21",
+      "type": "implements"
+    },
+    {
+      "from": "file:sync/project-audit.mjs",
+      "to": "module.synchronization.global-sync",
+      "type": "implements"
+    },
+    {
       "from": "file:sync/project-plan.mjs",
       "to": "module.synchronization.global-sync",
+      "type": "implements"
+    },
+    {
+      "from": "file:sync/publication-audit.mjs",
+      "to": "decisions.project-publication-audit-2026-10-21",
       "type": "implements"
     },
     {
@@ -16246,6 +16337,11 @@
     },
     {
       "from": "module.synchronization.global-sync",
+      "to": "decisions.project-publication-audit-2026-10-21",
+      "type": "contains"
+    },
+    {
+      "from": "module.synchronization.global-sync",
       "to": "decisions.queue-artifact-resolution-2026-10-20",
       "type": "contains"
     },
@@ -16257,6 +16353,11 @@
     {
       "from": "module.synchronization.global-sync",
       "to": "file:scripts/sync-queue-resolution.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.synchronization.global-sync",
+      "to": "file:sync/project-audit.test.mjs",
       "type": "verified-by"
     },
     {

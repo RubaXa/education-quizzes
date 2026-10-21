@@ -10,6 +10,7 @@ consumers:
   - "Firestore publisher"
 code:
   - "scripts/firestore-read-index.mjs"
+  - "scripts/sync-project.mjs"
 parent: module.synchronization
 uses: []
 sections:
@@ -23,6 +24,8 @@ sections:
 # Реестр путей чтения Firestore и выбор способа обновления
 
 Перед публикацией перехода task → source-only notice оператор адресно проверяет `dayReviewPrivate/{studentToken}/items/{entryId}` вместе с существующими progress/uploads guard. Чтение ограничено затронутыми source entries и подтверждёнными собственными/history day tokens; оно запрещает скрытие прежнего закрытого разбора даже при отсутствии публичного progress. Подписки и глобальный скан не добавляются.
+
+`sync:project audit --run RUNID` читает `syncStatus/current` точного владельца каждого manifest job перед проверкой и повторно перед private receipt. Это два ограниченных point reads на owner для fencing конкурентного изменения запуска; запрос не пишет статус и не закрывает queue jobs.
 
 Операторский `sync:queue list --id` адресно читает один `operatorSyncJobs/ID` и, при корректном artifactPath, один `operatorSyncTaskArtifacts/ID`. Это явно запрошенное оператором чтение без subscriptions, обновления артефакта и глобального скана; оно нужно для сопоставления события с уже проверяемой работой и исключения повторного разбора.
 

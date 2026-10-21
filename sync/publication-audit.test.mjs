@@ -3,7 +3,7 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { resolve } from 'node:path'
 import { daySourceRevision } from './day-source-revision.mjs'
-import { pendingPublicationDates, publicationReconciliationCandidates, refreshedCalendarChecks, validatedFamilyDashboardAssignments } from './publication-audit.mjs'
+import { assertPublicationDashboardOwner, pendingPublicationDates, projectExpectedByDateToWindow, publicationReconciliationCandidates, refreshedCalendarChecks, validatedFamilyDashboardAssignments } from './publication-audit.mjs'
 import { dateWindow } from './project-plan.mjs'
 import { buildDayDashboardIndex } from '../day/dashboard-index.mjs'
 
@@ -27,6 +27,22 @@ const familyEssay = (overrides = {}) => ({
 })
 
 describe('global publication reconciliation', () => {
+  it('projects the complete dashboard index onto the frozen audit window, retaining in-window empty gaps', () => {
+    const dates = dateWindow('2026-11-02')
+    const historical = '2026-09-01'
+    const expectedByDate = new Map([[historical, { date: historical, sourceRevision: 'old' }],
+      [dates[0], { date: dates[0], sourceRevision: 'in-window' }]])
+    const pending = [{ date: dates[1], reasons: ['day-not-published'] }]
+    const projected = projectExpectedByDateToWindow({ expectedByDate, pending }, dates)
+    expect(projected.expectedByDate).toEqual(new Map([[dates[0], expectedByDate.get(dates[0])]]))
+    expect(projected.pending).toBe(pending)
+  })
+  it('accepts a dashboard readback only for the exact family, child, and role', () => {
+    const target = { familyId: 'family-1', childId: 'child-1' }
+    expect(assertPublicationDashboardOwner({ ...target, kind: 'student' }, 'student', target)).toBeTruthy()
+    expect(() => assertPublicationDashboardOwner({ ...target, kind: 'parent' }, 'student', target)).toThrow(/owner_mismatch/)
+    expect(() => assertPublicationDashboardOwner({ familyId: 'other', childId: 'child-1', kind: 'student' }, 'student', target)).toThrow(/owner_mismatch/)
+  })
   it('builds a zero-work reconciliation list after a collected 42-date no-diff audit', () => {
     const dates = dateWindow('2026-10-20')
     const expectedByDate = new Map(dates.map((date) => [date, { date, sourceRevision: `revision-${date}` }]))

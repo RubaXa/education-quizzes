@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 /**
  * @see ../docs/modules/synchronization/README.md
+ * @see ../docs/modules/synchronization/global-sync.md#publication-audit
+ * @see ../docs/modules/synchronization/firestore-read-paths.md
+ * @see ../docs/decisions/project-publication-audit-2026-10-21.md
  * @see ../docs/modules/synchronization/global-sync.md#inventory
  * @see ../docs/operations/education-sync.md
  * @see ../docs/shared/server-runtime.md
@@ -23,26 +26,28 @@ import { collectedProjectSummary, dateWindow, mapBounded, projectTargets } from 
 import { persistMeshCapture } from '../sync/artifact-capture.mjs'
 import { buildDayDashboardIndex } from '../day/dashboard-index.mjs'
 import { assertGradeSnapshotAligned } from '../day/grade-reconciliation.mjs'
-import { pendingPublicationDates, publicationReconciliationCandidates, refreshedCalendarChecks, validatedFamilyDashboardAssignments } from '../sync/publication-audit.mjs'
+import { assertPublicationDashboardOwner, pendingPublicationDates, projectExpectedByDateToWindow, publicationReconciliationCandidates, refreshedCalendarChecks, validatedFamilyDashboardAssignments } from '../sync/publication-audit.mjs'
 import { enqueueSyncJob, setSyncJob, syncFingerprint } from '../sync/job-queue.mjs'
 import { reuseRunContext } from '../sync/run-context.mjs'
 import { calendarFailure, calendarShape, captureSchoolCalendar, normalizeSchoolCalendar } from '../sync/school-calendar.mjs'
 import { publishSchoolCalendar } from '../sync/school-calendar-publication.mjs'
+import { resolveProjectAuditSourcePath, runProjectPublicationAudit } from '../sync/project-audit.mjs'
 
 /** Global source collection. Enrichment and publication remain separate checked phases.
  * @see ../docs/modules/synchronization/global-sync.md#inventory
  * @see ../docs/modules/synchronization/global-sync.md#status
  */
 const local = resolve('.local')
-const telemetry = createTelemetryFromEnvironment({ sink: createRotatingJsonlSink(resolve(local, 'operator-runs', 'telemetry.jsonl')) })
+const command = process.argv[2] || 'plan'
+const auditMode = command === 'audit'
+const telemetry = createTelemetryFromEnvironment(auditMode ? {} : { sink: createRotatingJsonlSink(resolve(local, 'operator-runs', 'telemetry.jsonl')) })
 const db = operatorFirestore({ telemetry })
 const connections = resolve(local, 'mesh-connections')
 const runDir = resolve(local, 'project-sync')
-const legacyCodec = createLegacyMeshCredentialCodec({ familyAccessPath: resolve(local, 'family-access.json'),
+const legacyCodec = auditMode ? null : createLegacyMeshCredentialCodec({ familyAccessPath: resolve(local, 'family-access.json'),
   credentialsPath: resolve(local, 'diary', 'secret.json') })
-const meshSessions = createMeshSessionService({ db, connectionsDir: connections, legacyCodec, telemetry })
-const command = process.argv[2] || 'plan'
-if (!['plan', 'collect', 'phase', 'calendar'].includes(command)) throw new Error('Использование: npm run sync:project -- plan | collect | calendar | phase --run ID --family ID --child ID --to PHASE')
+const meshSessions = auditMode ? null : createMeshSessionService({ db, connectionsDir: connections, legacyCodec, telemetry })
+if (!['plan', 'collect', 'calendar', 'phase', 'audit'].includes(command)) throw new Error('Использование: npm run sync:project -- plan | collect | calendar | phase --run ID --family ID --child ID --to PHASE | audit --run ID')
 
 // Timings are confined to the private run manifest. These count adapter
 // operations, not underlying HTTP requests or billed Firestore document reads.
@@ -146,7 +151,7 @@ async function collectChildCalendar(target, adapter, today, timing, publish = fa
 async function status(target, runId, phase, extra = {}) {
   await statusRef(target).set({ runId, phase, updatedAt: Timestamp.now(), ...extra }, { merge: true })
 }
-async function auditPublishedDays(dir, dates, asOf, timing, target) {
+async function auditPublishedDays(dir, dates, asOf, timing, target, { requireOwnedDashboards = false } = {}) {
   const workspace = dirname(dir)
   const links = readJson(workspace, 'day-links.json') ?? {}
   const dashboardTokens = readJson(workspace, 'day-dashboard-links.json') ?? {}
@@ -165,7 +170,9 @@ async function auditPublishedDays(dir, dates, asOf, timing, target) {
     const token = dashboardTokens[role]
     const snapshot = token ? await measure(timing, 'publishedDashboardRead', () => db.doc(`dayDashboards/${token}`).get()) : null
     const published = snapshot?.data() ?? null
-    if (published && published.kind === role && published.familyId && published.childId) {
+    const ownerMatches = published?.kind === role && published.familyId === target.familyId && published.childId === target.childId
+    if (requireOwnedDashboards) assertPublicationDashboardOwner(published, role, target)
+    if (ownerMatches) {
       const days = refreshedCalendarChecks(expected, published)
       if (days) freshness.push({ role, snapshot, days })
     }
@@ -184,6 +191,7 @@ async function auditPublishedDays(dir, dates, asOf, timing, target) {
     for (const role of ['student', 'parent']) {
       const token = links[currentSourceDate]?.[role]
       const page = token ? (await measure(timing, 'publishedGradePageRead', () => db.doc(`dayPages/${token}`).get())).data() : null
+      if (requireOwnedDashboards && page) assertPublicationDashboardOwner(page, role, target)
       try { assertGradeSnapshotAligned({ subjects: page?.grades ?? [] }, latestMesh) }
       catch {
         const targetDate = page?.targetDate ?? currentSourceDate
@@ -368,7 +376,7 @@ async function markPhase() {
     if (!job.sourceDir || !job.checkedFrom || !job.checkedThrough) throw new Error('Нет полного проверенного окна МЭШ для завершения запуска.')
     const dates = dateWindow(manifest.startedFor)
     if (dates[0] !== job.checkedFrom || dates.at(-1) !== job.checkedThrough) throw new Error('Окно МЭШ в журнале не совпадает с текущим протоколом.')
-    const { pending } = await auditPublishedDays(job.sourceDir, dates, manifest.startedFor, newTiming())
+    const { pending } = await auditPublishedDays(job.sourceDir, dates, manifest.startedFor, newTiming(), target, { requireOwnedDashboards: true })
     if (pending.length) throw new Error(`Остались неопубликованные дни: ${pending.map((item) => item.date).join(', ')}.`)
     const queued = (await db.collection('operatorSyncJobs').where('runId', '==', runId).get()).docs.filter((doc) => {
       const item = doc.data()
@@ -384,7 +392,39 @@ async function markPhase() {
   console.log(JSON.stringify({ phase, recorded: true }))
 }
 
-if (command === 'phase') await markPhase()
+async function auditRunPublication() {
+  const argv = process.argv.slice(3)
+  if (argv.length !== 2 || argv[0] !== '--run') throw new Error('Команда audit принимает только `audit --run RUNID`.')
+  const runId = argv[1]
+  if (!/^\d{4}-\d{2}-\d{2}-[a-f0-9-]{36}$/.test(runId ?? '')) throw new Error('Для audit нужен корректный --run ID.')
+  const manifest = readJson(runDir, `run-${runId}.json`)
+  if (!manifest) throw new Error('Манифест указанного запуска не найден.')
+  const receiptId = `${runId}-${randomUUID()}`
+  const receipt = await runProjectPublicationAudit({
+    runId, manifest,
+    readSyncStatus: async (target) => (await statusRef(target).get()).data(),
+    resolveSourcePath: (job) => resolveProjectAuditSourcePath(job, { localDir: local, runDir,
+      legacyOwner: readJson(local, 'family-access.json')?.legacyDayOwner }),
+    readSnapshot: (sourceDir, date) => readJson(sourceDir, `snapshot-${date}.json`),
+    auditPublishedDays: async (sourceDir, dates, asOf, target) => projectExpectedByDateToWindow(
+      await auditPublishedDays(sourceDir, dates, asOf, newTiming(), target, { requireOwnedDashboards: true }), dates),
+    async writeReceipt(value) { writeJson(resolve(runDir, 'audit-receipts'), `${receiptId}.json`, value) },
+  })
+  const receiptPath = `project-sync/audit-receipts/${receiptId}.json`
+  const status = receipt.blockedCount ? 'blocked' : receipt.pendingCount ? 'pending' : 'publication-verified'
+  console.log(JSON.stringify({ status, publicationState: status,
+    publicationVerified: status === 'publication-verified' && receipt.checkedDates === 42 && receipt.blockedCount === 0
+      && receipt.pendingPublicationDates.length === 0,
+    readOnly: true, receiptReadOnly: true,
+    runId, checkedFrom: receipt.checkedFrom, checkedThrough: receipt.checkedThrough,
+    checkedDates: receipt.checkedDates, owners: receipt.results.length,
+    pendingPublicationDates: receipt.pendingPublicationDates, blockedCount: receipt.blockedCount,
+    receipt: receiptPath, workflowPhaseChanged: false }, null, 2))
+  if (receipt.blockedCount || receipt.pendingCount) process.exitCode = 2
+}
+
+if (command === 'audit') await auditRunPublication()
+else if (command === 'phase') await markPhase()
 else {
 const runTiming = newTiming()
 const data = await measure(runTiming, 'inventory', () => inventory(runTiming))

@@ -12,6 +12,72 @@ const workspace = () => mkdtempSync(resolve(tmpdir(), 'education-run-'))
 const execChild = promisify(execFile)
 
 describe('operator execution receipts', () => {
+  it('reports verified publication without implying workflow completion or exposing source payloads', async () => {
+    const root = workspace()
+    try {
+      const runId = '2026-10-21-11111111-1111-4111-8111-111111111111'
+      const receipt = `project-sync/audit-receipts/${runId}-12345678-abcd-1234-abcd-1234567890ab.json`
+      const result = await executeOperation(request('project.audit', { runId }), { root,
+        run: async () => ({ stdout: JSON.stringify({ runId, status: 'publication-verified', checkedDates: 42,
+          readOnly: true, receiptReadOnly: true, workflowPhaseChanged: false, publicationVerified: true,
+          blockedCount: 0, pendingPublicationDates: [], receipt, sourcePayload: 'PRIVATE_SOURCE' }) }) })
+      expect(result.status).toBe('succeeded')
+      expect(result.summary).toMatchObject({ publicationVerified: true, publicationState: 'publication-verified',
+        workflowPhaseChanged: false, readOnly: true, receiptReadOnly: true, pendingPublicationCount: 0,
+        auditReceipt: receipt })
+      expect(JSON.stringify(result)).not.toContain('PRIVATE_SOURCE')
+    } finally { rmSync(root, { recursive: true, force: true }) }
+  })
+
+  it.each(['pending', 'blocked'])('preserves a %s publication audit as partial', async (status) => {
+    const root = workspace()
+    try {
+      const runId = '2026-10-21-11111111-1111-4111-8111-111111111111'
+      const receipt = `project-sync/audit-receipts/${runId}-12345678-abcd-1234-abcd-1234567890ab.json`
+      const result = await executeOperation(request('project.audit', { runId }), { root,
+        run: async () => { throw Object.assign(new Error('publication incomplete'), { stdout: JSON.stringify({
+          runId, status, checkedDates: 42, readOnly: true, receiptReadOnly: true, workflowPhaseChanged: false, receipt,
+          blockedCount: status === 'blocked' ? 1 : 0, pendingPublicationDates: status === 'pending' ? [{ date: '2026-10-23', reasons: ['student:day-not-published'] }] : [],
+        }) }) } })
+      expect(result.status).toBe('partial')
+      expect(result.summary.publicationVerified).toBe(false)
+      expect(result.summary.publicationState).toBe(status)
+    } finally { rmSync(root, { recursive: true, force: true }) }
+  })
+
+  it('rejects an audit response lacking explicit read-only and unchanged-phase confirmation', async () => {
+    const root = workspace()
+    try {
+      await expect(executeOperation(request('project.audit', { runId: '2026-10-21-11111111-1111-4111-8111-111111111111' }), { root,
+        run: async () => ({ stdout: JSON.stringify({ status: 'publication-verified', checkedDates: 42, blockedCount: 0, pendingPublicationDates: [] }) }),
+      })).rejects.toThrow('did not confirm completion')
+    } finally { rmSync(root, { recursive: true, force: true }) }
+  })
+
+  it.each([
+    ['missing receipt path', (payload) => { delete payload.receipt }],
+    ['receipt for another run', (payload) => { payload.receipt = 'project-sync/audit-receipts/2026-10-21-22222222-2222-4222-8222-222222222222-12345678-abcd-1234-abcd-1234567890ab.json' }],
+    ['receipt outside the private audit directory', (payload) => { payload.receipt = `../${payload.receipt}` }],
+    ['missing receiptReadOnly confirmation', (payload) => { delete payload.receiptReadOnly }],
+  ])('rejects %s for both success and partial audit results', async (_label, mutate) => {
+    const root = workspace()
+    const runId = '2026-10-21-11111111-1111-4111-8111-111111111111'
+    const receipt = `project-sync/audit-receipts/${runId}-12345678-abcd-1234-abcd-1234567890ab.json`
+    const verified = { runId, status: 'publication-verified', checkedDates: 42, readOnly: true, receiptReadOnly: true,
+      workflowPhaseChanged: false, publicationVerified: true, blockedCount: 0, pendingPublicationDates: [], receipt }
+    const partial = { runId, status: 'pending', checkedDates: 42, readOnly: true, receiptReadOnly: true,
+      workflowPhaseChanged: false, blockedCount: 0, pendingPublicationDates: [{ date: '2026-10-23', reasons: ['parent:day-not-published'] }], receipt }
+    try {
+      mutate(verified)
+      await expect(executeOperation(request('project.audit', { runId }), { root,
+        run: async () => ({ stdout: JSON.stringify(verified) }) })).rejects.toThrow('did not confirm completion')
+      mutate(partial)
+      await expect(executeOperation(request('project.audit', { runId }), { root,
+        run: async () => { throw Object.assign(new Error('pending'), { stdout: JSON.stringify(partial) }) } }))
+        .rejects.toThrow('did not confirm completion')
+    } finally { rmSync(root, { recursive: true, force: true }) }
+  })
+
   it('preserves the full scan snapshot privately without a second inbox query', async () => {
     const root = workspace()
     try {

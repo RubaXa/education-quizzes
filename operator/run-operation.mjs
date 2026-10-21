@@ -3,6 +3,7 @@
  */
 /** One execution and one private receipt for every operator operation.
  * @see ../docs/services/operator-cli/README.md#execution */
+/** @see ../docs/decisions/project-publication-audit-2026-10-21.md */
 import { randomUUID } from 'node:crypto'
 import { execFile } from 'node:child_process'
 import { mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
@@ -22,7 +23,16 @@ const writePrivateJson = (path, value) => {
 const parseJson = (value) => {
   try { return JSON.parse(value) } catch { return null }
 }
-const publicSummary = (operation, value) => {
+const projectAuditReceiptMatches = (receipt, runId) => typeof receipt === 'string'
+  && new RegExp(`^project-sync/audit-receipts/${runId}-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\.json$`).test(receipt)
+const validProjectAuditEnvelope = (parsed, runId) => parsed?.runId === runId && parsed.checkedDates === 42
+  && parsed.readOnly === true && parsed.receiptReadOnly === true && parsed.workflowPhaseChanged === false
+  && projectAuditReceiptMatches(parsed.receipt, runId) && Number.isInteger(parsed.blockedCount) && parsed.blockedCount >= 0
+  && Array.isArray(parsed.pendingPublicationDates)
+  && (parsed.status === 'publication-verified' && parsed.blockedCount === 0 && parsed.pendingPublicationDates.length === 0
+    || parsed.status === 'pending' && parsed.blockedCount === 0 && parsed.pendingPublicationDates.length > 0
+    || parsed.status === 'blocked' && parsed.blockedCount > 0)
+const publicSummary = (operation, value, expectedRunId = null) => {
   const parsed = parseJson(value)
   if (!parsed || typeof parsed !== 'object') return { parsed: false }
   if (operation === 'project.plan') return { families: parsed.families ?? null, children: parsed.children ?? null,
@@ -38,6 +48,14 @@ const publicSummary = (operation, value) => {
     unchanged: parsed.unchanged ?? null, applied: parsed.applied ?? null }
   if (operation === 'project.collect') return { runId: parsed.runId ?? null, sourceState: parsed.state ?? null,
     sourceJournal: parsed.journal ?? null, report: parsed.report ?? null, timing: parsed.timing ?? null }
+  if (operation === 'project.audit') return { runId: parsed.runId ?? null, publicationState: parsed.status ?? null,
+    checkedDates: parsed.checkedDates ?? null, blockedCount: parsed.blockedCount ?? null,
+    pendingPublicationCount: Array.isArray(parsed.pendingPublicationDates) ? parsed.pendingPublicationDates.length : null,
+    readOnly: parsed.readOnly === true, receiptReadOnly: parsed.receiptReadOnly === true,
+    workflowPhaseChanged: parsed.workflowPhaseChanged,
+    publicationVerified: validProjectAuditEnvelope(parsed, expectedRunId) && parsed.status === 'publication-verified'
+      && parsed.publicationVerified === true,
+    auditReceipt: projectAuditReceiptMatches(parsed.receipt, expectedRunId) ? parsed.receipt : null }
   if (operation === 'day.audit') return { checkedDates: parsed.checkedDates ?? null,
     problemCount: Array.isArray(parsed.problems) ? parsed.problems.length : null,
     verified: Array.isArray(parsed.problems) && parsed.problems.length === 0,
@@ -109,7 +127,7 @@ async function executeOperationInternal(request, { apply = false, root = resolve
     const metrics = { elapsedMs: Math.round(performance.now() - started), preflightMs,
       stdoutBytes: Buffer.byteLength(stdout),
       stderrBytes: Buffer.byteLength(stderr) }
-    const summary = publicSummary(request.operation, stdout)
+    const summary = publicSummary(request.operation, stdout, request.input?.runId)
     if (request.operation === 'quiz.publish' && summary.readback !== true) {
       throw new Error('Quiz publication did not return a read-back testId.')
     }
@@ -120,6 +138,7 @@ async function executeOperationInternal(request, { apply = false, root = resolve
       throw new Error('Quiz revision did not confirm role-index readback.')
     }
     if (request.operation === 'day.audit' && summary.verified !== true) throw new Error('Published day audit is incomplete or contains problems.')
+    if (request.operation === 'project.audit' && (summary.publicationVerified !== true || summary.runId !== request.input.runId)) throw new Error('Project publication audit did not verify the complete saved window.')
     const telemetrySummary = telemetry?.snapshot?.() ?? null
     const result = { ...base, finishedAt: now(), status: 'succeeded', summary, metrics,
       telemetry: telemetrySummary, stdout, stderr }
@@ -129,9 +148,11 @@ async function executeOperationInternal(request, { apply = false, root = resolve
     return { status: 'succeeded', operation: request.operation, fingerprint, journal, summary, metrics,
       traceId: base.traceId, telemetry: telemetrySummary }
   } catch (error) {
-    const partial = request.operation === 'project.collect' ? parseJson(error?.stdout ?? '') : null
-    if (partial?.runId && ['blocked', 'partially-collected'].includes(partial.state)) {
-      const summary = publicSummary(request.operation, error.stdout)
+    const partial = ['project.collect', 'project.audit'].includes(request.operation) ? parseJson(error?.stdout ?? '') : null
+    const partialAudit = request.operation === 'project.audit'
+      && validProjectAuditEnvelope(partial, request.input.runId) && ['pending', 'blocked'].includes(partial.status)
+    if (partial?.runId && (request.operation === 'project.collect' && ['blocked', 'partially-collected'].includes(partial.state) || partialAudit)) {
+      const summary = publicSummary(request.operation, error.stdout, request.input?.runId)
       const metrics = { elapsedMs: Math.round(performance.now() - started) }
       const telemetrySummary = telemetry?.snapshot?.() ?? null
       writePrivateJson(journal, { ...base, finishedAt: now(), status: 'partial', summary, metrics, telemetry: telemetrySummary,

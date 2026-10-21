@@ -3,7 +3,7 @@ id: module.synchronization.global-sync
 status: accepted
 implementation: partial
 created: 2026-10-13
-updated: 2026-10-20
+updated: 2026-10-21
 consumers:
   - "Education sync operator"
   - "sync-project CLI"
@@ -17,6 +17,7 @@ code:
   - "sync/day-source-revision.mjs"
   - "sync/job-queue.mjs"
   - "sync/project-plan.mjs"
+  - "sync/project-audit.mjs"
   - "sync/publication-audit.mjs"
   - "sync/run-context.mjs"
 parent: module.synchronization
@@ -31,6 +32,7 @@ sections:
   - status
   - report
   - reconciliation
+  - publication-audit
 ---
 # Глобальная синхронизация Education {#global-sync}
 
@@ -116,3 +118,9 @@ Credentials общие для sync и worker: token refresh записывает
 Сверка публикации также сравнивает полный срез оценок МЭШ с двумя ролевыми страницами, которые читает блок оценок. Отстающая лента или средний добавляют `grade-projection-stale` к ожидающему дню даже при нуле изменений расписания. Для неизменившихся дней операторский сбор самостоятельно продвигает только время полной проверки в ролевых календарях с условием версии записи и обратным чтением; он не объявляет новое ДЗ опубликованным и не переносит неподтверждённые оценки в интерфейс.
 
 Перевод адресной фазы в `complete` повторно сравнивает все даты окна с опубликованным индексом Firestore и отказывает, если `pendingPublicationDates` не пуст. Флаги оператора о readback и конечной очереди остаются отдельными обязательными условиями.
+
+## Проверка публикации сохранённого запуска {#publication-audit}
+
+`npm run sync:project -- audit --run RUNID` повторно читает публикацию того же сохранённого запуска и его frozen 42-дневного окна. Команда не запускает inventory, inbox, Mesh adapter или сбор; она сверяет run manifest, `checkedFrom`/`checkedThrough`, полный локальный снимок каждой даты и текущий `syncStatus.runId`. Путь исходников ограничен `.local/diary` с явным legacy owner или canonical `.local/project-sync/sources/{familyId}/{childId}/diary`; canonical путь проверяется через `realpath` и `context.json`. Владельца и роль обоих dashboard проверяют точно, а `syncStatus.runId` перечитывается перед сохранением результата.
+
+Адаптер проецирует полный dashboard index на даты manifest-окна; исторические записи за его пределами не являются отсутствующими датами текущего аудита. Публикационные расхождения по-прежнему считаются по всему замороженному окну, включая даты без ожидаемой записи. Отдельный receipt в закрытой `project-sync/audit-receipts/` сообщает `publication-verified`, `pending` или `blocked` и `pendingPublicationDates`. Это только результат сверки публикации: `publication-verified` не завершает workflow, не снимает блокировку источника и не закрывает reconcile-day. Полный source check всё равно требует штатного EducationSync. Ошибка/неполный снимок блокирует аудит; пустое `expectedByDate` допустимо для пустого календарного горизонта только после проверки 42 полных snapshot, и не создаёт фиктивные даты или карточки.

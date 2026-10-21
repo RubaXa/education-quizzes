@@ -5786,7 +5786,7 @@
   {
     "id": "scripts/sync-project.mjs#admin.get#a3750996ffdd",
     "file": "scripts/sync-project.mjs",
-    "line": 154,
+    "line": 157,
     "api": "admin.get",
     "target": "db.collection(`families/${target.familyId}/children/${target.childId}/tasks`) .where('dueDate', '>=', dates[0]).where('dueDate', '<=', dates.at(-1))",
     "group": "operator-sync",
@@ -5798,7 +5798,7 @@
   {
     "id": "scripts/sync-project.mjs#admin.get#ddaa06b20bbd",
     "file": "scripts/sync-project.mjs",
-    "line": 166,
+    "line": 169,
     "api": "admin.get",
     "target": "db.doc(`dayDashboards/${token}`)",
     "group": "operator-sync",
@@ -5810,7 +5810,7 @@
   {
     "id": "scripts/sync-project.mjs#admin.get#4e894d48fdca",
     "file": "scripts/sync-project.mjs",
-    "line": 186,
+    "line": 191,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${token}`)",
     "group": "operator-sync",
@@ -5822,7 +5822,7 @@
   {
     "id": "scripts/sync-project.mjs#admin.get#efe6ef9926c8",
     "file": "scripts/sync-project.mjs",
-    "line": 209,
+    "line": 215,
     "api": "admin.get",
     "target": "snapshot.ref",
     "group": "operator-sync",
@@ -5834,7 +5834,7 @@
   {
     "id": "scripts/sync-project.mjs#admin.get#51573d45cc18",
     "file": "scripts/sync-project.mjs",
-    "line": 353,
+    "line": 359,
     "api": "admin.get",
     "target": "statusRef(target)",
     "group": "operator-sync",
@@ -5846,7 +5846,7 @@
   {
     "id": "scripts/sync-project.mjs#admin.get#16193df213d4",
     "file": "scripts/sync-project.mjs",
-    "line": 373,
+    "line": 379,
     "api": "admin.get",
     "target": "db.collection('operatorSyncJobs').where('runId', '==', runId)",
     "group": "operator-sync",
@@ -5854,6 +5854,18 @@
     "policy": "bounded-operator-query",
     "refresh": "on explicit action or affected event",
     "note": "Операторский путь: проверить кратность и размер результата в реальном прогоне; при повторе использовать адресный ID/локальный снимок с ревизией."
+  },
+  {
+    "id": "scripts/sync-project.mjs#admin.get#51573d45cc18-2",
+    "file": "scripts/sync-project.mjs",
+    "line": 403,
+    "api": "admin.get",
+    "target": "statusRef(target)",
+    "group": "operator-sync",
+    "assessment": "justified",
+    "policy": "operator-point",
+    "refresh": "each explicit audit, before and after publication reads",
+    "note": "Адресная проверка текущего syncStatus.runId для одного manifest owner до аудита и перед private receipt; предотвращает подтверждение окна, если общий статус сменился во время чтения. Не меняет статус и не подписывается на документ."
   },
   {
     "id": "scripts/sync-queue.mjs#admin.get#0c932d4bbe60",
@@ -7790,7 +7802,7 @@
   {
     "id": "sync/publication-audit.mjs#admin.get#5bf6d41d7b66",
     "file": "sync/publication-audit.mjs",
-    "line": 40,
+    "line": 48,
     "api": "admin.get",
     "target": "publication.expectedByDate",
     "group": "operator-other",

@@ -7,6 +7,16 @@ import { operationCatalog, operationCommand, operationFingerprint, validateOpera
 const request = (operation, input = {}) => ({ schemaVersion: 1, operation, input })
 
 describe('stable operator operation contract', () => {
+  it('exposes saved-run publication audit as a typed read operation without apply', () => {
+    const runId = '2026-10-21-11111111-1111-4111-8111-111111111111'
+    expect(operationCommand(request('project.audit', { runId }), false)).toEqual({
+      script: 'scripts/sync-project.mjs', argv: ['audit', '--run', runId],
+    })
+    expect(operationCatalog().find((item) => item.id === 'project.audit')).toMatchObject({ effect: 'read', input: ['runId'] })
+    expect(() => operationCommand(request('project.audit', { runId: '../other' }), false)).toThrow('invalid input.runId')
+    expect(() => operationCommand(request('project.audit', { runId, complete: true }), false)).toThrow('unknown input.complete')
+  })
+
   it('has one discoverable route per repeatable Education operation', () => {
     const ids = operationCatalog().map((item) => item.id)
     expect(ids).toContain('project.collect')

@@ -21,6 +21,9 @@ const fields = (shape) => (input) => {
 export const operations = Object.freeze({
   'project.plan': { effect: 'read', script: 'scripts/sync-project.mjs', command: 'plan', validate: fields({}), argv: none },
   'project.collect': { effect: 'write', script: 'scripts/sync-project.mjs', command: 'collect', validate: fields({}), argv: none },
+  'project.audit': { effect: 'read', script: 'scripts/sync-project.mjs', command: 'audit',
+    validate: fields({ runId: (v) => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}-[a-f0-9-]{36}$/.test(v) }),
+    argv: (input) => ['--run', input.runId] },
   'inbox.snapshot': { effect: 'read', script: 'scripts/sync-inbox.mjs', validate: fields({}), argv: none },
   'queue.list': { effect: 'read', script: 'scripts/sync-queue.mjs', command: 'list', validate: fields({}), argv: none },
   'queue.scan': { effect: 'write', script: 'scripts/sync-queue.mjs', command: 'scan', validate: fields({}), argv: none },
@@ -85,6 +88,7 @@ export function operationCatalog() {
 const guidance = {
   'project.plan': ['Обнаружить все семьи, детей и доступы МЭШ.', 'queued — цели сбора, blocked — конкретные отсутствующие доступы; это ещё не проверка источников.'],
   'project.collect': ['Собрать МЭШ за 42 даты от текущего понедельника.', 'report и timing описывают сбор; awaiting-enrichment требует сверки новых материалов. partial не означает успешное завершение; sourceJournal содержит причины.'],
+  'project.audit': ['Перечитать публикацию сохранённого окна конкретного запуска.', 'Проверяет публикацию без сбора и изменения очереди или фазы. publication-verified не означает завершение workflow или снятие блокировки источника; pending/blocked требуют продолжения.'],
   'inbox.snapshot': ['Получить полный пользовательский inbox всех семей.', 'Только complete=true разрешает трактовать нулевые counts как пустую очередь; ошибка чтения не равна отсутствию работ.'],
   'queue.list': ['Прочитать сохранённые задания операторской очереди.', 'Это сохранённое состояние, без нового обнаружения источников; blocked требует чтения причины в закрытой квитанции.'],
   'queue.scan': ['Обновить очередь из полного inbox и подтверждённых источников.', 'summary.inbox.complete должен быть true; полный inboxSnapshot находится в закрытом stdout квитанции. created/resolved не являются числом опубликованных учебных результатов.'],
@@ -100,6 +104,7 @@ const guidance = {
 }
 
 const sampleFields = {
+  'project.audit': { runId: 1 },
   'grades.snapshot': { sourceDate: 1, reportPath: 1 },
   'quiz.validate': { specPath: 1 }, 'quiz.publish': { specPath: 1, personId: 1 },
   'quiz.revise-open': { learnerToken: 1, specPath: 1, personId: 1 },

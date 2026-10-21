@@ -614,7 +614,7 @@
       }
     },
     "operator/operation-contract.mjs": {
-      "sha256": "35a9e68a9c8155cb721ce774fdf18a05d7410f605411faca7d0dcd5f9fd06c28",
+      "sha256": "e0416775e5facb31b62761ae815a104ad681828753bcc5f27e825320a44a47b0",
       "record": "docs/decisions/operator-tool-trial-2026-10-16.md",
       "specs": [
         "docs/services/operator-cli/README.md",
@@ -652,17 +652,20 @@
       }
     },
     "operator/run-operation.mjs": {
-      "sha256": "cba40356f38c149f9d258e61d4d1bb3392bb2a304bc841081cae046d1c12cc15",
-      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "sha256": "df8c6112444f0ab3413af99037cae742ea1359858dd3d5f0a0088e900d7644d6",
+      "record": "docs/decisions/project-publication-audit-2026-10-21.md",
       "specs": [
-        "docs/shared/server-runtime.md"
+        "docs/modules/synchronization/global-sync.md",
+        "docs/modules/synchronization/firestore-read-paths.md",
+        "docs/services/operator-cli/README.md"
       ],
       "tests": [
-        "operator/run-operation.test.mjs"
+        "operator/run-operation.test.mjs",
+        "operator/operation-contract.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+        "evidence": "Прямое поручение EducationSync/root: добавить read-only аудит сохранённого manifest-window с отдельным private receipt без сбора и изменения workflow."
       }
     },
     "packages/education-connect/bin/education-connect.mjs": {
@@ -2392,17 +2395,20 @@
       ]
     },
     "scripts/sync-project.mjs": {
-      "sha256": "f586ab2fa3abb898f2e20d314920832d9a07e4ede4c01513622e6f06eb60ec73",
-      "record": "docs/decisions/pupil-vacations-2026-10-19.md",
+      "sha256": "240f58e1c3e2a00380691b6ce2400725a537809dc065af5b39ea587fc50ee13f",
+      "record": "docs/decisions/project-publication-audit-2026-10-21.md",
       "specs": [
-        "docs/modules/school-diary/school-calendar.md"
+        "docs/modules/synchronization/global-sync.md",
+        "docs/modules/synchronization/firestore-read-paths.md",
+        "docs/services/operator-cli/README.md"
       ],
       "tests": [
+        "sync/project-audit.test.mjs",
         "sync/publication-audit.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 просит выделить каникулы красивым блоком дней, получая даты только из МЭШ конкретного ученика."
+        "evidence": "Прямое поручение EducationSync/root: добавить read-only аудит сохранённого manifest-window с отдельным private receipt без сбора и изменения workflow."
       }
     },
     "scripts/sync-queue.mjs": {
@@ -5576,25 +5582,19 @@
       }
     },
     "sync/publication-audit.mjs": {
-      "sha256": "42851a6d36448813d341f1e25ca04d1b1d2a0d90f79ca9c9eda8198d7ab7ddde",
-      "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
+      "sha256": "cb092eb1a5eac6f4a9d05af3aec59a8cf4f11123c893c64e803d557db45a31cc",
+      "record": "docs/decisions/project-publication-audit-2026-10-21.md",
       "specs": [
-        "docs/shared/specification-system.md"
+        "docs/modules/synchronization/global-sync.md",
+        "docs/modules/synchronization/firestore-read-paths.md",
+        "docs/services/operator-cli/README.md"
       ],
       "tests": [
         "sync/publication-audit.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя 16.10.2026 внедрить согласованную структуру спецификаций, перенести ссылки в коде и проверить сохранность требований; изменение предметного поведения не выполнялось."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "0006148a166403903fdac889c925fabe9c1836d70b4fe2a58b0f8909e40d3814"
-      },
-      "specificationLifecycle": {
-        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
-        "previousSha256": "7d94418c96ce0155084e47a2dd1051844bc2e8572514d405c5636bbca1590cb1"
+        "evidence": "Прямое поручение EducationSync/root: добавить read-only аудит сохранённого manifest-window с отдельным private receipt без сбора и изменения workflow."
       }
     },
     "sync/run-context.mjs": {
@@ -5871,6 +5871,22 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Прямое поручение пользователя через EducationSync 21.10.2026: сохранить информационную запись МЭШ «Всем хороших каникул!» без ложного учебного долга, с общим маршрутом классификации и проверками."
+      }
+    },
+    "sync/project-audit.mjs": {
+      "sha256": "dcaeb99378683eb3add6cdd7c57c31a22a02c5c15a7dc07b2b444fdc4f50fb42",
+      "record": "docs/decisions/project-publication-audit-2026-10-21.md",
+      "specs": [
+        "docs/modules/synchronization/global-sync.md",
+        "docs/modules/synchronization/firestore-read-paths.md",
+        "docs/services/operator-cli/README.md"
+      ],
+      "tests": [
+        "sync/project-audit.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямое поручение EducationSync/root: добавить read-only аудит сохранённого manifest-window с отдельным private receipt без сбора и изменения workflow."
       }
     }
   }

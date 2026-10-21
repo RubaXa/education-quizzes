@@ -3,13 +3,15 @@ id: service.operator-cli
 status: accepted
 implementation: partial
 created: 2026-10-16
-updated: 2026-10-17
+updated: 2026-10-21
 consumers:
   - "Education operator"
   - "operator CLI"
   - "service developer"
 code:
   - "scripts/education.mjs"
+  - "operator/operation-contract.mjs"
+  - "operator/run-operation.mjs"
   - "scripts/submissions.mjs"
   - "storage/review-readback.mjs"
 parent: product.education
@@ -97,9 +99,11 @@ flowchart TD
 
 Вход CLI — JSON-файл вида `{"schemaVersion":1,"operation":"grades.snapshot","input":{"sourceDate":"2026-10-19","reportPath":"reports/2026-10-16-education-sync/baseline.md"}}`. Команда `npm run education -- catalog` возвращает фиксированный реестр, `npm run education -- run REQUEST.json` делает чтение/предпросмотр, `--apply` разрешает запись, `status` собирает проектный статус, `discover --apply` начинает очередь и инвентаризацию, `finalize --apply` повторяет inbox и очередь. `result RUN_UUID` читает безопасную сводку квитанции. Произвольные скрипты, SQL/Firestore-пути и имена исполняемых файлов во входе запрещены.
 
-Операции в реестре: `project.plan/collect`, `inbox.snapshot`, `queue.list/scan`, `grades.snapshot/publish`, `calendar.publish`, `day.audit`, `quiz.validate/publish/revise-open`, `review.validate/publish`. Они делегируют уже существующим доменным CLI; не делают скрытой педагогической оценки. `quiz.publish` и `quiz.revise-open` требуют явный `personId` из закрытого реестра семей. `quiz.revise-open` допускает только ещё не начатую открытую попытку: сверяет исходные ошибки, целевой объём и план, транзакцией сохраняет идентификатор и ссылку, затем читает назначение, ключ, предпросмотр и ролевые индексы. Начатую попытку операция не меняет. Переход `project.phase complete` пока оставлен в предметной команде: общий CLI не принимает произвольную строку как доказательство обратной проверки. Пакет записи сначала проходит соответствующий валидатор. Квитанция сохраняется с правами `0600`; stdout с личными ссылками остаётся только там, в обычный вывод попадают разрешённые агрегаты. Отпечаток теста включает JSON и закрытый assessment plan. Та же успешная публикация повторно не создаётся; исход с потерянным подтверждением требует readback, а не слепого повторения.
+Операции в реестре: `project.plan/collect/audit`, `inbox.snapshot`, `queue.list/scan`, `grades.snapshot/publish`, `calendar.publish`, `day.audit`, `quiz.validate/publish/revise-open`, `review.validate/publish`. Они делегируют уже существующим доменным CLI; не делают скрытой педагогической оценки. `quiz.publish` и `quiz.revise-open` требуют явный `personId` из закрытого реестра семей. `quiz.revise-open` допускает только ещё не начатую открытую попытку: сверяет исходные ошибки, целевой объём и план, транзакцией сохраняет идентификатор и ссылку, затем читает назначение, ключ, предпросмотр и ролевые индексы. Начатую попытку операция не меняет. Переход `project.phase complete` пока оставлен в предметной команде: общий CLI не принимает произвольную строку как доказательство обратной проверки. Пакет записи сначала проходит соответствующий валидатор. Квитанция сохраняется с правами `0600`; stdout с личными ссылками остаётся только там, в обычный вывод попадают разрешённые агрегаты. Отпечаток теста включает JSON и закрытый assessment plan. Та же успешная публикация повторно не создаётся; исход с потерянным подтверждением требует readback, а не слепого повторения.
 
 ## Метрики и критерии завершения {#execution}
+
+`project.audit` принимает только `runId` и повторно проверяет сохранённый publication window без инвентаризации, сбора и перевода фазы. Успех требует точного статуса `publication-verified`, 42 полных дат, пустого списка ожидания, `readOnly:true`, `receiptReadOnly:true`, `workflowPhaseChanged:false` и receipt вида `project-sync/audit-receipts/RUNID-UUID.json`. Operator wrapper отвергает отсутствующий, чужой или не-private receipt; `pending`/`blocked` сохраняются как `partial`. Ни один из этих статусов не означает workflow complete.
 
 `catalog` и `describe OPERATION` возвращают назначение и трактовку результата рядом с контрактом входа. Фиксированные рецепты в `operator/recipes.mjs`: `discover` = `queue.scan → project.plan`, `finalize` = `queue.scan`; полный свежий inbox сохранён внутри закрытого результата сканирования. Второй прямой inbox в этих рецептах запрещён тестом. Неполный снимок останавливает рецепт; его нельзя считать пустым. `status` остаётся отдельным чтением `plan → inbox → queue.list`.
 
