@@ -122,10 +122,11 @@ describe('schedule warm start', () => {
     try {
       await act(async () => { root.render(<DayDashboard token="calendar" parent />) })
       const lesson = host.querySelector<HTMLDetailsElement>('.day-dashboard-lesson')!
-      expect(lesson.querySelector('.day-dashboard-lesson-badge')?.textContent).toBe('По желанию')
+      expect(lesson.querySelector('.day-dashboard-lesson-badge')?.textContent).toBe('Самопроверка')
       expect(lesson.querySelector('.day-dashboard-lesson-badge')?.textContent).not.toContain('0 из 1')
       await act(async () => { lesson.open = true })
-      expect(lesson.querySelector('.day-dashboard-lesson-body')?.textContent).toContain('не входит в счётчик заданий')
+      expect(lesson.querySelector('.day-dashboard-lesson-body')?.textContent).toContain('учитывается отдельно от школьного задания')
+      expect(lesson.textContent).not.toMatch(/по желанию|обязательно|опционально/iu)
     } finally { await act(async () => root.unmount()); host.remove() }
   })
   it('shows only a two-em dash for confirmed empty homework with an accessible explanation', async () => {

@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/collapsed-variant-status-2026-10-21.md */
 import { useEffect, useState } from 'react'
 import { BookOpen, ChevronDown } from 'lucide-react'
 import type { DayWorkReview, ParentTaskGuide as Guide } from '@/lib/dayStore'
@@ -150,9 +151,7 @@ export default function ParentTaskGuide({ guide, review, decisions = [], guidanc
     {review && <div className="day-learning-route-progress" aria-label="Состояние проверки фото">
       {mathematics && <><span>Ответ: <b>{review?.mathReasoning?.answer === 'correct' ? 'верен' : review?.mathReasoning?.answer === 'incorrect' ? 'неверен' : 'не подтверждён'}</b></span>
       <span>Ход: <b>{review?.mathReasoning?.argument === 'sufficient' ? 'подтверждён' : review?.mathReasoning?.argument === 'incomplete' ? 'неполон' : review?.mathReasoning?.argument === 'not-shown' ? 'не показан' : review?.mathReasoning?.argument === 'unreadable' ? 'не читается' : 'пока неясен'}</b></span></>}
-      <small>{completion && !mathematics ? completion.complete
-        ? `${completion.confirmed} из ${completion.required} пунктов подтверждено${completion.optional ? `; ${completion.optional} по желанию` : ''}. Работа выполнена по семейному плану.`
-        : `${completion.confirmed} из ${completion.required} пунктов подтверждено${completion.optional ? `; ${completion.optional} по желанию` : ''}.`
+      <small>{completion && !mathematics ? `${completion.actualConfirmed} из ${completion.total} этапов подтверждено${completion.needsFix ? `; исправить ${completion.needsFix}` : ''}${completion.required ? `. Семейный план: ${completion.confirmed} из ${completion.required}${completion.complete ? ' выполнено' : ' подтверждено'}` : ''}.`
         : disputedCriterion ? 'Все части задания предъявлены. Критерий формы спорен; от ребёнка пока ничего не требуется.'
         : firstAttention >= 0 ? `${correct} из ${matched.length} сопоставленных этапов подтверждено; ${guide.stages.length - matched.length} пока без результата. Ниже — первое место, требующее внимания.`
           : `${correct} из ${matched.length} сопоставленных этапов подтверждено; ${guide.stages.length - matched.length} пока без результата.`}</small>
@@ -167,7 +166,7 @@ export default function ParentTaskGuide({ guide, review, decisions = [], guidanc
       const required = isRequired(stage)
       const choicePending = checkable && (stageSaving === stage.id || stage.id in unresolvedChoices)
       return <div className="day-learning-route-stage-shell" key={stage.id}><details className={`day-learning-route-stage ${result?.status ? `day-learning-route-${result.status}` : ''}${checkable && !required ? ' day-learning-route-optional' : ''}`} open={stageError?.id === stage.id && stageError.reviewVersion === reviewVersion}>
-        <summary><span className="day-learning-route-number">{result ? <StatusIcon size={17} status={choicePending ? 'waiting' : checkable && !required ? 'ready' : result.status === 'correct' ? 'complete' : result.status === 'incorrect' ? 'needs-fix' : result.status === 'partial' ? 'partial' : 'unknown'} /> : review ? <StatusIcon size={17} status="unknown" /> : index + 1}</span><span className="day-learning-route-stage-title"><b>{formatReviewProse(stage.title)}</b>{choicePending ? <small role="status">{stageSaving === stage.id ? 'Сохраняем выбор…' : 'Ждём подтверждения…'}</small> : result ? <small>{checkable && !required ? 'По желанию · не входит в итог' : disputedCriterion && result.status === 'cannot-assess' ? 'Критерий формы спорен' : !mathematics && result.status === 'cannot-assess' ? 'Пока не подтверждено' : statusText[result.status]}</small> : review && <small>Этап пока не сопоставлен с проверкой</small>}</span>
+        <summary><span className="day-learning-route-number">{result ? <StatusIcon size={17} status={choicePending ? 'waiting' : result.status === 'correct' ? 'complete' : result.status === 'incorrect' ? 'needs-fix' : result.status === 'partial' ? 'partial' : 'unknown'} /> : review ? <StatusIcon size={17} status="unknown" /> : index + 1}</span><span className="day-learning-route-stage-title"><b>{formatReviewProse(stage.title)}</b>{choicePending ? <small role="status">{stageSaving === stage.id ? 'Сохраняем выбор…' : 'Ждём подтверждения…'}</small> : result ? <small>{disputedCriterion && result.status === 'cannot-assess' ? 'Критерий формы спорен' : !mathematics && result.status === 'cannot-assess' ? 'Пока не подтверждено' : statusText[result.status]}</small> : review && <small>Этап пока не сопоставлен с проверкой</small>}</span>
         </summary>
         <div className="day-learning-route-body">
           {stageError?.id === stage.id && stageError.reviewVersion === reviewVersion && <p className="day-learning-route-error" role="alert">{stageError.message}</p>}

@@ -1,0 +1,8 @@
+/* @see ../../docs/decisions/collapsed-variant-status-2026-10-21.md */
+/* @see ../../docs/shared/design/statuses.md#components */
+.practice-variant-status{display:inline-flex;align-items:center;gap:4px;flex:none;font-size:.78rem;font-weight:700;white-space:nowrap}
+.practice-variant-status[data-status="verified"],.practice-variant-status[data-status="accepted"]{color:var(--edu-status-success-ink)}
+.practice-variant-status[data-status="needs-fix"],.practice-variant-status[data-status="partial"]{color:var(--edu-status-attention-ink)}
+.practice-variant-status[data-status="in-progress"]{color:var(--edu-status-waiting-ink)}
+.practice-variant-status[data-status="not-started"]{color:var(--edu-status-neutral-ink)}
+.day-practice-variant>summary strong{overflow-wrap:anywhere}

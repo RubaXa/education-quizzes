@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/collapsed-variant-status-2026-10-21.md */
 /* @see ../docs/decisions/weekend-parent-actions-2026-10-18.md */
 /* @see ../docs/decisions/work-photo-expand-2026-10-18.md */
 /* @see ../docs/decisions/upload-origin-links-2026-10-18.md */
@@ -24,6 +25,7 @@ import MaterialReader, { canReadInside } from '@/components/MaterialReader'
 import WorkReview from '@/components/WorkReview'
 import ProblemGroup from '@/components/ProblemGroup'
 import ProblemTaskCard from '@/components/ProblemTaskCard'
+import { PracticeVariantStatus } from '@/components/PracticeVariantStatus'
 import ParentTaskGuide from '@/components/ParentTaskGuide'
 import RequirementSwitch from '@/components/RequirementSwitch'
 import AssignmentBrief from '@/components/AssignmentBrief'
@@ -31,13 +33,14 @@ import TaskGuidance from '@/components/TaskGuidance'
 import PhotoUploadControl from '@/components/PhotoUploadControl'
 import QuizCard from '@/components/QuizCard'
 import { findQuizPlacement, quizChain, quizTaskForPlacement, withQuizPlacements, type QuizCardAttempt } from '@/lib/quizCardViewModel'
+import { practiceVariantView } from '@/lib/practiceVariantViewModel'
 import { useDayEvidence } from '@/lib/useDayEvidence'
 import { useParentCompletions } from '@/lib/useParentCompletions'
 import { lessonWorkItems, quizRequirement, requiredQuizRequirement } from '@/lib/homeworkStatus'
 import { pupilCanAddPhoto } from '@/lib/photoUploadPolicy'
 // @see ../docs/decisions/non-test-result-upload-2026-10-19.md
 import { assignmentProgress, assignmentTitle } from '@/lib/assignmentPresentation'
-import { canAcceptCorrectAnswer, parentAccepted, recordParentCompletion, recordRequirementChoice, recordStageChoice, recordVariantChoice, requiredFamilyActions, requirementChoice, stageCompletion, practiceRequired } from '@/lib/parentCompletion'
+import { canAcceptCorrectAnswer, parentAccepted, recordParentCompletion, recordRequirementChoice, recordStageChoice, recordVariantChoice, requiredFamilyActions, stageCompletion, practiceRequired } from '@/lib/parentCompletion'
 import { activeProcessing, problemCardState, showSeparateWorkReview, workCoverageComplete } from '@/lib/reviewPresentation'
 import './DayPage.css'
 import { reportUiError } from '@/lib/uiErrors'
@@ -467,6 +470,9 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
         const assignments = assignmentProgress(subject.tasks, (task) => workItems([task]))
         const numberedSheet = subject.tasks.length === 1 && Boolean(subject.tasks[0].problems?.length)
         const numberedProblemIds = new Set(numberedSheet ? subject.tasks[0].problems!.filter((problem) => !problem.variantId || practiceRequired(subject.tasks[0], problem.variantId, parentDecisions.events)).map((problem) => problem.id) : [])
+        const subjectVariantView = numberedSheet ? practiceVariantView(subject.tasks[0].problems!, reviews, uploads, parentDecisions.events,
+          localPhotos.filter(photo => subject.tasks[0].problems!.some(problem => problem.id === photo.taskId) && !uploads.some(upload => upload.id === `${studentToken}:${photo.id}` && upload.status === 'reviewed')).length,
+          evidenceReady && parentDecisions.ready) : null
         const numberedDone = subjectItems.filter((item) => numberedProblemIds.has(item.id) && item.state === 'done').length
         const meshOnlyTasks = subject.tasks.filter((task) => !task.familyOrigin && !task.problems?.length)
         const subjectDone = assignments.multiple ? assignments.complete : subjectItems.length > 0 && subjectItems.every((item) => item.state === 'done')
@@ -477,7 +483,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
             <button className="day-subject-toggle" type="button" aria-expanded={expanded} aria-label={`${expanded ? 'Свернуть' : 'Развернуть'} ${subject.name}`} onClick={() => setSubjectOpen((current) => ({ ...current, [subject.id]: !expanded }))}><ChevronDown size={19} aria-hidden="true" /></button>
             {expanded && subject.materials && <p className="day-subject-materials">{subject.materials}</p>}
             {(numberedSheet || assignments.multiple || subjectDone || summary) && <div className="day-subject-status">
-              {numberedSheet && numberedProblemIds.size ? <span className={`day-subject-assignment-count${numberedDone === numberedProblemIds.size ? ' is-complete' : ''}`} aria-label={`Задачи учителя: ${numberedDone} из ${numberedProblemIds.size} выполнено`}><StatusIcon size={16} status={numberedDone === numberedProblemIds.size ? 'complete' : numberedDone ? 'partial' : 'ready'} />Задачи: {numberedDone} из {numberedProblemIds.size}</span>
+              {numberedSheet && subjectVariantView ? <span className={`day-subject-assignment-count${subjectVariantView.status === 'verified' || subjectVariantView.status === 'accepted' ? ' is-complete' : ''}`} aria-label={`Фактический статус всех задач: ${subjectVariantView.label}${numberedProblemIds.size ? `; обязательная часть ${numberedDone} из ${numberedProblemIds.size}` : ''}`}><StatusIcon size={16} status={subjectVariantView.status === 'verified' || subjectVariantView.status === 'accepted' ? 'complete' : subjectVariantView.status === 'needs-fix' ? 'needs-fix' : subjectVariantView.status === 'partial' ? 'partial' : subjectVariantView.status === 'in-progress' ? 'waiting' : 'ready'} />{subjectVariantView.label}</span>
                 : assignments.multiple && assignments.requiredTotal ? <span className={`day-subject-assignment-count${assignments.complete ? ' is-complete' : ''}`} aria-label={`${assignments.completed} из ${assignments.requiredTotal} обязательных заданий выполнено`}><StatusIcon size={16} status={assignments.complete ? 'complete' : assignments.completed ? 'partial' : 'ready'} />{assignments.completed} из {assignments.requiredTotal}</span>
                 : subjectDone && <span className="day-subject-complete" aria-label={`Выполнено ${doneCount} из ${subjectItems.length}`}><StatusIcon status="complete" size={16} />{doneCount} из {subjectItems.length}</span>}
               <GradeBadge summary={summary} details={grade} threshold={page.workingThreshold} asOf={page.gradeAsOf} />
@@ -515,7 +521,6 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
               const familyStageComplete = stageCompletion(review, parentDecisions.events)?.complete ?? false
               const criterionPending = review?.assessmentBasis?.outcome === 'unresolved'
               const familyActions = requiredFamilyActions(review, parentDecisions.events)
-              const familyOptional = review?.assessmentBasis?.disputedRequirements?.some((item) => requirementChoice(review, item.id, parentDecisions.events) === 'optional') ?? false
               const processing = activeProcessing(review, taskUploads)
               const taskStatus = familyStageComplete ? 'verified' : criterionPending ? 'unknown' : accepted ? 'verified' : review?.status && review.status !== 'cannot-assess' ? review.status : task.status
               const localTaskPhotos = localPhotos.filter((photo) => photo.taskId === task.id)
@@ -531,8 +536,8 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
               // @see ../docs/modules/school-diary/dashboard.md#reference-only-homework
               const state = materialView ? materialView.label : task.referenceDate ? referencedItems.length ? `${referenceDone ? 'Готово' : 'Осталось'} · ДЗ за ${dayMonth(task.referenceDate)} · ${referencedItems.filter((item) => item.state === 'done').length} из ${referencedItems.length}` : `См. ДЗ за ${dayMonth(task.referenceDate)}` : task.problems?.length ? `Задачи: ${task.problems.length}` : task.kind === 'written'
                 ? taskStatus === 'verified' ? 'Готово · проверено' : processing ? 'Проверяем работу' : newWork ? 'Новое фото · ждёт проверки' : uploadingWork ? 'Фото загружается' : familyActions.length ? 'Доработать по решению родителя' : workCovered ? 'Работа сдана · оценка неясна' : criterionPending ? review?.nextStep ? 'Часть задания не подтверждена · можно добавить фото' : 'Работа разобрана · критерий неясен' : priorWork ? taskStatus === 'needs-fix' ? 'Работа проверена · исправить' : taskStatus === 'partial' ? 'Работа проверена · дополнить' : 'Работа сохранена' : statusLabel(taskStatus)
-                : task.kind === 'read' ? task.testToken && quizRequirement(task.testToken, quizStates, quizScores).state === 'optional' ? 'Самопроверка по желанию' : readPassed ? `Чтение подтверждено · ${linkedTest?.points}/${linkedTest?.maxPoints} верно` : linkedTest?.status === 'submitted' ? linkedTest.points == null ? 'Проверяем тест' : `Нужен разбор · ${linkedTest.points}/${linkedTest.maxPoints}` : 'Нужен тест' : cdzTask ? task.platformResult?.state === 'completed' ? cdzResultLabel(task.platformResult) : processing ? 'Проверяем результат ЦДЗ' : newWork ? 'Скриншот ЦДЗ получен · ждёт проверки' : uploadingWork ? 'Скриншот загружается' : 'Нужен скриншот результата ЦДЗ' : statusLabel(taskStatus)
-              const uploadLabel = materialView ? newWork || uploadingWork ? 'Добавить ещё фото записей' : 'Добавить фото записей' : cdzTask ? newWork || uploadingWork ? 'Добавить ещё фото ЦДЗ' : 'Загрузить результат ЦДЗ' : newWork || uploadingWork ? 'Добавить ещё фото' : familyActions.length ? 'Загрузить фото доработки' : familyOptional && criterionPending ? 'Добавить фото по желанию' : priorWork ? taskStatus === 'needs-fix' ? 'Добавить фото исправления' : 'Добавить фото продолжения' : 'Загрузить результат'
+                : task.kind === 'read' ? task.testToken && quizRequirement(task.testToken, quizStates, quizScores).state === 'optional' ? 'Самопроверка доступна' : readPassed ? `Чтение подтверждено · ${linkedTest?.points}/${linkedTest?.maxPoints} верно` : linkedTest?.status === 'submitted' ? linkedTest.points == null ? 'Проверяем тест' : `Нужен разбор · ${linkedTest.points}/${linkedTest.maxPoints}` : 'Нужен тест' : cdzTask ? task.platformResult?.state === 'completed' ? cdzResultLabel(task.platformResult) : processing ? 'Проверяем результат ЦДЗ' : newWork ? 'Скриншот ЦДЗ получен · ждёт проверки' : uploadingWork ? 'Скриншот загружается' : 'Нужен скриншот результата ЦДЗ' : statusLabel(taskStatus)
+              const uploadLabel = materialView ? newWork || uploadingWork ? 'Добавить ещё фото записей' : 'Добавить фото записей' : cdzTask ? newWork || uploadingWork ? 'Добавить ещё фото ЦДЗ' : 'Загрузить результат ЦДЗ' : newWork || uploadingWork ? 'Добавить ещё фото' : familyActions.length ? 'Загрузить фото доработки' : criterionPending ? 'Добавить фото' : priorWork ? taskStatus === 'needs-fix' ? 'Добавить фото исправления' : 'Добавить фото продолжения' : 'Загрузить результат'
               // Every current non-test task accepts learner evidence.
               // Review status and source classification must not hide its uploader.
               const canUpload = pupilCanAddPhoto(task, parent)
@@ -570,14 +575,11 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
                   <h4 className="edu-visually-hidden">Задания из листа · {task.problems.length}</h4>
                   {task.practiceVariants?.length ? task.practiceVariants.map((variant) => {
                     const variantProblems = task.problems!.filter((problem) => problem.variantId === variant.id)
-                    const completed = variantProblems.filter((problem) => {
-                      const review = reviews.find((item) => item.taskId === problem.id)
-                      return review?.status === 'verified' || parentAccepted(review, parentDecisions.events)
-                    }).length
+                    const variantLocalPending = localPhotos.filter(photo => variantProblems.some(problem => problem.id === photo.taskId) && !uploads.some(upload => upload.id === `${studentToken}:${photo.id}` && upload.status === 'reviewed')).length
                     const required = practiceRequired(task, variant.id, parentDecisions.events)
                     return <div className="day-practice-variant-shell" key={variant.id}>
                       <details className="day-practice-variant" open={variantProblems.some((problem) => problem.id === focusTaskId) || undefined}>
-                        <summary><strong>{variant.title}</strong><span aria-label={required ? `${completed} из ${variantProblems.length} задач завершено` : 'Вариант по желанию'}>{required && <StatusIcon size={15} status={completed === variantProblems.length ? 'complete' : completed ? 'partial' : 'ready'} />}{required ? `${completed} из ${variantProblems.length}` : 'По желанию'}</span><ChevronDown className="day-practice-variant-chevron" size={17} aria-hidden="true" /></summary>
+                        <summary><strong>{variant.title}</strong><PracticeVariantStatus problems={variantProblems} reviews={reviews} uploads={uploads} decisions={parentDecisions.events} localPendingCount={variantLocalPending} ready={evidenceReady && parentDecisions.ready} /><ChevronDown className="day-practice-variant-chevron" size={17} aria-hidden="true" /></summary>
                         <div className="day-practice-variant-problems">{variantProblems.map(renderProblem)}</div>
                       </details>
                       {parent && <RequirementSwitch checked={required} disabled={!parentDecisions.ready || helpRole !== 'parent'} label={`Учитывать «${variant.title}» в семейном плане`} onChange={(next) => void recordVariantChoice(studentToken, task.id, variant.id, next).catch((cause) => reportUiError(cause, 'Выбор варианта'))} />}
@@ -605,10 +607,12 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
               const requiredProblems = task.practiceVariants?.length ? task.problems.filter((problem) =>
                 problem.variantId && practiceRequired(task, problem.variantId, parentDecisions.events)) : task.problems
               const problemIds = new Set(requiredProblems.map((problem) => problem.id))
-              const localPendingCount = localPhotos.filter((photo) => problemIds.has(photo.taskId) && !uploads.some((upload) => upload.id === `${studentToken}:${photo.id}` && upload.status === 'reviewed')).length
+              const localPending = localPhotos.filter((photo) => task.problems!.some(problem => problem.id === photo.taskId) && !uploads.some((upload) => upload.id === `${studentToken}:${photo.id}` && upload.status === 'reviewed'))
+              const localPendingCount = localPending.length
+              const requiredLocalPendingCount = localPending.filter(photo => problemIds.has(photo.taskId)).length
               const sourceCount = new Set(taskLinks.filter((link) => link.sourceType === 'teacher-attachment').map((link) => link.url)).size
               const teacherChoice = task.practiceVariants?.length && task.practiceVariants.every(variant => variant.optionalByTeacher)
-              return <ProblemGroup key={task.id} id={task.id} title={task.practiceVariants?.length ? assignmentTitle(task, assignmentIndex, assignments.total).replace(/^Подготовиться к (?:самостоятельной|контрольной)(?: работе)?:/i, 'Подготовка:') : assignmentTitle(task, assignmentIndex, assignments.total)} subtitle={teacherChoice ? 'Реши сколько получится · по выбору учителя' : task.practiceVariants?.length ? `${task.practiceVariants.length} варианта из листа учителя` : undefined} problems={task.problems} requiredProblems={requiredProblems} numberLabel={teacherChoice ? `${task.problems.length} задач по выбору` : task.practiceVariants?.length ? `${task.practiceVariants.length} варианта` : undefined} uploads={uploads} reviews={reviews} decisions={parentDecisions.events} localPendingCount={localPendingCount} sourceCount={sourceCount} ready={evidenceReady && parentDecisions.ready} focusTaskId={focusTaskId}>{taskCard}</ProblemGroup>
+              return <ProblemGroup key={task.id} id={task.id} title={task.practiceVariants?.length ? assignmentTitle(task, assignmentIndex, assignments.total).replace(/^Подготовиться к (?:самостоятельной|контрольной)(?: работе)?:/i, 'Подготовка:') : assignmentTitle(task, assignmentIndex, assignments.total)} subtitle={teacherChoice ? 'Реши сколько получится · по выбору учителя' : task.practiceVariants?.length ? `${task.practiceVariants.length} варианта из листа учителя` : undefined} problems={task.problems} requiredProblems={requiredProblems} numberLabel={teacherChoice ? `${task.problems.length} задач по выбору` : task.practiceVariants?.length ? `${task.practiceVariants.length} варианта` : undefined} uploads={uploads} reviews={reviews} decisions={parentDecisions.events} localPendingCount={localPendingCount} requiredLocalPendingCount={requiredLocalPendingCount} sourceCount={sourceCount} ready={evidenceReady && parentDecisions.ready} focusTaskId={focusTaskId}>{taskCard}</ProblemGroup>
             })}
             {currentPlacements.filter((placement) => placement.subjectId === subject.id && !placement.taskId).map((placement) => {
               const test = tests.find((item) => item.token === placement.token)

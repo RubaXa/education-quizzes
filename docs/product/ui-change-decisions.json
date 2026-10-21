@@ -2376,8 +2376,8 @@
       }
     },
     "scripts/sync-queue.mjs": {
-      "sha256": "67d8b7092e5b75e6eacd58e85b8c6b71c967f3e76d7e518fc0aaf6a4e1460ce3",
-      "record": "docs/decisions/material-clarification-2026-10-16.md",
+      "sha256": "6f19a06aa0554cffe4692ea7257aaa879d00f871fb19b9096d72c91041c1bd2b",
+      "record": "docs/decisions/queue-artifact-resolution-2026-10-20.md",
       "specs": [
         "docs/modules/materials/material-clarification.md"
       ],
@@ -2565,20 +2565,22 @@
       }
     },
     "src/DayDashboard.tsx": {
-      "sha256": "62a8d2895a9552b7fc9a9f456d987efcd8ca0ca000cbf1e2fbd33788c11a4bd6",
-      "record": "docs/decisions/pupil-vacations-2026-10-19.md",
+      "sha256": "a32ccfbb5e43b39e4b7bbcf8e0c4a6800f986a0077c33b173afe4a71c8901dfa",
+      "record": "docs/decisions/collapsed-variant-status-2026-10-21.md",
       "specs": [
-        "docs/modules/school-diary/school-calendar.md"
+        "docs/modules/school-diary/day-page.md",
+        "docs/shared/design/README.md"
       ],
       "tests": [
-        "day/school-calendar.test.mjs",
-        "sync/school-calendar-publication.test.mjs",
-        "src/components/DayCalendar.test.tsx",
-        "src/DayDashboard.warmStart.test.tsx"
+        "src/lib/practiceVariantViewModel.test.ts",
+        "src/components/ProblemGroup.layout.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx",
+        "scripts/check-requirement-copy.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 просит выделить каникулы красивым блоком дней, получая даты только из МЭШ конкретного ученика."
+        "evidence": "Прямой запрос 21.10.2026: фактический статус виден в свёрнутых заголовках независимо от выбора; переключатель является единственным индикатором обязательности."
       }
     },
     "src/DayPage.css": {
@@ -2603,20 +2605,22 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "c0da0af564080dd791d942f6bbb50b74e6dad45aea48b5f8c3c40e004dcdc91a",
-      "record": "docs/decisions/photo-upload-authorization-and-freshness-2026-10-20.md",
+      "sha256": "d572baecf8511077196219eb064287bfda69d56504b355e4222b9aa317c7e55c",
+      "record": "docs/decisions/collapsed-variant-status-2026-10-21.md",
       "specs": [
-        "docs/modules/materials/storage-privacy.md",
-        "docs/modules/synchronization/event-queue.md"
+        "docs/modules/school-diary/day-page.md",
+        "docs/shared/design/README.md"
       ],
       "tests": [
-        "src/lib/educationEventProducers.test.ts",
-        "packages/education-runtime/upload-broker.test.mjs",
-        "scripts/firestore-rules-photo-upload-suite.test.mjs"
+        "src/lib/practiceVariantViewModel.test.ts",
+        "src/components/ProblemGroup.layout.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx",
+        "scripts/check-requirement-copy.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение 20.10.2026: исправить повторную регрессию ученической фотозагрузки, сохранив member scope, ownership и атомарную очередь."
+        "evidence": "Прямой запрос 21.10.2026: фактический статус виден в свёрнутых заголовках независимо от выбора; переключатель является единственным индикатором обязательности."
       }
     },
     "src/UiKit.css": {
@@ -2635,25 +2639,22 @@
       }
     },
     "src/UiKit.tsx": {
-      "sha256": "24f02a69a05e3c767e89d76b549c38b99523b25c289a62eb21ca5f844e4316e5",
-      "record": "docs/decisions/released-stage-parity-2026-10-20.md",
+      "sha256": "32aeaf22eed1b41b43e919de873e38a3f4316cd83ca7a34d165ebbf339503db3",
+      "record": "docs/decisions/collapsed-variant-status-2026-10-21.md",
       "specs": [
-        "docs/modules/reviews/subject-aware-guidance.md",
-        "docs/modules/reviews/problem-card-design-decisions.md",
-        "docs/shared/design/ui-kit.md",
+        "docs/modules/school-diary/day-page.md",
         "docs/shared/design/README.md"
       ],
       "tests": [
-        "src/lib/dayGuidance.writer.test.ts",
-        "day/guidance-release.test.mjs",
-        "day/guidance-repair.test.mjs",
-        "src/components/ParentTaskGuide.test.tsx",
-        "src/components/TaskGuidance.test.tsx",
-        "src/UiKit.test.tsx"
+        "src/lib/practiceVariantViewModel.test.ts",
+        "src/components/ProblemGroup.layout.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx",
+        "scripts/check-requirement-copy.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос пользователя 20.10.2026: в ученическом раскрытии должен появляться полный выбранный этап с переходами, строкой симметрии, причиной и источником; родительский предпросмотр должен совпадать с фактическим раскрытием."
+        "evidence": "Прямой запрос 21.10.2026: фактический статус виден в свёрнутых заголовках независимо от выбора; переключатель является единственным индикатором обязательности."
       }
     },
     "src/WeekendMathSlot.css": {
@@ -3316,29 +3317,22 @@
       }
     },
     "src/components/ParentTaskGuide.tsx": {
-      "sha256": "c2d012e21864503a0ee5f90de613aa1a7ecdacdb9b05cc12dd98868f1ab39907",
-      "record": "docs/decisions/released-stage-parity-2026-10-20.md",
+      "sha256": "6c508c5fdb27548d5efadadd89b1b268ad64fa016dc28fd80dad9c7832995783",
+      "record": "docs/decisions/collapsed-variant-status-2026-10-21.md",
       "specs": [
-        "docs/modules/reviews/subject-aware-guidance.md",
-        "docs/modules/reviews/problem-card-design-decisions.md",
-        "docs/shared/design/ui-kit.md",
+        "docs/modules/school-diary/day-page.md",
         "docs/shared/design/README.md"
       ],
       "tests": [
-        "src/lib/dayGuidance.writer.test.ts",
-        "day/guidance-release.test.mjs",
-        "day/guidance-repair.test.mjs",
-        "src/components/ParentTaskGuide.test.tsx",
-        "src/components/TaskGuidance.test.tsx",
-        "src/UiKit.test.tsx"
+        "src/lib/practiceVariantViewModel.test.ts",
+        "src/components/ProblemGroup.layout.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx",
+        "scripts/check-requirement-copy.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос пользователя 20.10.2026: в ученическом раскрытии должен появляться полный выбранный этап с переходами, строкой симметрии, причиной и источником; родительский предпросмотр должен совпадать с фактическим раскрытием."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "2311a4f098e04a4d8a28e90be3184e2555d257b65210787754090b93d3f18e63"
+        "evidence": "Прямой запрос 21.10.2026: фактический статус виден в свёрнутых заголовках независимо от выбора; переключатель является единственным индикатором обязательности."
       }
     },
     "src/components/PersonalEntry.tsx": {
@@ -3425,45 +3419,41 @@
       }
     },
     "src/components/ProblemGroup.css": {
-      "sha256": "a1985294983563d7d74558b5088265d4f8c312ea5938a1a364d4f010c0420424",
-      "record": "docs/decisions/flat-numbered-sheet-2026-10-14.md",
+      "sha256": "58525e2ebe38a7a96250b4620b3fe1c337ce94e1be30e7638417a56a045f874c",
+      "record": "docs/decisions/collapsed-variant-status-2026-10-21.md",
       "specs": [
-        "docs/modules/reviews/problem-card-design-decisions.md",
+        "docs/modules/school-diary/day-page.md",
         "docs/shared/design/README.md"
       ],
       "tests": [
-        "src/components/AssignmentBrief.test.tsx",
-        "src/components/ProblemTaskCard.contract.test.tsx",
-        "src/components/ProblemGroup.layout.test.tsx"
+        "src/lib/practiceVariantViewModel.test.ts",
+        "src/components/ProblemGroup.layout.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx",
+        "scripts/check-requirement-copy.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Запрос родителя 14.10.2026: вижу те же проблемы с вложенностью карточек; давай доделаем оставшееся."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "8ae71839edd6cef52c9ae85cb2c2a210afab5e41b4139f74c8fb818c526050ff"
+        "evidence": "Прямой запрос 21.10.2026: фактический статус виден в свёрнутых заголовках независимо от выбора; переключатель является единственным индикатором обязательности."
       }
     },
     "src/components/ProblemGroup.tsx": {
-      "sha256": "1fdd3aa888ed6564afce88e65638614d8f22a350f62ef4df5462dce989465f2b",
-      "record": "docs/decisions/flat-numbered-sheet-2026-10-14.md",
+      "sha256": "3a471b5effa65fcfe48387a5eb6eb120e0a827bce17b628aef8feb972da0547c",
+      "record": "docs/decisions/collapsed-variant-status-2026-10-21.md",
       "specs": [
-        "docs/modules/reviews/problem-card-design-decisions.md",
+        "docs/modules/school-diary/day-page.md",
         "docs/shared/design/README.md"
       ],
       "tests": [
-        "src/components/ProblemTaskCard.contract.test.tsx",
+        "src/lib/practiceVariantViewModel.test.ts",
         "src/components/ProblemGroup.layout.test.tsx",
-        "src/components/ProblemStatement.provenance.test.tsx"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx",
+        "scripts/check-requirement-copy.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 14.10.2026 повторно приложил согласованный макет и потребовал сверить с ним выпускаемую карточку."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "10d8f50428a9421726864dae1281a263204365cbf36ddfbaf3cdcb0f732ffc60"
+        "evidence": "Прямой запрос 21.10.2026: фактический статус виден в свёрнутых заголовках независимо от выбора; переключатель является единственным индикатором обязательности."
       }
     },
     "src/components/ProblemStatement.css": {
@@ -3580,24 +3570,22 @@
       }
     },
     "src/components/QuizCard.tsx": {
-      "sha256": "d8193089db4c6969377e24f525ab37149e239f982f988da7adbcae864ca18245",
-      "record": "docs/decisions/quiz-time-row-2026-10-16.md",
+      "sha256": "4553b47769ce241f57c99e852ee1769b148b4c985eff4afde793215e1e7cbc81",
+      "record": "docs/decisions/collapsed-variant-status-2026-10-21.md",
       "specs": [
-        "docs/modules/assessments/quizzes.md",
-        "docs/modules/assessments/quiz-chain-proposal.md"
+        "docs/modules/school-diary/day-page.md",
+        "docs/shared/design/README.md"
       ],
       "tests": [
-        "src/components/QuizCard.time.test.tsx",
-        "src/components/QuizCard.history.test.tsx",
-        "src/UiKit.test.tsx"
+        "src/lib/practiceVariantViewModel.test.ts",
+        "src/components/ProblemGroup.layout.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx",
+        "scripts/check-requirement-copy.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель16.10.2026 прислал скриншот и потребовал исправить раскрытие дат: блок открывается под последним тестом вместо выбранной строки."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "0733acac2f27bd17b4fe7dcdb156d591d88b2aae2590219fe28e29e9ac49798d"
+        "evidence": "Прямой запрос 21.10.2026: фактический статус виден в свёрнутых заголовках независимо от выбора; переключатель является единственным индикатором обязательности."
       }
     },
     "src/components/QuizResultCard.tsx": {
@@ -3897,20 +3885,22 @@
       }
     },
     "src/components/WorkReview.tsx": {
-      "sha256": "914a12edb9fb16698029ac4fc6b0963f9f55b4e12227f5bbcbcf49d3e097c10e",
-      "record": "docs/decisions/review-prose-coverage-2026-10-19.md",
+      "sha256": "a993ebff7b4402731f2fce63981558e592cc9c43c89ceb63c7d9611fc7038bf5",
+      "record": "docs/decisions/collapsed-variant-status-2026-10-21.md",
       "specs": [
-        "docs/modules/reviews/review-criteria-provenance.md",
+        "docs/modules/school-diary/day-page.md",
         "docs/shared/design/README.md"
       ],
       "tests": [
-        "src/lib/reviewProse.test.ts",
-        "src/components/WorkReview.requirements.test.tsx",
-        "src/components/ReviewProse.integration.test.tsx"
+        "src/lib/practiceVariantViewModel.test.ts",
+        "src/components/ProblemGroup.layout.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx",
+        "scripts/check-requirement-copy.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 подтвердил родительский вход, прислал склейки слов и чисел в разборе и прямо потребовал проверить и исправить их во многих местах."
+        "evidence": "Прямой запрос 21.10.2026: фактический статус виден в свёрнутых заголовках независимо от выбора; переключатель является единственным индикатором обязательности."
       }
     },
     "src/components/ui/badge.tsx": {
@@ -4340,18 +4330,22 @@
       }
     },
     "src/lib/homeworkStatus.ts": {
-      "sha256": "8b2c463cecb80beefcfc37805c0e9ed0bdabd6aec336db1eb81c52315404a80d",
-      "record": "docs/decisions/teacher-choice-practice-2026-10-17.md",
+      "sha256": "e95a5a0a3d9a3fcb1f375c8b34f6b09fa269c4a4345e28097736ef06225757fd",
+      "record": "docs/decisions/collapsed-variant-status-2026-10-21.md",
       "specs": [
-        "docs/modules/reviews/card-generation-policy.md"
+        "docs/modules/school-diary/day-page.md",
+        "docs/shared/design/README.md"
       ],
       "tests": [
-        "src/lib/parentCompletion.test.ts",
-        "src/lib/homeworkStatus.test.ts"
+        "src/lib/practiceVariantViewModel.test.ts",
+        "src/components/ProblemGroup.layout.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx",
+        "scripts/check-requirement-copy.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель прямо требует обязательность только по МЭШ/учителю и опциональность дополнительных пунктов;полный sync17.10 получил лист с прямым выбором «Реши сколько получится». Существующий тумблер и единый подсчёт сохранены."
+        "evidence": "Прямой запрос 21.10.2026: фактический статус виден в свёрнутых заголовках независимо от выбора; переключатель является единственным индикатором обязательности."
       }
     },
     "src/lib/homeworkUpdateReceipt.ts": {
@@ -4515,17 +4509,22 @@
       }
     },
     "src/lib/parentCompletion.ts": {
-      "sha256": "7ba74152341180f9fbca86c6fe63e171505217d82170600a1923f678436f05c9",
-      "record": "docs/decisions/unified-education-events-2026-10-19.md",
+      "sha256": "2ca3335ff2d615f65487c73f6eb3b34510305c852b240a062ebef942b32001cf",
+      "record": "docs/decisions/collapsed-variant-status-2026-10-21.md",
       "specs": [
-        "docs/modules/synchronization/event-queue.md"
+        "docs/modules/school-diary/day-page.md",
+        "docs/shared/design/README.md"
       ],
       "tests": [
-        "src/lib/parentCompletion.test.ts"
+        "src/lib/practiceVariantViewModel.test.ts",
+        "src/components/ProblemGroup.layout.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx",
+        "scripts/check-requirement-copy.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 требует одну внутреннюю очередь событий и одну подписку вместо множества source watchers; ранее поручил реализацию через Luna с проверкой root, тестами, спецификациями и выпуском в main."
+        "evidence": "Прямой запрос 21.10.2026: фактический статус виден в свёрнутых заголовках независимо от выбора; переключатель является единственным индикатором обязательности."
       }
     },
     "src/lib/parentFocusDay.ts": {
@@ -4598,22 +4597,22 @@
       }
     },
     "src/lib/problemGroupSummary.ts": {
-      "sha256": "dff754ff682709db767db3291c1e761ea5953f58f0671057cf91a66f81a10805",
-      "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
+      "sha256": "16824b87082345db765a1ed61993b01e8ee3266cd14502237dec7dd660ed6f99",
+      "record": "docs/decisions/collapsed-variant-status-2026-10-21.md",
       "specs": [
-        "docs/shared/specification-system.md"
+        "docs/modules/school-diary/day-page.md",
+        "docs/shared/design/README.md"
       ],
       "tests": [
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
+        "src/lib/practiceVariantViewModel.test.ts",
+        "src/components/ProblemGroup.layout.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx",
+        "scripts/check-requirement-copy.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя 16.10.2026 внедрить согласованную структуру спецификаций, перенести ссылки в коде и проверить сохранность требований; изменение предметного поведения не выполнялось."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "32552f1225f162ac729568686538217de6fee0c01f9916ac02a5c4343473a5ba"
+        "evidence": "Прямой запрос 21.10.2026: фактический статус виден в свёрнутых заголовках независимо от выбора; переключатель является единственным индикатором обязательности."
       }
     },
     "src/lib/questionTopicPresentation.ts": {
@@ -5728,6 +5727,82 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Пользователь сообщил, что новые назначения МЭШ не отображаются в Education; действующий протокол разделяет точную фиксацию исходного задания и последующее подтверждённое обогащение."
+      }
+    },
+    "src/components/PracticeVariantStatus.tsx": {
+      "sha256": "b1896e6872969094cc3860b540be763229bf15bc9f7e077f5b254f2e9cfcbdfa",
+      "record": "docs/decisions/collapsed-variant-status-2026-10-21.md",
+      "specs": [
+        "docs/modules/school-diary/day-page.md",
+        "docs/shared/design/README.md"
+      ],
+      "tests": [
+        "src/lib/practiceVariantViewModel.test.ts",
+        "src/components/ProblemGroup.layout.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx",
+        "scripts/check-requirement-copy.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос 21.10.2026: фактический статус виден в свёрнутых заголовках независимо от выбора; переключатель является единственным индикатором обязательности."
+      }
+    },
+    "src/lib/practiceVariantViewModel.ts": {
+      "sha256": "94736203e9bbef0acda1c22261a7205238fb9058d79f90657f431eeb61dde720",
+      "record": "docs/decisions/collapsed-variant-status-2026-10-21.md",
+      "specs": [
+        "docs/modules/school-diary/day-page.md",
+        "docs/shared/design/README.md"
+      ],
+      "tests": [
+        "src/lib/practiceVariantViewModel.test.ts",
+        "src/components/ProblemGroup.layout.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx",
+        "scripts/check-requirement-copy.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос 21.10.2026: фактический статус виден в свёрнутых заголовках независимо от выбора; переключатель является единственным индикатором обязательности."
+      }
+    },
+    "scripts/check-requirement-copy.mjs": {
+      "sha256": "8eb1dd2e16c7d6b1999f4afcf52ff724cd4a5fac70513e2e3eafef5baa76cc5f",
+      "record": "docs/decisions/collapsed-variant-status-2026-10-21.md",
+      "specs": [
+        "docs/modules/school-diary/day-page.md",
+        "docs/shared/design/README.md"
+      ],
+      "tests": [
+        "src/lib/practiceVariantViewModel.test.ts",
+        "src/components/ProblemGroup.layout.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx",
+        "scripts/check-requirement-copy.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос 21.10.2026: фактический статус виден в свёрнутых заголовках независимо от выбора; переключатель является единственным индикатором обязательности."
+      }
+    },
+    "src/components/PracticeVariantStatus.css": {
+      "sha256": "3879fd06b6a878295a53ecbbb5477bf10e044c0ca4d9e339fa7bb01d7391dd51",
+      "record": "docs/decisions/collapsed-variant-status-2026-10-21.md",
+      "specs": [
+        "docs/modules/school-diary/day-page.md",
+        "docs/shared/design/README.md"
+      ],
+      "tests": [
+        "src/lib/practiceVariantViewModel.test.ts",
+        "src/components/ProblemGroup.layout.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/DayDashboard.warmStart.test.tsx",
+        "scripts/check-requirement-copy.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос 21.10.2026: фактический статус виден в свёрнутых заголовках независимо от выбора; переключатель является единственным индикатором обязательности."
       }
     }
   }

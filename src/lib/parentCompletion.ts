@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/collapsed-variant-status-2026-10-21.md */
 import { collection, doc, getDocFromServer, getDocs, onSnapshot, serverTimestamp, writeBatch } from 'firebase/firestore'
 import { getAuth } from 'firebase/auth'
 import { db } from './firebase'
@@ -147,8 +148,14 @@ export function stageCompletion(review: DayWorkReview | undefined, events: Paren
     const matched = items.filter((item) => item.stageId === id)
     return matched.length > 0 && matched.every((item) => item.status === 'correct')
   })
+  const actualConfirmed = ids.filter((id) => {
+    const matched = items.filter((item) => item.stageId === id)
+    return matched.length > 0 && matched.every((item) => item.status === 'correct')
+  })
+  const needsFix = ids.filter((id) => items.some(item => item.stageId === id && item.status === 'incorrect')).length
   return { required: required.length, confirmed: confirmed.length,
-    optional: ids.length - required.length, complete: confirmed.length === required.length }
+    optional: ids.length - required.length, complete: confirmed.length === required.length,
+    total: ids.length, actualConfirmed: actualConfirmed.length, needsFix }
 }
 
 export function watchParentCompletions(tokens: string[], onChange: (events: ParentCompletionEvent[]) => void, onError: (error: Error) => void) {

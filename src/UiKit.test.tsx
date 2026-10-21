@@ -16,6 +16,12 @@ afterEach(async()=>{if(root)await act(async()=>root!.unmount());root=undefined;h
 it('uses the real components, token source and local interactive controls',async()=>{
  document.body.append(host);root=createRoot(host);await act(async()=>root!.render(<UiKit/>))
  expect(host.querySelector('.edu-result-badge')?.textContent).toContain('87%')
+ expect(host.querySelectorAll('.problem-group')).toHaveLength(2)
+ expect(host.querySelectorAll('[role="switch"]')).toHaveLength(2)
+ await act(async()=>{ for (const button of host.querySelectorAll<HTMLButtonElement>('.problem-group-toggle')) button.click() })
+ expect(host.querySelectorAll('.day-practice-variant')).toHaveLength(2)
+ expect(host.textContent).toContain('Проверено')
+ expect(host.textContent).toContain('Исправить')
  await act(async()=>[...host.querySelectorAll('button')].find(button=>button.textContent==='84.99%')!.click())
  expect(host.querySelector('.edu-result-badge')?.getAttribute('data-tone')).toBe('attention')
  const select=host.querySelector('select')!;await act(async()=>{select.value='waiting';select.dispatchEvent(new Event('change',{bubbles:true}))})

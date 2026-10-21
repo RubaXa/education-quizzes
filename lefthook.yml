@@ -5,6 +5,8 @@ pre-commit:
       run: node scripts/check-docs.mjs --staged
     whitespace:
       run: git diff --cached --check
+    requirement-copy:
+      run: node scripts/check-requirement-copy.mjs --staged
     lint:
       glob: '*.{js,mjs,ts,tsx,css,json}'
       run: npm run lint

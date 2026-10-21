@@ -33,7 +33,7 @@ describe('family review stage choices', () => {
         { id: 'direct-223', action: 'Придумать собственные предложения' },
       ] },
     } as DayWorkReview
-    expect(stageCompletion(numbered, [])).toEqual({ required: 2, confirmed: 1, optional: 0, complete: false })
+    expect(stageCompletion(numbered, [])).toEqual({ required: 2, confirmed: 1, optional: 0, complete: false, total: 2, actualConfirmed: 1, needsFix: 0 })
     expect(requiredFamilyActions(numbered, [])).toEqual([])
   })
   it('uses the live guide revision for the same checked work after a wording correction', () => {
@@ -49,10 +49,10 @@ describe('family review stage choices', () => {
     expect(() => currentStageChoice(review, guide, review, { revision: 2, stages: [{ id: 'different' }, { id: 'covering' }] }, 'educational')).toThrow('Разбор изменился')
   })
   it('requires all checkable stages by default, then excludes a parent-optional stage from completion', () => {
-    expect(stageCompletion(review, [])).toEqual({ required: 2, confirmed: 1, optional: 0, complete: false })
+    expect(stageCompletion(review, [])).toEqual({ required: 2, confirmed: 1, optional: 0, complete: false, total: 2, actualConfirmed: 1, needsFix: 0 })
     const choice = { id: 'student-token:choice-1', taskId: review.taskId, stageId: 'educational',
       action: 'stage-optional', reviewCheckedAt: at(100), decidedAt: at(101) } as ParentCompletionEvent
-    expect(stageCompletion(review, [choice])).toEqual({ required: 1, confirmed: 1, optional: 1, complete: true })
+    expect(stageCompletion(review, [choice])).toEqual({ required: 1, confirmed: 1, optional: 1, complete: true, total: 2, actualConfirmed: 1, needsFix: 0 })
   })
   it('does not carry an old choice into a new review', () => {
     const old = { id: 'student-token:choice-1', taskId: review.taskId, stageId: 'educational',

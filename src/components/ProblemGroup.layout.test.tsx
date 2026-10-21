@@ -22,9 +22,20 @@ describe('numbered sheet heading', () => {
       problems={problems} uploads={[]} reviews={[]} localPendingCount={0} sourceCount={1} ready>
       <p>Условия</p>
     </ProblemGroup>)
-    expect(html).toContain('aria-label="0 из 4 завершено"')
+    expect(html).toContain('aria-label="0 из 4 проверено; обязательная часть 0 из 4"')
     expect(html).toContain('>0 из 4</span>')
     expect(html).not.toContain('>0 из 4 завершено</span>')
+  })
+
+  it('shows actual work for a group with no required items without a zero-of-zero result', () => {
+    const html = renderToStaticMarkup(<ProblemGroup id="optional-sheet" title="Лист спецкурса" requiredProblems={[]}
+      problems={[{ id: 'p7', number: 7, title: 'Задача 7', detail: '', source: 'Лист' }, { id: 'p8', number: 8, title: 'Задача 8', detail: '', source: 'Лист' }]}
+      uploads={[{ id: 'student:photo7', taskId: 'p7', status: 'reviewed' }, { id: 'student:photo8', taskId: 'p8', status: 'reviewed' }]}
+      reviews={[{ id: 'r7', taskId: 'p7', status: 'verified', uploadIds: ['photo7'] }, { id: 'r8', taskId: 'p8', status: 'needs-fix', uploadIds: ['photo8'] }] as never}
+      localPendingCount={0} sourceCount={1} ready><p>Условия</p></ProblemGroup>)
+    expect(html).toContain('1 из 2 проверено, 1 требуют исправления')
+    expect(html).not.toContain('0 из 0')
+    expect(html).not.toContain('По желанию')
   })
 
   it('shows the agreed short title and variant subtitle without operational metadata', () => {

@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/collapsed-variant-status-2026-10-21.md */
 import { useEffect, useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 import type { DayUpload, DayWorkReview } from '@/lib/dayStore'
@@ -100,16 +101,15 @@ export default function WorkReview({ review, uploads, accepted = false, canDecid
           <span className={answer === 'correct' ? 'correct' : answer === 'incorrect' ? 'incorrect' : 'unknown'}><StatusIcon size={16} status={answer === 'correct' ? 'complete' : answer === 'incorrect' ? 'incorrect' : 'unknown'} />{answer === 'correct' ? 'Ответ верен' : answer === 'incorrect' ? 'Ответ неверен' : 'Ответ не установлен'}</span>
           <span className={argument === 'sufficient' || argument === 'not-required' ? 'correct' : 'incomplete'}><StatusIcon size={16} status={argument === 'sufficient' || argument === 'not-required' ? 'complete' : 'partial'} />{argumentLabel}</span>
         </div>}
-        {familyDone && <p className="day-work-review-accepted">Все пункты семейного плана подтверждены. {familyStages?.optional ? `${familyStages.optional} пункт(а) оставлены по желанию родителя.` : ''} Исходный разбор фото сохранён.</p>}
+        {familyDone && <p className="day-work-review-accepted">Все пункты семейного плана подтверждены. {familyStages?.optional ? `${familyStages.optional} пункт(а) сохранены в разборе.` : ''} Исходный разбор фото сохранён.</p>}
         {accepted && <p className="day-work-review-accepted">Задача завершена по решению родителя. Ответ верен; обоснование хода в работе осталось неполным.</p>}
         {basis?.outcome === 'unresolved' && <p className="day-work-review-unprepared">{formatReviewProse(workCoverageComplete(review) ? `Работа предъявлена полностью: ${review.workCoverage?.note} ` : `Разбор загруженного фото завершён. ${review.summary ?? ''} `)}{requiredActions.length ? 'Родитель назначил доработку для семейного плана; она указана ниже.' : workCoverageComplete(review) ? 'Дополнительных действий от ученика сейчас не требуется.' : formatReviewProse(review.nextStep ?? 'Если есть другая страница работы, добавьте её фото для проверки.')}</p>}
         {basis?.disputedRequirements?.map((item) => {
           const choice = requirementChoice(review, item.id, decisions)
           if (!parent && !choice) return null
           return <section className="day-work-review-dispute" key={item.id}>
-            <strong>{formatReviewProse(parent ? item.action : choice === 'require' ? `Сделай по решению родителя: ${item.action}` : `Можно по желанию: ${item.action}`)}</strong>
+            <strong>{formatReviewProse(parent ? item.action : choice === 'require' ? `Сделай по решению родителя: ${item.action}` : `Можно добавить: ${item.action}`)}</strong>
             {parent && item.meshExcerpt && <><p><b>МЭШ:</b> «{item.meshExcerpt}»</p><p><b>{item.sourceKind === 'textbook' ? 'Учебник' : 'Предположение Education'}:</b> «{item.sourceExcerpt}»</p><p>{formatReviewProse(item.uncertainty ?? '')}</p><small>{item.sourceRef}</small></>}
-            <p><b>Решение семьи:</b> {choice === 'require' ? 'Доработать' : 'По желанию'}</p>
             {parent && <RequirementSwitch label={`Учитывать доработку «${item.action}» в семейном плане`} checked={choice === 'require'} disabled={!canDecide || saving} onChange={(checked) => void chooseRequirement(item.id, checked ? 'require' : 'optional')} />}
           </section>
         })}

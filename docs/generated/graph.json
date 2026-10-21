@@ -472,6 +472,48 @@
       "path": "docs/decisions/canonical-short-key-repair-2026-10-19.md"
     },
     {
+      "id": "decision.collapsed-variant-status-2026-10-21",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-21",
+      "updated": "2026-10-21",
+      "consumers": [
+        "Education parent and student UI",
+        "frontend developer"
+      ],
+      "code": [
+        "src/components/ProblemGroup.css",
+        "src/components/PracticeVariantStatus.css",
+        "src/DayDashboard.tsx",
+        "scripts/check-requirement-copy.mjs",
+        "src/lib/practiceVariantViewModel.ts",
+        "src/DayPage.tsx",
+        "src/components/ProblemGroup.tsx",
+        "src/components/ParentTaskGuide.tsx",
+        "src/components/QuizCard.tsx",
+        "src/components/WorkReview.tsx",
+        "src/components/PracticeVariantStatus.tsx",
+        "src/lib/homeworkStatus.ts",
+        "src/lib/parentCompletion.ts",
+        "src/lib/problemGroupSummary.ts",
+        "src/UiKit.tsx"
+      ],
+      "parent": "module.school-diary.day-page",
+      "uses": [
+        "shared.design.statuses",
+        "shared.design.ui-kit",
+        "module.assignments"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/collapsed-variant-status-2026-10-21.md"
+    },
+    {
       "id": "decision.course-placement-2026-10-18",
       "status": "accepted",
       "implementation": "not-applicable",
@@ -1888,6 +1930,27 @@
         "согласование"
       ],
       "path": "docs/decisions/personal-identity-transition-2026-10-18.md"
+    },
+    {
+      "id": "decisions.queue-artifact-resolution-2026-10-20",
+      "status": "reference",
+      "implementation": "not-applicable",
+      "created": "2026-10-20",
+      "updated": "2026-10-20",
+      "consumers": [
+        "Education sync operator"
+      ],
+      "code": [],
+      "parent": "module.synchronization.global-sync",
+      "uses": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/queue-artifact-resolution-2026-10-20.md"
     },
     {
       "id": "decisions.quiz-attempt-time-icon-2026-10-15",
@@ -4096,6 +4159,20 @@
       "consumer": "`npm run test:quiz-switch-viewport`"
     },
     {
+      "id": "file:scripts/check-requirement-copy.mjs",
+      "path": "scripts/check-requirement-copy.mjs",
+      "kind": "artifact",
+      "purpose": "AST-проверка видимых подписей контролов, включая Git index при коммите",
+      "consumer": "pre-commit; check:spec"
+    },
+    {
+      "id": "file:scripts/check-requirement-copy.test.mjs",
+      "path": "scripts/check-requirement-copy.test.mjs",
+      "kind": "verification",
+      "purpose": "Новые запрещённые подписи отклоняются; доступность, цитаты и данные разрешены",
+      "consumer": "Vitest"
+    },
+    {
       "id": "file:scripts/check-schedule-viewport.mjs",
       "path": "scripts/check-schedule-viewport.mjs",
       "kind": "artifact",
@@ -4486,6 +4563,13 @@
       "kind": "artifact",
       "purpose": "Инвентаризация через shared family graph, strict Mesh sessions, трассировка стадий, полный сбор и аудит опубликованных данных",
       "consumer": "`skills/education-sync`; операторский CLI"
+    },
+    {
+      "id": "file:scripts/sync-queue-resolution.test.mjs",
+      "path": "scripts/sync-queue-resolution.test.mjs",
+      "kind": "verification",
+      "purpose": "Регрессия разграничения event artifacts и legacy-координат при сверке завершения",
+      "consumer": "Vitest; sync-queue"
     },
     {
       "id": "file:scripts/sync-queue.mjs",
@@ -4918,8 +5002,8 @@
       "id": "file:src/components/ParentTaskGuide.tsx",
       "path": "src/components/ParentTaskGuide.tsx",
       "kind": "artifact",
-      "purpose": "Общий поэтапный разбор для обычных и нумерованных заданий",
-      "consumer": "`DayPage.tsx`; `ProblemTaskCard.tsx`"
+      "purpose": "Общий поэтапный разбор; фактический статус этапов остаётся видим независимо от семейного выбора",
+      "consumer": "`DayPage.tsx`; `ProblemTaskCard.tsx`; UI Kit"
     },
     {
       "id": "file:src/components/PersonalEntry.localFirst.test.tsx",
@@ -4955,6 +5039,20 @@
       "kind": "artifact",
       "purpose": "Единая множественная загрузка фото для письменного задания и номера",
       "consumer": "`DayPage.tsx`; `ProblemCard.tsx`"
+    },
+    {
+      "id": "file:src/components/PracticeVariantStatus.css",
+      "path": "src/components/PracticeVariantStatus.css",
+      "kind": "artifact",
+      "purpose": "Общие цветовые токены проверенного, ожидающего и исправляемого варианта",
+      "consumer": "День; UI Kit"
+    },
+    {
+      "id": "file:src/components/PracticeVariantStatus.tsx",
+      "path": "src/components/PracticeVariantStatus.tsx",
+      "kind": "artifact",
+      "purpose": "Реальный компонент фактической сводки статуса варианта без зависимости от обязательности",
+      "consumer": "DayPage; UI Kit; Vitest"
     },
     {
       "id": "file:src/components/ProblemCard.css",
@@ -4995,8 +5093,8 @@
       "id": "file:src/components/ProblemGroup.tsx",
       "path": "src/components/ProblemGroup.tsx",
       "kind": "artifact",
-      "purpose": "Сворачивание листа и раскрытие адресного номера",
-      "consumer": "`src/DayPage.tsx`; `src/WeekendMathSlot.tsx`"
+      "purpose": "Сводка статуса всех задач в свёрнутой группе; обязательная часть считается отдельно",
+      "consumer": "`src/DayPage.tsx`; `src/WeekendMathSlot.tsx`; UI Kit"
     },
     {
       "id": "file:src/components/ProblemStatement.css",
@@ -5086,8 +5184,8 @@
       "id": "file:src/components/QuizCard.tsx",
       "path": "src/components/QuizCard.tsx",
       "kind": "artifact",
-      "purpose": "Одна текущая попытка, процент, история, ссылки и предметные данные через props",
-      "consumer": "`src/App.tsx`; `src/DayPage.tsx`"
+      "purpose": "Одна текущая попытка, процент, история, ссылки и предметные данные через props; статус не подменяется обязательностью",
+      "consumer": "`src/App.tsx`; `src/DayPage.tsx`; UI Kit"
     },
     {
       "id": "file:src/components/QuizResultCard.test.tsx",
@@ -5345,7 +5443,7 @@
       "id": "file:src/components/WorkReview.tsx",
       "path": "src/components/WorkReview.tsx",
       "kind": "artifact",
-      "purpose": "Понятный результат проверки, происхождение спорных требований и выбор родителя",
+      "purpose": "Понятный результат проверки, происхождение спорных требований и выбор родителя без бейджа обязательности",
       "consumer": "День; спецкурс"
     },
     {
@@ -5646,7 +5744,7 @@
       "id": "file:src/lib/homeworkStatus.ts",
       "path": "src/lib/homeworkStatus.ts",
       "kind": "artifact",
-      "purpose": "Единая классификация выполнено / осталось / ждёт проверки с порогом теста 85%",
+      "purpose": "Единая классификация выполнено / осталось / ждёт проверки с порогом теста 85%; доступная самопроверка имеет нейтральную подпись",
       "consumer": "`DayDashboard.tsx`; `useParentChildOverview.ts`"
     },
     {
@@ -5772,7 +5870,7 @@
       "id": "file:src/lib/parentCompletion.ts",
       "path": "src/lib/parentCompletion.ts",
       "kind": "artifact",
-      "purpose": "Отдельные события зачёта и выбора требований, проверка версии разбора",
+      "purpose": "Отдельные события зачёта и выбора требований; фактический статус всех этапов отдельно от обязательной части",
       "consumer": "День; слот выходных; dashboard; `WorkReview`"
     },
     {
@@ -5830,6 +5928,20 @@
       "kind": "artifact",
       "purpose": "Общее правило доступности загрузки фото ученику",
       "consumer": "`DayPage.tsx`"
+    },
+    {
+      "id": "file:src/lib/practiceVariantViewModel.test.ts",
+      "path": "src/lib/practiceVariantViewModel.test.ts",
+      "kind": "verification",
+      "purpose": "Регрессии статуса вариантов: проверено, исправить, необязательная незавершённая работа",
+      "consumer": "Vitest; разработчик"
+    },
+    {
+      "id": "file:src/lib/practiceVariantViewModel.ts",
+      "path": "src/lib/practiceVariantViewModel.ts",
+      "kind": "artifact",
+      "purpose": "Фактический статус и прогресс задач варианта без зависимости от обязательности",
+      "consumer": "DayPage; Vitest"
     },
     {
       "id": "file:src/lib/problemGroupSummary.ts",
@@ -9907,7 +10019,8 @@
         "school-grade-average",
         "school-grade-average-slider",
         "telegram-уведомления",
-        "помощь-по-этапам"
+        "помощь-по-этапам",
+        "статусы-свёрнутых-вариантов"
       ],
       "path": "docs/shared/design/ui-kit.md"
     },
@@ -10201,6 +10314,21 @@
     {
       "from": "decision.calendar-vacation-sticky-2026-10-19",
       "to": "shared.design",
+      "type": "uses"
+    },
+    {
+      "from": "decision.collapsed-variant-status-2026-10-21",
+      "to": "module.assignments",
+      "type": "uses"
+    },
+    {
+      "from": "decision.collapsed-variant-status-2026-10-21",
+      "to": "shared.design.statuses",
+      "type": "uses"
+    },
+    {
+      "from": "decision.collapsed-variant-status-2026-10-21",
+      "to": "shared.design.ui-kit",
       "type": "uses"
     },
     {
@@ -11739,6 +11867,16 @@
       "type": "implements"
     },
     {
+      "from": "file:scripts/check-requirement-copy.mjs",
+      "to": "decision.collapsed-variant-status-2026-10-21",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/check-requirement-copy.mjs",
+      "to": "shared.design",
+      "type": "implements"
+    },
+    {
       "from": "file:scripts/check-schedule-viewport.mjs",
       "to": "decision.calendar-fixed-height-2026-10-19",
       "type": "implements"
@@ -12750,6 +12888,11 @@
     },
     {
       "from": "file:src/components/ParentTaskGuide.tsx",
+      "to": "decision.collapsed-variant-status-2026-10-21",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ParentTaskGuide.tsx",
       "to": "decision.released-stage-parity-2026-10-20",
       "type": "implements"
     },
@@ -12824,6 +12967,26 @@
       "type": "implements"
     },
     {
+      "from": "file:src/components/PracticeVariantStatus.css",
+      "to": "decision.collapsed-variant-status-2026-10-21",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/PracticeVariantStatus.css",
+      "to": "shared.design.statuses",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/PracticeVariantStatus.tsx",
+      "to": "decision.collapsed-variant-status-2026-10-21",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/PracticeVariantStatus.tsx",
+      "to": "module.school-diary.day-page",
+      "type": "implements"
+    },
+    {
       "from": "file:src/components/ProblemCard.css",
       "to": "module.reviews.adaptive-problem-card",
       "type": "implements"
@@ -12855,6 +13018,11 @@
     },
     {
       "from": "file:src/components/ProblemGroup.css",
+      "to": "decision.collapsed-variant-status-2026-10-21",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ProblemGroup.css",
       "to": "module.reviews.problem-card-design-decisions",
       "type": "implements"
     },
@@ -12866,6 +13034,11 @@
     {
       "from": "file:src/components/ProblemGroup.css",
       "to": "shared.design.statuses",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ProblemGroup.tsx",
+      "to": "decision.collapsed-variant-status-2026-10-21",
       "type": "implements"
     },
     {
@@ -12951,6 +13124,11 @@
     {
       "from": "file:src/components/QuizCard.css",
       "to": "shared.design",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/QuizCard.tsx",
+      "to": "decision.collapsed-variant-status-2026-10-21",
       "type": "implements"
     },
     {
@@ -13210,6 +13388,11 @@
     },
     {
       "from": "file:src/components/WorkReview.tsx",
+      "to": "decision.collapsed-variant-status-2026-10-21",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/WorkReview.tsx",
       "to": "decisions.readable-review-prose-2026-10-18",
       "type": "implements"
     },
@@ -13261,6 +13444,11 @@
     {
       "from": "file:src/DayDashboard.css",
       "to": "shared.design",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayDashboard.tsx",
+      "to": "decision.collapsed-variant-status-2026-10-21",
       "type": "implements"
     },
     {
@@ -13336,6 +13524,11 @@
     {
       "from": "file:src/DayPage.css",
       "to": "shared.design",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayPage.tsx",
+      "to": "decision.collapsed-variant-status-2026-10-21",
       "type": "implements"
     },
     {
@@ -13635,6 +13828,11 @@
     },
     {
       "from": "file:src/lib/homeworkStatus.ts",
+      "to": "decision.collapsed-variant-status-2026-10-21",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/homeworkStatus.ts",
       "to": "module.assessments.quizzes",
       "type": "implements"
     },
@@ -13710,6 +13908,11 @@
     },
     {
       "from": "file:src/lib/parentCompletion.ts",
+      "to": "decision.collapsed-variant-status-2026-10-21",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/parentCompletion.ts",
       "to": "module.reviews.card-generation-policy",
       "type": "implements"
     },
@@ -13781,6 +13984,21 @@
     {
       "from": "file:src/lib/photoUploadPolicy.ts",
       "to": "module.school-diary.day-page",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/practiceVariantViewModel.ts",
+      "to": "decision.collapsed-variant-status-2026-10-21",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/practiceVariantViewModel.ts",
+      "to": "module.school-diary.day-page",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/problemGroupSummary.ts",
+      "to": "decision.collapsed-variant-status-2026-10-21",
       "type": "implements"
     },
     {
@@ -14046,6 +14264,11 @@
     {
       "from": "file:src/UiKit.css",
       "to": "shared.design.ui-kit",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/UiKit.tsx",
+      "to": "decision.collapsed-variant-status-2026-10-21",
       "type": "implements"
     },
     {
@@ -15375,6 +15598,11 @@
     },
     {
       "from": "module.school-diary.day-page",
+      "to": "decision.collapsed-variant-status-2026-10-21",
+      "type": "contains"
+    },
+    {
+      "from": "module.school-diary.day-page",
       "to": "decisions.non-test-result-upload-2026-10-19",
       "type": "contains"
     },
@@ -15421,6 +15649,11 @@
     {
       "from": "module.school-diary.day-page",
       "to": "file:src/lib/photoUploadPolicy.test.ts",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.school-diary.day-page",
+      "to": "file:src/lib/practiceVariantViewModel.test.ts",
       "type": "verified-by"
     },
     {
@@ -15750,7 +15983,17 @@
     },
     {
       "from": "module.synchronization.global-sync",
+      "to": "decisions.queue-artifact-resolution-2026-10-20",
+      "type": "contains"
+    },
+    {
+      "from": "module.synchronization.global-sync",
       "to": "file:packages/education-connect/lib/network-retry.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.synchronization.global-sync",
+      "to": "file:scripts/sync-queue-resolution.test.mjs",
       "type": "verified-by"
     },
     {
@@ -17452,6 +17695,11 @@
       "from": "shared.design.ui-kit",
       "to": "shared.design",
       "type": "uses"
+    },
+    {
+      "from": "shared.design",
+      "to": "file:scripts/check-requirement-copy.test.mjs",
+      "type": "verified-by"
     },
     {
       "from": "shared.design",

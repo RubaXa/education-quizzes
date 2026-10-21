@@ -49,7 +49,7 @@ describe('one family requirement switch on the shared test card', () => {
   })
   it('shows a voluntary test to a pupil without an editing control', () => {
     const html = renderToStaticMarkup(<QuizCard chain={[{ ...open, familyOptional: true }]} parent={false} />)
-    expect(html).toContain('По желанию')
+    expect(html).not.toContain('По желанию')
     expect(html).not.toContain('role="switch"')
     expect(html).toContain('Пройти тест')
   })

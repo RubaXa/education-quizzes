@@ -198,6 +198,9 @@ async function discover() {
     [syncJobId(candidate.kind, candidate.familyId, candidate.childId, candidate.sourceId), candidate])).values()] }
 }
 async function verifiedResolution(record) {
+  // Event-action jobs carry an execution artifact rather than legacy source
+  // coordinates. Only their addressed executor may confirm their resolution.
+  if (record.artifactPath) return null
   const source = record.source ?? {}
   if (record.kind === 'publish-book-pages') {
     const childPath = `families/${record.familyId}/children/${record.childId}`
@@ -364,7 +367,15 @@ if (command === 'scan') {
     resolved, ...queue, measurements: { ...measurements, inbox: inbox.measurements,
       totalMs: Math.round(performance.now() - started), note: 'SDK calls and returned documents, not billed reads' } }, null, 2))
 } else if (command === 'list') {
-  console.log(JSON.stringify(await reportQueue(), null, 2))
+  const id = option('--id')
+  if (id) {
+    if (!/^[a-f0-9]{64}$/.test(id)) throw new Error('Нужен корректный ID задачи.')
+    const record = (await db.doc(`operatorSyncJobs/${id}`).get()).data()
+    if (!record) throw new Error('Задача не найдена.')
+    const artifact = /^operatorSyncTaskArtifacts\/[a-f0-9]{64}$/.test(record.artifactPath ?? '')
+      ? (await db.doc(record.artifactPath).get()).data() ?? null : null
+    console.log(JSON.stringify({ id, record, artifact }, null, 2))
+  } else console.log(JSON.stringify(await reportQueue(), null, 2))
 } else {
   const id = option('--id'), phase = option('--phase') ?? (command === 'claim' ? 'started' : command === 'finish' ? 'verified' : command === 'block' ? 'blocked' : null)
   if (!phase) throw new Error('Нужна --phase.')

@@ -294,7 +294,7 @@ describe('day page: teacher sheet and linked self-check', () => {
         const variants=Array.from(view.host.querySelectorAll('.day-practice-variant-shell'))
         expect(variants).toHaveLength(2)
         for(const variant of variants) {
-          expect(variant.textContent).toContain('По желанию')
+          expect(variant.textContent).not.toContain('По желанию')
           if(parent) expect(variant.querySelector('[role="switch"]')?.getAttribute('aria-checked')).toBe('false')
           else expect(variant.querySelector('[role="switch"]')).toBeNull()
         }
@@ -351,13 +351,13 @@ describe('day page: teacher sheet and linked self-check', () => {
       const control = () => view.host.querySelector<HTMLButtonElement>('.day-quiz-requirement [role="switch"]')
       expect(control()?.getAttribute('aria-checked')).toBe('true')
       expect(view.host.querySelector('.day-quiz-requirement')?.textContent).toBe('')
-      expect(view.host.querySelector('.day-subject-assignment-count')?.textContent).toContain('Задачи: 5 из 5')
+      expect(view.host.querySelector('.day-subject-assignment-count')?.textContent).toContain('5 из 10')
       await act(async () => { control()?.click() })
       await act(async () => { view.root.render(<DayPage token="student-token" parent headerReturnTarget={null} />) })
       expect(scene.quizChoiceCalls).toEqual([false])
       expect(control()?.getAttribute('aria-checked')).toBe('false')
       expect(view.host.querySelector('.day-quiz-requirement')?.textContent).toBe('')
-      expect(view.host.querySelector('.day-subject-assignment-count')?.textContent).toContain('Задачи: 5 из 5')
+      expect(view.host.querySelector('.day-subject-assignment-count')?.textContent).toContain('5 из 10')
       expect(view.host.querySelector('.problem-group')).not.toBeNull()
       await act(async () => { control()?.click() })
       await act(async () => { view.root.render(<DayPage token="student-token" parent headerReturnTarget={null} />) })
@@ -374,7 +374,7 @@ describe('day page: teacher sheet and linked self-check', () => {
       scene.reviews = scene.reviews.filter((review) => review.taskId !== firstProblemIds[0])
       await act(async () => { view.root.render(<DayPage token="student-token" parent headerReturnTarget={null} />) })
       expect(view.host.querySelector('.day-summary strong')?.textContent).toBe('1')
-      expect(view.host.querySelector('.day-subject-assignment-count')?.textContent).toContain('Задачи: 4 из 5')
+      expect(view.host.querySelector('.day-subject-assignment-count')?.textContent).toContain('4 из 10')
     } finally { await view.cleanup() }
   })
   it('keeps a reading-only assignment in one quiz card with the exact instruction', async () => {
@@ -413,7 +413,7 @@ describe('day page: teacher sheet and linked self-check', () => {
       expect(view.host.querySelectorAll('.day-quiz-lineage')).toHaveLength(1)
       expect(view.host.querySelector('.day-quiz-lineage-score')?.textContent).toBe('0 из 20')
       expect(view.host.querySelectorAll('.problem-group')).toHaveLength(1)
-      expect(view.host.querySelector('.day-subject-assignment-count')?.textContent).toContain('Задачи: 5 из 5')
+      expect(view.host.querySelector('.day-subject-assignment-count')?.textContent).toContain('5 из 10')
       expect(view.host.querySelector('.day-quiz-lineage .day-assignment-brief')).toBeNull()
       await act(async () => { view.host.querySelector<HTMLButtonElement>('.problem-group-toggle')?.click() })
       expect(view.host.querySelector('.day-teacher-sheet')?.textContent).toContain('Лист учителя')
@@ -425,13 +425,13 @@ describe('day page: teacher sheet and linked self-check', () => {
       await act(async () => { switches[1].click() })
       await act(async () => { view.root.render(<DayPage token="student-token" parent headerReturnTarget={null} />) })
       expect(scene.choiceCalls).toEqual([true])
-      expect(view.host.querySelector('.day-subject-assignment-count')?.textContent).toContain('Задачи: 5 из 10')
+      expect(view.host.querySelector('.day-subject-assignment-count')?.textContent).toContain('5 из 10')
       const enabledSwitch = view.host.querySelectorAll<HTMLButtonElement>('.day-practice-variant-shell [role="switch"]')[1]
       expect(enabledSwitch.getAttribute('aria-checked')).toBe('true')
       await act(async () => { enabledSwitch.click() })
       await act(async () => { view.root.render(<DayPage token="student-token" parent headerReturnTarget={null} />) })
       expect(scene.choiceCalls).toEqual([true, false])
-      expect(view.host.querySelector('.day-subject-assignment-count')?.textContent).toContain('Задачи: 5 из 5')
+      expect(view.host.querySelector('.day-subject-assignment-count')?.textContent).toContain('5 из 10')
       expect(view.host.querySelectorAll('.day-practice-variant')).toHaveLength(2)
     } finally { await view.cleanup() }
   })
@@ -444,7 +444,7 @@ describe('day page: teacher sheet and linked self-check', () => {
       await act(async () => { view.host.querySelector<HTMLButtonElement>('.problem-group-toggle')?.click() })
       expect(view.host.querySelectorAll('.day-practice-variant')).toHaveLength(2)
       expect(view.host.querySelectorAll('.day-practice-variant-shell [role="switch"]')).toHaveLength(0)
-      expect(view.host.querySelectorAll('.day-practice-variant-shell')[1]?.textContent).toContain('По желанию')
+      expect(view.host.querySelectorAll('.day-practice-variant-shell')[1]?.textContent).not.toContain('По желанию')
     } finally { await view.cleanup() }
   })
 

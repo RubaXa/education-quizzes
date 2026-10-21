@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/collapsed-variant-status-2026-10-21.md */
 import { uploadMatchesTask } from './dayStore'
 import type { DayProblem, DayUpload, DayWorkReview } from './dayStore'
 import { parentAccepted } from './parentCompletion'
@@ -6,6 +7,8 @@ import type { ParentCompletionEvent } from './parentCompletion'
 export type ProblemGroupSummary = {
   complete: boolean
   completedCount: number
+  needsFixCount: number
+  partialCount: number
   total: number
   photoCount: number
   activeCount: number
@@ -43,5 +46,5 @@ export function summarizeProblemGroup(problems: DayProblem[], uploads: DayUpload
           : completedCount ? 'Часть номеров завершена; остальные ещё открыты.'
             : 'Откройте номера, чтобы посмотреть условия и работы.'
   const tone = complete ? 'success' : activeCount ? 'working' : needsFix && !completedCount ? 'error' : needsFix || partial || completedCount ? 'partial' : 'neutral'
-  return { complete, completedCount, total: problems.length, photoCount: received.length, activeCount, numbers: problems.map((problem) => problem.number).join(', '), conclusion, tone }
+  return { complete, completedCount, needsFixCount: needsFix, partialCount: partial, total: problems.length, photoCount: received.length, activeCount, numbers: problems.map((problem) => problem.number).join(', '), conclusion, tone }
 }

@@ -100,8 +100,9 @@ describe('weekend source-selected practice', () => {
     const { host, close } = await renderSlot(parent)
     try {
       const toggle = host.querySelector<HTMLButtonElement>('.problem-group-toggle')!
-      expect(toggle.textContent).toContain('По желанию')
-      expect(toggle.getAttribute('aria-label')).toContain('все варианты по желанию')
+      expect(toggle.textContent).toContain('0 из 8')
+      expect(toggle.textContent).not.toMatch(/по желанию|обязательно|опционально/iu)
+      expect(toggle.getAttribute('aria-label')).toContain('0 из 8 проверено')
       expect(host.textContent).toContain('урок 19 октября · сдать 19 октября')
       await act(async () => toggle.click())
       expect(host.querySelectorAll('[data-problem]')).toHaveLength(8)
@@ -113,7 +114,8 @@ describe('weekend source-selected practice', () => {
     scene.decisions = [{ id: 'include-v3', taskId: 'combinatorics', variantId: 'v3', action: 'variant-required', reviewCheckedAt: null, decidedAt: { seconds: 1, nanoseconds: 0 } }] as ParentCompletionEvent[]
     const { host, close } = await renderSlot()
     try {
-      expect(host.querySelector('.problem-group-toggle')?.textContent).toContain('0 из 1')
+      expect(host.querySelector('.problem-group-toggle')?.textContent).toContain('0 из 8')
+      expect(host.querySelector('.problem-group-toggle')?.getAttribute('aria-label')).toContain('обязательная часть 0 из 1')
       await act(async () => host.querySelector<HTMLButtonElement>('.problem-group-toggle')!.click())
       expect(host.querySelectorAll('[data-problem]')).toHaveLength(8)
     } finally { close() }

@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/collapsed-variant-status-2026-10-21.md */
 /* @see ../docs/decisions/work-photo-expand-2026-10-18.md */
 /* @see ../docs/decisions/upload-origin-links-2026-10-18.md */
 /** @see ../docs/decisions/grade-average-ui-kit-2026-10-18.md */
@@ -12,6 +13,9 @@ import WorkPhotoGallery from '@/components/WorkPhotoGallery'
 import type { DayPageData, DayUpload } from '@/lib/dayStore'
 import { useState } from 'react'
 import { BellRing, BookOpen, ChevronRight, CircleHelp, Layers3, Palette } from 'lucide-react'
+import ProblemGroup from '@/components/ProblemGroup'
+import { PracticeVariantStatus } from '@/components/PracticeVariantStatus'
+import RequirementSwitch from '@/components/RequirementSwitch'
 import { ResultBadge, ResultMeter, ResultPoints } from '@/components/ui/result'
 import QuizCard from '@/components/QuizCard'
 import GradeAverage from '@/components/GradeAverage'
@@ -25,10 +29,15 @@ import { uiKitQuizExamples, uiKitHomeworkRows, uiKitCalendar, uiKitCalendarDays 
 import type { ResultInput } from '@/lib/resultPresentation'
 import tokenCss from './education-design-tokens.css?raw'
 import './UiKit.css'
+import './DayPage.css'
 
 const demoSharedPhoto: DayUpload = { id: 'demo:shared-photo', taskId: 'demo-p1', coveredTaskIds: ['demo-p1', 'demo-p2', 'demo-p3'], status: 'reviewed',
   dataUrl: `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="240" viewBox="0 0 400 240"><rect width="400" height="240" fill="white"/><text x="25" y="60" font-size="24">Пример: № 1, № 2, № 3</text><path d="M25 100h300m-300 40h250m-250 40h280" stroke="#70698b" stroke-width="3"/></svg>')}` }
 const demoPhotoPage = { subjects: [{ tasks: [{ id: 'demo-sheet', title: 'Условный лист', problems: [{ id: 'demo-p1', number: 1, title: 'Место загрузки' }] }] }] } as DayPageData
+const variantStatusDemo = [
+  { id: 'demo-verified', title: 'Вариант A · пример', problem: { id: 'demo-variant-a1', number: 7, title: 'Условная задача 7', detail: '', source: 'Пример UI Kit' }, status: 'verified' as const },
+  { id: 'demo-fix', title: 'Вариант B · пример', problem: { id: 'demo-variant-b1', number: 8, title: 'Условная задача 8', detail: '', source: 'Пример UI Kit' }, status: 'needs-fix' as const },
+]
 const guidanceDemo: Guide = { kind: 'worked-solution', presentation: 'math-route', routeProfile: 'standard', revision: 2,
   overview: 'Пример полного раскрытия выбранного этапа', stages: [{ id: 'given', title: 'Прямая и направления', role: 'calculation',
     expected: 'Переходы ±1, ±2, ±4, ±8, ±16 дм', rows: [{ label: 'Симметрия', value: 'Можно считать последний переход равным +16' }],
@@ -97,6 +106,7 @@ export default function UiKit() {
   const [demoTarget,setDemoTarget] = useState('')
   const [demoFiles,setDemoFiles] = useState<string[]>([])
   const [demoDate,setDemoDate] = useState('2026-10-24')
+  const [demoVariantRequired,setDemoVariantRequired] = useState(false)
   const input:ResultInput = state==='score' ? {kind:'score',points,maxPoints:max} : state==='answers' ? {kind:'answers',answered:points,total:max} : {kind:state==='waiting'?'waiting':'unknown'}
   return <div className="edu-kit">
     <header className="edu-kit-intro"><span><BookOpen size={18} aria-hidden="true" /> Education UI Kit</span><h1>Компоненты и правила</h1><p>Живые компоненты приложения, их состояния и смысл токенов. Каталог расширяется по мере унификации интерфейса.</p><a href="#/">На главную</a></header>
@@ -104,6 +114,12 @@ export default function UiKit() {
     <div className="edu-kit-content">
       {section==='calendar' && <section aria-label="Пример календаря"><h2>Календарь и каникулы</h2><p>Условный пример, не календарь семьи. В приложении периоды приходят только из МЭШ конкретного ученика. Пустое расписание не означает каникулы.</p><DayCalendar days={uiKitCalendarDays} schoolCalendar={uiKitCalendar} today="2026-10-24" selectedDate={demoDate} onSelect={setDemoDate}/><p role="status">Выбрана дата: {demoDate}</p><p>Период объединён рамкой, знаком солнца и подписью. Текущий день сохраняет контур, выбранный — фирменное заполнение. Любой день доступен для просмотра работ; каникулы не закрывают и не удаляют задания.</p></section>}
       {section==='results' && <section aria-labelledby="kit-results-title"><h2 id="kit-results-title">Индикаторы результата</h2><p>Метка, баллы и полоса используют одну политику цвета. Заполнение ответов и ожидание проверки — самостоятельные состояния.</p>
+        <h3>Статусы свёрнутых вариантов · примеры</h3><p>Синтетические данные проходят через общий компонент группы. Выбор в переключателе не меняет статус проверки.</p>
+        {variantStatusDemo.map((example) => {
+          const uploads = [{ id: `demo:${example.id}`, taskId: example.problem.id, status: 'reviewed' as const }]
+          const reviews = [{ id: `review:${example.id}`, taskId: example.problem.id, status: example.status, uploadIds: [example.id] }]
+          return <div className="edu-kit-grade-examples" key={example.id}><ProblemGroup id={example.id} title={example.title} problems={[example.problem]} requiredProblems={[]} uploads={uploads} reviews={reviews} localPendingCount={0} sourceCount={0} ready><details className="day-practice-variant" open><summary><strong>{example.title}</strong><PracticeVariantStatus problems={[example.problem]} reviews={reviews} uploads={uploads} decisions={[]} /></summary><p>Условное решение из комплекта UI Kit.</p></details></ProblemGroup><RequirementSwitch checked={demoVariantRequired} onChange={setDemoVariantRequired} label={`Учитывать «${example.title}» в семейном плане`} /></div>
+        })}
         <div className="edu-kit-playground"><div className="edu-kit-controls"><label>Состояние<select value={state} onChange={event=>setState(event.target.value)}><option value="score">Проверенный результат</option><option value="answers">Заполнение ответов</option><option value="waiting">Ожидание проверки</option><option value="unknown">Нет результата</option></select></label><label>{state==='answers'?'Ответов':'Баллов'}<input type="number" step="0.01" value={Number.isNaN(points)?'':points} disabled={state==='waiting'||state==='unknown'} onChange={event=>setPoints(event.target.valueAsNumber)} /></label><label>Всего<input type="number" min="1" step="0.01" value={Number.isNaN(max)?'':max} disabled={state==='waiting'||state==='unknown'} onChange={event=>setMax(event.target.valueAsNumber)} /></label></div>
         <div className="edu-kit-presets" aria-label="Примеры значений">{[0,50,84.99,85,100].map(value=><button type="button" key={value} onClick={()=>{setPoints(value);setMax(100);setState('score')}}>{value}%</button>)}</div>
         <div className="edu-kit-result-example" aria-live="polite"><ResultBadge input={input} showPoints /><div>{state==='score' && <ResultPoints points={points} maxPoints={max} />}</div><ResultMeter input={input} label={state==='answers'?'Доля заполненных ответов':'Процент набранных баллов'} /></div></div>

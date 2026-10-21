@@ -52,7 +52,7 @@ describe('one required self-check across its linked attempts', () => {
   it('excludes an optional chain across attempts and restores it when required again', () => {
     const chain = { root: { status: 'submitted', testId: 'math-1', familyOptional: true },
       retry: { status: 'open', testId: 'math-2', linkedToTestId: 'math-1' } }
-    expect(quizRequirement('root', chain, {})).toEqual({ state: 'optional', detail: 'По желанию · не входит в итог' })
+    expect(quizRequirement('root', chain, {})).toEqual({ state: 'optional', detail: 'Самопроверка доступна' })
     expect(requiredQuizRequirement('root', chain, {})).toBeNull()
     expect(quizRequirement('root', { ...chain, root: { ...chain.root, familyOptional: false } }, {}).state).toBe('todo')
   })
