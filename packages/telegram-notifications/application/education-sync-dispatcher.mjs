@@ -601,8 +601,17 @@ function isExplicitMeshSourceUnavailableBlock(state, pendingKinds) {
 }
 
 function isBlockedMeshSourceUnavailable(state) {
-  return state.status === 'blocked' && state.blockedReasonCode === 'source_unavailable'
-    && Array.isArray(state.sendingKinds) && state.sendingKinds.length === 1 && state.sendingKinds[0] === 'mesh'
+  if (state.status !== 'blocked' || state.blockedReasonCode !== 'source_unavailable'
+    || !Array.isArray(state.sendingKinds) || state.sendingKinds.length !== 1 || state.sendingKinds[0] !== 'mesh') return false
+  const lane = state.actionLane
+  // A persisted lane owns its frozen range and can retry independently even if
+  // later parent metadata is broader. New lanes require an unambiguous parent.
+  if (lane && ['sending', 'queued', 'running', 'uncertain', 'pending', 'blocked'].includes(lane.status)) return true
+  const frozenUpper = state.sendingActionThroughGeneration
+  const hasFrozenActions = frozenUpper !== undefined && frozenUpper !== null && frozenUpper !== 0
+  const pendingKinds = state.pendingKinds
+  return !hasFrozenActions && Array.isArray(pendingKinds)
+    && pendingKinds.every((kind) => kind === 'mesh' || kind === 'action')
 }
 
 function claimActionLaneOnBlockedMesh({ tx, ref, state, now, workerId }) {

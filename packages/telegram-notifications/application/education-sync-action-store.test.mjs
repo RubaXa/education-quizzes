@@ -130,6 +130,33 @@ describe('typed EducationSync action batch', () => {
     expect(db.rows.get('educationSyncDispatch/current').actionLane).toBeUndefined()
   })
 
+  it('continues an existing frozen lane even if parent pending metadata later broadens', async () => {
+    const db = new FakeDb()
+    const store = createFirestoreEducationSyncStore(db)
+    db.rows.set('educationSyncDispatch/current', { status: 'blocked', requestId: 'mesh-request', generation: 10,
+      sendingGeneration: 3, sendingKinds: ['mesh'], sendingActionThroughGeneration: 18,
+      pendingKinds: ['mesh', 'work', 'action'], blockedReasonCode: 'source_unavailable',
+      pendingActionAfterGeneration: 18, pendingActionThroughGeneration: 20,
+      actionLane: { requestId: 'existing-action-request', status: 'pending', generation: 10, sendingGeneration: 10,
+        actionAfterGeneration: 18, actionThroughGeneration: 19 } })
+    expect(await store.claim({ now, workerId: 'retry-worker' })).toMatchObject({ requestId: 'existing-action-request',
+      workKinds: ['action'], actionAfterGeneration: 18, actionThroughGeneration: 19 })
+  })
+
+  it.each([
+    ['frozen positive action upper', { sendingActionThroughGeneration: 18, pendingKinds: ['mesh', 'action'] }],
+    ['malformed nonzero action upper', { sendingActionThroughGeneration: '18', pendingKinds: ['mesh', 'action'] }],
+    ['unrelated pending source kind', { sendingActionThroughGeneration: null, pendingKinds: ['mesh', 'work', 'action'] }],
+  ])('does not create an action lane for a blocked Mesh request with %s', async (_label, extra) => {
+    const db = new FakeDb()
+    const store = createFirestoreEducationSyncStore(db)
+    db.rows.set('educationSyncDispatch/current', { status: 'blocked', requestId: 'mesh-request', generation: 10,
+      sendingGeneration: 3, sendingKinds: ['mesh'], blockedReasonCode: 'source_unavailable',
+      completedActionGeneration: 5, pendingActionAfterGeneration: 5, pendingActionThroughGeneration: 10, ...extra })
+    expect(await store.claim({ now, workerId: 'worker' })).toBeNull()
+    expect(db.rows.get('educationSyncDispatch/current').actionLane).toBeUndefined()
+  })
+
   it('keeps new action generations outside a running Mesh claim with no frozen action upper bound', async () => {
     const db = new FakeDb()
     const store = createFirestoreEducationSyncStore(db)
