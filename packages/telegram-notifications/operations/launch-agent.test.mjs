@@ -46,6 +46,17 @@ describe('launch agent release operations', () => {
     expect(plist).not.toContain(secret)
   })
 
+  it('uses npm_execpath when Homebrew Node keeps npm outside its versioned Cellar directory', () => {
+    const f = fixture()
+    const npmCliPath = join(f.base, 'npm-cli.js')
+    writeFileSync(npmCliPath, 'export {}\n')
+    const operations = createLaunchAgentOperations({ root: f.root, home: f.home, uid: statSync(f.adcPath).uid, platform: 'darwin',
+      nodePath: '/opt/homebrew/Cellar/node/26.5.0/bin/node', pythonPath: process.execPath,
+      env: { AGI_EDU_BOT: '123456:abcdefghijklmnopqrstuvwx', GOOGLE_APPLICATION_CREDENTIALS: f.adcPath,
+        npm_execpath: npmCliPath } })
+    expect(operations.install()).toMatchObject({ applied: false, projectId: 'education-9d7c6' })
+  })
+
   it('copies the complete local import closure and writes a private token outside the release', () => {
     const f = fixture()
     const secret = '123456:abcdefghijklmnopqrstuvwx'

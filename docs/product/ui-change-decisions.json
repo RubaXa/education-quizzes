@@ -1347,7 +1347,7 @@
       }
     },
     "packages/telegram-notifications/operations/launch-agent.mjs": {
-      "sha256": "f84c5d635e5e875c6d71e1629b32385fba8eb47d2567eb9df4c8e7cb580d5ba7",
+      "sha256": "4e41456d9e8b75be3036178f285f00cdd799435440dc173d2a0b74240c262249",
       "record": "docs/decisions/unified-education-events-2026-10-19.md",
       "specs": [
         "docs/modules/synchronization/event-queue.md",
