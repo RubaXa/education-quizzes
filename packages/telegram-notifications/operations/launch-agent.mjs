@@ -92,7 +92,7 @@ export function createLaunchAgentOperations({ root = process.cwd(), home = homed
     if (!python || !fs.existsSync(python) || !fs.statSync(python).isFile() || (fs.statSync(python).mode & 0o111) === 0) {
       throw safeError('python_runtime_unavailable')
     }
-    const npm = npmCliPath ?? resolve(dirname(nodePath), '../lib/node_modules/npm/bin/npm-cli.js')
+    const npm = npmCliPath ?? env.npm_execpath ?? resolve(dirname(nodePath), '../lib/node_modules/npm/bin/npm-cli.js')
     if (!fs.existsSync(npm) || !fs.statSync(npm).isFile()) throw safeError('npm_runtime_unavailable')
     const canonicalAvailable = fs.existsSync(meshDirectory)
     const legacyAvailable = fs.existsSync(familyAccessPath) && fs.existsSync(legacyCredentialsPath)
