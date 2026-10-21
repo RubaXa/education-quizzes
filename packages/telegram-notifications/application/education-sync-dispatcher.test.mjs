@@ -107,9 +107,17 @@ describe('EducationSyncDispatcher', () => {
     expect(message).not.toContain('TELEGRAM_FIRESTORE_PROJECT_ID=')
   })
 
-  it('uses the narrow inbox route for a work-only dispatch', () => {
-    const message = buildMessage('req-work', '/workspace/PETR/scripts/education-sync-dispatch.mjs', ['work'])
-    expect(message).toContain('npm run sync:inbox')
-    expect(message).toContain('do not run full project.collect or collect Mesh')
+  it.each([
+    ['work-only event', ['work'], {}],
+    ['independent action lane', ['action'], { actionAfterGeneration: 18, actionThroughGeneration: 43 }],
+    ['Mesh event', ['mesh'], {}],
+  ])('requires a full source check for every %s dispatch', (_label, workKinds, batch) => {
+    const message = buildMessage('req-work', '/workspace/PETR/scripts/education-sync-dispatch.mjs', workKinds, batch)
+    expect(message).toContain('full verification mode for every dispatch')
+    expect(message).toContain('full inbox snapshot')
+    expect(message).toContain('complete 42-day Mesh collection')
+    expect(message).toContain('Never skip this because a prior sync or Rules/PWA update was recent')
+    expect(message).not.toContain('do not run full project.collect')
+    if (batch.actionThroughGeneration) expect(message).toContain('Do not broaden the event range; the full inbox and Mesh collection are still required')
   })
 })

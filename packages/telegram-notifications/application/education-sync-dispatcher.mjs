@@ -546,20 +546,16 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
   })
 }
 
-export function buildMessage(requestId, claimScriptPath = '/PATH/scripts/education-sync-dispatch.mjs', workKinds = ['mesh'], batch = {}) {
+export function buildMessage(requestId, claimScriptPath = '/PATH/scripts/education-sync-dispatch.mjs', _workKinds = ['mesh'], batch = {}) {
   const run = (action) => `${shellQuote(process.execPath)} ${shellQuote(claimScriptPath)} ${action}`
   const claimFile = '"/ABSOLUTE/CLAIM/PATH/FROM/COMMAND/OUTPUT"'
+  const fullSyncInstruction = 'Run $education-sync in full verification mode for every dispatch: perform a fresh global inventory, full inbox snapshot, and complete 42-day Mesh collection for all connected families/children before declaring the run complete. Never skip this because a prior sync or Rules/PWA update was recent. Reconcile changed dates through publication and student/parent readback. If a source is unavailable, preserve the exact blocker and continue independent work, but do not claim the global cycle complete.'
   const hasActions = Number.isInteger(batch.actionThroughGeneration) && batch.actionThroughGeneration > (batch.actionAfterGeneration ?? 0)
   const actionInstruction = hasActions
-    ? `Process only this frozen event-action range with the exact task exporter: run ${run(`tasks --request ${requestId} --claim-file ${claimFile}`)}, then follow the private manifest references. Do not scan the global inbox or broaden the event range.`
+    ? `After starting the required full verification, process this frozen event-action range with the exact task exporter: run ${run(`tasks --request ${requestId} --claim-file ${claimFile}`)}, then follow the private manifest references. Do not broaden the event range; the full inbox and Mesh collection are still required.`
     : ''
-  const hasMesh = !Array.isArray(workKinds) || workKinds.includes('mesh')
-  const meshInstruction = hasMesh
-    ? 'Run $education-sync for the confirmed Mesh changes, using its normal safeguards and complete global connected-family scope with no family cap. The user has authorized standard Mesh material synchronization using the established family archive and public-link workflow without per-file confirmation prompts.'
-    : ''
-  const legacyWork = workKinds.includes('work') && !hasActions
-    ? 'Follow the claimed work-only inbox route using the established npm run sync:inbox review workflow; do not run full project.collect or collect Mesh. Process only naturally confirmed Firestore work.' : ''
-  const instruction = [actionInstruction, meshInstruction, legacyWork].filter(Boolean).join(' ')
+  const meshInstruction = 'The user has authorized standard Mesh material synchronization using the established family archive and public-link workflow without per-file confirmation prompts.'
+  const instruction = [fullSyncInstruction, meshInstruction, actionInstruction].filter(Boolean).join(' ')
   return `${instruction} This message is only a dispatch request. Request ID: ${requestId}. First claim it with: ${run(`claim --request ${requestId}`)}. If the result is busy, running, completed, blocked, or anything other than claimed, stop without syncing. Keep the private claim file path returned by claim. Renew the claim with ${run(`heartbeat --request ${requestId} --claim-file ${claimFile}`)} between long workflow stages. After the requested workflow succeeds, run ${run(`complete --request ${requestId} --claim-file ${claimFile}`)}. Block only for a genuine runtime/credentials failure, an explicit external tool policy denial, or a human review requirement that applies beyond the already authorized standard flow; do not block to ask for per-file confirmation. Report the actual blocker and run ${run(`block --request ${requestId} --claim-file ${claimFile} --reason permission_required`)} (use source_unavailable or manual_review_required when those apply). For an ordinary retryable workflow failure, use ${run(`fail --request ${requestId} --claim-file ${claimFile}`)}. A successful queue acknowledgement never means the sync completed.`
 }
 
