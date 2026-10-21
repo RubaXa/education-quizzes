@@ -1026,6 +1026,38 @@
       "path": "docs/decisions/math-parent-stage-review-2026-10-19.md"
     },
     {
+      "id": "decision.scoped-learner-flow-2026-10-21",
+      "type": "decision",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-21",
+      "updated": "2026-10-21",
+      "parent": "module.reviews.subject-aware-guidance",
+      "uses": [],
+      "consumers": [
+        "Education learner",
+        "Education operator"
+      ],
+      "code": [
+        "day/learner-flow.mjs",
+        "day/source-only.mjs",
+        "day/data-contract.mjs",
+        "scripts/day.mjs",
+        "src/lib/dayStore.ts",
+        "src/DayPage.tsx",
+        "src/components/LearnerFlow.tsx",
+        "src/components/LearnerFlow.css"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/scoped-learner-flow-2026-10-21.md"
+    },
+    {
       "id": "decision.session-owned-revocation-2026-10-18",
       "status": "accepted",
       "implementation": "implemented",
@@ -2920,6 +2952,20 @@
       "kind": "artifact",
       "purpose": "Разрешение ссылки МЭШ на ранее назначенное ДЗ",
       "consumer": "`day/build.mjs`; `scripts/day.mjs`"
+    },
+    {
+      "id": "file:day/learner-flow.mjs",
+      "path": "day/learner-flow.mjs",
+      "kind": "artifact",
+      "purpose": "Строгая область подтверждённой части без ключа и снятия sourceOnly-блока",
+      "consumer": "Publisher; контракт данных"
+    },
+    {
+      "id": "file:day/learner-flow.test.mjs",
+      "path": "day/learner-flow.test.mjs",
+      "kind": "verification",
+      "purpose": "Mixed-source и запрет закрытых полей в публичном процессе",
+      "consumer": "Vitest"
     },
     {
       "id": "file:day/learning-route-identity.mjs",
@@ -5020,6 +5066,27 @@
       "kind": "artifact",
       "purpose": "Общий чистый вид сводки ДЗ и явной даты",
       "consumer": "DayDashboard; UI Kit"
+    },
+    {
+      "id": "file:src/components/LearnerFlow.css",
+      "path": "src/components/LearnerFlow.css",
+      "kind": "artifact",
+      "purpose": "Общие токены и мобильная геометрия помощи",
+      "consumer": "LearnerFlow"
+    },
+    {
+      "id": "file:src/components/LearnerFlow.test.tsx",
+      "path": "src/components/LearnerFlow.test.tsx",
+      "kind": "verification",
+      "purpose": "Навигация без оценки и сброс раскрытий",
+      "consumer": "Vitest"
+    },
+    {
+      "id": "file:src/components/LearnerFlow.tsx",
+      "path": "src/components/LearnerFlow.tsx",
+      "kind": "artifact",
+      "purpose": "Один вопрос/действие и два добровольных уровня опоры",
+      "consumer": "DayPage"
     },
     {
       "id": "file:src/components/LearningRoute.integration.test.tsx",
@@ -7888,6 +7955,9 @@
         "submission publisher"
       ],
       "code": [
+        "day/learner-flow.mjs",
+        "src/components/LearnerFlow.tsx",
+        "src/components/LearnerFlow.css",
         "day/public-projection.mjs",
         "firestore.rules",
         "scripts/day.mjs",
@@ -7917,6 +7987,7 @@
         "adapters",
         "data-contract",
         "release-gate",
+        "learner-flow",
         "implementation"
       ],
       "path": "docs/modules/reviews/subject-aware-guidance.md"
@@ -11157,6 +11228,11 @@
     },
     {
       "from": "file:day/data-contract.mjs",
+      "to": "decision.scoped-learner-flow-2026-10-21",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/data-contract.mjs",
       "to": "module.materials.material-clarification",
       "type": "implements"
     },
@@ -11271,6 +11347,16 @@
       "type": "implements"
     },
     {
+      "from": "file:day/learner-flow.mjs",
+      "to": "decision.scoped-learner-flow-2026-10-21",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/learner-flow.mjs",
+      "to": "module.reviews.subject-aware-guidance",
+      "type": "implements"
+    },
+    {
       "from": "file:day/learning-route-identity.mjs",
       "to": "module.families.access-and-state",
       "type": "implements"
@@ -11368,6 +11454,11 @@
     {
       "from": "file:day/school-calendar.mjs",
       "to": "module.school-diary.school-calendar",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/source-only.mjs",
+      "to": "decision.scoped-learner-flow-2026-10-21",
       "type": "implements"
     },
     {
@@ -12207,6 +12298,11 @@
     },
     {
       "from": "file:scripts/day.mjs",
+      "to": "decision.scoped-learner-flow-2026-10-21",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/day.mjs",
       "to": "decisions.source-only-mesh-publication-2026-10-20",
       "type": "implements"
     },
@@ -13013,6 +13109,26 @@
     {
       "from": "file:src/components/HomeworkOverview.tsx",
       "to": "module.school-diary.dashboard",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/LearnerFlow.css",
+      "to": "decision.scoped-learner-flow-2026-10-21",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/LearnerFlow.css",
+      "to": "module.reviews.subject-aware-guidance",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/LearnerFlow.tsx",
+      "to": "decision.scoped-learner-flow-2026-10-21",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/LearnerFlow.tsx",
+      "to": "module.reviews.subject-aware-guidance",
       "type": "implements"
     },
     {
@@ -13847,6 +13963,11 @@
     },
     {
       "from": "file:src/DayPage.tsx",
+      "to": "decision.scoped-learner-flow-2026-10-21",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayPage.tsx",
       "to": "decisions.non-test-result-upload-2026-10-19",
       "type": "implements"
     },
@@ -14013,6 +14134,11 @@
     {
       "from": "file:src/lib/dayStore.ts",
       "to": "decision.released-stage-parity-2026-10-20",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/dayStore.ts",
+      "to": "decision.scoped-learner-flow-2026-10-21",
       "type": "implements"
     },
     {
@@ -15717,6 +15843,11 @@
     },
     {
       "from": "module.reviews.subject-aware-guidance",
+      "to": "decision.scoped-learner-flow-2026-10-21",
+      "type": "contains"
+    },
+    {
+      "from": "module.reviews.subject-aware-guidance",
       "to": "decisions.weekend-parent-actions-2026-10-18",
       "type": "contains"
     },
@@ -15732,12 +15863,22 @@
     },
     {
       "from": "module.reviews.subject-aware-guidance",
+      "to": "file:day/learner-flow.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.reviews.subject-aware-guidance",
       "to": "file:day/public-projection.test.mjs",
       "type": "verified-by"
     },
     {
       "from": "module.reviews.subject-aware-guidance",
       "to": "file:scripts/firestore-rules-guidance.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.reviews.subject-aware-guidance",
+      "to": "file:src/components/LearnerFlow.test.tsx",
       "type": "verified-by"
     },
     {

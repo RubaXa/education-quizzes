@@ -1,4 +1,6 @@
+/** @see ../docs/decisions/scoped-learner-flow-2026-10-21.md */
 import { rawMeshKind } from './homework-kind.mjs'
+import { learnerFlowErrors } from './learner-flow.mjs'
 
 /** Explicit publication exception for an exact MESH entry whose material or
  * interpretation is still unresolved. It never authorizes enrichment.
@@ -24,7 +26,7 @@ export function sourceOnlyPublicationErrors(task) {
     'outputKind', 'testToken', 'testSlug', 'requiredPoints', 'assessmentIntent', 'sourceInventory']
     .some((key) => task[key] != null && (!Array.isArray(task[key]) || task[key].length > 0))
   if (enriched) return ['Режим точной записи не допускает добавленных шагов, решений или тестов.']
-  return []
+  return learnerFlowErrors(task)
 }
 
 export function canPublishSourceOnly(task) {

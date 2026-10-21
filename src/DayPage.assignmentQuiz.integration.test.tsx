@@ -499,6 +499,29 @@ describe('day page: teacher sheet and linked self-check', () => {
     } finally { await view.cleanup() }
   })
 
+  it.each([true, false])('renders public support in a mixed-source card for parent=%s without clearing its blocker', async (parent) => {
+    const current = page()
+    current.testPlacements = []
+    current.subjects[0].tasks = [{ id: 'mesh-english', title: 'Упр.5, WB15–16', detail: 'упр.5 стр.31, р.т.15–16', meshText: 'упр.5 стр.31, р.т.15–16',
+      source: 'МЭШ', kind: 'check', status: 'unknown', sourceOnly: true,
+      instructionStatus: { state: 'needs-review', message: 'WB original missing' },
+      materialStatus: { state: 'textbook-page-needed', message: 'WB15–16 не сверена' },
+      learnerFlow: { version: 1, scope: 'Только упр.5', meshExcerpt: 'упр.5 стр.31', goal: 'Свой диалог', boundary: 'WB15–16 ждёт оригинала',
+        source: { pageId: 'book:31', label: 'SB31', excerpt: 'Use the plan' }, stages: ['plan', 'check'].map(id => ({ id, title: id, prompt: 'Подумай о собеседнике', hint: 'Посмотри схему', frame: 'Сверь пару реплик', sourceLabel: 'SB31 ex5' })) } }]
+    scene.page = current
+    const view = await renderPage(parent)
+    try {
+      expect(view.host.querySelectorAll('.day-learner-flow')).toHaveLength(1)
+      expect(view.host.textContent).toContain('WB15–16 ждёт оригинала')
+      expect(view.host.querySelector('.day-task-state')?.textContent).toContain('Статус неизвестен')
+      expect(view.host.querySelector('.day-parent-guide')).toBeNull()
+      const next = [...view.host.querySelectorAll<HTMLButtonElement>('.day-learner-flow button')].find(b => b.textContent === 'Следующий шаг')!
+      await act(async () => next.click())
+      expect(view.host.querySelector('.day-learner-flow-stage')?.textContent).toContain('Шаг 2')
+      expect(view.host.querySelector('.day-task-state')?.textContent).toContain('Статус неизвестен')
+    } finally { await view.cleanup() }
+  })
+
   it('keeps a second independent teacher assignment apart from the linked quiz', async () => {
     const current = page()
     const another = structuredClone(current.subjects[0].tasks[0])

@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/scoped-learner-flow-2026-10-21.md */
 /** @see ../docs/decisions/mesh-informational-entry-2026-10-21.md */
 /** @see ../docs/decisions/collapsed-variant-status-2026-10-21.md */
 /* @see ../docs/decisions/weekend-parent-actions-2026-10-18.md */
@@ -31,6 +32,7 @@ import ParentTaskGuide from '@/components/ParentTaskGuide'
 import RequirementSwitch from '@/components/RequirementSwitch'
 import AssignmentBrief from '@/components/AssignmentBrief'
 import TaskGuidance from '@/components/TaskGuidance'
+import LearnerFlow from '@/components/LearnerFlow'
 import PhotoUploadControl from '@/components/PhotoUploadControl'
 import QuizCard from '@/components/QuizCard'
 import { findQuizPlacement, quizChain, quizTaskForPlacement, withQuizPlacements, type QuizCardAttempt } from '@/lib/quizCardViewModel'
@@ -565,6 +567,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
                 {!task.problems?.length && <h3>{task.title}</h3>}{(!task.problems?.length || !readerGroups.some((group) => group[0].sourceType === 'teacher-attachment')) && <AssignmentBrief task={task} materialLinks={taskLinks} compact={Boolean(task.problems?.length)} />}
                 {task.referenceDate && referencedItems.length > 0 && <div className="day-reference-results"><strong>Результаты ДЗ за {dayMonth(task.referenceDate)}</strong>{referencedItems.map((item) => <div className="day-reference-result" key={item.id}><span className={item.state === 'done' ? 'complete' : 'pending'}>{item.state === 'done' ? '✓' : '•'} {item.title}</span><small>{item.detail}</small></div>)}</div>}
                 {!parent && <TaskGuidance items={guidance.filter((item) => item.taskId === task.id)} />}
+                {task.learnerFlow && <LearnerFlow key={`${task.id}:${JSON.stringify(task.learnerFlow)}`} flow={task.learnerFlow} />}
                 {parent && taskGuides[task.id]?.guide && <ParentTaskGuide guide={taskGuides[task.id]!.guide!} review={review} decisions={parentDecisions.events} guidance={guidance.filter((item) => item.taskId === task.id)} guidanceReady={guidanceReady} onSend={guidanceForTask(task.id, taskGuides[task.id]!.guide).onSendGuidance} onStageChoice={helpRole === 'parent' && review ? (stage, required) => recordStageChoice(review, taskGuides[task.id]!.guide!, stage.id, required) : undefined} />}
                 {/* @see ../docs/modules/reviews/russian-language-route.md#review-in-one-route the parent route owns its verdict; keep WorkReview for the learner and for parent decisions. */}
                 {review?.purpose !== 'source-material' && showSeparateWorkReview(parent, taskGuides[task.id]?.guide?.presentation, canAcceptCorrectAnswer(review), Boolean(review?.assessmentBasis?.disputedRequirements?.length || review?.requirementChecks?.length)) && <WorkReview review={review} uploads={taskUploads} accepted={accepted} canDecide={helpRole === 'parent' && !taskUploads.some((upload) => upload.status === 'pending')} onDecision={parent && canAcceptCorrectAnswer(review) && review ? (action) => recordParentCompletion(review, action) : undefined} decisions={parentDecisions.events} parent={parent} onRequirementChoice={parent && review?.assessmentBasis?.disputedRequirements?.length ? (id, action) => recordRequirementChoice(review, id, action) : undefined} />}

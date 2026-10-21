@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/scoped-learner-flow-2026-10-21.md */
 /** @see ../docs/decisions/mesh-informational-entry-2026-10-21.md */
 /**
  * @see ../docs/product/school-day.md
@@ -28,6 +29,7 @@ import { dayDashboardShapeErrors } from '../day/data-contract.mjs'
 import { materialGrantError } from '../day/material-access.mjs'
 import { teacherAttachmentOwnershipErrors } from '../day/assignment-structure.mjs'
 import { canPublishSourceOnly, sourceOnlyPublicationErrors, taskMaterialPublicationError } from '../day/source-only.mjs'
+import { learnerFlowErrors } from '../day/learner-flow.mjs'
 import { meshNoticeEntryErrors } from '../day/mesh-notice.mjs'
 import { ownerMigrationFields } from '../day/owner-repair.mjs'
 import { publicPageSubjects, publicProblem } from '../day/public-projection.mjs'
@@ -401,6 +403,8 @@ function validate(source, { allowUnchangedLegacyTeacherLinks = false } = {}) {
     for (const task of subject.tasks) {
       if (!/^[a-z0-9-]+$/.test(task.id ?? '') || ids.has(task.id) || !task.title) fail('Нужны уникальные id и названия действий.')
       ids.add(task.id)
+      const flowErrors = learnerFlowErrors(task, materialPlan.taskPages[task.id] ?? [])
+      if (flowErrors.length) fail(flowErrors.join(' '))
       const requestErrors = [...materialRequestErrors(task), ...taskSupportProseErrors(task)]
       if (requestErrors.length) fail(requestErrors.join(' '))
       if (task.assessmentIntent) {

@@ -1,0 +1,9 @@
+/** @see ../../docs/decisions/scoped-learner-flow-2026-10-21.md */
+/* @see ../../docs/shared/design/README.md#cards-and-status
+ * @see ../../docs/modules/reviews/subject-aware-guidance.md#learner-flow */
+.day-learner-flow{margin:14px 0;padding:14px;border:1px solid var(--edu-card-border);border-radius:var(--edu-radius-control);background:var(--edu-canvas);color:var(--edu-ink);overflow-wrap:anywhere}
+.day-learner-flow h4{margin:0 0 8px;font-size:1rem}.day-learner-flow h5{margin:8px 0;font-size:1rem}.day-learner-flow p{margin:8px 0;line-height:1.55;font-size:.9rem}
+.day-learner-flow-boundary,.day-learner-flow small,.day-learner-flow nav>span{color:var(--edu-muted);font-size:.78rem}
+.day-learner-flow-stage{padding:12px;border:1px solid var(--edu-card-border);border-radius:var(--edu-radius-control);background:var(--edu-surface)}
+.day-learner-flow summary{cursor:pointer;min-height:var(--edu-touch-target);display:flex;align-items:center;font-weight:700}.day-learner-flow summary:focus-visible{outline:3px solid var(--edu-focus)}
+.day-learner-flow details{border-top:1px solid var(--edu-card-border);margin-top:10px}.day-learner-flow details details{padding-left:8px}.day-learner-flow nav{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap}.day-learner-flow nav>span{flex:1;min-width:140px}
