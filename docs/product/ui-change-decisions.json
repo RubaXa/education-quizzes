@@ -428,18 +428,18 @@
       }
     },
     "day/merge.mjs": {
-      "sha256": "bc926aa03d9d743792dd784d1608386ab6aef2a12c6f474cfd83c46f8d9e8679",
-      "record": "docs/decisions/day-merge-order-2026-10-22.md",
+      "sha256": "5a722ec70b1d084b0ea92c2416ae62d184c21ba62d20891c93a305070b285e77",
+      "record": "docs/decisions/mixed-assignment-actions-2026-10-22.md",
       "specs": [
-        "docs/modules/synchronization/plan-generation.md"
+        "docs/modules/synchronization/plan-generation.md",
+        "docs/modules/materials/material-clarification.md"
       ],
       "tests": [
-        "day/merge.test.mjs",
-        "day/pipeline-contract.test.mjs"
+        "day/mixed-assignment.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь просит восстановить автоматическую синхронизацию и актуализацию Education; реальный publish выявил несовпадение порядка subjects[1].id. Сохраняются строгий барьер, подтверждённые статусы и история работ."
+        "evidence": "Родитель 22.10.2026 прямо потребовал две независимые задачи для письменного упражнения и повторения правила, отдельное уточнение неизвестного материала и тест после подтверждения правила."
       }
     },
     "day/owner-repair.mjs": {
