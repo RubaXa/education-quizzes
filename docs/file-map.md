@@ -190,7 +190,9 @@
 | [day/dashboard-index.test.mjs](../day/dashboard-index.test.mjs) | [Dashboard](modules/school-diary/dashboard.md) | Проверка ссылок МЭШ и семейного задания на страницу предыдущего учебного дня | Vitest; разработчик |
 | [day/data-contract.mjs](../day/data-contract.mjs) | [Модель Firestore](shared/data/firestore.md) | Проверка формы страниц, календаря и теста перед выпуском | `scripts/day.mjs`; аудит |
 | [day/data-contract.test.mjs](../day/data-contract.test.mjs) | [Модель Firestore](shared/data/firestore.md) | Регрессии схемы, ролей, версий и уникальных ID | Vitest; разработчик |
-| [day/family-source-graph.mjs](../day/family-source-graph.mjs) | [Семейная библиотека](modules/materials/family-library.md) | Граф семейных книг, методик и заданий на каждый выпуск дня | `scripts/day.mjs` |
+| [day/family-source-graph.mjs](../day/family-source-graph.mjs) | [Семейная библиотека](modules/materials/family-library.md) | Граф семейных книг, методик, заданий и проверенных task-specific audio edges на каждый выпуск | `scripts/day.mjs` |
+| [day/audio-selection-plan.mjs](../day/audio-selection-plan.mjs) | [Аудиопривязка](modules/materials/audio-library.md) | Проверка закрытых task-level selections, типа evidence и адресной страницы уточнения | `scripts/day.mjs`; Vitest |
+| [day/audio-selection-plan.test.mjs](../day/audio-selection-plan.test.mjs) | [Аудиопривязка](modules/materials/audio-library.md) | Регрессии task/date/family guard и непустой формы списка | Vitest |
 | [day/grade-publication.mjs](../day/grade-publication.mjs) | [Средний балл](modules/school-diary/grades.md) | Адресное согласование проекции оценок на всех страницах ребёнка без повторной записи неизменного | `scripts/day.mjs` |
 | [day/grade-publication.test.mjs](../day/grade-publication.test.mjs) | [Средний балл](modules/school-diary/grades.md) | Регрессия исчезновения комментариев при переходе на следующий день, обе роли и идемпотентность | Vitest; разработчик |
 | [day/grade-reconciliation.mjs](../day/grade-reconciliation.mjs) | [Средний балл](modules/school-diary/grades.md) | Сверка среза МЭШ, подробности подтверждённой отметки и обнаружение изменений | `scripts/day.mjs`; уведомления |
@@ -888,8 +890,8 @@
 
 | [docs/modules/materials/audio-library.md](modules/materials/audio-library.md) | [Аудиобиблиотека](modules/materials/audio-library.md) | Общие аудиоматериалы, адресная связь, синхронизация и сценарии плеера | Разработчик; оператор; UI |
 | [docs/decisions/audio-library-2026-10-22.md](decisions/audio-library-2026-10-22.md) | [Аудиобиблиотека](modules/materials/audio-library.md) | Основание и согласованный путь общих аудиозаписей и плеера | Разработчик; выпуск |
-| [storage/audio-library.mjs](../storage/audio-library.mjs) | [Аудиобиблиотека](modules/materials/audio-library.md) | Разбор источника, проверка MP3 и точные связи аудио с заданиями | CLI; издатель дня |
-| [storage/audio-library.test.mjs](../storage/audio-library.test.mjs) | [Аудиобиблиотека](modules/materials/audio-library.md) | Регрессии общего каталога, источника, семейного основания и точного подбора | Vitest |
+| [storage/audio-library.mjs](../storage/audio-library.mjs) | [Аудиобиблиотека](modules/materials/audio-library.md) | Разбор источника, проверка MP3, безопасный авто-подбор и evidence-checked explicit task bindings | CLI; издатель дня |
+| [storage/audio-library.test.mjs](../storage/audio-library.test.mjs) | [Аудиобиблиотека](modules/materials/audio-library.md) | Регрессии общего каталога, точного подбора, ambiguous WB clarification, fail-closed и приватности evidence | Vitest |
 | [scripts/audio-library.mjs](../scripts/audio-library.mjs) | [Аудиобиблиотека](modules/materials/audio-library.md) | Повторяемая синхронизация MP3 с Диском, общий каталог и адресная семейная связь | Оператор |
 | [src/components/AudioPlayer.tsx](../src/components/AudioPlayer.tsx) | [Аудиобиблиотека](modules/materials/audio-library.md) | Общий ленивый плеер, ошибки, повтор и скорость | ДЗ; библиотека; UI Kit |
 | [src/components/AudioPlayer.css](../src/components/AudioPlayer.css) | [Аудиобиблиотека](modules/materials/audio-library.md) | Токены и адаптивная геометрия общего плеера | AudioPlayer; AudioLibrary |

@@ -1,4 +1,5 @@
 /** @see ../docs/decisions/mesh-informational-entry-2026-10-21.md */
+/** @see ../docs/decisions/audio-library-2026-10-22.md#было--стало */
 /**
  * @see ../docs/product/materials.md
  */
@@ -88,6 +89,7 @@ export function buildDaySource(local, date) {
     .map((placement) => ({ ...placement, originDate: placement.originDate || (current ? targetDate : earlier.targetDate) }))
   const retainedTaskIds = new Set(subjects.flatMap((subject) => subject.tasks.map((task) => task.id)))
   const materialLinks = { ...(current?.materialLinks || Object.fromEntries(Object.entries(earlier?.materialLinks || {}).filter(([taskId]) => retainedTaskIds.has(taskId)))) }
+  const audioSelections = { ...(current?.audioSelections ?? {}) }
   const materialLinkReplacements = new Set(current?.materialLinkReplacements ?? [])
   const sourceOnlyEntries = [...(current?.sourceOnlyEntries || [])]
   let added = 0
@@ -124,6 +126,7 @@ export function buildDaySource(local, date) {
       const old=subject.tasks.find(task=>task.id===originId)
       if (old && (old.status!=='unknown' || old.testToken || old.parentGuide)) throw new Error(`У ${originId} есть результат или разбор; разделение требует адресной сверки истории.`)
       subject.tasks=subject.tasks.filter(task=>task.id!==originId)
+      delete audioSelections[originId]
       delete materialLinks[originId]
       materialLinkReplacements.add(originId)
       if (!previousSplit) sourceOnlyEntries.push({kind:'split',id:originId,subjectId:id,rawText:original.description.trim(),
@@ -144,6 +147,7 @@ export function buildDaySource(local, date) {
       const referenceDate = referencedHomeworkDate(description, lessonDate)
       const notice = classifyMeshNotice(description, { hasTeacherFiles: (assignment.teacherFiles?.length ?? 0) > 0 })
       if (notice) {
+        delete audioSelections[taskId]
         for (let index = sourceOnlyEntries.length - 1; index >= 0; index -= 1) {
           if (sourceOnlyEntries[index].id === taskId) sourceOnlyEntries.splice(index, 1)
         }
@@ -166,6 +170,7 @@ export function buildDaySource(local, date) {
       const mainEntry = descriptions.find((candidate) => candidate.id !== entry.id && !/^файл здесь\.?$/i.test(candidate.description.trim()))
       if (/^файл здесь\.?$/i.test(description) && assignment.teacherFiles?.length && mainEntry) {
         const targetTaskId = `mesh-${mainEntry.id}`
+        delete audioSelections[taskId]
         if (!sourceOnlyEntries.some((item) => item.id === taskId)) sourceOnlyEntries.push({
           id: taskId, subjectId: id, targetTaskId, rawText: description,
           reason: 'Запись МЭШ указывает на приложенный к тому же уроку файл и не задаёт отдельного действия.',
@@ -180,6 +185,7 @@ export function buildDaySource(local, date) {
       const old = subject.tasks.find((task) => task.id === taskId)
       if (old) {
         if (old.meshText !== description) {
+          delete audioSelections[taskId]
           // A changed teacher instruction invalidates the previous agent interpretation.
           // Keep uploads separately, but show only the new raw MESH text until review.
           old.title = description.length > 105 ? `${description.slice(0, 102)}…` : description
@@ -283,7 +289,8 @@ export function buildDaySource(local, date) {
   const evidenceDayTokens = [...new Set([...(current?.evidenceDayTokens || earlier?.evidenceDayTokens || []), ...(earlierDate && links[earlierDate] ? [links[earlierDate].student] : [])])]
   const activeTaskIds = new Set(subjects.flatMap((subject) => subject.tasks.map((task) => task.id)))
   const retiredTaskIds = (current?.retiredTaskIds || []).filter((taskId) => !activeTaskIds.has(taskId))
-  const source = { ...current, targetDate, notices, parentNotes, subjects, testPlacements: placements, materialLinks, materialLinkReplacements: [...materialLinkReplacements], sourceOnlyEntries, evidenceDayTokens, retiredTaskIds }
+  const source = { ...current, targetDate, notices, parentNotes, subjects, testPlacements: placements, materialLinks, audioSelections,
+    materialLinkReplacements: [...materialLinkReplacements], sourceOnlyEntries, evidenceDayTokens, retiredTaskIds }
   writeJson(local, `day-source-${date}.json`, source)
   return { date, targetDate, assigned, subjects: subjects.length, tasks: subjects.reduce((sum, subject) => sum + subject.tasks.length, 0), added }
 }

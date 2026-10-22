@@ -1,10 +1,13 @@
 import { createHash } from 'node:crypto'
-import { boundAssignmentAudio } from '../storage/audio-library.mjs'
+import { resolveAssignmentAudio } from '../storage/audio-library.mjs'
 
 /** Rebuilds a source graph from this family's current facts on every publication.
  * @see ../docs/modules/materials/family-library.md#source-graph
+ * @see ../docs/modules/materials/audio-library.md#assignment
+ * @see ../docs/modules/materials/material-clarification.md#модель
+ * @see ../docs/decisions/audio-library-2026-10-22.md#было--стало
  */
-export async function buildFamilySourceGraph(db, { familyId, childId, source, pageRefs }) {
+export async function buildFamilySourceGraph(db, { familyId, childId, source, pageRefs, audioSelections, clarificationReviews }) {
   const base = `families/${familyId}/children/${childId}`
   const [child, books, requirements, methods] = await Promise.all([
     db.doc(base).get(), db.collection(`${base}/books`).get(),
@@ -66,7 +69,7 @@ export async function buildFamilySourceGraph(db, { familyId, childId, source, pa
     }
   }
   return { schemaVersion: 1, familyId, childId, libraryPolicyVersion: child.data().libraryPolicyVersion ?? 0,
-    audioLinks: boundAssignmentAudio(source, books.docs.map((item) => ({ ...item.data(), bookId: item.id })), Object.fromEntries(Object.entries(pageRefs ?? {}).map(([taskId, refs]) => [taskId, [...(source.materialLinks?.[taskId] ?? []), ...refs.map((ref) => ({ sourceType: 'textbook-page', sourceRef: ref }))]]))),
+    audioLinks: resolveAssignmentAudio(source, books.docs.map((item) => ({ ...item.data(), bookId: item.id })), Object.fromEntries(Object.entries(pageRefs ?? {}).map(([taskId, refs]) => [taskId, [...(source.materialLinks?.[taskId] ?? []), ...refs.map((ref) => ({ sourceType: 'textbook-page', sourceRef: ref }))]])), audioSelections, clarificationReviews),
     nodes: [...new Map(nodes.map((node) => [node.id, node])).values()], edges, problems,
     generatedAt: new Date().toISOString() }
 }

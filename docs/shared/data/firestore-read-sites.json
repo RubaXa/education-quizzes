@@ -7966,5 +7966,17 @@
     "policy": "operator-point",
     "refresh": "only after changed dashboard writes",
     "note": "Адресное подтверждение изменённых документов (до двух); неизменный повтор не пишет и не перечитывает."
+  },
+  {
+    "id": "scripts/day.mjs#admin.get#09003f5f66b1",
+    "file": "scripts/day.mjs",
+    "line": 673,
+    "api": "admin.get",
+    "target": "db.doc(`dayProgress/${pair.student}/items/${taskId}`)",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "operator-point",
+    "refresh": "once per selected source-material audio binding",
+    "note": "Только для explicit source-material audioSelection: один отзыв dayProgress по taskId проверяет, что uploadId/excerpt действительно присутствуют в опубликованном sourceAnalysis этого resolved request. Соседние задания не читаются; MESH selection и автоматический подбор не добавляют reads."
   }
 ]

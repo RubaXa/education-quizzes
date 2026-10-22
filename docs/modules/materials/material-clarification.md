@@ -11,6 +11,8 @@ consumers:
   - "upload worker"
 code:
   - "day/build.mjs"
+  - "day/audio-selection-plan.mjs"
+  - "day/family-source-graph.mjs"
   - "day/data-contract.mjs"
   - "scripts/day.mjs"
   - "scripts/submissions.mjs"
@@ -22,6 +24,7 @@ code:
   - "src/lib/homeworkStatus.ts"
   - "src/lib/materialRequest.ts"
   - "src/lib/photoUploadPolicy.ts"
+  - "storage/audio-library.mjs"
   - "storage/review-projection.mjs"
   - "storage/review-readback.mjs"
   - "storage/submission-inbox.mjs"
@@ -49,6 +52,8 @@ sections:
 При нескольких действиях в одной школьной записи запрос относится к конкретной части: фото условия письменного упражнения или фото правила для повторения. Не просить результат неизвестного задания вместо источника. Консервативное разбиение и сохранение полного оригинала — [контракт смешанного назначения](../synchronization/plan-generation.md#mixed-actions). Открытый проверенный запрос допустим в sourceOnly: это уточнение, а не обогащение выдуманной темой. До разрешения запроса тест запрещён; затем письменная часть принимает результат, повторение получает отдельную самопроверку. Прохождение одной части не закрывает другую.
 
 `task.materialRequest={id,state:'open'|'resolved',question,photoPrompt,resolvedTopic?,uploadIds?}`. Открытый запрос связан с assessmentIntent needs-topic/needs-review. Разрешённый сохраняет тему и исходные uploadIds. Публичная карточка показывает один адресный вопрос, что должно попасть на фото, состояние материала и стандартный блок загрузки. Никакой новой подписки: всё приходит с текущими страницей, фото и разбором.
+
+После завершения source-material разбора оператор может зафиксировать ручной выбор одной или нескольких аудиозаписей в закрытом `.local/day-source-YYYY-MM-DD.json`: `audioSelections[taskId]=[{bookId,sourceRef,sourceSha256,evidence:{kind:'source-material',ref:uploadId,excerpt}}]`. Валидатор сверяет uploadId и дословный excerpt с опубликованным sourceAnalysis того же taskId/requestId; запрос должен быть resolved. Для прямой опоры на задание `kind:'mesh'` требует точный taskId и excerpt из reviewed `meshText`. Подробная схема, проверка книги/отпечатка и поведение авто-подбора описаны в [контракте аудио](audio-library.md#assignment). На ученическую страницу проецируется только каноническая ссылка; план выбора и его evidence не копируются в задание.
 
 Штатный `submissions validate/review FILE.json` принимает отдельную модель `purpose:'source-material'`, без status, assessmentBasis и workCoverage. `sourceAnalysis={requestId,topic:string|null,observed,quality,limitation,nextStep,evidence:[{uploadId,location,text}]}` связывает вывод с конкретным запросом и всеми использованными снимками. Основные date/taskId/planRevision/uploadIds/summary/nextStep/source сохраняют прежний контракт. Публикация записывает источник, обе ролевые проекции и reviewed фотографии, затем адресно перечитывает их. Попытка выставить verified вместо уточнения источника отклоняется.
 

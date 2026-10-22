@@ -10,7 +10,13 @@ updated: 2026-10-22
 consumers:
   - "developer"
   - "release operator"
-code: []
+code:
+  - "day/audio-selection-plan.mjs"
+  - "day/family-source-graph.mjs"
+  - "day/pipeline-contract.mjs"
+  - "day/build.mjs"
+  - "scripts/day.mjs"
+  - "storage/audio-library.mjs"
 sections:
   - основание
   - было--стало
@@ -29,6 +35,8 @@ sections:
 
 В карточках были изображения/внешние ссылки без аудиоплеера. Добавлен один AudioPlayer для обеих ролей, библиотеки и UI Kit, с нативными controls, скоростью, ленивым получением записи, явным повтором ошибки и резервной ссылкой на Диск. Общая запись не содержит данных ребёнка; поле audioLibrary в существующей подтверждённой семейной книге является отдельной связью. Издатель дня подбирает только точную страницу/упражнение в своей семье. Исходные ДЗ, фото, результаты и оценки не меняются.
 
+Для запроса пользователя связывать аудио с заданием после анализа уточняющих материалов добавлен приватный per-day `source.audioSelections[taskId]`. Он содержит непустой список точных book/sourceRef/SHA и task-scoped evidence; publication принимает только подтверждённую книгу, страницу этого задания и reviewed MESH либо точный sourceAnalysis/uploadId resolved request. На страницу копируются лишь безопасные `DayMaterialLink`, evidence не проецируется. Неоднозначный авто-поиск по-прежнему даёт пустой результат, но явный проверенный выбор покрывает его без runtime LLM. Смена MESH очищает старый выбор; неизменная повторная сборка сохраняет его; fingerprint меняется вместе с выбором.
+
 Реальный MP3 проверен локальным декодером (93,59 с) и в браузере. Прямой attachment URL Диска даёт media code 4; HTTP fetch с no-referrer и воспроизведение временного Blob работают. Итоговый resolver загружает оригинал только по нажатию, ограничивает 30 МБ/45 секунд, сверяет SHA-256 и освобождает объекты при смене/закрытии и позднем ответе.
 
 Два неверных page-relative href источника (5-22, 5-23) дали 404, их оригиналы в /english/starlight-6/ дали HTTP 200 при проверке 22.10; адаптер сохраняет исходный href и явную поправку. Нестандартный номер s4a,b сохраняется дословно и не подбирается как обычное упражнение 4.
@@ -42,6 +50,9 @@ sections:
 - `src/lib/uiKitAudio.ts`
 - `storage/audio-library.mjs`
 - `day/family-source-graph.mjs`
+- `day/audio-selection-plan.mjs`
+- `day/pipeline-contract.mjs`
+- `day/build.mjs`
 - `day/merge.mjs`
 - `operator/operation-contract.mjs`
 - `operator/run-operation.mjs`
@@ -60,6 +71,8 @@ sections:
 ## Проверки
 
 `storage/audio-library.test.mjs`, `src/components/AudioPlayer.test.tsx`: разные книги/страницы/подпункты, пробелы источника, родительское основание, запрет HTML вместо MP3, ленивое разрешение, ошибка/повтор, поздний ответ и конкурирующий звук. `day/mixed-assignment.test.mjs` подтверждает точную привязку аудио к отдельному действию повторения, сохраняя письменную сдачу и тест на своих задачах. UI Kit содержит условный локальный WAV и пример отказа. Полный npm check, геометрия 320/390/540 и выпуск фиксируются отдельно после фактического выполнения.
+
+`storage/audio-library.test.mjs`, `day/audio-selection-plan.test.mjs`, `day/build-assignments.test.mjs`, `day/pipeline-contract.test.mjs` проверяют неоднозначный WB после уточнения, несколько треков в списке, fail-closed для неизвестной задачи, пустого списка, дубликата внутри задания, чужой книги/хэша, незавершённого запроса и чужого evidence, повторное использование upload/track при независимом подтверждении другой задачи, локальную дату владельца, непубличность evidence, сохранение выбора при rebuild и включение выбора в fingerprint. Прямой `dayProgress` read зарегистрирован как один адресный вызов на выбранное source-material task; для MESH-only selection дополнительного чтения нет.
 
 ## Согласование
 

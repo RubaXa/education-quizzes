@@ -43,9 +43,12 @@ describe('сборка двух МЭШ-заданий с файлами уров
       'mesh-one': [{ sourceType: 'teacher-attachment', sourceRef: 'mesh-attachment:geometry', url: 'https://example.org/geometry.png' }],
       'mesh-two': [{ sourceType: 'teacher-attachment', sourceRef: 'mesh-attachment:ratios', url: 'https://example.org/ratios.pdf' }],
     }
+    initial.audioSelections = { 'mesh-one': [{ bookId: 'english', sourceRef: 'audio:one', sourceSha256: 'b'.repeat(64),
+      evidence: { kind: 'mesh', ref: 'mesh-one', excerpt: 'Геометрия: решить задачи' } }] }
     write(source, initial)
     buildDaySource(local, '2026-10-13')
     expect(read(source).materialLinks).toEqual(initial.materialLinks)
+    expect(read(source).audioSelections).toEqual(initial.audioSelections)
   })
   it('сбрасывает прежнюю разметку вариантов при изменении записи учителя', () => {
     const { local, assignment, source } = fixture()
@@ -55,6 +58,7 @@ describe('сборка двух МЭШ-заданий с файлами уров
     old.subjects[0].tasks[0].practiceVariants = [{ id: 'mesh-one-v1', title: 'Вариант 1' }, { id: 'mesh-one-v2', title: 'Вариант 2' }]
     old.subjects[0].tasks[0].problems = [{ id: 'mesh-one-p-v1-1', variantId: 'mesh-one-v1', number: 1 }]
     old.subjects[0].tasks[0].materialRequest = { id:'notes-1', state:'open', question:'Прежний вопрос по прежнему условию', photoPrompt:'Фото прежнего материала' }
+    old.audioSelections = { 'mesh-one': [{ bookId: 'english', sourceRef: 'audio:old', sourceSha256: 'a'.repeat(64), evidence: { kind: 'mesh', ref: 'mesh-one', excerpt: 'Геометрия: решить задачи' } }] }
     write(source, old)
     assignment.homeworkEntries[0].description = 'Решить новый лист учителя'
     write(join(local, 'diary', 'snapshot-2026-10-14.json'), {
@@ -67,6 +71,7 @@ describe('сборка двух МЭШ-заданий с файлами уров
     expect(revised.problems).toBeUndefined()
     expect(revised.practiceVariants).toBeUndefined()
     expect(revised.materialRequest).toBeUndefined()
+    expect(read(source).audioSelections['mesh-one']).toBeUndefined()
   })
   it('сохраняет явный отказ от source-only режима при неизменной записи', () => {
     const { local, source } = fixture()

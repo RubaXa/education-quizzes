@@ -1,4 +1,5 @@
 /** @see ../docs/decisions/mesh-informational-entry-2026-10-21.md */
+/** @see ../docs/decisions/audio-library-2026-10-22.md#было--стало */
 /**
  * @see ../docs/modules/reviews/README.md
  * @see ../docs/decisions/day-merge-order-2026-10-22.md
@@ -95,9 +96,11 @@ export function assertSourceAligned(source, snapshot, routeContext = {}) {
 
 /** Stable fingerprint of operator-authored plan fields, excluding live evidence. */
 export function sourcePlanFingerprint(source) {
+  const audioSelections = source.audioSelections ?? {}
   const plan = {
     targetDate: source.targetDate, subjects: source.subjects, sourceOnlyEntries: source.sourceOnlyEntries ?? [],
     retiredTaskIds: source.retiredTaskIds ?? [], materialLinks: source.materialLinks ?? {},
+    ...(Object.keys(audioSelections).length ? { audioSelections } : {}),
     ...(source.assignmentRoutes?.length ? { assignmentRoutes: source.assignmentRoutes } : {}),
     testPlacements: source.testPlacements ?? [], weekendSlot: source.weekendSlot ?? null,
   }

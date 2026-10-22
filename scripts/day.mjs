@@ -8,6 +8,7 @@
  * @see ../docs/modules/reviews/card-flow-certification.md
  */
 /** @see ../docs/modules/materials/material-clarification.md */
+/** @see ../docs/decisions/audio-library-2026-10-22.md#было--стало */
 import { materialRequestErrors, openMaterialRequest } from '../src/lib/materialRequest.ts'
 import { parentGuideProseErrors, taskSupportProseErrors } from '../src/lib/reviewProse.ts'
 import { createHash, randomBytes } from 'node:crypto'
@@ -23,6 +24,7 @@ import { assertLearningRouteIdentity, learningRouteIdentity } from '../day/learn
 import { assertWeekendWorkRetention, buildDayDashboardIndex } from '../day/dashboard-index.mjs'
 import { familyDashboardDateDelta } from '../day/family-dashboard-delta.mjs'
 import { mergeDayPage } from '../day/merge.mjs'
+import { clarificationAudioPageError, sourceMaterialAudioTaskIds } from '../day/audio-selection-plan.mjs'
 import { assertAssignmentLinksExist } from '../day/placement-integrity.mjs'
 import { repairTaskPlacements } from '../day/placement-repair.mjs'
 import { dayDashboardShapeErrors } from '../day/data-contract.mjs'
@@ -584,7 +586,7 @@ async function reconcileEarlierEvidence(source, studentToken) {
     const [ownerDoc, pageDoc] = await Promise.all([db.doc(`dayOwners/${token}`).get(), db.doc(`dayPages/${token}`).get()])
     if (!pageDoc.exists) continue
     if (ownerDoc.data()?.childId !== owner.childId || pageDoc.data().kind !== 'student') fail('Источник предыдущего результата принадлежит другой странице или ребёнку.')
-    pages.push({ token, page: pageDoc.data() })
+    pages.push({ token, owner: ownerDoc.data(), page: pageDoc.data() })
   }
   for (const entry of source.sourceOnlyEntries ?? []) {
     for (const { token } of pages) {
@@ -615,6 +617,7 @@ async function reconcileEarlierEvidence(source, studentToken) {
       task.platformResult = candidates[0].platformResult
     }
   }
+  return pages
 }
 
 /** @see ../docs/modules/families/access-and-state.md#state */
@@ -652,10 +655,28 @@ async function stagePublish(date, batch, links, indexTokens, stagedPages, notify
       fail('Контекст ребёнка не подтверждён семейным источником МЭШ.')
     }
   }
+  if (!links[date]) links[date] = { student: randomBytes(32).toString('base64url'), parent: randomBytes(32).toString('base64url') }
+  const pair = links[date]
+  const evidencePages = await reconcileEarlierEvidence(source, pair.student)
+  const audioSelections = source.audioSelections ?? {}
+  const materialSelectionTaskIds = sourceMaterialAudioTaskIds(source, audioSelections)
+  if (Object.keys(audioSelections).length && (!legacyOwner?.familyId || !legacyOwner?.childId)) fail('Явные аудиопривязки требуют подтверждённой семейной книги.')
   let audioLinks = {}
   if (legacyOwner?.familyId && legacyOwner?.childId) {
+    const clarificationReviews = {}
+    if (materialSelectionTaskIds.length) {
+      const evidencePage = evidencePages.find(({ token }) => token === pair.student)
+      const ownerPageError = clarificationAudioPageError({ owner: evidencePage?.owner, page: evidencePage?.page,
+        date, targetDate: source.targetDate, familyId: legacyOwner.familyId, childId: legacyOwner.childId })
+      if (ownerPageError) fail(ownerPageError)
+      const reviews = await Promise.all(materialSelectionTaskIds.map((taskId) =>
+        db.doc(`dayProgress/${pair.student}/items/${taskId}`).get()))
+      materialSelectionTaskIds.forEach((taskId, index) => { clarificationReviews[taskId] = {
+        review: reviews[index].data(), pagePlanRevision: evidencePage.page.planRevision,
+      } })
+    }
     const graph = await buildFamilySourceGraph(db, { familyId: legacyOwner.familyId,
-      childId: legacyOwner.childId, source, pageRefs })
+      childId: legacyOwner.childId, source, pageRefs, audioSelections, clarificationReviews })
     audioLinks = graph.audioLinks
     writeFileSync(resolve(local, `family-source-graph-${date}.json`), `${JSON.stringify(graph, null, 2)}\n`, { mode: 0o600 })
     if (graph.problems.length) fail(`${graph.problems.join(' ')} День не опубликован.`)
@@ -694,9 +715,6 @@ async function stagePublish(date, batch, links, indexTokens, stagedPages, notify
     }
     if (task.materialStatus?.state === 'textbook-page-linked' && !allMaterialLinks[task.id]?.some((link) => link.sourceType === 'textbook-page')) fail(`Для ${task.id} указан учебник, но ссылка на точную страницу пока не опубликована.`)
   }
-  if (!links[date]) links[date] = { student: randomBytes(32).toString('base64url'), parent: randomBytes(32).toString('base64url') }
-  const pair = links[date]
-  await reconcileEarlierEvidence(source, pair.student)
   const base = {
     schemaVersion: 1, date, targetDate: source.targetDate, updatedAt: Timestamp.now(),
     ...(legacyOwner?.familyId && legacyOwner?.childId ? { familyId: legacyOwner.familyId, childId: legacyOwner.childId } : {}),

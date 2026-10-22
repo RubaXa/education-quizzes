@@ -23,6 +23,15 @@ describe('диагностика ссылки на семейную страни
 })
 
 describe('барьер публикации плана', () => {
+  it('fingerprints private explicit audio choices while keeping legacy and empty plans stable', () => {
+    const legacy = sourcePlanFingerprint(source)
+    expect(sourcePlanFingerprint({ ...source, audioSelections: {} })).toBe(legacy)
+    const selection = { 'mesh-99': [{ bookId: 'english', sourceRef: 'audio:one', sourceSha256: 'a'.repeat(64),
+      evidence: { kind: 'mesh', ref: 'mesh-99', excerpt: 'Решить № 4.' } }] }
+    expect(sourcePlanFingerprint({ ...source, audioSelections: selection })).not.toBe(legacy)
+    expect(sourcePlanFingerprint({ ...source, audioSelections: { ...selection, 'mesh-99': [{ ...selection['mesh-99'][0],
+      evidence: { ...selection['mesh-99'][0].evidence, excerpt: 'Решить задачу № 4.' } }] } })).not.toBe(sourcePlanFingerprint({ ...source, audioSelections: selection }))
+  })
   it('reports only the first structural path and mismatch kind, never compared contents', () => {
     expect(firstTopologyDifference([{ tasks: [{ id: 'secret-id' }] }], [{ tasks: [] }]))
       .toEqual({ path: 'subjects[0].tasks', kind: 'length' })

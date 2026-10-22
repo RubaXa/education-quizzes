@@ -198,18 +198,20 @@
       }
     },
     "day/build.mjs": {
-      "sha256": "b2a7d6442221af5260c046d1e088c8acb9c68fa015926619540c63b9f1b090d2",
-      "record": "docs/decisions/mixed-assignment-actions-2026-10-22.md",
+      "sha256": "9d0ee5b77605595ee5b3d9808551161014e17338df6ae0c6c03bf3008f5eee45",
+      "record": "docs/decisions/audio-library-2026-10-22.md",
       "specs": [
-        "docs/modules/synchronization/plan-generation.md",
-        "docs/modules/materials/material-clarification.md"
+        "docs/modules/materials/audio-library.md",
+        "docs/modules/materials/material-clarification.md",
+        "docs/modules/synchronization/plan-generation.md"
       ],
       "tests": [
+        "day/build-assignments.test.mjs",
         "day/mixed-assignment.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 22.10.2026 прямо потребовал две независимые задачи для письменного упражнения и повторения правила, отдельное уточнение неизвестного материала и тест после подтверждения правила."
+        "evidence": "Прямой запрос пользователя связывать аудио с точным заданием после анализа уточняющих материалов; выбор должен использовать подтверждённые материалы ребёнка и не смешивать письменную сдачу с тестом."
       }
     },
     "day/card-policy.mjs": {
@@ -258,18 +260,20 @@
       }
     },
     "day/family-source-graph.mjs": {
-      "sha256": "a32ceab9d6c46e1d45c38ac3138dc26c9553c5806623b163a9c53ecafbb6ea8a",
-      "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
+      "sha256": "00b93cc4db5c03b00d23a2c367fda8cd23e207f515956a395d3758a7e17792fc",
+      "record": "docs/decisions/audio-library-2026-10-22.md",
       "specs": [
-        "docs/shared/specification-system.md"
+        "docs/modules/materials/audio-library.md",
+        "docs/modules/materials/material-clarification.md",
+        "docs/modules/synchronization/plan-generation.md"
       ],
       "tests": [
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
+        "storage/audio-library.test.mjs",
+        "day/mixed-assignment.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя 16.10.2026 внедрить согласованную структуру спецификаций, перенести ссылки в коде и проверить сохранность требований; изменение предметного поведения не выполнялось."
+        "evidence": "Прямой запрос пользователя связывать аудио с точным заданием после анализа уточняющих материалов; выбор должен использовать подтверждённые материалы ребёнка и не смешивать письменную сдачу с тестом."
       },
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
@@ -458,18 +462,19 @@
       }
     },
     "day/pipeline-contract.mjs": {
-      "sha256": "8475eb9b4f22c05c40df60a8be54d1f022c9d49170e25c8ed94c72fba4f5f8f7",
-      "record": "docs/decisions/mixed-assignment-actions-2026-10-22.md",
+      "sha256": "2ba20096754f49745251576985eb45d7f5fcce896ecb83e19573097180b13a52",
+      "record": "docs/decisions/audio-library-2026-10-22.md",
       "specs": [
-        "docs/modules/synchronization/plan-generation.md",
-        "docs/modules/materials/material-clarification.md"
+        "docs/modules/materials/audio-library.md",
+        "docs/modules/materials/material-clarification.md",
+        "docs/modules/synchronization/plan-generation.md"
       ],
       "tests": [
-        "day/mixed-assignment.test.mjs"
+        "day/pipeline-contract.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 22.10.2026 прямо потребовал две независимые задачи для письменного упражнения и повторения правила, отдельное уточнение неизвестного материала и тест после подтверждения правила."
+        "evidence": "Прямой запрос пользователя связывать аудио с точным заданием после анализа уточняющих материалов; выбор должен использовать подтверждённые материалы ребёнка и не смешивать письменную сдачу с тестом."
       }
     },
     "day/placement-integrity.mjs": {
@@ -1919,23 +1924,20 @@
       }
     },
     "scripts/day.mjs": {
-      "sha256": "7b3821bb56b5ce5f8f184d66d62fb5c59a6a5eaa1635020d077f4f8533e0f74d",
+      "sha256": "7c14299e72f9819ecfea7e968e208116a3b9403fa9b8e4f94ba0bc4b24042771",
       "record": "docs/decisions/audio-library-2026-10-22.md",
       "specs": [
-        "docs/modules/synchronization/plan-generation.md",
+        "docs/modules/materials/audio-library.md",
         "docs/modules/materials/material-clarification.md",
-        "docs/modules/materials/audio-library.md"
+        "docs/modules/synchronization/plan-generation.md"
       ],
       "tests": [
-        "day/mixed-assignment.test.mjs",
-        "storage/audio-library.test.mjs",
-        "src/components/AudioPlayer.test.tsx",
-        "day/merge.test.mjs",
-        "operator/operation-contract.test.mjs"
+        "day/audio-selection-plan.test.mjs",
+        "scripts/day.validate.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 22.10.2026 прямо запросил плеер в заданиях, общую аудиобиблиотеку Starlight 6 на своём Яндекс.Диске, спецификацию и UI Kit. Also preserve mixed-assignment behavior: separate explicit written and repeat actions with distinct material requests and independent outcomes."
+        "evidence": "Прямой запрос пользователя связывать аудио с точным заданием после анализа уточняющих материалов; выбор должен использовать подтверждённые материалы ребёнка и не смешивать письменную сдачу с тестом."
       }
     },
     "scripts/direct-upload-worker.mjs": {
@@ -6027,20 +6029,37 @@
       }
     },
     "storage/audio-library.mjs": {
-      "sha256": "aca99381c1fef3e958d8993d7342779dd0bd226041f5fa9c32eee0f72256e758",
+      "sha256": "60ff3721ee0b7f27d7826980454609c075663a165c983f517801c6266c3cd9a1",
       "record": "docs/decisions/audio-library-2026-10-22.md",
       "specs": [
-        "docs/modules/materials/audio-library.md"
+        "docs/modules/materials/audio-library.md",
+        "docs/modules/materials/material-clarification.md",
+        "docs/modules/synchronization/plan-generation.md"
       ],
       "tests": [
         "storage/audio-library.test.mjs",
-        "src/components/AudioPlayer.test.tsx",
-        "day/merge.test.mjs",
-        "operator/operation-contract.test.mjs"
+        "day/mixed-assignment.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 22.10.2026 прямо запросил плеер в заданиях, общую аудиобиблиотеку Starlight 6 на своём Яндекс.Диске, спецификацию и UI Kit."
+        "evidence": "Прямой запрос пользователя связывать аудио с точным заданием после анализа уточняющих материалов; выбор должен использовать подтверждённые материалы ребёнка и не смешивать письменную сдачу с тестом."
+      }
+    },
+    "day/audio-selection-plan.mjs": {
+      "sha256": "d632fd6a2d609c0c7b01c01c024b48ff0247d7b8dbdd8c292a3a891f8f4f0c88",
+      "record": "docs/decisions/audio-library-2026-10-22.md",
+      "specs": [
+        "docs/modules/materials/audio-library.md",
+        "docs/modules/materials/material-clarification.md",
+        "docs/modules/synchronization/plan-generation.md"
+      ],
+      "tests": [
+        "day/audio-selection-plan.test.mjs",
+        "storage/audio-library.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос пользователя связывать аудио с точным заданием после анализа уточняющих материалов; выбор должен использовать подтверждённые материалы ребёнка и не смешивать письменную сдачу с тестом."
       }
     }
   }

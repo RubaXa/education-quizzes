@@ -1,7 +1,9 @@
 import { createHash } from 'node:crypto'
 
 /** Shared audio has no learner fields. Binding and assignment edges stay private.
- * @see ../docs/modules/materials/audio-library.md */
+ * @see ../docs/modules/materials/audio-library.md#assignment
+ * @see ../docs/modules/materials/material-clarification.md#модель
+ * @see ../docs/decisions/audio-library-2026-10-22.md#было--стало */
 export const starlightSource = 'https://tankmet.ru/english/starlight6.html'
 export const collectionId = 'starlight-6'
 export const digest = (bytes) => createHash('sha256').update(bytes).digest('hex')
@@ -89,6 +91,88 @@ export function boundAssignmentAudio(source, books, pageLinks) {
       if (links.length) result[task.id] = [...new Map(links.map((link) => [link.sourceRef, link])).values()]
     }
   }
+  return result
+}
+
+/**
+ * Validate operator-selected, task-specific audio against a confirmed family
+ * book and its reviewed evidence. Explicit selections override automatic
+ * matching; malformed selections fail closed instead of falling back.
+ */
+export function resolveAssignmentAudio(source, books, pageLinks, selections = {}, clarificationReviews = {}) {
+  if (!selections || typeof selections !== 'object' || Array.isArray(selections)) {
+    throw new Error('Привязки аудио должны быть объектом по taskId.')
+  }
+  const tasks = new Map((source.subjects ?? []).flatMap((subject) =>
+    (subject.tasks ?? []).map((task) => [task.id, { subject, task }])))
+  const byBookId = new Map(books.map((book) => [book.bookId, book]))
+  const explicit = {}
+  for (const [taskId, selectedTracks] of Object.entries(selections)) {
+    const entry = tasks.get(taskId)
+    if (!entry || !Array.isArray(selectedTracks) || !selectedTracks.length) {
+      throw new Error(`Явная аудиопривязка ${taskId} имеет неизвестное задание или некорректный формат.`)
+    }
+    const { subject, task } = entry
+    if (subject.name.toLowerCase() !== 'английский язык' || task.instructionStatus?.state !== 'reviewed'
+      || task.materialRequest?.state === 'open') {
+      throw new Error(`Для явной аудиопривязки ${taskId} нужны проверенное задание и разрешённый запрос материала.`)
+    }
+    const selectedForTask = new Set(), linksForTask = []
+    for (const selection of selectedTracks) {
+      if (!selection || typeof selection !== 'object' || Array.isArray(selection)
+        || Object.keys(selection).some((key) => !['bookId', 'sourceRef', 'sourceSha256', 'evidence'].includes(key))
+        || !['bookId', 'sourceRef', 'sourceSha256', 'evidence'].every((key) => Object.hasOwn(selection, key))) {
+        throw new Error(`Запись аудио ${taskId} имеет неизвестное поле или некорректный формат.`)
+      }
+      const evidence = selection.evidence
+      if (!evidence || typeof evidence !== 'object' || Array.isArray(evidence)
+        || Object.keys(evidence).some((key) => !['kind', 'ref', 'excerpt'].includes(key))
+        || !['mesh', 'source-material'].includes(evidence.kind)
+        || typeof evidence.ref !== 'string' || !evidence.ref.trim()
+        || typeof evidence.excerpt !== 'string' || evidence.excerpt.trim().length < 8) {
+        throw new Error(`Для явной аудиопривязки ${taskId} нужно непустое относящееся к нему основание.`)
+      }
+      if (evidence.kind === 'mesh') {
+        if (evidence.ref !== task.id || !task.meshText?.includes(evidence.excerpt)) {
+          throw new Error(`Основание МЭШ аудиопривязки ${taskId} не относится к точному тексту задания.`)
+        }
+      } else {
+        const request = task.materialRequest
+        const clarification = clarificationReviews[taskId]
+        const review = clarification?.review
+        const analysisEvidence = review?.sourceAnalysis?.evidence ?? []
+        if (request?.state !== 'resolved' || !request.uploadIds?.includes(evidence.ref)
+          || review?.purpose !== 'source-material' || review.taskId !== taskId
+          || review.status !== undefined || review.workCoverage !== undefined || review.assessmentBasis !== undefined
+          || review.planRevision !== clarification.pagePlanRevision
+          || review.sourceAnalysis?.requestId !== request.id || !review.uploadIds?.includes(evidence.ref)
+          || !analysisEvidence.some((item) => item.uploadId === evidence.ref && item.text?.includes(evidence.excerpt))) {
+          throw new Error(`Основание фото аудиопривязки ${taskId} не подтверждено разрешённым запросом этого задания.`)
+        }
+      }
+      const book = byBookId.get(selection.bookId)
+      if (!book || book.status !== 'confirmed' || !book.audioLibrary?.tracks?.length
+        || !(pageLinks?.[taskId] ?? []).some((link) => link.sourceType === 'textbook-page'
+          && link.sourceRef?.startsWith(`${selection.bookId}#`))) {
+        throw new Error(`Книга аудиопривязки ${taskId} не подтверждена для этого задания.`)
+      }
+      const track = book.audioLibrary.tracks.find((item) => item.sourceRef === selection.sourceRef
+        && item.sourceSha256 === selection.sourceSha256)
+      if (!track) throw new Error(`Запись ${taskId} отсутствует в подтверждённой аудиобиблиотеке выбранной книги.`)
+      if (typeof track.title !== 'string' || !/^https:\/\/(?:disk\.yandex\.ru|yadi\.sk)\//.test(track.url ?? '')
+        || track.sourceType !== 'audio' || !/^audio:[a-z0-9-]+$/.test(track.sourceRef ?? '')
+        || !/^[a-f0-9]{64}$/.test(track.sourceSha256 ?? '')) throw new Error(`Запись ${taskId} не является канонической аудиоссылкой семейной библиотеки.`)
+      const duplicateKey = `${selection.bookId}:${selection.sourceRef}`
+      if (selectedForTask.has(duplicateKey)) throw new Error(`Одна запись аудио повторена внутри задания ${taskId}.`)
+      selectedForTask.add(duplicateKey)
+      linksForTask.push({ title: track.title, url: track.url, sourceType: 'audio', sourceRef: track.sourceRef,
+        sourceSha256: track.sourceSha256, collectionId: track.collectionId, audioKind: track.audioKind,
+        printedPage: track.printedPage, exercise: track.exercise, exerciseType: track.exerciseType, sourceUrl: track.sourceUrl })
+    }
+    explicit[taskId] = linksForTask
+  }
+  const automatic = boundAssignmentAudio(source, books, pageLinks)
+  const result = { ...automatic, ...explicit }
   return result
 }
 

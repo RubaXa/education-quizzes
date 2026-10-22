@@ -325,7 +325,14 @@
         "developer",
         "release operator"
       ],
-      "code": [],
+      "code": [
+        "day/audio-selection-plan.mjs",
+        "day/family-source-graph.mjs",
+        "day/pipeline-contract.mjs",
+        "day/build.mjs",
+        "scripts/day.mjs",
+        "storage/audio-library.mjs"
+      ],
       "sections": [
         "основание",
         "было--стало",
@@ -2917,6 +2924,20 @@
       "consumer": "Vitest; разработчик"
     },
     {
+      "id": "file:day/audio-selection-plan.mjs",
+      "path": "day/audio-selection-plan.mjs",
+      "kind": "artifact",
+      "purpose": "Проверка закрытых task-level selections, типа evidence и адресной страницы уточнения",
+      "consumer": "`scripts/day.mjs`; Vitest"
+    },
+    {
+      "id": "file:day/audio-selection-plan.test.mjs",
+      "path": "day/audio-selection-plan.test.mjs",
+      "kind": "verification",
+      "purpose": "Регрессии task/date/family guard и непустой формы списка",
+      "consumer": "Vitest"
+    },
+    {
       "id": "file:day/build-assignments.test.mjs",
       "path": "day/build-assignments.test.mjs",
       "kind": "verification",
@@ -3025,7 +3046,7 @@
       "id": "file:day/family-source-graph.mjs",
       "path": "day/family-source-graph.mjs",
       "kind": "artifact",
-      "purpose": "Граф семейных книг, методик и заданий на каждый выпуск дня",
+      "purpose": "Граф семейных книг, методик, заданий и проверенных task-specific audio edges на каждый выпуск",
       "consumer": "`scripts/day.mjs`"
     },
     {
@@ -6847,14 +6868,14 @@
       "id": "file:storage/audio-library.mjs",
       "path": "storage/audio-library.mjs",
       "kind": "artifact",
-      "purpose": "Разбор источника, проверка MP3 и точные связи аудио с заданиями",
+      "purpose": "Разбор источника, проверка MP3, безопасный авто-подбор и evidence-checked explicit task bindings",
       "consumer": "CLI; издатель дня"
     },
     {
       "id": "file:storage/audio-library.test.mjs",
       "path": "storage/audio-library.test.mjs",
       "kind": "verification",
-      "purpose": "Регрессии общего каталога, источника, семейного основания и точного подбора",
+      "purpose": "Регрессии общего каталога, точного подбора, ambiguous WB clarification, fail-closed и приватности evidence",
       "consumer": "Vitest"
     },
     {
@@ -7673,6 +7694,9 @@
         "material operator"
       ],
       "code": [
+        "day/audio-selection-plan.mjs",
+        "day/family-source-graph.mjs",
+        "scripts/day.mjs",
         "storage/audio-library.mjs",
         "scripts/audio-library.mjs",
         "src/components/AudioPlayer.tsx",
@@ -7748,6 +7772,8 @@
       ],
       "code": [
         "day/build.mjs",
+        "day/audio-selection-plan.mjs",
+        "day/family-source-graph.mjs",
         "day/data-contract.mjs",
         "scripts/day.mjs",
         "scripts/submissions.mjs",
@@ -7759,6 +7785,7 @@
         "src/lib/homeworkStatus.ts",
         "src/lib/materialRequest.ts",
         "src/lib/photoUploadPolicy.ts",
+        "storage/audio-library.mjs",
         "storage/review-projection.mjs",
         "storage/review-readback.mjs",
         "storage/submission-inbox.mjs"
@@ -11496,6 +11523,26 @@
       "type": "implements"
     },
     {
+      "from": "file:day/audio-selection-plan.mjs",
+      "to": "decision.audio-library-2026-10-22",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/audio-selection-plan.mjs",
+      "to": "module.materials.audio-library",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/audio-selection-plan.mjs",
+      "to": "module.materials.material-clarification",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/build.mjs",
+      "to": "decision.audio-library-2026-10-22",
+      "type": "implements"
+    },
+    {
       "from": "file:day/build.mjs",
       "to": "decision.mesh-informational-entry-2026-10-21",
       "type": "implements"
@@ -11637,7 +11684,22 @@
     },
     {
       "from": "file:day/family-source-graph.mjs",
+      "to": "decision.audio-library-2026-10-22",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/family-source-graph.mjs",
+      "to": "module.materials.audio-library",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/family-source-graph.mjs",
       "to": "module.materials.family-library",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/family-source-graph.mjs",
+      "to": "module.materials.material-clarification",
       "type": "implements"
     },
     {
@@ -11768,6 +11830,11 @@
     {
       "from": "file:day/owner-repair.mjs",
       "to": "shared.data.firestore",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/pipeline-contract.mjs",
+      "to": "decision.audio-library-2026-10-22",
       "type": "implements"
     },
     {
@@ -12667,6 +12734,11 @@
     },
     {
       "from": "file:scripts/day.mjs",
+      "to": "decision.audio-library-2026-10-22",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/day.mjs",
       "to": "decision.family-essay-assignment-2026-10-20",
       "type": "implements"
     },
@@ -12698,6 +12770,11 @@
     {
       "from": "file:scripts/day.mjs",
       "to": "module.families",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/day.mjs",
+      "to": "module.materials.audio-library",
       "type": "implements"
     },
     {
@@ -15252,7 +15329,17 @@
     },
     {
       "from": "file:storage/audio-library.mjs",
+      "to": "decision.audio-library-2026-10-22",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/audio-library.mjs",
       "to": "module.materials.audio-library",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/audio-library.mjs",
+      "to": "module.materials.material-clarification",
       "type": "implements"
     },
     {
@@ -15914,6 +16001,11 @@
       "from": "module.materials.audio-library",
       "to": "decision.audio-library-2026-10-22",
       "type": "contains"
+    },
+    {
+      "from": "module.materials.audio-library",
+      "to": "file:day/audio-selection-plan.test.mjs",
+      "type": "verified-by"
     },
     {
       "from": "module.materials.audio-library",
