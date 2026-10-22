@@ -71,7 +71,10 @@ export function mergeDayPage(existing, incoming) {
   const added = after.filter((task) => !before.has(task.id)).map((task) => task.id)
   const removed = [...retiredTaskIds].filter((taskId) => before.has(taskId) && !after.some((task) => task.id === taskId))
   const changed = after.filter((task) => before.has(task.id) && JSON.stringify(before.get(task.id)) !== JSON.stringify(task)).map((task) => task.id)
-  const materialLinks = Object.fromEntries(Object.entries(existing.materialLinks || {}).filter(([taskId]) => !retiredTaskIds.has(taskId)).map(([taskId, links]) => [taskId, links.map(withoutSiteCopies)]))
+  // Replace only audio for republished tasks; images and historical tasks stay.
+  // @see ../docs/modules/materials/audio-library.md#assignment
+  const audioTasks = new Set(incoming.audioProjectionVersion === 1 ? incoming.subjects.flatMap((subject) => subject.tasks.map((task) => task.id)) : [])
+  const materialLinks = Object.fromEntries(Object.entries(existing.materialLinks || {}).filter(([taskId]) => !retiredTaskIds.has(taskId)).map(([taskId, links]) => [taskId, links.filter((link) => !audioTasks.has(taskId) || link.sourceType !== 'audio').map(withoutSiteCopies)]))
   const replacements = new Set(incoming.materialLinkReplacements || [])
   for (const [taskId, links] of Object.entries(incoming.materialLinks || {})) {
     const current = links.map(withoutSiteCopies)

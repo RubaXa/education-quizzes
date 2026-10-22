@@ -2472,6 +2472,102 @@
     "note": "Проверить кратность адресного чтения в одном EducationSync: локальный снимок/мемоизация по ID допустимы, если не нарушают актуальность перед записью."
   },
   {
+    "id": "scripts/audio-library.mjs#admin.get#2d14d92d687e",
+    "file": "scripts/audio-library.mjs",
+    "line": 21,
+    "api": "admin.get",
+    "target": "response.headers",
+    "group": "operator-other",
+    "assessment": "excluded",
+    "policy": "not-firestore",
+    "refresh": "none",
+    "note": "HTTP Headers.get, не Firestore."
+  },
+  {
+    "id": "scripts/audio-library.mjs#admin.get#175ec83be4c7",
+    "file": "scripts/audio-library.mjs",
+    "line": 36,
+    "api": "admin.get",
+    "target": "ref",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "operator-point",
+    "refresh": "on explicit audio command",
+    "note": "Адресный аудиокаталог/объект/семейная связь; только явная команда и точный readback, без подписки или обхода семей."
+  },
+  {
+    "id": "scripts/audio-library.mjs#admin.get#175ec83be4c7-2",
+    "file": "scripts/audio-library.mjs",
+    "line": 39,
+    "api": "admin.get",
+    "target": "ref",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "operator-point",
+    "refresh": "on explicit audio command",
+    "note": "Адресный аудиокаталог/объект/семейная связь; только явная команда и точный readback, без подписки или обхода семей."
+  },
+  {
+    "id": "scripts/audio-library.mjs#admin.get#68bb71e4bbd2",
+    "file": "scripts/audio-library.mjs",
+    "line": 83,
+    "api": "admin.get",
+    "target": "objectRef",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "operator-point",
+    "refresh": "on explicit audio command",
+    "note": "Адресный аудиокаталог/объект/семейная связь; только явная команда и точный readback, без подписки или обхода семей."
+  },
+  {
+    "id": "scripts/audio-library.mjs#admin.get#fd5ce98206eb",
+    "file": "scripts/audio-library.mjs",
+    "line": 106,
+    "api": "admin.get",
+    "target": "childRef",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "operator-point",
+    "refresh": "on explicit audio command",
+    "note": "Адресный аудиокаталог/объект/семейная связь; только явная команда и точный readback, без подписки или обхода семей."
+  },
+  {
+    "id": "scripts/audio-library.mjs#admin.get#6c97aec3f2dc",
+    "file": "scripts/audio-library.mjs",
+    "line": 106,
+    "api": "admin.get",
+    "target": "bookRef",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "operator-point",
+    "refresh": "on explicit audio command",
+    "note": "Адресный аудиокаталог/объект/семейная связь; только явная команда и точный readback, без подписки или обхода семей."
+  },
+  {
+    "id": "scripts/audio-library.mjs#admin.get#a027d59f3b5f",
+    "file": "scripts/audio-library.mjs",
+    "line": 106,
+    "api": "admin.get",
+    "target": "db.doc(`materialAudioCollections/${input.collectionId}`)",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "operator-point",
+    "refresh": "on explicit audio command",
+    "note": "Адресный аудиокаталог/объект/семейная связь; только явная команда и точный readback, без подписки или обхода семей."
+  },
+  {
+    "id": "scripts/audio-library.mjs#admin.get#6c97aec3f2dc-2",
+    "file": "scripts/audio-library.mjs",
+    "line": 116,
+    "api": "admin.get",
+    "target": "bookRef",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "operator-point",
+    "refresh": "on explicit audio command",
+    "note": "Адресный аудиокаталог/объект/семейная связь; только явная команда и точный readback, без подписки или обхода семей."
+  },
+  {
     "id": "scripts/audit-family-links.mjs#admin.get#2c59a9d71617",
     "file": "scripts/audit-family-links.mjs",
     "line": 19,
@@ -3158,7 +3254,7 @@
   {
     "id": "scripts/day.mjs#admin.get#5e24e07e8342",
     "file": "scripts/day.mjs",
-    "line": 707,
+    "line": 714,
     "api": "admin.get",
     "target": "db.doc(`materialBooks/${bookId}`)",
     "group": "operator-other",
@@ -3170,7 +3266,7 @@
   {
     "id": "scripts/day.mjs#admin.get#5a6fcbd97732",
     "file": "scripts/day.mjs",
-    "line": 708,
+    "line": 715,
     "api": "admin.get",
     "target": "db.doc(`families/${legacyOwner.familyId}/children/${legacyOwner.childId}/books/${bookId}`)",
     "group": "operator-other",
@@ -3182,7 +3278,7 @@
   {
     "id": "scripts/day.mjs#admin.get#51062aaf2654",
     "file": "scripts/day.mjs",
-    "line": 710,
+    "line": 717,
     "api": "admin.get",
     "target": "db.doc(`materialBooks/${bookId}/pages/${pdfPage}`)",
     "group": "operator-other",
@@ -3194,7 +3290,7 @@
   {
     "id": "scripts/day.mjs#admin.get#b0179f856a33",
     "file": "scripts/day.mjs",
-    "line": 722,
+    "line": 729,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${pair.student}`)",
     "group": "operator-other",
@@ -3206,7 +3302,7 @@
   {
     "id": "scripts/day.mjs#admin.get#7a1b15f1eae9",
     "file": "scripts/day.mjs",
-    "line": 722,
+    "line": 729,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${pair.parent}`)",
     "group": "operator-other",
@@ -3218,7 +3314,7 @@
   {
     "id": "scripts/day.mjs#admin.get#6741413a8c6f",
     "file": "scripts/day.mjs",
-    "line": 762,
+    "line": 769,
     "api": "admin.get",
     "target": "ownerRef",
     "group": "operator-other",
@@ -3230,7 +3326,7 @@
   {
     "id": "scripts/day.mjs#admin.get#c60f4a6b345d-2",
     "file": "scripts/day.mjs",
-    "line": 853,
+    "line": 860,
     "api": "admin.get",
     "target": "db.collection(`families/${owner.familyId}/members`)",
     "group": "operator-other",
@@ -3242,7 +3338,7 @@
   {
     "id": "scripts/day.mjs#admin.get#689238336cf3",
     "file": "scripts/day.mjs",
-    "line": 853,
+    "line": 860,
     "api": "admin.get",
     "target": "db.doc(`dayOwners/${pair.student}`)",
     "group": "operator-other",
@@ -3254,7 +3350,7 @@
   {
     "id": "scripts/day.mjs#admin.get#b40d6f36abf2",
     "file": "scripts/day.mjs",
-    "line": 853,
+    "line": 860,
     "api": "admin.get",
     "target": "taskRef",
     "group": "operator-other",
@@ -3266,7 +3362,7 @@
   {
     "id": "scripts/day.mjs#admin.get#08bb69099dfe",
     "file": "scripts/day.mjs",
-    "line": 853,
+    "line": 860,
     "api": "admin.get",
     "target": "studentRef",
     "group": "operator-other",
@@ -3278,7 +3374,7 @@
   {
     "id": "scripts/day.mjs#admin.get#b4fd976cf37f",
     "file": "scripts/day.mjs",
-    "line": 853,
+    "line": 860,
     "api": "admin.get",
     "target": "parentRef",
     "group": "operator-other",
@@ -3290,7 +3386,7 @@
   {
     "id": "scripts/day.mjs#admin.get#48590ef7ce25",
     "file": "scripts/day.mjs",
-    "line": 853,
+    "line": 860,
     "api": "admin.get",
     "target": "guideRef",
     "group": "operator-other",
@@ -3302,7 +3398,7 @@
   {
     "id": "scripts/day.mjs#admin.get#9cef2489c1af",
     "file": "scripts/day.mjs",
-    "line": 873,
+    "line": 880,
     "api": "admin.get",
     "target": "db.doc(`dayProgress/${pair.student}/items/${task.id}`)",
     "group": "operator-other",
@@ -3314,7 +3410,7 @@
   {
     "id": "scripts/day.mjs#admin.get#1bec16d7c453",
     "file": "scripts/day.mjs",
-    "line": 874,
+    "line": 881,
     "api": "admin.get",
     "target": "db.doc(`dayReviewPrivate/${pair.student}/items/${task.id}`)",
     "group": "operator-other",
@@ -3326,7 +3422,7 @@
   {
     "id": "scripts/day.mjs#admin.get#9fd007412988",
     "file": "scripts/day.mjs",
-    "line": 875,
+    "line": 882,
     "api": "admin.get",
     "target": "db.collection(`dayUploads/${pair.student}/files`)",
     "group": "operator-other",
@@ -3338,7 +3434,7 @@
   {
     "id": "scripts/day.mjs#admin.get#12a52c86eca6",
     "file": "scripts/day.mjs",
-    "line": 888,
+    "line": 895,
     "api": "admin.get",
     "target": "db.collection(`families/${owner.familyId}/children/${owner.childId}/tasks`).where('dueDate', '==', task.dueDate)",
     "group": "operator-other",
@@ -3350,7 +3446,7 @@
   {
     "id": "scripts/day.mjs#admin.get#c577e552e098",
     "file": "scripts/day.mjs",
-    "line": 903,
+    "line": 910,
     "api": "admin.get",
     "target": "dashboardRefs[role]",
     "group": "operator-other",
@@ -3362,7 +3458,7 @@
   {
     "id": "scripts/day.mjs#admin.get#0e9ab1bd809b",
     "file": "scripts/day.mjs",
-    "line": 935,
+    "line": 942,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -3374,7 +3470,7 @@
   {
     "id": "scripts/day.mjs#admin.get#0e9ab1bd809b-2",
     "file": "scripts/day.mjs",
-    "line": 935,
+    "line": 942,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -3386,7 +3482,7 @@
   {
     "id": "scripts/day.mjs#admin.get#0e9ab1bd809b-3",
     "file": "scripts/day.mjs",
-    "line": 935,
+    "line": 942,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -3398,7 +3494,7 @@
   {
     "id": "scripts/day.mjs#admin.get#0e9ab1bd809b-4",
     "file": "scripts/day.mjs",
-    "line": 935,
+    "line": 942,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -3410,7 +3506,7 @@
   {
     "id": "scripts/day.mjs#admin.get#0e9ab1bd809b-5",
     "file": "scripts/day.mjs",
-    "line": 935,
+    "line": 942,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -3422,7 +3518,7 @@
   {
     "id": "scripts/day.mjs#admin.get#0e9ab1bd809b-6",
     "file": "scripts/day.mjs",
-    "line": 935,
+    "line": 942,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -3434,7 +3530,7 @@
   {
     "id": "scripts/day.mjs#admin.get#0e9ab1bd809b-7",
     "file": "scripts/day.mjs",
-    "line": 936,
+    "line": 943,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -3446,7 +3542,7 @@
   {
     "id": "scripts/day.mjs#admin.get#b40d6f36abf2-2",
     "file": "scripts/day.mjs",
-    "line": 969,
+    "line": 976,
     "api": "admin.get",
     "target": "taskRef",
     "group": "operator-other",
@@ -3458,7 +3554,7 @@
   {
     "id": "scripts/day.mjs#admin.get#08bb69099dfe-2",
     "file": "scripts/day.mjs",
-    "line": 969,
+    "line": 976,
     "api": "admin.get",
     "target": "studentRef",
     "group": "operator-other",
@@ -3470,7 +3566,7 @@
   {
     "id": "scripts/day.mjs#admin.get#b4fd976cf37f-2",
     "file": "scripts/day.mjs",
-    "line": 969,
+    "line": 976,
     "api": "admin.get",
     "target": "parentRef",
     "group": "operator-other",
@@ -3482,7 +3578,7 @@
   {
     "id": "scripts/day.mjs#admin.get#c577e552e098-2",
     "file": "scripts/day.mjs",
-    "line": 972,
+    "line": 979,
     "api": "admin.get",
     "target": "dashboardRefs[role]",
     "group": "operator-other",
@@ -3494,7 +3590,7 @@
   {
     "id": "scripts/day.mjs#admin.get#14268b5cf397",
     "file": "scripts/day.mjs",
-    "line": 1004,
+    "line": 1011,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${slot.dayToken}`)",
     "group": "operator-other",
@@ -3506,7 +3602,7 @@
   {
     "id": "scripts/day.mjs#admin.get#c1d38bdef84a",
     "file": "scripts/day.mjs",
-    "line": 1040,
+    "line": 1047,
     "api": "admin.get",
     "target": "dashboard",
     "group": "operator-other",
@@ -3518,7 +3614,7 @@
   {
     "id": "scripts/day.mjs#admin.get#5bb656fcc1fa-4",
     "file": "scripts/day.mjs",
-    "line": 1046,
+    "line": 1053,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${token}`)",
     "group": "operator-other",
@@ -3530,7 +3626,7 @@
   {
     "id": "scripts/day.mjs#admin.get#db54559082ef",
     "file": "scripts/day.mjs",
-    "line": 1061,
+    "line": 1068,
     "api": "admin.get",
     "target": "db.doc(`dayDashboards/${tokens[role]}`)",
     "group": "operator-other",
@@ -3542,7 +3638,7 @@
   {
     "id": "scripts/day.mjs#admin.get#820456f4888c",
     "file": "scripts/day.mjs",
-    "line": 1079,
+    "line": 1086,
     "api": "admin.get",
     "target": "db.collection(`dayUploads/${student}/files`)",
     "group": "operator-other",
@@ -3554,7 +3650,7 @@
   {
     "id": "scripts/day.mjs#admin.get#5201b6a3d601-2",
     "file": "scripts/day.mjs",
-    "line": 1123,
+    "line": 1130,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -3566,7 +3662,7 @@
   {
     "id": "scripts/day.mjs#admin.get#0e9ab1bd809b-8",
     "file": "scripts/day.mjs",
-    "line": 1147,
+    "line": 1154,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -3578,7 +3674,7 @@
   {
     "id": "scripts/day.mjs#admin.get#6c0b158163c5",
     "file": "scripts/day.mjs",
-    "line": 1230,
+    "line": 1237,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${pair[role]}`)",
     "group": "operator-other",
@@ -3590,7 +3686,7 @@
   {
     "id": "scripts/day.mjs#admin.get#5e24e07e8342-2",
     "file": "scripts/day.mjs",
-    "line": 1250,
+    "line": 1257,
     "api": "admin.get",
     "target": "db.doc(`materialBooks/${bookId}`)",
     "group": "operator-other",
@@ -3602,7 +3698,7 @@
   {
     "id": "scripts/day.mjs#admin.get#63c7a8fb5d66",
     "file": "scripts/day.mjs",
-    "line": 1255,
+    "line": 1262,
     "api": "admin.get",
     "target": "db.doc(`families/${page.familyId}/children/${page.childId}/books/${bookId}`)",
     "group": "operator-other",
@@ -3614,7 +3710,7 @@
   {
     "id": "scripts/day.mjs#admin.get#51062aaf2654-2",
     "file": "scripts/day.mjs",
-    "line": 1260,
+    "line": 1267,
     "api": "admin.get",
     "target": "db.doc(`materialBooks/${bookId}/pages/${pdfPage}`)",
     "group": "operator-other",
@@ -3626,7 +3722,7 @@
   {
     "id": "scripts/day.mjs#admin.get#dfec82eee869",
     "file": "scripts/day.mjs",
-    "line": 1264,
+    "line": 1271,
     "api": "admin.get",
     "target": "db.doc(`families/${page.familyId}/children/${page.childId}/bookPages/${ref}`)",
     "group": "operator-other",
@@ -3638,7 +3734,7 @@
   {
     "id": "scripts/day.mjs#admin.get#5201b6a3d601-3",
     "file": "scripts/day.mjs",
-    "line": 1323,
+    "line": 1330,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -3650,7 +3746,7 @@
   {
     "id": "scripts/day.mjs#admin.get#0e9ab1bd809b-9",
     "file": "scripts/day.mjs",
-    "line": 1341,
+    "line": 1348,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -3662,7 +3758,7 @@
   {
     "id": "scripts/day.mjs#admin.get#c7d7435abda3",
     "file": "scripts/day.mjs",
-    "line": 1348,
+    "line": 1355,
     "api": "admin.get",
     "target": "item.ref",
     "group": "operator-other",
@@ -3674,7 +3770,7 @@
   {
     "id": "scripts/day.mjs#admin.get#6c0b158163c5-2",
     "file": "scripts/day.mjs",
-    "line": 1361,
+    "line": 1368,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${pair[role]}`)",
     "group": "operator-other",
@@ -3686,7 +3782,7 @@
   {
     "id": "scripts/day.mjs#admin.get#5e24e07e8342-3",
     "file": "scripts/day.mjs",
-    "line": 1376,
+    "line": 1383,
     "api": "admin.get",
     "target": "db.doc(`materialBooks/${bookId}`)",
     "group": "operator-other",
@@ -3698,7 +3794,7 @@
   {
     "id": "scripts/day.mjs#admin.get#51062aaf2654-3",
     "file": "scripts/day.mjs",
-    "line": 1376,
+    "line": 1383,
     "api": "admin.get",
     "target": "db.doc(`materialBooks/${bookId}/pages/${pdfPage}`)",
     "group": "operator-other",
@@ -3710,7 +3806,7 @@
   {
     "id": "scripts/day.mjs#admin.get#49c73dd03fd2",
     "file": "scripts/day.mjs",
-    "line": 1377,
+    "line": 1384,
     "api": "admin.get",
     "target": "db.doc(`families/${pages[0].familyId}/children/${pages[0].childId}/bookPages/${ref}`)",
     "group": "operator-other",
@@ -3722,7 +3818,7 @@
   {
     "id": "scripts/day.mjs#admin.get#0e9ab1bd809b-10",
     "file": "scripts/day.mjs",
-    "line": 1394,
+    "line": 1401,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -3734,7 +3830,7 @@
   {
     "id": "scripts/day.mjs#admin.get#0e9ab1bd809b-11",
     "file": "scripts/day.mjs",
-    "line": 1397,
+    "line": 1404,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -3746,7 +3842,7 @@
   {
     "id": "scripts/day.mjs#admin.get#be13baad11ac",
     "file": "scripts/day.mjs",
-    "line": 1412,
+    "line": 1419,
     "api": "admin.get",
     "target": "db.doc(`families/${pages[0].familyId}/children/${pages[0].childId}/bookPages/${item.ref}`)",
     "group": "operator-other",
@@ -3758,7 +3854,7 @@
   {
     "id": "scripts/day.mjs#admin.get#6741413a8c6f-2",
     "file": "scripts/day.mjs",
-    "line": 1425,
+    "line": 1432,
     "api": "admin.get",
     "target": "ownerRef",
     "group": "operator-other",
@@ -3770,7 +3866,7 @@
   {
     "id": "scripts/day.mjs#admin.get#5201b6a3d601-4",
     "file": "scripts/day.mjs",
-    "line": 1425,
+    "line": 1432,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -3782,7 +3878,7 @@
   {
     "id": "scripts/day.mjs#admin.get#0e9ab1bd809b-12",
     "file": "scripts/day.mjs",
-    "line": 1442,
+    "line": 1449,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -3794,7 +3890,7 @@
   {
     "id": "scripts/day.mjs#admin.get#0e9ab1bd809b-13",
     "file": "scripts/day.mjs",
-    "line": 1442,
+    "line": 1449,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -3806,7 +3902,7 @@
   {
     "id": "scripts/day.mjs#admin.get#5201b6a3d601-5",
     "file": "scripts/day.mjs",
-    "line": 1448,
+    "line": 1455,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -3818,7 +3914,7 @@
   {
     "id": "scripts/day.mjs#admin.get#85635064fcc5",
     "file": "scripts/day.mjs",
-    "line": 1496,
+    "line": 1503,
     "api": "admin.get",
     "target": "db.collection(`families/${upgradeOwner.familyId}/children/${upgradeOwner.childId}/tasks`) .where('dueDate', '==', item.source.targetDate)",
     "group": "operator-other",
@@ -3830,7 +3926,7 @@
   {
     "id": "scripts/day.mjs#admin.get#0e9ab1bd809b-14",
     "file": "scripts/day.mjs",
-    "line": 1502,
+    "line": 1509,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -3842,7 +3938,7 @@
   {
     "id": "scripts/day.mjs#admin.get#5201b6a3d601-6",
     "file": "scripts/day.mjs",
-    "line": 1502,
+    "line": 1509,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -3854,7 +3950,7 @@
   {
     "id": "scripts/day.mjs#admin.get#3646d6fb0b16",
     "file": "scripts/day.mjs",
-    "line": 1559,
+    "line": 1566,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${item.pair[role]}`)",
     "group": "operator-other",
@@ -3866,7 +3962,7 @@
   {
     "id": "scripts/day.mjs#admin.get#49617dc35575",
     "file": "scripts/day.mjs",
-    "line": 1563,
+    "line": 1570,
     "api": "admin.get",
     "target": "db.doc(`dayTaskGuides/${item.pair.student}/items/${taskId}`)",
     "group": "operator-other",
@@ -3878,7 +3974,7 @@
   {
     "id": "scripts/day.mjs#admin.get#689238336cf3-2",
     "file": "scripts/day.mjs",
-    "line": 1591,
+    "line": 1598,
     "api": "admin.get",
     "target": "db.doc(`dayOwners/${pair.student}`)",
     "group": "operator-other",
@@ -3890,7 +3986,7 @@
   {
     "id": "scripts/day.mjs#admin.get#b0179f856a33-2",
     "file": "scripts/day.mjs",
-    "line": 1591,
+    "line": 1598,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${pair.student}`)",
     "group": "operator-other",
@@ -3902,7 +3998,7 @@
   {
     "id": "scripts/day.mjs#admin.get#9ee93dba1e4b",
     "file": "scripts/day.mjs",
-    "line": 1592,
+    "line": 1599,
     "api": "admin.get",
     "target": "db.doc(`dayTaskGuides/${pair.student}/items/${taskId}`)",
     "group": "operator-other",
@@ -3914,7 +4010,7 @@
   {
     "id": "scripts/day.mjs#admin.get#cb2cd707a60a",
     "file": "scripts/day.mjs",
-    "line": 1594,
+    "line": 1601,
     "api": "admin.get",
     "target": "eventCollection.where('taskId', '==', taskId).limit(100)",
     "group": "operator-other",
@@ -3926,7 +4022,7 @@
   {
     "id": "scripts/day.mjs#admin.get#a80fee27328f",
     "file": "scripts/day.mjs",
-    "line": 1598,
+    "line": 1605,
     "api": "admin.get",
     "target": "eventCollection.where('taskId', '==', taskId).limit(100).startAfter(page.docs.at(-1))",
     "group": "operator-other",
@@ -3938,7 +4034,7 @@
   {
     "id": "scripts/day.mjs#admin.get#0e9ab1bd809b-15",
     "file": "scripts/day.mjs",
-    "line": 1638,
+    "line": 1645,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -3950,7 +4046,7 @@
   {
     "id": "scripts/day.mjs#admin.get#0e9ab1bd809b-16",
     "file": "scripts/day.mjs",
-    "line": 1638,
+    "line": 1645,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -3962,7 +4058,7 @@
   {
     "id": "scripts/day.mjs#admin.get#0e9ab1bd809b-17",
     "file": "scripts/day.mjs",
-    "line": 1638,
+    "line": 1645,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -3974,7 +4070,7 @@
   {
     "id": "scripts/day.mjs#admin.get#0e9ab1bd809b-18",
     "file": "scripts/day.mjs",
-    "line": 1638,
+    "line": 1645,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -3986,7 +4082,7 @@
   {
     "id": "scripts/day.mjs#admin.get#9d8e3043fb30",
     "file": "scripts/day.mjs",
-    "line": 1650,
+    "line": 1657,
     "api": "admin.get",
     "target": "eventSnap.ref",
     "group": "operator-other",
@@ -6554,7 +6650,7 @@
   {
     "id": "src/components/FamilyLibrary.tsx#getDoc#6f8543066a2a",
     "file": "src/components/FamilyLibrary.tsx",
-    "line": 72,
+    "line": 73,
     "api": "getDoc",
     "target": "doc(db, 'families', familyId, 'children', childId, 'bookPages', `${bookId}#manifest`)",
     "group": "client-books",
@@ -6566,7 +6662,7 @@
   {
     "id": "src/components/FamilyLibrary.tsx#getDocs#33b0342e265d",
     "file": "src/components/FamilyLibrary.tsx",
-    "line": 73,
+    "line": 74,
     "api": "getDocs",
     "target": "pages",
     "group": "client-books",
@@ -6578,7 +6674,7 @@
   {
     "id": "src/components/FamilyLibrary.tsx#onSnapshot#0c7dac5e0913",
     "file": "src/components/FamilyLibrary.tsx",
-    "line": 86,
+    "line": 87,
     "api": "onSnapshot",
     "target": "pages",
     "group": "client-books",
@@ -7058,7 +7154,7 @@
   {
     "id": "src/lib/familyLibrary.ts#onSnapshot#155b7bdca40f",
     "file": "src/lib/familyLibrary.ts",
-    "line": 160,
+    "line": 163,
     "api": "onSnapshot",
     "target": "collection(db, 'families', familyId, 'children', child.childId, 'books')",
     "group": "client-books",
@@ -7070,7 +7166,7 @@
   {
     "id": "src/lib/familyLibrary.ts#onSnapshot#38a6ea5fd380",
     "file": "src/lib/familyLibrary.ts",
-    "line": 165,
+    "line": 168,
     "api": "onSnapshot",
     "target": "collection(db, 'families', familyId, 'children', child.childId, 'bookUploads')",
     "group": "client-books",
@@ -7082,7 +7178,7 @@
   {
     "id": "src/lib/familyLibrary.ts#onSnapshot#3be5beb08f83",
     "file": "src/lib/familyLibrary.ts",
-    "line": 171,
+    "line": 174,
     "api": "onSnapshot",
     "target": "collection(db, 'families', familyId, 'children', child.childId, 'bookRequirements')",
     "group": "client-books",
