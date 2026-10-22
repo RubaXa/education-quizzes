@@ -15,11 +15,10 @@ export default function AudioPlayer({ link, resolver = publicAudio }: {
   const request = useRef(0)
   const object = useRef<string | undefined>(undefined)
   const [state, setState] = useState<{ phase: 'idle' | 'loading' | 'ready' | 'error'; src?: string }>({ phase: 'idle' })
-  const [speed, setSpeed] = useState('1')
 
   useEffect(() => {
     request.current += 1
-    setState({ phase: 'idle' }); setSpeed('1')
+    setState({ phase: 'idle' })
     return () => { request.current += 1; release() }
   }, [link.url, link.sourceSha256])
 
@@ -52,12 +51,8 @@ export default function AudioPlayer({ link, resolver = publicAudio }: {
       <audio ref={audio} controls preload="none" src={state.src} aria-label={`Прослушать: ${link.title}`}
         onPlay={(event) => {
           document.querySelectorAll('audio').forEach((other) => { if (other !== event.currentTarget) other.pause() })
-          event.currentTarget.playbackRate = Number(speed)
         }} onError={() => { release(); setState({ phase: 'error' }) }} />
-      <label className="edu-audio-speed">Скорость <select value={speed} onChange={(event) => {
-        setSpeed(event.target.value)
-        if (audio.current) audio.current.playbackRate = Number(event.target.value)
-      }}><option value="0.75">0,75×</option><option value="1">1×</option><option value="1.25">1,25×</option><option value="1.5">1,5×</option></select></label>
+
     </>}
     <a className="edu-audio-original" href={link.url} target="_blank" rel="noopener noreferrer">Открыть на Яндекс.Диске <ExternalLink size={13} aria-hidden="true" /></a>
   </section>

@@ -18,7 +18,7 @@ afterEach(async () => { await act(async () => root.unmount()); host.remove(); vi
 const click = async (text: string) => { await act(async () => { [...host.querySelectorAll('button')].find((button) => button.textContent?.includes(text))!.click() }) }
 
 describe('AudioPlayer', () => {
-  it('waits for intent, exposes native controls and applies speed without autoplay', async () => {
+  it('waits for intent and keeps playback settings inside native controls without autoplay', async () => {
     const resolver = vi.fn().mockResolvedValue('https://downloader.disk.yandex.ru/one.mp3')
     await act(async () => root.render(<AudioPlayer link={link} resolver={resolver} />))
     expect(resolver).not.toHaveBeenCalled(); expect(host.querySelector('audio')).toBeNull()
@@ -26,7 +26,13 @@ describe('AudioPlayer', () => {
     const audio = host.querySelector('audio')!
     expect(audio.controls).toBe(true); expect(audio.preload).toBe('none'); expect(audio.autoplay).toBe(false)
     expect(host.querySelector('a')?.href).toBe(link.url)
-    await act(async () => { const select = host.querySelector('select')!; select.value = '0.75'; select.dispatchEvent(new Event('change', { bubbles: true })) })
+    expect(host.querySelector('select')).toBeNull()
+    // Native controls change playbackRate directly. Resuming must retain that choice.
+    audio.playbackRate = .75
+    await act(async () => audio.dispatchEvent(new Event('play', { bubbles: true })))
+    expect(audio.playbackRate).toBe(.75)
+    audio.pause()
+    await act(async () => audio.dispatchEvent(new Event('play', { bubbles: true })))
     expect(audio.playbackRate).toBe(.75)
   })
   it('re-resolves expired links after network or media failure', async () => {
