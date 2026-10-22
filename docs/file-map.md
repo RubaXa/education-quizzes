@@ -895,7 +895,7 @@
 | [storage/audio-library.mjs](../storage/audio-library.mjs) | [Аудиобиблиотека](modules/materials/audio-library.md) | Разбор источника, проверка MP3, безопасный авто-подбор и evidence-checked explicit task bindings | CLI; издатель дня |
 | [storage/audio-library.test.mjs](../storage/audio-library.test.mjs) | [Аудиобиблиотека](modules/materials/audio-library.md) | Регрессии общего каталога, точного подбора, ambiguous WB clarification, fail-closed и приватности evidence | Vitest |
 | [scripts/audio-library.mjs](../scripts/audio-library.mjs) | [Аудиобиблиотека](modules/materials/audio-library.md) | Повторяемая синхронизация MP3 с Диском, общий каталог и адресная семейная связь | Оператор |
-| [src/components/AudioPlayer.tsx](../src/components/AudioPlayer.tsx) | [Аудиобиблиотека](modules/materials/audio-library.md) | Общий ленивый плеер, ошибки, повтор и скорость | ДЗ; библиотека; UI Kit |
+| [src/components/AudioPlayer.tsx](../src/components/AudioPlayer.tsx) | [Аудиобиблиотека](modules/materials/audio-library.md) | Постоянная панель, один Play, видимая скорость, seek/volume и повтор | ДЗ; библиотека; UI Kit |
 | [src/components/AudioPlayer.css](../src/components/AudioPlayer.css) | [Аудиобиблиотека](modules/materials/audio-library.md) | Токены и адаптивная геометрия общего плеера | AudioPlayer; AudioLibrary |
 | [src/components/AudioLibrary.tsx](../src/components/AudioLibrary.tsx) | [Аудиобиблиотека](modules/materials/audio-library.md) | Выбор одной записи из связанной аудиоколлекции | FamilyLibrary |
 | [src/components/AudioPlayer.test.tsx](../src/components/AudioPlayer.test.tsx) | [Аудиобиблиотека](modules/materials/audio-library.md) | Регрессии ленивого аудио, смены, повтора и управления | Vitest |
@@ -906,3 +906,5 @@
 | [docs/decisions/audio-player-visible-2026-10-22.md](decisions/audio-player-visible-2026-10-22.md) | [Аудиобиблиотека](modules/materials/audio-library.md) | Постоянно видимая панель и загрузка/воспроизведение одним Play | Разработчик; выпуск |
 
 | [docs/decisions/audio-duration-unknown-2026-10-22.md](decisions/audio-duration-unknown-2026-10-22.md) | [Аудиобиблиотека](modules/materials/audio-library.md) | Неизвестная длительность: прочерки до подтверждённых метаданных | Разработчик; выпуск |
+
+| [docs/decisions/audio-stable-controls-2026-10-22.md](decisions/audio-stable-controls-2026-10-22.md) | [Аудиобиблиотека](modules/materials/audio-library.md) | Постоянная панель до/после Play и всегда видимое замедление | Разработчик; выпуск |

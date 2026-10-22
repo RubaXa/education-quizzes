@@ -20,19 +20,23 @@ afterEach(async () => { await act(async () => root.unmount()); host.remove(); vi
 const click = async (text: string) => { await act(async () => { [...host.querySelectorAll('button')].find((button) => (button.getAttribute('aria-label') || button.textContent)?.includes(text))!.click() }) }
 
 describe('AudioPlayer', () => {
-  it('waits for intent and keeps playback settings inside native controls without autoplay', async () => {
+  it('keeps the same visible controls before and after loading without native controls or autoplay', async () => {
     const resolver = vi.fn().mockResolvedValue('https://downloader.disk.yandex.ru/one.mp3')
     await act(async () => root.render(<AudioPlayer link={link} resolver={resolver} />))
-    expect(resolver).not.toHaveBeenCalled(); expect(host.querySelector('audio')?.controls).toBe(true)
+    expect(resolver).not.toHaveBeenCalled(); expect(host.querySelector('audio')?.controls).toBe(false)
     expect(host.textContent).not.toContain('Слушать')
+    const toolbar = host.querySelector('.edu-audio-panel')
+    const speed = host.querySelector('select[aria-label="Скорость воспроизведения"]')
+    expect(speed).not.toBeNull()
     await click('Воспроизвести')
+    expect(host.querySelector('.edu-audio-panel')).toBe(toolbar)
+    expect(host.querySelector('select[aria-label="Скорость воспроизведения"]')).toBe(speed)
     const audio = host.querySelector('audio')!
     expect(audio.play).toHaveBeenCalledTimes(1)
-    expect(audio.controls).toBe(true); expect(audio.preload).toBe('none'); expect(audio.autoplay).toBe(false)
+    expect(audio.controls).toBe(false); expect(audio.preload).toBe('none'); expect(audio.autoplay).toBe(false)
     expect(host.querySelector('a')?.href).toBe(link.url)
-    expect(host.querySelector('select')).toBeNull()
-    // Native controls change playbackRate directly. Resuming must retain that choice.
-    audio.playbackRate = .75
+    const select = host.querySelector<HTMLSelectElement>('select[aria-label="Скорость воспроизведения"]')!
+    await act(async () => { select.value = '0.75'; select.dispatchEvent(new Event('change', { bubbles: true })) })
     await act(async () => audio.dispatchEvent(new Event('play', { bubbles: true })))
     expect(audio.playbackRate).toBe(.75)
     audio.pause()
@@ -71,10 +75,62 @@ describe('AudioPlayer', () => {
     Object.defineProperty(audio, 'duration', { configurable: true, value: 93.59 })
     await act(async () => audio.dispatchEvent(new Event('loadedmetadata')))
     expect(host.querySelector('.edu-audio-time-unknown')).toBeNull()
-    expect(audio.getAttribute('aria-hidden')).toBe('false')
+    expect(audio.getAttribute('aria-hidden')).toBe('true')
+    expect(host.querySelector('.edu-audio-time')?.textContent).toBe('0:00 / 1:33')
     await act(async () => root.render(<AudioPlayer link={{ ...link, url: 'https://disk.yandex.ru/d/two' }} resolver={resolver} />))
     expect(host.querySelector('.edu-audio-time-unknown')?.textContent).toBe('--:-- / --:--')
     expect(audio.getAttribute('aria-hidden')).toBe('true')
+  })
+  it('keeps slowdown visible through loading and applies it without starting paused audio', async () => {
+    let resolve!: (value: string) => void
+    const resolver = vi.fn(() => new Promise<string>((done) => { resolve = done }))
+    await act(async () => root.render(<AudioPlayer link={link} resolver={resolver} />))
+    const select = host.querySelector<HTMLSelectElement>('select[aria-label="Скорость воспроизведения"]')!
+    const choose = async (value: string) => act(async () => { select.value = value; select.dispatchEvent(new Event('change', { bubbles: true })) })
+    await choose('0.5')
+    expect(resolver).not.toHaveBeenCalled()
+    await click('Воспроизвести')
+    expect(host.querySelector('select')).toBe(select)
+    expect(select.disabled).toBe(false)
+    await choose('0.75')
+    await act(async () => resolve('https://downloader.disk.yandex.ru/one.mp3'))
+    const audio = host.querySelector('audio')!
+    expect(audio.playbackRate).toBe(.75)
+    expect(audio.controls).toBe(false); expect(audio.hidden).toBe(true)
+    await act(async () => audio.dispatchEvent(new Event('pause')))
+    const plays = vi.mocked(audio.play).mock.calls.length
+    await choose('0.5')
+    expect(audio.playbackRate).toBe(.5)
+    expect(audio.play).toHaveBeenCalledTimes(plays)
+    await click('Воспроизвести')
+    expect(audio.playbackRate).toBe(.5)
+    expect(audio.play).toHaveBeenCalledTimes(plays + 1)
+  })
+  it('connects the stable panel to pause, time, seek, volume and mute', async () => {
+    await act(async () => root.render(<AudioPlayer link={link} resolver={async () => 'https://downloader.disk.yandex.ru/one.mp3'} />))
+    const panel = host.querySelector('.edu-audio-panel')
+    await click('Воспроизвести')
+    const audio = host.querySelector('audio')!
+    Object.defineProperty(audio, 'duration', { configurable: true, value: 27.4 })
+    await act(async () => audio.dispatchEvent(new Event('loadedmetadata')))
+    await act(async () => { audio.currentTime = 8; audio.dispatchEvent(new Event('timeupdate')); audio.dispatchEvent(new Event('play')) })
+    expect(host.querySelector('.edu-audio-time')?.textContent).toBe('0:08 / 0:27')
+    const pauses = vi.mocked(audio.pause).mock.calls.length
+    await click('Пауза')
+    expect(audio.pause).toHaveBeenCalledTimes(pauses + 1)
+    const seek = host.querySelector<HTMLInputElement>('[aria-label="Позиция записи"]')!
+    expect(seek.disabled).toBe(false)
+    await act(async () => { Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(seek, '12'); seek.dispatchEvent(new Event('input', { bubbles: true })) })
+    expect(audio.currentTime).toBe(12)
+    const volume = host.querySelector<HTMLInputElement>('[aria-label="Громкость"]')!
+    await act(async () => { Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(volume, '0.4'); volume.dispatchEvent(new Event('input', { bubbles: true })) })
+    expect(audio.volume).toBe(.4)
+    await click('Выключить звук'); expect(audio.muted).toBe(true)
+    await click('Включить звук'); expect(audio.muted).toBe(false); expect(audio.volume).toBe(.4)
+    await act(async () => audio.dispatchEvent(new Event('ended')))
+    expect(host.querySelector('[aria-label^="Воспроизвести:"]')).not.toBeNull()
+    expect(host.querySelector('.edu-audio-panel')).toBe(panel)
+    expect(audio.controls).toBe(false); expect(audio.hidden).toBe(true)
   })
   it('re-resolves expired links after network or media failure', async () => {
     const resolver = vi.fn().mockRejectedValueOnce(new Error('network')).mockResolvedValueOnce('https://downloader.disk.yandex.ru/old').mockResolvedValueOnce('https://downloader.disk.yandex.ru/new')
