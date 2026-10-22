@@ -900,3 +900,5 @@
 | [src/lib/uiKitAudio.ts](../src/lib/uiKitAudio.ts) | [Аудиобиблиотека](modules/materials/audio-library.md) | Синтетическая аудиозапись UI Kit без семейных медиа | UI Kit |
 
 | [docs/decisions/audio-speed-controls-2026-10-22.md](decisions/audio-speed-controls-2026-10-22.md) | [Аудиобиблиотека](modules/materials/audio-library.md) | Уточнение скорости внутри нативной панели и сохранения выбора после паузы | Разработчик; выпуск |
+
+| [docs/decisions/audio-player-visible-2026-10-22.md](decisions/audio-player-visible-2026-10-22.md) | [Аудиобиблиотека](modules/materials/audio-library.md) | Постоянно видимая панель и загрузка/воспроизведение одним Play | Разработчик; выпуск |

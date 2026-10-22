@@ -12,3 +12,6 @@
 .edu-audio :is(button,a,audio):focus-visible,.edu-audio-library select:focus-visible{outline:2px solid var(--edu-focus);outline-offset:3px}
 .edu-audio-library{display:grid;gap:.7rem;min-width:0;max-width:100%;margin-block:.7rem}
 .edu-audio-library>label{display:grid;gap:.4rem;min-width:0;font-size:.9rem}
+.edu-audio-panel{position:relative;min-width:0}
+.edu-audio-panel audio:not([src])::-webkit-media-controls-play-button{opacity:0}
+.edu-audio .edu-audio-initial-play{position:absolute;inset:5px auto auto 8px;width:44px;height:44px;min-height:44px;padding:0;border-radius:50%;color:var(--edu-ink)}

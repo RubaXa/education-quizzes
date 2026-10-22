@@ -560,8 +560,9 @@ it.each([false, true])('keeps an audio-only listening task inside both day and q
   const view = await renderPage(parent)
   try {
    expect(view.host.querySelector('.edu-audio'), `linkedQuiz=${linkedQuiz}, ${view.host.textContent}`).not.toBeNull()
-   expect(view.host.querySelector('.edu-audio button')?.textContent).toContain('Слушать')
-   expect(view.host.querySelector('audio')).toBeNull()
+   expect(view.host.querySelector('.edu-audio button')?.getAttribute('aria-label')).toContain('Воспроизвести')
+   expect(view.host.querySelector('audio')?.controls).toBe(true)
+   expect(view.host.querySelector('audio')?.getAttribute('src')).toBeNull()
    expect(view.host.querySelectorAll('a[href="https://disk.yandex.ru/d/audio"]')).toHaveLength(1)
   } finally { await view.cleanup() }
  }

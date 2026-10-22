@@ -2698,21 +2698,19 @@
       }
     },
     "src/UiKit.tsx": {
-      "sha256": "66923108513cfa0b99bf449a472a4471cc475ea9fd14d1b5a076019447b5d4d5",
-      "record": "docs/decisions/upload-photo-timestamp-2026-10-21.md",
+      "sha256": "fc5b3e970c3077188690a2a385555f6b304e717ec4af90ecc07c6ce439d0ca6a",
+      "record": "docs/decisions/audio-player-visible-2026-10-22.md",
       "specs": [
-        "docs/modules/school-diary/day-page.md",
-        "docs/shared/design/components.md"
+        "docs/modules/materials/audio-library.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/lib/uploadTimestamp.test.ts",
-        "src/components/WorkPhotoGallery.test.tsx",
-        "src/components/LinkedWorkPhotos.test.tsx",
+        "src/components/AudioPlayer.test.tsx",
         "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос пользователя 21.10.2026: показывать время загрузки каждой фотографии ребёнка в подсказке и доступном названии."
+        "evidence": "Родитель22.10.2026 прямо потребовал сразу развёрнутый компонент без лишнего клика раскрытия."
       }
     },
     "src/WeekendMathSlot.css": {
@@ -5978,33 +5976,35 @@
       }
     },
     "src/components/AudioPlayer.css": {
-      "sha256": "b84a0fe6fe6cb0d30e7d090b33447e2c45b7272a0ce6811f84b715b74a9c86cc",
-      "record": "docs/decisions/audio-speed-controls-2026-10-22.md",
+      "sha256": "53a6c883669e10f7f23aa32754e4fb4ecaa6a340795278254f6a741e0e4b317f",
+      "record": "docs/decisions/audio-player-visible-2026-10-22.md",
       "specs": [
         "docs/modules/materials/audio-library.md",
         "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/components/AudioPlayer.test.tsx"
+        "src/components/AudioPlayer.test.tsx",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 22.10.2026 по скриншоту потребовал выбор скорости внутри панели плеера рядом с громкостью и убрать отдельный контрол под ней."
+        "evidence": "Родитель22.10.2026 прямо потребовал сразу развёрнутый компонент без лишнего клика раскрытия."
       }
     },
     "src/components/AudioPlayer.tsx": {
-      "sha256": "935991d17b75dd80baadeca8eb334374fdf18d3db31d80b6392a90a90ec703fb",
-      "record": "docs/decisions/audio-speed-controls-2026-10-22.md",
+      "sha256": "9b57087fcb2578564cf304afdb4b1ef30f0f2e1f38e478fac97a777e992e10ee",
+      "record": "docs/decisions/audio-player-visible-2026-10-22.md",
       "specs": [
         "docs/modules/materials/audio-library.md",
         "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/components/AudioPlayer.test.tsx"
+        "src/components/AudioPlayer.test.tsx",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 22.10.2026 по скриншоту потребовал выбор скорости внутри панели плеера рядом с громкостью и убрать отдельный контрол под ней."
+        "evidence": "Родитель22.10.2026 прямо потребовал сразу развёрнутый компонент без лишнего клика раскрытия."
       }
     },
     "src/lib/uiKitAudio.ts": {
