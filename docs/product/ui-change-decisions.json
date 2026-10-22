@@ -2698,19 +2698,20 @@
       }
     },
     "src/UiKit.tsx": {
-      "sha256": "fc5b3e970c3077188690a2a385555f6b304e717ec4af90ecc07c6ce439d0ca6a",
-      "record": "docs/decisions/audio-player-visible-2026-10-22.md",
+      "sha256": "a75b68be4e3f20ffc16d0fcf528e7f982efec1524eb8ca56394696a9006704c2",
+      "record": "docs/decisions/audio-stable-controls-2026-10-22.md",
       "specs": [
         "docs/modules/materials/audio-library.md",
         "docs/shared/design/ui-kit.md"
       ],
       "tests": [
         "src/components/AudioPlayer.test.tsx",
-        "src/UiKit.test.tsx"
+        "src/UiKit.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель22.10.2026 прямо потребовал сразу развёрнутый компонент без лишнего клика раскрытия."
+        "evidence": "Родитель22.10 по двум скриншотам потребовал одну постоянную панель без смены на другой плеер и всегда видимое управление скоростью, особенно замедлением."
       }
     },
     "src/WeekendMathSlot.css": {
@@ -5976,33 +5977,37 @@
       }
     },
     "src/components/AudioPlayer.css": {
-      "sha256": "2ec4d550a84b48eeeb20a8d1f8dbf90b9c4fe8fa70a9fa5b458210a5bbb26266",
-      "record": "docs/decisions/audio-duration-unknown-2026-10-22.md",
+      "sha256": "91befaf48df8c6a2ce3325e6a225d6f234628bb1cda5de8503650f226f0fb359",
+      "record": "docs/decisions/audio-stable-controls-2026-10-22.md",
       "specs": [
         "docs/modules/materials/audio-library.md",
         "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/components/AudioPlayer.test.tsx"
+        "src/components/AudioPlayer.test.tsx",
+        "src/UiKit.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель22.10.2026 потребовал реальную длительность, когда она известна, либо прочерки вместо ложного 0:00 / 0:00 до загрузки метаданных."
+        "evidence": "Родитель22.10 по двум скриншотам потребовал одну постоянную панель без смены на другой плеер и всегда видимое управление скоростью, особенно замедлением."
       }
     },
     "src/components/AudioPlayer.tsx": {
-      "sha256": "953f635d83efd4b1316c3726518a7da4912db7d1d2da7245bba4fa95baca9beb",
-      "record": "docs/decisions/audio-duration-unknown-2026-10-22.md",
+      "sha256": "7080094176f8b3cbafd1d418d0f0d494f332591d3d9816ac07b3c6504590606a",
+      "record": "docs/decisions/audio-stable-controls-2026-10-22.md",
       "specs": [
         "docs/modules/materials/audio-library.md",
         "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/components/AudioPlayer.test.tsx"
+        "src/components/AudioPlayer.test.tsx",
+        "src/UiKit.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель22.10.2026 потребовал реальную длительность, когда она известна, либо прочерки вместо ложного 0:00 / 0:00 до загрузки метаданных."
+        "evidence": "Родитель22.10 по двум скриншотам потребовал одну постоянную панель без смены на другой плеер и всегда видимое управление скоростью, особенно замедлением."
       }
     },
     "src/lib/uiKitAudio.ts": {

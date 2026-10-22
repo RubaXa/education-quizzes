@@ -418,6 +418,33 @@
       "path": "docs/decisions/audio-speed-controls-2026-10-22.md"
     },
     {
+      "id": "decision.audio-stable-controls-2026-10-22",
+      "status": "accepted",
+      "implementation": "partial",
+      "parent": "module.materials.audio-library",
+      "uses": [
+        "decision.audio-speed-controls-2026-10-22",
+        "decision.audio-player-visible-2026-10-22",
+        "decision.audio-duration-unknown-2026-10-22",
+        "shared.design.ui-kit"
+      ],
+      "created": "2026-10-22",
+      "updated": "2026-10-22",
+      "consumers": [
+        "developer",
+        "release operator"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/audio-stable-controls-2026-10-22.md"
+    },
+    {
       "id": "decision.authenticated-learning-routes-2026-10-18",
       "status": "accepted",
       "implementation": "not-applicable",
@@ -5283,7 +5310,7 @@
       "id": "file:src/components/AudioPlayer.tsx",
       "path": "src/components/AudioPlayer.tsx",
       "kind": "artifact",
-      "purpose": "Общий ленивый плеер, ошибки, повтор и скорость",
+      "purpose": "Постоянная панель, один Play, видимая скорость, seek/volume и повтор",
       "consumer": "ДЗ; библиотека; UI Kit"
     },
     {
@@ -11019,6 +11046,26 @@
       "type": "uses"
     },
     {
+      "from": "decision.audio-stable-controls-2026-10-22",
+      "to": "decision.audio-duration-unknown-2026-10-22",
+      "type": "uses"
+    },
+    {
+      "from": "decision.audio-stable-controls-2026-10-22",
+      "to": "decision.audio-player-visible-2026-10-22",
+      "type": "uses"
+    },
+    {
+      "from": "decision.audio-stable-controls-2026-10-22",
+      "to": "decision.audio-speed-controls-2026-10-22",
+      "type": "uses"
+    },
+    {
+      "from": "decision.audio-stable-controls-2026-10-22",
+      "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
       "from": "decision.authenticated-learning-routes-2026-10-18",
       "to": "module.reviews.problem-card-design-decisions",
       "type": "uses"
@@ -16166,6 +16213,11 @@
     {
       "from": "module.materials.audio-library",
       "to": "decision.audio-speed-controls-2026-10-22",
+      "type": "contains"
+    },
+    {
+      "from": "module.materials.audio-library",
+      "to": "decision.audio-stable-controls-2026-10-22",
       "type": "contains"
     },
     {
