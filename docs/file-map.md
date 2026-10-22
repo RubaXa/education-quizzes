@@ -2,11 +2,23 @@
 
 | Файл | Спецификация | Назначение | Потребитель |
 |---|---|---|---|
-| [docs/modules/families/early-development.md](modules/families/early-development.md) | [Раннее развитие](modules/families/early-development.md) | Контракт родительского режима с рождения до школы; границы dev-only прототипа | Родитель; разработчик; Vitest |
+| [docs/decisions/early-development-live-2026-10-22.md](decisions/early-development-live-2026-10-22.md) | [Раннее развитие](modules/families/early-development.md) | Родительская программа, облачный журнал, права и проверки | Родитель; CLI; Vitest |
+| [early-development/program.mjs](../early-development/program.mjs) | [Раннее развитие](modules/families/early-development.md) | Родительская программа, облачный журнал, права и проверки | Родитель; CLI; Vitest |
+| [early-development/program.d.mts](../early-development/program.d.mts) | [Раннее развитие](modules/families/early-development.md) | Родительская программа, облачный журнал, права и проверки | Родитель; CLI; Vitest |
+| [src/components/EarlyDevelopmentPage.tsx](../src/components/EarlyDevelopmentPage.tsx) | [Раннее развитие](modules/families/early-development.md) | Родительская программа, облачный журнал, права и проверки | Родитель; CLI; Vitest |
+| [src/lib/earlyDevelopmentStore.ts](../src/lib/earlyDevelopmentStore.ts) | [Раннее развитие](modules/families/early-development.md) | Родительская программа, облачный журнал, права и проверки | Родитель; CLI; Vitest |
+| [scripts/lib/early-development.mjs](../scripts/lib/early-development.mjs) | [Раннее развитие](modules/families/early-development.md) | Родительская программа, облачный журнал, права и проверки | Родитель; CLI; Vitest |
+| [scripts/check-early-rules.mjs](../scripts/check-early-rules.mjs) | [Раннее развитие](modules/families/early-development.md) | Родительская программа, облачный журнал, права и проверки | Родитель; CLI; Vitest |
+| [scripts/check-early-live.mjs](../scripts/check-early-live.mjs) | [Раннее развитие](modules/families/early-development.md) | Родительская программа, облачный журнал, права и проверки | Родитель; CLI; Vitest |
+| [rules-test-fixtures/early-development-suite.mjs](../rules-test-fixtures/early-development-suite.mjs) | [Раннее развитие](modules/families/early-development.md) | Родительская программа, облачный журнал, права и проверки | Родитель; CLI; Vitest |
+| [src/lib/earlyDevelopmentStore.test.ts](../src/lib/earlyDevelopmentStore.test.ts) | [Раннее развитие](modules/families/early-development.md) | Родительская программа, облачный журнал, права и проверки | Родитель; CLI; Vitest |
+| [src/components/ParentHome.early.test.tsx](../src/components/ParentHome.early.test.tsx) | [Раннее развитие](modules/families/early-development.md) | Родительская программа, облачный журнал, права и проверки | Родитель; CLI; Vitest |
+| [scripts/lib/early-development.test.mjs](../scripts/lib/early-development.test.mjs) | [Раннее развитие](modules/families/early-development.md) | Родительская программа, облачный журнал, права и проверки | Родитель; CLI; Vitest |
+| [docs/modules/families/early-development.md](modules/families/early-development.md) | [Раннее развитие](modules/families/early-development.md) | Контракт режима с рождения до школы, облачного журнала и доступа | Родитель; разработчик; Vitest |
 | [docs/decisions/early-development-preview-2026-10-22.md](decisions/early-development-preview-2026-10-22.md) | [Раннее развитие](modules/families/early-development.md) | Основание отдельного раннего режима и его локального предпросмотра | Родитель; разработчик; Vitest |
-| [src/components/EarlyDevelopment.tsx](../src/components/EarlyDevelopment.tsx) | [Раннее развитие](modules/families/early-development.md) | Программа первых недель, инструкция, дневник и редактирование в dev-only прототипе | Родитель; разработчик; Vitest |
+| [src/components/EarlyDevelopment.tsx](../src/components/EarlyDevelopment.tsx) | [Раннее развитие](modules/families/early-development.md) | Программа по возрасту, инструкция, дневник и редактирование | Родитель; разработчик; Vitest |
 | [src/components/EarlyDevelopment.css](../src/components/EarlyDevelopment.css) | [Раннее развитие](modules/families/early-development.md) | Мобильная компоновка на общих токенах Education | Родитель; разработчик; Vitest |
-| [src/lib/earlyDevelopment.ts](../src/lib/earlyDevelopment.ts) | [Раннее развитие](modules/families/early-development.md) | Версия идей первых недель и локальный журнал наблюдений без оценки | Родитель; разработчик; Vitest |
+| [src/lib/earlyDevelopment.ts](../src/lib/earlyDevelopment.ts) | [Раннее развитие](modules/families/early-development.md) | Выбор возрастного этапа, наблюдения без оценки и отдельный preview-журнал | Родитель; разработчик; Vitest |
 | [src/lib/earlyDevelopment.test.ts](../src/lib/earlyDevelopment.test.ts) | [Раннее развитие](modules/families/early-development.md) | Проверки provenance, неизвестности, восстановления и выбора идеи | Родитель; разработчик; Vitest |
 | [src/components/EarlyDevelopment.test.tsx](../src/components/EarlyDevelopment.test.tsx) | [Раннее развитие](modules/families/early-development.md) | Полный путь родителя, ошибка записи и редактирование после reload | Родитель; разработчик; Vitest |
 | [docs/decisions/mixed-assignment-actions-2026-10-22.md](decisions/mixed-assignment-actions-2026-10-22.md) | [План](modules/synchronization/plan-generation.md) | Основание двух независимых действий и раздельных запросов материала | Оператор; publisher |
@@ -902,7 +914,7 @@
 | [storage/audio-library.mjs](../storage/audio-library.mjs) | [Аудиобиблиотека](modules/materials/audio-library.md) | Разбор источника, проверка MP3, безопасный авто-подбор и evidence-checked explicit task bindings | CLI; издатель дня |
 | [storage/audio-library.test.mjs](../storage/audio-library.test.mjs) | [Аудиобиблиотека](modules/materials/audio-library.md) | Регрессии общего каталога, точного подбора, ambiguous WB clarification, fail-closed и приватности evidence | Vitest |
 | [scripts/audio-library.mjs](../scripts/audio-library.mjs) | [Аудиобиблиотека](modules/materials/audio-library.md) | Повторяемая синхронизация MP3 с Диском, общий каталог и адресная семейная связь | Оператор |
-| [src/components/AudioPlayer.tsx](../src/components/AudioPlayer.tsx) | [Аудиобиблиотека](modules/materials/audio-library.md) | Общий ленивый плеер, ошибки, повтор и скорость | ДЗ; библиотека; UI Kit |
+| [src/components/AudioPlayer.tsx](../src/components/AudioPlayer.tsx) | [Аудиобиблиотека](modules/materials/audio-library.md) | Постоянная панель, один Play, видимая скорость, seek/volume и повтор | ДЗ; библиотека; UI Kit |
 | [src/components/AudioPlayer.css](../src/components/AudioPlayer.css) | [Аудиобиблиотека](modules/materials/audio-library.md) | Токены и адаптивная геометрия общего плеера | AudioPlayer; AudioLibrary |
 | [src/components/AudioLibrary.tsx](../src/components/AudioLibrary.tsx) | [Аудиобиблиотека](modules/materials/audio-library.md) | Выбор одной записи из связанной аудиоколлекции | FamilyLibrary |
 | [src/components/AudioPlayer.test.tsx](../src/components/AudioPlayer.test.tsx) | [Аудиобиблиотека](modules/materials/audio-library.md) | Регрессии ленивого аудио, смены, повтора и управления | Vitest |
@@ -921,3 +933,4 @@
 | [src/lib/familyLibrary.access.test.ts](../src/lib/familyLibrary.access.test.ts) | [Общий доступ детей семьи](modules/materials/family-library.md) | Чтение без повторной загрузки, отсутствие расписания и единственный экземпляр книги в списке | Vitest |
 
 | [docs/decisions/family-book-access-2026-10-22.md](decisions/family-book-access-2026-10-22.md) | [Семейная библиотека](modules/materials/family-library.md) | Основание общего доступа детей семьи и границы выпуска | Разработчик; оператор |
+| [docs/decisions/audio-stable-controls-2026-10-22.md](decisions/audio-stable-controls-2026-10-22.md) | [Аудиобиблиотека](modules/materials/audio-library.md) | Постоянная панель до/после Play и всегда видимое замедление | Разработчик; выпуск |

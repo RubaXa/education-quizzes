@@ -1,3 +1,4 @@
+/** @see ../../docs/modules/families/early-development.md */
 import { useEffect, useState } from 'react'
 import { collection, onSnapshot } from 'firebase/firestore'
 import { getAuth } from 'firebase/auth'
@@ -65,6 +66,7 @@ export function defaultBookPolicy(subject: string): 'required' | 'no-book' | 're
 export function bookNeeds(children: PersonalChild[], schedules: Record<string, string[]>, books: FamilyBook[], uploads: FamilyBookUpload[], requirements: BookRequirement[] = []): BookNeed[] {
   const result: BookNeed[] = []
   for (const child of children) {
+    if (child.learningMode === 'early-development') continue
     const subjects = new Map<string, string>()
     for (const subject of schedules[child.childId] ?? []) subjects.set(subjectKey(subject), subject)
     for (const [subjectKeyValue, subject] of subjects) {
@@ -146,7 +148,7 @@ export function useFamilyLibrary(familyId: string, children: PersonalChild[]): L
       const next: LibraryState = { loading: !error && ready.size < required, error,
         observedDays: Object.values(dayCounts).reduce((sum, count) => sum + count, 0),
         observedSubjects: Object.values(schedules).flat().map(subjectKey).filter((value, index, all) => all.indexOf(value) === index).length,
-        unobservedChildren: children.filter((child) => !schedules[child.childId]?.length).map((child) => child.displayName),
+        unobservedChildren: children.filter((child) => child.learningMode !== 'early-development' && !schedules[child.childId]?.length).map((child) => child.displayName),
         books: uniqueFamilyBooks(Object.values(bindings).flat()),
         needs: bookNeeds(children, schedules, Object.values(bindings).flat(), Object.values(uploads).flat(), Object.values(requirements).flat()) }
       setState(next)

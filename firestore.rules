@@ -37,7 +37,28 @@ service cloud.firestore {
     }
     function childMember(familyId, childId) {
       return activeMember(familyId)
-        && get(memberPath(familyId)).data.childIds.hasAny([childId]);
+        && (get(memberPath(familyId)).data.childIds.hasAny([childId])
+          || parentMember(familyId) && get(memberPath(familyId)).data.get('earlyChildIds', []).hasAny([childId]));
+    }
+    // @see docs/modules/families/early-development.md#ownership
+    function earlyParent(familyId, childId) {
+      return parentMember(familyId)
+        && get(memberPath(familyId)).data.get('earlyChildIds', []).hasAny([childId])
+        && get(/databases/$(database)/documents/families/$(familyId)/children/$(childId)).data.get('active', true) == true
+        && get(/databases/$(database)/documents/families/$(familyId)/children/$(childId)).data.get('learningMode', 'school') == 'early-development';
+    }
+    function validEarlyObservation(data) {
+      return data.keys().hasOnly(['schemaVersion', 'activityId', 'activityTitle', 'programVersion', 'observedAt', 'reaction', 'note', 'deleted', 'authorId', 'createdAt', 'updatedBy', 'updatedAt', 'revision', 'revisionId'])
+        && data.keys().hasAll(['schemaVersion', 'activityId', 'activityTitle', 'programVersion', 'observedAt', 'reaction', 'note', 'deleted', 'authorId', 'createdAt', 'updatedBy', 'updatedAt', 'revision', 'revisionId'])
+        && data.schemaVersion == 1 && data.activityId is string && data.activityId.size() > 0 && data.activityId.size() <= 100
+        && data.activityTitle is string && data.activityTitle.size() > 0 && data.activityTitle.size() <= 160
+        && data.programVersion is string && data.programVersion.size() > 0 && data.programVersion.size() <= 100
+        && data.observedAt is timestamp && data.observedAt <= request.time + duration.value(5, 'm')
+        && data.reaction in ['Смотрела', 'Отвернулась', 'Уснула', 'Не заметили реакции', 'Другое']
+        && data.note is string && data.note.size() <= 1500 && data.deleted is bool
+        && data.revision is int && data.revision > 0 && data.revision < 1000000
+        && data.revisionId is string && data.revisionId.matches('^[A-Za-z0-9-]{36}$')
+        && data.updatedBy == currentPersonId() && data.updatedAt == request.time;
     }
     function quizStudent(familyId, childId) {
       return childMember(familyId, childId)
@@ -570,6 +591,35 @@ service cloud.firestore {
         allow list: if false;
         allow write: if false;
 
+        // @see docs/modules/families/early-development.md#ownership
+        match /earlyDevelopment/{planId} {
+          allow get: if planId == 'current' && earlyParent(familyId, childId);
+          allow list, write: if false;
+        }
+        match /earlyObservations/{observationId} {
+          allow get, list: if earlyParent(familyId, childId);
+          allow create: if earlyParent(familyId, childId) && validEarlyObservation(request.resource.data)
+            && request.resource.data.revision == 1 && request.resource.data.deleted == false
+            && request.resource.data.authorId == currentPersonId() && request.resource.data.createdAt == request.time
+            && request.resource.data.programVersion == get(/databases/$(database)/documents/families/$(familyId)/children/$(childId)/earlyDevelopment/current).data.programVersion
+            && getAfter(/databases/$(database)/documents/families/$(familyId)/children/$(childId)/earlyObservations/$(observationId)/history/$(request.resource.data.revisionId)).data == request.resource.data;
+          allow update: if earlyParent(familyId, childId) && validEarlyObservation(request.resource.data)
+            && request.resource.data.revision == resource.data.revision + 1
+            && request.resource.data.authorId == resource.data.authorId && request.resource.data.createdAt == resource.data.createdAt
+            && request.resource.data.activityId == resource.data.activityId && request.resource.data.activityTitle == resource.data.activityTitle
+            && request.resource.data.programVersion == resource.data.programVersion && request.resource.data.observedAt == resource.data.observedAt
+            && request.resource.data.revisionId != resource.data.revisionId
+            && getAfter(/databases/$(database)/documents/families/$(familyId)/children/$(childId)/earlyObservations/$(observationId)/history/$(request.resource.data.revisionId)).data == request.resource.data;
+          allow delete: if false;
+          match /history/{revisionId} {
+            allow get, list: if earlyParent(familyId, childId);
+            allow create: if earlyParent(familyId, childId) && validEarlyObservation(request.resource.data)
+              && revisionId == request.resource.data.revisionId
+              && getAfter(/databases/$(database)/documents/families/$(familyId)/children/$(childId)/earlyObservations/$(observationId)).data == request.resource.data;
+            allow update, delete: if false;
+          }
+        }
+
         // @see docs/modules/synchronization/global-sync.md#status
         match /syncStatus/{statusId} {
           allow get: if statusId == 'current' && childMember(familyId, childId);
@@ -583,6 +633,7 @@ service cloud.firestore {
         match /accessRequests/{requestId} {
           allow get, list: if parentMember(familyId) && childMember(familyId, childId);
           allow create: if parentMember(familyId) && childMember(familyId, childId)
+            && get(/databases/$(database)/documents/families/$(familyId)/children/$(childId)).data.get('learningMode', 'school') != 'early-development'
             && request.resource.data.keys().hasOnly(['action', 'grantId', 'actorPersonId', 'status', 'createdAt'])
             && request.resource.data.keys().hasAll(['action', 'grantId', 'actorPersonId', 'status', 'createdAt'])
             && request.resource.data.action in ['rotate', 'revoke']

@@ -235,3 +235,12 @@ describe('root personal entry uses confirmed role through the real task card', (
     expect(scene.options).toHaveLength(0)
   })
 })
+
+it('refreshes a pre-migration cached profile when the same child moves into early scope', async () => {
+  scene.server = { ...profile('parent'), children: [{ ...profile('parent').children[0], learningMode: 'early-development' }] }
+  await render()
+  await confirmSession()
+  await confirm('families/family/members/person', { active: true, role: 'parent', childIds: [], earlyChildIds: ['child'] })
+  expect(scene.refreshes).toBe(1)
+  expect(scene.cached?.children[0].learningMode).toBe('early-development')
+})

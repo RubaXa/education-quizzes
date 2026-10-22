@@ -32,3 +32,7 @@ describe('family book reading and school use are different', () => {
     expect(uniqueFamilyBooks([book])).toEqual([book])
   })
 })
+
+it('does not turn a stray schedule into school book demands for an early child', () => {
+  expect(bookNeeds([{ ...child, learningMode: 'early-development' }], { [child.childId]: ['Биология'] }, [], [])).toEqual([])
+})

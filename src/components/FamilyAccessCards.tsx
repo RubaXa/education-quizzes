@@ -1,3 +1,4 @@
+/** @see ../../docs/modules/families/early-development.md */
 import { useEffect, useRef, useState } from 'react'
 import { addDoc, collection, doc, onSnapshot, serverTimestamp } from 'firebase/firestore'
 import { getAuth } from 'firebase/auth'
@@ -193,7 +194,7 @@ export function FamilyAccessCards({ profile, familyChildren }: { profile: Person
       <InvitesCard familyId={familyId} personId={profile.personId} />
       <article className="parent-manage-card"><div className="parent-manage-head"><Link2 size={20} aria-hidden="true" /><h3>Вход детей</h3></div>
         <p>Личная ссылка открывает только профиль ребёнка. Её можно заменить без удаления работ и результатов.</p>
-        {familyChildren.map((child) => <ChildAccess key={child.childId} familyId={familyId} child={child} actorPersonId={profile.personId} />)}
+        {familyChildren.filter((child) => child.learningMode !== 'early-development').map((child) => <ChildAccess key={child.childId} familyId={familyId} child={child} actorPersonId={profile.personId} />)}
       </article>
     </div> : <button type="button" className="parent-manage-card parent-family-open" onClick={() => setVisible(true)}>Открыть управление семьёй</button>}
   </section>

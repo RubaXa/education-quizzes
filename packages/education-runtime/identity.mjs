@@ -1,3 +1,4 @@
+/** @see ../../docs/modules/families/early-development.md */
 /** Shared ownership predicates for sync, Telegram, and operations.
  * @see ../../docs/shared/server-runtime.md#авторизация-и-совместимость
  */
@@ -39,6 +40,7 @@ export function isRegisteredMeshParentAccount({ familyId, family, account, membe
 
 export function isRegisteredMeshChild({ familyId, childId, family, child, identity }) {
   return isActiveFamilyChild({ familyId, childId, family, child })
+    && child?.learningMode !== 'early-development'
     && validRuntimeId(child?.meshPersonId)
     && identity?.id === meshChildIdentityId(child.meshPersonId)
     && identity?.source === 'mesh' && identity.familyId === familyId

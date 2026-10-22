@@ -1,3 +1,4 @@
+/** @see ../docs/modules/families/early-development.md */
 import { eligibleMeshAccounts, isRegisteredMeshChild, meshParentAccountId } from '../packages/education-runtime/identity.mjs'
 
 /** Pure inventory and scheduling rules for one global Education run.
@@ -20,7 +21,7 @@ export function projectTargets({ families, children, accounts, identities, membe
   const targets = []
   for (const child of children) {
     if (!familyIds.has(child.familyId) || !idPattern.test(child.familyId) || !idPattern.test(child.id)) continue
-    if (child.active === false) continue
+    if (child.active === false || child.learningMode === 'early-development') continue
     const key = `${child.familyId}/${child.id}`
     const identity = identityByChild.get(key)
     const family = familyById.get(child.familyId)

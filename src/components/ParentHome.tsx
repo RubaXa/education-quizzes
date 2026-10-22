@@ -1,3 +1,4 @@
+/** @see ../../docs/modules/families/early-development.md */
 import { useEffect, useMemo, useState } from 'react'
 import { ArrowRight, ChevronDown, Clock3, AlertCircle, RefreshCw } from 'lucide-react'
 import { restorePersonalContext } from '@/lib/personalAccess'
@@ -116,13 +117,15 @@ export function ParentHome({ profile }: { profile: PersonalProfile }) {
   }, [profile.personId])
   const alerts = notices.filter((notice) => (notice.type === 'school_late' || notice.type === 'school_remark') && !notice.readAt
     && children.some((child) => child.familyId === notice.familyId && child.childId === notice.childId)).slice(0, 3)
-  return <div className="parent-home"><div className="parent-home-heading"><p>Кабинет родителя</p><h1>Дети</h1><span>Выберите ребёнка, чтобы увидеть, что сделано и что осталось.</span></div>
+  return <div className="parent-home"><div className="parent-home-heading"><p>Кабинет родителя</p><h1>Дети</h1><span>{children.some((child) => child.learningMode === 'early-development') ? 'Откройте учебные дела или дневник развития ребёнка.' : 'Выберите ребёнка, чтобы увидеть, что сделано и что осталось.'}</span></div>
     {alerts.length > 0 && <section className="parent-school-alerts" aria-label="Сообщения из МЭШ"><h2><AlertCircle size={20} aria-hidden="true" /> Важно из МЭШ</h2>{alerts.map((notice) => {
       const child = children.find((entry) => entry.familyId === notice.familyId && entry.childId === notice.childId)
       return <article key={notice.id}><strong>{child?.displayName ?? 'Ребёнок'} · {notice.title ?? 'Школьное сообщение'}</strong><span>{notice.subject}{notice.date ? ` · ${dateLabel(notice.date)}` : ''}</span><p>{notice.body}</p>{child?.dashboardToken && <a href={`#/days/${child.dashboardTokens?.student ?? child.dashboardToken}`} onClick={() => { void markNotificationRead(notice.id).catch((error: unknown) => { reportUiError(error, 'Школьные сообщения') }); if (notice.date) { sessionStorage.setItem('education-dashboard-selected-date', notice.date); sessionStorage.setItem('education-dashboard-selection-day', new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'Europe/Moscow' }).format(new Date())) } }}>Открыть день <ArrowRight size={15} aria-hidden="true" /></a>}</article>
     })}</section>}
     {families.map((familyId) => <FamilyLibrary key={familyId} familyId={familyId} familyChildren={childrenByFamily.get(familyId)!} />)}
-    <section className="parent-children" aria-label="Домашние задания детей">{children.length === 0 && <p className="parent-home-empty">В профиле пока нет подключённых детей. Данные и личные ссылки добавляет владелец сервиса.</p>}{children.map((child) => child.dashboardToken
+    <section className="parent-children" aria-label="Домашние задания детей">{children.length === 0 && <p className="parent-home-empty">В профиле пока нет подключённых детей. Данные и личные ссылки добавляет владелец сервиса.</p>}{children.map((child) => child.learningMode === 'early-development'
+      ? <article className="parent-child-card" key={childKey(child)}><a className="parent-child-toggle" href={`#/early/${child.familyId}/${child.childId}`}><span className="parent-child-top"><span className="parent-child-name">{child.displayName}</span><span className="parent-child-badge unknown">Раннее развитие</span></span><span className="parent-child-date">Идеи на сегодня, программа и дневник наблюдений</span><span className="parent-child-expand">Открыть <ArrowRight size={18} /></span></a></article>
+      : child.dashboardToken
       ? <ChildCardWithProgress key={`${profile.personId}:${childKey(child)}`} child={child as PersonalChild & { dashboardToken: string }} personId={profile.personId} />
       : <ChildCard key={childKey(child)} child={child} />)}</section>
     {families.map((familyId) => <FamilyAccessCards key={familyId} profile={profile} familyChildren={childrenByFamily.get(familyId)!} />)}

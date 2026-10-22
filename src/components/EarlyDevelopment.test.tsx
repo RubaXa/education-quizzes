@@ -4,7 +4,7 @@ import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import EarlyDevelopment from './EarlyDevelopment'
-import { JOURNAL_KEY, readObservations } from '@/lib/earlyDevelopment'
+import { program, JOURNAL_KEY, readObservations } from '@/lib/earlyDevelopment'
 ;(globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true
 let host: HTMLDivElement, root: Root
 const click = async (label: string) => { const button = [...host.querySelectorAll('button')].find((item) => item.textContent?.includes(label)); expect(button, label).toBeTruthy(); await act(async () => button!.click()) }
@@ -48,10 +48,27 @@ describe('parent early development preview', () => {
     expect(host.querySelector<HTMLButtonElement>('button[type="submit"]')?.disabled).toBe(true)
     expect(localStorage.getItem(JOURNAL_KEY)).toBe('broken')
   })
-  it('separates the available first stage from the roadmap and clinical screening', async () => {
+  it('shows age-stage activities separately from clinical screening', async () => {
     await click('Программа')
-    expect(host.textContent).toContain('План содержания')
+    expect(host.textContent).toContain('3 года — школа')
+    expect(host.textContent).toContain('Первые недели · сейчас')
     expect(host.textContent).toContain('Здесь нет диагностического теста')
     expect(host.textContent).not.toContain('Календарь не подключён')
   })
+})
+
+it('keeps live data separate from the prototype and preserves a stale edit base across remote updates', async () => {
+  await act(async () => root.unmount())
+  localStorage.setItem(JOURNAL_KEY, 'not a real family journal')
+  const save = vi.fn(async (_entry: import('@/lib/earlyDevelopment').Observation, _previous?: import('@/lib/earlyDevelopment').Observation) => {})
+  const entry = { id: 'remote-entry', activityId: 'voice', activityTitle: 'Голос', programVersion: program.version, observedAt: new Date().toISOString(), reaction: 'Другое' as const, note: '', revision: 1 }
+  const live = { plan: { schemaVersion: 1 as const, birthDate: new Date().toISOString().slice(0, 10), timezone: 'Europe/Moscow', programVersion: program.version, curriculum: program }, child: { familyId: 'family', childId: 'baby', role: 'parent' as const, displayName: 'Условный малыш' }, entries: [entry], save }
+  await act(async () => { root = createRoot(host); root.render(<EarlyDevelopment live={live} />) })
+  expect(host.textContent).not.toContain('Предпросмотр')
+  expect(host.querySelector('[role="alert"]')).toBeNull()
+  await click('Дневник'); await click('Изменить')
+  await act(async () => root.render(<EarlyDevelopment live={{ ...live, entries: [{ ...entry, revision: 2, note: 'Другое устройство' }] }} />))
+  await act(async () => host.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })))
+  expect(save.mock.calls[0]?.[1]).toMatchObject({ revision: 1 })
+  expect(localStorage.getItem(JOURNAL_KEY)).toBe('not a real family journal')
 })

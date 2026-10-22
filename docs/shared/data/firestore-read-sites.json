@@ -2820,6 +2820,90 @@
     "note": "fake checkpoint.rows Map lookup; локальный объект тестового/инструментального кода, удалённого чтения Firestore здесь нет."
   },
   {
+    "id": "scripts/check-early-live.mjs#getDocFromServer#0a9a1bf9c59c",
+    "file": "scripts/check-early-live.mjs",
+    "line": 41,
+    "api": "getDocFromServer",
+    "target": "doc(a, `${base}/earlyDevelopment/current`)",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "early-parent-exact-scope-and-revision",
+    "refresh": "mounted early page / explicit operator command or isolated live fixture",
+    "note": "Проверено22.10: закрытый план и ограниченное окно наблюдений точного раннего ребёнка; transaction/getAll по явному действию, отдельный scope и immutable revision; fixture reads только в изолированной семье проверки. См. module.families.early-development."
+  },
+  {
+    "id": "scripts/check-early-live.mjs#onSnapshot#f7bae469fe73",
+    "file": "scripts/check-early-live.mjs",
+    "line": 44,
+    "api": "onSnapshot",
+    "target": "doc(b, path)",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "early-parent-exact-scope-and-revision",
+    "refresh": "mounted early page / explicit operator command or isolated live fixture",
+    "note": "Проверено22.10: закрытый план и ограниченное окно наблюдений точного раннего ребёнка; transaction/getAll по явному действию, отдельный scope и immutable revision; fixture reads только в изолированной семье проверки. См. module.families.early-development."
+  },
+  {
+    "id": "scripts/check-early-live.mjs#getDocsFromServer#95aedcee9fa5",
+    "file": "scripts/check-early-live.mjs",
+    "line": 53,
+    "api": "getDocsFromServer",
+    "target": "collection(a, path, 'history')",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "early-parent-exact-scope-and-revision",
+    "refresh": "mounted early page / explicit operator command or isolated live fixture",
+    "note": "Проверено22.10: закрытый план и ограниченное окно наблюдений точного раннего ребёнка; transaction/getAll по явному действию, отдельный scope и immutable revision; fixture reads только в изолированной семье проверки. См. module.families.early-development."
+  },
+  {
+    "id": "scripts/check-early-live.mjs#getDocsFromServer#6a09c635a323",
+    "file": "scripts/check-early-live.mjs",
+    "line": 57,
+    "api": "getDocsFromServer",
+    "target": "collection(student, base, 'earlyObservations')",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "early-parent-exact-scope-and-revision",
+    "refresh": "mounted early page / explicit operator command or isolated live fixture",
+    "note": "Проверено22.10: закрытый план и ограниченное окно наблюдений точного раннего ребёнка; transaction/getAll по явному действию, отдельный scope и immutable revision; fixture reads только в изолированной семье проверки. См. module.families.early-development."
+  },
+  {
+    "id": "scripts/check-early-live.mjs#getDocFromServer#aaadb2082b1f",
+    "file": "scripts/check-early-live.mjs",
+    "line": 58,
+    "api": "getDocFromServer",
+    "target": "doc(student, base, 'earlyDevelopment/current')",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "early-parent-exact-scope-and-revision",
+    "refresh": "mounted early page / explicit operator command or isolated live fixture",
+    "note": "Проверено22.10: закрытый план и ограниченное окно наблюдений точного раннего ребёнка; transaction/getAll по явному действию, отдельный scope и immutable revision; fixture reads только в изолированной семье проверки. См. module.families.early-development."
+  },
+  {
+    "id": "scripts/check-early-live.mjs#getDocFromServer#b7cc0b201d35",
+    "file": "scripts/check-early-live.mjs",
+    "line": 59,
+    "api": "getDocFromServer",
+    "target": "doc(outsider, base, 'earlyDevelopment/current')",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "early-parent-exact-scope-and-revision",
+    "refresh": "mounted early page / explicit operator command or isolated live fixture",
+    "note": "Проверено22.10: закрытый план и ограниченное окно наблюдений точного раннего ребёнка; transaction/getAll по явному действию, отдельный scope и immutable revision; fixture reads только в изолированной семье проверки. См. module.families.early-development."
+  },
+  {
+    "id": "scripts/check-early-live.mjs#getDocFromServer#3119d56538cd",
+    "file": "scripts/check-early-live.mjs",
+    "line": 62,
+    "api": "getDocFromServer",
+    "target": "doc(b, path)",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "early-parent-exact-scope-and-revision",
+    "refresh": "mounted early page / explicit operator command or isolated live fixture",
+    "note": "Проверено22.10: закрытый план и ограниченное окно наблюдений точного раннего ребёнка; transaction/getAll по явному действию, отдельный scope и immutable revision; fixture reads только в изолированной семье проверки. См. module.families.early-development."
+  },
+  {
     "id": "scripts/connect.mjs#admin.get#12a894a278bf",
     "file": "scripts/connect.mjs",
     "line": 50,
@@ -4296,9 +4380,45 @@
     "note": "Коллекция может вернуть много документов; фильтровать по семье/активному статусу/дате, не читать закрытую историю каждый цикл."
   },
   {
+    "id": "scripts/family.mjs#admin.getAll#7b77b173ddaf",
+    "file": "scripts/family.mjs",
+    "line": 85,
+    "api": "admin.getAll",
+    "target": "db",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "early-parent-exact-scope-and-revision",
+    "refresh": "mounted early page / explicit operator command or isolated live fixture",
+    "note": "Проверено22.10: закрытый план и ограниченное окно наблюдений точного раннего ребёнка; transaction/getAll по явному действию, отдельный scope и immutable revision; fixture reads только в изолированной семье проверки. См. module.families.early-development."
+  },
+  {
+    "id": "scripts/family.mjs#admin.get#f6499b705aa8",
+    "file": "scripts/family.mjs",
+    "line": 140,
+    "api": "admin.get",
+    "target": "db.doc(`families/${familyId}/children/${childId}`)",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "early-parent-exact-scope-and-revision",
+    "refresh": "mounted early page / explicit operator command or isolated live fixture",
+    "note": "Проверено22.10: закрытый план и ограниченное окно наблюдений точного раннего ребёнка; transaction/getAll по явному действию, отдельный scope и immutable revision; fixture reads только в изолированной семье проверки. См. module.families.early-development."
+  },
+  {
+    "id": "scripts/family.mjs#admin.get#48aa269961db",
+    "file": "scripts/family.mjs",
+    "line": 156,
+    "api": "admin.get",
+    "target": "db.doc(`families/${owner.familyId}/children/${owner.childId}`)",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "early-parent-exact-scope-and-revision",
+    "refresh": "mounted early page / explicit operator command or isolated live fixture",
+    "note": "Проверено22.10: закрытый план и ограниченное окно наблюдений точного раннего ребёнка; transaction/getAll по явному действию, отдельный scope и immutable revision; fixture reads только в изолированной семье проверки. См. module.families.early-development."
+  },
+  {
     "id": "scripts/family.mjs#admin.get#749116f6a6b2",
     "file": "scripts/family.mjs",
-    "line": 157,
+    "line": 172,
     "api": "admin.get",
     "target": "db.doc(`accessLinks/${link}`)",
     "group": "operator-other",
@@ -4310,7 +4430,7 @@
   {
     "id": "scripts/family.mjs#admin.get#749116f6a6b2-2",
     "file": "scripts/family.mjs",
-    "line": 171,
+    "line": 186,
     "api": "admin.get",
     "target": "db.doc(`accessLinks/${link}`)",
     "group": "operator-other",
@@ -4322,7 +4442,7 @@
   {
     "id": "scripts/family.mjs#admin.get#c010c1a692f0",
     "file": "scripts/family.mjs",
-    "line": 172,
+    "line": 187,
     "api": "admin.get",
     "target": "db.collection('deviceSessions').where('linkToken', '==', link).count()",
     "group": "operator-other",
@@ -4334,7 +4454,7 @@
   {
     "id": "scripts/family.mjs#admin.get#749116f6a6b2-3",
     "file": "scripts/family.mjs",
-    "line": 187,
+    "line": 202,
     "api": "admin.get",
     "target": "db.doc(`accessLinks/${link}`)",
     "group": "operator-other",
@@ -4346,7 +4466,7 @@
   {
     "id": "scripts/family.mjs#admin.get#6faaf15e4f89",
     "file": "scripts/family.mjs",
-    "line": 190,
+    "line": 205,
     "api": "admin.get",
     "target": "db.collection('deviceSessions').where('linkToken', '==', newest).count()",
     "group": "operator-other",
@@ -4358,7 +4478,7 @@
   {
     "id": "scripts/family.mjs#admin.get#749116f6a6b2-4",
     "file": "scripts/family.mjs",
-    "line": 206,
+    "line": 221,
     "api": "admin.get",
     "target": "db.doc(`accessLinks/${link}`)",
     "group": "operator-other",
@@ -4370,7 +4490,7 @@
   {
     "id": "scripts/family.mjs#admin.get#b73cabf04823",
     "file": "scripts/family.mjs",
-    "line": 241,
+    "line": 256,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${pair.student}`)",
     "group": "operator-other",
@@ -4382,7 +4502,7 @@
   {
     "id": "scripts/family.mjs#admin.get#6f4399142777",
     "file": "scripts/family.mjs",
-    "line": 242,
+    "line": 257,
     "api": "admin.get",
     "target": "db.doc(`dayOwners/${pair.student}`)",
     "group": "operator-other",
@@ -4394,7 +4514,7 @@
   {
     "id": "scripts/family.mjs#admin.get#c86b2386694a",
     "file": "scripts/family.mjs",
-    "line": 261,
+    "line": 276,
     "api": "admin.get",
     "target": "db.doc(`families/${familyId}/members/${personId}`)",
     "group": "operator-other",
@@ -4406,7 +4526,7 @@
   {
     "id": "scripts/family.mjs#admin.get#b8f8fc5ae8da",
     "file": "scripts/family.mjs",
-    "line": 277,
+    "line": 292,
     "api": "admin.get",
     "target": "db.doc(`${collection}/${token}`)",
     "group": "operator-other",
@@ -4438,6 +4558,78 @@
     "policy": "aggregate-count",
     "refresh": "on explicit audit or source change",
     "note": "Агрегация читает индекс, не бесплатна; хранить проверенный счётчик/манифест при записи и периодически сверять."
+  },
+  {
+    "id": "scripts/lib/early-development.mjs#admin.get#4b1471480c61",
+    "file": "scripts/lib/early-development.mjs",
+    "line": 14,
+    "api": "admin.get",
+    "target": "db.collection(`families/${familyId}/members`)",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "early-parent-exact-scope-and-revision",
+    "refresh": "mounted early page / explicit operator command or isolated live fixture",
+    "note": "Проверено22.10: закрытый план и ограниченное окно наблюдений точного раннего ребёнка; transaction/getAll по явному действию, отдельный scope и immutable revision; fixture reads только в изолированной семье проверки. См. module.families.early-development."
+  },
+  {
+    "id": "scripts/lib/early-development.mjs#admin.get#96b83b81bd79",
+    "file": "scripts/lib/early-development.mjs",
+    "line": 17,
+    "api": "admin.get",
+    "target": "db.collection('accessLinks').where('personId', '==', id)",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "early-parent-exact-scope-and-revision",
+    "refresh": "mounted early page / explicit operator command or isolated live fixture",
+    "note": "Проверено22.10: закрытый план и ограниченное окно наблюдений точного раннего ребёнка; transaction/getAll по явному действию, отдельный scope и immutable revision; fixture reads только в изолированной семье проверки. См. module.families.early-development."
+  },
+  {
+    "id": "scripts/lib/early-development.mjs#admin.getAll#aa7204b42fef",
+    "file": "scripts/lib/early-development.mjs",
+    "line": 20,
+    "api": "admin.getAll",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "early-parent-exact-scope-and-revision",
+    "refresh": "mounted early page / explicit operator command or isolated live fixture",
+    "note": "Проверено22.10: закрытый план и ограниченное окно наблюдений точного раннего ребёнка; transaction/getAll по явному действию, отдельный scope и immutable revision; fixture reads только в изолированной семье проверки. См. module.families.early-development."
+  },
+  {
+    "id": "scripts/lib/early-development.mjs#admin.get#42bfc89d18f3",
+    "file": "scripts/lib/early-development.mjs",
+    "line": 35,
+    "api": "admin.get",
+    "target": "db.doc(base)",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "early-parent-exact-scope-and-revision",
+    "refresh": "mounted early page / explicit operator command or isolated live fixture",
+    "note": "Проверено22.10: закрытый план и ограниченное окно наблюдений точного раннего ребёнка; transaction/getAll по явному действию, отдельный scope и immutable revision; fixture reads только в изолированной семье проверки. См. module.families.early-development."
+  },
+  {
+    "id": "scripts/lib/early-development.mjs#admin.get#872ef4a5bcbb",
+    "file": "scripts/lib/early-development.mjs",
+    "line": 35,
+    "api": "admin.get",
+    "target": "db.doc(`${base}/earlyDevelopment/current`)",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "early-parent-exact-scope-and-revision",
+    "refresh": "mounted early page / explicit operator command or isolated live fixture",
+    "note": "Проверено22.10: закрытый план и ограниченное окно наблюдений точного раннего ребёнка; transaction/getAll по явному действию, отдельный scope и immutable revision; fixture reads только в изолированной семье проверки. См. module.families.early-development."
+  },
+  {
+    "id": "scripts/lib/early-development.mjs#admin.get#00cb912540e2",
+    "file": "scripts/lib/early-development.mjs",
+    "line": 35,
+    "api": "admin.get",
+    "target": "db.doc(`families/${familyId}/members/${id}`)",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "early-parent-exact-scope-and-revision",
+    "refresh": "mounted early page / explicit operator command or isolated live fixture",
+    "note": "Проверено22.10: закрытый план и ограниченное окно наблюдений точного раннего ребёнка; transaction/getAll по явному действию, отдельный scope и immutable revision; fixture reads только в изолированной семье проверки. См. module.families.early-development."
   },
   {
     "id": "scripts/lib/inspect-family-access.mjs#admin.get#41cfc7bd8c96",
@@ -6626,7 +6818,7 @@
   {
     "id": "src/components/FamilyAccessCards.tsx#onSnapshot#79307ff9b7a4",
     "file": "src/components/FamilyAccessCards.tsx",
-    "line": 36,
+    "line": 37,
     "api": "onSnapshot",
     "target": "collection(db, key)",
     "group": "client-access",
@@ -6638,7 +6830,7 @@
   {
     "id": "src/components/FamilyAccessCards.tsx#onSnapshot#fe43f230abc1",
     "file": "src/components/FamilyAccessCards.tsx",
-    "line": 61,
+    "line": 62,
     "api": "onSnapshot",
     "target": "doc(db, 'connectionInvites', item.id, 'handoff', 'current')",
     "group": "client-access",
@@ -6650,7 +6842,7 @@
   {
     "id": "src/components/FamilyAccessCards.tsx#onSnapshot#9d89dded998b",
     "file": "src/components/FamilyAccessCards.tsx",
-    "line": 89,
+    "line": 90,
     "api": "onSnapshot",
     "target": "doc(db, 'families', familyId, 'members', personId)",
     "group": "client-access",
@@ -6734,7 +6926,7 @@
   {
     "id": "src/components/PersonalEntry.tsx#onSnapshot#277a67fd7173",
     "file": "src/components/PersonalEntry.tsx",
-    "line": 184,
+    "line": 186,
     "api": "onSnapshot",
     "target": "doc(db, 'accessLinks', session.linkToken)",
     "group": "client-access",
@@ -6746,7 +6938,7 @@
   {
     "id": "src/components/PersonalEntry.tsx#onSnapshot#e2a2ec860d83",
     "file": "src/components/PersonalEntry.tsx",
-    "line": 190,
+    "line": 192,
     "api": "onSnapshot",
     "target": "doc(db, 'deviceSessions', session.deviceUid)",
     "group": "client-access",
@@ -6758,7 +6950,7 @@
   {
     "id": "src/components/PersonalEntry.tsx#onSnapshot#80b6a5d81625",
     "file": "src/components/PersonalEntry.tsx",
-    "line": 206,
+    "line": 208,
     "api": "onSnapshot",
     "target": "doc(db, 'families', familyId, 'members', session.personId)",
     "group": "client-access",
@@ -7032,6 +7224,42 @@
     "note": "Адресное чтение владельца дня, актуальной серверной страницы, существующей заявки либо receipt после неоднозначного commit. Проверено: свежая ревизия нужна вместо cache, существующая заявка предотвращает повторную запись; нет polling или чтения глобальной очереди."
   },
   {
+    "id": "src/lib/earlyDevelopmentStore.ts#onSnapshot#0ea35935829a",
+    "file": "src/lib/earlyDevelopmentStore.ts",
+    "line": 11,
+    "api": "onSnapshot",
+    "target": "doc(db, ...childPath(child), 'earlyDevelopment', 'current')",
+    "group": "client-other",
+    "assessment": "justified",
+    "policy": "early-parent-exact-scope-and-revision",
+    "refresh": "mounted early page / explicit operator command or isolated live fixture",
+    "note": "Проверено22.10: закрытый план и ограниченное окно наблюдений точного раннего ребёнка; transaction/getAll по явному действию, отдельный scope и immutable revision; fixture reads только в изолированной семье проверки. См. module.families.early-development."
+  },
+  {
+    "id": "src/lib/earlyDevelopmentStore.ts#onSnapshot#85dd4093138d",
+    "file": "src/lib/earlyDevelopmentStore.ts",
+    "line": 19,
+    "api": "onSnapshot",
+    "target": "query(collection(db, ...childPath(child), 'earlyObservations'), orderBy('observedAt', 'desc'), limit(count))",
+    "group": "client-other",
+    "assessment": "justified",
+    "policy": "early-parent-exact-scope-and-revision",
+    "refresh": "mounted early page / explicit operator command or isolated live fixture",
+    "note": "Проверено22.10: закрытый план и ограниченное окно наблюдений точного раннего ребёнка; transaction/getAll по явному действию, отдельный scope и immutable revision; fixture reads только в изолированной семье проверки. См. module.families.early-development."
+  },
+  {
+    "id": "src/lib/earlyDevelopmentStore.ts#transaction.get#f3c83d0a844c",
+    "file": "src/lib/earlyDevelopmentStore.ts",
+    "line": 30,
+    "api": "transaction.get",
+    "target": "ref",
+    "group": "client-other",
+    "assessment": "justified",
+    "policy": "early-parent-exact-scope-and-revision",
+    "refresh": "mounted early page / explicit operator command or isolated live fixture",
+    "note": "Проверено22.10: закрытый план и ограниченное окно наблюдений точного раннего ребёнка; transaction/getAll по явному действию, отдельный scope и immutable revision; fixture reads только в изолированной семье проверки. См. module.families.early-development."
+  },
+  {
     "id": "src/lib/educationStore.ts#onSnapshot#af6c439f215d",
     "file": "src/lib/educationStore.ts",
     "line": 32,
@@ -7166,7 +7394,7 @@
   {
     "id": "src/lib/familyLibrary.ts#onSnapshot#155b7bdca40f",
     "file": "src/lib/familyLibrary.ts",
-    "line": 176,
+    "line": 178,
     "api": "onSnapshot",
     "target": "collection(db, 'families', familyId, 'children', child.childId, 'books')",
     "group": "client-books",
@@ -7178,7 +7406,7 @@
   {
     "id": "src/lib/familyLibrary.ts#onSnapshot#38a6ea5fd380",
     "file": "src/lib/familyLibrary.ts",
-    "line": 181,
+    "line": 183,
     "api": "onSnapshot",
     "target": "collection(db, 'families', familyId, 'children', child.childId, 'bookUploads')",
     "group": "client-books",
@@ -7190,7 +7418,7 @@
   {
     "id": "src/lib/familyLibrary.ts#onSnapshot#3be5beb08f83",
     "file": "src/lib/familyLibrary.ts",
-    "line": 187,
+    "line": 189,
     "api": "onSnapshot",
     "target": "collection(db, 'families', familyId, 'children', child.childId, 'bookRequirements')",
     "group": "client-books",
@@ -7346,7 +7574,7 @@
   {
     "id": "src/lib/personalAccess.ts#getDoc#29bfc1b9a72b",
     "file": "src/lib/personalAccess.ts",
-    "line": 201,
+    "line": 203,
     "api": "getDoc",
     "target": "doc(db, 'deviceSessions', expected.deviceUid)",
     "group": "client-access",
@@ -7358,7 +7586,7 @@
   {
     "id": "src/lib/personalAccess.ts#getDoc#9290ff8cd3f8",
     "file": "src/lib/personalAccess.ts",
-    "line": 208,
+    "line": 210,
     "api": "getDoc",
     "target": "doc(db, 'accessLinks', linkToken)",
     "group": "client-access",
@@ -7370,7 +7598,7 @@
   {
     "id": "src/lib/personalAccess.ts#getDoc#9290ff8cd3f8-2",
     "file": "src/lib/personalAccess.ts",
-    "line": 279,
+    "line": 281,
     "api": "getDoc",
     "target": "doc(db, 'accessLinks', linkToken)",
     "group": "client-access",
@@ -7382,7 +7610,7 @@
   {
     "id": "src/lib/personalAccess.ts#getDoc#a031cc72eb42",
     "file": "src/lib/personalAccess.ts",
-    "line": 312,
+    "line": 314,
     "api": "getDoc",
     "target": "reference",
     "group": "client-access",
@@ -7394,7 +7622,7 @@
   {
     "id": "src/lib/personalAccess.ts#getDoc#55eca3546993",
     "file": "src/lib/personalAccess.ts",
-    "line": 391,
+    "line": 393,
     "api": "getDoc",
     "target": "doc(db, 'deviceSessions', deviceUid)",
     "group": "client-access",
@@ -7406,7 +7634,7 @@
   {
     "id": "src/lib/personalAccess.ts#getDoc#597358094a96",
     "file": "src/lib/personalAccess.ts",
-    "line": 413,
+    "line": 415,
     "api": "getDoc",
     "target": "doc(db, 'users', session.personId)",
     "group": "client-access",
@@ -7418,7 +7646,7 @@
   {
     "id": "src/lib/personalAccess.ts#getDocs#c04990b4354a",
     "file": "src/lib/personalAccess.ts",
-    "line": 417,
+    "line": 419,
     "api": "getDocs",
     "target": "collection(db, 'users', session.personId, 'families')",
     "group": "client-access",
@@ -7430,7 +7658,7 @@
   {
     "id": "src/lib/personalAccess.ts#getDoc#5d1a89a83476",
     "file": "src/lib/personalAccess.ts",
-    "line": 421,
+    "line": 423,
     "api": "getDoc",
     "target": "doc(db, 'families', familyId, 'members', session.personId)",
     "group": "client-access",
@@ -7442,7 +7670,7 @@
   {
     "id": "src/lib/personalAccess.ts#getDoc#1eef01645270",
     "file": "src/lib/personalAccess.ts",
-    "line": 431,
+    "line": 433,
     "api": "getDoc",
     "target": "doc(db, 'families', familyId, 'children', childId)",
     "group": "client-access",
@@ -7454,7 +7682,7 @@
   {
     "id": "src/lib/personalAccess.ts#getDoc#0aeaca741ec9",
     "file": "src/lib/personalAccess.ts",
-    "line": 432,
+    "line": 434,
     "api": "getDoc",
     "target": "doc(db, 'users', session.personId, 'families', familyId, 'shortcuts', childId)",
     "group": "client-access",

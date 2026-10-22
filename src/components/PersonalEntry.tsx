@@ -1,3 +1,4 @@
+/** @see ../../docs/modules/families/early-development.md */
 /** @see ../../docs/decisions/local-first-role-recovery-2026-10-18.md */
 import { useEffect, useRef, useState } from 'react'
 import { getAuth } from 'firebase/auth'
@@ -9,6 +10,7 @@ import { Input } from './ui/input'
 import { clearPersonalSession, recoverPersonalContext, loadPersonalProfile, personalEntryUrl, readCachedPersonalContext, redeemPersonalLink, rememberPersonalContext, restorePersonalContext, secretFromPastedPersonalLink, watchPersonalContextChanges } from '../lib/personalAccess'
 import type { PersonalProfile, PersonalSession } from '../lib/personalAccess'
 import { db } from '../lib/firebase'
+import EarlyDevelopmentPage from './EarlyDevelopmentPage'
 import DayDashboard from '../DayDashboard'
 import { ParentHome } from './ParentHome'
 import { reportUiError } from '@/lib/uiErrors'
@@ -39,7 +41,7 @@ function transientAccessError(cause: unknown): boolean {
  *  @see ../../docs/modules/families/access-and-state.md#authenticated-learning-routes
  *  @see ../../docs/decisions/personal-entry-role-confirmation-2026-10-18.md
  *  @see ../../docs/shared/design/README.md#shell */
-export function PersonalEntry({ initialLink }: { initialLink?: string }) {
+export function PersonalEntry({ initialLink, earlyTarget }: { initialLink?: string; earlyTarget?: { familyId: string; childId: string } }) {
   const [initialContext] = useState(() => {
     if (initialLink) return null
     const cached = readCachedPersonalContext()
@@ -209,10 +211,12 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
       const previousDiagnosticStop = diagnosticStops.get(familyId)
       diagnosticStops.set(familyId, configureRoleDiagnostics(session, familyId, member.data() ?? {}, previous[0]?.role ?? 'unknown'))
       previousDiagnosticStop?.()
-      const ids = Array.isArray(member.data()?.childIds) ? member.data()!.childIds.filter((id: unknown): id is string => typeof id === 'string').sort() : []
+      const earlyIds = member.data()?.role === 'parent' && Array.isArray(member.data()?.earlyChildIds) ? member.data()!.earlyChildIds as string[] : []
+      const ids = Array.isArray(member.data()?.childIds) ? [...new Set([...member.data()!.childIds, ...earlyIds])].filter((id: unknown): id is string => typeof id === 'string').sort() : []
       const changed = !member.exists() || member.data()?.active !== true ||
         member.data()?.role !== previous[0]?.role ||
         JSON.stringify(ids) !== JSON.stringify(previous.map((child) => child.childId).sort())
+        || previous.some((child) => (child.learningMode === 'early-development') !== earlyIds.includes(child.childId))
       if (!changed) {
         return
       }
@@ -356,7 +360,7 @@ export function PersonalEntry({ initialLink }: { initialLink?: string }) {
     const available = profile.children.filter((child) => child.role === 'student' && child.dashboardToken)
     const child = available.find((item) => `${item.familyId}/${item.childId}` === selectedChild) ?? available[0]
     return <div className="personal-entry">
-      {parent ? <ParentHome profile={profile} /> : <>
+      {earlyTarget ? (() => { const earlyChild = profile.children.find((item) => item.familyId === earlyTarget.familyId && item.childId === earlyTarget.childId && item.role === 'parent' && item.learningMode === 'early-development'); return earlyChild && verifiedSession === session ? <EarlyDevelopmentPage key={`${earlyChild.familyId}/${earlyChild.childId}`} child={earlyChild} /> : <p role="status">{verifiedSession === session ? 'Раздел доступен родителю подключённого ребёнка. Вернитесь в свой профиль.' : 'Подтверждаем доступ родителя…'}</p> })() : parent ? <ParentHome profile={profile} /> : <>
         {available.length > 1 && <nav className="personal-child-picker" aria-label="Выбрать ребёнка">{available.map((item) => <Button key={`${item.familyId}/${item.childId}`} type="button" variant={item === child ? 'default' : 'outline'} onClick={() => setSelectedChild(`${item.familyId}/${item.childId}`)}>{item.displayName}</Button>)}</nav>}
         {child?.dashboardToken ? <DayDashboard key={child.dashboardToken} token={child.dashboardToken} parent={false} />
           : <Card><CardContent className="py-8">Dashboard для этого профиля ещё не опубликован.</CardContent></Card>}

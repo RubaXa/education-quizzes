@@ -418,6 +418,33 @@
       "path": "docs/decisions/audio-speed-controls-2026-10-22.md"
     },
     {
+      "id": "decision.audio-stable-controls-2026-10-22",
+      "status": "accepted",
+      "implementation": "partial",
+      "parent": "module.materials.audio-library",
+      "uses": [
+        "decision.audio-speed-controls-2026-10-22",
+        "decision.audio-player-visible-2026-10-22",
+        "decision.audio-duration-unknown-2026-10-22",
+        "shared.design.ui-kit"
+      ],
+      "created": "2026-10-22",
+      "updated": "2026-10-22",
+      "consumers": [
+        "developer",
+        "release operator"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/audio-stable-controls-2026-10-22.md"
+    },
+    {
       "id": "decision.authenticated-learning-routes-2026-10-18",
       "status": "accepted",
       "implementation": "not-applicable",
@@ -720,6 +747,30 @@
         "согласование"
       ],
       "path": "docs/decisions/documentation-precommit-2026-10-16.md"
+    },
+    {
+      "id": "decision.early-development-live-2026-10-22",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-10-22",
+      "updated": "2026-10-22",
+      "parent": "module.families.early-development",
+      "uses": [
+        "product.ui-change-control"
+      ],
+      "consumers": [
+        "Родитель",
+        "Разработчик и publisher Education"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/early-development-live-2026-10-22.md"
     },
     {
       "id": "decision.early-development-preview-2026-10-22",
@@ -3677,6 +3728,20 @@
       "consumer": "Разработчик; npm check:spec"
     },
     {
+      "id": "file:early-development/program.d.mts",
+      "path": "early-development/program.d.mts",
+      "kind": "artifact",
+      "purpose": "Родительская программа, облачный журнал, права и проверки",
+      "consumer": "Родитель; CLI; Vitest"
+    },
+    {
+      "id": "file:early-development/program.mjs",
+      "path": "early-development/program.mjs",
+      "kind": "artifact",
+      "purpose": "Родительская программа, облачный журнал, права и проверки",
+      "consumer": "Родитель; CLI; Vitest"
+    },
+    {
       "id": "file:firebase.json",
       "path": "firebase.json",
       "kind": "artifact",
@@ -4587,6 +4652,13 @@
       "consumer": "Разработчик; агент"
     },
     {
+      "id": "file:rules-test-fixtures/early-development-suite.mjs",
+      "path": "rules-test-fixtures/early-development-suite.mjs",
+      "kind": "artifact",
+      "purpose": "Родительская программа, облачный журнал, права и проверки",
+      "consumer": "Родитель; CLI; Vitest"
+    },
+    {
       "id": "file:rules-test-fixtures/photo-upload-suite.mjs",
       "path": "rules-test-fixtures/photo-upload-suite.mjs",
       "kind": "artifact",
@@ -4690,6 +4762,20 @@
       "kind": "verification",
       "purpose": "Проверки снимка Git index и ошибок документов",
       "consumer": "Валидатор документации"
+    },
+    {
+      "id": "file:scripts/check-early-live.mjs",
+      "path": "scripts/check-early-live.mjs",
+      "kind": "artifact",
+      "purpose": "Родительская программа, облачный журнал, права и проверки",
+      "consumer": "Родитель; CLI; Vitest"
+    },
+    {
+      "id": "file:scripts/check-early-rules.mjs",
+      "path": "scripts/check-early-rules.mjs",
+      "kind": "artifact",
+      "purpose": "Родительская программа, облачный журнал, права и проверки",
+      "consumer": "Родитель; CLI; Vitest"
     },
     {
       "id": "file:scripts/check-material-preview-viewport.mjs",
@@ -4998,6 +5084,20 @@
       "kind": "artifact",
       "purpose": "Совместимая операторская оболочка общего Google Firestore/ADC factory для старых CLI вызывающих сторон",
       "consumer": "`family.mjs`; `connect.mjs`; operator CLI"
+    },
+    {
+      "id": "file:scripts/lib/early-development.mjs",
+      "path": "scripts/lib/early-development.mjs",
+      "kind": "artifact",
+      "purpose": "Родительская программа, облачный журнал, права и проверки",
+      "consumer": "Родитель; CLI; Vitest"
+    },
+    {
+      "id": "file:scripts/lib/early-development.test.mjs",
+      "path": "scripts/lib/early-development.test.mjs",
+      "kind": "verification",
+      "purpose": "Родительская программа, облачный журнал, права и проверки",
+      "consumer": "Родитель; CLI; Vitest"
     },
     {
       "id": "file:scripts/lib/inspect-family-access.mjs",
@@ -5332,7 +5432,7 @@
       "id": "file:src/components/AudioPlayer.tsx",
       "path": "src/components/AudioPlayer.tsx",
       "kind": "artifact",
-      "purpose": "Общий ленивый плеер, ошибки, повтор и скорость",
+      "purpose": "Постоянная панель, один Play, видимая скорость, seek/volume и повтор",
       "consumer": "ДЗ; библиотека; UI Kit"
     },
     {
@@ -5409,8 +5509,15 @@
       "id": "file:src/components/EarlyDevelopment.tsx",
       "path": "src/components/EarlyDevelopment.tsx",
       "kind": "artifact",
-      "purpose": "Программа первых недель, инструкция, дневник и редактирование в dev-only прототипе",
+      "purpose": "Программа по возрасту, инструкция, дневник и редактирование",
       "consumer": "Родитель; разработчик; Vitest"
+    },
+    {
+      "id": "file:src/components/EarlyDevelopmentPage.tsx",
+      "path": "src/components/EarlyDevelopmentPage.tsx",
+      "kind": "artifact",
+      "purpose": "Родительская программа, облачный журнал, права и проверки",
+      "consumer": "Родитель; CLI; Vitest"
     },
     {
       "id": "file:src/components/EducationImage.css",
@@ -5628,6 +5735,13 @@
       "kind": "artifact",
       "purpose": "Компактные раскрываемые строки детей и отдельные карточки семьи",
       "consumer": "`ParentHome.tsx`"
+    },
+    {
+      "id": "file:src/components/ParentHome.early.test.tsx",
+      "path": "src/components/ParentHome.early.test.tsx",
+      "kind": "verification",
+      "purpose": "Родительская программа, облачный журнал, права и проверки",
+      "consumer": "Родитель; CLI; Vitest"
     },
     {
       "id": "file:src/components/ParentHome.readBudget.test.tsx",
@@ -6312,8 +6426,22 @@
       "id": "file:src/lib/earlyDevelopment.ts",
       "path": "src/lib/earlyDevelopment.ts",
       "kind": "artifact",
-      "purpose": "Версия идей первых недель и локальный журнал наблюдений без оценки",
+      "purpose": "Выбор возрастного этапа, наблюдения без оценки и отдельный preview-журнал",
       "consumer": "Родитель; разработчик; Vitest"
+    },
+    {
+      "id": "file:src/lib/earlyDevelopmentStore.test.ts",
+      "path": "src/lib/earlyDevelopmentStore.test.ts",
+      "kind": "verification",
+      "purpose": "Родительская программа, облачный журнал, права и проверки",
+      "consumer": "Родитель; CLI; Vitest"
+    },
+    {
+      "id": "file:src/lib/earlyDevelopmentStore.ts",
+      "path": "src/lib/earlyDevelopmentStore.ts",
+      "kind": "artifact",
+      "purpose": "Родительская программа, облачный журнал, права и проверки",
+      "consumer": "Родитель; CLI; Vitest"
     },
     {
       "id": "file:src/lib/educationEventProducer.ts",
@@ -7838,7 +7966,7 @@
     },
     {
       "id": "module.families.early-development",
-      "status": "draft",
+      "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-22",
       "updated": "2026-10-22",
@@ -7855,7 +7983,24 @@
         "src/App.tsx",
         "src/components/EarlyDevelopment.tsx",
         "src/components/EarlyDevelopment.css",
-        "src/lib/earlyDevelopment.ts"
+        "src/lib/earlyDevelopment.ts",
+        "early-development/program.mjs",
+        "early-development/program.d.mts",
+        "src/components/EarlyDevelopmentPage.tsx",
+        "src/lib/earlyDevelopmentStore.ts",
+        "scripts/lib/early-development.mjs",
+        "scripts/check-early-rules.mjs",
+        "scripts/check-early-live.mjs",
+        "rules-test-fixtures/early-development-suite.mjs",
+        "src/components/PersonalEntry.tsx",
+        "src/components/ParentHome.tsx",
+        "src/components/FamilyAccessCards.tsx",
+        "src/lib/personalAccess.ts",
+        "src/lib/familyLibrary.ts",
+        "scripts/family.mjs",
+        "sync/project-plan.mjs",
+        "packages/education-runtime/identity.mjs",
+        "firestore.rules"
       ],
       "sections": [
         "scope",
@@ -11156,6 +11301,26 @@
       "type": "uses"
     },
     {
+      "from": "decision.audio-stable-controls-2026-10-22",
+      "to": "decision.audio-duration-unknown-2026-10-22",
+      "type": "uses"
+    },
+    {
+      "from": "decision.audio-stable-controls-2026-10-22",
+      "to": "decision.audio-player-visible-2026-10-22",
+      "type": "uses"
+    },
+    {
+      "from": "decision.audio-stable-controls-2026-10-22",
+      "to": "decision.audio-speed-controls-2026-10-22",
+      "type": "uses"
+    },
+    {
+      "from": "decision.audio-stable-controls-2026-10-22",
+      "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
       "from": "decision.authenticated-learning-routes-2026-10-18",
       "to": "module.reviews.problem-card-design-decisions",
       "type": "uses"
@@ -11238,6 +11403,11 @@
     {
       "from": "decision.documentation-precommit",
       "to": "shared.specification-system",
+      "type": "uses"
+    },
+    {
+      "from": "decision.early-development-live-2026-10-22",
+      "to": "product.ui-change-control",
       "type": "uses"
     },
     {
@@ -12326,6 +12496,16 @@
       "type": "implements"
     },
     {
+      "from": "file:early-development/program.d.mts",
+      "to": "module.families.early-development",
+      "type": "implements"
+    },
+    {
+      "from": "file:early-development/program.mjs",
+      "to": "module.families.early-development",
+      "type": "implements"
+    },
+    {
       "from": "file:firebase.json",
       "to": "module.families",
       "type": "implements"
@@ -12338,6 +12518,11 @@
     {
       "from": "file:firestore.rules",
       "to": "decision.released-stage-parity-2026-10-20",
+      "type": "implements"
+    },
+    {
+      "from": "file:firestore.rules",
+      "to": "module.families.early-development",
       "type": "implements"
     },
     {
@@ -12498,6 +12683,11 @@
     {
       "from": "file:packages/education-runtime/firestore.mjs",
       "to": "shared.server-runtime",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-runtime/identity.mjs",
+      "to": "module.families.early-development",
       "type": "implements"
     },
     {
@@ -12841,6 +13031,11 @@
       "type": "implements"
     },
     {
+      "from": "file:rules-test-fixtures/early-development-suite.mjs",
+      "to": "module.families.early-development",
+      "type": "implements"
+    },
+    {
       "from": "file:rules-test-fixtures/photo-upload-suite.mjs",
       "to": "decision.photo-upload-authorization-and-freshness-2026-10-20",
       "type": "implements"
@@ -12913,6 +13108,16 @@
     {
       "from": "file:scripts/check-docs.mjs",
       "to": "shared.specification-system",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/check-early-live.mjs",
+      "to": "module.families.early-development",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/check-early-rules.mjs",
+      "to": "module.families.early-development",
       "type": "implements"
     },
     {
@@ -13232,6 +13437,11 @@
     },
     {
       "from": "file:scripts/family.mjs",
+      "to": "module.families.early-development",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/family.mjs",
       "to": "module.families",
       "type": "implements"
     },
@@ -13308,6 +13518,11 @@
     {
       "from": "file:scripts/lib/admin-firebase.mjs",
       "to": "shared.server-runtime",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/lib/early-development.mjs",
+      "to": "module.families.early-development",
       "type": "implements"
     },
     {
@@ -13791,6 +14006,11 @@
       "type": "implements"
     },
     {
+      "from": "file:src/components/EarlyDevelopmentPage.tsx",
+      "to": "module.families.early-development",
+      "type": "implements"
+    },
+    {
       "from": "file:src/components/EducationImage.css",
       "to": "shared.design.statuses",
       "type": "implements"
@@ -13808,6 +14028,11 @@
     {
       "from": "file:src/components/EducationScreen.tsx",
       "to": "module.synchronization.backend-driven-ui",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/FamilyAccessCards.tsx",
+      "to": "module.families.early-development",
       "type": "implements"
     },
     {
@@ -14052,6 +14277,11 @@
     },
     {
       "from": "file:src/components/ParentHome.tsx",
+      "to": "module.families.early-development",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ParentHome.tsx",
       "to": "module.families",
       "type": "implements"
     },
@@ -14173,6 +14403,11 @@
     {
       "from": "file:src/components/PersonalEntry.tsx",
       "to": "module.families.access-and-state",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/PersonalEntry.tsx",
+      "to": "module.families.early-development",
       "type": "implements"
     },
     {
@@ -15031,6 +15266,11 @@
       "type": "implements"
     },
     {
+      "from": "file:src/lib/earlyDevelopmentStore.ts",
+      "to": "module.families.early-development",
+      "type": "implements"
+    },
+    {
       "from": "file:src/lib/educationEventProducer.ts",
       "to": "module.synchronization.event-queue",
       "type": "implements"
@@ -15068,6 +15308,11 @@
     {
       "from": "file:src/lib/familyBookUpload.ts",
       "to": "module.materials.family-library",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/familyLibrary.ts",
+      "to": "module.families.early-development",
       "type": "implements"
     },
     {
@@ -15208,6 +15453,11 @@
     {
       "from": "file:src/lib/personalAccess.ts",
       "to": "decisions.personal-identity-transition-2026-10-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/personalAccess.ts",
+      "to": "module.families.early-development",
       "type": "implements"
     },
     {
@@ -15842,6 +16092,11 @@
     },
     {
       "from": "file:sync/project-plan.mjs",
+      "to": "module.families.early-development",
+      "type": "implements"
+    },
+    {
+      "from": "file:sync/project-plan.mjs",
       "to": "module.synchronization.global-sync",
       "type": "implements"
     },
@@ -16257,8 +16512,18 @@
     },
     {
       "from": "module.families.early-development",
+      "to": "decision.early-development-live-2026-10-22",
+      "type": "contains"
+    },
+    {
+      "from": "module.families.early-development",
       "to": "decision.early-development-preview-2026-10-22",
       "type": "contains"
+    },
+    {
+      "from": "module.families.early-development",
+      "to": "file:scripts/lib/early-development.test.mjs",
+      "type": "verified-by"
     },
     {
       "from": "module.families.early-development",
@@ -16267,7 +16532,17 @@
     },
     {
       "from": "module.families.early-development",
+      "to": "file:src/components/ParentHome.early.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.families.early-development",
       "to": "file:src/lib/earlyDevelopment.test.ts",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.families.early-development",
+      "to": "file:src/lib/earlyDevelopmentStore.test.ts",
       "type": "verified-by"
     },
     {
@@ -16373,6 +16648,11 @@
     {
       "from": "module.materials.audio-library",
       "to": "decision.audio-speed-controls-2026-10-22",
+      "type": "contains"
+    },
+    {
+      "from": "module.materials.audio-library",
+      "to": "decision.audio-stable-controls-2026-10-22",
       "type": "contains"
     },
     {

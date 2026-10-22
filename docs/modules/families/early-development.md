@@ -1,6 +1,6 @@
 ---
 id: module.families.early-development
-status: draft
+status: accepted
 implementation: partial
 created: 2026-10-22
 updated: 2026-10-22
@@ -16,6 +16,23 @@ code:
   - src/components/EarlyDevelopment.tsx
   - src/components/EarlyDevelopment.css
   - src/lib/earlyDevelopment.ts
+  - early-development/program.mjs
+  - early-development/program.d.mts
+  - src/components/EarlyDevelopmentPage.tsx
+  - src/lib/earlyDevelopmentStore.ts
+  - scripts/lib/early-development.mjs
+  - scripts/check-early-rules.mjs
+  - scripts/check-early-live.mjs
+  - rules-test-fixtures/early-development-suite.mjs
+  - src/components/PersonalEntry.tsx
+  - src/components/ParentHome.tsx
+  - src/components/FamilyAccessCards.tsx
+  - src/lib/personalAccess.ts
+  - src/lib/familyLibrary.ts
+  - scripts/family.mjs
+  - sync/project-plan.mjs
+  - packages/education-runtime/identity.mjs
+  - firestore.rules
 sections:
   - scope
   - daily-flow
@@ -70,9 +87,9 @@ adult actor/target contract; существующую ученическую л�
 
 ## Владение и целевая интеграция {#ownership}
 
-Будущая модель: canonical child сохраняет ID и явный learningMode; membership.role
+Модель: canonical child сохраняет ID и явный learningMode; membership.role
 по-прежнему отвечает за доступ, а не стадию развития. Возрастные рекомендации требуют
-подтверждённой даты рождения; при неизвестной дате предлагается выбор этапа без догадок.
+подтверждённой даты рождения; при неизвестной дате показывается просьба проверить профиль без догадок.
 При недоношенности пригодность возрастного плана уточняется отдельно; медицинские
 данные не собираются и не сохраняются без согласия.
 Программа имеет версию, границы возраста, provenance и ограничения применимости.
@@ -85,17 +102,49 @@ adult actor/target contract; существующую ученическую л�
 Rules с проверкой родителя, изоляция семей, read-registry, серверный readback и cold/warm
 проверки смешанной семьи. Нельзя просто включить прежнюю школьную запись младенца.
 
+Дополнение к live-контракту22.10: родитель утвердил показанный сценарий и прямо разрешил
+GitHub и публикацию. В membership `earlyChildIds` хранится отдельный родительский scope:
+старые клиенты его не отображают как школьника. `childIds` остаётся школьной совместимостью.
+Для раннего ребёнка canonical `learningMode=early-development`; источник возраста и
+полная версия содержания находятся в закрытом `earlyDevelopment/current`.
+`earlyObservations/{id}` — текущее состояние; `history/{revisionId}` — неизменяемые
+ревизии, записанные атомарно с ним. Удаление мягкое, с восстановлением из интерфейса.
+Только авторизованный родитель раннего ребёнка читает/пишет журнал. Изменение сверяет
+revision, сохраняет автора, время создания, activity/version и предыдущую историю;
+конфликт не перезаписывает чужую запись. Два listener только на открытом разделе
+(план и последние200наблюдений); по кнопке в дневнике можно увеличить окно. До серверного подтверждения плана закрытые данные не показываются.
+Повторный запуск сверяет не только IDs, но и ранний scope с режимом кэшированного профиля; старые школьные shortcuts раннего ребёнка не используются. Отзыв membership/сессии закрывает экран; отдельный localStorage-кэш заметок не создаётся.
+Новый ребёнок исключён из МЭШ и требований школьных книг по явному режиму.
+
 ## Реализация и проверки {#implementation}
 
-Сейчас реализован dev-only прототип `#/early-preview` внутри существующей оболочки.
-Профиль условный:7дней. Готовы3идеи первых недель, мини-урок взрослому, локальный дневник,
-редактирование/удаление и восстановление после reload. Это не облачный дневник:
-заметки остаются в localStorage этого origin; ошибка сохранения явно видна.
-В production маршрут отсутствует, lazy-модуль исключается сборкой. Семейные документы не изменяются.
-Периоды1месяц→школа пока обозначены как план содержания; готовой многолетней программы нет.
-Лицензированные скрининги, учебные тесты взрослого, облачная запись, совместный доступ и
-индивидуальный подбор ещё не реализованы. Выпуск не выполнен.
+Реализован общий родительский экран `#/early/{familyId}/{childId}` внутри Shell,
+после подтверждения сессии через PersonalEntry. ParentHome открывает его непосредственно;
+`earlyChildIds` не попадает в старую школьную карточку и МЭШ-inventory.
+`family enable-early <familyId> <childId> <birthDate> <parentIds>` сохраняет canonical ID,
+деактивирует прежний отдельный student grant, проверяет родительский scope, публикует
+версионную программу и наследует книги семьи с адресным readback. Родительские add/link
+тоже различают ранний scope. Старые школьные данные не удаляются.
 
-Регрессии: `src/lib/earlyDevelopment.test.ts`, `src/components/EarlyDevelopment.test.tsx`.
-Проверки охватывают реакцию без оценки, неизвестность, сохранение/редактирование/ошибку,
-восстановление, мобильную геометрию и отсутствие prototype chunk в production.
+Программа v1 содержит7этапов/21идею: первые недели,1–6,6–9,9–12месяцев,1–2,2–3года,
+3года→школа. Это набор авторских вариантов игры и общения, не клиническая шкала.
+Возраст считается по календарной дате в Europe/Moscow; реакция не меняет возрастной этап.
+Облачная запись сохраняется после серверной транзакции. Ошибка сохраняет текст формы;
+конфликт revisions просит открыть обновлённую запись. Поле observedAt — Firestore Timestamp,
+в UI ISO-дата/время МСК. Полная версия содержания хранится в закрытом плане, название
+игры и версия сохраняются в самой записи для будущей истории. Есть свободная заметка.
+
+Удаление мягкое; «Удалённые записи → Восстановить» создаёт следующую ревизию. История
+не перезаписывается. Дневник не импортирует localStorage прототипа. Прототип с условным
+профилем по-прежнему доступен только при DEV. Отдельного browser-cache дневника нет;
+облачный экран требует подтверждения сервера. Полноценное редактирование без сети,
+медицинский скрининг и формальные учебные тесты взрослого не входят в эту версию.
+
+Регрессии: earlyDevelopment/earlyDevelopmentStore, ParentHome.early, personalAccess.readBudget,
+familyLibrary.access, scripts/lib/early-development, sync/project-plan. Rules проверяются
+через `node scripts/check-early-rules.mjs` (Google :test, синтетические mocks) и после
+публикации `node scripts/check-early-live.mjs` (изолированная реальная Firebase семья,
+две сессии родителя, ученик/чужая семья, CRUD/history/revocation; cleanup). Java/emulator
+не установлен, поэтому результаты :test не называются эмуляторной проверкой.
+Разрешение Google/Firebase отдельно подтверждено родителем22.10.
+Deployment и подключение реальной семьи подтверждаются только отдельными receipts.

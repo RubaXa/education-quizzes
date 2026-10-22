@@ -1,5 +1,6 @@
 
 /**
+ * @see ../../docs/modules/families/early-development.md
  * @see ../../docs/decisions/local-first-role-recovery-2026-10-18.md
  * @see ../../docs/shared/access-and-privacy.md
  * @see ../../docs/decisions/personal-identity-transition-2026-10-18.md
@@ -20,6 +21,7 @@ export type PersonalChild = {
   childId: string
   displayName: string
   role: 'parent' | 'student'
+  learningMode?: 'school' | 'early-development'
   dashboardToken?: string
   dayToken?: string
   dashboardTokens?: { student?: string; parent?: string }
@@ -420,7 +422,7 @@ export async function loadPersonalProfile(session: PersonalSession): Promise<Per
       const familyId = family.id
       const member = await getDoc(doc(db, 'families', familyId, 'members', session.personId))
       const role = member.data()?.role
-      const childIds = member.data()?.childIds
+      const childIds = Array.isArray(member.data()?.childIds) ? [...new Set([...member.data()!.childIds, ...(role === 'parent' && Array.isArray(member.data()?.earlyChildIds) ? member.data()!.earlyChildIds : [])])] : undefined
       traceAccessContext('access.resolved', { atFunction: 'loadPersonalProfile', previousState: 'loading', state: 'resolved', source: member.metadata?.fromCache === false ? 'member-server' : 'member-cache', fromCache: member.metadata?.fromCache, role, active: member.data()?.active === true,
         count: Array.isArray(childIds) ? childIds.length : 0, reason: member.exists() && member.data()?.active === true ? 'member-valid' : 'member-invalid' }, { ...session, familyId })
       if (!member.exists() || member.data()?.active !== true ||
@@ -431,14 +433,17 @@ export async function loadPersonalProfile(session: PersonalSession): Promise<Per
           getDoc(doc(db, 'families', familyId, 'children', childId)),
           getDoc(doc(db, 'users', session.personId, 'families', familyId, 'shortcuts', childId)),
         ])
-        if (!child.exists()) continue
+        if (!child.exists() || child.data().active === false) continue
+        if (child.data().learningMode === 'early-development' && (role !== 'parent' || !member.data()?.earlyChildIds?.includes(childId))) continue
+        const shortcutData = child.data().learningMode === 'early-development' ? {} : shortcut.data()
         children.push({
           familyId, childId, role,
+          ...(child.data().learningMode === 'early-development' ? { learningMode: 'early-development' as const } : {}),
           displayName: typeof child.data().displayName === 'string' ? child.data().displayName : 'Ученик',
-          dashboardToken: typeof shortcut.data()?.dashboardToken === 'string' ? shortcut.data()?.dashboardToken : undefined,
-          dayToken: typeof shortcut.data()?.dayToken === 'string' ? shortcut.data()?.dayToken : undefined,
-          ...(shortcut.data()?.dashboardTokens ? { dashboardTokens: shortcut.data()?.dashboardTokens } : {}),
-          ...(shortcut.data()?.dayTokens ? { dayTokens: shortcut.data()?.dayTokens } : {}),
+          dashboardToken: typeof shortcutData?.dashboardToken === 'string' ? shortcutData?.dashboardToken : undefined,
+          dayToken: typeof shortcutData?.dayToken === 'string' ? shortcutData?.dayToken : undefined,
+          ...(shortcutData?.dashboardTokens ? { dashboardTokens: shortcutData?.dashboardTokens } : {}),
+          ...(shortcutData?.dayTokens ? { dayTokens: shortcutData?.dayTokens } : {}),
         })
       }
     }

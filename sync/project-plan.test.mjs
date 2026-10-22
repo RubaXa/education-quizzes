@@ -21,6 +21,9 @@ describe('global project inventory', () => {
     expect(targets[0].sourceAccountId).toBe(targets[1].sourceAccountId)
     expect(targets[2].reason).toBe('source-account-required')
   })
+  it('does not enroll an early child in the school source inventory', () => {
+    expect(projectTargets({ ...input, children: [...input.children, { familyId: 'family-1', id: 'baby', learningMode: 'early-development', active: true }] })).toEqual(projectTargets(input))
+  })
   it('does not accept duplicate source identities', () => {
     expect(() => projectTargets({ ...input, identities: [...input.identities, input.identities[0]] })).toThrow(/несколько/)
   })

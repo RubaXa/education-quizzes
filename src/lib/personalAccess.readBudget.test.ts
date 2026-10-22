@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 // @see ../../docs/plans/local-first-release-plan-2026-10-12.md#startup-regression-contract
 
-const probe = vi.hoisted(() => ({ delivered: 0, requests: [] as string[], grantGate: null as Promise<void> | null }))
+const probe = vi.hoisted(() => ({ delivered: 0, requests: [] as string[], early: false, grantGate: null as Promise<void> | null }))
 vi.mock('./firebase', () => ({ db: {} }))
 vi.mock('firebase/auth', () => ({
   getAuth: () => ({ currentUser: { uid: 'device' }, authStateReady: async () => {} }),
@@ -18,7 +18,9 @@ vi.mock('firebase/firestore', () => {
       if (ref.path === 'deviceSessions/device') return data({ linkToken: 'a'.repeat(43) })
       if (ref.path.startsWith('accessLinks/')) { if (probe.grantGate) await probe.grantGate; return data({ active: true, personId: 'person' }) }
       if (ref.path === 'users/person') return data({ displayName: 'Взрослый' })
-      if (ref.path === 'families/family/members/person') return data({ active: true, role: 'parent', childIds: ['child'] })
+      if (ref.path === 'families/family/members/person') return data({ active: true, role: 'parent', childIds: ['child'], ...(probe.early ? { earlyChildIds: ['baby'] } : {}) })
+      if (ref.path === 'families/family/children/baby') return data({ displayName: 'Малыш', learningMode: 'early-development', active: true })
+      if (ref.path === 'users/person/families/family/shortcuts/baby') return data({ dashboardToken: 'stale-school-board' })
       if (ref.path === 'families/family/children/child') return data({ displayName: 'Ученик' })
       if (ref.path === 'users/person/families/family/shortcuts/child') return data({ dashboardToken: 'dashboard' })
       throw new Error(`Unexpected path ${ref.path}`)
@@ -34,7 +36,7 @@ vi.mock('firebase/firestore', () => {
   }
 })
 
-import { clearPersonalSession, dayHelpSessionRole, readCachedPersonalContext, readLastPersonalDashboardRoute, rememberPersonalContext, rememberPersonalDashboardRoute, restorePersonalContext } from './personalAccess'
+import { clearPersonalSession, dayHelpSessionRole, readCachedPersonalContext, readLastPersonalDashboardRoute, rememberPersonalContext, rememberPersonalDashboardRoute, restorePersonalContext, loadPersonalProfile } from './personalAccess'
 
 const storage = new Map<string, string>()
 vi.stubGlobal('localStorage', {
@@ -43,7 +45,7 @@ vi.stubGlobal('localStorage', {
   removeItem: (key: string) => { storage.delete(key) },
 })
 
-beforeEach(() => { clearPersonalSession(); storage.clear(); probe.delivered = 0; probe.requests.length = 0; probe.grantGate = null })
+beforeEach(() => { clearPersonalSession(); storage.clear(); probe.delivered = 0; probe.requests.length = 0; probe.grantGate = null; probe.early = false })
 
 describe('personal cold start — no saved profile', () => {
   it('delivers one profile graph to two simultaneous consumers', async () => {
@@ -117,4 +119,12 @@ describe('personal warm start — saved profile and route', () => {
     storage.set('education-personal-context-v1', '{broken')
     expect(readCachedPersonalContext()).toBeNull()
   })
+})
+
+it('loads a mixed parent profile from separate early scope without a newborn calendar or student identity', async () => {
+  probe.early = true
+  const profile = await loadPersonalProfile({ personId: 'person', deviceUid: 'device', linkToken: 'a'.repeat(43) })
+  expect(profile.children).toHaveLength(2)
+  expect(profile.children.find((child) => child.childId === 'baby')).toMatchObject({ learningMode: 'early-development', role: 'parent', displayName: 'Малыш' })
+  expect(profile.children.find((child) => child.childId === 'baby')?.dashboardToken).toBeUndefined()
 })
