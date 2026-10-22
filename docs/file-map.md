@@ -433,7 +433,9 @@
 | [public/icons/education-512.png](../public/icons/education-512.png) | [PWA](product/pwa.md) | Иконка приложения 512 px | Браузер |
 | [public/icons/education.svg](../public/icons/education.svg) | [PWA](product/pwa.md) | Векторный знак Education | Браузер; PWA |
 | [public/manifest.webmanifest](../public/manifest.webmanifest) | [PWA](product/pwa.md) | Имя, иконки и режим установки | Браузер |
-| [pwa/sw-template.js](../pwa/sw-template.js) | [PWA](product/pwa.md) | Шаблон офлайн-кэша | Генератор service worker |
+| [pwa/sw-template.js](../pwa/sw-template.js) | [PWA](product/pwa.md) | Версионированная оболочка, ограничение сбоев кеша/сети и аварийный HTML с повтором | Генератор service worker; установленное приложение |
+| [pwa/sw-template.test.mjs](../pwa/sw-template.test.mjs) | [PWA](product/pwa.md) | Отказы/зависания CacheStorage и сети, текущая версия, приватность и предел повтора | Vitest; выпуск |
+| [docs/decisions/pwa-startup-recovery-2026-10-22.md](decisions/pwa-startup-recovery-2026-10-22.md) | [PWA](product/pwa.md) | Основание защиты запуска и граница нативного экрана WebKit | Разработчик; оператор; приёмка iPhone |
 | [scripts/access-management.mjs](../scripts/access-management.mjs) | [Семейная модель](modules/families/README.md) | Локальная обработка заявок на детские ссылки и сверка карточек доступа | Оператор; `FamilyAccessCards.tsx` |
 | [scripts/archive-local.mjs](../scripts/archive-local.mjs) | [Хранение и приватность](modules/materials/storage-privacy.md) | Перенос локального архива на Диск | Оператор архива |
 | [scripts/audit-family-links.mjs](../scripts/audit-family-links.mjs) | [Семейная модель](modules/families/README.md) | Сверка семейных профилей, личных ссылок, МЭШ и старых календарных связей без записи | Оператор после изменения доступа |
