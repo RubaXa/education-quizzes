@@ -6088,6 +6088,20 @@
         "status": "direct-request",
         "evidence": "Родитель22.10.2026 прямо поручил разработать отдельный раздел с рождения до школы с программой, дневником наблюдений и помощью взрослым. Локальный dev-only прототип подготовлен для просмотра; выпуск не заявлен."
       }
+    },
+    "pwa/sw-template.js": {
+      "sha256": "8a47c5f0cfcf1dec8ac187e2def0543fe3ede150e34b26d60a865fd829e6b243",
+      "record": "docs/decisions/pwa-startup-recovery-2026-10-22.md",
+      "specs": [
+        "docs/product/pwa.md"
+      ],
+      "tests": [
+        "pwa/sw-template.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь22.10.2026 сообщил о повторном сбое WebKit при запуске Education с домашней иконки iPhone и попросил исследовать исправление, автоматическую загрузку или кнопку обновления."
+      }
     }
   }
 }
