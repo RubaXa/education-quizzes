@@ -16,7 +16,7 @@ async function observe() {
   await act(async () => host.querySelector<HTMLInputElement>('input[value="Отвернулась"]')!.click())
   await act(async () => host.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })))
 }
-beforeEach(async () => { localStorage.clear(); host = document.createElement('div'); document.body.append(host); await mount() })
+beforeEach(async () => { vi.spyOn(window, 'scrollTo').mockImplementation(() => {}); localStorage.clear(); host = document.createElement('div'); document.body.append(host); await mount() })
 afterEach(async () => { await act(async () => root.unmount()); host.remove(); vi.restoreAllMocks() })
 describe('parent early development preview', () => {
   it('completes the daily path, survives reload and edits the same observation', async () => {

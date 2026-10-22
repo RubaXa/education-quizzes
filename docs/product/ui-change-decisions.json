@@ -6050,7 +6050,7 @@
       }
     },
     "src/components/EarlyDevelopment.tsx": {
-      "sha256": "1bbaa905a19719a931938052a49352d6b260e13fe3e19024a73ce96335aba2da",
+      "sha256": "c816d25b2dcffc5d78580cd9d84a70dbbd64e7734d293158305ceb04676b6c30",
       "record": "docs/decisions/early-development-live-2026-10-22.md",
       "specs": [
         "docs/modules/families/early-development.md"
