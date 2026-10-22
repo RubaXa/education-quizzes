@@ -72,7 +72,7 @@ export function cdzEvidenceLabel(result?: PlatformResult) {
 export function isCdzTask(task: Pick<DayTask, 'id' | 'kind' | 'meshText' | 'title'>) {
   return isExplicitCdzTask(task)
 }
-export type DayMaterialLink = { title: string; url: string; sourceType: 'textbook-page' | 'teacher-attachment' | 'external-text'; reason?: string; sourceRef?: string; sharedAcrossTasks?: boolean; pdfPage?: number; printedPage?: number; editionStatus?: string; extraction?: string; sourceSha256?: string; sourceQuote?: string }
+export type DayMaterialLink = { title: string; url: string; sourceType: 'textbook-page' | 'teacher-attachment' | 'external-text' | 'audio'; reason?: string; sourceRef?: string; sharedAcrossTasks?: boolean; pdfPage?: number; printedPage?: number | null; editionStatus?: string; extraction?: string; sourceSha256?: string; sourceQuote?: string; collectionId?: string; audioKind?: 'sb' | 'wb' | 'test'; exercise?: string | null; exerciseType?: 'exercise' | 'part'; sourceUrl?: string }
 export type DaySubject = { id: string; name: string; icon: string; materials: string; mesh: string; summary: string; tasks: DayTask[] }
 export type DayTestPlacement = { token: string; subjectId: string; taskId?: string; originDate?: string }
 /** @see ../../docs/modules/families/access-and-state.md#state */

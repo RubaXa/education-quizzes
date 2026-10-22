@@ -545,3 +545,24 @@ describe('day page: teacher sheet and linked self-check', () => {
     } finally { await view.cleanup() }
   })
 })
+
+/** @see ../docs/modules/materials/audio-library.md#assignment */
+it.each([false, true])('keeps an audio-only listening task inside both day and quiz cards, parent=%s', async (parent) => {
+ for (const linkedQuiz of [false, true]) {
+  scene.page = page()
+  sessionStorage.setItem('education-day-initial-tab', 'homework')
+  const task = scene.page.subjects[0].tasks[0]
+  task.problems = undefined; task.practiceVariants = undefined; task.steps = []
+  task.kind = linkedQuiz ? 'check' : 'written'
+  task.testToken = linkedQuiz ? 'diagrams-test' : undefined
+  scene.page.testPlacements = linkedQuiz ? scene.page.testPlacements : []
+  scene.page.materialLinks = { [taskId]: [{ sourceType: 'audio', title: 'Starlight 6 · с. 31, упр. 2a', url: 'https://disk.yandex.ru/d/audio', sourceRef: 'audio:starlight-6-2-09' }] }
+  const view = await renderPage(parent)
+  try {
+   expect(view.host.querySelector('.edu-audio'), `linkedQuiz=${linkedQuiz}, ${view.host.textContent}`).not.toBeNull()
+   expect(view.host.querySelector('.edu-audio button')?.textContent).toContain('Слушать')
+   expect(view.host.querySelector('audio')).toBeNull()
+   expect(view.host.querySelectorAll('a[href="https://disk.yandex.ru/d/audio"]')).toHaveLength(1)
+  } finally { await view.cleanup() }
+ }
+})

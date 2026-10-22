@@ -35,6 +35,9 @@ const validProjectAuditEnvelope = (parsed, runId) => parsed?.runId === runId && 
 const publicSummary = (operation, value, expectedRunId = null) => {
   const parsed = parseJson(value)
   if (!parsed || typeof parsed !== 'object') return { parsed: false }
+  if (operation.startsWith('audio.')) return { collectionId: parsed.collectionId ?? null, tracks: parsed.tracks ?? null,
+    ready: parsed.ready === true, readback: parsed.readback === true, applied: parsed.applied === true,
+    unchanged: parsed.unchanged ?? null, objectsWritten: parsed.objectsWritten ?? null, catalogChanged: parsed.catalogChanged ?? null }
   if (operation === 'project.plan') return { families: parsed.families ?? null, children: parsed.children ?? null,
     sourceAccounts: parsed.sourceAccounts ?? null, syncTargetsQueued: parsed.queued ?? null,
     sourceTargetsBlocked: parsed.blocked ?? null, measurements: parsed.measurements ?? null }
@@ -128,6 +131,9 @@ async function executeOperationInternal(request, { apply = false, root = resolve
       stdoutBytes: Buffer.byteLength(stdout),
       stderrBytes: Buffer.byteLength(stderr) }
     const summary = publicSummary(request.operation, stdout, request.input?.runId)
+    if (apply && ['audio.sync', 'audio.link'].includes(request.operation) && summary.readback !== true) {
+      throw new Error('Audio publication did not confirm addressable readback.')
+    }
     if (request.operation === 'quiz.publish' && summary.readback !== true) {
       throw new Error('Quiz publication did not return a read-back testId.')
     }

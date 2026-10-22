@@ -63,7 +63,7 @@ it('demonstrates one attachment and read-only references using the real shared c
 it('preserves grouped navigation and the shared grade average simulator',async()=>{
  document.body.append(host);root=createRoot(host);await act(async()=>root!.render(<UiKit/>))
  expect([...host.querySelectorAll('nav small')].map(node=>node.textContent)).toEqual(['Основы','Компоненты','Составные сценарии'])
- expect(host.querySelectorAll('nav button')).toHaveLength(10)
+ expect(host.querySelectorAll('nav button')).toHaveLength(11)
  await act(async()=>[...host.querySelectorAll<HTMLButtonElement>('nav button')].find(button=>button.textContent==='Средний балл')!.click())
  const range=host.querySelector<HTMLInputElement>('input[type="range"]')!
  expect([range.min,range.max,range.step]).toEqual(['200','500','1'])
@@ -172,4 +172,21 @@ it('matches all seven templates through the shared compact digest and keeps cont
  expect(host.querySelector('.edu-telegram-stage')?.querySelectorAll('.edu-telegram-action, a[href]')).toHaveLength(0)
  expect(fetchMock).not.toHaveBeenCalled()
  vi.unstubAllGlobals()
+})
+
+/** @see ../docs/modules/materials/audio-library.md#player */
+it('uses the shared lazy audio player with local media and retry demonstration', async () => {
+ vi.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => {})
+ document.body.append(host);root=createRoot(host);await act(async()=>root!.render(<UiKit/>))
+ await act(async()=>[...host.querySelectorAll<HTMLButtonElement>('nav button')].find(button=>button.textContent==='Аудиоплеер')!.click())
+ expect(host.querySelectorAll('.edu-audio')).toHaveLength(2)
+ expect(host.querySelector('audio')).toBeNull()
+ await act(async()=>host.querySelector<HTMLButtonElement>('.edu-audio button')!.click())
+ expect(host.querySelector('audio')?.src).toMatch(/^data:audio\/wav;base64,/)
+ expect(host.querySelector('audio')?.controls).toBe(true)
+ const players=host.querySelectorAll('.edu-audio')
+ await act(async()=>players[1].querySelector<HTMLButtonElement>('button')!.click())
+ expect(players[1].querySelector('[role="alert"]')).not.toBeNull()
+ expect(players[1].textContent).toContain('Повторить')
+ vi.restoreAllMocks()
 })

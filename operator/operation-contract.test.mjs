@@ -7,6 +7,14 @@ import { operationCatalog, operationCommand, operationFingerprint, validateOpera
 const request = (operation, input = {}) => ({ schemaVersion: 1, operation, input })
 
 describe('stable operator operation contract', () => {
+  it('routes audio through typed operations with write gates and a read-only binding preview', () => {
+    expect(() => operationCommand(request('audio.sync'), false)).toThrow('requires --apply')
+    expect(operationCommand(request('audio.sync', { trackId: 'starlight-6-wb-02', refresh: true }), true)).toEqual({
+      script: 'scripts/audio-library.mjs', argv: ['sync', 'starlight-6-wb-02', '--refresh'],
+    })
+    expect(operationCommand(request('audio.link', { bindingPath: '.local/audio-binding.json' }), false).argv).toEqual(['link', '.local/audio-binding.json'])
+    expect(() => operationCommand(request('audio.sync', { trackId: '../../secret' }), true)).toThrow('invalid input.trackId')
+  })
   it('exposes saved-run publication audit as a typed read operation without apply', () => {
     const runId = '2026-10-21-11111111-1111-4111-8111-111111111111'
     expect(operationCommand(request('project.audit', { runId }), false)).toEqual({

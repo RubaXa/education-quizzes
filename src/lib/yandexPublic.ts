@@ -4,6 +4,44 @@ type PublicResource = { preview?: string; file?: string }
 
 const resources = new Map<string, Promise<PublicResource>>()
 
+/** Resolve on user intent and on every retry; signed links are never persisted.
+ * @see ../../docs/modules/materials/audio-library.md#player */
+export async function publicAudio(value: string, expectedSha256?: string) {
+  const endpoint = new URL('https://cloud-api.yandex.net/v1/disk/public/resources/download')
+  endpoint.searchParams.set('public_key', publicDiskUrl(value))
+  const response = await fetchWithRetry(endpoint, { cache: 'no-store' }, { attempts: 2, timeoutMs: 7_000 })
+  if (!response.ok) throw new Error(`Яндекс.Диск: ${response.status}`)
+  const result = await response.json() as { href?: string }
+  const url = new URL(result.href ?? '')
+  if (url.protocol !== 'https:' || !/(^|\.)(yandex\.(net|ru)|yandexcloud\.net)$/.test(url.hostname)) throw new Error('Диск не вернул аудиозапись.')
+  // Some browser media loaders reject Disk's attachment response. Fetch the
+  // original only on intent and play a bounded, verified in-memory object.
+  const content = await fetch(url, { cache: 'no-store', referrerPolicy: 'no-referrer', signal: AbortSignal.timeout(45_000) })
+  const limit = 30 * 1024 * 1024
+  if (!content.ok || !content.body || Number(content.headers.get('content-length')) > limit) throw new Error('Не удалось получить аудиозапись с Диска.')
+  const reader = content.body.getReader()
+  const parts: Uint8Array<ArrayBuffer>[] = []
+  let length = 0
+  try {
+    for (;;) {
+      const { done, value: chunk } = await reader.read()
+      if (done) break
+      length += chunk.byteLength
+      if (length > limit) throw new Error('Аудиозапись превышает 30 МБ.')
+      parts.push(new Uint8Array(chunk))
+    }
+  } catch (error) { await reader.cancel().catch(() => {}); throw error }
+  finally { reader.releaseLock() }
+  const blob = new Blob(parts, { type: 'audio/mpeg' })
+  const bytes = new Uint8Array(await blob.arrayBuffer())
+  if (!length || !(bytes[0] === 73 && bytes[1] === 68 && bytes[2] === 51 || bytes[0] === 255 && (bytes[1] & 224) === 224)) throw new Error('Диск не вернул MP3.')
+  if (expectedSha256) {
+    const hash = [...new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))].map((byte) => byte.toString(16).padStart(2, '0')).join('')
+    if (hash !== expectedSha256) throw new Error('Аудиозапись не совпадает с библиотекой.')
+  }
+  return URL.createObjectURL(blob)
+}
+
 function publicDiskUrl(value: string) {
   const url = new URL(value)
   if (url.protocol !== 'https:' || !['yadi.sk', 'disk.yandex.ru'].includes(url.hostname)) {

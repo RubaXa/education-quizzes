@@ -23,6 +23,7 @@ import { isSubjectExpanded, visibleGuideTaskIds } from '@/lib/guideReadPolicy'
 import type { DayHelp, DayInstruction, DayMaterialLink, DayPageData, DayProblem, DayTask, ParentTaskPrivate } from '@/lib/dayStore'
 import { dayHelpSessionRole } from '@/lib/personalAccess'
 import { useDayQuizOutcomes } from '@/lib/useDayQuizOutcomes'
+import AudioPlayer from '@/components/AudioPlayer'
 import MaterialReader, { canReadInside } from '@/components/MaterialReader'
 import WorkReview from '@/components/WorkReview'
 import ProblemGroup from '@/components/ProblemGroup'
@@ -60,8 +61,8 @@ type LocalPhoto = { id: string; taskId: string; file: File; previewUrl: string; 
 function QuizLineageCard({ chain, parent, task, materialLinks = [], assignmentLabel, separateAssignment = false, sourceEvidence }: { chain: QuizCardAttempt[]; parent: boolean; task?: DayTask; materialLinks?: DayMaterialLink[]; assignmentLabel?: string; separateAssignment?: boolean; sourceEvidence?: ReactNode }) {
   const context = task?.title.match(/Упр\.\s*\d+/i)?.[0] ?? task?.title ?? 'Самопроверка'
   const readerLinks = materialLinks.filter(canReadInside)
-  const otherLinks = materialLinks.filter((link) => !canReadInside(link))
-  const materials = task && (task.steps?.length || readerLinks.length || otherLinks.length) ? <>{!!task.steps?.length && <ol className="day-task-steps">{task.steps.map((step, index) => <Instruction key={index} item={step} index={index} familyAssigned={Boolean(task.familyOrigin)} />)}</ol>}{groupAdjacentMaterialPages(readerLinks).map((group) => <MaterialReader key={group[0].url} links={group} parent={parent} />)}{otherLinks.map((link) => <a key={link.url} href={link.url} target="_blank" rel="noopener noreferrer">{link.title} <ExternalLink size={13} aria-hidden="true" /></a>)}</> : undefined
+  const otherLinks = materialLinks.filter((link) => !canReadInside(link) && link.sourceType !== 'audio')
+  const materials = task && (task.steps?.length || readerLinks.length || otherLinks.length || materialLinks.some((link) => link.sourceType === 'audio')) ? <>{!!task.steps?.length && <ol className="day-task-steps">{task.steps.map((step, index) => <Instruction key={index} item={step} index={index} familyAssigned={Boolean(task.familyOrigin)} />)}</ol>}{materialLinks.filter((link) => link.sourceType === 'audio').map((link) => <AudioPlayer key={link.sourceRef || link.url} link={link} />)}{groupAdjacentMaterialPages(readerLinks).map((group) => <MaterialReader key={group[0].url} links={group} parent={parent} />)}{otherLinks.map((link) => <a key={link.url} href={link.url} target="_blank" rel="noopener noreferrer">{link.title} <ExternalLink size={13} aria-hidden="true" /></a>)}</> : undefined
   // @see ../docs/modules/school-diary/day-page.md#numbered-sheet-and-quiz
   // A numbered teacher sheet remains its own task beside the linked quiz.
   return <QuizCard chain={chain} parent={parent} context={context} assignment={!separateAssignment && task && <>{assignmentLabel && <div className="day-task-assignment-heading">{assignmentLabel}</div>}<AssignmentBrief task={task} materialLinks={materialLinks} />{sourceEvidence}</>} materials={separateAssignment ? undefined : materials} id={task && !separateAssignment ? `day-task-${task.id}` : `day-quiz-${chain[0].token}`} />
@@ -518,7 +519,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
               const standaloneTest = task.testToken ? tests.find((item) => item.token === task.testToken) : undefined
               if (!task.problems?.length && (task.kind === 'read' || task.kind === 'check') && standaloneTest) return <QuizLineageCard key={task.id} chain={quizChain(standaloneTest, tests)} parent={parent} task={task} materialLinks={taskLinks} assignmentLabel={assignments.multiple ? `Задание ${assignmentIndex + 1} из ${assignments.total}` : undefined} sourceEvidence={sourceEvidence(task)} />
               const readerGroups = groupAdjacentMaterialPages(taskLinks.filter(canReadInside))
-              const otherLinks = taskLinks.filter((link) => !canReadInside(link))
+              const otherLinks = taskLinks.filter((link) => !canReadInside(link) && link.sourceType !== 'audio')
               const needsTextbook = task.materialStatus?.state === 'textbook-page-needed' && !taskLinks.some((link) => link.sourceType === 'textbook-page')
               const needsTeacherAttachment = task.materialStatus?.state === 'teacher-attachment-needed' && !taskLinks.some((link) => link.sourceType === 'teacher-attachment')
               const taskUploads = uploads.filter((upload) => uploadMatchesTask(upload, task.id))
@@ -576,7 +577,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
                 {needsTextbook && <p className="day-material-warning">📖 {task.materialStatus?.message}</p>}
                 {needsTeacherAttachment && <p className="day-material-warning">📎 {task.materialStatus?.message}</p>}
                 {(task.materialStatus?.state === 'text-absent-from-textbook' || task.materialStatus?.state === 'no-textbook') && <p className="day-material-warning">📖 {task.materialStatus.message}</p>}
-                {readerGroups.map((group) => task.problems?.length && group[0].sourceType === 'teacher-attachment'
+                {taskLinks.filter((link) => link.sourceType === 'audio').map((link) => <AudioPlayer key={link.sourceRef || link.url} link={link} />)}{readerGroups.map((group) => task.problems?.length && group[0].sourceType === 'teacher-attachment'
                   ? <details className="day-teacher-sheet" key={group[0].url}><summary><span>▤ &nbsp;Лист учителя</span><span>{group.length} {group.length === 1 ? 'лист' : 'листа'} · открыть ↗</span></summary><AssignmentBrief task={task} materialLinks={taskLinks} compact /><MaterialReader links={group} parent={parent} statement /></details>
                   : <MaterialReader key={group[0].url} links={group} parent={parent} />)}
                 {otherLinks.length > 0 && <div className="day-material-links">{otherLinks.map((material) => <div className="day-material-source" key={material.url}><a href={material.url} target="_blank" rel="noopener noreferrer">{material.sourceType === 'textbook-page' ? 'Страница учебника' : material.sourceType === 'teacher-attachment' ? 'Файл учителя' : material.sourceType === 'external-text' ? 'Внешний текст, не из учебника' : 'Материал'}: {material.title} <ExternalLink size={13} aria-hidden="true" /></a>{material.reason && <small>{material.reason}</small>}{material.sourceQuote && <small>Из учебника: «{material.sourceQuote.trim()}»</small>}{parent && material.sourceRef && <small>{material.sourceRef} · PDF {material.pdfPage} · учебник {material.printedPage}</small>}</div>)}</div>}
