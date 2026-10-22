@@ -16,6 +16,7 @@ export type FamilyBook = {
   bookId: string
   title: string
   status: 'confirmed' | 'provisional'
+  accessScope?: 'family'
   sourceSha256?: string
   catalogSha256?: string
   pdfPageCount?: number
@@ -34,7 +35,7 @@ export type FamilyBookUpload = {
   error?: string
   upload?: { href: string }
 }
-export type BookNeed = { childId: string; childName: string; subject: string; subjectKey: string; state: 'missing' | 'pending' | 'confirmed' | 'review' | 'no-book'; books: FamilyBook[]; uploads: FamilyBookUpload[] }
+export type BookNeed = { childId: string; childName: string; subject: string; subjectKey: string; state: 'missing' | 'pending' | 'confirmed' | 'available' | 'review' | 'no-book'; books: FamilyBook[]; uploads: FamilyBookUpload[] }
 export type BookRequirement = { childId: string; subjectKey: string; policy: 'required' | 'no-book' }
 
 const aliases: Record<string, string> = {
@@ -59,7 +60,8 @@ export function defaultBookPolicy(subject: string): 'required' | 'no-book' | 're
   return 'review'
 }
 
-/** Only a confirmed binding for this child covers a subject; global catalog presence never does. */
+/** Family reading access covers availability; a school's edition selection stays child-specific.
+ * @see ../../docs/modules/materials/family-library.md#family-access */
 export function bookNeeds(children: PersonalChild[], schedules: Record<string, string[]>, books: FamilyBook[], uploads: FamilyBookUpload[], requirements: BookRequirement[] = []): BookNeed[] {
   const result: BookNeed[] = []
   for (const child of children) {
@@ -71,6 +73,7 @@ export function bookNeeds(children: PersonalChild[], schedules: Record<string, s
       const activeUploads = relevantUploads.filter((upload) => upload.status !== 'upload-error')
       const policy = requirements.find((entry) => entry.childId === child.childId && entry.subjectKey === subjectKeyValue)?.policy ?? defaultBookPolicy(subject)
       const state = relevantBooks.some((book) => book.status === 'confirmed') ? 'confirmed'
+        : relevantBooks.length ? 'available'
         : activeUploads.length ? 'pending' : policy === 'required' ? 'missing' : policy === 'no-book' ? 'no-book' : 'review'
       result.push({ childId: child.childId, childName: child.displayName, subject, subjectKey: subjectKeyValue, state, books: relevantBooks, uploads: relevantUploads })
     }
@@ -79,6 +82,16 @@ export function bookNeeds(children: PersonalChild[], schedules: Record<string, s
 }
 
 type LibraryState = { loading: boolean; error: string; observedDays: number; observedSubjects: number; unobservedChildren: string[]; needs: BookNeed[]; books: FamilyBook[]; fromCache?: boolean }
+
+/** The same family original appears once even if several children can read it. */
+export function uniqueFamilyBooks(books: FamilyBook[]): FamilyBook[] {
+  const unique = new Map<string, FamilyBook>()
+  for (const book of books) {
+    const previous = unique.get(book.bookId)
+    if (!previous || previous.accessScope === 'family' && book.accessScope !== 'family') unique.set(book.bookId, book)
+  }
+  return [...unique.values()]
+}
 
 export function familyLibraryCacheKey(familyId: string, children: PersonalChild[]) {
   return `education-family-library-v1:${familyId}:${children.map((child) => child.childId).sort().join(',')}`
@@ -94,7 +107,7 @@ function readLibrary(familyId: string, children: PersonalChild[]): LibraryState 
       Array.isArray(state.unobservedChildren) && state.books.every((book) => book && typeof book.id === 'string' &&
         typeof book.title === 'string' && typeof book.childId === 'string' && (book.status === 'confirmed' || book.status === 'provisional')) &&
       state.needs.every((need) => need && typeof need.childId === 'string' && typeof need.subject === 'string' &&
-        Array.isArray(need.books) && Array.isArray(need.uploads)) ? { ...state, fromCache: true } : null
+        Array.isArray(need.books) && Array.isArray(need.uploads)) ? { ...state, books: uniqueFamilyBooks(state.books), fromCache: true } : null
   } catch { return null }
 }
 
@@ -134,7 +147,7 @@ export function useFamilyLibrary(familyId: string, children: PersonalChild[]): L
         observedDays: Object.values(dayCounts).reduce((sum, count) => sum + count, 0),
         observedSubjects: Object.values(schedules).flat().map(subjectKey).filter((value, index, all) => all.indexOf(value) === index).length,
         unobservedChildren: children.filter((child) => !schedules[child.childId]?.length).map((child) => child.displayName),
-        books: Object.values(bindings).flat(),
+        books: uniqueFamilyBooks(Object.values(bindings).flat()),
         needs: bookNeeds(children, schedules, Object.values(bindings).flat(), Object.values(uploads).flat(), Object.values(requirements).flat()) }
       setState(next)
       if (!next.loading && !next.error) rememberLibrary(familyId, children, next)

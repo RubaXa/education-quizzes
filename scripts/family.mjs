@@ -9,6 +9,7 @@ import { operatorFirestore } from './lib/admin-firebase.mjs'
 import { syncChildAccess } from './lib/access-projection.mjs'
 import { inspectFamilyAccess } from './lib/inspect-family-access.mjs'
 import { roleDiagnostics } from './lib/role-diagnostics.mjs'
+import { inheritFamilyBooks } from '../storage/family-book-inheritance.mjs'
 import { assertLearningRouteIdentity, learningDayAliases, learningRouteIdentity } from '../day/learning-route-identity.mjs'
 
 /** Agent-only provisioning; there is deliberately no browser administration route.
@@ -117,6 +118,13 @@ async function addChild(familyId, name, parentList) {
   saveRegistry()
   await syncChildAccess(db, registry, familyId, childId)
   console.log(`Ребёнок: ${childId}\nПрофиль ученика: ${personId}\nЛичная ссылка сохранена в закрытом реестре.`)
+  try {
+    const books = await inheritFamilyBooks(db, familyId, { targetChildId: childId })
+    console.log(`Книги семьи: доступ добавлен ${books.shared}; ожидают публикации ${books.pending}.`)
+  } catch (error) {
+    console.error(`Профиль уже создан. Для восстановления доступа к книгам выполните family share-books ${familyId}; повторять add-child не нужно.`)
+    throw error
+  }
 }
 
 async function linkParent(familyId, parentId, childId) {
@@ -276,6 +284,7 @@ switch (command) {
   case 'create': await createFamily(args[0], args[1]); break
   case 'add-parent': await addParent(args[0], args[1], args[2]); break
   case 'add-child': await addChild(args[0], args[1], args[2]); break
+  case 'share-books': family(args[0]); console.log(JSON.stringify(await inheritFamilyBooks(db, args[0]))); break
   case 'link': await linkParent(args[0], args[1], args[2]); break
   case 'issue-link': await issueLink(args[0]); break
   case 'link-url': await showLink(args[0]); break

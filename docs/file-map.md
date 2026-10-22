@@ -459,7 +459,7 @@
 | [scripts/education-events.test.mjs](../scripts/education-events.test.mjs) | [Контракт очереди событий](modules/synchronization/event-queue.md) | Bounded reads, no source scans/writes, private projections and redacted error stage/gRPC diagnostics | Vitest |
 | [scripts/ensure-book-upload-index.mjs](../scripts/ensure-book-upload-index.mjs) | [Local-first синхронизация](services/web-app/local-first-sync.md) | Аддитивная установка индекса активных PDF-заявок с сохранением существующих настроек поля | Оператор; `direct-upload-worker.mjs` |
 | [scripts/family-library.mjs](../scripts/family-library.mjs) | [Семейная библиотека](modules/materials/family-library.md) | Разбор новых PDF, точная привязка к семье и миграция старого комплекта | Оператор; Firestore |
-| [scripts/family.mjs](../scripts/family.mjs) | [Семейная модель](modules/families/README.md) | Создание семей и личных ссылок с пустой семейной библиотекой | Оператор |
+| [scripts/family.mjs](../scripts/family.mjs) | [Семейная модель](modules/families/README.md) | Создание семей и личных ссылок; новый ребёнок наследует готовые книги своей семьи | Оператор |
 | [scripts/lib/inspect-family-access.mjs](../scripts/lib/inspect-family-access.mjs) | [Диагностика роли](modules/families/access-and-state.md) | Адресный read-only аудит членства и связей ролевых проекций без секретов | family inspect-access; оператор |
 | [src/lib/roleDiagnostics.ts](../src/lib/roleDiagnostics.ts) | [Диагностика роли](modules/families/access-and-state.md) | Временное измерение реальной проекции по уже подтверждённому member snapshot | LearningRoute; PersonalEntry; ProblemTaskCard |
 | [src/lib/roleDiagnostics.test.ts](../src/lib/roleDiagnostics.test.ts) | [Диагностика роли](modules/families/access-and-state.md) | Expiry, дедупликация, приватность, чужой child/Auth и cleanup | Vitest; диагностика |
@@ -634,7 +634,7 @@
 | [src/lib/educationStore.inbox.test.ts](../src/lib/educationStore.inbox.test.ts) | [Центр обновлений](modules/notifications/inbox.md) | Массовая квитанция за пределом 100 событий и остановка при смене личной сессии | Vitest; `educationStore.ts` |
 | [src/lib/educationStore.ts](../src/lib/educationStore.ts) | [Действия и новое](modules/notifications/inbox.md) | Подписка на inbox и команды отметки прочитанного; заготовки журнала | `NotificationBell`; будущий маршрут v2 |
 | [src/lib/familyBookUpload.ts](../src/lib/familyBookUpload.ts) | [Семейная библиотека](modules/materials/family-library.md) | Локальная очередь PDF и прямая передача через Яндекс.Диск | `FamilyLibrary`; локальный приёмник |
-| [src/lib/familyLibrary.ts](../src/lib/familyLibrary.ts) | [Семейная библиотека](modules/materials/family-library.md) | Покрытие наблюдаемого расписания только семейными связями | `FamilyLibrary.tsx` |
+| [src/lib/familyLibrary.ts](../src/lib/familyLibrary.ts) | [Семейная библиотека](modules/materials/family-library.md) | Доступность семейных книг, персональный выбор издания и дедупликация списка | `FamilyLibrary.tsx` |
 | [src/lib/firebase.ts](../src/lib/firebase.ts) | [Доступ и состояние](modules/families/access-and-state.md) | Подключение к Firestore | Клиентские хранилища |
 | [src/lib/followup.test.ts](../src/lib/followup.test.ts) | [Тесты](modules/assessments/quizzes.md) | Проверка формирования продолжений | Vitest; разработчик |
 | [src/lib/followup.ts](../src/lib/followup.ts) | [Тесты](modules/assessments/quizzes.md) | Связь повторных тестов | Страница дня; тесты |
@@ -904,3 +904,11 @@
 | [docs/decisions/audio-player-visible-2026-10-22.md](decisions/audio-player-visible-2026-10-22.md) | [Аудиобиблиотека](modules/materials/audio-library.md) | Постоянно видимая панель и загрузка/воспроизведение одним Play | Разработчик; выпуск |
 
 | [docs/decisions/audio-duration-unknown-2026-10-22.md](decisions/audio-duration-unknown-2026-10-22.md) | [Аудиобиблиотека](modules/materials/audio-library.md) | Неизвестная длительность: прочерки до подтверждённых метаданных | Разработчик; выпуск |
+
+| Файл | Спецификация | Назначение | Потребитель |
+|---|---|---|---|
+| [storage/family-book-inheritance.mjs](../storage/family-book-inheritance.mjs) | [Общий доступ детей семьи](modules/materials/family-library.md) | Наследование проверенного манифеста без персональных свидетельств и повторной загрузки PDF | Добавление ребёнка; публикация книги; family share-books |
+| [storage/family-book-inheritance.test.mjs](../storage/family-book-inheritance.test.mjs) | [Общий доступ детей семьи](modules/materials/family-library.md) | Новый ребёнок, новая книга, изоляция семей, сохранение школьного выбора, повторы и неполный манифест | Vitest |
+| [src/lib/familyLibrary.access.test.ts](../src/lib/familyLibrary.access.test.ts) | [Общий доступ детей семьи](modules/materials/family-library.md) | Чтение без повторной загрузки, отсутствие расписания и единственный экземпляр книги в списке | Vitest |
+
+| [docs/decisions/family-book-access-2026-10-22.md](decisions/family-book-access-2026-10-22.md) | [Семейная библиотека](modules/materials/family-library.md) | Основание общего доступа детей семьи и границы выпуска | Разработчик; оператор |

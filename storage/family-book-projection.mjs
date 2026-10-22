@@ -1,18 +1,6 @@
 import { Timestamp } from '@google-cloud/firestore'
-
-export function validFamilyBookManifest(value, binding) {
-  const sha = binding.pagesPublishedSha256
-  const count = binding.pdfPageCount
-  return value?.schemaVersion === 1 && value.state === 'published-manifest'
-    && sha && binding.pagesManifestSha256 === sha && value.sourceSha256 === sha
-    && Number.isInteger(count) && count > 0 && value.pageCount === count
-    && Array.isArray(value.pages) && value.pages.length === count
-    && value.pages.every((page) => page?.sourceType === 'textbook-page'
-      && page.sourceSha256 === sha && typeof page.title === 'string'
-      && typeof page.url === 'string' && page.url.startsWith('https://')
-      && Number.isInteger(page.pdfPage) && page.pdfPage >= 1 && page.pdfPage <= count)
-    && new Set(value.pages.map((page) => page.pdfPage)).size === count
-}
+import { sharePublishedFamilyBook } from './family-book-inheritance.mjs'
+export { validFamilyBookManifest } from './family-book-inheritance.mjs'
 
 /**
  * Project an already indexed and published shared book into one family's view.
@@ -43,7 +31,8 @@ export async function projectPublishedBookToFamily(db, bindingRef, { verifyCount
     // Recounting every page on every EducationSync needlessly scans the same index.
     if (verifyCount) pagesReady = (await familyPages.where('bookId', '==', bookId).count().get()).data().count === catalog.pdfPageCount
     if (pagesReady && (!ensureManifest || binding.pagesManifestSha256 === catalogSha256)) {
-      return { status: 'ready', bookId, pages: catalog.pdfPageCount, projected: 0 }
+      const access = await sharePublishedFamilyBook(db, bindingRef)
+      return { status: 'ready', bookId, pages: catalog.pdfPageCount, projected: 0, familyShared: access.shared }
     }
   }
   const shared = await db.collection(`materialBooks/${bookId}/pages`).get()
@@ -100,5 +89,6 @@ export async function projectPublishedBookToFamily(db, bindingRef, { verifyCount
       pagesPublishedAt: Timestamp.now() } : {}),
     pagesManifestSha256: manifestFits ? catalogSha256 : null,
   }, { merge: true })
-  return { status: 'ready', bookId, pages: pages.length, projected, manifest: manifestFits ? 'published' : 'too-large' }
+  const access = await sharePublishedFamilyBook(db, bindingRef)
+  return { status: 'ready', bookId, pages: pages.length, projected, manifest: manifestFits ? 'published' : 'too-large', familyShared: access.shared }
 }

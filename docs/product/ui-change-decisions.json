@@ -2050,32 +2050,21 @@
       }
     },
     "scripts/family.mjs": {
-      "sha256": "8944ad137eb2cf78959d89f7c09c452907af58776522e0d46ab446c3f0d22ec0",
-      "record": "docs/decisions/role-projection-diagnostics-2026-10-18.md",
+      "sha256": "5b80fb1ea5279894595475bb0a80f11c3ad14995cd29d26f4deb69168a8650ab",
+      "record": "docs/decisions/family-book-access-2026-10-22.md",
       "specs": [
-        "docs/modules/families/access-and-state.md",
-        "docs/shared/specification-system.md"
+        "docs/modules/materials/family-library.md",
+        "docs/modules/families/README.md"
       ],
       "tests": [
-        "scripts/lib/inspect-family-access.test.mjs",
-        "src/components/LearningRoute.integration.test.tsx",
-        "src/lib/learningRoute.test.ts",
-        "day/learning-route-identity.test.mjs",
-        "src/components/ProblemTaskCard.contract.test.tsx",
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
+        "storage/family-book-inheritance.test.mjs",
+        "storage/family-book-projection.test.mjs",
+        "src/lib/familyLibrary.access.test.ts",
+        "src/components/ParentHome.readBudget.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10.2026 прямо требует определять родительский и ученический вид по авторизованной роли, а учебные ссылки сделать одинаковыми для обеих ролей."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "83f90f44906b7159f59f6be78c2f8dc29d380b8f198fe20344be63c4acbca08b"
-      },
-      "specificationLifecycle": {
-        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
-        "previousSha256": "abaf5547f99f57062a9d1ef680ef482614a01813decb114f5464a18b6eed7d8c"
+        "evidence": "Родитель22.10.2026 прямо уточнил: любой его добавленный ребёнок автоматически имеет доступ ко всем уже загруженным им учебникам; повторная загрузка внутри семьи не требуется."
       }
     },
     "scripts/firestore-read-index.mjs": {
@@ -3036,26 +3025,21 @@
       }
     },
     "src/components/FamilyLibrary.tsx": {
-      "sha256": "2cb2d75cf83544f1cd4005685e59d0413c3d1046604da7e01c4e2772d0b896b5",
-      "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
+      "sha256": "38ff7214ae40c28025bfbaec5abb0e30f2d69b63264d7e22b7cd6e28355336e3",
+      "record": "docs/decisions/family-book-access-2026-10-22.md",
       "specs": [
-        "docs/shared/specification-system.md"
+        "docs/modules/materials/family-library.md",
+        "docs/modules/families/README.md"
       ],
       "tests": [
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
+        "storage/family-book-inheritance.test.mjs",
+        "storage/family-book-projection.test.mjs",
+        "src/lib/familyLibrary.access.test.ts",
+        "src/components/ParentHome.readBudget.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя 16.10.2026 внедрить согласованную структуру спецификаций, перенести ссылки в коде и проверить сохранность требований; изменение предметного поведения не выполнялось."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "8ab6cc38c53c5e2ea85e23226b8005124e18e9542d8a1f52a9c270a2f209aa0d"
-      },
-      "specificationLifecycle": {
-        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
-        "previousSha256": "b429d4342405b3cb27771e6f26b3a0ca346220e357cd60fa712d4252358b2253"
+        "evidence": "Родитель22.10.2026 прямо уточнил: любой его добавленный ребёнок автоматически имеет доступ ко всем уже загруженным им учебникам; повторная загрузка внутри семьи не требуется."
       }
     },
     "src/components/GradeAverage.css": {
@@ -4345,22 +4329,21 @@
       }
     },
     "src/lib/familyLibrary.ts": {
-      "sha256": "0765d6cccd3900e568241f449fc251118c94b67692f05b65f42582821ef738dc",
-      "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
+      "sha256": "d08ac6b5bc1e020e2bca6137e148958b4f4e9854174c6d2b68da33cccd48027e",
+      "record": "docs/decisions/family-book-access-2026-10-22.md",
       "specs": [
-        "docs/shared/specification-system.md"
+        "docs/modules/materials/family-library.md",
+        "docs/modules/families/README.md"
       ],
       "tests": [
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
+        "storage/family-book-inheritance.test.mjs",
+        "storage/family-book-projection.test.mjs",
+        "src/lib/familyLibrary.access.test.ts",
+        "src/components/ParentHome.readBudget.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя 16.10.2026 внедрить согласованную структуру спецификаций, перенести ссылки в коде и проверить сохранность требований; изменение предметного поведения не выполнялось."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "e3af5138d3ce62ae478041ef55afa60473e46aa62a0f372f434071e48bf4b2b8"
+        "evidence": "Родитель22.10.2026 прямо уточнил: любой его добавленный ребёнок автоматически имеет доступ ко всем уже загруженным им учебникам; повторная загрузка внутри семьи не требуется."
       }
     },
     "src/lib/guideReadPolicy.ts": {
@@ -5192,17 +5175,21 @@
       }
     },
     "storage/family-book-projection.mjs": {
-      "sha256": "21b6016736f9e5c23fcc3eab97fbc426f8b16f49fbb736ba9988ffeeb2d28e7a",
-      "record": "docs/decisions/unified-education-events-2026-10-19.md",
+      "sha256": "7300f3ffb8aa03eb64600fb36afcb3bd2bc83955fca89789b468109412fab256",
+      "record": "docs/decisions/family-book-access-2026-10-22.md",
       "specs": [
-        "docs/modules/synchronization/event-queue.md"
+        "docs/modules/materials/family-library.md",
+        "docs/modules/families/README.md"
       ],
       "tests": [
-        "storage/family-book-projection.test.mjs"
+        "storage/family-book-inheritance.test.mjs",
+        "storage/family-book-projection.test.mjs",
+        "src/lib/familyLibrary.access.test.ts",
+        "src/components/ParentHome.readBudget.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 требует одну внутреннюю очередь событий и одну подписку вместо множества source watchers; ранее поручил реализацию через Luna с проверкой root, тестами, спецификациями и выпуском в main."
+        "evidence": "Родитель22.10.2026 прямо уточнил: любой его добавленный ребёнок автоматически имеет доступ ко всем уже загруженным им учебникам; повторная загрузка внутри семьи не требуется."
       }
     },
     "storage/family-book-upload.mjs": {
@@ -6054,6 +6041,24 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Прямой запрос пользователя связывать аудио с точным заданием после анализа уточняющих материалов; выбор должен использовать подтверждённые материалы ребёнка и не смешивать письменную сдачу с тестом."
+      }
+    },
+    "storage/family-book-inheritance.mjs": {
+      "sha256": "d4b9d81e0d920d6f16445cc86d08aa6e6017c75d153b37fd362259a79a07ba36",
+      "record": "docs/decisions/family-book-access-2026-10-22.md",
+      "specs": [
+        "docs/modules/materials/family-library.md",
+        "docs/modules/families/README.md"
+      ],
+      "tests": [
+        "storage/family-book-inheritance.test.mjs",
+        "storage/family-book-projection.test.mjs",
+        "src/lib/familyLibrary.access.test.ts",
+        "src/components/ParentHome.readBudget.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель22.10.2026 прямо уточнил: любой его добавленный ребёнок автоматически имеет доступ ко всем уже загруженным им учебникам; повторная загрузка внутри семьи не требуется."
       }
     }
   }

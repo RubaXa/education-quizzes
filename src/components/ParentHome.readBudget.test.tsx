@@ -328,3 +328,23 @@ describe('parent home cold start — no complete local snapshot', () => {
     host.remove()
   })
 })
+
+describe('family books remain available while another child has no schedule', () => {
+  it('keeps the family book list without turning the unknown schedule into an upload request', async () => {
+    const next = { ...profile, children: [...profile.children,
+      { familyId: 'family', childId: 'new-child', displayName: 'Second child', role: 'parent' as const }] }
+    localStorage.setItem('education-family-library-v1:family:child,new-child', JSON.stringify({
+      loading: false, error: '', observedDays: 1, observedSubjects: 1,
+      unobservedChildren: ['Second child'], needs: [], books: [mathBook],
+    }))
+    vi.stubGlobal('IntersectionObserver', ViewportObserver)
+    const host = document.createElement('div'); document.body.append(host)
+    const root = createRoot(host)
+    await act(async () => root.render(<ParentHome profile={next} />))
+    expect(host.textContent).toContain('Библиотека семьи · 1 книга')
+    expect(host.textContent).not.toContain('Нужны учебники и материалы')
+    expect(host.textContent).toContain('Это не ограничивает доступ к загруженным книгам семьи')
+    expect(host.querySelector('input[type="file"]')).toBeNull()
+    await act(async () => root.unmount()); host.remove()
+  })
+})

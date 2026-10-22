@@ -722,6 +722,31 @@
       "path": "docs/decisions/documentation-precommit-2026-10-16.md"
     },
     {
+      "id": "decision.family-book-access-2026-10-22",
+      "status": "accepted",
+      "implementation": "partial",
+      "parent": "module.materials.family-library",
+      "uses": [
+        "module.families",
+        "shared.access-and-privacy"
+      ],
+      "created": "2026-10-22",
+      "updated": "2026-10-22",
+      "consumers": [
+        "developer",
+        "release operator"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/family-book-access-2026-10-22.md"
+    },
+    {
       "id": "decision.family-essay-assignment-2026-10-20",
       "status": "accepted",
       "implementation": "implemented",
@@ -4794,7 +4819,7 @@
       "id": "file:scripts/family.mjs",
       "path": "scripts/family.mjs",
       "kind": "artifact",
-      "purpose": "Создание семей и личных ссылок с пустой семейной библиотекой",
+      "purpose": "Создание семей и личных ссылок; новый ребёнок наследует готовые книги своей семьи",
       "consumer": "Оператор"
     },
     {
@@ -6240,10 +6265,17 @@
       "consumer": "`FamilyLibrary`; локальный приёмник"
     },
     {
+      "id": "file:src/lib/familyLibrary.access.test.ts",
+      "path": "src/lib/familyLibrary.access.test.ts",
+      "kind": "verification",
+      "purpose": "Чтение без повторной загрузки, отсутствие расписания и единственный экземпляр книги в списке",
+      "consumer": "Vitest"
+    },
+    {
       "id": "file:src/lib/familyLibrary.ts",
       "path": "src/lib/familyLibrary.ts",
       "kind": "artifact",
-      "purpose": "Покрытие наблюдаемого расписания только семейными связями",
+      "purpose": "Доступность семейных книг, персональный выбор издания и дедупликация списка",
       "consumer": "`FamilyLibrary.tsx`"
     },
     {
@@ -6966,6 +6998,20 @@
       "kind": "verification",
       "purpose": "Проверка прямой загрузки",
       "consumer": "Vitest; разработчик"
+    },
+    {
+      "id": "file:storage/family-book-inheritance.mjs",
+      "path": "storage/family-book-inheritance.mjs",
+      "kind": "artifact",
+      "purpose": "Наследование проверенного манифеста без персональных свидетельств и повторной загрузки PDF",
+      "consumer": "Добавление ребёнка; публикация книги; family share-books"
+    },
+    {
+      "id": "file:storage/family-book-inheritance.test.mjs",
+      "path": "storage/family-book-inheritance.test.mjs",
+      "kind": "verification",
+      "purpose": "Новый ребёнок, новая книга, изоляция семей, сохранение школьного выбора, повторы и неполный манифест",
+      "consumer": "Vitest"
     },
     {
       "id": "file:storage/family-book-projection.mjs",
@@ -7792,7 +7838,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-11",
-      "updated": "2026-10-19",
+      "updated": "2026-10-22",
       "consumers": [
         "parent",
         "student",
@@ -7814,6 +7860,7 @@
         "src/lib/familyLibrary.ts",
         "src/lib/materialPageCache.ts",
         "storage/family-book-projection.mjs",
+        "storage/family-book-inheritance.mjs",
         "storage/family-book-upload.mjs",
         "packages/education-runtime/upload-broker.mjs"
       ],
@@ -7824,6 +7871,7 @@
       ],
       "sections": [
         "обязательное-различие",
+        "family-access",
         "coverage",
         "full-book-reader",
         "upload",
@@ -11065,6 +11113,16 @@
     {
       "from": "decision.documentation-precommit",
       "to": "shared.specification-system",
+      "type": "uses"
+    },
+    {
+      "from": "decision.family-book-access-2026-10-22",
+      "to": "module.families",
+      "type": "uses"
+    },
+    {
+      "from": "decision.family-book-access-2026-10-22",
+      "to": "shared.access-and-privacy",
       "type": "uses"
     },
     {
@@ -15458,6 +15516,11 @@
       "type": "implements"
     },
     {
+      "from": "file:storage/family-book-inheritance.mjs",
+      "to": "module.materials.family-library",
+      "type": "implements"
+    },
+    {
       "from": "file:storage/family-book-projection.mjs",
       "to": "module.materials.family-library",
       "type": "implements"
@@ -16156,6 +16219,21 @@
       "from": "module.materials.audio-library",
       "to": "shared.design.ui-kit",
       "type": "uses"
+    },
+    {
+      "from": "module.materials.family-library",
+      "to": "decision.family-book-access-2026-10-22",
+      "type": "contains"
+    },
+    {
+      "from": "module.materials.family-library",
+      "to": "file:src/lib/familyLibrary.access.test.ts",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.materials.family-library",
+      "to": "file:storage/family-book-inheritance.test.mjs",
+      "type": "verified-by"
     },
     {
       "from": "module.materials.family-library",
