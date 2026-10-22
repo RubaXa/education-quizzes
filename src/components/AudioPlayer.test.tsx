@@ -56,6 +56,26 @@ describe('AudioPlayer', () => {
     expect(original.src).toContain('/one.mp3')
     expect(host.querySelector('[role=status]')).toBeNull()
   })
+  it('uses dashes until a finite positive duration is known, and clears it for another track', async () => {
+    const resolver = vi.fn().mockResolvedValue('https://downloader.disk.yandex.ru/one.mp3')
+    await act(async () => root.render(<AudioPlayer link={link} resolver={resolver} />))
+    expect(host.querySelector('.edu-audio-time-unknown')?.textContent).toBe('--:-- / --:--')
+    expect(host.querySelector('audio')?.getAttribute('aria-hidden')).toBe('true')
+    await click('Воспроизвести')
+    const audio = host.querySelector('audio')!
+    for (const duration of [NaN, Infinity, 0]) {
+      Object.defineProperty(audio, 'duration', { configurable: true, value: duration })
+      await act(async () => audio.dispatchEvent(new Event('durationchange')))
+      expect(host.querySelector('.edu-audio-time-unknown')).not.toBeNull()
+    }
+    Object.defineProperty(audio, 'duration', { configurable: true, value: 93.59 })
+    await act(async () => audio.dispatchEvent(new Event('loadedmetadata')))
+    expect(host.querySelector('.edu-audio-time-unknown')).toBeNull()
+    expect(audio.getAttribute('aria-hidden')).toBe('false')
+    await act(async () => root.render(<AudioPlayer link={{ ...link, url: 'https://disk.yandex.ru/d/two' }} resolver={resolver} />))
+    expect(host.querySelector('.edu-audio-time-unknown')?.textContent).toBe('--:-- / --:--')
+    expect(audio.getAttribute('aria-hidden')).toBe('true')
+  })
   it('re-resolves expired links after network or media failure', async () => {
     const resolver = vi.fn().mockRejectedValueOnce(new Error('network')).mockResolvedValueOnce('https://downloader.disk.yandex.ru/old').mockResolvedValueOnce('https://downloader.disk.yandex.ru/new')
     await act(async () => root.render(<AudioPlayer link={link} resolver={resolver} />))

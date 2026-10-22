@@ -902,3 +902,5 @@
 | [docs/decisions/audio-speed-controls-2026-10-22.md](decisions/audio-speed-controls-2026-10-22.md) | [Аудиобиблиотека](modules/materials/audio-library.md) | Уточнение скорости внутри нативной панели и сохранения выбора после паузы | Разработчик; выпуск |
 
 | [docs/decisions/audio-player-visible-2026-10-22.md](decisions/audio-player-visible-2026-10-22.md) | [Аудиобиблиотека](modules/materials/audio-library.md) | Постоянно видимая панель и загрузка/воспроизведение одним Play | Разработчик; выпуск |
+
+| [docs/decisions/audio-duration-unknown-2026-10-22.md](decisions/audio-duration-unknown-2026-10-22.md) | [Аудиобиблиотека](modules/materials/audio-library.md) | Неизвестная длительность: прочерки до подтверждённых метаданных | Разработчик; выпуск |

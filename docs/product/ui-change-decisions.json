@@ -5976,35 +5976,33 @@
       }
     },
     "src/components/AudioPlayer.css": {
-      "sha256": "53a6c883669e10f7f23aa32754e4fb4ecaa6a340795278254f6a741e0e4b317f",
-      "record": "docs/decisions/audio-player-visible-2026-10-22.md",
+      "sha256": "2ec4d550a84b48eeeb20a8d1f8dbf90b9c4fe8fa70a9fa5b458210a5bbb26266",
+      "record": "docs/decisions/audio-duration-unknown-2026-10-22.md",
       "specs": [
         "docs/modules/materials/audio-library.md",
         "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/components/AudioPlayer.test.tsx",
-        "src/UiKit.test.tsx"
+        "src/components/AudioPlayer.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель22.10.2026 прямо потребовал сразу развёрнутый компонент без лишнего клика раскрытия."
+        "evidence": "Родитель22.10.2026 потребовал реальную длительность, когда она известна, либо прочерки вместо ложного 0:00 / 0:00 до загрузки метаданных."
       }
     },
     "src/components/AudioPlayer.tsx": {
-      "sha256": "9b57087fcb2578564cf304afdb4b1ef30f0f2e1f38e478fac97a777e992e10ee",
-      "record": "docs/decisions/audio-player-visible-2026-10-22.md",
+      "sha256": "953f635d83efd4b1316c3726518a7da4912db7d1d2da7245bba4fa95baca9beb",
+      "record": "docs/decisions/audio-duration-unknown-2026-10-22.md",
       "specs": [
         "docs/modules/materials/audio-library.md",
         "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/components/AudioPlayer.test.tsx",
-        "src/UiKit.test.tsx"
+        "src/components/AudioPlayer.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель22.10.2026 прямо потребовал сразу развёрнутый компонент без лишнего клика раскрытия."
+        "evidence": "Родитель22.10.2026 потребовал реальную длительность, когда она известна, либо прочерки вместо ложного 0:00 / 0:00 до загрузки метаданных."
       }
     },
     "src/lib/uiKitAudio.ts": {
