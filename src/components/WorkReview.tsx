@@ -1,10 +1,11 @@
-/** @see ../../docs/decisions/collapsed-variant-status-2026-10-21.md */
+/** @see ../../docs/decisions/collapsed-variant-status-2026-10-21.md
+ * @see ../../docs/decisions/photo-transfer-recovery-2026-10-22.md */
 import { useEffect, useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 import type { DayUpload, DayWorkReview } from '@/lib/dayStore'
 import { requirementChoice, requiredFamilyActions, stageCompletion } from '@/lib/parentCompletion'
 import type { ParentCompletionEvent } from '@/lib/parentCompletion'
-import { activeProcessing, elapsedLabel, processingIsStale, reviewHeadline, reviewTone, workCoverageComplete } from '@/lib/reviewPresentation'
+import { activeProcessing, elapsedLabel, firstPendingUploadReceivedAt, processingIsStale, reviewHeadline, reviewTone, workCoverageComplete } from '@/lib/reviewPresentation'
 import { ArtifactStatusGlyph } from './ArtifactAvatar'
 import StatusIcon from './StatusIcon'
 import RequirementSwitch from './RequirementSwitch'
@@ -47,8 +48,8 @@ export default function WorkReview({ review, uploads, accepted = false, canDecid
   const feedback = review?.studentFeedback
   const basis = review?.assessmentBasis
   const visibleSources = basis?.sources?.filter((source) => source.kind !== 'official-key') ?? []
-  const firstPending = pending.map((upload) => upload.createdAt).find(Boolean)
-  const elapsed = processing ? elapsedLabel(processing.startedAt, now) : elapsedLabel(firstPending, now)
+  const firstPendingReceivedAt = firstPendingUploadReceivedAt(pending)
+  const elapsed = processing ? elapsedLabel(processing.startedAt, now) : elapsedLabel(firstPendingReceivedAt, now)
   const answer = review?.mathReasoning?.answer
   const argument = review?.mathReasoning?.argument
   const argumentLabel = argument === 'sufficient' ? 'Ход подтверждён' : argument === 'not-required' ? 'Ход не требовался'

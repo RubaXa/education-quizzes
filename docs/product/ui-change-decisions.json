@@ -2770,21 +2770,22 @@
       }
     },
     "src/components/ArtifactAvatar.tsx": {
-      "sha256": "9b483a52c5b0b47ec5ef2037174627c05b6d32291a749eadabc4dc582cc0f4fb",
-      "record": "docs/decisions/upload-photo-timestamp-2026-10-21.md",
+      "sha256": "346c77e7f95e2d7ec0a3af500c204c2f38636b68818c9a8428695b413c2e11ab",
+      "record": "docs/decisions/photo-transfer-recovery-2026-10-22.md",
       "specs": [
-        "docs/modules/school-diary/day-page.md",
-        "docs/shared/design/components.md"
+        "docs/modules/materials/storage-privacy.md",
+        "docs/modules/school-diary/day-page.md"
       ],
       "tests": [
-        "src/lib/uploadTimestamp.test.ts",
+        "src/lib/photoOutbox.test.tsx",
         "src/components/WorkPhotoGallery.test.tsx",
-        "src/components/LinkedWorkPhotos.test.tsx",
-        "src/UiKit.test.tsx"
+        "src/components/WorkReview.requirements.test.tsx",
+        "src/lib/reviewPresentation.test.ts",
+        "src/lib/educationEventProducers.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос пользователя 21.10.2026: показывать время загрузки каждой фотографии ребёнка в подсказке и доступном названии."
+        "evidence": "Пользователь повторно сообщил о новой работе без Telegram и автоматической проверки, показал ошибку изображения и неверное время ожидания. Исправляется восстановление передачи того же фото и точное разделение заявки, получения файла и проверки."
       }
     },
     "src/components/AssignmentBrief.css": {
@@ -3914,40 +3915,41 @@
       }
     },
     "src/components/WorkPhotoGallery.tsx": {
-      "sha256": "25532d7a0137ad2431235c93171e8226f1a9b8ce59ca950e9459e3d588333aff",
-      "record": "docs/decisions/upload-photo-timestamp-2026-10-21.md",
+      "sha256": "193cbd1a5e694867c9301f0c5531fd643698c8df04e0522fc452bdd1dd4f470c",
+      "record": "docs/decisions/photo-transfer-recovery-2026-10-22.md",
       "specs": [
-        "docs/modules/school-diary/day-page.md",
-        "docs/shared/design/components.md"
+        "docs/modules/materials/storage-privacy.md",
+        "docs/modules/school-diary/day-page.md"
       ],
       "tests": [
-        "src/lib/uploadTimestamp.test.ts",
+        "src/lib/photoOutbox.test.tsx",
         "src/components/WorkPhotoGallery.test.tsx",
-        "src/components/LinkedWorkPhotos.test.tsx",
-        "src/UiKit.test.tsx"
+        "src/components/WorkReview.requirements.test.tsx",
+        "src/lib/reviewPresentation.test.ts",
+        "src/lib/educationEventProducers.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос пользователя 21.10.2026: показывать время загрузки каждой фотографии ребёнка в подсказке и доступном названии."
+        "evidence": "Пользователь повторно сообщил о новой работе без Telegram и автоматической проверки, показал ошибку изображения и неверное время ожидания. Исправляется восстановление передачи того же фото и точное разделение заявки, получения файла и проверки."
       }
     },
     "src/components/WorkReview.tsx": {
-      "sha256": "a993ebff7b4402731f2fce63981558e592cc9c43c89ceb63c7d9611fc7038bf5",
-      "record": "docs/decisions/collapsed-variant-status-2026-10-21.md",
+      "sha256": "4b76f70eb1d8cbd1db5967adfbe15eacbc7ea4a1bf6df3fd9aa4a4a6612b9dcc",
+      "record": "docs/decisions/photo-transfer-recovery-2026-10-22.md",
       "specs": [
-        "docs/modules/school-diary/day-page.md",
-        "docs/shared/design/README.md"
+        "docs/modules/materials/storage-privacy.md",
+        "docs/modules/school-diary/day-page.md"
       ],
       "tests": [
-        "src/lib/practiceVariantViewModel.test.ts",
-        "src/components/ProblemGroup.layout.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/DayDashboard.warmStart.test.tsx",
-        "scripts/check-requirement-copy.test.mjs"
+        "src/lib/photoOutbox.test.tsx",
+        "src/components/WorkPhotoGallery.test.tsx",
+        "src/components/WorkReview.requirements.test.tsx",
+        "src/lib/reviewPresentation.test.ts",
+        "src/lib/educationEventProducers.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос 21.10.2026: фактический статус виден в свёрнутых заголовках независимо от выбора; переключатель является единственным индикатором обязательности."
+        "evidence": "Пользователь повторно сообщил о новой работе без Telegram и автоматической проверки, показал ошибку изображения и неверное время ожидания. Исправляется восстановление передачи того же фото и точное разделение заявки, получения файла и проверки."
       }
     },
     "src/components/ui/badge.tsx": {
@@ -4612,17 +4614,22 @@
       }
     },
     "src/lib/photoOutbox.ts": {
-      "sha256": "a1d77f88cab45a07b1423071e8eece657363350c166dd4a0a406d4032f2043dc",
-      "record": "docs/decisions/unified-education-events-2026-10-19.md",
+      "sha256": "9fa26631e5b529a286f53f81fc2a9acc4e6f288eba8d0d5520fb34bfdc542f9a",
+      "record": "docs/decisions/photo-transfer-recovery-2026-10-22.md",
       "specs": [
-        "docs/modules/synchronization/event-queue.md"
+        "docs/modules/materials/storage-privacy.md",
+        "docs/modules/school-diary/day-page.md"
       ],
       "tests": [
+        "src/lib/photoOutbox.test.tsx",
+        "src/components/WorkPhotoGallery.test.tsx",
+        "src/components/WorkReview.requirements.test.tsx",
+        "src/lib/reviewPresentation.test.ts",
         "src/lib/educationEventProducers.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 требует одну внутреннюю очередь событий и одну подписку вместо множества source watchers; ранее поручил реализацию через Luna с проверкой root, тестами, спецификациями и выпуском в main."
+        "evidence": "Пользователь повторно сообщил о новой работе без Telegram и автоматической проверки, показал ошибку изображения и неверное время ожидания. Исправляется восстановление передачи того же фото и точное разделение заявки, получения файла и проверки."
       }
     },
     "src/lib/photoUploadPolicy.ts": {
@@ -4820,27 +4827,22 @@
       }
     },
     "src/lib/reviewPresentation.ts": {
-      "sha256": "0817aed6836c579e45fa82fc526b8aa22770b4735317dce38ef05c16f77e3c5e",
-      "record": "docs/decisions/review-prose-coverage-2026-10-19.md",
+      "sha256": "9adbe34bbdb44ebf324ccc6500196c7052daddb6c0744f48fcb1a323fe09f242",
+      "record": "docs/decisions/photo-transfer-recovery-2026-10-22.md",
       "specs": [
-        "docs/modules/school-diary/dashboard.md",
-        "docs/modules/reviews/review-criteria-provenance.md"
+        "docs/modules/materials/storage-privacy.md",
+        "docs/modules/school-diary/day-page.md"
       ],
       "tests": [
-        "src/DayDashboard.warmStart.test.tsx",
-        "src/lib/homeworkStatus.test.ts",
+        "src/lib/photoOutbox.test.tsx",
+        "src/components/WorkPhotoGallery.test.tsx",
+        "src/components/WorkReview.requirements.test.tsx",
         "src/lib/reviewPresentation.test.ts",
-        "storage/review-projection.test.mjs",
-        "src/lib/reviewProse.test.ts",
-        "src/components/ReviewProse.integration.test.tsx"
+        "src/lib/educationEventProducers.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 подтвердил родительский вход, прислал склейки слов и чисел в разборе и прямо потребовал проверить и исправить их во многих местах."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "747a0fb81501276f63a46e3d0ed39f2edf4509fa06fb25b43a4ab8f9ff87bca7"
+        "evidence": "Пользователь повторно сообщил о новой работе без Telegram и автоматической проверки, показал ошибку изображения и неверное время ожидания. Исправляется восстановление передачи того же фото и точное разделение заявки, получения файла и проверки."
       }
     },
     "src/lib/reviewProse.ts": {

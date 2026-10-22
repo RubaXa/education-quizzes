@@ -58,34 +58,75 @@ describe('own photo actions', () => {
     } finally { await act(async () => root.unmount()) }
   })
 
-  it('exposes server upload time in thumbnail tooltip, accessible name, and expanded touch view', async () => {
+  it('exposes server-confirmed byte time in thumbnail tooltip, accessible name, and expanded touch view', async () => {
     const host = document.createElement('div'), root = createRoot(host)
-    const upload = { id: 'day:photo', taskId: 'p1', status: 'reviewed', createdAt: '2026-10-20T10:03:00Z', dataUrl: image } as DayUpload
+    const upload = { id: 'day:photo', taskId: 'p1', status: 'reviewed', createdAt: '2026-10-20T10:03:00Z',
+      storage: { state: 'stored', syncedAt: '2026-10-20T14:26:39Z' }, dataUrl: image } as DayUpload
     try {
       await act(async () => root.render(<WorkPhotoGallery taskTitle="Работа" studentToken="day" uploads={[upload]} localPhotos={[]} now={0} />))
       const thumbnail = host.querySelector<HTMLButtonElement>('.day-upload-chip')!
       expect(thumbnail.title).toContain('Фото 1')
       expect(thumbnail.title).toContain('Проверено')
-      expect(thumbnail.title).toContain('20 октября 2026, 13:03 МСК')
+      expect(thumbnail.title).toContain('Загружено 20 октября 2026, 17:26 МСК')
+      expect(thumbnail.title).not.toContain('13:03')
       expect(thumbnail.getAttribute('aria-label')).toContain(thumbnail.title)
       await act(async () => thumbnail.click())
       const time = host.querySelector<HTMLTimeElement>('.day-upload-expanded time')!
-      expect(time.dateTime).toBe('2026-10-20T10:03:00.000Z')
+      expect(time.dateTime).toBe('2026-10-20T14:26:39.000Z')
       expect(time.textContent).toContain('МСК')
+    } finally { await act(async () => root.unmount()) }
+  })
+
+  it.each(['requested', 'awaiting-upload', 'upload-error'] as const)('labels %s with request creation time, never as a completed upload', async (status) => {
+    const host = document.createElement('div'), root = createRoot(host)
+    const upload = { id: 'day:request', taskId: 'p1', status,
+      createdAt: '2026-10-20T14:17:00Z', upload: { href: 'https://upload.example' } } as DayUpload
+    try {
+      await act(async () => root.render(<WorkPhotoGallery taskTitle="Работа" studentToken="day" uploads={[upload]} localPhotos={[]} now={0} />))
+      const thumbnail = host.querySelector<HTMLButtonElement>('.day-upload-chip')!
+      expect(thumbnail.title).toContain('Заявка создана 20 октября 2026, 17:17 МСК')
+      expect(thumbnail.title).not.toContain('Загружено')
+      await act(async () => thumbnail.click())
+      const time = host.querySelector<HTMLTimeElement>('.day-upload-expanded time')!
+      expect(time.dateTime).toBe('2026-10-20T14:17:00.000Z')
+      expect(time.textContent).toContain('Заявка создана')
+    } finally { await act(async () => root.unmount()) }
+  })
+
+  it('keeps archive-addition time separate from child upload time', async () => {
+    const host = document.createElement('div'), root = createRoot(host)
+    const upload = { id: 'day:archive', taskId: 'p1', status: 'reviewed', origin: 'archive',
+      createdAt: '2026-10-20T10:03:00Z', storage: { state: 'stored', syncedAt: '2026-10-20T14:26:39Z' } } as DayUpload
+    try {
+      await act(async () => root.render(<WorkPhotoGallery taskTitle="Работа" studentToken="day" uploads={[upload]} localPhotos={[]} now={0} />))
+      const thumbnail = host.querySelector<HTMLButtonElement>('.day-upload-chip')!
+      expect(thumbnail.title).toContain('Добавлено в архив 20 октября 2026, 13:03 МСК')
+      expect(thumbnail.title).not.toContain('17:26')
+    } finally { await act(async () => root.unmount()) }
+  })
+
+  it('keeps a legacy pending record timestamp as request creation, not byte receipt', async () => {
+    const host = document.createElement('div'), root = createRoot(host)
+    const upload = { id: 'day:legacy', taskId: 'p1', status: 'pending', createdAt: '2026-10-20T10:03:00Z' } as DayUpload
+    try {
+      await act(async () => root.render(<WorkPhotoGallery taskTitle="Работа" studentToken="day" uploads={[upload]} localPhotos={[]} now={0} />))
+      const thumbnail = host.querySelector<HTMLButtonElement>('.day-upload-chip')!
+      expect(thumbnail.title).toContain('Заявка создана 20 октября 2026, 13:03 МСК')
+      expect(thumbnail.title).not.toContain('Загружено')
     } finally { await act(async () => root.unmount()) }
   })
 
   it('does not invent a time for legacy uploads or local pending photos', async () => {
     const host = document.createElement('div'), root = createRoot(host)
-    const upload = { id: 'day:old', taskId: 'p1', status: 'pending', storage: { syncedAt: '2026-10-20T10:03:00Z' } } as DayUpload
+    const upload = { id: 'day:old', taskId: 'p1', status: 'pending' } as DayUpload
     const local = { id: 'local', taskId: 'p1', previewUrl: 'blob:preview', state: 'uploading' as const }
     try {
       await act(async () => root.render(<WorkPhotoGallery taskTitle="Работа" studentToken="day" uploads={[upload]} localPhotos={[local]} now={0} />))
-      expect(host.querySelectorAll('.day-upload-chip')[0].getAttribute('aria-label')).toContain('Время загрузки неизвестно')
+      expect(host.querySelectorAll('.day-upload-chip')[0].getAttribute('aria-label')).toContain('Время получения неизвестно')
       expect(host.querySelectorAll('.day-upload-chip')[1].getAttribute('aria-label')).toContain('Время загрузки появится после передачи фото')
       await act(async () => host.querySelectorAll<HTMLButtonElement>('.day-upload-chip')[0].click())
       expect(host.querySelector('.day-upload-expanded time')).toBeNull()
-      expect(host.querySelector('.day-upload-expanded')?.textContent).toContain('Время загрузки неизвестно')
+      expect(host.querySelector('.day-upload-expanded')?.textContent).toContain('Время получения неизвестно')
     } finally { await act(async () => root.unmount()) }
   })
 })

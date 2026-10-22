@@ -1,8 +1,35 @@
 import { describe, expect, it } from 'vitest'
 import { renderToStaticMarkup } from 'react-dom/server'
+import type { DayUpload, DayWorkReview } from '@/lib/dayStore'
 import WorkReview from './WorkReview'
 
 describe('карточка требований МЭШ', () => {
+  it('считает ожидание проверки от подтверждения байтов, а legacy без времени оставляет неизвестным', () => {
+    const now = Date.now()
+    const timestamp = (millis: number) => ({ toMillis: () => millis })
+    const upload = { id: 'day:photo', taskId: 'task', status: 'pending',
+      createdAt: timestamp(now - 60 * 60_000), storage: { syncedAt: timestamp(now - 6 * 60_000) } } as unknown as DayUpload
+    const time = (html: string) => html.match(/<time[^>]*>(.*?)<\/time>/)?.[1]
+    const receivedHtml = renderToStaticMarkup(<WorkReview uploads={[upload]} />)
+    expect(time(receivedHtml)).toMatch(/^\d+ мин/)
+    expect(time(receivedHtml)).not.toContain('ч')
+
+    const legacyHtml = renderToStaticMarkup(<WorkReview uploads={[{ ...upload, storage: undefined }]} />)
+    expect(time(legacyHtml)).toBe('Время уточняется')
+  })
+
+  it('использует фактическое startedAt, пока разбор активен', () => {
+    const now = Date.now()
+    const timestamp = (millis: number) => ({ toMillis: () => millis })
+    const upload = { id: 'day:photo', taskId: 'task', status: 'pending',
+      createdAt: timestamp(now - 60 * 60_000), storage: { syncedAt: timestamp(now - 45 * 60_000) } } as unknown as DayUpload
+    const review = { id: 'review', taskId: 'task', processing: { phase: 'review', label: 'Проверяем работу',
+      uploadIds: ['photo'], startedAt: timestamp(now - 30_000), updatedAt: timestamp(now) } } as DayWorkReview
+    const html = renderToStaticMarkup(<WorkReview uploads={[upload]} review={review} />)
+    const elapsed = html.match(/<time[^>]*>(.*?)<\/time>/)?.[1]
+    expect(elapsed).toMatch(/^\d+ с$/)
+  })
+
   it.each([false, true])('сохраняет читаемые пробелы в старом разборе, parent=%s', (parent) => {
     const html = renderToStaticMarkup(<WorkReview parent={parent} uploads={[]} review={{
       id: 'spacing', taskId: 'problem-8', status: 'partial',

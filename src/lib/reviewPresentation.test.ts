@@ -1,12 +1,27 @@
 import { describe, expect, it } from 'vitest'
 import type { DayWorkReview } from './dayStore'
-import { compactProblemCardLabel, problemCardState, reviewHeadline, reviewTone, showSeparateWorkReview } from './reviewPresentation'
+import { artifactAvatarLabel, compactProblemCardLabel, firstPendingUploadReceivedAt, localArtifactAvatarState,
+  problemCardState, reviewHeadline, reviewTone, showSeparateWorkReview } from './reviewPresentation'
 
 function review(status: DayWorkReview['status'], items: Array<'correct' | 'partial' | 'incorrect' | 'cannot-assess'>): DayWorkReview {
   return { id: 'test', taskId: 'test', status, items: items.map((item, index) => ({ label: `${index + 1}`, status: item, observed: 'ответ', note: 'пояснение' })) }
 }
 
 describe('collapsed homework review', () => {
+  it('does not treat locally saved bytes as received by the server', () => {
+    expect(artifactAvatarLabel(localArtifactAvatarState('saved'))).toBe('Передаём фото')
+    expect(artifactAvatarLabel(localArtifactAvatarState('uploading'))).toBe('Передаём фото')
+    expect(localArtifactAvatarState('failed')).toBe('failed')
+  })
+  it('starts pending wait from the earliest confirmed storage time and leaves legacy time unknown', () => {
+    const upload = (id: string, createdAt: number, syncedAt?: number) => ({
+      id, taskId: 'task', status: 'pending', createdAt: { toMillis: () => createdAt },
+      ...(syncedAt === undefined ? {} : { storage: { syncedAt: { toMillis: () => syncedAt } } }),
+    }) as unknown as import('./dayStore').DayUpload
+    const uploads = [upload('later', 1_000, 20_000), upload('earlier-received', 2_000, 10_000)]
+    expect(firstPendingUploadReceivedAt(uploads)).toBe(uploads[1].storage!.syncedAt)
+    expect(firstPendingUploadReceivedAt([upload('legacy', 1_000)])).toBeUndefined()
+  })
   it('keeps one parent route for a reviewed written task, while preserving learner feedback and parent decisions', () => {
     expect(showSeparateWorkReview(true, 'learning-route')).toBe(false)
     expect(showSeparateWorkReview(false, 'learning-route')).toBe(true)

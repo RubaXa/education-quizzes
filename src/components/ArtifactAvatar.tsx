@@ -1,4 +1,5 @@
-/** @see ../../docs/decisions/upload-photo-timestamp-2026-10-21.md */
+/** @see ../../docs/decisions/upload-photo-timestamp-2026-10-21.md
+ * @see ../../docs/decisions/photo-transfer-recovery-2026-10-22.md */
 import type { ReactNode } from 'react'
 import { Camera } from 'lucide-react'
 import type { ArtifactAvatarState } from '@/lib/reviewPresentation'
@@ -47,18 +48,32 @@ export function WorkArtifactImage({ upload, title, index, compact = false, fallb
     className={compact ? '' : 'day-upload-photo'} />
 }
 
-/** Timestamp from upload.createdAt only; archive imports are named as archive additions. @see ../../docs/modules/school-diary/day-page.md#photo-timestamp */
+/** Received files use the server's byte-confirmation time; a request time is never called an upload time.
+ * @see ../../docs/modules/school-diary/day-page.md#photo-timestamp
+ * @see ../../docs/decisions/photo-transfer-recovery-2026-10-22.md
+ */
+function workUploadTimestamp(upload: DayUpload) {
+  if (upload.origin === 'archive') {
+    const timestamp = formatUploadTimestamp(upload.createdAt)
+    return { timestamp, label: timestamp ? `Добавлено в архив ${timestamp.label}` : 'Время добавления в архив неизвестно' }
+  }
+  const requestStatus = ['requested', 'awaiting-upload', 'upload-error'].includes(upload.status)
+  if (!requestStatus) {
+    const received = formatUploadTimestamp(upload.storage?.syncedAt)
+    if (received) return { timestamp: received, label: `Загружено ${received.label}` }
+  }
+  const requested = formatUploadTimestamp(upload.createdAt)
+  if (requested) return { timestamp: requested, label: `Заявка создана ${requested.label}` }
+  return { timestamp: null, label: requestStatus ? 'Время заявки неизвестно' : 'Время получения неизвестно' }
+}
+
 export function workUploadTimeLabel(upload: DayUpload): string {
-  const timestamp = formatUploadTimestamp(upload.createdAt)
-  if (!timestamp) return 'Время загрузки неизвестно'
-  if (upload.origin === 'archive') return `Добавлено в архив ${timestamp.label}`
-  if (upload.status === 'requested' || upload.status === 'awaiting-upload' || upload.status === 'upload-error') return `Заявка создана ${timestamp.label}`
-  return `Загружено ${timestamp.label}`
+  return workUploadTimestamp(upload).label
 }
 
 /** Compact timestamp shown only with the expanded image, so touch users can read it. */
 export function WorkUploadTime({ upload }: { upload: DayUpload }) {
-  const timestamp = formatUploadTimestamp(upload.createdAt)
-  if (!timestamp) return <p className="work-upload-time">Время загрузки неизвестно</p>
-  return <p className="work-upload-time"><time dateTime={timestamp.dateTime}>{workUploadTimeLabel(upload)}</time></p>
+  const { timestamp, label } = workUploadTimestamp(upload)
+  if (!timestamp) return <p className="work-upload-time">{label}</p>
+  return <p className="work-upload-time"><time dateTime={timestamp.dateTime}>{label}</time></p>
 }

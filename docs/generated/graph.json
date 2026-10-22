@@ -850,6 +850,38 @@
       "path": "docs/decisions/mesh-informational-entry-2026-10-21.md"
     },
     {
+      "id": "decision.photo-transfer-recovery-2026-10-22",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-22",
+      "updated": "2026-10-22",
+      "parent": "module.materials.storage-privacy",
+      "uses": [
+        "module.school-diary.day-page",
+        "module.synchronization.event-queue"
+      ],
+      "consumers": [
+        "Student photo upload",
+        "Parent work gallery",
+        "EducationSync dispatcher"
+      ],
+      "code": [
+        "src/lib/photoOutbox.ts",
+        "src/components/WorkPhotoGallery.tsx",
+        "src/components/WorkReview.tsx",
+        "src/components/ArtifactAvatar.tsx",
+        "src/lib/reviewPresentation.ts"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/photo-transfer-recovery-2026-10-22.md"
+    },
+    {
       "id": "decision.photo-upload-authorization-and-freshness-2026-10-20",
       "status": "accepted",
       "implementation": "partial",
@@ -4942,7 +4974,7 @@
       "id": "file:src/components/ArtifactAvatar.tsx",
       "path": "src/components/ArtifactAvatar.tsx",
       "kind": "artifact",
-      "purpose": "Общий статус, выбор источника фото и компактная метка server upload time",
+      "purpose": "Общий статус и источник фото; время подтверждённых байтов отделено от времени заявки",
       "consumer": "День; слот выходных; ссылки"
     },
     {
@@ -5698,7 +5730,7 @@
       "id": "file:src/components/WorkPhotoGallery.tsx",
       "path": "src/components/WorkPhotoGallery.tsx",
       "kind": "artifact",
-      "purpose": "Единая галерея: действия и tooltip/доступное время фото",
+      "purpose": "Единая галерея: действия, доступное время и видимая ошибка передачи с повтором того же фото",
       "consumer": "День; выходные; UI Kit"
     },
     {
@@ -6178,10 +6210,17 @@
       "consumer": "Стартовая страница; день"
     },
     {
+      "id": "file:src/lib/photoOutbox.test.tsx",
+      "path": "src/lib/photoOutbox.test.tsx",
+      "kind": "verification",
+      "purpose": "Регрессии отказа PUT, видимой ошибки, повторов и гонок состояния загрузки",
+      "consumer": "Vitest; разработчик"
+    },
+    {
       "id": "file:src/lib/photoOutbox.ts",
       "path": "src/lib/photoOutbox.ts",
       "kind": "artifact",
-      "purpose": "Локальное хранение фото до передачи",
+      "purpose": "Локальное хранение фото до подтверждения, состояние передачи, адресный повтор и online/visibility восстановление",
       "consumer": "`dayStore`; устройство"
     },
     {
@@ -6356,7 +6395,7 @@
       "id": "file:src/lib/reviewPresentation.ts",
       "path": "src/lib/reviewPresentation.ts",
       "kind": "artifact",
-      "purpose": "Текст и цвет вердиктов",
+      "purpose": "Текст и цвет вердиктов, этап передачи и время получения файла перед проверкой",
       "consumer": "`WorkReview`; `ProblemCard`"
     },
     {
@@ -7563,7 +7602,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-08",
-      "updated": "2026-10-18",
+      "updated": "2026-10-22",
       "consumers": [
         "parent",
         "student",
@@ -10756,6 +10795,16 @@
       "type": "uses"
     },
     {
+      "from": "decision.photo-transfer-recovery-2026-10-22",
+      "to": "module.school-diary.day-page",
+      "type": "uses"
+    },
+    {
+      "from": "decision.photo-transfer-recovery-2026-10-22",
+      "to": "module.synchronization.event-queue",
+      "type": "uses"
+    },
+    {
       "from": "decision.photo-upload-authorization-and-freshness-2026-10-20",
       "to": "module.synchronization.event-queue",
       "type": "uses"
@@ -12937,6 +12986,11 @@
     },
     {
       "from": "file:src/components/ArtifactAvatar.tsx",
+      "to": "decision.photo-transfer-recovery-2026-10-22",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ArtifactAvatar.tsx",
       "to": "decision.upload-photo-timestamp",
       "type": "implements"
     },
@@ -13862,6 +13916,11 @@
     },
     {
       "from": "file:src/components/WorkPhotoGallery.tsx",
+      "to": "decision.photo-transfer-recovery-2026-10-22",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/WorkPhotoGallery.tsx",
       "to": "decision.upload-photo-timestamp",
       "type": "implements"
     },
@@ -13883,6 +13942,11 @@
     {
       "from": "file:src/components/WorkReview.tsx",
       "to": "decision.collapsed-variant-status-2026-10-21",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/WorkReview.tsx",
+      "to": "decision.photo-transfer-recovery-2026-10-22",
       "type": "implements"
     },
     {
@@ -14482,6 +14546,11 @@
     },
     {
       "from": "file:src/lib/photoOutbox.ts",
+      "to": "decision.photo-transfer-recovery-2026-10-22",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/photoOutbox.ts",
       "to": "module.materials.storage-privacy",
       "type": "implements"
     },
@@ -14598,6 +14667,11 @@
     {
       "from": "file:src/lib/resultPresentation.ts",
       "to": "module.assessments.result-presentation-proposal",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/reviewPresentation.ts",
+      "to": "decision.photo-transfer-recovery-2026-10-22",
       "type": "implements"
     },
     {
@@ -15572,6 +15646,11 @@
     },
     {
       "from": "module.materials.storage-privacy",
+      "to": "decision.photo-transfer-recovery-2026-10-22",
+      "type": "contains"
+    },
+    {
+      "from": "module.materials.storage-privacy",
       "to": "decision.photo-upload-authorization-and-freshness-2026-10-20",
       "type": "contains"
     },
@@ -15593,6 +15672,11 @@
     {
       "from": "module.materials.storage-privacy",
       "to": "file:src/components/LinkedWorkPhotos.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.materials.storage-privacy",
+      "to": "file:src/lib/photoOutbox.test.tsx",
       "type": "verified-by"
     },
     {

@@ -21,8 +21,20 @@ export function artifactAvatarState(upload: DayUpload, review?: DayWorkReview, n
   return 'processing'
 }
 
+/** The queue wait begins when the server confirms the bytes, never when the request was created.
+ * Legacy pending records without a receipt timestamp keep an unknown elapsed time.
+ * @see ../../docs/decisions/photo-transfer-recovery-2026-10-22.md
+ */
+export function firstPendingUploadReceivedAt(uploads: DayUpload[]): unknown {
+  const received = uploads.filter((upload) => upload.status === 'pending')
+    .map((upload) => ({ value: upload.storage?.syncedAt, millis: timestampMillis(upload.storage?.syncedAt) }))
+    .filter((item): item is { value: unknown; millis: number } => item.millis !== null && Number.isFinite(item.millis))
+    .sort((left, right) => left.millis - right.millis)
+  return received[0]?.value
+}
+
 export function localArtifactAvatarState(state: 'uploading' | 'saved' | 'failed' | 'deleting'): ArtifactAvatarState {
-  return state === 'failed' ? 'failed' : state === 'saved' ? 'waiting' : 'uploading'
+  return state === 'failed' ? 'failed' : 'uploading'
 }
 
 export function artifactAvatarLabel(state: ArtifactAvatarState): string {

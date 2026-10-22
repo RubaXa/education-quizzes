@@ -70,7 +70,7 @@
 | [scripts/browser-access-trace.mjs](../scripts/browser-access-trace.mjs) | [Локальная LDD-трасса](modules/families/browser-access-trace.md) | Штатный read-only сбор baseline старой/новой вкладки и анализ receipt | Оператор; родитель при ручном сборе |
 | [scripts/browser-access-trace.test.mjs](../scripts/browser-access-trace.test.mjs) | [Локальная LDD-трасса](modules/families/browser-access-trace.md) | Реальное выполнение collector с canary-секретами и безопасная сводка | Vitest |
 | [docs/decisions/browser-role-ldd-2026-10-18.md](decisions/browser-role-ldd-2026-10-18.md) | [Локальная LDD-трасса](modules/families/browser-access-trace.md) | Прямое основание LDD, граница наблюдения и неизменность ролей/экрана | Разработчик; оператор |
-| [src/components/WorkPhotoGallery.tsx](../src/components/WorkPhotoGallery.tsx) | [Фото и действия](modules/school-diary/day-page.md) | Единая галерея: действия и tooltip/доступное время фото | День; выходные; UI Kit |
+| [src/components/WorkPhotoGallery.tsx](../src/components/WorkPhotoGallery.tsx) | [Фото и действия](modules/school-diary/day-page.md) | Единая галерея: действия, доступное время и видимая ошибка передачи с повтором того же фото | День; выходные; UI Kit |
 | [src/components/WorkPhotoGallery.css](../src/components/WorkPhotoGallery.css) | [Фото и действия](modules/school-diary/day-page.md) | Оформление галереи, компактный режим и время раскрытого фото | WorkPhotoGallery |
 | [src/components/WorkPhotoGallery.test.tsx](../src/components/WorkPhotoGallery.test.tsx) | [Фото и действия](modules/school-diary/day-page.md) | Local→server, доступная дата, просмотр, retry, права и unknown time | Vitest |
 | [src/lib/uploadTimestamp.ts](../src/lib/uploadTimestamp.ts) | [Время фото](modules/school-diary/day-page.md) | Разбор server upload.createdAt и форматирование Europe/Moscow с явным МСК | WorkArtifactImage; галереи |
@@ -518,7 +518,7 @@
 | [src/WeekendMathSlot.test.tsx](../src/WeekendMathSlot.test.tsx) | [Dashboard](modules/school-diary/dashboard.md) | Обе роли выходного спецкурса, выбор учителя, семейное включение и сохранность всех номеров | Vitest; общий `ProblemGroup` |
 | [docs/decisions/weekend-special-course-2026-10-18.md](decisions/weekend-special-course-2026-10-18.md) | [Dashboard](modules/school-diary/dashboard.md) | Причина восстановления выходного слота и единого подсчёта | Агент; оператор синхронизации |
 | [src/components/ArtifactAvatar.css](../src/components/ArtifactAvatar.css) | [Статусы фотографии](modules/school-diary/day-page.md) | Общая миниатюра и положение значка состояния | `src/components/ArtifactAvatar.tsx` |
-| [src/components/ArtifactAvatar.tsx](../src/components/ArtifactAvatar.tsx) | [Система компонентов](shared/design/components.md) | Общий статус, выбор источника фото и компактная метка server upload time | День; слот выходных; ссылки |
+| [src/components/ArtifactAvatar.tsx](../src/components/ArtifactAvatar.tsx) | [Система компонентов](shared/design/components.md) | Общий статус и источник фото; время подтверждённых байтов отделено от времени заявки | День; слот выходных; ссылки |
 | [src/components/AssignmentBrief.css](../src/components/AssignmentBrief.css) | [Дизайн-система](shared/design/README.md) | Оформление точного задания и источника | `AssignmentBrief.tsx` |
 | [src/components/AssignmentBrief.test.tsx](../src/components/AssignmentBrief.test.tsx) | [Ученическая проекция](modules/reviews/subject-card-viewmodel.md) | Дословная инструкция: семейный источник и компактное раскрытие родителя; прежняя формулировка задания МЭШ | Vitest; разработчик |
 | [src/components/AssignmentBrief.tsx](../src/components/AssignmentBrief.tsx) | [Ученическая проекция](modules/reviews/subject-card-viewmodel.md) | Дословное задание и честное объяснение происхождения: семья или учитель/МЭШ | `src/DayPage.tsx` |
@@ -652,7 +652,7 @@
 | [src/lib/parentFocusDay.ts](../src/lib/parentFocusDay.ts) | [Dashboard](modules/school-diary/dashboard.md) | Выбор ближайшего учебного дня по первому уроку конкретного ребёнка | `useParentChildOverview.ts`; кабинет родителя |
 | [src/lib/personalAccess.readBudget.test.ts](../src/lib/personalAccess.readBudget.test.ts) | [План сокращения чтений](modules/synchronization/firestore-read-paths.md) | Интеграционная фикстура графа профиля с поддельным Firestore и счётчиком документов | Vitest; разработчик |
 | [src/lib/personalAccess.ts](../src/lib/personalAccess.ts) | [Семейная модель](modules/families/README.md) | Личная сессия, роли и межвкладочная инвалидация памяти | Стартовая страница; день |
-| [src/lib/photoOutbox.ts](../src/lib/photoOutbox.ts) | [Хранение и приватность](modules/materials/storage-privacy.md) | Локальное хранение фото до передачи | `dayStore`; устройство |
+| [src/lib/photoOutbox.ts](../src/lib/photoOutbox.ts) | [Хранение и приватность](modules/materials/storage-privacy.md) | Локальное хранение фото до подтверждения, состояние передачи, адресный повтор и online/visibility восстановление | `dayStore`; устройство |
 | [src/lib/photoUploadPolicy.test.ts](../src/lib/photoUploadPolicy.test.ts) | [Страница дня](modules/school-diary/day-page.md) | Повторная загрузка после частичной и неясной проверки | Vitest; разработчик |
 | [src/lib/photoUploadPolicy.ts](../src/lib/photoUploadPolicy.ts) | [Страница дня](modules/school-diary/day-page.md) | Общее правило доступности загрузки фото ученику | `DayPage.tsx` |
 | [src/lib/problemGroupSummary.ts](../src/lib/problemGroupSummary.ts) | [Страница дня](modules/school-diary/day-page.md) | Проверяемая сводка номеров и уникальных фото | `src/components/ProblemGroup.tsx` |
@@ -675,7 +675,7 @@
 | [src/lib/resultPresentation.test.ts](../src/lib/resultPresentation.test.ts) | [Контракт](modules/assessments/result-presentation-proposal.md) | Границы результата и различение неизвестного и нуля | Vitest |
 | [src/lib/resultPresentation.ts](../src/lib/resultPresentation.ts) | [Контракт](modules/assessments/result-presentation-proposal.md) | Общий чистый селектор цвета и формата балла до округления | ui/result; QuizCard |
 | [src/lib/reviewPresentation.test.ts](../src/lib/reviewPresentation.test.ts) | [Страница дня](modules/school-diary/day-page.md) | Проверка понятных статусов работ | Vitest; разработчик |
-| [src/lib/reviewPresentation.ts](../src/lib/reviewPresentation.ts) | [Страница дня](modules/school-diary/day-page.md) | Текст и цвет вердиктов | `WorkReview`; `ProblemCard` |
+| [src/lib/reviewPresentation.ts](../src/lib/reviewPresentation.ts) | [Страница дня](modules/school-diary/day-page.md) | Текст и цвет вердиктов, этап передачи и время получения файла перед проверкой | `WorkReview`; `ProblemCard` |
 | [src/lib/spellingFeedback.test.ts](../src/lib/spellingFeedback.test.ts) | [Результат словарного диктанта](modules/assessments/quizzes.md) | Регрессия для неверной буквы, лишней буквы, пропуска и границы других предметов | Vitest; разработчик |
 | [src/lib/spellingFeedback.ts](../src/lib/spellingFeedback.ts) | [Результат словарного диктанта](modules/assessments/quizzes.md) | После отправки называет точное написание, отличающиеся буквы и действие для повтора | `ResultCard` |
 | [src/lib/store.optionalQuiz.test.ts](../src/lib/store.optionalQuiz.test.ts) | [Необязательная самопроверка](modules/assessments/quizzes.md) | Транзакции обязательности и универсального запроса после100%, неизменные ответы, повторы и отказы | Vitest; выпуск |
@@ -872,3 +872,6 @@
 | [docs/decisions/mesh-informational-entry-2026-10-21.md](decisions/mesh-informational-entry-2026-10-21.md) | [Формирование плана](modules/synchronization/plan-generation.md) | Основание классификации, source identity, история, роли и выпуск | EducationSync; разработчик |
 
 | [docs/decisions/day-merge-order-2026-10-22.md](decisions/day-merge-order-2026-10-22.md) | [Формирование плана](modules/synchronization/plan-generation.md) | Решение о порядке слияния и безопасной диагностике публикации | EducationSync; разработчик |
+
+| [docs/decisions/photo-transfer-recovery-2026-10-22.md](decisions/photo-transfer-recovery-2026-10-22.md) | [Хранение и приватность](modules/materials/storage-privacy.md) | Основание восстановления передачи и разделения заявки, получения файла и проверки | Разработчик; оператор |
+| [src/lib/photoOutbox.test.tsx](../src/lib/photoOutbox.test.tsx) | [Хранение и приватность](modules/materials/storage-privacy.md) | Регрессии отказа PUT, видимой ошибки, повторов и гонок состояния загрузки | Vitest; разработчик |

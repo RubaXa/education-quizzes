@@ -190,7 +190,8 @@ describe('Firestore education event producers', () => {
     await uploadDayPhoto('day-token', 'task-1', new File(['bytes'], 'work.png', { type: 'image/png' }), uploadId)
     harness.docs.set(path, { ...harness.docs.get(path), status: 'awaiting-upload', upload: { href: 'https://disk.yandex.net/upload/opaque' } })
     harness.failNextCommitAfterApply = true
-    resumePhotoTransfer('day-token', uploadId, { status: 'awaiting-upload', taskId: 'task-1', upload: { href: 'https://disk.yandex.net/upload/opaque' } })
+    resumePhotoTransfer('day-token', uploadId, { status: 'awaiting-upload', taskId: 'task-1', deviceUid: 'auth-parent-1',
+      upload: { href: 'https://disk.yandex.net/upload/opaque' } })
 
     await vi.waitFor(() => expect(harness.docs.get(path)?.status).toBe('uploaded'))
     const source = harness.docs.get(path)
