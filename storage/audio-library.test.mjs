@@ -89,6 +89,18 @@ describe('shared audio catalogue and exact assignment edges', () => {
     const publishedShape = { subjects: publicPageSubjects(source.subjects), materialLinks: audio }
     expect(JSON.stringify(publishedShape)).not.toContain('audioSelections')
     expect(JSON.stringify(publishedShape)).not.toContain(excerpt)
+    const repeated = resolveAssignmentAudio(source, [book], pageLinks, selections, {
+      [repeat.id]: { ...clarificationReviews[repeat.id], pagePlanRevision: 8 },
+    })
+    expect(repeated).toEqual(audio)
+    expect(() => resolveAssignmentAudio(source, [book], pageLinks, selections, {
+      [repeat.id]: { ...clarificationReviews[repeat.id], pagePlanRevision: 8,
+        review: { ...clarificationReviews[repeat.id].review, planRevision: 9 } },
+    })).toThrow(/не подтверждено/)
+    expect(() => resolveAssignmentAudio(source, [book], pageLinks, selections, {
+      [repeat.id]: { ...clarificationReviews[repeat.id], pagePlanRevision: 8,
+        review: { ...clarificationReviews[repeat.id].review, planRevision: 0 } },
+    })).toThrow(/не подтверждено/)
   })
   it('fails closed for a bad explicit choice, wrong family book, unresolved material, foreign task evidence, or duplicates', () => {
     const first = { id: 'repeat-one', kind: 'check', meshText: 'WB упр.5 стр.15', instructionStatus: { state: 'reviewed' } }
@@ -119,7 +131,10 @@ describe('shared audio catalogue and exact assignment edges', () => {
       [book], pages, { [first.id]: [sourceMaterial] }, wrongEvidence)).toThrow(/не подтверждено/)
     const staleEvidence = { [first.id]: { ...wrongEvidence[first.id], pagePlanRevision: 8, review: { ...wrongEvidence[first.id].review,
       taskId: first.id } } }
-    expect(() => resolveAssignmentAudio({ subjects: [{ name: 'Английский язык', tasks: [clarificationTask] }] },
+    expect(resolveAssignmentAudio({ subjects: [{ name: 'Английский язык', tasks: [clarificationTask] }] },
+      [book], pages, { [first.id]: [sourceMaterial] }, staleEvidence)[first.id]).toHaveLength(1)
+    const replacedRequest = { ...clarificationTask, materialRequest: { ...clarificationTask.materialRequest, id: 'req-replaced' } }
+    expect(() => resolveAssignmentAudio({ subjects: [{ name: 'Английский язык', tasks: [replacedRequest] }] },
       [book], pages, { [first.id]: [sourceMaterial] }, staleEvidence)).toThrow(/не подтверждено/)
     const secondTask = { ...second, materialRequest: { id: 'req-second', state: 'resolved', resolvedTopic: 'Тема', uploadIds: ['up-first'] } }
     const ownReview = (taskId, requestId) => ({ pagePlanRevision: 7, review: { taskId, planRevision: 7,

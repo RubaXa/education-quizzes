@@ -6029,7 +6029,7 @@
       }
     },
     "storage/audio-library.mjs": {
-      "sha256": "60ff3721ee0b7f27d7826980454609c075663a165c983f517801c6266c3cd9a1",
+      "sha256": "09b3c7539c2d09d6c20301b4553d4096cfccafb6e08f14d33a459e46c4d6f3b9",
       "record": "docs/decisions/audio-library-2026-10-22.md",
       "specs": [
         "docs/modules/materials/audio-library.md",

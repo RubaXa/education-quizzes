@@ -144,7 +144,8 @@ export function resolveAssignmentAudio(source, books, pageLinks, selections = {}
         if (request?.state !== 'resolved' || !request.uploadIds?.includes(evidence.ref)
           || review?.purpose !== 'source-material' || review.taskId !== taskId
           || review.status !== undefined || review.workCoverage !== undefined || review.assessmentBasis !== undefined
-          || review.planRevision !== clarification.pagePlanRevision
+          || !Number.isInteger(review.planRevision) || review.planRevision < 1
+          || !Number.isInteger(clarification.pagePlanRevision) || clarification.pagePlanRevision < review.planRevision
           || review.sourceAnalysis?.requestId !== request.id || !review.uploadIds?.includes(evidence.ref)
           || !analysisEvidence.some((item) => item.uploadId === evidence.ref && item.text?.includes(evidence.excerpt))) {
           throw new Error(`Основание фото аудиопривязки ${taskId} не подтверждено разрешённым запросом этого задания.`)
