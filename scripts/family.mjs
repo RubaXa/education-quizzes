@@ -1,3 +1,4 @@
+/** @see ../docs/modules/families/early-development.md */
 /**
  * @see ../docs/product/families.md
  */
@@ -9,6 +10,8 @@ import { operatorFirestore } from './lib/admin-firebase.mjs'
 import { syncChildAccess } from './lib/access-projection.mjs'
 import { inspectFamilyAccess } from './lib/inspect-family-access.mjs'
 import { roleDiagnostics } from './lib/role-diagnostics.mjs'
+import { enableEarlyDevelopment } from './lib/early-development.mjs'
+import { inheritFamilyBooks } from '../storage/family-book-inheritance.mjs'
 import { assertLearningRouteIdentity, learningDayAliases, learningRouteIdentity } from '../day/learning-route-identity.mjs'
 
 /** Agent-only provisioning; there is deliberately no browser administration route.
@@ -79,10 +82,14 @@ async function addParent(familyId, name, childList) {
   name = cleanName(name)
   const childIds = splitIds(childList)
   if (!childIds.length || childIds.some((childId) => !group.childIds.includes(childId))) fail('Укажите ID детей этой семьи через запятую.')
+  const childDocs = await db.getAll(...childIds.map((childId) => db.doc(`families/${familyId}/children/${childId}`)))
+  if (childDocs.some((child) => !child.exists)) fail('Профиль ребёнка не опубликован.')
+  const earlyChildIds = childDocs.filter((child) => child.data().learningMode === 'early-development').map((child) => child.id)
+  const schoolChildIds = childIds.filter((childId) => !earlyChildIds.includes(childId))
   const personId = id(), link = secret(), batch = db.batch()
   batch.set(db.doc(`users/${personId}`), { displayName: name, createdAt: now })
   batch.set(db.doc(`users/${personId}/families/${familyId}`), { createdAt: now })
-  batch.set(db.doc(`families/${familyId}/members/${personId}`), { role: 'parent', displayName: name, active: true, childIds, createdAt: now })
+  batch.set(db.doc(`families/${familyId}/members/${personId}`), { role: 'parent', displayName: name, active: true, childIds: schoolChildIds, ...(earlyChildIds.length ? { earlyChildIds } : {}), createdAt: now })
   batch.set(db.doc(`accessLinks/${link}`), { personId, active: true, createdAt: now })
   await batch.commit()
   registry.people[personId] = { familyId, role: 'parent', displayName: name }
@@ -117,13 +124,25 @@ async function addChild(familyId, name, parentList) {
   saveRegistry()
   await syncChildAccess(db, registry, familyId, childId)
   console.log(`Ребёнок: ${childId}\nПрофиль ученика: ${personId}\nЛичная ссылка сохранена в закрытом реестре.`)
+  try {
+    const books = await inheritFamilyBooks(db, familyId, { targetChildId: childId })
+    console.log(`Книги семьи: доступ добавлен ${books.shared}; ожидают публикации ${books.pending}.`)
+  } catch (error) {
+    console.error(`Профиль уже создан. Для восстановления доступа к книгам выполните family share-books ${familyId}; повторять add-child не нужно.`)
+    throw error
+  }
 }
 
 async function linkParent(familyId, parentId, childId) {
   const group = family(familyId)
   const entry = requireFamilyPerson(familyId, parentId)
   if (entry.role !== 'parent' || !group.childIds.includes(childId)) fail('Нужны родитель и ребёнок одной семьи.')
-  await db.doc(`families/${familyId}/members/${parentId}`).update({ childIds: FieldValue.arrayUnion(childId) })
+  const child = await db.doc(`families/${familyId}/children/${childId}`).get()
+  if (!child.exists) fail('Профиль ребёнка не опубликован.')
+  const early = child.data().learningMode === 'early-development'
+  await db.doc(`families/${familyId}/members/${parentId}`).update(early
+    ? { earlyChildIds: FieldValue.arrayUnion(childId), childIds: FieldValue.arrayRemove(childId) }
+    : { childIds: FieldValue.arrayUnion(childId), earlyChildIds: FieldValue.arrayRemove(childId) })
   if (registry.legacyDayOwner?.familyId === familyId && registry.legacyDayOwner.childId === childId) {
     try { await attachCurrentDay(familyId, childId) }
     catch { console.warn('Переход к старой странице дня ещё не добавлен; связь создана.') }
@@ -132,7 +151,11 @@ async function linkParent(familyId, parentId, childId) {
 }
 
 async function issueLink(personId) {
-  person(personId)
+  const owner = person(personId)
+  if (owner.role === 'student') {
+    const child = await db.doc(`families/${owner.familyId}/children/${owner.childId}`).get()
+    if (child.data()?.learningMode === 'early-development') fail('Ранний раздел открывается через профиль родителя. Ученическая ссылка не выпускается.')
+  }
   const link = secret()
   await db.doc(`accessLinks/${link}`).create({ personId, active: true, createdAt: now })
   registry.links[personId] ??= []
@@ -276,6 +299,8 @@ switch (command) {
   case 'create': await createFamily(args[0], args[1]); break
   case 'add-parent': await addParent(args[0], args[1], args[2]); break
   case 'add-child': await addChild(args[0], args[1], args[2]); break
+  case 'enable-early': console.log(JSON.stringify(await enableEarlyDevelopment(db, registry, { familyId: args[0], childId: args[1], birthDate: args[2], parentIds: splitIds(args[3]) }))); break
+  case 'share-books': family(args[0]); console.log(JSON.stringify(await inheritFamilyBooks(db, args[0]))); break
   case 'link': await linkParent(args[0], args[1], args[2]); break
   case 'issue-link': await issueLink(args[0]); break
   case 'link-url': await showLink(args[0]); break

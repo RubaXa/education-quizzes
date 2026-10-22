@@ -93,9 +93,9 @@ function FamilyBookPages({ familyId, childId, bookId, expectedCount, revision, s
   return <>{expectedCount && links.length < expectedCount && <p>Доступно {links.length} из {expectedCount} страниц. Повторно загружать книгу не нужно.</p>}<MaterialReader links={links} parent book /></>
 }
 
-function FamilyBookEntry({ audioTracks, familyId, childId, childName, bookId, title, multipleChildren, expectedCount, ready, revision, sourceSha256, manifestReady }: { familyId: string; childId: string; childName: string; bookId: string; title: string; multipleChildren: boolean; expectedCount?: number; ready: boolean; revision?: string; sourceSha256?: string; manifestReady: boolean; audioTracks?: DayMaterialLink[] }) {
+function FamilyBookEntry({ audioTracks, familyId, childId, bookId, title, expectedCount, ready, revision, sourceSha256, manifestReady }: { familyId: string; childId: string; childName: string; bookId: string; title: string; multipleChildren: boolean; expectedCount?: number; ready: boolean; revision?: string; sourceSha256?: string; manifestReady: boolean; audioTracks?: DayMaterialLink[] }) {
   const [open, setOpen] = useState(false)
-  return <li className="family-library-book-entry"><div><StatusIcon status={ready ? 'complete' : 'waiting'} size={17} /><span><strong>{title}</strong>{multipleChildren ? ` · ${childName}` : ''}{ready && expectedCount ? ` · ${expectedCount} стр.` : ' · публикация страниц не завершена'}</span><button type="button" aria-expanded={open} onClick={() => setOpen((value) => !value)}>{open ? 'Скрыть страницы' : 'Открыть книгу'}</button></div>
+  return <li className="family-library-book-entry"><div><StatusIcon status={ready ? 'complete' : 'waiting'} size={17} /><span><strong>{title}</strong>{ready && expectedCount ? ` · ${expectedCount} стр.` : ' · публикация страниц не завершена'}</span><button type="button" aria-expanded={open} onClick={() => setOpen((value) => !value)}>{open ? 'Скрыть страницы' : 'Открыть книгу'}</button></div>
     {!!audioTracks?.length && <details><summary>Аудиозаписи · {audioTracks.length}</summary><AudioLibrary tracks={audioTracks} /></details>}
     {open && <FamilyBookPages familyId={familyId} childId={childId} bookId={bookId} expectedCount={expectedCount} revision={ready ? revision : undefined} sourceSha256={ready ? sourceSha256 : undefined} manifestReady={ready && manifestReady} />}
   </li>
@@ -148,7 +148,7 @@ export function FamilyLibrary({ familyId, familyChildren }: { familyId: string; 
   const viewableCount = library.books.filter(pagesReady).length
   const missing = needs.filter((need) => need.state === 'missing')
   const hasCompleteSnapshot = !library.loading && (!library.error || library.fromCache)
-  const unresolved = hasCompleteSnapshot && (library.observedDays === 0 || library.observedSubjects === 0 || library.unobservedChildren.length > 0 || needs.length > 0)
+  const unresolved = hasCompleteSnapshot && needs.length > 0
 
   async function upload(need: BookNeed, file: File) {
     const id = `${need.childId}:${need.subjectKey}`
@@ -167,7 +167,7 @@ export function FamilyLibrary({ familyId, familyChildren }: { familyId: string; 
 
   return <section className={`family-library ${unresolved ? 'family-library-needs' : 'family-library-ready'}`} aria-label="Учебники семьи">
     {unresolved ? <div className="family-library-main">
-      <div className="family-library-heading"><StatusIcon status="needs-fix" size={23} /><div><h2>Нужны учебники и материалы</h2><p>Для проверки заданий нужны книги именно вашей семьи. Предметы взяты из загруженного расписания; общий архив не назначает семье учебник автоматически.</p></div></div>
+      <div className="family-library-heading"><StatusIcon status="needs-fix" size={23} /><div><h2>Нужны учебники и материалы</h2><p>Загруженные книги доступны всем вашим детям. Здесь показаны только материалы, которых ещё нет для известных предметов расписания.</p></div></div>
       {library.observedDays === 0 || library.observedSubjects === 0 ? <p>Предметы расписания ещё не загружены. После их появления здесь будет список нужных учебников.</p>
             : <><p className="family-library-count">{missing.length ? `Не хватает по ${missing.length} ${missing.length === 1 ? 'предмету' : 'предметам'}.` : 'Переданные файлы обрабатываются или состав материалов уточняется.'}</p>
               {library.unobservedChildren.length > 0 && <p>Расписание пока не содержит предметы для: {library.unobservedChildren.join(', ')}. Комплект этого ребёнка ещё неизвестен.</p>}
@@ -187,7 +187,8 @@ export function FamilyLibrary({ familyId, familyChildren }: { familyId: string; 
       {confirmed.length ? <ul>{confirmed.map((book) => <FamilyBookEntry audioTracks={book.audioLibrary?.tracks} key={`${book.childId}:${book.bookId}`} familyId={familyId} childId={book.childId} childName={familyChildren.find((child) => child.childId === book.childId)?.displayName ?? 'Ребёнок'} bookId={book.bookId} title={book.title} multipleChildren={familyChildren.length > 1} expectedCount={book.pdfPageCount} ready={pagesReady(book)} revision={pagesRevision(book)} sourceSha256={book.pagesPublishedSha256} manifestReady={book.pagesManifestSha256 === book.pagesPublishedSha256} />)}</ul>
         : <p>Подтверждённых книг пока нет. Общие документы других семей здесь не отображаются.</p>}
       {provisional.length > 0 && <div className="family-library-provisional"><strong>Переданы, но издание ещё не подтверждено для уроков</strong><ul>{provisional.map((book) => <FamilyBookEntry audioTracks={book.audioLibrary?.tracks} key={`${book.childId}:${book.bookId}`} familyId={familyId} childId={book.childId} childName={familyChildren.find((child) => child.childId === book.childId)?.displayName ?? 'Ребёнок'} bookId={book.bookId} title={book.title} multipleChildren={familyChildren.length > 1} expectedCount={book.pdfPageCount} ready={pagesReady(book)} revision={pagesRevision(book)} sourceSha256={book.pagesPublishedSha256} manifestReady={book.pagesManifestSha256 === book.pagesPublishedSha256} />)}</ul></div>}
-      {hasCompleteSnapshot && !unresolved && !library.fromCache && <p className="family-library-note">Комплект для известных предметов подтверждён. Если расписание изменится, нужные книги снова появятся наверху кабинета.</p>}
+      {hasCompleteSnapshot && library.unobservedChildren.length > 0 && <p className="family-library-note">Предметы расписания ещё уточняются. Это не ограничивает доступ к загруженным книгам семьи.</p>}
+      {hasCompleteSnapshot && !unresolved && !library.fromCache && library.observedSubjects > 0 && library.unobservedChildren.length === 0 && <p className="family-library-note">Для известных предметов книги доступны. Издание для конкретного задания уточняется отдельно.</p>}
     </details>
   </section>
 }

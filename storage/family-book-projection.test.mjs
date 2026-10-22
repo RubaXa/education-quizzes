@@ -1,6 +1,10 @@
 import { describe, expect, it, vi } from 'vitest'
 import { projectPublishedBookToFamily, validFamilyBookManifest } from './family-book-projection.mjs'
 
+vi.mock('./family-book-inheritance.mjs', async importOriginal => ({
+  ...await importOriginal(), sharePublishedFamilyBook: vi.fn(async () => ({ shared: 0 })),
+}))
+
 function fixture({ binding = {}, pages = [], familyCount = 0, catalog = {} } = {}) {
   const familyRef = { parent: { id: 'families' } }
   const manifestWrites = []

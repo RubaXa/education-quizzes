@@ -894,17 +894,21 @@
       }
     },
     "packages/education-runtime/identity.mjs": {
-      "sha256": "ef69fd2dd4b426b8a714711ea5820f56665728950d252b39261e0b01c32d8c4f",
-      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "sha256": "6c8ec81ab9abab524bc57562a2dc10554ce3948cf80b9b88d4ba8153d429f3c6",
+      "record": "docs/decisions/early-development-live-2026-10-22.md",
       "specs": [
-        "docs/shared/server-runtime.md"
+        "docs/modules/families/early-development.md"
       ],
       "tests": [
-        "packages/education-runtime/identity.test.mjs"
+        "scripts/lib/early-development.test.mjs",
+        "src/lib/earlyDevelopmentStore.test.ts",
+        "src/components/ParentHome.early.test.tsx",
+        "src/components/EarlyDevelopment.test.tsx",
+        "src/components/PersonalEntry.role.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+        "evidence": "Родитель22.10 утвердил конкретный сценарий Сегодня/Программа/Дневник и прямо поручил рабочее подключение с телефона, GitHub/публикацию; Google/Firebase отдельно подтверждены."
       }
     },
     "packages/education-runtime/legacy-event-reconciliation.mjs": {
@@ -2050,32 +2054,21 @@
       }
     },
     "scripts/family.mjs": {
-      "sha256": "8944ad137eb2cf78959d89f7c09c452907af58776522e0d46ab446c3f0d22ec0",
-      "record": "docs/decisions/role-projection-diagnostics-2026-10-18.md",
+      "sha256": "36ee2f8fef6b8b96faf99ede141523446f0ed23049eaf87bf42d66ad50b4556c",
+      "record": "docs/decisions/early-development-live-2026-10-22.md",
       "specs": [
-        "docs/modules/families/access-and-state.md",
-        "docs/shared/specification-system.md"
+        "docs/modules/families/early-development.md"
       ],
       "tests": [
-        "scripts/lib/inspect-family-access.test.mjs",
-        "src/components/LearningRoute.integration.test.tsx",
-        "src/lib/learningRoute.test.ts",
-        "day/learning-route-identity.test.mjs",
-        "src/components/ProblemTaskCard.contract.test.tsx",
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
+        "scripts/lib/early-development.test.mjs",
+        "src/lib/earlyDevelopmentStore.test.ts",
+        "src/components/ParentHome.early.test.tsx",
+        "src/components/EarlyDevelopment.test.tsx",
+        "src/components/PersonalEntry.role.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10.2026 прямо требует определять родительский и ученический вид по авторизованной роли, а учебные ссылки сделать одинаковыми для обеих ролей."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "83f90f44906b7159f59f6be78c2f8dc29d380b8f198fe20344be63c4acbca08b"
-      },
-      "specificationLifecycle": {
-        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
-        "previousSha256": "abaf5547f99f57062a9d1ef680ef482614a01813decb114f5464a18b6eed7d8c"
+        "evidence": "Родитель22.10 утвердил конкретный сценарий Сегодня/Программа/Дневник и прямо поручил рабочее подключение с телефона, GitHub/публикацию; Google/Firebase отдельно подтверждены."
       }
     },
     "scripts/firestore-read-index.mjs": {
@@ -2579,35 +2572,21 @@
       }
     },
     "src/App.tsx": {
-      "sha256": "439929089ae2bf49e84567966aef6989425fa558fbfa3c8557c017836c997fc6",
-      "record": "docs/decisions/ldd-copy-button-2026-10-19.md",
+      "sha256": "53336ea1ebfe49129e7abd788c237b4292f89bb7ffbbd917437267ac367f5d33",
+      "record": "docs/decisions/early-development-live-2026-10-22.md",
       "specs": [
-        "docs/modules/families/access-and-state.md",
-        "docs/modules/assessments/result-presentation-proposal.md",
-        "docs/modules/assessments/quiz-chain-proposal.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/families/early-development.md"
       ],
       "tests": [
-        "src/components/LearningRoute.integration.test.tsx",
-        "src/lib/learningRoute.test.ts",
-        "day/learning-route-identity.test.mjs",
-        "src/components/ProblemTaskCard.contract.test.tsx",
-        "src/components/QuizCard.history.test.tsx",
-        "src/components/ui/result.test.tsx",
-        "src/lib/watchQuizOutcome.test.ts",
-        "src/UiKit.test.tsx"
+        "scripts/lib/early-development.test.mjs",
+        "src/lib/earlyDevelopmentStore.test.ts",
+        "src/components/ParentHome.early.test.tsx",
+        "src/components/EarlyDevelopment.test.tsx",
+        "src/components/PersonalEntry.role.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10.2026 прямо требует определять родительский и ученический вид по авторизованной роли, а учебные ссылки сделать одинаковыми для обеих ролей."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "9202a31edde2f11564f808668e2aa65683ae30cd050e7eb4df9b920884f8a13f"
-      },
-      "specificationLifecycle": {
-        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
-        "previousSha256": "871b4426382fbffddbaf76874563ffce4d33248cad556a4ba9db0506ba83fec9"
+        "evidence": "Родитель22.10 утвердил конкретный сценарий Сегодня/Программа/Дневник и прямо поручил рабочее подключение с телефона, GitHub/публикацию; Google/Firebase отдельно подтверждены."
       }
     },
     "src/DayDashboard.css": {
@@ -2999,22 +2978,21 @@
       }
     },
     "src/components/FamilyAccessCards.tsx": {
-      "sha256": "adee4b30f8edbcb6c6ccfc80bbacf7cb66306e32aac4820b5821e61b8a5d4f5f",
-      "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
+      "sha256": "71cfd9db885707ccea3bd3b15874320499484f885f1d7eae290eb0a8ffd305c9",
+      "record": "docs/decisions/early-development-live-2026-10-22.md",
       "specs": [
-        "docs/shared/specification-system.md"
+        "docs/modules/families/early-development.md"
       ],
       "tests": [
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
+        "scripts/lib/early-development.test.mjs",
+        "src/lib/earlyDevelopmentStore.test.ts",
+        "src/components/ParentHome.early.test.tsx",
+        "src/components/EarlyDevelopment.test.tsx",
+        "src/components/PersonalEntry.role.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя 16.10.2026 внедрить согласованную структуру спецификаций, перенести ссылки в коде и проверить сохранность требований; изменение предметного поведения не выполнялось."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "cfc8ec9ca8449909549025eba498cf9bd78dc224a6762944cf16928ee37b7c4d"
+        "evidence": "Родитель22.10 утвердил конкретный сценарий Сегодня/Программа/Дневник и прямо поручил рабочее подключение с телефона, GitHub/публикацию; Google/Firebase отдельно подтверждены."
       }
     },
     "src/components/FamilyLibrary.css": {
@@ -3037,26 +3015,21 @@
       }
     },
     "src/components/FamilyLibrary.tsx": {
-      "sha256": "2cb2d75cf83544f1cd4005685e59d0413c3d1046604da7e01c4e2772d0b896b5",
-      "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
+      "sha256": "38ff7214ae40c28025bfbaec5abb0e30f2d69b63264d7e22b7cd6e28355336e3",
+      "record": "docs/decisions/family-book-access-2026-10-22.md",
       "specs": [
-        "docs/shared/specification-system.md"
+        "docs/modules/materials/family-library.md",
+        "docs/modules/families/README.md"
       ],
       "tests": [
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
+        "storage/family-book-inheritance.test.mjs",
+        "storage/family-book-projection.test.mjs",
+        "src/lib/familyLibrary.access.test.ts",
+        "src/components/ParentHome.readBudget.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя 16.10.2026 внедрить согласованную структуру спецификаций, перенести ссылки в коде и проверить сохранность требований; изменение предметного поведения не выполнялось."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "8ab6cc38c53c5e2ea85e23226b8005124e18e9542d8a1f52a9c270a2f209aa0d"
-      },
-      "specificationLifecycle": {
-        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
-        "previousSha256": "b429d4342405b3cb27771e6f26b3a0ca346220e357cd60fa712d4252358b2253"
+        "evidence": "Родитель22.10.2026 прямо уточнил: любой его добавленный ребёнок автоматически имеет доступ ко всем уже загруженным им учебникам; повторная загрузка внутри семьи не требуется."
       }
     },
     "src/components/GradeAverage.css": {
@@ -3319,27 +3292,21 @@
       }
     },
     "src/components/ParentHome.tsx": {
-      "sha256": "c33412afcdf8cd78d39be32579ccb62ece9e6394de04a49d5b1d8cb756c9b718",
-      "record": "docs/decisions/authenticated-learning-routes-2026-10-18.md",
+      "sha256": "c35cbd50d38fa22a3299f82f58d443ad0a7cc27ad418c51caacb8fe2dac67a33",
+      "record": "docs/decisions/early-development-live-2026-10-22.md",
       "specs": [
-        "docs/modules/families/access-and-state.md",
-        "docs/shared/specification-system.md"
+        "docs/modules/families/early-development.md"
       ],
       "tests": [
-        "src/components/LearningRoute.integration.test.tsx",
-        "src/lib/learningRoute.test.ts",
-        "day/learning-route-identity.test.mjs",
-        "src/components/ProblemTaskCard.contract.test.tsx",
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
+        "scripts/lib/early-development.test.mjs",
+        "src/lib/earlyDevelopmentStore.test.ts",
+        "src/components/ParentHome.early.test.tsx",
+        "src/components/EarlyDevelopment.test.tsx",
+        "src/components/PersonalEntry.role.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10.2026 прямо требует определять родительский и ученический вид по авторизованной роли, а учебные ссылки сделать одинаковыми для обеих ролей."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "6de59bc10e6f09c6d081d8d395c0b924484e8087eadc5fea2b55b2234ac61d82"
+        "evidence": "Родитель22.10 утвердил конкретный сценарий Сегодня/Программа/Дневник и прямо поручил рабочее подключение с телефона, GitHub/публикацию; Google/Firebase отдельно подтверждены."
       }
     },
     "src/components/ParentTaskGuide.css": {
@@ -3388,23 +3355,21 @@
       }
     },
     "src/components/PersonalEntry.tsx": {
-      "sha256": "8f74ca72cc20fb688acf1b37c85680701b4ebd611249cdfb8af94b127ea44fa2",
-      "record": "docs/decisions/ldd-copy-button-2026-10-19.md",
+      "sha256": "258cb59f17ca5479ba9373b966fc8ff3f7029ec95280ffa9b4065eceb8ea715b",
+      "record": "docs/decisions/early-development-live-2026-10-22.md",
       "specs": [
-        "docs/modules/families/access-and-state.md",
-        "docs/shared/access-and-privacy.md"
+        "docs/modules/families/early-development.md"
       ],
       "tests": [
-        "src/components/PersonalEntry.localFirst.test.tsx",
-        "src/components/PersonalEntry.role.integration.test.tsx",
-        "src/components/LearningRoute.integration.test.tsx",
-        "src/components/LearningRoute.weekend.integration.test.tsx",
-        "src/lib/personalAccess.identityRace.test.ts",
-        "src/lib/personalAccess.readBudget.test.ts"
+        "scripts/lib/early-development.test.mjs",
+        "src/lib/earlyDevelopmentStore.test.ts",
+        "src/components/ParentHome.early.test.tsx",
+        "src/components/EarlyDevelopment.test.tsx",
+        "src/components/PersonalEntry.role.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10 отверг несогласованный экран проверки прав, требует local-first и одинаковую роль в вебе/приложении без новых ссылок и действий."
+        "evidence": "Родитель22.10 утвердил конкретный сценарий Сегодня/Программа/Дневник и прямо поручил рабочее подключение с телефона, GitHub/публикацию; Google/Firebase отдельно подтверждены."
       }
     },
     "src/components/PhotoUploadControl.tsx": {
@@ -4346,22 +4311,21 @@
       }
     },
     "src/lib/familyLibrary.ts": {
-      "sha256": "0765d6cccd3900e568241f449fc251118c94b67692f05b65f42582821ef738dc",
-      "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
+      "sha256": "f15695569514c6ae2abb9e24ae4c4ca262ac9612da9b3d7bf5b06e73d5cf579c",
+      "record": "docs/decisions/early-development-live-2026-10-22.md",
       "specs": [
-        "docs/shared/specification-system.md"
+        "docs/modules/families/early-development.md"
       ],
       "tests": [
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
+        "scripts/lib/early-development.test.mjs",
+        "src/lib/earlyDevelopmentStore.test.ts",
+        "src/components/ParentHome.early.test.tsx",
+        "src/components/EarlyDevelopment.test.tsx",
+        "src/components/PersonalEntry.role.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя 16.10.2026 внедрить согласованную структуру спецификаций, перенести ссылки в коде и проверить сохранность требований; изменение предметного поведения не выполнялось."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "e3af5138d3ce62ae478041ef55afa60473e46aa62a0f372f434071e48bf4b2b8"
+        "evidence": "Родитель22.10 утвердил конкретный сценарий Сегодня/Программа/Дневник и прямо поручил рабочее подключение с телефона, GitHub/публикацию; Google/Firebase отдельно подтверждены."
       }
     },
     "src/lib/guideReadPolicy.ts": {
@@ -4601,23 +4565,21 @@
       }
     },
     "src/lib/personalAccess.ts": {
-      "sha256": "dc4576ad3e154550483fadd8ad1f4e85b9737c8cb018663302ee7585d69c97f5",
-      "record": "docs/decisions/ldd-copy-button-2026-10-19.md",
+      "sha256": "d0cf60902f8e828f125909c257782f1dc121769558c57f1bb9de85540b0bbfe9",
+      "record": "docs/decisions/early-development-live-2026-10-22.md",
       "specs": [
-        "docs/modules/families/access-and-state.md",
-        "docs/shared/access-and-privacy.md"
+        "docs/modules/families/early-development.md"
       ],
       "tests": [
-        "src/components/PersonalEntry.localFirst.test.tsx",
-        "src/components/PersonalEntry.role.integration.test.tsx",
-        "src/components/LearningRoute.integration.test.tsx",
-        "src/components/LearningRoute.weekend.integration.test.tsx",
-        "src/lib/personalAccess.identityRace.test.ts",
-        "src/lib/personalAccess.readBudget.test.ts"
+        "scripts/lib/early-development.test.mjs",
+        "src/lib/earlyDevelopmentStore.test.ts",
+        "src/components/ParentHome.early.test.tsx",
+        "src/components/EarlyDevelopment.test.tsx",
+        "src/components/PersonalEntry.role.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10 отверг несогласованный экран проверки прав, требует local-first и одинаковую роль в вебе/приложении без новых ссылок и действий."
+        "evidence": "Родитель22.10 утвердил конкретный сценарий Сегодня/Программа/Дневник и прямо поручил рабочее подключение с телефона, GitHub/публикацию; Google/Firebase отдельно подтверждены."
       }
     },
     "src/lib/photoOutbox.ts": {
@@ -5193,17 +5155,21 @@
       }
     },
     "storage/family-book-projection.mjs": {
-      "sha256": "21b6016736f9e5c23fcc3eab97fbc426f8b16f49fbb736ba9988ffeeb2d28e7a",
-      "record": "docs/decisions/unified-education-events-2026-10-19.md",
+      "sha256": "7300f3ffb8aa03eb64600fb36afcb3bd2bc83955fca89789b468109412fab256",
+      "record": "docs/decisions/family-book-access-2026-10-22.md",
       "specs": [
-        "docs/modules/synchronization/event-queue.md"
+        "docs/modules/materials/family-library.md",
+        "docs/modules/families/README.md"
       ],
       "tests": [
-        "storage/family-book-projection.test.mjs"
+        "storage/family-book-inheritance.test.mjs",
+        "storage/family-book-projection.test.mjs",
+        "src/lib/familyLibrary.access.test.ts",
+        "src/components/ParentHome.readBudget.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 требует одну внутреннюю очередь событий и одну подписку вместо множества source watchers; ранее поручил реализацию через Luna с проверкой root, тестами, спецификациями и выпуском в main."
+        "evidence": "Родитель22.10.2026 прямо уточнил: любой его добавленный ребёнок автоматически имеет доступ ко всем уже загруженным им учебникам; повторная загрузка внутри семьи не требуется."
       }
     },
     "storage/family-book-upload.mjs": {
@@ -5591,17 +5557,21 @@
       }
     },
     "sync/project-plan.mjs": {
-      "sha256": "c4bc8b430f7833c3cea6f89fd0dc2803a3d640ebbb49b22c2afdde555e12266c",
-      "record": "docs/decisions/shared-server-runtime-2026-10-17.md",
+      "sha256": "bb57770d73443ca2fba0981980f887a54b128f4e72d3f8c63e0017f6fe5a9026",
+      "record": "docs/decisions/early-development-live-2026-10-22.md",
       "specs": [
-        "docs/shared/server-runtime.md"
+        "docs/modules/families/early-development.md"
       ],
       "tests": [
-        "sync/project-plan.test.mjs"
+        "scripts/lib/early-development.test.mjs",
+        "src/lib/earlyDevelopmentStore.test.ts",
+        "src/components/ParentHome.early.test.tsx",
+        "src/components/EarlyDevelopment.test.tsx",
+        "src/components/PersonalEntry.role.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь17.10.2026 поручил Luna объединить механизмы education-sync и Telegram, добавить telemetry, проверить реальные источники, нагрузку, постоянный запуск, выполнить commit/push."
+        "evidence": "Родитель22.10 утвердил конкретный сценарий Сегодня/Программа/Дневник и прямо поручил рабочее подключение с телефона, GitHub/публикацию; Google/Firebase отдельно подтверждены."
       }
     },
     "sync/publication-audit.mjs": {
@@ -6061,6 +6031,78 @@
         "evidence": "Прямой запрос пользователя связывать аудио с точным заданием после анализа уточняющих материалов; выбор должен использовать подтверждённые материалы ребёнка и не смешивать письменную сдачу с тестом."
       }
     },
+    "storage/family-book-inheritance.mjs": {
+      "sha256": "d4b9d81e0d920d6f16445cc86d08aa6e6017c75d153b37fd362259a79a07ba36",
+      "record": "docs/decisions/family-book-access-2026-10-22.md",
+      "specs": [
+        "docs/modules/materials/family-library.md",
+        "docs/modules/families/README.md"
+      ],
+      "tests": [
+        "storage/family-book-inheritance.test.mjs",
+        "storage/family-book-projection.test.mjs",
+        "src/lib/familyLibrary.access.test.ts",
+        "src/components/ParentHome.readBudget.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель22.10.2026 прямо уточнил: любой его добавленный ребёнок автоматически имеет доступ ко всем уже загруженным им учебникам; повторная загрузка внутри семьи не требуется."
+      }
+    },
+    "src/components/EarlyDevelopment.tsx": {
+      "sha256": "c816d25b2dcffc5d78580cd9d84a70dbbd64e7734d293158305ceb04676b6c30",
+      "record": "docs/decisions/early-development-live-2026-10-22.md",
+      "specs": [
+        "docs/modules/families/early-development.md"
+      ],
+      "tests": [
+        "scripts/lib/early-development.test.mjs",
+        "src/lib/earlyDevelopmentStore.test.ts",
+        "src/components/ParentHome.early.test.tsx",
+        "src/components/EarlyDevelopment.test.tsx",
+        "src/components/PersonalEntry.role.integration.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель22.10 утвердил конкретный сценарий Сегодня/Программа/Дневник и прямо поручил рабочее подключение с телефона, GitHub/публикацию; Google/Firebase отдельно подтверждены."
+      }
+    },
+    "src/components/EarlyDevelopment.css": {
+      "sha256": "ad78ceb591375abb1e294e82c1360b306c44a1f540487f533e72a6404730869b",
+      "record": "docs/decisions/early-development-live-2026-10-22.md",
+      "specs": [
+        "docs/modules/families/early-development.md"
+      ],
+      "tests": [
+        "scripts/lib/early-development.test.mjs",
+        "src/lib/earlyDevelopmentStore.test.ts",
+        "src/components/ParentHome.early.test.tsx",
+        "src/components/EarlyDevelopment.test.tsx",
+        "src/components/PersonalEntry.role.integration.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель22.10 утвердил конкретный сценарий Сегодня/Программа/Дневник и прямо поручил рабочее подключение с телефона, GitHub/публикацию; Google/Firebase отдельно подтверждены."
+      }
+    },
+    "src/lib/earlyDevelopment.ts": {
+      "sha256": "d1c7525d76f2f46d5b022d0468f1ed9ae9f2814b0a7f12fe15d43619468e50d4",
+      "record": "docs/decisions/early-development-live-2026-10-22.md",
+      "specs": [
+        "docs/modules/families/early-development.md"
+      ],
+      "tests": [
+        "scripts/lib/early-development.test.mjs",
+        "src/lib/earlyDevelopmentStore.test.ts",
+        "src/components/ParentHome.early.test.tsx",
+        "src/components/EarlyDevelopment.test.tsx",
+        "src/components/PersonalEntry.role.integration.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель22.10 утвердил конкретный сценарий Сегодня/Программа/Дневник и прямо поручил рабочее подключение с телефона, GitHub/публикацию; Google/Firebase отдельно подтверждены."
+      }
+    },
     "pwa/sw-template.js": {
       "sha256": "8a47c5f0cfcf1dec8ac187e2def0543fe3ede150e34b26d60a865fd829e6b243",
       "record": "docs/decisions/pwa-startup-recovery-2026-10-22.md",
@@ -6073,6 +6115,96 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Пользователь22.10.2026 сообщил о повторном сбое WebKit при запуске Education с домашней иконки iPhone и попросил исследовать исправление, автоматическую загрузку или кнопку обновления."
+      }
+    },
+    "src/components/EarlyDevelopmentPage.tsx": {
+      "sha256": "fe8f3c57b747cf2c07863fe6e5a2ed2a42b5aa2a1bf58a0b3d53fee1642f5d4a",
+      "record": "docs/decisions/early-development-live-2026-10-22.md",
+      "specs": [
+        "docs/modules/families/early-development.md"
+      ],
+      "tests": [
+        "scripts/lib/early-development.test.mjs",
+        "src/lib/earlyDevelopmentStore.test.ts",
+        "src/components/ParentHome.early.test.tsx",
+        "src/components/EarlyDevelopment.test.tsx",
+        "src/components/PersonalEntry.role.integration.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель22.10 утвердил конкретный сценарий Сегодня/Программа/Дневник и прямо поручил рабочее подключение с телефона, GitHub/публикацию; Google/Firebase отдельно подтверждены."
+      }
+    },
+    "src/lib/earlyDevelopmentStore.ts": {
+      "sha256": "930856a361bd00d675054e5bcea3138c3d7967d481494be7dfcfd1bc52dbd8b7",
+      "record": "docs/decisions/early-development-live-2026-10-22.md",
+      "specs": [
+        "docs/modules/families/early-development.md"
+      ],
+      "tests": [
+        "scripts/lib/early-development.test.mjs",
+        "src/lib/earlyDevelopmentStore.test.ts",
+        "src/components/ParentHome.early.test.tsx",
+        "src/components/EarlyDevelopment.test.tsx",
+        "src/components/PersonalEntry.role.integration.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель22.10 утвердил конкретный сценарий Сегодня/Программа/Дневник и прямо поручил рабочее подключение с телефона, GitHub/публикацию; Google/Firebase отдельно подтверждены."
+      }
+    },
+    "scripts/lib/early-development.mjs": {
+      "sha256": "afeb6d866a407e16c664336e6bf4b68245e8976f8e29ab9b6d3552357a5152b3",
+      "record": "docs/decisions/early-development-live-2026-10-22.md",
+      "specs": [
+        "docs/modules/families/early-development.md"
+      ],
+      "tests": [
+        "scripts/lib/early-development.test.mjs",
+        "src/lib/earlyDevelopmentStore.test.ts",
+        "src/components/ParentHome.early.test.tsx",
+        "src/components/EarlyDevelopment.test.tsx",
+        "src/components/PersonalEntry.role.integration.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель22.10 утвердил конкретный сценарий Сегодня/Программа/Дневник и прямо поручил рабочее подключение с телефона, GitHub/публикацию; Google/Firebase отдельно подтверждены."
+      }
+    },
+    "scripts/check-early-rules.mjs": {
+      "sha256": "03262e6ff4cbae5b63e5adc0e6e2528cf7f18b1a8b9cf9e7c8df5ca1da7b0301",
+      "record": "docs/decisions/early-development-live-2026-10-22.md",
+      "specs": [
+        "docs/modules/families/early-development.md"
+      ],
+      "tests": [
+        "scripts/lib/early-development.test.mjs",
+        "src/lib/earlyDevelopmentStore.test.ts",
+        "src/components/ParentHome.early.test.tsx",
+        "src/components/EarlyDevelopment.test.tsx",
+        "src/components/PersonalEntry.role.integration.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель22.10 утвердил конкретный сценарий Сегодня/Программа/Дневник и прямо поручил рабочее подключение с телефона, GitHub/публикацию; Google/Firebase отдельно подтверждены."
+      }
+    },
+    "scripts/check-early-live.mjs": {
+      "sha256": "4089b3bb1741c2ebb0277eeda1f552e44c94afbc99291481f6d9510fb6f61122",
+      "record": "docs/decisions/early-development-live-2026-10-22.md",
+      "specs": [
+        "docs/modules/families/early-development.md"
+      ],
+      "tests": [
+        "scripts/lib/early-development.test.mjs",
+        "src/lib/earlyDevelopmentStore.test.ts",
+        "src/components/ParentHome.early.test.tsx",
+        "src/components/EarlyDevelopment.test.tsx",
+        "src/components/PersonalEntry.role.integration.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель22.10 утвердил конкретный сценарий Сегодня/Программа/Дневник и прямо поручил рабочее подключение с телефона, GitHub/публикацию; Google/Firebase отдельно подтверждены."
       }
     }
   }
