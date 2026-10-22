@@ -7,7 +7,10 @@ import { canPublishSourceOnly } from './source-only.mjs'
 
 function stripSourceOnlyEnrichment(task) {
   for (const key of ['steps', 'submission', 'parentGuide', 'problems', 'practiceVariants', 'cardPattern',
-    'outputKind', 'testToken', 'testSlug', 'requiredPoints', 'assessmentIntent', 'sourceInventory']) delete task[key]
+    'outputKind', 'testToken', 'testSlug', 'requiredPoints', 'sourceInventory']) delete task[key]
+  // A validated open source request needs its incomplete intent after every merge.
+  // @see ../docs/modules/materials/material-clarification.md
+  if (task.materialRequest?.state !== 'open') delete task.assessmentIntent
   return task
 }
 
@@ -37,6 +40,7 @@ function mergeSubjects(existing = [], incoming = [], retiredTaskIds = new Set())
       if (!old) return task
       const sameCondition = old.meshText === task.meshText && old.kind === task.kind
       const merged = sameCondition ? { ...old, ...task } : { ...task }
+      if (task.materialRequest?.state === 'resolved' && task.instructionStatus?.state === 'reviewed' && !task.assessmentIntent) delete merged.assessmentIntent
       if (canPublishSourceOnly(task)) stripSourceOnlyEnrichment(merged)
       merged.status = sameCondition && task.status === 'unknown' && old.status !== 'unknown' ? old.status : task.status
       if (!isExplicitCdzTask(merged)) delete merged.platformResult

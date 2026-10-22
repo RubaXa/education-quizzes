@@ -35,11 +35,17 @@ it('turns explicit written and rule repetition into two independent source reque
   expect(tasks[1].materialRequest.question).toContain('6')
   expect(tasks[1].materialRequest.question).toContain('самопроверку')
   expect(tasks.every(t=>sourceOnlyPublicationErrors(t).length===0)).toBe(true)
+  const repeatedPage=mergeDayPage(source,source)
+  expect(repeatedPage.subjects[0].tasks.every(t=>sourceOnlyPublicationErrors(t).length===0)).toBe(true)
   expect(()=>assertSourceAligned(source,target)).not.toThrow()
   tasks[0].status='verified'
   tasks[0].instructionStatus={state:'reviewed',message:'Условие сверено отдельно.'}
   tasks[0].sourceOnly=false
+  delete tasks[0].assessmentIntent
   tasks[0].materialRequest={...tasks[0].materialRequest,state:'resolved',resolvedTopic:'Письменное упражнение 4',uploadIds:['one']}
+  const clarifiedPage=mergeDayPage(repeatedPage,source)
+  expect(clarifiedPage.subjects[0].tasks[0].assessmentIntent).toBeUndefined()
+  expect(clarifiedPage.subjects[0].tasks[1].assessmentIntent).toEqual({state:'needs-review'})
   write(join(dir,'day-source-2026-10-22.json'),source)
   buildDaySource(dir,'2026-10-22')
   expect(read().subjects[0].tasks[0].status).toBe('verified')
