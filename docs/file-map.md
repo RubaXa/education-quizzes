@@ -106,7 +106,7 @@
 | Файл | Спецификация | Назначение | Потребитель |
 |---|---|---|---|
 | [day/mixed-assignment.mjs](../day/mixed-assignment.mjs) | [Смешанное назначение](modules/synchronization/plan-generation.md) | Точное выделение письменного действия и повторения, независимые запросы и проверка полного состава | day build; publication preflight |
-| [day/mixed-assignment.test.mjs](../day/mixed-assignment.test.mjs) | [Смешанное назначение](modules/synchronization/plan-generation.md) | Две карточки, раздельные состояния, повторная сборка и отказ при пропавшей части | Vitest |
+| [day/mixed-assignment.test.mjs](../day/mixed-assignment.test.mjs) | [Смешанное назначение](modules/synchronization/plan-generation.md) | Две карточки, раздельные состояния, точная аудиопривязка к повторению без смешения письменной сдачи и теста | Vitest |
 
 Карта сохраняет прежние привязки при переносе документов. `npm run check:spec` проверяет полноту и локальные ссылки, а производный граф использует эти же данные. Конкретные ограничения читаются из ближайших контрактов.
 
@@ -885,3 +885,14 @@
 | [scripts/photo-outbox-chromium-integration.mjs](../scripts/photo-outbox-chromium-integration.mjs) | [Хранение и приватность](modules/materials/storage-privacy.md) | Изолированный Chromium: реальные IndexedDB/Blob, fault injection и перехваченный PUT | Vitest; разработчик |
 | [src/lib/photoOutbox.browser.integration.test.ts](../src/lib/photoOutbox.browser.integration.test.ts) | [Хранение и приватность](modules/materials/storage-privacy.md) | Автоматический запуск браузерной регрессии в обычном npm run check | Vitest; разработчик |
 | [src/lib/photoOutbox.test.tsx](../src/lib/photoOutbox.test.tsx) | [Хранение и приватность](modules/materials/storage-privacy.md) | Регрессии IndexedDB abort/close/timeout, отказа PUT, видимой ошибки, повторов и гонок загрузки | Vitest; разработчик |
+
+| [docs/modules/materials/audio-library.md](modules/materials/audio-library.md) | [Аудиобиблиотека](modules/materials/audio-library.md) | Общие аудиоматериалы, адресная связь, синхронизация и сценарии плеера | Разработчик; оператор; UI |
+| [docs/decisions/audio-library-2026-10-22.md](decisions/audio-library-2026-10-22.md) | [Аудиобиблиотека](modules/materials/audio-library.md) | Основание и согласованный путь общих аудиозаписей и плеера | Разработчик; выпуск |
+| [storage/audio-library.mjs](../storage/audio-library.mjs) | [Аудиобиблиотека](modules/materials/audio-library.md) | Разбор источника, проверка MP3 и точные связи аудио с заданиями | CLI; издатель дня |
+| [storage/audio-library.test.mjs](../storage/audio-library.test.mjs) | [Аудиобиблиотека](modules/materials/audio-library.md) | Регрессии общего каталога, источника, семейного основания и точного подбора | Vitest |
+| [scripts/audio-library.mjs](../scripts/audio-library.mjs) | [Аудиобиблиотека](modules/materials/audio-library.md) | Повторяемая синхронизация MP3 с Диском, общий каталог и адресная семейная связь | Оператор |
+| [src/components/AudioPlayer.tsx](../src/components/AudioPlayer.tsx) | [Аудиобиблиотека](modules/materials/audio-library.md) | Общий ленивый плеер, ошибки, повтор и скорость | ДЗ; библиотека; UI Kit |
+| [src/components/AudioPlayer.css](../src/components/AudioPlayer.css) | [Аудиобиблиотека](modules/materials/audio-library.md) | Токены и адаптивная геометрия общего плеера | AudioPlayer; AudioLibrary |
+| [src/components/AudioLibrary.tsx](../src/components/AudioLibrary.tsx) | [Аудиобиблиотека](modules/materials/audio-library.md) | Выбор одной записи из связанной аудиоколлекции | FamilyLibrary |
+| [src/components/AudioPlayer.test.tsx](../src/components/AudioPlayer.test.tsx) | [Аудиобиблиотека](modules/materials/audio-library.md) | Регрессии ленивого аудио, смены, повтора и управления | Vitest |
+| [src/lib/uiKitAudio.ts](../src/lib/uiKitAudio.ts) | [Аудиобиблиотека](modules/materials/audio-library.md) | Синтетическая аудиозапись UI Kit без семейных медиа | UI Kit |

@@ -312,6 +312,30 @@
       "path": "docs/audits/telegram-self-review-2026-10-16.md"
     },
     {
+      "id": "decision.audio-library-2026-10-22",
+      "status": "accepted",
+      "implementation": "partial",
+      "parent": "module.materials.audio-library",
+      "uses": [
+        "shared.design.ui-kit"
+      ],
+      "created": "2026-10-22",
+      "updated": "2026-10-22",
+      "consumers": [
+        "developer",
+        "release operator"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/audio-library-2026-10-22.md"
+    },
+    {
       "id": "decision.authenticated-learning-routes-2026-10-18",
       "status": "accepted",
       "implementation": "not-applicable",
@@ -3197,7 +3221,7 @@
       "id": "file:day/mixed-assignment.test.mjs",
       "path": "day/mixed-assignment.test.mjs",
       "kind": "verification",
-      "purpose": "Две карточки, раздельные состояния, повторная сборка и отказ при пропавшей части",
+      "purpose": "Две карточки, раздельные состояния, точная аудиопривязка к повторению без смешения письменной сдачи и теста",
       "consumer": "Vitest"
     },
     {
@@ -4405,6 +4429,13 @@
       "consumer": "Оператор архива"
     },
     {
+      "id": "file:scripts/audio-library.mjs",
+      "path": "scripts/audio-library.mjs",
+      "kind": "artifact",
+      "purpose": "Повторяемая синхронизация MP3 с Диском, общий каталог и адресная семейная связь",
+      "consumer": "Оператор"
+    },
+    {
       "id": "file:scripts/audit-family-links.mjs",
       "path": "scripts/audit-family-links.mjs",
       "kind": "artifact",
@@ -5096,6 +5127,34 @@
       "kind": "artifact",
       "purpose": "Дословное задание и честное объяснение происхождения: семья или учитель/МЭШ",
       "consumer": "`src/DayPage.tsx`"
+    },
+    {
+      "id": "file:src/components/AudioLibrary.tsx",
+      "path": "src/components/AudioLibrary.tsx",
+      "kind": "artifact",
+      "purpose": "Выбор одной записи из связанной аудиоколлекции",
+      "consumer": "FamilyLibrary"
+    },
+    {
+      "id": "file:src/components/AudioPlayer.css",
+      "path": "src/components/AudioPlayer.css",
+      "kind": "artifact",
+      "purpose": "Токены и адаптивная геометрия общего плеера",
+      "consumer": "AudioPlayer; AudioLibrary"
+    },
+    {
+      "id": "file:src/components/AudioPlayer.test.tsx",
+      "path": "src/components/AudioPlayer.test.tsx",
+      "kind": "verification",
+      "purpose": "Регрессии ленивого аудио, смены, повтора и управления",
+      "consumer": "Vitest"
+    },
+    {
+      "id": "file:src/components/AudioPlayer.tsx",
+      "path": "src/components/AudioPlayer.tsx",
+      "kind": "artifact",
+      "purpose": "Общий ленивый плеер, ошибки, повтор и скорость",
+      "consumer": "ДЗ; библиотека; UI Kit"
     },
     {
       "id": "file:src/components/CodeBlock.tsx",
@@ -6582,6 +6641,13 @@
       "consumer": "Подписки Firebase; локальные состояния компонентов"
     },
     {
+      "id": "file:src/lib/uiKitAudio.ts",
+      "path": "src/lib/uiKitAudio.ts",
+      "kind": "artifact",
+      "purpose": "Синтетическая аудиозапись UI Kit без семейных медиа",
+      "consumer": "UI Kit"
+    },
+    {
       "id": "file:src/lib/uiKitExamples.ts",
       "path": "src/lib/uiKitExamples.ts",
       "kind": "artifact",
@@ -6776,6 +6842,20 @@
       "kind": "artifact",
       "purpose": "Переиспользуемая карточка только перечисленных ID своего урока с фото, проверками и сроком",
       "consumer": "Ученик; родитель; `ProblemGroup`"
+    },
+    {
+      "id": "file:storage/audio-library.mjs",
+      "path": "storage/audio-library.mjs",
+      "kind": "artifact",
+      "purpose": "Разбор источника, проверка MP3 и точные связи аудио с заданиями",
+      "consumer": "CLI; издатель дня"
+    },
+    {
+      "id": "file:storage/audio-library.test.mjs",
+      "path": "storage/audio-library.test.mjs",
+      "kind": "verification",
+      "purpose": "Регрессии общего каталога, источника, семейного основания и точного подбора",
+      "consumer": "Vitest"
     },
     {
       "id": "file:storage/direct-upload.mjs",
@@ -7573,6 +7653,40 @@
         "src/components/FamilyLibrary.tsx"
       ],
       "path": "docs/modules/materials/README.md"
+    },
+    {
+      "id": "module.materials.audio-library",
+      "status": "accepted",
+      "implementation": "partial",
+      "parent": "module.materials",
+      "uses": [
+        "module.materials.family-library",
+        "module.materials.storage-privacy",
+        "shared.design.ui-kit",
+        "shared.access-and-privacy"
+      ],
+      "created": "2026-10-22",
+      "updated": "2026-10-22",
+      "consumers": [
+        "student",
+        "parent",
+        "material operator"
+      ],
+      "code": [
+        "storage/audio-library.mjs",
+        "scripts/audio-library.mjs",
+        "src/components/AudioPlayer.tsx",
+        "src/components/AudioPlayer.css",
+        "src/components/AudioLibrary.tsx"
+      ],
+      "sections": [
+        "catalog",
+        "sync",
+        "assignment",
+        "player",
+        "acceptance"
+      ],
+      "path": "docs/modules/materials/audio-library.md"
     },
     {
       "id": "module.materials.family-library",
@@ -8659,7 +8773,8 @@
         "решение-по-текущим-классам-данных",
         "варианты-из-первичных-источников-и-границы-их-применения",
         "очерёдность-и-условия-изменения",
-        "продолжение-по-полной-истории-16102026"
+        "продолжение-по-полной-истории-16102026",
+        "аудиобиблиотека--22-октября"
       ],
       "path": "docs/modules/synchronization/firestore-read-paths.md"
     },
@@ -10220,7 +10335,8 @@
         "поля-действующих-документов",
         "инварианты-связей",
         "проверка-перед-записью-и-после-неё",
-        "совместимость-и-миграция"
+        "совместимость-и-миграция",
+        "общие-аудиозаписи"
       ],
       "path": "docs/shared/data/firestore.md"
     },
@@ -10477,7 +10593,8 @@
         "school-grade-average-slider",
         "telegram-уведомления",
         "помощь-по-этапам",
-        "статусы-свёрнутых-вариантов"
+        "статусы-свёрнутых-вариантов",
+        "аудиоплеер"
       ],
       "path": "docs/shared/design/ui-kit.md"
     },
@@ -10726,6 +10843,11 @@
     {
       "from": "audits.telegram-self-review-2026-10-16",
       "to": "shared.specification-system",
+      "type": "uses"
+    },
+    {
+      "from": "decision.audio-library-2026-10-22",
+      "to": "shared.design.ui-kit",
       "type": "uses"
     },
     {
@@ -12374,6 +12496,11 @@
       "type": "implements"
     },
     {
+      "from": "file:scripts/audio-library.mjs",
+      "to": "module.materials.audio-library",
+      "type": "implements"
+    },
+    {
       "from": "file:scripts/audit-family-links.mjs",
       "to": "module.families",
       "type": "implements"
@@ -13191,6 +13318,21 @@
     {
       "from": "file:src/components/AssignmentBrief.tsx",
       "to": "shared.design",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/AudioLibrary.tsx",
+      "to": "module.materials.audio-library",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/AudioPlayer.css",
+      "to": "module.materials.audio-library",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/AudioPlayer.tsx",
+      "to": "module.materials.audio-library",
       "type": "implements"
     },
     {
@@ -14894,6 +15036,11 @@
       "type": "implements"
     },
     {
+      "from": "file:src/lib/uiKitAudio.ts",
+      "to": "module.materials.audio-library",
+      "type": "implements"
+    },
+    {
       "from": "file:src/lib/uiKitExamples.ts",
       "to": "module.school-diary.dashboard",
       "type": "implements"
@@ -15101,6 +15248,11 @@
     {
       "from": "file:src/WeekendMathSlot.tsx",
       "to": "module.school-diary.day-page",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/audio-library.mjs",
+      "to": "module.materials.audio-library",
       "type": "implements"
     },
     {
@@ -15759,6 +15911,41 @@
       "type": "uses"
     },
     {
+      "from": "module.materials.audio-library",
+      "to": "decision.audio-library-2026-10-22",
+      "type": "contains"
+    },
+    {
+      "from": "module.materials.audio-library",
+      "to": "file:src/components/AudioPlayer.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.materials.audio-library",
+      "to": "file:storage/audio-library.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.materials.audio-library",
+      "to": "module.materials.family-library",
+      "type": "uses"
+    },
+    {
+      "from": "module.materials.audio-library",
+      "to": "module.materials.storage-privacy",
+      "type": "uses"
+    },
+    {
+      "from": "module.materials.audio-library",
+      "to": "shared.access-and-privacy",
+      "type": "uses"
+    },
+    {
+      "from": "module.materials.audio-library",
+      "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
       "from": "module.materials.family-library",
       "to": "file:storage/family-book-projection.test.mjs",
       "type": "verified-by"
@@ -15892,6 +16079,11 @@
       "from": "module.materials",
       "to": "module.families",
       "type": "uses"
+    },
+    {
+      "from": "module.materials",
+      "to": "module.materials.audio-library",
+      "type": "contains"
     },
     {
       "from": "module.materials",

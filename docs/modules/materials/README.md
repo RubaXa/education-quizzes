@@ -34,6 +34,7 @@ code:
 
 ## Спецификации
 
+- [audio-library](audio-library.md)
 - [family-library](family-library.md)
 - [material-clarification](material-clarification.md)
 - [materials](materials.md)

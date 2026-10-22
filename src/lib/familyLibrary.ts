@@ -6,6 +6,7 @@ import { watchDayDashboard } from './dayDashboardStore'
 import type { PersonalChild } from './personalAccess'
 import { resumeFamilyBookTransfer } from './familyBookUpload'
 import { reportUiError } from './uiErrors'
+import type { DayMaterialLink } from './dayStore'
 
 /** @see ../../docs/modules/materials/family-library.md#coverage */
 export type FamilyBook = {
@@ -21,6 +22,8 @@ export type FamilyBook = {
   pagesPublishedSha256?: string
   pagesManifestSha256?: string
   pagesPublishedAt?: unknown
+  /** @see ../../docs/modules/materials/audio-library.md#catalog */
+  audioLibrary?: { collectionId: string; revision: string; tracks: DayMaterialLink[] }
 }
 export type FamilyBookUpload = {
   id: string

@@ -19,6 +19,12 @@ const fields = (shape) => (input) => {
 }
 
 export const operations = Object.freeze({
+  'audio.discover': { effect: 'write', script: 'scripts/audio-library.mjs', command: 'discover', validate: fields({}), argv: none },
+  'audio.sync': { effect: 'write', script: 'scripts/audio-library.mjs', command: 'sync',
+    validate: fields({ trackId: (v) => v === undefined || /^starlight-6-(?:\d+-\d+|wb-\d+|test-\d+)$/.test(v), refresh: (v) => v === undefined || typeof v === 'boolean' }),
+    argv: (input) => [...(input.trackId ? [input.trackId] : []), ...(input.refresh ? ['--refresh'] : [])] },
+  'audio.link': { effect: 'reconcile', script: 'scripts/audio-library.mjs', command: 'link', payloadField: 'bindingPath',
+    validate: fields({ bindingPath: file }), argv: (input, apply) => [input.bindingPath, ...(apply ? ['--apply'] : [])] },
   'project.plan': { effect: 'read', script: 'scripts/sync-project.mjs', command: 'plan', validate: fields({}), argv: none },
   'project.collect': { effect: 'write', script: 'scripts/sync-project.mjs', command: 'collect', validate: fields({}), argv: none },
   'project.audit': { effect: 'read', script: 'scripts/sync-project.mjs', command: 'audit',
@@ -86,6 +92,9 @@ export function operationCatalog() {
 
 // Operational meaning belongs next to the registry; pedagogical decisions stay in the decision graph.
 const guidance = {
+  'audio.discover': ['Сохранить точный индекс публичных аудиозаписей.', 'Это обнаружение исходников, а не подтверждение переноса на Диск или связи с ребёнком.'],
+  'audio.sync': ['Передать MP3 на Яндекс.Диск и сверить общий каталог.', 'ready/readback подтверждают полный каталог; частичный перенос не означает готовность. Повтор использует SHA и не создаёт дубликаты.'],
+  'audio.link': ['Связать выбранное родителем публичное аудио с ребёнком.', 'Без --apply проверяет адресную подтверждённую книгу и источник. После записи требуется readback; другая книга или семья не назначается.'],
   'project.plan': ['Обнаружить все семьи, детей и доступы МЭШ.', 'queued — цели сбора, blocked — конкретные отсутствующие доступы; это ещё не проверка источников.'],
   'project.collect': ['Собрать МЭШ за 42 даты от текущего понедельника.', 'report и timing описывают сбор; awaiting-enrichment требует сверки новых материалов. partial не означает успешное завершение; sourceJournal содержит причины.'],
   'project.audit': ['Перечитать публикацию сохранённого окна конкретного запуска.', 'Проверяет публикацию без сбора и изменения очереди или фазы. publication-verified не означает завершение workflow или снятие блокировки источника; pending/blocked требуют продолжения.'],
@@ -104,6 +113,7 @@ const guidance = {
 }
 
 const sampleFields = {
+  'audio.sync': { trackId: 1, refresh: 1 }, 'audio.link': { bindingPath: 1 },
   'project.audit': { runId: 1 },
   'grades.snapshot': { sourceDate: 1, reportPath: 1 },
   'quiz.validate': { specPath: 1 }, 'quiz.publish': { specPath: 1, personId: 1 },

@@ -258,7 +258,7 @@
       }
     },
     "day/family-source-graph.mjs": {
-      "sha256": "02ccc683dd43a0368ca4437bac869556f5cc3f6d9089d245d79162b051e20cac",
+      "sha256": "a32ceab9d6c46e1d45c38ac3138dc26c9553c5806623b163a9c53ecafbb6ea8a",
       "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
       "specs": [
         "docs/shared/specification-system.md"
@@ -424,7 +424,7 @@
       }
     },
     "day/merge.mjs": {
-      "sha256": "be8dbd1d2169ac359c006c7b885841b01e269dcc50995840a46c222b37fd2c55",
+      "sha256": "bc926aa03d9d743792dd784d1608386ab6aef2a12c6f474cfd83c46f8d9e8679",
       "record": "docs/decisions/day-merge-order-2026-10-22.md",
       "specs": [
         "docs/modules/synchronization/plan-generation.md"
@@ -642,7 +642,7 @@
       }
     },
     "operator/operation-contract.mjs": {
-      "sha256": "e0416775e5facb31b62761ae815a104ad681828753bcc5f27e825320a44a47b0",
+      "sha256": "a7eb6ec76dd108864b5b96ff4396462e0b96d6963f4fa3795cbfee2840857d62",
       "record": "docs/decisions/operator-tool-trial-2026-10-16.md",
       "specs": [
         "docs/services/operator-cli/README.md",
@@ -680,7 +680,7 @@
       }
     },
     "operator/run-operation.mjs": {
-      "sha256": "df8c6112444f0ab3413af99037cae742ea1359858dd3d5f0a0088e900d7644d6",
+      "sha256": "2e9612422d8b27279914a6ae00d0ba4fb0b69c3cd0c5e4167208393e70bf1a89",
       "record": "docs/decisions/project-publication-audit-2026-10-21.md",
       "specs": [
         "docs/modules/synchronization/global-sync.md",
@@ -1919,18 +1919,23 @@
       }
     },
     "scripts/day.mjs": {
-      "sha256": "189b9aa7c07c7b272dd6e8c9b52bfbc5d465584431f1d49c4776c472f7355869",
-      "record": "docs/decisions/mixed-assignment-actions-2026-10-22.md",
+      "sha256": "7b3821bb56b5ce5f8f184d66d62fb5c59a6a5eaa1635020d077f4f8533e0f74d",
+      "record": "docs/decisions/audio-library-2026-10-22.md",
       "specs": [
         "docs/modules/synchronization/plan-generation.md",
-        "docs/modules/materials/material-clarification.md"
+        "docs/modules/materials/material-clarification.md",
+        "docs/modules/materials/audio-library.md"
       ],
       "tests": [
-        "day/mixed-assignment.test.mjs"
+        "day/mixed-assignment.test.mjs",
+        "storage/audio-library.test.mjs",
+        "src/components/AudioPlayer.test.tsx",
+        "day/merge.test.mjs",
+        "operator/operation-contract.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 22.10.2026 прямо потребовал две независимые задачи для письменного упражнения и повторения правила, отдельное уточнение неизвестного материала и тест после подтверждения правила."
+        "evidence": "Родитель 22.10.2026 прямо запросил плеер в заданиях, общую аудиобиблиотеку Starlight 6 на своём Яндекс.Диске, спецификацию и UI Kit. Also preserve mixed-assignment behavior: separate explicit written and repeat actions with distinct material requests and independent outcomes."
       }
     },
     "scripts/direct-upload-worker.mjs": {
@@ -2661,7 +2666,7 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "f657f36413178ae53b293cdb8b6d8672f6ffa3930c577195ec65f7fa754d1562",
+      "sha256": "98de4684fb610ce55936df8c214bf11fc4f20663cdca709d613b7ed0a7568d35",
       "record": "docs/decisions/scoped-learner-flow-2026-10-21.md",
       "specs": [
         "docs/modules/reviews/subject-aware-guidance.md"
@@ -2691,7 +2696,7 @@
       }
     },
     "src/UiKit.tsx": {
-      "sha256": "5defbf01158a32580afb22331a09e0ea88155333961fab0404a379689c177b8e",
+      "sha256": "66923108513cfa0b99bf449a472a4471cc475ea9fd14d1b5a076019447b5d4d5",
       "record": "docs/decisions/upload-photo-timestamp-2026-10-21.md",
       "specs": [
         "docs/modules/school-diary/day-page.md",
@@ -3031,7 +3036,7 @@
       }
     },
     "src/components/FamilyLibrary.tsx": {
-      "sha256": "18cd8c001a2e5dad8ae24096ecd742c8050f63a67a5fc54968855b53a0794771",
+      "sha256": "2cb2d75cf83544f1cd4005685e59d0413c3d1046604da7e01c4e2772d0b896b5",
       "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
       "specs": [
         "docs/shared/specification-system.md"
@@ -4252,18 +4257,23 @@
       }
     },
     "src/lib/dayStore.ts": {
-      "sha256": "9b851a8410f10ae8cd693e7ad9c44226a7e218a54a70f7433e683d116dd6d949",
-      "record": "docs/decisions/mixed-assignment-actions-2026-10-22.md",
+      "sha256": "895427f31d639a6c470547b5063e4e0538bf43bdbeec9be34f72e2dab08ea174",
+      "record": "docs/decisions/audio-library-2026-10-22.md",
       "specs": [
         "docs/modules/synchronization/plan-generation.md",
-        "docs/modules/materials/material-clarification.md"
+        "docs/modules/materials/material-clarification.md",
+        "docs/modules/materials/audio-library.md"
       ],
       "tests": [
-        "day/mixed-assignment.test.mjs"
+        "day/mixed-assignment.test.mjs",
+        "storage/audio-library.test.mjs",
+        "src/components/AudioPlayer.test.tsx",
+        "day/merge.test.mjs",
+        "operator/operation-contract.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 22.10.2026 прямо потребовал две независимые задачи для письменного упражнения и повторения правила, отдельное уточнение неизвестного материала и тест после подтверждения правила."
+        "evidence": "Родитель 22.10.2026 прямо запросил плеер в заданиях, общую аудиобиблиотеку Starlight 6 на своём Яндекс.Диске, спецификацию и UI Kit. Also preserve mixed-assignment behavior: separate explicit written and repeat actions with distinct material requests and independent outcomes."
       }
     },
     "src/lib/educationEventProducer.ts": {
@@ -4335,7 +4345,7 @@
       }
     },
     "src/lib/familyLibrary.ts": {
-      "sha256": "fd737fa512fe617d9b76ee7f88d0296fcfc607733698566afced7fe86da79c98",
+      "sha256": "0765d6cccd3900e568241f449fc251118c94b67692f05b65f42582821ef738dc",
       "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
       "specs": [
         "docs/shared/specification-system.md"
@@ -5130,7 +5140,7 @@
       }
     },
     "src/lib/yandexPublic.ts": {
-      "sha256": "5bb14ef22fec4cdcc29cc52affb56eab9697153dbe699a0724d424c5c6bcc04a",
+      "sha256": "a3bb848e7317f2794a8f430e142b9b1e8bd4b8c68edd76e28c2de604c8935df4",
       "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
       "specs": [
         "docs/shared/specification-system.md"
@@ -5929,6 +5939,108 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Родитель 22.10.2026 прямо потребовал две независимые задачи для письменного упражнения и повторения правила, отдельное уточнение неизвестного материала и тест после подтверждения правила."
+      }
+    },
+    "scripts/audio-library.mjs": {
+      "sha256": "c30d1fdcefeccbcf0598059d0b74e3ae7383d42cb08c2858e721b5017d393ce1",
+      "record": "docs/decisions/audio-library-2026-10-22.md",
+      "specs": [
+        "docs/modules/materials/audio-library.md"
+      ],
+      "tests": [
+        "storage/audio-library.test.mjs",
+        "src/components/AudioPlayer.test.tsx",
+        "day/merge.test.mjs",
+        "operator/operation-contract.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 22.10.2026 прямо запросил плеер в заданиях, общую аудиобиблиотеку Starlight 6 на своём Яндекс.Диске, спецификацию и UI Kit."
+      }
+    },
+    "src/components/AudioLibrary.tsx": {
+      "sha256": "0f5d88a47edf86d4bbface44e0e7b196d4ad6e7f23b6416f463ee7287444d604",
+      "record": "docs/decisions/audio-library-2026-10-22.md",
+      "specs": [
+        "docs/modules/materials/audio-library.md"
+      ],
+      "tests": [
+        "storage/audio-library.test.mjs",
+        "src/components/AudioPlayer.test.tsx",
+        "day/merge.test.mjs",
+        "operator/operation-contract.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 22.10.2026 прямо запросил плеер в заданиях, общую аудиобиблиотеку Starlight 6 на своём Яндекс.Диске, спецификацию и UI Kit."
+      }
+    },
+    "src/components/AudioPlayer.css": {
+      "sha256": "5860a286890057d0141d9af845e6005430f1874cf115866e03182823ae87da7e",
+      "record": "docs/decisions/audio-library-2026-10-22.md",
+      "specs": [
+        "docs/modules/materials/audio-library.md"
+      ],
+      "tests": [
+        "storage/audio-library.test.mjs",
+        "src/components/AudioPlayer.test.tsx",
+        "day/merge.test.mjs",
+        "operator/operation-contract.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 22.10.2026 прямо запросил плеер в заданиях, общую аудиобиблиотеку Starlight 6 на своём Яндекс.Диске, спецификацию и UI Kit."
+      }
+    },
+    "src/components/AudioPlayer.tsx": {
+      "sha256": "709c7b7b21fcfc549d209b4d66607511d0dcde7902393d078f24b9bd6eaa6c69",
+      "record": "docs/decisions/audio-library-2026-10-22.md",
+      "specs": [
+        "docs/modules/materials/audio-library.md"
+      ],
+      "tests": [
+        "storage/audio-library.test.mjs",
+        "src/components/AudioPlayer.test.tsx",
+        "day/merge.test.mjs",
+        "operator/operation-contract.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 22.10.2026 прямо запросил плеер в заданиях, общую аудиобиблиотеку Starlight 6 на своём Яндекс.Диске, спецификацию и UI Kit."
+      }
+    },
+    "src/lib/uiKitAudio.ts": {
+      "sha256": "5ddafb11497c06453e62e71ddb411a73a62dbacd9aaaf30cef234c2e72e03b1d",
+      "record": "docs/decisions/audio-library-2026-10-22.md",
+      "specs": [
+        "docs/modules/materials/audio-library.md"
+      ],
+      "tests": [
+        "storage/audio-library.test.mjs",
+        "src/components/AudioPlayer.test.tsx",
+        "day/merge.test.mjs",
+        "operator/operation-contract.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 22.10.2026 прямо запросил плеер в заданиях, общую аудиобиблиотеку Starlight 6 на своём Яндекс.Диске, спецификацию и UI Kit."
+      }
+    },
+    "storage/audio-library.mjs": {
+      "sha256": "aca99381c1fef3e958d8993d7342779dd0bd226041f5fa9c32eee0f72256e758",
+      "record": "docs/decisions/audio-library-2026-10-22.md",
+      "specs": [
+        "docs/modules/materials/audio-library.md"
+      ],
+      "tests": [
+        "storage/audio-library.test.mjs",
+        "src/components/AudioPlayer.test.tsx",
+        "day/merge.test.mjs",
+        "operator/operation-contract.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 22.10.2026 прямо запросил плеер в заданиях, общую аудиобиблиотеку Starlight 6 на своём Яндекс.Диске, спецификацию и UI Kit."
       }
     }
   }

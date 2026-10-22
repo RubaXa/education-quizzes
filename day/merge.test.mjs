@@ -12,6 +12,17 @@ const page = (tasks, evidenceDayTokens = ['today']) => ({
 })
 
 describe('повторный выпуск страницы дня', () => {
+  it('replaces stale audio only for current tasks while preserving pages and historical audio', () => {
+    const image = { sourceType: 'textbook-page', url: 'https://disk.yandex.ru/d/page' }
+    const oldAudio = { sourceType: 'audio', url: 'https://disk.yandex.ru/d/old-audio' }
+    const freshAudio = { sourceType: 'audio', url: 'https://disk.yandex.ru/d/fresh-audio' }
+    const old = { ...page([task('current'), task('historic')]), materialLinks: { current: [image, oldAudio], historic: [oldAudio] } }
+    const incoming = { ...page([task('current')]), audioProjectionVersion: 1, materialLinks: { current: [freshAudio] } }
+    const result = mergeDayPage(old, incoming)
+    expect(result.materialLinks.current).toEqual([image, freshAudio])
+    expect(result.materialLinks.historic).toEqual([oldAudio])
+    expect(mergeDayPage(result, { ...incoming, materialLinks: {} }).materialLinks.current).toEqual([image])
+  })
   it('publishes variant IDs beside one MESH assignment and keeps them on a repeat', () => {
     const withVariants = { ...task('mesh-351641344'), kind: 'check',
       practiceVariants: [{ id: 'mesh-351641344-v1', title: 'Вариант 1' }, { id: 'mesh-351641344-v2', title: 'Вариант 2' }],

@@ -16,6 +16,7 @@ import type { BookNeed } from '@/lib/familyLibrary'
 import type { PersonalChild } from '@/lib/personalAccess'
 import type { DayMaterialLink } from '@/lib/dayStore'
 import MaterialReader from './MaterialReader'
+import AudioLibrary from './AudioLibrary'
 import './FamilyLibrary.css'
 import { useDelayedRefresh } from '@/lib/useDelayedRefresh'
 import { reportUiError } from '@/lib/uiErrors'
@@ -92,9 +93,10 @@ function FamilyBookPages({ familyId, childId, bookId, expectedCount, revision, s
   return <>{expectedCount && links.length < expectedCount && <p>Доступно {links.length} из {expectedCount} страниц. Повторно загружать книгу не нужно.</p>}<MaterialReader links={links} parent book /></>
 }
 
-function FamilyBookEntry({ familyId, childId, childName, bookId, title, multipleChildren, expectedCount, ready, revision, sourceSha256, manifestReady }: { familyId: string; childId: string; childName: string; bookId: string; title: string; multipleChildren: boolean; expectedCount?: number; ready: boolean; revision?: string; sourceSha256?: string; manifestReady: boolean }) {
+function FamilyBookEntry({ audioTracks, familyId, childId, childName, bookId, title, multipleChildren, expectedCount, ready, revision, sourceSha256, manifestReady }: { familyId: string; childId: string; childName: string; bookId: string; title: string; multipleChildren: boolean; expectedCount?: number; ready: boolean; revision?: string; sourceSha256?: string; manifestReady: boolean; audioTracks?: DayMaterialLink[] }) {
   const [open, setOpen] = useState(false)
   return <li className="family-library-book-entry"><div><StatusIcon status={ready ? 'complete' : 'waiting'} size={17} /><span><strong>{title}</strong>{multipleChildren ? ` · ${childName}` : ''}{ready && expectedCount ? ` · ${expectedCount} стр.` : ' · публикация страниц не завершена'}</span><button type="button" aria-expanded={open} onClick={() => setOpen((value) => !value)}>{open ? 'Скрыть страницы' : 'Открыть книгу'}</button></div>
+    {!!audioTracks?.length && <details><summary>Аудиозаписи · {audioTracks.length}</summary><AudioLibrary tracks={audioTracks} /></details>}
     {open && <FamilyBookPages familyId={familyId} childId={childId} bookId={bookId} expectedCount={expectedCount} revision={ready ? revision : undefined} sourceSha256={ready ? sourceSha256 : undefined} manifestReady={ready && manifestReady} />}
   </li>
 }
@@ -182,9 +184,9 @@ export function FamilyLibrary({ familyId, familyChildren }: { familyId: string; 
     </div> : null}
     <details className="family-library-list" open={hasCompleteSnapshot && !unresolved && confirmed.length + provisional.length === 0}>
       <summary><BookOpen size={19} aria-hidden="true" /><span>{hasCompleteSnapshot ? `Библиотека семьи · ${confirmed.length + provisional.length} ${confirmed.length + provisional.length === 1 ? 'книга' : 'книг'} · просмотр ${viewableCount}/${confirmed.length + provisional.length}` : 'Библиотека семьи'}</span>{showRefresh && <RefreshCw className="family-library-refresh" size={14} aria-label="Обновление библиотеки" />}{library.error && <span className="family-library-sync-error" title="Обновление библиотеки пока недоступно" aria-label="Ошибка обновления библиотеки"><StatusIcon status="failed" size={15} /></span>}<ChevronDown size={18} aria-hidden="true" /></summary>
-      {confirmed.length ? <ul>{confirmed.map((book) => <FamilyBookEntry key={`${book.childId}:${book.bookId}`} familyId={familyId} childId={book.childId} childName={familyChildren.find((child) => child.childId === book.childId)?.displayName ?? 'Ребёнок'} bookId={book.bookId} title={book.title} multipleChildren={familyChildren.length > 1} expectedCount={book.pdfPageCount} ready={pagesReady(book)} revision={pagesRevision(book)} sourceSha256={book.pagesPublishedSha256} manifestReady={book.pagesManifestSha256 === book.pagesPublishedSha256} />)}</ul>
+      {confirmed.length ? <ul>{confirmed.map((book) => <FamilyBookEntry audioTracks={book.audioLibrary?.tracks} key={`${book.childId}:${book.bookId}`} familyId={familyId} childId={book.childId} childName={familyChildren.find((child) => child.childId === book.childId)?.displayName ?? 'Ребёнок'} bookId={book.bookId} title={book.title} multipleChildren={familyChildren.length > 1} expectedCount={book.pdfPageCount} ready={pagesReady(book)} revision={pagesRevision(book)} sourceSha256={book.pagesPublishedSha256} manifestReady={book.pagesManifestSha256 === book.pagesPublishedSha256} />)}</ul>
         : <p>Подтверждённых книг пока нет. Общие документы других семей здесь не отображаются.</p>}
-      {provisional.length > 0 && <div className="family-library-provisional"><strong>Переданы, но издание ещё не подтверждено для уроков</strong><ul>{provisional.map((book) => <FamilyBookEntry key={`${book.childId}:${book.bookId}`} familyId={familyId} childId={book.childId} childName={familyChildren.find((child) => child.childId === book.childId)?.displayName ?? 'Ребёнок'} bookId={book.bookId} title={book.title} multipleChildren={familyChildren.length > 1} expectedCount={book.pdfPageCount} ready={pagesReady(book)} revision={pagesRevision(book)} sourceSha256={book.pagesPublishedSha256} manifestReady={book.pagesManifestSha256 === book.pagesPublishedSha256} />)}</ul></div>}
+      {provisional.length > 0 && <div className="family-library-provisional"><strong>Переданы, но издание ещё не подтверждено для уроков</strong><ul>{provisional.map((book) => <FamilyBookEntry audioTracks={book.audioLibrary?.tracks} key={`${book.childId}:${book.bookId}`} familyId={familyId} childId={book.childId} childName={familyChildren.find((child) => child.childId === book.childId)?.displayName ?? 'Ребёнок'} bookId={book.bookId} title={book.title} multipleChildren={familyChildren.length > 1} expectedCount={book.pdfPageCount} ready={pagesReady(book)} revision={pagesRevision(book)} sourceSha256={book.pagesPublishedSha256} manifestReady={book.pagesManifestSha256 === book.pagesPublishedSha256} />)}</ul></div>}
       {hasCompleteSnapshot && !unresolved && !library.fromCache && <p className="family-library-note">Комплект для известных предметов подтверждён. Если расписание изменится, нужные книги снова появятся наверху кабинета.</p>}
     </details>
   </section>

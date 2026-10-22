@@ -652,9 +652,11 @@ async function stagePublish(date, batch, links, indexTokens, stagedPages, notify
       fail('Контекст ребёнка не подтверждён семейным источником МЭШ.')
     }
   }
+  let audioLinks = {}
   if (legacyOwner?.familyId && legacyOwner?.childId) {
     const graph = await buildFamilySourceGraph(db, { familyId: legacyOwner.familyId,
       childId: legacyOwner.childId, source, pageRefs })
+    audioLinks = graph.audioLinks
     writeFileSync(resolve(local, `family-source-graph-${date}.json`), `${JSON.stringify(graph, null, 2)}\n`, { mode: 0o600 })
     if (graph.problems.length) fail(`${graph.problems.join(' ')} День не опубликован.`)
   }
@@ -681,6 +683,11 @@ async function stagePublish(date, batch, links, indexTokens, stagedPages, notify
   const publishedPageLinks = existsSync(pageLinksFile) ? materialLinks(json(pageLinksFile)) : {}
   const allMaterialLinks = { ...(source.materialLinks || {}) }
   for (const [taskId, pageLinks] of Object.entries(publishedPageLinks)) allMaterialLinks[taskId] = [...pageLinks, ...(allMaterialLinks[taskId] || [])]
+  // Audio is rebuilt from this child's current bindings, never from another family.
+  // @see ../docs/modules/materials/audio-library.md#assignment
+  for (const [taskId, links] of Object.entries(audioLinks)) allMaterialLinks[taskId] = [
+    ...(allMaterialLinks[taskId] ?? []).filter((link) => link.sourceType !== 'audio'), ...links,
+  ]
   for (const task of source.subjects.flatMap((subject) => subject.tasks)) {
     if (pageRefs[task.id]?.length && (publishedPageLinks[task.id]?.length ?? 0) !== pageRefs[task.id].length) {
       fail(`Для ${task.id} опубликованы не все страницы учебника: ${publishedPageLinks[task.id]?.length ?? 0} из ${pageRefs[task.id].length}.`)
@@ -700,7 +707,7 @@ async function stagePublish(date, batch, links, indexTokens, stagedPages, notify
     sourceOnlyEntries: source.sourceOnlyEntries ?? [], retiredTaskIds: source.retiredTaskIds ?? [],
     assignmentRoutes: source.assignmentRoutes ?? [],
     weekendSlot: source.weekendSlot ?? null, sourcePlanFingerprint: sourcePlanFingerprint(source),
-    materialLinks: allMaterialLinks, materialLinkReplacements: source.materialLinkReplacements ?? [],
+    audioProjectionVersion: 1, materialLinks: allMaterialLinks, materialLinkReplacements: source.materialLinkReplacements ?? [],
     taskPageRefs: pageRefs,
     evidenceDayTokens: [...new Set([pair.student, ...(source.evidenceDayTokens || [])])],
     ...gradeProjection.fields,

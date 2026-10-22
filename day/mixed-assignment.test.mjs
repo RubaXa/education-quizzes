@@ -9,6 +9,7 @@ import { sourceOnlyPublicationErrors } from './source-only.mjs'
 import { mixedEntryActions } from './mixed-assignment.mjs'
 import { mergeDayPage } from './merge.mjs'
 import { spawnSync } from 'node:child_process'
+import { audioLink, boundAssignmentAudio } from '../storage/audio-library.mjs'
 const dirs = []
 afterEach(() => dirs.splice(0).forEach(dir => rmSync(dir, { recursive:true, force:true })))
 const raw = 'упр.4(пис),упр.6(повторить правило) стр.31'
@@ -44,6 +45,38 @@ it('turns explicit written and rule repetition into two independent source reque
   expect(read().subjects[0].tasks[0].status).toBe('verified')
   expect(read().subjects[0].tasks[0].materialRequest.state).toBe('resolved')
   expect(read().subjects[0].tasks[1].materialRequest.state).toBe('open')
+})
+it('binds repeat audio to its exact split task while written submission and quiz stay independent',()=>{
+  const {dir,read}=fixture(); buildDaySource(dir,'2026-10-22')
+  const source=read(), [written,repeat]=source.subjects[0].tasks
+  const bookId='starlight-english'
+  const track=audioLink({id:'starlight-6-6-31',collectionId:'starlight-6',kind:'sb',page:31,exercise:'6a',exerciseType:'exercise',
+    title:'Starlight 6 · Учебник · с. 31, упр. 6a',sourceUrl:'https://tankmet.ru/english/starlight-6/6-06 - Ex. 6a p. 31.mp3',
+    sha256:'a'.repeat(64),url:'https://disk.yandex.ru/d/starlight-audio'})
+  const book={bookId,status:'confirmed',audioLibrary:{collectionId:'starlight-6',tracks:[track]}}
+  const pageLinks=Object.fromEntries([written,repeat].map(task=>[task.id,[{sourceType:'textbook-page',sourceRef:`${bookId}#pdf-0033`}]]))
+  written.instructionStatus={state:'reviewed',message:'Условие письменного упражнения подтверждено.'}
+  repeat.instructionStatus={state:'reviewed',message:'Правило для повторения подтверждено.'}
+  written.materialStatus={state:'textbook-page-linked',message:'Страница письменного задания подтверждена.'}
+  repeat.materialStatus={state:'textbook-page-linked',message:'Страница правила подтверждена.'}
+  written.submission={buttonLabel:'Прикрепить решение',photo:'Сфотографируй решение упражнения 4.'}
+  written.materialRequest={...written.materialRequest,state:'resolved',resolvedTopic:'Письменное упражнение 4'}
+  repeat.materialRequest={...repeat.materialRequest,state:'resolved',resolvedTopic:'Правило к упражнению 6'}
+  repeat.assessmentIntent={state:'confirmed',mode:'ordinary',topic:'Правило к упражнению 6',evidenceRef:'Уточнение по фотографиям.'}
+  repeat.testToken='repeat-test-token'
+  const audio=boundAssignmentAudio(source,[book],pageLinks)
+  expect(Object.keys(audio)).toEqual([repeat.id])
+  expect(audio[repeat.id]).toEqual([track])
+  expect(written).toMatchObject({kind:'written',submission:{buttonLabel:'Прикрепить решение'},materialRequest:{state:'resolved'}})
+  expect(written.testToken).toBeUndefined()
+  expect(repeat).toMatchObject({kind:'check',testToken:'repeat-test-token',assessmentIntent:{state:'confirmed'},materialRequest:{state:'resolved'}})
+  expect(repeat.submission).toBeUndefined()
+  const page=mergeDayPage(null,{...source,audioProjectionVersion:1,
+    materialLinks:{[written.id]:[],[repeat.id]:audio[repeat.id]},
+    testPlacements:[{taskId:repeat.id,subjectId:source.subjects[0].id,token:repeat.testToken}]})
+  expect(page.materialLinks[written.id]).toEqual([])
+  expect(page.materialLinks[repeat.id].map(link=>link.sourceRef)).toEqual(['audio:starlight-6-6-31'])
+  expect(page.testPlacements).toEqual([{taskId:repeat.id,subjectId:source.subjects[0].id,token:repeat.testToken}])
 })
 it('rejects a missing split action even when the full raw entry is retained',()=>{
   const {dir,target,read}=fixture(); buildDaySource(dir,'2026-10-22')
