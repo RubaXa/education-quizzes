@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { assertPublishedPageAligned, assertSourceAligned, sourcePlanFingerprint, textbookRefError } from './pipeline-contract.mjs'
+import { assertPublishedPageAligned, assertSourceAligned, firstTopologyDifference, sourcePlanFingerprint, textbookRefError } from './pipeline-contract.mjs'
 import { assertWeekendWorkRetention } from './dashboard-index.mjs'
 import { mergeFamilyAssignments } from './family-assignment.mjs'
 
@@ -23,6 +23,24 @@ describe('диагностика ссылки на семейную страни
 })
 
 describe('барьер публикации плана', () => {
+  it('reports only the first structural path and mismatch kind, never compared contents', () => {
+    expect(firstTopologyDifference([{ tasks: [{ id: 'secret-id' }] }], [{ tasks: [] }]))
+      .toEqual({ path: 'subjects[0].tasks', kind: 'length' })
+    const page = { kind: 'student', targetDate: source.targetDate,
+      sourcePlanFingerprint: sourcePlanFingerprint(source), subjects: [{ tasks: [] }] }
+    try {
+      assertPublishedPageAligned(source, page, 'student')
+      throw new Error('expected topology mismatch')
+    } catch (error) {
+      expect(error.message).toContain('student')
+      expect(error.message).toContain(source.targetDate)
+      expect(error.message).toContain('subjects[0].tasks')
+      expect(error.message).toContain('length')
+      expect(error.message).not.toContain('mesh-99')
+      expect(error.message).not.toContain('Решить № 4.')
+      expect(error.message).not.toContain('secret-id')
+    }
+  })
   it('останавливает выпуск при новом ДЗ в МЭШ без обновления источника', () => {
     expect(() => assertSourceAligned({ ...source, subjects: [] }, snapshot)).toThrow(/mesh-99/)
   })
@@ -35,6 +53,14 @@ describe('барьер публикации плана', () => {
     expect(() => assertPublishedPageAligned(source, page, 'student')).not.toThrow()
     expect(() => assertPublishedPageAligned({ ...source, subjects: [] }, page, 'student')).toThrow(/отстаёт/)
     expect(() => assertPublishedPageAligned(source, { ...page, subjects: [{ tasks: [] }] }, 'student')).toThrow(/потеряла/)
+  })
+  it('принимает только отсутствующий или null fingerprint как legacy и отвергает повреждённые значения', () => {
+    const legacy = { kind: 'student', targetDate: source.targetDate, subjects: structuredClone(source.subjects) }
+    expect(() => assertPublishedPageAligned(source, legacy, 'student')).not.toThrow()
+    expect(() => assertPublishedPageAligned(source, { ...legacy, sourcePlanFingerprint: null }, 'student')).not.toThrow()
+    for (const value of ['', false, 0]) {
+      expect(() => assertPublishedPageAligned(source, { ...legacy, sourcePlanFingerprint: value }, 'student')).toThrow(/отстаёт/)
+    }
   })
   it('сохраняет source-only состояние в отпечатке и требует точную запись МЭШ при повторной сверке', () => {
     const sourceOnly = { ...source, subjects: [{ tasks: [{ id: 'mesh-99', meshText: 'Решить № 4.', detail: 'Решить № 4.',

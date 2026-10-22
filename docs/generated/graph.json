@@ -539,6 +539,33 @@
       "path": "docs/decisions/course-placement-2026-10-18.md"
     },
     {
+      "id": "decision.day-merge-order-2026-10-22",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-22",
+      "updated": "2026-10-22",
+      "parent": "module.synchronization.plan-generation",
+      "uses": [
+        "module.school-diary.day-page"
+      ],
+      "consumers": [
+        "EducationSync workflow",
+        "Firestore publisher"
+      ],
+      "code": [
+        "day/merge.mjs",
+        "day/pipeline-contract.mjs"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/day-merge-order-2026-10-22.md"
+    },
+    {
       "id": "decision.device-binding-recovery-2026-10-18",
       "status": "accepted",
       "implementation": "implemented",
@@ -2390,7 +2417,7 @@
       "status": "reference",
       "implementation": "not-applicable",
       "created": "2026-10-16",
-      "updated": "2026-10-16",
+      "updated": "2026-10-22",
       "consumers": [
         "product implementer",
         "service implementer"
@@ -2913,14 +2940,14 @@
       "id": "file:day/grade-snapshot.mjs",
       "path": "day/grade-snapshot.mjs",
       "kind": "artifact",
-      "purpose": "Чистое предложение только новых подтверждённых отметок из полного снимка МЭШ",
+      "purpose": "Чистое аддитивное предложение полного снимка МЭШ и пересчёт условного числа пятёрок с учётом весов",
       "consumer": "`scripts/grade-snapshot.mjs`"
     },
     {
       "id": "file:day/grade-snapshot.test.mjs",
       "path": "day/grade-snapshot.test.mjs",
       "kind": "verification",
-      "purpose": "Идемпотентность и барьер против потери/изменения оценки",
+      "purpose": "Идемпотентность, weighted threshold и барьер против потери/изменения оценки",
       "consumer": "Vitest; разработчик"
     },
     {
@@ -3025,14 +3052,14 @@
       "id": "file:day/merge.mjs",
       "path": "day/merge.mjs",
       "kind": "artifact",
-      "purpose": "Слияние с сохранением истории; source-only выпуск снимает старые инструкции, тесты и закрытые ориентиры",
+      "purpose": "Слияние сохраняет историю и подтверждения, публикует текущие предметы/задания в порядке источника, а изменения порядка включает в ревизию",
       "consumer": "`scripts/day.mjs`; Vitest"
     },
     {
       "id": "file:day/merge.test.mjs",
       "path": "day/merge.test.mjs",
       "kind": "verification",
-      "purpose": "Проверка сохранности при слиянии дня",
+      "purpose": "Проверка канонического порядка, исторического хвоста, идемпотентности и строгой сверки публикации",
       "consumer": "Vitest; разработчик"
     },
     {
@@ -8218,7 +8245,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-08",
-      "updated": "2026-10-16",
+      "updated": "2026-10-22",
       "consumers": [
         "parent",
         "student",
@@ -8561,6 +8588,7 @@
       "sections": [
         "точная-запись-до-разбора",
         "source-only-publication",
+        "canonical-order-on-republication",
         "информационная-запись-мэш-без-учебного-действия",
         "запись-мэш-которая-указывает-только-на-материал",
         "результат-одного-задания-на-нескольких-страницах-дня",
@@ -10618,6 +10646,11 @@
       "type": "uses"
     },
     {
+      "from": "decision.day-merge-order-2026-10-22",
+      "to": "module.school-diary.day-page",
+      "type": "uses"
+    },
+    {
       "from": "decision.device-binding-recovery-2026-10-18",
       "to": "module.families.access-and-state",
       "type": "uses"
@@ -11394,6 +11427,11 @@
     },
     {
       "from": "file:day/merge.mjs",
+      "to": "decision.day-merge-order-2026-10-22",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/merge.mjs",
       "to": "decisions.source-only-mesh-publication-2026-10-20",
       "type": "implements"
     },
@@ -11425,6 +11463,11 @@
     {
       "from": "file:day/owner-repair.mjs",
       "to": "shared.data.firestore",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/pipeline-contract.mjs",
+      "to": "decision.day-merge-order-2026-10-22",
       "type": "implements"
     },
     {
@@ -15339,11 +15382,6 @@
     },
     {
       "from": "module.families.access-and-state",
-      "to": "file:day/merge.test.mjs",
-      "type": "verified-by"
-    },
-    {
-      "from": "module.families.access-and-state",
       "to": "file:scripts/firestore-rules-role-diagnostics.test.mjs",
       "type": "verified-by"
     },
@@ -16579,6 +16617,11 @@
     },
     {
       "from": "module.synchronization.plan-generation",
+      "to": "decision.day-merge-order-2026-10-22",
+      "type": "contains"
+    },
+    {
+      "from": "module.synchronization.plan-generation",
       "to": "decision.mesh-informational-entry-2026-10-21",
       "type": "contains"
     },
@@ -16590,6 +16633,11 @@
     {
       "from": "module.synchronization.plan-generation",
       "to": "file:day/assignment-routing.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.synchronization.plan-generation",
+      "to": "file:day/merge.test.mjs",
       "type": "verified-by"
     },
     {

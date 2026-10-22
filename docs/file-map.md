@@ -187,15 +187,15 @@
 | [day/grade-publication.test.mjs](../day/grade-publication.test.mjs) | [Средний балл](modules/school-diary/grades.md) | Регрессия исчезновения комментариев при переходе на следующий день, обе роли и идемпотентность | Vitest; разработчик |
 | [day/grade-reconciliation.mjs](../day/grade-reconciliation.mjs) | [Средний балл](modules/school-diary/grades.md) | Сверка среза МЭШ, подробности подтверждённой отметки и обнаружение изменений | `scripts/day.mjs`; уведомления |
 | [day/grade-reconciliation.test.mjs](../day/grade-reconciliation.test.mjs) | [Средний балл](modules/school-diary/grades.md) | Проверка барьера, одинаковых отметок с разными работами и изменений | Vitest; разработчик |
-| [day/grade-snapshot.mjs](../day/grade-snapshot.mjs) | [Средний балл](modules/school-diary/grades.md) | Чистое предложение только новых подтверждённых отметок из полного снимка МЭШ | `scripts/grade-snapshot.mjs` |
-| [day/grade-snapshot.test.mjs](../day/grade-snapshot.test.mjs) | [Средний балл](modules/school-diary/grades.md) | Идемпотентность и барьер против потери/изменения оценки | Vitest; разработчик |
+| [day/grade-snapshot.mjs](../day/grade-snapshot.mjs) | [Средний балл](modules/school-diary/grades.md) | Чистое аддитивное предложение полного снимка МЭШ и пересчёт условного числа пятёрок с учётом весов | `scripts/grade-snapshot.mjs` |
+| [day/grade-snapshot.test.mjs](../day/grade-snapshot.test.mjs) | [Средний балл](modules/school-diary/grades.md) | Идемпотентность, weighted threshold и барьер против потери/изменения оценки | Vitest; разработчик |
 | [day/homework-kind.d.mts](../day/homework-kind.d.mts) | [Формирование плана](modules/synchronization/plan-generation.md) | Типы единого определения явного ЦДЗ и письменного задания | TypeScript; клиент |
 | [day/homework-kind.mjs](../day/homework-kind.mjs) | [Формирование плана](modules/synchronization/plan-generation.md) | Общее правило классификации МЭШ для сборки и интерфейса | `day/build.mjs`; `src/lib/dayStore.ts`; `day/merge.mjs` |
 | [day/homework-reference.mjs](../day/homework-reference.mjs) | [Формирование плана](modules/synchronization/plan-generation.md) | Разрешение ссылки МЭШ на ранее назначенное ДЗ | `day/build.mjs`; `scripts/day.mjs` |
 | [day/material-access.mjs](../day/material-access.mjs) | [Модель Firestore](shared/data/firestore.md) | Право семьи на страницу учебника либо назначенный лист учителя | `scripts/day.mjs`; аудит |
 | [day/material-access.test.mjs](../day/material-access.test.mjs) | [Модель Firestore](shared/data/firestore.md) | Запрет доступа к общему PDF без семейного подтверждения и различение редакций | Vitest; разработчик |
-| [day/merge.mjs](../day/merge.mjs) | [Формирование плана](modules/synchronization/plan-generation.md) | Слияние с сохранением истории; source-only выпуск снимает старые инструкции, тесты и закрытые ориентиры | `scripts/day.mjs`; Vitest |
-| [day/merge.test.mjs](../day/merge.test.mjs) | [Доступ и состояние](modules/families/access-and-state.md) | Проверка сохранности при слиянии дня | Vitest; разработчик |
+| [day/merge.mjs](../day/merge.mjs) | [Формирование плана](modules/synchronization/plan-generation.md) | Слияние сохраняет историю и подтверждения, публикует текущие предметы/задания в порядке источника, а изменения порядка включает в ревизию | `scripts/day.mjs`; Vitest |
+| [day/merge.test.mjs](../day/merge.test.mjs) | [Формирование плана](modules/synchronization/plan-generation.md) | Проверка канонического порядка, исторического хвоста, идемпотентности и строгой сверки публикации | Vitest; разработчик |
 | [day/owner-repair.mjs](../day/owner-repair.mjs) | [Модель Firestore](shared/data/firestore.md) | Узкая миграция владельца старой ролевой страницы по dayOwners | `scripts/day.mjs` |
 | [day/owner-repair.test.mjs](../day/owner-repair.test.mjs) | [Модель Firestore](shared/data/firestore.md) | Запрет переноса страницы другой семьи или даты | Vitest; разработчик |
 | [day/pipeline-contract.mjs](../day/pipeline-contract.mjs) | [Сертификация карточки](modules/reviews/card-flow-certification.md) | Проверка полноты МЭШ, отпечатка, состава заданий и адресная диагностика ссылок на страницы | `scripts/day.mjs` |
@@ -870,3 +870,5 @@
 | [day/mesh-notice.test.mjs](../day/mesh-notice.test.mjs) | [Формирование плана](modules/synchronization/plan-generation.md) | Пожелание, смешанная инструкция, вложения и запрет фиктивной связи | Vitest |
 | [scripts/day.validate.test.mjs](../scripts/day.validate.test.mjs) | [Формирование плана](modules/synchronization/plan-generation.md) | Настоящий CLI validate информационной записи без долга, материала и targetTaskId | Vitest; оператор |
 | [docs/decisions/mesh-informational-entry-2026-10-21.md](decisions/mesh-informational-entry-2026-10-21.md) | [Формирование плана](modules/synchronization/plan-generation.md) | Основание классификации, source identity, история, роли и выпуск | EducationSync; разработчик |
+
+| [docs/decisions/day-merge-order-2026-10-22.md](decisions/day-merge-order-2026-10-22.md) | [Формирование плана](modules/synchronization/plan-generation.md) | Решение о порядке слияния и безопасной диагностике публикации | EducationSync; разработчик |

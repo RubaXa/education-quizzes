@@ -1,6 +1,7 @@
 /** @see ../docs/decisions/mesh-informational-entry-2026-10-21.md */
 /**
  * @see ../docs/modules/reviews/README.md
+ * @see ../docs/decisions/day-merge-order-2026-10-22.md
  * @see ../docs/modules/reviews/card-flow-certification.md
  * @see ../docs/decisions/family-essay-assignment-2026-10-20.md
  * @see ../docs/decisions/source-only-mesh-publication-2026-10-20.md
@@ -92,6 +93,31 @@ export function sourcePlanFingerprint(source) {
   return createHash('sha256').update(JSON.stringify(plan)).digest('hex')
 }
 
+/** Return a safe structural diff location and kind without exposing compared values. */
+export function firstTopologyDifference(expected, actual, path = 'subjects') {
+  const kindOf = (value) => value === null ? 'null' : Array.isArray(value) ? 'array' : typeof value
+  const expectedKind = kindOf(expected), actualKind = kindOf(actual)
+  if (expectedKind !== actualKind) return { path, kind: 'type' }
+  if (expectedKind === 'array') {
+    if (expected.length !== actual.length) return { path, kind: 'length' }
+    for (let index = 0; index < expected.length; index += 1) {
+      const difference = firstTopologyDifference(expected[index], actual[index], `${path}[${index}]`)
+      if (difference) return difference
+    }
+    return null
+  }
+  if (expectedKind === 'object' && expected !== null) {
+    const keys = [...new Set([...Object.keys(expected), ...Object.keys(actual)])].sort()
+    for (const key of keys) {
+      if (!Object.hasOwn(expected, key) || !Object.hasOwn(actual, key)) return { path: `${path}.${key}`, kind: 'missing' }
+      const difference = firstTopologyDifference(expected[key], actual[key], `${path}.${key}`)
+      if (difference) return difference
+    }
+    return null
+  }
+  return Object.is(expected, actual) ? null : { path, kind: 'value' }
+}
+
 function assertFamilyProjectionMatches(source, page, role, familyAssignments) {
   const expectedFamily = familyAssignments.filter((task) => task.dueDate === source.targetDate && task.publication === 'active' && task.sourceSystem === 'family' && task.dayProjectionVersion === 1)
   const familyErrors = expectedFamily.flatMap((task) => familyAssignmentErrors(task, { familyId: page.familyId, childId: page.childId, taskId: task.id }))
@@ -122,8 +148,9 @@ export function assertPublishedPageAligned(source, page, role, familyAssignments
   if (JSON.stringify(page.sourceOnlyEntries ?? []) !== JSON.stringify(source.sourceOnlyEntries ?? [])) {
     throw new Error(`Опубликованная страница ${role} потеряла точное уведомление или ссылку МЭШ.`)
   }
-  if (page.sourcePlanFingerprint) {
-    if (page.sourcePlanFingerprint !== sourcePlanFingerprint(source)) {
+  if (page.sourcePlanFingerprint !== undefined && page.sourcePlanFingerprint !== null) {
+    if (typeof page.sourcePlanFingerprint !== 'string' || !page.sourcePlanFingerprint
+      || page.sourcePlanFingerprint !== sourcePlanFingerprint(source)) {
       throw new Error(`Опубликованная страница ${role} отстаёт от локального плана урока ${source.targetDate}. Сначала day publish.`)
     }
     // A matching copied fingerprint alone cannot prove that nested tasks survived
@@ -147,8 +174,12 @@ export function assertPublishedPageAligned(source, page, role, familyAssignments
     const meshSubjects = (subjects) => subjects?.map((subject) => ({ ...subject,
       tasks: (subject.tasks ?? []).filter((task) => !task.familyOrigin),
     })).filter((subject) => subject.tasks.length || source.subjects.some((item) => item.id === subject.id))
-    if (JSON.stringify(topology(meshSubjects(page.subjects))) !== JSON.stringify(topology(publicPageSubjects(source.subjects)))) {
-      throw new Error(`Опубликованная страница ${role} потеряла задание, вариант или номер. Повторите публикацию и обратную сверку.`)
+    const actualTopology = topology(meshSubjects(page.subjects))
+    const expectedTopology = topology(publicPageSubjects(source.subjects))
+    if (JSON.stringify(actualTopology) !== JSON.stringify(expectedTopology)) {
+      const difference = firstTopologyDifference(expectedTopology, actualTopology) ?? { path: 'subjects', kind: 'structure' }
+      throw new Error(`Опубликованная страница ${role} потеряла задание, вариант или номер `
+        + `(дата ${source.targetDate}; путь ${difference.path}; тип ${difference.kind}). Повторите публикацию и обратную сверку.`)
     }
     return
   }

@@ -15,6 +15,11 @@ const counts = (rows) => {
 }
 
 export function proposeGradeSnapshot(previous, mesh, reportPath) {
+  const threshold = Number(previous?.working_threshold)
+  if (previous?.working_threshold_status !== 'conditional; not a confirmed school rule'
+    || !Number.isFinite(threshold) || threshold <= 4 || threshold > 5) {
+    throw new Error('Нужен сохранённый условный рабочий порог оценок в диапазоне (4, 5].')
+  }
   if (!mesh?.complete || !Array.isArray(mesh.marks) || !/^20\d{2}-\d{2}-\d{2}T/.test(mesh.fetchedAt ?? '')) {
     throw new Error('Нужен полный датированный снимок МЭШ с оценками.')
   }
@@ -28,6 +33,11 @@ export function proposeGradeSnapshot(previous, mesh, reportPath) {
   const changes = []
   const subjects = previous.subjects.map((subject) => {
     const source = byName.get(subject.name)
+    if (!Array.isArray(subject.grades) || subject.grades.some((grade) => !Array.isArray(grade) || grade.length !== 2
+      || !Number.isInteger(grade[0]) || grade[0] < 2 || grade[0] > 5
+      || !Number.isInteger(grade[1]) || grade[1] < 1)) {
+      throw new Error(`Некорректный подтверждённый журнал оценок: ${subject.name}.`)
+    }
     if (!Number.isInteger(source.count) || !Array.isArray(source.marks) || source.marks.length !== source.count
       || source.marks.some((mark) => !Number.isInteger(Number(mark.value)) || !Number.isInteger(Number(mark.weight)))) {
       throw new Error(`Неполная лента оценок: ${subject.name}.`)
@@ -44,9 +54,18 @@ export function proposeGradeSnapshot(previous, mesh, reportPath) {
       if (available) { remaining.set(gradeKey, available - 1); return false }
       return true
     })
-    const next = { ...subject, grades: [...subject.grades, ...added], displayed_average: Number(source.average) }
-    if (added.length || Number(subject.displayed_average) !== Number(source.average)) {
-      changes.push({ subject: subject.name, previous: Number(subject.displayed_average), current: next.displayed_average, added })
+    const grades = [...subject.grades, ...added]
+    const total = grades.reduce((sum, [mark, weight]) => sum + mark * weight, 0)
+    const weightSum = grades.reduce((sum, [, weight]) => sum + weight, 0)
+    let appMoreFives = 0
+    while ((total + 5 * appMoreFives) / (weightSum + appMoreFives) < threshold && appMoreFives < 100) {
+      appMoreFives += 1
+    }
+    const next = { ...subject, grades, displayed_average: Number(source.average), app_more_fives: appMoreFives }
+    if (added.length || Number(subject.displayed_average) !== Number(source.average)
+      || subject.app_more_fives !== appMoreFives) {
+      changes.push({ subject: subject.name, previous: Number(subject.displayed_average), current: next.displayed_average,
+        added, previous_app_more_fives: subject.app_more_fives, app_more_fives: appMoreFives })
     }
     return next
   })

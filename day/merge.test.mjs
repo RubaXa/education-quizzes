@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { mergeDayPage } from './merge.mjs'
+import { assertPublishedPageAligned, sourcePlanFingerprint } from './pipeline-contract.mjs'
 
 const task = (id, status = 'unknown') => ({ id, title: id, detail: id, status, kind: 'written', source: 'МЭШ' })
 const subject = (tasks) => ({ id: 'math', name: 'Математика', icon: '∑', materials: 'Учебник', mesh: 'ДЗ', summary: 'Сделать', tasks })
@@ -28,6 +29,55 @@ describe('повторный выпуск страницы дня', () => {
     expect(merged.subjects[0].tasks[0].status).toBe('verified')
     expect(merged.evidenceDayTokens).toEqual(['today', 'yesterday'])
     expect(merged.changes[0].added).toEqual(['new'])
+  })
+
+  it('выпускает новые предметы и задания в порядке источника, сохраняя историю в конце', () => {
+    const math = (items) => ({ id: 'math', name: 'Математика', icon: '∑', materials: 'Учебник', mesh: 'ДЗ', summary: 'Сделать', tasks: items })
+    const russian = (items) => ({ id: 'russian', name: 'Русский язык', icon: '✍', materials: 'Учебник', mesh: 'ДЗ', summary: 'Сделать', tasks: items })
+    const science = (items) => ({ id: 'science', name: 'Биология', icon: '🌿', materials: 'Учебник', mesh: 'ДЗ', summary: 'Сделать', tasks: items })
+    const sourcedTask = (id, status = 'unknown') => ({ ...task(id, status), meshText: `Текст ${id}`, sourceOnly: false })
+    const incoming = {
+      ...page([]), subjects: [math([sourcedTask('m2'), sourcedTask('m1')]), science([sourcedTask('s1')]), russian([sourcedTask('r1')])],
+      taskIds: ['m2', 'm1', 's1', 'r1'],
+    }
+    const existing = {
+      ...page([]), planRevision: 4,
+      subjects: [russian([sourcedTask('r1', 'verified')]), math([sourcedTask('m1', 'verified'), sourcedTask('m2')])],
+      taskIds: ['r1', 'm1', 'm2'], uploads: [{ id: 'upload', taskId: 'm1' }], reviews: [{ taskId: 'm1', status: 'verified' }],
+    }
+    const merged = mergeDayPage(existing, incoming)
+    expect(merged.subjects.map((item) => item.id)).toEqual(['math', 'science', 'russian'])
+    expect(merged.subjects[0].tasks.map((item) => item.id)).toEqual(['m2', 'm1'])
+    expect(merged.subjects[0].tasks.find((item) => item.id === 'm1').status).toBe('verified')
+    expect(merged.subjects[2].tasks[0].status).toBe('verified')
+    expect(merged.uploads).toEqual(existing.uploads)
+    expect(merged.reviews).toEqual(existing.reviews)
+    expect(merged.planRevision).toBe(5)
+    expect(merged.changes[0]).toMatchObject({ subjectOrderChanged: true, taskOrderChanged: ['math'] })
+
+    const source = { targetDate: incoming.targetDate, subjects: incoming.subjects }
+    for (const role of ['student', 'parent']) {
+      const published = { ...merged, kind: role, targetDate: source.targetDate, sourcePlanFingerprint: sourcePlanFingerprint(source) }
+      expect(() => assertPublishedPageAligned(source, published, role)).not.toThrow()
+      const lost = structuredClone(published)
+      lost.subjects[0].tasks.pop()
+      expect(() => assertPublishedPageAligned(source, lost, role)).toThrow(/потеряла/)
+    }
+
+    const historical = { ...existing, subjects: [
+      russian([sourcedTask('r1', 'verified')]),
+      math([sourcedTask('m1', 'verified'), sourcedTask('m2'), sourcedTask('old-math', 'verified')]),
+      { id: 'archive', name: 'Старый предмет', tasks: [sourcedTask('old-subject', 'verified')] },
+    ] }
+    const withHistory = mergeDayPage(historical, incoming)
+    expect(withHistory.subjects.map((item) => item.id)).toEqual(['math', 'science', 'russian', 'archive'])
+    expect(withHistory.subjects[0].tasks.map((item) => item.id)).toEqual(['m2', 'm1', 'old-math'])
+    expect(() => assertPublishedPageAligned(source, { ...withHistory, kind: 'student', targetDate: source.targetDate,
+      sourcePlanFingerprint: sourcePlanFingerprint(source) }, 'student')).toThrow(/потеряла/)
+    const repeated = mergeDayPage(withHistory, incoming)
+    expect(repeated.subjects.map((item) => item.id)).toEqual(withHistory.subjects.map((item) => item.id))
+    expect(repeated.subjects.map((item) => item.tasks.map((entry) => entry.id))).toEqual(withHistory.subjects.map((item) => item.tasks.map((entry) => entry.id)))
+    expect(repeated.planRevision).toBe(withHistory.planRevision)
   })
 
   it('не удаляет действие, исчезнувшее из очередного снимка', () => {

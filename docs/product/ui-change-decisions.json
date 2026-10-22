@@ -336,7 +336,7 @@
       }
     },
     "day/grade-snapshot.mjs": {
-      "sha256": "e41a540c89cc0e4e063c5cb15d90d88d4e31da8a4a06615713ea2b43a5fc70b8",
+      "sha256": "7f50557b3b568b7b182aea51b4a4bf433c1964cf9c726d9123b8274bcbce3c29",
       "record": "docs/decisions/stable-grade-snapshot-command-2026-10-16.md",
       "specs": [
         "docs/modules/school-diary/grades.md"
@@ -429,8 +429,8 @@
       }
     },
     "day/merge.mjs": {
-      "sha256": "43aaa21d89432af249d4b975896f8489f67b79815a61de85009a30723b9c04f6",
-      "record": "docs/decisions/source-only-mesh-publication-2026-10-20.md",
+      "sha256": "be8dbd1d2169ac359c006c7b885841b01e269dcc50995840a46c222b37fd2c55",
+      "record": "docs/decisions/day-merge-order-2026-10-22.md",
       "specs": [
         "docs/modules/synchronization/plan-generation.md"
       ],
@@ -440,7 +440,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь сообщил, что новые назначения МЭШ не отображаются в Education; действующий протокол разделяет точную фиксацию исходного задания и последующее подтверждённое обогащение."
+        "evidence": "Пользователь просит восстановить автоматическую синхронизацию и актуализацию Education; реальный publish выявил несовпадение порядка subjects[1].id. Сохраняются строгий барьер, подтверждённые статусы и история работ."
       }
     },
     "day/owner-repair.mjs": {
@@ -463,24 +463,18 @@
       }
     },
     "day/pipeline-contract.mjs": {
-      "sha256": "114622307950540454b4fa2d4fdc990bf2c56262bef48a632cd6fa643939fb05",
-      "record": "docs/decisions/mesh-informational-entry-2026-10-21.md",
+      "sha256": "33678dec1f2e5e42110e3a13e3ff2a3008d4d6228831c86b4bca6ecce4913ba9",
+      "record": "docs/decisions/day-merge-order-2026-10-22.md",
       "specs": [
-        "docs/modules/synchronization/plan-generation.md",
-        "docs/modules/school-diary/day-page.md"
+        "docs/modules/synchronization/plan-generation.md"
       ],
       "tests": [
-        "day/mesh-notice.test.mjs",
-        "day/build-assignments.test.mjs",
-        "day/pipeline-contract.test.mjs",
-        "day/data-contract.test.mjs",
         "day/merge.test.mjs",
-        "scripts/day.validate.test.mjs",
-        "src/DayPage.assignmentQuiz.integration.test.tsx"
+        "day/pipeline-contract.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя через EducationSync 21.10.2026: сохранить информационную запись МЭШ «Всем хороших каникул!» без ложного учебного долга, с общим маршрутом классификации и проверками."
+        "evidence": "Пользователь просит восстановить автоматическую синхронизацию и актуализацию Education; реальный publish выявил несовпадение порядка subjects[1].id. Сохраняются строгий барьер, подтверждённые статусы и история работ."
       }
     },
     "day/placement-integrity.mjs": {

@@ -2,6 +2,7 @@ import { isExplicitCdzTask } from './homework-kind.mjs'
 import { canPublishSourceOnly } from './source-only.mjs'
 
 /** @see ../docs/modules/synchronization/plan-generation.md#source-only-publication
+ * @see ../docs/decisions/day-merge-order-2026-10-22.md
  * @see ../docs/decisions/source-only-mesh-publication-2026-10-20.md */
 
 function stripSourceOnlyEnrichment(task) {
@@ -19,28 +20,45 @@ function withoutSiteCopies({ siteImage, siteThumbnail, ...link }) {
 }
 
 function mergeSubjects(existing = [], incoming = [], retiredTaskIds = new Set()) {
-  const result = existing.map((subject) => ({ ...subject, tasks: subject.tasks.filter((task) => !retiredTaskIds.has(task.id)) }))
-  for (const subject of incoming) {
-    const index = result.findIndex((item) => item.id === subject.id)
-    if (index < 0) { result.push(subject); continue }
-    const older = result[index]
-    const tasks = [...older.tasks]
-    for (const task of subject.tasks) {
-      const position = tasks.findIndex((item) => item.id === task.id)
-      if (position < 0) tasks.push(task)
-      else {
-        const old = tasks[position]
-        const sameCondition = old.meshText === task.meshText && old.kind === task.kind
-        const merged = sameCondition ? { ...old, ...task } : { ...task }
-        if (canPublishSourceOnly(task)) stripSourceOnlyEnrichment(merged)
-        merged.status = sameCondition && task.status === 'unknown' && old.status !== 'unknown' ? old.status : task.status
-        if (!isExplicitCdzTask(merged)) delete merged.platformResult
-        tasks[position] = merged
-      }
-    }
-    result[index] = { ...older, ...subject, tasks }
+  const previousById = new Map(existing.map((subject) => [subject.id, {
+    ...subject, tasks: subject.tasks.filter((task) => !retiredTaskIds.has(task.id)),
+  }]))
+  const includedIds = new Set()
+  const result = incoming.map((subject) => {
+    includedIds.add(subject.id)
+    const older = previousById.get(subject.id)
+    if (!older) return subject
+
+    const previousTasks = new Map(older.tasks.map((task) => [task.id, task]))
+    const incomingIds = new Set()
+    const tasks = subject.tasks.map((task) => {
+      incomingIds.add(task.id)
+      const old = previousTasks.get(task.id)
+      if (!old) return task
+      const sameCondition = old.meshText === task.meshText && old.kind === task.kind
+      const merged = sameCondition ? { ...old, ...task } : { ...task }
+      if (canPublishSourceOnly(task)) stripSourceOnlyEnrichment(merged)
+      merged.status = sameCondition && task.status === 'unknown' && old.status !== 'unknown' ? old.status : task.status
+      if (!isExplicitCdzTask(merged)) delete merged.platformResult
+      return merged
+    })
+    // Source order is canonical. Work absent from the new source snapshot stays
+    // attached to the subject after the incoming tasks, unless explicitly retired.
+    for (const task of older.tasks) if (!incomingIds.has(task.id)) tasks.push(task)
+    return { ...older, ...subject, tasks }
+  })
+  // Preserve historical subjects that disappeared from the source snapshot at
+  // the end, in their original order. Empty historical subjects remain omitted.
+  for (const subject of existing) {
+    if (includedIds.has(subject.id)) continue
+    const retained = previousById.get(subject.id)
+    if (retained?.tasks.length) result.push(retained)
   }
-  return result.filter((subject) => subject.tasks.length || incoming.some((item) => item.id === subject.id))
+  return result
+}
+
+function sequenceChanged(before, after) {
+  return JSON.stringify(before) !== JSON.stringify(after)
 }
 
 /** @see ../docs/modules/families/access-and-state.md#state */
@@ -82,13 +100,20 @@ export function mergeDayPage(existing, incoming) {
     const old = existing.subjects.find((item) => item.id === subject.id)
     return old && ['mesh', 'materials', 'summary', 'name'].some((key) => old[key] !== subject[key])
   }).map((subject) => subject.id)
+  const subjectOrderChanged = sequenceChanged(existing.subjects.map((subject) => subject.id), subjects.map((subject) => subject.id))
+  const taskOrderChanged = subjects.filter((subject) => {
+    const old = existing.subjects.find((item) => item.id === subject.id)
+    return old && sequenceChanged(old.tasks.map((task) => task.id), subject.tasks.map((task) => task.id))
+  }).map((subject) => subject.id)
   const changedSchedule = JSON.stringify(existing.todaySchedule) !== JSON.stringify(incoming.todaySchedule)
     || JSON.stringify(existing.targetSchedule) !== JSON.stringify(incoming.targetSchedule)
   const changedWeekendSlot = JSON.stringify(existing.weekendSlot ?? null) !== JSON.stringify(incoming.weekendSlot ?? null)
-  const planChanged = added.length || removed.length || changed.length || changedSubjects.length || newLinks || changedSchedule || changedWeekendSlot
+  const planChanged = added.length || removed.length || changed.length || changedSubjects.length
+    || subjectOrderChanged || taskOrderChanged.length || newLinks || changedSchedule || changedWeekendSlot
   merged.planRevision = (existing.planRevision || 1) + (planChanged ? 1 : 0)
   merged.changes = planChanged
-    ? [{ at: incoming.updatedAt, added, removed, changed, changedSubjects, newLinks, changedSchedule, changedWeekendSlot }, ...(existing.changes || [])].slice(0, 20)
+    ? [{ at: incoming.updatedAt, added, removed, changed, changedSubjects, subjectOrderChanged, taskOrderChanged,
+      newLinks, changedSchedule, changedWeekendSlot }, ...(existing.changes || [])].slice(0, 20)
     : existing.changes || []
   return merged
 }
