@@ -2568,35 +2568,18 @@
       }
     },
     "src/App.tsx": {
-      "sha256": "439929089ae2bf49e84567966aef6989425fa558fbfa3c8557c017836c997fc6",
-      "record": "docs/decisions/ldd-copy-button-2026-10-19.md",
+      "sha256": "84cc8d00ddcaa947faed2a6519106c896fa807a1f6d18de16f47f3273b514b72",
+      "record": "docs/decisions/early-development-preview-2026-10-22.md",
       "specs": [
-        "docs/modules/families/access-and-state.md",
-        "docs/modules/assessments/result-presentation-proposal.md",
-        "docs/modules/assessments/quiz-chain-proposal.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/families/early-development.md"
       ],
       "tests": [
-        "src/components/LearningRoute.integration.test.tsx",
-        "src/lib/learningRoute.test.ts",
-        "day/learning-route-identity.test.mjs",
-        "src/components/ProblemTaskCard.contract.test.tsx",
-        "src/components/QuizCard.history.test.tsx",
-        "src/components/ui/result.test.tsx",
-        "src/lib/watchQuizOutcome.test.ts",
-        "src/UiKit.test.tsx"
+        "src/lib/earlyDevelopment.test.ts",
+        "src/components/EarlyDevelopment.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10.2026 прямо требует определять родительский и ученический вид по авторизованной роли, а учебные ссылки сделать одинаковыми для обеих ролей."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "9202a31edde2f11564f808668e2aa65683ae30cd050e7eb4df9b920884f8a13f"
-      },
-      "specificationLifecycle": {
-        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
-        "previousSha256": "871b4426382fbffddbaf76874563ffce4d33248cad556a4ba9db0506ba83fec9"
+        "evidence": "Родитель22.10.2026 прямо поручил разработать отдельный раздел с рождения до школы с программой, дневником наблюдений и помощью взрослым. Локальный dev-only прототип подготовлен для просмотра; выпуск не заявлен."
       }
     },
     "src/DayDashboard.css": {
@@ -6059,6 +6042,51 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Родитель22.10.2026 прямо уточнил: любой его добавленный ребёнок автоматически имеет доступ ко всем уже загруженным им учебникам; повторная загрузка внутри семьи не требуется."
+      }
+    },
+    "src/components/EarlyDevelopment.tsx": {
+      "sha256": "29a17a4da5da91c53f1f7faf5466aa960467b71a6d8f4e34486f504bb4ff284d",
+      "record": "docs/decisions/early-development-preview-2026-10-22.md",
+      "specs": [
+        "docs/modules/families/early-development.md"
+      ],
+      "tests": [
+        "src/lib/earlyDevelopment.test.ts",
+        "src/components/EarlyDevelopment.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель22.10.2026 прямо поручил разработать отдельный раздел с рождения до школы с программой, дневником наблюдений и помощью взрослым. Локальный dev-only прототип подготовлен для просмотра; выпуск не заявлен."
+      }
+    },
+    "src/components/EarlyDevelopment.css": {
+      "sha256": "ad78ceb591375abb1e294e82c1360b306c44a1f540487f533e72a6404730869b",
+      "record": "docs/decisions/early-development-preview-2026-10-22.md",
+      "specs": [
+        "docs/modules/families/early-development.md"
+      ],
+      "tests": [
+        "src/lib/earlyDevelopment.test.ts",
+        "src/components/EarlyDevelopment.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель22.10.2026 прямо поручил разработать отдельный раздел с рождения до школы с программой, дневником наблюдений и помощью взрослым. Локальный dev-only прототип подготовлен для просмотра; выпуск не заявлен."
+      }
+    },
+    "src/lib/earlyDevelopment.ts": {
+      "sha256": "22d100efed747b5acf32e1c401f5e31a053e0291989cbeaf4d919f0933b0b302",
+      "record": "docs/decisions/early-development-preview-2026-10-22.md",
+      "specs": [
+        "docs/modules/families/early-development.md"
+      ],
+      "tests": [
+        "src/lib/earlyDevelopment.test.ts",
+        "src/components/EarlyDevelopment.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель22.10.2026 прямо поручил разработать отдельный раздел с рождения до школы с программой, дневником наблюдений и помощью взрослым. Локальный dev-only прототип подготовлен для просмотра; выпуск не заявлен."
       }
     }
   }

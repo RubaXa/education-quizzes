@@ -4,7 +4,7 @@
 /**
  * @see ../docs/product/README.md
  */
-import { useEffect, useRef, useState } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { getAuth } from 'firebase/auth'
 import { ArrowLeft, CircleHelp, ClipboardCopy, Clock3, RefreshCw, Send, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -42,7 +42,10 @@ import { reportUiError } from '@/lib/uiErrors'
 import { traceAccess } from '@/lib/browserAccessTrace'
 import './App.css'
 
-type Route = { kind: 'test' | 'preview' | 'dashboard' | 'my' | 'review' | 'day' | 'day-parent' | 'days' | 'days-parent' | 'enter' | 'connect'; token: string } | { kind: 'home' | 'ui-kit' }
+const EarlyDevelopmentPreview = import.meta.env.DEV ? lazy(() => import('./components/EarlyDevelopment')) : null
+
+/** @see ../docs/modules/families/early-development.md */
+type Route = { kind: 'test' | 'preview' | 'dashboard' | 'my' | 'review' | 'day' | 'day-parent' | 'days' | 'days-parent' | 'enter' | 'connect'; token: string } | { kind: 'home' | 'ui-kit' | 'early-preview' }
 
 const storeModule = () => import('@/lib/store')
 const loadPreview = async (token: string) => (await storeModule()).loadPreview(token)
@@ -62,6 +65,7 @@ const submitAssignment = async (token: string) => (await storeModule()).submitAs
  */
 function routeFromHash(): Route {
   const [, kind, raw = ''] = location.hash.split('/')
+  if (import.meta.env.DEV && kind === 'early-preview') return { kind: 'early-preview' }
   if (kind === 'ui-kit') return { kind: 'ui-kit' }
   const token = raw.includes('~') ? raw.slice(raw.lastIndexOf('~') + 1) : raw
   if ((kind === 't' || kind === 'preview' || kind === 'dashboard' || kind === 'my' || kind === 'review' || kind === 'day' || kind === 'day-parent' || kind === 'days' || kind === 'days-parent' || kind === 'enter' || kind === 'connect') && token) {
@@ -776,7 +780,7 @@ function App() {
     window.addEventListener('hashchange', updateRoute)
     return () => window.removeEventListener('hashchange', updateRoute)
   }, [])
-  return <Shell dayRoute={route.kind === 'day' || route.kind === 'day-parent'} quizBack={route.kind === 'test' || route.kind === 'preview' ? testReturn : undefined} onHeaderTarget={setHeaderReturnTarget}>{route.kind === 'ui-kit' ? <UiKit /> : route.kind === 'test' ? <QuizAccess key={route.token} token={route.token} /> : route.kind === 'preview' ? <Preview token={route.token} /> : route.kind === 'dashboard' || route.kind === 'my' || route.kind === 'review' ? <Dashboard key={`${route.kind}-${route.token}`} token={route.token} parent={route.kind === 'review'} /> : route.kind === 'days' || route.kind === 'days-parent' ? <LearningRoute key={`days-${route.token}`} mode="days" token={route.token} /> : route.kind === 'day' || route.kind === 'day-parent' ? <LearningRoute key={`day-${route.token}`} mode="day" token={route.token} headerReturnTarget={headerReturnTarget} /> : route.kind === 'enter' ? <PersonalEntry key={route.token} initialLink={route.token} /> : route.kind === 'connect' ? <ConnectionInvite key={route.token} code={route.token} /> : <Home />}</Shell>
+  return <Shell dayRoute={route.kind === 'day' || route.kind === 'day-parent'} quizBack={route.kind === 'test' || route.kind === 'preview' ? testReturn : undefined} onHeaderTarget={setHeaderReturnTarget}>{route.kind === 'early-preview' && EarlyDevelopmentPreview ? <Suspense fallback={<p>Открываем раннее развитие…</p>}><EarlyDevelopmentPreview /></Suspense> : route.kind === 'ui-kit' ? <UiKit /> : route.kind === 'test' ? <QuizAccess key={route.token} token={route.token} /> : route.kind === 'preview' ? <Preview token={route.token} /> : route.kind === 'dashboard' || route.kind === 'my' || route.kind === 'review' ? <Dashboard key={`${route.kind}-${route.token}`} token={route.token} parent={route.kind === 'review'} /> : route.kind === 'days' || route.kind === 'days-parent' ? <LearningRoute key={`days-${route.token}`} mode="days" token={route.token} /> : route.kind === 'day' || route.kind === 'day-parent' ? <LearningRoute key={`day-${route.token}`} mode="day" token={route.token} headerReturnTarget={headerReturnTarget} /> : route.kind === 'enter' ? <PersonalEntry key={route.token} initialLink={route.token} /> : route.kind === 'connect' ? <ConnectionInvite key={route.token} code={route.token} /> : <Home />}</Shell>
 }
 
 export default App

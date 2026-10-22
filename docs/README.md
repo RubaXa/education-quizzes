@@ -23,6 +23,7 @@ sections:
 
 | Задача | Первый контракт | Соседние границы |
 |---|---|---|
+| Ребёнок от рождения до школы | [Раннее развитие](modules/families/early-development.md) | [Families](modules/families/README.md), [доступ](shared/access-and-privacy.md) |
 | Семья, роли и подключение источника | [Families](modules/families/README.md) | [Доступ и приватность](shared/access-and-privacy.md), [модель данных](shared/data/firestore.md) |
 | Дневник, расписание, ДЗ или оценки | [School diary](modules/school-diary/README.md) | [Synchronization](modules/synchronization/README.md), [Assignments](modules/assignments/README.md) |
 | Полная ручная синхронизация | [Operator CLI](services/operator-cli/README.md) | [Порядок запуска](operations/education-sync.md), [глобальный охват](modules/synchronization/global-sync.md) |

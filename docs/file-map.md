@@ -2,6 +2,13 @@
 
 | Файл | Спецификация | Назначение | Потребитель |
 |---|---|---|---|
+| [docs/modules/families/early-development.md](modules/families/early-development.md) | [Раннее развитие](modules/families/early-development.md) | Контракт родительского режима с рождения до школы; границы dev-only прототипа | Родитель; разработчик; Vitest |
+| [docs/decisions/early-development-preview-2026-10-22.md](decisions/early-development-preview-2026-10-22.md) | [Раннее развитие](modules/families/early-development.md) | Основание отдельного раннего режима и его локального предпросмотра | Родитель; разработчик; Vitest |
+| [src/components/EarlyDevelopment.tsx](../src/components/EarlyDevelopment.tsx) | [Раннее развитие](modules/families/early-development.md) | Программа первых недель, инструкция, дневник и редактирование в dev-only прототипе | Родитель; разработчик; Vitest |
+| [src/components/EarlyDevelopment.css](../src/components/EarlyDevelopment.css) | [Раннее развитие](modules/families/early-development.md) | Мобильная компоновка на общих токенах Education | Родитель; разработчик; Vitest |
+| [src/lib/earlyDevelopment.ts](../src/lib/earlyDevelopment.ts) | [Раннее развитие](modules/families/early-development.md) | Версия идей первых недель и локальный журнал наблюдений без оценки | Родитель; разработчик; Vitest |
+| [src/lib/earlyDevelopment.test.ts](../src/lib/earlyDevelopment.test.ts) | [Раннее развитие](modules/families/early-development.md) | Проверки provenance, неизвестности, восстановления и выбора идеи | Родитель; разработчик; Vitest |
+| [src/components/EarlyDevelopment.test.tsx](../src/components/EarlyDevelopment.test.tsx) | [Раннее развитие](modules/families/early-development.md) | Полный путь родителя, ошибка записи и редактирование после reload | Родитель; разработчик; Vitest |
 | [docs/decisions/mixed-assignment-actions-2026-10-22.md](decisions/mixed-assignment-actions-2026-10-22.md) | [План](modules/synchronization/plan-generation.md) | Основание двух независимых действий и раздельных запросов материала | Оператор; publisher |
 | [docs/decisions/source-wait-generations-2026-10-22.md](decisions/source-wait-generations-2026-10-22.md) | [Диспетчер](services/telegram-bot/education-sync-dispatch.md) | Основание восстановления автоматического полного запуска по новому поколению при старом source blocker | Worker; оператор; EducationSync |
 | [docs/decisions/scoped-learner-flow-2026-10-21.md](decisions/scoped-learner-flow-2026-10-21.md) | [Публичная помощь](modules/reviews/subject-aware-guidance.md) | Основание scoped flow и сохранения mixed-source блока | Оператор; разработчик |

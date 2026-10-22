@@ -722,6 +722,30 @@
       "path": "docs/decisions/documentation-precommit-2026-10-16.md"
     },
     {
+      "id": "decision.early-development-preview-2026-10-22",
+      "status": "draft",
+      "implementation": "partial",
+      "created": "2026-10-22",
+      "updated": "2026-10-22",
+      "parent": "module.families.early-development",
+      "uses": [
+        "product.ui-change-control"
+      ],
+      "code": [],
+      "consumers": [
+        "Родитель",
+        "Разработчик Education"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "проверки",
+        "действия-и-роли",
+        "согласование"
+      ],
+      "path": "docs/decisions/early-development-preview-2026-10-22.md"
+    },
+    {
       "id": "decision.family-book-access-2026-10-22",
       "status": "accepted",
       "implementation": "partial",
@@ -5334,6 +5358,27 @@
       "consumer": "Общая шапка; web/PWA"
     },
     {
+      "id": "file:src/components/EarlyDevelopment.css",
+      "path": "src/components/EarlyDevelopment.css",
+      "kind": "artifact",
+      "purpose": "Мобильная компоновка на общих токенах Education",
+      "consumer": "Родитель; разработчик; Vitest"
+    },
+    {
+      "id": "file:src/components/EarlyDevelopment.test.tsx",
+      "path": "src/components/EarlyDevelopment.test.tsx",
+      "kind": "verification",
+      "purpose": "Полный путь родителя, ошибка записи и редактирование после reload",
+      "consumer": "Родитель; разработчик; Vitest"
+    },
+    {
+      "id": "file:src/components/EarlyDevelopment.tsx",
+      "path": "src/components/EarlyDevelopment.tsx",
+      "kind": "artifact",
+      "purpose": "Программа первых недель, инструкция, дневник и редактирование в dev-only прототипе",
+      "consumer": "Родитель; разработчик; Vitest"
+    },
+    {
       "id": "file:src/components/EducationImage.css",
       "path": "src/components/EducationImage.css",
       "kind": "artifact",
@@ -6221,6 +6266,20 @@
       "kind": "artifact",
       "purpose": "Server-confirmed photo plan revision, task-condition freshness, atomic upload event and idempotent retry; day reads and types",
       "consumer": "`src/DayPage.tsx`; `WeekendMathSlot.tsx`; `src/DayDashboard.tsx`"
+    },
+    {
+      "id": "file:src/lib/earlyDevelopment.test.ts",
+      "path": "src/lib/earlyDevelopment.test.ts",
+      "kind": "verification",
+      "purpose": "Проверки provenance, неизвестности, восстановления и выбора идеи",
+      "consumer": "Родитель; разработчик; Vitest"
+    },
+    {
+      "id": "file:src/lib/earlyDevelopment.ts",
+      "path": "src/lib/earlyDevelopment.ts",
+      "kind": "artifact",
+      "purpose": "Версия идей первых недель и локальный журнал наблюдений без оценки",
+      "consumer": "Родитель; разработчик; Vitest"
     },
     {
       "id": "file:src/lib/educationEventProducer.ts",
@@ -7742,6 +7801,36 @@
         "интерпретация"
       ],
       "path": "docs/modules/families/browser-access-trace.md"
+    },
+    {
+      "id": "module.families.early-development",
+      "status": "draft",
+      "implementation": "partial",
+      "created": "2026-10-22",
+      "updated": "2026-10-22",
+      "parent": "module.families",
+      "uses": [
+        "shared.access-and-privacy",
+        "shared.design"
+      ],
+      "consumers": [
+        "Родитель ребёнка от рождения до школы",
+        "Разработчик Education"
+      ],
+      "code": [
+        "src/App.tsx",
+        "src/components/EarlyDevelopment.tsx",
+        "src/components/EarlyDevelopment.css",
+        "src/lib/earlyDevelopment.ts"
+      ],
+      "sections": [
+        "scope",
+        "daily-flow",
+        "evidence",
+        "ownership",
+        "implementation"
+      ],
+      "path": "docs/modules/families/early-development.md"
     },
     {
       "id": "module.families.family-artifact-access",
@@ -11116,6 +11205,11 @@
       "type": "uses"
     },
     {
+      "from": "decision.early-development-preview-2026-10-22",
+      "to": "product.ui-change-control",
+      "type": "uses"
+    },
+    {
       "from": "decision.family-book-access-2026-10-22",
       "to": "module.families",
       "type": "uses"
@@ -13462,6 +13556,11 @@
     },
     {
       "from": "file:src/App.tsx",
+      "to": "module.families.early-development",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/App.tsx",
       "to": "module.school-diary.day-page",
       "type": "implements"
     },
@@ -13633,6 +13732,16 @@
     {
       "from": "file:src/components/DiagnosticsCopyButton.tsx",
       "to": "module.families.browser-access-trace",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/EarlyDevelopment.css",
+      "to": "module.families.early-development",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/EarlyDevelopment.tsx",
+      "to": "module.families.early-development",
       "type": "implements"
     },
     {
@@ -14871,6 +14980,11 @@
       "type": "implements"
     },
     {
+      "from": "file:src/lib/earlyDevelopment.ts",
+      "to": "module.families.early-development",
+      "type": "implements"
+    },
+    {
       "from": "file:src/lib/educationEventProducer.ts",
       "to": "module.synchronization.event-queue",
       "type": "implements"
@@ -16096,6 +16210,31 @@
       "type": "uses"
     },
     {
+      "from": "module.families.early-development",
+      "to": "decision.early-development-preview-2026-10-22",
+      "type": "contains"
+    },
+    {
+      "from": "module.families.early-development",
+      "to": "file:src/components/EarlyDevelopment.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.families.early-development",
+      "to": "file:src/lib/earlyDevelopment.test.ts",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.families.early-development",
+      "to": "shared.access-and-privacy",
+      "type": "uses"
+    },
+    {
+      "from": "module.families.early-development",
+      "to": "shared.design",
+      "type": "uses"
+    },
+    {
       "from": "module.families",
       "to": "decision.browser-role-ldd-2026-10-18",
       "type": "contains"
@@ -16148,6 +16287,11 @@
     {
       "from": "module.families",
       "to": "module.families.browser-access-trace",
+      "type": "contains"
+    },
+    {
+      "from": "module.families",
+      "to": "module.families.early-development",
       "type": "contains"
     },
     {
