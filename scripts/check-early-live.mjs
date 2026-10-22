@@ -32,8 +32,8 @@ function value(revision, overrides = {}) {
 }
 async function write(web, data) { const batch = writeBatch(web); batch.set(doc(web, path), data); batch.set(doc(web, path, 'history', data.revisionId), data); await batch.commit() }
 try {
-  await admin.doc(`families/${familyId}`).set({ fixture: true })
-  await admin.doc(`families/${otherFamily}`).set({ fixture: true })
+  await admin.doc(`families/${familyId}`).set({ fixture: true, active: false })
+  await admin.doc(`families/${otherFamily}`).set({ fixture: true, active: false })
   await admin.doc(base).set({ displayName: 'Synthetic baby', learningMode: 'early-development', active: true })
   await admin.doc(`${base}/earlyDevelopment/current`).set({ schemaVersion: 1, birthDate: '2026-01-01', timezone: 'Europe/Moscow', programVersion: program.version, curriculum: program })
   const a = await client('a', personId, familyId, 'parent'), b = await client('b', personId, familyId, 'parent')

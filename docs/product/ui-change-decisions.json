@@ -6190,7 +6190,7 @@
       }
     },
     "scripts/check-early-live.mjs": {
-      "sha256": "4089b3bb1741c2ebb0277eeda1f552e44c94afbc99291481f6d9510fb6f61122",
+      "sha256": "68b7d3adf84abe801b2cfc3d222e319a358d43cedee2a2970c218fc3ba8546ba",
       "record": "docs/decisions/early-development-live-2026-10-22.md",
       "specs": [
         "docs/modules/families/early-development.md"
