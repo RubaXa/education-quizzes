@@ -1128,6 +1128,33 @@
       "path": "docs/decisions/pupil-vacations-2026-10-19.md"
     },
     {
+      "id": "decision.pwa-startup-recovery-2026-10-22",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-22",
+      "updated": "2026-10-22",
+      "parent": "product.pwa",
+      "uses": [
+        "shared.design"
+      ],
+      "consumers": [
+        "parent",
+        "student",
+        "release operator"
+      ],
+      "code": [
+        "pwa/sw-template.js"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/pwa-startup-recovery-2026-10-22.md"
+    },
+    {
       "id": "decision.question-guidance-2026-10-19",
       "status": "accepted",
       "implementation": "implemented",
@@ -4493,8 +4520,15 @@
       "id": "file:pwa/sw-template.js",
       "path": "pwa/sw-template.js",
       "kind": "artifact",
-      "purpose": "Шаблон офлайн-кэша",
-      "consumer": "Генератор service worker"
+      "purpose": "Версионированная оболочка, ограничение сбоев кеша/сети и аварийный HTML с повтором",
+      "consumer": "Генератор service worker; установленное приложение"
+    },
+    {
+      "id": "file:pwa/sw-template.test.mjs",
+      "path": "pwa/sw-template.test.mjs",
+      "kind": "verification",
+      "purpose": "Отказы/зависания CacheStorage и сети, текущая версия, приватность и предел повтора",
+      "consumer": "Vitest; выпуск"
     },
     {
       "id": "file:README.md",
@@ -9326,13 +9360,14 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-08",
-      "updated": "2026-10-18",
+      "updated": "2026-10-22",
       "consumers": [
         "parent",
         "student",
         "Education operator"
       ],
       "code": [
+        "pwa/sw-template.js",
         "scripts/build-inputs.mjs",
         "src/components/PwaControls.css",
         "src/components/PwaControls.tsx",
@@ -9346,6 +9381,7 @@
       "sections": [
         "установка",
         "обновление-приложения-и-данных",
+        "startup-recovery",
         "уведомления",
         "отпечаток-выпуска",
         "состояние"
@@ -11203,6 +11239,11 @@
       "type": "uses"
     },
     {
+      "from": "decision.pwa-startup-recovery-2026-10-22",
+      "to": "shared.design",
+      "type": "uses"
+    },
+    {
       "from": "decision.released-stage-parity-2026-10-20",
       "to": "module.reviews.subject-aware-guidance",
       "type": "uses"
@@ -12630,6 +12671,11 @@
     {
       "from": "file:public/manifest.webmanifest",
       "to": "product.pwa",
+      "type": "implements"
+    },
+    {
+      "from": "file:pwa/sw-template.js",
+      "to": "decision.pwa-startup-recovery-2026-10-22",
       "type": "implements"
     },
     {
@@ -18106,6 +18152,16 @@
       "from": "product.notifications",
       "to": "service.telegram-bot",
       "type": "uses"
+    },
+    {
+      "from": "product.pwa",
+      "to": "decision.pwa-startup-recovery-2026-10-22",
+      "type": "contains"
+    },
+    {
+      "from": "product.pwa",
+      "to": "file:pwa/sw-template.test.mjs",
+      "type": "verified-by"
     },
     {
       "from": "product.pwa",

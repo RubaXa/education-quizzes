@@ -6055,6 +6055,20 @@
         "status": "direct-request",
         "evidence": "Прямой запрос пользователя связывать аудио с точным заданием после анализа уточняющих материалов; выбор должен использовать подтверждённые материалы ребёнка и не смешивать письменную сдачу с тестом."
       }
+    },
+    "pwa/sw-template.js": {
+      "sha256": "8a47c5f0cfcf1dec8ac187e2def0543fe3ede150e34b26d60a865fd829e6b243",
+      "record": "docs/decisions/pwa-startup-recovery-2026-10-22.md",
+      "specs": [
+        "docs/product/pwa.md"
+      ],
+      "tests": [
+        "pwa/sw-template.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь22.10.2026 сообщил о повторном сбое WebKit при запуске Education с домашней иконки iPhone и попросил исследовать исправление, автоматическую загрузку или кнопку обновления."
+      }
     }
   }
 }
