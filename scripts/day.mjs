@@ -31,6 +31,7 @@ import { teacherAttachmentOwnershipErrors } from '../day/assignment-structure.mj
 import { canPublishSourceOnly, sourceOnlyPublicationErrors, taskMaterialPublicationError } from '../day/source-only.mjs'
 import { learnerFlowErrors } from '../day/learner-flow.mjs'
 import { meshNoticeEntryErrors } from '../day/mesh-notice.mjs'
+import { assertMixedEntry } from '../day/mixed-assignment.mjs'
 import { ownerMigrationFields } from '../day/owner-repair.mjs'
 import { publicPageSubjects, publicProblem } from '../day/public-projection.mjs'
 import { isExplicitCdzTask } from '../day/homework-kind.mjs'
@@ -521,6 +522,13 @@ function validate(source, { allowUnchangedLegacyTeacherLinks = false } = {}) {
   if (attachmentErrors.length) fail(attachmentErrors.join(' '))
   // @see ../docs/modules/synchronization/plan-generation.md#material-only-mesh-entries
   for (const entry of source.sourceOnlyEntries ?? []) {
+    if (entry.kind === 'split') {
+      const subject = source.subjects.find((item) => item.id === entry.subjectId)
+      if (!/^mesh-\d+$/.test(entry.id ?? '') || ids.has(entry.id) || !entry.reason?.trim()
+        || !subject?.mesh?.includes(entry.rawText)) fail('Разделение должно сохранять исходную запись и отдельные действия.')
+      assertMixedEntry(entry, entry.rawText, subject.tasks)
+      continue
+    }
     if (entry.kind === 'notice') {
       const subject = source.subjects.find((item) => item.id === entry.subjectId)
       const errors = meshNoticeEntryErrors(entry, { subject, tasks: subject?.tasks ?? [] })
@@ -535,7 +543,8 @@ function validate(source, { allowUnchangedLegacyTeacherLinks = false } = {}) {
       fail(`Ссылка МЭШ ${entry.id} может быть исключена из действий только при подтверждённом общем файле учителя.`)
     }
   }
-  if ((source.materialLinkReplacements ?? []).some((taskId) => !ids.has(taskId))) fail('Заменять материалы можно только для существующего задания.')
+  if ((source.materialLinkReplacements ?? []).some((taskId) => !ids.has(taskId)
+    && !(source.sourceOnlyEntries ?? []).some(entry => entry.kind === 'split' && entry.id === taskId))) fail('Заменять материалы можно только для существующего или проверенного разделённого задания.')
   const testTokens = new Set()
   const testTaskIds = new Set()
   for (const placement of source.testPlacements ?? []) {

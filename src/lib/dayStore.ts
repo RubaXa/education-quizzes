@@ -87,6 +87,7 @@ export type DayPageData = {
   taskPageRefs?: Record<string, string[]>;
   /** Raw MESH entries that point to material already attached to another task. @see ../../docs/modules/synchronization/plan-generation.md#material-only-mesh-entries */
   sourceOnlyEntries?: ({ kind: 'notice'; id: string; subjectId: string; rawText: string; reason: string }
+    | { kind:'split'; id:string; subjectId:string; targetTaskId:string; actionIds:string[]; rawText:string; reason:string }
     | { kind?: undefined; id: string; subjectId: string; targetTaskId: string; rawText: string; reason: string })[];
   retiredTaskIds?: string[];
   weekendSlot?: { dates: string[]; title: string; taskIds: string[]; dueDate?: string } | null;

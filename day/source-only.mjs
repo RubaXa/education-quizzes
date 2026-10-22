@@ -1,6 +1,7 @@
 /** @see ../docs/decisions/scoped-learner-flow-2026-10-21.md */
 import { rawMeshKind } from './homework-kind.mjs'
 import { learnerFlowErrors } from './learner-flow.mjs'
+import { materialRequestErrors } from '../src/lib/materialRequest.ts'
 
 /** Explicit publication exception for an exact MESH entry whose material or
  * interpretation is still unresolved. It never authorizes enrichment.
@@ -23,9 +24,12 @@ export function sourceOnlyPublicationErrors(task) {
     return ['В source-only разрешены только штатные версии политики без созданного адаптера.']
   }
   const enriched = ['steps', 'submission', 'parentGuide', 'problems', 'practiceVariants', 'cardPattern',
-    'outputKind', 'testToken', 'testSlug', 'requiredPoints', 'assessmentIntent', 'sourceInventory']
+    'outputKind', 'testToken', 'testSlug', 'requiredPoints', 'sourceInventory']
     .some((key) => task[key] != null && (!Array.isArray(task[key]) || task[key].length > 0))
   if (enriched) return ['Режим точной записи не допускает добавленных шагов, решений или тестов.']
+  if (task.assessmentIntent && (!task.materialRequest || Object.keys(task.assessmentIntent).some(key=>key!=='state')
+    || !['needs-topic','needs-review'].includes(task.assessmentIntent.state))) return ['Без источника разрешён только запрос уточнения, без придуманной темы самопроверки.']
+  if (task.materialRequest && (task.materialRequest.state !== 'open' || materialRequestErrors(task).length)) return ['Запрос в source-only должен быть открытым и проверенным; он не означает выполнение задания.']
   return learnerFlowErrors(task)
 }
 

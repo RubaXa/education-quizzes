@@ -2,6 +2,7 @@
 
 | Файл | Спецификация | Назначение | Потребитель |
 |---|---|---|---|
+| [docs/decisions/mixed-assignment-actions-2026-10-22.md](decisions/mixed-assignment-actions-2026-10-22.md) | [План](modules/synchronization/plan-generation.md) | Основание двух независимых действий и раздельных запросов материала | Оператор; publisher |
 | [docs/decisions/source-wait-generations-2026-10-22.md](decisions/source-wait-generations-2026-10-22.md) | [Диспетчер](services/telegram-bot/education-sync-dispatch.md) | Основание восстановления автоматического полного запуска по новому поколению при старом source blocker | Worker; оператор; EducationSync |
 | [docs/decisions/scoped-learner-flow-2026-10-21.md](decisions/scoped-learner-flow-2026-10-21.md) | [Публичная помощь](modules/reviews/subject-aware-guidance.md) | Основание scoped flow и сохранения mixed-source блока | Оператор; разработчик |
 | [day/learner-flow.mjs](../day/learner-flow.mjs) | [Публичная помощь](modules/reviews/subject-aware-guidance.md) | Строгая область подтверждённой части без ключа и снятия sourceOnly-блока | Publisher; контракт данных |
@@ -101,6 +102,11 @@
 | [docs/decisions/readable-review-prose-2026-10-18.md](decisions/readable-review-prose-2026-10-18.md) | [Читаемая обратная связь](modules/reviews/review-criteria-provenance.md) | Основание типографической правки | Разработчик; оператор |
 
 Это единственный реестр связей каждого файла checkout с ближайшим контрактом, назначением и потребителем. [Навигатор](README.md) и [правила графа](shared/specification-system.md) задают порядок чтения. Статус документа и состояние реализации различаются; исторический материал сам по себе не подтверждает работающую функцию.
+
+| Файл | Спецификация | Назначение | Потребитель |
+|---|---|---|---|
+| [day/mixed-assignment.mjs](../day/mixed-assignment.mjs) | [Смешанное назначение](modules/synchronization/plan-generation.md) | Точное выделение письменного действия и повторения, независимые запросы и проверка полного состава | day build; publication preflight |
+| [day/mixed-assignment.test.mjs](../day/mixed-assignment.test.mjs) | [Смешанное назначение](modules/synchronization/plan-generation.md) | Две карточки, раздельные состояния, повторная сборка и отказ при пропавшей части | Vitest |
 
 Карта сохраняет прежние привязки при переносе документов. `npm run check:spec` проверяет полноту и локальные ссылки, а производный граф использует эти же данные. Конкретные ограничения читаются из ближайших контрактов.
 

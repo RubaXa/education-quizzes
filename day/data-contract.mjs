@@ -7,6 +7,7 @@
 import { materialRequestErrors } from '../src/lib/materialRequest.ts'
 import { learnerFlowErrors } from './learner-flow.mjs'
 import { validSchoolCalendar } from './school-calendar.mjs'
+import { assertMixedEntry } from './mixed-assignment.mjs'
 /** Runtime shape of the current Firestore projection. Optional additive fields are
  * accepted so older clients and already published documents keep working.
  * Cross-document edges are checked by placement-integrity.mjs.
@@ -43,8 +44,12 @@ export function dayPageShapeErrors(page) {
   if (page.sourceOnlyEntries != null && (!Array.isArray(page.sourceOnlyEntries) || page.sourceOnlyEntries.some((entry) =>
     !object(entry) || !text(entry.id) || !text(entry.subjectId) || !text(entry.rawText) || !text(entry.reason)
     || entry.kind === 'notice' && entry.targetTaskId != null
-    || entry.kind !== undefined && entry.kind !== 'notice'
+    || entry.kind !== undefined && !['notice', 'split'].includes(entry.kind)
     || entry.kind !== 'notice' && !text(entry.targetTaskId)))) errors.push('Ссылки и уведомления МЭШ должны сохранять точный текст и корректную связь.')
+  for (const entry of Array.isArray(page.sourceOnlyEntries) ? page.sourceOnlyEntries : []) if (entry?.kind === 'split') {
+    try { assertMixedEntry(entry, entry.rawText, page.subjects?.find(subject=>subject.id===entry.subjectId)?.tasks ?? []) }
+    catch { errors.push('Разделённая запись МЭШ должна сохранять все точные действия в своём предмете.') }
+  }
   if (page.materialLinks != null && !object(page.materialLinks)) errors.push('Ссылки материалов должны быть словарём по taskId.')
   if (page.taskPageRefs != null && !object(page.taskPageRefs)) errors.push('Страницы учебников должны быть словарём по taskId.')
   if (page.evidenceDayTokens != null && !Array.isArray(page.evidenceDayTokens)) errors.push('Предыдущие дни должны быть массивом ссылок.')

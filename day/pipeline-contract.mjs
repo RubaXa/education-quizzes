@@ -14,6 +14,7 @@ import { subjectPresentation } from './subject-identity.mjs'
 import { familyAssignmentErrors, familyAssignmentProjectionSignature, stableFamilyProjectionJson } from './family-assignment.mjs'
 import { sourceOnlyPublicationErrors } from './source-only.mjs'
 import { meshNoticeEntryErrors } from './mesh-notice.mjs'
+import { assertMixedEntry } from './mixed-assignment.mjs'
 
 /** Explain the failing field and canonical page IDs without weakening source checks.
  * @see ../docs/modules/synchronization/plan-generation.md#review-gate */
@@ -72,9 +73,19 @@ export function assertSourceAligned(source, snapshot, routeContext = {}) {
       const errors = meshNoticeEntryErrors(entry, { subject, tasks: subject?.tasks ?? [], hasTeacherFiles: expectedEntry?.hasTeacherFiles })
       if (errors.length) throw new Error(errors.join(' '))
     }
+    if (entry.kind === 'split') {
+      const subject=source.subjects.find(subject=>subject.id===entry.subjectId), original=expected.find(item=>item.id===entry.id)
+      if (!subject || !original || (subject.id !== original.subjectId && subject.name !== original.subjectName)) throw new Error('Разделённое задание должно оставаться в исходном предмете МЭШ.')
+      assertMixedEntry(entry,expectedById.get(entry.id),subject.tasks)
+    }
   }
   for (const task of tasks.filter((item) => item.id?.startsWith('mesh-') && item.meshText)) {
     if (expectedById.get(task.id) === task.meshText.trim()) continue
+    const split=(source.sourceOnlyEntries ?? []).find(entry=>entry.kind==='split' && entry.actionIds?.includes(task.id))
+    if (split && source.subjects.find(subject=>subject.id===split.subjectId)?.tasks.some(item=>item===task)) {
+      assertMixedEntry(split,expectedById.get(split.id),source.subjects.find(subject=>subject.id===split.subjectId).tasks)
+      continue
+    }
     const parentId = task.id.replace(/-cdz$/, '')
     if (parentId !== task.id && expectedById.get(parentId) === task.meshText.trim()) continue
     throw new Error(`План содержит устаревшее или неподтверждённое назначение ${task.id}. Сверьте изменение МЭШ.`)

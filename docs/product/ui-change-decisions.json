@@ -198,24 +198,18 @@
       }
     },
     "day/build.mjs": {
-      "sha256": "ed5636f12fea546bfd43bb146c2be7865cdd14d93c5c2413c6a9dd417f1cfb65",
-      "record": "docs/decisions/mesh-informational-entry-2026-10-21.md",
+      "sha256": "b2a7d6442221af5260c046d1e088c8acb9c68fa015926619540c63b9f1b090d2",
+      "record": "docs/decisions/mixed-assignment-actions-2026-10-22.md",
       "specs": [
         "docs/modules/synchronization/plan-generation.md",
-        "docs/modules/school-diary/day-page.md"
+        "docs/modules/materials/material-clarification.md"
       ],
       "tests": [
-        "day/mesh-notice.test.mjs",
-        "day/build-assignments.test.mjs",
-        "day/pipeline-contract.test.mjs",
-        "day/data-contract.test.mjs",
-        "day/merge.test.mjs",
-        "scripts/day.validate.test.mjs",
-        "src/DayPage.assignmentQuiz.integration.test.tsx"
+        "day/mixed-assignment.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя через EducationSync 21.10.2026: сохранить информационную запись МЭШ «Всем хороших каникул!» без ложного учебного долга, с общим маршрутом классификации и проверками."
+        "evidence": "Родитель 22.10.2026 прямо потребовал две независимые задачи для письменного упражнения и повторения правила, отдельное уточнение неизвестного материала и тест после подтверждения правила."
       }
     },
     "day/card-policy.mjs": {
@@ -248,18 +242,19 @@
       }
     },
     "day/data-contract.mjs": {
-      "sha256": "6a4cc60f0e6ec4ee602d4089ed9e7eabf753661c6d0ce5f33b9e2103a56cb27c",
-      "record": "docs/decisions/scoped-learner-flow-2026-10-21.md",
+      "sha256": "30f5aea2d6517a01fad352a1e843a8e200616aacec686845bd12243a987da951",
+      "record": "docs/decisions/mixed-assignment-actions-2026-10-22.md",
       "specs": [
-        "docs/modules/reviews/subject-aware-guidance.md"
+        "docs/modules/synchronization/plan-generation.md",
+        "docs/modules/materials/material-clarification.md"
       ],
       "tests": [
-        "day/learner-flow.test.mjs",
-        "src/components/LearnerFlow.test.tsx"
+        "day/data-contract.test.mjs",
+        "day/mixed-assignment.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 21.10.2026 поручил исследовать методики, подготовить пошаговую учебную помощь и опубликовать подсказки внутри карточки ребёнка."
+        "evidence": "Родитель 22.10.2026 прямо потребовал две независимые задачи для письменного упражнения и повторения правила, отдельное уточнение неизвестного материала и тест после подтверждения правила."
       }
     },
     "day/family-source-graph.mjs": {
@@ -463,18 +458,18 @@
       }
     },
     "day/pipeline-contract.mjs": {
-      "sha256": "33678dec1f2e5e42110e3a13e3ff2a3008d4d6228831c86b4bca6ecce4913ba9",
-      "record": "docs/decisions/day-merge-order-2026-10-22.md",
+      "sha256": "8475eb9b4f22c05c40df60a8be54d1f022c9d49170e25c8ed94c72fba4f5f8f7",
+      "record": "docs/decisions/mixed-assignment-actions-2026-10-22.md",
       "specs": [
-        "docs/modules/synchronization/plan-generation.md"
+        "docs/modules/synchronization/plan-generation.md",
+        "docs/modules/materials/material-clarification.md"
       ],
       "tests": [
-        "day/merge.test.mjs",
-        "day/pipeline-contract.test.mjs"
+        "day/mixed-assignment.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь просит восстановить автоматическую синхронизацию и актуализацию Education; реальный publish выявил несовпадение порядка subjects[1].id. Сохраняются строгий барьер, подтверждённые статусы и история работ."
+        "evidence": "Родитель 22.10.2026 прямо потребовал две независимые задачи для письменного упражнения и повторения правила, отдельное уточнение неизвестного материала и тест после подтверждения правила."
       }
     },
     "day/placement-integrity.mjs": {
@@ -1924,18 +1919,18 @@
       }
     },
     "scripts/day.mjs": {
-      "sha256": "e85d149f55d9238e2812bb5c88f6302bb9cb3489744b1959e3c96f483225a5f2",
-      "record": "docs/decisions/scoped-learner-flow-2026-10-21.md",
+      "sha256": "189b9aa7c07c7b272dd6e8c9b52bfbc5d465584431f1d49c4776c472f7355869",
+      "record": "docs/decisions/mixed-assignment-actions-2026-10-22.md",
       "specs": [
-        "docs/modules/reviews/subject-aware-guidance.md"
+        "docs/modules/synchronization/plan-generation.md",
+        "docs/modules/materials/material-clarification.md"
       ],
       "tests": [
-        "day/learner-flow.test.mjs",
-        "src/components/LearnerFlow.test.tsx"
+        "day/mixed-assignment.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 21.10.2026 поручил исследовать методики, подготовить пошаговую учебную помощь и опубликовать подсказки внутри карточки ребёнка."
+        "evidence": "Родитель 22.10.2026 прямо потребовал две независимые задачи для письменного упражнения и повторения правила, отдельное уточнение неизвестного материала и тест после подтверждения правила."
       }
     },
     "scripts/direct-upload-worker.mjs": {
@@ -4257,18 +4252,18 @@
       }
     },
     "src/lib/dayStore.ts": {
-      "sha256": "02f65d919362cbe0c14e3fbb44c467c6dcf666fea61b096ce900ac7ce6f517f4",
-      "record": "docs/decisions/scoped-learner-flow-2026-10-21.md",
+      "sha256": "9b851a8410f10ae8cd693e7ad9c44226a7e218a54a70f7433e683d116dd6d949",
+      "record": "docs/decisions/mixed-assignment-actions-2026-10-22.md",
       "specs": [
-        "docs/modules/reviews/subject-aware-guidance.md"
+        "docs/modules/synchronization/plan-generation.md",
+        "docs/modules/materials/material-clarification.md"
       ],
       "tests": [
-        "day/learner-flow.test.mjs",
-        "src/components/LearnerFlow.test.tsx"
+        "day/mixed-assignment.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 21.10.2026 поручил исследовать методики, подготовить пошаговую учебную помощь и опубликовать подсказки внутри карточки ребёнка."
+        "evidence": "Родитель 22.10.2026 прямо потребовал две независимые задачи для письменного упражнения и повторения правила, отдельное уточнение неизвестного материала и тест после подтверждения правила."
       }
     },
     "src/lib/educationEventProducer.ts": {
@@ -5761,18 +5756,18 @@
       }
     },
     "day/source-only.mjs": {
-      "sha256": "2b0488fffaad4805b6eb10cb35b2f26d426d016aa2fdcbd5d87dfc1857b856b0",
-      "record": "docs/decisions/scoped-learner-flow-2026-10-21.md",
+      "sha256": "25e1c4c3e1bc8c92b51aeb31ef493b8755732e48adc794185488bc11fe826164",
+      "record": "docs/decisions/mixed-assignment-actions-2026-10-22.md",
       "specs": [
-        "docs/modules/reviews/subject-aware-guidance.md"
+        "docs/modules/synchronization/plan-generation.md",
+        "docs/modules/materials/material-clarification.md"
       ],
       "tests": [
-        "day/learner-flow.test.mjs",
-        "src/components/LearnerFlow.test.tsx"
+        "day/mixed-assignment.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 21.10.2026 поручил исследовать методики, подготовить пошаговую учебную помощь и опубликовать подсказки внутри карточки ребёнка."
+        "evidence": "Родитель 22.10.2026 прямо потребовал две независимые задачи для письменного упражнения и повторения правила, отдельное уточнение неизвестного материала и тест после подтверждения правила."
       }
     },
     "src/components/PracticeVariantStatus.tsx": {
@@ -5919,6 +5914,21 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Прямой запрос пользователя 22.10.2026: закрепить повторный дефект загрузки изображений интеграционными тестами."
+      }
+    },
+    "day/mixed-assignment.mjs": {
+      "sha256": "2fb306828d3c5afa2d3a8b7ebad18a110062413e8d7990e8c72688e5dd81d0ff",
+      "record": "docs/decisions/mixed-assignment-actions-2026-10-22.md",
+      "specs": [
+        "docs/modules/synchronization/plan-generation.md",
+        "docs/modules/materials/material-clarification.md"
+      ],
+      "tests": [
+        "day/mixed-assignment.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 22.10.2026 прямо потребовал две независимые задачи для письменного упражнения и повторения правила, отдельное уточнение неизвестного материала и тест после подтверждения правила."
       }
     }
   }

@@ -16,6 +16,7 @@ import { subjectPresentation } from './subject-identity.mjs'
 import { referencedHomeworkDate } from './homework-reference.mjs'
 import { teacherFilesForEntry } from './assignment-structure.mjs'
 import { classifyMeshNotice } from './mesh-notice.mjs'
+import { mixedEntryActions, initialActionRequest } from './mixed-assignment.mjs'
 export { rawMeshKind } from './homework-kind.mjs'
 
 function json(file) { return JSON.parse(readFileSync(file, 'utf8')) }
@@ -102,9 +103,10 @@ export function buildDaySource(local, date) {
   }
   for (const { assignment, lessonDate } of assignments) {
     let [id, name, icon] = subjectInfo(assignment)
-    const descriptions = assignment.homeworkEntries?.length
+    const rawDescriptions = assignment.homeworkEntries?.length
       ? assignment.homeworkEntries
       : (assignment.descriptions || []).map((description, index) => ({ id: `${assignment.sourceItemId}-${index}`, description }))
+    const descriptions = rawDescriptions.flatMap(mixedEntryActions)
     if (!descriptions.length) continue
     // An earlier release may have used a source-ID fallback. Preserve its ID and task links.
     let subject = subjects.find((item) => item.id === id || item.name === name)
@@ -113,7 +115,21 @@ export function buildDaySource(local, date) {
       subject = { id, name, icon, materials: 'Материалы задания уточняются', mesh: '', summary: 'Точная запись МЭШ. Подробный разбор готовится.', tasks: [] }
       subjects.push(subject)
     }
-    subject.mesh = descriptions.filter((entry) => !current?.assignmentRoutes?.some((route) => route.taskId === `mesh-${entry.id}` && route.fromDate === targetDate)).map((item) => item.description).join('; ')
+    subject.mesh = rawDescriptions.filter((entry) => !current?.assignmentRoutes?.some((route) => route.taskId === `mesh-${entry.id}` && route.fromDate === targetDate)).map((item) => item.description).join('; ')
+    for (const original of rawDescriptions) {
+      const originId=`mesh-${original.id}`, previousSplit=sourceOnlyEntries.find(item=>item.id===originId && item.kind==='split')
+      if (previousSplit && previousSplit.rawText !== original.description.trim()) throw new Error(`МЭШ изменил разделённое задание ${originId}; сначала сопоставьте прежние действия и свидетельства.`)
+      const actions=mixedEntryActions(original)
+      if (actions.length < 2) continue
+      const old=subject.tasks.find(task=>task.id===originId)
+      if (old && (old.status!=='unknown' || old.testToken || old.parentGuide)) throw new Error(`У ${originId} есть результат или разбор; разделение требует адресной сверки истории.`)
+      subject.tasks=subject.tasks.filter(task=>task.id!==originId)
+      delete materialLinks[originId]
+      materialLinkReplacements.add(originId)
+      if (!previousSplit) sourceOnlyEntries.push({kind:'split',id:originId,subjectId:id,rawText:original.description.trim(),
+        targetTaskId:`mesh-${actions[0].id}`,actionIds:actions.map(action=>`mesh-${action.id}`),
+        reason:'Одна запись учителя содержит отдельно письменное упражнение и повторение правила; состояние и источник каждого действия независимы.'})
+    }
     if (assignment.teacherFiles?.length) subject.materials = [...new Set(teacherLinks(local, lessonDate, assignment.teacherFiles).map((item) => item.title))].join('; ')
     for (const entry of descriptions) {
       const taskId = `mesh-${entry.id}`
@@ -195,6 +211,7 @@ export function buildDaySource(local, date) {
           materialLinkReplacements.add(taskId)
         }
         old.meshText = description
+        if (entry.splitOrigin && !old.materialRequest && old.instructionStatus?.state === 'needs-review') Object.assign(old,initialActionRequest(entry))
         if (referenceDate) old.referenceDate = referenceDate
         else delete old.referenceDate
         if (referenceDate && old.materialStatus?.state === 'textbook-page-needed') old.materialStatus = {
@@ -224,7 +241,7 @@ export function buildDaySource(local, date) {
       subject.tasks.push({
         id: taskId, title: description.length > 105 ? `${description.slice(0, 102)}…` : description,
         detail: description,
-        status: 'unknown', kind: rawMeshKind(description),
+        status: 'unknown', kind: rawMeshKind(description), ...initialActionRequest(entry),
         // New numbered math tasks cannot be published after review without the private route.
         // @see ../docs/modules/reviews/math-solution-route.md#pipeline
         ...(['math', 'special'].includes(id) ? { mathRoutePolicyVersion: 2 } : {}),
@@ -233,7 +250,7 @@ export function buildDaySource(local, date) {
         ...(!['math', 'special'].includes(id) && rawMeshKind(description) === 'written' ? { cardPolicyVersion: 1 } : {}),
         instructionStatus: { state: 'needs-review', message: '' },
         ...(!referenceDate && !entryFiles.length ? { sourceOnly: true } : {}),
-        source: `МЭШ, подробная карточка урока ${lessonDate}; запись ${entry.id}.`,
+        source: `МЭШ, подробная карточка урока ${lessonDate}; запись ${entry.splitOrigin ? entry.splitOrigin.id.replace(/^mesh-/, '') : entry.id}.${entry.splitOrigin ? ` Отдельное упражнение ${entry.splitOrigin.number}.` : ''}`,
         meshText: description, originDate: targetDate, lessonDate, ...deadlineFromMesh(assignment, lessonDate),
         ...(referenceDate ? { referenceDate, materialStatus: { state: 'no-textbook', message: `Это указатель на ДЗ к ${referenceDate}, а не новое упражнение из учебника.` } }
           : assignment.teacherFiles?.length && !entryFiles.length ? { materialStatus: { state: 'teacher-attachment-needed', message: 'Файлы урока ещё не сопоставлены с конкретным заданием МЭШ.' } }
