@@ -7,9 +7,15 @@
 .edu-audio p{display:flex;align-items:center;gap:.4rem;margin:0;color:var(--edu-muted);font-size:.85rem}
 .edu-audio [role=alert]{color:var(--edu-status-error-ink)}
 .edu-audio button{justify-self:start;min-height:var(--edu-touch-target)}
-.edu-audio-speed{display:flex;align-items:center;gap:.5rem;font-size:.85rem;color:var(--edu-muted)}
-.edu-audio select,.edu-audio-library select{max-width:100%;min-width:0;min-height:var(--edu-touch-target);padding:.4rem;border:1px solid var(--edu-control-border);border-radius:var(--edu-radius-control);background:var(--edu-surface);color:var(--edu-ink);font:inherit}
+.edu-audio-library select{max-width:100%;min-width:0;min-height:var(--edu-touch-target);padding:.4rem;border:1px solid var(--edu-control-border);border-radius:var(--edu-radius-control);background:var(--edu-surface);color:var(--edu-ink);font:inherit}
 .edu-audio-original{display:inline-flex;align-items:center;gap:.3rem;justify-self:start;max-width:100%;color:var(--edu-accent-ink);font-size:.8rem;overflow-wrap:anywhere}
-.edu-audio :is(button,select,a,audio):focus-visible,.edu-audio-library select:focus-visible{outline:2px solid var(--edu-focus);outline-offset:3px}
+.edu-audio :is(button,a,audio):focus-visible,.edu-audio-library select:focus-visible{outline:2px solid var(--edu-focus);outline-offset:3px}
 .edu-audio-library{display:grid;gap:.7rem;min-width:0;max-width:100%;margin-block:.7rem}
 .edu-audio-library>label{display:grid;gap:.4rem;min-width:0;font-size:.9rem}
+.edu-audio-panel{position:relative;min-width:0}
+.edu-audio-panel audio[data-duration-known=false]{visibility:hidden}
+.edu-audio-placeholder{position:absolute;inset:0;display:flex;align-items:center;gap:.65rem;padding:0 .8rem 0 .5rem;border-radius:99px;background:var(--edu-status-neutral-bg);color:var(--edu-ink)}
+.edu-audio .edu-audio-initial-play{flex:none;width:44px;height:44px;min-height:44px;padding:0;border-radius:50%;color:var(--edu-ink)}
+.edu-audio-time-unknown{flex:none;white-space:nowrap;font-size:.8rem;font-variant-numeric:tabular-nums}
+.edu-audio-unknown-track{flex:1;min-width:0;height:4px;border-radius:99px;background:var(--edu-control-border)}
+.edu-audio-unavailable{flex:none;color:var(--edu-muted);opacity:.5}

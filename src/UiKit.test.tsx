@@ -177,10 +177,12 @@ it('matches all seven templates through the shared compact digest and keeps cont
 /** @see ../docs/modules/materials/audio-library.md#player */
 it('uses the shared lazy audio player with local media and retry demonstration', async () => {
  vi.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => {})
+ vi.spyOn(HTMLMediaElement.prototype, 'play').mockResolvedValue()
  document.body.append(host);root=createRoot(host);await act(async()=>root!.render(<UiKit/>))
  await act(async()=>[...host.querySelectorAll<HTMLButtonElement>('nav button')].find(button=>button.textContent==='Аудиоплеер')!.click())
  expect(host.querySelectorAll('.edu-audio')).toHaveLength(2)
- expect(host.querySelector('audio')).toBeNull()
+ expect(host.querySelectorAll('audio')).toHaveLength(2)
+ expect(host.querySelector('audio')?.getAttribute('src')).toBeNull()
  await act(async()=>host.querySelector<HTMLButtonElement>('.edu-audio button')!.click())
  expect(host.querySelector('audio')?.src).toMatch(/^data:audio\/wav;base64,/)
  expect(host.querySelector('audio')?.controls).toBe(true)

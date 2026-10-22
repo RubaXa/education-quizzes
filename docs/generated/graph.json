@@ -312,6 +312,31 @@
       "path": "docs/audits/telegram-self-review-2026-10-16.md"
     },
     {
+      "id": "decision.audio-duration-unknown-2026-10-22",
+      "status": "accepted",
+      "implementation": "partial",
+      "parent": "module.materials.audio-library",
+      "uses": [
+        "decision.audio-player-visible-2026-10-22",
+        "shared.design.ui-kit"
+      ],
+      "created": "2026-10-22",
+      "updated": "2026-10-22",
+      "consumers": [
+        "developer",
+        "release operator"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/audio-duration-unknown-2026-10-22.md"
+    },
+    {
       "id": "decision.audio-library-2026-10-22",
       "status": "accepted",
       "implementation": "partial",
@@ -341,6 +366,56 @@
         "согласование"
       ],
       "path": "docs/decisions/audio-library-2026-10-22.md"
+    },
+    {
+      "id": "decision.audio-player-visible-2026-10-22",
+      "status": "accepted",
+      "implementation": "partial",
+      "parent": "module.materials.audio-library",
+      "uses": [
+        "decision.audio-speed-controls-2026-10-22",
+        "shared.design.ui-kit"
+      ],
+      "created": "2026-10-22",
+      "updated": "2026-10-22",
+      "consumers": [
+        "developer",
+        "release operator"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/audio-player-visible-2026-10-22.md"
+    },
+    {
+      "id": "decision.audio-speed-controls-2026-10-22",
+      "status": "accepted",
+      "implementation": "partial",
+      "parent": "module.materials.audio-library",
+      "uses": [
+        "decision.audio-library-2026-10-22",
+        "shared.design.ui-kit"
+      ],
+      "created": "2026-10-22",
+      "updated": "2026-10-22",
+      "consumers": [
+        "developer",
+        "release operator"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/audio-speed-controls-2026-10-22.md"
     },
     {
       "id": "decision.authenticated-learning-routes-2026-10-18",
@@ -10873,7 +10948,37 @@
       "type": "uses"
     },
     {
+      "from": "decision.audio-duration-unknown-2026-10-22",
+      "to": "decision.audio-player-visible-2026-10-22",
+      "type": "uses"
+    },
+    {
+      "from": "decision.audio-duration-unknown-2026-10-22",
+      "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
       "from": "decision.audio-library-2026-10-22",
+      "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
+      "from": "decision.audio-player-visible-2026-10-22",
+      "to": "decision.audio-speed-controls-2026-10-22",
+      "type": "uses"
+    },
+    {
+      "from": "decision.audio-player-visible-2026-10-22",
+      "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
+      "from": "decision.audio-speed-controls-2026-10-22",
+      "to": "decision.audio-library-2026-10-22",
+      "type": "uses"
+    },
+    {
+      "from": "decision.audio-speed-controls-2026-10-22",
       "to": "shared.design.ui-kit",
       "type": "uses"
     },
@@ -15999,7 +16104,22 @@
     },
     {
       "from": "module.materials.audio-library",
+      "to": "decision.audio-duration-unknown-2026-10-22",
+      "type": "contains"
+    },
+    {
+      "from": "module.materials.audio-library",
       "to": "decision.audio-library-2026-10-22",
+      "type": "contains"
+    },
+    {
+      "from": "module.materials.audio-library",
+      "to": "decision.audio-player-visible-2026-10-22",
+      "type": "contains"
+    },
+    {
+      "from": "module.materials.audio-library",
+      "to": "decision.audio-speed-controls-2026-10-22",
       "type": "contains"
     },
     {

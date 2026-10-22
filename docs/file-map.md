@@ -898,3 +898,9 @@
 | [src/components/AudioLibrary.tsx](../src/components/AudioLibrary.tsx) | [Аудиобиблиотека](modules/materials/audio-library.md) | Выбор одной записи из связанной аудиоколлекции | FamilyLibrary |
 | [src/components/AudioPlayer.test.tsx](../src/components/AudioPlayer.test.tsx) | [Аудиобиблиотека](modules/materials/audio-library.md) | Регрессии ленивого аудио, смены, повтора и управления | Vitest |
 | [src/lib/uiKitAudio.ts](../src/lib/uiKitAudio.ts) | [Аудиобиблиотека](modules/materials/audio-library.md) | Синтетическая аудиозапись UI Kit без семейных медиа | UI Kit |
+
+| [docs/decisions/audio-speed-controls-2026-10-22.md](decisions/audio-speed-controls-2026-10-22.md) | [Аудиобиблиотека](modules/materials/audio-library.md) | Уточнение скорости внутри нативной панели и сохранения выбора после паузы | Разработчик; выпуск |
+
+| [docs/decisions/audio-player-visible-2026-10-22.md](decisions/audio-player-visible-2026-10-22.md) | [Аудиобиблиотека](modules/materials/audio-library.md) | Постоянно видимая панель и загрузка/воспроизведение одним Play | Разработчик; выпуск |
+
+| [docs/decisions/audio-duration-unknown-2026-10-22.md](decisions/audio-duration-unknown-2026-10-22.md) | [Аудиобиблиотека](modules/materials/audio-library.md) | Неизвестная длительность: прочерки до подтверждённых метаданных | Разработчик; выпуск |
