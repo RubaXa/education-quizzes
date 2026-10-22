@@ -793,7 +793,7 @@
       "status": "accepted",
       "implementation": "implemented",
       "created": "2026-10-21",
-      "updated": "2026-10-21",
+      "updated": "2026-10-22",
       "parent": "module.synchronization.plan-generation",
       "uses": [
         "module.school-diary.day-page",
@@ -3039,7 +3039,7 @@
       "id": "file:day/mesh-notice.mjs",
       "path": "day/mesh-notice.mjs",
       "kind": "artifact",
-      "purpose": "Единая консервативная классификация информационной записи МЭШ без учебного действия",
+      "purpose": "Единая консервативная классификация информационной записи МЭШ и явного «не задано» без учебного действия",
       "consumer": "Builder; preflight"
     },
     {
@@ -8536,7 +8536,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-09",
-      "updated": "2026-10-21",
+      "updated": "2026-10-22",
       "consumers": [
         "Education sync operator",
         "sync-project CLI",

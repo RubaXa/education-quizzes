@@ -105,6 +105,31 @@ describe('информационная запись МЭШ', () => {
     expect(read(source).sourceOnlyEntries).toEqual(first.sourceOnlyEntries)
   })
 
+  it('classifies the exact standalone no-assignment marker without task, required action, or page work', () => {
+    const { local, source } = noticeFixture('НЕ ЗАДАНО.')
+    const built = buildDaySource(local, '2026-10-13')
+    const value = read(source)
+    expect(built).toMatchObject({ assigned: 0, tasks: 0, added: 0 })
+    expect(value.subjects[0].mesh).toBe('НЕ ЗАДАНО.')
+    expect(value.subjects[0].tasks).toEqual([])
+    expect(value.sourceOnlyEntries).toEqual([{ id: 'mesh-352682606', subjectId: 'math', rawText: 'НЕ ЗАДАНО.',
+      kind: 'notice', reason: 'Точная отдельная отметка МЭШ «не задано»; в ней нет учебного действия.' }])
+  })
+
+  it.each([
+    ['не задано, но прочитать параграф', []],
+    ['не задано по учебнику, сделать задания', []],
+    ['не задано', [{ id: 'file', title: 'Лист.pdf', url: 'https://example.org/file.pdf' }]],
+  ])('does not classify action-bearing text or teacher files as a no-assignment notice: %s', (text, files) => {
+    const { local, source } = noticeFixture(text, files)
+    const built = buildDaySource(local, '2026-10-13')
+    const value = read(source)
+    expect(built).toMatchObject({ assigned: 1, tasks: 1, added: 1 })
+    expect(value.sourceOnlyEntries ?? []).toEqual([])
+    expect(value.subjects[0].tasks[0].meshText).toBe(text)
+    if (files.length) expect(value.materialLinks['mesh-352682606']).toHaveLength(1)
+  })
+
   it('оставляет смешанный текст с учебным действием обычным заданием', () => {
     const { local, source } = noticeFixture('Всем хороших каникул! Решить № 5.')
     expect(buildDaySource(local, '2026-10-13')).toMatchObject({ assigned: 1, tasks: 1, added: 1 })

@@ -5872,7 +5872,7 @@
       }
     },
     "day/mesh-notice.mjs": {
-      "sha256": "594026175822a74a0192d35136e83acec5817dddd9477bea00560c961c1ced73",
+      "sha256": "69784f2f7aada3c3679bdf0a479ef03ce796091e751508dc6563c9e353722a34",
       "record": "docs/decisions/mesh-informational-entry-2026-10-21.md",
       "specs": [
         "docs/modules/synchronization/plan-generation.md",

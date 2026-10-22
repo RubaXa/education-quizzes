@@ -31,6 +31,16 @@ describe('штатный day validate для записи-уведомления
     expect(JSON.parse(result.stdout)).toMatchObject({ tasks: 0, valid: true })
   })
 
+  it('accepts standalone no-assignment text as source notice without task or page demand', () => {
+    const value = source()
+    value.subjects[0].mesh = 'НЕ ЗАДАНО.'
+    value.sourceOnlyEntries[0].rawText = 'НЕ ЗАДАНО.'
+    value.sourceOnlyEntries[0].reason = 'Точная отдельная отметка МЭШ «не задано»; в ней нет учебного действия.'
+    const result = cliValidate(value)
+    expect(result.status).toBe(0)
+    expect(JSON.parse(result.stdout)).toMatchObject({ tasks: 0, valid: true })
+  })
+
   it('rejects an action-bearing line masquerading as a notice', () => {
     const value = source()
     value.subjects[0].mesh = 'Всем хороших каникул! Решить № 5.'
