@@ -65,6 +65,24 @@ it('does not let a later local cache hit erase authoritative membership evidence
   journal.record('view.rendered', { role: 'student', source: 'card' })
   expect(inspectAccessTrace(journal.snapshot()).findings).toContain('student-membership-student-view')
 })
+it('keeps photo storage diagnostics private and outside access-role inference', () => {
+  const journal = createAccessTrace({ now: () => 1000, runId: 'run' })
+  journal.record('access.resolved', { role: 'parent', scope: 'a'.repeat(24), source: 'member-server' })
+  journal.record('view.rendered', { role: 'student', scope: 'a'.repeat(24), source: 'card' })
+  journal.record('photo.storage', { atFunction: 'savePhotoForTransfer', state: 'retrying', code: 'indexeddb-connection-lost', count: 2, durationMs: 16,
+    role: 'parent', source: 'member-server', person: 'b'.repeat(24), scope: 'c'.repeat(24), title: 'PRIVATE_NAME', message: 'PRIVATE_ERROR', url: 'PRIVATE_URL', blob: 'PRIVATE_BLOB' } as any)
+  const trace = journal.snapshot()
+  expect(trace.events[2].detail).toEqual({ atFunction: 'savePhotoForTransfer', state: 'retrying', code: 'indexeddb-connection-lost', count: 2, durationMs: 16 })
+  expect(JSON.stringify(trace)).not.toMatch(/PRIVATE_NAME|PRIVATE_ERROR|PRIVATE_URL|PRIVATE_BLOB/)
+  expect(inspectAccessTrace(trace).findings).toContain('parent-context-student-view')
+  expect(inspectAccessTrace({ schemaVersion: 1, events: [{ runId: 'run', sequence: 1, at: 1000, event: 'photo.storage', detail: { role: 'parent', source: 'member-server', state: 'failed' } }] }).findings).toEqual([])
+})
+it('applies the existing 200 event cap to photo storage diagnostics', () => {
+  const journal = createAccessTrace({ now: () => 1000, runId: 'run' })
+  for (let attempt = 1; attempt <= 205; attempt++) journal.record('photo.storage', { atFunction: 'localPhotoForTransfer', state: 'checking', count: attempt })
+  expect(journal.snapshot().events).toHaveLength(200)
+  expect(journal.coverage()).toEqual({ complete: false, droppedRecords: 5 })
+})
 it('does not claim a role contradiction for different children or overwrite one card with another', () => {
   const journal = createAccessTrace({ now: () => 1000, runId: 'run' })
   journal.record('access.resolved', { role: 'parent', scope: 'a'.repeat(24), source: 'member-server' })

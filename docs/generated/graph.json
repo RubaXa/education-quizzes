@@ -850,6 +850,61 @@
       "path": "docs/decisions/mesh-informational-entry-2026-10-21.md"
     },
     {
+      "id": "decision.photo-indexeddb-recovery-2026-10-22",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-22",
+      "updated": "2026-10-22",
+      "parent": "module.materials.storage-privacy",
+      "uses": [
+        "module.families.browser-access-trace",
+        "decision.photo-storage-ldd-2026-10-22",
+        "decision.photo-transfer-recovery-2026-10-22"
+      ],
+      "consumers": [
+        "Student photo upload",
+        "Parent work gallery"
+      ],
+      "code": [
+        "src/lib/photoOutbox.ts",
+        "scripts/photo-outbox-chromium-integration.mjs"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/photo-indexeddb-recovery-2026-10-22.md"
+    },
+    {
+      "id": "decision.photo-storage-ldd-2026-10-22",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-22",
+      "updated": "2026-10-22",
+      "consumers": [
+        "parent",
+        "Education developer"
+      ],
+      "code": [
+        "src/lib/browserAccessTrace.ts"
+      ],
+      "parent": "module.families",
+      "uses": [
+        "module.families.browser-access-trace"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/photo-storage-ldd-2026-10-22.md"
+    },
+    {
       "id": "decision.photo-transfer-recovery-2026-10-22",
       "status": "accepted",
       "implementation": "implemented",
@@ -4733,6 +4788,13 @@
       "consumer": "Оператор; Firestore; `NotificationBell`"
     },
     {
+      "id": "file:scripts/photo-outbox-chromium-integration.mjs",
+      "path": "scripts/photo-outbox-chromium-integration.mjs",
+      "kind": "artifact",
+      "purpose": "Изолированный Chromium: реальные IndexedDB/Blob, fault injection и перехваченный PUT",
+      "consumer": "Vitest; разработчик"
+    },
+    {
       "id": "file:scripts/publish-pages.mjs",
       "path": "scripts/publish-pages.mjs",
       "kind": "artifact",
@@ -5842,22 +5904,22 @@
       "id": "file:src/lib/browserAccessTrace.clipboard.test.ts",
       "path": "src/lib/browserAccessTrace.clipboard.test.ts",
       "kind": "verification",
-      "purpose": "Жест ClipboardItem, delayed hashes и исключение секретов",
+      "purpose": "Жест ClipboardItem, delayed hashes, безопасные storage-события и исключение секретов",
       "consumer": "Vitest"
     },
     {
       "id": "file:src/lib/browserAccessTrace.test.ts",
       "path": "src/lib/browserAccessTrace.test.ts",
       "kind": "verification",
-      "purpose": "Порядок, приватность, границы запуска/ребёнка, поздние hashes и отказ storage",
+      "purpose": "Приватность, event cap, границы запуска/ребёнка, поздние hashes, storage-события и неизменность access inference",
       "consumer": "Vitest"
     },
     {
       "id": "file:src/lib/browserAccessTrace.ts",
       "path": "src/lib/browserAccessTrace.ts",
       "kind": "artifact",
-      "purpose": "Ограниченный журнал переходов, fingerprints, экспорт и безопасная интерпретация",
-      "consumer": "Личный вход; LearningRoute; общая карточка; оператор"
+      "purpose": "Ограниченный access-журнал и privacy-safe storage diagnostics с экспортом и отдельной интерпретацией",
+      "consumer": "Личный вход; LearningRoute; общая карточка; фото outbox; оператор"
     },
     {
       "id": "file:src/lib/dayCompatibility.test.ts",
@@ -6210,17 +6272,24 @@
       "consumer": "Стартовая страница; день"
     },
     {
+      "id": "file:src/lib/photoOutbox.browser.integration.test.ts",
+      "path": "src/lib/photoOutbox.browser.integration.test.ts",
+      "kind": "verification",
+      "purpose": "Автоматический запуск браузерной регрессии в обычном npm run check",
+      "consumer": "Vitest; разработчик"
+    },
+    {
       "id": "file:src/lib/photoOutbox.test.tsx",
       "path": "src/lib/photoOutbox.test.tsx",
       "kind": "verification",
-      "purpose": "Регрессии отказа PUT, видимой ошибки, повторов и гонок состояния загрузки",
+      "purpose": "Регрессии IndexedDB abort/close/timeout, отказа PUT, видимой ошибки, повторов и гонок загрузки",
       "consumer": "Vitest; разработчик"
     },
     {
       "id": "file:src/lib/photoOutbox.ts",
       "path": "src/lib/photoOutbox.ts",
       "kind": "artifact",
-      "purpose": "Локальное хранение фото до подтверждения, состояние передачи, адресный повтор и online/visibility восстановление",
+      "purpose": "Локальное хранение фото до подтверждения, восстановление IndexedDB и передачи, безопасные storage diagnostics",
       "consumer": "`dayStore`; устройство"
     },
     {
@@ -7393,7 +7462,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-18",
-      "updated": "2026-10-19",
+      "updated": "2026-10-22",
       "consumers": [
         "web-app access flow",
         "family access operator"
@@ -7617,6 +7686,7 @@
         "scripts/storage.mjs",
         "scripts/submissions.mjs",
         "scripts/verify-upload-flow.mjs",
+        "scripts/photo-outbox-chromium-integration.mjs",
         "src/lib/dayStore.ts",
         "src/lib/taskUploadPresentation.ts",
         "src/components/LinkedWorkPhotos.tsx",
@@ -8755,7 +8825,7 @@
       ],
       "sections": [],
       "created": "2026-10-16",
-      "updated": "2026-10-16",
+      "updated": "2026-10-22",
       "consumers": [
         "Education operator",
         "developer",
@@ -10471,7 +10541,7 @@
         "ограничения"
       ],
       "created": "2026-10-16",
-      "updated": "2026-10-17",
+      "updated": "2026-10-22",
       "consumers": [
         "frontend developer",
         "repository maintainer",
@@ -10792,6 +10862,26 @@
     {
       "from": "decision.mesh-informational-entry-2026-10-21",
       "to": "shared.design.components",
+      "type": "uses"
+    },
+    {
+      "from": "decision.photo-indexeddb-recovery-2026-10-22",
+      "to": "decision.photo-storage-ldd-2026-10-22",
+      "type": "uses"
+    },
+    {
+      "from": "decision.photo-indexeddb-recovery-2026-10-22",
+      "to": "decision.photo-transfer-recovery-2026-10-22",
+      "type": "uses"
+    },
+    {
+      "from": "decision.photo-indexeddb-recovery-2026-10-22",
+      "to": "module.families.browser-access-trace",
+      "type": "uses"
+    },
+    {
+      "from": "decision.photo-storage-ldd-2026-10-22",
+      "to": "module.families.browser-access-trace",
       "type": "uses"
     },
     {
@@ -12695,6 +12785,16 @@
       "type": "implements"
     },
     {
+      "from": "file:scripts/photo-outbox-chromium-integration.mjs",
+      "to": "decision.photo-indexeddb-recovery-2026-10-22",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/photo-outbox-chromium-integration.mjs",
+      "to": "module.materials.storage-privacy",
+      "type": "implements"
+    },
+    {
       "from": "file:scripts/publish-pages.mjs",
       "to": "operations.deployment",
       "type": "implements"
@@ -14211,6 +14311,11 @@
     },
     {
       "from": "file:src/lib/browserAccessTrace.ts",
+      "to": "decision.photo-storage-ldd-2026-10-22",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/browserAccessTrace.ts",
       "to": "module.families.browser-access-trace",
       "type": "implements"
     },
@@ -14542,6 +14647,11 @@
     {
       "from": "file:src/lib/personalAccess.ts",
       "to": "shared.access-and-privacy",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/photoOutbox.ts",
+      "to": "decision.photo-indexeddb-recovery-2026-10-22",
       "type": "implements"
     },
     {
@@ -15556,6 +15666,11 @@
     },
     {
       "from": "module.families",
+      "to": "decision.photo-storage-ldd-2026-10-22",
+      "type": "contains"
+    },
+    {
+      "from": "module.families",
       "to": "decision.session-owned-revocation-2026-10-18",
       "type": "contains"
     },
@@ -15646,6 +15761,11 @@
     },
     {
       "from": "module.materials.storage-privacy",
+      "to": "decision.photo-indexeddb-recovery-2026-10-22",
+      "type": "contains"
+    },
+    {
+      "from": "module.materials.storage-privacy",
       "to": "decision.photo-transfer-recovery-2026-10-22",
       "type": "contains"
     },
@@ -15672,6 +15792,11 @@
     {
       "from": "module.materials.storage-privacy",
       "to": "file:src/components/LinkedWorkPhotos.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.materials.storage-privacy",
+      "to": "file:src/lib/photoOutbox.browser.integration.test.ts",
       "type": "verified-by"
     },
     {

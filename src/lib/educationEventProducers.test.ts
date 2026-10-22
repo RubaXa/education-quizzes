@@ -1,5 +1,5 @@
 import 'fake-indexeddb/auto'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createEducationEventId } from '../../packages/education-events/envelope.mjs'
 
 const harness = vi.hoisted(() => ({
@@ -55,7 +55,7 @@ function snapshot(path: string) {
 }
 
 import { removePendingDayPhoto, requestDayHelp, uploadDayPhoto } from './dayStore'
-import { resumePhotoTransfer } from './photoOutbox'
+import { localPhotoForTransfer, resumePhotoTransfer } from './photoOutbox'
 import { requestFamilyBookUpload, resumeFamilyBookTransfer } from './familyBookUpload'
 import type { FamilyBookUpload } from './familyLibrary'
 
@@ -64,6 +64,7 @@ function eventDocs() {
 }
 
 describe('Firestore education event producers', () => {
+  afterEach(() => vi.restoreAllMocks())
   beforeEach(() => {
     harness.docs.clear()
     harness.batches.length = 0
@@ -104,6 +105,50 @@ describe('Firestore education event producers', () => {
     } })
     expect(JSON.stringify(event)).not.toContain('private photo bytes')
     expect(JSON.stringify(event)).not.toContain(source?.sha256)
+  })
+
+  it.each(['SecurityError', 'QuotaExceededError'] as const)('does not stage a photo source or event when local IndexedDB save fails with %s', async (name) => {
+    const uploadId = `upload-local-storage-failure-${name}`
+    const file = new File(['private photo bytes'], 'work.png', { type: 'image/png' })
+    vi.spyOn(indexedDB, 'open').mockImplementation((() => {
+      const request = { error: new DOMException('IndexedDB unavailable', name) } as unknown as IDBOpenDBRequest
+      queueMicrotask(() => request.onerror?.call(request, new Event('error')))
+      return request
+    }) as typeof indexedDB.open)
+
+    await expect(uploadDayPhoto('day-token', 'task-1', file, uploadId))
+      .rejects.toThrow('Не удалось сохранить фото на этом устройстве. Оставьте страницу открытой, не закрывайте её и повторите попытку.')
+
+    expect(harness.docs.has(`dayUploads/day-token/files/${uploadId}`)).toBe(false)
+    expect(eventDocs()).toHaveLength(0)
+    expect(harness.batches).toHaveLength(0)
+  })
+
+  it('retries the same file and upload ID after local storage recovers, then stages one source and event', async () => {
+    const uploadId = 'upload-local-storage-retry-123456'
+    const file = new File(['original photo bytes'], 'work.png', { type: 'image/png' })
+    const openSpy = vi.spyOn(indexedDB, 'open').mockImplementation((() => {
+      const request = { error: new DOMException('IndexedDB unavailable', 'SecurityError') } as unknown as IDBOpenDBRequest
+      queueMicrotask(() => request.onerror?.call(request, new Event('error')))
+      return request
+    }) as typeof indexedDB.open)
+
+    await expect(uploadDayPhoto('day-token', 'task-1', file, uploadId)).rejects.toThrow(/Не удалось сохранить фото/)
+    expect(harness.docs.has(`dayUploads/day-token/files/${uploadId}`)).toBe(false)
+    expect(eventDocs()).toHaveLength(0)
+    expect(harness.batches).toHaveLength(0)
+
+    openSpy.mockRestore()
+    await expect(uploadDayPhoto('day-token', 'task-1', file, uploadId)).resolves.toBe(uploadId)
+
+    const source = harness.docs.get(`dayUploads/day-token/files/${uploadId}`)
+    const savedBlob = await localPhotoForTransfer('day-token', uploadId)
+    expect(source).toMatchObject({ status: 'requested', taskId: 'task-1' })
+    expect(eventDocs()).toHaveLength(1)
+    expect(harness.batches).toHaveLength(1)
+    expect(harness.batches[0]).toHaveLength(2)
+    expect(savedBlob).not.toBeNull()
+    expect(await savedBlob?.text()).toBe('original photo bytes')
   })
 
   it('accepts a refreshed plan revision when the visible task condition is unchanged', async () => {

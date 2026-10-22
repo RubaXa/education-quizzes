@@ -1,10 +1,13 @@
-/** @see ../../docs/decisions/photo-transfer-recovery-2026-10-22.md */
+/** @see ../../docs/decisions/photo-transfer-recovery-2026-10-22.md
+ * @see ../../docs/decisions/photo-indexeddb-recovery-2026-10-22.md
+ */
 import { doc, getDocFromServer, writeBatch } from 'firebase/firestore'
 import { getAuth } from 'firebase/auth'
 import { db } from './firebase'
 import { prepareEducationEvent, stagePreparedEducationEvent } from './educationEventProducer'
 import { fetchWithRetry } from './networkRetry'
 import { reportUiError } from './uiErrors'
+import { tracePhotoStorage } from './browserAccessTrace'
 
 type OutboxEntry = { id: string; file: Blob }
 export type UploadState = { status: string; upload?: { href?: string; issuedAt?: unknown }; deviceUid?: string; taskId?: string }
@@ -13,6 +16,8 @@ type KnownTransfer = { studentToken: string; uploadId: string; data: UploadState
 const active = new Map<string, { promise: Promise<void>; href: string; wakeRequested: boolean }>()
 const knownTransfers = new Map<string, KnownTransfer>()
 const dbName = 'education-photo-outbox-v1'
+const indexedDbAttemptTimeoutMs = 6_000
+const indexedDbAttemptCount = 2
 const listeners = new Set<() => void>()
 let uiStates: ReadonlyMap<string, PhotoTransferUiState> = new Map()
 let lifecycleInstalled = false
@@ -31,6 +36,8 @@ function safeTransferMessage(cause: unknown) {
   if (cause instanceof Error && [
     'Откройте эту страницу на устройстве, где выбрали фото, чтобы продолжить передачу.',
     'Исходное фото осталось на устройстве, где его выбрали. Откройте страницу там, чтобы повторить передачу.',
+    'Не удалось прочитать сохранённое фото на этом устройстве. Оставьте страницу открытой и повторите передачу.',
+    'Не удалось сохранить фото на этом устройстве. Оставьте страницу открытой, не закрывайте её и повторите попытку.',
   ].includes(cause.message)) return cause.message
   return reportUiError(cause, 'Передача фото')
 }
@@ -89,37 +96,151 @@ function installLifecycleWake() {
   document.addEventListener('visibilitychange', wake)
 }
 
+function makeIndexedDbError(name: string, message: string) {
+  const error = new Error(message)
+  error.name = name
+  return error
+}
+
+function isTransientIndexedDbError(cause: unknown) {
+  if (!cause || typeof cause !== 'object') return false
+  const name = 'name' in cause ? String(cause.name) : ''
+  const message = 'message' in cause ? String(cause.message) : ''
+  if (['QuotaExceededError', 'SecurityError', 'DataError'].includes(name)) return false
+  return ['InvalidStateError', 'UnknownError', 'AbortError'].includes(name)
+    || /connection to (?:indexed )?database server (?:has been )?lost|indexeddb.*connection.*lost/i.test(message)
+}
+
+function indexedDbErrorCode(cause: unknown): 'indexeddb-connection-lost' | 'invalid-state' | 'abort' | 'quota' | 'security' | 'data' | 'error' {
+  const name = cause && typeof cause === 'object' && 'name' in cause ? String(cause.name) : ''
+  const message = cause && typeof cause === 'object' && 'message' in cause ? String(cause.message) : ''
+  if (name === 'QuotaExceededError') return 'quota'
+  if (name === 'SecurityError') return 'security'
+  if (name === 'DataError') return 'data'
+  if (/connection to (?:indexed )?database server (?:has been )?lost|indexeddb.*connection.*lost/i.test(message)) return 'indexeddb-connection-lost'
+  if (name === 'InvalidStateError') return 'invalid-state'
+  if (name === 'AbortError') return 'abort'
+  return 'error'
+}
+
+function closeOutbox(database: IDBDatabase) {
+  try { database.close() } catch { /* A lost IndexedDB connection may already be closed. */ }
+}
+
 function openOutbox(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(dbName, 1)
-    request.onupgradeneeded = () => request.result.createObjectStore('photos', { keyPath: 'id' })
-    request.onsuccess = () => resolve(request.result)
-    request.onerror = () => reject(request.error)
+    let settled = false
+    const timer = globalThis.setTimeout(() => finishError(makeIndexedDbError('UnknownError', 'IndexedDB open timed out.')), indexedDbAttemptTimeoutMs)
+    const finishError = (cause: unknown) => {
+      if (settled) return
+      settled = true
+      globalThis.clearTimeout(timer)
+      reject(cause)
+    }
+    request.onupgradeneeded = () => {
+      if (settled) {
+        try { request.transaction?.abort() } catch { /* A late upgrade must not leave an empty schema behind. */ }
+        return
+      }
+      if (!request.result.objectStoreNames.contains('photos')) request.result.createObjectStore('photos', { keyPath: 'id' })
+    }
+    request.onsuccess = () => {
+      if (settled) { closeOutbox(request.result); return }
+      settled = true
+      globalThis.clearTimeout(timer)
+      resolve(request.result)
+    }
+    request.onerror = () => finishError(request.error ?? makeIndexedDbError('UnknownError', 'IndexedDB open failed.'))
+    request.onblocked = () => { /* A bounded timeout handles a request blocked by another tab. */ }
   })
 }
 
-async function outboxOperation<T>(mode: IDBTransactionMode, run: (store: IDBObjectStore) => IDBRequest<T>): Promise<T> {
-  const database = await openOutbox()
+function runOutboxTransaction<T>(database: IDBDatabase, mode: IDBTransactionMode, run: (store: IDBObjectStore) => IDBRequest<T>): Promise<T> {
   return new Promise((resolve, reject) => {
-    const transaction = database.transaction('photos', mode)
-    const request = run(transaction.objectStore('photos'))
+    let settled = false
     let result: T
-    request.onsuccess = () => { result = request.result }
-    request.onerror = () => reject(request.error)
-    transaction.oncomplete = () => { database.close(); resolve(result) }
-    transaction.onerror = () => { database.close(); reject(transaction.error) }
+    let request: IDBRequest<T> | undefined
+    let transaction: IDBTransaction | undefined
+    const timer = globalThis.setTimeout(() => finishError(makeIndexedDbError('UnknownError', 'IndexedDB transaction timed out.')), indexedDbAttemptTimeoutMs)
+    const cleanUp = (closeConnection: boolean) => {
+      globalThis.clearTimeout(timer)
+      database.removeEventListener('close', onClose)
+      if (closeConnection) closeOutbox(database)
+    }
+    const finishError = (cause: unknown) => {
+      if (settled) return
+      settled = true
+      try { transaction?.abort() } catch { /* A completed or disconnected transaction cannot be aborted. */ }
+      cleanUp(false)
+      reject(cause)
+    }
+    const onClose = () => finishError(makeIndexedDbError('UnknownError', 'IndexedDB connection was closed before the transaction completed.'))
+    database.addEventListener('close', onClose, { once: true })
+    try {
+      transaction = database.transaction('photos', mode)
+      request = run(transaction.objectStore('photos'))
+    } catch (cause) {
+      finishError(cause)
+      return
+    }
+    request.onsuccess = () => { result = request!.result }
+    request.onerror = () => finishError(request!.error ?? transaction!.error ?? makeIndexedDbError('UnknownError', 'IndexedDB request failed.'))
+    transaction.oncomplete = () => {
+      if (settled) return
+      settled = true
+      cleanUp(true)
+      resolve(result)
+    }
+    transaction.onerror = () => finishError(transaction!.error ?? request?.error ?? makeIndexedDbError('UnknownError', 'IndexedDB transaction failed.'))
+    transaction.onabort = () => finishError(transaction!.error ?? request?.error ?? makeIndexedDbError('AbortError', 'IndexedDB transaction was aborted.'))
   })
+}
+
+async function outboxOperation<T>(operation: 'savePhotoForTransfer' | 'localPhotoForTransfer' | 'removePhotoFromOutbox', mode: IDBTransactionMode,
+  run: (store: IDBObjectStore) => IDBRequest<T>): Promise<T> {
+  let lastError: unknown
+  let lastErrorCode: ReturnType<typeof indexedDbErrorCode> | undefined
+  const startedAt = Date.now()
+  for (let attempt = 0; attempt < indexedDbAttemptCount; attempt += 1) {
+    tracePhotoStorage(operation, 'checking', undefined, attempt + 1, Date.now() - startedAt)
+    let database: IDBDatabase | undefined
+    try {
+      database = await openOutbox()
+      const result = await runOutboxTransaction(database, mode, run)
+      tracePhotoStorage(operation, 'recovered', lastErrorCode, attempt + 1, Date.now() - startedAt)
+      return result
+    } catch (cause) {
+      lastError = cause
+      lastErrorCode = indexedDbErrorCode(cause)
+      if (database) closeOutbox(database)
+      if (attempt + 1 >= indexedDbAttemptCount || !isTransientIndexedDbError(cause)) {
+        tracePhotoStorage(operation, 'failed', lastErrorCode, attempt + 1, Date.now() - startedAt)
+        throw cause
+      }
+      tracePhotoStorage(operation, 'retrying', lastErrorCode, attempt + 1, Date.now() - startedAt)
+    }
+  }
+  throw lastError
 }
 
 export async function savePhotoForTransfer(studentToken: string, uploadId: string, file: Blob) {
-  await outboxOperation('readwrite', (store) => store.put({ id: key(studentToken, uploadId), file } satisfies OutboxEntry))
+  try {
+    await outboxOperation('savePhotoForTransfer', 'readwrite', (store) => store.put({ id: key(studentToken, uploadId), file } satisfies OutboxEntry))
+  } catch {
+    throw new Error('Не удалось сохранить фото на этом устройстве. Оставьте страницу открытой, не закрывайте её и повторите попытку.')
+  }
 }
 export async function localPhotoForTransfer(studentToken: string, uploadId: string): Promise<Blob | null> {
-  const entry = await outboxOperation<OutboxEntry | undefined>('readonly', (store) => store.get(key(studentToken, uploadId)))
-  return entry?.file ?? null
+  try {
+    const entry = await outboxOperation<OutboxEntry | undefined>('localPhotoForTransfer', 'readonly', (store) => store.get(key(studentToken, uploadId)))
+    return entry?.file ?? null
+  } catch {
+    throw new Error('Не удалось прочитать сохранённое фото на этом устройстве. Оставьте страницу открытой и повторите передачу.')
+  }
 }
 export async function removePhotoFromOutbox(studentToken: string, uploadId: string) {
-  await outboxOperation('readwrite', (store) => store.delete(key(studentToken, uploadId)))
+  await outboxOperation('removePhotoFromOutbox', 'readwrite', (store) => store.delete(key(studentToken, uploadId)))
   forgetTransfer(sourceKey(studentToken, uploadId))
 }
 

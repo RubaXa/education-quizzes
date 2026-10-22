@@ -1,32 +1,44 @@
 /** Local Log-Driven Development; observations never grant access.
- * @see ../../docs/modules/families/browser-access-trace.md */
-const events = ['app.loaded', 'identity.resolved', 'identity.changed', 'access.resolved', 'role.selected', 'route.selected', 'view.rendered', 'access.failed'] as const
+ * @see ../../docs/modules/families/browser-access-trace.md
+ * @see ../../docs/decisions/photo-storage-ldd-2026-10-22.md */
+const events = ['app.loaded', 'identity.resolved', 'identity.changed', 'access.resolved', 'role.selected', 'route.selected', 'view.rendered', 'access.failed', 'photo.storage'] as const
 type EventName = typeof events[number]
 const roles = ['parent', 'student', 'mixed', 'none', 'unknown', 'pending']
 const sources = ['local', 'memory', 'device-server', 'grant-server', 'member-server', 'member-cache', 'profile', 'entry', 'route', 'card', 'storage', 'app']
 const reasons = ['cache-hit', 'cache-miss', 'uid-mismatch', 'context-changed', 'stale-revocation-ignored', 'device-binding-changed', 'device-binding-recovered', 'context-saved', 'context-cleared', 'grant-valid', 'grant-invalid', 'device-valid', 'device-invalid', 'member-valid', 'member-invalid', 'role-mismatch', 'profile-loaded', 'role-projection', 'restore-start', 'redemption-start', 'restore-failed', 'waiting', 'ready']
 const routes = ['home', 'enter', 'day', 'day-parent', 'days', 'days-parent', 'test', 'preview', 'my', 'review', 'dashboard', 'connect', 'ui-kit', 'unknown']
 const errorCodes = ['permission-denied', 'unavailable', 'deadline-exceeded', 'auth/network-request-failed', 'unauthenticated', 'unknown']
-const functions = ['initializeAccessTrace', 'traceProfile', 'restorePersonalContext', 'restorePersonalSession', 'redeemPersonalLink', 'sessionFromGrant', 'loadPersonalProfile', 'recoverPersonalContext', 'rememberPersonalContext', 'clearPersonalSession', 'changedInAnotherTab', 'PersonalEntry#profileEffect', 'PersonalEntry#accessSnapshot', 'LearningRoute#resolve', 'configureRoleDiagnostics', 'reportRoleProjection', 'App#routeEffect'] as const
-const states = ['idle', 'restoring', 'cached', 'checking', 'redeeming', 'loading', 'resolved', 'selected', 'rendered', 'changed', 'cleared', 'failed', 'empty'] as const
+const functions = ['initializeAccessTrace', 'traceProfile', 'restorePersonalContext', 'restorePersonalSession', 'redeemPersonalLink', 'sessionFromGrant', 'loadPersonalProfile', 'recoverPersonalContext', 'rememberPersonalContext', 'clearPersonalSession', 'changedInAnotherTab', 'PersonalEntry#profileEffect', 'PersonalEntry#accessSnapshot', 'LearningRoute#resolve', 'configureRoleDiagnostics', 'reportRoleProjection', 'App#routeEffect', 'savePhotoForTransfer', 'localPhotoForTransfer', 'removePhotoFromOutbox'] as const
+const states = ['idle', 'restoring', 'cached', 'checking', 'retrying', 'redeeming', 'loading', 'resolved', 'selected', 'rendered', 'recovered', 'changed', 'cleared', 'failed', 'empty'] as const
+const photoStorageOperations = ['savePhotoForTransfer', 'localPhotoForTransfer', 'removePhotoFromOutbox'] as const
+const photoStoragePhases = ['checking', 'retrying', 'recovered', 'failed'] as const
+const photoStorageErrorCodes = ['indexeddb-connection-lost', 'invalid-state', 'abort', 'quota', 'security', 'data', 'error'] as const
 export type AccessDetail = { role?: string; previousRole?: string; source?: string; reason?: string; route?: string; code?: string; scope?: string; person?: string; device?: string; grant?: string; hasGuide?: boolean; studentUpload?: boolean; active?: boolean; fromCache?: boolean; matches?: boolean; count?: number; durationMs?: number; bundle?: string; atFunction?: string; previousState?: string; state?: string }
 type TraceEvent = { runId: string; sequence: number; at: number; event: EventName; detail: AccessDetail }
 export type AccessTrace = { schemaVersion: 1; events: TraceEvent[] }
 export function formatAccessLog(row: TraceEvent): string {
-  const detail = safeDetail(row.detail)
+  const detail = safeDetail(row.detail, row.event)
   const explanations: Record<EventName, string> = {
     'app.loaded': 'Load application bundle', 'identity.resolved': detail.source === 'local' ? 'Use saved identity for this device' : 'Resolve identity from the selected source',
     'identity.changed': 'Reconcile a changed credential or device binding', 'access.resolved': detail.source === 'member-server' ? 'Use role from membership document' : 'Compare current access with the selected identity',
     'role.selected': 'Choose the interface from profile membership', 'route.selected': 'Open the resource for the selected identity',
     'view.rendered': 'Observe the committed task card projection', 'access.failed': 'Access operation failed; preserve safe error code',
+    'photo.storage': 'Observe local photo storage operation; this does not affect access authority',
   }
   const explanation = detail.state === 'restoring' ? 'Restore saved session for current device' : detail.state === 'redeeming' ? 'Redeem supplied personal credential' : detail.state === 'loading' ? 'Read profile and memberships for selected identity' : explanations[row.event]
   return `[${detail.atFunction ?? 'traceProfile'}] [${detail.previousState ?? 'checking'} → ${detail.state ?? 'resolved'}] ${explanation}`
 }
 const key = 'education-access-trace-v1'
 const maxAge = 24 * 60 * 60_000
-function safeDetail(input: AccessDetail): AccessDetail {
+function safeDetail(input: AccessDetail, event?: EventName): AccessDetail {
   const output: AccessDetail = {}
+  if (event === 'photo.storage') {
+    if (typeof input.atFunction === 'string' && (photoStorageOperations as readonly string[]).includes(input.atFunction)) output.atFunction = input.atFunction
+    if (typeof input.state === 'string' && (photoStoragePhases as readonly string[]).includes(input.state)) output.state = input.state
+    if (typeof input.code === 'string' && (photoStorageErrorCodes as readonly string[]).includes(input.code)) output.code = input.code
+    for (const field of ['count', 'durationMs'] as const) if (typeof input[field] === 'number' && Number.isFinite(input[field]) && input[field]! >= 0 && input[field]! < 1e8) output[field] = Math.round(input[field]!)
+    return output
+  }
   for (const [field, choices] of Object.entries({ role: roles, previousRole: roles, source: sources, reason: reasons, route: routes, code: errorCodes, atFunction: functions, state: states, previousState: states })) {
     const value = input[field as keyof AccessDetail]
     if (typeof value === 'string' && (choices as readonly string[]).includes(value)) Object.assign(output, { [field]: value })
@@ -42,7 +54,7 @@ export function sanitizeAccessTrace(input: unknown, now = Date.now()): AccessTra
   const rows = value?.schemaVersion === 1 && Array.isArray(value.events) ? value.events : []
   return { schemaVersion: 1, events: rows.filter((row) => row && events.includes(row.event) && typeof row.runId === 'string' && /^[A-Za-z0-9_-]{1,64}$/.test(row.runId)
     && Number.isSafeInteger(row.sequence) && row.sequence > 0 && Number.isFinite(row.at) && row.at > now - maxAge && row.at <= now + 60_000 && row.detail && typeof row.detail === 'object')
-    .slice(-200).map((row) => ({ runId: row.runId, sequence: row.sequence, at: row.at, event: row.event, detail: safeDetail(row.detail) })) }
+    .slice(-200).map((row) => ({ runId: row.runId, sequence: row.sequence, at: row.at, event: row.event, detail: safeDetail(row.detail, row.event) })) }
 }
 export function createAccessTrace({ storage, now = Date.now, runId = 'unavailable', emit }: { storage?: Pick<Storage, 'getItem' | 'setItem'>; now?: () => number; runId?: string; emit?: (event: TraceEvent) => void } = {}) {
   let initial: unknown
@@ -57,7 +69,7 @@ export function createAccessTrace({ storage, now = Date.now, runId = 'unavailabl
     runId,
     coverage: () => ({ complete: droppedRecords === 0 && !coverageUnknown, droppedRecords, ...(coverageUnknown ? { coverageUnknown: true } : {}) }),
     record(event: EventName, detail: AccessDetail) {
-      const item = { runId, sequence: ++sequence, at: now(), event, detail: safeDetail(detail) }
+      const item = { runId, sequence: ++sequence, at: now(), event, detail: safeDetail(detail, event) }
       const candidates = [...rows, item]
       rows = sanitizeAccessTrace({ schemaVersion: 1, events: candidates }, now()).events
       droppedRecords += candidates.length - rows.length
@@ -68,7 +80,7 @@ export function createAccessTrace({ storage, now = Date.now, runId = 'unavailabl
     enrich(sequence: number, detail: AccessDetail) {
       rows = rows.map((row) => {
         if (row.runId !== runId || row.sequence !== sequence) return row
-        const updated = { ...row, detail: safeDetail({ ...row.detail, ...detail }) }
+        const updated = { ...row, detail: safeDetail({ ...row.detail, ...detail }, row.event) }
         return updated
       })
       persist()
@@ -125,6 +137,13 @@ function localJournal() {
 export function traceAccess(event: EventName, detail: AccessDetail) {
   if (typeof window === 'undefined') return
   try { localJournal().record(event, detail) } catch { /* Diagnostics must not change access behavior. */ }
+}
+/** Record only allowlisted photo-storage diagnostics in the existing local trace. */
+export function tracePhotoStorage(operation: typeof photoStorageOperations[number], phase: typeof photoStoragePhases[number], code?: typeof photoStorageErrorCodes[number], attempt?: number, durationMs?: number) {
+  if (!(photoStorageOperations as readonly string[]).includes(operation)
+    || !(photoStoragePhases as readonly string[]).includes(phase)
+    || (code !== undefined && !(photoStorageErrorCodes as readonly string[]).includes(code))) return
+  traceAccess('photo.storage', { atFunction: operation, state: phase, code, count: attempt, durationMs })
 }
 export async function accessFingerprint(value: string) {
   const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value))

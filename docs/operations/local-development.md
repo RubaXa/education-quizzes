@@ -8,7 +8,7 @@ uses:
   - shared.specification-system
 sections: []
 created: 2026-10-16
-updated: 2026-10-16
+updated: 2026-10-22
 consumers:
   - "Education operator"
   - "developer"
@@ -28,5 +28,7 @@ code:
 | Клиентские типы/код | `npm run typecheck`, соответствующие Vitest tests |
 | Новые чтения Firestore | Обоснование в read registry и `npm run check:reads` |
 | Перед коммитом/выпуском | Штатный `npm run check`; хуки не обходятся |
+
+Для браузерной регрессии загрузки установите Chromium или задайте `CHROME_BIN=/абсолютный/путь/к/chrome` перед `npm run check`. Тест использует настоящую IndexedDB в изолированном профиле и не обращается в production. На физическом Safari/iPhone тест этим не считается пройденным.
 
 Работа из самостоятельного checkout не требует приватного PETR-графа для чтения общих контрактов. Производственные записи выполняются только профильными операторскими командами с проверкой владельца и readback; запуск dev server не выдаёт доступ к семье.

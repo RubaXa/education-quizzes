@@ -4118,18 +4118,19 @@
       }
     },
     "src/lib/browserAccessTrace.ts": {
-      "sha256": "95164bad5bd302b4de2c5cf446128efe13d8d94e96a0fa61c0adfd20716873f8",
-      "record": "docs/decisions/ldd-copy-button-2026-10-19.md",
+      "sha256": "f3dde4704f0e47f791fcf9b5413e741a04c706ebffaf63f4b20a183a52d5eb73",
+      "record": "docs/decisions/photo-storage-ldd-2026-10-22.md",
       "specs": [
         "docs/modules/families/browser-access-trace.md"
       ],
       "tests": [
         "src/lib/browserAccessTrace.test.ts",
+        "src/lib/browserAccessTrace.clipboard.test.ts",
         "src/components/PersonalEntry.role.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь18.10 прямо требует внедрить LDD и собрать трассу проблемной вкладки, сохраняя существующий интерфейс."
+        "evidence": "В рамках прямого запроса пользователя 22.10.2026 устранить повторный сбой загрузки добавлена безопасная диагностика локального хранилища через существующий trace."
       }
     },
     "src/lib/dayCompatibility.ts": {
@@ -4614,8 +4615,8 @@
       }
     },
     "src/lib/photoOutbox.ts": {
-      "sha256": "9fa26631e5b529a286f53f81fc2a9acc4e6f288eba8d0d5520fb34bfdc542f9a",
-      "record": "docs/decisions/photo-transfer-recovery-2026-10-22.md",
+      "sha256": "8dafaf97aa8ab9b47004941a1c978e332f37784eace92c5bfddfe47c3a3325e7",
+      "record": "docs/decisions/photo-indexeddb-recovery-2026-10-22.md",
       "specs": [
         "docs/modules/materials/storage-privacy.md",
         "docs/modules/school-diary/day-page.md"
@@ -4625,11 +4626,12 @@
         "src/components/WorkPhotoGallery.test.tsx",
         "src/components/WorkReview.requirements.test.tsx",
         "src/lib/reviewPresentation.test.ts",
-        "src/lib/educationEventProducers.test.ts"
+        "src/lib/educationEventProducers.test.ts",
+        "src/lib/photoOutbox.browser.integration.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь повторно сообщил о новой работе без Telegram и автоматической проверки, показал ошибку изображения и неверное время ожидания. Исправляется восстановление передачи того же фото и точное разделение заявки, получения файла и проверки."
+        "evidence": "Прямой запрос пользователя 22.10.2026: устранить повторный сбой загрузки с IndexedDB connection lost, закрепить восстановление интеграционными тестами и проверить результат."
       }
     },
     "src/lib/photoUploadPolicy.ts": {
@@ -5902,6 +5904,21 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Прямое поручение EducationSync/root: добавить read-only аудит сохранённого manifest-window с отдельным private receipt без сбора и изменения workflow."
+      }
+    },
+    "scripts/photo-outbox-chromium-integration.mjs": {
+      "sha256": "cde8c10e370806157384e9b92aab372a27a0af6cf0267a964cb269f6baf0654f",
+      "record": "docs/decisions/photo-indexeddb-recovery-2026-10-22.md",
+      "specs": [
+        "docs/modules/materials/storage-privacy.md",
+        "docs/shared/toolchain.md"
+      ],
+      "tests": [
+        "src/lib/photoOutbox.browser.integration.test.ts"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос пользователя 22.10.2026: закрепить повторный дефект загрузки изображений интеграционными тестами."
       }
     }
   }

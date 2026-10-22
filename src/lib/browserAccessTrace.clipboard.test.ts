@@ -34,3 +34,17 @@ it('starts ClipboardItem write synchronously within the user gesture before asyn
   expect(await content).toBeInstanceOf(Blob)
   await copying
 })
+it('copies photo storage diagnostics through the existing export without raw storage errors', async () => {
+  vi.resetModules(); vi.stubGlobal('crypto', webcrypto); vi.stubGlobal('ClipboardItem', undefined)
+  const writeText = vi.fn().mockResolvedValue(undefined)
+  vi.stubGlobal('navigator', { clipboard: { writeText } })
+  const api = await import('./browserAccessTrace')
+  api.tracePhotoStorage('savePhotoForTransfer', 'retrying', 'indexeddb-connection-lost', 2, 16)
+  await api.copyAccessDiagnostics()
+  const text = writeText.mock.calls[0][0]
+  expect(text).toContain('photo.storage')
+  expect(JSON.parse(text).events[0]).toMatchObject({ event: 'photo.storage', detail: {
+    atFunction: 'savePhotoForTransfer', state: 'retrying', code: 'indexeddb-connection-lost', count: 2, durationMs: 16,
+  } })
+  expect(text).not.toMatch(/UnknownError|PRIVATE_PATH|PRIVATE_PHOTO_ID|PRIVATE_BLOB/)
+})

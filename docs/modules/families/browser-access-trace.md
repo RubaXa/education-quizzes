@@ -3,7 +3,7 @@ id: module.families.browser-access-trace
 status: accepted
 implementation: partial
 created: 2026-10-18
-updated: 2026-10-19
+updated: 2026-10-22
 consumers:
   - "web-app access flow"
   - "family access operator"
@@ -34,6 +34,8 @@ LDD (Log-Driven Development) связывает фактический запу�
 Один ограниченный журнал в sessionStorage этой вкладки, максимум200событий/24часа. Новый запуск имеет новый runId; порядок внутри запуска монотонный. Один локальный debug sink печатает только whitelist события с префиксом `[Education LDD]`; поздние hashes обогащают журнал с тем же runId/sequence без второго console-события. Экспорт явно вызывается через `await window.educationDiagnostics.export()`. Сбор не вызывает сеть, Firestore или новые подписки, не изменяет вход, не показывает новых экранов и не задерживает локальный первый кадр. Ошибка хранилища/хеширования/sink не влияет на приложение. Ни remote probe, ни её права этим контрактом не включаются.
 
 Поля whitelist: имена событий, роли, источники решений, reasonCode, виды маршрута, числа/флаги, безопасные имена JS-файлов; идентичности коррелируются только SHA-256 fingerprints. Никаких имён, токенов, URL с ресурсом/секретом, raw exceptions, ответов, фото, cookies или полного localStorage. Сохранённый журнал повторно валидируется; посторонние поля и значения не экспортируются. Экспорт содержит наблюдаемые DOM-флаги родительского разбора/ученических действий, а не текст учебной работы.
+
+Событие `photo.storage` использует тот же локальный журнал, sessionStorage, export/copy, 200-записный предел и срок24часа. Разрешены только операции `savePhotoForTransfer`, `localPhotoForTransfer`, `removePhotoFromOutbox`; состояния `checking`, `retrying`, `recovered`, `failed`; безопасный код IndexedDB/DOM ошибки, номер попытки и длительность. Detail этого события очищается отдельным узким whitelist, поэтому роли, identity hashes, путь, имя файла, URL, Blob и текст ошибки отбрасываются. `photo.storage` остаётся наблюдением хранения: оно не участвует в выводе о роли, правах или доступе.
 
 Штатные команды: `npm run diagnostics:browser -- snippet` печатает read-only команду для Console именно проблемной вкладки; она умеет снять ограниченный baseline даже со старой сборки. `npm run diagnostics:browser -- inspect <private-file.json>` валидирует и объясняет trace без сетевых запросов и не печатает входной файл целиком. Пользовательские диагностические файлы остаются в `.local/` или другом закрытом evidence-каталоге.
 

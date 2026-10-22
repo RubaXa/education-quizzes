@@ -2,7 +2,7 @@
 import 'fake-indexeddb/auto'
 import { act, createElement } from 'react'
 import { createRoot } from 'react-dom/client'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const harness = vi.hoisted(() => ({
   docs: new Map<string, Record<string, any>>(),
@@ -11,6 +11,7 @@ const harness = vi.hoisted(() => ({
   fetch: vi.fn(),
   errors: [] as string[],
   nextReadError: undefined as Error | undefined,
+  photoTraces: [] as unknown[][],
 }))
 
 vi.mock('firebase/firestore', () => ({
@@ -37,6 +38,7 @@ vi.mock('firebase/firestore', () => ({
 }))
 vi.mock('firebase/auth', () => ({ getAuth: () => ({ currentUser: { uid: 'student-device' } }) }))
 vi.mock('./firebase', () => ({ db: {} }))
+vi.mock('./browserAccessTrace', () => ({ tracePhotoStorage: (...args: unknown[]) => harness.photoTraces.push(args) }))
 vi.mock('./educationEventProducer', () => ({
   prepareEducationEvent: async (input: { operationId: string }) => ({ ...input, eventId: 'e'.repeat(64) }),
   stagePreparedEducationEvent: (_batch: unknown, event: { eventId: string; eventType: string; operationId: string }) => harness.events.push(event),
@@ -47,7 +49,7 @@ vi.mock('./uiErrors', () => ({ reportUiError: (cause: unknown) => { if (cause in
   ? cause.message : 'Действие не выполнено. Повторите попытку.' } }))
 
 import WorkPhotoGallery from '../components/WorkPhotoGallery'
-import { getPhotoTransferUiSnapshot, removePhotoFromOutbox, resumePhotoTransfer, retryPhotoTransfer } from './photoOutbox'
+import { getPhotoTransferUiSnapshot, localPhotoForTransfer, removePhotoFromOutbox, resumePhotoTransfer, retryPhotoTransfer, savePhotoForTransfer } from './photoOutbox'
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 const studentToken = 'day-token'
@@ -68,7 +70,35 @@ async function clearOutbox() {
   })
 }
 
+function injectOpenFailureOnce(cause: DOMException) {
+  const originalOpen = indexedDB.open.bind(indexedDB)
+  let calls = 0
+  vi.spyOn(indexedDB, 'open').mockImplementation(((name: string, version?: number) => {
+    calls += 1
+    if (calls > 1) return originalOpen(name, version)
+    const request = { error: cause } as unknown as IDBOpenDBRequest
+    queueMicrotask(() => request.onerror?.call(request, new Event('error')))
+    return request
+  }) as typeof indexedDB.open)
+  return () => calls
+}
+
+function injectFakeDatabaseOnce(database: IDBDatabase) {
+  const originalOpen = indexedDB.open.bind(indexedDB)
+  let calls = 0
+  vi.spyOn(indexedDB, 'open').mockImplementation(((name: string, version?: number) => {
+    calls += 1
+    if (calls > 1) return originalOpen(name, version)
+    const request: Partial<IDBOpenDBRequest> = { result: database }
+    queueMicrotask(() => request.onsuccess?.call(request as IDBOpenDBRequest, new Event('success')))
+    return request as IDBOpenDBRequest
+  }) as typeof indexedDB.open)
+  return () => calls
+}
+
 describe('photo transfer recovery', () => {
+  afterEach(() => vi.restoreAllMocks())
+
   beforeEach(async () => {
     Object.defineProperty(navigator, 'onLine', { configurable: true, value: true })
     Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'visible' })
@@ -79,9 +109,190 @@ describe('photo transfer recovery', () => {
     harness.writes.length = 0
     harness.errors.length = 0
     harness.nextReadError = undefined
+    harness.photoTraces.length = 0
     harness.fetch.mockReset()
     harness.docs.set(sourcePath, requested())
     harness.docs.set(ownerPath, { familyId: 'family-1', childId: 'child-1' })
+  })
+
+  it.each([
+    ['UnknownError', 'Connection to Indexed Database server lost. Refresh the page to try again.'],
+    ['InvalidStateError', 'The IndexedDB connection is closing.'],
+    ['AbortError', 'The IndexedDB open request was aborted.'],
+  ])('reopens after a transient %s open failure and preserves the same upload blob', async (name, message) => {
+    const openCalls = injectOpenFailureOnce(new DOMException(message, name))
+    await savePhotoForTransfer(studentToken, uploadId, blob)
+    expect(openCalls()).toBe(2)
+    await expect(localPhotoForTransfer(studentToken, uploadId)).resolves.toMatchObject({
+      size: blob.size, type: blob.type, marker: blob.marker,
+    })
+    expect(openCalls()).toBe(3)
+    expect(harness.photoTraces).toContainEqual(expect.arrayContaining(['savePhotoForTransfer', 'retrying', name === 'UnknownError' ? 'indexeddb-connection-lost' : name === 'InvalidStateError' ? 'invalid-state' : 'abort', 1]))
+    expect(JSON.stringify(harness.photoTraces)).not.toContain(uploadId)
+    expect(JSON.stringify(harness.photoTraces)).not.toContain('original-photo-bytes')
+  })
+
+  it('reopens after transaction creation throws InvalidStateError and closes the failed connection', async () => {
+    await savePhotoForTransfer(studentToken, uploadId, blob)
+    const database = {
+      objectStoreNames: { contains: () => true },
+      transaction: () => { throw new DOMException('connection closed', 'InvalidStateError') },
+      addEventListener: vi.fn(), removeEventListener: vi.fn(), close: vi.fn(),
+    } as unknown as IDBDatabase
+    const openCalls = injectFakeDatabaseOnce(database)
+    await expect(localPhotoForTransfer(studentToken, uploadId)).resolves.toMatchObject({ marker: blob.marker })
+    expect(openCalls()).toBe(2)
+    expect(database.close).toHaveBeenCalledOnce()
+  })
+
+  it.each(['abort', 'close'] as const)('reopens when the IndexedDB connection emits %s before transaction completion', async (failureMode) => {
+    await savePhotoForTransfer(studentToken, uploadId, blob)
+    let closeListener: EventListener | undefined
+    const transaction: Partial<IDBTransaction> = {
+      error: new DOMException(`connection ${failureMode}`, failureMode === 'abort' ? 'AbortError' : 'UnknownError'),
+      objectStore: () => ({ get: () => ({}) } as unknown as IDBObjectStore),
+    }
+    const database = {
+      objectStoreNames: { contains: () => true },
+      transaction: () => {
+        queueMicrotask(() => {
+          if (failureMode === 'abort') transaction.onabort?.call(transaction as IDBTransaction, new Event('abort'))
+          else closeListener?.(new Event('close'))
+        })
+        return transaction as IDBTransaction
+      },
+      addEventListener: (_type: string, listener: EventListener) => { closeListener = listener },
+      removeEventListener: vi.fn(), close: vi.fn(),
+    } as unknown as IDBDatabase
+    const openCalls = injectFakeDatabaseOnce(database)
+    await expect(localPhotoForTransfer(studentToken, uploadId)).resolves.toMatchObject({ marker: blob.marker })
+    expect(openCalls()).toBe(2)
+    expect(database.close).toHaveBeenCalledOnce()
+  })
+
+  it.each([
+    ['QuotaExceededError', 'no storage space'],
+    ['SecurityError', 'Connection to Indexed Database server lost'],
+    ['DataError', 'invalid stored data'],
+  ])('does not retry non-transient %s storage failures', async (name, message) => {
+    const openCalls = injectOpenFailureOnce(new DOMException(message, name))
+    await expect(savePhotoForTransfer(studentToken, uploadId, blob)).rejects.toThrow(/Не удалось сохранить фото на этом устройстве/)
+    expect(openCalls()).toBe(1)
+  })
+
+  it('times out a stuck open request after a bounded reconnect attempt', async () => {
+    vi.useFakeTimers()
+    let openCalls = 0
+    vi.spyOn(indexedDB, 'open').mockImplementation((() => {
+      openCalls += 1
+      return {} as IDBOpenDBRequest
+    }) as typeof indexedDB.open)
+    try {
+      const pending = savePhotoForTransfer(studentToken, uploadId, blob)
+      const rejected = expect(pending).rejects.toThrow(/Не удалось сохранить фото на этом устройстве/)
+      await vi.advanceTimersByTimeAsync(12_100)
+      await rejected
+      expect(openCalls).toBe(2)
+    } finally { vi.useRealTimers() }
+  })
+
+  it('aborts and closes a stuck live read transaction before reopening; a late completion cannot replace its result', async () => {
+    await savePhotoForTransfer(studentToken, uploadId, blob)
+    vi.useFakeTimers()
+    let openCalls = 0
+    const firstRequest = { result: { id: sourceKey, file: { marker: 'late-result' } } } as unknown as IDBRequest
+    const secondRequest = { result: { id: sourceKey, file: { marker: 'reopened-result' } } } as unknown as IDBRequest
+    const firstTransaction: Partial<IDBTransaction> = {
+      objectStore: () => ({ get: () => firstRequest } as unknown as IDBObjectStore),
+      abort: vi.fn(),
+    }
+    const secondTransaction: Partial<IDBTransaction> = {
+      objectStore: () => {
+        queueMicrotask(() => {
+          secondRequest.onsuccess?.call(secondRequest, new Event('success'))
+          secondTransaction.oncomplete?.call(secondTransaction as IDBTransaction, new Event('complete'))
+        })
+        return { get: () => secondRequest } as unknown as IDBObjectStore
+      },
+    }
+    const firstClose = vi.fn(), secondClose = vi.fn()
+    const firstDatabase = { transaction: () => firstTransaction, addEventListener: vi.fn(), removeEventListener: vi.fn(), close: firstClose } as unknown as IDBDatabase
+    const secondDatabase = { transaction: () => secondTransaction, addEventListener: vi.fn(), removeEventListener: vi.fn(), close: secondClose } as unknown as IDBDatabase
+    const openRequest = (database: IDBDatabase) => {
+      const request = { result: database } as unknown as IDBOpenDBRequest
+      queueMicrotask(() => request.onsuccess?.call(request, new Event('success')))
+      return request
+    }
+    vi.spyOn(indexedDB, 'open').mockImplementation((() => {
+      openCalls += 1
+      return openRequest(openCalls === 1 ? firstDatabase : secondDatabase)
+    }) as typeof indexedDB.open)
+    try {
+      const pending = localPhotoForTransfer(studentToken, uploadId)
+      await vi.advanceTimersByTimeAsync(6_100)
+      const recovered = await pending
+      expect(recovered).toMatchObject({ marker: 'reopened-result' })
+      expect(openCalls).toBe(2)
+      expect(firstTransaction.abort).toHaveBeenCalledOnce()
+      expect(firstClose).toHaveBeenCalledOnce()
+      expect(secondClose).toHaveBeenCalledOnce()
+
+      firstRequest.onsuccess?.call(firstRequest, new Event('success'))
+      firstTransaction.oncomplete?.call(firstTransaction as IDBTransaction, new Event('complete'))
+      expect(recovered).toMatchObject({ marker: 'reopened-result' })
+      expect(firstClose).toHaveBeenCalledOnce()
+    } finally { vi.useRealTimers() }
+  })
+
+  it('recovers an aborted local read before PUT, then uploads the same saved blob', async () => {
+    await savePhotoForTransfer(studentToken, uploadId, blob)
+    harness.fetch.mockResolvedValueOnce({ ok: true, status: 201 })
+    const transaction: Partial<IDBTransaction> = {
+      objectStore: () => ({ get: () => ({}) } as unknown as IDBObjectStore),
+      abort: vi.fn(),
+    }
+    const database = {
+      transaction: () => {
+        queueMicrotask(() => transaction.onabort?.call(transaction as IDBTransaction, new Event('abort')))
+        return transaction
+      },
+      addEventListener: vi.fn(), removeEventListener: vi.fn(), close: vi.fn(),
+    } as unknown as IDBDatabase
+    const openCalls = injectFakeDatabaseOnce(database)
+
+    resumePhotoTransfer(studentToken, uploadId, requested())
+    await vi.waitFor(() => expect(harness.events).toHaveLength(1))
+
+    expect(openCalls()).toBe(2)
+    expect(database.close).toHaveBeenCalledOnce()
+    expect(harness.fetch).toHaveBeenCalledOnce()
+    expect(harness.fetch.mock.calls[0]?.[1]).toMatchObject({ body: expect.objectContaining({ marker: blob.marker }) })
+    expect(harness.docs.get(sourcePath)?.status).toBe('uploaded')
+  })
+
+  it('aborts an upgrade that arrives after its open request timed out', async () => {
+    vi.useFakeTimers()
+    const openRequests: IDBOpenDBRequest[] = []
+    const transactions: Array<{ abort: ReturnType<typeof vi.fn> }> = []
+    const createObjectStore = vi.fn()
+    vi.spyOn(indexedDB, 'open').mockImplementation((() => {
+      const transaction = { abort: vi.fn() }
+      transactions.push(transaction)
+      const database = { objectStoreNames: { contains: () => false }, createObjectStore }
+      const request = { result: database, transaction } as unknown as IDBOpenDBRequest
+      openRequests.push(request)
+      return request
+    }) as typeof indexedDB.open)
+    try {
+      const pending = savePhotoForTransfer(studentToken, uploadId, blob)
+      const rejected = expect(pending).rejects.toThrow(/Не удалось сохранить фото на этом устройстве/)
+      await vi.advanceTimersByTimeAsync(12_100)
+      await rejected
+      expect(openRequests).toHaveLength(2)
+      openRequests[0].onupgradeneeded?.call(openRequests[0], new Event('upgradeneeded') as IDBVersionChangeEvent)
+      expect(transactions[0].abort).toHaveBeenCalledOnce()
+      expect(createObjectStore).not.toHaveBeenCalled()
+    } finally { vi.useRealTimers() }
   })
 
   it('shows a rejected PUT beside its existing photo and retries the same blob and upload ID', async () => {
@@ -199,6 +410,29 @@ describe('photo transfer recovery', () => {
     expect(harness.writes).toHaveLength(0)
     expect(harness.events).toHaveLength(0)
     expect(harness.fetch).not.toHaveBeenCalled()
+  })
+
+  it('shows the safe local read error when IndexedDB remains unavailable before PUT', async () => {
+    let openCalls = 0
+    vi.spyOn(indexedDB, 'open').mockImplementation((() => {
+      openCalls += 1
+      const request = { error: new DOMException('Connection to Indexed Database server lost.', 'SecurityError') } as unknown as IDBOpenDBRequest
+      queueMicrotask(() => request.onerror?.call(request, new Event('error')))
+      return request
+    }) as typeof indexedDB.open)
+    resumePhotoTransfer(studentToken, uploadId, requested())
+    await vi.waitFor(() => expect(getPhotoTransferUiSnapshot().get(sourceKey)?.phase).toBe('failed'))
+    const transferError = getPhotoTransferUiSnapshot().get(sourceKey)
+    expect(transferError?.phase).toBe('failed')
+    if (transferError?.phase === 'failed') {
+      expect(transferError.message).toBe('Не удалось прочитать сохранённое фото на этом устройстве. Оставьте страницу открытой и повторите передачу.')
+    }
+    expect(openCalls).toBe(1)
+    expect(harness.errors).toHaveLength(0)
+    expect(harness.fetch).not.toHaveBeenCalled()
+    expect(harness.writes).toHaveLength(0)
+    expect(harness.events).toHaveLength(0)
+    expect(harness.docs.get(sourcePath)?.status).toBe('awaiting-upload')
   })
 
   it('runs a newly issued href once after an older PUT finishes, but stops when the source becomes terminal', async () => {

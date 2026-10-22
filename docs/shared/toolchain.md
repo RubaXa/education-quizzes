@@ -10,7 +10,7 @@ sections:
   - ограничения
 
 created: 2026-10-16
-updated: 2026-10-17
+updated: 2026-10-22
 consumers:
   - "frontend developer"
   - "repository maintainer"
@@ -25,7 +25,7 @@ code:
 
 ## Действующий запуск
 
-`npm ci` устанавливает lock-файл; `npm run dev` запускает интерфейс; `npm run typecheck`, `npm run check:spec`, `npm run check:reads`, `npm run lint`, `npm run test`, `npm run build` проверяют соответствующие границы. `npm run check` объединяет штатные gates. Git hooks заданы в `lefthook.yml`; Conventional Commits — в `commitlint.config.cjs`.
+`npm ci` устанавливает lock-файл; `npm run dev` запускает интерфейс; `npm run typecheck`, `npm run check:spec`, `npm run check:reads`, `npm run lint`, `npm run test`, `npm run build` проверяют соответствующие границы. `npm run check` объединяет штатные gates. Браузерная регрессия photo outbox входит в обычный Vitest/check и требует установленный Chromium: переменная `CHROME_BIN` задаёт путь к бинарнику; на Mac поддержан установленный Google Chrome, на Linux — `/usr/bin/google-chrome` или `/usr/bin/chromium`. Отсутствие браузера завершает проверку ошибкой, без молчаливого skip. Используются отдельный временный профиль и перехваченный транспорт, без production credentials. Git hooks заданы в `lefthook.yml`; Conventional Commits — в `commitlint.config.cjs`.
 
 Конфигурация МЭШ описана в `.env.example`; `.env.local` и `.local` исключены из Git. Service account keys, реальные работы и материалы не входят в repo. Имена настроек не заменяют протокол secret storage каждого процесса.
 
