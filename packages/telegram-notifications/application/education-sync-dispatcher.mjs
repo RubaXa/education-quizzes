@@ -1,3 +1,4 @@
+/** @see ../../../docs/decisions/source-wait-generations-2026-10-22.md */
 /** @see ../../../docs/decisions/independent-action-dispatch-2026-10-21.md */
 import { createHash, randomUUID } from 'node:crypto'
 import { spawn } from 'node:child_process'
@@ -200,24 +201,19 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
         const pendingKinds = [...new Set([...existingKinds, kind])]
         const hasFrozenBatch = (Array.isArray(state.sendingKinds) && state.sendingKinds.length > 0)
           || Number.isInteger(state.sendingGeneration)
-        // A genuinely new Mesh revision may recover only an explicitly typed,
-        // Mesh-only source-unavailable request. Ambiguous legacy batches, work,
-        // and action ranges still require their normal explicit recovery path.
-        const resumeSourceUnavailable = kind === 'mesh' && isExplicitMeshSourceUnavailableBlock(state, pendingKinds)
-        const nextPendingKinds = resumeSourceUnavailable
-          ? pendingKinds.filter((pendingKind) => pendingKind !== 'mesh')
-          : pendingKinds
+        // Keep source changes pending. A typed source-wait recovery is claimed
+        // once the debounce expires; enqueueing never clears the recorded block.
+        const nextPendingKinds = pendingKinds
         const clearStaleBatch = ['completed', 'idle'].includes(state.status) || !hasFrozenBatch
         const preserveRetry = holdState || hasFrozenBatch
         tx.set(ref, { ...state, generation, pendingKinds: nextPendingKinds, changedAt: now, debounceUntil,
-          status: resumeSourceUnavailable ? 'pending' : holdState ? state.status : 'pending',
-          retryAt: resumeSourceUnavailable ? null : preserveRetry ? state.retryAt ?? null : null,
-          ...(resumeSourceUnavailable ? { sendingGeneration: generation, sendingKinds: ['mesh'],
-            blockedReasonCode: null, blockedAt: null, resumedAt: now, resumeTrigger: 'new_mesh_event' } : {}),
+          status: holdState ? state.status : 'pending',
+          retryAt: preserveRetry ? state.retryAt ?? null : null,
           ...(clearStaleBatch ? { sendingGeneration: null, sendingKinds: null } : {}) }, { merge: false })
-        const retryDue = !resumeSourceUnavailable && preserveRetry && state.retryAt ? state.retryAt : null
+        const retryDue = preserveRetry && state.retryAt ? state.retryAt : null
         const nextDueAt = [debounceUntil, retryDue].filter(Boolean).sort().at(-1)
-        return { status: 'accepted', generation, ...(resumeSourceUnavailable || !holdState ? { nextDueAt } : {}) }
+        const sourceWaitWake = sourceWaitHasNewGeneration({ ...state, generation, pendingKinds: nextPendingKinds })
+        return { status: 'accepted', generation, ...(!holdState || sourceWaitWake ? { nextDueAt } : {}) }
       })
     },
     async recordAction({ event, kind, artifact, now, debounceUntil }) {
@@ -237,10 +233,15 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
         const generation = (state.generation ?? 0) + 1
         const holdState = ['queued', 'sending', 'uncertain', 'running', 'blocked'].includes(state.status)
         const frozen = Number.isInteger(state.sendingGeneration) || Number.isInteger(state.actionThroughGeneration)
-        const laneThrough = Number.isInteger(state.actionLane?.actionThroughGeneration) ? state.actionLane.actionThroughGeneration : null
+        const lane = state.actionLane
+        const laneThrough = ['blocked', 'sending', 'queued', 'uncertain', 'pending', 'running'].includes(lane?.status)
+          && Number.isInteger(lane.actionThroughGeneration) ? lane.actionThroughGeneration : null
+        const requestThrough = ['sending', 'queued', 'uncertain', 'running'].includes(state.status)
+          && Number.isInteger(state.sendingActionThroughGeneration) ? state.sendingActionThroughGeneration : null
         const pendingAfter = state.pendingActionAfterGeneration
-        const pendingActionAfterGeneration = laneThrough !== null && (!Number.isInteger(pendingAfter) || pendingAfter < laneThrough)
-          ? laneThrough : Number.isInteger(pendingAfter) ? pendingAfter : (state.completedActionGeneration ?? 0)
+        const activeThrough = Math.max(laneThrough ?? 0, requestThrough ?? 0, state.completedActionGeneration ?? 0)
+        const pendingActionAfterGeneration = Number.isInteger(pendingAfter) && pendingAfter >= activeThrough
+          ? pendingAfter : activeThrough
         const pendingActionThroughGeneration = generation
         const task = { kind, familyId: event.familyId, childId: event.childId, sourceId: event.eventId,
           source: event.source, fingerprint: artifact.fingerprint, priority: 50, runId: null,
@@ -262,10 +263,10 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
           status: holdState ? state.status : 'pending', retryAt: holdState ? state.retryAt ?? null : null,
           ...(!frozen ? { sendingGeneration: null, sendingKinds: null, sendingActionAfterGeneration: null, sendingActionThroughGeneration: null } : {})
         }, { merge: false })
-        const parallelBlockedMesh = isBlockedMeshSourceUnavailable(state)
-        const laneBusy = ['sending', 'queued', 'running', 'blocked'].includes(state.actionLane?.status)
-        const nextDueAt = holdState && (!parallelBlockedMesh || laneBusy) ? undefined
-          : [debounceUntil, parallelBlockedMesh ? state.actionLane?.retryAt : holdState ? state.retryAt : null].filter(Boolean).sort().at(-1)
+        const sourceWaitWake = sourceWaitHasNewGeneration({ ...state, generation,
+          pendingKinds: [...new Set([...(state.pendingKinds ?? []), 'action'])] })
+        const nextDueAt = holdState && !sourceWaitWake ? undefined
+          : [debounceUntil, holdState ? state.retryAt : null].filter(Boolean).sort().at(-1)
         return { status: 'accepted', generation, jobId, artifactId: artifact.artifactPath.split('/').at(-1), nextDueAt }
       })
     },
@@ -303,7 +304,9 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
         const snap = await tx.get(ref)
         if (!snap.exists) return null
         const state = snap.data()
-        if (isBlockedMeshSourceUnavailable(state)) return claimActionLaneOnBlockedMesh({ tx, ref, state, now, workerId })
+        if (isRecoverableSourceWait(state, now)) return claimSourceWaitRecovery({ tx, ref, state, now, workerId })
+        const laneClaim = claimPersistedActionLane({ tx, ref, state, now, workerId })
+        if (laneClaim) return laneClaim
         if (state.status === 'sending') {
           if (state.leaseUntil > now) return null
           tx.set(ref, { ...state, status: 'uncertain', uncertainAt: now, lastErrorCode: 'dispatch_lease_expired',
@@ -339,6 +342,7 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
           sendingActionThroughGeneration: continuingBatch ? state.sendingActionThroughGeneration ?? null : state.pendingActionThroughGeneration ?? null,
           pendingActionAfterGeneration: continuingBatch ? state.pendingActionAfterGeneration : null,
           pendingActionThroughGeneration: continuingBatch ? state.pendingActionThroughGeneration : null,
+          sourceAttemptGeneration: continuingBatch ? state.sourceAttemptGeneration ?? state.sendingGeneration : state.generation,
           workerId, leaseUntil }, { merge: false })
         return { requestId, generation: continuingBatch ? state.sendingGeneration : state.generation, workKinds,
           actionAfterGeneration: continuingBatch ? state.sendingActionAfterGeneration ?? 0 : state.pendingActionAfterGeneration ?? state.completedActionGeneration ?? 0,
@@ -494,14 +498,25 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
         const actionLane = snap.exists && snap.data().actionLane?.requestId === requestId ? snap.data().actionLane : null
         if (actionLane) {
           if (actionLane.claimTokenHash !== tokenHash || actionLane.status !== 'running' || !(actionLane.workflowLeaseUntil > now)) return { status: 'invalid_claim' }
+          const sourceIssue = reasonCode === 'source_unavailable'
+            ? makeSourceIssue({ requestId, attemptedGeneration: actionLane.sourceAttemptGeneration ?? actionLane.sendingGeneration,
+              currentGeneration: snap.data().generation, blockedAt: now }) : null
           tx.set(ref, { ...snap.data(), actionLane: { ...actionLane, status: 'blocked', blockedReasonCode: reasonCode,
-            blockedAt: now, claimTokenHash: null, workflowLeaseUntil: null, retryAt: null } }, { merge: false })
+            blockedAt: now, claimTokenHash: null, workflowLeaseUntil: null, retryAt: null,
+            ...(sourceIssue ? { sourceBlock: sourceIssue } : {}) },
+            ...(sourceIssue ? { lastSourceBlock: sourceIssue,
+              sourceBlockHistory: appendSourceBlock(snap.data().sourceBlockHistory, sourceIssue) } : {}) }, { merge: false })
           return { status: 'blocked', reasonCode, scope: 'action' }
         }
         if (!snap.exists || snap.data().requestId !== requestId || snap.data().claimTokenHash !== tokenHash
           || snap.data().status !== 'running' || !(snap.data().workflowLeaseUntil > now)) return { status: 'invalid_claim' }
+        const sourceIssue = reasonCode === 'source_unavailable'
+          ? makeSourceIssue({ requestId, attemptedGeneration: snap.data().sourceAttemptGeneration ?? snap.data().sendingGeneration,
+            currentGeneration: snap.data().generation, blockedAt: now }) : null
         tx.set(ref, { ...snap.data(), status: 'blocked', blockedReasonCode: reasonCode, blockedAt: now,
-          claimTokenHash: null, workflowLeaseUntil: null, retryAt: null }, { merge: false })
+          claimTokenHash: null, workflowLeaseUntil: null, retryAt: null,
+          ...(sourceIssue ? { lastSourceBlock: sourceIssue,
+            sourceBlockHistory: appendSourceBlock(snap.data().sourceBlockHistory, sourceIssue) } : {}) }, { merge: false })
         return { status: 'blocked', reasonCode }
       })
     },
@@ -585,73 +600,156 @@ export function workEventDigest(event) {
   return digest(JSON.stringify(['firestore-work-v1', event.scopeKey, event.sourceEventKey, event.eventType]))
 }
 
-function isExplicitMeshSourceUnavailableBlock(state, pendingKinds) {
-  return state.status === 'blocked'
-    && state.blockedReasonCode === 'source_unavailable'
-    && Array.isArray(state.sendingKinds)
-    && state.sendingKinds.length === 1
-    && state.sendingKinds[0] === 'mesh'
-    && Array.isArray(pendingKinds)
-    && pendingKinds.every((pendingKind) => pendingKind === 'mesh')
-    && !hasActionThroughGeneration(state)
-}
-
-function isBlockedMeshSourceUnavailable(state) {
+function isRecoverableSourceWait(state, now) {
   if (state.status !== 'blocked' || state.blockedReasonCode !== 'source_unavailable'
-    || !Array.isArray(state.sendingKinds) || state.sendingKinds.length !== 1 || state.sendingKinds[0] !== 'mesh') return false
+    || !Array.isArray(state.sendingKinds) || !state.sendingKinds.length
+    || state.sendingKinds.some((kind) => !['mesh', 'work', 'action'].includes(kind))) return false
+  const hasTypedAttempt = state.sourceAttemptGeneration !== undefined && state.sourceAttemptGeneration !== null
+  if (!hasTypedAttempt && (state.sendingKinds.length !== 1 || state.sendingKinds[0] !== 'mesh')) return false
   const lane = state.actionLane
-  // A persisted lane owns its frozen range and can retry independently even if
-  // later parent metadata is broader. New lanes require an unambiguous parent.
-  if (lane && ['sending', 'queued', 'running', 'uncertain', 'pending', 'blocked'].includes(lane.status)) return true
-  const frozenUpper = state.sendingActionThroughGeneration
-  const hasFrozenActions = frozenUpper !== undefined && frozenUpper !== null && frozenUpper !== 0
-  const pendingKinds = state.pendingKinds
-  return !hasFrozenActions && Array.isArray(pendingKinds)
-    && pendingKinds.every((kind) => kind === 'mesh' || kind === 'action')
+  if (lane && lane.status !== 'completed' && lane.status !== 'superseded'
+    && (lane.status !== 'blocked' || lane.blockedReasonCode !== 'source_unavailable')) return false
+  if (!Array.isArray(state.pendingKinds) || state.pendingKinds.some((kind) => !['mesh', 'action', 'work'].includes(kind))) return false
+  const attempted = sourceAttemptWatermark(state)
+  if (!Number.isInteger(attempted) || attempted < 0 || !Number.isInteger(state.generation)
+    || state.generation <= attempted || state.debounceUntil > now) return false
+  const rangeFields = ['completedActionGeneration', 'pendingActionAfterGeneration', 'pendingActionThroughGeneration',
+    'sendingActionAfterGeneration', 'sendingActionThroughGeneration', 'actionAfterGeneration', 'actionThroughGeneration']
+  if (rangeFields.some((key) => hasValue(state[key]) && (!Number.isInteger(state[key]) || state[key] < 0 || state[key] > state.generation))) return false
+  if (lane && ['actionAfterGeneration', 'actionThroughGeneration'].some((key) => hasValue(lane[key])
+    && (!Number.isInteger(lane[key]) || lane[key] < 0 || lane[key] > state.generation))) return false
+  const actionEvidence = state.sendingKinds.includes('action') || state.pendingKinds.includes('action')
+    || lane?.status === 'blocked' && (hasValue(lane.actionAfterGeneration) || hasValue(lane.actionThroughGeneration))
+    || ['pendingActionThroughGeneration', 'sendingActionThroughGeneration', 'actionThroughGeneration']
+      .some((key) => Number.isInteger(state[key]) && state[key] > (state.completedActionGeneration ?? -1))
+  const lower = state.completedActionGeneration
+  const upperCandidates = [state.pendingActionThroughGeneration, state.sendingActionThroughGeneration,
+    state.actionThroughGeneration, lane?.actionThroughGeneration].filter((value) => hasValue(value))
+  if (actionEvidence && (!Number.isInteger(lower) || lower < 0 || !upperCandidates.length
+    || Math.max(...upperCandidates) <= lower)) return false
+  return true
 }
 
-function claimActionLaneOnBlockedMesh({ tx, ref, state, now, workerId }) {
-  const previous = state.actionLane ?? null
-  let lane = previous
-  if (lane && lane.status === 'sending') {
+function sourceWaitHasNewGeneration(state) {
+  if (state.status !== 'blocked' || state.blockedReasonCode !== 'source_unavailable'
+    || !Array.isArray(state.sendingKinds) || !state.sendingKinds.length
+    || state.sendingKinds.some((kind) => !['mesh', 'work', 'action'].includes(kind))) return false
+  const hasTypedAttempt = state.sourceAttemptGeneration !== undefined && state.sourceAttemptGeneration !== null
+  if (!hasTypedAttempt && (state.sendingKinds.length !== 1 || state.sendingKinds[0] !== 'mesh')) return false
+  const attempted = sourceAttemptWatermark(state)
+  return Number.isInteger(attempted) && Number.isInteger(state.generation) && state.generation > attempted
+}
+
+function sourceAttemptWatermark(state) {
+  const lane = state.actionLane
+  const fields = [state.sourceAttemptGeneration, state.sendingGeneration,
+    lane?.status === 'blocked' ? lane.sourceAttemptGeneration : null,
+    lane?.status === 'blocked' ? lane.sendingGeneration : null]
+  if (fields.some((value) => hasValue(value) && (!Number.isInteger(value) || value < 0))) return null
+  const attempts = fields.filter((value) => Number.isInteger(value) && value >= 0)
+  return attempts.length ? Math.max(...attempts) : null
+}
+
+function hasValue(value) { return value !== undefined && value !== null }
+
+function isExplicitMeshSourceUnavailableBlock(state, pendingKinds) {
+  return state.status === 'blocked' && state.blockedReasonCode === 'source_unavailable'
+    && Array.isArray(state.sendingKinds) && state.sendingKinds.length === 1 && state.sendingKinds[0] === 'mesh'
+    && Array.isArray(pendingKinds) && pendingKinds.every((kind) => kind === 'mesh') && !hasActionThroughGeneration(state)
+}
+
+function claimSourceWaitRecovery({ tx, ref, state, now, workerId }) {
+  if (!isRecoverableSourceWait(state, now)) return null
+  const actionLane = state.actionLane
+  const lower = Number.isInteger(state.completedActionGeneration) && state.completedActionGeneration >= 0
+    ? state.completedActionGeneration : null
+  const upperCandidates = [state.pendingActionThroughGeneration, state.sendingActionThroughGeneration,
+    state.actionThroughGeneration, actionLane?.actionThroughGeneration].filter((value) => hasValue(value))
+  if (upperCandidates.some((value) => !Number.isInteger(value) || value < 0 || value > state.generation)) return null
+  const upper = upperCandidates.length ? Math.max(...upperCandidates) : null
+  const hasActionRange = Number.isInteger(upper) && Number.isInteger(lower) && upper > lower
+  const kinds = [...new Set([...(state.sendingKinds ?? []), ...(state.pendingKinds ?? []), ...(hasActionRange ? ['action'] : [])])]
+  const actionEvidence = kinds.includes('action') || upperCandidates.length > 0
+    || actionLane?.status === 'blocked' && (hasValue(actionLane.actionAfterGeneration) || hasValue(actionLane.actionThroughGeneration))
+  if (actionEvidence && !hasActionRange) return null
+  if (!kinds.length || kinds.some((kind) => !['mesh', 'work', 'action'].includes(kind))) return null
+  const requestId = randomUUID()
+  const generation = state.generation
+  const leaseUntil = new Date(Date.parse(now) + 30_000).toISOString()
+  const attempts = [state.sourceAttemptGeneration, state.sendingGeneration,
+    actionLane?.status === 'blocked' ? actionLane.sourceAttemptGeneration : null,
+    actionLane?.status === 'blocked' ? actionLane.sendingGeneration : null].filter((value) => Number.isInteger(value) && value >= 0)
+  const attempted = attempts.length ? Math.max(...attempts) : undefined
+  const previousIssue = state.lastSourceBlock ?? makeSourceIssue({ requestId: state.requestId,
+    attemptedGeneration: attempted, currentGeneration: state.generation, blockedAt: state.blockedAt ?? now })
+  const sourceIssue = { ...previousIssue, retryRequestId: requestId, retryGeneration: generation, retryStartedAt: now }
+  const supersededLane = actionLane?.status === 'blocked'
+    ? { ...actionLane, status: 'superseded', claimTokenHash: null, workflowLeaseUntil: null, leaseUntil: null,
+      retryAt: null, supersededAt: now, supersededByRequestId: requestId }
+    : actionLane
+  tx.set(ref, { ...state, status: 'sending', requestId, sendingGeneration: generation, sendingKinds: kinds,
+    pendingKinds: [], sendingActionAfterGeneration: hasActionRange ? lower : null,
+    sendingActionThroughGeneration: hasActionRange ? upper : null,
+    actionAfterGeneration: hasActionRange ? lower : null, actionThroughGeneration: hasActionRange ? upper : null,
+    pendingActionAfterGeneration: null, pendingActionThroughGeneration: null,
+    sourceAttemptGeneration: generation, sourceRetryOf: previousIssue.requestId ?? state.requestId,
+    lastSourceBlock: sourceIssue, actionLane: supersededLane,
+    blockedReasonCode: null, blockedAt: null, resumedAt: now, resumeTrigger: 'new_generation_after_source_block',
+    workerId, leaseUntil, retryAt: null, lastErrorCode: null, queueReceiptId: null, queuedAt: null,
+    claimTokenHash: null, workflowLeaseUntil: null }, { merge: false })
+  return { requestId, generation, workKinds: kinds,
+    actionAfterGeneration: hasActionRange ? lower : 0, actionThroughGeneration: hasActionRange ? upper : null, workerId }
+}
+
+function claimPersistedActionLane({ tx, ref, state, now, workerId }) {
+  const lane = state.actionLane
+  if (state.status !== 'blocked' || state.blockedReasonCode !== 'source_unavailable'
+    || !lane || !['sending', 'queued', 'running', 'uncertain', 'pending'].includes(lane.status)) return null
+  if (lane.status === 'sending') {
     if (lane.leaseUntil > now) return null
-    lane = { ...lane, status: 'uncertain', uncertainAt: now, lastErrorCode: 'dispatch_lease_expired', retryAt: now, leaseUntil: null }
-    tx.set(ref, { ...state, actionLane: lane }, { merge: false })
+    tx.set(ref, { ...state, actionLane: { ...lane, status: 'uncertain', uncertainAt: now,
+      lastErrorCode: 'dispatch_lease_expired', retryAt: now, leaseUntil: null } }, { merge: false })
     return null
   }
-  if (lane && lane.status === 'queued') {
+  if (lane.status === 'queued') {
     const queuedAt = Date.parse(lane.queuedAt ?? '')
     if (Number.isFinite(queuedAt) && Date.parse(now) >= queuedAt + 10 * 60_000) {
       tx.set(ref, { ...state, actionLane: { ...lane, status: 'uncertain', uncertainAt: now,
-        lastErrorCode: 'queue_ack_expired', retryAt: now } }, { merge: false })
+        lastErrorCode: 'queue_ack_expired', retryAt: now, leaseUntil: null } }, { merge: false })
     }
     return null
   }
-  if (lane && lane.status === 'running') {
+  if (lane.status === 'running') {
     if (lane.workflowLeaseUntil > now) return null
     tx.set(ref, { ...state, actionLane: { ...lane, status: 'uncertain', uncertainAt: now,
       lastErrorCode: 'workflow_lease_expired', claimTokenHash: null, workflowLeaseUntil: null, retryAt: now } }, { merge: false })
     return null
   }
-  if (lane?.status === 'blocked') return null
-  if (lane?.retryAt && lane.retryAt > now) return null
-
-  const retrying = lane && ['uncertain', 'pending'].includes(lane.status)
-  if (!retrying && state.debounceUntil > now) return null
-  const lower = retrying ? lane.actionAfterGeneration : state.pendingActionAfterGeneration
-  const upper = retrying ? lane.actionThroughGeneration : state.pendingActionThroughGeneration
-  if (!Number.isInteger(lower) || !Number.isInteger(upper) || upper <= lower
-    || !Array.isArray(state.pendingKinds) || !state.pendingKinds.includes('action')) return null
-  const requestId = retrying ? lane.requestId : randomUUID()
-  const actionLane = { ...(retrying ? lane : {}), requestId, generation: retrying ? lane.generation : state.generation,
-    sendingGeneration: retrying ? lane.sendingGeneration : state.generation, status: 'sending', workerId,
-    actionAfterGeneration: lower, actionThroughGeneration: upper,
+  if (lane.retryAt && lane.retryAt > now) return null
+  if (!Number.isInteger(lane.actionAfterGeneration) || lane.actionAfterGeneration < 0
+    || !Number.isInteger(lane.actionThroughGeneration) || lane.actionThroughGeneration <= lane.actionAfterGeneration
+    || lane.actionThroughGeneration > state.generation || typeof lane.requestId !== 'string'
+    || !Number.isInteger(lane.sendingGeneration) || lane.sendingGeneration < 0) return null
+  const retryAt = lane.retryAt
+  if (lane.status === 'uncertain' && retryAt && retryAt > now) return null
+  const actionLane = { ...lane, status: 'sending', workerId,
     leaseUntil: new Date(Date.parse(now) + 30_000).toISOString(), retryAt: null }
-  tx.set(ref, { ...state, actionLane,
-    pendingActionAfterGeneration: retrying ? state.pendingActionAfterGeneration ?? null : null,
-    pendingActionThroughGeneration: retrying ? state.pendingActionThroughGeneration ?? null : null }, { merge: false })
-  return { requestId, generation: actionLane.sendingGeneration, workKinds: ['action'],
-    actionAfterGeneration: lower, actionThroughGeneration: upper, workerId }
+  tx.set(ref, { ...state, actionLane }, { merge: false })
+  return { requestId: lane.requestId, generation: lane.sendingGeneration, workKinds: ['action'],
+    actionAfterGeneration: lane.actionAfterGeneration, actionThroughGeneration: lane.actionThroughGeneration, workerId }
+}
+
+function makeSourceIssue({ requestId = null, attemptedGeneration, currentGeneration, blockedAt }) {
+  return { requestId, reasonCode: 'source_unavailable',
+    ...(Number.isInteger(attemptedGeneration) ? { attemptedGeneration } : {}),
+    ...(Number.isInteger(currentGeneration) ? { generationAtBlock: currentGeneration } : {}), blockedAt }
+}
+
+function appendSourceBlock(history, issue) {
+  const rows = Array.isArray(history) ? history : []
+  const identity = `${issue.requestId ?? ''}:${issue.attemptedGeneration}:${issue.generationAtBlock}`
+  if (rows.some((row) => `${row.requestId ?? ''}:${row.attemptedGeneration}:${row.generationAtBlock}` === identity)) return rows.slice(-9)
+  return [...rows.slice(-9), issue]
 }
 
 function hasActionThroughGeneration(state) {

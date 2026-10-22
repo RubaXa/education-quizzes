@@ -297,7 +297,7 @@ describe('Firestore EducationSync dispatch store state machine', () => {
     expect(await store.read()).toMatchObject({ status: 'sending', sendingGeneration: 1, pendingKinds: ['mesh'] })
   })
 
-  it('auto-resumes a distinct Mesh-only source-unavailable block once and coalesces the Mesh watermark', async () => {
+  it('keeps the source block until worker claim and coalesces the new Mesh generation', async () => {
     const { db, store } = setup()
     const requestId = '01a150dc-e067-7cc2-b08f-f573bf83e6e3'
     db.documents.set('educationSyncDispatch/current', { status: 'blocked', generation: 1,
@@ -306,14 +306,15 @@ describe('Firestore EducationSync dispatch store state machine', () => {
 
     expect(await store.recordMeshChange({ eventDigest: digest(201), now: iso(2_000), debounceUntil: iso(22_000) }))
       .toMatchObject({ status: 'accepted', generation: 2, nextDueAt: iso(22_000) })
-    expect(await store.read()).toMatchObject({ status: 'pending', generation: 2, requestId,
-      sendingGeneration: 2, sendingKinds: ['mesh'], pendingKinds: [], blockedReasonCode: null,
-      resumeTrigger: 'new_mesh_event' })
+    expect(await store.read()).toMatchObject({ status: 'blocked', generation: 2, requestId,
+      sendingGeneration: 1, sendingKinds: ['mesh'], pendingKinds: ['mesh'], blockedReasonCode: 'source_unavailable' })
 
     const resumed = await store.claim({ now: iso(22_000), workerId: 'worker-b' })
-    expect(resumed).toMatchObject({ requestId, generation: 2, workKinds: ['mesh'] })
-    await store.claimRequest({ requestId, tokenHash: digest(202), now: iso(23_000) })
-    expect(await store.completeClaim({ requestId, tokenHash: digest(202), now: iso(24_000) }))
+    expect(resumed).toMatchObject({ generation: 2, workKinds: ['mesh'] })
+    expect(resumed.requestId).not.toBe(requestId)
+    await store.markQueued({ requestId: resumed.requestId, workerId: resumed.workerId, now: iso(22_000) })
+    await store.claimRequest({ requestId: resumed.requestId, tokenHash: digest(202), now: iso(23_000) })
+    expect(await store.completeClaim({ requestId: resumed.requestId, tokenHash: digest(202), now: iso(24_000) }))
       .toEqual({ status: 'completed' })
     expect(await store.read()).toMatchObject({ status: 'completed', generation: 2, pendingKinds: [] })
   })

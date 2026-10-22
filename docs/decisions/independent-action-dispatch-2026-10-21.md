@@ -3,7 +3,7 @@ id: decision.independent-action-dispatch-2026-10-21
 status: accepted
 implementation: implemented
 created: 2026-10-21
-updated: 2026-10-21
+updated: 2026-10-22
 parent: service.telegram-bot.education-sync-dispatch
 uses:
   - module.synchronization.execution-artifact
@@ -43,3 +43,5 @@ sections:
 ## Согласование
 
 По прямому поручению пользователя EducationSync ведёт доказательный аудит, эта сессия через Luna Worker исправляет диспетчер, основной агент проверяет интеграцию и выпускает main/runtime. Полный сбор и параллельная публикация сайта ради технической проверки не выполняются.
+
+Уточнение 22.10: [возобновление по новым поколениям](source-wait-generations-2026-10-22.md) заменяет вечную блокировку source-unavailable lane одним общим полным запросом. Frozen ranges, проверка done, fencing и запрет ложного global complete сохраняются.

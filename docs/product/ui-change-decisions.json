@@ -1252,21 +1252,20 @@
       }
     },
     "packages/telegram-notifications/application/education-sync-dispatcher.mjs": {
-      "sha256": "347352f6f752b6f146788d087d525dea24d70d1d90cda8128642d3a2a1fa4aaf",
-      "record": "docs/decisions/independent-action-dispatch-2026-10-21.md",
+      "sha256": "087b5a3093b2e07b9a5754502c5a86b1a51312861ea6cc536ab056c40d65d9bb",
+      "record": "docs/decisions/source-wait-generations-2026-10-22.md",
       "specs": [
-        "docs/services/telegram-bot/education-sync-dispatch.md",
-        "docs/modules/synchronization/execution-artifact.md"
+        "docs/services/telegram-bot/education-sync-dispatch.md"
       ],
       "tests": [
         "packages/telegram-notifications/application/education-sync-action-store.test.mjs",
         "packages/telegram-notifications/application/education-sync-dispatch-store.test.mjs",
-        "sync/event-task-export.test.mjs",
+        "packages/telegram-notifications/adapters/worker-loop.test.mjs",
         "scripts/education-sync-dispatch.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "По прямому поручению пользователя 21.10.2026 через EducationSync исправить удержание новых action задач блокировкой МЭШ, с независимым исполнением и честным сохранением blocked источника."
+        "evidence": "Пользователь 22.10.2026 сообщил, что события МЭШ и действия поступают, но автоматическая синхронизация не запускается; требуется исправление цепочки запуска."
       }
     },
     "packages/telegram-notifications/application/identity.mjs": {
@@ -1975,21 +1974,20 @@
       }
     },
     "scripts/education-sync-dispatch.mjs": {
-      "sha256": "55a54b1e01841c82fd41beb332122d85c554685abb709c5446444d2af6905df2",
-      "record": "docs/decisions/independent-action-dispatch-2026-10-21.md",
+      "sha256": "064ff5fa47dd9dfc2f4911ee300c904fb8f25aec21acdd6e3f90e7469ff92c84",
+      "record": "docs/decisions/source-wait-generations-2026-10-22.md",
       "specs": [
-        "docs/services/telegram-bot/education-sync-dispatch.md",
-        "docs/modules/synchronization/execution-artifact.md"
+        "docs/services/telegram-bot/education-sync-dispatch.md"
       ],
       "tests": [
         "packages/telegram-notifications/application/education-sync-action-store.test.mjs",
         "packages/telegram-notifications/application/education-sync-dispatch-store.test.mjs",
-        "sync/event-task-export.test.mjs",
+        "packages/telegram-notifications/adapters/worker-loop.test.mjs",
         "scripts/education-sync-dispatch.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "По прямому поручению пользователя 21.10.2026 через EducationSync исправить удержание новых action задач блокировкой МЭШ, с независимым исполнением и честным сохранением blocked источника."
+        "evidence": "Пользователь 22.10.2026 сообщил, что события МЭШ и действия поступают, но автоматическая синхронизация не запускается; требуется исправление цепочки запуска."
       }
     },
     "scripts/education.mjs": {

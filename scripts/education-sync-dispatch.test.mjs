@@ -14,12 +14,16 @@ describe('education sync dispatch CLI', () => {
     const state = { status: 'blocked', generation: 162, sendingGeneration: 19, pendingKinds: ['mesh', 'action', 'action', 'unknown'],
       sendingKinds: ['mesh'], blockedReasonCode: 'source_unavailable', completedActionGeneration: 18,
       pendingActionAfterGeneration: 18, pendingActionThroughGeneration: 43, claimTokenHash: 'PRIVATE_HASH',
+      sourceAttemptGeneration: 19, lastSourceBlock: { requestId: REQUEST, reasonCode: 'source_unavailable',
+        attemptedGeneration: 19, generationAtBlock: 19, blockedAt: '2026-10-20T17:00:38.000Z', secret: 'PRIVATE_SECRET' },
       actionLane: { status: 'running', requestId: REQUEST, actionAfterGeneration: 18, actionThroughGeneration: 43,
         claimTokenHash: 'PRIVATE_LANE_HASH', sourcePayload: 'PRIVATE_PAYLOAD' } }
     expect(await main(['status'], { env: { TELEGRAM_FIRESTORE_PROJECT_ID: 'petr-education' }, out, err: output(),
       createDb: () => ({ terminate: async () => {} }), createStore: () => ({ read: async () => state }) })).toBe(0)
     expect(JSON.parse(out.value())).toMatchObject({ status: 'blocked', pendingKinds: ['mesh', 'action'],
       completedActionGeneration: 18, pendingActionThroughGeneration: 43,
+      sourceAttemptGeneration: 19, lastSourceBlock: { reasonCode: 'source_unavailable', attemptedGeneration: 19,
+        generationAtBlock: 19, blockedAt: '2026-10-20T17:00:38.000Z' },
       actionLane: { status: 'running', requestId: REQUEST, actionAfterGeneration: 18, actionThroughGeneration: 43 } })
     expect(out.value()).not.toContain('PRIVATE')
     expect(out.value()).not.toContain('unknown')

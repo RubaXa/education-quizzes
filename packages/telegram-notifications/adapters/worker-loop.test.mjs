@@ -79,6 +79,29 @@ describe('worker source lifecycle', () => {
     await running
   })
 
+  it('attempts a persisted source-wait claim immediately on worker startup', async () => {
+    const processLike = new EventEmitter()
+    let attempts = 0
+    const persisted = { status: 'blocked', blockedReasonCode: 'source_unavailable', generation: 177,
+      sourceAttemptGeneration: 165, sendingKinds: ['mesh'], pendingKinds: ['mesh', 'action'] }
+    const dispatcher = { runOne: async () => {
+      attempts += 1
+      expect(persisted.generation).toBeGreaterThan(persisted.sourceAttemptGeneration)
+      processLike.emit('SIGTERM')
+      return true
+    } }
+    let finishTelegram
+    const runtime = {
+      sourceCoordinator: { async start() {}, async close() {} },
+      educationSyncDispatcher: dispatcher,
+      telegram: { bot: { isRunning: () => true }, async start() { await new Promise((resolve) => { finishTelegram = resolve }) },
+        async stop() { finishTelegram?.() } },
+      db: { async terminate() {} },
+    }
+    await expect(runWorker({ runtime, enableDelivery: false, logger, processLike })).resolves.toEqual({ ok: true })
+    expect(attempts).toBe(1)
+  })
+
   it('terminates a real worker before a timed-out operation can perform a late write', () => {
     const root = mkdtempSync(join(tmpdir(), 'telegram-worker-deadline-'))
     const marker = join(root, 'late-write')

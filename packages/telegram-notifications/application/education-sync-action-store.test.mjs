@@ -46,115 +46,203 @@ const artifact = (id) => ({ artifactPath: `operatorSyncTaskArtifacts/${id.toStri
 const now = '2026-10-19T10:00:00.000Z'
 
 describe('typed EducationSync action batch', () => {
-  it('executes a frozen action lane beside a blocked Mesh request and leaves Mesh blocked', async () => {
+  it('recovers a legacy blocked Mesh plus action backlog as one full request', async () => {
     const db = new FakeDb()
     const store = createFirestoreEducationSyncStore(db)
-    const meshRequestId = 'cfadc7a5-ff0f-4ad5-b744-58deebb9fb39'
-    db.rows.set('educationSyncDispatch/current', { status: 'blocked', generation: 18, requestId: meshRequestId,
-      sendingGeneration: 19, sendingKinds: ['mesh'], pendingKinds: ['mesh', 'action'],
+    const meshRequestId = '11111111-1111-4111-8111-111111111111'
+    db.rows.set('educationSyncDispatch/current', { status: 'blocked', generation: 177, requestId: meshRequestId,
+      sendingGeneration: 165, sendingKinds: ['mesh'], pendingKinds: ['mesh', 'action'], sourceAttemptGeneration: 165,
       blockedReasonCode: 'source_unavailable', blockedAt: '2026-10-20T17:00:38.000Z',
-      completedActionGeneration: 18, pendingActionAfterGeneration: 18, pendingActionThroughGeneration: null })
-    for (let id = 19; id <= 43; id += 1) await store.recordAction({ event: event(id), kind: 'triage-help', artifact: artifact(id), now, debounceUntil: now })
-    Object.assign(db.rows.get('educationSyncDispatch/current'), { generation: 162 })
-
-    const claimed = await store.claim({ now, workerId: 'action-worker-1' })
+      completedActionGeneration: 43, pendingActionAfterGeneration: 167, pendingActionThroughGeneration: 168,
+      lastErrorCode: 'codex_exit_nonzero', queueReceiptId: 'stale-receipt', queuedAt: '2026-10-21T00:00:00.000Z',
+      claimTokenHash: 'stale-claim', workflowLeaseUntil: '2026-10-21T06:00:00.000Z',
+      actionLane: { requestId: 'old-action-request', status: 'blocked', blockedReasonCode: 'source_unavailable',
+        generation: 167, sendingGeneration: 167, actionAfterGeneration: 43, actionThroughGeneration: 167,
+        sourceAttemptGeneration: 167 } })
+    for (let generation = 44; generation <= 168; generation += 1) {
+      const jobId = `job-${generation}`
+      db.rows.set(`educationSyncDispatchEvents/event-${generation}`, { kind: 'action', taskKind: 'triage-help',
+        generation, jobId, eventId: String(generation) })
+      db.rows.set(`operatorSyncJobs/${jobId}`, { status: generation <= 167 ? 'done' : 'queued' })
+    }
+    const claimed = await store.claim({ now: '2026-10-22T10:00:00.000Z', workerId: 'recovery-worker' })
     expect(claimed.requestId).not.toBe(meshRequestId)
-    expect(claimed).toMatchObject({ generation: 162,
-      workKinds: ['action'], actionAfterGeneration: 18, actionThroughGeneration: 43 })
-    expect(db.rows.get('educationSyncDispatch/current')).toMatchObject({ status: 'blocked', requestId: meshRequestId,
-      sendingGeneration: 19, sendingKinds: ['mesh'], blockedReasonCode: 'source_unavailable',
-      actionLane: { status: 'sending', requestId: claimed.requestId, actionAfterGeneration: 18, actionThroughGeneration: 43 } })
-    expect(await store.resumeBlocked({ requestId: meshRequestId, now })).toEqual({ status: 'action_busy' })
-    await store.recordAction({ event: event(44), kind: 'triage-help', artifact: artifact(44), now, debounceUntil: now })
-    expect(db.rows.get('educationSyncDispatch/current')).toMatchObject({ pendingActionAfterGeneration: 43, pendingActionThroughGeneration: 163 })
+    expect(claimed).toMatchObject({ generation: 177, workKinds: ['mesh', 'action'], actionAfterGeneration: 43, actionThroughGeneration: 168 })
+    const active = db.rows.get('educationSyncDispatch/current')
+    expect(active).toMatchObject({ status: 'sending', requestId: claimed.requestId, sendingGeneration: 177,
+      sendingKinds: ['mesh', 'action'], sendingActionAfterGeneration: 43, sendingActionThroughGeneration: 168,
+      sourceAttemptGeneration: 177, blockedReasonCode: null,
+      lastErrorCode: null, queueReceiptId: null, queuedAt: null, claimTokenHash: null, workflowLeaseUntil: null,
+      lastSourceBlock: { reasonCode: 'source_unavailable', attemptedGeneration: 167, retryGeneration: 177 },
+      actionLane: { status: 'superseded', supersededByRequestId: claimed.requestId } })
 
-    await store.markQueued({ requestId: claimed.requestId, workerId: claimed.workerId, now })
-    await store.claimRequest({ requestId: claimed.requestId, tokenHash: 'old-claim', now })
-    const staleTime = new Date(Date.parse(now) + 6 * 60 * 60_000 + 1).toISOString()
-    expect(await store.claim({ now: staleTime, workerId: 'action-worker-2' })).toBeNull()
-    expect(await store.heartbeatClaim({ requestId: claimed.requestId, tokenHash: 'old-claim', now: staleTime }))
+    expect(await store.markQueued({ requestId: 'old-action-request', workerId: 'old-worker', now: '2026-10-22T10:00:00.000Z' }))
+    expect(await store.claimRequest({ requestId: 'old-action-request', tokenHash: 'old-token', now: '2026-10-22T10:00:00.000Z' }))
+      .not.toMatchObject({ status: 'claimed' })
+    await store.markQueued({ requestId: claimed.requestId, workerId: claimed.workerId, now: '2026-10-22T10:00:00.000Z' })
+    await store.claimRequest({ requestId: claimed.requestId, tokenHash: 'current-token', now: '2026-10-22T10:00:00.000Z' })
+    await store.recordAction({ event: event(169), kind: 'triage-help', artifact: artifact(169),
+      now: '2026-10-22T10:00:00.000Z', debounceUntil: '2026-10-22T10:00:20.000Z' })
+    expect(db.rows.get('educationSyncDispatch/current')).toMatchObject({ generation: 178,
+      sendingGeneration: 177, sendingActionThroughGeneration: 168,
+      pendingActionAfterGeneration: 168, pendingActionThroughGeneration: 178 })
+    const page = await store.readActionTasks({ requestId: claimed.requestId, limit: 100, now: '2026-10-22T10:00:00.000Z' })
+    expect(page.tasks.slice(0, 2).map((task) => task.generation)).toEqual([44, 45])
+    expect(page.tasks.at(-1).generation).toBe(143)
+    const frozen = structuredClone(db.rows.get('educationSyncDispatch/current'))
+    expect(await store.completeClaim({ requestId: claimed.requestId, tokenHash: 'stale-token', now: '2026-10-22T10:00:00.000Z' }))
       .toEqual({ status: 'invalid_claim' })
-    const leaseRetry = await store.claim({ now: new Date(Date.parse(staleTime) + 1).toISOString(), workerId: 'action-worker-2' })
-    expect(leaseRetry).toMatchObject({ requestId: claimed.requestId, actionAfterGeneration: 18, actionThroughGeneration: 43 })
-    await store.markUncertain({ requestId: leaseRetry.requestId, workerId: leaseRetry.workerId, now: staleTime, code: 'codex_timeout' })
-    expect(await store.claim({ now: new Date(Date.parse(staleTime) + 59_999).toISOString(), workerId: 'action-worker-3' })).toBeNull()
-    const retry = await store.claim({ now: new Date(Date.parse(staleTime) + 60_000).toISOString(), workerId: 'action-worker-3' })
-    expect(retry).toMatchObject({ requestId: claimed.requestId, actionAfterGeneration: 18, actionThroughGeneration: 43 })
-    await store.markQueued({ requestId: retry.requestId, workerId: retry.workerId, now: staleTime })
-    await store.claimRequest({ requestId: retry.requestId, tokenHash: 'current-claim', now: staleTime })
-    const stateBeforeStaleComplete = structuredClone(db.rows.get('educationSyncDispatch/current'))
-    expect(await store.completeClaim({ requestId: retry.requestId, tokenHash: 'old-claim', now: staleTime })).toEqual({ status: 'invalid_claim' })
-    expect(db.rows.get('educationSyncDispatch/current')).toEqual(stateBeforeStaleComplete)
-    const page = await store.readActionTasks({ requestId: retry.requestId, limit: 100, now: staleTime })
-    expect(page.tasks).toHaveLength(25)
-    expect(await store.completeClaim({ requestId: retry.requestId, tokenHash: 'current-claim', now: staleTime }))
+    expect(db.rows.get('educationSyncDispatch/current')).toEqual(frozen)
+    expect(await store.completeClaim({ requestId: claimed.requestId, tokenHash: 'current-token', now: '2026-10-22T10:00:00.000Z' }))
       .toEqual({ status: 'incomplete_actions' })
+    expect(db.rows.get('operatorSyncJobs/job-168')).toMatchObject({ status: 'queued' })
+    expect(db.rows.get('educationSyncDispatch/current')).toEqual(frozen)
+    db.rows.get('operatorSyncJobs/job-168').status = 'done'
+    expect(await store.completeClaim({ requestId: claimed.requestId, tokenHash: 'current-token', now: '2026-10-22T10:00:00.000Z' }))
+      .toEqual({ status: 'pending' })
+    expect(db.rows.get('educationSyncDispatch/current')).toMatchObject({ status: 'pending',
+      completedActionGeneration: 168, sourceRetryOf: meshRequestId, pendingKinds: ['action'],
+      pendingActionAfterGeneration: 168, pendingActionThroughGeneration: 178 })
+    const next = await store.claim({ now: '2026-10-22T10:00:20.000Z', workerId: 'next-worker' })
+    expect(next).toMatchObject({ generation: 178, workKinds: ['action'], actionAfterGeneration: 168, actionThroughGeneration: 178 })
+  })
 
-    for (const task of page.tasks) db.rows.get(`operatorSyncJobs/${task.jobId}`).status = 'done'
-    expect(await store.completeClaim({ requestId: retry.requestId, tokenHash: 'current-claim', now: staleTime }))
-      .toEqual({ status: 'completed', scope: 'action' })
-    await store.markQueued({ requestId: retry.requestId, workerId: retry.workerId, now: staleTime })
-    expect(db.rows.get('educationSyncDispatch/current')).toMatchObject({ status: 'blocked', requestId: meshRequestId,
-      generation: 163, sendingGeneration: 19, sendingKinds: ['mesh'], blockedReasonCode: 'source_unavailable',
-      completedActionGeneration: 43, pendingActionAfterGeneration: 43, pendingActionThroughGeneration: 163,
-      actionAfterGeneration: 43, actionThroughGeneration: 163,
-      actionLane: { status: 'completed', actionThroughGeneration: 43 } })
+  it('retries a blocked mixed full request only after a newer generation and keeps its issue annotation', async () => {
+    const db = new FakeDb()
+    const store = createFirestoreEducationSyncStore(db)
+    db.rows.set('educationSyncDispatch/current', { status: 'blocked', requestId: 'prior-request', generation: 30,
+      sendingGeneration: 20, sourceAttemptGeneration: 20, sendingKinds: ['mesh', 'action'], pendingKinds: ['mesh', 'action'],
+      blockedReasonCode: 'source_unavailable', completedActionGeneration: 5,
+      pendingActionAfterGeneration: 5, pendingActionThroughGeneration: 8, debounceUntil: now,
+      lastSourceBlock: { requestId: 'prior-request', reasonCode: 'source_unavailable', attemptedGeneration: 20,
+        generationAtBlock: 20, blockedAt: '2026-10-19T09:00:00.000Z' } })
+    expect(await store.claim({ now, workerId: 'recovery' })).toMatchObject({ workKinds: ['mesh', 'action'], generation: 30 })
+    const first = await store.read()
+    const requestId = first.requestId
+    await store.markQueued({ requestId, workerId: first.workerId, now })
+    await store.claimRequest({ requestId, tokenHash: 'mixed-token', now })
+    await store.blockClaim({ requestId, tokenHash: 'mixed-token', reasonCode: 'source_unavailable', now })
+    const reblocked = await store.read()
+    expect(reblocked).toMatchObject({ status: 'blocked', sendingKinds: ['mesh', 'action'], sourceAttemptGeneration: 30,
+      lastSourceBlock: { reasonCode: 'source_unavailable', attemptedGeneration: 30 } })
+    expect(await store.claim({ now, workerId: 'idle' })).toBeNull()
+    const recorded = await store.recordMeshChange({ eventDigest: 'e'.repeat(64), now, debounceUntil: '2026-10-19T10:00:20.000Z' })
+    expect(recorded.nextDueAt).toBe('2026-10-19T10:00:20.000Z')
+    expect(await store.claim({ now: '2026-10-19T10:00:19.999Z', workerId: 'too-early' })).toBeNull()
+    expect(await store.claim({ now: '2026-10-19T10:00:20.000Z', workerId: 'again' }))
+      .toMatchObject({ generation: 31, workKinds: ['mesh', 'action'] })
+  })
 
-    const next = await store.claim({ now: staleTime, workerId: 'action-worker-4' })
-    expect(next).toMatchObject({ generation: 163, workKinds: ['action'], actionAfterGeneration: 43, actionThroughGeneration: 163 })
-    expect(next.requestId).not.toBe(retry.requestId)
-    await store.markQueued({ requestId: next.requestId, workerId: next.workerId, now: staleTime })
-    await store.claimRequest({ requestId: next.requestId, tokenHash: 'last-claim', now: staleTime })
-    const nextPage = await store.readActionTasks({ requestId: next.requestId, limit: 100, now: staleTime })
-    expect(nextPage.tasks.map((task) => task.generation)).toEqual([163])
-    db.rows.get(`operatorSyncJobs/${nextPage.tasks[0].jobId}`).status = 'done'
-    expect(await store.completeClaim({ requestId: next.requestId, tokenHash: 'last-claim', now: staleTime }))
-      .toEqual({ status: 'completed', scope: 'action' })
-    expect(db.rows.get('educationSyncDispatch/current')).toMatchObject({ status: 'blocked', requestId: meshRequestId,
-      pendingActionAfterGeneration: null, pendingActionThroughGeneration: null, actionAfterGeneration: null,
-      actionThroughGeneration: null, pendingKinds: ['mesh'], completedActionGeneration: 163 })
-    expect(await store.resumeBlocked({ requestId: meshRequestId, now: staleTime })).toEqual({ status: 'pending', requestId: meshRequestId })
-    expect(db.rows.get('educationSyncDispatch/current')).toMatchObject({ status: 'pending', sendingGeneration: 163,
-      pendingKinds: [], blockedReasonCode: null, resumeTrigger: 'operator_resume_mesh_coalesced' })
+  it('wakes a typed full-source block after an action-only batch receives a fresh Mesh generation', async () => {
+    const db = new FakeDb()
+    const store = createFirestoreEducationSyncStore(db)
+    db.rows.set('educationSyncDispatch/current', { status: 'blocked', requestId: 'action-request', generation: 40,
+      sendingGeneration: 40, sourceAttemptGeneration: 40, sendingKinds: ['action'], pendingKinds: [],
+      blockedReasonCode: 'source_unavailable', completedActionGeneration: 5,
+      pendingActionAfterGeneration: 5, pendingActionThroughGeneration: 8, debounceUntil: now })
+    expect(await store.claim({ now, workerId: 'idle' })).toBeNull()
+    const accepted = await store.recordMeshChange({ eventDigest: 'f'.repeat(64), now,
+      debounceUntil: '2026-10-19T10:00:20.000Z' })
+    expect(accepted.nextDueAt).toBe('2026-10-19T10:00:20.000Z')
+    expect(await store.claim({ now: '2026-10-19T10:00:20.000Z', workerId: 'recovery' }))
+      .toMatchObject({ generation: 41, workKinds: ['action', 'mesh'], actionAfterGeneration: 5, actionThroughGeneration: 8 })
+  })
+
+  it('wakes a typed action-only source block on a fresh action and ignores duplicate event delivery', async () => {
+    const db = new FakeDb()
+    const store = createFirestoreEducationSyncStore(db)
+    db.rows.set('educationSyncDispatch/current', { status: 'blocked', requestId: 'action-request', generation: 40,
+      sendingGeneration: 40, sourceAttemptGeneration: 40, sendingKinds: ['action'], pendingKinds: [],
+      blockedReasonCode: 'source_unavailable', completedActionGeneration: 5,
+      pendingActionAfterGeneration: 5, pendingActionThroughGeneration: null, debounceUntil: now })
+    expect(await store.claim({ now, workerId: 'idle' })).toBeNull()
+    const fresh = { ...event(19), eventType: 'help.requested' }
+    const accepted = await store.recordAction({ event: fresh, kind: 'triage-help', artifact: artifact(19), now,
+      debounceUntil: '2026-10-19T10:00:20.000Z' })
+    expect(accepted).toMatchObject({ status: 'accepted', generation: 41, nextDueAt: '2026-10-19T10:00:20.000Z' })
+    const duplicate = await store.recordAction({ event: fresh, kind: 'triage-help', artifact: artifact(19), now,
+      debounceUntil: '2026-10-19T10:00:20.000Z' })
+    expect(duplicate).toMatchObject({ status: 'duplicate' })
+    expect(duplicate.nextDueAt).toBeUndefined()
+    expect((await store.read()).generation).toBe(41)
+    expect(await store.claim({ now: '2026-10-19T10:00:20.000Z', workerId: 'recovery' }))
+      .toMatchObject({ generation: 41, workKinds: ['action'], actionAfterGeneration: 5, actionThroughGeneration: 41 })
+  })
+
+  it('continues an explicitly resumed persisted lane with its original request and frozen range', async () => {
+    const db = new FakeDb()
+    const store = createFirestoreEducationSyncStore(db)
+    db.rows.set('educationSyncDispatch/current', { status: 'blocked', requestId: 'mesh-request', generation: 30,
+      sendingGeneration: 20, sourceAttemptGeneration: 20, sendingKinds: ['mesh'], pendingKinds: ['mesh', 'work', 'action'],
+      blockedReasonCode: 'source_unavailable', completedActionGeneration: 18,
+      pendingActionAfterGeneration: 27, pendingActionThroughGeneration: 30,
+      actionLane: { requestId: 'existing-action-request', status: 'pending', generation: 27, sendingGeneration: 27,
+        actionAfterGeneration: 18, actionThroughGeneration: 19, retryAt: now } })
+    const claimed = await store.claim({ now, workerId: 'resume-worker' })
+    expect(claimed).toMatchObject({ requestId: 'existing-action-request', generation: 27, workKinds: ['action'],
+      actionAfterGeneration: 18, actionThroughGeneration: 19 })
+    expect(db.rows.get('educationSyncDispatch/current')).toMatchObject({ status: 'blocked', requestId: 'mesh-request',
+      pendingActionAfterGeneration: 27, pendingActionThroughGeneration: 30,
+      actionLane: { status: 'sending', requestId: 'existing-action-request', actionAfterGeneration: 18,
+        actionThroughGeneration: 19 } })
+  })
+
+  it('moves an expired lane lease to uncertain and retries the same frozen range and request ID', async () => {
+    const db = new FakeDb()
+    const store = createFirestoreEducationSyncStore(db)
+    db.rows.set('educationSyncDispatch/current', { status: 'blocked', requestId: 'mesh-request', generation: 30,
+      sendingGeneration: 20, sourceAttemptGeneration: 20, sendingKinds: ['mesh'], pendingKinds: ['mesh'],
+      blockedReasonCode: 'source_unavailable', completedActionGeneration: 18,
+      actionLane: { requestId: 'existing-action-request', status: 'running', generation: 27, sendingGeneration: 27,
+        actionAfterGeneration: 18, actionThroughGeneration: 19, workflowLeaseUntil: '2026-10-19T09:00:00.000Z',
+        claimTokenHash: 'old-token' } })
+    expect(await store.claim({ now, workerId: 'lease-check' })).toBeNull()
+    expect(db.rows.get('educationSyncDispatch/current').actionLane).toMatchObject({ status: 'uncertain',
+      lastErrorCode: 'workflow_lease_expired', actionAfterGeneration: 18, actionThroughGeneration: 19 })
+    const retry = await store.claim({ now, workerId: 'retry-worker' })
+    expect(retry).toMatchObject({ requestId: 'existing-action-request', generation: 27, workKinds: ['action'],
+      actionAfterGeneration: 18, actionThroughGeneration: 19 })
+    await store.markQueued({ requestId: retry.requestId, workerId: retry.workerId, now })
+    await store.claimRequest({ requestId: retry.requestId, tokenHash: 'new-token', now })
+    expect(await store.completeClaim({ requestId: retry.requestId, tokenHash: 'old-token', now }))
+      .toEqual({ status: 'invalid_claim' })
   })
 
   it.each([
-    ['permission_required', ['mesh']], ['manual_review_required', ['mesh']], ['source_unavailable', ['mesh', 'work']],
-  ])('does not bypass a %s or mixed source blocker for action work', async (blockedReasonCode, sendingKinds) => {
+    ['missing exact action upper', { sendingKinds: ['action'], pendingKinds: ['action'], pendingActionAfterGeneration: 5,
+      pendingActionThroughGeneration: null }],
+    ['malformed attempt marker', { sourceAttemptGeneration: '40', sendingGeneration: 40 }],
+    ['malformed pending upper', { pendingActionThroughGeneration: '8' }],
+    ['missing action lower watermark', { completedActionGeneration: undefined }],
+    ['non-array pending kinds', { pendingKinds: null }],
+  ])('fails closed for source recovery with %s', async (_label, override) => {
+    const db = new FakeDb()
+    const store = createFirestoreEducationSyncStore(db)
+    db.rows.set('educationSyncDispatch/current', { status: 'blocked', requestId: 'blocked-request', generation: 41,
+      sendingGeneration: 40, sourceAttemptGeneration: 40, sendingKinds: ['action'], pendingKinds: ['action'],
+      blockedReasonCode: 'source_unavailable', completedActionGeneration: 5,
+      pendingActionAfterGeneration: 5, pendingActionThroughGeneration: 8, debounceUntil: now, ...override })
+    const before = structuredClone(db.rows.get('educationSyncDispatch/current'))
+    expect(await store.claim({ now, workerId: 'worker' })).toBeNull()
+    expect(db.rows.get('educationSyncDispatch/current')).toEqual(before)
+  })
+
+  it.each(['permission_required', 'manual_review_required'])('does not bypass a %s block', async (blockedReasonCode) => {
     const db = new FakeDb()
     const store = createFirestoreEducationSyncStore(db)
     db.rows.set('educationSyncDispatch/current', { status: 'blocked', generation: 10, requestId: 'mesh-request',
-      sendingGeneration: 3, sendingKinds, pendingKinds: ['action'], blockedReasonCode,
+      sendingGeneration: 3, sourceAttemptGeneration: 3, sendingKinds: ['mesh'], pendingKinds: ['action'], blockedReasonCode,
       completedActionGeneration: 5, pendingActionAfterGeneration: 5, pendingActionThroughGeneration: 10 })
     expect(await store.claim({ now, workerId: 'worker' })).toBeNull()
-    expect(db.rows.get('educationSyncDispatch/current').actionLane).toBeUndefined()
+    expect(db.rows.get('educationSyncDispatch/current')).toMatchObject({ status: 'blocked', blockedReasonCode })
   })
 
-  it('continues an existing frozen lane even if parent pending metadata later broadens', async () => {
+  it('does not recover an ambiguous source block without an attempted-generation watermark', async () => {
     const db = new FakeDb()
     const store = createFirestoreEducationSyncStore(db)
-    db.rows.set('educationSyncDispatch/current', { status: 'blocked', requestId: 'mesh-request', generation: 10,
-      sendingGeneration: 3, sendingKinds: ['mesh'], sendingActionThroughGeneration: 18,
-      pendingKinds: ['mesh', 'work', 'action'], blockedReasonCode: 'source_unavailable',
-      pendingActionAfterGeneration: 18, pendingActionThroughGeneration: 20,
-      actionLane: { requestId: 'existing-action-request', status: 'pending', generation: 10, sendingGeneration: 10,
-        actionAfterGeneration: 18, actionThroughGeneration: 19 } })
-    expect(await store.claim({ now, workerId: 'retry-worker' })).toMatchObject({ requestId: 'existing-action-request',
-      workKinds: ['action'], actionAfterGeneration: 18, actionThroughGeneration: 19 })
-  })
-
-  it.each([
-    ['frozen positive action upper', { sendingActionThroughGeneration: 18, pendingKinds: ['mesh', 'action'] }],
-    ['malformed nonzero action upper', { sendingActionThroughGeneration: '18', pendingKinds: ['mesh', 'action'] }],
-    ['unrelated pending source kind', { sendingActionThroughGeneration: null, pendingKinds: ['mesh', 'work', 'action'] }],
-  ])('does not create an action lane for a blocked Mesh request with %s', async (_label, extra) => {
-    const db = new FakeDb()
-    const store = createFirestoreEducationSyncStore(db)
-    db.rows.set('educationSyncDispatch/current', { status: 'blocked', requestId: 'mesh-request', generation: 10,
-      sendingGeneration: 3, sendingKinds: ['mesh'], blockedReasonCode: 'source_unavailable',
-      completedActionGeneration: 5, pendingActionAfterGeneration: 5, pendingActionThroughGeneration: 10, ...extra })
+    db.rows.set('educationSyncDispatch/current', { status: 'blocked', generation: 10, requestId: 'legacy',
+      sendingKinds: ['mesh'], pendingKinds: ['mesh'], blockedReasonCode: 'source_unavailable' })
     expect(await store.claim({ now, workerId: 'worker' })).toBeNull()
-    expect(db.rows.get('educationSyncDispatch/current').actionLane).toBeUndefined()
   })
 
   it('keeps new action generations outside a running Mesh claim with no frozen action upper bound', async () => {
@@ -173,55 +261,33 @@ describe('typed EducationSync action batch', () => {
       pendingKinds: ['action'], sendingActionThroughGeneration: null })
   })
 
-  it('keeps a resumed blocked action lane frozen across retry and preserves the parent Mesh block', async () => {
+  it('waits through source debounce, then retries one combined request after another source block', async () => {
     const db = new FakeDb()
     const store = createFirestoreEducationSyncStore(db)
-    db.rows.set('educationSyncDispatch/current', { status: 'blocked', requestId: 'mesh-request', generation: 10,
-      sendingGeneration: 3, sendingKinds: ['mesh'], pendingKinds: ['mesh'], blockedReasonCode: 'source_unavailable',
-      completedActionGeneration: 5, pendingActionAfterGeneration: 5, pendingActionThroughGeneration: null })
-    for (let generation = 6; generation <= 8; generation += 1) {
-      await store.recordAction({ event: event(generation), kind: 'triage-help', artifact: artifact(generation), now, debounceUntil: now })
-    }
-    const lane = await store.claim({ now, workerId: 'action-worker' })
-    await store.markQueued({ requestId: lane.requestId, workerId: lane.workerId, now })
-    await store.claimRequest({ requestId: lane.requestId, tokenHash: 'action-token', now })
-    expect(await store.blockClaim({ requestId: lane.requestId, tokenHash: 'action-token', reasonCode: 'source_unavailable', now }))
-      .toMatchObject({ status: 'blocked', scope: 'action' })
-    expect(await store.resumeBlocked({ requestId: lane.requestId, now })).toMatchObject({ status: 'pending', scope: 'action' })
-    const retry = await store.claim({ now, workerId: 'action-worker-retry' })
-    expect(retry).toMatchObject({ requestId: lane.requestId, actionAfterGeneration: 5, actionThroughGeneration: 13 })
-    await store.markQueued({ requestId: retry.requestId, workerId: retry.workerId, now })
-    await store.claimRequest({ requestId: retry.requestId, tokenHash: 'retry-token', now })
-    expect(await store.failClaim({ requestId: retry.requestId, tokenHash: 'retry-token', now, retryAt: '2026-10-19T10:01:00.000Z' }))
-      .toMatchObject({ status: 'pending', scope: 'action' })
-    expect(db.rows.get('educationSyncDispatch/current')).toMatchObject({ status: 'blocked', requestId: 'mesh-request',
-      blockedReasonCode: 'source_unavailable', actionLane: { status: 'pending', requestId: lane.requestId,
-        actionAfterGeneration: 5, actionThroughGeneration: 13 } })
-  })
-
-  it('does not auto-resume a blocked Mesh parent when a new Mesh event arrives during an action lane', async () => {
-    const db = new FakeDb()
-    const store = createFirestoreEducationSyncStore(db)
-    db.rows.set('educationSyncDispatch/current', { status: 'blocked', requestId: 'mesh-request', generation: 10,
-      sendingGeneration: 3, sendingKinds: ['mesh'], pendingKinds: ['mesh'], blockedReasonCode: 'source_unavailable',
-      completedActionGeneration: 5, pendingActionAfterGeneration: 5, pendingActionThroughGeneration: null })
-    await store.recordAction({ event: event(6), kind: 'triage-help', artifact: artifact(6), now, debounceUntil: now })
-    const lane = await store.claim({ now, workerId: 'action-worker' })
-    await store.recordMeshChange({ eventDigest: 'c'.repeat(64), now, debounceUntil: now })
-    expect(await store.read()).toMatchObject({ status: 'blocked', requestId: 'mesh-request',
-      blockedReasonCode: 'source_unavailable', actionLane: { requestId: lane.requestId, status: 'sending' } })
-  })
-
-  it('honors the action debounce before a new lane and restores a due persisted range without a new event', async () => {
-    const db = new FakeDb()
-    const store = createFirestoreEducationSyncStore(db)
-    db.rows.set('educationSyncDispatch/current', { status: 'blocked', requestId: 'mesh-request', generation: 10,
-      sendingGeneration: 3, sendingKinds: ['mesh'], pendingKinds: ['mesh', 'action'], blockedReasonCode: 'source_unavailable',
-      completedActionGeneration: 5, pendingActionAfterGeneration: 5, pendingActionThroughGeneration: 8,
-      debounceUntil: '2026-10-19T10:00:20.000Z' })
+    const blocked = { status: 'blocked', requestId: 'old-mesh-request', generation: 10, sendingGeneration: 3,
+      sourceAttemptGeneration: 3, sendingKinds: ['mesh'], pendingKinds: ['mesh', 'action'],
+      blockedReasonCode: 'source_unavailable', completedActionGeneration: 5,
+      pendingActionAfterGeneration: 5, pendingActionThroughGeneration: 8,
+      debounceUntil: '2026-10-19T10:00:20.000Z' }
+    db.rows.set('educationSyncDispatch/current', blocked)
     expect(await store.claim({ now: '2026-10-19T10:00:19.999Z', workerId: 'early-worker' })).toBeNull()
-    expect(await store.claim({ now: '2026-10-19T10:00:20.000Z', workerId: 'due-worker' }))
-      .toMatchObject({ actionAfterGeneration: 5, actionThroughGeneration: 8, workKinds: ['action'] })
+    db.rows.set('educationSyncDispatch/current', { ...blocked, debounceUntil: '2026-10-19T10:00:20.000Z' })
+    const first = await store.claim({ now: '2026-10-19T10:00:20.000Z', workerId: 'due-worker' })
+    expect(first).toMatchObject({ actionAfterGeneration: 5, actionThroughGeneration: 8, workKinds: ['mesh', 'action'] })
+    await store.markQueued({ requestId: first.requestId, workerId: first.workerId, now })
+    await store.claimRequest({ requestId: first.requestId, tokenHash: 'source-token', now })
+    expect(await store.blockClaim({ requestId: first.requestId, tokenHash: 'source-token', reasonCode: 'source_unavailable', now }))
+      .toMatchObject({ status: 'blocked' })
+    expect(await store.claim({ now, workerId: 'idle-worker' })).toBeNull()
+    const retryState = db.rows.get('educationSyncDispatch/current')
+    await store.recordMeshChange({ eventDigest: 'd'.repeat(64), now: '2026-10-19T10:00:00.000Z',
+      debounceUntil: '2026-10-19T10:00:20.000Z' })
+    expect(await store.claim({ now: '2026-10-19T10:00:19.999Z', workerId: 'early-retry' })).toBeNull()
+    const second = await store.claim({ now: '2026-10-19T10:00:20.000Z', workerId: 'retry-worker' })
+    expect(second.requestId).not.toBe(first.requestId)
+    expect(second).toMatchObject({ workKinds: ['mesh', 'action'], actionAfterGeneration: 5, actionThroughGeneration: 8 })
+    expect(db.rows.get('educationSyncDispatch/current').lastSourceBlock).toMatchObject({
+      attemptedGeneration: retryState.sendingGeneration, retryRequestId: second.requestId })
   })
 
   it('deduplicates identical event IDs and freezes a request-scoped action range', async () => {

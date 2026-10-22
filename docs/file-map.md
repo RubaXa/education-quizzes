@@ -2,6 +2,7 @@
 
 | Файл | Спецификация | Назначение | Потребитель |
 |---|---|---|---|
+| [docs/decisions/source-wait-generations-2026-10-22.md](decisions/source-wait-generations-2026-10-22.md) | [Диспетчер](services/telegram-bot/education-sync-dispatch.md) | Основание восстановления автоматического полного запуска по новому поколению при старом source blocker | Worker; оператор; EducationSync |
 | [docs/decisions/scoped-learner-flow-2026-10-21.md](decisions/scoped-learner-flow-2026-10-21.md) | [Публичная помощь](modules/reviews/subject-aware-guidance.md) | Основание scoped flow и сохранения mixed-source блока | Оператор; разработчик |
 | [day/learner-flow.mjs](../day/learner-flow.mjs) | [Публичная помощь](modules/reviews/subject-aware-guidance.md) | Строгая область подтверждённой части без ключа и снятия sourceOnly-блока | Publisher; контракт данных |
 | [day/learner-flow.test.mjs](../day/learner-flow.test.mjs) | [Публичная помощь](modules/reviews/subject-aware-guidance.md) | Mixed-source и запрет закрытых полей в публичном процессе | Vitest |
@@ -833,7 +834,7 @@
 
 | [docs/services/telegram-bot/education-sync-dispatch.md](services/telegram-bot/education-sync-dispatch.md) | [Telegram service](services/telegram-bot/README.md) | Диспетчер общего EducationSync: очередь, claim, подтверждения и эксплуатация | Команда Education; оператор |
 
-| [packages/telegram-notifications/application/education-sync-dispatcher.mjs](../packages/telegram-notifications/application/education-sync-dispatcher.mjs) | [Контракт](services/telegram-bot/education-sync-dispatch.md) | Устойчивый dispatch и независимая action lane при source_unavailable МЭШ | Telegram runtime; оператор; Vitest |
+| [packages/telegram-notifications/application/education-sync-dispatcher.mjs](../packages/telegram-notifications/application/education-sync-dispatcher.mjs) | [Контракт](services/telegram-bot/education-sync-dispatch.md) | Устойчивый dispatch, frozen ranges и общий повтор по новому поколению при source_unavailable | Telegram runtime; оператор; Vitest |
 | [scripts/telegram-runtime-dependencies.test.mjs](../scripts/telegram-runtime-dependencies.test.mjs) | [Контракт](services/telegram-bot/education-sync-dispatch.md) | Регрессия production dependency closure для Telegram worker и dispatch CLI; запрет dev-only импортов | Vitest; разработчик |
 
 

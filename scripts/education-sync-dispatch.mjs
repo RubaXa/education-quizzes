@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/source-wait-generations-2026-10-22.md */
 /** @see ../docs/decisions/independent-action-dispatch-2026-10-21.md */
 import { createHash, randomUUID } from 'node:crypto'
 import { chmodSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs'
@@ -164,8 +165,19 @@ function summarize(state) {
     ...(state.requestId ? { requestId: state.requestId } : {}), ...(state.retryAt ? { retryAt: state.retryAt } : {}),
     ...(state.lastErrorCode ? { lastErrorCode: state.lastErrorCode } : {}),
     ...(state.blockedReasonCode ? { blockedReasonCode: state.blockedReasonCode } : {}),
+    ...(Number.isInteger(state.sourceAttemptGeneration) && state.sourceAttemptGeneration >= 0
+      ? { sourceAttemptGeneration: state.sourceAttemptGeneration } : {}),
+    ...(state.lastSourceBlock && typeof state.lastSourceBlock === 'object'
+      ? { lastSourceBlock: summarizeSourceBlock(state.lastSourceBlock) } : {}),
     ...actionWatermarks(state),
     ...(state.actionLane && typeof state.actionLane === 'object' ? { actionLane: summarizeActionLane(state.actionLane) } : {}) }
+}
+
+function summarizeSourceBlock(issue) {
+  const keys = ['requestId', 'reasonCode', 'attemptedGeneration', 'generationAtBlock', 'blockedAt',
+    'retryRequestId', 'retryGeneration', 'retryStartedAt']
+  return Object.fromEntries(keys.filter((key) => typeof issue[key] === 'string' || Number.isInteger(issue[key]))
+    .map((key) => [key, issue[key]]))
 }
 
 function actionWatermarks(state) {

@@ -712,7 +712,7 @@
       "status": "accepted",
       "implementation": "implemented",
       "created": "2026-10-21",
-      "updated": "2026-10-21",
+      "updated": "2026-10-22",
       "parent": "service.telegram-bot.education-sync-dispatch",
       "uses": [
         "module.synchronization.execution-artifact"
@@ -1109,6 +1109,32 @@
         "согласование"
       ],
       "path": "docs/decisions/shared-server-runtime-2026-10-17.md"
+    },
+    {
+      "id": "decision.source-wait-generations-2026-10-22",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-22",
+      "updated": "2026-10-22",
+      "parent": "service.telegram-bot.education-sync-dispatch",
+      "uses": [],
+      "consumers": [
+        "Telegram worker",
+        "EducationSync workflow",
+        "Education operator"
+      ],
+      "code": [
+        "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
+        "scripts/education-sync-dispatch.mjs"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/source-wait-generations-2026-10-22.md"
     },
     {
       "id": "decision.specification-graph-migration",
@@ -3846,7 +3872,7 @@
       "id": "file:packages/telegram-notifications/application/education-sync-dispatcher.mjs",
       "path": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
       "kind": "artifact",
-      "purpose": "Устойчивый dispatch и независимая action lane при source_unavailable МЭШ",
+      "purpose": "Устойчивый dispatch, frozen ranges и общий повтор по новому поколению при source_unavailable",
       "consumer": "Telegram runtime; оператор; Vitest"
     },
     {
@@ -9541,7 +9567,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-19",
-      "updated": "2026-10-21",
+      "updated": "2026-10-22",
       "parent": "service.telegram-bot",
       "uses": [
         "shared.server-runtime",
@@ -11928,6 +11954,11 @@
     },
     {
       "from": "file:packages/telegram-notifications/application/education-sync-dispatcher.mjs",
+      "to": "decision.source-wait-generations-2026-10-22",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/application/education-sync-dispatcher.mjs",
       "to": "service.telegram-bot.education-sync-dispatch",
       "type": "implements"
     },
@@ -12434,6 +12465,11 @@
     {
       "from": "file:scripts/education-sync-dispatch.mjs",
       "to": "decision.independent-action-dispatch-2026-10-21",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/education-sync-dispatch.mjs",
+      "to": "decision.source-wait-generations-2026-10-22",
       "type": "implements"
     },
     {
@@ -17484,6 +17520,11 @@
     {
       "from": "service.telegram-bot.education-sync-dispatch",
       "to": "decision.independent-action-dispatch-2026-10-21",
+      "type": "contains"
+    },
+    {
+      "from": "service.telegram-bot.education-sync-dispatch",
+      "to": "decision.source-wait-generations-2026-10-22",
       "type": "contains"
     },
     {
