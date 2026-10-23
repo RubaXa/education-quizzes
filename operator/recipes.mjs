@@ -1,8 +1,11 @@
+/** @see ../docs/modules/synchronization/task-routing.md */
+/** @see ../docs/decisions/sync-task-routing-2026-10-23.md */
 /** Fixed recipes preserve fresh inbox evidence without scanning it twice.
  * @see ../docs/services/operator-cli/README.md#operation-contract */
 const recipes = Object.freeze({
   status: ['project.plan', 'inbox.snapshot', 'queue.list'],
   discover: ['queue.scan', 'project.plan'],
+  begin: ['queue.scan', 'project.plan', 'project.collect'],
   finalize: ['queue.scan'],
 })
 

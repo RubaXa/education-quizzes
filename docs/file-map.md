@@ -2,6 +2,12 @@
 
 | Файл | Спецификация | Назначение | Потребитель |
 |---|---|---|---|
+| [docs/decisions/sync-task-routing-2026-10-23.md](decisions/sync-task-routing-2026-10-23.md) | [План маршрутов](modules/synchronization/task-routing.md) | Основание ревизии и границы автоматизации | CLI; оператор |
+| [docs/modules/synchronization/task-routing.md](modules/synchronization/task-routing.md) | [Глобальная синхронизация](modules/synchronization/global-sync.md) | Контракт детерминированного следующего шага и границ плана | EducationSync; CLI |
+| [sync/task-route.mjs](../sync/task-route.mjs) | [План маршрутов](modules/synchronization/task-routing.md) | Известное/неизвестное и следующий шаг задания/события | Queue scan; execution artifact |
+| [sync/task-route.test.mjs](../sync/task-route.test.mjs) | [План маршрутов](modules/synchronization/task-routing.md) | Проверки развилок отсутствующего источника, предметов и событий | Vitest |
+| [operator/route-plan.mjs](../operator/route-plan.mjs) | [План маршрутов](modules/synchronization/task-routing.md) | Закрытый план из существующей квитанции без сетевого обхода | Education CLI |
+| [operator/route-plan.test.mjs](../operator/route-plan.test.mjs) | [План маршрутов](modules/synchronization/task-routing.md) | Полнота снимка, приватность и отказ устаревшего плана | Vitest |
 | [docs/decisions/early-development-live-2026-10-22.md](decisions/early-development-live-2026-10-22.md) | [Раннее развитие](modules/families/early-development.md) | Родительская программа, облачный журнал, права и проверки | Родитель; CLI; Vitest |
 | [early-development/program.mjs](../early-development/program.mjs) | [Раннее развитие](modules/families/early-development.md) | Родительская программа, облачный журнал, права и проверки | Родитель; CLI; Vitest |
 | [early-development/program.d.mts](../early-development/program.d.mts) | [Раннее развитие](modules/families/early-development.md) | Родительская программа, облачный журнал, права и проверки | Родитель; CLI; Vitest |

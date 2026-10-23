@@ -23,6 +23,18 @@ function fixture(overrides = {}) {
 }
 
 describe('closed event task inputs', () => {
+  it('dispatches a page requested from the student as source analysis without grading the homework', async () => {
+    const { db, rows } = fixture({
+      'dayUploads/day/files/file': { taskId: 'task', purpose: 'source-material', status: 'pending',
+        storage: { state: 'stored', path: 'app:/private/page.jpg', sha256: 'b'.repeat(64) } },
+    })
+    const result = await prepareEventTaskArtifact(db, event)
+    const artifact = rows.get(result.artifactPath)
+    expect(artifact.inputs.route.next).toBe('review-source-material')
+    expect(artifact.instruction).toContain('sourceAnalysis')
+    expect(artifact.instruction).toContain('не оценивать выполнение ДЗ')
+    expect(validateTaskArtifact(artifact, { eventId: event.eventId }).state).toBe('ready')
+  })
   it('captures the exact work, assignment and owner without any collection scan', async () => {
     const { db, rows, reads } = fixture()
     const result = await prepareEventTaskArtifact(db, event, { now: '2026-10-19T10:00:00.000Z' })
