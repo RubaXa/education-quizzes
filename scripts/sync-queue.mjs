@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+/** @see ../docs/decisions/sync-task-routing-2026-10-23.md */
+/** @see ../docs/modules/synchronization/task-routing.md */
 /** @see ../docs/modules/materials/material-clarification.md */
 import { hasSourceReceipt } from '../src/lib/materialRequest.ts'
 import { execFileSync } from 'node:child_process'
@@ -10,6 +12,7 @@ import { dateWindow } from '../sync/project-plan.mjs'
 import { enqueueSyncJob, setSyncJob, syncFingerprint, syncJobId } from '../sync/job-queue.mjs'
 import { pendingManualQuestionIds, quizDecision } from '../assessment/decision-graph.mjs'
 import { followupQueueSource } from '../assessment/quiz-lineage.mjs'
+import { taskRoute, taskRouteCandidates, syncRoutePlan } from '../sync/task-route.mjs'
 
 /** Scan live Firebase sources, persist operator work, and expose resumable phases.
  * The operator still performs source research and pedagogy; this command never
@@ -70,6 +73,7 @@ function inboxSnapshot() {
   return snapshot
 }
 async function discover() {
+  const taskRoutes = []
   const inboxStarted = performance.now()
   const inbox = inboxSnapshot()
   measurements.phaseMs.inbox = Math.round(performance.now() - inboxStarted)
@@ -100,17 +104,19 @@ async function discover() {
     const owner = ownerByToken.get(doc.id)
     if (!owner?.familyId || !owner?.childId) continue
     for (const subject of page.subjects ?? []) for (const task of subject.tasks ?? []) {
+      const placement = (page.testPlacements ?? []).some((item) => item.taskId === task.id)
+      taskRoutes.push({ familyId: owner.familyId, childId: owner.childId, date: page.targetDate,
+        ...taskRoute(task, subject.id ?? subject.name, { placement }) })
       if (task.instructionStatus?.state === 'needs-review') {
         candidates.push(job('enrich-task', owner.familyId, owner.childId,
           `${page.targetDate}:${task.id}`, { type: 'day-task', dayToken: doc.id, date: page.targetDate, taskId: task.id },
           [page.targetDate, task.id, task.meshText, task.instructionStatus, page.sourceRevision], 35))
       }
-      if (task.materialStatus?.state === 'no-textbook' && /отсутств|не получен|нет в библиотек/i.test(task.materialStatus.message ?? '')) {
+      if (taskRouteCandidates(task).includes('material-needed')) {
         candidates.push(job('material-needed', owner.familyId, owner.childId,
           `${page.targetDate}:${task.id}`, { type: 'day-task', dayToken: doc.id, date: page.targetDate, taskId: task.id },
-          [page.targetDate, task.id, task.materialStatus.message, page.sourceRevision], 30))
+          [page.targetDate, task.id, task.materialStatus, task.materialRequest, task.assessmentIntent, page.sourceRevision], 30))
       }
-      const placement = (page.testPlacements ?? []).some((item) => item.taskId === task.id)
       const decision = quizDecision(task)
       if (decision && !task.testToken && !placement && task.platformResult?.state !== 'completed') {
         candidates.push(job(decision.job, owner.familyId, owner.childId,
@@ -194,7 +200,7 @@ async function discover() {
   })
   candidates.push(...orphanGroups.flat())
   measurements.phaseMs.reviewedUploads = Math.round(performance.now() - reviewedStarted)
-  return { inbox, candidates: [...new Map(candidates.map((candidate) =>
+  return { inbox, taskRoutes, candidates: [...new Map(candidates.map((candidate) =>
     [syncJobId(candidate.kind, candidate.familyId, candidate.childId, candidate.sourceId), candidate])).values()] }
 }
 async function verifiedResolution(record) {
@@ -231,7 +237,8 @@ async function verifiedResolution(record) {
     if (!task) return null
     return record.kind === 'classify-assignment' ? quizDecision(task)?.job === 'prepare-quiz' ? 'assessment-intent-confirmed' : null
       : record.kind === 'enrich-task' ? task.instructionStatus?.state === 'reviewed' ? 'reviewed-day-task' : null
-      : record.kind === 'material-needed' ? task.materialStatus?.state === 'textbook-page-linked' ? 'family-material-linked' : null
+      : record.kind === 'material-needed' ? taskRoute(task).next === 'await-source-upload' ? 'student-material-request-published'
+        : task.materialStatus?.state === 'textbook-page-linked' ? 'family-material-linked' : null
       : task.testToken || (page.testPlacements ?? []).some((item) => item.taskId === source.taskId) ? 'linked-quiz-published' : null
   }
   if (['review-work', 'transfer-work', 'repair-review', 'investigate-work'].includes(record.kind)) {
@@ -320,7 +327,7 @@ async function reportQueue(touched = [], snapshotOverride = null) {
 }
 if (command === 'scan') {
   const discoveryStarted = performance.now()
-  const { inbox, candidates } = await discover()
+  const { inbox, candidates, taskRoutes } = await discover()
   measurements.phaseMs.discovery = Math.round(performance.now() - discoveryStarted)
   const previousFingerprints = process.argv.includes('--full-audit') ? null : candidateCache()
   const nextFingerprints = {}
@@ -363,6 +370,7 @@ if (command === 'scan') {
   const queue = await reportQueue(touched, resolved === 0 ? prior : null)
   measurements.phaseMs.projection = Math.round(performance.now() - projectionStarted)
   console.log(JSON.stringify({ scannedAt: new Date().toISOString(), inboxCounts: inbox.counts, inboxSnapshot: inbox,
+    routePlan: syncRoutePlan(taskRoutes, queue.active),
     candidates: candidates.length, created, unchanged, fullAudit: previousFingerprints === null,
     resolved, ...queue, measurements: { ...measurements, inbox: inbox.measurements,
       totalMs: Math.round(performance.now() - started), note: 'SDK calls and returned documents, not billed reads' } }, null, 2))

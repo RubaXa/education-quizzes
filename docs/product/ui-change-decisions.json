@@ -1991,28 +1991,19 @@
       }
     },
     "scripts/education.mjs": {
-      "sha256": "3d77d57fcc83045aac34aa181902fe529857e07f6192ac945350a19e9fce23eb",
-      "record": "docs/decisions/operator-tool-trial-2026-10-16.md",
+      "sha256": "fbdd93e9d5a2358612efb0eeccbf1dd96b8eae4b42280052258d847a4d7cc09b",
+      "record": "docs/decisions/sync-task-routing-2026-10-23.md",
       "specs": [
-        "docs/services/operator-cli/README.md",
-        "docs/modules/synchronization/global-sync.md"
+        "docs/modules/synchronization/task-routing.md"
       ],
       "tests": [
-        "operator/operation-contract.test.mjs",
-        "operator/run-operation.test.mjs",
-        "operator/recipes.test.mjs"
+        "sync/task-route.test.mjs",
+        "sync/event-task-artifact.test.mjs",
+        "operator/route-plan.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 16.10.2026 прямо потребовал штатные повторяемые CLI-команды Education вместо изобретаемых заново inline-скриптов."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "20061bf6bcde8aaa7873a18ad3f9722a41397a18b95188189a396a1577367365"
-      },
-      "specificationLifecycle": {
-        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
-        "previousSha256": "8df0da2f61a68ee34de12dafcdabea27fc716e1fab6cbf058fc13498ff11cd8b"
+        "evidence": "Прямой запрос родителя23.10: ревизия инструкций и детерминированных инструментов синхронизации, расширение недостающих развилок."
       }
     },
     "scripts/ensure-book-upload-index.mjs": {
@@ -2432,29 +2423,19 @@
       }
     },
     "scripts/sync-queue.mjs": {
-      "sha256": "6f19a06aa0554cffe4692ea7257aaa879d00f871fb19b9096d72c91041c1bd2b",
-      "record": "docs/decisions/queue-artifact-resolution-2026-10-20.md",
+      "sha256": "2f1eddf0325ed607bbf4564c78a14ee6dbb4d7314272299224a84c6d0e2e4a65",
+      "record": "docs/decisions/sync-task-routing-2026-10-23.md",
       "specs": [
-        "docs/modules/materials/material-clarification.md"
+        "docs/modules/synchronization/task-routing.md"
       ],
       "tests": [
-        "src/lib/materialRequest.test.ts",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/lib/homeworkStatus.test.ts",
-        "src/lib/photoUploadPolicy.test.ts",
-        "src/UiKit.test.tsx",
-        "storage/submission-inbox.test.mjs",
-        "storage/review-projection.test.mjs",
-        "storage/review-readback.test.mjs",
-        "day/build-assignments.test.mjs"
+        "sync/task-route.test.mjs",
+        "sync/event-task-artifact.test.mjs",
+        "operator/route-plan.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 16.10.2026 прямо потребовал вопрос ученику в карточке и ответ фото записей через стандартную загрузку с обработкой следующей синхронизацией."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "60f44c1f93982c7f1c8642b341c4c79d89b86523bc7c86398e02a0fc50d0ca1b"
+        "evidence": "Прямой запрос родителя23.10: ревизия инструкций и детерминированных инструментов синхронизации, расширение недостающих развилок."
       }
     },
     "scripts/telegram-bot.mjs": {
@@ -5471,18 +5452,19 @@
       }
     },
     "sync/event-task-artifact.mjs": {
-      "sha256": "51701fc71176a9d2b456f7b63245d6e83ee513044819e8c10d3b83deefa2f0f1",
-      "record": "docs/decisions/unified-education-events-2026-10-19.md",
+      "sha256": "0022a21afd3765540c5de696f24ee7cf3d90da6f4f4feb6ea551889801facb17",
+      "record": "docs/decisions/sync-task-routing-2026-10-23.md",
       "specs": [
-        "docs/modules/synchronization/event-queue.md",
-        "docs/modules/synchronization/execution-artifact.md"
+        "docs/modules/synchronization/task-routing.md"
       ],
       "tests": [
-        "sync/event-task-artifact.test.mjs"
+        "sync/task-route.test.mjs",
+        "sync/event-task-artifact.test.mjs",
+        "operator/route-plan.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 требует одну внутреннюю очередь событий и одну подписку вместо множества source watchers; ранее поручил реализацию через Luna с проверкой root, тестами, спецификациями и выпуском в main."
+        "evidence": "Прямой запрос родителя23.10: ревизия инструкций и детерминированных инструментов синхронизации, расширение недостающих развилок."
       }
     },
     "sync/event-task-export.mjs": {
@@ -6205,6 +6187,38 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Родитель22.10 утвердил конкретный сценарий Сегодня/Программа/Дневник и прямо поручил рабочее подключение с телефона, GitHub/публикацию; Google/Firebase отдельно подтверждены."
+      }
+    },
+    "sync/task-route.mjs": {
+      "sha256": "cd47d45c0a9d62ad2baff612efbb5eac665136135b5d6ef4aafffab619188910",
+      "record": "docs/decisions/sync-task-routing-2026-10-23.md",
+      "specs": [
+        "docs/modules/synchronization/task-routing.md"
+      ],
+      "tests": [
+        "sync/task-route.test.mjs",
+        "sync/event-task-artifact.test.mjs",
+        "operator/route-plan.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя23.10: ревизия инструкций и детерминированных инструментов синхронизации, расширение недостающих развилок."
+      }
+    },
+    "operator/route-plan.mjs": {
+      "sha256": "4e6514de5d88cdf65be8259a33a4d97b734185cd2b7edc32325e0a117e76d8e1",
+      "record": "docs/decisions/sync-task-routing-2026-10-23.md",
+      "specs": [
+        "docs/modules/synchronization/task-routing.md"
+      ],
+      "tests": [
+        "sync/task-route.test.mjs",
+        "sync/event-task-artifact.test.mjs",
+        "operator/route-plan.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя23.10: ревизия инструкций и детерминированных инструментов синхронизации, расширение недостающих развилок."
       }
     }
   }

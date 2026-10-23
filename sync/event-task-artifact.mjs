@@ -1,6 +1,9 @@
 import { createHash } from 'node:crypto'
+/** @see ../docs/decisions/sync-task-routing-2026-10-23.md */
+/** @see ../docs/modules/synchronization/task-routing.md */
 import { isActiveFamilyChild } from '../packages/education-runtime/identity.mjs'
 import { legacyHelpOperationId } from './legacy-help-identity.mjs'
+import { eventTaskRoute } from './task-route.mjs'
 
 /** Private, immutable inputs for a precisely addressed event task.
  * @see ../docs/modules/synchronization/execution-artifact.md
@@ -100,6 +103,7 @@ export async function captureEventTaskInputs(db, event) {
     const keySnap = await db.doc(`answerKeys/${event.sourceRef.quizToken}`).get()
     inputs.answerKey = keySnap.exists ? canonical(keySnap.data()) : null
   } else if (source.status !== 'needs-identification' || source.storage?.state !== 'stored' || !source.storage?.path) fail('task_source_not_reviewable')
+  inputs.route = eventTaskRoute(event.eventType, inputs)
   return inputs
 }
 
@@ -111,7 +115,9 @@ export async function prepareEventTaskArtifact(db, event, { now = new Date().toI
   const artifact = { schemaVersion: 1, artifactId, eventId: event.eventId, eventType: event.eventType,
     familyId: event.familyId, childId: event.childId, sourceRef: event.sourceRef, operationId: event.operationId,
     source: event.source, actor: event.actor ?? { type: 'system', id: 'server' }, fingerprint,
-    verifiedAt: now, state: 'ready', instruction: instructions[event.eventType], inputs }
+    verifiedAt: now, state: 'ready', instruction: inputs.route.next === 'review-source-material'
+      ? 'Прочитать запрошенный источник, не оценивать выполнение ДЗ. Использовать source-material/sourceAnalysis штатного submissions CLI; затем разрешить запрос только по доказательствам, пересмотреть точное назначение и подтвердить ролевой readback. Получение страницы не означает выполненное ДЗ.'
+      : instructions[event.eventType], inputs }
   if (Buffer.byteLength(JSON.stringify(artifact)) > 700_000) fail('task_artifact_too_large')
   const ref = db.doc(`operatorSyncTaskArtifacts/${artifactId}`)
   const observationRef = db.doc(`operatorSyncTaskObservations/${event.eventId}`)
