@@ -666,23 +666,18 @@
       }
     },
     "operator/recipes.mjs": {
-      "sha256": "554ba58dee2c09007faadd7d05b23860d080eeb7abda4a7511eea23cb5aab88e",
-      "record": "docs/decisions/operator-tool-trial-2026-10-16.md",
+      "record": "docs/decisions/sync-task-routing-2026-10-23.md",
       "specs": [
-        "docs/services/operator-cli/README.md"
+        "docs/modules/synchronization/task-routing.md"
       ],
       "tests": [
-        "operator/recipes.test.mjs",
-        "operator/run-operation.test.mjs"
+        "operator/recipes.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 16.10.2026 поручил испытать Education Sync штатными инструментами и исправить выявленные недостатки."
+        "evidence": "Родитель23.10 требует детерминированного полного плана синхронизации с обязательной проверкой всех источников."
       },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "8399cb09dfd6bf6822607afb9be4542cb7b0fccc23250bf745bd6c135f92aa9f"
-      }
+      "sha256": "df3103b0c6d21bf5774f37d2531bf7ac32c131081a9f15382701cd8c4d002501"
     },
     "operator/run-operation.mjs": {
       "sha256": "2e9612422d8b27279914a6ae00d0ba4fb0b69c3cd0c5e4167208393e70bf1a89",
@@ -1991,7 +1986,7 @@
       }
     },
     "scripts/education.mjs": {
-      "sha256": "fbdd93e9d5a2358612efb0eeccbf1dd96b8eae4b42280052258d847a4d7cc09b",
+      "sha256": "33136bf7091681859a6fda1351bca569f2ebbe1b5ac826750781795291627040",
       "record": "docs/decisions/sync-task-routing-2026-10-23.md",
       "specs": [
         "docs/modules/synchronization/task-routing.md"
@@ -6190,7 +6185,7 @@
       }
     },
     "sync/task-route.mjs": {
-      "sha256": "cd47d45c0a9d62ad2baff612efbb5eac665136135b5d6ef4aafffab619188910",
+      "sha256": "84ab110d8460ab2b229cd90189ad3be87b11ec107c2c7310a70713f007d7782a",
       "record": "docs/decisions/sync-task-routing-2026-10-23.md",
       "specs": [
         "docs/modules/synchronization/task-routing.md"

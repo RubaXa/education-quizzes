@@ -99,6 +99,8 @@ flowchart TD
 
 Каждый scan сохраняет детерминированный [план по предметам, источникам и событиям](../../modules/synchronization/task-routing.md). `npm run education -- plan SCAN_RUN_UUID` извлекает его в закрытый JSON из существующего stdout.routePlan; возвращает время и агрегаты. Это локальная диагностика, не новая синхронизация и не complete. Отсутствующая страница без валидного запроса теперь создаёт material-needed; публикация запроса не закрывает предметное обогащение.
 
+Полный запуск начинается `npm run education -- begin --apply`: queue.scan, project.plan и project.collect вызываются в фиксированном порядке заново каждый раз. Начало не является завершением: обработка задач, публикация/readback и finalize остаются обязательны. discover — отдельная диагностическая граница без полного сбора.
+
 Вход CLI — JSON-файл вида `{"schemaVersion":1,"operation":"grades.snapshot","input":{"sourceDate":"2026-10-19","reportPath":"reports/2026-10-16-education-sync/baseline.md"}}`. Команда `npm run education -- catalog` возвращает фиксированный реестр, `npm run education -- run REQUEST.json` делает чтение/предпросмотр, `--apply` разрешает запись, `status` собирает проектный статус, `discover --apply` начинает очередь и инвентаризацию, `finalize --apply` повторяет inbox и очередь. `result RUN_UUID` читает безопасную сводку квитанции. Произвольные скрипты, SQL/Firestore-пути и имена исполняемых файлов во входе запрещены.
 
 Аудиоматериалы проходят `audio.discover`, `audio.sync` и `audio.link`: [каталог и плеер](../../modules/materials/audio-library.md#sync). Первые две операции требуют `--apply`; связь поддерживает предпросмотр и отпечаток входного пакета.

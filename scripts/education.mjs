@@ -31,6 +31,8 @@ try {
     output(await run(JSON.parse(readFileSync(resolve(argument), 'utf8'))))
   } else if (command === 'status' && !argument) {
     output(await executeRecipe('status', run))
+  } else if (command === 'begin' && argument === '--apply') {
+    output(await executeRecipe('begin', run))
   } else if (command === 'discover' && argument === '--apply') {
     output(await executeRecipe('discover', run))
   } else if (command === 'finalize' && argument === '--apply') {
@@ -43,7 +45,7 @@ try {
       summary: item.summary ?? null, metrics: item.metrics ?? null, startedAt: item.startedAt,
       finishedAt: item.finishedAt ?? null })
   } else {
-    throw new Error('Usage: npm run education -- catalog | describe OPERATION | status | discover --apply | finalize --apply | plan SCAN_RUN_UUID | run REQUEST.json [--apply] | result RUN_UUID')
+    throw new Error('Usage: npm run education -- catalog | describe OPERATION | status | begin --apply | discover --apply | finalize --apply | plan SCAN_RUN_UUID | run REQUEST.json [--apply] | result RUN_UUID')
   }
 } catch (error) {
   console.error(String(error?.message ?? error))

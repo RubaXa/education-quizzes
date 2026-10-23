@@ -19,6 +19,13 @@ describe('deterministic task route from existing source state', () => {
     expect(taskRouteCandidates(task)).not.toContain('material-needed')
     expect(taskRoute({ ...task, materialRequest: { ...request, photoPrompt: '' } }).next).toBe('recover-source')
   })
+  it('continues from verified student pages without demanding a full textbook PDF', () => {
+    const task = { ...ready, materialStatus: { state: 'no-textbook', message: 'Полный PDF отсутствует, страница сверена по фото.' },
+      materialRequest: { ...request, state: 'resolved', resolvedTopic: 'Упр.4, страница31: письменная таблица', uploadIds: ['page-upload'] } }
+    expect(taskRouteCandidates(task)).toEqual([])
+    expect(taskRoute(task, 'english').next).toBe('prepare-written-guidance')
+    expect(taskRoute({ ...task, instructionStatus: { state: 'needs-review' } }).next).toBe('recover-source')
+  })
   it.each(['math', 'special', 'russian', 'literature', 'english', 'history', 'geography', 'biology', 'technology'])('preserves subject routing for %s', subject => {
     const route = taskRoute(ready, subject)
     expect(route.subject).toBe(subject)

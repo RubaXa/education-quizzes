@@ -4,7 +4,7 @@
  * @see ../docs/modules/synchronization/task-routing.md
  */
 import { quizDecision } from '../assessment/decision-graph.mjs'
-import { openMaterialRequest } from '../src/lib/materialRequest.ts'
+import { openMaterialRequest, materialRequestErrors } from '../src/lib/materialRequest.ts'
 import { lessonSubjectKey } from '../day/subject-identity.mjs'
 
 const adapters = {
@@ -14,6 +14,8 @@ const adapters = {
   geography: 'subject-aware-guidance:map-and-source', biology: 'subject-aware-guidance:structure-function',
 }
 export function missingTaskMaterial(task) {
+  if (task?.instructionStatus?.state === 'reviewed' && task.materialRequest?.state === 'resolved'
+    && materialRequestErrors(task).length === 0) return false
   return ['textbook-page-needed', 'teacher-attachment-needed'].includes(task?.materialStatus?.state)
     || (task?.materialStatus?.state === 'no-textbook'
       && /отсутств|не получен|нет в библиотек/i.test(task.materialStatus.message ?? ''))
