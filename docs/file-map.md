@@ -914,8 +914,8 @@
 | [storage/audio-library.mjs](../storage/audio-library.mjs) | [Аудиобиблиотека](modules/materials/audio-library.md) | Разбор источника, проверка MP3, безопасный авто-подбор и evidence-checked explicit task bindings | CLI; издатель дня |
 | [storage/audio-library.test.mjs](../storage/audio-library.test.mjs) | [Аудиобиблиотека](modules/materials/audio-library.md) | Регрессии общего каталога, точного подбора, ambiguous WB clarification, fail-closed и приватности evidence | Vitest |
 | [scripts/audio-library.mjs](../scripts/audio-library.mjs) | [Аудиобиблиотека](modules/materials/audio-library.md) | Повторяемая синхронизация MP3 с Диском, общий каталог и адресная семейная связь | Оператор |
-| [src/components/AudioPlayer.tsx](../src/components/AudioPlayer.tsx) | [Аудиобиблиотека](modules/materials/audio-library.md) | Постоянная панель, один Play, видимая скорость, seek/volume и повтор | ДЗ; библиотека; UI Kit |
-| [src/components/AudioPlayer.css](../src/components/AudioPlayer.css) | [Аудиобиблиотека](modules/materials/audio-library.md) | Токены и адаптивная геометрия общего плеера | AudioPlayer; AudioLibrary |
+| [src/components/AudioPlayer.tsx](../src/components/AudioPlayer.tsx) | [Аудиобиблиотека](modules/materials/audio-library.md) | Компактная панель54px, один Play, меню текущей скорости, volume popover и повтор | ДЗ; библиотека; UI Kit |
+| [src/components/AudioPlayer.css](../src/components/AudioPlayer.css) | [Аудиобиблиотека](modules/materials/audio-library.md) | Токены однострочной панели54px, доступных областей и всплывающих меню | AudioPlayer; AudioLibrary |
 | [src/components/AudioLibrary.tsx](../src/components/AudioLibrary.tsx) | [Аудиобиблиотека](modules/materials/audio-library.md) | Выбор одной записи из связанной аудиоколлекции | FamilyLibrary |
 | [src/components/AudioPlayer.test.tsx](../src/components/AudioPlayer.test.tsx) | [Аудиобиблиотека](modules/materials/audio-library.md) | Регрессии ленивого аудио, смены, повтора и управления | Vitest |
 | [src/lib/uiKitAudio.ts](../src/lib/uiKitAudio.ts) | [Аудиобиблиотека](modules/materials/audio-library.md) | Синтетическая аудиозапись UI Kit без семейных медиа | UI Kit |
@@ -934,3 +934,5 @@
 
 | [docs/decisions/family-book-access-2026-10-22.md](decisions/family-book-access-2026-10-22.md) | [Семейная библиотека](modules/materials/family-library.md) | Основание общего доступа детей семьи и границы выпуска | Разработчик; оператор |
 | [docs/decisions/audio-stable-controls-2026-10-22.md](decisions/audio-stable-controls-2026-10-22.md) | [Аудиобиблиотека](modules/materials/audio-library.md) | Постоянная панель до/после Play и всегда видимое замедление | Разработчик; выпуск |
+
+| [docs/decisions/audio-compact-controls-2026-10-23.md](decisions/audio-compact-controls-2026-10-23.md) | [Аудиобиблиотека](modules/materials/audio-library.md) | Одобренный компактный макет, источник решения и сохранение сценариев | AudioPlayer; UI Kit; выпуск |

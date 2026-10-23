@@ -2677,8 +2677,8 @@
       }
     },
     "src/UiKit.tsx": {
-      "sha256": "a75b68be4e3f20ffc16d0fcf528e7f982efec1524eb8ca56394696a9006704c2",
-      "record": "docs/decisions/audio-stable-controls-2026-10-22.md",
+      "sha256": "32b3af4d0eb98619b67c08ac3f9277681c3dabaf5130096a43aef7bd37122c0c",
+      "record": "docs/decisions/audio-compact-controls-2026-10-23.md",
       "specs": [
         "docs/modules/materials/audio-library.md",
         "docs/shared/design/ui-kit.md"
@@ -2690,7 +2690,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель22.10 по двум скриншотам потребовал одну постоянную панель без смены на другой плеер и всегда видимое управление скоростью, особенно замедлением."
+        "evidence": "23.10 родитель одобрил показанный компактный макет54px с простым Play и текущей скоростью рядом со звуком, открывающей меню; ранее разрешил выпуск проверенных правок и координацию всех Education."
       }
     },
     "src/WeekendMathSlot.css": {
@@ -5947,8 +5947,8 @@
       }
     },
     "src/components/AudioPlayer.css": {
-      "sha256": "91befaf48df8c6a2ce3325e6a225d6f234628bb1cda5de8503650f226f0fb359",
-      "record": "docs/decisions/audio-stable-controls-2026-10-22.md",
+      "sha256": "4fa97414cfb0cdc05754aabd265dc0ddfa27ac7a8a299c01375d2accd57de853",
+      "record": "docs/decisions/audio-compact-controls-2026-10-23.md",
       "specs": [
         "docs/modules/materials/audio-library.md",
         "docs/shared/design/ui-kit.md"
@@ -5960,12 +5960,12 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель22.10 по двум скриншотам потребовал одну постоянную панель без смены на другой плеер и всегда видимое управление скоростью, особенно замедлением."
+        "evidence": "23.10 родитель одобрил показанный компактный макет54px с простым Play и текущей скоростью рядом со звуком, открывающей меню; ранее разрешил выпуск проверенных правок и координацию всех Education."
       }
     },
     "src/components/AudioPlayer.tsx": {
-      "sha256": "7080094176f8b3cbafd1d418d0f0d494f332591d3d9816ac07b3c6504590606a",
-      "record": "docs/decisions/audio-stable-controls-2026-10-22.md",
+      "sha256": "997a88dfe4ce53b6000b3125c6acef43de764467249f245efa781d4a67d29b80",
+      "record": "docs/decisions/audio-compact-controls-2026-10-23.md",
       "specs": [
         "docs/modules/materials/audio-library.md",
         "docs/shared/design/ui-kit.md"
@@ -5977,7 +5977,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель22.10 по двум скриншотам потребовал одну постоянную панель без смены на другой плеер и всегда видимое управление скоростью, особенно замедлением."
+        "evidence": "23.10 родитель одобрил показанный компактный макет54px с простым Play и текущей скоростью рядом со звуком, открывающей меню; ранее разрешил выпуск проверенных правок и координацию всех Education."
       }
     },
     "src/lib/uiKitAudio.ts": {

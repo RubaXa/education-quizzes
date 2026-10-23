@@ -182,7 +182,7 @@ it('uses the shared lazy audio player with local media and retry demonstration',
  await act(async()=>[...host.querySelectorAll<HTMLButtonElement>('nav button')].find(button=>button.textContent==='Аудиоплеер')!.click())
  expect(host.querySelectorAll('.edu-audio')).toHaveLength(2)
  expect(host.querySelectorAll('audio')).toHaveLength(2)
- expect(host.querySelectorAll('.edu-audio-speed select')).toHaveLength(2)
+ expect(host.querySelectorAll('.edu-audio-speed')).toHaveLength(2)
  expect(host.querySelector('audio')?.getAttribute('src')).toBeNull()
  await act(async()=>host.querySelector<HTMLButtonElement>('.edu-audio button')!.click())
  expect(host.querySelector('audio')?.src).toMatch(/^data:audio\/wav;base64,/)

@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState } from 'react'
-import { ExternalLink, Headphones, LoaderCircle, Pause, Play, RotateCcw, Volume2, VolumeX } from 'lucide-react'
+import { Check, ExternalLink, Headphones, LoaderCircle, Pause, Play, RotateCcw, Volume2, VolumeX } from 'lucide-react'
+import { DropdownMenu, Popover } from 'radix-ui'
 import { Button } from '@/components/ui/button'
 import type { DayMaterialLink } from '@/lib/dayStore'
 import { publicAudio } from '@/lib/yandexPublic'
@@ -102,20 +103,15 @@ export default function AudioPlayer({ link, resolver = publicAudio }: {
           {state.phase === 'loading' ? <LoaderCircle size={18} aria-hidden="true" /> : playing ? <Pause size={18} fill="currentColor" aria-hidden="true" /> : <Play size={18} fill="currentColor" aria-hidden="true" />}
         </Button>
         <span className={`edu-audio-time${duration === null ? ' edu-audio-time-unknown' : ''}`} aria-label={duration === null ? 'Длительность записи пока неизвестна' : undefined}>{time}</span>
-        <label className="edu-audio-speed"><span>Скорость</span><select aria-label="Скорость воспроизведения" value={speed} onChange={(event) => {
-          const next = Number(event.target.value)
-          if (!rates.includes(next)) return
-          settings.current.speed = next; setSpeed(next); applySettings()
-        }}>{rates.map(rate => <option key={rate} value={rate}>{String(rate).replace('.', ',')}×</option>)}</select></label>
-      </div>
-      <div className="edu-audio-adjustments">
         <input className="edu-audio-seek" type="range" aria-label="Позиция записи" min="0" max={duration ?? 1} step="0.1" value={duration === null ? 0 : Math.min(position, duration)}
           aria-valuetext={duration === null ? 'Длительность пока неизвестна' : time} disabled={duration === null || state.phase !== 'ready'} onChange={(event) => {
             if (!audio.current || duration === null) return
             const next = Math.min(duration, Math.max(0, Number(event.target.value)))
             audio.current.currentTime = next; setPosition(next)
           }} />
-        <div className="edu-audio-volume">
+        <Popover.Root><Popover.Trigger asChild><Button type="button" variant="ghost" className="edu-audio-volume-trigger" aria-label="Громкость записи">{muted ? <VolumeX size={18} aria-hidden="true" /> : <Volume2 size={18} aria-hidden="true" />}</Button></Popover.Trigger>
+          <Popover.Portal><Popover.Content className="edu-audio-volume-popup" side="top" align="end" sideOffset={8} collisionPadding={12} aria-label="Настройка громкости">
+          <div className="edu-audio-popup-label">Громкость</div><div className="edu-audio-volume">
           <Button type="button" variant="ghost" className="edu-audio-mute" aria-label={muted ? 'Включить звук' : 'Выключить звук'} aria-pressed={muted} onClick={() => {
             const next = !muted
             settings.current.muted = next; setMuted(next)
@@ -127,7 +123,17 @@ export default function AudioPlayer({ link, resolver = publicAudio }: {
             settings.current.volume = next; settings.current.muted = next === 0
             setVolume(next); setMuted(next === 0); applySettings()
           }} />
-        </div>
+          </div></Popover.Content></Popover.Portal></Popover.Root>
+        <DropdownMenu.Root><DropdownMenu.Trigger asChild><Button type="button" variant="ghost" className="edu-audio-speed" aria-label={`Скорость воспроизведения: ${String(speed).replace('.', ',')}×`} title="Изменить скорость">{String(speed).replace('.', ',')}×</Button></DropdownMenu.Trigger>
+          <DropdownMenu.Portal><DropdownMenu.Content className="edu-audio-speed-menu" side="bottom" align="end" sideOffset={8} collisionPadding={12}>
+            <DropdownMenu.Label className="edu-audio-popup-label">Скорость</DropdownMenu.Label>
+            <DropdownMenu.RadioGroup value={String(speed)} onValueChange={(value) => {
+              const next = Number(value)
+              if (!rates.includes(next)) return
+              settings.current.speed = next; setSpeed(next); applySettings()
+            }}>{rates.map(rate => <DropdownMenu.RadioItem key={rate} value={String(rate)} className="edu-audio-speed-item"><span>{String(rate).replace('.', ',')}×</span><DropdownMenu.ItemIndicator><Check size={15} aria-hidden="true" /></DropdownMenu.ItemIndicator></DropdownMenu.RadioItem>)}</DropdownMenu.RadioGroup>
+          </DropdownMenu.Content></DropdownMenu.Portal>
+        </DropdownMenu.Root>
       </div>
     </div>
     {state.phase === 'loading' && <p role="status"><LoaderCircle size={16} aria-hidden="true" />Загружаем запись…</p>}

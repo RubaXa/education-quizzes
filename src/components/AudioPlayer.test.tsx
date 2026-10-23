@@ -17,7 +17,14 @@ beforeEach(() => {
   vi.spyOn(HTMLMediaElement.prototype, 'load').mockImplementation(() => {})
 })
 afterEach(async () => { await act(async () => root.unmount()); host.remove(); vi.restoreAllMocks(); vi.unstubAllGlobals() })
-const click = async (text: string) => { await act(async () => { [...host.querySelectorAll('button')].find((button) => (button.getAttribute('aria-label') || button.textContent)?.includes(text))!.click() }) }
+const click = async (text: string) => { await act(async () => { [...document.querySelectorAll('button')].find((button) => (button.getAttribute('aria-label') || button.textContent)?.includes(text))!.click() }) }
+
+const chooseSpeed = async (value: string) => {
+  const trigger = host.querySelector<HTMLButtonElement>('.edu-audio-speed')!
+  await act(async () => trigger.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })))
+  const label = `${value.replace('.', ',')}×`
+  await act(async () => [...document.querySelectorAll<HTMLElement>('[role=menuitemradio]')].find(item => item.textContent === label)!.click())
+}
 
 describe('AudioPlayer', () => {
   it('keeps the same visible controls before and after loading without native controls or autoplay', async () => {
@@ -26,17 +33,16 @@ describe('AudioPlayer', () => {
     expect(resolver).not.toHaveBeenCalled(); expect(host.querySelector('audio')?.controls).toBe(false)
     expect(host.textContent).not.toContain('Слушать')
     const toolbar = host.querySelector('.edu-audio-panel')
-    const speed = host.querySelector('select[aria-label="Скорость воспроизведения"]')
+    const speed = host.querySelector('.edu-audio-speed')
     expect(speed).not.toBeNull()
     await click('Воспроизвести')
     expect(host.querySelector('.edu-audio-panel')).toBe(toolbar)
-    expect(host.querySelector('select[aria-label="Скорость воспроизведения"]')).toBe(speed)
+    expect(host.querySelector('.edu-audio-speed')).toBe(speed)
     const audio = host.querySelector('audio')!
     expect(audio.play).toHaveBeenCalledTimes(1)
     expect(audio.controls).toBe(false); expect(audio.preload).toBe('none'); expect(audio.autoplay).toBe(false)
     expect(host.querySelector('a')?.href).toBe(link.url)
-    const select = host.querySelector<HTMLSelectElement>('select[aria-label="Скорость воспроизведения"]')!
-    await act(async () => { select.value = '0.75'; select.dispatchEvent(new Event('change', { bubbles: true })) })
+    await chooseSpeed('0.75')
     await act(async () => audio.dispatchEvent(new Event('play', { bubbles: true })))
     expect(audio.playbackRate).toBe(.75)
     audio.pause()
@@ -85,13 +91,13 @@ describe('AudioPlayer', () => {
     let resolve!: (value: string) => void
     const resolver = vi.fn(() => new Promise<string>((done) => { resolve = done }))
     await act(async () => root.render(<AudioPlayer link={link} resolver={resolver} />))
-    const select = host.querySelector<HTMLSelectElement>('select[aria-label="Скорость воспроизведения"]')!
-    const choose = async (value: string) => act(async () => { select.value = value; select.dispatchEvent(new Event('change', { bubbles: true })) })
+    const trigger = host.querySelector<HTMLButtonElement>('.edu-audio-speed')!
+    const choose = chooseSpeed
     await choose('0.5')
     expect(resolver).not.toHaveBeenCalled()
     await click('Воспроизвести')
-    expect(host.querySelector('select')).toBe(select)
-    expect(select.disabled).toBe(false)
+    expect(host.querySelector('.edu-audio-speed')).toBe(trigger)
+    expect(trigger.disabled).toBe(false)
     await choose('0.75')
     await act(async () => resolve('https://downloader.disk.yandex.ru/one.mp3'))
     const audio = host.querySelector('audio')!
@@ -122,7 +128,8 @@ describe('AudioPlayer', () => {
     expect(seek.disabled).toBe(false)
     await act(async () => { Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(seek, '12'); seek.dispatchEvent(new Event('input', { bubbles: true })) })
     expect(audio.currentTime).toBe(12)
-    const volume = host.querySelector<HTMLInputElement>('[aria-label="Громкость"]')!
+    await click('Громкость записи')
+    const volume = document.querySelector<HTMLInputElement>('[aria-label="Громкость"]')!
     await act(async () => { Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(volume, '0.4'); volume.dispatchEvent(new Event('input', { bubbles: true })) })
     expect(audio.volume).toBe(.4)
     await click('Выключить звук'); expect(audio.muted).toBe(true)
