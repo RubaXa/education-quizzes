@@ -6,6 +6,9 @@
 import { quizDecision } from '../assessment/decision-graph.mjs'
 import { openMaterialRequest, materialRequestErrors } from '../src/lib/materialRequest.ts'
 import { lessonSubjectKey } from '../day/subject-identity.mjs'
+const guidancePolicyRevision='parent-readable-hints-2026-10-25'
+/** @see ../docs/decisions/guidance-refresh-readback-2026-10-25.md */
+const guidanceChecks=['adult-readable-class-level-route-review','learner-current-point-and-safe-hint-review']
 
 const adapters = {
   math: 'math-solution-route', special: 'math-solution-route+teacher-sheet-provenance',
@@ -25,7 +28,10 @@ export function taskRoute(task = {}, subject = 'generic', { placement = false } 
   const route = { taskId: task.id ?? null, subject: key, adapter: adapters[key] ?? 'subject-aware-guidance:generic',
     known: [], unknown: [], next: null, steps: [], complete: false,
     verification: ['owner-and-revision', 'both-role-readback', 'preserve-attempts-and-optionality'] }
-  const select = (next, steps = []) => ({ ...route, next, steps })
+  const select = (next, steps = []) => ({ ...route, next,
+    ...(['math','special'].includes(key)&&next==='prepare-written-guidance'?{policyRevision:guidancePolicyRevision}:{}),
+    steps: ['math','special'].includes(key)&&next==='prepare-written-guidance'
+      ? [...steps.slice(0,2),...guidanceChecks,...steps.slice(2)] : steps })
   if (task.meshText) route.known.push('raw-assignment')
   if (task.instructionStatus?.state === 'reviewed') route.known.push('reviewed-instruction')
   if (task.platformResult?.state === 'completed') return select('platform-result-confirmed', ['preserve-platform-evidence'])
@@ -75,7 +81,9 @@ export function jobRoute(kind) {
     'enrich-task': 'exact-source-and-subject-guidance', 'material-needed': 'recover-source',
     'reconcile-day': 'source-diff-publish-both-roles',
   }
-  return { next: routes[kind] ?? 'unsupported-job', complete: false }
+  return { next: routes[kind] ?? 'unsupported-job', complete: false,
+    ...(['enrich-task','triage-help','review-work','repair-review'].includes(kind)
+      ? {policyRevision:guidancePolicyRevision,operatorReviewSteps:guidanceChecks}: {}) }
 }
 
 export function syncRoutePlan(tasks, jobs) {
@@ -93,7 +101,7 @@ export function eventTaskRoute(eventType, inputs = {}) {
   const next = eventType === 'upload.confirmed' ? sourceMaterial ? 'review-source-material' : 'review-written-work'
     : ({ 'help.requested': 'address-help-request', 'quiz.submitted': 'review-submitted-quiz',
       'quiz.followup_requested': 'history-based-followup', 'material.ready': 'identify-and-link-family-material' })[eventType] ?? 'unsupported-event'
-  return { eventType, next, subject, adapter: adapters[subject] ?? 'subject-aware-guidance:generic', complete: false,
+  const route = { eventType, next, subject, adapter: adapters[subject] ?? 'subject-aware-guidance:generic', complete: false,
     steps: next === 'review-source-material' ? ['source-analysis-without-grade', 'resolve-request-if-supported', 'replan-task']
       : next === 'review-submitted-quiz' ? ['audit-key-and-alternatives', 'review-open-answers', 'publish-review', 'assessment-decision-graph']
         : next === 'history-based-followup' ? ['quiz-history-full-chain', 'review-open-answers', 'assessment-decision-graph', 'validate-and-publish']
@@ -101,4 +109,10 @@ export function eventTaskRoute(eventType, inputs = {}) {
             : next === 'address-help-request' ? ['read-request-and-attempt', 'one-addressed-next-step', 'publish-support-revision']
               : next === 'identify-and-link-family-material' ? ['verify-original-and-sha', 'identify-edition-and-coverage', 'family-link-and-reader-readback'] : ['block-unknown-event'],
     verification: ['owner-and-revision', 'addressed-readback', 'trajectory-after-new-evidence'] }
+  if(['math','special'].includes(subject)&&['review-written-work','address-help-request'].includes(next)) {
+    route.policyRevision=guidancePolicyRevision
+    const publication=route.steps.findIndex(step=>step.startsWith('publish'))
+    route.steps.splice(publication<0?route.steps.length:publication,0,...guidanceChecks)
+  }
+  return route
 }

@@ -24,6 +24,15 @@ sections:
 ---
 # Реестр путей чтения Firestore и выбор способа обновления
 
+`guidance:refresh snapshot/apply` читает только явные даты частного плана и их
+существующие day-links: dayOwners, две dayPages, dayTaskGuides/items и закрытые
+dayProgress/items,dayReviewPrivate/items,dayUploads/files,dayHelp/items,
+dayGuidance/items,dayParentDecisions/events. Это ограниченные разовые snapshot,
+preflight и post-write readback, без listeners/polling/глобального inbox.
+Перед штатной записью problem-support повторяет owner/pages/guide updateTime
+в транзакции по сохранённому expectedfence. Evidence/история/семейные решения
+не пишутся; новые изменения между чтениями останавливают подтверждение пакета.
+
 Перед публикацией перехода task → source-only notice оператор адресно проверяет `dayReviewPrivate/{studentToken}/items/{entryId}` вместе с существующими progress/uploads guard. Чтение ограничено затронутыми source entries и подтверждёнными собственными/history day tokens; оно запрещает скрытие прежнего закрытого разбора даже при отсутствии публичного progress. Подписки и глобальный скан не добавляются.
 
 `sync:project audit --run RUNID` читает `syncStatus/current` точного владельца каждого manifest job перед проверкой и повторно перед private receipt. Это два ограниченных point reads на owner для fencing конкурентного изменения запуска; запрос не пишет статус и не закрывает queue jobs.

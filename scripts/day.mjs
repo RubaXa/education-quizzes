@@ -1167,6 +1167,7 @@ async function seedEvidence() {
  * @see ../docs/modules/reviews/adaptive-problem-card.md#выпуск-и-безопасность
  */
 async function publishProblemSupport() {
+  // @see ../docs/decisions/guidance-refresh-readback-2026-10-25.md
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date ?? '')) fail('Укажите дату YYYY-MM-DD.')
   const source = json(resolve(local, `day-source-${date}.json`))
   validate(source)
@@ -1175,6 +1176,7 @@ async function publishProblemSupport() {
   const incoming = new Map(source.subjects.flatMap((subject) => subject.tasks)
     .filter((task) => task.problems?.length).map((task) => [task.id, task]))
   if (!incoming.size) fail('В исходнике нет нумерованных задач.')
+  const expected = third === '--expected' ? json(resolve(process.argv[5])) : null
   const result = await db.runTransaction(async (transaction) => {
     const refs = [db.doc(`dayPages/${pair.student}`), db.doc(`dayPages/${pair.parent}`)]
     const ownerRef = db.doc(`dayOwners/${pair.student}`)
@@ -1182,6 +1184,13 @@ async function publishProblemSupport() {
     if (snapshots.some((snapshot) => !snapshot.exists)) fail('Одна из страниц дня отсутствует. Сначала опубликуйте день.')
     const owner = ownerSnapshot.data()
     if (!owner?.familyId || !owner?.childId) fail('Для защищённого разбора нужна подтверждённая семья и ребёнок.')
+    if (expected) {
+      const ids = [...incoming.values()].flatMap(t=>t.problems).map(p=>p.id)
+      const currentGuides = await Promise.all(ids.map(id=>transaction.get(db.doc(`dayTaskGuides/${pair.student}/items/${id}`))))
+      if (ownerSnapshot.updateTime.toMillis() !== expected.owner
+        || snapshots.some((s,i)=>s.updateTime.toMillis()!==expected.pages?.[i])
+        || currentGuides.some((s,i)=>(s.updateTime?.toMillis()??null)!==(expected.guides?.[ids[i]]??null))) fail('guidance_refresh_stale_write_fence')
+    }
     const counts = []
     snapshots.forEach((snapshot, index) => {
       const page = snapshot.data()
@@ -1208,10 +1217,11 @@ async function publishProblemSupport() {
         return { ...task, problems }
       }) }))
       counts.push(changed.length)
-      if (changed.length) transaction.update(refs[index], {
+      if (changed.length || page.sourcePlanFingerprint !== sourcePlanFingerprint(source)) transaction.update(refs[index], {
         subjects, updatedAt: Timestamp.now(),
-        problemSupportRevision: (page.problemSupportRevision || 0) + 1,
-        problemSupportChanges: [{ at: Timestamp.now(), problemIds: changed }, ...(page.problemSupportChanges || [])].slice(0, 20),
+        sourcePlanFingerprint: sourcePlanFingerprint(source),
+        ...(changed.length ? { problemSupportRevision: (page.problemSupportRevision || 0) + 1,
+          problemSupportChanges: [{ at: Timestamp.now(), problemIds: changed }, ...(page.problemSupportChanges || [])].slice(0, 20) } : {}),
       })
     })
     for (const problem of [...incoming.values()].flatMap((task) => task.problems)) {
