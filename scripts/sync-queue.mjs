@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/** @see ../docs/decisions/accepted-help-closure-2026-10-25.md */
 /** @see ../docs/decisions/sync-task-routing-2026-10-23.md */
 /** @see ../docs/modules/synchronization/task-routing.md */
 /** @see ../docs/modules/materials/material-clarification.md */
@@ -262,13 +263,13 @@ async function verifiedResolution(record) {
     const owner = (await db.collection('dayOwners').where('date', '==', source.dayDate).get()).docs
       .find((item) => item.data().familyId === record.familyId && item.data().childId === record.childId)
     if (!owner) return null
-    const [request, result] = await Promise.all([
+    const [request, result, decisions] = await Promise.all([
       db.doc(`dayHelp/${owner.id}/items/${source.id}`).get(),
       db.doc(`dayProgress/${owner.id}/items/${source.id}`).get(),
+      db.collection(`dayParentDecisions/${owner.id}/events`).get(),
     ])
-    return result.data()?.status === 'verified'
-      && result.data()?.checkedAt?.toMillis?.() > request.data()?.requestedAt?.toMillis?.()
-      ? 'later-student-work-verified' : null
+    return helpRequestResolution({ taskId: source.id, request: request.data(), review: result.data(),
+      decisions: decisions.docs.map(doc => ({ ...doc.data(), id: doc.id })) })
   }
   return null
 }
@@ -393,3 +394,4 @@ if (command === 'scan') {
   const updated = await setSyncJob(db, id, status, phase, { evidence, reason })
   console.log(JSON.stringify({ updated: id, status, phase, ...await reportQueue([{ familyId: updated.familyId, childId: updated.childId }]) }, null, 2))
 }
+import { helpRequestResolution } from '../sync/help-request-resolution.mjs'

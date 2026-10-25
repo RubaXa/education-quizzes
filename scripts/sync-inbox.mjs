@@ -1,9 +1,11 @@
+/** @see ../docs/decisions/accepted-help-closure-2026-10-25.md */
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { applicationDefault, initializeApp } from 'firebase-admin/app'
 import { getFirestore, Timestamp } from 'firebase-admin/firestore'
 import { pendingManualQuestionIds } from '../assessment/decision-graph.mjs'
 import { HelpRequestCache } from '../sync/help-request-cache.mjs'
+import { helpRequestResolution } from '../sync/help-request-resolution.mjs'
 
 /** Read-only operator inbox for the complete manual Education sync.
  * @see ../docs/modules/synchronization/education-pipeline.md#sync-inbox
@@ -20,7 +22,7 @@ const helpCache = new HelpRequestCache(resolve('.local/project-sync/help-request
 const started = performance.now()
 const timings = {}
 const readCalls = { initialQueries: 4, pageCounts: 0, dayFiles: 0, dayHelp: 0,
-  progressBatches: 0, progressRefs: 0, manualReviews: 0 }
+  progressBatches: 0, progressRefs: 0, parentDecisionQueries: 0, manualReviews: 0 }
 
 // Independent owners and books can be checked together without widening the
 // source set. Keep a small limit to avoid a burst of Firestore requests.
@@ -146,12 +148,16 @@ async function addDays(items, owners) {
           : lane === 'investigate' ? 'inspect-upload-error-or-unknown-status'
             : 'storage-worker-and-student-browser-complete-transfer' })
     }
-    // dayHelp has no resolved flag yet. Show every captured request as an
-    // attention item; a support revision alone is not proof of a reply.
+    // Read decisions freshly, independently of the cached immutable request.
+    if (requests.docs.length) readCalls.parentDecisionQueries++
+    const decisions = requests.docs.length ? (await db.collection(`dayParentDecisions/${ownerDoc.id}/events`).get())
+      .docs.map(doc => ({ ...doc.data(), id: doc.id })) : []
+    // A support revision alone is not proof of a reply. A later explicit family
+    // acceptance closes attention for that same attempt without deleting history.
     for (const doc of requests.docs) {
       const data = doc.data()
       const later = progress.get(doc.id)
-      if (later?.status === 'verified' && later.checkedAt?.toMillis?.() > data.requestedAt?.toMillis?.()) continue
+      if (helpRequestResolution({ taskId: doc.id, request: data, review: later, decisions })) continue
       items.push({ kind: 'help-request', lane: 'triage', familyId: owner.familyId,
         childId: owner.childId, dayDate: owner.date, id: doc.id,
         requestKind: data.requestKind ?? null, requestedRevision: data.revision ?? null,

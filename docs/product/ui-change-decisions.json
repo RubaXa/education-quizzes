@@ -2381,25 +2381,19 @@
       }
     },
     "scripts/sync-inbox.mjs": {
-      "sha256": "9568f6d637ff88b40c28256f92f63aac197ca80796a824df2b6e97b52f86fbe4",
-      "record": "docs/decisions/education-sync-performance-2026-10-15.md",
+      "sha256": "d4e874e1b42ee5215e1e449c9f71a4f619cd1a44d1b346614caab700990f9a4d",
+      "record": "docs/decisions/accepted-help-closure-2026-10-25.md",
       "specs": [
-        "docs/modules/synchronization/global-sync.md"
+        "docs/modules/synchronization/education-pipeline.md"
       ],
       "tests": [
-        "sync/help-request-cache.test.mjs"
+        "sync/help-request-resolution.test.mjs",
+        "scripts/sync-queue-resolution.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 15.10.2026 прямо потребовал повторный полный Education Sync с таймерами, расследование узких мест и ускорение процесса без потери подтверждённых данных."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "0840ae25ffbeb2e4a56fb9a47dfed458fbd996cb32b98a3fd4d416082de9b421"
-      },
-      "evidence": [
-        "docs/audits/education-sync-latency-audit-2026-10-15.md"
-      ]
+        "evidence": "Родитель25.10попросил выяснить причину старого обращения и обработать его, если ребёнок ещё ждёт помощи. Подтверждено последующее принятие той же попытки семьёй."
+      }
     },
     "scripts/sync-project.mjs": {
       "sha256": "240f58e1c3e2a00380691b6ce2400725a537809dc065af5b39ea587fc50ee13f",
@@ -2419,19 +2413,18 @@
       }
     },
     "scripts/sync-queue.mjs": {
-      "sha256": "2f1eddf0325ed607bbf4564c78a14ee6dbb4d7314272299224a84c6d0e2e4a65",
-      "record": "docs/decisions/sync-task-routing-2026-10-23.md",
+      "sha256": "7c38d8edb3f5c8cefef92ca948a14ad378ab08768b3bf001041c2d2585e0a095",
+      "record": "docs/decisions/accepted-help-closure-2026-10-25.md",
       "specs": [
-        "docs/modules/synchronization/task-routing.md"
+        "docs/modules/synchronization/education-pipeline.md"
       ],
       "tests": [
-        "sync/task-route.test.mjs",
-        "sync/event-task-artifact.test.mjs",
-        "operator/route-plan.test.mjs"
+        "sync/help-request-resolution.test.mjs",
+        "scripts/sync-queue-resolution.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя23.10: ревизия инструкций и детерминированных инструментов синхронизации, расширение недостающих развилок."
+        "evidence": "Родитель25.10попросил выяснить причину старого обращения и обработать его, если ребёнок ещё ждёт помощи. Подтверждено последующее принятие той же попытки семьёй."
       }
     },
     "scripts/telegram-bot.mjs": {
@@ -6243,6 +6236,21 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Пользователь требует ревизию и расширение инструментов синхронизации, ускорение обработки и обновление понятных математических разборов с сохранением результатов."
+      }
+    },
+    "sync/help-request-resolution.mjs": {
+      "sha256": "ba8c01438ff181d1f7fb5e4bd66b7ac2eacb9482b16aebd59e89c1c6040497e1",
+      "record": "docs/decisions/accepted-help-closure-2026-10-25.md",
+      "specs": [
+        "docs/modules/synchronization/education-pipeline.md"
+      ],
+      "tests": [
+        "sync/help-request-resolution.test.mjs",
+        "scripts/sync-queue-resolution.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель25.10попросил выяснить причину старого обращения и обработать его, если ребёнок ещё ждёт помощи. Подтверждено последующее принятие той же попытки семьёй."
       }
     }
   }
