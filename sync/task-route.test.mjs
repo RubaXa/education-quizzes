@@ -8,6 +8,16 @@ const ready = { id: 'mesh-456', meshText: 'Упр.4 письменно', kind: '
   instructionStatus: { state: 'reviewed' }, materialStatus: { state: 'textbook-page-linked' } }
 
 describe('deterministic task route from existing source state', () => {
+  it('requires both operator reviews before mathematical guidance publication without declaring understanding or completion',()=>{
+    const route=taskRoute(ready,'math')
+    expect(route.policyRevision).toBe('parent-readable-hints-2026-10-25')
+    expect(route.steps).toContain('adult-readable-class-level-route-review')
+    expect(route.steps).toContain('learner-current-point-and-safe-hint-review')
+    const event=eventTaskRoute('help.requested',{context:{subject:'Спецкурс по математике',task:ready}})
+    expect(event.policyRevision).toBe(route.policyRevision)
+    expect(event.steps.indexOf('learner-current-point-and-safe-hint-review')).toBeLessThan(event.steps.indexOf('publish-support-revision'))
+    expect(event.complete).toBe(false)
+  })
   it('cannot leave missing textbook pages as a bare operator block', () => {
     expect(taskRoute(unresolved, 'english')).toMatchObject({ next: 'recover-source', unknown: ['exact-material'],
       steps: ['family-source-lookup', 'exact-edition-web-lookup', 'publish-student-material-request', 'await-source-upload'], complete: false })

@@ -1923,8 +1923,8 @@
       }
     },
     "scripts/day.mjs": {
-      "sha256": "7c14299e72f9819ecfea7e968e208116a3b9403fa9b8e4f94ba0bc4b24042771",
-      "record": "docs/decisions/audio-library-2026-10-22.md",
+      "sha256": "bc0e00111de6abfe1b1e5d8c743c906373fb5c6628944655cd294df6227299c3",
+      "record": "docs/decisions/guidance-refresh-readback-2026-10-25.md",
       "specs": [
         "docs/modules/materials/audio-library.md",
         "docs/modules/materials/material-clarification.md",
@@ -1932,11 +1932,12 @@
       ],
       "tests": [
         "day/audio-selection-plan.test.mjs",
-        "scripts/day.validate.test.mjs"
+        "scripts/day.validate.test.mjs",
+        "day/guidance-refresh.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос пользователя связывать аудио с точным заданием после анализа уточняющих материалов; выбор должен использовать подтверждённые материалы ребёнка и не смешивать письменную сдачу с тестом."
+        "evidence": "Пользователь потребовал ревизию инструментов и перегенерацию математической помощи с сохранением работ и текущего шага; добавлена только expected fence штатной публикации."
       }
     },
     "scripts/direct-upload-worker.mjs": {
@@ -6185,8 +6186,8 @@
       }
     },
     "sync/task-route.mjs": {
-      "sha256": "84ab110d8460ab2b229cd90189ad3be87b11ec107c2c7310a70713f007d7782a",
-      "record": "docs/decisions/sync-task-routing-2026-10-23.md",
+      "sha256": "0ff663e11ca15c082332327839741fc5b45e2a8df3513d8bbc6a52b6a1790272",
+      "record": "docs/decisions/guidance-refresh-readback-2026-10-25.md",
       "specs": [
         "docs/modules/synchronization/task-routing.md"
       ],
@@ -6214,6 +6215,34 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Прямой запрос родителя23.10: ревизия инструкций и детерминированных инструментов синхронизации, расширение недостающих развилок."
+      }
+    },
+    "day/guidance-refresh.mjs": {
+      "sha256": "7bd6aa99238028cab87bdf8f4759206bce058aacec973964e01098b2b54c68c3",
+      "record": "docs/decisions/guidance-refresh-readback-2026-10-25.md",
+      "specs": [
+        "docs/modules/synchronization/task-routing.md"
+      ],
+      "tests": [
+        "day/guidance-refresh.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь требует ревизию и расширение инструментов синхронизации, ускорение обработки и обновление понятных математических разборов с сохранением результатов."
+      }
+    },
+    "scripts/refresh-math-guides.mjs": {
+      "sha256": "7d2e676f4e7163d8621c7c98da6f355a334e81aae9b272792b514fc258555c62",
+      "record": "docs/decisions/guidance-refresh-readback-2026-10-25.md",
+      "specs": [
+        "docs/modules/synchronization/task-routing.md"
+      ],
+      "tests": [
+        "day/guidance-refresh.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь требует ревизию и расширение инструментов синхронизации, ускорение обработки и обновление понятных математических разборов с сохранением результатов."
       }
     }
   }

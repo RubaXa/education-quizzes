@@ -966,6 +966,32 @@
       "path": "docs/decisions/grade-notice-recovery-2026-10-19.md"
     },
     {
+      "id": "decision.guidance-refresh-readback-2026-10-25",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-25",
+      "updated": "2026-10-25",
+      "parent": "module.synchronization.task-routing",
+      "uses": [],
+      "consumers": [
+        "Education operator"
+      ],
+      "code": [
+        "scripts/refresh-math-guides.mjs",
+        "day/guidance-refresh.mjs",
+        "scripts/day.mjs",
+        "sync/task-route.mjs"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/guidance-refresh-readback-2026-10-25.md"
+    },
+    {
       "id": "decision.independent-action-dispatch-2026-10-21",
       "status": "accepted",
       "implementation": "implemented",
@@ -3360,6 +3386,20 @@
       "consumer": "Vitest; разработчик"
     },
     {
+      "id": "file:day/guidance-refresh.mjs",
+      "path": "day/guidance-refresh.mjs",
+      "kind": "artifact",
+      "purpose": "Ограниченный рост ревизий авторского разбора и проверка сохранения учебных данных",
+      "consumer": "Операторский CLI"
+    },
+    {
+      "id": "file:day/guidance-refresh.test.mjs",
+      "path": "day/guidance-refresh.test.mjs",
+      "kind": "verification",
+      "purpose": "Запрет изменения ID/источника и ложного успеха при stale/private/evidence mismatch",
+      "consumer": "Vitest"
+    },
+    {
       "id": "file:day/guidance-release.d.mts",
       "path": "day/guidance-release.d.mts",
       "kind": "artifact",
@@ -5255,6 +5295,13 @@
       "kind": "artifact",
       "purpose": "Проверка закрытого плана и каждой ошибки, экспорт цепочки, публикация и ревизия не начатого теста с readback",
       "consumer": "Агент; Firestore"
+    },
+    {
+      "id": "file:scripts/refresh-math-guides.mjs",
+      "path": "scripts/refresh-math-guides.mjs",
+      "kind": "artifact",
+      "purpose": "Закрытый snapshot и адресная штатная публикация с readback обеих ролей и сохранением evidence",
+      "consumer": "EducationSync; оператор"
     },
     {
       "id": "file:scripts/release-note.mjs",
@@ -8552,7 +8599,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-13",
-      "updated": "2026-10-16",
+      "updated": "2026-10-25",
       "consumers": [
         "student",
         "parent",
@@ -8583,6 +8630,7 @@
         "shared-shell",
         "practice-variants",
         "math-adapter",
+        "explanation-and-hint",
         "extension",
         "implementation"
       ],
@@ -8593,7 +8641,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-13",
-      "updated": "2026-10-16",
+      "updated": "2026-10-25",
       "consumers": [
         "student",
         "parent",
@@ -8758,7 +8806,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-13",
-      "updated": "2026-10-20",
+      "updated": "2026-10-25",
       "consumers": [
         "student",
         "parent",
@@ -9393,13 +9441,14 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-23",
-      "updated": "2026-10-23",
+      "updated": "2026-10-25",
       "parent": "module.synchronization",
       "uses": [
         "module.synchronization.event-queue",
         "module.synchronization.execution-artifact",
         "module.assessments.assessment-decision-graph",
-        "module.materials.material-clarification"
+        "module.materials.material-clarification",
+        "module.reviews.card-generation-policy"
       ],
       "consumers": [
         "EducationSync operator",
@@ -9416,6 +9465,7 @@
         "plan",
         "sources",
         "events",
+        "guidance-refresh",
         "limits"
       ],
       "path": "docs/modules/synchronization/task-routing.md"
@@ -12313,6 +12363,16 @@
       "type": "implements"
     },
     {
+      "from": "file:day/guidance-refresh.mjs",
+      "to": "decision.guidance-refresh-readback-2026-10-25",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/guidance-refresh.mjs",
+      "to": "module.synchronization.task-routing",
+      "type": "implements"
+    },
+    {
       "from": "file:day/guidance-release.d.mts",
       "to": "module.reviews.subject-aware-guidance",
       "type": "implements"
@@ -13384,6 +13444,11 @@
     },
     {
       "from": "file:scripts/day.mjs",
+      "to": "decision.guidance-refresh-readback-2026-10-25",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/day.mjs",
       "to": "decision.mesh-informational-entry-2026-10-21",
       "type": "implements"
     },
@@ -13730,6 +13795,16 @@
     {
       "from": "file:scripts/quiz.mjs",
       "to": "module.assessments.assessment-decision-graph",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/refresh-math-guides.mjs",
+      "to": "decision.guidance-refresh-readback-2026-10-25",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/refresh-math-guides.mjs",
+      "to": "module.synchronization.task-routing",
       "type": "implements"
     },
     {
@@ -16299,6 +16374,11 @@
     },
     {
       "from": "file:sync/task-route.mjs",
+      "to": "decision.guidance-refresh-readback-2026-10-25",
+      "type": "implements"
+    },
+    {
+      "from": "file:sync/task-route.mjs",
       "to": "decision.sync-task-routing-2026-10-23",
       "type": "implements"
     },
@@ -18074,8 +18154,18 @@
     },
     {
       "from": "module.synchronization.task-routing",
+      "to": "decision.guidance-refresh-readback-2026-10-25",
+      "type": "contains"
+    },
+    {
+      "from": "module.synchronization.task-routing",
       "to": "decision.sync-task-routing-2026-10-23",
       "type": "contains"
+    },
+    {
+      "from": "module.synchronization.task-routing",
+      "to": "file:day/guidance-refresh.test.mjs",
+      "type": "verified-by"
     },
     {
       "from": "module.synchronization.task-routing",
@@ -18095,6 +18185,11 @@
     {
       "from": "module.synchronization.task-routing",
       "to": "module.materials.material-clarification",
+      "type": "uses"
+    },
+    {
+      "from": "module.synchronization.task-routing",
+      "to": "module.reviews.card-generation-policy",
       "type": "uses"
     },
     {

@@ -3,7 +3,7 @@
 | Файл | Спецификация | Назначение | Потребитель |
 |---|---|---|---|
 | [docs/decisions/sync-task-routing-2026-10-23.md](decisions/sync-task-routing-2026-10-23.md) | [План маршрутов](modules/synchronization/task-routing.md) | Основание ревизии и границы автоматизации | CLI; оператор |
-| [docs/modules/synchronization/task-routing.md](modules/synchronization/task-routing.md) | [Глобальная синхронизация](modules/synchronization/global-sync.md) | Контракт детерминированного следующего шага и границ плана | EducationSync; CLI |
+| [docs/modules/synchronization/task-routing.md](modules/synchronization/task-routing.md) | [Глобальная синхронизация](modules/synchronization/global-sync.md) | Следующий шаг, границы плана и полный манифест обновления разборов по педагогической политике | EducationSync; CLI |
 | [sync/task-route.mjs](../sync/task-route.mjs) | [План маршрутов](modules/synchronization/task-routing.md) | Известное/неизвестное и следующий шаг задания/события | Queue scan; execution artifact |
 | [sync/task-route.test.mjs](../sync/task-route.test.mjs) | [План маршрутов](modules/synchronization/task-routing.md) | Проверки развилок отсутствующего источника, предметов и событий | Vitest |
 | [operator/route-plan.mjs](../operator/route-plan.mjs) | [План маршрутов](modules/synchronization/task-routing.md) | Закрытый план из существующей квитанции без сетевого обхода | Education CLI |
@@ -332,13 +332,13 @@
 | [docs/modules/reviews/README.md](modules/reviews/README.md) | [Контракт](modules/reviews/README.md) | Контракт и связи области | Агент; разработчик |
 | [docs/modules/reviews/adaptive-problem-card.md](modules/reviews/adaptive-problem-card.md) | [Адаптивная карточка](modules/reviews/adaptive-problem-card.md) | Оригинал, помощь и попытки по номеру | Агент; разработчик |
 | [docs/modules/reviews/card-flow-certification.md](modules/reviews/card-flow-certification.md) | [Сертификация карточки](modules/reviews/card-flow-certification.md) | Матрица переходов от МЭШ и оригинала до ролевого чтения и телефона, пределы проверок | Агент; сборка; выпуск |
-| [docs/modules/reviews/card-generation-policy.md](modules/reviews/card-generation-policy.md) | [Выбор карточки](modules/reviews/card-generation-policy.md) | Общий граф выбора и профили математического адаптера | Сборка; проверка; UI |
-| [docs/modules/reviews/math-solution-route.md](modules/reviews/math-solution-route.md) | [Математический маршрут](modules/reviews/math-solution-route.md) | Повторяемая подготовка отдельной задачи математики и спецкурса | Синхронизация; проверка; родительская карточка |
+| [docs/modules/reviews/card-generation-policy.md](modules/reviews/card-generation-policy.md) | [Выбор карточки](modules/reviews/card-generation-policy.md) | Граф выбора, понятность взрослому и подсказка от достигнутого ребёнком шага | Сборка; проверка; UI |
+| [docs/modules/reviews/math-solution-route.md](modules/reviews/math-solution-route.md) | [Математический маршрут](modules/reviews/math-solution-route.md) | Решение средствами класса, явный способ подбора и адресная помощь по попытке | Синхронизация; проверка; родительская карточка |
 | [docs/modules/reviews/problem-card-design-decisions.md](modules/reviews/problem-card-design-decisions.md) | [Адаптивная карточка](modules/reviews/adaptive-problem-card.md) | Матрица сохранённых визуальных решений и регрессионной сверки для каждого слоя номера | Агент; разработчик |
 | [docs/modules/reviews/review-criteria-provenance.md](modules/reviews/review-criteria-provenance.md) | [Основания проверки](modules/reviews/review-criteria-provenance.md) | Проверяемое требование, источник, запись и предел вердикта | Агент; `scripts/submissions.mjs`; `WorkReview` |
 | [docs/modules/reviews/russian-language-route.md](modules/reviews/russian-language-route.md) | [Письменный русский](modules/reviews/russian-language-route.md) | Повторяемая подготовка четырёх видов письменной карточки, сверка фото и безопасный выпуск | Синхронизация; проверка; родительская карточка |
 | [docs/modules/reviews/special-course-card-overlay.md](modules/reviews/special-course-card-overlay.md) | [Лист спецкурса](modules/reviews/special-course-card-overlay.md) | Дополнительные правила оригинала, номеров и выпуска листа | Синхронизация; проверка; сборка |
-| [docs/modules/reviews/subject-aware-guidance.md](modules/reviews/subject-aware-guidance.md) | [Единый путь разбора](modules/reviews/subject-aware-guidance.md) | Общая оболочка и предметные адаптеры решения, письменного ответа и подсказок | Агент проверки; родительский UI |
+| [docs/modules/reviews/subject-aware-guidance.md](modules/reviews/subject-aware-guidance.md) | [Единый путь разбора](modules/reviews/subject-aware-guidance.md) | Общая оболочка, предметные адаптеры и две отдельные смысловые проверки разбора и подсказки | Агент проверки; родительский UI |
 | [docs/modules/reviews/subject-card-viewmodel.md](modules/reviews/subject-card-viewmodel.md) | [Единая модель карточки](modules/reviews/subject-card-viewmodel.md) | Контракт Firestore и проекций взрослого и ученика | Сборка; проверка; UI |
 | [docs/modules/school-diary/README.md](modules/school-diary/README.md) | [Порт дневника](modules/school-diary/README.md) | Граница получения данных МЭШ | Агент; разработчик |
 | [docs/modules/school-diary/dashboard.md](modules/school-diary/dashboard.md) | [Dashboard](modules/school-diary/dashboard.md) | Сводки дней, оценок и заданий | Агент; разработчик |
@@ -888,6 +888,10 @@
 | [scripts/education-sync-dispatch.mjs](../scripts/education-sync-dispatch.mjs) | [Контракт](services/telegram-bot/education-sync-dispatch.md) | Безопасная диагностика Mesh/action запросов, watermark и адресный жизненный цикл claim | Telegram runtime; оператор; Vitest |
 
 | [scripts/education-sync-dispatch.test.mjs](../scripts/education-sync-dispatch.test.mjs) | [Контракт](services/telegram-bot/education-sync-dispatch.md) | Регрессии: устойчивое восстановление и проверка цепочки Mesh/Telegram/EducationSync | Telegram runtime; оператор; Vitest |
+| [scripts/refresh-math-guides.mjs](../scripts/refresh-math-guides.mjs) | [Обновление разборов](modules/synchronization/task-routing.md) | Закрытый snapshot и адресная штатная публикация с readback обеих ролей и сохранением evidence | EducationSync; оператор |
+| [day/guidance-refresh.mjs](../day/guidance-refresh.mjs) | [Обновление разборов](modules/synchronization/task-routing.md) | Ограниченный рост ревизий авторского разбора и проверка сохранения учебных данных | Операторский CLI |
+| [day/guidance-refresh.test.mjs](../day/guidance-refresh.test.mjs) | [Обновление разборов](modules/synchronization/task-routing.md) | Запрет изменения ID/источника и ложного успеха при stale/private/evidence mismatch | Vitest |
+| [docs/decisions/guidance-refresh-readback-2026-10-25.md](decisions/guidance-refresh-readback-2026-10-25.md) | [Обновление разборов](modules/synchronization/task-routing.md) | Основание пакетного адресного обновления без новой попытки ученика | Оператор; разработчик |
 
 | [packages/telegram-notifications/application/education-sync-dispatch-store.test.mjs](../packages/telegram-notifications/application/education-sync-dispatch-store.test.mjs) | [Контракт](services/telegram-bot/education-sync-dispatch.md) | Устойчивый запуск, восстановление и регрессии Education | Оператор; runtime; Vitest |
 
