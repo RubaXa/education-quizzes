@@ -312,6 +312,33 @@
       "path": "docs/audits/telegram-self-review-2026-10-16.md"
     },
     {
+      "id": "decision.accepted-help-closure-2026-10-25",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-25",
+      "updated": "2026-10-25",
+      "parent": "module.synchronization.education-pipeline",
+      "uses": [
+        "module.synchronization.education-pipeline"
+      ],
+      "code": [
+        "sync/help-request-resolution.mjs",
+        "scripts/sync-inbox.mjs",
+        "scripts/sync-queue.mjs"
+      ],
+      "consumers": [
+        "Education sync operator"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/accepted-help-closure-2026-10-25.md"
+    },
+    {
       "id": "decision.audio-compact-controls-2026-10-23",
       "status": "accepted",
       "implementation": "partial",
@@ -7607,6 +7634,20 @@
       "consumer": "Vitest; разработчик"
     },
     {
+      "id": "file:sync/help-request-resolution.mjs",
+      "path": "sync/help-request-resolution.mjs",
+      "kind": "artifact",
+      "purpose": "Сверка более позднего принятия той же попытки семьёй и новых запросов",
+      "consumer": "inbox; sync-queue"
+    },
+    {
+      "id": "file:sync/help-request-resolution.test.mjs",
+      "path": "sync/help-request-resolution.test.mjs",
+      "kind": "verification",
+      "purpose": "Регрессии версии, времени, повторного открытия и сохранения истории",
+      "consumer": "Vitest"
+    },
+    {
       "id": "file:sync/job-queue.mjs",
       "path": "sync/job-queue.mjs",
       "kind": "artifact",
@@ -9212,7 +9253,8 @@
       "code": [
         "scripts/install-upload-worker.mjs",
         "scripts/sync-books.mjs",
-        "scripts/sync-inbox.mjs"
+        "scripts/sync-inbox.mjs",
+        "sync/help-request-resolution.mjs"
       ],
       "parent": "module.synchronization",
       "uses": [
@@ -11425,6 +11467,11 @@
     {
       "from": "audits.telegram-self-review-2026-10-16",
       "to": "shared.specification-system",
+      "type": "uses"
+    },
+    {
+      "from": "decision.accepted-help-closure-2026-10-25",
+      "to": "module.synchronization.education-pipeline",
       "type": "uses"
     },
     {
@@ -13899,6 +13946,11 @@
     },
     {
       "from": "file:scripts/sync-inbox.mjs",
+      "to": "decision.accepted-help-closure-2026-10-25",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/sync-inbox.mjs",
       "to": "module.materials.family-library",
       "type": "implements"
     },
@@ -13945,6 +13997,11 @@
     {
       "from": "file:scripts/sync-project.mjs",
       "to": "operations.education-sync",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/sync-queue.mjs",
+      "to": "decision.accepted-help-closure-2026-10-25",
       "type": "implements"
     },
     {
@@ -16308,6 +16365,16 @@
       "type": "implements"
     },
     {
+      "from": "file:sync/help-request-resolution.mjs",
+      "to": "decision.accepted-help-closure-2026-10-25",
+      "type": "implements"
+    },
+    {
+      "from": "file:sync/help-request-resolution.mjs",
+      "to": "module.synchronization.education-pipeline",
+      "type": "implements"
+    },
+    {
       "from": "file:sync/job-queue.mjs",
       "to": "module.synchronization.global-sync",
       "type": "implements"
@@ -17851,6 +17918,16 @@
       "from": "module.synchronization.change-detection-and-reconciliation",
       "to": "module.synchronization.plan-generation",
       "type": "uses"
+    },
+    {
+      "from": "module.synchronization.education-pipeline",
+      "to": "decision.accepted-help-closure-2026-10-25",
+      "type": "contains"
+    },
+    {
+      "from": "module.synchronization.education-pipeline",
+      "to": "file:sync/help-request-resolution.test.mjs",
+      "type": "verified-by"
     },
     {
       "from": "module.synchronization.education-pipeline",
