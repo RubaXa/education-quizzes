@@ -1421,6 +1421,31 @@
       "path": "docs/decisions/review-prose-coverage-2026-10-19.md"
     },
     {
+      "id": "decision.reviewed-photo-placement-2026-10-26",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-26",
+      "updated": "2026-10-26",
+      "parent": "module.materials.storage-privacy",
+      "uses": [],
+      "consumers": [
+        "EducationSync reviewer",
+        "operator CLI"
+      ],
+      "code": [
+        "storage/photo-placement.mjs",
+        "scripts/submissions.mjs"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/reviewed-photo-placement-2026-10-26.md"
+    },
+    {
       "id": "decision.reviews.guidance-hint-then-reveal",
       "status": "accepted",
       "implementation": "implemented",
@@ -7429,6 +7454,20 @@
       "kind": "verification",
       "purpose": "Защита от публикации соседних страниц и повторной записи неизменного документа",
       "consumer": "Vitest; оператор"
+    },
+    {
+      "id": "file:storage/photo-placement.mjs",
+      "path": "storage/photo-placement.mjs",
+      "kind": "artifact",
+      "purpose": "Проверенное исправление места фотографии с историей и readback",
+      "consumer": "Reviewer; submissions CLI"
+    },
+    {
+      "id": "file:storage/photo-placement.test.mjs",
+      "path": "storage/photo-placement.test.mjs",
+      "kind": "verification",
+      "purpose": "Единственное покрытие, ревизии, идемпотентность и владелец",
+      "consumer": "Vitest"
     },
     {
       "id": "file:storage/review-challenge.mjs",
@@ -13886,6 +13925,11 @@
     },
     {
       "from": "file:scripts/submissions.mjs",
+      "to": "decision.reviewed-photo-placement-2026-10-26",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/submissions.mjs",
       "to": "decision.reviews.math-parent-stage-review",
       "type": "implements"
     },
@@ -16245,6 +16289,16 @@
       "type": "implements"
     },
     {
+      "from": "file:storage/photo-placement.mjs",
+      "to": "decision.reviewed-photo-placement-2026-10-26",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/photo-placement.mjs",
+      "to": "module.materials.storage-privacy",
+      "type": "implements"
+    },
+    {
       "from": "file:storage/review-challenge.mjs",
       "to": "module.reviews.review-criteria-provenance",
       "type": "implements"
@@ -17091,6 +17145,11 @@
     },
     {
       "from": "module.materials.storage-privacy",
+      "to": "decision.reviewed-photo-placement-2026-10-26",
+      "type": "contains"
+    },
+    {
+      "from": "module.materials.storage-privacy",
       "to": "decisions.upload-origin-links-2026-10-18",
       "type": "contains"
     },
@@ -17127,6 +17186,11 @@
     {
       "from": "module.materials.storage-privacy",
       "to": "file:storage/direct-upload.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.materials.storage-privacy",
+      "to": "file:storage/photo-placement.test.mjs",
       "type": "verified-by"
     },
     {

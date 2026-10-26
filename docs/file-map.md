@@ -949,3 +949,7 @@
 | [docs/decisions/audio-stable-controls-2026-10-22.md](decisions/audio-stable-controls-2026-10-22.md) | [Аудиобиблиотека](modules/materials/audio-library.md) | Постоянная панель до/после Play и всегда видимое замедление | Разработчик; выпуск |
 
 | [docs/decisions/audio-compact-controls-2026-10-23.md](decisions/audio-compact-controls-2026-10-23.md) | [Аудиобиблиотека](modules/materials/audio-library.md) | Одобренный компактный макет, источник решения и сохранение сценариев | AudioPlayer; UI Kit; выпуск |
+
+| [storage/photo-placement.mjs](../storage/photo-placement.mjs) | [Привязка фото](modules/materials/storage-privacy.md) | Проверенное исправление места фотографии с историей и readback | Reviewer; submissions CLI |
+| [storage/photo-placement.test.mjs](../storage/photo-placement.test.mjs) | [Привязка фото](modules/materials/storage-privacy.md) | Единственное покрытие, ревизии, идемпотентность и владелец | Vitest |
+| [docs/decisions/reviewed-photo-placement-2026-10-26.md](decisions/reviewed-photo-placement-2026-10-26.md) | [Привязка фото](modules/materials/storage-privacy.md) | Прямое требование автоматического исправления карточки | Оператор; разработчик |
