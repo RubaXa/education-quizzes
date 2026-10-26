@@ -2348,17 +2348,17 @@
       }
     },
     "scripts/submissions.mjs": {
-      "sha256": "7218ffb18d7d6e35b11a4eb96c7a63c9f95533602c171672de533f76277b86b8",
-      "record": "docs/decisions/unified-education-events-2026-10-19.md",
+      "sha256": "7c096c7ba6466c6e6a50cadbc192099c9098c5d48746c4dcb5e7a215a4f894ff",
+      "record": "docs/decisions/reviewed-photo-placement-2026-10-26.md",
       "specs": [
-        "docs/modules/synchronization/event-queue.md"
+        "docs/modules/materials/storage-privacy.md"
       ],
       "tests": [
-        "storage/review-publication-event.test.mjs"
+        "storage/photo-placement.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 требует одну внутреннюю очередь событий и одну подписку вместо множества source watchers; ранее поручил реализацию через Luna с проверкой root, тестами, спецификациями и выпуском в main."
+        "evidence": "Пользователь26.10 прямо потребовал автоматически переносить ошибочно загруженную работу в правильную карточку."
       }
     },
     "scripts/sync-books.mjs": {
@@ -6251,6 +6251,20 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Родитель25.10попросил выяснить причину старого обращения и обработать его, если ребёнок ещё ждёт помощи. Подтверждено последующее принятие той же попытки семьёй."
+      }
+    },
+    "storage/photo-placement.mjs": {
+      "sha256": "4c276b36b65fd81e9a7f090139e67a3bd65f5694b0793c233815335e2767527e",
+      "record": "docs/decisions/reviewed-photo-placement-2026-10-26.md",
+      "specs": [
+        "docs/modules/materials/storage-privacy.md"
+      ],
+      "tests": [
+        "storage/photo-placement.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь26.10 прямо потребовал автоматически переносить ошибочно загруженную работу в правильную карточку."
       }
     }
   }

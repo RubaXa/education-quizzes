@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/reviewed-photo-placement-2026-10-26.md */
 /**
  * @see ../docs/product/homework-review.md
  * @see ../docs/modules/reviews/README.md
@@ -15,6 +16,7 @@ import { applicationDefault, initializeApp } from 'firebase-admin/app'
 import { FieldValue, getFirestore, Timestamp } from 'firebase-admin/firestore'
 import { resolveSubmission } from '../storage/submission-inbox.mjs'
 import { reviewCoverage } from '../storage/review-coverage.mjs'
+import { photoPlacementPatch, relocateReviewedPhoto } from '../storage/photo-placement.mjs'
 import { reviewChallengeErrors } from '../storage/review-challenge.mjs'
 import { studentReviewProjection } from '../storage/review-projection.mjs'
 import { validateRequirementChecks } from '../storage/review-requirements.mjs'
@@ -29,15 +31,15 @@ import { stageReviewPublishedEvents } from '../storage/review-publication-event.
  * @see ../docs/modules/synchronization/change-detection-and-reconciliation.md
  */
 const [command, argument, phase] = process.argv.slice(2)
-const reviewCommand = ['review', 'validate', 'progress', 'feedback'].includes(command)
+const reviewCommand = ['review', 'validate', 'progress', 'feedback', 'relocate'].includes(command)
 const dateFilter = reviewCommand || ['migrate-private-reviews', 'review-privacy-audit'].includes(command) ? null : argument
-if (!['inbox', 'pull', 'review', 'validate', 'progress', 'help', 'feedback', 'feedback-audit', 'basis-audit', 'migrate-private-reviews', 'review-privacy-audit'].includes(command)
+if (!['inbox', 'pull', 'review', 'validate', 'progress', 'relocate', 'help', 'feedback', 'feedback-audit', 'basis-audit', 'migrate-private-reviews', 'review-privacy-audit'].includes(command)
   || reviewCommand && !argument
   || command === 'progress' && !['download', 'source', 'review', 'publish', 'paused'].includes(phase)
   || command === 'migrate-private-reviews' && argument && argument !== '--dry-run'
   || command === 'review-privacy-audit' && argument
   || dateFilter && !/^\d{4}-\d{2}-\d{2}$/.test(dateFilter)) {
-  throw new Error('Использование: npm run submissions -- inbox|pull|help|feedback-audit|basis-audit [YYYY-MM-DD] | progress .local/review-....json download|source|review|publish|paused | validate|review|feedback .local/review-....json | migrate-private-reviews [--dry-run] | review-privacy-audit')
+  throw new Error('Использование: npm run submissions -- inbox|pull|help|feedback-audit|basis-audit [YYYY-MM-DD] | progress .local/review-....json download|source|review|publish|paused | validate|review|feedback .local/review-....json | relocate .local/placement.json | migrate-private-reviews [--dry-run] | review-privacy-audit')
 }
 const local = resolve('.local')
 const adcFile = resolve(local, 'adc.json')
@@ -484,7 +486,7 @@ async function preparedReview(filename) {
   const guides = new Map(routeEntries.map((entry, index) => [entry.taskId, guideDocs[index].data()?.guide]))
   entries.forEach((entry) => validateReviewResult(entry, page, guides.get(entry.taskId)))
   if (photos.some((photo) => photo.data().storage?.state !== 'stored')) throw new Error('Фото ещё не перенесено на Диск.')
-  return { review, coverage, owner, refs, page, entries }
+  return { review, coverage, owner, refs, photos, page, entries }
 }
 
 async function validateReviewFile(filename) {
@@ -495,7 +497,7 @@ async function validateReviewFile(filename) {
 
 /** @see ../docs/modules/materials/storage-privacy.md#multi-task-photo */
 async function publishReview(filename) {
-  const { review, coverage, owner, refs, page, entries } = await preparedReview(filename)
+  const { review, coverage, owner, refs, photos, page, entries } = await preparedReview(filename)
   const reviewRefs = entries.map((entry) => db.doc(`dayProgress/${owner.id}/items/${entry.taskId}`))
   const privateRefs = entries.map((entry) => db.doc(`dayReviewPrivate/${owner.id}/items/${entry.taskId}`))
   const previous = await Promise.all(privateRefs.map(async (ref, index) => (await ref.get()).data() ?? (await reviewRefs[index].get()).data()))
@@ -509,7 +511,14 @@ async function publishReview(filename) {
   })
   refs.forEach((ref, index) => {
     const id = review.uploadIds[index]
+    const photo = photos[index].data()
+    const proven = coverage?.get(id)
+    const placement = proven?.taskIds.length === 1 && proven.taskIds[0] !== photo.taskId
+      ? photoPlacementPatch({ ...photo, coveredTaskIds: proven.taskIds }, {
+        fromTaskId: photo.taskId, toTaskId: proven.taskIds[0], taskIds: page.taskIds,
+        planRevision: review.planRevision, reason: proven.observed, now, reviewComplete: true }) : null
     batch.update(ref, { status: 'reviewed', reviewedAt: now, processingTaskIds: FieldValue.delete(),
+      ...(placement ?? {}),
       ...(coverage ? { coveredTaskIds: coverage.get(id).taskIds, coverageNote: coverage.get(id).observed } : {}) })
   })
   await stageReviewNotice(batch, owner, page, review, entries, 'review_ready', now)
@@ -559,7 +568,11 @@ async function migratePrivateReviews(dryRun, auditOnly = false) {
   if (auditOnly && (missingPrivate || unsafePublic)) process.exitCode = 1
 }
 
-if (command === 'validate') {
+if (command === 'relocate') {
+  const filename = resolve(argument)
+  if (!filename.startsWith(`${local}/`) || !filename.endsWith('.json')) throw new Error('Нужен закрытый JSON запроса переноса.')
+  console.log(JSON.stringify(await relocateReviewedPhoto(db, JSON.parse(readFileSync(filename, 'utf8')), Timestamp.now())))
+} else if (command === 'validate') {
   await validateReviewFile(argument)
 } else if (command === 'review') {
   await publishReview(argument)
