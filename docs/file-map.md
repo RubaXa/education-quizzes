@@ -896,7 +896,7 @@
 | [day/guidance-refresh.test.mjs](../day/guidance-refresh.test.mjs) | [Обновление разборов](modules/synchronization/task-routing.md) | Запрет изменения ID/источника и ложного успеха при stale/private/evidence mismatch | Vitest |
 | [docs/decisions/guidance-refresh-readback-2026-10-25.md](decisions/guidance-refresh-readback-2026-10-25.md) | [Обновление разборов](modules/synchronization/task-routing.md) | Основание пакетного адресного обновления без новой попытки ученика | Оператор; разработчик |
 
-| [packages/telegram-notifications/application/education-sync-dispatch-store.test.mjs](../packages/telegram-notifications/application/education-sync-dispatch-store.test.mjs) | [Контракт](services/telegram-bot/education-sync-dispatch.md) | Устойчивый запуск, восстановление и регрессии Education | Оператор; runtime; Vitest |
+| [packages/telegram-notifications/application/education-sync-dispatch-store.test.mjs](../packages/telegram-notifications/application/education-sync-dispatch-store.test.mjs) | [Контракт](services/telegram-bot/education-sync-dispatch.md) | Устойчивый запуск, объединение до первого claim, неизменность активного диапазона и восстановление | Оператор; runtime; Vitest |
 
 | [docs/decisions/telegram-sync-recovery-2026-10-19.md](decisions/telegram-sync-recovery-2026-10-19.md) | [Telegram service](services/telegram-bot/README.md) | Решение и приёмка восстановления worker и запуска EducationSync | Команда Education; оператор |
 | [docs/decisions/firestore-live-discovery-2026-10-19.md](decisions/firestore-live-discovery-2026-10-19.md) | [Firestore source](services/telegram-bot/adapters/firestore.md) | Постоянное обнаружение новых документов, независимость от Mesh и проверка задержек | Telegram maintainer; оператор |

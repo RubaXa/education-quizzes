@@ -4410,7 +4410,7 @@
       "id": "file:packages/telegram-notifications/application/education-sync-dispatch-store.test.mjs",
       "path": "packages/telegram-notifications/application/education-sync-dispatch-store.test.mjs",
       "kind": "verification",
-      "purpose": "Устойчивый запуск, восстановление и регрессии Education",
+      "purpose": "Устойчивый запуск, объединение до первого claim, неизменность активного диапазона и восстановление",
       "consumer": "Оператор; runtime; Vitest"
     },
     {

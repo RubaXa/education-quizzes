@@ -56,6 +56,40 @@ const iso = (offsetMs = 0) => new Date(base + offsetMs).toISOString()
 const digest = (n) => n.toString(16).padStart(64, '0')
 
 describe('Firestore EducationSync dispatch store state machine', () => {
+  it('absorbs a burst while queued into the same first workflow claim, with no successor run', async () => {
+    const { store } = setup()
+    await store.recordMeshChange({ eventDigest: digest(1000), now: iso(), debounceUntil: iso() })
+    const dispatch = await store.claim({ now: iso(1), workerId: 'worker-a' })
+    await store.markQueued({ requestId: dispatch.requestId, workerId: dispatch.workerId, now: iso(2) })
+    for (let n = 1001; n <= 1100; n++) {
+      await store.recordMeshChange({ eventDigest: digest(n), now: iso(3), debounceUntil: iso(4) })
+    }
+    expect(await store.claim({ now: iso(5), workerId: 'worker-b' })).toBeNull()
+    expect(await store.claimRequest({ requestId: dispatch.requestId, tokenHash: digest(1200), now: iso(6) }))
+      .toEqual({ status: 'claimed' })
+    expect(await store.read()).toMatchObject({ requestId: dispatch.requestId, generation: 101,
+      sendingGeneration: 101, pendingKinds: [], sourceAttemptGeneration: 101 })
+    expect(await store.completeClaim({ requestId: dispatch.requestId, tokenHash: digest(1200), now: iso(7) }))
+      .toEqual({ status: 'completed' })
+  })
+
+  it('absorbs pending action bounds on first claim but never expands an expired claimed range', async () => {
+    const { db, store } = setup()
+    const requestId = '00000000-0000-4000-8000-000000000001'
+    db.documents.set('educationSyncDispatch/current', { requestId, status: 'queued', generation: 12, coalesceBeforeClaim: true,
+      sendingGeneration: 8, sendingKinds: ['mesh'], pendingKinds: ['action'],
+      sendingActionAfterGeneration: 4, sendingActionThroughGeneration: 8,
+      pendingActionAfterGeneration: 8, pendingActionThroughGeneration: 12 })
+    await store.claimRequest({ requestId, tokenHash: digest(1201), now: iso() })
+    expect(await store.read()).toMatchObject({ sendingGeneration: 12, sendingKinds: ['mesh', 'action'],
+      sendingActionAfterGeneration: 4, sendingActionThroughGeneration: 12,
+      pendingKinds: [], pendingActionThroughGeneration: null })
+    await store.recordMeshChange({ eventDigest: digest(1202), now: iso(1), debounceUntil: iso(2) })
+    await store.claimRequest({ requestId, tokenHash: digest(1203), now: iso(7 * 60 * 60_000) })
+    expect(await store.read()).toMatchObject({ generation: 13, sendingGeneration: 12,
+      sendingActionThroughGeneration: 12, pendingKinds: ['mesh'] })
+  })
+
   it.each(['queued', 'sending', 'uncertain', 'running', 'blocked'])('does not schedule a new dispatch while %s holds the active request', async (status) => {
     const { db, store } = setup()
     db.documents.set('educationSyncDispatch/current', { status, generation: 1, sendingGeneration: 1,
@@ -98,6 +132,12 @@ describe('Firestore EducationSync dispatch store state machine', () => {
       .toEqual({ status: 'pending' })
     expect(await store.read()).toMatchObject({ status: 'pending', generation: 6, sendingGeneration: null,
       requestId: null, debounceUntil: iso(43_015) })
+    const next = await store.claim({ now: iso(44_000), workerId: 'worker-b' })
+    await store.recordMeshChange({ eventDigest: digest(16), now: iso(45_000), debounceUntil: iso(46_000) })
+    await store.claimRequest({ requestId: next.requestId, tokenHash: digest(100), now: iso(47_000) })
+    expect(await store.read()).toMatchObject({ sendingGeneration: 7, pendingKinds: [] })
+    expect(await store.completeClaim({ requestId: next.requestId, tokenHash: digest(100), now: iso(48_000) }))
+      .toEqual({ status: 'completed' })
   })
 
   it('reuses the same request ID after an uncertain queue acknowledgement and ignores stale queue success', async () => {
