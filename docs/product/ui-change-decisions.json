@@ -1245,7 +1245,7 @@
       }
     },
     "packages/telegram-notifications/application/education-sync-dispatcher.mjs": {
-      "sha256": "087b5a3093b2e07b9a5754502c5a86b1a51312861ea6cc536ab056c40d65d9bb",
+      "sha256": "f8e8f293a85035dc7bc6d5f84c7f2dd92527662ef056718addb016c3bc7055f4",
       "record": "docs/decisions/source-wait-generations-2026-10-22.md",
       "specs": [
         "docs/services/telegram-bot/education-sync-dispatch.md"

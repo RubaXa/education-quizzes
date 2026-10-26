@@ -336,6 +336,7 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
         const workKinds = Array.isArray(state.sendingKinds) && state.sendingKinds.length ? state.sendingKinds
           : continuingBatch ? ['mesh'] : (Array.isArray(state.pendingKinds) ? state.pendingKinds : ['mesh'])
         tx.set(ref, { ...state, status: 'sending', requestId,
+          ...(!continuingBatch ? { coalesceBeforeClaim: true, claimedAt: null } : {}),
           sendingGeneration: continuingBatch ? state.sendingGeneration : state.generation,
           sendingKinds: workKinds, pendingKinds: continuingBatch ? (state.pendingKinds ?? []) : [],
           sendingActionAfterGeneration: continuingBatch ? state.sendingActionAfterGeneration ?? 0 : state.pendingActionAfterGeneration ?? state.completedActionGeneration ?? 0,
@@ -399,7 +400,22 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
         if (state.requestId !== requestId) return { status: 'stale_request' }
         if (state.status === 'running' && state.workflowLeaseUntil > now) return { status: 'running' }
         if (!['sending', 'queued', 'uncertain', 'running'].includes(state.status)) return { status: state.status }
-        tx.set(ref, { ...state, status: 'running', claimTokenHash: tokenHash, claimedAt: now,
+        // Transport acknowledgement is not a workflow claim. Absorb all changes that
+        // arrived while this message waited, atomically with the first claim. A
+        // previously claimed/expired request must retain its original frozen range.
+        const activeLane = ['pending', 'sending', 'queued', 'uncertain', 'running', 'blocked'].includes(state.actionLane?.status)
+        const absorbPending = state.coalesceBeforeClaim === true && !state.claimedAt && state.status !== 'running' && !activeLane
+        const pendingThrough = state.pendingActionThroughGeneration
+        const actionThrough = absorbPending && Number.isInteger(pendingThrough)
+          ? Math.max(state.sendingActionThroughGeneration ?? 0, pendingThrough) : state.sendingActionThroughGeneration
+        tx.set(ref, { ...state, ...(absorbPending ? {
+          sendingGeneration: state.generation,
+          sourceAttemptGeneration: state.generation,
+          sendingKinds: [...new Set([...(state.sendingKinds ?? ['mesh']), ...(state.pendingKinds ?? [])])],
+          sendingActionAfterGeneration: state.sendingActionAfterGeneration ?? state.completedActionGeneration ?? 0,
+          sendingActionThroughGeneration: actionThrough ?? null,
+          pendingKinds: [], pendingActionAfterGeneration: null, pendingActionThroughGeneration: null,
+        } : {}), coalesceBeforeClaim: false, status: 'running', claimTokenHash: tokenHash, claimedAt: now,
           workflowLeaseUntil: new Date(Date.parse(now) + 6 * 60 * 60_000).toISOString() }, { merge: false })
         return { status: 'claimed' }
       })
@@ -561,14 +577,13 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
   })
 }
 
-export function buildMessage(requestId, claimScriptPath = '/PATH/scripts/education-sync-dispatch.mjs', _workKinds = ['mesh'], batch = {}) {
+export function buildMessage(requestId, claimScriptPath = '/PATH/scripts/education-sync-dispatch.mjs', _workKinds = ['mesh'], _batch = {}) {
   const run = (action) => `${shellQuote(process.execPath)} ${shellQuote(claimScriptPath)} ${action}`
   const claimFile = '"/ABSOLUTE/CLAIM/PATH/FROM/COMMAND/OUTPUT"'
   const fullSyncInstruction = 'Run $education-sync in full verification mode for every dispatch: perform a fresh global inventory, full inbox snapshot, and complete 42-day Mesh collection for all connected families/children before declaring the run complete. Never skip this because a prior sync or Rules/PWA update was recent. Reconcile changed dates through publication and student/parent readback. If a source is unavailable, preserve the exact blocker and continue independent work, but do not claim the global cycle complete.'
-  const hasActions = Number.isInteger(batch.actionThroughGeneration) && batch.actionThroughGeneration > (batch.actionAfterGeneration ?? 0)
-  const actionInstruction = hasActions
-    ? `After starting the required full verification, process this frozen event-action range with the exact task exporter: run ${run(`tasks --request ${requestId} --claim-file ${claimFile}`)}, then follow the private manifest references. Do not broaden the event range; the full inbox and Mesh collection are still required.`
-    : ''
+  // Actions can arrive after transport enqueue and before the first workflow claim.
+  // Always consult the exporter: the claim, not the old message, freezes the range.
+  const actionInstruction = `After starting the required full verification, process the event-action range frozen by your claim with the exact task exporter: run ${run(`tasks --request ${requestId} --claim-file ${claimFile}`)}, then follow the private manifest references. Pending changes are merged at first claim. Do not broaden the event range; the full inbox and Mesh collection are still required.`
   const meshInstruction = 'The user has authorized standard Mesh material synchronization using the established family archive and public-link workflow without per-file confirmation prompts.'
   const instruction = [fullSyncInstruction, meshInstruction, actionInstruction].filter(Boolean).join(' ')
   return `${instruction} This message is only a dispatch request. Request ID: ${requestId}. First claim it with: ${run(`claim --request ${requestId}`)}. If the result is busy, running, completed, blocked, or anything other than claimed, stop without syncing. Keep the private claim file path returned by claim. Renew the claim with ${run(`heartbeat --request ${requestId} --claim-file ${claimFile}`)} between long workflow stages. After the requested workflow succeeds, run ${run(`complete --request ${requestId} --claim-file ${claimFile}`)}. Block only for a genuine runtime/credentials failure, an explicit external tool policy denial, or a human review requirement that applies beyond the already authorized standard flow; do not block to ask for per-file confirmation. Report the actual blocker and run ${run(`block --request ${requestId} --claim-file ${claimFile} --reason permission_required`)} (use source_unavailable or manual_review_required when those apply). For an ordinary retryable workflow failure, use ${run(`fail --request ${requestId} --claim-file ${claimFile}`)}. A successful queue acknowledgement never means the sync completed.`
@@ -688,6 +703,7 @@ function claimSourceWaitRecovery({ tx, ref, state, now, workerId }) {
       retryAt: null, supersededAt: now, supersededByRequestId: requestId }
     : actionLane
   tx.set(ref, { ...state, status: 'sending', requestId, sendingGeneration: generation, sendingKinds: kinds,
+    coalesceBeforeClaim: true, claimedAt: null,
     pendingKinds: [], sendingActionAfterGeneration: hasActionRange ? lower : null,
     sendingActionThroughGeneration: hasActionRange ? upper : null,
     actionAfterGeneration: hasActionRange ? lower : null, actionThroughGeneration: hasActionRange ? upper : null,
