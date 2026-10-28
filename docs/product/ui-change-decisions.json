@@ -647,22 +647,21 @@
       }
     },
     "operator/operation-contract.mjs": {
-      "sha256": "a7eb6ec76dd108864b5b96ff4396462e0b96d6963f4fa3795cbfee2840857d62",
-      "record": "docs/decisions/operator-tool-trial-2026-10-16.md",
+      "sha256": "1fb327304e9a4f36ab5a2ab9985ab463311c9a319730ce8c505dc65adc5c72bb",
+      "record": "docs/decisions/olympiad-integration-2026-10-28.md",
       "specs": [
-        "docs/services/operator-cli/README.md",
-        "docs/modules/assessments/assessment-decision-graph.md"
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "operator/operation-contract.test.mjs"
+        "src/components/OlympiadWrittenPractice.integration.test.tsx",
+        "src/UiKit.test.tsx",
+        "operator/olympiad-help.test.mjs",
+        "sync/olympiad-help.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 16.10.2026 потребовал исправить связанный тест и закрепить операцию в едином повторяемом CLI."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "420ac84b63f168b88c1a647dcdafa936d8829ecee746a77b9715a0c59d2ef2dd"
+        "evidence": "Пользователь 28.10 поручил подключить сервер, фото, синхронизацию и уроки через UI Kit и LDD с проверками."
       }
     },
     "operator/recipes.mjs": {
@@ -680,20 +679,21 @@
       "sha256": "df3103b0c6d21bf5774f37d2531bf7ac32c131081a9f15382701cd8c4d002501"
     },
     "operator/run-operation.mjs": {
-      "sha256": "2e9612422d8b27279914a6ae00d0ba4fb0b69c3cd0c5e4167208393e70bf1a89",
-      "record": "docs/decisions/project-publication-audit-2026-10-21.md",
+      "sha256": "349e556ef78d5c546f727b9ff923ebb41ca77b80826c4223a6d9daa5b064aa48",
+      "record": "docs/decisions/olympiad-integration-2026-10-28.md",
       "specs": [
-        "docs/modules/synchronization/global-sync.md",
-        "docs/modules/synchronization/firestore-read-paths.md",
-        "docs/services/operator-cli/README.md"
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "operator/run-operation.test.mjs",
-        "operator/operation-contract.test.mjs"
+        "src/components/OlympiadWrittenPractice.integration.test.tsx",
+        "src/UiKit.test.tsx",
+        "operator/olympiad-help.test.mjs",
+        "sync/olympiad-help.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение EducationSync/root: добавить read-only аудит сохранённого manifest-window с отдельным private receipt без сбора и изменения workflow."
+        "evidence": "Пользователь 28.10 поручил подключить сервер, фото, синхронизацию и уроки через UI Kit и LDD с проверками."
       }
     },
     "packages/education-connect/bin/education-connect.mjs": {
@@ -2059,27 +2059,17 @@
       }
     },
     "scripts/firestore-read-index.mjs": {
-      "sha256": "26b41672894bb26ec853bfec3bdcf259f0a8965e719acef24e9b3d3bee5c5c68",
-      "record": "docs/decisions/authenticated-learning-routes-2026-10-18.md",
+      "sha256": "c39def52619f2f7900aa2e40a7e9da9ca3493bb57a991ccbdbeb2c1ede82bd36",
+      "record": "docs/decisions/olympiad-family-screen-2026-10-27.md",
       "specs": [
-        "docs/modules/families/access-and-state.md",
-        "docs/shared/specification-system.md"
+        "docs/modules/synchronization/firestore-read-paths.md"
       ],
       "tests": [
-        "src/components/LearningRoute.integration.test.tsx",
-        "src/lib/learningRoute.test.ts",
-        "day/learning-route-identity.test.mjs",
-        "src/components/ProblemTaskCard.contract.test.tsx",
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
+        "sync/olympiad-help.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10.2026 прямо требует определять родительский и ученический вид по авторизованной роли, а учебные ссылки сделать одинаковыми для обеих ролей."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "54c022354bdfead4566eb542e5cac3aaff6752d9d5748c44ff0384ac686ac1d6"
+        "evidence": "Пользователь поручил подключить хранение и синхронизацию и проверить реализацию, включая серверные обращения Firestore."
       }
     },
     "scripts/firestore-usage-window.mjs": {
@@ -2329,22 +2319,17 @@
       }
     },
     "scripts/storage.mjs": {
-      "sha256": "63b512dad9fb83cf7362c4442975633db52cc1365e8c5347509c369617183417",
-      "record": "docs/decisions/operator-tool-trial-2026-10-16.md",
+      "sha256": "55f83d56992588a55a08b63b4ccab864a4ae0775c0d98b64eab35388f36ec68c",
+      "record": "docs/decisions/public-olympiad-reference-archive-2026-10-27.md",
       "specs": [
-        "docs/modules/materials/materials.md",
-        "docs/services/operator-cli/README.md"
+        "docs/modules/materials/materials.md"
       ],
       "tests": [
-        "storage/page-publication.test.mjs"
+        "storage/public-references.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 16.10.2026 поручил испытать инструменты Education Sync и исправить выявленные лишние чтения и записи."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "2a01e3abcfd80720ca118d21e13045b0e80f69e22387065d53d83ebcf6a73dce"
+        "evidence": "Пользователь27.10.2026 прямо поручил сохранять найденные открытые олимпиадные условия, решения и методики в общей сразу доступной всем библиотеке и проверять по ним."
       }
     },
     "scripts/submissions.mjs": {
@@ -2381,18 +2366,19 @@
       }
     },
     "scripts/sync-inbox.mjs": {
-      "sha256": "d4e874e1b42ee5215e1e449c9f71a4f619cd1a44d1b346614caab700990f9a4d",
-      "record": "docs/decisions/accepted-help-closure-2026-10-25.md",
+      "sha256": "5738c2b477d67b37621f918338595534eb7e5387546ae410f1405e75e30ed538",
+      "record": "docs/decisions/olympiad-family-screen-2026-10-27.md",
       "specs": [
+        "docs/modules/assessments/olympiad-preparation.md",
         "docs/modules/synchronization/education-pipeline.md"
       ],
       "tests": [
-        "sync/help-request-resolution.test.mjs",
-        "scripts/sync-queue-resolution.test.mjs"
+        "sync/olympiad-help.test.mjs",
+        "sync/job-queue-fence.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель25.10попросил выяснить причину старого обращения и обработать его, если ребёнок ещё ждёт помощи. Подтверждено последующее принятие той же попытки семьёй."
+        "evidence": "Пользователь поручил подключить синхронизацию помощи олимпиады и проверять интеграцию без дополнительных согласований."
       }
     },
     "scripts/sync-project.mjs": {
@@ -2413,18 +2399,19 @@
       }
     },
     "scripts/sync-queue.mjs": {
-      "sha256": "7c38d8edb3f5c8cefef92ca948a14ad378ab08768b3bf001041c2d2585e0a095",
-      "record": "docs/decisions/accepted-help-closure-2026-10-25.md",
+      "sha256": "9493f2b917454f328fa95992395070eb900b0f9cdd961124d402248b8c96e692",
+      "record": "docs/decisions/olympiad-family-screen-2026-10-27.md",
       "specs": [
+        "docs/modules/assessments/olympiad-preparation.md",
         "docs/modules/synchronization/education-pipeline.md"
       ],
       "tests": [
-        "sync/help-request-resolution.test.mjs",
-        "scripts/sync-queue-resolution.test.mjs"
+        "sync/olympiad-help.test.mjs",
+        "sync/job-queue-fence.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель25.10попросил выяснить причину старого обращения и обработать его, если ребёнок ещё ждёт помощи. Подтверждено последующее принятие той же попытки семьёй."
+        "evidence": "Пользователь поручил подключить синхронизацию помощи олимпиады и проверять интеграцию без дополнительных согласований."
       }
     },
     "scripts/telegram-bot.mjs": {
@@ -2542,21 +2529,20 @@
       }
     },
     "src/App.tsx": {
-      "sha256": "53336ea1ebfe49129e7abd788c237b4292f89bb7ffbbd917437267ac367f5d33",
-      "record": "docs/decisions/early-development-live-2026-10-22.md",
+      "sha256": "6a3f6c7002f2e53a630e887c038341c5c623c4c1e9a18390dd5459ff2add80c8",
+      "record": "docs/decisions/olympiad-family-screen-2026-10-27.md",
       "specs": [
-        "docs/modules/families/early-development.md"
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "scripts/lib/early-development.test.mjs",
-        "src/lib/earlyDevelopmentStore.test.ts",
-        "src/components/ParentHome.early.test.tsx",
-        "src/components/EarlyDevelopment.test.tsx",
-        "src/components/PersonalEntry.role.integration.test.tsx"
+        "src/components/OlympiadPage.integration.test.tsx",
+        "src/components/LearningRoute.integration.test.tsx",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель22.10 утвердил конкретный сценарий Сегодня/Программа/Дневник и прямо поручил рабочее подключение с телефона, GitHub/публикацию; Google/Firebase отдельно подтверждены."
+        "evidence": "Пользователь поручил подключить семейные экраны олимпиады через существующий UI Kit и LDD и проверять реализацию."
       }
     },
     "src/DayDashboard.css": {
@@ -2577,22 +2563,20 @@
       }
     },
     "src/DayDashboard.tsx": {
-      "sha256": "a32ccfbb5e43b39e4b7bbcf8e0c4a6800f986a0077c33b173afe4a71c8901dfa",
-      "record": "docs/decisions/collapsed-variant-status-2026-10-21.md",
+      "sha256": "168a538890a926e4ff821bb82073c61896e7cd11a0fbd226f32c8dd880c6351a",
+      "record": "docs/decisions/olympiad-family-screen-2026-10-27.md",
       "specs": [
-        "docs/modules/school-diary/day-page.md",
-        "docs/shared/design/README.md"
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/lib/practiceVariantViewModel.test.ts",
-        "src/components/ProblemGroup.layout.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/DayDashboard.warmStart.test.tsx",
-        "scripts/check-requirement-copy.test.mjs"
+        "src/components/OlympiadPage.integration.test.tsx",
+        "src/components/LearningRoute.integration.test.tsx",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос 21.10.2026: фактический статус виден в свёрнутых заголовках независимо от выбора; переключатель является единственным индикатором обязательности."
+        "evidence": "Пользователь поручил подключить семейные экраны олимпиады через существующий UI Kit и LDD и проверять реализацию."
       }
     },
     "src/DayPage.css": {
@@ -2647,20 +2631,21 @@
       }
     },
     "src/UiKit.tsx": {
-      "sha256": "32b3af4d0eb98619b67c08ac3f9277681c3dabaf5130096a43aef7bd37122c0c",
-      "record": "docs/decisions/audio-compact-controls-2026-10-23.md",
+      "sha256": "9db4ba11165d4205c4e8835fb83673b53596b8af4aded9729151b52a5e465fcf",
+      "record": "docs/decisions/olympiad-integration-2026-10-28.md",
       "specs": [
-        "docs/modules/materials/audio-library.md",
+        "docs/modules/assessments/olympiad-preparation.md",
         "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/components/AudioPlayer.test.tsx",
+        "src/components/OlympiadWrittenPractice.integration.test.tsx",
         "src/UiKit.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx"
+        "operator/olympiad-help.test.mjs",
+        "sync/olympiad-help.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "23.10 родитель одобрил показанный компактный макет54px с простым Play и текущей скоростью рядом со звуком, открывающей меню; ранее разрешил выпуск проверенных правок и координацию всех Education."
+        "evidence": "Пользователь 28.10 поручил подключить сервер, фото, синхронизацию и уроки через UI Kit и LDD с проверками."
       }
     },
     "src/WeekendMathSlot.css": {
@@ -3088,23 +3073,20 @@
       }
     },
     "src/components/LearningRoute.tsx": {
-      "sha256": "7ede217a955b040c69b5b3a54b447c26d462622311a08df12ea4c076ca650f3f",
-      "record": "docs/decisions/ldd-copy-button-2026-10-19.md",
+      "sha256": "fc5662b081650e228ac824a8d820dd25c8c89bc1ff1821a546ba462981ccad53",
+      "record": "docs/decisions/olympiad-family-screen-2026-10-27.md",
       "specs": [
-        "docs/modules/families/access-and-state.md",
-        "docs/shared/access-and-privacy.md"
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/components/PersonalEntry.localFirst.test.tsx",
-        "src/components/PersonalEntry.role.integration.test.tsx",
+        "src/components/OlympiadPage.integration.test.tsx",
         "src/components/LearningRoute.integration.test.tsx",
-        "src/components/LearningRoute.weekend.integration.test.tsx",
-        "src/lib/personalAccess.identityRace.test.ts",
-        "src/lib/personalAccess.readBudget.test.ts"
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10 отверг несогласованный экран проверки прав, требует local-first и одинаковую роль в вебе/приложении без новых ссылок и действий."
+        "evidence": "Пользователь поручил подключить семейные экраны олимпиады через существующий UI Kit и LDD и проверять реализацию."
       }
     },
     "src/components/LinkedWorkPhotos.css": {
@@ -3325,21 +3307,20 @@
       }
     },
     "src/components/PersonalEntry.tsx": {
-      "sha256": "258cb59f17ca5479ba9373b966fc8ff3f7029ec95280ffa9b4065eceb8ea715b",
-      "record": "docs/decisions/early-development-live-2026-10-22.md",
+      "sha256": "0f8c4d1d4eccab35d1c30f7a9e0110cbacaa6965ad8bb784585746412a78a291",
+      "record": "docs/decisions/olympiad-family-screen-2026-10-27.md",
       "specs": [
-        "docs/modules/families/early-development.md"
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "scripts/lib/early-development.test.mjs",
-        "src/lib/earlyDevelopmentStore.test.ts",
-        "src/components/ParentHome.early.test.tsx",
-        "src/components/EarlyDevelopment.test.tsx",
-        "src/components/PersonalEntry.role.integration.test.tsx"
+        "src/components/OlympiadPage.integration.test.tsx",
+        "src/components/LearningRoute.integration.test.tsx",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель22.10 утвердил конкретный сценарий Сегодня/Программа/Дневник и прямо поручил рабочее подключение с телефона, GitHub/публикацию; Google/Firebase отдельно подтверждены."
+        "evidence": "Пользователь поручил подключить семейные экраны олимпиады через существующий UI Kit и LDD и проверять реализацию."
       }
     },
     "src/components/PhotoUploadControl.tsx": {
@@ -3830,9 +3811,10 @@
       }
     },
     "src/components/WorkPhotoGallery.css": {
-      "sha256": "3b07b28b09a871215f604e39224bd59b21b9961ce5c58916d7038b2a4ec7d5c5",
-      "record": "docs/decisions/work-photo-expand-2026-10-18.md",
+      "sha256": "7b2e17d8551d3b0ee6deb555f76586a99269a10100a11fd90ad560fd30978e51",
+      "record": "docs/decisions/ui-kit-photo-help-2026-10-27.md",
       "specs": [
+        "docs/modules/assessments/olympiad-preparation.md",
         "docs/modules/school-diary/day-page.md",
         "docs/shared/design/components.md",
         "docs/product/ui-change-control.md"
@@ -3847,26 +3829,25 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 18.10 передал жалобу ребёнка: пропало раскрытие собственных фото; требует восстановить действие и изменить процесс для предотвращения повторения."
+        "evidence": "Пользователь попросил продолжить декомпозицию и сделать полный локальный макет запроса помощи с выбором фото через существующие компоненты UI Kit."
       }
     },
     "src/components/WorkPhotoGallery.tsx": {
-      "sha256": "193cbd1a5e694867c9301f0c5531fd643698c8df04e0522fc452bdd1dd4f470c",
-      "record": "docs/decisions/photo-transfer-recovery-2026-10-22.md",
+      "sha256": "da77e0348bb56042745e1da2e2911e57e8bbaf6701385e0ee1567bc7681d53a3",
+      "record": "docs/decisions/olympiad-integration-2026-10-28.md",
       "specs": [
-        "docs/modules/materials/storage-privacy.md",
-        "docs/modules/school-diary/day-page.md"
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/lib/photoOutbox.test.tsx",
-        "src/components/WorkPhotoGallery.test.tsx",
-        "src/components/WorkReview.requirements.test.tsx",
-        "src/lib/reviewPresentation.test.ts",
-        "src/lib/educationEventProducers.test.ts"
+        "src/components/OlympiadWrittenPractice.integration.test.tsx",
+        "src/UiKit.test.tsx",
+        "operator/olympiad-help.test.mjs",
+        "sync/olympiad-help.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь повторно сообщил о новой работе без Telegram и автоматической проверки, показал ошибку изображения и неверное время ожидания. Исправляется восстановление передачи того же фото и точное разделение заявки, получения файла и проверки."
+        "evidence": "Пользователь 28.10 поручил подключить сервер, фото, синхронизацию и уроки через UI Kit и LDD с проверками."
       }
     },
     "src/components/WorkReview.tsx": {
@@ -4054,19 +4035,20 @@
       }
     },
     "src/lib/browserAccessTrace.ts": {
-      "sha256": "f3dde4704f0e47f791fcf9b5413e741a04c706ebffaf63f4b20a183a52d5eb73",
-      "record": "docs/decisions/photo-storage-ldd-2026-10-22.md",
+      "sha256": "768b4811278a2f78a88030769192fe1663a97e1ceec45b7a202c41fa3f60fa37",
+      "record": "docs/decisions/olympiad-family-screen-2026-10-27.md",
       "specs": [
-        "docs/modules/families/browser-access-trace.md"
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/lib/browserAccessTrace.test.ts",
-        "src/lib/browserAccessTrace.clipboard.test.ts",
-        "src/components/PersonalEntry.role.integration.test.tsx"
+        "src/components/OlympiadPage.integration.test.tsx",
+        "src/components/LearningRoute.integration.test.tsx",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "В рамках прямого запроса пользователя 22.10.2026 устранить повторный сбой загрузки добавлена безопасная диагностика локального хранилища через существующий trace."
+        "evidence": "Пользователь поручил подключить семейные экраны олимпиады через существующий UI Kit и LDD и проверять реализацию."
       }
     },
     "src/lib/dayCompatibility.ts": {
@@ -5494,22 +5476,19 @@
       }
     },
     "sync/job-queue.mjs": {
-      "sha256": "824e89af3c94e2f63f1061795c993701ab9e4ed3d9c7ca13b6265c577060561d",
-      "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
+      "sha256": "79b507a1cfb2f6da25f17618c8276770f4d928d43aff34dfa2fb1190dcb64427",
+      "record": "docs/decisions/olympiad-family-screen-2026-10-27.md",
       "specs": [
-        "docs/shared/specification-system.md"
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/modules/synchronization/education-pipeline.md"
       ],
       "tests": [
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
+        "sync/olympiad-help.test.mjs",
+        "sync/job-queue-fence.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя 16.10.2026 внедрить согласованную структуру спецификаций, перенести ссылки в коде и проверить сохранность требований; изменение предметного поведения не выполнялось."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "2d673fc16099c0c4f983ee6f044bdbae83b0c3b6f500b1d834edee2f10bded1c"
+        "evidence": "Пользователь поручил подключить синхронизацию помощи олимпиады и проверять интеграцию без дополнительных согласований."
       }
     },
     "sync/legacy-help-identity.mjs": {
@@ -6179,19 +6158,19 @@
       }
     },
     "sync/task-route.mjs": {
-      "sha256": "0ff663e11ca15c082332327839741fc5b45e2a8df3513d8bbc6a52b6a1790272",
-      "record": "docs/decisions/guidance-refresh-readback-2026-10-25.md",
+      "sha256": "0782786c31ba2476213ba126b04b601398522ac71e67ead1c93fd7f1a9cf6b3f",
+      "record": "docs/decisions/olympiad-family-screen-2026-10-27.md",
       "specs": [
-        "docs/modules/synchronization/task-routing.md"
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/modules/synchronization/education-pipeline.md"
       ],
       "tests": [
-        "sync/task-route.test.mjs",
-        "sync/event-task-artifact.test.mjs",
-        "operator/route-plan.test.mjs"
+        "sync/olympiad-help.test.mjs",
+        "sync/job-queue-fence.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя23.10: ревизия инструкций и детерминированных инструментов синхронизации, расширение недостающих развилок."
+        "evidence": "Пользователь поручил подключить синхронизацию помощи олимпиады и проверять интеграцию без дополнительных согласований."
       }
     },
     "operator/route-plan.mjs": {
@@ -6265,6 +6244,287 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Пользователь26.10 прямо потребовал автоматически переносить ошибочно загруженную работу в правильную карточку."
+      }
+    },
+    "src/components/OlympiadCatalog.tsx": {
+      "sha256": "cdf5c67694f2e87b9b0569fbc0692ae096e806aad09a9e21604f20db9b365e06",
+      "record": "docs/decisions/olympiad-family-screen-2026-10-27.md",
+      "specs": [
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/shared/design/ui-kit.md"
+      ],
+      "tests": [
+        "src/components/OlympiadPage.integration.test.tsx",
+        "src/components/LearningRoute.integration.test.tsx",
+        "src/UiKit.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь поручил подключить семейные экраны олимпиады через существующий UI Kit и LDD и проверять реализацию."
+      }
+    },
+    "src/components/OlympiadHome.tsx": {
+      "sha256": "d74f0e64c7b47c2a3a55b29d7a5ab1d6146fdddc60aca5ff82a59ff0639700f1",
+      "record": "docs/decisions/olympiad-family-screen-2026-10-27.md",
+      "specs": [
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/shared/design/ui-kit.md"
+      ],
+      "tests": [
+        "src/components/OlympiadPage.integration.test.tsx",
+        "src/components/LearningRoute.integration.test.tsx",
+        "src/UiKit.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь поручил подключить семейные экраны олимпиады через существующий UI Kit и LDD и проверять реализацию."
+      }
+    },
+    "src/components/OlympiadPage.tsx": {
+      "sha256": "1c5d2b12b352fe1ee104116b407aecbce878877bd5a2e85b13b825da0f091494",
+      "record": "docs/decisions/olympiad-integration-2026-10-28.md",
+      "specs": [
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/shared/design/ui-kit.md"
+      ],
+      "tests": [
+        "src/components/OlympiadWrittenPractice.integration.test.tsx",
+        "src/UiKit.test.tsx",
+        "operator/olympiad-help.test.mjs",
+        "sync/olympiad-help.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь 28.10 поручил подключить сервер, фото, синхронизацию и уроки через UI Kit и LDD с проверками."
+      }
+    },
+    "src/components/OlympiadWrittenPractice.tsx": {
+      "sha256": "7b511838bb798708e2db73589e95f3a144f37317c231e56cae9c249778d98ddb",
+      "record": "docs/decisions/olympiad-integration-2026-10-28.md",
+      "specs": [
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/shared/design/ui-kit.md"
+      ],
+      "tests": [
+        "src/components/OlympiadWrittenPractice.integration.test.tsx",
+        "src/UiKit.test.tsx",
+        "operator/olympiad-help.test.mjs",
+        "sync/olympiad-help.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь 28.10 поручил подключить сервер, фото, синхронизацию и уроки через UI Kit и LDD с проверками."
+      }
+    },
+    "src/components/OlympiadLesson.tsx": {
+      "sha256": "235085ed3c1527f6ee3d88c005a78fd9a7ca26ef19e24e2e02880c1a9ab67d9f",
+      "record": "docs/decisions/olympiad-family-screen-2026-10-27.md",
+      "specs": [
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/shared/design/ui-kit.md"
+      ],
+      "tests": [
+        "src/components/OlympiadPage.integration.test.tsx",
+        "src/components/LearningRoute.integration.test.tsx",
+        "src/UiKit.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь поручил подключить семейные экраны олимпиады через существующий UI Kit и LDD и проверять реализацию."
+      }
+    },
+    "src/components/PhotoHelpRequest.tsx": {
+      "sha256": "43b48e753a1ee46a9192e2c8cac093a7514074c0afe464d7e975f452c1c16be2",
+      "record": "docs/decisions/ui-kit-photo-help-2026-10-27.md",
+      "specs": [
+        "docs/shared/design/ui-kit.md",
+        "docs/modules/assessments/olympiad-preparation.md"
+      ],
+      "tests": [
+        "src/UiKit.test.tsx",
+        "src/components/WorkPhotoGallery.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь попросил локальный макет запроса помощи с выбором фото на общих элементах UI Kit."
+      }
+    },
+    "src/lib/olympiad/client.ts": {
+      "sha256": "5d064338a02eab6978b95f078df6283e91cee9d22270e5f5d8e016293927bc5b",
+      "record": "docs/decisions/olympiad-family-screen-2026-10-27.md",
+      "specs": [
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/shared/design/ui-kit.md"
+      ],
+      "tests": [
+        "src/components/OlympiadPage.integration.test.tsx",
+        "src/components/LearningRoute.integration.test.tsx",
+        "src/UiKit.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь поручил подключить семейные экраны олимпиады через существующий UI Kit и LDD и проверять реализацию."
+      }
+    },
+    "src/lib/olympiad/photoClient.ts": {
+      "sha256": "dd3b2211592e04ba9c0c523a62b6f93f4c4100d28c8c4c0f0101362155476098",
+      "record": "docs/decisions/olympiad-integration-2026-10-28.md",
+      "specs": [
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/shared/design/ui-kit.md"
+      ],
+      "tests": [
+        "src/components/OlympiadWrittenPractice.integration.test.tsx",
+        "src/UiKit.test.tsx",
+        "operator/olympiad-help.test.mjs",
+        "sync/olympiad-help.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь 28.10 поручил подключить сервер, фото, синхронизацию и уроки через UI Kit и LDD с проверками."
+      }
+    },
+    "operator/olympiad-help.mjs": {
+      "sha256": "228be5cdb9d9e51bf5513985483f82ab30ee4f7f96d76e7fa8b5a5e125d775a2",
+      "record": "docs/decisions/olympiad-integration-2026-10-28.md",
+      "specs": [
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/shared/design/ui-kit.md"
+      ],
+      "tests": [
+        "src/components/OlympiadWrittenPractice.integration.test.tsx",
+        "src/UiKit.test.tsx",
+        "operator/olympiad-help.test.mjs",
+        "sync/olympiad-help.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь 28.10 поручил подключить сервер, фото, синхронизацию и уроки через UI Kit и LDD с проверками."
+      }
+    },
+    "scripts/olympiad-help.mjs": {
+      "sha256": "9b64bb494fa838a5c24e37bebee0fddae8ae47ec2fc0f562b9acae5123b3fa3e",
+      "record": "docs/decisions/olympiad-integration-2026-10-28.md",
+      "specs": [
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/shared/design/ui-kit.md"
+      ],
+      "tests": [
+        "src/components/OlympiadWrittenPractice.integration.test.tsx",
+        "src/UiKit.test.tsx",
+        "operator/olympiad-help.test.mjs",
+        "sync/olympiad-help.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь 28.10 поручил подключить сервер, фото, синхронизацию и уроки через UI Kit и LDD с проверками."
+      }
+    },
+    "scripts/olympiad-publish-training.mjs": {
+      "sha256": "d67326a4509ac9d8b689087bcb38d72d2025a7cfa85c4565dce431bea2f1c419",
+      "record": "docs/decisions/olympiad-integration-2026-10-28.md",
+      "specs": [
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/shared/design/ui-kit.md"
+      ],
+      "tests": [
+        "src/components/OlympiadWrittenPractice.integration.test.tsx",
+        "src/UiKit.test.tsx",
+        "operator/olympiad-help.test.mjs",
+        "sync/olympiad-help.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь 28.10 поручил подключить сервер, фото, синхронизацию и уроки через UI Kit и LDD с проверками."
+      }
+    },
+    "scripts/olympiad-verify-grade.mjs": {
+      "sha256": "316a3c223d68d0dd805c62b1c9a056b825e3aea691b6aca610d95c913c09ce47",
+      "record": "docs/decisions/olympiad-integration-2026-10-28.md",
+      "specs": [
+        "docs/modules/assessments/olympiad-preparation.md"
+      ],
+      "tests": [
+        "sync/olympiad-help.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь поручил подготовить безопасный семейный доступ к олимпиаде; запись личного класса не выполнена из-за отказа автоматической проверки."
+      }
+    },
+    "src/components/OlympiadLesson.css": {
+      "sha256": "d321f432bc2d922c84843ac3532f20b154d4667054b5fb79155a6a0ea13de5d3",
+      "record": "docs/decisions/olympiad-domain-ldd-2026-10-27.md",
+      "specs": [
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/shared/design/ui-kit.md"
+      ],
+      "tests": [
+        "src/UiKit.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь прямо поручил реализовывать игровые уроки на общих элементах UI Kit с LDD."
+      }
+    },
+    "src/lib/olympiad/assistancePolicy.ts": {
+      "sha256": "cee9dfaab3a331ae72c6658cb6aa3fe8c8c6a68281724f00139c89f7952f34fd",
+      "record": "docs/decisions/olympiad-domain-ldd-2026-10-27.md",
+      "specs": [
+        "docs/modules/assessments/olympiad-preparation.md"
+      ],
+      "tests": [
+        "src/lib/olympiad/assistancePolicy.test.ts"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь поручил реализовать олимпиадную подготовку с обоснованием и проверкой источников."
+      }
+    },
+    "src/lib/olympiad/writtenPractice.ts": {
+      "sha256": "3852509533bbfb051a3d65e20308801f709241d6faee723f269ecf47e2df848f",
+      "record": "docs/decisions/olympiad-domain-ldd-2026-10-27.md",
+      "specs": [
+        "docs/modules/assessments/olympiad-preparation.md"
+      ],
+      "tests": [
+        "src/lib/olympiad/writtenPractice.test.ts"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь поручил реализовать согласованную письменную практику."
+      }
+    },
+    "storage/public-references.mjs": {
+      "sha256": "7a218c1b9855405af1aaad2ebbe8848147a0a72a944e0954e90c2f8f5a1b5e8b",
+      "record": "docs/decisions/public-olympiad-reference-archive-2026-10-27.md",
+      "specs": [
+        "docs/modules/materials/materials.md"
+      ],
+      "tests": [
+        "storage/public-references.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь27.10.2026 прямо поручил сохранять найденные открытые олимпиадные условия, решения и методики в общей сразу доступной всем библиотеке и проверять по ним."
+      }
+    },
+    "sync/olympiad-help.mjs": {
+      "sha256": "4fb1c10fe101474f6f89aa86de08bc4fc8e7075b3daec96ec043e4c5328dcf37",
+      "record": "docs/decisions/olympiad-integration-2026-10-28.md",
+      "specs": [
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/shared/design/ui-kit.md"
+      ],
+      "tests": [
+        "src/components/OlympiadWrittenPractice.integration.test.tsx",
+        "src/UiKit.test.tsx",
+        "operator/olympiad-help.test.mjs",
+        "sync/olympiad-help.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь 28.10 поручил подключить сервер, фото, синхронизацию и уроки через UI Kit и LDD с проверками."
       }
     }
   }

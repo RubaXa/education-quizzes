@@ -75,7 +75,7 @@ export function jobRoute(kind) {
     'ingest-book': 'identify-and-link-family-material', 'publish-book-pages': 'publish-family-reader-pages',
     'transfer-work': 'confirm-original-storage', 'review-work': 'review-upload-purpose',
     'repair-review': 'reconcile-existing-review', 'investigate-work': 'investigate-exact-upload',
-    'triage-help': 'address-help-request', 'review-quiz': 'review-submitted-quiz',
+    'triage-help': 'address-help-request', 'triage-olympiad-help': 'address-practice-help-request', 'review-quiz': 'review-submitted-quiz',
     'prepare-targeted-followup': 'history-based-followup', 'prepare-control-followup': 'assessment-decision-graph',
     'classify-assignment': 'confirm-topic-and-output', 'prepare-quiz': 'assessment-decision-graph',
     'enrich-task': 'exact-source-and-subject-guidance', 'material-needed': 'recover-source',

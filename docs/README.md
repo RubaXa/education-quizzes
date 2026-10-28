@@ -33,6 +33,7 @@ sections:
 | Фото/PDF или передача на Диск | [Материалы](modules/materials/README.md) | [Upload worker](services/upload-worker/README.md), [хранение](shared/media-storage.md) |
 | Проверка работы или предметная помощь | [Reviews](modules/reviews/README.md) | [Основания проверки](modules/reviews/review-criteria-provenance.md), [статус задания](modules/assignments/README.md) |
 | Тест, попытка или продолжение | [Assessments](modules/assessments/README.md) | [Граф самопроверок](modules/assessments/assessment-decision-graph.md) |
+| Подготовка к олимпиаде, игровой урок, результаты и адаптация | [Проект сценария](product/olympiad-preparation.md) | [Предметная модель](modules/assessments/olympiad-preparation.md), [UI Kit](shared/design/ui-kit.md) |
 | Встроенный inbox | [Notifications](modules/notifications/README.md) | [In-app события](modules/notifications/inbox.md) |
 | Telegram-бот | [Telegram service](services/telegram-bot/README.md) | [Продуктовые требования](product/notifications.md), [семья](modules/families/README.md) |
 | Зависимости, установка, выпуск или восстановление | [Toolchain](shared/toolchain.md) | [Эксплуатация](operations/local-development.md), [выпуск](operations/deployment.md) |

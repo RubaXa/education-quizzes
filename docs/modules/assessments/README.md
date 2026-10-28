@@ -38,5 +38,6 @@ code:
 - [assessment-decision-graph](assessment-decision-graph.md)
 - [assessment-source-policy](assessment-source-policy.md)
 - [quiz-chain-proposal](quiz-chain-proposal.md)
+- [olympiad-preparation](olympiad-preparation.md) — проект подготовки, игровых уроков и родительского обзора; не реализован
 - [quizzes](quizzes.md)
 - [result-presentation-proposal](result-presentation-proposal.md)

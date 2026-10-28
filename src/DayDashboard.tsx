@@ -21,6 +21,7 @@ import type { CachedHomeworkRow } from '@/lib/dayDashboardViewCache'
 import { currentEducationPersonId, readCachedPersonalContext } from '@/lib/personalAccess'
 import { useDashboardDayWork } from '@/lib/useDashboardDayWork'
 import WeekendMathSlot from './WeekendMathSlot'
+import OlympiadHome from './components/OlympiadHome'
 import './DayDashboard.css'
 import { reportUiError } from '@/lib/uiErrors'
 import { DATA_UPDATE_MESSAGE } from '@/lib/dayCompatibility'
@@ -79,7 +80,7 @@ function remainingLessonTime(target: number, now: number) {
  * @see ../docs/modules/school-diary/grades.md#dashboard-grade-list
  */
 /** @see ../docs/shared/design/README.md#cards-and-status */
-export default function DayDashboard({ token, parent }: { token: string; parent: boolean }) {
+export default function DayDashboard({ token, parent, familyScope }: { token: string; parent: boolean; familyScope?: { familyId: string; childId: string } }) {
   let personalParent = false
   if (parent) {
     try { personalParent = Boolean(currentEducationPersonId()) }
@@ -394,6 +395,7 @@ export default function DayDashboard({ token, parent }: { token: string; parent:
           : nextEntry.homework.length ? <div className="day-dashboard-mesh">{nextEntry.homework.map((item, index) => <p key={index}><strong>{item.subject}</strong><span>{item.text}</span></p>)}<small>{nextWork.linkedPage && nextWork.linkedPage.targetDate !== nextDate ? `МЭШ ссылается на ${dateLabel(nextWork.linkedPage.targetDate)}.` : 'Разбор готовится'}</small></div>
             : <p className="day-dashboard-empty">{nextEntry.complete ? 'В МЭШ пока нет заданий на эту дату.' : 'ДЗ ещё не подтверждено.'} Проверено: {checkedLabel(nextEntry.checkedAt)}.</p>}
       />
+      {familyScope && <OlympiadHome familyId={familyScope.familyId} childId={familyScope.childId} parent={parent} dashboardToken={index.canonicalToken ?? token} />}
       </div>
       <aside className="day-dashboard-side">
         <section className="day-dashboard-card" aria-label="Оценки по предметам"><div className="day-dashboard-heading"><div><Sparkles size={20} /><h2>Оценки</h2></div>{gradeRows.length > 0 && <small>{gradeRows.length} {word(gradeRows.length, 'предмет', 'предмета', 'предметов')}</small>}</div>

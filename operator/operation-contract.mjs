@@ -30,6 +30,12 @@ export const operations = Object.freeze({
   'project.audit': { effect: 'read', script: 'scripts/sync-project.mjs', command: 'audit',
     validate: fields({ runId: (v) => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}-[a-f0-9-]{36}$/.test(v) }),
     argv: (input) => ['--run', input.runId] },
+  'olympiad.help-start': { effect: 'write', script: 'scripts/olympiad-help.mjs', command: 'start',
+    validate: fields({ familyId: (v) => typeof v === 'string' && id.test(v), childId: (v) => typeof v === 'string' && id.test(v), olympiadId: (v) => typeof v === 'string' && id.test(v), problemId: (v) => typeof v === 'string' && id.test(v), requestId: (v) => typeof v === 'string' && id.test(v), operationId: (v) => typeof v === 'string' && id.test(v) }),
+    argv: args('familyId', 'childId', 'olympiadId', 'problemId', 'requestId', 'operationId') },
+  'olympiad.help-finish': { effect: 'write', script: 'scripts/olympiad-help.mjs', command: 'finish', payloadField: 'answerPath',
+    validate: fields({ familyId: (v) => typeof v === 'string' && id.test(v), childId: (v) => typeof v === 'string' && id.test(v), olympiadId: (v) => typeof v === 'string' && id.test(v), problemId: (v) => typeof v === 'string' && id.test(v), requestId: (v) => typeof v === 'string' && id.test(v), operationId: (v) => typeof v === 'string' && id.test(v), answerPath: file }),
+    argv: args('familyId', 'childId', 'olympiadId', 'problemId', 'requestId', 'operationId', 'answerPath') },
   'inbox.snapshot': { effect: 'read', script: 'scripts/sync-inbox.mjs', validate: fields({}), argv: none },
   'queue.list': { effect: 'read', script: 'scripts/sync-queue.mjs', command: 'list', validate: fields({}), argv: none },
   'queue.scan': { effect: 'write', script: 'scripts/sync-queue.mjs', command: 'scan', validate: fields({}), argv: none },
@@ -98,6 +104,8 @@ const guidance = {
   'project.plan': ['Обнаружить все семьи, детей и доступы МЭШ.', 'queued — цели сбора, blocked — конкретные отсутствующие доступы; это ещё не проверка источников.'],
   'project.collect': ['Собрать МЭШ за 42 даты от текущего понедельника.', 'report и timing описывают сбор; awaiting-enrichment требует сверки новых материалов. partial не означает успешное завершение; sourceJournal содержит причины.'],
   'project.audit': ['Перечитать публикацию сохранённого окна конкретного запуска.', 'Проверяет публикацию без сбора и изменения очереди или фазы. publication-verified не означает завершение workflow или снятие блокировки источника; pending/blocked требуют продолжения.'],
+  'olympiad.help-start': ['Зафиксировать входную ревизию запроса помощи.', 'Содержимое и пути к проверенным фото доступны в закрытой квитанции.'],
+  'olympiad.help-finish': ['Опубликовать подготовленный разбор и сверить результат.', 'Передать файл с ответом; дополнения после фиксации остаются в очереди.'],
   'inbox.snapshot': ['Получить полный пользовательский inbox всех семей.', 'Только complete=true разрешает трактовать нулевые counts как пустую очередь; ошибка чтения не равна отсутствию работ.'],
   'queue.list': ['Прочитать сохранённые задания операторской очереди.', 'Это сохранённое состояние, без нового обнаружения источников; blocked требует чтения причины в закрытой квитанции.'],
   'queue.scan': ['Обновить очередь из полного inbox и подтверждённых источников.', 'summary.inbox.complete должен быть true; полный inboxSnapshot находится в закрытом stdout квитанции. created/resolved не являются числом опубликованных учебных результатов.'],
@@ -113,6 +121,8 @@ const guidance = {
 }
 
 const sampleFields = {
+  'olympiad.help-start': { familyId: 1, childId: 1, olympiadId: 1, problemId: 1, requestId: 1, operationId: 1 },
+  'olympiad.help-finish': { familyId: 1, childId: 1, olympiadId: 1, problemId: 1, requestId: 1, operationId: 1, answerPath: 1 },
   'audio.sync': { trackId: 1, refresh: 1 }, 'audio.link': { bindingPath: 1 },
   'project.audit': { runId: 1 },
   'grades.snapshot': { sourceDate: 1, reportPath: 1 },

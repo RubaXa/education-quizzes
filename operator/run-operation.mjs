@@ -74,6 +74,9 @@ const publicSummary = (operation, value, expectedRunId = null) => {
     readback: typeof parsed.testId === 'string' && parsed.testId.length > 0 }
   if (operation === 'quiz.revise-open') return { questionCount: parsed.questionCount ?? null,
     revised: parsed.revised === true, verified: parsed.verified === true }
+  if (operation.startsWith('olympiad.help-')) return { verified: parsed.verified === true,
+    revision: Number.isInteger(parsed.revision) ? parsed.revision : null, reused: parsed.reused === true,
+    photoCount: Array.isArray(parsed.photos) ? parsed.photos.length : null }
   return { parsed: true }
 }
 
@@ -131,6 +134,9 @@ async function executeOperationInternal(request, { apply = false, root = resolve
       stdoutBytes: Buffer.byteLength(stdout),
       stderrBytes: Buffer.byteLength(stderr) }
     const summary = publicSummary(request.operation, stdout, request.input?.runId)
+    if (request.operation.startsWith('olympiad.help-') && summary.verified !== true) {
+      throw new Error('Olympiad help operation did not confirm addressable readback.')
+    }
     if (apply && ['audio.sync', 'audio.link'].includes(request.operation) && summary.readback !== true) {
       throw new Error('Audio publication did not confirm addressable readback.')
     }

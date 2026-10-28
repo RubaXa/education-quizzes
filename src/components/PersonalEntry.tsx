@@ -362,7 +362,7 @@ export function PersonalEntry({ initialLink, earlyTarget }: { initialLink?: stri
     return <div className="personal-entry">
       {earlyTarget ? (() => { const earlyChild = profile.children.find((item) => item.familyId === earlyTarget.familyId && item.childId === earlyTarget.childId && item.role === 'parent' && item.learningMode === 'early-development'); return earlyChild && verifiedSession === session ? <EarlyDevelopmentPage key={`${earlyChild.familyId}/${earlyChild.childId}`} child={earlyChild} /> : <p role="status">{verifiedSession === session ? 'Раздел доступен родителю подключённого ребёнка. Вернитесь в свой профиль.' : 'Подтверждаем доступ родителя…'}</p> })() : parent ? <ParentHome profile={profile} /> : <>
         {available.length > 1 && <nav className="personal-child-picker" aria-label="Выбрать ребёнка">{available.map((item) => <Button key={`${item.familyId}/${item.childId}`} type="button" variant={item === child ? 'default' : 'outline'} onClick={() => setSelectedChild(`${item.familyId}/${item.childId}`)}>{item.displayName}</Button>)}</nav>}
-        {child?.dashboardToken ? <DayDashboard key={child.dashboardToken} token={child.dashboardToken} parent={false} />
+        {child?.dashboardToken ? <DayDashboard key={child.dashboardToken} token={child.dashboardToken} parent={false} familyScope={{familyId:child.familyId,childId:child.childId}} />
           : <Card><CardContent className="py-8">Dashboard для этого профиля ещё не опубликован.</CardContent></Card>}
       </>}
       <details className="personal-install-hint"><summary>Личная ссылка для установки на iPhone</summary>

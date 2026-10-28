@@ -1,0 +1,7 @@
+/* @see ../../docs/modules/assessments/olympiad-preparation.md */
+/* @see ../../docs/decisions/olympiad-domain-ldd-2026-10-27.md */
+.olympiad-lesson{padding:16px;border:1px solid var(--edu-card-border);border-radius:var(--edu-radius-card);background:var(--edu-surface);color:var(--edu-ink)}
+.olympiad-lesson h3{margin:0 0 10px}.olympiad-lesson-progress{color:var(--edu-text-secondary);font-size:.85rem}.olympiad-lesson-prompt{line-height:1.5}
+.olympiad-lesson-options{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.olympiad-lesson-options button{white-space:normal;height:auto;min-height:var(--edu-touch-target);text-align:left}
+.olympiad-lesson-feedback{margin:12px 0;padding:12px;border-radius:var(--edu-radius-control);background:var(--edu-status-waiting-bg);color:var(--edu-ink)}
+.olympiad-lesson-feedback p{margin:6px 0 0;line-height:1.5}

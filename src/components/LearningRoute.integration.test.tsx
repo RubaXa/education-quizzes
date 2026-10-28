@@ -44,6 +44,7 @@ vi.mock('@/DayDashboard', async () => {
   </section> }
 })
 vi.mock('@/DayPage', async () => ({ default: (await import('@/DayDashboard')).default }))
+vi.mock('./OlympiadPage',()=>({default:({familyId,childId,parent}: {familyId:string;childId:string;parent:boolean})=><section data-family={familyId} data-child={childId}>{parent?'Олимпиада родитель':'Олимпиада ученик'}</section>}))
 import LearningRoute from './LearningRoute'
 
 (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true
@@ -63,6 +64,15 @@ async function render(mode: 'day' | 'days' = 'days', token = 'shared-dashboard')
   return host
 }
 describe('authenticated route through the real problem card', () => {
+  it('keeps the shared olympiad URL and passes the authorized family projection', async () => {
+    history.replaceState(null, '', '/#/olympiad/shared-dashboard/demo-olympiad')
+    const host=document.createElement('div');document.body.append(host)
+    const root=createRoot(host);roots.push(()=>{root.unmount();host.remove()})
+    await act(async()=>root.render(<LearningRoute mode="days" token="shared-dashboard" olympiadId="demo-olympiad" />))
+    expect(location.hash).toBe('#/olympiad/shared-dashboard/demo-olympiad')
+    expect(host.textContent).toContain('Олимпиада родитель')
+    expect(host.querySelector('[data-child]')?.getAttribute('data-child')).toBe('child')
+  })
   it('keeps the saved guide when background profile restoration is offline', async () => {
     scene.restoreError = { code: 'unavailable' }
     const host = await render()

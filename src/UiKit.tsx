@@ -1,3 +1,5 @@
+/** @see ../docs/decisions/ui-kit-photo-help-2026-10-27.md */
+/** @see ../docs/decisions/ui-kit-written-practice-2026-10-27.md */
 /** @see ../docs/decisions/upload-photo-timestamp-2026-10-21.md */
 /** @see ../docs/decisions/collapsed-variant-status-2026-10-21.md */
 /* @see ../docs/decisions/work-photo-expand-2026-10-18.md */
@@ -13,7 +15,14 @@ import MaterialRequest from '@/components/MaterialRequest'
 import PhotoUploadControl from '@/components/PhotoUploadControl'
 import LinkedWorkPhotos from '@/components/LinkedWorkPhotos'
 import WorkPhotoGallery from '@/components/WorkPhotoGallery'
-import type { DayPageData, DayUpload } from '@/lib/dayStore'
+import { tracePhotoHelp } from '@/lib/browserAccessTrace'
+import ProblemTaskCard from '@/components/ProblemTaskCard'
+import PhotoHelpRequest from '@/components/PhotoHelpRequest'
+import OlympiadLesson, { type OlympiadLessonProjection } from '@/components/OlympiadLesson'
+import OlympiadCatalog from '@/components/OlympiadCatalog'
+import OlympiadPage from '@/components/OlympiadPage'
+import { problemCardState } from '@/lib/reviewPresentation'
+import type { DayPageData, DayProblem, DayUpload, DayWorkReview } from '@/lib/dayStore'
 import { useState } from 'react'
 import { BellRing, BookOpen, ChevronRight, CircleHelp, Layers3, Palette } from 'lucide-react'
 import ProblemGroup from '@/components/ProblemGroup'
@@ -38,6 +47,32 @@ const demoSharedPhoto: DayUpload = { id: 'demo:shared-photo', taskId: 'demo-p1',
   createdAt: '2026-10-20T10:03:00.000Z',
   dataUrl: `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="240" viewBox="0 0 400 240"><rect width="400" height="240" fill="white"/><text x="25" y="60" font-size="24">Пример: № 1, № 2, № 3</text><path d="M25 100h300m-300 40h250m-250 40h280" stroke="#70698b" stroke-width="3"/></svg>')}` }
 const demoPhotoPage = { subjects: [{ tasks: [{ id: 'demo-sheet', title: 'Условный лист', problems: [{ id: 'demo-p1', number: 1, title: 'Место загрузки' }] }] }] } as DayPageData
+const writtenDemoPhoto = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="240" viewBox="0 0 400 240"><rect width="400" height="240" fill="white"/><text x="24" y="55" font-size="24">Красных — 3</text><text x="24" y="100" font-size="24">Синих — на 2 больше</text><text x="24" y="145" font-size="24">3 + 2 = 5</text><path d="M24 175h250" stroke="#70698b" stroke-width="3"/></svg>')}`
+const writtenProblemDemo: DayProblem = { id: 'demo-written', number: 1, title: 'Письменная задача · пример', detail: '', source: 'Условный пример UI Kit', original: { text: 'В коробке 3 красных карандаша, а синих на 2 больше. Сколько всего карандашей?', attachmentRef: 'demo-only' } }
+const writtenReviewDemo: DayWorkReview = { id: 'demo-written-review', taskId: writtenProblemDemo.id, status: 'partial', uploadIds: ['written-2'], studentFeedback: { title: 'Синих найдено · решение не завершено', confirmed: 'Ты верно нашёл количество синих карандашей: 3 + 2 = 5.', focus: 'Осталось найти общее количество карандашей.', question: 'Как найти общее количество?' }, history: [{ status: 'needs-fix', studentFeedback: { title: 'Нужна правка', confirmed: 'Начало записано.', focus: 'Проверь следующий переход.', question: 'Что следует из условия?' } }] }
+const writtenUploadsDemo: DayUpload[] = [1, 2].map((number) => ({ id: `demo:written-${number}`, taskId: writtenProblemDemo.id, status: 'reviewed', createdAt: `2026-10-${19 + number}T10:03:00.000Z`, dataUrl: writtenDemoPhoto }))
+// UI Kit transport uses conditional synthetic projections only. No request leaves the page.
+const demoPractice = { photos: [{id:'demo-photo'}], requests: [{requestId:'demo-request',status:'answered',revision:1}], detail: {status:'answered',revision:1,revisions:[{revision:1,photoIds:['demo-photo'],note:'Как не пропустить варианты?'}],answers:[{revision:1,text:'Зафиксируй первую букву и перебери все цифры для неё.'}]} }
+const demoOlympiadPhoto = async (action: 'photo-upload' | 'photo-read', request: Record<string, string>, _bytes?: Blob): Promise<Blob | {photoId:string}> => {
+  if(action === 'photo-read') return new Blob(['<svg xmlns="http://www.w3.org/2000/svg" width="200" height="100"><rect width="200" height="100" fill="white"/><text x="10" y="40">A1, A2</text></svg>'],{type:'image/svg+xml'})
+  demoPractice.photos.push({id:request.receiptId});return {photoId:request.receiptId}
+}
+const demoOlympiadRequest = async <T,>(body: Record<string, unknown>): Promise<T> => {
+  const lesson = {id:'demo-lesson',version:'1',title:'Упорядоченный перебор',topicId:'enumeration'}
+  const view = {title:lesson.title,status:'active',currentStep:1,stepCount:1,theory:'Чтобы не пропустить варианты, фиксируем один выбор и по порядку перебираем остальные.',step:{id:'step',prompt:'Как перечислить пары из двух букв и двух цифр?',options:[{id:'a',text:'По очереди для каждой буквы'},{id:'b',text:'Записать только одну пару'}]}}
+  let result: unknown
+  if(body.action==='list') result=[{id:'demo',title:'Математическая олимпиада · пример',deadline:'условный срок',participationEnabled:true,lessons:[lesson]}]
+  else if(body.action==='list-attempts') result=[{attemptId:'demo-attempt',lessonId:lesson.id,lessonVersion:'1',status:'active'}]
+  else if(body.action==='list-problems') result=[{id:'demo-problem',title:'Перебираем пары · пример',statement:'Составь все пары из букв А, Б и цифр 1, 2.'}]
+  else if(body.action==='list-help') result={photos:demoPractice.photos,requests:demoPractice.requests}
+  else if(body.action==='read-help') result=demoPractice.detail
+  else if(body.action==='submit-help') { const input=body.request as {photoIds:string[];note:string}; const revision=demoPractice.detail.revision+1;demoPractice.detail.revision=revision;demoPractice.detail.status='requested';demoPractice.detail.revisions.push({revision,photoIds:input.photoIds,note:input.note});demoPractice.requests[0]={...demoPractice.requests[0],status:'requested',revision};result={revision} }
+  else if(body.action==='view' || body.action==='start') result=view
+  else if(body.action==='act') { const cmd=body.command as {type:string;optionId?:string};result=cmd.type==='advance'?{...view,status:'completed'}:{...view,feedback:cmd.optionId==='a'?{correct:true,text:'Верно: так получится отдельная группа для каждой буквы.'}:{correct:false,text:'Рассмотри сначала одну букву, затем другую.'}} }
+  else if(body.action==='parent-detail') result={view,steps:[{id:'step',prompt:view.step.prompt,options:view.step.options,correctOptionIds:['a'],correctExplanation:'Перебор по первой букве даёт все пары.',incorrectHint:'Рассмотри сначала одну букву, затем другую.'}],events:[{id:'demo-event',stepId:'step',type:'answer',optionId:'b',correct:false,hintShown:true}]}
+  else throw new Error('Unsupported demo action')
+  return result as T
+}
 const variantStatusDemo = [
   { id: 'demo-verified', title: 'Вариант A · пример', problem: { id: 'demo-variant-a1', number: 7, title: 'Условная задача 7', detail: '', source: 'Пример UI Kit' }, status: 'verified' as const },
   { id: 'demo-fix', title: 'Вариант B · пример', problem: { id: 'demo-variant-b1', number: 8, title: 'Условная задача 8', detail: '', source: 'Пример UI Kit' }, status: 'needs-fix' as const },
@@ -63,6 +98,10 @@ const topicGroups = [
     {id:'material',title:'Уточнение материала',icon:BookOpen},
     {id:'audio',title:'Аудиоплеер',icon:BookOpen},
     {id:'photos',title:'Связанные фото',icon:BookOpen},
+    {id:'written',title:'Письменная задача',icon:BookOpen},
+    {id:'olympiad-catalog',title:'Список олимпиад',icon:BookOpen},
+    {id:'olympiad-page',title:'Страница олимпиады',icon:BookOpen},
+    {id:'olympiad-lesson',title:'Игровой урок',icon:BookOpen},
     {id:'guidance',title:'Подсказка и раскрытие',icon:BookOpen},
     {id:'quiz',title:'История тестов',icon:Layers3},
     {id:'telegram',title:'Telegram-уведомления',icon:BellRing},
@@ -112,6 +151,32 @@ export default function UiKit() {
   const [demoFiles,setDemoFiles] = useState<string[]>([])
   const [demoDate,setDemoDate] = useState('2026-10-24')
   const [demoVariantRequired,setDemoVariantRequired] = useState(false)
+  const [writtenParent,setWrittenParent] = useState(false)
+  const [writtenUploads,setWrittenUploads] = useState<DayUpload[]>(writtenUploadsDemo)
+  const [helpSelected,setHelpSelected] = useState<string[]>([])
+  const [helpOpen,setHelpOpen] = useState(false)
+  const [helpSubmitted,setHelpSubmitted] = useState<string[]>([])
+  const [helpNote,setHelpNote] = useState('')
+  const [helpSentNote,setHelpSentNote] = useState('')
+  const [helpStatus,setHelpStatus] = useState<'draft'|'pending'|'ready'>('draft')
+  const [helpResponseCount,setHelpResponseCount] = useState(0)
+  const [catalogParent,setCatalogParent] = useState(true)
+  const [catalogEnabled,setCatalogEnabled] = useState(false)
+  const [lessonDemo,setLessonDemo] = useState<OlympiadLessonProjection>({title:'Учимся упорядочивать перебор · пример',status:'active',currentStep:1,stepCount:1,step:{id:'demo-step',prompt:'Нужно найти все двузначные числа из цифр 1 и 2. Как не пропустить варианты?',options:[{id:'demo-a',text:'Сначала перебрать числа с первой цифрой 1, затем с первой цифрой 2.'},{id:'demo-b',text:'Записать первое пришедшее в голову число и остановиться.'}]}})
+  function addWrittenPhotos(files: File[], selectForHelp = false) {
+    const added = files.map((_, index) => ({ id: `demo:written-${writtenUploads.length + index + 1}`, taskId: writtenProblemDemo.id, status: 'pending' as const, dataUrl: writtenDemoPhoto }))
+    setWrittenUploads(current => [...current, ...added])
+    if (selectForHelp) { setHelpSelected(current => [...current, ...added.map(photo => photo.id)]); tracePhotoHelp('photos-added', 'demo', 'student', {count: added.length}) }
+  }
+  function submitHelpDemo() {
+    setHelpSubmitted(current => [...new Set([...current, ...helpSelected])])
+    setHelpSentNote(current => helpNote.trim() ? [current, helpNote].filter(Boolean).join(' · ') : current)
+    setHelpNote('')
+    setHelpSelected([])
+    setHelpStatus('pending')
+    tracePhotoHelp('submitted', 'demo', 'student', {count: helpSelected.length, hasNote: Boolean(helpNote.trim())})
+    tracePhotoHelp('waiting', 'demo', 'student')
+  }
   const input:ResultInput = state==='score' ? {kind:'score',points,maxPoints:max} : state==='answers' ? {kind:'answers',answered:points,total:max} : {kind:state==='waiting'?'waiting':'unknown'}
   return <div className="edu-kit">
     <header className="edu-kit-intro"><span><BookOpen size={18} aria-hidden="true" /> Education UI Kit</span><h1>Компоненты и правила</h1><p>Живые компоненты приложения, их состояния и смысл токенов. Каталог расширяется по мере унификации интерфейса.</p><a href="#/">На главную</a></header>
@@ -150,6 +215,23 @@ export default function UiKit() {
       <h3>Текущие CSS-токены</h3><p>Значения ниже получены из общего файла приложения. Изменение токена обновляет примеры и потребителей одновременно.</p><dl className="edu-kit-token-list">{tokenDefinitions.map(token=><div key={token.name}><dt><code>{token.name}</code><span className="edu-kit-token-preview" style={{background:token.name.endsWith('-bg')||token.name.endsWith('-ink')||token.name==='--edu-canvas'?`var(${token.name})`:undefined}} aria-hidden="true" /></dt><dd><code>{token.value}</code><p>{tokenMeaning(token.name)}</p></dd></div>)}</dl>
       </section>}
       {section==='photos' && <section aria-label="Пример связанных фото"><h2>Связанные фото</h2><p>Условный снимок содержит решения трёх задач. Файл остаётся в задаче № 1. В остальных — только ссылки для просмотра, без повторной загрузки или удаления.</p><h3>№ 1. Место загрузки</h3><WorkPhotoGallery compact taskTitle="Общий снимок" studentToken="demo" uploads={[demoSharedPhoto]} localPhotos={[]} now={0} /><h3>№ 2. Решение найдено на общем фото</h3><LinkedWorkPhotos taskId="demo-p2" uploads={[demoSharedPhoto]} pages={[demoPhotoPage]} /><h3>№ 3. Другое решение на том же фото</h3><LinkedWorkPhotos taskId="demo-p3" uploads={[demoSharedPhoto]} pages={[demoPhotoPage]} /></section>}
+      {section==='written' && <section aria-label="Пример письменной задачи"><h2>Письменная задача и запрос помощи</h2>
+        <p>Интерактивный макет на общих компонентах. Все данные условные: файлы не читаются и не отправляются, проверка и ответ имитируются локально.</p>
+        <div className="edu-kit-presets" aria-label="Роль в примере"><button type="button" aria-pressed={!writtenParent} onClick={()=>{setWrittenParent(false);tracePhotoHelp('role-changed','demo','student')}}>Ученик</button><button type="button" aria-pressed={writtenParent} onClick={()=>{setWrittenParent(true);tracePhotoHelp('role-changed','demo','parent')}}>Родитель</button></div>
+        <ProblemTaskCard problem={writtenProblemDemo} state={problemCardState(writtenUploads, writtenReviewDemo)} links={[]} parent={writtenParent} review={writtenReviewDemo} uploads={writtenUploads} helpAccess="ready" onPhotos={files=>addWrittenPhotos(files)}>
+          <PhotoHelpRequest parent={writtenParent} status={helpStatus} selectedCount={helpSelected.length} note={writtenParent ? helpSentNote : helpNote} onNote={setHelpNote} onOpenChange={open=>{setHelpOpen(open);tracePhotoHelp(open ? 'opened' : 'closed','demo',writtenParent ? 'parent' : 'student');if(open && helpResponseCount>0) tracePhotoHelp('answer-opened','demo',writtenParent ? 'parent' : 'student')}} onPhotos={files=>addWrittenPhotos(files,true)} onSubmit={submitHelpDemo}
+            response={helpResponseCount > 0 ? 'Ты верно нашёл количество синих карандашей: 3 + 2 = 5. Следующий шаг: сложи красные и синие карандаши: 3 + 5 = 8. Мы складываем их, потому что нужно найти общее количество.' : undefined}
+            previousResponse={helpResponseCount > 1 ? 'Предыдущая подсказка: запиши отдельно, что известно из условия.' : undefined}
+            attachedDescription={writtenUploads.flatMap((photo,index)=>helpSubmitted.includes(photo.id) ? [`Фото ${index+1}`] : []).join(', ')}
+            photos={<WorkPhotoGallery taskTitle={writtenProblemDemo.title} studentToken="demo" uploads={writtenUploads} localPhotos={[]} review={writtenReviewDemo} now={Date.now()} evidenceLabel={!writtenParent && helpOpen ? 'Выбери фото для помощи' : 'Фото работы'} selection={!writtenParent && helpOpen ? {selectedIds:helpSelected,onChange:ids=>{setHelpSelected(ids);tracePhotoHelp('selection-changed','demo','student',{count:ids.length})},isSelectable:id=>helpStatus !== 'ready' || !helpSubmitted.includes(id)} : undefined} />}
+          />
+        </ProblemTaskCard>
+        {helpStatus === 'pending' && <p><button className="problem-statement-help-button" type="button" onClick={()=>{setHelpStatus('ready');setHelpResponseCount(count=>count+1);tracePhotoHelp('answer-ready','demo',writtenParent ? 'parent' : 'student');if(helpOpen) tracePhotoHelp('answer-opened','demo',writtenParent ? 'parent' : 'student')}}>Показать условный ответ после синхронизации</button> · управление только для макета</p>}
+        <p>Состояние фотографии, проверка работы и запрос помощи показаны отдельно. Олимпиадный серверный сценарий ещё не подключён.</p>
+      </section>}
+      {section==='olympiad-catalog' && <section aria-label="Пример семейного списка олимпиад"><h2>Семейный список олимпиад</h2><p>Условный пример того же компонента, который показывает авторизованную проекцию на семейной странице. Управления в этом примере не обращаются к сети.</p><div className="edu-kit-presets" aria-label="Роль в примере"><button type="button" aria-pressed={catalogParent} onClick={()=>setCatalogParent(true)}>Родитель</button><button type="button" aria-pressed={!catalogParent} onClick={()=>setCatalogParent(false)}>Ученик</button></div><OlympiadCatalog parent={catalogParent} items={catalogParent || catalogEnabled ? [{id:'demo-olympiad',title:'Математическая олимпиада · пример',deadline:'условный срок',participationEnabled:catalogEnabled,lessons:[]}] : []} onOpen={()=>setDemoTarget('Подготовка к олимпиаде')} onParticipation={async (_id,enabled)=>setCatalogEnabled(enabled)} />{!catalogParent && !catalogEnabled && <p>Для ученика нет выбранных олимпиад.</p>}{demoTarget && <p role="status">Пример перехода: {demoTarget}</p>}</section>}
+      {section==='olympiad-page' && <section aria-label="Пример страницы олимпиады"><h2>Страница олимпиады</h2><p>Условный автономный пример семейной страницы. Источник данных здесь имитируется локально, сетевые запросы не выполняются.</p><div className="edu-kit-presets" aria-label="Роль в примере"><button type="button" aria-pressed={catalogParent} onClick={()=>setCatalogParent(true)}>Родитель</button><button type="button" aria-pressed={!catalogParent} onClick={()=>setCatalogParent(false)}>Ученик</button></div><OlympiadPage familyId="demo-family" childId="demo-child" olympiadId="demo" parent={catalogParent} dashboardToken="demo" request={demoOlympiadRequest} photo={demoOlympiadPhoto} diagnosticsContext="demo" /></section>}
+      {section==='olympiad-lesson' && <section aria-label="Пример игрового урока"><h2>Игровой урок</h2><p>Условный локальный пример общего компонента: никакие ответы не сохраняются и не отправляются. Настоящий урок получит только разрешённую сервером проекцию; его источники и проверка ещё не подключены.</p><OlympiadLesson diagnosticsContext="demo" view={lessonDemo} onAnswer={async id=>setLessonDemo(current=>({...current,feedback:id==='demo-a' ? {correct:true,text:'Фиксируем первую цифру и перебираем вторую: так каждый случай попадёт в список.'} : {correct:false,text:'Попробуй разбить все варианты на группы по первой цифре.'}}))} onAdvance={async ()=>setLessonDemo(current=>({...current,status:'completed',feedback:null}))}/></section>}
       {section==='guidance' && <section aria-label="Пример выбранной подсказки и полного раскрытия"><h2>Подсказка и полное раскрытие</h2><p>Демонстрационный этап «Прямая и направления». Родительский предпросмотр и ученическая запись используют один состав содержания. Источник показан короткой подписью; внутренний адрес и выдержка остаются закрытыми.</p><h3>Родитель</h3><ParentTaskGuide guide={guidanceDemo}/><h3>Ученик · полный шаг уже отправлен</h3><TaskGuidance items={[{ id: 'demo-release', taskId: 'demo-task', stageId: 'given', stageIndex: 0, level: 'reveal', text: guidanceDemo.stages[0].revealPreview!, revealContent: projectGuidanceReveal(guidanceDemo.stages[0]), guideRevision: 2, actorPersonId: 'demo-parent', createdAt: null }]} /></section>}
       {section==='homework' && <section aria-label="Пример сводки ДЗ"><h2>Сводка ДЗ</h2><p>Условные данные. Заголовок, дата и статусы используют тот же компонент, что и главная страница.</p><HomeworkOverview date="2026-10-19" rows={uiKitHomeworkRows} onOpen={row=>setDemoTarget(row.subject.name)} onOpenAll={()=>setDemoTarget('Все задания')}/>{demoTarget && <p role="status">Демонстрация перехода: {demoTarget}</p>}<p>Статус, задание и причина показаны отдельно. Длинный текст — короткий предпросмотр; полный разбор открывается нажатием на предмет.</p></section>}
       {section==='material' && <section aria-labelledby="kit-material-title"><h2 id="kit-material-title">Уточнение материала</h2><p>Пример с условными данными. Выбранные файлы остаются в этой демонстрации и не отправляются в Education.</p><MaterialRequest request={{id:'demo-notes',state:'open',question:'Какая последняя тема записана в тетради? Пришли фото записей с последнего урока.',photoPrompt:'Заголовок темы и все страницы последних записей целиком. Переписывать ничего не нужно.'}} label={demoFiles.length ? 'Материал выбран · пример' : 'Нужен материал для уточнения'} detail={demoFiles.length ? `Выбрано файлов: ${demoFiles.length}. На рабочей странице они будут переданы на Диск и попадут в следующий запуск синхронизации.` : 'Это вопрос для уточнения источника, а не требование учителя сдать письменную работу.'} /><PhotoUploadControl label="Добавить фото записей" onPhotos={files=>setDemoFiles(files.map(file=>file.name))}/><p>Фото помогает установить тему и увидеть записи. Само получение материала не отмечает домашнее задание выполненным.</p></section>}

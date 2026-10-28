@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/public-olympiad-reference-archive-2026-10-27.md */
 import { createHash } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, renameSync, unlinkSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
@@ -11,6 +12,7 @@ import { linksFile as pageLinksFile, materialLinks, pagesDir, preparePages } fro
 import { bookDisplayTitle, indexedBooks, pageDocument } from '../storage/textbook-catalog.mjs'
 import { resolvedStoragePause } from '../storage/storage-pause.mjs'
 import { materialPageDocument, needsPageWrite, selectPublicationPages } from '../storage/page-publication.mjs'
+import { publicReferenceInput, publishPublicReference } from '../storage/public-references.mjs'
 
 const local = resolve('.local')
 const childLocal = resolve(process.env.EDUCATION_CHILD_WORKSPACE || '.local')
@@ -510,7 +512,16 @@ else if (command === 'sync') await sync()
 else if (command === 'sync-teacher') await syncTeacher()
 else if (command === 'prepare-pages') console.log(JSON.stringify({ prepared: preparePages().length, directory: '.local/yandex-pages' }))
 else if (command === 'sync-pages') await syncPages()
+else if (command === 'sync-references') {
+  const root = resolve('..')
+  const registry = json(resolve(root, 'library/textbooks/registry.json'))
+  const books = registry.books.filter(book => book.public_reference === true && (!date || book.id === date))
+  if (!books.length) fail('Нет подтверждённых общих открытых источников для публикации.')
+  const prepared = books.map(book => publicReferenceInput(root, book, readFileSync))
+  const db = firestore(), storage = new YandexDiskStorage(token())
+  for (const source of prepared) console.log(JSON.stringify(await publishPublicReference({ db, storage, prepared: source, now: Timestamp.now() })))
+}
 else if (command === 'sync-catalog') await syncCatalog()
 else if (command === 'sync-family-pages') await syncFamilyPages()
 else if (command === 'sync-library') await syncLibrary()
-else fail('Команды: connect | sync YYYY-MM-DD | sync-teacher YYYY-MM-DD | prepare-pages | sync-pages | sync-catalog | sync-library | sync-family-pages')
+else fail('Команды: connect | sync YYYY-MM-DD | sync-teacher YYYY-MM-DD | prepare-pages | sync-pages | sync-references [ID] | sync-catalog | sync-library | sync-family-pages')

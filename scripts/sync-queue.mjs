@@ -64,6 +64,7 @@ function inboxKind(item) {
   if (item.kind === 'textbook-pages') return 'publish-book-pages'
   if (item.kind === 'student-work') return item.lane === 'transfer' ? 'transfer-work' : item.lane === 'review' ? 'review-work' : 'investigate-work'
   if (item.kind === 'help-request') return 'triage-help'
+  if (item.kind === 'olympiad-help') return 'triage-olympiad-help'
   if (item.kind === 'quiz') return 'review-quiz'
   return `investigate-${item.kind}`.replace(/[^a-z0-9-]/g, '-').slice(0, 60)
 }
@@ -80,11 +81,13 @@ async function discover() {
   measurements.phaseMs.inbox = Math.round(performance.now() - inboxStarted)
   const candidates = inbox.items.map((item) => {
     const kind = inboxKind(item)
-    const sourceId = `${item.dayDate ?? 'library'}:${item.id}`
+    const sourceId = `${item.olympiadId ?? item.dayDate ?? 'library'}:${item.id}`
     const source = { type: item.kind, id: item.id, dayDate: item.dayDate ?? null,
-      taskId: item.taskId ?? null, lane: item.lane, status: item.status }
+      taskId: item.taskId ?? null, lane: item.lane, status: item.status,
+      ...(item.olympiadId ? { olympiadId: item.olympiadId, requestedRevision: item.requestedRevision } : {}) }
     return job(kind, item.familyId, item.childId, sourceId, source,
-      [item.kind, item.status, item.createdAt, item.planRevision, item.sha256, item.requestedRevision, item.processingPhase],
+      item.kind === 'olympiad-help' ? [item.kind, item.olympiadId, item.id, item.requestedRevision] :
+        [item.kind, item.status, item.createdAt, item.planRevision, item.sha256, item.requestedRevision, item.processingPhase],
       kind === 'review-work' ? 10 : kind === 'transfer-work' ? 20 : 50)
   })
   const windowDates = dateWindow(todayMoscow())
@@ -209,6 +212,12 @@ async function verifiedResolution(record) {
   // coordinates. Only their addressed executor may confirm their resolution.
   if (record.artifactPath) return null
   const source = record.source ?? {}
+  if (record.kind === 'triage-olympiad-help') {
+    if (!/^[A-Za-z0-9_-]{1,120}$/.test(source.olympiadId ?? '') || !/^[A-Za-z0-9_-]{1,120}$/.test(source.id ?? '')) return null
+    const request = (await db.doc(`families/${record.familyId}/children/${record.childId}/olympiads/${source.olympiadId}/helpRequests/${source.id}`).get()).data()
+    return request?.problemId === source.taskId && request.answers?.some(answer => answer.revision >= source.requestedRevision)
+      ? 'frozen-olympiad-help-revision-answered' : null
+  }
   if (record.kind === 'publish-book-pages') {
     const childPath = `families/${record.familyId}/children/${record.childId}`
     const binding = (await db.doc(`${childPath}/books/${source.id}`).get()).data()
@@ -362,7 +371,7 @@ if (command === 'scan') {
     if (record.status === 'done' || discovered.has(doc.id) || record.kind === 'reconcile-day') return false
     const evidence = await verifiedResolution(record)
     if (!evidence) return false
-    await setSyncJob(db, doc.id, 'done', 'verified', { evidence })
+    await setSyncJob(db, doc.id, 'done', 'verified', { evidence, expectedFingerprint: record.fingerprint })
     return true
   })
   resolved = resolutionResults.filter(Boolean).length

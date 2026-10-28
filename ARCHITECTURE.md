@@ -76,6 +76,7 @@ flowchart LR
 | [Synchronization](docs/modules/synchronization/README.md) | Полнота снимка, сверка, публикация и восстановление |
 | [Assignments](docs/modules/assignments/README.md) | Идентичность назначенного задания, связи и статус выполнения |
 | [Assessments](docs/modules/assessments/README.md) | Проверяемый тест, попытка и продолжение |
+| [Подготовка к олимпиадам](docs/modules/assessments/olympiad-preparation.md) | Проект программы, игрового урока и адаптации; новая область ещё не реализована |
 | [Reviews](docs/modules/reviews/README.md) | Критерий, исходник, видимое на работе и учебный вердикт |
 | [Materials](docs/modules/materials/README.md) | Общие оригиналы, издания, страницы и семейное право |
 | [Notifications](docs/modules/notifications/README.md) | Семантика событий и встроенный inbox; будущая внешняя доставка |

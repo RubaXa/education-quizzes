@@ -10,6 +10,29 @@ Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 const image = 'data:image/png;base64,original'
 
 describe('own photo actions', () => {
+  it('selects multiple existing and local photos in the shared gallery without opening or deleting them', async () => {
+    const host = document.createElement('div'), root = createRoot(host), remove = vi.fn(async () => {})
+    const uploads = [{ id: 'day:a', taskId: 'p1', status: 'reviewed', dataUrl: image }, { id: 'day:b', taskId: 'p1', status: 'pending', dataUrl: image }] as DayUpload[]
+    const local = { id: 'local', taskId: 'p1', previewUrl: 'blob:preview', state: 'uploading' as const }
+    let selected: string[] = []
+    const draw = () => root.render(<WorkPhotoGallery taskTitle="Работа" studentToken="day" uploads={uploads} localPhotos={[local]} now={0} onDelete={remove} selection={{ selectedIds: selected, onChange: (ids) => { selected = ids; draw() }, isSelectable: (id) => id !== 'day:local' }} />)
+    try {
+      await act(async () => draw())
+      const chips = host.querySelectorAll<HTMLButtonElement>('.day-upload-chip')
+      expect(chips[0].getAttribute('aria-pressed')).toBe('false')
+      expect(chips[2].disabled).toBe(true)
+      await act(async () => chips[0].click())
+      await act(async () => chips[1].click())
+      expect(selected).toEqual(['day:a', 'day:b'])
+      expect(chips[0].getAttribute('aria-pressed')).toBe('true')
+      expect(host.querySelectorAll('.day-upload-selected')).toHaveLength(2)
+      expect(host.querySelector('.day-upload-expanded')).toBeNull()
+      expect(host.textContent).toContain('Выбрано: 2')
+      await act(async () => chips[0].click())
+      expect(selected).toEqual(['day:b'])
+      expect(remove).not.toHaveBeenCalled()
+    } finally { await act(async () => root.unmount()) }
+  })
   it.each([false, true])('opens a local photo and preserves selection through the server handoff, compact=%s', async (compact) => {
     const host = document.createElement('div'), root = createRoot(host)
     const local = { id: 'local', taskId: 'p1', previewUrl: 'blob:preview', state: 'uploading' as const }

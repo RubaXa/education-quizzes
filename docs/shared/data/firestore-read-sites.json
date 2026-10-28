@@ -1,5 +1,257 @@
 [
   {
+    "id": "olympiad/firestore-lesson-adapter.mjs#admin.get#54ccb7ec76c1",
+    "file": "olympiad/firestore-lesson-adapter.mjs",
+    "line": 42,
+    "api": "admin.get",
+    "target": "reader",
+    "group": "operator-olympiad",
+    "assessment": "conditional",
+    "policy": "fresh-authorized-point",
+    "refresh": "per request or transaction retry",
+    "note": "Адресные чтения семейного права, класса, каталога, разрешения материала и попытки, включая повтор перед ответом и внутри транзакции. Обёртки reader/tx могут отражать один вызов на нескольких source sites; число биллируемых reads по индексу не вычисляется."
+  },
+  {
+    "id": "olympiad/firestore-lesson-adapter.mjs#admin.get#54ccb7ec76c1-2",
+    "file": "olympiad/firestore-lesson-adapter.mjs",
+    "line": 59,
+    "api": "admin.get",
+    "target": "reader",
+    "group": "operator-olympiad",
+    "assessment": "conditional",
+    "policy": "fresh-authorized-point",
+    "refresh": "per request or transaction retry",
+    "note": "Адресные чтения семейного права, класса, каталога, разрешения материала и попытки, включая повтор перед ответом и внутри транзакции. Обёртки reader/tx могут отражать один вызов на нескольких source sites; число биллируемых reads по индексу не вычисляется."
+  },
+  {
+    "id": "olympiad/firestore-lesson-adapter.mjs#admin.get#c818e1be3c4b",
+    "file": "olympiad/firestore-lesson-adapter.mjs",
+    "line": 66,
+    "api": "admin.get",
+    "target": "r",
+    "group": "operator-olympiad",
+    "assessment": "conditional",
+    "policy": "fresh-authorized-point",
+    "refresh": "per request or transaction retry",
+    "note": "Адресные чтения семейного права, класса, каталога, разрешения материала и попытки, включая повтор перед ответом и внутри транзакции. Обёртки reader/tx могут отражать один вызов на нескольких source sites; число биллируемых reads по индексу не вычисляется."
+  },
+  {
+    "id": "olympiad/firestore-lesson-adapter.mjs#admin.get#81b95ce0c605",
+    "file": "olympiad/firestore-lesson-adapter.mjs",
+    "line": 72,
+    "api": "admin.get",
+    "target": "attemptRef(scope)",
+    "group": "operator-olympiad",
+    "assessment": "conditional",
+    "policy": "fresh-authorized-point",
+    "refresh": "per request or transaction retry",
+    "note": "Адресные чтения семейного права, класса, каталога, разрешения материала и попытки, включая повтор перед ответом и внутри транзакции. Обёртки reader/tx могут отражать один вызов на нескольких source sites; число биллируемых reads по индексу не вычисляется."
+  },
+  {
+    "id": "olympiad/firestore-lesson-adapter.mjs#admin.get#411b8a15a6ae",
+    "file": "olympiad/firestore-lesson-adapter.mjs",
+    "line": 76,
+    "api": "admin.get",
+    "target": "materialRef({ olympiadId }, lessonId, version)",
+    "group": "operator-olympiad",
+    "assessment": "conditional",
+    "policy": "fresh-authorized-point",
+    "refresh": "per request or transaction retry",
+    "note": "Адресные чтения семейного права, класса, каталога, разрешения материала и попытки, включая повтор перед ответом и внутри транзакции. Обёртки reader/tx могут отражать один вызов на нескольких source sites; число биллируемых reads по индексу не вычисляется."
+  },
+  {
+    "id": "olympiad/firestore-lesson-adapter.mjs#admin.get#2d7c409563eb",
+    "file": "olympiad/firestore-lesson-adapter.mjs",
+    "line": 85,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-olympiad",
+    "assessment": "conditional",
+    "policy": "fresh-authorized-point",
+    "refresh": "per request or transaction retry",
+    "note": "Адресные чтения семейного права, класса, каталога, разрешения материала и попытки, включая повтор перед ответом и внутри транзакции. Обёртки reader/tx могут отражать один вызов на нескольких source sites; число биллируемых reads по индексу не вычисляется."
+  },
+  {
+    "id": "olympiad/firestore-lesson-adapter.mjs#admin.get#84e8a43541d2",
+    "file": "olympiad/firestore-lesson-adapter.mjs",
+    "line": 104,
+    "api": "admin.get",
+    "target": "db.collection('olympiadCatalog')",
+    "group": "operator-olympiad",
+    "assessment": "high-risk",
+    "policy": "unbounded-catalog-scan",
+    "refresh": "per catalog request",
+    "note": "Полный общий каталог без ограничения и пагинации; каждый вызов списка читает все документы до фильтрации. Нужно измерение и постраничный/индексированный доступ до масштабирования."
+  },
+  {
+    "id": "olympiad/firestore-lesson-adapter.mjs#admin.get#664ae9d1f4bb",
+    "file": "olympiad/firestore-lesson-adapter.mjs",
+    "line": 104,
+    "api": "admin.get",
+    "target": "db.doc(`families/${familyId}/children/${childId}`)",
+    "group": "operator-olympiad",
+    "assessment": "conditional",
+    "policy": "fresh-authorized-point",
+    "refresh": "per request or transaction retry",
+    "note": "Адресные чтения семейного права, класса, каталога, разрешения материала и попытки, включая повтор перед ответом и внутри транзакции. Обёртки reader/tx могут отражать один вызов на нескольких source sites; число биллируемых reads по индексу не вычисляется."
+  },
+  {
+    "id": "olympiad/firestore-lesson-adapter.mjs#admin.get#4d55f99dc79d",
+    "file": "olympiad/firestore-lesson-adapter.mjs",
+    "line": 105,
+    "api": "admin.get",
+    "target": "db.collection(`families/${familyId}/children/${childId}/olympiads`)",
+    "group": "operator-olympiad",
+    "assessment": "high-risk",
+    "policy": "unbounded-family-collection",
+    "refresh": "per list request",
+    "note": "Чтение всей коллекции назначений или попыток конкретного ребёнка без limit/пагинации; число reads растёт с историей, уроки затем перечитываются и проверяются. Требуется измерение и пагинация."
+  },
+  {
+    "id": "olympiad/firestore-lesson-adapter.mjs#admin.get#2d7c409563eb-2",
+    "file": "olympiad/firestore-lesson-adapter.mjs",
+    "line": 136,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-olympiad",
+    "assessment": "conditional",
+    "policy": "fresh-authorized-point",
+    "refresh": "per request or transaction retry",
+    "note": "Адресные чтения семейного права, класса, каталога, разрешения материала и попытки, включая повтор перед ответом и внутри транзакции. Обёртки reader/tx могут отражать один вызов на нескольких source sites; число биллируемых reads по индексу не вычисляется."
+  },
+  {
+    "id": "olympiad/firestore-lesson-adapter.mjs#admin.get#2d7c409563eb-3",
+    "file": "olympiad/firestore-lesson-adapter.mjs",
+    "line": 140,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-olympiad",
+    "assessment": "conditional",
+    "policy": "fresh-authorized-point",
+    "refresh": "per request or transaction retry",
+    "note": "Адресные чтения семейного права, класса, каталога, разрешения материала и попытки, включая повтор перед ответом и внутри транзакции. Обёртки reader/tx могут отражать один вызов на нескольких source sites; число биллируемых reads по индексу не вычисляется."
+  },
+  {
+    "id": "olympiad/firestore-lesson-adapter.mjs#admin.get#2d7c409563eb-4",
+    "file": "olympiad/firestore-lesson-adapter.mjs",
+    "line": 140,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-olympiad",
+    "assessment": "conditional",
+    "policy": "fresh-authorized-point",
+    "refresh": "per request or transaction retry",
+    "note": "Адресные чтения семейного права, класса, каталога, разрешения материала и попытки, включая повтор перед ответом и внутри транзакции. Обёртки reader/tx могут отражать один вызов на нескольких source sites; число биллируемых reads по индексу не вычисляется."
+  },
+  {
+    "id": "olympiad/firestore-lesson-adapter.mjs#admin.get#2d7c409563eb-5",
+    "file": "olympiad/firestore-lesson-adapter.mjs",
+    "line": 140,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-olympiad",
+    "assessment": "conditional",
+    "policy": "fresh-authorized-point",
+    "refresh": "per request or transaction retry",
+    "note": "Адресные чтения семейного права, класса, каталога, разрешения материала и попытки, включая повтор перед ответом и внутри транзакции. Обёртки reader/tx могут отражать один вызов на нескольких source sites; число биллируемых reads по индексу не вычисляется."
+  },
+  {
+    "id": "olympiad/firestore-lesson-adapter.mjs#admin.get#17f65e2741f7",
+    "file": "olympiad/firestore-lesson-adapter.mjs",
+    "line": 175,
+    "api": "admin.get",
+    "target": "db.collection(`${base}/attempts`)",
+    "group": "operator-olympiad",
+    "assessment": "high-risk",
+    "policy": "unbounded-family-collection",
+    "refresh": "per list request",
+    "note": "Чтение всей коллекции назначений или попыток конкретного ребёнка без limit/пагинации; число reads растёт с историей, уроки затем перечитываются и проверяются. Требуется измерение и пагинация."
+  },
+  {
+    "id": "olympiad/publish-training.mjs#admin.get#c4320ae7b103",
+    "file": "olympiad/publish-training.mjs",
+    "line": 55,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-olympiad",
+    "assessment": "conditional",
+    "policy": "operator-verified-publication",
+    "refresh": "once per explicit publication and transaction retry",
+    "note": "Операторская проверка назначений, ключей и предпросмотров, проверка неизменяемости и адресный readback. Не вызывается пользовательским экраном; тестовые и семейные идентификаторы не выдаются в журнал."
+  },
+  {
+    "id": "olympiad/publish-training.mjs#admin.get#c4320ae7b103-2",
+    "file": "olympiad/publish-training.mjs",
+    "line": 55,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-olympiad",
+    "assessment": "conditional",
+    "policy": "operator-verified-publication",
+    "refresh": "once per explicit publication and transaction retry",
+    "note": "Операторская проверка назначений, ключей и предпросмотров, проверка неизменяемости и адресный readback. Не вызывается пользовательским экраном; тестовые и семейные идентификаторы не выдаются в журнал."
+  },
+  {
+    "id": "olympiad/publish-training.mjs#admin.get#c4320ae7b103-3",
+    "file": "olympiad/publish-training.mjs",
+    "line": 55,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-olympiad",
+    "assessment": "conditional",
+    "policy": "operator-verified-publication",
+    "refresh": "once per explicit publication and transaction retry",
+    "note": "Операторская проверка назначений, ключей и предпросмотров, проверка неизменяемости и адресный readback. Не вызывается пользовательским экраном; тестовые и семейные идентификаторы не выдаются в журнал."
+  },
+  {
+    "id": "olympiad/publish-training.mjs#admin.get#c4320ae7b103-4",
+    "file": "olympiad/publish-training.mjs",
+    "line": 70,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-olympiad",
+    "assessment": "conditional",
+    "policy": "operator-verified-publication",
+    "refresh": "once per explicit publication and transaction retry",
+    "note": "Операторская проверка назначений, ключей и предпросмотров, проверка неизменяемости и адресный readback. Не вызывается пользовательским экраном; тестовые и семейные идентификаторы не выдаются в журнал."
+  },
+  {
+    "id": "olympiad/publish-training.mjs#admin.get#65e5f72128cc",
+    "file": "olympiad/publish-training.mjs",
+    "line": 76,
+    "api": "admin.get",
+    "target": "db.doc(path)",
+    "group": "operator-olympiad",
+    "assessment": "conditional",
+    "policy": "operator-verified-publication",
+    "refresh": "once per explicit publication and transaction retry",
+    "note": "Операторская проверка назначений, ключей и предпросмотров, проверка неизменяемости и адресный readback. Не вызывается пользовательским экраном; тестовые и семейные идентификаторы не выдаются в журнал."
+  },
+  {
+    "id": "olympiad/verify-eligibility.mjs#admin.get#a757666866c7",
+    "file": "olympiad/verify-eligibility.mjs",
+    "line": 13,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-olympiad",
+    "assessment": "conditional",
+    "policy": "operator-scoped-grade-verification",
+    "refresh": "once per explicitly authorized operator operation",
+    "note": "Адресная проверка опубликованных квитанций и семейной принадлежности перед изменением; readback подтверждает результат. Запись класса требует отдельного разрешения и до него не выполнялась."
+  },
+  {
+    "id": "olympiad/verify-eligibility.mjs#admin.get#c88bfe1361f5",
+    "file": "olympiad/verify-eligibility.mjs",
+    "line": 23,
+    "api": "admin.get",
+    "target": "childRef",
+    "group": "operator-olympiad",
+    "assessment": "conditional",
+    "policy": "operator-scoped-grade-verification",
+    "refresh": "once per explicitly authorized operator operation",
+    "note": "Адресная проверка опубликованных квитанций и семейной принадлежности перед изменением; readback подтверждает результат. Запись класса требует отдельного разрешения и до него не выполнялась."
+  },
+  {
     "id": "packages/education-connect/lib/handoff-store.mjs#getDoc#cae964aa72f4",
     "file": "packages/education-connect/lib/handoff-store.mjs",
     "line": 25,
@@ -5378,7 +5630,7 @@
   {
     "id": "scripts/storage.mjs#admin.get#6bbe82c33276",
     "file": "scripts/storage.mjs",
-    "line": 150,
+    "line": 152,
     "api": "admin.get",
     "target": "db.collection(`dayUploads/${student}/files`)",
     "group": "operator-other",
@@ -5390,7 +5642,7 @@
   {
     "id": "scripts/storage.mjs#admin.get#0ec870baddfb",
     "file": "scripts/storage.mjs",
-    "line": 160,
+    "line": 162,
     "api": "admin.get",
     "target": "db.collection('dayOwners')",
     "group": "operator-other",
@@ -5402,7 +5654,7 @@
   {
     "id": "scripts/storage.mjs#admin.get#044786ba900b",
     "file": "scripts/storage.mjs",
-    "line": 163,
+    "line": 165,
     "api": "admin.get",
     "target": "db.collection(`dayUploads/${owner.id}/files`)",
     "group": "operator-other",
@@ -5414,7 +5666,7 @@
   {
     "id": "scripts/storage.mjs#admin.get#b256208f4b26",
     "file": "scripts/storage.mjs",
-    "line": 227,
+    "line": 229,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -5426,7 +5678,7 @@
   {
     "id": "scripts/storage.mjs#admin.getAll#d1c7227fc879",
     "file": "scripts/storage.mjs",
-    "line": 231,
+    "line": 233,
     "api": "admin.getAll",
     "target": "transaction",
     "group": "operator-other",
@@ -5438,7 +5690,7 @@
   {
     "id": "scripts/storage.mjs#admin.getAll#2913bbb5fb59",
     "file": "scripts/storage.mjs",
-    "line": 276,
+    "line": 278,
     "api": "admin.getAll",
     "target": "db",
     "group": "operator-other",
@@ -5450,7 +5702,7 @@
   {
     "id": "scripts/storage.mjs#admin.getAll#2913bbb5fb59-2",
     "file": "scripts/storage.mjs",
-    "line": 287,
+    "line": 289,
     "api": "admin.getAll",
     "target": "db",
     "group": "operator-other",
@@ -5462,7 +5714,7 @@
   {
     "id": "scripts/storage.mjs#admin.get#e01ab5df11e8",
     "file": "scripts/storage.mjs",
-    "line": 306,
+    "line": 308,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -5474,7 +5726,7 @@
   {
     "id": "scripts/storage.mjs#admin.get#ecce08f45166",
     "file": "scripts/storage.mjs",
-    "line": 336,
+    "line": 338,
     "api": "admin.get",
     "target": "db.collectionGroup('books')",
     "group": "operator-other",
@@ -5486,7 +5738,7 @@
   {
     "id": "scripts/storage.mjs#admin.get#422387a84192",
     "file": "scripts/storage.mjs",
-    "line": 361,
+    "line": 363,
     "api": "admin.get",
     "target": "binding.ref.parent.parent.collection('bookPages').where('bookId', '==', bookId).count()",
     "group": "operator-other",
@@ -5498,7 +5750,7 @@
   {
     "id": "scripts/storage.mjs#admin.get#67c6a3f163fb",
     "file": "scripts/storage.mjs",
-    "line": 367,
+    "line": 369,
     "api": "admin.get",
     "target": "db.doc(`materialBooks/${bookId}`)",
     "group": "operator-other",
@@ -5510,7 +5762,7 @@
   {
     "id": "scripts/storage.mjs#admin.get#6877be31dadc",
     "file": "scripts/storage.mjs",
-    "line": 371,
+    "line": 373,
     "api": "admin.get",
     "target": "db.collection(`materialBooks/${bookId}/pages`)",
     "group": "operator-other",
@@ -5522,7 +5774,7 @@
   {
     "id": "scripts/storage.mjs#admin.get#aec10d7c92bb",
     "file": "scripts/storage.mjs",
-    "line": 439,
+    "line": 441,
     "api": "admin.get",
     "target": "binding.parent.parent.collection('bookPages').where('bookId', '==', bookId).count()",
     "group": "operator-other",
@@ -5534,7 +5786,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#4be1de83ec10",
     "file": "scripts/submissions.mjs",
-    "line": 53,
+    "line": 54,
     "api": "admin.get",
     "target": "db.collection('dayOwners')",
     "group": "operator-other",
@@ -5546,7 +5798,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#59159c16605e",
     "file": "scripts/submissions.mjs",
-    "line": 59,
+    "line": 60,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${ownerDoc.id}`)",
     "group": "operator-other",
@@ -5558,7 +5810,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#6fc899531654",
     "file": "scripts/submissions.mjs",
-    "line": 60,
+    "line": 61,
     "api": "admin.get",
     "target": "db.doc(`families/${owner.familyId}/children/${owner.childId}`)",
     "group": "operator-other",
@@ -5570,7 +5822,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#da34de8cc7c1",
     "file": "scripts/submissions.mjs",
-    "line": 61,
+    "line": 62,
     "api": "admin.get",
     "target": "db.collection(`dayUploads/${ownerDoc.id}/files`)",
     "group": "operator-other",
@@ -5582,7 +5834,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#48821996c703",
     "file": "scripts/submissions.mjs",
-    "line": 81,
+    "line": 82,
     "api": "admin.get",
     "target": "db.doc(`dayProgress/${owner.id}/items/${context.taskId}`)",
     "group": "operator-other",
@@ -5594,7 +5846,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#4be1de83ec10-2",
     "file": "scripts/submissions.mjs",
-    "line": 100,
+    "line": 101,
     "api": "admin.get",
     "target": "db.collection('dayOwners')",
     "group": "operator-other",
@@ -5606,7 +5858,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#59159c16605e-2",
     "file": "scripts/submissions.mjs",
-    "line": 106,
+    "line": 107,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${ownerDoc.id}`)",
     "group": "operator-other",
@@ -5618,7 +5870,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#6fc899531654-2",
     "file": "scripts/submissions.mjs",
-    "line": 107,
+    "line": 108,
     "api": "admin.get",
     "target": "db.doc(`families/${owner.familyId}/children/${owner.childId}`)",
     "group": "operator-other",
@@ -5630,7 +5882,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#7b18b93f35fc",
     "file": "scripts/submissions.mjs",
-    "line": 108,
+    "line": 109,
     "api": "admin.get",
     "target": "db.collection(`dayHelp/${ownerDoc.id}/items`)",
     "group": "operator-other",
@@ -5642,7 +5894,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#4be1de83ec10-3",
     "file": "scripts/submissions.mjs",
-    "line": 128,
+    "line": 129,
     "api": "admin.get",
     "target": "db.collection('dayOwners')",
     "group": "operator-other",
@@ -5654,7 +5906,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#59159c16605e-3",
     "file": "scripts/submissions.mjs",
-    "line": 134,
+    "line": 135,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${ownerDoc.id}`)",
     "group": "operator-other",
@@ -5666,7 +5918,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#6c639949eca8",
     "file": "scripts/submissions.mjs",
-    "line": 136,
+    "line": 137,
     "api": "admin.get",
     "target": "db.collection(`dayProgress/${ownerDoc.id}/items`)",
     "group": "operator-other",
@@ -5678,7 +5930,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#4be1de83ec10-4",
     "file": "scripts/submissions.mjs",
-    "line": 150,
+    "line": 151,
     "api": "admin.get",
     "target": "db.collection('dayOwners')",
     "group": "operator-other",
@@ -5690,7 +5942,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#59159c16605e-4",
     "file": "scripts/submissions.mjs",
-    "line": 154,
+    "line": 155,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${ownerDoc.id}`)",
     "group": "operator-other",
@@ -5702,7 +5954,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#6c639949eca8-2",
     "file": "scripts/submissions.mjs",
-    "line": 156,
+    "line": 157,
     "api": "admin.get",
     "target": "db.collection(`dayProgress/${ownerDoc.id}/items`)",
     "group": "operator-other",
@@ -5714,7 +5966,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#415411e2ddd3",
     "file": "scripts/submissions.mjs",
-    "line": 189,
+    "line": 190,
     "api": "admin.get",
     "target": "db.collection('dayOwners').where('date', '==', review.date)",
     "group": "operator-other",
@@ -5726,7 +5978,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#47958261b931",
     "file": "scripts/submissions.mjs",
-    "line": 193,
+    "line": 194,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -5738,7 +5990,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#25e51139e6a0",
     "file": "scripts/submissions.mjs",
-    "line": 198,
+    "line": 199,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${owner.id}`)",
     "group": "operator-other",
@@ -5750,7 +6002,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#47958261b931-2",
     "file": "scripts/submissions.mjs",
-    "line": 248,
+    "line": 249,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -5762,7 +6014,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#15ecdbe99851",
     "file": "scripts/submissions.mjs",
-    "line": 259,
+    "line": 260,
     "api": "admin.get",
     "target": "coverage",
     "group": "operator-other",
@@ -5774,7 +6026,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#25bdc495e077",
     "file": "scripts/submissions.mjs",
-    "line": 416,
+    "line": 417,
     "api": "admin.get",
     "target": "db.collection('dayOwners').where('date', '==', correction.date)",
     "group": "operator-other",
@@ -5786,7 +6038,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#25e51139e6a0-2",
     "file": "scripts/submissions.mjs",
-    "line": 420,
+    "line": 421,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${owner.id}`)",
     "group": "operator-other",
@@ -5798,7 +6050,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#b1a0a9da7b59",
     "file": "scripts/submissions.mjs",
-    "line": 420,
+    "line": 421,
     "api": "admin.get",
     "target": "db.doc(`dayProgress/${owner.id}/items/${correction.taskId}`)",
     "group": "operator-other",
@@ -5810,7 +6062,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#83f5a667c8e7",
     "file": "scripts/submissions.mjs",
-    "line": 421,
+    "line": 422,
     "api": "admin.get",
     "target": "db.doc(`dayReviewPrivate/${owner.id}/items/${correction.taskId}`)",
     "group": "operator-other",
@@ -5822,7 +6074,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#3a710fa54a19",
     "file": "scripts/submissions.mjs",
-    "line": 422,
+    "line": 423,
     "api": "admin.get",
     "target": "db.doc(`dayUploads/${owner.id}/files/${id}`)",
     "group": "operator-other",
@@ -5834,7 +6086,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#cb5a9eebcb34",
     "file": "scripts/submissions.mjs",
-    "line": 447,
+    "line": 448,
     "api": "admin.get",
     "target": "db.doc(`dayTaskGuides/${owner.id}/items/${correction.taskId}`)",
     "group": "operator-other",
@@ -5846,7 +6098,7 @@
   {
     "id": "scripts/submissions.mjs#admin.getAll#58c06df7cc4b",
     "file": "scripts/submissions.mjs",
-    "line": 484,
+    "line": 485,
     "api": "admin.getAll",
     "target": "db",
     "group": "operator-other",
@@ -5858,7 +6110,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#47958261b931-3",
     "file": "scripts/submissions.mjs",
-    "line": 502,
+    "line": 503,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -5870,7 +6122,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#d4c1114e5c5e",
     "file": "scripts/submissions.mjs",
-    "line": 502,
+    "line": 503,
     "api": "admin.get",
     "target": "reviewRefs[index]",
     "group": "operator-other",
@@ -5882,7 +6134,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#15ecdbe99851-2",
     "file": "scripts/submissions.mjs",
-    "line": 514,
+    "line": 515,
     "api": "admin.get",
     "target": "coverage",
     "group": "operator-other",
@@ -5894,7 +6146,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#15ecdbe99851-3",
     "file": "scripts/submissions.mjs",
-    "line": 521,
+    "line": 522,
     "api": "admin.get",
     "target": "coverage",
     "group": "operator-other",
@@ -5906,7 +6158,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#15ecdbe99851-4",
     "file": "scripts/submissions.mjs",
-    "line": 521,
+    "line": 522,
     "api": "admin.get",
     "target": "coverage",
     "group": "operator-other",
@@ -5918,7 +6170,7 @@
   {
     "id": "scripts/submissions.mjs#admin.getAll#58c06df7cc4b-2",
     "file": "scripts/submissions.mjs",
-    "line": 525,
+    "line": 526,
     "api": "admin.getAll",
     "target": "db",
     "group": "operator-other",
@@ -5930,7 +6182,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#4be1de83ec10-5",
     "file": "scripts/submissions.mjs",
-    "line": 536,
+    "line": 537,
     "api": "admin.get",
     "target": "db.collection('dayOwners')",
     "group": "operator-other",
@@ -5942,7 +6194,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#25e51139e6a0-3",
     "file": "scripts/submissions.mjs",
-    "line": 542,
+    "line": 543,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${owner.id}`)",
     "group": "operator-other",
@@ -5954,7 +6206,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#4aecce90adb9",
     "file": "scripts/submissions.mjs",
-    "line": 544,
+    "line": 545,
     "api": "admin.get",
     "target": "db.collection(`dayProgress/${owner.id}/items`)",
     "group": "operator-other",
@@ -5966,7 +6218,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#a278bb5bedbf",
     "file": "scripts/submissions.mjs",
-    "line": 550,
+    "line": 551,
     "api": "admin.get",
     "target": "privateRef",
     "group": "operator-other",
@@ -6168,6 +6420,18 @@
     "note": "Широкий обход дорого повторять в рабочем цикле; перейти на локальный курсор/активный индекс и оставить полный обход для явной сверки."
   },
   {
+    "id": "scripts/sync-inbox.mjs#admin.get#9b7db11415bb",
+    "file": "scripts/sync-inbox.mjs",
+    "line": 193,
+    "api": "admin.get",
+    "target": "db.collectionGroup('helpRequests')",
+    "group": "operator-sync",
+    "assessment": "high-risk",
+    "policy": "unbounded-collection-group-scan",
+    "refresh": "each explicit full sync",
+    "note": "Полный collectionGroup helpRequests без фильтра, пагинации и ограничений; результат фильтруется в памяти. Стоимость зависит от всех семей и истории; до масштабирования нужны активный индекс или дельта и замер billed reads."
+  },
+  {
     "id": "scripts/sync-project.mjs#admin.get#a3750996ffdd",
     "file": "scripts/sync-project.mjs",
     "line": 159,
@@ -6254,7 +6518,7 @@
   {
     "id": "scripts/sync-queue.mjs#admin.get#0c932d4bbe60",
     "file": "scripts/sync-queue.mjs",
-    "line": 94,
+    "line": 97,
     "api": "admin.get",
     "target": "db.collection('dayOwners').where('date', '>=', first).where('date', '<=', last)",
     "group": "operator-sync",
@@ -6266,7 +6530,7 @@
   {
     "id": "scripts/sync-queue.mjs#admin.get#d42d161d3e32",
     "file": "scripts/sync-queue.mjs",
-    "line": 95,
+    "line": 98,
     "api": "admin.get",
     "target": "db.collection('dayPages').where('targetDate', '>=', first).where('targetDate', '<=', last)",
     "group": "operator-sync",
@@ -6278,7 +6542,7 @@
   {
     "id": "scripts/sync-queue.mjs#admin.get#1d8e188eb440",
     "file": "scripts/sync-queue.mjs",
-    "line": 135,
+    "line": 138,
     "api": "admin.get",
     "target": "db.collection('assignments').where('submittedAt', '>=', since)",
     "group": "operator-sync",
@@ -6290,7 +6554,7 @@
   {
     "id": "scripts/sync-queue.mjs#admin.get#65c287e369d4",
     "file": "scripts/sync-queue.mjs",
-    "line": 136,
+    "line": 139,
     "api": "admin.get",
     "target": "db.collection('assignments').where('followupRequestedAt', '>=', since)",
     "group": "operator-sync",
@@ -6302,7 +6566,7 @@
   {
     "id": "scripts/sync-queue.mjs#admin.get#1d12e77a6b5f",
     "file": "scripts/sync-queue.mjs",
-    "line": 139,
+    "line": 142,
     "api": "admin.get",
     "target": "db.collection('assignments').where('status', '==', 'submitted')",
     "group": "operator-sync",
@@ -6314,7 +6578,7 @@
   {
     "id": "scripts/sync-queue.mjs#admin.get#08a54eb290a9",
     "file": "scripts/sync-queue.mjs",
-    "line": 153,
+    "line": 156,
     "api": "admin.get",
     "target": "db.collection('assignments').where('linkedToTestId', '==', assignment.testId)",
     "group": "operator-sync",
@@ -6326,7 +6590,7 @@
   {
     "id": "scripts/sync-queue.mjs#admin.get#04b494408d5f",
     "file": "scripts/sync-queue.mjs",
-    "line": 157,
+    "line": 160,
     "api": "admin.get",
     "target": "db.doc(`answerKeys/${doc.id}`)",
     "group": "operator-sync",
@@ -6338,7 +6602,7 @@
   {
     "id": "scripts/sync-queue.mjs#admin.get#0755593be7bd",
     "file": "scripts/sync-queue.mjs",
-    "line": 157,
+    "line": 160,
     "api": "admin.get",
     "target": "db.doc(`reviews/${doc.id}`)",
     "group": "operator-sync",
@@ -6350,7 +6614,7 @@
   {
     "id": "scripts/sync-queue.mjs#admin.get#26de2423e602",
     "file": "scripts/sync-queue.mjs",
-    "line": 179,
+    "line": 182,
     "api": "admin.get",
     "target": "db.collection(`dayUploads/${ownerDoc.id}/files`).where('status', '==', 'reviewed')",
     "group": "operator-sync",
@@ -6362,7 +6626,7 @@
   {
     "id": "scripts/sync-queue.mjs#admin.get#e34f159c4f42",
     "file": "scripts/sync-queue.mjs",
-    "line": 184,
+    "line": 187,
     "api": "admin.get",
     "target": "db.collection(`dayProgress/${ownerDoc.id}/items`)",
     "group": "operator-sync",
@@ -6374,7 +6638,7 @@
   {
     "id": "scripts/sync-queue.mjs#admin.get#4a35104b8706",
     "file": "scripts/sync-queue.mjs",
-    "line": 188,
+    "line": 191,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${ownerDoc.id}`)",
     "group": "operator-sync",
@@ -6384,9 +6648,21 @@
     "note": "Проверить кратность адресного чтения в одном EducationSync: локальный снимок/мемоизация по ID допустимы, если не нарушают актуальность перед записью."
   },
   {
+    "id": "scripts/sync-queue.mjs#admin.get#21f755138f37",
+    "file": "scripts/sync-queue.mjs",
+    "line": 217,
+    "api": "admin.get",
+    "target": "db.doc(`families/${record.familyId}/children/${record.childId}/olympiads/${source.olympiadId}/helpRequests/${source.id}`)",
+    "group": "operator-sync",
+    "assessment": "conditional",
+    "policy": "operator-point",
+    "refresh": "when resolving a queued job",
+    "note": "Адресное повторное чтение версии указанного семейного запроса перед закрытием задачи; не доказывает, что результат охватывает дополнения."
+  },
+  {
     "id": "scripts/sync-queue.mjs#admin.get#f993b129c29d",
     "file": "scripts/sync-queue.mjs",
-    "line": 214,
+    "line": 223,
     "api": "admin.get",
     "target": "db.doc(`${childPath}/books/${source.id}`)",
     "group": "operator-sync",
@@ -6398,7 +6674,7 @@
   {
     "id": "scripts/sync-queue.mjs#admin.get#895dc26b006c",
     "file": "scripts/sync-queue.mjs",
-    "line": 219,
+    "line": 228,
     "api": "admin.get",
     "target": "db.collection(`${childPath}/bookPages`).where('bookId', '==', source.id).count()",
     "group": "operator-sync",
@@ -6410,7 +6686,7 @@
   {
     "id": "scripts/sync-queue.mjs#admin.get#4703b87e71ba",
     "file": "scripts/sync-queue.mjs",
-    "line": 224,
+    "line": 233,
     "api": "admin.get",
     "target": "db.doc(`assignments/${source.id}`)",
     "group": "operator-sync",
@@ -6422,7 +6698,7 @@
   {
     "id": "scripts/sync-queue.mjs#admin.get#d2f66b7a245e",
     "file": "scripts/sync-queue.mjs",
-    "line": 224,
+    "line": 233,
     "api": "admin.get",
     "target": "db.doc(`reviews/${source.id}`)",
     "group": "operator-sync",
@@ -6434,7 +6710,7 @@
   {
     "id": "scripts/sync-queue.mjs#admin.get#fd809c4bc505",
     "file": "scripts/sync-queue.mjs",
-    "line": 231,
+    "line": 240,
     "api": "admin.get",
     "target": "db.collection('assignments').where('linkedToTestId', '==', source.testId)",
     "group": "operator-sync",
@@ -6446,7 +6722,7 @@
   {
     "id": "scripts/sync-queue.mjs#admin.get#37f055bf812f",
     "file": "scripts/sync-queue.mjs",
-    "line": 236,
+    "line": 245,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${source.dayToken}`)",
     "group": "operator-sync",
@@ -6458,7 +6734,7 @@
   {
     "id": "scripts/sync-queue.mjs#admin.get#da5fc105d712",
     "file": "scripts/sync-queue.mjs",
-    "line": 246,
+    "line": 255,
     "api": "admin.get",
     "target": "db.collection('dayOwners').where('date', '==', source.dayDate ?? source.date)",
     "group": "operator-sync",
@@ -6470,7 +6746,7 @@
   {
     "id": "scripts/sync-queue.mjs#admin.get#c63998a6ab0f",
     "file": "scripts/sync-queue.mjs",
-    "line": 249,
+    "line": 258,
     "api": "admin.get",
     "target": "db.doc(`dayUploads/${owner.id}/files/${source.id ?? source.uploadId}`)",
     "group": "operator-sync",
@@ -6482,7 +6758,7 @@
   {
     "id": "scripts/sync-queue.mjs#admin.get#8b3ea4d9ba0e",
     "file": "scripts/sync-queue.mjs",
-    "line": 251,
+    "line": 260,
     "api": "admin.get",
     "target": "db.doc(`dayProgress/${owner.id}/items/${upload.taskId}`)",
     "group": "operator-sync",
@@ -6494,7 +6770,7 @@
   {
     "id": "scripts/sync-queue.mjs#admin.get#57eb6305b4ac",
     "file": "scripts/sync-queue.mjs",
-    "line": 252,
+    "line": 261,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${owner.id}`)",
     "group": "operator-sync",
@@ -6506,7 +6782,7 @@
   {
     "id": "scripts/sync-queue.mjs#admin.get#7e485b60f2f1",
     "file": "scripts/sync-queue.mjs",
-    "line": 259,
+    "line": 268,
     "api": "admin.get",
     "target": "db.collection(`families/${record.familyId}/children/${record.childId}/bookUploads`)",
     "group": "operator-sync",
@@ -6518,7 +6794,7 @@
   {
     "id": "scripts/sync-queue.mjs#admin.get#8cbd24b2fed4",
     "file": "scripts/sync-queue.mjs",
-    "line": 263,
+    "line": 272,
     "api": "admin.get",
     "target": "db.collection('dayOwners').where('date', '==', source.dayDate)",
     "group": "operator-sync",
@@ -6530,7 +6806,7 @@
   {
     "id": "scripts/sync-queue.mjs#admin.get#f533600b3b86",
     "file": "scripts/sync-queue.mjs",
-    "line": 267,
+    "line": 276,
     "api": "admin.get",
     "target": "db.doc(`dayHelp/${owner.id}/items/${source.id}`)",
     "group": "operator-sync",
@@ -6542,7 +6818,7 @@
   {
     "id": "scripts/sync-queue.mjs#admin.get#d61f1073aeb9",
     "file": "scripts/sync-queue.mjs",
-    "line": 268,
+    "line": 277,
     "api": "admin.get",
     "target": "db.doc(`dayProgress/${owner.id}/items/${source.id}`)",
     "group": "operator-sync",
@@ -6554,7 +6830,7 @@
   {
     "id": "scripts/sync-queue.mjs#admin.get#5d0d03cde7d7",
     "file": "scripts/sync-queue.mjs",
-    "line": 269,
+    "line": 278,
     "api": "admin.get",
     "target": "db.collection(`dayParentDecisions/${owner.id}/events`)",
     "group": "operator-sync",
@@ -6566,7 +6842,7 @@
   {
     "id": "scripts/sync-queue.mjs#admin.get#a58a58d59384",
     "file": "scripts/sync-queue.mjs",
-    "line": 277,
+    "line": 286,
     "api": "admin.get",
     "target": "db.collection('operatorSyncJobs') .where('status', 'in', ['queued', 'processing', 'blocked'])",
     "group": "operator-sync",
@@ -6578,7 +6854,7 @@
   {
     "id": "scripts/sync-queue.mjs#admin.get#10fe1354f049",
     "file": "scripts/sync-queue.mjs",
-    "line": 357,
+    "line": 366,
     "api": "admin.get",
     "target": "db.collection('operatorSyncJobs').where('status', 'in', ['queued', 'processing', 'blocked'])",
     "group": "operator-sync",
@@ -6590,7 +6866,7 @@
   {
     "id": "scripts/sync-queue.mjs#admin.get#dcf5d0d0058a",
     "file": "scripts/sync-queue.mjs",
-    "line": 382,
+    "line": 391,
     "api": "admin.get",
     "target": "db.doc(`operatorSyncJobs/${id}`)",
     "group": "operator-sync",
@@ -6602,7 +6878,7 @@
   {
     "id": "scripts/sync-queue.mjs#admin.get#4b65dce90324",
     "file": "scripts/sync-queue.mjs",
-    "line": 385,
+    "line": 394,
     "api": "admin.get",
     "target": "db.doc(record.artifactPath)",
     "group": "operator-sync",
@@ -6986,7 +7262,7 @@
   {
     "id": "src/components/LearningRoute.tsx#onSnapshot#f4a41a412098",
     "file": "src/components/LearningRoute.tsx",
-    "line": 69,
+    "line": 70,
     "api": "onSnapshot",
     "target": "doc(db, 'accessLinks', session.linkToken)",
     "group": "client-access",
@@ -6998,7 +7274,7 @@
   {
     "id": "src/components/LearningRoute.tsx#onSnapshot#7c88d25fd3b3",
     "file": "src/components/LearningRoute.tsx",
-    "line": 73,
+    "line": 74,
     "api": "onSnapshot",
     "target": "doc(db, 'deviceSessions', session.deviceUid)",
     "group": "client-access",
@@ -7010,7 +7286,7 @@
   {
     "id": "src/components/LearningRoute.tsx#onSnapshot#ae32e1bad017",
     "file": "src/components/LearningRoute.tsx",
-    "line": 77,
+    "line": 78,
     "api": "onSnapshot",
     "target": "doc(db, 'families', child.familyId, 'members', session.personId)",
     "group": "client-access",
@@ -8266,6 +8542,402 @@
     "policy": "transaction-guard",
     "refresh": "on mutation",
     "note": "Чтение внутри транзакции защищает конкурентное обновление; повторные транзакционные попытки учитываются при замере."
+  },
+  {
+    "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55",
+    "file": "sync/olympiad-help.mjs",
+    "line": 29,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "fresh-transaction-point",
+    "refresh": "per action and transaction retry",
+    "note": "Транзакционные точечные чтения для проверки идентичности устройства, семейного права, каталога, участия и задачи; повторяются при каждом действии и retry Firestore."
+  },
+  {
+    "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-2",
+    "file": "sync/olympiad-help.mjs",
+    "line": 31,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "fresh-transaction-point",
+    "refresh": "per action and transaction retry",
+    "note": "Транзакционные точечные чтения для проверки идентичности устройства, семейного права, каталога, участия и задачи; повторяются при каждом действии и retry Firestore."
+  },
+  {
+    "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-3",
+    "file": "sync/olympiad-help.mjs",
+    "line": 34,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "fresh-transaction-point",
+    "refresh": "per action and transaction retry",
+    "note": "Транзакционные точечные чтения для проверки идентичности устройства, семейного права, каталога, участия и задачи; повторяются при каждом действии и retry Firestore."
+  },
+  {
+    "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-4",
+    "file": "sync/olympiad-help.mjs",
+    "line": 34,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "fresh-transaction-point",
+    "refresh": "per action and transaction retry",
+    "note": "Транзакционные точечные чтения для проверки идентичности устройства, семейного права, каталога, участия и задачи; повторяются при каждом действии и retry Firestore."
+  },
+  {
+    "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-5",
+    "file": "sync/olympiad-help.mjs",
+    "line": 35,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "fresh-transaction-point",
+    "refresh": "per action and transaction retry",
+    "note": "Транзакционные точечные чтения для проверки идентичности устройства, семейного права, каталога, участия и задачи; повторяются при каждом действии и retry Firestore."
+  },
+  {
+    "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-6",
+    "file": "sync/olympiad-help.mjs",
+    "line": 35,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "fresh-transaction-point",
+    "refresh": "per action and transaction retry",
+    "note": "Транзакционные точечные чтения для проверки идентичности устройства, семейного права, каталога, участия и задачи; повторяются при каждом действии и retry Firestore."
+  },
+  {
+    "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-7",
+    "file": "sync/olympiad-help.mjs",
+    "line": 35,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "fresh-transaction-point",
+    "refresh": "per action and transaction retry",
+    "note": "Транзакционные точечные чтения для проверки идентичности устройства, семейного права, каталога, участия и задачи; повторяются при каждом действии и retry Firestore."
+  },
+  {
+    "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-8",
+    "file": "sync/olympiad-help.mjs",
+    "line": 36,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "fresh-transaction-point",
+    "refresh": "per action and transaction retry",
+    "note": "Транзакционные точечные чтения для проверки идентичности устройства, семейного права, каталога, участия и задачи; повторяются при каждом действии и retry Firestore."
+  },
+  {
+    "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-9",
+    "file": "sync/olympiad-help.mjs",
+    "line": 50,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "fresh-transaction-point",
+    "refresh": "per action and transaction retry",
+    "note": "Транзакционное чтение текущего запроса и выбранных фото; количество reads растёт с числом выбранных фото и повторов, верхняя граница по количеству снимков не задана."
+  },
+  {
+    "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-10",
+    "file": "sync/olympiad-help.mjs",
+    "line": 50,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "fresh-transaction-point",
+    "refresh": "per action and transaction retry",
+    "note": "Транзакционное чтение текущего запроса и выбранных фото; количество reads растёт с числом выбранных фото и повторов, верхняя граница по количеству снимков не задана."
+  },
+  {
+    "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-11",
+    "file": "sync/olympiad-help.mjs",
+    "line": 77,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "fresh-transaction-point",
+    "refresh": "per action and transaction retry",
+    "note": "Транзакционное чтение привязанного фото, квитанции или запроса для проверки владельца, версии и целостности; в т. ч. повтор после хранения/выдачи."
+  },
+  {
+    "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-12",
+    "file": "sync/olympiad-help.mjs",
+    "line": 77,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "fresh-transaction-point",
+    "refresh": "per action and transaction retry",
+    "note": "Транзакционное чтение привязанного фото, квитанции или запроса для проверки владельца, версии и целостности; в т. ч. повтор после хранения/выдачи."
+  },
+  {
+    "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-13",
+    "file": "sync/olympiad-help.mjs",
+    "line": 102,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "fresh-transaction-point",
+    "refresh": "per action and transaction retry",
+    "note": "Транзакционное чтение привязанного фото, квитанции или запроса для проверки владельца, версии и целостности; в т. ч. повтор после хранения/выдачи."
+  },
+  {
+    "id": "sync/olympiad-help.mjs#admin.get#1d802f6c15ba",
+    "file": "sync/olympiad-help.mjs",
+    "line": 117,
+    "api": "admin.get",
+    "target": "db.doc(`olympiadCatalog/${args.olympiadId}`)",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "fresh-authorized-point",
+    "refresh": "per authorized request or transaction retry",
+    "note": "Сервер повторно проверяет семью, ребёнка, роль, активное участие и разрешённый учебный материал; ответ не содержит секретных путей."
+  },
+  {
+    "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-14",
+    "file": "sync/olympiad-help.mjs",
+    "line": 124,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "fresh-transaction-point",
+    "refresh": "per action and transaction retry",
+    "note": "Операторская транзакция проверяет семью, ребёнка, каталог, назначение, задачу и точную ревизию запроса; без доказанного runtime бюджета."
+  },
+  {
+    "id": "sync/olympiad-help.mjs#admin.get#bc8052dae473",
+    "file": "sync/olympiad-help.mjs",
+    "line": 142,
+    "api": "admin.get",
+    "target": "db.collection(`${c.base}/photos`)",
+    "group": "operator-other",
+    "assessment": "high-risk",
+    "policy": "authorized-family-unbounded-list",
+    "refresh": "per authorized request or transaction retry",
+    "note": "Адресный семейный каталог или проверка записи после авторизации. Галерея и индекс помощи читаются целиком: измерение объёма и ограниченная пагинация ещё не внедрены."
+  },
+  {
+    "id": "sync/olympiad-help.mjs#admin.get#7fa20c119a81",
+    "file": "sync/olympiad-help.mjs",
+    "line": 142,
+    "api": "admin.get",
+    "target": "db.collection(`${c.base}/helpRequests`)",
+    "group": "operator-other",
+    "assessment": "high-risk",
+    "policy": "authorized-family-unbounded-list",
+    "refresh": "per authorized request or transaction retry",
+    "note": "Адресный семейный каталог или проверка записи после авторизации. Галерея и индекс помощи читаются целиком: измерение объёма и ограниченная пагинация ещё не внедрены."
+  },
+  {
+    "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-15",
+    "file": "sync/olympiad-help.mjs",
+    "line": 155,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "fresh-transaction-point",
+    "refresh": "per action and transaction retry",
+    "note": "Операторская транзакция проверяет семью, ребёнка, каталог, назначение, задачу и точную ревизию запроса; без доказанного runtime бюджета."
+  },
+  {
+    "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-16",
+    "file": "sync/olympiad-help.mjs",
+    "line": 155,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "fresh-transaction-point",
+    "refresh": "per action and transaction retry",
+    "note": "Операторская транзакция проверяет семью, ребёнка, каталог, назначение, задачу и точную ревизию запроса; без доказанного runtime бюджета."
+  },
+  {
+    "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-17",
+    "file": "sync/olympiad-help.mjs",
+    "line": 155,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "fresh-transaction-point",
+    "refresh": "per action and transaction retry",
+    "note": "Операторская транзакция проверяет семью, ребёнка, каталог, назначение, задачу и точную ревизию запроса; без доказанного runtime бюджета."
+  },
+  {
+    "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-18",
+    "file": "sync/olympiad-help.mjs",
+    "line": 155,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "fresh-transaction-point",
+    "refresh": "per action and transaction retry",
+    "note": "Операторская транзакция проверяет семью, ребёнка, каталог, назначение, задачу и точную ревизию запроса; без доказанного runtime бюджета."
+  },
+  {
+    "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-19",
+    "file": "sync/olympiad-help.mjs",
+    "line": 155,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "fresh-transaction-point",
+    "refresh": "per action and transaction retry",
+    "note": "Операторская транзакция проверяет семью, ребёнка, каталог, назначение, задачу и точную ревизию запроса; без доказанного runtime бюджета."
+  },
+  {
+    "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-20",
+    "file": "sync/olympiad-help.mjs",
+    "line": 155,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "fresh-transaction-point",
+    "refresh": "per action and transaction retry",
+    "note": "Операторская транзакция проверяет семью, ребёнка, каталог, назначение, задачу и точную ревизию запроса; без доказанного runtime бюджета."
+  },
+  {
+    "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-21",
+    "file": "sync/olympiad-help.mjs",
+    "line": 171,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "fresh-transaction-point",
+    "refresh": "per action and transaction retry",
+    "note": "Операторская транзакция проверяет семью, ребёнка, каталог, назначение, задачу и точную ревизию запроса; без доказанного runtime бюджета."
+  },
+  {
+    "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-22",
+    "file": "sync/olympiad-help.mjs",
+    "line": 171,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "fresh-transaction-point",
+    "refresh": "per action and transaction retry",
+    "note": "Операторская транзакция проверяет семью, ребёнка, каталог, назначение, задачу и точную ревизию запроса; без доказанного runtime бюджета."
+  },
+  {
+    "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-23",
+    "file": "sync/olympiad-help.mjs",
+    "line": 171,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "fresh-transaction-point",
+    "refresh": "per action and transaction retry",
+    "note": "Операторская транзакция проверяет семью, ребёнка, каталог, назначение, задачу и точную ревизию запроса; без доказанного runtime бюджета."
+  },
+  {
+    "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-24",
+    "file": "sync/olympiad-help.mjs",
+    "line": 171,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "fresh-transaction-point",
+    "refresh": "per action and transaction retry",
+    "note": "Операторская транзакция проверяет семью, ребёнка, каталог, назначение, задачу и точную ревизию запроса; без доказанного runtime бюджета."
+  },
+  {
+    "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-25",
+    "file": "sync/olympiad-help.mjs",
+    "line": 171,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "fresh-transaction-point",
+    "refresh": "per action and transaction retry",
+    "note": "Операторская транзакция проверяет семью, ребёнка, каталог, назначение, задачу и точную ревизию запроса; без доказанного runtime бюджета."
+  },
+  {
+    "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-26",
+    "file": "sync/olympiad-help.mjs",
+    "line": 171,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "fresh-transaction-point",
+    "refresh": "per action and transaction retry",
+    "note": "Транзакционное чтение привязанного фото, квитанции или запроса для проверки владельца, версии и целостности; в т. ч. повтор после хранения/выдачи."
+  },
+  {
+    "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-27",
+    "file": "sync/olympiad-help.mjs",
+    "line": 201,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "fresh-transaction-point",
+    "refresh": "per action and transaction retry",
+    "note": "Транзакционное чтение привязанного фото, квитанции или запроса для проверки владельца, версии и целостности; в т. ч. повтор после хранения/выдачи."
+  },
+  {
+    "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-28",
+    "file": "sync/olympiad-help.mjs",
+    "line": 218,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "fresh-transaction-point",
+    "refresh": "per action and transaction retry",
+    "note": "Транзакционное чтение привязанного фото, квитанции или запроса для проверки владельца, версии и целостности; в т. ч. повтор после хранения/выдачи."
+  },
+  {
+    "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-29",
+    "file": "sync/olympiad-help.mjs",
+    "line": 238,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "fresh-transaction-point",
+    "refresh": "per action and transaction retry",
+    "note": "Транзакционное чтение привязанного фото, квитанции или запроса для проверки владельца, версии и целостности; в т. ч. повтор после хранения/выдачи."
+  },
+  {
+    "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-30",
+    "file": "sync/olympiad-help.mjs",
+    "line": 239,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "fresh-authorized-point",
+    "refresh": "per authorized request or transaction retry",
+    "note": "Сервер повторно проверяет семью, ребёнка, роль, активное участие и разрешённый учебный материал; ответ не содержит секретных путей."
   },
   {
     "id": "sync/publication-audit.mjs#admin.get#5bf6d41d7b66",
