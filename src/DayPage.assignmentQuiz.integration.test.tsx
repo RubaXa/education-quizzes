@@ -638,7 +638,7 @@ it.each([true, false])('shows the olympiad source sheet upload only to the learn
     expect(host.textContent).toContain('Очередь своих вариантов')
     expect(host.textContent).not.toContain('Загрузить результат')
     expect(host.querySelector('input[type=file]') !== null).toBe(!parent)
-    if (!parent) expect(host.querySelector('.day-upload')?.textContent).toContain('Добавить фото условий')
+    if (!parent) expect(host.querySelector('.day-upload')?.textContent).toContain('Загрузить фотографии')
   } finally { await act(async () => root.unmount()); host.remove() }
 })
 

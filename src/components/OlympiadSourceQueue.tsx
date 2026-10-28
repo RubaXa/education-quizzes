@@ -1,4 +1,3 @@
-import { ChevronDown } from 'lucide-react'
 import type { DayUpload, DayWorkReview } from '@/lib/dayStore'
 import PhotoUploadControl from './PhotoUploadControl'
 import WorkPhotoGallery, { type LocalWorkPhoto } from './WorkPhotoGallery'
@@ -12,8 +11,8 @@ export default function OlympiadSourceQueue<T extends LocalWorkPhoto>({ parent, 
 }) {
   const complete = uploads.length > 0 && localPhotos.every(photo => uploads.some(upload => upload.id === photo.id || upload.id.endsWith(`:${photo.id}`))) && uploads.every(upload => processedIds.some(id => upload.id === id || upload.id.endsWith(`:${id}`)))
   return <section aria-label="Свои варианты">
-    {!parent && <details className="day-practice-variant"><summary><strong>Загрузить свой вариант</strong><ChevronDown size={17} aria-hidden="true" /></summary><p>Добавь фотографии страниц с условиями задач.</p><PhotoUploadControl label="Добавить фото условий" onPhotos={onPhotos} /></details>}
     <strong>Очередь своих вариантов</strong>
+    {!parent && <><p>Загружай новые страницы или дополнительные фотографии в любое время.</p><PhotoUploadControl label={uploads.length || localPhotos.length ? 'Добавить ещё фотографии' : 'Загрузить фотографии'} onPhotos={onPhotos} /></>}
     {!uploads.length && !localPhotos.length && <p>Загруженных фотографий пока нет.</p>}
     <WorkPhotoGallery taskTitle="Свои варианты" evidenceLabel="Фото условий" studentToken={studentToken} uploads={uploads} localPhotos={localPhotos} review={review} now={now} onRetry={onRetry} onDelete={parent ? undefined : onDelete} purpose={complete ? 'source-complete' : 'source'} />
   </section>

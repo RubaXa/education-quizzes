@@ -77,6 +77,7 @@
 | [docs/decisions/olympiad-practice-queue-2026-10-28.md](../decisions/olympiad-practice-queue-2026-10-28.md) | 2026-10-28 | 2026-10-28 | accepted | partial | Education frontend<br>Education operator |  |
 | [docs/decisions/olympiad-practice-sections-2026-10-28.md](../decisions/olympiad-practice-sections-2026-10-28.md) | 2026-10-28 | 2026-10-28 | accepted | partial | Education frontend |  |
 | [docs/decisions/olympiad-quiz-theory-2026-10-28.md](../decisions/olympiad-quiz-theory-2026-10-28.md) | 2026-10-28 | 2026-10-28 | accepted | partial | Education frontend |  |
+| [docs/decisions/olympiad-repeat-uploads-2026-10-28.md](../decisions/olympiad-repeat-uploads-2026-10-28.md) | 2026-10-28 | 2026-10-28 | accepted | partial | Education frontend |  |
 | [docs/decisions/olympiad-shared-infrastructure-2026-10-28.md](../decisions/olympiad-shared-infrastructure-2026-10-28.md) | 2026-10-28 | 2026-10-28 | accepted | partial | Education developer<br>Education operator |  |
 | [docs/decisions/olympiad-shared-statement-2026-10-28.md](../decisions/olympiad-shared-statement-2026-10-28.md) | 2026-10-28 | 2026-10-28 | accepted | partial | Education frontend |  |
 | [docs/decisions/olympiad-source-links-2026-10-28.md](../decisions/olympiad-source-links-2026-10-28.md) | 2026-10-28 | 2026-10-28 | accepted | partial | Education operator<br>Education frontend |  |
