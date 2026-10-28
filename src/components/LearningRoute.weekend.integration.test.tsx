@@ -33,6 +33,7 @@ vi.mock('firebase/firestore', () => ({
   },
   onSnapshot: (ref: { path: string; constraints?: { field: string; operator: string; value: unknown }[] }, options: unknown, callback?: (snapshot: unknown) => void) => {
     const changed = typeof options === 'function' ? options as (snapshot: unknown) => void : callback!
+    if (ref.path === 'publicOlympiadCatalog') { changed({ docs: [], metadata: { fromCache: false } }); return () => {} }
     if (ref.path === 'families/family/children/child/tasks') {
       if (ref.constraints?.length !== 1 || ref.constraints[0].field !== 'learningContext.kind' || ref.constraints[0].operator !== '==' || ref.constraints[0].value !== 'olympiad') throw new Error('Unexpected family task query')
       changed({ docs: [], metadata: { fromCache: false } })

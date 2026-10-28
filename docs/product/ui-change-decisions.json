@@ -2621,22 +2621,21 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "c313f0896a4222176e2d578d6d860bc19b34126399dfec931b13d8a5f67c2fb3",
+      "sha256": "379d713002a6b243318f175cb1492144d1a4b6475f2afaa3e712d4882e5bc9d2",
       "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
         "docs/modules/synchronization/education-pipeline.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/components/OlympiadPage.integration.test.tsx",
-        "src/components/TaskGuidance.test.tsx",
-        "src/lib/educationEventProducers.test.ts",
-        "sync/event-task-artifact.test.mjs"
+        "src/components/OlympiadHome.integration.test.tsx",
+        "src/components/PhotoHelpPanel.integration.test.tsx",
+        "sync/event-task-artifact.test.mjs",
+        "sync/help-response.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо потребовал использовать общие уроки, семейные права, фотографии и синхронизацию Education для олимпиад."
+        "evidence": "Пользователь прямо поручил завершить общий каталог и выбор нескольких фото для помощи через существующую инфраструктуру и UI Kit с интеграционными проверками."
       }
     },
     "src/UiKit.css": {
@@ -4159,25 +4158,21 @@
       }
     },
     "src/lib/dayGuidance.ts": {
-      "sha256": "d036d5e14e0bd5278a3efd88653fa08c14a25f31ecc57cdffb3cd9927f2048a5",
-      "record": "docs/decisions/released-stage-parity-2026-10-20.md",
+      "sha256": "6f630ddab1f6246e52e27104d8bd3960b26ec9dd3c35f3cea9cdd2185a67071e",
+      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
-        "docs/modules/reviews/subject-aware-guidance.md",
-        "docs/modules/reviews/problem-card-design-decisions.md",
-        "docs/shared/design/ui-kit.md",
-        "docs/shared/design/README.md"
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/modules/synchronization/education-pipeline.md"
       ],
       "tests": [
-        "src/lib/dayGuidance.writer.test.ts",
-        "day/guidance-release.test.mjs",
-        "day/guidance-repair.test.mjs",
-        "src/components/ParentTaskGuide.test.tsx",
-        "src/components/TaskGuidance.test.tsx",
-        "src/UiKit.test.tsx"
+        "src/components/OlympiadHome.integration.test.tsx",
+        "src/components/PhotoHelpPanel.integration.test.tsx",
+        "sync/event-task-artifact.test.mjs",
+        "sync/help-response.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос пользователя 20.10.2026: в ученическом раскрытии должен появляться полный выбранный этап с переходами, строкой симметрии, причиной и источником; родительский предпросмотр должен совпадать с фактическим раскрытием."
+        "evidence": "Пользователь прямо поручил завершить общий каталог и выбор нескольких фото для помощи через существующую инфраструктуру и UI Kit с интеграционными проверками."
       }
     },
     "src/lib/dayMaterialRefs.ts": {
@@ -4203,22 +4198,21 @@
       }
     },
     "src/lib/dayStore.ts": {
-      "sha256": "30a81fb68bd8cacdd98be60315ba5a26f61163eda1cbf3c3d36985b14547e42e",
+      "sha256": "3d1c6dcbc53f0bd3b1bcc1088210499dd1db044befcd7863e30f0827553bdabc",
       "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
         "docs/modules/synchronization/education-pipeline.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/components/OlympiadPage.integration.test.tsx",
-        "src/components/TaskGuidance.test.tsx",
-        "src/lib/educationEventProducers.test.ts",
-        "sync/event-task-artifact.test.mjs"
+        "src/components/OlympiadHome.integration.test.tsx",
+        "src/components/PhotoHelpPanel.integration.test.tsx",
+        "sync/event-task-artifact.test.mjs",
+        "sync/help-response.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо потребовал использовать общие уроки, семейные права, фотографии и синхронизацию Education для олимпиад."
+        "evidence": "Пользователь прямо поручил завершить общий каталог и выбор нескольких фото для помощи через существующую инфраструктуру и UI Kit с интеграционными проверками."
       }
     },
     "src/lib/educationEventProducer.ts": {
@@ -4255,22 +4249,21 @@
       }
     },
     "src/lib/educationStore.ts": {
-      "sha256": "56b9b204bcc37e4ca4bb4fa44784796b98e1ee8000d97e694cfcf7a709bc701b",
+      "sha256": "bcb60b6d15e836ba9032b4141552bac18aff34ddeeba68e0e595101882562238",
       "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
         "docs/modules/synchronization/education-pipeline.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/components/OlympiadPage.integration.test.tsx",
-        "src/components/TaskGuidance.test.tsx",
-        "src/lib/educationEventProducers.test.ts",
-        "sync/event-task-artifact.test.mjs"
+        "src/components/OlympiadHome.integration.test.tsx",
+        "src/components/PhotoHelpPanel.integration.test.tsx",
+        "sync/event-task-artifact.test.mjs",
+        "sync/help-response.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо потребовал использовать общие уроки, семейные права, фотографии и синхронизацию Education для олимпиад."
+        "evidence": "Пользователь прямо поручил завершить общий каталог и выбор нескольких фото для помощи через существующую инфраструктуру и UI Kit с интеграционными проверками."
       }
     },
     "src/lib/familyBookUpload.ts": {
@@ -5453,19 +5446,21 @@
       }
     },
     "sync/event-task-artifact.mjs": {
-      "sha256": "0022a21afd3765540c5de696f24ee7cf3d90da6f4f4feb6ea551889801facb17",
-      "record": "docs/decisions/sync-task-routing-2026-10-23.md",
+      "sha256": "ad1b69b00c458c6e63c0fe2f72aa2dbe0189c96d0443e0a5dd029daa369015c3",
+      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
-        "docs/modules/synchronization/task-routing.md"
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/modules/synchronization/education-pipeline.md"
       ],
       "tests": [
-        "sync/task-route.test.mjs",
+        "src/components/OlympiadHome.integration.test.tsx",
+        "src/components/PhotoHelpPanel.integration.test.tsx",
         "sync/event-task-artifact.test.mjs",
-        "operator/route-plan.test.mjs"
+        "sync/help-response.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя23.10: ревизия инструкций и детерминированных инструментов синхронизации, расширение недостающих развилок."
+        "evidence": "Пользователь прямо поручил завершить общий каталог и выбор нескольких фото для помощи через существующую инфраструктуру и UI Kit с интеграционными проверками."
       }
     },
     "sync/event-task-export.mjs": {
@@ -5865,7 +5860,7 @@
       }
     },
     "scripts/photo-outbox-chromium-integration.mjs": {
-      "sha256": "cde8c10e370806157384e9b92aab372a27a0af6cf0267a964cb269f6baf0654f",
+      "sha256": "2c4a4656b1a8be35864f2e2d57904bd23b328f7ddf87318934ae3012354197be",
       "record": "docs/decisions/photo-indexeddb-recovery-2026-10-22.md",
       "specs": [
         "docs/modules/materials/storage-privacy.md",
@@ -6279,41 +6274,39 @@
       }
     },
     "src/components/OlympiadCatalog.tsx": {
-      "sha256": "a03e5835f46c8b0fa1653ded092cdde79d1afbc7da1773093cafc364e1957b8e",
+      "sha256": "d3ca4fc60494f3b593a5b9e1387c420382b8f720ce270c6392a6b75a7d055588",
       "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
         "docs/modules/synchronization/education-pipeline.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/components/OlympiadPage.integration.test.tsx",
-        "src/components/TaskGuidance.test.tsx",
-        "src/lib/educationEventProducers.test.ts",
-        "sync/event-task-artifact.test.mjs"
+        "src/components/OlympiadHome.integration.test.tsx",
+        "src/components/PhotoHelpPanel.integration.test.tsx",
+        "sync/event-task-artifact.test.mjs",
+        "sync/help-response.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо потребовал использовать общие уроки, семейные права, фотографии и синхронизацию Education для олимпиад."
+        "evidence": "Пользователь прямо поручил завершить общий каталог и выбор нескольких фото для помощи через существующую инфраструктуру и UI Kit с интеграционными проверками."
       }
     },
     "src/components/OlympiadHome.tsx": {
-      "sha256": "2d0677fae5e3361abc33e7b5f70f05fcf86cf7ad15de14c65e82c712c390bbc0",
+      "sha256": "7d1ba0424860333640f04f6852aac4c6417a05869b0da36f2397521ec0c958f4",
       "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
         "docs/modules/synchronization/education-pipeline.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/components/OlympiadPage.integration.test.tsx",
-        "src/components/TaskGuidance.test.tsx",
-        "src/lib/educationEventProducers.test.ts",
-        "sync/event-task-artifact.test.mjs"
+        "src/components/OlympiadHome.integration.test.tsx",
+        "src/components/PhotoHelpPanel.integration.test.tsx",
+        "sync/event-task-artifact.test.mjs",
+        "sync/help-response.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо потребовал использовать общие уроки, семейные права, фотографии и синхронизацию Education для олимпиад."
+        "evidence": "Пользователь прямо поручил завершить общий каталог и выбор нескольких фото для помощи через существующую инфраструктуру и UI Kit с интеграционными проверками."
       }
     },
     "src/components/OlympiadPage.tsx": {
@@ -6623,6 +6616,60 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Пользователь прямо потребовал использовать общие уроки, семейные права, фотографии и синхронизацию Education для олимпиад."
+      }
+    },
+    "scripts/help-response.mjs": {
+      "sha256": "44842c5fb83b8d6dba5f69c4ceac2c03168b77bbb22ad74b2de316fc29d0e28e",
+      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
+      "specs": [
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/modules/synchronization/education-pipeline.md"
+      ],
+      "tests": [
+        "src/components/OlympiadHome.integration.test.tsx",
+        "src/components/PhotoHelpPanel.integration.test.tsx",
+        "sync/event-task-artifact.test.mjs",
+        "sync/help-response.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь прямо поручил завершить общий каталог и выбор нескольких фото для помощи через существующую инфраструктуру и UI Kit с интеграционными проверками."
+      }
+    },
+    "src/components/PhotoHelpPanel.tsx": {
+      "sha256": "7f7ba11e36a4cc3015a8501b334c9cb36753de097c129e017d472dd185aca2bd",
+      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
+      "specs": [
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/modules/synchronization/education-pipeline.md"
+      ],
+      "tests": [
+        "src/components/OlympiadHome.integration.test.tsx",
+        "src/components/PhotoHelpPanel.integration.test.tsx",
+        "sync/event-task-artifact.test.mjs",
+        "sync/help-response.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь прямо поручил завершить общий каталог и выбор нескольких фото для помощи через существующую инфраструктуру и UI Kit с интеграционными проверками."
+      }
+    },
+    "sync/help-response.mjs": {
+      "sha256": "aeb2b741e54a7df79a5bb48203b0b68a92e61eaf17548d40d7ed636510b5bc79",
+      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
+      "specs": [
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/modules/synchronization/education-pipeline.md"
+      ],
+      "tests": [
+        "src/components/OlympiadHome.integration.test.tsx",
+        "src/components/PhotoHelpPanel.integration.test.tsx",
+        "sync/event-task-artifact.test.mjs",
+        "sync/help-response.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь прямо поручил завершить общий каталог и выбор нескольких фото для помощи через существующую инфраструктуру и UI Kit с интеграционными проверками."
       }
     }
   }

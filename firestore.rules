@@ -564,6 +564,12 @@ service cloud.firestore {
       }
     }
 
+    // Operator-published, non-personal catalog projection. Family work remains private.
+    match /publicOlympiadCatalog/{olympiadId} {
+      allow get, list: if activeSession();
+      allow write: if false;
+    }
+
     // Private lesson keys and attempts are accessed exclusively through trusted server services.
     match /olympiadCatalog/{document=**} {
       allow read, write: if false;
@@ -986,7 +992,7 @@ service cloud.firestore {
         && get(memberPath(get(/databases/$(database)/documents/dayOwners/$(studentToken)).data.familyId)).data.role == 'student'
         && exists(/databases/$(database)/documents/dayPages/$(studentToken))
         && taskId in get(/databases/$(database)/documents/dayPages/$(studentToken)).data.taskIds
-        && request.resource.data.keys().hasOnly(['taskId', 'revision', 'requestedAt', 'requestKind', 'requestText', 'eventOperationId', 'eventReceiptId', 'eventProducerVersion'])
+        && request.resource.data.keys().hasOnly(['taskId', 'revision', 'requestedAt', 'requestKind', 'requestText', 'photoUploadIds', 'planRevision', 'eventOperationId', 'eventReceiptId', 'eventProducerVersion'])
         && request.resource.data.keys().hasAll(['taskId', 'revision', 'requestedAt', 'requestKind', 'requestText'])
         && request.resource.data.taskId == taskId
         && request.resource.data.revision is int
@@ -995,11 +1001,35 @@ service cloud.firestore {
         && request.resource.data.requestKind in ['condition', 'start', 'step', 'check']
         && request.resource.data.requestText is string
         && request.resource.data.requestText.size() <= 800
+        && (!('photoUploadIds' in request.resource.data) || (request.resource.data.photoUploadIds is list && request.resource.data.photoUploadIds.size() > 0
+          && request.resource.data.planRevision == get(/databases/$(database)/documents/dayPages/$(studentToken)).data.planRevision))
         && request.resource.data.requestedAt == request.time
         && (resource == null || (resource.data.taskId == taskId
           && request.resource.data.revision >= resource.data.revision))
-        && legacyOrEducationEventReceipt('help.requested', request.resource.data.get('eventOperationId', 'legacy'), 'dayHelp/' + studentToken + '/items/' + taskId);
+        && legacyOrEducationEventReceipt('help.requested', request.resource.data.get('eventOperationId', 'legacy'), 'dayHelp/' + studentToken + '/items/' + taskId)
+        && (!(('photoUploadIds' in request.resource.data) || (resource != null && 'photoUploadIds' in resource.data))
+          || validEducationEventReceipt(request.resource.data, 'help.requested', request.resource.data.get('eventOperationId', 'legacy'), 'dayHelp/' + studentToken + '/items/' + taskId))
+        && (!('photoUploadIds' in request.resource.data) || (
+          existsAfter(/databases/$(database)/documents/dayHelp/$(studentToken)/items/$(taskId)/requests/$(request.resource.data.eventReceiptId))
+          && getAfter(/databases/$(database)/documents/dayHelp/$(studentToken)/items/$(taskId)/requests/$(request.resource.data.eventReceiptId)).data == request.resource.data));
       allow delete: if false;
+    }
+
+    // History is an immutable copy of the same atomically written request.
+    match /dayHelp/{studentToken}/items/{taskId}/requests/{eventId} {
+      allow get, list: if dayUploadOwner(studentToken);
+      allow create: if dayUploadOwner(studentToken)
+        && get(memberPath(get(/databases/$(database)/documents/dayOwners/$(studentToken)).data.familyId)).data.role == 'student'
+        && eventId.matches('^[a-f0-9]{64}$')
+        && request.resource.data.eventReceiptId == eventId
+        && existsAfter(/databases/$(database)/documents/educationEvents/$(eventId))
+        && getAfter(/databases/$(database)/documents/educationEvents/$(eventId)).data.createdAt == request.time
+        && getAfter(/databases/$(database)/documents/educationEvents/$(eventId)).data.sourceRef.documentPath == 'dayHelp/' + studentToken + '/items/' + taskId
+        && request.resource.data.requestedAt == request.time
+        && request.resource.data == getAfter(/databases/$(database)/documents/dayHelp/$(studentToken)/items/$(taskId)).data
+        && request.resource.data.photoUploadIds is list
+        && request.resource.data.photoUploadIds.size() > 0;
+      allow update, delete: if false;
     }
 
     match /dayUploads/{studentToken}/files/{uploadId} {

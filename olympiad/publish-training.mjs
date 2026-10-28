@@ -45,6 +45,8 @@ export async function publishTraining(db, receipts) {
   }
   documents.push({ path: `olympiadMaterials/${olympiadId}/problems/${problemId}`, value: problem })
   documents.push({ path: `olympiadCatalog/${olympiadId}`, value: catalog })
+  // Deliberately publish an allowlisted public projection, never the private catalog record.
+  documents.push({ path: `publicOlympiadCatalog/${olympiadId}`, value: { status: 'published', title: catalog.title, deadline: catalog.deadline.slice(0, 10) } })
   await db.runTransaction(async (tx) => {
   let owner = null
   for (const lessonId of lessonIds) {

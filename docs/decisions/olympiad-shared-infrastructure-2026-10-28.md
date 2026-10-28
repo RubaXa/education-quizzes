@@ -42,3 +42,5 @@ sections:
 ## Согласование
 
 Прямое уточнение пользователя 28.10.2026 использовать общие уроки, данные и инфраструктуру Education, а не отдельный олимпиадный сервис.
+
+Дополнение 28.10: `src/components/OlympiadHome.tsx`, `src/components/OlympiadCatalog.tsx` и `src/lib/educationStore.ts` показывают неперсональную проекцию общего каталога совместно с назначениями семьи. `src/DayPage.tsx`, `src/components/PhotoHelpPanel.tsx`, `src/lib/dayStore.ts`, `src/lib/dayGuidance.ts`, `sync/event-task-artifact.mjs`, `sync/help-response.mjs` и `scripts/help-response.mjs` подключают общую галерею и существующую очередь помощи к письменной практике. Родитель видит фотографии запроса в границах своей семьи; ребёнок выбирает сохранённые фото в той же галерее. Проверки на фикстурах и эмуляторе не означают выпуска в production. Пользователь прямо поручил продолжить реализацию и проверить роли интеграционными тестами.

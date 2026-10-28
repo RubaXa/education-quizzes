@@ -19,9 +19,10 @@ function setup() {
 describe('reviewed olympiad publication', () => {
   it('requires published quizzes and safely publishes identical repeat with readback', async () => {
     const { db, docs, receipts } = setup()
-    expect(await publishTraining(db, receipts)).toMatchObject({ lessonCount: 3, verifiedDocuments: 5 })
-    expect(await publishTraining(db, receipts)).toMatchObject({ lessonCount: 3, verifiedDocuments: 5 })
+    expect(await publishTraining(db, receipts)).toMatchObject({ lessonCount: 3, verifiedDocuments: 6 })
+    expect(await publishTraining(db, receipts)).toMatchObject({ lessonCount: 3, verifiedDocuments: 6 })
     expect(docs.get('olympiadCatalog/formulo-math-2026-2027').allowedProblemIds).toContain('training-even-three-digit-v1')
+    expect(docs.get('publicOlympiadCatalog/formulo-math-2026-2027')).toEqual({ status: 'published', title: trainingPublicationPlan().catalog.title, deadline: '2026-11-05' })
   })
   it('refuses a changed version without writing any new document', async () => {
     const { db, docs, receipts } = setup()

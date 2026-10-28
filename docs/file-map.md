@@ -1020,3 +1020,14 @@
 | [assessment/learning-context.test.mjs](../assessment/learning-context.test.mjs) | [Тесты](modules/assessments/quizzes.md) | Проверка типизации и миграции контекста | Vitest |
 | [docs/decisions/olympiad-shared-infrastructure-2026-10-28.md](decisions/olympiad-shared-infrastructure-2026-10-28.md) | [Подготовка к олимпиадам](modules/assessments/olympiad-preparation.md) | Решение о едином учебном ядре и поэтапной миграции | Разработчик; оператор |
 | [scripts/backfill-olympiad-context.mjs](../scripts/backfill-olympiad-context.mjs) | [Подготовка к олимпиадам](modules/assessments/olympiad-preparation.md) | Операторское добавление контекста существующим назначениям | Оператор |
+
+| [playwright.config.ts](../playwright.config.ts) | [Toolchain](shared/toolchain.md) | Локальный браузерный тестовый сервер и настройки Playwright | Разработчик; CI |
+| [e2e/olympiad-ui-kit.e2e.ts](../e2e/olympiad-ui-kit.e2e.ts) | [UI Kit](shared/design/ui-kit.md) | Браузерные сценарии каталога и помощи по фотографиям на условных данных | Playwright; разработчик |
+| [src/components/OlympiadHome.integration.test.tsx](../src/components/OlympiadHome.integration.test.tsx) | [Олимпиадная подготовка](modules/assessments/olympiad-preparation.md) | Ролевые проекции и недоступность общей части каталога на фикстурах | Vitest; разработчик |
+| [scripts/firestore-rules-olympiad-catalog-emulator.test.mjs](../scripts/firestore-rules-olympiad-catalog-emulator.test.mjs) | [Олимпиадная подготовка](modules/assessments/olympiad-preparation.md) | Ролевой доступ к общей проекции каталога в эмуляторе Firestore | Vitest; эмулятор |
+| [src/components/PhotoHelpPanel.tsx](../src/components/PhotoHelpPanel.tsx) | [Олимпиадная подготовка](modules/assessments/olympiad-preparation.md) | Общая карточка помощи и управляемый выбор фото в существующей галерее | Страница задания; ученик; родитель |
+| [src/components/PhotoHelpPanel.integration.test.tsx](../src/components/PhotoHelpPanel.integration.test.tsx) | [Олимпиадная подготовка](modules/assessments/olympiad-preparation.md) | Фикстуры ролевой карточки и отправки выбранных фотографий | Vitest |
+| [sync/help-response.mjs](../sync/help-response.mjs) | [Олимпиадная подготовка](modules/assessments/olympiad-preparation.md) | Публикация адресного ответа на запрос с проверкой снимка | EducationSync; оператор |
+| [sync/help-response.test.mjs](../sync/help-response.test.mjs) | [Олимпиадная подготовка](modules/assessments/olympiad-preparation.md) | Проверка привязки ответа и повторной публикации | Vitest |
+| [scripts/help-response.mjs](../scripts/help-response.mjs) | [Олимпиадная подготовка](modules/assessments/olympiad-preparation.md) | Операторская команда публикации ответа | Оператор |
+| [scripts/firestore-rules-help-emulator.test.mjs](../scripts/firestore-rules-help-emulator.test.mjs) | [Олимпиадная подготовка](modules/assessments/olympiad-preparation.md) | Ролевые права и история фотозапросов в эмуляторе | Vitest; эмулятор |

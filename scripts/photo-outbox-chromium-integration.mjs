@@ -300,5 +300,5 @@ try {
   socket?.close()
   proc.kill()
   await delay(250)
-  rmSync(profile, { recursive: true, force: true })
+  rmSync(profile, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 })
 }

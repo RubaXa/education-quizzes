@@ -9,7 +9,7 @@ import { prepareEducationEvent, stagePreparedEducationEvent } from './educationE
 
 export type DayGuidance = {
   id: string; taskId: string; stageId: string; stageIndex: number; level: 'hint' | 'reveal';
-  text: string; guideRevision: number; actorPersonId: string; createdAt: unknown;
+  text: string; guideRevision: number; actorPersonId: string; createdAt: unknown; sourceRequestEventId?: string;
   /** Present only for a parent-selected full reveal; contains one stage's public allowlisted fields. */
   revealContent?: DayGuidanceRevealContent;
 }

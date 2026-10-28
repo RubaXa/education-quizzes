@@ -120,7 +120,7 @@ function taskConditionOnPage(page: DayPageData | undefined, taskId: string): str
   }
   return null
 }
-export type DayHelp = { id: string; taskId: string; revision: number; requestedAt?: unknown; requestKind?: 'condition' | 'start' | 'step' | 'check'; requestText?: string }
+export type DayHelp = { id: string; taskId: string; revision: number; requestedAt?: unknown; requestKind?: 'condition' | 'start' | 'step' | 'check'; requestText?: string; photoUploadIds?: string[]; planRevision?: number; eventReceiptId?: string }
 export type DayWorkReview = {
   purpose?: 'source-material'; sourceAnalysis?: SourceAnalysis;
   id: string; taskId: string; status?: 'verified' | 'needs-fix' | 'partial' | 'cannot-assess';
@@ -277,29 +277,58 @@ export function watchDayHelp(tokens: string[], onChange: (data: DayHelp[]) => vo
   }, onError))
   return () => stops.forEach((stop) => stop())
 }
-export async function requestDayHelp(studentToken: string, taskId: string, revision: number, requestKind: NonNullable<DayHelp['requestKind']>, requestText: string) {
+/** Immutable request history is read only by family members. */
+export function watchDayHelpHistory(studentToken: string, taskId: string, onChange: (data: DayHelp[]) => void, onError: (error: Error) => void) {
+  return onSnapshot(collection(db, 'dayHelp', studentToken, 'items', taskId, 'requests'), (snapshot) => {
+    onChange(snapshot.docs.map(item => ({ id: item.id, ...item.data() } as DayHelp)))
+  }, onError)
+}
+export async function requestDayHelp(studentToken: string, taskId: string, revision: number, requestKind: NonNullable<DayHelp['requestKind']>, requestText: string, options?: { photoUploadIds: string[]; operationId: string }) {
+  const photoUploadIds = options?.photoUploadIds
+  if (photoUploadIds && (!photoUploadIds.length || new Set(photoUploadIds).size !== photoUploadIds.length || photoUploadIds.some(id => !/^[A-Za-z0-9_-]{20,80}$/.test(id)) || !/^[A-Za-z0-9-]{36}$/.test(options.operationId))) throw new Error('Выберите сохранённые фотографии задания и повторите отправку с тем же идентификатором.')
   const owner = await getDocFromServer(doc(db, 'dayOwners', studentToken))
   const { familyId, childId } = owner.data() ?? {}
   const uid = getAuth().currentUser?.uid
   if (!owner.exists() || typeof familyId !== 'string' || typeof childId !== 'string' || !uid) throw new Error('Семейная привязка запроса не найдена.')
-  const batch = writeBatch(db)
   const input = {
     eventType: 'help.requested', familyId, childId, source: 'firestore',
     sourceRef: { kind: 'help', documentPath: `dayHelp/${studentToken}/items/${taskId}`, dayToken: studentToken, taskId },
-    operationId: crypto.randomUUID(), actor: { type: 'user', uid },
+    operationId: options?.operationId ?? crypto.randomUUID(), actor: { type: 'user', uid },
   } as const
   const envelope = await prepareEducationEvent(input)
   const sourceRef = doc(db, 'dayHelp', studentToken, 'items', taskId)
+  const historyRef = doc(db, 'dayHelp', studentToken, 'items', taskId, 'requests', envelope.eventId)
   const sourceText = requestText.trim().slice(0, 800)
-  batch.set(sourceRef, { taskId, revision, requestKind, requestText: sourceText, requestedAt: serverTimestamp(), eventOperationId: input.operationId, eventReceiptId: envelope.eventId, eventProducerVersion: 1 })
+  const matches = (data: Record<string, unknown> | undefined) => data?.eventOperationId === input.operationId && data?.eventReceiptId === envelope.eventId
+    && data?.revision === revision && data?.requestKind === requestKind && data?.requestText === sourceText
+    && JSON.stringify(data?.photoUploadIds ?? null) === JSON.stringify(photoUploadIds ?? null)
+  if (photoUploadIds) {
+    const saved = await getDocFromServer(historyRef)
+    if (saved.exists()) {
+      if (matches(saved.data())) return
+      throw new Error('Этот запрос уже сохранён с другими данными.')
+    }
+    for (let offset = 0; offset < photoUploadIds.length; offset += 20) {
+      const photos = await Promise.all(photoUploadIds.slice(offset, offset + 20).map(id => getDocFromServer(doc(db, 'dayUploads', studentToken, 'files', id))))
+      if (photos.some(photo => !photo.exists() || photo.data()?.taskId !== taskId || !['pending', 'reviewed'].includes(photo.data()?.status) || photo.data()?.storage?.state !== 'stored')) throw new Error('Дождитесь сохранения выбранных фотографий этого задания.')
+    }
+  }
+  let planRevision: number | undefined
+  if (photoUploadIds) {
+    const page = await getDocFromServer(doc(db, 'dayPages', studentToken))
+    planRevision = page.data()?.planRevision
+    if (!page.exists() || !Number.isInteger(planRevision) || !page.data()?.taskIds?.includes(taskId)) throw new Error('Версия задания изменилась. Обновите страницу.')
+  }
+  const batch = writeBatch(db)
+  const request = { taskId, revision, requestKind, requestText: sourceText, ...(photoUploadIds ? { photoUploadIds, planRevision } : {}), requestedAt: serverTimestamp(), eventOperationId: input.operationId, eventReceiptId: envelope.eventId, eventProducerVersion: 1 }
+  batch.set(sourceRef, request)
+  if (photoUploadIds) batch.set(historyRef, request)
   stagePreparedEducationEvent(batch, envelope)
   try { await batch.commit() }
   catch (cause) {
     try {
-      const committed = await getDocFromServer(sourceRef)
-      const data = committed.data()
-      if (committed.exists() && data?.eventOperationId === input.operationId && data?.eventReceiptId === envelope.eventId
-        && data?.revision === revision && data?.requestKind === requestKind && data?.requestText === sourceText) return
+      const committed = await getDocFromServer(photoUploadIds ? historyRef : sourceRef)
+      if (committed.exists() && matches(committed.data())) return
     } catch { /* Preserve the original commit error when readback is unavailable. */ }
     throw cause
   }

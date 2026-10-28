@@ -1,0 +1,71 @@
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { randomUUID } from 'node:crypto'
+import { initializeApp as clientApp, deleteApp as deleteClientApp } from 'firebase/app'
+import { connectAuthEmulator, getAuth, signInAnonymously } from 'firebase/auth'
+import { connectFirestoreEmulator, getDoc, setDoc, updateDoc, doc, getFirestore, serverTimestamp, writeBatch } from 'firebase/firestore'
+import { initializeApp as adminApp, deleteApp as deleteAdminApp } from 'firebase-admin/app'
+import { getFirestore as adminDb } from 'firebase-admin/firestore'
+import { createEducationEvent } from '../packages/education-events/envelope.mjs'
+import { prepareEventTaskArtifact } from '../sync/event-task-artifact.mjs'
+import { syncJobId } from '../sync/job-queue.mjs'
+import { publishHelpResponse } from '../sync/help-response.mjs'
+
+const enabled = Boolean(process.env.FIRESTORE_EMULATOR_HOST && process.env.FIREBASE_AUTH_EMULATOR_HOST && /^demo-/.test(process.env.GCLOUD_PROJECT || ''))
+describe.skipIf(!enabled)('shared photo help rules emulator', () => {
+  let client, admin, db, store, uid
+  const family = `help${Date.now()}`, day = `day${Date.now()}`, token = 'z'.repeat(43), photo = 'upload-request-1234567890'
+  beforeAll(async () => {
+    client = clientApp({ apiKey: 'fake', projectId: process.env.GCLOUD_PROJECT }, family)
+    admin = adminApp({ projectId: process.env.GCLOUD_PROJECT }, family)
+    const auth = getAuth(client)
+    connectAuthEmulator(auth, `http://${process.env.FIREBASE_AUTH_EMULATOR_HOST}`, { disableWarnings: true })
+    db = getFirestore(client)
+    const [host, port] = process.env.FIRESTORE_EMULATOR_HOST.split(':'); connectFirestoreEmulator(db, host, Number(port))
+    store = adminDb(admin); uid = (await signInAnonymously(auth)).user.uid
+    const entries = {
+      [`deviceSessions/${uid}`]: { linkToken: token }, [`accessLinks/${token}`]: { active: true, personId: 'p' },
+      [`families/${family}`]: { active: true }, [`families/${family}/children/c`]: { active: true },
+      [`families/${family}/members/p`]: { active: true, role: 'student', childIds: ['c'] },
+      [`dayOwners/${day}`]: { familyId: family, childId: 'c', date: '2026-10-28' },
+      [`dayPages/${day}`]: { kind: 'student', date: '2026-10-28', planRevision: 1, taskIds: ['task'], subjects: [{ name: 'Математика', tasks: [{ id: 'task', title: 'Практика' }] }] },
+      [`dayUploads/${day}/files/${photo}`]: { taskId: 'task', status: 'pending', storage: { state: 'stored', path: 'private', sha256: 'a'.repeat(64) } },
+    }
+    await Promise.all(Object.entries(entries).map(([path, value]) => store.doc(path).set(value)))
+  })
+  afterAll(async () => { if (client) await deleteClientApp(client); if (admin) await deleteAdminApp(admin) })
+  it('atomically saves an immutable photo request and rejects changes', async () => {
+    const operationId = randomUUID(), sourcePath = `dayHelp/${day}/items/task`
+    const event = await createEducationEvent({ eventType: 'help.requested', familyId: family, childId: 'c', source: 'firestore',
+      sourceRef: { kind: 'help', documentPath: sourcePath, dayToken: day, taskId: 'task' }, operationId, actor: { type: 'user', uid } }, serverTimestamp())
+    const request = { taskId: 'task', revision: 1, requestKind: 'step', requestText: '', photoUploadIds: [photo], planRevision: 1, requestedAt: serverTimestamp(),
+      eventOperationId: operationId, eventReceiptId: event.eventId, eventProducerVersion: 1 }
+    const history = doc(db, `${sourcePath}/requests/${event.eventId}`), batch = writeBatch(db)
+    batch.set(doc(db, sourcePath), request); batch.set(history, request); batch.set(doc(db, `educationEvents/${event.eventId}`), event)
+    await batch.commit()
+    expect((await getDoc(history)).data().photoUploadIds).toEqual([photo])
+    // The same receipt may not be reused to mutate the current projection.
+    await expect(updateDoc(doc(db, sourcePath), { requestText: 'forged', requestedAt: serverTimestamp() })).rejects.toMatchObject({ code: 'permission-denied' })
+    const nextId = randomUUID()
+    const nextEvent = await createEducationEvent({ eventType: 'help.requested', familyId: family, childId: 'c', source: 'firestore',
+      sourceRef: { kind: 'help', documentPath: sourcePath, dayToken: day, taskId: 'task' }, operationId: nextId, actor: { type: 'user', uid } }, serverTimestamp())
+    const next = { ...request, requestedAt: serverTimestamp(), requestText: 'дополнение', eventOperationId: nextId, eventReceiptId: nextEvent.eventId }
+    const incomplete = writeBatch(db); incomplete.set(doc(db, sourcePath), next); incomplete.set(doc(db, `educationEvents/${nextEvent.eventId}`), nextEvent)
+    await expect(incomplete.commit()).rejects.toMatchObject({ code: 'permission-denied' })
+    const complete = writeBatch(db); complete.set(doc(db, sourcePath), next); complete.set(doc(db, `${sourcePath}/requests/${nextEvent.eventId}`), next); complete.set(doc(db, `educationEvents/${nextEvent.eventId}`), nextEvent)
+    await complete.commit()
+    expect((await getDoc(history)).data().requestText).toBe('')
+    expect((await getDoc(doc(db, sourcePath))).data().requestText).toBe('дополнение')
+    const savedEvent = (await store.doc(`educationEvents/${event.eventId}`).get()).data()
+    const artifact = await prepareEventTaskArtifact(store, savedEvent)
+    await store.doc(`operatorSyncJobs/${syncJobId('triage-help', family, 'c', event.eventId)}`).set({ kind: 'triage-help', familyId: family, childId: 'c', eventId: event.eventId, sourceId: event.eventId, status: 'queued', artifactPath: artifact.artifactPath, fingerprint: artifact.fingerprint })
+    const publication = await publishHelpResponse(store, { eventId: event.eventId, artifactId: artifact.artifactId, text: 'Проверь сумму.' })
+    expect(publication.verified).toBe(true)
+    const answer = doc(db, `dayGuidance/${day}/items/help-${event.eventId}`)
+    expect((await getDoc(answer)).data().sourceRequestEventId).toBe(event.eventId)
+    await expect(updateDoc(answer, { text: 'Подмена' })).rejects.toMatchObject({ code: 'permission-denied' })
+    expect((await getDoc(doc(db, sourcePath))).data().eventReceiptId).toBe(nextEvent.eventId)
+
+    await expect(updateDoc(history, { requestText: 'changed' })).rejects.toMatchObject({ code: 'permission-denied' })
+    await expect(setDoc(doc(db, `${sourcePath}/requests/${'b'.repeat(64)}`), { ...request, eventReceiptId: 'b'.repeat(64) })).rejects.toMatchObject({ code: 'permission-denied' })
+  })
+})
