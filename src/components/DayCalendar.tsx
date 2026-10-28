@@ -2,11 +2,16 @@
 /** @see ../../docs/decisions/pupil-vacations-2026-10-19.md */
 /** @see ../../docs/decisions/calendar-fixed-height-2026-10-19.md */
 /** @see ../../docs/decisions/calendar-vacation-sticky-2026-10-19.md */
-import type { Ref } from 'react'
+/** @see ../../docs/decisions/calendar-scroll-selection-2026-10-28.md */
+/** @see ../../docs/shared/design/README.md#tokens */
+/** @see ../../docs/shared/design/ui-kit.md#один-источник-реализации */
+/** @see ../../docs/shared/design/components.md#registry */
+import { useEffect, useRef } from 'react'
 import { CalendarDays, Sun } from 'lucide-react'
 import type { IndexedDay } from '@/lib/dayDashboardStore'
 import { schoolCalendarGroups } from '../../day/school-calendar.mjs'
 import type { SchoolCalendar, Vacation } from '../../day/school-calendar.mjs'
+import { calendarScrollTarget } from './dayCalendarScroll'
 import '../DayDashboard.css'
 
 function dateLabel(date: string, options: Intl.DateTimeFormatOptions) {
@@ -16,10 +21,36 @@ export function vacationRange(vacation: Vacation) {
   const options = { day: 'numeric', month: 'short' } as const
   return vacation.from === vacation.to ? dateLabel(vacation.from, options) : `${dateLabel(vacation.from, options)} — ${dateLabel(vacation.to, options)}`
 }
-export default function DayCalendar({ days, schoolCalendar, today, selectedDate, onSelect, stripRef }: {
+export default function DayCalendar({ days, schoolCalendar, today, selectedDate, onSelect }: {
   days: IndexedDay[]; schoolCalendar?: SchoolCalendar; today: string; selectedDate: string;
-  onSelect: (date: string) => void; stripRef?: Ref<HTMLDivElement>
+  onSelect: (date: string) => void
 }) {
+  const stripRef = useRef<HTMLDivElement>(null)
+  const initialPositionSet = useRef(false)
+  const previousSelection = useRef(selectedDate)
+  useEffect(() => {
+    const strip = stripRef.current
+    const active = strip?.querySelector<HTMLElement>('[aria-pressed="true"]')
+    if (!strip || !active) return
+    const initial = !initialPositionSet.current
+    if (!initial && previousSelection.current === selectedDate) return
+    const stripRect = strip.getBoundingClientRect()
+    const activeRect = active.getBoundingClientRect()
+    const target = calendarScrollTarget({
+      scrollLeft: strip.scrollLeft,
+      viewportLeft: stripRect.left,
+      viewportRight: stripRect.right,
+      dayLeft: activeRect.left,
+      dayRight: activeRect.right,
+      dayWidth: activeRect.width,
+      initial,
+    })
+    initialPositionSet.current = true
+    previousSelection.current = selectedDate
+    if (target === null || Math.abs(target - strip.scrollLeft) < 1) return
+    if (initial) strip.scrollLeft = target
+    else strip.scrollTo({ left: target, behavior: 'smooth' })
+  }, [days, selectedDate])
   const groups = schoolCalendarGroups(days, schoolCalendar)
   function renderDay(day: IndexedDay, vacation?: Vacation) {
     const weekend = [0, 6].includes(new Date(`${day.date}T12:00:00Z`).getUTCDay())

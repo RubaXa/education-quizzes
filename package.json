@@ -64,7 +64,8 @@
     "events:status": "node scripts/education-events.mjs status",
     "telegram:stop": "node scripts/telegram-runtime.mjs stop",
     "bench:server-runtime": "node scripts/benchmark-server-runtime.mjs",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test --config=playwright.config.ts && playwright test --config=playwright.calendar.config.ts",
+    "test:e2e:install": "playwright install chromium"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.3.0",

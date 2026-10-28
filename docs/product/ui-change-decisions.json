@@ -2582,11 +2582,16 @@
       }
     },
     "src/DayDashboard.tsx": {
-      "sha256": "715f37228a7035093f37220c424292314bfd41def5bc86bb6a1c94c6455f7801",
-      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
+      "sha256": "bfc01787e5ebe734427cfb940d6d979bbe2af5b2d70c0126480421dc210ace7a",
+      "record": "docs/decisions/calendar-scroll-selection-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
-        "docs/modules/synchronization/education-pipeline.md"
+        "docs/modules/synchronization/education-pipeline.md",
+        "docs/modules/school-diary/school-calendar.md",
+        "docs/shared/design/README.md",
+        "docs/shared/design/ui-kit.md",
+        "docs/product/ui-change-control.md",
+        "docs/shared/design/components.md"
       ],
       "tests": [
         "assessment/learning-context-backfill.test.mjs",
@@ -2594,11 +2599,14 @@
         "src/DayPage.assignmentQuiz.integration.test.tsx",
         "src/components/QuizCard.test.tsx",
         "src/lib/educationEventProducers.test.ts",
-        "sync/event-task-artifact.test.mjs"
+        "sync/event-task-artifact.test.mjs",
+        "src/DayDashboard.warmStart.test.tsx",
+        "src/components/DayCalendar.test.tsx",
+        "src/components/dayCalendarScroll.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо потребовал использовать общие уроки, семейные права, фотографии и синхронизацию Education для олимпиад."
+        "evidence": "Прямой запрос родителя от 28.10.2026 по трём скриншотам: центрирование выбранного дня при открытии, отсутствие сдвига при выборе рядом, плавное смещение к центру при выборе у края; требование связать общее поведение DayCalendar со спецификацией, UI Kit и дизайн-системой."
       }
     },
     "src/DayPage.css": {
@@ -2657,22 +2665,29 @@
       }
     },
     "src/UiKit.tsx": {
-      "sha256": "5cda92472b56df165977957974a1be761a509d267fd2aa073c4edb84e125e9eb",
-      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
+      "sha256": "7ef9105e9935ab7bae22fde876e18a34520cb98268c4f9589e10d0074a4f9e4f",
+      "record": "docs/decisions/calendar-scroll-selection-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
-        "docs/modules/synchronization/education-pipeline.md"
+        "docs/modules/synchronization/education-pipeline.md",
+        "docs/modules/school-diary/school-calendar.md",
+        "docs/shared/design/README.md",
+        "docs/shared/design/ui-kit.md",
+        "docs/product/ui-change-control.md",
+        "docs/shared/design/components.md"
       ],
       "tests": [
         "src/DayPage.assignmentQuiz.integration.test.tsx",
         "src/components/OlympiadPage.integration.test.tsx",
         "src/components/TaskGuidance.test.tsx",
         "src/lib/educationEventProducers.test.ts",
-        "sync/event-task-artifact.test.mjs"
+        "sync/event-task-artifact.test.mjs",
+        "src/UiKit.test.tsx",
+        "src/components/DayCalendar.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо потребовал использовать общие уроки, семейные права, фотографии и синхронизацию Education для олимпиад."
+        "evidence": "Прямой запрос родителя от 28.10.2026 по трём скриншотам: центрирование выбранного дня при открытии, отсутствие сдвига при выборе рядом, плавное смещение к центру при выборе у края; требование связать общее поведение DayCalendar со спецификацией, UI Kit и дизайн-системой."
       }
     },
     "src/WeekendMathSlot.css": {
@@ -2870,20 +2885,25 @@
       }
     },
     "src/components/DayCalendar.tsx": {
-      "sha256": "8e573a0a17a95b9851550e154f0b4789f71c5d98a284b50ee29ce00b2cc1a913",
-      "record": "docs/decisions/calendar-vacation-sticky-2026-10-19.md",
+      "sha256": "2de9c9e9505e7a7fdeb0fc3accadb97974901e648f3310574967fb4747c80ac9",
+      "record": "docs/decisions/calendar-scroll-selection-2026-10-28.md",
       "specs": [
         "docs/modules/school-diary/school-calendar.md",
-        "docs/shared/design/README.md"
+        "docs/shared/design/README.md",
+        "docs/shared/design/ui-kit.md",
+        "docs/product/ui-change-control.md",
+        "docs/shared/design/components.md"
       ],
       "tests": [
         "scripts/check-schedule-viewport.test.mjs",
         "src/components/DayCalendar.test.tsx",
-        "src/DayDashboard.warmStart.test.tsx"
+        "src/DayDashboard.warmStart.test.tsx",
+        "src/components/dayCalendarScroll.test.ts",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель19.10 требует привязать текст каникул к своей группе, держать его sticky слева при прокрутке и останавливать у правого края периода."
+        "evidence": "Прямой запрос родителя от 28.10.2026 по трём скриншотам: центрирование выбранного дня при открытии, отсутствие сдвига при выборе рядом, плавное смещение к центру при выборе у края; требование связать общее поведение DayCalendar со спецификацией, UI Kit и дизайн-системой."
       }
     },
     "src/components/DiagnosticsCopyButton.tsx": {
@@ -6686,6 +6706,25 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Пользователь одобрил компактный переключатель, активные и доступные олимпиады по ребёнку и уведомление ученику и потребовал реализовать их через UI Kit и общую инфраструктуру."
+      }
+    },
+    "src/components/dayCalendarScroll.ts": {
+      "sha256": "fdf38afbec44061994bdd67f32e3d69ca7ab106ad8148effb07aa0f69f91fbe3",
+      "record": "docs/decisions/calendar-scroll-selection-2026-10-28.md",
+      "specs": [
+        "docs/modules/school-diary/school-calendar.md",
+        "docs/shared/design/README.md",
+        "docs/shared/design/ui-kit.md",
+        "docs/product/ui-change-control.md",
+        "docs/shared/design/components.md"
+      ],
+      "tests": [
+        "src/components/dayCalendarScroll.test.ts",
+        "src/components/DayCalendar.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя от 28.10.2026 по трём скриншотам: центрирование выбранного дня при открытии, отсутствие сдвига при выборе рядом, плавное смещение к центру при выборе у края; требование связать общее поведение DayCalendar со спецификацией, UI Kit и дизайн-системой."
       }
     }
   }
