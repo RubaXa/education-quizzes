@@ -5431,48 +5431,6 @@
       "consumer": "Браузер"
     },
     {
-      "id": "file:public/olympiads/energy-hope/final-2024-25-grade6.pdf",
-      "path": "public/olympiads/energy-hope/final-2024-25-grade6.pdf",
-      "kind": "artifact",
-      "purpose": "Официальный архивный вариант математики для 6 класса",
-      "consumer": "OlympiadReferences"
-    },
-    {
-      "id": "file:public/olympiads/energy-hope/final-2025-26-grade6.pdf",
-      "path": "public/olympiads/energy-hope/final-2025-26-grade6.pdf",
-      "kind": "artifact",
-      "purpose": "Официальный архивный вариант математики для 6 класса",
-      "consumer": "OlympiadReferences"
-    },
-    {
-      "id": "file:public/olympiads/energy-hope/qualifier-2024-25-a-grade6.pdf",
-      "path": "public/olympiads/energy-hope/qualifier-2024-25-a-grade6.pdf",
-      "kind": "artifact",
-      "purpose": "Официальный архивный вариант математики для 6 класса",
-      "consumer": "OlympiadReferences"
-    },
-    {
-      "id": "file:public/olympiads/energy-hope/qualifier-2024-25-b-grade6.pdf",
-      "path": "public/olympiads/energy-hope/qualifier-2024-25-b-grade6.pdf",
-      "kind": "artifact",
-      "purpose": "Официальный архивный вариант математики для 6 класса",
-      "consumer": "OlympiadReferences"
-    },
-    {
-      "id": "file:public/olympiads/energy-hope/qualifier-2025-26-a-grade6.pdf",
-      "path": "public/olympiads/energy-hope/qualifier-2025-26-a-grade6.pdf",
-      "kind": "artifact",
-      "purpose": "Официальный архивный вариант математики для 6 класса",
-      "consumer": "OlympiadReferences"
-    },
-    {
-      "id": "file:public/olympiads/energy-hope/qualifier-2025-26-b-grade6.pdf",
-      "path": "public/olympiads/energy-hope/qualifier-2025-26-b-grade6.pdf",
-      "kind": "artifact",
-      "purpose": "Официальный архивный вариант математики для 6 класса",
-      "consumer": "OlympiadReferences"
-    },
-    {
       "id": "file:pwa/sw-template.js",
       "path": "pwa/sw-template.js",
       "kind": "artifact",
@@ -14745,36 +14703,6 @@
     {
       "from": "file:public/manifest.webmanifest",
       "to": "product.pwa",
-      "type": "implements"
-    },
-    {
-      "from": "file:public/olympiads/energy-hope/final-2024-25-grade6.pdf",
-      "to": "module.olympiad-preparation",
-      "type": "implements"
-    },
-    {
-      "from": "file:public/olympiads/energy-hope/final-2025-26-grade6.pdf",
-      "to": "module.olympiad-preparation",
-      "type": "implements"
-    },
-    {
-      "from": "file:public/olympiads/energy-hope/qualifier-2024-25-a-grade6.pdf",
-      "to": "module.olympiad-preparation",
-      "type": "implements"
-    },
-    {
-      "from": "file:public/olympiads/energy-hope/qualifier-2024-25-b-grade6.pdf",
-      "to": "module.olympiad-preparation",
-      "type": "implements"
-    },
-    {
-      "from": "file:public/olympiads/energy-hope/qualifier-2025-26-a-grade6.pdf",
-      "to": "module.olympiad-preparation",
-      "type": "implements"
-    },
-    {
-      "from": "file:public/olympiads/energy-hope/qualifier-2025-26-b-grade6.pdf",
-      "to": "module.olympiad-preparation",
       "type": "implements"
     },
     {
