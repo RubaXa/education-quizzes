@@ -10,6 +10,7 @@ import { prepareEventTaskArtifact } from '../sync/event-task-artifact.mjs'
 import { syncJobId } from '../sync/job-queue.mjs'
 import { publishHelpResponse } from '../sync/help-response.mjs'
 import { familyAssignmentErrors, learnerOriginErrors, mergeFamilyAssignments } from '../day/family-assignment.mjs'
+import { linkOlympiadSource } from '../day/olympiad-source-link.mjs'
 
 const enabled = Boolean(process.env.FIRESTORE_EMULATOR_HOST && process.env.FIREBASE_AUTH_EMULATOR_HOST && /^demo-/.test(process.env.GCLOUD_PROJECT || ''))
 describe.skipIf(!enabled)('shared photo help rules emulator', () => {
@@ -62,6 +63,39 @@ describe.skipIf(!enabled)('shared photo help rules emulator', () => {
     expect(studentPage.subjects[0].tasks[0].learnerOrigin).toEqual(parentPage.subjects[0].tasks[0].learnerOrigin)
     await store.doc(`families/${family}/children/c/tasks/${task.id}`).set(task)
     expect((await getDoc(doc(db, `families/${family}/children/c/tasks/${task.id}`))).data().learnerOrigin.uploadIds).toEqual([fileId])
+  })
+
+  it('links a verified duplicate to both role pages without replacing task progress and is idempotent', async () => {
+    const priorPage = (await store.doc(`dayPages/${day}`).get()).data()
+    const fileId = 'source-upload-duplicate-01', parentToken = 'parent-token', sourcePath = `dayUploads/${day}/files/${fileId}`
+    const intake = { id: 'source-sheet', familyId: family, childId: 'c', dueDate: '2026-10-28', projectionSourceDate: '2026-10-28', learningContext: { kind: 'olympiad', id: 'olymp' }, sourceIntake: { kind: 'olympiad-sheet' } }
+    const task = { id: 'existing-olympiad-task', sourceSystem: 'family', sourceId: 'existing-olympiad-task', sourceRevision: 1, dayProjectionVersion: 1, familyId: family, childId: 'c', subjectId: 'math', subjectName: 'Математика', dueDate: intake.dueDate, projectionSourceDate: intake.projectionSourceDate, title: 'Задача', originalText: 'Найдите сумму чисел.', steps: ['Реши задачу'], submission: { buttonLabel: 'Загрузить решение', lead: 'Запиши решение.', photo: 'Страница решения.' }, publication: 'active', evidence: 'photo', materialIds: [], optional: true, learningContext: intake.learningContext }
+    const page = { kind: 'student', date: intake.projectionSourceDate, targetDate: intake.dueDate, familyId: family, childId: 'c', planRevision: 1, subjects: [{ id: 'math', name: 'Математика', tasks: [{ id: 'source-sheet', title: 'Свои задачи', optional: true, learningContext: intake.learningContext, sourceIntake: intake.sourceIntake }] }] }
+    const studentPage = mergeFamilyAssignments(page, [task]); studentPage.subjects[0].tasks.find(t => t.id === task.id).status = 'verified'
+    const parentPage = { ...structuredClone(studentPage), kind: 'parent' }
+    await Promise.all([
+      store.doc(`families/${family}/children/c/tasks/source-sheet`).set(intake),
+      store.doc(`families/${family}/children/c/tasks/${task.id}`).set(task),
+      store.doc(`dayPages/${day}`).set(studentPage), store.doc(`dayPages/${parentToken}`).set(parentPage),
+      store.doc(sourcePath).set({ taskId: intake.id, status: 'pending', storage: { state: 'stored', path: 'private', sha256: 'c'.repeat(64) } }),
+    ])
+    const sourceRef = { kind: 'upload', documentPath: sourcePath, dayToken: day, recordId: fileId, taskId: intake.id }
+    const event = await createEducationEvent({ eventType: 'upload.confirmed', familyId: family, childId: 'c', source: 'firestore', sourceRef, operationId: `upload-confirmed:${fileId}`, actor: { type: 'user', uid } }, new Date())
+    await store.doc(`educationEvents/${event.eventId}`).set(event)
+    const artifact = await prepareEventTaskArtifact(store, event)
+    const request = { eventId: event.eventId, artifactId: artifact.artifactId, taskId: task.id, condition: task.originalText, figuresVerified: true }
+    const context = { familyId: family, childId: 'c', studentToken: day, parentToken, sourceDate: intake.projectionSourceDate }
+    await expect(linkOlympiadSource(store, { ...request, condition: 'Другое условие' }, context)).rejects.toThrow('source_link_evidence_mismatch')
+    expect(await linkOlympiadSource(store, request, context)).toMatchObject({ verified: true, unchanged: false })
+    expect(await linkOlympiadSource(store, request, context)).toMatchObject({ verified: true, unchanged: true })
+    for (const token of [day, parentToken]) {
+      const saved = (await store.doc(`dayPages/${token}`).get()).data().subjects[0].tasks.find(t => t.id === task.id)
+      expect(saved.status).toBe('verified')
+      expect(saved.learnerSources).toEqual([{ intakeTaskId: intake.id, uploadIds: [fileId] }])
+    }
+    expect((await store.doc(sourcePath).get()).data().status).toBe('pending')
+    await expect(linkOlympiadSource(store, request, { ...context, childId: 'other' })).rejects.toThrow()
+    await store.doc(`dayPages/${day}`).set(priorPage)
   })
 
   it('atomically saves an immutable photo request and rejects changes', async () => {

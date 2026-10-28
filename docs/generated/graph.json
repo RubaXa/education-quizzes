@@ -1325,6 +1325,30 @@
       "path": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md"
     },
     {
+      "id": "decision.olympiad-source-links-2026-10-28",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-10-28",
+      "updated": "2026-10-28",
+      "parent": "module.olympiad-preparation",
+      "uses": [
+        "shared.access-and-privacy"
+      ],
+      "consumers": [
+        "Education operator",
+        "Education frontend"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/olympiad-source-links-2026-10-28.md"
+    },
+    {
       "id": "decision.photo-indexeddb-recovery-2026-10-22",
       "status": "accepted",
       "implementation": "implemented",
@@ -3892,6 +3916,13 @@
       "kind": "verification",
       "purpose": "Две карточки, раздельные состояния, точная аудиопривязка к повторению без смешения письменной сдачи и теста",
       "consumer": "Vitest"
+    },
+    {
+      "id": "file:day/olympiad-source-link.mjs",
+      "path": "day/olympiad-source-link.mjs",
+      "kind": "artifact",
+      "purpose": "Транзакционная привязка проверенного повтора фото условия к семейной задаче",
+      "consumer": "`scripts/day.mjs`; Firebase Emulator"
     },
     {
       "id": "file:day/owner-repair.mjs",
@@ -12859,6 +12890,11 @@
       "type": "uses"
     },
     {
+      "from": "decision.olympiad-source-links-2026-10-28",
+      "to": "shared.access-and-privacy",
+      "type": "uses"
+    },
+    {
       "from": "decision.photo-indexeddb-recovery-2026-10-22",
       "to": "decision.photo-storage-ldd-2026-10-22",
       "type": "uses"
@@ -13676,6 +13712,11 @@
     {
       "from": "file:day/mixed-assignment.mjs",
       "to": "module.synchronization.plan-generation",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/olympiad-source-link.mjs",
+      "to": "module.olympiad-preparation",
       "type": "implements"
     },
     {
@@ -18866,6 +18907,11 @@
     {
       "from": "module.olympiad-preparation",
       "to": "decision.olympiad-shared-infrastructure-2026-10-28",
+      "type": "contains"
+    },
+    {
+      "from": "module.olympiad-preparation",
+      "to": "decision.olympiad-source-links-2026-10-28",
       "type": "contains"
     },
     {

@@ -49,6 +49,7 @@ import { buildFamilySourceGraph } from '../day/family-source-graph.mjs'
 import { isDeepStrictEqual } from 'node:util'
 import { findGuidanceTarget, planRevealGuidanceRepair } from '../day/guidance-repair.mjs'
 import { familyAssignmentErrors, learnerOriginErrors, familyAssignmentProjectionSignature, familyAssignmentRecordSignature, familyAssignmentsWithOverlay, familyGuideErrors, familyTestPlacementErrors, mergeFamilyAssignments, planFamilyTestPlacements, stableFamilyProjectionJson } from '../day/family-assignment.mjs'
+import { linkOlympiadSource } from '../day/olympiad-source-link.mjs'
 
 const sharedLocal = resolve('.local')
 const scoped = Boolean(process.env.EDUCATION_CHILD_WORKSPACE)
@@ -906,6 +907,9 @@ async function publishFamilyAssignment() {
     const sourceErrors = learnerOriginErrors(task, intakeSnap.exists ? intake : null, uploads.map(snap => snap.exists ? { id: snap.id, ...snap.data() } : null), sourceDate)
     if (sourceErrors.length) fail(sourceErrors.join(' '))
   }
+  // Provenance links are maintained by the addressed source-link operation;
+  // a normal task republish must neither erase nor accept them from input.
+  if (taskSnap.data()?.learnerSources) task.learnerSources = taskSnap.data().learnerSources
   const { parentGuide: _parentGuide, ...storedTaskFields } = task
   const storedTask = { ...storedTaskFields, checkedAt: Timestamp.now() }
   const guideErrors = familyGuideErrors(request.parentGuide, task)
@@ -1731,7 +1735,7 @@ async function repairReleasedGuidance() {
   console.log(JSON.stringify({ ...summary, status: 'repaired', applied: true }))
 }
 
-  if (!['refresh', 'build', 'validate', 'publish', 'publish-batch', 'guide-upgrade', 'repair-guidance', 'problem-support', 'dashboard', 'reconcile-grades', 'pull', 'seed-evidence', 'audit', 'repair-placements', 'repair-teacher-projections', 'repair-owner', 'family-assignment'].includes(command)) fail('Команды: refresh YYYY-MM-DD | build YYYY-MM-DD | validate YYYY-MM-DD | publish YYYY-MM-DD | publish-batch YYYY-MM-DD YYYY-MM-DD ... | audit [YYYY-MM-DD] | reconcile-grades [--apply] | repair-placements YYYY-MM-DD [--apply] | repair-teacher-projections YYYY-MM-DD [--apply] | repair-owner YYYY-MM-DD [--apply] | guide-upgrade YYYY-MM-DD[,YYYY-MM-DD] task-id [--dry-run] | repair-guidance YYYY-MM-DD task-id stage-id [--dry-run|--apply] | family-assignment REQUEST.json [--dry-run|--apply] | problem-support YYYY-MM-DD | dashboard | pull YYYY-MM-DD [папка] | seed-evidence YYYY-MM-DD')
+  if (!['refresh', 'build', 'validate', 'publish', 'publish-batch', 'guide-upgrade', 'repair-guidance', 'problem-support', 'dashboard', 'reconcile-grades', 'pull', 'seed-evidence', 'audit', 'repair-placements', 'repair-teacher-projections', 'repair-owner', 'family-assignment', 'olympiad-source-link'].includes(command)) fail('Неизвестная команда day.')
 if (command === 'build') {
   console.log(JSON.stringify(buildDaySource(local, date), null, 2))
   process.exit(0)
@@ -1759,6 +1763,12 @@ else if (command === 'repair-placements') await repairPublishedPlacements()
 else if (command === 'repair-teacher-projections') await repairTeacherProjections()
 else if (command === 'repair-owner') await repairPublishedOwner()
 else if (command === 'family-assignment') await publishFamilyAssignment()
+else if (command === 'olympiad-source-link') {
+  if (!process.argv.includes('--apply') || !date || !/^[a-zA-Z0-9_.-]+\.json$/.test(date)) fail('Укажите JSON в .local и --apply.')
+  const request = json(resolve(local, date)), owner = ownerContext(), pair = json(linksFile)[request.sourceDate]
+  if (!owner?.familyId || !owner?.childId || !pair?.student || !pair?.parent) fail('Нет подтверждённого владельца или пары страниц.')
+  console.log(JSON.stringify(await linkOlympiadSource(db, request, { familyId: owner.familyId, childId: owner.childId, studentToken: pair.student, parentToken: pair.parent, sourceDate: request.sourceDate })))
+}
 else await seedEvidence()
 if ((command === 'publish' || command === 'publish-batch' || command === 'refresh') && !scoped) {
   const owner = ownerContext()
