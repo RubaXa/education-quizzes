@@ -7,10 +7,11 @@ test.beforeEach(async ({ page }) => {
 
 test('family catalog fixture: parent enables practice and student can open it', async ({ page }) => {
   await page.getByRole('button', { name: 'Список олимпиад' }).click()
-  await page.getByText('Олимпиады · 1').click()
-  await expect(page.getByText('Подготовка не включена')).toBeVisible()
-  await page.getByRole('button', { name: 'Включить подготовку' }).click()
-  await expect(page.getByText('Подготовка включена')).toBeVisible()
+  await page.getByRole('tab', { name: 'Доступные · 1' }).click()
+  const toggle = page.getByRole('switch', { name: 'Подготовка: Математическая олимпиада · пример' })
+  await expect(toggle).toHaveAttribute('aria-checked', 'false')
+  await toggle.click()
+  await expect(page.getByRole('tab', { name: 'Активные · 1' })).toBeVisible()
   await page.getByRole('button', { name: 'Ученик', exact: true }).click()
   await page.getByRole('button', { name: 'Открыть подготовку' }).click()
   await expect(page.getByText('Пример перехода: Подготовка к олимпиаде')).toBeVisible()

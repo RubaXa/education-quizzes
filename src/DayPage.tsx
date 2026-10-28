@@ -1,3 +1,4 @@
+import SharedTabs from '@/components/SharedTabs'
 import PhotoHelpPanel from '@/components/PhotoHelpPanel'
 /** @see ../docs/decisions/scoped-learner-flow-2026-10-21.md */
 /** @see ../docs/decisions/mesh-informational-entry-2026-10-21.md */
@@ -442,10 +443,7 @@ export default function DayPage({ token, parent, headerReturnTarget, olympiadSco
       <div className="day-summary"><strong>{pending}</strong><span>{pending === 1 ? 'действие к этой дате осталось' : 'действий к этой дате осталось'}</span>{requiredDayTests.length > 0 && <><span className="day-summary-separator">·</span><span>{requiredDayTests.filter((test) => test.status === 'submitted').length} из {requiredDayTests.length} обязательных тестов завершено</span></>}</div>
     </section>
 
-    <div className="day-tabs" role="tablist" aria-label="Раздел страницы дня">
-      <button role="tab" aria-selected={view === 'school'} className={view === 'school' ? 'active' : ''} onClick={() => { setManualView(true); setView('school') }}>Расписание</button>
-      <button role="tab" aria-selected={view === 'homework'} className={view === 'homework' ? 'active' : ''} onClick={() => { setManualView(true); setView('homework') }}>Задания</button>
-    </div>
+    <SharedTabs label="Раздел страницы дня" value={view} options={[{ id: 'school', label: 'Расписание' }, { id: 'homework', label: 'Задания' }]} onChange={next => { setManualView(true); setView(next) }} />
     {error && <div className="day-inline-error" role="alert">{error}</div>}
 
     {view === 'school' ? <section className="day-schedule-panel">

@@ -2563,20 +2563,22 @@
       }
     },
     "src/DayDashboard.css": {
-      "sha256": "9245dd1c4e006568d6bac9560e9c081808af29282b146d9e218e8216b37fefab",
-      "record": "docs/decisions/calendar-vacation-sticky-2026-10-19.md",
+      "sha256": "0ed3013b826a978035296a07ba81102978bb5bc4a79e10fda9de97eae4dac545",
+      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
-        "docs/modules/school-diary/school-calendar.md",
-        "docs/shared/design/README.md"
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/modules/notifications/inbox.md",
+        "docs/shared/design/components.md"
       ],
       "tests": [
-        "scripts/check-schedule-viewport.test.mjs",
-        "src/components/DayCalendar.test.tsx",
-        "src/DayDashboard.warmStart.test.tsx"
+        "src/components/OlympiadHome.integration.test.tsx",
+        "scripts/firestore-rules-olympiad-catalog-emulator.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель19.10 требует привязать текст каникул к своей группе, держать его sticky слева при прокрутке и останавливать у правого края периода."
+        "evidence": "Пользователь одобрил компактный переключатель, активные и доступные олимпиады по ребёнку и уведомление ученику и потребовал реализовать их через UI Kit и общую инфраструктуру."
       }
     },
     "src/DayDashboard.tsx": {
@@ -2621,21 +2623,22 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "379d713002a6b243318f175cb1492144d1a4b6475f2afaa3e712d4882e5bc9d2",
+      "sha256": "74049ceb577a864bd2427a5861c9461c58428a222580c0034b03e4e112515a7e",
       "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
-        "docs/modules/synchronization/education-pipeline.md"
+        "docs/modules/notifications/inbox.md",
+        "docs/shared/design/components.md"
       ],
       "tests": [
         "src/components/OlympiadHome.integration.test.tsx",
-        "src/components/PhotoHelpPanel.integration.test.tsx",
-        "sync/event-task-artifact.test.mjs",
-        "sync/help-response.test.mjs"
+        "scripts/firestore-rules-olympiad-catalog-emulator.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо поручил завершить общий каталог и выбор нескольких фото для помощи через существующую инфраструктуру и UI Kit с интеграционными проверками."
+        "evidence": "Пользователь одобрил компактный переключатель, активные и доступные олимпиады по ребёнку и уведомление ученику и потребовал реализовать их через UI Kit и общую инфраструктуру."
       }
     },
     "src/UiKit.css": {
@@ -3221,33 +3224,22 @@
       }
     },
     "src/components/NotificationBell.tsx": {
-      "sha256": "932e87a32c49d022d731c6e1aeb6faf6bb3a6c47fe8943619bb1534f1b662b13",
-      "record": "docs/decisions/authenticated-learning-routes-2026-10-18.md",
+      "sha256": "2b2e6d31beb1c9e659a8168ca39d3e8341e5bd61f72cec54233c05f1617fd845",
+      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
-        "docs/modules/families/access-and-state.md",
+        "docs/modules/assessments/olympiad-preparation.md",
         "docs/modules/notifications/inbox.md",
-        "docs/shared/design/README.md"
+        "docs/shared/design/components.md"
       ],
       "tests": [
-        "src/components/LearningRoute.integration.test.tsx",
-        "src/lib/learningRoute.test.ts",
-        "day/learning-route-identity.test.mjs",
-        "src/components/ProblemTaskCard.contract.test.tsx",
-        "src/components/NotificationBell.test.tsx",
-        "src/lib/educationStore.inbox.test.ts",
-        "src/components/NotificationBell.layout.test.mjs"
+        "src/components/OlympiadHome.integration.test.tsx",
+        "scripts/firestore-rules-olympiad-catalog-emulator.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.10.2026 прямо требует определять родительский и ученический вид по авторизованной роли, а учебные ссылки сделать одинаковыми для обеих ролей."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "25c168a481a284c219057b2230321c09b359af2c87c1d19ca1bd6c767d7bc452"
-      },
-      "specificationLifecycle": {
-        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
-        "previousSha256": "ac73af32b3827caf3f2488ee53452277fafde74272c974c7d3054ed66412ee06"
+        "evidence": "Пользователь одобрил компактный переключатель, активные и доступные олимпиады по ребёнку и уведомление ученику и потребовал реализовать их через UI Kit и общую инфраструктуру."
       }
     },
     "src/components/ParentHome.css": {
@@ -3637,22 +3629,22 @@
       }
     },
     "src/components/RequirementSwitch.tsx": {
-      "sha256": "6fcdbd9bcadd6462ea72c09aead229834503521072adc9a0f7e5bd4d01dca9be",
-      "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
+      "sha256": "19ce58ed3a38ff9eefd546e855e2b789a7d5c3b230e0d1f05fb16ea64e181a4d",
+      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
-        "docs/shared/specification-system.md"
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/modules/notifications/inbox.md",
+        "docs/shared/design/components.md"
       ],
       "tests": [
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
+        "src/components/OlympiadHome.integration.test.tsx",
+        "scripts/firestore-rules-olympiad-catalog-emulator.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя 16.10.2026 внедрить согласованную структуру спецификаций, перенести ссылки в коде и проверить сохранность требований; изменение предметного поведения не выполнялось."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "ff1cda9479253520b30532303eb6f54c69cdd23393c87a3f34794ae784ca6c37"
+        "evidence": "Пользователь одобрил компактный переключатель, активные и доступные олимпиады по ребёнку и уведомление ученику и потребовал реализовать их через UI Kit и общую инфраструктуру."
       }
     },
     "src/components/SourceFragment.css": {
@@ -4230,40 +4222,41 @@
       }
     },
     "src/lib/educationSchema.ts": {
-      "sha256": "536408eeb1353b5f96c116ada4d958b0049de1be87f54cc34a924eec9fab111e",
-      "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-      "specs": [
-        "docs/shared/specification-system.md"
-      ],
-      "tests": [
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
-      ],
-      "authorization": {
-        "status": "direct-request",
-        "evidence": "Прямое поручение пользователя 16.10.2026 внедрить согласованную структуру спецификаций, перенести ссылки в коде и проверить сохранность требований; изменение предметного поведения не выполнялось."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "c5ca37b2be0a69cbbbe205e547b6750270b3878ac4a18aa7e70b850e8496ffcd"
-      }
-    },
-    "src/lib/educationStore.ts": {
-      "sha256": "bcb60b6d15e836ba9032b4141552bac18aff34ddeeba68e0e595101882562238",
+      "sha256": "415fcbb1278e6888452fce730890225faeace19c14d805f5411f887f38b7b213",
       "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
-        "docs/modules/synchronization/education-pipeline.md"
+        "docs/modules/notifications/inbox.md",
+        "docs/shared/design/components.md"
       ],
       "tests": [
         "src/components/OlympiadHome.integration.test.tsx",
-        "src/components/PhotoHelpPanel.integration.test.tsx",
-        "sync/event-task-artifact.test.mjs",
-        "sync/help-response.test.mjs"
+        "scripts/firestore-rules-olympiad-catalog-emulator.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо поручил завершить общий каталог и выбор нескольких фото для помощи через существующую инфраструктуру и UI Kit с интеграционными проверками."
+        "evidence": "Пользователь одобрил компактный переключатель, активные и доступные олимпиады по ребёнку и уведомление ученику и потребовал реализовать их через UI Kit и общую инфраструктуру."
+      }
+    },
+    "src/lib/educationStore.ts": {
+      "sha256": "39186684d050ff235c0314be4b5ac4eb782e5d3bc8270dd9dfeb9aaa44535714",
+      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
+      "specs": [
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/modules/notifications/inbox.md",
+        "docs/shared/design/components.md"
+      ],
+      "tests": [
+        "src/components/OlympiadHome.integration.test.tsx",
+        "scripts/firestore-rules-olympiad-catalog-emulator.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/UiKit.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь одобрил компактный переключатель, активные и доступные олимпиады по ребёнку и уведомление ученику и потребовал реализовать их через UI Kit и общую инфраструктуру."
       }
     },
     "src/lib/familyBookUpload.ts": {
@@ -6274,39 +6267,41 @@
       }
     },
     "src/components/OlympiadCatalog.tsx": {
-      "sha256": "1325385c29470388d9df4e1c2388bff7fc04b539dda66c28c5406f9688246a80",
+      "sha256": "dd05e0d449c4ff02b008a49c7191a09be0eec7d27e250fff5076c320ae9c1fcb",
       "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
-        "docs/modules/synchronization/education-pipeline.md"
+        "docs/modules/notifications/inbox.md",
+        "docs/shared/design/components.md"
       ],
       "tests": [
         "src/components/OlympiadHome.integration.test.tsx",
-        "src/components/PhotoHelpPanel.integration.test.tsx",
-        "sync/event-task-artifact.test.mjs",
-        "sync/help-response.test.mjs"
+        "scripts/firestore-rules-olympiad-catalog-emulator.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо поручил завершить общий каталог и выбор нескольких фото для помощи через существующую инфраструктуру и UI Kit с интеграционными проверками."
+        "evidence": "Пользователь одобрил компактный переключатель, активные и доступные олимпиады по ребёнку и уведомление ученику и потребовал реализовать их через UI Kit и общую инфраструктуру."
       }
     },
     "src/components/OlympiadHome.tsx": {
-      "sha256": "04d61b06c6117debf29bd0d59774966a2a53d9747365ba025390369b6f11d292",
+      "sha256": "0988a71ea47ae3a26aebf63f6382ade01338e315cc9dd89ce74411e00ed818fa",
       "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
-        "docs/modules/synchronization/education-pipeline.md"
+        "docs/modules/notifications/inbox.md",
+        "docs/shared/design/components.md"
       ],
       "tests": [
         "src/components/OlympiadHome.integration.test.tsx",
-        "src/components/PhotoHelpPanel.integration.test.tsx",
-        "sync/event-task-artifact.test.mjs",
-        "sync/help-response.test.mjs"
+        "scripts/firestore-rules-olympiad-catalog-emulator.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо поручил завершить общий каталог и выбор нескольких фото для помощи через существующую инфраструктуру и UI Kit с интеграционными проверками."
+        "evidence": "Пользователь одобрил компактный переключатель, активные и доступные олимпиады по ребёнку и уведомление ученику и потребовал реализовать их через UI Kit и общую инфраструктуру."
       }
     },
     "src/components/OlympiadPage.tsx": {
@@ -6380,20 +6375,22 @@
       }
     },
     "src/lib/olympiad/client.ts": {
-      "sha256": "5d064338a02eab6978b95f078df6283e91cee9d22270e5f5d8e016293927bc5b",
-      "record": "docs/decisions/olympiad-family-screen-2026-10-27.md",
+      "sha256": "7c74d99aaa3c96ef9dcfd701a9e13286abe78341e042641a31977856894f3ee0",
+      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/notifications/inbox.md",
+        "docs/shared/design/components.md"
       ],
       "tests": [
-        "src/components/OlympiadPage.integration.test.tsx",
-        "src/components/LearningRoute.integration.test.tsx",
+        "src/components/OlympiadHome.integration.test.tsx",
+        "scripts/firestore-rules-olympiad-catalog-emulator.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
         "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь поручил подключить семейные экраны олимпиады через существующий UI Kit и LDD и проверять реализацию."
+        "evidence": "Пользователь одобрил компактный переключатель, активные и доступные олимпиады по ребёнку и уведомление ученику и потребовал реализовать их через UI Kit и общую инфраструктуру."
       }
     },
     "src/lib/olympiad/photoClient.ts": {
@@ -6670,6 +6667,25 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Пользователь прямо поручил завершить общий каталог и выбор нескольких фото для помощи через существующую инфраструктуру и UI Kit с интеграционными проверками."
+      }
+    },
+    "src/components/SharedTabs.tsx": {
+      "sha256": "d4dfc07dc0d7ac44cc409322cc761981326680c6fa8ac64d72d25932503f67e1",
+      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
+      "specs": [
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/modules/notifications/inbox.md",
+        "docs/shared/design/components.md"
+      ],
+      "tests": [
+        "src/components/OlympiadHome.integration.test.tsx",
+        "scripts/firestore-rules-olympiad-catalog-emulator.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/UiKit.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь одобрил компактный переключатель, активные и доступные олимпиады по ребёнку и уведомление ученику и потребовал реализовать их через UI Kit и общую инфраструктуру."
       }
     }
   }

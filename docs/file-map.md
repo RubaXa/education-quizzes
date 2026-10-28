@@ -1031,3 +1031,4 @@
 | [sync/help-response.test.mjs](../sync/help-response.test.mjs) | [Олимпиадная подготовка](modules/assessments/olympiad-preparation.md) | Проверка привязки ответа и повторной публикации | Vitest |
 | [scripts/help-response.mjs](../scripts/help-response.mjs) | [Олимпиадная подготовка](modules/assessments/olympiad-preparation.md) | Операторская команда публикации ответа | Оператор |
 | [scripts/firestore-rules-help-emulator.test.mjs](../scripts/firestore-rules-help-emulator.test.mjs) | [Олимпиадная подготовка](modules/assessments/olympiad-preparation.md) | Ролевые права и история фотозапросов в эмуляторе | Vitest; эмулятор |
+| [src/components/SharedTabs.tsx](../src/components/SharedTabs.tsx) | [Компоненты](shared/design/components.md) | Общая разметка вкладок учебного дня и олимпиады | DayPage; OlympiadCatalog |

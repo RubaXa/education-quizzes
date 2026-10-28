@@ -170,7 +170,7 @@
   {
     "id": "olympiad/publish-training.mjs#admin.get#c4320ae7b103",
     "file": "olympiad/publish-training.mjs",
-    "line": 57,
+    "line": 58,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-olympiad",
@@ -182,7 +182,7 @@
   {
     "id": "olympiad/publish-training.mjs#admin.get#c4320ae7b103-2",
     "file": "olympiad/publish-training.mjs",
-    "line": 57,
+    "line": 58,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-olympiad",
@@ -194,7 +194,7 @@
   {
     "id": "olympiad/publish-training.mjs#admin.get#c4320ae7b103-3",
     "file": "olympiad/publish-training.mjs",
-    "line": 57,
+    "line": 58,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-olympiad",
@@ -206,7 +206,7 @@
   {
     "id": "olympiad/publish-training.mjs#admin.get#c4320ae7b103-4",
     "file": "olympiad/publish-training.mjs",
-    "line": 72,
+    "line": 73,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-olympiad",
@@ -218,7 +218,7 @@
   {
     "id": "olympiad/publish-training.mjs#admin.get#65e5f72128cc",
     "file": "olympiad/publish-training.mjs",
-    "line": 78,
+    "line": 79,
     "api": "admin.get",
     "target": "db.doc(path)",
     "group": "operator-olympiad",
@@ -7764,21 +7764,69 @@
     "note": "Только неперсональная опубликованная проекция; размер каталога и стоимость подписки требуют наблюдения."
   },
   {
+    "id": "src/lib/educationStore.ts#onSnapshot#52702ffd0b80",
+    "file": "src/lib/educationStore.ts",
+    "line": 70,
+    "api": "onSnapshot",
+    "target": "doc(db, 'families', segment(familyId), 'children', segment(childId))",
+    "group": "client-views-inbox",
+    "assessment": "conditional",
+    "policy": "scoped-listener",
+    "refresh": "while olympiad list is mounted",
+    "note": "Адресное чтение подтверждённого класса только при доступе к ребёнку; ожидается оптимизация общего профиля."
+  },
+  {
     "id": "src/lib/educationStore.ts#onSnapshot#823359a7aee0",
     "file": "src/lib/educationStore.ts",
-    "line": 73,
+    "line": 79,
+    "api": "onSnapshot",
+    "target": "ref",
+    "group": "client-views-inbox",
+    "assessment": "high-risk",
+    "policy": "scoped-listener",
+    "refresh": "while olympiad list is mounted",
+    "note": "Выборы одного ребёнка; объём и чтения непагинированной подписки требуют контроля."
+  },
+  {
+    "id": "src/lib/educationStore.ts#getDocsFromServer#507c093c6f48",
+    "file": "src/lib/educationStore.ts",
+    "line": 87,
+    "api": "getDocsFromServer",
+    "target": "collection(db, 'families', family, 'members')",
+    "group": "client-views-inbox",
+    "assessment": "high-risk",
+    "policy": "authorized-family-member-query",
+    "refresh": "on parent enabling",
+    "note": "Родитель читает состав своей семьи для адресации уведомления; требуется ограничить размер и измерить стоимость."
+  },
+  {
+    "id": "src/lib/educationStore.ts#transaction.get#3a287d3e7096",
+    "file": "src/lib/educationStore.ts",
+    "line": 92,
+    "api": "transaction.get",
+    "target": "ref",
+    "group": "client-views-inbox",
+    "assessment": "justified",
+    "policy": "transaction-guard",
+    "refresh": "on parent selection change",
+    "note": "Одна адресная транзакция защищает повтор и уведомление от дублирования."
+  },
+  {
+    "id": "src/lib/educationStore.ts#onSnapshot#823359a7aee0-2",
+    "file": "src/lib/educationStore.ts",
+    "line": 106,
     "api": "onSnapshot",
     "target": "ref",
     "group": "client-views-inbox",
     "assessment": "high-risk",
     "policy": "authorized-family-task-listener",
     "refresh": "while olympiad screen is active",
-    "note": "Слушатель семейных задач по контексту олимпиады; доступ задают общие правила семьи. Количество записей и стоимость ещё не ограничены пагинацией."
+    "note": "Слушатель семейных задач; количество записей ещё не ограничено пагинацией."
   },
   {
     "id": "src/lib/educationStore.ts#transaction.get#ab5c8ca36c03",
     "file": "src/lib/educationStore.ts",
-    "line": 140,
+    "line": 173,
     "api": "transaction.get",
     "target": "reference",
     "group": "client-views-inbox",
@@ -7790,7 +7838,7 @@
   {
     "id": "src/lib/educationStore.ts#getDocsFromServer#f95b7ac5568f",
     "file": "src/lib/educationStore.ts",
-    "line": 177,
+    "line": 210,
     "api": "getDocsFromServer",
     "target": "cursor ? query(inbox, orderBy('createdAt', 'desc'), startAfter(cursor), limit(400)) : query(inbox, orderBy('createdAt', 'desc'), limit(400))",
     "group": "client-views-inbox",
@@ -7802,7 +7850,7 @@
   {
     "id": "src/lib/educationStore.ts#onSnapshot#23d4cfbd2587",
     "file": "src/lib/educationStore.ts",
-    "line": 194,
+    "line": 227,
     "api": "onSnapshot",
     "target": "reference",
     "group": "client-views-inbox",
@@ -7814,7 +7862,7 @@
   {
     "id": "src/lib/educationStore.ts#onSnapshot#e1d8d3f8755c",
     "file": "src/lib/educationStore.ts",
-    "line": 203,
+    "line": 236,
     "api": "onSnapshot",
     "target": "doc(db, 'users', personId, 'views', segment(viewKey))",
     "group": "client-views-inbox",

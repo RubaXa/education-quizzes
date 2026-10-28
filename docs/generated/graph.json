@@ -6746,6 +6746,13 @@
       "consumer": "Vitest"
     },
     {
+      "id": "file:src/components/SharedTabs.tsx",
+      "path": "src/components/SharedTabs.tsx",
+      "kind": "artifact",
+      "purpose": "Общая разметка вкладок учебного дня и олимпиады",
+      "consumer": "DayPage; OlympiadCatalog"
+    },
+    {
       "id": "file:src/components/SourceFragment.css",
       "path": "src/components/SourceFragment.css",
       "kind": "artifact",
@@ -16085,6 +16092,11 @@
     {
       "from": "file:src/components/RequirementSwitch.tsx",
       "to": "shared.design",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/SharedTabs.tsx",
+      "to": "shared.design.components",
       "type": "implements"
     },
     {

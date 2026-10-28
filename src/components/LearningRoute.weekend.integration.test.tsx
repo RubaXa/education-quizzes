@@ -33,14 +33,14 @@ vi.mock('firebase/firestore', () => ({
   },
   onSnapshot: (ref: { path: string; constraints?: { field: string; operator: string; value: unknown }[] }, options: unknown, callback?: (snapshot: unknown) => void) => {
     const changed = typeof options === 'function' ? options as (snapshot: unknown) => void : callback!
-    if (ref.path === 'publicOlympiadCatalog') { changed({ docs: [], metadata: { fromCache: false } }); return () => {} }
+    if (ref.path === 'publicOlympiadCatalog' || ref.path === 'families/family/children/child/olympiadSelections') { changed({ docs: [], metadata: { fromCache: false } }); return () => {} }
     if (ref.path === 'families/family/children/child/tasks') {
       if (ref.constraints?.length !== 1 || ref.constraints[0].field !== 'learningContext.kind' || ref.constraints[0].operator !== '==' || ref.constraints[0].value !== 'olympiad') throw new Error('Unexpected family task query')
       changed({ docs: [], metadata: { fromCache: false } })
       return () => {}
     }
     scene.callbacks.set(ref.path, changed)
-    const data = ref.path.startsWith('accessLinks/') ? { active: true, personId: scene.personId }
+    const data = ref.path === 'families/family/children/child' ? { olympiadEligibility: { verified:true, grade:6 } } : ref.path.startsWith('accessLinks/') ? { active: true, personId: scene.personId }
       : ref.path.startsWith('deviceSessions/') ? { linkToken: scene.link } : { active: true, role: scene.role, childIds: ['child'], ...(scene.diagnostics ? { accessDiagnosticsUntil: { toMillis: () => Date.now() + 60000 } } : {}) }
     changed({ exists: () => true, data: () => data, metadata: { fromCache: false } }); return () => { if (scene.callbacks.get(ref.path) === changed) scene.callbacks.delete(ref.path) }
   },

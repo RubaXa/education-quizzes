@@ -150,7 +150,7 @@ export type ViewReceipt = { sourceRevision: number; seenAt: unknown }
 export type InboxNotification = {
   familyId: string
   childId: string
-  type: 'homework_published' | 'homework_changed' | 'homework_removed' | 'grade_added' | 'grade_changed' | 'school_late' | 'school_remark' | 'review_started' | 'review_paused' | 'review_ready' | 'review_updated' | 'parent_accepted' | 'parent_reopened' | 'parent_requirement_mandatory' | 'parent_requirement_optional' | 'parent_guidance' | 'product_update'
+  type: 'olympiad_enabled' | 'homework_published' | 'homework_changed' | 'homework_removed' | 'grade_added' | 'grade_changed' | 'school_late' | 'school_remark' | 'review_started' | 'review_paused' | 'review_ready' | 'review_updated' | 'parent_accepted' | 'parent_reopened' | 'parent_requirement_mandatory' | 'parent_requirement_optional' | 'parent_guidance' | 'product_update'
   entityId: string
   date?: string
   subject?: string
