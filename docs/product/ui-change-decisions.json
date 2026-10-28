@@ -2630,7 +2630,7 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "65e6c51b6f0d5e66c77889c3ab5e86da802642f27d79f59656049964e2d48494",
+      "sha256": "c3c4197203a23d5f91d99d3ae2f3fde1cbf3a905ec6427427afdcfc1c13c1214",
       "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",

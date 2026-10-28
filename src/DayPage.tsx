@@ -350,7 +350,7 @@ export default function DayPage({ token, parent, headerReturnTarget, olympiadSco
     return referenceSubject ? workItems(referenceSubject.tasks.map((task) => withVerifiedPlatformResult(task, referencePage!.targetDate, evidencePages))) : []
   }
   const visibleGuideIds = parent && page && view === 'homework'
-    ? visibleGuideTaskIds(currentSubjects, subjectOpen, (subject) => {
+    ? visibleGuideTaskIds(currentSubjects, olympiadScope ? Object.fromEntries(currentSubjects.map(subject => [subject.id, subjectOpen[subject.id] ?? true])) : subjectOpen, (subject) => {
       const items = [...workItems(subject.tasks), ...referencedWorkItems(subject)]
       return items.length > 0 && items.every((item) => item.state === 'done')
     }) : []
