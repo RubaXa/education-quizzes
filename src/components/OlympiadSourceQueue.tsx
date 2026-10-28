@@ -10,7 +10,7 @@ export default function OlympiadSourceQueue<T extends LocalWorkPhoto>({ parent, 
   parent: boolean; studentToken: string; uploads: DayUpload[]; localPhotos: T[]; review?: DayWorkReview; now: number;
   processedIds?: string[]; onPhotos: (files: File[]) => void; onRetry?: (photo: T) => void; onDelete?: (id: string) => Promise<void>
 }) {
-  const complete = uploads.length > 0 && localPhotos.length === 0 && uploads.every(upload => processedIds.some(id => upload.id === id || upload.id.endsWith(`:${id}`)))
+  const complete = uploads.length > 0 && localPhotos.every(photo => uploads.some(upload => upload.id === photo.id || upload.id.endsWith(`:${photo.id}`))) && uploads.every(upload => processedIds.some(id => upload.id === id || upload.id.endsWith(`:${id}`)))
   return <section aria-label="Свои варианты">
     {!parent && <details className="day-practice-variant"><summary><strong>Загрузить свой вариант</strong><ChevronDown size={17} aria-hidden="true" /></summary><p>Добавь фотографии страниц с условиями задач.</p><PhotoUploadControl label="Добавить фото условий" onPhotos={onPhotos} /></details>}
     <strong>Очередь своих вариантов</strong>
