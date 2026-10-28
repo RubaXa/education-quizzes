@@ -577,6 +577,38 @@
       "path": "docs/decisions/calendar-fixed-height-2026-10-19.md"
     },
     {
+      "id": "decision.calendar-scroll-selection-2026-10-28",
+      "status": "accepted",
+      "implementation": "implemented",
+      "parent": "module.school-diary.school-calendar",
+      "uses": [
+        "shared.design"
+      ],
+      "created": "2026-10-28",
+      "updated": "2026-10-28",
+      "consumers": [
+        "parent",
+        "student",
+        "developer"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "code": [
+        "src/DayDashboard.tsx",
+        "src/components/DayCalendar.tsx",
+        "src/components/dayCalendarScroll.ts",
+        "src/UiKit.tsx",
+        "e2e/calendar-fixture.tsx",
+        "playwright.calendar.config.ts"
+      ],
+      "path": "docs/decisions/calendar-scroll-selection-2026-10-28.md"
+    },
+    {
       "id": "decision.calendar-vacation-inset-2026-10-19",
       "status": "accepted",
       "implementation": "implemented",
@@ -4142,6 +4174,90 @@
       "consumer": "Разработчик; npm check:spec"
     },
     {
+      "id": "file:e2e/calendar-fixture.tsx",
+      "path": "e2e/calendar-fixture.tsx",
+      "kind": "artifact",
+      "purpose": "Реальный `DayDashboard` с синтетической ролевой проекцией",
+      "consumer": "Playwright"
+    },
+    {
+      "id": "file:e2e/calendar.e2e.ts",
+      "path": "e2e/calendar.e2e.ts",
+      "kind": "artifact",
+      "purpose": "Браузерная проверка устаревшего индекса, положения, выбора и плавной прокрутки для родителя и ученика",
+      "consumer": "Chromium; Playwright"
+    },
+    {
+      "id": "file:e2e/calendar.html",
+      "path": "e2e/calendar.html",
+      "kind": "artifact",
+      "purpose": "HTML-точка входа браузерного fixture",
+      "consumer": "Vite E2E"
+    },
+    {
+      "id": "file:e2e/mocks/auth.ts",
+      "path": "e2e/mocks/auth.ts",
+      "kind": "artifact",
+      "purpose": "Детерминированный auth без Firebase",
+      "consumer": "Browser fixture"
+    },
+    {
+      "id": "file:e2e/mocks/dayDashboardLessonCache.ts",
+      "path": "e2e/mocks/dayDashboardLessonCache.ts",
+      "kind": "artifact",
+      "purpose": "Пустое состояние кэша заданий",
+      "consumer": "Browser fixture"
+    },
+    {
+      "id": "file:e2e/mocks/dayDashboardStore.ts",
+      "path": "e2e/mocks/dayDashboardStore.ts",
+      "kind": "artifact",
+      "purpose": "Синтетический устаревший индекс дней",
+      "consumer": "Browser fixture"
+    },
+    {
+      "id": "file:e2e/mocks/dayDashboardViewCache.ts",
+      "path": "e2e/mocks/dayDashboardViewCache.ts",
+      "kind": "artifact",
+      "purpose": "Пустые кэшированные оценки и сводки",
+      "consumer": "Browser fixture"
+    },
+    {
+      "id": "file:e2e/mocks/dayStore.ts",
+      "path": "e2e/mocks/dayStore.ts",
+      "kind": "artifact",
+      "purpose": "No-op подписка к деталям дня",
+      "consumer": "Browser fixture"
+    },
+    {
+      "id": "file:e2e/mocks/OlympiadHome.ts",
+      "path": "e2e/mocks/OlympiadHome.ts",
+      "kind": "artifact",
+      "purpose": "Заглушка семейного блока вне календарного E2E",
+      "consumer": "Browser fixture"
+    },
+    {
+      "id": "file:e2e/mocks/personalAccess.ts",
+      "path": "e2e/mocks/personalAccess.ts",
+      "kind": "artifact",
+      "purpose": "No-op личный контекст",
+      "consumer": "Browser fixture"
+    },
+    {
+      "id": "file:e2e/mocks/useDashboardDayWork.ts",
+      "path": "e2e/mocks/useDashboardDayWork.ts",
+      "kind": "artifact",
+      "purpose": "Пустая модель работ без внешних данных",
+      "consumer": "Browser fixture"
+    },
+    {
+      "id": "file:e2e/mocks/WeekendMathSlot.ts",
+      "path": "e2e/mocks/WeekendMathSlot.ts",
+      "kind": "artifact",
+      "purpose": "Заглушка выходной работы для календарного E2E",
+      "consumer": "Browser fixture"
+    },
+    {
       "id": "file:e2e/olympiad-ui-kit.e2e.ts",
       "path": "e2e/olympiad-ui-kit.e2e.ts",
       "kind": "artifact",
@@ -5178,10 +5294,17 @@
       "consumer": "Приложение; dispatcher; Vitest"
     },
     {
+      "id": "file:playwright.calendar.config.ts",
+      "path": "playwright.calendar.config.ts",
+      "kind": "artifact",
+      "purpose": "Изолированный Vite server и детерминированные адаптеры для реального `DayDashboard`",
+      "consumer": "`npm run test:e2e`; Chromium"
+    },
+    {
       "id": "file:playwright.config.ts",
       "path": "playwright.config.ts",
       "kind": "artifact",
-      "purpose": "Локальный браузерный тестовый сервер и настройки Playwright",
+      "purpose": "Локальный браузерный сервер для UI Kit E2E",
       "consumer": "Разработчик; CI"
     },
     {
@@ -6119,15 +6242,29 @@
       "id": "file:src/components/DayCalendar.test.tsx",
       "path": "src/components/DayCalendar.test.tsx",
       "kind": "verification",
-      "purpose": "Интерактивный выбор и сохранение текущего дня/работы для разных источников",
+      "purpose": "Интерактивный выбор, сохранение позиции и работа с источниками",
       "consumer": "Vitest"
     },
     {
       "id": "file:src/components/DayCalendar.tsx",
       "path": "src/components/DayCalendar.tsx",
       "kind": "artifact",
-      "purpose": "Общая полоса дат с подтверждёнными каникульными группами",
+      "purpose": "Общая полоса дат, первоначальный центр и плавный выбор у края",
       "consumer": "DayDashboard; UI Kit"
+    },
+    {
+      "id": "file:src/components/dayCalendarScroll.test.ts",
+      "path": "src/components/dayCalendarScroll.test.ts",
+      "kind": "verification",
+      "purpose": "Геометрия центра, устойчивость середины и порог края",
+      "consumer": "Vitest"
+    },
+    {
+      "id": "file:src/components/dayCalendarScroll.ts",
+      "path": "src/components/dayCalendarScroll.ts",
+      "kind": "artifact",
+      "purpose": "Расчёт начального центрирования и прокрутки выбранного дня у края полосы",
+      "consumer": "`DayCalendar`; Vitest"
     },
     {
       "id": "file:src/components/DiagnosticsCopyButton.test.tsx",
@@ -8496,6 +8633,13 @@
       "consumer": "Vite"
     },
     {
+      "id": "file:vite.e2e.config.ts",
+      "path": "vite.e2e.config.ts",
+      "kind": "artifact",
+      "purpose": "Изолированная Vite-конфигурация с тестовыми адаптерами данных и auth",
+      "consumer": "Playwright"
+    },
+    {
       "id": "module.assessments",
       "status": "accepted",
       "implementation": "partial",
@@ -9910,7 +10054,7 @@
         "module.school-diary.dashboard"
       ],
       "created": "2026-10-19",
-      "updated": "2026-10-19",
+      "updated": "2026-10-28",
       "consumers": [
         "parent",
         "student",
@@ -9919,7 +10063,22 @@
       "code": [
         "day/school-calendar.mjs",
         "sync/school-calendar-publication.mjs",
+        "src/DayDashboard.tsx",
         "src/components/DayCalendar.tsx",
+        "src/components/dayCalendarScroll.ts",
+        "playwright.config.ts",
+        "playwright.calendar.config.ts",
+        "vite.e2e.config.ts",
+        "e2e/calendar-fixture.tsx",
+        "e2e/mocks/OlympiadHome.ts",
+        "e2e/mocks/WeekendMathSlot.ts",
+        "e2e/mocks/auth.ts",
+        "e2e/mocks/dayDashboardLessonCache.ts",
+        "e2e/mocks/dayDashboardStore.ts",
+        "e2e/mocks/dayDashboardViewCache.ts",
+        "e2e/mocks/dayStore.ts",
+        "e2e/mocks/personalAccess.ts",
+        "e2e/mocks/useDashboardDayWork.ts",
         "sync/school-calendar.mjs",
         "scripts/sync-project.mjs"
       ],
@@ -12470,6 +12629,11 @@
       "type": "uses"
     },
     {
+      "from": "decision.calendar-scroll-selection-2026-10-28",
+      "to": "shared.design",
+      "type": "uses"
+    },
+    {
       "from": "decision.calendar-vacation-inset-2026-10-19",
       "to": "decision.calendar-fixed-height-2026-10-19",
       "type": "uses"
@@ -13715,6 +13879,71 @@
       "type": "implements"
     },
     {
+      "from": "file:e2e/calendar-fixture.tsx",
+      "to": "decision.calendar-scroll-selection-2026-10-28",
+      "type": "implements"
+    },
+    {
+      "from": "file:e2e/calendar-fixture.tsx",
+      "to": "module.school-diary.school-calendar",
+      "type": "implements"
+    },
+    {
+      "from": "file:e2e/calendar.e2e.ts",
+      "to": "module.school-diary.school-calendar",
+      "type": "implements"
+    },
+    {
+      "from": "file:e2e/calendar.html",
+      "to": "module.school-diary.school-calendar",
+      "type": "implements"
+    },
+    {
+      "from": "file:e2e/mocks/auth.ts",
+      "to": "module.school-diary.school-calendar",
+      "type": "implements"
+    },
+    {
+      "from": "file:e2e/mocks/dayDashboardLessonCache.ts",
+      "to": "module.school-diary.school-calendar",
+      "type": "implements"
+    },
+    {
+      "from": "file:e2e/mocks/dayDashboardStore.ts",
+      "to": "module.school-diary.school-calendar",
+      "type": "implements"
+    },
+    {
+      "from": "file:e2e/mocks/dayDashboardViewCache.ts",
+      "to": "module.school-diary.school-calendar",
+      "type": "implements"
+    },
+    {
+      "from": "file:e2e/mocks/dayStore.ts",
+      "to": "module.school-diary.school-calendar",
+      "type": "implements"
+    },
+    {
+      "from": "file:e2e/mocks/OlympiadHome.ts",
+      "to": "module.school-diary.school-calendar",
+      "type": "implements"
+    },
+    {
+      "from": "file:e2e/mocks/personalAccess.ts",
+      "to": "module.school-diary.school-calendar",
+      "type": "implements"
+    },
+    {
+      "from": "file:e2e/mocks/useDashboardDayWork.ts",
+      "to": "module.school-diary.school-calendar",
+      "type": "implements"
+    },
+    {
+      "from": "file:e2e/mocks/WeekendMathSlot.ts",
+      "to": "module.school-diary.school-calendar",
+      "type": "implements"
+    },
+    {
       "from": "file:e2e/olympiad-ui-kit.e2e.ts",
       "to": "shared.design.ui-kit",
       "type": "implements"
@@ -14292,6 +14521,21 @@
     {
       "from": "file:packages/telegram-notifications/operations/upload-check.mjs",
       "to": "service.telegram-bot.operations",
+      "type": "implements"
+    },
+    {
+      "from": "file:playwright.calendar.config.ts",
+      "to": "decision.calendar-scroll-selection-2026-10-28",
+      "type": "implements"
+    },
+    {
+      "from": "file:playwright.calendar.config.ts",
+      "to": "module.school-diary.school-calendar",
+      "type": "implements"
+    },
+    {
+      "from": "file:playwright.config.ts",
+      "to": "module.school-diary.school-calendar",
       "type": "implements"
     },
     {
@@ -15376,6 +15620,11 @@
     },
     {
       "from": "file:src/components/DayCalendar.tsx",
+      "to": "decision.calendar-scroll-selection-2026-10-28",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/DayCalendar.tsx",
       "to": "decision.calendar-vacation-sticky-2026-10-19",
       "type": "implements"
     },
@@ -15386,6 +15635,16 @@
     },
     {
       "from": "file:src/components/DayCalendar.tsx",
+      "to": "module.school-diary.school-calendar",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/dayCalendarScroll.ts",
+      "to": "decision.calendar-scroll-selection-2026-10-28",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/dayCalendarScroll.ts",
       "to": "module.school-diary.school-calendar",
       "type": "implements"
     },
@@ -16401,6 +16660,11 @@
     },
     {
       "from": "file:src/DayDashboard.tsx",
+      "to": "decision.calendar-scroll-selection-2026-10-28",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayDashboard.tsx",
       "to": "decision.collapsed-variant-status-2026-10-21",
       "type": "implements"
     },
@@ -16422,6 +16686,11 @@
     {
       "from": "file:src/DayDashboard.tsx",
       "to": "module.school-diary.grades",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayDashboard.tsx",
+      "to": "module.school-diary.school-calendar",
       "type": "implements"
     },
     {
@@ -17341,6 +17610,11 @@
     },
     {
       "from": "file:src/UiKit.tsx",
+      "to": "decision.calendar-scroll-selection-2026-10-28",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/UiKit.tsx",
       "to": "decision.collapsed-variant-status-2026-10-21",
       "type": "implements"
     },
@@ -17757,6 +18031,11 @@
     {
       "from": "file:vite.config.ts",
       "to": "shared.toolchain",
+      "type": "implements"
+    },
+    {
+      "from": "file:vite.e2e.config.ts",
+      "to": "module.school-diary.school-calendar",
       "type": "implements"
     },
     {
@@ -19316,6 +19595,11 @@
     },
     {
       "from": "module.school-diary.school-calendar",
+      "to": "decision.calendar-scroll-selection-2026-10-28",
+      "type": "contains"
+    },
+    {
+      "from": "module.school-diary.school-calendar",
       "to": "decision.calendar-vacation-inset-2026-10-19",
       "type": "contains"
     },
@@ -19347,6 +19631,11 @@
     {
       "from": "module.school-diary.school-calendar",
       "to": "file:src/components/DayCalendar.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.school-diary.school-calendar",
+      "to": "file:src/components/dayCalendarScroll.test.ts",
       "type": "verified-by"
     },
     {

@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 /** @see ../../docs/modules/school-diary/school-calendar.md#представление */
-import { act, createRef } from 'react'
+import { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { describe, expect, it, vi } from 'vitest'
 import DayCalendar from './DayCalendar'
@@ -33,9 +33,9 @@ describe('pupil calendar control', () => {
     } finally { await act(async () => root.unmount()) }
   })
   it('groups confirmed dates and keeps selection, today, keyboard buttons and homework', async () => {
-    const host = document.createElement('div'), root = createRoot(host), onSelect = vi.fn(), ref = createRef<HTMLDivElement>()
+    const host = document.createElement('div'), root = createRoot(host), onSelect = vi.fn()
     try {
-      await act(async () => root.render(<DayCalendar days={days} schoolCalendar={calendar} today="2026-10-24" selectedDate="2026-10-25" onSelect={onSelect} stripRef={ref} />))
+      await act(async () => root.render(<DayCalendar days={days} schoolCalendar={calendar} today="2026-10-24" selectedDate="2026-10-25" onSelect={onSelect} />))
       expect(host.querySelectorAll('.day-dashboard-vacation')).toHaveLength(1)
       expect(host.querySelector('.day-dashboard-vacation .day-dashboard-vacation-heading')).toBeNull()
       expect(host.querySelector('.day-dashboard-heading .day-dashboard-vacation-legend')).toBeNull()
@@ -46,10 +46,36 @@ describe('pupil calendar control', () => {
       expect(host.querySelector('[aria-current="date"]')?.getAttribute('data-date')).toBe('2026-10-24')
       expect(host.querySelector('[aria-pressed="true"]')?.getAttribute('data-date')).toBe('2026-10-25')
       expect(host.querySelector('[data-date="2026-10-24"]')?.textContent).toContain('1 ДЗ')
-      expect(ref.current?.className).toBe('day-dashboard-dates')
       await act(async () => host.querySelector<HTMLButtonElement>('[data-date="2026-11-02"]')!.click())
       expect(onSelect).toHaveBeenCalledWith('2026-11-02')
     } finally { await act(async () => root.unmount()) }
+  })
+  it('centers once, keeps mid-strip selection still, then smoothly reveals a selected edge date', async () => {
+    const host = document.createElement('div'), root = createRoot(host)
+    const originalRect = HTMLElement.prototype.getBoundingClientRect
+    try {
+      vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
+        if (this.classList.contains('day-dashboard-dates')) return { left: 100, right: 900, width: 800 } as DOMRect
+        const left = this.dataset.date === '2026-11-02' ? 820 : 500
+        return { left, right: left + 68, width: 68 } as DOMRect
+      })
+      await act(async () => root.render(<DayCalendar days={days} schoolCalendar={calendar} today="2026-10-24" selectedDate="2026-10-25" onSelect={(date) => {
+        host.dataset.selected = date
+      }} />))
+      const strip = host.querySelector<HTMLDivElement>('.day-dashboard-dates')!
+      const scrollTo = vi.fn()
+      Object.defineProperty(strip, 'scrollTo', { configurable: true, value: scrollTo })
+      expect(strip.scrollLeft).toBe(34)
+      await act(async () => root.render(<DayCalendar days={days} schoolCalendar={calendar} today="2026-10-24" selectedDate="2026-10-23" onSelect={() => {}} />))
+      expect(scrollTo).not.toHaveBeenCalled()
+      await act(async () => root.render(<DayCalendar days={days} schoolCalendar={calendar} today="2026-10-24" selectedDate="2026-11-02" onSelect={() => {}} />))
+      expect(scrollTo).toHaveBeenCalledWith({ left: 388, behavior: 'smooth' })
+      await act(async () => root.render(<DayCalendar days={[...days]} schoolCalendar={calendar} today="2026-10-24" selectedDate="2026-11-02" onSelect={() => {}} />))
+      expect(scrollTo).toHaveBeenCalledTimes(1)
+    } finally {
+      HTMLElement.prototype.getBoundingClientRect = originalRect
+      await act(async () => root.unmount())
+    }
   })
   it('uses each pupil’s source and never infers vacations from empty lessons or weekends', async () => {
     const host = document.createElement('div'), root = createRoot(host)

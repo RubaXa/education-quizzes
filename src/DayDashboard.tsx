@@ -3,9 +3,11 @@
  * @see ../docs/product/school-day.md
  */
 /** @see ../docs/modules/school-diary/dashboard.md#compact-homework */
+/** @see ../docs/modules/school-diary/school-calendar.md#представление */
+/** @see ../docs/decisions/calendar-scroll-selection-2026-10-28.md */
 /** @see ../docs/modules/materials/material-clarification.md */
 /** @see ../docs/decisions/pupil-vacations-2026-10-19.md */
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { getAuth } from 'firebase/auth'
 import { ArrowRight, CalendarDays, ChevronDown, Clock3, Hourglass, Sparkles, Timer } from 'lucide-react'
 import { watchDayPage } from '@/lib/dayStore'
@@ -38,6 +40,27 @@ function moscowToday() {
 }
 function dateLabel(date: string, options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long' }) {
   return new Intl.DateTimeFormat('ru-RU', { ...options, timeZone: 'Europe/Moscow' }).format(new Date(`${date}T12:00:00+03:00`))
+}
+function addCalendarDays(date: string, amount: number) {
+  const value = new Date(`${date}T12:00:00Z`)
+  value.setUTCDate(value.getUTCDate() + amount)
+  return value.toISOString().slice(0, 10)
+}
+/** Keep the current six-week calendar navigable when a cached dashboard is stale. */
+function calendarDaysThroughHorizon(days: DayDashboardData['days'], today: string) {
+  const weekday = new Date(`${today}T12:00:00Z`).getUTCDay()
+  const weekStart = addCalendarDays(today, -(weekday === 0 ? 6 : weekday - 1))
+  const horizonEnd = addCalendarDays(weekStart, 41)
+  const lastDate = days.at(-1)?.date
+  const end = [horizonEnd, lastDate ?? ''].sort().at(-1)!
+  if (lastDate && lastDate >= end) return days
+  const result = [...days]
+  let date = lastDate ? addCalendarDays(lastDate, 1) : weekStart
+  while (date <= end) {
+    result.push({ date, checkedAt: null, complete: false, schedule: [], homework: [], dayToken: null })
+    date = addCalendarDays(date, 1)
+  }
+  return result
 }
 function checkedLabel(value: string | null) {
   return value ? new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Moscow' }).format(new Date(value)) : 'ещё не проверяли'
@@ -105,7 +128,6 @@ export default function DayDashboard({ token, parent, familyScope }: { token: st
   const [pastLessonsOverride, setPastLessonsOverride] = useState<{ date: string; open: boolean } | null>(null)
   const [seenUpdates, setSeenUpdates] = useState<Set<string>>(() => new Set())
   const [selectedGrade, setSelectedGrade] = useState<{ subjectId: string; index: number } | null>(null)
-  const datesRef = useRef<HTMLDivElement>(null)
   const today = moscowToday()
 
   useEffect(() => {
@@ -141,13 +163,9 @@ export default function DayDashboard({ token, parent, familyScope }: { token: st
     return () => { active = false; stop?.() }
   }, [token, parent])
 
-  const selectedDate = index?.days.some((day) => day.date === selected) ? selected : today
+  const calendarDays = index ? calendarDaysThroughHorizon(index.days, today) : []
+  const selectedDate = calendarDays.some((day) => day.date === selected) ? selected : today
   const selectedEntry = index?.days.find((day) => day.date === selectedDate)
-  useEffect(() => {
-    const strip = datesRef.current
-    const active = strip?.querySelector<HTMLElement>('[aria-pressed="true"]')
-    if (strip && active) strip.scrollLeft = active.offsetLeft - strip.offsetLeft - (strip.clientWidth - active.clientWidth) / 2
-  }, [index, selectedDate])
   const homeworkToken = selectedEntry?.homeworkDayToken
   // The timetable belongs to the selected day; the card below prepares the
   // nearest following school day. Weekend dates without lessons are skipped.
@@ -365,7 +383,7 @@ export default function DayDashboard({ token, parent, familyScope }: { token: st
   const selectedVacation = vacationOn(index.schoolCalendar, selectedDate)
   return <div className="day-dashboard">
     {error && <p className="day-dashboard-error" role="alert">{error}</p>}
-    <DayCalendar days={index.days} schoolCalendar={index.schoolCalendar} today={today} selectedDate={selectedDate} onSelect={chooseDay} stripRef={datesRef} />
+    <DayCalendar days={calendarDays} schoolCalendar={index.schoolCalendar} today={today} selectedDate={selectedDate} onSelect={chooseDay} />
 
     <div className={`day-dashboard-selected-heading${parent ? ' parent' : ''}`}>{personalParent && <a className="day-dashboard-parent-home" href="#/">← Все дети</a>}<div className="day-dashboard-kicker">{parent ? 'Панель родителя' : 'Мой план'} · выбранный день</div><h1>{dateLabel(selectedDate, { weekday: 'long', day: 'numeric', month: 'long' })}</h1></div>
 
