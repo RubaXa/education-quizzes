@@ -7,14 +7,14 @@ test.beforeEach(async ({ page }) => {
 
 test('family catalog fixture: parent enables practice and student can open it', async ({ page }) => {
   await page.getByRole('button', { name: 'Список олимпиад' }).click()
-  await page.getByRole('tab', { name: 'Доступные · 1' }).click()
-  const toggle = page.getByRole('switch', { name: 'Подготовка: Математическая олимпиада · пример' })
+  await page.getByRole('tab', { name: 'Доступные 2' }).click()
+  const toggle = page.getByRole('switch', { name: 'Подготовка: Формула Единства / Третье тысячелетие · пример' })
   await expect(toggle).toHaveAttribute('aria-checked', 'false')
   await toggle.click()
-  await expect(page.getByRole('tab', { name: 'Активные · 1' })).toBeVisible()
+  await expect(page.getByRole('tab', { name: 'Активные 1' })).toBeVisible()
   await page.getByRole('button', { name: 'Ученик', exact: true }).click()
-  await page.getByRole('button', { name: 'Открыть подготовку' }).click()
-  await expect(page.getByText('Пример перехода: Подготовка к олимпиаде')).toBeVisible()
+  await page.getByRole('button', { name: 'Открыть олимпиаду «Формула Единства / Третье тысячелетие · пример»' }).click()
+  await expect(page.getByText('Пример перехода: Формула Единства')).toBeVisible()
 })
 
 test('written practice fixture: pupil selects photos and parent sees the request', async ({ page }) => {
@@ -32,3 +32,23 @@ test('written practice fixture: pupil selects photos and parent sees the request
   await expect(page.getByText('Вопрос ученика: Не понимаю следующий шаг')).toBeVisible()
   await expect(page.getByText(/Фото запроса:/)).toBeVisible()
 })
+
+for (const width of [320, 375, 390, 430]) {
+  test(`olympiad tabs fit and both cards open independently at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 820 })
+    await page.getByRole('button', { name: 'Список олимпиад' }).click()
+    const tabs = page.getByRole('tablist', { name: 'Олимпиады' })
+    const bounds = await tabs.getByRole('tab').evaluateAll(nodes => nodes.map(node => { const r=node.getBoundingClientRect(); return { top:r.top, left:r.left, right:r.right, overflow:node.scrollWidth > node.clientWidth } }))
+    expect(bounds).toHaveLength(3)
+    expect(Math.max(...bounds.map(x => x.top)) - Math.min(...bounds.map(x => x.top))).toBeLessThan(2)
+    expect(bounds.every(x => x.left >= 0 && x.right <= width && !x.overflow)).toBe(true)
+    await page.getByRole('tab', { name:'Доступные 2' }).click()
+    await page.getByRole('switch', { name:'Подготовка: Формула Единства / Третье тысячелетие · пример' }).click()
+    await page.getByRole('switch', { name:'Подготовка: Надежда энергетики · пример' }).click()
+    await page.getByRole('tab', { name:'Активные 2' }).click()
+    await page.getByRole('button', { name:'Открыть олимпиаду «Надежда энергетики · пример»' }).click()
+    await expect(page.getByText('Пример перехода: Надежда энергетики')).toBeVisible()
+    await page.getByRole('button', { name:'Открыть олимпиаду «Формула Единства / Третье тысячелетие · пример»' }).click()
+    await expect(page.getByText('Пример перехода: Формула Единства')).toBeVisible()
+  })
+}
