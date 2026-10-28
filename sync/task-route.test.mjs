@@ -65,6 +65,14 @@ describe('deterministic task route from existing source state', () => {
     expect(eventTaskRoute('upload.confirmed', { context: { task: { ...task, learningContext: { kind: 'homework' } } } }).next).toBe('review-written-work')
     expect(eventTaskRoute('help.requested', { context: { task } }).next).toBe('address-help-request')
   })
+  it('keeps active competition photos without AI review or help', () => {
+    const task = { ...ready, competitionUntil: '2999-01-01T00:00:00.000Z', learningContext: { kind: 'olympiad', id: 'contest' } }
+    for (const type of ['upload.confirmed', 'help.requested']) {
+      const route = eventTaskRoute(type, { context: { subject: 'Математика', task } })
+      expect(route.next).toBe('hold-competition-solution')
+      expect(route.steps).toEqual(['retain-upload', 'wait-for-competition-close'])
+    }
+  })
   it('routes a requested page upload to source analysis, never to a homework grade', () => {
     expect(eventTaskRoute('upload.confirmed', { source: { purpose: 'source-material' }, context: { subject: 'Английский язык', task: ready } }).next).toBe('review-source-material')
     expect(eventTaskRoute('upload.confirmed', { source: {}, context: { task: { ...unresolved, materialRequest: request, assessmentIntent: { state: 'needs-topic' } } } }).next).toBe('review-source-material')

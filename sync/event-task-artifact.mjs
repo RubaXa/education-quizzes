@@ -140,7 +140,9 @@ export async function prepareEventTaskArtifact(db, event, { now = new Date().toI
   const artifact = { schemaVersion: 1, artifactId, eventId: event.eventId, eventType: event.eventType,
     familyId: event.familyId, childId: event.childId, sourceRef: event.sourceRef, operationId: event.operationId,
     source: event.source, actor: event.actor ?? { type: 'system', id: 'server' }, fingerprint,
-    verifiedAt: now, state: 'ready', instruction: inputs.route.next === 'ingest-olympiad-sheet'
+    verifiedAt: now, state: 'ready', instruction: inputs.route.next === 'hold-competition-solution'
+      ? 'Сохранить фото решения для ученика и родителя. До окончания действующего тура не выполнять автоматическую проверку, не анализировать решение и не создавать подсказки.'
+      : inputs.route.next === 'ingest-olympiad-sheet'
       ? 'Это фотография условий, не решение ученика. Сохрани оригинал и выдели каждую видимую задачу с рисунком; найди официальный источник и решение. До подготовки решения проверь правила действующего соревнования; при запрете или неизвестности не создавай разбор. Для разрешённых задач проверь решение и подсказки, сохрани исходную олимпиаду и отдельную связь с фактическим источником. Для подтверждённого совпадения полного условия и рисунков используй day olympiad-source-link с eventId, artifactId, taskId, точным condition и figuresVerified: true; команда сохраняет фото как источник без перезаписи работы. Опубликуй каждую новую отдельную семейную карточку через штатный family-assignment и сверь обе роли. Непроверенные условие и решение не выдавай за готовые; нечитаемое фото оставь на уточнение.'
       : inputs.route.next === 'review-source-material'
       ? 'Прочитать запрошенный источник, не оценивать выполнение ДЗ. Использовать source-material/sourceAnalysis штатного submissions CLI; затем разрешить запрос только по доказательствам, пересмотреть точное назначение и подтвердить ролевой readback. Получение страницы не означает выполненное ДЗ.'

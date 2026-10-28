@@ -868,7 +868,7 @@ async function publishFamilyAssignment() {
   if (request.schemaVersion !== 1 || !/^\d{4}-\d{2}-\d{2}$/.test(request.sourceDate ?? '') || !request.parentGuide) fail('Нужны schemaVersion 1, sourceDate и отдельный закрытый parentGuide.')
   const owner = ownerContext()
   if (!owner?.familyId || !owner?.childId) fail('Сначала подтвердите владельца через локальный family-access.')
-  const allowedTaskFields = new Set(['id', 'familyId', 'childId', 'sourceSystem', 'sourceId', 'sourceRevision', 'subjectId', 'subjectName', 'dueDate', 'title', 'originalText', 'studentText', 'publication', 'evidence', 'materialIds', 'steps', 'submission', 'cardPattern', 'cardPolicyVersion', 'outputKind', 'dayProjectionVersion', 'learningContext', 'optional', 'testPlacements', 'sourceIntake', 'learnerOrigin'])
+  const allowedTaskFields = new Set(['id', 'familyId', 'childId', 'sourceSystem', 'sourceId', 'sourceRevision', 'subjectId', 'subjectName', 'dueDate', 'title', 'originalText', 'studentText', 'publication', 'evidence', 'materialIds', 'steps', 'submission', 'cardPattern', 'cardPolicyVersion', 'outputKind', 'dayProjectionVersion', 'learningContext', 'optional', 'testPlacements', 'sourceIntake', 'learnerOrigin', 'competitionUntil', 'competitionNumber'])
   if (Object.keys(request.task ?? {}).some((key) => !allowedTaskFields.has(key))) fail('Каноническая задача содержит поля вне разрешённого семейного формата.')
   if (request.task?.familyId !== owner.familyId || request.task?.childId !== owner.childId) fail('ID семьи и ребёнка в запросе должны точно совпасть с локальным owner; подмена владельца запрещена.')
   const task = { ...request.task, dayProjectionVersion: 1,

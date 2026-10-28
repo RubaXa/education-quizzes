@@ -32,6 +32,7 @@ export default function OlympiadPage({ familyId, childId, olympiadId, parent, da
   }, [familyId, childId, dashboardToken, parent, watchTasks, watchDashboard, watchCatalog, watchSelections, diagnosticsContext])
   const olympiad = catalog?.find(item => item.id === olympiadId)
   const matching = tasks?.filter(task => task.learningContext.id === olympiadId) ?? []
+  const sourcePhotoIds = [...new Set(matching.flatMap(task => task.sourcePhotoIds ?? []))]
   const projectionReady = dashboard?.kind === (parent ? 'parent' : 'student')
   useEffect(() => {
     if (tasks && projectionReady) traceOlympiad('page-loaded', diagnosticsContext, parent ? 'parent' : 'student', tasks.filter(item => item.learningContext.id === olympiadId).reduce((sum, item) => sum + item.testTokens.length, 0))
@@ -45,7 +46,7 @@ export default function OlympiadPage({ familyId, childId, olympiadId, parent, da
       <section className="olympiad-section" aria-labelledby="olympiad-practice-title"><h2 id="olympiad-practice-title">Практика</h2>{matching.some(task => !task.sourceIntake) ? <p>Задач: {matching.filter(task => !task.sourceIntake).length}. Можно начинать с любой.</p> : <p>Задачи для практики пока не опубликованы.</p>}
         <div className="olympiad-practice-list">{[...matching.filter(task => !task.sourceIntake), ...matching.filter(task => task.sourceIntake)].map((task, index) => {
           const dayToken = projectionReady ? dashboard.days.find(day => day.date === task.projectionSourceDate)?.dayToken : null
-          return !dayToken ? <p key={task.id} role="alert">«{task.title}»: страница подготовки ещё не опубликована.</p> : <div key={task.id}>{renderPractice ? renderPractice(task, dayToken, parent, quizTarget, index + 1) : <DayPage key={`${familyId}/${childId}/${dayToken}/${task.id}`} token={dayToken} parent={parent} headerReturnTarget={null} olympiadScope={{ familyId, childId, olympiadId, taskId: task.id, testTokens: task.testTokens, number: index + 1, quizTarget }} />}</div>
+          return !dayToken ? <p key={task.id} role="alert">«{task.title}»: страница подготовки ещё не опубликована.</p> : <div key={task.id}>{renderPractice ? renderPractice(task, dayToken, parent, quizTarget, index + 1) : <DayPage key={`${familyId}/${childId}/${dayToken}/${task.id}`} token={dayToken} parent={parent} headerReturnTarget={null} olympiadScope={{ familyId, childId, olympiadId, taskId: task.id, testTokens: task.testTokens, number: task.competitionNumber ?? index + 1, quizTarget, sourcePhotoIds }} />}</div>
         })}</div>
       </section>
     </>}

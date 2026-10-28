@@ -118,6 +118,10 @@ describe('learner-origin olympiad cards', () => {
     expect(familyAssignmentErrors(cropped, owner)).toEqual([])
     expect(learnerOriginErrors(cropped, intake, [photo], '2026-10-22')).toEqual([])
     expect(projectFamilyAssignment(cropped).learnerOrigin.crop).toEqual(crop)
+    const contest = { ...cropped, competitionUntil: '2999-01-01T00:00:00.000Z', competitionNumber: 1 }
+    expect(familyAssignmentErrors(contest, owner)).toEqual([])
+    expect(projectFamilyAssignment(contest).competitionUntil).toEqual(contest.competitionUntil)
+    expect(familyAssignmentErrors({ ...contest, learnerOrigin: task.learnerOrigin }, owner)).not.toEqual([])
     expect(learnerOriginErrors(cropped, intake, [{ ...photo, storage: { ...photo.storage, sha256: 'b'.repeat(64) } }], '2026-10-22')).not.toEqual([])
     expect(familyAssignmentErrors({ ...cropped, learnerOrigin: { ...cropped.learnerOrigin, crop: { ...crop, width: 500 } } }, owner)).not.toEqual([])
     expect(familyAssignmentErrors({ ...cropped, learnerOrigin: { ...cropped.learnerOrigin, uploadIds: [photo.id, 'other-12345678901234567890'] } }, owner)).not.toEqual([])

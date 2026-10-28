@@ -121,3 +121,11 @@ describe('EducationSyncDispatcher', () => {
     if (batch.actionThroughGeneration) expect(message).toContain('Do not broaden the event range; the full inbox and Mesh collection are still required')
   })
 })
+
+it('independent Firebase dispatch explicitly proceeds without waiting for Mesh', () => {
+  const msg = buildMessage('req-action', '/workspace/scripts/education-sync-dispatch.mjs', ['action'], { independentSourceBlock: true })
+  expect(msg).toContain('independently')
+  expect(msg).toContain('unrelated Mesh source is blocked')
+  expect(msg).not.toContain('complete 42-day Mesh collection')
+  expect(msg).toContain('tasks --request req-action')
+})

@@ -1300,6 +1300,31 @@
       "path": "docs/decisions/olympiad-family-storage-2026-10-27.md"
     },
     {
+      "id": "decision.olympiad-firebase-independence-2026-10-28",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-10-28",
+      "updated": "2026-10-28",
+      "parent": "module.olympiad-preparation",
+      "uses": [
+        "shared.design.ui-kit",
+        "shared.access-and-privacy"
+      ],
+      "consumers": [
+        "Education frontend",
+        "Education operator"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/olympiad-firebase-independence-2026-10-28.md"
+    },
+    {
       "id": "decision.olympiad-integration-2026-10-28",
       "status": "accepted",
       "implementation": "partial",
@@ -13038,6 +13063,16 @@
       "type": "uses"
     },
     {
+      "from": "decision.olympiad-firebase-independence-2026-10-28",
+      "to": "shared.access-and-privacy",
+      "type": "uses"
+    },
+    {
+      "from": "decision.olympiad-firebase-independence-2026-10-28",
+      "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
       "from": "decision.olympiad-integration-2026-10-28",
       "to": "module.families.browser-access-trace",
       "type": "uses"
@@ -19125,6 +19160,11 @@
     {
       "from": "module.olympiad-preparation",
       "to": "decision.olympiad-family-storage-2026-10-27",
+      "type": "contains"
+    },
+    {
+      "from": "module.olympiad-preparation",
+      "to": "decision.olympiad-firebase-independence-2026-10-28",
       "type": "contains"
     },
     {
