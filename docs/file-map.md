@@ -1065,3 +1065,5 @@
 | [docs/decisions/energy-hope-archive-2026-10-28.md](decisions/energy-hope-archive-2026-10-28.md) | [Подготовка к олимпиадам](modules/assessments/olympiad-preparation.md) | Источники и материалы «Надежды энергетики» | Разработчик; оператор |
 
 | [docs/decisions/olympiad-practice-groups-2026-10-28.md](decisions/olympiad-practice-groups-2026-10-28.md) | [Подготовка к олимпиадам](modules/assessments/olympiad-preparation.md) | Группы подготовленных и загруженных задач | UI Kit; разработчик |
+
+| [docs/decisions/olympiad-shared-statement-2026-10-28.md](decisions/olympiad-shared-statement-2026-10-28.md) | [Подготовка к олимпиадам](modules/assessments/olympiad-preparation.md) | Общее условие задачи и исходная фотография | UI Kit; разработчик |

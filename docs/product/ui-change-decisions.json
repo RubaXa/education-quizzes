@@ -2625,22 +2625,20 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "c5125288ce8eddc6c5a508e77737c095b4a3146b85d3b5bc0090d91c9005a902",
-      "record": "docs/decisions/olympiad-firebase-independence-2026-10-28.md",
+      "sha256": "40b63b91c8d1a69557ac00d1079439785a163f338f4d2896a01260b72a22f2d1",
+      "record": "docs/decisions/olympiad-shared-statement-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
-        "docs/services/telegram-bot/education-sync-dispatch.md",
         "docs/shared/design/ui-kit.md"
       ],
       "tests": [
         "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "day/family-assignment.test.mjs",
-        "sync/task-route.test.mjs",
-        "packages/telegram-notifications/application/education-sync-action-store.test.mjs"
+        "src/components/ProblemTaskCard.contract.test.tsx",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель попросил независимо обработать Firebase и добавить фотографии его задач как карточки с загрузкой ответов."
+        "evidence": "Родитель 28.10.2026 попросил использовать карточку и условие задачи как в спецкурсе и домашнем задании."
       }
     },
     "src/UiKit.css": {
@@ -2659,19 +2657,20 @@
       }
     },
     "src/UiKit.tsx": {
-      "sha256": "5ec24ed5548190de6f6e7b0a4fd9722789fd1d9fc03c013bda8d761a9ae8fd36",
-      "record": "docs/decisions/olympiad-practice-groups-2026-10-28.md",
+      "sha256": "a1232185c61685b38dede37510a3f0102aa5f999b8c05203347309d6e784041a",
+      "record": "docs/decisions/olympiad-shared-statement-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
         "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/components/OlympiadPage.integration.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/ProblemTaskCard.contract.test.tsx",
         "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 28.10.2026 попросил отделить загруженные задачи от подготовленных и сделать их различимыми."
+        "evidence": "Родитель 28.10.2026 попросил использовать карточку и условие задачи как в спецкурсе и домашнем задании."
       }
     },
     "src/WeekendMathSlot.css": {
@@ -3463,28 +3462,20 @@
       }
     },
     "src/components/ProblemStatement.tsx": {
-      "sha256": "67cf49d09da25678dcbf2a866a148382b0cfb8817f1516285b00c0d63367e246",
-      "record": "docs/decisions/review-prose-coverage-2026-10-19.md",
+      "sha256": "feae75909f2d26e6d93f5ea83ccb1f5358fd8b952d21df37e546ac658fb6ce00",
+      "record": "docs/decisions/olympiad-shared-statement-2026-10-28.md",
       "specs": [
-        "docs/modules/reviews/adaptive-problem-card.md",
-        "docs/modules/reviews/problem-card-design-decisions.md",
-        "docs/shared/design/README.md",
-        "docs/modules/reviews/review-criteria-provenance.md"
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
         "src/components/ProblemTaskCard.contract.test.tsx",
-        "src/components/ProblemStatement.provenance.test.tsx",
-        "src/components/ProblemCard.test.tsx",
-        "src/lib/reviewProse.test.ts",
-        "src/components/ReviewProse.integration.test.tsx"
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 подтвердил родительский вход, прислал склейки слов и чисел в разборе и прямо потребовал проверить и исправить их во многих местах."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "42b4391c1b06aae294119aaea14bdcfdd403fd3e391f258333621b3985f8bdde"
+        "evidence": "Родитель 28.10.2026 попросил использовать карточку и условие задачи как в спецкурсе и домашнем задании."
       }
     },
     "src/components/ProblemTaskCard.tsx": {

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { FormEvent } from 'react'
+import type { FormEvent, ReactNode } from 'react'
 import { BookOpen, Lightbulb } from 'lucide-react'
 import type { DayHelp, DayMaterialLink, DayProblem, DayWorkReview } from '@/lib/dayStore'
 import { reportUiError } from '@/lib/uiErrors'
@@ -30,8 +30,8 @@ function displayFacts(facts: { label: string; value: string }[]) {
 /** @see ../../docs/modules/reviews/adaptive-problem-card.md#показ-ученику
  * @see ../../docs/modules/reviews/problem-card-design-decisions.md#flat-numbered-sheet
  * @see ../../docs/modules/reviews/problem-card-design-decisions.md */
-export default function ProblemStatement({ problem, links, parent, help, review, finished: parentFinished = false, onRequestHelp, helpAccess = 'ready' }: {
-  problem: DayProblem; links: DayMaterialLink[]; parent: boolean; help?: DayHelp; review?: DayWorkReview;
+export default function ProblemStatement({ problem, links, parent, help, review, finished: parentFinished = false, onRequestHelp, helpAccess = 'ready', originalContent }: {
+  problem: DayProblem; links: DayMaterialLink[]; parent: boolean; help?: DayHelp; review?: DayWorkReview; originalContent?: ReactNode;
   finished?: boolean;
   onRequestHelp?: (taskId: string, revision: number, kind: NonNullable<DayHelp['requestKind']>, text: string) => Promise<void>;
   helpAccess?: 'checking' | 'ready' | 'login-required';
@@ -66,6 +66,7 @@ export default function ProblemStatement({ problem, links, parent, help, review,
   return <div className="problem-statement">
     <div className="problem-statement-original">
       <div className="problem-statement-label"><BookOpen size={16} aria-hidden="true" /><strong>Условие № {problem.number}</strong></div>
+      {originalContent}
       {hasFragment && attachment && original?.crop && <SourceFragment link={attachment} crop={original.crop} number={problem.number} />}
       {attachment && !hasFragment && <p className="problem-statement-missing">Точный фрагмент ещё не подготовлен. Полный лист учителя показан над списком заданий.</p>}
       {originalText ? <div className="problem-statement-transcript"><div className="problem-statement-transcript-title">Условие текстом</div><div className="problem-statement-text">{!textHasNumber && <><b>№ {problem.number}.</b> </>}{originalText}</div></div>
