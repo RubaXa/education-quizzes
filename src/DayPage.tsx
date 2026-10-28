@@ -30,6 +30,8 @@ import AudioPlayer from '@/components/AudioPlayer'
 import MaterialReader, { canReadInside } from '@/components/MaterialReader'
 import WorkReview from '@/components/WorkReview'
 import ProblemGroup from '@/components/ProblemGroup'
+import { ProblemCard } from '@/components/ProblemCard'
+import OlympiadSourceQueue from '@/components/OlympiadSourceQueue'
 import ProblemTaskCard from '@/components/ProblemTaskCard'
 import { PracticeVariantStatus } from '@/components/PracticeVariantStatus'
 import ParentTaskGuide from '@/components/ParentTaskGuide'
@@ -160,7 +162,7 @@ export function GradeBadge({ summary, details, threshold, asOf }: { summary?: Gr
  * @see ../docs/modules/synchronization/global-sync.md#status
  */
 /** @see ../docs/shared/design/README.md#shell */
-export default function DayPage({ token, parent, headerReturnTarget, olympiadScope }: { token: string; parent: boolean; headerReturnTarget: HTMLElement | null; olympiadScope?: { familyId: string; childId: string; olympiadId: string; taskId: string; testTokens: string[] } }) {
+export default function DayPage({ token, parent, headerReturnTarget, olympiadScope }: { token: string; parent: boolean; headerReturnTarget: HTMLElement | null; olympiadScope?: { familyId: string; childId: string; olympiadId: string; taskId: string; testTokens: string[]; number?: number } }) {
   /** @see ../docs/modules/school-diary/dashboard.md#day-navigation */
   const [requestedView] = useState(() => {
     const query = new URLSearchParams(window.location.search).get('tab')
@@ -439,7 +441,7 @@ export default function DayPage({ token, parent, headerReturnTarget, olympiadSco
   const currentAdded = lastChange?.added.filter((id) => currentTaskIds.has(id)) ?? []
   const currentChanged = lastChange?.changed.filter((id) => currentTaskIds.has(id)) ?? []
 
-  return <>{headerReturnTarget && createPortal(<a className="day-return day-return-header" href={returnToDashboard || '#/'}>← На главную</a>, headerReturnTarget)}<div className={`day-page ${parent ? 'day-parent' : 'day-student'}`}>
+  return <>{headerReturnTarget && createPortal(<a className="day-return day-return-header" href={returnToDashboard || '#/'}>← На главную</a>, headerReturnTarget)}<div className={`day-page ${parent ? 'day-parent' : 'day-student'}${olympiadScope ? ' day-olympiad' : ''}`}>
     {!olympiadScope && <a className="day-return day-return-content" href={returnToDashboard || '#/'}>← На главную</a>}
     {!olympiadScope && <section className="day-hero">
       <div className="day-kicker">{parent ? 'Панель родителя' : 'Мой план'} · {shortDate(page.date)}</div>
@@ -465,12 +467,12 @@ export default function DayPage({ token, parent, headerReturnTarget, olympiadSco
     </section> : <>
       {!olympiadScope && parent && page.parentNotes?.[0] && <section className="day-attention"><h2>О задании</h2><p>{page.parentNotes[0]}</p></section>}
       {!olympiadScope && parent && (currentAdded.length > 0 || currentChanged.length > 0) && <section className="day-attention"><h2>Что изменилось</h2><p>Добавлено: {currentAdded.length}. Уточнено: {currentChanged.length}.</p></section>}
-      {page.notices[0] && !parent && <div className="day-notices"><p>✳ {page.notices[0]}</p></div>}
+      {!olympiadScope && page.notices[0] && !parent && <div className="day-notices"><p>✳ {page.notices[0]}</p></div>}
       {!olympiadScope && sourceNotices.map((entry) => {
         const subjectName = page.subjects.find((subject) => subject.id === entry.subjectId)?.name
         return <div className="day-notices" key={entry.id}><p>✳ <strong>МЭШ{subjectName ? ` · ${subjectName}` : ''}</strong> · {entry.rawText}</p></div>
       })}
-      <h2 className="day-homework-heading">{olympiadScope ? 'Материалы и задания' : 'По предметам'}</h2>
+      {!olympiadScope && <h2 className="day-homework-heading">По предметам</h2>}
       {!olympiadScope && currentSubjects.length === 0 && sourceNotices.length === 0 && <div className="day-notices"><p>На эту дату задания в МЭШ пока не указаны.</p></div>}
 
       <div className="day-subject-list">{currentSubjects.map((subject) => {
@@ -498,7 +500,7 @@ export default function DayPage({ token, parent, headerReturnTarget, olympiadSco
         const focused = Boolean(focusTaskId && (subject.tasks.some((task) => task.id === focusTaskId || task.problems?.some((problem) => problem.id === focusTaskId)) || subjectPlacements.some((placement) => placement.token === focusedQuizPlacement?.token)))
         const expanded = olympiadScope ? subjectOpen[subject.id] ?? true : isSubjectExpanded(subject.id, subjectDone, subjectOpen, focused)
         return <section className={`day-subject day-subject-${subject.id}${numberedSheet ? ' has-numbered-sheet' : ''}${subjectDone ? ' is-done' : ''}${expanded ? '' : ' is-collapsed'}`} key={subject.id}>
-          <div className="day-subject-head"><span className="day-subject-icon">{subject.icon}</span><div className="day-subject-title"><h2>{subject.name}</h2></div>
+          {!olympiadScope && <div className="day-subject-head"><span className="day-subject-icon">{subject.icon}</span><div className="day-subject-title"><h2>{subject.name}</h2></div>
             <button className="day-subject-toggle" type="button" aria-expanded={expanded} aria-label={`${expanded ? 'Свернуть' : 'Развернуть'} ${subject.name}`} onClick={() => setSubjectOpen((current) => ({ ...current, [subject.id]: !expanded }))}><ChevronDown size={19} aria-hidden="true" /></button>
             {expanded && subject.materials && <p className="day-subject-materials">{subject.materials}</p>}
             {(numberedSheet || assignments.multiple || subjectDone || summary) && <div className="day-subject-status">
@@ -506,8 +508,8 @@ export default function DayPage({ token, parent, headerReturnTarget, olympiadSco
                 : assignments.multiple && assignments.requiredTotal ? <span className={`day-subject-assignment-count${assignments.complete ? ' is-complete' : ''}`} aria-label={`${assignments.completed} из ${assignments.requiredTotal} обязательных заданий выполнено`}><StatusIcon size={16} status={assignments.complete ? 'complete' : assignments.completed ? 'partial' : 'ready'} />{assignments.completed} из {assignments.requiredTotal}</span>
                 : subjectDone && <span className="day-subject-complete" aria-label={`Выполнено ${doneCount} из ${subjectItems.length}`}><StatusIcon status="complete" size={16} />{doneCount} из {subjectItems.length}</span>}
               <GradeBadge summary={summary} details={grade} threshold={page.workingThreshold} asOf={page.gradeAsOf} />
-            </div>}</div>
-          <div className="day-subject-content" hidden={!expanded}>{!numberedSheet && !['Новое задание МЭШ. Подробный разбор готовится.', 'Точная запись МЭШ. Подробный разбор готовится.'].includes(subject.summary) && <p className="day-subject-summary">{subject.summary}</p>}
+            </div>}</div>}
+          <div className="day-subject-content" hidden={!expanded}>{!olympiadScope && !numberedSheet && !['Новое задание МЭШ. Подробный разбор готовится.', 'Точная запись МЭШ. Подробный разбор готовится.'].includes(subject.summary) && <p className="day-subject-summary">{subject.summary}</p>}
             {!olympiadScope && parent && meshOnlyTasks.length > 0 && <details className="day-mesh"><summary>Как записано в МЭШ</summary>{assignments.multiple ? meshOnlyTasks.map((task) => <p key={task.id}><b>Задание {subject.tasks.indexOf(task) + 1}.</b> {task.meshText ?? task.title}</p>) : <p>{subject.mesh}</p>}</details>}
             <div className="day-task-list">{lineages.map(({ placement, chain }) => {
               const task = subject.tasks.find((item) => item.testToken === placement.token)
@@ -571,6 +573,21 @@ export default function DayPage({ token, parent, headerReturnTarget, olympiadSco
                 return <ProblemTaskCard owner={{ familyId: page.familyId, childId: page.childId }} problem={problem} state={state} key={problem.id} links={taskLinks} parent={parent} guide={taskGuides[problem.id]?.guide} {...guidanceForTask(problem.id, taskGuides[problem.id]?.guide)} onStageChoice={parent && helpRole === 'parent' && problemReview && taskGuides[problem.id]?.guide ? (stage, required) => recordStageChoice(problemReview, taskGuides[problem.id]!.guide!, stage.id, required) : undefined} sourceResearch={taskGuides[problem.id]?.sourceResearch} help={helpRequests.find((item) => item.taskId === problem.id)} review={problemReview} uploads={problemUploads} accepted={problemAccepted} canDecide={helpRole === 'parent'} onDecision={parent && canAcceptCorrectAnswer(problemReview) && problemReview ? (action) => recordParentCompletion(problemReview, action) : undefined} decisions={parentDecisions.events} onRequirementChoice={parent && problemReview?.assessmentBasis?.disputedRequirements?.length ? (id, action) => recordRequirementChoice(problemReview, id, action) : undefined} helpAccess={helpRole === 'checking' ? 'checking' : helpRole === 'student' ? 'ready' : 'login-required'} onRequestHelp={!parent && subject.id === 'special' && helpRole === 'student' ? (taskId, revision, kind, text) => requestDayHelp(studentToken, taskId, revision, kind, text) : undefined} onPhotos={(files) => attach(problem, files)}>
                   <WorkPhotoGallery taskTitle={`№ ${problem.number}. ${problem.title}`} studentToken={studentToken} uploads={taskUploadPresentation(uploads, problem.id).owned} localPhotos={problemPhotos} review={problemReview} now={statusNow} onRetry={queuePhotoUpload} onDelete={deletePhoto} /><LinkedWorkPhotos taskId={problem.id} uploads={uploads} pages={[page, ...(evidencePages ?? [])]} />
                 </ProblemTaskCard>
+              }
+              if (olympiadScope && task.sourceIntake?.kind === 'olympiad-sheet') return <OlympiadSourceQueue key={task.id} parent={parent} studentToken={studentToken} uploads={taskUploadPresentation(uploads, task.id).owned} localPhotos={localTaskPhotos} review={review} now={statusNow} onPhotos={files => attach(task, files)} onRetry={queuePhotoUpload} onDelete={deletePhoto} />
+              if (olympiadScope && !task.problems?.length && task.kind === 'written') {
+                const fallbackState = taskStatus === 'verified' ? { label: 'Проверено', tone: 'verified' as const } : taskStatus === 'needs-fix' ? { label: 'Нужна правка', tone: 'error' as const } : taskStatus === 'partial' ? { label: 'Частично решено', tone: 'partial' as const } : undefined
+                const practiceState = !taskUploads.length && !review && !uploadingWork && fallbackState ? fallbackState : problemCardState(taskUploads, review, uploadingWork, statusNow, accepted)
+                const practiceProblem = { id: task.id, number: olympiadScope.number ?? 1, title: task.title, detail: task.detail, source: task.source }
+                return <ProblemCard key={task.id} problem={practiceProblem} state={practiceState}>
+                  <AssignmentBrief task={task} materialLinks={taskLinks} />
+                  {task.learnerOrigin && <span className="day-task-type">Добавлено учеником</span>}
+                  {[...(task.learnerOrigin ? [task.learnerOrigin] : []), ...(task.learnerSources ?? [])].map((source, index) => <LinkedWorkPhotos key={`${source.intakeTaskId}-${index}`} taskId={task.id} uploads={uploads} pages={[page, ...(evidencePages ?? [])]} source={source} />)}
+                  {!parent && <TaskGuidance items={guidance.filter(item => item.taskId === task.id && item.stageId !== 'help-response')} />}
+                  <WorkReview review={review} uploads={taskUploads} accepted={accepted} canDecide={helpRole === 'parent' && !taskUploads.some(upload => upload.status === 'pending')} onDecision={parent && canAcceptCorrectAnswer(review) && review ? action => recordParentCompletion(review, action) : undefined} decisions={parentDecisions.events} parent={parent} />
+                  {!parent && <div className="problem-card-actions"><PhotoUploadControl className="problem-card-upload" label="Загрузить решение" onPhotos={files => attach(task, files)} /></div>}
+                  <PhotoHelpPanel studentToken={studentToken} taskId={task.id} parent={parent} canRequest={!parent && helpRole === 'student'} canRead={helpRole === 'student' || helpRole === 'parent'} uploads={taskUploads} help={helpRequests.find(item => item.taskId === task.id)} guidance={guidance.filter(item => item.taskId === task.id)} gallery={selection => <WorkPhotoGallery taskTitle={task.title} studentToken={studentToken} uploads={taskUploadPresentation(uploads, task.id).owned} localPhotos={localTaskPhotos} review={review} now={statusNow} onRetry={queuePhotoUpload} onDelete={parent ? undefined : deletePhoto} selection={selection} />} />
+                </ProblemCard>
               }
               const taskCard = <article className={`day-task ${task.problems?.length ? 'has-problems' : ''} ${verified || workCovered ? 'done' : submitted ? 'submitted' : ''}`} id={`day-task-${task.id}`} key={task.id}>
                 {assignments.multiple && !task.problems?.length && <div className="day-task-assignment-heading">Задание {assignmentIndex + 1} из {assignments.total}</div>}

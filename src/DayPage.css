@@ -32,6 +32,9 @@
 @media(max-width:640px){.day-reader-backdrop{padding:0}.day-reader-dialog{width:100%;height:100dvh;border-radius:0}.day-reader-dialog header{padding:9px 12px}.day-reader-stage{padding:3px}.day-reader-dialog footer{padding:8px}.day-reader-dialog footer span{font-size:.72rem}.day-reader-thumb{flex-basis:76px;min-height:113px}.day-reader-thumb img,.day-reader-thumb-placeholder{height:80px}}
 .day-reader-header-actions{display:flex;align-items:center;gap:7px}.day-reader-stage.zoomed{justify-content:flex-start;touch-action:auto}.day-reader-stage.zoomed img{max-width:none;width:180%}
 .day-subject-list,.day-task-list{grid-template-columns:minmax(0,1fr)}
+.day-olympiad .day-subject{border:0;border-radius:0;box-shadow:none;background:transparent}
+.day-olympiad .day-subject-content{padding:0}
+.day-olympiad .day-task-list{gap:var(--edu-space-2, 8px)}
 .day-task{min-width:0;overflow-wrap:break-word}
 .day-reader{min-width:0;max-width:100%}
 .day-reader-thumbs{min-width:0;max-width:100%;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}

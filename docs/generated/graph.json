@@ -1300,6 +1300,31 @@
       "path": "docs/decisions/olympiad-integration-2026-10-28.md"
     },
     {
+      "id": "decision.olympiad-practice-queue-2026-10-28",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-10-28",
+      "updated": "2026-10-28",
+      "parent": "module.olympiad-preparation",
+      "uses": [
+        "shared.design.ui-kit",
+        "shared.access-and-privacy"
+      ],
+      "consumers": [
+        "Education frontend",
+        "Education operator"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/olympiad-practice-queue-2026-10-28.md"
+    },
+    {
       "id": "decision.olympiad-shared-infrastructure-2026-10-28",
       "status": "accepted",
       "implementation": "partial",
@@ -6597,6 +6622,13 @@
       "kind": "artifact",
       "purpose": "Семейный экран урока и родительский разбор",
       "consumer": "Education; разработчик"
+    },
+    {
+      "id": "file:src/components/OlympiadSourceQueue.tsx",
+      "path": "src/components/OlympiadSourceQueue.tsx",
+      "kind": "artifact",
+      "purpose": "Приём и очередь снимков условий через общие загрузчик и галерею",
+      "consumer": "`DayPage`; UI Kit"
     },
     {
       "id": "file:src/components/OlympiadWrittenPractice.integration.test.tsx",
@@ -12880,6 +12912,16 @@
       "type": "uses"
     },
     {
+      "from": "decision.olympiad-practice-queue-2026-10-28",
+      "to": "shared.access-and-privacy",
+      "type": "uses"
+    },
+    {
+      "from": "decision.olympiad-practice-queue-2026-10-28",
+      "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
       "from": "decision.olympiad-shared-infrastructure-2026-10-28",
       "to": "shared.access-and-privacy",
       "type": "uses"
@@ -16000,6 +16042,11 @@
       "type": "implements"
     },
     {
+      "from": "file:src/components/OlympiadSourceQueue.tsx",
+      "to": "module.olympiad-preparation",
+      "type": "implements"
+    },
+    {
       "from": "file:src/components/OlympiadWrittenPractice.tsx",
       "to": "module.olympiad-preparation",
       "type": "implements"
@@ -18902,6 +18949,11 @@
     {
       "from": "module.olympiad-preparation",
       "to": "decision.olympiad-integration-2026-10-28",
+      "type": "contains"
+    },
+    {
+      "from": "module.olympiad-preparation",
+      "to": "decision.olympiad-practice-queue-2026-10-28",
       "type": "contains"
     },
     {

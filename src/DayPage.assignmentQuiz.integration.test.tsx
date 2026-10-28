@@ -152,7 +152,7 @@ it.each([true, false])('projects only the selected family olympiad task and its 
     await act(async () => root.render(<DayPage token="role-day" parent={parent} headerReturnTarget={null} olympiadScope={{ familyId: 'family', childId: 'child', olympiadId: 'o1', taskId: id, testTokens: ['diagrams-test'] }} />))
     expect(host.textContent).toContain('Олимпиадная практика')
     expect(host.textContent).not.toContain('Подготовиться к самостоятельной: диаграммы')
-    expect(host.textContent).toContain('Материалы и задания')
+    expect(host.querySelector('.problem-card')?.hasAttribute('open')).toBe(false)
     expect(host.textContent).toContain('Диаграммы — тренировка')
     expect(host.querySelector('.day-quiz-lineage-score')?.textContent).toContain('0 из 20')
     expect(host.querySelector('[aria-label="Раздел страницы дня"]')).toBeNull()
@@ -633,10 +633,10 @@ it.each([true, false])('shows the olympiad source sheet upload only to the learn
   const host = document.createElement('div'); document.body.append(host); const root = createRoot(host)
   try {
     await act(async () => root.render(<DayPage token="role-day" parent={parent} headerReturnTarget={null} olympiadScope={{ familyId: 'family', childId: 'child', olympiadId: 'o1', taskId: id, testTokens: [] }} />))
-    expect(host.textContent).toContain('Пришли фото листа с условиями.')
+    expect(host.textContent).toContain('Очередь своих вариантов')
     expect(host.textContent).not.toContain('Загрузить результат')
     expect(host.querySelector('input[type=file]') !== null).toBe(!parent)
-    if (!parent) expect(host.querySelector('.day-upload')?.textContent).toContain('Добавить свои задачи')
+    if (!parent) expect(host.querySelector('.day-upload')?.textContent).toContain('Добавить фото условий')
   } finally { await act(async () => root.unmount()); host.remove() }
 })
 
@@ -654,5 +654,37 @@ it.each([true, false])('shows learner-added source and the original photo alongs
     expect(host.textContent).toContain('Добавлено учеником')
     expect(host.textContent).toContain('Фото условия')
     expect(host.querySelector('input[type=file]') !== null).toBe(!parent)
+  } finally { await act(async () => root.unmount()); host.remove() }
+})
+
+it.each(['unknown', 'verified', 'needs-fix', 'partial'] as const)('keeps the existing photo uploader available for an olympiad task in state %s', async status => {
+  const task = { id: 'practice-one', title: 'Задача', detail: 'Условие', source: 'Education', kind: 'written' as const, status,
+    optional: true, learningContext: { kind: 'olympiad' as const, id: 'o1' } }
+  scene.page = { ...page(), familyId: 'family', childId: 'child', subjects: [{ ...page().subjects[0], tasks: [task] }], testPlacements: [] }
+  scene.role = 'student'
+  const host = document.createElement('div'); document.body.append(host); const root = createRoot(host)
+  try {
+    await act(async () => root.render(<DayPage token="role-day" parent={false} headerReturnTarget={null} olympiadScope={{ familyId: 'family', childId: 'child', olympiadId: 'o1', taskId: task.id, testTokens: [] }} />))
+    expect(host.querySelector('.problem-card')?.hasAttribute('open')).toBe(false)
+    expect(host.querySelector('.problem-card-upload')?.textContent).toContain('Загрузить решение')
+    expect(host.querySelector('.problem-card-upload input[type=file]')).not.toBeNull()
+    expect(host.textContent).not.toContain('По просьбе родителя')
+  } finally { await act(async () => root.unmount()); host.remove() }
+})
+
+it.each([true, false])('shows incoming source photos as a queue without claiming a solution review for parent=%s', async parent => {
+  const task = { id: 'source-sheet', title: 'Свои задачи', detail: 'Лист', source: 'Education', kind: 'written' as const, status: 'unknown' as const,
+    optional: true, learningContext: { kind: 'olympiad' as const, id: 'o1' }, sourceIntake: { kind: 'olympiad-sheet' as const } }
+  scene.page = { ...page(), familyId: 'family', childId: 'child', subjects: [{ ...page().subjects[0], tasks: [task] }], testPlacements: [] }
+  scene.uploads = [{ id: 'student-token:source-photo', taskId: task.id, status: 'pending' }]
+  scene.role = parent ? 'parent' : 'student'
+  const host = document.createElement('div'); document.body.append(host); const root = createRoot(host)
+  try {
+    await act(async () => root.render(<DayPage token="role-day" parent={parent} headerReturnTarget={null} olympiadScope={{ familyId: 'family', childId: 'child', olympiadId: 'o1', taskId: task.id, testTokens: [] }} />))
+    expect(host.textContent).toContain('Очередь своих вариантов')
+    expect(host.textContent).toContain('обработка условий ожидается')
+    expect(host.querySelectorAll('.day-upload-chip')).toHaveLength(1)
+    expect(host.querySelector('input[type=file]') !== null).toBe(!parent)
+    expect(host.textContent).not.toContain('фото проверено')
   } finally { await act(async () => root.unmount()); host.remove() }
 })

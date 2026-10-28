@@ -2602,40 +2602,37 @@
       }
     },
     "src/DayPage.css": {
-      "sha256": "2321d09c346456def017b239f57095314d0d5c6ae24060444e692321f40e247a",
-      "record": "docs/decisions/work-photo-expand-2026-10-18.md",
+      "sha256": "7ed4db35c8232c6a3cb3ab1a29f70f0c816fbb7afd555b8d774a344db3a2bf4c",
+      "record": "docs/decisions/olympiad-practice-queue-2026-10-28.md",
       "specs": [
-        "docs/modules/school-diary/day-page.md",
-        "docs/shared/design/components.md",
-        "docs/product/ui-change-control.md"
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/components/WorkPhotoGallery.test.tsx",
-        "src/WeekendMathSlot.test.tsx",
         "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/UiKit.test.tsx",
-        "scripts/work-photo-consumers.test.mjs",
-        "src/components/WorkPhotoGallery.layout.test.mjs"
+        "src/components/OlympiadPage.integration.test.tsx",
+        "src/components/WorkPhotoGallery.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 18.10 передал жалобу ребёнка: пропало раскрытие собственных фото; требует восстановить действие и изменить процесс для предотвращения повторения."
+        "evidence": "Родитель 28.10.2026 утвердил список задач, загрузку решения и очередь фотографий и поручил реализовать без дополнительных вопросов."
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "b0fedf3224c038a5f7a2d6f358691809f6747fb7f6beddc3e3b2117700da3bef",
-      "record": "docs/decisions/olympiad-source-links-2026-10-28.md",
+      "sha256": "dea7d174c47877c9cd9dc1daa5fc14759865f66c765d071b43b52cc21ca3e11b",
+      "record": "docs/decisions/olympiad-practice-queue-2026-10-28.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md"
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "scripts/firestore-rules-help-emulator.test.mjs",
-        "day/family-assignment.test.mjs",
-        "src/DayPage.assignmentQuiz.integration.test.tsx"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/OlympiadPage.integration.test.tsx",
+        "src/components/WorkPhotoGallery.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 28.10.2026 поручил выделить задачи из фотографий, связывать дубликаты и опубликовать после интеграционных тестов."
+        "evidence": "Родитель 28.10.2026 утвердил список задач, загрузку решения и очередь фотографий и поручил реализовать без дополнительных вопросов."
       }
     },
     "src/UiKit.css": {
@@ -2654,31 +2651,20 @@
       }
     },
     "src/UiKit.tsx": {
-      "sha256": "06d69993534c31663dc950f36293e4d73d072edf5a91bce3e793fb42f5c69e88",
-      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
+      "sha256": "b27cc261dba295081e6cfab83ba11990cdffcde0cea26d93624f1816ab16c123",
+      "record": "docs/decisions/olympiad-practice-queue-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
-        "docs/shared/design/components.md",
-        "docs/modules/synchronization/education-pipeline.md",
-        "docs/modules/school-diary/school-calendar.md",
-        "docs/shared/design/README.md",
-        "docs/shared/design/ui-kit.md",
-        "docs/product/ui-change-control.md"
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/components/OlympiadHome.integration.test.tsx",
-        "src/components/OlympiadPage.integration.test.tsx",
-        "src/components/LearningRoute.integration.test.tsx",
-        "src/UiKit.test.tsx",
         "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/components/TaskGuidance.test.tsx",
-        "src/lib/educationEventProducers.test.ts",
-        "sync/event-task-artifact.test.mjs",
-        "src/components/DayCalendar.test.tsx"
+        "src/components/OlympiadPage.integration.test.tsx",
+        "src/components/WorkPhotoGallery.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь попросил показывать все задачи олимпиады сразу и применять общие компоненты через UI Kit."
+        "evidence": "Родитель 28.10.2026 утвердил список задач, загрузку решения и очередь фотографий и поручил реализовать без дополнительных вопросов."
       }
     },
     "src/WeekendMathSlot.css": {
@@ -2778,25 +2764,20 @@
       }
     },
     "src/components/AssignmentBrief.tsx": {
-      "sha256": "98d1a0085c0aebad824585d11e2cb56fbdc89a1546c256414f1672d67312f25e",
-      "record": "docs/decisions/family-essay-assignment-2026-10-20.md",
+      "sha256": "4eab748436137e9fa1d71d764c7a6e1bf48ca37710a15780e7a6021753cea546",
+      "record": "docs/decisions/olympiad-practice-queue-2026-10-28.md",
       "specs": [
-        "docs/modules/reviews/subject-card-viewmodel.md",
-        "docs/modules/families/README.md",
-        "docs/shared/design/README.md"
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/components/AssignmentBrief.test.tsx",
-        "src/components/ProblemTaskCard.contract.test.tsx",
-        "src/components/ProblemGroup.layout.test.tsx"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/OlympiadPage.integration.test.tsx",
+        "src/components/WorkPhotoGallery.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение родителя 20.10.2026: семейная подготовка должна быть обозначена как запрос родителя, а не как задание учителя/МЭШ; существующие МЭШ-подписи должны сохраниться."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "90da4d23262cb2d304885df806e69d2e5f2af9314d7d5df924aafb2e2d5756f0"
+        "evidence": "Родитель 28.10.2026 утвердил список задач, загрузку решения и очередь фотографий и поручил реализовать без дополнительных вопросов."
       }
     },
     "src/components/CodeBlock.tsx": {
@@ -3864,21 +3845,20 @@
       }
     },
     "src/components/WorkPhotoGallery.tsx": {
-      "sha256": "da77e0348bb56042745e1da2e2911e57e8bbaf6701385e0ee1567bc7681d53a3",
-      "record": "docs/decisions/olympiad-integration-2026-10-28.md",
+      "sha256": "a39d11ab262976a5ceebf839e1c19259afd171933ba484b05e4b7d467ad7ef2d",
+      "record": "docs/decisions/olympiad-practice-queue-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
         "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/components/OlympiadWrittenPractice.integration.test.tsx",
-        "src/UiKit.test.tsx",
-        "operator/olympiad-help.test.mjs",
-        "sync/olympiad-help.test.mjs"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/OlympiadPage.integration.test.tsx",
+        "src/components/WorkPhotoGallery.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь 28.10 поручил подключить сервер, фото, синхронизацию и уроки через UI Kit и LDD с проверками."
+        "evidence": "Родитель 28.10.2026 утвердил список задач, загрузку решения и очередь фотографий и поручил реализовать без дополнительных вопросов."
       }
     },
     "src/components/WorkReview.tsx": {
@@ -4251,22 +4231,20 @@
       }
     },
     "src/lib/educationStore.ts": {
-      "sha256": "39186684d050ff235c0314be4b5ac4eb782e5d3bc8270dd9dfeb9aaa44535714",
-      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
+      "sha256": "5b9effda3ef42c8374ba8347889e0a786c65ad068cd4c7523e29f8480348103d",
+      "record": "docs/decisions/olympiad-practice-queue-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
-        "docs/modules/notifications/inbox.md",
-        "docs/shared/design/components.md"
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/components/OlympiadHome.integration.test.tsx",
-        "scripts/firestore-rules-olympiad-catalog-emulator.test.mjs",
         "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/UiKit.test.tsx"
+        "src/components/OlympiadPage.integration.test.tsx",
+        "src/components/WorkPhotoGallery.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь одобрил компактный переключатель, активные и доступные олимпиады по ребёнку и уведомление ученику и потребовал реализовать их через UI Kit и общую инфраструктуру."
+        "evidence": "Родитель 28.10.2026 утвердил список задач, загрузку решения и очередь фотографий и поручил реализовать без дополнительных вопросов."
       }
     },
     "src/lib/familyBookUpload.ts": {
@@ -6309,21 +6287,20 @@
       }
     },
     "src/components/OlympiadPage.tsx": {
-      "sha256": "fe8bbd6dcc09a0fda8e2714345e9b18314b3b6bbe560e026ff0f1dfd82574660",
-      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
+      "sha256": "deff0fb00b61d4c4bbdf8a1004980a226ebd9679b61a347ecd1a94f4962dcc67",
+      "record": "docs/decisions/olympiad-practice-queue-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
-        "docs/shared/design/components.md"
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/components/OlympiadHome.integration.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
         "src/components/OlympiadPage.integration.test.tsx",
-        "src/components/LearningRoute.integration.test.tsx",
-        "src/UiKit.test.tsx"
+        "src/components/WorkPhotoGallery.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь попросил родительский просмотр того же содержимого, что у ученика, включая материалы, задачи и прогресс, без выполнения за ребёнка."
+        "evidence": "Родитель 28.10.2026 утвердил список задач, загрузку решения и очередь фотографий и поручил реализовать без дополнительных вопросов."
       }
     },
     "src/components/OlympiadWrittenPractice.tsx": {
@@ -6724,6 +6701,23 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Родитель 28.10.2026 поручил выделить задачи из фотографий, связывать дубликаты и опубликовать после интеграционных тестов."
+      }
+    },
+    "src/components/OlympiadSourceQueue.tsx": {
+      "sha256": "71a47839615e00ac3be89b57546902a1bfabffea4c7cb9769692cd1fc9fafb48",
+      "record": "docs/decisions/olympiad-practice-queue-2026-10-28.md",
+      "specs": [
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/shared/design/ui-kit.md"
+      ],
+      "tests": [
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/OlympiadPage.integration.test.tsx",
+        "src/components/WorkPhotoGallery.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 28.10.2026 утвердил список задач, загрузку решения и очередь фотографий и поручил реализовать без дополнительных вопросов."
       }
     }
   }
