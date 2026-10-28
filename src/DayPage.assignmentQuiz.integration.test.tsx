@@ -154,7 +154,7 @@ it.each([true, false])('projects only the selected family olympiad task and its 
     expect(host.textContent).not.toContain('Подготовиться к самостоятельной: диаграммы')
     expect(host.textContent).toContain('Материалы и задания')
     expect(host.textContent).toContain('Диаграммы — тренировка')
-    expect(host.textContent).toContain('Не начат · 20 вопросов')
+    expect(host.querySelector('.day-quiz-lineage-score')?.textContent).toContain('0 из 20')
     expect(host.querySelector('[aria-label="Раздел страницы дня"]')).toBeNull()
     expect(host.textContent).not.toContain('Расписание')
     const quiz = host.querySelector<HTMLAnchorElement>('.day-quiz-lineage-actions a.day-quiz-link')

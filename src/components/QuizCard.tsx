@@ -47,7 +47,7 @@ export function QuizProgress({ test }: { test: QuizCardAttempt }) {
         <span><ResultPoints points={test.points} maxPoints={test.maxPoints} /><small>баллов</small></span>
       </div>
       {counts && (counts.partial > 0 || counts.excluded > 0) && <p className="day-quiz-count-note">{counts.partial > 0 && `Частично верно: ${counts.partial}. `}{counts.excluded > 0 && `Не оценивалось: ${counts.excluded}.`}</p>}
-    </> : <p>{test.status === 'submitted' ? 'Тест отправлен · результат уточняется' : test.answered ? `В процессе · отвечено ${test.answered} из ${test.total} · осталось ${Math.max(0,test.total-test.answered)}` : `Не начат · ${test.total} ${questionWord(test.total)}`}</p>}
+    </> : <p>{test.status === 'submitted' ? 'Тест отправлен · результат уточняется' : test.answered ? `В процессе · отвечено ${test.answered} из ${test.total} · осталось ${Math.max(0,test.total-test.answered)}` : `${test.total} ${questionWord(test.total)}`}</p>}
     <ResultMeter input={input} label={test.status === 'submitted' ? 'Результат теста в процентах' : 'Ответы на вопросы теста'} />
   </div>
 }

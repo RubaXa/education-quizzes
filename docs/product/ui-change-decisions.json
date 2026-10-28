@@ -3576,7 +3576,7 @@
       }
     },
     "src/components/QuizCard.tsx": {
-      "sha256": "3411b469f4209cf3cbab312e9100e8f3f37a4765a3478d5b19d687594e219da7",
+      "sha256": "0a9462b4d791f4fc1b822aaaf24885fab1c402638e9e271335ea70eee1e267df",
       "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
@@ -3592,7 +3592,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь попросил видеть по каждому учебному материалу и тесту, начат он или нет, одинаково для родителя и ученика."
+        "evidence": "Пользователь прямо потребовал использовать общие уроки, семейные права, фотографии и синхронизацию Education для олимпиад."
       }
     },
     "src/components/QuizResultCard.tsx": {
