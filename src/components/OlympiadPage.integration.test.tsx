@@ -79,3 +79,18 @@ it.each(['parent','student'] as const)('shows all published tasks of this olympi
  expect(host.textContent).toContain('task-2')
  expect(host.textContent).not.toContain('other')
 })
+
+it.each(['parent','student'] as const)('separates uploaded and prepared tasks without duplicating either for %s', async role => {
+ const watchTasks=vi.fn((_f,_c,next)=>{next([task,{...task,id:'uploaded',sourcePhotoIds:['photo'],competitionNumber:7},{...task,id:'intake',sourceIntake:{kind:'olympiad-sheet'}}]);return ()=>{}})
+ const watchDashboard=vi.fn((_t,next)=>{next(dashboard(role));return ()=>{}})
+ document.body.append(host);root=createRoot(host)
+ await act(async()=>root!.render(<OlympiadPage familyId="family" childId="child" olympiadId="o1" parent={role==='parent'} dashboardToken="dashboard" watchSelections={watchSelections} watchCatalog={watchCatalog} watchTasks={watchTasks} watchDashboard={watchDashboard} renderPractice={(item,_token,_parent,_target,number)=><span data-id={item.id} data-number={number}>{item.title}</span>}/>))
+ const prepared=host.querySelector('[aria-labelledby="olympiad-prepared-title"]')!
+ const uploaded=host.querySelector('[aria-labelledby="olympiad-uploaded-title"]')!
+ expect(prepared.textContent).toContain('Задачи для подготовки · 1')
+ expect(prepared.querySelector('[data-id="task"]')?.getAttribute('data-number')).toBe('1')
+ expect(uploaded.textContent).toContain('Загруженные задачи · 1')
+ expect(uploaded.querySelector('[data-id="uploaded"]')?.getAttribute('data-number')).toBe('7')
+ expect(uploaded.querySelector('[data-id="intake"]')).not.toBeNull()
+ expect(host.querySelectorAll('[data-id]')).toHaveLength(3)
+})

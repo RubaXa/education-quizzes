@@ -2564,20 +2564,19 @@
       }
     },
     "src/DayDashboard.css": {
-      "sha256": "123d87c14b182c35dd191f7132e22de5362544d55ffb757719b11589cc9108b0",
-      "record": "docs/decisions/olympiad-practice-sections-2026-10-28.md",
+      "sha256": "932278ad1e0b15243f76361ff3cc93b1398de6078e14df6c58fab5cf983015a8",
+      "record": "docs/decisions/olympiad-practice-groups-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
         "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
         "src/components/OlympiadPage.integration.test.tsx",
         "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель сообщил, что задачи слиплись и сливаются с тестами, и попросил отдельный блок практики."
+        "evidence": "Родитель 28.10.2026 попросил отделить загруженные задачи от подготовленных и сделать их различимыми."
       }
     },
     "src/DayDashboard.tsx": {
@@ -2660,22 +2659,19 @@
       }
     },
     "src/UiKit.tsx": {
-      "sha256": "6c7d8459be4d6cd5e28f71682efcc14cdfef7b2f1c8ce21fa6345506db3e7c7f",
-      "record": "docs/decisions/olympiad-firebase-independence-2026-10-28.md",
+      "sha256": "5ec24ed5548190de6f6e7b0a4fd9722789fd1d9fc03c013bda8d761a9ae8fd36",
+      "record": "docs/decisions/olympiad-practice-groups-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
-        "docs/services/telegram-bot/education-sync-dispatch.md",
         "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "day/family-assignment.test.mjs",
-        "sync/task-route.test.mjs",
-        "packages/telegram-notifications/application/education-sync-action-store.test.mjs"
+        "src/components/OlympiadPage.integration.test.tsx",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель попросил независимо обработать Firebase и добавить фотографии его задач как карточки с загрузкой ответов."
+        "evidence": "Родитель 28.10.2026 попросил отделить загруженные задачи от подготовленных и сделать их различимыми."
       }
     },
     "src/WeekendMathSlot.css": {
@@ -6302,22 +6298,19 @@
       }
     },
     "src/components/OlympiadPage.tsx": {
-      "sha256": "46e8ad7d894d4a1e149be38cbcc72f6ab005fedd3dd7dfbb4eacf47d78a5210a",
-      "record": "docs/decisions/olympiad-firebase-independence-2026-10-28.md",
+      "sha256": "f0187dc1c0404bbc9ae6e312c396c804fd7c6c31baaa2a176ce19185ca6ada09",
+      "record": "docs/decisions/olympiad-practice-groups-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
-        "docs/services/telegram-bot/education-sync-dispatch.md",
         "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "day/family-assignment.test.mjs",
-        "sync/task-route.test.mjs",
-        "packages/telegram-notifications/application/education-sync-action-store.test.mjs"
+        "src/components/OlympiadPage.integration.test.tsx",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель попросил независимо обработать Firebase и добавить фотографии его задач как карточки с загрузкой ответов."
+        "evidence": "Родитель 28.10.2026 попросил отделить загруженные задачи от подготовленных и сделать их различимыми."
       }
     },
     "src/components/OlympiadWrittenPractice.tsx": {
