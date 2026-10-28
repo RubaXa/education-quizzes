@@ -7,6 +7,7 @@ uses:
   - product.school-day
   - product.homework-review
   - product.assessments
+  - product.olympiad-preparation
   - product.materials
   - module.families
   - module.school-diary
@@ -50,6 +51,7 @@ Education помогает семье видеть учебный день, по
 | Синхронизация | [Синхронизация и планы](../modules/synchronization/README.md) |
 | Домашняя работа и проверка | [Проверка работ](homework-review.md) |
 | Оценивание и самопроверки | [Самопроверки](assessments.md) |
+| Подготовка к олимпиадам | [Проект сценария и состояния реализации](olympiad-preparation.md) |
 | Материалы и источники | [Материалы](materials.md) |
 | Уведомления | [Встроенный inbox](../modules/notifications/inbox.md) и [Telegram-контракт](notifications.md) |
 

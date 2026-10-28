@@ -13,8 +13,9 @@ import { configureRoleDiagnostics } from '@/lib/roleDiagnostics'
 import { traceAccessContext, traceAccess, accessTraceError } from '@/lib/browserAccessTrace'
 import DayPage from '@/DayPage'
 import DayDashboard from '@/DayDashboard'
+import OlympiadPage from './OlympiadPage'
 
-export default function LearningRoute({ mode, token, headerReturnTarget }: { mode: LearningMode; token: string; headerReturnTarget?: HTMLDivElement | null }) {
+export default function LearningRoute({ mode, token, headerReturnTarget, olympiadId }: { mode: LearningMode; token: string; headerReturnTarget?: HTMLDivElement | null; olympiadId?: string }) {
   const [access, setAccess] = useState<LearningAccess | undefined>(() => readCachedLearningAccess(mode, token))
   const [error, setError] = useState('')
   const [contextRevision, setContextRevision] = useState(0)
@@ -101,9 +102,9 @@ export default function LearningRoute({ mode, token, headerReturnTarget }: { mod
           ready('member')
         }).catch(remoteError)
       }, remoteError))
-      const canonical = learningHash(mode, result.canonicalToken)
+      const canonical = olympiadId && mode === 'days' ? `#/olympiad/${result.canonicalToken}/${olympiadId}` : learningHash(mode, result.canonicalToken)
       if (location.hash !== canonical) history.replaceState(history.state, '', `${location.pathname}${location.search}${canonical}`)
-      if (mode === 'days') rememberPersonalDashboardRoute(canonical)
+      if (mode === 'days') rememberPersonalDashboardRoute(learningHash(mode, result.canonicalToken))
     }).catch((cause) => {
       if (!active) return
       const code = (cause as { code?: string })?.code
@@ -113,9 +114,10 @@ export default function LearningRoute({ mode, token, headerReturnTarget }: { mod
       setError(cause instanceof LearningAccessError ? cause.message : reportUiError(cause, 'Личный учебный экран'))
     })
     return () => { active = false; stopDiagnostics(); stops.forEach((stop) => stop()) }
-  }, [mode, token, contextRevision, contextAvailable])
+  }, [mode, token, contextRevision, contextAvailable, olympiadId])
   if (error) return <div role="alert">{error} <a href="#/">На главную</a></div>
   if (!access) return null
-  return mode === 'days' ? <DayDashboard token={access.token} parent={access.parent} />
+  return olympiadId && mode === 'days' ? <OlympiadPage familyId={access.child.familyId} childId={access.child.childId} olympiadId={olympiadId} parent={access.parent} dashboardToken={access.canonicalToken} />
+    : mode === 'days' ? <DayDashboard token={access.token} parent={access.parent} familyScope={{familyId:access.child.familyId,childId:access.child.childId}} />
     : <DayPage token={access.token} parent={access.parent} headerReturnTarget={headerReturnTarget ?? null} />
 }

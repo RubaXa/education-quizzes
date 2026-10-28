@@ -21,7 +21,7 @@ const db = getFirestore()
 const helpCache = new HelpRequestCache(resolve('.local/project-sync/help-requests.json'), Timestamp)
 const started = performance.now()
 const timings = {}
-const readCalls = { initialQueries: 4, pageCounts: 0, dayFiles: 0, dayHelp: 0,
+const readCalls = { initialQueries: 5, pageCounts: 0, dayFiles: 0, dayHelp: 0,
   progressBatches: 0, progressRefs: 0, parentDecisionQueries: 0, manualReviews: 0 }
 
 // Independent owners and books can be checked together without widening the
@@ -185,14 +185,26 @@ async function addSubmittedQuizzes(items, snapshot) {
 }
 
 const initialStarted = performance.now()
-const [books, boundBooks, owners, submitted] = await Promise.all([
+const [books, boundBooks, owners, submitted, olympiadHelp] = await Promise.all([
   db.collectionGroup('bookUploads').get(),
   db.collectionGroup('books').get(),
   db.collection('dayOwners').get(),
   db.collection('assignments').where('status', '==', 'submitted').get(),
+  db.collectionGroup('helpRequests').get(),
 ])
 timings.initialMs = Math.round(performance.now() - initialStarted)
 const items = []
+for (const doc of olympiadHelp.docs) {
+  const parts = doc.ref.path.split('/')
+  if (parts.length !== 8 || parts[0] !== 'families' || parts[2] !== 'children' || parts[4] !== 'olympiads' || parts[6] !== 'helpRequests') continue
+  const data = doc.data()
+  if (data.status === 'answered') continue
+  if (!['requested', 'processing'].includes(data.status)) throw new Error('Неизвестное состояние запроса олимпиады: очередь нельзя считать полной.')
+  if (!Number.isSafeInteger(data.revision) || data.revision < 1 || typeof data.problemId !== 'string') throw new Error('Недействительный запрос олимпиады: очередь нельзя считать полной.')
+  items.push({ kind: 'olympiad-help', lane: 'triage', familyId: parts[1], childId: parts[3], olympiadId: parts[5],
+    id: doc.id, taskId: data.problemId, status: data.status, requestedRevision: data.revision,
+    nextAction: 'review-practice-eligibility-and-address-frozen-evidence' })
+}
 addBook(items, books)
 const pagesStarted = performance.now()
 await addBookPages(items, boundBooks)
@@ -215,4 +227,4 @@ console.log(JSON.stringify({ complete: true, readOnly: true, checkedAt: new Date
     firestoreCalls: readCalls, note: 'SDK calls and returned documents, not billed reads' },
   scanned: { bookUploads: books.size, boundBooks: boundBooks.size, dayOwners: owners.size, workUploads: days.scannedFiles,
     helpRequests: days.scannedHelp, helpDocumentsFetched: days.fetchedHelp, helpReadModes: days.helpModes,
-    submittedQuizzes: submitted.size }, counts, items }, null, 2))
+    submittedQuizzes: submitted.size, olympiadHelpRequests: olympiadHelp.size }, counts, items }, null, 2))

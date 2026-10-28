@@ -564,6 +564,14 @@ service cloud.firestore {
       }
     }
 
+    // Private lesson keys and attempts are accessed exclusively through trusted server services.
+    match /olympiadCatalog/{document=**} {
+      allow read, write: if false;
+    }
+    match /olympiadMaterials/{document=**} {
+      allow read, write: if false;
+    }
+
     match /families/{familyId} {
       allow read, write: if false;
 
@@ -587,6 +595,10 @@ service cloud.firestore {
         allow write: if false;
       }
       match /children/{childId} {
+        // Assignment metadata and attempt events are private server documents.
+        match /olympiads/{document=**} {
+          allow read, write: if false;
+        }
         allow get: if childMember(familyId, childId);
         allow list: if false;
         allow write: if false;

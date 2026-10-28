@@ -1157,6 +1157,117 @@
       "path": "docs/decisions/mixed-assignment-actions-2026-10-22.md"
     },
     {
+      "id": "decision.olympiad-domain-ldd-2026-10-27",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-10-27",
+      "updated": "2026-10-27",
+      "parent": "module.olympiad-preparation",
+      "uses": [
+        "module.families.browser-access-trace",
+        "research.olympiad-learning-evidence"
+      ],
+      "consumers": [
+        "Education frontend",
+        "Education operator"
+      ],
+      "code": [
+        "src/lib/olympiad/writtenPractice.ts",
+        "src/lib/olympiad/assistancePolicy.ts",
+        "src/components/OlympiadLesson.tsx",
+        "src/components/OlympiadLesson.css",
+        "src/lib/browserAccessTrace.ts"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/olympiad-domain-ldd-2026-10-27.md"
+    },
+    {
+      "id": "decision.olympiad-family-screen-2026-10-27",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-10-27",
+      "updated": "2026-10-27",
+      "parent": "module.olympiad-preparation",
+      "uses": [
+        "shared.design.ui-kit",
+        "module.families.browser-access-trace"
+      ],
+      "consumers": [
+        "Education frontend",
+        "Education operator"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/olympiad-family-screen-2026-10-27.md"
+    },
+    {
+      "id": "decision.olympiad-family-storage-2026-10-27",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-10-27",
+      "updated": "2026-10-28",
+      "parent": "module.olympiad-preparation",
+      "uses": [
+        "shared.access-and-privacy",
+        "module.synchronization"
+      ],
+      "consumers": [
+        "Education operator",
+        "Education backend"
+      ],
+      "code": [
+        "olympiad/production-http-runtime.mjs",
+        "operator/olympiad-help.mjs",
+        "scripts/olympiad-help.mjs"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование",
+        "состояние-развёртывания-2810"
+      ],
+      "path": "docs/decisions/olympiad-family-storage-2026-10-27.md"
+    },
+    {
+      "id": "decision.olympiad-integration-2026-10-28",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-10-28",
+      "updated": "2026-10-28",
+      "parent": "module.olympiad-preparation",
+      "uses": [
+        "shared.design.ui-kit",
+        "module.families.browser-access-trace"
+      ],
+      "consumers": [
+        "Education frontend",
+        "Education operator"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/olympiad-integration-2026-10-28.md"
+    },
+    {
       "id": "decision.photo-indexeddb-recovery-2026-10-22",
       "status": "accepted",
       "implementation": "implemented",
@@ -1274,6 +1385,31 @@
         "согласование"
       ],
       "path": "docs/decisions/photo-upload-authorization-and-freshness-2026-10-20.md"
+    },
+    {
+      "id": "decision.public-olympiad-reference-archive-2026-10-27",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-27",
+      "updated": "2026-10-27",
+      "parent": "module.materials.materials",
+      "uses": [],
+      "consumers": [
+        "EducationSync reviewer",
+        "operator CLI"
+      ],
+      "code": [
+        "scripts/storage.mjs",
+        "storage/public-references.mjs"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/public-olympiad-reference-archive-2026-10-27.md"
     },
     {
       "id": "decision.pupil-vacations-2026-10-19",
@@ -1912,6 +2048,62 @@
       "path": "docs/decisions/telegram-sync-recovery-2026-10-19.md"
     },
     {
+      "id": "decision.ui-kit-photo-help-2026-10-27",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-10-27",
+      "updated": "2026-10-27",
+      "parent": "shared.design.ui-kit",
+      "uses": [
+        "module.olympiad-preparation",
+        "shared.design.components"
+      ],
+      "consumers": [
+        "Education frontend",
+        "UI Kit"
+      ],
+      "code": [
+        "src/UiKit.tsx",
+        "src/components/PhotoHelpRequest.tsx",
+        "src/components/WorkPhotoGallery.tsx",
+        "src/components/WorkPhotoGallery.css"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/ui-kit-photo-help-2026-10-27.md"
+    },
+    {
+      "id": "decision.ui-kit-written-practice-2026-10-27",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-27",
+      "updated": "2026-10-27",
+      "parent": "shared.design.ui-kit",
+      "uses": [
+        "module.olympiad-preparation"
+      ],
+      "consumers": [
+        "UI Kit",
+        "Education frontend"
+      ],
+      "code": [
+        "src/UiKit.tsx"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/ui-kit-written-practice-2026-10-27.md"
+    },
+    {
       "id": "decision.unified-education-events-2026-10-19",
       "status": "accepted",
       "implementation": "partial",
@@ -2023,6 +2215,31 @@
         "согласование"
       ],
       "path": "docs/decisions/weekend-special-course-2026-10-18.md"
+    },
+    {
+      "id": "decision.work-photo-thumbnail-decomposition-2026-10-27",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-10-27",
+      "updated": "2026-10-27",
+      "parent": "shared.design.components",
+      "uses": [
+        "shared.design.ui-kit"
+      ],
+      "consumers": [
+        "Education frontend"
+      ],
+      "code": [
+        "src/components/WorkPhotoGallery.tsx"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/work-photo-thumbnail-decomposition-2026-10-27.md"
     },
     {
       "id": "decisions.compact-homework-copy-2026-10-16",
@@ -3914,6 +4131,160 @@
       "consumer": "Агент; разработчик; Git hooks"
     },
     {
+      "id": "file:olympiad/firestore-emulator.test.mjs",
+      "path": "olympiad/firestore-emulator.test.mjs",
+      "kind": "verification",
+      "purpose": "Интеграция Auth и Firestore Emulator; требуется Java",
+      "consumer": "Education; разработчик"
+    },
+    {
+      "id": "file:olympiad/firestore-lesson-adapter.mjs",
+      "path": "olympiad/firestore-lesson-adapter.mjs",
+      "kind": "artifact",
+      "purpose": "Семейные права, каталог и транзакции уроков",
+      "consumer": "Education; разработчик"
+    },
+    {
+      "id": "file:olympiad/firestore-lesson-adapter.test.mjs",
+      "path": "olympiad/firestore-lesson-adapter.test.mjs",
+      "kind": "verification",
+      "purpose": "Проверки адаптера, участия и изоляции ролей",
+      "consumer": "Education; разработчик"
+    },
+    {
+      "id": "file:olympiad/http-handler.mjs",
+      "path": "olympiad/http-handler.mjs",
+      "kind": "artifact",
+      "purpose": "Серверный обработчик с проверкой Firebase ID token",
+      "consumer": "Education; разработчик"
+    },
+    {
+      "id": "file:olympiad/lesson-service.mjs",
+      "path": "olympiad/lesson-service.mjs",
+      "kind": "artifact",
+      "purpose": "Серверная граница урока с внедряемой авторизацией и CAS",
+      "consumer": "Будущий серверный адаптер"
+    },
+    {
+      "id": "file:olympiad/lesson-service.test.mjs",
+      "path": "olympiad/lesson-service.test.mjs",
+      "kind": "verification",
+      "purpose": "Проверка доступа и конкурентных обновлений",
+      "consumer": "Vitest"
+    },
+    {
+      "id": "file:olympiad/lesson.mjs",
+      "path": "olympiad/lesson.mjs",
+      "kind": "artifact",
+      "purpose": "Серверная модель игровых уроков и ученическая проекция",
+      "consumer": "Серверный адаптер"
+    },
+    {
+      "id": "file:olympiad/lesson.test.mjs",
+      "path": "olympiad/lesson.test.mjs",
+      "kind": "verification",
+      "purpose": "Проверка изолированной модели урока",
+      "consumer": "Vitest"
+    },
+    {
+      "id": "file:olympiad/local-http-runtime.mjs",
+      "path": "olympiad/local-http-runtime.mjs",
+      "kind": "artifact",
+      "purpose": "Локальный runtime только для эмуляторов",
+      "consumer": "Education; разработчик"
+    },
+    {
+      "id": "file:olympiad/local-http-runtime.test.mjs",
+      "path": "olympiad/local-http-runtime.test.mjs",
+      "kind": "verification",
+      "purpose": "Проверки локального HTTP и Origin",
+      "consumer": "Education; разработчик"
+    },
+    {
+      "id": "file:olympiad/production-http-runtime.mjs",
+      "path": "olympiad/production-http-runtime.mjs",
+      "kind": "artifact",
+      "purpose": "Production HTTP runtime с проверкой origins и приватным storage, до размещения",
+      "consumer": "Backend; release operator"
+    },
+    {
+      "id": "file:olympiad/production-http-runtime.test.mjs",
+      "path": "olympiad/production-http-runtime.test.mjs",
+      "kind": "verification",
+      "purpose": "Проверки конфигурации, HTTP и редактирования диагностики",
+      "consumer": "Vitest"
+    },
+    {
+      "id": "file:olympiad/publish-training.mjs",
+      "path": "olympiad/publish-training.mjs",
+      "kind": "artifact",
+      "purpose": "Проверка и публикация неизменяемых авторских материалов",
+      "consumer": "Оператор"
+    },
+    {
+      "id": "file:olympiad/publish-training.test.mjs",
+      "path": "olympiad/publish-training.test.mjs",
+      "kind": "verification",
+      "purpose": "Проверка публикации, подтверждений и неизменяемости",
+      "consumer": "Vitest"
+    },
+    {
+      "id": "file:olympiad/recommendation.mjs",
+      "path": "olympiad/recommendation.mjs",
+      "kind": "artifact",
+      "purpose": "Детерминированный выбор проверенного урока с приоритетом семьи",
+      "consumer": "Будущий серверный адаптер"
+    },
+    {
+      "id": "file:olympiad/recommendation.test.mjs",
+      "path": "olympiad/recommendation.test.mjs",
+      "kind": "verification",
+      "purpose": "Проверка приоритета и отсутствия подходящего урока",
+      "consumer": "Vitest"
+    },
+    {
+      "id": "file:olympiad/training-content.mjs",
+      "path": "olympiad/training-content.mjs",
+      "kind": "artifact",
+      "purpose": "Три авторские тренировочные заготовки с закрытыми ключами",
+      "consumer": "Education; разработчик"
+    },
+    {
+      "id": "file:olympiad/training-content.test.mjs",
+      "path": "olympiad/training-content.test.mjs",
+      "kind": "verification",
+      "purpose": "Математические и структурные проверки учебных материалов",
+      "consumer": "Education; разработчик"
+    },
+    {
+      "id": "file:olympiad/verify-eligibility.mjs",
+      "path": "olympiad/verify-eligibility.mjs",
+      "kind": "artifact",
+      "purpose": "Операторская проверка класса и владельца",
+      "consumer": "Оператор"
+    },
+    {
+      "id": "file:olympiad/verify-eligibility.test.mjs",
+      "path": "olympiad/verify-eligibility.test.mjs",
+      "kind": "verification",
+      "purpose": "Проверка идентичности и сохранения ранее подтверждённого класса",
+      "consumer": "Vitest"
+    },
+    {
+      "id": "file:operator/olympiad-help.mjs",
+      "path": "operator/olympiad-help.mjs",
+      "kind": "artifact",
+      "purpose": "Фиксация ревизии, чтение приватных фото и readback ответа",
+      "consumer": "Education operator"
+    },
+    {
+      "id": "file:operator/olympiad-help.test.mjs",
+      "path": "operator/olympiad-help.test.mjs",
+      "kind": "verification",
+      "purpose": "Проверки повтора, ревизий и целостности фото",
+      "consumer": "Vitest"
+    },
+    {
       "id": "file:operator/operation-contract.mjs",
       "path": "operator/operation-contract.mjs",
       "kind": "artifact",
@@ -5293,6 +5664,27 @@
       "consumer": "Оператор; Firestore; `NotificationBell`"
     },
     {
+      "id": "file:scripts/olympiad-help.mjs",
+      "path": "scripts/olympiad-help.mjs",
+      "kind": "artifact",
+      "purpose": "Точка входа запросов помощи с закрытыми файлами",
+      "consumer": "Education operator"
+    },
+    {
+      "id": "file:scripts/olympiad-publish-training.mjs",
+      "path": "scripts/olympiad-publish-training.mjs",
+      "kind": "artifact",
+      "purpose": "Операторский запуск публикации проверенного каталога",
+      "consumer": "Оператор"
+    },
+    {
+      "id": "file:scripts/olympiad-verify-grade.mjs",
+      "path": "scripts/olympiad-verify-grade.mjs",
+      "kind": "artifact",
+      "purpose": "Операторский запуск подтверждения класса",
+      "consumer": "Оператор"
+    },
+    {
       "id": "file:scripts/photo-outbox-chromium-integration.mjs",
       "path": "scripts/photo-outbox-chromium-integration.mjs",
       "kind": "artifact",
@@ -5895,6 +6287,62 @@
       "consumer": "`src/App.tsx`; ученик; родитель"
     },
     {
+      "id": "file:src/components/OlympiadCatalog.tsx",
+      "path": "src/components/OlympiadCatalog.tsx",
+      "kind": "artifact",
+      "purpose": "Общий список подготовки и выбор участия",
+      "consumer": "Education; разработчик"
+    },
+    {
+      "id": "file:src/components/OlympiadHome.tsx",
+      "path": "src/components/OlympiadHome.tsx",
+      "kind": "artifact",
+      "purpose": "Подключение списка к семейному маршруту",
+      "consumer": "Education; разработчик"
+    },
+    {
+      "id": "file:src/components/OlympiadLesson.css",
+      "path": "src/components/OlympiadLesson.css",
+      "kind": "artifact",
+      "purpose": "Стили общего игрового урока на токенах",
+      "consumer": "OlympiadLesson"
+    },
+    {
+      "id": "file:src/components/OlympiadLesson.tsx",
+      "path": "src/components/OlympiadLesson.tsx",
+      "kind": "artifact",
+      "purpose": "Ученическая проекция игрового урока",
+      "consumer": "UI Kit; будущий маршрут"
+    },
+    {
+      "id": "file:src/components/OlympiadPage.integration.test.tsx",
+      "path": "src/components/OlympiadPage.integration.test.tsx",
+      "kind": "verification",
+      "purpose": "Интеграция экрана с синтетическим сервером",
+      "consumer": "Education; разработчик"
+    },
+    {
+      "id": "file:src/components/OlympiadPage.tsx",
+      "path": "src/components/OlympiadPage.tsx",
+      "kind": "artifact",
+      "purpose": "Семейный экран урока и родительский разбор",
+      "consumer": "Education; разработчик"
+    },
+    {
+      "id": "file:src/components/OlympiadWrittenPractice.integration.test.tsx",
+      "path": "src/components/OlympiadWrittenPractice.integration.test.tsx",
+      "kind": "verification",
+      "purpose": "Интеграционные проверки ролей, галереи и помощи",
+      "consumer": "Vitest"
+    },
+    {
+      "id": "file:src/components/OlympiadWrittenPractice.tsx",
+      "path": "src/components/OlympiadWrittenPractice.tsx",
+      "kind": "artifact",
+      "purpose": "Письменная карточка с единой галереей и запросом помощи",
+      "consumer": "Ученик; родитель; UI Kit"
+    },
+    {
       "id": "file:src/components/ParentHome.css",
       "path": "src/components/ParentHome.css",
       "kind": "artifact",
@@ -5963,6 +6411,13 @@
       "kind": "artifact",
       "purpose": "Локальный первый кадр, вход и принятие профиля другой вкладки",
       "consumer": "Личная стартовая страница"
+    },
+    {
+      "id": "file:src/components/PhotoHelpRequest.tsx",
+      "path": "src/components/PhotoHelpRequest.tsx",
+      "kind": "artifact",
+      "purpose": "Общая композиция формы помощи по фото; пока используется в локальном макете",
+      "consumer": "UI Kit; разработчик"
     },
     {
       "id": "file:src/components/PhotoUploadControl.test.tsx",
@@ -6826,6 +7281,48 @@
       "consumer": "`NotificationBell`"
     },
     {
+      "id": "file:src/lib/olympiad/assistancePolicy.test.ts",
+      "path": "src/lib/olympiad/assistancePolicy.test.ts",
+      "kind": "verification",
+      "purpose": "Проверка запрета и отсутствующих оснований",
+      "consumer": "Vitest"
+    },
+    {
+      "id": "file:src/lib/olympiad/assistancePolicy.ts",
+      "path": "src/lib/olympiad/assistancePolicy.ts",
+      "kind": "artifact",
+      "purpose": "Правило помощи с учётом проверенного происхождения и регламента",
+      "consumer": "Будущий серверный адаптер"
+    },
+    {
+      "id": "file:src/lib/olympiad/client.ts",
+      "path": "src/lib/olympiad/client.ts",
+      "kind": "artifact",
+      "purpose": "Клиент запросов к защищённому API",
+      "consumer": "Education; разработчик"
+    },
+    {
+      "id": "file:src/lib/olympiad/photoClient.ts",
+      "path": "src/lib/olympiad/photoClient.ts",
+      "kind": "artifact",
+      "purpose": "Авторизованный двоичный транспорт фотографий",
+      "consumer": "Письменная практика"
+    },
+    {
+      "id": "file:src/lib/olympiad/writtenPractice.test.ts",
+      "path": "src/lib/olympiad/writtenPractice.test.ts",
+      "kind": "verification",
+      "purpose": "Проверка переходов письменных попыток",
+      "consumer": "Vitest"
+    },
+    {
+      "id": "file:src/lib/olympiad/writtenPractice.ts",
+      "path": "src/lib/olympiad/writtenPractice.ts",
+      "kind": "artifact",
+      "purpose": "Правила попыток и снимков письменной практики",
+      "consumer": "Будущий адаптер письменной практики"
+    },
+    {
       "id": "file:src/lib/parentCompletion.producer.test.ts",
       "path": "src/lib/parentCompletion.producer.test.ts",
       "kind": "verification",
@@ -7470,6 +7967,20 @@
       "consumer": "Vitest"
     },
     {
+      "id": "file:storage/public-references.mjs",
+      "path": "storage/public-references.mjs",
+      "kind": "artifact",
+      "purpose": "Проверка происхождения и SHA, общий PDF и индекс с обратным чтением",
+      "consumer": "`storage sync-references`"
+    },
+    {
+      "id": "file:storage/public-references.test.mjs",
+      "path": "storage/public-references.test.mjs",
+      "kind": "verification",
+      "purpose": "Закрытый источник, подмена PDF, путь, публикация и идемпотентность",
+      "consumer": "Vitest"
+    },
+    {
       "id": "file:storage/review-challenge.mjs",
       "path": "storage/review-challenge.mjs",
       "kind": "artifact",
@@ -7687,6 +8198,13 @@
       "consumer": "Vitest"
     },
     {
+      "id": "file:sync/job-queue-fence.test.mjs",
+      "path": "sync/job-queue-fence.test.mjs",
+      "kind": "verification",
+      "purpose": "Проверки идентичности и очереди синхронизации",
+      "consumer": "Education; разработчик"
+    },
+    {
       "id": "file:sync/job-queue.mjs",
       "path": "sync/job-queue.mjs",
       "kind": "artifact",
@@ -7699,6 +8217,20 @@
       "kind": "artifact",
       "purpose": "Общая идентичность action старого запроса помощи для producer и freshness validator",
       "consumer": "Legacy bridge; task capture"
+    },
+    {
+      "id": "file:sync/olympiad-help.mjs",
+      "path": "sync/olympiad-help.mjs",
+      "kind": "artifact",
+      "purpose": "Серверные запросы помощи по фото и версии разбора",
+      "consumer": "Education; разработчик"
+    },
+    {
+      "id": "file:sync/olympiad-help.test.mjs",
+      "path": "sync/olympiad-help.test.mjs",
+      "kind": "verification",
+      "purpose": "Проверки границ запросов и синхронизации помощи",
+      "consumer": "Education; разработчик"
     },
     {
       "id": "file:sync/project-audit.mjs",
@@ -8149,7 +8681,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-18",
-      "updated": "2026-10-22",
+      "updated": "2026-10-27",
       "consumers": [
         "web-app access flow",
         "family access operator"
@@ -8424,7 +8956,8 @@
         "src/lib/yandexPublic.ts",
         "storage/material-pages.mjs",
         "storage/page-publication.mjs",
-        "storage/textbook-catalog.mjs"
+        "storage/textbook-catalog.mjs",
+        "storage/public-references.mjs"
       ],
       "parent": "module.materials",
       "uses": [
@@ -8436,6 +8969,7 @@
         "обязательная-связь-нового-дз-с-источником",
         "вложения-учителя",
         "каталог-firestore",
+        "public-references",
         "приватные-оригиналы",
         "публикация-отдельной-страницы",
         "ридер"
@@ -8580,6 +9114,67 @@
         "отчётность-и-срок-хранения"
       ],
       "path": "docs/modules/notifications/inbox.md"
+    },
+    {
+      "id": "module.olympiad-preparation",
+      "status": "draft",
+      "implementation": "partial",
+      "created": "2026-10-27",
+      "updated": "2026-10-27",
+      "parent": "product.olympiad-preparation",
+      "uses": [
+        "module.assessments.quizzes",
+        "research.olympiad-learning-evidence",
+        "module.materials.materials",
+        "module.reviews.subject-aware-guidance",
+        "module.synchronization",
+        "module.assignments",
+        "shared.data.firestore",
+        "shared.access-and-privacy",
+        "shared.design.components",
+        "shared.design.ui-kit"
+      ],
+      "consumers": [
+        "student",
+        "parent",
+        "Education operator",
+        "assessment author",
+        "Education frontend developer"
+      ],
+      "code": [
+        "src/lib/olympiad/writtenPractice.ts",
+        "src/lib/olympiad/assistancePolicy.ts",
+        "src/components/OlympiadLesson.tsx",
+        "src/components/OlympiadLesson.css",
+        "olympiad/lesson-service.mjs",
+        "olympiad/recommendation.mjs",
+        "olympiad/firestore-lesson-adapter.mjs",
+        "olympiad/http-handler.mjs",
+        "olympiad/local-http-runtime.mjs",
+        "olympiad/production-http-runtime.mjs",
+        "olympiad/publish-training.mjs",
+        "olympiad/verify-eligibility.mjs",
+        "src/components/OlympiadWrittenPractice.tsx",
+        "src/lib/olympiad/photoClient.ts",
+        "olympiad/training-content.mjs",
+        "sync/olympiad-help.mjs",
+        "src/components/OlympiadCatalog.tsx",
+        "src/components/OlympiadHome.tsx",
+        "src/components/OlympiadPage.tsx",
+        "src/lib/olympiad/client.ts"
+      ],
+      "sections": [
+        "назначение-и-границы",
+        "источники-соревнований-и-материалов",
+        "модель-урока-и-свидетельств",
+        "подбор-и-образовательный-цикл",
+        "родительский-запрос-по-шагу",
+        "метрики-и-родительские-проекции",
+        "план-стартовых-уроков",
+        "компоненты-и-границы-ui-kit",
+        "реализация-и-проверки"
+      ],
+      "path": "docs/modules/assessments/olympiad-preparation.md"
     },
     {
       "id": "module.reviews",
@@ -9706,6 +10301,32 @@
       "path": "docs/plans/local-first-release-plan-2026-10-12.md"
     },
     {
+      "id": "plans.ui-component-decomposition-2026-10-27",
+      "status": "accepted",
+      "implementation": "planned",
+      "created": "2026-10-27",
+      "updated": "2026-10-27",
+      "consumers": [
+        "frontend developer",
+        "screen author / Education agent"
+      ],
+      "code": [],
+      "parent": "shared.design",
+      "uses": [
+        "shared.design.components",
+        "shared.design.ui-kit",
+        "shared.design.statuses",
+        "module.olympiad-preparation"
+      ],
+      "sections": [
+        "границы-и-метод",
+        "подтверждённая-база",
+        "задачи-декомпозиции",
+        "критерии-завершения"
+      ],
+      "path": "docs/plans/ui-component-decomposition-2026-10-27.md"
+    },
+    {
       "id": "product.assessments",
       "status": "accepted",
       "implementation": "partial",
@@ -9738,6 +10359,7 @@
         "product.school-day",
         "product.homework-review",
         "product.assessments",
+        "product.olympiad-preparation",
         "product.materials",
         "module.families",
         "module.school-diary",
@@ -9879,6 +10501,40 @@
         "ограничение-исследования-частоты-мэш"
       ],
       "path": "docs/product/notifications.md"
+    },
+    {
+      "id": "product.olympiad-preparation",
+      "status": "draft",
+      "implementation": "partial",
+      "created": "2026-10-27",
+      "updated": "2026-10-27",
+      "parent": "product.education",
+      "uses": [
+        "module.olympiad-preparation",
+        "module.school-diary.dashboard",
+        "shared.design.ui-kit",
+        "shared.access-and-privacy"
+      ],
+      "consumers": [
+        "parent",
+        "student",
+        "Education operator",
+        "Education frontend developer"
+      ],
+      "code": [
+        "olympiad/lesson.mjs",
+        "src/lib/olympiad/writtenPractice.ts",
+        "src/lib/olympiad/assistancePolicy.ts"
+      ],
+      "sections": [
+        "назначение-и-границы",
+        "список-и-семейный-выбор",
+        "страница-и-учебный-маршрут",
+        "родительские-результаты-и-действия",
+        "дизайн-ui-kit-и-проверка-экранов",
+        "статус-и-открытые-решения"
+      ],
+      "path": "docs/product/olympiad-preparation.md"
     },
     {
       "id": "product.pwa",
@@ -10173,6 +10829,74 @@
         "основание-для-выбора"
       ],
       "path": "docs/research/literature-card-options.md"
+    },
+    {
+      "id": "research.olympiad-independent-review",
+      "status": "reference",
+      "implementation": "not-applicable",
+      "created": "2026-10-27",
+      "updated": "2026-10-27",
+      "parent": "module.olympiad-preparation",
+      "uses": [
+        "research.olympiad-learning-evidence"
+      ],
+      "consumers": [
+        "assessment author",
+        "Education operator"
+      ],
+      "code": [],
+      "sections": [
+        "область-проверки",
+        "результаты",
+        "ограничения"
+      ],
+      "path": "docs/research/olympiad-independent-review-2026-10-27.md"
+    },
+    {
+      "id": "research.olympiad-learning-evidence",
+      "status": "reference",
+      "implementation": "not-applicable",
+      "created": "2026-10-27",
+      "updated": "2026-10-27",
+      "parent": "product.education",
+      "uses": [
+        "module.olympiad-preparation"
+      ],
+      "consumers": [
+        "assessment author",
+        "Education operator",
+        "product implementer"
+      ],
+      "code": [],
+      "sections": [
+        "вопрос-и-область",
+        "первичные-исследования",
+        "решения-продукта-и-границы",
+        "проверка-на-практике"
+      ],
+      "path": "docs/research/olympiad-learning-evidence-2026-10-27.md"
+    },
+    {
+      "id": "research.olympiad-training-content",
+      "status": "reference",
+      "implementation": "not-applicable",
+      "created": "2026-10-27",
+      "updated": "2026-10-28",
+      "parent": "module.olympiad-preparation",
+      "uses": [
+        "module.assessments.assessment-source-policy"
+      ],
+      "consumers": [
+        "assessment author",
+        "Education operator"
+      ],
+      "code": [],
+      "sections": [
+        "область-и-источники",
+        "авторские-уроки-и-проверка",
+        "допуск-и-ограничения"
+      ],
+      "path": "docs/research/olympiad-training-content-2026-10-27.md"
     },
     {
       "id": "research.parent-card-subject-options",
@@ -11257,7 +11981,9 @@
         "telegram-уведомления",
         "помощь-по-этапам",
         "статусы-свёрнутых-вариантов",
-        "аудиоплеер"
+        "аудиоплеер",
+        "письменная-задача",
+        "игровой-урок"
       ],
       "path": "docs/shared/design/ui-kit.md"
     },
@@ -11774,6 +12500,51 @@
       "type": "uses"
     },
     {
+      "from": "decision.olympiad-domain-ldd-2026-10-27",
+      "to": "module.families.browser-access-trace",
+      "type": "uses"
+    },
+    {
+      "from": "decision.olympiad-domain-ldd-2026-10-27",
+      "to": "research.olympiad-learning-evidence",
+      "type": "uses"
+    },
+    {
+      "from": "decision.olympiad-family-screen-2026-10-27",
+      "to": "module.families.browser-access-trace",
+      "type": "uses"
+    },
+    {
+      "from": "decision.olympiad-family-screen-2026-10-27",
+      "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
+      "from": "decision.olympiad-family-storage-2026-10-27",
+      "to": "file:olympiad/production-http-runtime.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "decision.olympiad-family-storage-2026-10-27",
+      "to": "module.synchronization",
+      "type": "uses"
+    },
+    {
+      "from": "decision.olympiad-family-storage-2026-10-27",
+      "to": "shared.access-and-privacy",
+      "type": "uses"
+    },
+    {
+      "from": "decision.olympiad-integration-2026-10-28",
+      "to": "module.families.browser-access-trace",
+      "type": "uses"
+    },
+    {
+      "from": "decision.olympiad-integration-2026-10-28",
+      "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
       "from": "decision.photo-indexeddb-recovery-2026-10-22",
       "to": "decision.photo-storage-ldd-2026-10-22",
       "type": "uses"
@@ -12009,6 +12780,21 @@
       "type": "uses"
     },
     {
+      "from": "decision.ui-kit-photo-help-2026-10-27",
+      "to": "module.olympiad-preparation",
+      "type": "uses"
+    },
+    {
+      "from": "decision.ui-kit-photo-help-2026-10-27",
+      "to": "shared.design.components",
+      "type": "uses"
+    },
+    {
+      "from": "decision.ui-kit-written-practice-2026-10-27",
+      "to": "module.olympiad-preparation",
+      "type": "uses"
+    },
+    {
       "from": "decision.unified-education-events-2026-10-19",
       "to": "module.synchronization.event-queue",
       "type": "uses"
@@ -12056,6 +12842,11 @@
     {
       "from": "decision.weekend-special-course-2026-10-18",
       "to": "module.reviews.card-generation-policy",
+      "type": "uses"
+    },
+    {
+      "from": "decision.work-photo-thumbnail-decomposition-2026-10-27",
+      "to": "shared.design.ui-kit",
       "type": "uses"
     },
     {
@@ -12816,6 +13607,81 @@
     {
       "from": "file:lefthook.yml",
       "to": "shared.specification-system",
+      "type": "implements"
+    },
+    {
+      "from": "file:olympiad/firestore-lesson-adapter.mjs",
+      "to": "module.olympiad-preparation",
+      "type": "implements"
+    },
+    {
+      "from": "file:olympiad/http-handler.mjs",
+      "to": "module.olympiad-preparation",
+      "type": "implements"
+    },
+    {
+      "from": "file:olympiad/lesson-service.mjs",
+      "to": "module.olympiad-preparation",
+      "type": "implements"
+    },
+    {
+      "from": "file:olympiad/lesson.mjs",
+      "to": "module.olympiad-preparation",
+      "type": "implements"
+    },
+    {
+      "from": "file:olympiad/lesson.mjs",
+      "to": "product.olympiad-preparation",
+      "type": "implements"
+    },
+    {
+      "from": "file:olympiad/local-http-runtime.mjs",
+      "to": "module.olympiad-preparation",
+      "type": "implements"
+    },
+    {
+      "from": "file:olympiad/production-http-runtime.mjs",
+      "to": "decision.olympiad-family-storage-2026-10-27",
+      "type": "implements"
+    },
+    {
+      "from": "file:olympiad/production-http-runtime.mjs",
+      "to": "module.olympiad-preparation",
+      "type": "implements"
+    },
+    {
+      "from": "file:olympiad/publish-training.mjs",
+      "to": "module.olympiad-preparation",
+      "type": "implements"
+    },
+    {
+      "from": "file:olympiad/recommendation.mjs",
+      "to": "module.olympiad-preparation",
+      "type": "implements"
+    },
+    {
+      "from": "file:olympiad/training-content.mjs",
+      "to": "module.olympiad-preparation",
+      "type": "implements"
+    },
+    {
+      "from": "file:olympiad/training-content.mjs",
+      "to": "research.olympiad-training-content",
+      "type": "implements"
+    },
+    {
+      "from": "file:olympiad/verify-eligibility.mjs",
+      "to": "module.olympiad-preparation",
+      "type": "implements"
+    },
+    {
+      "from": "file:operator/olympiad-help.mjs",
+      "to": "decision.olympiad-family-storage-2026-10-27",
+      "type": "implements"
+    },
+    {
+      "from": "file:operator/olympiad-help.mjs",
+      "to": "service.operator-cli",
       "type": "implements"
     },
     {
@@ -13844,6 +14710,26 @@
       "type": "implements"
     },
     {
+      "from": "file:scripts/olympiad-help.mjs",
+      "to": "decision.olympiad-family-storage-2026-10-27",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/olympiad-help.mjs",
+      "to": "service.operator-cli",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/olympiad-publish-training.mjs",
+      "to": "module.olympiad-preparation",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/olympiad-verify-grade.mjs",
+      "to": "module.olympiad-preparation",
+      "type": "implements"
+    },
+    {
       "from": "file:scripts/photo-outbox-chromium-integration.mjs",
       "to": "decision.photo-indexeddb-recovery-2026-10-22",
       "type": "implements"
@@ -13906,6 +14792,11 @@
     {
       "from": "file:scripts/spec-graph.mjs",
       "to": "shared.specification-system",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/storage.mjs",
+      "to": "decision.public-olympiad-reference-archive-2026-10-27",
       "type": "implements"
     },
     {
@@ -14589,6 +15480,51 @@
       "type": "implements"
     },
     {
+      "from": "file:src/components/OlympiadCatalog.tsx",
+      "to": "module.olympiad-preparation",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/OlympiadHome.tsx",
+      "to": "module.olympiad-preparation",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/OlympiadLesson.css",
+      "to": "decision.olympiad-domain-ldd-2026-10-27",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/OlympiadLesson.css",
+      "to": "module.olympiad-preparation",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/OlympiadLesson.css",
+      "to": "shared.design.ui-kit",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/OlympiadLesson.tsx",
+      "to": "decision.olympiad-domain-ldd-2026-10-27",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/OlympiadLesson.tsx",
+      "to": "module.olympiad-preparation",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/OlympiadPage.tsx",
+      "to": "module.olympiad-preparation",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/OlympiadWrittenPractice.tsx",
+      "to": "module.olympiad-preparation",
+      "type": "implements"
+    },
+    {
       "from": "file:src/components/ParentHome.css",
       "to": "module.families",
       "type": "implements"
@@ -14746,6 +15682,16 @@
     {
       "from": "file:src/components/PersonalEntry.tsx",
       "to": "shared.design",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/PhotoHelpRequest.tsx",
+      "to": "decision.ui-kit-photo-help-2026-10-27",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/PhotoHelpRequest.tsx",
+      "to": "shared.design.ui-kit",
       "type": "implements"
     },
     {
@@ -15145,6 +16091,11 @@
     },
     {
       "from": "file:src/components/WorkPhotoGallery.css",
+      "to": "decision.ui-kit-photo-help-2026-10-27",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/WorkPhotoGallery.css",
       "to": "decisions.work-photo-expand-2026-10-18",
       "type": "implements"
     },
@@ -15165,7 +16116,17 @@
     },
     {
       "from": "file:src/components/WorkPhotoGallery.tsx",
+      "to": "decision.ui-kit-photo-help-2026-10-27",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/WorkPhotoGallery.tsx",
       "to": "decision.upload-photo-timestamp",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/WorkPhotoGallery.tsx",
+      "to": "decision.work-photo-thumbnail-decomposition-2026-10-27",
       "type": "implements"
     },
     {
@@ -15451,6 +16412,11 @@
     {
       "from": "file:src/lib/bookPageSource.ts",
       "to": "module.materials.family-library",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/browserAccessTrace.ts",
+      "to": "decision.olympiad-domain-ldd-2026-10-27",
       "type": "implements"
     },
     {
@@ -15746,6 +16712,46 @@
     {
       "from": "file:src/lib/notificationThreads.ts",
       "to": "module.notifications.inbox",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/olympiad/assistancePolicy.ts",
+      "to": "decision.olympiad-domain-ldd-2026-10-27",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/olympiad/assistancePolicy.ts",
+      "to": "module.olympiad-preparation",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/olympiad/assistancePolicy.ts",
+      "to": "product.olympiad-preparation",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/olympiad/client.ts",
+      "to": "module.olympiad-preparation",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/olympiad/photoClient.ts",
+      "to": "module.olympiad-preparation",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/olympiad/writtenPractice.ts",
+      "to": "decision.olympiad-domain-ldd-2026-10-27",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/olympiad/writtenPractice.ts",
+      "to": "module.olympiad-preparation",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/olympiad/writtenPractice.ts",
+      "to": "product.olympiad-preparation",
       "type": "implements"
     },
     {
@@ -16160,6 +17166,16 @@
     },
     {
       "from": "file:src/UiKit.tsx",
+      "to": "decision.ui-kit-photo-help-2026-10-27",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/UiKit.tsx",
+      "to": "decision.ui-kit-written-practice-2026-10-27",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/UiKit.tsx",
       "to": "decision.upload-photo-timestamp",
       "type": "implements"
     },
@@ -16296,6 +17312,16 @@
     {
       "from": "file:storage/photo-placement.mjs",
       "to": "module.materials.storage-privacy",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/public-references.mjs",
+      "to": "decision.public-olympiad-reference-archive-2026-10-27",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/public-references.mjs",
+      "to": "module.materials.materials",
       "type": "implements"
     },
     {
@@ -16436,6 +17462,11 @@
     {
       "from": "file:sync/legacy-help-identity.mjs",
       "to": "module.synchronization.event-queue",
+      "type": "implements"
+    },
+    {
+      "from": "file:sync/olympiad-help.mjs",
+      "to": "module.olympiad-preparation",
       "type": "implements"
     },
     {
@@ -17110,12 +18141,22 @@
     },
     {
       "from": "module.materials.materials",
+      "to": "decision.public-olympiad-reference-archive-2026-10-27",
+      "type": "contains"
+    },
+    {
+      "from": "module.materials.materials",
       "to": "file:src/components/MaterialReader.test.tsx",
       "type": "verified-by"
     },
     {
       "from": "module.materials.materials",
       "to": "file:storage/page-publication.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.materials.materials",
+      "to": "file:storage/public-references.test.mjs",
       "type": "verified-by"
     },
     {
@@ -17316,6 +18357,156 @@
     {
       "from": "module.notifications",
       "to": "shared.data.firestore",
+      "type": "uses"
+    },
+    {
+      "from": "module.olympiad-preparation",
+      "to": "decision.olympiad-domain-ldd-2026-10-27",
+      "type": "contains"
+    },
+    {
+      "from": "module.olympiad-preparation",
+      "to": "decision.olympiad-family-screen-2026-10-27",
+      "type": "contains"
+    },
+    {
+      "from": "module.olympiad-preparation",
+      "to": "decision.olympiad-family-storage-2026-10-27",
+      "type": "contains"
+    },
+    {
+      "from": "module.olympiad-preparation",
+      "to": "decision.olympiad-integration-2026-10-28",
+      "type": "contains"
+    },
+    {
+      "from": "module.olympiad-preparation",
+      "to": "file:olympiad/firestore-emulator.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.olympiad-preparation",
+      "to": "file:olympiad/firestore-lesson-adapter.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.olympiad-preparation",
+      "to": "file:olympiad/lesson-service.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.olympiad-preparation",
+      "to": "file:olympiad/lesson.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.olympiad-preparation",
+      "to": "file:olympiad/local-http-runtime.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.olympiad-preparation",
+      "to": "file:olympiad/publish-training.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.olympiad-preparation",
+      "to": "file:olympiad/recommendation.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.olympiad-preparation",
+      "to": "file:olympiad/training-content.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.olympiad-preparation",
+      "to": "file:olympiad/verify-eligibility.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.olympiad-preparation",
+      "to": "file:src/components/OlympiadPage.integration.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.olympiad-preparation",
+      "to": "file:src/components/OlympiadWrittenPractice.integration.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.olympiad-preparation",
+      "to": "file:src/lib/olympiad/assistancePolicy.test.ts",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.olympiad-preparation",
+      "to": "file:src/lib/olympiad/writtenPractice.test.ts",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.olympiad-preparation",
+      "to": "file:sync/olympiad-help.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.olympiad-preparation",
+      "to": "module.assessments.quizzes",
+      "type": "uses"
+    },
+    {
+      "from": "module.olympiad-preparation",
+      "to": "module.assignments",
+      "type": "uses"
+    },
+    {
+      "from": "module.olympiad-preparation",
+      "to": "module.materials.materials",
+      "type": "uses"
+    },
+    {
+      "from": "module.olympiad-preparation",
+      "to": "module.reviews.subject-aware-guidance",
+      "type": "uses"
+    },
+    {
+      "from": "module.olympiad-preparation",
+      "to": "module.synchronization",
+      "type": "uses"
+    },
+    {
+      "from": "module.olympiad-preparation",
+      "to": "research.olympiad-independent-review",
+      "type": "contains"
+    },
+    {
+      "from": "module.olympiad-preparation",
+      "to": "research.olympiad-learning-evidence",
+      "type": "uses"
+    },
+    {
+      "from": "module.olympiad-preparation",
+      "to": "research.olympiad-training-content",
+      "type": "contains"
+    },
+    {
+      "from": "module.olympiad-preparation",
+      "to": "shared.access-and-privacy",
+      "type": "uses"
+    },
+    {
+      "from": "module.olympiad-preparation",
+      "to": "shared.data.firestore",
+      "type": "uses"
+    },
+    {
+      "from": "module.olympiad-preparation",
+      "to": "shared.design.components",
+      "type": "uses"
+    },
+    {
+      "from": "module.olympiad-preparation",
+      "to": "shared.design.ui-kit",
       "type": "uses"
     },
     {
@@ -18175,6 +19366,11 @@
     },
     {
       "from": "module.synchronization.global-sync",
+      "to": "file:sync/job-queue-fence.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.synchronization.global-sync",
       "to": "file:sync/project-audit.test.mjs",
       "type": "verified-by"
     },
@@ -18521,6 +19717,26 @@
     {
       "from": "operations",
       "to": "service.upload-worker",
+      "type": "uses"
+    },
+    {
+      "from": "plans.ui-component-decomposition-2026-10-27",
+      "to": "module.olympiad-preparation",
+      "type": "uses"
+    },
+    {
+      "from": "plans.ui-component-decomposition-2026-10-27",
+      "to": "shared.design.components",
+      "type": "uses"
+    },
+    {
+      "from": "plans.ui-component-decomposition-2026-10-27",
+      "to": "shared.design.statuses",
+      "type": "uses"
+    },
+    {
+      "from": "plans.ui-component-decomposition-2026-10-27",
+      "to": "shared.design.ui-kit",
       "type": "uses"
     },
     {
@@ -18880,6 +20096,16 @@
     },
     {
       "from": "product.education",
+      "to": "product.olympiad-preparation",
+      "type": "contains"
+    },
+    {
+      "from": "product.education",
+      "to": "product.olympiad-preparation",
+      "type": "uses"
+    },
+    {
+      "from": "product.education",
       "to": "product.pwa",
       "type": "contains"
     },
@@ -18941,6 +20167,11 @@
     {
       "from": "product.education",
       "to": "research.literature-card-options",
+      "type": "contains"
+    },
+    {
+      "from": "product.education",
+      "to": "research.olympiad-learning-evidence",
       "type": "contains"
     },
     {
@@ -19109,6 +20340,31 @@
       "type": "uses"
     },
     {
+      "from": "product.olympiad-preparation",
+      "to": "module.olympiad-preparation",
+      "type": "contains"
+    },
+    {
+      "from": "product.olympiad-preparation",
+      "to": "module.olympiad-preparation",
+      "type": "uses"
+    },
+    {
+      "from": "product.olympiad-preparation",
+      "to": "module.school-diary.dashboard",
+      "type": "uses"
+    },
+    {
+      "from": "product.olympiad-preparation",
+      "to": "shared.access-and-privacy",
+      "type": "uses"
+    },
+    {
+      "from": "product.olympiad-preparation",
+      "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
       "from": "product.pwa",
       "to": "decision.pwa-startup-recovery-2026-10-22",
       "type": "contains"
@@ -19159,9 +20415,29 @@
       "type": "uses"
     },
     {
+      "from": "research.olympiad-independent-review",
+      "to": "research.olympiad-learning-evidence",
+      "type": "uses"
+    },
+    {
+      "from": "research.olympiad-learning-evidence",
+      "to": "module.olympiad-preparation",
+      "type": "uses"
+    },
+    {
+      "from": "research.olympiad-training-content",
+      "to": "module.assessments.assessment-source-policy",
+      "type": "uses"
+    },
+    {
       "from": "research.result-colour-and-density",
       "to": "research.quiz-history-and-consolidation",
       "type": "uses"
+    },
+    {
+      "from": "service.operator-cli",
+      "to": "file:operator/olympiad-help.test.mjs",
+      "type": "verified-by"
     },
     {
       "from": "service.operator-cli",
@@ -19900,6 +21176,11 @@
     },
     {
       "from": "shared.design.components",
+      "to": "decision.work-photo-thumbnail-decomposition-2026-10-27",
+      "type": "contains"
+    },
+    {
+      "from": "shared.design.components",
       "to": "decisions.work-photo-expand-2026-10-18",
       "type": "contains"
     },
@@ -19980,6 +21261,16 @@
     },
     {
       "from": "shared.design.ui-kit",
+      "to": "decision.ui-kit-photo-help-2026-10-27",
+      "type": "contains"
+    },
+    {
+      "from": "shared.design.ui-kit",
+      "to": "decision.ui-kit-written-practice-2026-10-27",
+      "type": "contains"
+    },
+    {
+      "from": "shared.design.ui-kit",
       "to": "file:src/UiKit.test.tsx",
       "type": "verified-by"
     },
@@ -20012,6 +21303,11 @@
       "from": "shared.design",
       "to": "file:src/lib/yandexPublic.test.ts",
       "type": "verified-by"
+    },
+    {
+      "from": "shared.design",
+      "to": "plans.ui-component-decomposition-2026-10-27",
+      "type": "contains"
     },
     {
       "from": "shared.design",

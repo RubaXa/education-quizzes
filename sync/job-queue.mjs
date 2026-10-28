@@ -40,6 +40,7 @@ export async function setSyncJob(db, id, status, phase, extra = {}) {
     const snapshot = await tx.get(ref)
     if (!snapshot.exists) throw new Error('Задания нет в Firebase.')
     const before = snapshot.data()
+    if (extra.expectedFingerprint && before.fingerprint !== extra.expectedFingerprint) throw new Error('sync-job-revision-changed')
     if (before.status === 'done' && status !== 'done') throw new Error('Завершённый вход нельзя взять повторно без новой ревизии источника.')
     if (before.status === 'done' && status === 'done') return before
     if (status === 'done' && !extra.evidence) throw new Error('Завершение требует подтверждённый источник результата.')

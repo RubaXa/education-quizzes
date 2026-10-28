@@ -8,7 +8,7 @@ import ts from 'typescript'
 // helpers, Security Rules lookups and SDK reconnects need runtime measurement.
 const root = resolve(import.meta.dirname, '..')
 const registryPath = resolve(root, 'docs/shared/data/firestore-read-sites.json')
-const dirs = ['src', 'scripts', 'sync', 'packages']
+const dirs = ['src', 'scripts', 'sync', 'packages', 'olympiad']
 const webReads = new Set([
   'getDoc', 'getDocs', 'getDocFromServer', 'getDocsFromServer',
   'getDocFromCache', 'getDocsFromCache', 'getCountFromServer',
@@ -24,6 +24,7 @@ const groupFor = (file) => {
     if (/store\.ts$/.test(file)) return 'client-quizzes'
     return 'client-other'
   }
+  if (file.startsWith('olympiad/')) return 'operator-olympiad'
   if (/direct-upload-worker/.test(file)) return 'operator-uploads'
   if (/sync-inbox|sync-queue|sync-project|help-request-cache|job-queue/.test(file)) return 'operator-sync'
   if (/handoff-store/.test(file)) return 'operator-access'
@@ -64,7 +65,7 @@ function scan(filePath, sourceOverride) {
     ts.forEachChild(node, inspect)
   }
   inspect(tree)
-  adminContext = file.startsWith('scripts/') || file.startsWith('sync/') || file.startsWith('packages/')
+  adminContext = file.startsWith('scripts/') || file.startsWith('sync/') || file.startsWith('packages/') || file.startsWith('olympiad/')
   function walk(node) {
     if (ts.isCallExpression(node)) {
       const callee = node.expression
@@ -133,8 +134,16 @@ if (process.argv.includes('--self-test')) {
     await db.getAll(one, two)
     cache.get('local')
   `)
+  const olympiad = scan(resolve(root, 'olympiad/read-index-fixture.mjs'), `
+    const cache = new Map()
+    await db.collection('catalog').get()
+    await tx.get(reference)
+    cache.get('local')
+  `)
   if (web.map((site) => site.api).join(',') !== 'getDoc,onSnapshot,transaction.get'
-    || admin.map((site) => site.api).join(',') !== 'admin.get,admin.getAll') {
+    || admin.map((site) => site.api).join(',') !== 'admin.get,admin.getAll'
+    || olympiad.map((site) => site.api).join(',') !== 'admin.get,admin.get'
+    || olympiad.some((site) => site.group !== 'operator-olympiad')) {
     throw new Error('Firestore read scanner missed a fixture or counted Map.get().')
   }
   const newRead = inventoryProblems(web, [])
@@ -146,7 +155,7 @@ if (process.argv.includes('--self-test')) {
   try { scan(resolve(root, 'src/read-index-fixture.ts'), "import * as firestore from 'firebase/firestore'") }
   catch { namespaceRejected = true }
   if (!namespaceRejected) throw new Error('Firestore namespace imports must be rejected until indexed.')
-  console.log('Firestore read scanner self-test: Web, Admin, transaction, Map exclusion and review gate OK.')
+  console.log('Firestore read scanner self-test: Web, Admin, olympiad, transaction, Map exclusion and review gate OK.')
   process.exit(0)
 }
 

@@ -1,19 +1,26 @@
+/** @see ../../docs/decisions/olympiad-domain-ldd-2026-10-27.md */
 /** Local Log-Driven Development; observations never grant access.
  * @see ../../docs/modules/families/browser-access-trace.md
  * @see ../../docs/decisions/photo-storage-ldd-2026-10-22.md */
-const events = ['app.loaded', 'identity.resolved', 'identity.changed', 'access.resolved', 'role.selected', 'route.selected', 'view.rendered', 'access.failed', 'photo.storage'] as const
+const events = ['app.loaded', 'identity.resolved', 'identity.changed', 'access.resolved', 'role.selected', 'route.selected', 'view.rendered', 'access.failed', 'photo.storage', 'help.interaction', 'lesson.interaction', 'olympiad.interaction'] as const
 type EventName = typeof events[number]
 const roles = ['parent', 'student', 'mixed', 'none', 'unknown', 'pending']
 const sources = ['local', 'memory', 'device-server', 'grant-server', 'member-server', 'member-cache', 'profile', 'entry', 'route', 'card', 'storage', 'app']
 const reasons = ['cache-hit', 'cache-miss', 'uid-mismatch', 'context-changed', 'stale-revocation-ignored', 'device-binding-changed', 'device-binding-recovered', 'context-saved', 'context-cleared', 'grant-valid', 'grant-invalid', 'device-valid', 'device-invalid', 'member-valid', 'member-invalid', 'role-mismatch', 'profile-loaded', 'role-projection', 'restore-start', 'redemption-start', 'restore-failed', 'waiting', 'ready']
-const routes = ['home', 'enter', 'day', 'day-parent', 'days', 'days-parent', 'test', 'preview', 'my', 'review', 'dashboard', 'connect', 'ui-kit', 'unknown']
+const routes = ['home', 'enter', 'day', 'day-parent', 'days', 'days-parent', 'test', 'preview', 'my', 'review', 'dashboard', 'connect', 'ui-kit', 'olympiad', 'unknown']
 const errorCodes = ['permission-denied', 'unavailable', 'deadline-exceeded', 'auth/network-request-failed', 'unauthenticated', 'unknown']
 const functions = ['initializeAccessTrace', 'traceProfile', 'restorePersonalContext', 'restorePersonalSession', 'redeemPersonalLink', 'sessionFromGrant', 'loadPersonalProfile', 'recoverPersonalContext', 'rememberPersonalContext', 'clearPersonalSession', 'changedInAnotherTab', 'PersonalEntry#profileEffect', 'PersonalEntry#accessSnapshot', 'LearningRoute#resolve', 'configureRoleDiagnostics', 'reportRoleProjection', 'App#routeEffect', 'savePhotoForTransfer', 'localPhotoForTransfer', 'removePhotoFromOutbox'] as const
 const states = ['idle', 'restoring', 'cached', 'checking', 'retrying', 'redeeming', 'loading', 'resolved', 'selected', 'rendered', 'recovered', 'changed', 'cleared', 'failed', 'empty'] as const
 const photoStorageOperations = ['savePhotoForTransfer', 'localPhotoForTransfer', 'removePhotoFromOutbox'] as const
 const photoStoragePhases = ['checking', 'retrying', 'recovered', 'failed'] as const
 const photoStorageErrorCodes = ['indexeddb-connection-lost', 'invalid-state', 'abort', 'quota', 'security', 'data', 'error'] as const
-export type AccessDetail = { role?: string; previousRole?: string; source?: string; reason?: string; route?: string; code?: string; scope?: string; person?: string; device?: string; grant?: string; hasGuide?: boolean; studentUpload?: boolean; active?: boolean; fromCache?: boolean; matches?: boolean; count?: number; durationMs?: number; bundle?: string; atFunction?: string; previousState?: string; state?: string }
+const helpActions = ['opened', 'closed', 'selection-changed', 'photos-added', 'submitted', 'waiting', 'answer-ready', 'answer-opened', 'role-changed', 'failed'] as const
+const helpContexts = ['demo', 'product'] as const
+const helpErrors = ['upload-failed', 'submit-failed', 'sync-failed', 'unknown'] as const
+const olympiadActions = ['list-loaded', 'list-failed', 'list-opened', 'list-closed', 'opened', 'participation-changed', 'participation-failed', 'page-loaded', 'page-failed', 'detail-opened'] as const
+const lessonActions = ['opened', 'choice-selected', 'waiting', 'answer-shown', 'next-step', 'completed', 'failed'] as const
+const lessonErrors = ['load-failed', 'submit-failed', 'sync-failed', 'unknown'] as const
+export type AccessDetail = { role?: string; previousRole?: string; source?: string; reason?: string; route?: string; code?: string; scope?: string; person?: string; device?: string; grant?: string; hasGuide?: boolean; studentUpload?: boolean; active?: boolean; fromCache?: boolean; matches?: boolean; count?: number; durationMs?: number; bundle?: string; atFunction?: string; previousState?: string; state?: string; action?: string; context?: string; hasNote?: boolean }
 type TraceEvent = { runId: string; sequence: number; at: number; event: EventName; detail: AccessDetail }
 export type AccessTrace = { schemaVersion: 1; events: TraceEvent[] }
 export function formatAccessLog(row: TraceEvent): string {
@@ -24,14 +31,44 @@ export function formatAccessLog(row: TraceEvent): string {
     'role.selected': 'Choose the interface from profile membership', 'route.selected': 'Open the resource for the selected identity',
     'view.rendered': 'Observe the committed task card projection', 'access.failed': 'Access operation failed; preserve safe error code',
     'photo.storage': 'Observe local photo storage operation; this does not affect access authority',
+    'help.interaction': `Observe photo help interaction: ${detail.action ?? 'unknown'}`,
+    'lesson.interaction': `Observe lesson interaction: ${detail.action ?? 'unknown'}`,
+    'olympiad.interaction': `Observe olympiad interaction: ${detail.action ?? 'unknown'}`,
   }
   const explanation = detail.state === 'restoring' ? 'Restore saved session for current device' : detail.state === 'redeeming' ? 'Redeem supplied personal credential' : detail.state === 'loading' ? 'Read profile and memberships for selected identity' : explanations[row.event]
+  if (row.event === 'help.interaction') return `[tracePhotoHelp] [unknown → ${detail.action ?? 'unknown'}] ${explanation}`
+  if (row.event === 'olympiad.interaction') return `[traceOlympiad] [unknown → ${detail.action ?? 'unknown'}] ${explanation}`
+  if (row.event === 'lesson.interaction') return `[traceLesson] [unknown → ${detail.action ?? 'unknown'}] ${explanation}`
   return `[${detail.atFunction ?? 'traceProfile'}] [${detail.previousState ?? 'checking'} → ${detail.state ?? 'resolved'}] ${explanation}`
 }
 const key = 'education-access-trace-v1'
 const maxAge = 24 * 60 * 60_000
 function safeDetail(input: AccessDetail, event?: EventName): AccessDetail {
   const output: AccessDetail = {}
+  if (event === 'olympiad.interaction') {
+    if (typeof input.action === 'string' && (olympiadActions as readonly string[]).includes(input.action)) output.action = input.action
+    if (typeof input.context === 'string' && (helpContexts as readonly string[]).includes(input.context)) output.context = input.context
+    if (input.role === 'student' || input.role === 'parent') output.role = input.role
+    if (typeof input.count === 'number' && Number.isSafeInteger(input.count) && input.count >= 0 && input.count < 1e5) output.count = input.count
+    return output
+  }
+  if (event === 'lesson.interaction') {
+    if (typeof input.action === 'string' && (lessonActions as readonly string[]).includes(input.action)) output.action = input.action
+    if (typeof input.context === 'string' && (helpContexts as readonly string[]).includes(input.context)) output.context = input.context
+    if (input.role === 'student' || input.role === 'parent') output.role = input.role
+    if (typeof input.count === 'number' && Number.isSafeInteger(input.count) && input.count >= 0 && input.count < 1e5) output.count = input.count
+    if (input.action === 'failed' && typeof input.code === 'string' && (lessonErrors as readonly string[]).includes(input.code)) output.code = input.code
+    return output
+  }
+  if (event === 'help.interaction') {
+    if (typeof input.action === 'string' && (helpActions as readonly string[]).includes(input.action)) output.action = input.action
+    if (typeof input.context === 'string' && (helpContexts as readonly string[]).includes(input.context)) output.context = input.context
+    if (input.role === 'student' || input.role === 'parent') output.role = input.role
+    if (typeof input.count === 'number' && Number.isSafeInteger(input.count) && input.count >= 0 && input.count < 1e5) output.count = input.count
+    if (typeof input.hasNote === 'boolean') output.hasNote = input.hasNote
+    if (input.action === 'failed' && typeof input.code === 'string' && (helpErrors as readonly string[]).includes(input.code)) output.code = input.code
+    return output
+  }
   if (event === 'photo.storage') {
     if (typeof input.atFunction === 'string' && (photoStorageOperations as readonly string[]).includes(input.atFunction)) output.atFunction = input.atFunction
     if (typeof input.state === 'string' && (photoStoragePhases as readonly string[]).includes(input.state)) output.state = input.state
@@ -144,6 +181,21 @@ export function tracePhotoStorage(operation: typeof photoStorageOperations[numbe
     || !(photoStoragePhases as readonly string[]).includes(phase)
     || (code !== undefined && !(photoStorageErrorCodes as readonly string[]).includes(code))) return
   traceAccess('photo.storage', { atFunction: operation, state: phase, code, count: attempt, durationMs })
+}
+/** Local observations only; the UI Kit must identify its interactions as demo. */
+export function tracePhotoHelp(action: typeof helpActions[number], context: typeof helpContexts[number], role: 'student' | 'parent', details: { count?: number; hasNote?: boolean; code?: typeof helpErrors[number] } = {}) {
+  if (!(helpActions as readonly string[]).includes(action) || !(helpContexts as readonly string[]).includes(context) || !['student', 'parent'].includes(role)) return
+  traceAccess('help.interaction', { action, context, role, count: details.count, hasNote: details.hasNote, code: details.code })
+}
+/** The counter is an ordinal or total supplied by the caller, never the answer itself. */
+export function traceLesson(action: typeof lessonActions[number], context: typeof helpContexts[number], role: 'student' | 'parent', details: { count?: number; code?: typeof lessonErrors[number] } = {}) {
+  if (!(lessonActions as readonly string[]).includes(action) || !(helpContexts as readonly string[]).includes(context) || !['student', 'parent'].includes(role)) return
+  traceAccess('lesson.interaction', { action, context, role, count: details.count, code: details.code })
+}
+/** Local diagnostic events never include child, contest, answer or URL. */
+export function traceOlympiad(action: typeof olympiadActions[number], context: typeof helpContexts[number], role: 'student' | 'parent', count?: number) {
+  if (!(olympiadActions as readonly string[]).includes(action) || !(helpContexts as readonly string[]).includes(context) || !['student', 'parent'].includes(role)) return
+  traceAccess('olympiad.interaction', { action, context, role, count })
 }
 export async function accessFingerprint(value: string) {
   const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value))
