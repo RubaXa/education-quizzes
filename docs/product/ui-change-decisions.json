@@ -1933,7 +1933,7 @@
       }
     },
     "scripts/day.mjs": {
-      "sha256": "63728f9f0e2bf7a1b1ad1d4f37b695e9e9f97e3654c6f34500fdefacddf3d07c",
+      "sha256": "bb6d745f544a8f66b636612d24900ce5f7efde66a0198b67144f535e94c67dc0",
       "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
@@ -2630,7 +2630,7 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "536ec3ef31e13b3c415f8cb1de2a3fd626f42e39fbc7009152a857bb665cb656",
+      "sha256": "f001163c74bdd9ce27c202c5d0fd195ace313c87a5db15609538c801b96e88c7",
       "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",

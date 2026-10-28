@@ -871,6 +871,7 @@ async function publishFamilyAssignment() {
   if (Object.keys(request.task ?? {}).some((key) => !allowedTaskFields.has(key))) fail('Каноническая задача содержит поля вне разрешённого семейного формата.')
   if (request.task?.familyId !== owner.familyId || request.task?.childId !== owner.childId) fail('ID семьи и ребёнка в запросе должны точно совпасть с локальным owner; подмена владельца запрещена.')
   const task = { ...request.task, dayProjectionVersion: 1,
+    ...(request.task?.learningContext?.kind === 'olympiad' ? { testPlacements: request.task.testPlacements ?? [] } : {}),
     sourceEvidence: { kind: 'parent-request', excerpt: request.parentGuide.stages?.[0]?.source?.excerpt ?? '' } }
   const errors = familyAssignmentErrors(task, { familyId: owner.familyId, childId: owner.childId, taskId: task?.id })
   if (errors.length) fail(errors.join(' '))
