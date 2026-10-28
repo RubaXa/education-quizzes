@@ -2630,7 +2630,7 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "7d1cdb7daa9a010d6c9830bc9720098c94e864efa1a4f2f589d15a7df6ed9326",
+      "sha256": "894765b1a223fdbc955de69ce38a61fe7c36e70719e6edd4c73e7d9879c7764e",
       "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
@@ -2645,7 +2645,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь попросил родительский просмотр того же содержимого, что у ученика, включая материалы, задачи и прогресс, без выполнения за ребёнка."
+        "evidence": "Пользователь указал, что блоки МЭШ, школьного задания и изменений не относятся к олимпиаде, и потребовал убрать их."
       }
     },
     "src/UiKit.css": {
