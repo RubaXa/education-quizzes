@@ -12,6 +12,13 @@ import { learningContext } from '../assessment/learning-context.mjs'
 const DATE = /^\d{4}-\d{2}-\d{2}$/
 const ID = /^[a-z0-9][a-z0-9-]{2,119}$/
 
+/** Crop is an explicit, reviewed coordinate range on exactly one immutable photo. */
+export function validLearnerSourceCrop(crop) {
+  if (!crop || typeof crop !== 'object' || Array.isArray(crop) || Object.keys(crop).some(key => !['x','y','width','height','sourceWidth','sourceHeight','sourceSha256'].includes(key))) return false
+  const { x, y, width, height, sourceWidth, sourceHeight, sourceSha256 } = crop
+  return [x,y,width,height,sourceWidth,sourceHeight].every(Number.isSafeInteger) && x >= 0 && y >= 0 && width > 0 && height > 0 && sourceWidth > 0 && sourceHeight > 0 && x + width <= sourceWidth && y + height <= sourceHeight && /^[a-f0-9]{64}$/.test(sourceSha256 ?? '')
+}
+
 export function familyAssignmentErrors(task, { familyId, childId, taskId } = {}) {
   const errors = []
   if (!task || typeof task !== 'object' || Array.isArray(task)) return ['Нужно семейное назначение.']
@@ -23,7 +30,8 @@ export function familyAssignmentErrors(task, { familyId, childId, taskId } = {})
   try { learningContext(task.learningContext) } catch { errors.push('Некорректный контекст учебного материала.') }
   if (task.learningContext?.kind === 'olympiad' && task.optional !== true) errors.push('Олимпиадная практика должна оставаться дополнительной.')
   if (task.sourceIntake !== undefined && (task.sourceIntake?.kind !== 'olympiad-sheet' || Object.keys(task.sourceIntake ?? {}).some(key => key !== 'kind') || task.learningContext?.kind !== 'olympiad' || task.optional !== true)) errors.push('Приём фото условий допустим только для дополнительной олимпиады.')
-  if (task.learnerOrigin !== undefined && (task.learningContext?.kind !== 'olympiad' || task.optional !== true || task.sourceIntake || !ID.test(task.learnerOrigin?.intakeTaskId ?? '') || !Array.isArray(task.learnerOrigin?.uploadIds) || !task.learnerOrigin.uploadIds.length || new Set(task.learnerOrigin.uploadIds).size !== task.learnerOrigin.uploadIds.length || task.learnerOrigin.uploadIds.some(id => !/^[A-Za-z0-9_-]{20,80}$/.test(id)) || Object.keys(task.learnerOrigin ?? {}).some(key => !['intakeTaskId','uploadIds'].includes(key)))) errors.push('Происхождение ученика требует подтверждённый приём и уникальные фотографии условий олимпиады.')
+  if (task.learnerOrigin !== undefined && (task.learningContext?.kind !== 'olympiad' || task.optional !== true || task.sourceIntake || !ID.test(task.learnerOrigin?.intakeTaskId ?? '') || !Array.isArray(task.learnerOrigin?.uploadIds) || !task.learnerOrigin.uploadIds.length || new Set(task.learnerOrigin.uploadIds).size !== task.learnerOrigin.uploadIds.length || task.learnerOrigin.uploadIds.some(id => !/^[A-Za-z0-9_-]{20,80}$/.test(id)) || Object.keys(task.learnerOrigin ?? {}).some(key => !['intakeTaskId','uploadIds','crop'].includes(key)))) errors.push('Происхождение ученика требует подтверждённый приём и уникальные фотографии условий олимпиады.')
+  if (task.learnerOrigin?.crop !== undefined && (!validLearnerSourceCrop(task.learnerOrigin.crop) || task.learnerOrigin.uploadIds?.length !== 1)) errors.push('Фрагмент требует проверенные границы одного исходного фото и его SHA-256.')
   if (task.testPlacements !== undefined && (!Array.isArray(task.testPlacements) || task.optional !== true || !task.learningContext || task.testPlacements.length > 30 ||
     task.testPlacements.some((placement) => !placement || Object.keys(placement).some(key => key !== 'token') || !/^[A-Za-z0-9_-]{24,64}$/.test(placement.token ?? '')) ||
     new Set(task.testPlacements.map(item => item.token)).size !== task.testPlacements.length)) errors.push('Дополнительным тестам нужны уникальные безопасные ссылки.')
@@ -44,6 +52,7 @@ export function learnerOriginErrors(task, intake, photos, sourceDate) {
   const errors = []
   if (!intake || intake.familyId !== task.familyId || intake.childId !== task.childId || intake.sourceIntake?.kind !== 'olympiad-sheet' || intake.learningContext?.id !== task.learningContext?.id || intake.projectionSourceDate !== sourceDate) errors.push('Источник задачи не совпадает с приёмом листа этой олимпиады.')
   if (!Array.isArray(photos) || photos.length !== task.learnerOrigin.uploadIds.length || photos.some((photo, index) => !photo || photo.id !== task.learnerOrigin.uploadIds[index] || photo.taskId !== task.learnerOrigin.intakeTaskId || !['pending', 'reviewed'].includes(photo.status) || photo.storage?.state !== 'stored' || !/^[a-f0-9]{64}$/.test(photo.storage?.sha256 ?? ''))) errors.push('Исходные фото не подтверждены в приёме листа этого ребёнка.')
+  if (task.learnerOrigin.crop && (!validLearnerSourceCrop(task.learnerOrigin.crop) || photos?.length !== 1 || photos[0]?.storage?.sha256 !== task.learnerOrigin.crop.sourceSha256)) errors.push('Фрагмент не совпадает с подтверждённым исходным фото.')
   return errors
 }
 

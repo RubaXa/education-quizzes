@@ -1447,6 +1447,31 @@
       "path": "docs/decisions/olympiad-source-links-2026-10-28.md"
     },
     {
+      "id": "decision.olympiad-source-photo-crop-2026-10-28",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-10-28",
+      "updated": "2026-10-28",
+      "parent": "module.olympiad-preparation",
+      "uses": [
+        "shared.design.ui-kit",
+        "shared.access-and-privacy"
+      ],
+      "consumers": [
+        "Education frontend",
+        "Education operator"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/olympiad-source-photo-crop-2026-10-28.md"
+    },
+    {
       "id": "decision.photo-indexeddb-recovery-2026-10-22",
       "status": "accepted",
       "implementation": "implemented",
@@ -13068,6 +13093,16 @@
       "type": "uses"
     },
     {
+      "from": "decision.olympiad-source-photo-crop-2026-10-28",
+      "to": "shared.access-and-privacy",
+      "type": "uses"
+    },
+    {
+      "from": "decision.olympiad-source-photo-crop-2026-10-28",
+      "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
       "from": "decision.photo-indexeddb-recovery-2026-10-22",
       "to": "decision.photo-storage-ldd-2026-10-22",
       "type": "uses"
@@ -19120,6 +19155,11 @@
     {
       "from": "module.olympiad-preparation",
       "to": "decision.olympiad-source-links-2026-10-28",
+      "type": "contains"
+    },
+    {
+      "from": "module.olympiad-preparation",
+      "to": "decision.olympiad-source-photo-crop-2026-10-28",
       "type": "contains"
     },
     {

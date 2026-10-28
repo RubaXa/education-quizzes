@@ -2618,20 +2618,21 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "743d330b24bdae998e3edbb074ad16bdd749f4b57676cb09bd56fce94331e2e3",
-      "record": "docs/decisions/olympiad-practice-sections-2026-10-28.md",
+      "sha256": "3bb2589fac6a398e7eb769b0b0ff9dd582977973c477be63754d226f8f0da303",
+      "record": "docs/decisions/olympiad-source-photo-crop-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
         "docs/shared/design/ui-kit.md"
       ],
       "tests": [
+        "day/family-assignment.test.mjs",
+        "src/components/LinkedWorkPhotos.test.tsx",
         "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/components/OlympiadPage.integration.test.tsx",
-        "src/UiKit.test.tsx"
+        "src/lib/browserAccessTrace.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель сообщил, что задачи слиплись и сливаются с тестами, и попросил отдельный блок практики."
+        "evidence": "Родитель попросил показывать в карточке задачи оригинальный фрагмент загруженной учеником фотографии."
       }
     },
     "src/UiKit.css": {
@@ -2650,20 +2651,21 @@
       }
     },
     "src/UiKit.tsx": {
-      "sha256": "36e1d7f750926e443d3e2704d26b0029fc047667f946d04cb8b11879ae968e05",
-      "record": "docs/decisions/olympiad-practice-sections-2026-10-28.md",
+      "sha256": "784c7f20c2e3ab5d6ae27a3170292bbeed88ba1365fb0e04f7f81b4ce747d06e",
+      "record": "docs/decisions/olympiad-source-photo-crop-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
         "docs/shared/design/ui-kit.md"
       ],
       "tests": [
+        "day/family-assignment.test.mjs",
+        "src/components/LinkedWorkPhotos.test.tsx",
         "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/components/OlympiadPage.integration.test.tsx",
-        "src/UiKit.test.tsx"
+        "src/lib/browserAccessTrace.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель сообщил, что задачи слиплись и сливаются с тестами, и попросил отдельный блок практики."
+        "evidence": "Родитель попросил показывать в карточке задачи оригинальный фрагмент загруженной учеником фотографии."
       }
     },
     "src/WeekendMathSlot.css": {
@@ -2723,22 +2725,21 @@
       }
     },
     "src/components/ArtifactAvatar.tsx": {
-      "sha256": "346c77e7f95e2d7ec0a3af500c204c2f38636b68818c9a8428695b413c2e11ab",
-      "record": "docs/decisions/photo-transfer-recovery-2026-10-22.md",
+      "sha256": "cb4ef856ccc7c8718488b15514623e89433495ee2098f558da070b245211b70d",
+      "record": "docs/decisions/olympiad-source-photo-crop-2026-10-28.md",
       "specs": [
-        "docs/modules/materials/storage-privacy.md",
-        "docs/modules/school-diary/day-page.md"
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/lib/photoOutbox.test.tsx",
-        "src/components/WorkPhotoGallery.test.tsx",
-        "src/components/WorkReview.requirements.test.tsx",
-        "src/lib/reviewPresentation.test.ts",
-        "src/lib/educationEventProducers.test.ts"
+        "day/family-assignment.test.mjs",
+        "src/components/LinkedWorkPhotos.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/lib/browserAccessTrace.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь повторно сообщил о новой работе без Telegram и автоматической проверки, показал ошибку изображения и неверное время ожидания. Исправляется восстановление передачи того же фото и точное разделение заявки, получения файла и проверки."
+        "evidence": "Родитель попросил показывать в карточке задачи оригинальный фрагмент загруженной учеником фотографии."
       }
     },
     "src/components/AssignmentBrief.css": {
@@ -3127,22 +3128,21 @@
       }
     },
     "src/components/LinkedWorkPhotos.tsx": {
-      "sha256": "f397eb24f2a8b6e435492fa4708bd20e9a89b5758feefbdc479d59e925a4acae",
-      "record": "docs/decisions/upload-photo-timestamp-2026-10-21.md",
+      "sha256": "cdfa93b28f70107bc83907e522de125c05de673b247110b05ab2431abde8e30e",
+      "record": "docs/decisions/olympiad-source-photo-crop-2026-10-28.md",
       "specs": [
-        "docs/modules/school-diary/day-page.md",
-        "docs/shared/design/components.md",
-        "docs/modules/assessments/olympiad-preparation.md"
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/lib/uploadTimestamp.test.ts",
-        "src/components/WorkPhotoGallery.test.tsx",
+        "day/family-assignment.test.mjs",
         "src/components/LinkedWorkPhotos.test.tsx",
-        "src/UiKit.test.tsx"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/lib/browserAccessTrace.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь поручил загружать свои листы и видеть отдельные задачи с происхождением и связанными фотографиями."
+        "evidence": "Родитель попросил показывать в карточке задачи оригинальный фрагмент загруженной учеником фотографии."
       }
     },
     "src/components/MaterialReader.tsx": {
@@ -3655,25 +3655,21 @@
       }
     },
     "src/components/SourceFragment.tsx": {
-      "sha256": "e7ab19ad3eb8a92401461d439d7d6a6a6a071f00f3068024afee1fef52d3176f",
-      "record": "docs/decisions/restore-numbered-original-2026-10-14.md",
+      "sha256": "60a162f8d4fff7048175c2f25cf1d7a12abebad5dd02b84783fdbb6e33e1246b",
+      "record": "docs/decisions/olympiad-source-photo-crop-2026-10-28.md",
       "specs": [
-        "docs/modules/reviews/adaptive-problem-card.md",
-        "docs/modules/reviews/problem-card-design-decisions.md",
-        "docs/shared/design/README.md"
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/components/ProblemTaskCard.contract.test.tsx",
-        "src/components/ProblemStatement.provenance.test.tsx",
-        "src/components/ProblemCard.test.tsx"
+        "day/family-assignment.test.mjs",
+        "src/components/LinkedWorkPhotos.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/lib/browserAccessTrace.test.ts"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "Родитель 14.10.2026 после просмотра конкретного макета с видимым исходным кропом ответил «Да, стало лучше, очень лучше» и потребовал доделать этот вариант, убрав макетную родительскую кнопку загрузки фото."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "ec0d0eefd41c2d8c1ed67c7bc9e75cbee9aeeb6deb299de32304b7f933074ed6"
+        "status": "direct-request",
+        "evidence": "Родитель попросил показывать в карточке задачи оригинальный фрагмент загруженной учеником фотографии."
       }
     },
     "src/components/StatusIcon.css": {
@@ -4038,20 +4034,21 @@
       }
     },
     "src/lib/browserAccessTrace.ts": {
-      "sha256": "d9c8be6daeff6572ee751ef1e820fc2ce4e7037ea95cbb03fe97e9ce9036576a",
-      "record": "docs/decisions/olympiad-family-screen-2026-10-27.md",
+      "sha256": "fa9378a04bab2d32b5db3863562373694c4b784cb2e2f65aee5b5b10849600df",
+      "record": "docs/decisions/olympiad-source-photo-crop-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
         "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/components/OlympiadPage.integration.test.tsx",
-        "src/components/LearningRoute.integration.test.tsx",
-        "src/UiKit.test.tsx"
+        "day/family-assignment.test.mjs",
+        "src/components/LinkedWorkPhotos.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/lib/browserAccessTrace.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь поручил добавление своих задач и диагностику действий через LDD без записи содержимого фотографий."
+        "evidence": "Родитель попросил показывать в карточке задачи оригинальный фрагмент загруженной учеником фотографии."
       }
     },
     "src/lib/dayCompatibility.ts": {
@@ -4174,19 +4171,21 @@
       }
     },
     "src/lib/dayStore.ts": {
-      "sha256": "9784646e31a9922e696e9906e6c2f5d1afde6263aed2d59e6d318fa50f68481f",
-      "record": "docs/decisions/olympiad-source-links-2026-10-28.md",
+      "sha256": "d1f3f3f43568faf4e9d811c65876ea647d2619b212d9feb1440bf14d83fdbbd6",
+      "record": "docs/decisions/olympiad-source-photo-crop-2026-10-28.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md"
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "scripts/firestore-rules-help-emulator.test.mjs",
         "day/family-assignment.test.mjs",
-        "src/DayPage.assignmentQuiz.integration.test.tsx"
+        "src/components/LinkedWorkPhotos.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/lib/browserAccessTrace.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 28.10.2026 поручил выделить задачи из фотографий, связывать дубликаты и опубликовать после интеграционных тестов."
+        "evidence": "Родитель попросил показывать в карточке задачи оригинальный фрагмент загруженной учеником фотографии."
       }
     },
     "src/lib/educationEventProducer.ts": {
@@ -5651,19 +5650,21 @@
       }
     },
     "day/family-assignment.mjs": {
-      "sha256": "c4ae8e6b5e322bee17959288358c733f519590ed5598cb794c69e88070ef54f7",
-      "record": "docs/decisions/olympiad-source-links-2026-10-28.md",
+      "sha256": "bbc919792b257ce2e39773c0a3625fa041d5cc2598becdf46a9deb5f8b9401eb",
+      "record": "docs/decisions/olympiad-source-photo-crop-2026-10-28.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md"
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "scripts/firestore-rules-help-emulator.test.mjs",
         "day/family-assignment.test.mjs",
-        "src/DayPage.assignmentQuiz.integration.test.tsx"
+        "src/components/LinkedWorkPhotos.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/lib/browserAccessTrace.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 28.10.2026 поручил выделить задачи из фотографий, связывать дубликаты и опубликовать после интеграционных тестов."
+        "evidence": "Родитель попросил показывать в карточке задачи оригинальный фрагмент загруженной учеником фотографии."
       }
     },
     "day/family-dashboard-delta.mjs": {

@@ -54,3 +54,18 @@ describe('read-only photo reference', () => {
     } finally { await act(async () => root.unmount()) }
   })
 })
+
+it('shows a verified source fragment and falls back when its photo hash differs', async () => {
+  const host = document.createElement('div'); document.body.append(host); const root = createRoot(host)
+  const crop = { x: 20, y: 30, width: 100, height: 80, sourceWidth: 400, sourceHeight: 240, sourceSha256: 'a'.repeat(64) }
+  const upload = { id: 'day:photo-one', taskId: 'intake', status: 'pending', storage: { sha256: 'a'.repeat(64) } } as DayUpload
+  try {
+    await act(async () => root.render(<LinkedWorkPhotos taskId="task" uploads={[upload]} pages={[]} source={{ intakeTaskId: 'intake', uploadIds: ['photo-one'], crop }} number={2} />))
+    expect(host.querySelector('.source-fragment')).not.toBeNull()
+    expect(host.textContent).toContain('Фото условия')
+    expect(host.querySelector('[data-photo]')?.getAttribute('data-photo')).toBe(upload.id)
+    await act(async () => root.render(<LinkedWorkPhotos taskId="task" uploads={[{ ...upload, storage: { ...upload.storage!, sha256: 'b'.repeat(64) } }]} pages={[]} source={{ intakeTaskId: 'intake', uploadIds: ['photo-one'], crop }} />))
+    expect(host.querySelector('.source-fragment')).toBeNull()
+    expect(host.textContent).toContain('Фото условия')
+  } finally { await act(async () => root.unmount()); host.remove() }
+})
