@@ -180,3 +180,11 @@
 
 /* Shared olympiad catalog rows and tabs. */
 .olympiad-catalog-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:0.5rem}
+
+/* @see ../docs/modules/assessments/olympiad-preparation.md */
+.olympiad-catalog-list{display:grid;gap:10px}
+.olympiad-catalog-row{grid-template-columns:39px minmax(0,1fr) var(--edu-touch-target);gap:8px;cursor:default}
+.olympiad-card-link{border:0;padding:0;background:transparent;text-align:left;color:inherit;font:inherit;cursor:pointer}
+.olympiad-card-link:focus-visible{outline:3px solid var(--edu-focus);outline-offset:3px}
+.olympiad-catalog-row>small{grid-column:2 / -1}
+@media(max-width:640px){.day-dashboard-card .day-tabs{display:flex;flex-wrap:nowrap;gap:4px;margin:12px 0}.day-dashboard-card .day-tabs button{flex:1 1 auto;min-width:0;white-space:nowrap;padding:9px 2px;font-size:.75rem}}

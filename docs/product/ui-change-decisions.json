@@ -2563,22 +2563,21 @@
       }
     },
     "src/DayDashboard.css": {
-      "sha256": "0ed3013b826a978035296a07ba81102978bb5bc4a79e10fda9de97eae4dac545",
+      "sha256": "f7c350d90029adcd53aaf699e518c9c2b9b05ba97a4789f79dbe9b96daee5645",
       "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
-        "docs/modules/notifications/inbox.md",
         "docs/shared/design/components.md"
       ],
       "tests": [
         "src/components/OlympiadHome.integration.test.tsx",
-        "scripts/firestore-rules-olympiad-catalog-emulator.test.mjs",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/OlympiadPage.integration.test.tsx",
+        "src/components/LearningRoute.integration.test.tsx",
         "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь одобрил компактный переключатель, активные и доступные олимпиады по ребёнку и уведомление ученику и потребовал реализовать их через UI Kit и общую инфраструктуру."
+        "evidence": "Пользователь сообщил со скриншотами о переносе вкладок, неразличимых карточках олимпиад и неработающем переходе и потребовал исправить."
       }
     },
     "src/DayDashboard.tsx": {
@@ -2665,29 +2664,31 @@
       }
     },
     "src/UiKit.tsx": {
-      "sha256": "7ef9105e9935ab7bae22fde876e18a34520cb98268c4f9589e10d0074a4f9e4f",
-      "record": "docs/decisions/calendar-scroll-selection-2026-10-28.md",
+      "sha256": "d47b1b37ea9cd80690499b80fa63a0c895fd31d650a20eab171b7cf7fa9716c4",
+      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
+        "docs/shared/design/components.md",
         "docs/modules/synchronization/education-pipeline.md",
         "docs/modules/school-diary/school-calendar.md",
         "docs/shared/design/README.md",
         "docs/shared/design/ui-kit.md",
-        "docs/product/ui-change-control.md",
-        "docs/shared/design/components.md"
+        "docs/product/ui-change-control.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/OlympiadHome.integration.test.tsx",
         "src/components/OlympiadPage.integration.test.tsx",
+        "src/components/LearningRoute.integration.test.tsx",
+        "src/UiKit.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
         "src/components/TaskGuidance.test.tsx",
         "src/lib/educationEventProducers.test.ts",
         "sync/event-task-artifact.test.mjs",
-        "src/UiKit.test.tsx",
         "src/components/DayCalendar.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя от 28.10.2026 по трём скриншотам: центрирование выбранного дня при открытии, отсутствие сдвига при выборе рядом, плавное смещение к центру при выборе у края; требование связать общее поведение DayCalendar со спецификацией, UI Kit и дизайн-системой."
+        "evidence": "Пользователь сообщил со скриншотами о переносе вкладок, неразличимых карточках олимпиад и неработающем переходе и потребовал исправить. Прямой запрос родителя от 28.10.2026 по трём скриншотам: центрирование выбранного дня при открытии, отсутствие сдвига при выборе рядом, плавное смещение к центру при выборе у края; требование связать общее поведение DayCalendar со спецификацией, UI Kit и дизайн-системой."
       }
     },
     "src/WeekendMathSlot.css": {
@@ -3120,22 +3121,21 @@
       }
     },
     "src/components/LearningRoute.tsx": {
-      "sha256": "038d326149767a928acefa6e7e63e03bddb873fba30f0a4fa8dabe5b2376de4c",
+      "sha256": "534957d8d4b41455c53782e3085321f5d71836ee82330424ba1edc1f22ef92b8",
       "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
-        "docs/modules/synchronization/education-pipeline.md"
+        "docs/shared/design/components.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/OlympiadHome.integration.test.tsx",
         "src/components/OlympiadPage.integration.test.tsx",
-        "src/components/TaskGuidance.test.tsx",
-        "src/lib/educationEventProducers.test.ts",
-        "sync/event-task-artifact.test.mjs"
+        "src/components/LearningRoute.integration.test.tsx",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо потребовал использовать общие уроки, семейные права, фотографии и синхронизацию Education для олимпиад."
+        "evidence": "Пользователь сообщил со скриншотами о переносе вкладок, неразличимых карточках олимпиад и неработающем переходе и потребовал исправить."
       }
     },
     "src/components/LinkedWorkPhotos.css": {
@@ -6287,22 +6287,21 @@
       }
     },
     "src/components/OlympiadCatalog.tsx": {
-      "sha256": "13fa05f1277bcd06b072267855e71617e873c5f256c31ef5f04f72e8736cd32f",
+      "sha256": "d325803f7c87e6298b4220b79342553e904633708bd3ed657721575a077439da",
       "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
-        "docs/modules/notifications/inbox.md",
         "docs/shared/design/components.md"
       ],
       "tests": [
         "src/components/OlympiadHome.integration.test.tsx",
-        "scripts/firestore-rules-olympiad-catalog-emulator.test.mjs",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/OlympiadPage.integration.test.tsx",
+        "src/components/LearningRoute.integration.test.tsx",
         "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь одобрил компактный переключатель, активные и доступные олимпиады по ребёнку и уведомление ученику и потребовал реализовать их через UI Kit и общую инфраструктуру."
+        "evidence": "Пользователь сообщил со скриншотами о переносе вкладок, неразличимых карточках олимпиад и неработающем переходе и потребовал исправить."
       }
     },
     "src/components/OlympiadHome.tsx": {
@@ -6325,22 +6324,21 @@
       }
     },
     "src/components/OlympiadPage.tsx": {
-      "sha256": "66e8890b71c604c67030f5e68722993870fac68aaf3a30d5cf7211047c2ce9f8",
+      "sha256": "372646e58630e782ddbea2109e647f85e8158b18b61f1ea4c34b2e5a686902f6",
       "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
-        "docs/modules/synchronization/education-pipeline.md"
+        "docs/shared/design/components.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/OlympiadHome.integration.test.tsx",
         "src/components/OlympiadPage.integration.test.tsx",
-        "src/components/TaskGuidance.test.tsx",
-        "src/lib/educationEventProducers.test.ts",
-        "sync/event-task-artifact.test.mjs"
+        "src/components/LearningRoute.integration.test.tsx",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо потребовал использовать общие уроки, семейные права, фотографии и синхронизацию Education для олимпиад."
+        "evidence": "Пользователь сообщил со скриншотами о переносе вкладок, неразличимых карточках олимпиад и неработающем переходе и потребовал исправить."
       }
     },
     "src/components/OlympiadWrittenPractice.tsx": {

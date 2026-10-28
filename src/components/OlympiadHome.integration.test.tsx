@@ -23,17 +23,17 @@ function fixture(role:'parent'|'student', selected:string[] = []) {
 }
 it('parent selects a catalog item and sees it in active', async () => {
  await fixture('parent')
- expect(host.textContent).toContain('Активные · 0')
+ expect(host.textContent).toContain('Активные 0')
  const tabs=host.querySelectorAll<HTMLButtonElement>('[role=tab]'); await act(async()=>tabs[1].click())
  expect(host.textContent).toContain('Общая олимпиада'); expect(host.textContent).not.toContain('Семейная подготовка'); expect(host.textContent).toContain('5 ноября 2026 г.')
  const toggle=host.querySelector<HTMLButtonElement>('[role=switch]')!; expect(toggle.getAttribute('aria-checked')).toBe('false')
  await act(async()=>toggle.click()); expect(setOlympiadSelection).toHaveBeenCalledWith('family','child','shared',true)
- expect(host.textContent).toContain('Активные · 1'); await act(async()=>tabs[0].click()); expect(host.textContent).toContain('Общая олимпиада')
+ expect(host.textContent).toContain('Активные 1'); await act(async()=>tabs[0].click()); expect(host.textContent).toContain('Общая олимпиада')
 })
 it('student sees selected items and cannot select others', async()=>{
  await fixture('student',['shared']);expect(host.textContent).toContain('Общая олимпиада');expect(host.textContent).not.toContain('Доступные');expect(host.querySelector('[role=switch]')).toBeNull();expect(host.textContent).not.toContain('Другая олимпиада')
 })
 it('does not claim selection succeeded when the write fails', async()=>{
  await fixture('parent');vi.mocked(setOlympiadSelection).mockRejectedValue(new Error('denied'))
- await act(async()=>host.querySelectorAll<HTMLButtonElement>('[role=tab]')[1].click());await act(async()=>host.querySelector<HTMLButtonElement>('[role=switch]')!.click());expect(host.textContent).toContain('Не удалось изменить участие');expect(host.textContent).toContain('Активные · 0')
+ await act(async()=>host.querySelectorAll<HTMLButtonElement>('[role=tab]')[1].click());await act(async()=>host.querySelector<HTMLButtonElement>('[role=switch]')!.click());expect(host.textContent).toContain('Не удалось изменить участие');expect(host.textContent).toContain('Активные 0')
 })

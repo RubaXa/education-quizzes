@@ -251,13 +251,13 @@ it('previews the shared lesson from a student projection',async()=>{
 it('previews the shared family olympiad catalog and participation locally',async()=>{
  document.body.append(host);root=createRoot(host);await act(async()=>root!.render(<UiKit/>))
  await act(async()=>[...host.querySelectorAll<HTMLButtonElement>('nav button')].find(button=>button.textContent==='Список олимпиад')!.click())
- expect(host.textContent).toContain('Активные · 0')
+ expect(host.textContent).toContain('Активные 0')
  await act(async()=>[...host.querySelectorAll<HTMLButtonElement>('[role=tab]')].find(button=>button.textContent?.includes('Доступные'))!.click())
  await act(async()=>host.querySelector<HTMLButtonElement>('[role=switch]')!.click())
- expect(host.textContent).toContain('Активные · 1')
+ expect(host.textContent).toContain('Активные 1')
  await act(async()=>[...host.querySelectorAll<HTMLButtonElement>('button')].find(button=>button.textContent==='Ученик')!.click())
  expect(host.textContent).not.toContain('Выключить подготовку')
- expect(host.textContent).toContain('Открыть подготовку')
+ expect(host.querySelector('[aria-label="Открыть олимпиаду «Формула Единства / Третье тысячелетие · пример»"]')).not.toBeNull()
 })
 
 it('previews the same role-aware olympiad page without a network request',async()=>{
