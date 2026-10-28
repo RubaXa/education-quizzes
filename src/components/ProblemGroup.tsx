@@ -11,10 +11,10 @@ import './ProblemGroup.css'
 /** @see ../../docs/modules/school-diary/day-page.md#completed-problem-group
  * @see ../../docs/modules/reviews/problem-card-design-decisions.md#flat-numbered-sheet
  * @see ../../docs/shared/design/statuses.md#components */
-export default function ProblemGroup({ id, title, subtitle, problems, requiredProblems = problems, numberLabel, uploads, reviews, decisions = [], localPendingCount, requiredLocalPendingCount, sourceCount, ready, focusTaskId, children }: {
+export default function ProblemGroup({ id, title, subtitle, problems, requiredProblems = problems, numberLabel, uploads, reviews, decisions = [], localPendingCount, requiredLocalPendingCount, sourceCount, ready, focusTaskId, defaultOpen = false, children }: {
   id: string; title: string; subtitle?: string; problems: DayProblem[]; requiredProblems?: DayProblem[]; numberLabel?: string; uploads: DayUpload[]; reviews: DayWorkReview[];
   decisions?: ParentCompletionEvent[];
-  localPendingCount: number; requiredLocalPendingCount?: number; sourceCount: number; ready: boolean; focusTaskId?: string; children: ReactNode;
+  localPendingCount: number; requiredLocalPendingCount?: number; sourceCount: number; ready: boolean; focusTaskId?: string; defaultOpen?: boolean; children: ReactNode;
 }) {
   const [manualOpen, setManualOpen] = useState<boolean | null>(null)
   const summary = summarizeProblemGroup(problems, uploads, reviews, localPendingCount, ready, decisions)
@@ -22,7 +22,7 @@ export default function ProblemGroup({ id, title, subtitle, problems, requiredPr
   const focused = focusTaskId === id || problems.some((problem) => problem.id === focusTaskId)
   // @see ../../docs/modules/school-diary/day-page.md#completed-problem-group
   // A sheet is compact on entry; an explicit deep link still reveals its target.
-  const open = manualOpen ?? focused
+  const open = manualOpen ?? (focused || defaultOpen)
   const bodyId = `problem-group-${id.replace(/[^a-zA-Z0-9_-]/g, '-')}`
   return <section className={`problem-group ${summary.tone}`}>
     <button className="problem-group-toggle" type="button" aria-expanded={open} aria-controls={bodyId} aria-label={`${open ? 'Свернуть' : 'Развернуть'} ${title}; ${ready ? `${summary.completedCount} из ${summary.total} проверено${summary.needsFixCount ? `, ${summary.needsFixCount} требуют исправления` : ''}${requiredProblems.length ? `; обязательная часть ${requiredSummary.completedCount} из ${requiredSummary.total}` : ''}` : 'загружаем результаты'}`} onClick={() => setManualOpen(!open)}>

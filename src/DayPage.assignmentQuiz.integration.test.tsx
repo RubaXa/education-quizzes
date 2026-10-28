@@ -608,3 +608,34 @@ it.each([false, true])('keeps an audio-only listening task inside both day and q
   } finally { await view.cleanup() }
  }
 })
+
+it.each([true, false])('shows all olympiad problems without opening a counter first, parent=%s', async parent => {
+  const source = page()
+  const original = source.subjects[0].tasks[0]
+  scene.page = { ...source, familyId: 'family', childId: 'child', subjects: [{ ...source.subjects[0], tasks: [{ ...original, optional: true, learningContext: { kind: 'olympiad', id: 'o1' } }] }], testPlacements: [] }
+  scene.role = parent ? 'parent' : 'student'
+  const host = document.createElement('div'); document.body.append(host); const root = createRoot(host)
+  try {
+    await act(async () => root.render(<DayPage token="role-day" parent={parent} headerReturnTarget={null} olympiadScope={{ familyId: 'family', childId: 'child', olympiadId: 'o1', taskId, testTokens: [] }} />))
+    expect(host.querySelector('.problem-group-toggle')?.getAttribute('aria-expanded')).toBe('true')
+    expect(host.querySelectorAll('.day-practice-variant[open]')).toHaveLength(2)
+    expect(host.querySelectorAll('.day-problem-list [id]') .length).toBeGreaterThan(1)
+    expect(host.textContent).toContain('Марки Ивана')
+  } finally { await act(async () => root.unmount()); host.remove() }
+})
+
+it.each([true, false])('shows the olympiad source sheet upload only to the learner, parent=%s', async parent => {
+  const id = 'source-sheet'
+  const sourceTask = { id, title: 'Свои задачи', detail: 'Пришли фото листа с условиями.', source: 'Education', kind: 'written' as const, status: 'unknown' as const,
+    optional: true, learningContext: { kind: 'olympiad' as const, id: 'o1' }, sourceIntake: { kind: 'olympiad-sheet' as const } }
+  scene.page = { ...page(), familyId: 'family', childId: 'child', subjects: [{ ...page().subjects[0], tasks: [sourceTask] }], testPlacements: [] }
+  scene.role = parent ? 'parent' : 'student'
+  const host = document.createElement('div'); document.body.append(host); const root = createRoot(host)
+  try {
+    await act(async () => root.render(<DayPage token="role-day" parent={parent} headerReturnTarget={null} olympiadScope={{ familyId: 'family', childId: 'child', olympiadId: 'o1', taskId: id, testTokens: [] }} />))
+    expect(host.textContent).toContain('Пришли фото листа с условиями.')
+    expect(host.textContent).not.toContain('Загрузить результат')
+    expect(host.querySelector('input[type=file]') !== null).toBe(!parent)
+    if (!parent) expect(host.querySelector('.day-upload')?.textContent).toContain('Добавить свои задачи')
+  } finally { await act(async () => root.unmount()); host.remove() }
+})

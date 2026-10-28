@@ -54,6 +54,17 @@ describe('deterministic task route from existing source state', () => {
     expect(taskRoute({ ...unresolved, testToken: 'old' }).next).toBe('recover-source')
     expect(taskRoute({ ...ready, platformResult: { state: 'completed' } }).next).toBe('platform-result-confirmed')
   })
+  it('routes learner-submitted olympiad conditions separately from solved work', () => {
+    const task = { ...ready, optional: true, learningContext: { kind: 'olympiad', id: 'o1' }, sourceIntake: { kind: 'olympiad-sheet' } }
+    const route = eventTaskRoute('upload.confirmed', { context: { subject: 'Математика', task } })
+    expect(route.next).toBe('ingest-olympiad-sheet')
+    expect(route.steps).toContain('verify-source-and-solution')
+    expect(route.steps.indexOf('check-competition-assistance-policy')).toBeLessThan(route.steps.indexOf('verify-source-and-solution'))
+    expect(route.complete).toBe(false)
+    expect(eventTaskRoute('upload.confirmed', { context: { task: { ...task, optional: false } } }).next).toBe('review-written-work')
+    expect(eventTaskRoute('upload.confirmed', { context: { task: { ...task, learningContext: { kind: 'homework' } } } }).next).toBe('review-written-work')
+    expect(eventTaskRoute('help.requested', { context: { task } }).next).toBe('address-help-request')
+  })
   it('routes a requested page upload to source analysis, never to a homework grade', () => {
     expect(eventTaskRoute('upload.confirmed', { source: { purpose: 'source-material' }, context: { subject: 'Английский язык', task: ready } }).next).toBe('review-source-material')
     expect(eventTaskRoute('upload.confirmed', { source: {}, context: { task: { ...unresolved, materialRequest: request, assessmentIntent: { state: 'needs-topic' } } } }).next).toBe('review-source-material')

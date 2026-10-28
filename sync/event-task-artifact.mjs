@@ -140,7 +140,9 @@ export async function prepareEventTaskArtifact(db, event, { now = new Date().toI
   const artifact = { schemaVersion: 1, artifactId, eventId: event.eventId, eventType: event.eventType,
     familyId: event.familyId, childId: event.childId, sourceRef: event.sourceRef, operationId: event.operationId,
     source: event.source, actor: event.actor ?? { type: 'system', id: 'server' }, fingerprint,
-    verifiedAt: now, state: 'ready', instruction: inputs.route.next === 'review-source-material'
+    verifiedAt: now, state: 'ready', instruction: inputs.route.next === 'ingest-olympiad-sheet'
+      ? 'Это фотография условий, не решение ученика. До подготовки решения проверьте источник и запрет помощи для текущего соревнования; при запрете или неизвестности не создавайте разбор. Разрешённые задачи выделить, сверить проверенные решения, связать подтверждённые дубликаты и опубликовать семейные карточки с readback. Непроверенное условие или решение не выдавать за готовое.'
+      : inputs.route.next === 'review-source-material'
       ? 'Прочитать запрошенный источник, не оценивать выполнение ДЗ. Использовать source-material/sourceAnalysis штатного submissions CLI; затем разрешить запрос только по доказательствам, пересмотреть точное назначение и подтвердить ролевой readback. Получение страницы не означает выполненное ДЗ.'
       : instructions[event.eventType], inputs }
   if (Buffer.byteLength(JSON.stringify(artifact)) > 700_000) fail('task_artifact_too_large')

@@ -71,6 +71,17 @@ describe('family-origin day assignments', () => {
     expect(mergeFamilyAssignments(page, [assignment, math]).planRevision).toBe(page.planRevision)
   })
 
+  it('projects a source intake only in an optional olympiad and preserves it across a repeat publish', () => {
+    const task = { ...assignment, subjectId: 'math', subjectName: 'Математика', learningContext: { kind: 'olympiad', id: 'o1' }, optional: true, sourceIntake: { kind: 'olympiad-sheet' } }
+    const owner = { familyId: task.familyId, childId: task.childId, taskId: task.id }
+    expect(familyAssignmentErrors(task, owner)).toEqual([])
+    expect(familyAssignmentErrors({ ...task, optional: false }, owner)).not.toEqual([])
+    expect(familyAssignmentErrors({ ...task, sourceIntake: { kind: 'other' } }, owner)).not.toEqual([])
+    const page = mergeFamilyAssignments({ planRevision: 1, subjects: [] }, [task])
+    expect(page.subjects[0].tasks[0].sourceIntake).toEqual({ kind: 'olympiad-sheet' })
+    expect(mergeFamilyAssignments(page, [task]).planRevision).toBe(page.planRevision)
+  })
+
   it('accepts only optional quizzes belonging to the same child and context', () => {
     const token = 'q'.repeat(32), context = { kind: 'olympiad', id: 'formulo' }
     const math = { ...assignment, id: 'family-math-olympiad', sourceId: 'family-math-olympiad', subjectId: 'math', subjectName: 'Математика',

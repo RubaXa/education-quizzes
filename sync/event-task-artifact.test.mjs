@@ -35,6 +35,14 @@ describe('closed event task inputs', () => {
     expect(artifact.instruction).toContain('не оценивать выполнение ДЗ')
     expect(validateTaskArtifact(artifact, { eventId: event.eventId }).state).toBe('ready')
   })
+  it('dispatches an olympiad source sheet as conditions, not a learner solution', async () => {
+    const { db, rows } = fixture({ 'dayPages/day': { kind: 'student', date: '2026-10-19', targetDate: '2026-10-20', planRevision: 2, subjects: [{ name: 'Математика', tasks: [{ id: 'task', optional: true, learningContext: { kind: 'olympiad', id: 'o1' }, sourceIntake: { kind: 'olympiad-sheet' } }] }] } })
+    const result = await prepareEventTaskArtifact(db, event)
+    const artifact = rows.get(result.artifactPath)
+    expect(artifact.inputs.route.next).toBe('ingest-olympiad-sheet')
+    expect(artifact.instruction).toContain('не решение ученика')
+    expect(artifact.inputs.route.steps).toContain('publish-family-tasks-and-readback')
+  })
   it('captures the exact work, assignment and owner without any collection scan', async () => {
     const { db, rows, reads } = fixture()
     const result = await prepareEventTaskArtifact(db, event, { now: '2026-10-19T10:00:00.000Z' })

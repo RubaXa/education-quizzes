@@ -52,3 +52,13 @@ for (const width of [320, 375, 390, 430]) {
     await expect(page.getByText('Пример перехода: Формула Единства')).toBeVisible()
   })
 }
+
+test('olympiad practice fixture shows its problems before expanding the group', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 820 })
+  await page.getByRole('button', { name: 'Письменная задача' }).click()
+  const group = page.getByRole('button', { name: /Свернуть Задачи для практики/ })
+  await expect(group).toHaveAttribute('aria-expanded', 'true')
+  await expect(page.getByText('Условная олимпиадная задача')).toBeVisible()
+  await group.click()
+  await expect(page.getByRole('button', { name: /Развернуть Задачи для практики/ })).toHaveAttribute('aria-expanded', 'false')
+})
