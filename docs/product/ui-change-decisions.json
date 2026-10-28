@@ -2625,20 +2625,20 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "40b63b91c8d1a69557ac00d1079439785a163f338f4d2896a01260b72a22f2d1",
-      "record": "docs/decisions/olympiad-shared-statement-2026-10-28.md",
+      "sha256": "d439ee1085fee8624a07f71a9ce443fcdb4ad33ec9e4cc271ecbb6b50d6cabaa",
+      "record": "docs/decisions/olympiad-repeat-uploads-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
         "docs/shared/design/ui-kit.md"
       ],
       "tests": [
         "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/components/ProblemTaskCard.contract.test.tsx",
+        "src/components/PhotoUploadControl.test.tsx",
         "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 28.10.2026 попросил использовать карточку и условие задачи как в спецкурсе и домашнем задании."
+        "evidence": "Родитель попросил постоянную повторную загрузку и выбор нескольких фотографий."
       }
     },
     "src/UiKit.css": {
@@ -6705,22 +6705,20 @@
       }
     },
     "src/components/OlympiadSourceQueue.tsx": {
-      "sha256": "32d4362df94957a197313a21524fd647c9c653ea1dd76d9358c07ac1cb177272",
-      "record": "docs/decisions/olympiad-firebase-independence-2026-10-28.md",
+      "sha256": "df4e726dba13a778c7a4a980efbb22769b5ee576a1d268cfa1fb13b9194e739e",
+      "record": "docs/decisions/olympiad-repeat-uploads-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
-        "docs/services/telegram-bot/education-sync-dispatch.md",
         "docs/shared/design/ui-kit.md"
       ],
       "tests": [
         "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "day/family-assignment.test.mjs",
-        "sync/task-route.test.mjs",
-        "packages/telegram-notifications/application/education-sync-action-store.test.mjs"
+        "src/components/PhotoUploadControl.test.tsx",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель попросил независимо обработать Firebase и добавить фотографии его задач как карточки с загрузкой ответов."
+        "evidence": "Родитель попросил постоянную повторную загрузку и выбор нескольких фотографий."
       }
     },
     "src/components/OlympiadReferences.tsx": {
