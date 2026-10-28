@@ -49,7 +49,7 @@ vi.mock('./lib/useParentCompletions', () => ({
 }))
 vi.mock('./lib/useDayQuizOutcomes', () => ({
   useDayQuizOutcomes: () => ({
-    boardEntries: [{ token: 'diagrams-test', testId: 'quiz-1', title: 'Диаграммы — тренировка', subject: 'Математика', slug: 'diagrams' }],
+    boardEntries: [{ token: 'diagrams-test', testId: 'quiz-1', title: 'Диаграммы — тренировка', subject: 'Математика', slug: 'diagrams', previewToken: 'preview-only' }],
     tests: { 'diagrams-test': { testId: 'quiz-1', status: 'open', title: 'Диаграммы — тренировка', subject: 'Математика',
       description: 'Самопроверка по теме.', questions: Array.from({ length: 20 }, (_, index) => ({ id: `q-${index}` })), answers: {}, familyOptional: scene.quizOptional,
       createdAt: { seconds: 1792000000, nanoseconds: 0 }, updatedAt: { seconds: 1792003600, nanoseconds: 0 } } },
@@ -146,12 +146,20 @@ it.each([true, false])('projects only the selected family olympiad task and its 
   scene.page = { ...page(), familyId: 'family', childId: 'child', subjects: [{ ...page().subjects[0], tasks: [...page().subjects[0].tasks, extra] }],
     testPlacements: [{ token: 'diagrams-test', subjectId: 'math', optional: true }] }
   scene.role = parent ? 'parent' : 'student'
+  sessionStorage.setItem('education-day-initial-tab', 'school')
   const host = document.createElement('div'); document.body.append(host); const root = createRoot(host)
   try {
     await act(async () => root.render(<DayPage token="role-day" parent={parent} headerReturnTarget={null} olympiadScope={{ familyId: 'family', childId: 'child', olympiadId: 'o1', taskId: id, testTokens: ['diagrams-test'] }} />))
     expect(host.textContent).toContain('Олимпиадная практика')
     expect(host.textContent).not.toContain('Подготовиться к самостоятельной: диаграммы')
-    expect(host.querySelector('.day-summary strong')?.textContent).toBe('0')
+    expect(host.textContent).toContain('Материалы и задания')
+    expect(host.textContent).toContain('Диаграммы — тренировка')
+    expect(host.textContent).toContain('Не начат · 20 вопросов')
+    expect(host.querySelector('[aria-label="Раздел страницы дня"]')).toBeNull()
+    expect(host.textContent).not.toContain('Расписание')
+    const quiz = host.querySelector<HTMLAnchorElement>('.day-quiz-lineage-actions a.day-quiz-link')
+    expect(quiz?.getAttribute('href')).toBe(parent ? '#/preview/diagrams~preview-only' : '#/t/diagrams~diagrams-test')
+    expect(host.querySelector('input[type=file]') !== null).toBe(!parent)
   } finally { await act(async () => root.unmount()); host.remove() }
 })
 

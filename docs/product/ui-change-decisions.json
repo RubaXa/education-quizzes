@@ -2630,7 +2630,7 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "74049ceb577a864bd2427a5861c9461c58428a222580c0034b03e4e112515a7e",
+      "sha256": "7d1cdb7daa9a010d6c9830bc9720098c94e864efa1a4f2f589d15a7df6ed9326",
       "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
@@ -2645,7 +2645,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь одобрил компактный переключатель, активные и доступные олимпиады по ребёнку и уведомление ученику и потребовал реализовать их через UI Kit и общую инфраструктуру."
+        "evidence": "Пользователь попросил родительский просмотр того же содержимого, что у ученика, включая материалы, задачи и прогресс, без выполнения за ребёнка."
       }
     },
     "src/UiKit.css": {
@@ -3576,7 +3576,7 @@
       }
     },
     "src/components/QuizCard.tsx": {
-      "sha256": "0a9462b4d791f4fc1b822aaaf24885fab1c402638e9e271335ea70eee1e267df",
+      "sha256": "3411b469f4209cf3cbab312e9100e8f3f37a4765a3478d5b19d687594e219da7",
       "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
@@ -3592,7 +3592,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо потребовал использовать общие уроки, семейные права, фотографии и синхронизацию Education для олимпиад."
+        "evidence": "Пользователь попросил видеть по каждому учебному материалу и тесту, начат он или нет, одинаково для родителя и ученика."
       }
     },
     "src/components/QuizResultCard.tsx": {
@@ -6324,7 +6324,7 @@
       }
     },
     "src/components/OlympiadPage.tsx": {
-      "sha256": "372646e58630e782ddbea2109e647f85e8158b18b61f1ea4c34b2e5a686902f6",
+      "sha256": "fe8bbd6dcc09a0fda8e2714345e9b18314b3b6bbe560e026ff0f1dfd82574660",
       "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
@@ -6338,7 +6338,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь сообщил со скриншотами о переносе вкладок, неразличимых карточках олимпиад и неработающем переходе и потребовал исправить."
+        "evidence": "Пользователь попросил родительский просмотр того же содержимого, что у ученика, включая материалы, задачи и прогресс, без выполнения за ребёнка."
       }
     },
     "src/components/OlympiadWrittenPractice.tsx": {
