@@ -18,6 +18,7 @@ const scene = vi.hoisted(() => ({
   guides: {} as Record<string, unknown>,
   choiceCalls: [] as boolean[],
   quizOptional: false,
+  quizSlug: 'diagrams',
   quizChoiceCalls: [] as boolean[],
   guidanceCalls: [] as unknown[][],
 }))
@@ -49,7 +50,7 @@ vi.mock('./lib/useParentCompletions', () => ({
 }))
 vi.mock('./lib/useDayQuizOutcomes', () => ({
   useDayQuizOutcomes: () => ({
-    boardEntries: [{ token: 'diagrams-test', testId: 'quiz-1', title: 'Диаграммы — тренировка', subject: 'Математика', slug: 'diagrams', previewToken: 'preview-only' }],
+    boardEntries: [{ token: 'diagrams-test', testId: 'quiz-1', title: 'Диаграммы — тренировка', subject: 'Математика', slug: scene.quizSlug, previewToken: 'preview-only' }],
     tests: { 'diagrams-test': { testId: 'quiz-1', status: 'open', title: 'Диаграммы — тренировка', subject: 'Математика',
       description: 'Самопроверка по теме.', questions: Array.from({ length: 20 }, (_, index) => ({ id: `q-${index}` })), answers: {}, familyOptional: scene.quizOptional,
       createdAt: { seconds: 1792000000, nanoseconds: 0 }, updatedAt: { seconds: 1792003600, nanoseconds: 0 } } },
@@ -111,6 +112,7 @@ beforeEach(() => {
   scene.guides = { [firstProblemIds[0]]: { guide: { kind: 'worked-solution', presentation: 'math-route', overview: 'Разбор для родителя', stages: [] } } }
   scene.choiceCalls = []
   scene.quizOptional = false
+  scene.quizSlug = 'diagrams'
   scene.quizChoiceCalls = []
   scene.guidanceCalls = []
   sessionStorage.clear()
@@ -686,5 +688,22 @@ it.each([true, false])('shows incoming source photos as a queue without claiming
     expect(host.querySelectorAll('.day-upload-chip')).toHaveLength(1)
     expect(host.querySelector('input[type=file]') !== null).toBe(!parent)
     expect(host.textContent).not.toContain('фото проверено')
+  } finally { await act(async () => root.unmount()); host.remove() }
+})
+
+// The same placement is read through the real DayPage adapter in both roles.
+it.each([true, false])('shows olympiad reading before its test, parent=%s', async parent => {
+  const id = 'family-olympiad'
+  const extra = { id, title: 'Практика', detail: '', source: 'Education', kind: 'written' as const, status: 'unknown' as const, optional: true, learningContext: { kind: 'olympiad' as const, id: 'o1' } }
+  scene.quizSlug = 'training-parity-v1'
+  scene.page = { ...page(), familyId: 'family', childId: 'child', subjects: [{ ...page().subjects[0], tasks: [extra] }], testPlacements: [{ token: 'diagrams-test', subjectId: 'math', optional: true }] }
+  scene.role = parent ? 'parent' : 'student'
+  const host = document.createElement('div'); document.body.append(host); const root = createRoot(host)
+  try {
+    await act(async () => root.render(<DayPage token="role-day" parent={parent} headerReturnTarget={null} olympiadScope={{ familyId: 'family', childId: 'child', olympiadId: 'o1', taskId: id, testTokens: ['diagrams-test'] }} />))
+    const card = host.querySelector('[aria-label="Тест: Чётность и сумма"]')!
+    expect(card.textContent).toContain('Чётное число делится на 2 без остатка')
+    expect(card.textContent).not.toContain('Самопроверка по теме.')
+    expect(card.textContent).toContain(parent ? 'Посмотреть вопросы' : 'Пройти тест')
   } finally { await act(async () => root.unmount()); host.remove() }
 })

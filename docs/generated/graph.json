@@ -1350,6 +1350,30 @@
       "path": "docs/decisions/olympiad-practice-queue-2026-10-28.md"
     },
     {
+      "id": "decision.olympiad-quiz-theory-2026-10-28",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-10-28",
+      "updated": "2026-10-28",
+      "parent": "module.olympiad-preparation",
+      "uses": [
+        "shared.design.ui-kit",
+        "shared.access-and-privacy"
+      ],
+      "consumers": [
+        "Education frontend"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/olympiad-quiz-theory-2026-10-28.md"
+    },
+    {
       "id": "decision.olympiad-shared-infrastructure-2026-10-28",
       "status": "accepted",
       "implementation": "partial",
@@ -7685,6 +7709,20 @@
       "consumer": "Будущий адаптер письменной практики"
     },
     {
+      "id": "file:src/lib/olympiadPracticeTheory.test.ts",
+      "path": "src/lib/olympiadPracticeTheory.test.ts",
+      "kind": "verification",
+      "purpose": "Сверка открытой теории с проверенным авторским банком",
+      "consumer": "Vitest"
+    },
+    {
+      "id": "file:src/lib/olympiadPracticeTheory.ts",
+      "path": "src/lib/olympiadPracticeTheory.ts",
+      "kind": "artifact",
+      "purpose": "Открытые названия и теория трёх опубликованных тестов, без ключей",
+      "consumer": "QuizCard; DayPage"
+    },
+    {
       "id": "file:src/lib/parentCompletion.producer.test.ts",
       "path": "src/lib/parentCompletion.producer.test.ts",
       "kind": "verification",
@@ -12971,6 +13009,16 @@
       "type": "uses"
     },
     {
+      "from": "decision.olympiad-quiz-theory-2026-10-28",
+      "to": "shared.access-and-privacy",
+      "type": "uses"
+    },
+    {
+      "from": "decision.olympiad-quiz-theory-2026-10-28",
+      "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
       "from": "decision.olympiad-shared-infrastructure-2026-10-28",
       "to": "shared.access-and-privacy",
       "type": "uses"
@@ -17356,6 +17404,11 @@
       "type": "implements"
     },
     {
+      "from": "file:src/lib/olympiadPracticeTheory.ts",
+      "to": "module.olympiad-preparation",
+      "type": "implements"
+    },
+    {
       "from": "file:src/lib/parentCompletion.ts",
       "to": "decision.collapsed-variant-status-2026-10-21",
       "type": "implements"
@@ -19017,6 +19070,11 @@
     },
     {
       "from": "module.olympiad-preparation",
+      "to": "decision.olympiad-quiz-theory-2026-10-28",
+      "type": "contains"
+    },
+    {
+      "from": "module.olympiad-preparation",
       "to": "decision.olympiad-shared-infrastructure-2026-10-28",
       "type": "contains"
     },
@@ -19113,6 +19171,11 @@
     {
       "from": "module.olympiad-preparation",
       "to": "file:src/lib/olympiad/writtenPractice.test.ts",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.olympiad-preparation",
+      "to": "file:src/lib/olympiadPracticeTheory.test.ts",
       "type": "verified-by"
     },
     {

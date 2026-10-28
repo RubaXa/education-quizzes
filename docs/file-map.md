@@ -562,6 +562,9 @@
 | [src/DayPage.assignmentQuiz.integration.test.tsx](../src/DayPage.assignmentQuiz.integration.test.tsx) | [Страница дня](modules/school-diary/day-page.md) | Сквозной рендер листа с двумя вариантами, теста и родительского выбора в обеих ролях | Vitest; `src/DayPage.tsx` |
 | [src/DayPage.css](../src/DayPage.css) | [Страница дня](modules/school-diary/day-page.md) | Оформление заданий и фокуса после перехода из расписания | `src/DayPage.tsx` |
 | [src/DayPage.gradeBadge.test.tsx](../src/DayPage.gradeBadge.test.tsx) | [Средний балл](modules/school-diary/grades.md) | Регрессия раскрытия среднего независимо от цвета и проверка сценария | Vitest; разработчик |
+| [src/lib/olympiadPracticeTheory.ts](../src/lib/olympiadPracticeTheory.ts) | [Подготовка к олимпиадам](modules/assessments/olympiad-preparation.md) | Открытые названия и теория трёх опубликованных тестов, без ключей | QuizCard; DayPage |
+| [src/lib/olympiadPracticeTheory.test.ts](../src/lib/olympiadPracticeTheory.test.ts) | [Подготовка к олимпиадам](modules/assessments/olympiad-preparation.md) | Сверка открытой теории с проверенным авторским банком | Vitest |
+| [docs/decisions/olympiad-quiz-theory-2026-10-28.md](decisions/olympiad-quiz-theory-2026-10-28.md) | [Подготовка к олимпиадам](modules/assessments/olympiad-preparation.md) | Тема и чтение перед тестом в общей карточке | UI Kit; тесты |
 | [src/DayPage.tsx](../src/DayPage.tsx) | [Страница дня](modules/school-diary/day-page.md) | Компоновка дня из Firestore, отдельный срок сдачи, семейная доработка и фокус задания | Ученик; родитель; `ProblemGroup` |
 | [src/UiKit.css](../src/UiKit.css) | [Контракт](shared/design/ui-kit.md) | Адаптивная композиция каталога и единожды подписанных навигационных групп | UiKit |
 | [src/UiKit.test.tsx](../src/UiKit.test.tsx) | [Контракт](shared/design/ui-kit.md) | Регрессия примеров, навигации, локальных входов и токенов | Vitest |

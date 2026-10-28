@@ -86,3 +86,17 @@ test('energy hope archive exposes the shared 6th grade PDF on mobile', async ({ 
   await expect(link).toBeVisible()
   await expect(link).toHaveAttribute('href', /^https:\/\/(disk\.yandex\.ru|disk\.yandex\.com|yadi\.sk)\//)
 })
+
+test('olympiad quiz shows its topic and full reading for both roles on mobile', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 820 })
+  await page.getByRole('button', { name: 'Страница олимпиады' }).click()
+  for (const role of ['Родитель', 'Ученик']) {
+    await page.getByRole('button', { name: role, exact: true }).click()
+    const card = page.getByRole('region', { name: 'Тест: Чётность и сумма' })
+    await expect(card).toBeVisible()
+    await expect(card.getByText(/Чётное число делится на 2/)).toBeVisible()
+    await expect(card.getByText(/5 \+ 7 = 12/)).toBeVisible()
+    const bounds = await card.evaluate(el => ({ width: el.getBoundingClientRect().width, scroll: el.scrollWidth, client: el.clientWidth }))
+    expect(bounds.scroll).toBeLessThanOrEqual(bounds.client)
+  }
+})

@@ -69,3 +69,14 @@ describe('one family requirement switch on the shared test card', () => {
     expect(finished).not.toContain('role="switch"')
   })
 })
+
+// Public reading is shown in full before the action and replaces generic quiz copy.
+it.each([true, false])('renders an olympiad topic and reading for parent=%s', parent => {
+  const open: QuizCardAttempt = { token: 'example', testId: 'math', slug: 'math', title: 'Тренировка: Чётность и сумма', description: 'Одинаковый текст', status: 'open', answered: 0, total: 3 }
+  const html = renderToStaticMarkup(<QuizCard chain={[open]} parent={parent} placementOptional reading={{ title: 'Чётность и сумма', theory: 'Сумма двух нечётных чисел чётна.' }} />)
+  expect(html).toContain('Чётность и сумма')
+  expect(html).toContain('Сумма двух нечётных чисел чётна.')
+  expect(html).not.toContain('Одинаковый текст')
+  expect(html).not.toContain('Тренировка:')
+  expect(html).toContain(parent ? 'Посмотреть вопросы' : 'Пройти тест')
+})
