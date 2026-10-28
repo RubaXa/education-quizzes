@@ -468,23 +468,19 @@
       }
     },
     "day/pipeline-contract.mjs": {
-      "sha256": "07c74bed7bcfbd368266912c4430a41dd680ddf22922856a5cf05ec2c2499e5b",
-      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
+      "sha256": "0c469c2b619ffd5cfa6b092840a85add7a569df39f62999403a8428f4c7095ac",
+      "record": "docs/decisions/olympiad-source-links-2026-10-28.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/modules/synchronization/education-pipeline.md"
+        "docs/modules/assessments/olympiad-preparation.md"
       ],
       "tests": [
-        "assessment/learning-context-backfill.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs",
         "day/family-assignment.test.mjs",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/components/QuizCard.test.tsx",
-        "src/lib/educationEventProducers.test.ts",
-        "sync/event-task-artifact.test.mjs"
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь поручил загружать свои листы и видеть отдельные задачи с происхождением и связанными фотографиями."
+        "evidence": "Родитель 28.10.2026 поручил выделить задачи из фотографий, связывать дубликаты и опубликовать после интеграционных тестов."
       }
     },
     "day/placement-integrity.mjs": {
@@ -1933,22 +1929,19 @@
       }
     },
     "scripts/day.mjs": {
-      "sha256": "bb6d745f544a8f66b636612d24900ce5f7efde66a0198b67144f535e94c67dc0",
-      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
+      "sha256": "eaafea0e9b0a82680226fc3bdaeee4c2f85cad31d7bdb7440ad9f48e0061af2e",
+      "record": "docs/decisions/olympiad-source-links-2026-10-28.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/modules/synchronization/education-pipeline.md"
+        "docs/modules/assessments/olympiad-preparation.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/components/OlympiadPage.integration.test.tsx",
-        "src/components/TaskGuidance.test.tsx",
-        "src/lib/educationEventProducers.test.ts",
-        "sync/event-task-artifact.test.mjs"
+        "scripts/firestore-rules-help-emulator.test.mjs",
+        "day/family-assignment.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь поручил загружать свои листы и видеть отдельные задачи с происхождением и связанными фотографиями."
+        "evidence": "Родитель 28.10.2026 поручил выделить задачи из фотографий, связывать дубликаты и опубликовать после интеграционных тестов."
       }
     },
     "scripts/direct-upload-worker.mjs": {
@@ -2630,22 +2623,19 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "f001163c74bdd9ce27c202c5d0fd195ace313c87a5db15609538c801b96e88c7",
-      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
+      "sha256": "b0fedf3224c038a5f7a2d6f358691809f6747fb7f6beddc3e3b2117700da3bef",
+      "record": "docs/decisions/olympiad-source-links-2026-10-28.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/modules/notifications/inbox.md",
-        "docs/shared/design/components.md"
+        "docs/modules/assessments/olympiad-preparation.md"
       ],
       "tests": [
-        "src/components/OlympiadHome.integration.test.tsx",
-        "scripts/firestore-rules-olympiad-catalog-emulator.test.mjs",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/UiKit.test.tsx"
+        "scripts/firestore-rules-help-emulator.test.mjs",
+        "day/family-assignment.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь поручил добавление своих задач и диагностику действий через LDD без записи содержимого фотографий."
+        "evidence": "Родитель 28.10.2026 поручил выделить задачи из фотографий, связывать дубликаты и опубликовать после интеграционных тестов."
       }
     },
     "src/UiKit.css": {
@@ -4212,21 +4202,19 @@
       }
     },
     "src/lib/dayStore.ts": {
-      "sha256": "47e01e831affa59dbbf6be7883bdf2b48e21bea618237be155c9f747c582cd81",
-      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
+      "sha256": "9784646e31a9922e696e9906e6c2f5d1afde6263aed2d59e6d318fa50f68481f",
+      "record": "docs/decisions/olympiad-source-links-2026-10-28.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/modules/synchronization/education-pipeline.md"
+        "docs/modules/assessments/olympiad-preparation.md"
       ],
       "tests": [
-        "src/components/OlympiadHome.integration.test.tsx",
-        "src/components/PhotoHelpPanel.integration.test.tsx",
-        "sync/event-task-artifact.test.mjs",
-        "sync/help-response.test.mjs"
+        "scripts/firestore-rules-help-emulator.test.mjs",
+        "day/family-assignment.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь поручил загружать свои листы и видеть отдельные задачи с происхождением и связанными фотографиями."
+        "evidence": "Родитель 28.10.2026 поручил выделить задачи из фотографий, связывать дубликаты и опубликовать после интеграционных тестов."
       }
     },
     "src/lib/educationEventProducer.ts": {
@@ -5461,21 +5449,19 @@
       }
     },
     "sync/event-task-artifact.mjs": {
-      "sha256": "21e241e24765d47f9b9acf502a6147951d1dbcf796ee461378c8c598aa7fc962",
-      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
+      "sha256": "e7f9a307fb536797ad06474dda1f7028060b085a5f44dda83e1774729fc11ece",
+      "record": "docs/decisions/olympiad-source-links-2026-10-28.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/modules/synchronization/education-pipeline.md"
+        "docs/modules/assessments/olympiad-preparation.md"
       ],
       "tests": [
-        "src/components/OlympiadHome.integration.test.tsx",
-        "src/components/PhotoHelpPanel.integration.test.tsx",
-        "sync/event-task-artifact.test.mjs",
-        "sync/help-response.test.mjs"
+        "scripts/firestore-rules-help-emulator.test.mjs",
+        "day/family-assignment.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь поручил загружать свои листы и видеть отдельные задачи с происхождением и связанными фотографиями."
+        "evidence": "Родитель 28.10.2026 поручил выделить задачи из фотографий, связывать дубликаты и опубликовать после интеграционных тестов."
       }
     },
     "sync/event-task-export.mjs": {
@@ -5695,22 +5681,19 @@
       }
     },
     "day/family-assignment.mjs": {
-      "sha256": "6122b72794c880c4ae00be0aa8d0ba1879a3d949a343929102edade4514aeecc",
-      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
+      "sha256": "c4ae8e6b5e322bee17959288358c733f519590ed5598cb794c69e88070ef54f7",
+      "record": "docs/decisions/olympiad-source-links-2026-10-28.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/modules/synchronization/education-pipeline.md"
+        "docs/modules/assessments/olympiad-preparation.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/components/OlympiadPage.integration.test.tsx",
-        "src/components/TaskGuidance.test.tsx",
-        "src/lib/educationEventProducers.test.ts",
-        "sync/event-task-artifact.test.mjs"
+        "scripts/firestore-rules-help-emulator.test.mjs",
+        "day/family-assignment.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь поручил загружать свои листы и видеть отдельные задачи с происхождением и связанными фотографиями."
+        "evidence": "Родитель 28.10.2026 поручил выделить задачи из фотографий, связывать дубликаты и опубликовать после интеграционных тестов."
       }
     },
     "day/family-dashboard-delta.mjs": {
@@ -6725,6 +6708,22 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Прямой запрос родителя от 28.10.2026 по трём скриншотам: центрирование выбранного дня при открытии, отсутствие сдвига при выборе рядом, плавное смещение к центру при выборе у края; требование связать общее поведение DayCalendar со спецификацией, UI Kit и дизайн-системой."
+      }
+    },
+    "day/olympiad-source-link.mjs": {
+      "sha256": "ad4db909a6879c3e1b9c599024d578c3584404ca1951d04bb4e5d50b21fb9da6",
+      "record": "docs/decisions/olympiad-source-links-2026-10-28.md",
+      "specs": [
+        "docs/modules/assessments/olympiad-preparation.md"
+      ],
+      "tests": [
+        "scripts/firestore-rules-help-emulator.test.mjs",
+        "day/family-assignment.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 28.10.2026 поручил выделить задачи из фотографий, связывать дубликаты и опубликовать после интеграционных тестов."
       }
     }
   }

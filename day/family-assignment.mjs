@@ -61,6 +61,7 @@ export function projectFamilyAssignment(task) {
     ...(task.optional === true ? { optional: true } : {}),
     ...(task.sourceIntake ? { sourceIntake: task.sourceIntake } : {}),
     ...(task.learnerOrigin ? { learnerOrigin: task.learnerOrigin } : {}),
+    ...(task.learnerSources?.length ? { learnerSources: task.learnerSources } : {}),
     steps: task.steps,
     submission: task.submission,
     cardPattern: task.cardPattern,
@@ -74,7 +75,7 @@ export function projectFamilyAssignment(task) {
 
 export function familyAssignmentProjectionSignature(task) {
   const projection = task?.familyOrigin ? task : projectFamilyAssignment(task)
-  const fields = Object.fromEntries(['id', 'title', 'detail', 'kind', 'source', 'steps', 'submission', 'cardPattern', 'cardPolicyVersion', 'outputKind', 'lessonDate', 'dueDate', 'learningContext', 'optional', 'sourceIntake', 'learnerOrigin']
+  const fields = Object.fromEntries(['id', 'title', 'detail', 'kind', 'source', 'steps', 'submission', 'cardPattern', 'cardPolicyVersion', 'outputKind', 'lessonDate', 'dueDate', 'learningContext', 'optional', 'sourceIntake', 'learnerOrigin', 'learnerSources']
     .filter((key) => projection[key] !== undefined).map((key) => [key, projection[key]]))
   if (projection.familyOrigin) fields.familyOrigin = Object.fromEntries(['sourceSystem', 'sourceId', 'sourceRevision']
     .filter((key) => projection.familyOrigin[key] !== undefined).map((key) => [key, projection.familyOrigin[key]]))
@@ -89,7 +90,7 @@ export function stableFamilyProjectionJson(value) {
 
 export function familyAssignmentRecordSignature(task) {
   const fields = ['id', 'familyId', 'childId', 'sourceSystem', 'sourceId', 'sourceRevision', 'subjectId', 'subjectName', 'dueDate',
-    'title', 'originalText', 'studentText', 'publication', 'evidence', 'materialIds', 'steps', 'submission', 'cardPattern', 'cardPolicyVersion', 'outputKind', 'sourceEvidence', 'dayProjectionVersion', 'learningContext', 'optional', 'testPlacements', 'projectionSourceDate', 'sourceIntake', 'learnerOrigin']
+    'title', 'originalText', 'studentText', 'publication', 'evidence', 'materialIds', 'steps', 'submission', 'cardPattern', 'cardPolicyVersion', 'outputKind', 'sourceEvidence', 'dayProjectionVersion', 'learningContext', 'optional', 'testPlacements', 'projectionSourceDate', 'sourceIntake', 'learnerOrigin', 'learnerSources']
   return Object.fromEntries(fields.filter((key) => task?.[key] !== undefined).map((key) => [key, task[key]]))
 }
 
