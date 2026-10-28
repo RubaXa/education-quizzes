@@ -15,6 +15,7 @@ import './NotificationBell.css'
 import { reportUiError } from '@/lib/uiErrors'
 
 function title(notice: Notice) {
+  if (notice.type === 'olympiad_enabled') return 'Родитель включил подготовку к олимпиаде'
   if (notice.title) return notice.title
   if (notice.type === 'homework_published') return 'Появилось домашнее задание'
   if (notice.type === 'homework_changed') return 'Домашнее задание изменилось'
@@ -38,6 +39,7 @@ function NoticeImage({ label, media }: { label: string; media: { publicUrl: stri
   return <figure><EducationImage source={media.publicUrl} mode="public" size="M" alt={`${label} обновления`} aspectRatio="16 / 9" /><figcaption>{label}</figcaption></figure>
 }
 function detailBody(notice: Notice) {
+  if (notice.type === 'olympiad_enabled') return 'Открой олимпиады в своём учебном кабинете.'
   if (notice.body) return notice.body
   if (notice.type === 'parent_accepted') return 'Родитель засчитал верный ответ. Замечание к ходу решения остаётся в карточке.'
   if (notice.type === 'parent_reopened') return 'Родитель снова открыл задачу. Посмотри, что осталось сделать.'
@@ -185,7 +187,7 @@ export default function NotificationBell({ routeKey }: { routeKey: string }) {
         const item = thread.latest
         return <li key={thread.key}><button type="button" className={`notification-item${thread.unread ? ' unread' : ''}${item.type === 'school_late' || item.type === 'school_remark' ? ' school-alert' : ''}`} aria-expanded={expanded === thread.key} onClick={() => { void openNotice(thread) }}>
           <span className="notification-dot" aria-hidden="true" /><span className="notification-copy"><strong>{item.type === 'product_update' ? 'Обновления Education' : title(item)}</strong><span>{item.subject ? `${item.subject} · ` : ''}{item.date ? new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long', timeZone: 'Europe/Moscow' }).format(new Date(`${item.date}T12:00:00+03:00`)) : item.type === 'product_update' ? 'Что изменилось' : 'Учебная работа'}{thread.items.length > 1 ? ` · ${thread.items.length} события` : ''}</span><small>{noticeTime(item.createdAt)}</small></span><ChevronRight size={17} aria-hidden="true" />
-        </button>{expanded === thread.key && <div className="notification-detail">{thread.items.map((entry) => <div className="notification-thread-event" key={entry.id}>{thread.items.length > 1 && <><strong>{title(entry)}</strong><small>{noticeTime(entry.createdAt)}</small></>}{detailBody(entry) && <p>{detailBody(entry)}</p>}{!!entry.changes?.length && <ul>{entry.changes.map((change, index) => <li key={index}>{change}</li>)}</ul>}{entry.media && <div className="notification-media">{entry.media.before && <NoticeImage label="Было" media={entry.media.before} />}{entry.media.after && <NoticeImage label="Стало" media={entry.media.after} />}</div>}</div>)}{item.type !== 'product_update' && <button type="button" onClick={() => navigateToNotice(item)}>{item.type === 'grade_added' || item.type === 'grade_changed' ? 'Открыть сводку' : item.type === 'school_late' || item.type === 'school_remark' ? 'Открыть день' : 'Открыть задание'} <ChevronRight size={15} /></button>}</div>}</li>
+        </button>{expanded === thread.key && <div className="notification-detail">{thread.items.map((entry) => <div className="notification-thread-event" key={entry.id}>{thread.items.length > 1 && <><strong>{title(entry)}</strong><small>{noticeTime(entry.createdAt)}</small></>}{detailBody(entry) && <p>{detailBody(entry)}</p>}{!!entry.changes?.length && <ul>{entry.changes.map((change, index) => <li key={index}>{change}</li>)}</ul>}{entry.media && <div className="notification-media">{entry.media.before && <NoticeImage label="Было" media={entry.media.before} />}{entry.media.after && <NoticeImage label="Стало" media={entry.media.after} />}</div>}</div>)}{item.type !== 'product_update' && <button type="button" onClick={() => navigateToNotice(item)}>{item.type === 'olympiad_enabled' ? 'Открыть олимпиады' : item.type === 'grade_added' || item.type === 'grade_changed' ? 'Открыть сводку' : item.type === 'school_late' || item.type === 'school_remark' ? 'Открыть день' : 'Открыть задание'} <ChevronRight size={15} /></button>}</div>}</li>
       })}</ul> : <p className="notification-empty">Новых обновлений нет.</p>}
       {historyCount > 0 && <button className="notification-history-toggle" type="button" aria-expanded={showHistory} onClick={() => setShowHistory((value) => !value)}>{showHistory ? 'Скрыть историю' : `История · ${historyCount}`}</button>}
     </section>}

@@ -49,6 +49,55 @@ export function watchEducationTask(familyId: string, childId: string, taskId: st
     (snapshot) => onChange(snapshot.exists() ? snapshot.data() as EducationTask : null), onError)
 }
 
+export type PublicOlympiad = { id: string; title: string; deadline: string | null; gradeLevels: number[]; subject?: string; schedule?: string }
+/** Only the operator-published, non-personal projection is shared across families.
+ * @see ../../docs/modules/assessments/olympiad-preparation.md */
+export function watchPublicOlympiads(onChange: (items: PublicOlympiad[]) => void, onError: (error: Error) => void) {
+  return onSnapshot(collection(db, 'publicOlympiadCatalog'), snapshot => {
+    const items: PublicOlympiad[] = []
+    for (const item of snapshot.docs) {
+      const value = item.data()
+      if (value.status !== 'published' || typeof value.title !== 'string' || value.title.length > 200 ||
+          !(value.deadline === null || typeof value.deadline === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value.deadline)) || !Array.isArray(value.gradeLevels) || !value.gradeLevels.length || value.gradeLevels.some((grade: unknown) => !Number.isInteger(grade) || Number(grade) < 1 || Number(grade) > 11)) continue
+      items.push({ id: item.id, title: value.title, deadline: value.deadline, gradeLevels: value.gradeLevels, subject: typeof value.subject === 'string' ? value.subject : undefined, schedule: typeof value.schedule === 'string' ? value.schedule : undefined })
+    }
+    onChange(items)
+  }, onError)
+}
+
+/** Reads the confirmed family grade; unknown is never inferred from a URL. */
+export function watchOlympiadGrade(familyId: string, childId: string, onChange: (grade: number | null) => void, onError: (error: Error) => void) {
+  return onSnapshot(doc(db, 'families', segment(familyId), 'children', segment(childId)), snapshot => {
+    const eligibility = snapshot.data()?.olympiadEligibility
+    onChange(eligibility?.verified === true && Number.isInteger(eligibility.grade) && eligibility.grade >= 1 && eligibility.grade <= 11 ? eligibility.grade : null)
+  }, onError)
+}
+
+/** The parent selects separately for each child; absence means disabled. */
+export function watchOlympiadSelections(familyId: string, childId: string, onChange: (ids: string[]) => void, onError: (error: Error) => void) {
+  const ref = collection(db, 'families', segment(familyId), 'children', segment(childId), 'olympiadSelections')
+  return onSnapshot(ref, snapshot => onChange(snapshot.docs.filter(item => item.data().enabled === true).map(item => item.id)), onError)
+}
+/** Atomically records a parent's selection and one inbox notice for each active student. */
+export async function setOlympiadSelection(familyId: string, childId: string, olympiadId: string, enabled: boolean) {
+  const family = segment(familyId), child = segment(childId), olympiad = segment(olympiadId)
+  const actor = currentEducationPersonId()
+  const uid = signedInUid()
+  if (!actor) throw new Error('Нужен личный вход родителя.')
+  const members = enabled ? await getDocsFromServer(collection(db, 'families', family, 'members')) : null
+  const recipients = members?.docs.filter(member => { const d = member.data(); return d.active === true && d.role === 'student' && Array.isArray(d.childIds) && d.childIds.includes(child) }) ?? []
+  const ref = doc(db, 'families', family, 'children', child, 'olympiadSelections', olympiad)
+  const eventId = crypto.randomUUID()
+  await runTransaction(db, async transaction => {
+    const existing = await transaction.get(ref)
+    if (existing.exists() && existing.data().enabled === enabled) return
+    transaction.set(ref, { enabled, actorPersonId: actor, deviceUid: uid, eventId, changedAt: serverTimestamp() })
+    if (enabled) for (const member of recipients) transaction.set(doc(db, 'users', member.id, 'inbox', eventId), {
+      familyId: family, childId: child, type: 'olympiad_enabled', entityId: olympiad, eventId, sourceRevision: 1, createdAt: serverTimestamp(),
+    })
+  })
+}
+
 export type FamilyOlympiadTask = { id: string; title: string; dueDate: string; projectionSourceDate: string; learningContext: { kind: 'olympiad'; id: string }; testTokens: string[] }
 /** Uses the existing family task collection and its membership rules.
  * @see ../../docs/modules/assessments/olympiad-preparation.md */

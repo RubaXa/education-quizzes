@@ -4142,6 +4142,13 @@
       "consumer": "Разработчик; npm check:spec"
     },
     {
+      "id": "file:e2e/olympiad-ui-kit.e2e.ts",
+      "path": "e2e/olympiad-ui-kit.e2e.ts",
+      "kind": "artifact",
+      "purpose": "Браузерные сценарии каталога и помощи по фотографиям на условных данных",
+      "consumer": "Playwright; разработчик"
+    },
+    {
       "id": "file:early-development/program.d.mts",
       "path": "early-development/program.d.mts",
       "kind": "artifact",
@@ -5171,6 +5178,13 @@
       "consumer": "Приложение; dispatcher; Vitest"
     },
     {
+      "id": "file:playwright.config.ts",
+      "path": "playwright.config.ts",
+      "kind": "artifact",
+      "purpose": "Локальный браузерный тестовый сервер и настройки Playwright",
+      "consumer": "Разработчик; CI"
+    },
+    {
       "id": "file:public/access-snapshot.js",
       "path": "public/access-snapshot.js",
       "kind": "artifact",
@@ -5584,6 +5598,20 @@
       "consumer": "Vitest; выпуск правил"
     },
     {
+      "id": "file:scripts/firestore-rules-help-emulator.test.mjs",
+      "path": "scripts/firestore-rules-help-emulator.test.mjs",
+      "kind": "verification",
+      "purpose": "Ролевые права и история фотозапросов в эмуляторе",
+      "consumer": "Vitest; эмулятор"
+    },
+    {
+      "id": "file:scripts/firestore-rules-olympiad-catalog-emulator.test.mjs",
+      "path": "scripts/firestore-rules-olympiad-catalog-emulator.test.mjs",
+      "kind": "verification",
+      "purpose": "Ролевой доступ к общей проекции каталога в эмуляторе Firestore",
+      "consumer": "Vitest; эмулятор"
+    },
+    {
       "id": "file:scripts/firestore-rules-optional-quiz.test.mjs",
       "path": "scripts/firestore-rules-optional-quiz.test.mjs",
       "kind": "verification",
@@ -5645,6 +5673,13 @@
       "kind": "artifact",
       "purpose": "Штатный предпросмотр и запись аддитивного среза МЭШ после постоянного отчёта",
       "consumer": "Оператор Education Sync; `day reconcile-grades`"
+    },
+    {
+      "id": "file:scripts/help-response.mjs",
+      "path": "scripts/help-response.mjs",
+      "kind": "artifact",
+      "purpose": "Операторская команда публикации ответа",
+      "consumer": "Оператор"
     },
     {
       "id": "file:scripts/install-upload-worker.mjs",
@@ -6354,6 +6389,13 @@
       "consumer": "Education; разработчик"
     },
     {
+      "id": "file:src/components/OlympiadHome.integration.test.tsx",
+      "path": "src/components/OlympiadHome.integration.test.tsx",
+      "kind": "verification",
+      "purpose": "Ролевые проекции и недоступность общей части каталога на фикстурах",
+      "consumer": "Vitest; разработчик"
+    },
+    {
       "id": "file:src/components/OlympiadHome.tsx",
       "path": "src/components/OlympiadHome.tsx",
       "kind": "artifact",
@@ -6471,6 +6513,20 @@
       "kind": "artifact",
       "purpose": "Локальный первый кадр, вход и принятие профиля другой вкладки",
       "consumer": "Личная стартовая страница"
+    },
+    {
+      "id": "file:src/components/PhotoHelpPanel.integration.test.tsx",
+      "path": "src/components/PhotoHelpPanel.integration.test.tsx",
+      "kind": "verification",
+      "purpose": "Фикстуры ролевой карточки и отправки выбранных фотографий",
+      "consumer": "Vitest"
+    },
+    {
+      "id": "file:src/components/PhotoHelpPanel.tsx",
+      "path": "src/components/PhotoHelpPanel.tsx",
+      "kind": "artifact",
+      "purpose": "Общая карточка помощи и управляемый выбор фото в существующей галерее",
+      "consumer": "Страница задания; ученик; родитель"
     },
     {
       "id": "file:src/components/PhotoHelpRequest.tsx",
@@ -6688,6 +6744,13 @@
       "kind": "verification",
       "purpose": "Реальная карточка обеих ролей, legacy, preview/send и сохранение источников",
       "consumer": "Vitest"
+    },
+    {
+      "id": "file:src/components/SharedTabs.tsx",
+      "path": "src/components/SharedTabs.tsx",
+      "kind": "artifact",
+      "purpose": "Общая разметка вкладок учебного дня и олимпиады",
+      "consumer": "DayPage; OlympiadCatalog"
     },
     {
       "id": "file:src/components/SourceFragment.css",
@@ -8255,6 +8318,20 @@
       "path": "sync/help-request-resolution.test.mjs",
       "kind": "verification",
       "purpose": "Регрессии версии, времени, повторного открытия и сохранения истории",
+      "consumer": "Vitest"
+    },
+    {
+      "id": "file:sync/help-response.mjs",
+      "path": "sync/help-response.mjs",
+      "kind": "artifact",
+      "purpose": "Публикация адресного ответа на запрос с проверкой снимка",
+      "consumer": "EducationSync; оператор"
+    },
+    {
+      "id": "file:sync/help-response.test.mjs",
+      "path": "sync/help-response.test.mjs",
+      "kind": "verification",
+      "purpose": "Проверка привязки ответа и повторной публикации",
       "consumer": "Vitest"
     },
     {
@@ -13638,6 +13715,11 @@
       "type": "implements"
     },
     {
+      "from": "file:e2e/olympiad-ui-kit.e2e.ts",
+      "to": "shared.design.ui-kit",
+      "type": "implements"
+    },
+    {
       "from": "file:early-development/program.d.mts",
       "to": "module.families.early-development",
       "type": "implements"
@@ -14213,6 +14295,11 @@
       "type": "implements"
     },
     {
+      "from": "file:playwright.config.ts",
+      "to": "shared.toolchain",
+      "type": "implements"
+    },
+    {
       "from": "file:public/access-snapshot.js",
       "to": "module.families.browser-access-trace",
       "type": "implements"
@@ -14735,6 +14822,11 @@
     {
       "from": "file:scripts/grade-snapshot.mjs",
       "to": "module.school-diary.grades",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/help-response.mjs",
+      "to": "module.olympiad-preparation",
       "type": "implements"
     },
     {
@@ -15773,6 +15865,11 @@
       "type": "implements"
     },
     {
+      "from": "file:src/components/PhotoHelpPanel.tsx",
+      "to": "module.olympiad-preparation",
+      "type": "implements"
+    },
+    {
       "from": "file:src/components/PhotoHelpRequest.tsx",
       "to": "decision.ui-kit-photo-help-2026-10-27",
       "type": "implements"
@@ -15995,6 +16092,11 @@
     {
       "from": "file:src/components/RequirementSwitch.tsx",
       "to": "shared.design",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/SharedTabs.tsx",
+      "to": "shared.design.components",
       "type": "implements"
     },
     {
@@ -17543,6 +17645,11 @@
       "type": "implements"
     },
     {
+      "from": "file:sync/help-response.mjs",
+      "to": "module.olympiad-preparation",
+      "type": "implements"
+    },
+    {
       "from": "file:sync/job-queue.mjs",
       "to": "module.synchronization.global-sync",
       "type": "implements"
@@ -18529,6 +18636,21 @@
     },
     {
       "from": "module.olympiad-preparation",
+      "to": "file:scripts/firestore-rules-help-emulator.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.olympiad-preparation",
+      "to": "file:scripts/firestore-rules-olympiad-catalog-emulator.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.olympiad-preparation",
+      "to": "file:src/components/OlympiadHome.integration.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.olympiad-preparation",
       "to": "file:src/components/OlympiadPage.integration.test.tsx",
       "type": "verified-by"
     },
@@ -18539,12 +18661,22 @@
     },
     {
       "from": "module.olympiad-preparation",
+      "to": "file:src/components/PhotoHelpPanel.integration.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.olympiad-preparation",
       "to": "file:src/lib/olympiad/assistancePolicy.test.ts",
       "type": "verified-by"
     },
     {
       "from": "module.olympiad-preparation",
       "to": "file:src/lib/olympiad/writtenPractice.test.ts",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.olympiad-preparation",
+      "to": "file:sync/help-response.test.mjs",
       "type": "verified-by"
     },
     {

@@ -69,6 +69,35 @@ describe('closed event task inputs', () => {
     await expect(captureEventTaskInputs(db, { ...event, actor: { type: 'user', uid: 'user' } })).rejects.toThrow('task_actor_unavailable')
   })
 
+  it('captures only selected confirmed photos from the exact task and strips transport credentials', async () => {
+    const id = 'upload-request-1234567890'
+    const helpEvent = { ...event, eventType: 'help.requested', sourceRef: { kind: 'help', documentPath: 'dayHelp/day/items/task', dayToken: 'day', taskId: 'task' } }
+    const row = { taskId: 'task', status: 'pending', upload: { href: 'private-secret' }, storage: { state: 'stored', path: 'app:/private/photo', sha256: 'b'.repeat(64) } }
+    const { db, rows } = fixture({ 'dayHelp/day/items/task': { taskId: 'task', revision: 1, planRevision: 2, photoUploadIds: [id] }, [`dayUploads/day/files/${id}`]: row })
+    const result = await captureEventTaskInputs(db, helpEvent)
+    expect(result.photos).toMatchObject([{ id, taskId: 'task' }])
+    expect(JSON.stringify(result)).not.toContain('private-secret')
+    rows.set(`dayUploads/day/files/${id}`, { ...row, taskId: 'other' })
+    await expect(captureEventTaskInputs(db, helpEvent)).rejects.toThrow('task_help_photo_not_reviewable')
+  })
+
+  it('captures more than one read batch without restricting the number of task photos', async () => {
+    const ids = Array.from({ length: 45 }, (_, i) => `upload-request-${String(i).padStart(10, '0')}`)
+    const rows = Object.fromEntries(ids.map(id => [`dayUploads/day/files/${id}`, { taskId: 'task', status: 'pending', storage: { state: 'stored', path: 'app:/private/photo', sha256: 'b'.repeat(64) } }]))
+    const helpEvent = { ...event, eventType: 'help.requested', sourceRef: { kind: 'help', documentPath: 'dayHelp/day/items/task', dayToken: 'day', taskId: 'task' } }
+    const { db } = fixture({ ...rows, 'dayHelp/day/items/task': { taskId: 'task', revision: 1, planRevision: 2, photoUploadIds: ids } })
+    expect((await captureEventTaskInputs(db, helpEvent)).photos.map(photo => photo.id)).toEqual(ids)
+  })
+
+  it('reads the original photo request when the current projection advances', async () => {
+    const id = 'upload-request-1234567890'
+    const helpEvent = { ...event, eventType: 'help.requested', sourceRef: { kind: 'help', documentPath: 'dayHelp/day/items/task', dayToken: 'day', taskId: 'task' } }
+    const { db } = fixture({ 'dayHelp/day/items/task': { taskId: 'task', revision: 2, eventReceiptId: 'c'.repeat(64) },
+      [`dayHelp/day/items/task/requests/${event.eventId}`]: { taskId: 'task', revision: 1, eventReceiptId: event.eventId, planRevision: 2, photoUploadIds: [id] },
+      [`dayUploads/day/files/${id}`]: { taskId: 'task', status: 'pending', storage: { state: 'stored', path: 'app:/private/photo', sha256: 'b'.repeat(64) } } })
+    await expect(captureEventTaskInputs(db, helpEvent)).resolves.toMatchObject({ source: { revision: 1 }, photos: [{ id }] })
+  })
+
   it('does not process an old help revision as the latest request', async () => {
     const { db } = fixture({ 'dayHelp/day/items/task': { taskId: 'task', revision: 2, requestText: 'Новый запрос', eventReceiptId: 'c'.repeat(64) } })
     await expect(captureEventTaskInputs(db, { ...event, eventType: 'help.requested', operationId: 'help:task:1',

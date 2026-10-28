@@ -170,7 +170,7 @@
   {
     "id": "olympiad/publish-training.mjs#admin.get#c4320ae7b103",
     "file": "olympiad/publish-training.mjs",
-    "line": 55,
+    "line": 58,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-olympiad",
@@ -182,7 +182,7 @@
   {
     "id": "olympiad/publish-training.mjs#admin.get#c4320ae7b103-2",
     "file": "olympiad/publish-training.mjs",
-    "line": 55,
+    "line": 58,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-olympiad",
@@ -194,7 +194,7 @@
   {
     "id": "olympiad/publish-training.mjs#admin.get#c4320ae7b103-3",
     "file": "olympiad/publish-training.mjs",
-    "line": 55,
+    "line": 58,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-olympiad",
@@ -206,7 +206,7 @@
   {
     "id": "olympiad/publish-training.mjs#admin.get#c4320ae7b103-4",
     "file": "olympiad/publish-training.mjs",
-    "line": 70,
+    "line": 73,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-olympiad",
@@ -218,7 +218,7 @@
   {
     "id": "olympiad/publish-training.mjs#admin.get#65e5f72128cc",
     "file": "olympiad/publish-training.mjs",
-    "line": 76,
+    "line": 79,
     "api": "admin.get",
     "target": "db.doc(path)",
     "group": "operator-olympiad",
@@ -7524,9 +7524,21 @@
     "note": "Живой статус нужен только для активной задачи/очереди; ограничить выборку, объединить потребителей и освободить подписку вне экрана."
   },
   {
+    "id": "src/lib/dayStore.ts#onSnapshot#a8f62002fde7",
+    "file": "src/lib/dayStore.ts",
+    "line": 282,
+    "api": "onSnapshot",
+    "target": "collection(db, 'dayHelp', studentToken, 'items', taskId, 'requests')",
+    "group": "client-day",
+    "assessment": "high-risk",
+    "policy": "authorized-family-unbounded-list",
+    "refresh": "while task panel mounted",
+    "note": "История только адресной задачи доступна семье; число запросов не ограничено, потребуется пагинация при росте. Подписка закрывается при размонтировании."
+  },
+  {
     "id": "src/lib/dayStore.ts#getDocFromServer#d8f08464ae53",
     "file": "src/lib/dayStore.ts",
-    "line": 281,
+    "line": 289,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayOwners', studentToken)",
     "group": "client-day",
@@ -7536,21 +7548,57 @@
     "note": "Адресное серверное чтение current owner/source receipt перед atomic source+event write либо после неоднозначного ответа. Это не фоновое наблюдение и не чтение глобальной очереди."
   },
   {
-    "id": "src/lib/dayStore.ts#getDocFromServer#318cf035a63b",
+    "id": "src/lib/dayStore.ts#getDocFromServer#8976fa978048",
     "file": "src/lib/dayStore.ts",
-    "line": 299,
+    "line": 306,
     "api": "getDocFromServer",
-    "target": "sourceRef",
+    "target": "historyRef",
+    "group": "client-day",
+    "assessment": "conditional",
+    "policy": "photo-action-server-guard-and-receipt-readback",
+    "refresh": "on help submission or ambiguous commit",
+    "note": "Адресная серверная проверка снимков, ревизии задачи и идемпотентности запроса; снимки читаются партиями до 20."
+  },
+  {
+    "id": "src/lib/dayStore.ts#getDocFromServer#0685a719664c",
+    "file": "src/lib/dayStore.ts",
+    "line": 312,
+    "api": "getDocFromServer",
+    "target": "doc(db, 'dayUploads', studentToken, 'files', id)",
+    "group": "client-day",
+    "assessment": "conditional",
+    "policy": "photo-action-server-guard-and-receipt-readback",
+    "refresh": "on help submission or ambiguous commit",
+    "note": "Адресная серверная проверка снимков, ревизии задачи и идемпотентности запроса; снимки читаются партиями до 20."
+  },
+  {
+    "id": "src/lib/dayStore.ts#getDocFromServer#705de0a8baee",
+    "file": "src/lib/dayStore.ts",
+    "line": 318,
+    "api": "getDocFromServer",
+    "target": "doc(db, 'dayPages', studentToken)",
     "group": "client-day",
     "assessment": "justified",
-    "policy": "user-action-owner-or-ambiguous-receipt-readback",
-    "refresh": "only on explicit action or ambiguous commit retry",
-    "note": "Адресное серверное чтение current owner/source receipt перед atomic source+event write либо после неоднозначного ответа. Это не фоновое наблюдение и не чтение глобальной очереди."
+    "policy": "photo-action-server-guard-and-receipt-readback",
+    "refresh": "only on explicit upload/delete action or ambiguous commit",
+    "note": "Адресное чтение владельца дня, актуальной серверной страницы, существующей заявки либо receipt после неоднозначного commit. Проверено: свежая ревизия нужна вместо cache, существующая заявка предотвращает повторную запись; нет polling или чтения глобальной очереди."
+  },
+  {
+    "id": "src/lib/dayStore.ts#getDocFromServer#eeb8575870fd",
+    "file": "src/lib/dayStore.ts",
+    "line": 330,
+    "api": "getDocFromServer",
+    "target": "photoUploadIds ? historyRef : sourceRef",
+    "group": "client-day",
+    "assessment": "conditional",
+    "policy": "photo-action-server-guard-and-receipt-readback",
+    "refresh": "on help submission or ambiguous commit",
+    "note": "Адресная серверная проверка снимков, ревизии задачи и идемпотентности запроса; снимки читаются партиями до 20."
   },
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#d8f08464ae53-2",
     "file": "src/lib/dayStore.ts",
-    "line": 317,
+    "line": 346,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayOwners', studentToken)",
     "group": "client-day",
@@ -7562,7 +7610,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#249d93879c40",
     "file": "src/lib/dayStore.ts",
-    "line": 325,
+    "line": 354,
     "api": "getDocFromServer",
     "target": "ref",
     "group": "client-day",
@@ -7572,21 +7620,21 @@
     "note": "Адресное чтение владельца дня, актуальной серверной страницы, существующей заявки либо receipt после неоднозначного commit. Проверено: свежая ревизия нужна вместо cache, существующая заявка предотвращает повторную запись; нет polling или чтения глобальной очереди."
   },
   {
-    "id": "src/lib/dayStore.ts#getDocFromServer#705de0a8baee",
+    "id": "src/lib/dayStore.ts#getDocFromServer#705de0a8baee-2",
     "file": "src/lib/dayStore.ts",
-    "line": 348,
+    "line": 377,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayPages', studentToken)",
     "group": "client-day",
-    "assessment": "justified",
+    "assessment": "conditional",
     "policy": "photo-action-server-guard-and-receipt-readback",
-    "refresh": "only on explicit upload/delete action or ambiguous commit",
-    "note": "Адресное чтение владельца дня, актуальной серверной страницы, существующей заявки либо receipt после неоднозначного commit. Проверено: свежая ревизия нужна вместо cache, существующая заявка предотвращает повторную запись; нет polling или чтения глобальной очереди."
+    "refresh": "on help submission or ambiguous commit",
+    "note": "Адресная серверная проверка снимков, ревизии задачи и идемпотентности запроса; снимки читаются партиями до 20."
   },
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#249d93879c40-2",
     "file": "src/lib/dayStore.ts",
-    "line": 364,
+    "line": 393,
     "api": "getDocFromServer",
     "target": "ref",
     "group": "client-day",
@@ -7598,7 +7646,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#249d93879c40-3",
     "file": "src/lib/dayStore.ts",
-    "line": 376,
+    "line": 405,
     "api": "getDocFromServer",
     "target": "ref",
     "group": "client-day",
@@ -7610,7 +7658,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#d8f08464ae53-3",
     "file": "src/lib/dayStore.ts",
-    "line": 382,
+    "line": 411,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayOwners', studentToken)",
     "group": "client-day",
@@ -7622,7 +7670,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#249d93879c40-4",
     "file": "src/lib/dayStore.ts",
-    "line": 396,
+    "line": 425,
     "api": "getDocFromServer",
     "target": "ref",
     "group": "client-day",
@@ -7704,21 +7752,81 @@
     "note": "Для видимого текущего состояния допустима адресная подписка; проверить повторное монтирование и локальный снимок при тёплом старте."
   },
   {
+    "id": "src/lib/educationStore.ts#onSnapshot#100a230875f6",
+    "file": "src/lib/educationStore.ts",
+    "line": 56,
+    "api": "onSnapshot",
+    "target": "collection(db, 'publicOlympiadCatalog')",
+    "group": "client-views-inbox",
+    "assessment": "conditional",
+    "policy": "scoped-listener",
+    "refresh": "while olympiad catalog is visible",
+    "note": "Только неперсональная опубликованная проекция; размер каталога и стоимость подписки требуют наблюдения."
+  },
+  {
+    "id": "src/lib/educationStore.ts#onSnapshot#52702ffd0b80",
+    "file": "src/lib/educationStore.ts",
+    "line": 70,
+    "api": "onSnapshot",
+    "target": "doc(db, 'families', segment(familyId), 'children', segment(childId))",
+    "group": "client-views-inbox",
+    "assessment": "conditional",
+    "policy": "scoped-listener",
+    "refresh": "while olympiad list is mounted",
+    "note": "Адресное чтение подтверждённого класса только при доступе к ребёнку; ожидается оптимизация общего профиля."
+  },
+  {
     "id": "src/lib/educationStore.ts#onSnapshot#823359a7aee0",
     "file": "src/lib/educationStore.ts",
-    "line": 57,
+    "line": 79,
+    "api": "onSnapshot",
+    "target": "ref",
+    "group": "client-views-inbox",
+    "assessment": "high-risk",
+    "policy": "scoped-listener",
+    "refresh": "while olympiad list is mounted",
+    "note": "Выборы одного ребёнка; объём и чтения непагинированной подписки требуют контроля."
+  },
+  {
+    "id": "src/lib/educationStore.ts#getDocsFromServer#507c093c6f48",
+    "file": "src/lib/educationStore.ts",
+    "line": 87,
+    "api": "getDocsFromServer",
+    "target": "collection(db, 'families', family, 'members')",
+    "group": "client-views-inbox",
+    "assessment": "high-risk",
+    "policy": "authorized-family-member-query",
+    "refresh": "on parent enabling",
+    "note": "Родитель читает состав своей семьи для адресации уведомления; требуется ограничить размер и измерить стоимость."
+  },
+  {
+    "id": "src/lib/educationStore.ts#transaction.get#3a287d3e7096",
+    "file": "src/lib/educationStore.ts",
+    "line": 92,
+    "api": "transaction.get",
+    "target": "ref",
+    "group": "client-views-inbox",
+    "assessment": "justified",
+    "policy": "transaction-guard",
+    "refresh": "on parent selection change",
+    "note": "Одна адресная транзакция защищает повтор и уведомление от дублирования."
+  },
+  {
+    "id": "src/lib/educationStore.ts#onSnapshot#823359a7aee0-2",
+    "file": "src/lib/educationStore.ts",
+    "line": 106,
     "api": "onSnapshot",
     "target": "ref",
     "group": "client-views-inbox",
     "assessment": "high-risk",
     "policy": "authorized-family-task-listener",
     "refresh": "while olympiad screen is active",
-    "note": "Слушатель семейных задач по контексту олимпиады; доступ задают общие правила семьи. Количество записей и стоимость ещё не ограничены пагинацией."
+    "note": "Слушатель семейных задач; количество записей ещё не ограничено пагинацией."
   },
   {
     "id": "src/lib/educationStore.ts#transaction.get#ab5c8ca36c03",
     "file": "src/lib/educationStore.ts",
-    "line": 124,
+    "line": 173,
     "api": "transaction.get",
     "target": "reference",
     "group": "client-views-inbox",
@@ -7730,7 +7838,7 @@
   {
     "id": "src/lib/educationStore.ts#getDocsFromServer#f95b7ac5568f",
     "file": "src/lib/educationStore.ts",
-    "line": 161,
+    "line": 210,
     "api": "getDocsFromServer",
     "target": "cursor ? query(inbox, orderBy('createdAt', 'desc'), startAfter(cursor), limit(400)) : query(inbox, orderBy('createdAt', 'desc'), limit(400))",
     "group": "client-views-inbox",
@@ -7742,7 +7850,7 @@
   {
     "id": "src/lib/educationStore.ts#onSnapshot#23d4cfbd2587",
     "file": "src/lib/educationStore.ts",
-    "line": 178,
+    "line": 227,
     "api": "onSnapshot",
     "target": "reference",
     "group": "client-views-inbox",
@@ -7754,7 +7862,7 @@
   {
     "id": "src/lib/educationStore.ts#onSnapshot#e1d8d3f8755c",
     "file": "src/lib/educationStore.ts",
-    "line": 187,
+    "line": 236,
     "api": "onSnapshot",
     "target": "doc(db, 'users', personId, 'views', segment(viewKey))",
     "group": "client-views-inbox",
@@ -8376,9 +8484,21 @@
     "note": "Только адрес источника из проверенного sourceRef, текущая family/child/member/session, соответствующее условие и ключ; неизменяемый снимок и observation заменяют повторное обнаружение всего inbox."
   },
   {
+    "id": "sync/event-task-artifact.mjs#admin.get#c3c7bccf4565",
+    "file": "sync/event-task-artifact.mjs",
+    "line": 59,
+    "api": "admin.get",
+    "target": "db.doc(`${event.sourceRef.documentPath}/requests/${event.eventId}`)",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "exact-private-event-task-capture",
+    "refresh": "per event capture or revalidation",
+    "note": "Адресное чтение сохранённой версии запроса и принадлежащих задаче фото; наличие и целостность проверяются до обработки."
+  },
+  {
     "id": "sync/event-task-artifact.mjs#admin.get#3331e971078e",
     "file": "sync/event-task-artifact.mjs",
-    "line": 57,
+    "line": 63,
     "api": "admin.get",
     "target": "db.doc(`families/${event.familyId}`)",
     "group": "operator-other",
@@ -8390,7 +8510,7 @@
   {
     "id": "sync/event-task-artifact.mjs#admin.get#f9faf24e7446",
     "file": "sync/event-task-artifact.mjs",
-    "line": 57,
+    "line": 63,
     "api": "admin.get",
     "target": "db.doc(`families/${event.familyId}/children/${event.childId}`)",
     "group": "operator-other",
@@ -8402,7 +8522,7 @@
   {
     "id": "sync/event-task-artifact.mjs#admin.get#46c080246ca9",
     "file": "sync/event-task-artifact.mjs",
-    "line": 62,
+    "line": 68,
     "api": "admin.get",
     "target": "db.doc(`deviceSessions/${event.actor.uid}`)",
     "group": "operator-other",
@@ -8414,7 +8534,7 @@
   {
     "id": "sync/event-task-artifact.mjs#admin.get#4f585bd3f691",
     "file": "sync/event-task-artifact.mjs",
-    "line": 65,
+    "line": 71,
     "api": "admin.get",
     "target": "db.doc(`accessLinks/${token}`)",
     "group": "operator-other",
@@ -8426,7 +8546,7 @@
   {
     "id": "sync/event-task-artifact.mjs#admin.get#3fc8dabdced1",
     "file": "sync/event-task-artifact.mjs",
-    "line": 68,
+    "line": 74,
     "api": "admin.get",
     "target": "db.doc(`families/${event.familyId}/members/${personId}`)",
     "group": "operator-other",
@@ -8438,7 +8558,7 @@
   {
     "id": "sync/event-task-artifact.mjs#admin.get#0a9c38bec98f",
     "file": "sync/event-task-artifact.mjs",
-    "line": 77,
+    "line": 83,
     "api": "admin.get",
     "target": "db.doc(`dayOwners/${event.sourceRef.dayToken}`)",
     "group": "operator-other",
@@ -8450,7 +8570,7 @@
   {
     "id": "sync/event-task-artifact.mjs#admin.get#224e522b8786",
     "file": "sync/event-task-artifact.mjs",
-    "line": 80,
+    "line": 86,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${event.sourceRef.dayToken}`)",
     "group": "operator-other",
@@ -8460,9 +8580,21 @@
     "note": "Только адрес источника из проверенного sourceRef, текущая family/child/member/session, соответствующее условие и ключ; неизменяемый снимок и observation заменяют повторное обнаружение всего inbox."
   },
   {
+    "id": "sync/event-task-artifact.mjs#admin.get#c097ca978a4f",
+    "file": "sync/event-task-artifact.mjs",
+    "line": 107,
+    "api": "admin.get",
+    "target": "db.doc(`dayUploads/${event.sourceRef.dayToken}/files/${id}`)",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "exact-private-event-task-capture",
+    "refresh": "per event capture or revalidation",
+    "note": "Адресное чтение сохранённой версии запроса и принадлежащих задаче фото; наличие и целостность проверяются до обработки."
+  },
+  {
     "id": "sync/event-task-artifact.mjs#admin.get#555d00a595b4",
     "file": "sync/event-task-artifact.mjs",
-    "line": 103,
+    "line": 128,
     "api": "admin.get",
     "target": "db.doc(`answerKeys/${event.sourceRef.quizToken}`)",
     "group": "operator-other",
@@ -8474,7 +8606,7 @@
   {
     "id": "sync/event-task-artifact.mjs#admin.get#b21a38de531c",
     "file": "sync/event-task-artifact.mjs",
-    "line": 125,
+    "line": 150,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -8566,6 +8698,90 @@
     "policy": "operator-point",
     "refresh": "on affected event",
     "note": "Проверить кратность адресного чтения в одном EducationSync: локальный снимок/мемоизация по ID допустимы, если не нарушают актуальность перед записью."
+  },
+  {
+    "id": "sync/help-response.mjs#admin.get#2d269cb946c4",
+    "file": "sync/help-response.mjs",
+    "line": 20,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "operator-verified-publication",
+    "refresh": "per publication, transaction retry and readback",
+    "note": "Проверка конкретного события, артефакта и задания в транзакции, затем адресный readback ответа и завершения; сканирования inbox нет."
+  },
+  {
+    "id": "sync/help-response.mjs#admin.get#2d269cb946c4-2",
+    "file": "sync/help-response.mjs",
+    "line": 20,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "operator-verified-publication",
+    "refresh": "per publication, transaction retry and readback",
+    "note": "Проверка конкретного события, артефакта и задания в транзакции, затем адресный readback ответа и завершения; сканирования inbox нет."
+  },
+  {
+    "id": "sync/help-response.mjs#admin.get#2d269cb946c4-3",
+    "file": "sync/help-response.mjs",
+    "line": 28,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "operator-verified-publication",
+    "refresh": "per publication, transaction retry and readback",
+    "note": "Проверка конкретного события, артефакта и задания в транзакции, затем адресный readback ответа и завершения; сканирования inbox нет."
+  },
+  {
+    "id": "sync/help-response.mjs#admin.get#2d269cb946c4-4",
+    "file": "sync/help-response.mjs",
+    "line": 28,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "operator-verified-publication",
+    "refresh": "per publication, transaction retry and readback",
+    "note": "Проверка конкретного события, артефакта и задания в транзакции, затем адресный readback ответа и завершения; сканирования inbox нет."
+  },
+  {
+    "id": "sync/help-response.mjs#admin.get#2d269cb946c4-5",
+    "file": "sync/help-response.mjs",
+    "line": 41,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "operator-verified-publication",
+    "refresh": "per publication, transaction retry and readback",
+    "note": "Проверка конкретного события, артефакта и задания в транзакции, затем адресный readback ответа и завершения; сканирования inbox нет."
+  },
+  {
+    "id": "sync/help-response.mjs#admin.get#53b1ad5df27f",
+    "file": "sync/help-response.mjs",
+    "line": 53,
+    "api": "admin.get",
+    "target": "db.doc(result.path)",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "operator-verified-publication",
+    "refresh": "per publication, transaction retry and readback",
+    "note": "Проверка конкретного события, артефакта и задания в транзакции, затем адресный readback ответа и завершения; сканирования inbox нет."
+  },
+  {
+    "id": "sync/help-response.mjs#admin.get#4b34c125965d",
+    "file": "sync/help-response.mjs",
+    "line": 53,
+    "api": "admin.get",
+    "target": "db.doc(result.jobPath)",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "operator-verified-publication",
+    "refresh": "per publication, transaction retry and readback",
+    "note": "Проверка конкретного события, артефакта и задания в транзакции, затем адресный readback ответа и завершения; сканирования inbox нет."
   },
   {
     "id": "sync/job-queue.mjs#admin.get#87887efcb617",

@@ -502,6 +502,25 @@ service cloud.firestore {
         }
       }
       match /inbox/{notificationId} {
+        // Parent selection and learner notice are one atomic family operation.
+        allow create: if activeSession()
+          && request.resource.data.keys().hasOnly(['familyId', 'childId', 'type', 'entityId', 'eventId', 'sourceRevision', 'createdAt'])
+          && request.resource.data.keys().hasAll(['familyId', 'childId', 'type', 'entityId', 'eventId', 'sourceRevision', 'createdAt'])
+          && request.resource.data.type == 'olympiad_enabled'
+          && request.resource.data.eventId == notificationId
+          && request.resource.data.sourceRevision == 1
+          && request.resource.data.createdAt == request.time
+          && parentMember(request.resource.data.familyId)
+          && childMember(request.resource.data.familyId, request.resource.data.childId)
+          && exists(/databases/$(database)/documents/families/$(request.resource.data.familyId)/members/$(personId))
+          && get(/databases/$(database)/documents/families/$(request.resource.data.familyId)/members/$(personId)).data.active == true
+          && get(/databases/$(database)/documents/families/$(request.resource.data.familyId)/members/$(personId)).data.role == 'student'
+          && request.resource.data.childId in get(/databases/$(database)/documents/families/$(request.resource.data.familyId)/members/$(personId)).data.childIds
+          && existsAfter(/databases/$(database)/documents/families/$(request.resource.data.familyId)/children/$(request.resource.data.childId)/olympiadSelections/$(request.resource.data.entityId))
+          && getAfter(/databases/$(database)/documents/families/$(request.resource.data.familyId)/children/$(request.resource.data.childId)/olympiadSelections/$(request.resource.data.entityId)).data.enabled == true
+          && getAfter(/databases/$(database)/documents/families/$(request.resource.data.familyId)/children/$(request.resource.data.childId)/olympiadSelections/$(request.resource.data.entityId)).data.eventId == notificationId
+          && getAfter(/databases/$(database)/documents/families/$(request.resource.data.familyId)/children/$(request.resource.data.childId)/olympiadSelections/$(request.resource.data.entityId)).data.actorPersonId == currentPersonId()
+          && getAfter(/databases/$(database)/documents/families/$(request.resource.data.familyId)/children/$(request.resource.data.childId)/olympiadSelections/$(request.resource.data.entityId)).data.changedAt == request.time;
         allow get, list: if activeSession() && currentPersonId() == personId;
         // A parent's decision and the child's notice are committed together.
         // The client cannot invent review results or arbitrary announcement text.
@@ -562,6 +581,12 @@ service cloud.firestore {
           && (resource == null || request.resource.data.sourceRevision >= resource.data.sourceRevision);
         allow delete: if false;
       }
+    }
+
+    // Operator-published, non-personal catalog projection. Family work remains private.
+    match /publicOlympiadCatalog/{olympiadId} {
+      allow get, list: if activeSession();
+      allow write: if false;
     }
 
     // Private lesson keys and attempts are accessed exclusively through trusted server services.
@@ -715,6 +740,24 @@ service cloud.firestore {
             && request.resource.data.actorPersonId == currentPersonId()
             && request.resource.data.updatedAt == request.time
         && legacyOrEducationEventReceipt('material.requirement_changed', request.resource.data.get('eventOperationId', 'legacy'), 'families/' + familyId + '/children/' + childId + '/bookRequirements/' + subjectId);
+          allow delete: if false;
+        }
+
+        match /olympiadSelections/{olympiadId} {
+          allow get, list: if childMember(familyId, childId);
+          allow create, update: if parentMember(familyId) && childMember(familyId, childId)
+            && exists(/databases/$(database)/documents/publicOlympiadCatalog/$(olympiadId))
+            && get(/databases/$(database)/documents/publicOlympiadCatalog/$(olympiadId)).data.status == 'published'
+            && (request.resource.data.enabled == false || (get(/databases/$(database)/documents/families/$(familyId)/children/$(childId)).data.olympiadEligibility.verified == true
+              && get(/databases/$(database)/documents/families/$(familyId)/children/$(childId)).data.olympiadEligibility.grade in get(/databases/$(database)/documents/publicOlympiadCatalog/$(olympiadId)).data.gradeLevels))
+            && request.resource.data.keys().hasOnly(['enabled','actorPersonId','deviceUid','eventId','changedAt'])
+            && request.resource.data.keys().hasAll(['enabled','actorPersonId','deviceUid','eventId','changedAt'])
+            && request.resource.data.enabled is bool
+            && request.resource.data.actorPersonId == currentPersonId()
+            && request.resource.data.deviceUid == request.auth.uid
+            && request.resource.data.eventId is string
+            && request.resource.data.eventId.matches('^[A-Za-z0-9-]{36}$')
+            && request.resource.data.changedAt == request.time;
           allow delete: if false;
         }
 
@@ -986,7 +1029,7 @@ service cloud.firestore {
         && get(memberPath(get(/databases/$(database)/documents/dayOwners/$(studentToken)).data.familyId)).data.role == 'student'
         && exists(/databases/$(database)/documents/dayPages/$(studentToken))
         && taskId in get(/databases/$(database)/documents/dayPages/$(studentToken)).data.taskIds
-        && request.resource.data.keys().hasOnly(['taskId', 'revision', 'requestedAt', 'requestKind', 'requestText', 'eventOperationId', 'eventReceiptId', 'eventProducerVersion'])
+        && request.resource.data.keys().hasOnly(['taskId', 'revision', 'requestedAt', 'requestKind', 'requestText', 'photoUploadIds', 'planRevision', 'eventOperationId', 'eventReceiptId', 'eventProducerVersion'])
         && request.resource.data.keys().hasAll(['taskId', 'revision', 'requestedAt', 'requestKind', 'requestText'])
         && request.resource.data.taskId == taskId
         && request.resource.data.revision is int
@@ -995,11 +1038,35 @@ service cloud.firestore {
         && request.resource.data.requestKind in ['condition', 'start', 'step', 'check']
         && request.resource.data.requestText is string
         && request.resource.data.requestText.size() <= 800
+        && (!('photoUploadIds' in request.resource.data) || (request.resource.data.photoUploadIds is list && request.resource.data.photoUploadIds.size() > 0
+          && request.resource.data.planRevision == get(/databases/$(database)/documents/dayPages/$(studentToken)).data.planRevision))
         && request.resource.data.requestedAt == request.time
         && (resource == null || (resource.data.taskId == taskId
           && request.resource.data.revision >= resource.data.revision))
-        && legacyOrEducationEventReceipt('help.requested', request.resource.data.get('eventOperationId', 'legacy'), 'dayHelp/' + studentToken + '/items/' + taskId);
+        && legacyOrEducationEventReceipt('help.requested', request.resource.data.get('eventOperationId', 'legacy'), 'dayHelp/' + studentToken + '/items/' + taskId)
+        && (!(('photoUploadIds' in request.resource.data) || (resource != null && 'photoUploadIds' in resource.data))
+          || validEducationEventReceipt(request.resource.data, 'help.requested', request.resource.data.get('eventOperationId', 'legacy'), 'dayHelp/' + studentToken + '/items/' + taskId))
+        && (!('photoUploadIds' in request.resource.data) || (
+          existsAfter(/databases/$(database)/documents/dayHelp/$(studentToken)/items/$(taskId)/requests/$(request.resource.data.eventReceiptId))
+          && getAfter(/databases/$(database)/documents/dayHelp/$(studentToken)/items/$(taskId)/requests/$(request.resource.data.eventReceiptId)).data == request.resource.data));
       allow delete: if false;
+    }
+
+    // History is an immutable copy of the same atomically written request.
+    match /dayHelp/{studentToken}/items/{taskId}/requests/{eventId} {
+      allow get, list: if dayUploadOwner(studentToken);
+      allow create: if dayUploadOwner(studentToken)
+        && get(memberPath(get(/databases/$(database)/documents/dayOwners/$(studentToken)).data.familyId)).data.role == 'student'
+        && eventId.matches('^[a-f0-9]{64}$')
+        && request.resource.data.eventReceiptId == eventId
+        && existsAfter(/databases/$(database)/documents/educationEvents/$(eventId))
+        && getAfter(/databases/$(database)/documents/educationEvents/$(eventId)).data.createdAt == request.time
+        && getAfter(/databases/$(database)/documents/educationEvents/$(eventId)).data.sourceRef.documentPath == 'dayHelp/' + studentToken + '/items/' + taskId
+        && request.resource.data.requestedAt == request.time
+        && request.resource.data == getAfter(/databases/$(database)/documents/dayHelp/$(studentToken)/items/$(taskId)).data
+        && request.resource.data.photoUploadIds is list
+        && request.resource.data.photoUploadIds.size() > 0;
+      allow update, delete: if false;
     }
 
     match /dayUploads/{studentToken}/files/{uploadId} {

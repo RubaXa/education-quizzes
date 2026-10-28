@@ -177,3 +177,6 @@
 .day-dashboard-homework-next,.day-dashboard-homework-reason{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
 .day-dashboard-homework-reason{color:var(--edu-text-secondary);font-size:.73rem;line-height:1.4}
 .day-dashboard-homework-row-body{gap:4px}
+
+/* Shared olympiad catalog rows and tabs. */
+.olympiad-catalog-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:0.5rem}

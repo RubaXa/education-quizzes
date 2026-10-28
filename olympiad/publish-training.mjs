@@ -45,6 +45,9 @@ export async function publishTraining(db, receipts) {
   }
   documents.push({ path: `olympiadMaterials/${olympiadId}/problems/${problemId}`, value: problem })
   documents.push({ path: `olympiadCatalog/${olympiadId}`, value: catalog })
+  // Deliberately publish an allowlisted public projection, never the private catalog record.
+  documents.push({ path: `publicOlympiadCatalog/${olympiadId}`, value: { status: 'published', title: catalog.title, deadline: catalog.deadline.slice(0, 10), gradeLevels: catalog.gradeLevels, subject: 'Математика' } })
+  documents.push({ path: 'publicOlympiadCatalog/energy-hope-math-2026-2027', value: { status: 'published', title: 'Надежда энергетики', deadline: null, gradeLevels: [5, 6, 7, 8, 9, 10, 11], subject: 'Математика', schedule: 'Тренировочный этап: 1 и 8 ноября', source: 'https://ehope.ru/actual/grafik.html' } })
   await db.runTransaction(async (tx) => {
   let owner = null
   for (const lessonId of lessonIds) {

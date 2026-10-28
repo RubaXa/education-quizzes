@@ -52,7 +52,13 @@ export async function captureEventTaskInputs(db, event) {
   validate(event)
   const sourceSnap = await db.doc(event.sourceRef.documentPath).get()
   if (!sourceSnap.exists) fail('task_source_missing')
-  const source = sourceSnap.data()
+  let source = sourceSnap.data()
+  // Preserve an in-flight photo request if the current projection has since
+  // advanced. Legacy requests without a snapshot retain the old stale guard.
+  if (event.eventType === 'help.requested' && source.eventReceiptId && source.eventReceiptId !== event.eventId) {
+    const archived = await db.doc(`${event.sourceRef.documentPath}/requests/${event.eventId}`).get()
+    if (archived.exists && archived.data()?.eventReceiptId === event.eventId) source = archived.data()
+  }
   const [familySnap, childSnap] = await Promise.all([
     db.doc(`families/${event.familyId}`).get(), db.doc(`families/${event.familyId}/children/${event.childId}`).get(),
   ])
@@ -89,6 +95,25 @@ export async function captureEventTaskInputs(db, event) {
       materialLinks: page.materialLinks?.[task.id] ?? [], taskPageRefs: page.taskPageRefs?.[task.id] ?? [] })
     if (event.eventType === 'upload.confirmed' && (source.status !== 'pending' || source.storage?.state !== 'stored'
       || !source.storage?.path || !HASH.test(source.storage?.sha256 ?? ''))) fail('task_source_not_reviewable')
+    if (event.eventType === 'help.requested' && source.photoUploadIds !== undefined) {
+      if (!Number.isInteger(source.planRevision) || source.planRevision !== page.planRevision) fail('task_help_plan_changed')
+      const ids = source.photoUploadIds
+      if (!Array.isArray(ids) || !ids.length || new Set(ids).size !== ids.length
+        || ids.some(id => typeof id !== 'string' || !/^[A-Za-z0-9_-]{20,80}$/.test(id))) fail('task_help_photos_invalid')
+      inputs.photos = []
+      // Bound concurrent Firestore reads without imposing a count limit on task photos.
+      for (let offset = 0; offset < ids.length; offset += 20) {
+        const batch = ids.slice(offset, offset + 20)
+        const photos = await Promise.all(batch.map(id => db.doc(`dayUploads/${event.sourceRef.dayToken}/files/${id}`).get()))
+        inputs.photos.push(...photos.map((photo, index) => {
+          const data = photo.data()
+          if (!photo.exists || data?.taskId !== taskId || !['pending', 'reviewed'].includes(data?.status)
+            || data?.storage?.state !== 'stored' || !data.storage.path || !HASH.test(data.storage.sha256 ?? '')) fail('task_help_photo_not_reviewable')
+          const { upload: _credential, ...evidence } = data
+          return canonical({ id: batch[index], ...evidence })
+        }))
+      }
+    }
     if (event.eventType === 'help.requested' && source.eventReceiptId && source.eventReceiptId !== event.eventId) {
       const requestTime = typeof source.requestedAt?.toMillis === 'function' ? source.requestedAt.toMillis() : Date.parse(source.requestedAt ?? '')
       const legacyMatches = event.actor?.type === 'system' && event.actor.id === 'server'
