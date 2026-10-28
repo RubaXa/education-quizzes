@@ -304,6 +304,8 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
         const snap = await tx.get(ref)
         if (!snap.exists) return null
         const state = snap.data()
+        const later = claimAfterBlockedAction({ tx, ref, state, now, workerId })
+        if (later) return later
         const separated = claimBlockedMixedActions({ tx, ref, state, now, workerId })
         if (separated) return separated
         if (isRecoverableSourceWait(state, now)) return claimSourceWaitRecovery({ tx, ref, state, now, workerId })
@@ -472,7 +474,7 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
           const pendingAfter = pendingThrough === null ? null : Math.max(state.pendingActionAfterGeneration ?? frozenThrough, frozenThrough)
           const pendingKinds = pendingThrough === null ? (state.pendingKinds ?? []).filter((kind) => kind !== 'action')
             : [...new Set([...(state.pendingKinds ?? []), 'action'])]
-          tx.set(ref, { ...state, completedActionGeneration: Math.max(state.completedActionGeneration ?? 0, frozenThrough),
+          tx.set(ref, { ...state, completedActionGeneration: currentLane.gapPrior ? state.completedActionGeneration ?? 0 : Math.max(state.completedActionGeneration ?? 0, frozenThrough),
             pendingActionAfterGeneration: pendingAfter, pendingActionThroughGeneration: pendingThrough, pendingKinds,
             actionAfterGeneration: pendingAfter, actionThroughGeneration: pendingThrough,
             actionLane: { ...currentLane, status: 'completed', claimTokenHash: null, workflowLeaseUntil: null,
@@ -718,6 +720,28 @@ function claimSourceWaitRecovery({ tx, ref, state, now, workerId }) {
     claimTokenHash: null, workflowLeaseUntil: null }, { merge: false })
   return { requestId, generation, workKinds: kinds,
     actionAfterGeneration: hasActionRange ? lower : 0, actionThroughGeneration: hasActionRange ? upper : null, workerId }
+}
+
+/** A missing old action must not hold later, separately fenced actions. The
+ * unresolved range stays recorded; completion may not advance its watermark. */
+function claimAfterBlockedAction({ tx, ref, state, now, workerId }) {
+  const previous = state.actionLane
+  const eligible = previous?.status === 'blocked' && previous.blockedReasonCode === 'manual_review_required'
+    || previous?.status === 'completed' && previous.gapPrior === true
+  if (state.status !== 'blocked' || state.blockedReasonCode !== 'source_unavailable' || !eligible
+    || !Number.isInteger(previous.actionThroughGeneration) || !Number.isInteger(state.pendingActionThroughGeneration)
+    || state.pendingActionThroughGeneration <= previous.actionThroughGeneration
+    || state.pendingActionThroughGeneration > state.generation || state.debounceUntil > now) return null
+  const requestId = randomUUID()
+  const lane = { requestId, status: 'sending', generation: state.pendingActionThroughGeneration,
+    sendingGeneration: state.pendingActionThroughGeneration, actionAfterGeneration: previous.actionThroughGeneration,
+    actionThroughGeneration: state.pendingActionThroughGeneration, gapPrior: true, workerId,
+    leaseUntil: new Date(Date.parse(now) + 30_000).toISOString() }
+  const history = previous.status === 'blocked' ? [...(state.actionBlockHistory ?? []), { requestId: previous.requestId,
+    actionAfterGeneration: previous.actionAfterGeneration, actionThroughGeneration: previous.actionThroughGeneration,
+    reason: previous.blockedReasonCode, blockedAt: previous.blockedAt ?? now }] : state.actionBlockHistory ?? []
+  tx.set(ref, { ...state, actionLane: lane, actionBlockHistory: history }, { merge: false })
+  return { requestId, generation: lane.sendingGeneration, workKinds: ['action'], actionAfterGeneration: lane.actionAfterGeneration, actionThroughGeneration: lane.actionThroughGeneration, workerId, independentSourceBlock: true }
 }
 
 /** A failed source batch must not strand already-frozen Firebase actions.

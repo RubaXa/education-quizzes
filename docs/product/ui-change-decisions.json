@@ -1254,7 +1254,7 @@
       }
     },
     "packages/telegram-notifications/application/education-sync-dispatcher.mjs": {
-      "sha256": "a25d80a899bb55a77ead1f99dad08cf344e40f44ecd10253c4a3e3bc24657edf",
+      "sha256": "ccf36962a1ddbbd3a30105ea79bc713bd57138a7fa4bd1311f2aa2c127ad0740",
       "record": "docs/decisions/olympiad-firebase-independence-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",

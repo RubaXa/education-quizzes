@@ -46,6 +46,29 @@ const artifact = (id) => ({ artifactPath: `operatorSyncTaskArtifacts/${id.toStri
 const now = '2026-10-19T10:00:00.000Z'
 
 describe('typed EducationSync action batch', () => {
+  it('processes later Firebase actions while retaining an older missing-source block', async () => {
+    const db = new FakeDb(), store = createFirestoreEducationSyncStore(db)
+    db.rows.set('educationSyncDispatch/current', { status: 'blocked', requestId: 'mesh-block', generation: 232,
+      sendingGeneration: 231, sendingKinds: ['mesh', 'action'], sendingActionThroughGeneration: 231,
+      completedActionGeneration: 43, blockedReasonCode: 'source_unavailable', pendingActionAfterGeneration: 231, pendingActionThroughGeneration: 232, debounceUntil: now,
+      actionLane: { requestId: 'old-action', status: 'blocked', blockedReasonCode: 'manual_review_required', actionAfterGeneration: 43, actionThroughGeneration: 231 } })
+    db.rows.set('educationSyncDispatchEvents/later', { kind: 'action', taskKind: 'review-work', generation: 232, jobId: 'later-job', eventId: 'later' })
+    db.rows.set('operatorSyncJobs/later-job', { status: 'queued' })
+    const lane = await store.claim({ now, workerId: 'later-worker' })
+    expect(lane).toMatchObject({ workKinds: ['action'], actionAfterGeneration: 231, actionThroughGeneration: 232 })
+    expect((await store.read()).actionBlockHistory).toMatchObject([{ requestId: 'old-action', reason: 'manual_review_required' }])
+    await store.markQueued({ requestId: lane.requestId, workerId: lane.workerId, now })
+    await store.claimRequest({ requestId: lane.requestId, tokenHash: 'later-token', now })
+    expect(await store.completeClaim({ requestId: lane.requestId, tokenHash: 'later-token', now })).toEqual({ status: 'incomplete_actions' })
+    db.rows.get('operatorSyncJobs/later-job').status = 'done'
+    expect(await store.completeClaim({ requestId: lane.requestId, tokenHash: 'later-token', now })).toEqual({ status: 'completed', scope: 'action' })
+    expect(await store.read()).toMatchObject({ status: 'blocked', completedActionGeneration: 43, actionLane: { status: 'completed', gapPrior: true } })
+    await store.recordAction({ event: event(233), kind: 'triage-help', artifact: artifact(233), now, debounceUntil: now })
+    const next = await store.claim({ now, workerId: 'next-worker' })
+    expect(next).toMatchObject({ workKinds: ['action'], actionAfterGeneration: 232, actionThroughGeneration: 233 })
+    expect((await store.read()).actionBlockHistory).toHaveLength(1)
+  })
+
   it('dispatches a frozen Firebase batch independently when a mixed source request is blocked', async () => {
     const db = new FakeDb(), store = createFirestoreEducationSyncStore(db)
     db.rows.set('educationSyncDispatch/current', { status: 'blocked', requestId: 'mesh-block', generation: 231,
