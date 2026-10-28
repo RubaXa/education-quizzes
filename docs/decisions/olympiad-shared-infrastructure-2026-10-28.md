@@ -1,0 +1,44 @@
+---
+id: decision.olympiad-shared-infrastructure-2026-10-28
+status: accepted
+implementation: partial
+created: 2026-10-28
+updated: 2026-10-28
+parent: module.olympiad-preparation
+uses:
+  - shared.design.ui-kit
+  - shared.access-and-privacy
+consumers:
+  - Education developer
+  - Education operator
+code: []
+sections:
+  - основание
+  - было--стало
+  - действия-и-роли
+  - проверки
+  - согласование
+---
+# Олимпиада в общем учебном ядре
+
+## Основание
+
+Пользователь уточнил: олимпиада — тип обычного урока с отдельным представлением и общим хранилищем материалов. Права семьи, структура ученических данных, фотографии, Яндекс Диск, Firebase и синхронизация должны использовать действующую инфраструктуру Education.
+
+## Было → стало
+
+Прежний отдельный олимпиадный HTTP-сервис и собственная схема данных не являются целевой архитектурой. Общий контекст учебного назначения различает тип и идентификатор; опубликованные назначения получают контекст без замены ответов и ссылок. Общая семейная модель обобщается на предметы и дополнительную практику; выбор нескольких фото и история запросов помощи требуют отдельной доработки и проверки правил доступа. Это локальная частичная миграция: интерфейс, связь ответов с ревизиями и полноценный сквозной выпуск ещё требуют реализации и проверки; существующие данные не удаляются.
+
+Затронуты `assessment/learning-context.mjs`, `assessment/learning-context-backfill.mjs`, `scripts/backfill-olympiad-context.mjs`, `scripts/quiz.mjs`, `day/family-assignment.mjs`, `day/dashboard-index.mjs`, `day/pipeline-contract.mjs`, `scripts/day.mjs`, `src/lib/homeworkStatus.ts`, `src/lib/dayStore.ts`, `src/lib/quiz.ts`, `src/lib/store.ts`, `src/DayDashboard.tsx`, `src/DayPage.tsx`, `src/components/QuizCard.tsx`, `src/lib/quizCardViewModel.ts`, `src/lib/useParentChildOverview.ts`, `src/components/OlympiadCatalog.tsx`, `src/components/OlympiadHome.tsx`, `src/components/OlympiadPage.tsx`, `src/components/LearningRoute.tsx`, `src/UiKit.tsx`, `src/lib/educationStore.ts`, и `src/lib/educationStore.ts`.
+
+## Действия и роли
+
+Авторизованное семейное членство и действующие правила Education управляют доступом, а не тип учебного материала или адрес. Дополнительная олимпиадная практика не становится обязательным заданием МЭШ. Закрытые ответы, семейные фотографии и история не становятся общими; публичные материалы и учебные определения могут переиспользоваться семьями при соблюдении прав и правил соревнования.
+
+## Проверки
+
+Проверяются совместимость прежних назначений, точный владелец, сохранение ответов и ссылок, повтор публикации, дополнительность, общая загрузка и очередь помощи, Firestore Rules в эмуляторе, UI Kit и LDD. Выпуск подтверждается отдельным сквозным readback.
+
+## Согласование
+
+Прямое уточнение пользователя 28.10.2026 использовать общие уроки, данные и инфраструктуру Education, а не отдельный олимпиадный сервис.

@@ -17,6 +17,16 @@ import type { Answer, AnswerKey, Assignment, ManualReview, QuizQuestion, QuizRea
 import { assertOpenAssignment } from './quizWrite'
 import { prepareEducationEvent, stagePreparedEducationEventInTransaction } from './educationEventProducer'
 
+/** Public placement metadata is descriptive and cannot grant access. */
+export function readLearningContext(value: unknown): Assignment['learningContext'] {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined
+  const data = value as Record<string, unknown>
+  if (Object.keys(data).some(key => key !== 'kind' && key !== 'id') ||
+    !['homework', 'course', 'olympiad'].includes(String(data.kind)) ||
+    typeof data.id !== 'string' || !/^[A-Za-z0-9_-]{1,128}$/.test(data.id)) return undefined
+  return { kind: data.kind as 'homework' | 'course' | 'olympiad', id: data.id }
+}
+
 export type BoardDetails = {
   materials: string[]
   review: string
@@ -233,6 +243,7 @@ export async function loadDashboard(token: string) {
     title: String(item.data().title ?? 'Без названия'),
     description: String(item.data().description ?? ''),
     board: readBoardDetails(item.data().board),
+    learningContext: readLearningContext(item.data().learningContext),
     subject: String(item.data().subject ?? ''),
     slug: String(item.data().slug ?? ''),
     previewToken: String(item.data().previewToken ?? ''),
@@ -251,6 +262,7 @@ export function watchDashboard(token: string, onChange: (items: Awaited<ReturnTy
       title: String(item.data().title ?? 'Без названия'),
       description: String(item.data().description ?? ''),
       board: readBoardDetails(item.data().board),
+      learningContext: readLearningContext(item.data().learningContext),
       subject: String(item.data().subject ?? ''),
       slug: String(item.data().slug ?? ''),
       previewToken: String(item.data().previewToken ?? ''),

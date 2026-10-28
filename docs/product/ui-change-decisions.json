@@ -229,18 +229,24 @@
       }
     },
     "day/dashboard-index.mjs": {
-      "sha256": "76bba1770b0bc5cb7dd1994ef3c1d8810e37261f9d1d25931d9931f8f8667468",
-      "record": "docs/decisions/family-essay-assignment-2026-10-20.md",
+      "sha256": "de680b411ffab335fcecdb950fcf4201ea0a211ccbad48c16856a8d5829ba62d",
+      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
-        "docs/modules/school-diary/day-page.md"
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/modules/synchronization/education-pipeline.md"
       ],
       "tests": [
+        "assessment/learning-context-backfill.test.mjs",
+        "assessment/learning-context.test.mjs",
+        "day/family-assignment.test.mjs",
         "day/dashboard-index.test.mjs",
-        "day/family-assignment-boundaries.test.mjs"
+        "src/lib/homeworkStatus.test.ts",
+        "src/lib/educationEventProducers.test.ts",
+        "sync/event-task-artifact.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 20.10.2026: опубликовать семейную подготовку к сочинению к пятнице 23.10.2026 с самостоятельной работой ученика и загрузкой фотографии; не представлять её заданием МЭШ или учителя."
+        "evidence": "Пользователь 28.10 прямо потребовал общий механизм уроков, семейных прав, фотографий и синхронизации для олимпиад."
       }
     },
     "day/data-contract.mjs": {
@@ -462,19 +468,23 @@
       }
     },
     "day/pipeline-contract.mjs": {
-      "sha256": "2ba20096754f49745251576985eb45d7f5fcce896ecb83e19573097180b13a52",
-      "record": "docs/decisions/audio-library-2026-10-22.md",
+      "sha256": "6a63c4ecc66fb120c0a79bab6414fce3641478bff4e0f972523d6bd047f75d0e",
+      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
-        "docs/modules/materials/audio-library.md",
-        "docs/modules/materials/material-clarification.md",
-        "docs/modules/synchronization/plan-generation.md"
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/modules/synchronization/education-pipeline.md"
       ],
       "tests": [
-        "day/pipeline-contract.test.mjs"
+        "assessment/learning-context-backfill.test.mjs",
+        "day/family-assignment.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/QuizCard.test.tsx",
+        "src/lib/educationEventProducers.test.ts",
+        "sync/event-task-artifact.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос пользователя связывать аудио с точным заданием после анализа уточняющих материалов; выбор должен использовать подтверждённые материалы ребёнка и не смешивать письменную сдачу с тестом."
+        "evidence": "Пользователь прямо потребовал использовать общие уроки, семейные права, фотографии и синхронизацию Education для олимпиад."
       }
     },
     "day/placement-integrity.mjs": {
@@ -1923,21 +1933,22 @@
       }
     },
     "scripts/day.mjs": {
-      "sha256": "bc0e00111de6abfe1b1e5d8c743c906373fb5c6628944655cd294df6227299c3",
-      "record": "docs/decisions/guidance-refresh-readback-2026-10-25.md",
+      "sha256": "1063439c8347773897d6934e1b2804328fc80354769833b4aa47c7b75dcd0a53",
+      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
-        "docs/modules/materials/audio-library.md",
-        "docs/modules/materials/material-clarification.md",
-        "docs/modules/synchronization/plan-generation.md"
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/modules/synchronization/education-pipeline.md"
       ],
       "tests": [
-        "day/audio-selection-plan.test.mjs",
-        "scripts/day.validate.test.mjs",
-        "day/guidance-refresh.test.mjs"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/OlympiadPage.integration.test.tsx",
+        "src/components/TaskGuidance.test.tsx",
+        "src/lib/educationEventProducers.test.ts",
+        "sync/event-task-artifact.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь потребовал ревизию инструментов и перегенерацию математической помощи с сохранением работ и текущего шага; добавлена только expected fence штатной публикации."
+        "evidence": "Пользователь прямо потребовал использовать общие уроки, семейные права, фотографии и синхронизацию Education для олимпиад."
       }
     },
     "scripts/direct-upload-worker.mjs": {
@@ -2252,19 +2263,25 @@
       }
     },
     "scripts/quiz.mjs": {
-      "record": "docs/decisions/question-guidance-2026-10-19.md",
+      "sha256": "4b033307cb10813b09dd3df391ee9c99812d21ab3118c97235ba484ec5f9302d",
+      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
-        "docs/modules/assessments/quizzes.md"
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/modules/synchronization/education-pipeline.md"
       ],
       "tests": [
-        "src/components/QuizResultCard.test.tsx",
-        "assessment/question-guidance.test.mjs"
+        "assessment/learning-context-backfill.test.mjs",
+        "assessment/learning-context.test.mjs",
+        "day/family-assignment.test.mjs",
+        "day/dashboard-index.test.mjs",
+        "src/lib/homeworkStatus.test.ts",
+        "src/lib/educationEventProducers.test.ts",
+        "sync/event-task-artifact.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель19.10 требует вместо одинаковой копипасты точное расхождение, наводящий вопрос и проверяемое место оригинала каждого вопроса."
-      },
-      "sha256": "8824a96d7cbd04dba614c364bc3b549946c49887fc67264b2ebee867143c0057"
+        "evidence": "Пользователь 28.10 прямо потребовал общий механизм уроков, семейных прав, фотографий и синхронизации для олимпиад."
+      }
     },
     "scripts/release-note.mjs": {
       "sha256": "af2e9a134dca5c4af947b57914e569d73df39d710dd7a0de5cc20dcd0acc7d2f",
@@ -2563,20 +2580,23 @@
       }
     },
     "src/DayDashboard.tsx": {
-      "sha256": "168a538890a926e4ff821bb82073c61896e7cd11a0fbd226f32c8dd880c6351a",
-      "record": "docs/decisions/olympiad-family-screen-2026-10-27.md",
+      "sha256": "715f37228a7035093f37220c424292314bfd41def5bc86bb6a1c94c6455f7801",
+      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/synchronization/education-pipeline.md"
       ],
       "tests": [
-        "src/components/OlympiadPage.integration.test.tsx",
-        "src/components/LearningRoute.integration.test.tsx",
-        "src/UiKit.test.tsx"
+        "assessment/learning-context-backfill.test.mjs",
+        "day/family-assignment.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/QuizCard.test.tsx",
+        "src/lib/educationEventProducers.test.ts",
+        "sync/event-task-artifact.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь поручил подключить семейные экраны олимпиады через существующий UI Kit и LDD и проверять реализацию."
+        "evidence": "Пользователь прямо потребовал использовать общие уроки, семейные права, фотографии и синхронизацию Education для олимпиад."
       }
     },
     "src/DayPage.css": {
@@ -2601,18 +2621,22 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "98de4684fb610ce55936df8c214bf11fc4f20663cdca709d613b7ed0a7568d35",
-      "record": "docs/decisions/scoped-learner-flow-2026-10-21.md",
+      "sha256": "c313f0896a4222176e2d578d6d860bc19b34126399dfec931b13d8a5f67c2fb3",
+      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
-        "docs/modules/reviews/subject-aware-guidance.md"
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/modules/synchronization/education-pipeline.md"
       ],
       "tests": [
-        "day/learner-flow.test.mjs",
-        "src/components/LearnerFlow.test.tsx"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/OlympiadPage.integration.test.tsx",
+        "src/components/TaskGuidance.test.tsx",
+        "src/lib/educationEventProducers.test.ts",
+        "sync/event-task-artifact.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 21.10.2026 поручил исследовать методики, подготовить пошаговую учебную помощь и опубликовать подсказки внутри карточки ребёнка."
+        "evidence": "Пользователь прямо потребовал использовать общие уроки, семейные права, фотографии и синхронизацию Education для олимпиад."
       }
     },
     "src/UiKit.css": {
@@ -2631,21 +2655,22 @@
       }
     },
     "src/UiKit.tsx": {
-      "sha256": "9db4ba11165d4205c4e8835fb83673b53596b8af4aded9729151b52a5e465fcf",
-      "record": "docs/decisions/olympiad-integration-2026-10-28.md",
+      "sha256": "5cda92472b56df165977957974a1be761a509d267fd2aa073c4edb84e125e9eb",
+      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/synchronization/education-pipeline.md"
       ],
       "tests": [
-        "src/components/OlympiadWrittenPractice.integration.test.tsx",
-        "src/UiKit.test.tsx",
-        "operator/olympiad-help.test.mjs",
-        "sync/olympiad-help.test.mjs"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/OlympiadPage.integration.test.tsx",
+        "src/components/TaskGuidance.test.tsx",
+        "src/lib/educationEventProducers.test.ts",
+        "sync/event-task-artifact.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь 28.10 поручил подключить сервер, фото, синхронизацию и уроки через UI Kit и LDD с проверками."
+        "evidence": "Пользователь прямо потребовал использовать общие уроки, семейные права, фотографии и синхронизацию Education для олимпиад."
       }
     },
     "src/WeekendMathSlot.css": {
@@ -3073,20 +3098,22 @@
       }
     },
     "src/components/LearningRoute.tsx": {
-      "sha256": "fc5662b081650e228ac824a8d820dd25c8c89bc1ff1821a546ba462981ccad53",
-      "record": "docs/decisions/olympiad-family-screen-2026-10-27.md",
+      "sha256": "038d326149767a928acefa6e7e63e03bddb873fba30f0a4fa8dabe5b2376de4c",
+      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/synchronization/education-pipeline.md"
       ],
       "tests": [
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
         "src/components/OlympiadPage.integration.test.tsx",
-        "src/components/LearningRoute.integration.test.tsx",
-        "src/UiKit.test.tsx"
+        "src/components/TaskGuidance.test.tsx",
+        "src/lib/educationEventProducers.test.ts",
+        "sync/event-task-artifact.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь поручил подключить семейные экраны олимпиады через существующий UI Kit и LDD и проверять реализацию."
+        "evidence": "Пользователь прямо потребовал использовать общие уроки, семейные права, фотографии и синхронизацию Education для олимпиад."
       }
     },
     "src/components/LinkedWorkPhotos.css": {
@@ -3538,22 +3565,23 @@
       }
     },
     "src/components/QuizCard.tsx": {
-      "sha256": "4553b47769ce241f57c99e852ee1769b148b4c985eff4afde793215e1e7cbc81",
-      "record": "docs/decisions/collapsed-variant-status-2026-10-21.md",
+      "sha256": "0a9462b4d791f4fc1b822aaaf24885fab1c402638e9e271335ea70eee1e267df",
+      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
-        "docs/modules/school-diary/day-page.md",
-        "docs/shared/design/README.md"
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/modules/synchronization/education-pipeline.md"
       ],
       "tests": [
-        "src/lib/practiceVariantViewModel.test.ts",
-        "src/components/ProblemGroup.layout.test.tsx",
+        "assessment/learning-context-backfill.test.mjs",
+        "day/family-assignment.test.mjs",
         "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/DayDashboard.warmStart.test.tsx",
-        "scripts/check-requirement-copy.test.mjs"
+        "src/components/QuizCard.test.tsx",
+        "src/lib/educationEventProducers.test.ts",
+        "sync/event-task-artifact.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос 21.10.2026: фактический статус виден в свёрнутых заголовках независимо от выбора; переключатель является единственным индикатором обязательности."
+        "evidence": "Пользователь прямо потребовал использовать общие уроки, семейные права, фотографии и синхронизацию Education для олимпиад."
       }
     },
     "src/components/QuizResultCard.tsx": {
@@ -4175,23 +4203,22 @@
       }
     },
     "src/lib/dayStore.ts": {
-      "sha256": "895427f31d639a6c470547b5063e4e0538bf43bdbeec9be34f72e2dab08ea174",
-      "record": "docs/decisions/audio-library-2026-10-22.md",
+      "sha256": "30a81fb68bd8cacdd98be60315ba5a26f61163eda1cbf3c3d36985b14547e42e",
+      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
-        "docs/modules/synchronization/plan-generation.md",
-        "docs/modules/materials/material-clarification.md",
-        "docs/modules/materials/audio-library.md"
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/modules/synchronization/education-pipeline.md"
       ],
       "tests": [
-        "day/mixed-assignment.test.mjs",
-        "storage/audio-library.test.mjs",
-        "src/components/AudioPlayer.test.tsx",
-        "day/merge.test.mjs",
-        "operator/operation-contract.test.mjs"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/OlympiadPage.integration.test.tsx",
+        "src/components/TaskGuidance.test.tsx",
+        "src/lib/educationEventProducers.test.ts",
+        "sync/event-task-artifact.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 22.10.2026 прямо запросил плеер в заданиях, общую аудиобиблиотеку Starlight 6 на своём Яндекс.Диске, спецификацию и UI Kit. Also preserve mixed-assignment behavior: separate explicit written and repeat actions with distinct material requests and independent outcomes."
+        "evidence": "Пользователь прямо потребовал использовать общие уроки, семейные права, фотографии и синхронизацию Education для олимпиад."
       }
     },
     "src/lib/educationEventProducer.ts": {
@@ -4228,24 +4255,22 @@
       }
     },
     "src/lib/educationStore.ts": {
-      "sha256": "e36b2a22ebd1a4cfc6568ef1e124598c042fef9ba348dd649e2f6dc92a779535",
-      "record": "docs/decisions/notification-read-all-2026-10-14.md",
+      "sha256": "56b9b204bcc37e4ca4bb4fa44784796b98e1ee8000d97e694cfcf7a709bc701b",
+      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
-        "docs/modules/notifications/inbox.md",
-        "docs/shared/design/README.md"
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/modules/synchronization/education-pipeline.md"
       ],
       "tests": [
-        "src/components/NotificationBell.test.tsx",
-        "src/lib/educationStore.inbox.test.ts",
-        "src/components/NotificationBell.layout.test.mjs"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/OlympiadPage.integration.test.tsx",
+        "src/components/TaskGuidance.test.tsx",
+        "src/lib/educationEventProducers.test.ts",
+        "sync/event-task-artifact.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 14.10.2026: в открытом колокольчике рядом с «Обновления» нужен контроль «Прочитать все»."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "3b9f5f02cb03ef8921a97078fd5e8dbfd0350ae7b5bb868cbcb0b51325786c27"
+        "evidence": "Пользователь прямо потребовал использовать общие уроки, семейные права, фотографии и синхронизацию Education для олимпиад."
       }
     },
     "src/lib/familyBookUpload.ts": {
@@ -4300,22 +4325,23 @@
       }
     },
     "src/lib/homeworkStatus.ts": {
-      "sha256": "e95a5a0a3d9a3fcb1f375c8b34f6b09fa269c4a4345e28097736ef06225757fd",
-      "record": "docs/decisions/collapsed-variant-status-2026-10-21.md",
+      "sha256": "f9b9a8b81021da039775a122d0dbc130a65054f8ffb8f7c34789f90ef127d15f",
+      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
-        "docs/modules/school-diary/day-page.md",
-        "docs/shared/design/README.md"
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/modules/synchronization/education-pipeline.md"
       ],
       "tests": [
-        "src/lib/practiceVariantViewModel.test.ts",
-        "src/components/ProblemGroup.layout.test.tsx",
+        "assessment/learning-context-backfill.test.mjs",
+        "day/family-assignment.test.mjs",
         "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/DayDashboard.warmStart.test.tsx",
-        "scripts/check-requirement-copy.test.mjs"
+        "src/components/QuizCard.test.tsx",
+        "src/lib/educationEventProducers.test.ts",
+        "sync/event-task-artifact.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос 21.10.2026: фактический статус виден в свёрнутых заголовках независимо от выбора; переключатель является единственным индикатором обязательности."
+        "evidence": "Пользователь прямо потребовал использовать общие уроки, семейные права, фотографии и синхронизацию Education для олимпиад."
       }
     },
     "src/lib/homeworkUpdateReceipt.ts": {
@@ -4609,41 +4635,44 @@
       }
     },
     "src/lib/quiz.ts": {
-      "record": "docs/decisions/question-guidance-2026-10-19.md",
+      "sha256": "ddb1acdccae34c866b80bffde5517c24632b6976ea9a0e1610ae283b7af7ce2b",
+      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
-        "docs/modules/assessments/quizzes.md"
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/modules/synchronization/education-pipeline.md"
       ],
       "tests": [
-        "src/components/QuizResultCard.test.tsx",
-        "assessment/question-guidance.test.mjs"
+        "assessment/learning-context-backfill.test.mjs",
+        "assessment/learning-context.test.mjs",
+        "day/family-assignment.test.mjs",
+        "day/dashboard-index.test.mjs",
+        "src/lib/homeworkStatus.test.ts",
+        "src/lib/educationEventProducers.test.ts",
+        "sync/event-task-artifact.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель19.10 требует вместо одинаковой копипасты точное расхождение, наводящий вопрос и проверяемое место оригинала каждого вопроса."
-      },
-      "sha256": "7b47d6707b170b7307739599ad59f870900665fa83c0b3a922a4a18556909d9a"
+        "evidence": "Пользователь 28.10 прямо потребовал общий механизм уроков, семейных прав, фотографий и синхронизации для олимпиад."
+      }
     },
     "src/lib/quizCardViewModel.ts": {
-      "sha256": "6cd9ebe6428ef63416b8a09fc8424483c21272c898ff2124cf9e83bcbd4c9d23",
-      "record": "docs/decisions/compact-results-ui-kit-2026-10-16.md",
+      "sha256": "b7a012fb6fa5ad68c16dd8eac4772e29335b68bb069b61d135176029ae7de198",
+      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
-        "docs/modules/assessments/result-presentation-proposal.md",
-        "docs/modules/assessments/quiz-chain-proposal.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/modules/synchronization/education-pipeline.md"
       ],
       "tests": [
-        "src/components/QuizCard.history.test.tsx",
-        "src/components/ui/result.test.tsx",
-        "src/lib/watchQuizOutcome.test.ts",
-        "src/UiKit.test.tsx"
+        "assessment/learning-context-backfill.test.mjs",
+        "day/family-assignment.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/QuizCard.test.tsx",
+        "src/lib/educationEventProducers.test.ts",
+        "sync/event-task-artifact.test.mjs"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "Родитель 16.10.2026 утвердил уплотнённую таблицу и цветовую шкалу словами «стало намного лучше, закрепляй вариант» и прямо запросил интерактивный UI Kit."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "be2a5f58e1ca8dd409fdef7ab5819347a5de97bca85926d68c55ea4a37964015"
+        "status": "direct-request",
+        "evidence": "Пользователь прямо потребовал использовать общие уроки, семейные права, фотографии и синхронизацию Education для олимпиад."
       }
     },
     "src/lib/quizCompletion.ts": {
@@ -4819,17 +4848,24 @@
       }
     },
     "src/lib/store.ts": {
-      "sha256": "08187c762814d99cb602611922f90d72355d15ab81d1c03e919055dbe05f8496",
-      "record": "docs/decisions/unified-education-events-2026-10-19.md",
+      "sha256": "7345e7b72a1c15dad3ecd83ade695afd99b1d6e5d120f8c6a5c73dcc00f99814",
+      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
-        "docs/modules/synchronization/event-queue.md"
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/modules/synchronization/education-pipeline.md"
       ],
       "tests": [
-        "src/lib/store.optionalQuiz.test.ts"
+        "assessment/learning-context-backfill.test.mjs",
+        "assessment/learning-context.test.mjs",
+        "day/family-assignment.test.mjs",
+        "day/dashboard-index.test.mjs",
+        "src/lib/homeworkStatus.test.ts",
+        "src/lib/educationEventProducers.test.ts",
+        "sync/event-task-artifact.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 требует одну внутреннюю очередь событий и одну подписку вместо множества source watchers; ранее поручил реализацию через Luna с проверкой root, тестами, спецификациями и выпуском в main."
+        "evidence": "Пользователь 28.10 прямо потребовал общий механизм уроков, семейных прав, фотографий и синхронизации для олимпиад."
       }
     },
     "src/lib/taskUploadPresentation.ts": {
@@ -4969,29 +5005,23 @@
       }
     },
     "src/lib/useParentChildOverview.ts": {
-      "sha256": "7f1e96cabb9c819d46d849a143de631d4c04abefd9d277dd953c09eba59ecca3",
-      "record": "docs/decisions/optional-quiz-switch-2026-10-15.md",
+      "sha256": "b45829e4cf12071fbb4cf79004cea9b0740208bd2409a0eb74706bac8eea9322",
+      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
-        "docs/modules/assessments/quizzes.md",
-        "docs/modules/school-diary/dashboard.md",
-        "docs/shared/design/README.md"
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/modules/synchronization/education-pipeline.md"
       ],
       "tests": [
-        "src/lib/homeworkStatus.test.ts",
-        "src/lib/quizCardViewModel.test.ts",
-        "src/lib/assignmentPresentation.test.ts",
-        "src/components/QuizCard.test.tsx",
+        "assessment/learning-context-backfill.test.mjs",
+        "day/family-assignment.test.mjs",
         "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/DayDashboard.warmStart.test.tsx",
-        "src/lib/store.optionalQuiz.test.ts"
+        "src/components/QuizCard.test.tsx",
+        "src/lib/educationEventProducers.test.ts",
+        "sync/event-task-artifact.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 15.10.2026: добавить в общий компонент теста переключатель обязательности только для активного теста, правильно исключать его из всех счётчиков и покрыть сценарий тестами."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "92cba1947d99aa05e3c09783c881172a77175635aef9bb9faf6b95605abd4393"
+        "evidence": "Пользователь прямо потребовал использовать общие уроки, семейные права, фотографии и синхронизацию Education для олимпиад."
       }
     },
     "src/lib/useParentCompletions.ts": {
@@ -5655,20 +5685,22 @@
       }
     },
     "day/family-assignment.mjs": {
-      "sha256": "b73d404c620b9d640d97196ba95a96014993263de873a676065d902ff5d9da07",
-      "record": "docs/decisions/family-essay-assignment-2026-10-20.md",
+      "sha256": "c4ea774faf41ca2ca64daaa03861417d9f34f152e405953e00bb4e0356c340b1",
+      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
-        "docs/modules/families/README.md",
-        "docs/modules/school-diary/day-page.md",
-        "docs/modules/synchronization/plan-generation.md"
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/modules/synchronization/education-pipeline.md"
       ],
       "tests": [
-        "day/family-assignment.test.mjs",
-        "day/family-assignment-boundaries.test.mjs"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/OlympiadPage.integration.test.tsx",
+        "src/components/TaskGuidance.test.tsx",
+        "src/lib/educationEventProducers.test.ts",
+        "sync/event-task-artifact.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 20.10.2026: опубликовать семейную подготовку к сочинению к пятнице 23.10.2026 с самостоятельной работой ученика и загрузкой фотографии; не представлять её заданием МЭШ или учителя."
+        "evidence": "Пользователь прямо потребовал использовать общие уроки, семейные права, фотографии и синхронизацию Education для олимпиад."
       }
     },
     "day/family-dashboard-delta.mjs": {
@@ -6247,55 +6279,60 @@
       }
     },
     "src/components/OlympiadCatalog.tsx": {
-      "sha256": "cdf5c67694f2e87b9b0569fbc0692ae096e806aad09a9e21604f20db9b365e06",
-      "record": "docs/decisions/olympiad-family-screen-2026-10-27.md",
+      "sha256": "a03e5835f46c8b0fa1653ded092cdde79d1afbc7da1773093cafc364e1957b8e",
+      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/synchronization/education-pipeline.md"
       ],
       "tests": [
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
         "src/components/OlympiadPage.integration.test.tsx",
-        "src/components/LearningRoute.integration.test.tsx",
-        "src/UiKit.test.tsx"
+        "src/components/TaskGuidance.test.tsx",
+        "src/lib/educationEventProducers.test.ts",
+        "sync/event-task-artifact.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь поручил подключить семейные экраны олимпиады через существующий UI Kit и LDD и проверять реализацию."
+        "evidence": "Пользователь прямо потребовал использовать общие уроки, семейные права, фотографии и синхронизацию Education для олимпиад."
       }
     },
     "src/components/OlympiadHome.tsx": {
-      "sha256": "d74f0e64c7b47c2a3a55b29d7a5ab1d6146fdddc60aca5ff82a59ff0639700f1",
-      "record": "docs/decisions/olympiad-family-screen-2026-10-27.md",
+      "sha256": "2d0677fae5e3361abc33e7b5f70f05fcf86cf7ad15de14c65e82c712c390bbc0",
+      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/synchronization/education-pipeline.md"
       ],
       "tests": [
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
         "src/components/OlympiadPage.integration.test.tsx",
-        "src/components/LearningRoute.integration.test.tsx",
-        "src/UiKit.test.tsx"
+        "src/components/TaskGuidance.test.tsx",
+        "src/lib/educationEventProducers.test.ts",
+        "sync/event-task-artifact.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь поручил подключить семейные экраны олимпиады через существующий UI Kit и LDD и проверять реализацию."
+        "evidence": "Пользователь прямо потребовал использовать общие уроки, семейные права, фотографии и синхронизацию Education для олимпиад."
       }
     },
     "src/components/OlympiadPage.tsx": {
-      "sha256": "1c5d2b12b352fe1ee104116b407aecbce878877bd5a2e85b13b825da0f091494",
-      "record": "docs/decisions/olympiad-integration-2026-10-28.md",
+      "sha256": "66e8890b71c604c67030f5e68722993870fac68aaf3a30d5cf7211047c2ce9f8",
+      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/synchronization/education-pipeline.md"
       ],
       "tests": [
-        "src/components/OlympiadWrittenPractice.integration.test.tsx",
-        "src/UiKit.test.tsx",
-        "operator/olympiad-help.test.mjs",
-        "sync/olympiad-help.test.mjs"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/OlympiadPage.integration.test.tsx",
+        "src/components/TaskGuidance.test.tsx",
+        "src/lib/educationEventProducers.test.ts",
+        "sync/event-task-artifact.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь 28.10 поручил подключить сервер, фото, синхронизацию и уроки через UI Kit и LDD с проверками."
+        "evidence": "Пользователь прямо потребовал использовать общие уроки, семейные права, фотографии и синхронизацию Education для олимпиад."
       }
     },
     "src/components/OlympiadWrittenPractice.tsx": {
@@ -6525,6 +6562,67 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Пользователь 28.10 поручил подключить сервер, фото, синхронизацию и уроки через UI Kit и LDD с проверками."
+      }
+    },
+    "scripts/backfill-olympiad-context.mjs": {
+      "sha256": "1e287143e14c6a800cab4cce13ae03fd321fcab67741c8ce66a155513bec8fdc",
+      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
+      "specs": [
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/modules/synchronization/education-pipeline.md"
+      ],
+      "tests": [
+        "assessment/learning-context-backfill.test.mjs",
+        "day/family-assignment.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/QuizCard.test.tsx",
+        "src/lib/educationEventProducers.test.ts",
+        "sync/event-task-artifact.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь прямо потребовал использовать общие уроки, семейные права, фотографии и синхронизацию Education для олимпиад."
+      }
+    },
+    "assessment/learning-context.mjs": {
+      "sha256": "ee4aefd29ab018d95a2f395321ed7a1f1bc92712e44502f279ddd035cffb0853",
+      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
+      "specs": [
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/modules/synchronization/education-pipeline.md"
+      ],
+      "tests": [
+        "assessment/learning-context-backfill.test.mjs",
+        "assessment/learning-context.test.mjs",
+        "day/family-assignment.test.mjs",
+        "day/dashboard-index.test.mjs",
+        "src/lib/homeworkStatus.test.ts",
+        "src/lib/educationEventProducers.test.ts",
+        "sync/event-task-artifact.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь 28.10 прямо потребовал общий механизм уроков, семейных прав, фотографий и синхронизации для олимпиад."
+      }
+    },
+    "assessment/learning-context-backfill.mjs": {
+      "sha256": "0a0d2be1a1d8ee34a88c69b4879397420c504ec2037e2e743cbca7a3c2abd759",
+      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
+      "specs": [
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/modules/synchronization/education-pipeline.md"
+      ],
+      "tests": [
+        "assessment/learning-context-backfill.test.mjs",
+        "day/family-assignment.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/QuizCard.test.tsx",
+        "src/lib/educationEventProducers.test.ts",
+        "sync/event-task-artifact.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь прямо потребовал использовать общие уроки, семейные права, фотографии и синхронизацию Education для олимпиад."
       }
     }
   }

@@ -1268,6 +1268,31 @@
       "path": "docs/decisions/olympiad-integration-2026-10-28.md"
     },
     {
+      "id": "decision.olympiad-shared-infrastructure-2026-10-28",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-10-28",
+      "updated": "2026-10-28",
+      "parent": "module.olympiad-preparation",
+      "uses": [
+        "shared.design.ui-kit",
+        "shared.access-and-privacy"
+      ],
+      "consumers": [
+        "Education developer",
+        "Education operator"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md"
+    },
+    {
       "id": "decision.photo-indexeddb-recovery-2026-10-22",
       "status": "accepted",
       "implementation": "implemented",
@@ -3389,6 +3414,34 @@
       "consumer": "Vitest; выпуск"
     },
     {
+      "id": "file:assessment/learning-context-backfill.mjs",
+      "path": "assessment/learning-context-backfill.mjs",
+      "kind": "artifact",
+      "purpose": "Проверенная миграция общего контекста опубликованных назначений",
+      "consumer": "Оператор"
+    },
+    {
+      "id": "file:assessment/learning-context-backfill.test.mjs",
+      "path": "assessment/learning-context-backfill.test.mjs",
+      "kind": "verification",
+      "purpose": "Проверка переноса контекста существующих уроков",
+      "consumer": "Vitest"
+    },
+    {
+      "id": "file:assessment/learning-context.mjs",
+      "path": "assessment/learning-context.mjs",
+      "kind": "artifact",
+      "purpose": "Общий тип учебного контекста назначения",
+      "consumer": "Издатель и индекс"
+    },
+    {
+      "id": "file:assessment/learning-context.test.mjs",
+      "path": "assessment/learning-context.test.mjs",
+      "kind": "verification",
+      "purpose": "Проверка типизации и миграции контекста",
+      "consumer": "Vitest"
+    },
+    {
       "id": "file:assessment/question-copy.mjs",
       "path": "assessment/question-copy.mjs",
       "kind": "artifact",
@@ -5228,6 +5281,13 @@
       "kind": "artifact",
       "purpose": "Адресная миграция компактных семейных манифестов с сухим прогоном и проверкой старых страниц",
       "consumer": "Оператор; первый запуск книги на новом устройстве"
+    },
+    {
+      "id": "file:scripts/backfill-olympiad-context.mjs",
+      "path": "scripts/backfill-olympiad-context.mjs",
+      "kind": "artifact",
+      "purpose": "Операторское добавление контекста существующим назначениям",
+      "consumer": "Оператор"
     },
     {
       "id": "file:scripts/benchmark-server-runtime.mjs",
@@ -9120,7 +9180,7 @@
       "status": "draft",
       "implementation": "partial",
       "created": "2026-10-27",
-      "updated": "2026-10-27",
+      "updated": "2026-10-28",
       "parent": "product.olympiad-preparation",
       "uses": [
         "module.assessments.quizzes",
@@ -9129,6 +9189,8 @@
         "module.reviews.subject-aware-guidance",
         "module.synchronization",
         "module.assignments",
+        "module.materials.storage-privacy",
+        "module.families.browser-access-trace",
         "shared.data.firestore",
         "shared.access-and-privacy",
         "shared.design.components",
@@ -9165,6 +9227,7 @@
       ],
       "sections": [
         "назначение-и-границы",
+        "единое-ядро-и-переход",
         "источники-соревнований-и-материалов",
         "модель-урока-и-свидетельств",
         "подбор-и-образовательный-цикл",
@@ -10507,7 +10570,7 @@
       "status": "draft",
       "implementation": "partial",
       "created": "2026-10-27",
-      "updated": "2026-10-27",
+      "updated": "2026-10-28",
       "parent": "product.education",
       "uses": [
         "module.olympiad-preparation",
@@ -12545,6 +12608,16 @@
       "type": "uses"
     },
     {
+      "from": "decision.olympiad-shared-infrastructure-2026-10-28",
+      "to": "shared.access-and-privacy",
+      "type": "uses"
+    },
+    {
+      "from": "decision.olympiad-shared-infrastructure-2026-10-28",
+      "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
       "from": "decision.photo-indexeddb-recovery-2026-10-22",
       "to": "decision.photo-storage-ldd-2026-10-22",
       "type": "uses"
@@ -12997,6 +13070,16 @@
     {
       "from": "file:assessment/followup-contract.mjs",
       "to": "module.assessments.quiz-chain-proposal",
+      "type": "implements"
+    },
+    {
+      "from": "file:assessment/learning-context-backfill.mjs",
+      "to": "module.assessments.quizzes",
+      "type": "implements"
+    },
+    {
+      "from": "file:assessment/learning-context.mjs",
+      "to": "module.assessments.quizzes",
       "type": "implements"
     },
     {
@@ -14222,6 +14305,11 @@
     {
       "from": "file:scripts/backfill-book-manifests.mjs",
       "to": "plans.local-first-release-plan-2026-10-12",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/backfill-olympiad-context.mjs",
+      "to": "module.olympiad-preparation",
       "type": "implements"
     },
     {
@@ -17631,6 +17719,16 @@
     },
     {
       "from": "module.assessments.quizzes",
+      "to": "file:assessment/learning-context-backfill.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.assessments.quizzes",
+      "to": "file:assessment/learning-context.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.assessments.quizzes",
       "to": "file:assessment/question-copy.test.mjs",
       "type": "verified-by"
     },
@@ -18381,6 +18479,11 @@
     },
     {
       "from": "module.olympiad-preparation",
+      "to": "decision.olympiad-shared-infrastructure-2026-10-28",
+      "type": "contains"
+    },
+    {
+      "from": "module.olympiad-preparation",
       "to": "file:olympiad/firestore-emulator.test.mjs",
       "type": "verified-by"
     },
@@ -18461,7 +18564,17 @@
     },
     {
       "from": "module.olympiad-preparation",
+      "to": "module.families.browser-access-trace",
+      "type": "uses"
+    },
+    {
+      "from": "module.olympiad-preparation",
       "to": "module.materials.materials",
+      "type": "uses"
+    },
+    {
+      "from": "module.olympiad-preparation",
+      "to": "module.materials.storage-privacy",
       "type": "uses"
     },
     {

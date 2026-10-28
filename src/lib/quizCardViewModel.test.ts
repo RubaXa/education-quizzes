@@ -17,6 +17,10 @@ describe('legacy single check assignment', () => {
     expect(quizTaskForPlacement([task], [placement], { token: 'math-quiz' } as DayTestPlacement)).toBeUndefined()
     expect(quizTaskForPlacement([task], [placement, { token: 'another' } as DayTestPlacement], placement)).toBeUndefined()
   })
+  it('never attaches an additional olympiad test to an unrelated school task', () => {
+    const extra = { ...placement, optional: true }
+    expect(quizTaskForPlacement([task], [extra], extra)).toBeUndefined()
+  })
 })
 
 /** @see ../../docs/modules/school-diary/dashboard.md#schedule-homework-status */

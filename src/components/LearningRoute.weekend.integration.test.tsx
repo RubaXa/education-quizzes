@@ -19,6 +19,8 @@ vi.mock('firebase/firestore', () => ({
   },
   doc: (_db: unknown, ...parts: string[]) => ({ path: parts.join('/') }),
   collection: (_db: unknown, ...parts: string[]) => ({ path: parts.join('/') }),
+  where: (field: string, operator: string, value: unknown) => ({ field, operator, value }),
+  query: (ref: { path: string }, ...constraints: unknown[]) => ({ ...ref, constraints }),
   getDocs: async () => ({ docs: [{ id: 'family' }] }),
   getDoc: async (ref: { path: string }) => {
     if (scene.forbidPrevious && ref.path.startsWith('users/previous-person')) throw Object.assign(new Error('Old identity has no access'), { code: 'permission-denied' })
@@ -29,7 +31,13 @@ vi.mock('firebase/firestore', () => ({
             : { displayName: 'Person' }
     return { exists: () => true, data: () => data, metadata: { fromCache: false } }
   },
-  onSnapshot: (ref: { path: string }, _options: unknown, changed: (snapshot: unknown) => void) => {
+  onSnapshot: (ref: { path: string; constraints?: { field: string; operator: string; value: unknown }[] }, options: unknown, callback?: (snapshot: unknown) => void) => {
+    const changed = typeof options === 'function' ? options as (snapshot: unknown) => void : callback!
+    if (ref.path === 'families/family/children/child/tasks') {
+      if (ref.constraints?.length !== 1 || ref.constraints[0].field !== 'learningContext.kind' || ref.constraints[0].operator !== '==' || ref.constraints[0].value !== 'olympiad') throw new Error('Unexpected family task query')
+      changed({ docs: [], metadata: { fromCache: false } })
+      return () => {}
+    }
     scene.callbacks.set(ref.path, changed)
     const data = ref.path.startsWith('accessLinks/') ? { active: true, personId: scene.personId }
       : ref.path.startsWith('deviceSessions/') ? { linkToken: scene.link } : { active: true, role: scene.role, childIds: ['child'], ...(scene.diagnostics ? { accessDiagnosticsUntil: { toMillis: () => Date.now() + 60000 } } : {}) }

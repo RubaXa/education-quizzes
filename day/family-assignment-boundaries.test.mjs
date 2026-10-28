@@ -38,6 +38,19 @@ const guide = {
 }
 
 describe('family assignment privacy and publication boundaries', () => {
+  it('aligns optional olympiad practice with the same role projection and excludes it from school obligations', () => {
+    const extra = { ...task, id: 'family-olympiad-math', sourceId: 'family-olympiad-math', subjectId: 'math', subjectName: 'Математика',
+      optional: true, learningContext: { kind: 'olympiad', id: 'formulo' } }
+    const source = { targetDate: task.dueDate, subjects: [] }
+    const base = { kind: 'student', familyId, childId, targetDate: task.dueDate, taskIds: [], subjects: [], sourcePlanFingerprint: sourcePlanFingerprint(source) }
+    const page = mergeFamilyAssignments(base, [extra])
+    expect(() => assertPublishedPageAligned(source, page, 'student', [extra])).not.toThrow()
+    const local = mkdtempSync(resolve(tmpdir(), 'education-family-optional-'))
+    try {
+      const index = buildDayDashboardIndex(local, {}, 'student', new Date('2026-10-20T12:00:00Z'), null, [extra])
+      expect(index.days.flatMap(day => day.homework ?? []).some(item => item.text === extra.title)).toBe(false)
+    } finally { rmSync(local, { recursive: true, force: true }) }
+  })
   it('accepts only the confirmed owner and a family-origin source; parent guidance is separate', () => {
     expect(familyAssignmentErrors(task, { familyId, childId, taskId: task.id })).toEqual([])
     expect(familyAssignmentErrors({ ...task, familyId: 'other-family' }, { familyId, childId, taskId: task.id })).not.toEqual([])

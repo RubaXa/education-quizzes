@@ -44,6 +44,8 @@ export type QuizReading = {
 
 export type Assignment = {
   schemaVersion: 1
+  /** Placement only; access continues to follow the assignment's family. */
+  learningContext?: { kind: 'homework' | 'course' | 'olympiad'; id: string }
   testId: string
   linkedToTestId?: string | null
   followupRequestedAt?: unknown

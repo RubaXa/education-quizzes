@@ -194,7 +194,7 @@ export default function DayDashboard({ token, parent, familyScope }: { token: st
     const items = lessonWorkItems(tasks, nextWork.uploads, nextWork.reviews, nextWork.parentDecisions.events, nextWork.tests, nextWork.scores)
     const standalone = placements.filter((placement) => !quizTaskForPlacement(subject.tasks, placements, placement) && !nextWork.tests[placement.token]?.linkedToTestId)
       .flatMap((placement) => {
-        const requirement = requiredQuizRequirement(placement.token, nextWork.tests, nextWork.scores)
+        const requirement = requiredQuizRequirement(placement.token, nextWork.tests, nextWork.scores, placement.optional)
         return requirement ? [{ id: `quiz:${placement.token}`, title: nextWork.tests[placement.token]?.title ?? 'Самопроверка', ...requirement }] : []
       })
     items.push(...standalone)
@@ -239,11 +239,11 @@ export default function DayDashboard({ token, parent, familyScope }: { token: st
     const taskItems = lessonWorkItems(tasks, uploads, reviews, parentDecisions.events, tests, scores)
     const placementItems: LessonWorkItem[] = subjectPlacements.filter((placement) => !quizTaskForPlacement(subject?.tasks ?? [], subjectPlacements, placement) && !tests[placement.token]?.linkedToTestId).flatMap((placement) => {
       const test = tests[placement.token]
-      const requirement = requiredQuizRequirement(placement.token, tests, scores)
+      const requirement = requiredQuizRequirement(placement.token, tests, scores, placement.optional)
       return requirement ? [{ id: `quiz:${placement.token}`, title: test?.title ?? 'Самопроверка', ...requirement }] : []
     })
     const liveItems = [...taskItems, ...placementItems]
-    const optionalOnly = !liveItems.length && subjectPlacements.some((placement) => tests[placement.token]?.familyOptional)
+    const optionalOnly = !liveItems.length && subjectPlacements.some((placement) => placement.optional || tests[placement.token]?.familyOptional)
     const liveReferenceTask = subject?.tasks.find((task) => task.referenceDate)
     const done = liveItems.filter((item) => item.state === 'done').length
     const checking = liveItems.filter((item) => item.state === 'checking').length

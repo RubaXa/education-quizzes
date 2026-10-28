@@ -49,6 +49,7 @@ export function quizAnswerCounts(test: QuizCardAttempt) {
 export function quizTaskForPlacement(tasks: DayTask[], placements: DayTestPlacement[], placement: DayTestPlacement): DayTask | undefined {
   if (!placements.some((item) => item.token === placement.token)) return undefined
   if (placement.taskId) return tasks.find((task) => task.id === placement.taskId)
+  if (placement.optional) return undefined
   return tasks.length === 1 && placements.length === 1 && tasks[0].kind === 'check' && !isCdzTask(tasks[0])
     && !tasks[0].testToken ? tasks[0] : undefined
 }

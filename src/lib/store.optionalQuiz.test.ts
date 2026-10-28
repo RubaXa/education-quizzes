@@ -35,7 +35,16 @@ vi.mock('firebase/firestore', async (importOriginal) => ({
   }),
 }))
 
-import { requestQuizFollowup, saveDraft, setQuizRequired, submitAssignment } from './store'
+import { readLearningContext, requestQuizFollowup, saveDraft, setQuizRequired, submitAssignment } from './store'
+
+describe('public placement metadata', () => {
+  it('reads valid placements and ignores absent or malformed legacy data', () => {
+    expect(readLearningContext({ kind: 'olympiad', id: 'formulo-2026' })).toEqual({ kind: 'olympiad', id: 'formulo-2026' })
+    expect(readLearningContext(undefined)).toBeUndefined()
+    expect(readLearningContext({ kind: 'olympiad', id: '../secret' })).toBeUndefined()
+    expect(readLearningContext({ kind: 'olympiad', id: 'ok', key: 'hidden' })).toBeUndefined()
+  })
+})
 
 beforeEach(() => {
   scene.docs = { 'assignments/root': { testId: 'math-1', status: 'open', familyId: 'family', childId: 'child' } }

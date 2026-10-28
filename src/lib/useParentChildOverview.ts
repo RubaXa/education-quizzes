@@ -164,7 +164,7 @@ function useLiveParentChildOverview(dashboardToken: string): ParentChildOverview
     && !page.subjects.some((subject) => subject.id === placement.subjectId && quizTaskForPlacement(subject.tasks, (page.testPlacements ?? []).filter((item) => item.subjectId === subject.id && (item.originDate ?? day.date) === day.date), placement)))
   for (const placement of placed) {
     const assignment = tests[placement.token]
-    const requirement = requiredQuizRequirement(placement.token, quizStates, scores)
+    const requirement = requiredQuizRequirement(placement.token, quizStates, scores, placement.optional)
     if (!requirement) continue
     const item: LessonWorkItem = { id: `quiz:${placement.token}`, title: assignment?.title ?? 'Самопроверка', ...requirement }
     const subject = subjects.find((value) => value.id === placement.subjectId)
@@ -174,7 +174,7 @@ function useLiveParentChildOverview(dashboardToken: string): ParentChildOverview
   }
   const items = subjects.flatMap((subject) => subject.items)
   if (!items.length) {
-    const voluntary = (page.testPlacements ?? []).some((placement) => quizRequirement(placement.token, quizStates, scores).state === 'optional')
+    const voluntary = (page.testPlacements ?? []).some((placement) => quizRequirement(placement.token, quizStates, scores, placement.optional).state === 'optional')
       || page.subjects.some((subject) => subject.tasks.some((task) => task.testToken && quizRequirement(task.testToken, quizStates, scores).state === 'optional'))
     if (voluntary) return { ...blank, state: 'ready', subjects, reason: 'Обязательных действий нет; тесты по желанию остаются доступными.' }
     return { ...blank, state: day.complete && day.homework.length === 0 ? 'none' : 'unknown', reason: day.homework.length ? 'Точный состав ДЗ ещё не опубликован.' : 'ДЗ на этот день ещё уточняется.' }

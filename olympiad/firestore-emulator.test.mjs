@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { initializeApp as clientApp, deleteApp as deleteClientApp } from 'firebase/app'
 import { connectAuthEmulator, getAuth as clientAuth, signInAnonymously } from 'firebase/auth'
-import { connectFirestoreEmulator, getDoc, setDoc, doc, getFirestore as clientDb } from 'firebase/firestore'
+import { connectFirestoreEmulator, getDoc, getDocs, setDoc, doc, collection, query, where, getFirestore as clientDb } from 'firebase/firestore'
 import { initializeApp as adminApp, deleteApp as deleteAdminApp } from 'firebase-admin/app'
 import { getFirestore as adminDb } from 'firebase-admin/firestore'
 import { getAuth as adminAuth } from 'firebase-admin/auth'
@@ -37,6 +37,19 @@ describe.skipIf(!enabled)('olympiad Firestore and Auth emulator', () => {
     handle = createOlympiadHttpHandler({ db: store, auth: adminAuth(aa) })
   })
   afterAll(async () => { if (ca) await deleteClientApp(ca); if (aa) await deleteAdminApp(aa) })
+  it('shares family-task reads with student and parent, but denies other or revoked members', async () => {
+    const path = `families/${familyId}/children/c/tasks/task`
+    await store.doc(path).set({ familyId, childId: 'c', sourceSystem: 'family', publication: 'active', optional: true, learningContext: { kind: 'olympiad', id: 'o' }, projectionSourceDate: '2026-11-04' })
+    const list = () => getDocs(query(collection(db, `families/${familyId}/children/c/tasks`), where('learningContext.kind', '==', 'olympiad')))
+    expect((await list()).size).toBe(1)
+    await store.doc(`families/${familyId}/members/p`).update({ role: 'parent' })
+    expect((await list()).size).toBe(1)
+    await store.doc(`families/${familyId}/members/p`).update({ childIds: ['different-child'] })
+    await expect(list()).rejects.toMatchObject({ code: 'permission-denied' })
+    await store.doc(`families/${familyId}/members/p`).update({ childIds: ['c'], active: false })
+    await expect(list()).rejects.toMatchObject({ code: 'permission-denied' })
+    await store.doc(`families/${familyId}/members/p`).update({ role: 'student', active: true })
+  })
   it('denies client reads and writes of definitions, assignment and attempts', async () => {
     for (const path of ['olympiadMaterials/o/lessons/l/versions/1', `families/${familyId}/children/c/olympiads/o`, `families/${familyId}/children/c/olympiads/o/attempts/a`]) {
       await expect(getDoc(doc(db, path))).rejects.toMatchObject({ code: 'permission-denied' })

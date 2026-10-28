@@ -3,6 +3,12 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import QuizCard from './QuizCard'
 import type { QuizCardAttempt } from '@/lib/quizCardViewModel'
 
+it('keeps an optional placement separate from the family requirement switch', () => {
+  const open: QuizCardAttempt = { token: 'example', testId: 'math', slug: 'math', title: 'Олимпиада', status: 'open', answered: 0, total: 1 }
+  expect(renderToStaticMarkup(<QuizCard chain={[open]} parent placementOptional />)).not.toContain('Учитывать тест')
+  expect(renderToStaticMarkup(<QuizCard chain={[open]} parent />)).toContain('Учитывать тест')
+})
+
 /** @see ../../docs/modules/assessments/quizzes.md#followup-request */
 describe('result and parent follow-up action', () => {
   const result: QuizCardAttempt = { token: 'example', testId: 'english-1', slug: 'english', title: 'Английский',

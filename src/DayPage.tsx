@@ -58,14 +58,14 @@ type LocalPhoto = { id: string; taskId: string; file: File; previewUrl: string; 
 /** Adapter from a task's exact MESH instruction and family pages to the shared quiz card.
  * @see ../docs/modules/reviews/card-generation-policy.md#quiz-adapter
  * @see ../docs/modules/school-diary/day-page.md#multiple-assignments */
-function QuizLineageCard({ chain, parent, task, materialLinks = [], assignmentLabel, separateAssignment = false, sourceEvidence }: { chain: QuizCardAttempt[]; parent: boolean; task?: DayTask; materialLinks?: DayMaterialLink[]; assignmentLabel?: string; separateAssignment?: boolean; sourceEvidence?: ReactNode }) {
+function QuizLineageCard({ chain, parent, task, materialLinks = [], assignmentLabel, separateAssignment = false, sourceEvidence, placementOptional }: { chain: QuizCardAttempt[]; parent: boolean; task?: DayTask; materialLinks?: DayMaterialLink[]; assignmentLabel?: string; separateAssignment?: boolean; sourceEvidence?: ReactNode; placementOptional?: boolean }) {
   const context = task?.title.match(/Упр\.\s*\d+/i)?.[0] ?? task?.title ?? 'Самопроверка'
   const readerLinks = materialLinks.filter(canReadInside)
   const otherLinks = materialLinks.filter((link) => !canReadInside(link) && link.sourceType !== 'audio')
   const materials = task && (task.steps?.length || readerLinks.length || otherLinks.length || materialLinks.some((link) => link.sourceType === 'audio')) ? <>{!!task.steps?.length && <ol className="day-task-steps">{task.steps.map((step, index) => <Instruction key={index} item={step} index={index} familyAssigned={Boolean(task.familyOrigin)} />)}</ol>}{materialLinks.filter((link) => link.sourceType === 'audio').map((link) => <AudioPlayer key={link.sourceRef || link.url} link={link} />)}{groupAdjacentMaterialPages(readerLinks).map((group) => <MaterialReader key={group[0].url} links={group} parent={parent} />)}{otherLinks.map((link) => <a key={link.url} href={link.url} target="_blank" rel="noopener noreferrer">{link.title} <ExternalLink size={13} aria-hidden="true" /></a>)}</> : undefined
   // @see ../docs/modules/school-diary/day-page.md#numbered-sheet-and-quiz
   // A numbered teacher sheet remains its own task beside the linked quiz.
-  return <QuizCard chain={chain} parent={parent} context={context} assignment={!separateAssignment && task && <>{assignmentLabel && <div className="day-task-assignment-heading">{assignmentLabel}</div>}<AssignmentBrief task={task} materialLinks={materialLinks} />{sourceEvidence}</>} materials={separateAssignment ? undefined : materials} id={task && !separateAssignment ? `day-task-${task.id}` : `day-quiz-${chain[0].token}`} />
+  return <QuizCard chain={chain} parent={parent} placementOptional={placementOptional} context={context} assignment={!separateAssignment && task && <>{assignmentLabel && <div className="day-task-assignment-heading">{assignmentLabel}</div>}<AssignmentBrief task={task} materialLinks={materialLinks} />{sourceEvidence}</>} materials={separateAssignment ? undefined : materials} id={task && !separateAssignment ? `day-task-${task.id}` : `day-quiz-${chain[0].token}`} />
 }
 
 /** @see ../docs/modules/school-diary/day-page.md#instruction-provenance
@@ -157,7 +157,7 @@ export function GradeBadge({ summary, details, threshold, asOf }: { summary?: Gr
  * @see ../docs/modules/synchronization/global-sync.md#status
  */
 /** @see ../docs/shared/design/README.md#shell */
-export default function DayPage({ token, parent, headerReturnTarget }: { token: string; parent: boolean; headerReturnTarget: HTMLElement | null }) {
+export default function DayPage({ token, parent, headerReturnTarget, olympiadScope }: { token: string; parent: boolean; headerReturnTarget: HTMLElement | null; olympiadScope?: { familyId: string; childId: string; olympiadId: string; taskId: string; testTokens: string[] } }) {
   /** @see ../docs/modules/school-diary/dashboard.md#day-navigation */
   const [requestedView] = useState(() => {
     const query = new URLSearchParams(window.location.search).get('tab')
@@ -250,10 +250,16 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
     const stop = watchDayPage(token, (data) => {
       if (!active) return
       if ((parent && data.kind !== 'parent') || (!parent && data.kind !== 'student')) { setError('Эта ссылка предназначена для другой страницы.'); return }
-      setPage(data)
+      if (olympiadScope) {
+        if (data.familyId !== olympiadScope.familyId || data.childId !== olympiadScope.childId) { setError('Страница принадлежит другой семье.'); return }
+        const subjects = data.subjects.map(subject => ({ ...subject, tasks: subject.tasks.filter(task => task.id === olympiadScope.taskId && task.optional === true && task.learningContext?.kind === 'olympiad' && task.learningContext.id === olympiadScope.olympiadId) })).filter(subject => subject.tasks.length)
+        if (!subjects.length) { setError('Подготовка на этой странице недоступна.'); return }
+        const placements = (data.testPlacements ?? []).filter(item => item.optional === true && olympiadScope.testTokens.includes(item.token) && subjects.some(subject => subject.id === item.subjectId))
+        setPage({ ...data, subjects, testPlacements: placements, todaySchedule: [], targetSchedule: [], gradeSummary: [], grades: [], notices: [] })
+      } else setPage(data)
     }, (cause) => { if (active) setError(reportUiError(cause, 'Страница задания')) })
     return () => { active = false; stop() }
-  }, [token, parent])
+  }, [token, parent, olympiadScope?.familyId, olympiadScope?.childId, olympiadScope?.olympiadId, olympiadScope?.taskId, olympiadScope?.testTokens.join('|')])
   const materialProjectionKey = page ? JSON.stringify({
     familyId: page.familyId, childId: page.childId, refs: unresolvedMaterialPageRefs(page),
   }) : ''
@@ -310,7 +316,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
   const currentPlacements = useMemo(() => (page?.testPlacements ?? []).filter((placement) => (placement.originDate ?? page?.targetDate) === page?.targetDate), [page])
   const requiredDayTests = currentPlacements.flatMap((placement) => {
     const chain = quizChain(tests.find((item) => item.token === placement.token), tests)
-    return chain.length && !chain[0].familyOptional ? [chain[chain.length - 1]] : []
+    return chain.length && !placement.optional && !chain[0].familyOptional ? [chain[chain.length - 1]] : []
   })
   const quizStates = Object.fromEntries(tests.map((test) => [test.token, { status: test.status, testId: test.testId, linkedToTestId: test.linkedToTestId, title: test.title, followupRequested: test.followupRequested, familyOptional: test.familyOptional }]))
   const quizScores = Object.fromEntries(tests.filter((test) => test.points != null && test.maxPoints != null)
@@ -324,7 +330,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
       return lessonWorkItems([{ ...withVerifiedPlatformResult(task, page.targetDate, evidencePages), testToken }], uploads, reviews, parentDecisions.events, quizStates, quizScores).some((item) => item.state !== 'done')
     }).length
     const testPending = currentPlacements.filter((placement) => !page.subjects.some((subject) => quizTaskForPlacement(subject.tasks, currentPlacements.filter((item) => item.subjectId === subject.id), placement))
-      && !['done', 'optional'].includes(quizRequirement(placement.token, quizStates, quizScores).state)).length
+      && !['done', 'optional'].includes(quizRequirement(placement.token, quizStates, quizScores, placement.optional).state)).length
     return taskPending + testPending
   })()
   const currentSubjects = page ? page.subjects.map((subject) => {
@@ -506,7 +512,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
                 ...(page.taskPageRefs?.[task.id] ?? []).map((ref) => catalogPages[ref]).filter((link): link is DayMaterialLink => Boolean(link)),
               ].map((link) => [link.sourceRef || link.url, link])).values()] : []
               const assignmentIndex = task ? subject.tasks.findIndex((item) => item.id === task.id) : -1
-              return <QuizLineageCard key={`lineage-${placement.token}`} chain={chain} parent={parent} task={task} materialLinks={materialLinks} assignmentLabel={assignments.multiple && assignmentIndex >= 0 ? `Задание ${assignmentIndex + 1} из ${assignments.total}` : undefined} separateAssignment={Boolean(task?.problems?.length)} sourceEvidence={sourceEvidence(task)} />
+              return <QuizLineageCard key={`lineage-${placement.token}`} chain={chain} parent={parent} placementOptional={placement.optional} task={task} materialLinks={materialLinks} assignmentLabel={assignments.multiple && assignmentIndex >= 0 ? `Задание ${assignmentIndex + 1} из ${assignments.total}` : undefined} separateAssignment={Boolean(task?.problems?.length)} sourceEvidence={sourceEvidence(task)} />
             })}
             {subject.tasks.map((task, assignmentIndex) => {
               // A written task may also have a linked self-check. The test must
@@ -628,7 +634,7 @@ export default function DayPage({ token, parent, headerReturnTarget }: { token: 
               const test = tests.find((item) => item.token === placement.token)
               const chain = lineageByToken.get(placement.token)
               if (chain) return null
-              return test ? <QuizCard key={placement.token} chain={quizChain(test, tests)} parent={parent} id={`day-quiz-${placement.token}`} /> : <p key={placement.token} className="day-loading">Загружаем тест…</p>
+              return test ? <QuizCard key={placement.token} chain={quizChain(test, tests)} parent={parent} placementOptional={placement.optional} id={`day-quiz-${placement.token}`} /> : <p key={placement.token} className="day-loading">Загружаем тест…</p>
             })}</div>
           </div>
         </section>

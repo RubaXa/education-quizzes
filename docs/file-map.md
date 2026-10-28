@@ -1013,3 +1013,10 @@
 | [docs/decisions/public-olympiad-reference-archive-2026-10-27.md](decisions/public-olympiad-reference-archive-2026-10-27.md) | [Общие источники](modules/materials/materials.md) | Основание общего архива открытых олимпиадных условий и решений | Оператор; EducationSync |
 | [storage/public-references.mjs](../storage/public-references.mjs) | [Общие источники](modules/materials/materials.md) | Проверка происхождения и SHA, общий PDF и индекс с обратным чтением | `storage sync-references` |
 | [storage/public-references.test.mjs](../storage/public-references.test.mjs) | [Общие источники](modules/materials/materials.md) | Закрытый источник, подмена PDF, путь, публикация и идемпотентность | Vitest |
+
+| [assessment/learning-context-backfill.mjs](../assessment/learning-context-backfill.mjs) | [Тесты](modules/assessments/quizzes.md) | Проверенная миграция общего контекста опубликованных назначений | Оператор |
+| [assessment/learning-context-backfill.test.mjs](../assessment/learning-context-backfill.test.mjs) | [Тесты](modules/assessments/quizzes.md) | Проверка переноса контекста существующих уроков | Vitest |
+| [assessment/learning-context.mjs](../assessment/learning-context.mjs) | [Тесты](modules/assessments/quizzes.md) | Общий тип учебного контекста назначения | Издатель и индекс |
+| [assessment/learning-context.test.mjs](../assessment/learning-context.test.mjs) | [Тесты](modules/assessments/quizzes.md) | Проверка типизации и миграции контекста | Vitest |
+| [docs/decisions/olympiad-shared-infrastructure-2026-10-28.md](decisions/olympiad-shared-infrastructure-2026-10-28.md) | [Подготовка к олимпиадам](modules/assessments/olympiad-preparation.md) | Решение о едином учебном ядре и поэтапной миграции | Разработчик; оператор |
+| [scripts/backfill-olympiad-context.mjs](../scripts/backfill-olympiad-context.mjs) | [Подготовка к олимпиадам](modules/assessments/olympiad-preparation.md) | Операторское добавление контекста существующим назначениям | Оператор |

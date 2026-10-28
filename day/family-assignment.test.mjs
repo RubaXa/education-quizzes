@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { familyAssignmentErrors, familyAssignmentsWithOverlay, familyGuideErrors, mergeFamilyAssignments, projectFamilyAssignment } from './family-assignment.mjs'
+import { familyAssignmentErrors, familyAssignmentsWithOverlay, familyGuideErrors, familyTestPlacementErrors, mergeFamilyAssignments, planFamilyTestPlacements, projectFamilyAssignment } from './family-assignment.mjs'
 
 const assignment = {
   id: 'family-russian-essay-2026-10-23', sourceSystem: 'family', sourceId: 'family-russian-essay-2026-10-23',
@@ -56,5 +56,36 @@ describe('family-origin day assignments', () => {
     expect(revised.planRevision).toBe(9)
     expect(revised.changes[0].changed).toEqual([assignment.id])
     expect(mergeFamilyAssignments(revised, [{ ...assignment, sourceRevision: 2, title: 'Новая формулировка' }]).planRevision).toBe(9)
+  })
+
+  it('projects optional mathematics practice into its own subject without disturbing Russian work', () => {
+    const math = { ...assignment, id: 'family-math-olympiad', sourceId: 'family-math-olympiad', subjectId: 'math', subjectName: 'Математика',
+      learningContext: { kind: 'olympiad', id: 'formulo' }, optional: true }
+    expect(familyAssignmentErrors(math, { familyId: math.familyId, childId: math.childId, taskId: math.id })).toEqual([])
+    expect(familyAssignmentErrors({ ...math, optional: false }, { familyId: math.familyId, childId: math.childId, taskId: math.id })).not.toEqual([])
+    const base = { planRevision: 1, subjects: [{ id: 'russian', tasks: [{ id: 'existing' }] }] }
+    const page = mergeFamilyAssignments(base, [assignment, math])
+    expect(page.subjects.find(s => s.id === 'math').tasks[0]).toMatchObject({ id: math.id, optional: true, learningContext: math.learningContext })
+    expect(page.subjects.find(s => s.id === 'russian').tasks.map(t => t.id)).toEqual(['existing', assignment.id])
+    expect(page.changes[0].changedSubjects).toEqual(['russian', 'math'])
+    expect(mergeFamilyAssignments(page, [assignment, math]).planRevision).toBe(page.planRevision)
+  })
+
+  it('accepts only optional quizzes belonging to the same child and context', () => {
+    const token = 'q'.repeat(32), context = { kind: 'olympiad', id: 'formulo' }
+    const math = { ...assignment, id: 'family-math-olympiad', sourceId: 'family-math-olympiad', subjectId: 'math', subjectName: 'Математика',
+      learningContext: context, optional: true, testPlacements: [{ token }] }
+    const quiz = { familyId: math.familyId, childId: math.childId, familyOptional: true, learningContext: context }
+    expect(familyAssignmentErrors(math, { familyId: math.familyId, childId: math.childId, taskId: math.id })).toEqual([])
+    expect(familyTestPlacementErrors(math, new Map([[token, quiz]]))).toEqual([])
+    expect(familyTestPlacementErrors(math, new Map([[token, { ...quiz, familyOptional: false }]]))).toEqual([])
+    for (const unsafe of [{ ...quiz, childId: 'other' }, { ...quiz, learningContext: { kind: 'course', id: 'formulo' } }]) {
+      expect(familyTestPlacementErrors(math, new Map([[token, unsafe]]))).not.toEqual([])
+    }
+    const quizzes = new Map([[token, quiz]])
+    const placements = planFamilyTestPlacements(math, quizzes, {})
+    expect(placements).toEqual([{ token, subjectId: 'math', optional: true }])
+    expect(planFamilyTestPlacements(math, quizzes, { testPlacements: placements })).toEqual(placements)
+    expect(() => planFamilyTestPlacements(math, quizzes, { testPlacements: [{ token, subjectId: 'russian' }] })).toThrow()
   })
 })

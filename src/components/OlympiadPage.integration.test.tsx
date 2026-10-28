@@ -3,44 +3,38 @@ import { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, expect, it, vi } from 'vitest'
 import OlympiadPage from './OlympiadPage'
-import { olympiadRequest } from '@/lib/olympiad/client'
+import type { FamilyOlympiadTask } from '@/lib/educationStore'
+import type { DayDashboardData } from '@/lib/dayDashboardStore'
 
-vi.mock('@/lib/olympiad/client',()=>({olympiadRequest:vi.fn()}))
+vi.mock('../DayPage', () => ({ default: ({ token, parent, olympiadScope }: { token: string; parent: boolean; olympiadScope: { olympiadId: string; taskId: string } }) => <div data-token={token} data-role={parent ? 'parent' : 'student'}>{olympiadScope.olympiadId} {olympiadScope.taskId}</div> }))
 Object.assign(globalThis,{IS_REACT_ACT_ENVIRONMENT:true})
 const host=document.createElement('div');let root:ReturnType<typeof createRoot>|undefined
-const catalog=[{id:'o1',title:'Олимпиада',participationEnabled:true,lessons:[{id:'l1',version:'1',title:'Перебор',topicId:'t'}]}]
-const attempt={attemptId:'a1',lessonId:'l1',lessonVersion:'1',status:'active'}
-const view={title:'Перебор',status:'active',currentStep:1,stepCount:1,step:{id:'s1',prompt:'Как действовать?',options:[{id:'x',text:'Вариант X'},{id:'y',text:'Вариант Y'}]}}
+const task: FamilyOlympiadTask = { id:'task', title:'Подготовка', dueDate:'2026-11-05', projectionSourceDate:'2026-11-04', learningContext:{kind:'olympiad',id:'o1'}, testTokens:['quiz-token'] }
+const dashboard = (kind: 'parent' | 'student'): DayDashboardData => ({schemaVersion:1,kind,today:'2026-11-04',timezone:'Europe/Moscow',days:[{date:'2026-11-04',checkedAt:null,complete:true,schedule:[],homework:[],dayToken:`${kind}-day`}]})
 afterEach(async()=>{if(root)await act(async()=>root!.unmount());root=undefined;host.remove();host.innerHTML='';vi.clearAllMocks()})
-it('resumes the authorised child attempt and sends commands without receiving keys',async()=>{
- vi.mocked(olympiadRequest).mockImplementation(async body=>{
-  if(body.action==='list')return catalog as never
-  if(body.action==='list-attempts')return [attempt] as never
-  if(body.action==='view')return view as never
-  if(body.action==='act')return {...view,feedback:{correct:true,text:'Правильно'}} as never
-  throw Error('unexpected')
- })
+it.each(['parent','student'] as const)('uses the existing family task and the %s day projection', async role=>{
+ const watchTasks=vi.fn((_f,_c,next)=>{next([task]);return ()=>{}})
+ const watchDashboard=vi.fn((_t,next)=>{next(dashboard(role));return ()=>{}})
  document.body.append(host);root=createRoot(host)
- await act(async()=>root!.render(<OlympiadPage familyId="family" childId="child" olympiadId="o1" parent={false} dashboardToken="token"/>))
- await act(async()=>[...host.querySelectorAll<HTMLButtonElement>('button')].find(x=>x.textContent==='Открыть урок')!.click())
- expect(host.textContent).toContain('Как действовать?')
- await act(async()=>[...host.querySelectorAll<HTMLButtonElement>('button')].find(x=>x.textContent==='Вариант X')!.click())
- expect(host.textContent).toContain('Правильно')
- const calls=vi.mocked(olympiadRequest).mock.calls.map(call=>call[0])
- expect(calls.find(call=>call.action==='view')?.scope).toEqual({familyId:'family',childId:'child',olympiadId:'o1',attemptId:'a1'})
- expect(calls.some(call=>call.action==='parent-detail')).toBe(false)
- expect(JSON.stringify(view)).not.toContain('correctOptionIds')
+ await act(async()=>root!.render(<OlympiadPage familyId="family" childId="child" olympiadId="o1" parent={role==='parent'} dashboardToken="dashboard" watchTasks={watchTasks} watchDashboard={watchDashboard}/>))
+ expect(host.querySelector(`[data-role="${role}"]`)?.getAttribute('data-token')).toBe(`${role}-day`)
+ expect(watchTasks.mock.calls[0].slice(0,2)).toEqual(['family','child'])
 })
-it('requests private detail only in the parent view',async()=>{
- vi.mocked(olympiadRequest).mockImplementation(async body=>{
-  if(body.action==='list')return catalog as never
-  if(body.action==='list-attempts')return [attempt] as never
-  if(body.action==='parent-detail')return {view,steps:[{id:'s1',prompt:'Как действовать?',options:[{id:'x',text:'Вариант X'}],correctOptionIds:['x']}],events:[]} as never
-  throw Error('unexpected')
- })
+it('rejects a dashboard for the wrong role', async()=>{
+ const watchTasks=vi.fn((_f,_c,next)=>{next([task]);return ()=>{}})
+ const watchDashboard=vi.fn((_t,next)=>{next(dashboard('parent'));return ()=>{}})
  document.body.append(host);root=createRoot(host)
- await act(async()=>root!.render(<OlympiadPage familyId="family" childId="child" olympiadId="o1" parent dashboardToken="token"/>))
- expect(host.textContent).not.toContain('Открыть урок')
- await act(async()=>[...host.querySelectorAll<HTMLButtonElement>('button')].find(x=>x.textContent==='Разбор')!.click())
- expect(host.textContent).toContain('Верные варианты: Вариант X')
+ await act(async()=>root!.render(<OlympiadPage familyId="family" childId="child" olympiadId="o1" parent={false} dashboardToken="dashboard" watchTasks={watchTasks} watchDashboard={watchDashboard}/>))
+ expect(host.querySelector('[data-token]')).toBeNull()
+})
+it('clears the rendered page when the family subscription is revoked', async()=>{
+ let fail:(error:Error)=>void=()=>{}
+ const watchTasks=vi.fn((_f,_c,next,onError)=>{next([task]);fail=onError;return ()=>{}})
+ const watchDashboard=vi.fn((_t,next)=>{next(dashboard('student'));return ()=>{}})
+ document.body.append(host);root=createRoot(host)
+ await act(async()=>root!.render(<OlympiadPage familyId="family" childId="child" olympiadId="o1" parent={false} dashboardToken="dashboard" watchTasks={watchTasks} watchDashboard={watchDashboard}/>))
+ expect(host.querySelector('[data-token]')).not.toBeNull()
+ await act(async()=>fail(new Error('permission-denied')))
+ expect(host.querySelector('[data-token]')).toBeNull()
+ expect(host.querySelector('[role=alert]')?.textContent).toContain('Не удалось')
 })
