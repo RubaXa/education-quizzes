@@ -6267,7 +6267,7 @@
       }
     },
     "src/components/OlympiadCatalog.tsx": {
-      "sha256": "dd05e0d449c4ff02b008a49c7191a09be0eec7d27e250fff5076c320ae9c1fcb",
+      "sha256": "13fa05f1277bcd06b072267855e71617e873c5f256c31ef5f04f72e8736cd32f",
       "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
