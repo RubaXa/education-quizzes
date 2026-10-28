@@ -27,7 +27,7 @@ sections:
 
 ## Было → стало
 
-Смешанная заявка блокировала Firebase после сбоя МЭШ. Локально для замороженного диапазона создаётся независимая action lane; проверенные вручную фрагменты можно публиковать в существующих семейных карточках. Автоматическое распознавание изображений не реализовано, доставка и живой readback проверяются отдельно. Затронуты `day/family-assignment.mjs`, `day/pipeline-contract.mjs`, `scripts/day.mjs`, `packages/telegram-notifications/application/education-sync-dispatcher.mjs`, `sync/event-task-artifact.mjs`, `sync/task-route.mjs`, `src/DayPage.tsx`, `src/UiKit.tsx`, `src/components/OlympiadPage.tsx`, `src/components/OlympiadSourceQueue.tsx`, `src/components/WorkPhotoGallery.tsx`, `src/lib/dayStore.ts`, `src/lib/educationStore.ts`.
+Смешанная заявка блокировала Firebase после сбоя МЭШ. Локально для замороженного диапазона создаётся независимая action lane; проверенные вручную фрагменты можно публиковать в существующих семейных карточках. Новые действия могут проходить после старого диапазона с отсутствующим источником, не помечая этот диапазон завершённым. Автоматическое распознавание изображений не реализовано, доставка и живой readback проверяются отдельно. Затронуты `day/family-assignment.mjs`, `day/pipeline-contract.mjs`, `scripts/day.mjs`, `packages/telegram-notifications/application/education-sync-dispatcher.mjs`, `sync/event-task-artifact.mjs`, `sync/task-route.mjs`, `src/DayPage.tsx`, `src/UiKit.tsx`, `src/components/OlympiadPage.tsx`, `src/components/OlympiadSourceQueue.tsx`, `src/components/WorkPhotoGallery.tsx`, `src/lib/dayStore.ts`, `src/lib/educationStore.ts`.
 
 ## Действия и роли
 
