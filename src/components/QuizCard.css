@@ -80,3 +80,5 @@
 .day-quiz-count-note{font-size:.75rem}
 .day-quiz-extra-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
 @media(max-width:350px){.day-quiz-lineage-head,.day-quiz-lineage-current,.day-quiz-chain-summary{padding-left:11px;padding-right:11px}.day-quiz-history-body{padding-left:7px;padding-right:7px}.day-quiz-history-table th:nth-child(2){width:37px}}
+
+.day-quiz-lineage-current>p.day-quiz-theory{display:block;overflow:visible;-webkit-line-clamp:unset}

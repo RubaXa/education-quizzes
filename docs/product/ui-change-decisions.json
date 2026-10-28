@@ -2619,20 +2619,20 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "dea7d174c47877c9cd9dc1daa5fc14759865f66c765d071b43b52cc21ca3e11b",
-      "record": "docs/decisions/olympiad-practice-queue-2026-10-28.md",
+      "sha256": "c63ec4c0eab4b70ba3572e57af611ada49cfe5093a71278b1ef663c4ca6f9cb3",
+      "record": "docs/decisions/olympiad-quiz-theory-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
         "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/components/OlympiadPage.integration.test.tsx",
-        "src/components/WorkPhotoGallery.test.tsx"
+        "src/components/QuizCard.test.tsx",
+        "src/lib/olympiadPracticeTheory.test.ts",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 28.10.2026 утвердил список задач, загрузку решения и очередь фотографий и поручил реализовать без дополнительных вопросов."
+        "evidence": "Родитель попросил убрать повторяющиеся подписи и показать тему и объяснение перед олимпиадным тестом."
       }
     },
     "src/UiKit.css": {
@@ -2651,20 +2651,20 @@
       }
     },
     "src/UiKit.tsx": {
-      "sha256": "848c1ff5f26b8de52fb58bb57383278ed305a368721cd1917642da2999741bff",
-      "record": "docs/decisions/energy-hope-archive-2026-10-28.md",
+      "sha256": "1d1b0aa6857e35295de56cc0b08bc1934dd8143a84de2a718e7d789d83ed502d",
+      "record": "docs/decisions/olympiad-quiz-theory-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
         "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/components/OlympiadReferences.test.tsx",
-        "src/components/OlympiadPage.integration.test.tsx",
-        "src/UiKit.test.tsx"
+        "src/components/QuizCard.test.tsx",
+        "src/lib/olympiadPracticeTheory.test.ts",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 28.10.2026 указал пустую страницу «Надежды энергетики» и поручил заполнить её официальными сведениями и документами."
+        "evidence": "Родитель попросил убрать повторяющиеся подписи и показать тему и объяснение перед олимпиадным тестом."
       }
     },
     "src/WeekendMathSlot.css": {
@@ -3528,44 +3528,37 @@
       }
     },
     "src/components/QuizCard.css": {
-      "sha256": "18b0df43adc0c96bca8191e3c20fb1bf499c3548e08e9797859b105565589e19",
-      "record": "docs/decisions/quiz-time-row-2026-10-16.md",
+      "sha256": "6ce148eb2eab764c1ce1fa89a72c5231a68a80dcc7cdb95409a28ba205223db9",
+      "record": "docs/decisions/olympiad-quiz-theory-2026-10-28.md",
       "specs": [
-        "docs/modules/assessments/quizzes.md",
-        "docs/modules/assessments/quiz-chain-proposal.md"
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/components/QuizCard.time.test.tsx",
-        "src/components/QuizCard.history.test.tsx",
-        "src/UiKit.test.tsx"
+        "src/components/QuizCard.test.tsx",
+        "src/lib/olympiadPracticeTheory.test.ts",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель16.10.2026 прислал скриншот и потребовал исправить раскрытие дат: блок открывается под последним тестом вместо выбранной строки."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "5b05c7bf40309130382a9ea26b75b731c2fc54ebc83f1371f7fe6b8ed5a3fc43"
+        "evidence": "Родитель попросил убрать повторяющиеся подписи и показать тему и объяснение перед олимпиадным тестом."
       }
     },
     "src/components/QuizCard.tsx": {
-      "sha256": "0a9462b4d791f4fc1b822aaaf24885fab1c402638e9e271335ea70eee1e267df",
-      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
+      "sha256": "cfb403247ca574cdfa80cc487d9f02d8a6b2df8076629e4871e32606e09c1942",
+      "record": "docs/decisions/olympiad-quiz-theory-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
-        "docs/modules/synchronization/education-pipeline.md"
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "assessment/learning-context-backfill.test.mjs",
-        "day/family-assignment.test.mjs",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
         "src/components/QuizCard.test.tsx",
-        "src/lib/educationEventProducers.test.ts",
-        "sync/event-task-artifact.test.mjs"
+        "src/lib/olympiadPracticeTheory.test.ts",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо потребовал использовать общие уроки, семейные права, фотографии и синхронизацию Education для олимпиад."
+        "evidence": "Родитель попросил убрать повторяющиеся подписи и показать тему и объяснение перед олимпиадным тестом."
       }
     },
     "src/components/QuizResultCard.tsx": {
@@ -6735,6 +6728,23 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Родитель 28.10.2026 указал пустую страницу «Надежды энергетики» и поручил заполнить её официальными сведениями и документами."
+      }
+    },
+    "src/lib/olympiadPracticeTheory.ts": {
+      "sha256": "30d4927604693c02cf1c9d5a32db102705e19275178e2aa23e0b9d8e883d1382",
+      "record": "docs/decisions/olympiad-quiz-theory-2026-10-28.md",
+      "specs": [
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/shared/design/ui-kit.md"
+      ],
+      "tests": [
+        "src/components/QuizCard.test.tsx",
+        "src/lib/olympiadPracticeTheory.test.ts",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель попросил убрать повторяющиеся подписи и показать тему и объяснение перед олимпиадным тестом."
       }
     }
   }

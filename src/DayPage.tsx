@@ -41,6 +41,7 @@ import TaskGuidance from '@/components/TaskGuidance'
 import LearnerFlow from '@/components/LearnerFlow'
 import PhotoUploadControl from '@/components/PhotoUploadControl'
 import QuizCard from '@/components/QuizCard'
+import { olympiadPracticeTheory } from '@/lib/olympiadPracticeTheory'
 import { findQuizPlacement, quizChain, quizTaskForPlacement, withQuizPlacements, type QuizCardAttempt } from '@/lib/quizCardViewModel'
 import { practiceVariantView } from '@/lib/practiceVariantViewModel'
 import { useDayEvidence } from '@/lib/useDayEvidence'
@@ -63,14 +64,14 @@ type LocalPhoto = { id: string; taskId: string; file: File; previewUrl: string; 
 /** Adapter from a task's exact MESH instruction and family pages to the shared quiz card.
  * @see ../docs/modules/reviews/card-generation-policy.md#quiz-adapter
  * @see ../docs/modules/school-diary/day-page.md#multiple-assignments */
-function QuizLineageCard({ chain, parent, task, materialLinks = [], assignmentLabel, separateAssignment = false, sourceEvidence, placementOptional }: { chain: QuizCardAttempt[]; parent: boolean; task?: DayTask; materialLinks?: DayMaterialLink[]; assignmentLabel?: string; separateAssignment?: boolean; sourceEvidence?: ReactNode; placementOptional?: boolean }) {
+function QuizLineageCard({ chain, parent, task, materialLinks = [], assignmentLabel, separateAssignment = false, sourceEvidence, placementOptional, reading }: { chain: QuizCardAttempt[]; parent: boolean; task?: DayTask; materialLinks?: DayMaterialLink[]; assignmentLabel?: string; separateAssignment?: boolean; sourceEvidence?: ReactNode; placementOptional?: boolean; reading?: { title: string; theory: string } }) {
   const context = task?.title.match(/Упр\.\s*\d+/i)?.[0] ?? task?.title ?? 'Самопроверка'
   const readerLinks = materialLinks.filter(canReadInside)
   const otherLinks = materialLinks.filter((link) => !canReadInside(link) && link.sourceType !== 'audio')
   const materials = task && (task.steps?.length || readerLinks.length || otherLinks.length || materialLinks.some((link) => link.sourceType === 'audio')) ? <>{!!task.steps?.length && <ol className="day-task-steps">{task.steps.map((step, index) => <Instruction key={index} item={step} index={index} familyAssigned={Boolean(task.familyOrigin)} />)}</ol>}{materialLinks.filter((link) => link.sourceType === 'audio').map((link) => <AudioPlayer key={link.sourceRef || link.url} link={link} />)}{groupAdjacentMaterialPages(readerLinks).map((group) => <MaterialReader key={group[0].url} links={group} parent={parent} />)}{otherLinks.map((link) => <a key={link.url} href={link.url} target="_blank" rel="noopener noreferrer">{link.title} <ExternalLink size={13} aria-hidden="true" /></a>)}</> : undefined
   // @see ../docs/modules/school-diary/day-page.md#numbered-sheet-and-quiz
   // A numbered teacher sheet remains its own task beside the linked quiz.
-  return <QuizCard chain={chain} parent={parent} placementOptional={placementOptional} context={context} assignment={!separateAssignment && task && <>{assignmentLabel && <div className="day-task-assignment-heading">{assignmentLabel}</div>}<AssignmentBrief task={task} materialLinks={materialLinks} />{sourceEvidence}</>} materials={separateAssignment ? undefined : materials} id={task && !separateAssignment ? `day-task-${task.id}` : `day-quiz-${chain[0].token}`} />
+  return <QuizCard chain={chain} parent={parent} placementOptional={placementOptional} reading={reading} context={context} assignment={!separateAssignment && task && <>{assignmentLabel && <div className="day-task-assignment-heading">{assignmentLabel}</div>}<AssignmentBrief task={task} materialLinks={materialLinks} />{sourceEvidence}</>} materials={separateAssignment ? undefined : materials} id={task && !separateAssignment ? `day-task-${task.id}` : `day-quiz-${chain[0].token}`} />
 }
 
 /** @see ../docs/modules/school-diary/day-page.md#instruction-provenance
@@ -518,7 +519,7 @@ export default function DayPage({ token, parent, headerReturnTarget, olympiadSco
                 ...(page.taskPageRefs?.[task.id] ?? []).map((ref) => catalogPages[ref]).filter((link): link is DayMaterialLink => Boolean(link)),
               ].map((link) => [link.sourceRef || link.url, link])).values()] : []
               const assignmentIndex = task ? subject.tasks.findIndex((item) => item.id === task.id) : -1
-              return <QuizLineageCard key={`lineage-${placement.token}`} chain={chain} parent={parent} placementOptional={placement.optional} task={task} materialLinks={materialLinks} assignmentLabel={assignments.multiple && assignmentIndex >= 0 ? `Задание ${assignmentIndex + 1} из ${assignments.total}` : undefined} separateAssignment={Boolean(task?.problems?.length)} sourceEvidence={sourceEvidence(task)} />
+              return <QuizLineageCard key={`lineage-${placement.token}`} chain={chain} parent={parent} placementOptional={placement.optional} reading={olympiadScope ? olympiadPracticeTheory[chain[0]?.slug] : undefined} task={task} materialLinks={materialLinks} assignmentLabel={assignments.multiple && assignmentIndex >= 0 ? `Задание ${assignmentIndex + 1} из ${assignments.total}` : undefined} separateAssignment={Boolean(task?.problems?.length)} sourceEvidence={sourceEvidence(task)} />
             })}
             {subject.tasks.map((task, assignmentIndex) => {
               // A written task may also have a linked self-check. The test must
@@ -657,7 +658,7 @@ export default function DayPage({ token, parent, headerReturnTarget, olympiadSco
               const test = tests.find((item) => item.token === placement.token)
               const chain = lineageByToken.get(placement.token)
               if (chain) return null
-              return test ? <QuizCard key={placement.token} chain={quizChain(test, tests)} parent={parent} placementOptional={placement.optional} id={`day-quiz-${placement.token}`} /> : <p key={placement.token} className="day-loading">Загружаем тест…</p>
+              return test ? <QuizCard key={placement.token} chain={quizChain(test, tests)} parent={parent} placementOptional={placement.optional} reading={olympiadScope ? olympiadPracticeTheory[test.slug] : undefined} id={`day-quiz-${placement.token}`} /> : <p key={placement.token} className="day-loading">Загружаем тест…</p>
             })}</div>
           </div>
         </section>
