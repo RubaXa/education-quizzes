@@ -707,3 +707,19 @@ it.each([true, false])('shows olympiad reading before its test, parent=%s', asyn
     expect(card.textContent).toContain(parent ? 'Посмотреть вопросы' : 'Пройти тест')
   } finally { await act(async () => root.unmount()); host.remove() }
 })
+
+// Separating the visual sections does not create a second day subscription or duplicate tests.
+it.each([true, false])('places tests in a separate olympiad section for parent=%s', async parent => {
+  const id = 'family-olympiad'
+  const extra = { id, title: 'Практическая задача', detail: '', source: 'Education', kind: 'written' as const, status: 'unknown' as const, optional: true, learningContext: { kind: 'olympiad' as const, id: 'o1' } }
+  scene.page = { ...page(), familyId: 'family', childId: 'child', subjects: [{ ...page().subjects[0], tasks: [extra] }], testPlacements: [{ token: 'diagrams-test', subjectId: 'math', optional: true }] }
+  scene.role = parent ? 'parent' : 'student'
+  const host = document.createElement('div'); const target = document.createElement('div'); document.body.append(target, host); const root = createRoot(host)
+  try {
+    await act(async () => root.render(<DayPage token="role-day" parent={parent} headerReturnTarget={null} olympiadScope={{ familyId: 'family', childId: 'child', olympiadId: 'o1', taskId: id, testTokens: ['diagrams-test'], quizTarget: target }} />))
+    expect(target.querySelectorAll('.day-quiz-lineage')).toHaveLength(1)
+    expect(host.querySelector('.day-quiz-lineage')).toBeNull()
+    expect(host.textContent).toContain('Практическая задача')
+    expect(target.textContent).not.toContain('Практическая задача')
+  } finally { await act(async () => root.unmount()); target.remove(); host.remove() }
+})

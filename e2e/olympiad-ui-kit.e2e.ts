@@ -100,3 +100,21 @@ test('olympiad quiz shows its topic and full reading for both roles on mobile', 
     expect(bounds.scroll).toBeLessThanOrEqual(bounds.client)
   }
 })
+
+test('practice is separate from tests and task cards have spacing on mobile', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 820 })
+  await page.getByRole('button', { name: 'Страница олимпиады' }).click()
+  for (const role of ['Родитель', 'Ученик']) {
+    await page.getByRole('button', { name: role, exact: true }).click()
+    const methods = page.getByRole('region', { name: 'Приёмы и тесты' })
+    const practice = page.getByRole('region', { name: 'Практика', exact: true })
+    await expect(methods.getByText('Чётность и сумма')).toBeVisible()
+    await expect(practice.locator('.problem-card')).toHaveCount(2)
+    await expect(practice.locator('.day-quiz-lineage')).toHaveCount(0)
+    const boxes = await practice.locator('.problem-card').evaluateAll(nodes => nodes.map(node => { const r = node.getBoundingClientRect(); return { top: r.top, bottom: r.bottom } }))
+    expect(boxes[1].top - boxes[0].bottom).toBeGreaterThanOrEqual(8)
+    await practice.locator('.problem-card summary').first().click()
+    await expect(practice.locator('.problem-card').first().getByText('Условие задачи для примера.')).toBeVisible()
+    await practice.locator('.problem-card summary').first().click()
+  }
+})

@@ -69,6 +69,9 @@
   --edu-radius-card: 23px;
   --edu-radius-control: 14px;
   --edu-touch-target: 42px;
+  --edu-space-2: 8px;
+  --edu-space-3: 12px;
+  --edu-space-6: 24px;
   /* @see ../docs/modules/assessments/result-presentation-proposal.md */
   --edu-result-meter-height: 7px;
   --edu-result-meter-compact-height: 3px;

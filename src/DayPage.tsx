@@ -163,7 +163,7 @@ export function GradeBadge({ summary, details, threshold, asOf }: { summary?: Gr
  * @see ../docs/modules/synchronization/global-sync.md#status
  */
 /** @see ../docs/shared/design/README.md#shell */
-export default function DayPage({ token, parent, headerReturnTarget, olympiadScope }: { token: string; parent: boolean; headerReturnTarget: HTMLElement | null; olympiadScope?: { familyId: string; childId: string; olympiadId: string; taskId: string; testTokens: string[]; number?: number } }) {
+export default function DayPage({ token, parent, headerReturnTarget, olympiadScope }: { token: string; parent: boolean; headerReturnTarget: HTMLElement | null; olympiadScope?: { familyId: string; childId: string; olympiadId: string; taskId: string; testTokens: string[]; number?: number; quizTarget?: HTMLElement | null } }) {
   /** @see ../docs/modules/school-diary/dashboard.md#day-navigation */
   const [requestedView] = useState(() => {
     const query = new URLSearchParams(window.location.search).get('tab')
@@ -500,6 +500,21 @@ export default function DayPage({ token, parent, headerReturnTarget, olympiadSco
         const subjectDone = assignments.multiple ? assignments.complete : subjectItems.length > 0 && subjectItems.every((item) => item.state === 'done')
         const focused = Boolean(focusTaskId && (subject.tasks.some((task) => task.id === focusTaskId || task.problems?.some((problem) => problem.id === focusTaskId)) || subjectPlacements.some((placement) => placement.token === focusedQuizPlacement?.token)))
         const expanded = olympiadScope ? subjectOpen[subject.id] ?? true : isSubjectExpanded(subject.id, subjectDone, subjectOpen, focused)
+        const lineageCards = <>{lineages.map(({ placement, chain }) => {
+              const task = subject.tasks.find((item) => item.testToken === placement.token)
+              const materialLinks = task ? [...new Map([
+                ...(page.materialLinks?.[task.id] ?? []),
+                ...(page.taskPageRefs?.[task.id] ?? []).map((ref) => catalogPages[ref]).filter((link): link is DayMaterialLink => Boolean(link)),
+              ].map((link) => [link.sourceRef || link.url, link])).values()] : []
+              const assignmentIndex = task ? subject.tasks.findIndex((item) => item.id === task.id) : -1
+              return <QuizLineageCard key={`lineage-${placement.token}`} chain={chain} parent={parent} placementOptional={placement.optional} reading={olympiadScope ? olympiadPracticeTheory[chain[0]?.slug] : undefined} task={task} materialLinks={materialLinks} assignmentLabel={assignments.multiple && assignmentIndex >= 0 ? `Задание ${assignmentIndex + 1} из ${assignments.total}` : undefined} separateAssignment={Boolean(task?.problems?.length)} sourceEvidence={sourceEvidence(task)} />
+            })}</>
+        const standaloneCards = <>{currentPlacements.filter((placement) => placement.subjectId === subject.id && !placement.taskId).map((placement) => {
+              const test = tests.find((item) => item.token === placement.token)
+              const chain = lineageByToken.get(placement.token)
+              if (chain) return null
+              return test ? <QuizCard key={placement.token} chain={quizChain(test, tests)} parent={parent} placementOptional={placement.optional} reading={olympiadScope ? olympiadPracticeTheory[test.slug] : undefined} id={`day-quiz-${placement.token}`} /> : <p key={placement.token} className="day-loading">Загружаем тест…</p>
+            })}</>
         return <section className={`day-subject day-subject-${subject.id}${numberedSheet ? ' has-numbered-sheet' : ''}${subjectDone ? ' is-done' : ''}${expanded ? '' : ' is-collapsed'}`} key={subject.id}>
           {!olympiadScope && <div className="day-subject-head"><span className="day-subject-icon">{subject.icon}</span><div className="day-subject-title"><h2>{subject.name}</h2></div>
             <button className="day-subject-toggle" type="button" aria-expanded={expanded} aria-label={`${expanded ? 'Свернуть' : 'Развернуть'} ${subject.name}`} onClick={() => setSubjectOpen((current) => ({ ...current, [subject.id]: !expanded }))}><ChevronDown size={19} aria-hidden="true" /></button>
@@ -512,15 +527,7 @@ export default function DayPage({ token, parent, headerReturnTarget, olympiadSco
             </div>}</div>}
           <div className="day-subject-content" hidden={!expanded}>{!olympiadScope && !numberedSheet && !['Новое задание МЭШ. Подробный разбор готовится.', 'Точная запись МЭШ. Подробный разбор готовится.'].includes(subject.summary) && <p className="day-subject-summary">{subject.summary}</p>}
             {!olympiadScope && parent && meshOnlyTasks.length > 0 && <details className="day-mesh"><summary>Как записано в МЭШ</summary>{assignments.multiple ? meshOnlyTasks.map((task) => <p key={task.id}><b>Задание {subject.tasks.indexOf(task) + 1}.</b> {task.meshText ?? task.title}</p>) : <p>{subject.mesh}</p>}</details>}
-            <div className="day-task-list">{lineages.map(({ placement, chain }) => {
-              const task = subject.tasks.find((item) => item.testToken === placement.token)
-              const materialLinks = task ? [...new Map([
-                ...(page.materialLinks?.[task.id] ?? []),
-                ...(page.taskPageRefs?.[task.id] ?? []).map((ref) => catalogPages[ref]).filter((link): link is DayMaterialLink => Boolean(link)),
-              ].map((link) => [link.sourceRef || link.url, link])).values()] : []
-              const assignmentIndex = task ? subject.tasks.findIndex((item) => item.id === task.id) : -1
-              return <QuizLineageCard key={`lineage-${placement.token}`} chain={chain} parent={parent} placementOptional={placement.optional} reading={olympiadScope ? olympiadPracticeTheory[chain[0]?.slug] : undefined} task={task} materialLinks={materialLinks} assignmentLabel={assignments.multiple && assignmentIndex >= 0 ? `Задание ${assignmentIndex + 1} из ${assignments.total}` : undefined} separateAssignment={Boolean(task?.problems?.length)} sourceEvidence={sourceEvidence(task)} />
-            })}
+            <div className="day-task-list">{olympiadScope?.quizTarget !== undefined ? olympiadScope.quizTarget && createPortal(lineageCards, olympiadScope.quizTarget) : lineageCards}
             {subject.tasks.map((task, assignmentIndex) => {
               // A written task may also have a linked self-check. The test must
               // never replace the notebook submission and its photo action.
@@ -654,12 +661,7 @@ export default function DayPage({ token, parent, headerReturnTarget, olympiadSco
               const teacherChoice = task.practiceVariants?.length && task.practiceVariants.every(variant => variant.optionalByTeacher)
               return <ProblemGroup key={task.id} id={task.id} title={task.practiceVariants?.length ? assignmentTitle(task, assignmentIndex, assignments.total).replace(/^Подготовиться к (?:самостоятельной|контрольной)(?: работе)?:/i, 'Подготовка:') : assignmentTitle(task, assignmentIndex, assignments.total)} subtitle={teacherChoice ? 'Реши сколько получится · по выбору учителя' : task.practiceVariants?.length ? `${task.practiceVariants.length} варианта из листа учителя` : undefined} problems={task.problems} requiredProblems={requiredProblems} numberLabel={teacherChoice ? `${task.problems.length} задач по выбору` : task.practiceVariants?.length ? `${task.practiceVariants.length} варианта` : undefined} uploads={uploads} reviews={reviews} decisions={parentDecisions.events} localPendingCount={localPendingCount} requiredLocalPendingCount={requiredLocalPendingCount} sourceCount={sourceCount} ready={evidenceReady && parentDecisions.ready} focusTaskId={focusTaskId} defaultOpen={Boolean(olympiadScope)}>{taskCard}</ProblemGroup>
             })}
-            {currentPlacements.filter((placement) => placement.subjectId === subject.id && !placement.taskId).map((placement) => {
-              const test = tests.find((item) => item.token === placement.token)
-              const chain = lineageByToken.get(placement.token)
-              if (chain) return null
-              return test ? <QuizCard key={placement.token} chain={quizChain(test, tests)} parent={parent} placementOptional={placement.optional} reading={olympiadScope ? olympiadPracticeTheory[test.slug] : undefined} id={`day-quiz-${placement.token}`} /> : <p key={placement.token} className="day-loading">Загружаем тест…</p>
-            })}</div>
+            {olympiadScope?.quizTarget !== undefined ? olympiadScope.quizTarget && createPortal(standaloneCards, olympiadScope.quizTarget) : standaloneCards}</div>
           </div>
         </section>
       })}</div>
