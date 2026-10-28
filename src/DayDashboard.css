@@ -193,3 +193,6 @@
 .olympiad-section{margin-top:var(--edu-space-6)}
 .olympiad-section h2{margin:0 0 var(--edu-space-2)}
 .olympiad-quiz-list,.olympiad-practice-list{display:grid;gap:var(--edu-space-3);min-width:0}
+
+.olympiad-practice-group{margin-top:var(--edu-space-6)}
+.olympiad-practice-group h3{margin:0 0 var(--edu-space-2)}
