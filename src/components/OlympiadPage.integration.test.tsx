@@ -47,7 +47,7 @@ it('opens an olympiad without pretending an unpublished practice exists', async(
  document.body.append(host);root=createRoot(host)
  await act(async()=>root!.render(<OlympiadPage familyId="family" childId="child" olympiadId="o1" parent dashboardToken="parent-board" watchSelections={watchSelections} watchCatalog={watchCatalog} watchTasks={watchTasks} watchDashboard={watchDashboard}/>))
  expect(host.textContent).toContain('Олимпиада')
- expect(host.textContent).toContain('Материалы подготовки пока не опубликованы')
+ expect(host.textContent).toContain('Задачи для практики пока не опубликованы')
 })
 
 it('does not show an unselected olympiad to the student', async()=>{
@@ -58,6 +58,15 @@ it('does not show an unselected olympiad to the student', async()=>{
  await act(async()=>root!.render(<OlympiadPage familyId="family" childId="child" olympiadId="o1" parent={false} dashboardToken="student-board" watchSelections={empty} watchCatalog={watchCatalog} watchTasks={watchTasks} watchDashboard={watchDashboard}/>))
  expect(host.textContent).toContain('Эту олимпиаду ещё не включил родитель')
  expect(host.querySelector('[data-token]')).toBeNull()
+})
+
+it('reports that practice is not published when only the source intake exists', async()=>{
+ const watchTasks=vi.fn((_f,_c,next)=>{next([{...task,id:'intake',sourceIntake:{kind:'olympiad-sheet'}}]);return ()=>{}})
+ const watchDashboard=vi.fn((_t,next)=>{next(dashboard('parent'));return ()=>{}})
+ document.body.append(host);root=createRoot(host)
+ await act(async()=>root!.render(<OlympiadPage familyId="family" childId="child" olympiadId="o1" parent dashboardToken="dashboard" watchSelections={watchSelections} watchCatalog={watchCatalog} watchTasks={watchTasks} watchDashboard={watchDashboard}/>))
+ expect(host.textContent).toContain('Задачи для практики пока не опубликованы')
+ expect(host.textContent).not.toContain('Можно начинать с любой')
 })
 
 

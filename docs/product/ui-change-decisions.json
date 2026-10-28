@@ -2651,20 +2651,20 @@
       }
     },
     "src/UiKit.tsx": {
-      "sha256": "b27cc261dba295081e6cfab83ba11990cdffcde0cea26d93624f1816ab16c123",
-      "record": "docs/decisions/olympiad-practice-queue-2026-10-28.md",
+      "sha256": "848c1ff5f26b8de52fb58bb57383278ed305a368721cd1917642da2999741bff",
+      "record": "docs/decisions/energy-hope-archive-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
         "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/OlympiadReferences.test.tsx",
         "src/components/OlympiadPage.integration.test.tsx",
-        "src/components/WorkPhotoGallery.test.tsx"
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 28.10.2026 утвердил список задач, загрузку решения и очередь фотографий и поручил реализовать без дополнительных вопросов."
+        "evidence": "Родитель 28.10.2026 указал пустую страницу «Надежды энергетики» и поручил заполнить её официальными сведениями и документами."
       }
     },
     "src/WeekendMathSlot.css": {
@@ -6287,20 +6287,20 @@
       }
     },
     "src/components/OlympiadPage.tsx": {
-      "sha256": "deff0fb00b61d4c4bbdf8a1004980a226ebd9679b61a347ecd1a94f4962dcc67",
-      "record": "docs/decisions/olympiad-practice-queue-2026-10-28.md",
+      "sha256": "fd0899a2d6dea5a51e9d955b27bcce50971c6340e21d53365db643f0879d9ab8",
+      "record": "docs/decisions/energy-hope-archive-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
         "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/OlympiadReferences.test.tsx",
         "src/components/OlympiadPage.integration.test.tsx",
-        "src/components/WorkPhotoGallery.test.tsx"
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 28.10.2026 утвердил список задач, загрузку решения и очередь фотографий и поручил реализовать без дополнительных вопросов."
+        "evidence": "Родитель 28.10.2026 указал пустую страницу «Надежды энергетики» и поручил заполнить её официальными сведениями и документами."
       }
     },
     "src/components/OlympiadWrittenPractice.tsx": {
@@ -6718,6 +6718,23 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Родитель 28.10.2026 утвердил список задач, загрузку решения и очередь фотографий и поручил реализовать без дополнительных вопросов."
+      }
+    },
+    "src/components/OlympiadReferences.tsx": {
+      "sha256": "3656a7bb12e107b90b11ee89d897512eb27e4fcc351336a9b97e32031bb9fe8f",
+      "record": "docs/decisions/energy-hope-archive-2026-10-28.md",
+      "specs": [
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/shared/design/ui-kit.md"
+      ],
+      "tests": [
+        "src/components/OlympiadReferences.test.tsx",
+        "src/components/OlympiadPage.integration.test.tsx",
+        "src/UiKit.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 28.10.2026 указал пустую страницу «Надежды энергетики» и поручил заполнить её официальными сведениями и документами."
       }
     }
   }

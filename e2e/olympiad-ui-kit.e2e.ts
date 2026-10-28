@@ -76,3 +76,16 @@ test('source queue uses the shared upload and remains visible to the parent', as
   await expect(queue.getByText('3 фото')).toBeVisible()
   await expect(queue.locator('input[type=file]')).toHaveCount(0)
 })
+
+test('energy hope archive opens official 6th grade PDFs from the app', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 820 })
+  await page.getByRole('button', { name: 'Страница олимпиады' }).click()
+  const archive = page.getByRole('region', { name: 'Олимпиада и архив' })
+  await archive.getByText('Задания прошлых лет · 6 класс').click()
+  const link = archive.getByRole('link', { name: '2024/25 · заключительный этап · PDF ↗' })
+  await expect(link).toBeVisible()
+  const url = await link.getAttribute('href')
+  const response = await page.request.get(url!)
+  expect(response.ok()).toBe(true)
+  expect(response.headers()['content-type']).toContain('application/pdf')
+})
