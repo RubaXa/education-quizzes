@@ -752,3 +752,11 @@ it.each([true, false])('marks a linked source photo as added to olympiad practic
     expect(host.textContent).not.toContain('обработка условий ожидается')
   } finally { await act(async () => root.unmount()); host.remove() }
 })
+
+it('queue keeps a confirmed local photo matched with its saved copy', async () => {
+  const { renderToStaticMarkup } = await import('react-dom/server')
+  const { default: Queue } = await import('./components/OlympiadSourceQueue')
+  const html = renderToStaticMarkup(<Queue parent studentToken="student-token" uploads={[{ id:'student-token:photo', taskId:'intake', status:'pending' }]} localPhotos={[{ id:'photo', taskId:'intake', state:'saved', previewUrl:'blob:demo' }]} processedIds={['photo']} now={0} onPhotos={() => {}} />)
+  expect(html).toContain('задачи добавлены в практику')
+  expect(html).not.toContain('обработка условий ожидается')
+})

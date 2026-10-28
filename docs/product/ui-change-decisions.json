@@ -6721,7 +6721,7 @@
       }
     },
     "src/components/OlympiadSourceQueue.tsx": {
-      "sha256": "962525fb324f40a63020c6bac2011cd7b91eaa8b2e27e3fedc00bb71e82b890b",
+      "sha256": "32d4362df94957a197313a21524fd647c9c653ea1dd76d9358c07ac1cb177272",
       "record": "docs/decisions/olympiad-firebase-independence-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
