@@ -2556,21 +2556,20 @@
       }
     },
     "src/DayDashboard.css": {
-      "sha256": "f7c350d90029adcd53aaf699e518c9c2b9b05ba97a4789f79dbe9b96daee5645",
-      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
+      "sha256": "123d87c14b182c35dd191f7132e22de5362544d55ffb757719b11589cc9108b0",
+      "record": "docs/decisions/olympiad-practice-sections-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
-        "docs/shared/design/components.md"
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/components/OlympiadHome.integration.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
         "src/components/OlympiadPage.integration.test.tsx",
-        "src/components/LearningRoute.integration.test.tsx",
         "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь сообщил со скриншотами о переносе вкладок, неразличимых карточках олимпиад и неработающем переходе и потребовал исправить."
+        "evidence": "Родитель сообщил, что задачи слиплись и сливаются с тестами, и попросил отдельный блок практики."
       }
     },
     "src/DayDashboard.tsx": {
@@ -2619,20 +2618,20 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "c63ec4c0eab4b70ba3572e57af611ada49cfe5093a71278b1ef663c4ca6f9cb3",
-      "record": "docs/decisions/olympiad-quiz-theory-2026-10-28.md",
+      "sha256": "743d330b24bdae998e3edbb074ad16bdd749f4b57676cb09bd56fce94331e2e3",
+      "record": "docs/decisions/olympiad-practice-sections-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
         "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/components/QuizCard.test.tsx",
-        "src/lib/olympiadPracticeTheory.test.ts",
-        "src/DayPage.assignmentQuiz.integration.test.tsx"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/OlympiadPage.integration.test.tsx",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель попросил убрать повторяющиеся подписи и показать тему и объяснение перед олимпиадным тестом."
+        "evidence": "Родитель сообщил, что задачи слиплись и сливаются с тестами, и попросил отдельный блок практики."
       }
     },
     "src/UiKit.css": {
@@ -2651,20 +2650,20 @@
       }
     },
     "src/UiKit.tsx": {
-      "sha256": "1d1b0aa6857e35295de56cc0b08bc1934dd8143a84de2a718e7d789d83ed502d",
-      "record": "docs/decisions/olympiad-quiz-theory-2026-10-28.md",
+      "sha256": "36e1d7f750926e443d3e2704d26b0029fc047667f946d04cb8b11879ae968e05",
+      "record": "docs/decisions/olympiad-practice-sections-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
         "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/components/QuizCard.test.tsx",
-        "src/lib/olympiadPracticeTheory.test.ts",
-        "src/DayPage.assignmentQuiz.integration.test.tsx"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/OlympiadPage.integration.test.tsx",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель попросил убрать повторяющиеся подписи и показать тему и объяснение перед олимпиадным тестом."
+        "evidence": "Родитель сообщил, что задачи слиплись и сливаются с тестами, и попросил отдельный блок практики."
       }
     },
     "src/WeekendMathSlot.css": {
@@ -3977,20 +3976,20 @@
       }
     },
     "src/education-design-tokens.css": {
-      "sha256": "080373d2683670773fdaef282ca28213c7c9e8c8094deaa33d2b5d91e8f99a32",
-      "record": "docs/decisions/pupil-vacations-2026-10-19.md",
+      "sha256": "29fe89e13d14cbb86b76a60d942cc24e441e88f8030155b02103e0a0d9a9554a",
+      "record": "docs/decisions/olympiad-practice-sections-2026-10-28.md",
       "specs": [
-        "docs/modules/school-diary/school-calendar.md"
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "day/school-calendar.test.mjs",
-        "sync/school-calendar-publication.test.mjs",
-        "src/components/DayCalendar.test.tsx",
-        "src/DayDashboard.warmStart.test.tsx"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/OlympiadPage.integration.test.tsx",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 просит выделить каникулы красивым блоком дней, получая даты только из МЭШ конкретного ученика."
+        "evidence": "Родитель сообщил, что задачи слиплись и сливаются с тестами, и попросил отдельный блок практики."
       }
     },
     "src/lib/assignmentPresentation.ts": {
@@ -6280,20 +6279,20 @@
       }
     },
     "src/components/OlympiadPage.tsx": {
-      "sha256": "fd0899a2d6dea5a51e9d955b27bcce50971c6340e21d53365db643f0879d9ab8",
-      "record": "docs/decisions/energy-hope-archive-2026-10-28.md",
+      "sha256": "561a13992b7b46a04d5563ef6ab921d971d86e5805d7279a05144515bac039f1",
+      "record": "docs/decisions/olympiad-practice-sections-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
         "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/components/OlympiadReferences.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
         "src/components/OlympiadPage.integration.test.tsx",
         "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 28.10.2026 указал пустую страницу «Надежды энергетики» и поручил заполнить её официальными сведениями и документами."
+        "evidence": "Родитель сообщил, что задачи слиплись и сливаются с тестами, и попросил отдельный блок практики."
       }
     },
     "src/components/OlympiadWrittenPractice.tsx": {

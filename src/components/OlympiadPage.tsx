@@ -12,7 +12,7 @@ export default function OlympiadPage({ familyId, childId, olympiadId, parent, da
   watchTasks = watchFamilyOlympiadTasks, watchDashboard = watchDayDashboard, watchCatalog = watchPublicOlympiads, watchSelections = watchOlympiadSelections, renderPractice, diagnosticsContext = 'product' }: {
   familyId: string; childId: string; olympiadId: string; parent: boolean; dashboardToken: string; canonicalToken?: string
   watchTasks?: typeof watchFamilyOlympiadTasks; watchDashboard?: typeof watchDayDashboard; watchCatalog?: typeof watchPublicOlympiads; watchSelections?: typeof watchOlympiadSelections
-  renderPractice?: (task: FamilyOlympiadTask, dayToken: string, parent: boolean) => ReactNode
+  renderPractice?: (task: FamilyOlympiadTask, dayToken: string, parent: boolean, quizTarget: HTMLElement | null, number: number) => ReactNode
   diagnosticsContext?: 'demo' | 'product'
 }) {
   const [tasks, setTasks] = useState<FamilyOlympiadTask[]>()
@@ -20,6 +20,7 @@ export default function OlympiadPage({ familyId, childId, olympiadId, parent, da
   const [catalog, setCatalog] = useState<PublicOlympiad[]>()
   const [dashboard, setDashboard] = useState<DayDashboardData>()
   const [error, setError] = useState('')
+  const [quizTarget, setQuizTarget] = useState<HTMLDivElement | null>(null)
   useEffect(() => {
     setTasks(undefined); setDashboard(undefined); setCatalog(undefined); setSelections(undefined); setError('')
     const fail = (cause: Error) => { traceAccess('access.failed', { atFunction: 'OlympiadPage#load', previousState: 'checking', state: 'failed', source: 'route', code: accessTraceError(cause) }); setTasks(undefined); setDashboard(undefined); setError('Не удалось открыть подготовку.'); traceOlympiad('page-failed', diagnosticsContext, parent ? 'parent' : 'student') }
@@ -40,10 +41,13 @@ export default function OlympiadPage({ familyId, childId, olympiadId, parent, da
       <h1>{olympiad.title}</h1>{olympiad.subject && <p>{olympiad.subject}</p>}{olympiad.schedule && <p>{olympiad.schedule}</p>}
       <p>Подготовка — дополнительная работа. Текущие конкурсные задачи выполняются по правилам организатора.</p>
       <OlympiadReferences olympiadId={olympiadId} parent={parent} context={diagnosticsContext} />
-      {!matching.length ? <p>Задачи для практики пока не опубликованы.</p> : <><h2>Практика</h2>{matching.some(task => !task.sourceIntake) ? <p>Задач: {matching.filter(task => !task.sourceIntake).length}. Можно начинать с любой.</p> : <p>Задачи для практики пока не опубликованы.</p>}{[...matching.filter(task => !task.sourceIntake), ...matching.filter(task => task.sourceIntake)].map((task, index) => {
-        const dayToken = projectionReady ? dashboard.days.find(day => day.date === task.projectionSourceDate)?.dayToken : null
-        return !dayToken ? <p key={task.id} role="alert">«{task.title}»: страница подготовки ещё не опубликована.</p> : <div key={task.id}>{renderPractice ? renderPractice(task, dayToken, parent) : <DayPage key={`${familyId}/${childId}/${dayToken}/${task.id}`} token={dayToken} parent={parent} headerReturnTarget={null} olympiadScope={{ familyId, childId, olympiadId, taskId: task.id, testTokens: task.testTokens, number: index + 1 }} />}</div>
-      })}</>}
+      {matching.some(task => task.testTokens.length > 0) && <section className="olympiad-section" aria-labelledby="olympiad-methods-title"><h2 id="olympiad-methods-title">Приёмы и тесты</h2><div className="olympiad-quiz-list" ref={setQuizTarget} /></section>}
+      <section className="olympiad-section" aria-labelledby="olympiad-practice-title"><h2 id="olympiad-practice-title">Практика</h2>{matching.some(task => !task.sourceIntake) ? <p>Задач: {matching.filter(task => !task.sourceIntake).length}. Можно начинать с любой.</p> : <p>Задачи для практики пока не опубликованы.</p>}
+        <div className="olympiad-practice-list">{[...matching.filter(task => !task.sourceIntake), ...matching.filter(task => task.sourceIntake)].map((task, index) => {
+          const dayToken = projectionReady ? dashboard.days.find(day => day.date === task.projectionSourceDate)?.dayToken : null
+          return !dayToken ? <p key={task.id} role="alert">«{task.title}»: страница подготовки ещё не опубликована.</p> : <div key={task.id}>{renderPractice ? renderPractice(task, dayToken, parent, quizTarget, index + 1) : <DayPage key={`${familyId}/${childId}/${dayToken}/${task.id}`} token={dayToken} parent={parent} headerReturnTarget={null} olympiadScope={{ familyId, childId, olympiadId, taskId: task.id, testTokens: task.testTokens, number: index + 1, quizTarget }} />}</div>
+        })}</div>
+      </section>
     </>}
   </section>
 }

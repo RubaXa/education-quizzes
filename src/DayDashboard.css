@@ -188,3 +188,8 @@
 .olympiad-card-link:focus-visible{outline:3px solid var(--edu-focus);outline-offset:3px}
 .olympiad-catalog-row>small{grid-column:2 / -1}
 @media(max-width:640px){.day-dashboard-card .day-tabs{display:flex;flex-wrap:nowrap;gap:4px;margin:12px 0}.day-dashboard-card .day-tabs button{flex:1 1 auto;min-width:0;white-space:nowrap;padding:9px 2px;font-size:.75rem}}
+
+/* @see ../docs/modules/assessments/olympiad-preparation.md */
+.olympiad-section{margin-top:var(--edu-space-6)}
+.olympiad-section h2{margin:0 0 var(--edu-space-2)}
+.olympiad-quiz-list,.olympiad-practice-list{display:grid;gap:var(--edu-space-3);min-width:0}
