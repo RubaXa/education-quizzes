@@ -113,6 +113,14 @@ describe('learner-origin olympiad cards', () => {
     const intake = { familyId: task.familyId, childId: task.childId, sourceIntake: { kind: 'olympiad-sheet' }, learningContext: task.learningContext, projectionSourceDate: '2026-10-22' }
     const photo = { id: task.learnerOrigin.uploadIds[0], taskId: 'sheet-one', status: 'pending', storage: { state: 'stored', sha256: 'a'.repeat(64) } }
     expect(learnerOriginErrors(task, intake, [photo], '2026-10-22')).toEqual([])
+    const crop = { x: 20, y: 30, width: 100, height: 80, sourceWidth: 400, sourceHeight: 240, sourceSha256: 'a'.repeat(64) }
+    const cropped = { ...task, learnerOrigin: { ...task.learnerOrigin, crop } }
+    expect(familyAssignmentErrors(cropped, owner)).toEqual([])
+    expect(learnerOriginErrors(cropped, intake, [photo], '2026-10-22')).toEqual([])
+    expect(projectFamilyAssignment(cropped).learnerOrigin.crop).toEqual(crop)
+    expect(learnerOriginErrors(cropped, intake, [{ ...photo, storage: { ...photo.storage, sha256: 'b'.repeat(64) } }], '2026-10-22')).not.toEqual([])
+    expect(familyAssignmentErrors({ ...cropped, learnerOrigin: { ...cropped.learnerOrigin, crop: { ...crop, width: 500 } } }, owner)).not.toEqual([])
+    expect(familyAssignmentErrors({ ...cropped, learnerOrigin: { ...cropped.learnerOrigin, uploadIds: [photo.id, 'other-12345678901234567890'] } }, owner)).not.toEqual([])
     expect(learnerOriginErrors(task, { ...intake, childId: 'foreign' }, [photo], '2026-10-22')).not.toEqual([])
     expect(learnerOriginErrors(task, intake, [{ ...photo, taskId: 'foreign' }], '2026-10-22')).not.toEqual([])
     expect(learnerOriginErrors(task, intake, [{ ...photo, storage: { state: 'stored', sha256: 'broken' } }], '2026-10-22')).not.toEqual([])

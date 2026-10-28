@@ -5,7 +5,7 @@ import { Camera } from 'lucide-react'
 import type { ArtifactAvatarState } from '@/lib/reviewPresentation'
 import type { DayUpload } from '@/lib/dayStore'
 import { localPhotoForTransfer } from '@/lib/photoOutbox'
-import EducationImage from './EducationImage'
+import EducationImage, { type ImageCrop } from './EducationImage'
 import StatusIcon from './StatusIcon'
 import './ArtifactAvatar.css'
 import { formatUploadTimestamp } from '@/lib/uploadTimestamp'
@@ -36,16 +36,16 @@ async function localWorkImage(source: string): Promise<string> {
  * The upload state remains separate from the educational review state.
  * @see ../../docs/shared/design/components.md#work-artifacts
  * @see ../../docs/shared/design/README.md#images */
-export function WorkArtifactImage({ upload, title, index, compact = false, fallbackUrl, retryControl = !compact }: {
-  upload: DayUpload; title: string; index: number; compact?: boolean; fallbackUrl?: string; retryControl?: boolean;
+export function WorkArtifactImage({ upload, title, index, compact = false, fallbackUrl, retryControl = !compact, crop, imageClassName }: {
+  upload: DayUpload; title: string; index: number; compact?: boolean; fallbackUrl?: string; retryControl?: boolean; crop?: ImageCrop; imageClassName?: string;
 }) {
   const publicUrl = upload.storage?.publicUrl
   const local = !upload.dataUrl && !publicUrl && !fallbackUrl
   return <EducationImage source={upload.dataUrl ?? publicUrl ?? fallbackUrl ?? upload.id}
     mode={publicUrl && !upload.dataUrl ? 'public' : 'direct'}
     resolver={local ? localWorkImage : undefined} revokeResolvedUrl={local} size={compact ? 'S' : 'XXXL'}
-    alt={`Работа по заданию «${title}», фото ${index + 1}`} compact={compact} retryControl={retryControl}
-    className={compact ? '' : 'day-upload-photo'} />
+    crop={crop} alt={`Работа по заданию «${title}», фото ${index + 1}`} compact={compact} retryControl={retryControl}
+    className={imageClassName ?? (compact ? '' : 'day-upload-photo')} />
 }
 
 /** Received files use the server's byte-confirmation time; a request time is never called an upload time.

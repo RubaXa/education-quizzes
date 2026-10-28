@@ -6,15 +6,20 @@ import type { DayPageData, DayUpload } from '@/lib/dayStore'
 import { taskUploadPresentation, uploadOriginTitle } from '@/lib/taskUploadPresentation'
 import { artifactAvatarLabel, artifactAvatarState } from '@/lib/reviewPresentation'
 import { WorkArtifactImage, WorkUploadTime, workUploadTimeLabel } from './ArtifactAvatar'
+import SourceFragment from './SourceFragment'
+import { traceOlympiad } from '@/lib/browserAccessTrace'
+import type { DaySourceCrop } from '@/lib/dayStore'
 import './LinkedWorkPhotos.css'
 
 /** Read-only references, not another upload gallery or attachment owner.
  * @see ../../docs/modules/materials/storage-privacy.md#multi-task-photo
  */
-export default function LinkedWorkPhotos({ taskId, uploads, pages, source }: { taskId: string; uploads: DayUpload[]; pages: (DayPageData | undefined)[]; source?: { intakeTaskId: string; uploadIds: string[] } }) {
+export default function LinkedWorkPhotos({ taskId, uploads, pages, source, number = 1, role, diagnosticsContext = 'product' }: { taskId: string; uploads: DayUpload[]; pages: (DayPageData | undefined)[]; source?: { intakeTaskId: string; uploadIds: string[]; crop?: DaySourceCrop }; number?: number; role?: 'parent' | 'student'; diagnosticsContext?: 'product' | 'demo' }) {
   const [selected, setSelected] = useState<string | null>(null)
   const linked = source ? uploads.filter(upload => upload.taskId === source.intakeTaskId && source.uploadIds.some(id => upload.id === id || upload.id.endsWith(`:${id}`))) : taskUploadPresentation(uploads, taskId).linked
   if (!linked.length) return null
+  const crop = source?.crop
+  if (crop && linked.length === 1 && linked[0].storage?.sha256 === crop.sourceSha256) return <SourceFragment upload={linked[0]} crop={crop} number={number} onOpen={role ? () => traceOlympiad('source-fragment-opened', diagnosticsContext, role) : undefined} />
   return <div className="linked-work-photos" aria-label={source ? "Фотографии условий" : "Связанные фото из других заданий"}>
     {linked.map((upload, index) => {
       const title = uploadOriginTitle(upload, pages)

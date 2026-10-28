@@ -77,6 +77,7 @@
 | [docs/decisions/olympiad-quiz-theory-2026-10-28.md](../decisions/olympiad-quiz-theory-2026-10-28.md) | 2026-10-28 | 2026-10-28 | accepted | partial | Education frontend |  |
 | [docs/decisions/olympiad-shared-infrastructure-2026-10-28.md](../decisions/olympiad-shared-infrastructure-2026-10-28.md) | 2026-10-28 | 2026-10-28 | accepted | partial | Education developer<br>Education operator |  |
 | [docs/decisions/olympiad-source-links-2026-10-28.md](../decisions/olympiad-source-links-2026-10-28.md) | 2026-10-28 | 2026-10-28 | accepted | partial | Education operator<br>Education frontend |  |
+| [docs/decisions/olympiad-source-photo-crop-2026-10-28.md](../decisions/olympiad-source-photo-crop-2026-10-28.md) | 2026-10-28 | 2026-10-28 | accepted | partial | Education frontend<br>Education operator |  |
 | [docs/decisions/one-parent-review-and-safe-site-2026-10-14.md](../decisions/one-parent-review-and-safe-site-2026-10-14.md) | 2026-10-14 | 2026-10-16 | reference | not-applicable | product implementer<br>service implementer |  |
 | [docs/decisions/operator-core-cli-2026-10-16.md](../decisions/operator-core-cli-2026-10-16.md) | 2026-10-16 | 2026-10-16 | reference | not-applicable | product implementer<br>service implementer |  |
 | [docs/decisions/operator-tool-trial-2026-10-16.md](../decisions/operator-tool-trial-2026-10-16.md) | 2026-10-16 | 2026-10-16 | reference | not-applicable | product implementer<br>service implementer |  |

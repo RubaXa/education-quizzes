@@ -118,3 +118,18 @@ test('practice is separate from tests and task cards have spacing on mobile', as
     await practice.locator('.problem-card summary').first().click()
   }
 })
+
+test('source-photo crop uses the shared original viewer and can show the whole page', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 820 })
+  await page.getByRole('button', { name: 'Страница олимпиады' }).click()
+  const fragment = page.getByRole('button', { name: 'Открыть фрагмент оригинального листа с задачей № 1' })
+  await expect(fragment).toBeVisible()
+  await expect(fragment.locator('.education-image-crop')).toBeVisible()
+  await fragment.click()
+  const dialog = page.getByRole('dialog', { name: 'Оригинал задачи № 1' })
+  await expect(dialog).toBeVisible()
+  await dialog.getByRole('button', { name: 'Весь лист' }).click()
+  await expect(dialog.getByText('Весь исходный лист')).toBeVisible()
+  await dialog.getByRole('button', { name: 'Закрыть просмотрщик' }).click()
+  await expect(dialog).toHaveCount(0)
+})
