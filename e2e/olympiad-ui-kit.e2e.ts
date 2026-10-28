@@ -62,3 +62,17 @@ test('olympiad practice fixture shows its problems before expanding the group', 
   await group.click()
   await expect(page.getByRole('button', { name: /Развернуть Задачи для практики/ })).toHaveAttribute('aria-expanded', 'false')
 })
+
+test('source queue uses the shared upload and remains visible to the parent', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 820 })
+  await page.getByRole('button', { name: 'Страница олимпиады' }).click()
+  await page.getByRole('button', { name: 'Ученик', exact: true }).click()
+  const queue = page.getByRole('region', { name: 'Свои варианты' })
+  await queue.getByText('Загрузить свой вариант').click()
+  await queue.locator('input[type=file]').setInputFiles({ name: 'sheet.png', mimeType: 'image/png', buffer: Buffer.from('fixture') })
+  await expect(queue.getByText('3 фото')).toBeVisible()
+  await expect(queue.getByText(/обработка условий ожидается/)).toBeVisible()
+  await page.getByRole('button', { name: 'Родитель', exact: true }).click()
+  await expect(queue.getByText('3 фото')).toBeVisible()
+  await expect(queue.locator('input[type=file]')).toHaveCount(0)
+})

@@ -38,10 +38,10 @@ export default function OlympiadPage({ familyId, childId, olympiadId, parent, da
     {error ? <p role="alert">{error}</p> : !tasks || !dashboard || !catalog || (!parent && !selections) ? <p role="status">Открываем олимпиаду…</p> : !parent && !selections?.includes(olympiadId) ? <p role="alert">Эту олимпиаду ещё не включил родитель.</p> : !olympiad ? <p role="alert">Сведения об олимпиаде недоступны.</p> : <>
       <h1>{olympiad.title}</h1>{olympiad.subject && <p>{olympiad.subject}</p>}{olympiad.schedule && <p>{olympiad.schedule}</p>}
       <p>Подготовка — дополнительная работа. Текущие конкурсные задачи выполняются по правилам организатора.</p>
-      {!matching.length ? <p>Материалы подготовки пока не опубликованы.</p> : matching.map(task => {
+      {!matching.length ? <p>Материалы подготовки пока не опубликованы.</p> : <><h2>Практика</h2><p>Задач: {matching.filter(task => !task.sourceIntake).length}. Можно начинать с любой.</p>{[...matching.filter(task => !task.sourceIntake), ...matching.filter(task => task.sourceIntake)].map((task, index) => {
         const dayToken = projectionReady ? dashboard.days.find(day => day.date === task.projectionSourceDate)?.dayToken : null
-        return !dayToken ? <p key={task.id} role="alert">«{task.title}»: страница подготовки ещё не опубликована.</p> : <div key={task.id}>{renderPractice ? renderPractice(task, dayToken, parent) : <DayPage key={`${familyId}/${childId}/${dayToken}/${task.id}`} token={dayToken} parent={parent} headerReturnTarget={null} olympiadScope={{ familyId, childId, olympiadId, taskId: task.id, testTokens: task.testTokens }} />}</div>
-      })}
+        return !dayToken ? <p key={task.id} role="alert">«{task.title}»: страница подготовки ещё не опубликована.</p> : <div key={task.id}>{renderPractice ? renderPractice(task, dayToken, parent) : <DayPage key={`${familyId}/${childId}/${dayToken}/${task.id}`} token={dayToken} parent={parent} headerReturnTarget={null} olympiadScope={{ familyId, childId, olympiadId, taskId: task.id, testTokens: task.testTokens, number: index + 1 }} />}</div>
+      })}</>}
     </>}
   </section>
 }

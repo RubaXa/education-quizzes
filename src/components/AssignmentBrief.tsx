@@ -10,6 +10,7 @@ import './AssignmentBrief.css'
 /** @see ../../docs/decisions/family-essay-assignment-2026-10-20.md */
 export default function AssignmentBrief({ task, materialLinks = [], compact = false }: { task: DayTask; materialLinks?: DayMaterialLink[]; compact?: boolean }) {
   const familyAssigned = task.familyOrigin?.sourceSystem === 'family'
+  const olympiad = task.learningContext?.kind === 'olympiad'
   const exact = familyAssigned ? task.detail.trim() : task.meshText?.trim() || task.detail.trim()
   const hasTextbook = !familyAssigned && materialLinks.some((link) => link.sourceType === 'textbook-page')
   // @see ../../docs/modules/reviews/problem-card-design-decisions.md#flat-numbered-sheet
@@ -21,7 +22,7 @@ export default function AssignmentBrief({ task, materialLinks = [], compact = fa
     {hasTextbook && <small className="day-assignment-explanation">Страницы учебника — ниже. Объём задания определяет запись МЭШ.</small>}
   </details>
   return <div className="day-assignment-brief">
-    <div className="day-assignment-brief-heading"><strong>{familyAssigned ? 'Подготовка Education' : 'Задание учителя'}</strong><span>{familyAssigned ? 'По просьбе родителя' : task.meshText ? 'МЭШ' : 'Источник уточняется'}</span></div>
+    <div className="day-assignment-brief-heading"><strong>{olympiad ? 'Условие' : familyAssigned ? 'Подготовка Education' : 'Задание учителя'}</strong>{!olympiad && <span>{familyAssigned ? 'По просьбе родителя' : task.meshText ? 'МЭШ' : 'Источник уточняется'}</span>}</div>
     <p>{exact}</p>
     {hasTextbook && <small className="day-assignment-explanation">Страницы учебника — ниже. Объём задания определяет запись МЭШ.</small>}
   </div>
