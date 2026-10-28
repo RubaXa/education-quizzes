@@ -723,3 +723,32 @@ it.each([true, false])('places tests in a separate olympiad section for parent=%
     expect(target.textContent).not.toContain('Практическая задача')
   } finally { await act(async () => root.unmount()); target.remove(); host.remove() }
 })
+
+it.each([true, false])('shows contest source and preserves upload without AI help for parent=%s', async parent => {
+  const task = { id: 'contest-problem', title: 'Задача 1', detail: 'Условие на фото.', source: 'Education', kind: 'written' as const, status: 'unknown' as const, optional: true, competitionUntil: '2999-01-01T00:00:00.000Z', learningContext: { kind: 'olympiad' as const, id: 'o1' } }
+  scene.page = { ...page(), familyId: 'family', childId: 'child', subjects: [{ ...page().subjects[0], tasks: [task] }], testPlacements: [] }
+  scene.role = parent ? 'parent' : 'student'
+  const host = document.createElement('div'); document.body.append(host); const root = createRoot(host)
+  try {
+    await act(async () => root.render(<DayPage token="role-day" parent={parent} headerReturnTarget={null} olympiadScope={{ familyId: 'family', childId: 'child', olympiadId: 'o1', taskId: task.id, testTokens: [] }} />))
+    const card = host.querySelector<HTMLDetailsElement>('.problem-card')!
+    await act(async () => { card.open = true; card.dispatchEvent(new Event('toggle')) })
+    expect(card.textContent).toContain('подсказки и автоматическая проверка недоступны')
+    expect(card.textContent).not.toContain('Попросить помощь')
+    expect(Boolean(card.querySelector('input[type=file]'))).toBe(!parent)
+  } finally { await act(async () => root.unmount()); host.remove() }
+})
+
+it.each([true, false])('marks a linked source photo as added to olympiad practice, parent=%s', async parent => {
+  const id = 'family-intake', uploadId = 'photo-12345678901234567890'
+  const task = { id, title: 'Свои задачи', detail: '', source: 'Education', kind: 'written' as const, status: 'unknown' as const, optional: true, sourceIntake: { kind: 'olympiad-sheet' as const }, learningContext: { kind: 'olympiad' as const, id: 'o1' } }
+  scene.page = { ...page(), familyId: 'family', childId: 'child', subjects: [{ ...page().subjects[0], tasks: [task] }], testPlacements: [] }
+  scene.uploads = [{ id: `student-token:${uploadId}`, taskId: id, status: 'pending' }]
+  scene.role = parent ? 'parent' : 'student'
+  const host = document.createElement('div'); document.body.append(host); const root = createRoot(host)
+  try {
+    await act(async () => root.render(<DayPage token="role-day" parent={parent} headerReturnTarget={null} olympiadScope={{ familyId: 'family', childId: 'child', olympiadId: 'o1', taskId: id, testTokens: [], sourcePhotoIds: [uploadId] }} />))
+    expect(host.textContent).toContain('задачи добавлены в практику')
+    expect(host.textContent).not.toContain('обработка условий ожидается')
+  } finally { await act(async () => root.unmount()); host.remove() }
+})

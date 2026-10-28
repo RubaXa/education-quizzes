@@ -468,19 +468,22 @@
       }
     },
     "day/pipeline-contract.mjs": {
-      "sha256": "0c469c2b619ffd5cfa6b092840a85add7a569df39f62999403a8428f4c7095ac",
-      "record": "docs/decisions/olympiad-source-links-2026-10-28.md",
+      "sha256": "69c0d6a3a7596040299c907a30cac09dca6cd14442913d89241a74ee1b2d97a0",
+      "record": "docs/decisions/olympiad-firebase-independence-2026-10-28.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md"
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/services/telegram-bot/education-sync-dispatch.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "scripts/firestore-rules-help-emulator.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
         "day/family-assignment.test.mjs",
-        "src/DayPage.assignmentQuiz.integration.test.tsx"
+        "sync/task-route.test.mjs",
+        "packages/telegram-notifications/application/education-sync-action-store.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 28.10.2026 поручил выделить задачи из фотографий, связывать дубликаты и опубликовать после интеграционных тестов."
+        "evidence": "Родитель попросил независимо обработать Firebase и добавить фотографии его задач как карточки с загрузкой ответов."
       }
     },
     "day/placement-integrity.mjs": {
@@ -1251,20 +1254,22 @@
       }
     },
     "packages/telegram-notifications/application/education-sync-dispatcher.mjs": {
-      "sha256": "f8e8f293a85035dc7bc6d5f84c7f2dd92527662ef056718addb016c3bc7055f4",
-      "record": "docs/decisions/source-wait-generations-2026-10-22.md",
+      "sha256": "a25d80a899bb55a77ead1f99dad08cf344e40f44ecd10253c4a3e3bc24657edf",
+      "record": "docs/decisions/olympiad-firebase-independence-2026-10-28.md",
       "specs": [
-        "docs/services/telegram-bot/education-sync-dispatch.md"
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/services/telegram-bot/education-sync-dispatch.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "packages/telegram-notifications/application/education-sync-action-store.test.mjs",
-        "packages/telegram-notifications/application/education-sync-dispatch-store.test.mjs",
-        "packages/telegram-notifications/adapters/worker-loop.test.mjs",
-        "scripts/education-sync-dispatch.test.mjs"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "day/family-assignment.test.mjs",
+        "sync/task-route.test.mjs",
+        "packages/telegram-notifications/application/education-sync-action-store.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь 22.10.2026 сообщил, что события МЭШ и действия поступают, но автоматическая синхронизация не запускается; требуется исправление цепочки запуска."
+        "evidence": "Родитель попросил независимо обработать Firebase и добавить фотографии его задач как карточки с загрузкой ответов."
       }
     },
     "packages/telegram-notifications/application/identity.mjs": {
@@ -1929,19 +1934,22 @@
       }
     },
     "scripts/day.mjs": {
-      "sha256": "eaafea0e9b0a82680226fc3bdaeee4c2f85cad31d7bdb7440ad9f48e0061af2e",
-      "record": "docs/decisions/olympiad-source-links-2026-10-28.md",
+      "sha256": "68f24d9bfa4da5eeb1557cdd3377a9beb3bce7aa99eb28111f0b16ef00b24bd1",
+      "record": "docs/decisions/olympiad-firebase-independence-2026-10-28.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md"
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/services/telegram-bot/education-sync-dispatch.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "scripts/firestore-rules-help-emulator.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
         "day/family-assignment.test.mjs",
-        "src/DayPage.assignmentQuiz.integration.test.tsx"
+        "sync/task-route.test.mjs",
+        "packages/telegram-notifications/application/education-sync-action-store.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 28.10.2026 поручил выделить задачи из фотографий, связывать дубликаты и опубликовать после интеграционных тестов."
+        "evidence": "Родитель попросил независимо обработать Firebase и добавить фотографии его задач как карточки с загрузкой ответов."
       }
     },
     "scripts/direct-upload-worker.mjs": {
@@ -2618,21 +2626,22 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "3bb2589fac6a398e7eb769b0b0ff9dd582977973c477be63754d226f8f0da303",
-      "record": "docs/decisions/olympiad-source-photo-crop-2026-10-28.md",
+      "sha256": "c5125288ce8eddc6c5a508e77737c095b4a3146b85d3b5bc0090d91c9005a902",
+      "record": "docs/decisions/olympiad-firebase-independence-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
+        "docs/services/telegram-bot/education-sync-dispatch.md",
         "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "day/family-assignment.test.mjs",
-        "src/components/LinkedWorkPhotos.test.tsx",
         "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/lib/browserAccessTrace.test.ts"
+        "day/family-assignment.test.mjs",
+        "sync/task-route.test.mjs",
+        "packages/telegram-notifications/application/education-sync-action-store.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель попросил показывать в карточке задачи оригинальный фрагмент загруженной учеником фотографии."
+        "evidence": "Родитель попросил независимо обработать Firebase и добавить фотографии его задач как карточки с загрузкой ответов."
       }
     },
     "src/UiKit.css": {
@@ -2651,21 +2660,22 @@
       }
     },
     "src/UiKit.tsx": {
-      "sha256": "784c7f20c2e3ab5d6ae27a3170292bbeed88ba1365fb0e04f7f81b4ce747d06e",
-      "record": "docs/decisions/olympiad-source-photo-crop-2026-10-28.md",
+      "sha256": "6c7d8459be4d6cd5e28f71682efcc14cdfef7b2f1c8ce21fa6345506db3e7c7f",
+      "record": "docs/decisions/olympiad-firebase-independence-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
+        "docs/services/telegram-bot/education-sync-dispatch.md",
         "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "day/family-assignment.test.mjs",
-        "src/components/LinkedWorkPhotos.test.tsx",
         "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/lib/browserAccessTrace.test.ts"
+        "day/family-assignment.test.mjs",
+        "sync/task-route.test.mjs",
+        "packages/telegram-notifications/application/education-sync-action-store.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель попросил показывать в карточке задачи оригинальный фрагмент загруженной учеником фотографии."
+        "evidence": "Родитель попросил независимо обработать Firebase и добавить фотографии его задач как карточки с загрузкой ответов."
       }
     },
     "src/WeekendMathSlot.css": {
@@ -3833,20 +3843,22 @@
       }
     },
     "src/components/WorkPhotoGallery.tsx": {
-      "sha256": "a39d11ab262976a5ceebf839e1c19259afd171933ba484b05e4b7d467ad7ef2d",
-      "record": "docs/decisions/olympiad-practice-queue-2026-10-28.md",
+      "sha256": "1d53e472b2cefd645c9ccb30edb036c698aa9b301b9b88f496d2f258adfbbc38",
+      "record": "docs/decisions/olympiad-firebase-independence-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
+        "docs/services/telegram-bot/education-sync-dispatch.md",
         "docs/shared/design/ui-kit.md"
       ],
       "tests": [
         "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/components/OlympiadPage.integration.test.tsx",
-        "src/components/WorkPhotoGallery.test.tsx"
+        "day/family-assignment.test.mjs",
+        "sync/task-route.test.mjs",
+        "packages/telegram-notifications/application/education-sync-action-store.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 28.10.2026 утвердил список задач, загрузку решения и очередь фотографий и поручил реализовать без дополнительных вопросов."
+        "evidence": "Родитель попросил независимо обработать Firebase и добавить фотографии его задач как карточки с загрузкой ответов."
       }
     },
     "src/components/WorkReview.tsx": {
@@ -4171,21 +4183,22 @@
       }
     },
     "src/lib/dayStore.ts": {
-      "sha256": "d1f3f3f43568faf4e9d811c65876ea647d2619b212d9feb1440bf14d83fdbbd6",
-      "record": "docs/decisions/olympiad-source-photo-crop-2026-10-28.md",
+      "sha256": "a170f727bdc485091356019ba9dbb40cceb916ae10dca93aabd0386f78ec4638",
+      "record": "docs/decisions/olympiad-firebase-independence-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
+        "docs/services/telegram-bot/education-sync-dispatch.md",
         "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "day/family-assignment.test.mjs",
-        "src/components/LinkedWorkPhotos.test.tsx",
         "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/lib/browserAccessTrace.test.ts"
+        "day/family-assignment.test.mjs",
+        "sync/task-route.test.mjs",
+        "packages/telegram-notifications/application/education-sync-action-store.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель попросил показывать в карточке задачи оригинальный фрагмент загруженной учеником фотографии."
+        "evidence": "Родитель попросил независимо обработать Firebase и добавить фотографии его задач как карточки с загрузкой ответов."
       }
     },
     "src/lib/educationEventProducer.ts": {
@@ -4222,20 +4235,22 @@
       }
     },
     "src/lib/educationStore.ts": {
-      "sha256": "5b9effda3ef42c8374ba8347889e0a786c65ad068cd4c7523e29f8480348103d",
-      "record": "docs/decisions/olympiad-practice-queue-2026-10-28.md",
+      "sha256": "1e920c55c689657c2d52439677f0359b45ae5334a98f6cd4b7a6169c8663343f",
+      "record": "docs/decisions/olympiad-firebase-independence-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
+        "docs/services/telegram-bot/education-sync-dispatch.md",
         "docs/shared/design/ui-kit.md"
       ],
       "tests": [
         "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/components/OlympiadPage.integration.test.tsx",
-        "src/components/WorkPhotoGallery.test.tsx"
+        "day/family-assignment.test.mjs",
+        "sync/task-route.test.mjs",
+        "packages/telegram-notifications/application/education-sync-action-store.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 28.10.2026 утвердил список задач, загрузку решения и очередь фотографий и поручил реализовать без дополнительных вопросов."
+        "evidence": "Родитель попросил независимо обработать Firebase и добавить фотографии его задач как карточки с загрузкой ответов."
       }
     },
     "src/lib/familyBookUpload.ts": {
@@ -5418,19 +5433,22 @@
       }
     },
     "sync/event-task-artifact.mjs": {
-      "sha256": "e7f9a307fb536797ad06474dda1f7028060b085a5f44dda83e1774729fc11ece",
-      "record": "docs/decisions/olympiad-source-links-2026-10-28.md",
+      "sha256": "48a82db7dc618255cc6530ac41ca06f9f8992cb707bbf27fa9e935bc1683c102",
+      "record": "docs/decisions/olympiad-firebase-independence-2026-10-28.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md"
+        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/services/telegram-bot/education-sync-dispatch.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "scripts/firestore-rules-help-emulator.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
         "day/family-assignment.test.mjs",
-        "src/DayPage.assignmentQuiz.integration.test.tsx"
+        "sync/task-route.test.mjs",
+        "packages/telegram-notifications/application/education-sync-action-store.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 28.10.2026 поручил выделить задачи из фотографий, связывать дубликаты и опубликовать после интеграционных тестов."
+        "evidence": "Родитель попросил независимо обработать Firebase и добавить фотографии его задач как карточки с загрузкой ответов."
       }
     },
     "sync/event-task-export.mjs": {
@@ -5650,21 +5668,22 @@
       }
     },
     "day/family-assignment.mjs": {
-      "sha256": "bbc919792b257ce2e39773c0a3625fa041d5cc2598becdf46a9deb5f8b9401eb",
-      "record": "docs/decisions/olympiad-source-photo-crop-2026-10-28.md",
+      "sha256": "9019ef9278aff037556620edb85ba9e5c0e1edcba46312e07340f63ba910251e",
+      "record": "docs/decisions/olympiad-firebase-independence-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
+        "docs/services/telegram-bot/education-sync-dispatch.md",
         "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "day/family-assignment.test.mjs",
-        "src/components/LinkedWorkPhotos.test.tsx",
         "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/lib/browserAccessTrace.test.ts"
+        "day/family-assignment.test.mjs",
+        "sync/task-route.test.mjs",
+        "packages/telegram-notifications/application/education-sync-action-store.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель попросил показывать в карточке задачи оригинальный фрагмент загруженной учеником фотографии."
+        "evidence": "Родитель попросил независимо обработать Firebase и добавить фотографии его задач как карточки с загрузкой ответов."
       }
     },
     "day/family-dashboard-delta.mjs": {
@@ -6154,19 +6173,22 @@
       }
     },
     "sync/task-route.mjs": {
-      "sha256": "046def256ffb8268bfe1fa2142acd449cbb01e9de6620f05e2418e0b6508812c",
-      "record": "docs/decisions/olympiad-family-screen-2026-10-27.md",
+      "sha256": "11aeafa7ddb3c6649b798209a22402ecd84d4a90b9093853caea0d850d94cc87",
+      "record": "docs/decisions/olympiad-firebase-independence-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
-        "docs/modules/synchronization/education-pipeline.md"
+        "docs/services/telegram-bot/education-sync-dispatch.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "sync/olympiad-help.test.mjs",
-        "sync/job-queue-fence.test.mjs"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "day/family-assignment.test.mjs",
+        "sync/task-route.test.mjs",
+        "packages/telegram-notifications/application/education-sync-action-store.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь согласовал добавление учеником листа условий и его обработку через общую синхронизацию олимпиадных задач."
+        "evidence": "Родитель попросил независимо обработать Firebase и добавить фотографии его задач как карточки с загрузкой ответов."
       }
     },
     "operator/route-plan.mjs": {
@@ -6280,20 +6302,22 @@
       }
     },
     "src/components/OlympiadPage.tsx": {
-      "sha256": "561a13992b7b46a04d5563ef6ab921d971d86e5805d7279a05144515bac039f1",
-      "record": "docs/decisions/olympiad-practice-sections-2026-10-28.md",
+      "sha256": "46e8ad7d894d4a1e149be38cbcc72f6ab005fedd3dd7dfbb4eacf47d78a5210a",
+      "record": "docs/decisions/olympiad-firebase-independence-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
+        "docs/services/telegram-bot/education-sync-dispatch.md",
         "docs/shared/design/ui-kit.md"
       ],
       "tests": [
         "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/components/OlympiadPage.integration.test.tsx",
-        "src/UiKit.test.tsx"
+        "day/family-assignment.test.mjs",
+        "sync/task-route.test.mjs",
+        "packages/telegram-notifications/application/education-sync-action-store.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель сообщил, что задачи слиплись и сливаются с тестами, и попросил отдельный блок практики."
+        "evidence": "Родитель попросил независимо обработать Firebase и добавить фотографии его задач как карточки с загрузкой ответов."
       }
     },
     "src/components/OlympiadWrittenPractice.tsx": {
@@ -6697,20 +6721,22 @@
       }
     },
     "src/components/OlympiadSourceQueue.tsx": {
-      "sha256": "71a47839615e00ac3be89b57546902a1bfabffea4c7cb9769692cd1fc9fafb48",
-      "record": "docs/decisions/olympiad-practice-queue-2026-10-28.md",
+      "sha256": "962525fb324f40a63020c6bac2011cd7b91eaa8b2e27e3fedc00bb71e82b890b",
+      "record": "docs/decisions/olympiad-firebase-independence-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
+        "docs/services/telegram-bot/education-sync-dispatch.md",
         "docs/shared/design/ui-kit.md"
       ],
       "tests": [
         "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/components/OlympiadPage.integration.test.tsx",
-        "src/components/WorkPhotoGallery.test.tsx"
+        "day/family-assignment.test.mjs",
+        "sync/task-route.test.mjs",
+        "packages/telegram-notifications/application/education-sync-action-store.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 28.10.2026 утвердил список задач, загрузку решения и очередь фотографий и поручил реализовать без дополнительных вопросов."
+        "evidence": "Родитель попросил независимо обработать Firebase и добавить фотографии его задач как карточки с загрузкой ответов."
       }
     },
     "src/components/OlympiadReferences.tsx": {

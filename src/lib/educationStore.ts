@@ -98,7 +98,7 @@ export async function setOlympiadSelection(familyId: string, childId: string, ol
   })
 }
 
-export type FamilyOlympiadTask = { id: string; title: string; dueDate: string; projectionSourceDate: string; learningContext: { kind: 'olympiad'; id: string }; testTokens: string[]; sourceIntake?: { kind: 'olympiad-sheet' } }
+export type FamilyOlympiadTask = { id: string; title: string; dueDate: string; projectionSourceDate: string; learningContext: { kind: 'olympiad'; id: string }; testTokens: string[]; competitionNumber?: number; sourcePhotoIds?: string[]; sourceIntake?: { kind: 'olympiad-sheet' } }
 /** Uses the existing family task collection and its membership rules.
  * @see ../../docs/modules/assessments/olympiad-preparation.md */
 export function watchFamilyOlympiadTasks(familyId: string, childId: string, onChange: (tasks: FamilyOlympiadTask[]) => void, onError: (error: Error) => void) {
@@ -111,7 +111,7 @@ export function watchFamilyOlympiadTasks(familyId: string, childId: string, onCh
         !context || context.kind !== 'olympiad' || typeof context.id !== 'string' || !/^[A-Za-z0-9_-]{1,120}$/.test(context.id) ||
         typeof value.title !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value.dueDate ?? '') || !/^\d{4}-\d{2}-\d{2}$/.test(value.projectionSourceDate ?? '') ||
         !Array.isArray(value.testPlacements) || value.testPlacements.some((x: { token?: unknown }) => typeof x?.token !== 'string' || !/^[A-Za-z0-9_-]{24,64}$/.test(x.token))) continue
-      tasks.push({ id: item.id, title: value.title, dueDate: value.dueDate, projectionSourceDate: value.projectionSourceDate, learningContext: { kind: 'olympiad', id: context.id }, testTokens: value.testPlacements.map((x: { token: string }) => x.token), ...(value.sourceIntake?.kind === 'olympiad-sheet' ? { sourceIntake: { kind: 'olympiad-sheet' as const } } : {}) })
+      tasks.push({ id: item.id, title: value.title, dueDate: value.dueDate, projectionSourceDate: value.projectionSourceDate, learningContext: { kind: 'olympiad', id: context.id }, testTokens: value.testPlacements.map((x: { token: string }) => x.token), ...(Number.isSafeInteger(value.competitionNumber) && value.competitionNumber > 0 ? { competitionNumber: value.competitionNumber } : {}), ...(Array.isArray(value.learnerOrigin?.uploadIds) ? { sourcePhotoIds: value.learnerOrigin.uploadIds.filter((id: unknown): id is string => typeof id === 'string') } : {}), ...(value.sourceIntake?.kind === 'olympiad-sheet' ? { sourceIntake: { kind: 'olympiad-sheet' as const } } : {}) })
     }
     onChange(tasks)
   }, onError)

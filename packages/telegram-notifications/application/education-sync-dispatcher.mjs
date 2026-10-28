@@ -304,6 +304,8 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
         const snap = await tx.get(ref)
         if (!snap.exists) return null
         const state = snap.data()
+        const separated = claimBlockedMixedActions({ tx, ref, state, now, workerId })
+        if (separated) return separated
         if (isRecoverableSourceWait(state, now)) return claimSourceWaitRecovery({ tx, ref, state, now, workerId })
         const laneClaim = claimPersistedActionLane({ tx, ref, state, now, workerId })
         if (laneClaim) return laneClaim
@@ -585,7 +587,8 @@ export function buildMessage(requestId, claimScriptPath = '/PATH/scripts/educati
   // Always consult the exporter: the claim, not the old message, freezes the range.
   const actionInstruction = `After starting the required full verification, process the event-action range frozen by your claim with the exact task exporter: run ${run(`tasks --request ${requestId} --claim-file ${claimFile}`)}, then follow the private manifest references. Pending changes are merged at first claim. Do not broaden the event range; the full inbox and Mesh collection are still required.`
   const meshInstruction = 'The user has authorized standard Mesh material synchronization using the established family archive and public-link workflow without per-file confirmation prompts.'
-  const instruction = [fullSyncInstruction, meshInstruction, actionInstruction].filter(Boolean).join(' ')
+  const independentAction = _workKinds.length === 1 && _workKinds[0] === 'action' && _batch.independentSourceBlock === true
+  const instruction = independentAction ? `Process this exact Firebase action batch independently; the unrelated Mesh source is blocked and must not prevent this work. Run ${run(`tasks --request ${requestId} --claim-file ${claimFile}`)}, follow the private manifest, verify source and both roles, and preserve the Mesh block. Do not mark the full source cycle complete.` : [fullSyncInstruction, meshInstruction, actionInstruction].filter(Boolean).join(' ')
   return `${instruction} This message is only a dispatch request. Request ID: ${requestId}. First claim it with: ${run(`claim --request ${requestId}`)}. If the result is busy, running, completed, blocked, or anything other than claimed, stop without syncing. Keep the private claim file path returned by claim. Renew the claim with ${run(`heartbeat --request ${requestId} --claim-file ${claimFile}`)} between long workflow stages. After the requested workflow succeeds, run ${run(`complete --request ${requestId} --claim-file ${claimFile}`)}. Block only for a genuine runtime/credentials failure, an explicit external tool policy denial, or a human review requirement that applies beyond the already authorized standard flow; do not block to ask for per-file confirmation. Report the actual blocker and run ${run(`block --request ${requestId} --claim-file ${claimFile} --reason permission_required`)} (use source_unavailable or manual_review_required when those apply). For an ordinary retryable workflow failure, use ${run(`fail --request ${requestId} --claim-file ${claimFile}`)}. A successful queue acknowledgement never means the sync completed.`
 }
 
@@ -717,6 +720,23 @@ function claimSourceWaitRecovery({ tx, ref, state, now, workerId }) {
     actionAfterGeneration: hasActionRange ? lower : 0, actionThroughGeneration: hasActionRange ? upper : null, workerId }
 }
 
+/** A failed source batch must not strand already-frozen Firebase actions.
+ * Preserve the blocked source request; create exactly one independent action lane. */
+function claimBlockedMixedActions({ tx, ref, state, now, workerId }) {
+  if (state.status !== 'blocked' || state.blockedReasonCode !== 'source_unavailable'
+    || !Array.isArray(state.sendingKinds) || !state.sendingKinds.includes('mesh') || !state.sendingKinds.includes('action')
+    || !Number.isInteger(state.completedActionGeneration) || !Number.isInteger(state.sendingActionThroughGeneration)
+    || state.sendingActionThroughGeneration <= state.completedActionGeneration
+    || state.sendingActionThroughGeneration > state.generation
+    || ![undefined, null, 'completed', 'superseded'].includes(state.actionLane?.status)) return null
+  const requestId = randomUUID()
+  const lane = { requestId, status: 'sending', generation: state.sendingActionThroughGeneration,
+    sendingGeneration: state.sendingActionThroughGeneration, actionAfterGeneration: state.completedActionGeneration,
+    actionThroughGeneration: state.sendingActionThroughGeneration, workerId, leaseUntil: new Date(Date.parse(now) + 30_000).toISOString() }
+  tx.set(ref, { ...state, actionLane: lane }, { merge: false })
+  return { requestId, generation: lane.sendingGeneration, workKinds: ['action'], actionAfterGeneration: lane.actionAfterGeneration, actionThroughGeneration: lane.actionThroughGeneration, workerId, independentSourceBlock: true }
+}
+
 function claimPersistedActionLane({ tx, ref, state, now, workerId }) {
   const lane = state.actionLane
   if (state.status !== 'blocked' || state.blockedReasonCode !== 'source_unavailable'
@@ -752,7 +772,7 @@ function claimPersistedActionLane({ tx, ref, state, now, workerId }) {
     leaseUntil: new Date(Date.parse(now) + 30_000).toISOString(), retryAt: null }
   tx.set(ref, { ...state, actionLane }, { merge: false })
   return { requestId: lane.requestId, generation: lane.sendingGeneration, workKinds: ['action'],
-    actionAfterGeneration: lane.actionAfterGeneration, actionThroughGeneration: lane.actionThroughGeneration, workerId }
+    actionAfterGeneration: lane.actionAfterGeneration, actionThroughGeneration: lane.actionThroughGeneration, workerId, independentSourceBlock: true }
 }
 
 function makeSourceIssue({ requestId = null, attemptedGeneration, currentGeneration, blockedAt }) {

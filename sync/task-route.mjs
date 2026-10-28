@@ -98,12 +98,13 @@ export function eventTaskRoute(eventType, inputs = {}) {
   const task = inputs.context?.task
   const subject = lessonSubjectKey(inputs.context?.subject) ?? 'generic'
   const olympiadSheet = task?.sourceIntake?.kind === 'olympiad-sheet' && task?.learningContext?.kind === 'olympiad' && task?.optional === true
+  const activeCompetition = Boolean(task?.competitionUntil && Number.isFinite(Date.parse(task.competitionUntil)) && Date.now() <= Date.parse(task.competitionUntil))
   const sourceMaterial = inputs.source?.purpose === 'source-material' || Boolean(task && openMaterialRequest(task))
-  const next = eventType === 'upload.confirmed' ? olympiadSheet ? 'ingest-olympiad-sheet' : sourceMaterial ? 'review-source-material' : 'review-written-work'
+  const next = activeCompetition && ['upload.confirmed', 'help.requested'].includes(eventType) ? 'hold-competition-solution' : eventType === 'upload.confirmed' ? olympiadSheet ? 'ingest-olympiad-sheet' : sourceMaterial ? 'review-source-material' : 'review-written-work'
     : ({ 'help.requested': 'address-help-request', 'quiz.submitted': 'review-submitted-quiz',
       'quiz.followup_requested': 'history-based-followup', 'material.ready': 'identify-and-link-family-material' })[eventType] ?? 'unsupported-event'
   const route = { eventType, next, subject, adapter: adapters[subject] ?? 'subject-aware-guidance:generic', complete: false,
-    steps: next === 'ingest-olympiad-sheet' ? ['read-confirmed-photos', 'check-competition-assistance-policy', 'identify-and-split-conditions', 'verify-source-and-solution', 'match-existing-tasks', 'publish-family-tasks-and-readback']
+    steps: next === 'hold-competition-solution' ? ['retain-upload', 'wait-for-competition-close'] : next === 'ingest-olympiad-sheet' ? ['read-confirmed-photos', 'check-competition-assistance-policy', 'identify-and-split-conditions', 'verify-source-and-solution', 'match-existing-tasks', 'publish-family-tasks-and-readback']
       : next === 'review-source-material' ? ['source-analysis-without-grade', 'resolve-request-if-supported', 'replan-task']
       : next === 'review-submitted-quiz' ? ['audit-key-and-alternatives', 'review-open-answers', 'publish-review', 'assessment-decision-graph']
         : next === 'history-based-followup' ? ['quiz-history-full-chain', 'review-open-answers', 'assessment-decision-graph', 'validate-and-publish']

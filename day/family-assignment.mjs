@@ -32,6 +32,7 @@ export function familyAssignmentErrors(task, { familyId, childId, taskId } = {})
   if (task.sourceIntake !== undefined && (task.sourceIntake?.kind !== 'olympiad-sheet' || Object.keys(task.sourceIntake ?? {}).some(key => key !== 'kind') || task.learningContext?.kind !== 'olympiad' || task.optional !== true)) errors.push('Приём фото условий допустим только для дополнительной олимпиады.')
   if (task.learnerOrigin !== undefined && (task.learningContext?.kind !== 'olympiad' || task.optional !== true || task.sourceIntake || !ID.test(task.learnerOrigin?.intakeTaskId ?? '') || !Array.isArray(task.learnerOrigin?.uploadIds) || !task.learnerOrigin.uploadIds.length || new Set(task.learnerOrigin.uploadIds).size !== task.learnerOrigin.uploadIds.length || task.learnerOrigin.uploadIds.some(id => !/^[A-Za-z0-9_-]{20,80}$/.test(id)) || Object.keys(task.learnerOrigin ?? {}).some(key => !['intakeTaskId','uploadIds','crop'].includes(key)))) errors.push('Происхождение ученика требует подтверждённый приём и уникальные фотографии условий олимпиады.')
   if (task.learnerOrigin?.crop !== undefined && (!validLearnerSourceCrop(task.learnerOrigin.crop) || task.learnerOrigin.uploadIds?.length !== 1)) errors.push('Фрагмент требует проверенные границы одного исходного фото и его SHA-256.')
+  if (task.competitionUntil !== undefined && (!Number.isInteger(task.competitionNumber) || task.competitionNumber < 1 || task.competitionNumber > 100 || task.learningContext?.kind !== 'olympiad' || !task.learnerOrigin?.crop || !Number.isFinite(Date.parse(task.competitionUntil)))) errors.push('Для соревновательной задачи нужны проверенный фрагмент и срок ограничения помощи.')
   if (task.testPlacements !== undefined && (!Array.isArray(task.testPlacements) || task.optional !== true || !task.learningContext || task.testPlacements.length > 30 ||
     task.testPlacements.some((placement) => !placement || Object.keys(placement).some(key => key !== 'token') || !/^[A-Za-z0-9_-]{24,64}$/.test(placement.token ?? '')) ||
     new Set(task.testPlacements.map(item => item.token)).size !== task.testPlacements.length)) errors.push('Дополнительным тестам нужны уникальные безопасные ссылки.')
@@ -70,6 +71,7 @@ export function projectFamilyAssignment(task) {
     ...(task.optional === true ? { optional: true } : {}),
     ...(task.sourceIntake ? { sourceIntake: task.sourceIntake } : {}),
     ...(task.learnerOrigin ? { learnerOrigin: task.learnerOrigin } : {}),
+    ...(task.competitionUntil ? { competitionUntil: task.competitionUntil, competitionNumber: task.competitionNumber } : {}),
     ...(task.learnerSources?.length ? { learnerSources: task.learnerSources } : {}),
     steps: task.steps,
     submission: task.submission,
@@ -84,7 +86,7 @@ export function projectFamilyAssignment(task) {
 
 export function familyAssignmentProjectionSignature(task) {
   const projection = task?.familyOrigin ? task : projectFamilyAssignment(task)
-  const fields = Object.fromEntries(['id', 'title', 'detail', 'kind', 'source', 'steps', 'submission', 'cardPattern', 'cardPolicyVersion', 'outputKind', 'lessonDate', 'dueDate', 'learningContext', 'optional', 'sourceIntake', 'learnerOrigin', 'learnerSources']
+  const fields = Object.fromEntries(['id', 'title', 'detail', 'kind', 'source', 'steps', 'submission', 'cardPattern', 'cardPolicyVersion', 'outputKind', 'lessonDate', 'dueDate', 'learningContext', 'optional', 'sourceIntake', 'learnerOrigin', 'learnerSources', 'competitionUntil', 'competitionNumber']
     .filter((key) => projection[key] !== undefined).map((key) => [key, projection[key]]))
   if (projection.familyOrigin) fields.familyOrigin = Object.fromEntries(['sourceSystem', 'sourceId', 'sourceRevision']
     .filter((key) => projection.familyOrigin[key] !== undefined).map((key) => [key, projection.familyOrigin[key]]))
@@ -99,7 +101,7 @@ export function stableFamilyProjectionJson(value) {
 
 export function familyAssignmentRecordSignature(task) {
   const fields = ['id', 'familyId', 'childId', 'sourceSystem', 'sourceId', 'sourceRevision', 'subjectId', 'subjectName', 'dueDate',
-    'title', 'originalText', 'studentText', 'publication', 'evidence', 'materialIds', 'steps', 'submission', 'cardPattern', 'cardPolicyVersion', 'outputKind', 'sourceEvidence', 'dayProjectionVersion', 'learningContext', 'optional', 'testPlacements', 'projectionSourceDate', 'sourceIntake', 'learnerOrigin', 'learnerSources']
+    'title', 'originalText', 'studentText', 'publication', 'evidence', 'materialIds', 'steps', 'submission', 'cardPattern', 'cardPolicyVersion', 'outputKind', 'sourceEvidence', 'dayProjectionVersion', 'learningContext', 'optional', 'testPlacements', 'projectionSourceDate', 'sourceIntake', 'learnerOrigin', 'learnerSources', 'competitionUntil', 'competitionNumber']
   return Object.fromEntries(fields.filter((key) => task?.[key] !== undefined).map((key) => [key, task[key]]))
 }
 
