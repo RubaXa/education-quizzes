@@ -1,4 +1,5 @@
 import SharedTabs from '@/components/SharedTabs'
+import { traceOlympiad } from '@/lib/browserAccessTrace'
 import PhotoHelpPanel from '@/components/PhotoHelpPanel'
 /** @see ../docs/decisions/scoped-learner-flow-2026-10-21.md */
 /** @see ../docs/decisions/mesh-informational-entry-2026-10-21.md */
@@ -368,11 +369,14 @@ export default function DayPage({ token, parent, headerReturnTarget, olympiadSco
     return () => { active = false; stop() }
   }, [parent, hasGuidePage, helpRole, studentToken, guideReadKey])
   async function sendPhoto(photo: LocalPhoto) {
+    const intake = Boolean(olympiadScope && page?.subjects.some(subject => subject.tasks.some(task => task.id === photo.taskId && task.sourceIntake?.kind === 'olympiad-sheet')))
     setLocalPhotos((current) => current.map((item) => item.id === photo.id && item.state !== 'deleting' ? { ...item, state: 'uploading', error: undefined } : item))
     try {
       await uploadDayPhoto(studentToken, photo.taskId, photo.file, photo.id, page)
+      if (intake) traceOlympiad('source-upload-queued', 'product', 'student', 1)
       setLocalPhotos((current) => current.map((item) => item.id === photo.id && item.state !== 'deleting' ? { ...item, state: 'saved' } : item))
     } catch (cause) {
+      if (intake) traceOlympiad('source-upload-failed', 'product', 'student', 1)
       reportUiError(cause, 'Загрузка фото')
       setLocalPhotos((current) => current.map((item) => item.id === photo.id && item.state !== 'deleting'
         ? { ...item, state: 'failed', error: cause instanceof Error ? cause.message : 'Не удалось загрузить фото.' } : item))
@@ -405,6 +409,7 @@ export default function DayPage({ token, parent, headerReturnTarget, olympiadSco
   }
   function attach(task: { id: string }, files: File[]) {
     if (!files.length) return
+    if (olympiadScope && page?.subjects.some(subject => subject.tasks.some(item => item.id === task.id && item.sourceIntake?.kind === 'olympiad-sheet'))) traceOlympiad('source-selected', 'product', 'student', files.length)
     const photos = files.map((file) => {
       const previewUrl = URL.createObjectURL(file)
       photoUrls.current.add(previewUrl)
@@ -570,7 +575,7 @@ export default function DayPage({ token, parent, headerReturnTarget, olympiadSco
               const taskCard = <article className={`day-task ${task.problems?.length ? 'has-problems' : ''} ${verified || workCovered ? 'done' : submitted ? 'submitted' : ''}`} id={`day-task-${task.id}`} key={task.id}>
                 {assignments.multiple && !task.problems?.length && <div className="day-task-assignment-heading">Задание {assignmentIndex + 1} из {assignments.total}</div>}
                 <div className="day-task-row">{!task.problems?.length && <span className={`day-task-state${state.length > 24 ? ' as-text' : ''} ${verified ? 'verified' : workCovered ? 'covered' : submitted ? 'partial' : taskStatus}`}><StatusIcon size={15} status={verified ? 'complete' : uploadingWork ? 'uploading' : processing ? 'processing' : newWork ? 'waiting' : workCovered ? 'unknown' : taskStatus === 'needs-fix' ? 'needs-fix' : taskStatus === 'partial' ? 'partial' : task.kind === 'read' && linkedTest?.answered ? 'started' : taskStatus === 'unknown' && (task.kind === 'read' || cdzTask) ? 'ready' : 'unknown'} />{state}</span>}{task.kind === 'written' && <span className="day-task-type">В тетради</span>}{task.dueDate && task.dueDate !== (task.lessonDate ?? page.targetDate) && <span className="day-task-type">Сдать к {dayMonth(task.dueDate)} · МЭШ</span>}{task.originDate && task.originDate !== page.targetDate && <span className="day-task-type">Осталось с {dayMonth(task.originDate)}</span>}</div>
-                {!task.problems?.length && <h3>{task.title}</h3>}{(!task.problems?.length || !readerGroups.some((group) => group[0].sourceType === 'teacher-attachment')) && <AssignmentBrief task={task} materialLinks={taskLinks} compact={Boolean(task.problems?.length)} />}
+                {!task.problems?.length && <h3>{task.title}</h3>}{task.learnerOrigin && <span className="day-task-type">Добавлено учеником</span>}{task.learnerOrigin && <LinkedWorkPhotos taskId={task.id} uploads={uploads} pages={[page, ...(evidencePages ?? [])]} source={task.learnerOrigin} />}{(!task.problems?.length || !readerGroups.some((group) => group[0].sourceType === 'teacher-attachment')) && <AssignmentBrief task={task} materialLinks={taskLinks} compact={Boolean(task.problems?.length)} />}
                 {task.referenceDate && referencedItems.length > 0 && <div className="day-reference-results"><strong>Результаты ДЗ за {dayMonth(task.referenceDate)}</strong>{referencedItems.map((item) => <div className="day-reference-result" key={item.id}><span className={item.state === 'done' ? 'complete' : 'pending'}>{item.state === 'done' ? '✓' : '•'} {item.title}</span><small>{item.detail}</small></div>)}</div>}
                 {!parent && <TaskGuidance items={guidance.filter((item) => item.taskId === task.id && item.stageId !== 'help-response')} />}
                 {task.learnerFlow && <LearnerFlow key={`${task.id}:${JSON.stringify(task.learnerFlow)}`} flow={task.learnerFlow} />}
@@ -614,9 +619,9 @@ export default function DayPage({ token, parent, headerReturnTarget, olympiadSco
                   {task.kind === 'read' && task.testToken && task.testSlug && <a className="day-quiz-link" href={parent && linkedTest?.status !== 'submitted' && linkedTest?.previewToken ? `#/preview/${task.testSlug}~${linkedTest.previewToken}` : `#/t/${task.testSlug}~${task.testToken}`}>{parent ? linkedTest?.status === 'submitted' ? 'Результат' : 'Посмотреть вопросы' : linkedTest?.status === 'submitted' ? 'Результат' : linkedTest?.answered ? 'Продолжить тест' : 'Пройти короткий тест'} <ExternalLink size={15} /></a>}
                   {parent && !task.sourceIntake && !task.problems?.length && <span className="day-parent-status">{materialView ? materialView.label : task.referenceDate ? 'Состояние взято из исходного дня; новой работы МЭШ не назначил' : task.kind === 'written' ? taskStatus === 'verified' ? 'Работа проверена' : newWork ? 'Новая загрузка ожидает проверки' : priorWork ? 'Работа разобрана; подробности выше' : 'Подтверждённого фото пока нет' : task.kind === 'read' ? readPassed ? 'Чтение подтверждено тестом' : 'Чтение тестом пока не подтверждено' : cdzTask ? task.platformResult?.state === 'completed' ? cdzEvidenceLabel(task.platformResult) : newWork ? 'Скриншот ЦДЗ ожидает проверки' : 'Результат ЦДЗ пока не подтверждён' : 'Статус сдачи не сообщён'}</span>}
                 </div>
-                {!task.referenceDate && <>{task.learningContext?.kind === 'olympiad' && task.kind === 'written' && !task.problems?.length
+                {!task.referenceDate && <>{task.learningContext?.kind === 'olympiad' && !task.sourceIntake && task.kind === 'written' && !task.problems?.length
                   ? <PhotoHelpPanel studentToken={studentToken} taskId={task.id} parent={parent} canRequest={!parent && helpRole === 'student'} canRead={helpRole === 'student' || helpRole === 'parent'} uploads={taskUploads} help={helpRequests.find(item => item.taskId === task.id)} guidance={guidance.filter(item => item.taskId === task.id)} gallery={selection => <WorkPhotoGallery taskTitle={task.title} studentToken={studentToken} uploads={taskUploadPresentation(uploads, task.id).owned} localPhotos={localTaskPhotos} review={review} now={statusNow} onRetry={queuePhotoUpload} onDelete={deletePhoto} selection={selection} />} />
-                  : <WorkPhotoGallery taskTitle={task.title} evidenceLabel={task.materialRequest ? 'Материал для уточнения' : cdzTask ? 'Подтверждение ЦДЗ' : 'Фото работы'} studentToken={studentToken} uploads={taskUploadPresentation(uploads, task.id).owned} localPhotos={localTaskPhotos} review={review} now={statusNow} onRetry={queuePhotoUpload} onDelete={deletePhoto} />}<LinkedWorkPhotos taskId={task.id} uploads={uploads} pages={[page, ...(evidencePages ?? [])]} /></>}
+                  : <WorkPhotoGallery taskTitle={task.title} evidenceLabel={task.sourceIntake ? 'Фото условий' : task.materialRequest ? 'Материал для уточнения' : cdzTask ? 'Подтверждение ЦДЗ' : 'Фото работы'} studentToken={studentToken} uploads={taskUploadPresentation(uploads, task.id).owned} localPhotos={localTaskPhotos} review={review} now={statusNow} onRetry={queuePhotoUpload} onDelete={deletePhoto} />}<LinkedWorkPhotos taskId={task.id} uploads={uploads} pages={[page, ...(evidencePages ?? [])]} /></>}
                 {parent && <small className="day-source"><BookOpen size={14} /> {task.source}</small>}
               </article>
               if (!task.problems?.length) return taskCard

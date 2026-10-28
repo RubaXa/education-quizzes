@@ -139,7 +139,7 @@ function assertFamilyProjectionMatches(source, page, role, familyAssignments) {
   const expectedIds = expectedFamily.map((task) => task.id).sort()
   const actualIds = actualFamily.map((task) => task.id).sort()
   const publicFields = new Set(['id', 'title', 'detail', 'kind', 'status', 'source', 'familyOrigin', 'steps', 'submission',
-    'cardPattern', 'cardPolicyVersion', 'outputKind', 'lessonDate', 'dueDate', 'learningContext', 'optional'])
+    'cardPattern', 'cardPolicyVersion', 'outputKind', 'lessonDate', 'dueDate', 'learningContext', 'optional', 'sourceIntake', 'learnerOrigin'])
   const hasPrivateFields = actualFamily.some((task) => Object.keys(task).some((key) => !publicFields.has(key)))
   const invalidFamilyOrigin = actualFamily.some((task) => !task.familyOrigin || Object.keys(task.familyOrigin).some((key) => !['sourceSystem', 'sourceId', 'sourceRevision', 'projectedSourceRevision'].includes(key))
     || task.familyOrigin.sourceSystem !== 'family' || task.familyOrigin.projectedSourceRevision !== task.familyOrigin.sourceRevision)

@@ -9,6 +9,23 @@ import type { DayUpload } from '@/lib/dayStore'
 (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true
 vi.mock('./ArtifactAvatar', () => ({ WorkArtifactImage: ({ upload }: { upload: DayUpload }) => <output data-photo={upload.id}>Исходное фото</output>, WorkUploadTime: () => <time dateTime="2026-10-20T10:03:00.000Z">20 октября 2026, 13:03 МСК</time>, workUploadTimeLabel: () => 'Загружено 20 октября 2026, 13:03 МСК' }))
 
+describe('source sheet photo reference', () => {
+  it('shows only the selected original intake photo without a second upload', async () => {
+    const host = document.createElement('div'); const root = createRoot(host)
+    const upload = { id: 'day:photo-one', taskId: 'intake', status: 'pending' } as DayUpload
+    const unrelated = { id: 'day:photo-one', taskId: 'unrelated', status: 'pending' } as DayUpload
+    try {
+      await act(async () => root.render(<LinkedWorkPhotos taskId="task" uploads={[upload, unrelated]} pages={[]} source={{ intakeTaskId: 'intake', uploadIds: ['photo-one'] }} />))
+      expect(host.querySelectorAll('button')).toHaveLength(1)
+      expect(host.textContent).toContain('Фото условия')
+      await act(async () => host.querySelector<HTMLButtonElement>('button')!.click())
+      expect(host.querySelector('[data-photo]')?.getAttribute('data-photo')).toBe(upload.id)
+      expect(host.textContent).toContain('исходное фото листа')
+      expect(host.querySelector('input')).toBeNull()
+    } finally { await act(async () => root.unmount()) }
+  })
+})
+
 describe('read-only photo reference', () => {
   it('loads the original only on request, has no upload/delete action and closes on a second click', async () => {
     const host = document.createElement('div')

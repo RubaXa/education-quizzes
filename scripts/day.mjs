@@ -48,7 +48,7 @@ import { stageSchoolAlerts } from '../diary/application/school-alerts.mjs'
 import { buildFamilySourceGraph } from '../day/family-source-graph.mjs'
 import { isDeepStrictEqual } from 'node:util'
 import { findGuidanceTarget, planRevealGuidanceRepair } from '../day/guidance-repair.mjs'
-import { familyAssignmentErrors, familyAssignmentProjectionSignature, familyAssignmentRecordSignature, familyAssignmentsWithOverlay, familyGuideErrors, familyTestPlacementErrors, mergeFamilyAssignments, planFamilyTestPlacements, stableFamilyProjectionJson } from '../day/family-assignment.mjs'
+import { familyAssignmentErrors, learnerOriginErrors, familyAssignmentProjectionSignature, familyAssignmentRecordSignature, familyAssignmentsWithOverlay, familyGuideErrors, familyTestPlacementErrors, mergeFamilyAssignments, planFamilyTestPlacements, stableFamilyProjectionJson } from '../day/family-assignment.mjs'
 
 const sharedLocal = resolve('.local')
 const scoped = Boolean(process.env.EDUCATION_CHILD_WORKSPACE)
@@ -867,7 +867,7 @@ async function publishFamilyAssignment() {
   if (request.schemaVersion !== 1 || !/^\d{4}-\d{2}-\d{2}$/.test(request.sourceDate ?? '') || !request.parentGuide) fail('Нужны schemaVersion 1, sourceDate и отдельный закрытый parentGuide.')
   const owner = ownerContext()
   if (!owner?.familyId || !owner?.childId) fail('Сначала подтвердите владельца через локальный family-access.')
-  const allowedTaskFields = new Set(['id', 'familyId', 'childId', 'sourceSystem', 'sourceId', 'sourceRevision', 'subjectId', 'subjectName', 'dueDate', 'title', 'originalText', 'studentText', 'publication', 'evidence', 'materialIds', 'steps', 'submission', 'cardPattern', 'cardPolicyVersion', 'outputKind', 'dayProjectionVersion', 'learningContext', 'optional', 'testPlacements', 'sourceIntake'])
+  const allowedTaskFields = new Set(['id', 'familyId', 'childId', 'sourceSystem', 'sourceId', 'sourceRevision', 'subjectId', 'subjectName', 'dueDate', 'title', 'originalText', 'studentText', 'publication', 'evidence', 'materialIds', 'steps', 'submission', 'cardPattern', 'cardPolicyVersion', 'outputKind', 'dayProjectionVersion', 'learningContext', 'optional', 'testPlacements', 'sourceIntake', 'learnerOrigin'])
   if (Object.keys(request.task ?? {}).some((key) => !allowedTaskFields.has(key))) fail('Каноническая задача содержит поля вне разрешённого семейного формата.')
   if (request.task?.familyId !== owner.familyId || request.task?.childId !== owner.childId) fail('ID семьи и ребёнка в запросе должны точно совпасть с локальным owner; подмена владельца запрещена.')
   const task = { ...request.task, dayProjectionVersion: 1,
@@ -898,6 +898,13 @@ async function publishFamilyAssignment() {
   if (!ownerSnap.exists || ownerSnap.data().familyId !== owner.familyId || ownerSnap.data().childId !== owner.childId || ownerSnap.data().targetDate !== task.dueDate) fail('Существующая карта владельца страницы не совпадает с семьёй, ребёнком и сроком.')
   if (![studentSnap.data(), parentSnap.data()].every((page, index) => page?.kind === ['student', 'parent'][index]
     && page.familyId === owner.familyId && page.childId === owner.childId && page.targetDate === task.dueDate)) fail('Опубликованные страницы не совпадают по роли, владельцу и дате.')
+  if (task.learnerOrigin) {
+    const intakeSnap = await db.doc(`families/${owner.familyId}/children/${owner.childId}/tasks/${task.learnerOrigin.intakeTaskId}`).get()
+    const intake = intakeSnap.data()
+    const uploads = await Promise.all(task.learnerOrigin.uploadIds.map(id => db.doc(`dayUploads/${pair.student}/files/${id}`).get()))
+    const sourceErrors = learnerOriginErrors(task, intakeSnap.exists ? intake : null, uploads.map(snap => snap.exists ? { id: snap.id, ...snap.data() } : null), sourceDate)
+    if (sourceErrors.length) fail(sourceErrors.join(' '))
+  }
   const { parentGuide: _parentGuide, ...storedTaskFields } = task
   const storedTask = { ...storedTaskFields, checkedAt: Timestamp.now() }
   const guideErrors = familyGuideErrors(request.parentGuide, task)

@@ -23,6 +23,7 @@ export function familyAssignmentErrors(task, { familyId, childId, taskId } = {})
   try { learningContext(task.learningContext) } catch { errors.push('Некорректный контекст учебного материала.') }
   if (task.learningContext?.kind === 'olympiad' && task.optional !== true) errors.push('Олимпиадная практика должна оставаться дополнительной.')
   if (task.sourceIntake !== undefined && (task.sourceIntake?.kind !== 'olympiad-sheet' || Object.keys(task.sourceIntake ?? {}).some(key => key !== 'kind') || task.learningContext?.kind !== 'olympiad' || task.optional !== true)) errors.push('Приём фото условий допустим только для дополнительной олимпиады.')
+  if (task.learnerOrigin !== undefined && (task.learningContext?.kind !== 'olympiad' || task.optional !== true || task.sourceIntake || !ID.test(task.learnerOrigin?.intakeTaskId ?? '') || !Array.isArray(task.learnerOrigin?.uploadIds) || !task.learnerOrigin.uploadIds.length || new Set(task.learnerOrigin.uploadIds).size !== task.learnerOrigin.uploadIds.length || task.learnerOrigin.uploadIds.some(id => !/^[A-Za-z0-9_-]{20,80}$/.test(id)) || Object.keys(task.learnerOrigin ?? {}).some(key => !['intakeTaskId','uploadIds'].includes(key)))) errors.push('Происхождение ученика требует подтверждённый приём и уникальные фотографии условий олимпиады.')
   if (task.testPlacements !== undefined && (!Array.isArray(task.testPlacements) || task.optional !== true || !task.learningContext || task.testPlacements.length > 30 ||
     task.testPlacements.some((placement) => !placement || Object.keys(placement).some(key => key !== 'token') || !/^[A-Za-z0-9_-]{24,64}$/.test(placement.token ?? '')) ||
     new Set(task.testPlacements.map(item => item.token)).size !== task.testPlacements.length)) errors.push('Дополнительным тестам нужны уникальные безопасные ссылки.')
@@ -34,6 +35,15 @@ export function familyAssignmentErrors(task, { familyId, childId, taskId } = {})
   if (!task.submission || typeof task.submission.buttonLabel !== 'string' || !task.submission.buttonLabel.trim()
     || typeof task.submission.lead !== 'string' || !task.submission.lead.trim() || typeof task.submission.photo !== 'string' || !task.submission.photo.trim()) errors.push('Нужна явная отправка письменной работы с загрузкой фото.')
   if (!Array.isArray(task.materialIds) || task.materialIds.length) errors.push('В этой публикации нельзя добавлять неподтверждённые материалы.')
+  return errors
+}
+
+/** Check uploaded source ownership before attaching learner provenance. */
+export function learnerOriginErrors(task, intake, photos, sourceDate) {
+  if (!task.learnerOrigin) return []
+  const errors = []
+  if (!intake || intake.familyId !== task.familyId || intake.childId !== task.childId || intake.sourceIntake?.kind !== 'olympiad-sheet' || intake.learningContext?.id !== task.learningContext?.id || intake.projectionSourceDate !== sourceDate) errors.push('Источник задачи не совпадает с приёмом листа этой олимпиады.')
+  if (!Array.isArray(photos) || photos.length !== task.learnerOrigin.uploadIds.length || photos.some((photo, index) => !photo || photo.id !== task.learnerOrigin.uploadIds[index] || photo.taskId !== task.learnerOrigin.intakeTaskId || !['pending', 'reviewed'].includes(photo.status) || photo.storage?.state !== 'stored' || !/^[a-f0-9]{64}$/.test(photo.storage?.sha256 ?? ''))) errors.push('Исходные фото не подтверждены в приёме листа этого ребёнка.')
   return errors
 }
 
@@ -50,6 +60,7 @@ export function projectFamilyAssignment(task) {
     ...(task.learningContext ? { learningContext: task.learningContext } : {}),
     ...(task.optional === true ? { optional: true } : {}),
     ...(task.sourceIntake ? { sourceIntake: task.sourceIntake } : {}),
+    ...(task.learnerOrigin ? { learnerOrigin: task.learnerOrigin } : {}),
     steps: task.steps,
     submission: task.submission,
     cardPattern: task.cardPattern,
@@ -63,7 +74,7 @@ export function projectFamilyAssignment(task) {
 
 export function familyAssignmentProjectionSignature(task) {
   const projection = task?.familyOrigin ? task : projectFamilyAssignment(task)
-  const fields = Object.fromEntries(['id', 'title', 'detail', 'kind', 'source', 'steps', 'submission', 'cardPattern', 'cardPolicyVersion', 'outputKind', 'lessonDate', 'dueDate', 'learningContext', 'optional', 'sourceIntake']
+  const fields = Object.fromEntries(['id', 'title', 'detail', 'kind', 'source', 'steps', 'submission', 'cardPattern', 'cardPolicyVersion', 'outputKind', 'lessonDate', 'dueDate', 'learningContext', 'optional', 'sourceIntake', 'learnerOrigin']
     .filter((key) => projection[key] !== undefined).map((key) => [key, projection[key]]))
   if (projection.familyOrigin) fields.familyOrigin = Object.fromEntries(['sourceSystem', 'sourceId', 'sourceRevision']
     .filter((key) => projection.familyOrigin[key] !== undefined).map((key) => [key, projection.familyOrigin[key]]))
@@ -78,7 +89,7 @@ export function stableFamilyProjectionJson(value) {
 
 export function familyAssignmentRecordSignature(task) {
   const fields = ['id', 'familyId', 'childId', 'sourceSystem', 'sourceId', 'sourceRevision', 'subjectId', 'subjectName', 'dueDate',
-    'title', 'originalText', 'studentText', 'publication', 'evidence', 'materialIds', 'steps', 'submission', 'cardPattern', 'cardPolicyVersion', 'outputKind', 'sourceEvidence', 'dayProjectionVersion', 'learningContext', 'optional', 'testPlacements', 'projectionSourceDate', 'sourceIntake']
+    'title', 'originalText', 'studentText', 'publication', 'evidence', 'materialIds', 'steps', 'submission', 'cardPattern', 'cardPolicyVersion', 'outputKind', 'sourceEvidence', 'dayProjectionVersion', 'learningContext', 'optional', 'testPlacements', 'projectionSourceDate', 'sourceIntake', 'learnerOrigin']
   return Object.fromEntries(fields.filter((key) => task?.[key] !== undefined).map((key) => [key, task[key]]))
 }
 

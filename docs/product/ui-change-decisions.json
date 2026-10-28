@@ -468,7 +468,7 @@
       }
     },
     "day/pipeline-contract.mjs": {
-      "sha256": "6a63c4ecc66fb120c0a79bab6414fce3641478bff4e0f972523d6bd047f75d0e",
+      "sha256": "07c74bed7bcfbd368266912c4430a41dd680ddf22922856a5cf05ec2c2499e5b",
       "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
@@ -484,7 +484,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо потребовал использовать общие уроки, семейные права, фотографии и синхронизацию Education для олимпиад."
+        "evidence": "Пользователь поручил загружать свои листы и видеть отдельные задачи с происхождением и связанными фотографиями."
       }
     },
     "day/placement-integrity.mjs": {
@@ -1933,7 +1933,7 @@
       }
     },
     "scripts/day.mjs": {
-      "sha256": "5b54214d63da07610ee6e24dcf011e0af6d8cd5cfcee4c180ed21d78720ed231",
+      "sha256": "63728f9f0e2bf7a1b1ad1d4f37b695e9e9f97e3654c6f34500fdefacddf3d07c",
       "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
@@ -1948,7 +1948,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь согласовал добавление учеником листа условий и его обработку через общую синхронизацию олимпиадных задач."
+        "evidence": "Пользователь поручил загружать свои листы и видеть отдельные задачи с происхождением и связанными фотографиями."
       }
     },
     "scripts/direct-upload-worker.mjs": {
@@ -2630,7 +2630,7 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "c3c4197203a23d5f91d99d3ae2f3fde1cbf3a905ec6427427afdcfc1c13c1214",
+      "sha256": "536ec3ef31e13b3c415f8cb1de2a3fd626f42e39fbc7009152a857bb665cb656",
       "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
@@ -2645,7 +2645,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь потребовал сразу показывать все задачи олимпиадной практики, добавить загрузку собственных условий и использовать общие компоненты."
+        "evidence": "Пользователь поручил добавление своих задач и диагностику действий через LDD без записи содержимого фотографий."
       }
     },
     "src/UiKit.css": {
@@ -3157,11 +3157,12 @@
       }
     },
     "src/components/LinkedWorkPhotos.tsx": {
-      "sha256": "e7fba0a851853d0b0a12144edcc3ad9b486c15f4717d988589bc3f146e0d8a16",
+      "sha256": "f397eb24f2a8b6e435492fa4708bd20e9a89b5758feefbdc479d59e925a4acae",
       "record": "docs/decisions/upload-photo-timestamp-2026-10-21.md",
       "specs": [
         "docs/modules/school-diary/day-page.md",
-        "docs/shared/design/components.md"
+        "docs/shared/design/components.md",
+        "docs/modules/assessments/olympiad-preparation.md"
       ],
       "tests": [
         "src/lib/uploadTimestamp.test.ts",
@@ -3171,7 +3172,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос пользователя 21.10.2026: показывать время загрузки каждой фотографии ребёнка в подсказке и доступном названии."
+        "evidence": "Пользователь поручил загружать свои листы и видеть отдельные задачи с происхождением и связанными фотографиями."
       }
     },
     "src/components/MaterialReader.tsx": {
@@ -4075,7 +4076,7 @@
       }
     },
     "src/lib/browserAccessTrace.ts": {
-      "sha256": "768b4811278a2f78a88030769192fe1663a97e1ceec45b7a202c41fa3f60fa37",
+      "sha256": "d9c8be6daeff6572ee751ef1e820fc2ce4e7037ea95cbb03fe97e9ce9036576a",
       "record": "docs/decisions/olympiad-family-screen-2026-10-27.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
@@ -4088,7 +4089,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь поручил подключить семейные экраны олимпиады через существующий UI Kit и LDD и проверять реализацию."
+        "evidence": "Пользователь поручил добавление своих задач и диагностику действий через LDD без записи содержимого фотографий."
       }
     },
     "src/lib/dayCompatibility.ts": {
@@ -4211,7 +4212,7 @@
       }
     },
     "src/lib/dayStore.ts": {
-      "sha256": "4cec1b1d957e9a267d95a44b55c3f511c87acffa91fd2bd94defe6f3f5832b99",
+      "sha256": "47e01e831affa59dbbf6be7883bdf2b48e21bea618237be155c9f747c582cd81",
       "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
@@ -4225,7 +4226,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь согласовал добавление учеником листа условий и его обработку через общую синхронизацию олимпиадных задач."
+        "evidence": "Пользователь поручил загружать свои листы и видеть отдельные задачи с происхождением и связанными фотографиями."
       }
     },
     "src/lib/educationEventProducer.ts": {
@@ -5460,7 +5461,7 @@
       }
     },
     "sync/event-task-artifact.mjs": {
-      "sha256": "1934df81fc4189b33e834ff2e312f580bb1aeaa9a32ca00b54fd417bdff748d4",
+      "sha256": "21e241e24765d47f9b9acf502a6147951d1dbcf796ee461378c8c598aa7fc962",
       "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
@@ -5474,7 +5475,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь согласовал добавление учеником листа условий и его обработку через общую синхронизацию олимпиадных задач."
+        "evidence": "Пользователь поручил загружать свои листы и видеть отдельные задачи с происхождением и связанными фотографиями."
       }
     },
     "sync/event-task-export.mjs": {
@@ -5694,7 +5695,7 @@
       }
     },
     "day/family-assignment.mjs": {
-      "sha256": "dc7e52bd5d57e5608cdc264734c1a49fdcaeeff57f038c0a2571d40dfe8c6b30",
+      "sha256": "6122b72794c880c4ae00be0aa8d0ba1879a3d949a343929102edade4514aeecc",
       "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
@@ -5709,7 +5710,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь согласовал добавление учеником листа условий и его обработку через общую синхронизацию олимпиадных задач."
+        "evidence": "Пользователь поручил загружать свои листы и видеть отдельные задачи с происхождением и связанными фотографиями."
       }
     },
     "day/family-dashboard-delta.mjs": {

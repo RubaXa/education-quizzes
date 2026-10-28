@@ -639,3 +639,20 @@ it.each([true, false])('shows the olympiad source sheet upload only to the learn
     if (!parent) expect(host.querySelector('.day-upload')?.textContent).toContain('Добавить свои задачи')
   } finally { await act(async () => root.unmount()); host.remove() }
 })
+
+it.each([true, false])('shows learner-added source and the original photo alongside its own result, parent=%s', async parent => {
+  const id = 'learner-task'
+  const origin = { intakeTaskId: 'intake', uploadIds: ['photo-12345678901234567890'] }
+  const newTask = { id, title: 'Задача из листа', detail: 'Подсчитай варианты', source: 'Education', kind: 'written' as const, status: 'unknown' as const,
+    optional: true, learningContext: { kind: 'olympiad' as const, id: 'o1' }, learnerOrigin: origin }
+  scene.page = { ...page(), familyId: 'family', childId: 'child', subjects: [{ ...page().subjects[0], tasks: [newTask] }], testPlacements: [] }
+  scene.uploads = [{ id: 'student-token:photo-12345678901234567890', taskId: 'intake', status: 'pending' }]
+  scene.role = parent ? 'parent' : 'student'
+  const host = document.createElement('div'); document.body.append(host); const root = createRoot(host)
+  try {
+    await act(async () => root.render(<DayPage token="role-day" parent={parent} headerReturnTarget={null} olympiadScope={{ familyId: 'family', childId: 'child', olympiadId: 'o1', taskId: id, testTokens: [] }} />))
+    expect(host.textContent).toContain('Добавлено учеником')
+    expect(host.textContent).toContain('Фото условия')
+    expect(host.querySelector('input[type=file]') !== null).toBe(!parent)
+  } finally { await act(async () => root.unmount()); host.remove() }
+})
