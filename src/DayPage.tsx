@@ -35,6 +35,7 @@ import OlympiadSourceQueue from '@/components/OlympiadSourceQueue'
 import ProblemTaskCard from '@/components/ProblemTaskCard'
 import { PracticeVariantStatus } from '@/components/PracticeVariantStatus'
 import ParentTaskGuide from '@/components/ParentTaskGuide'
+import ProblemStatement from '@/components/ProblemStatement'
 import RequirementSwitch from '@/components/RequirementSwitch'
 import AssignmentBrief from '@/components/AssignmentBrief'
 import TaskGuidance from '@/components/TaskGuidance'
@@ -588,9 +589,9 @@ export default function DayPage({ token, parent, headerReturnTarget, olympiadSco
                 const practiceState = !taskUploads.length && !review && !uploadingWork && fallbackState ? fallbackState : problemCardState(taskUploads, review, uploadingWork, statusNow, accepted)
                 const practiceProblem = { id: task.id, number: olympiadScope.number ?? 1, title: task.title, detail: task.detail, source: task.source }
                 return <ProblemCard key={task.id} problem={practiceProblem} state={practiceState}>
-                  <AssignmentBrief task={task} materialLinks={taskLinks} />
                   {task.learnerOrigin && <span className="day-task-type">Добавлено учеником</span>}
-                  {[...(task.learnerOrigin ? [task.learnerOrigin] : []), ...(task.learnerSources ?? [])].map((source, index) => <LinkedWorkPhotos key={`${source.intakeTaskId}-${index}`} taskId={task.id} uploads={uploads} pages={[page, ...(evidencePages ?? [])]} source={source} number={olympiadScope?.number ?? 1} role={parent ? 'parent' : 'student'} />)}
+                  <ProblemStatement problem={{ ...practiceProblem, original: { text: task.detail === 'Открой фотографию с условием задачи.' ? '' : task.detail, attachmentRef: '' } }} links={taskLinks} parent={parent} originalContent={[...(task.learnerOrigin ? [task.learnerOrigin] : []), ...(task.learnerSources ?? [])].map((source, index) => <LinkedWorkPhotos key={`${source.intakeTaskId}-${index}`} taskId={task.id} uploads={uploads} pages={[page, ...(evidencePages ?? [])]} source={source} number={olympiadScope?.number ?? 1} role={parent ? 'parent' : 'student'} />)} />
+                  {parent && (!task.competitionUntil || Date.now() > Date.parse(task.competitionUntil)) && taskGuides[task.id]?.guide && <ParentTaskGuide guide={taskGuides[task.id]!.guide!} review={review} decisions={parentDecisions.events} guidance={guidance.filter(item => item.taskId === task.id)} guidanceReady={guidanceReady} onSend={guidanceForTask(task.id, taskGuides[task.id]!.guide).onSendGuidance} onStageChoice={helpRole === 'parent' && review ? (stage, required) => recordStageChoice(review, taskGuides[task.id]!.guide!, stage.id, required) : undefined} />}
                   {!parent && <TaskGuidance items={guidance.filter(item => item.taskId === task.id && item.stageId !== 'help-response')} />}
                   <WorkReview review={review} uploads={taskUploads} accepted={accepted} canDecide={helpRole === 'parent' && !taskUploads.some(upload => upload.status === 'pending')} onDecision={parent && canAcceptCorrectAnswer(review) && review ? action => recordParentCompletion(review, action) : undefined} decisions={parentDecisions.events} parent={parent} />
                   {!parent && <div className="problem-card-actions"><PhotoUploadControl className="problem-card-upload" label="Загрузить решение" onPhotos={files => attach(task, files)} /></div>}

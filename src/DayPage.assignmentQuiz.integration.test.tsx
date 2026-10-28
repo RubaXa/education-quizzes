@@ -655,6 +655,9 @@ it.each([true, false])('shows learner-added source and the original photo alongs
     await act(async () => root.render(<DayPage token="role-day" parent={parent} headerReturnTarget={null} olympiadScope={{ familyId: 'family', childId: 'child', olympiadId: 'o1', taskId: id, testTokens: [] }} />))
     expect(host.textContent).toContain('Добавлено учеником')
     expect(host.textContent).toContain('Фото условия')
+    expect(host.textContent).toContain('Условие текстом')
+    expect(host.textContent).toContain('Подсчитай варианты')
+    expect(host.querySelector('.problem-statement-original')?.textContent).toContain('Фото условия')
     expect(host.querySelector('input[type=file]') !== null).toBe(!parent)
   } finally { await act(async () => root.unmount()); host.remove() }
 })
@@ -759,4 +762,29 @@ it('queue keeps a confirmed local photo matched with its saved copy', async () =
   const html = renderToStaticMarkup(<Queue parent studentToken="student-token" uploads={[{ id:'student-token:photo', taskId:'intake', status:'pending' }]} localPhotos={[{ id:'photo', taskId:'intake', state:'saved', previewUrl:'blob:demo' }]} processedIds={['photo']} now={0} onPhotos={() => {}} />)
   expect(html).toContain('задачи добавлены в практику')
   expect(html).not.toContain('обработка условий ожидается')
+})
+
+it.each([true, false])('uses the shared condition for source tasks with missing transcript, parent=%s', async parent => {
+  const task = { id: 'source-pending', title: 'Задача', detail: 'Открой фотографию с условием задачи.', source: 'Education', kind: 'written' as const, status: 'unknown' as const, optional: true, learnerOrigin: { intakeTaskId:'intake', uploadIds:['photo-12345678901234567890'] }, learningContext: { kind: 'olympiad' as const, id: 'o1' } }
+  scene.page = { ...page(), familyId:'family', childId:'child', subjects:[{...page().subjects[0],tasks:[task]}],testPlacements:[] }
+  scene.role = parent ? 'parent' : 'student'
+  const host=document.createElement('div');document.body.append(host);const root=createRoot(host)
+  try {
+    await act(async()=>root.render(<DayPage token="role-day" parent={parent} headerReturnTarget={null} olympiadScope={{familyId:'family',childId:'child',olympiadId:'o1',taskId:task.id,testTokens:[]}} />))
+    expect(host.textContent).not.toContain('Открой фотографию с условием задачи.')
+    expect(host.textContent).toContain('Точная текстовая запись этого номера ещё не подготовлена')
+  } finally { await act(async()=>root.unmount());host.remove() }
+})
+
+it.each([true, false])('shows a parent guide only after contest restriction, restricted=%s', async restricted => {
+  const task = { id:'source-guide', title:'Задача', detail:'Текст условия.', source:'Education', kind:'written' as const,status:'unknown' as const,optional:true,competitionUntil:restricted?'2999-01-01T00:00:00Z':'2000-01-01T00:00:00Z',learningContext:{kind:'olympiad' as const,id:'o1'} }
+  scene.page={...page(),familyId:'family',childId:'child',subjects:[{...page().subjects[0],tasks:[task]}],testPlacements:[]}
+  scene.guides={[task.id]:{guide:{kind:'worked-solution',presentation:'math-route',overview:'Подготовленный разбор',stages:[]}}}
+  scene.role='parent'
+  const host=document.createElement('div');document.body.append(host);const root=createRoot(host)
+  try {
+    await act(async()=>root.render(<DayPage token="role-day" parent headerReturnTarget={null} olympiadScope={{familyId:'family',childId:'child',olympiadId:'o1',taskId:task.id,testTokens:[]}} />))
+    expect(Boolean(host.querySelector('.day-parent-guide'))).toBe(!restricted)
+    expect(host.querySelector('input[type=file]')).toBeNull()
+  } finally {await act(async()=>root.unmount());host.remove()}
 })
