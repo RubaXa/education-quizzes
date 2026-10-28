@@ -458,15 +458,15 @@ export default function DayPage({ token, parent, headerReturnTarget, olympiadSco
       <h3>{shortDate(page.targetDate).replace(/^./u, letter => letter.toUpperCase())}</h3>
       <div className="day-next-schedule">{page.targetSchedule.map((lesson, index) => <span key={`${lesson.start}-${index}`}>{lesson.start} {lesson.subject}</span>)}</div>
     </section> : <>
-      {parent && page.parentNotes?.[0] && <section className="day-attention"><h2>О задании</h2><p>{page.parentNotes[0]}</p></section>}
-      {parent && (currentAdded.length > 0 || currentChanged.length > 0) && <section className="day-attention"><h2>Что изменилось</h2><p>Добавлено: {currentAdded.length}. Уточнено: {currentChanged.length}.</p></section>}
+      {!olympiadScope && parent && page.parentNotes?.[0] && <section className="day-attention"><h2>О задании</h2><p>{page.parentNotes[0]}</p></section>}
+      {!olympiadScope && parent && (currentAdded.length > 0 || currentChanged.length > 0) && <section className="day-attention"><h2>Что изменилось</h2><p>Добавлено: {currentAdded.length}. Уточнено: {currentChanged.length}.</p></section>}
       {page.notices[0] && !parent && <div className="day-notices"><p>✳ {page.notices[0]}</p></div>}
-      {sourceNotices.map((entry) => {
+      {!olympiadScope && sourceNotices.map((entry) => {
         const subjectName = page.subjects.find((subject) => subject.id === entry.subjectId)?.name
         return <div className="day-notices" key={entry.id}><p>✳ <strong>МЭШ{subjectName ? ` · ${subjectName}` : ''}</strong> · {entry.rawText}</p></div>
       })}
       <h2 className="day-homework-heading">{olympiadScope ? 'Материалы и задания' : 'По предметам'}</h2>
-      {currentSubjects.length === 0 && sourceNotices.length === 0 && <div className="day-notices"><p>На эту дату задания в МЭШ пока не указаны.</p></div>}
+      {!olympiadScope && currentSubjects.length === 0 && sourceNotices.length === 0 && <div className="day-notices"><p>На эту дату задания в МЭШ пока не указаны.</p></div>}
 
       <div className="day-subject-list">{currentSubjects.map((subject) => {
         const summary = page.gradeSummary.find((item) => item.id === subject.id)
@@ -503,7 +503,7 @@ export default function DayPage({ token, parent, headerReturnTarget, olympiadSco
               <GradeBadge summary={summary} details={grade} threshold={page.workingThreshold} asOf={page.gradeAsOf} />
             </div>}</div>
           <div className="day-subject-content" hidden={!expanded}>{!numberedSheet && !['Новое задание МЭШ. Подробный разбор готовится.', 'Точная запись МЭШ. Подробный разбор готовится.'].includes(subject.summary) && <p className="day-subject-summary">{subject.summary}</p>}
-            {parent && meshOnlyTasks.length > 0 && <details className="day-mesh"><summary>Как записано в МЭШ</summary>{assignments.multiple ? meshOnlyTasks.map((task) => <p key={task.id}><b>Задание {subject.tasks.indexOf(task) + 1}.</b> {task.meshText ?? task.title}</p>) : <p>{subject.mesh}</p>}</details>}
+            {!olympiadScope && parent && meshOnlyTasks.length > 0 && <details className="day-mesh"><summary>Как записано в МЭШ</summary>{assignments.multiple ? meshOnlyTasks.map((task) => <p key={task.id}><b>Задание {subject.tasks.indexOf(task) + 1}.</b> {task.meshText ?? task.title}</p>) : <p>{subject.mesh}</p>}</details>}
             <div className="day-task-list">{lineages.map(({ placement, chain }) => {
               const task = subject.tasks.find((item) => item.testToken === placement.token)
               const materialLinks = task ? [...new Map([

@@ -143,7 +143,7 @@ it.each([true, false])('projects only the selected family olympiad task and its 
   const id = 'family-olympiad'
   const extra = { id, title: 'Олимпиадная практика', detail: 'Своя задача', source: 'Education', kind: 'written' as const, status: 'unknown' as const,
     optional: true, learningContext: { kind: 'olympiad' as const, id: 'o1' } }
-  scene.page = { ...page(), familyId: 'family', childId: 'child', subjects: [{ ...page().subjects[0], tasks: [...page().subjects[0].tasks, extra] }],
+  scene.page = { ...page(), familyId: 'family', childId: 'child', parentNotes: ['Снимок МЭШ на дату'], changes: [{ at: null, added: [id], changed: [], removed: [], newLinks: false }], sourceOnlyEntries: [{ id: 'notice', kind: 'notice', rawText: 'МЭШ · не задано' }] as DayPageData['sourceOnlyEntries'], subjects: [{ ...page().subjects[0], tasks: [...page().subjects[0].tasks, extra] }],
     testPlacements: [{ token: 'diagrams-test', subjectId: 'math', optional: true }] }
   scene.role = parent ? 'parent' : 'student'
   sessionStorage.setItem('education-day-initial-tab', 'school')
@@ -157,6 +157,9 @@ it.each([true, false])('projects only the selected family olympiad task and its 
     expect(host.querySelector('.day-quiz-lineage-score')?.textContent).toContain('0 из 20')
     expect(host.querySelector('[aria-label="Раздел страницы дня"]')).toBeNull()
     expect(host.textContent).not.toContain('Расписание')
+    expect(host.textContent).not.toContain('МЭШ')
+    expect(host.textContent).not.toContain('Что изменилось')
+    expect(host.textContent).not.toContain('О задании')
     const quiz = host.querySelector<HTMLAnchorElement>('.day-quiz-lineage-actions a.day-quiz-link')
     expect(quiz?.getAttribute('href')).toBe(parent ? '#/preview/diagrams~preview-only' : '#/t/diagrams~diagrams-test')
     expect(host.querySelector('input[type=file]') !== null).toBe(!parent)
