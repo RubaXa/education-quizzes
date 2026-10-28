@@ -6274,7 +6274,7 @@
       }
     },
     "src/components/OlympiadCatalog.tsx": {
-      "sha256": "d3ca4fc60494f3b593a5b9e1387c420382b8f720ce270c6392a6b75a7d055588",
+      "sha256": "1325385c29470388d9df4e1c2388bff7fc04b539dda66c28c5406f9688246a80",
       "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
@@ -6292,7 +6292,7 @@
       }
     },
     "src/components/OlympiadHome.tsx": {
-      "sha256": "7d1ba0424860333640f04f6852aac4c6417a05869b0da36f2397521ec0c958f4",
+      "sha256": "04d61b06c6117debf29bd0d59774966a2a53d9747365ba025390369b6f11d292",
       "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",

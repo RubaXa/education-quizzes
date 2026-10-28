@@ -18,7 +18,10 @@ export default function OlympiadHome({ familyId, childId, parent, dashboardToken
   }, () => { setTaskState({ scope, tasks: [] }); setError(true); traceOlympiad('list-failed', 'product', parent ? 'parent' : 'student') }), [familyId, childId, parent, scope])
   const grouped = new Map<string, OlympiadCatalogItem>()
   for (const item of catalog) grouped.set(item.id, { ...item, participationEnabled: false, lessons: [] })
-  for (const task of taskState?.scope === scope ? taskState.tasks : []) grouped.set(task.learningContext.id, { id: task.learningContext.id, title: task.title, deadline: task.dueDate, participationEnabled: true, lessons: [] })
+  for (const task of taskState?.scope === scope ? taskState.tasks : []) {
+    const olympiad = grouped.get(task.learningContext.id)
+    grouped.set(task.learningContext.id, { id: task.learningContext.id, title: olympiad?.title ?? 'Олимпиада — название уточняется', deadline: olympiad?.deadline ?? null, participationEnabled: true, lessons: [] })
+  }
   if (error) return <p role="status">Не удалось загрузить олимпиады. Обновите страницу, чтобы повторить.</p>
-  return <>{catalogError && <p role="status">Общий каталог временно недоступен; показываем семейную практику.</p>}<OlympiadCatalog heading="Олимпиадная практика" items={[...grouped.values()]} parent={parent} onExpand={open => traceOlympiad(open ? 'list-opened' : 'list-closed', 'product', parent ? 'parent' : 'student')} onOpen={id => { traceOlympiad('opened', 'product', parent ? 'parent' : 'student'); window.location.hash = `#/olympiad/${encodeURIComponent(dashboardToken)}/${encodeURIComponent(id)}` }} /></>
+  return <>{catalogError && <p role="status">Общий каталог временно недоступен; показываем семейную практику.</p>}<OlympiadCatalog heading="Олимпиады" items={[...grouped.values()]} parent={parent} onExpand={open => traceOlympiad(open ? 'list-opened' : 'list-closed', 'product', parent ? 'parent' : 'student')} onOpen={id => { traceOlympiad('opened', 'product', parent ? 'parent' : 'student'); window.location.hash = `#/olympiad/${encodeURIComponent(dashboardToken)}/${encodeURIComponent(id)}` }} /></>
 }
