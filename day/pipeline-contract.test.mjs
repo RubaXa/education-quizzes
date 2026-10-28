@@ -117,6 +117,9 @@ describe('барьер публикации плана', () => {
     const page = mergeFamilyAssignments({ kind: 'student', familyId: 'family', childId: 'child', targetDate: plan.targetDate,
       sourcePlanFingerprint: sourcePlanFingerprint(plan), subjects: structuredClone(plan.subjects), taskIds: ['mesh-1'] }, [assignment])
     expect(() => assertPublishedPageAligned(plan, page, 'student', [assignment])).not.toThrow()
+    const intake = { ...assignment, subjectId: 'math', subjectName: 'Математика', optional: true, learningContext: { kind: 'olympiad', id: 'o1' }, sourceIntake: { kind: 'olympiad-sheet' } }
+    const intakePage = mergeFamilyAssignments({ kind: 'student', familyId: 'family', childId: 'child', targetDate: plan.targetDate, sourcePlanFingerprint: sourcePlanFingerprint(plan), subjects: structuredClone(plan.subjects), taskIds: ['mesh-1'] }, [intake])
+    expect(() => assertPublishedPageAligned(plan, intakePage, 'student', [intake])).not.toThrow()
     expect(() => assertPublishedPageAligned(plan, page, 'student')).toThrow(/каноническими семейными заданиями/)
     page.subjects[0].tasks.find((item) => item.id === assignment.id).detail = 'Выдуманный текст'
     expect(() => assertPublishedPageAligned(plan, page, 'student', [assignment])).toThrow(/каноническими семейными заданиями/)

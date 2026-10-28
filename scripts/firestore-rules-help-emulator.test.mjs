@@ -9,6 +9,7 @@ import { createEducationEvent } from '../packages/education-events/envelope.mjs'
 import { prepareEventTaskArtifact } from '../sync/event-task-artifact.mjs'
 import { syncJobId } from '../sync/job-queue.mjs'
 import { publishHelpResponse } from '../sync/help-response.mjs'
+import { familyAssignmentErrors, learnerOriginErrors, mergeFamilyAssignments } from '../day/family-assignment.mjs'
 
 const enabled = Boolean(process.env.FIRESTORE_EMULATOR_HOST && process.env.FIREBASE_AUTH_EMULATOR_HOST && /^demo-/.test(process.env.GCLOUD_PROJECT || ''))
 describe.skipIf(!enabled)('shared photo help rules emulator', () => {
@@ -27,12 +28,42 @@ describe.skipIf(!enabled)('shared photo help rules emulator', () => {
       [`families/${family}`]: { active: true }, [`families/${family}/children/c`]: { active: true },
       [`families/${family}/members/p`]: { active: true, role: 'student', childIds: ['c'] },
       [`dayOwners/${day}`]: { familyId: family, childId: 'c', date: '2026-10-28' },
-      [`dayPages/${day}`]: { kind: 'student', date: '2026-10-28', planRevision: 1, taskIds: ['task'], subjects: [{ name: 'Математика', tasks: [{ id: 'task', title: 'Практика' }] }] },
+      [`dayPages/${day}`]: { kind: 'student', date: '2026-10-28', planRevision: 1, taskIds: ['task', 'source-sheet'], subjects: [{ name: 'Математика', tasks: [{ id: 'task', title: 'Практика' }, { id: 'source-sheet', title: 'Свои задачи', optional: true, learningContext: { kind: 'olympiad', id: 'olymp' }, sourceIntake: { kind: 'olympiad-sheet' } }] }] },
       [`dayUploads/${day}/files/${photo}`]: { taskId: 'task', status: 'pending', storage: { state: 'stored', path: 'private', sha256: 'a'.repeat(64) } },
     }
     await Promise.all(Object.entries(entries).map(([path, value]) => store.doc(path).set(value)))
   })
   afterAll(async () => { if (client) await deleteClientApp(client); if (admin) await deleteAdminApp(admin) })
+  it('accepts a learner source photo and routes the confirmed upload as an olympiad sheet', async () => {
+    const fileId = 'source-upload-12345678901', operationId = `upload-transfer:${fileId}:requested`
+    const sourcePath = `dayUploads/${day}/files/${fileId}`
+    const sourceRef = { kind: 'upload', documentPath: sourcePath, dayToken: day, recordId: fileId, taskId: 'source-sheet' }
+    const event = await createEducationEvent({ eventType: 'upload.transfer_requested', familyId: family, childId: 'c', source: 'firestore', sourceRef, operationId, actor: { type: 'user', uid } }, serverTimestamp())
+    const batch = writeBatch(db)
+    batch.set(doc(db, sourcePath), { taskId: 'source-sheet', planRevision: 1, deviceUid: uid, contentType: 'image/jpeg', size: 100, sha256: 'a'.repeat(64), status: 'requested', createdAt: serverTimestamp(), eventOperationId: operationId, eventReceiptId: event.eventId, eventProducerVersion: 1 })
+    batch.set(doc(db, `educationEvents/${event.eventId}`), event)
+    await batch.commit()
+    expect((await getDoc(doc(db, sourcePath))).data().taskId).toBe('source-sheet')
+    await store.doc(sourcePath).update({ status: 'pending', storage: { state: 'stored', path: 'private', sha256: 'a'.repeat(64) } })
+    const confirmed = await createEducationEvent({ eventType: 'upload.confirmed', familyId: family, childId: 'c', source: 'firestore', sourceRef, operationId: `upload-confirmed:${fileId}`, actor: { type: 'user', uid } }, serverTimestamp())
+    const prepared = await prepareEventTaskArtifact(store, confirmed)
+    const artifact = (await store.doc(prepared.artifactPath).get()).data()
+    expect(artifact.inputs.route.next).toBe('ingest-olympiad-sheet')
+    expect(artifact.instruction).toContain('не решение ученика')
+    // A deterministic operator fixture stands in for visual transcription and mathematical review.
+    const task = { id: 'learner-task', sourceSystem: 'family', sourceId: 'learner-task', sourceRevision: 1, dayProjectionVersion: 1, familyId: family, childId: 'c', subjectId: 'math', subjectName: 'Математика', dueDate: '2026-10-28', title: 'Пример задачи', originalText: 'Условие из учебного листа.', steps: ['Реши задачу'], submission: { buttonLabel: 'Загрузить решение', lead: 'Запиши решение.', photo: 'Страница с решением.' }, publication: 'active', evidence: 'photo', materialIds: [], optional: true, testPlacements: [], learningContext: { kind: 'olympiad', id: 'olymp' }, learnerOrigin: { intakeTaskId: 'source-sheet', uploadIds: [fileId] } }
+    const intake = { familyId: family, childId: 'c', learningContext: task.learningContext, sourceIntake: { kind: 'olympiad-sheet' }, projectionSourceDate: '2026-10-28' }
+    const photoData = (await store.doc(sourcePath).get()).data()
+    expect(familyAssignmentErrors(task, { familyId: family, childId: 'c', taskId: task.id })).toEqual([])
+    expect(learnerOriginErrors(task, intake, [{ id: fileId, ...photoData }], '2026-10-28')).toEqual([])
+    expect(learnerOriginErrors(task, { ...intake, childId: 'other' }, [{ id: fileId, ...photoData }], '2026-10-28')).not.toEqual([])
+    const studentPage = mergeFamilyAssignments({ kind: 'student', date: '2026-10-28', targetDate: '2026-10-28', planRevision: 1, subjects: [] }, [task])
+    const parentPage = mergeFamilyAssignments({ kind: 'parent', date: '2026-10-28', targetDate: '2026-10-28', planRevision: 1, subjects: [] }, [task])
+    expect(studentPage.subjects[0].tasks[0].learnerOrigin).toEqual(parentPage.subjects[0].tasks[0].learnerOrigin)
+    await store.doc(`families/${family}/children/c/tasks/${task.id}`).set(task)
+    expect((await getDoc(doc(db, `families/${family}/children/c/tasks/${task.id}`))).data().learnerOrigin.uploadIds).toEqual([fileId])
+  })
+
   it('atomically saves an immutable photo request and rejects changes', async () => {
     const operationId = randomUUID(), sourcePath = `dayHelp/${day}/items/task`
     const event = await createEducationEvent({ eventType: 'help.requested', familyId: family, childId: 'c', source: 'firestore',

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { familyAssignmentErrors, familyAssignmentsWithOverlay, familyGuideErrors, familyTestPlacementErrors, mergeFamilyAssignments, planFamilyTestPlacements, projectFamilyAssignment } from './family-assignment.mjs'
+import { familyAssignmentErrors, learnerOriginErrors, familyAssignmentsWithOverlay, familyGuideErrors, familyTestPlacementErrors, mergeFamilyAssignments, planFamilyTestPlacements, projectFamilyAssignment } from './family-assignment.mjs'
 
 const assignment = {
   id: 'family-russian-essay-2026-10-23', sourceSystem: 'family', sourceId: 'family-russian-essay-2026-10-23',
@@ -71,6 +71,17 @@ describe('family-origin day assignments', () => {
     expect(mergeFamilyAssignments(page, [assignment, math]).planRevision).toBe(page.planRevision)
   })
 
+  it('projects a source intake only in an optional olympiad and preserves it across a repeat publish', () => {
+    const task = { ...assignment, subjectId: 'math', subjectName: 'Математика', learningContext: { kind: 'olympiad', id: 'o1' }, optional: true, sourceIntake: { kind: 'olympiad-sheet' } }
+    const owner = { familyId: task.familyId, childId: task.childId, taskId: task.id }
+    expect(familyAssignmentErrors(task, owner)).toEqual([])
+    expect(familyAssignmentErrors({ ...task, optional: false }, owner)).not.toEqual([])
+    expect(familyAssignmentErrors({ ...task, sourceIntake: { kind: 'other' } }, owner)).not.toEqual([])
+    const page = mergeFamilyAssignments({ planRevision: 1, subjects: [] }, [task])
+    expect(page.subjects[0].tasks[0].sourceIntake).toEqual({ kind: 'olympiad-sheet' })
+    expect(mergeFamilyAssignments(page, [task]).planRevision).toBe(page.planRevision)
+  })
+
   it('accepts only optional quizzes belonging to the same child and context', () => {
     const token = 'q'.repeat(32), context = { kind: 'olympiad', id: 'formulo' }
     const math = { ...assignment, id: 'family-math-olympiad', sourceId: 'family-math-olympiad', subjectId: 'math', subjectName: 'Математика',
@@ -87,5 +98,23 @@ describe('family-origin day assignments', () => {
     expect(placements).toEqual([{ token, subjectId: 'math', optional: true }])
     expect(planFamilyTestPlacements(math, quizzes, { testPlacements: placements })).toEqual(placements)
     expect(() => planFamilyTestPlacements(math, quizzes, { testPlacements: [{ token, subjectId: 'russian' }] })).toThrow()
+  })
+})
+
+describe('learner-origin olympiad cards', () => {
+  it('preserves source photos in family projection and rejects unrelated or malformed origin', () => {
+    const task = { ...assignment, subjectId: 'math', subjectName: 'Математика', learningContext: { kind: 'olympiad', id: 'o1' }, optional: true, learnerOrigin: { intakeTaskId: 'sheet-one', uploadIds: ['photo-12345678901234567890'] } }
+    const owner = { familyId: task.familyId, childId: task.childId, taskId: task.id }
+    expect(familyAssignmentErrors(task, owner)).toEqual([])
+    expect(projectFamilyAssignment(task).learnerOrigin).toEqual(task.learnerOrigin)
+    expect(familyAssignmentErrors({ ...task, learningContext: { kind: 'homework', id: 'o1' } }, owner)).not.toEqual([])
+    expect(familyAssignmentErrors({ ...task, learnerOrigin: { ...task.learnerOrigin, uploadIds: ['bad'] } }, owner)).not.toEqual([])
+    expect(familyAssignmentErrors({ ...task, sourceIntake: { kind: 'olympiad-sheet' } }, owner)).not.toEqual([])
+    const intake = { familyId: task.familyId, childId: task.childId, sourceIntake: { kind: 'olympiad-sheet' }, learningContext: task.learningContext, projectionSourceDate: '2026-10-22' }
+    const photo = { id: task.learnerOrigin.uploadIds[0], taskId: 'sheet-one', status: 'pending', storage: { state: 'stored', sha256: 'a'.repeat(64) } }
+    expect(learnerOriginErrors(task, intake, [photo], '2026-10-22')).toEqual([])
+    expect(learnerOriginErrors(task, { ...intake, childId: 'foreign' }, [photo], '2026-10-22')).not.toEqual([])
+    expect(learnerOriginErrors(task, intake, [{ ...photo, taskId: 'foreign' }], '2026-10-22')).not.toEqual([])
+    expect(learnerOriginErrors(task, intake, [{ ...photo, storage: { state: 'stored', sha256: 'broken' } }], '2026-10-22')).not.toEqual([])
   })
 })

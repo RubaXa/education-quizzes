@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { captureEventTaskInputs, prepareEventTaskArtifact, validateTaskArtifact } from './event-task-artifact.mjs'
 import { legacyHelpOperationId } from './legacy-help-identity.mjs'
+import { mergeFamilyAssignments } from '../day/family-assignment.mjs'
 
 const event = { eventId: 'a'.repeat(64), eventType: 'upload.confirmed', source: 'firestore',
   familyId: 'family', childId: 'child', operationId: 'upload-confirmed:file:hash',
@@ -35,6 +36,27 @@ describe('closed event task inputs', () => {
     expect(artifact.instruction).toContain('не оценивать выполнение ДЗ')
     expect(validateTaskArtifact(artifact, { eventId: event.eventId }).state).toBe('ready')
   })
+  it('dispatches an olympiad source sheet as conditions, not a learner solution', async () => {
+    const { db, rows } = fixture({ 'dayPages/day': { kind: 'student', date: '2026-10-19', targetDate: '2026-10-20', planRevision: 2, subjects: [{ name: 'Математика', tasks: [{ id: 'task', optional: true, learningContext: { kind: 'olympiad', id: 'o1' }, sourceIntake: { kind: 'olympiad-sheet' } }] }] } })
+    const result = await prepareEventTaskArtifact(db, event)
+    const artifact = rows.get(result.artifactPath)
+    expect(artifact.inputs.route.next).toBe('ingest-olympiad-sheet')
+    expect(artifact.instruction).toContain('не решение ученика')
+    expect(artifact.inputs.route.steps).toContain('publish-family-tasks-and-readback')
+  })
+  it('routes a stored photo after projecting the same family intake to both roles', async () => {
+    const task = { id: 'task', familyId: 'family', childId: 'child', sourceSystem: 'family', sourceId: 'task', sourceRevision: 1, dayProjectionVersion: 1, subjectId: 'math', subjectName: 'Математика', dueDate: '2026-10-20', title: 'Свои задачи', originalText: 'Сфотографируй условия', publication: 'active', evidence: 'photo', materialIds: [], steps: ['Выбери лист'], submission: { buttonLabel: 'Добавить', lead: 'Фото условий', photo: 'Лист целиком' }, optional: true, learningContext: { kind: 'olympiad', id: 'o1' }, sourceIntake: { kind: 'olympiad-sheet' } }
+    const base = { date: '2026-10-19', targetDate: '2026-10-20', planRevision: 1, subjects: [] }
+    const student = mergeFamilyAssignments({ ...base, kind: 'student' }, [task])
+    const parent = mergeFamilyAssignments({ ...base, kind: 'parent' }, [task])
+    expect(student.subjects[0].tasks[0].sourceIntake).toEqual(parent.subjects[0].tasks[0].sourceIntake)
+    const { db } = fixture({ 'dayPages/day': student })
+    const inputs = await captureEventTaskInputs(db, event)
+    expect(inputs.route.next).toBe('ingest-olympiad-sheet')
+    expect(inputs.context.task.id).toBe(task.id)
+    expect(inputs.source.storage.sha256).toBe('b'.repeat(64))
+  })
+
   it('captures the exact work, assignment and owner without any collection scan', async () => {
     const { db, rows, reads } = fixture()
     const result = await prepareEventTaskArtifact(db, event, { now: '2026-10-19T10:00:00.000Z' })
