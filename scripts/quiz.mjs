@@ -14,6 +14,7 @@ import { grade, summarize } from '../src/lib/quiz.ts'
 import { canonicalShortKeyRepair, correctionFingerprint } from '../assessment/canonical-short-key.mjs'
 import { publishedAnswer, questionGuidanceErrors, repairQuestionGuidance } from '../assessment/question-guidance.mjs'
 import { needsQuizFollowup } from '../src/lib/quizCompletion.ts'
+import { learningContext } from '../assessment/learning-context.mjs'
 
 const projectId = 'education-9d7c6'
 const site = 'https://rubaxa.github.io/education-quizzes/'
@@ -84,6 +85,7 @@ function assignmentOwner(personId) {
 }
 
 function validateSpec(spec, specPath) {
+  learningContext(spec.learningContext)
   if (typeof spec.title !== 'string' || !spec.title.trim()) fail('Не указано название теста.')
   if (typeof spec.description !== 'string' || !spec.description.trim()) fail('Нужно краткое описание теста для личного списка.')
   validateBoardDetails(spec.board)
@@ -214,6 +216,7 @@ async function create(specPath, studentPersonId) {
   const assignment = {
     schemaVersion: 1,
     ...owner,
+    ...(spec.learningContext === undefined ? {} : { learningContext: learningContext(spec.learningContext) }),
     testId,
     title: spec.title,
     description: spec.description ?? '',
@@ -253,6 +256,7 @@ async function create(specPath, studentPersonId) {
     title: spec.title,
     description: spec.description ?? '',
     board: spec.board,
+    ...(assignment.learningContext ? { learningContext: assignment.learningContext } : {}),
     subject: spec.subject,
     slug: spec.slug,
     previewToken,
@@ -265,6 +269,7 @@ async function create(specPath, studentPersonId) {
       title: spec.title,
       description: spec.description ?? '',
       board: spec.board,
+      ...(assignment.learningContext ? { learningContext: assignment.learningContext } : {}),
       subject: spec.subject,
       slug: spec.slug,
       previewToken,
@@ -278,6 +283,7 @@ async function create(specPath, studentPersonId) {
       title: spec.title,
       description: spec.description ?? '',
       board: spec.board,
+      ...(assignment.learningContext ? { learningContext: assignment.learningContext } : {}),
       subject: spec.subject,
       slug: spec.slug,
       previewToken,
@@ -409,6 +415,7 @@ async function addToLearnerBoard(manifestPath) {
       title: typeof item.title === 'string' && item.title.trim() ? item.title.trim() : assignment.title,
       description: typeof item.description === 'string' && item.description.trim() ? item.description.trim() : assignment.description ?? '',
       board: item.board,
+      ...(assignment.learningContext ? { learningContext: learningContext(assignment.learningContext) } : {}),
       subject: assignment.subject,
       slug: assignment.slug,
       previewToken: String(item.previewToken ?? ''),

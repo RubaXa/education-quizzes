@@ -50,6 +50,7 @@ export function buildDayDashboardIndex(local, links, role, now = new Date(), ret
   // Only family tasks explicitly opted into this day projection participate.
   // Other family Education tasks remain outside the diary index.
   for (const task of familyAssignments) {
+    if (task?.optional === true) continue
     if (task?.publication !== 'active' || task.sourceSystem !== 'family' || task.dayProjectionVersion !== 1 || !validDate(task.dueDate)) continue
     const candidates = Object.entries(links).filter(([sourceDate]) => {
       const file = resolve(local, `day-source-${sourceDate}.json`)
@@ -82,7 +83,7 @@ export function buildDayDashboardIndex(local, links, role, now = new Date(), ret
           && route.fromSubjectName === conciseSubject(assignment.subjectName || assignment.subject_name)))
         .map((text) => ({ subject: conciseSubject(assignment.subjectName || assignment.subject_name), text: text.trim(), referenceDate: referencedHomeworkDate(text, date) }))
     })
-    for (const task of familyAssignments) if (task?.publication === 'active' && task.sourceSystem === 'family' && task.dayProjectionVersion === 1 && task.dueDate === date) {
+    for (const task of familyAssignments) if (task?.optional !== true && task?.publication === 'active' && task.sourceSystem === 'family' && task.dayProjectionVersion === 1 && task.dueDate === date) {
       homeworkEntries.push({ subject: task.subjectName || 'Русский язык', text: task.title, referenceDate: null })
     }
     for (const route of assignmentRoutes.values()) if (route.toDate === date) homeworkEntries.push({ subject: route.toSubjectName, text: route.meshText, referenceDate: null })

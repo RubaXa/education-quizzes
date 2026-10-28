@@ -56,8 +56,8 @@ export function QuizProgress({ test }: { test: QuizCardAttempt }) {
  * @see ../../docs/modules/assessments/quiz-chain-proposal.md
  * @see ../../docs/modules/assessments/result-presentation-proposal.md
  * @see ../../docs/modules/assessments/quizzes.md#optional-quiz */
-export default function QuizCard({ chain, parent, context = 'Самопроверка', assignment, materials, extraActions, id, onOpen, allowFollowupRequest = true, linksEnabled = true }: {
-  chain: QuizCardAttempt[]; parent: boolean; context?: string; assignment?: ReactNode; materials?: ReactNode; extraActions?: ReactNode; id?: string; onOpen?: () => void; allowFollowupRequest?: boolean; linksEnabled?: boolean;
+export default function QuizCard({ chain, parent, context = 'Самопроверка', assignment, materials, extraActions, id, onOpen, allowFollowupRequest = true, linksEnabled = true, placementOptional = false }: {
+  chain: QuizCardAttempt[]; parent: boolean; context?: string; assignment?: ReactNode; materials?: ReactNode; extraActions?: ReactNode; id?: string; onOpen?: () => void; allowFollowupRequest?: boolean; linksEnabled?: boolean; placementOptional?: boolean;
 }) {
   const [copiedToken,setCopiedToken] = useState('')
   const [copyError,setCopyError] = useState('')
@@ -72,7 +72,7 @@ export default function QuizCard({ chain, parent, context = 'Самопрове�
   const latest = chain.at(-1)
   if (!latest) return null
   const root = chain[0]
-  const required = !root.familyOptional
+  const required = !root.familyOptional && !placementOptional
   const earlier = quizHistoryNewestFirst(chain.slice(0,-1))
   const graded = chain.filter(test => test.status === 'submitted' && resultPresentation(inputFor(test)).points != null)
   const points = graded.reduce((sum,test) => sum + test.points!,0)
@@ -87,7 +87,7 @@ export default function QuizCard({ chain, parent, context = 'Самопрове�
   const timeButton = (test: QuizCardAttempt) => <button type="button" className="day-quiz-time-trigger" aria-label={`${openTimeToken === test.token ? 'Скрыть' : 'Показать'} время теста «${test.title}»`} aria-controls={openTimeToken === test.token ? timePanelId(test) : undefined} aria-expanded={openTimeToken === test.token} onClick={() => setOpenTimeToken(current => current === test.token ? null : test.token)}><Clock3 size={17} aria-hidden="true" /></button>
   const reviewButton = (test: QuizCardAttempt) => { setOpenReviewToken(current => current === test.token ? null : test.token); onOpen?.() }
   return <section className="day-quiz-lineage" id={id} aria-label={`Самопроверки: ${context}`}>
-    <div className="day-quiz-lineage-head"><strong>{context === 'Самопроверка' ? context : `Самопроверка: ${context}`}</strong><div className="day-quiz-lineage-meta"><span className="day-quiz-score-time"><ResultBadge input={inputFor(latest)} showPoints className={`day-quiz-lineage-score ${view.status}`} />{timeButton(latest)}</span>{latest.status === 'open' && parent && <span className="day-quiz-requirement"><RequirementSwitch checked={required} disabled={savingRequirement} label={`Учитывать тест «${latest.title}» в семейном плане`} onChange={next => { setSavingRequirement(true); setRequirementError(''); void setQuizRequired(root.rootToken ?? root.token, latest.token, next).catch(cause => setRequirementError(cause instanceof Error ? cause.message : 'Не удалось сохранить выбор.')).finally(() => setSavingRequirement(false)) }} /></span>}</div></div>
+    <div className="day-quiz-lineage-head"><strong>{context === 'Самопроверка' ? context : `Самопроверка: ${context}`}</strong><div className="day-quiz-lineage-meta"><span className="day-quiz-score-time"><ResultBadge input={inputFor(latest)} showPoints className={`day-quiz-lineage-score ${view.status}`} />{timeButton(latest)}</span>{latest.status === 'open' && parent && !placementOptional && <span className="day-quiz-requirement"><RequirementSwitch checked={required} disabled={savingRequirement} label={`Учитывать тест «${latest.title}» в семейном плане`} onChange={next => { setSavingRequirement(true); setRequirementError(''); void setQuizRequired(root.rootToken ?? root.token, latest.token, next).catch(cause => setRequirementError(cause instanceof Error ? cause.message : 'Не удалось сохранить выбор.')).finally(() => setSavingRequirement(false)) }} /></span>}</div></div>
     {openTimeToken === latest.token && <QuizTimeDetails test={latest} id={timePanelId(latest)} />}
     <div className="day-quiz-lineage-current">{latest.status === 'submitted' && earlier.length > 0 && <small>Последний тест</small>}<h3>{latest.title}</h3>{latest.description && <p>{latest.description}</p>}
       {assignment}

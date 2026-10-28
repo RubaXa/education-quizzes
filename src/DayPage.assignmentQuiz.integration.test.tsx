@@ -126,6 +126,35 @@ async function renderPage(parent: boolean) {
   return { host, root, cleanup: async () => { await act(async () => root.unmount()); host.remove() } }
 }
 
+it.each([true, false])('keeps an olympiad placement outside required work in role parent=%s', async (parent) => {
+  scene.page = { ...page(), subjects: [{ id: 'math', name: 'Математика', icon: '∑', materials: '', mesh: '', summary: '', tasks: [] }],
+    testPlacements: [{ token: 'diagrams-test', subjectId: 'math', optional: true }] }
+  scene.quizOptional = false
+  const view = await renderPage(parent)
+  try {
+    expect(view.host.querySelector('.day-summary strong')?.textContent).toBe('0')
+    expect(view.host.textContent).not.toContain('обязательных тестов завершено')
+    expect(view.host.querySelector('[aria-label^="Учитывать тест"]')).toBeNull()
+    expect(view.host.textContent).toContain('Диаграммы — тренировка')
+  } finally { await view.cleanup() }
+})
+
+it.each([true, false])('projects only the selected family olympiad task and its additional test for parent=%s', async (parent) => {
+  const id = 'family-olympiad'
+  const extra = { id, title: 'Олимпиадная практика', detail: 'Своя задача', source: 'Education', kind: 'written' as const, status: 'unknown' as const,
+    optional: true, learningContext: { kind: 'olympiad' as const, id: 'o1' } }
+  scene.page = { ...page(), familyId: 'family', childId: 'child', subjects: [{ ...page().subjects[0], tasks: [...page().subjects[0].tasks, extra] }],
+    testPlacements: [{ token: 'diagrams-test', subjectId: 'math', optional: true }] }
+  scene.role = parent ? 'parent' : 'student'
+  const host = document.createElement('div'); document.body.append(host); const root = createRoot(host)
+  try {
+    await act(async () => root.render(<DayPage token="role-day" parent={parent} headerReturnTarget={null} olympiadScope={{ familyId: 'family', childId: 'child', olympiadId: 'o1', taskId: id, testTokens: ['diagrams-test'] }} />))
+    expect(host.textContent).toContain('Олимпиадная практика')
+    expect(host.textContent).not.toContain('Подготовиться к самостоятельной: диаграммы')
+    expect(host.querySelector('.day-summary strong')?.textContent).toBe('0')
+  } finally { await act(async () => root.unmount()); host.remove() }
+})
+
 it('keeps the ordinary parent day wired to the same prepared guidance command', async () => {
   const guide = { kind: 'worked-solution', presentation: 'math-route', revision: 1, overview: 'Разбор', stages: [{
     id: 'data', title: 'Данные', role: 'given', expected: 'Полный ход', rows: [], hintPreview: 'Какие величины даны?', revealPreview: 'Доли на диаграмме.',

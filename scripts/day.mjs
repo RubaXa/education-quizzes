@@ -48,7 +48,7 @@ import { stageSchoolAlerts } from '../diary/application/school-alerts.mjs'
 import { buildFamilySourceGraph } from '../day/family-source-graph.mjs'
 import { isDeepStrictEqual } from 'node:util'
 import { findGuidanceTarget, planRevealGuidanceRepair } from '../day/guidance-repair.mjs'
-import { familyAssignmentErrors, familyAssignmentProjectionSignature, familyAssignmentRecordSignature, familyAssignmentsWithOverlay, familyGuideErrors, mergeFamilyAssignments, stableFamilyProjectionJson } from '../day/family-assignment.mjs'
+import { familyAssignmentErrors, familyAssignmentProjectionSignature, familyAssignmentRecordSignature, familyAssignmentsWithOverlay, familyGuideErrors, familyTestPlacementErrors, mergeFamilyAssignments, planFamilyTestPlacements, stableFamilyProjectionJson } from '../day/family-assignment.mjs'
 
 const sharedLocal = resolve('.local')
 const scoped = Boolean(process.env.EDUCATION_CHILD_WORKSPACE)
@@ -783,6 +783,12 @@ async function stagePublish(date, batch, links, indexTokens, stagedPages, notify
   const parentPage = mergeDayPage(oldParent.data(), { ...base, ...routeIdentity, kind: 'parent', studentToken: pair.student, boardToken: boardToken('parent'), parentNotes: source.parentNotes ?? [] })
   const mergedStudentPage = mergeFamilyAssignments(studentPage, familyAssignments)
   const mergedParentPage = mergeFamilyAssignments(parentPage, familyAssignments)
+  for (const task of familyAssignments.filter((item) => item.testPlacements?.length)) {
+    const snapshots = await Promise.all(task.testPlacements.map(({ token }) => db.doc(`assignments/${token}`).get()))
+    const quizzes = new Map(task.testPlacements.map(({ token }, index) => [token, snapshots[index].exists ? snapshots[index].data() : null]))
+    mergedStudentPage.testPlacements = planFamilyTestPlacements(task, quizzes, mergedStudentPage)
+    mergedParentPage.testPlacements = planFamilyTestPlacements(task, quizzes, mergedParentPage)
+  }
   Object.assign(studentPage, mergedStudentPage)
   Object.assign(parentPage, mergedParentPage)
   studentPage.subjects = publicPageSubjects(studentPage.subjects)
@@ -861,7 +867,7 @@ async function publishFamilyAssignment() {
   if (request.schemaVersion !== 1 || !/^\d{4}-\d{2}-\d{2}$/.test(request.sourceDate ?? '') || !request.parentGuide) fail('Нужны schemaVersion 1, sourceDate и отдельный закрытый parentGuide.')
   const owner = ownerContext()
   if (!owner?.familyId || !owner?.childId) fail('Сначала подтвердите владельца через локальный family-access.')
-  const allowedTaskFields = new Set(['id', 'familyId', 'childId', 'sourceSystem', 'sourceId', 'sourceRevision', 'subjectId', 'subjectName', 'dueDate', 'title', 'originalText', 'studentText', 'publication', 'evidence', 'materialIds', 'steps', 'submission', 'cardPattern', 'cardPolicyVersion', 'outputKind', 'dayProjectionVersion'])
+  const allowedTaskFields = new Set(['id', 'familyId', 'childId', 'sourceSystem', 'sourceId', 'sourceRevision', 'subjectId', 'subjectName', 'dueDate', 'title', 'originalText', 'studentText', 'publication', 'evidence', 'materialIds', 'steps', 'submission', 'cardPattern', 'cardPolicyVersion', 'outputKind', 'dayProjectionVersion', 'learningContext', 'optional', 'testPlacements'])
   if (Object.keys(request.task ?? {}).some((key) => !allowedTaskFields.has(key))) fail('Каноническая задача содержит поля вне разрешённого семейного формата.')
   if (request.task?.familyId !== owner.familyId || request.task?.childId !== owner.childId) fail('ID семьи и ребёнка в запросе должны точно совпасть с локальным owner; подмена владельца запрещена.')
   const task = { ...request.task, dayProjectionVersion: 1,
@@ -879,6 +885,7 @@ async function publishFamilyAssignment() {
   const selected = candidates[0]
   if (!selected?.pair?.student || !selected.pair.parent) fail(`Нет опубликованной пары страниц для срока ${task.dueDate}.`)
   const { sourceDate, source, pair } = selected
+  if (task.learningContext?.kind === 'olympiad') task.projectionSourceDate = sourceDate
   assertSourceAligned(source, json(resolve(local, `diary/snapshot-${source.targetDate}.json`)))
   const taskRef = db.doc(`families/${owner.familyId}/children/${owner.childId}/tasks/${task.id}`)
   const studentRef = db.doc(`dayPages/${pair.student}`), parentRef = db.doc(`dayPages/${pair.parent}`)
@@ -895,6 +902,10 @@ async function publishFamilyAssignment() {
   const storedTask = { ...storedTaskFields, checkedAt: Timestamp.now() }
   const guideErrors = familyGuideErrors(request.parentGuide, task)
   if (guideErrors.length) fail(guideErrors.join(' '))
+  const quizSnaps = await Promise.all((task.testPlacements ?? []).map(({ token }) => db.doc(`assignments/${token}`).get()))
+  const quizzes = new Map((task.testPlacements ?? []).map(({ token }, index) => [token, quizSnaps[index].exists ? quizSnaps[index].data() : null]))
+  const quizErrors = familyTestPlacementErrors(task, quizzes)
+  if (quizErrors.length) fail(quizErrors.join(' '))
   const priorTask = taskSnap.data()
   if (priorTask && priorTask.sourceSystem !== 'family') fail('Этот taskId уже принадлежит другому источнику.')
   if (priorTask && task.sourceRevision < priorTask.sourceRevision) fail('Нельзя откатить ревизию семейного задания.')
@@ -918,6 +929,10 @@ async function publishFamilyAssignment() {
     && !isDeepStrictEqual(guideSnap.data()?.guide, request.parentGuide)) fail('Родительский маршрут изменился без увеличения sourceRevision задания.')
   const studentPage = mergeFamilyAssignments(studentSnap.data(), [storedTask])
   const parentPage = mergeFamilyAssignments(parentSnap.data(), [storedTask])
+  if (task.testPlacements?.length) {
+    studentPage.testPlacements = planFamilyTestPlacements(task, quizzes, studentPage)
+    parentPage.testPlacements = planFamilyTestPlacements(task, quizzes, parentPage)
+  }
   const summary = { date: sourceDate, targetDate: task.dueDate, taskId: task.id, roles: ['student', 'parent'], preflight: 'passed', applied: false }
   const datedTasks = (await db.collection(`families/${owner.familyId}/children/${owner.childId}/tasks`).where('dueDate', '==', task.dueDate).get()).docs
     .map((snapshot) => ({ id: snapshot.id, ...snapshot.data() }))
@@ -942,6 +957,11 @@ async function publishFamilyAssignment() {
     if (!snapshot.exists || data?.kind !== role || data.familyId !== owner.familyId || data.childId !== owner.childId) fail(`Dashboard ${role} не совпадает с подтверждённой семьёй и ребёнком.`)
     try { assertLearningRouteIdentity(data, learningRouteIdentity(dashboardTokens, owner)) }
     catch { fail(`Ссылки dashboard ${role} не совпадают с обеими ролевыми проекциями владельца.`) }
+    if (task.optional === true) {
+      dashboardDeltas[role] = null
+      expectedDashboardDays[role] = data.days.find((item) => item.date === task.dueDate)
+      continue
+    }
     const expectedIndex = buildDayDashboardIndex(local, links, role, new Date(), data.schoolCalendar, projectedDatedTasks)
     const expectedDay = expectedIndex.days.find((item) => item.date === task.dueDate)
     const projectedTask = projectedDatedTasks.find((item) => item.id === task.id)
@@ -968,9 +988,12 @@ async function publishFamilyAssignment() {
     const reads = [
       transaction.get(ownerSnap.ref), transaction.get(membershipSnap.ref), transaction.get(taskRef), transaction.get(studentRef), transaction.get(parentRef), transaction.get(guideRef),
       ...(['student', 'parent'].filter((role) => dashboardDeltas[role]).map((role) => transaction.get(dashboardRefs[role]))),
+      ...quizSnaps.map((snapshot) => transaction.get(snapshot.ref)),
     ]
     const current = await Promise.all(reads)
     const [currentOwner, currentMembership, currentTask, currentStudent, currentParent, currentGuide] = current
+    const currentQuizzes = current.slice(6 + ['student', 'parent'].filter((role) => dashboardDeltas[role]).length)
+    if (currentQuizzes.some((snapshot, index) => !snapshot.exists || !snapshot.updateTime.isEqual(quizSnaps[index].updateTime))) fail('Тест изменился после предпросмотра; публикация отменена.')
     const currentDashboards = Object.fromEntries(['student', 'parent'].filter((role) => dashboardDeltas[role])
       .map((role, index) => [role, current[6 + index]]))
     for (const role of Object.keys(currentDashboards)) {
@@ -1001,7 +1024,7 @@ async function publishFamilyAssignment() {
   })
   if (!alreadyPublished) {
     const [liveTask, liveStudent, liveParent] = await Promise.all([taskRef.get(), studentRef.get(), parentRef.get()])
-    if (liveTask.data()?.sourceSystem !== 'family' || ![liveStudent, liveParent].every((snap) => snap.data()?.taskIds?.includes(task.id))) fail('Обратное чтение семейного задания или taskIds не совпало.')
+    if (liveTask.data()?.sourceSystem !== 'family' || ![liveStudent, liveParent].every((snap) => snap.data()?.taskIds?.includes(task.id) && (task.testPlacements ?? []).every(({ token }) => snap.data()?.testPlacements?.some((item) => item.token === token && item.subjectId === task.subjectId && item.optional === true)))) fail('Обратное чтение семейного задания, taskIds или тестов не совпало.')
   }
   const liveDashboards = await Promise.all(['student', 'parent'].map((role) => dashboardRefs[role].get()))
   for (const [index, role] of ['student', 'parent'].entries()) {
@@ -1009,6 +1032,10 @@ async function publishFamilyAssignment() {
     try { assertLearningRouteIdentity(data, learningRouteIdentity(dashboardTokens, owner)) }
     catch { fail(`Обратное чтение dashboard ${role} не совпало с владельцем.`) }
     const day = data?.days?.find((item) => item.date === task.dueDate)
+    if (task.optional === true) {
+      if (data?.kind !== role || data?.familyId !== owner.familyId || data?.childId !== owner.childId) fail(`Обратное чтение dashboard ${role} не подтвердило владельца.`)
+      continue
+    }
     if (data?.kind !== role || data?.familyId !== owner.familyId || data?.childId !== owner.childId
       || day?.homeworkDayToken !== pair[role]
       || !isDeepStrictEqual(day?.homework ?? [], expectedDashboardDays[role].homework)) {

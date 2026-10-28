@@ -1,5 +1,5 @@
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
-import { collection, doc, getDocsFromServer, limit, onSnapshot, orderBy, query, runTransaction, serverTimestamp, setDoc, startAfter, updateDoc, writeBatch } from 'firebase/firestore'
+import { collection, doc, getDocsFromServer, limit, onSnapshot, orderBy, query, runTransaction, serverTimestamp, setDoc, startAfter, updateDoc, where, writeBatch } from 'firebase/firestore'
 import type { QueryDocumentSnapshot } from 'firebase/firestore'
 import { db } from './firebase'
 import { currentEducationPersonId, restorePersonalSession } from './personalAccess'
@@ -47,6 +47,25 @@ export function watchEducationDay(familyId: string, childId: string, date: strin
 export function watchEducationTask(familyId: string, childId: string, taskId: string, onChange: (task: EducationTask | null) => void, onError: (error: Error) => void) {
   return onSnapshot(doc(db, 'families', segment(familyId), 'children', segment(childId), 'tasks', segment(taskId)),
     (snapshot) => onChange(snapshot.exists() ? snapshot.data() as EducationTask : null), onError)
+}
+
+export type FamilyOlympiadTask = { id: string; title: string; dueDate: string; projectionSourceDate: string; learningContext: { kind: 'olympiad'; id: string }; testTokens: string[] }
+/** Uses the existing family task collection and its membership rules.
+ * @see ../../docs/modules/assessments/olympiad-preparation.md */
+export function watchFamilyOlympiadTasks(familyId: string, childId: string, onChange: (tasks: FamilyOlympiadTask[]) => void, onError: (error: Error) => void) {
+  const ref = query(collection(db, 'families', segment(familyId), 'children', segment(childId), 'tasks'), where('learningContext.kind', '==', 'olympiad'))
+  return onSnapshot(ref, snapshot => {
+    const tasks: FamilyOlympiadTask[] = []
+    for (const item of snapshot.docs) {
+      const value = item.data(), context = value.learningContext
+      if (value.familyId !== familyId || value.childId !== childId || value.publication !== 'active' || value.optional !== true || value.sourceSystem !== 'family' ||
+        !context || context.kind !== 'olympiad' || typeof context.id !== 'string' || !/^[A-Za-z0-9_-]{1,120}$/.test(context.id) ||
+        typeof value.title !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value.dueDate ?? '') || !/^\d{4}-\d{2}-\d{2}$/.test(value.projectionSourceDate ?? '') ||
+        !Array.isArray(value.testPlacements) || value.testPlacements.some((x: { token?: unknown }) => typeof x?.token !== 'string' || !/^[A-Za-z0-9_-]{24,64}$/.test(x.token))) continue
+      tasks.push({ id: item.id, title: value.title, dueDate: value.dueDate, projectionSourceDate: value.projectionSourceDate, learningContext: { kind: 'olympiad', id: context.id }, testTokens: value.testPlacements.map((x: { token: string }) => x.token) })
+    }
+    onChange(tasks)
+  }, onError)
 }
 
 let sessionId: string | null = null

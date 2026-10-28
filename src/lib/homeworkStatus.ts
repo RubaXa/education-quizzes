@@ -19,11 +19,11 @@ export type QuizRequirement = Pick<LessonWorkItem, 'state' | 'detail'> | { state
 
 /** A chain is one required self-check. Earlier attempts remain in history.
  * @see ../../docs/modules/school-diary/dashboard.md#homework-progress */
-export function quizRequirement(rootToken: string, tests: Record<string, QuizWorkState>, scores: Record<string, QuizScore>): QuizRequirement {
+export function quizRequirement(rootToken: string, tests: Record<string, QuizWorkState>, scores: Record<string, QuizScore>, placementOptional = false): QuizRequirement {
   // The family choice is attached to the root, never to a retry. It removes
   // only this self-check from required work; the teacher sheet stays separate.
   // @see ../../docs/modules/assessments/quizzes.md#optional-quiz
-  if (tests[rootToken]?.familyOptional) return { state: 'optional', detail: 'Самопроверка доступна' }
+  if (placementOptional || tests[rootToken]?.familyOptional) return { state: 'optional', detail: 'Самопроверка доступна' }
   let token = rootToken
   const seen = new Set<string>()
   while (tests[token]?.testId && !seen.has(tests[token].testId!)) {
@@ -42,8 +42,8 @@ export function quizRequirement(rootToken: string, tests: Record<string, QuizWor
 }
 
 /** A voluntary test stays visible in QuizCard, but creates no work item. */
-export function requiredQuizRequirement(rootToken: string, tests: Record<string, QuizWorkState>, scores: Record<string, QuizScore>): Pick<LessonWorkItem, 'state' | 'detail'> | null {
-  const requirement = quizRequirement(rootToken, tests, scores)
+export function requiredQuizRequirement(rootToken: string, tests: Record<string, QuizWorkState>, scores: Record<string, QuizScore>, placementOptional = false): Pick<LessonWorkItem, 'state' | 'detail'> | null {
+  const requirement = quizRequirement(rootToken, tests, scores, placementOptional)
   return requirement.state === 'optional' ? null : requirement
 }
 
@@ -53,6 +53,8 @@ export function lessonSubjectId(name: string) {
 }
 export function lessonWorkItems(tasks: DayTask[], uploads: DayUpload[], reviews: DayWorkReview[], decisions: ParentCompletionEvent[], tests: Record<string, QuizWorkState>, scores: Record<string, QuizScore>): LessonWorkItem[] {
   return tasks.flatMap((task) => {
+    // Additional family practice is available separately and is not a school obligation.
+    if (task.optional === true) return []
     // A MESH pointer to an earlier lesson is information, not a second task.
     // @see ../../docs/modules/school-diary/dashboard.md#reference-only-homework
     if (task.referenceDate) return []

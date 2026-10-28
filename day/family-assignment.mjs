@@ -7,6 +7,7 @@
  * @see ../docs/decisions/family-essay-assignment-2026-10-20.md */
 
 import { validLearningRoute } from './card-policy.mjs'
+import { learningContext } from '../assessment/learning-context.mjs'
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/
 const ID = /^[a-z0-9][a-z0-9-]{2,119}$/
@@ -18,7 +19,12 @@ export function familyAssignmentErrors(task, { familyId, childId, taskId } = {})
   if (task.sourceSystem !== 'family' || task.sourceId !== task.id || !Number.isSafeInteger(task.sourceRevision) || task.sourceRevision < 1) errors.push('Источник должен быть семейным и иметь стабильную ревизию.')
   if (task.dayProjectionVersion !== 1) errors.push('Для страницы дня требуется явная версия проекции семейного назначения.')
   if (task.familyId !== familyId || task.childId !== childId) errors.push('Семейное назначение не совпадает с подтверждённым владельцем.')
-  if (task.subjectId !== 'russian') errors.push('Подготовка к сочинению должна относиться к предмету «Русский язык».')
+  if (!/^[a-z][a-z0-9-]{1,39}$/.test(task.subjectId ?? '') || task.subjectId !== 'russian' && (typeof task.subjectName !== 'string' || !task.subjectName.trim())) errors.push('Нужен подтверждённый предмет семейного задания.')
+  try { learningContext(task.learningContext) } catch { errors.push('Некорректный контекст учебного материала.') }
+  if (task.learningContext?.kind === 'olympiad' && task.optional !== true) errors.push('Олимпиадная практика должна оставаться дополнительной.')
+  if (task.testPlacements !== undefined && (!Array.isArray(task.testPlacements) || task.optional !== true || !task.learningContext || task.testPlacements.length > 30 ||
+    task.testPlacements.some((placement) => !placement || Object.keys(placement).some(key => key !== 'token') || !/^[A-Za-z0-9_-]{24,64}$/.test(placement.token ?? '')) ||
+    new Set(task.testPlacements.map(item => item.token)).size !== task.testPlacements.length)) errors.push('Дополнительным тестам нужны уникальные безопасные ссылки.')
   const parsedDate = DATE.test(task.dueDate ?? '') ? new Date(`${task.dueDate}T12:00:00Z`) : null
   if (!parsedDate || Number.isNaN(parsedDate.valueOf()) || parsedDate.toISOString().slice(0, 10) !== task.dueDate) errors.push('Нужна точная дата сдачи YYYY-MM-DD.')
   if (task.publication !== 'active' || task.evidence !== 'photo') errors.push('Карточка должна быть активной и принимать фото работы.')
@@ -40,6 +46,8 @@ export function projectFamilyAssignment(task) {
     status: 'unknown',
     source: 'Education · назначено родителем',
     familyOrigin: { sourceSystem: 'family', sourceId: task.sourceId, sourceRevision: task.sourceRevision },
+    ...(task.learningContext ? { learningContext: task.learningContext } : {}),
+    ...(task.optional === true ? { optional: true } : {}),
     steps: task.steps,
     submission: task.submission,
     cardPattern: task.cardPattern,
@@ -53,7 +61,7 @@ export function projectFamilyAssignment(task) {
 
 export function familyAssignmentProjectionSignature(task) {
   const projection = task?.familyOrigin ? task : projectFamilyAssignment(task)
-  const fields = Object.fromEntries(['id', 'title', 'detail', 'kind', 'source', 'steps', 'submission', 'cardPattern', 'cardPolicyVersion', 'outputKind', 'lessonDate', 'dueDate']
+  const fields = Object.fromEntries(['id', 'title', 'detail', 'kind', 'source', 'steps', 'submission', 'cardPattern', 'cardPolicyVersion', 'outputKind', 'lessonDate', 'dueDate', 'learningContext', 'optional']
     .filter((key) => projection[key] !== undefined).map((key) => [key, projection[key]]))
   if (projection.familyOrigin) fields.familyOrigin = Object.fromEntries(['sourceSystem', 'sourceId', 'sourceRevision']
     .filter((key) => projection.familyOrigin[key] !== undefined).map((key) => [key, projection.familyOrigin[key]]))
@@ -68,7 +76,7 @@ export function stableFamilyProjectionJson(value) {
 
 export function familyAssignmentRecordSignature(task) {
   const fields = ['id', 'familyId', 'childId', 'sourceSystem', 'sourceId', 'sourceRevision', 'subjectId', 'subjectName', 'dueDate',
-    'title', 'originalText', 'studentText', 'publication', 'evidence', 'materialIds', 'steps', 'submission', 'cardPattern', 'cardPolicyVersion', 'outputKind', 'sourceEvidence', 'dayProjectionVersion']
+    'title', 'originalText', 'studentText', 'publication', 'evidence', 'materialIds', 'steps', 'submission', 'cardPattern', 'cardPolicyVersion', 'outputKind', 'sourceEvidence', 'dayProjectionVersion', 'learningContext', 'optional', 'testPlacements', 'projectionSourceDate']
   return Object.fromEntries(fields.filter((key) => task?.[key] !== undefined).map((key) => [key, task[key]]))
 }
 
@@ -77,9 +85,33 @@ export function familyAssignmentsWithOverlay(assignments, task) {
   return [...(assignments ?? []).filter((item) => item?.id !== task.id), task]
 }
 
+/** Verify published quiz ownership and context before projecting its link.
+ * No quiz answer keys or answers are copied to a day page. */
+export function familyTestPlacementErrors(task, quizzes) {
+  const errors = []
+  for (const placement of task.testPlacements ?? []) {
+    const quiz = quizzes.get(placement.token)
+    if (!quiz || quiz.familyId !== task.familyId || quiz.childId !== task.childId ||
+      stableFamilyProjectionJson(quiz.learningContext) !== stableFamilyProjectionJson(task.learningContext)) errors.push('Тест не подтверждён как дополнительный материал этого ребёнка и контекста.')
+  }
+  return errors
+}
+
+export function planFamilyTestPlacements(task, quizzes, page) {
+  const errors = [...familyAssignmentErrors(task, { familyId: task.familyId, childId: task.childId, taskId: task.id }), ...familyTestPlacementErrors(task, quizzes)]
+  if (errors.length) throw new Error(errors.join(' '))
+  const placements = [...(page.testPlacements ?? [])]
+  for (const { token } of task.testPlacements ?? []) {
+    const prior = placements.find((item) => item.token === token)
+    if (prior && (prior.subjectId !== task.subjectId || prior.taskId || prior.optional !== true)) throw new Error('Ссылка теста уже используется в другой части дня.')
+    if (!prior) placements.push({ token, subjectId: task.subjectId, optional: true })
+  }
+  return placements
+}
+
 export function familyGuideErrors(guide, task) {
   if (!guide) return []
-  if (!guide.overview?.trim() || !validLearningRoute('russian', task, guide)) return ['Родительский маршрут семейного сочинения имеет неверную структуру.']
+  if (!guide.overview?.trim() || !validLearningRoute(task.subjectId, task, guide)) return ['Родительский маршрут семейного задания имеет неверную структуру.']
   for (const stage of guide.stages) {
     if (!stage.title?.trim() || stage.answer || stage.verification?.length
       || stage.source?.kind !== 'family' || stage.source.ref !== task.id || !stage.source.label?.trim()
@@ -94,21 +126,22 @@ export function mergeFamilyAssignments(page, assignments = []) {
   if (!assignments.length) return page
   const next = structuredClone(page)
   const subjects = next.subjects ?? []
-  let subject = subjects.find((item) => item.id === 'russian')
-  if (!subject) {
-    subject = { id: 'russian', name: 'Русский язык', icon: '✍', materials: '', mesh: '', summary: '', tasks: [] }
-    subjects.push(subject)
-  }
-  const byId = new Map((subject.tasks ?? []).map((item) => [item.id, item]))
-  const added = [], changed = []
+  const added = [], changed = [], changedSubjects = new Set()
   for (const assignment of assignments) {
+    if (subjects.some((item) => item.id !== assignment.subjectId && (item.tasks ?? []).some((task) => task.id === assignment.id))) throw new Error(`ID семейного задания ${assignment.id} уже занят в другом предмете.`)
+    let subject = subjects.find((item) => item.id === assignment.subjectId)
+    if (!subject) {
+      subject = { id: assignment.subjectId, name: assignment.subjectName || 'Русский язык', icon: assignment.subjectId === 'russian' ? '✍' : '📘', materials: '', mesh: '', summary: '', tasks: [] }
+      subjects.push(subject)
+    }
+    const byId = new Map((subject.tasks ?? []).map((item) => [item.id, item]))
     const baseProjection = projectFamilyAssignment(assignment)
     const projected = { ...baseProjection, familyOrigin: { ...baseProjection.familyOrigin, projectedSourceRevision: assignment.sourceRevision } }
     const existing = byId.get(projected.id)
     if (existing && existing.familyOrigin?.sourceId !== projected.familyOrigin.sourceId) throw new Error(`ID семейного задания ${projected.id} уже занят другим источником.`)
-    if (!existing) added.push(projected.id)
+    if (!existing) { added.push(projected.id); changedSubjects.add(subject.id) }
     else if (stableFamilyProjectionJson(familyAssignmentProjectionSignature(existing)) !== stableFamilyProjectionJson(familyAssignmentProjectionSignature(projected))
-      || existing.familyOrigin?.projectedSourceRevision !== assignment.sourceRevision) changed.push(projected.id)
+      || existing.familyOrigin?.projectedSourceRevision !== assignment.sourceRevision) { changed.push(projected.id); changedSubjects.add(subject.id) }
     const next = { ...existing, ...projected }
     if (existing?.familyOrigin?.sourceId === projected.familyOrigin.sourceId
       && existing.familyOrigin.sourceRevision === projected.familyOrigin.sourceRevision
@@ -119,13 +152,13 @@ export function mergeFamilyAssignments(page, assignments = []) {
       for (const key of ['platformResult', 'materialRequest', 'referenceDate']) if (existing[key] !== undefined) next[key] = existing[key]
     }
     byId.set(projected.id, next)
+    subject.tasks = [...byId.values()]
   }
-  subject.tasks = [...byId.values()]
   next.subjects = subjects
   next.taskIds = subjects.flatMap((item) => item.tasks ?? []).flatMap((item) => [item.id, ...(item.problems ?? []).map((problem) => problem.id)])
   if (added.length || changed.length) {
     next.planRevision = (Number.isInteger(page.planRevision) ? page.planRevision : 1) + 1
-    next.changes = [{ at: new Date().toISOString(), added, removed: [], changed, changedSubjects: ['russian'], newLinks: false, changedSchedule: false, changedWeekendSlot: false }, ...(page.changes ?? [])].slice(0, 20)
+    next.changes = [{ at: new Date().toISOString(), added, removed: [], changed, changedSubjects: [...changedSubjects], newLinks: false, changedSchedule: false, changedWeekendSlot: false }, ...(page.changes ?? [])].slice(0, 20)
   }
   return next
 }

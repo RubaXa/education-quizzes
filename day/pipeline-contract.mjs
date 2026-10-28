@@ -139,11 +139,12 @@ function assertFamilyProjectionMatches(source, page, role, familyAssignments) {
   const expectedIds = expectedFamily.map((task) => task.id).sort()
   const actualIds = actualFamily.map((task) => task.id).sort()
   const publicFields = new Set(['id', 'title', 'detail', 'kind', 'status', 'source', 'familyOrigin', 'steps', 'submission',
-    'cardPattern', 'cardPolicyVersion', 'outputKind', 'lessonDate', 'dueDate'])
+    'cardPattern', 'cardPolicyVersion', 'outputKind', 'lessonDate', 'dueDate', 'learningContext', 'optional'])
   const hasPrivateFields = actualFamily.some((task) => Object.keys(task).some((key) => !publicFields.has(key)))
   const invalidFamilyOrigin = actualFamily.some((task) => !task.familyOrigin || Object.keys(task.familyOrigin).some((key) => !['sourceSystem', 'sourceId', 'sourceRevision', 'projectedSourceRevision'].includes(key))
     || task.familyOrigin.sourceSystem !== 'family' || task.familyOrigin.projectedSourceRevision !== task.familyOrigin.sourceRevision)
-  if (familyErrors.length || hasPrivateFields || invalidFamilyOrigin || JSON.stringify(expectedIds) !== JSON.stringify(actualIds)
+  const missingPlacements = expectedFamily.some((task) => (task.testPlacements ?? []).some(({ token }) => !(page.testPlacements ?? []).some((item) => item.token === token && item.subjectId === task.subjectId && item.optional === true && !item.taskId)))
+  if (familyErrors.length || hasPrivateFields || invalidFamilyOrigin || missingPlacements || JSON.stringify(expectedIds) !== JSON.stringify(actualIds)
     || expectedFamily.some((task) => {
       const expected = familyAssignmentProjectionSignature(task)
       const actual = actualFamily.find((item) => item.id === task.id)
