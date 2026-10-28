@@ -6721,7 +6721,7 @@
       }
     },
     "src/components/OlympiadReferences.tsx": {
-      "sha256": "3656a7bb12e107b90b11ee89d897512eb27e4fcc351336a9b97e32031bb9fe8f",
+      "sha256": "7f2cb28e7c7d195b60f63b885667bc02d9c2b8f97fef57a38ff24033b31c67a5",
       "record": "docs/decisions/energy-hope-archive-2026-10-28.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
