@@ -178,8 +178,8 @@ export default function DayPage({ token, parent, headerReturnTarget, olympiadSco
   const [helpRole, setHelpRole] = useState<'checking' | 'student' | 'parent' | 'none'>('checking')
   /** @see ../docs/modules/school-diary/day-page.md#completed-subjects */
   const [subjectOpen, setSubjectOpen] = useState<Record<string, boolean>>({})
-  const [view, setView] = useState<'homework' | 'school'>(requestedView === 'homework' ? 'homework' : 'school')
-  const [manualView, setManualView] = useState(requestedView === 'homework' || requestedView === 'school')
+  const [view, setView] = useState<'homework' | 'school'>(olympiadScope || requestedView === 'homework' ? 'homework' : 'school')
+  const [manualView, setManualView] = useState(Boolean(olympiadScope) || requestedView === 'homework' || requestedView === 'school')
   const [error, setError] = useState('')
   const quizOutcomes = useDayQuizOutcomes(page, page?.targetDate ?? '', setError)
   const tests: TestItem[] = Object.entries(quizOutcomes.tests).map(([quizToken, assignment]) => {
@@ -435,15 +435,15 @@ export default function DayPage({ token, parent, headerReturnTarget, olympiadSco
   const currentChanged = lastChange?.changed.filter((id) => currentTaskIds.has(id)) ?? []
 
   return <>{headerReturnTarget && createPortal(<a className="day-return day-return-header" href={returnToDashboard || '#/'}>← На главную</a>, headerReturnTarget)}<div className={`day-page ${parent ? 'day-parent' : 'day-student'}`}>
-    <a className="day-return day-return-content" href={returnToDashboard || '#/'}>← На главную</a>
-    <section className="day-hero">
+    {!olympiadScope && <a className="day-return day-return-content" href={returnToDashboard || '#/'}>← На главную</a>}
+    {!olympiadScope && <section className="day-hero">
       <div className="day-kicker">{parent ? 'Панель родителя' : 'Мой план'} · {shortDate(page.date)}</div>
       <h1>{view === 'school' ? 'Расписание' : 'Домашнее задание'}</h1>
       <p>{shortDate(view === 'school' ? page.date : page.targetDate).replace(/^./u, letter => letter.toUpperCase())}{view === 'homework' && currentSubjects.some(subject => subject.tasks.some(task => task.dueDate && task.dueDate !== page.targetDate)) && '. Отдельные сроки указаны у заданий.'}</p>
       <div className="day-summary"><strong>{pending}</strong><span>{pending === 1 ? 'действие к этой дате осталось' : 'действий к этой дате осталось'}</span>{requiredDayTests.length > 0 && <><span className="day-summary-separator">·</span><span>{requiredDayTests.filter((test) => test.status === 'submitted').length} из {requiredDayTests.length} обязательных тестов завершено</span></>}</div>
-    </section>
+    </section>}
 
-    <SharedTabs label="Раздел страницы дня" value={view} options={[{ id: 'school', label: 'Расписание' }, { id: 'homework', label: 'Задания' }]} onChange={next => { setManualView(true); setView(next) }} />
+    {!olympiadScope && <SharedTabs label="Раздел страницы дня" value={view} options={[{ id: 'school', label: 'Расписание' }, { id: 'homework', label: 'Задания' }]} onChange={next => { setManualView(true); setView(next) }} />}
     {error && <div className="day-inline-error" role="alert">{error}</div>}
 
     {view === 'school' ? <section className="day-schedule-panel">
@@ -465,7 +465,7 @@ export default function DayPage({ token, parent, headerReturnTarget, olympiadSco
         const subjectName = page.subjects.find((subject) => subject.id === entry.subjectId)?.name
         return <div className="day-notices" key={entry.id}><p>✳ <strong>МЭШ{subjectName ? ` · ${subjectName}` : ''}</strong> · {entry.rawText}</p></div>
       })}
-      <h2 className="day-homework-heading">По предметам</h2>
+      <h2 className="day-homework-heading">{olympiadScope ? 'Материалы и задания' : 'По предметам'}</h2>
       {currentSubjects.length === 0 && sourceNotices.length === 0 && <div className="day-notices"><p>На эту дату задания в МЭШ пока не указаны.</p></div>}
 
       <div className="day-subject-list">{currentSubjects.map((subject) => {
@@ -642,6 +642,6 @@ export default function DayPage({ token, parent, headerReturnTarget, olympiadSco
       })}</div>
       {noSpecialHomework && <p className="day-no-homework">Спецкурс по математике: в МЭШ на {dayMonth(page.targetDate)} домашнее задание не указано.</p>}
     </>}
-    <footer className="day-footer"><Clock3 size={15} /> МЭШ: снимок {new Date(page.meshFetchedAt).toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' })}. Работы и тесты обновляются при открытой странице.</footer>
+    {!olympiadScope && <footer className="day-footer"><Clock3 size={15} /> МЭШ: снимок {new Date(page.meshFetchedAt).toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' })}. Работы и тесты обновляются при открытой странице.</footer>}
   </div></>
 }

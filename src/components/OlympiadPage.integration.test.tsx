@@ -59,3 +59,14 @@ it('does not show an unselected olympiad to the student', async()=>{
  expect(host.textContent).toContain('Эту олимпиаду ещё не включил родитель')
  expect(host.querySelector('[data-token]')).toBeNull()
 })
+
+
+it.each(['parent','student'] as const)('shows all published tasks of this olympiad for %s', async role => {
+ const watchTasks=vi.fn((_f,_c,next)=>{next([task,{...task,id:'task-2',title:'Вторая задача'},{...task,id:'other',learningContext:{kind:'olympiad',id:'o2'}}]);return ()=>{}})
+ const watchDashboard=vi.fn((_t,next)=>{next(dashboard(role));return ()=>{}})
+ document.body.append(host);root=createRoot(host)
+ await act(async()=>root!.render(<OlympiadPage familyId="family" childId="child" olympiadId="o1" parent={role==='parent'} dashboardToken="dashboard" watchSelections={watchSelections} watchCatalog={watchCatalog} watchTasks={watchTasks} watchDashboard={watchDashboard}/>))
+ expect(host.querySelectorAll(`[data-role="${role}"]`)).toHaveLength(2)
+ expect(host.textContent).toContain('task-2')
+ expect(host.textContent).not.toContain('other')
+})
