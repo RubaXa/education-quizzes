@@ -1778,7 +1778,7 @@
       }
     },
     "scripts/check-privacy.mjs": {
-      "sha256": "66a55829c474f516b2af347b7be3335108e899277d635ea18e7029db1c30dc9f",
+      "sha256": "1fd34bb0678fae3cc7952b453c112ebf1534673c85c939d6166ecd6e3ffe023b",
       "record": "docs/decisions/personal-tutoring-2026-10-30.md",
       "specs": [
         "docs/modules/materials/storage-privacy.md"
