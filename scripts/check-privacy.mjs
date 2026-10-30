@@ -31,14 +31,27 @@ const forbiddenText = new RegExp([
 ].join('|'), 'iu')
 const violations = []
 const exceptions = JSON.parse(readFileSync(new URL('./privacy-history-exceptions.json', import.meta.url), 'utf8')).entries
-const requests = [...new Set(changed.map(row => row.object))]
-const objects = new Map(requests.length ? batchObjects(execFileSync('git', ['cat-file', '--batch'], { input: `${requests.join('\n')}\n`, maxBuffer: 256 * 1024 * 1024 }), requests) : [])
+// Bound each batch by bytes: gh-pages retains many revisions of large bundles.
+const pathsByObject = new Map()
+for (const { object, path } of changed) pathsByObject.set(object, [...(pathsByObject.get(object) ?? []), path])
+const requests = [...pathsByObject.keys()]
+const sizes = requests.length ? execFileSync('git', ['cat-file', '--batch-check=%(objectsize)'],
+  { input: `${requests.join('\n')}\n`, encoding: 'utf8' }).trim().split('\n').map(Number) : []
+function* objectBatches() {
+  for (let start = 0; start < requests.length;) {
+    let end = start, bytes = 0
+    do { bytes += sizes[end] + 256; end += 1 } while (end < requests.length && bytes + sizes[end] + 256 <= 16 * 1024 * 1024)
+    const group = requests.slice(start, end)
+    yield batchObjects(execFileSync('git', ['cat-file', '--batch'],
+      { input: `${group.join('\n')}\n`, maxBuffer: bytes + 1024 }), group)
+    start = end
+  }
+}
 const currentObjects = history ? new Set(execFileSync('git', ['ls-tree', '-r', '--format=%(objectname) %(path)', 'HEAD'], { encoding: 'utf8' }).trim().split('\n')) : new Set()
 
 
-for (const { path, object } of changed) {
-  const record = objects.get(object)
-  if (record?.type !== 'blob') continue
+for (const records of objectBatches()) for (const [object, record] of records) for (const path of pathsByObject.get(object)) {
+  if (record.type !== 'blob') continue
   const content = record.bytes
   if (approvedHistoricalObject({ history, object, path, bytes: content, current: currentObjects.has(`${object} ${path}`) }, exceptions)) continue
   const iconHash = publicIconHashes[path.replace(/^public\//, '')]
