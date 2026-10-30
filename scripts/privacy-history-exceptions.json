@@ -1,0 +1,219 @@
+{
+  "version": 1,
+  "authorization": "explicit-user-approval-2026-10-30",
+  "entries": [
+    {
+      "object": "8b63c16d7d1c57f2d099b1f8f8d5600b5470f4e5",
+      "sha256": "e79aecfaba275eb2cb7abc1c11d33c11bf7e06a8ec5601200f3a15eb7db8a3f0",
+      "reason": "Explicit parent approval 2026-10-30: historical first-name mention in already published design documentation.",
+      "paths": [
+        "docs/modules/assessments/olympiad-preparation.md"
+      ],
+      "kind": "historical-document"
+    },
+    {
+      "object": "4d0d49b6545284f909c5b4fd5437152eb8b51c7a",
+      "sha256": "e44851f6097d3a1bcda0d6ab81d2cb2954f49e4de578be1cddecc3362d40a457",
+      "reason": "Explicit parent approval 2026-10-30: historical first-name mention in already published design documentation.",
+      "paths": [
+        "docs/product/olympiad-preparation.md"
+      ],
+      "kind": "historical-document"
+    },
+    {
+      "object": "743e7088b373af80c6cd770120e391090ac36359",
+      "sha256": "931c65debcc1d1429bdd7c932651040c7beb91b6677fedb6b012a74b4970f306",
+      "reason": "Explicit parent approval 2026-10-30: historical first-name mention in already published design documentation.",
+      "paths": [
+        "docs/modules/assessments/olympiad-preparation.md"
+      ],
+      "kind": "historical-document"
+    },
+    {
+      "object": "3c0415206c08acb199a91128a12f7cf8c75b75e2",
+      "sha256": "c7b945d82ac2329506d0a164cc75a6896f7613b3295592358ef6de4b353d22b4",
+      "reason": "Explicit parent approval 2026-10-30: historical first-name mention in already published design documentation.",
+      "paths": [
+        "docs/modules/assessments/olympiad-preparation.md"
+      ],
+      "kind": "historical-document"
+    },
+    {
+      "object": "c135cf624aebf3a429daef7a8828c33027e403ec",
+      "sha256": "ba70ab6c05521209e412bb26acde2d24433e0918d97c555367abe36fcff5347d",
+      "reason": "Explicit parent approval 2026-10-30: historical first-name mention in already published design documentation.",
+      "paths": [
+        "docs/modules/assessments/olympiad-preparation.md"
+      ],
+      "kind": "historical-document"
+    },
+    {
+      "object": "856eb1217fc58a76acd858ab0c9fcf6e42312525",
+      "sha256": "3fbe12bf914644d61a1bfb00e8d17545071894acd854841683ed8b9bac834654",
+      "reason": "Explicit parent approval 2026-10-30: historical first-name mention in already published design documentation.",
+      "paths": [
+        "docs/modules/assessments/olympiad-preparation.md"
+      ],
+      "kind": "historical-document"
+    },
+    {
+      "object": "8004d5e918cb464102ff541f43f610450fb30835",
+      "sha256": "bc4cd1910c0f53bed61abedead3fe64a6190e8e5ac3021c357dbe64e359a9167",
+      "reason": "Explicit parent approval 2026-10-30: historical first-name mention in already published design documentation.",
+      "paths": [
+        "docs/modules/assessments/olympiad-preparation.md"
+      ],
+      "kind": "historical-document"
+    },
+    {
+      "object": "d8952c8024a531a2e714db8b178057f9d2f599b6",
+      "sha256": "c8d848e61d1fb1d5af2ea93d84bfb84e25f7128b6fcad9a6d1cebdcdaa3c83a6",
+      "reason": "Explicit parent approval 2026-10-30: historical first-name mention in already published design documentation.",
+      "paths": [
+        "docs/modules/assessments/olympiad-preparation.md"
+      ],
+      "kind": "historical-document"
+    },
+    {
+      "object": "cac5d957e85875a756f16e623bb6f0847ebe1f3d",
+      "sha256": "f93caa25b5de25e1dbc290414ea81ba5a99276c0a517e1f61f4eb5ea42972348",
+      "reason": "Explicit parent approval 2026-10-30: historical first-name mention in already published design documentation.",
+      "paths": [
+        "docs/modules/assessments/olympiad-preparation.md"
+      ],
+      "kind": "historical-document"
+    },
+    {
+      "object": "71a5b2c4f9a4782dc1741beb89ac8ef97dd114f4",
+      "sha256": "815aa1814c0e2d22a68417ed969ff1b5559f7c8ea0ddf56d86caf7bf08778a94",
+      "reason": "Explicit parent approval 2026-10-30: historical first-name mention in already published design documentation.",
+      "paths": [
+        "docs/modules/assessments/olympiad-preparation.md"
+      ],
+      "kind": "historical-document"
+    },
+    {
+      "object": "fa12c2809ecffbe2bf624bde196da545cfb5b84b",
+      "sha256": "2784f469444b42445a184f0c51578afb048075121c54ad02461839e28aae71bf",
+      "reason": "Explicit parent approval 2026-10-30: historical first-name mention in already published design documentation.",
+      "paths": [
+        "docs/modules/assessments/olympiad-preparation.md"
+      ],
+      "kind": "historical-document"
+    },
+    {
+      "object": "8c33efc9fe164539ba83bc58979dd067eb2194d1",
+      "sha256": "65df3e7649d81eaf31a1a3cdd07da7a5ef1e0f39b2e78e70235b948bf8578e36",
+      "reason": "Explicit parent approval 2026-10-30: historical first-name mention in already published design documentation.",
+      "paths": [
+        "docs/modules/assessments/olympiad-preparation.md"
+      ],
+      "kind": "historical-document"
+    },
+    {
+      "object": "7c567bd6bb6887b0f1ead2d22e1e202cfcd8bcd9",
+      "sha256": "b02ac2092e3d976033786300737cbf97d4c8b296d8a9396569665f8df480afaf",
+      "reason": "Explicit parent approval 2026-10-30: already public official olympiad source PDF; exact original bytes only.",
+      "paths": [
+        "public/olympiads/energy-hope/final-2024-25-grade6.pdf",
+        "olympiads/energy-hope/final-2024-25-grade6.pdf"
+      ],
+      "kind": "official-public-pdf"
+    },
+    {
+      "object": "1f3363d04e381acc1b06803cb73b676f0525c89a",
+      "sha256": "ab514c1f93e833b95b5be9e90621820e78fc86bdbb067f028891464d3054d59c",
+      "reason": "Explicit parent approval 2026-10-30: already public official olympiad source PDF; exact original bytes only.",
+      "paths": [
+        "public/olympiads/energy-hope/final-2025-26-grade6.pdf",
+        "olympiads/energy-hope/final-2025-26-grade6.pdf"
+      ],
+      "kind": "official-public-pdf"
+    },
+    {
+      "object": "7a3d2199afbf8b43fe6d332c1cf2e0af9858ad54",
+      "sha256": "0a3ee04672216ee840d9557d2c25bebd575a16836ca42b8c4b706661fd5271f7",
+      "reason": "Explicit parent approval 2026-10-30: already public official olympiad source PDF; exact original bytes only.",
+      "paths": [
+        "public/olympiads/energy-hope/qualifier-2024-25-a-grade6.pdf",
+        "olympiads/energy-hope/qualifier-2024-25-a-grade6.pdf"
+      ],
+      "kind": "official-public-pdf"
+    },
+    {
+      "object": "da553e52b031039aaeaa10a962d7d52adb6ee5db",
+      "sha256": "0ac1a0c64b859bda1bd5627aad4815f1ae2f548de4285432f0e23b9672e58007",
+      "reason": "Explicit parent approval 2026-10-30: already public official olympiad source PDF; exact original bytes only.",
+      "paths": [
+        "public/olympiads/energy-hope/qualifier-2024-25-b-grade6.pdf",
+        "olympiads/energy-hope/qualifier-2024-25-b-grade6.pdf"
+      ],
+      "kind": "official-public-pdf"
+    },
+    {
+      "object": "2b8215be7611e47bc3d2bfeee07496c20f1c411b",
+      "sha256": "898e39afdd6c718539c16313f2c0019e7a0c21417403688ecb26b4d426e321f2",
+      "reason": "Explicit parent approval 2026-10-30: already public official olympiad source PDF; exact original bytes only.",
+      "paths": [
+        "public/olympiads/energy-hope/qualifier-2025-26-a-grade6.pdf",
+        "olympiads/energy-hope/qualifier-2025-26-a-grade6.pdf"
+      ],
+      "kind": "official-public-pdf"
+    },
+    {
+      "object": "17e2cab548591b797bcc945e96461ae3cf2b9078",
+      "sha256": "c5641698563eb6a34d8d12f059d74a92dcd20fb0c63bd52bd858dd1863cebc4a",
+      "reason": "Explicit parent approval 2026-10-30: already public official olympiad source PDF; exact original bytes only.",
+      "paths": [
+        "public/olympiads/energy-hope/qualifier-2025-26-b-grade6.pdf",
+        "olympiads/energy-hope/qualifier-2025-26-b-grade6.pdf"
+      ],
+      "kind": "official-public-pdf"
+    },
+    {
+      "object": "5ce8f1a1b08dec224d8717342ea86e13129b3b39",
+      "sha256": "5f731d124bbf4c95e23bc98bdf0a666b4d46ff2796c6b89cc8861120a64e5991",
+      "reason": "Explicit parent approval 2026-10-30: historical first-name mention in already published design documentation.",
+      "paths": [
+        "docs/modules/assessments/olympiad-preparation.md"
+      ],
+      "kind": "historical-document"
+    },
+    {
+      "object": "eea0e8e291cb429aa045750cb8f37dd29b2deb8b",
+      "sha256": "b2300097511331d293fb1f7b35c573273a9378a771c4b915c58e541ea9c91447",
+      "reason": "Explicit parent approval 2026-10-30: historical first-name mention in already published design documentation.",
+      "paths": [
+        "docs/modules/assessments/olympiad-preparation.md"
+      ],
+      "kind": "historical-document"
+    },
+    {
+      "object": "e2684b9c462c3a68c1c08e17a37748951aafbff2",
+      "sha256": "0c5c82485163a3857a2df3aa07d30bc22774dbe66801f71d2e2c267b457d52bc",
+      "reason": "Explicit parent approval 2026-10-30: historical first-name mention in already published design documentation.",
+      "paths": [
+        "docs/modules/assessments/olympiad-preparation.md"
+      ],
+      "kind": "historical-document"
+    },
+    {
+      "object": "5e16f04d37d0d2d1a1ee739297b7f44f6604a567",
+      "sha256": "065a60063daaf325742c72067e59bb2573fd3d03a9e0eab3e3871ea1722e7587",
+      "reason": "Explicit parent approval 2026-10-30: historical first-name mention in already published design documentation.",
+      "paths": [
+        "docs/modules/assessments/olympiad-preparation.md"
+      ],
+      "kind": "historical-document"
+    },
+    {
+      "object": "c1618d7cb8e61cc1adc244161e0b75b653297b9a",
+      "sha256": "6863994cf9112dc267510d445bc0db8e227c6622bf5fd3d27f70a7e8af24ba73",
+      "reason": "Explicit parent approval 2026-10-30: historical first-name mention in already published design documentation.",
+      "paths": [
+        "docs/modules/assessments/olympiad-preparation.md"
+      ],
+      "kind": "historical-document"
+    }
+  ]
+}

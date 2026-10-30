@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/personal-tutoring-2026-10-30.md */
 /** @see ../docs/decisions/upload-lifecycle-continuation-2026-10-30.md */
 /** @see ../docs/decisions/sync-task-routing-2026-10-23.md */
 /** A private operator plan, never a pedagogical verdict or student projection.
@@ -7,9 +8,9 @@
 import { quizDecision } from '../assessment/decision-graph.mjs'
 import { openMaterialRequest, materialRequestErrors } from '../src/lib/materialRequest.ts'
 import { lessonSubjectKey } from '../day/subject-identity.mjs'
-const guidancePolicyRevision='parent-readable-hints-2026-10-25'
+const guidancePolicyRevision='personal-step-explanations-2026-10-30'
 /** @see ../docs/decisions/guidance-refresh-readback-2026-10-25.md */
-const guidanceChecks=['adult-readable-class-level-route-review','learner-current-point-and-safe-hint-review']
+const guidanceChecks=['adult-readable-class-level-route-review','learner-current-point-and-safe-hint-review','exact-attempt-steps-and-preserved-credit','explain-bridge-before-one-probe','private-response-branches-and-both-role-readback']
 
 const adapters = {
   math: 'math-solution-route', special: 'math-solution-route+teacher-sheet-provenance',

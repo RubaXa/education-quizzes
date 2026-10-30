@@ -2,6 +2,14 @@
 
 | Файл | Спецификация | Назначение | Потребитель |
 |---|---|---|---|
+| [scripts/privacy-exceptions.mjs](../scripts/privacy-exceptions.mjs) | [Приватность](modules/materials/storage-privacy.md) | Проверка точных разрешённых исторических объектов и пакетное чтение Git без изменения байтов | Privacy hook |
+| [scripts/privacy-exceptions.test.mjs](../scripts/privacy-exceptions.test.mjs) | [Приватность](modules/materials/storage-privacy.md) | Отказ для новых данных, новых путей и возврата имени в текущий документ | Vitest |
+| [scripts/privacy-history-exceptions.json](../scripts/privacy-history-exceptions.json) | [Приватность](modules/materials/storage-privacy.md) | 23 точных старых объекта с прямым разрешением владельца | Privacy hook |
+| [src/components/WorkReview.tutoring.test.tsx](../src/components/WorkReview.tutoring.test.tsx) | [Предметная помощь](modules/reviews/subject-aware-guidance.md) | Связный разбор шагов в обеих ролях и раскрываемые основания без шаблонных заголовков | Vitest |
+| [storage/tutoring-decision.mjs](../storage/tutoring-decision.mjs) | [Предметная помощь](modules/reviews/subject-aware-guidance.md) | Выбор помощи по наблюдаемому пробелу и барьер публикации без объясняющего перехода | submissions CLI |
+| [storage/tutoring-decision.test.mjs](../storage/tutoring-decision.test.mjs) | [Предметная помощь](modules/reviews/subject-aware-guidance.md) | Развилки помощи, границы доказательств, видимость объяснения и сохранение принятого | Vitest |
+| [docs/research/personal-tutoring-2026-10-30.md](research/personal-tutoring-2026-10-30.md) | [Предметная помощь](modules/reviews/subject-aware-guidance.md) | Исследование и операционный граф персонального объяснения | Автор разборов |
+| [docs/decisions/personal-tutoring-2026-10-30.md](decisions/personal-tutoring-2026-10-30.md) | [Предметная помощь](modules/reviews/subject-aware-guidance.md) | Основание барьера качества и границы реализации | Разработчик; оператор |
 | [docs/decisions/sync-task-routing-2026-10-23.md](decisions/sync-task-routing-2026-10-23.md) | [План маршрутов](modules/synchronization/task-routing.md) | Основание ревизии и границы автоматизации | CLI; оператор |
 | [docs/modules/synchronization/task-routing.md](modules/synchronization/task-routing.md) | [Глобальная синхронизация](modules/synchronization/global-sync.md) | Следующий шаг, границы плана и полный манифест обновления разборов по педагогической политике | EducationSync; CLI |
 | [sync/task-route.mjs](../sync/task-route.mjs) | [План маршрутов](modules/synchronization/task-routing.md) | Известное/неизвестное и следующий шаг задания/события | Queue scan; execution artifact |

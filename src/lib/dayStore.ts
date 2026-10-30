@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/personal-tutoring-2026-10-30.md */
 /** @see ../../docs/decisions/scoped-learner-flow-2026-10-21.md */
 /** @see ../../docs/decisions/mesh-informational-entry-2026-10-21.md */
 /** @see ../../docs/modules/materials/material-clarification.md
@@ -143,7 +144,7 @@ export type DayWorkReview = {
     disputedRequirements?: { id: string; action: string; meshExcerpt?: string; sourceKind?: 'textbook' | 'model-inference'; sourceExcerpt?: string; sourceRef?: string; uncertainty?: string }[];
   };
   /** Operator-reviewed text safe for the student view; never generated from the private answer key in the client. */
-  studentFeedback?: { title: string; confirmed: string; focus: string; question: string; anchor?: { uploadId: string; location: string } };
+  studentFeedback?: { title: string; confirmed: string; focus: string; question: string; steps?: { stageId: string; uploadId: string; location: string; observation: string; explanation: string; status: 'correct' | 'partial' | 'incorrect' | 'cannot-assess' }[]; anchor?: { uploadId: string; location: string } };
   /** Separate the numeric result from the reasoning visible in a mathematical solution photo. */
   mathReasoning?: { answer: 'correct' | 'incorrect' | 'uncertain'; argument: 'sufficient' | 'incomplete' | 'not-shown' | 'unreadable' | 'not-required'; observed?: string; minimumNeeded?: string; criterionSource?: string };
   /** Whether every assigned action is visibly present; independent of the teacher's quality criterion. @see ../../docs/modules/reviews/review-criteria-provenance.md#work-coverage */

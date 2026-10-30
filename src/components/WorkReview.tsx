@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/personal-tutoring-2026-10-30.md */
 /** @see ../../docs/decisions/collapsed-variant-status-2026-10-21.md
  * @see ../../docs/decisions/photo-transfer-recovery-2026-10-22.md */
 import { useEffect, useState } from 'react'
@@ -116,18 +117,19 @@ export default function WorkReview({ review, uploads, accepted = false, canDecid
         })}
         {decisionError && <small role="alert">{decisionError}</small>}
         {!accepted && !familyDone && feedback ? <div className="day-work-review-feedback">
-          <p><b>Уже получилось</b><span>{formatReviewProse(feedback.confirmed)}</span></p>
-          <p><b>Проверь здесь</b><span>{formatReviewProse(feedback.focus)}</span></p>
-          <p><b>Один вопрос</b><span>{formatReviewProse(feedback.question)}</span></p>
+          <p>{formatReviewProse(feedback.confirmed)}</p>
+          {feedback.steps?.map((step, index) => <p className="day-work-review-step" key={`${step.stageId}-${index}`}><q>{formatReviewObservation(step.observation)}</q>{' — '}{formatReviewProse(step.explanation)}</p>)}
+          <p>{formatReviewProse(feedback.focus)}</p>
+          <p className="day-work-review-next">{formatReviewProse(feedback.question)}</p>
         </div> : !accepted && (review.status === 'needs-fix' || review.status === 'partial')
           ? <p className="day-work-review-unprepared">Работа проверена. Адресный вопрос к этой попытке ещё уточняется.</p>
           : null}
-        {basis?.requirement && !review.requirementChecks?.length && <div className="day-work-review-basis">
+        {basis?.requirement && !review.requirementChecks?.length && <details className="day-work-review-evidence"><summary>Условие и основания проверки</summary><div className="day-work-review-basis">
           <p><b>Что требовалось</b><span>{formatReviewProse(basis.requirement)}</span></p>
           <p><b>Что видно в работе</b><span>{formatReviewObservation(basis.observed ?? '')}</span></p>
           <p><b>{basis.outcome === 'unresolved' ? 'Что осталось неясным' : 'Почему такой результат'}</b><span>{formatReviewProse(basis.comparison ?? '')}</span></p>
           {(visibleSources.length > 0 || basis.limitation) && <details><summary>На чём основана проверка</summary>{visibleSources.length > 0 && <ul>{visibleSources.map((source, index) => <li key={`${source.ref}-${index}`}><b>{source.kind === 'mesh' ? 'МЭШ' : source.kind === 'textbook' ? 'Учебник' : source.kind === 'teacher' ? 'Учитель' : source.kind === 'curriculum' ? 'Программа' : 'Методическое пособие'}</b>: «{source.excerpt}» <small>{source.ref}</small></li>)}</ul>}{basis.limitation && <p>{formatReviewProse(basis.limitation)}</p>}</details>}
-        </div>}
+        </div></details>}
         {!review.requirementChecks?.length && !feedback && review.status !== 'needs-fix' && review.status !== 'partial' && items.length > 0 && <ol>{items.map((item, index) => <li className={`day-work-review-item ${item.status}`} key={`${item.label}-${index}`}>
           <span className="day-work-review-item-icon"><StatusIcon size={14} status={item.status === 'correct' ? 'complete' : item.status === 'incorrect' ? 'incorrect' : item.status === 'partial' ? 'partial' : 'unknown'} /></span>
           <div><strong>{formatReviewProse(item.label)} · {basis?.outcome === 'unresolved' && item.status === 'cannot-assess' ? basis.unresolvedReason === 'missing-evidence' ? 'Не видно на фото' : basis.unresolvedReason === 'criterion-unclear' ? 'Критерий требует уточнения' : 'Итог не установлен' : itemLabels[item.status]}</strong>{item.observed && <small><b>В работе:</b> {formatReviewObservation(item.observed)}</small>}</div>

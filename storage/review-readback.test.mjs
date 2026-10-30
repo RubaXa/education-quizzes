@@ -25,3 +25,13 @@ describe('review publication readback', () => {
     expect(() => assertReviewReadback(upload)).toThrow('not read back')
   })
 })
+
+import {sameReviewAssignmentAfterUpdate,reviewCorrectionStatusAllowed} from './review-readback.mjs'
+it('keeps an exact family assignment fence across a context-only page update',()=>{
+ const p={planRevision:40},c={planRevision:37,familySourceId:'family-task',assignmentText:'Exact original task'},t={familyOrigin:{sourceId:'family-task'},detail:'Exact original task'}
+ expect(sameReviewAssignmentAfterUpdate(p,c,t)).toBe(true)
+ expect(sameReviewAssignmentAfterUpdate(p,c,{...t,detail:'Changed task'})).toBe(false)
+ expect(sameReviewAssignmentAfterUpdate(p,c,{...t,familyOrigin:{sourceId:'other'}})).toBe(false)
+ expect(reviewCorrectionStatusAllowed('needs-fix','partial')).toBe(true)
+ expect(reviewCorrectionStatusAllowed('verified','needs-fix')).toBe(false)
+})

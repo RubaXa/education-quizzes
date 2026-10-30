@@ -1,5 +1,17 @@
+/** @see ../docs/decisions/personal-tutoring-2026-10-30.md */
 /** @see ../docs/modules/materials/material-clarification.md */
 import { isDeepStrictEqual } from 'node:util'
+/** A guidance/context edit may change a page revision without changing the task. */
+export function sameReviewAssignmentAfterUpdate(page, correction, currentTask) {
+  return page.planRevision > correction.planRevision && Boolean(
+    correction.meshText?.trim() && currentTask?.meshText === correction.meshText
+    || correction.familySourceId && correction.familySourceId === currentTask?.familyOrigin?.sourceId
+      && correction.assignmentText?.trim() && correction.assignmentText === currentTask.detail)
+}
+export function reviewCorrectionStatusAllowed(previous, next) {
+  return previous === next || ['partial:verified', 'partial:cannot-assess', 'needs-fix:cannot-assess',
+    'cannot-assess:verified', 'needs-fix:partial'].includes(`${previous}:${next}`)
+}
 /** Verify only the documents changed by one review publication.
  * @see ../docs/services/operator-cli/README.md#execution */
 export function assertReviewReadback({ entries, planRevision, privateDocs, publicDocs, uploads }) {

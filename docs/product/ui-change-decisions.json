@@ -1778,18 +1778,17 @@
       }
     },
     "scripts/check-privacy.mjs": {
-      "sha256": "3e2ae27e2d11c814bfa054e9f406947c5f6a0243ba92395b3a84f5945d6351d0",
-      "record": "docs/decisions/documentation-precommit-2026-10-16.md",
+      "sha256": "66a55829c474f516b2af347b7be3335108e899277d635ea18e7029db1c30dc9f",
+      "record": "docs/decisions/personal-tutoring-2026-10-30.md",
       "specs": [
-        "docs/shared/specification-system.md",
         "docs/modules/materials/storage-privacy.md"
       ],
       "tests": [
-        "scripts/check-privacy.test.mjs"
+        "scripts/privacy-exceptions.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь поручил установить Git-хуки, зафиксировать подготовленный граф спецификаций и отправить его в репозиторий 16.10.2026."
+        "evidence": "Прямой ответ владельца30.10: разрешить точечные исключения проверенных старых объектов по хэшам; убрать имя из текущих документов,проверку новых данных не отключать."
       }
     },
     "scripts/check-problem-variant-viewport.mjs": {
@@ -2345,17 +2344,20 @@
       }
     },
     "scripts/submissions.mjs": {
-      "sha256": "7c096c7ba6466c6e6a50cadbc192099c9098c5d48746c4dcb5e7a215a4f894ff",
-      "record": "docs/decisions/reviewed-photo-placement-2026-10-26.md",
+      "sha256": "cc710749573f8a46bcb3be82f1c36e254594693b99230f13fdc45c25697c2e18",
+      "record": "docs/decisions/personal-tutoring-2026-10-30.md",
       "specs": [
-        "docs/modules/materials/storage-privacy.md"
+        "docs/modules/reviews/subject-aware-guidance.md"
       ],
       "tests": [
-        "storage/photo-placement.test.mjs"
+        "storage/tutoring-decision.test.mjs",
+        "storage/review-projection.test.mjs",
+        "sync/event-task-artifact.test.mjs",
+        "src/components/WorkReview.tutoring.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь26.10 прямо потребовал автоматически переносить ошибочно загруженную работу в правильную карточку."
+        "evidence": "Родитель прямо поручил внедрить персональное объяснение каждой новой работы в основной автоматический конвейер, заменить шаблонные блоки обеих карточек и влить завершённый выпуск."
       }
     },
     "scripts/sync-books.mjs": {
@@ -2602,20 +2604,20 @@
       }
     },
     "src/DayPage.css": {
-      "sha256": "7ed4db35c8232c6a3cb3ab1a29f70f0c816fbb7afd555b8d774a344db3a2bf4c",
-      "record": "docs/decisions/olympiad-practice-queue-2026-10-28.md",
+      "sha256": "b452775c646f5a0edb0598100824d12448c0617aa7a079ccfb7aa80ed51fab02",
+      "record": "docs/decisions/personal-tutoring-2026-10-30.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/reviews/subject-aware-guidance.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/components/OlympiadPage.integration.test.tsx",
-        "src/components/WorkPhotoGallery.test.tsx"
+        "storage/tutoring-decision.test.mjs",
+        "storage/review-projection.test.mjs",
+        "sync/event-task-artifact.test.mjs",
+        "src/components/WorkReview.tutoring.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 28.10.2026 утвердил список задач, загрузку решения и очередь фотографий и поручил реализовать без дополнительных вопросов."
+        "evidence": "Родитель прямо поручил внедрить персональное объяснение каждой новой работы в основной автоматический конвейер, заменить шаблонные блоки обеих карточек и влить завершённый выпуск."
       }
     },
     "src/DayPage.tsx": {
@@ -2651,20 +2653,20 @@
       }
     },
     "src/UiKit.tsx": {
-      "sha256": "a1232185c61685b38dede37510a3f0102aa5f999b8c05203347309d6e784041a",
-      "record": "docs/decisions/olympiad-shared-statement-2026-10-28.md",
+      "sha256": "e21c223c1c7c20197ef9680ccd6ad7d086391fdb5413b9ba7768a98e4c0f0e79",
+      "record": "docs/decisions/personal-tutoring-2026-10-30.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/reviews/subject-aware-guidance.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/components/ProblemTaskCard.contract.test.tsx",
-        "src/UiKit.test.tsx"
+        "storage/tutoring-decision.test.mjs",
+        "storage/review-projection.test.mjs",
+        "sync/event-task-artifact.test.mjs",
+        "src/components/WorkReview.tutoring.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 28.10.2026 попросил использовать карточку и условие задачи как в спецкурсе и домашнем задании."
+        "evidence": "Родитель прямо поручил внедрить персональное объяснение каждой новой работы в основной автоматический конвейер, заменить шаблонные блоки обеих карточек и влить завершённый выпуск."
       }
     },
     "src/WeekendMathSlot.css": {
@@ -3843,22 +3845,20 @@
       }
     },
     "src/components/WorkReview.tsx": {
-      "sha256": "4b76f70eb1d8cbd1db5967adfbe15eacbc7ea4a1bf6df3fd9aa4a4a6612b9dcc",
-      "record": "docs/decisions/photo-transfer-recovery-2026-10-22.md",
+      "sha256": "6369763ad7abb9b74b99c6d03206f16eec703f8200bddb0982673f4e81519ed0",
+      "record": "docs/decisions/personal-tutoring-2026-10-30.md",
       "specs": [
-        "docs/modules/materials/storage-privacy.md",
-        "docs/modules/school-diary/day-page.md"
+        "docs/modules/reviews/subject-aware-guidance.md"
       ],
       "tests": [
-        "src/lib/photoOutbox.test.tsx",
-        "src/components/WorkPhotoGallery.test.tsx",
-        "src/components/WorkReview.requirements.test.tsx",
-        "src/lib/reviewPresentation.test.ts",
-        "src/lib/educationEventProducers.test.ts"
+        "storage/tutoring-decision.test.mjs",
+        "storage/review-projection.test.mjs",
+        "sync/event-task-artifact.test.mjs",
+        "src/components/WorkReview.tutoring.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь повторно сообщил о новой работе без Telegram и автоматической проверки, показал ошибку изображения и неверное время ожидания. Исправляется восстановление передачи того же фото и точное разделение заявки, получения файла и проверки."
+        "evidence": "Родитель прямо поручил внедрить персональное объяснение каждой новой работы в основной автоматический конвейер, заменить шаблонные блоки обеих карточек и влить завершённый выпуск."
       }
     },
     "src/components/ui/badge.tsx": {
@@ -4164,22 +4164,20 @@
       }
     },
     "src/lib/dayStore.ts": {
-      "sha256": "a170f727bdc485091356019ba9dbb40cceb916ae10dca93aabd0386f78ec4638",
-      "record": "docs/decisions/olympiad-firebase-independence-2026-10-28.md",
+      "sha256": "7fa1e239d76fa2545524b170f194679351529337bfa7e3db49f49bcf53af3a27",
+      "record": "docs/decisions/personal-tutoring-2026-10-30.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/services/telegram-bot/education-sync-dispatch.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/reviews/subject-aware-guidance.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "day/family-assignment.test.mjs",
-        "sync/task-route.test.mjs",
-        "packages/telegram-notifications/application/education-sync-action-store.test.mjs"
+        "storage/tutoring-decision.test.mjs",
+        "storage/review-projection.test.mjs",
+        "sync/event-task-artifact.test.mjs",
+        "src/components/WorkReview.tutoring.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель попросил независимо обработать Firebase и добавить фотографии его задач как карточки с загрузкой ответов."
+        "evidence": "Родитель прямо поручил внедрить персональное объяснение каждой новой работы в основной автоматический конвейер, заменить шаблонные блоки обеих карточек и влить завершённый выпуск."
       }
     },
     "src/lib/educationEventProducer.ts": {
@@ -4758,20 +4756,20 @@
       }
     },
     "src/lib/reviewProse.ts": {
-      "sha256": "3bd3030c1d3006b9eef747f59030f0392321a4cea087192f23872f1a010efeeb",
-      "record": "docs/decisions/review-prose-coverage-2026-10-19.md",
+      "sha256": "7e0ab67c560da7b4c4b2f6797af9212dbdb48e3e70c54d5dc5b7d55a2efb94fb",
+      "record": "docs/decisions/personal-tutoring-2026-10-30.md",
       "specs": [
-        "docs/modules/reviews/review-criteria-provenance.md",
-        "docs/shared/design/README.md"
+        "docs/modules/reviews/subject-aware-guidance.md"
       ],
       "tests": [
-        "src/lib/reviewProse.test.ts",
-        "src/components/WorkReview.requirements.test.tsx",
-        "src/components/ReviewProse.integration.test.tsx"
+        "storage/tutoring-decision.test.mjs",
+        "storage/review-projection.test.mjs",
+        "sync/event-task-artifact.test.mjs",
+        "src/components/WorkReview.tutoring.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 подтвердил родительский вход, прислал склейки слов и чисел в разборе и прямо потребовал проверить и исправить их во многих местах."
+        "evidence": "Родитель прямо поручил внедрить персональное объяснение каждой новой работы в основной автоматический конвейер, заменить шаблонные блоки обеих карточек и влить завершённый выпуск."
       }
     },
     "src/lib/roleDiagnostics.ts": {
@@ -5225,29 +5223,20 @@
       }
     },
     "storage/review-projection.mjs": {
-      "sha256": "53d983a252bf8a0126568e482aa0b33079ab1da7254820976317b85a5fb1a728",
-      "record": "docs/decisions/material-clarification-2026-10-16.md",
+      "sha256": "5bc1adaa80afa37fc32dfbacc028fc05cbfdd34dbba23c69899ccdc584e263ae",
+      "record": "docs/decisions/personal-tutoring-2026-10-30.md",
       "specs": [
-        "docs/modules/materials/material-clarification.md"
+        "docs/modules/reviews/subject-aware-guidance.md"
       ],
       "tests": [
-        "src/lib/materialRequest.test.ts",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/lib/homeworkStatus.test.ts",
-        "src/lib/photoUploadPolicy.test.ts",
-        "src/UiKit.test.tsx",
-        "storage/submission-inbox.test.mjs",
+        "storage/tutoring-decision.test.mjs",
         "storage/review-projection.test.mjs",
-        "storage/review-readback.test.mjs",
-        "day/build-assignments.test.mjs"
+        "sync/event-task-artifact.test.mjs",
+        "src/components/WorkReview.tutoring.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 16.10.2026 прямо потребовал вопрос ученику в карточке и ответ фото записей через стандартную загрузку с обработкой следующей синхронизацией."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "723039cb6f9117c5444f862e16c36fea6d7dc10ec404bb91a10262408702f4ec"
+        "evidence": "Родитель прямо поручил внедрить персональное объяснение каждой новой работы в основной автоматический конвейер, заменить шаблонные блоки обеих карточек и влить завершённый выпуск."
       }
     },
     "storage/review-publication-event.mjs": {
@@ -5265,29 +5254,17 @@
       }
     },
     "storage/review-readback.mjs": {
-      "sha256": "345d60339032ba76be7343dd9270df0f658c28d98d679e4f1ca800edcfc8ed6e",
-      "record": "docs/decisions/material-clarification-2026-10-16.md",
+      "sha256": "7a2c9320355833ca045cc915501998bf2c747b991adf2d087c377732680a0805",
+      "record": "docs/decisions/personal-tutoring-2026-10-30.md",
       "specs": [
-        "docs/modules/materials/material-clarification.md"
+        "docs/modules/materials/storage-privacy.md"
       ],
       "tests": [
-        "src/lib/materialRequest.test.ts",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/lib/homeworkStatus.test.ts",
-        "src/lib/photoUploadPolicy.test.ts",
-        "src/UiKit.test.tsx",
-        "storage/submission-inbox.test.mjs",
-        "storage/review-projection.test.mjs",
-        "storage/review-readback.test.mjs",
-        "day/build-assignments.test.mjs"
+        "storage/review-readback.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 16.10.2026 прямо потребовал вопрос ученику в карточке и ответ фото записей через стандартную загрузку с обработкой следующей синхронизацией."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "dd9fd82bfd4f75b6fe44392100ea25c5231a1e6703449d2cc5c5f927548ccdca"
+        "evidence": "Адресное обновление объяснения сохраняет прежнюю попытку при изменении общей ревизии страницы только после подтверждения точного прежнего семейного условия."
       }
     },
     "storage/review-requirements.mjs": {
@@ -5414,19 +5391,20 @@
       }
     },
     "sync/event-task-artifact.mjs": {
-      "sha256": "44d0b9961bedcfb9449dcb330af3f0fdd4b25b83edcb3b1d65a15780bd558ee8",
-      "record": "docs/decisions/upload-lifecycle-continuation-2026-10-30.md",
+      "sha256": "aff8a2d91a2ea4f9a4b5e33da0bb968383df621b6ffa2267daa680887b95142e",
+      "record": "docs/decisions/personal-tutoring-2026-10-30.md",
       "specs": [
-        "docs/modules/synchronization/event-queue.md"
+        "docs/modules/reviews/subject-aware-guidance.md"
       ],
       "tests": [
-        "sync/upload-lifecycle.test.mjs",
+        "storage/tutoring-decision.test.mjs",
+        "storage/review-projection.test.mjs",
         "sync/event-task-artifact.test.mjs",
-        "packages/telegram-notifications/source-pipeline.test.mjs"
+        "src/components/WorkReview.tutoring.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель30.10.2026 поручил автоматическую отмену удалённых фото и продолжение проверки после загрузки запрошенных страниц, сохраняя действующий разбор всех загруженных материалов."
+        "evidence": "Родитель прямо поручил внедрить персональное объяснение каждой новой работы в основной автоматический конвейер, заменить шаблонные блоки обеих карточек и влить завершённый выпуск."
       }
     },
     "sync/event-task-export.mjs": {
@@ -6151,19 +6129,20 @@
       }
     },
     "sync/task-route.mjs": {
-      "sha256": "e1cc1f020accd5bb9a028550700dbedefd3ae0943f35df2d500d00a466078c66",
-      "record": "docs/decisions/upload-lifecycle-continuation-2026-10-30.md",
+      "sha256": "bf7b72b104f8377cf8e315749954635529f8593c4524b2054038b50ae59699b6",
+      "record": "docs/decisions/personal-tutoring-2026-10-30.md",
       "specs": [
-        "docs/modules/synchronization/event-queue.md"
+        "docs/modules/reviews/subject-aware-guidance.md"
       ],
       "tests": [
-        "sync/upload-lifecycle.test.mjs",
+        "storage/tutoring-decision.test.mjs",
+        "storage/review-projection.test.mjs",
         "sync/event-task-artifact.test.mjs",
-        "packages/telegram-notifications/source-pipeline.test.mjs"
+        "src/components/WorkReview.tutoring.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель30.10.2026 поручил автоматическую отмену удалённых фото и продолжение проверки после загрузки запрошенных страниц, сохраняя действующий разбор всех загруженных материалов."
+        "evidence": "Родитель прямо поручил внедрить персональное объяснение каждой новой работы в основной автоматический конвейер, заменить шаблонные блоки обеих карточек и влить завершённый выпуск."
       }
     },
     "operator/route-plan.mjs": {
@@ -6757,6 +6736,37 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Родитель30.10.2026 поручил автоматическую отмену удалённых фото и продолжение проверки после загрузки запрошенных страниц, сохраняя действующий разбор всех загруженных материалов."
+      }
+    },
+    "storage/tutoring-decision.mjs": {
+      "sha256": "722040a6816ae890673db9a32abdf78ea20f0f9e2fd1ad045557e6c99231161f",
+      "record": "docs/decisions/personal-tutoring-2026-10-30.md",
+      "specs": [
+        "docs/modules/reviews/subject-aware-guidance.md"
+      ],
+      "tests": [
+        "storage/tutoring-decision.test.mjs",
+        "storage/review-projection.test.mjs",
+        "sync/event-task-artifact.test.mjs",
+        "src/components/WorkReview.tutoring.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель прямо поручил внедрить персональное объяснение каждой новой работы в основной автоматический конвейер, заменить шаблонные блоки обеих карточек и влить завершённый выпуск."
+      }
+    },
+    "scripts/privacy-exceptions.mjs": {
+      "sha256": "5ddbf6b3ada3a1f2175baa9e924a2e1b1bb27f0314df340517f47bb3f0372ccc",
+      "record": "docs/decisions/personal-tutoring-2026-10-30.md",
+      "specs": [
+        "docs/modules/materials/storage-privacy.md"
+      ],
+      "tests": [
+        "scripts/privacy-exceptions.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой ответ владельца30.10: разрешить точечные исключения проверенных старых объектов по хэшам; убрать имя из текущих документов,проверку новых данных не отключать."
       }
     }
   }

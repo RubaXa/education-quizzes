@@ -1,3 +1,4 @@
+/* @see ../docs/decisions/personal-tutoring-2026-10-30.md */
 /* @see ../docs/decisions/work-photo-expand-2026-10-18.md */
 /* @see ../docs/shared/design/README.md#cards-and-status — page-specific layout keeps the shared Education shell. */
 /* @see ../docs/shared/design/statuses.md#components — task and subject state share one icon and role palette. */
@@ -215,7 +216,7 @@
 .day-work-review-reasoning{margin:10px 0;padding:9px 11px;border:1px solid var(--review-border);border-radius:9px;background:#ffffffa8}
 .day-work-review-reasoning p{margin:4px 0}
 .day-work-review-feedback{display:grid;gap:8px;margin:10px 0}
-.day-work-review-feedback p{display:grid;gap:3px;margin:0;padding:10px 11px;border:1px solid var(--review-border);border-radius:9px;background:#ffffffb8;line-height:1.43}
+.day-work-review-feedback p{margin:0;padding:0;line-height:1.55;font-size:.9rem;color:var(--review-ink)}
 .day-work-review-feedback p b{font-size:.74rem;color:var(--review-ink)}
 .day-work-review-feedback p span{font-size:.86rem;color:#493f58}
 .day-work-review-unprepared{margin:10px 0!important;padding:10px 11px;border:1px solid var(--review-border);border-radius:9px;background:#ffffffb8;font-size:.82rem}
@@ -294,3 +295,5 @@
   .day-subject-title h2{font-size:1.28rem;line-height:1.2}
   .day-subject-materials{font-size:.86rem}
 }
+
+.day-work-review-step q{font-weight:600}.day-work-review-next{font-weight:600}.day-work-review-evidence>summary{font-size:.8rem;min-height:44px;cursor:pointer}

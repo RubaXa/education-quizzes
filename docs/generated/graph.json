@@ -1569,6 +1569,43 @@
       "path": "docs/decisions/olympiad-source-photo-crop-2026-10-28.md"
     },
     {
+      "id": "decision.personal-tutoring-2026-10-30",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-10-30",
+      "updated": "2026-10-30",
+      "consumers": [
+        "Education operator"
+      ],
+      "code": [
+        "scripts/check-privacy.mjs",
+        "scripts/privacy-exceptions.mjs",
+        "storage/tutoring-decision.mjs",
+        "scripts/submissions.mjs",
+        "sync/event-task-artifact.mjs",
+        "sync/task-route.mjs",
+        "src/components/WorkReview.tsx",
+        "src/DayPage.css",
+        "storage/review-projection.mjs",
+        "storage/review-readback.mjs",
+        "src/lib/dayStore.ts",
+        "src/lib/reviewProse.ts",
+        "src/UiKit.tsx"
+      ],
+      "parent": "module.reviews.subject-aware-guidance",
+      "uses": [
+        "research.personal-tutoring-2026-10-30"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/personal-tutoring-2026-10-30.md"
+    },
+    {
       "id": "decision.photo-indexeddb-recovery-2026-10-22",
       "status": "accepted",
       "implementation": "implemented",
@@ -6192,6 +6229,27 @@
       "consumer": "Vitest; разработчик"
     },
     {
+      "id": "file:scripts/privacy-exceptions.mjs",
+      "path": "scripts/privacy-exceptions.mjs",
+      "kind": "artifact",
+      "purpose": "Проверка точных разрешённых исторических объектов и пакетное чтение Git без изменения байтов",
+      "consumer": "Privacy hook"
+    },
+    {
+      "id": "file:scripts/privacy-exceptions.test.mjs",
+      "path": "scripts/privacy-exceptions.test.mjs",
+      "kind": "verification",
+      "purpose": "Отказ для новых данных, новых путей и возврата имени в текущий документ",
+      "consumer": "Vitest"
+    },
+    {
+      "id": "file:scripts/privacy-history-exceptions.json",
+      "path": "scripts/privacy-history-exceptions.json",
+      "kind": "artifact",
+      "purpose": "23 точных старых объекта с прямым разрешением владельца",
+      "consumer": "Privacy hook"
+    },
+    {
       "id": "file:scripts/publish-pages.mjs",
       "path": "scripts/publish-pages.mjs",
       "kind": "artifact",
@@ -7401,6 +7459,13 @@
       "kind": "artifact",
       "purpose": "Понятный результат проверки, происхождение спорных требований и выбор родителя без бейджа обязательности",
       "consumer": "День; спецкурс"
+    },
+    {
+      "id": "file:src/components/WorkReview.tutoring.test.tsx",
+      "path": "src/components/WorkReview.tutoring.test.tsx",
+      "kind": "verification",
+      "purpose": "Связный разбор шагов в обеих ролях и раскрываемые основания без шаблонных заголовков",
+      "consumer": "Vitest"
     },
     {
       "id": "file:src/DayDashboard.css",
@@ -8684,6 +8749,20 @@
       "consumer": "`material-pages`; день"
     },
     {
+      "id": "file:storage/tutoring-decision.mjs",
+      "path": "storage/tutoring-decision.mjs",
+      "kind": "artifact",
+      "purpose": "Выбор помощи по наблюдаемому пробелу и барьер публикации без объясняющего перехода",
+      "consumer": "submissions CLI"
+    },
+    {
+      "id": "file:storage/tutoring-decision.test.mjs",
+      "path": "storage/tutoring-decision.test.mjs",
+      "kind": "verification",
+      "purpose": "Развилки помощи, границы доказательств, видимость объяснения и сохранение принятого",
+      "consumer": "Vitest"
+    },
+    {
       "id": "file:storage/yandex-disk.mjs",
       "path": "storage/yandex-disk.mjs",
       "kind": "artifact",
@@ -9601,6 +9680,7 @@
         "upload worker"
       ],
       "code": [
+        "scripts/privacy-exceptions.mjs",
         "scripts/archive-local.mjs",
         "scripts/check-privacy.mjs",
         "scripts/day.mjs",
@@ -10104,6 +10184,7 @@
         "submission publisher"
       ],
       "code": [
+        "storage/tutoring-decision.mjs",
         "day/learner-flow.mjs",
         "src/components/LearnerFlow.tsx",
         "src/components/LearnerFlow.css",
@@ -10131,6 +10212,7 @@
         "module.reviews.math-solution-route"
       ],
       "sections": [
+        "tutor-decision",
         "sources",
         "parent-card",
         "adapters",
@@ -11551,6 +11633,26 @@
         "порядок-обсуждения"
       ],
       "path": "docs/research/parent-card-subject-options.md"
+    },
+    {
+      "id": "research.personal-tutoring-2026-10-30",
+      "status": "reference",
+      "implementation": "not-applicable",
+      "created": "2026-10-30",
+      "updated": "2026-10-30",
+      "consumers": [
+        "Education operator"
+      ],
+      "code": [],
+      "parent": "module.reviews.subject-aware-guidance",
+      "uses": [],
+      "sections": [
+        "источники-и-выводы",
+        "алгоритм-репетитора",
+        "предметные-развилки",
+        "границы"
+      ],
+      "path": "docs/research/personal-tutoring-2026-10-30.md"
     },
     {
       "id": "research.photo-math-solution-review",
@@ -13284,6 +13386,11 @@
     {
       "from": "decision.olympiad-source-photo-crop-2026-10-28",
       "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
+      "from": "decision.personal-tutoring-2026-10-30",
+      "to": "research.personal-tutoring-2026-10-30",
       "type": "uses"
     },
     {
@@ -15153,6 +15260,11 @@
     },
     {
       "from": "file:scripts/check-privacy.mjs",
+      "to": "decision.personal-tutoring-2026-10-30",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/check-privacy.mjs",
       "to": "module.materials.storage-privacy",
       "type": "implements"
     },
@@ -15617,6 +15729,21 @@
       "type": "implements"
     },
     {
+      "from": "file:scripts/privacy-exceptions.mjs",
+      "to": "decision.personal-tutoring-2026-10-30",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/privacy-exceptions.mjs",
+      "to": "module.materials.storage-privacy",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/privacy-history-exceptions.json",
+      "to": "module.materials.storage-privacy",
+      "type": "implements"
+    },
+    {
       "from": "file:scripts/publish-pages.mjs",
       "to": "operations.deployment",
       "type": "implements"
@@ -15689,6 +15816,11 @@
     {
       "from": "file:scripts/storage.mjs",
       "to": "module.materials.storage-privacy",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/submissions.mjs",
+      "to": "decision.personal-tutoring-2026-10-30",
       "type": "implements"
     },
     {
@@ -17063,6 +17195,11 @@
     },
     {
       "from": "file:src/components/WorkReview.tsx",
+      "to": "decision.personal-tutoring-2026-10-30",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/WorkReview.tsx",
       "to": "decision.photo-transfer-recovery-2026-10-22",
       "type": "implements"
     },
@@ -17164,6 +17301,11 @@
     {
       "from": "file:src/DayDashboard.tsx",
       "to": "shared.design",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayPage.css",
+      "to": "decision.personal-tutoring-2026-10-30",
       "type": "implements"
     },
     {
@@ -17404,6 +17546,11 @@
     {
       "from": "file:src/lib/dayStore.ts",
       "to": "decision.mesh-informational-entry-2026-10-21",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/dayStore.ts",
+      "to": "decision.personal-tutoring-2026-10-30",
       "type": "implements"
     },
     {
@@ -17903,6 +18050,11 @@
     },
     {
       "from": "file:src/lib/reviewProse.ts",
+      "to": "decision.personal-tutoring-2026-10-30",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/reviewProse.ts",
       "to": "decisions.readable-review-prose-2026-10-18",
       "type": "implements"
     },
@@ -18093,6 +18245,11 @@
     },
     {
       "from": "file:src/UiKit.tsx",
+      "to": "decision.personal-tutoring-2026-10-30",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/UiKit.tsx",
       "to": "decision.released-stage-parity-2026-10-20",
       "type": "implements"
     },
@@ -18268,6 +18425,11 @@
     },
     {
       "from": "file:storage/review-projection.mjs",
+      "to": "decision.personal-tutoring-2026-10-30",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/review-projection.mjs",
       "to": "module.materials.material-clarification",
       "type": "implements"
     },
@@ -18279,6 +18441,11 @@
     {
       "from": "file:storage/review-publication-event.mjs",
       "to": "module.synchronization.event-queue",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/review-readback.mjs",
+      "to": "decision.personal-tutoring-2026-10-30",
       "type": "implements"
     },
     {
@@ -18327,6 +18494,16 @@
       "type": "implements"
     },
     {
+      "from": "file:storage/tutoring-decision.mjs",
+      "to": "decision.personal-tutoring-2026-10-30",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/tutoring-decision.mjs",
+      "to": "module.reviews.subject-aware-guidance",
+      "type": "implements"
+    },
+    {
       "from": "file:storage/yandex-disk.mjs",
       "to": "module.materials.storage-privacy",
       "type": "implements"
@@ -18339,6 +18516,11 @@
     {
       "from": "file:sync/day-source-revision.mjs",
       "to": "module.synchronization.global-sync",
+      "type": "implements"
+    },
+    {
+      "from": "file:sync/event-task-artifact.mjs",
+      "to": "decision.personal-tutoring-2026-10-30",
       "type": "implements"
     },
     {
@@ -18469,6 +18651,11 @@
     {
       "from": "file:sync/task-route.mjs",
       "to": "decision.guidance-refresh-readback-2026-10-25",
+      "type": "implements"
+    },
+    {
+      "from": "file:sync/task-route.mjs",
+      "to": "decision.personal-tutoring-2026-10-30",
       "type": "implements"
     },
     {
@@ -19173,6 +19360,11 @@
     },
     {
       "from": "module.materials.storage-privacy",
+      "to": "file:scripts/privacy-exceptions.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.materials.storage-privacy",
       "to": "file:src/components/LinkedWorkPhotos.test.tsx",
       "type": "verified-by"
     },
@@ -19758,6 +19950,11 @@
     },
     {
       "from": "module.reviews.subject-aware-guidance",
+      "to": "decision.personal-tutoring-2026-10-30",
+      "type": "contains"
+    },
+    {
+      "from": "module.reviews.subject-aware-guidance",
       "to": "decision.released-stage-parity-2026-10-20",
       "type": "contains"
     },
@@ -19813,6 +20010,11 @@
     },
     {
       "from": "module.reviews.subject-aware-guidance",
+      "to": "file:src/components/WorkReview.tutoring.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.reviews.subject-aware-guidance",
       "to": "file:src/lib/dayGuidance.writer.test.ts",
       "type": "verified-by"
     },
@@ -19824,6 +20026,11 @@
     {
       "from": "module.reviews.subject-aware-guidance",
       "to": "file:src/WeekendMathSlot.guidance.integration.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.reviews.subject-aware-guidance",
+      "to": "file:storage/tutoring-decision.test.mjs",
       "type": "verified-by"
     },
     {
@@ -19845,6 +20052,11 @@
       "from": "module.reviews.subject-aware-guidance",
       "to": "module.reviews.review-criteria-provenance",
       "type": "uses"
+    },
+    {
+      "from": "module.reviews.subject-aware-guidance",
+      "to": "research.personal-tutoring-2026-10-30",
+      "type": "contains"
     },
     {
       "from": "module.reviews.subject-card-viewmodel",

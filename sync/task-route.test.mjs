@@ -22,7 +22,7 @@ describe('deterministic task route from existing source state', () => {
   })
   it('requires both operator reviews before mathematical guidance publication without declaring understanding or completion',()=>{
     const route=taskRoute(ready,'math')
-    expect(route.policyRevision).toBe('parent-readable-hints-2026-10-25')
+    expect(route.policyRevision).toBe('personal-step-explanations-2026-10-30')
     expect(route.steps).toContain('adult-readable-class-level-route-review')
     expect(route.steps).toContain('learner-current-point-and-safe-hint-review')
     const event=eventTaskRoute('help.requested',{context:{subject:'Спецкурс по математике',task:ready}})
