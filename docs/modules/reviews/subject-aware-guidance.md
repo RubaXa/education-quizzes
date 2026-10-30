@@ -60,7 +60,7 @@ sections:
 
 При каждой новой публикации результата работы (verified/partial/needs-fix/cannot-assess) CLI требует закрытый tutoringPlan версии1 с taskId,
 workType, sourceRef, evidence(uploadId/location/observed), acceptedConnection, gapExplanation,
-bridge, responseCriterion, preserve, humanChecked, state и move. state содержит sourceReady,
+bridge, responseCriterion, preserve, semanticChecked, state и move. state содержит sourceReady,
 attemptState, gap(notation/execution/concept/strategy/completeness/recall),
 prerequisite(demonstrated/not-demonstrated/unknown), unsuccessfulHelp (только наблюдаемые неудачи).
 attemptState хранит incomplete, complete или unreadable по наблюдениям. При verified move=close и firstGapStageId=null, все подтверждённые этапы сохраняются, нового задания нет. firstGapStageId обязан ссылаться на незачтённый этап;
@@ -152,3 +152,5 @@ studentFeedback.steps содержит stageId, uploadId, location, observation,
 **Сверено 12.10:** общий `WorkReview`, `ParentTaskGuide`, `TaskGuidance`, выборочная отправка этапа и уведомление реализованы. Четыре конфигурации письменного русского закреплены в схеме и компоненте; конкретные родительские маршруты русского, литературы и биологии опубликованы по проверенным источникам. Маршрут задачи № 6 к 14.10 опубликован адресной командой `problem-support`; закрытый документ перечитан, обе ролевые страницы не содержат родительского ответа. **Открыто:** автоматическое сопоставление каждой новой попытки с этапами; компактный вид списка многих примеров; наполнение географии и следующих заданий других предметов по их точным источникам. Наличие адаптера в коде не означает, что каждый исторический день мигрирован. Семантическую точность цитаты и сопоставление фото оператор пока проверяет вручную.
 
 Автоматический upload.confirmed получает точечные previousReview и parentGuide после owner-проверки. Поручение требует новую политику personal-step-explanations-2026-10-30; обычный submissions publisher проверяет её до статуса reviewed. Инициатором остаётся подтверждение байтов, ручная команда родителя не требуется. Ошибка МЭШ не блокирует независимую проверку работы.
+
+semanticChecked фиксирует содержательную проверку агентом-исполнителем, не запрос ручного одобрения родителю. Загрузка запускает существующий диспетчер автоматически; отдельного человеческого подтверждения для каждого разбора нет.

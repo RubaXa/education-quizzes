@@ -8,7 +8,7 @@ const review = () => ({ taskId: 'digits', status: 'partial', uploadIds: ['photo'
     evidence: { uploadId: 'photo', location: 'нижняя строка с n', observed: 'Значения больше 9 исключены как не цифры.' },
     acceptedConnection: 'Сумма 12 проверена верно.', gapExplanation: 'Одна цифра не охватывает наборы.',
     bridge: 'Сумма нескольких цифр может превышать 9.', responseCriterion: 'Различены цифра и сумма набора.',
-    preserve: 'Не повторять принятый способ с 6.', humanChecked: true,
+    preserve: 'Не повторять принятый способ с 6.', semanticChecked: true,
     state: { sourceReady: true, attemptState: 'incomplete', gap: 'completeness', prerequisite: 'unknown', unsuccessfulHelp: 0 }, move: 'explain-scope',
     branches: { correct: 'Перейти к наборам и кратности суммы.', partial: 'Разделить итоговую сумму и добавку.', stuck: 'Разобрать аналогию на двух других цифрах.', ambiguous: 'Уточнить, что означает написанное n.' } } })
 

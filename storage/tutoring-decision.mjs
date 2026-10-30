@@ -48,6 +48,6 @@ export function tutoringPlanErrors(review) {
   if (!Array.isArray(f.steps) || !f.steps.length || f.steps.length > 20 || f.steps.some(step =>
     !review.items?.some(item => item.stageId === step.stageId && item.status === step.status)
     || !review.uploadIds.includes(step.uploadId) || !text(step.location) || !text(step.observation) || !text(step.explanation))) return ['Каждой новой работе нужен объяснённый шаг с точным местом в текущем фото; новый ключ и постороннее фото запрещены.']
-  if (p.humanChecked !== true) return ['Нужна смысловая проверка плана: точность, понятность, один посильный шаг и отсутствие выдачи ответа.']
+  if (p.semanticChecked !== true) return ['Нужна смысловая проверка плана: точность, понятность, один посильный шаг и отсутствие выдачи ответа.']
   return []
 }
