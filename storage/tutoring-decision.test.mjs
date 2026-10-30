@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { nextTutoringBranch, selectTutoringMove, tutoringPlanErrors } from './tutoring-decision.mjs'
+import { nextTutoringBranch, selectTutoringMove, tutoringPlanErrors, previousTutoringContext } from './tutoring-decision.mjs'
 import { studentReviewProjection } from './review-projection.mjs'
 
 const review = () => ({ taskId: 'digits', status: 'partial', uploadIds: ['photo'], items: [{ stageId: 'found-example', status: 'correct' }, { stageId: 'all-cases', status: 'partial' }], studentFeedback: {
@@ -62,7 +62,18 @@ describe('personal tutoring decision graph', () => {
 
 it('accepts a complete explained attempt without inventing another gap or task', () => {
  const r=review();r.status='verified';r.items.forEach(item=>{item.status='correct'});r.studentFeedback.steps[0].status='correct';r.tutoringPlan.firstGapStageId=null;r.tutoringPlan.preserveStageIds=['all-cases','found-example'];r.tutoringPlan.state.attemptState='complete';r.tutoringPlan.move='close';delete r.tutoringPlan.branches
+ delete r.tutoringPlan.state.gap
  expect(tutoringPlanErrors(r)).toEqual([])
+})
+it('bounds repeated historical context without discarding the latest work or altering saved history', () => {
+ const r=review();r.history=Array.from({length:20},(_,i)=>({status:'partial',studentFeedback:{title:`Попытка ${i}`},privateFullSolution:'large old key'}))
+ const context=previousTutoringContext(r)
+ expect(context.priorAttemptCount).toBe(20)
+ expect(context.historySummary).toHaveLength(3)
+ expect(context.studentFeedback).toEqual(r.studentFeedback)
+ expect(context).not.toHaveProperty('history')
+ expect(JSON.stringify(context)).not.toContain('large old key')
+ expect(r.history).toHaveLength(20)
 })
 it('rejects a generic receipt even when the verdict is verified', () => {
  const r=review();r.studentFeedback.steps=[]

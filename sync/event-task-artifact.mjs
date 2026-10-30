@@ -7,6 +7,7 @@ import { isActiveFamilyChild } from '../packages/education-runtime/identity.mjs'
 import { legacyHelpOperationId } from './legacy-help-identity.mjs'
 import { eventTaskRoute } from './task-route.mjs'
 import { sourceMaterialWaits } from './upload-lifecycle.mjs'
+import { previousTutoringContext } from '../storage/tutoring-decision.mjs'
 
 /** Private, immutable inputs for a precisely addressed event task.
  * @see ../docs/modules/synchronization/execution-artifact.md
@@ -102,7 +103,7 @@ export async function captureEventTaskInputs(db, event, { now = new Date().toISO
       db.doc(`dayReviewPrivate/${event.sourceRef.dayToken}/items/${taskId}`).get(),
       db.doc(`dayTaskGuides/${event.sourceRef.dayToken}/items/${taskId}`).get(),
     ])
-    inputs.previousReview = previousReview.exists ? canonical(previousReview.data()) : null
+    inputs.previousReview = previousReview.exists ? canonical(previousTutoringContext(previousReview.data())) : null
     inputs.parentGuide = parentGuide.exists ? canonical(parentGuide.data()) : null
     if (event.eventType === 'upload.confirmed' && (source.status !== 'pending' || source.storage?.state !== 'stored'
       || !source.storage?.path || !HASH.test(source.storage?.sha256 ?? ''))) fail('task_source_not_reviewable')

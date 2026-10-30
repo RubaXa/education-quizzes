@@ -5391,7 +5391,7 @@
       }
     },
     "sync/event-task-artifact.mjs": {
-      "sha256": "aff8a2d91a2ea4f9a4b5e33da0bb968383df621b6ffa2267daa680887b95142e",
+      "sha256": "5faa769ce2f36ac7694c3be10a8620b45a603c173f5de433fe88ed86b10d2f42",
       "record": "docs/decisions/personal-tutoring-2026-10-30.md",
       "specs": [
         "docs/modules/reviews/subject-aware-guidance.md"
@@ -6739,7 +6739,7 @@
       }
     },
     "storage/tutoring-decision.mjs": {
-      "sha256": "71628901adf0d7828b321b73d842ef683b05a823e5baf5a2d5738b7be94d3c1d",
+      "sha256": "d264cf4141a65c46c876f813c3537cc07def201ddfcd4f57150155f4482849a0",
       "record": "docs/decisions/personal-tutoring-2026-10-30.md",
       "specs": [
         "docs/modules/reviews/subject-aware-guidance.md"

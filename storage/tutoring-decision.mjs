@@ -3,6 +3,15 @@
 const gaps = new Set(['notation', 'execution', 'concept', 'strategy', 'completeness', 'recall'])
 const workTypes = new Set(['calculation', 'proof', 'construction', 'reading', 'retelling', 'composition', 'language-use', 'factual-explanation'])
 
+/** Carry the current attempt, not twenty duplicate full solutions in every new dispatch. */
+export function previousTutoringContext(review) {
+  if (!review) return null
+  const { history = [], ...current } = review
+  return { ...current, priorAttemptCount: history.length,
+    historySummary: history.slice(-3).map(({ status, checkedAt, studentFeedback }) => ({ status,
+      ...(checkedAt ? { checkedAt } : {}), ...(studentFeedback?.title ? { title: studentFeedback.title } : {}) })) }
+}
+
 /** Route an observed learning state, never diagnose an ability from a grade. */
 export function selectTutoringMove(state) {
   if (!state?.sourceReady) return 'request-source'
@@ -36,7 +45,8 @@ export function tutoringPlanErrors(review) {
     || !review.uploadIds?.includes(p.evidence?.uploadId) || !text(p.acceptedConnection)
     || !text(p.gapExplanation) || !text(p.bridge) || !text(p.responseCriterion)) return ['План репетитора требует источник, место работы, принятую связь, объяснение перехода и критерий ответа.']
   if (!p.state || (complete ? p.state.attemptState !== 'complete' || p.state.sourceReady !== true
-    : !['incomplete', 'unreadable'].includes(p.state.attemptState)) || !gaps.has(p.state.gap)
+    : !['incomplete', 'unreadable'].includes(p.state.attemptState)) || typeof p.state.sourceReady !== 'boolean'
+    || (!complete && p.state.sourceReady && p.state.attemptState === 'incomplete' && !gaps.has(p.state.gap))
     || !Number.isInteger(p.state.unsuccessfulHelp) || p.state.unsuccessfulHelp < 0
     || !['demonstrated', 'not-demonstrated', 'unknown'].includes(p.state.prerequisite)
     || selectTutoringMove(p.state) !== p.move) return ['Выбранная помощь не соответствует подтверждённому состоянию шага.']
