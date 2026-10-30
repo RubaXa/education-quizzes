@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/personal-tutoring-2026-10-30.md */
 /** Display-only typography for authored feedback, never evidence/quotes/IDs.
  * @see ../../docs/modules/reviews/review-criteria-provenance.md#readable-feedback
  * @see ../../docs/decisions/readable-review-prose-2026-10-18.md
@@ -34,7 +35,7 @@ function formatText(text: string, arithmetic: boolean): string {
  */
 type ProseFields = { [field: string]: true | 'observation' | ProseFields }
 const reviewFields: ProseFields = {
-  studentFeedback: { title: true, confirmed: true, focus: true, question: true },
+  studentFeedback: { title: true, confirmed: true, focus: true, question: true, steps: { observation: 'observation', explanation: true } },
   summary: true, nextStep: true,
   items: { label: true, observed: 'observation', note: true },
   requirementChecks: { action: true, explanation: true, evidence: { observation: 'observation' } },

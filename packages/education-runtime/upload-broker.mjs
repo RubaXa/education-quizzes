@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/upload-lifecycle-continuation-2026-10-30.md */
 /**
  * Queue handlers and bounded compatibility discovery for direct uploads.
  * The queue consumer owns the only Firestore subscription. This module never
@@ -8,6 +9,7 @@
  * @see ../../docs/decisions/photo-upload-authorization-and-freshness-2026-10-20.md
  */
 import { createHash } from 'node:crypto'
+import { withdrawUploadWork } from '../../sync/upload-lifecycle.mjs'
 import { FieldValue, Timestamp } from '@google-cloud/firestore'
 import { stageEducationEvent, publishEducationEvent } from './event-queue.mjs'
 import { createEducationEventId } from '../education-events/envelope.mjs'
@@ -120,13 +122,19 @@ async function handlePhotoEvent({ db, disk, event, logger, clock }) {
   const [ownerSnapshot, pageSnapshot, uploadSnapshot] = await Promise.all([
     ownerRef.get(), db.doc(`dayPages/${parsed.studentToken}`).get(), ref.get(),
   ])
-  if (!ownerSnapshot.exists || !uploadSnapshot.exists) return
+  if (!ownerSnapshot.exists) return
+  if (!uploadSnapshot.exists) {
+    if (event.eventType === 'upload.delete_requested') await withdrawUploadWork(db, event)
+    return
+  }
   const owner = ownerSnapshot.data() ?? {}
   const request = uploadSnapshot.data() ?? {}
   if (owner.familyId !== event.familyId || owner.childId !== event.childId) return { state: 'blocked', safeErrorCode: 'upload_owner_changed' }
-  if (!request.sha256) return
+  if (event.eventType === 'upload.delete_requested' && request.status !== 'deleted') return
 
   if (request.status === 'deleted' || event.eventType === 'upload.delete_requested') {
+    // Cancel pending review before the deletion grace period; replay also repairs old jobs.
+    if (event.eventType === 'upload.delete_requested') await withdrawUploadWork(db, event)
     const path = safeWorkPath(owner, parsed.studentToken, parsed.uploadId, request.contentType)
     const remote = await disk.head(path)
     if (remote?.type === 'file' && remote.md5) await disk.removeWorkAt(path, remote.md5)
@@ -141,6 +149,7 @@ async function handlePhotoEvent({ db, disk, event, logger, clock }) {
     return
   }
 
+  if (!request.sha256) return
   if (request.status === 'upload-error') {
     const path = safeWorkPath(owner, parsed.studentToken, parsed.uploadId, request.contentType)
     const remote = await disk.head(path)

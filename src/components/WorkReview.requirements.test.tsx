@@ -41,9 +41,9 @@ describe('карточка требований МЭШ', () => {
     expect(html).toContain('30 × 29 : 2 ты вычислил верно: эта формула считает пары из 30 объектов.')
     expect(html).toContain('отрезка, а в твоей формуле взято 30 точек.')
     expect(html).toContain('от 0 до 30, если учесть оба конца?')
-    expect(html).toContain('Уже получилось')
-    expect(html).toContain('Проверь здесь')
-    expect(html).toContain('Один вопрос')
+    expect(html).not.toContain('Уже получилось')
+    expect(html).not.toContain('Проверь здесь')
+    expect(html).not.toContain('Один вопрос')
   })
 
   it('форматирует историю, сохраняя дословное свидетельство и исходные данные', () => {

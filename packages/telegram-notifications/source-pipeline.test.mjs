@@ -379,7 +379,7 @@ describe('source observation pipeline', () => {
     expect(observation.records).toEqual([expect.objectContaining({ kind: 'review', eventType: 'review.changed', workRef: expect.objectContaining({ kind: 'day-task', id: expect.stringMatching(/^[a-f0-9]{64}$/) }), fields: { subject: 'Математика', title: 'Упражнение № 3', status: 'verified', summary: 'Подтверждённый вывод', nextStep: 'Проверь запись' } })])
     expect(JSON.stringify(observation.records)).not.toMatch(/secret|history/)
     expect(db.reads).toContain('dayProgress/day-a/items/task-a')
-    expect(db.reads).toContain('fieldMask:dayProgress/day-a/items/task-a:status,checkedAt,taskId,purpose,uploadIds,summary,nextStep')
+    expect(db.reads).toContain('fieldMask:dayProgress/day-a/items/task-a:status,checkedAt,taskId,purpose,uploadIds,summary,nextStep,done')
     expect(db.reads.some((path) => path.includes('dayReviewPrivate'))).toBe(false)
     const firstHash = observation.records[0].semanticHash
     expect(JSON.stringify(observation.records)).not.toMatch(/upload-a|upload-z|history/)
@@ -403,6 +403,10 @@ describe('source observation pipeline', () => {
     db.set('dayProgress/day-a/items/task-a', { taskId: 'task-a', purpose: 'source-material', status: 'verified', checkedAt: now })
     expect(await adapter.observe(progressScope)).toMatchObject({ completeness: 'complete', records: [] })
     expect(await adapter.inspectReview(progressScope)).toMatchObject({ completeness: 'complete', state: 'ignored', contextState: 'not_applicable' })
+    db.set('dayProgress/day-a/items/task-a', { done: true })
+    expect(await adapter.inspectReview(progressScope)).toMatchObject({ completeness: 'complete', state: 'ignored', contextState: 'not_applicable' })
+    db.set('dayProgress/day-a/items/task-a', { done: true, summary: 'Malformed review' })
+    expect(await adapter.inspectReview(progressScope)).not.toMatchObject({ state: 'ignored' })
   })
 
   it('keeps review observation partial until exact day page and task context are available', async () => {

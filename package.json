@@ -11,7 +11,7 @@
     "publish:pages": "node scripts/publish-pages.mjs",
     "push:publish": "node scripts/push-and-publish.mjs",
     "lint": "oxlint",
-    "test": "vitest run",
+    "test": "vitest run --maxWorkers=4 --exclude 'e2e/**'",
     "test:bell-viewport": "node scripts/check-notification-viewport.mjs",
     "test:schedule-viewport": "node scripts/check-schedule-viewport.mjs",
     "test:source-fragment-viewport": "node scripts/check-source-fragment-viewport.mjs",

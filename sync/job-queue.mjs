@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto'
-import { Timestamp } from 'firebase-admin/firestore'
+import { Timestamp } from '@google-cloud/firestore'
 
 /** Closed, durable operator queue. No credentials, answers or source text enter a job.
  * @see ../docs/modules/synchronization/global-sync.md#operator-queue

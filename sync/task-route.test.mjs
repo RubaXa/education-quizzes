@@ -8,9 +8,21 @@ const ready = { id: 'mesh-456', meshText: 'Упр.4 письменно', kind: '
   instructionStatus: { state: 'reviewed' }, materialStatus: { state: 'textbook-page-linked' } }
 
 describe('deterministic task route from existing source state', () => {
+  it.each([undefined, 'home', 'competition'])('reviews home practice even when the printed source has a future deadline (%s)', practiceMode => {
+    const task = { ...ready, practiceMode, competitionUntil: '2026-11-05T23:59:59.000Z' }
+    expect(taskRoute(task, 'math').next).toBe('prepare-written-guidance')
+    expect(eventTaskRoute('upload.confirmed', {context:{task}}).next).toBe('review-written-work')
+    expect(eventTaskRoute('help.requested', {context:{task}}).next).toBe('address-help-request')
+  })
+  it.each([1, 2, 3, 4, 5, 6, 7])('reviews every uploaded task %s despite printed competition metadata', competitionNumber => {
+    const task = { ...ready, practiceMode: 'competition', competitionNumber, competitionUntil: '2026-11-05T23:59:59.000Z' }
+    expect(eventTaskRoute('upload.confirmed', {context:{task}}).next).toBe('review-written-work')
+    expect(eventTaskRoute('help.requested', {context:{task}}).next).toBe('address-help-request')
+    expect(eventTaskRoute('upload.confirmed', {context:{task:{...task,competitionUntil:'unknown'}}}).next).toBe('review-written-work')
+  })
   it('requires both operator reviews before mathematical guidance publication without declaring understanding or completion',()=>{
     const route=taskRoute(ready,'math')
-    expect(route.policyRevision).toBe('parent-readable-hints-2026-10-25')
+    expect(route.policyRevision).toBe('personal-step-explanations-2026-10-30')
     expect(route.steps).toContain('adult-readable-class-level-route-review')
     expect(route.steps).toContain('learner-current-point-and-safe-hint-review')
     const event=eventTaskRoute('help.requested',{context:{subject:'Спецкурс по математике',task:ready}})
@@ -59,18 +71,18 @@ describe('deterministic task route from existing source state', () => {
     const route = eventTaskRoute('upload.confirmed', { context: { subject: 'Математика', task } })
     expect(route.next).toBe('ingest-olympiad-sheet')
     expect(route.steps).toContain('verify-source-and-solution')
-    expect(route.steps.indexOf('check-competition-assistance-policy')).toBeLessThan(route.steps.indexOf('verify-source-and-solution'))
+    expect(route.steps.indexOf('identify-uploaded-material-context')).toBeLessThan(route.steps.indexOf('verify-source-and-solution'))
     expect(route.complete).toBe(false)
     expect(eventTaskRoute('upload.confirmed', { context: { task: { ...task, optional: false } } }).next).toBe('review-written-work')
     expect(eventTaskRoute('upload.confirmed', { context: { task: { ...task, learningContext: { kind: 'homework' } } } }).next).toBe('review-written-work')
     expect(eventTaskRoute('help.requested', { context: { task } }).next).toBe('address-help-request')
   })
-  it('keeps active competition photos without AI review or help', () => {
+  it('reviews submitted practice despite printed competition dates', () => {
     const task = { ...ready, competitionUntil: '2999-01-01T00:00:00.000Z', learningContext: { kind: 'olympiad', id: 'contest' } }
     for (const type of ['upload.confirmed', 'help.requested']) {
       const route = eventTaskRoute(type, { context: { subject: 'Математика', task } })
-      expect(route.next).toBe('hold-competition-solution')
-      expect(route.steps).toEqual(['retain-upload', 'wait-for-competition-close'])
+      expect(route.next).toBe(type === 'upload.confirmed' ? 'review-written-work' : 'address-help-request')
+      expect(route.steps).not.toContain('wait-for-competition-close')
     }
   })
   it('routes a requested page upload to source analysis, never to a homework grade', () => {

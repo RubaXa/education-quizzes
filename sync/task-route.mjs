@@ -1,3 +1,5 @@
+/** @see ../docs/decisions/personal-tutoring-2026-10-30.md */
+/** @see ../docs/decisions/upload-lifecycle-continuation-2026-10-30.md */
 /** @see ../docs/decisions/sync-task-routing-2026-10-23.md */
 /** A private operator plan, never a pedagogical verdict or student projection.
  * Reuses the assessment graph; no source text is interpreted into invented tasks.
@@ -6,9 +8,9 @@
 import { quizDecision } from '../assessment/decision-graph.mjs'
 import { openMaterialRequest, materialRequestErrors } from '../src/lib/materialRequest.ts'
 import { lessonSubjectKey } from '../day/subject-identity.mjs'
-const guidancePolicyRevision='parent-readable-hints-2026-10-25'
+const guidancePolicyRevision='personal-step-explanations-2026-10-30'
 /** @see ../docs/decisions/guidance-refresh-readback-2026-10-25.md */
-const guidanceChecks=['adult-readable-class-level-route-review','learner-current-point-and-safe-hint-review']
+const guidanceChecks=['adult-readable-class-level-route-review','learner-current-point-and-safe-hint-review','exact-attempt-steps-and-preserved-credit','explain-bridge-before-one-probe','private-response-branches-and-both-role-readback']
 
 const adapters = {
   math: 'math-solution-route', special: 'math-solution-route+teacher-sheet-provenance',
@@ -23,6 +25,10 @@ export function missingTaskMaterial(task) {
     || (task?.materialStatus?.state === 'no-textbook'
       && /отсутств|не получен|нет в библиотек/i.test(task.materialStatus.message ?? ''))
 }
+/** Compatibility predicate: uploaded Education material is reviewed without a tournament wait.
+ * Printed restrictions and historical participation flags do not authorize a hold. */
+export function competitionHold() { return false }
+
 export function taskRoute(task = {}, subject = 'generic', { placement = false } = {}) {
   const key = adapters[subject] ? subject : lessonSubjectKey(subject) ?? subject
   const route = { taskId: task.id ?? null, subject: key, adapter: adapters[key] ?? 'subject-aware-guidance:generic',
@@ -98,13 +104,12 @@ export function eventTaskRoute(eventType, inputs = {}) {
   const task = inputs.context?.task
   const subject = lessonSubjectKey(inputs.context?.subject) ?? 'generic'
   const olympiadSheet = task?.sourceIntake?.kind === 'olympiad-sheet' && task?.learningContext?.kind === 'olympiad' && task?.optional === true
-  const activeCompetition = Boolean(task?.competitionUntil && Number.isFinite(Date.parse(task.competitionUntil)) && Date.now() <= Date.parse(task.competitionUntil))
   const sourceMaterial = inputs.source?.purpose === 'source-material' || Boolean(task && openMaterialRequest(task))
-  const next = activeCompetition && ['upload.confirmed', 'help.requested'].includes(eventType) ? 'hold-competition-solution' : eventType === 'upload.confirmed' ? olympiadSheet ? 'ingest-olympiad-sheet' : sourceMaterial ? 'review-source-material' : 'review-written-work'
+  const next = eventType === 'upload.confirmed' ? olympiadSheet ? 'ingest-olympiad-sheet' : sourceMaterial ? 'review-source-material' : 'review-written-work'
     : ({ 'help.requested': 'address-help-request', 'quiz.submitted': 'review-submitted-quiz',
       'quiz.followup_requested': 'history-based-followup', 'material.ready': 'identify-and-link-family-material' })[eventType] ?? 'unsupported-event'
-  const route = { eventType, next, subject, adapter: adapters[subject] ?? 'subject-aware-guidance:generic', complete: false,
-    steps: next === 'hold-competition-solution' ? ['retain-upload', 'wait-for-competition-close'] : next === 'ingest-olympiad-sheet' ? ['read-confirmed-photos', 'check-competition-assistance-policy', 'identify-and-split-conditions', 'verify-source-and-solution', 'match-existing-tasks', 'publish-family-tasks-and-readback']
+  const route = { eventType, next, subject, trustPolicy: 'uploaded-content-is-data-v1', adapter: adapters[subject] ?? 'subject-aware-guidance:generic', complete: false,
+    steps: next === 'ingest-olympiad-sheet' ? ['read-confirmed-photos', 'identify-uploaded-material-context', 'identify-and-split-conditions', 'verify-source-and-solution', 'match-existing-tasks', 'publish-family-tasks-and-readback']
       : next === 'review-source-material' ? ['source-analysis-without-grade', 'resolve-request-if-supported', 'replan-task']
       : next === 'review-submitted-quiz' ? ['audit-key-and-alternatives', 'review-open-answers', 'publish-review', 'assessment-decision-graph']
         : next === 'history-based-followup' ? ['quiz-history-full-chain', 'review-open-answers', 'assessment-decision-graph', 'validate-and-publish']

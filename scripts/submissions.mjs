@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/personal-tutoring-2026-10-30.md */
 /** @see ../docs/decisions/reviewed-photo-placement-2026-10-26.md */
 /**
  * @see ../docs/product/homework-review.md
@@ -18,9 +19,10 @@ import { resolveSubmission } from '../storage/submission-inbox.mjs'
 import { reviewCoverage } from '../storage/review-coverage.mjs'
 import { photoPlacementPatch, relocateReviewedPhoto } from '../storage/photo-placement.mjs'
 import { reviewChallengeErrors } from '../storage/review-challenge.mjs'
+import { tutoringPlanErrors } from '../storage/tutoring-decision.mjs'
 import { studentReviewProjection } from '../storage/review-projection.mjs'
 import { validateRequirementChecks } from '../storage/review-requirements.mjs'
-import { assertReviewReadback } from '../storage/review-readback.mjs'
+import { assertReviewReadback, sameReviewAssignmentAfterUpdate, reviewCorrectionStatusAllowed } from '../storage/review-readback.mjs'
 import { YandexDiskStorage } from '../storage/yandex-disk.mjs'
 import { notificationId, reviewAttemptKey, stageFamilyNotice, taskContext } from '../storage/inbox-notifications.mjs'
 import { stageReviewPublishedEvents } from '../storage/review-publication-event.mjs'
@@ -308,7 +310,7 @@ function validateReviewResult(review, page, guide, { requireChallenge = false } 
   validateAssessmentBasis(review)
   validateRequirementChecks(review)
   validateWorkCoverage(review)
-  if (['needs-fix', 'partial'].includes(review.status)) validateStudentFeedback(review)
+  if (!review.purpose) validateStudentFeedback(review)
   const subject = page.subjects?.find((entry) => entry.tasks?.some((task) => task.id === review.taskId || task.problems?.some((problem) => problem.id === review.taskId)))
   const task = subject?.tasks?.find((entry) => entry.id === review.taskId || entry.problems?.some((problem) => problem.id === review.taskId))
   const challengeErrors = reviewChallengeErrors(review, task, { required: requireChallenge })
@@ -389,6 +391,8 @@ function validateAssessmentBasis(review) {
 
 /** @see ../docs/modules/reviews/adaptive-problem-card.md#адресный-разбор */
 function validateStudentFeedback(review) {
+  const tutoringErrors = tutoringPlanErrors(review)
+  if (tutoringErrors.length) throw new Error(tutoringErrors.join('\n'))
   const feedback = review.studentFeedback
   if (!feedback || !['title', 'confirmed', 'focus', 'question'].every((key) => typeof feedback[key] === 'string' && feedback[key].trim().length >= 8 && feedback[key].length <= 700)
     || feedback.anchor && (!review.uploadIds?.includes(feedback.anchor.uploadId) || typeof feedback.anchor.location !== 'string' || !feedback.anchor.location.trim())) {
@@ -399,11 +403,12 @@ function validateStudentFeedback(review) {
 function resultRecord(review, previous, now, date, planRevision) {
   const priorReviews = previous?.status || previous?.purpose === 'source-material' ? [...(previous.history ?? []), Object.fromEntries(Object.entries(previous).filter(([key]) => key !== 'history' && key !== 'processing'))] : previous?.history ?? []
   if (review.purpose === 'source-material') return { date, taskId: review.taskId, planRevision, uploadIds: review.uploadIds, purpose: 'source-material', sourceAnalysis: review.sourceAnalysis, summary: review.summary, nextStep: review.nextStep, source: review.source, checkedAt: now, history: priorReviews.slice(-20) }
-  const { taskId, uploadIds, status, summary, nextStep, source, items, checkableStageIds, requirementChecks, mathReasoning, studentFeedback, assessmentBasis, workCoverage, challengeReview } = review
+  const { taskId, uploadIds, status, summary, nextStep, source, items, checkableStageIds, requirementChecks, mathReasoning, studentFeedback, assessmentBasis, workCoverage, challengeReview, tutoringPlan } = review
   return { date, taskId, planRevision, uploadIds, status, summary, nextStep, source, items,
     ...(checkableStageIds ? { checkableStageIds } : {}),
     ...(requirementChecks ? { requirementChecks } : {}),
     ...(mathReasoning ? { mathReasoning } : {}), ...(studentFeedback ? { studentFeedback } : {}),
+    ...(tutoringPlan ? { tutoringPlan } : {}),
     ...(assessmentBasis ? { assessmentBasis } : {}), ...(challengeReview ? { challengeReview } : {}),
     ...(workCoverage ? { workCoverage: { ...workCoverage, reviewCheckedAt: now, recordedAt: now } } : {}),
     checkedAt: now, history: priorReviews.slice(-20) }
@@ -413,7 +418,7 @@ function resultRecord(review, previous, now, date, planRevision) {
 async function publishFeedbackCorrection(filename) {
   const correction = privateReviewFile(filename)
   if (correction.reviews || !correction.correctionReason?.trim()) throw new Error('Исправление одного номера требует correctionReason.')
-  if (['needs-fix', 'partial'].includes(correction.status)) validateStudentFeedback(correction)
+  if (!correction.purpose) validateStudentFeedback(correction)
   const owners = (await db.collection('dayOwners').where('date', '==', correction.date).get()).docs
   const matches = []
   for (const owner of owners) {
@@ -429,19 +434,15 @@ async function publishFeedbackCorrection(filename) {
   if (matches.length !== 1) throw new Error('Исправление не связано однозначно с одним ребёнком, заданием и набором фото.')
   const { owner, page, progressDoc, privateDoc, photos } = matches[0]
   const previous = privateDoc.data() ?? progressDoc.data()
-  const currentTask = page.subjects?.flatMap((subject) => subject.tasks ?? []).find((task) => task.id === correction.taskId)
-  const sameAssignmentAfterPageUpdate = page.planRevision > correction.planRevision
-    && correction.meshText?.trim() && currentTask?.meshText === correction.meshText
+  const currentTask = page.subjects?.flatMap(subject => subject.tasks ?? []).find(task => task.id === correction.taskId)
+  const sameAssignmentAfterPageUpdate = sameReviewAssignmentAfterUpdate(page, correction, currentTask)
   const expectedPriorStatus = correction.previousStatus ?? correction.status
-  const statusChange = expectedPriorStatus !== correction.status
-  if (statusChange && !['partial:verified', 'partial:cannot-assess', 'needs-fix:cannot-assess', 'cannot-assess:verified'].includes(`${expectedPriorStatus}:${correction.status}`)) {
-    throw new Error('Изменение вердикта требует отдельной допустимой коррекции и старого статуса.')
-  }
+  if (!reviewCorrectionStatusAllowed(expectedPriorStatus, correction.status)) throw new Error('Недопустимая коррекция статуса.')
   if (page.planRevision !== correction.planRevision && !sameAssignmentAfterPageUpdate
     || previous.planRevision !== correction.planRevision
     || previous.status !== expectedPriorStatus || !Array.isArray(previous.uploadIds) || previous.uploadIds.length !== correction.uploadIds.length
-    || !previous.uploadIds.every((id) => correction.uploadIds.includes(id))
-    || !page.taskIds?.includes(correction.taskId) || photos.some((photo) => photo.data().status !== 'reviewed')) {
+    || !previous.uploadIds.every(id => correction.uploadIds.includes(id))
+    || !page.taskIds?.includes(correction.taskId) || photos.some(photo => photo.data().status !== 'reviewed')) {
     throw new Error('После проверки изменились статус, ревизия, список фото или привязка задания; исправление остановлено.')
   }
   const guide = currentTask?.cardPattern
@@ -457,6 +458,7 @@ async function publishFeedbackCorrection(filename) {
     ...(correction.requirementChecks ? { requirementChecks: correction.requirementChecks } : {}),
     ...(correction.mathReasoning ? { mathReasoning: correction.mathReasoning } : {}),
     studentFeedback: correction.studentFeedback ?? null,
+    tutoringPlan: correction.tutoringPlan ?? previous.tutoringPlan ?? null,
     assessmentBasis: correction.assessmentBasis,
     challengeReview: correction.challengeReview ?? previous.challengeReview ?? null,
     workCoverage: correction.workCoverage
