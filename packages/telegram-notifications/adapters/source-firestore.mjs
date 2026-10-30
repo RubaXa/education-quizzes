@@ -1,3 +1,4 @@
+/** @see ../../../docs/decisions/upload-lifecycle-continuation-2026-10-30.md */
 import { createHash } from 'node:crypto'
 import { taskContext } from '../../education-runtime/task-context.mjs'
 import { learningRouteIdentity } from '../../../day/learning-route-identity.mjs'
@@ -89,6 +90,12 @@ export function createFirestoreSourceAdapter(db, { baseBackoffMs = 1_000, maxBac
       if (!snapshot.exists) return { completeness: 'complete', state: 'missing', contextState: 'missing', checkedAtPresent: false }
       const data = snapshot.data() ?? {}
       if (data.purpose === 'source-material') return { completeness: 'complete', state: 'ignored', contextState: 'not_applicable', checkedAtPresent: canonicalTime(data.checkedAt) !== null }
+      // A learner completion checkbox is not a pedagogical review. Keep malformed
+      // review records visible to diagnostics; ignore only the explicit checkbox shape.
+      if (typeof data.done === 'boolean' && data.status === undefined && data.checkedAt === undefined
+        && data.taskId === undefined && data.uploadIds === undefined && data.summary === undefined && data.nextStep === undefined) {
+        return { completeness: 'complete', state: 'ignored', contextState: 'not_applicable' }
+      }
       const validStatus = ['verified', 'needs-fix', 'partial', 'cannot-assess'].includes(data.status)
       const resolved = await reviewContext(scope, data)
       return { completeness: resolved.context ? 'complete' : 'partial', state: validStatus ? data.status : 'invalid',
@@ -331,7 +338,7 @@ function validDayToken(value) { return typeof value === 'string' && /^[A-Za-z0-9
 function fieldMask(kind) {
   if (kind === 'quiz') return ['familyId', 'childId', 'status', 'startedAt', 'submittedAt', 'title', 'subject']
   if (kind === 'upload') return ['status', 'taskId', 'storage.provider', 'storage.state', 'storage.syncedAt']
-  return ['status', 'checkedAt', 'taskId', 'purpose', 'uploadIds', 'summary', 'nextStep']
+  return ['status', 'checkedAt', 'taskId', 'purpose', 'uploadIds', 'summary', 'nextStep', 'done']
 }
 function reviewFingerprint(data) {
   let uploadIds = []

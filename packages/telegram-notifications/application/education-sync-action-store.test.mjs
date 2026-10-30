@@ -167,10 +167,17 @@ describe('typed EducationSync action batch', () => {
     const reblocked = await store.read()
     expect(reblocked).toMatchObject({ status: 'blocked', sendingKinds: ['mesh', 'action'], sourceAttemptGeneration: 30,
       lastSourceBlock: { reasonCode: 'source_unavailable', attemptedGeneration: 30 } })
-    const lane = await store.claim({ now, workerId: 'independent' })
-    expect(lane).toMatchObject({ workKinds: ['action'], actionAfterGeneration: 5, actionThroughGeneration: 8 })
-    expect((await store.read()).status).toBe('blocked')
-
+    const independent = await store.claim({ now, workerId: 'idle' })
+    expect(independent).toMatchObject({ workKinds: ['action'], independentSourceBlock: true, actionAfterGeneration: 5, actionThroughGeneration: 8 })
+    await store.markQueued({ requestId: independent.requestId, workerId: independent.workerId, now })
+    await store.claimRequest({ requestId: independent.requestId, tokenHash: 'independent-token', now })
+    expect(await store.completeClaim({ requestId: independent.requestId, tokenHash: 'independent-token', now })).toMatchObject({ status: 'completed', scope: 'action' })
+    expect(await store.read()).toMatchObject({ status: 'blocked', blockedReasonCode: 'source_unavailable', completedActionGeneration: 8 })
+    const recorded = await store.recordMeshChange({ eventDigest: 'e'.repeat(64), now, debounceUntil: '2026-10-19T10:00:20.000Z' })
+    expect(recorded.nextDueAt).toBe('2026-10-19T10:00:20.000Z')
+    expect(await store.claim({ now: '2026-10-19T10:00:19.999Z', workerId: 'too-early' })).toBeNull()
+    expect(await store.claim({ now: '2026-10-19T10:00:20.000Z', workerId: 'again' }))
+      .toMatchObject({ generation: 31, workKinds: ['mesh'] })
   })
 
   it('wakes a typed full-source block after an action-only batch receives a fresh Mesh generation', async () => {
@@ -318,10 +325,20 @@ describe('typed EducationSync action batch', () => {
     await store.claimRequest({ requestId: first.requestId, tokenHash: 'source-token', now })
     expect(await store.blockClaim({ requestId: first.requestId, tokenHash: 'source-token', reasonCode: 'source_unavailable', now }))
       .toMatchObject({ status: 'blocked' })
-    const lane = await store.claim({ now, workerId: 'independent' })
-    expect(lane).toMatchObject({ workKinds: ['action'], actionAfterGeneration: 5, actionThroughGeneration: 8 })
-    expect((await store.read()).status).toBe('blocked')
-
+    const independent = await store.claim({ now, workerId: 'idle-worker' })
+    expect(independent).toMatchObject({ workKinds: ['action'], independentSourceBlock: true })
+    await store.markQueued({ requestId: independent.requestId, workerId: independent.workerId, now })
+    await store.claimRequest({ requestId: independent.requestId, tokenHash: 'independent-token', now })
+    expect(await store.completeClaim({ requestId: independent.requestId, tokenHash: 'independent-token', now })).toMatchObject({ status: 'completed', scope: 'action' })
+    const retryState = db.rows.get('educationSyncDispatch/current')
+    await store.recordMeshChange({ eventDigest: 'd'.repeat(64), now: '2026-10-19T10:00:00.000Z',
+      debounceUntil: '2026-10-19T10:00:20.000Z' })
+    expect(await store.claim({ now: '2026-10-19T10:00:19.999Z', workerId: 'early-retry' })).toBeNull()
+    const second = await store.claim({ now: '2026-10-19T10:00:20.000Z', workerId: 'retry-worker' })
+    expect(second.requestId).not.toBe(first.requestId)
+    expect(second).toMatchObject({ workKinds: ['mesh'], actionAfterGeneration: 0, actionThroughGeneration: null })
+    expect(db.rows.get('educationSyncDispatch/current').lastSourceBlock).toMatchObject({
+      attemptedGeneration: retryState.sendingGeneration, retryRequestId: second.requestId })
   })
 
   it('deduplicates identical event IDs and freezes a request-scoped action range', async () => {

@@ -1069,3 +1069,8 @@
 | [docs/decisions/olympiad-shared-statement-2026-10-28.md](decisions/olympiad-shared-statement-2026-10-28.md) | [Подготовка к олимпиадам](modules/assessments/olympiad-preparation.md) | Общее условие задачи и исходная фотография | UI Kit; разработчик |
 
 | [docs/decisions/olympiad-repeat-uploads-2026-10-28.md](decisions/olympiad-repeat-uploads-2026-10-28.md) | [Подготовка к олимпиадам](modules/assessments/olympiad-preparation.md) | Повторная загрузка фотографий | UI Kit; разработчик |
+
+| [sync/upload-lifecycle.mjs](../sync/upload-lifecycle.mjs) | [Жизненный цикл фото](modules/synchronization/event-queue.md) | Отмена точной загрузки и возобновление зависимых этапов запроса материала | Upload broker; dispatcher; executor |
+| [sync/upload-lifecycle.test.mjs](../sync/upload-lifecycle.test.mjs) | [Жизненный цикл фото](modules/synchronization/event-queue.md) | Регрессии удаления, replay, гонки подтверждения и продолжения materialRequest | Vitest |
+
+| [docs/decisions/upload-lifecycle-continuation-2026-10-30.md](decisions/upload-lifecycle-continuation-2026-10-30.md) | [Очередь событий](modules/synchronization/event-queue.md) | Основание автоматической отмены фото и продолжения по материалу без отката установленного runtime | Worker; оператор |

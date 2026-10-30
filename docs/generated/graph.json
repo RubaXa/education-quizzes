@@ -2433,6 +2433,37 @@
       "path": "docs/decisions/unified-education-events-2026-10-19.md"
     },
     {
+      "id": "decision.upload-lifecycle-continuation-2026-10-30",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-30",
+      "updated": "2026-10-30",
+      "parent": "module.synchronization.event-queue",
+      "uses": [
+        "module.synchronization.execution-artifact",
+        "module.materials.material-clarification"
+      ],
+      "consumers": [
+        "upload broker",
+        "dispatcher",
+        "EducationSync executor"
+      ],
+      "code": [
+        "sync/upload-lifecycle.mjs",
+        "packages/education-runtime/upload-broker.mjs",
+        "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
+        "sync/event-task-artifact.mjs"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/upload-lifecycle-continuation-2026-10-30.md"
+    },
+    {
       "id": "decision.upload-notification-lifecycle-2026-10-18",
       "status": "accepted",
       "implementation": "not-applicable",
@@ -8891,6 +8922,20 @@
       "consumer": "Vitest"
     },
     {
+      "id": "file:sync/upload-lifecycle.mjs",
+      "path": "sync/upload-lifecycle.mjs",
+      "kind": "artifact",
+      "purpose": "Отмена точной загрузки и возобновление зависимых этапов запроса материала",
+      "consumer": "Upload broker; dispatcher; executor"
+    },
+    {
+      "id": "file:sync/upload-lifecycle.test.mjs",
+      "path": "sync/upload-lifecycle.test.mjs",
+      "kind": "verification",
+      "purpose": "Регрессии удаления, replay, гонки подтверждения и продолжения materialRequest",
+      "consumer": "Vitest"
+    },
+    {
       "id": "file:tsconfig.app.json",
       "path": "tsconfig.app.json",
       "kind": "artifact",
@@ -10512,7 +10557,8 @@
         "packages/telegram-notifications/application/education-event-routing.mjs",
         "src/lib/educationEventProducer.ts",
         "firestore.rules",
-        "scripts/education-events.mjs"
+        "scripts/education-events.mjs",
+        "sync/upload-lifecycle.mjs"
       ],
       "sections": [
         "назначение-и-единственная-подписка",
@@ -10521,7 +10567,8 @@
         "маршрутизация-и-готовое-задание",
         "обработка-и-восстановление",
         "доступ-и-приватность",
-        "миграция-и-проверки"
+        "миграция-и-проверки",
+        "upload-lifecycle"
       ],
       "path": "docs/modules/synchronization/event-queue.md"
     },
@@ -13510,6 +13557,16 @@
       "type": "uses"
     },
     {
+      "from": "decision.upload-lifecycle-continuation-2026-10-30",
+      "to": "module.materials.material-clarification",
+      "type": "uses"
+    },
+    {
+      "from": "decision.upload-lifecycle-continuation-2026-10-30",
+      "to": "module.synchronization.execution-artifact",
+      "type": "uses"
+    },
+    {
       "from": "decision.upload-notification-lifecycle-2026-10-18",
       "to": "module.notifications.events",
       "type": "uses"
@@ -14651,6 +14708,11 @@
     },
     {
       "from": "file:packages/education-runtime/upload-broker.mjs",
+      "to": "decision.upload-lifecycle-continuation-2026-10-30",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-runtime/upload-broker.mjs",
       "to": "module.materials.family-library",
       "type": "implements"
     },
@@ -14782,6 +14844,11 @@
     {
       "from": "file:packages/telegram-notifications/application/education-sync-dispatcher.mjs",
       "to": "decision.source-wait-generations-2026-10-22",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/application/education-sync-dispatcher.mjs",
+      "to": "decision.upload-lifecycle-continuation-2026-10-30",
       "type": "implements"
     },
     {
@@ -18281,6 +18348,11 @@
     },
     {
       "from": "file:sync/event-task-artifact.mjs",
+      "to": "decision.upload-lifecycle-continuation-2026-10-30",
+      "type": "implements"
+    },
+    {
+      "from": "file:sync/event-task-artifact.mjs",
       "to": "module.synchronization.execution-artifact",
       "type": "implements"
     },
@@ -18407,6 +18479,16 @@
     {
       "from": "file:sync/task-route.mjs",
       "to": "module.synchronization.task-routing",
+      "type": "implements"
+    },
+    {
+      "from": "file:sync/upload-lifecycle.mjs",
+      "to": "decision.upload-lifecycle-continuation-2026-10-30",
+      "type": "implements"
+    },
+    {
+      "from": "file:sync/upload-lifecycle.mjs",
+      "to": "module.synchronization.event-queue",
       "type": "implements"
     },
     {
@@ -20191,6 +20273,11 @@
     },
     {
       "from": "module.synchronization.event-queue",
+      "to": "decision.upload-lifecycle-continuation-2026-10-30",
+      "type": "contains"
+    },
+    {
+      "from": "module.synchronization.event-queue",
       "to": "file:packages/education-events/envelope.test.mjs",
       "type": "verified-by"
     },
@@ -20242,6 +20329,11 @@
     {
       "from": "module.synchronization.event-queue",
       "to": "file:storage/review-publication-event.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.synchronization.event-queue",
+      "to": "file:sync/upload-lifecycle.test.mjs",
       "type": "verified-by"
     },
     {

@@ -978,20 +978,19 @@
       }
     },
     "packages/education-runtime/upload-broker.mjs": {
-      "sha256": "8a429f783bd40654f89d863fcf2b9073b7494f519f1c274f76965d4f519395fa",
-      "record": "docs/decisions/photo-upload-authorization-and-freshness-2026-10-20.md",
+      "sha256": "dc4ed8595a143e2dc6c9fdea22568fab6d7dfe3632a0265edc7d34c0c854a2d0",
+      "record": "docs/decisions/upload-lifecycle-continuation-2026-10-30.md",
       "specs": [
-        "docs/modules/materials/storage-privacy.md",
         "docs/modules/synchronization/event-queue.md"
       ],
       "tests": [
-        "src/lib/educationEventProducers.test.ts",
-        "packages/education-runtime/upload-broker.test.mjs",
-        "scripts/firestore-rules-photo-upload-suite.test.mjs"
+        "sync/upload-lifecycle.test.mjs",
+        "sync/event-task-artifact.test.mjs",
+        "packages/telegram-notifications/source-pipeline.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение 20.10.2026: исправить повторную регрессию ученической фотозагрузки, сохранив member scope, ownership и атомарную очередь."
+        "evidence": "Родитель30.10.2026 поручил автоматическую отмену удалённых фото и продолжение проверки после загрузки запрошенных страниц, сохраняя действующий разбор всех загруженных материалов."
       }
     },
     "packages/telegram-notifications/adapters/config.mjs": {
@@ -1146,21 +1145,19 @@
       }
     },
     "packages/telegram-notifications/adapters/source-firestore.mjs": {
-      "sha256": "ef2a1c311408d8fee65eb9527635e3e486a7d44ebc9d8d8bac5e8a598a466945",
-      "record": "docs/decisions/firestore-live-discovery-2026-10-19.md",
+      "sha256": "546eb5cbee59505e2a01c0ec8c350fbedd3cd2746f0e2a43bba7007d49c46120",
+      "record": "docs/decisions/upload-lifecycle-continuation-2026-10-30.md",
       "specs": [
-        "docs/services/telegram-bot/adapters/firestore.md",
-        "docs/services/telegram-bot/operations.md"
+        "docs/modules/synchronization/event-queue.md"
       ],
       "tests": [
-        "packages/telegram-notifications/adapters/source-coordinator.test.mjs",
-        "packages/telegram-notifications/adapters/source-firestore.test.mjs",
-        "packages/telegram-notifications/adapters/source-discovery-firestore.test.mjs",
-        "packages/telegram-notifications/adapters/runtime.test.mjs"
+        "sync/upload-lifecycle.test.mjs",
+        "sync/event-task-artifact.test.mjs",
+        "packages/telegram-notifications/source-pipeline.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос19.10: новая загрузка более минуты без реакции; Firebase должен иметь постоянную подписку. Ранее разрешены Luna implementation, независимое/root review, тесты и выпуск main с постоянным worker."
+        "evidence": "Родитель30.10.2026 поручил автоматическую отмену удалённых фото и продолжение проверки после загрузки запрошенных страниц, сохраняя действующий разбор всех загруженных материалов."
       }
     },
     "packages/telegram-notifications/adapters/source-inventory-firestore.mjs": {
@@ -1254,22 +1251,19 @@
       }
     },
     "packages/telegram-notifications/application/education-sync-dispatcher.mjs": {
-      "sha256": "ccf36962a1ddbbd3a30105ea79bc713bd57138a7fa4bd1311f2aa2c127ad0740",
-      "record": "docs/decisions/olympiad-firebase-independence-2026-10-28.md",
+      "sha256": "5788b6235fafa83abbe58488ae4d08aed803afde0d9b73064300c447b3ee607c",
+      "record": "docs/decisions/upload-lifecycle-continuation-2026-10-30.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/services/telegram-bot/education-sync-dispatch.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/synchronization/event-queue.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "day/family-assignment.test.mjs",
-        "sync/task-route.test.mjs",
-        "packages/telegram-notifications/application/education-sync-action-store.test.mjs"
+        "sync/upload-lifecycle.test.mjs",
+        "sync/event-task-artifact.test.mjs",
+        "packages/telegram-notifications/source-pipeline.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель попросил независимо обработать Firebase и добавить фотографии его задач как карточки с загрузкой ответов."
+        "evidence": "Родитель30.10.2026 поручил автоматическую отмену удалённых фото и продолжение проверки после загрузки запрошенных страниц, сохраняя действующий разбор всех загруженных материалов."
       }
     },
     "packages/telegram-notifications/application/identity.mjs": {
@@ -5420,22 +5414,19 @@
       }
     },
     "sync/event-task-artifact.mjs": {
-      "sha256": "48a82db7dc618255cc6530ac41ca06f9f8992cb707bbf27fa9e935bc1683c102",
-      "record": "docs/decisions/olympiad-firebase-independence-2026-10-28.md",
+      "sha256": "44d0b9961bedcfb9449dcb330af3f0fdd4b25b83edcb3b1d65a15780bd558ee8",
+      "record": "docs/decisions/upload-lifecycle-continuation-2026-10-30.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/services/telegram-bot/education-sync-dispatch.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/synchronization/event-queue.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "day/family-assignment.test.mjs",
-        "sync/task-route.test.mjs",
-        "packages/telegram-notifications/application/education-sync-action-store.test.mjs"
+        "sync/upload-lifecycle.test.mjs",
+        "sync/event-task-artifact.test.mjs",
+        "packages/telegram-notifications/source-pipeline.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель попросил независимо обработать Firebase и добавить фотографии его задач как карточки с загрузкой ответов."
+        "evidence": "Родитель30.10.2026 поручил автоматическую отмену удалённых фото и продолжение проверки после загрузки запрошенных страниц, сохраняя действующий разбор всех загруженных материалов."
       }
     },
     "sync/event-task-export.mjs": {
@@ -5476,7 +5467,7 @@
       }
     },
     "sync/job-queue.mjs": {
-      "sha256": "79b507a1cfb2f6da25f17618c8276770f4d928d43aff34dfa2fb1190dcb64427",
+      "sha256": "af28cd650b55938e235c9fbb7bdd3d923033a0dea50ad6edaf00fa1451813098",
       "record": "docs/decisions/olympiad-family-screen-2026-10-27.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md",
@@ -6160,22 +6151,19 @@
       }
     },
     "sync/task-route.mjs": {
-      "sha256": "11aeafa7ddb3c6649b798209a22402ecd84d4a90b9093853caea0d850d94cc87",
-      "record": "docs/decisions/olympiad-firebase-independence-2026-10-28.md",
+      "sha256": "e1cc1f020accd5bb9a028550700dbedefd3ae0943f35df2d500d00a466078c66",
+      "record": "docs/decisions/upload-lifecycle-continuation-2026-10-30.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/services/telegram-bot/education-sync-dispatch.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/synchronization/event-queue.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "day/family-assignment.test.mjs",
-        "sync/task-route.test.mjs",
-        "packages/telegram-notifications/application/education-sync-action-store.test.mjs"
+        "sync/upload-lifecycle.test.mjs",
+        "sync/event-task-artifact.test.mjs",
+        "packages/telegram-notifications/source-pipeline.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель попросил независимо обработать Firebase и добавить фотографии его задач как карточки с загрузкой ответов."
+        "evidence": "Родитель30.10.2026 поручил автоматическую отмену удалённых фото и продолжение проверки после загрузки запрошенных страниц, сохраняя действующий разбор всех загруженных материалов."
       }
     },
     "operator/route-plan.mjs": {
@@ -6753,6 +6741,22 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Родитель попросил убрать повторяющиеся подписи и показать тему и объяснение перед олимпиадным тестом."
+      }
+    },
+    "sync/upload-lifecycle.mjs": {
+      "sha256": "4bec679521b10bb798aa0d206efbca129e015c1776b87a647375e1643c73aff2",
+      "record": "docs/decisions/upload-lifecycle-continuation-2026-10-30.md",
+      "specs": [
+        "docs/modules/synchronization/event-queue.md"
+      ],
+      "tests": [
+        "sync/upload-lifecycle.test.mjs",
+        "sync/event-task-artifact.test.mjs",
+        "packages/telegram-notifications/source-pipeline.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель30.10.2026 поручил автоматическую отмену удалённых фото и продолжение проверки после загрузки запрошенных страниц, сохраняя действующий разбор всех загруженных материалов."
       }
     }
   }

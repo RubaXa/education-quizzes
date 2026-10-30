@@ -1,3 +1,4 @@
+/** @see ../../../docs/decisions/upload-lifecycle-continuation-2026-10-30.md */
 /** @see ../../../docs/decisions/source-wait-generations-2026-10-22.md */
 /** @see ../../../docs/decisions/independent-action-dispatch-2026-10-21.md */
 import { createHash, randomUUID } from 'node:crypto'
@@ -6,6 +7,7 @@ import { dirname, resolve } from 'node:path'
 import { chmodSync, mkdirSync, renameSync, rmSync, writeFileSync } from 'node:fs'
 import { Timestamp } from '@google-cloud/firestore'
 import { prepareEventTaskArtifact } from '../../../sync/event-task-artifact.mjs'
+import { uploadDeletionRef } from '../../../sync/upload-lifecycle.mjs'
 
 /** @see ../../../docs/services/telegram-bot/education-sync-dispatch.md */
 export class EducationSyncDispatcher {
@@ -61,9 +63,15 @@ export class EducationSyncDispatcher {
       if (source.data()?.status === 'linked') return { status: 'completed' }
       if (source.data()?.status !== 'needs-identification') return { status: 'blocked', safeErrorCode: 'material_not_needs_identification' }
     }
+    if (event.eventType === 'upload.confirmed') {
+      const source = await this.db.doc(event.sourceRef.documentPath).get()
+      const deletion = await (await uploadDeletionRef(this.db, event)).get()
+      if (source.data()?.status === 'deleted' || !source.exists && deletion.exists) return { status: 'completed' }
+    }
     const artifact = await this.prepareArtifact(this.db, event)
     const now = this.clock().toISOString()
     return this.store.recordAction({ event, kind, artifact, now,
+      waitingJobs: artifact.waitingJobs ?? [],
       debounceUntil: new Date(Date.parse(now) + this.debounceMs).toISOString() })
   }
 
@@ -216,18 +224,25 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
         return { status: 'accepted', generation, ...(!holdState || sourceWaitWake ? { nextDueAt } : {}) }
       })
     },
-    async recordAction({ event, kind, artifact, now, debounceUntil }) {
+    async recordAction({ event, kind, artifact, now, debounceUntil, waitingJobs = [] }) {
       if (!event || !ACTION_KINDS[event.eventType] || ACTION_KINDS[event.eventType] !== kind
         || !/^[a-f0-9]{64}$/.test(event.eventId ?? '') || !artifact?.artifactPath
         || !/^[a-f0-9]{64}$/.test(artifact.fingerprint ?? '')) throw new Error('education_sync_action_invalid')
       const generationRef = eventCollection.doc(digest(`action:${event.eventId}`))
       const jobId = digest(JSON.stringify([kind, event.familyId, event.childId, event.eventId]))
       const jobRef = db.collection('operatorSyncJobs').doc(jobId)
+      const deletionRef = event.eventType === 'upload.confirmed' ? await uploadDeletionRef(db, event) : null
       return db.runTransaction(async (tx) => {
         // Firestore requires every read to precede the first write.
         const generationSnap = await tx.get(generationRef)
         const jobSnap = await tx.get(jobRef)
         const stateSnap = await tx.get(ref)
+        const source = deletionRef ? await tx.get(db.doc(event.sourceRef.documentPath)) : null
+        const deletion = deletionRef ? await tx.get(deletionRef) : null
+        const materialOwner = waitingJobs.length ? await tx.get(db.doc(`dayOwners/${event.sourceRef.dayToken}`)) : null
+        const materialPage = waitingJobs.length ? await tx.get(db.doc(`dayPages/${event.sourceRef.dayToken}`)) : null
+        const dependencies = await Promise.all(waitingJobs.map(wait => tx.get(db.doc(`operatorSyncJobs/${wait.id}`))))
+        if (source && (source.data()?.status === 'deleted' || !source.exists && deletion.exists)) return { status: 'completed' }
         if (generationSnap.exists) return { status: 'duplicate', jobId, artifactId: artifact.artifactPath.split('/').at(-1), generation: generationSnap.data().generation }
         const state = stateSnap.exists ? stateSnap.data() : { generation: 0, status: 'idle' }
         const generation = (state.generation ?? 0) + 1
@@ -254,6 +269,17 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
         const eventRow = { kind: 'action', taskKind: kind, eventId: event.eventId, eventType: event.eventType, sourceRef: event.sourceRef,
           jobId, artifactPath: artifact.artifactPath, observationPath: artifact.observationPath ?? `operatorSyncTaskObservations/${event.eventId}`,
           generation, acceptedAt: Timestamp.fromDate(new Date(now)) }
+        dependencies.forEach((snapshot, index) => {
+          const wait = waitingJobs[index], job = snapshot.data()
+          const currentTask = materialPage?.data()?.subjects?.flatMap(subject => subject.tasks ?? []).find(task => task.id === source?.data()?.taskId)
+          if (materialOwner?.data()?.familyId !== event.familyId || materialOwner?.data()?.childId !== event.childId) return
+          if (currentTask?.materialRequest?.state !== 'open' || currentTask.materialRequest.id !== wait.requestId) return
+          if (job?.status !== 'blocked' || job.fingerprint !== wait.fingerprint
+            || job.familyId !== event.familyId || job.childId !== event.childId) return
+          tx.update(db.doc(`operatorSyncJobs/${wait.id}`), { status: 'processing', phase: 'source-material-received', reason: null,
+            updatedAt: Timestamp.fromDate(new Date(now)), evidence: `educationEvents/${event.eventId}`,
+            resumedByEventId: event.eventId, materialRequestId: wait.requestId })
+        })
         tx.create(generationRef, eventRow)
         if (!jobSnap.exists || jobSnap.data()?.fingerprint !== artifact.fingerprint) tx.set(jobRef, task, { merge: false })
         tx.set(ref, { ...state, generation, actionAfterGeneration: pendingActionAfterGeneration,
@@ -645,7 +671,9 @@ function isRecoverableSourceWait(state, now) {
   const lower = state.completedActionGeneration
   const upperCandidates = [state.pendingActionThroughGeneration, state.sendingActionThroughGeneration,
     state.actionThroughGeneration, lane?.actionThroughGeneration].filter((value) => hasValue(value))
-  if (actionEvidence && (!Number.isInteger(lower) || lower < 0 || !upperCandidates.length
+  const actionsResolved = lane?.status === 'completed' && lane.gapPrior !== true
+    && Number.isInteger(lower) && lower >= 0 && upperCandidates.length > 0 && Math.max(...upperCandidates) <= lower
+  if (actionEvidence && !actionsResolved && (!Number.isInteger(lower) || lower < 0 || !upperCandidates.length
     || Math.max(...upperCandidates) <= lower)) return false
   return true
 }
@@ -688,10 +716,13 @@ function claimSourceWaitRecovery({ tx, ref, state, now, workerId }) {
   if (upperCandidates.some((value) => !Number.isInteger(value) || value < 0 || value > state.generation)) return null
   const upper = upperCandidates.length ? Math.max(...upperCandidates) : null
   const hasActionRange = Number.isInteger(upper) && Number.isInteger(lower) && upper > lower
+  const actionsResolved = actionLane?.status === 'completed' && actionLane.gapPrior !== true
+    && Number.isInteger(upper) && Number.isInteger(lower) && lower >= upper
   const kinds = [...new Set([...(state.sendingKinds ?? []), ...(state.pendingKinds ?? []), ...(hasActionRange ? ['action'] : [])])]
+    .filter(kind => kind !== 'action' || !actionsResolved)
   const actionEvidence = kinds.includes('action') || upperCandidates.length > 0
     || actionLane?.status === 'blocked' && (hasValue(actionLane.actionAfterGeneration) || hasValue(actionLane.actionThroughGeneration))
-  if (actionEvidence && !hasActionRange) return null
+  if (actionEvidence && !hasActionRange && !actionsResolved) return null
   if (!kinds.length || kinds.some((kind) => !['mesh', 'work', 'action'].includes(kind))) return null
   const requestId = randomUUID()
   const generation = state.generation
