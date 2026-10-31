@@ -12,6 +12,10 @@ const fingerprint = buildFingerprint()
 if (existsSync(resolve('dist/index.html'))
   && existsSync(marker)
   && readFileSync(marker, 'utf8').trim() === fingerprint) {
+  // A direct Vite bundle clears dist, including the generated service worker.
+  if (!existsSync(resolve('dist/sw.js'))) {
+    execFileSync(process.execPath, ['scripts/generate-sw.mjs', fingerprint], { stdio: 'inherit' })
+  }
   console.log('Исходники сайта не менялись. Сборка не нужна.')
   process.exit(0)
 }
