@@ -24,7 +24,7 @@
 .problem-card-source-detail[hidden]{display:none}
 .problem-card-source-detail>strong{font-size:.82rem}.problem-card-source-detail>small{color:var(--edu-text-secondary)}.problem-card-source-detail a{color:var(--edu-brand);font-weight:700}
 .problem-card-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px}
-.problem-card-upload{display:inline-flex;align-items:center;gap:6px;padding:9px 12px;border-radius:9px;background:var(--edu-primary-bg);color:var(--edu-primary-ink);font-size:.8rem;font-weight:800;cursor:pointer}
-.problem-card-upload:focus-within{outline:3px solid var(--edu-focus);outline-offset:2px}
-.problem-card-upload input{position:absolute;width:1px;height:1px;opacity:0}
+
+
+
 @media(max-width:640px){.problem-card{padding:11px}.problem-card-heading>strong{font-size:.88rem}.problem-card-state small{font-size:.71rem}}

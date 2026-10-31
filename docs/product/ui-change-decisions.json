@@ -2596,43 +2596,43 @@
       }
     },
     "src/DayPage.css": {
-      "sha256": "b452775c646f5a0edb0598100824d12448c0617aa7a079ccfb7aa80ed51fab02",
-      "record": "docs/decisions/personal-tutoring-2026-10-30.md",
+      "sha256": "ba2d33c7684e99632e6c33d60bbca8cbbd12a3af63a491969a3536e4a4be494c",
+      "record": "docs/decisions/canonical-attachment-controls-2026-10-31.md",
       "specs": [
-        "docs/modules/reviews/subject-aware-guidance.md"
+        "docs/shared/design/components.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "storage/tutoring-decision.test.mjs",
-        "storage/review-projection.test.mjs",
-        "sync/event-task-artifact.test.mjs",
-        "src/components/WorkReview.tutoring.test.tsx"
+        "src/components/TaskWorkEvidence.test.tsx",
+        "src/components/WorkPhotoGallery.test.tsx",
+        "src/components/SolutionFiles.test.tsx",
+        "src/UiKit.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/LearningRoute.weekend.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель прямо поручил внедрить персональное объяснение каждой новой работы в основной автоматический конвейер, заменить шаблонные блоки обеих карточек и влить завершённый выпуск."
+        "evidence": "Родитель31.10.2026 указал,что скриншот отличается от реальных контролов,поручил перечитать спецификации/элементы,улучшить декомпозицию и обновить UI Kit без изобретения нового вида."
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "c5428e1991ed332841ad612a695963dcbdf274e6cdb42d14aadada883a99c3a0",
-      "record": "docs/decisions/solution-file-uploads-2026-10-31.md",
+      "sha256": "931e12389c0ca3b76e05728007b839d0c088895570a8e0b54cd6ae307f9b11f3",
+      "record": "docs/decisions/canonical-attachment-controls-2026-10-31.md",
       "specs": [
-        "docs/shared/media-storage.md",
-        "docs/modules/materials/storage-privacy.md"
+        "docs/shared/design/components.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "storage/direct-upload.test.mjs",
-        "storage/work-file-types.test.mjs",
-        "storage/work-file-validation.test.mjs",
-        "src/components/SolutionFiles.test.tsx",
+        "src/components/TaskWorkEvidence.test.tsx",
         "src/components/WorkPhotoGallery.test.tsx",
-        "src/lib/educationEventProducers.test.ts",
-        "scripts/firestore-rules-photo-upload-suite.test.mjs",
+        "src/components/SolutionFiles.test.tsx",
+        "src/UiKit.test.tsx",
         "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/lib/materialRequest.test.ts"
+        "src/components/LearningRoute.weekend.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос31.10.2026: принимать PDF, DOCX, Excel, текстовые и другие файлы решений, показывать соответствующую иконку и действие «Загрузить решение»."
+        "evidence": "Родитель31.10.2026 указал,что скриншот отличается от реальных контролов,поручил перечитать спецификации/элементы,улучшить декомпозицию и обновить UI Kit без изобретения нового вида."
       }
     },
     "src/UiKit.css": {
@@ -2654,21 +2654,23 @@
       }
     },
     "src/UiKit.tsx": {
-      "sha256": "8dbdbbc4610db0504997c907c62d9d73de4469908958885ca0c0b1acfe5a04ef",
-      "record": "docs/decisions/image-preview-first-2026-10-31.md",
+      "sha256": "cb736bbddd1e20f928ab5f81e64a0882c1548783ed437e7229113fbef5e41960",
+      "record": "docs/decisions/canonical-attachment-controls-2026-10-31.md",
       "specs": [
         "docs/shared/design/components.md",
-        "docs/shared/design/ui-kit.md",
-        "docs/shared/media-storage.md"
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/components/SolutionFiles.test.tsx",
+        "src/components/TaskWorkEvidence.test.tsx",
         "src/components/WorkPhotoGallery.test.tsx",
-        "src/UiKit.test.tsx"
+        "src/components/SolutionFiles.test.tsx",
+        "src/UiKit.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/LearningRoute.weekend.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое уточнение31.10.2026: изображения показывать превью без иконок; иконки использовать для файлов,содержимое которых нельзя отрендерить;правило едино с UI Kit."
+        "evidence": "Родитель31.10.2026 указал,что скриншот отличается от реальных контролов,поручил перечитать спецификации/элементы,улучшить декомпозицию и обновить UI Kit без изобретения нового вида."
       }
     },
     "src/WeekendMathSlot.css": {
@@ -2693,26 +2695,23 @@
       }
     },
     "src/WeekendMathSlot.tsx": {
-      "sha256": "674f524b83022c29612d3a4c549035cd3cc59720d355a13f2aca6cf0472221ae",
-      "record": "docs/decisions/solution-file-uploads-2026-10-31.md",
+      "sha256": "287d7f61d5db5e646dcd3e8068fd597016a6e8fc02d4e4f4e6296d25252818a3",
+      "record": "docs/decisions/canonical-attachment-controls-2026-10-31.md",
       "specs": [
-        "docs/shared/media-storage.md",
-        "docs/modules/materials/storage-privacy.md"
+        "docs/shared/design/components.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "storage/direct-upload.test.mjs",
-        "storage/work-file-types.test.mjs",
-        "storage/work-file-validation.test.mjs",
-        "src/components/SolutionFiles.test.tsx",
+        "src/components/TaskWorkEvidence.test.tsx",
         "src/components/WorkPhotoGallery.test.tsx",
-        "src/lib/educationEventProducers.test.ts",
-        "scripts/firestore-rules-photo-upload-suite.test.mjs",
+        "src/components/SolutionFiles.test.tsx",
+        "src/UiKit.test.tsx",
         "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/lib/materialRequest.test.ts"
+        "src/components/LearningRoute.weekend.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос31.10.2026: принимать PDF, DOCX, Excel, текстовые и другие файлы решений, показывать соответствующую иконку и действие «Загрузить решение»."
+        "evidence": "Родитель31.10.2026 указал,что скриншот отличается от реальных контролов,поручил перечитать спецификации/элементы,улучшить декомпозицию и обновить UI Kit без изобретения нового вида."
       }
     },
     "src/components/ArtifactAvatar.css": {
@@ -3345,46 +3344,43 @@
       }
     },
     "src/components/PhotoUploadControl.tsx": {
-      "sha256": "132505da3c9e6d20c9c7633608b0d07f4d9ff8dfa68c81fa37dcafa9137591a3",
-      "record": "docs/decisions/solution-file-uploads-2026-10-31.md",
+      "sha256": "5a59de9a2c91d7ecf55afd0c9ee8ee5045063ea5d10557bbc1b725428136b1f4",
+      "record": "docs/decisions/canonical-attachment-controls-2026-10-31.md",
       "specs": [
-        "docs/shared/media-storage.md",
-        "docs/modules/materials/storage-privacy.md"
+        "docs/shared/design/components.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "storage/direct-upload.test.mjs",
-        "storage/work-file-types.test.mjs",
-        "storage/work-file-validation.test.mjs",
-        "src/components/SolutionFiles.test.tsx",
+        "src/components/TaskWorkEvidence.test.tsx",
         "src/components/WorkPhotoGallery.test.tsx",
-        "src/lib/educationEventProducers.test.ts",
-        "scripts/firestore-rules-photo-upload-suite.test.mjs"
+        "src/components/SolutionFiles.test.tsx",
+        "src/UiKit.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/LearningRoute.weekend.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос31.10.2026: принимать PDF, DOCX, Excel, текстовые и другие файлы решений, показывать соответствующую иконку и действие «Загрузить решение»."
+        "evidence": "Родитель31.10.2026 указал,что скриншот отличается от реальных контролов,поручил перечитать спецификации/элементы,улучшить декомпозицию и обновить UI Kit без изобретения нового вида."
       }
     },
     "src/components/ProblemCard.css": {
-      "sha256": "3c96cd4186c4f05709c63bdc10289b1274e919d13e0b9c6806d98474fa621f9e",
-      "record": "docs/decisions/restore-numbered-original-2026-10-14.md",
+      "sha256": "74a80dee4c770e3d9590f56bd089396f8f95729adaba6aab2b8582d29b276d65",
+      "record": "docs/decisions/canonical-attachment-controls-2026-10-31.md",
       "specs": [
-        "docs/modules/reviews/adaptive-problem-card.md",
-        "docs/modules/reviews/problem-card-design-decisions.md",
-        "docs/shared/design/README.md"
+        "docs/shared/design/components.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/components/ProblemTaskCard.contract.test.tsx",
-        "src/components/ProblemStatement.provenance.test.tsx",
-        "src/components/ProblemCard.test.tsx"
+        "src/components/TaskWorkEvidence.test.tsx",
+        "src/components/WorkPhotoGallery.test.tsx",
+        "src/components/SolutionFiles.test.tsx",
+        "src/UiKit.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/LearningRoute.weekend.integration.test.tsx"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "Родитель 14.10.2026 после просмотра конкретного макета с видимым исходным кропом ответил «Да, стало лучше, очень лучше» и потребовал доделать этот вариант, убрав макетную родительскую кнопку загрузки фото."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "a929789d0c3e2848a61d7bc212537c04d0f2513acdb7f78f1e9b85a3aac282ee"
+        "status": "direct-request",
+        "evidence": "Родитель31.10.2026 указал,что скриншот отличается от реальных контролов,поручил перечитать спецификации/элементы,улучшить декомпозицию и обновить UI Kit без изобретения нового вида."
       }
     },
     "src/components/ProblemCard.tsx": {
@@ -3816,48 +3812,43 @@
       }
     },
     "src/components/WorkPhotoGallery.css": {
-      "sha256": "7b2e17d8551d3b0ee6deb555f76586a99269a10100a11fd90ad560fd30978e51",
-      "record": "docs/decisions/ui-kit-photo-help-2026-10-27.md",
+      "sha256": "c3e820ce281b18a26f25ffa9a73d8d88885e23339125a353b2f596cd1a353356",
+      "record": "docs/decisions/canonical-attachment-controls-2026-10-31.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/modules/school-diary/day-page.md",
         "docs/shared/design/components.md",
-        "docs/product/ui-change-control.md"
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
+        "src/components/TaskWorkEvidence.test.tsx",
         "src/components/WorkPhotoGallery.test.tsx",
-        "src/WeekendMathSlot.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/SolutionFiles.test.tsx",
         "src/UiKit.test.tsx",
-        "scripts/work-photo-consumers.test.mjs",
-        "src/components/WorkPhotoGallery.layout.test.mjs"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/LearningRoute.weekend.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь попросил продолжить декомпозицию и сделать полный локальный макет запроса помощи с выбором фото через существующие компоненты UI Kit."
+        "evidence": "Родитель31.10.2026 указал,что скриншот отличается от реальных контролов,поручил перечитать спецификации/элементы,улучшить декомпозицию и обновить UI Kit без изобретения нового вида."
       }
     },
     "src/components/WorkPhotoGallery.tsx": {
-      "sha256": "deeebf495528fe101dd430cd22c365ea7f895d84f41d8dd4bfb5784998f1705d",
-      "record": "docs/decisions/solution-file-uploads-2026-10-31.md",
+      "sha256": "cd2c1e45fcc05220d9d2924e279337ac25798cdbb98f62d598450f97d0b33cac",
+      "record": "docs/decisions/canonical-attachment-controls-2026-10-31.md",
       "specs": [
-        "docs/shared/media-storage.md",
-        "docs/modules/materials/storage-privacy.md"
+        "docs/shared/design/components.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "storage/direct-upload.test.mjs",
-        "storage/work-file-types.test.mjs",
-        "storage/work-file-validation.test.mjs",
-        "src/components/SolutionFiles.test.tsx",
+        "src/components/TaskWorkEvidence.test.tsx",
         "src/components/WorkPhotoGallery.test.tsx",
-        "src/lib/educationEventProducers.test.ts",
-        "scripts/firestore-rules-photo-upload-suite.test.mjs",
+        "src/components/SolutionFiles.test.tsx",
+        "src/UiKit.test.tsx",
         "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/lib/materialRequest.test.ts"
+        "src/components/LearningRoute.weekend.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос31.10.2026: принимать PDF, DOCX, Excel, текстовые и другие файлы решений, показывать соответствующую иконку и действие «Загрузить решение»."
+        "evidence": "Родитель31.10.2026 указал,что скриншот отличается от реальных контролов,поручил перечитать спецификации/элементы,улучшить декомпозицию и обновить UI Kit без изобретения нового вида."
       }
     },
     "src/components/WorkReview.tsx": {
@@ -6938,6 +6929,106 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Родитель31.10.2026 поручил единообразно оформить три олимпиады, проверить сроки и регистрацию, добавить подготовку и архивы."
+      }
+    },
+    "src/components/PhotoUploadControl.css": {
+      "sha256": "0f81e50ef42179b04db82c3c8797c46cd7fe039bb4dddb0e4c067b4594d98730",
+      "record": "docs/decisions/canonical-attachment-controls-2026-10-31.md",
+      "specs": [
+        "docs/shared/design/components.md",
+        "docs/shared/design/ui-kit.md"
+      ],
+      "tests": [
+        "src/components/TaskWorkEvidence.test.tsx",
+        "src/components/WorkPhotoGallery.test.tsx",
+        "src/components/SolutionFiles.test.tsx",
+        "src/UiKit.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/LearningRoute.weekend.integration.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель31.10.2026 указал,что скриншот отличается от реальных контролов,поручил перечитать спецификации/элементы,улучшить декомпозицию и обновить UI Kit без изобретения нового вида."
+      }
+    },
+    "src/components/WorkAttachmentThumbnail.tsx": {
+      "sha256": "7a9cdc31c5829fe28bc0290ac7f962193f12f500756223b4fa44047620ec5078",
+      "record": "docs/decisions/canonical-attachment-controls-2026-10-31.md",
+      "specs": [
+        "docs/shared/design/components.md",
+        "docs/shared/design/ui-kit.md"
+      ],
+      "tests": [
+        "src/components/TaskWorkEvidence.test.tsx",
+        "src/components/WorkPhotoGallery.test.tsx",
+        "src/components/SolutionFiles.test.tsx",
+        "src/UiKit.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/LearningRoute.weekend.integration.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель31.10.2026 указал,что скриншот отличается от реальных контролов,поручил перечитать спецификации/элементы,улучшить декомпозицию и обновить UI Kit без изобретения нового вида."
+      }
+    },
+    "src/components/WorkAttachmentThumbnail.css": {
+      "sha256": "c84799050aa13ab2dbc3ed666582342c859ae3f276cddeccc20aa62c5e0b1b9e",
+      "record": "docs/decisions/canonical-attachment-controls-2026-10-31.md",
+      "specs": [
+        "docs/shared/design/components.md",
+        "docs/shared/design/ui-kit.md"
+      ],
+      "tests": [
+        "src/components/TaskWorkEvidence.test.tsx",
+        "src/components/WorkPhotoGallery.test.tsx",
+        "src/components/SolutionFiles.test.tsx",
+        "src/UiKit.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/LearningRoute.weekend.integration.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель31.10.2026 указал,что скриншот отличается от реальных контролов,поручил перечитать спецификации/элементы,улучшить декомпозицию и обновить UI Kit без изобретения нового вида."
+      }
+    },
+    "src/components/TaskWorkEvidence.tsx": {
+      "sha256": "25fd8537d50a936b68b021f9ff129f7be0393bbc8a777e942051ca4fb76bc05f",
+      "record": "docs/decisions/canonical-attachment-controls-2026-10-31.md",
+      "specs": [
+        "docs/shared/design/components.md",
+        "docs/shared/design/ui-kit.md"
+      ],
+      "tests": [
+        "src/components/TaskWorkEvidence.test.tsx",
+        "src/components/WorkPhotoGallery.test.tsx",
+        "src/components/SolutionFiles.test.tsx",
+        "src/UiKit.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/LearningRoute.weekend.integration.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель31.10.2026 указал,что скриншот отличается от реальных контролов,поручил перечитать спецификации/элементы,улучшить декомпозицию и обновить UI Kit без изобретения нового вида."
+      }
+    },
+    "src/ui-kit/TaskAttachmentsExample.tsx": {
+      "sha256": "91f4f1880d3d4440612d3b52d2dd2676f5a579b52f6500a3b6e010ab9455b329",
+      "record": "docs/decisions/canonical-attachment-controls-2026-10-31.md",
+      "specs": [
+        "docs/shared/design/components.md",
+        "docs/shared/design/ui-kit.md"
+      ],
+      "tests": [
+        "src/components/TaskWorkEvidence.test.tsx",
+        "src/components/WorkPhotoGallery.test.tsx",
+        "src/components/SolutionFiles.test.tsx",
+        "src/UiKit.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/LearningRoute.weekend.integration.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель31.10.2026 указал,что скриншот отличается от реальных контролов,поручил перечитать спецификации/элементы,улучшить декомпозицию и обновить UI Kit без изобретения нового вида."
       }
     }
   }

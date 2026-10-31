@@ -293,3 +293,23 @@ it('shows shared Lucide file icons for every accepted format and switches the ac
  expect(host.querySelector('.edu-kit-file-expanded .work-file-format')).toBeNull()
  expect(host.querySelector('.edu-kit-file-expanded .lucide-camera')).toBeNull()
 })
+
+/** @see ../docs/shared/design/ui-kit.md#вложения-в-карточке-задания */
+it('shows the actual day and weekend attachment compositions with working role, deletion and upload controls',async()=>{
+ document.body.append(host);root=createRoot(host);await act(async()=>root!.render(<UiKit/>))
+ await act(async()=>[...host.querySelectorAll<HTMLButtonElement>('nav button')].find(button=>button.textContent==='Файлы и превью')!.click())
+ const example=host.querySelector<HTMLElement>('[aria-label="Вложения в карточке задания"]')!
+ await act(async()=>example.querySelector<HTMLElement>('.problem-card-heading')!.click())
+ expect(example.querySelectorAll('.day-upload-chip')).toHaveLength(3)
+ expect(example.querySelector('.day-upload-head')?.textContent).toContain('Файлы работы')
+ expect(example.querySelector('.work-photo-gallery-compact')).toBeNull()
+ expect(example.querySelector('.weekend-math-photo-delete')).toBeNull()
+ await act(async()=>[...example.querySelectorAll<HTMLButtonElement>('button')].find(button=>button.textContent==='Выходной лист')!.click())
+ // Switching the route composition recreates the task in its initial closed state.
+ await act(async()=>example.querySelector<HTMLElement>('.problem-card-heading')!.click())
+ expect(example.querySelector('.work-photo-gallery-compact')).not.toBeNull()
+ expect(example.querySelectorAll('.weekend-math-photo-delete')).toHaveLength(3)
+ await act(async()=>[...example.querySelectorAll<HTMLButtonElement>('button')].find(button=>button.textContent==='Родитель')!.click())
+ expect(example.querySelector('input[type=file]')).toBeNull()
+ expect(example.querySelector('.weekend-math-photo-delete')).toBeNull()
+})

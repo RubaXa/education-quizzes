@@ -1,5 +1,6 @@
 import { workFileAccept } from '../../storage/work-file-types.mjs'
 import { Paperclip } from 'lucide-react'
+import './PhotoUploadControl.css'
 
 /** One multi-photo action for written homework and numbered problems.
  * Its visibility is decided by the task's completion, never by the number

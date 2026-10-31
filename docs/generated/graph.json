@@ -668,6 +668,32 @@
       "path": "docs/decisions/calendar-vacation-sticky-2026-10-19.md"
     },
     {
+      "id": "decision.canonical-attachment-controls-2026-10-31",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-31",
+      "updated": "2026-10-31",
+      "consumers": [
+        "parent",
+        "student",
+        "frontend developer"
+      ],
+      "code": [],
+      "parent": "shared.design.components",
+      "uses": [
+        "shared.design.ui-kit",
+        "module.reviews.problem-card-design-decisions"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/canonical-attachment-controls-2026-10-31.md"
+    },
+    {
       "id": "decision.canonical-short-key-repair-2026-10-19",
       "status": "accepted",
       "implementation": "implemented",
@@ -4715,6 +4741,13 @@
       "consumer": "Playwright"
     },
     {
+      "id": "file:e2e/task-attachments.e2e.ts",
+      "path": "e2e/task-attachments.e2e.ts",
+      "kind": "artifact",
+      "purpose": "Сравнение реальных контролов,ролей,геометрии и действий",
+      "consumer": "Education; разработчик"
+    },
+    {
       "id": "file:early-development/program.d.mts",
       "path": "early-development/program.d.mts",
       "kind": "artifact",
@@ -7221,6 +7254,13 @@
       "consumer": "UI Kit; разработчик"
     },
     {
+      "id": "file:src/components/PhotoUploadControl.css",
+      "path": "src/components/PhotoUploadControl.css",
+      "kind": "artifact",
+      "purpose": "Существующие стили загрузки принадлежат общему контролу",
+      "consumer": "Education; разработчик"
+    },
+    {
       "id": "file:src/components/PhotoUploadControl.test.tsx",
       "path": "src/components/PhotoUploadControl.test.tsx",
       "kind": "verification",
@@ -7508,6 +7548,20 @@
       "consumer": "`src/DayPage.tsx`; `ProblemTaskCard.tsx`"
     },
     {
+      "id": "file:src/components/TaskWorkEvidence.test.tsx",
+      "path": "src/components/TaskWorkEvidence.test.tsx",
+      "kind": "verification",
+      "purpose": "Действия двух вариантов,выбор и точное удаление",
+      "consumer": "Education; разработчик"
+    },
+    {
+      "id": "file:src/components/TaskWorkEvidence.tsx",
+      "path": "src/components/TaskWorkEvidence.tsx",
+      "kind": "artifact",
+      "purpose": "Общий состав собственных вложений и связанных ссылок с явным layout",
+      "consumer": "Education; разработчик"
+    },
+    {
       "id": "file:src/components/TelegramNotificationPreview.css",
       "path": "src/components/TelegramNotificationPreview.css",
       "kind": "artifact",
@@ -7611,6 +7665,20 @@
       "kind": "verification",
       "purpose": "Проверка ученического источника, выборочной помощи и единого процента теста",
       "consumer": "Vitest; разработчик"
+    },
+    {
+      "id": "file:src/components/WorkAttachmentThumbnail.css",
+      "path": "src/components/WorkAttachmentThumbnail.css",
+      "kind": "artifact",
+      "purpose": "Согласованные размеры и состояния интерактивной миниатюры",
+      "consumer": "Education; разработчик"
+    },
+    {
+      "id": "file:src/components/WorkAttachmentThumbnail.tsx",
+      "path": "src/components/WorkAttachmentThumbnail.tsx",
+      "kind": "artifact",
+      "purpose": "Общая кнопка миниатюры,выбора и соседнего компактного удаления",
+      "consumer": "Education; разработчик"
     },
     {
       "id": "file:src/components/WorkFilePreview.css",
@@ -8668,6 +8736,13 @@
       "kind": "artifact",
       "purpose": "Монтирование React и стилей",
       "consumer": "Браузер"
+    },
+    {
+      "id": "file:src/ui-kit/TaskAttachmentsExample.tsx",
+      "path": "src/ui-kit/TaskAttachmentsExample.tsx",
+      "kind": "artifact",
+      "purpose": "Действующие композиции дня/выходного листа на локальных данных",
+      "consumer": "Education; разработчик"
     },
     {
       "id": "file:src/UiKit.css",
@@ -11276,7 +11351,7 @@
       "status": "accepted",
       "implementation": "planned",
       "created": "2026-10-27",
-      "updated": "2026-10-27",
+      "updated": "2026-10-31",
       "consumers": [
         "frontend developer",
         "screen author / Education agent"
@@ -12822,13 +12897,17 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-13",
-      "updated": "2026-10-16",
+      "updated": "2026-10-31",
       "consumers": [
         "React UI components",
         "frontend developer",
         "screen author / Education agent"
       ],
       "code": [
+        "src/components/PhotoUploadControl.css",
+        "src/components/TaskWorkEvidence.tsx",
+        "src/components/WorkAttachmentThumbnail.tsx",
+        "src/components/WorkAttachmentThumbnail.css",
         "scripts/check-spec-map.mjs",
         "src/components/ArtifactAvatar.tsx",
         "src/components/WorkPhotoGallery.tsx",
@@ -12948,6 +13027,7 @@
         "screen author / Education agent"
       ],
       "code": [
+        "src/ui-kit/TaskAttachmentsExample.tsx",
         "src/UiKit.css",
         "src/UiKit.tsx",
         "src/lib/uiKitExamples.ts",
@@ -12975,7 +13055,8 @@
         "аудиоплеер",
         "письменная-задача",
         "игровой-урок",
-        "иконки-файлов"
+        "иконки-файлов",
+        "вложения-в-карточке-задания"
       ],
       "path": "docs/shared/design/ui-kit.md"
     },
@@ -13350,6 +13431,16 @@
     {
       "from": "decision.calendar-vacation-sticky-2026-10-19",
       "to": "shared.design",
+      "type": "uses"
+    },
+    {
+      "from": "decision.canonical-attachment-controls-2026-10-31",
+      "to": "module.reviews.problem-card-design-decisions",
+      "type": "uses"
+    },
+    {
+      "from": "decision.canonical-attachment-controls-2026-10-31",
+      "to": "shared.design.ui-kit",
       "type": "uses"
     },
     {
@@ -14830,6 +14921,11 @@
     {
       "from": "file:e2e/solution-files.e2e.ts",
       "to": "shared.media-storage",
+      "type": "implements"
+    },
+    {
+      "from": "file:e2e/task-attachments.e2e.ts",
+      "to": "shared.design.ui-kit",
       "type": "implements"
     },
     {
@@ -17103,6 +17199,11 @@
       "type": "implements"
     },
     {
+      "from": "file:src/components/PhotoUploadControl.css",
+      "to": "shared.design.components",
+      "type": "implements"
+    },
+    {
       "from": "file:src/components/PhotoUploadControl.tsx",
       "to": "module.school-diary.day-page",
       "type": "implements"
@@ -17418,6 +17519,11 @@
       "type": "implements"
     },
     {
+      "from": "file:src/components/TaskWorkEvidence.tsx",
+      "to": "shared.design.components",
+      "type": "implements"
+    },
+    {
       "from": "file:src/components/TelegramNotificationPreview.css",
       "to": "decision.telegram-compact-digest-2026-10-18",
       "type": "implements"
@@ -17500,6 +17606,16 @@
     {
       "from": "file:src/components/ui/textarea.tsx",
       "to": "module.synchronization.backend-driven-ui",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/WorkAttachmentThumbnail.css",
+      "to": "shared.design.components",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/WorkAttachmentThumbnail.tsx",
+      "to": "shared.design.components",
       "type": "implements"
     },
     {
@@ -18605,6 +18721,11 @@
     {
       "from": "file:src/main.tsx",
       "to": "product.pwa",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/ui-kit/TaskAttachmentsExample.tsx",
+      "to": "shared.design.ui-kit",
       "type": "implements"
     },
     {
@@ -22879,6 +23000,11 @@
     },
     {
       "from": "shared.design.components",
+      "to": "decision.canonical-attachment-controls-2026-10-31",
+      "type": "contains"
+    },
+    {
+      "from": "shared.design.components",
       "to": "decision.work-photo-thumbnail-decomposition-2026-10-27",
       "type": "contains"
     },
@@ -22886,6 +23012,11 @@
       "from": "shared.design.components",
       "to": "decisions.work-photo-expand-2026-10-18",
       "type": "contains"
+    },
+    {
+      "from": "shared.design.components",
+      "to": "file:src/components/TaskWorkEvidence.test.tsx",
+      "type": "verified-by"
     },
     {
       "from": "shared.design.components",
