@@ -3,7 +3,7 @@ id: module.olympiad-history
 status: accepted
 implementation: partial
 created: 2026-10-31
-updated: 2026-10-31
+updated: 2026-11-01
 parent: module.olympiad-preparation
 uses:
   - shared.access-and-privacy
@@ -172,3 +172,5 @@ updatedOn, strengths/workingOn(text/evidenceIds), next(taskId/title/reason/evide
 Главное действие имеет сенсорную высоту не менее44px. «Открыть задачу» ведёт к существующему номеру без смены hash и новой попытки;
 при выключенной/недоступной практике нет мёртвой кнопки. Архивные ссылки доступны
 независимо от включения подготовки. Общий каталог, исходные баллы и parentNotes сохраняются.
+
+При наличии preparation.next основной шаг выводится общим OlympiadNextStep в начале OlympiadOverview. В нижней сводке не повторяется текст/кнопка, но next.evidenceIds сохраняют прежний ленивый доступ к оригиналам. Данные и статус выбранного номера не меняются этой композицией.

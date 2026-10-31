@@ -2659,20 +2659,21 @@
       }
     },
     "src/UiKit.tsx": {
-      "sha256": "14de3893b4339b709adb9025ca797f6362e264925dde94327251c5a402997864",
-      "record": "docs/decisions/olympiad-information-hierarchy-2026-10-31.md",
+      "sha256": "cd9569e360aa9bfc572a96ba4461b1843cec45040b15849608bb9f4db0eb0a9f",
+      "record": "docs/decisions/olympiad-next-step-first-2026-11-01.md",
       "specs": [
         "docs/shared/design/information-hierarchy.md",
-        "docs/modules/assessments/olympiad-preparation.md"
+        "docs/modules/assessments/olympiad-history.md"
       ],
       "tests": [
-        "src/components/OlympiadOverview.test.tsx",
         "src/components/OlympiadPage.integration.test.tsx",
+        "src/components/OlympiadSchedule.test.tsx",
+        "src/components/OlympiadPreparationSummary.test.tsx",
         "scripts/check-olympiad-overview-viewport.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "31.10.2026 родитель прямо отверг первую часть карточки олимпиады и обратную ссылку, потребовал исследовать и исправить структуру, читаемость и визуальное оформление."
+        "evidence": "01.11.2026 родитель потребовал убрать три повтора про регистрацию и прежде всего показать на первом экране, что Пете делать дальше."
       }
     },
     "src/WeekendMathSlot.css": {
@@ -6241,20 +6242,21 @@
       }
     },
     "src/components/OlympiadPage.tsx": {
-      "sha256": "c15912d620c1249bbe6120c072af20c67e1dd33b2bb7ab406159bff676e1451e",
-      "record": "docs/decisions/olympiad-personal-preparation-2026-10-31.md",
+      "sha256": "d834a2f4df985a3e78e59eaa865e63c28409258b4cf5568aa98ac15e3e03a2a1",
+      "record": "docs/decisions/olympiad-next-step-first-2026-11-01.md",
       "specs": [
-        "docs/modules/assessments/olympiad-history.md",
-        "docs/shared/design/information-hierarchy.md"
+        "docs/shared/design/information-hierarchy.md",
+        "docs/modules/assessments/olympiad-history.md"
       ],
       "tests": [
         "src/components/OlympiadPage.integration.test.tsx",
+        "src/components/OlympiadSchedule.test.tsx",
         "src/components/OlympiadPreparationSummary.test.tsx",
-        "src/components/OlympiadOverview.test.tsx"
+        "scripts/check-olympiad-overview-viewport.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь31.10.2026 запросил видимый персональный блок с опорами, пробелами, следующим номером и ссылками на прошлые работы. Новая общая сводка PR105 сохраняется."
+        "evidence": "01.11.2026 родитель потребовал убрать три повтора про регистрацию и прежде всего показать на первом экране, что Пете делать дальше."
       }
     },
     "src/components/OlympiadWrittenPractice.tsx": {
@@ -6855,20 +6857,21 @@
       }
     },
     "src/components/OlympiadSchedule.tsx": {
-      "sha256": "1eab9076122ee301ef3de5fe1d0ea7870fcf25394516a66913a23f6699990b22",
-      "record": "docs/decisions/olympiad-information-hierarchy-2026-10-31.md",
+      "sha256": "5c1b863b0604cb3bbc2d6620203099ccb5a7f305eff4a98735f8423d0bbd1162",
+      "record": "docs/decisions/olympiad-next-step-first-2026-11-01.md",
       "specs": [
         "docs/shared/design/information-hierarchy.md",
-        "docs/modules/assessments/olympiad-preparation.md"
+        "docs/modules/assessments/olympiad-history.md"
       ],
       "tests": [
-        "src/components/OlympiadOverview.test.tsx",
         "src/components/OlympiadPage.integration.test.tsx",
+        "src/components/OlympiadSchedule.test.tsx",
+        "src/components/OlympiadPreparationSummary.test.tsx",
         "scripts/check-olympiad-overview-viewport.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "31.10.2026 родитель прямо отверг первую часть карточки олимпиады и обратную ссылку, потребовал исследовать и исправить структуру, читаемость и визуальное оформление."
+        "evidence": "01.11.2026 родитель потребовал убрать три повтора про регистрацию и прежде всего показать на первом экране, что Пете делать дальше."
       }
     },
     "src/components/OlympiadSchedule.css": {
@@ -7239,18 +7242,21 @@
       }
     },
     "src/components/OlympiadHistoryShowcase.tsx": {
-      "sha256": "5b9b17b9ae1ddd07f2941c320c30953a02ad7fbae95bfcd136de53a73ec1605c",
-      "record": "docs/decisions/olympiad-personal-preparation-2026-10-31.md",
+      "sha256": "61f0ed59062e3c9ac5ae58466a56275a408bff3e5128b8ae7bc7d01798a3b0ae",
+      "record": "docs/decisions/olympiad-next-step-first-2026-11-01.md",
       "specs": [
+        "docs/shared/design/information-hierarchy.md",
         "docs/modules/assessments/olympiad-history.md"
       ],
       "tests": [
+        "src/components/OlympiadPage.integration.test.tsx",
+        "src/components/OlympiadSchedule.test.tsx",
         "src/components/OlympiadPreparationSummary.test.tsx",
-        "src/components/OlympiadHistory.test.tsx"
+        "scripts/check-olympiad-overview-viewport.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь31.10.2026 прямо поручил реализовать историю сезонов, этапов, результатов и работ в карточках олимпиад через существующий Education/UI Kit с проверками и публикацией без дополнительных согласований."
+        "evidence": "01.11.2026 родитель потребовал убрать три повтора про регистрацию и прежде всего показать на первом экране, что Пете делать дальше."
       }
     },
     "src/lib/olympiad/historyStore.ts": {
@@ -7420,84 +7426,147 @@
       }
     },
     "src/components/OlympiadOverview.tsx": {
-      "sha256": "206e2424d30739fbb9cba7f13d0c7951e4272b88c4e153cd26087553918af7de",
-      "record": "docs/decisions/olympiad-information-hierarchy-2026-10-31.md",
+      "sha256": "a52d42e1b55538b4fb4a2e7734bafa95312c998fc5653f544f55c29b7edf73b5",
+      "record": "docs/decisions/olympiad-next-step-first-2026-11-01.md",
       "specs": [
         "docs/shared/design/information-hierarchy.md",
-        "docs/modules/assessments/olympiad-preparation.md"
+        "docs/modules/assessments/olympiad-history.md"
       ],
       "tests": [
-        "src/components/OlympiadOverview.test.tsx",
         "src/components/OlympiadPage.integration.test.tsx",
+        "src/components/OlympiadSchedule.test.tsx",
+        "src/components/OlympiadPreparationSummary.test.tsx",
         "scripts/check-olympiad-overview-viewport.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "31.10.2026 родитель прямо отверг первую часть карточки олимпиады и обратную ссылку, потребовал исследовать и исправить структуру, читаемость и визуальное оформление."
+        "evidence": "01.11.2026 родитель потребовал убрать три повтора про регистрацию и прежде всего показать на первом экране, что Пете делать дальше."
       }
     },
     "src/components/OlympiadOverview.css": {
-      "sha256": "7ab0f807391660a6481b2935a92b3adf2483734918a7ad8a8cfadb18f8b71d27",
-      "record": "docs/decisions/olympiad-information-hierarchy-2026-10-31.md",
+      "sha256": "354b326e77abbfa435e3faa3c5fe1e697796d1524bd8f8db34e838e1b8f7f01b",
+      "record": "docs/decisions/olympiad-next-step-first-2026-11-01.md",
       "specs": [
         "docs/shared/design/information-hierarchy.md",
-        "docs/modules/assessments/olympiad-preparation.md"
+        "docs/modules/assessments/olympiad-history.md"
       ],
       "tests": [
-        "src/components/OlympiadOverview.test.tsx",
         "src/components/OlympiadPage.integration.test.tsx",
+        "src/components/OlympiadSchedule.test.tsx",
+        "src/components/OlympiadPreparationSummary.test.tsx",
         "scripts/check-olympiad-overview-viewport.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "31.10.2026 родитель прямо отверг первую часть карточки олимпиады и обратную ссылку, потребовал исследовать и исправить структуру, читаемость и визуальное оформление."
+        "evidence": "01.11.2026 родитель потребовал убрать три повтора про регистрацию и прежде всего показать на первом экране, что Пете делать дальше."
       }
     },
     "scripts/check-olympiad-overview-viewport.mjs": {
-      "sha256": "5457ae72a636d949c81f56632af17ff5583eda3783600af9045be2b2180b9410",
-      "record": "docs/decisions/olympiad-information-hierarchy-2026-10-31.md",
+      "sha256": "0d510d6ce4208c5f7a8a9f15fdc56c64285c2918efae07186384ffd387918315",
+      "record": "docs/decisions/olympiad-next-step-first-2026-11-01.md",
       "specs": [
         "docs/shared/design/information-hierarchy.md",
-        "docs/modules/assessments/olympiad-preparation.md"
+        "docs/modules/assessments/olympiad-history.md"
       ],
       "tests": [
-        "src/components/OlympiadOverview.test.tsx",
         "src/components/OlympiadPage.integration.test.tsx",
+        "src/components/OlympiadSchedule.test.tsx",
+        "src/components/OlympiadPreparationSummary.test.tsx",
         "scripts/check-olympiad-overview-viewport.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "31.10.2026 родитель прямо отверг первую часть карточки олимпиады и обратную ссылку, потребовал исследовать и исправить структуру, читаемость и визуальное оформление."
+        "evidence": "01.11.2026 родитель потребовал убрать три повтора про регистрацию и прежде всего показать на первом экране, что Пете делать дальше."
       }
     },
     "src/components/OlympiadPreparationSummary.tsx": {
-      "sha256": "36fcfa3c76667525d9d76d966fae7f8db9b60e8cecc4958806702ce6c419dd07",
-      "record": "docs/decisions/olympiad-personal-preparation-2026-10-31.md",
+      "sha256": "9ac2cb3cbe69bdf46e9334c0efe0f1620efde8dc1845a5ed6e4df6e33dfca4ad",
+      "record": "docs/decisions/olympiad-next-step-first-2026-11-01.md",
       "specs": [
+        "docs/shared/design/information-hierarchy.md",
         "docs/modules/assessments/olympiad-history.md"
       ],
       "tests": [
+        "src/components/OlympiadPage.integration.test.tsx",
+        "src/components/OlympiadSchedule.test.tsx",
         "src/components/OlympiadPreparationSummary.test.tsx",
-        "src/components/OlympiadHistory.test.tsx"
+        "scripts/check-olympiad-overview-viewport.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь31.10.2026 прямо запросил персональный блок подготовки в карточках ФЕТТ и Надежды с опорами, пробелами, следующим номером и ссылками на прошлые работы."
+        "evidence": "01.11.2026 родитель потребовал убрать три повтора про регистрацию и прежде всего показать на первом экране, что Пете делать дальше."
       }
     },
     "src/components/OlympiadPreparationSummary.css": {
-      "sha256": "5a7322adee52c2a7e930ff224e76b4ef9b65a7ce63166890dd5e14adedde0826",
-      "record": "docs/decisions/olympiad-personal-preparation-2026-10-31.md",
+      "sha256": "22c02c4d745849384700f883a8e9ace7cc2706db67cfda19c6534ef4d75df5c8",
+      "record": "docs/decisions/olympiad-next-step-first-2026-11-01.md",
       "specs": [
+        "docs/shared/design/information-hierarchy.md",
         "docs/modules/assessments/olympiad-history.md"
       ],
       "tests": [
+        "src/components/OlympiadPage.integration.test.tsx",
+        "src/components/OlympiadSchedule.test.tsx",
         "src/components/OlympiadPreparationSummary.test.tsx",
-        "src/components/OlympiadHistory.test.tsx"
+        "scripts/check-olympiad-overview-viewport.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь31.10.2026 прямо запросил персональный блок подготовки в карточках ФЕТТ и Надежды с опорами, пробелами, следующим номером и ссылками на прошлые работы."
+        "evidence": "01.11.2026 родитель потребовал убрать три повтора про регистрацию и прежде всего показать на первом экране, что Пете делать дальше."
+      }
+    },
+    "src/components/OlympiadNextStep.css": {
+      "sha256": "1e5e5f21de4c0cf6dcb537f54961029db261d05b4bc49009fc2da4c6f71c43b7",
+      "record": "docs/decisions/olympiad-next-step-first-2026-11-01.md",
+      "specs": [
+        "docs/shared/design/information-hierarchy.md",
+        "docs/modules/assessments/olympiad-history.md"
+      ],
+      "tests": [
+        "src/components/OlympiadPage.integration.test.tsx",
+        "src/components/OlympiadSchedule.test.tsx",
+        "src/components/OlympiadPreparationSummary.test.tsx",
+        "scripts/check-olympiad-overview-viewport.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "01.11.2026 родитель потребовал убрать три повтора про регистрацию и прежде всего показать на первом экране, что Пете делать дальше."
+      }
+    },
+    "src/components/OlympiadNextStep.tsx": {
+      "sha256": "738a2ce5ef21839c2de27d86cd94d2259746705f6f10016f546c6328f8238f2c",
+      "record": "docs/decisions/olympiad-next-step-first-2026-11-01.md",
+      "specs": [
+        "docs/shared/design/information-hierarchy.md",
+        "docs/modules/assessments/olympiad-history.md"
+      ],
+      "tests": [
+        "src/components/OlympiadPage.integration.test.tsx",
+        "src/components/OlympiadSchedule.test.tsx",
+        "src/components/OlympiadPreparationSummary.test.tsx",
+        "scripts/check-olympiad-overview-viewport.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "01.11.2026 родитель потребовал убрать три повтора про регистрацию и прежде всего показать на первом экране, что Пете делать дальше."
+      }
+    },
+    "src/ui-kit/olympiadHistoryFixtures.ts": {
+      "sha256": "9fd0a20eb67dce479d077bc62a39435d742e30fd43a8a921a44319262160ca02",
+      "record": "docs/decisions/olympiad-next-step-first-2026-11-01.md",
+      "specs": [
+        "docs/shared/design/information-hierarchy.md",
+        "docs/modules/assessments/olympiad-history.md"
+      ],
+      "tests": [
+        "src/components/OlympiadPage.integration.test.tsx",
+        "src/components/OlympiadSchedule.test.tsx",
+        "src/components/OlympiadPreparationSummary.test.tsx",
+        "scripts/check-olympiad-overview-viewport.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "01.11.2026 родитель потребовал убрать три повтора про регистрацию и прежде всего показать на первом экране, что Пете делать дальше."
       }
     }
   }

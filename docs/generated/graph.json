@@ -1615,6 +1615,31 @@
       "path": "docs/decisions/olympiad-integration-2026-10-28.md"
     },
     {
+      "id": "decision.olympiad-next-step-first-2026-11-01",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-01",
+      "updated": "2026-11-01",
+      "parent": "shared.design.information-hierarchy",
+      "uses": [
+        "shared.design.ui-kit",
+        "module.olympiad-history"
+      ],
+      "consumers": [
+        "student",
+        "parent"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/olympiad-next-step-first-2026-11-01.md"
+    },
+    {
       "id": "decision.olympiad-personal-preparation-2026-10-31",
       "status": "accepted",
       "implementation": "partial",
@@ -4977,6 +5002,13 @@
       "consumer": "Education"
     },
     {
+      "id": "file:e2e/olympiad-next-step.e2e.ts",
+      "path": "e2e/olympiad-next-step.e2e.ts",
+      "kind": "artifact",
+      "purpose": "Одна следующая задача перед организационными подробностями",
+      "consumer": "Education"
+    },
+    {
       "id": "file:e2e/olympiad-personal-preparation.e2e.ts",
       "path": "e2e/olympiad-personal-preparation.e2e.ts",
       "kind": "artifact",
@@ -7497,6 +7529,20 @@
       "consumer": "UI Kit; будущий маршрут"
     },
     {
+      "id": "file:src/components/OlympiadNextStep.css",
+      "path": "src/components/OlympiadNextStep.css",
+      "kind": "artifact",
+      "purpose": "Одна следующая задача перед организационными подробностями",
+      "consumer": "Education"
+    },
+    {
+      "id": "file:src/components/OlympiadNextStep.tsx",
+      "path": "src/components/OlympiadNextStep.tsx",
+      "kind": "artifact",
+      "purpose": "Одна следующая задача перед организационными подробностями",
+      "consumer": "Education"
+    },
+    {
       "id": "file:src/components/OlympiadOverview.css",
       "path": "src/components/OlympiadOverview.css",
       "kind": "artifact",
@@ -9303,6 +9349,13 @@
       "consumer": "Браузер"
     },
     {
+      "id": "file:src/ui-kit/olympiadHistoryFixtures.ts",
+      "path": "src/ui-kit/olympiadHistoryFixtures.ts",
+      "kind": "artifact",
+      "purpose": "Общие условные история и resolver для примеров",
+      "consumer": "UI Kit"
+    },
+    {
       "id": "file:src/ui-kit/TaskAttachmentsExample.tsx",
       "path": "src/ui-kit/TaskAttachmentsExample.tsx",
       "kind": "artifact",
@@ -10737,7 +10790,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-31",
-      "updated": "2026-10-31",
+      "updated": "2026-11-01",
       "parent": "module.olympiad-preparation",
       "uses": [
         "shared.access-and-privacy",
@@ -13708,7 +13761,7 @@
       "status": "accepted",
       "implementation": "implemented",
       "created": "2026-10-31",
-      "updated": "2026-10-31",
+      "updated": "2026-11-01",
       "parent": "shared.design",
       "uses": [
         "shared.design.components",
@@ -13720,7 +13773,8 @@
         "page author"
       ],
       "code": [
-        "src/components/OlympiadOverview.tsx"
+        "src/components/OlympiadOverview.tsx",
+        "src/components/OlympiadNextStep.tsx"
       ],
       "sections": [
         "задача-читателя",
@@ -13821,7 +13875,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-16",
-      "updated": "2026-10-31",
+      "updated": "2026-11-01",
       "consumers": [
         "React UI components",
         "frontend developer",
@@ -14549,6 +14603,16 @@
     },
     {
       "from": "decision.olympiad-integration-2026-10-28",
+      "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
+      "from": "decision.olympiad-next-step-first-2026-11-01",
+      "to": "module.olympiad-history",
+      "type": "uses"
+    },
+    {
+      "from": "decision.olympiad-next-step-first-2026-11-01",
       "to": "shared.design.ui-kit",
       "type": "uses"
     },
@@ -15795,6 +15859,11 @@
     {
       "from": "file:e2e/olympiad-history.e2e.ts",
       "to": "module.olympiad-history",
+      "type": "implements"
+    },
+    {
+      "from": "file:e2e/olympiad-next-step.e2e.ts",
+      "to": "shared.design.information-hierarchy",
       "type": "implements"
     },
     {
@@ -17973,6 +18042,16 @@
       "type": "implements"
     },
     {
+      "from": "file:src/components/OlympiadNextStep.css",
+      "to": "shared.design.information-hierarchy",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/OlympiadNextStep.tsx",
+      "to": "shared.design.information-hierarchy",
+      "type": "implements"
+    },
+    {
       "from": "file:src/components/OlympiadOverview.css",
       "to": "shared.design.information-hierarchy",
       "type": "implements"
@@ -19930,6 +20009,11 @@
     {
       "from": "file:src/main.tsx",
       "to": "product.pwa",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/ui-kit/olympiadHistoryFixtures.ts",
+      "to": "shared.design.ui-kit",
       "type": "implements"
     },
     {
@@ -24450,6 +24534,11 @@
     {
       "from": "shared.design.information-hierarchy",
       "to": "decision.olympiad-information-hierarchy-2026-10-31",
+      "type": "contains"
+    },
+    {
+      "from": "shared.design.information-hierarchy",
+      "to": "decision.olympiad-next-step-first-2026-11-01",
       "type": "contains"
     },
     {

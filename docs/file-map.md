@@ -1199,3 +1199,11 @@
 | [src/components/OlympiadPreparationSummary.test.tsx](../src/components/OlympiadPreparationSummary.test.tsx) | [Личная история](modules/assessments/olympiad-history.md) | Следующий шаг, адресное открытие оригинала, смена scope | Vitest |
 | [docs/decisions/olympiad-personal-preparation-2026-10-31.md](decisions/olympiad-personal-preparation-2026-10-31.md) | [Личная история](modules/assessments/olympiad-history.md) | Основание, роли и проверки персонального блока | Education developer |
 | [e2e/olympiad-personal-preparation.e2e.ts](../e2e/olympiad-personal-preparation.e2e.ts) | [Личная история](modules/assessments/olympiad-history.md) | Реальные переходы UI Kit и галерея на320/390/540px | Playwright |
+
+| Файл | Спецификация | Назначение | Потребитель |
+|---|---|---|---|
+| [e2e/olympiad-next-step.e2e.ts](../e2e/olympiad-next-step.e2e.ts) | [Первый шаг](shared/design/information-hierarchy.md) | Одна следующая задача перед организационными подробностями | Education |
+| [src/components/OlympiadNextStep.css](../src/components/OlympiadNextStep.css) | [Первый шаг](shared/design/information-hierarchy.md) | Одна следующая задача перед организационными подробностями | Education |
+| [src/components/OlympiadNextStep.tsx](../src/components/OlympiadNextStep.tsx) | [Первый шаг](shared/design/information-hierarchy.md) | Одна следующая задача перед организационными подробностями | Education |
+| [docs/decisions/olympiad-next-step-first-2026-11-01.md](decisions/olympiad-next-step-first-2026-11-01.md) | [Первый шаг](shared/design/information-hierarchy.md) | Одна следующая задача перед организационными подробностями | Education |
+| [src/ui-kit/olympiadHistoryFixtures.ts](../src/ui-kit/olympiadHistoryFixtures.ts) | [UI Kit](shared/design/ui-kit.md) | Общие условные история и resolver для примеров | UI Kit |
