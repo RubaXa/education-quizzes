@@ -47,7 +47,7 @@ export default function OlympiadPage({ familyId, childId, olympiadId, parent, da
   }
   return <section className="day-dashboard-card" aria-label="Подготовка к олимпиаде"><a href={`#/days/${encodeURIComponent(canonicalToken)}`}>← На главную</a>
     {error ? <p role="alert">{error}</p> : !tasks || !dashboard || !catalog || (!parent && !selections) ? <p role="status">Открываем олимпиаду…</p> : !parent && !selections?.includes(olympiadId) ? <p role="alert">Эту олимпиаду ещё не включил родитель.</p> : !olympiad ? <p role="alert">Сведения об олимпиаде недоступны.</p> : <>
-      <h1>{olympiad.title}</h1>{olympiad.subject && <p>{olympiad.subject}</p>}{olympiad.schedule && <p>{olympiad.schedule}</p>}
+      <h1>{olympiad.title}</h1>{olympiad.subject && <p>{olympiad.subject}</p>}{olympiad.schedule && !olympiad.calendar?.statusLabel && <p>{olympiad.schedule}</p>}
       <p>Подготовка — дополнительная работа. Текущие конкурсные задачи выполняются по правилам организатора.</p>
       <OlympiadSchedule calendar={olympiad.calendar} />
       <OlympiadReferences olympiadId={olympiadId} parent={parent} context={diagnosticsContext} />

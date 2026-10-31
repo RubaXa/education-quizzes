@@ -6228,7 +6228,7 @@
       }
     },
     "src/components/OlympiadCatalog.tsx": {
-      "sha256": "820fbd940826dffa58753b96e393990d62b2d2f28797b11da406d57831f03175",
+      "sha256": "c71f13b3daa02a0be84f95e38a3a65a5ed6c56eb4234a586eb9c189e2934e04a",
       "record": "docs/decisions/olympiad-calendar-2026-10-31.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md"
@@ -6240,7 +6240,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель31.10.2026 поручил единообразно оформить три олимпиады, проверить сроки и регистрацию, добавить подготовку и архивы."
+        "evidence": "31.10.2026: пользователь просит добавить все подходящие олимпиады в приложение, единообразно показать сроки, регистрацию, статус и подготовку; неизвестные даты явно подписать."
       }
     },
     "src/components/OlympiadHome.tsx": {
@@ -6260,7 +6260,7 @@
       }
     },
     "src/components/OlympiadPage.tsx": {
-      "sha256": "72a289ab2663c9bf5300b379d9c0b3fcb4ad44b6e58e542c4dbc29d2bf93bae0",
+      "sha256": "302b6c1a01670fd212ad423f47f779d993ad4b1efecbd220143c96777f9de2d5",
       "record": "docs/decisions/olympiad-calendar-2026-10-31.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md"
@@ -6272,7 +6272,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель31.10.2026 поручил единообразно оформить три олимпиады, проверить сроки и регистрацию, добавить подготовку и архивы."
+        "evidence": "31.10.2026: пользователь просит добавить все подходящие олимпиады в приложение, единообразно показать сроки, регистрацию, статус и подготовку; неизвестные даты явно подписать."
       }
     },
     "src/components/OlympiadWrittenPractice.tsx": {
@@ -6869,7 +6869,7 @@
       }
     },
     "src/components/OlympiadSchedule.tsx": {
-      "sha256": "ec329cff9f17a7e1cc4093ec0cb4b4eb7688c6a008c46c4c7e77b0f24b106142",
+      "sha256": "b26115600361cefc8eadc33d37d7db2cd77b01a604f6e0a2509a540b1bff6afe",
       "record": "docs/decisions/olympiad-calendar-2026-10-31.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md"
@@ -6881,7 +6881,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель31.10.2026 поручил единообразно оформить три олимпиады, проверить сроки и регистрацию, добавить подготовку и архивы."
+        "evidence": "31.10.2026: пользователь просит добавить все подходящие олимпиады в приложение, единообразно показать сроки, регистрацию, статус и подготовку; неизвестные даты явно подписать."
       }
     },
     "src/components/OlympiadSchedule.css": {
@@ -6901,7 +6901,7 @@
       }
     },
     "src/lib/olympiad/calendar.ts": {
-      "sha256": "e6271a5f6ee476f31f10bc43beb2bc31f9b7e19417d73ff8bb8096de599985eb",
+      "sha256": "9c4d1238d511174f0bedf1ab898810c55fe3cba471ffdb1da05b0f5df2ec6fb4",
       "record": "docs/decisions/olympiad-calendar-2026-10-31.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md"
@@ -6912,7 +6912,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель31.10.2026 поручил единообразно оформить олимпиады и обеспечить работающую подготовку; исправляется выявленное расхождение режима домашней практики."
+        "evidence": "31.10.2026: пользователь просит добавить все подходящие олимпиады в приложение, единообразно показать сроки, регистрацию, статус и подготовку; неизвестные даты явно подписать."
       }
     },
     "scripts/olympiad-calendar.mjs": {

@@ -3,6 +3,7 @@ import { BookOpen, ChevronRight } from 'lucide-react'
 import RequirementSwitch from './RequirementSwitch'
 import SharedTabs from './SharedTabs'
 import OlympiadSchedule from './OlympiadSchedule'
+import { olympiadEventExpired } from '@/lib/olympiad/calendar'
 import '../DayPage.css'
 import type { OlympiadCatalogItem } from '@/lib/olympiad/client'
 import '../DayDashboard.css'
@@ -20,7 +21,7 @@ export default function OlympiadCatalog({ items, parent, onOpen, onParticipation
   const [now, setNow] = useState(Date.now)
   useEffect(() => { const timer = window.setInterval(() => setNow(Date.now()), 1000); return () => window.clearInterval(timer) }, [])
   const today = new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'Europe/Moscow' }).format(new Date())
-  const expired = (item: OlympiadCatalogItem) => item.calendar ? item.calendar.events.every(event => Date.parse(event.until ?? event.at) <= now) : Boolean(item.deadline && item.deadline < today)
+  const expired = (item: OlympiadCatalogItem) => item.calendar ? item.calendar.events.length > 0 && item.calendar.events.every(event => olympiadEventExpired(event, now)) : Boolean(item.deadline && item.deadline < today)
   const available = items.filter(item => !expired(item))
   const archived = items.filter(item => item.participationEnabled && expired(item))
   const active = items.filter(item => item.participationEnabled && !expired(item))
@@ -40,7 +41,7 @@ export default function OlympiadCatalog({ items, parent, onOpen, onParticipation
       <button type="button" className="olympiad-card-link day-dashboard-homework-row-body" onClick={() => onOpen(item.id)} aria-label={`Открыть олимпиаду «${item.title}»`}>
         <strong>{item.title}</strong>
         <span className="day-dashboard-homework-next">{[item.subject, item.schedule || (item.deadline ? `До ${dateLabel(item.deadline)}` : '')].filter(Boolean).join(' · ')}</span>
-        {current !== 'available' && <span className="day-dashboard-homework-next">{item.practiceAvailable ? 'Подготовка доступна' : 'Материалы готовятся'}</span>}
+        {current !== 'available' && <span className="day-dashboard-homework-next">{item.practiceAvailable ? 'Подготовка доступна' : item.calendar?.preparation.length ? 'План подготовки доступен' : 'Материалы готовятся'}</span>}
       </button>
       {parent && current === 'available' ? <RequirementSwitch checked={item.participationEnabled} disabled={!onParticipation || busy !== null || (!item.participationEnabled && item.eligibility === 'unknown')} label={`Подготовка: ${item.title}`} onTitle="Выключить подготовку" offTitle="Включить подготовку" onChange={next => void toggle(item, next)} /> : <ChevronRight size={18} aria-hidden="true" />}
       {parent && current === 'available' && item.eligibility === 'unknown' && <small>Класс ребёнка ещё не подтверждён.</small>}
