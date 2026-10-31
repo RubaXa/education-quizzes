@@ -1,0 +1,10 @@
+/* @see ../../docs/shared/design/information-hierarchy.md */
+.olympiad-preparation-next{margin-top:24px;padding-top:20px;border-top:1px solid var(--edu-card-border);min-width:0;color:var(--edu-ink);font-size:16px;line-height:1.5}
+.olympiad-preparation-next h2,.olympiad-preparation-next h3{margin:0 0 8px;font-size:16px;font-weight:650;line-height:1.4}
+section.olympiad-preparation-next p{margin:0 0 10px;max-width:65ch;font-size:16px;line-height:1.5;color:var(--edu-ink);overflow-wrap:anywhere}
+.olympiad-preparation-next .olympiad-preparation-task-title{font-weight:650}
+.olympiad-preparation-next>[data-slot=button]{min-height:44px}
+.olympiad-next-step-primary{margin:18px 0 0;padding:0 0 16px;border:0;border-bottom:1px solid var(--edu-card-border)}
+.olympiad-next-step-primary h2{color:var(--edu-accent-ink);font-size:14px}
+section.olympiad-next-step-primary p.olympiad-preparation-task-title{font-size:18px;line-height:1.35}
+.olympiad-next-step-primary>[data-slot=button]{margin-top:2px}

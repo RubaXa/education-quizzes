@@ -12,10 +12,9 @@
 .olympiad-preparation-links{display:flex;flex-wrap:wrap;gap:4px 12px;margin-bottom:8px}
 .olympiad-preparation-evidence{height:auto!important;white-space:normal!important;text-align:left;justify-content:flex-start;padding:0;font-size:14px;line-height:1.4;max-width:100%;min-width:0}
 .olympiad-preparation-evidence>svg{flex-shrink:0}
-.olympiad-preparation-next{margin-top:24px;padding-top:20px;border-top:1px solid var(--edu-card-border)}
-.olympiad-preparation-task-title{font-weight:600}
 .olympiad-preparation-work{margin-top:20px;padding-top:16px;border-top:1px solid var(--edu-card-border);min-width:0}
 .olympiad-preparation-work-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
 @media(max-width:600px){.olympiad-preparation-columns{grid-template-columns:1fr;gap:20px}}
 
-.olympiad-preparation-next>[data-slot=button]{min-height:44px}
+
+.olympiad-preparation-next-evidence{margin-top:20px;border-top:1px solid var(--edu-card-border)}.olympiad-preparation-next-evidence>summary{min-height:44px;display:flex;align-items:center;color:var(--edu-accent-ink);cursor:pointer;font-size:16px}.olympiad-preparation-next-evidence .olympiad-preparation-links{padding-block:8px}

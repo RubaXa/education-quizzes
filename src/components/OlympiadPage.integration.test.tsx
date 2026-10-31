@@ -117,6 +117,10 @@ it.each(['parent','student'] as const)('opens the existing recommended task with
  const competition={id:'past',title:'История',aliases:['o1'],preparation,seasons:[]}
  document.body.append(host);root=createRoot(host);const initialHash=window.location.hash
  await act(async()=>root!.render(<OlympiadPage familyId="family" childId="child" olympiadId="o1" parent={role==='parent'} dashboardToken="board" watchSelections={watchSelections} watchCatalog={watchCatalog} watchTasks={(_f,_c,next)=>{next([task]);return ()=>{}}} watchDashboard={(_t,next)=>{next(dashboard(role));return ()=>{}}} watchHistoryIndex={(_f,_c,next)=>{next([{id:'past',title:'История',aliases:['o1'],resultCount:0,seasonCount:0,summary:''}]);return ()=>{}}} watchHistory={(_f,_c,_id,_p,next)=>{next(competition);return ()=>{}}}/>))
- expect(host.textContent).toContain('Моя подготовка');await act(async()=>{Array.from(host.querySelectorAll('button')).find(b=>b.textContent==='Открыть задачу')!.click()})
+ expect(host.textContent).toContain('Моя подготовка')
+ expect(host.querySelector('.olympiad-overview button')?.textContent).toBe('Открыть задачу')
+ expect(host.querySelectorAll('.olympiad-preparation-next')).toHaveLength(1)
+ expect(host.querySelector('#olympiad-personal-preparation .olympiad-preparation-next')).toBeNull()
+ await act(async()=>{Array.from(host.querySelectorAll('button')).find(b=>b.textContent==='Открыть задачу')!.click()})
  expect(scroll).toHaveBeenCalled();expect(document.activeElement?.id).toBe('olympiad-practice-task');expect(window.location.hash).toBe(initialHash)
 })

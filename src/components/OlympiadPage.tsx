@@ -4,6 +4,7 @@ import OlympiadReferences from './OlympiadReferences'
 import OlympiadOverview,{OlympiadBackLink} from './OlympiadOverview'
 import OlympiadHistory from './OlympiadHistory'
 import OlympiadPreparationSummary from './OlympiadPreparationSummary'
+import OlympiadNextStep from './OlympiadNextStep'
 import { watchOlympiadHistoryIndex, watchOlympiadHistory, requestHistoryFile } from '@/lib/olympiad/historyStore'
 import type { HistoryCompetition, HistoryIndexEntry } from '@/lib/olympiad/historyTypes'
 import { traceOlympiad, traceAccess, accessTraceError } from '@/lib/browserAccessTrace'
@@ -69,8 +70,8 @@ export default function OlympiadPage({ familyId, childId, olympiadId, parent, da
   const sections=[...(history?.preparation?[{id:"olympiad-personal-preparation",label:"Моя подготовка"}]:[]),...(canPractice?[{id:"olympiad-practice-title",label:"Практика",count:prepared.length+uploaded.length}]:[]),...(canPractice&&matching.some(task=>task.testTokens.length>0)?[{id:"olympiad-methods-title",label:"Тесты"}]:[]),...(history?[{id:"olympiad-history",label:"Мои участия"}]:[])]
   return <section className="olympiad-page" aria-label="Подготовка к олимпиаде"><OlympiadBackLink href={`#/days/${encodeURIComponent(canonicalToken)}`}/><div className="day-dashboard-card olympiad-page-body">
     {error ? <p role="alert">{error}</p> : !tasks || !dashboard || !catalog || (!parent && !selections) || !historyIndex&&!historyError ? <p role="status">Открываем олимпиаду…</p> : !parent && !selections?.includes(olympiadId) && !historyEntry ? <p role="alert">Эту олимпиаду ещё не включил родитель.</p> : !olympiad ? <p role="alert">Сведения об олимпиаде недоступны.</p> : <>
-      <OlympiadOverview olympiad={olympiad} sections={sections}/>
-      {history?.preparation&&<OlympiadPreparationSummary key={historyScope} preparation={history.preparation} familyId={familyId} childId={childId} availableTaskIds={availablePersonalTasks} onOpenTask={openPersonalTask} resolveFile={resolveHistoryFile}/>}
+      <OlympiadOverview olympiad={olympiad} sections={sections} nextStep={history?.preparation?.next&&<OlympiadNextStep next={history.preparation.next} availableTaskIds={availablePersonalTasks} onOpenTask={openPersonalTask} heading="Что сделать сейчас" prominent/>}/>
+      {history?.preparation&&<OlympiadPreparationSummary key={historyScope} preparation={history.preparation} nextPresented={Boolean(history.preparation.next)} familyId={familyId} childId={childId} availableTaskIds={availablePersonalTasks} onOpenTask={openPersonalTask} resolveFile={resolveHistoryFile}/>}
       {historyError&&<p role="status">История временно недоступна. Попробуйте открыть страницу снова.</p>}
       {historyEntry&&historyState?.scope!==historyScope&&!historyError&&<p role="status">Открываем историю работ…</p>}
       {historyEntry&&historyState?.scope===historyScope&&!history&&!historyError&&<p role="status">История ещё не опубликована.</p>}

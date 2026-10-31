@@ -25,3 +25,11 @@ it('has no dead task action when practice is unavailable and clears a selected o
  await act(async()=>{host.querySelector<HTMLButtonElement>('button')!.click();await tick()});expect(host.querySelector('[role=region]')).not.toBeNull()
  await act(async()=>render('other'));expect(host.querySelector('[role=region]')).toBeNull()
 })
+it('keeps the archived basis reachable when the task action is already in the overview',async()=>{
+ const read=vi.fn(async()=> 'https://downloader.disk.yandex.net/synthetic');document.body.append(host);root=createRoot(host)
+ await act(async()=>root!.render(<OlympiadPreparationSummary nextPresented preparation={{...example,next:{...example.next!,evidenceIds:['work']}}} familyId="f" childId="c" availableTaskIds={['next']} onOpenTask={vi.fn()} resolveFile={read}/>))
+ expect(host.querySelector('.olympiad-preparation-next')).toBeNull()
+ expect(host.textContent).not.toContain('Закончить принятый способ.')
+ await act(async()=>{host.querySelector<HTMLButtonElement>('.olympiad-preparation-next-evidence button')!.click();await tick()})
+ expect(read).toHaveBeenCalledWith('f','c','a'.repeat(64))
+})
