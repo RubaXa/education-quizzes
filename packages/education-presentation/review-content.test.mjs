@@ -1,5 +1,10 @@
 import { describe,expect,it } from 'vitest'
-import { projectReviewSupplement,reviewSupplementErrors } from './review-content.mjs'
+import { projectReviewSupplement,reviewSupplementErrors,reviewVisualValid } from './review-content.mjs'
+it('stores table rows as maps rather than Firestore-incompatible nested arrays',()=>{
+ expect(reviewVisualValid({kind:'comparison',label:'Таблица',columns:['A','B'],rows:[{cells:['1','2']}]})).toBe(true)
+ expect(reviewVisualValid({kind:'comparison',label:'Таблица',columns:['A','B'],rows:[['1','2']]})).toBe(false)
+ expect(reviewVisualValid({kind:'comparison',label:'Таблица',columns:['A','B'],rows:[{cells:['1','2'],answerKey:'closed'}]})).toBe(false)
+})
 describe('public compact review content',()=>{
  const supplement=()=>({version:1,visual:{kind:'facts',label:'Две роли',items:[{label:'Первый',value:'Лжец'},{label:'Второй',value:'Рыцарь'}]},details:[{label:'Запись',quotation:'Дословная запись.',text:'Проверь связь с ролью.'}]})
  it('keeps validated public text and graphics without mutating the input',()=>{

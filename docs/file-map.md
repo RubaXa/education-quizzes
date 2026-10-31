@@ -1180,3 +1180,5 @@
 | [storage/parent-guide-edit.mjs](../storage/parent-guide-edit.mjs) | [Наглядное решение](modules/reviews/method-guided-solutions.md) | Метод, модель, формулы, схемы и безопасная адресная редактура | Education |
 | [storage/parent-guide-edit.test.mjs](../storage/parent-guide-edit.test.mjs) | [Наглядное решение](modules/reviews/method-guided-solutions.md) | Метод, модель, формулы, схемы и безопасная адресная редактура | Education |
 | [docs/decisions/method-guided-reviews-2026-10-31.md](../docs/decisions/method-guided-reviews-2026-10-31.md) | [Наглядное решение](modules/reviews/method-guided-solutions.md) | Метод, модель, формулы, схемы и безопасная адресная редактура | Education |
+
+| [docs/decisions/review-table-storage-2026-10-31.md](../docs/decisions/review-table-storage-2026-10-31.md) | [Наглядное решение](modules/reviews/method-guided-solutions.md) | Исправление хранения таблиц перед миграцией | Education |
