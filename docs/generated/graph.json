@@ -1101,6 +1101,32 @@
       "path": "docs/decisions/guidance-refresh-readback-2026-10-25.md"
     },
     {
+      "id": "decision.image-preview-first-2026-10-31",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-31",
+      "updated": "2026-10-31",
+      "consumers": [
+        "parent",
+        "student",
+        "developer"
+      ],
+      "code": [],
+      "parent": "shared.design.ui-kit",
+      "uses": [
+        "shared.design.components",
+        "shared.media-storage"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/image-preview-first-2026-10-31.md"
+    },
+    {
       "id": "decision.independent-action-dispatch-2026-10-21",
       "status": "accepted",
       "implementation": "implemented",
@@ -13359,6 +13385,16 @@
       "type": "uses"
     },
     {
+      "from": "decision.image-preview-first-2026-10-31",
+      "to": "shared.design.components",
+      "type": "uses"
+    },
+    {
+      "from": "decision.image-preview-first-2026-10-31",
+      "to": "shared.media-storage",
+      "type": "uses"
+    },
+    {
       "from": "decision.independent-action-dispatch-2026-10-21",
       "to": "module.synchronization.execution-artifact",
       "type": "uses"
@@ -22756,6 +22792,11 @@
     {
       "from": "shared.design.ui-kit",
       "to": "decision.file-icon-catalog-2026-10-31",
+      "type": "contains"
+    },
+    {
+      "from": "shared.design.ui-kit",
+      "to": "decision.image-preview-first-2026-10-31",
       "type": "contains"
     },
     {
