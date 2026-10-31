@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { BookOpen, ChevronRight } from 'lucide-react'
 import RequirementSwitch from './RequirementSwitch'
 import SharedTabs from './SharedTabs'
+import OlympiadSchedule from './OlympiadSchedule'
 import '../DayPage.css'
 import type { OlympiadCatalogItem } from '@/lib/olympiad/client'
 import '../DayDashboard.css'
@@ -16,10 +17,13 @@ export default function OlympiadCatalog({ items, parent, onOpen, onParticipation
   const [tab, setTab] = useState<'active' | 'available' | 'archive'>('active')
   const [busy, setBusy] = useState<string | null>(null)
   const [error, setError] = useState(false)
+  const [now, setNow] = useState(Date.now)
+  useEffect(() => { const timer = window.setInterval(() => setNow(Date.now()), 1000); return () => window.clearInterval(timer) }, [])
   const today = new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'Europe/Moscow' }).format(new Date())
-  const available = items.filter(item => !(item.deadline && item.deadline < today))
-  const archived = items.filter(item => item.participationEnabled && item.deadline && item.deadline < today)
-  const active = items.filter(item => item.participationEnabled && !(item.deadline && item.deadline < today))
+  const expired = (item: OlympiadCatalogItem) => item.calendar ? item.calendar.events.every(event => Date.parse(event.until ?? event.at) <= now) : Boolean(item.deadline && item.deadline < today)
+  const available = items.filter(item => !expired(item))
+  const archived = items.filter(item => item.participationEnabled && expired(item))
+  const active = items.filter(item => item.participationEnabled && !expired(item))
   const current = !parent && tab === 'available' ? 'active' : tab
   const tabs: Array<['active' | 'available' | 'archive', string]> = [['active', `Активные ${active.length}`], ...(parent ? [['available', `Доступные ${available.length}`] as ['available', string]] : []), ['archive', `Архив ${archived.length}`]]
   const visible = current === 'active' ? active : current === 'available' ? available : archived
@@ -40,6 +44,7 @@ export default function OlympiadCatalog({ items, parent, onOpen, onParticipation
       </button>
       {parent && current === 'available' ? <RequirementSwitch checked={item.participationEnabled} disabled={!onParticipation || busy !== null || (!item.participationEnabled && item.eligibility === 'unknown')} label={`Подготовка: ${item.title}`} onTitle="Выключить подготовку" offTitle="Включить подготовку" onChange={next => void toggle(item, next)} /> : <ChevronRight size={18} aria-hidden="true" />}
       {parent && current === 'available' && item.eligibility === 'unknown' && <small>Класс ребёнка ещё не подтверждён.</small>}
+      <OlympiadSchedule calendar={item.calendar} compact />
     </article>)}</div>
     {error && <p role="alert">Не удалось изменить участие. Попробуйте ещё раз.</p>}
   </details></section>

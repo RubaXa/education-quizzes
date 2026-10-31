@@ -468,22 +468,18 @@
       }
     },
     "day/pipeline-contract.mjs": {
-      "sha256": "69c0d6a3a7596040299c907a30cac09dca6cd14442913d89241a74ee1b2d97a0",
-      "record": "docs/decisions/olympiad-firebase-independence-2026-10-28.md",
+      "sha256": "33428523d73884a078daf2f9ebaa2b4014b4fdcc68b129be408889c4a7b3ef08",
+      "record": "docs/decisions/olympiad-calendar-2026-10-31.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/services/telegram-bot/education-sync-dispatch.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/assessments/olympiad-preparation.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "day/family-assignment.test.mjs",
-        "sync/task-route.test.mjs",
-        "packages/telegram-notifications/application/education-sync-action-store.test.mjs"
+        "day/family-practice-calendar.test.mjs",
+        "src/lib/olympiad/calendar.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель попросил независимо обработать Firebase и добавить фотографии его задач как карточки с загрузкой ответов."
+        "evidence": "Родитель31.10.2026 поручил единообразно оформить олимпиады и обеспечить работающую подготовку; исправляется выявленное расхождение режима домашней практики."
       }
     },
     "day/placement-integrity.mjs": {
@@ -1927,22 +1923,18 @@
       }
     },
     "scripts/day.mjs": {
-      "sha256": "68f24d9bfa4da5eeb1557cdd3377a9beb3bce7aa99eb28111f0b16ef00b24bd1",
-      "record": "docs/decisions/olympiad-firebase-independence-2026-10-28.md",
+      "sha256": "5bf364cf972c1d497c3178f264b765a28c5453d49aa5d682f1558398e8abebd4",
+      "record": "docs/decisions/olympiad-calendar-2026-10-31.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/services/telegram-bot/education-sync-dispatch.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/assessments/olympiad-preparation.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "day/family-assignment.test.mjs",
-        "sync/task-route.test.mjs",
-        "packages/telegram-notifications/application/education-sync-action-store.test.mjs"
+        "day/family-practice-calendar.test.mjs",
+        "src/lib/olympiad/calendar.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель попросил независимо обработать Firebase и добавить фотографии его задач как карточки с загрузкой ответов."
+        "evidence": "Родитель31.10.2026 поручил единообразно оформить олимпиады и обеспечить работающую подготовку; исправляется выявленное расхождение режима домашней практики."
       }
     },
     "scripts/direct-upload-worker.mjs": {
@@ -4246,22 +4238,19 @@
       }
     },
     "src/lib/educationStore.ts": {
-      "sha256": "1e920c55c689657c2d52439677f0359b45ae5334a98f6cd4b7a6169c8663343f",
-      "record": "docs/decisions/olympiad-firebase-independence-2026-10-28.md",
+      "sha256": "bcf9beebb1314a2f5ca2e48c216454626f59f59e02fdf7512dbc629fd7d37927",
+      "record": "docs/decisions/olympiad-calendar-2026-10-31.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/services/telegram-bot/education-sync-dispatch.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/assessments/olympiad-preparation.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "day/family-assignment.test.mjs",
-        "sync/task-route.test.mjs",
-        "packages/telegram-notifications/application/education-sync-action-store.test.mjs"
+        "src/lib/olympiad/calendar.test.ts",
+        "src/components/OlympiadHome.integration.test.tsx",
+        "src/components/OlympiadPage.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель попросил независимо обработать Firebase и добавить фотографии его задач как карточки с загрузкой ответов."
+        "evidence": "Родитель31.10.2026 поручил единообразно оформить три олимпиады, проверить сроки и регистрацию, добавить подготовку и архивы."
       }
     },
     "src/lib/familyBookUpload.ts": {
@@ -5657,22 +5646,18 @@
       }
     },
     "day/family-assignment.mjs": {
-      "sha256": "9019ef9278aff037556620edb85ba9e5c0e1edcba46312e07340f63ba910251e",
-      "record": "docs/decisions/olympiad-firebase-independence-2026-10-28.md",
+      "sha256": "64fd3f2a1f6e71ca751b0b9e96990795e69c8fea8bc3c1ca52d807b311911abf",
+      "record": "docs/decisions/olympiad-calendar-2026-10-31.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/services/telegram-bot/education-sync-dispatch.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/assessments/olympiad-preparation.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "day/family-assignment.test.mjs",
-        "sync/task-route.test.mjs",
-        "packages/telegram-notifications/application/education-sync-action-store.test.mjs"
+        "day/family-practice-calendar.test.mjs",
+        "src/lib/olympiad/calendar.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель попросил независимо обработать Firebase и добавить фотографии его задач как карточки с загрузкой ответов."
+        "evidence": "Родитель31.10.2026 поручил единообразно оформить олимпиады и обеспечить работающую подготовку; исправляется выявленное расхождение режима домашней практики."
       }
     },
     "day/family-dashboard-delta.mjs": {
@@ -6252,56 +6237,51 @@
       }
     },
     "src/components/OlympiadCatalog.tsx": {
-      "sha256": "d325803f7c87e6298b4220b79342553e904633708bd3ed657721575a077439da",
-      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
+      "sha256": "820fbd940826dffa58753b96e393990d62b2d2f28797b11da406d57831f03175",
+      "record": "docs/decisions/olympiad-calendar-2026-10-31.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/shared/design/components.md"
+        "docs/modules/assessments/olympiad-preparation.md"
       ],
       "tests": [
+        "src/lib/olympiad/calendar.test.ts",
         "src/components/OlympiadHome.integration.test.tsx",
-        "src/components/OlympiadPage.integration.test.tsx",
-        "src/components/LearningRoute.integration.test.tsx",
-        "src/UiKit.test.tsx"
+        "src/components/OlympiadPage.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь сообщил со скриншотами о переносе вкладок, неразличимых карточках олимпиад и неработающем переходе и потребовал исправить."
+        "evidence": "Родитель31.10.2026 поручил единообразно оформить три олимпиады, проверить сроки и регистрацию, добавить подготовку и архивы."
       }
     },
     "src/components/OlympiadHome.tsx": {
-      "sha256": "0988a71ea47ae3a26aebf63f6382ade01338e315cc9dd89ce74411e00ed818fa",
-      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
+      "sha256": "4106853659eb5ccbe7ea6446c483cd8838d14def24bd9c5dd962e85da67874f5",
+      "record": "docs/decisions/olympiad-calendar-2026-10-31.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/modules/notifications/inbox.md",
-        "docs/shared/design/components.md"
+        "docs/modules/assessments/olympiad-preparation.md"
       ],
       "tests": [
+        "src/lib/olympiad/calendar.test.ts",
         "src/components/OlympiadHome.integration.test.tsx",
-        "scripts/firestore-rules-olympiad-catalog-emulator.test.mjs",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/UiKit.test.tsx"
+        "src/components/OlympiadPage.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь одобрил компактный переключатель, активные и доступные олимпиады по ребёнку и уведомление ученику и потребовал реализовать их через UI Kit и общую инфраструктуру."
+        "evidence": "Родитель31.10.2026 поручил единообразно оформить три олимпиады, проверить сроки и регистрацию, добавить подготовку и архивы."
       }
     },
     "src/components/OlympiadPage.tsx": {
-      "sha256": "f0187dc1c0404bbc9ae6e312c396c804fd7c6c31baaa2a176ce19185ca6ada09",
-      "record": "docs/decisions/olympiad-practice-groups-2026-10-28.md",
+      "sha256": "72a289ab2663c9bf5300b379d9c0b3fcb4ad44b6e58e542c4dbc29d2bf93bae0",
+      "record": "docs/decisions/olympiad-calendar-2026-10-31.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/assessments/olympiad-preparation.md"
       ],
       "tests": [
-        "src/components/OlympiadPage.integration.test.tsx",
-        "src/UiKit.test.tsx"
+        "src/lib/olympiad/calendar.test.ts",
+        "src/components/OlympiadHome.integration.test.tsx",
+        "src/components/OlympiadPage.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 28.10.2026 попросил отделить загруженные задачи от подготовленных и сделать их различимыми."
+        "evidence": "Родитель31.10.2026 поручил единообразно оформить три олимпиады, проверить сроки и регистрацию, добавить подготовку и архивы."
       }
     },
     "src/components/OlympiadWrittenPractice.tsx": {
@@ -6356,22 +6336,19 @@
       }
     },
     "src/lib/olympiad/client.ts": {
-      "sha256": "7c74d99aaa3c96ef9dcfd701a9e13286abe78341e042641a31977856894f3ee0",
-      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
+      "sha256": "5c19c85992d57f5e3bdeeb454ff0255db072ddf172adfbca9cf0b305d4a25bb1",
+      "record": "docs/decisions/olympiad-calendar-2026-10-31.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/modules/notifications/inbox.md",
-        "docs/shared/design/components.md"
+        "docs/modules/assessments/olympiad-preparation.md"
       ],
       "tests": [
+        "src/lib/olympiad/calendar.test.ts",
         "src/components/OlympiadHome.integration.test.tsx",
-        "scripts/firestore-rules-olympiad-catalog-emulator.test.mjs",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/UiKit.test.tsx"
+        "src/components/OlympiadPage.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь одобрил компактный переключатель, активные и доступные олимпиады по ребёнку и уведомление ученику и потребовал реализовать их через UI Kit и общую инфраструктуру."
+        "evidence": "Родитель31.10.2026 поручил единообразно оформить три олимпиады, проверить сроки и регистрацию, добавить подготовку и архивы."
       }
     },
     "src/lib/olympiad/photoClient.ts": {
@@ -6722,20 +6699,19 @@
       }
     },
     "src/components/OlympiadReferences.tsx": {
-      "sha256": "7f2cb28e7c7d195b60f63b885667bc02d9c2b8f97fef57a38ff24033b31c67a5",
-      "record": "docs/decisions/energy-hope-archive-2026-10-28.md",
+      "sha256": "a885d0d412ab5ed6fdd4ffca7c966c011dd63a762d5e519a1de064062afda859",
+      "record": "docs/decisions/olympiad-calendar-2026-10-31.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/assessments/olympiad-preparation.md"
       ],
       "tests": [
-        "src/components/OlympiadReferences.test.tsx",
-        "src/components/OlympiadPage.integration.test.tsx",
-        "src/UiKit.test.tsx"
+        "src/lib/olympiad/calendar.test.ts",
+        "src/components/OlympiadHome.integration.test.tsx",
+        "src/components/OlympiadPage.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 28.10.2026 указал пустую страницу «Надежды энергетики» и поручил заполнить её официальными сведениями и документами."
+        "evidence": "Родитель31.10.2026 поручил единообразно оформить три олимпиады, проверить сроки и регистрацию, добавить подготовку и архивы."
       }
     },
     "src/lib/olympiadPracticeTheory.ts": {
@@ -6899,6 +6875,69 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Прямой запрос31.10.2026: принимать PDF, DOCX, Excel, текстовые и другие файлы решений, показывать соответствующую иконку и действие «Загрузить решение»."
+      }
+    },
+    "src/components/OlympiadSchedule.tsx": {
+      "sha256": "ec329cff9f17a7e1cc4093ec0cb4b4eb7688c6a008c46c4c7e77b0f24b106142",
+      "record": "docs/decisions/olympiad-calendar-2026-10-31.md",
+      "specs": [
+        "docs/modules/assessments/olympiad-preparation.md"
+      ],
+      "tests": [
+        "src/lib/olympiad/calendar.test.ts",
+        "src/components/OlympiadHome.integration.test.tsx",
+        "src/components/OlympiadPage.integration.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель31.10.2026 поручил единообразно оформить три олимпиады, проверить сроки и регистрацию, добавить подготовку и архивы."
+      }
+    },
+    "src/components/OlympiadSchedule.css": {
+      "sha256": "fcaf6d847b29601d92abd03b8c7f33c413b39e127add21afa581b91fca8300ed",
+      "record": "docs/decisions/olympiad-calendar-2026-10-31.md",
+      "specs": [
+        "docs/modules/assessments/olympiad-preparation.md"
+      ],
+      "tests": [
+        "src/lib/olympiad/calendar.test.ts",
+        "src/components/OlympiadHome.integration.test.tsx",
+        "src/components/OlympiadPage.integration.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель31.10.2026 поручил единообразно оформить три олимпиады, проверить сроки и регистрацию, добавить подготовку и архивы."
+      }
+    },
+    "src/lib/olympiad/calendar.ts": {
+      "sha256": "e6271a5f6ee476f31f10bc43beb2bc31f9b7e19417d73ff8bb8096de599985eb",
+      "record": "docs/decisions/olympiad-calendar-2026-10-31.md",
+      "specs": [
+        "docs/modules/assessments/olympiad-preparation.md"
+      ],
+      "tests": [
+        "day/family-practice-calendar.test.mjs",
+        "src/lib/olympiad/calendar.test.ts"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель31.10.2026 поручил единообразно оформить олимпиады и обеспечить работающую подготовку; исправляется выявленное расхождение режима домашней практики."
+      }
+    },
+    "scripts/olympiad-calendar.mjs": {
+      "sha256": "97b673dff6f00238110ebbb64ee6181a604a828d8192b600e44c2d2b5dd7eb79",
+      "record": "docs/decisions/olympiad-calendar-2026-10-31.md",
+      "specs": [
+        "docs/modules/assessments/olympiad-preparation.md"
+      ],
+      "tests": [
+        "src/lib/olympiad/calendar.test.ts",
+        "src/components/OlympiadHome.integration.test.tsx",
+        "src/components/OlympiadPage.integration.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель31.10.2026 поручил единообразно оформить три олимпиады, проверить сроки и регистрацию, добавить подготовку и архивы."
       }
     }
   }

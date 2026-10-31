@@ -1,0 +1,15 @@
+/** @see ../../docs/decisions/olympiad-calendar-2026-10-31.md */
+/* @see ../../docs/shared/design/README.md#cards-and-status */
+.olympiad-schedule{display:grid;gap:12px;margin-block:16px;color:var(--edu-text-primary);min-width:0}
+.olympiad-schedule p{margin:0;font-size:.95rem}
+.olympiad-deadline{display:grid;gap:5px;padding:14px;border-radius:var(--edu-radius-card);background:var(--edu-status-accent-bg);color:var(--edu-status-accent-ink)}
+.olympiad-deadline span{font-size:.9rem;line-height:1.5}
+.olympiad-deadline b{font-size:1.15rem;font-variant-numeric:tabular-nums}
+.olympiad-schedule.compact{grid-column:2 / -1;margin:0 0 6px;gap:6px}
+.olympiad-schedule.compact .olympiad-deadline{padding:10px;border-radius:12px}
+.olympiad-schedule-note{color:var(--edu-text-secondary)}
+.olympiad-registration{display:inline-flex;align-items:center;min-height:44px;font-weight:700;color:var(--edu-accent-ink)}
+.olympiad-timeline{display:grid;gap:14px;padding-inline-start:20px}
+.olympiad-timeline li{padding-inline-start:4px}
+.olympiad-timeline strong,.olympiad-timeline span{display:block}
+.olympiad-schedule li{line-height:1.6;overflow-wrap:anywhere}

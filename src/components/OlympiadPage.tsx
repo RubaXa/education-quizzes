@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import DayPage from '../DayPage'
 import OlympiadReferences from './OlympiadReferences'
+import OlympiadSchedule from './OlympiadSchedule'
 import { traceOlympiad, traceAccess, accessTraceError } from '@/lib/browserAccessTrace'
 import { watchFamilyOlympiadTasks, watchPublicOlympiads, watchOlympiadSelections, type FamilyOlympiadTask, type PublicOlympiad } from '@/lib/educationStore'
 import { watchDayDashboard, type DayDashboardData } from '@/lib/dayDashboardStore'
@@ -48,6 +49,7 @@ export default function OlympiadPage({ familyId, childId, olympiadId, parent, da
     {error ? <p role="alert">{error}</p> : !tasks || !dashboard || !catalog || (!parent && !selections) ? <p role="status">Открываем олимпиаду…</p> : !parent && !selections?.includes(olympiadId) ? <p role="alert">Эту олимпиаду ещё не включил родитель.</p> : !olympiad ? <p role="alert">Сведения об олимпиаде недоступны.</p> : <>
       <h1>{olympiad.title}</h1>{olympiad.subject && <p>{olympiad.subject}</p>}{olympiad.schedule && <p>{olympiad.schedule}</p>}
       <p>Подготовка — дополнительная работа. Текущие конкурсные задачи выполняются по правилам организатора.</p>
+      <OlympiadSchedule calendar={olympiad.calendar} />
       <OlympiadReferences olympiadId={olympiadId} parent={parent} context={diagnosticsContext} />
       {matching.some(task => task.testTokens.length > 0) && <section className="olympiad-section" aria-labelledby="olympiad-methods-title"><h2 id="olympiad-methods-title">Приёмы и тесты</h2><div className="olympiad-quiz-list" ref={setQuizTarget} /></section>}
       <section className="olympiad-section" aria-labelledby="olympiad-practice-title"><h2 id="olympiad-practice-title">Практика</h2>{prepared.length + uploaded.length ? <p>Задач: {prepared.length + uploaded.length}. Можно начинать с любой.</p> : <p>Задачи для практики пока не опубликованы.</p>}

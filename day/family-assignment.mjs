@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/olympiad-calendar-2026-10-31.md */
 /** Family-origin assignments are a separate source from MESH. They are
  * projected into the day page only when explicitly published, and survive
  * later MESH plan merges by stable ID.
@@ -27,6 +28,7 @@ export function familyAssignmentErrors(task, { familyId, childId, taskId } = {})
   if (task.dayProjectionVersion !== 1) errors.push('Для страницы дня требуется явная версия проекции семейного назначения.')
   if (task.familyId !== familyId || task.childId !== childId) errors.push('Семейное назначение не совпадает с подтверждённым владельцем.')
   if (!/^[a-z][a-z0-9-]{1,39}$/.test(task.subjectId ?? '') || task.subjectId !== 'russian' && (typeof task.subjectName !== 'string' || !task.subjectName.trim())) errors.push('Нужен подтверждённый предмет семейного задания.')
+  if (task.practiceMode !== undefined && !['home','competition'].includes(task.practiceMode)) errors.push('Неверный режим практики.')
   try { learningContext(task.learningContext) } catch { errors.push('Некорректный контекст учебного материала.') }
   if (task.learningContext?.kind === 'olympiad' && task.optional !== true) errors.push('Олимпиадная практика должна оставаться дополнительной.')
   if (task.sourceIntake !== undefined && (task.sourceIntake?.kind !== 'olympiad-sheet' || Object.keys(task.sourceIntake ?? {}).some(key => key !== 'kind') || task.learningContext?.kind !== 'olympiad' || task.optional !== true)) errors.push('Приём фото условий допустим только для дополнительной олимпиады.')
@@ -71,7 +73,8 @@ export function projectFamilyAssignment(task) {
     ...(task.optional === true ? { optional: true } : {}),
     ...(task.sourceIntake ? { sourceIntake: task.sourceIntake } : {}),
     ...(task.learnerOrigin ? { learnerOrigin: task.learnerOrigin } : {}),
-    ...(task.competitionUntil ? { competitionUntil: task.competitionUntil, competitionNumber: task.competitionNumber } : {}),
+    ...(task.practiceMode ? { practiceMode: task.practiceMode } : {}),
+    ...(task.competitionUntil && task.practiceMode !== 'home' ? { competitionUntil: task.competitionUntil, competitionNumber: task.competitionNumber } : {}),
     ...(task.learnerSources?.length ? { learnerSources: task.learnerSources } : {}),
     steps: task.steps,
     submission: task.submission,
@@ -86,7 +89,7 @@ export function projectFamilyAssignment(task) {
 
 export function familyAssignmentProjectionSignature(task) {
   const projection = task?.familyOrigin ? task : projectFamilyAssignment(task)
-  const fields = Object.fromEntries(['id', 'title', 'detail', 'kind', 'source', 'steps', 'submission', 'cardPattern', 'cardPolicyVersion', 'outputKind', 'lessonDate', 'dueDate', 'learningContext', 'optional', 'sourceIntake', 'learnerOrigin', 'learnerSources', 'competitionUntil', 'competitionNumber']
+  const fields = Object.fromEntries(['id', 'title', 'detail', 'kind', 'source', 'steps', 'submission', 'cardPattern', 'cardPolicyVersion', 'outputKind', 'lessonDate', 'dueDate', 'practiceMode', 'learningContext', 'optional', 'sourceIntake', 'learnerOrigin', 'learnerSources', 'competitionUntil', 'competitionNumber']
     .filter((key) => projection[key] !== undefined).map((key) => [key, projection[key]]))
   if (projection.familyOrigin) fields.familyOrigin = Object.fromEntries(['sourceSystem', 'sourceId', 'sourceRevision']
     .filter((key) => projection.familyOrigin[key] !== undefined).map((key) => [key, projection.familyOrigin[key]]))
@@ -101,7 +104,7 @@ export function stableFamilyProjectionJson(value) {
 
 export function familyAssignmentRecordSignature(task) {
   const fields = ['id', 'familyId', 'childId', 'sourceSystem', 'sourceId', 'sourceRevision', 'subjectId', 'subjectName', 'dueDate',
-    'title', 'originalText', 'studentText', 'publication', 'evidence', 'materialIds', 'steps', 'submission', 'cardPattern', 'cardPolicyVersion', 'outputKind', 'sourceEvidence', 'dayProjectionVersion', 'learningContext', 'optional', 'testPlacements', 'projectionSourceDate', 'sourceIntake', 'learnerOrigin', 'learnerSources', 'competitionUntil', 'competitionNumber']
+    'title', 'originalText', 'studentText', 'publication', 'evidence', 'materialIds', 'steps', 'submission', 'cardPattern', 'cardPolicyVersion', 'outputKind', 'sourceEvidence', 'dayProjectionVersion', 'practiceMode', 'learningContext', 'optional', 'testPlacements', 'projectionSourceDate', 'sourceIntake', 'learnerOrigin', 'learnerSources', 'competitionUntil', 'competitionNumber']
   return Object.fromEntries(fields.filter((key) => task?.[key] !== undefined).map((key) => [key, task[key]]))
 }
 
@@ -168,6 +171,7 @@ export function mergeFamilyAssignments(page, assignments = []) {
     else if (stableFamilyProjectionJson(familyAssignmentProjectionSignature(existing)) !== stableFamilyProjectionJson(familyAssignmentProjectionSignature(projected))
       || existing.familyOrigin?.projectedSourceRevision !== assignment.sourceRevision) { changed.push(projected.id); changedSubjects.add(subject.id) }
     const next = { ...existing, ...projected }
+    if (projected.practiceMode === 'home') { delete next.competitionUntil; delete next.competitionNumber }
     if (existing?.familyOrigin?.sourceId === projected.familyOrigin.sourceId
       && existing.familyOrigin.sourceRevision === projected.familyOrigin.sourceRevision
       && existing.title === projected.title && existing.detail === projected.detail

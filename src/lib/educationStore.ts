@@ -1,3 +1,4 @@
+import { parseOlympiadCalendar } from './olympiad/calendar'
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
 import { collection, doc, getDocsFromServer, limit, onSnapshot, orderBy, query, runTransaction, serverTimestamp, setDoc, startAfter, updateDoc, where, writeBatch } from 'firebase/firestore'
 import type { QueryDocumentSnapshot } from 'firebase/firestore'
@@ -49,7 +50,7 @@ export function watchEducationTask(familyId: string, childId: string, taskId: st
     (snapshot) => onChange(snapshot.exists() ? snapshot.data() as EducationTask : null), onError)
 }
 
-export type PublicOlympiad = { id: string; title: string; deadline: string | null; gradeLevels: number[]; subject?: string; schedule?: string }
+export type PublicOlympiad = { id: string; title: string; deadline: string | null; gradeLevels: number[]; subject?: string; schedule?: string; calendar?: import('./olympiad/calendar').OlympiadCalendar }
 /** Only the operator-published, non-personal projection is shared across families.
  * @see ../../docs/modules/assessments/olympiad-preparation.md */
 export function watchPublicOlympiads(onChange: (items: PublicOlympiad[]) => void, onError: (error: Error) => void) {
@@ -59,7 +60,7 @@ export function watchPublicOlympiads(onChange: (items: PublicOlympiad[]) => void
       const value = item.data()
       if (value.status !== 'published' || typeof value.title !== 'string' || value.title.length > 200 ||
           !(value.deadline === null || typeof value.deadline === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value.deadline)) || !Array.isArray(value.gradeLevels) || !value.gradeLevels.length || value.gradeLevels.some((grade: unknown) => !Number.isInteger(grade) || Number(grade) < 1 || Number(grade) > 11)) continue
-      items.push({ id: item.id, title: value.title, deadline: value.deadline, gradeLevels: value.gradeLevels, subject: typeof value.subject === 'string' ? value.subject : undefined, schedule: typeof value.schedule === 'string' ? value.schedule : undefined })
+      items.push({ id: item.id, title: value.title, deadline: value.deadline, gradeLevels: value.gradeLevels, calendar: parseOlympiadCalendar(value.calendar), subject: typeof value.subject === 'string' ? value.subject : undefined, schedule: typeof value.schedule === 'string' ? value.schedule : undefined })
     }
     onChange(items)
   }, onError)
