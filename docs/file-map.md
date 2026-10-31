@@ -1164,3 +1164,19 @@
 | [scripts/firestore-rules-olympiad-history.test.mjs](../scripts/firestore-rules-olympiad-history.test.mjs) | [История олимпиад](modules/assessments/olympiad-history.md) | Проверка истории/проекций/доступа | Education |
 | [e2e/olympiad-history.e2e.ts](../e2e/olympiad-history.e2e.ts) | [История олимпиад](modules/assessments/olympiad-history.md) | Проверка истории/проекций/доступа | Education |
 | [docs/decisions/olympiad-history-2026-10-31.md](decisions/olympiad-history-2026-10-31.md) | [История олимпиад](modules/assessments/olympiad-history.md) | Решение и цепочка проверки интерфейса/доступа | Разработчик; оператор |
+
+| Файл | Спецификация | Назначение | Потребитель |
+|---|---|---|---|
+| [docs/modules/reviews/method-guided-solutions.md](../docs/modules/reviews/method-guided-solutions.md) | [Наглядное решение](modules/reviews/method-guided-solutions.md) | Метод, модель, формулы, схемы и безопасная адресная редактура | Education |
+| [packages/education-presentation/solution-blocks.d.mts](../packages/education-presentation/solution-blocks.d.mts) | [Наглядное решение](modules/reviews/method-guided-solutions.md) | Метод, модель, формулы, схемы и безопасная адресная редактура | Education |
+| [packages/education-presentation/solution-blocks.mjs](../packages/education-presentation/solution-blocks.mjs) | [Наглядное решение](modules/reviews/method-guided-solutions.md) | Метод, модель, формулы, схемы и безопасная адресная редактура | Education |
+| [packages/education-presentation/solution-blocks.test.mjs](../packages/education-presentation/solution-blocks.test.mjs) | [Наглядное решение](modules/reviews/method-guided-solutions.md) | Метод, модель, формулы, схемы и безопасная адресная редактура | Education |
+| [scripts/parent-guide.mjs](../scripts/parent-guide.mjs) | [Наглядное решение](modules/reviews/method-guided-solutions.md) | Метод, модель, формулы, схемы и безопасная адресная редактура | Education |
+| [src/components/ReviewVisual.css](../src/components/ReviewVisual.css) | [Наглядное решение](modules/reviews/method-guided-solutions.md) | Метод, модель, формулы, схемы и безопасная адресная редактура | Education |
+| [src/components/SolutionBlocks.css](../src/components/SolutionBlocks.css) | [Наглядное решение](modules/reviews/method-guided-solutions.md) | Метод, модель, формулы, схемы и безопасная адресная редактура | Education |
+| [src/components/SolutionBlocks.test.tsx](../src/components/SolutionBlocks.test.tsx) | [Наглядное решение](modules/reviews/method-guided-solutions.md) | Метод, модель, формулы, схемы и безопасная адресная редактура | Education |
+| [src/components/SolutionBlocks.tsx](../src/components/SolutionBlocks.tsx) | [Наглядное решение](modules/reviews/method-guided-solutions.md) | Метод, модель, формулы, схемы и безопасная адресная редактура | Education |
+| [src/lib/solutionExamples.ts](../src/lib/solutionExamples.ts) | [Наглядное решение](modules/reviews/method-guided-solutions.md) | Метод, модель, формулы, схемы и безопасная адресная редактура | Education |
+| [storage/parent-guide-edit.mjs](../storage/parent-guide-edit.mjs) | [Наглядное решение](modules/reviews/method-guided-solutions.md) | Метод, модель, формулы, схемы и безопасная адресная редактура | Education |
+| [storage/parent-guide-edit.test.mjs](../storage/parent-guide-edit.test.mjs) | [Наглядное решение](modules/reviews/method-guided-solutions.md) | Метод, модель, формулы, схемы и безопасная адресная редактура | Education |
+| [docs/decisions/method-guided-reviews-2026-10-31.md](../docs/decisions/method-guided-reviews-2026-10-31.md) | [Наглядное решение](modules/reviews/method-guided-solutions.md) | Метод, модель, формулы, схемы и безопасная адресная редактура | Education |

@@ -1348,6 +1348,31 @@
       "path": "docs/decisions/mesh-informational-entry-2026-10-21.md"
     },
     {
+      "id": "decision.method-guided-reviews-2026-10-31",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-31",
+      "updated": "2026-10-31",
+      "parent": "module.reviews.method-guided-solutions",
+      "uses": [
+        "shared.design.ui-kit",
+        "shared.design.compact-review"
+      ],
+      "code": [],
+      "consumers": [
+        "parent",
+        "learner"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/method-guided-reviews-2026-10-31.md"
+    },
+    {
       "id": "decision.mixed-assignment-actions-2026-10-22",
       "type": "decision",
       "status": "accepted",
@@ -5367,6 +5392,27 @@
       "consumer": "CLI; клиент; UI Kit"
     },
     {
+      "id": "file:packages/education-presentation/solution-blocks.d.mts",
+      "path": "packages/education-presentation/solution-blocks.d.mts",
+      "kind": "artifact",
+      "purpose": "Метод, модель, формулы, схемы и безопасная адресная редактура",
+      "consumer": "Education"
+    },
+    {
+      "id": "file:packages/education-presentation/solution-blocks.mjs",
+      "path": "packages/education-presentation/solution-blocks.mjs",
+      "kind": "artifact",
+      "purpose": "Метод, модель, формулы, схемы и безопасная адресная редактура",
+      "consumer": "Education"
+    },
+    {
+      "id": "file:packages/education-presentation/solution-blocks.test.mjs",
+      "path": "packages/education-presentation/solution-blocks.test.mjs",
+      "kind": "verification",
+      "purpose": "Метод, модель, формулы, схемы и безопасная адресная редактура",
+      "consumer": "Education"
+    },
+    {
       "id": "file:packages/education-runtime/credentials.mjs",
       "path": "packages/education-runtime/credentials.mjs",
       "kind": "artifact",
@@ -6648,6 +6694,13 @@
       "consumer": "Оператор"
     },
     {
+      "id": "file:scripts/parent-guide.mjs",
+      "path": "scripts/parent-guide.mjs",
+      "kind": "artifact",
+      "purpose": "Метод, модель, формулы, схемы и безопасная адресная редактура",
+      "consumer": "Education"
+    },
+    {
       "id": "file:scripts/photo-outbox-chromium-integration.mjs",
       "path": "scripts/photo-outbox-chromium-integration.mjs",
       "kind": "artifact",
@@ -7768,11 +7821,39 @@
       "consumer": "Разбор; UI Kit; проверка"
     },
     {
+      "id": "file:src/components/ReviewVisual.css",
+      "path": "src/components/ReviewVisual.css",
+      "kind": "artifact",
+      "purpose": "Метод, модель, формулы, схемы и безопасная адресная редактура",
+      "consumer": "Education"
+    },
+    {
       "id": "file:src/components/SharedTabs.tsx",
       "path": "src/components/SharedTabs.tsx",
       "kind": "artifact",
       "purpose": "Общая разметка вкладок учебного дня и олимпиады",
       "consumer": "DayPage; OlympiadCatalog"
+    },
+    {
+      "id": "file:src/components/SolutionBlocks.css",
+      "path": "src/components/SolutionBlocks.css",
+      "kind": "artifact",
+      "purpose": "Метод, модель, формулы, схемы и безопасная адресная редактура",
+      "consumer": "Education"
+    },
+    {
+      "id": "file:src/components/SolutionBlocks.test.tsx",
+      "path": "src/components/SolutionBlocks.test.tsx",
+      "kind": "verification",
+      "purpose": "Метод, модель, формулы, схемы и безопасная адресная редактура",
+      "consumer": "Education"
+    },
+    {
+      "id": "file:src/components/SolutionBlocks.tsx",
+      "path": "src/components/SolutionBlocks.tsx",
+      "kind": "artifact",
+      "purpose": "Метод, модель, формулы, схемы и безопасная адресная редактура",
+      "consumer": "Education"
     },
     {
       "id": "file:src/components/SolutionFiles.test.tsx",
@@ -8867,6 +8948,13 @@
       "consumer": "LearningRoute; PersonalEntry; ProblemTaskCard"
     },
     {
+      "id": "file:src/lib/solutionExamples.ts",
+      "path": "src/lib/solutionExamples.ts",
+      "kind": "artifact",
+      "purpose": "Метод, модель, формулы, схемы и безопасная адресная редактура",
+      "consumer": "Education"
+    },
+    {
       "id": "file:src/lib/spellingFeedback.test.ts",
       "path": "src/lib/spellingFeedback.test.ts",
       "kind": "verification",
@@ -9243,6 +9331,20 @@
       "kind": "verification",
       "purpose": "Защита от публикации соседних страниц и повторной записи неизменного документа",
       "consumer": "Vitest; оператор"
+    },
+    {
+      "id": "file:storage/parent-guide-edit.mjs",
+      "path": "storage/parent-guide-edit.mjs",
+      "kind": "artifact",
+      "purpose": "Метод, модель, формулы, схемы и безопасная адресная редактура",
+      "consumer": "Education"
+    },
+    {
+      "id": "file:storage/parent-guide-edit.test.mjs",
+      "path": "storage/parent-guide-edit.test.mjs",
+      "kind": "verification",
+      "purpose": "Метод, модель, формулы, схемы и безопасная адресная редактура",
+      "consumer": "Education"
     },
     {
       "id": "file:storage/photo-placement.mjs",
@@ -10759,6 +10861,36 @@
         "modules"
       ],
       "path": "docs/modules/reviews/math-solution-route.md"
+    },
+    {
+      "id": "module.reviews.method-guided-solutions",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-31",
+      "updated": "2026-10-31",
+      "parent": "module.reviews",
+      "uses": [
+        "shared.design.compact-review",
+        "module.reviews.subject-aware-guidance"
+      ],
+      "code": [
+        "src/components/SolutionBlocks.tsx",
+        "packages/education-presentation/solution-blocks.mjs",
+        "scripts/parent-guide.mjs"
+      ],
+      "consumers": [
+        "parent",
+        "learner receiving an explicitly released stage",
+        "review author"
+      ],
+      "sections": [
+        "метод-и-модель",
+        "представление",
+        "доступ-и-история",
+        "проверка",
+        "адресная-редактура"
+      ],
+      "path": "docs/modules/reviews/method-guided-solutions.md"
     },
     {
       "id": "module.reviews.problem-card-design-decisions",
@@ -14129,6 +14261,16 @@
       "type": "uses"
     },
     {
+      "from": "decision.method-guided-reviews-2026-10-31",
+      "to": "shared.design.compact-review",
+      "type": "uses"
+    },
+    {
+      "from": "decision.method-guided-reviews-2026-10-31",
+      "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
       "from": "decision.olympiad-calendar-2026-10-31",
       "to": "file:day/family-practice-calendar.test.mjs",
       "type": "verified-by"
@@ -15749,6 +15891,16 @@
       "type": "implements"
     },
     {
+      "from": "file:packages/education-presentation/solution-blocks.d.mts",
+      "to": "module.reviews.method-guided-solutions",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-presentation/solution-blocks.mjs",
+      "to": "module.reviews.method-guided-solutions",
+      "type": "implements"
+    },
+    {
       "from": "file:packages/education-runtime/credentials.mjs",
       "to": "shared.server-runtime",
       "type": "implements"
@@ -16756,6 +16908,11 @@
     {
       "from": "file:scripts/olympiad-verify-grade.mjs",
       "to": "module.olympiad-preparation",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/parent-guide.mjs",
+      "to": "module.reviews.method-guided-solutions",
       "type": "implements"
     },
     {
@@ -18119,8 +18276,23 @@
       "type": "implements"
     },
     {
+      "from": "file:src/components/ReviewVisual.css",
+      "to": "module.reviews.method-guided-solutions",
+      "type": "implements"
+    },
+    {
       "from": "file:src/components/SharedTabs.tsx",
       "to": "shared.design.components",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/SolutionBlocks.css",
+      "to": "module.reviews.method-guided-solutions",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/SolutionBlocks.tsx",
+      "to": "module.reviews.method-guided-solutions",
       "type": "implements"
     },
     {
@@ -19349,6 +19521,11 @@
       "type": "implements"
     },
     {
+      "from": "file:src/lib/solutionExamples.ts",
+      "to": "module.reviews.method-guided-solutions",
+      "type": "implements"
+    },
+    {
       "from": "file:src/lib/spellingFeedback.ts",
       "to": "module.assessments.quizzes",
       "type": "implements"
@@ -19701,6 +19878,11 @@
     {
       "from": "file:storage/page-publication.mjs",
       "to": "module.materials.materials",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/parent-guide-edit.mjs",
+      "to": "module.reviews.method-guided-solutions",
       "type": "implements"
     },
     {
@@ -21274,6 +21456,36 @@
       "type": "uses"
     },
     {
+      "from": "module.reviews.method-guided-solutions",
+      "to": "decision.method-guided-reviews-2026-10-31",
+      "type": "contains"
+    },
+    {
+      "from": "module.reviews.method-guided-solutions",
+      "to": "file:packages/education-presentation/solution-blocks.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.reviews.method-guided-solutions",
+      "to": "file:src/components/SolutionBlocks.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.reviews.method-guided-solutions",
+      "to": "file:storage/parent-guide-edit.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.reviews.method-guided-solutions",
+      "to": "module.reviews.subject-aware-guidance",
+      "type": "uses"
+    },
+    {
+      "from": "module.reviews.method-guided-solutions",
+      "to": "shared.design.compact-review",
+      "type": "uses"
+    },
+    {
       "from": "module.reviews.problem-card-design-decisions",
       "to": "file:src/components/ProblemStatement.provenance.test.tsx",
       "type": "verified-by"
@@ -21511,6 +21723,11 @@
     {
       "from": "module.reviews",
       "to": "module.reviews.math-solution-route",
+      "type": "contains"
+    },
+    {
+      "from": "module.reviews",
+      "to": "module.reviews.method-guided-solutions",
       "type": "contains"
     },
     {

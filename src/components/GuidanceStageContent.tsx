@@ -1,8 +1,9 @@
 import { formatReviewProse } from '@/lib/reviewProse'
 /** @see ../../docs/decisions/released-stage-parity-2026-10-20.md */
 import type { DayGuidanceRevealContent, ParentTaskGuide } from '@/lib/dayStore'
+import SolutionBlocks from './SolutionBlocks'
 
-type StageContent = Pick<ParentTaskGuide['stages'][number], 'title' | 'expected' | 'rows' | 'why' | 'role' | 'answer' | 'verification'>
+type StageContent = Pick<ParentTaskGuide['stages'][number], 'title' | 'expected' | 'rows' | 'blocks' | 'why' | 'role' | 'answer' | 'verification'>
   & { sourceLabel: string }
 
 /** Shared selected-stage disclosure used by the parent preview and learner release.
@@ -12,7 +13,7 @@ export default function GuidanceStageContent({ content, showTitle = false }: { c
   return <div className="day-guidance-release-content">
     {showTitle && <strong>{formatReviewProse(content.title)}</strong>}
     <p>{formatReviewProse(content.expected)}</p>
-    {content.rows?.length ? <div className={`day-learning-route-rows day-learning-route-rows-${content.role}`}>{content.rows.map((row, index) => <div key={index}>
+    {content.blocks?.length ? <SolutionBlocks blocks={content.blocks}/> : content.rows?.length ? <div className={`day-learning-route-rows day-learning-route-rows-${content.role}`}>{content.rows.map((row, index) => <div key={index}>
       <div>{row.label && <small>{formatReviewProse(row.label)}</small>}<strong>{formatReviewProse(row.value)}</strong></div>
       {row.explanation && <p>{formatReviewProse(row.explanation)}</p>}
     </div>)}</div> : null}

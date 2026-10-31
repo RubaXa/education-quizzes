@@ -5,4 +5,5 @@ it('keeps legacy review hierarchy and valid colours in the actual production bui
  const output=execFileSync(process.execPath,['scripts/check-review-brief-viewport.mjs'],{cwd:new URL('..',import.meta.url),encoding:'utf8',timeout:55000,env:{...process.env,REVIEW_BRIEF_SCREENSHOT_DIR:''}})
  expect(output).toContain('"legacyRoles":true')
  expect(output).toContain('"builtColours":true')
+ expect(output).toContain('"methodGuide":true')
 })

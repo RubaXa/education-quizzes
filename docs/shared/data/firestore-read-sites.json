@@ -5388,6 +5388,42 @@
     "note": "Адресный readback уведомлений после create-only записи; количество равно число событий × число подтверждённых адресатов. Путь -2 пересверен после удаления прежнего pre-read; повтор сохраняет readAt."
   },
   {
+    "id": "scripts/parent-guide.mjs#admin.getAll#fe8d37652c6a",
+    "file": "scripts/parent-guide.mjs",
+    "line": 15,
+    "api": "admin.getAll",
+    "target": "db",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "addressed-guide-edit-fence",
+    "refresh": "explicit operator edit; transaction retry and one readback",
+    "note": "Три точных документа из пакета: guide, owner и student page; перед записью повторяются в транзакции, затем один guide для проверки. Семья/ребёнок и taskId сверяются. Сканов, polling и подписок нет; обновляется только guide и закрытая история его редакций."
+  },
+  {
+    "id": "scripts/parent-guide.mjs#admin.getAll#eca20539a4f3",
+    "file": "scripts/parent-guide.mjs",
+    "line": 22,
+    "api": "admin.getAll",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "addressed-guide-edit-fence",
+    "refresh": "explicit operator edit; transaction retry and one readback",
+    "note": "Три точных документа из пакета: guide, owner и student page; перед записью повторяются в транзакции, затем один guide для проверки. Семья/ребёнок и taskId сверяются. Сканов, polling и подписок нет; обновляется только guide и закрытая история его редакций."
+  },
+  {
+    "id": "scripts/parent-guide.mjs#admin.get#a2b81daba366",
+    "file": "scripts/parent-guide.mjs",
+    "line": 27,
+    "api": "admin.get",
+    "target": "ref",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "addressed-guide-edit-fence",
+    "refresh": "explicit operator edit; transaction retry and one readback",
+    "note": "Три точных документа из пакета: guide, owner и student page; перед записью повторяются в транзакции, затем один guide для проверки. Семья/ребёнок и taskId сверяются. Сканов, polling и подписок нет; обновляется только guide и закрытая история его редакций."
+  },
+  {
     "id": "scripts/quiz.mjs#admin.get#ffa52efd6c07",
     "file": "scripts/quiz.mjs",
     "line": 173,
@@ -7658,7 +7694,7 @@
   {
     "id": "src/lib/dayStore.ts#getDoc#6593dc56d36b",
     "file": "src/lib/dayStore.ts",
-    "line": 160,
+    "line": 163,
     "api": "getDoc",
     "target": "doc(db, 'dayPages', token)",
     "group": "client-day",
@@ -7670,7 +7706,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#1658e056615b",
     "file": "src/lib/dayStore.ts",
-    "line": 166,
+    "line": 169,
     "api": "onSnapshot",
     "target": "doc(db, 'dayPages', token)",
     "group": "client-day",
@@ -7682,7 +7718,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#c2b7cd8e3f9b",
     "file": "src/lib/dayStore.ts",
-    "line": 201,
+    "line": 204,
     "api": "onSnapshot",
     "target": "doc(db, 'families', familyId, 'children', childId, 'bookPages', ref)",
     "group": "client-day",
@@ -7694,7 +7730,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#b781e597a36b",
     "file": "src/lib/dayStore.ts",
-    "line": 218,
+    "line": 221,
     "api": "onSnapshot",
     "target": "collection(db, 'dayUploads', studentToken, 'files')",
     "group": "client-day",
@@ -7706,7 +7742,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#9c726eac32b0",
     "file": "src/lib/dayStore.ts",
-    "line": 242,
+    "line": 245,
     "api": "onSnapshot",
     "target": "collection(db, 'dayProgress', studentToken, 'items')",
     "group": "client-day",
@@ -7718,7 +7754,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#c6f7e46096c2",
     "file": "src/lib/dayStore.ts",
-    "line": 246,
+    "line": 249,
     "api": "onSnapshot",
     "target": "collection(db, 'dayReviewPrivate', studentToken, 'items')",
     "group": "client-day",
@@ -7730,7 +7766,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#592bd0712c2e",
     "file": "src/lib/dayStore.ts",
-    "line": 264,
+    "line": 267,
     "api": "onSnapshot",
     "target": "reference",
     "group": "client-day",
@@ -7742,7 +7778,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#d0e658ed1ab2",
     "file": "src/lib/dayStore.ts",
-    "line": 277,
+    "line": 280,
     "api": "onSnapshot",
     "target": "collection(db, 'dayHelp', studentToken, 'items')",
     "group": "client-day",
@@ -7754,7 +7790,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#a8f62002fde7",
     "file": "src/lib/dayStore.ts",
-    "line": 285,
+    "line": 288,
     "api": "onSnapshot",
     "target": "collection(db, 'dayHelp', studentToken, 'items', taskId, 'requests')",
     "group": "client-day",
@@ -7766,7 +7802,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#d8f08464ae53",
     "file": "src/lib/dayStore.ts",
-    "line": 292,
+    "line": 295,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayOwners', studentToken)",
     "group": "client-day",
@@ -7778,7 +7814,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#8976fa978048",
     "file": "src/lib/dayStore.ts",
-    "line": 309,
+    "line": 312,
     "api": "getDocFromServer",
     "target": "historyRef",
     "group": "client-day",
@@ -7790,7 +7826,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#0685a719664c",
     "file": "src/lib/dayStore.ts",
-    "line": 315,
+    "line": 318,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayUploads', studentToken, 'files', id)",
     "group": "client-day",
@@ -7802,7 +7838,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#705de0a8baee",
     "file": "src/lib/dayStore.ts",
-    "line": 321,
+    "line": 324,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayPages', studentToken)",
     "group": "client-day",
@@ -7814,7 +7850,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#eeb8575870fd",
     "file": "src/lib/dayStore.ts",
-    "line": 333,
+    "line": 336,
     "api": "getDocFromServer",
     "target": "photoUploadIds ? historyRef : sourceRef",
     "group": "client-day",
@@ -7826,7 +7862,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#d8f08464ae53-2",
     "file": "src/lib/dayStore.ts",
-    "line": 349,
+    "line": 352,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayOwners', studentToken)",
     "group": "client-day",
@@ -7838,7 +7874,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#249d93879c40",
     "file": "src/lib/dayStore.ts",
-    "line": 357,
+    "line": 360,
     "api": "getDocFromServer",
     "target": "ref",
     "group": "client-day",
@@ -7850,7 +7886,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#705de0a8baee-2",
     "file": "src/lib/dayStore.ts",
-    "line": 380,
+    "line": 383,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayPages', studentToken)",
     "group": "client-day",
@@ -7862,7 +7898,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#249d93879c40-2",
     "file": "src/lib/dayStore.ts",
-    "line": 396,
+    "line": 399,
     "api": "getDocFromServer",
     "target": "ref",
     "group": "client-day",
@@ -7874,7 +7910,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#249d93879c40-3",
     "file": "src/lib/dayStore.ts",
-    "line": 408,
+    "line": 411,
     "api": "getDocFromServer",
     "target": "ref",
     "group": "client-day",
@@ -7886,7 +7922,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#d8f08464ae53-3",
     "file": "src/lib/dayStore.ts",
-    "line": 414,
+    "line": 417,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayOwners', studentToken)",
     "group": "client-day",
@@ -7898,7 +7934,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#249d93879c40-4",
     "file": "src/lib/dayStore.ts",
-    "line": 428,
+    "line": 431,
     "api": "getDocFromServer",
     "target": "ref",
     "group": "client-day",

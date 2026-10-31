@@ -15,11 +15,14 @@ export async function loadReviewBriefFixture() {
   try {
     const { default: ReviewBrief } = await vite.ssrLoadModule('/src/components/ReviewBrief.tsx')
     const { default: WorkReview } = await vite.ssrLoadModule('/src/components/WorkReview.tsx')
+    const { default: ParentTaskGuide } = await vite.ssrLoadModule('/src/components/ParentTaskGuide.tsx')
+    const { solutionGuideExample,solutionVisualExamples } = await vite.ssrLoadModule('/src/lib/solutionExamples.ts')
+    const {default:SolutionBlocks}=await vite.ssrLoadModule('/src/components/SolutionBlocks.tsx')
     const { reviewBriefExamples, reviewBriefVerified, reviewBriefUncertain,reviewBriefWorkExample,reviewBriefLegacy } = await vite.ssrLoadModule('/src/lib/reviewBriefExamples.ts')
     const fontRoot = join(root, 'node_modules/@fontsource-variable/geist/files')
     const fonts = ['cyrillic', 'latin'].map(part => `@font-face{font-family:'Geist Variable';src:url(data:font/woff2;base64,${readFileSync(join(fontRoot, `geist-${part}-wght-normal.woff2`)).toString('base64')}) format('woff2');font-weight:100 900;unicode-range:${part === 'cyrillic' ? 'U+0400-052F,U+2DE0-2DFF,U+A640-A69F' : 'U+0000-00FF'}}`).join('\n')
-    const css = fonts + ['src/education-design-tokens.css','src/DayPage.css','src/UiKit.css','src/components/StatusIcon.css','src/components/ReviewBrief.css','src/components/WorkReview.css'].map(path => readFileSync(join(root, path), 'utf8')).join('\n')
-    return { css, examples: reviewBriefExamples, states: [reviewBriefVerified, reviewBriefUncertain], legacy:reviewBriefLegacy, render: data => renderToStaticMarkup(createElement(ReviewBrief, { data })),renderWork:(data,parent=false)=>renderToStaticMarkup(createElement(WorkReview,{review:reviewBriefWorkExample(data),uploads:[],parent})),renderReview:(review,parent=false)=>renderToStaticMarkup(createElement(WorkReview,{review,uploads:[],parent,canDecide:parent,...(parent?{onDecision:async()=>{}}:{})})) }
+    const css = fonts + ['src/education-design-tokens.css','src/DayPage.css','src/UiKit.css','src/components/StatusIcon.css','src/components/ReviewBrief.css','src/components/ReviewVisual.css','src/components/WorkReview.css'].map(path => readFileSync(join(root, path), 'utf8')).join('\n')
+    return { css,fonts,visuals:renderToStaticMarkup(createElement(SolutionBlocks,{blocks:solutionVisualExamples})),guide:solutionGuideExample,renderGuide:(guide=solutionGuideExample)=>renderToStaticMarkup(createElement(ParentTaskGuide,{guide})), examples: reviewBriefExamples, states: [reviewBriefVerified, reviewBriefUncertain], legacy:reviewBriefLegacy, render: data => renderToStaticMarkup(createElement(ReviewBrief, { data })),renderWork:(data,parent=false)=>renderToStaticMarkup(createElement(WorkReview,{review:reviewBriefWorkExample(data),uploads:[],parent})),renderReview:(review,parent=false)=>renderToStaticMarkup(createElement(WorkReview,{review,uploads:[],parent,canDecide:parent,...(parent?{onDecision:async()=>{}}:{})})) }
   } finally { await vite.close() }
 }
 
@@ -106,8 +109,26 @@ async function main() {
       assert(colours.valid,`Compiled review colour invalid: ${theme}`)
       assert(colours.border==='1px'&&colours.questionBorder==='2px'&&colours.diagram!=='none',`Compiled review hierarchy lost: ${theme}`)
     }
+    for(const width of [320,390,540]) {
+      await page.setViewportSize({width,height:1000})
+      await page.setContent(`<!doctype html><meta charset="utf-8"><style>${compiled}${fixture.fonts}</style><main class="page-wrap"><div class="day-page day-parent"><div class="day-subject-list"><section class="day-subject day-subject-math"><div class="day-subject-content"><div class="day-task-list"><article class="day-task">${fixture.renderGuide()}</article></div></div></section></div></div></main>`)
+      await page.evaluate(()=>document.fonts.ready)
+      await page.locator('.day-parent-guide>.day-learning-route-heading').click()
+      assert((await page.locator('.day-learning-route-heading').innerText())==='Ход решения','Repeated parent heading')
+      await page.locator('.day-learning-route-stage>summary').nth(1).click()
+      assert(await page.locator('math').isVisible(),'Structured equation hidden')
+      assert(await page.locator('math').evaluate(el=>el.namespaceURI==='http://www.w3.org/1998/Math/MathML'),'Equation rendered as prose')
+      assert(await page.locator('.edu-solution-case-choices button').count()===3,'Cases lost')
+      assert(await page.locator('.day-parent-guide').evaluate(el=>el.scrollWidth<=el.clientWidth),'Parent method overflow')
+      assert(await page.locator('math').evaluate(el=>el.getBoundingClientRect().width<=el.parentElement.clientWidth),'Equation overflow')
+      await page.locator('.day-learning-route-body').nth(1).evaluate((el,html)=>el.insertAdjacentHTML('beforeend',html),fixture.visuals)
+      assert(await page.locator('.edu-solution-grid svg').isVisible(),'Grid hidden')
+      assert(await page.locator('.edu-solution-graph-node').count()===3,'Graph nodes missing')
+      assert(await page.locator('.edu-solution-graph-canvas line').first().evaluate(el=>getComputedStyle(el).stroke!=='none'),'Graph connections missing')
+      assert(await page.locator('.day-parent-guide').evaluate(el=>el.scrollWidth<=el.clientWidth),'Visual model overflow')
+    }
     assert(!errors.length, errors.join('\n'))
-    console.log(JSON.stringify({ samplesAt390: measured, themes: 2, widths: [320, 390, 540], enlargedPrimaryText: true, disclosure: 'mouse/Enter/Space', legacyRoles:true,builtColours:true,errors }))
+    console.log(JSON.stringify({ samplesAt390: measured, themes: 2, widths: [320, 390, 540], enlargedPrimaryText: true, disclosure: 'mouse/Enter/Space', legacyRoles:true,builtColours:true,methodGuide:true,errors }))
   } finally { await browser.close() }
 }
 if (process.argv[1] && resolve(process.argv[1]) === resolve(import.meta.filename)) await main()

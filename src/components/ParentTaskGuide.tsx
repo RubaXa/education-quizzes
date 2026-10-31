@@ -12,6 +12,7 @@ import GuidanceStageContent from './GuidanceStageContent'
 import { projectGuidanceReveal, sameGuidanceRevealContent } from '../../day/guidance-release.mjs'
 import RequirementSwitch from './RequirementSwitch'
 import StatusIcon from './StatusIcon'
+import {MethodOverview} from './SolutionBlocks'
 import './ParentTaskGuide.css'
 import './ReviewTypography.css'
 
@@ -144,13 +145,14 @@ export default function ParentTaskGuide({ guide, review, decisions = [], guidanc
   }
 
   return <details className="day-parent-guide day-parent-learning-route" aria-label={mathematics ? 'Разбор решения для родителя' : 'Разбор письменной работы для родителя'}>
-    <summary className="day-learning-route-heading"><BookOpen size={18} aria-hidden="true" /><span><strong>{mathematics ? 'Разбор для родителя' : formatReviewProse(guide.overview)}</strong></span><ChevronDown className="day-learning-route-chevron" size={17} aria-hidden="true" /></summary>
+    <summary className="day-learning-route-heading"><BookOpen size={18} aria-hidden="true" /><span><strong>{guide.method||mathematics?'Ход решения':'Разбор'}</strong></span><ChevronDown className="day-learning-route-chevron" size={17} aria-hidden="true" /></summary>
     <div className="day-parent-learning-route-body">
-    {!mathematics && review?.status && <div className="day-learning-route-review-summary">
+    {guide.method&&<MethodOverview method={guide.method}/>}
+    {!guide.method && !mathematics && review?.status && <div className="day-learning-route-review-summary">
       <strong>{review.status === 'verified' ? 'Работа подтверждена' : review.status === 'cannot-assess' && review.assessmentBasis?.unresolvedReason === 'missing-evidence' ? 'Разбор завершён · часть работы не видна' : review.status === 'cannot-assess' ? 'Итог пока не установлен' : 'Что осталось сделать'}</strong>
       <p>{formatReviewProse(review.nextStep ?? review.summary ?? '')}</p>
     </div>}
-    {review && <div className="day-learning-route-progress" aria-label="Состояние проверки фото">
+    {review && !guide.method && <div className="day-learning-route-progress" aria-label="Состояние проверки фото">
       {mathematics && <><span>Ответ: <b>{review?.mathReasoning?.answer === 'correct' ? 'верен' : review?.mathReasoning?.answer === 'incorrect' ? 'неверен' : 'не подтверждён'}</b></span>
       <span>Ход: <b>{review?.mathReasoning?.argument === 'sufficient' ? 'подтверждён' : review?.mathReasoning?.argument === 'incomplete' ? 'неполон' : review?.mathReasoning?.argument === 'not-shown' ? 'не показан' : review?.mathReasoning?.argument === 'unreadable' ? 'не читается' : 'пока неясен'}</b></span></>}
       <small>{completion && !mathematics ? `${completion.actualConfirmed} из ${completion.total} этапов подтверждено${completion.needsFix ? `; исправить ${completion.needsFix}` : ''}${completion.required ? `. Семейный план: ${completion.confirmed} из ${completion.required}${completion.complete ? ' выполнено' : ' подтверждено'}` : ''}.`
@@ -172,7 +174,7 @@ export default function ParentTaskGuide({ guide, review, decisions = [], guidanc
         </summary>
         <div className="day-learning-route-body">
           {stageError?.id === stage.id && stageError.reviewVersion === reviewVersion && <p className="day-learning-route-error" role="alert">{stageError.message}</p>}
-          {result?.observed && <p className="day-learning-route-observed"><b>В работе:</b> {formatReviewObservation(result.observed)}{result.note && <small className="day-guide-review-note">{formatReviewProse(result.note)}</small>}</p>}
+          {result?.observed && (stage.blocks?.length?<details className="edu-method-observation"><summary>Запись ученика</summary><p className="day-learning-route-observed">{formatReviewObservation(result.observed)}{result.note&&<small className="day-guide-review-note">{formatReviewProse(result.note)}</small>}</p></details>:<p className="day-learning-route-observed"><b>В работе:</b> {formatReviewObservation(result.observed)}{result.note && <small className="day-guide-review-note">{formatReviewProse(result.note)}</small>}</p>)}
           <GuidanceStageContent content={{ ...stage, sourceLabel: stage.source.label }} />
           {guidanceReady && !revealSent && <div className="day-learning-route-actions">
             {stage.hintPreview && !hintSent && <button type="button" aria-label={`Выбрать подсказку для этапа «${stage.title}»`} onClick={() => { setPreview({ id: stage.id, level: 'hint' }); setError('') }}>Подсказка</button>}

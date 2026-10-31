@@ -37,7 +37,7 @@ vi.mock('@/DayDashboard', async () => {
     <ProblemTaskCard parent={parent} problem={{ id: 'problem', number: 1, title: 'Книги', detail: 'Выбрать пару', source: 'Лист учителя', support: {
       skill: 'Выбор пары', state: 'unknown', evidence: 'Источник', evidenceRefs: ['sheet'], facts: [{ label: 'Полка', value: '10 книг' }], find: 'Число пар', revision: 1,
     } } as any} state={{ tone: 'ready', label: 'Не начато' }} links={[]} uploads={[]} helpAccess="ready" onPhotos={() => undefined} onRequestHelp={async () => undefined}
-      guide={{ title: 'Разбор для родителя', revision: 1, presentation: 'math-route', stages: [
+      guide={{ title: 'Ход решения', revision: 1, presentation: 'math-route', stages: [
         { id: 'data', role: 'given', title: 'Данные', expected: 'Различаем полки', rows: [], source: { label: 'Учитель' } },
         { id: 'answer', role: 'answer', title: 'Ответ и проверка', expected: 'Проверяем пары', rows: [], answer: '1100', verification: ['Проверка'], source: { label: 'Учитель' } },
       ] } as any} />
@@ -78,7 +78,7 @@ describe('authenticated route through the real problem card', () => {
   it('keeps the saved guide when background profile restoration is offline', async () => {
     scene.restoreError = { code: 'unavailable' }
     const host = await render()
-    expect(host.textContent).toContain('Разбор для родителя')
+    expect(host.textContent).toContain('Ход решения')
     expect(host.textContent).not.toContain('Загрузить решение')
     expect(host.textContent).not.toContain('Проверяем личный доступ')
     expect(scene.closed).toBe(0)
@@ -89,7 +89,7 @@ describe('authenticated route through the real problem card', () => {
     scene.profile!.children[0].dayTokens = { parent: 'parent-day', student: 'shared-day' }
     scene.restoreError = { code: 'unavailable' }
     const host = await render('day', 'shared-day')
-    expect(host.textContent).toContain('Разбор для родителя')
+    expect(host.textContent).toContain('Ход решения')
     expect(host.textContent).not.toContain('Загрузить решение')
     expect(scene.reads).toEqual([])
   })
@@ -102,7 +102,7 @@ describe('authenticated route through the real problem card', () => {
     scene.profile!.children[0].role = 'parent'
     scene.profile!.children[0].dashboardToken = 'parent-dashboard'
     await act(async () => window.dispatchEvent(new StorageEvent('storage', { key: 'education-personal-context-v1' })))
-    expect(host.textContent).toContain('Разбор для родителя')
+    expect(host.textContent).toContain('Ход решения')
     expect(host.textContent).not.toContain('Загрузить решение')
     expect(location.hash).toBe('#/days/shared-dashboard')
   })
@@ -113,8 +113,8 @@ describe('authenticated route through the real problem card', () => {
     scene.profile!.children[0].role = role === 'parent' ? 'student' : 'parent'
     scene.profile!.children[0].dashboardToken = role === 'parent' ? 'shared-dashboard' : 'parent-dashboard'
     const host = await render()
-    expect(host.textContent).toContain(role === 'parent' ? 'Разбор для родителя' : 'Загрузить решение')
-    expect(host.textContent).not.toContain(role === 'parent' ? 'Загрузить решение' : 'Разбор для родителя')
+    expect(host.textContent).toContain(role === 'parent' ? 'Ход решения' : 'Загрузить решение')
+    expect(host.textContent).not.toContain(role === 'parent' ? 'Загрузить решение' : 'Ход решения')
     expect(scene.closed).toBe(0)
     expect(scene.refreshes).toBe(1)
     expect(scene.options).toHaveLength(3)
@@ -123,7 +123,7 @@ describe('authenticated route through the real problem card', () => {
   it('shows a parent guide and no student controls on the shared /days URL', async () => {
     const host = await render()
     expect(host.querySelector('[data-view-token]')?.getAttribute('data-view-token')).toBe('parent-dashboard')
-    expect(host.textContent).toContain('Разбор для родителя')
+    expect(host.textContent).toContain('Ход решения')
     expect(host.textContent).not.toContain('Загрузить решение')
     expect(host.textContent).not.toContain('Нужен ориентир?')
     expect(location.hash).toBe('#/days/shared-dashboard')
@@ -134,13 +134,13 @@ describe('authenticated route through the real problem card', () => {
     const host = await render()
     expect(host.textContent).toContain('Загрузить решение')
     expect(host.textContent).toContain('Нужен ориентир?')
-    expect(host.textContent).not.toContain('Разбор для родителя')
+    expect(host.textContent).not.toContain('Ход решения')
     expect(host.textContent).not.toContain('1100')
     expect(location.hash).toBe('#/days/shared-dashboard')
   })
   it('uses the same role for historical days and normalizes a legacy parent token', async () => {
     const host = await render('day', 'parent-day')
-    expect(host.textContent).toContain('Разбор для родителя')
+    expect(host.textContent).toContain('Ход решения')
     expect(location.hash).toBe('#/day/shared-day')
     expect(scene.reads).toEqual(['dayPages/parent-day'])
   })
@@ -149,25 +149,25 @@ describe('authenticated route through the real problem card', () => {
     const host = await render()
     expect(host.textContent).not.toContain('Проверяем личный доступ')
     expect(host.textContent).not.toContain('Добавить фото')
-    expect(host.textContent).toContain('Разбор для родителя')
+    expect(host.textContent).toContain('Ход решения')
   })
   it('closes the prepared parent view when membership is revoked', async () => {
     const host = await render()
     await act(async () => scene.callbacks.get('families/family/members/person')!({ exists: () => true, data: () => ({ active: false }), metadata: { fromCache: false } }))
-    expect(host.textContent).not.toContain('Разбор для родителя')
+    expect(host.textContent).not.toContain('Ход решения')
     expect(host.textContent).toContain('Доступ изменился')
     expect(scene.closed).toBe(1)
   })
   it('finishes a warm-cache access check when the server confirms unchanged documents', async () => {
     scene.cached = true
     const host = await render()
-    expect(host.textContent).toContain('Разбор для родителя')
+    expect(host.textContent).toContain('Ход решения')
     expect(scene.options).toHaveLength(3)
     expect(scene.options.every((options) => options?.includeMetadataChanges === true)).toBe(true)
     await act(async () => {
       for (const [path, changed] of scene.callbacks) changed({ exists: () => true, data: () => scene.records.get(path), metadata: { fromCache: false } })
     })
-    expect(host.textContent).toContain('Разбор для родителя')
+    expect(host.textContent).toContain('Ход решения')
     expect(host.textContent).not.toContain('Загрузить решение')
   })
   it('requires a personal login instead of guessing from the shared token', async () => {

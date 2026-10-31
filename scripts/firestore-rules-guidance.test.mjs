@@ -23,7 +23,8 @@ test('day guidance caches authorization and selected stage while enforcing exact
   expect(helper).toContain('data.stageId == stage.id')
   expect(helper).toContain("data.text == (data.level == 'hint' ? stage.hintPreview : stage.revealPreview)")
   expect(helper).toContain("? !data.keys().hasAny(['revealContent'])")
-  expect(helper).toContain("data.revealContent.keys().hasOnly(['title', 'expected', 'rows', 'role', 'why', 'answer', 'verification', 'sourceLabel'])")
+  expect(helper).toContain("data.revealContent.keys().hasOnly(['title', 'expected', 'rows', 'blocks', 'role', 'why', 'answer', 'verification', 'sourceLabel'])")
+  expect(helper).toContain("data.revealContent.get('blocks', []) == stage.get('blocks', [])")
   for (const field of ['title', 'expected', 'rows', 'role', 'why', 'answer', 'verification', 'sourceLabel']) {
     expect(helper).toContain(`data.revealContent.${field} ==`)
   }

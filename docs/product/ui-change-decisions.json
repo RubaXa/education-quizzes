@@ -3307,24 +3307,20 @@
       }
     },
     "src/components/ParentTaskGuide.tsx": {
-      "sha256": "064499b5c1f395a0ac23a7008e34d09631f5345366404124714ab56599710ee3",
-      "record": "docs/decisions/compact-review-rollout-2026-10-31.md",
+      "sha256": "eea8dcbad729fe44489c9fe63465e192a7c861e5a838d614fea5437106d29352",
+      "record": "docs/decisions/method-guided-reviews-2026-10-31.md",
       "specs": [
-        "docs/shared/design/compact-review.md",
-        "docs/shared/design/ui-kit.md",
-        "docs/modules/reviews/subject-aware-guidance.md"
+        "docs/modules/reviews/method-guided-solutions.md"
       ],
       "tests": [
-        "src/components/WorkReview.compact.test.tsx",
-        "src/components/ReviewBrief.test.tsx",
-        "src/components/QuizResultCard.test.tsx",
-        "src/UiKit.test.tsx",
-        "storage/tutoring-decision.test.mjs",
-        "packages/education-presentation/review-content.test.mjs"
+        "src/components/SolutionBlocks.test.tsx",
+        "packages/education-presentation/solution-blocks.test.mjs",
+        "storage/parent-guide-edit.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "31.10 родитель одобрил конкретный компактный разбор: «Да, так уже лучше. Исправь подсказку, чтобы она не выдавала ответ заранее, и внедряй этот формат для всех разборов. Обнови инструкции, спецификации и UI Kit». Сохранение ролей, статусов и истории обязательно."
+        "status": "direct-request",
+        "evidence": "31.10.2026 родитель отверг прежний экран и прямо потребовал восстановить плашку, убрать повтор номера и показывать метод, формулы, связи и переходы визуально."
       }
     },
     "src/components/PersonalEntry.tsx": {
@@ -4173,24 +4169,20 @@
       }
     },
     "src/lib/dayStore.ts": {
-      "sha256": "a4d529950f3505d22d87f3dc44cb52ea6abd0707d43ee9a7019f080e2fa63087",
-      "record": "docs/decisions/compact-review-rollout-2026-10-31.md",
+      "sha256": "561aac30fa1dc4ef663b1d5826b1bfc5ae1d40d51e6533a84f290bff93b82fcf",
+      "record": "docs/decisions/method-guided-reviews-2026-10-31.md",
       "specs": [
-        "docs/shared/design/compact-review.md",
-        "docs/shared/design/ui-kit.md",
-        "docs/modules/reviews/subject-aware-guidance.md"
+        "docs/modules/reviews/method-guided-solutions.md"
       ],
       "tests": [
-        "src/components/WorkReview.compact.test.tsx",
-        "src/components/ReviewBrief.test.tsx",
-        "src/components/QuizResultCard.test.tsx",
-        "src/UiKit.test.tsx",
-        "storage/tutoring-decision.test.mjs",
-        "packages/education-presentation/review-content.test.mjs"
+        "src/components/SolutionBlocks.test.tsx",
+        "packages/education-presentation/solution-blocks.test.mjs",
+        "storage/parent-guide-edit.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "31.10 родитель одобрил конкретный компактный разбор: «Да, так уже лучше. Исправь подсказку, чтобы она не выдавала ответ заранее, и внедряй этот формат для всех разборов. Обнови инструкции, спецификации и UI Kit». Сохранение ролей, статусов и истории обязательно."
+        "status": "direct-request",
+        "evidence": "31.10.2026 родитель отверг прежний экран и прямо потребовал восстановить плашку, убрать повтор номера и показывать метод, формулы, связи и переходы визуально."
       }
     },
     "src/lib/educationEventProducer.ts": {
@@ -5570,25 +5562,20 @@
       }
     },
     "day/guidance-release.mjs": {
-      "sha256": "0b03e2e0f10f9644cacbef06bf2fe20cd95bb5ae3f91fd86799b2d1a82eef0ca",
-      "record": "docs/decisions/released-stage-parity-2026-10-20.md",
+      "sha256": "611effe62535731774144d78e27386c9cad459d74c6b3bb83c80f97b84433cb9",
+      "record": "docs/decisions/method-guided-reviews-2026-10-31.md",
       "specs": [
-        "docs/modules/reviews/subject-aware-guidance.md",
-        "docs/modules/reviews/problem-card-design-decisions.md",
-        "docs/shared/design/ui-kit.md",
-        "docs/shared/design/README.md"
+        "docs/modules/reviews/method-guided-solutions.md"
       ],
       "tests": [
-        "src/lib/dayGuidance.writer.test.ts",
-        "day/guidance-release.test.mjs",
-        "day/guidance-repair.test.mjs",
-        "src/components/ParentTaskGuide.test.tsx",
-        "src/components/TaskGuidance.test.tsx",
-        "src/UiKit.test.tsx"
+        "src/components/SolutionBlocks.test.tsx",
+        "packages/education-presentation/solution-blocks.test.mjs",
+        "storage/parent-guide-edit.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос пользователя 20.10.2026: в ученическом раскрытии должен появляться полный выбранный этап с переходами, строкой симметрии, причиной и источником; родительский предпросмотр должен совпадать с фактическим раскрытием."
+        "evidence": "31.10.2026 родитель отверг прежний экран и прямо потребовал восстановить плашку, убрать повтор номера и показывать метод, формулы, связи и переходы визуально."
       }
     },
     "day/guidance-repair.mjs": {
@@ -5614,25 +5601,20 @@
       }
     },
     "src/components/GuidanceStageContent.tsx": {
-      "sha256": "ef0b65005ee52d6ef0834545fcf724c0f1fa2ce3bc91c363533917c383de2e69",
-      "record": "docs/decisions/released-stage-parity-2026-10-20.md",
+      "sha256": "520e5fcdcf319e3b285ab78c84647ad73cc5fcaca7f3ea1ba563e6925f5ada91",
+      "record": "docs/decisions/method-guided-reviews-2026-10-31.md",
       "specs": [
-        "docs/modules/reviews/subject-aware-guidance.md",
-        "docs/modules/reviews/problem-card-design-decisions.md",
-        "docs/shared/design/ui-kit.md",
-        "docs/shared/design/README.md"
+        "docs/modules/reviews/method-guided-solutions.md"
       ],
       "tests": [
-        "src/lib/dayGuidance.writer.test.ts",
-        "day/guidance-release.test.mjs",
-        "day/guidance-repair.test.mjs",
-        "src/components/ParentTaskGuide.test.tsx",
-        "src/components/TaskGuidance.test.tsx",
-        "src/UiKit.test.tsx"
+        "src/components/SolutionBlocks.test.tsx",
+        "packages/education-presentation/solution-blocks.test.mjs",
+        "storage/parent-guide-edit.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос пользователя 20.10.2026: в ученическом раскрытии должен появляться полный выбранный этап с переходами, строкой симметрии, причиной и источником; родительский предпросмотр должен совпадать с фактическим раскрытием."
+        "evidence": "31.10.2026 родитель отверг прежний экран и прямо потребовал восстановить плашку, убрать повтор номера и показывать метод, формулы, связи и переходы визуально."
       }
     },
     "day/family-assignment.mjs": {
@@ -7051,20 +7033,20 @@
       }
     },
     "scripts/check-review-brief-viewport.mjs": {
-      "sha256": "fa4cc539eeea104182a5dc37082e4bb2096fe615839f06f424ce89a1ddab97cc",
-      "record": "docs/decisions/review-readability-repair-2026-10-31.md",
+      "sha256": "2598352fdf91ecd1ec2a0f69a8750727597563c0e84c3c9f9f161c87a845e877",
+      "record": "docs/decisions/method-guided-reviews-2026-10-31.md",
       "specs": [
-        "docs/shared/design/compact-review.md"
+        "docs/modules/reviews/method-guided-solutions.md"
       ],
       "tests": [
-        "src/components/WorkReview.compact.test.tsx",
-        "src/components/ReviewBrief.test.tsx",
-        "storage/tutoring-decision.test.mjs",
+        "src/components/SolutionBlocks.test.tsx",
+        "packages/education-presentation/solution-blocks.test.mjs",
+        "storage/parent-guide-edit.test.mjs",
         "scripts/check-review-brief-viewport.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 31.10 прислал мобильный скриншот и прямо отверг нечитаемый результат как не соответствующий согласованному макету; исправляется ранее разрешённый общий формат."
+        "evidence": "31.10.2026 родитель отверг прежний экран и прямо потребовал восстановить плашку, убрать повтор номера и показывать метод, формулы, связи и переходы визуально."
       }
     },
     "src/components/QuizResultCard.css": {
@@ -7089,67 +7071,71 @@
       }
     },
     "src/components/ReviewBrief.css": {
-      "sha256": "ce1ed7cf810fbc90de9a611a99c1c20c3648a0795e8dd6acdd28640b0aa09955",
-      "record": "docs/decisions/review-readability-repair-2026-10-31.md",
+      "sha256": "34b8f3ace4026093968faba4c674296de3fa884ef02d8ab2525c93b50cc35134",
+      "record": "docs/decisions/method-guided-reviews-2026-10-31.md",
       "specs": [
-        "docs/shared/design/compact-review.md"
+        "docs/modules/reviews/method-guided-solutions.md"
       ],
       "tests": [
-        "src/components/WorkReview.compact.test.tsx",
-        "src/components/ReviewBrief.test.tsx",
-        "storage/tutoring-decision.test.mjs"
+        "src/components/SolutionBlocks.test.tsx",
+        "packages/education-presentation/solution-blocks.test.mjs",
+        "storage/parent-guide-edit.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 31.10 прислал мобильный скриншот и прямо отверг нечитаемый результат как не соответствующий согласованному макету; исправляется ранее разрешённый общий формат."
+        "evidence": "31.10.2026 родитель отверг прежний экран и прямо потребовал восстановить плашку, убрать повтор номера и показывать метод, формулы, связи и переходы визуально."
       }
     },
     "src/components/ReviewBrief.tsx": {
-      "sha256": "bf5079657fab1ffc61f8d8dc4cd052e4df66fd46f4476612f23b6d45bb74afae",
-      "record": "docs/decisions/review-readability-repair-2026-10-31.md",
+      "sha256": "b156de075aeef25dbbb2ad3d0dfc85fdd040aa97d1f3abd8c69d6bd340f67a2a",
+      "record": "docs/decisions/method-guided-reviews-2026-10-31.md",
       "specs": [
-        "docs/shared/design/compact-review.md"
+        "docs/modules/reviews/method-guided-solutions.md"
       ],
       "tests": [
-        "src/components/WorkReview.compact.test.tsx",
-        "src/components/ReviewBrief.test.tsx",
-        "storage/tutoring-decision.test.mjs"
+        "src/components/SolutionBlocks.test.tsx",
+        "packages/education-presentation/solution-blocks.test.mjs",
+        "storage/parent-guide-edit.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 31.10 прислал мобильный скриншот и прямо отверг нечитаемый результат как не соответствующий согласованному макету; исправляется ранее разрешённый общий формат."
+        "evidence": "31.10.2026 родитель отверг прежний экран и прямо потребовал восстановить плашку, убрать повтор номера и показывать метод, формулы, связи и переходы визуально."
       }
     },
     "src/components/ReviewBriefShowcase.tsx": {
-      "sha256": "bfb6a6d667ffdc9527447b5531694bee5a20a05b64f5545023c6c0f48c74a32e",
-      "record": "docs/decisions/review-readability-repair-2026-10-31.md",
+      "sha256": "4ffda162d9a692a710263224c12b30121a0c2236eb931684772f80189c41738c",
+      "record": "docs/decisions/method-guided-reviews-2026-10-31.md",
       "specs": [
-        "docs/shared/design/compact-review.md"
+        "docs/modules/reviews/method-guided-solutions.md"
       ],
       "tests": [
-        "src/components/WorkReview.compact.test.tsx",
-        "src/components/ReviewBrief.test.tsx",
-        "storage/tutoring-decision.test.mjs"
+        "src/components/SolutionBlocks.test.tsx",
+        "packages/education-presentation/solution-blocks.test.mjs",
+        "storage/parent-guide-edit.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 31.10 прислал мобильный скриншот и прямо отверг нечитаемый результат как не соответствующий согласованному макету; исправляется ранее разрешённый общий формат."
+        "evidence": "31.10.2026 родитель отверг прежний экран и прямо потребовал восстановить плашку, убрать повтор номера и показывать метод, формулы, связи и переходы визуально."
       }
     },
     "src/components/ReviewTypography.css": {
-      "sha256": "a379256d97346b89c7e02618c29f34ad2c9f8fdc9fc0fcfcee9d1ac1ce40f6bf",
-      "record": "docs/decisions/review-readability-repair-2026-10-31.md",
+      "sha256": "abd6b28db5b50f63b6fc72fadfe84ab692a0da231b04e08af1dab71f37461d67",
+      "record": "docs/decisions/method-guided-reviews-2026-10-31.md",
       "specs": [
-        "docs/shared/design/compact-review.md"
+        "docs/modules/reviews/method-guided-solutions.md"
       ],
       "tests": [
-        "src/components/WorkReview.compact.test.tsx",
-        "src/components/ReviewBrief.test.tsx",
-        "storage/tutoring-decision.test.mjs"
+        "src/components/SolutionBlocks.test.tsx",
+        "packages/education-presentation/solution-blocks.test.mjs",
+        "storage/parent-guide-edit.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 31.10 прислал мобильный скриншот и прямо отверг нечитаемый результат как не соответствующий согласованному макету; исправляется ранее разрешённый общий формат."
+        "evidence": "31.10.2026 родитель отверг прежний экран и прямо потребовал восстановить плашку, убрать повтор номера и показывать метод, формулы, связи и переходы визуально."
       }
     },
     "src/components/WorkReview.css": {
@@ -7310,6 +7296,125 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Пользователь31.10.2026 прямо поручил реализовать историю сезонов, этапов, результатов и работ в карточках олимпиад через существующий Education/UI Kit с проверками и публикацией без дополнительных согласований."
+      }
+    },
+    "packages/education-presentation/solution-blocks.mjs": {
+      "sha256": "58b818346331281cc3a16aa60b672a72659413487e748a6f3b74935f69c582eb",
+      "record": "docs/decisions/method-guided-reviews-2026-10-31.md",
+      "specs": [
+        "docs/modules/reviews/method-guided-solutions.md"
+      ],
+      "tests": [
+        "src/components/SolutionBlocks.test.tsx",
+        "packages/education-presentation/solution-blocks.test.mjs",
+        "storage/parent-guide-edit.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "31.10.2026 родитель отверг прежний экран и прямо потребовал восстановить плашку, убрать повтор номера и показывать метод, формулы, связи и переходы визуально."
+      }
+    },
+    "scripts/parent-guide.mjs": {
+      "sha256": "b25b3055388250662e9eaa838211c781f849dfc68793f48c13e354b984cd232d",
+      "record": "docs/decisions/method-guided-reviews-2026-10-31.md",
+      "specs": [
+        "docs/modules/reviews/method-guided-solutions.md"
+      ],
+      "tests": [
+        "src/components/SolutionBlocks.test.tsx",
+        "packages/education-presentation/solution-blocks.test.mjs",
+        "storage/parent-guide-edit.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "31.10.2026 родитель отверг прежний экран и прямо потребовал восстановить плашку, убрать повтор номера и показывать метод, формулы, связи и переходы визуально."
+      }
+    },
+    "src/components/ReviewVisual.css": {
+      "sha256": "5d8c81de2fa0e84305f614664fa05cc9904068840c2fd0a56499daf489ad14f7",
+      "record": "docs/decisions/method-guided-reviews-2026-10-31.md",
+      "specs": [
+        "docs/modules/reviews/method-guided-solutions.md"
+      ],
+      "tests": [
+        "src/components/SolutionBlocks.test.tsx",
+        "packages/education-presentation/solution-blocks.test.mjs",
+        "storage/parent-guide-edit.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "31.10.2026 родитель отверг прежний экран и прямо потребовал восстановить плашку, убрать повтор номера и показывать метод, формулы, связи и переходы визуально."
+      }
+    },
+    "src/components/SolutionBlocks.css": {
+      "sha256": "305f0ff91922e71396b581dd24c46776c878e50d948a7938935cde2422090a18",
+      "record": "docs/decisions/method-guided-reviews-2026-10-31.md",
+      "specs": [
+        "docs/modules/reviews/method-guided-solutions.md"
+      ],
+      "tests": [
+        "src/components/SolutionBlocks.test.tsx",
+        "packages/education-presentation/solution-blocks.test.mjs",
+        "storage/parent-guide-edit.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "31.10.2026 родитель отверг прежний экран и прямо потребовал восстановить плашку, убрать повтор номера и показывать метод, формулы, связи и переходы визуально."
+      }
+    },
+    "src/components/SolutionBlocks.tsx": {
+      "sha256": "c51bc2e8bbcf99d6e0129130b5e894570db408c4d3e37504c8504f0ac7b3ac2f",
+      "record": "docs/decisions/method-guided-reviews-2026-10-31.md",
+      "specs": [
+        "docs/modules/reviews/method-guided-solutions.md"
+      ],
+      "tests": [
+        "src/components/SolutionBlocks.test.tsx",
+        "packages/education-presentation/solution-blocks.test.mjs",
+        "storage/parent-guide-edit.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "31.10.2026 родитель отверг прежний экран и прямо потребовал восстановить плашку, убрать повтор номера и показывать метод, формулы, связи и переходы визуально."
+      }
+    },
+    "src/lib/solutionExamples.ts": {
+      "sha256": "f9c6c10fc5aff6dc0b3674eddc8363a8edbb1233d07a81a971fbb504f673d1cd",
+      "record": "docs/decisions/method-guided-reviews-2026-10-31.md",
+      "specs": [
+        "docs/modules/reviews/method-guided-solutions.md"
+      ],
+      "tests": [
+        "src/components/SolutionBlocks.test.tsx",
+        "packages/education-presentation/solution-blocks.test.mjs",
+        "storage/parent-guide-edit.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "31.10.2026 родитель отверг прежний экран и прямо потребовал восстановить плашку, убрать повтор номера и показывать метод, формулы, связи и переходы визуально."
+      }
+    },
+    "storage/parent-guide-edit.mjs": {
+      "sha256": "be7011b66597abc0ef00d01ac8f0b127e58dfddb19e3ab85e7e4303df9942336",
+      "record": "docs/decisions/method-guided-reviews-2026-10-31.md",
+      "specs": [
+        "docs/modules/reviews/method-guided-solutions.md"
+      ],
+      "tests": [
+        "src/components/SolutionBlocks.test.tsx",
+        "packages/education-presentation/solution-blocks.test.mjs",
+        "storage/parent-guide-edit.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "31.10.2026 родитель отверг прежний экран и прямо потребовал восстановить плашку, убрать повтор номера и показывать метод, формулы, связи и переходы визуально."
       }
     }
   }

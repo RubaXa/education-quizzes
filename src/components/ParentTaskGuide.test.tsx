@@ -48,7 +48,7 @@ describe('one parent route component', () => {
     }
     const html = renderToStaticMarkup(<ParentTaskGuide guide={guide} />)
     expect(html).toContain('<details class="day-parent-guide day-parent-learning-route"')
-    expect(html).toContain('<strong>Разбор для родителя</strong>')
+    expect(html).toContain('<strong>Ход решения</strong>')
     expect(html).not.toContain('От условия к ответу')
     expect(html).toContain('>Ответ</button>')
     expect((html.match(/<details class="day-learning-route-stage [^"]*" open=""/g) ?? []).length).toBe(0)
@@ -67,7 +67,8 @@ describe('one parent route component', () => {
       workCoverage: { state: 'complete', note: 'Все части видны', sourceRef: 'МЭШ', reviewCheckedAt: null, recordedAt: null },
       items: [{ label: 'theme', status: 'correct', observed: 'Тема записана' },
         { label: 'plan', status: 'cannot-assess', observed: 'План есть', note: 'Форма спорна' }] }} />)
-    expect(markup).toContain('Как проверить план')
+    expect(markup).toContain('<strong>Разбор</strong>')
+    expect(markup).not.toContain('<strong>Как проверить план</strong>')
     expect(markup).toContain('day-parent-learning-route')
     expect(markup).toContain('Форма спорна')
     expect(markup).toContain('Критерий формы спорен')

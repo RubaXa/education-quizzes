@@ -1,0 +1,20 @@
+/* @see ../../docs/modules/reviews/method-guided-solutions.md */
+/* Shared visual styles for compact feedback and authorized solution stages. */
+.edu-review-visual{margin:10px 0 8px;min-width:0}
+.edu-review-facts dl{display:flex;flex-wrap:wrap;gap:8px 12px;margin:0;text-align:center}
+.edu-review-facts dl>div{flex:1 1 70px;min-width:0}
+.edu-review-facts dt{font-size:14px;color:var(--edu-review-muted)}
+.edu-review-facts dd{margin:2px 0 0;font-size:18px;line-height:1.25;font-weight:550;color:var(--edu-review-ink)}
+.edu-review-bracket{display:block;overflow:visible;margin-top:5px;stroke:var(--edu-review-line);stroke-width:1.5}
+.edu-review-annotation blockquote{margin:0;padding:8px 0 8px 10px;border-left:2px solid var(--edu-review-line);font-size:18px;line-height:1.5;color:var(--edu-review-ink)}
+.edu-review-annotation mark{background:transparent;color:inherit}
+.edu-review-mark-focus{text-decoration:underline wavy var(--edu-review-attention);text-underline-offset:5px}
+.edu-review-mark-reference{border-bottom:2px solid var(--edu-review-accent);padding-bottom:3px}
+.edu-review-timeline ol{display:flex;gap:12px;list-style:none;padding:0;margin:0}
+.edu-review-timeline li{position:relative;flex:1;min-width:0;display:grid;align-content:start;gap:4px;padding-top:10px;font-size:14px;line-height:1.35;border-top:1px solid var(--edu-review-line);color:var(--edu-review-muted)}
+.edu-review-timeline li::before{content:'';position:absolute;top:-3px;left:0;width:5px;height:5px;border-radius:50%;background:var(--edu-review-accent)}
+.edu-review-date{font-size:18px;font-weight:550;font-variant-numeric:tabular-nums;color:var(--edu-review-ink)}
+.edu-review-comparison table{width:100%;border-collapse:collapse;table-layout:fixed;color:var(--edu-review-ink);font-size:16px;line-height:1.4}
+.edu-review-comparison th{font-size:14px;font-weight:500;color:var(--edu-review-muted)}
+.edu-review-comparison th,.edu-review-comparison td{padding:5px 4px;text-align:left;vertical-align:top;border-bottom:1px solid var(--edu-review-line);overflow-wrap:anywhere}
+.edu-review-comparison tbody tr:last-child td{border-bottom:0}
