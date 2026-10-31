@@ -2,6 +2,7 @@
 
 | Файл | Спецификация | Назначение | Потребитель |
 |---|---|---|---|
+| [scripts/check-review-brief-viewport.test.mjs](../scripts/check-review-brief-viewport.test.mjs) | [Компактный разбор](shared/design/compact-review.md) | Обязательная браузерная проверка старого длинного разбора и реального production CSS | npm check; оператор выпуска |
 | [docs/decisions/review-readability-repair-2026-10-31.md](decisions/review-readability-repair-2026-10-31.md) | [Компактный разбор](shared/design/compact-review.md) | Основание исправления нечитаемых старых разборов, бюджет авторского текста и проверка реального сценария | Репетитор; разработчик; оператор выпуска |
 | [docs/decisions/compact-review-rollout-2026-10-31.md](decisions/compact-review-rollout-2026-10-31.md) | [Компактный разбор](shared/design/compact-review.md) | Прямое одобрение, интеграция всех адаптеров, сохранённые сценарии и проверки | Автор; frontend; UI Kit |
 | [docs/decisions/compact-review-ui-kit-2026-10-31.md](decisions/compact-review-ui-kit-2026-10-31.md) | [Компактный разбор](shared/design/compact-review.md) | История подготовки согласованного компонента и его первоначального каталога | Автор; frontend; UI Kit |

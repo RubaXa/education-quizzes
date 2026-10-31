@@ -7,7 +7,7 @@ import { existsSync, mkdirSync, readFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { createServer } from 'vite'
+import { createServer,build } from 'vite'
 
 const root = resolve(import.meta.dirname, '..')
 export async function loadReviewBriefFixture() {
@@ -32,7 +32,7 @@ async function main() {
   const measured = []
   const page = await browser.newPage()
   page.on('pageerror', error => errors.push(error.message))
-  const doc = (data, enlarged = false,parent=false) => `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${fixture.css}html{color-scheme:light dark}body{margin:0;padding:8px;background:transparent;font-family:'Geist Variable',sans-serif}.specimen{max-width:390px;margin:auto}${enlarged ? '.edu-review-brief{--edu-review-size:32px}' : ''}</style><main class="edu-kit specimen">${fixture.renderWork(data,parent)}</main>`
+  const doc = (data, enlarged = false,parent=false,theme='light') => `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${fixture.css}html{color-scheme:light dark}body{margin:0;padding:8px;background:transparent;font-family:'Geist Variable',sans-serif}.specimen{max-width:390px;margin:auto}${enlarged ? '.edu-review-brief{--edu-review-size:32px}' : ''}</style><main class="edu-kit specimen ${theme==='dark'?'dark':''}">${fixture.renderWork(data,parent)}</main>`
   const assert = (condition, message) => { if (!condition) throw new Error(message) }
   async function geometry() {
     return page.locator('.edu-review-brief').evaluate(el => ({
@@ -46,7 +46,7 @@ async function main() {
       await page.setViewportSize({ width, height: 900 })
       await page.emulateMedia({ colorScheme: theme })
       for (const item of [...fixture.examples.map(item => item.data), ...fixture.states]) {
-        await page.setContent(doc(item)); await page.evaluate(() => document.fonts.ready)
+        await page.setContent(doc(item,false,false,theme)); await page.evaluate(() => document.fonts.ready)
         const result = await geometry()
         assert(!result.overflow, `Overflow: ${item.id}/${width}/${theme}`)
         assert(!result.touchHeight || result.touchHeight >= 44, `Small disclosure target: ${item.id}`)
@@ -89,8 +89,25 @@ async function main() {
     await summary.click(); assert(await detail.evaluate(el => el.open), 'Mouse disclosure failed')
     await summary.focus(); await summary.press('Enter'); assert(!(await detail.evaluate(el => el.open)), 'Enter disclosure failed')
     await summary.press('Space'); assert(await detail.evaluate(el => el.open), 'Space disclosure failed')
+    // Test the shipped CSS as well as source styles: compiling light-dark() in
+    // custom properties once produced two concatenated colours in production.
+    const built=await build({root,configFile:join(root,'vite.config.ts'),logLevel:'silent',build:{write:false}})
+    const outputs=(Array.isArray(built)?built:[built]).flatMap(bundle=>bundle.output)
+    const compiled=outputs.filter(asset=>asset.type==='asset'&&asset.fileName.endsWith('.css')).map(asset=>String(asset.source)).join('\n')
+    assert(compiled.length>0,'Production CSS missing')
+    for(const theme of ['light','dark']) {
+      await page.setContent(`<!doctype html><meta charset="utf-8"><style>${compiled}</style><main class="day-page ${theme==='dark'?'dark':''}"><article class="day-task">${fixture.renderWork(fixture.examples[0].data)}</article></main>`)
+      const colours=await page.locator('.edu-review-brief').evaluate(el=>({
+        valid:CSS.supports('color',getComputedStyle(el).getPropertyValue('--edu-review-line').trim()),
+        border:getComputedStyle(el).borderTopWidth,
+        questionBorder:getComputedStyle(el.querySelector('.edu-review-question')).borderLeftWidth,
+        diagram:getComputedStyle(el.querySelector('.edu-review-bracket')).stroke,
+      }))
+      assert(colours.valid,`Compiled review colour invalid: ${theme}`)
+      assert(colours.border==='1px'&&colours.questionBorder==='2px'&&colours.diagram!=='none',`Compiled review hierarchy lost: ${theme}`)
+    }
     assert(!errors.length, errors.join('\n'))
-    console.log(JSON.stringify({ samplesAt390: measured, themes: 2, widths: [320, 390, 540], enlargedPrimaryText: true, disclosure: 'mouse/Enter/Space', errors }))
+    console.log(JSON.stringify({ samplesAt390: measured, themes: 2, widths: [320, 390, 540], enlargedPrimaryText: true, disclosure: 'mouse/Enter/Space', legacyRoles:true,builtColours:true,errors }))
   } finally { await browser.close() }
 }
 if (process.argv[1] && resolve(process.argv[1]) === resolve(import.meta.filename)) await main()
