@@ -2344,7 +2344,7 @@
       }
     },
     "scripts/submissions.mjs": {
-      "sha256": "cc710749573f8a46bcb3be82f1c36e254594693b99230f13fdc45c25697c2e18",
+      "sha256": "c86318c546ac5643b4d69d353ee3867f0e2e06f0b81872cd84815a4ac83a8fb6",
       "record": "docs/decisions/personal-tutoring-2026-10-30.md",
       "specs": [
         "docs/modules/reviews/subject-aware-guidance.md"
@@ -5254,7 +5254,7 @@
       }
     },
     "storage/review-readback.mjs": {
-      "sha256": "7a2c9320355833ca045cc915501998bf2c747b991adf2d087c377732680a0805",
+      "sha256": "ec2e84460e5bc12c0cae86040202db3c1d6eac1974b10a7b68bc1c60064d62fb",
       "record": "docs/decisions/personal-tutoring-2026-10-30.md",
       "specs": [
         "docs/modules/materials/storage-privacy.md"
