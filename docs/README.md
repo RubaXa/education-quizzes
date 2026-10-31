@@ -3,7 +3,7 @@ id: docs.education
 status: accepted
 implementation: not-applicable
 created: 2026-10-16
-updated: 2026-10-16
+updated: 2026-10-31
 consumers:
   - "Education agent"
   - "developer"
@@ -35,6 +35,7 @@ sections:
 | Плотность и визуализация всех разборов | [Общий формат](shared/design/compact-review.md) | [UI Kit](shared/design/ui-kit.md), [предметная помощь](modules/reviews/subject-aware-guidance.md) |
 | Тест, попытка или продолжение | [Assessments](modules/assessments/README.md) | [Граф самопроверок](modules/assessments/assessment-decision-graph.md) |
 | Подготовка к олимпиаде, игровой урок, результаты и адаптация | [Проект сценария](product/olympiad-preparation.md) | [Предметная модель](modules/assessments/olympiad-preparation.md), [UI Kit](shared/design/ui-kit.md) |
+| История участия ребёнка, результаты сезонов/этапов и его работы | [Личная история](modules/assessments/olympiad-history.md) | [Исходный план](plans/olympiad-child-history-2026-10-31.md), семейное хранилище и общая очередь |
 | Встроенный inbox | [Notifications](modules/notifications/README.md) | [In-app события](modules/notifications/inbox.md) |
 | Telegram-бот | [Telegram service](services/telegram-bot/README.md) | [Продуктовые требования](product/notifications.md), [семья](modules/families/README.md) |
 | Зависимости, установка, выпуск или восстановление | [Toolchain](shared/toolchain.md) | [Эксплуатация](operations/local-development.md), [выпуск](operations/deployment.md) |

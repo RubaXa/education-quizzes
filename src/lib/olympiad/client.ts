@@ -2,7 +2,7 @@ import { getAuth } from 'firebase/auth'
 
 /** Server is the authority for role, child scope and closed answer keys.
  * @see ../../../docs/modules/assessments/olympiad-preparation.md#реализация-и-проверки */
-export type OlympiadCatalogItem = { id: string; title: string; deadline?: string | null; participationEnabled: boolean; practiceAvailable?: boolean; subject?: string; schedule?: string; calendar?: import('./calendar').OlympiadCalendar; eligibility?: 'eligible' | 'unknown'; sources?: { title: string; url: string }[]; lessons: { id: string; version: string; title: string; topicId: string }[] }
+export type OlympiadCatalogItem = { id: string; title: string; deadline?: string | null; participationEnabled: boolean; practiceAvailable?: boolean; subject?: string; schedule?: string; calendar?: import('./calendar').OlympiadCalendar; eligibility?: 'eligible' | 'unknown'; sources?: { title: string; url: string }[]; history?:import('./historyTypes').HistoryIndexEntry;historicalOnly?:boolean; lessons: { id: string; version: string; title: string; topicId: string }[] }
 export type OlympiadAttempt = { attemptId: string; lessonId: string; lessonVersion: string; status: 'active' | 'completed' }
 export type OlympiadScope = { familyId: string; childId: string; olympiadId: string; attemptId: string }
 export function olympiadEndpoint(): string | null {

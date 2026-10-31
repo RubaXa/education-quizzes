@@ -199,6 +199,17 @@ export class YandexDiskStorage extends SubmissionStoragePort {
     throw new Error('Скачивание с Диска не удалось после повторов; повторите синхронизацию.')
   }
 
+  /** Short-lived provider download, never a publicly published Disk resource.
+   * @see ../docs/modules/assessments/olympiad-history.md */
+  async downloadHrefAt(path) {
+    if (!path.startsWith('app:/PETR/Семьи/')) throw new Error('private_learning_file_path_invalid')
+    const remote = await this.head(path)
+    if (remote?.type !== 'file' || remote.public_url) throw new Error('private_learning_file_not_private')
+    const link = await this.request('GET', 'resources/download', path)
+    if (!link?.href) throw new Error('private_learning_file_download_unavailable')
+    return validDownloadUrl(link.href).href
+  }
+
   /** @see ../docs/modules/materials/storage-privacy.md#photo-deletion */
   async removeWorkAt(path, expectedMd5) {
     if (!/^app:\/PETR\/Работы\/\d{4}-\d{2}-\d{2}\/[^/]+\/[A-Za-z0-9_-]{20,}\.(jpg|png|webp|heic|heif)$/.test(path)) {

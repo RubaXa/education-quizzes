@@ -2,6 +2,7 @@ import { EDUCATION_EVENT_TYPES } from '../../education-runtime/event-queue.mjs'
 
 /** @see ../../../docs/modules/synchronization/event-queue.md#маршрутизация-и-готовое-задание */
 export const EDUCATION_ACTION_TYPES = Object.freeze([
+  'material.read_requested',
   'help.requested', 'upload.confirmed', 'upload.transfer_requested', 'upload.bytes_uploaded', 'upload.delete_requested', 'quiz.submitted',
   'quiz.followup_requested', 'quiz.requirement_changed', 'parent.guidance_sent', 'parent.decision',
   'material.upload_requested', 'material.bytes_uploaded', 'material.ready', 'material.requirement_changed', 'review.published',
@@ -60,7 +61,7 @@ export function createEducationEventHandlers({ firestorePipeline = null, notific
       }))
     }
     if (eventType === 'upload.transfer_requested' || eventType === 'upload.bytes_uploaded' || eventType === 'upload.delete_requested'
-      || eventType === 'material.upload_requested' || eventType === 'material.bytes_uploaded') {
+      || eventType === 'material.upload_requested' || eventType === 'material.bytes_uploaded' || eventType === 'material.read_requested') {
       phases.push(phase('server-action', async (event, context) => {
         const handler = actionHandlers[eventType]
         if (typeof handler !== 'function') return { state: 'blocked', safeErrorCode: 'server_action_handler_unavailable' }

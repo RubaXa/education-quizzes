@@ -1141,3 +1141,24 @@
 | [src/ui-kit/TaskAttachmentsExample.tsx](../src/ui-kit/TaskAttachmentsExample.tsx) | [Контракт](shared/design/ui-kit.md) | Действующие композиции дня/выходного листа на локальных данных | Education; разработчик |
 | [e2e/task-attachments.e2e.ts](../e2e/task-attachments.e2e.ts) | [Контракт](shared/design/ui-kit.md) | Сравнение реальных контролов,ролей,геометрии и действий | Education; разработчик |
 | [docs/decisions/canonical-attachment-controls-2026-10-31.md](decisions/canonical-attachment-controls-2026-10-31.md) | [Контракт](shared/design/components.md) | Основание декомпозиции и исправления несоответствующего скриншота | Education; разработчик |
+
+| Файл | Спецификация | Назначение | Потребитель |
+|---|---|---|---|
+| [docs/modules/assessments/olympiad-history.md](modules/assessments/olympiad-history.md) | [История олимпиад](modules/assessments/olympiad-history.md) | Сезоны, этапы, семейные оригиналы и безопасный просмотр | Education |
+| [docs/plans/olympiad-child-history-2026-10-31.md](plans/olympiad-child-history-2026-10-31.md) | [История олимпиад](modules/assessments/olympiad-history.md) | Сезоны, этапы, семейные оригиналы и безопасный просмотр | Education |
+| [olympiad/history.mjs](../olympiad/history.mjs) | [История олимпиад](modules/assessments/olympiad-history.md) | Сезоны, этапы, семейные оригиналы и безопасный просмотр | Education |
+| [olympiad/history.test.mjs](../olympiad/history.test.mjs) | [История олимпиад](modules/assessments/olympiad-history.md) | Проверка истории/проекций/доступа | Education |
+| [olympiad/history-import.mjs](../olympiad/history-import.mjs) | [История олимпиад](modules/assessments/olympiad-history.md) | Сезоны, этапы, семейные оригиналы и безопасный просмотр | Education |
+| [olympiad/history-import.test.mjs](../olympiad/history-import.test.mjs) | [История олимпиад](modules/assessments/olympiad-history.md) | Проверка истории/проекций/доступа | Education |
+| [scripts/olympiad-history.mjs](../scripts/olympiad-history.mjs) | [История олимпиад](modules/assessments/olympiad-history.md) | Сезоны, этапы, семейные оригиналы и безопасный просмотр | Education |
+| [storage/learning-file-access.mjs](../storage/learning-file-access.mjs) | [История олимпиад](modules/assessments/olympiad-history.md) | Сезоны, этапы, семейные оригиналы и безопасный просмотр | Education |
+| [storage/learning-file-access.test.mjs](../storage/learning-file-access.test.mjs) | [История олимпиад](modules/assessments/olympiad-history.md) | Проверка истории/проекций/доступа | Education |
+| [src/lib/olympiad/historyTypes.ts](../src/lib/olympiad/historyTypes.ts) | [История олимпиад](modules/assessments/olympiad-history.md) | Сезоны, этапы, семейные оригиналы и безопасный просмотр | Education |
+| [src/lib/olympiad/historyStore.ts](../src/lib/olympiad/historyStore.ts) | [История олимпиад](modules/assessments/olympiad-history.md) | Сезоны, этапы, семейные оригиналы и безопасный просмотр | Education |
+| [src/components/OlympiadHistory.tsx](../src/components/OlympiadHistory.tsx) | [История олимпиад](modules/assessments/olympiad-history.md) | Сезоны, этапы, семейные оригиналы и безопасный просмотр | Education |
+| [src/components/OlympiadHistory.css](../src/components/OlympiadHistory.css) | [История олимпиад](modules/assessments/olympiad-history.md) | Сезоны, этапы, семейные оригиналы и безопасный просмотр | Education |
+| [src/components/OlympiadHistoryShowcase.tsx](../src/components/OlympiadHistoryShowcase.tsx) | [История олимпиад](modules/assessments/olympiad-history.md) | Сезоны, этапы, семейные оригиналы и безопасный просмотр | Education |
+| [src/components/OlympiadHistory.test.tsx](../src/components/OlympiadHistory.test.tsx) | [История олимпиад](modules/assessments/olympiad-history.md) | Проверка истории/проекций/доступа | Education |
+| [scripts/firestore-rules-olympiad-history.test.mjs](../scripts/firestore-rules-olympiad-history.test.mjs) | [История олимпиад](modules/assessments/olympiad-history.md) | Проверка истории/проекций/доступа | Education |
+| [e2e/olympiad-history.e2e.ts](../e2e/olympiad-history.e2e.ts) | [История олимпиад](modules/assessments/olympiad-history.md) | Проверка истории/проекций/доступа | Education |
+| [docs/decisions/olympiad-history-2026-10-31.md](decisions/olympiad-history-2026-10-31.md) | [История олимпиад](modules/assessments/olympiad-history.md) | Решение и цепочка проверки интерфейса/доступа | Разработчик; оператор |

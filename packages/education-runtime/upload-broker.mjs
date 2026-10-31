@@ -9,6 +9,7 @@
  * @see ../../docs/decisions/photo-upload-authorization-and-freshness-2026-10-20.md
  */
 import { createHash } from 'node:crypto'
+import { issueLearningFileAccess } from '../../storage/learning-file-access.mjs'
 import { withdrawUploadWork } from '../../sync/upload-lifecycle.mjs'
 import { FieldValue, Timestamp } from '@google-cloud/firestore'
 import { stageEducationEvent, publishEducationEvent } from './event-queue.mjs'
@@ -32,6 +33,7 @@ const wrapCursor = Symbol('wrap-cursor')
 export function createUploadBrokerHandlers({ db, disk, logger = () => {}, clock = () => Date.now() }) {
   if (!db || !disk) throw new TypeError('Upload broker requires Firestore and disk adapters.')
   return {
+    'material.read_requested': (event) => issueLearningFileAccess({ db, disk, event, clock }),
     'upload.transfer_requested': (event) => handlePhotoEvent({ db, disk, event, logger, clock }),
     'upload.bytes_uploaded': (event) => handlePhotoEvent({ db, disk, event, logger, clock }),
     'upload.delete_requested': (event) => handlePhotoEvent({ db, disk, event, logger, clock }),

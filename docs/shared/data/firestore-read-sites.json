@@ -168,6 +168,90 @@
     "note": "Чтение всей коллекции назначений или попыток конкретного ребёнка без limit/пагинации; число reads растёт с историей, уроки затем перечитываются и проверяются. Требуется измерение и пагинация."
   },
   {
+    "id": "olympiad/history-import.mjs#admin.get#4d74212e43e0",
+    "file": "olympiad/history-import.mjs",
+    "line": 12,
+    "api": "admin.get",
+    "target": "db.doc(base)",
+    "group": "operator-olympiad",
+    "assessment": "justified",
+    "policy": "bounded-archive-import",
+    "refresh": "explicit plan/apply and exact readback",
+    "note": "Только семья/ребёнок и перечисленные планом файлы/проекции; максимум100олимпиад и500файлов. Разовое чтение членов семьи для подтверждения существующего родителя. Повтор сохраняет этапы и существующие задания, без фоновой подписки."
+  },
+  {
+    "id": "olympiad/history-import.mjs#admin.get#cee9c489f464",
+    "file": "olympiad/history-import.mjs",
+    "line": 12,
+    "api": "admin.get",
+    "target": "db.collection(`families/${familyId}/members`)",
+    "group": "operator-olympiad",
+    "assessment": "justified",
+    "policy": "bounded-archive-import",
+    "refresh": "explicit plan/apply and exact readback",
+    "note": "Только семья/ребёнок и перечисленные планом файлы/проекции; максимум100олимпиад и500файлов. Разовое чтение членов семьи для подтверждения существующего родителя. Повтор сохраняет этапы и существующие задания, без фоновой подписки."
+  },
+  {
+    "id": "olympiad/history-import.mjs#admin.get#534020a37a25",
+    "file": "olympiad/history-import.mjs",
+    "line": 26,
+    "api": "admin.get",
+    "target": "db.doc(`${base}/learningFiles/${file.id}`)",
+    "group": "operator-olympiad",
+    "assessment": "justified",
+    "policy": "bounded-archive-import",
+    "refresh": "explicit plan/apply and exact readback",
+    "note": "Только семья/ребёнок и перечисленные планом файлы/проекции; максимум100олимпиад и500файлов. Разовое чтение членов семьи для подтверждения существующего родителя. Повтор сохраняет этапы и существующие задания, без фоновой подписки."
+  },
+  {
+    "id": "olympiad/history-import.mjs#admin.get#0de3de3bb6d4",
+    "file": "olympiad/history-import.mjs",
+    "line": 35,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-olympiad",
+    "assessment": "justified",
+    "policy": "bounded-archive-import",
+    "refresh": "explicit plan/apply and exact readback",
+    "note": "Только семья/ребёнок и перечисленные планом файлы/проекции; максимум100олимпиад и500файлов. Разовое чтение членов семьи для подтверждения существующего родителя. Повтор сохраняет этапы и существующие задания, без фоновой подписки."
+  },
+  {
+    "id": "olympiad/history-import.mjs#admin.get#0de3de3bb6d4-2",
+    "file": "olympiad/history-import.mjs",
+    "line": 36,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-olympiad",
+    "assessment": "justified",
+    "policy": "bounded-archive-import",
+    "refresh": "explicit plan/apply and exact readback",
+    "note": "Только семья/ребёнок и перечисленные планом файлы/проекции; максимум100олимпиад и500файлов. Разовое чтение членов семьи для подтверждения существующего родителя. Повтор сохраняет этапы и существующие задания, без фоновой подписки."
+  },
+  {
+    "id": "olympiad/history-import.mjs#admin.get#e6f5095cc119",
+    "file": "olympiad/history-import.mjs",
+    "line": 60,
+    "api": "admin.get",
+    "target": "db.doc(item.path)",
+    "group": "operator-olympiad",
+    "assessment": "justified",
+    "policy": "bounded-archive-import",
+    "refresh": "explicit plan/apply and exact readback",
+    "note": "Только семья/ребёнок и перечисленные планом файлы/проекции; максимум100олимпиад и500файлов. Разовое чтение членов семьи для подтверждения существующего родителя. Повтор сохраняет этапы и существующие задания, без фоновой подписки."
+  },
+  {
+    "id": "olympiad/history-import.mjs#admin.get#048746072e2d",
+    "file": "olympiad/history-import.mjs",
+    "line": 60,
+    "api": "admin.get",
+    "target": "db.doc(`${base}/learningFiles/${id}`)",
+    "group": "operator-olympiad",
+    "assessment": "justified",
+    "policy": "bounded-archive-import",
+    "refresh": "explicit plan/apply and exact readback",
+    "note": "Только семья/ребёнок и перечисленные планом файлы/проекции; максимум100олимпиад и500файлов. Разовое чтение членов семьи для подтверждения существующего родителя. Повтор сохраняет этапы и существующие задания, без фоновой подписки."
+  },
+  {
     "id": "olympiad/publish-calendar.mjs#admin.get#b8347758242d",
     "file": "olympiad/publish-calendar.mjs",
     "line": 10,
@@ -314,7 +398,7 @@
   {
     "id": "packages/education-runtime/event-queue.mjs#admin.get#8c99bbad49c5",
     "file": "packages/education-runtime/event-queue.mjs",
-    "line": 51,
+    "line": 52,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -326,7 +410,7 @@
   {
     "id": "packages/education-runtime/event-queue.mjs#admin.get#8c99bbad49c5-2",
     "file": "packages/education-runtime/event-queue.mjs",
-    "line": 65,
+    "line": 66,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -338,7 +422,7 @@
   {
     "id": "packages/education-runtime/event-queue.mjs#admin.onSnapshot#f859bdee2aed",
     "file": "packages/education-runtime/event-queue.mjs",
-    "line": 86,
+    "line": 87,
     "api": "admin.onSnapshot",
     "target": "events.where('state', '==', 'pending').orderBy('availableAt').limit(batchSize)",
     "group": "operator-other",
@@ -350,7 +434,7 @@
   {
     "id": "packages/education-runtime/event-queue.mjs#admin.get#2df9e1dbca68",
     "file": "packages/education-runtime/event-queue.mjs",
-    "line": 97,
+    "line": 98,
     "api": "admin.get",
     "target": "events.where('state', '==', 'processing').where('leaseUntil', '<=', nowTimestamp).orderBy('leaseUntil').limit(batchSize)",
     "group": "operator-other",
@@ -362,7 +446,7 @@
   {
     "id": "packages/education-runtime/event-queue.mjs#admin.get#a6d0f6810a3c",
     "file": "packages/education-runtime/event-queue.mjs",
-    "line": 106,
+    "line": 107,
     "api": "admin.get",
     "target": "query",
     "group": "operator-other",
@@ -374,7 +458,7 @@
   {
     "id": "packages/education-runtime/event-queue.mjs#admin.get#6898248a72a7",
     "file": "packages/education-runtime/event-queue.mjs",
-    "line": 109,
+    "line": 110,
     "api": "admin.get",
     "target": "events.where('state', '==', 'pending').where('availableAt', '<=', nowTimestamp).orderBy('availableAt').limit(batchSize)",
     "group": "operator-other",
@@ -386,7 +470,7 @@
   {
     "id": "packages/education-runtime/event-queue.mjs#admin.get#8c99bbad49c5-3",
     "file": "packages/education-runtime/event-queue.mjs",
-    "line": 135,
+    "line": 136,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -398,7 +482,7 @@
   {
     "id": "packages/education-runtime/event-queue.mjs#admin.get#8c99bbad49c5-4",
     "file": "packages/education-runtime/event-queue.mjs",
-    "line": 392,
+    "line": 393,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -686,7 +770,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#c43126f49a65",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 62,
+    "line": 64,
     "api": "admin.get",
     "target": "query",
     "group": "operator-other",
@@ -698,7 +782,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#827619dfe3f5",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 123,
+    "line": 125,
     "api": "admin.get",
     "target": "ownerRef",
     "group": "operator-other",
@@ -710,7 +794,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#508a07455411",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 123,
+    "line": 125,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${parsed.studentToken}`)",
     "group": "operator-other",
@@ -722,7 +806,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#f8afc49f1528",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 123,
+    "line": 125,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -734,7 +818,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#f8afc49f1528-2",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 147,
+    "line": 149,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -746,7 +830,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#f58347da3eec",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 197,
+    "line": 199,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -758,7 +842,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#f8afc49f1528-3",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 223,
+    "line": 225,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -770,7 +854,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#f8afc49f1528-4",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 234,
+    "line": 236,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -782,7 +866,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#4bde4fd9ab7f",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 254,
+    "line": 256,
     "api": "admin.get",
     "target": "db.collection('materialBooks').where('sourceSha256', '==', request.sha256)",
     "group": "operator-other",
@@ -794,7 +878,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#22c2af0d0f5f",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 258,
+    "line": 260,
     "api": "admin.get",
     "target": "db.doc(`storedObjects/${request.sha256}`)",
     "group": "operator-other",
@@ -806,7 +890,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#f58347da3eec-2",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 276,
+    "line": 278,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -818,7 +902,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#0504d88282f5",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 317,
+    "line": 319,
     "api": "admin.get",
     "target": "db.doc(`dayOwners/${parsed.studentToken}`)",
     "group": "operator-other",
@@ -830,7 +914,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#a5383bba29c1",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 368,
+    "line": 370,
     "api": "admin.get",
     "target": "db.doc(`deviceSessions/${request.deviceUid}`)",
     "group": "operator-other",
@@ -842,7 +926,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#a84bae663097",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 370,
+    "line": 372,
     "api": "admin.get",
     "target": "db.doc(`accessLinks/${session.linkToken}`)",
     "group": "operator-other",
@@ -854,7 +938,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#183e333ab938",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 372,
+    "line": 374,
     "api": "admin.get",
     "target": "db.doc(`families/${owner.familyId}/members/${grant.personId}`)",
     "group": "operator-other",
@@ -866,7 +950,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#a5383bba29c1-2",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 378,
+    "line": 380,
     "api": "admin.get",
     "target": "db.doc(`deviceSessions/${request.deviceUid}`)",
     "group": "operator-other",
@@ -878,7 +962,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#a84bae663097-2",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 380,
+    "line": 382,
     "api": "admin.get",
     "target": "db.doc(`accessLinks/${session.linkToken}`)",
     "group": "operator-other",
@@ -890,7 +974,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#582a3e0cadab",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 382,
+    "line": 384,
     "api": "admin.get",
     "target": "db.doc(`families/${familyId}/members/${grant.personId}`)",
     "group": "operator-other",
@@ -902,7 +986,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#f58347da3eec-3",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 389,
+    "line": 391,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -914,7 +998,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#f58347da3eec-4",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 389,
+    "line": 391,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -926,7 +1010,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#f58347da3eec-5",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 395,
+    "line": 397,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -938,7 +1022,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#f58347da3eec-6",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 398,
+    "line": 400,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -950,7 +1034,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#f58347da3eec-7",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 401,
+    "line": 403,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -962,7 +1046,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#f58347da3eec-8",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 408,
+    "line": 410,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -974,7 +1058,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#f58347da3eec-9",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 411,
+    "line": 413,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -986,7 +1070,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#f58347da3eec-10",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 414,
+    "line": 416,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -7574,7 +7658,7 @@
   {
     "id": "src/lib/dayStore.ts#getDoc#6593dc56d36b",
     "file": "src/lib/dayStore.ts",
-    "line": 159,
+    "line": 160,
     "api": "getDoc",
     "target": "doc(db, 'dayPages', token)",
     "group": "client-day",
@@ -7586,7 +7670,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#1658e056615b",
     "file": "src/lib/dayStore.ts",
-    "line": 165,
+    "line": 166,
     "api": "onSnapshot",
     "target": "doc(db, 'dayPages', token)",
     "group": "client-day",
@@ -7598,7 +7682,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#c2b7cd8e3f9b",
     "file": "src/lib/dayStore.ts",
-    "line": 200,
+    "line": 201,
     "api": "onSnapshot",
     "target": "doc(db, 'families', familyId, 'children', childId, 'bookPages', ref)",
     "group": "client-day",
@@ -7610,7 +7694,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#b781e597a36b",
     "file": "src/lib/dayStore.ts",
-    "line": 217,
+    "line": 218,
     "api": "onSnapshot",
     "target": "collection(db, 'dayUploads', studentToken, 'files')",
     "group": "client-day",
@@ -7622,7 +7706,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#9c726eac32b0",
     "file": "src/lib/dayStore.ts",
-    "line": 241,
+    "line": 242,
     "api": "onSnapshot",
     "target": "collection(db, 'dayProgress', studentToken, 'items')",
     "group": "client-day",
@@ -7634,7 +7718,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#c6f7e46096c2",
     "file": "src/lib/dayStore.ts",
-    "line": 245,
+    "line": 246,
     "api": "onSnapshot",
     "target": "collection(db, 'dayReviewPrivate', studentToken, 'items')",
     "group": "client-day",
@@ -7646,7 +7730,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#592bd0712c2e",
     "file": "src/lib/dayStore.ts",
-    "line": 263,
+    "line": 264,
     "api": "onSnapshot",
     "target": "reference",
     "group": "client-day",
@@ -7658,7 +7742,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#d0e658ed1ab2",
     "file": "src/lib/dayStore.ts",
-    "line": 276,
+    "line": 277,
     "api": "onSnapshot",
     "target": "collection(db, 'dayHelp', studentToken, 'items')",
     "group": "client-day",
@@ -7670,7 +7754,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#a8f62002fde7",
     "file": "src/lib/dayStore.ts",
-    "line": 284,
+    "line": 285,
     "api": "onSnapshot",
     "target": "collection(db, 'dayHelp', studentToken, 'items', taskId, 'requests')",
     "group": "client-day",
@@ -7682,7 +7766,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#d8f08464ae53",
     "file": "src/lib/dayStore.ts",
-    "line": 291,
+    "line": 292,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayOwners', studentToken)",
     "group": "client-day",
@@ -7694,7 +7778,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#8976fa978048",
     "file": "src/lib/dayStore.ts",
-    "line": 308,
+    "line": 309,
     "api": "getDocFromServer",
     "target": "historyRef",
     "group": "client-day",
@@ -7706,7 +7790,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#0685a719664c",
     "file": "src/lib/dayStore.ts",
-    "line": 314,
+    "line": 315,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayUploads', studentToken, 'files', id)",
     "group": "client-day",
@@ -7718,7 +7802,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#705de0a8baee",
     "file": "src/lib/dayStore.ts",
-    "line": 320,
+    "line": 321,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayPages', studentToken)",
     "group": "client-day",
@@ -7730,7 +7814,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#eeb8575870fd",
     "file": "src/lib/dayStore.ts",
-    "line": 332,
+    "line": 333,
     "api": "getDocFromServer",
     "target": "photoUploadIds ? historyRef : sourceRef",
     "group": "client-day",
@@ -7742,7 +7826,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#d8f08464ae53-2",
     "file": "src/lib/dayStore.ts",
-    "line": 348,
+    "line": 349,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayOwners', studentToken)",
     "group": "client-day",
@@ -7754,7 +7838,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#249d93879c40",
     "file": "src/lib/dayStore.ts",
-    "line": 356,
+    "line": 357,
     "api": "getDocFromServer",
     "target": "ref",
     "group": "client-day",
@@ -7766,7 +7850,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#705de0a8baee-2",
     "file": "src/lib/dayStore.ts",
-    "line": 379,
+    "line": 380,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayPages', studentToken)",
     "group": "client-day",
@@ -7778,7 +7862,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#249d93879c40-2",
     "file": "src/lib/dayStore.ts",
-    "line": 395,
+    "line": 396,
     "api": "getDocFromServer",
     "target": "ref",
     "group": "client-day",
@@ -7790,7 +7874,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#249d93879c40-3",
     "file": "src/lib/dayStore.ts",
-    "line": 407,
+    "line": 408,
     "api": "getDocFromServer",
     "target": "ref",
     "group": "client-day",
@@ -7802,7 +7886,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#d8f08464ae53-3",
     "file": "src/lib/dayStore.ts",
-    "line": 413,
+    "line": 414,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayOwners', studentToken)",
     "group": "client-day",
@@ -7814,7 +7898,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#249d93879c40-4",
     "file": "src/lib/dayStore.ts",
-    "line": 427,
+    "line": 428,
     "api": "getDocFromServer",
     "target": "ref",
     "group": "client-day",
@@ -8110,6 +8194,42 @@
     "policy": "historic-day-owner-alias",
     "refresh": "once-per-day-navigation",
     "note": "One exact public day metadata read selects this authenticated child's internal role document. Calendar alias resolution uses the existing profile; no private guide fetch here."
+  },
+  {
+    "id": "src/lib/olympiad/historyStore.ts#onSnapshot#c60a12bcd58a",
+    "file": "src/lib/olympiad/historyStore.ts",
+    "line": 12,
+    "api": "onSnapshot",
+    "target": "doc(db,`${root(familyId,childId)}/learningHistory/olympiads`)",
+    "group": "client-other",
+    "assessment": "justified",
+    "policy": "scoped-history-view",
+    "refresh": "on family route; original only after stage expansion; request listener max45s",
+    "note": "Один адресный индекс и выбранная ролевая проекция, без сканирования коллекций. Media request читается только его устройством после явного раскрытия; listener закрывается по ответу/ошибке/таймауту, закрытые источники не передаются ученику."
+  },
+  {
+    "id": "src/lib/olympiad/historyStore.ts#onSnapshot#2f65e885905f",
+    "file": "src/lib/olympiad/historyStore.ts",
+    "line": 22,
+    "api": "onSnapshot",
+    "target": "doc(db,`${root(familyId,childId)}/olympiadHistory/${segment(id)}/views/${parent?'parent':'student'}`)",
+    "group": "client-other",
+    "assessment": "justified",
+    "policy": "scoped-history-view",
+    "refresh": "on family route; original only after stage expansion; request listener max45s",
+    "note": "Один адресный индекс и выбранная ролевая проекция, без сканирования коллекций. Media request читается только его устройством после явного раскрытия; listener закрывается по ответу/ошибке/таймауту, закрытые источники не передаются ученику."
+  },
+  {
+    "id": "src/lib/olympiad/historyStore.ts#onSnapshot#5e20bcc380b2",
+    "file": "src/lib/olympiad/historyStore.ts",
+    "line": 36,
+    "api": "onSnapshot",
+    "target": "doc(db,path)",
+    "group": "client-other",
+    "assessment": "justified",
+    "policy": "scoped-history-view",
+    "refresh": "on family route; original only after stage expansion; request listener max45s",
+    "note": "Один адресный индекс и выбранная ролевая проекция, без сканирования коллекций. Media request читается только его устройством после явного раскрытия; listener закрывается по ответу/ошибке/таймауту, закрытые источники не передаются ученику."
   },
   {
     "id": "src/lib/parentCompletion.ts#getDocFromServer#edc004be4e76",

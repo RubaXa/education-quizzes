@@ -809,17 +809,19 @@
       }
     },
     "packages/education-events/envelope.mjs": {
-      "sha256": "f6ca4147555c4209e9904d0f88d91f92518430231e4f8761ef55b2935e2a1b6f",
-      "record": "docs/decisions/unified-education-events-2026-10-19.md",
+      "sha256": "7ecdf4884478bcb55cf561e985f729266ce0fa645d2f48650bc03ac1d7c012cb",
+      "record": "docs/decisions/olympiad-history-2026-10-31.md",
       "specs": [
-        "docs/modules/synchronization/event-queue.md"
+        "docs/modules/assessments/olympiad-history.md"
       ],
       "tests": [
-        "packages/education-events/envelope.test.mjs"
+        "src/components/OlympiadHistory.test.tsx",
+        "scripts/firestore-rules-olympiad-history.test.mjs",
+        "storage/learning-file-access.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 требует одну внутреннюю очередь событий и одну подписку вместо множества source watchers; ранее поручил реализацию через Luna с проверкой root, тестами, спецификациями и выпуском в main."
+        "evidence": "Пользователь31.10.2026 прямо поручил реализовать историю сезонов, этапов, результатов и работ в карточках олимпиад через существующий Education/UI Kit с проверками и публикацией без дополнительных согласований."
       }
     },
     "packages/education-presentation/notification.mjs": {
@@ -852,17 +854,19 @@
       }
     },
     "packages/education-runtime/event-queue.mjs": {
-      "sha256": "dc9a988483147e0b3366d74c97910180168f18d71b14c371b969c284f141789d",
-      "record": "docs/decisions/unified-education-events-2026-10-19.md",
+      "sha256": "fae40fb35e9b9bd884499487061741ff39b4c91cccfa5848acab6e9803dcee55",
+      "record": "docs/decisions/olympiad-history-2026-10-31.md",
       "specs": [
-        "docs/modules/synchronization/event-queue.md"
+        "docs/modules/assessments/olympiad-history.md"
       ],
       "tests": [
-        "packages/education-runtime/event-queue.test.mjs"
+        "src/components/OlympiadHistory.test.tsx",
+        "scripts/firestore-rules-olympiad-history.test.mjs",
+        "storage/learning-file-access.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 требует одну внутреннюю очередь событий и одну подписку вместо множества source watchers; ранее поручил реализацию через Luna с проверкой root, тестами, спецификациями и выпуском в main."
+        "evidence": "Пользователь31.10.2026 прямо поручил реализовать историю сезонов, этапов, результатов и работ в карточках олимпиад через существующий Education/UI Kit с проверками и публикацией без дополнительных согласований."
       }
     },
     "packages/education-runtime/family-graph.mjs": {
@@ -974,19 +978,19 @@
       }
     },
     "packages/education-runtime/upload-broker.mjs": {
-      "sha256": "dc4ed8595a143e2dc6c9fdea22568fab6d7dfe3632a0265edc7d34c0c854a2d0",
-      "record": "docs/decisions/upload-lifecycle-continuation-2026-10-30.md",
+      "sha256": "3ff57baa7dccda49d88f96072b06b16c5f04add0a9fa237a929a6ef7cefe46c0",
+      "record": "docs/decisions/olympiad-history-2026-10-31.md",
       "specs": [
-        "docs/modules/synchronization/event-queue.md"
+        "docs/modules/assessments/olympiad-history.md"
       ],
       "tests": [
-        "sync/upload-lifecycle.test.mjs",
-        "sync/event-task-artifact.test.mjs",
-        "packages/telegram-notifications/source-pipeline.test.mjs"
+        "src/components/OlympiadHistory.test.tsx",
+        "scripts/firestore-rules-olympiad-history.test.mjs",
+        "storage/learning-file-access.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель30.10.2026 поручил автоматическую отмену удалённых фото и продолжение проверки после загрузки запрошенных страниц, сохраняя действующий разбор всех загруженных материалов."
+        "evidence": "Пользователь31.10.2026 прямо поручил реализовать историю сезонов, этапов, результатов и работ в карточках олимпиад через существующий Education/UI Kit с проверками и публикацией без дополнительных согласований."
       }
     },
     "packages/telegram-notifications/adapters/config.mjs": {
@@ -1232,18 +1236,19 @@
       }
     },
     "packages/telegram-notifications/application/education-event-routing.mjs": {
-      "sha256": "fd1e877f9930f8dd6e9004f2fa5767abb785e326d721fc5f0896d907e25c1950",
-      "record": "docs/decisions/unified-education-events-2026-10-19.md",
+      "sha256": "c9c71b36dc9dcfc1d577834cf822c0d3770ad2868b48fc8a8a48f9eee349bd41",
+      "record": "docs/decisions/olympiad-history-2026-10-31.md",
       "specs": [
-        "docs/modules/synchronization/event-queue.md"
+        "docs/modules/assessments/olympiad-history.md"
       ],
       "tests": [
-        "packages/telegram-notifications/application/education-event-routing.test.mjs",
-        "packages/education-runtime/event-queue.test.mjs"
+        "src/components/OlympiadHistory.test.tsx",
+        "scripts/firestore-rules-olympiad-history.test.mjs",
+        "storage/learning-file-access.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 требует одну внутреннюю очередь событий и одну подписку вместо множества source watchers; ранее поручил реализацию через Luna с проверкой root, тестами, спецификациями и выпуском в main."
+        "evidence": "Пользователь31.10.2026 прямо поручил реализовать историю сезонов, этапов, результатов и работ в карточках олимпиад через существующий Education/UI Kit с проверками и публикацией без дополнительных согласований."
       }
     },
     "packages/telegram-notifications/application/education-sync-dispatcher.mjs": {
@@ -2654,24 +2659,19 @@
       }
     },
     "src/UiKit.tsx": {
-      "sha256": "7e756bea7b4567042dc2281f57a77f973f95005a90a1844b9bbd64c3dd44c404",
-      "record": "docs/decisions/compact-review-rollout-2026-10-31.md",
+      "sha256": "6814f3db43d63877d5d0ed61f016c6c3c0f8d8f7cc5fe7d63c0d8bf59c74d4a8",
+      "record": "docs/decisions/olympiad-history-2026-10-31.md",
       "specs": [
-        "docs/shared/design/compact-review.md",
-        "docs/shared/design/ui-kit.md",
-        "docs/modules/reviews/subject-aware-guidance.md"
+        "docs/modules/assessments/olympiad-history.md"
       ],
       "tests": [
-        "src/components/WorkReview.compact.test.tsx",
-        "src/components/ReviewBrief.test.tsx",
-        "src/components/QuizResultCard.test.tsx",
-        "src/UiKit.test.tsx",
-        "storage/tutoring-decision.test.mjs",
-        "packages/education-presentation/review-content.test.mjs"
+        "src/components/OlympiadHistory.test.tsx",
+        "scripts/firestore-rules-olympiad-history.test.mjs",
+        "storage/learning-file-access.test.mjs"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "31.10 родитель одобрил конкретный компактный разбор: «Да, так уже лучше. Исправь подсказку, чтобы она не выдавала ответ заранее, и внедряй этот формат для всех разборов. Обнови инструкции, спецификации и UI Kit». Сохранение ролей, статусов и истории обязательно."
+        "status": "direct-request",
+        "evidence": "Пользователь31.10.2026 прямо поручил реализовать историю сезонов, этапов, результатов и работ в карточках олимпиад через существующий Education/UI Kit с проверками и публикацией без дополнительных согласований."
       }
     },
     "src/WeekendMathSlot.css": {
@@ -2734,21 +2734,19 @@
       }
     },
     "src/components/ArtifactAvatar.tsx": {
-      "sha256": "d3c3564ba4a3f11ea72932d64d3bb7fa12a466c0fc1f2adebc43dbcb3d7f5fc9",
-      "record": "docs/decisions/image-preview-first-2026-10-31.md",
+      "sha256": "009646e9a1ddbcbaf0a2c270bce217022755fa265b685277603383f3bc22d6fb",
+      "record": "docs/decisions/olympiad-history-2026-10-31.md",
       "specs": [
-        "docs/shared/design/components.md",
-        "docs/shared/design/ui-kit.md",
-        "docs/shared/media-storage.md"
+        "docs/modules/assessments/olympiad-history.md"
       ],
       "tests": [
-        "src/components/SolutionFiles.test.tsx",
-        "src/components/WorkPhotoGallery.test.tsx",
-        "src/UiKit.test.tsx"
+        "src/components/OlympiadHistory.test.tsx",
+        "scripts/firestore-rules-olympiad-history.test.mjs",
+        "storage/learning-file-access.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое уточнение31.10.2026: изображения показывать превью без иконок; иконки использовать для файлов,содержимое которых нельзя отрендерить;правило едино с UI Kit."
+        "evidence": "Пользователь31.10.2026 прямо поручил реализовать историю сезонов, этапов, результатов и работ в карточках олимпиад через существующий Education/UI Kit с проверками и публикацией без дополнительных согласований."
       }
     },
     "src/components/AssignmentBrief.css": {
@@ -3836,23 +3834,19 @@
       }
     },
     "src/components/WorkPhotoGallery.tsx": {
-      "sha256": "cd2c1e45fcc05220d9d2924e279337ac25798cdbb98f62d598450f97d0b33cac",
-      "record": "docs/decisions/canonical-attachment-controls-2026-10-31.md",
+      "sha256": "6e4450c94f34998de1d7cef7840efeb709eb50c82dc93980a7c337d1b95af046",
+      "record": "docs/decisions/olympiad-history-2026-10-31.md",
       "specs": [
-        "docs/shared/design/components.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/assessments/olympiad-history.md"
       ],
       "tests": [
-        "src/components/TaskWorkEvidence.test.tsx",
-        "src/components/WorkPhotoGallery.test.tsx",
-        "src/components/SolutionFiles.test.tsx",
-        "src/UiKit.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/components/LearningRoute.weekend.integration.test.tsx"
+        "src/components/OlympiadHistory.test.tsx",
+        "scripts/firestore-rules-olympiad-history.test.mjs",
+        "storage/learning-file-access.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель31.10.2026 указал,что скриншот отличается от реальных контролов,поручил перечитать спецификации/элементы,улучшить декомпозицию и обновить UI Kit без изобретения нового вида."
+        "evidence": "Пользователь31.10.2026 прямо поручил реализовать историю сезонов, этапов, результатов и работ в карточках олимпиад через существующий Education/UI Kit с проверками и публикацией без дополнительных согласований."
       }
     },
     "src/components/WorkReview.tsx": {
@@ -5359,22 +5353,19 @@
       }
     },
     "storage/yandex-disk.mjs": {
-      "sha256": "37e411e1428ae385cf8759c6c5ed4c8017e29da7b03731681d4041184f8de424",
-      "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
+      "sha256": "c5bb9aaa28cc26d4fd35f71aa897c9c80c898cd2078da3f600d529d14d787e27",
+      "record": "docs/decisions/olympiad-history-2026-10-31.md",
       "specs": [
-        "docs/shared/specification-system.md"
+        "docs/modules/assessments/olympiad-history.md"
       ],
       "tests": [
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
+        "src/components/OlympiadHistory.test.tsx",
+        "scripts/firestore-rules-olympiad-history.test.mjs",
+        "storage/learning-file-access.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя 16.10.2026 внедрить согласованную структуру спецификаций, перенести ссылки в коде и проверить сохранность требований; изменение предметного поведения не выполнялось."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "18accc690a31cf4bc6387bceaf0979973e145a796662ffc86b1a1d4b4417c1c6"
+        "evidence": "Пользователь31.10.2026 прямо поручил реализовать историю сезонов, этапов, результатов и работ в карточках олимпиад через существующий Education/UI Kit с проверками и публикацией без дополнительных согласований."
       }
     },
     "sync/artifact-capture.mjs": {
@@ -6240,51 +6231,51 @@
       }
     },
     "src/components/OlympiadCatalog.tsx": {
-      "sha256": "c71f13b3daa02a0be84f95e38a3a65a5ed6c56eb4234a586eb9c189e2934e04a",
-      "record": "docs/decisions/olympiad-calendar-2026-10-31.md",
+      "sha256": "d4e7eb102b0c5bd06f740d060de88aac488c86f7d9dccd90460157985978d7d1",
+      "record": "docs/decisions/olympiad-history-2026-10-31.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md"
+        "docs/modules/assessments/olympiad-history.md"
       ],
       "tests": [
-        "src/lib/olympiad/calendar.test.ts",
-        "src/components/OlympiadHome.integration.test.tsx",
-        "src/components/OlympiadPage.integration.test.tsx"
+        "src/components/OlympiadHistory.test.tsx",
+        "scripts/firestore-rules-olympiad-history.test.mjs",
+        "storage/learning-file-access.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "31.10.2026: пользователь просит добавить все подходящие олимпиады в приложение, единообразно показать сроки, регистрацию, статус и подготовку; неизвестные даты явно подписать."
+        "evidence": "Пользователь31.10.2026 прямо поручил реализовать историю сезонов, этапов, результатов и работ в карточках олимпиад через существующий Education/UI Kit с проверками и публикацией без дополнительных согласований."
       }
     },
     "src/components/OlympiadHome.tsx": {
-      "sha256": "4106853659eb5ccbe7ea6446c483cd8838d14def24bd9c5dd962e85da67874f5",
-      "record": "docs/decisions/olympiad-calendar-2026-10-31.md",
+      "sha256": "5ab123ce52cd417be48bf81428a687072e9f1fc022baf90db57af1daa9f24a1b",
+      "record": "docs/decisions/olympiad-history-2026-10-31.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md"
+        "docs/modules/assessments/olympiad-history.md"
       ],
       "tests": [
-        "src/lib/olympiad/calendar.test.ts",
-        "src/components/OlympiadHome.integration.test.tsx",
-        "src/components/OlympiadPage.integration.test.tsx"
+        "src/components/OlympiadHistory.test.tsx",
+        "scripts/firestore-rules-olympiad-history.test.mjs",
+        "storage/learning-file-access.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель31.10.2026 поручил единообразно оформить три олимпиады, проверить сроки и регистрацию, добавить подготовку и архивы."
+        "evidence": "Пользователь31.10.2026 прямо поручил реализовать историю сезонов, этапов, результатов и работ в карточках олимпиад через существующий Education/UI Kit с проверками и публикацией без дополнительных согласований."
       }
     },
     "src/components/OlympiadPage.tsx": {
-      "sha256": "302b6c1a01670fd212ad423f47f779d993ad4b1efecbd220143c96777f9de2d5",
-      "record": "docs/decisions/olympiad-calendar-2026-10-31.md",
+      "sha256": "f239e4e9fbd3289f1941171f125e7ce6d498bbed65d2300270e1913659915634",
+      "record": "docs/decisions/olympiad-history-2026-10-31.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md"
+        "docs/modules/assessments/olympiad-history.md"
       ],
       "tests": [
-        "src/lib/olympiad/calendar.test.ts",
-        "src/components/OlympiadHome.integration.test.tsx",
-        "src/components/OlympiadPage.integration.test.tsx"
+        "src/components/OlympiadHistory.test.tsx",
+        "scripts/firestore-rules-olympiad-history.test.mjs",
+        "storage/learning-file-access.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "31.10.2026: пользователь просит добавить все подходящие олимпиады в приложение, единообразно показать сроки, регистрацию, статус и подготовку; неизвестные даты явно подписать."
+        "evidence": "Пользователь31.10.2026 прямо поручил реализовать историю сезонов, этапов, результатов и работ в карточках олимпиад через существующий Education/UI Kit с проверками и публикацией без дополнительных согласований."
       }
     },
     "src/components/OlympiadWrittenPractice.tsx": {
@@ -6344,19 +6335,19 @@
       }
     },
     "src/lib/olympiad/client.ts": {
-      "sha256": "5c19c85992d57f5e3bdeeb454ff0255db072ddf172adfbca9cf0b305d4a25bb1",
-      "record": "docs/decisions/olympiad-calendar-2026-10-31.md",
+      "sha256": "19abd986d7ad99616ea281c229d3ee1da29d61ef37cc541e7863626c2f5c9a96",
+      "record": "docs/decisions/olympiad-history-2026-10-31.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md"
+        "docs/modules/assessments/olympiad-history.md"
       ],
       "tests": [
-        "src/lib/olympiad/calendar.test.ts",
-        "src/components/OlympiadHome.integration.test.tsx",
-        "src/components/OlympiadPage.integration.test.tsx"
+        "src/components/OlympiadHistory.test.tsx",
+        "scripts/firestore-rules-olympiad-history.test.mjs",
+        "storage/learning-file-access.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель31.10.2026 поручил единообразно оформить три олимпиады, проверить сроки и регистрацию, добавить подготовку и архивы."
+        "evidence": "Пользователь31.10.2026 прямо поручил реализовать историю сезонов, этапов, результатов и работ в карточках олимпиад через существующий Education/UI Kit с проверками и публикацией без дополнительных согласований."
       }
     },
     "src/lib/olympiad/photoClient.ts": {
@@ -7260,6 +7251,118 @@
       "authorization": {
         "status": "approved-mockup",
         "evidence": "31.10 родитель одобрил конкретный компактный разбор: «Да, так уже лучше. Исправь подсказку, чтобы она не выдавала ответ заранее, и внедряй этот формат для всех разборов. Обнови инструкции, спецификации и UI Kit». Сохранение ролей, статусов и истории обязательно."
+      }
+    },
+    "scripts/olympiad-history.mjs": {
+      "sha256": "90c6ca63b9aaa0c3c7ddb55419cc12f53ae2791e21b83283cae118c1b497e743",
+      "record": "docs/decisions/olympiad-history-2026-10-31.md",
+      "specs": [
+        "docs/modules/assessments/olympiad-history.md"
+      ],
+      "tests": [
+        "src/components/OlympiadHistory.test.tsx",
+        "scripts/firestore-rules-olympiad-history.test.mjs",
+        "storage/learning-file-access.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь31.10.2026 прямо поручил реализовать историю сезонов, этапов, результатов и работ в карточках олимпиад через существующий Education/UI Kit с проверками и публикацией без дополнительных согласований."
+      }
+    },
+    "src/components/OlympiadHistory.css": {
+      "sha256": "b4b40396cecd3ee09bd5a10a5cbe660511519be3241f7897314d6fe9872e587b",
+      "record": "docs/decisions/olympiad-history-2026-10-31.md",
+      "specs": [
+        "docs/modules/assessments/olympiad-history.md"
+      ],
+      "tests": [
+        "src/components/OlympiadHistory.test.tsx",
+        "scripts/firestore-rules-olympiad-history.test.mjs",
+        "storage/learning-file-access.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь31.10.2026 прямо поручил реализовать историю сезонов, этапов, результатов и работ в карточках олимпиад через существующий Education/UI Kit с проверками и публикацией без дополнительных согласований."
+      }
+    },
+    "src/components/OlympiadHistory.tsx": {
+      "sha256": "484c8f406436fe9b70e0aa05811782d62e846a87d66b2fa922ff8222be3eb3e2",
+      "record": "docs/decisions/olympiad-history-2026-10-31.md",
+      "specs": [
+        "docs/modules/assessments/olympiad-history.md"
+      ],
+      "tests": [
+        "src/components/OlympiadHistory.test.tsx",
+        "scripts/firestore-rules-olympiad-history.test.mjs",
+        "storage/learning-file-access.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь31.10.2026 прямо поручил реализовать историю сезонов, этапов, результатов и работ в карточках олимпиад через существующий Education/UI Kit с проверками и публикацией без дополнительных согласований."
+      }
+    },
+    "src/components/OlympiadHistoryShowcase.tsx": {
+      "sha256": "2b0fd143bdee96862126ef39e65c65bcbd1e36c0dd4969674c98e31226e01fa1",
+      "record": "docs/decisions/olympiad-history-2026-10-31.md",
+      "specs": [
+        "docs/modules/assessments/olympiad-history.md"
+      ],
+      "tests": [
+        "src/components/OlympiadHistory.test.tsx",
+        "scripts/firestore-rules-olympiad-history.test.mjs",
+        "storage/learning-file-access.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь31.10.2026 прямо поручил реализовать историю сезонов, этапов, результатов и работ в карточках олимпиад через существующий Education/UI Kit с проверками и публикацией без дополнительных согласований."
+      }
+    },
+    "src/lib/olympiad/historyStore.ts": {
+      "sha256": "dc2c169f5e14cffc8490f7af289154a7262713f45c7f07614f0d783ba9269e2c",
+      "record": "docs/decisions/olympiad-history-2026-10-31.md",
+      "specs": [
+        "docs/modules/assessments/olympiad-history.md"
+      ],
+      "tests": [
+        "src/components/OlympiadHistory.test.tsx",
+        "scripts/firestore-rules-olympiad-history.test.mjs",
+        "storage/learning-file-access.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь31.10.2026 прямо поручил реализовать историю сезонов, этапов, результатов и работ в карточках олимпиад через существующий Education/UI Kit с проверками и публикацией без дополнительных согласований."
+      }
+    },
+    "src/lib/olympiad/historyTypes.ts": {
+      "sha256": "f267c87be6a061deb4429f5dd84169d202b817781740670d6fc517a04622e9b5",
+      "record": "docs/decisions/olympiad-history-2026-10-31.md",
+      "specs": [
+        "docs/modules/assessments/olympiad-history.md"
+      ],
+      "tests": [
+        "src/components/OlympiadHistory.test.tsx",
+        "scripts/firestore-rules-olympiad-history.test.mjs",
+        "storage/learning-file-access.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь31.10.2026 прямо поручил реализовать историю сезонов, этапов, результатов и работ в карточках олимпиад через существующий Education/UI Kit с проверками и публикацией без дополнительных согласований."
+      }
+    },
+    "storage/learning-file-access.mjs": {
+      "sha256": "76a28a50e20f64381d56dbe90be05407c9c1670bffea12b85476a7922ea41fc1",
+      "record": "docs/decisions/olympiad-history-2026-10-31.md",
+      "specs": [
+        "docs/modules/assessments/olympiad-history.md"
+      ],
+      "tests": [
+        "src/components/OlympiadHistory.test.tsx",
+        "scripts/firestore-rules-olympiad-history.test.mjs",
+        "storage/learning-file-access.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь31.10.2026 прямо поручил реализовать историю сезонов, этапов, результатов и работ в карточках олимпиад через существующий Education/UI Kit с проверками и публикацией без дополнительных согласований."
       }
     }
   }

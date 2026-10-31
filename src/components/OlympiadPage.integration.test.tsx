@@ -7,6 +7,7 @@ import type { FamilyOlympiadTask } from '@/lib/educationStore'
 import type { DayDashboardData } from '@/lib/dayDashboardStore'
 
 vi.mock('../DayPage', () => ({ default: ({ token, parent, olympiadScope }: { token: string; parent: boolean; olympiadScope: { olympiadId: string; taskId: string } }) => <div data-token={token} data-role={parent ? 'parent' : 'student'}>{olympiadScope.olympiadId} {olympiadScope.taskId}</div> }))
+vi.mock('@/lib/olympiad/historyStore',()=>({watchOlympiadHistoryIndex:(_f: string,_c: string,next: (value: unknown[])=>void)=>{next([]);return ()=>{}},watchOlympiadHistory:vi.fn(),requestHistoryFile:vi.fn()}))
 Object.assign(globalThis,{IS_REACT_ACT_ENVIRONMENT:true})
 const host=document.createElement('div');let root:ReturnType<typeof createRoot>|undefined
 const task: FamilyOlympiadTask = { id:'task', title:'Подготовка', dueDate:'2026-11-05', projectionSourceDate:'2026-11-04', learningContext:{kind:'olympiad',id:'o1'}, testTokens:['quiz-token'] }
@@ -93,4 +94,19 @@ it.each(['parent','student'] as const)('separates uploaded and prepared tasks wi
  expect(uploaded.querySelector('[data-id="uploaded"]')?.getAttribute('data-number')).toBe('7')
  expect(uploaded.querySelector('[data-id="intake"]')).not.toBeNull()
  expect(host.querySelectorAll('[data-id]')).toHaveLength(3)
+})
+
+it('opens personal history without enabling current student preparation',async()=>{
+ const index={id:'past',title:'Прошлая олимпиада',aliases:['o1'],resultCount:1,seasonCount:1,summary:'2025/26'}
+ const competition={id:'past',title:'Прошлая олимпиада',aliases:['o1'],seasons:[{id:'2025-26',label:'2025/26',grade:'5',stages:[]}]}
+ document.body.append(host);root=createRoot(host)
+ await act(async()=>root!.render(<OlympiadPage familyId="family" childId="child" olympiadId="o1" parent={false} dashboardToken="student-board" watchSelections={(_f,_c,next)=>{next([]);return ()=>{}}} watchCatalog={watchCatalog} watchTasks={(_f,_c,next)=>{next([task]);return ()=>{}}} watchDashboard={(_t,next)=>{next(dashboard('student'));return ()=>{}}} watchHistoryIndex={(_f,_c,next)=>{next([index]);return ()=>{}}} watchHistory={(_f,_c,_id,parent,next)=>{expect(parent).toBe(false);next(competition);return ()=>{}}}/>))
+ expect(host.textContent).toContain('Мои участия и работы');expect(host.textContent).toContain('2025/26');expect(host.querySelector('[data-token]')).toBeNull();expect(host.textContent).not.toContain('Эту олимпиаду ещё не включил родитель')
+})
+
+it('clears previously visible history when its authorized source is revoked',async()=>{
+ let deny:(error:Error)=>void=()=>{}
+ document.body.append(host);root=createRoot(host)
+ await act(async()=>root!.render(<OlympiadPage familyId="family" childId="child" olympiadId="o1" parent dashboardToken="board" watchCatalog={watchCatalog} watchTasks={(_f,_c,next)=>{next([]);return ()=>{}}} watchDashboard={(_t,next)=>{next(dashboard('parent'));return ()=>{}}} watchHistoryIndex={(_f,_c,next)=>{next([{id:'past',title:'Прошлая олимпиада',aliases:['o1'],resultCount:1,seasonCount:1,summary:'2025/26'}]);return ()=>{}}} watchHistory={(_f,_c,_id,_p,next,error)=>{deny=error;next({id:'past',title:'История',aliases:[],seasons:[{id:'2025',label:'2025/26',grade:'5',stages:[]}]});return ()=>{}}}/>))
+ expect(host.textContent).toContain('Мои участия и работы');await act(async()=>deny(new Error('permission-denied')));expect(host.textContent).not.toContain('Мои участия и работы');expect(host.textContent).toContain('История временно недоступна')
 })

@@ -40,7 +40,7 @@ async function localWorkImage(source: string): Promise<string> {
 export function WorkArtifactImage({ upload, title, index, compact = false, fallbackUrl, retryControl = !compact, crop, imageClassName }: {
   upload: DayUpload; title: string; index: number; compact?: boolean; fallbackUrl?: string; retryControl?: boolean; crop?: ImageCrop; imageClassName?: string;
 }) {
-  if (workFilePresentation(upload).kind !== 'photo') return <WorkFilePreview file={upload} compact={compact} href={upload.storage?.publicUrl ?? (upload.dataUrl?.startsWith('blob:') ? upload.dataUrl : undefined) ?? fallbackUrl} source={upload.id} resolver={localWorkImage} />
+  if (workFilePresentation(upload).kind !== 'photo') return <WorkFilePreview file={upload} compact={compact} href={upload.storage?.publicUrl ?? (upload.dataUrl?.startsWith('blob:') || upload.origin === 'archive' && upload.dataUrl?.startsWith('https:') ? upload.dataUrl : undefined) ?? fallbackUrl} source={upload.id} resolver={localWorkImage} />
   const publicUrl = upload.storage?.publicUrl
   const local = !upload.dataUrl && !publicUrl && !fallbackUrl
   return <EducationImage source={upload.dataUrl ?? publicUrl ?? fallbackUrl ?? upload.id}

@@ -3,7 +3,7 @@ id: module.synchronization.event-queue
 status: accepted
 implementation: partial
 created: 2026-10-19
-updated: 2026-10-19
+updated: 2026-10-31
 parent: module.synchronization
 uses:
   - shared.data.firestore
@@ -157,3 +157,5 @@ awaiting-student-material. Получение страницы не означа
 возобновить МЭШ после уже закрытой независимой action-ветки. Эти работающие
 исправления включены в основную ветку перед выпуском, чтобы обновление сервиса
 не откатило ранее подтверждённые пользователем правила.
+
+Архивные оригиналы: material.read_requested — серверное действие existing upload broker по точному mediaRequests/{uuid}; без уведомления и EducationSync-разбора. Оно перепроверяет семейные права и возвращает временный download URL только запросившему устройству. [История и доступ](../assessments/olympiad-history.md#оригиналы-и-доступ).

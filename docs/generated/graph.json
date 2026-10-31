@@ -1515,6 +1515,31 @@
       "path": "docs/decisions/olympiad-firebase-independence-2026-10-28.md"
     },
     {
+      "id": "decision.olympiad-history-2026-10-31",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-10-31",
+      "updated": "2026-10-31",
+      "parent": "module.olympiad-history",
+      "uses": [
+        "shared.design.ui-kit",
+        "shared.access-and-privacy"
+      ],
+      "consumers": [
+        "Education developer",
+        "release operator"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/olympiad-history-2026-10-31.md"
+    },
+    {
       "id": "decision.olympiad-integration-2026-10-28",
       "status": "accepted",
       "implementation": "partial",
@@ -3873,7 +3898,7 @@
       "status": "accepted",
       "implementation": "not-applicable",
       "created": "2026-10-16",
-      "updated": "2026-10-16",
+      "updated": "2026-10-31",
       "consumers": [
         "Education agent",
         "developer"
@@ -4807,6 +4832,13 @@
       "consumer": "Browser fixture"
     },
     {
+      "id": "file:e2e/olympiad-history.e2e.ts",
+      "path": "e2e/olympiad-history.e2e.ts",
+      "kind": "artifact",
+      "purpose": "Проверка истории/проекций/доступа",
+      "consumer": "Education"
+    },
+    {
       "id": "file:e2e/olympiad-ui-kit.e2e.ts",
       "path": "e2e/olympiad-ui-kit.e2e.ts",
       "kind": "artifact",
@@ -4889,6 +4921,34 @@
       "kind": "verification",
       "purpose": "Проверки адаптера, участия и изоляции ролей",
       "consumer": "Education; разработчик"
+    },
+    {
+      "id": "file:olympiad/history-import.mjs",
+      "path": "olympiad/history-import.mjs",
+      "kind": "artifact",
+      "purpose": "Сезоны, этапы, семейные оригиналы и безопасный просмотр",
+      "consumer": "Education"
+    },
+    {
+      "id": "file:olympiad/history-import.test.mjs",
+      "path": "olympiad/history-import.test.mjs",
+      "kind": "verification",
+      "purpose": "Проверка истории/проекций/доступа",
+      "consumer": "Education"
+    },
+    {
+      "id": "file:olympiad/history.mjs",
+      "path": "olympiad/history.mjs",
+      "kind": "artifact",
+      "purpose": "Сезоны, этапы, семейные оригиналы и безопасный просмотр",
+      "consumer": "Education"
+    },
+    {
+      "id": "file:olympiad/history.test.mjs",
+      "path": "olympiad/history.test.mjs",
+      "kind": "verification",
+      "purpose": "Проверка истории/проекций/доступа",
+      "consumer": "Education"
     },
     {
       "id": "file:olympiad/http-handler.mjs",
@@ -6354,6 +6414,13 @@
       "consumer": "Vitest; эмулятор"
     },
     {
+      "id": "file:scripts/firestore-rules-olympiad-history.test.mjs",
+      "path": "scripts/firestore-rules-olympiad-history.test.mjs",
+      "kind": "verification",
+      "purpose": "Проверка истории/проекций/доступа",
+      "consumer": "Education"
+    },
+    {
       "id": "file:scripts/firestore-rules-optional-quiz.test.mjs",
       "path": "scripts/firestore-rules-optional-quiz.test.mjs",
       "kind": "verification",
@@ -6513,6 +6580,13 @@
       "kind": "artifact",
       "purpose": "Точка входа запросов помощи с закрытыми файлами",
       "consumer": "Education operator"
+    },
+    {
+      "id": "file:scripts/olympiad-history.mjs",
+      "path": "scripts/olympiad-history.mjs",
+      "kind": "artifact",
+      "purpose": "Сезоны, этапы, семейные оригиналы и безопасный просмотр",
+      "consumer": "Education"
     },
     {
       "id": "file:scripts/olympiad-publish-training.mjs",
@@ -7171,6 +7245,34 @@
       "kind": "artifact",
       "purpose": "Общий список подготовки и выбор участия",
       "consumer": "Education; разработчик"
+    },
+    {
+      "id": "file:src/components/OlympiadHistory.css",
+      "path": "src/components/OlympiadHistory.css",
+      "kind": "artifact",
+      "purpose": "Сезоны, этапы, семейные оригиналы и безопасный просмотр",
+      "consumer": "Education"
+    },
+    {
+      "id": "file:src/components/OlympiadHistory.test.tsx",
+      "path": "src/components/OlympiadHistory.test.tsx",
+      "kind": "verification",
+      "purpose": "Проверка истории/проекций/доступа",
+      "consumer": "Education"
+    },
+    {
+      "id": "file:src/components/OlympiadHistory.tsx",
+      "path": "src/components/OlympiadHistory.tsx",
+      "kind": "artifact",
+      "purpose": "Сезоны, этапы, семейные оригиналы и безопасный просмотр",
+      "consumer": "Education"
+    },
+    {
+      "id": "file:src/components/OlympiadHistoryShowcase.tsx",
+      "path": "src/components/OlympiadHistoryShowcase.tsx",
+      "kind": "artifact",
+      "purpose": "Сезоны, этапы, семейные оригиналы и безопасный просмотр",
+      "consumer": "Education"
     },
     {
       "id": "file:src/components/OlympiadHome.integration.test.tsx",
@@ -8384,6 +8486,20 @@
       "consumer": "Education; разработчик"
     },
     {
+      "id": "file:src/lib/olympiad/historyStore.ts",
+      "path": "src/lib/olympiad/historyStore.ts",
+      "kind": "artifact",
+      "purpose": "Сезоны, этапы, семейные оригиналы и безопасный просмотр",
+      "consumer": "Education"
+    },
+    {
+      "id": "file:src/lib/olympiad/historyTypes.ts",
+      "path": "src/lib/olympiad/historyTypes.ts",
+      "kind": "artifact",
+      "purpose": "Сезоны, этапы, семейные оригиналы и безопасный просмотр",
+      "consumer": "Education"
+    },
+    {
       "id": "file:src/lib/olympiad/photoClient.ts",
       "path": "src/lib/olympiad/photoClient.ts",
       "kind": "artifact",
@@ -9047,6 +9163,20 @@
       "kind": "artifact",
       "purpose": "Адресный выпуск и дедупликация событий",
       "consumer": "`scripts/submissions.mjs`; `scripts/notifications.mjs`"
+    },
+    {
+      "id": "file:storage/learning-file-access.mjs",
+      "path": "storage/learning-file-access.mjs",
+      "kind": "artifact",
+      "purpose": "Сезоны, этапы, семейные оригиналы и безопасный просмотр",
+      "consumer": "Education"
+    },
+    {
+      "id": "file:storage/learning-file-access.test.mjs",
+      "path": "storage/learning-file-access.test.mjs",
+      "kind": "verification",
+      "purpose": "Проверка истории/проекций/доступа",
+      "consumer": "Education"
     },
     {
       "id": "file:storage/material-pages.mjs",
@@ -10318,11 +10448,51 @@
       "path": "docs/modules/notifications/inbox.md"
     },
     {
+      "id": "module.olympiad-history",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-10-31",
+      "updated": "2026-10-31",
+      "parent": "module.olympiad-preparation",
+      "uses": [
+        "shared.access-and-privacy",
+        "module.materials.storage-privacy",
+        "module.synchronization.event-queue",
+        "shared.design.ui-kit"
+      ],
+      "consumers": [
+        "parent",
+        "student",
+        "Education operator",
+        "Education developer"
+      ],
+      "code": [
+        "olympiad/history.mjs",
+        "olympiad/history-import.mjs",
+        "scripts/olympiad-history.mjs",
+        "storage/learning-file-access.mjs",
+        "storage/yandex-disk.mjs",
+        "src/lib/olympiad/historyTypes.ts",
+        "src/lib/olympiad/historyStore.ts",
+        "src/components/OlympiadHistory.tsx",
+        "src/components/OlympiadHistory.css",
+        "src/components/OlympiadHistoryShowcase.tsx"
+      ],
+      "sections": [
+        "назначение-и-идентичность",
+        "данные-и-проекции",
+        "оригиналы-и-доступ",
+        "интерфейс-и-состояния",
+        "импорт-и-проверка"
+      ],
+      "path": "docs/modules/assessments/olympiad-history.md"
+    },
+    {
       "id": "module.olympiad-preparation",
       "status": "draft",
       "implementation": "partial",
       "created": "2026-10-27",
-      "updated": "2026-10-28",
+      "updated": "2026-10-31",
       "parent": "product.olympiad-preparation",
       "uses": [
         "module.assessments.quizzes",
@@ -11128,7 +11298,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-19",
-      "updated": "2026-10-19",
+      "updated": "2026-10-31",
       "parent": "module.synchronization",
       "uses": [
         "shared.data.firestore",
@@ -11201,7 +11371,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-13",
-      "updated": "2026-10-21",
+      "updated": "2026-10-31",
       "consumers": [
         "Education sync operator",
         "sync-project CLI",
@@ -11495,6 +11665,36 @@
       "path": "docs/operations/recovery.md"
     },
     {
+      "id": "plan.olympiad-child-history",
+      "status": "reference",
+      "implementation": "not-applicable",
+      "created": "2026-10-31",
+      "updated": "2026-10-31",
+      "parent": "module.olympiad-preparation",
+      "uses": [
+        "product.olympiad-preparation",
+        "shared.access-and-privacy",
+        "module.materials.storage-privacy"
+      ],
+      "consumers": [
+        "parent",
+        "student",
+        "Education operator",
+        "Education developer"
+      ],
+      "code": [],
+      "sections": [
+        "цель-и-основание",
+        "сущности-и-владельцы",
+        "результат-и-достоверность",
+        "карточка-и-маршрут",
+        "импорт-и-сохранение-истории",
+        "учебное-использование",
+        "этапы-и-проверка"
+      ],
+      "path": "docs/plans/olympiad-child-history-2026-10-31.md"
+    },
+    {
       "id": "plans.local-first-release-plan-2026-10-12",
       "status": "accepted",
       "implementation": "partial",
@@ -11731,7 +11931,7 @@
       "status": "draft",
       "implementation": "partial",
       "created": "2026-10-27",
-      "updated": "2026-10-28",
+      "updated": "2026-10-31",
       "parent": "product.education",
       "uses": [
         "module.olympiad-preparation",
@@ -13295,7 +13495,8 @@
         "письменная-задача",
         "игровой-урок",
         "иконки-файлов",
-        "вложения-в-карточке-задания"
+        "вложения-в-карточке-задания",
+        "история-олимпиад"
       ],
       "path": "docs/shared/design/ui-kit.md"
     },
@@ -13944,6 +14145,16 @@
     },
     {
       "from": "decision.olympiad-firebase-independence-2026-10-28",
+      "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
+      "from": "decision.olympiad-history-2026-10-31",
+      "to": "shared.access-and-privacy",
+      "type": "uses"
+    },
+    {
+      "from": "decision.olympiad-history-2026-10-31",
       "to": "shared.design.ui-kit",
       "type": "uses"
     },
@@ -15173,6 +15384,11 @@
       "type": "implements"
     },
     {
+      "from": "file:e2e/olympiad-history.e2e.ts",
+      "to": "module.olympiad-history",
+      "type": "implements"
+    },
+    {
       "from": "file:e2e/olympiad-ui-kit.e2e.ts",
       "to": "shared.design.ui-kit",
       "type": "implements"
@@ -15245,6 +15461,16 @@
     {
       "from": "file:olympiad/firestore-lesson-adapter.mjs",
       "to": "module.olympiad-preparation",
+      "type": "implements"
+    },
+    {
+      "from": "file:olympiad/history-import.mjs",
+      "to": "module.olympiad-history",
+      "type": "implements"
+    },
+    {
+      "from": "file:olympiad/history.mjs",
+      "to": "module.olympiad-history",
       "type": "implements"
     },
     {
@@ -16453,6 +16679,11 @@
       "type": "implements"
     },
     {
+      "from": "file:scripts/olympiad-history.mjs",
+      "to": "module.olympiad-history",
+      "type": "implements"
+    },
+    {
       "from": "file:scripts/olympiad-publish-training.mjs",
       "to": "module.olympiad-preparation",
       "type": "implements"
@@ -17250,6 +17481,21 @@
     {
       "from": "file:src/components/OlympiadCatalog.tsx",
       "to": "module.olympiad-preparation",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/OlympiadHistory.css",
+      "to": "module.olympiad-history",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/OlympiadHistory.tsx",
+      "to": "module.olympiad-history",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/OlympiadHistoryShowcase.tsx",
+      "to": "module.olympiad-history",
       "type": "implements"
     },
     {
@@ -18708,6 +18954,16 @@
       "type": "implements"
     },
     {
+      "from": "file:src/lib/olympiad/historyStore.ts",
+      "to": "module.olympiad-history",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/olympiad/historyTypes.ts",
+      "to": "module.olympiad-history",
+      "type": "implements"
+    },
+    {
       "from": "file:src/lib/olympiad/photoClient.ts",
       "to": "module.olympiad-preparation",
       "type": "implements"
@@ -19328,6 +19584,11 @@
       "type": "implements"
     },
     {
+      "from": "file:storage/learning-file-access.mjs",
+      "to": "module.olympiad-history",
+      "type": "implements"
+    },
+    {
       "from": "file:storage/material-pages.mjs",
       "to": "module.materials.materials",
       "type": "implements"
@@ -19475,6 +19736,11 @@
     {
       "from": "file:storage/yandex-disk.mjs",
       "to": "module.materials.storage-privacy",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/yandex-disk.mjs",
+      "to": "module.olympiad-history",
       "type": "implements"
     },
     {
@@ -20488,6 +20754,56 @@
       "type": "uses"
     },
     {
+      "from": "module.olympiad-history",
+      "to": "decision.olympiad-history-2026-10-31",
+      "type": "contains"
+    },
+    {
+      "from": "module.olympiad-history",
+      "to": "file:olympiad/history-import.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.olympiad-history",
+      "to": "file:olympiad/history.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.olympiad-history",
+      "to": "file:scripts/firestore-rules-olympiad-history.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.olympiad-history",
+      "to": "file:src/components/OlympiadHistory.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.olympiad-history",
+      "to": "file:storage/learning-file-access.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.olympiad-history",
+      "to": "module.materials.storage-privacy",
+      "type": "uses"
+    },
+    {
+      "from": "module.olympiad-history",
+      "to": "module.synchronization.event-queue",
+      "type": "uses"
+    },
+    {
+      "from": "module.olympiad-history",
+      "to": "shared.access-and-privacy",
+      "type": "uses"
+    },
+    {
+      "from": "module.olympiad-history",
+      "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
       "from": "module.olympiad-preparation",
       "to": "decision.energy-hope-archive-2026-10-28",
       "type": "contains"
@@ -20699,6 +21015,11 @@
     },
     {
       "from": "module.olympiad-preparation",
+      "to": "module.olympiad-history",
+      "type": "contains"
+    },
+    {
+      "from": "module.olympiad-preparation",
       "to": "module.reviews.subject-aware-guidance",
       "type": "uses"
     },
@@ -20706,6 +21027,11 @@
       "from": "module.olympiad-preparation",
       "to": "module.synchronization",
       "type": "uses"
+    },
+    {
+      "from": "module.olympiad-preparation",
+      "to": "plan.olympiad-child-history",
+      "type": "contains"
     },
     {
       "from": "module.olympiad-preparation",
@@ -21990,6 +22316,21 @@
     {
       "from": "operations",
       "to": "service.upload-worker",
+      "type": "uses"
+    },
+    {
+      "from": "plan.olympiad-child-history",
+      "to": "module.materials.storage-privacy",
+      "type": "uses"
+    },
+    {
+      "from": "plan.olympiad-child-history",
+      "to": "product.olympiad-preparation",
+      "type": "uses"
+    },
+    {
+      "from": "plan.olympiad-child-history",
+      "to": "shared.access-and-privacy",
       "type": "uses"
     },
     {
