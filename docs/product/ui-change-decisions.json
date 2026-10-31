@@ -3974,24 +3974,19 @@
       }
     },
     "src/education-design-tokens.css": {
-      "sha256": "bfa9a43a0176e84e2db4d1967f52182fa9b84d782459bad42d0b63d2b10347d6",
-      "record": "docs/decisions/compact-review-rollout-2026-10-31.md",
+      "sha256": "04698ff1190df97bc2db8cc492f7bf24431c5f40719f2ae3db0358a2035a3192",
+      "record": "docs/decisions/review-readability-repair-2026-10-31.md",
       "specs": [
-        "docs/shared/design/compact-review.md",
-        "docs/shared/design/ui-kit.md",
-        "docs/modules/reviews/subject-aware-guidance.md"
+        "docs/shared/design/compact-review.md"
       ],
       "tests": [
         "src/components/WorkReview.compact.test.tsx",
         "src/components/ReviewBrief.test.tsx",
-        "src/components/QuizResultCard.test.tsx",
-        "src/UiKit.test.tsx",
-        "storage/tutoring-decision.test.mjs",
-        "packages/education-presentation/review-content.test.mjs"
+        "storage/tutoring-decision.test.mjs"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "31.10 родитель одобрил конкретный компактный разбор: «Да, так уже лучше. Исправь подсказку, чтобы она не выдавала ответ заранее, и внедряй этот формат для всех разборов. Обнови инструкции, спецификации и UI Kit». Сохранение ролей, статусов и истории обязательно."
+        "status": "direct-request",
+        "evidence": "Родитель 31.10 прислал мобильный скриншот и прямо отверг нечитаемый результат как не соответствующий согласованному макету; исправляется ранее разрешённый общий формат."
       }
     },
     "src/lib/assignmentPresentation.ts": {
@@ -6747,24 +6742,19 @@
       }
     },
     "storage/tutoring-decision.mjs": {
-      "sha256": "519faa1b5c62e6f7a65adc97858cc9ca720269984c9993d39d80073511ca9b35",
-      "record": "docs/decisions/compact-review-rollout-2026-10-31.md",
+      "sha256": "e8f7a879312b568b109ffc846063f27038fb5d14752a2e3c76f8cc7ea452753b",
+      "record": "docs/decisions/review-readability-repair-2026-10-31.md",
       "specs": [
-        "docs/shared/design/compact-review.md",
-        "docs/shared/design/ui-kit.md",
-        "docs/modules/reviews/subject-aware-guidance.md"
+        "docs/shared/design/compact-review.md"
       ],
       "tests": [
         "src/components/WorkReview.compact.test.tsx",
         "src/components/ReviewBrief.test.tsx",
-        "src/components/QuizResultCard.test.tsx",
-        "src/UiKit.test.tsx",
-        "storage/tutoring-decision.test.mjs",
-        "packages/education-presentation/review-content.test.mjs"
+        "storage/tutoring-decision.test.mjs"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "31.10 родитель одобрил конкретный компактный разбор: «Да, так уже лучше. Исправь подсказку, чтобы она не выдавала ответ заранее, и внедряй этот формат для всех разборов. Обнови инструкции, спецификации и UI Kit». Сохранение ролей, статусов и истории обязательно."
+        "status": "direct-request",
+        "evidence": "Родитель 31.10 прислал мобильный скриншот и прямо отверг нечитаемый результат как не соответствующий согласованному макету; исправляется ранее разрешённый общий формат."
       }
     },
     "scripts/privacy-exceptions.mjs": {
@@ -7044,45 +7034,35 @@
       }
     },
     "packages/education-presentation/review-content.mjs": {
-      "sha256": "9802c01c53f4b8fd9fdcc780a608a0c17b51e4be86c0336b73f690ad92472d5d",
-      "record": "docs/decisions/compact-review-rollout-2026-10-31.md",
+      "sha256": "a500c09458b98b26c52afee79fc0b701ad973f2f4c50e2ab009155c71ffb4a37",
+      "record": "docs/decisions/review-readability-repair-2026-10-31.md",
       "specs": [
-        "docs/shared/design/compact-review.md",
-        "docs/shared/design/ui-kit.md",
-        "docs/modules/reviews/subject-aware-guidance.md"
+        "docs/shared/design/compact-review.md"
       ],
       "tests": [
         "src/components/WorkReview.compact.test.tsx",
         "src/components/ReviewBrief.test.tsx",
-        "src/components/QuizResultCard.test.tsx",
-        "src/UiKit.test.tsx",
-        "storage/tutoring-decision.test.mjs",
-        "packages/education-presentation/review-content.test.mjs"
+        "storage/tutoring-decision.test.mjs"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "31.10 родитель одобрил конкретный компактный разбор: «Да, так уже лучше. Исправь подсказку, чтобы она не выдавала ответ заранее, и внедряй этот формат для всех разборов. Обнови инструкции, спецификации и UI Kit». Сохранение ролей, статусов и истории обязательно."
+        "status": "direct-request",
+        "evidence": "Родитель 31.10 прислал мобильный скриншот и прямо отверг нечитаемый результат как не соответствующий согласованному макету; исправляется ранее разрешённый общий формат."
       }
     },
     "scripts/check-review-brief-viewport.mjs": {
-      "sha256": "68b4723a13577f74c5eb4e35a77433be6278ae98618817fefb9fc9edb5b2565d",
-      "record": "docs/decisions/compact-review-rollout-2026-10-31.md",
+      "sha256": "a4b58d8f25757398537cbc81c357225541a917a7fb28eb73012bfcf7cfd6f690",
+      "record": "docs/decisions/review-readability-repair-2026-10-31.md",
       "specs": [
-        "docs/shared/design/compact-review.md",
-        "docs/shared/design/ui-kit.md",
-        "docs/modules/reviews/subject-aware-guidance.md"
+        "docs/shared/design/compact-review.md"
       ],
       "tests": [
         "src/components/WorkReview.compact.test.tsx",
         "src/components/ReviewBrief.test.tsx",
-        "src/components/QuizResultCard.test.tsx",
-        "src/UiKit.test.tsx",
-        "storage/tutoring-decision.test.mjs",
-        "packages/education-presentation/review-content.test.mjs"
+        "storage/tutoring-decision.test.mjs"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "31.10 родитель одобрил конкретный компактный разбор: «Да, так уже лучше. Исправь подсказку, чтобы она не выдавала ответ заранее, и внедряй этот формат для всех разборов. Обнови инструкции, спецификации и UI Kit». Сохранение ролей, статусов и истории обязательно."
+        "status": "direct-request",
+        "evidence": "Родитель 31.10 прислал мобильный скриншот и прямо отверг нечитаемый результат как не соответствующий согласованному макету; исправляется ранее разрешённый общий формат."
       }
     },
     "src/components/QuizResultCard.css": {
@@ -7107,150 +7087,115 @@
       }
     },
     "src/components/ReviewBrief.css": {
-      "sha256": "9ea1d84d504dd02f4a44a6d864900443c46f333d7003948b5756a6f7fdfd4ff4",
-      "record": "docs/decisions/compact-review-rollout-2026-10-31.md",
+      "sha256": "ce1ed7cf810fbc90de9a611a99c1c20c3648a0795e8dd6acdd28640b0aa09955",
+      "record": "docs/decisions/review-readability-repair-2026-10-31.md",
       "specs": [
-        "docs/shared/design/compact-review.md",
-        "docs/shared/design/ui-kit.md",
-        "docs/modules/reviews/subject-aware-guidance.md"
+        "docs/shared/design/compact-review.md"
       ],
       "tests": [
         "src/components/WorkReview.compact.test.tsx",
         "src/components/ReviewBrief.test.tsx",
-        "src/components/QuizResultCard.test.tsx",
-        "src/UiKit.test.tsx",
-        "storage/tutoring-decision.test.mjs",
-        "packages/education-presentation/review-content.test.mjs"
+        "storage/tutoring-decision.test.mjs"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "31.10 родитель одобрил конкретный компактный разбор: «Да, так уже лучше. Исправь подсказку, чтобы она не выдавала ответ заранее, и внедряй этот формат для всех разборов. Обнови инструкции, спецификации и UI Kit». Сохранение ролей, статусов и истории обязательно."
+        "status": "direct-request",
+        "evidence": "Родитель 31.10 прислал мобильный скриншот и прямо отверг нечитаемый результат как не соответствующий согласованному макету; исправляется ранее разрешённый общий формат."
       }
     },
     "src/components/ReviewBrief.tsx": {
-      "sha256": "b53f9c811eebd718ae31988491b3556bd46f911cc5c7324d625e9240bce7bf84",
-      "record": "docs/decisions/compact-review-rollout-2026-10-31.md",
+      "sha256": "bf5079657fab1ffc61f8d8dc4cd052e4df66fd46f4476612f23b6d45bb74afae",
+      "record": "docs/decisions/review-readability-repair-2026-10-31.md",
       "specs": [
-        "docs/shared/design/compact-review.md",
-        "docs/shared/design/ui-kit.md",
-        "docs/modules/reviews/subject-aware-guidance.md"
+        "docs/shared/design/compact-review.md"
       ],
       "tests": [
         "src/components/WorkReview.compact.test.tsx",
         "src/components/ReviewBrief.test.tsx",
-        "src/components/QuizResultCard.test.tsx",
-        "src/UiKit.test.tsx",
-        "storage/tutoring-decision.test.mjs",
-        "packages/education-presentation/review-content.test.mjs"
+        "storage/tutoring-decision.test.mjs"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "31.10 родитель одобрил конкретный компактный разбор: «Да, так уже лучше. Исправь подсказку, чтобы она не выдавала ответ заранее, и внедряй этот формат для всех разборов. Обнови инструкции, спецификации и UI Kit». Сохранение ролей, статусов и истории обязательно."
+        "status": "direct-request",
+        "evidence": "Родитель 31.10 прислал мобильный скриншот и прямо отверг нечитаемый результат как не соответствующий согласованному макету; исправляется ранее разрешённый общий формат."
       }
     },
     "src/components/ReviewBriefShowcase.tsx": {
-      "sha256": "e5c33bdff18a577f93b8cbda19fb4114d01c7f427cd09a1871406776cb54fcde",
-      "record": "docs/decisions/compact-review-rollout-2026-10-31.md",
+      "sha256": "bfb6a6d667ffdc9527447b5531694bee5a20a05b64f5545023c6c0f48c74a32e",
+      "record": "docs/decisions/review-readability-repair-2026-10-31.md",
       "specs": [
-        "docs/shared/design/compact-review.md",
-        "docs/shared/design/ui-kit.md",
-        "docs/modules/reviews/subject-aware-guidance.md"
+        "docs/shared/design/compact-review.md"
       ],
       "tests": [
         "src/components/WorkReview.compact.test.tsx",
         "src/components/ReviewBrief.test.tsx",
-        "src/components/QuizResultCard.test.tsx",
-        "src/UiKit.test.tsx",
-        "storage/tutoring-decision.test.mjs",
-        "packages/education-presentation/review-content.test.mjs"
+        "storage/tutoring-decision.test.mjs"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "31.10 родитель одобрил конкретный компактный разбор: «Да, так уже лучше. Исправь подсказку, чтобы она не выдавала ответ заранее, и внедряй этот формат для всех разборов. Обнови инструкции, спецификации и UI Kit». Сохранение ролей, статусов и истории обязательно."
+        "status": "direct-request",
+        "evidence": "Родитель 31.10 прислал мобильный скриншот и прямо отверг нечитаемый результат как не соответствующий согласованному макету; исправляется ранее разрешённый общий формат."
       }
     },
     "src/components/ReviewTypography.css": {
-      "sha256": "240eb7b373ed6f481a298f754ec1a5e99b117a01cf853349f5974dae3bf90965",
-      "record": "docs/decisions/compact-review-rollout-2026-10-31.md",
+      "sha256": "a379256d97346b89c7e02618c29f34ad2c9f8fdc9fc0fcfcee9d1ac1ce40f6bf",
+      "record": "docs/decisions/review-readability-repair-2026-10-31.md",
       "specs": [
-        "docs/shared/design/compact-review.md",
-        "docs/shared/design/ui-kit.md",
-        "docs/modules/reviews/subject-aware-guidance.md"
+        "docs/shared/design/compact-review.md"
       ],
       "tests": [
         "src/components/WorkReview.compact.test.tsx",
         "src/components/ReviewBrief.test.tsx",
-        "src/components/QuizResultCard.test.tsx",
-        "src/UiKit.test.tsx",
-        "storage/tutoring-decision.test.mjs",
-        "packages/education-presentation/review-content.test.mjs"
+        "storage/tutoring-decision.test.mjs"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "31.10 родитель одобрил конкретный компактный разбор: «Да, так уже лучше. Исправь подсказку, чтобы она не выдавала ответ заранее, и внедряй этот формат для всех разборов. Обнови инструкции, спецификации и UI Kit». Сохранение ролей, статусов и истории обязательно."
+        "status": "direct-request",
+        "evidence": "Родитель 31.10 прислал мобильный скриншот и прямо отверг нечитаемый результат как не соответствующий согласованному макету; исправляется ранее разрешённый общий формат."
       }
     },
     "src/components/WorkReview.css": {
-      "sha256": "05ed0d433b549e60c86fc7ebcfb0ce61b591e0d3333879a06f841ef072ccd407",
-      "record": "docs/decisions/compact-review-rollout-2026-10-31.md",
+      "sha256": "15e7b3cdd5103cf174f899c9619947d570899e2a7c587ac62539357dc60521c7",
+      "record": "docs/decisions/review-readability-repair-2026-10-31.md",
       "specs": [
-        "docs/shared/design/compact-review.md",
-        "docs/shared/design/ui-kit.md",
-        "docs/modules/reviews/subject-aware-guidance.md"
+        "docs/shared/design/compact-review.md"
       ],
       "tests": [
         "src/components/WorkReview.compact.test.tsx",
         "src/components/ReviewBrief.test.tsx",
-        "src/components/QuizResultCard.test.tsx",
-        "src/UiKit.test.tsx",
-        "storage/tutoring-decision.test.mjs",
-        "packages/education-presentation/review-content.test.mjs"
+        "storage/tutoring-decision.test.mjs"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "31.10 родитель одобрил конкретный компактный разбор: «Да, так уже лучше. Исправь подсказку, чтобы она не выдавала ответ заранее, и внедряй этот формат для всех разборов. Обнови инструкции, спецификации и UI Kit». Сохранение ролей, статусов и истории обязательно."
+        "status": "direct-request",
+        "evidence": "Родитель 31.10 прислал мобильный скриншот и прямо отверг нечитаемый результат как не соответствующий согласованному макету; исправляется ранее разрешённый общий формат."
       }
     },
     "src/lib/reviewBriefExamples.ts": {
-      "sha256": "e5a90a68940894410b8909dd7471afd1dff3f2dffb2e17c8f2b4f97e3c461c6d",
-      "record": "docs/decisions/compact-review-rollout-2026-10-31.md",
+      "sha256": "5355beec1d8f741ea5fb08364626a7eaa5073b0ee16a2ab1596524b97dab8353",
+      "record": "docs/decisions/review-readability-repair-2026-10-31.md",
       "specs": [
-        "docs/shared/design/compact-review.md",
-        "docs/shared/design/ui-kit.md",
-        "docs/modules/reviews/subject-aware-guidance.md"
+        "docs/shared/design/compact-review.md"
       ],
       "tests": [
         "src/components/WorkReview.compact.test.tsx",
         "src/components/ReviewBrief.test.tsx",
-        "src/components/QuizResultCard.test.tsx",
-        "src/UiKit.test.tsx",
-        "storage/tutoring-decision.test.mjs",
-        "packages/education-presentation/review-content.test.mjs"
+        "storage/tutoring-decision.test.mjs"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "31.10 родитель одобрил конкретный компактный разбор: «Да, так уже лучше. Исправь подсказку, чтобы она не выдавала ответ заранее, и внедряй этот формат для всех разборов. Обнови инструкции, спецификации и UI Kit». Сохранение ролей, статусов и истории обязательно."
+        "status": "direct-request",
+        "evidence": "Родитель 31.10 прислал мобильный скриншот и прямо отверг нечитаемый результат как не соответствующий согласованному макету; исправляется ранее разрешённый общий формат."
       }
     },
     "src/lib/workReviewBrief.ts": {
-      "sha256": "2ec1fc4e8f8ae3ca9a4ff011c3ec57b85013799155c1ea7d850d4d72f4a193c4",
-      "record": "docs/decisions/compact-review-rollout-2026-10-31.md",
+      "sha256": "2a014d21ff4d52d5e1f8f04886444a151d25b7a364664deeba0668a2bc8d89ea",
+      "record": "docs/decisions/review-readability-repair-2026-10-31.md",
       "specs": [
-        "docs/shared/design/compact-review.md",
-        "docs/shared/design/ui-kit.md",
-        "docs/modules/reviews/subject-aware-guidance.md"
+        "docs/shared/design/compact-review.md"
       ],
       "tests": [
         "src/components/WorkReview.compact.test.tsx",
         "src/components/ReviewBrief.test.tsx",
-        "src/components/QuizResultCard.test.tsx",
-        "src/UiKit.test.tsx",
-        "storage/tutoring-decision.test.mjs",
-        "packages/education-presentation/review-content.test.mjs"
+        "storage/tutoring-decision.test.mjs"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "31.10 родитель одобрил конкретный компактный разбор: «Да, так уже лучше. Исправь подсказку, чтобы она не выдавала ответ заранее, и внедряй этот формат для всех разборов. Обнови инструкции, спецификации и UI Kit». Сохранение ролей, статусов и истории обязательно."
+        "status": "direct-request",
+        "evidence": "Родитель 31.10 прислал мобильный скриншот и прямо отверг нечитаемый результат как не соответствующий согласованному макету; исправляется ранее разрешённый общий формат."
       }
     },
     "scripts/olympiad-history.mjs": {

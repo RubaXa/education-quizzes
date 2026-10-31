@@ -13,6 +13,10 @@ const review = () => ({ taskId: 'digits', status: 'partial', uploadIds: ['photo'
     branches: { correct: 'Перейти к наборам и кратности суммы.', partial: 'Разделить итоговую сумму и добавку.', stuck: 'Разобрать аналогию на двух других цифрах.', ambiguous: 'Уточнить, что означает написанное n.' } } })
 
 describe('personal tutoring decision graph', () => {
+  it('rejects a new wall of prose even when all tutoring-plan fields agree', () => {
+    const r=review();r.studentFeedback.focus='Одна цифра не охватывает наборы. '.repeat(15);r.tutoringPlan.gapExplanation=r.studentFeedback.focus;r.studentFeedback.bridge=r.tutoringPlan.bridge
+    expect(tutoringPlanErrors(r).join()).toContain('первого уровня')
+  })
   it('separates missing source, unreadable evidence, orientation and completion', () => {
     expect(selectTutoringMove({ sourceReady: false })).toBe('request-source')
     for (const [attemptState, move] of [['complete', 'close'], ['unreadable', 'clarify-evidence'], ['not-started', 'orient']]) expect(selectTutoringMove({ sourceReady: true, attemptState })).toBe(move)

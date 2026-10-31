@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/review-readability-repair-2026-10-31.md */
 /** @see ../docs/decisions/compact-review-rollout-2026-10-31.md */
 /* @see ../docs/shared/design/README.md#tokens — shared Education tokens, based on the current UI. */
 /* @see ../docs/decisions/compact-review-ui-kit-2026-10-31.md */
@@ -80,7 +81,7 @@
   --edu-quiz-row-padding: 6px;
   --edu-quiz-meta-gap: 2px;
   --edu-quiz-touch-target: 44px;
-  /* @see ../docs/shared/design/compact-review.md#geometry — isolated UI Kit candidate. */
+  /* @see ../docs/shared/design/compact-review.md#geometry — shared review typography. */
   --edu-review-paper: light-dark(#fff, #242329);
   --edu-review-ink: light-dark(#292633, #f0edf5);
   --edu-review-muted: light-dark(#625d70, #bdb6ca);

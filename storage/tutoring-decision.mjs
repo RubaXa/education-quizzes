@@ -1,9 +1,10 @@
+/** @see ../docs/decisions/review-readability-repair-2026-10-31.md */
 /** @see ../docs/decisions/compact-review-rollout-2026-10-31.md */
 /** @see ../docs/modules/reviews/subject-aware-guidance.md#tutor-decision
  * @see ../docs/decisions/personal-tutoring-2026-10-30.md */
 const gaps = new Set(['notation', 'execution', 'concept', 'strategy', 'completeness', 'recall'])
 const workTypes = new Set(['calculation', 'proof', 'construction', 'reading', 'retelling', 'composition', 'language-use', 'factual-explanation'])
-import { reviewSupplementErrors } from '../packages/education-presentation/review-content.mjs'
+import { reviewSupplementErrors,reviewOverviewErrors } from '../packages/education-presentation/review-content.mjs'
 
 /** Carry the current attempt, not twenty duplicate full solutions in every new dispatch. */
 export function previousTutoringContext(review) {
@@ -36,6 +37,8 @@ export function nextTutoringBranch(plan, observedReply) {
 export function tutoringPlanErrors(review) {
   if (review.purpose === 'source-material' || !review.status) return []
   const p = review.tutoringPlan, f = review.studentFeedback
+  const overviewErrors=reviewOverviewErrors(f)
+  if(overviewErrors.length)return overviewErrors
   const presentationErrors = reviewSupplementErrors(f?.presentation)
   if (presentationErrors.length) return presentationErrors
   if (f?.bridge !== undefined && (typeof f.bridge !== 'string' || !f.bridge.trim() || f.bridge.length > 700)) return ['Объясняющий переход должен быть коротким проверенным текстом.']

@@ -1,19 +1,20 @@
+/** @see ../../docs/decisions/review-readability-repair-2026-10-31.md */
 /** @see ../../docs/decisions/compact-review-rollout-2026-10-31.md */
 /* @see ../../docs/shared/design/compact-review.md#geometry */
-.edu-review-brief .day-work-review-accepted,.edu-review-brief .day-work-review-unprepared{font-size:14px;line-height:1.4;margin:6px 0;color:var(--edu-review-muted)}
-.edu-review-brief .day-work-review-requirements h4{font-size:14px;margin:4px 0 6px;font-weight:600}
-.edu-review-brief .day-work-review-requirements p,.edu-review-brief .day-work-review-basis p{font-size:14px;line-height:1.4;margin:6px 0;color:var(--edu-review-ink)}
+.edu-review-brief .day-work-review-accepted,.edu-review-brief .day-work-review-unprepared{font-size:16px;line-height:1.4;margin:6px 0;color:var(--edu-review-muted)}
+.edu-review-brief .day-work-review-requirements h4{font-size:16px;margin:4px 0 6px;font-weight:600}
+.edu-review-brief .day-work-review-requirements p,.edu-review-brief .day-work-review-basis p{font-size:16px;line-height:1.4;margin:6px 0;color:var(--edu-review-ink)}
 .edu-review-brief .day-work-review-requirements ol{margin:8px 0;padding-left:18px}
-.edu-review-brief .day-work-review-requirements li{margin:10px 0;font-size:14px;line-height:1.4}
+.edu-review-brief .day-work-review-requirements li{margin:10px 0;font-size:16px;line-height:1.4}
 .edu-review-brief .day-work-review-requirements li>span{display:block;margin-top:4px}
 .edu-review-brief .day-work-review-requirement-result{display:flex;gap:5px;align-items:center}
-.edu-review-brief .day-work-review-dispute{padding:6px 0;border-bottom:1px solid var(--edu-review-line);font-size:14px}
-.edu-review-brief .day-work-review-dispute p{margin:4px 0;font-size:14px;line-height:1.4}
+.edu-review-brief .day-work-review-dispute{padding:6px 0;border-bottom:1px solid var(--edu-review-line);font-size:16px}
+.edu-review-brief .day-work-review-dispute p{margin:4px 0;font-size:16px;line-height:1.4}
 .edu-review-brief .day-work-review-evidence,.edu-review-brief .day-review-history{margin-top:8px;border-top:1px solid var(--edu-review-line)}
-.edu-review-brief .day-work-review-evidence>summary,.edu-review-brief .day-review-history>summary{display:flex;align-items:center;min-height:44px;font-size:14px;color:var(--edu-review-accent);cursor:pointer;list-style:none}
-.edu-review-brief .day-work-review-basis span,.edu-review-brief .day-review-history small{display:block;font-size:14px;line-height:1.4;color:var(--edu-review-muted)}
+.edu-review-brief .day-work-review-evidence>summary,.edu-review-brief .day-review-history>summary{display:flex;align-items:center;min-height:44px;font-size:16px;color:var(--edu-review-accent);cursor:pointer;list-style:none}
+.edu-review-brief .day-work-review-basis span,.edu-review-brief .day-review-history small{display:block;font-size:16px;line-height:1.4;color:var(--edu-review-muted)}
 .edu-review-brief .day-review-history ol{margin:4px 0;padding-left:18px}
-.edu-review-brief .day-review-history li{font-size:14px;line-height:1.4;margin:8px 0}
+.edu-review-brief .day-review-history li{font-size:16px;line-height:1.4;margin:8px 0}
 .edu-review-brief .day-review-parent-decision{margin-top:8px;padding-top:8px;border-top:1px solid var(--edu-review-line)}
-.edu-review-brief .day-review-parent-decision button{min-height:44px;font-size:14px}
+.edu-review-brief .day-review-parent-decision button{min-height:44px;font-size:16px}
 .edu-review-brief .day-review-parent-decision small{display:block;font-size:12px}

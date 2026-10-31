@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/review-readability-repair-2026-10-31.md */
 /** @see ../../docs/decisions/compact-review-rollout-2026-10-31.md */
 /** Synthetic presentation fixtures only; no learner attempts or new assignments.
  * @see ../../docs/shared/design/compact-review.md#showcase */
@@ -33,7 +34,6 @@ export const reviewBriefExamples: { name: string; data: ReviewBriefData }[] = [
   { name: 'История', data: {
     id: 'demo-review-history', label: 'История · пример', status: 'revise',
     confirmed: 'Обе даты записаны верно.',
-    focus: 'Осталось определить промежуток между событиями.',
     visual: { kind: 'timeline', label: 'Две даты из условного ответа', events: [{ date: '1703', label: 'Основание Петербурга' }, { date: '1721', label: 'Провозглашение империи' }] },
     question: 'Сколько лет прошло между событиями?',
     detail: { label: 'Как читать ленту', text: 'Слева более ранняя дата, справа более поздняя. Расстояние на этой схеме условное: числа лет не заменяются длиной линии.' },
@@ -42,3 +42,11 @@ export const reviewBriefExamples: { name: string; data: ReviewBriefData }[] = [
 
 export const reviewBriefVerified: ReviewBriefData = { id: 'demo-review-verified', label: 'Проверка · пример', status: 'verified', confirmed: 'Ответ и объяснение подтверждены.' }
 export const reviewBriefUncertain: ReviewBriefData = { id: 'demo-review-uncertain', label: 'Проверка · пример', status: 'uncertain', confirmed: 'Начало записи читается.', focus: 'Последняя строка на снимке неразборчива.', question: 'Пришли чёткий фрагмент последней строки.' }
+
+/** A realistic pre-migration paragraph exercises the conservative read adapter. */
+export const reviewBriefLegacy:DayWorkReview={id:'demo-review-legacy',taskId:'demo-only',status:'partial',studentFeedback:{
+ title:'Проверь весь набор',confirmed:'Первый найденный способ зачтён.',
+ focus:'В записи проверена одна добавленная цифра. Это ещё не проверка нескольких цифр вместе. Каждое отдельное число может быть меньше десяти, а их сумма — больше. Ограничение для одной цифры не переносится на сумму всего набора. Нужно различать сами цифры, сумму добавленных и сумму всех цифр. Пояснение к записи сохранено полностью: прежнюю попытку не требуется переписывать из-за смены оформления.',
+ question:'Какую общую сумму даёт пробный набор?',
+ steps:[{stageId:'scope',status:'partial',uploadId:'demo-photo',location:'Нижняя строка листа с несколькими возможными добавлениями',observation:'Вместе с исходными цифрами записана одна новая цифра.',explanation:'Один правильный способ сохраняется. Осталось проверить другие наборы; это не означает, что найденный способ неверен.'}],
+},mathReasoning:{answer:'correct',argument:'incomplete'},history:[{status:'partial',studentFeedback:{title:'Прежняя запись',confirmed:'Начало сохранено.',focus:'Проверка прежней записи.',question:'Прежний вопрос.'}}],assessmentBasis:{requirement:'Проверить несколько разных наборов по одному и тому же условию.',observed:'В синтетическом примере записан один набор.',comparison:'Принятый способ сохраняется, полнота ещё не проверена.',outcome:'not-met',sources:[]}}

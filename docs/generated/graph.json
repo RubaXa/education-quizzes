@@ -2110,6 +2110,44 @@
       "path": "docs/decisions/review-prose-coverage-2026-10-19.md"
     },
     {
+      "id": "decision.review-readability-repair-2026-10-31",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-31",
+      "updated": "2026-10-31",
+      "parent": "shared.design.compact-review",
+      "uses": [
+        "shared.design.ui-kit",
+        "module.reviews.subject-aware-guidance"
+      ],
+      "consumers": [
+        "student",
+        "parent",
+        "review author"
+      ],
+      "code": [
+        "packages/education-presentation/review-content.mjs",
+        "scripts/check-review-brief-viewport.mjs",
+        "src/components/ReviewBrief.css",
+        "src/components/ReviewBrief.tsx",
+        "src/components/ReviewBriefShowcase.tsx",
+        "src/components/ReviewTypography.css",
+        "src/components/WorkReview.css",
+        "src/education-design-tokens.css",
+        "src/lib/reviewBriefExamples.ts",
+        "src/lib/workReviewBrief.ts",
+        "storage/tutoring-decision.mjs"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/review-readability-repair-2026-10-31.md"
+    },
+    {
       "id": "decision.reviewed-photo-placement-2026-10-26",
       "status": "accepted",
       "implementation": "implemented",
@@ -7705,7 +7743,7 @@
       "id": "file:src/components/ReviewBriefShowcase.tsx",
       "path": "src/components/ReviewBriefShowcase.tsx",
       "kind": "artifact",
-      "purpose": "Реальные адаптеры письменного разбора и теста на синтетических данных",
+      "purpose": "Реальные адаптеры короткого и старого длинного разбора с источником, историей и действиями",
       "consumer": "Разбор; UI Kit; проверка"
     },
     {
@@ -8993,7 +9031,7 @@
       "id": "file:src/lib/workReviewBrief.ts",
       "path": "src/lib/workReviewBrief.ts",
       "kind": "artifact",
-      "purpose": "Чистый адаптер текущего разбора в общую модель без новых педагогических выводов",
+      "purpose": "Адаптер краткого первого уровня и полного раскрытия старого текста без новых педагогических выводов",
       "consumer": "Разбор; UI Kit; проверка"
     },
     {
@@ -14324,6 +14362,16 @@
       "type": "uses"
     },
     {
+      "from": "decision.review-readability-repair-2026-10-31",
+      "to": "module.reviews.subject-aware-guidance",
+      "type": "uses"
+    },
+    {
+      "from": "decision.review-readability-repair-2026-10-31",
+      "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
       "from": "decision.reviews.guidance-hint-then-reveal",
       "to": "module.reviews.math-solution-route",
       "type": "uses"
@@ -15685,6 +15733,11 @@
     },
     {
       "from": "file:packages/education-presentation/review-content.mjs",
+      "to": "decision.review-readability-repair-2026-10-31",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-presentation/review-content.mjs",
       "to": "shared.design.compact-review",
       "type": "implements"
     },
@@ -16256,6 +16309,11 @@
     {
       "from": "file:scripts/check-review-brief-viewport.mjs",
       "to": "decision.compact-review-ui-kit-2026-10-31",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/check-review-brief-viewport.mjs",
+      "to": "decision.review-readability-repair-2026-10-31",
       "type": "implements"
     },
     {
@@ -17990,6 +18048,11 @@
     },
     {
       "from": "file:src/components/ReviewBrief.css",
+      "to": "decision.review-readability-repair-2026-10-31",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ReviewBrief.css",
       "to": "shared.design.compact-review",
       "type": "implements"
     },
@@ -18005,6 +18068,11 @@
     },
     {
       "from": "file:src/components/ReviewBrief.tsx",
+      "to": "decision.review-readability-repair-2026-10-31",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ReviewBrief.tsx",
       "to": "shared.design.compact-review",
       "type": "implements"
     },
@@ -18016,6 +18084,11 @@
     {
       "from": "file:src/components/ReviewBriefShowcase.tsx",
       "to": "decision.compact-review-ui-kit-2026-10-31",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ReviewBriefShowcase.tsx",
+      "to": "decision.review-readability-repair-2026-10-31",
       "type": "implements"
     },
     {
@@ -18026,6 +18099,11 @@
     {
       "from": "file:src/components/ReviewTypography.css",
       "to": "decision.compact-review-rollout-2026-10-31",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ReviewTypography.css",
+      "to": "decision.review-readability-repair-2026-10-31",
       "type": "implements"
     },
     {
@@ -18310,6 +18388,11 @@
     },
     {
       "from": "file:src/components/WorkReview.css",
+      "to": "decision.review-readability-repair-2026-10-31",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/WorkReview.css",
       "to": "shared.design.compact-review",
       "type": "implements"
     },
@@ -18586,6 +18669,11 @@
     {
       "from": "file:src/education-design-tokens.css",
       "to": "decision.compact-review-ui-kit-2026-10-31",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/education-design-tokens.css",
+      "to": "decision.review-readability-repair-2026-10-31",
       "type": "implements"
     },
     {
@@ -19195,6 +19283,11 @@
     },
     {
       "from": "file:src/lib/reviewBriefExamples.ts",
+      "to": "decision.review-readability-repair-2026-10-31",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/reviewBriefExamples.ts",
       "to": "shared.design.compact-review",
       "type": "implements"
     },
@@ -19386,6 +19479,11 @@
     {
       "from": "file:src/lib/workReviewBrief.ts",
       "to": "decision.compact-review-rollout-2026-10-31",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/workReviewBrief.ts",
+      "to": "decision.review-readability-repair-2026-10-31",
       "type": "implements"
     },
     {
@@ -19711,6 +19809,11 @@
     {
       "from": "file:storage/tutoring-decision.mjs",
       "to": "decision.personal-tutoring-2026-10-30",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/tutoring-decision.mjs",
+      "to": "decision.review-readability-repair-2026-10-31",
       "type": "implements"
     },
     {
@@ -23791,6 +23894,11 @@
     {
       "from": "shared.design.compact-review",
       "to": "decision.compact-review-rollout-2026-10-31",
+      "type": "contains"
+    },
+    {
+      "from": "shared.design.compact-review",
+      "to": "decision.review-readability-repair-2026-10-31",
       "type": "contains"
     },
     {
