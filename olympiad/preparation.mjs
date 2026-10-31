@@ -49,7 +49,7 @@ export function projectPreparation(route,states,previous) {
   if(!state?.available||r?.purpose==='source-material'||!['verified','partial','needs-fix'].includes(r?.status)||!timestampKey(r.checkedAt))continue
   const credited=taskCredit(r,state.decisions), prior=previous?.progress?.tasks.find(t=>t.taskId===c.taskId)
   const at=timestampKey(r.correctedAt)?r.correctedAt:r.checkedAt
-  tasks.push({taskId:c.taskId,title:c.title,status:r.status,checkedOn:dateOf(at),credited,
+  tasks.push({taskId:c.taskId,title:c.title,status:r.status,reviewVersion:historyDigest(r),checkedOn:dateOf(at),credited,
    confirmed:safeText(r.studentFeedback?.confirmed,2000),focus:credited?null:safeText(r.studentFeedback?.focus,2000),
    achievedOn:prior?.achievedOn??(credited?dateOf(at):null)})
  }

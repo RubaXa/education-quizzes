@@ -62,3 +62,4 @@ sections:
 - `src/components/OlympiadPreparationSummary.tsx`
 - `src/components/OlympiadPreparationSummary.css`
 - `src/lib/olympiad/historyTypes.ts`
+- `src/ui-kit/olympiadHistoryFixtures.ts`

@@ -20,3 +20,5 @@
 @media(max-width:540px){.olympiad-page .olympiad-page-body{padding:18px}.olympiad-overview-heading h1{font-size:24px}.olympiad-overview{margin-bottom:20px}}
 
 .olympiad-section-nav button:not(:first-child){border-color:transparent;background:transparent}
+
+.olympiad-overview.with-next-step .olympiad-section-nav button{border-color:transparent;background:transparent;color:var(--edu-accent-ink)}

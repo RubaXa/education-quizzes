@@ -25,8 +25,8 @@ function preparation(value){
  if(value.progress!==undefined){
   keys(value.progress,['tasks','exhausted']);if(typeof value.progress.exhausted!=='boolean')fail()
   list(value.progress.tasks,100).forEach(t=>{
-   keys(t,['taskId','title','status','checkedOn','credited','confirmed','focus','achievedOn'])
-   if(!id.test(t.taskId)||!['verified','partial','needs-fix'].includes(t.status)||![null,'review','family'].includes(t.credited))fail()
+   keys(t,['taskId','title','status','reviewVersion','checkedOn','credited','confirmed','focus','achievedOn'])
+   if(!id.test(t.taskId)||!hash.test(t.reviewVersion)||!['verified','partial','needs-fix'].includes(t.status)||![null,'review','family'].includes(t.credited))fail()
    text(t.title,160);for(const d of [t.checkedOn,t.achievedOn])if(d!==null&&(!/^\d{4}-\d{2}-\d{2}$/.test(d)||Number.isNaN(Date.parse(d))))fail()
    for(const v of [t.confirmed,t.focus])if(v!==null)text(v,2000)
   });unique(value.progress.tasks.map(t=>t.taskId))

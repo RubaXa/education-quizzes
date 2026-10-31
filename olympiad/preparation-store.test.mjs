@@ -32,12 +32,17 @@ it('plans without writes; atomically updates both roles, saves exact old project
  expect(f.state.get(path.replace('parent','student')).competition).toEqual(studentHistory(updated.competition))
  expect(JSON.stringify(updated)).not.toContain('secret');expect(before).not.toBe(beforePlan)
  const after=JSON.stringify([...f.state]);expect((await refreshOlympiadPreparation({...f,familyId:'f',childId:'c',trigger:'old-event'})).writes).toBe(0);expect(JSON.stringify([...f.state])).toBe(after)
+ expect((await refreshOlympiadPreparation({...f,familyId:'f',childId:'c',triggerTask:{dayToken:'day',taskId:'school-work'}})).writes).toBe(0)
+ // Two identical outcomes on the same date remain separate checked versions.
+ f.state.get('dayProgress/day/items/a').checkedAt=stamp(11)
+ await refreshOlympiadPreparation({...f,familyId:'f',childId:'c'})
+ expect([...f.state.keys()].filter(p=>p.includes('/updates/'))).toHaveLength(2)
  // Current authoritative correction wins even for a late event, and history is append-only.
  f.state.set('dayProgress/day/items/a',{taskId:'a',status:'partial',checkedAt:stamp(20),studentFeedback:{focus:'Проверить полноту.'}})
  await refreshOlympiadPreparation({...f,familyId:'f',childId:'c',trigger:'old-event'})
  expect(f.state.get(path).competition.preparation.next.taskId).toBe('a')
  expect(f.state.get(path).competition.preparation.progress.tasks[0].achievedOn).toBeTruthy()
- expect([...f.state.keys()].filter(p=>p.includes('/updates/'))).toHaveLength(2)
+ expect([...f.state.keys()].filter(p=>p.includes('/updates/'))).toHaveLength(3)
  expect(()=>mergeHistory(f.state.get(path).competition,f.history.competition,{correctExisting:true})).toThrow('history_preparation_conflict')
 })
 it('rejects stale configuration, wrong family targets and foreign or inconsistent events',async()=>{

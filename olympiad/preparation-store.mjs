@@ -9,7 +9,7 @@ function available(task,owner,familyId,childId,competition){
   &&task.optional===true&&task.learningContext?.kind==='olympiad'&&[competition.id,...competition.aliases].includes(task.learningContext.id)
   &&owner?.familyId===familyId&&owner?.childId===childId
 }
-export async function refreshOlympiadPreparation({db,familyId,childId,configurations=null,apply=true,trigger=null}){
+export async function refreshOlympiadPreparation({db,familyId,childId,configurations=null,apply=true,trigger=null,triggerTask=null}){
  const base=root(familyId,childId),expected=[]
  const receipt=await db.runTransaction(async tx=>{
   const child=await tx.get(db.doc(base));if(!child.exists||child.data().active===false)throw Error('preparation_child_unavailable')
@@ -17,6 +17,7 @@ export async function refreshOlympiadPreparation({db,familyId,childId,configurat
   if(stored.size>10)throw Error('preparation_routes_limit')
   const routes=configurations??stored.docs.map(s=>s.data())
   if(routes.length>10)throw Error('preparation_routes_limit')
+  if(triggerTask&&!routes.some(r=>r.candidates.some(c=>c.dayToken===triggerTask.dayToken&&c.taskId===triggerTask.taskId)))return {mode:apply?'apply':'plan',routes:0,writes:0}
   const pending=[];expected.length=0
   for(const route of routes){
    const id=segment(route.competitionId),parentRef=db.doc(`${base}/olympiadHistory/${id}/views/parent`)
@@ -62,7 +63,8 @@ export async function refreshOlympiadPreparation({db,familyId,childId,configurat
  })
  if(apply)for(const item of expected){const got=await db.doc(item.path).get();if(historyDigest(got.data())!==historyDigest(item.body)){
   // Another valid review may already have advanced a live view; immutable journal remains the receipt.
-  if(!item.path.includes('/views/'))throw Error('preparation_readback_failed')
+  const live=got.data()
+  if(!item.path.includes('/views/')||!live?.competition||live.familyId!==familyId||live.childId!==childId||historyDigest(live.competition)!==live.digest)throw Error('preparation_readback_failed')
  }}
  return {...receipt,verified:apply}
 }
@@ -74,7 +76,8 @@ export function createPreparationEventHandler(db){
   if(!match||event.sourceRef?.dayToken&&event.sourceRef.dayToken!==match[1]||review&&event.sourceRef?.taskId&&event.sourceRef.taskId!==match[2])return {state:'blocked',safeErrorCode:'preparation_source_invalid'}
   const owner=(await db.doc(`dayOwners/${match[1]}`).get()).data()
   if(owner?.familyId!==event.familyId||owner?.childId!==event.childId)return {state:'blocked',safeErrorCode:'preparation_owner_mismatch'}
-  await refreshOlympiadPreparation({db,familyId:event.familyId,childId:event.childId,trigger:event.eventId})
+  await refreshOlympiadPreparation({db,familyId:event.familyId,childId:event.childId,trigger:event.eventId,
+   triggerTask:{dayToken:match[1],taskId:review?match[2]:event.sourceRef.taskId}})
   return {state:'complete'}
  }
 }
