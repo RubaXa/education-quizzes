@@ -4740,7 +4740,7 @@
       "id": "file:e2e/file-icons.e2e.ts",
       "path": "e2e/file-icons.e2e.ts",
       "kind": "artifact",
-      "purpose": "Все значки файлов, переключение и геометрия320/390/540/1280px",
+      "purpose": "Все значки, переключение, геометрия и однострочные PDF/DOCX в обеих карточках/ролях",
       "consumer": "Playwright"
     },
     {

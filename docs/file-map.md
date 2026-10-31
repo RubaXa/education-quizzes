@@ -1113,7 +1113,7 @@
 | [docs/decisions/solution-file-uploads-2026-10-31.md](../docs/decisions/solution-file-uploads-2026-10-31.md) | [Форматы решений](shared/media-storage.md) | Основание расширения загрузки решений на документы и таблицы | Education; разработчик |
 | [e2e/solution-files.e2e.ts](../e2e/solution-files.e2e.ts) | [Форматы решений](shared/media-storage.md) | Смешанная загрузка и просмотр документов обеими ролями при320/390/540px | Playwright |
 
-| [e2e/file-icons.e2e.ts](../e2e/file-icons.e2e.ts) | [UI Kit](shared/design/ui-kit.md) | Все значки файлов, переключение и геометрия320/390/540/1280px | Playwright |
+| [e2e/file-icons.e2e.ts](../e2e/file-icons.e2e.ts) | [UI Kit](shared/design/ui-kit.md) | Все значки, переключение, геометрия и однострочные PDF/DOCX в обеих карточках/ролях | Playwright |
 | [docs/decisions/file-icon-catalog-2026-10-31.md](decisions/file-icon-catalog-2026-10-31.md) | [UI Kit](shared/design/ui-kit.md) | Основание каталога общих значков и синхронизации спецификаций | Разработчик |
 
 | Файл | Спецификация | Назначение | Потребитель |
