@@ -1193,3 +1193,9 @@
 | [src/components/OlympiadOverview.test.tsx](../src/components/OlympiadOverview.test.tsx) | [Иерархия информации](shared/design/information-hierarchy.md) | Читаемая сводка, исследование, общий компонент и проверка полного календаря | Education |
 | [scripts/check-olympiad-overview-viewport.mjs](../scripts/check-olympiad-overview-viewport.mjs) | [Иерархия информации](shared/design/information-hierarchy.md) | Читаемая сводка, исследование, общий компонент и проверка полного календаря | Education |
 | [scripts/check-olympiad-overview-viewport.test.mjs](../scripts/check-olympiad-overview-viewport.test.mjs) | [Иерархия информации](shared/design/information-hierarchy.md) | Читаемая сводка, исследование, общий компонент и проверка полного календаря | Education |
+
+| [src/components/OlympiadPreparationSummary.tsx](../src/components/OlympiadPreparationSummary.tsx) | [Личная история](modules/assessments/olympiad-history.md) | Короткая персональная подготовка и архивные доказательства | OlympiadPage; UI Kit |
+| [src/components/OlympiadPreparationSummary.css](../src/components/OlympiadPreparationSummary.css) | [Личная история](modules/assessments/olympiad-history.md) | Иерархия и адаптивность персонального блока | OlympiadPreparationSummary |
+| [src/components/OlympiadPreparationSummary.test.tsx](../src/components/OlympiadPreparationSummary.test.tsx) | [Личная история](modules/assessments/olympiad-history.md) | Следующий шаг, адресное открытие оригинала, смена scope | Vitest |
+| [docs/decisions/olympiad-personal-preparation-2026-10-31.md](decisions/olympiad-personal-preparation-2026-10-31.md) | [Личная история](modules/assessments/olympiad-history.md) | Основание, роли и проверки персонального блока | Education developer |
+| [e2e/olympiad-personal-preparation.e2e.ts](../e2e/olympiad-personal-preparation.e2e.ts) | [Личная история](modules/assessments/olympiad-history.md) | Реальные переходы UI Kit и галерея на320/390/540px | Playwright |

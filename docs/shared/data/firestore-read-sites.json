@@ -204,9 +204,21 @@
     "note": "Только семья/ребёнок и перечисленные планом файлы/проекции; максимум100олимпиад и500файлов. Разовое чтение членов семьи для подтверждения существующего родителя. Повтор сохраняет этапы и существующие задания, без фоновой подписки."
   },
   {
+    "id": "olympiad/history-import.mjs#admin.get#da856e2190e0",
+    "file": "olympiad/history-import.mjs",
+    "line": 40,
+    "api": "admin.get",
+    "target": "db.doc(`${base}/tasks/${c.preparation.next.taskId}`)",
+    "group": "operator-olympiad",
+    "assessment": "conditional",
+    "policy": "fresh-authorized-point",
+    "refresh": "per explicit history import",
+    "note": "Один адресный get следующей задачи на competition.preparation: проверить family/child, активную публикацию и принадлежность олимпиаде до записи. Нет чтений при запуске UI, новых listeners или сканирования задач."
+  },
+  {
     "id": "olympiad/history-import.mjs#admin.get#0de3de3bb6d4",
     "file": "olympiad/history-import.mjs",
-    "line": 35,
+    "line": 47,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-olympiad",
@@ -218,7 +230,7 @@
   {
     "id": "olympiad/history-import.mjs#admin.get#0de3de3bb6d4-2",
     "file": "olympiad/history-import.mjs",
-    "line": 36,
+    "line": 48,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-olympiad",
@@ -230,7 +242,7 @@
   {
     "id": "olympiad/history-import.mjs#admin.get#e6f5095cc119",
     "file": "olympiad/history-import.mjs",
-    "line": 60,
+    "line": 72,
     "api": "admin.get",
     "target": "db.doc(item.path)",
     "group": "operator-olympiad",
@@ -242,7 +254,7 @@
   {
     "id": "olympiad/history-import.mjs#admin.get#048746072e2d",
     "file": "olympiad/history-import.mjs",
-    "line": 60,
+    "line": 72,
     "api": "admin.get",
     "target": "db.doc(`${base}/learningFiles/${id}`)",
     "group": "operator-olympiad",

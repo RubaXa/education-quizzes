@@ -29,6 +29,18 @@ export async function importOlympiadHistory({db,disk,plan,apply=false,readBytes=
   files.set(file.id,metadata)
  }
  for(const c of competitions)for(const s of c.seasons)for(const stage of s.stages)for(const file of stage.files){const registered=files.get(file.id);if(!registered||registered.studentVisible!==file.studentVisible||registered.contentType!==file.contentType||registered.name!==file.name||registered.size!==file.size)throw Error('history_file_reference_invalid')}
+ // Every recommendation points at the same family's existing source and task.
+ for(const c of competitions)if(c.preparation){
+  for(const e of c.preparation.evidence){
+   const source=competitions.find(v=>v.id===e.competitionId)?.seasons.find(v=>v.id===e.seasonId)?.stages.find(v=>v.id===e.stageId)
+   const file=source?.files.find(v=>v.id===e.file.id)
+   if(!file||!isDeepStrictEqual(file,e.file)||e.taskNumber!==undefined&&!source.tasks.some(t=>t.number===e.taskNumber&&t.fileIds.includes(e.file.id)))throw Error('history_preparation_source_invalid')
+  }
+  if(c.preparation.next){
+   const task=(await db.doc(`${base}/tasks/${c.preparation.next.taskId}`).get()).data()
+   if(!task||task.familyId!==familyId||task.childId!==childId||task.sourceSystem!=='family'||task.publication!=='active'||task.optional!==true||task.learningContext?.kind!=='olympiad'||![c.id,...c.aliases].includes(task.learningContext.id))throw Error('history_next_task_invalid')
+  }
+ }
  if(apply)for(const file of pendingUploads){await disk.putAt(file.path,file.bytes,createHash('md5').update(file.bytes).digest('hex'));if(!file.exists)await db.doc(`${base}/learningFiles/${file.id}`).create(file.metadata)}
  const expected=[]
  const receipt=await db.runTransaction(async tx=>{
@@ -42,7 +54,7 @@ export async function importOlympiadHistory({db,disk,plan,apply=false,readBytes=
    if(correcting&&(typeof plan.correctionReason!=='string'||plan.correctionReason.length<20))throw Error('history_correction_reason_required')
    let merged
    try{merged=mergeHistory(previous?.competition,competitions[i],{correctExisting:correcting})}
-   catch(error){if(apply||!['history_stage_conflict','history_season_conflict'].includes(error.message))throw error;conflicts.push({id:competitions[i].id,code:error.message});merged=previous.competition}
+   catch(error){if(apply||!['history_stage_conflict','history_season_conflict','history_preparation_conflict'].includes(error.message))throw error;conflicts.push({id:competitions[i].id,code:error.message});merged=previous.competition}
    const digest=historyDigest(merged)
    entries.set(merged.id,historyIndexEntry(merged))
    const changed=previous?.digest&&previous.digest!==digest
