@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/olympiad-calendar-2026-10-31.md */
 /** @see ../docs/decisions/mesh-informational-entry-2026-10-21.md */
 /** @see ../docs/decisions/audio-library-2026-10-22.md#было--стало */
 /**
@@ -139,7 +140,7 @@ function assertFamilyProjectionMatches(source, page, role, familyAssignments) {
   const expectedIds = expectedFamily.map((task) => task.id).sort()
   const actualIds = actualFamily.map((task) => task.id).sort()
   const publicFields = new Set(['id', 'title', 'detail', 'kind', 'status', 'source', 'familyOrigin', 'steps', 'submission',
-    'cardPattern', 'cardPolicyVersion', 'outputKind', 'lessonDate', 'dueDate', 'learningContext', 'optional', 'sourceIntake', 'learnerOrigin', 'learnerSources', 'competitionUntil', 'competitionNumber'])
+    'cardPattern', 'cardPolicyVersion', 'outputKind', 'lessonDate', 'dueDate', 'practiceMode', 'learningContext', 'optional', 'sourceIntake', 'learnerOrigin', 'learnerSources', 'competitionUntil', 'competitionNumber'])
   const hasPrivateFields = actualFamily.some((task) => Object.keys(task).some((key) => !publicFields.has(key)))
   const invalidFamilyOrigin = actualFamily.some((task) => !task.familyOrigin || Object.keys(task.familyOrigin).some((key) => !['sourceSystem', 'sourceId', 'sourceRevision', 'projectedSourceRevision'].includes(key))
     || task.familyOrigin.sourceSystem !== 'family' || task.familyOrigin.projectedSourceRevision !== task.familyOrigin.sourceRevision)

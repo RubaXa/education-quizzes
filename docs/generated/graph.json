@@ -1239,6 +1239,38 @@
       "path": "docs/decisions/mixed-assignment-actions-2026-10-22.md"
     },
     {
+      "id": "decision.olympiad-calendar-2026-10-31",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-10-31",
+      "updated": "2026-10-31",
+      "parent": "module.olympiad-preparation",
+      "uses": [],
+      "consumers": [
+        "Family catalog",
+        "Olympiad page"
+      ],
+      "code": [
+        "olympiad/season-calendar.mjs",
+        "olympiad/publish-calendar.mjs",
+        "scripts/olympiad-calendar.mjs",
+        "src/lib/olympiad/calendar.ts",
+        "src/components/OlympiadSchedule.tsx",
+        "src/components/OlympiadSchedule.css",
+        "day/family-assignment.mjs",
+        "day/pipeline-contract.mjs",
+        "scripts/day.mjs"
+      ],
+      "sections": [
+        "основание",
+        "проверки",
+        "было--стало",
+        "действия-и-роли",
+        "согласование"
+      ],
+      "path": "docs/decisions/olympiad-calendar-2026-10-31.md"
+    },
+    {
       "id": "decision.olympiad-domain-ldd-2026-10-27",
       "status": "accepted",
       "implementation": "partial",
@@ -4040,6 +4072,13 @@
       "consumer": "Vitest"
     },
     {
+      "id": "file:day/family-practice-calendar.test.mjs",
+      "path": "day/family-practice-calendar.test.mjs",
+      "kind": "verification",
+      "purpose": "Сохранность домашнего режима, зачёта и crop",
+      "consumer": "Vitest"
+    },
+    {
       "id": "file:day/family-source-graph.mjs",
       "path": "day/family-source-graph.mjs",
       "kind": "artifact",
@@ -4775,6 +4814,20 @@
       "consumer": "Vitest"
     },
     {
+      "id": "file:olympiad/publish-calendar.mjs",
+      "path": "olympiad/publish-calendar.mjs",
+      "kind": "artifact",
+      "purpose": "Идемпотентная публикация общих дат",
+      "consumer": "Education"
+    },
+    {
+      "id": "file:olympiad/publish-calendar.test.mjs",
+      "path": "olympiad/publish-calendar.test.mjs",
+      "kind": "verification",
+      "purpose": "Сохранность семейных данных",
+      "consumer": "Education"
+    },
+    {
       "id": "file:olympiad/publish-training.mjs",
       "path": "olympiad/publish-training.mjs",
       "kind": "artifact",
@@ -4801,6 +4854,13 @@
       "kind": "verification",
       "purpose": "Проверка приоритета и отсутствия подходящего урока",
       "consumer": "Vitest"
+    },
+    {
+      "id": "file:olympiad/season-calendar.mjs",
+      "path": "olympiad/season-calendar.mjs",
+      "kind": "artifact",
+      "purpose": "Проверенные публичные даты и подготовка",
+      "consumer": "Education"
     },
     {
       "id": "file:olympiad/training-content.mjs",
@@ -6273,6 +6333,13 @@
       "consumer": "Оператор; Firestore; `NotificationBell`"
     },
     {
+      "id": "file:scripts/olympiad-calendar.mjs",
+      "path": "scripts/olympiad-calendar.mjs",
+      "kind": "artifact",
+      "purpose": "Штатный CLI календаря",
+      "consumer": "Education"
+    },
+    {
       "id": "file:scripts/olympiad-help.mjs",
       "path": "scripts/olympiad-help.mjs",
       "kind": "artifact",
@@ -6992,6 +7059,27 @@
       "kind": "artifact",
       "purpose": "Сведения и открытые архивные источники",
       "consumer": "OlympiadPage; UI Kit"
+    },
+    {
+      "id": "file:src/components/OlympiadSchedule.css",
+      "path": "src/components/OlympiadSchedule.css",
+      "kind": "artifact",
+      "purpose": "Стили общих сроков",
+      "consumer": "Education"
+    },
+    {
+      "id": "file:src/components/OlympiadSchedule.test.tsx",
+      "path": "src/components/OlympiadSchedule.test.tsx",
+      "kind": "verification",
+      "purpose": "Живая смена фазы без выдуманного окончания",
+      "consumer": "Vitest"
+    },
+    {
+      "id": "file:src/components/OlympiadSchedule.tsx",
+      "path": "src/components/OlympiadSchedule.tsx",
+      "kind": "artifact",
+      "purpose": "Общий календарь карточки и страницы",
+      "consumer": "Education"
     },
     {
       "id": "file:src/components/OlympiadSourceQueue.tsx",
@@ -8014,6 +8102,20 @@
       "kind": "artifact",
       "purpose": "Правило помощи с учётом проверенного происхождения и регламента",
       "consumer": "Будущий серверный адаптер"
+    },
+    {
+      "id": "file:src/lib/olympiad/calendar.test.ts",
+      "path": "src/lib/olympiad/calendar.test.ts",
+      "kind": "verification",
+      "purpose": "Границы сроков и неизвестное",
+      "consumer": "Education"
+    },
+    {
+      "id": "file:src/lib/olympiad/calendar.ts",
+      "path": "src/lib/olympiad/calendar.ts",
+      "kind": "artifact",
+      "purpose": "Валидация и время по Москве",
+      "consumer": "Education"
     },
     {
       "id": "file:src/lib/olympiad/client.ts",
@@ -13394,6 +13496,26 @@
       "type": "uses"
     },
     {
+      "from": "decision.olympiad-calendar-2026-10-31",
+      "to": "file:day/family-practice-calendar.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "decision.olympiad-calendar-2026-10-31",
+      "to": "file:olympiad/publish-calendar.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "decision.olympiad-calendar-2026-10-31",
+      "to": "file:src/components/OlympiadSchedule.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "decision.olympiad-calendar-2026-10-31",
+      "to": "file:src/lib/olympiad/calendar.test.ts",
+      "type": "verified-by"
+    },
+    {
       "from": "decision.olympiad-domain-ldd-2026-10-27",
       "to": "module.families.browser-access-trace",
       "type": "uses"
@@ -14200,6 +14322,11 @@
     },
     {
       "from": "file:day/family-assignment.mjs",
+      "to": "decision.olympiad-calendar-2026-10-31",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/family-assignment.mjs",
       "to": "module.families",
       "type": "implements"
     },
@@ -14406,6 +14533,11 @@
     {
       "from": "file:day/pipeline-contract.mjs",
       "to": "decision.mesh-informational-entry-2026-10-21",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/pipeline-contract.mjs",
+      "to": "decision.olympiad-calendar-2026-10-31",
       "type": "implements"
     },
     {
@@ -14759,6 +14891,11 @@
       "type": "implements"
     },
     {
+      "from": "file:olympiad/publish-calendar.mjs",
+      "to": "decision.olympiad-calendar-2026-10-31",
+      "type": "implements"
+    },
+    {
       "from": "file:olympiad/publish-training.mjs",
       "to": "module.olympiad-preparation",
       "type": "implements"
@@ -14766,6 +14903,11 @@
     {
       "from": "file:olympiad/recommendation.mjs",
       "to": "module.olympiad-preparation",
+      "type": "implements"
+    },
+    {
+      "from": "file:olympiad/season-calendar.mjs",
+      "to": "decision.olympiad-calendar-2026-10-31",
       "type": "implements"
     },
     {
@@ -15560,6 +15702,11 @@
     },
     {
       "from": "file:scripts/day.mjs",
+      "to": "decision.olympiad-calendar-2026-10-31",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/day.mjs",
       "to": "decision.released-stage-parity-2026-10-20",
       "type": "implements"
     },
@@ -15866,6 +16013,11 @@
     {
       "from": "file:scripts/notifications.mjs",
       "to": "module.notifications.inbox",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/olympiad-calendar.mjs",
+      "to": "decision.olympiad-calendar-2026-10-31",
       "type": "implements"
     },
     {
@@ -16716,6 +16868,16 @@
     {
       "from": "file:src/components/OlympiadReferences.tsx",
       "to": "module.olympiad-preparation",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/OlympiadSchedule.css",
+      "to": "decision.olympiad-calendar-2026-10-31",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/OlympiadSchedule.tsx",
+      "to": "decision.olympiad-calendar-2026-10-31",
       "type": "implements"
     },
     {
@@ -17976,6 +18138,11 @@
     {
       "from": "file:src/lib/olympiad/assistancePolicy.ts",
       "to": "product.olympiad-preparation",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/olympiad/calendar.ts",
+      "to": "decision.olympiad-calendar-2026-10-31",
       "type": "implements"
     },
     {
@@ -19716,6 +19883,11 @@
     {
       "from": "module.olympiad-preparation",
       "to": "decision.energy-hope-archive-2026-10-28",
+      "type": "contains"
+    },
+    {
+      "from": "module.olympiad-preparation",
+      "to": "decision.olympiad-calendar-2026-10-31",
       "type": "contains"
     },
     {
