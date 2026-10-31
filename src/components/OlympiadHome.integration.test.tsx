@@ -3,19 +3,23 @@ import { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, expect, it, vi } from 'vitest'
 import OlympiadHome from './OlympiadHome'
+import { watchOlympiadHistoryIndex } from '@/lib/olympiad/historyStore'
+import type { HistoryIndexEntry } from '@/lib/olympiad/historyTypes'
 // @ts-expect-error Shared operator data has no TypeScript declaration.
 import { seasonCalendarCatalog } from '../../olympiad/season-calendar.mjs'
 import { parseOlympiadCalendar } from '@/lib/olympiad/calendar'
 import { watchFamilyOlympiadTasks, watchPublicOlympiads, watchOlympiadGrade, watchOlympiadSelections, setOlympiadSelection } from '@/lib/educationStore'
 vi.mock('@/lib/educationStore', () => ({ watchFamilyOlympiadTasks: vi.fn(), watchPublicOlympiads: vi.fn(), watchOlympiadGrade: vi.fn(), watchOlympiadSelections: vi.fn(), setOlympiadSelection: vi.fn() }))
 vi.mock('@/lib/browserAccessTrace', () => ({ traceOlympiad: vi.fn() }))
+vi.mock('@/lib/olympiad/historyStore',()=>({watchOlympiadHistoryIndex:vi.fn(),watchOlympiadHistory:vi.fn(),requestHistoryFile:vi.fn()}))
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 const host = document.createElement('div'); let root: ReturnType<typeof createRoot> | undefined
 afterEach(async () => { if (root) await act(async () => root!.unmount()); root = undefined; host.remove(); host.innerHTML = ''; vi.resetAllMocks() })
 const publicItems = [{ id: 'shared', title: 'Общая олимпиада', deadline: '2026-11-05', gradeLevels:[5,6] }, { id: 'future', title: 'Другая олимпиада', deadline: null, gradeLevels:[6] }]
 const familyTask = { id:'task', title:'Семейная подготовка', dueDate:'2026-11-05', projectionSourceDate:'2026-11-04', learningContext:{kind:'olympiad' as const,id:'shared'},testTokens:[] }
-function fixture(role:'parent'|'student', selected:string[] = [], items: import('@/lib/educationStore').PublicOlympiad[] = publicItems) {
+function fixture(role:'parent'|'student', selected:string[] = [], items: import('@/lib/educationStore').PublicOlympiad[] = publicItems, history:HistoryIndexEntry[] = []) {
   let update: (ids:string[])=>void = () => {}
+  vi.mocked(watchOlympiadHistoryIndex).mockImplementation((_f,_c,next)=>{next(history);return ()=>{}})
   vi.mocked(watchOlympiadGrade).mockImplementation((_f,_c,next) => { next(6); return () => {} })
   vi.mocked(watchPublicOlympiads).mockImplementation(next => { next(items); return () => {} })
   vi.mocked(watchFamilyOlympiadTasks).mockImplementation((_f,_c,next) => { next(items === publicItems ? [familyTask] : []); return () => {} })
@@ -56,4 +60,10 @@ it.each(['parent','student'] as const)('keeps undated preparation accessible for
  expect(host.textContent).toContain('Следующие даты ещё не опубликованы')
  expect(setOlympiadSelection).not.toHaveBeenCalled()
  } finally { vi.useRealTimers() }
+})
+
+it('keeps a historical competition accessible to the student without current catalog or selection',async()=>{
+ await fixture('student',[],publicItems,[{id:'old-competition',title:'Прошлая олимпиада',aliases:[],resultCount:2,seasonCount:1,summary:'2025/26 · финал · 21 балл · предварительно'}])
+ const tab=Array.from(host.querySelectorAll<HTMLButtonElement>('[role=tab]')).find(b=>b.textContent?.startsWith('Архив'))!;await act(async()=>tab.click())
+ expect(host.textContent).toContain('Прошлая олимпиада');expect(host.textContent).toContain('2025/26');expect(host.querySelector('[role=switch]')).toBeNull()
 })

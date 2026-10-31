@@ -5,6 +5,7 @@ import { createEducationEventId } from '../education-events/envelope.mjs'
 /** @see ../../docs/modules/synchronization/event-queue.md @see ../../docs/services/telegram-bot/adapters/firestore.md */
 export const EDUCATION_EVENT_COLLECTION = 'educationEvents'
 export const EDUCATION_EVENT_TYPES = Object.freeze([
+  'material.read_requested',
   'help.requested', 'upload.confirmed', 'upload.transfer_requested', 'upload.bytes_uploaded', 'upload.delete_requested', 'quiz.submitted', 'quiz.followup_requested',
   'quiz.requirement_changed', 'parent.guidance_sent', 'parent.decision', 'material.upload_requested', 'material.bytes_uploaded', 'material.ready',
   'review.published', 'schedule.created', 'schedule.changed', 'schedule.cancelled', 'homework.assigned', 'homework.changed',

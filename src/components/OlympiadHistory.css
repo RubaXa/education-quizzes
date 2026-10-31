@@ -1,0 +1,15 @@
+/* @see ../../docs/shared/design/README.md#tokens */
+/* @see ../../docs/modules/assessments/olympiad-history.md */
+.olympiad-history{min-width:0}
+.olympiad-history-season,.olympiad-history-stage{border-top:1px solid var(--edu-card-border);padding:10px 0}
+.olympiad-history-season>summary,.olympiad-history-stage>summary{cursor:pointer;line-height:1.5;overflow-wrap:anywhere}
+.olympiad-history-season>summary span,.olympiad-history-stage>summary span{margin-left:10px;color:var(--edu-muted);font-size:.875rem}
+.olympiad-history-stage{margin:8px 0 0 12px}
+.olympiad-history-stage-body{padding:8px 0;min-width:0}
+.olympiad-history-table{border-collapse:collapse;width:100%;font-size:.875rem;margin:12px 0}
+.olympiad-history-table caption{text-align:left;font-weight:600;margin:0 0 6px}
+.olympiad-history-table th,.olympiad-history-table td{padding:6px 4px;border-bottom:1px solid var(--edu-card-border);text-align:left}
+.olympiad-history-statement{white-space:pre-wrap}
+.olympiad-history-file-list{padding-left:18px;font-size:.875rem;color:var(--edu-muted);overflow-wrap:anywhere}
+.olympiad-history-source-note{font-size:.875rem;color:var(--edu-muted)}
+.olympiad-history-files,.olympiad-history-task{min-width:0}

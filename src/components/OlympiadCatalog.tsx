@@ -22,9 +22,9 @@ export default function OlympiadCatalog({ items, parent, onOpen, onParticipation
   useEffect(() => { const timer = window.setInterval(() => setNow(Date.now()), 1000); return () => window.clearInterval(timer) }, [])
   const today = new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'Europe/Moscow' }).format(new Date())
   const expired = (item: OlympiadCatalogItem) => item.calendar ? item.calendar.events.length > 0 && item.calendar.events.every(event => olympiadEventExpired(event, now)) : Boolean(item.deadline && item.deadline < today)
-  const available = items.filter(item => !expired(item))
-  const archived = items.filter(item => item.participationEnabled && expired(item))
-  const active = items.filter(item => item.participationEnabled && !expired(item))
+  const available = items.filter(item => !item.historicalOnly && !expired(item))
+  const archived = items.filter(item => item.history || item.participationEnabled && expired(item))
+  const active = items.filter(item => !item.historicalOnly && item.participationEnabled && !expired(item))
   const current = !parent && tab === 'available' ? 'active' : tab
   const tabs: Array<['active' | 'available' | 'archive', string]> = [['active', `Активные ${active.length}`], ...(parent ? [['available', `Доступные ${available.length}`] as ['available', string]] : []), ['archive', `Архив ${archived.length}`]]
   const visible = current === 'active' ? active : current === 'available' ? available : archived
@@ -40,6 +40,7 @@ export default function OlympiadCatalog({ items, parent, onOpen, onParticipation
       <span className="day-dashboard-icon" aria-hidden="true"><BookOpen size={18} /></span>
       <button type="button" className="olympiad-card-link day-dashboard-homework-row-body" onClick={() => onOpen(item.id)} aria-label={`Открыть олимпиаду «${item.title}»`}>
         <strong>{item.title}</strong>
+        {item.history && <span className="day-dashboard-homework-next">История · {item.history.summary}</span>}
         <span className="day-dashboard-homework-next">{[item.subject, item.schedule || (item.deadline ? `До ${dateLabel(item.deadline)}` : '')].filter(Boolean).join(' · ')}</span>
         {current !== 'available' && <span className="day-dashboard-homework-next">{item.practiceAvailable ? 'Подготовка доступна' : item.calendar?.preparation.length ? 'План подготовки доступен' : 'Материалы готовятся'}</span>}
       </button>

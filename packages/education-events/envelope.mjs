@@ -23,7 +23,7 @@ export function canonicalEducationEventSourceRef(sourceRef) {
     upload: parts.length === 4 && parts[0] === 'dayUploads' && parts[2] === 'files'
       && sourceRef.dayToken === parts[1] && sourceRef.recordId === parts[3] && Boolean(sourceRef.taskId),
     material: parts.length === 6 && parts[0] === 'families' && parts[2] === 'children'
-      && ['bookUploads', 'bookRequirements'].includes(parts[4]) && sourceRef.recordId === parts[5],
+      && ['bookUploads', 'bookRequirements', 'mediaRequests'].includes(parts[4]) && sourceRef.recordId === parts[5],
     review: parts.length === 4 && parts[0] === 'dayProgress' && parts[2] === 'items'
       && sourceRef.dayToken === parts[1] && sourceRef.taskId === parts[3],
     mesh: parts.length === 3 && parts[0] === 'meshEvents' && /^[a-f0-9]{64}$/.test(parts[1]) && /^[a-f0-9]{64}$/.test(parts[2]),

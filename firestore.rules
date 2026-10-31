@@ -74,7 +74,15 @@ service cloud.firestore {
       let bookUploadPath = /databases/$(database)/documents/families/$(data.familyId)/children/$(data.childId)/bookUploads/$(ref.get('recordId', 'unused'));
       let bookRequirementPath = /databases/$(database)/documents/families/$(data.familyId)/children/$(data.childId)/bookRequirements/$(ref.get('recordId', 'unused'));
       return data.source == 'firestore'
-        && ((data.eventType == 'help.requested'
+        && ((data.eventType == 'material.read_requested'
+            && ref.kind == 'material' && ref.recordId is string
+            && ref.documentPath == 'families/' + data.familyId + '/children/' + data.childId + '/mediaRequests/' + ref.recordId
+            && data.operationId == 'media-read:' + ref.recordId
+            && existsAfter(/databases/$(database)/documents/families/$(data.familyId)/children/$(data.childId)/mediaRequests/$(ref.recordId))
+            && getAfter(/databases/$(database)/documents/families/$(data.familyId)/children/$(data.childId)/mediaRequests/$(ref.recordId)).data.deviceUid == request.auth.uid
+            && getAfter(/databases/$(database)/documents/families/$(data.familyId)/children/$(data.childId)/mediaRequests/$(ref.recordId)).data.status == 'requested'
+            && getAfter(/databases/$(database)/documents/families/$(data.familyId)/children/$(data.childId)/mediaRequests/$(ref.recordId)).data.eventReceiptId == data.eventId)
+          || (data.eventType == 'help.requested'
             && ref.kind == 'help' && ref.dayToken is string && ref.taskId is string
             && ref.documentPath == 'dayHelp/' + ref.dayToken + '/items/' + ref.taskId
             && existsAfter(/databases/$(database)/documents/dayOwners/$(ref.dayToken))
@@ -231,7 +239,7 @@ service cloud.firestore {
         && data.keys().hasAll(['schemaVersion', 'eventId', 'eventType', 'familyId', 'childId', 'source', 'sourceRef', 'operationId', 'actor', 'createdAt', 'state', 'availableAt', 'attempts'])
         && data.schemaVersion == 1
         && eventId.matches('^[a-f0-9]{64}$') && data.eventId == eventId
-        && data.eventType in ['help.requested', 'quiz.started', 'quiz.submitted', 'quiz.followup_requested', 'quiz.requirement_changed', 'parent.guidance_sent', 'parent.decision', 'material.upload_requested', 'upload.transfer_requested', 'upload.bytes_uploaded', 'upload.delete_requested', 'material.bytes_uploaded', 'material.requirement_changed']
+        && data.eventType in ['help.requested', 'quiz.started', 'quiz.submitted', 'quiz.followup_requested', 'quiz.requirement_changed', 'parent.guidance_sent', 'parent.decision', 'material.upload_requested', 'upload.transfer_requested', 'upload.bytes_uploaded', 'upload.delete_requested', 'material.bytes_uploaded', 'material.requirement_changed', 'material.read_requested']
         && data.familyId is string && data.childId is string
         && data.operationId is string && data.operationId.size() > 0 && data.operationId.size() <= 200
         && data.actor is map && data.actor.keys().hasOnly(['type', 'uid'])
@@ -759,6 +767,35 @@ service cloud.firestore {
             && request.resource.data.eventId.matches('^[A-Za-z0-9-]{36}$')
             && request.resource.data.changedAt == request.time;
           allow delete: if false;
+        }
+
+        // @see docs/modules/assessments/olympiad-history.md
+        match /learningHistory/{historyId} {
+          allow get: if historyId == 'olympiads' && childMember(familyId, childId);
+          allow list, write: if false;
+        }
+        match /olympiadHistory/{competitionId}/views/{view} {
+          allow get: if childMember(familyId, childId)
+            && (view == 'student' || view == 'parent' && parentMember(familyId));
+          allow list, write: if false;
+        }
+        match /learningFiles/{fileId} { allow read, write: if false; }
+        match /mediaRequests/{mediaRequestId} {
+          allow get: if childMember(familyId, childId) && resource.data.deviceUid == request.auth.uid
+            && resource.data.personId == currentPersonId()
+            && (resource.data.status != 'ready' || resource.data.expiresAt > request.time);
+          allow list, update, delete: if false;
+          allow create: if childMember(familyId, childId)
+            && request.resource.data.keys().hasOnly(['fileId','personId','deviceUid','status','createdAt','eventProducerVersion','eventReceiptId','eventOperationId'])
+            && request.resource.data.keys().hasAll(['fileId','personId','deviceUid','status','createdAt','eventProducerVersion','eventReceiptId','eventOperationId'])
+            && mediaRequestId.matches('^[A-Za-z0-9-]{36}$')
+            && request.resource.data.fileId is string && request.resource.data.fileId.matches('^[a-f0-9]{64}$')
+            && request.resource.data.personId == currentPersonId()
+            && request.resource.data.deviceUid == request.auth.uid
+            && request.resource.data.status == 'requested' && request.resource.data.createdAt == request.time
+            && exists(/databases/$(database)/documents/families/$(familyId)/children/$(childId)/learningFiles/$(request.resource.data.fileId))
+            && (parentMember(familyId) || get(/databases/$(database)/documents/families/$(familyId)/children/$(childId)/learningFiles/$(request.resource.data.fileId)).data.studentVisible == true)
+            && validEducationEventReceipt(request.resource.data, 'material.read_requested', 'media-read:' + mediaRequestId, 'families/' + familyId + '/children/' + childId + '/mediaRequests/' + mediaRequestId);
         }
 
         match /days/{dayId} {

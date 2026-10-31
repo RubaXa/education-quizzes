@@ -1,0 +1,22 @@
+/** @see ../docs/modules/assessments/olympiad-history.md */
+import { expect,test } from '@playwright/test'
+for(const width of [320,390,540])test(`history seasons, tasks and shared file viewer at ${width}px`,async({page})=>{
+ await page.setViewportSize({width,height:950});await page.goto('#/ui-kit');await page.getByRole('button',{name:'История олимпиад',exact:true}).click()
+ const example=page.locator('#olympiad-history-showcase')
+ await example.locator('.olympiad-history-season>summary').click()
+ await example.locator('.olympiad-history-stage>summary').first().click()
+ await expect(example.getByRole('table')).toContainText('Баллы и работы по задачам')
+ await expect(example.locator('.day-upload-chip')).toHaveCount(1)
+ await example.getByRole('button',{name:'Открыть №1',exact:true}).click()
+ await expect(example.locator('.olympiad-history-statement')).toContainText('все возможные случаи')
+ await example.locator('.day-upload-chip').click()
+ await expect(example.getByRole('link',{name:'Открыть файл'})).toHaveAttribute('href',/^blob:/)
+ await expect(example.locator('input[type=file]')).toHaveCount(0)
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true)
+ await example.getByRole('button',{name:'Ученик',exact:true}).click()
+ await example.locator('.olympiad-history-season>summary').click()
+ await example.locator('.olympiad-history-stage>summary').last().click()
+ await expect(example).toContainText('Предварительный результат')
+ await expect(example).not.toContainText('Примечания к источникам')
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true)
+})

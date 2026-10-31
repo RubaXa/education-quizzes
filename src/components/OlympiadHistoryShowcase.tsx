@@ -1,0 +1,10 @@
+import OlympiadHistory from './OlympiadHistory'
+import { useState } from 'react'
+import { Button } from './ui/button'
+import type { HistoryCompetition } from '@/lib/olympiad/historyTypes'
+/** Synthetic fixtures only; never a real child's history in public UI Kit.
+ * @see ../../docs/shared/design/ui-kit.md
+ * @see ../../docs/modules/assessments/olympiad-history.md */
+const example:HistoryCompetition={id:'demo-history',title:'Пример олимпиады',aliases:[],seasons:[{id:'2025-26',label:'2025/26',grade:'5',stages:[{id:'qualifier',label:'Отборочный этап',date:'2025-11-10',score:18,maximum:30,state:'recorded',award:'Призёр отбора',rank:null,notes:['Сохранены результат и исходное решение.'],parentNotes:['Это демонстрационные данные.'],files:[{id:'a'.repeat(64),name:'Пример решения.pdf',contentType:'application/pdf',size:100,role:'solution',studentVisible:true}],tasks:[{number:1,score:6,maximum:10,statement:'Докажите, что рассмотрены все возможные случаи.',fileIds:['a'.repeat(64)]}]},{id:'final',label:'Заключительный этап',date:null,score:9,maximum:null,state:'preliminary',award:null,rank:null,notes:['Окончательный итог ещё не подтверждён.'],files:[],tasks:[]}]}]}
+const demoFile=async()=> URL.createObjectURL(new Blob(['%PDF-1.4\n%%EOF'],{type:'application/pdf'}))
+export default function OlympiadHistoryShowcase(){const [parent,setParent]=useState(true);return <><div className="edu-kit-presets"><Button variant="outline" aria-pressed={parent} onClick={()=>setParent(true)}>Родитель</Button><Button variant="outline" aria-pressed={!parent} onClick={()=>setParent(false)}>Ученик</Button></div><OlympiadHistory key={parent?'parent':'student'} competition={example} familyId="demo" childId="demo" parent={parent} resolveFile={demoFile}/></>}
