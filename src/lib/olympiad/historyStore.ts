@@ -31,7 +31,7 @@ export async function requestHistoryFile(familyId:string,childId:string,fileId:s
  const event=await prepareEducationEvent({eventType:'material.read_requested',familyId,childId,source:'firestore',sourceRef:{kind:'material',documentPath:path,recordId:id},operationId:`media-read:${id}`,actor:{type:'user',uid}})
  const batch=writeBatch(db);batch.set(doc(db,path),{fileId,personId,deviceUid:uid,status:'requested',createdAt:serverTimestamp(),eventProducerVersion:1,eventReceiptId:event.eventId,eventOperationId:event.operationId});stagePreparedEducationEvent(batch,event);await batch.commit()
  return new Promise((resolve,reject)=>{
-  let stop=()=>{};const timer=window.setTimeout(()=>{stop();reject(Error('Файл пока не удалось открыть. Повторите запрос.'))},45000)
+  let stop=()=>{};const timer=window.setTimeout(()=>{stop();reject(Error('Файл пока не удалось открыть. Повторите запрос.'))},120000)
   const fail=(error:Error)=>{window.clearTimeout(timer);stop();reject(error)}
   stop=onSnapshot(doc(db,path),snapshot=>{
    const value=snapshot.data();if(value?.status==='failed')return fail(Error('Доступ к файлу недоступен. Обновите страницу.'))

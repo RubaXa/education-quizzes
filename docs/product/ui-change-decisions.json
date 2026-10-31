@@ -1702,17 +1702,17 @@
       "sha256": "ab5d30c05db642563c96a73344945c9c9150d27916d7219ecbd10a9c7f932470"
     },
     "scripts/build-site.mjs": {
-      "sha256": "1d4f48a3e19cea9e731ff27f22460ebdef414ce88601b61597d23c266b9a6c97",
-      "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
+      "sha256": "499a07b11a71a1c42e07874f22c93c8c03debe2b21ef5678dfcf1bb20de9c3db",
+      "record": "docs/decisions/olympiad-history-2026-10-31.md",
       "specs": [
-        "docs/operations/deployment.md"
+        "docs/product/pwa.md"
       ],
       "tests": [
         "scripts/build-inputs.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь 16.10.2026 прямо запросил аудит metadata и обратных ссылок кода; изменения здесь добавляют только comment-only @see ссылки и фиксацию hash в журнале решений."
+        "evidence": "Пользователь31.10.2026: реализовать историю олимпиад через существующую инфраструктуру, с проверками и публикацией без дополнительных согласований."
       },
       "specificationLifecycle": {
         "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
@@ -3834,7 +3834,7 @@
       }
     },
     "src/components/WorkPhotoGallery.tsx": {
-      "sha256": "6e4450c94f34998de1d7cef7840efeb709eb50c82dc93980a7c337d1b95af046",
+      "sha256": "ae62902d715a8c5a25ce26fa74e0c24d617588b2288bf33f5c62460d2026fded",
       "record": "docs/decisions/olympiad-history-2026-10-31.md",
       "specs": [
         "docs/modules/assessments/olympiad-history.md"
@@ -7318,7 +7318,7 @@
       }
     },
     "src/lib/olympiad/historyStore.ts": {
-      "sha256": "dc2c169f5e14cffc8490f7af289154a7262713f45c7f07614f0d783ba9269e2c",
+      "sha256": "d52d914dd74469fba5f0b21fdc2bff82b99649fde3f3955c974b81de0fef01d2",
       "record": "docs/decisions/olympiad-history-2026-10-31.md",
       "specs": [
         "docs/modules/assessments/olympiad-history.md"
@@ -7330,7 +7330,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь31.10.2026 прямо поручил реализовать историю сезонов, этапов, результатов и работ в карточках олимпиад через существующий Education/UI Kit с проверками и публикацией без дополнительных согласований."
+        "evidence": "Пользователь31.10.2026: реализовать историю олимпиад через существующую инфраструктуру, с проверками и публикацией без дополнительных согласований."
       }
     },
     "src/lib/olympiad/historyTypes.ts": {
