@@ -79,7 +79,7 @@ describe('authenticated route through the real problem card', () => {
     scene.restoreError = { code: 'unavailable' }
     const host = await render()
     expect(host.textContent).toContain('Разбор для родителя')
-    expect(host.textContent).not.toContain('Добавить фото решения')
+    expect(host.textContent).not.toContain('Загрузить решение')
     expect(host.textContent).not.toContain('Проверяем личный доступ')
     expect(scene.closed).toBe(0)
     expect(scene.options).toHaveLength(0)
@@ -90,7 +90,7 @@ describe('authenticated route through the real problem card', () => {
     scene.restoreError = { code: 'unavailable' }
     const host = await render('day', 'shared-day')
     expect(host.textContent).toContain('Разбор для родителя')
-    expect(host.textContent).not.toContain('Добавить фото решения')
+    expect(host.textContent).not.toContain('Загрузить решение')
     expect(scene.reads).toEqual([])
   })
   it('updates the same mounted calendar when the role is saved in a sibling tab', async () => {
@@ -98,12 +98,12 @@ describe('authenticated route through the real problem card', () => {
     scene.profile!.children[0].role = 'student'
     scene.profile!.children[0].dashboardToken = 'shared-dashboard'
     const host = await render()
-    expect(host.textContent).toContain('Добавить фото решения')
+    expect(host.textContent).toContain('Загрузить решение')
     scene.profile!.children[0].role = 'parent'
     scene.profile!.children[0].dashboardToken = 'parent-dashboard'
     await act(async () => window.dispatchEvent(new StorageEvent('storage', { key: 'education-personal-context-v1' })))
     expect(host.textContent).toContain('Разбор для родителя')
-    expect(host.textContent).not.toContain('Добавить фото решения')
+    expect(host.textContent).not.toContain('Загрузить решение')
     expect(location.hash).toBe('#/days/shared-dashboard')
   })
   it.each(['parent', 'student'] as const)('reconciles stale cached role to authoritative %s on the same shared URL', async (role) => {
@@ -113,8 +113,8 @@ describe('authenticated route through the real problem card', () => {
     scene.profile!.children[0].role = role === 'parent' ? 'student' : 'parent'
     scene.profile!.children[0].dashboardToken = role === 'parent' ? 'shared-dashboard' : 'parent-dashboard'
     const host = await render()
-    expect(host.textContent).toContain(role === 'parent' ? 'Разбор для родителя' : 'Добавить фото решения')
-    expect(host.textContent).not.toContain(role === 'parent' ? 'Добавить фото решения' : 'Разбор для родителя')
+    expect(host.textContent).toContain(role === 'parent' ? 'Разбор для родителя' : 'Загрузить решение')
+    expect(host.textContent).not.toContain(role === 'parent' ? 'Загрузить решение' : 'Разбор для родителя')
     expect(scene.closed).toBe(0)
     expect(scene.refreshes).toBe(1)
     expect(scene.options).toHaveLength(3)
@@ -124,7 +124,7 @@ describe('authenticated route through the real problem card', () => {
     const host = await render()
     expect(host.querySelector('[data-view-token]')?.getAttribute('data-view-token')).toBe('parent-dashboard')
     expect(host.textContent).toContain('Разбор для родителя')
-    expect(host.textContent).not.toContain('Добавить фото решения')
+    expect(host.textContent).not.toContain('Загрузить решение')
     expect(host.textContent).not.toContain('Нужен ориентир?')
     expect(location.hash).toBe('#/days/shared-dashboard')
     expect(scene.reads).toEqual([])
@@ -132,7 +132,7 @@ describe('authenticated route through the real problem card', () => {
   it('shows upload/help and no guide on exactly the same URL for a student', async () => {
     scene.profile!.children[0].role = 'student'; scene.profile!.children[0].dashboardToken = 'shared-dashboard'
     const host = await render()
-    expect(host.textContent).toContain('Добавить фото решения')
+    expect(host.textContent).toContain('Загрузить решение')
     expect(host.textContent).toContain('Нужен ориентир?')
     expect(host.textContent).not.toContain('Разбор для родителя')
     expect(host.textContent).not.toContain('1100')
@@ -168,7 +168,7 @@ describe('authenticated route through the real problem card', () => {
       for (const [path, changed] of scene.callbacks) changed({ exists: () => true, data: () => scene.records.get(path), metadata: { fromCache: false } })
     })
     expect(host.textContent).toContain('Разбор для родителя')
-    expect(host.textContent).not.toContain('Добавить фото решения')
+    expect(host.textContent).not.toContain('Загрузить решение')
   })
   it('requires a personal login instead of guessing from the shared token', async () => {
     scene.profile = null

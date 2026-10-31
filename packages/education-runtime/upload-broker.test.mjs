@@ -59,10 +59,9 @@ describe('upload queue broker', () => {
     expect(sourceWatchCalls).toBe(0)
   })
 
-  it('stages upload.confirmed in the same transaction that finalizes the source', async () => {
+  it.each([['image/jpeg', Buffer.from([0xff, 0xd8, 0xff]), 'jpg'], ['application/pdf', Buffer.from('%PDF-1.7\nfixture'), 'pdf'], ['text/plain', Buffer.from('Решение: 4'), 'txt']])('stages upload.confirmed for %s in the same transaction that finalizes the source', async (contentType, bytes, extension) => {
     const path = `dayUploads/${id}/files/${id}`
-    const bytes = Buffer.from([0xff, 0xd8, 0xff])
-    const request = { taskId, planRevision: 7, deviceUid: id, contentType: 'image/jpeg', size: bytes.length,
+    const request = { taskId, planRevision: 7, deviceUid: id, contentType, originalName: `solution.${extension}`, size: bytes.length,
       sha256: createHash('sha256').update(bytes).digest('hex'), status: 'uploaded' }
     const rows = new Map([
       [`dayOwners/${id}`, { date: '2026-10-19', familyId, childId }],
@@ -103,6 +102,8 @@ describe('upload queue broker', () => {
     const finalized = rows.get(path)
     expect(finalized.status).toBe('pending')
     expect(finalized.storage.sha256).toBe(request.sha256)
+    expect(finalized.storage.path).toMatch(new RegExp(`\\.${extension}$`))
+    expect(finalized.originalName).toBe(`solution.${extension}`)
     expect(finalized.eventProducerVersion).toBe(1)
     expect(finalized.eventReceiptId).toMatch(/^[a-f0-9]{64}$/)
     expect(finalized.eventOperationId).toBe(`upload-confirmed:${id}`)

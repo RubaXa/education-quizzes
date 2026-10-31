@@ -1,3 +1,5 @@
+import { workFilePresentation } from '../../storage/work-file-types.mjs'
+import WorkFilePreview from './WorkFilePreview'
 /** @see ../../docs/decisions/upload-photo-timestamp-2026-10-21.md
  * @see ../../docs/decisions/photo-transfer-recovery-2026-10-22.md */
 import type { ReactNode } from 'react'
@@ -28,7 +30,7 @@ export default function ArtifactAvatar({ state, children }: { state: ArtifactAva
 async function localWorkImage(source: string): Promise<string> {
   const [studentToken, uploadId] = source.split(':')
   const blob = await localPhotoForTransfer(studentToken, uploadId)
-  if (!blob) throw new Error('Исходное фото не найдено на этом устройстве.')
+  if (!blob) throw new Error('Исходный файл не найден на этом устройстве.')
   return URL.createObjectURL(blob)
 }
 
@@ -39,6 +41,7 @@ async function localWorkImage(source: string): Promise<string> {
 export function WorkArtifactImage({ upload, title, index, compact = false, fallbackUrl, retryControl = !compact, crop, imageClassName }: {
   upload: DayUpload; title: string; index: number; compact?: boolean; fallbackUrl?: string; retryControl?: boolean; crop?: ImageCrop; imageClassName?: string;
 }) {
+  if (workFilePresentation(upload).kind !== 'photo') return <WorkFilePreview file={upload} compact={compact} href={upload.storage?.publicUrl ?? (upload.dataUrl?.startsWith('blob:') ? upload.dataUrl : undefined) ?? fallbackUrl} source={upload.id} resolver={localWorkImage} />
   const publicUrl = upload.storage?.publicUrl
   const local = !upload.dataUrl && !publicUrl && !fallbackUrl
   return <EducationImage source={upload.dataUrl ?? publicUrl ?? fallbackUrl ?? upload.id}

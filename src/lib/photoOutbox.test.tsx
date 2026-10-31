@@ -45,7 +45,7 @@ vi.mock('./educationEventProducer', () => ({
 }))
 vi.mock('./networkRetry', () => ({ fetchWithRetry: (...args: unknown[]) => harness.fetch(...args) }))
 vi.mock('./uiErrors', () => ({ reportUiError: (cause: unknown) => { if (cause instanceof Error) harness.errors.push(cause.message); return cause instanceof Error
-  && /^(?:Яндекс.Диск отклонил фото: HTTP \d+\.|Ссылка загрузки устарела\.)/.test(cause.message)
+  && /^(?:Яндекс.Диск отклонил файл: HTTP \d+\.|Ссылка загрузки устарела\.)/.test(cause.message)
   ? cause.message : 'Действие не выполнено. Повторите попытку.' } }))
 
 import WorkPhotoGallery from '../components/WorkPhotoGallery'
@@ -176,7 +176,7 @@ describe('photo transfer recovery', () => {
     ['DataError', 'invalid stored data'],
   ])('does not retry non-transient %s storage failures', async (name, message) => {
     const openCalls = injectOpenFailureOnce(new DOMException(message, name))
-    await expect(savePhotoForTransfer(studentToken, uploadId, blob)).rejects.toThrow(/Не удалось сохранить фото на этом устройстве/)
+    await expect(savePhotoForTransfer(studentToken, uploadId, blob)).rejects.toThrow(/Не удалось сохранить файл на этом устройстве/)
     expect(openCalls()).toBe(1)
   })
 
@@ -189,7 +189,7 @@ describe('photo transfer recovery', () => {
     }) as typeof indexedDB.open)
     try {
       const pending = savePhotoForTransfer(studentToken, uploadId, blob)
-      const rejected = expect(pending).rejects.toThrow(/Не удалось сохранить фото на этом устройстве/)
+      const rejected = expect(pending).rejects.toThrow(/Не удалось сохранить файл на этом устройстве/)
       await vi.advanceTimersByTimeAsync(12_100)
       await rejected
       expect(openCalls).toBe(2)
@@ -285,7 +285,7 @@ describe('photo transfer recovery', () => {
     }) as typeof indexedDB.open)
     try {
       const pending = savePhotoForTransfer(studentToken, uploadId, blob)
-      const rejected = expect(pending).rejects.toThrow(/Не удалось сохранить фото на этом устройстве/)
+      const rejected = expect(pending).rejects.toThrow(/Не удалось сохранить файл на этом устройстве/)
       await vi.advanceTimersByTimeAsync(12_100)
       await rejected
       expect(openRequests).toHaveLength(2)
@@ -301,7 +301,7 @@ describe('photo transfer recovery', () => {
     harness.fetch.mockResolvedValueOnce({ ok: false, status: 503 }).mockResolvedValueOnce({ ok: true, status: 201 })
     resumePhotoTransfer(studentToken, uploadId, requested())
     await vi.waitFor(() => expect(getPhotoTransferUiSnapshot().get(sourceKey)?.phase).toBe('failed'))
-    expect(harness.errors).toEqual(['Яндекс.Диск отклонил фото: HTTP 503.'])
+    expect(harness.errors).toEqual(['Яндекс.Диск отклонил файл: HTTP 503.'])
 
     const host = document.createElement('div'), root = createRoot(host)
     try {
@@ -310,8 +310,8 @@ describe('photo transfer recovery', () => {
         localPhotos: [{ id: uploadId, taskId: 'task-1', previewUrl: 'blob:photo', state: 'saved' }], now: Date.now() })))
       expect(host.textContent).toContain('1 не загрузилось')
       await act(async () => host.querySelector<HTMLButtonElement>('.day-upload-chip')!.click())
-      expect(host.querySelector('.day-upload-expanded')?.textContent).toContain('Яндекс.Диск отклонил фото: HTTP 503.')
-      expect(host.querySelector('[role="alert"]')?.textContent).toContain('Яндекс.Диск отклонил фото: HTTP 503.')
+      expect(host.querySelector('.day-upload-expanded')?.textContent).toContain('Яндекс.Диск отклонил файл: HTTP 503.')
+      expect(host.querySelector('[role="alert"]')?.textContent).toContain('Яндекс.Диск отклонил файл: HTTP 503.')
       expect(host.querySelector('.day-upload-retry')?.textContent).toContain('Повторить передачу')
       await act(async () => {
         host.querySelector<HTMLButtonElement>('.day-upload-retry')!.click()
@@ -380,7 +380,7 @@ describe('photo transfer recovery', () => {
     resumePhotoTransfer(studentToken, uploadId, requested())
     await vi.waitFor(() => expect(harness.fetch).toHaveBeenCalledTimes(1))
     act(() => window.dispatchEvent(new Event('online')))
-    reject(new Error('Яндекс.Диск отклонил фото: HTTP 503.'))
+    reject(new Error('Яндекс.Диск отклонил файл: HTTP 503.'))
     await vi.waitFor(() => expect(harness.fetch).toHaveBeenCalledTimes(2))
     await vi.waitFor(() => expect(getPhotoTransferUiSnapshot().get(sourceKey)?.phase).toBe('failed'))
     await new Promise((resolve) => setTimeout(resolve, 20))
@@ -393,7 +393,7 @@ describe('photo transfer recovery', () => {
     resumePhotoTransfer(studentToken, uploadId, { ...requested(), deviceUid: 'other-device' })
     await vi.waitFor(() => expect(harness.fetch).not.toHaveBeenCalled())
     expect(getPhotoTransferUiSnapshot().has(sourceKey)).toBe(false)
-    await expect(retryPhotoTransfer(studentToken, uploadId)).rejects.toThrow(/устройстве, где выбрали фото/)
+    await expect(retryPhotoTransfer(studentToken, uploadId)).rejects.toThrow(/устройстве, где выбрали файл/)
     const transferError = getPhotoTransferUiSnapshot().get(sourceKey)
     expect(transferError?.phase).toBe('failed')
     if (transferError?.phase === 'failed') expect(transferError.message).toContain('Откройте эту страницу на устройстве')
@@ -425,7 +425,7 @@ describe('photo transfer recovery', () => {
     const transferError = getPhotoTransferUiSnapshot().get(sourceKey)
     expect(transferError?.phase).toBe('failed')
     if (transferError?.phase === 'failed') {
-      expect(transferError.message).toBe('Не удалось прочитать сохранённое фото на этом устройстве. Оставьте страницу открытой и повторите передачу.')
+      expect(transferError.message).toBe('Не удалось прочитать сохранённый файл на этом устройстве. Оставьте страницу открытой и повторите передачу.')
     }
     expect(openCalls).toBe(1)
     expect(harness.errors).toHaveLength(0)
@@ -480,7 +480,7 @@ describe('photo transfer recovery', () => {
 
     const pending = { ...requested(), status: 'pending' }
     harness.docs.set(sourcePath, pending)
-    reject(new Error('Яндекс.Диск отклонил фото: HTTP 503.'))
+    reject(new Error('Яндекс.Диск отклонил файл: HTTP 503.'))
     await vi.waitFor(() => expect(getPhotoTransferUiSnapshot().has(sourceKey)).toBe(false))
     expect(harness.errors).toHaveLength(0)
     expect(harness.fetch).toHaveBeenCalledTimes(1)

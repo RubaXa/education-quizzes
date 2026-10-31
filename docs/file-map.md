@@ -1082,3 +1082,15 @@
 | [sync/upload-lifecycle.test.mjs](../sync/upload-lifecycle.test.mjs) | [Жизненный цикл фото](modules/synchronization/event-queue.md) | Регрессии удаления, replay, гонки подтверждения и продолжения materialRequest | Vitest |
 
 | [docs/decisions/upload-lifecycle-continuation-2026-10-30.md](decisions/upload-lifecycle-continuation-2026-10-30.md) | [Очередь событий](modules/synchronization/event-queue.md) | Основание автоматической отмены фото и продолжения по материалу без отката установленного runtime | Worker; оператор |
+
+| [storage/work-file-types.mjs](../storage/work-file-types.mjs) | [Форматы решений](shared/media-storage.md) | Общий перечень форматов, канонический MIME и представление вложения | Education; разработчик |
+| [storage/work-file-types.d.mts](../storage/work-file-types.d.mts) | [Форматы решений](shared/media-storage.md) | Типы общей метаинформации файлов для клиента | Education; разработчик |
+| [storage/work-file-types.test.mjs](../storage/work-file-types.test.mjs) | [Форматы решений](shared/media-storage.md) | Форматы, отсутствующий MIME и совместимость старых метаданных | Education; разработчик |
+| [storage/work-file-validation.mjs](../storage/work-file-validation.mjs) | [Форматы решений](shared/media-storage.md) | Проверка сигнатур и структуры оригиналов документов | Education; разработчик |
+| [storage/work-file-validation.test.mjs](../storage/work-file-validation.test.mjs) | [Форматы решений](shared/media-storage.md) | Допуск Office/ODF и отказ чужому ZIP и бинарному тексту | Education; разработчик |
+| [src/components/WorkFilePreview.tsx](../src/components/WorkFilePreview.tsx) | [Форматы решений](shared/media-storage.md) | Значок, формат, имя и открытие документа без image renderer | Education; разработчик |
+| [src/components/WorkFilePreview.css](../src/components/WorkFilePreview.css) | [Форматы решений](shared/media-storage.md) | Адаптивное представление файлов в общей галерее | Education; разработчик |
+| [src/components/SolutionFiles.test.tsx](../src/components/SolutionFiles.test.tsx) | [Форматы решений](shared/media-storage.md) | Смешанный выбор, показ документов, передача, удаление и повтор | Education; разработчик |
+| [scripts/check-solution-file-rules.mjs](../scripts/check-solution-file-rules.mjs) | [Форматы решений](shared/media-storage.md) | Синтетическая проверка файлов и ролей настоящим Rules evaluator | Education; разработчик |
+| [docs/decisions/solution-file-uploads-2026-10-31.md](../docs/decisions/solution-file-uploads-2026-10-31.md) | [Форматы решений](shared/media-storage.md) | Основание расширения загрузки решений на документы и таблицы | Education; разработчик |
+| [e2e/solution-files.e2e.ts](../e2e/solution-files.e2e.ts) | [Форматы решений](shared/media-storage.md) | Смешанная загрузка и просмотр документов обеими ролями при320/390/540px | Playwright |

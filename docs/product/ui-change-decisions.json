@@ -2621,20 +2621,24 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "d439ee1085fee8624a07f71a9ce443fcdb4ad33ec9e4cc271ecbb6b50d6cabaa",
-      "record": "docs/decisions/olympiad-repeat-uploads-2026-10-28.md",
+      "sha256": "45c7a1e7c209b5ad4460bf62b7da1322f04ecee0b24c68567ecd04d45662653a",
+      "record": "docs/decisions/solution-file-uploads-2026-10-31.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/shared/media-storage.md",
+        "docs/modules/materials/storage-privacy.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/components/PhotoUploadControl.test.tsx",
-        "src/UiKit.test.tsx"
+        "storage/direct-upload.test.mjs",
+        "storage/work-file-types.test.mjs",
+        "storage/work-file-validation.test.mjs",
+        "src/components/SolutionFiles.test.tsx",
+        "src/components/WorkPhotoGallery.test.tsx",
+        "src/lib/educationEventProducers.test.ts",
+        "scripts/firestore-rules-photo-upload-suite.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель попросил постоянную повторную загрузку и выбор нескольких фотографий."
+        "evidence": "Прямой запрос31.10.2026: принимать PDF, DOCX, Excel, текстовые и другие файлы решений, показывать соответствующую иконку и действие «Загрузить решение»."
       }
     },
     "src/UiKit.css": {
@@ -2653,20 +2657,24 @@
       }
     },
     "src/UiKit.tsx": {
-      "sha256": "e21c223c1c7c20197ef9680ccd6ad7d086391fdb5413b9ba7768a98e4c0f0e79",
-      "record": "docs/decisions/personal-tutoring-2026-10-30.md",
+      "sha256": "be7ba00e3cf853f5e8ab4b63160d21bd054a2c30456521b6460ccb4723468616",
+      "record": "docs/decisions/solution-file-uploads-2026-10-31.md",
       "specs": [
-        "docs/modules/reviews/subject-aware-guidance.md"
+        "docs/shared/media-storage.md",
+        "docs/modules/materials/storage-privacy.md"
       ],
       "tests": [
-        "storage/tutoring-decision.test.mjs",
-        "storage/review-projection.test.mjs",
-        "sync/event-task-artifact.test.mjs",
-        "src/components/WorkReview.tutoring.test.tsx"
+        "storage/direct-upload.test.mjs",
+        "storage/work-file-types.test.mjs",
+        "storage/work-file-validation.test.mjs",
+        "src/components/SolutionFiles.test.tsx",
+        "src/components/WorkPhotoGallery.test.tsx",
+        "src/lib/educationEventProducers.test.ts",
+        "scripts/firestore-rules-photo-upload-suite.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель прямо поручил внедрить персональное объяснение каждой новой работы в основной автоматический конвейер, заменить шаблонные блоки обеих карточек и влить завершённый выпуск."
+        "evidence": "Прямой запрос31.10.2026: принимать PDF, DOCX, Excel, текстовые и другие файлы решений, показывать соответствующую иконку и действие «Загрузить решение»."
       }
     },
     "src/WeekendMathSlot.css": {
@@ -2691,20 +2699,24 @@
       }
     },
     "src/WeekendMathSlot.tsx": {
-      "sha256": "95d001a5783896baf6acc5b6fea88c1de7cc0acefa4d6176405dbf6526ecfbe8",
-      "record": "docs/decisions/photo-upload-authorization-and-freshness-2026-10-20.md",
+      "sha256": "7462227a6ca57d46b06ac27c54945f6dfcae57c2a387a61f4550279cad3adc18",
+      "record": "docs/decisions/solution-file-uploads-2026-10-31.md",
       "specs": [
-        "docs/modules/materials/storage-privacy.md",
-        "docs/modules/synchronization/event-queue.md"
+        "docs/shared/media-storage.md",
+        "docs/modules/materials/storage-privacy.md"
       ],
       "tests": [
+        "storage/direct-upload.test.mjs",
+        "storage/work-file-types.test.mjs",
+        "storage/work-file-validation.test.mjs",
+        "src/components/SolutionFiles.test.tsx",
+        "src/components/WorkPhotoGallery.test.tsx",
         "src/lib/educationEventProducers.test.ts",
-        "packages/education-runtime/upload-broker.test.mjs",
         "scripts/firestore-rules-photo-upload-suite.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение 20.10.2026: исправить повторную регрессию ученической фотозагрузки, сохранив member scope, ownership и атомарную очередь."
+        "evidence": "Прямой запрос31.10.2026: принимать PDF, DOCX, Excel, текстовые и другие файлы решений, показывать соответствующую иконку и действие «Загрузить решение»."
       }
     },
     "src/components/ArtifactAvatar.css": {
@@ -2726,21 +2738,24 @@
       }
     },
     "src/components/ArtifactAvatar.tsx": {
-      "sha256": "cb4ef856ccc7c8718488b15514623e89433495ee2098f558da070b245211b70d",
-      "record": "docs/decisions/olympiad-source-photo-crop-2026-10-28.md",
+      "sha256": "d375d0c62c62d0a23effd340651a27eef56656f6da0b59076c72e094167ff21c",
+      "record": "docs/decisions/solution-file-uploads-2026-10-31.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/shared/media-storage.md",
+        "docs/modules/materials/storage-privacy.md"
       ],
       "tests": [
-        "day/family-assignment.test.mjs",
-        "src/components/LinkedWorkPhotos.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/lib/browserAccessTrace.test.ts"
+        "storage/direct-upload.test.mjs",
+        "storage/work-file-types.test.mjs",
+        "storage/work-file-validation.test.mjs",
+        "src/components/SolutionFiles.test.tsx",
+        "src/components/WorkPhotoGallery.test.tsx",
+        "src/lib/educationEventProducers.test.ts",
+        "scripts/firestore-rules-photo-upload-suite.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель попросил показывать в карточке задачи оригинальный фрагмент загруженной учеником фотографии."
+        "evidence": "Прямой запрос31.10.2026: принимать PDF, DOCX, Excel, текстовые и другие файлы решений, показывать соответствующую иконку и действие «Загрузить решение»."
       }
     },
     "src/components/AssignmentBrief.css": {
@@ -3129,21 +3144,24 @@
       }
     },
     "src/components/LinkedWorkPhotos.tsx": {
-      "sha256": "cdfa93b28f70107bc83907e522de125c05de673b247110b05ab2431abde8e30e",
-      "record": "docs/decisions/olympiad-source-photo-crop-2026-10-28.md",
+      "sha256": "7d91d94a5b15eb288ec252aa683e408af0be84688eb54d2ced61aa554580a7d4",
+      "record": "docs/decisions/solution-file-uploads-2026-10-31.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/shared/media-storage.md",
+        "docs/modules/materials/storage-privacy.md"
       ],
       "tests": [
-        "day/family-assignment.test.mjs",
-        "src/components/LinkedWorkPhotos.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/lib/browserAccessTrace.test.ts"
+        "storage/direct-upload.test.mjs",
+        "storage/work-file-types.test.mjs",
+        "storage/work-file-validation.test.mjs",
+        "src/components/SolutionFiles.test.tsx",
+        "src/components/WorkPhotoGallery.test.tsx",
+        "src/lib/educationEventProducers.test.ts",
+        "scripts/firestore-rules-photo-upload-suite.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель попросил показывать в карточке задачи оригинальный фрагмент загруженной учеником фотографии."
+        "evidence": "Прямой запрос31.10.2026: принимать PDF, DOCX, Excel, текстовые и другие файлы решений, показывать соответствующую иконку и действие «Загрузить решение»."
       }
     },
     "src/components/MaterialReader.tsx": {
@@ -3334,22 +3352,24 @@
       }
     },
     "src/components/PhotoUploadControl.tsx": {
-      "sha256": "c8bab7d10fbe7b4f70f158d507844f81254ded517cd520094aec5efab82417fd",
-      "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
+      "sha256": "132505da3c9e6d20c9c7633608b0d07f4d9ff8dfa68c81fa37dcafa9137591a3",
+      "record": "docs/decisions/solution-file-uploads-2026-10-31.md",
       "specs": [
-        "docs/shared/specification-system.md"
+        "docs/shared/media-storage.md",
+        "docs/modules/materials/storage-privacy.md"
       ],
       "tests": [
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
+        "storage/direct-upload.test.mjs",
+        "storage/work-file-types.test.mjs",
+        "storage/work-file-validation.test.mjs",
+        "src/components/SolutionFiles.test.tsx",
+        "src/components/WorkPhotoGallery.test.tsx",
+        "src/lib/educationEventProducers.test.ts",
+        "scripts/firestore-rules-photo-upload-suite.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя 16.10.2026 внедрить согласованную структуру спецификаций, перенести ссылки в коде и проверить сохранность требований; изменение предметного поведения не выполнялось."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "272fc3b6f128da8824aac576069db60111eed5f3e7ccc2ea460ebafb554f1910"
+        "evidence": "Прямой запрос31.10.2026: принимать PDF, DOCX, Excel, текстовые и другие файлы решений, показывать соответствующую иконку и действие «Загрузить решение»."
       }
     },
     "src/components/ProblemCard.css": {
@@ -3375,25 +3395,24 @@
       }
     },
     "src/components/ProblemCard.tsx": {
-      "sha256": "4aa8144cc89244167278a62dcbcb977da627ffa7f04ac3958ee04bf56e910d7b",
-      "record": "docs/decisions/restore-numbered-original-2026-10-14.md",
+      "sha256": "c583cb82381af906b1749e3b5ce1d9a2594230dba52b89532478a33b11fd581a",
+      "record": "docs/decisions/solution-file-uploads-2026-10-31.md",
       "specs": [
-        "docs/modules/reviews/adaptive-problem-card.md",
-        "docs/modules/reviews/problem-card-design-decisions.md",
-        "docs/shared/design/README.md"
+        "docs/shared/media-storage.md",
+        "docs/modules/materials/storage-privacy.md"
       ],
       "tests": [
-        "src/components/ProblemTaskCard.contract.test.tsx",
-        "src/components/ProblemStatement.provenance.test.tsx",
-        "src/components/ProblemCard.test.tsx"
+        "storage/direct-upload.test.mjs",
+        "storage/work-file-types.test.mjs",
+        "storage/work-file-validation.test.mjs",
+        "src/components/SolutionFiles.test.tsx",
+        "src/components/WorkPhotoGallery.test.tsx",
+        "src/lib/educationEventProducers.test.ts",
+        "scripts/firestore-rules-photo-upload-suite.test.mjs"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "Родитель 14.10.2026 после просмотра конкретного макета с видимым исходным кропом ответил «Да, стало лучше, очень лучше» и потребовал доделать этот вариант, убрав макетную родительскую кнопку загрузки фото."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "fb69827483eeea0c6f988b2761f28887874dbde9823fd22f95830470b703cef5"
+        "status": "direct-request",
+        "evidence": "Прямой запрос31.10.2026: принимать PDF, DOCX, Excel, текстовые и другие файлы решений, показывать соответствующую иконку и действие «Загрузить решение»."
       }
     },
     "src/components/ProblemGroup.css": {
@@ -3826,39 +3845,45 @@
       }
     },
     "src/components/WorkPhotoGallery.tsx": {
-      "sha256": "1d53e472b2cefd645c9ccb30edb036c698aa9b301b9b88f496d2f258adfbbc38",
-      "record": "docs/decisions/olympiad-firebase-independence-2026-10-28.md",
+      "sha256": "0fa933580bb385a2d8cbb514d5efb56ce2b39724a582246679b864374ffe92e2",
+      "record": "docs/decisions/solution-file-uploads-2026-10-31.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/services/telegram-bot/education-sync-dispatch.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/shared/media-storage.md",
+        "docs/modules/materials/storage-privacy.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "day/family-assignment.test.mjs",
-        "sync/task-route.test.mjs",
-        "packages/telegram-notifications/application/education-sync-action-store.test.mjs"
+        "storage/direct-upload.test.mjs",
+        "storage/work-file-types.test.mjs",
+        "storage/work-file-validation.test.mjs",
+        "src/components/SolutionFiles.test.tsx",
+        "src/components/WorkPhotoGallery.test.tsx",
+        "src/lib/educationEventProducers.test.ts",
+        "scripts/firestore-rules-photo-upload-suite.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель попросил независимо обработать Firebase и добавить фотографии его задач как карточки с загрузкой ответов."
+        "evidence": "Прямой запрос31.10.2026: принимать PDF, DOCX, Excel, текстовые и другие файлы решений, показывать соответствующую иконку и действие «Загрузить решение»."
       }
     },
     "src/components/WorkReview.tsx": {
-      "sha256": "6369763ad7abb9b74b99c6d03206f16eec703f8200bddb0982673f4e81519ed0",
-      "record": "docs/decisions/personal-tutoring-2026-10-30.md",
+      "sha256": "0bc8469f8348a1d262710299b47184997cb597d7730344bb9e194caf27f21722",
+      "record": "docs/decisions/solution-file-uploads-2026-10-31.md",
       "specs": [
-        "docs/modules/reviews/subject-aware-guidance.md"
+        "docs/shared/media-storage.md",
+        "docs/modules/materials/storage-privacy.md"
       ],
       "tests": [
-        "storage/tutoring-decision.test.mjs",
-        "storage/review-projection.test.mjs",
-        "sync/event-task-artifact.test.mjs",
-        "src/components/WorkReview.tutoring.test.tsx"
+        "storage/direct-upload.test.mjs",
+        "storage/work-file-types.test.mjs",
+        "storage/work-file-validation.test.mjs",
+        "src/components/SolutionFiles.test.tsx",
+        "src/components/WorkPhotoGallery.test.tsx",
+        "src/lib/educationEventProducers.test.ts",
+        "scripts/firestore-rules-photo-upload-suite.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель прямо поручил внедрить персональное объяснение каждой новой работы в основной автоматический конвейер, заменить шаблонные блоки обеих карточек и влить завершённый выпуск."
+        "evidence": "Прямой запрос31.10.2026: принимать PDF, DOCX, Excel, текстовые и другие файлы решений, показывать соответствующую иконку и действие «Загрузить решение»."
       }
     },
     "src/components/ui/badge.tsx": {
@@ -4164,20 +4189,24 @@
       }
     },
     "src/lib/dayStore.ts": {
-      "sha256": "7fa1e239d76fa2545524b170f194679351529337bfa7e3db49f49bcf53af3a27",
-      "record": "docs/decisions/personal-tutoring-2026-10-30.md",
+      "sha256": "e903d880bc1ae54c8647bb41fcd35ee77ea2058c2a6ef5ab556b78147f7d72ec",
+      "record": "docs/decisions/solution-file-uploads-2026-10-31.md",
       "specs": [
-        "docs/modules/reviews/subject-aware-guidance.md"
+        "docs/shared/media-storage.md",
+        "docs/modules/materials/storage-privacy.md"
       ],
       "tests": [
-        "storage/tutoring-decision.test.mjs",
-        "storage/review-projection.test.mjs",
-        "sync/event-task-artifact.test.mjs",
-        "src/components/WorkReview.tutoring.test.tsx"
+        "storage/direct-upload.test.mjs",
+        "storage/work-file-types.test.mjs",
+        "storage/work-file-validation.test.mjs",
+        "src/components/SolutionFiles.test.tsx",
+        "src/components/WorkPhotoGallery.test.tsx",
+        "src/lib/educationEventProducers.test.ts",
+        "scripts/firestore-rules-photo-upload-suite.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель прямо поручил внедрить персональное объяснение каждой новой работы в основной автоматический конвейер, заменить шаблонные блоки обеих карточек и влить завершённый выпуск."
+        "evidence": "Прямой запрос31.10.2026: принимать PDF, DOCX, Excel, текстовые и другие файлы решений, показывать соответствующую иконку и действие «Загрузить решение»."
       }
     },
     "src/lib/educationEventProducer.ts": {
@@ -4520,23 +4549,24 @@
       }
     },
     "src/lib/photoOutbox.ts": {
-      "sha256": "8dafaf97aa8ab9b47004941a1c978e332f37784eace92c5bfddfe47c3a3325e7",
-      "record": "docs/decisions/photo-indexeddb-recovery-2026-10-22.md",
+      "sha256": "5f52ab95075db5baa1705f4ec36f06a45985277d1403475d9a6e0bdafeab0ca8",
+      "record": "docs/decisions/solution-file-uploads-2026-10-31.md",
       "specs": [
-        "docs/modules/materials/storage-privacy.md",
-        "docs/modules/school-diary/day-page.md"
+        "docs/shared/media-storage.md",
+        "docs/modules/materials/storage-privacy.md"
       ],
       "tests": [
-        "src/lib/photoOutbox.test.tsx",
+        "storage/direct-upload.test.mjs",
+        "storage/work-file-types.test.mjs",
+        "storage/work-file-validation.test.mjs",
+        "src/components/SolutionFiles.test.tsx",
         "src/components/WorkPhotoGallery.test.tsx",
-        "src/components/WorkReview.requirements.test.tsx",
-        "src/lib/reviewPresentation.test.ts",
         "src/lib/educationEventProducers.test.ts",
-        "src/lib/photoOutbox.browser.integration.test.ts"
+        "scripts/firestore-rules-photo-upload-suite.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос пользователя 22.10.2026: устранить повторный сбой загрузки с IndexedDB connection lost, закрепить восстановление интеграционными тестами и проверить результат."
+        "evidence": "Прямой запрос31.10.2026: принимать PDF, DOCX, Excel, текстовые и другие файлы решений, показывать соответствующую иконку и действие «Загрузить решение»."
       }
     },
     "src/lib/photoUploadPolicy.ts": {
@@ -5078,21 +5108,24 @@
       }
     },
     "storage/direct-upload.mjs": {
-      "sha256": "2b1654371b56c0cccb6fbd9dc211b372be75551a225039ef6bd77c824de267a9",
-      "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
+      "sha256": "cd9efa43a9e05a8a2265d7408a0a0c6b713169fc6b47fc83a9918584b1ab4c5d",
+      "record": "docs/decisions/solution-file-uploads-2026-10-31.md",
       "specs": [
+        "docs/shared/media-storage.md",
         "docs/modules/materials/storage-privacy.md"
       ],
       "tests": [
-        "storage/direct-upload.test.mjs"
+        "storage/direct-upload.test.mjs",
+        "storage/work-file-types.test.mjs",
+        "storage/work-file-validation.test.mjs",
+        "src/components/SolutionFiles.test.tsx",
+        "src/components/WorkPhotoGallery.test.tsx",
+        "src/lib/educationEventProducers.test.ts",
+        "scripts/firestore-rules-photo-upload-suite.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь 16.10.2026 прямо запросил аудит metadata и обратных ссылок кода; изменения здесь добавляют только comment-only @see ссылки и фиксацию hash в журнале решений."
-      },
-      "specificationLifecycle": {
-        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
-        "previousSha256": "a6c09519a3393a23f7813b42e4376b1ae75f1017fb8bd4fcb7d152e81fb6a51e"
+        "evidence": "Прямой запрос31.10.2026: принимать PDF, DOCX, Excel, текстовые и другие файлы решений, показывать соответствующую иконку и действие «Загрузить решение»."
       }
     },
     "storage/family-book-projection.mjs": {
@@ -6767,6 +6800,111 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Прямой ответ владельца30.10: разрешить точечные исключения проверенных старых объектов по хэшам; убрать имя из текущих документов,проверку новых данных не отключать."
+      }
+    },
+    "scripts/check-solution-file-rules.mjs": {
+      "sha256": "db50e560d89ecd6453b6067e5f0facb66d795ff677adbdfdc95b6be34019774d",
+      "record": "docs/decisions/solution-file-uploads-2026-10-31.md",
+      "specs": [
+        "docs/shared/media-storage.md",
+        "docs/modules/materials/storage-privacy.md"
+      ],
+      "tests": [
+        "storage/direct-upload.test.mjs",
+        "storage/work-file-types.test.mjs",
+        "storage/work-file-validation.test.mjs",
+        "src/components/SolutionFiles.test.tsx",
+        "src/components/WorkPhotoGallery.test.tsx",
+        "src/lib/educationEventProducers.test.ts",
+        "scripts/firestore-rules-photo-upload-suite.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос31.10.2026: принимать PDF, DOCX, Excel, текстовые и другие файлы решений, показывать соответствующую иконку и действие «Загрузить решение»."
+      }
+    },
+    "src/components/WorkFilePreview.css": {
+      "sha256": "3c07f43271873e66ef40fabc49bcb7c0561b11c3116155fce84994a3950b54dd",
+      "record": "docs/decisions/solution-file-uploads-2026-10-31.md",
+      "specs": [
+        "docs/shared/media-storage.md",
+        "docs/modules/materials/storage-privacy.md"
+      ],
+      "tests": [
+        "storage/direct-upload.test.mjs",
+        "storage/work-file-types.test.mjs",
+        "storage/work-file-validation.test.mjs",
+        "src/components/SolutionFiles.test.tsx",
+        "src/components/WorkPhotoGallery.test.tsx",
+        "src/lib/educationEventProducers.test.ts",
+        "scripts/firestore-rules-photo-upload-suite.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос31.10.2026: принимать PDF, DOCX, Excel, текстовые и другие файлы решений, показывать соответствующую иконку и действие «Загрузить решение»."
+      }
+    },
+    "src/components/WorkFilePreview.tsx": {
+      "sha256": "4192cd4774db2f9da69fea93bbcf480da97cdce2903a74dddac508c90d7a56f9",
+      "record": "docs/decisions/solution-file-uploads-2026-10-31.md",
+      "specs": [
+        "docs/shared/media-storage.md",
+        "docs/modules/materials/storage-privacy.md"
+      ],
+      "tests": [
+        "storage/direct-upload.test.mjs",
+        "storage/work-file-types.test.mjs",
+        "storage/work-file-validation.test.mjs",
+        "src/components/SolutionFiles.test.tsx",
+        "src/components/WorkPhotoGallery.test.tsx",
+        "src/lib/educationEventProducers.test.ts",
+        "scripts/firestore-rules-photo-upload-suite.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос31.10.2026: принимать PDF, DOCX, Excel, текстовые и другие файлы решений, показывать соответствующую иконку и действие «Загрузить решение»."
+      }
+    },
+    "storage/work-file-types.mjs": {
+      "sha256": "6a7483108cfc84ba68d013e7af3ddc07f8ab6181ee1e6d6779e7dc274a486e45",
+      "record": "docs/decisions/solution-file-uploads-2026-10-31.md",
+      "specs": [
+        "docs/shared/media-storage.md",
+        "docs/modules/materials/storage-privacy.md"
+      ],
+      "tests": [
+        "storage/direct-upload.test.mjs",
+        "storage/work-file-types.test.mjs",
+        "storage/work-file-validation.test.mjs",
+        "src/components/SolutionFiles.test.tsx",
+        "src/components/WorkPhotoGallery.test.tsx",
+        "src/lib/educationEventProducers.test.ts",
+        "scripts/firestore-rules-photo-upload-suite.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос31.10.2026: принимать PDF, DOCX, Excel, текстовые и другие файлы решений, показывать соответствующую иконку и действие «Загрузить решение»."
+      }
+    },
+    "storage/work-file-validation.mjs": {
+      "sha256": "8c7def6b6f22ca82ed9716acd0ba1a49f1f955c1a6a6800b0fadbbda59e8bff5",
+      "record": "docs/decisions/solution-file-uploads-2026-10-31.md",
+      "specs": [
+        "docs/shared/media-storage.md",
+        "docs/modules/materials/storage-privacy.md"
+      ],
+      "tests": [
+        "storage/direct-upload.test.mjs",
+        "storage/work-file-types.test.mjs",
+        "storage/work-file-validation.test.mjs",
+        "src/components/SolutionFiles.test.tsx",
+        "src/components/WorkPhotoGallery.test.tsx",
+        "src/lib/educationEventProducers.test.ts",
+        "scripts/firestore-rules-photo-upload-suite.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос31.10.2026: принимать PDF, DOCX, Excel, текстовые и другие файлы решений, показывать соответствующую иконку и действие «Загрузить решение»."
       }
     }
   }

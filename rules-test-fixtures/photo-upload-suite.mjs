@@ -3,6 +3,8 @@
  * @see ../docs/modules/synchronization/event-queue.md#доступ-и-приватность
  * @see ../docs/decisions/photo-upload-authorization-and-freshness-2026-10-20.md
  */
+import { workFileTypes } from '../storage/work-file-types.mjs'
+
 const databasePrefix = '/databases/(default)/documents/'
 const fixture = {
   uid: 'fixture-device', personId: 'fixture-student', familyId: 'fixture-family', childId: 'fixture-child',
@@ -61,6 +63,14 @@ export function createPhotoUploadRulesTestSuite() {
   const event = baseDocs[eventPath]
   const source = baseDocs[sourcePath]
   return [
+    ...Object.keys(workFileTypes).filter(type => !type.startsWith('image/')).map(contentType => {
+      const docs = documents({ source: { contentType, originalName: 'Решение' } })
+      return requestCase({ name: `student-source-allows-${contentType}`, path: sourcePath, resource: docs[sourcePath], docs })
+    }),
+    ...[{ name: 'unsupported-format', contentType: 'text/html' }, { name: 'oversized-name', originalName: 'x'.repeat(161) }, { name: 'empty-name', originalName: '' }, { name: 'oversized-file', size: 25000001 }].map(({name, ...source}) => {
+      const docs = documents({source})
+      return requestCase({name: `student-source-denies-${name}`, path: sourcePath, resource: docs[sourcePath], docs, expectation: 'DENY'})
+    }),
     requestCase({ name: 'student-source-create-with-event-receipt', path: sourcePath, resource: source, docs: baseDocs }),
     requestCase({ name: 'student-queue-event-create-with-atomic-source', path: eventPath, resource: event, docs: baseDocs }),
     requestCase({ name: 'queue-event-denies-parent-role', path: eventPath, resource: event,

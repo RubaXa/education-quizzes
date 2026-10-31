@@ -279,7 +279,7 @@ it('asks the child for missing source material through the standard uploader, wi
       expect(view.host.textContent).toContain('Повторить записи по последней теме.')
       const input = view.host.querySelector<HTMLInputElement>('.day-upload input[type="file"]')
       expect(Boolean(input)).toBe(!parent)
-      if (input) { expect(input.multiple).toBe(true); expect(input.accept).toBe('image/*') }
+      if (input) { expect(input.multiple).toBe(true); expect(input.accept).toContain('image/*'); expect(input.accept).toContain('.pdf'); expect(input.accept).toContain('.docx'); expect(input.accept).toContain('.xlsx'); expect(input.accept).toContain('.txt') }
       expect(view.host.textContent).toContain('Нужен материал для уточнения')
       expect(view.host.textContent).not.toContain('Работа проверена')
     } finally { await view.cleanup() }

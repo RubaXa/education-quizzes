@@ -20,5 +20,5 @@ test('synthetic Rules REST suite covers atomic photo queue writes and ownership 
   expect(cases.every(({ resource, request, functionMocks }) => (request.method === 'create' ? resource === null : Boolean(resource?.data))
     && ['create', 'update'].includes(request.method) && request.resource?.data && functionMocks.length > 0)).toBe(true)
   expect(cases.filter(({ request }) => request.method === 'update')).toHaveLength(2)
-  expect(cases.filter(({ expectation }) => expectation === 'DENY')).toHaveLength(14)
+  expect(cases.filter(({ expectation }) => expectation === 'DENY')).toHaveLength(18)
 })

@@ -1,3 +1,4 @@
+import { workFileContentType } from '../storage/work-file-types.mjs'
 /** @see ../docs/decisions/personal-tutoring-2026-10-30.md */
 /** @see ../docs/decisions/ui-kit-photo-help-2026-10-27.md */
 /** @see ../docs/decisions/ui-kit-written-practice-2026-10-27.md */
@@ -27,7 +28,7 @@ import OlympiadPage from '@/components/OlympiadPage'
 import OlympiadReferences from '@/components/OlympiadReferences'
 import { problemCardState } from '@/lib/reviewPresentation'
 import type { DayPageData, DayProblem, DayUpload, DayWorkReview } from '@/lib/dayStore'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { ProblemCard } from '@/components/ProblemCard'
 import ProblemStatement from '@/components/ProblemStatement'
@@ -160,8 +161,15 @@ export default function UiKit() {
   const [catalogParent,setCatalogParent] = useState(true)
   const [catalogSelection,setCatalogSelection] = useState<string[]>([])
   const [lessonDemo,setLessonDemo] = useState<OlympiadLessonProjection>({title:'Учимся упорядочивать перебор · пример',status:'active',currentStep:1,stepCount:1,step:{id:'demo-step',prompt:'Нужно найти все двузначные числа из цифр 1 и 2. Как не пропустить варианты?',options:[{id:'demo-a',text:'Сначала перебрать числа с первой цифрой 1, затем с первой цифрой 2.'},{id:'demo-b',text:'Записать первое пришедшее в голову число и остановиться.'}]}})
+  const documentUrls = useRef<string[]>([])
+  useEffect(() => () => documentUrls.current.forEach(url => URL.revokeObjectURL(url)), [])
   function addWrittenPhotos(files: File[], selectForHelp = false) {
-    const added = files.map((_, index) => ({ id: `demo:written-${writtenUploads.length + index + 1}`, taskId: writtenProblemDemo.id, status: 'pending' as const, dataUrl: writtenDemoPhoto }))
+    const added = files.map((file, index) => {
+      const contentType = workFileContentType(file)
+      const dataUrl = contentType.startsWith('image/') ? writtenDemoPhoto : URL.createObjectURL(file)
+      if (dataUrl.startsWith('blob:')) documentUrls.current.push(dataUrl)
+      return { id: `demo:written-${writtenUploads.length + index + 1}`, taskId: writtenProblemDemo.id, status: 'pending' as const, originalName: file.name, contentType, dataUrl }
+    })
     setWrittenUploads(current => [...current, ...added])
     if (selectForHelp) { setHelpSelected(current => [...current, ...added.map(photo => photo.id)]); tracePhotoHelp('photos-added', 'demo', 'student', {count: added.length}) }
   }

@@ -31,5 +31,5 @@ export function ProblemCard({ problem, state, parent = false, sourceResearch, ch
 }
 
 export function ProblemUploadButton({ correction, onPhotos }: { correction: boolean; onPhotos: (files: File[]) => void }) {
-  return <PhotoUploadControl className="problem-card-upload" label={correction ? 'Добавить фото исправления' : 'Добавить фото решения'} onPhotos={onPhotos} />
+  return <PhotoUploadControl className="problem-card-upload" label={correction ? 'Загрузить исправление' : 'Загрузить решение'} onPhotos={onPhotos} />
 }

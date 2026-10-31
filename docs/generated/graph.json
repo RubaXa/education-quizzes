@@ -2058,6 +2058,32 @@
       "path": "docs/decisions/shared-server-runtime-2026-10-17.md"
     },
     {
+      "id": "decision.solution-file-uploads-2026-10-31",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-31",
+      "updated": "2026-10-31",
+      "consumers": [
+        "student",
+        "parent",
+        "developer"
+      ],
+      "code": [],
+      "parent": "shared.media-storage",
+      "uses": [
+        "shared.design.components",
+        "module.materials.storage-privacy"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/solution-file-uploads-2026-10-31.md"
+    },
+    {
       "id": "decision.source-wait-generations-2026-10-22",
       "status": "accepted",
       "implementation": "implemented",
@@ -4584,6 +4610,13 @@
       "consumer": "Playwright; разработчик"
     },
     {
+      "id": "file:e2e/solution-files.e2e.ts",
+      "path": "e2e/solution-files.e2e.ts",
+      "kind": "artifact",
+      "purpose": "Смешанная загрузка и просмотр документов обеими ролями при320/390/540px",
+      "consumer": "Playwright"
+    },
+    {
       "id": "file:early-development/program.d.mts",
       "path": "early-development/program.d.mts",
       "kind": "artifact",
@@ -5891,6 +5924,13 @@
       "kind": "verification",
       "purpose": "Обязательный запуск геометрии реального календаря и расписания в обычном npm test/check",
       "consumer": "Vitest; pre-push gate"
+    },
+    {
+      "id": "file:scripts/check-solution-file-rules.mjs",
+      "path": "scripts/check-solution-file-rules.mjs",
+      "kind": "artifact",
+      "purpose": "Синтетическая проверка файлов и ролей настоящим Rules evaluator",
+      "consumer": "Education; разработчик"
     },
     {
       "id": "file:scripts/check-source-fragment-viewport.mjs",
@@ -7251,6 +7291,13 @@
       "consumer": "DayPage; OlympiadCatalog"
     },
     {
+      "id": "file:src/components/SolutionFiles.test.tsx",
+      "path": "src/components/SolutionFiles.test.tsx",
+      "kind": "verification",
+      "purpose": "Смешанный выбор, показ документов, передача, удаление и повтор",
+      "consumer": "Education; разработчик"
+    },
+    {
       "id": "file:src/components/SourceFragment.css",
       "path": "src/components/SourceFragment.css",
       "kind": "artifact",
@@ -7417,6 +7464,20 @@
       "kind": "verification",
       "purpose": "Проверка ученического источника, выборочной помощи и единого процента теста",
       "consumer": "Vitest; разработчик"
+    },
+    {
+      "id": "file:src/components/WorkFilePreview.css",
+      "path": "src/components/WorkFilePreview.css",
+      "kind": "artifact",
+      "purpose": "Адаптивное представление файлов в общей галерее",
+      "consumer": "Education; разработчик"
+    },
+    {
+      "id": "file:src/components/WorkFilePreview.tsx",
+      "path": "src/components/WorkFilePreview.tsx",
+      "kind": "artifact",
+      "purpose": "Значок, формат, имя и открытие документа без image renderer",
+      "consumer": "Education; разработчик"
     },
     {
       "id": "file:src/components/WorkPhotoGallery.css",
@@ -8761,6 +8822,41 @@
       "kind": "verification",
       "purpose": "Развилки помощи, границы доказательств, видимость объяснения и сохранение принятого",
       "consumer": "Vitest"
+    },
+    {
+      "id": "file:storage/work-file-types.d.mts",
+      "path": "storage/work-file-types.d.mts",
+      "kind": "artifact",
+      "purpose": "Типы общей метаинформации файлов для клиента",
+      "consumer": "Education; разработчик"
+    },
+    {
+      "id": "file:storage/work-file-types.mjs",
+      "path": "storage/work-file-types.mjs",
+      "kind": "artifact",
+      "purpose": "Общий перечень форматов, канонический MIME и представление вложения",
+      "consumer": "Education; разработчик"
+    },
+    {
+      "id": "file:storage/work-file-types.test.mjs",
+      "path": "storage/work-file-types.test.mjs",
+      "kind": "verification",
+      "purpose": "Форматы, отсутствующий MIME и совместимость старых метаданных",
+      "consumer": "Education; разработчик"
+    },
+    {
+      "id": "file:storage/work-file-validation.mjs",
+      "path": "storage/work-file-validation.mjs",
+      "kind": "artifact",
+      "purpose": "Проверка сигнатур и структуры оригиналов документов",
+      "consumer": "Education; разработчик"
+    },
+    {
+      "id": "file:storage/work-file-validation.test.mjs",
+      "path": "storage/work-file-validation.test.mjs",
+      "kind": "verification",
+      "purpose": "Допуск Office/ODF и отказ чужому ZIP и бинарному тексту",
+      "consumer": "Education; разработчик"
     },
     {
       "id": "file:storage/yandex-disk.mjs",
@@ -12731,9 +12827,11 @@
         "module.materials.storage-privacy",
         "service.upload-worker"
       ],
-      "sections": [],
+      "sections": [
+        "форматы-решений"
+      ],
       "created": "2026-10-16",
-      "updated": "2026-10-16",
+      "updated": "2026-10-31",
       "consumers": [
         "student photo uploader",
         "parent library uploader",
@@ -12741,6 +12839,10 @@
         "storage operator"
       ],
       "code": [
+        "storage/work-file-types.mjs",
+        "storage/work-file-validation.mjs",
+        "src/components/WorkFilePreview.tsx",
+        "scripts/check-solution-file-rules.mjs",
         "storage/direct-upload.mjs",
         "scripts/direct-upload-worker.mjs"
       ],
@@ -13491,6 +13593,16 @@
     {
       "from": "decision.shared-server-runtime-2026-10-17",
       "to": "service.telegram-bot",
+      "type": "uses"
+    },
+    {
+      "from": "decision.solution-file-uploads-2026-10-31",
+      "to": "module.materials.storage-privacy",
+      "type": "uses"
+    },
+    {
+      "from": "decision.solution-file-uploads-2026-10-31",
+      "to": "shared.design.components",
       "type": "uses"
     },
     {
@@ -14499,6 +14611,11 @@
       "type": "implements"
     },
     {
+      "from": "file:e2e/solution-files.e2e.ts",
+      "to": "shared.media-storage",
+      "type": "implements"
+    },
+    {
       "from": "file:early-development/program.d.mts",
       "to": "module.families.early-development",
       "type": "implements"
@@ -15336,6 +15453,11 @@
     {
       "from": "file:scripts/check-schedule-viewport.mjs",
       "to": "shared.design",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/check-solution-file-rules.mjs",
+      "to": "shared.media-storage",
       "type": "implements"
     },
     {
@@ -17134,6 +17256,16 @@
       "type": "implements"
     },
     {
+      "from": "file:src/components/WorkFilePreview.css",
+      "to": "shared.media-storage",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/WorkFilePreview.tsx",
+      "to": "shared.media-storage",
+      "type": "implements"
+    },
+    {
       "from": "file:src/components/WorkPhotoGallery.css",
       "to": "decision.ui-kit-photo-help-2026-10-27",
       "type": "implements"
@@ -18501,6 +18633,21 @@
     {
       "from": "file:storage/tutoring-decision.mjs",
       "to": "module.reviews.subject-aware-guidance",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/work-file-types.d.mts",
+      "to": "shared.media-storage",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/work-file-types.mjs",
+      "to": "shared.media-storage",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/work-file-validation.mjs",
+      "to": "shared.media-storage",
       "type": "implements"
     },
     {
@@ -22647,6 +22794,26 @@
       "from": "shared.design",
       "to": "shared.design.ui-kit",
       "type": "uses"
+    },
+    {
+      "from": "shared.media-storage",
+      "to": "decision.solution-file-uploads-2026-10-31",
+      "type": "contains"
+    },
+    {
+      "from": "shared.media-storage",
+      "to": "file:src/components/SolutionFiles.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "shared.media-storage",
+      "to": "file:storage/work-file-types.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "shared.media-storage",
+      "to": "file:storage/work-file-validation.test.mjs",
+      "type": "verified-by"
     },
     {
       "from": "shared.media-storage",

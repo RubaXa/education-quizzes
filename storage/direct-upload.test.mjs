@@ -29,3 +29,18 @@ describe('direct Disk upload contract', () => {
     expect(validUploadHref('http://disk.yandex.net/upload')).toBe(false)
   })
 })
+
+describe('solution documents', () => {
+  it.each([
+    ['application/pdf', Buffer.from('%PDF-1.7\nfixture'), 'pdf'],
+    ['text/plain', Buffer.from('Решение: 2 + 2 = 4\n'), 'txt'],
+    ['text/csv', Buffer.from('a,b\n1,2\n'), 'csv'],
+    ['application/rtf', Buffer.from('{\\rtf1 fixture}'), 'rtf'],
+  ])('accepts and preserves %s with verified bytes', (contentType, body, extension) => {
+    const metadata = { ...request, contentType, size: body.length, sha256: createHash('sha256').update(body).digest('hex') }
+    expect(validPhotoRequest(metadata, page)).toBe(true)
+    expect(matchesPhoto(body, metadata)).toBe(true)
+    expect(workPath(owner, 'student0123456789012', 'upload01234567890123', contentType)).toMatch(new RegExp(`\\.${extension}$`))
+    expect(matchesPhoto(Buffer.from('wrong'), metadata)).toBe(false)
+  })
+})

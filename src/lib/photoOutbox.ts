@@ -34,12 +34,12 @@ export function photoTransferUiKey(sourceId: string) { return sourceId }
 
 function safeTransferMessage(cause: unknown) {
   if (cause instanceof Error && [
-    'Откройте эту страницу на устройстве, где выбрали фото, чтобы продолжить передачу.',
-    'Исходное фото осталось на устройстве, где его выбрали. Откройте страницу там, чтобы повторить передачу.',
-    'Не удалось прочитать сохранённое фото на этом устройстве. Оставьте страницу открытой и повторите передачу.',
-    'Не удалось сохранить фото на этом устройстве. Оставьте страницу открытой, не закрывайте её и повторите попытку.',
+    'Откройте эту страницу на устройстве, где выбрали файл, чтобы продолжить передачу.',
+    'Исходный файл остался на устройстве, где его выбрали. Откройте страницу там, чтобы повторить передачу.',
+    'Не удалось прочитать сохранённый файл на этом устройстве. Оставьте страницу открытой и повторите передачу.',
+    'Не удалось сохранить файл на этом устройстве. Оставьте страницу открытой, не закрывайте её и повторите попытку.',
   ].includes(cause.message)) return cause.message
-  return reportUiError(cause, 'Передача фото')
+  return reportUiError(cause, 'Передача файла')
 }
 
 function setUiState(id: string, state: PhotoTransferUiState | null) {
@@ -228,7 +228,7 @@ export async function savePhotoForTransfer(studentToken: string, uploadId: strin
   try {
     await outboxOperation('savePhotoForTransfer', 'readwrite', (store) => store.put({ id: key(studentToken, uploadId), file } satisfies OutboxEntry))
   } catch {
-    throw new Error('Не удалось сохранить фото на этом устройстве. Оставьте страницу открытой, не закрывайте её и повторите попытку.')
+    throw new Error('Не удалось сохранить файл на этом устройстве. Оставьте страницу открытой, не закрывайте её и повторите попытку.')
   }
 }
 export async function localPhotoForTransfer(studentToken: string, uploadId: string): Promise<Blob | null> {
@@ -236,7 +236,7 @@ export async function localPhotoForTransfer(studentToken: string, uploadId: stri
     const entry = await outboxOperation<OutboxEntry | undefined>('localPhotoForTransfer', 'readonly', (store) => store.get(key(studentToken, uploadId)))
     return entry?.file ?? null
   } catch {
-    throw new Error('Не удалось прочитать сохранённое фото на этом устройстве. Оставьте страницу открытой и повторите передачу.')
+    throw new Error('Не удалось прочитать сохранённый файл на этом устройстве. Оставьте страницу открытой и повторите передачу.')
   }
 }
 export async function removePhotoFromOutbox(studentToken: string, uploadId: string) {
@@ -272,11 +272,11 @@ export async function retryPhotoTransfer(studentToken: string, uploadId: string)
   let attempted: UploadState | undefined
   try {
     const current = await getDocFromServer(ref)
-    if (!current.exists()) { forgetTransfer(id); throw new Error('Заявка на это фото уже отсутствует.') }
+    if (!current.exists()) { forgetTransfer(id); throw new Error('Заявка на этот файл уже отсутствует.') }
     const data = current.data() as UploadState
     if (['pending', 'reviewed', 'deleted', 'uploaded'].includes(data.status)) { forgetTransfer(id); return }
     if (data.status !== 'awaiting-upload' || !data.upload?.href) {
-      throw new Error(data.status === 'requested' ? 'Заявка уже создана; ожидаем ссылку для передачи фото.'
+      throw new Error(data.status === 'requested' ? 'Заявка уже создана; ожидаем ссылку для передачи файла.'
         : 'Ссылка передачи пока недоступна. Обновите страницу чуть позже.')
     }
     installLifecycleWake()
@@ -300,13 +300,13 @@ async function runPhotoTransfer(id: string, studentToken: string, uploadId: stri
     const ref = doc(db, 'dayUploads', studentToken, 'files', uploadId)
     const uid = getAuth().currentUser?.uid
     if (!uid || uid !== data.deviceUid) {
-      if (manual) throw new Error('Откройте эту страницу на устройстве, где выбрали фото, чтобы продолжить передачу.')
+      if (manual) throw new Error('Откройте эту страницу на устройстве, где выбрали файл, чтобы продолжить передачу.')
       forgetTransfer(id)
       return
     }
     const file = await localPhotoForTransfer(studentToken, uploadId)
     if (!file) {
-      if (manual) throw new Error('Исходное фото осталось на устройстве, где его выбрали. Откройте страницу там, чтобы повторить передачу.')
+      if (manual) throw new Error('Исходный файл остался на устройстве, где его выбрали. Откройте страницу там, чтобы повторить передачу.')
       forgetTransfer(id)
       return
     }
@@ -320,15 +320,15 @@ async function runPhotoTransfer(id: string, studentToken: string, uploadId: stri
       return
     }
     if (currentBefore.deviceUid !== uid) {
-      if (manual) throw new Error('Откройте эту страницу на устройстве, где выбрали фото, чтобы продолжить передачу.')
+      if (manual) throw new Error('Откройте эту страницу на устройстве, где выбрали файл, чтобы продолжить передачу.')
       forgetTransfer(id)
       return
     }
     if (!validUploadHref(href)) throw new Error('Некорректная ссылка Яндекс.Диска.')
     setUiState(id, { phase: 'sending' })
     const response = await fetchWithRetry(href, { method: 'PUT', body: file, headers: { 'Content-Type': 'application/octet-stream' } }, { attempts: 4, timeoutMs: 120_000 })
-    if (response.status === 403) throw new Error('Ссылка загрузки устарела. Фото сохранено на этом устройстве; ожидаем новую ссылку.')
-    if (!response.ok && response.status !== 409) throw new Error(`Яндекс.Диск отклонил фото: HTTP ${response.status}.`)
+    if (response.status === 403) throw new Error('Ссылка загрузки устарела. Файл сохранён на этом устройстве; ожидаем новую ссылку.')
+    if (!response.ok && response.status !== 409) throw new Error(`Яндекс.Диск отклонил файл: HTTP ${response.status}.`)
     const latest = await getDocFromServer(ref)
     if (latest.data()?.status === 'awaiting-upload' && transferVersion(latest.data() as UploadState) === transferVersion(data)) {
       const taskId = latest.data()?.taskId ?? data.taskId
@@ -336,7 +336,7 @@ async function runPhotoTransfer(id: string, studentToken: string, uploadId: stri
       const owner = await getDocFromServer(doc(db, 'dayOwners', studentToken))
       const { familyId, childId } = owner.data() ?? {}
       if (!taskId || !currentUid || currentUid !== latest.data()?.deviceUid || !owner.exists() || typeof familyId !== 'string' || typeof childId !== 'string') {
-        throw new Error('Не удалось подтвердить семейную привязку передачи фото на этом устройстве.')
+        throw new Error('Не удалось подтвердить семейную привязку передачи файла на этом устройстве.')
       }
       const operationId = `upload-transfer:${uploadId}:uploaded`
       const envelope = await prepareEducationEvent({ eventType: 'upload.bytes_uploaded', familyId, childId, source: 'firestore',
