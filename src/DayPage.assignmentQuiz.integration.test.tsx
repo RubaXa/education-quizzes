@@ -304,7 +304,7 @@ it('lets a pupil submit a written result even when Mesh classifies the task as r
       expect(Boolean(upload)).toBe(!parent)
       if (upload) {
         expect(upload.multiple).toBe(true)
-        expect(task.querySelector('.day-upload')?.textContent).toContain('Загрузить результат')
+        expect(task.querySelector('.day-upload')?.textContent).toContain('Загрузить решение')
       }
     } finally { await view.cleanup() }
   }
@@ -636,7 +636,7 @@ it.each([true, false])('shows the olympiad source sheet upload only to the learn
   try {
     await act(async () => root.render(<DayPage token="role-day" parent={parent} headerReturnTarget={null} olympiadScope={{ familyId: 'family', childId: 'child', olympiadId: 'o1', taskId: id, testTokens: [] }} />))
     expect(host.textContent).toContain('Очередь своих вариантов')
-    expect(host.textContent).not.toContain('Загрузить результат')
+    expect(host.textContent).not.toContain('Загрузить решение')
     expect(host.querySelector('input[type=file]') !== null).toBe(!parent)
     if (!parent) expect(host.querySelector('.day-upload')?.textContent).toContain('Загрузить фотографии')
   } finally { await act(async () => root.unmount()); host.remove() }
@@ -787,4 +787,16 @@ it.each([true, false])('shows a parent guide only after contest restriction, res
     expect(Boolean(host.querySelector('.day-parent-guide'))).toBe(!restricted)
     expect(host.querySelector('input[type=file]')).toBeNull()
   } finally {await act(async()=>root.unmount());host.remove()}
+})
+
+it.each(['requested', 'pending'] as const)('names %s PDF work without calling it a photo in the ordinary day card', async status => {
+  scene.page!.subjects = [{id:'math',name:'Математика',icon:'∑',materials:'',mesh:'Записать решение',summary:'',tasks:[{id:'file-solution',kind:'written',status:'unknown',title:'Решение в документе',detail:'Запиши решение.',source:'МЭШ'}]}]
+  scene.uploads = [{id:'student-token:pdf',taskId:'file-solution',status,contentType:'application/pdf',originalName:'solution.pdf'}]
+  sessionStorage.setItem('education-day-initial-tab','homework')
+  const view = await renderPage(false)
+  try {
+    expect(view.host.textContent).toContain(status === 'requested' ? 'Файл загружается' : 'Новая работа · ждёт проверки')
+    expect(view.host.textContent).not.toContain('Фото загружается')
+    expect(view.host.textContent).not.toContain('Новое фото · ждёт проверки')
+  } finally { await view.cleanup() }
 })

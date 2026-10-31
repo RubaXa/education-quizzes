@@ -2621,7 +2621,7 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "45c7a1e7c209b5ad4460bf62b7da1322f04ecee0b24c68567ecd04d45662653a",
+      "sha256": "c5428e1991ed332841ad612a695963dcbdf274e6cdb42d14aadada883a99c3a0",
       "record": "docs/decisions/solution-file-uploads-2026-10-31.md",
       "specs": [
         "docs/shared/media-storage.md",
@@ -2634,7 +2634,9 @@
         "src/components/SolutionFiles.test.tsx",
         "src/components/WorkPhotoGallery.test.tsx",
         "src/lib/educationEventProducers.test.ts",
-        "scripts/firestore-rules-photo-upload-suite.test.mjs"
+        "scripts/firestore-rules-photo-upload-suite.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/lib/materialRequest.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
@@ -2699,7 +2701,7 @@
       }
     },
     "src/WeekendMathSlot.tsx": {
-      "sha256": "7462227a6ca57d46b06ac27c54945f6dfcae57c2a387a61f4550279cad3adc18",
+      "sha256": "674f524b83022c29612d3a4c549035cd3cc59720d355a13f2aca6cf0472221ae",
       "record": "docs/decisions/solution-file-uploads-2026-10-31.md",
       "specs": [
         "docs/shared/media-storage.md",
@@ -2712,7 +2714,9 @@
         "src/components/SolutionFiles.test.tsx",
         "src/components/WorkPhotoGallery.test.tsx",
         "src/lib/educationEventProducers.test.ts",
-        "scripts/firestore-rules-photo-upload-suite.test.mjs"
+        "scripts/firestore-rules-photo-upload-suite.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/lib/materialRequest.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
@@ -3845,7 +3849,7 @@
       }
     },
     "src/components/WorkPhotoGallery.tsx": {
-      "sha256": "0fa933580bb385a2d8cbb514d5efb56ce2b39724a582246679b864374ffe92e2",
+      "sha256": "deeebf495528fe101dd430cd22c365ea7f895d84f41d8dd4bfb5784998f1705d",
       "record": "docs/decisions/solution-file-uploads-2026-10-31.md",
       "specs": [
         "docs/shared/media-storage.md",
@@ -3858,7 +3862,9 @@
         "src/components/SolutionFiles.test.tsx",
         "src/components/WorkPhotoGallery.test.tsx",
         "src/lib/educationEventProducers.test.ts",
-        "scripts/firestore-rules-photo-upload-suite.test.mjs"
+        "scripts/firestore-rules-photo-upload-suite.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/lib/materialRequest.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
@@ -4429,29 +4435,26 @@
       }
     },
     "src/lib/materialRequest.ts": {
-      "sha256": "649a78acef056f36f4ff6eb79650b9ef893856bf7a4862f0fa9798153935dcd1",
-      "record": "docs/decisions/material-clarification-2026-10-16.md",
+      "sha256": "f8918c37ae0fefb27c960318870f80d4c24269450c02fc71461d3148f14d2562",
+      "record": "docs/decisions/solution-file-uploads-2026-10-31.md",
       "specs": [
-        "docs/modules/materials/material-clarification.md"
+        "docs/shared/media-storage.md",
+        "docs/modules/materials/storage-privacy.md"
       ],
       "tests": [
-        "src/lib/materialRequest.test.ts",
+        "storage/direct-upload.test.mjs",
+        "storage/work-file-types.test.mjs",
+        "storage/work-file-validation.test.mjs",
+        "src/components/SolutionFiles.test.tsx",
+        "src/components/WorkPhotoGallery.test.tsx",
+        "src/lib/educationEventProducers.test.ts",
+        "scripts/firestore-rules-photo-upload-suite.test.mjs",
         "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/lib/homeworkStatus.test.ts",
-        "src/lib/photoUploadPolicy.test.ts",
-        "src/UiKit.test.tsx",
-        "storage/submission-inbox.test.mjs",
-        "storage/review-projection.test.mjs",
-        "storage/review-readback.test.mjs",
-        "day/build-assignments.test.mjs"
+        "src/lib/materialRequest.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 16.10.2026 прямо потребовал вопрос ученику в карточке и ответ фото записей через стандартную загрузку с обработкой следующей синхронизацией."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "ddac64670887b608617fe69eac32753634c1c4d40c5bcf1dbf2e082409f802c3"
+        "evidence": "Прямой запрос31.10.2026: принимать PDF, DOCX, Excel, текстовые и другие файлы решений, показывать соответствующую иконку и действие «Загрузить решение»."
       }
     },
     "src/lib/networkRetry.ts": {

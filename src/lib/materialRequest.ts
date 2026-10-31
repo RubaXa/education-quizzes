@@ -38,8 +38,8 @@ export function sourceReviewErrors(review: SourceReview, task: RequestTask): str
 export function materialRequestView(task: RequestTask, uploads: {status:string}[], review?: SourceReview) {
   const request = openMaterialRequest(task)
   if (!request) return undefined
-  if (uploads.some(u => ['requested','awaiting-upload','uploaded'].includes(u.status))) return { phase:'uploading', label:'Материал загружается', detail:'Дождись завершения загрузки фото.' }
-  if (uploads.some(u => u.status === 'pending')) return { phase:'received', label:'Материал получен', detail:'Фото сохранено. Уточним тему при следующей синхронизации.' }
+  if (uploads.some(u => ['requested','awaiting-upload','uploaded'].includes(u.status))) return { phase:'uploading', label:'Материал загружается', detail:'Дождись завершения загрузки файла.' }
+  if (uploads.some(u => u.status === 'pending')) return { phase:'received', label:'Материал получен', detail:'Материал сохранён. Уточним тему при следующей синхронизации.' }
   const a = review?.purpose === 'source-material' && review.sourceAnalysis?.requestId === request.id ? review.sourceAnalysis : undefined
   if (a) return { phase:a.topic ? 'identified' : 'waiting', label:a.topic ? 'Тема уточнена' : 'Нужно уточнить материал', detail:a.nextStep }
   return { phase:'waiting', label:'Нужен материал для уточнения', detail:request.question }

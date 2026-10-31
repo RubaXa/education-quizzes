@@ -78,7 +78,7 @@ export default function WeekendMathSlot({ token, taskIds, parent, lessonDate, du
       setLocal((current) => [...current, { id, taskId, url, originalName: file.name, contentType: workFileContentType(file), state: 'uploading' }])
       void uploadDayPhoto(studentToken, taskId, file, id, page).catch((cause) => {
         reportUiError(cause, 'Загрузка фото')
-        setLocal((current) => current.map((item) => item.id === id ? { ...item, state: 'failed', error: cause instanceof Error ? cause.message : 'Фото не загрузилось.' } : item))
+        setLocal((current) => current.map((item) => item.id === id ? { ...item, state: 'failed', error: cause instanceof Error ? cause.message : 'Файл не загрузился.' } : item))
       })
     }
   }
@@ -119,7 +119,7 @@ export default function WeekendMathSlot({ token, taskIds, parent, lessonDate, du
         return <ProblemTaskCard owner={{ familyId: page.familyId, childId: page.childId }} problem={problem} state={state} key={problem.id} links={taskLinks} parent={parent} guide={taskPrivate[problem.id]?.guide} {...guidance.forTask(problem.id, taskPrivate[problem.id]?.guide)} onStageChoice={parent && helpRole === 'parent' && review && taskPrivate[problem.id]?.guide ? (stage, required) => recordStageChoice(review, taskPrivate[problem.id]!.guide!, stage.id, required) : undefined} sourceResearch={taskPrivate[problem.id]?.sourceResearch} help={helpRequests.find((item) => item.taskId === problem.id)} review={review} uploads={photos} accepted={accepted} canDecide={helpRole === 'parent'} onDecision={parent && canAcceptCorrectAnswer(review) && review ? (action) => recordParentCompletion(review, action) : undefined} decisions={parentDecisions.events} onRequirementChoice={parent && review?.assessmentBasis?.disputedRequirements?.length ? (id, action) => recordRequirementChoice(review, id, action) : undefined} helpAccess={helpRole === 'checking' ? 'checking' : helpRole === 'student' ? 'ready' : 'login-required'} onRequestHelp={!parent && helpRole === 'student' ? (taskId, revision, kind, text) => requestDayHelp(studentToken, taskId, revision, kind, text) : undefined} onPhotos={(files) => addPhotos(problem.id, files)}>
           <WorkPhotoGallery compact taskTitle={`№ ${problem.number}. ${problem.title}`} studentToken={studentToken} uploads={ownPhotos} localPhotos={previews.map((photo) => ({ ...photo, previewUrl: photo.url }))} review={review} now={statusNow} onDelete={!parent ? (qualifiedId) => { const [sourceToken, photoId] = qualifiedId.split(':'); return removePendingDayPhoto(sourceToken, photoId) } : undefined} />
           <LinkedWorkPhotos taskId={problem.id} uploads={uploads} pages={[page, ...(evidencePages ?? [])]} />
-          {previews.some((photo) => photo.state === 'failed') && <small className="weekend-math-error">Фото не загрузилось. Выберите его ещё раз.</small>}
+          {previews.some((photo) => photo.state === 'failed') && <small className="weekend-math-error">Файл не загрузился. Выберите его ещё раз.</small>}
         </ProblemTaskCard>
       })}</div>
     </div></ProblemGroup>
