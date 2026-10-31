@@ -2644,39 +2644,35 @@
       }
     },
     "src/UiKit.css": {
-      "sha256": "48c1e2fd8acba71b7eaee0a3e32b8e455d0c1de76a45057b4a6c68ea2c0d2fd3",
-      "record": "docs/decisions/grade-average-ui-kit-2026-10-18.md",
+      "sha256": "48d1396c99c6e3afa522e2b8efe6f97043e51045776530d7604f94ed15fbf398",
+      "record": "docs/decisions/file-icon-catalog-2026-10-31.md",
       "specs": [
-        "docs/modules/school-diary/grades.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/shared/design/ui-kit.md",
+        "docs/shared/design/components.md"
       ],
       "tests": [
-        "src/UiKit.test.tsx"
+        "src/UiKit.test.tsx",
+        "src/components/SolutionFiles.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь запросил общую шкалу среднего балла в UI Kit, затем прямо указал на повторяющиеся заголовки категорий и потребовал сгруппировать каждый раздел один раз."
+        "evidence": "Прямой запрос31.10.2026: показать иконки всех файлов, использовать общий элемент в стиле Education, добавить в UI Kit и синхронизировать спецификации."
       }
     },
     "src/UiKit.tsx": {
-      "sha256": "be7ba00e3cf853f5e8ab4b63160d21bd054a2c30456521b6460ccb4723468616",
-      "record": "docs/decisions/solution-file-uploads-2026-10-31.md",
+      "sha256": "a5b50743669f553dba6e81a090c7e72ddecd099cdf3a3bee37403ca4e53624e3",
+      "record": "docs/decisions/file-icon-catalog-2026-10-31.md",
       "specs": [
-        "docs/shared/media-storage.md",
-        "docs/modules/materials/storage-privacy.md"
+        "docs/shared/design/ui-kit.md",
+        "docs/shared/design/components.md"
       ],
       "tests": [
-        "storage/direct-upload.test.mjs",
-        "storage/work-file-types.test.mjs",
-        "storage/work-file-validation.test.mjs",
-        "src/components/SolutionFiles.test.tsx",
-        "src/components/WorkPhotoGallery.test.tsx",
-        "src/lib/educationEventProducers.test.ts",
-        "scripts/firestore-rules-photo-upload-suite.test.mjs"
+        "src/UiKit.test.tsx",
+        "src/components/SolutionFiles.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос31.10.2026: принимать PDF, DOCX, Excel, текстовые и другие файлы решений, показывать соответствующую иконку и действие «Загрузить решение»."
+        "evidence": "Прямой запрос31.10.2026: показать иконки всех файлов, использовать общий элемент в стиле Education, добавить в UI Kit и синхронизировать спецификации."
       }
     },
     "src/WeekendMathSlot.css": {

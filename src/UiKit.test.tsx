@@ -63,7 +63,7 @@ it('demonstrates one attachment and read-only references using the real shared c
 it('preserves grouped navigation and the shared grade average simulator',async()=>{
  document.body.append(host);root=createRoot(host);await act(async()=>root!.render(<UiKit/>))
  expect([...host.querySelectorAll('nav small')].map(node=>node.textContent)).toEqual(['Основы','Компоненты','Составные сценарии'])
- expect(host.querySelectorAll('nav button')).toHaveLength(15)
+ expect(host.querySelectorAll('nav button')).toHaveLength(16)
  await act(async()=>[...host.querySelectorAll<HTMLButtonElement>('nav button')].find(button=>button.textContent==='Средний балл')!.click())
  const range=host.querySelector<HTMLInputElement>('input[type="range"]')!
  expect([range.min,range.max,range.step]).toEqual(['200','500','1'])
@@ -270,4 +270,20 @@ it('previews the same role-aware olympiad page without a network request',async(
  await act(async()=>[...host.querySelectorAll<HTMLButtonElement>('button')].find(button=>button.textContent==='Ученик')!.click())
  expect(host.textContent).toContain('Чётность и сумма')
  expect(fetchMock).not.toHaveBeenCalled();vi.unstubAllGlobals()
+})
+
+/** @see ../docs/shared/design/ui-kit.md#иконки-файлов */
+it('shows shared Lucide file icons for every accepted format and switches the actual expanded preview',async()=>{
+ document.body.append(host);root=createRoot(host);await act(async()=>root!.render(<UiKit/>))
+ await act(async()=>[...host.querySelectorAll<HTMLButtonElement>('nav button')].find(button=>button.textContent==='Иконки файлов')!.click())
+ const {workFileTypes}=await import('../storage/work-file-types.mjs')
+ expect(host.querySelectorAll('.edu-kit-file-formats button')).toHaveLength(Object.keys(workFileTypes).length)
+ expect(host.querySelectorAll('.edu-kit-file-families .work-file-preview')).toHaveLength(6)
+ for(const icon of ['camera','file-text','file-spreadsheet','presentation'])expect(host.querySelector(`.edu-kit-file-families .lucide-${icon}`)).not.toBeNull()
+ for(const svg of host.querySelectorAll('.work-file-preview svg')){expect(svg.getAttribute('stroke-width')).toBe('2');expect(svg.getAttribute('fill')).toBe('none')}
+ await act(async()=>host.querySelector<HTMLButtonElement>('[aria-label="Показать XLSX"]')!.click())
+ expect(host.querySelector('.edu-kit-file-expanded strong')?.textContent).toBe('Пример.xlsx')
+ expect(host.querySelector('.edu-kit-file-expanded [data-file-kind]')?.getAttribute('data-file-kind')).toBe('spreadsheet')
+ expect(host.querySelector('.edu-kit-file-expanded .lucide-file-spreadsheet')).not.toBeNull()
+ expect(host.querySelector('[aria-label="Показать XLSX"]')?.getAttribute('aria-pressed')).toBe('true')
 })

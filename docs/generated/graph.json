@@ -968,6 +968,31 @@
       "path": "docs/decisions/family-essay-assignment-2026-10-20.md"
     },
     {
+      "id": "decision.file-icon-catalog-2026-10-31",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-31",
+      "updated": "2026-10-31",
+      "consumers": [
+        "parent",
+        "developer"
+      ],
+      "code": [],
+      "parent": "shared.design.ui-kit",
+      "uses": [
+        "shared.design.components",
+        "shared.media-storage"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/file-icon-catalog-2026-10-31.md"
+    },
+    {
       "id": "decision.firestore-live-discovery-2026-10-19",
       "status": "superseded",
       "implementation": "implemented",
@@ -4538,6 +4563,13 @@
       "kind": "artifact",
       "purpose": "HTML-точка входа браузерного fixture",
       "consumer": "Vite E2E"
+    },
+    {
+      "id": "file:e2e/file-icons.e2e.ts",
+      "path": "e2e/file-icons.e2e.ts",
+      "kind": "artifact",
+      "purpose": "Все значки файлов, переключение и геометрия320/390/540/1280px",
+      "consumer": "Playwright"
     },
     {
       "id": "file:e2e/mocks/auth.ts",
@@ -12780,7 +12812,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-16",
-      "updated": "2026-10-20",
+      "updated": "2026-10-31",
       "consumers": [
         "React UI components",
         "frontend developer",
@@ -12813,7 +12845,8 @@
         "статусы-свёрнутых-вариантов",
         "аудиоплеер",
         "письменная-задача",
-        "игровой-урок"
+        "игровой-урок",
+        "иконки-файлов"
       ],
       "path": "docs/shared/design/ui-kit.md"
     },
@@ -13273,6 +13306,16 @@
     {
       "from": "decision.family-essay-assignment-2026-10-20",
       "to": "module.synchronization.plan-generation",
+      "type": "uses"
+    },
+    {
+      "from": "decision.file-icon-catalog-2026-10-31",
+      "to": "shared.design.components",
+      "type": "uses"
+    },
+    {
+      "from": "decision.file-icon-catalog-2026-10-31",
+      "to": "shared.media-storage",
       "type": "uses"
     },
     {
@@ -14558,6 +14601,11 @@
     {
       "from": "file:e2e/calendar.html",
       "to": "module.school-diary.school-calendar",
+      "type": "implements"
+    },
+    {
+      "from": "file:e2e/file-icons.e2e.ts",
+      "to": "shared.design.ui-kit",
       "type": "implements"
     },
     {
@@ -22704,6 +22752,11 @@
       "from": "shared.design.telegram",
       "to": "shared.design.ui-kit",
       "type": "uses"
+    },
+    {
+      "from": "shared.design.ui-kit",
+      "to": "decision.file-icon-catalog-2026-10-31",
+      "type": "contains"
     },
     {
       "from": "shared.design.ui-kit",

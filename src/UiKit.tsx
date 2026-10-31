@@ -1,4 +1,4 @@
-import { workFileContentType } from '../storage/work-file-types.mjs'
+import { workFileTypes, workFilePresentation, workFileContentType } from '../storage/work-file-types.mjs'
 /** @see ../docs/decisions/personal-tutoring-2026-10-30.md */
 /** @see ../docs/decisions/ui-kit-photo-help-2026-10-27.md */
 /** @see ../docs/decisions/ui-kit-written-practice-2026-10-27.md */
@@ -16,6 +16,7 @@ import HomeworkOverview from '@/components/HomeworkOverview'
 import DayCalendar from '@/components/DayCalendar'
 import MaterialRequest from '@/components/MaterialRequest'
 import PhotoUploadControl from '@/components/PhotoUploadControl'
+import WorkFilePreview from '@/components/WorkFilePreview'
 import OlympiadSourceQueue from '@/components/OlympiadSourceQueue'
 import LinkedWorkPhotos from '@/components/LinkedWorkPhotos'
 import WorkPhotoGallery from '@/components/WorkPhotoGallery'
@@ -32,7 +33,7 @@ import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { ProblemCard } from '@/components/ProblemCard'
 import ProblemStatement from '@/components/ProblemStatement'
-import { BellRing, BookOpen, ChevronRight, CircleHelp, Layers3, Palette } from 'lucide-react'
+import { BellRing, BookOpen, ChevronRight, CircleHelp, Layers3, Palette, Paperclip } from 'lucide-react'
 import ProblemGroup from '@/components/ProblemGroup'
 import { PracticeVariantStatus } from '@/components/PracticeVariantStatus'
 import RequirementSwitch from '@/components/RequirementSwitch'
@@ -82,6 +83,9 @@ const guidanceDemo: Guide = { kind: 'worked-solution', presentation: 'math-route
     revealPreview: 'Учитывай направление каждого перехода: равные по длине отрезки могут иметь разные знаки.',
     source: { kind: 'teacher-file', label: 'Лист учителя №2', ref: 'demo-only:teacher-sheet', excerpt: 'Демонстрационный источник' } }] }
 
+const fileExamples = Object.entries(workFileTypes).map(([contentType, [extension]]) => ({ contentType, originalName: `Пример.${extension}` }))
+const fileIconExamples = fileExamples.filter((file, index) => fileExamples.findIndex(other => workFilePresentation(other).kind === workFilePresentation(file).kind) === index)
+
 const topicGroups = [
   {id:'foundations',title:'Основы',topics:[
     {id:'tokens',title:'Цвета и токены',icon:Palette},
@@ -89,6 +93,7 @@ const topicGroups = [
   {id:'components',title:'Компоненты',topics:[
     {id:'results',title:'Индикаторы результата',icon:CircleHelp},
     {id:'grades',title:'Средний балл',icon:CircleHelp},
+    {id:'files',title:'Иконки файлов',icon:Paperclip},
   ]},
   {id:'scenarios',title:'Составные сценарии',topics:[
     {id:'calendar',title:'Календарь и каникулы',icon:BookOpen},
@@ -144,6 +149,7 @@ export default function UiKit() {
   const [section,setSection] = useState<UiKitSection>('results')
   const [points,setPoints] = useState(34)
   const [max,setMax] = useState(39)
+  const [fileExample,setFileExample] = useState(fileExamples.find(file => file.contentType === 'application/pdf')!)
   const [state,setState] = useState('score')
   const [demoTarget,setDemoTarget] = useState('')
   const [demoFiles,setDemoFiles] = useState<string[]>([])
@@ -201,6 +207,17 @@ export default function UiKit() {
         <div className="edu-kit-result-example" aria-live="polite"><ResultBadge input={input} showPoints /><div>{state==='score' && <ResultPoints points={points} maxPoints={max} />}</div><ResultMeter input={input} label={state==='answers'?'Доля заполненных ответов':'Процент набранных баллов'} /></div></div>
         <h3>Когда использовать</h3><ul><li><b>Метка результата:</b> процент в компактном списке или заголовке. Цвет дополняется числом и знаком.</li><li><b>Баллы:</b> набрано / максимум. Это не число полностью верных вопросов.</li><li><b>Полоса результата:</b> фактическая доля баллов; 0% остаётся пустой полосой с видимой меткой.</li><li><b>Заполнение:</b> пять ответов из пяти ещё не означают пять верных ответов. Поэтому полный черновик фиолетовый.</li><li><b>Ожидание:</b> без фиктивных 0% и без полосы результата.</li></ul>
         <h3>Границы</h3><p>Зачёт — от 85%. Янтарный — от 50% до порога зачёта. Красный — ниже 50%. Сравнение выполняется до округления: 84,99% не превращается в зелёные 85%. Эти границы относятся к тестам; школьный средний не переводится в проценты.</p>
+      </section>}
+      {section==='files' && <section aria-labelledby="kit-files-title" className="edu-kit-files">
+        <h2 id="kit-files-title">Иконки файлов</h2>
+        <p>Готовые SVG из Lucide React. Единые контурные значки, толщина линий и цвет Education.</p>
+        <div className="edu-kit-file-families" aria-label="Основные значки файлов">{fileIconExamples.map(file => <div key={file.contentType}><WorkFilePreview file={file} /><span>{workFilePresentation(file).label}</span></div>)}</div>
+        <h3>Все поддерживаемые форматы</h3>
+        <p>Выбери формат, чтобы увидеть раскрытое вложение. Это тот же компонент, что в загруженных решениях.</p>
+        <div className="edu-kit-file-formats" aria-label="Форматы вложений">{fileExamples.map(file => <button type="button" key={file.contentType} aria-label={`Показать ${workFilePresentation(file).extension.toUpperCase()}`} aria-pressed={fileExample.contentType === file.contentType} onClick={() => setFileExample(file)}><WorkFilePreview file={file} compact /><span>{workFilePresentation(file).extension.toUpperCase()}</span></button>)}</div>
+        <div className="edu-kit-file-expanded" aria-label="Раскрытое вложение"><WorkFilePreview file={fileExample} /></div>
+        <p>У фотографий в работе показывается сам снимок. Значок камеры используется, когда предпросмотра ещё нет.</p>
+        <code>WorkFilePreview · общие токены --edu-* · источник форматов workFileTypes</code>
       </section>}
       {section==='grades' && <section aria-labelledby="kit-grades-title"><h2 id="kit-grades-title">Шкала среднего балла</h2><p>Фиксированные примеры показывают ключевые рубежи, а отдельный слайдер позволяет проверить каждый промежуточный балл от 2 до 5.</p>
         <h3>Примеры диапазонов</h3><div className="edu-kit-grade-examples" aria-label="Фиксированные примеры среднего балла">{[
