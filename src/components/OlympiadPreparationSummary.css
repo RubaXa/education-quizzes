@@ -17,3 +17,5 @@
 .olympiad-preparation-work{margin-top:20px;padding-top:16px;border-top:1px solid var(--edu-card-border);min-width:0}
 .olympiad-preparation-work-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
 @media(max-width:600px){.olympiad-preparation-columns{grid-template-columns:1fr;gap:20px}}
+
+.olympiad-preparation-next>[data-slot=button]{min-height:44px}
