@@ -7,6 +7,7 @@ import WorkPhotoGallery from './WorkPhotoGallery'
 import PhotoUploadControl from './PhotoUploadControl'
 import WorkFilePreview from './WorkFilePreview'
 import WorkReview from './WorkReview'
+import ArtifactAvatar from './ArtifactAvatar'
 import type { DayUpload } from '@/lib/dayStore'
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
@@ -89,4 +90,28 @@ it('describes received documents as work awaiting review, without changing the r
     expect(host.textContent).not.toContain('Фото получено')
     expect(host.textContent).not.toContain('Засчитано')
   } finally { await act(async () => root.unmount()) }
+})
+
+it.each([false, true])('renders an image itself without a file-type icon, compact=%s', async compact => {
+  const host = document.createElement('div'), root = createRoot(host)
+  const image = 'data:image/png;base64,preview'
+  try {
+    await act(async () => root.render(<WorkFilePreview file={{contentType:'image/png',originalName:'Решение.png'}} compact={compact} href={image} />))
+    expect(host.querySelector('img')?.getAttribute('src')).toBe(image)
+    expect(host.querySelector('.lucide-camera')).toBeNull()
+    expect(host.querySelector('.lucide-file-text')).toBeNull()
+    expect(host.querySelector('.work-file-format')).toBeNull()
+    await act(async () => host.querySelector('img')!.dispatchEvent(new Event('error')))
+    expect(host.querySelector('.lucide-camera')).toBeNull()
+    expect(host.querySelector('.lucide-file-text')).toBeNull()
+  } finally { await act(async () => root.unmount()) }
+})
+
+it('keeps an empty avatar neutral until an image is available', async () => {
+  const host=document.createElement('div'),root=createRoot(host)
+  try {
+    await act(async()=>root.render(<ArtifactAvatar state="uploading" />))
+    expect(host.querySelector('.artifact-avatar-placeholder')).not.toBeNull()
+    expect(host.querySelector('.lucide-camera')).toBeNull()
+  } finally {await act(async()=>root.unmount())}
 })

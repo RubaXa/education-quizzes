@@ -2644,35 +2644,39 @@
       }
     },
     "src/UiKit.css": {
-      "sha256": "48d1396c99c6e3afa522e2b8efe6f97043e51045776530d7604f94ed15fbf398",
-      "record": "docs/decisions/file-icon-catalog-2026-10-31.md",
+      "sha256": "b24deb2fe4170fbc41c41e2eaf13eb2d6a9af27ca00350a295d59d7354c4a823",
+      "record": "docs/decisions/image-preview-first-2026-10-31.md",
       "specs": [
+        "docs/shared/design/components.md",
         "docs/shared/design/ui-kit.md",
-        "docs/shared/design/components.md"
+        "docs/shared/media-storage.md"
       ],
       "tests": [
-        "src/UiKit.test.tsx",
-        "src/components/SolutionFiles.test.tsx"
+        "src/components/SolutionFiles.test.tsx",
+        "src/components/WorkPhotoGallery.test.tsx",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос31.10.2026: показать иконки всех файлов, использовать общий элемент в стиле Education, добавить в UI Kit и синхронизировать спецификации."
+        "evidence": "Прямое уточнение31.10.2026: изображения показывать превью без иконок; иконки использовать для файлов,содержимое которых нельзя отрендерить;правило едино с UI Kit."
       }
     },
     "src/UiKit.tsx": {
-      "sha256": "a5b50743669f553dba6e81a090c7e72ddecd099cdf3a3bee37403ca4e53624e3",
-      "record": "docs/decisions/file-icon-catalog-2026-10-31.md",
+      "sha256": "8dbdbbc4610db0504997c907c62d9d73de4469908958885ca0c0b1acfe5a04ef",
+      "record": "docs/decisions/image-preview-first-2026-10-31.md",
       "specs": [
+        "docs/shared/design/components.md",
         "docs/shared/design/ui-kit.md",
-        "docs/shared/design/components.md"
+        "docs/shared/media-storage.md"
       ],
       "tests": [
-        "src/UiKit.test.tsx",
-        "src/components/SolutionFiles.test.tsx"
+        "src/components/SolutionFiles.test.tsx",
+        "src/components/WorkPhotoGallery.test.tsx",
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос31.10.2026: показать иконки всех файлов, использовать общий элемент в стиле Education, добавить в UI Kit и синхронизировать спецификации."
+        "evidence": "Прямое уточнение31.10.2026: изображения показывать превью без иконок; иконки использовать для файлов,содержимое которых нельзя отрендерить;правило едино с UI Kit."
       }
     },
     "src/WeekendMathSlot.css": {
@@ -2738,24 +2742,21 @@
       }
     },
     "src/components/ArtifactAvatar.tsx": {
-      "sha256": "d375d0c62c62d0a23effd340651a27eef56656f6da0b59076c72e094167ff21c",
-      "record": "docs/decisions/solution-file-uploads-2026-10-31.md",
+      "sha256": "d3c3564ba4a3f11ea72932d64d3bb7fa12a466c0fc1f2adebc43dbcb3d7f5fc9",
+      "record": "docs/decisions/image-preview-first-2026-10-31.md",
       "specs": [
-        "docs/shared/media-storage.md",
-        "docs/modules/materials/storage-privacy.md"
+        "docs/shared/design/components.md",
+        "docs/shared/design/ui-kit.md",
+        "docs/shared/media-storage.md"
       ],
       "tests": [
-        "storage/direct-upload.test.mjs",
-        "storage/work-file-types.test.mjs",
-        "storage/work-file-validation.test.mjs",
         "src/components/SolutionFiles.test.tsx",
         "src/components/WorkPhotoGallery.test.tsx",
-        "src/lib/educationEventProducers.test.ts",
-        "scripts/firestore-rules-photo-upload-suite.test.mjs"
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос31.10.2026: принимать PDF, DOCX, Excel, текстовые и другие файлы решений, показывать соответствующую иконку и действие «Загрузить решение»."
+        "evidence": "Прямое уточнение31.10.2026: изображения показывать превью без иконок; иконки использовать для файлов,содержимое которых нельзя отрендерить;правило едино с UI Kit."
       }
     },
     "src/components/AssignmentBrief.css": {
@@ -6823,45 +6824,39 @@
       }
     },
     "src/components/WorkFilePreview.css": {
-      "sha256": "3c07f43271873e66ef40fabc49bcb7c0561b11c3116155fce84994a3950b54dd",
-      "record": "docs/decisions/solution-file-uploads-2026-10-31.md",
+      "sha256": "f2ac632500880a6eed0a0b6f93df082ef3520a2b3215d882ad54ae8e7b04e2b6",
+      "record": "docs/decisions/image-preview-first-2026-10-31.md",
       "specs": [
-        "docs/shared/media-storage.md",
-        "docs/modules/materials/storage-privacy.md"
+        "docs/shared/design/components.md",
+        "docs/shared/design/ui-kit.md",
+        "docs/shared/media-storage.md"
       ],
       "tests": [
-        "storage/direct-upload.test.mjs",
-        "storage/work-file-types.test.mjs",
-        "storage/work-file-validation.test.mjs",
         "src/components/SolutionFiles.test.tsx",
         "src/components/WorkPhotoGallery.test.tsx",
-        "src/lib/educationEventProducers.test.ts",
-        "scripts/firestore-rules-photo-upload-suite.test.mjs"
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос31.10.2026: принимать PDF, DOCX, Excel, текстовые и другие файлы решений, показывать соответствующую иконку и действие «Загрузить решение»."
+        "evidence": "Прямое уточнение31.10.2026: изображения показывать превью без иконок; иконки использовать для файлов,содержимое которых нельзя отрендерить;правило едино с UI Kit."
       }
     },
     "src/components/WorkFilePreview.tsx": {
-      "sha256": "4192cd4774db2f9da69fea93bbcf480da97cdce2903a74dddac508c90d7a56f9",
-      "record": "docs/decisions/solution-file-uploads-2026-10-31.md",
+      "sha256": "b15cdd61092d395f725fb5eed5250e38c2fe9b901a4fae02469b614620494f2a",
+      "record": "docs/decisions/image-preview-first-2026-10-31.md",
       "specs": [
-        "docs/shared/media-storage.md",
-        "docs/modules/materials/storage-privacy.md"
+        "docs/shared/design/components.md",
+        "docs/shared/design/ui-kit.md",
+        "docs/shared/media-storage.md"
       ],
       "tests": [
-        "storage/direct-upload.test.mjs",
-        "storage/work-file-types.test.mjs",
-        "storage/work-file-validation.test.mjs",
         "src/components/SolutionFiles.test.tsx",
         "src/components/WorkPhotoGallery.test.tsx",
-        "src/lib/educationEventProducers.test.ts",
-        "scripts/firestore-rules-photo-upload-suite.test.mjs"
+        "src/UiKit.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос31.10.2026: принимать PDF, DOCX, Excel, текстовые и другие файлы решений, показывать соответствующую иконку и действие «Загрузить решение»."
+        "evidence": "Прямое уточнение31.10.2026: изображения показывать превью без иконок; иконки использовать для файлов,содержимое которых нельзя отрендерить;правило едино с UI Kit."
       }
     },
     "storage/work-file-types.mjs": {

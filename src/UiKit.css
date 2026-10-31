@@ -58,3 +58,6 @@
 .edu-kit-file-formats>button[aria-pressed="true"]{border-color:var(--edu-brand);background:var(--edu-hover)}
 .edu-kit-file-expanded{margin:14px 0;border:1px solid var(--edu-card-border);border-radius:var(--edu-radius-control)}
 @media(max-width:540px){.edu-kit-file-families{grid-template-columns:repeat(2,minmax(0,1fr))}.edu-kit-file-formats{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+.edu-kit-file-families .work-file-preview-image .education-image{height:64px;min-height:64px}
+.edu-kit-file-families .work-file-preview-image .education-image>img{height:100%;object-fit:contain}

@@ -1097,3 +1097,5 @@
 
 | [e2e/file-icons.e2e.ts](../e2e/file-icons.e2e.ts) | [UI Kit](shared/design/ui-kit.md) | Все значки файлов, переключение и геометрия320/390/540/1280px | Playwright |
 | [docs/decisions/file-icon-catalog-2026-10-31.md](decisions/file-icon-catalog-2026-10-31.md) | [UI Kit](shared/design/ui-kit.md) | Основание каталога общих значков и синхронизации спецификаций | Разработчик |
+
+| [docs/decisions/image-preview-first-2026-10-31.md](decisions/image-preview-first-2026-10-31.md) | [Файлы работы](shared/design/components.md) | Уточнение приоритета превью и отказа от камеры для изображений | Разработчик |

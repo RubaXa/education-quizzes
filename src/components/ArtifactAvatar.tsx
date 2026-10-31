@@ -3,7 +3,6 @@ import WorkFilePreview from './WorkFilePreview'
 /** @see ../../docs/decisions/upload-photo-timestamp-2026-10-21.md
  * @see ../../docs/decisions/photo-transfer-recovery-2026-10-22.md */
 import type { ReactNode } from 'react'
-import { Camera } from 'lucide-react'
 import type { ArtifactAvatarState } from '@/lib/reviewPresentation'
 import type { DayUpload } from '@/lib/dayStore'
 import { localPhotoForTransfer } from '@/lib/photoOutbox'
@@ -22,7 +21,7 @@ export function ArtifactStatusGlyph({ state, size = 10 }: { state: ArtifactAvata
  */
 export default function ArtifactAvatar({ state, children }: { state: ArtifactAvatarState; children?: ReactNode }) {
   return <span className="artifact-avatar">
-    <span className="artifact-avatar-image">{children ?? <span className="artifact-avatar-placeholder"><Camera size={15} aria-hidden="true" /></span>}</span>
+    <span className="artifact-avatar-image">{children ?? <span className="artifact-avatar-placeholder" aria-hidden="true" />}</span>
     <span className={`artifact-avatar-indicator ${state}`} aria-hidden="true"><ArtifactStatusGlyph state={state} /></span>
   </span>
 }

@@ -275,15 +275,21 @@ it('previews the same role-aware olympiad page without a network request',async(
 /** @see ../docs/shared/design/ui-kit.md#иконки-файлов */
 it('shows shared Lucide file icons for every accepted format and switches the actual expanded preview',async()=>{
  document.body.append(host);root=createRoot(host);await act(async()=>root!.render(<UiKit/>))
- await act(async()=>[...host.querySelectorAll<HTMLButtonElement>('nav button')].find(button=>button.textContent==='Иконки файлов')!.click())
+ await act(async()=>[...host.querySelectorAll<HTMLButtonElement>('nav button')].find(button=>button.textContent==='Файлы и превью')!.click())
  const {workFileTypes}=await import('../storage/work-file-types.mjs')
  expect(host.querySelectorAll('.edu-kit-file-formats button')).toHaveLength(Object.keys(workFileTypes).length)
  expect(host.querySelectorAll('.edu-kit-file-families .work-file-preview')).toHaveLength(6)
- for(const icon of ['camera','file-text','file-spreadsheet','presentation'])expect(host.querySelector(`.edu-kit-file-families .lucide-${icon}`)).not.toBeNull()
+ expect(host.querySelector('.edu-kit-file-families img')).not.toBeNull()
+ expect(host.querySelector('.lucide-camera')).toBeNull()
+ for(const icon of ['file-text','file-spreadsheet','presentation'])expect(host.querySelector(`.edu-kit-file-families .lucide-${icon}`)).not.toBeNull()
  for(const svg of host.querySelectorAll('.work-file-preview svg')){expect(svg.getAttribute('stroke-width')).toBe('2');expect(svg.getAttribute('fill')).toBe('none')}
  await act(async()=>host.querySelector<HTMLButtonElement>('[aria-label="Показать XLSX"]')!.click())
  expect(host.querySelector('.edu-kit-file-expanded strong')?.textContent).toBe('Пример.xlsx')
  expect(host.querySelector('.edu-kit-file-expanded [data-file-kind]')?.getAttribute('data-file-kind')).toBe('spreadsheet')
  expect(host.querySelector('.edu-kit-file-expanded .lucide-file-spreadsheet')).not.toBeNull()
  expect(host.querySelector('[aria-label="Показать XLSX"]')?.getAttribute('aria-pressed')).toBe('true')
+ await act(async()=>host.querySelector<HTMLButtonElement>('[aria-label="Показать PNG"]')!.click())
+ expect(host.querySelector('.edu-kit-file-expanded img')).not.toBeNull()
+ expect(host.querySelector('.edu-kit-file-expanded .work-file-format')).toBeNull()
+ expect(host.querySelector('.edu-kit-file-expanded .lucide-camera')).toBeNull()
 })
