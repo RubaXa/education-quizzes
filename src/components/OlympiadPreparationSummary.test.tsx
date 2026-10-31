@@ -25,3 +25,11 @@ it('has no dead task action when practice is unavailable and clears a selected o
  await act(async()=>{host.querySelector<HTMLButtonElement>('button')!.click();await tick()});expect(host.querySelector('[role=region]')).not.toBeNull()
  await act(async()=>render('other'));expect(host.querySelector('[role=region]')).toBeNull()
 })
+it('shows checked achievements and opens the existing work history, with an explicit exhausted route',async()=>{
+ document.body.append(host);root=createRoot(host);const open=vi.fn()
+ const preparation:PersonalPreparation={...example,next:null,workingOn:[],progress:{exhausted:true,tasks:[{taskId:'done',title:'Зачтённая задача',status:'verified',checkedOn:'2026-11-01',credited:'review',confirmed:'Рассмотрены все случаи.',focus:null,achievedOn:'2026-11-01'}]}}
+ await act(async()=>root!.render(<OlympiadPreparationSummary preparation={preparation} familyId="f" childId="c" availableTaskIds={['done']} onOpenTask={open}/>))
+ expect(host.textContent).toContain('Все задачи этого маршрута зачтены.');expect(host.querySelector('summary')?.textContent).toContain('зачтено 1')
+ await act(async()=>{Array.from(host.querySelectorAll('button')).find(b=>b.textContent?.startsWith('Работа и история'))!.click()})
+ expect(open).toHaveBeenCalledWith('done');expect(host.textContent).not.toContain('Открыть задачу')
+})

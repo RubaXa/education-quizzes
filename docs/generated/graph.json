@@ -1714,6 +1714,31 @@
       "path": "docs/decisions/olympiad-practice-sections-2026-10-28.md"
     },
     {
+      "id": "decision.olympiad-preparation-updates-2026-11-01",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-11-01",
+      "updated": "2026-11-01",
+      "parent": "module.olympiad-history",
+      "uses": [
+        "module.synchronization.event-queue"
+      ],
+      "consumers": [
+        "parent",
+        "student",
+        "operator"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/olympiad-preparation-updates-2026-11-01.md"
+    },
+    {
       "id": "decision.olympiad-quiz-theory-2026-10-28",
       "status": "accepted",
       "implementation": "partial",
@@ -5145,6 +5170,34 @@
       "consumer": "Education; разработчик"
     },
     {
+      "id": "file:olympiad/preparation-store.mjs",
+      "path": "olympiad/preparation-store.mjs",
+      "kind": "artifact",
+      "purpose": "Атомарные проекции и неизменяемый журнал",
+      "consumer": "Общая очередь; оператор"
+    },
+    {
+      "id": "file:olympiad/preparation-store.test.mjs",
+      "path": "olympiad/preparation-store.test.mjs",
+      "kind": "verification",
+      "purpose": "Scope, транзакции, повторы и сохранность истории",
+      "consumer": "Vitest"
+    },
+    {
+      "id": "file:olympiad/preparation.mjs",
+      "path": "olympiad/preparation.mjs",
+      "kind": "artifact",
+      "purpose": "Маршрут по проверенным работам без переоценки навыков",
+      "consumer": "Worker; CLI"
+    },
+    {
+      "id": "file:olympiad/preparation.test.mjs",
+      "path": "olympiad/preparation.test.mjs",
+      "kind": "verification",
+      "purpose": "Зачёт, пробелы, принятие и исключение задач",
+      "consumer": "Vitest"
+    },
+    {
       "id": "file:olympiad/production-http-runtime.mjs",
       "path": "olympiad/production-http-runtime.mjs",
       "kind": "artifact",
@@ -6774,6 +6827,13 @@
       "kind": "artifact",
       "purpose": "Сезоны, этапы, семейные оригиналы и безопасный просмотр",
       "consumer": "Education"
+    },
+    {
+      "id": "file:scripts/olympiad-preparation.mjs",
+      "path": "scripts/olympiad-preparation.mjs",
+      "kind": "artifact",
+      "purpose": "Проверяемое включение и восстановление маршрута",
+      "consumer": "Education operator"
     },
     {
       "id": "file:scripts/olympiad-publish-training.mjs",
@@ -10737,7 +10797,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-31",
-      "updated": "2026-10-31",
+      "updated": "2026-11-01",
       "parent": "module.olympiad-preparation",
       "uses": [
         "shared.access-and-privacy",
@@ -10756,6 +10816,9 @@
         "src/components/OlympiadPreparationSummary.css",
         "olympiad/history.mjs",
         "olympiad/history-import.mjs",
+        "olympiad/preparation.mjs",
+        "olympiad/preparation-store.mjs",
+        "scripts/olympiad-preparation.mjs",
         "scripts/olympiad-history.mjs",
         "storage/learning-file-access.mjs",
         "storage/yandex-disk.mjs",
@@ -10771,7 +10834,8 @@
         "оригиналы-и-доступ",
         "интерфейс-и-состояния",
         "импорт-и-проверка",
-        "персональная-подготовка"
+        "персональная-подготовка",
+        "обновление-после-проверки"
       ],
       "path": "docs/modules/assessments/olympiad-history.md"
     },
@@ -14593,6 +14657,11 @@
       "type": "uses"
     },
     {
+      "from": "decision.olympiad-preparation-updates-2026-11-01",
+      "to": "module.synchronization.event-queue",
+      "type": "uses"
+    },
+    {
       "from": "decision.olympiad-quiz-theory-2026-10-28",
       "to": "shared.access-and-privacy",
       "type": "uses"
@@ -15913,6 +15982,16 @@
       "type": "implements"
     },
     {
+      "from": "file:olympiad/preparation-store.mjs",
+      "to": "module.olympiad-history",
+      "type": "implements"
+    },
+    {
+      "from": "file:olympiad/preparation.mjs",
+      "to": "module.olympiad-history",
+      "type": "implements"
+    },
+    {
       "from": "file:olympiad/production-http-runtime.mjs",
       "to": "decision.olympiad-family-storage-2026-10-27",
       "type": "implements"
@@ -17119,6 +17198,11 @@
     },
     {
       "from": "file:scripts/olympiad-history.mjs",
+      "to": "module.olympiad-history",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/olympiad-preparation.mjs",
       "to": "module.olympiad-history",
       "type": "implements"
     },
@@ -21299,12 +21383,27 @@
     },
     {
       "from": "module.olympiad-history",
+      "to": "decision.olympiad-preparation-updates-2026-11-01",
+      "type": "contains"
+    },
+    {
+      "from": "module.olympiad-history",
       "to": "file:olympiad/history-import.test.mjs",
       "type": "verified-by"
     },
     {
       "from": "module.olympiad-history",
       "to": "file:olympiad/history.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.olympiad-history",
+      "to": "file:olympiad/preparation-store.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.olympiad-history",
+      "to": "file:olympiad/preparation.test.mjs",
       "type": "verified-by"
     },
     {

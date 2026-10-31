@@ -1066,18 +1066,18 @@
       }
     },
     "packages/telegram-notifications/adapters/runtime.mjs": {
-      "sha256": "0f126b9133decf600d59810e13859c5c2e8d2f493e7197afde2c11ea5929720d",
-      "record": "docs/decisions/unified-education-events-2026-10-19.md",
+      "sha256": "f4961d69b33c54e56593776955937935156506991606c5155aa6f3c38a9d1d53",
+      "record": "docs/decisions/olympiad-preparation-updates-2026-11-01.md",
       "specs": [
-        "docs/modules/synchronization/event-queue.md",
-        "docs/services/telegram-bot/operations.md"
+        "docs/modules/assessments/olympiad-history.md"
       ],
       "tests": [
-        "packages/telegram-notifications/adapters/runtime.test.mjs"
+        "src/components/OlympiadPreparationSummary.test.tsx",
+        "packages/telegram-notifications/application/education-event-routing.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 требует одну внутреннюю очередь событий и одну подписку вместо множества source watchers; ранее поручил реализацию через Luna с проверкой root, тестами, спецификациями и выпуском в main."
+        "evidence": "Прямой запрос01.11.2026: автоматически обновлять персональный блок после каждой проверенной работы, сохранять историю, исключать зачтённые задачи, без межчатовых сообщений."
       }
     },
     "packages/telegram-notifications/adapters/source-checkpoint-firestore.mjs": {
@@ -1236,19 +1236,18 @@
       }
     },
     "packages/telegram-notifications/application/education-event-routing.mjs": {
-      "sha256": "c9c71b36dc9dcfc1d577834cf822c0d3770ad2868b48fc8a8a48f9eee349bd41",
-      "record": "docs/decisions/olympiad-history-2026-10-31.md",
+      "sha256": "c897140469bfd81427324a83382220a7945243c8d071c0ae1fb86572ede3ccaa",
+      "record": "docs/decisions/olympiad-preparation-updates-2026-11-01.md",
       "specs": [
         "docs/modules/assessments/olympiad-history.md"
       ],
       "tests": [
-        "src/components/OlympiadHistory.test.tsx",
-        "scripts/firestore-rules-olympiad-history.test.mjs",
-        "storage/learning-file-access.test.mjs"
+        "src/components/OlympiadPreparationSummary.test.tsx",
+        "packages/telegram-notifications/application/education-event-routing.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь31.10.2026 прямо поручил реализовать историю сезонов, этапов, результатов и работ в карточках олимпиад через существующий Education/UI Kit с проверками и публикацией без дополнительных согласований."
+        "evidence": "Прямой запрос01.11.2026: автоматически обновлять персональный блок после каждой проверенной работы, сохранять историю, исключать зачтённые задачи, без межчатовых сообщений."
       }
     },
     "packages/telegram-notifications/application/education-sync-dispatcher.mjs": {
@@ -2341,20 +2340,18 @@
       }
     },
     "scripts/submissions.mjs": {
-      "sha256": "c86318c546ac5643b4d69d353ee3867f0e2e06f0b81872cd84815a4ac83a8fb6",
-      "record": "docs/decisions/personal-tutoring-2026-10-30.md",
+      "sha256": "585dbf12dd9cde07b4c950ca652bd08e915a7cab70492df17672cd0f43098ecc",
+      "record": "docs/decisions/olympiad-preparation-updates-2026-11-01.md",
       "specs": [
-        "docs/modules/reviews/subject-aware-guidance.md"
+        "docs/modules/assessments/olympiad-history.md"
       ],
       "tests": [
-        "storage/tutoring-decision.test.mjs",
-        "storage/review-projection.test.mjs",
-        "sync/event-task-artifact.test.mjs",
-        "src/components/WorkReview.tutoring.test.tsx"
+        "src/components/OlympiadPreparationSummary.test.tsx",
+        "packages/telegram-notifications/application/education-event-routing.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель прямо поручил внедрить персональное объяснение каждой новой работы в основной автоматический конвейер, заменить шаблонные блоки обеих карточек и влить завершённый выпуск."
+        "evidence": "Прямой запрос01.11.2026: автоматически обновлять персональный блок после каждой проверенной работы, сохранять историю, исключать зачтённые задачи, без межчатовых сообщений."
       }
     },
     "scripts/sync-books.mjs": {
@@ -7239,18 +7236,18 @@
       }
     },
     "src/components/OlympiadHistoryShowcase.tsx": {
-      "sha256": "5b9b17b9ae1ddd07f2941c320c30953a02ad7fbae95bfcd136de53a73ec1605c",
-      "record": "docs/decisions/olympiad-personal-preparation-2026-10-31.md",
+      "sha256": "c7d3c13a86c07d52231d4366fd916981414878078c488b51e5eaf5ad713f890e",
+      "record": "docs/decisions/olympiad-preparation-updates-2026-11-01.md",
       "specs": [
         "docs/modules/assessments/olympiad-history.md"
       ],
       "tests": [
         "src/components/OlympiadPreparationSummary.test.tsx",
-        "src/components/OlympiadHistory.test.tsx"
+        "packages/telegram-notifications/application/education-event-routing.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь31.10.2026 прямо поручил реализовать историю сезонов, этапов, результатов и работ в карточках олимпиад через существующий Education/UI Kit с проверками и публикацией без дополнительных согласований."
+        "evidence": "Прямой запрос01.11.2026: автоматически обновлять персональный блок после каждой проверенной работы, сохранять историю, исключать зачтённые задачи, без межчатовых сообщений."
       }
     },
     "src/lib/olympiad/historyStore.ts": {
@@ -7270,18 +7267,18 @@
       }
     },
     "src/lib/olympiad/historyTypes.ts": {
-      "sha256": "d55647cad0f1690b2d999f68a8e786b7574f184e510a1389394e944d22179693",
-      "record": "docs/decisions/olympiad-personal-preparation-2026-10-31.md",
+      "sha256": "3fe34e2ff59fc6152ab4416c5a900b6de9caa666ae55a3ffbdbb184db0a9cb33",
+      "record": "docs/decisions/olympiad-preparation-updates-2026-11-01.md",
       "specs": [
         "docs/modules/assessments/olympiad-history.md"
       ],
       "tests": [
         "src/components/OlympiadPreparationSummary.test.tsx",
-        "src/components/OlympiadHistory.test.tsx"
+        "packages/telegram-notifications/application/education-event-routing.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь31.10.2026 прямо запросил персональный блок подготовки в карточках ФЕТТ и Надежды с опорами, пробелами, следующим номером и ссылками на прошлые работы."
+        "evidence": "Прямой запрос01.11.2026: автоматически обновлять персональный блок после каждой проверенной работы, сохранять историю, исключать зачтённые задачи, без межчатовых сообщений."
       }
     },
     "storage/learning-file-access.mjs": {
@@ -7471,33 +7468,48 @@
       }
     },
     "src/components/OlympiadPreparationSummary.tsx": {
-      "sha256": "36fcfa3c76667525d9d76d966fae7f8db9b60e8cecc4958806702ce6c419dd07",
-      "record": "docs/decisions/olympiad-personal-preparation-2026-10-31.md",
+      "sha256": "c94b600afdcd90fc5976fde4b5e0537e9ffbf5e431f6921a06821d2ce045babc",
+      "record": "docs/decisions/olympiad-preparation-updates-2026-11-01.md",
       "specs": [
         "docs/modules/assessments/olympiad-history.md"
       ],
       "tests": [
         "src/components/OlympiadPreparationSummary.test.tsx",
-        "src/components/OlympiadHistory.test.tsx"
+        "packages/telegram-notifications/application/education-event-routing.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь31.10.2026 прямо запросил персональный блок подготовки в карточках ФЕТТ и Надежды с опорами, пробелами, следующим номером и ссылками на прошлые работы."
+        "evidence": "Прямой запрос01.11.2026: автоматически обновлять персональный блок после каждой проверенной работы, сохранять историю, исключать зачтённые задачи, без межчатовых сообщений."
       }
     },
     "src/components/OlympiadPreparationSummary.css": {
-      "sha256": "5a7322adee52c2a7e930ff224e76b4ef9b65a7ce63166890dd5e14adedde0826",
-      "record": "docs/decisions/olympiad-personal-preparation-2026-10-31.md",
+      "sha256": "b5266e315468e449b3f85d01ad43ad208e0ba6d1fdfd54d577045327e4642b52",
+      "record": "docs/decisions/olympiad-preparation-updates-2026-11-01.md",
       "specs": [
         "docs/modules/assessments/olympiad-history.md"
       ],
       "tests": [
         "src/components/OlympiadPreparationSummary.test.tsx",
-        "src/components/OlympiadHistory.test.tsx"
+        "packages/telegram-notifications/application/education-event-routing.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь31.10.2026 прямо запросил персональный блок подготовки в карточках ФЕТТ и Надежды с опорами, пробелами, следующим номером и ссылками на прошлые работы."
+        "evidence": "Прямой запрос01.11.2026: автоматически обновлять персональный блок после каждой проверенной работы, сохранять историю, исключать зачтённые задачи, без межчатовых сообщений."
+      }
+    },
+    "scripts/olympiad-preparation.mjs": {
+      "sha256": "7e1a9e3aed0c3924a5c5a763cd907a6ff8f1c63a6fbeb0507ed598cf329901bd",
+      "record": "docs/decisions/olympiad-preparation-updates-2026-11-01.md",
+      "specs": [
+        "docs/modules/assessments/olympiad-history.md"
+      ],
+      "tests": [
+        "src/components/OlympiadPreparationSummary.test.tsx",
+        "packages/telegram-notifications/application/education-event-routing.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос01.11.2026: автоматически обновлять персональный блок после каждой проверенной работы, сохранять историю, исключать зачтённые задачи, без межчатовых сообщений."
       }
     }
   }

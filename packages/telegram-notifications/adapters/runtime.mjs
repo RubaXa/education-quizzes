@@ -16,6 +16,7 @@ import { EducationSyncDispatcher, createFirestoreEducationSyncStore } from '../a
 import { withOperationDeadline } from '../operations/operation-deadline.mjs'
 import { EducationEventConsumer, createFirestoreEducationEventStore, publishEducationEvent } from '../../education-runtime/event-queue.mjs'
 import { createEducationEventHandlers } from '../application/education-event-routing.mjs'
+import { createPreparationEventHandler } from '../../../olympiad/preparation-store.mjs'
 import { createUploadBroker } from '../../education-runtime/upload-broker.mjs'
 import { createLegacyEducationEventReconciler } from '../../education-runtime/legacy-event-reconciliation.mjs'
 
@@ -125,7 +126,7 @@ export function createRuntime(config, { logger = console, linkAuthorizer = null,
     store: educationEventStore,
     handlers: createEducationEventHandlers({ firestorePipeline, notificationService, educationSyncDispatcher,
       onDeliveryQueued: (dueAt) => workerWakeDelivery(dueAt), onEducationSyncQueued: (dueAt) => workerWakeEducationSync(dueAt),
-      actionHandlers: { ...(uploadBroker?.handlers ?? {}), ...(config.educationEventHandlers ?? {}) } }),
+      actionHandlers: { 'review.published': createPreparationEventHandler(db), 'parent.decision': createPreparationEventHandler(db), ...(uploadBroker?.handlers ?? {}), ...(config.educationEventHandlers ?? {}) } }),
     workerId: config.instanceId, clock, leaseMs: config.educationEventLeaseMs ?? 120_000, concurrency: config.eventConcurrency ?? 4,
     onReady: ({ subscriptionCount }) => logger.info?.({ code: 'education_event_queue_listening', source: 'educationEvents', subscriptionCount, processId: process.pid }),
     onError: (event) => logger.error(event),

@@ -467,6 +467,7 @@ async function publishFeedbackCorrection(filename) {
     correctedAt: now, feedbackCorrections: [...(previous.feedbackCorrections ?? []), oldRecord].slice(-10) }
   batch.set(privateDoc.ref, corrected)
   batch.set(progressDoc.ref, studentReviewProjection(corrected))
+  await stageReviewPublishedEvents(db, batch, owner, [{ ...correction, correctionPublishedAt: now.toMillis() }])
   await stageReviewNotice(batch, owner, page, correction, [correction], 'review_updated', now)
   await batch.commit()
   const readback = await db.getAll(privateDoc.ref, progressDoc.ref, ...photos.map(photo => photo.ref))
@@ -509,7 +510,7 @@ async function publishReview(filename) {
   const previous = await Promise.all(privateRefs.map(async (ref, index) => (await ref.get()).data() ?? (await reviewRefs[index].get()).data()))
   const now = Timestamp.now()
   const batch = db.batch()
-  await stageReviewPublishedEvents(db, batch, owner, entries)
+  await stageReviewPublishedEvents(db, batch, owner, entries.map(entry=>({...entry,publicationCheckedAt:now.toMillis()})))
   entries.forEach((entry, index) => {
     const full = resultRecord(entry, previous[index], now, review.date, review.planRevision)
     batch.set(privateRefs[index], full)
