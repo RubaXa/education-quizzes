@@ -13,3 +13,27 @@
 .olympiad-timeline li{padding-inline-start:4px}
 .olympiad-timeline strong,.olympiad-timeline span{display:block}
 .olympiad-schedule li{line-height:1.6;overflow-wrap:anywhere}
+/* @see ../../docs/shared/design/information-hierarchy.md — scoped full-page hierarchy. */
+.olympiad-schedule-full{gap:20px;margin:20px 0 0}
+.olympiad-schedule.olympiad-schedule-full p{font-size:16px;line-height:1.5;color:var(--edu-ink);margin:0}
+.olympiad-next-event{display:flex;align-items:flex-start;gap:12px;padding:16px;border-left:3px solid var(--edu-accent-ink);border-radius:0 var(--edu-radius-control) var(--edu-radius-control) 0;background:var(--edu-canvas)}
+.olympiad-next-event>svg{flex:none;color:var(--edu-accent-ink);margin-top:2px}
+.olympiad-next-event>div{min-width:0}
+.olympiad-schedule-full .olympiad-next-event h2{font-size:14px;line-height:1.4;font-weight:600;margin:0 0 7px;color:var(--edu-muted)}
+.olympiad-next-event time{display:block;font-size:21px;font-weight:650;line-height:1.35;color:var(--edu-ink);font-variant-numeric:tabular-nums}
+.olympiad-event-until{display:block;margin-top:3px;font-size:16px;line-height:1.5}
+.olympiad-countdown{display:block;font-size:14px;line-height:1.4;color:var(--edu-accent-ink);margin-top:8px;font-variant-numeric:tabular-nums}
+.olympiad-schedule.olympiad-schedule-full .olympiad-provisional{font-size:14px;color:var(--edu-warning-ink);margin:0 0 5px}
+.olympiad-registration-block{display:grid;gap:8px;justify-items:start;min-width:0}
+.olympiad-registration-block h2{font-size:17px;line-height:1.4;font-weight:650;margin:0;color:var(--edu-ink)}
+.olympiad-schedule-full .olympiad-registration{gap:8px;padding:10px 12px;border:1px solid var(--edu-card-border);border-radius:var(--edu-radius-control);background:var(--edu-surface);font-size:16px;line-height:1.4;font-weight:600;min-height:44px;box-sizing:border-box;text-decoration:none}
+.olympiad-registration svg{flex:none}.olympiad-schedule.olympiad-schedule-full .olympiad-schedule-note{font-size:14px;line-height:1.4;color:var(--edu-muted)}
+.olympiad-information-details>details{border-top:1px solid var(--edu-card-border)}
+.olympiad-information-details>details>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:44px;font-size:16px;line-height:1.4;font-weight:500;color:var(--edu-accent-ink);cursor:pointer;padding:6px 0;box-sizing:border-box}
+.olympiad-information-details>details>summary::-webkit-details-marker{display:none}.olympiad-information-details>details>summary svg{flex:none}.olympiad-information-details>details[open]>summary svg{transform:rotate(180deg)}
+.olympiad-information-body{display:grid;gap:12px;padding:8px 0 16px;max-width:65ch;font-size:16px;line-height:1.5}
+.olympiad-information-body h3{font-size:16px;font-weight:650;margin:4px 0 0;color:var(--edu-ink)}
+.olympiad-information-body ul,.olympiad-information-body ol{display:grid;gap:12px;margin:0;padding-left:22px;list-style:disc}.olympiad-information-body ol{list-style:decimal}
+.olympiad-information-body .olympiad-timeline time{display:block;font-size:16px;line-height:1.5}
+.olympiad-information-body a{color:var(--edu-accent-ink);text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere}.olympiad-information-body a svg{display:inline;margin-left:4px;vertical-align:middle}
+.olympiad-registration:focus-visible,.olympiad-information-details summary:focus-visible{outline:3px solid var(--edu-focus);outline-offset:3px}

@@ -47,3 +47,5 @@ sections:
 `product/` описывает пользовательский результат; `services/` — исполняемые приложения/процессы; `modules/` — предметные контракты; `shared/` — общие данные, дизайн и технические правила; `operations/` — запуск и обслуживание. `decisions/` хранит основания решений, `research/` — исследования, `audits/` — датированные свидетельства, `plans/` — план изменений. Их `status` и `implementation` читаются независимо.
 
 Быстрая `npm run check:docs` проверяет структуру, обязательные разделы и локальные ссылки; pre-commit выполняет её по Git index. Проверка `npm run check:spec` дополнительно валидирует ID, ссылки и якоря, отсутствие циклов родительства, предел 700 строк, карту файлов и UI-контракт. `npm run specs:generate` пересобирает [JSON-граф](generated/graph.json) и [Mermaid](generated/graph.mmd) из frontmatter и file-map. Эти результаты не редактируются вручную.
+
+Для первой части информационной страницы: [Иерархия и читаемость](shared/design/information-hierarchy.md), [исследование](research/information-reading-2026-10-31.md).

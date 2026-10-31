@@ -1,0 +1,22 @@
+/* @see ../../docs/shared/design/information-hierarchy.md */
+.olympiad-page{min-width:0;color:var(--edu-ink)}
+.olympiad-page-navigation{margin:0 0 8px}
+.olympiad-page .olympiad-back{min-height:44px;gap:8px;justify-content:flex-start;padding:8px 10px;font-size:14px;color:var(--edu-accent-ink);border-radius:var(--edu-radius-control)}
+.olympiad-page .olympiad-back:hover{background:var(--edu-surface)}
+.olympiad-page .olympiad-page-body{padding:24px;min-width:0}
+.olympiad-overview{overflow-wrap:anywhere;max-width:68ch;min-width:0;margin:0 0 24px}
+.olympiad-overview-heading h1{margin:0;color:var(--edu-ink);font-size:28px;line-height:1.18;letter-spacing:-.025em;font-weight:700;overflow-wrap:anywhere;text-wrap:balance}
+.olympiad-overview .olympiad-overview-heading p{margin:10px 0 0;font-size:14px;line-height:1.4;color:var(--edu-muted)}
+.olympiad-overview-fallback{font-size:16px;line-height:1.5}
+.olympiad-section-nav{display:flex;flex-wrap:wrap;gap:4px;margin-top:14px}
+.olympiad-section-nav button{display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:8px;border:1px solid var(--edu-card-border);border-radius:var(--edu-radius-control);background:var(--edu-surface);color:var(--edu-accent-ink);font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.olympiad-section-nav button:first-child{background:var(--edu-primary-bg);border-color:var(--edu-primary-bg);color:var(--edu-primary-ink)}
+.olympiad-section-nav button>span{font-variant-numeric:tabular-nums;opacity:.8}
+.olympiad-section-nav button:focus-visible{outline:3px solid var(--edu-focus);outline-offset:3px}
+.olympiad-page-body>.olympiad-section>h2,.olympiad-page-body>.olympiad-history-target>.olympiad-history>h2{font-size:20px;line-height:1.3;font-weight:700;margin:0 0 10px;color:var(--edu-ink)}
+.olympiad-page-body>.olympiad-section .olympiad-practice-group>h3{font-size:17px;line-height:1.4;font-weight:650;margin:0 0 8px;color:var(--edu-ink)}
+.olympiad-page-body [tabindex="-1"]{scroll-margin-top:20px}
+.olympiad-page-body [tabindex="-1"]:focus-visible{outline:2px solid var(--edu-focus);outline-offset:4px}
+@media(max-width:540px){.olympiad-page .olympiad-page-body{padding:18px}.olympiad-overview-heading h1{font-size:24px}.olympiad-overview{margin-bottom:20px}}
+
+.olympiad-section-nav button:not(:first-child){border-color:transparent;background:transparent}

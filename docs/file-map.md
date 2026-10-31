@@ -1182,3 +1182,14 @@
 | [docs/decisions/method-guided-reviews-2026-10-31.md](../docs/decisions/method-guided-reviews-2026-10-31.md) | [Наглядное решение](modules/reviews/method-guided-solutions.md) | Метод, модель, формулы, схемы и безопасная адресная редактура | Education |
 
 | [docs/decisions/review-table-storage-2026-10-31.md](../docs/decisions/review-table-storage-2026-10-31.md) | [Наглядное решение](modules/reviews/method-guided-solutions.md) | Исправление хранения таблиц перед миграцией | Education |
+
+| Файл | Спецификация | Назначение | Потребитель |
+|---|---|---|---|
+| [docs/shared/design/information-hierarchy.md](../docs/shared/design/information-hierarchy.md) | [Иерархия информации](shared/design/information-hierarchy.md) | Читаемая сводка, исследование, общий компонент и проверка полного календаря | Education |
+| [docs/research/information-reading-2026-10-31.md](../docs/research/information-reading-2026-10-31.md) | [Иерархия информации](shared/design/information-hierarchy.md) | Читаемая сводка, исследование, общий компонент и проверка полного календаря | Education |
+| [docs/decisions/olympiad-information-hierarchy-2026-10-31.md](../docs/decisions/olympiad-information-hierarchy-2026-10-31.md) | [Иерархия информации](shared/design/information-hierarchy.md) | Читаемая сводка, исследование, общий компонент и проверка полного календаря | Education |
+| [src/components/OlympiadOverview.tsx](../src/components/OlympiadOverview.tsx) | [Иерархия информации](shared/design/information-hierarchy.md) | Читаемая сводка, исследование, общий компонент и проверка полного календаря | Education |
+| [src/components/OlympiadOverview.css](../src/components/OlympiadOverview.css) | [Иерархия информации](shared/design/information-hierarchy.md) | Читаемая сводка, исследование, общий компонент и проверка полного календаря | Education |
+| [src/components/OlympiadOverview.test.tsx](../src/components/OlympiadOverview.test.tsx) | [Иерархия информации](shared/design/information-hierarchy.md) | Читаемая сводка, исследование, общий компонент и проверка полного календаря | Education |
+| [scripts/check-olympiad-overview-viewport.mjs](../scripts/check-olympiad-overview-viewport.mjs) | [Иерархия информации](shared/design/information-hierarchy.md) | Читаемая сводка, исследование, общий компонент и проверка полного календаря | Education |
+| [scripts/check-olympiad-overview-viewport.test.mjs](../scripts/check-olympiad-overview-viewport.test.mjs) | [Иерархия информации](shared/design/information-hierarchy.md) | Читаемая сводка, исследование, общий компонент и проверка полного календаря | Education |
