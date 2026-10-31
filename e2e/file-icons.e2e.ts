@@ -44,9 +44,10 @@ for (const width of [320, 390, 540]) {
             const range = document.createRange(); range.selectNodeContents(node)
             const lines = Array.from(range.getClientRects())
             const bounds = node.closest('.artifact-avatar-image')!.getBoundingClientRect()
-            return { lines: lines.length, inside: lines.every(rect => rect.left >= bounds.left && rect.right <= bounds.right), fits: node.scrollWidth <= node.clientWidth }
+            const badge = node.closest('.artifact-avatar')!.querySelector('.artifact-avatar-indicator')!.getBoundingClientRect()
+            return { lines: lines.length, inside: lines.every(rect => rect.left >= bounds.left && rect.right <= bounds.right), fits: node.scrollWidth <= node.clientWidth, clearsStatus: lines.every(rect => rect.right <= badge.left || rect.bottom <= badge.top) }
           })
-          expect(geometry, `${layout}, ${role}, ${extension}`).toEqual({ lines: 1, inside: true, fits: true })
+          expect(geometry, `${layout}, ${role}, ${extension}`).toEqual({ lines: 1, inside: true, fits: true, clearsStatus: true })
         }
         await example.locator('.day-upload-chip').first().click()
         const photo = example.locator('.day-upload-expanded img')

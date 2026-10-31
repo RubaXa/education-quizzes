@@ -6812,7 +6812,7 @@
       }
     },
     "src/components/WorkFilePreview.css": {
-      "sha256": "e6fc3742bef168b3a4f250c3eb7e991f560f7fc53bd90e9ecfd34099dfb90702",
+      "sha256": "b854e36529627f825b791f4fdcfa58295392fcbbd1a07656fd01f1fa30102819",
       "record": "docs/decisions/image-preview-first-2026-10-31.md",
       "specs": [
         "docs/shared/design/components.md",
