@@ -6242,19 +6242,31 @@
   {
     "id": "scripts/submissions.mjs#admin.getAll#58c06df7cc4b",
     "file": "scripts/submissions.mjs",
-    "line": 487,
+    "line": 472,
     "api": "admin.getAll",
     "target": "db",
     "group": "operator-other",
-    "assessment": "conditional",
-    "policy": "batched-points",
-    "refresh": "on operator action",
-    "note": "Адресный пакет снижает сетевые раунды, но не число прочитанных документов; исключить повторную загрузку тех же ID в одном цикле."
+    "assessment": "justified",
+    "policy": "addressed-publication-readback",
+    "refresh": "once after affected review or feedback batch commit",
+    "note": "Адресная сверка только изменённого закрытого разбора, точной ученической проекции и связанных фото после записи; проверяются содержание шагов и отсутствие закрытых полей, а не только статус."
+  },
+  {
+    "id": "scripts/submissions.mjs#admin.getAll#58c06df7cc4b-2",
+    "file": "scripts/submissions.mjs",
+    "line": 491,
+    "api": "admin.getAll",
+    "target": "db",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "addressed-publication-readback",
+    "refresh": "once after affected review or feedback batch commit",
+    "note": "Адресная сверка только изменённого закрытого разбора, точной ученической проекции и связанных фото после записи; проверяются содержание шагов и отсутствие закрытых полей, а не только статус."
   },
   {
     "id": "scripts/submissions.mjs#admin.get#47958261b931-3",
     "file": "scripts/submissions.mjs",
-    "line": 505,
+    "line": 509,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -6266,7 +6278,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#d4c1114e5c5e",
     "file": "scripts/submissions.mjs",
-    "line": 505,
+    "line": 509,
     "api": "admin.get",
     "target": "reviewRefs[index]",
     "group": "operator-other",
@@ -6278,7 +6290,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#15ecdbe99851-2",
     "file": "scripts/submissions.mjs",
-    "line": 517,
+    "line": 521,
     "api": "admin.get",
     "target": "coverage",
     "group": "operator-other",
@@ -6290,7 +6302,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#15ecdbe99851-3",
     "file": "scripts/submissions.mjs",
-    "line": 524,
+    "line": 528,
     "api": "admin.get",
     "target": "coverage",
     "group": "operator-other",
@@ -6302,7 +6314,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#15ecdbe99851-4",
     "file": "scripts/submissions.mjs",
-    "line": 524,
+    "line": 528,
     "api": "admin.get",
     "target": "coverage",
     "group": "operator-other",
@@ -6312,21 +6324,21 @@
     "note": "Локальный Map покрытия уже прочитанных фотографий; удалённого запроса здесь нет."
   },
   {
-    "id": "scripts/submissions.mjs#admin.getAll#58c06df7cc4b-2",
+    "id": "scripts/submissions.mjs#admin.getAll#58c06df7cc4b-3",
     "file": "scripts/submissions.mjs",
-    "line": 528,
+    "line": 532,
     "api": "admin.getAll",
     "target": "db",
     "group": "operator-other",
     "assessment": "justified",
     "policy": "addressed-publication-readback",
-    "refresh": "once after review batch commit",
-    "note": "Читает только закрытые и ученические документы изменённых заданий и затронутые фото после записи разбора; проверяет taskId, planRevision, status. При неизменённой работе этот вызов не выполняется."
+    "refresh": "once after affected review or feedback batch commit",
+    "note": "Адресная сверка только изменённого закрытого разбора, точной ученической проекции и связанных фото после записи; проверяются содержание шагов и отсутствие закрытых полей, а не только статус."
   },
   {
     "id": "scripts/submissions.mjs#admin.get#4be1de83ec10-5",
     "file": "scripts/submissions.mjs",
-    "line": 539,
+    "line": 543,
     "api": "admin.get",
     "target": "db.collection('dayOwners')",
     "group": "operator-other",
@@ -6338,7 +6350,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#25e51139e6a0-3",
     "file": "scripts/submissions.mjs",
-    "line": 545,
+    "line": 549,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${owner.id}`)",
     "group": "operator-other",
@@ -6350,7 +6362,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#4aecce90adb9",
     "file": "scripts/submissions.mjs",
-    "line": 547,
+    "line": 551,
     "api": "admin.get",
     "target": "db.collection(`dayProgress/${owner.id}/items`)",
     "group": "operator-other",
@@ -6362,7 +6374,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#a278bb5bedbf",
     "file": "scripts/submissions.mjs",
-    "line": 553,
+    "line": 557,
     "api": "admin.get",
     "target": "privateRef",
     "group": "operator-other",

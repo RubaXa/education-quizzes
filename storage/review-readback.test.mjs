@@ -35,3 +35,31 @@ it('keeps an exact family assignment fence across a context-only page update',()
  expect(reviewCorrectionStatusAllowed('needs-fix','partial')).toBe(true)
  expect(reviewCorrectionStatusAllowed('verified','needs-fix')).toBe(false)
 })
+
+
+describe('personal explanation publication proof', () => {
+  const personal = () => {
+    const data = fixture()
+    const feedback = { title: 'Concrete next step', confirmed: 'The subtraction is correct.',
+      focus: 'The next line changes the sign.', question: 'Which term changed its sign?',
+      steps: [{ stageId: 'first', uploadId: 'photo', location: 'second line of this photo',
+        observation: '3x = 15', explanation: 'Subtracting seven from both sides preserves equality.', status: 'correct' }] }
+    data.entries[0] = { ...data.entries[0], studentFeedback: feedback, tutoringPlan: { version: 1, semanticChecked: true } }
+    data.privateDocs[0] = { ...data.privateDocs[0], studentFeedback: structuredClone(feedback), tutoringPlan: structuredClone(data.entries[0].tutoringPlan) }
+    data.publicDocs[0] = { ...data.publicDocs[0], studentFeedback: structuredClone(feedback) }
+    return data
+  }
+  it('rejects a successful status with missing or stale personal steps in either role', () => {
+    expect(assertReviewReadback(personal()).verified).toBe(true)
+    for (const role of ['privateDocs', 'publicDocs']) {
+      const missing = personal(); delete missing[role][0].studentFeedback
+      expect(() => assertReviewReadback(missing)).toThrow('differs')
+      const stale = personal(); stale[role][0].studentFeedback.steps[0].explanation = 'Stale generic explanation'
+      expect(() => assertReviewReadback(stale)).toThrow('differs')
+    }
+  })
+  it('rejects a private decision plan leaked into the student document', () => {
+    const data = personal(); data.publicDocs[0].tutoringPlan = data.entries[0].tutoringPlan
+    expect(() => assertReviewReadback(data)).toThrow('projection')
+  })
+})

@@ -1,6 +1,7 @@
 /** @see ../docs/decisions/personal-tutoring-2026-10-30.md */
 /** @see ../docs/modules/materials/material-clarification.md */
 import { isDeepStrictEqual } from 'node:util'
+import { studentReviewProjection } from './review-projection.mjs'
 /** A guidance/context edit may change a page revision without changing the task. */
 export function sameReviewAssignmentAfterUpdate(page, correction, currentTask) {
   return page.planRevision > correction.planRevision && Boolean(
@@ -27,6 +28,16 @@ export function assertReviewReadback({ entries, planRevision, privateDocs, publi
       || expert?.status !== entry.status || learner?.status !== entry.status
       || expert?.planRevision !== planRevision || learner?.planRevision !== planRevision) {
       throw new Error(`Review publication differs for ${entry.taskId}.`)
+    }
+    for (const key of ['uploadIds', 'sourceAnalysis', 'summary', 'nextStep', 'source', 'items',
+      'checkableStageIds', 'requirementChecks', 'mathReasoning', 'studentFeedback', 'assessmentBasis',
+      'challengeReview', 'tutoringPlan']) {
+      if (Object.hasOwn(entry, key) && !isDeepStrictEqual(expert[key], entry[key])) {
+        throw new Error(`Review content differs for ${entry.taskId}: ${key}.`)
+      }
+    }
+    if (!isDeepStrictEqual(studentReviewProjection(expert), learner)) {
+      throw new Error(`Learner projection differs for ${entry.taskId}.`)
     }
   }
   if (uploads.some((upload) => upload?.status !== 'reviewed')) throw new Error('Review upload status was not read back.')

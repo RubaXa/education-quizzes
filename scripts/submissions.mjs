@@ -469,8 +469,12 @@ async function publishFeedbackCorrection(filename) {
   batch.set(progressDoc.ref, studentReviewProjection(corrected))
   await stageReviewNotice(batch, owner, page, correction, [correction], 'review_updated', now)
   await batch.commit()
+  const readback = await db.getAll(privateDoc.ref, progressDoc.ref, ...photos.map(photo => photo.ref))
+  const verified = assertReviewReadback({ entries: [correction], planRevision: previous.planRevision,
+    privateDocs: [readback[0].data()], publicDocs: [readback[1].data()],
+    uploads: readback.slice(2).map(photo => photo.data()) })
   console.log(JSON.stringify({ correctedTask: correction.taskId, childId: owner.data().childId,
-    preservedAttemptCount: previous.history?.length ?? 0, correctedLiveFeedback: true }))
+    preservedAttemptCount: previous.history?.length ?? 0, correctedLiveFeedback: verified.verified }))
 }
 
 /** Shared, read-only validation for a proposed review and its exact source context.
