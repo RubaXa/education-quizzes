@@ -7486,7 +7486,7 @@
       }
     },
     "src/components/OlympiadPreparationSummary.css": {
-      "sha256": "33d93730080fda9bcd966909a48c8231dca67ff3b01e96682ee8a3fbb3be51e8",
+      "sha256": "5a7322adee52c2a7e930ff224e76b4ef9b65a7ce63166890dd5e14adedde0826",
       "record": "docs/decisions/olympiad-personal-preparation-2026-10-31.md",
       "specs": [
         "docs/modules/assessments/olympiad-history.md"
