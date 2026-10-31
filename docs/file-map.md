@@ -2,6 +2,7 @@
 
 | Файл | Спецификация | Назначение | Потребитель |
 |---|---|---|---|
+| [docs/decisions/review-readability-repair-2026-10-31.md](decisions/review-readability-repair-2026-10-31.md) | [Компактный разбор](shared/design/compact-review.md) | Основание исправления нечитаемых старых разборов, бюджет авторского текста и проверка реального сценария | Репетитор; разработчик; оператор выпуска |
 | [docs/decisions/compact-review-rollout-2026-10-31.md](decisions/compact-review-rollout-2026-10-31.md) | [Компактный разбор](shared/design/compact-review.md) | Прямое одобрение, интеграция всех адаптеров, сохранённые сценарии и проверки | Автор; frontend; UI Kit |
 | [docs/decisions/compact-review-ui-kit-2026-10-31.md](decisions/compact-review-ui-kit-2026-10-31.md) | [Компактный разбор](shared/design/compact-review.md) | История подготовки согласованного компонента и его первоначального каталога | Автор; frontend; UI Kit |
 | [docs/research/compact-review-2026-10-31.md](research/compact-review-2026-10-31.md) | [Компактный разбор](shared/design/compact-review.md) | Исследование первичных учебных интерфейсов и ограничения выводов | Автор; frontend; UI Kit |
@@ -14,12 +15,12 @@
 | [src/components/ReviewBrief.css](../src/components/ReviewBrief.css) | [Компактный разбор](shared/design/compact-review.md) | Общая плотность, текст, статусы и раскрытия без вложенных цветных панелей | Разбор; UI Kit; проверка |
 | [src/components/ReviewBrief.test.tsx](../src/components/ReviewBrief.test.tsx) | [Компактный разбор](shared/design/compact-review.md) | Сохранение исходной записи, одного вопроса, состояния и независимых раскрытий | Разбор; UI Kit; проверка |
 | [src/components/ReviewBrief.tsx](../src/components/ReviewBrief.tsx) | [Компактный разбор](shared/design/compact-review.md) | Общая композиция краткого разбора и типизированных предметных представлений | Разбор; UI Kit; проверка |
-| [src/components/ReviewBriefShowcase.tsx](../src/components/ReviewBriefShowcase.tsx) | [Компактный разбор](shared/design/compact-review.md) | Реальные адаптеры письменного разбора и теста на синтетических данных | Разбор; UI Kit; проверка |
+| [src/components/ReviewBriefShowcase.tsx](../src/components/ReviewBriefShowcase.tsx) | [Компактный разбор](shared/design/compact-review.md) | Реальные адаптеры короткого и старого длинного разбора с источником, историей и действиями | Разбор; UI Kit; проверка |
 | [src/components/ReviewTypography.css](../src/components/ReviewTypography.css) | [Компактный разбор](shared/design/compact-review.md) | Общая плотность полного родительского пути и разрешённой помощи | Разбор; UI Kit; проверка |
 | [src/components/WorkReview.compact.test.tsx](../src/components/WorkReview.compact.test.tsx) | [Компактный разбор](shared/design/compact-review.md) | Порядок вопроса и пояснений, обе роли, история и ожидание новой работы | Разбор; UI Kit; проверка |
 | [src/components/WorkReview.css](../src/components/WorkReview.css) | [Компактный разбор](shared/design/compact-review.md) | Компактные требования, основания, история и семейные действия в общем разборе | Разбор; UI Kit; проверка |
 | [src/lib/reviewBriefExamples.ts](../src/lib/reviewBriefExamples.ts) | [Компактный разбор](shared/design/compact-review.md) | Синтетические предметные образцы общего API без данных ученика | Разбор; UI Kit; проверка |
-| [src/lib/workReviewBrief.ts](../src/lib/workReviewBrief.ts) | [Компактный разбор](shared/design/compact-review.md) | Чистый адаптер текущего разбора в общую модель без новых педагогических выводов | Разбор; UI Kit; проверка |
+| [src/lib/workReviewBrief.ts](../src/lib/workReviewBrief.ts) | [Компактный разбор](shared/design/compact-review.md) | Адаптер краткого первого уровня и полного раскрытия старого текста без новых педагогических выводов | Разбор; UI Kit; проверка |
 | [scripts/privacy-exceptions.mjs](../scripts/privacy-exceptions.mjs) | [Приватность](modules/materials/storage-privacy.md) | Проверка точных разрешённых исторических объектов и пакетное чтение Git без изменения байтов | Privacy hook |
 | [scripts/privacy-exceptions.test.mjs](../scripts/privacy-exceptions.test.mjs) | [Приватность](modules/materials/storage-privacy.md) | Отказ для новых данных, новых путей и возврата имени в текущий документ | Vitest |
 | [scripts/privacy-history-exceptions.json](../scripts/privacy-history-exceptions.json) | [Приватность](modules/materials/storage-privacy.md) | 23 точных старых объекта с прямым разрешением владельца | Privacy hook |

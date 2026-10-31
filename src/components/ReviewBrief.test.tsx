@@ -25,6 +25,15 @@ it('keeps the accepted part and one action visible without opening explanatory c
   expect(host.querySelector('.edu-review-bracket')?.getAttribute('aria-hidden')).toBe('true')
 })
 
+it('protects every consumer from an old long paragraph without trimming its content or hiding the question', async () => {
+  const long='Подробное пояснение к прежней записи. '.repeat(12)
+  await show({...reviewBriefExamples[0].data,focus:long})
+  expect(host.querySelector('.edu-review-focus')).toBeNull()
+  expect(host.querySelector('details')?.textContent).toContain(long)
+  expect(host.querySelector('details')?.open).toBe(false)
+  expect(host.querySelector('.edu-review-question')?.textContent).toBe('Сколько карандашей всего?')
+})
+
 it('closes the previous optional explanation when a different review is shown', async () => {
   await show()
   host.querySelector('details')!.open = true

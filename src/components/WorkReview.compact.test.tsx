@@ -2,8 +2,16 @@ import { describe, expect, it } from 'vitest'
 import { renderToStaticMarkup } from 'react-dom/server'
 import WorkReview from './WorkReview'
 import type { DayWorkReview } from '@/lib/dayStore'
+import { workReviewBrief } from '@/lib/workReviewBrief'
 
 describe('shared compact review', () => {
+  it('keeps a legacy wall of explanation available without placing it before the next question', () => {
+    const long = 'Одна цифра и сумма нескольких цифр имеют разные ограничения. '.repeat(8)
+    const data = workReviewBrief({id:'legacy',taskId:'legacy',status:'partial',studentFeedback:{title:'Проверь набор целиком',confirmed:'Один способ зачтён.',focus:long,question:'Чему равна общая сумма?'}})
+    expect(data.focus).toBeUndefined()
+    expect(data.details?.some(detail=>detail.text===long.trim())).toBe(true)
+    expect(data.question).toBe('Чему равна общая сумма?')
+  })
   const review: DayWorkReview = { id: 'review', taskId: 'task', status: 'partial', uploadIds: ['photo'],
     studentFeedback: { title: 'Проверь третий случай', confirmed: 'Два найденных ответа зачтены.',
       focus: 'В двух пунктах перепутаны объяснения.', question: 'Что следует из роли каждого?',

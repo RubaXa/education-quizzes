@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/review-readability-repair-2026-10-31.md */
 /** @see ../docs/decisions/compact-review-rollout-2026-10-31.md */
 /** Same React/CSS as UI Kit; no second maintained markup.
  * @see ../docs/shared/design/compact-review.md#verification */
@@ -14,11 +15,11 @@ export async function loadReviewBriefFixture() {
   try {
     const { default: ReviewBrief } = await vite.ssrLoadModule('/src/components/ReviewBrief.tsx')
     const { default: WorkReview } = await vite.ssrLoadModule('/src/components/WorkReview.tsx')
-    const { reviewBriefExamples, reviewBriefVerified, reviewBriefUncertain,reviewBriefWorkExample } = await vite.ssrLoadModule('/src/lib/reviewBriefExamples.ts')
+    const { reviewBriefExamples, reviewBriefVerified, reviewBriefUncertain,reviewBriefWorkExample,reviewBriefLegacy } = await vite.ssrLoadModule('/src/lib/reviewBriefExamples.ts')
     const fontRoot = join(root, 'node_modules/@fontsource-variable/geist/files')
     const fonts = ['cyrillic', 'latin'].map(part => `@font-face{font-family:'Geist Variable';src:url(data:font/woff2;base64,${readFileSync(join(fontRoot, `geist-${part}-wght-normal.woff2`)).toString('base64')}) format('woff2');font-weight:100 900;unicode-range:${part === 'cyrillic' ? 'U+0400-052F,U+2DE0-2DFF,U+A640-A69F' : 'U+0000-00FF'}}`).join('\n')
     const css = fonts + ['src/education-design-tokens.css','src/DayPage.css','src/UiKit.css','src/components/StatusIcon.css','src/components/ReviewBrief.css','src/components/WorkReview.css'].map(path => readFileSync(join(root, path), 'utf8')).join('\n')
-    return { css, examples: reviewBriefExamples, states: [reviewBriefVerified, reviewBriefUncertain], render: data => renderToStaticMarkup(createElement(ReviewBrief, { data })),renderWork:(data,parent=false)=>renderToStaticMarkup(createElement(WorkReview,{review:reviewBriefWorkExample(data),uploads:[],parent})) }
+    return { css, examples: reviewBriefExamples, states: [reviewBriefVerified, reviewBriefUncertain], legacy:reviewBriefLegacy, render: data => renderToStaticMarkup(createElement(ReviewBrief, { data })),renderWork:(data,parent=false)=>renderToStaticMarkup(createElement(WorkReview,{review:reviewBriefWorkExample(data),uploads:[],parent})),renderReview:(review,parent=false)=>renderToStaticMarkup(createElement(WorkReview,{review,uploads:[],parent,canDecide:parent,...(parent?{onDecision:async()=>{}}:{})})) }
   } finally { await vite.close() }
 }
 
@@ -36,7 +37,7 @@ async function main() {
   async function geometry() {
     return page.locator('.edu-review-brief').evaluate(el => ({
       height: Math.round(el.getBoundingClientRect().height), overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth || el.scrollWidth > el.clientWidth,
-      font: getComputedStyle(el.querySelector('.edu-review-question') ?? el).fontSize,
+      font: getComputedStyle(el).fontSize, questionFont: el.querySelector('.edu-review-question') ? getComputedStyle(el.querySelector('.edu-review-question')).fontSize : undefined,
       touchHeight: el.querySelector('summary')?.getBoundingClientRect().height,
     }))
   }
@@ -50,6 +51,7 @@ async function main() {
         assert(!result.overflow, `Overflow: ${item.id}/${width}/${theme}`)
         assert(!result.touchHeight || result.touchHeight >= 44, `Small disclosure target: ${item.id}`)
         assert(result.font === '16px', `Unexpected body size: ${item.id}`)
+        assert(!result.questionFont || result.questionFont === '18px', `Unexpected question size: ${item.id}`)
         if (width === 390) assert(result.height <= 320, `Sample exceeds compact budget: ${item.id}: ${result.height}`)
         if (width === 320) assert(result.height <= 400, `Narrow sample exceeds compact budget: ${item.id}: ${result.height}`)
         if (width === 390 && theme === 'light') {
@@ -60,6 +62,21 @@ async function main() {
           }
         }
       }
+    }
+    // A realistic old document exercises the actual adapter, source/history and
+    // parent action. Toy examples alone did not catch the reported regression.
+    for(const parent of [false,true])for(const width of [320,390,540]) {
+      await page.setViewportSize({width,height:1000})
+      await page.setContent(`<!doctype html><meta charset="utf-8"><style>${fixture.css}*{box-sizing:border-box}body{margin:0;padding:8px;font-family:'Geist Variable',sans-serif}</style><main class="day-page">${fixture.renderReview(fixture.legacy,parent)}</main>`)
+      await page.evaluate(()=>document.fonts.ready)
+      assert(!(await geometry()).overflow,`Legacy overflow: ${width}/${parent}`)
+      assert(await page.locator('.edu-review-question').isVisible(),'Legacy question hidden')
+      assert(await page.locator('.edu-review-question').evaluate(el=>el.getBoundingClientRect().bottom)<320,'Legacy explanation pushes the current question below the compact first level')
+      assert(await page.locator('.edu-review-focus').count()===0,'Legacy long paragraph remains expanded')
+      assert(await page.locator('details[open]').count()===0,'Legacy disclosures start expanded')
+      assert(await page.locator('.day-review-history').count()===1,'Legacy history lost')
+      assert(await page.locator('.day-work-review-evidence').count()===1,'Legacy source lost')
+      assert(await page.locator('.day-review-parent-decision button').count()===(parent?1:0),'Parent action changed')
     }
     await page.setViewportSize({ width: 320, height: 1000 })
     const long = { ...fixture.examples[1].data, label: 'Длинный контекст '.repeat(6), focus: 'Дословная запись содержит длинное объяснение. '.repeat(12) }

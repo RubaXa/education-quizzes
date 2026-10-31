@@ -1,8 +1,19 @@
+/** @see ../../docs/decisions/review-readability-repair-2026-10-31.md */
 /** @see ../../docs/decisions/compact-review-rollout-2026-10-31.md */
 /** Typed, bounded allowlist for learner-visible review graphics and disclosures.
  * @see ../../docs/shared/design/compact-review.md#data */
 const text = (value, max = 900) => typeof value === 'string' && value.trim().length > 0 && value.length <= max
 const keys = (value, allowed) => value && typeof value === 'object' && !Array.isArray(value) && Object.keys(value).every(key => allowed.includes(key))
+/** An authoring budget, never a substring or a smaller font in the renderer. */
+export const reviewOverviewLimits = Object.freeze({title:80,confirmed:160,focus:160,bridge:160,question:160,total:420})
+export function reviewOverviewErrors(feedback) {
+  if (!feedback) return []
+  const lengths=Object.fromEntries(['title','confirmed','focus','bridge','question'].map(key=>[key,typeof feedback[key]==='string'?feedback[key].trim().length:0]))
+  const excess=Object.entries(lengths).filter(([key,length])=>length>reviewOverviewLimits[key]).map(([key])=>key)
+  if(excess.length||Object.values(lengths).reduce((a,b)=>a+b,0)>reviewOverviewLimits.total)
+    return [`Слишком много текста первого уровня${excess.length?`: ${excess.join(', ')}`:''}. Оставьте короткий вывод и один вопрос; полное пояснение перенесите в presentation.details без потери смысла.`]
+  return []
+}
 export function reviewVisualValid(visual) {
   if (!text(visual?.label, 240)) return false
   if (visual.kind === 'facts') return keys(visual, ['kind','label','items']) && Array.isArray(visual.items) && visual.items.length > 0 && visual.items.length <= 3

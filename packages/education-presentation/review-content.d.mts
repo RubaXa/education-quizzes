@@ -6,6 +6,8 @@ export type ReviewVisualData =
  | { kind:'comparison';label:string;columns:string[];rows:string[][] }
 export interface ReviewBriefDetail { label:string;text:string;quotation?:string;visual?:ReviewVisualData }
 export interface ReviewSupplement { version:1;visual?:ReviewVisualData;details?:ReviewBriefDetail[] }
+export const reviewOverviewLimits:Readonly<{title:number;confirmed:number;focus:number;bridge:number;question:number;total:number}>
+export function reviewOverviewErrors(feedback:unknown):string[]
 export function reviewVisualValid(value:unknown):boolean
 export function reviewSupplementErrors(value:unknown):string[]
 export function projectReviewSupplement(value:unknown):ReviewSupplement|undefined

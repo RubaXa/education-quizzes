@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/review-readability-repair-2026-10-31.md */
 /** @see ../../docs/decisions/compact-review-rollout-2026-10-31.md */
 /** @see ../../docs/shared/design/compact-review.md */
 /** @see ../../docs/decisions/compact-review-ui-kit-2026-10-31.md */
@@ -6,6 +7,7 @@ import StatusIcon from './StatusIcon'
 import './ReviewBrief.css'
 import type { ReactNode } from 'react'
 import type { ReviewVisualData,ReviewBriefDetail } from '../../packages/education-presentation/review-content.mjs'
+import { reviewOverviewLimits } from '../../packages/education-presentation/review-content.mjs'
 export type { ReviewVisualData,ReviewBriefDetail } from '../../packages/education-presentation/review-content.mjs'
 
 /** Only an already authorized projection. No private guide, scoring or role resolution. */
@@ -56,7 +58,15 @@ export function ReviewVisual({ visual }: { visual: ReviewVisualData }) {
 /** Shared presentation: policy and authorized data are supplied by the owning adapter. */
 export default function ReviewBrief({ data,children,context }: { data: ReviewBriefData;children?:ReactNode;context?:ReactNode }) {
   const complete = data.status === 'verified'
-  const details = data.details ?? (data.detail ? [data.detail] : [])
+  const overflow:string[]=[]
+  const readable=(value:string|undefined,limit:number)=>{
+    if(value&&value.trim().length>limit){overflow.push(value);return undefined}
+    return value
+  }
+  const body=readable(data.body,reviewOverviewLimits.focus)
+  const focus=!complete?readable(data.focus,reviewOverviewLimits.focus):undefined
+  const bridge=!complete?readable(data.bridge,reviewOverviewLimits.bridge):undefined
+  const details = [...(overflow.length?[{label:'Подробное пояснение',text:overflow.join('\n\n')}]:[]),...(data.details ?? (data.detail ? [data.detail] : []))]
   return <article className="edu-review-brief" aria-label={data.label} data-review-state={data.status}>
     <header className="edu-review-header"><h3 className="edu-review-title">{data.label}</h3>
       <span className="edu-review-state">{data.stateLabel??({verified:'Зачтено',uncertain:'Уточняем',revise:'Есть правка',incorrect:'Нужна правка',waiting:'Ждёт проверки',skipped:'Без оценки',neutral:'Ориентир'}[data.status])}</span></header>
@@ -64,12 +74,12 @@ export default function ReviewBrief({ data,children,context }: { data: ReviewBri
     {data.prompt&&<p className="edu-review-copy edu-review-prompt">{data.prompt}</p>}
     {context}
     {data.response&&<p className="edu-review-copy edu-review-response"><span>{data.response.label}</span><strong>{data.response.value}</strong></p>}
-    {data.body&&<p className="edu-review-copy">{data.body}</p>}
+    {body&&<p className="edu-review-copy">{body}</p>}
     {data.confirmed && <p className="edu-review-copy edu-review-confirmed"><StatusIcon status="complete" size={15} /><span>{data.confirmed}</span></p>}
     {!complete && <>
-      {data.focus && <p className="edu-review-copy edu-review-focus">{data.focus}</p>}
+      {focus && <p className="edu-review-copy edu-review-focus">{focus}</p>}
       {data.visual && <ReviewVisual visual={data.visual} />}
-      {data.bridge && <p className="edu-review-copy edu-review-bridge">{data.bridge}</p>}
+      {bridge && <p className="edu-review-copy edu-review-bridge">{bridge}</p>}
       {data.question && <p className="edu-review-copy edu-review-question">{data.question}</p>}
     </>}
     {details.map((detail, index) => <details className="edu-review-detail" key={`${data.id}-${index}`}>
