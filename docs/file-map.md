@@ -1114,3 +1114,12 @@
 
 | [src/components/OlympiadSchedule.test.tsx](../src/components/OlympiadSchedule.test.tsx) | [Календарь](decisions/olympiad-calendar-2026-10-31.md) | Живая смена фазы без выдуманного окончания | Vitest |
 | [docs/decisions/image-preview-first-2026-10-31.md](decisions/image-preview-first-2026-10-31.md) | [Файлы работы](shared/design/components.md) | Уточнение приоритета превью и отказа от камеры для изображений | Разработчик |
+
+| [src/components/PhotoUploadControl.css](../src/components/PhotoUploadControl.css) | [Контракт](shared/design/components.md) | Существующие стили загрузки принадлежат общему контролу | Education; разработчик |
+| [src/components/WorkAttachmentThumbnail.tsx](../src/components/WorkAttachmentThumbnail.tsx) | [Контракт](shared/design/components.md) | Общая кнопка миниатюры,выбора и соседнего компактного удаления | Education; разработчик |
+| [src/components/WorkAttachmentThumbnail.css](../src/components/WorkAttachmentThumbnail.css) | [Контракт](shared/design/components.md) | Согласованные размеры и состояния интерактивной миниатюры | Education; разработчик |
+| [src/components/TaskWorkEvidence.tsx](../src/components/TaskWorkEvidence.tsx) | [Контракт](shared/design/components.md) | Общий состав собственных вложений и связанных ссылок с явным layout | Education; разработчик |
+| [src/components/TaskWorkEvidence.test.tsx](../src/components/TaskWorkEvidence.test.tsx) | [Контракт](shared/design/components.md) | Действия двух вариантов,выбор и точное удаление | Education; разработчик |
+| [src/ui-kit/TaskAttachmentsExample.tsx](../src/ui-kit/TaskAttachmentsExample.tsx) | [Контракт](shared/design/ui-kit.md) | Действующие композиции дня/выходного листа на локальных данных | Education; разработчик |
+| [e2e/task-attachments.e2e.ts](../e2e/task-attachments.e2e.ts) | [Контракт](shared/design/ui-kit.md) | Сравнение реальных контролов,ролей,геометрии и действий | Education; разработчик |
+| [docs/decisions/canonical-attachment-controls-2026-10-31.md](decisions/canonical-attachment-controls-2026-10-31.md) | [Контракт](shared/design/components.md) | Основание декомпозиции и исправления несоответствующего скриншота | Education; разработчик |

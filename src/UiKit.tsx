@@ -1,3 +1,4 @@
+import TaskAttachmentsExample from './ui-kit/TaskAttachmentsExample'
 import { workFileTypes, workFilePresentation, workFileContentType } from '../storage/work-file-types.mjs'
 /** @see ../docs/decisions/personal-tutoring-2026-10-30.md */
 /** @see ../docs/decisions/ui-kit-photo-help-2026-10-27.md */
@@ -218,6 +219,7 @@ export default function UiKit() {
         <div className="edu-kit-file-expanded" aria-label="Раскрытое вложение"><WorkFilePreview file={fileExample} href={fileExample.preview} /></div>
         <p>Фото открывается как изображение. Пока оно загружается или если произошла ошибка, показываем состояние загрузки и повтор, без значка типа файла.</p>
         <code>WorkFilePreview · общие токены --edu-* · источник форматов workFileTypes</code>
+        <TaskAttachmentsExample problem={writtenProblemDemo} photoSource={writtenDemoPhoto} />
       </section>}
       {section==='grades' && <section aria-labelledby="kit-grades-title"><h2 id="kit-grades-title">Шкала среднего балла</h2><p>Фиксированные примеры показывают ключевые рубежи, а отдельный слайдер позволяет проверить каждый промежуточный балл от 2 до 5.</p>
         <h3>Примеры диапазонов</h3><div className="edu-kit-grade-examples" aria-label="Фиксированные примеры среднего балла">{[

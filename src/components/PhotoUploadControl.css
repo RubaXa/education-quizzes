@@ -1,0 +1,8 @@
+/* @see ../../docs/shared/design/components.md#work-artifacts */
+.day-upload{display:inline-flex;align-items:center;justify-content:center;border-radius:10px;padding:8px 11px;cursor:pointer;font-size:.84rem;font-weight:750}
+.problem-card-upload{display:inline-flex;align-items:center;gap:6px;padding:9px 12px;border-radius:9px;background:var(--edu-primary-bg);color:var(--edu-primary-ink);font-size:.8rem;font-weight:800;cursor:pointer}
+.problem-card-upload:focus-within{outline:3px solid var(--edu-focus);outline-offset:2px}
+.problem-card-upload input{position:absolute;width:1px;height:1px;opacity:0}
+.day-upload{background:#5c4798;color:white;gap:6px}
+.day-upload input{display:none}
+.day-upload:focus-within{outline:3px solid #ae91e8;outline-offset:3px}

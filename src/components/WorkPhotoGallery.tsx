@@ -1,3 +1,4 @@
+import WorkAttachmentThumbnail from './WorkAttachmentThumbnail'
 import { workFilePresentation } from '../../storage/work-file-types.mjs'
 import WorkFilePreview from './WorkFilePreview'
 /** @see ../../docs/decisions/ui-kit-photo-help-2026-10-27.md */
@@ -7,8 +8,7 @@ import WorkFilePreview from './WorkFilePreview'
 /* @see ../../docs/shared/design/components.md */
 /* @see ../../docs/decisions/work-photo-expand-2026-10-18.md */
 import { useState, useSyncExternalStore } from 'react'
-import type { ReactNode } from 'react'
-import { Check, ExternalLink, RotateCcw, Trash2, X } from 'lucide-react'
+import { ExternalLink, RotateCcw, Trash2, X } from 'lucide-react'
 import type { DayUpload, DayWorkReview } from '@/lib/dayStore'
 import { activeProcessing, artifactAvatarLabel, artifactAvatarState, localArtifactAvatarState } from '@/lib/reviewPresentation'
 import { reportUiError } from '@/lib/uiErrors'
@@ -18,10 +18,6 @@ import ArtifactAvatar, { WorkArtifactImage, WorkUploadTime, workUploadTimeLabel 
 import './WorkPhotoGallery.css'
 
 export type LocalWorkPhoto = { file?: File; originalName?: string; contentType?: string; id: string; taskId: string; previewUrl: string; state: 'uploading' | 'saved' | 'failed' | 'deleting'; error?: string }
-
-function PhotoThumbnail({ label, selected, onToggle, children, choosing = false, disabled = false }: { label: string; selected: boolean; onToggle: () => void; children: ReactNode; choosing?: boolean; disabled?: boolean }) {
-  return <button className="day-upload-chip" type="button" title={label} aria-label={`${choosing ? 'Выбрать' : 'Открыть'} ${label}`} aria-expanded={choosing ? undefined : selected} aria-pressed={choosing ? selected : undefined} disabled={disabled} onClick={onToggle}>{children}{choosing && selected && <span className="day-upload-selected" aria-hidden="true"><Check size={12} /></span>}</button>
-}
 
 /** Optional controlled selection of the same gallery items; IDs are upload IDs. */
 export type WorkPhotoSelection = {
@@ -92,8 +88,7 @@ export default function WorkPhotoGallery<T extends LocalWorkPhoto>({ taskTitle, 
         const status = purpose === 'source-complete' ? 'Фото условия, задачи добавлены' : purpose === 'source' && ['pending', 'reviewed'].includes(upload.status) ? 'Фото получено, обработка условий ожидается' : purpose === 'help' && upload.status !== 'upload-error' ? 'Сохранено для помощи' : artifactAvatarLabel(state)
         const meta = workFilePresentation(upload)
         const photoLabel = meta.kind !== 'photo' ? `${meta.label} ${index + 1} · ${meta.name} · ${status.replace(/фото/g, 'файл')} · ${workUploadTimeLabel(upload)}` : `${upload.origin === 'archive' ? `Фото из архива ${index + 1}` : `Фото ${index + 1}`} · ${status} · ${workUploadTimeLabel(upload)}`
-        const thumbnail = <PhotoThumbnail key={upload.id} label={photoLabel} choosing={!!selection} selected={selection ? selection.selectedIds.includes(upload.id) : selectedId === upload.id} disabled={selection?.isSelectable?.(upload.id) === false} onToggle={() => togglePhoto(upload.id)}><ArtifactAvatar state={state}><WorkArtifactImage upload={upload} title={taskTitle} index={index} fallbackUrl={localPhotos.find((photo) => upload.id === `${studentToken}:${photo.id}`)?.previewUrl} compact retryControl={false} /></ArtifactAvatar></PhotoThumbnail>
-        return compact ? <span className="weekend-math-photo-item" key={upload.id}>{thumbnail}{!selection && onDelete && upload.status !== 'reviewed' && <button type="button" className="weekend-math-photo-delete" aria-label={`Удалить ${meta.kind === 'photo' ? 'фото' : 'файл'} ${index + 1}`} disabled={removingId === upload.id} onClick={() => void deletePhoto(upload.id)}><X size={11} aria-hidden="true" /></button>}</span> : thumbnail
+        return <WorkAttachmentThumbnail key={upload.id} compact={compact} onDelete={onDelete && upload.status !== 'reviewed' ? () => void deletePhoto(upload.id) : undefined} deleteLabel={`Удалить ${meta.kind === 'photo' ? 'фото' : 'файл'} ${index + 1}`} deleting={removingId === upload.id} label={photoLabel} choosing={!!selection} selected={selection ? selection.selectedIds.includes(upload.id) : selectedId === upload.id} disabled={selection?.isSelectable?.(upload.id) === false} onToggle={() => togglePhoto(upload.id)}><ArtifactAvatar state={state}><WorkArtifactImage upload={upload} title={taskTitle} index={index} fallbackUrl={localPhotos.find((photo) => upload.id === `${studentToken}:${photo.id}`)?.previewUrl} compact retryControl={false} /></ArtifactAvatar></WorkAttachmentThumbnail>
       })}
       {localOnly.map((photo, index) => {
         const id = `${studentToken}:${photo.id}`
@@ -101,8 +96,7 @@ export default function WorkPhotoGallery<T extends LocalWorkPhoto>({ taskTitle, 
         const status = artifactAvatarLabel(state)
         const meta = workFilePresentation(photo.file ?? photo)
         const photoLabel = `${meta.label} ${visibleUploads.length + index + 1}${meta.kind !== 'photo' ? ` · ${meta.name}` : ''} · ${meta.kind === 'photo' ? status : status.replace(/фото/g, 'файл')} · Время загрузки появится после передачи ${meta.kind === 'photo' ? 'фото' : 'файла'}`
-        const thumbnail = <PhotoThumbnail key={photo.id} label={photoLabel} choosing={!!selection} selected={selection ? selection.selectedIds.includes(id) : selectedId === id} disabled={selection?.isSelectable?.(id) === false} onToggle={() => togglePhoto(id)}><ArtifactAvatar state={state}>{localPreview(photo, true)}</ArtifactAvatar></PhotoThumbnail>
-        return compact ? <span className="weekend-math-photo-item" key={photo.id}>{thumbnail}</span> : thumbnail
+        return <WorkAttachmentThumbnail key={photo.id} compact={compact} label={photoLabel} choosing={!!selection} selected={selection ? selection.selectedIds.includes(id) : selectedId === id} disabled={selection?.isSelectable?.(id) === false} onToggle={() => togglePhoto(id)}><ArtifactAvatar state={state}>{localPreview(photo, true)}</ArtifactAvatar></WorkAttachmentThumbnail>
       })}
     </div>
     {!compact && summary && <small className="day-upload-summary">{summary}</small>}
