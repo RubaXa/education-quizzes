@@ -2173,6 +2173,30 @@
       "path": "docs/decisions/review-readability-repair-2026-10-31.md"
     },
     {
+      "id": "decision.review-table-storage-2026-10-31",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-31",
+      "updated": "2026-10-31",
+      "parent": "module.reviews.method-guided-solutions",
+      "uses": [
+        "shared.design.compact-review"
+      ],
+      "consumers": [
+        "review author",
+        "parent"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/review-table-storage-2026-10-31.md"
+    },
+    {
       "id": "decision.reviewed-photo-placement-2026-10-26",
       "status": "accepted",
       "implementation": "implemented",
@@ -14521,6 +14545,11 @@
       "type": "uses"
     },
     {
+      "from": "decision.review-table-storage-2026-10-31",
+      "to": "shared.design.compact-review",
+      "type": "uses"
+    },
+    {
       "from": "decision.reviews.guidance-hint-then-reveal",
       "to": "module.reviews.math-solution-route",
       "type": "uses"
@@ -21458,6 +21487,11 @@
     {
       "from": "module.reviews.method-guided-solutions",
       "to": "decision.method-guided-reviews-2026-10-31",
+      "type": "contains"
+    },
+    {
+      "from": "module.reviews.method-guided-solutions",
+      "to": "decision.review-table-storage-2026-10-31",
       "type": "contains"
     },
     {

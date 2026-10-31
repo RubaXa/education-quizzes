@@ -24,7 +24,7 @@ export function reviewVisualValid(visual) {
     && visual.events.every(event => keys(event,['date','label']) && text(event.date,60) && text(event.label,180))
   if (visual.kind === 'comparison') return keys(visual,['kind','label','columns','rows']) && Array.isArray(visual.columns) && visual.columns.length >= 2 && visual.columns.length <= 4
     && visual.columns.every(value => text(value,100)) && Array.isArray(visual.rows) && visual.rows.length > 0 && visual.rows.length <= 5
-    && visual.rows.every(row => Array.isArray(row) && row.length === visual.columns.length && row.every(value => text(value,240)))
+    && visual.rows.every(row => keys(row,['cells']) && Array.isArray(row.cells) && row.cells.length === visual.columns.length && row.cells.every(value => text(value,240)))
   return false
 }
 export function reviewSupplementErrors(value) {

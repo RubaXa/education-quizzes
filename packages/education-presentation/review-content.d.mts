@@ -3,7 +3,7 @@ export type ReviewVisualData =
  | { kind:'facts';label:string;items:{label:string;value:string}[] }
  | { kind:'annotation';label:string;parts:{text:string;mark?:'focus'|'reference'}[] }
  | { kind:'timeline';label:string;events:{date:string;label:string}[] }
- | { kind:'comparison';label:string;columns:string[];rows:string[][] }
+ | { kind:'comparison';label:string;columns:string[];rows:{cells:string[]}[] }
 export interface ReviewBriefDetail { label:string;text:string;quotation?:string;visual?:ReviewVisualData }
 export interface ReviewSupplement { version:1;visual?:ReviewVisualData;details?:ReviewBriefDetail[] }
 export const reviewOverviewLimits:Readonly<{title:number;confirmed:number;focus:number;bridge:number;question:number;total:number}>

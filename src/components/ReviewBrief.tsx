@@ -34,7 +34,7 @@ export interface ReviewBriefData {
 export function ReviewVisual({ visual }: { visual: ReviewVisualData }) {
   if (visual.kind === 'comparison') return <figure className="edu-review-visual edu-review-comparison">
     <table aria-label={visual.label}><thead><tr>{visual.columns.map((column, index) => <th scope="col" key={index}>{column}</th>)}</tr></thead>
-      <tbody>{visual.rows.map((row, index) => <tr key={index}>{visual.columns.map((_, column) => <td key={column}>{row[column] ?? '—'}</td>)}</tr>)}</tbody></table>
+      <tbody>{visual.rows.map((row, index) => <tr key={index}>{visual.columns.map((_, column) => <td key={column}>{row.cells[column] ?? '—'}</td>)}</tr>)}</tbody></table>
   </figure>
   if (visual.kind === 'annotation') return <figure className="edu-review-visual edu-review-annotation" aria-label={visual.label}>
     <blockquote>{visual.parts.map((part, index) => part.mark

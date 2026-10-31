@@ -7017,19 +7017,20 @@
       }
     },
     "packages/education-presentation/review-content.mjs": {
-      "sha256": "a500c09458b98b26c52afee79fc0b701ad973f2f4c50e2ab009155c71ffb4a37",
-      "record": "docs/decisions/review-readability-repair-2026-10-31.md",
+      "sha256": "a175cae4dbd46ff280a9ec306bcd5452e71a1ebef09b6d80ca561da3e4465a75",
+      "record": "docs/decisions/review-table-storage-2026-10-31.md",
       "specs": [
+        "docs/modules/reviews/method-guided-solutions.md",
         "docs/shared/design/compact-review.md"
       ],
       "tests": [
-        "src/components/WorkReview.compact.test.tsx",
-        "src/components/ReviewBrief.test.tsx",
-        "storage/tutoring-decision.test.mjs"
+        "packages/education-presentation/review-content.test.mjs",
+        "storage/parent-guide-edit.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 31.10 прислал мобильный скриншот и прямо отверг нечитаемый результат как не соответствующий согласованному макету; исправляется ранее разрешённый общий формат."
+        "evidence": "Продолжение прямого запроса родителя о методах, формулах и наглядном разборе; исправление обнаруженного сервером непереносимого формата таблицы перед завершением миграции."
       }
     },
     "scripts/check-review-brief-viewport.mjs": {
@@ -7088,20 +7089,20 @@
       }
     },
     "src/components/ReviewBrief.tsx": {
-      "sha256": "b156de075aeef25dbbb2ad3d0dfc85fdd040aa97d1f3abd8c69d6bd340f67a2a",
-      "record": "docs/decisions/method-guided-reviews-2026-10-31.md",
+      "sha256": "14084e2c8759be1abed7c85fd26470402adb7be293f37d120d87e0d93cc9c831",
+      "record": "docs/decisions/review-table-storage-2026-10-31.md",
       "specs": [
-        "docs/modules/reviews/method-guided-solutions.md"
+        "docs/modules/reviews/method-guided-solutions.md",
+        "docs/shared/design/compact-review.md"
       ],
       "tests": [
-        "src/components/SolutionBlocks.test.tsx",
-        "packages/education-presentation/solution-blocks.test.mjs",
+        "packages/education-presentation/review-content.test.mjs",
         "storage/parent-guide-edit.test.mjs",
         "scripts/check-review-brief-viewport.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "31.10.2026 родитель отверг прежний экран и прямо потребовал восстановить плашку, убрать повтор номера и показывать метод, формулы, связи и переходы визуально."
+        "evidence": "Продолжение прямого запроса родителя о методах, формулах и наглядном разборе; исправление обнаруженного сервером непереносимого формата таблицы перед завершением миграции."
       }
     },
     "src/components/ReviewBriefShowcase.tsx": {
@@ -7155,19 +7156,20 @@
       }
     },
     "src/lib/reviewBriefExamples.ts": {
-      "sha256": "5355beec1d8f741ea5fb08364626a7eaa5073b0ee16a2ab1596524b97dab8353",
-      "record": "docs/decisions/review-readability-repair-2026-10-31.md",
+      "sha256": "f1fb6f8d4404769d818e8d8acb883cca29ac73cebb4c7ff28362b72e2b44802e",
+      "record": "docs/decisions/review-table-storage-2026-10-31.md",
       "specs": [
+        "docs/modules/reviews/method-guided-solutions.md",
         "docs/shared/design/compact-review.md"
       ],
       "tests": [
-        "src/components/WorkReview.compact.test.tsx",
-        "src/components/ReviewBrief.test.tsx",
-        "storage/tutoring-decision.test.mjs"
+        "packages/education-presentation/review-content.test.mjs",
+        "storage/parent-guide-edit.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 31.10 прислал мобильный скриншот и прямо отверг нечитаемый результат как не соответствующий согласованному макету; исправляется ранее разрешённый общий формат."
+        "evidence": "Продолжение прямого запроса родителя о методах, формулах и наглядном разборе; исправление обнаруженного сервером непереносимого формата таблицы перед завершением миграции."
       }
     },
     "src/lib/workReviewBrief.ts": {
@@ -7401,20 +7403,20 @@
       }
     },
     "storage/parent-guide-edit.mjs": {
-      "sha256": "be7011b66597abc0ef00d01ac8f0b127e58dfddb19e3ab85e7e4303df9942336",
-      "record": "docs/decisions/method-guided-reviews-2026-10-31.md",
+      "sha256": "91ecb31d4e590b37615e95a81eaffbb2325ec55cb2a9d53949722871cd33207a",
+      "record": "docs/decisions/review-table-storage-2026-10-31.md",
       "specs": [
-        "docs/modules/reviews/method-guided-solutions.md"
+        "docs/modules/reviews/method-guided-solutions.md",
+        "docs/shared/design/compact-review.md"
       ],
       "tests": [
-        "src/components/SolutionBlocks.test.tsx",
-        "packages/education-presentation/solution-blocks.test.mjs",
+        "packages/education-presentation/review-content.test.mjs",
         "storage/parent-guide-edit.test.mjs",
         "scripts/check-review-brief-viewport.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "31.10.2026 родитель отверг прежний экран и прямо потребовал восстановить плашку, убрать повтор номера и показывать метод, формулы, связи и переходы визуально."
+        "evidence": "Продолжение прямого запроса родителя о методах, формулах и наглядном разборе; исправление обнаруженного сервером непереносимого формата таблицы перед завершением миграции."
       }
     }
   }
