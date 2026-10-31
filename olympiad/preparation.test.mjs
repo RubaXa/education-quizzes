@@ -30,7 +30,7 @@ it('respects exact-version family acceptance and reopen, without presenting it a
 })
 it('does not invent gaps or achievements from missing evidence, source receipt, unavailable tasks or private fields',()=>{
  const p=projectPreparation(route,{a:{available:true,review:{...review('cannot-assess'),officialAnswer:'secret'}},b:{available:false,review:review('verified')},c:{available:true,review:{...review('verified'),purpose:'source-material'}}},null)
- expect(p.next.taskId).toBe('a');expect(p.next.reason).toBe('Разобрать задачу.');expect(p.progress.tasks).toEqual([]);expect(JSON.stringify(p)).not.toContain('secret')
+ expect(p.next.taskId).toBe('a');expect(p.next.reason).toContain('недостающий материал');expect(p.progress.tasks).toHaveLength(1);expect(p.progress.tasks[0]).toMatchObject({status:'cannot-assess',credited:null,confirmed:null,focus:null,achievedOn:null});expect(JSON.stringify(p)).not.toContain('secret')
 })
 it('excludes a task whose required stages are complete under the current family plan',()=>{
  const r={...review('partial'),checkableStageIds:['answer','proof'],items:[{stageId:'answer',status:'correct'},{stageId:'proof',status:'missing'}]}
@@ -38,4 +38,11 @@ it('excludes a task whose required stages are complete under the current family 
  expect(projectPreparation(route,state,null).next.taskId).toBe('b')
  state.a.decisions[0].action='stage-required'
  expect(projectPreparation(route,state,null).next.taskId).toBe('a')
+})
+it('retains the first achievement when a new unreadable work cannot be assessed, without inventing a math gap',()=>{
+ const first=projectPreparation(route,{a:{available:true,review:review('verified')}},null)
+ const next=projectPreparation(route,{a:{available:true,review:{...review('cannot-assess',20),checkableStageIds:['a'],items:[{stageId:'a',status:'correct'}]}},b:{available:true}},first)
+ expect(next.progress.tasks[0]).toMatchObject({status:'cannot-assess',credited:null,confirmed:null,focus:null,achievedOn:first.progress.tasks[0].achievedOn})
+ expect(next.next.taskId).toBe('a');expect(next.next.reason).toContain('недостающий материал')
+ expect(next.strengths).toEqual(first.strengths)
 })
