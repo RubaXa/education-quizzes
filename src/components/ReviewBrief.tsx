@@ -5,6 +5,7 @@
 import { ChevronDown } from 'lucide-react'
 import StatusIcon from './StatusIcon'
 import './ReviewBrief.css'
+import './ReviewVisual.css'
 import type { ReactNode } from 'react'
 import type { ReviewVisualData,ReviewBriefDetail } from '../../packages/education-presentation/review-content.mjs'
 import { reviewOverviewLimits } from '../../packages/education-presentation/review-content.mjs'

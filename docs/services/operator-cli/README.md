@@ -134,3 +134,5 @@ flowchart TD
 | `npm run quiz` (`scripts/quiz.mjs`) | план вопросов и источники → проверенный пакет проверки и квитанция публикации | [Assessments](../../modules/assessments/README.md) |
 | `npm run diary` (`diary/cli.mjs`) | настройки семьи/ребёнка → снимок дневника МЭШ | [School diary](../../modules/school-diary/README.md) |
 | `npm run family:access` (`scripts/access-management.mjs`) | запрос доступа → проверенное состояние семейной связи | [Families](../../modules/families/README.md) |
+
+Для адресной редакции существующего закрытого родительского пути используется `npm run guide:edit -- .local/edit.json [--apply]`. [Контракт пакета](../../modules/reviews/method-guided-solutions.md#адресная-редактура) требует ожидаемую ревизию guide и задания, неизменные stage IDs/источники и readback. Это доменный CLI, ещё не зарегистрированная операция общего `education run`; изменение верстки не создаёт новую проверку ребёнка.

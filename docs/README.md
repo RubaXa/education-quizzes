@@ -33,6 +33,7 @@ sections:
 | Фото/PDF или передача на Диск | [Материалы](modules/materials/README.md) | [Upload worker](services/upload-worker/README.md), [хранение](shared/media-storage.md) |
 | Проверка работы или предметная помощь | [Reviews](modules/reviews/README.md) | [Основания проверки](modules/reviews/review-criteria-provenance.md), [статус задания](modules/assignments/README.md) |
 | Плотность и визуализация всех разборов | [Общий формат](shared/design/compact-review.md) | [UI Kit](shared/design/ui-kit.md), [предметная помощь](modules/reviews/subject-aware-guidance.md) |
+| Метод, формулы, графы и полный родительский путь | [Наглядное решение](modules/reviews/method-guided-solutions.md) | [Общий формат](shared/design/compact-review.md), [UI Kit](shared/design/ui-kit.md) |
 | Тест, попытка или продолжение | [Assessments](modules/assessments/README.md) | [Граф самопроверок](modules/assessments/assessment-decision-graph.md) |
 | Подготовка к олимпиаде, игровой урок, результаты и адаптация | [Проект сценария](product/olympiad-preparation.md) | [Предметная модель](modules/assessments/olympiad-preparation.md), [UI Kit](shared/design/ui-kit.md) |
 | История участия ребёнка, результаты сезонов/этапов и его работы | [Личная история](modules/assessments/olympiad-history.md) | [Исходный план](plans/olympiad-child-history-2026-10-31.md), семейное хранилище и общая очередь |

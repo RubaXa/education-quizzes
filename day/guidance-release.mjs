@@ -3,8 +3,11 @@
  * Public allowlist shared by the browser writer and the operator repair.
  * Private guide refs/excerpts, review labels and neighboring stages are deliberately excluded.
  */
+import {projectSolutionBlocks} from '../packages/education-presentation/solution-blocks.mjs'
 export function projectGuidanceReveal(stage) {
+  const blocks=projectSolutionBlocks(stage.blocks)
   return {
+    ...(blocks?{blocks}:{}),
     title: stage.title,
     expected: stage.expected,
     rows: (stage.rows ?? []).map(({ label, value, explanation }) => ({

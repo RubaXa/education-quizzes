@@ -1,5 +1,6 @@
 /** @see ../docs/modules/reviews/subject-aware-guidance.md#data-contract */
 export type GuidanceReveal = {
+  blocks?: import('../packages/education-presentation/solution-blocks.mjs').SolutionBlock[];
   title: string; expected: string;
   rows: { label?: string; value: string; explanation?: string }[];
   role: 'plain' | 'given' | 'relations' | 'calculation' | 'solution' | 'answer';

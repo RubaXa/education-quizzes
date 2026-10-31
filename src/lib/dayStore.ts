@@ -35,6 +35,7 @@ export type DayProblem = {
  * @see ../../docs/modules/reviews/card-generation-policy.md#math-adapter */
 /** @see ../../docs/decisions/released-stage-parity-2026-10-20.md */
 export type ParentTaskGuide = {
+  method?: import('../../packages/education-presentation/solution-blocks.mjs').SolutionMethod;
   kind: 'structured-notes' | 'worked-solution' | 'text-structure';
   presentation?: 'math-route' | 'learning-route'; pattern?: 'spelling' | 'syntax' | 'text-plan' | 'composition' | 'short-interpretation' | 'evidence-response' | 'concept-function' | 'vocabulary-list' | 'written-exercise' | 'source-analysis' | 'map-analysis' | 'source-evidence' | 'source-units'; routeProfile?: 'compact' | 'standard' | 'extended'; depthReason?: string;
   revision?: number; overview: string; boundary?: string;
@@ -42,6 +43,7 @@ export type ParentTaskGuide = {
     id: string; title: string; expected: string; why?: string; reviewLabels?: string[];
     role?: 'given' | 'relations' | 'calculation' | 'solution' | 'answer';
     rows?: { label?: string; value: string; explanation?: string }[];
+    blocks?: import('../../packages/education-presentation/solution-blocks.mjs').SolutionBlock[];
     hintPreview?: string; revealPreview?: string;
     answer?: string; verification?: { label?: string; value: string }[];
     source: { kind: 'mesh' | 'textbook' | 'teacher-file' | 'family'; label: string; ref: string; excerpt: string };
@@ -50,6 +52,7 @@ export type ParentTaskGuide = {
 /** Public allowlist for a parent-approved full-stage reveal; never contains source refs/excerpts or review labels.
  * @see ../../docs/modules/reviews/subject-aware-guidance.md#data-contract */
 export type DayGuidanceRevealContent = {
+  blocks?: import('../../packages/education-presentation/solution-blocks.mjs').SolutionBlock[];
   title: string; expected: string; rows: { label?: string; value: string; explanation?: string }[];
   role: 'plain' | 'given' | 'relations' | 'calculation' | 'solution' | 'answer';
   why: string; answer: string; verification: { label?: string; value: string }[]; sourceLabel: string;

@@ -2,19 +2,12 @@
 /** @see ../../docs/decisions/compact-review-rollout-2026-10-31.md */
 /* @see ../../docs/shared/design/compact-review.md#coverage
    Shared density for the authorized full route and already released help. */
-.day-parent-guide{background:var(--edu-review-paper);color:var(--edu-review-ink);border-color:var(--edu-review-line);border-radius:8px;margin:8px 0}
-.day-parent-guide>summary,.day-parent-guide.day-parent-learning-route>.day-learning-route-heading{min-height:44px;padding:8px 12px;font-size:16px;font-weight:600}
 .day-parent-guide .day-learning-route-heading strong{font-size:16px;margin:0;font-weight:600}
-.day-parent-guide .day-parent-learning-route-body{padding:0 12px 12px}
-.day-parent-guide .day-learning-route-stages{gap:0;margin-top:6px}
-.day-parent-guide .day-learning-route-stage{border:0;border-top:1px solid var(--edu-review-line);border-radius:0;background:transparent}
-.day-parent-guide .day-learning-route-stage>summary{min-height:44px;padding:8px 46px 8px 0;gap:8px}
 .day-parent-guide .day-learning-route-stage-title>b{font-size:16px;font-weight:600}
 .day-parent-guide .day-learning-route-stage-title>small{font-size:12px;color:var(--edu-review-muted)}
-.day-parent-guide .day-learning-route-body{padding:8px 0;border-color:var(--edu-review-line);font-size:var(--edu-review-size);line-height:var(--edu-review-leading);color:var(--edu-review-ink)}
+.day-parent-guide .day-learning-route-body{border-color:var(--edu-review-line);font-size:var(--edu-review-size);line-height:var(--edu-review-leading);color:var(--edu-review-ink)}
 .day-parent-guide .day-learning-route-body>p,.day-parent-guide .day-parent-guide-stages p,.day-parent-guide .day-parent-guide-body>p{font-size:var(--edu-review-size);line-height:var(--edu-review-leading);margin:0 0 6px;color:var(--edu-review-ink)}
 .day-parent-guide .day-learning-route-rows{gap:6px;margin:6px 0}
-.day-parent-guide .day-learning-route-rows>div{padding:6px 0;background:transparent;border-radius:0}
 .day-parent-guide .day-learning-route-rows strong{font-size:var(--edu-review-size);font-weight:550}
 .day-parent-guide .day-learning-route-rows p{font-size:16px;line-height:1.4;margin:4px 0}
 .day-parent-guide .day-learning-route-source,.day-parent-guide .day-learning-route-rows small{font-size:12px;color:var(--edu-review-muted)}

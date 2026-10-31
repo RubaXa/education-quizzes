@@ -322,11 +322,12 @@ service cloud.firestore {
         && (data.level == 'hint'
           ? !data.keys().hasAny(['revealContent'])
           : data.revealContent is map
-            && data.revealContent.keys().hasOnly(['title', 'expected', 'rows', 'role', 'why', 'answer', 'verification', 'sourceLabel'])
+            && data.revealContent.keys().hasOnly(['title', 'expected', 'rows', 'blocks', 'role', 'why', 'answer', 'verification', 'sourceLabel'])
             && data.revealContent.keys().hasAll(['title', 'expected', 'rows', 'role', 'why', 'answer', 'verification', 'sourceLabel'])
             && data.revealContent.title == stage.title
             && data.revealContent.expected == stage.expected
             && data.revealContent.rows == stage.get('rows', [])
+            && data.revealContent.get('blocks', []) == stage.get('blocks', [])
             && data.revealContent.role == stage.get('role', 'plain')
             && data.revealContent.why == stage.get('why', '')
             && data.revealContent.answer == (stage.get('role', '') == 'answer' ? stage.get('answer', '') : '')

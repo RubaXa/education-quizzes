@@ -83,7 +83,7 @@ describe('stable numbered problem layers', () => {
     expect(html).toContain('class="problem-statement-facts"')
     expect(html).toContain('class="problem-statement-find"')
     expect(html).toContain('Условие текстом')
-    expect(html).toContain('Разбор для родителя')
+    expect(html).toContain('Ход решения')
     expect(html).not.toContain('class="problem-statement-provenance"')
   })
 

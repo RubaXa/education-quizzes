@@ -38,6 +38,7 @@ code:
 - [adaptive-problem-card](adaptive-problem-card.md)
 - [card-flow-certification](card-flow-certification.md)
 - [card-generation-policy](card-generation-policy.md)
+- [Метод, модель и наглядный ход решения](method-guided-solutions.md)
 - [math-solution-route](math-solution-route.md)
 - [review-criteria-provenance](review-criteria-provenance.md)
 - [russian-language-route](russian-language-route.md)
