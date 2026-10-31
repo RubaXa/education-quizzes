@@ -1,5 +1,7 @@
+/** @see ../../docs/decisions/compact-review-rollout-2026-10-31.md */
 import type { FormEvent, ReactNode } from 'react'
 import PhotoUploadControl from './PhotoUploadControl'
+import ReviewBrief from './ReviewBrief'
 import './ProblemStatement.css'
 import './ProblemCard.css'
 
@@ -29,7 +31,7 @@ export default function PhotoHelpRequest({ photos, selectedCount, note, onNote, 
     <form onSubmit={submit}>
       {!parent && <p>Выбери в галерее выше или добавь фото того, что ты записал или попробовал. Не бойся присылать зачёркнутое: я постараюсь разобраться, показать, где ты двигался верно, и объяснить следующий шаг.</p>}
       {status === 'pending' && <p role="status"><strong>Помощь запрошена</strong> · ждём ответ</p>}
-      {response && <div className="problem-statement-help-result"><strong>Следующий шаг</strong><p>{response}</p>{previousResponse && <details><summary>Предыдущая помощь</summary><p>{previousResponse}</p></details>}</div>}
+      {response && <ReviewBrief data={{id:response,label:'Следующий шаг',status:'neutral',body:response,details:previousResponse?[{label:'Предыдущая помощь',text:previousResponse}]:[]}} />}
       {parent && attachedDescription && <p>Фото запроса: {attachedDescription}</p>}
       {!parent && <>
         <PhotoUploadControl className="problem-card-upload" label="Добавить фото записей" onPhotos={onPhotos} />

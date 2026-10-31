@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/compact-review-rollout-2026-10-31.md */
 import { compareDayGuidanceChronology, type DayGuidance } from '@/lib/dayGuidance'
 import { formatReviewProse } from '@/lib/reviewProse'
 import { BookOpen, ChevronDown } from 'lucide-react'
@@ -6,6 +7,7 @@ import { BookOpen, ChevronDown } from 'lucide-react'
 import GuidanceStageContent from './GuidanceStageContent'
 import './ParentTaskGuide.css'
 import './TaskGuidance.css'
+import './ReviewTypography.css'
 
 /** Only parent-selected, published help is visible to the learner.
  * @see ../../docs/modules/reviews/subject-aware-guidance.md#data-contract

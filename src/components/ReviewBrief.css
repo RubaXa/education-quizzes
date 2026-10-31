@@ -1,0 +1,49 @@
+/** @see ../../docs/decisions/compact-review-rollout-2026-10-31.md */
+/* @see ../../docs/shared/design/compact-review.md#geometry */
+/* @see ../../docs/decisions/compact-review-ui-kit-2026-10-31.md */
+.edu-review-brief{color-scheme:inherit;box-sizing:border-box;min-width:0;max-width:100%;padding:var(--edu-review-inset);border:1px solid var(--edu-review-line);border-radius:8px;background:var(--edu-review-paper);color:var(--edu-review-ink);font-family:inherit;font-size:var(--edu-review-size);line-height:var(--edu-review-leading);font-weight:400;overflow-wrap:anywhere}
+.edu-review-brief *{box-sizing:border-box}
+.edu-review-brief .edu-review-header{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:var(--edu-review-gap)}
+.edu-review-brief .edu-review-title{margin:0;font-size:14px;font-weight:600;line-height:1.35;color:var(--edu-review-ink)}
+.edu-review-brief .edu-review-state{flex:none;font-size:12px;color:var(--edu-review-muted)}
+.edu-review-brief .edu-review-copy{margin:0;font-size:var(--edu-review-size);line-height:var(--edu-review-leading);color:var(--edu-review-ink)}
+.edu-review-brief .edu-review-copy+.edu-review-copy{margin-top:var(--edu-review-gap)}
+.edu-review-brief .edu-review-meta{font-size:12px;color:var(--edu-review-muted);margin-bottom:6px}
+.edu-review-brief .edu-review-prompt{margin:6px 0;font-weight:550}
+.edu-review-brief .edu-review-response{display:flex;flex-wrap:wrap;gap:4px 8px;margin:6px 0;font-size:14px}
+.edu-review-brief .edu-review-response>span{color:var(--edu-review-muted)}
+.edu-review-brief .edu-review-response>strong{font-weight:550;white-space:pre-wrap}
+.edu-review-brief .edu-review-state{max-width:55%;white-space:normal;text-align:right}
+.edu-review-brief[data-review-state="incorrect"] .edu-review-state{color:var(--edu-status-error-ink)}
+.edu-review-brief[data-review-state="revise"] .edu-review-state{color:var(--edu-status-attention-ink)}
+.edu-review-brief[data-review-state="verified"] .edu-review-state{color:var(--edu-review-good)}
+.edu-review-brief .edu-review-confirmed{display:flex;align-items:baseline;gap:6px;font-size:14px;color:var(--edu-review-good)}
+.edu-review-brief .edu-review-confirmed svg{align-self:flex-start;margin-top:2px}
+.edu-review-brief .edu-review-focus{margin-top:var(--edu-review-gap)}
+.edu-review-brief .edu-review-bridge{font-size:14px;color:var(--edu-review-muted)}
+.edu-review-brief .edu-review-question{font-weight:600}
+.edu-review-brief .edu-review-visual{margin:10px 0 8px;min-width:0}
+.edu-review-brief .edu-review-facts dl{display:flex;flex-wrap:wrap;gap:8px 12px;margin:0;text-align:center}
+.edu-review-brief .edu-review-facts dl>div{flex:1 1 70px;min-width:0}
+.edu-review-brief .edu-review-facts dt{font-size:12px;color:var(--edu-review-muted)}
+.edu-review-brief .edu-review-facts dd{margin:2px 0 0;font-size:18px;line-height:1.25;font-weight:550;color:var(--edu-review-ink)}
+.edu-review-brief .edu-review-bracket{display:block;overflow:visible;margin-top:5px;stroke:var(--edu-review-line);stroke-width:1.5}
+.edu-review-brief .edu-review-annotation blockquote{margin:0;padding:8px 0 8px 10px;border-left:2px solid var(--edu-review-line);font-size:18px;line-height:1.5;color:var(--edu-review-ink)}
+.edu-review-brief .edu-review-annotation mark{background:transparent;color:inherit}
+.edu-review-brief .edu-review-mark-focus{text-decoration:underline wavy var(--edu-review-attention);text-underline-offset:5px}
+.edu-review-brief .edu-review-mark-reference{border-bottom:2px solid var(--edu-review-accent);padding-bottom:3px}
+.edu-review-brief .edu-review-timeline ol{display:flex;gap:12px;list-style:none;padding:0;margin:0}
+.edu-review-brief .edu-review-timeline li{position:relative;flex:1;min-width:0;display:grid;align-content:start;gap:4px;padding-top:10px;font-size:13px;line-height:1.35;border-top:1px solid var(--edu-review-line);color:var(--edu-review-muted)}
+.edu-review-brief .edu-review-timeline li::before{content:'';position:absolute;top:-3px;left:0;width:5px;height:5px;border-radius:50%;background:var(--edu-review-accent)}
+.edu-review-brief .edu-review-date{font-size:18px;font-weight:550;font-variant-numeric:tabular-nums;color:var(--edu-review-ink)}
+.edu-review-brief .edu-review-detail{margin-top:8px;border-top:1px solid var(--edu-review-line)}
+.edu-review-brief .edu-review-detail summary{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:44px;list-style:none;font-size:14px;color:var(--edu-review-accent);cursor:pointer}
+.edu-review-brief .edu-review-detail summary::-webkit-details-marker{display:none}
+.edu-review-brief .edu-review-detail[open] summary svg{transform:rotate(180deg)}
+.edu-review-brief .edu-review-detail>.edu-review-copy{padding-bottom:4px;font-size:14px}
+.edu-review-brief .edu-review-detail summary:focus-visible{outline:2px solid var(--edu-focus);outline-offset:2px;border-radius:2px}
+.edu-review-brief .edu-review-quotation{margin:0 0 8px;padding-left:8px;border-left:2px solid var(--edu-review-line);color:var(--edu-review-muted);font-size:14px;line-height:1.4}
+.edu-review-brief .edu-review-comparison table{width:100%;border-collapse:collapse;table-layout:fixed;color:var(--edu-review-ink);font-size:14px;line-height:1.4}
+.edu-review-brief .edu-review-comparison th{font-size:12px;font-weight:500;color:var(--edu-review-muted)}
+.edu-review-brief .edu-review-comparison th,.edu-review-brief .edu-review-comparison td{padding:5px 4px;text-align:left;vertical-align:top;border-bottom:1px solid var(--edu-review-line);overflow-wrap:anywhere}
+.edu-review-brief .edu-review-comparison tbody tr:last-child td{border-bottom:0}
