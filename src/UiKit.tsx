@@ -83,7 +83,7 @@ const guidanceDemo: Guide = { kind: 'worked-solution', presentation: 'math-route
     revealPreview: 'Учитывай направление каждого перехода: равные по длине отрезки могут иметь разные знаки.',
     source: { kind: 'teacher-file', label: 'Лист учителя №2', ref: 'demo-only:teacher-sheet', excerpt: 'Демонстрационный источник' } }] }
 
-const fileExamples = Object.entries(workFileTypes).map(([contentType, [extension]]) => ({ contentType, originalName: `Пример.${extension}` }))
+const fileExamples = Object.entries(workFileTypes).map(([contentType, [extension]]) => ({ contentType, originalName: `Пример.${extension}`, preview: contentType.startsWith('image/') ? writtenDemoPhoto : undefined }))
 const fileIconExamples = fileExamples.filter((file, index) => fileExamples.findIndex(other => workFilePresentation(other).kind === workFilePresentation(file).kind) === index)
 
 const topicGroups = [
@@ -93,7 +93,7 @@ const topicGroups = [
   {id:'components',title:'Компоненты',topics:[
     {id:'results',title:'Индикаторы результата',icon:CircleHelp},
     {id:'grades',title:'Средний балл',icon:CircleHelp},
-    {id:'files',title:'Иконки файлов',icon:Paperclip},
+    {id:'files',title:'Файлы и превью',icon:Paperclip},
   ]},
   {id:'scenarios',title:'Составные сценарии',topics:[
     {id:'calendar',title:'Календарь и каникулы',icon:BookOpen},
@@ -209,14 +209,14 @@ export default function UiKit() {
         <h3>Границы</h3><p>Зачёт — от 85%. Янтарный — от 50% до порога зачёта. Красный — ниже 50%. Сравнение выполняется до округления: 84,99% не превращается в зелёные 85%. Эти границы относятся к тестам; школьный средний не переводится в проценты.</p>
       </section>}
       {section==='files' && <section aria-labelledby="kit-files-title" className="edu-kit-files">
-        <h2 id="kit-files-title">Иконки файлов</h2>
-        <p>Готовые SVG из Lucide React. Единые контурные значки, толщина линий и цвет Education.</p>
-        <div className="edu-kit-file-families" aria-label="Основные значки файлов">{fileIconExamples.map(file => <div key={file.contentType}><WorkFilePreview file={file} /><span>{workFilePresentation(file).label}</span></div>)}</div>
+        <h2 id="kit-files-title">Файлы и превью</h2>
+        <p>Изображение показываем самим превью. Для файлов без доступного просмотра используем значок формата из Lucide React.</p>
+        <div className="edu-kit-file-families" aria-label="Превью изображения и значки документов">{fileIconExamples.map(file => <div key={file.contentType}><WorkFilePreview file={file} href={file.preview} /><span>{workFilePresentation(file).label}</span></div>)}</div>
         <h3>Все поддерживаемые форматы</h3>
         <p>Выбери формат, чтобы увидеть раскрытое вложение. Это тот же компонент, что в загруженных решениях.</p>
-        <div className="edu-kit-file-formats" aria-label="Форматы вложений">{fileExamples.map(file => <button type="button" key={file.contentType} aria-label={`Показать ${workFilePresentation(file).extension.toUpperCase()}`} aria-pressed={fileExample.contentType === file.contentType} onClick={() => setFileExample(file)}><WorkFilePreview file={file} compact /><span>{workFilePresentation(file).extension.toUpperCase()}</span></button>)}</div>
-        <div className="edu-kit-file-expanded" aria-label="Раскрытое вложение"><WorkFilePreview file={fileExample} /></div>
-        <p>У фотографий в работе показывается сам снимок. Значок камеры используется, когда предпросмотра ещё нет.</p>
+        <div className="edu-kit-file-formats" aria-label="Форматы вложений">{fileExamples.map(file => <button type="button" key={file.contentType} aria-label={`Показать ${workFilePresentation(file).extension.toUpperCase()}`} aria-pressed={fileExample.contentType === file.contentType} onClick={() => setFileExample(file)}><WorkFilePreview file={file} compact href={file.preview} /><span>{workFilePresentation(file).extension.toUpperCase()}</span></button>)}</div>
+        <div className="edu-kit-file-expanded" aria-label="Раскрытое вложение"><WorkFilePreview file={fileExample} href={fileExample.preview} /></div>
+        <p>Фото открывается как изображение. Пока оно загружается или если произошла ошибка, показываем состояние загрузки и повтор, без значка типа файла.</p>
         <code>WorkFilePreview · общие токены --edu-* · источник форматов workFileTypes</code>
       </section>}
       {section==='grades' && <section aria-labelledby="kit-grades-title"><h2 id="kit-grades-title">Шкала среднего балла</h2><p>Фиксированные примеры показывают ключевые рубежи, а отдельный слайдер позволяет проверить каждый промежуточный балл от 2 до 5.</p>
