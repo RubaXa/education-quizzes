@@ -1075,13 +1075,14 @@ service cloud.firestore {
         && get(memberPath(get(/databases/$(database)/documents/dayOwners/$(studentToken)).data.familyId)).data.role == 'student'
         && uploadId.matches('^[A-Za-z0-9_-]{20,80}$')
         && get(/databases/$(database)/documents/dayPages/$(studentToken)).data.kind == 'student'
-        && request.resource.data.keys().hasOnly(['taskId', 'planRevision', 'deviceUid', 'contentType', 'size', 'sha256', 'status', 'createdAt', 'eventOperationId', 'eventReceiptId', 'eventProducerVersion'])
+        && request.resource.data.keys().hasOnly(['taskId', 'planRevision', 'deviceUid', 'contentType', 'originalName', 'size', 'sha256', 'status', 'createdAt', 'eventOperationId', 'eventReceiptId', 'eventProducerVersion'])
         && request.resource.data.keys().hasAll(['taskId', 'planRevision', 'deviceUid', 'contentType', 'size', 'sha256', 'status', 'createdAt'])
         && request.resource.data.taskId is string
         && request.resource.data.taskId in get(/databases/$(database)/documents/dayPages/$(studentToken)).data.taskIds
         && request.resource.data.planRevision == get(/databases/$(database)/documents/dayPages/$(studentToken)).data.planRevision
         && request.resource.data.deviceUid == request.auth.uid
-        && request.resource.data.contentType in ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif']
+        && request.resource.data.contentType in ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/vnd.oasis.opendocument.text', 'application/vnd.oasis.opendocument.spreadsheet', 'application/vnd.oasis.opendocument.presentation', 'application/rtf', 'text/plain', 'text/csv', 'text/markdown']
+        && (!('originalName' in request.resource.data) || request.resource.data.originalName is string && request.resource.data.originalName.size() > 0 && request.resource.data.originalName.size() <= 160)
         && request.resource.data.size is int
         && request.resource.data.size > 0
         && request.resource.data.size <= 25000000

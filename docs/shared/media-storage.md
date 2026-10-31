@@ -7,15 +7,20 @@ uses:
   - module.materials
   - module.materials.storage-privacy
   - service.upload-worker
-sections: []
+sections:
+  - форматы-решений
 created: 2026-10-16
-updated: 2026-10-16
+updated: 2026-10-31
 consumers:
   - "student photo uploader"
   - "parent library uploader"
   - "upload worker"
   - "storage operator"
 code:
+  - "storage/work-file-types.mjs"
+  - "storage/work-file-validation.mjs"
+  - "src/components/WorkFilePreview.tsx"
+  - "scripts/check-solution-file-rules.mjs"
   - "storage/direct-upload.mjs"
   - "scripts/direct-upload-worker.mjs"
 ---
@@ -32,3 +37,28 @@ code:
 | [Архив семей](../modules/families/family-artifact-access.md) | Целевой шлюз, отзыв и аудит доступа; ограничения действующего пути |
 
 Адаптеры находятся в `storage/yandex-disk.mjs`, `storage/direct-upload.mjs`, `storage/family-book-upload.mjs`; клиентская очередь — `src/lib/photoOutbox.ts`. Результат технической передачи не равен подтверждённому выполнению учебного задания.
+
+## Форматы решений
+
+По прямому запросу31.10 загрузка работы принимает исходные фото JPEG/PNG/WebP/HEIC/HEIF,
+PDF, Word DOC/DOCX, Excel XLS/XLSX, PowerPoint PPT/PPTX, OpenDocument ODT/ODS/ODP,
+RTF, TXT, CSV и Markdown MD. Каждый файл непустой и не больше25 000 000байт.
+Смешанный выбор создаёт независимую заявку на каждый оригинал. Это общий путь дня,
+нумерованной задачи и выходного спецкурса; прежние роли и права сохраняются.
+
+Браузер определяет канонический MIME по поддерживаемому типу или расширению при пустом,
+общем либо неточном MIME, сохраняет originalName (до160символов), исходные байты и SHA-256.
+Сервер проверяет тип, размер, хэш и сигнатуру: для OOXML — центральный каталог ZIP
+с нужными частями Word/Excel/PowerPoint; для ODF — content.xml и точный mimetype;
+для старого Office — сигнатуру compound file; для текста — корректную UTF-8 или UTF-16
+с BOM без бинарных управляющих символов. Произвольный ZIP и неподдерживаемые форматы
+не становятся документами по одному расширению. Firestore Rules используют тот же перечень
+типов и допускают отсутствие имени в старых записях.
+
+Общий контрол называется «Загрузить решение» в нумерованной задаче и использует скрепку.
+Галерея сохраняет просмотр фотографий; документы показывают значок PDF/документа/таблицы/
+презентации/текста, расширение и имя. Открытие оригинала — ссылка на сохранённый файл,
+а до подтверждения — локальный Blob; документ не передаётся компоненту изображений.
+Отметка проверки, выбор, удаление, повтор передачи и переход локальная заявка → серверный
+файл сохраняют uploadId. Техническое получение файла не означает завершённый учебный разбор.
+Работоспособность после выпуска требует отдельно обновить Rules, общий worker и PWA.

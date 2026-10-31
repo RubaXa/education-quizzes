@@ -1,3 +1,4 @@
+import { workFileContentType, maxWorkFileSize } from '../../storage/work-file-types.mjs'
 /** @see ../../docs/decisions/personal-tutoring-2026-10-30.md */
 /** @see ../../docs/decisions/scoped-learner-flow-2026-10-21.md */
 /** @see ../../docs/decisions/mesh-informational-entry-2026-10-21.md */
@@ -98,7 +99,7 @@ export type DayPageData = {
   workingThreshold?: number;
 }
 /** @see ../../docs/modules/materials/storage-privacy.md#upload-queue */
-export type DayUpload = { id: string; taskId: string; coveredTaskIds?: string[]; processingTaskIds?: string[]; coverageNote?: string; dataUrl?: string; originalName?: string; status: 'requested' | 'awaiting-upload' | 'uploaded' | 'upload-error' | 'pending' | 'reviewed'; error?: string; createdAt?: unknown; origin?: 'archive'; recordedDate?: string; upload?: { href: string }; storage?: { provider: 'yandex-disk'; state: 'stored'; path: string; size: number; md5?: string; sha256?: string; syncedAt: unknown; publicUrl?: string } }
+export type DayUpload = { id: string; taskId: string; coveredTaskIds?: string[]; processingTaskIds?: string[]; coverageNote?: string; dataUrl?: string; originalName?: string; contentType?: string; status: 'requested' | 'awaiting-upload' | 'uploaded' | 'upload-error' | 'pending' | 'reviewed'; error?: string; createdAt?: unknown; origin?: 'archive'; recordedDate?: string; upload?: { href: string }; storage?: { provider: 'yandex-disk'; state: 'stored'; path: string; size: number; md5?: string; sha256?: string; syncedAt: unknown; publicUrl?: string } }
 /** Upload placement is a UI entry point; confirmed coverage can include other tasks. @see ../../docs/modules/materials/storage-privacy.md#multi-task-photo */
 export function uploadMatchesTask(upload: DayUpload, taskId: string) {
   return upload.coveredTaskIds ? upload.coveredTaskIds.includes(taskId)
@@ -334,10 +335,10 @@ export async function requestDayHelp(studentToken: string, taskId: string, revis
     throw cause
   }
 }
-const photoTypes = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'])
 /** @see ../../docs/modules/materials/storage-privacy.md#upload-queue */
 export async function uploadDayPhoto(studentToken: string, taskId: string, file: File, uploadId: string = crypto.randomUUID(), visiblePage?: DayPageData) {
-  if (!photoTypes.has(file.type) || !file.size || file.size > 25_000_000) throw new Error('Выберите фото JPEG, PNG, WebP или HEIC размером до 25 МБ.')
+  const contentType = workFileContentType(file)
+  if (!contentType || !file.size || file.size > maxWorkFileSize) throw new Error('Выберите фото, PDF, документ, таблицу, презентацию или текстовый файл размером до 25 МБ.')
   const deviceUid = getAuth().currentUser?.uid
   if (!deviceUid) throw new Error('Сначала откройте личную ссылку Education.')
   const sha256 = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', await file.arrayBuffer())), (byte) => byte.toString(16).padStart(2, '0')).join('')
@@ -372,20 +373,20 @@ export async function uploadDayPhoto(studentToken: string, taskId: string, file:
       && (data?.eventOperationId === transferEvent.operationId || isLegacyConfirmedReceipt)
       && data?.eventReceiptId === expectedReceiptId
       && data?.eventProducerVersion === 1) return uploadId
-    if (data?.status === 'upload-error') throw new Error('Передача этого фото ожидает повтора обработчиком. Не создавайте новую заявку; попробуйте позже.')
-    throw new Error('Фото с таким идентификатором уже существует с другими данными. Обновите страницу и выберите фото заново.')
+    if (data?.status === 'upload-error') throw new Error('Передача этого файла ожидает повтора обработчиком. Не создавайте новую заявку; попробуйте позже.')
+    throw new Error('Файл с таким идентификатором уже существует с другими данными. Обновите страницу и выберите файл заново.')
   }
   const pageSnapshot = await getDocFromServer(doc(db, 'dayPages', studentToken))
   const currentPage = pageSnapshot.exists() ? normalizeDayPage(pageSnapshot.data()) : undefined
   if (visiblePage && (!taskConditionOnPage(visiblePage, taskId) || !taskConditionOnPage(currentPage, taskId)
     || taskConditionOnPage(visiblePage, taskId) !== taskConditionOnPage(currentPage, taskId))) {
-    throw new Error('Условие задания изменилось. Обновите страницу и проверьте карточку перед отправкой фото.')
+    throw new Error('Условие задания изменилось. Обновите страницу и проверьте карточку перед отправкой файла.')
   }
   const revision = currentPage?.planRevision
   if (!Number.isInteger(revision)) throw new Error('Не найдена текущая версия задания. Обновите страницу.')
   try {
     const batch = writeBatch(db)
-    batch.set(ref, { taskId, planRevision: revision, deviceUid, contentType: file.type, size: file.size, sha256,
+    batch.set(ref, { taskId, planRevision: revision, deviceUid, contentType, originalName: file.name.slice(0, 160) || 'Файл', size: file.size, sha256,
       status: 'requested', createdAt: serverTimestamp(), eventOperationId, eventReceiptId: envelope.eventId, eventProducerVersion: 1 })
     stagePreparedEducationEvent(batch, envelope)
     await batch.commit()

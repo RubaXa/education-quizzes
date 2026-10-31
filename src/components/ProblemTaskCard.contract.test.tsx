@@ -15,7 +15,7 @@ describe('one upload action per numbered problem', () => {
       const html = renderToStaticMarkup(<ProblemTaskCard problem={problem}
         state={{ tone, label: tone === 'verified' ? 'Подтверждено' : 'Не начато' }}
         links={[]} parent={false} uploads={[]} helpAccess="ready" onPhotos={() => undefined} />)
-      expect(html).toContain('Добавить фото')
+      expect(html).toContain('Загрузить ')
       expect(html).toContain('class="problem-card-upload"')
       expect(html).toContain(`id="${problem.id}"`)
       expect(html).not.toContain(`id="${problem.id}" open=""`)
@@ -52,7 +52,7 @@ describe('stable numbered problem layers', () => {
   it('does not show a photo upload action to the parent', () => {
     const html = renderToStaticMarkup(<ProblemTaskCard problem={problem} state={{ tone: 'ready', label: 'Не начато' }}
       links={[]} parent guide={guide} uploads={[]} helpAccess="ready" onPhotos={() => undefined} />)
-    expect(html).not.toContain('Добавить фото решения')
+    expect(html).not.toContain('Загрузить решение')
     expect(html).not.toContain('problem-card-upload')
   })
 

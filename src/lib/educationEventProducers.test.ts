@@ -92,6 +92,15 @@ describe('Firestore education event producers', () => {
     expect(events.some((event) => event.eventId === source?.eventReceiptId)).toBe(true)
   })
 
+  it.each([['solution.PDF', '', 'application/pdf'], ['solution.docx', 'application/octet-stream', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'], ['solution.xlsx', '', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'], ['solution.txt', 'text/plain', 'text/plain']])('queues %s with original name, normalized MIME and the same event boundary', async (name, type, expected) => {
+    const file = new File(['private solution'], name, { type })
+    const id = 'document-request-1234567890'
+    await uploadDayPhoto('day-token', 'task-1', file, id)
+    expect(harness.docs.get(`dayUploads/day-token/files/${id}`)).toMatchObject({ originalName: name, contentType: expected, status: 'requested', taskId: 'task-1' })
+    expect(harness.batches[0]).toHaveLength(2)
+    expect(JSON.stringify(eventDocs())).not.toContain('private solution')
+  })
+
   it('pairs a requested photo upload with the shared queue using source identifiers only', async () => {
     const file = new File(['private photo bytes'], 'work.png', { type: 'image/png' })
     const uploadId = 'upload-request-1234567890'
@@ -117,7 +126,7 @@ describe('Firestore education event producers', () => {
     }) as typeof indexedDB.open)
 
     await expect(uploadDayPhoto('day-token', 'task-1', file, uploadId))
-      .rejects.toThrow('Не удалось сохранить фото на этом устройстве. Оставьте страницу открытой, не закрывайте её и повторите попытку.')
+      .rejects.toThrow('Не удалось сохранить файл на этом устройстве. Оставьте страницу открытой, не закрывайте её и повторите попытку.')
 
     expect(harness.docs.has(`dayUploads/day-token/files/${uploadId}`)).toBe(false)
     expect(eventDocs()).toHaveLength(0)
@@ -133,7 +142,7 @@ describe('Firestore education event producers', () => {
       return request
     }) as typeof indexedDB.open)
 
-    await expect(uploadDayPhoto('day-token', 'task-1', file, uploadId)).rejects.toThrow(/Не удалось сохранить фото/)
+    await expect(uploadDayPhoto('day-token', 'task-1', file, uploadId)).rejects.toThrow(/Не удалось сохранить файл/)
     expect(harness.docs.has(`dayUploads/day-token/files/${uploadId}`)).toBe(false)
     expect(eventDocs()).toHaveLength(0)
     expect(harness.batches).toHaveLength(0)

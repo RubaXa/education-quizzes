@@ -42,11 +42,11 @@ it.each([true, false])('formats authored prose through the actual shared task co
     expect(html).toContain('14 + 12 + ... + 2 = 56')
     expect(html).toContain('14 + 12 + … + 2 = 56')
     expect(html).toContain('56 отрезков')
-    expect(html).not.toContain('Добавить фото')
+    expect(html).not.toContain('Загрузить ')
   } else {
     expect(html).toContain('Подсказка: начни с 0 до 14.')
     expect(html).not.toContain('Разбор для родителя')
-    expect(html).toContain('Добавить фото')
+    expect(html).toContain('Загрузить ')
   }
   expect(JSON.stringify({ guide, review, problem })).toBe(before)
 })

@@ -1,3 +1,4 @@
+import { workFileContentType } from '../storage/work-file-types.mjs'
 /* @see ../docs/decisions/weekend-parent-actions-2026-10-18.md */
 /* @see ../docs/decisions/work-photo-expand-2026-10-18.md */
 /* @see ../docs/decisions/upload-origin-links-2026-10-18.md */
@@ -20,7 +21,7 @@ import { canAcceptCorrectAnswer, parentAccepted, practiceRequired, recordParentC
 import { reportUiError } from '@/lib/uiErrors'
 import './WeekendMathSlot.css'
 
-type LocalPhoto = { id: string; taskId: string; url: string; state: 'uploading' | 'failed'; error?: string }
+type LocalPhoto = { originalName?: string; contentType?: string; id: string; taskId: string; url: string; state: 'uploading' | 'failed'; error?: string }
 function shortDate(date: string) { return new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long', timeZone: 'Europe/Moscow' }).format(new Date(`${date}T12:00:00+03:00`)) }
 
 export default function WeekendMathSlot({ token, taskIds, parent, lessonDate, dueDate, title }: { token: string; taskIds: string[]; parent: boolean; lessonDate?: string; dueDate: string; title: string }) {
@@ -74,7 +75,7 @@ export default function WeekendMathSlot({ token, taskIds, parent, lessonDate, du
       const id = crypto.randomUUID()
       const url = URL.createObjectURL(file)
       previewUrls.current.add(url)
-      setLocal((current) => [...current, { id, taskId, url, state: 'uploading' }])
+      setLocal((current) => [...current, { id, taskId, url, originalName: file.name, contentType: workFileContentType(file), state: 'uploading' }])
       void uploadDayPhoto(studentToken, taskId, file, id, page).catch((cause) => {
         reportUiError(cause, 'Загрузка фото')
         setLocal((current) => current.map((item) => item.id === id ? { ...item, state: 'failed', error: cause instanceof Error ? cause.message : 'Фото не загрузилось.' } : item))

@@ -115,7 +115,7 @@ it('previews the source question using the shared local photo control',async()=>
  await act(async()=>[...host.querySelectorAll<HTMLButtonElement>('nav button')].find(button=>button.textContent==='Уточнение материала')!.click())
  expect(host.querySelector('[aria-label="Уточнение материала"]')).not.toBeNull()
  const input=host.querySelector<HTMLInputElement>('.day-upload input')!
- expect(input.accept).toBe('image/*');expect(input.multiple).toBe(true)
+ expect(input.accept).toContain('image/*'); expect(input.accept).toContain('.pdf'); expect(input.accept).toContain('.docx'); expect(input.accept).toContain('.xlsx'); expect(input.accept).toContain('.txt');expect(input.multiple).toBe(true)
  Object.defineProperty(input,'files',{value:[new File(['demo'],'notes.jpg',{type:'image/jpeg'})],configurable:true})
  await act(async()=>input.dispatchEvent(new Event('change',{bubbles:true})))
  expect(host.textContent).toContain('Выбрано файлов: 1')

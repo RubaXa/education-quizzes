@@ -1,3 +1,4 @@
+import { workFilePresentation } from '../../storage/work-file-types.mjs'
 /** @see ../../docs/decisions/personal-tutoring-2026-10-30.md */
 /** @see ../../docs/decisions/collapsed-variant-status-2026-10-21.md
  * @see ../../docs/decisions/photo-transfer-recovery-2026-10-22.md */
@@ -28,6 +29,7 @@ export default function WorkReview({ review, uploads, accepted = false, canDecid
 }) {
   const [saving, setSaving] = useState(false)
   const [decisionError, setDecisionError] = useState('')
+  const receivedLabel = uploads.some(upload => workFilePresentation(upload).kind !== 'photo') ? 'Работа получена' : 'Фото получено'
   const pending = uploads.filter((upload) => upload.status === 'pending')
   const processing = activeProcessing(review, uploads)
   const [now, setNow] = useState(() => Date.now())
@@ -76,7 +78,7 @@ export default function WorkReview({ review, uploads, accepted = false, canDecid
   return <div className="day-review-stack">
     {pending.length > 0 && <div className={`day-review-progress${running ? ' active' : ''}`} role="status" aria-live="polite">
       <span className="day-review-progress-icon"><ArtifactStatusGlyph state={running ? 'processing' : paused || stale ? 'paused' : 'waiting'} size={17} /></span>
-      <span className="day-review-progress-text"><b>{stale ? 'Проверка задерживается' : paused ? 'Фото получено · проверка задержана' : processing?.label ?? 'Фото получено · ждёт проверки'}</b><small>{paused ? processing?.reason ?? 'Причина остановки пока не указана. Фото получено; повторно загружать его не нужно.' : running ? 'Разбор идёт' : stale ? 'Последний этап давно не обновлялся' : 'Начнём после запуска проверки'}</small></span>
+      <span className="day-review-progress-text"><b>{stale ? 'Проверка задерживается' : paused ? `${receivedLabel} · проверка задержана` : processing?.label ?? `${receivedLabel} · ждёт проверки`}</b><small>{paused ? processing?.reason ?? `Причина остановки пока не указана. ${receivedLabel}; повторно загружать файл не нужно.` : running ? 'Разбор идёт' : stale ? 'Последний этап давно не обновлялся' : 'Начнём после запуска проверки'}</small></span>
       {!paused && <time aria-hidden="true">{elapsed}</time>}
     </div>}
 
