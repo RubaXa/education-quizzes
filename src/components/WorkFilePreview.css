@@ -4,6 +4,6 @@
 .work-file-preview a{display:inline-flex;align-items:center;gap:5px;color:var(--edu-accent-ink);font-size:.85rem}
 .work-file-format{font-size:.65rem;font-weight:750;line-height:1;white-space:nowrap;overflow-wrap:normal;word-break:normal}
 .work-file-preview-compact{position:relative;width:32px;height:32px;gap:1px;padding:0;background:var(--edu-hover)}
-.work-file-preview-compact .work-file-format{align-self:flex-start;max-width:100%;padding-left:1px;font-size:7px}
+.work-file-preview-compact .work-file-format{align-self:flex-start;max-width:100%;padding-left:0;font-size:7px;letter-spacing:-.5px}
 
 .work-file-preview-image:not(.work-file-preview-compact) .education-image{width:100%;max-width:640px}
