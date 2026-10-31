@@ -8,7 +8,7 @@ export function timestampKey(value) {
 const dateOf=value=>new Date(Number(timestampKey(value).split(':')[0])*1000).toISOString().slice(0,10)
 const safeText=(v,max)=>typeof v==='string'&&v.trim()&&v.length<=max?v:null
 export function taskCredit(review,decisions=[]) {
- if(!review||review.purpose==='source-material'||!timestampKey(review.checkedAt))return null
+ if(!review||review.purpose==='source-material'||review.status==='cannot-assess'||!timestampKey(review.checkedAt))return null
  if(review.status==='verified')return 'review'
  const ids=review.checkableStageIds
  if(Array.isArray(ids)&&ids.length&&new Set(ids).size===ids.length&&ids.every(id=>{
@@ -46,11 +46,11 @@ export function projectPreparation(route,states,previous) {
  const result=structuredClone(route.baseline), tasks=[]
  for(const c of route.candidates){
   const state=states[c.taskId],r=state?.review
-  if(!state?.available||r?.purpose==='source-material'||!['verified','partial','needs-fix'].includes(r?.status)||!timestampKey(r.checkedAt))continue
+  if(!state?.available||r?.purpose==='source-material'||!['verified','partial','needs-fix','cannot-assess'].includes(r?.status)||!timestampKey(r.checkedAt))continue
   const credited=taskCredit(r,state.decisions), prior=previous?.progress?.tasks.find(t=>t.taskId===c.taskId)
   const at=timestampKey(r.correctedAt)?r.correctedAt:r.checkedAt
   tasks.push({taskId:c.taskId,title:c.title,status:r.status,reviewVersion:historyDigest(r),checkedOn:dateOf(at),credited,
-   confirmed:safeText(r.studentFeedback?.confirmed,2000),focus:credited?null:safeText(r.studentFeedback?.focus,2000),
+   confirmed:r.status==='cannot-assess'?null:safeText(r.studentFeedback?.confirmed,2000),focus:credited||r.status==='cannot-assess'?null:safeText(r.studentFeedback?.focus,2000),
    achievedOn:prior?.achievedOn??(credited?dateOf(at):null)})
  }
  const credited=id=>Boolean(tasks.find(t=>t.taskId===id)?.credited)
@@ -61,7 +61,8 @@ export function projectPreparation(route,states,previous) {
  const candidate=route.candidates.find(c=>states[c.taskId]?.available&&!credited(c.taskId))
  const focus=tasks.find(t=>t.taskId===candidate?.taskId)?.focus
  const reviewed=candidate&&tasks.some(t=>t.taskId===candidate.taskId)
- const reason=safeText(focus,240)??(reviewed?'Продолжить с текущего вопроса в разборе. Зачтённые части сохраняются.':candidate?.reason)
+ const needsEvidence=states[candidate?.taskId]?.review?.status==='cannot-assess'
+ const reason=needsEvidence?'Открыть разбор и уточнить недостающий материал.':safeText(focus,240)??(reviewed?'Продолжить с текущего вопроса в разборе. Зачтённые части сохраняются.':candidate?.reason)
  result.next=candidate?{taskId:candidate.taskId,title:candidate.title,reason,evidenceIds:candidate.evidenceIds}:null
  // Retain first achievements even when a task is withdrawn or a review is corrected.
  for(const prior of previous?.progress?.tasks??[])if(prior.achievedOn&&!tasks.some(t=>t.taskId===prior.taskId))tasks.push({...prior,credited:null,focus:null})
