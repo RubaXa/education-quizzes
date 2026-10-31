@@ -2,8 +2,8 @@
 .work-file-preview{display:flex;flex-direction:column;align-items:center;gap:8px;box-sizing:border-box;min-width:0;max-width:100%;padding:24px 32px;color:var(--edu-brand);background:var(--edu-surface);border-radius:8px}
 .work-file-preview strong{max-width:100%;overflow-wrap:anywhere;color:var(--edu-text-primary);font-size:.9rem}
 .work-file-preview a{display:inline-flex;align-items:center;gap:5px;color:var(--edu-accent-ink);font-size:.85rem}
-.work-file-format{font-size:.65rem;font-weight:750;line-height:1}
+.work-file-format{font-size:.65rem;font-weight:750;line-height:1;white-space:nowrap;overflow-wrap:normal;word-break:normal}
 .work-file-preview-compact{position:relative;width:32px;height:32px;gap:1px;padding:0;background:var(--edu-hover)}
-.work-file-preview-compact .work-file-format{align-self:flex-start;max-width:19px;padding-left:1px;font-size:7px}
+.work-file-preview-compact .work-file-format{align-self:flex-start;max-width:100%;padding-left:1px;font-size:7px}
 
 .work-file-preview-image:not(.work-file-preview-compact) .education-image{width:100%;max-width:640px}
