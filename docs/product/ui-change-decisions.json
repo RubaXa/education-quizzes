@@ -3974,7 +3974,7 @@
       }
     },
     "src/education-design-tokens.css": {
-      "sha256": "04698ff1190df97bc2db8cc492f7bf24431c5f40719f2ae3db0358a2035a3192",
+      "sha256": "91e60401af2854dafb6d4ed829b579067c00037e23045e10406e52aa9fe2f651",
       "record": "docs/decisions/review-readability-repair-2026-10-31.md",
       "specs": [
         "docs/shared/design/compact-review.md"
@@ -3982,7 +3982,8 @@
       "tests": [
         "src/components/WorkReview.compact.test.tsx",
         "src/components/ReviewBrief.test.tsx",
-        "storage/tutoring-decision.test.mjs"
+        "storage/tutoring-decision.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
@@ -7050,7 +7051,7 @@
       }
     },
     "scripts/check-review-brief-viewport.mjs": {
-      "sha256": "a4b58d8f25757398537cbc81c357225541a917a7fb28eb73012bfcf7cfd6f690",
+      "sha256": "fa4cc539eeea104182a5dc37082e4bb2096fe615839f06f424ce89a1ddab97cc",
       "record": "docs/decisions/review-readability-repair-2026-10-31.md",
       "specs": [
         "docs/shared/design/compact-review.md"
@@ -7058,7 +7059,8 @@
       "tests": [
         "src/components/WorkReview.compact.test.tsx",
         "src/components/ReviewBrief.test.tsx",
-        "storage/tutoring-decision.test.mjs"
+        "storage/tutoring-decision.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",

@@ -6270,6 +6270,13 @@
       "consumer": "Разбор; UI Kit; проверка"
     },
     {
+      "id": "file:scripts/check-review-brief-viewport.test.mjs",
+      "path": "scripts/check-review-brief-viewport.test.mjs",
+      "kind": "verification",
+      "purpose": "Обязательная браузерная проверка старого длинного разбора и реального production CSS",
+      "consumer": "npm check; оператор выпуска"
+    },
+    {
       "id": "file:scripts/check-schedule-viewport.mjs",
       "path": "scripts/check-schedule-viewport.mjs",
       "kind": "artifact",
@@ -23904,6 +23911,11 @@
     {
       "from": "shared.design.compact-review",
       "to": "file:packages/education-presentation/review-content.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "shared.design.compact-review",
+      "to": "file:scripts/check-review-brief-viewport.test.mjs",
       "type": "verified-by"
     },
     {
