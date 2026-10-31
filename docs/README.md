@@ -32,6 +32,7 @@ sections:
 | Карточка, статус, экран или изображение | [Дизайн-система](shared/design/README.md) | [Компоненты](shared/design/components.md), [контроль UI](product/ui-change-control.md) |
 | Фото/PDF или передача на Диск | [Материалы](modules/materials/README.md) | [Upload worker](services/upload-worker/README.md), [хранение](shared/media-storage.md) |
 | Проверка работы или предметная помощь | [Reviews](modules/reviews/README.md) | [Основания проверки](modules/reviews/review-criteria-provenance.md), [статус задания](modules/assignments/README.md) |
+| Плотность и визуализация всех разборов | [Общий формат](shared/design/compact-review.md) | [UI Kit](shared/design/ui-kit.md), [предметная помощь](modules/reviews/subject-aware-guidance.md) |
 | Тест, попытка или продолжение | [Assessments](modules/assessments/README.md) | [Граф самопроверок](modules/assessments/assessment-decision-graph.md) |
 | Подготовка к олимпиаде, игровой урок, результаты и адаптация | [Проект сценария](product/olympiad-preparation.md) | [Предметная модель](modules/assessments/olympiad-preparation.md), [UI Kit](shared/design/ui-kit.md) |
 | Встроенный inbox | [Notifications](modules/notifications/README.md) | [In-app события](modules/notifications/inbox.md) |

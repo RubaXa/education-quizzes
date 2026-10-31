@@ -757,6 +757,86 @@
       "path": "docs/decisions/collapsed-variant-status-2026-10-21.md"
     },
     {
+      "id": "decision.compact-review-rollout-2026-10-31",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-31",
+      "updated": "2026-10-31",
+      "parent": "shared.design.compact-review",
+      "uses": [
+        "shared.design.ui-kit",
+        "module.reviews.subject-aware-guidance"
+      ],
+      "consumers": [
+        "student",
+        "parent",
+        "review author",
+        "frontend developer"
+      ],
+      "code": [
+        "src/UiKit.tsx",
+        "src/components/ParentTaskGuide.tsx",
+        "src/components/PhotoHelpRequest.tsx",
+        "src/components/QuizResultCard.tsx",
+        "src/components/TaskGuidance.tsx",
+        "src/components/WorkReview.tsx",
+        "src/education-design-tokens.css",
+        "src/lib/dayStore.ts",
+        "storage/review-projection.mjs",
+        "storage/tutoring-decision.mjs",
+        "packages/education-presentation/review-content.mjs",
+        "scripts/check-review-brief-viewport.mjs",
+        "src/components/QuizResultCard.css",
+        "src/components/ReviewBrief.css",
+        "src/components/ReviewBrief.tsx",
+        "src/components/ReviewBriefShowcase.tsx",
+        "src/components/ReviewTypography.css",
+        "src/components/WorkReview.css",
+        "src/lib/reviewBriefExamples.ts",
+        "src/lib/workReviewBrief.ts"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/compact-review-rollout-2026-10-31.md"
+    },
+    {
+      "id": "decision.compact-review-ui-kit-2026-10-31",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-10-31",
+      "updated": "2026-10-31",
+      "parent": "shared.design.ui-kit",
+      "uses": [
+        "shared.design.compact-review",
+        "research.compact-review-2026-10-31"
+      ],
+      "consumers": [
+        "frontend developer"
+      ],
+      "code": [
+        "src/components/ReviewBrief.tsx",
+        "src/components/ReviewBrief.css",
+        "src/components/ReviewBriefShowcase.tsx",
+        "src/lib/reviewBriefExamples.ts",
+        "src/education-design-tokens.css",
+        "src/UiKit.tsx",
+        "scripts/check-review-brief-viewport.mjs"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/compact-review-ui-kit-2026-10-31.md"
+    },
+    {
       "id": "decision.course-placement-2026-10-18",
       "status": "accepted",
       "implementation": "not-applicable",
@@ -5168,6 +5248,27 @@
       "consumer": "Renderer; UI Kit; оператор; Vitest"
     },
     {
+      "id": "file:packages/education-presentation/review-content.d.mts",
+      "path": "packages/education-presentation/review-content.d.mts",
+      "kind": "artifact",
+      "purpose": "Общие доменные типы визуальных представлений и дополнительных пояснений",
+      "consumer": "CLI; клиент; UI Kit"
+    },
+    {
+      "id": "file:packages/education-presentation/review-content.mjs",
+      "path": "packages/education-presentation/review-content.mjs",
+      "kind": "artifact",
+      "purpose": "Единый ограниченный allowlist публичных схем и пояснений для CLI и клиента",
+      "consumer": "CLI; клиент; UI Kit"
+    },
+    {
+      "id": "file:packages/education-presentation/review-content.test.mjs",
+      "path": "packages/education-presentation/review-content.test.mjs",
+      "kind": "verification",
+      "purpose": "Отказ от закрытых вложенных полей и неподдерживаемых визуальных данных",
+      "consumer": "CLI; клиент; UI Kit"
+    },
+    {
       "id": "file:packages/education-runtime/credentials.mjs",
       "path": "packages/education-runtime/credentials.mjs",
       "kind": "artifact",
@@ -6062,6 +6163,13 @@
       "kind": "verification",
       "purpose": "Новые запрещённые подписи отклоняются; доступность, цитаты и данные разрешены",
       "consumer": "Vitest"
+    },
+    {
+      "id": "file:scripts/check-review-brief-viewport.mjs",
+      "path": "scripts/check-review-brief-viewport.mjs",
+      "kind": "artifact",
+      "purpose": "Браузерная проверка настоящего React и CSS, плотности и раскрытий",
+      "consumer": "Разбор; UI Kit; проверка"
     },
     {
       "id": "file:scripts/check-schedule-viewport.mjs",
@@ -7422,6 +7530,13 @@
       "consumer": "`src/App.tsx`; `src/DayPage.tsx`; UI Kit"
     },
     {
+      "id": "file:src/components/QuizResultCard.css",
+      "path": "src/components/QuizResultCard.css",
+      "kind": "artifact",
+      "purpose": "Код и ссылка на источник в компактном результате теста",
+      "consumer": "Разбор; UI Kit; проверка"
+    },
+    {
       "id": "file:src/components/QuizResultCard.test.tsx",
       "path": "src/components/QuizResultCard.test.tsx",
       "kind": "verification",
@@ -7464,11 +7579,46 @@
       "consumer": "`ParentTaskGuide.tsx`; `WorkReview.tsx`; `QuizCard.tsx`"
     },
     {
+      "id": "file:src/components/ReviewBrief.css",
+      "path": "src/components/ReviewBrief.css",
+      "kind": "artifact",
+      "purpose": "Общая плотность, текст, статусы и раскрытия без вложенных цветных панелей",
+      "consumer": "Разбор; UI Kit; проверка"
+    },
+    {
+      "id": "file:src/components/ReviewBrief.test.tsx",
+      "path": "src/components/ReviewBrief.test.tsx",
+      "kind": "verification",
+      "purpose": "Сохранение исходной записи, одного вопроса, состояния и независимых раскрытий",
+      "consumer": "Разбор; UI Kit; проверка"
+    },
+    {
+      "id": "file:src/components/ReviewBrief.tsx",
+      "path": "src/components/ReviewBrief.tsx",
+      "kind": "artifact",
+      "purpose": "Общая композиция краткого разбора и типизированных предметных представлений",
+      "consumer": "Разбор; UI Kit; проверка"
+    },
+    {
+      "id": "file:src/components/ReviewBriefShowcase.tsx",
+      "path": "src/components/ReviewBriefShowcase.tsx",
+      "kind": "artifact",
+      "purpose": "Реальные адаптеры письменного разбора и теста на синтетических данных",
+      "consumer": "Разбор; UI Kit; проверка"
+    },
+    {
       "id": "file:src/components/ReviewProse.integration.test.tsx",
       "path": "src/components/ReviewProse.integration.test.tsx",
       "kind": "verification",
       "purpose": "Реальная карточка обеих ролей, legacy, preview/send и сохранение источников",
       "consumer": "Vitest"
+    },
+    {
+      "id": "file:src/components/ReviewTypography.css",
+      "path": "src/components/ReviewTypography.css",
+      "kind": "artifact",
+      "purpose": "Общая плотность полного родительского пути и разрешённой помощи",
+      "consumer": "Разбор; UI Kit; проверка"
     },
     {
       "id": "file:src/components/SharedTabs.tsx",
@@ -7721,6 +7871,20 @@
       "kind": "artifact",
       "purpose": "Единая галерея: действия, доступное время и видимая ошибка передачи с повтором того же фото",
       "consumer": "День; выходные; UI Kit"
+    },
+    {
+      "id": "file:src/components/WorkReview.compact.test.tsx",
+      "path": "src/components/WorkReview.compact.test.tsx",
+      "kind": "verification",
+      "purpose": "Порядок вопроса и пояснений, обе роли, история и ожидание новой работы",
+      "consumer": "Разбор; UI Kit; проверка"
+    },
+    {
+      "id": "file:src/components/WorkReview.css",
+      "path": "src/components/WorkReview.css",
+      "kind": "artifact",
+      "purpose": "Компактные требования, основания, история и семейные действия в общем разборе",
+      "consumer": "Разбор; UI Kit; проверка"
     },
     {
       "id": "file:src/components/WorkReview.requirements.test.tsx",
@@ -8493,6 +8657,13 @@
       "consumer": "ui/result; QuizCard"
     },
     {
+      "id": "file:src/lib/reviewBriefExamples.ts",
+      "path": "src/lib/reviewBriefExamples.ts",
+      "kind": "artifact",
+      "purpose": "Синтетические предметные образцы общего API без данных ученика",
+      "consumer": "Разбор; UI Kit; проверка"
+    },
+    {
       "id": "file:src/lib/reviewPresentation.test.ts",
       "path": "src/lib/reviewPresentation.test.ts",
       "kind": "verification",
@@ -8701,6 +8872,13 @@
       "kind": "artifact",
       "purpose": "Подписка на текущую попытку и оценку без перезагрузки",
       "consumer": "`src/lib/useDayQuizOutcomes.ts`"
+    },
+    {
+      "id": "file:src/lib/workReviewBrief.ts",
+      "path": "src/lib/workReviewBrief.ts",
+      "kind": "artifact",
+      "purpose": "Чистый адаптер текущего разбора в общую модель без новых педагогических выводов",
+      "consumer": "Разбор; UI Kit; проверка"
     },
     {
       "id": "file:src/lib/writeQueue.test.ts",
@@ -11739,6 +11917,27 @@
       "path": "docs/research/assessment-source-catalog.md"
     },
     {
+      "id": "research.compact-review-2026-10-31",
+      "status": "reference",
+      "implementation": "not-applicable",
+      "created": "2026-10-31",
+      "updated": "2026-10-31",
+      "parent": "shared.design",
+      "uses": [],
+      "consumers": [
+        "review author",
+        "frontend developer"
+      ],
+      "code": [],
+      "sections": [
+        "problem",
+        "sources",
+        "proposal",
+        "limits"
+      ],
+      "path": "docs/research/compact-review-2026-10-31.md"
+    },
+    {
       "id": "research.condition-transcript-and-scaffold",
       "status": "reference",
       "implementation": "not-applicable",
@@ -12893,6 +13092,44 @@
       "path": "docs/shared/design/README.md"
     },
     {
+      "id": "shared.design.compact-review",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-31",
+      "updated": "2026-10-31",
+      "parent": "shared.design",
+      "uses": [
+        "module.reviews.subject-aware-guidance",
+        "shared.access-and-privacy",
+        "research.compact-review-2026-10-31"
+      ],
+      "consumers": [
+        "UI Kit",
+        "review author",
+        "frontend developer"
+      ],
+      "code": [
+        "src/components/ReviewBrief.tsx",
+        "src/components/ReviewBrief.css",
+        "src/components/ReviewBriefShowcase.tsx",
+        "src/lib/reviewBriefExamples.ts",
+        "scripts/check-review-brief-viewport.mjs"
+      ],
+      "sections": [
+        "purpose",
+        "content",
+        "representations",
+        "geometry",
+        "data",
+        "showcase",
+        "verification",
+        "coverage",
+        "quiz",
+        "implementation"
+      ],
+      "path": "docs/shared/design/compact-review.md"
+    },
+    {
       "id": "shared.design.components",
       "status": "accepted",
       "implementation": "partial",
@@ -13038,9 +13275,11 @@
       ],
       "parent": "shared.design",
       "uses": [
-        "shared.design"
+        "shared.design",
+        "shared.design.compact-review"
       ],
       "sections": [
+        "компактный-разбор",
         "страница-и-навигация",
         "один-источник-реализации",
         "первый-набор",
@@ -13456,6 +13695,26 @@
     {
       "from": "decision.collapsed-variant-status-2026-10-21",
       "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
+      "from": "decision.compact-review-rollout-2026-10-31",
+      "to": "module.reviews.subject-aware-guidance",
+      "type": "uses"
+    },
+    {
+      "from": "decision.compact-review-rollout-2026-10-31",
+      "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
+      "from": "decision.compact-review-ui-kit-2026-10-31",
+      "to": "research.compact-review-2026-10-31",
+      "type": "uses"
+    },
+    {
+      "from": "decision.compact-review-ui-kit-2026-10-31",
+      "to": "shared.design.compact-review",
       "type": "uses"
     },
     {
@@ -15189,6 +15448,21 @@
       "type": "implements"
     },
     {
+      "from": "file:packages/education-presentation/review-content.d.mts",
+      "to": "shared.design.compact-review",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-presentation/review-content.mjs",
+      "to": "decision.compact-review-rollout-2026-10-31",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-presentation/review-content.mjs",
+      "to": "shared.design.compact-review",
+      "type": "implements"
+    },
+    {
       "from": "file:packages/education-runtime/credentials.mjs",
       "to": "shared.server-runtime",
       "type": "implements"
@@ -15746,6 +16020,21 @@
     {
       "from": "file:scripts/check-requirement-copy.mjs",
       "to": "shared.design",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/check-review-brief-viewport.mjs",
+      "to": "decision.compact-review-rollout-2026-10-31",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/check-review-brief-viewport.mjs",
+      "to": "decision.compact-review-ui-kit-2026-10-31",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/check-review-brief-viewport.mjs",
+      "to": "shared.design.compact-review",
       "type": "implements"
     },
     {
@@ -17110,6 +17399,11 @@
     },
     {
       "from": "file:src/components/ParentTaskGuide.tsx",
+      "to": "decision.compact-review-rollout-2026-10-31",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ParentTaskGuide.tsx",
       "to": "decision.released-stage-parity-2026-10-20",
       "type": "implements"
     },
@@ -17186,6 +17480,11 @@
     {
       "from": "file:src/components/PhotoHelpPanel.tsx",
       "to": "module.olympiad-preparation",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/PhotoHelpRequest.tsx",
+      "to": "decision.compact-review-rollout-2026-10-31",
       "type": "implements"
     },
     {
@@ -17394,6 +17693,21 @@
       "type": "implements"
     },
     {
+      "from": "file:src/components/QuizResultCard.css",
+      "to": "decision.compact-review-rollout-2026-10-31",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/QuizResultCard.css",
+      "to": "shared.design.compact-review",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/QuizResultCard.tsx",
+      "to": "decision.compact-review-rollout-2026-10-31",
+      "type": "implements"
+    },
+    {
       "from": "file:src/components/QuizResultCard.tsx",
       "to": "module.assessments.quizzes",
       "type": "implements"
@@ -17416,6 +17730,61 @@
     {
       "from": "file:src/components/RequirementSwitch.tsx",
       "to": "shared.design",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ReviewBrief.css",
+      "to": "decision.compact-review-rollout-2026-10-31",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ReviewBrief.css",
+      "to": "decision.compact-review-ui-kit-2026-10-31",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ReviewBrief.css",
+      "to": "shared.design.compact-review",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ReviewBrief.tsx",
+      "to": "decision.compact-review-rollout-2026-10-31",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ReviewBrief.tsx",
+      "to": "decision.compact-review-ui-kit-2026-10-31",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ReviewBrief.tsx",
+      "to": "shared.design.compact-review",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ReviewBriefShowcase.tsx",
+      "to": "decision.compact-review-rollout-2026-10-31",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ReviewBriefShowcase.tsx",
+      "to": "decision.compact-review-ui-kit-2026-10-31",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ReviewBriefShowcase.tsx",
+      "to": "shared.design.compact-review",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ReviewTypography.css",
+      "to": "decision.compact-review-rollout-2026-10-31",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ReviewTypography.css",
+      "to": "shared.design.compact-review",
       "type": "implements"
     },
     {
@@ -17491,6 +17860,11 @@
     {
       "from": "file:src/components/TaskGuidance.css",
       "to": "shared.design",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/TaskGuidance.tsx",
+      "to": "decision.compact-review-rollout-2026-10-31",
       "type": "implements"
     },
     {
@@ -17684,8 +18058,23 @@
       "type": "implements"
     },
     {
+      "from": "file:src/components/WorkReview.css",
+      "to": "decision.compact-review-rollout-2026-10-31",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/WorkReview.css",
+      "to": "shared.design.compact-review",
+      "type": "implements"
+    },
+    {
       "from": "file:src/components/WorkReview.tsx",
       "to": "decision.collapsed-variant-status-2026-10-21",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/WorkReview.tsx",
+      "to": "decision.compact-review-rollout-2026-10-31",
       "type": "implements"
     },
     {
@@ -17945,6 +18334,16 @@
     },
     {
       "from": "file:src/education-design-tokens.css",
+      "to": "decision.compact-review-rollout-2026-10-31",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/education-design-tokens.css",
+      "to": "decision.compact-review-ui-kit-2026-10-31",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/education-design-tokens.css",
       "to": "module.assessments.result-presentation-proposal",
       "type": "implements"
     },
@@ -18031,6 +18430,11 @@
     {
       "from": "file:src/lib/dayMaterialRefs.ts",
       "to": "module.materials.materials",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/dayStore.ts",
+      "to": "decision.compact-review-rollout-2026-10-31",
       "type": "implements"
     },
     {
@@ -18524,6 +18928,21 @@
       "type": "implements"
     },
     {
+      "from": "file:src/lib/reviewBriefExamples.ts",
+      "to": "decision.compact-review-rollout-2026-10-31",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/reviewBriefExamples.ts",
+      "to": "decision.compact-review-ui-kit-2026-10-31",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/reviewBriefExamples.ts",
+      "to": "shared.design.compact-review",
+      "type": "implements"
+    },
+    {
       "from": "file:src/lib/reviewPresentation.ts",
       "to": "decision.photo-transfer-recovery-2026-10-22",
       "type": "implements"
@@ -18709,6 +19128,16 @@
       "type": "implements"
     },
     {
+      "from": "file:src/lib/workReviewBrief.ts",
+      "to": "decision.compact-review-rollout-2026-10-31",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/workReviewBrief.ts",
+      "to": "shared.design.compact-review",
+      "type": "implements"
+    },
+    {
       "from": "file:src/lib/writeQueue.ts",
       "to": "module.assessments.quizzes",
       "type": "implements"
@@ -18741,6 +19170,16 @@
     {
       "from": "file:src/UiKit.tsx",
       "to": "decision.collapsed-variant-status-2026-10-21",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/UiKit.tsx",
+      "to": "decision.compact-review-rollout-2026-10-31",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/UiKit.tsx",
+      "to": "decision.compact-review-ui-kit-2026-10-31",
       "type": "implements"
     },
     {
@@ -18930,6 +19369,11 @@
     },
     {
       "from": "file:storage/review-projection.mjs",
+      "to": "decision.compact-review-rollout-2026-10-31",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/review-projection.mjs",
       "to": "decision.personal-tutoring-2026-10-30",
       "type": "implements"
     },
@@ -18996,6 +19440,11 @@
     {
       "from": "file:storage/textbook-catalog.mjs",
       "to": "module.materials.materials",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/tutoring-decision.mjs",
+      "to": "decision.compact-review-rollout-2026-10-31",
       "type": "implements"
     },
     {
@@ -22999,6 +23448,41 @@
       "type": "contains"
     },
     {
+      "from": "shared.design.compact-review",
+      "to": "decision.compact-review-rollout-2026-10-31",
+      "type": "contains"
+    },
+    {
+      "from": "shared.design.compact-review",
+      "to": "file:packages/education-presentation/review-content.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "shared.design.compact-review",
+      "to": "file:src/components/ReviewBrief.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "shared.design.compact-review",
+      "to": "file:src/components/WorkReview.compact.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "shared.design.compact-review",
+      "to": "module.reviews.subject-aware-guidance",
+      "type": "uses"
+    },
+    {
+      "from": "shared.design.compact-review",
+      "to": "research.compact-review-2026-10-31",
+      "type": "uses"
+    },
+    {
+      "from": "shared.design.compact-review",
+      "to": "shared.access-and-privacy",
+      "type": "uses"
+    },
+    {
       "from": "shared.design.components",
       "to": "decision.canonical-attachment-controls-2026-10-31",
       "type": "contains"
@@ -23095,6 +23579,11 @@
     },
     {
       "from": "shared.design.ui-kit",
+      "to": "decision.compact-review-ui-kit-2026-10-31",
+      "type": "contains"
+    },
+    {
+      "from": "shared.design.ui-kit",
       "to": "decision.file-icon-catalog-2026-10-31",
       "type": "contains"
     },
@@ -23117,6 +23606,11 @@
       "from": "shared.design.ui-kit",
       "to": "file:src/UiKit.test.tsx",
       "type": "verified-by"
+    },
+    {
+      "from": "shared.design.ui-kit",
+      "to": "shared.design.compact-review",
+      "type": "uses"
     },
     {
       "from": "shared.design.ui-kit",
@@ -23151,6 +23645,16 @@
     {
       "from": "shared.design",
       "to": "plans.ui-component-decomposition-2026-10-27",
+      "type": "contains"
+    },
+    {
+      "from": "shared.design",
+      "to": "research.compact-review-2026-10-31",
+      "type": "contains"
+    },
+    {
+      "from": "shared.design",
+      "to": "shared.design.compact-review",
       "type": "contains"
     },
     {

@@ -1,7 +1,9 @@
+/** @see ../docs/decisions/compact-review-rollout-2026-10-31.md */
 /** @see ../docs/modules/reviews/subject-aware-guidance.md#tutor-decision
  * @see ../docs/decisions/personal-tutoring-2026-10-30.md */
 const gaps = new Set(['notation', 'execution', 'concept', 'strategy', 'completeness', 'recall'])
 const workTypes = new Set(['calculation', 'proof', 'construction', 'reading', 'retelling', 'composition', 'language-use', 'factual-explanation'])
+import { reviewSupplementErrors } from '../packages/education-presentation/review-content.mjs'
 
 /** Carry the current attempt, not twenty duplicate full solutions in every new dispatch. */
 export function previousTutoringContext(review) {
@@ -34,6 +36,9 @@ export function nextTutoringBranch(plan, observedReply) {
 export function tutoringPlanErrors(review) {
   if (review.purpose === 'source-material' || !review.status) return []
   const p = review.tutoringPlan, f = review.studentFeedback
+  const presentationErrors = reviewSupplementErrors(f?.presentation)
+  if (presentationErrors.length) return presentationErrors
+  if (f?.bridge !== undefined && (typeof f.bridge !== 'string' || !f.bridge.trim() || f.bridge.length > 700)) return ['Объясняющий переход должен быть коротким проверенным текстом.']
   if (!p || p.version !== 1 || p.taskId !== review.taskId || !workTypes.has(p.workType)) return ['Нужен адресный tutoringPlan с видом работы и taskId.']
   const acceptedStages = (review.items ?? []).filter(item => item.status === 'correct' && item.stageId).map(item => item.stageId).sort()
   const gapStage = review.items?.find(item => item.stageId === p.firstGapStageId)
@@ -51,7 +56,7 @@ export function tutoringPlanErrors(review) {
     || !['demonstrated', 'not-demonstrated', 'unknown'].includes(p.state.prerequisite)
     || selectTutoringMove(p.state) !== p.move) return ['Выбранная помощь не соответствует подтверждённому состоянию шага.']
   if (!f?.confirmed?.includes(p.acceptedConnection) || !f?.focus?.includes(p.gapExplanation)
-    || !f?.focus?.includes(p.bridge) || !text(f?.question)
+    || ![f?.focus,f?.bridge].filter(Boolean).join(' ').includes(p.bridge) || !text(f?.question)
     || f.anchor?.uploadId !== p.evidence.uploadId) return ['Объясняющий переход должен быть в видимом тексте, а не только в закрытом плане.']
   if ((!complete && (!p.branches || !['correct', 'partial', 'stuck', 'ambiguous'].every(key => text(p.branches[key]))
     || new Set(Object.values(p.branches)).size !== 4)) || !text(p.preserve)) return ['Нужны четыре разные адресные ветки ответа и граница уже зачтённого.']

@@ -1,0 +1,79 @@
+/** @see ../docs/decisions/compact-review-rollout-2026-10-31.md */
+/** Same React/CSS as UI Kit; no second maintained markup.
+ * @see ../docs/shared/design/compact-review.md#verification */
+/** @see ../docs/decisions/compact-review-ui-kit-2026-10-31.md */
+import { existsSync, mkdirSync, readFileSync } from 'node:fs'
+import { join, resolve } from 'node:path'
+import { createElement } from 'react'
+import { renderToStaticMarkup } from 'react-dom/server'
+import { createServer } from 'vite'
+
+const root = resolve(import.meta.dirname, '..')
+export async function loadReviewBriefFixture() {
+  const vite = await createServer({ root, server: { middlewareMode: true, hmr: false }, appType: 'custom' })
+  try {
+    const { default: ReviewBrief } = await vite.ssrLoadModule('/src/components/ReviewBrief.tsx')
+    const { default: WorkReview } = await vite.ssrLoadModule('/src/components/WorkReview.tsx')
+    const { reviewBriefExamples, reviewBriefVerified, reviewBriefUncertain,reviewBriefWorkExample } = await vite.ssrLoadModule('/src/lib/reviewBriefExamples.ts')
+    const fontRoot = join(root, 'node_modules/@fontsource-variable/geist/files')
+    const fonts = ['cyrillic', 'latin'].map(part => `@font-face{font-family:'Geist Variable';src:url(data:font/woff2;base64,${readFileSync(join(fontRoot, `geist-${part}-wght-normal.woff2`)).toString('base64')}) format('woff2');font-weight:100 900;unicode-range:${part === 'cyrillic' ? 'U+0400-052F,U+2DE0-2DFF,U+A640-A69F' : 'U+0000-00FF'}}`).join('\n')
+    const css = fonts + ['src/education-design-tokens.css','src/DayPage.css','src/UiKit.css','src/components/StatusIcon.css','src/components/ReviewBrief.css','src/components/WorkReview.css'].map(path => readFileSync(join(root, path), 'utf8')).join('\n')
+    return { css, examples: reviewBriefExamples, states: [reviewBriefVerified, reviewBriefUncertain], render: data => renderToStaticMarkup(createElement(ReviewBrief, { data })),renderWork:(data,parent=false)=>renderToStaticMarkup(createElement(WorkReview,{review:reviewBriefWorkExample(data),uploads:[],parent})) }
+  } finally { await vite.close() }
+}
+
+async function main() {
+  const { chromium } = await import('playwright')
+  const executablePath = [process.env.CHROME_BIN, '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', '/usr/bin/google-chrome', '/usr/bin/chromium'].find(path => path && existsSync(path))
+  const fixture = await loadReviewBriefFixture()
+  const browser = await chromium.launch({ headless: true, ...(executablePath ? { executablePath } : {}) })
+  const errors = []
+  const measured = []
+  const page = await browser.newPage()
+  page.on('pageerror', error => errors.push(error.message))
+  const doc = (data, enlarged = false,parent=false) => `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${fixture.css}html{color-scheme:light dark}body{margin:0;padding:8px;background:transparent;font-family:'Geist Variable',sans-serif}.specimen{max-width:390px;margin:auto}${enlarged ? '.edu-review-brief{--edu-review-size:32px}' : ''}</style><main class="edu-kit specimen">${fixture.renderWork(data,parent)}</main>`
+  const assert = (condition, message) => { if (!condition) throw new Error(message) }
+  async function geometry() {
+    return page.locator('.edu-review-brief').evaluate(el => ({
+      height: Math.round(el.getBoundingClientRect().height), overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth || el.scrollWidth > el.clientWidth,
+      font: getComputedStyle(el.querySelector('.edu-review-question') ?? el).fontSize,
+      touchHeight: el.querySelector('summary')?.getBoundingClientRect().height,
+    }))
+  }
+  try {
+    for (const theme of ['light', 'dark']) for (const width of [320, 390, 540]) {
+      await page.setViewportSize({ width, height: 900 })
+      await page.emulateMedia({ colorScheme: theme })
+      for (const item of [...fixture.examples.map(item => item.data), ...fixture.states]) {
+        await page.setContent(doc(item)); await page.evaluate(() => document.fonts.ready)
+        const result = await geometry()
+        assert(!result.overflow, `Overflow: ${item.id}/${width}/${theme}`)
+        assert(!result.touchHeight || result.touchHeight >= 44, `Small disclosure target: ${item.id}`)
+        assert(result.font === '16px', `Unexpected body size: ${item.id}`)
+        if (width === 390) assert(result.height <= 320, `Sample exceeds compact budget: ${item.id}: ${result.height}`)
+        if (width === 320) assert(result.height <= 400, `Narrow sample exceeds compact budget: ${item.id}: ${result.height}`)
+        if (width === 390 && theme === 'light') {
+          measured.push({ id: item.id, ...result })
+          if (process.env.REVIEW_BRIEF_SCREENSHOT_DIR) {
+            mkdirSync(process.env.REVIEW_BRIEF_SCREENSHOT_DIR, { recursive: true })
+            await page.screenshot({ path: join(process.env.REVIEW_BRIEF_SCREENSHOT_DIR, `${item.id}.png`), fullPage: true })
+          }
+        }
+      }
+    }
+    await page.setViewportSize({ width: 320, height: 1000 })
+    const long = { ...fixture.examples[1].data, label: 'Длинный контекст '.repeat(6), focus: 'Дословная запись содержит длинное объяснение. '.repeat(12) }
+    for (const item of [long, ...fixture.examples.map(item => item.data)]) {
+      await page.setContent(doc(item, true)); await page.evaluate(() => document.fonts.ready)
+      assert(!(await geometry()).overflow, `Overflow with enlarged primary text: ${item.id}`)
+    }
+    await page.setContent(doc(fixture.examples[0].data))
+    const detail = page.locator('details').first(); const summary = detail.locator('summary')
+    await summary.click(); assert(await detail.evaluate(el => el.open), 'Mouse disclosure failed')
+    await summary.focus(); await summary.press('Enter'); assert(!(await detail.evaluate(el => el.open)), 'Enter disclosure failed')
+    await summary.press('Space'); assert(await detail.evaluate(el => el.open), 'Space disclosure failed')
+    assert(!errors.length, errors.join('\n'))
+    console.log(JSON.stringify({ samplesAt390: measured, themes: 2, widths: [320, 390, 540], enlargedPrimaryText: true, disclosure: 'mouse/Enter/Space', errors }))
+  } finally { await browser.close() }
+}
+if (process.argv[1] && resolve(process.argv[1]) === resolve(import.meta.filename)) await main()

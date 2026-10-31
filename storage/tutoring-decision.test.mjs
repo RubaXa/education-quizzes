@@ -34,6 +34,18 @@ describe('personal tutoring decision graph', () => {
     r.studentFeedback.focus = 'Посмотри, как можно решить лучше.'
     expect(tutoringPlanErrors(r).join()).toContain('видимом тексте')
   })
+  it('supports a separate visible bridge without forcing it to be duplicated in the focus', () => {
+    const r=review();r.studentFeedback.focus=r.tutoringPlan.gapExplanation;r.studentFeedback.bridge=r.tutoringPlan.bridge
+    expect(tutoringPlanErrors(r)).toEqual([])
+    const projected=studentReviewProjection(r)
+    expect(projected.studentFeedback.bridge).toBe(r.tutoringPlan.bridge)
+    expect(projected.studentFeedback.focus).toBe(r.tutoringPlan.gapExplanation)
+  })
+  it('rejects a private answer key embedded in the new public presentation', () => {
+    const r=review();r.studentFeedback.presentation={version:1,details:[{label:'Опора',text:'Проверь запись.',expected:'CLOSED-KEY'}]}
+    expect(tutoringPlanErrors(r).join()).toContain('публичный формат')
+    expect(studentReviewProjection(r).studentFeedback).not.toHaveProperty('presentation')
+  })
   it('rejects absent plans and mismatched sources or evidence', () => {
     const r = review(); delete r.tutoringPlan; expect(tutoringPlanErrors(r).length).toBeGreaterThan(0)
     const other = review(); other.tutoringPlan.evidence.uploadId = 'another-child'; expect(tutoringPlanErrors(other).length).toBeGreaterThan(0)

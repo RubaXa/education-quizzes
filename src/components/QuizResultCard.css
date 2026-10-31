@@ -1,0 +1,5 @@
+/** @see ../../docs/decisions/compact-review-rollout-2026-10-31.md */
+/* @see ../../docs/shared/design/compact-review.md#quiz */
+.edu-review-brief .edu-review-code{margin:8px 0;max-width:100%;overflow-x:auto}
+.edu-review-brief .edu-review-source-link{display:inline-flex;align-items:center;min-height:44px;font-size:14px;color:var(--edu-review-accent)}
+.edu-review-brief .edu-review-points{font-size:12px;color:var(--edu-review-muted)}

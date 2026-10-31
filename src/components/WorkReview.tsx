@@ -1,16 +1,19 @@
+/** @see ../../docs/decisions/compact-review-rollout-2026-10-31.md */
 import { workFilePresentation } from '../../storage/work-file-types.mjs'
 /** @see ../../docs/decisions/personal-tutoring-2026-10-30.md */
 /** @see ../../docs/decisions/collapsed-variant-status-2026-10-21.md
  * @see ../../docs/decisions/photo-transfer-recovery-2026-10-22.md */
 import { useEffect, useState } from 'react'
-import { ChevronDown } from 'lucide-react'
 import type { DayUpload, DayWorkReview } from '@/lib/dayStore'
 import { requirementChoice, requiredFamilyActions, stageCompletion } from '@/lib/parentCompletion'
 import type { ParentCompletionEvent } from '@/lib/parentCompletion'
-import { activeProcessing, elapsedLabel, firstPendingUploadReceivedAt, processingIsStale, reviewHeadline, reviewTone, workCoverageComplete } from '@/lib/reviewPresentation'
+import { activeProcessing, elapsedLabel, firstPendingUploadReceivedAt, processingIsStale, workCoverageComplete } from '@/lib/reviewPresentation'
 import { ArtifactStatusGlyph } from './ArtifactAvatar'
 import StatusIcon from './StatusIcon'
 import RequirementSwitch from './RequirementSwitch'
+import ReviewBrief from './ReviewBrief'
+import { workReviewBrief } from '@/lib/workReviewBrief'
+import './WorkReview.css'
 import { formatReviewObservation, formatReviewProse } from '@/lib/reviewProse'
 
 const itemLabels = { correct: 'Верно', partial: 'Частично верно', incorrect: 'Неверно', 'cannot-assess': 'Не удалось проверить' }
@@ -46,7 +49,6 @@ export default function WorkReview({ review, uploads, accepted = false, canDecid
   const requiredActions = requiredFamilyActions(review, decisions)
   const familyStages = stageCompletion(review, decisions)
   const familyDone = Boolean(familyStages?.complete && !pending.length && !requiredActions.length)
-  const tone = requiredActions.length ? 'partial' : familyDone || accepted ? 'success' : review?.status ? reviewTone(review) : 'neutral'
   const items = review?.items ?? []
   const feedback = review?.studentFeedback
   const basis = review?.assessmentBasis
@@ -82,14 +84,10 @@ export default function WorkReview({ review, uploads, accepted = false, canDecid
       {!paused && <time aria-hidden="true">{elapsed}</time>}
     </div>}
 
-    {review?.status && <details className={`day-work-review ${tone}`} open={review.requirementChecks?.length ? true : undefined}>
-      <summary>
-        <span className="day-work-review-icon"><StatusIcon size={17} status={tone === 'success' ? 'complete' : tone === 'partial' ? 'partial' : tone === 'error' ? 'needs-fix' : 'unknown'} /></span>
-        <span className="day-work-review-title"><b>{pending.length ? 'Предыдущая проверка' : 'Итог разбора'}</b><span>{requiredActions.length ? 'Доработать по решению родителя' : familyDone ? `Готово по семейному плану · ${familyStages?.confirmed} из ${familyStages?.required}` : accepted ? 'Засчитано родителем · ход неполон' : formatReviewProse(reviewHeadline(review))}</span></span>
-        <ChevronDown className="day-work-review-chevron" size={18} aria-hidden="true" />
-      </summary>
-      <div className="day-work-review-body">
-        {!!review.requirementChecks?.length && <section className="day-work-review-requirements" aria-label="Проверка требований МЭШ">
+    {review?.status && <ReviewBrief data={{ ...workReviewBrief(review, {complete:accepted||familyDone,
+      label:pending.length?'Предыдущая проверка':undefined,stateLabel:requiredActions.length?'Доработать по решению родителя':familyDone?`Готово по семейному плану · ${familyStages?.confirmed} из ${familyStages?.required}`:accepted?'Засчитано родителем':undefined}),
+      meta:review.mathReasoning?`${answer==='correct'?'Ответ верен':answer==='incorrect'?'Ответ неверен':'Ответ не установлен'} · ${argumentLabel}`:undefined }}>
+        {!!review.requirementChecks?.length && <details className="edu-review-detail day-work-review-requirements"><summary>Проверка требований МЭШ</summary><section aria-label="Проверка требований МЭШ">
           <h4>Что задано в МЭШ и что видно на фото</h4>
           <p>Подтверждено {review.requirementChecks.filter((check) => check.result === 'confirmed').length} из {review.requirementChecks.length} обязательных пунктов. Невидимую часть не считаем ошибкой.</p>
           <ol>{review.requirementChecks.map((check) => <li key={check.id}>
@@ -100,11 +98,7 @@ export default function WorkReview({ review, uploads, accepted = false, canDecid
             <span className={`day-work-review-requirement-result ${check.result}`}><StatusIcon size={15} status={check.result === 'confirmed' ? 'complete' : check.result === 'not-met' ? 'needs-fix' : check.result === 'partial' ? 'partial' : 'unknown'} />{check.result === 'confirmed' ? 'Требование выполнено' : check.result === 'unknown' ? 'Не можем установить по фото' : check.result === 'partial' ? 'Часть требования подтверждена' : 'Требование не выполнено'}</span>
             <span>{formatReviewProse(check.explanation)}</span>
           </li>)}</ol>
-        </section>}
-        {review.mathReasoning && <div className="day-work-review-verdicts" aria-label="Результат проверки">
-          <span className={answer === 'correct' ? 'correct' : answer === 'incorrect' ? 'incorrect' : 'unknown'}><StatusIcon size={16} status={answer === 'correct' ? 'complete' : answer === 'incorrect' ? 'incorrect' : 'unknown'} />{answer === 'correct' ? 'Ответ верен' : answer === 'incorrect' ? 'Ответ неверен' : 'Ответ не установлен'}</span>
-          <span className={argument === 'sufficient' || argument === 'not-required' ? 'correct' : 'incomplete'}><StatusIcon size={16} status={argument === 'sufficient' || argument === 'not-required' ? 'complete' : 'partial'} />{argumentLabel}</span>
-        </div>}
+        </section></details>}
         {familyDone && <p className="day-work-review-accepted">Все пункты семейного плана подтверждены. {familyStages?.optional ? `${familyStages.optional} пункт(а) сохранены в разборе.` : ''} Исходный разбор фото сохранён.</p>}
         {accepted && <p className="day-work-review-accepted">Задача завершена по решению родителя. Ответ верен; обоснование хода в работе осталось неполным.</p>}
         {basis?.outcome === 'unresolved' && <p className="day-work-review-unprepared">{formatReviewProse(workCoverageComplete(review) ? `Работа предъявлена полностью: ${review.workCoverage?.note} ` : `Разбор загруженного фото завершён. ${review.summary ?? ''} `)}{requiredActions.length ? 'Родитель назначил доработку для семейного плана; она указана ниже.' : workCoverageComplete(review) ? 'Дополнительных действий от ученика сейчас не требуется.' : formatReviewProse(review.nextStep ?? 'Если есть другая страница работы, добавьте её фото для проверки.')}</p>}
@@ -118,19 +112,11 @@ export default function WorkReview({ review, uploads, accepted = false, canDecid
           </section>
         })}
         {decisionError && <small role="alert">{decisionError}</small>}
-        {!accepted && !familyDone && feedback ? <div className="day-work-review-feedback">
-          <p>{formatReviewProse(feedback.confirmed)}</p>
-          {feedback.steps?.map((step, index) => <p className="day-work-review-step" key={`${step.stageId}-${index}`}><q>{formatReviewObservation(step.observation)}</q>{' — '}{formatReviewProse(step.explanation)}</p>)}
-          <p>{formatReviewProse(feedback.focus)}</p>
-          <p className="day-work-review-next">{formatReviewProse(feedback.question)}</p>
-        </div> : !accepted && (review.status === 'needs-fix' || review.status === 'partial')
-          ? <p className="day-work-review-unprepared">Работа проверена. Адресный вопрос к этой попытке ещё уточняется.</p>
-          : null}
         {basis?.requirement && !review.requirementChecks?.length && <details className="day-work-review-evidence"><summary>Условие и основания проверки</summary><div className="day-work-review-basis">
           <p><b>Что требовалось</b><span>{formatReviewProse(basis.requirement)}</span></p>
           <p><b>Что видно в работе</b><span>{formatReviewObservation(basis.observed ?? '')}</span></p>
           <p><b>{basis.outcome === 'unresolved' ? 'Что осталось неясным' : 'Почему такой результат'}</b><span>{formatReviewProse(basis.comparison ?? '')}</span></p>
-          {(visibleSources.length > 0 || basis.limitation) && <details><summary>На чём основана проверка</summary>{visibleSources.length > 0 && <ul>{visibleSources.map((source, index) => <li key={`${source.ref}-${index}`}><b>{source.kind === 'mesh' ? 'МЭШ' : source.kind === 'textbook' ? 'Учебник' : source.kind === 'teacher' ? 'Учитель' : source.kind === 'curriculum' ? 'Программа' : 'Методическое пособие'}</b>: «{source.excerpt}» <small>{source.ref}</small></li>)}</ul>}{basis.limitation && <p>{formatReviewProse(basis.limitation)}</p>}</details>}
+          {(visibleSources.length > 0 || basis.limitation) && <section aria-label="На чём основана проверка"><p><b>На чём основана проверка</b></p>{visibleSources.length > 0 && <ul>{visibleSources.map((source, index) => <li key={`${source.ref}-${index}`}><b>{source.kind === 'mesh' ? 'МЭШ' : source.kind === 'textbook' ? 'Учебник' : source.kind === 'teacher' ? 'Учитель' : source.kind === 'curriculum' ? 'Программа' : 'Методическое пособие'}</b>: «{source.excerpt}» <small>{source.ref}</small></li>)}</ul>}{basis.limitation && <p>{formatReviewProse(basis.limitation)}</p>}</section>}
         </div></details>}
         {!review.requirementChecks?.length && !feedback && review.status !== 'needs-fix' && review.status !== 'partial' && items.length > 0 && <ol>{items.map((item, index) => <li className={`day-work-review-item ${item.status}`} key={`${item.label}-${index}`}>
           <span className="day-work-review-item-icon"><StatusIcon size={14} status={item.status === 'correct' ? 'complete' : item.status === 'incorrect' ? 'incorrect' : item.status === 'partial' ? 'partial' : 'unknown'} /></span>
@@ -142,7 +128,6 @@ export default function WorkReview({ review, uploads, accepted = false, canDecid
           {!canDecide && <small>{pending.length ? 'Сначала дождитесь проверки нового фото.' : 'Для решения откройте личную ссылку родителя.'}</small>}
           {decisionError && <small role="alert">{decisionError}</small>}
         </div>}
-      </div>
-    </details>}
+    </ReviewBrief>}
   </div>
 }

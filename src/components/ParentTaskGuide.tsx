@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/compact-review-rollout-2026-10-31.md */
 /** @see ../../docs/decisions/collapsed-variant-status-2026-10-21.md */
 import { useEffect, useState } from 'react'
 import { BookOpen, ChevronDown } from 'lucide-react'
@@ -12,6 +13,7 @@ import { projectGuidanceReveal, sameGuidanceRevealContent } from '../../day/guid
 import RequirementSwitch from './RequirementSwitch'
 import StatusIcon from './StatusIcon'
 import './ParentTaskGuide.css'
+import './ReviewTypography.css'
 
 /** @see ../../docs/modules/reviews/subject-aware-guidance.md */
 /** @see ../../docs/decisions/released-stage-parity-2026-10-20.md */

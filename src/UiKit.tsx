@@ -1,5 +1,7 @@
 import TaskAttachmentsExample from './ui-kit/TaskAttachmentsExample'
+/** @see ../docs/decisions/compact-review-rollout-2026-10-31.md */
 import { workFileTypes, workFilePresentation, workFileContentType } from '../storage/work-file-types.mjs'
+/** @see ../docs/decisions/compact-review-ui-kit-2026-10-31.md */
 /** @see ../docs/decisions/personal-tutoring-2026-10-30.md */
 /** @see ../docs/decisions/ui-kit-photo-help-2026-10-27.md */
 /** @see ../docs/decisions/ui-kit-written-practice-2026-10-27.md */
@@ -12,6 +14,7 @@ import { workFileTypes, workFilePresentation, workFileContentType } from '../sto
 /** @see ../docs/decisions/released-stage-parity-2026-10-20.md */
 /** @see ../docs/decisions/calendar-scroll-selection-2026-10-28.md */
 import AudioPlayer from '@/components/AudioPlayer'
+import ReviewBriefShowcase from '@/components/ReviewBriefShowcase'
 import { uiKitAudioLink, uiKitAudioResolver } from '@/lib/uiKitAudio'
 import HomeworkOverview from '@/components/HomeworkOverview'
 import DayCalendar from '@/components/DayCalendar'
@@ -93,6 +96,7 @@ const topicGroups = [
   ]},
   {id:'components',title:'Компоненты',topics:[
     {id:'results',title:'Индикаторы результата',icon:CircleHelp},
+    {id:'compact-review',title:'Компактный разбор',icon:BookOpen},
     {id:'grades',title:'Средний балл',icon:CircleHelp},
     {id:'files',title:'Файлы и превью',icon:Paperclip},
   ]},
@@ -194,6 +198,7 @@ export default function UiKit() {
     <header className="edu-kit-intro"><span><BookOpen size={18} aria-hidden="true" /> Education UI Kit</span><h1>Компоненты и правила</h1><p>Живые компоненты приложения, их состояния и смысл токенов. Каталог расширяется по мере унификации интерфейса.</p><a href="#/">На главную</a></header>
     <div className="edu-kit-layout"><nav aria-label="Разделы UI Kit">{topicGroups.map(group => <div className="edu-kit-nav-group" key={group.id}><small>{group.title}</small>{group.topics.map(topic => <button key={topic.id} type="button" aria-current={section===topic.id?'page':undefined} onClick={()=>setSection(topic.id)}><topic.icon size={16} aria-hidden="true" />{topic.title}<ChevronRight size={14} aria-hidden="true" /></button>)}</div>)}</nav>
     <div className="edu-kit-content">
+      {section==='compact-review' && <ReviewBriefShowcase />}
       {section==='audio' && <section aria-label="Пример аудиоплеера"><h2>Аудиоплеер</h2><p>Условный короткий звук. Тот же компонент используется в библиотеке и заданиях. Плеер виден сразу. Нажатие ▶ загружает и запускает запись. Одна округлая панель54px сохраняется после загрузки. Текущая скорость видна рядом со звуком: нажмите «1×», чтобы заранее выбрать0,5× или0,75×. Значок динамика открывает громкость.</p><AudioPlayer link={uiKitAudioLink} resolver={uiKitAudioResolver} /><AudioPlayer link={{ ...uiKitAudioLink, title: 'Пример недоступной записи' }} resolver={async () => { throw new Error('Демонстрация ошибки') }} /></section>}
       {section==='calendar' && <section aria-label="Пример календаря"><h2>Календарь и каникулы</h2><p>Условный пример, не календарь семьи. В приложении периоды приходят только из МЭШ конкретного ученика. Пустое расписание не означает каникулы.</p><DayCalendar days={uiKitCalendarDays} schoolCalendar={uiKitCalendar} today="2026-10-24" selectedDate={demoDate} onSelect={setDemoDate}/><p role="status">Выбрана дата: {demoDate}</p><p>При открытии выбранный день ставится по центру; выбор рядом не двигает полосу, а дата у края плавно перемещается к центру. Это тот же компонент, что в кабинете ученика и родителя. Период объединён рамкой, знаком солнца и подписью. Текущий день сохраняет контур, выбранный — фирменное заполнение. Любой день доступен для просмотра работ; каникулы не закрывают и не удаляют задания.</p></section>}
       {section==='results' && <section aria-labelledby="kit-results-title"><h2 id="kit-results-title">Индикаторы результата</h2><p>Метка, баллы и полоса используют одну политику цвета. Заполнение ответов и ожидание проверки — самостоятельные состояния.</p>

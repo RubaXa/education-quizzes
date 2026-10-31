@@ -1,4 +1,6 @@
+/** @see ../docs/decisions/compact-review-rollout-2026-10-31.md */
 /** @see ../docs/decisions/personal-tutoring-2026-10-30.md */
+import { projectReviewSupplement } from '../packages/education-presentation/review-content.mjs'
 /** @see ../docs/modules/materials/material-clarification.md */
 /** Only this projection may be stored under learner-readable dayProgress.
  * @see ../docs/modules/reviews/adaptive-problem-card.md#показ-ученику
@@ -28,6 +30,8 @@ export function studentReviewProjection(review) {
     ...(review.studentFeedback ? { studentFeedback: {
       title: review.studentFeedback.title, confirmed: review.studentFeedback.confirmed,
       focus: review.studentFeedback.focus, question: review.studentFeedback.question,
+      ...(review.studentFeedback.bridge ? { bridge: review.studentFeedback.bridge } : {}),
+      ...(projectReviewSupplement(review.studentFeedback.presentation) ? { presentation: projectReviewSupplement(review.studentFeedback.presentation) } : {}),
       ...(review.studentFeedback.steps ? { steps: review.studentFeedback.steps.map(({ stageId, uploadId, location, observation, explanation, status }) => ({ stageId, uploadId, location, observation, explanation, status })) } : {}),
       ...(review.studentFeedback.anchor ? { anchor: { uploadId: review.studentFeedback.anchor.uploadId,
         location: review.studentFeedback.anchor.location } } : {}),

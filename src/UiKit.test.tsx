@@ -39,6 +39,20 @@ it('has internally consistent example points and counts',()=>{
  for(const test of uiKitQuizExamples){const score=summarize(test.results!);expect(score.earned).toBe(test.points);expect(score.possible).toBe(test.maxPoints)}
 })
 
+/** @see ../docs/shared/design/compact-review.md#showcase */
+it('uses the actual work-review and quiz adapters in the shared review catalogue', async()=>{
+ document.body.append(host);root=createRoot(host);await act(async()=>root!.render(<UiKit/>))
+ await act(async()=>[...host.querySelectorAll<HTMLButtonElement>('nav button')].find(button=>button.textContent==='Компактный разбор')!.click())
+ expect(host.querySelectorAll('.edu-review-brief')).toHaveLength(2)
+ expect(host.querySelector('.edu-review-facts')).not.toBeNull()
+ const choose=(label:string)=>[...host.querySelectorAll<HTMLButtonElement>('.edu-kit-presets button')].find(button=>button.textContent===label)!.click()
+ await act(async()=>choose('Русский'));expect(host.querySelector('.edu-review-annotation')).not.toBeNull()
+ await act(async()=>choose('История'));expect(host.querySelector('.edu-review-timeline')).not.toBeNull()
+ await act(async()=>choose('Зачтено'));expect(host.querySelectorAll('.edu-review-question')).toHaveLength(1)
+ await act(async()=>choose('Неясно'));expect(host.querySelectorAll('.edu-review-question')).toHaveLength(2)
+ expect(host.textContent).not.toContain('школьные карточки ещё используют прежний вид')
+})
+
 /** @see ../docs/modules/materials/storage-privacy.md#multi-task-photo */
 it('demonstrates one attachment and read-only references using the real shared component', async () => {
  document.body.append(host);root=createRoot(host);await act(async()=>root!.render(<UiKit/>))
@@ -63,7 +77,7 @@ it('demonstrates one attachment and read-only references using the real shared c
 it('preserves grouped navigation and the shared grade average simulator',async()=>{
  document.body.append(host);root=createRoot(host);await act(async()=>root!.render(<UiKit/>))
  expect([...host.querySelectorAll('nav small')].map(node=>node.textContent)).toEqual(['Основы','Компоненты','Составные сценарии'])
- expect(host.querySelectorAll('nav button')).toHaveLength(16)
+ expect(host.querySelectorAll('nav button')).toHaveLength(17)
  await act(async()=>[...host.querySelectorAll<HTMLButtonElement>('nav button')].find(button=>button.textContent==='Средний балл')!.click())
  const range=host.querySelector<HTMLInputElement>('input[type="range"]')!
  expect([range.min,range.max,range.step]).toEqual(['200','500','1'])
