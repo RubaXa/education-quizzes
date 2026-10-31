@@ -2659,19 +2659,20 @@
       }
     },
     "src/UiKit.tsx": {
-      "sha256": "6814f3db43d63877d5d0ed61f016c6c3c0f8d8f7cc5fe7d63c0d8bf59c74d4a8",
-      "record": "docs/decisions/olympiad-history-2026-10-31.md",
+      "sha256": "14de3893b4339b709adb9025ca797f6362e264925dde94327251c5a402997864",
+      "record": "docs/decisions/olympiad-information-hierarchy-2026-10-31.md",
       "specs": [
-        "docs/modules/assessments/olympiad-history.md"
+        "docs/shared/design/information-hierarchy.md",
+        "docs/modules/assessments/olympiad-preparation.md"
       ],
       "tests": [
-        "src/components/OlympiadHistory.test.tsx",
-        "scripts/firestore-rules-olympiad-history.test.mjs",
-        "storage/learning-file-access.test.mjs"
+        "src/components/OlympiadOverview.test.tsx",
+        "src/components/OlympiadPage.integration.test.tsx",
+        "scripts/check-olympiad-overview-viewport.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь31.10.2026 прямо поручил реализовать историю сезонов, этапов, результатов и работ в карточках олимпиад через существующий Education/UI Kit с проверками и публикацией без дополнительных согласований."
+        "evidence": "31.10.2026 родитель прямо отверг первую часть карточки олимпиады и обратную ссылку, потребовал исследовать и исправить структуру, читаемость и визуальное оформление."
       }
     },
     "src/WeekendMathSlot.css": {
@@ -6241,19 +6242,20 @@
       }
     },
     "src/components/OlympiadPage.tsx": {
-      "sha256": "f239e4e9fbd3289f1941171f125e7ce6d498bbed65d2300270e1913659915634",
-      "record": "docs/decisions/olympiad-history-2026-10-31.md",
+      "sha256": "df0bc8695f7924f5877e9685c79464f0cd98aa8be62d5eeff19b6e29fa7d2999",
+      "record": "docs/decisions/olympiad-information-hierarchy-2026-10-31.md",
       "specs": [
-        "docs/modules/assessments/olympiad-history.md"
+        "docs/shared/design/information-hierarchy.md",
+        "docs/modules/assessments/olympiad-preparation.md"
       ],
       "tests": [
-        "src/components/OlympiadHistory.test.tsx",
-        "scripts/firestore-rules-olympiad-history.test.mjs",
-        "storage/learning-file-access.test.mjs"
+        "src/components/OlympiadOverview.test.tsx",
+        "src/components/OlympiadPage.integration.test.tsx",
+        "scripts/check-olympiad-overview-viewport.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь31.10.2026 прямо поручил реализовать историю сезонов, этапов, результатов и работ в карточках олимпиад через существующий Education/UI Kit с проверками и публикацией без дополнительных согласований."
+        "evidence": "31.10.2026 родитель прямо отверг первую часть карточки олимпиады и обратную ссылку, потребовал исследовать и исправить структуру, читаемость и визуальное оформление."
       }
     },
     "src/components/OlympiadWrittenPractice.tsx": {
@@ -6854,35 +6856,37 @@
       }
     },
     "src/components/OlympiadSchedule.tsx": {
-      "sha256": "b26115600361cefc8eadc33d37d7db2cd77b01a604f6e0a2509a540b1bff6afe",
-      "record": "docs/decisions/olympiad-calendar-2026-10-31.md",
+      "sha256": "1eab9076122ee301ef3de5fe1d0ea7870fcf25394516a66913a23f6699990b22",
+      "record": "docs/decisions/olympiad-information-hierarchy-2026-10-31.md",
       "specs": [
+        "docs/shared/design/information-hierarchy.md",
         "docs/modules/assessments/olympiad-preparation.md"
       ],
       "tests": [
-        "src/lib/olympiad/calendar.test.ts",
-        "src/components/OlympiadHome.integration.test.tsx",
-        "src/components/OlympiadPage.integration.test.tsx"
+        "src/components/OlympiadOverview.test.tsx",
+        "src/components/OlympiadPage.integration.test.tsx",
+        "scripts/check-olympiad-overview-viewport.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "31.10.2026: пользователь просит добавить все подходящие олимпиады в приложение, единообразно показать сроки, регистрацию, статус и подготовку; неизвестные даты явно подписать."
+        "evidence": "31.10.2026 родитель прямо отверг первую часть карточки олимпиады и обратную ссылку, потребовал исследовать и исправить структуру, читаемость и визуальное оформление."
       }
     },
     "src/components/OlympiadSchedule.css": {
-      "sha256": "fcaf6d847b29601d92abd03b8c7f33c413b39e127add21afa581b91fca8300ed",
-      "record": "docs/decisions/olympiad-calendar-2026-10-31.md",
+      "sha256": "1e172219d1060cf4db4e877f6b355d2c8f161439c8c1c8e3b544a6e11670bed8",
+      "record": "docs/decisions/olympiad-information-hierarchy-2026-10-31.md",
       "specs": [
+        "docs/shared/design/information-hierarchy.md",
         "docs/modules/assessments/olympiad-preparation.md"
       ],
       "tests": [
-        "src/lib/olympiad/calendar.test.ts",
-        "src/components/OlympiadHome.integration.test.tsx",
-        "src/components/OlympiadPage.integration.test.tsx"
+        "src/components/OlympiadOverview.test.tsx",
+        "src/components/OlympiadPage.integration.test.tsx",
+        "scripts/check-olympiad-overview-viewport.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель31.10.2026 поручил единообразно оформить три олимпиады, проверить сроки и регистрацию, добавить подготовку и архивы."
+        "evidence": "31.10.2026 родитель прямо отверг первую часть карточки олимпиады и обратную ссылку, потребовал исследовать и исправить структуру, читаемость и визуальное оформление."
       }
     },
     "src/lib/olympiad/calendar.ts": {
@@ -7417,6 +7421,57 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Продолжение прямого запроса родителя о методах, формулах и наглядном разборе; исправление обнаруженного сервером непереносимого формата таблицы перед завершением миграции."
+      }
+    },
+    "src/components/OlympiadOverview.tsx": {
+      "sha256": "206e2424d30739fbb9cba7f13d0c7951e4272b88c4e153cd26087553918af7de",
+      "record": "docs/decisions/olympiad-information-hierarchy-2026-10-31.md",
+      "specs": [
+        "docs/shared/design/information-hierarchy.md",
+        "docs/modules/assessments/olympiad-preparation.md"
+      ],
+      "tests": [
+        "src/components/OlympiadOverview.test.tsx",
+        "src/components/OlympiadPage.integration.test.tsx",
+        "scripts/check-olympiad-overview-viewport.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "31.10.2026 родитель прямо отверг первую часть карточки олимпиады и обратную ссылку, потребовал исследовать и исправить структуру, читаемость и визуальное оформление."
+      }
+    },
+    "src/components/OlympiadOverview.css": {
+      "sha256": "7ab0f807391660a6481b2935a92b3adf2483734918a7ad8a8cfadb18f8b71d27",
+      "record": "docs/decisions/olympiad-information-hierarchy-2026-10-31.md",
+      "specs": [
+        "docs/shared/design/information-hierarchy.md",
+        "docs/modules/assessments/olympiad-preparation.md"
+      ],
+      "tests": [
+        "src/components/OlympiadOverview.test.tsx",
+        "src/components/OlympiadPage.integration.test.tsx",
+        "scripts/check-olympiad-overview-viewport.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "31.10.2026 родитель прямо отверг первую часть карточки олимпиады и обратную ссылку, потребовал исследовать и исправить структуру, читаемость и визуальное оформление."
+      }
+    },
+    "scripts/check-olympiad-overview-viewport.mjs": {
+      "sha256": "5457ae72a636d949c81f56632af17ff5583eda3783600af9045be2b2180b9410",
+      "record": "docs/decisions/olympiad-information-hierarchy-2026-10-31.md",
+      "specs": [
+        "docs/shared/design/information-hierarchy.md",
+        "docs/modules/assessments/olympiad-preparation.md"
+      ],
+      "tests": [
+        "src/components/OlympiadOverview.test.tsx",
+        "src/components/OlympiadPage.integration.test.tsx",
+        "scripts/check-olympiad-overview-viewport.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "31.10.2026 родитель прямо отверг первую часть карточки олимпиады и обратную ссылку, потребовал исследовать и исправить структуру, читаемость и визуальное оформление."
       }
     }
   }

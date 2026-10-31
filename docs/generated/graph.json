@@ -1565,6 +1565,31 @@
       "path": "docs/decisions/olympiad-history-2026-10-31.md"
     },
     {
+      "id": "decision.olympiad-information-hierarchy-2026-10-31",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-31",
+      "updated": "2026-10-31",
+      "parent": "shared.design.information-hierarchy",
+      "uses": [
+        "shared.design.ui-kit",
+        "module.olympiad-preparation"
+      ],
+      "consumers": [
+        "student",
+        "parent"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/olympiad-information-hierarchy-2026-10-31.md"
+    },
+    {
       "id": "decision.olympiad-integration-2026-10-28",
       "status": "accepted",
       "implementation": "partial",
@@ -6291,6 +6316,20 @@
       "consumer": "npm test:bell-viewport; агент"
     },
     {
+      "id": "file:scripts/check-olympiad-overview-viewport.mjs",
+      "path": "scripts/check-olympiad-overview-viewport.mjs",
+      "kind": "artifact",
+      "purpose": "Читаемая сводка, исследование, общий компонент и проверка полного календаря",
+      "consumer": "Education"
+    },
+    {
+      "id": "file:scripts/check-olympiad-overview-viewport.test.mjs",
+      "path": "scripts/check-olympiad-overview-viewport.test.mjs",
+      "kind": "verification",
+      "purpose": "Читаемая сводка, исследование, общий компонент и проверка полного календаря",
+      "consumer": "Education"
+    },
+    {
       "id": "file:scripts/check-privacy.mjs",
       "path": "scripts/check-privacy.mjs",
       "kind": "artifact",
@@ -7423,6 +7462,27 @@
       "kind": "artifact",
       "purpose": "Ученическая проекция игрового урока",
       "consumer": "UI Kit; будущий маршрут"
+    },
+    {
+      "id": "file:src/components/OlympiadOverview.css",
+      "path": "src/components/OlympiadOverview.css",
+      "kind": "artifact",
+      "purpose": "Читаемая сводка, исследование, общий компонент и проверка полного календаря",
+      "consumer": "Education"
+    },
+    {
+      "id": "file:src/components/OlympiadOverview.test.tsx",
+      "path": "src/components/OlympiadOverview.test.tsx",
+      "kind": "verification",
+      "purpose": "Читаемая сводка, исследование, общий компонент и проверка полного календаря",
+      "consumer": "Education"
+    },
+    {
+      "id": "file:src/components/OlympiadOverview.tsx",
+      "path": "src/components/OlympiadOverview.tsx",
+      "kind": "artifact",
+      "purpose": "Читаемая сводка, исследование, общий компонент и проверка полного календаря",
+      "consumer": "Education"
     },
     {
       "id": "file:src/components/OlympiadPage.integration.test.tsx",
@@ -12455,6 +12515,25 @@
       "path": "docs/research/grade-average-visual-scale-2026-10-18.md"
     },
     {
+      "id": "research.information-reading-2026-10-31",
+      "status": "accepted",
+      "implementation": "not-applicable",
+      "created": "2026-10-31",
+      "updated": "2026-10-31",
+      "parent": "shared.design.information-hierarchy",
+      "uses": [],
+      "consumers": [
+        "page author",
+        "frontend developer"
+      ],
+      "code": [],
+      "sections": [
+        "источники",
+        "применение-и-ограничения"
+      ],
+      "path": "docs/research/information-reading-2026-10-31.md"
+    },
+    {
       "id": "research.literature-card-options",
       "status": "reference",
       "implementation": "not-applicable",
@@ -13568,6 +13647,33 @@
       "path": "docs/shared/design/components.md"
     },
     {
+      "id": "shared.design.information-hierarchy",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-31",
+      "updated": "2026-10-31",
+      "parent": "shared.design",
+      "uses": [
+        "shared.design.components",
+        "shared.design.ui-kit"
+      ],
+      "consumers": [
+        "student",
+        "parent",
+        "page author"
+      ],
+      "code": [
+        "src/components/OlympiadOverview.tsx"
+      ],
+      "sections": [
+        "задача-читателя",
+        "первый-экран",
+        "подробности-и-навигация",
+        "типографика-и-проверка"
+      ],
+      "path": "docs/shared/design/information-hierarchy.md"
+    },
+    {
       "id": "shared.design.statuses",
       "status": "accepted",
       "implementation": "partial",
@@ -14366,6 +14472,16 @@
     },
     {
       "from": "decision.olympiad-history-2026-10-31",
+      "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
+      "from": "decision.olympiad-information-hierarchy-2026-10-31",
+      "to": "module.olympiad-preparation",
+      "type": "uses"
+    },
+    {
+      "from": "decision.olympiad-information-hierarchy-2026-10-31",
       "to": "shared.design.ui-kit",
       "type": "uses"
     },
@@ -16440,6 +16556,11 @@
       "type": "implements"
     },
     {
+      "from": "file:scripts/check-olympiad-overview-viewport.mjs",
+      "to": "shared.design.information-hierarchy",
+      "type": "implements"
+    },
+    {
       "from": "file:scripts/check-privacy.mjs",
       "to": "decision.personal-tutoring-2026-10-30",
       "type": "implements"
@@ -17777,6 +17898,16 @@
     {
       "from": "file:src/components/OlympiadLesson.tsx",
       "to": "module.olympiad-preparation",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/OlympiadOverview.css",
+      "to": "shared.design.information-hierarchy",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/OlympiadOverview.tsx",
+      "to": "shared.design.information-hierarchy",
       "type": "implements"
     },
     {
@@ -24225,6 +24356,36 @@
       "type": "uses"
     },
     {
+      "from": "shared.design.information-hierarchy",
+      "to": "decision.olympiad-information-hierarchy-2026-10-31",
+      "type": "contains"
+    },
+    {
+      "from": "shared.design.information-hierarchy",
+      "to": "file:scripts/check-olympiad-overview-viewport.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "shared.design.information-hierarchy",
+      "to": "file:src/components/OlympiadOverview.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "shared.design.information-hierarchy",
+      "to": "research.information-reading-2026-10-31",
+      "type": "contains"
+    },
+    {
+      "from": "shared.design.information-hierarchy",
+      "to": "shared.design.components",
+      "type": "uses"
+    },
+    {
+      "from": "shared.design.information-hierarchy",
+      "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
       "from": "shared.design.statuses",
       "to": "file:src/components/ProblemCard.test.tsx",
       "type": "verified-by"
@@ -24378,6 +24539,11 @@
       "from": "shared.design",
       "to": "shared.design.components",
       "type": "uses"
+    },
+    {
+      "from": "shared.design",
+      "to": "shared.design.information-hierarchy",
+      "type": "contains"
     },
     {
       "from": "shared.design",
