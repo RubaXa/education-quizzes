@@ -110,3 +110,13 @@ it('clears previously visible history when its authorized source is revoked',asy
  await act(async()=>root!.render(<OlympiadPage familyId="family" childId="child" olympiadId="o1" parent dashboardToken="board" watchCatalog={watchCatalog} watchTasks={(_f,_c,next)=>{next([]);return ()=>{}}} watchDashboard={(_t,next)=>{next(dashboard('parent'));return ()=>{}}} watchHistoryIndex={(_f,_c,next)=>{next([{id:'past',title:'Прошлая олимпиада',aliases:['o1'],resultCount:1,seasonCount:1,summary:'2025/26'}]);return ()=>{}}} watchHistory={(_f,_c,_id,_p,next,error)=>{deny=error;next({id:'past',title:'История',aliases:[],seasons:[{id:'2025',label:'2025/26',grade:'5',stages:[]}]});return ()=>{}}}/>))
  expect(host.textContent).toContain('Мои участия и работы');await act(async()=>deny(new Error('permission-denied')));expect(host.textContent).not.toContain('Мои участия и работы');expect(host.textContent).toContain('История временно недоступна')
 })
+
+it.each(['parent','student'] as const)('opens the existing recommended task without changing the route for %s',async role=>{
+ const scroll=vi.fn();Object.defineProperty(HTMLElement.prototype,'scrollIntoView',{configurable:true,value:scroll})
+ const preparation={updatedOn:'2026-10-31',strengths:[{text:'Подтверждённый способ.',evidenceIds:[]}],workingOn:[{text:'Продолжить один шаг.',evidenceIds:[]}],next:{taskId:'task',title:'Продолжение',reason:'Закончить начатое.',evidenceIds:[]},evidence:[]}
+ const competition={id:'past',title:'История',aliases:['o1'],preparation,seasons:[]}
+ document.body.append(host);root=createRoot(host);const initialHash=window.location.hash
+ await act(async()=>root!.render(<OlympiadPage familyId="family" childId="child" olympiadId="o1" parent={role==='parent'} dashboardToken="board" watchSelections={watchSelections} watchCatalog={watchCatalog} watchTasks={(_f,_c,next)=>{next([task]);return ()=>{}}} watchDashboard={(_t,next)=>{next(dashboard(role));return ()=>{}}} watchHistoryIndex={(_f,_c,next)=>{next([{id:'past',title:'История',aliases:['o1'],resultCount:0,seasonCount:0,summary:''}]);return ()=>{}}} watchHistory={(_f,_c,_id,_p,next)=>{next(competition);return ()=>{}}}/>))
+ expect(host.textContent).toContain('Моя подготовка');await act(async()=>{Array.from(host.querySelectorAll('button')).find(b=>b.textContent==='Открыть задачу')!.click()})
+ expect(scroll).toHaveBeenCalled();expect(document.activeElement?.id).toBe('olympiad-practice-task');expect(window.location.hash).toBe(initialHash)
+})

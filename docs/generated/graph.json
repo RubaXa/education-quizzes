@@ -1615,6 +1615,32 @@
       "path": "docs/decisions/olympiad-integration-2026-10-28.md"
     },
     {
+      "id": "decision.olympiad-personal-preparation-2026-10-31",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-10-31",
+      "updated": "2026-10-31",
+      "parent": "module.olympiad-history",
+      "uses": [
+        "shared.design.ui-kit",
+        "shared.access-and-privacy"
+      ],
+      "consumers": [
+        "parent",
+        "student",
+        "release operator"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/olympiad-personal-preparation-2026-10-31.md"
+    },
+    {
       "id": "decision.olympiad-practice-groups-2026-10-28",
       "status": "accepted",
       "implementation": "partial",
@@ -4951,6 +4977,13 @@
       "consumer": "Education"
     },
     {
+      "id": "file:e2e/olympiad-personal-preparation.e2e.ts",
+      "path": "e2e/olympiad-personal-preparation.e2e.ts",
+      "kind": "artifact",
+      "purpose": "Реальные переходы UI Kit и галерея на320/390/540px",
+      "consumer": "Playwright"
+    },
+    {
       "id": "file:e2e/olympiad-ui-kit.e2e.ts",
       "path": "e2e/olympiad-ui-kit.e2e.ts",
       "kind": "artifact",
@@ -7497,6 +7530,27 @@
       "kind": "artifact",
       "purpose": "Семейный экран урока и родительский разбор",
       "consumer": "Education; разработчик"
+    },
+    {
+      "id": "file:src/components/OlympiadPreparationSummary.css",
+      "path": "src/components/OlympiadPreparationSummary.css",
+      "kind": "artifact",
+      "purpose": "Иерархия и адаптивность персонального блока",
+      "consumer": "OlympiadPreparationSummary"
+    },
+    {
+      "id": "file:src/components/OlympiadPreparationSummary.test.tsx",
+      "path": "src/components/OlympiadPreparationSummary.test.tsx",
+      "kind": "verification",
+      "purpose": "Следующий шаг, адресное открытие оригинала, смена scope",
+      "consumer": "Vitest"
+    },
+    {
+      "id": "file:src/components/OlympiadPreparationSummary.tsx",
+      "path": "src/components/OlympiadPreparationSummary.tsx",
+      "kind": "artifact",
+      "purpose": "Короткая персональная подготовка и архивные доказательства",
+      "consumer": "OlympiadPage; UI Kit"
     },
     {
       "id": "file:src/components/OlympiadReferences.test.tsx",
@@ -10698,6 +10752,8 @@
         "Education developer"
       ],
       "code": [
+        "src/components/OlympiadPreparationSummary.tsx",
+        "src/components/OlympiadPreparationSummary.css",
         "olympiad/history.mjs",
         "olympiad/history-import.mjs",
         "scripts/olympiad-history.mjs",
@@ -10714,7 +10770,8 @@
         "данные-и-проекции",
         "оригиналы-и-доступ",
         "интерфейс-и-состояния",
-        "импорт-и-проверка"
+        "импорт-и-проверка",
+        "персональная-подготовка"
       ],
       "path": "docs/modules/assessments/olympiad-history.md"
     },
@@ -14496,6 +14553,16 @@
       "type": "uses"
     },
     {
+      "from": "decision.olympiad-personal-preparation-2026-10-31",
+      "to": "shared.access-and-privacy",
+      "type": "uses"
+    },
+    {
+      "from": "decision.olympiad-personal-preparation-2026-10-31",
+      "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
       "from": "decision.olympiad-practice-groups-2026-10-28",
       "to": "shared.access-and-privacy",
       "type": "uses"
@@ -15727,6 +15794,11 @@
     },
     {
       "from": "file:e2e/olympiad-history.e2e.ts",
+      "to": "module.olympiad-history",
+      "type": "implements"
+    },
+    {
+      "from": "file:e2e/olympiad-personal-preparation.e2e.ts",
       "to": "module.olympiad-history",
       "type": "implements"
     },
@@ -17913,6 +17985,16 @@
     {
       "from": "file:src/components/OlympiadPage.tsx",
       "to": "module.olympiad-preparation",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/OlympiadPreparationSummary.css",
+      "to": "module.olympiad-history",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/OlympiadPreparationSummary.tsx",
+      "to": "module.olympiad-history",
       "type": "implements"
     },
     {
@@ -21212,6 +21294,11 @@
     },
     {
       "from": "module.olympiad-history",
+      "to": "decision.olympiad-personal-preparation-2026-10-31",
+      "type": "contains"
+    },
+    {
+      "from": "module.olympiad-history",
       "to": "file:olympiad/history-import.test.mjs",
       "type": "verified-by"
     },
@@ -21228,6 +21315,11 @@
     {
       "from": "module.olympiad-history",
       "to": "file:src/components/OlympiadHistory.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.olympiad-history",
+      "to": "file:src/components/OlympiadPreparationSummary.test.tsx",
       "type": "verified-by"
     },
     {

@@ -3,6 +3,7 @@ import DayPage from '../DayPage'
 import OlympiadReferences from './OlympiadReferences'
 import OlympiadOverview,{OlympiadBackLink} from './OlympiadOverview'
 import OlympiadHistory from './OlympiadHistory'
+import OlympiadPreparationSummary from './OlympiadPreparationSummary'
 import { watchOlympiadHistoryIndex, watchOlympiadHistory, requestHistoryFile } from '@/lib/olympiad/historyStore'
 import type { HistoryCompetition, HistoryIndexEntry } from '@/lib/olympiad/historyTypes'
 import { traceOlympiad, traceAccess, accessTraceError } from '@/lib/browserAccessTrace'
@@ -56,13 +57,20 @@ export default function OlympiadPage({ familyId, childId, olympiadId, parent, da
   }, [tasks, projectionReady, olympiadId, parent, diagnosticsContext])
   function renderTask(task: FamilyOlympiadTask, number: number) {
     const dayToken = projectionReady ? dashboard?.days.find(day => day.date === task.projectionSourceDate)?.dayToken : null
-    return !dayToken ? <p key={task.id} role="alert">«{task.title}»: страница подготовки ещё не опубликована.</p> : <div key={task.id}>{renderPractice ? renderPractice(task, dayToken, parent, quizTarget, number) : <DayPage key={`${familyId}/${childId}/${dayToken}/${task.id}`} token={dayToken} parent={parent} headerReturnTarget={null} olympiadScope={{ familyId, childId, olympiadId, taskId: task.id, testTokens: task.testTokens, number, quizTarget, sourcePhotoIds }} />}</div>
+    return !dayToken ? <p key={task.id} role="alert">«{task.title}»: страница подготовки ещё не опубликована.</p> : <div key={task.id} id={`olympiad-practice-${task.id}`} tabIndex={-1}>{renderPractice ? renderPractice(task, dayToken, parent, quizTarget, number) : <DayPage key={`${familyId}/${childId}/${dayToken}/${task.id}`} token={dayToken} parent={parent} headerReturnTarget={null} olympiadScope={{ familyId, childId, olympiadId, taskId: task.id, testTokens: task.testTokens, number, quizTarget, sourcePhotoIds }} />}</div>
   }
   const canPractice=Boolean(publishedOlympiad&&(parent||selections?.includes(olympiadId)))
-  const sections=[...(canPractice?[{id:"olympiad-practice-title",label:"Практика",count:prepared.length+uploaded.length}]:[]),...(canPractice&&matching.some(task=>task.testTokens.length>0)?[{id:"olympiad-methods-title",label:"Тесты"}]:[]),...(history?[{id:"olympiad-history",label:"Мои участия"}]:[])]
+  const availablePersonalTasks=canPractice&&projectionReady?matching.filter(task=>!task.sourceIntake&&dashboard?.days.some(day=>day.date===task.projectionSourceDate&&day.dayToken)).map(task=>task.id):[]
+  function openPersonalTask(id:string){
+    if(!availablePersonalTasks.includes(id))return
+    const target=document.getElementById(`olympiad-practice-${id}`)
+    target?.scrollIntoView({behavior:'auto',block:'start'});target?.focus({preventScroll:true})
+  }
+  const sections=[...(history?.preparation?[{id:"olympiad-personal-preparation",label:"Моя подготовка"}]:[]),...(canPractice?[{id:"olympiad-practice-title",label:"Практика",count:prepared.length+uploaded.length}]:[]),...(canPractice&&matching.some(task=>task.testTokens.length>0)?[{id:"olympiad-methods-title",label:"Тесты"}]:[]),...(history?[{id:"olympiad-history",label:"Мои участия"}]:[])]
   return <section className="olympiad-page" aria-label="Подготовка к олимпиаде"><OlympiadBackLink href={`#/days/${encodeURIComponent(canonicalToken)}`}/><div className="day-dashboard-card olympiad-page-body">
     {error ? <p role="alert">{error}</p> : !tasks || !dashboard || !catalog || (!parent && !selections) || !historyIndex&&!historyError ? <p role="status">Открываем олимпиаду…</p> : !parent && !selections?.includes(olympiadId) && !historyEntry ? <p role="alert">Эту олимпиаду ещё не включил родитель.</p> : !olympiad ? <p role="alert">Сведения об олимпиаде недоступны.</p> : <>
       <OlympiadOverview olympiad={olympiad} sections={sections}/>
+      {history?.preparation&&<OlympiadPreparationSummary key={historyScope} preparation={history.preparation} familyId={familyId} childId={childId} availableTaskIds={availablePersonalTasks} onOpenTask={openPersonalTask} resolveFile={resolveHistoryFile}/>}
       {historyError&&<p role="status">История временно недоступна. Попробуйте открыть страницу снова.</p>}
       {historyEntry&&historyState?.scope!==historyScope&&!historyError&&<p role="status">Открываем историю работ…</p>}
       {historyEntry&&historyState?.scope===historyScope&&!history&&!historyError&&<p role="status">История ещё не опубликована.</p>}

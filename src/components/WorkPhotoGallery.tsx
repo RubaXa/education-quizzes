@@ -31,11 +31,11 @@ export type WorkPhotoSelection = {
  * Разделяет технический статус снимка и педагогический результат задания.
  * @see ../../docs/modules/school-diary/day-page.md#photo-status
  */
-export default function WorkPhotoGallery<T extends LocalWorkPhoto>({ taskTitle, evidenceLabel = 'Фото работы', studentToken, uploads, localPhotos, review, now, onRetry, onDelete, compact = false, selection, purpose }: {
+export default function WorkPhotoGallery<T extends LocalWorkPhoto>({ taskTitle, evidenceLabel = 'Фото работы', studentToken, uploads, localPhotos, review, now, onRetry, onDelete, compact = false, selection, purpose, initialSelectedId }: {
   taskTitle: string; evidenceLabel?: string; studentToken: string; uploads: DayUpload[]; localPhotos: T[]; review?: DayWorkReview; now: number;
-  onRetry?: (photo: T) => void; onDelete?: (uploadId: string) => Promise<void>; compact?: boolean; selection?: WorkPhotoSelection; purpose?: 'help' | 'source' | 'source-complete' | 'contest' | 'archive'
+  onRetry?: (photo: T) => void; onDelete?: (uploadId: string) => Promise<void>; compact?: boolean; selection?: WorkPhotoSelection; initialSelectedId?:string; purpose?: 'help' | 'source' | 'source-complete' | 'contest' | 'archive'
 }) {
-  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [selectedId, setSelectedId] = useState<string | null>(initialSelectedId ?? null)
   const [removingId, setRemovingId] = useState<string | null>(null)
   const [deleteError, setDeleteError] = useState('')
   const [removedIds, setRemovedIds] = useState<string[]>([])

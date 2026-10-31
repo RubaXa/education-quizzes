@@ -12,7 +12,7 @@ const role=(value:string)=>({solution:'Решение',source:'Условия',r
 
 /** A history stage reuses the current read-only work gallery; no upload or new attempt.
  * @see ../../docs/modules/assessments/olympiad-history.md */
-function HistoryFiles({files,familyId,childId,resolveFile}:{files:HistoryFile[];familyId:string;childId:string;resolveFile:typeof requestHistoryFile}){
+export function HistoryFiles({files,familyId,childId,resolveFile,autoOpen=false}:{autoOpen?:boolean;files:HistoryFile[];familyId:string;childId:string;resolveFile:typeof requestHistoryFile}){
  const [request,setRequest]=useState(0),[value,setValue]=useState<{key:string;uploads:DayUpload[];failed:number}>(),[now]=useState(Date.now)
  const key=`${familyId}/${childId}/${files.map(f=>f.id).join(':')}/${request}`
  useEffect(()=>{
@@ -27,7 +27,7 @@ function HistoryFiles({files,familyId,childId,resolveFile}:{files:HistoryFile[];
  const pending=!current
  return <div className="olympiad-history-files">
   {pending&&<p role="status">Открываем архивные файлы…</p>}
-  {current&&current.uploads.length>0&&<WorkPhotoGallery studentToken="historical-archive" taskTitle="Архивная работа" uploads={current.uploads} localPhotos={[]} now={now} evidenceLabel="Архивные файлы" purpose="archive" />}
+  {current&&current.uploads.length>0&&<WorkPhotoGallery studentToken="historical-archive" taskTitle="Архивная работа" uploads={current.uploads} localPhotos={[]} now={now} evidenceLabel="Архивные файлы" purpose="archive" initialSelectedId={autoOpen?current.uploads[0]?.id:undefined} />}
   {current&&current.failed>0&&<p role="alert">Недоступно файлов: {current.failed}. <Button variant="outline" size="sm" onClick={()=>setRequest(v=>v+1)}>Повторить</Button></p>}
   <ul className="olympiad-history-file-list">{files.map(file=><li key={file.id}>{role(file.role)} · {file.name}</li>)}</ul>
  </div>
