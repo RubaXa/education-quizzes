@@ -1267,7 +1267,7 @@
     {
       "id": "decision.olympiad-calendar-2026-10-31",
       "status": "accepted",
-      "implementation": "partial",
+      "implementation": "implemented",
       "created": "2026-10-31",
       "updated": "2026-10-31",
       "parent": "module.olympiad-preparation",
@@ -1292,7 +1292,8 @@
         "проверки",
         "было--стало",
         "действия-и-роли",
-        "согласование"
+        "согласование",
+        "расширение-каталога-для-6-класса"
       ],
       "path": "docs/decisions/olympiad-calendar-2026-10-31.md"
     },
@@ -4885,7 +4886,7 @@
       "id": "file:olympiad/season-calendar.mjs",
       "path": "olympiad/season-calendar.mjs",
       "kind": "artifact",
-      "purpose": "Проверенные публичные даты и подготовка",
+      "purpose": "19 публичных карточек: статус, известные и неизвестные даты, регистрация и подготовка",
       "consumer": "Education"
     },
     {
@@ -8140,7 +8141,7 @@
       "id": "file:src/lib/olympiad/calendar.ts",
       "path": "src/lib/olympiad/calendar.ts",
       "kind": "artifact",
-      "purpose": "Валидация и время по Москве",
+      "purpose": "Точность дат: день, время по Москве или неизвестно; валидация и архив",
       "consumer": "Education"
     },
     {

@@ -1101,11 +1101,11 @@
 | Файл | Спецификация | Назначение | Потребитель |
 |---|---|---|---|
 | [docs/decisions/olympiad-calendar-2026-10-31.md](../docs/decisions/olympiad-calendar-2026-10-31.md) | [Календарь](decisions/olympiad-calendar-2026-10-31.md) | Решение о календаре | Education |
-| [olympiad/season-calendar.mjs](../olympiad/season-calendar.mjs) | [Календарь](decisions/olympiad-calendar-2026-10-31.md) | Проверенные публичные даты и подготовка | Education |
+| [olympiad/season-calendar.mjs](../olympiad/season-calendar.mjs) | [Календарь](decisions/olympiad-calendar-2026-10-31.md) | 19 публичных карточек: статус, известные и неизвестные даты, регистрация и подготовка | Education |
 | [olympiad/publish-calendar.mjs](../olympiad/publish-calendar.mjs) | [Календарь](decisions/olympiad-calendar-2026-10-31.md) | Идемпотентная публикация общих дат | Education |
 | [olympiad/publish-calendar.test.mjs](../olympiad/publish-calendar.test.mjs) | [Календарь](decisions/olympiad-calendar-2026-10-31.md) | Сохранность семейных данных | Education |
 | [scripts/olympiad-calendar.mjs](../scripts/olympiad-calendar.mjs) | [Календарь](decisions/olympiad-calendar-2026-10-31.md) | Штатный CLI календаря | Education |
-| [src/lib/olympiad/calendar.ts](../src/lib/olympiad/calendar.ts) | [Календарь](decisions/olympiad-calendar-2026-10-31.md) | Валидация и время по Москве | Education |
+| [src/lib/olympiad/calendar.ts](../src/lib/olympiad/calendar.ts) | [Календарь](decisions/olympiad-calendar-2026-10-31.md) | Точность дат: день, время по Москве или неизвестно; валидация и архив | Education |
 | [src/lib/olympiad/calendar.test.ts](../src/lib/olympiad/calendar.test.ts) | [Календарь](decisions/olympiad-calendar-2026-10-31.md) | Границы сроков и неизвестное | Education |
 | [src/components/OlympiadSchedule.tsx](../src/components/OlympiadSchedule.tsx) | [Календарь](decisions/olympiad-calendar-2026-10-31.md) | Общий календарь карточки и страницы | Education |
 | [src/components/OlympiadSchedule.css](../src/components/OlympiadSchedule.css) | [Календарь](decisions/olympiad-calendar-2026-10-31.md) | Стили общих сроков | Education |

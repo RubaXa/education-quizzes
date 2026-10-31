@@ -19,3 +19,18 @@ it('moves the clock through the opening boundary without pretending an unknown f
     expect(host.textContent).not.toContain('Идёт · осталось')
   } finally { await act(async () => root.unmount()); vi.useRealTimers() }
 })
+
+it('renders unknown dates and date-only events without an invented countdown', async () => {
+ const host=document.createElement('div'), root=createRoot(host)
+ const calendar: OlympiadCalendar={checkedAt:'2026-10-31T15:00:00Z',registrationUrl:'https://example.org/',registrationLinkLabel:'Сайт организатора',registrationNote:'Регистрация ещё не объявлена',statusLabel:'Ждём даты',events:[],notes:[],preparation:['Реши архивную задачу 6 класса.'],sources:[]}
+ try {
+ await act(async()=>root.render(<OlympiadSchedule calendar={calendar}/>))
+ expect(host.textContent).toContain('Следующие даты ещё не опубликованы')
+ expect(host.textContent).toContain('Реши архивную задачу')
+ expect(host.querySelector('a')?.textContent).toContain('Сайт организатора')
+ await act(async()=>root.render(<OlympiadSchedule calendar={{...calendar,events:[{id:'contest',title:'Конкурс',at:'2027-02-21',sourceUrl:'https://example.org/'}]}}/>))
+ expect(host.textContent).toContain('21 февраля')
+ expect(host.textContent).not.toContain('00:00')
+ expect(host.textContent).not.toContain('Через')
+ }finally{await act(async()=>root.unmount())}
+})

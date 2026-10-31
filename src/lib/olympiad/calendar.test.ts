@@ -24,3 +24,26 @@ describe('official olympiad times', () => {
     expect(remainingTime('2026-11-01T00:00:00Z', Date.parse('2026-10-31T23:59:59Z'))).toBe('0 мин. 1 сек.')
   })
 })
+
+it('keeps an undated season visible and distinguishes a known day from a known time', () => {
+  const base = seasonCalendarCatalog()[0].calendar
+  const waiting = parseOlympiadCalendar({ ...base, events: [], statusLabel: 'Даты ещё не опубликованы' })
+  expect(waiting).toBeDefined()
+  const dateOnly = parseOlympiadCalendar({ ...base, events: [{ id:'final', title:'Финал', at:'2027-02-21', sourceUrl:'https://example.org/' }] })!
+  expect(dateOnly).toBeDefined()
+  expect(olympiadDate('2027-02-21')).not.toContain('00:00')
+  expect(nextOlympiadEvent(dateOnly, Date.parse('2027-02-21T20:00:00+03:00'))).toBeDefined()
+  expect(parseOlympiadCalendar({ ...base, events: [{ id:'bad',title:'bad',at:'2027-02-30',sourceUrl:'https://example.org/' }] })).toBeUndefined()
+})
+
+it('accepts all published grade-six cards including those awaiting dates', () => {
+ const items = seasonCalendarCatalog()
+ expect(items).toHaveLength(19)
+ expect(new Set(items.map((item: {id:string}) => item.id)).size).toBe(19)
+ for (const item of items) {
+   expect(item.gradeLevels).toContain(6)
+   expect(parseOlympiadCalendar(item.calendar), item.id).toBeDefined()
+   expect(item.calendar.preparation.length, item.id).toBeGreaterThan(0)
+   expect(item.calendar.registrationNote.length, item.id).toBeGreaterThan(0)
+ }
+})
