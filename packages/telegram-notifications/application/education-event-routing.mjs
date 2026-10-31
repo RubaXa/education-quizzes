@@ -30,6 +30,14 @@ export function createEducationEventHandlers({ firestorePipeline = null, notific
   for (const eventType of EDUCATION_EVENT_TYPES) {
     routes[eventType] = []
     const phases = routes[eventType]
+    if (eventType === 'review.published' || eventType === 'parent.decision') {
+      phases.push(phase('olympiad-preparation', async (event, context) => {
+        if (event.source !== 'firestore') return { state: 'complete' }
+        const handler = actionHandlers[eventType]
+        if (typeof handler !== 'function') return { state: 'blocked', safeErrorCode: 'preparation_handler_unavailable' }
+        return handler(event, context)
+      }))
+    }
     if (eventType === 'upload.confirmed' || eventType === 'quiz.started' || eventType === 'quiz.submitted' || eventType === 'review.published') {
       phases.push(phase('source-observation', async (event, { signal } = {}) => {
         if (event.source !== 'firestore') return { state: 'complete' }
@@ -129,7 +137,7 @@ function sourceScope(event) {
     return { kind: 'upload', familyId: event.familyId, childId: event.childId, dayToken: upload[1], recordId: upload[2] }
   }
   if (event.eventType === 'review.published' && ['review', 'progress'].includes(ref.kind) && review
-    && (ref.dayToken === undefined || ref.dayToken === review[1]) && (ref.recordId === undefined || ref.recordId === review[2])) {
+    && (ref.dayToken === undefined || ref.dayToken === review[1]) && (ref.recordId === undefined || ref.recordId === review[2]) && (ref.taskId === undefined || ref.taskId === review[2])) {
     return { kind: 'progress', familyId: event.familyId, childId: event.childId, dayToken: review[1], recordId: review[2] }
   }
   if (['quiz.started', 'quiz.submitted'].includes(event.eventType) && ref.kind === 'quiz' && quiz

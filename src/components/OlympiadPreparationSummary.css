@@ -18,3 +18,9 @@
 
 
 .olympiad-preparation-next-evidence{margin-top:20px;border-top:1px solid var(--edu-card-border)}.olympiad-preparation-next-evidence>summary{min-height:44px;display:flex;align-items:center;color:var(--edu-accent-ink);cursor:pointer;font-size:16px}.olympiad-preparation-next-evidence .olympiad-preparation-links{padding-block:8px}
+
+.olympiad-preparation-reviews{margin-top:20px}
+.olympiad-preparation-reviews summary{cursor:pointer;min-height:44px;display:list-item;padding:10px 0;font-weight:600}
+.olympiad-preparation-reviews ul{list-style:none;margin:0;padding:0}
+.olympiad-preparation-reviews li{padding:16px 0;border-top:1px solid var(--edu-card-border)}
+.olympiad-preparation-reviews [data-slot=button]{min-height:44px;height:auto;white-space:normal;text-align:left;justify-content:flex-start;padding:0}

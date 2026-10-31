@@ -5,6 +5,15 @@ const base = { eventId: 'a'.repeat(64), source: 'firestore', familyId: 'family-a
   actor: { type: 'user', uid: 'parent-a' }, operationId: 'op-a' }
 
 describe('unified education event routing', () => {
+  it('refreshes preparation before source observation and requires its durable handler',async()=>{
+    const update=vi.fn(async()=>({state:'complete'}))
+    const routes=createEducationEventHandlers({actionHandlers:{'review.published':update,'parent.decision':update}})
+    for(const eventType of ['review.published','parent.decision']){
+      expect(routes[eventType][0].phase).toBe('olympiad-preparation')
+      await routes[eventType][0].handle({...base,eventType});expect(update).toHaveBeenCalledWith({...base,eventType},undefined)
+    }
+    expect(await createEducationEventHandlers()['review.published'][0].handle({...base,eventType:'review.published'})).toMatchObject({state:'blocked'})
+  })
   it('uses exact upload, review, and quiz source references for source observation', async () => {
     const process = vi.fn(async () => ({ status: 'advanced' }))
     const handlers = createEducationEventHandlers({ firestorePipeline: { process } })
@@ -19,7 +28,7 @@ describe('unified education event routing', () => {
         { kind: 'quiz', familyId: 'family-a', childId: 'child-a', quizToken: 'quiz-c' }],
     ]) {
       const event = { ...base, eventType, sourceRef }
-      await handlers[eventType][0].handle(event)
+      await handlers[eventType].find(p=>p.phase==='source-observation').handle(event)
       expect(process).toHaveBeenLastCalledWith(expected, { origin: 'live' })
     }
   })

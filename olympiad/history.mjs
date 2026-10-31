@@ -21,7 +21,16 @@ function historyFile(file){
  text(file.role,80)
 }
 function preparation(value){
- keys(value,['updatedOn','strengths','workingOn','next','evidence'])
+ keys(value,['updatedOn','strengths','workingOn','next','evidence','progress'])
+ if(value.progress!==undefined){
+  keys(value.progress,['tasks','exhausted']);if(typeof value.progress.exhausted!=='boolean')fail()
+  list(value.progress.tasks,100).forEach(t=>{
+   keys(t,['taskId','title','status','reviewVersion','checkedOn','credited','confirmed','focus','achievedOn'])
+   if(!id.test(t.taskId)||!hash.test(t.reviewVersion)||!['verified','partial','needs-fix'].includes(t.status)||![null,'review','family'].includes(t.credited))fail()
+   text(t.title,160);for(const d of [t.checkedOn,t.achievedOn])if(d!==null&&(!/^\d{4}-\d{2}-\d{2}$/.test(d)||Number.isNaN(Date.parse(d))))fail()
+   for(const v of [t.confirmed,t.focus])if(v!==null)text(v,2000)
+  });unique(value.progress.tasks.map(t=>t.taskId))
+ }
  if(!/^\d{4}-\d{2}-\d{2}$/.test(value.updatedOn)||Number.isNaN(Date.parse(value.updatedOn)))fail()
  list(value.evidence,12).forEach(e=>{keys(e,['id','label','competitionId','seasonId','stageId','taskNumber','file']);if(![e.id,e.competitionId,e.seasonId,e.stageId].every(v=>id.test(v)))fail();text(e.label,150);if(e.taskNumber!==undefined&&(!Number.isSafeInteger(e.taskNumber)||e.taskNumber<1||e.taskNumber>100))fail();historyFile(e.file)})
  unique(value.evidence.map(e=>e.id))
@@ -69,7 +78,7 @@ export function mergeHistory(previous,incoming,{correctExisting=false}={}){
  const result=validateHistoryCompetition(previous),next=validateHistoryCompetition(incoming)
  if(result.id!==next.id)throw Error('history_identity_mismatch')
  result.title=next.title;result.aliases=[...new Set([...result.aliases,...next.aliases])]
- if(next.preparation!==undefined){if(!isDeepStrictEqual(previous.preparation,next.preparation)&&!correctExisting)throw Error('history_preparation_conflict');result.preparation=next.preparation}
+ if(next.preparation!==undefined){if(previous.preparation?.progress&&!isDeepStrictEqual(previous.preparation,next.preparation))throw Error('history_preparation_conflict');if(!isDeepStrictEqual(previous.preparation,next.preparation)&&!correctExisting)throw Error('history_preparation_conflict');result.preparation=next.preparation}
  for(const season of next.seasons){const found=result.seasons.find(s=>s.id===season.id);if(!found){result.seasons.push(season);continue}if(found.grade!==season.grade||found.label!==season.label)throw Error('history_season_conflict');for(const stage of season.stages){const index=found.stages.findIndex(s=>s.id===stage.id),old=found.stages[index];if(old&&!isDeepStrictEqual(old,stage)){if(!correctExisting)throw Error('history_stage_conflict');found.stages[index]=stage}if(!old)found.stages.push(stage)}}
  result.seasons.sort((a,b)=>a.id==='unknown'?1:b.id==='unknown'?-1:b.id.localeCompare(a.id));return result
 }

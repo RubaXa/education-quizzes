@@ -264,6 +264,138 @@
     "note": "Только семья/ребёнок и перечисленные планом файлы/проекции; максимум100олимпиад и500файлов. Разовое чтение членов семьи для подтверждения существующего родителя. Повтор сохраняет этапы и существующие задания, без фоновой подписки."
   },
   {
+    "id": "olympiad/preparation-store.mjs#admin.get#5eaad2ab66c1",
+    "file": "olympiad/preparation-store.mjs",
+    "line": 15,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-olympiad",
+    "assessment": "justified",
+    "policy": "bounded-child-preparation-route",
+    "refresh": "review.published / parent.decision or explicit operator plan/apply",
+    "note": "Точный ребёнок, limit11 маршрутов (не более10), максимум50 задач; решения по taskId limit501. Транзакционные версии и адресный readback, без idle чтений и новых подписок клиента."
+  },
+  {
+    "id": "olympiad/preparation-store.mjs#admin.get#5eaad2ab66c1-2",
+    "file": "olympiad/preparation-store.mjs",
+    "line": 16,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-olympiad",
+    "assessment": "justified",
+    "policy": "bounded-child-preparation-route",
+    "refresh": "review.published / parent.decision or explicit operator plan/apply",
+    "note": "Точный ребёнок, limit11 маршрутов (не более10), максимум50 задач; решения по taskId limit501. Транзакционные версии и адресный readback, без idle чтений и новых подписок клиента."
+  },
+  {
+    "id": "olympiad/preparation-store.mjs#admin.get#5eaad2ab66c1-3",
+    "file": "olympiad/preparation-store.mjs",
+    "line": 24,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-olympiad",
+    "assessment": "justified",
+    "policy": "bounded-child-preparation-route",
+    "refresh": "review.published / parent.decision or explicit operator plan/apply",
+    "note": "Точный ребёнок, limit11 маршрутов (не более10), максимум50 задач; решения по taskId limit501. Транзакционные версии и адресный readback, без idle чтений и новых подписок клиента."
+  },
+  {
+    "id": "olympiad/preparation-store.mjs#admin.get#5eaad2ab66c1-4",
+    "file": "olympiad/preparation-store.mjs",
+    "line": 24,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-olympiad",
+    "assessment": "justified",
+    "policy": "bounded-child-preparation-route",
+    "refresh": "review.published / parent.decision or explicit operator plan/apply",
+    "note": "Точный ребёнок, limit11 маршрутов (не более10), максимум50 задач; решения по taskId limit501. Транзакционные версии и адресный readback, без idle чтений и новых подписок клиента."
+  },
+  {
+    "id": "olympiad/preparation-store.mjs#admin.get#5eaad2ab66c1-5",
+    "file": "olympiad/preparation-store.mjs",
+    "line": 32,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-olympiad",
+    "assessment": "justified",
+    "policy": "bounded-child-preparation-route",
+    "refresh": "review.published / parent.decision or explicit operator plan/apply",
+    "note": "Точный ребёнок, limit11 маршрутов (не более10), максимум50 задач; решения по taskId limit501. Транзакционные версии и адресный readback, без idle чтений и новых подписок клиента."
+  },
+  {
+    "id": "olympiad/preparation-store.mjs#admin.get#5eaad2ab66c1-6",
+    "file": "olympiad/preparation-store.mjs",
+    "line": 32,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-olympiad",
+    "assessment": "justified",
+    "policy": "bounded-child-preparation-route",
+    "refresh": "review.published / parent.decision or explicit operator plan/apply",
+    "note": "Точный ребёнок, limit11 маршрутов (не более10), максимум50 задач; решения по taskId limit501. Транзакционные версии и адресный readback, без idle чтений и новых подписок клиента."
+  },
+  {
+    "id": "olympiad/preparation-store.mjs#admin.get#5eaad2ab66c1-7",
+    "file": "olympiad/preparation-store.mjs",
+    "line": 33,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-olympiad",
+    "assessment": "justified",
+    "policy": "bounded-child-preparation-route",
+    "refresh": "review.published / parent.decision or explicit operator plan/apply",
+    "note": "Точный ребёнок, limit11 маршрутов (не более10), максимум50 задач; решения по taskId limit501. Транзакционные версии и адресный readback, без idle чтений и новых подписок клиента."
+  },
+  {
+    "id": "olympiad/preparation-store.mjs#admin.get#5eaad2ab66c1-8",
+    "file": "olympiad/preparation-store.mjs",
+    "line": 34,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-olympiad",
+    "assessment": "justified",
+    "policy": "bounded-child-preparation-route",
+    "refresh": "review.published / parent.decision or explicit operator plan/apply",
+    "note": "Точный ребёнок, limit11 маршрутов (не более10), максимум50 задач; решения по taskId limit501. Транзакционные версии и адресный readback, без idle чтений и новых подписок клиента."
+  },
+  {
+    "id": "olympiad/preparation-store.mjs#admin.get#5eaad2ab66c1-9",
+    "file": "olympiad/preparation-store.mjs",
+    "line": 57,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-olympiad",
+    "assessment": "justified",
+    "policy": "bounded-child-preparation-route",
+    "refresh": "review.published / parent.decision or explicit operator plan/apply",
+    "note": "Точный ребёнок, limit11 маршрутов (не более10), максимум50 задач; решения по taskId limit501. Транзакционные версии и адресный readback, без idle чтений и новых подписок клиента."
+  },
+  {
+    "id": "olympiad/preparation-store.mjs#admin.get#90e3ae559c31",
+    "file": "olympiad/preparation-store.mjs",
+    "line": 64,
+    "api": "admin.get",
+    "target": "db.doc(item.path)",
+    "group": "operator-olympiad",
+    "assessment": "justified",
+    "policy": "bounded-child-preparation-route",
+    "refresh": "review.published / parent.decision or explicit operator plan/apply",
+    "note": "Точный ребёнок, limit11 маршрутов (не более10), максимум50 задач; решения по taskId limit501. Транзакционные версии и адресный readback, без idle чтений и новых подписок клиента."
+  },
+  {
+    "id": "olympiad/preparation-store.mjs#admin.get#a7564a30ab31",
+    "file": "olympiad/preparation-store.mjs",
+    "line": 77,
+    "api": "admin.get",
+    "target": "db.doc(`dayOwners/${match[1]}`)",
+    "group": "operator-olympiad",
+    "assessment": "justified",
+    "policy": "bounded-child-preparation-route",
+    "refresh": "review.published / parent.decision or explicit operator plan/apply",
+    "note": "Точный ребёнок, limit11 маршрутов (не более10), максимум50 задач; решения по taskId limit501. Транзакционные версии и адресный readback, без idle чтений и новых подписок клиента."
+  },
+  {
     "id": "olympiad/publish-calendar.mjs#admin.get#b8347758242d",
     "file": "olympiad/publish-calendar.mjs",
     "line": 10,
@@ -1574,7 +1706,7 @@
   {
     "id": "packages/telegram-notifications/adapters/runtime.mjs#admin.get#8132c83ea5f4",
     "file": "packages/telegram-notifications/adapters/runtime.mjs",
-    "line": 31,
+    "line": 32,
     "api": "admin.get",
     "target": "db.doc(`telegramBotRuntimeChecks/${config.projectId}`)",
     "group": "operator-other",
@@ -6398,7 +6530,7 @@
   {
     "id": "scripts/submissions.mjs#admin.getAll#58c06df7cc4b",
     "file": "scripts/submissions.mjs",
-    "line": 472,
+    "line": 473,
     "api": "admin.getAll",
     "target": "db",
     "group": "operator-other",
@@ -6410,7 +6542,7 @@
   {
     "id": "scripts/submissions.mjs#admin.getAll#58c06df7cc4b-2",
     "file": "scripts/submissions.mjs",
-    "line": 491,
+    "line": 492,
     "api": "admin.getAll",
     "target": "db",
     "group": "operator-other",
@@ -6422,7 +6554,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#47958261b931-3",
     "file": "scripts/submissions.mjs",
-    "line": 509,
+    "line": 510,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -6434,7 +6566,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#d4c1114e5c5e",
     "file": "scripts/submissions.mjs",
-    "line": 509,
+    "line": 510,
     "api": "admin.get",
     "target": "reviewRefs[index]",
     "group": "operator-other",
@@ -6446,7 +6578,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#15ecdbe99851-2",
     "file": "scripts/submissions.mjs",
-    "line": 521,
+    "line": 522,
     "api": "admin.get",
     "target": "coverage",
     "group": "operator-other",
@@ -6458,7 +6590,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#15ecdbe99851-3",
     "file": "scripts/submissions.mjs",
-    "line": 528,
+    "line": 529,
     "api": "admin.get",
     "target": "coverage",
     "group": "operator-other",
@@ -6470,7 +6602,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#15ecdbe99851-4",
     "file": "scripts/submissions.mjs",
-    "line": 528,
+    "line": 529,
     "api": "admin.get",
     "target": "coverage",
     "group": "operator-other",
@@ -6482,7 +6614,7 @@
   {
     "id": "scripts/submissions.mjs#admin.getAll#58c06df7cc4b-3",
     "file": "scripts/submissions.mjs",
-    "line": 532,
+    "line": 533,
     "api": "admin.getAll",
     "target": "db",
     "group": "operator-other",
@@ -6494,7 +6626,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#4be1de83ec10-5",
     "file": "scripts/submissions.mjs",
-    "line": 543,
+    "line": 544,
     "api": "admin.get",
     "target": "db.collection('dayOwners')",
     "group": "operator-other",
@@ -6506,7 +6638,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#25e51139e6a0-3",
     "file": "scripts/submissions.mjs",
-    "line": 549,
+    "line": 550,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${owner.id}`)",
     "group": "operator-other",
@@ -6518,7 +6650,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#4aecce90adb9",
     "file": "scripts/submissions.mjs",
-    "line": 551,
+    "line": 552,
     "api": "admin.get",
     "target": "db.collection(`dayProgress/${owner.id}/items`)",
     "group": "operator-other",
@@ -6530,7 +6662,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#a278bb5bedbf",
     "file": "scripts/submissions.mjs",
-    "line": 557,
+    "line": 558,
     "api": "admin.get",
     "target": "privateRef",
     "group": "operator-other",

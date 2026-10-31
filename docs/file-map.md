@@ -1200,8 +1200,13 @@
 | [docs/decisions/olympiad-personal-preparation-2026-10-31.md](decisions/olympiad-personal-preparation-2026-10-31.md) | [Личная история](modules/assessments/olympiad-history.md) | Основание, роли и проверки персонального блока | Education developer |
 | [e2e/olympiad-personal-preparation.e2e.ts](../e2e/olympiad-personal-preparation.e2e.ts) | [Личная история](modules/assessments/olympiad-history.md) | Реальные переходы UI Kit и галерея на320/390/540px | Playwright |
 
-| Файл | Спецификация | Назначение | Потребитель |
-|---|---|---|---|
+| [olympiad/preparation.mjs](../olympiad/preparation.mjs) | [Личная история](modules/assessments/olympiad-history.md) | Маршрут по проверенным работам без переоценки навыков | Worker; CLI |
+| [olympiad/preparation-store.mjs](../olympiad/preparation-store.mjs) | [Личная история](modules/assessments/olympiad-history.md) | Атомарные проекции и неизменяемый журнал | Общая очередь; оператор |
+| [olympiad/preparation.test.mjs](../olympiad/preparation.test.mjs) | [Личная история](modules/assessments/olympiad-history.md) | Зачёт, пробелы, принятие и исключение задач | Vitest |
+| [olympiad/preparation-store.test.mjs](../olympiad/preparation-store.test.mjs) | [Личная история](modules/assessments/olympiad-history.md) | Scope, транзакции, повторы и сохранность истории | Vitest |
+| [scripts/olympiad-preparation.mjs](../scripts/olympiad-preparation.mjs) | [Личная история](modules/assessments/olympiad-history.md) | Проверяемое включение и восстановление маршрута | Education operator |
+| [docs/decisions/olympiad-preparation-updates-2026-11-01.md](decisions/olympiad-preparation-updates-2026-11-01.md) | [Личная история](modules/assessments/olympiad-history.md) | Основание автоматического обновления и границы | Разработчик; оператор |
+
 | [e2e/olympiad-next-step.e2e.ts](../e2e/olympiad-next-step.e2e.ts) | [Первый шаг](shared/design/information-hierarchy.md) | Одна следующая задача перед организационными подробностями | Education |
 | [src/components/OlympiadNextStep.css](../src/components/OlympiadNextStep.css) | [Первый шаг](shared/design/information-hierarchy.md) | Одна следующая задача перед организационными подробностями | Education |
 | [src/components/OlympiadNextStep.tsx](../src/components/OlympiadNextStep.tsx) | [Первый шаг](shared/design/information-hierarchy.md) | Одна следующая задача перед организационными подробностями | Education |
