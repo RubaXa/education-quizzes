@@ -3843,7 +3843,7 @@
       }
     },
     "src/components/WorkReview.tsx": {
-      "sha256": "13e852da739054e54e1c9cf2c9994e0e79d90791cabe8a8f318caae15162861a",
+      "sha256": "b0e12a68031f1ba8cfca410428a982d9041496647e563168395a98e377130168",
       "record": "docs/decisions/student-review-step-2026-11-01.md",
       "specs": [
         "docs/shared/design/student-review-step.md",
