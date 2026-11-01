@@ -3,8 +3,8 @@
  * @see ../docs/decisions/pwa-startup-recovery-2026-10-22.md
  */
 const BASE = '/education-quizzes/'
-const CACHE = 'education-shell-2fc27df545bed99e'
-const ASSETS = ["/education-quizzes/index.html","/education-quizzes/manifest.webmanifest","/education-quizzes/icons/education.svg","/education-quizzes/icons/education-180.png","/education-quizzes/icons/education-192.png","/education-quizzes/icons/education-512.png","/education-quizzes/assets/geist-cyrillic-ext-wght-normal-DjL33-gN.woff2","/education-quizzes/assets/geist-cyrillic-wght-normal-BEAKL7Jp.woff2","/education-quizzes/assets/geist-latin-ext-wght-normal-DC-KSUi6.woff2","/education-quizzes/assets/geist-latin-wght-normal-BgDaEnEv.woff2","/education-quizzes/assets/geist-vietnamese-wght-normal-6IgcOCM7.woff2","/education-quizzes/assets/highlight-CDB-Wfc1.js","/education-quizzes/assets/index-DpgcENyK.js","/education-quizzes/assets/index-U-dzRiD4.css"]
+const CACHE = 'education-shell-fbe0ed4b5ca74b25'
+const ASSETS = ["/education-quizzes/index.html","/education-quizzes/manifest.webmanifest","/education-quizzes/icons/education.svg","/education-quizzes/icons/education-180.png","/education-quizzes/icons/education-192.png","/education-quizzes/icons/education-512.png","/education-quizzes/assets/geist-cyrillic-ext-wght-normal-DjL33-gN.woff2","/education-quizzes/assets/geist-cyrillic-wght-normal-BEAKL7Jp.woff2","/education-quizzes/assets/geist-latin-ext-wght-normal-DC-KSUi6.woff2","/education-quizzes/assets/geist-latin-wght-normal-BgDaEnEv.woff2","/education-quizzes/assets/geist-vietnamese-wght-normal-6IgcOCM7.woff2","/education-quizzes/assets/highlight-Dx-2vguC.js","/education-quizzes/assets/index-Cih4oDi2.js","/education-quizzes/assets/index-DvebrcHe.css"]
 const assetPaths = new Set(ASSETS.map((url) => new URL(url, self.location.origin).pathname))
 
 // WebKit can reject CacheStorage operations with an internal error. A cache is
