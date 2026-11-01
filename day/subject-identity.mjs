@@ -1,6 +1,8 @@
+/** @see ../docs/decisions/informatics-assessment-2026-11-01.md */
 /** Shared lesson identity. Keep Firestore subject IDs stable during migration.
  * @see ../docs/modules/school-diary/dashboard.md#schedule-homework-status */
 const known = [
+  [/информат/i, 'informatics', 'Информатика', '⌨'],
   [/спецкурс|специальный курс/i, 'special', 'Спецкурс по математике', '♟'],
   [/практикум/i, 'practicum', 'Практикум по решению математических задач', '∑'],
   [/математ/i, 'math', 'Математика', '∑'],

@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/informatics-assessment-2026-11-01.md */
 import {resolveReviewReplyStep, reviewReplyErrors, sameReviewValue} from '../../packages/education-presentation/review-reply.mjs'
 import type {ReviewReply} from '../../packages/education-presentation/review-reply.mjs'
 /** @see ../../docs/decisions/compact-review-rollout-2026-10-31.md */
@@ -82,7 +83,7 @@ export function isCdzTask(task: Pick<DayTask, 'id' | 'kind' | 'meshText' | 'titl
 }
 export type DayMaterialLink = { title: string; url: string; sourceType: 'textbook-page' | 'teacher-attachment' | 'external-text' | 'audio'; reason?: string; sourceRef?: string; sharedAcrossTasks?: boolean; pdfPage?: number; printedPage?: number | null; editionStatus?: string; extraction?: string; sourceSha256?: string; sourceQuote?: string; collectionId?: string; audioKind?: 'sb' | 'wb' | 'test'; exercise?: string | null; exerciseType?: 'exercise' | 'part'; sourceUrl?: string }
 export type DaySubject = { id: string; name: string; icon: string; materials: string; mesh: string; summary: string; tasks: DayTask[] }
-export type DayTestPlacement = { token: string; subjectId: string; taskId?: string; originDate?: string; optional?: boolean }
+export type DayTestPlacement = { token: string; subjectId: string; taskId?: string; relatedTaskId?: string; originDate?: string; optional?: boolean }
 /** @see ../../docs/modules/families/access-and-state.md#state */
 export type DayPageData = {
   kind: 'student' | 'parent'; date: string; targetDate: string; meshFetchedAt: string;

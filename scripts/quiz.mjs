@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/informatics-assessment-2026-11-01.md */
 import { randomBytes } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
@@ -392,7 +393,7 @@ async function reviseOpenQuiz(learnerToken, specPath, studentPersonId) {
   console.log(JSON.stringify(result))
 }
 
-async function addToLearnerBoard(manifestPath) {
+async function addToLearnerBoard(manifestPath, studentPersonId) {
   const items = loadJson(manifestPath)
   if (!Array.isArray(items) || !items.length) fail('В manifest нужен непустой массив тестов.')
   const tokens = new Set()
@@ -408,7 +409,7 @@ async function addToLearnerBoard(manifestPath) {
     const assignment = snapshot.data()
     const assignmentErrors = assignmentShapeErrors(assignment)
     if (assignmentErrors.length) fail(`Тест с позицией ${position + 1} нарушает модель Firestore: ${assignmentErrors.join(' ')}`)
-    if (assignment.status === 'open') assertQuizOwner(assignment, assignmentOwner())
+    if (assignment.status === 'open') assertQuizOwner(assignment, assignmentOwner(studentPersonId))
     validateBoardDetails(item.board)
     const indexEntry = {
       testId: assignment.testId,
@@ -592,7 +593,7 @@ try {
   } else if (command === 'create') await create(first, second)
   else if (command === 'revise-open') await reviseOpenQuiz(first, second, third)
   else if (command === 'history') await exportLineage(first, second, third)
-  else if (command === 'board-add') await addToLearnerBoard(first)
+  else if (command === 'board-add') await addToLearnerBoard(first, second)
   else if (command === 'list') await list()
   else if (command === 'board-status') await boardStatus()
   else if (command === 'sync-links') await syncBoardLinks(first === '--apply')
@@ -602,7 +603,7 @@ try {
   else if (command === 'review') await reviewAttempt(first, second)
   else if (command === 'repair-canonical-short-answers') await repairCanonicalShortAnswers(first, second)
   else if (command === 'repair-question-guidance') await repairCanonicalShortAnswers(first, second, true)
-  else fail('Команды: validate SPEC.json | create SPEC.json [PERSON_ID] | revise-open TOKEN SPEC.json PERSON_ID | history TOKEN .local/OUTPUT.json [PLAN.json] | board-add MANIFEST.json | board-status | sync-links [--apply] | audit-access | list | export TOKEN OUTPUT.json | review TOKEN REVIEW.json')
+  else fail('Команды: validate SPEC.json | create SPEC.json [PERSON_ID] | revise-open TOKEN SPEC.json PERSON_ID | history TOKEN .local/OUTPUT.json [PLAN.json] | board-add MANIFEST.json [PERSON_ID] | board-status | sync-links [--apply] | audit-access | list | export TOKEN OUTPUT.json | review TOKEN REVIEW.json')
 } catch (error) {
   console.error(error instanceof Error ? error.message : error)
   process.exitCode = 1

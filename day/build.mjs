@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/informatics-assessment-2026-11-01.md */
 /** @see ../docs/decisions/mesh-informational-entry-2026-10-21.md */
 /** @see ../docs/decisions/audio-library-2026-10-22.md#было--стало */
 /**
@@ -289,7 +290,7 @@ export function buildDaySource(local, date) {
   const evidenceDayTokens = [...new Set([...(current?.evidenceDayTokens || earlier?.evidenceDayTokens || []), ...(earlierDate && links[earlierDate] ? [links[earlierDate].student] : [])])]
   const activeTaskIds = new Set(subjects.flatMap((subject) => subject.tasks.map((task) => task.id)))
   const retiredTaskIds = (current?.retiredTaskIds || []).filter((taskId) => !activeTaskIds.has(taskId))
-  const source = { ...current, targetDate, notices, parentNotes, subjects, testPlacements: placements, materialLinks, audioSelections,
+  const source = { ...current, targetDate, notices, parentNotes, subjects, testPlacements: placements.filter(placement => !placement.relatedTaskId || subjects.some(subject => subject.tasks.some(task => task.id === placement.relatedTaskId && task.assessmentIntent?.state === 'confirmed'))), materialLinks, audioSelections,
     materialLinkReplacements: [...materialLinkReplacements], sourceOnlyEntries, evidenceDayTokens, retiredTaskIds }
   writeJson(local, `day-source-${date}.json`, source)
   return { date, targetDate, assigned, subjects: subjects.length, tasks: subjects.reduce((sum, subject) => sum + subject.tasks.length, 0), added }

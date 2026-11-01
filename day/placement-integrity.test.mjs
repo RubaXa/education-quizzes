@@ -35,3 +35,11 @@ describe('целостность опубликованного дня', () => {
     expect(placementIntegrityErrors(archived).join(' ')).toMatch(/нет заявленной страницы/)
   })
 })
+
+it('keeps the external platform task separate from its optional supplementary test', () => {
+ const p=page();const task=p.subjects[0].tasks[0];delete task.testToken;task.kind='check';task.outputKind='platform-result'
+ p.testPlacements=[{token:a,subjectId:'history',relatedTaskId:task.id,optional:true}]
+ expect(placementIntegrityErrors(p)).toEqual([])
+ expect(placementIntegrityErrors({...p,testPlacements:[{...p.testPlacements[0],optional:false}]}).some(e=>e.includes('optional'))).toBe(true)
+ expect(placementIntegrityErrors({...p,testPlacements:[{...p.testPlacements[0],relatedTaskId:'missing'}]}).some(e=>e.includes('optional'))).toBe(true)
+})

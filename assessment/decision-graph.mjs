@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/informatics-assessment-2026-11-01.md */
 /**
  * @see ../docs/modules/assessments/assessment-source-policy.md
  */
@@ -14,6 +15,7 @@ export const subjectAdapters = Object.freeze({
   geography: ['source-fact', 'map', 'causation', 'application'],
   biology: ['source-fact', 'structure-function', 'classification', 'application'],
   english: ['reading', 'listening', 'language-in-context', 'production'],
+  informatics: ['code-trace', 'condition', 'iteration', 'debugging', 'transfer'],
   generic: ['source-fact', 'explanation', 'application'],
 })
 
@@ -91,6 +93,22 @@ function isConfirmedReadingOnly(task) {
   return reading && !otherOutput
 }
 
+/** Content selects the programming adapter even under the school label technology.
+ * Recognition only queues source/intent classification; it never invents platform questions.
+ * @see ../docs/modules/assessments/assessment-decision-graph.md#informatics */
+export function programmingAssignment(task) {
+  const text = `${task?.meshText ?? ''} ${task?.assessmentIntent?.topic ?? ''}`
+  return /(?:\bpython\b|программирован|листинг|proginf\.ru)/i.test(text)
+    && /(?:цикл|услови|программ|python|листинг)/i.test(text)
+}
+
+/** A supplementary test is a separate optional activity, not platform-completion evidence.
+ * @see ../docs/modules/assessments/assessment-decision-graph.md#informatics */
+export function supplementalAssessmentPlacement(task, placements = []) {
+  return task?.instructionStatus?.state === 'reviewed' && task?.assessmentIntent?.state === 'confirmed'
+    ? placements.find(item => item.relatedTaskId === task.id && item.optional === true && !item.taskId) : undefined
+}
+
 /** A raw MESH keyword can request classification, never authorize publication. */
 export function quizDecision(task) {
   if (task?.referenceDate || /(?:^|[^а-яё])цдз(?:$|[^а-яё])/i.test(task?.meshText ?? '')) return null
@@ -99,6 +117,7 @@ export function quizDecision(task) {
     && nonempty(intent.topic) && nonempty(intent.evidenceRef)) {
     return { job: 'prepare-quiz', mode: intent.mode, evidenceRef: intent.evidenceRef }
   }
+  if (programmingAssignment(task)) return { job: 'classify-assignment', reason: 'confirm-programming-topic-language-and-platform-scope' }
   if (intent || /подготовиться\s+к\s+контрольн/i.test(task?.meshText ?? '')) {
     return { job: 'classify-assignment', reason: 'confirm-topic-output-and-assessment-mode' }
   }
@@ -226,6 +245,12 @@ export function validateAssessmentPlan(plan, spec) {
   }
   if (plan.subjectAdapter === 'math' && (spec.questions ?? []).some((question) => ['single', 'multiple'].includes(question.kind))
     && !nonempty(plan.mathChoiceApprovedRef)) errors.push('Выбор ответа в математике требует ссылки на прямую просьбу родителя.')
+  if (plan.subjectAdapter === 'informatics') {
+    if (plan.programming?.language !== 'python' || !nonempty(plan.programming.languageEvidenceRef)
+      || !nonempty(plan.programming.executionEvidenceRef)) errors.push('Информатика: нужны подтверждённый Python и проверка конечных примеров интерпретатором.')
+    if ((spec.questions ?? []).some(question => !nonempty(question.code))) errors.push('Информатика: каждый вопрос требует видимый листинг.')
+    if (!(spec.questions ?? []).some(question => ['short', 'number', 'long'].includes(question.kind))) errors.push('Информатика: нужен самостоятельный ответ, а не только выбор.')
+  }
   if (plan.semanticReview?.completed !== true || !nonempty(plan.semanticReview.ref)) {
     errors.push('Требуется запись независимой смысловой проверки вопросов и допустимых ответов.')
   }

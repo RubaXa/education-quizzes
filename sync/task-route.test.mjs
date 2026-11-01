@@ -97,3 +97,14 @@ describe('deterministic task route from existing source state', () => {
     expect(eventTaskRoute('new.unhandled', {})).toMatchObject({ next: 'unsupported-event', complete: false })
   })
 })
+
+/** @see ../docs/modules/assessments/assessment-decision-graph.md#informatics */
+it('classifies programming platform practice, including technology, without claiming platform completion', () => {
+  const task = { id:'mesh-code', kind:'check', outputKind:'platform-result', instructionStatus:{state:'reviewed'}, meshText:'Циклы и условия: тренировочные работы https://proginf.ru/course/section.php?id=97' }
+  expect(taskRoute(task, 'Труд (технология)')).toMatchObject({adapter:'subject-aware-guidance:code-tracing',next:'classify-assignment',complete:false})
+  expect(taskRoute(task, 'Информатика').subject).toBe('informatics')
+  const confirmed={...task,assessmentIntent:{state:'confirmed',mode:'ordinary',topic:'Python: циклы и условия',evidenceRef:'verified-topic'}}
+  expect(taskRoute(confirmed, 'technology').next).toBe('prepare-quiz')
+  expect(taskRoute({...confirmed,testToken:'existing'}, 'technology').next).toBe('existing-assessment')
+  expect(taskRoute({...task,meshText:'Сделать деревянную подставку'}, 'technology').adapter).toBe('subject-aware-guidance:generic')
+})
