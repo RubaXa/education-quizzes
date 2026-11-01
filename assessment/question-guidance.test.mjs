@@ -7,6 +7,18 @@ const assignment = { testId: 'specific-test', answers: { q: 'Половодье 
 const key = { entries: { q: { correct: 'половодье', accepted: ['половодье'], explanation: 'closed' } } }
 const request = { testId: assignment.testId, reason: 'Original inspected', entries: { q: entry } }
 describe('checked question guidance', () => {
+  it('accepts an explained execution only with source code and rejects an empty input or missing trace', () => {
+    const explained = {mode:'program-explanation',observation:'while проверяет условие до первого прохода.',reason:'0 > 0 ложно; n остаётся равным 6.',source:guidance.source,
+      presentation:{version:1,visual:{kind:'comparison',label:'Ход программы',columns:['Шаг','n'],rows:[{cells:['Начало','6']},{cells:['Условие ложно → выход','6']}]},details:[{label:'Как читать while',text:'Сначала проверка, затем тело. Если проверка ложна сразу, тело не выполняется.'}]}}
+    const item={id:'program',code:'n = 6\nwhile False:\n    n += 1\nprint(n)',answer:{guidance:explained,sourceEvidence:['checked-program']}}
+    expect(questionGuidanceErrors([item])).toEqual([])
+    expect(questionGuidanceErrors([{...item,code:undefined}]).join()).toContain('видимый код')
+    expect(guidanceErrors({...explained,question:'Посчитай значение самостоятельно.'}).length).toBeGreaterThan(0)
+    expect(guidanceErrors({...explained,presentation:{...explained.presentation,activity:guidance.presentation.activity}}).length).toBeGreaterThan(0)
+    expect(guidanceErrors({...explained,presentation:{version:1}}).length).toBeGreaterThan(0)
+    const repaired=repairQuestionGuidance({testId:'p',questions:[{id:'program',code:item.code}]},{entries:{program:{correct:'6'}}},{testId:'p',reason:'Parent requested an explanation',entries:{program:item.answer}})
+    expect(repaired.key.entries.program.correct).toBe('6')
+  })
   it('requires a complete, specific source and rejects generic copy, duplicate coaching and absent evidence', () => {
     expect(guidanceErrors(guidance)).toEqual([])
     expect(guidanceErrors({ ...guidance, source: { title: 'Учебник' } }).length).toBeGreaterThan(0)

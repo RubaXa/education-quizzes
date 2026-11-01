@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/program-explanation-2026-11-01.md */
 /** @see ../../docs/decisions/compact-review-rollout-2026-10-31.md */
 import {projectReviewSupplement} from '../../packages/education-presentation/review-content.mjs'
 import { spellingFeedback } from '@/lib/spellingFeedback'
@@ -28,6 +29,7 @@ export default function ResultCard({ result, index }: { result: QuestionResult; 
   const spelling = spellingFeedback(result)
   const guidance = result.guidance
   const presentation=projectReviewSupplement(guidance?.presentation)
+  const execution=Boolean(result.question.code && guidance?.mode==='program-explanation' && presentation?.visual?.kind==='comparison')
   const details:ReviewBriefDetail[]=[]
   if(spelling) details.push({label:'Как пишется',text:`Правильно: ${spelling.correct}. ${spelling.detail}`},{label:'Что повторить',text:spelling.practice})
   if(guidance) details.push({label:'Источник вопроса',text:[guidance.source.title,guidance.source.edition,guidance.source.section,guidance.source.pages,guidance.source.locator].join('. ')})
@@ -40,8 +42,10 @@ export default function ResultCard({ result, index }: { result: QuestionResult; 
     meta:skipped?'Без оценки':pending?`Баллы уточняются · максимум ${result.question.points}`:`${result.points} из ${result.question.points} баллов`,
     body:pending?'Разбор появится здесь после проверки.':skipped?'Вопрос не входил в оценку этой попытки.':undefined,
     focus:needsReflection&&!spelling&&guidance?guidance.observation:missing,
-    question:needsReflection&&!spelling&&guidance?guidance.question:undefined,
-    activity:presentation?.activity,visual:presentation?.visual,details:[...details,...(presentation?.details??[])],
+    bridge:needsReflection&&execution?guidance?.reason:undefined,
+    question:needsReflection&&!spelling&&!execution&&guidance?guidance.question:undefined,
+    activity:needsReflection&&!execution?presentation?.activity:undefined,
+    visual:needsReflection?presentation?.visual:undefined,details:[...(presentation?.details??[]),...details],
   }}>
     {guidance?.source.url&&<a className="edu-review-source-link" href={guidance.source.url} target="_blank" rel="noopener noreferrer">Открыть источник</a>}
   </ReviewBrief>

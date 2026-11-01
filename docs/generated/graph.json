@@ -2125,6 +2125,38 @@
       "path": "docs/decisions/photo-upload-authorization-and-freshness-2026-10-20.md"
     },
     {
+      "id": "decision.program-explanation-2026-11-01",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-01",
+      "updated": "2026-11-01",
+      "parent": "module.assessments",
+      "uses": [
+        "module.assessments.quizzes",
+        "shared.design.student-review-step"
+      ],
+      "consumers": [
+        "quiz author",
+        "learner",
+        "parent"
+      ],
+      "code": [
+        "assessment/question-guidance.mjs",
+        "src/components/QuizResultCard.tsx",
+        "src/lib/quiz.ts",
+        "scripts/quiz.mjs",
+        "src/components/ReviewBriefShowcase.tsx"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/program-explanation-2026-11-01.md"
+    },
+    {
       "id": "decision.public-olympiad-reference-archive-2026-10-27",
       "status": "accepted",
       "implementation": "implemented",
@@ -4396,8 +4428,8 @@
       "id": "file:assessment/question-guidance.mjs",
       "path": "assessment/question-guidance.mjs",
       "kind": "artifact",
-      "purpose": "Проверка адресного безопасного разбора и изменение только его метаданных",
-      "consumer": "Quiz CLI"
+      "purpose": "Проверка объяснения с кодом, трассой и без пустого ввода",
+      "consumer": "Автор теста; CLI"
     },
     {
       "id": "file:assessment/question-guidance.test.mjs",
@@ -8239,8 +8271,8 @@
       "id": "file:src/components/QuizResultCard.tsx",
       "path": "src/components/QuizResultCard.tsx",
       "kind": "artifact",
-      "purpose": "Одна безопасная карточка результата вопроса, извлечённая из App",
-      "consumer": "ResultView; QuizAttemptReview"
+      "purpose": "Правило, ход программы и отличие ответа после отправки",
+      "consumer": "Ученик; родитель"
     },
     {
       "id": "file:src/components/QuizTextAnswer.test.tsx",
@@ -10617,7 +10649,8 @@
         "списки-и-предпросмотр",
         "время-каждой-попытки",
         "родительский-просмотр-и-право-ответа",
-        "принятая-компактная-история-16102026"
+        "принятая-компактная-история-16102026",
+        "разбор-выполненной-программы"
       ],
       "path": "docs/modules/assessments/quizzes.md"
     },
@@ -15234,6 +15267,16 @@
       "type": "uses"
     },
     {
+      "from": "decision.program-explanation-2026-11-01",
+      "to": "module.assessments.quizzes",
+      "type": "uses"
+    },
+    {
+      "from": "decision.program-explanation-2026-11-01",
+      "to": "shared.design.student-review-step",
+      "type": "uses"
+    },
+    {
       "from": "decision.pupil-vacations-2026-10-19",
       "to": "module.school-diary.dashboard",
       "type": "uses"
@@ -15736,6 +15779,11 @@
     {
       "from": "file:assessment/question-copy.mjs",
       "to": "module.assessments.quizzes",
+      "type": "implements"
+    },
+    {
+      "from": "file:assessment/question-guidance.mjs",
+      "to": "decision.program-explanation-2026-11-01",
       "type": "implements"
     },
     {
@@ -17875,6 +17923,11 @@
     },
     {
       "from": "file:scripts/quiz.mjs",
+      "to": "decision.program-explanation-2026-11-01",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/quiz.mjs",
       "to": "module.assessments.assessment-decision-graph",
       "type": "implements"
     },
@@ -19130,6 +19183,11 @@
     },
     {
       "from": "file:src/components/QuizResultCard.tsx",
+      "to": "decision.program-explanation-2026-11-01",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/QuizResultCard.tsx",
       "to": "module.assessments.quizzes",
       "type": "implements"
     },
@@ -19211,6 +19269,11 @@
     {
       "from": "file:src/components/ReviewBriefShowcase.tsx",
       "to": "decision.compact-review-ui-kit-2026-10-31",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ReviewBriefShowcase.tsx",
+      "to": "decision.program-explanation-2026-11-01",
       "type": "implements"
     },
     {
@@ -20375,6 +20438,11 @@
     },
     {
       "from": "file:src/lib/quiz.ts",
+      "to": "decision.program-explanation-2026-11-01",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/quiz.ts",
       "to": "module.assessments.assessment-decision-graph",
       "type": "implements"
     },
@@ -21461,6 +21529,11 @@
     {
       "from": "module.assessments",
       "to": "decision.informatics-assessment-2026-11-01",
+      "type": "contains"
+    },
+    {
+      "from": "module.assessments",
+      "to": "decision.program-explanation-2026-11-01",
       "type": "contains"
     },
     {

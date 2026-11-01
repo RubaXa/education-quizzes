@@ -226,7 +226,7 @@
 | [assessment/followup-contract.test.mjs](../assessment/followup-contract.test.mjs) | [Зачёт и продолжение](modules/assessments/assessment-decision-graph.md) | Регрессия полного провала, покрытия ошибок и запрета переписывать начатую попытку | Vitest; выпуск |
 | [assessment/question-copy.mjs](../assessment/question-copy.mjs) | [Тесты](modules/assessments/quizzes.md) | Поиск повторяющейся вводной фразы и инструкции в заголовках вопросов | `scripts/quiz.mjs` |
 | [assessment/canonical-short-key.mjs](../assessment/canonical-short-key.mjs) | [Тесты](modules/assessments/quizzes.md) | Узкое добавление уже заданного correct в accepted после смысловой сверки | `scripts/quiz.mjs` |
-| [assessment/question-guidance.mjs](../assessment/question-guidance.mjs) | [Тесты](modules/assessments/quizzes.md) | Проверка адресного безопасного разбора и изменение только его метаданных | Quiz CLI |
+| [assessment/question-guidance.mjs](../assessment/question-guidance.mjs) | [Разбор программы](modules/assessments/quizzes.md) | Проверка объяснения с кодом, трассой и без пустого ввода | Автор теста; CLI |
 | [assessment/question-guidance.test.mjs](../assessment/question-guidance.test.mjs) | [Тесты](modules/assessments/quizzes.md) | Источник, отсутствие заглушки, полный охват и сохранность ответа/ключа | Vitest |
 | [src/components/QuizResultCard.test.tsx](../src/components/QuizResultCard.test.tsx) | [Тесты](modules/assessments/quizzes.md) | Сквозной grader → карточка: адресный разбор, источник и закрытое решение | Vitest |
 | [docs/decisions/question-guidance-2026-10-19.md](decisions/question-guidance-2026-10-19.md) | [Тесты](modules/assessments/quizzes.md) | Решение родителя о проверяемости каждого вопроса и причина прежней заглушки | Автор; оператор выпуска |
@@ -665,7 +665,7 @@
 | [src/components/QuizCard.test.tsx](../src/components/QuizCard.test.tsx) | [Тесты](modules/assessments/quizzes.md) | Ролевая кнопка запроса, краткое название результата и ожидающий статус | Vitest; выпуск |
 | [src/components/QuizCard.time.test.tsx](../src/components/QuizCard.time.test.tsx) | [Время попытки](modules/assessments/quizzes.md) | Даты непосредственно после выбранной строки, переключение и закрытие в обеих ролях; старые записи без времени | Vitest; выпуск |
 | [src/components/QuizCard.tsx](../src/components/QuizCard.tsx) | [Единая карточка теста](modules/reviews/card-generation-policy.md) | Одна текущая попытка, процент, история, ссылки и предметные данные через props; статус не подменяется обязательностью | `src/App.tsx`; `src/DayPage.tsx`; UI Kit |
-| [src/components/QuizResultCard.tsx](../src/components/QuizResultCard.tsx) | [Контракт](modules/assessments/quizzes.md) | Одна безопасная карточка результата вопроса, извлечённая из App | ResultView; QuizAttemptReview |
+| [src/components/QuizResultCard.tsx](../src/components/QuizResultCard.tsx) | [Разбор программы](modules/assessments/quizzes.md) | Правило, ход программы и отличие ответа после отправки | Ученик; родитель |
 | [src/components/QuizTextAnswer.test.tsx](../src/components/QuizTextAnswer.test.tsx) | [Тесты](modules/assessments/quizzes.md) | Проверка атрибутов английского ввода и сохранения других полей | Vitest; разработчик |
 | [src/components/QuizTextAnswer.tsx](../src/components/QuizTextAnswer.tsx) | [Тесты](modules/assessments/quizzes.md) | Текстовый ввод теста и отключение браузерных подсказок для английского | `src/App.tsx` |
 | [src/components/RequirementSwitch.css](../src/components/RequirementSwitch.css) | [Дизайн-система](shared/design/README.md) | Общий вид переключателя обязательности | `RequirementSwitch.tsx` |
@@ -1252,3 +1252,5 @@
 | [docs/decisions/informatics-assessment-2026-11-01.md](decisions/informatics-assessment-2026-11-01.md) | [Граф самопроверок](modules/assessments/assessment-decision-graph.md) | Программирование на уроке труда: причина, адаптер и проверка | Оператор; разработчик |
 
 | [docs/decisions/source-completion-consistency-2026-11-01.md](decisions/source-completion-consistency-2026-11-01.md) | [Уточнение материалов](modules/materials/material-clarification.md) | Зачёт при source receipt и совместимость старых тематических связей | Ученик; родитель; оператор |
+
+| [docs/decisions/program-explanation-2026-11-01.md](decisions/program-explanation-2026-11-01.md) | [Тесты](modules/assessments/quizzes.md) | Уточнение родителя: объяснение исполнения вместо дополнительного ввода | Автор; разработчик |

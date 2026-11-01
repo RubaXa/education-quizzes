@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/program-explanation-2026-11-01.md */
 /**
  * @see ../../docs/product/assessments.md
  * @see ../../docs/modules/assessments/README.md
@@ -6,9 +7,11 @@ export type Answer = string | string[]
 
 /** Manually checked, student-safe feedback. Never derive it from the closed solution. */
 export type QuestionGuidance = {
+  mode?: 'program-explanation'
+  reason?: string
   presentation?: import('../../packages/education-presentation/review-content.mjs').ReviewSupplement
   observation: string
-  question: string
+  question?: string
   source: { title: string; edition: string; section: string; pages: string; locator: string; url?: string }
 }
 

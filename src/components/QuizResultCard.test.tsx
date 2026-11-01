@@ -14,6 +14,16 @@ const guidance = { observation: 'В сохранённом ответе стои
 const render = (key: AnswerKey) => renderToStaticMarkup(createElement(ResultCard, { result: grade(assignment, key)[0], index: 0 }))
 
 describe('specific quiz feedback', () => {
+  it('explains a submitted programming error with a trace instead of an unanswered input', () => {
+    const q={...assignment.questions[0],code:'n = 6\nwhile False:\n    n += 1\nprint(n)'}
+    const g={...guidance,mode:'program-explanation' as const,question:undefined,observation:'Условие проверяется до тела цикла.',reason:'Тело не запущено: n остаётся 6.',presentation:{version:1 as const,visual:{kind:'comparison' as const,label:'Ход выполнения',columns:['Шаг','n'],rows:[{cells:['Начало','6']},{cells:['Ложь → выход','6']}]},details:[{label:'Почему так',text:'while повторяет тело только пока условие истинно.'}]}}
+    const result=grade({...assignment,questions:[q],answers:{unit:'7'}},{entries:{unit:{correct:'6',guidance:g}}})[0]
+    const html=renderToStaticMarkup(createElement(ResultCard,{result,index:0}))
+    for(const text of [g.observation,g.reason,'Ложь → выход','Почему так']) expect(html).toContain(text)
+    expect(html).not.toContain('<input')
+    expect(html).not.toContain('следующий шаг')
+    expect(html).not.toContain(guidance.question)
+  })
   it('shows the checked observation, diagnostic question and exact source without the closed key', () => {
     const html = render({ entries: { unit: { correct: 'CLOSED-ANSWER', explanation: 'CLOSED-EXPLANATION', guidance } } })
     for (const text of [guidance.observation, guidance.question, guidance.source.title, guidance.source.pages, guidance.source.locator]) expect(html).toContain(text)

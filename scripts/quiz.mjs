@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/program-explanation-2026-11-01.md */
 /** @see ../docs/decisions/informatics-assessment-2026-11-01.md */
 import { randomBytes } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
@@ -538,10 +539,10 @@ async function exportAttempt(learnerToken, outputPath) {
 }
 
 /** @see ../docs/modules/assessments/quizzes.md#canonical-short-repair */
-async function repairCanonicalShortAnswers(learnerToken, requestPath, guidanceOnly = false) {
+async function repairCanonicalShortAnswers(learnerToken, requestPath, guidanceOnly = false, studentPersonId) {
   if (!learnerToken || !requestPath) fail('Нужны токен и JSON доказательств.')
   const request = loadJson(requestPath)
-  const owner = assignmentOwner()
+  const owner = assignmentOwner(studentPersonId)
   const assignmentRef = db.doc(`assignments/${learnerToken}`)
   const keyRef = db.doc(`answerKeys/${learnerToken}`)
   const reviewRef = db.doc(`reviews/${learnerToken}`)
@@ -602,7 +603,7 @@ try {
   else if (command === 'export') await exportAttempt(first, second)
   else if (command === 'review') await reviewAttempt(first, second)
   else if (command === 'repair-canonical-short-answers') await repairCanonicalShortAnswers(first, second)
-  else if (command === 'repair-question-guidance') await repairCanonicalShortAnswers(first, second, true)
+  else if (command === 'repair-question-guidance') await repairCanonicalShortAnswers(first, second, true, third === '--apply' ? undefined : third)
   else fail('Команды: validate SPEC.json | create SPEC.json [PERSON_ID] | revise-open TOKEN SPEC.json PERSON_ID | history TOKEN .local/OUTPUT.json [PLAN.json] | board-add MANIFEST.json [PERSON_ID] | board-status | sync-links [--apply] | audit-access | list | export TOKEN OUTPUT.json | review TOKEN REVIEW.json')
 } catch (error) {
   console.error(error instanceof Error ? error.message : error)

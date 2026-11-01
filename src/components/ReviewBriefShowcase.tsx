@@ -1,4 +1,5 @@
 import ReviewConversationExample from '@/ui-kit/ReviewConversationExample'
+/** @see ../../docs/decisions/program-explanation-2026-11-01.md */
 /** @see ../../docs/decisions/review-readability-repair-2026-10-31.md */
 /** @see ../../docs/decisions/compact-review-rollout-2026-10-31.md */
 /** @see ../../docs/shared/design/compact-review.md#showcase */
@@ -33,5 +34,6 @@ export default function ReviewBriefShowcase() {
     <details style={{maxWidth:390}}><summary>Другие модели: сетка и граф</summary><SolutionBlocks blocks={solutionVisualExamples}/></details></>}
     <ReviewConversationExample/>
     <h3>Разбор вопроса теста</h3><div style={{maxWidth:390}}><QuizResultCard index={0} result={{question:{id:'demo-question',kind:'short',prompt:'Назови единицу измерения длины.',points:1},answer:'минуты',points:0,guidance:{observation:'В ответе названа единица времени.',question:'Какую величину нужно измерить по условию?',source:{title:'Условный учебный источник',edition:'Пример UI Kit',section:'Величины',pages:'Условная страница',locator:'Таблица единиц'}}}} /></div>
+    <h3>Программирование: объяснение ошибки</h3><div style={{maxWidth:390}}><QuizResultCard index={0} result={{question:{id:'demo-python',kind:'number',prompt:'Что выведет программа?',code:'n = 4\nx = 0\nwhile x > 0:\n    n += 1\nprint(n)',points:1},answer:'5',points:0,guidance:{mode:'program-explanation',observation:'while проверяет условие до первого прохода.',reason:'0 > 0 ложно: тело не запускается, n остаётся 4. Ответ 5 потребовал бы лишнего прохода.',source:{title:'Python Tutorial',edition:'Python 3',section:'while',pages:'Онлайн',locator:'Условный авторский пример',url:'https://docs.python.org/3/reference/compound_stmts.html#the-while-statement'},presentation:{version:1,visual:{kind:'comparison',label:'Ход выполнения',columns:['Что выполняется','n'],rows:[{cells:['Начало','4']},{cells:['0 > 0 → нет','4']},{cells:['Выход; print(n)','4']}]},details:[{label:'Как читать while',text:'Сначала условие, затем тело и возврат к условию. Если первая проверка ложна, тело не выполняется ни разу. Отступы показывают, какие строки принадлежат циклу.'}]}}}}/></div>
   </section>
 }
