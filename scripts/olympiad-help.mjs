@@ -28,5 +28,9 @@ if (command === 'start') {
     return { photoId: photo.photoId, path }
   })
   result = { ...frozen, photos: captured }
-} else result = await completeHelpReview(db, scope, readFileSync(answerPath, 'utf8'))
+} else {
+  const raw=readFileSync(answerPath,'utf8')
+  if(raw.trim().startsWith('{')){const value=JSON.parse(raw);if(Object.keys(value).some(k=>!['text','presentation'].includes(k)))throw Error('invalid-public-help');if(!value.presentation?.activity)throw Error('current-step-model-required');result=await completeHelpReview(db,scope,value.text,value.presentation)}
+  else throw Error('Use a JSON response with text and presentation.activity for the current step.')
+}
 process.stdout.write(`${JSON.stringify(result)}\n`)

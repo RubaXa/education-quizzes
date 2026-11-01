@@ -7,6 +7,7 @@ import { existsSync, mkdirSync, readFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
+import {studentReviewProjection} from '../storage/review-projection.mjs'
 import { createServer,build } from 'vite'
 
 const root = resolve(import.meta.dirname, '..')
@@ -21,8 +22,8 @@ export async function loadReviewBriefFixture() {
     const { reviewBriefExamples, reviewBriefVerified, reviewBriefUncertain,reviewBriefWorkExample,reviewBriefLegacy } = await vite.ssrLoadModule('/src/lib/reviewBriefExamples.ts')
     const fontRoot = join(root, 'node_modules/@fontsource-variable/geist/files')
     const fonts = ['cyrillic', 'latin'].map(part => `@font-face{font-family:'Geist Variable';src:url(data:font/woff2;base64,${readFileSync(join(fontRoot, `geist-${part}-wght-normal.woff2`)).toString('base64')}) format('woff2');font-weight:100 900;unicode-range:${part === 'cyrillic' ? 'U+0400-052F,U+2DE0-2DFF,U+A640-A69F' : 'U+0000-00FF'}}`).join('\n')
-    const css = fonts + ['src/education-design-tokens.css','src/DayPage.css','src/UiKit.css','src/components/StatusIcon.css','src/components/ReviewBrief.css','src/components/ReviewVisual.css','src/components/WorkReview.css'].map(path => readFileSync(join(root, path), 'utf8')).join('\n')
-    return { css,fonts,visuals:renderToStaticMarkup(createElement(SolutionBlocks,{blocks:solutionVisualExamples})),guide:solutionGuideExample,renderGuide:(guide=solutionGuideExample)=>renderToStaticMarkup(createElement(ParentTaskGuide,{guide})), examples: reviewBriefExamples, states: [reviewBriefVerified, reviewBriefUncertain], legacy:reviewBriefLegacy, render: data => renderToStaticMarkup(createElement(ReviewBrief, { data })),renderWork:(data,parent=false)=>renderToStaticMarkup(createElement(WorkReview,{review:reviewBriefWorkExample(data),uploads:[],parent})),renderReview:(review,parent=false)=>renderToStaticMarkup(createElement(WorkReview,{review,uploads:[],parent,canDecide:parent,...(parent?{onDecision:async()=>{}}:{})})) }
+    const css = fonts + ['src/education-design-tokens.css','src/DayPage.css','src/UiKit.css','src/components/StatusIcon.css','src/components/ReviewBrief.css','src/components/ReviewVisual.css','src/components/ReviewActivity.css','src/components/WorkReview.css'].map(path => readFileSync(join(root, path), 'utf8')).join('\n')
+    return { css,fonts,visuals:renderToStaticMarkup(createElement(SolutionBlocks,{blocks:solutionVisualExamples})),guide:solutionGuideExample,renderGuide:(guide=solutionGuideExample)=>renderToStaticMarkup(createElement(ParentTaskGuide,{guide})), examples: reviewBriefExamples, states: [reviewBriefVerified, reviewBriefUncertain], legacy:reviewBriefLegacy, render: data => renderToStaticMarkup(createElement(ReviewBrief, { data })),renderWork:(data,parent=false)=>renderToStaticMarkup(createElement(WorkReview,{review:reviewBriefWorkExample(data),uploads:[],parent})),renderReview:(review,parent=false)=>renderToStaticMarkup(createElement(WorkReview,{review:parent?review:studentReviewProjection(review),uploads:[],parent,canDecide:parent,...(parent?{onDecision:async()=>{}}:{})})) }
   } finally { await vite.close() }
 }
 
@@ -55,8 +56,12 @@ async function main() {
         assert(!result.touchHeight || result.touchHeight >= 44, `Small disclosure target: ${item.id}`)
         assert(result.font === '16px', `Unexpected body size: ${item.id}`)
         assert(!result.questionFont || result.questionFont === '18px', `Unexpected question size: ${item.id}`)
-        if (width === 390) assert(result.height <= 320, `Sample exceeds compact budget: ${item.id}: ${result.height}`)
-        if (width === 320) assert(result.height <= 400, `Narrow sample exceeds compact budget: ${item.id}: ${result.height}`)
+        if (width === 390) assert(result.height <= (item.activity?560:320), `Sample exceeds compact budget: ${item.id}: ${result.height}`)
+        if (width === 320) assert(result.height <= (item.activity?640:400), `Narrow sample exceeds compact budget: ${item.id}: ${result.height}`)
+        if(item.activity){
+          assert(await page.locator('.edu-review-question').evaluate(el=>el.getBoundingClientRect().bottom)<320,'Current question below first screen')
+          for(const button of await page.locator('.edu-step button').all())assert(await button.evaluate(el=>el.getBoundingClientRect().height)>=44,'Small model control')
+        }
         if (width === 390 && theme === 'light') {
           measured.push({ id: item.id, ...result })
           if (process.env.REVIEW_BRIEF_SCREENSHOT_DIR) {
@@ -78,7 +83,7 @@ async function main() {
       assert(await page.locator('.edu-review-focus').count()===0,'Legacy long paragraph remains expanded')
       assert(await page.locator('details[open]').count()===0,'Legacy disclosures start expanded')
       assert(await page.locator('.day-review-history').count()===1,'Legacy history lost')
-      assert(await page.locator('.day-work-review-evidence').count()===1,'Legacy source lost')
+      assert(await page.locator('.day-work-review-evidence').count()===(parent?1:0),'Private source crossed roles')
       assert(await page.locator('.day-review-parent-decision button').count()===(parent?1:0),'Parent action changed')
     }
     await page.setViewportSize({ width: 320, height: 1000 })
@@ -104,10 +109,10 @@ async function main() {
         valid:CSS.supports('color',getComputedStyle(el).getPropertyValue('--edu-review-line').trim()),
         border:getComputedStyle(el).borderTopWidth,
         questionBorder:getComputedStyle(el.querySelector('.edu-review-question')).borderLeftWidth,
-        diagram:getComputedStyle(el.querySelector('.edu-review-bracket')).stroke,
+        modelBorder:getComputedStyle(el.querySelector('.edu-step-result')).borderLeftWidth,
       }))
       assert(colours.valid,`Compiled review colour invalid: ${theme}`)
-      assert(colours.border==='1px'&&colours.questionBorder==='2px'&&colours.diagram!=='none',`Compiled review hierarchy lost: ${theme}`)
+      assert(colours.border==='1px'&&colours.questionBorder==='2px'&&colours.modelBorder==='2px',`Compiled review hierarchy lost: ${theme}`)
     }
     for(const width of [320,390,540]) {
       await page.setViewportSize({width,height:1000})

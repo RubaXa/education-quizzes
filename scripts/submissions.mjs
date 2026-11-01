@@ -394,6 +394,7 @@ function validateStudentFeedback(review) {
   const tutoringErrors = tutoringPlanErrors(review)
   if (tutoringErrors.length) throw new Error(tutoringErrors.join('\n'))
   const feedback = review.studentFeedback
+  if(['partial','needs-fix'].includes(review.status)&&!feedback?.presentation?.activity)throw new Error('Для текущего вопроса нужна проверенная наглядная модель presentation.activity, без ключа и автоматического зачёта.')
   if (!feedback || !['title', 'confirmed', 'focus', 'question'].every((key) => typeof feedback[key] === 'string' && feedback[key].trim().length >= 8 && feedback[key].length <= 700)
     || feedback.anchor && (!review.uploadIds?.includes(feedback.anchor.uploadId) || typeof feedback.anchor.location !== 'string' || !feedback.anchor.location.trim())) {
     throw new Error('Нужны проверенные ученические фразы: что получилось, точное место, один вопрос и короткий заголовок. Привязка к фото должна входить в текущий набор.')

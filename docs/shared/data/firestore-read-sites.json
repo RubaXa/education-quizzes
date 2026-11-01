@@ -6216,6 +6216,42 @@
     "note": "Агрегация читает индекс, не бесплатна; хранить проверенный счётчик/манифест при записи и периодически сверять."
   },
   {
+    "id": "scripts/student-review.mjs#admin.getAll#bca20927b758",
+    "file": "scripts/student-review.mjs",
+    "line": 25,
+    "api": "admin.getAll",
+    "target": "db",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "explicit-addressed-operation",
+    "refresh": "once per explicit dry-run/apply and post-commit readback",
+    "note": "Закрытый адресный пакет: owner/page/public/private до правки, повтор в транзакции для compare-and-set и точный readback. Нет широкого сканирования или новых клиентских подписок; архив и прежний checkedAt сохранены."
+  },
+  {
+    "id": "scripts/student-review.mjs#admin.getAll#1460bd2ec20e",
+    "file": "scripts/student-review.mjs",
+    "line": 27,
+    "api": "admin.getAll",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "explicit-addressed-operation",
+    "refresh": "once per explicit dry-run/apply and post-commit readback",
+    "note": "Закрытый адресный пакет: owner/page/public/private до правки, повтор в транзакции для compare-and-set и точный readback. Нет широкого сканирования или новых клиентских подписок; архив и прежний checkedAt сохранены."
+  },
+  {
+    "id": "scripts/student-review.mjs#admin.getAll#bca20927b758-2",
+    "file": "scripts/student-review.mjs",
+    "line": 28,
+    "api": "admin.getAll",
+    "target": "db",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "explicit-addressed-operation",
+    "refresh": "once per explicit dry-run/apply and post-commit readback",
+    "note": "Закрытый адресный пакет: owner/page/public/private до правки, повтор в транзакции для compare-and-set и точный readback. Нет широкого сканирования или новых клиентских подписок; архив и прежний checkedAt сохранены."
+  },
+  {
     "id": "scripts/submissions.mjs#admin.get#4be1de83ec10",
     "file": "scripts/submissions.mjs",
     "line": 56,
@@ -6458,7 +6494,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#25bdc495e077",
     "file": "scripts/submissions.mjs",
-    "line": 422,
+    "line": 423,
     "api": "admin.get",
     "target": "db.collection('dayOwners').where('date', '==', correction.date)",
     "group": "operator-other",
@@ -6470,7 +6506,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#25e51139e6a0-2",
     "file": "scripts/submissions.mjs",
-    "line": 426,
+    "line": 427,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${owner.id}`)",
     "group": "operator-other",
@@ -6482,7 +6518,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#b1a0a9da7b59",
     "file": "scripts/submissions.mjs",
-    "line": 426,
+    "line": 427,
     "api": "admin.get",
     "target": "db.doc(`dayProgress/${owner.id}/items/${correction.taskId}`)",
     "group": "operator-other",
@@ -6494,7 +6530,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#83f5a667c8e7",
     "file": "scripts/submissions.mjs",
-    "line": 427,
+    "line": 428,
     "api": "admin.get",
     "target": "db.doc(`dayReviewPrivate/${owner.id}/items/${correction.taskId}`)",
     "group": "operator-other",
@@ -6506,7 +6542,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#3a710fa54a19",
     "file": "scripts/submissions.mjs",
-    "line": 428,
+    "line": 429,
     "api": "admin.get",
     "target": "db.doc(`dayUploads/${owner.id}/files/${id}`)",
     "group": "operator-other",
@@ -6518,7 +6554,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#cb5a9eebcb34",
     "file": "scripts/submissions.mjs",
-    "line": 449,
+    "line": 450,
     "api": "admin.get",
     "target": "db.doc(`dayTaskGuides/${owner.id}/items/${correction.taskId}`)",
     "group": "operator-other",
@@ -6530,7 +6566,7 @@
   {
     "id": "scripts/submissions.mjs#admin.getAll#58c06df7cc4b",
     "file": "scripts/submissions.mjs",
-    "line": 473,
+    "line": 474,
     "api": "admin.getAll",
     "target": "db",
     "group": "operator-other",
@@ -6542,7 +6578,7 @@
   {
     "id": "scripts/submissions.mjs#admin.getAll#58c06df7cc4b-2",
     "file": "scripts/submissions.mjs",
-    "line": 492,
+    "line": 493,
     "api": "admin.getAll",
     "target": "db",
     "group": "operator-other",
@@ -6554,7 +6590,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#47958261b931-3",
     "file": "scripts/submissions.mjs",
-    "line": 510,
+    "line": 511,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -6566,7 +6602,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#d4c1114e5c5e",
     "file": "scripts/submissions.mjs",
-    "line": 510,
+    "line": 511,
     "api": "admin.get",
     "target": "reviewRefs[index]",
     "group": "operator-other",
@@ -6578,7 +6614,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#15ecdbe99851-2",
     "file": "scripts/submissions.mjs",
-    "line": 522,
+    "line": 523,
     "api": "admin.get",
     "target": "coverage",
     "group": "operator-other",
@@ -6590,7 +6626,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#15ecdbe99851-3",
     "file": "scripts/submissions.mjs",
-    "line": 529,
+    "line": 530,
     "api": "admin.get",
     "target": "coverage",
     "group": "operator-other",
@@ -6602,7 +6638,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#15ecdbe99851-4",
     "file": "scripts/submissions.mjs",
-    "line": 529,
+    "line": 530,
     "api": "admin.get",
     "target": "coverage",
     "group": "operator-other",
@@ -6614,7 +6650,7 @@
   {
     "id": "scripts/submissions.mjs#admin.getAll#58c06df7cc4b-3",
     "file": "scripts/submissions.mjs",
-    "line": 533,
+    "line": 534,
     "api": "admin.getAll",
     "target": "db",
     "group": "operator-other",
@@ -6626,7 +6662,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#4be1de83ec10-5",
     "file": "scripts/submissions.mjs",
-    "line": 544,
+    "line": 545,
     "api": "admin.get",
     "target": "db.collection('dayOwners')",
     "group": "operator-other",
@@ -6638,7 +6674,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#25e51139e6a0-3",
     "file": "scripts/submissions.mjs",
-    "line": 550,
+    "line": 551,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${owner.id}`)",
     "group": "operator-other",
@@ -6650,7 +6686,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#4aecce90adb9",
     "file": "scripts/submissions.mjs",
-    "line": 552,
+    "line": 553,
     "api": "admin.get",
     "target": "db.collection(`dayProgress/${owner.id}/items`)",
     "group": "operator-other",
@@ -6662,7 +6698,7 @@
   {
     "id": "scripts/submissions.mjs#admin.get#a278bb5bedbf",
     "file": "scripts/submissions.mjs",
-    "line": 558,
+    "line": 559,
     "api": "admin.get",
     "target": "privateRef",
     "group": "operator-other",
@@ -7838,7 +7874,7 @@
   {
     "id": "src/lib/dayStore.ts#getDoc#6593dc56d36b",
     "file": "src/lib/dayStore.ts",
-    "line": 163,
+    "line": 164,
     "api": "getDoc",
     "target": "doc(db, 'dayPages', token)",
     "group": "client-day",
@@ -7850,7 +7886,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#1658e056615b",
     "file": "src/lib/dayStore.ts",
-    "line": 169,
+    "line": 170,
     "api": "onSnapshot",
     "target": "doc(db, 'dayPages', token)",
     "group": "client-day",
@@ -7862,7 +7898,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#c2b7cd8e3f9b",
     "file": "src/lib/dayStore.ts",
-    "line": 204,
+    "line": 205,
     "api": "onSnapshot",
     "target": "doc(db, 'families', familyId, 'children', childId, 'bookPages', ref)",
     "group": "client-day",
@@ -7874,7 +7910,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#b781e597a36b",
     "file": "src/lib/dayStore.ts",
-    "line": 221,
+    "line": 222,
     "api": "onSnapshot",
     "target": "collection(db, 'dayUploads', studentToken, 'files')",
     "group": "client-day",
@@ -7886,7 +7922,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#9c726eac32b0",
     "file": "src/lib/dayStore.ts",
-    "line": 245,
+    "line": 246,
     "api": "onSnapshot",
     "target": "collection(db, 'dayProgress', studentToken, 'items')",
     "group": "client-day",
@@ -7898,7 +7934,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#c6f7e46096c2",
     "file": "src/lib/dayStore.ts",
-    "line": 249,
+    "line": 250,
     "api": "onSnapshot",
     "target": "collection(db, 'dayReviewPrivate', studentToken, 'items')",
     "group": "client-day",
@@ -7910,7 +7946,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#592bd0712c2e",
     "file": "src/lib/dayStore.ts",
-    "line": 267,
+    "line": 268,
     "api": "onSnapshot",
     "target": "reference",
     "group": "client-day",
@@ -7922,7 +7958,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#d0e658ed1ab2",
     "file": "src/lib/dayStore.ts",
-    "line": 280,
+    "line": 281,
     "api": "onSnapshot",
     "target": "collection(db, 'dayHelp', studentToken, 'items')",
     "group": "client-day",
@@ -7934,7 +7970,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#a8f62002fde7",
     "file": "src/lib/dayStore.ts",
-    "line": 288,
+    "line": 289,
     "api": "onSnapshot",
     "target": "collection(db, 'dayHelp', studentToken, 'items', taskId, 'requests')",
     "group": "client-day",
@@ -7946,7 +7982,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#d8f08464ae53",
     "file": "src/lib/dayStore.ts",
-    "line": 295,
+    "line": 296,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayOwners', studentToken)",
     "group": "client-day",
@@ -7958,7 +7994,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#8976fa978048",
     "file": "src/lib/dayStore.ts",
-    "line": 312,
+    "line": 313,
     "api": "getDocFromServer",
     "target": "historyRef",
     "group": "client-day",
@@ -7970,7 +8006,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#0685a719664c",
     "file": "src/lib/dayStore.ts",
-    "line": 318,
+    "line": 319,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayUploads', studentToken, 'files', id)",
     "group": "client-day",
@@ -7982,7 +8018,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#705de0a8baee",
     "file": "src/lib/dayStore.ts",
-    "line": 324,
+    "line": 325,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayPages', studentToken)",
     "group": "client-day",
@@ -7994,7 +8030,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#eeb8575870fd",
     "file": "src/lib/dayStore.ts",
-    "line": 336,
+    "line": 337,
     "api": "getDocFromServer",
     "target": "photoUploadIds ? historyRef : sourceRef",
     "group": "client-day",
@@ -8006,7 +8042,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#d8f08464ae53-2",
     "file": "src/lib/dayStore.ts",
-    "line": 352,
+    "line": 353,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayOwners', studentToken)",
     "group": "client-day",
@@ -8018,7 +8054,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#249d93879c40",
     "file": "src/lib/dayStore.ts",
-    "line": 360,
+    "line": 361,
     "api": "getDocFromServer",
     "target": "ref",
     "group": "client-day",
@@ -8030,7 +8066,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#705de0a8baee-2",
     "file": "src/lib/dayStore.ts",
-    "line": 383,
+    "line": 384,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayPages', studentToken)",
     "group": "client-day",
@@ -8042,7 +8078,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#249d93879c40-2",
     "file": "src/lib/dayStore.ts",
-    "line": 399,
+    "line": 400,
     "api": "getDocFromServer",
     "target": "ref",
     "group": "client-day",
@@ -8054,7 +8090,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#249d93879c40-3",
     "file": "src/lib/dayStore.ts",
-    "line": 411,
+    "line": 412,
     "api": "getDocFromServer",
     "target": "ref",
     "group": "client-day",
@@ -8066,7 +8102,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#d8f08464ae53-3",
     "file": "src/lib/dayStore.ts",
-    "line": 417,
+    "line": 418,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayOwners', studentToken)",
     "group": "client-day",
@@ -8078,7 +8114,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#249d93879c40-4",
     "file": "src/lib/dayStore.ts",
-    "line": 431,
+    "line": 432,
     "api": "getDocFromServer",
     "target": "ref",
     "group": "client-day",
@@ -9278,7 +9314,7 @@
   {
     "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55",
     "file": "sync/olympiad-help.mjs",
-    "line": 29,
+    "line": 30,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -9290,7 +9326,7 @@
   {
     "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-2",
     "file": "sync/olympiad-help.mjs",
-    "line": 31,
+    "line": 32,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -9302,7 +9338,7 @@
   {
     "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-3",
     "file": "sync/olympiad-help.mjs",
-    "line": 34,
+    "line": 35,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -9314,7 +9350,7 @@
   {
     "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-4",
     "file": "sync/olympiad-help.mjs",
-    "line": 34,
+    "line": 35,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -9326,7 +9362,7 @@
   {
     "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-5",
     "file": "sync/olympiad-help.mjs",
-    "line": 35,
+    "line": 36,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -9338,7 +9374,7 @@
   {
     "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-6",
     "file": "sync/olympiad-help.mjs",
-    "line": 35,
+    "line": 36,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -9350,7 +9386,7 @@
   {
     "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-7",
     "file": "sync/olympiad-help.mjs",
-    "line": 35,
+    "line": 36,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -9362,7 +9398,7 @@
   {
     "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-8",
     "file": "sync/olympiad-help.mjs",
-    "line": 36,
+    "line": 37,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -9374,7 +9410,7 @@
   {
     "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-9",
     "file": "sync/olympiad-help.mjs",
-    "line": 50,
+    "line": 51,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -9386,7 +9422,7 @@
   {
     "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-10",
     "file": "sync/olympiad-help.mjs",
-    "line": 50,
+    "line": 51,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -9398,7 +9434,7 @@
   {
     "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-11",
     "file": "sync/olympiad-help.mjs",
-    "line": 77,
+    "line": 78,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -9410,7 +9446,7 @@
   {
     "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-12",
     "file": "sync/olympiad-help.mjs",
-    "line": 77,
+    "line": 78,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -9422,7 +9458,7 @@
   {
     "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-13",
     "file": "sync/olympiad-help.mjs",
-    "line": 102,
+    "line": 103,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -9434,7 +9470,7 @@
   {
     "id": "sync/olympiad-help.mjs#admin.get#1d802f6c15ba",
     "file": "sync/olympiad-help.mjs",
-    "line": 117,
+    "line": 119,
     "api": "admin.get",
     "target": "db.doc(`olympiadCatalog/${args.olympiadId}`)",
     "group": "operator-other",
@@ -9446,7 +9482,7 @@
   {
     "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-14",
     "file": "sync/olympiad-help.mjs",
-    "line": 124,
+    "line": 126,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -9458,7 +9494,7 @@
   {
     "id": "sync/olympiad-help.mjs#admin.get#bc8052dae473",
     "file": "sync/olympiad-help.mjs",
-    "line": 142,
+    "line": 144,
     "api": "admin.get",
     "target": "db.collection(`${c.base}/photos`)",
     "group": "operator-other",
@@ -9470,7 +9506,7 @@
   {
     "id": "sync/olympiad-help.mjs#admin.get#7fa20c119a81",
     "file": "sync/olympiad-help.mjs",
-    "line": 142,
+    "line": 144,
     "api": "admin.get",
     "target": "db.collection(`${c.base}/helpRequests`)",
     "group": "operator-other",
@@ -9482,7 +9518,7 @@
   {
     "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-15",
     "file": "sync/olympiad-help.mjs",
-    "line": 155,
+    "line": 157,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -9494,7 +9530,7 @@
   {
     "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-16",
     "file": "sync/olympiad-help.mjs",
-    "line": 155,
+    "line": 157,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -9506,7 +9542,7 @@
   {
     "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-17",
     "file": "sync/olympiad-help.mjs",
-    "line": 155,
+    "line": 157,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -9518,7 +9554,7 @@
   {
     "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-18",
     "file": "sync/olympiad-help.mjs",
-    "line": 155,
+    "line": 157,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -9530,7 +9566,7 @@
   {
     "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-19",
     "file": "sync/olympiad-help.mjs",
-    "line": 155,
+    "line": 157,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -9542,7 +9578,7 @@
   {
     "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-20",
     "file": "sync/olympiad-help.mjs",
-    "line": 155,
+    "line": 157,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -9554,7 +9590,7 @@
   {
     "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-21",
     "file": "sync/olympiad-help.mjs",
-    "line": 171,
+    "line": 175,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -9566,7 +9602,7 @@
   {
     "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-22",
     "file": "sync/olympiad-help.mjs",
-    "line": 171,
+    "line": 175,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -9578,7 +9614,7 @@
   {
     "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-23",
     "file": "sync/olympiad-help.mjs",
-    "line": 171,
+    "line": 175,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -9590,7 +9626,7 @@
   {
     "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-24",
     "file": "sync/olympiad-help.mjs",
-    "line": 171,
+    "line": 175,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -9602,7 +9638,7 @@
   {
     "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-25",
     "file": "sync/olympiad-help.mjs",
-    "line": 171,
+    "line": 175,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -9614,7 +9650,7 @@
   {
     "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-26",
     "file": "sync/olympiad-help.mjs",
-    "line": 171,
+    "line": 175,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -9626,7 +9662,7 @@
   {
     "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-27",
     "file": "sync/olympiad-help.mjs",
-    "line": 201,
+    "line": 205,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -9638,7 +9674,7 @@
   {
     "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-28",
     "file": "sync/olympiad-help.mjs",
-    "line": 218,
+    "line": 222,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -9650,7 +9686,7 @@
   {
     "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-29",
     "file": "sync/olympiad-help.mjs",
-    "line": 238,
+    "line": 242,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -9662,7 +9698,7 @@
   {
     "id": "sync/olympiad-help.mjs#admin.get#1c60ed5dab55-30",
     "file": "sync/olympiad-help.mjs",
-    "line": 239,
+    "line": 243,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",

@@ -3,6 +3,7 @@
  * The caller must be a trusted server; these functions do not expose Firestore to clients.
  */
 import { createHash } from 'node:crypto'
+import {projectReviewSupplement,reviewSupplementErrors} from '../packages/education-presentation/review-content.mjs'
 
 const id = value => typeof value === 'string' && /^[A-Za-z0-9_-]{1,120}$/.test(value)
 const hash = value => createHash('sha256').update(JSON.stringify(value)).digest('hex')
@@ -103,7 +104,8 @@ export async function readOlympiadHelp(db, args) {
     if (!snap.exists || request?.problemId !== args.problemId || (role === 'student' && request.personId !== personId)) throw new Error('request-not-found')
     return { status: request.status, revision: request.revision,
       revisions: (request.revisions ?? []).map(({ revision, photoIds, note }) => ({ revision, photoIds, note })),
-      answers: (request.answers ?? []).map(({ revision, revisions, text }) => ({ revision, revisions, text })) }
+      answers: (request.answers ?? []).map(({ revision, revisions, text, presentation }) => ({ revision, revisions, text,
+        ...(projectReviewSupplement(presentation)?{presentation:projectReviewSupplement(presentation)}:{}) })) }
   })
 }
 
@@ -167,13 +169,15 @@ export async function startOlympiadHelp(db, args) {
 export async function finishOlympiadHelp(db, args) {
   const c = context(db, args)
   if (!id(args.operationId) || typeof args.answer !== 'string' || !args.answer.trim() || args.answer.length > 8000) throw new Error('invalid-answer')
+  if(reviewSupplementErrors(args.presentation).length)throw new Error('invalid-public-presentation')
+  const presentation=projectReviewSupplement(args.presentation)
   return db.runTransaction(async tx => {
     const [assignment, problem, snap, catalog, child, family] = await Promise.all([tx.get(c.assignment), tx.get(c.problem), tx.get(c.request), tx.get(db.doc(`olympiadCatalog/${args.olympiadId}`)), tx.get(db.doc(`families/${args.familyId}/children/${args.childId}`)), tx.get(db.doc(`families/${args.familyId}`))])
     if (!family.exists || family.data()?.active === false || !practiceAllowed(assignment.data(), problem.data(), catalog.data(), child.data(), args.problemId)) throw new Error('practice-not-verified')
     const request = snap.data(), prior = request?.answers?.find(a => a.operationId === args.operationId)
-    if (prior) { if (prior.text !== args.answer) throw new Error('operation-conflict'); return { reused: true, revision: prior.revision } }
+    if (prior) { if (prior.text !== args.answer||JSON.stringify(prior.presentation)!==JSON.stringify(presentation)) throw new Error('operation-conflict'); return { reused: true, revision: prior.revision } }
     if (!request || request.problemId !== args.problemId || request.processing?.operationId !== args.operationId) throw new Error('processing-mismatch')
-    const answer = { operationId: args.operationId, revision: request.processing.revision, revisions: request.processing.revisions, text: args.answer }
+    const answer = { operationId: args.operationId, revision: request.processing.revision, revisions: request.processing.revisions, text: args.answer,...(presentation?{presentation}:{}) }
     tx.update(c.request, { answers: [...request.answers, answer], status: request.revision > answer.revision ? 'requested' : 'answered', processing: null })
     return { reused: false, revision: answer.revision }
   })

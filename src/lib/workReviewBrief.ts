@@ -22,13 +22,14 @@ export function workReviewBrief(review:DayWorkReview,{complete=false,label,state
   ? [...(deferred.length?[{label:'Подробное пояснение',text:deferred.join('\n\n')}]:[]),...supplement.details]
   : legacyText?[{label:'Как проверяли запись',text:legacyText}]:[]
  return {
-  id:review.id,label:label??formatReviewProse(f?.title??'Разбор работы'),status:verified?'verified':review.status==='cannot-assess'?'uncertain':review.status==='needs-fix'?'incorrect':'revise',
+  id:`${review.id}:${JSON.stringify(review.checkedAt??null)}:${JSON.stringify(review.correctedAt??null)}`,label:label??formatReviewProse(f?.title??'Разбор работы'),status:verified?'verified':review.status==='cannot-assess'?'uncertain':review.status==='needs-fix'?'incorrect':'revise',
   stateLabel,
   confirmed:f?.confirmed?formatReviewProse(f.confirmed):verified?formatReviewProse(review.summary??'Работа подтверждена.'):undefined,
   focus:!verified?(typeof f?.focus==='string'?focus:formatReviewProse(review.status==='partial'||review.status==='needs-fix'?'Работа проверена. Адресный вопрос к этой попытке ещё уточняется.':review.summary??'')):undefined,
   bridge:!verified?bridge:undefined,
   question:!verified&&f?.question?formatReviewProse(f.question):undefined,
   visual:supplement?.visual,
+  activity:supplement?.activity,
   details,
  }
 }

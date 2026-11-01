@@ -7,12 +7,13 @@ import type { ReviewBriefData } from '@/components/ReviewBrief'
 import type { DayWorkReview } from '@/lib/dayStore'
 
 export function reviewBriefWorkExample(data:ReviewBriefData):DayWorkReview {
- return {id:data.id,taskId:'demo-only',status:data.status==='verified'?'verified':data.status==='uncertain'?'cannot-assess':data.status==='incorrect'?'needs-fix':'partial',studentFeedback:{title:data.label,confirmed:data.confirmed??'',focus:data.focus??'',bridge:data.bridge,question:data.question??'',presentation:{version:1,visual:data.visual,details:data.details??(data.detail?[data.detail]:[])}}}
+ return {id:data.id,taskId:'demo-only',status:data.status==='verified'?'verified':data.status==='uncertain'?'cannot-assess':data.status==='incorrect'?'needs-fix':'partial',studentFeedback:{title:data.label,confirmed:data.confirmed??'',focus:data.focus??'',bridge:data.bridge,question:data.question??'',presentation:{version:1,activity:data.activity,visual:data.visual,details:data.details??(data.detail?[data.detail]:[])}}}
 }
 
 export const reviewBriefExamples: { name: string; data: ReviewBriefData }[] = [
   { name: 'Математика', data: {
-    id: 'demo-review-math', label: 'Математика · пример', status: 'revise',
+    id: 'demo-review-math', label: 'Собери общую сумму', status: 'revise',
+    activity:{kind:'build',label:'Две найденные группы',instruction:'Собери запись из уже известных количеств.',joiner:' + ',tokens:[{id:'red',text:'3'},{id:'blue',text:'5'}]},
     confirmed: '3 + 2 = 5 — синие карандаши найдены.',
     focus: 'В ответе пока только синие карандаши.',
     visual: { kind: 'facts', label: 'Известные количества карандашей', items: [{ label: 'Красные', value: '3' }, { label: 'Синие', value: '5' }] },
@@ -23,7 +24,8 @@ export const reviewBriefExamples: { name: string; data: ReviewBriefData }[] = [
     ],
   } },
   { name: 'Русский', data: {
-    id: 'demo-review-russian', label: 'Русский язык · пример', status: 'revise',
+    id: 'demo-review-russian', label: 'Согласуй слова', status: 'revise',
+    activity:{kind:'mark',label:'Твоя строка',instruction:'Выдели слово, которое определяет число сказуемого.',tokens:[{id:'forest',text:'В лесу'},{id:'verb',text:'росли'},{id:'quality',text:'высокая'},{id:'noun',text:'берёза'}]},
     confirmed: 'Подлежащее «берёза» найдено верно.',
     focus: 'Проверь согласование выделенных слов.',
     visual: { kind: 'annotation', label: 'В предложении отмечены сказуемое и подлежащее', parts: [{ text: 'В лесу ' }, { text: 'росли', mark: 'focus' }, { text: ' высокая ' }, { text: 'берёза', mark: 'reference' }, { text: '.' }] },
@@ -32,7 +34,8 @@ export const reviewBriefExamples: { name: string; data: ReviewBriefData }[] = [
     detail: { label: 'Как найти подлежащее', text: 'Найди слово, которое отвечает на вопрос «кто?» или «что?». Затем установи, один предмет назван или несколько.' },
   } },
   { name: 'История', data: {
-    id: 'demo-review-history', label: 'История · пример', status: 'revise',
+    id: 'demo-review-history', label: 'Сравни даты', status: 'revise',
+    activity:{kind:'build',label:'Два события',instruction:'Поставь даты в выбранном порядке.',joiner:' → ',tokens:[{id:'first',text:'1703'},{id:'second',text:'1721'}]},
     confirmed: 'Обе даты записаны верно.',
     visual: { kind: 'timeline', label: 'Две даты из условного ответа', events: [{ date: '1703', label: 'Основание Петербурга' }, { date: '1721', label: 'Провозглашение империи' }] },
     question: 'Сколько лет прошло между событиями?',

@@ -1,13 +1,15 @@
 /** Checked feedback contract, separate from answer/explanation/learning.
  * @see ../docs/modules/assessments/quizzes.md#question-guidance
  */
+import {reviewSupplementErrors} from '../packages/education-presentation/review-content.mjs'
 export function guidanceErrors(guidance) {
   const errors = []
   if (!guidance || typeof guidance !== 'object' || Array.isArray(guidance)) return ['Нужен проверенный guidance.']
   for (const field of ['observation', 'question']) {
     if (typeof guidance[field] !== 'string' || guidance[field].trim().length < 15) errors.push(`Нужен конкретный guidance.${field}.`)
   }
-  if (Object.keys(guidance).some((key) => !['observation', 'question', 'source'].includes(key))) errors.push('Неизвестные поля guidance запрещены.')
+  if (Object.keys(guidance).some((key) => !['observation', 'question', 'source', 'presentation'].includes(key))) errors.push('Неизвестные поля guidance запрещены.')
+  errors.push(...reviewSupplementErrors(guidance.presentation))
   const source = guidance.source
   for (const field of ['title', 'edition', 'section', 'pages', 'locator']) {
     if (typeof source?.[field] !== 'string' || !source[field].trim()) errors.push(`Нужен точный guidance.source.${field}.`)
@@ -25,6 +27,7 @@ export function questionGuidanceErrors(questions) {
   const errors = [], seen = new Set()
   for (const item of questions) {
     errors.push(...guidanceErrors(item.answer?.guidance).map((error) => `${item.id}: ${error}`))
+    if(!item.answer?.guidance?.presentation?.activity)errors.push(`${item.id}: нужна наглядная опора текущего вопроса presentation.activity без готового ответа.`)
     if (!Array.isArray(item.answer?.sourceEvidence) || !item.answer.sourceEvidence.length
       || item.answer.sourceEvidence.some((ref) => typeof ref !== 'string' || !ref.trim())) errors.push(`${item.id}: нужны закрытые sourceEvidence оригинала и проверки.`)
     const text = JSON.stringify([item.answer?.guidance?.observation, item.answer?.guidance?.question])

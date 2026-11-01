@@ -16,8 +16,9 @@ describe('personal step explanation', () => {
     expect(html).not.toContain('Уже получилось')
     expect(html).not.toContain('Проверь здесь')
     expect(html).not.toContain('Один вопрос')
-    expect(html).toContain('<details class="day-work-review-evidence"')
-    expect(html).toContain('Условие и основания проверки')
+    expect(html.includes('<details class="day-work-review-evidence"')).toBe(parent)
+    expect(html.includes('Условие и основания проверки')).toBe(parent)
+    if(!parent)expect(html).not.toContain('Private comparison')
   })
   it('retains readable historical feedback without inventing missing steps', () => {
     const html = renderToStaticMarkup(<WorkReview uploads={[]} review={{ id: 'old', taskId: 'old', status: 'partial', studentFeedback: { title: 'Старый разбор', confirmed: 'Верная часть сохранена.', focus: 'Конкретный переход объяснён.', question: 'Проверь этот переход.' } }} />)

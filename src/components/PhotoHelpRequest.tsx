@@ -2,13 +2,15 @@
 import type { FormEvent, ReactNode } from 'react'
 import PhotoUploadControl from './PhotoUploadControl'
 import ReviewBrief from './ReviewBrief'
+import {projectReviewSupplement} from '../../packages/education-presentation/review-content.mjs'
+import type {ReviewSupplement} from '../../packages/education-presentation/review-content.mjs'
 import './ProblemStatement.css'
 import './ProblemCard.css'
 
 /** Photo-based help composition; the caller owns selection, submission and access.
  * @see ../../docs/modules/assessments/olympiad-preparation.md#модель-урока-и-свидетельств
  * @see ../../docs/decisions/ui-kit-photo-help-2026-10-27.md */
-export default function PhotoHelpRequest({ photos, selectedCount, note, onNote, onPhotos, onSubmit, status, response, previousResponse, parent = false, onOpenChange, attachedDescription }: {
+export default function PhotoHelpRequest({ photos, selectedCount, note, onNote, onPhotos, onSubmit, status, response, presentation, previousResponse, parent = false, onOpenChange, attachedDescription }: {
   photos: ReactNode
   selectedCount: number
   note: string
@@ -17,11 +19,13 @@ export default function PhotoHelpRequest({ photos, selectedCount, note, onNote, 
   onSubmit: () => void
   status: 'draft' | 'pending' | 'ready'
   response?: string
+  presentation?: ReviewSupplement
   previousResponse?: string
   parent?: boolean
   onOpenChange?: (open: boolean) => void
   attachedDescription?: string
 }) {
+  const supplement=projectReviewSupplement(presentation)
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (!parent && (selectedCount > 0 || status === 'pending' && note.trim())) onSubmit()
@@ -31,7 +35,7 @@ export default function PhotoHelpRequest({ photos, selectedCount, note, onNote, 
     <form onSubmit={submit}>
       {!parent && <p>Выбери в галерее выше или добавь фото того, что ты записал или попробовал. Не бойся присылать зачёркнутое: я постараюсь разобраться, показать, где ты двигался верно, и объяснить следующий шаг.</p>}
       {status === 'pending' && <p role="status"><strong>Помощь запрошена</strong> · ждём ответ</p>}
-      {response && <ReviewBrief data={{id:response,label:'Следующий шаг',status:'neutral',body:response,details:previousResponse?[{label:'Предыдущая помощь',text:previousResponse}]:[]}} />}
+      {response && <ReviewBrief data={{id:response,label:'Следующий шаг',status:'neutral',body:response,activity:supplement?.activity,visual:supplement?.visual,details:[...(supplement?.details??[]),...(previousResponse?[{label:'Предыдущая помощь',text:previousResponse}]:[])]}} />}
       {parent && attachedDescription && <p>Фото запроса: {attachedDescription}</p>}
       {!parent && <>
         <PhotoUploadControl className="problem-card-upload" label="Добавить фото записей" onPhotos={onPhotos} />
