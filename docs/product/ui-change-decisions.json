@@ -5377,7 +5377,7 @@
       }
     },
     "sync/event-task-artifact.mjs": {
-      "sha256": "840879d134af972f114f2144fd3bfe50e6273f0cdb0f44f69bca24bcca2c3c0f",
+      "sha256": "5198dea392e73694bb50d85511e06e5a7d04d54c5dd8255b019d054e5da332db",
       "record": "docs/decisions/student-review-reply-2026-11-01.md",
       "specs": [
         "docs/shared/design/student-review-step.md",
@@ -7726,7 +7726,7 @@
       }
     },
     "src/ui-kit/ReviewConversationExample.tsx": {
-      "sha256": "faf7bf172d984e49ee75e6123e1f568f365d354f3d5dac87c0bd7105b1978dca",
+      "sha256": "2b31a5b62941ca1453007090d7c51eb742fb7cdfb1dc5d2232aabadbf7158f67",
       "record": "docs/decisions/student-review-reply-2026-11-01.md",
       "specs": [
         "docs/shared/design/student-review-step.md",
