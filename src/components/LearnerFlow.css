@@ -7,3 +7,6 @@
 .day-learner-flow-stage{padding:12px;border:1px solid var(--edu-card-border);border-radius:var(--edu-radius-control);background:var(--edu-surface)}
 .day-learner-flow summary{cursor:pointer;min-height:var(--edu-touch-target);display:flex;align-items:center;font-weight:700}.day-learner-flow summary:focus-visible{outline:3px solid var(--edu-focus)}
 .day-learner-flow details{border-top:1px solid var(--edu-card-border);margin-top:10px}.day-learner-flow details details{padding-left:8px}.day-learner-flow nav{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap}.day-learner-flow nav>span{flex:1;min-width:140px}
+
+/* @see ../../docs/shared/design/student-review-step.md */
+.day-learner-flow-revisit{margin:8px 0;color:var(--edu-ink);border-top:1px solid var(--edu-card-border)}.day-learner-flow-revisit>summary{display:flex;align-items:center;min-height:44px;font-size:16px;line-height:1.4;color:var(--edu-accent-ink);cursor:pointer;list-style:none}.day-learner-flow-revisit>summary:focus-visible{outline:3px solid var(--edu-focus);outline-offset:2px}

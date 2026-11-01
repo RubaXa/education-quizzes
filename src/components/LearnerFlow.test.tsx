@@ -28,6 +28,11 @@ describe('learner process support', () => {
       expect(host.textContent).toContain('Шаг 1 из 2')
       expect(host.textContent).toContain('Новая инструкция')
       expect(host.querySelector('details')!.open).toBe(false)
+      await act(async()=>root.render(<LearnerFlow key="reviewed" reviewed flow={changed}/>))
+      const revisit=host.querySelector<HTMLDetailsElement>('.day-learner-flow-revisit')!
+      expect(revisit.open).toBe(false)
+      expect(revisit.querySelector('summary')?.textContent).toBe('Вернуться к условию и плану')
+      expect(revisit.querySelector('.day-learner-flow-stage')?.textContent).toContain('Новая инструкция')
     } finally { await act(async () => root.unmount()); host.remove() }
   })
 })

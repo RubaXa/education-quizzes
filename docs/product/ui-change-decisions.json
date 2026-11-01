@@ -16,33 +16,35 @@
       }
     },
     "src/components/LearnerFlow.tsx": {
-      "sha256": "44d9a8710ec136be7251b9f3a5b513a1d071a2c264b39f12ad9f9d6a53677a0c",
-      "record": "docs/decisions/scoped-learner-flow-2026-10-21.md",
+      "sha256": "ac31aaee1125a5edd122861a9a92910c049f05607d445e373465011d5c8779b4",
+      "record": "docs/decisions/student-review-step-2026-11-01.md",
       "specs": [
-        "docs/modules/reviews/subject-aware-guidance.md"
+        "docs/shared/design/student-review-step.md",
+        "docs/shared/design/compact-review.md"
       ],
       "tests": [
-        "day/learner-flow.test.mjs",
-        "src/components/LearnerFlow.test.tsx"
+        "src/components/LearnerFlow.test.tsx",
+        "src/components/ReviewActivity.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 21.10.2026 поручил исследовать методики, подготовить пошаговую учебную помощь и опубликовать подсказки внутри карточки ребёнка."
+        "evidence": "01.11.2026 родитель прямо потребовал исправить ученическую часть всех разборов: понятная модель текущего шага, интерактив без ответа и служебных фраз; общие инструкции, UI Kit и проверка ученического вида."
       }
     },
     "src/components/LearnerFlow.css": {
-      "sha256": "a94bed9ab042b4ec68d1e0bffd852e27c185c4d47f5ff26a2e91c8dd104b6864",
-      "record": "docs/decisions/scoped-learner-flow-2026-10-21.md",
+      "sha256": "aba9e5ba73904ed361b22daabc66f5cd8e411f6993ce534d34b2669310ad6226",
+      "record": "docs/decisions/student-review-step-2026-11-01.md",
       "specs": [
-        "docs/modules/reviews/subject-aware-guidance.md"
+        "docs/shared/design/student-review-step.md",
+        "docs/shared/design/compact-review.md"
       ],
       "tests": [
-        "day/learner-flow.test.mjs",
-        "src/components/LearnerFlow.test.tsx"
+        "src/components/LearnerFlow.test.tsx",
+        "src/components/ReviewActivity.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 21.10.2026 поручил исследовать методики, подготовить пошаговую учебную помощь и опубликовать подсказки внутри карточки ребёнка."
+        "evidence": "01.11.2026 родитель прямо потребовал исправить ученическую часть всех разборов: понятная модель текущего шага, интерактив без ответа и служебных фраз; общие инструкции, UI Kit и проверка ученического вида."
       }
     },
     "assessment/canonical-short-key.mjs": {
@@ -2622,23 +2624,19 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "931e12389c0ca3b76e05728007b839d0c088895570a8e0b54cd6ae307f9b11f3",
-      "record": "docs/decisions/canonical-attachment-controls-2026-10-31.md",
+      "sha256": "1e890578b7bf620b10181335249c9e70e561f00d266991de3c8d0f1c5eae76b0",
+      "record": "docs/decisions/student-review-step-2026-11-01.md",
       "specs": [
-        "docs/shared/design/components.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/shared/design/student-review-step.md",
+        "docs/shared/design/compact-review.md"
       ],
       "tests": [
-        "src/components/TaskWorkEvidence.test.tsx",
-        "src/components/WorkPhotoGallery.test.tsx",
-        "src/components/SolutionFiles.test.tsx",
-        "src/UiKit.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/components/LearningRoute.weekend.integration.test.tsx"
+        "src/components/LearnerFlow.test.tsx",
+        "src/components/ReviewActivity.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель31.10.2026 указал,что скриншот отличается от реальных контролов,поручил перечитать спецификации/элементы,улучшить декомпозицию и обновить UI Kit без изобретения нового вида."
+        "evidence": "01.11.2026 родитель прямо потребовал исправить ученическую часть всех разборов: понятная модель текущего шага, интерактив без ответа и служебных фраз; общие инструкции, UI Kit и проверка ученического вида."
       }
     },
     "src/UiKit.css": {

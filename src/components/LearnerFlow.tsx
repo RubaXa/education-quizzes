@@ -1,3 +1,4 @@
+/** @see ../../docs/shared/design/student-review-step.md */
 /** @see ../../docs/decisions/scoped-learner-flow-2026-10-21.md */
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
@@ -5,11 +6,11 @@ import type { LearnerFlowData } from '@/lib/dayStore'
 import './LearnerFlow.css'
 /** Public process prompts, no private solutions. Navigation never grades work.
  * @see ../../docs/modules/reviews/subject-aware-guidance.md#learner-flow */
-export default function LearnerFlow({ flow }: { flow: LearnerFlowData }) {
+export default function LearnerFlow({ flow, reviewed=false }: { flow: LearnerFlowData;reviewed?:boolean }) {
   const [index, setIndex] = useState(0)
   const stage = flow.stages[index]
   if (!stage) return null
-  return <section className="day-learner-flow" aria-label="Помощь с заданием">
+  const content=<section className="day-learner-flow" aria-label="Помощь с заданием">
     <h4>Разберёмся по шагам</h4>
     <p><strong>{flow.scope}</strong> · {flow.goal}</p>
     <p className="day-learner-flow-boundary">{flow.boundary}</p>
@@ -24,4 +25,5 @@ export default function LearnerFlow({ flow }: { flow: LearnerFlowData }) {
         : <span>Теперь сверяй свой диалог. Просмотр шагов не означает, что работа проверена.</span>}
     </nav>
   </section>
+  return reviewed?<details className="day-learner-flow-revisit"><summary>Вернуться к условию и плану</summary>{content}</details>:content
 }
