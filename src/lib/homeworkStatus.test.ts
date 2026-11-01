@@ -2,6 +2,15 @@ import { describe, expect, it } from 'vitest'
 import { lessonWorkItems, quizRequirement, requiredQuizRequirement } from './homeworkStatus'
 import type { DayTask, DayWorkReview } from './dayStore'
 
+it('does not complete a new previous-lesson repetition from an old pass or a source receipt',()=>{
+ const task={id:'repeat',title:'Повторить прошлый урок',kind:'check',status:'verified',meshText:'задание прошлого урока',referenceDate:'2026-10-23'} as DayTask
+ const receipt={id:'repeat',taskId:'repeat',purpose:'source-material'} as DayWorkReview
+ expect(lessonWorkItems([task],[],[receipt],[],{},{})).toMatchObject([{state:'todo'}])
+ const bound={...task,testToken:'new'}
+ expect(lessonWorkItems([bound],[],[receipt],[],{new:{status:'open'}},{})).toMatchObject([{state:'todo'}])
+ expect(lessonWorkItems([bound],[],[receipt],[],{new:{status:'submitted'}},{new:{points:12,maxPoints:13}})).toMatchObject([{state:'done'}])
+})
+
 /** @see ../../docs/modules/materials/material-clarification.md */
 it('never treats requested notes, received photos or an identified topic as completed homework', () => {
   const task = { id:'notes',kind:'read',status:'verified',title:'Повторить записи',assessmentIntent:{state:'needs-topic'},

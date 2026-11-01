@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/** @see ../docs/decisions/lesson-repetition-2026-11-01.md */
 /** @see ../docs/decisions/informatics-assessment-2026-11-01.md */
 /** @see ../docs/decisions/accepted-help-closure-2026-10-25.md */
 /** @see ../docs/decisions/sync-task-routing-2026-10-23.md */
@@ -127,7 +128,7 @@ async function discover() {
         candidates.push(job(decision.job, owner.familyId, owner.childId,
           `${page.targetDate}:${task.id}`, { type: 'day-task', dayToken: doc.id, date: page.targetDate, taskId: task.id,
             assessmentMode: decision.mode ?? null, reason: decision.reason ?? null },
-          [page.targetDate, task.id, task.meshText, task.assessmentIntent, page.sourceRevision], decision.job === 'classify-assignment' ? 32 : 40))
+          [page.targetDate, task.id, task.meshText, task.assessmentIntent, task.repetition, page.sourceRevision], decision.job === 'classify-assignment' ? 32 : 40))
       }
     }
   }

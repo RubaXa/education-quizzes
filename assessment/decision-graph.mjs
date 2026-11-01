@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/lesson-repetition-2026-11-01.md */
 /** @see ../docs/decisions/informatics-assessment-2026-11-01.md */
 /**
  * @see ../docs/modules/assessments/assessment-source-policy.md
@@ -5,6 +6,7 @@
 /** Private quiz authoring contract. The plan is never copied into assignments.
  * @see ../docs/modules/assessments/assessment-decision-graph.md#contract
  */
+import { repetitionDecision } from './lesson-repetition.mjs'
 export const assessmentModes = Object.freeze(['ordinary', 'control-diagnostic', 'control-followup', 'targeted-followup'])
 export const assessmentLayers = Object.freeze(['current', 'prior-gap', 'baseline', 'spaced', 'transfer'])
 export const subjectAdapters = Object.freeze({
@@ -111,6 +113,8 @@ export function supplementalAssessmentPlacement(task, placements = []) {
 
 /** A raw MESH keyword can request classification, never authorize publication. */
 export function quizDecision(task) {
+  const repetition = repetitionDecision(task)
+  if (repetition) return repetition
   if (task?.referenceDate || /(?:^|[^а-яё])цдз(?:$|[^а-яё])/i.test(task?.meshText ?? '')) return null
   const intent = task?.assessmentIntent
   if (intent?.state === 'confirmed' && assessmentModes.includes(intent.mode)
@@ -187,6 +191,15 @@ export function validateAssessmentPlan(plan, spec) {
     || new Set(items.map((item) => item.questionId)).size !== items.length) errors.push('ID в плане должны быть уникальны.')
   const sourceIds = identifiers(sources), evidenceIds = identifiers(evidence), objectiveIds = identifiers(objectives)
   const questionIds = new Set((spec.questions ?? []).map((question) => question.id))
+  if (plan.repetition) {
+    const repeat=plan.repetition
+    if(plan.mode!=='ordinary'||!nonempty(repeat.targetTaskId)||!nonempty(repeat.previousLessonRef)
+      ||!Array.isArray(repeat.parts)||!repeat.parts.length||new Set(repeat.parts.map(p=>p.id)).size!==repeat.parts.length
+      ||repeat.parts.some(part=>!nonempty(part.id)||!sourceIds.has(part.sourceId)||!Array.isArray(part.questionIds)||!part.questionIds.length
+        ||part.questionIds.some(id=>!questionIds.has(id)||!items.find(item=>item.questionId===id)?.sourceIds?.includes(part.sourceId)))) {
+      errors.push('Повторение: нужны текущее назначение, предыдущий урок и отдельное покрытие каждой части проверенным источником и вопросами.')
+    }
+  }
   if (items.length !== questionIds.size || items.some((item) => !questionIds.has(item.questionId))) {
     errors.push('Каждый вопрос теста должен иметь ровно одну запись происхождения в плане.')
   }

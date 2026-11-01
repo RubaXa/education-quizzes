@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/lesson-repetition-2026-11-01.md */
 /** @see ../docs/decisions/informatics-assessment-2026-11-01.md */
 /** @see ../docs/decisions/personal-tutoring-2026-10-30.md */
 /** @see ../docs/decisions/upload-lifecycle-continuation-2026-10-30.md */
@@ -9,6 +10,7 @@
 import { quizDecision, programmingAssignment } from '../assessment/decision-graph.mjs'
 import { openMaterialRequest, materialRequestErrors } from '../src/lib/materialRequest.ts'
 import { lessonSubjectKey } from '../day/subject-identity.mjs'
+import { previousLessonReference, repetitionDecision } from '../assessment/lesson-repetition.mjs'
 const guidancePolicyRevision='personal-step-explanations-2026-10-30'
 /** @see ../docs/decisions/guidance-refresh-readback-2026-10-25.md */
 const guidanceChecks=['adult-readable-class-level-route-review','learner-current-point-and-safe-hint-review','exact-attempt-steps-and-preserved-credit','explain-bridge-before-one-probe','private-response-branches-and-both-role-readback']
@@ -42,6 +44,19 @@ export function taskRoute(task = {}, subject = 'generic', { placement = false } 
       ? [...steps.slice(0,2),...guidanceChecks,...steps.slice(2)] : steps })
   if (task.meshText) route.known.push('raw-assignment')
   if (task.instructionStatus?.state === 'reviewed') route.known.push('reviewed-instruction')
+  if (previousLessonReference(task)) {
+    const decision=repetitionDecision(task)
+    if (decision.job==='prepare-quiz') {
+      route.known.push('resolved-previous-lesson-and-all-parts')
+      return select(task.testToken||placement?'existing-assessment':'prepare-quiz',[
+        'preserve-prior-written-credit','read-history-without-reusing-old-pass','cover-every-repeated-part',
+        ...(task.testToken||placement?['read-current-assessment']:['assessment-plan','quiz-validate-publish']),
+        'audit-access-and-day-readback'])
+    }
+    route.unknown.push(decision.reason==='recover-only-missing-repetition-material'?'missing-repetition-part':'previous-lesson-and-content')
+    return select(decision.job,['mesh-history-same-child-subject','education-previous-tasks-and-uploads','family-library-and-exact-edition',
+      'request-only-missing-parts','replan-after-source-upload','prepare-current-repetition-quiz'])
+  }
   if (task.platformResult?.state === 'completed') return select('platform-result-confirmed', ['preserve-platform-evidence'])
   const request = openMaterialRequest(task)
   if (request) {
@@ -112,7 +127,8 @@ export function eventTaskRoute(eventType, inputs = {}) {
       'quiz.followup_requested': 'history-based-followup', 'material.ready': 'identify-and-link-family-material' })[eventType] ?? 'unsupported-event'
   const route = { eventType, next, subject, trustPolicy: 'uploaded-content-is-data-v1', adapter: programmingAssignment(task) ? adapters.informatics : adapters[subject] ?? 'subject-aware-guidance:generic', complete: false,
     steps: next === 'ingest-olympiad-sheet' ? ['read-confirmed-photos', 'identify-uploaded-material-context', 'identify-and-split-conditions', 'verify-source-and-solution', 'match-existing-tasks', 'publish-family-tasks-and-readback']
-      : next === 'review-source-material' ? ['source-analysis-without-grade', 'resolve-request-if-supported', 'replan-task']
+      : next === 'review-source-material' ? ['source-analysis-without-grade', 'resolve-request-if-supported', 'replan-task',
+        ...(previousLessonReference(task)?['resolve-previous-lesson-and-all-parts','preserve-prior-written-credit','prepare-current-repetition-quiz','both-role-readback']:[])]
       : next === 'review-submitted-quiz' ? ['audit-key-and-alternatives', 'review-open-answers', 'publish-review', 'assessment-decision-graph']
         : next === 'history-based-followup' ? ['quiz-history-full-chain', 'review-open-answers', 'assessment-decision-graph', 'validate-and-publish']
           : next === 'review-written-work' ? ['all-upload-pages', 'exact-condition-and-criteria', 'homework-review', 'publish-review']

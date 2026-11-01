@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/lesson-repetition-2026-11-01.md */
 /** @see ../../docs/decisions/source-completion-consistency-2026-11-01.md */
 /** @see ../../docs/decisions/collapsed-variant-status-2026-10-21.md */
 /** @see ../../docs/modules/materials/material-clarification.md */
@@ -9,6 +10,7 @@ import { parentAccepted, requiredFamilyActions, stageCompletion, practiceRequire
 import type { ParentCompletionEvent } from './parentCompletion'
 import { lessonSubjectKey } from '../../day/subject-identity.mjs'
 import { quizPassed } from './quizCompletion'
+import { previousLessonReference } from '../../assessment/lesson-repetition.mjs'
 
 /** @see ../../docs/modules/school-diary/dashboard.md#homework-progress
  *  @see ../../docs/modules/families/README.md#parent-home */
@@ -58,7 +60,7 @@ export function lessonWorkItems(tasks: DayTask[], uploads: DayUpload[], reviews:
     if (task.optional === true) return []
     // A MESH pointer to an earlier lesson is information, not a second task.
     // @see ../../docs/modules/school-diary/dashboard.md#reference-only-homework
-    if (task.referenceDate) return []
+    if (task.referenceDate && !previousLessonReference(task)) return []
     if (task.problems?.length) return [
       ...task.problems.filter((problem) => !problem.variantId || practiceRequired(task, problem.variantId, decisions)).map((problem) => {
       const review = reviews.find((item) => item.taskId === problem.id)
@@ -83,6 +85,8 @@ export function lessonWorkItems(tasks: DayTask[], uploads: DayUpload[], reviews:
       const requirement = requiredQuizRequirement(task.testToken, tests, scores)
       return requirement ? [{ id: task.id, title: task.title, ...requirement }] : []
     }
+    if (previousLessonReference(task)) return [{id:task.id,title:task.title,state:'todo' as const,
+      detail:'Повторение нужно проверить новым тестом; прежняя работа сохранена.'}]
     const review = reviews.find((item) => item.taskId === task.id)
     const materialView = materialRequestView(task, uploads.filter(upload => uploadMatchesTask(upload, task.id)), review)
     if (materialView) return [{ id: task.id, title: task.title, clarification: true, state: materialView.phase === 'waiting' ? 'todo' : 'checking', detail: materialView.detail }]
