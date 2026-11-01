@@ -1476,6 +1476,36 @@
       "path": "docs/decisions/mesh-informational-entry-2026-10-21.md"
     },
     {
+      "id": "decision.mesh-login-stages-2026-11-01",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-01",
+      "updated": "2026-11-01",
+      "parent": "module.school-diary",
+      "uses": [
+        "shared.server-runtime"
+      ],
+      "consumers": [
+        "family connector",
+        "operator"
+      ],
+      "code": [
+        "diary/cli.mjs",
+        "packages/education-connect/bin/education-connect.mjs",
+        "packages/education-connect/lib/mesh.mjs",
+        "packages/education-connect/lib/prompts.mjs",
+        "packages/education-connect/lib/login-diagnostics.mjs"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/mesh-login-stages-2026-11-01.md"
+    },
+    {
       "id": "decision.method-guided-reviews-2026-10-31",
       "status": "accepted",
       "implementation": "implemented",
@@ -5792,6 +5822,20 @@
       "kind": "artifact",
       "purpose": "Запись зашифрованного пакета по приглашению",
       "consumer": "`education-connect` CLI; Firebase"
+    },
+    {
+      "id": "file:packages/education-connect/lib/login-diagnostics.mjs",
+      "path": "packages/education-connect/lib/login-diagnostics.mjs",
+      "kind": "artifact",
+      "purpose": "Безопасная диагностика этапов входа без секретов и сырых ответов",
+      "consumer": "Connector; diary CLI; Vitest"
+    },
+    {
+      "id": "file:packages/education-connect/lib/login-diagnostics.test.mjs",
+      "path": "packages/education-connect/lib/login-diagnostics.test.mjs",
+      "kind": "verification",
+      "purpose": "Безопасная диагностика этапов входа без секретов и сырых ответов",
+      "consumer": "Connector; diary CLI; Vitest"
     },
     {
       "id": "file:packages/education-connect/lib/mesh-assignments.test.mjs",
@@ -15233,6 +15277,11 @@
       "type": "uses"
     },
     {
+      "from": "decision.mesh-login-stages-2026-11-01",
+      "to": "shared.server-runtime",
+      "type": "uses"
+    },
+    {
       "from": "decision.method-guided-reviews-2026-10-31",
       "to": "shared.design.compact-review",
       "type": "uses"
@@ -16569,6 +16618,11 @@
     },
     {
       "from": "file:diary/cli.mjs",
+      "to": "decision.mesh-login-stages-2026-11-01",
+      "type": "implements"
+    },
+    {
+      "from": "file:diary/cli.mjs",
       "to": "module.school-diary",
       "type": "implements"
     },
@@ -16979,6 +17033,11 @@
     },
     {
       "from": "file:packages/education-connect/bin/education-connect.mjs",
+      "to": "decision.mesh-login-stages-2026-11-01",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-connect/bin/education-connect.mjs",
       "to": "module.school-diary",
       "type": "implements"
     },
@@ -16993,6 +17052,16 @@
       "type": "implements"
     },
     {
+      "from": "file:packages/education-connect/lib/login-diagnostics.mjs",
+      "to": "decision.mesh-login-stages-2026-11-01",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-connect/lib/login-diagnostics.mjs",
+      "to": "shared.server-runtime",
+      "type": "implements"
+    },
+    {
       "from": "file:packages/education-connect/lib/mesh.mjs",
       "to": "audits.education-sync-latency-audit-2026-10-15",
       "type": "implements"
@@ -17000,6 +17069,11 @@
     {
       "from": "file:packages/education-connect/lib/mesh.mjs",
       "to": "decision.mesh-auth-recovery-2026-11-01",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-connect/lib/mesh.mjs",
+      "to": "decision.mesh-login-stages-2026-11-01",
       "type": "implements"
     },
     {
@@ -17015,6 +17089,11 @@
     {
       "from": "file:packages/education-connect/lib/network-retry.mjs",
       "to": "module.synchronization.global-sync",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-connect/lib/prompts.mjs",
+      "to": "decision.mesh-login-stages-2026-11-01",
       "type": "implements"
     },
     {
@@ -23614,6 +23693,11 @@
     },
     {
       "from": "module.school-diary",
+      "to": "decision.mesh-login-stages-2026-11-01",
+      "type": "contains"
+    },
+    {
+      "from": "module.school-diary",
       "to": "file:diary/application/sync.test.mjs",
       "type": "verified-by"
     },
@@ -26096,6 +26180,11 @@
       "from": "shared.server-runtime",
       "to": "decision.shared-server-runtime-2026-10-17",
       "type": "contains"
+    },
+    {
+      "from": "shared.server-runtime",
+      "to": "file:packages/education-connect/lib/login-diagnostics.test.mjs",
+      "type": "verified-by"
     },
     {
       "from": "shared.server-runtime",

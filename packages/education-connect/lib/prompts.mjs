@@ -1,3 +1,4 @@
+/** @see ../../../docs/decisions/mesh-login-stages-2026-11-01.md */
 import { createInterface } from 'node:readline/promises'
 import { stdin, stdout } from 'node:process'
 
@@ -38,4 +39,11 @@ export async function confirmPrompt(question) {
   const rl = createInterface({ input: stdin, output: stdout })
   try { return /^(да|yes|y)$/i.test((await rl.question(question)).trim()) }
   finally { rl.close() }
+}
+
+/** The account name is visible; passwords and SMS must continue using hiddenPrompt. */
+export async function visiblePrompt(label) {
+  if (!stdin.isTTY) throw new Error('Для входа нужен интерактивный терминал')
+  const rl = createInterface({input:stdin,output:stdout})
+  try { return (await rl.question(label)).trim() } finally { rl.close() }
 }

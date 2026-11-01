@@ -1,6 +1,6 @@
 {
   "name": "education-connect",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Подключение учебного источника к Education с локальным вводом учётных данных",
   "type": "module",
   "license": "UNLICENSED",
@@ -14,7 +14,8 @@
     "lib/mesh.mjs",
     "lib/prompts.mjs",
     "README.md",
-    "lib/network-retry.mjs"
+    "lib/network-retry.mjs",
+    "lib/login-diagnostics.mjs"
   ],
   "engines": {
     "node": ">=20"
