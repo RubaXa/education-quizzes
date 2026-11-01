@@ -360,7 +360,7 @@ describe('day page: teacher sheet and linked self-check', () => {
       } finally {await view.cleanup()}
     }
   })
-  it('does not count reviewed written work or a verified platform result as remaining work', async()=>{
+  it.each([false,true])('does not request another screenshot for verified platform work or count it as remaining, parent=%s', async(parent)=>{
     scene.page!.subjects[0].tasks=[
       {id:'written',kind:'written',status:'unknown',title:'Запись',detail:'',source:'МЭШ'},
       {id:'platform',kind:'check',status:'unknown',title:'Выполнить ЦДЗ',detail:'',source:'МЭШ'},
@@ -368,8 +368,14 @@ describe('day page: teacher sheet and linked self-check', () => {
     scene.page!.testPlacements=[]
     scene.reviews=[{id:'written-review',taskId:'written',status:'verified',uploadIds:['a']},{id:'platform-review',taskId:'platform',status:'verified',uploadIds:['b']}]
     scene.uploads=[]
-    const view=await renderPage(true)
-    try { expect(view.host.querySelector('.day-summary strong')?.textContent).toBe('0') }
+    const view=await renderPage(parent)
+    try {
+      expect(view.host.querySelector('.day-summary strong')?.textContent).toBe('0')
+      const card=view.host.querySelector<HTMLDetailsElement>('#day-task-platform')!
+      expect(card.open).toBe(false)
+      expect(card.querySelector(':scope > summary .day-task-state')?.textContent).toBe('Готово · проверено')
+      expect(card.querySelector(':scope > summary')?.textContent).not.toContain('Нужен скриншот')
+    }
     finally {await view.cleanup()}
   })
   /** @see ../docs/modules/school-diary/dashboard.md#compact-homework */
