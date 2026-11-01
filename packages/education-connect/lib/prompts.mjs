@@ -1,3 +1,4 @@
+/** @see ../../../docs/decisions/local-connect-diagnostics-2026-11-01.md */
 /** @see ../../../docs/decisions/mesh-login-stages-2026-11-01.md */
 import { createInterface } from 'node:readline/promises'
 import { stdin, stdout } from 'node:process'
@@ -13,6 +14,7 @@ export function hiddenPrompt(label) {
     function finish(error) {
       stdin.off('data', onData)
       stdin.setRawMode(false)
+      stdin.pause()
       stdout.write('\n')
       if (error) reject(error)
       else resolve(Buffer.from(bytes).toString('utf8'))
@@ -23,8 +25,7 @@ export function hiddenPrompt(label) {
         if (byte === 10 || byte === 13) return finish()
         if (byte === 127 || byte === 8) {
           if (bytes.length) {
-            bytes.pop()
-            while (bytes.length && (bytes.at(-1) & 0xc0) === 0x80) bytes.pop()
+            removeLastUtf8Character(bytes)
           }
           continue
         }
@@ -46,4 +47,18 @@ export async function visiblePrompt(label) {
   if (!stdin.isTTY) throw new Error('Для входа нужен интерактивный терминал')
   const rl = createInterface({input:stdin,output:stdout})
   try { return (await rl.question(label)).trim() } finally { rl.close() }
+}
+
+/** Remove the complete final UTF-8 code point, including its leading byte. */
+export function removeLastUtf8Character(bytes) {
+  if (!bytes.length) return
+  while (bytes.length && (bytes.at(-1) & 0xc0) === 0x80) bytes.pop()
+  bytes.pop()
+}
+
+/** Explicit local inspection; never send these diagnostics to telemetry or handoff. */
+export function credentialInputSummary(password, {showPrefix = false} = {}) {
+  const chars = Array.from(password)
+  const prefix = showPrefix ? `; начало: ${JSON.stringify(chars.slice(0, Math.min(4, Math.max(0, chars.length - 1))).join(''))}` : ''
+  return `Пароль: ${chars.length} символов, ${Buffer.byteLength(password, 'utf8')} байт UTF-8; пробелы по краям: ${/^\s|\s$/u.test(password) ? 'есть' : 'нет'}${prefix}. Пароль передаётся без обрезки и замены.\n`
 }

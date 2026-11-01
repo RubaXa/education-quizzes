@@ -688,18 +688,18 @@
       }
     },
     "packages/education-connect/bin/education-connect.mjs": {
-      "sha256": "64cb664444b61b09cfdc4b7dc6f98f5e176179a657357ee58fbab6623cf96501",
+      "sha256": "cec05d3dc3ac60ef74ba48b260b252bc5a1a4e8cf5f50d90c70825e09d8839e7",
       "record": "docs/decisions/local-connect-diagnostics-2026-11-01.md",
       "specs": [
         "docs/shared/server-runtime.md"
       ],
       "tests": [
-        "scripts/connect-diagnose.test.mjs",
-        "packages/education-connect/lib/login-diagnostics.test.mjs"
+        "packages/education-connect/lib/prompts.test.mjs",
+        "scripts/connect-diagnose.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель01.11 прямо потребовал локальный CLI через npm run для безопасного сбора диагностики подключения вместо npx-публикации."
+        "evidence": "Родитель01.11 прямо попросил локально показать первые четыре символа и длину пароля для проверки корректности ввода."
       }
     },
     "packages/education-connect/lib/envelope.mjs": {
@@ -770,18 +770,18 @@
       }
     },
     "packages/education-connect/lib/prompts.mjs": {
-      "sha256": "7eeec6b015d4f2e1ed999ec56245f874655c7779f1de2be0ec0cf166d2cdf849",
-      "record": "docs/decisions/mesh-login-stages-2026-11-01.md",
+      "sha256": "a05df4ed99b3462cc0d5e5930b3c3d663ef12bbc5e413f9335e05c6905922b4b",
+      "record": "docs/decisions/local-connect-diagnostics-2026-11-01.md",
       "specs": [
         "docs/shared/server-runtime.md"
       ],
       "tests": [
-        "packages/education-connect/lib/login-diagnostics.test.mjs",
-        "packages/education-connect/lib/mesh-auth.test.mjs"
+        "packages/education-connect/lib/prompts.test.mjs",
+        "scripts/connect-diagnose.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель01.11 сообщил два неработающих входа, потребовал диагностику и понятный видимый ввод логина вместо скрытия."
+        "evidence": "Родитель01.11 прямо попросил локально показать первые четыре символа и длину пароля для проверки корректности ввода."
       }
     },
     "packages/education-events/envelope.mjs": {
@@ -7854,18 +7854,18 @@
       }
     },
     "scripts/connect-diagnose.mjs": {
-      "sha256": "2f2eea2e5fb6863e44cac1e28a93d38c05db99bb375c9a27894e11b469fc8070",
+      "sha256": "f40dc0a20caa7ff5f1749eb6b58462c5ac8ce8180e4787118f9bfb03039f1586",
       "record": "docs/decisions/local-connect-diagnostics-2026-11-01.md",
       "specs": [
         "docs/shared/server-runtime.md"
       ],
       "tests": [
-        "scripts/connect-diagnose.test.mjs",
-        "packages/education-connect/lib/login-diagnostics.test.mjs"
+        "packages/education-connect/lib/prompts.test.mjs",
+        "scripts/connect-diagnose.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель01.11 прямо потребовал локальный CLI через npm run для безопасного сбора диагностики подключения вместо npx-публикации."
+        "evidence": "Родитель01.11 прямо попросил локально показать первые четыре символа и длину пароля для проверки корректности ввода."
       }
     }
   }
