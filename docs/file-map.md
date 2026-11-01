@@ -1284,3 +1284,5 @@
 | [docs/decisions/mesh-renewal-order-2026-11-01.md](decisions/mesh-renewal-order-2026-11-01.md) | [Общее серверное ядро](shared/server-runtime.md) | Исправление ошибочного refresh-first по первичному контракту связанного клиента mos.ru | Connector; runtime; оператор |
 
 | [packages/education-connect/lib/prompts.test.mjs](../packages/education-connect/lib/prompts.test.mjs) | [Локальная диагностика](decisions/local-connect-diagnostics-2026-11-01.md) | Unicode Backspace, длина без секрета и явное экранированное начало пароля | Vitest |
+
+| [docs/decisions/linked-quiz-parent-guide-2026-11-01.md](decisions/linked-quiz-parent-guide-2026-11-01.md) | [Карточка дня](modules/school-diary/day-page.md) | Сохранение закрытого родительского разбора при показе задания одной цепочкой теста | Родитель; DayPage |

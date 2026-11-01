@@ -842,3 +842,17 @@ it.each(['ordinary','quiz'])('opens only the explicitly targeted %s assignment a
   await act(async()=>view.root.render(<DayPage token="student-token" parent={false} headerReturnTarget={null}/>));expect(card.open).toBe(false)
  }finally{await view.cleanup();window.requestAnimationFrame=priorFrame;window.cancelAnimationFrame=priorCancel;HTMLElement.prototype.scrollIntoView=priorScroll}
 })
+
+it.each([true, false])('preserves the private guide beside a quiz-only reading task for parent=%s', async(parent)=>{
+ const current=page()
+ current.subjects[0].tasks=[{id:taskId,kind:'read',status:'unknown',title:'Повторить урок',detail:'',source:'МЭШ',testToken:'diagrams-test'}]
+ current.materialLinks={};scene.page=current
+ scene.guides={[taskId]:{guide:{kind:'structured-notes',overview:'Закрытая сверка конкретной попытки',stages:[{id:'omission',title:'Пропущен один вариант',expected:'Полный ответ только взрослому',source:{kind:'textbook',label:'Сверенный оригинал',ref:'book:31',excerpt:'точный источник'}}]}}}
+ const view=await renderPage(parent)
+ try{
+  expect(view.host.querySelectorAll('.day-quiz-lineage')).toHaveLength(1)
+  expect(view.host.textContent?.includes('Закрытая сверка конкретной попытки')).toBe(parent)
+  expect(view.host.textContent?.includes('Полный ответ только взрослому')).toBe(parent)
+  expect(view.host.querySelectorAll('.day-task')).toHaveLength(0)
+ }finally{await view.cleanup()}
+})

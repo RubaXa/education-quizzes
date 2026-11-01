@@ -2587,20 +2587,17 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "107fccc2a842b623e6585e837e7daef3aad9cb75c082a528c6b5a8ad4fe4a9cd",
-      "record": "docs/decisions/collapsed-task-cards-2026-11-01.md",
+      "sha256": "ff02e89778cfc8df63027e5cffcb18bd8dd4f8eb5ea12888af97de69448a6abb",
+      "record": "docs/decisions/linked-quiz-parent-guide-2026-11-01.md",
       "specs": [
-        "docs/modules/school-diary/day-page.md",
-        "docs/shared/design/components.md"
+        "docs/modules/school-diary/day-page.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/components/TaskDisclosure.test.tsx",
-        "src/components/QuizCard.test.tsx"
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 родитель прямо потребовал сворачивать все задания по умолчанию: читать название, статус и общую информацию без огромного раскрытого тела."
+        "evidence": "Родитель требует проверить автоматический путь до реально видимого полного родительского разбора и исправлять обнаруженные проблемы."
       }
     },
     "src/UiKit.css": {
