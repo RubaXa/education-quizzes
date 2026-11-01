@@ -66,7 +66,8 @@
     "bench:server-runtime": "node scripts/benchmark-server-runtime.mjs",
     "test:e2e": "playwright test --config=playwright.config.ts && playwright test --config=playwright.calendar.config.ts",
     "test:e2e:install": "playwright install chromium",
-    "guide:edit": "node scripts/parent-guide.mjs"
+    "guide:edit": "node scripts/parent-guide.mjs",
+    "connect:diagnose": "node scripts/connect-diagnose.mjs"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.3.0",

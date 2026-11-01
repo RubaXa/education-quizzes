@@ -1,3 +1,4 @@
+/** @see ../../../docs/decisions/local-connect-diagnostics-2026-11-01.md */
 /** @see ../../../docs/decisions/mesh-login-stages-2026-11-01.md */
 /** @see ../../../docs/decisions/mesh-auth-recovery-2026-11-01.md */
 import { authenticate } from 'mesh-diary/lib/auth.js'
@@ -131,8 +132,8 @@ export function normalizeSubjectPeriods(subjects, date = new Intl.DateTimeFormat
 }
 
 /** @see ../../../docs/modules/school-diary/README.md#diary-adapter */
-export async function loginToMesh({ username, password, askSmsCode, chooseProfile, onProgress }, { telemetry = null } = {}) {
-  const diagnostic = createLoginDiagnostics((url, options) => meshFetch(url, options, telemetry), onProgress)
+export async function loginToMesh({ username, password, askSmsCode, chooseProfile, onProgress, onDiagnostic }, { telemetry = null } = {}) {
+  const diagnostic = createLoginDiagnostics((url, options) => meshFetch(url, options, telemetry), onProgress, onDiagnostic)
   const fetch = diagnostic.fetch
   try {
   const auth = await authenticate({ fetch, username, password, askSmsCode, onProgress: () => {} })

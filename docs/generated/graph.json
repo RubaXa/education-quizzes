@@ -1383,6 +1383,35 @@
       "path": "docs/decisions/lesson-repetition-2026-11-01.md"
     },
     {
+      "id": "decision.local-connect-diagnostics-2026-11-01",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-01",
+      "updated": "2026-11-01",
+      "parent": "module.school-diary",
+      "uses": [
+        "shared.server-runtime"
+      ],
+      "consumers": [
+        "parent",
+        "operator"
+      ],
+      "code": [
+        "scripts/connect-diagnose.mjs",
+        "packages/education-connect/bin/education-connect.mjs",
+        "packages/education-connect/lib/mesh.mjs",
+        "packages/education-connect/lib/login-diagnostics.mjs"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/local-connect-diagnostics-2026-11-01.md"
+    },
+    {
       "id": "decision.mesh-auth-recovery-2026-11-01",
       "status": "accepted",
       "implementation": "implemented",
@@ -7012,6 +7041,20 @@
       "kind": "verification",
       "purpose": "Проверяет отказ при переносе CSS без решения, устаревшем отпечатке и отсутствии теста",
       "consumer": "Vitest; разработчик"
+    },
+    {
+      "id": "file:scripts/connect-diagnose.mjs",
+      "path": "scripts/connect-diagnose.mjs",
+      "kind": "artifact",
+      "purpose": "Локальный npm-вход подключения и безопасная терминальная диагностика",
+      "consumer": "Родитель; оператор; Vitest"
+    },
+    {
+      "id": "file:scripts/connect-diagnose.test.mjs",
+      "path": "scripts/connect-diagnose.test.mjs",
+      "kind": "verification",
+      "purpose": "Локальный npm-вход подключения и безопасная терминальная диагностика",
+      "consumer": "Родитель; оператор; Vitest"
     },
     {
       "id": "file:scripts/connect.mjs",
@@ -15247,6 +15290,11 @@
       "type": "uses"
     },
     {
+      "from": "decision.local-connect-diagnostics-2026-11-01",
+      "to": "shared.server-runtime",
+      "type": "uses"
+    },
+    {
       "from": "decision.mesh-auth-recovery-2026-11-01",
       "to": "module.school-diary",
       "type": "uses"
@@ -17033,6 +17081,11 @@
     },
     {
       "from": "file:packages/education-connect/bin/education-connect.mjs",
+      "to": "decision.local-connect-diagnostics-2026-11-01",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-connect/bin/education-connect.mjs",
       "to": "decision.mesh-login-stages-2026-11-01",
       "type": "implements"
     },
@@ -17053,6 +17106,11 @@
     },
     {
       "from": "file:packages/education-connect/lib/login-diagnostics.mjs",
+      "to": "decision.local-connect-diagnostics-2026-11-01",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-connect/lib/login-diagnostics.mjs",
       "to": "decision.mesh-login-stages-2026-11-01",
       "type": "implements"
     },
@@ -17064,6 +17122,11 @@
     {
       "from": "file:packages/education-connect/lib/mesh.mjs",
       "to": "audits.education-sync-latency-audit-2026-10-15",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-connect/lib/mesh.mjs",
+      "to": "decision.local-connect-diagnostics-2026-11-01",
       "type": "implements"
     },
     {
@@ -17849,6 +17912,16 @@
     {
       "from": "file:scripts/check-ui-contract.mjs",
       "to": "product.ui-change-control",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/connect-diagnose.mjs",
+      "to": "decision.local-connect-diagnostics-2026-11-01",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/connect-diagnose.mjs",
+      "to": "shared.server-runtime",
       "type": "implements"
     },
     {
@@ -23693,6 +23766,11 @@
     },
     {
       "from": "module.school-diary",
+      "to": "decision.local-connect-diagnostics-2026-11-01",
+      "type": "contains"
+    },
+    {
+      "from": "module.school-diary",
       "to": "decision.mesh-login-stages-2026-11-01",
       "type": "contains"
     },
@@ -26219,6 +26297,11 @@
     {
       "from": "shared.server-runtime",
       "to": "file:scripts/benchmark-server-runtime.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "shared.server-runtime",
+      "to": "file:scripts/connect-diagnose.test.mjs",
       "type": "verified-by"
     },
     {

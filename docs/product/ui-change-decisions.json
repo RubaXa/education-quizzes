@@ -688,18 +688,18 @@
       }
     },
     "packages/education-connect/bin/education-connect.mjs": {
-      "sha256": "2bcc2640b8c1ffeb5469e746c564f0bafb1fb8e8e0d796f8ca8d37411ebe7f97",
-      "record": "docs/decisions/mesh-login-stages-2026-11-01.md",
+      "sha256": "64cb664444b61b09cfdc4b7dc6f98f5e176179a657357ee58fbab6623cf96501",
+      "record": "docs/decisions/local-connect-diagnostics-2026-11-01.md",
       "specs": [
         "docs/shared/server-runtime.md"
       ],
       "tests": [
-        "packages/education-connect/lib/login-diagnostics.test.mjs",
-        "packages/education-connect/lib/mesh-auth.test.mjs"
+        "scripts/connect-diagnose.test.mjs",
+        "packages/education-connect/lib/login-diagnostics.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель01.11 сообщил два неработающих входа, потребовал диагностику и понятный видимый ввод логина вместо скрытия."
+        "evidence": "Родитель01.11 прямо потребовал локальный CLI через npm run для безопасного сбора диагностики подключения вместо npx-публикации."
       }
     },
     "packages/education-connect/lib/envelope.mjs": {
@@ -741,18 +741,18 @@
       }
     },
     "packages/education-connect/lib/mesh.mjs": {
-      "sha256": "fd9595a375e038d72c14b785eb9b2efd86f6df88a5d77227b416f720abd988ab",
-      "record": "docs/decisions/mesh-login-stages-2026-11-01.md",
+      "sha256": "f605d5287d0e2964f47e1b47fe4f29e078ce65a4982ac59e47460a5d05e03ce3",
+      "record": "docs/decisions/local-connect-diagnostics-2026-11-01.md",
       "specs": [
         "docs/shared/server-runtime.md"
       ],
       "tests": [
-        "packages/education-connect/lib/login-diagnostics.test.mjs",
-        "packages/education-connect/lib/mesh-auth.test.mjs"
+        "scripts/connect-diagnose.test.mjs",
+        "packages/education-connect/lib/login-diagnostics.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель01.11 сообщил два неработающих входа, потребовал диагностику и понятный видимый ввод логина вместо скрытия."
+        "evidence": "Родитель01.11 прямо потребовал локальный CLI через npm run для безопасного сбора диагностики подключения вместо npx-публикации."
       }
     },
     "packages/education-connect/lib/network-retry.mjs": {
@@ -7839,18 +7839,33 @@
       }
     },
     "packages/education-connect/lib/login-diagnostics.mjs": {
-      "sha256": "d91d3d36ab6022125843e6a94ad7eb0e01af1587318ecd70f96d4d55931dd808",
-      "record": "docs/decisions/mesh-login-stages-2026-11-01.md",
+      "sha256": "8abc62f3dc91ad14f527b1860f5d94c7422fceeb4e74d65993ce096c166c49da",
+      "record": "docs/decisions/local-connect-diagnostics-2026-11-01.md",
       "specs": [
         "docs/shared/server-runtime.md"
       ],
       "tests": [
-        "packages/education-connect/lib/login-diagnostics.test.mjs",
-        "packages/education-connect/lib/mesh-auth.test.mjs"
+        "scripts/connect-diagnose.test.mjs",
+        "packages/education-connect/lib/login-diagnostics.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель01.11 сообщил два неработающих входа, потребовал диагностику и понятный видимый ввод логина вместо скрытия."
+        "evidence": "Родитель01.11 прямо потребовал локальный CLI через npm run для безопасного сбора диагностики подключения вместо npx-публикации."
+      }
+    },
+    "scripts/connect-diagnose.mjs": {
+      "sha256": "2f2eea2e5fb6863e44cac1e28a93d38c05db99bb375c9a27894e11b469fc8070",
+      "record": "docs/decisions/local-connect-diagnostics-2026-11-01.md",
+      "specs": [
+        "docs/shared/server-runtime.md"
+      ],
+      "tests": [
+        "scripts/connect-diagnose.test.mjs",
+        "packages/education-connect/lib/login-diagnostics.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель01.11 прямо потребовал локальный CLI через npm run для безопасного сбора диагностики подключения вместо npx-публикации."
       }
     }
   }

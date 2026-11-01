@@ -1276,3 +1276,7 @@
 | [packages/education-connect/lib/login-diagnostics.mjs](../packages/education-connect/lib/login-diagnostics.mjs) | [Общее серверное ядро](shared/server-runtime.md) | Безопасная диагностика этапов входа без секретов и сырых ответов | Connector; diary CLI; Vitest |
 | [packages/education-connect/lib/login-diagnostics.test.mjs](../packages/education-connect/lib/login-diagnostics.test.mjs) | [Общее серверное ядро](shared/server-runtime.md) | Безопасная диагностика этапов входа без секретов и сырых ответов | Connector; diary CLI; Vitest |
 | [docs/decisions/mesh-login-stages-2026-11-01.md](decisions/mesh-login-stages-2026-11-01.md) | [Общее серверное ядро](shared/server-runtime.md) | Безопасная диагностика этапов входа без секретов и сырых ответов | Connector; diary CLI; Vitest |
+
+| [scripts/connect-diagnose.mjs](../scripts/connect-diagnose.mjs) | [Общее серверное ядро](shared/server-runtime.md) | Локальный npm-вход подключения и безопасная терминальная диагностика | Родитель; оператор; Vitest |
+| [scripts/connect-diagnose.test.mjs](../scripts/connect-diagnose.test.mjs) | [Общее серверное ядро](shared/server-runtime.md) | Локальный npm-вход подключения и безопасная терминальная диагностика | Родитель; оператор; Vitest |
+| [docs/decisions/local-connect-diagnostics-2026-11-01.md](decisions/local-connect-diagnostics-2026-11-01.md) | [Общее серверное ядро](shared/server-runtime.md) | Локальный npm-вход подключения и безопасная терминальная диагностика | Родитель; оператор; Vitest |

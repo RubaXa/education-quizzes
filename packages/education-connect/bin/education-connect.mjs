@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/** @see ../../../docs/decisions/local-connect-diagnostics-2026-11-01.md */
 /** @see ../../../docs/decisions/mesh-login-stages-2026-11-01.md */
 import { stdout, stderr } from 'node:process'
 import { encryptHandoff } from '../lib/envelope.mjs'
@@ -16,6 +17,7 @@ async function main() {
     process.exitCode = 2
     return
   }
+  stdout.write('Этап: проверка приглашения…\n')
   const invite = await loadInvite(code)
   stdout.write('Подключение МЭШ. Логин, пароль и SMS вводятся только здесь и не отправляются в Education.\n')
   const username = await visiblePrompt('Логин mos.ru (виден при вводе): ')
@@ -25,6 +27,7 @@ async function main() {
   let profiles = []
   let secret = await loginToMesh({
     username, password, onProgress: (message) => stdout.write(`${message}\n`),
+    onDiagnostic: process.argv.includes('--diagnose') ? (event) => stdout.write(`[МЭШ] ${event.stage}: HTTP ${event.httpStatus}; ${event.contentType}\n`) : undefined,
     askSmsCode: () => hiddenPrompt('Код из SMS: '),
     chooseProfile: (available) => { profiles = available; return 0 },
   })
@@ -55,6 +58,8 @@ async function main() {
 main().catch((error) => {
   const diagnostic = formatLoginFailure(error)
   if (diagnostic) { stderr.write(`${diagnostic}\n`); process.exitCode = 1; return }
+  const firebaseCode = ['permission-denied','unavailable','unauthenticated','auth/network-request-failed','auth/operation-not-allowed'].includes(error?.code) ? error.code : null
+  if (firebaseCode) { stderr.write(`Подключение: Firebase ${firebaseCode}. Секреты и тело ответа не выводятся.\n`); process.exitCode = 1; return }
   const safe = /^(Неверный код приглашения|Приглашение закрыто|Для входа нужен|Вход прерван|Логин и пароль обязательны|Слишком большой пакет подключения)/.test(String(error?.message))
   stderr.write(`${safe ? error.message : 'Подключение не завершилось. Проверьте приглашение и доступ к МЭШ.'}\n`)
   process.exitCode = 1
