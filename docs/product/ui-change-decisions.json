@@ -2621,7 +2621,7 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "e93f0c96686995d669af937892aa5a9bc083fbc91ee53d3c04e805b55aa98947",
+      "sha256": "107fccc2a842b623e6585e837e7daef3aad9cb75c082a528c6b5a8ad4fe4a9cd",
       "record": "docs/decisions/collapsed-task-cards-2026-11-01.md",
       "specs": [
         "docs/modules/school-diary/day-page.md",
