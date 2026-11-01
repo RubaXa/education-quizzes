@@ -4,6 +4,8 @@
 /** @see ../../docs/decisions/compact-review-ui-kit-2026-10-31.md */
 import { ChevronDown } from 'lucide-react'
 import StatusIcon from './StatusIcon'
+import ReviewActivity from './ReviewActivity'
+import type {ReviewActivityData} from '../../packages/education-presentation/review-activity.mjs'
 import './ReviewBrief.css'
 import './ReviewVisual.css'
 import type { ReactNode } from 'react'
@@ -25,6 +27,7 @@ export interface ReviewBriefData {
   focus?: string
   bridge?: string
   visual?: ReviewVisualData
+  activity?: ReviewActivityData
   question?: string
   detail?: ReviewBriefDetail
   details?: ReviewBriefDetail[]
@@ -79,9 +82,10 @@ export default function ReviewBrief({ data,children,context }: { data: ReviewBri
     {data.confirmed && <p className="edu-review-copy edu-review-confirmed"><StatusIcon status="complete" size={15} /><span>{data.confirmed}</span></p>}
     {!complete && <>
       {focus && <p className="edu-review-copy edu-review-focus">{focus}</p>}
-      {data.visual && <ReviewVisual visual={data.visual} />}
+      {data.visual && !data.activity && <ReviewVisual visual={data.visual} />}
       {bridge && <p className="edu-review-copy edu-review-bridge">{bridge}</p>}
       {data.question && <p className="edu-review-copy edu-review-question">{data.question}</p>}
+      {data.activity && <ReviewActivity key={data.id} activity={data.activity}/>}
     </>}
     {details.map((detail, index) => <details className="edu-review-detail" key={`${data.id}-${index}`}>
       <summary><span>{detail.label}</span><ChevronDown size={15} aria-hidden="true" /></summary>

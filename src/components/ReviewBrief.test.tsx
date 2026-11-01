@@ -21,8 +21,8 @@ it('keeps the accepted part and one action visible without opening explanatory c
   expect(host.querySelector('.edu-review-question')?.textContent).toBe('Сколько карандашей всего?')
   expect(host.querySelectorAll('.edu-review-question')).toHaveLength(1)
   expect(host.querySelector('details')?.open).toBe(false)
-  expect(host.querySelectorAll('dl dd')).toHaveLength(2)
-  expect(host.querySelector('.edu-review-bracket')?.getAttribute('aria-hidden')).toBe('true')
+  expect(host.querySelectorAll('.edu-step-tokens button')).toHaveLength(2)
+  expect(host.querySelector('.edu-step-result output')?.textContent).toBe('…')
 })
 
 it('protects every consumer from an old long paragraph without trimming its content or hiding the question', async () => {
@@ -37,7 +37,7 @@ it('protects every consumer from an old long paragraph without trimming its cont
 it('closes the previous optional explanation when a different review is shown', async () => {
   await show()
   host.querySelector('details')!.open = true
-  await show(reviewBriefExamples[1].data)
+  await show({...reviewBriefExamples[1].data,activity:undefined})
   expect(host.querySelector('details')?.open).toBe(false)
   expect(host.querySelector('blockquote')?.textContent).toBe('В лесу росли высокая берёза.')
   expect(host.querySelector('.edu-review-mark-focus')?.textContent).toBe('росли')
@@ -57,7 +57,7 @@ it('does not turn a verified or unreadable record into an error or a new correct
 it('preserves supplied timeline order rather than deriving chronology or an interval', async () => {
   const example = reviewBriefExamples[2].data
   if (example.visual?.kind !== 'timeline') throw new Error('Missing timeline fixture')
-  await show({ ...example, visual: { ...example.visual, events: [...example.visual.events].reverse() } })
+  await show({ ...example, activity:undefined, visual: { ...example.visual, events: [...example.visual.events].reverse() } })
   expect([...host.querySelectorAll('.edu-review-date')].map(el => el.textContent)).toEqual(['1721', '1703'])
   expect(host.querySelector('.edu-review-question')?.textContent).toContain('Сколько лет')
 })

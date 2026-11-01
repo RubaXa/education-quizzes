@@ -128,6 +128,7 @@ function taskConditionOnPage(page: DayPageData | undefined, taskId: string): str
 }
 export type DayHelp = { id: string; taskId: string; revision: number; requestedAt?: unknown; requestKind?: 'condition' | 'start' | 'step' | 'check'; requestText?: string; photoUploadIds?: string[]; planRevision?: number; eventReceiptId?: string }
 export type DayWorkReview = {
+  correctedAt?: unknown;
   purpose?: 'source-material'; sourceAnalysis?: SourceAnalysis;
   id: string; taskId: string; status?: 'verified' | 'needs-fix' | 'partial' | 'cannot-assess';
   summary?: string; nextStep?: string; source?: string; checkedAt?: unknown; uploadIds?: string[];

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { guidanceErrors, questionGuidanceErrors, repairQuestionGuidance, publishedAnswer } from './question-guidance.mjs'
-const guidance = { observation: 'Сравни длительность подъёма воды с условием.', question: 'Какой признак отличает ежегодный подъём от кратковременного?',
+const guidance = { presentation:{version:1,activity:{kind:'mark',label:'Два признака из вопроса',instruction:'Выдели признак, который сравниваешь с текстом.',tokens:[{id:'year',text:'Ежегодный подъём'},{id:'short',text:'Кратковременный подъём'}]}},observation: 'Сравни длительность подъёма воды с условием.', question: 'Какой признак отличает ежегодный подъём от кратковременного?',
   source: { title: 'География. Алексеев и др.', edition: '2024', section: '§ 35', pages: '114 (PDF 115)', locator: 'Первый абзац под заголовком о режиме реки.' } }
 const entry = { guidance, sourceEvidence: ['checked-original/page-115.png'] }
 const assignment = { testId: 'specific-test', answers: { q: 'Половодье ' }, questions: [{ id: 'q' }] }
@@ -30,4 +30,12 @@ describe('checked question guidance', () => {
   it('keeps sourceEvidence outside all published key projections', () => {
     expect(publishedAnswer({ correct: 'closed-key', ...entry })).toEqual({ correct: 'closed-key', guidance })
   })
+})
+
+/** @see ../docs/shared/design/student-review-step.md */
+it('validates learner-safe current-step interaction rather than forwarding a hidden key',()=>{
+ const base={observation:'В ответе выбрана единица времени.',question:'Какую величину измеряют в этом задании?',source:{title:'Источник',edition:'Издание',section:'Раздел',pages:'1',locator:'1'},presentation:{version:1,activity:{kind:'mark',label:'Твоя запись',instruction:'Выдели нужный фрагмент.',tokens:[{id:'a',text:'минуты'}]}}}
+ expect(guidanceErrors(base)).toEqual([])
+ base.presentation.activity.tokens[0].correct=true
+ expect(guidanceErrors(base).length).toBeGreaterThan(0)
 })

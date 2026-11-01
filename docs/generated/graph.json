@@ -2563,6 +2563,31 @@
       "path": "docs/decisions/specification-lifecycle-2026-10-16.md"
     },
     {
+      "id": "decision.student-review-step-2026-11-01",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-01",
+      "updated": "2026-11-01",
+      "parent": "shared.design.student-review-step",
+      "uses": [
+        "shared.design.compact-review",
+        "shared.design.ui-kit"
+      ],
+      "consumers": [
+        "learner",
+        "parent"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/student-review-step-2026-11-01.md"
+    },
+    {
       "id": "decision.sync-task-routing-2026-10-23",
       "status": "accepted",
       "implementation": "partial",
@@ -5055,6 +5080,13 @@
       "consumer": "Playwright"
     },
     {
+      "id": "file:e2e/student-review-step.e2e.ts",
+      "path": "e2e/student-review-step.e2e.ts",
+      "kind": "artifact",
+      "purpose": "Общая публичная модель и её безопасная проверка",
+      "consumer": "Ученик; автор; UI Kit"
+    },
+    {
       "id": "file:e2e/task-attachments.e2e.ts",
       "path": "e2e/task-attachments.e2e.ts",
       "kind": "artifact",
@@ -5536,6 +5568,27 @@
       "kind": "verification",
       "purpose": "Общая модель оформления, визуальный каталог и его регрессии",
       "consumer": "Renderer; UI Kit; оператор; Vitest"
+    },
+    {
+      "id": "file:packages/education-presentation/review-activity.d.mts",
+      "path": "packages/education-presentation/review-activity.d.mts",
+      "kind": "artifact",
+      "purpose": "Общая публичная модель и её безопасная проверка",
+      "consumer": "Ученик; автор; UI Kit"
+    },
+    {
+      "id": "file:packages/education-presentation/review-activity.mjs",
+      "path": "packages/education-presentation/review-activity.mjs",
+      "kind": "artifact",
+      "purpose": "Общая публичная модель и её безопасная проверка",
+      "consumer": "Ученик; автор; UI Kit"
+    },
+    {
+      "id": "file:packages/education-presentation/review-activity.test.mjs",
+      "path": "packages/education-presentation/review-activity.test.mjs",
+      "kind": "verification",
+      "purpose": "Общая публичная модель и её безопасная проверка",
+      "consumer": "Ученик; автор; UI Kit"
     },
     {
       "id": "file:packages/education-presentation/review-content.d.mts",
@@ -7008,6 +7061,13 @@
       "consumer": "Оператор архива"
     },
     {
+      "id": "file:scripts/student-review.mjs",
+      "path": "scripts/student-review.mjs",
+      "kind": "artifact",
+      "purpose": "Общая публичная модель и её безопасная проверка",
+      "consumer": "Ученик; автор; UI Kit"
+    },
+    {
       "id": "file:scripts/submissions.mjs",
       "path": "scripts/submissions.mjs",
       "kind": "artifact",
@@ -8021,6 +8081,27 @@
       "kind": "artifact",
       "purpose": "Общий переключатель семейной обязательности пункта, варианта и теста",
       "consumer": "`ParentTaskGuide.tsx`; `WorkReview.tsx`; `QuizCard.tsx`"
+    },
+    {
+      "id": "file:src/components/ReviewActivity.css",
+      "path": "src/components/ReviewActivity.css",
+      "kind": "artifact",
+      "purpose": "Общая публичная модель и её безопасная проверка",
+      "consumer": "Ученик; автор; UI Kit"
+    },
+    {
+      "id": "file:src/components/ReviewActivity.test.tsx",
+      "path": "src/components/ReviewActivity.test.tsx",
+      "kind": "verification",
+      "purpose": "Общая публичная модель и её безопасная проверка",
+      "consumer": "Ученик; автор; UI Kit"
+    },
+    {
+      "id": "file:src/components/ReviewActivity.tsx",
+      "path": "src/components/ReviewActivity.tsx",
+      "kind": "artifact",
+      "purpose": "Общая публичная модель и её безопасная проверка",
+      "consumer": "Ученик; автор; UI Kit"
     },
     {
       "id": "file:src/components/ReviewBrief.css",
@@ -9178,6 +9259,13 @@
       "consumer": "Родительские/ученические карточки; day; submissions"
     },
     {
+      "id": "file:src/lib/reviewStepExamples.ts",
+      "path": "src/lib/reviewStepExamples.ts",
+      "kind": "artifact",
+      "purpose": "Общая публичная модель и её безопасная проверка",
+      "consumer": "Ученик; автор; UI Kit"
+    },
+    {
       "id": "file:src/lib/roleDiagnostics.test.ts",
       "path": "src/lib/roleDiagnostics.test.ts",
       "kind": "verification",
@@ -9654,6 +9742,13 @@
       "consumer": "Vitest; разработчик"
     },
     {
+      "id": "file:storage/review-projection.d.mts",
+      "path": "storage/review-projection.d.mts",
+      "kind": "artifact",
+      "purpose": "Общая публичная модель и её безопасная проверка",
+      "consumer": "Ученик; автор; UI Kit"
+    },
+    {
       "id": "file:storage/review-projection.mjs",
       "path": "storage/review-projection.mjs",
       "kind": "artifact",
@@ -9722,6 +9817,20 @@
       "kind": "verification",
       "purpose": "Проверка снятия паузы",
       "consumer": "Vitest; разработчик"
+    },
+    {
+      "id": "file:storage/student-review-edit.mjs",
+      "path": "storage/student-review-edit.mjs",
+      "kind": "artifact",
+      "purpose": "Общая публичная модель и её безопасная проверка",
+      "consumer": "Ученик; автор; UI Kit"
+    },
+    {
+      "id": "file:storage/student-review-edit.test.mjs",
+      "path": "storage/student-review-edit.test.mjs",
+      "kind": "verification",
+      "purpose": "Общая публичная модель и её безопасная проверка",
+      "consumer": "Ученик; автор; UI Kit"
     },
     {
       "id": "file:storage/submission-inbox.mjs",
@@ -13750,7 +13859,7 @@
       "status": "accepted",
       "implementation": "implemented",
       "created": "2026-10-31",
-      "updated": "2026-10-31",
+      "updated": "2026-11-01",
       "parent": "shared.design",
       "uses": [
         "module.reviews.subject-aware-guidance",
@@ -13900,6 +14009,35 @@
         "числовые-результаты-тестов"
       ],
       "path": "docs/shared/design/statuses.md"
+    },
+    {
+      "id": "shared.design.student-review-step",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-01",
+      "updated": "2026-11-01",
+      "parent": "shared.design.compact-review",
+      "uses": [
+        "shared.access-and-privacy",
+        "module.reviews.subject-aware-guidance"
+      ],
+      "consumers": [
+        "learner",
+        "review author",
+        "UI Kit"
+      ],
+      "code": [
+        "src/components/ReviewActivity.tsx",
+        "packages/education-presentation/review-activity.mjs",
+        "scripts/student-review.mjs"
+      ],
+      "sections": [
+        "текущий-шаг",
+        "модель-и-действие",
+        "граница-доступа",
+        "миграция-и-проверка"
+      ],
+      "path": "docs/shared/design/student-review-step.md"
     },
     {
       "id": "shared.design.telegram",
@@ -14918,6 +15056,16 @@
     {
       "from": "decision.specification-lifecycle",
       "to": "shared.specification-system",
+      "type": "uses"
+    },
+    {
+      "from": "decision.student-review-step-2026-11-01",
+      "to": "shared.design.compact-review",
+      "type": "uses"
+    },
+    {
+      "from": "decision.student-review-step-2026-11-01",
+      "to": "shared.design.ui-kit",
       "type": "uses"
     },
     {
@@ -15951,6 +16099,11 @@
       "type": "implements"
     },
     {
+      "from": "file:e2e/student-review-step.e2e.ts",
+      "to": "shared.design.student-review-step",
+      "type": "implements"
+    },
+    {
       "from": "file:e2e/task-attachments.e2e.ts",
       "to": "shared.design.ui-kit",
       "type": "implements"
@@ -16233,6 +16386,16 @@
     {
       "from": "file:packages/education-presentation/notification.mjs",
       "to": "shared.design.telegram",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-presentation/review-activity.d.mts",
+      "to": "shared.design.student-review-step",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-presentation/review-activity.mjs",
+      "to": "shared.design.student-review-step",
       "type": "implements"
     },
     {
@@ -17388,6 +17551,11 @@
     {
       "from": "file:scripts/storage.mjs",
       "to": "module.materials.storage-privacy",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/student-review.mjs",
+      "to": "shared.design.student-review-step",
       "type": "implements"
     },
     {
@@ -18603,6 +18771,16 @@
     {
       "from": "file:src/components/RequirementSwitch.tsx",
       "to": "shared.design",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ReviewActivity.css",
+      "to": "shared.design.student-review-step",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ReviewActivity.tsx",
+      "to": "shared.design.student-review-step",
       "type": "implements"
     },
     {
@@ -19916,6 +20094,11 @@
       "type": "implements"
     },
     {
+      "from": "file:src/lib/reviewStepExamples.ts",
+      "to": "shared.design.student-review-step",
+      "type": "implements"
+    },
+    {
       "from": "file:src/lib/roleDiagnostics.ts",
       "to": "decisions.role-projection-diagnostics-2026-10-18",
       "type": "implements"
@@ -20326,6 +20509,11 @@
       "type": "implements"
     },
     {
+      "from": "file:storage/review-projection.d.mts",
+      "to": "shared.design.student-review-step",
+      "type": "implements"
+    },
+    {
       "from": "file:storage/review-projection.mjs",
       "to": "decision.compact-review-rollout-2026-10-31",
       "type": "implements"
@@ -20378,6 +20566,11 @@
     {
       "from": "file:storage/storage-pause.mjs",
       "to": "module.materials.storage-privacy",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/student-review-edit.mjs",
+      "to": "shared.design.student-review-step",
       "type": "implements"
     },
     {
@@ -24601,6 +24794,11 @@
       "type": "uses"
     },
     {
+      "from": "shared.design.compact-review",
+      "to": "shared.design.student-review-step",
+      "type": "contains"
+    },
+    {
       "from": "shared.design.components",
       "to": "decision.canonical-attachment-controls-2026-10-31",
       "type": "contains"
@@ -24678,6 +24876,36 @@
     {
       "from": "shared.design.statuses",
       "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
+      "from": "shared.design.student-review-step",
+      "to": "decision.student-review-step-2026-11-01",
+      "type": "contains"
+    },
+    {
+      "from": "shared.design.student-review-step",
+      "to": "file:packages/education-presentation/review-activity.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "shared.design.student-review-step",
+      "to": "file:src/components/ReviewActivity.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "shared.design.student-review-step",
+      "to": "file:storage/student-review-edit.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "shared.design.student-review-step",
+      "to": "module.reviews.subject-aware-guidance",
+      "type": "uses"
+    },
+    {
+      "from": "shared.design.student-review-step",
+      "to": "shared.access-and-privacy",
       "type": "uses"
     },
     {

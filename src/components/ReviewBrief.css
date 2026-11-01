@@ -9,7 +9,7 @@
 .edu-review-brief .edu-review-state{flex:none;font-size:14px;color:var(--edu-review-muted)}
 .edu-review-brief .edu-review-copy{margin:0;font-size:var(--edu-review-size);line-height:var(--edu-review-leading);color:var(--edu-review-ink)}
 .edu-review-brief .edu-review-copy+.edu-review-copy{margin-top:var(--edu-review-gap)}
-.edu-review-brief .edu-review-meta{font-size:12px;color:var(--edu-review-muted);margin-bottom:6px}
+.edu-review-brief .edu-review-meta{font-size:14px;color:var(--edu-review-muted);margin-bottom:6px}
 .edu-review-brief .edu-review-prompt{margin:6px 0;font-weight:550}
 .edu-review-brief .edu-review-response{display:flex;flex-wrap:wrap;gap:4px 8px;margin:6px 0;font-size:14px}
 .edu-review-brief .edu-review-response>span{color:var(--edu-review-muted)}

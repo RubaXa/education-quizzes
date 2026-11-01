@@ -122,19 +122,21 @@
       }
     },
     "assessment/question-guidance.mjs": {
-      "record": "docs/decisions/question-guidance-2026-10-19.md",
+      "sha256": "460b60e2b4a6811cffbe86c345acaa2b5e0cae2ca0fcdc261b6230b3e4403fa6",
+      "record": "docs/decisions/student-review-step-2026-11-01.md",
       "specs": [
-        "docs/modules/assessments/quizzes.md"
+        "docs/shared/design/student-review-step.md",
+        "docs/shared/design/compact-review.md"
       ],
       "tests": [
-        "src/components/QuizResultCard.test.tsx",
-        "assessment/question-guidance.test.mjs"
+        "src/components/ReviewActivity.test.tsx",
+        "packages/education-presentation/review-activity.test.mjs",
+        "storage/student-review-edit.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель19.10 требует вместо одинаковой копипасты точное расхождение, наводящий вопрос и проверяемое место оригинала каждого вопроса."
-      },
-      "sha256": "d5a2390f6c7caaa584d35274fd89dd8065f5e664a032eb3ac8f543330550a3cb"
+        "evidence": "01.11.2026 родитель прямо потребовал исправить ученическую часть всех разборов: понятная модель текущего шага, интерактив без ответа и служебных фраз; общие инструкции, UI Kit и проверка ученического вида."
+      }
     },
     "assessment/quiz-lineage.mjs": {
       "sha256": "bfa3bf6df1123917bbe57a420edae48a4b40185087e0d2801759419d2244add5",
@@ -2340,18 +2342,20 @@
       }
     },
     "scripts/submissions.mjs": {
-      "sha256": "585dbf12dd9cde07b4c950ca652bd08e915a7cab70492df17672cd0f43098ecc",
-      "record": "docs/decisions/olympiad-preparation-updates-2026-11-01.md",
+      "sha256": "c4b2d5ae4f53e6aaaa54e4f47678033a492afc18e9402da99394172de58094e4",
+      "record": "docs/decisions/student-review-step-2026-11-01.md",
       "specs": [
-        "docs/modules/assessments/olympiad-history.md"
+        "docs/shared/design/student-review-step.md",
+        "docs/shared/design/compact-review.md"
       ],
       "tests": [
-        "src/components/OlympiadPreparationSummary.test.tsx",
-        "packages/telegram-notifications/application/education-event-routing.test.mjs"
+        "src/components/ReviewActivity.test.tsx",
+        "packages/education-presentation/review-activity.test.mjs",
+        "storage/student-review-edit.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос01.11.2026: автоматически обновлять персональный блок после каждой проверенной работы, сохранять историю, исключать зачтённые задачи, без межчатовых сообщений."
+        "evidence": "01.11.2026 родитель прямо потребовал исправить ученическую часть всех разборов: понятная модель текущего шага, интерактив без ответа и служебных фраз; общие инструкции, UI Kit и проверка ученического вида."
       }
     },
     "scripts/sync-books.mjs": {
@@ -2656,21 +2660,20 @@
       }
     },
     "src/UiKit.tsx": {
-      "sha256": "cd9569e360aa9bfc572a96ba4461b1843cec45040b15849608bb9f4db0eb0a9f",
-      "record": "docs/decisions/olympiad-next-step-first-2026-11-01.md",
+      "sha256": "bfcd24ae32a20c1714e0b97e32d3726168a7a89401d752a6548ab9fbc451a34f",
+      "record": "docs/decisions/student-review-step-2026-11-01.md",
       "specs": [
-        "docs/shared/design/information-hierarchy.md",
-        "docs/modules/assessments/olympiad-history.md"
+        "docs/shared/design/student-review-step.md",
+        "docs/shared/design/compact-review.md"
       ],
       "tests": [
-        "src/components/OlympiadPage.integration.test.tsx",
-        "src/components/OlympiadSchedule.test.tsx",
-        "src/components/OlympiadPreparationSummary.test.tsx",
-        "scripts/check-olympiad-overview-viewport.test.mjs"
+        "src/components/ReviewActivity.test.tsx",
+        "packages/education-presentation/review-activity.test.mjs",
+        "storage/student-review-edit.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 родитель потребовал убрать три повтора про регистрацию и прежде всего показать на первом экране, что Пете делать дальше."
+        "evidence": "01.11.2026 родитель прямо потребовал исправить ученическую часть всех разборов: понятная модель текущего шага, интерактив без ответа и служебных фраз; общие инструкции, UI Kit и проверка ученического вида."
       }
     },
     "src/WeekendMathSlot.css": {
@@ -3558,24 +3561,20 @@
       }
     },
     "src/components/QuizResultCard.tsx": {
-      "sha256": "8b64954dfb470e0394448860eaa0fe0a757eba017634bdfc574bda92226444cc",
-      "record": "docs/decisions/compact-review-rollout-2026-10-31.md",
+      "sha256": "090e4c0b5bb7df8fbcc982e89c3929274aa6d7eb9b6cccffcd546a5e69d15388",
+      "record": "docs/decisions/student-review-step-2026-11-01.md",
       "specs": [
-        "docs/shared/design/compact-review.md",
-        "docs/shared/design/ui-kit.md",
-        "docs/modules/reviews/subject-aware-guidance.md"
+        "docs/shared/design/student-review-step.md",
+        "docs/shared/design/compact-review.md"
       ],
       "tests": [
-        "src/components/WorkReview.compact.test.tsx",
-        "src/components/ReviewBrief.test.tsx",
-        "src/components/QuizResultCard.test.tsx",
-        "src/UiKit.test.tsx",
-        "storage/tutoring-decision.test.mjs",
-        "packages/education-presentation/review-content.test.mjs"
+        "src/components/ReviewActivity.test.tsx",
+        "packages/education-presentation/review-activity.test.mjs",
+        "storage/student-review-edit.test.mjs"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "31.10 родитель одобрил конкретный компактный разбор: «Да, так уже лучше. Исправь подсказку, чтобы она не выдавала ответ заранее, и внедряй этот формат для всех разборов. Обнови инструкции, спецификации и UI Kit». Сохранение ролей, статусов и истории обязательно."
+        "status": "direct-request",
+        "evidence": "01.11.2026 родитель прямо потребовал исправить ученическую часть всех разборов: понятная модель текущего шага, интерактив без ответа и служебных фраз; общие инструкции, UI Kit и проверка ученического вида."
       }
     },
     "src/components/QuizTextAnswer.tsx": {
@@ -3844,24 +3843,20 @@
       }
     },
     "src/components/WorkReview.tsx": {
-      "sha256": "59afe8e3207ddfe10aa16a3a3a00172d5ae152f5c706eaf2980eb2702acdbd7d",
-      "record": "docs/decisions/compact-review-rollout-2026-10-31.md",
+      "sha256": "13e852da739054e54e1c9cf2c9994e0e79d90791cabe8a8f318caae15162861a",
+      "record": "docs/decisions/student-review-step-2026-11-01.md",
       "specs": [
-        "docs/shared/design/compact-review.md",
-        "docs/shared/design/ui-kit.md",
-        "docs/modules/reviews/subject-aware-guidance.md"
+        "docs/shared/design/student-review-step.md",
+        "docs/shared/design/compact-review.md"
       ],
       "tests": [
-        "src/components/WorkReview.compact.test.tsx",
-        "src/components/ReviewBrief.test.tsx",
-        "src/components/QuizResultCard.test.tsx",
-        "src/UiKit.test.tsx",
-        "storage/tutoring-decision.test.mjs",
-        "packages/education-presentation/review-content.test.mjs"
+        "src/components/ReviewActivity.test.tsx",
+        "packages/education-presentation/review-activity.test.mjs",
+        "storage/student-review-edit.test.mjs"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "31.10 родитель одобрил конкретный компактный разбор: «Да, так уже лучше. Исправь подсказку, чтобы она не выдавала ответ заранее, и внедряй этот формат для всех разборов. Обнови инструкции, спецификации и UI Kit». Сохранение ролей, статусов и истории обязательно."
+        "status": "direct-request",
+        "evidence": "01.11.2026 родитель прямо потребовал исправить ученическую часть всех разборов: понятная модель текущего шага, интерактив без ответа и служебных фраз; общие инструкции, UI Kit и проверка ученического вида."
       }
     },
     "src/components/ui/badge.tsx": {
@@ -4167,20 +4162,20 @@
       }
     },
     "src/lib/dayStore.ts": {
-      "sha256": "561aac30fa1dc4ef663b1d5826b1bfc5ae1d40d51e6533a84f290bff93b82fcf",
-      "record": "docs/decisions/method-guided-reviews-2026-10-31.md",
+      "sha256": "c45fc6921f6675220c20f4c63d9feeeea53cbe5027d984b0f82fd32d6887d82c",
+      "record": "docs/decisions/student-review-step-2026-11-01.md",
       "specs": [
-        "docs/modules/reviews/method-guided-solutions.md"
+        "docs/shared/design/student-review-step.md",
+        "docs/shared/design/compact-review.md"
       ],
       "tests": [
-        "src/components/SolutionBlocks.test.tsx",
-        "packages/education-presentation/solution-blocks.test.mjs",
-        "storage/parent-guide-edit.test.mjs",
-        "scripts/check-review-brief-viewport.test.mjs"
+        "src/components/ReviewActivity.test.tsx",
+        "packages/education-presentation/review-activity.test.mjs",
+        "storage/student-review-edit.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "31.10.2026 родитель отверг прежний экран и прямо потребовал восстановить плашку, убрать повтор номера и показывать метод, формулы, связи и переходы визуально."
+        "evidence": "01.11.2026 родитель прямо потребовал исправить ученическую часть всех разборов: понятная модель текущего шага, интерактив без ответа и служебных фраз; общие инструкции, UI Kit и проверка ученического вида."
       }
     },
     "src/lib/educationEventProducer.ts": {
@@ -4592,24 +4587,20 @@
       }
     },
     "src/lib/quiz.ts": {
-      "sha256": "ddb1acdccae34c866b80bffde5517c24632b6976ea9a0e1610ae283b7af7ce2b",
-      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
+      "sha256": "f05902ba302afbaae92d81920ea8efdf98125664892efeff849d931d406f29be",
+      "record": "docs/decisions/student-review-step-2026-11-01.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/modules/synchronization/education-pipeline.md"
+        "docs/shared/design/student-review-step.md",
+        "docs/shared/design/compact-review.md"
       ],
       "tests": [
-        "assessment/learning-context-backfill.test.mjs",
-        "assessment/learning-context.test.mjs",
-        "day/family-assignment.test.mjs",
-        "day/dashboard-index.test.mjs",
-        "src/lib/homeworkStatus.test.ts",
-        "src/lib/educationEventProducers.test.ts",
-        "sync/event-task-artifact.test.mjs"
+        "src/components/ReviewActivity.test.tsx",
+        "packages/education-presentation/review-activity.test.mjs",
+        "storage/student-review-edit.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь 28.10 прямо потребовал общий механизм уроков, семейных прав, фотографий и синхронизации для олимпиад."
+        "evidence": "01.11.2026 родитель прямо потребовал исправить ученическую часть всех разборов: понятная модель текущего шага, интерактив без ответа и служебных фраз; общие инструкции, UI Kit и проверка ученического вида."
       }
     },
     "src/lib/quizCardViewModel.ts": {
@@ -6257,21 +6248,20 @@
       }
     },
     "src/components/OlympiadWrittenPractice.tsx": {
-      "sha256": "7b511838bb798708e2db73589e95f3a144f37317c231e56cae9c249778d98ddb",
-      "record": "docs/decisions/olympiad-integration-2026-10-28.md",
+      "sha256": "633aa4ed3aa0dfbd6bd58a4dcc708c4515ef160511758f18cac63623fd1542d8",
+      "record": "docs/decisions/student-review-step-2026-11-01.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/shared/design/student-review-step.md",
+        "docs/shared/design/compact-review.md"
       ],
       "tests": [
-        "src/components/OlympiadWrittenPractice.integration.test.tsx",
-        "src/UiKit.test.tsx",
-        "operator/olympiad-help.test.mjs",
-        "sync/olympiad-help.test.mjs"
+        "src/components/ReviewActivity.test.tsx",
+        "packages/education-presentation/review-activity.test.mjs",
+        "storage/student-review-edit.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь 28.10 поручил подключить сервер, фото, синхронизацию и уроки через UI Kit и LDD с проверками."
+        "evidence": "01.11.2026 родитель прямо потребовал исправить ученическую часть всех разборов: понятная модель текущего шага, интерактив без ответа и служебных фраз; общие инструкции, UI Kit и проверка ученического вида."
       }
     },
     "src/components/OlympiadLesson.tsx": {
@@ -6292,24 +6282,20 @@
       }
     },
     "src/components/PhotoHelpRequest.tsx": {
-      "sha256": "93d18d0a87f4b280b1e91fa021a07fcd5019312cf53a3d36629b8687f99ac0f3",
-      "record": "docs/decisions/compact-review-rollout-2026-10-31.md",
+      "sha256": "1570ea5bd7e56f559a86e3f8477cb061a046a4bc0961c9f902071b4671495d87",
+      "record": "docs/decisions/student-review-step-2026-11-01.md",
       "specs": [
-        "docs/shared/design/compact-review.md",
-        "docs/shared/design/ui-kit.md",
-        "docs/modules/reviews/subject-aware-guidance.md"
+        "docs/shared/design/student-review-step.md",
+        "docs/shared/design/compact-review.md"
       ],
       "tests": [
-        "src/components/WorkReview.compact.test.tsx",
-        "src/components/ReviewBrief.test.tsx",
-        "src/components/QuizResultCard.test.tsx",
-        "src/UiKit.test.tsx",
-        "storage/tutoring-decision.test.mjs",
-        "packages/education-presentation/review-content.test.mjs"
+        "src/components/ReviewActivity.test.tsx",
+        "packages/education-presentation/review-activity.test.mjs",
+        "storage/student-review-edit.test.mjs"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "31.10 родитель одобрил конкретный компактный разбор: «Да, так уже лучше. Исправь подсказку, чтобы она не выдавала ответ заранее, и внедряй этот формат для всех разборов. Обнови инструкции, спецификации и UI Kit». Сохранение ролей, статусов и истории обязательно."
+        "status": "direct-request",
+        "evidence": "01.11.2026 родитель прямо потребовал исправить ученическую часть всех разборов: понятная модель текущего шага, интерактив без ответа и служебных фраз; общие инструкции, UI Kit и проверка ученического вида."
       }
     },
     "src/lib/olympiad/client.ts": {
@@ -6347,39 +6333,37 @@
       }
     },
     "operator/olympiad-help.mjs": {
-      "sha256": "228be5cdb9d9e51bf5513985483f82ab30ee4f7f96d76e7fa8b5a5e125d775a2",
-      "record": "docs/decisions/olympiad-integration-2026-10-28.md",
+      "sha256": "fbcab286e28e9fb2cdc19d19bd19a5b504b20057ca09f4f8553a71c83bb538c5",
+      "record": "docs/decisions/student-review-step-2026-11-01.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/shared/design/student-review-step.md",
+        "docs/shared/design/compact-review.md"
       ],
       "tests": [
-        "src/components/OlympiadWrittenPractice.integration.test.tsx",
-        "src/UiKit.test.tsx",
-        "operator/olympiad-help.test.mjs",
-        "sync/olympiad-help.test.mjs"
+        "src/components/ReviewActivity.test.tsx",
+        "packages/education-presentation/review-activity.test.mjs",
+        "storage/student-review-edit.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь 28.10 поручил подключить сервер, фото, синхронизацию и уроки через UI Kit и LDD с проверками."
+        "evidence": "01.11.2026 родитель прямо потребовал исправить ученическую часть всех разборов: понятная модель текущего шага, интерактив без ответа и служебных фраз; общие инструкции, UI Kit и проверка ученического вида."
       }
     },
     "scripts/olympiad-help.mjs": {
-      "sha256": "9b64bb494fa838a5c24e37bebee0fddae8ae47ec2fc0f562b9acae5123b3fa3e",
-      "record": "docs/decisions/olympiad-integration-2026-10-28.md",
+      "sha256": "bf2beaf030b929f45ff50dff25fb9e3643defb30f9e81ec3d7858ba0bb7542bd",
+      "record": "docs/decisions/student-review-step-2026-11-01.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/shared/design/student-review-step.md",
+        "docs/shared/design/compact-review.md"
       ],
       "tests": [
-        "src/components/OlympiadWrittenPractice.integration.test.tsx",
-        "src/UiKit.test.tsx",
-        "operator/olympiad-help.test.mjs",
-        "sync/olympiad-help.test.mjs"
+        "src/components/ReviewActivity.test.tsx",
+        "packages/education-presentation/review-activity.test.mjs",
+        "storage/student-review-edit.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь 28.10 поручил подключить сервер, фото, синхронизацию и уроки через UI Kit и LDD с проверками."
+        "evidence": "01.11.2026 родитель прямо потребовал исправить ученическую часть всех разборов: понятная модель текущего шага, интерактив без ответа и служебных фраз; общие инструкции, UI Kit и проверка ученического вида."
       }
     },
     "scripts/olympiad-publish-training.mjs": {
@@ -6472,21 +6456,20 @@
       }
     },
     "sync/olympiad-help.mjs": {
-      "sha256": "4fb1c10fe101474f6f89aa86de08bc4fc8e7075b3daec96ec043e4c5328dcf37",
-      "record": "docs/decisions/olympiad-integration-2026-10-28.md",
+      "sha256": "87c31b03d3cb3ea460257c9227b4e9c1e112ec7da3e4f813e5168802652cbac3",
+      "record": "docs/decisions/student-review-step-2026-11-01.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/shared/design/student-review-step.md",
+        "docs/shared/design/compact-review.md"
       ],
       "tests": [
-        "src/components/OlympiadWrittenPractice.integration.test.tsx",
-        "src/UiKit.test.tsx",
-        "operator/olympiad-help.test.mjs",
-        "sync/olympiad-help.test.mjs"
+        "src/components/ReviewActivity.test.tsx",
+        "packages/education-presentation/review-activity.test.mjs",
+        "storage/student-review-edit.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь 28.10 поручил подключить сервер, фото, синхронизацию и уроки через UI Kit и LDD с проверками."
+        "evidence": "01.11.2026 родитель прямо потребовал исправить ученическую часть всех разборов: понятная модель текущего шага, интерактив без ответа и служебных фраз; общие инструкции, UI Kit и проверка ученического вида."
       }
     },
     "scripts/backfill-olympiad-context.mjs": {
@@ -7020,37 +7003,37 @@
       }
     },
     "packages/education-presentation/review-content.mjs": {
-      "sha256": "a175cae4dbd46ff280a9ec306bcd5452e71a1ebef09b6d80ca561da3e4465a75",
-      "record": "docs/decisions/review-table-storage-2026-10-31.md",
+      "sha256": "dfef3dd566c48ae6d6b40861f2fc8ffedbd66c8069fb13932e13e41f07612fed",
+      "record": "docs/decisions/student-review-step-2026-11-01.md",
       "specs": [
-        "docs/modules/reviews/method-guided-solutions.md",
+        "docs/shared/design/student-review-step.md",
         "docs/shared/design/compact-review.md"
       ],
       "tests": [
-        "packages/education-presentation/review-content.test.mjs",
-        "storage/parent-guide-edit.test.mjs",
-        "scripts/check-review-brief-viewport.test.mjs"
+        "src/components/ReviewActivity.test.tsx",
+        "packages/education-presentation/review-activity.test.mjs",
+        "storage/student-review-edit.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Продолжение прямого запроса родителя о методах, формулах и наглядном разборе; исправление обнаруженного сервером непереносимого формата таблицы перед завершением миграции."
+        "evidence": "01.11.2026 родитель прямо потребовал исправить ученическую часть всех разборов: понятная модель текущего шага, интерактив без ответа и служебных фраз; общие инструкции, UI Kit и проверка ученического вида."
       }
     },
     "scripts/check-review-brief-viewport.mjs": {
-      "sha256": "2598352fdf91ecd1ec2a0f69a8750727597563c0e84c3c9f9f161c87a845e877",
-      "record": "docs/decisions/method-guided-reviews-2026-10-31.md",
+      "sha256": "bdf83aa87acce80d3cb2579f671b0ebefcef57045f638f2ae82b525b9827151d",
+      "record": "docs/decisions/student-review-step-2026-11-01.md",
       "specs": [
-        "docs/modules/reviews/method-guided-solutions.md"
+        "docs/shared/design/student-review-step.md",
+        "docs/shared/design/compact-review.md"
       ],
       "tests": [
-        "src/components/SolutionBlocks.test.tsx",
-        "packages/education-presentation/solution-blocks.test.mjs",
-        "storage/parent-guide-edit.test.mjs",
-        "scripts/check-review-brief-viewport.test.mjs"
+        "src/components/ReviewActivity.test.tsx",
+        "packages/education-presentation/review-activity.test.mjs",
+        "storage/student-review-edit.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "31.10.2026 родитель отверг прежний экран и прямо потребовал восстановить плашку, убрать повтор номера и показывать метод, формулы, связи и переходы визуально."
+        "evidence": "01.11.2026 родитель прямо потребовал исправить ученическую часть всех разборов: понятная модель текущего шага, интерактив без ответа и служебных фраз; общие инструкции, UI Kit и проверка ученического вида."
       }
     },
     "src/components/QuizResultCard.css": {
@@ -7075,54 +7058,54 @@
       }
     },
     "src/components/ReviewBrief.css": {
-      "sha256": "34b8f3ace4026093968faba4c674296de3fa884ef02d8ab2525c93b50cc35134",
-      "record": "docs/decisions/method-guided-reviews-2026-10-31.md",
+      "sha256": "1a24a6847f6b1e834d1c86c318bfaea1f63e1e4dac97fc6960c9b22e7a6063e3",
+      "record": "docs/decisions/student-review-step-2026-11-01.md",
       "specs": [
-        "docs/modules/reviews/method-guided-solutions.md"
-      ],
-      "tests": [
-        "src/components/SolutionBlocks.test.tsx",
-        "packages/education-presentation/solution-blocks.test.mjs",
-        "storage/parent-guide-edit.test.mjs",
-        "scripts/check-review-brief-viewport.test.mjs"
-      ],
-      "authorization": {
-        "status": "direct-request",
-        "evidence": "31.10.2026 родитель отверг прежний экран и прямо потребовал восстановить плашку, убрать повтор номера и показывать метод, формулы, связи и переходы визуально."
-      }
-    },
-    "src/components/ReviewBrief.tsx": {
-      "sha256": "14084e2c8759be1abed7c85fd26470402adb7be293f37d120d87e0d93cc9c831",
-      "record": "docs/decisions/review-table-storage-2026-10-31.md",
-      "specs": [
-        "docs/modules/reviews/method-guided-solutions.md",
+        "docs/shared/design/student-review-step.md",
         "docs/shared/design/compact-review.md"
       ],
       "tests": [
-        "packages/education-presentation/review-content.test.mjs",
-        "storage/parent-guide-edit.test.mjs",
-        "scripts/check-review-brief-viewport.test.mjs"
+        "src/components/ReviewActivity.test.tsx",
+        "packages/education-presentation/review-activity.test.mjs",
+        "storage/student-review-edit.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Продолжение прямого запроса родителя о методах, формулах и наглядном разборе; исправление обнаруженного сервером непереносимого формата таблицы перед завершением миграции."
+        "evidence": "01.11.2026 родитель прямо потребовал исправить ученическую часть всех разборов: понятная модель текущего шага, интерактив без ответа и служебных фраз; общие инструкции, UI Kit и проверка ученического вида."
+      }
+    },
+    "src/components/ReviewBrief.tsx": {
+      "sha256": "1ac9104c39ac13ae889a23f68e7f749f76930314d662f231bcc92bfae296614f",
+      "record": "docs/decisions/student-review-step-2026-11-01.md",
+      "specs": [
+        "docs/shared/design/student-review-step.md",
+        "docs/shared/design/compact-review.md"
+      ],
+      "tests": [
+        "src/components/ReviewActivity.test.tsx",
+        "packages/education-presentation/review-activity.test.mjs",
+        "storage/student-review-edit.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "01.11.2026 родитель прямо потребовал исправить ученическую часть всех разборов: понятная модель текущего шага, интерактив без ответа и служебных фраз; общие инструкции, UI Kit и проверка ученического вида."
       }
     },
     "src/components/ReviewBriefShowcase.tsx": {
-      "sha256": "4ffda162d9a692a710263224c12b30121a0c2236eb931684772f80189c41738c",
-      "record": "docs/decisions/method-guided-reviews-2026-10-31.md",
+      "sha256": "6ede70c468351e27d70d489896a87e48373d93cea58ae9095ad07a8b85bb5ba3",
+      "record": "docs/decisions/student-review-step-2026-11-01.md",
       "specs": [
-        "docs/modules/reviews/method-guided-solutions.md"
+        "docs/shared/design/student-review-step.md",
+        "docs/shared/design/compact-review.md"
       ],
       "tests": [
-        "src/components/SolutionBlocks.test.tsx",
-        "packages/education-presentation/solution-blocks.test.mjs",
-        "storage/parent-guide-edit.test.mjs",
-        "scripts/check-review-brief-viewport.test.mjs"
+        "src/components/ReviewActivity.test.tsx",
+        "packages/education-presentation/review-activity.test.mjs",
+        "storage/student-review-edit.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "31.10.2026 родитель отверг прежний экран и прямо потребовал восстановить плашку, убрать повтор номера и показывать метод, формулы, связи и переходы визуально."
+        "evidence": "01.11.2026 родитель прямо потребовал исправить ученическую часть всех разборов: понятная модель текущего шага, интерактив без ответа и служебных фраз; общие инструкции, UI Kit и проверка ученического вида."
       }
     },
     "src/components/ReviewTypography.css": {
@@ -7159,36 +7142,37 @@
       }
     },
     "src/lib/reviewBriefExamples.ts": {
-      "sha256": "f1fb6f8d4404769d818e8d8acb883cca29ac73cebb4c7ff28362b72e2b44802e",
-      "record": "docs/decisions/review-table-storage-2026-10-31.md",
+      "sha256": "122c9a069259f4ac68aab54a95d773fcce41784a0714013925e242c1d965a433",
+      "record": "docs/decisions/student-review-step-2026-11-01.md",
       "specs": [
-        "docs/modules/reviews/method-guided-solutions.md",
+        "docs/shared/design/student-review-step.md",
         "docs/shared/design/compact-review.md"
       ],
       "tests": [
-        "packages/education-presentation/review-content.test.mjs",
-        "storage/parent-guide-edit.test.mjs",
-        "scripts/check-review-brief-viewport.test.mjs"
+        "src/components/ReviewActivity.test.tsx",
+        "packages/education-presentation/review-activity.test.mjs",
+        "storage/student-review-edit.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Продолжение прямого запроса родителя о методах, формулах и наглядном разборе; исправление обнаруженного сервером непереносимого формата таблицы перед завершением миграции."
+        "evidence": "01.11.2026 родитель прямо потребовал исправить ученическую часть всех разборов: понятная модель текущего шага, интерактив без ответа и служебных фраз; общие инструкции, UI Kit и проверка ученического вида."
       }
     },
     "src/lib/workReviewBrief.ts": {
-      "sha256": "2a014d21ff4d52d5e1f8f04886444a151d25b7a364664deeba0668a2bc8d89ea",
-      "record": "docs/decisions/review-readability-repair-2026-10-31.md",
+      "sha256": "5106dcd4702c92772eb9b0953252744790171b447e979e33778cf2f69ad448a5",
+      "record": "docs/decisions/student-review-step-2026-11-01.md",
       "specs": [
+        "docs/shared/design/student-review-step.md",
         "docs/shared/design/compact-review.md"
       ],
       "tests": [
-        "src/components/WorkReview.compact.test.tsx",
-        "src/components/ReviewBrief.test.tsx",
-        "storage/tutoring-decision.test.mjs"
+        "src/components/ReviewActivity.test.tsx",
+        "packages/education-presentation/review-activity.test.mjs",
+        "storage/student-review-edit.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 31.10 прислал мобильный скриншот и прямо отверг нечитаемый результат как не соответствующий согласованному макету; исправляется ранее разрешённый общий формат."
+        "evidence": "01.11.2026 родитель прямо потребовал исправить ученическую часть всех разборов: понятная модель текущего шага, интерактив без ответа и служебных фраз; общие инструкции, UI Kit и проверка ученического вида."
       }
     },
     "scripts/olympiad-history.mjs": {
@@ -7567,6 +7551,108 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Прямой запрос01.11.2026: автоматически обновлять персональный блок после каждой проверенной работы, сохранять историю, исключать зачтённые задачи, без межчатовых сообщений."
+      }
+    },
+    "packages/education-presentation/review-activity.mjs": {
+      "sha256": "d7993b34af3af0eaeb9e47cf4f4a3006c788991f8b6671d63ac9fbc73fb52beb",
+      "record": "docs/decisions/student-review-step-2026-11-01.md",
+      "specs": [
+        "docs/shared/design/student-review-step.md",
+        "docs/shared/design/compact-review.md"
+      ],
+      "tests": [
+        "src/components/ReviewActivity.test.tsx",
+        "packages/education-presentation/review-activity.test.mjs",
+        "storage/student-review-edit.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "01.11.2026 родитель прямо потребовал исправить ученическую часть всех разборов: понятная модель текущего шага, интерактив без ответа и служебных фраз; общие инструкции, UI Kit и проверка ученического вида."
+      }
+    },
+    "scripts/student-review.mjs": {
+      "sha256": "2d383759776a05337b694971862890e2034173ef69cad9c1c88c12d083d7a8f8",
+      "record": "docs/decisions/student-review-step-2026-11-01.md",
+      "specs": [
+        "docs/shared/design/student-review-step.md",
+        "docs/shared/design/compact-review.md"
+      ],
+      "tests": [
+        "src/components/ReviewActivity.test.tsx",
+        "packages/education-presentation/review-activity.test.mjs",
+        "storage/student-review-edit.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "01.11.2026 родитель прямо потребовал исправить ученическую часть всех разборов: понятная модель текущего шага, интерактив без ответа и служебных фраз; общие инструкции, UI Kit и проверка ученического вида."
+      }
+    },
+    "src/components/ReviewActivity.css": {
+      "sha256": "e7820502f8a670f6d77f336c1b38f0dbdf1b7a3e4653d666ac9df7d50b1cca50",
+      "record": "docs/decisions/student-review-step-2026-11-01.md",
+      "specs": [
+        "docs/shared/design/student-review-step.md",
+        "docs/shared/design/compact-review.md"
+      ],
+      "tests": [
+        "src/components/ReviewActivity.test.tsx",
+        "packages/education-presentation/review-activity.test.mjs",
+        "storage/student-review-edit.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "01.11.2026 родитель прямо потребовал исправить ученическую часть всех разборов: понятная модель текущего шага, интерактив без ответа и служебных фраз; общие инструкции, UI Kit и проверка ученического вида."
+      }
+    },
+    "src/components/ReviewActivity.tsx": {
+      "sha256": "8672636fd78a29e322c9656ff6176e410b4c2ec00944e942bb12a457da3ed91d",
+      "record": "docs/decisions/student-review-step-2026-11-01.md",
+      "specs": [
+        "docs/shared/design/student-review-step.md",
+        "docs/shared/design/compact-review.md"
+      ],
+      "tests": [
+        "src/components/ReviewActivity.test.tsx",
+        "packages/education-presentation/review-activity.test.mjs",
+        "storage/student-review-edit.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "01.11.2026 родитель прямо потребовал исправить ученическую часть всех разборов: понятная модель текущего шага, интерактив без ответа и служебных фраз; общие инструкции, UI Kit и проверка ученического вида."
+      }
+    },
+    "src/lib/reviewStepExamples.ts": {
+      "sha256": "669d7d3632e2bde58cbdd23781b1f634078136580f58bc990f20a5341fb15b4f",
+      "record": "docs/decisions/student-review-step-2026-11-01.md",
+      "specs": [
+        "docs/shared/design/student-review-step.md",
+        "docs/shared/design/compact-review.md"
+      ],
+      "tests": [
+        "src/components/ReviewActivity.test.tsx",
+        "packages/education-presentation/review-activity.test.mjs",
+        "storage/student-review-edit.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "01.11.2026 родитель прямо потребовал исправить ученическую часть всех разборов: понятная модель текущего шага, интерактив без ответа и служебных фраз; общие инструкции, UI Kit и проверка ученического вида."
+      }
+    },
+    "storage/student-review-edit.mjs": {
+      "sha256": "40aba4ae4fb396bea26ac7a78042f14582c43b1596808092f678a581b7f355ea",
+      "record": "docs/decisions/student-review-step-2026-11-01.md",
+      "specs": [
+        "docs/shared/design/student-review-step.md",
+        "docs/shared/design/compact-review.md"
+      ],
+      "tests": [
+        "src/components/ReviewActivity.test.tsx",
+        "packages/education-presentation/review-activity.test.mjs",
+        "storage/student-review-edit.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "01.11.2026 родитель прямо потребовал исправить ученическую часть всех разборов: понятная модель текущего шага, интерактив без ответа и служебных фраз; общие инструкции, UI Kit и проверка ученического вида."
       }
     }
   }

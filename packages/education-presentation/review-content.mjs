@@ -2,12 +2,14 @@
 /** @see ../../docs/decisions/compact-review-rollout-2026-10-31.md */
 /** Typed, bounded allowlist for learner-visible review graphics and disclosures.
  * @see ../../docs/shared/design/compact-review.md#data */
+import {reviewActivityValid} from './review-activity.mjs'
 const text = (value, max = 900) => typeof value === 'string' && value.trim().length > 0 && value.length <= max
 const keys = (value, allowed) => value && typeof value === 'object' && !Array.isArray(value) && Object.keys(value).every(key => allowed.includes(key))
 /** An authoring budget, never a substring or a smaller font in the renderer. */
 export const reviewOverviewLimits = Object.freeze({title:80,confirmed:160,focus:160,bridge:160,question:160,total:420})
 export function reviewOverviewErrors(feedback) {
   if (!feedback) return []
+  if(/домашняя необязательная практика|объ[её]м (?:полученной )?помощи неизвестен|конвейер (?:разбора|проверки)/iu.test(['title','confirmed','focus','bridge','question'].map(k=>feedback[k]??'').join(' ')))return ['Служебный текст проверки не является ученическим объяснением.']
   const lengths=Object.fromEntries(['title','confirmed','focus','bridge','question'].map(key=>[key,typeof feedback[key]==='string'?feedback[key].trim().length:0]))
   const excess=Object.entries(lengths).filter(([key,length])=>length>reviewOverviewLimits[key]).map(([key])=>key)
   if(excess.length||Object.values(lengths).reduce((a,b)=>a+b,0)>reviewOverviewLimits.total)
@@ -29,7 +31,8 @@ export function reviewVisualValid(visual) {
 }
 export function reviewSupplementErrors(value) {
   if (value === undefined) return []
-  if (!keys(value,['version','visual','details']) || value.version !== 1
+  if (!keys(value,['version','visual','details','activity']) || value.version !== 1
+    || value.activity !== undefined && !reviewActivityValid(value.activity)
     || value.visual !== undefined && !reviewVisualValid(value.visual)
     || value.details !== undefined && (!Array.isArray(value.details) || value.details.length > 20 || value.details.some(detail =>
       !keys(detail,['label','text','quotation','visual']) || !text(detail.label,160) || !text(detail.text,1800)

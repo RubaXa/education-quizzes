@@ -21,12 +21,12 @@ export async function beginHelpReview(db, scope) {
   return { verified: true, revision: frozen.revision, revisions, problem: { title: p.title ?? '', statement: p.statement } }
 }
 /** Publish a real operator-authored answer and read the exact committed revision back. */
-export async function completeHelpReview(db, scope, answer) {
+export async function completeHelpReview(db, scope, answer, presentation) {
   const r = refs(db, scope)
-  const result = await finishOlympiadHelp(db, { ...scope, answer })
+  const result = await finishOlympiadHelp(db, { ...scope, answer,...(presentation?{presentation}:{}) })
   const snap = await r.request.get(), value = snap.data()
   const saved = value?.answers?.find(item => item.operationId === scope.operationId)
-  if (!snap.exists || value.problemId !== scope.problemId || !saved || saved.revision !== result.revision || saved.text !== answer) throw new Error('answer-readback-failed')
+  if (!snap.exists || value.problemId !== scope.problemId || !saved || saved.revision !== result.revision || saved.text !== answer||JSON.stringify(saved.presentation)!==JSON.stringify(presentation)) throw new Error('answer-readback-failed')
   return { verified: true, revision: result.revision, reused: result.reused, status: value.status }
 }
 

@@ -60,7 +60,7 @@ describe('карточка требований МЭШ', () => {
   })
 
   it('показывает выполненный номер и неизвестный отдельно, даже при общем тексте обратной связи', () => {
-    const html = renderToStaticMarkup(<WorkReview uploads={[]} review={{ id: 'review', taskId: 'mesh-218-223', status: 'cannot-assess',
+    const html = renderToStaticMarkup(<WorkReview parent uploads={[]} review={{ id: 'review', taskId: 'mesh-218-223', status: 'cannot-assess',
       studentFeedback: { title: 'Один номер виден', confirmed: '№ 218 сделан', focus: '№ 223 за кадром', question: 'Можно увидеть № 223?' },
       requirementChecks: [
         { id: 'mesh-218', action: '№ 218 · выписать сравнения', meshExcerpt: 'Назначены № 218 и № 223', materialExcerpt: 'Найдите сравнения', evidence: { state: 'visible', uploadId: 'photo-1', observation: 'Список виден' }, result: 'confirmed', explanation: 'Переписывать не нужно' },

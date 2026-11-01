@@ -1,4 +1,5 @@
 /** @see ../../docs/decisions/compact-review-rollout-2026-10-31.md */
+import {projectReviewSupplement} from '../../packages/education-presentation/review-content.mjs'
 import { spellingFeedback } from '@/lib/spellingFeedback'
 import type { Answer, QuizQuestion, QuestionResult } from '@/lib/quiz'
 import { CodeBlock } from './CodeBlock'
@@ -26,6 +27,7 @@ export default function ResultCard({ result, index }: { result: QuestionResult; 
   const needsReflection = wrong || partial
   const spelling = spellingFeedback(result)
   const guidance = result.guidance
+  const presentation=projectReviewSupplement(guidance?.presentation)
   const details:ReviewBriefDetail[]=[]
   if(spelling) details.push({label:'Как пишется',text:`Правильно: ${spelling.correct}. ${spelling.detail}`},{label:'Что повторить',text:spelling.practice})
   if(guidance) details.push({label:'Источник вопроса',text:[guidance.source.title,guidance.source.edition,guidance.source.section,guidance.source.pages,guidance.source.locator].join('. ')})
@@ -39,7 +41,7 @@ export default function ResultCard({ result, index }: { result: QuestionResult; 
     body:pending?'Разбор появится здесь после проверки.':skipped?'Вопрос не входил в оценку этой попытки.':undefined,
     focus:needsReflection&&!spelling&&guidance?guidance.observation:missing,
     question:needsReflection&&!spelling&&guidance?guidance.question:undefined,
-    details,
+    activity:presentation?.activity,visual:presentation?.visual,details:[...details,...(presentation?.details??[])],
   }}>
     {guidance?.source.url&&<a className="edu-review-source-link" href={guidance.source.url} target="_blank" rel="noopener noreferrer">Открыть источник</a>}
   </ReviewBrief>

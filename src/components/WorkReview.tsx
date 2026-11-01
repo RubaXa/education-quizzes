@@ -85,9 +85,9 @@ export default function WorkReview({ review, uploads, accepted = false, canDecid
     </div>}
 
     {review?.status && <ReviewBrief data={{ ...workReviewBrief(review, {complete:accepted||familyDone,
-      label:pending.length?'Предыдущая проверка':undefined,stateLabel:requiredActions.length?'Доработать по решению родителя':familyDone?`Готово по семейному плану · ${familyStages?.confirmed} из ${familyStages?.required}`:accepted?'Засчитано родителем':undefined}),
+      label:pending.length?'Предыдущая проверка':undefined,stateLabel:requiredActions.length?'Доработать по решению родителя':familyDone?(parent?`Готово по семейному плану · ${familyStages?.confirmed} из ${familyStages?.required}`:'Готово'):accepted?(parent?'Засчитано родителем':'Засчитано'):undefined}),
       meta:review.mathReasoning?`${answer==='correct'?'Ответ верен':answer==='incorrect'?'Ответ неверен':'Ответ не установлен'} · ${argumentLabel}`:undefined }}>
-        {!!review.requirementChecks?.length && <details className="edu-review-detail day-work-review-requirements"><summary>Проверка требований МЭШ</summary><section aria-label="Проверка требований МЭШ">
+        {parent && !!review.requirementChecks?.length && <details className="edu-review-detail day-work-review-requirements"><summary>Проверка требований МЭШ</summary><section aria-label="Проверка требований МЭШ">
           <h4>Что задано в МЭШ и что видно на фото</h4>
           <p>Подтверждено {review.requirementChecks.filter((check) => check.result === 'confirmed').length} из {review.requirementChecks.length} обязательных пунктов. Невидимую часть не считаем ошибкой.</p>
           <ol>{review.requirementChecks.map((check) => <li key={check.id}>
@@ -99,9 +99,9 @@ export default function WorkReview({ review, uploads, accepted = false, canDecid
             <span>{formatReviewProse(check.explanation)}</span>
           </li>)}</ol>
         </section></details>}
-        {familyDone && <p className="day-work-review-accepted">Все пункты семейного плана подтверждены. {familyStages?.optional ? `${familyStages.optional} пункт(а) сохранены в разборе.` : ''} Исходный разбор фото сохранён.</p>}
-        {accepted && <p className="day-work-review-accepted">Задача завершена по решению родителя. Ответ верен; обоснование хода в работе осталось неполным.</p>}
-        {basis?.outcome === 'unresolved' && <p className="day-work-review-unprepared">{formatReviewProse(workCoverageComplete(review) ? `Работа предъявлена полностью: ${review.workCoverage?.note} ` : `Разбор загруженного фото завершён. ${review.summary ?? ''} `)}{requiredActions.length ? 'Родитель назначил доработку для семейного плана; она указана ниже.' : workCoverageComplete(review) ? 'Дополнительных действий от ученика сейчас не требуется.' : formatReviewProse(review.nextStep ?? 'Если есть другая страница работы, добавьте её фото для проверки.')}</p>}
+        {parent && familyDone && <p className="day-work-review-accepted">Все пункты семейного плана подтверждены. {familyStages?.optional ? `${familyStages.optional} пункт(а) сохранены в разборе.` : ''} Исходный разбор фото сохранён.</p>}
+        {parent && accepted && <p className="day-work-review-accepted">Задача завершена по решению родителя. Ответ верен; обоснование хода в работе осталось неполным.</p>}
+        {parent && basis?.outcome === 'unresolved' && <p className="day-work-review-unprepared">{formatReviewProse(workCoverageComplete(review) ? `Работа предъявлена полностью: ${review.workCoverage?.note} ` : `Разбор загруженного фото завершён. ${review.summary ?? ''} `)}{requiredActions.length ? 'Родитель назначил доработку для семейного плана; она указана ниже.' : workCoverageComplete(review) ? 'Дополнительных действий от ученика сейчас не требуется.' : formatReviewProse(review.nextStep ?? 'Если есть другая страница работы, добавьте её фото для проверки.')}</p>}
         {basis?.disputedRequirements?.map((item) => {
           const choice = requirementChoice(review, item.id, decisions)
           if (!parent && !choice) return null
@@ -112,7 +112,7 @@ export default function WorkReview({ review, uploads, accepted = false, canDecid
           </section>
         })}
         {decisionError && <small role="alert">{decisionError}</small>}
-        {basis?.requirement && !review.requirementChecks?.length && <details className="day-work-review-evidence"><summary>Условие и основания проверки</summary><div className="day-work-review-basis">
+        {parent && basis?.requirement && !review.requirementChecks?.length && <details className="day-work-review-evidence"><summary>Условие и основания проверки</summary><div className="day-work-review-basis">
           <p><b>Что требовалось</b><span>{formatReviewProse(basis.requirement)}</span></p>
           <p><b>Что видно в работе</b><span>{formatReviewObservation(basis.observed ?? '')}</span></p>
           <p><b>{basis.outcome === 'unresolved' ? 'Что осталось неясным' : 'Почему такой результат'}</b><span>{formatReviewProse(basis.comparison ?? '')}</span></p>

@@ -1212,3 +1212,20 @@
 | [src/components/OlympiadNextStep.tsx](../src/components/OlympiadNextStep.tsx) | [Первый шаг](shared/design/information-hierarchy.md) | Одна следующая задача перед организационными подробностями | Education |
 | [docs/decisions/olympiad-next-step-first-2026-11-01.md](decisions/olympiad-next-step-first-2026-11-01.md) | [Первый шаг](shared/design/information-hierarchy.md) | Одна следующая задача перед организационными подробностями | Education |
 | [src/ui-kit/olympiadHistoryFixtures.ts](../src/ui-kit/olympiadHistoryFixtures.ts) | [UI Kit](shared/design/ui-kit.md) | Общие условные история и resolver для примеров | UI Kit |
+
+| Файл | Спецификация | Назначение | Потребитель |
+|---|---|---|---|
+| [docs/decisions/student-review-step-2026-11-01.md](decisions/student-review-step-2026-11-01.md) | [Текущий шаг](shared/design/student-review-step.md) | Общая публичная модель и её безопасная проверка | Ученик; автор; UI Kit |
+| [docs/shared/design/student-review-step.md](shared/design/student-review-step.md) | [Текущий шаг](shared/design/student-review-step.md) | Общая публичная модель и её безопасная проверка | Ученик; автор; UI Kit |
+| [e2e/student-review-step.e2e.ts](../e2e/student-review-step.e2e.ts) | [Текущий шаг](shared/design/student-review-step.md) | Общая публичная модель и её безопасная проверка | Ученик; автор; UI Kit |
+| [packages/education-presentation/review-activity.d.mts](../packages/education-presentation/review-activity.d.mts) | [Текущий шаг](shared/design/student-review-step.md) | Общая публичная модель и её безопасная проверка | Ученик; автор; UI Kit |
+| [packages/education-presentation/review-activity.mjs](../packages/education-presentation/review-activity.mjs) | [Текущий шаг](shared/design/student-review-step.md) | Общая публичная модель и её безопасная проверка | Ученик; автор; UI Kit |
+| [packages/education-presentation/review-activity.test.mjs](../packages/education-presentation/review-activity.test.mjs) | [Текущий шаг](shared/design/student-review-step.md) | Общая публичная модель и её безопасная проверка | Ученик; автор; UI Kit |
+| [scripts/student-review.mjs](../scripts/student-review.mjs) | [Текущий шаг](shared/design/student-review-step.md) | Общая публичная модель и её безопасная проверка | Ученик; автор; UI Kit |
+| [src/components/ReviewActivity.css](../src/components/ReviewActivity.css) | [Текущий шаг](shared/design/student-review-step.md) | Общая публичная модель и её безопасная проверка | Ученик; автор; UI Kit |
+| [src/components/ReviewActivity.test.tsx](../src/components/ReviewActivity.test.tsx) | [Текущий шаг](shared/design/student-review-step.md) | Общая публичная модель и её безопасная проверка | Ученик; автор; UI Kit |
+| [src/components/ReviewActivity.tsx](../src/components/ReviewActivity.tsx) | [Текущий шаг](shared/design/student-review-step.md) | Общая публичная модель и её безопасная проверка | Ученик; автор; UI Kit |
+| [src/lib/reviewStepExamples.ts](../src/lib/reviewStepExamples.ts) | [Текущий шаг](shared/design/student-review-step.md) | Общая публичная модель и её безопасная проверка | Ученик; автор; UI Kit |
+| [storage/review-projection.d.mts](../storage/review-projection.d.mts) | [Текущий шаг](shared/design/student-review-step.md) | Общая публичная модель и её безопасная проверка | Ученик; автор; UI Kit |
+| [storage/student-review-edit.mjs](../storage/student-review-edit.mjs) | [Текущий шаг](shared/design/student-review-step.md) | Общая публичная модель и её безопасная проверка | Ученик; автор; UI Kit |
+| [storage/student-review-edit.test.mjs](../storage/student-review-edit.test.mjs) | [Текущий шаг](shared/design/student-review-step.md) | Общая публичная модель и её безопасная проверка | Ученик; автор; UI Kit |

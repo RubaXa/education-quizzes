@@ -6,6 +6,7 @@ export type Answer = string | string[]
 
 /** Manually checked, student-safe feedback. Never derive it from the closed solution. */
 export type QuestionGuidance = {
+  presentation?: import('../../packages/education-presentation/review-content.mjs').ReviewSupplement
   observation: string
   question: string
   source: { title: string; edition: string; section: string; pages: string; locator: string; url?: string }
