@@ -2516,20 +2516,18 @@
       }
     },
     "src/App.tsx": {
-      "sha256": "6a3f6c7002f2e53a630e887c038341c5c623c4c1e9a18390dd5459ff2add80c8",
-      "record": "docs/decisions/olympiad-family-screen-2026-10-27.md",
+      "sha256": "297e6d0cb30e167035797d3dcb85f1504ebad0857b296688f1c1dd8942628a30",
+      "record": "docs/decisions/quiz-runner-kit-audit-2026-11-01.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/shared/design/ui-kit.md",
+        "docs/modules/assessments/quizzes.md"
       ],
       "tests": [
-        "src/components/OlympiadPage.integration.test.tsx",
-        "src/components/LearningRoute.integration.test.tsx",
-        "src/UiKit.test.tsx"
+        "src/components/QuizQuestionCard.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь поручил подключить семейные экраны олимпиады через существующий UI Kit и LDD и проверять реализацию."
+        "evidence": "Родитель01.11 потребовал проверить мобильные тесты по UI Kit, исправить дефекты и влить готовое изменение."
       }
     },
     "src/DayDashboard.css": {
@@ -2632,20 +2630,18 @@
       }
     },
     "src/UiKit.tsx": {
-      "sha256": "3bf00d11ae83230c59c9684c369e61b4ead61ee71ee4e7c2c4f1bd487d578eb5",
-      "record": "docs/decisions/collapsed-task-cards-2026-11-01.md",
+      "sha256": "27be6ce976fed9272ef79b83041cd49f6a6207dd208a11947f8d0030b2250987",
+      "record": "docs/decisions/quiz-runner-kit-audit-2026-11-01.md",
       "specs": [
-        "docs/modules/school-diary/day-page.md",
-        "docs/shared/design/components.md"
+        "docs/shared/design/ui-kit.md",
+        "docs/modules/assessments/quizzes.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/components/TaskDisclosure.test.tsx",
-        "src/components/QuizCard.test.tsx"
+        "src/components/QuizQuestionCard.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 родитель прямо потребовал сворачивать все задания по умолчанию: читать название, статус и общую информацию без огромного раскрытого тела."
+        "evidence": "Родитель01.11 потребовал проверить мобильные тесты по UI Kit, исправить дефекты и влить готовое изменение."
       }
     },
     "src/WeekendMathSlot.css": {
@@ -3510,20 +3506,18 @@
       }
     },
     "src/components/QuizCard.tsx": {
-      "sha256": "c34436ea89b4835c9a0431b2810b25a2b823bc682c6b5a8925a2b5c960a855a2",
-      "record": "docs/decisions/collapsed-task-cards-2026-11-01.md",
+      "sha256": "f711fbfed6a2bc6344f24414c529f362f0b974e0086f4e5a91979d3cd98017f3",
+      "record": "docs/decisions/quiz-runner-kit-audit-2026-11-01.md",
       "specs": [
-        "docs/modules/school-diary/day-page.md",
-        "docs/shared/design/components.md"
+        "docs/shared/design/ui-kit.md",
+        "docs/modules/assessments/quizzes.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/components/TaskDisclosure.test.tsx",
-        "src/components/QuizCard.test.tsx"
+        "src/components/QuizQuestionCard.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 родитель прямо потребовал сворачивать все задания по умолчанию: читать название, статус и общую информацию без огромного раскрытого тела."
+        "evidence": "Родитель01.11 потребовал проверить мобильные тесты по UI Kit, исправить дефекты и влить готовое изменение."
       }
     },
     "src/components/QuizResultCard.tsx": {
@@ -3674,22 +3668,18 @@
       }
     },
     "src/components/SubjectTheme.tsx": {
-      "sha256": "81e5fc5ac184e60bda0f8e717aa568b1fd9d7ef9fd2f49d838b3ee251faeed6e",
-      "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
+      "sha256": "77ed880ef4488d0773c79983cfa62000d015f0e9bf5b0f9013a2add8d5418c41",
+      "record": "docs/decisions/quiz-runner-kit-audit-2026-11-01.md",
       "specs": [
-        "docs/shared/specification-system.md"
+        "docs/shared/design/ui-kit.md",
+        "docs/modules/assessments/quizzes.md"
       ],
       "tests": [
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
+        "src/components/QuizQuestionCard.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя 16.10.2026 внедрить согласованную структуру спецификаций, перенести ссылки в коде и проверить сохранность требований; изменение предметного поведения не выполнялось."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "6a043e30a9d02f01ad37a0cdf096995215c29ebc7e7fa18bf197714593679540"
+        "evidence": "Родитель01.11 потребовал проверить мобильные тесты по UI Kit, исправить дефекты и влить готовое изменение."
       }
     },
     "src/components/TaskGuidance.css": {
@@ -7794,6 +7784,51 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Родитель01.11 потребовал общий детерминированный граф поиска прошлого урока и материалов, новый тест повторения и сохранение прежней письменной работы."
+      }
+    },
+    "src/components/QuizQuestionCard.tsx": {
+      "sha256": "8c0e28fd40573c3a7b110def3a530c8837c88e7e2cb2f4e277b37c4b28f5f209",
+      "record": "docs/decisions/quiz-runner-kit-audit-2026-11-01.md",
+      "specs": [
+        "docs/shared/design/ui-kit.md",
+        "docs/modules/assessments/quizzes.md"
+      ],
+      "tests": [
+        "src/components/QuizQuestionCard.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель01.11 потребовал проверить мобильные тесты по UI Kit, исправить дефекты и влить готовое изменение."
+      }
+    },
+    "src/lib/wordForm.ts": {
+      "sha256": "5c503f1a5e4e9064feb93a18f17ef5b8616c02f3559bf4550afc348ae1f758b7",
+      "record": "docs/decisions/quiz-runner-kit-audit-2026-11-01.md",
+      "specs": [
+        "docs/shared/design/ui-kit.md",
+        "docs/modules/assessments/quizzes.md"
+      ],
+      "tests": [
+        "src/components/QuizQuestionCard.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель01.11 потребовал проверить мобильные тесты по UI Kit, исправить дефекты и влить готовое изменение."
+      }
+    },
+    "src/ui-kit/QuizRunnerExample.tsx": {
+      "sha256": "453aba01eb5cf447904ce3973df4756717de5a59438593191a5d9ca4134a51f7",
+      "record": "docs/decisions/quiz-runner-kit-audit-2026-11-01.md",
+      "specs": [
+        "docs/shared/design/ui-kit.md",
+        "docs/modules/assessments/quizzes.md"
+      ],
+      "tests": [
+        "src/components/QuizQuestionCard.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель01.11 потребовал проверить мобильные тесты по UI Kit, исправить дефекты и влить готовое изменение."
       }
     }
   }
