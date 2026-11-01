@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/** @see ../docs/decisions/sync-phase-report-2026-10-29.md */
 /** @see ../docs/decisions/sync-task-routing-2026-10-23.md */
 /** @see ../docs/modules/synchronization/task-routing.md */
 /**
@@ -12,6 +13,7 @@ import { operationCatalog } from '../operator/operation-contract.mjs'
 import { executeOperation } from '../operator/run-operation.mjs'
 import { executeRecipe } from '../operator/recipes.mjs'
 import { inspectRoutePlan } from '../operator/route-plan.mjs'
+import { saveRunReport } from '../operator/run-report.mjs'
 
 const [command, argument, flag] = process.argv.slice(2)
 const apply = process.argv.includes('--apply')
@@ -20,7 +22,8 @@ const run = (data) => executeOperation(data, { apply, root })
 const output = (value) => process.stdout.write(`${JSON.stringify(value, null, 2)}\n`)
 
 try {
-  if (command === 'catalog' && !argument) output({ schemaVersion: 1, operations: operationCatalog() })
+  if (command === 'report' && argument === '-' && !flag) output(saveRunReport(root, JSON.parse(readFileSync(0, 'utf8'))))
+  else if (command === 'catalog' && !argument) output({ schemaVersion: 1, operations: operationCatalog() })
   else if (command === 'plan' && argument && !flag) output(inspectRoutePlan(root, argument))
   else if (command === 'describe' && argument && !flag) {
     const operation = operationCatalog().find((item) => item.id === argument)
@@ -45,7 +48,7 @@ try {
       summary: item.summary ?? null, metrics: item.metrics ?? null, startedAt: item.startedAt,
       finishedAt: item.finishedAt ?? null })
   } else {
-    throw new Error('Usage: npm run education -- catalog | describe OPERATION | status | begin --apply | discover --apply | finalize --apply | plan SCAN_RUN_UUID | run REQUEST.json [--apply] | result RUN_UUID')
+    throw new Error('Usage: npm run education -- report - (JSON stdin) | catalog | describe OPERATION | status | begin --apply | discover --apply | finalize --apply | plan SCAN_RUN_UUID | run REQUEST.json [--apply] | result RUN_UUID')
   }
 } catch (error) {
   console.error(String(error?.message ?? error))
