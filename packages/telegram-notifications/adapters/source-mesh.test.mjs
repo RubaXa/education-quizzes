@@ -12,6 +12,12 @@ function project({ schedule = [lesson()], assignments = [assignment()], marks = 
 }
 
 describe('Mesh safe source projection', () => {
+  it('keeps revoked authorization distinct in automatic source observation', async () => {
+    const source=createMeshSourceAdapter({resolver:{validateScope:async()=>true,withChildAdapter:async()=>{throw Object.assign(new Error('private body'),{code:'mesh_auth_required'})}}})
+    const result=await source.observe(scope)
+    expect(result).toMatchObject({completeness:'partial',errorCode:'mesh_auth_required',records:[]})
+    expect(JSON.stringify(result)).not.toContain('private body')
+  })
   it('uses stable shard scopes, independent of rolling date windows', () => {
     expect(meshScopeKey(scope)).toMatch(/^[a-f0-9]{64}$/)
     expect(meshScopeKey({ ...scope, date: '2026-10-18' })).not.toBe(meshScopeKey(scope))

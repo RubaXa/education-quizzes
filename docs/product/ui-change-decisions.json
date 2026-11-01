@@ -745,20 +745,19 @@
       }
     },
     "packages/education-connect/lib/mesh.mjs": {
-      "sha256": "7c8a96018f27b2cb2cc8c3cfb99168d59abd34a6e4808abf5c4cea64044c14af",
-      "record": "docs/decisions/pupil-vacations-2026-10-19.md",
+      "sha256": "f8c3cf08d861a637671b23dce621f11d3f3a64afd6188955da80e947c10823af",
+      "record": "docs/decisions/mesh-auth-recovery-2026-11-01.md",
       "specs": [
-        "docs/modules/school-diary/school-calendar.md"
+        "docs/shared/server-runtime.md"
       ],
       "tests": [
-        "day/school-calendar.test.mjs",
-        "sync/school-calendar-publication.test.mjs",
-        "src/components/DayCalendar.test.tsx",
-        "src/DayDashboard.warmStart.test.tsx"
+        "packages/education-connect/lib/mesh-auth.test.mjs",
+        "packages/telegram-notifications/adapters/mesh-credentials.test.mjs",
+        "packages/telegram-notifications/adapters/source-mesh.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 просит выделить каникулы красивым блоком дней, получая даты только из МЭШ конкретного ученика."
+        "evidence": "Родитель01.11 прямо потребовал найти и устранить причину недоступности МЭШ, проверить ЦДЗ и использовать штатный npx-пакет."
       }
     },
     "packages/education-connect/lib/network-retry.mjs": {
@@ -916,20 +915,19 @@
       }
     },
     "packages/education-runtime/mesh-session.mjs": {
-      "sha256": "746252793780a2e6ec296eee0a63a654dbc6bbc4b1a048d842215c729d52ddf2",
-      "record": "docs/decisions/pupil-vacations-2026-10-19.md",
+      "sha256": "6f062ab86d57ccbd90d6a1934dc856df7c5fdca00f9c8968fb029fc158b864be",
+      "record": "docs/decisions/mesh-auth-recovery-2026-11-01.md",
       "specs": [
-        "docs/modules/school-diary/school-calendar.md"
+        "docs/shared/server-runtime.md"
       ],
       "tests": [
-        "day/school-calendar.test.mjs",
-        "sync/school-calendar-publication.test.mjs",
-        "src/components/DayCalendar.test.tsx",
-        "src/DayDashboard.warmStart.test.tsx"
+        "packages/education-connect/lib/mesh-auth.test.mjs",
+        "packages/telegram-notifications/adapters/mesh-credentials.test.mjs",
+        "packages/telegram-notifications/adapters/source-mesh.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 просит выделить каникулы красивым блоком дней, получая даты только из МЭШ конкретного ученика."
+        "evidence": "Родитель01.11 прямо потребовал найти и устранить причину недоступности МЭШ, проверить ЦДЗ и использовать штатный npx-пакет."
       }
     },
     "packages/education-runtime/task-context.mjs": {
@@ -1147,33 +1145,35 @@
       }
     },
     "packages/telegram-notifications/adapters/source-inventory-firestore.mjs": {
-      "sha256": "03fc8b6192cbba0843fb6636bc3e0c6e465b5f77bc2d06de16e41ce41a9a8b30",
-      "record": "docs/decisions/firestore-live-discovery-2026-10-19.md",
+      "sha256": "94bdafcf9f021098c9f2ca7112aad8b0043ba9335b2dd211b9c9d6278efdd247",
+      "record": "docs/decisions/mesh-auth-recovery-2026-11-01.md",
       "specs": [
-        "docs/services/telegram-bot/adapters/firestore.md",
-        "docs/services/telegram-bot/operations.md"
+        "docs/shared/server-runtime.md"
       ],
       "tests": [
-        "packages/telegram-notifications/adapters/source-inventory-firestore.test.mjs"
+        "packages/education-connect/lib/mesh-auth.test.mjs",
+        "packages/telegram-notifications/adapters/mesh-credentials.test.mjs",
+        "packages/telegram-notifications/adapters/source-mesh.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос19.10: новая загрузка более минуты без реакции; Firebase должен иметь постоянную подписку. Ранее разрешены Luna implementation, независимое/root review, тесты и выпуск main с постоянным worker."
+        "evidence": "Родитель01.11 прямо потребовал найти и устранить причину недоступности МЭШ, проверить ЦДЗ и использовать штатный npx-пакет."
       }
     },
     "packages/telegram-notifications/adapters/source-mesh.mjs": {
-      "sha256": "b29dae02b2c146eaf61bb619d689e8237d9c10b01258ba740cd77e27caae3407",
-      "record": "docs/decisions/telegram-linked-work-history-2026-10-18.md",
+      "sha256": "744c1e7f97e8e685da04e0a8929d19c173ca27138588bbb1d178ac524df4d7b0",
+      "record": "docs/decisions/mesh-auth-recovery-2026-11-01.md",
       "specs": [
-        "docs/services/telegram-bot/work-history.md",
-        "docs/shared/design/telegram.md"
+        "docs/shared/server-runtime.md"
       ],
       "tests": [
-        "packages/telegram-notifications/source-pipeline.test.mjs"
+        "packages/education-connect/lib/mesh-auth.test.mjs",
+        "packages/telegram-notifications/adapters/mesh-credentials.test.mjs",
+        "packages/telegram-notifications/adapters/source-mesh.test.mjs"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "Пользователь18.10.2026 выбрал сводку изменений и связанную историю каждой работы, прямо потребовал убрать кнопку UI Kit, внедрить через Luna, обновить спецификации/тесты и выпустить в main с согласованием сессий."
+        "status": "direct-request",
+        "evidence": "Родитель01.11 прямо потребовал найти и устранить причину недоступности МЭШ, проверить ЦДЗ и использовать штатный npx-пакет."
       }
     },
     "packages/telegram-notifications/adapters/telegram.mjs": {
@@ -1537,17 +1537,19 @@
       }
     },
     "packages/telegram-notifications/operations/source-check.mjs": {
-      "sha256": "7a260c56aa7e56efbcaeb96dcc75cb4140253cc20c0cf09c092fadb3681a6194",
-      "record": "docs/decisions/mesh-calendar-date-scopes-2026-10-18.md",
+      "sha256": "7de4d336186260e97fb0efa336a320b5a295736f0374d6fea1c1e66a6932ea39",
+      "record": "docs/decisions/mesh-auth-recovery-2026-11-01.md",
       "specs": [
-        "docs/services/telegram-bot/operations.md"
+        "docs/shared/server-runtime.md"
       ],
       "tests": [
-        "packages/telegram-notifications/operations/source-check.test.mjs"
+        "packages/education-connect/lib/mesh-auth.test.mjs",
+        "packages/telegram-notifications/adapters/mesh-credentials.test.mjs",
+        "packages/telegram-notifications/adapters/source-mesh.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь18.10.2026 поручил исправить три области МЭШ с несовпадающими датами через Luna Worker, проверить результат, добавить тесты, обновить спецификации, выполнить проверки, коммит и пуш."
+        "evidence": "Родитель01.11 прямо потребовал найти и устранить причину недоступности МЭШ, проверить ЦДЗ и использовать штатный npx-пакет."
       }
     },
     "packages/telegram-notifications/operations/upload-check.mjs": {
@@ -2369,20 +2371,19 @@
       }
     },
     "scripts/sync-project.mjs": {
-      "sha256": "240f58e1c3e2a00380691b6ce2400725a537809dc065af5b39ea587fc50ee13f",
-      "record": "docs/decisions/project-publication-audit-2026-10-21.md",
+      "sha256": "28ec724e1647a577e463a5dd567d2c7e553634e63550dea31f8a54095aa545fc",
+      "record": "docs/decisions/mesh-auth-recovery-2026-11-01.md",
       "specs": [
-        "docs/modules/synchronization/global-sync.md",
-        "docs/modules/synchronization/firestore-read-paths.md",
-        "docs/services/operator-cli/README.md"
+        "docs/shared/server-runtime.md"
       ],
       "tests": [
-        "sync/project-audit.test.mjs",
-        "sync/publication-audit.test.mjs"
+        "packages/education-connect/lib/mesh-auth.test.mjs",
+        "packages/telegram-notifications/adapters/mesh-credentials.test.mjs",
+        "packages/telegram-notifications/adapters/source-mesh.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение EducationSync/root: добавить read-only аудит сохранённого manifest-window с отдельным private receipt без сбора и изменения workflow."
+        "evidence": "Родитель01.11 прямо потребовал найти и устранить причину недоступности МЭШ, проверить ЦДЗ и использовать штатный npx-пакет."
       }
     },
     "scripts/sync-queue.mjs": {
@@ -7829,6 +7830,22 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Родитель01.11 потребовал проверить мобильные тесты по UI Kit, исправить дефекты и влить готовое изменение."
+      }
+    },
+    "diary/cli.mjs": {
+      "sha256": "ffa650b884ce4f7e7d09a50308febe0f154348fa22251559210fbda4ea81c3b3",
+      "record": "docs/decisions/mesh-auth-recovery-2026-11-01.md",
+      "specs": [
+        "docs/shared/server-runtime.md"
+      ],
+      "tests": [
+        "packages/education-connect/lib/mesh-auth.test.mjs",
+        "packages/telegram-notifications/adapters/mesh-credentials.test.mjs",
+        "packages/telegram-notifications/adapters/source-mesh.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель01.11 прямо потребовал найти и устранить причину недоступности МЭШ, проверить ЦДЗ и использовать штатный npx-пакет."
       }
     }
   }

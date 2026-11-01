@@ -17,7 +17,7 @@ let roots = []
 afterEach(() => { for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true }) })
 
 function fixture({ failWrite = false, verifyDelay = 0, track = null, noRefreshToken = false, refreshOnProfileLookup = false,
-  canonicalCredentials = true, legacyOwner = false } = {}) {
+  canonicalCredentials = true, legacyOwner = false, lookupFailure = null } = {}) {
   const root = mkdtempSync(join(tmpdir(), 'mesh-resolver-test-'))
   roots.push(root)
   const connectionsDir = join(root, 'mesh-connections')
@@ -52,6 +52,7 @@ function fixture({ failWrite = false, verifyDelay = 0, track = null, noRefreshTo
   const adapterFactory = (credentials, save) => ({
     secret: credentials,
     api: { async getStudentProfiles(person) {
+      if (lookupFailure) throw lookupFailure
       expect(person).toBe(actor)
       if (refreshOnProfileLookup && credentials.profileId === 'previous-profile') save({ ...credentials, token: 'profile-rotated', refreshToken: 'profile-refresh' })
       return [{ id: 'child-profile', person_id: sourcePersonId }, { id: 'child-profile-2', person_id: 'child-2' }]
@@ -77,6 +78,16 @@ function fixture({ failWrite = false, verifyDelay = 0, track = null, noRefreshTo
 
 const scope = { source: 'mesh', familyId: 'f1', childId: 'c1', sourceAccountId: accountId, sourcePersonId }
 describe('Mesh credential scope resolver', () => {
+  it('preserves only safe authorization diagnostics through the owner/session boundary', async () => {
+    const error = Object.assign(new Error('private provider body'), {code:'mesh_auth_required', stage:'oauth-refresh', httpStatus:401, oauthError:'invalid_client'})
+    const {resolver} = fixture({lookupFailure:error})
+    await expect(resolver.withChildAdapter(scope, async()=>{throw Error('must not collect')})).rejects.toMatchObject({code:'mesh_auth_required',stage:'oauth-refresh',httpStatus:401,oauthError:'invalid_client'})
+  })
+  it('keeps network failures distinct from revoked authorization', async () => {
+    const {resolver} = fixture({lookupFailure:new Error('fetch failed')})
+    await expect(resolver.withChildAdapter(scope, async()=>{})).rejects.toMatchObject({code:'mesh_unavailable'})
+  })
+
   it('validates authoritative family, child identity and internal active parent membership', async () => {
     const { resolver } = fixture()
     expect(await resolver.validateScope(scope)).toBe(true)

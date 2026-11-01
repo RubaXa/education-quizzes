@@ -1383,6 +1383,39 @@
       "path": "docs/decisions/lesson-repetition-2026-11-01.md"
     },
     {
+      "id": "decision.mesh-auth-recovery-2026-11-01",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-01",
+      "updated": "2026-11-01",
+      "parent": "module.synchronization",
+      "uses": [
+        "shared.server-runtime",
+        "module.school-diary"
+      ],
+      "consumers": [
+        "operator",
+        "shared runtime"
+      ],
+      "code": [
+        "diary/cli.mjs",
+        "packages/education-connect/lib/mesh.mjs",
+        "packages/education-runtime/mesh-session.mjs",
+        "packages/telegram-notifications/adapters/source-mesh.mjs",
+        "packages/telegram-notifications/adapters/source-inventory-firestore.mjs",
+        "packages/telegram-notifications/operations/source-check.mjs",
+        "scripts/sync-project.mjs"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/mesh-auth-recovery-2026-11-01.md"
+    },
+    {
       "id": "decision.mesh-calendar-date-scopes-2026-10-18",
       "status": "accepted",
       "implementation": "not-applicable",
@@ -5766,6 +5799,13 @@
       "kind": "verification",
       "purpose": "Проверка календарной классификации, полного raw schedule, порядка и блокирования неполных карточек МЭШ",
       "consumer": "Vitest; разработчик"
+    },
+    {
+      "id": "file:packages/education-connect/lib/mesh-auth.test.mjs",
+      "path": "packages/education-connect/lib/mesh-auth.test.mjs",
+      "kind": "verification",
+      "purpose": "Отказ OAuth, безопасная диагностика, успешная ротация и повтор чтения",
+      "consumer": "Vitest; Mesh session"
     },
     {
       "id": "file:packages/education-connect/lib/mesh-calendar.test.mjs",
@@ -15163,6 +15203,16 @@
       "type": "uses"
     },
     {
+      "from": "decision.mesh-auth-recovery-2026-11-01",
+      "to": "module.school-diary",
+      "type": "uses"
+    },
+    {
+      "from": "decision.mesh-auth-recovery-2026-11-01",
+      "to": "shared.server-runtime",
+      "type": "uses"
+    },
+    {
       "from": "decision.mesh-calendar-date-scopes-2026-10-18",
       "to": "module.school-diary",
       "type": "uses"
@@ -16514,6 +16564,11 @@
     },
     {
       "from": "file:diary/cli.mjs",
+      "to": "decision.mesh-auth-recovery-2026-11-01",
+      "type": "implements"
+    },
+    {
+      "from": "file:diary/cli.mjs",
       "to": "module.school-diary",
       "type": "implements"
     },
@@ -16944,6 +16999,11 @@
     },
     {
       "from": "file:packages/education-connect/lib/mesh.mjs",
+      "to": "decision.mesh-auth-recovery-2026-11-01",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-connect/lib/mesh.mjs",
       "to": "module.school-diary",
       "type": "implements"
     },
@@ -17094,6 +17154,11 @@
     },
     {
       "from": "file:packages/education-runtime/mesh-session.mjs",
+      "to": "decision.mesh-auth-recovery-2026-11-01",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-runtime/mesh-session.mjs",
       "to": "shared.server-runtime",
       "type": "implements"
     },
@@ -17194,7 +17259,17 @@
     },
     {
       "from": "file:packages/telegram-notifications/adapters/source-inventory-firestore.mjs",
+      "to": "decision.mesh-auth-recovery-2026-11-01",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/adapters/source-inventory-firestore.mjs",
       "to": "service.telegram-bot.firestore",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/adapters/source-mesh.mjs",
+      "to": "decision.mesh-auth-recovery-2026-11-01",
       "type": "implements"
     },
     {
@@ -17370,6 +17445,11 @@
     {
       "from": "file:packages/telegram-notifications/operations/review-check.mjs",
       "to": "service.telegram-bot.operations",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/operations/source-check.mjs",
+      "to": "decision.mesh-auth-recovery-2026-11-01",
       "type": "implements"
     },
     {
@@ -18300,6 +18380,11 @@
     {
       "from": "file:scripts/sync-project.mjs",
       "to": "audits.education-sync-latency-audit-2026-10-15",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/sync-project.mjs",
+      "to": "decision.mesh-auth-recovery-2026-11-01",
       "type": "implements"
     },
     {
@@ -23964,6 +24049,11 @@
     },
     {
       "from": "module.synchronization",
+      "to": "decision.mesh-auth-recovery-2026-11-01",
+      "type": "contains"
+    },
+    {
+      "from": "module.synchronization",
       "to": "decision.unified-education-events-2026-10-19",
       "type": "contains"
     },
@@ -26006,6 +26096,11 @@
       "from": "shared.server-runtime",
       "to": "decision.shared-server-runtime-2026-10-17",
       "type": "contains"
+    },
+    {
+      "from": "shared.server-runtime",
+      "to": "file:packages/education-connect/lib/mesh-auth.test.mjs",
+      "type": "verified-by"
     },
     {
       "from": "shared.server-runtime",

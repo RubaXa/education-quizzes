@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/** @see ../docs/decisions/mesh-auth-recovery-2026-11-01.md */
 import { createInterface } from 'node:readline/promises'
 import { stdin, stdout } from 'node:process'
 import { loadConfig } from './config.mjs'
@@ -7,6 +8,7 @@ import { loginToMesh, MeshDiaryAdapter, probeMesh } from './adapters/mesh.mjs'
 import { syncDiary } from './application/sync.mjs'
 import { lessonVisibility } from './application/lesson-visibility.mjs'
 import { downloadDayAttachments } from './attachments.mjs'
+import { meshAuthDiagnostic } from '../packages/education-connect/lib/mesh.mjs'
 import { hiddenPrompt } from '../packages/education-connect/lib/prompts.mjs'
 
 async function chooseProfile(profiles) {
@@ -133,6 +135,12 @@ function printChanges(changes) {
 }
 
 main().catch((error) => {
+  const diagnostic = meshAuthDiagnostic(error)
+  if (diagnostic) {
+    console.error(`МЭШ: ${diagnostic.stage}, HTTP ${diagnostic.httpStatus ?? 'неизвестно'}${diagnostic.oauthError ? `, ${diagnostic.oauthError}` : ''}. Нужно повторное подключение: npx education-connect --invite <одноразовый-код>. Пароль и SMS вводятся только в скрытых полях терминала.`)
+    process.exitCode = 1
+    return
+  }
   const message = String(error?.message || '')
   const safe = /^(Сначала |Укажите |Дата должна|Неизвестная команда|Для входа нужен|Вход прерван|Логин и пароль|Неверный номер|МЭШ запросил|Поставщик |ACCESS_NOT_VERIFIED:)/.test(message)
   console.error(safe ? message : 'Команда не завершена. Проверьте доступ к МЭШ или повторите вход; секреты не выводятся.')

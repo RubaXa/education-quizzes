@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/** @see ../docs/decisions/mesh-auth-recovery-2026-11-01.md */
 /**
  * @see ../docs/modules/synchronization/README.md
  * @see ../docs/modules/synchronization/global-sync.md#publication-audit
@@ -19,6 +20,7 @@ import { operatorFirestore } from './lib/admin-firebase.mjs'
 import { createTelemetryFromEnvironment, createRotatingJsonlSink } from '../packages/education-runtime/telemetry.mjs'
 import { createFamilyGraphRepository } from '../packages/education-runtime/family-graph.mjs'
 import { createLegacyMeshCredentialCodec } from '../packages/education-runtime/credentials.mjs'
+import { meshAuthDiagnostic } from '../packages/education-connect/lib/mesh.mjs'
 import { createMeshSessionService } from '../packages/education-runtime/mesh-session.mjs'
 import { syncDiary } from '../diary/application/sync.mjs'
 import { ensureDataDir, readJson, writeJson } from '../diary/local-store.mjs'
@@ -93,7 +95,7 @@ function safeReason(error) {
   const message = String(error?.message || '')
   if (/429|RATE_LIMITED/.test(message) || error?.code === 'RATE_LIMITED') return 'rate-limited'
   if (/AUTH_REQUIRED|ACCESS_NOT_VERIFIED|401|403/.test(message)
-    || ['credentials_unavailable', 'credentials_mismatch', 'mesh_access_unverified', 'child_profile_unavailable'].includes(error?.code)) return 'auth-required'
+    || ['mesh_auth_required', 'credentials_unavailable', 'credentials_mismatch', 'mesh_access_unverified', 'child_profile_unavailable'].includes(error?.code)) return 'auth-required'
   if (/INCOMPLETE_DETAIL/.test(message) || error?.code === 'mesh_incomplete') return 'incomplete-mesh'
   return 'source-error'
 }
@@ -328,7 +330,7 @@ async function collectAccount(accountId, targets, runId, today) {
       catch (error) {
         const reason = safeReason(error)
         await measure(childTiming, 'statusWrite', () => status(target, runId, 'blocked', { reason }))
-        results.push({ target, result: { state: 'blocked', reason, timing: finishTiming(childTiming) } })
+        results.push({ target, result: { state: 'blocked', reason, diagnostic: meshAuthDiagnostic(error), timing: finishTiming(childTiming) } })
         if (reason === 'rate-limited' || reason === 'auth-required') {
           for (const remaining of targets.slice(results.length)) {
             await measure(timing, 'statusWriteSkippedChild', () => status(remaining, runId, 'blocked', { reason }))

@@ -1,3 +1,4 @@
+/** @see ../../../docs/decisions/mesh-auth-recovery-2026-11-01.md */
 import { createHash } from 'node:crypto'
 import { isCalendarOnlyEvent, meshEventSignals } from '../../education-connect/lib/mesh.mjs'
 
@@ -262,6 +263,6 @@ function stableId(value) { return (typeof value === 'string' && /^[A-Za-z0-9_-]{
 function id(value) { return typeof value === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(value) }
 function gradeValue(value) { const n = typeof value === 'number' ? value : typeof value === 'string' && /^\d+$/.test(value) ? Number(value) : NaN; return Number.isInteger(n) && n >= 1 && n <= 5 ? n : null }
 function digest(value) { return createHash('sha256').update(typeof value === 'string' ? value : JSON.stringify(value)).digest('hex') }
-function safeErrorCode(value) { return ['scope_unavailable', 'credentials_unavailable', 'credentials_mismatch', 'mesh_unavailable', 'mesh_incomplete', 'mesh_access_unverified', 'child_profile_unavailable', 'scope_changed', 'credential_refresh_invalid', 'credential_refresh_persist_failed'].includes(value) ? value : 'mesh_unavailable' }
+function safeErrorCode(value) { return ['scope_unavailable', 'credentials_unavailable', 'credentials_mismatch', 'mesh_auth_required', 'mesh_unavailable', 'mesh_incomplete', 'mesh_access_unverified', 'child_profile_unavailable', 'scope_changed', 'credential_refresh_invalid', 'credential_refresh_persist_failed'].includes(value) ? value : 'mesh_unavailable' }
 function safeDiagnosticCode(value) { return ['invalid_observation_shape', 'required_collection_missing', 'invalid_grade_period', 'invalid_grade_record', 'invalid_mark_record', 'invalid_schedule_record', 'schedule_id_missing', 'schedule_start_invalid', 'schedule_finish_invalid', 'schedule_date_mismatch', 'invalid_homework_item', 'invalid_homework_lesson', 'invalid_homework_entry', 'invalid_teacher_file', 'invalid_homework_date'].includes(value) ? value : null }
 function sourceError(code, diagnosticCode = null) { const error = new Error(code); error.code = code; error.diagnosticCode = safeDiagnosticCode(diagnosticCode); return error }
