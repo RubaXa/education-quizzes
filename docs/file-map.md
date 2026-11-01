@@ -1245,3 +1245,6 @@
 | [src/components/TaskDisclosure.tsx](../src/components/TaskDisclosure.tsx) | [Свёрнутые задания](modules/school-diary/day-page.md) | Общая компактная оболочка назначения и рабочий пример | Ученик; родитель; UI Kit |
 | [src/ui-kit/TaskDisclosureExample.tsx](../src/ui-kit/TaskDisclosureExample.tsx) | [Свёрнутые задания](modules/school-diary/day-page.md) | Общая компактная оболочка назначения и рабочий пример | Ученик; родитель; UI Kit |
 | [docs/decisions/collapsed-task-cards-2026-11-01.md](decisions/collapsed-task-cards-2026-11-01.md) | [Свёрнутые задания](modules/school-diary/day-page.md) | Общая компактная оболочка назначения и рабочий пример | Ученик; родитель; UI Kit |
+| [operator/run-report.mjs](../operator/run-report.mjs) | [Отчёт фаз](modules/synchronization/execution-artifact.md) | Отдельный итог исполнения и каждой фазы в stdout/существующем claim без файла отчёта | Education CLI; dispatch |
+| [operator/run-report.test.mjs](../operator/run-report.test.mjs) | [Отчёт фаз](modules/synchronization/execution-artifact.md) | Частичный МЭШ, независимая проверка работ, stdin и отсутствие файлов | Vitest |
+| [docs/decisions/sync-phase-report-2026-10-29.md](decisions/sync-phase-report-2026-10-29.md) | [Отчёт фаз](modules/synchronization/execution-artifact.md) | Решение семьи об итоговом отчёте в чате | Оператор |

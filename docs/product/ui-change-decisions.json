@@ -1975,36 +1975,33 @@
       }
     },
     "scripts/education-sync-dispatch.mjs": {
-      "sha256": "064ff5fa47dd9dfc2f4911ee300c904fb8f25aec21acdd6e3f90e7469ff92c84",
-      "record": "docs/decisions/source-wait-generations-2026-10-22.md",
+      "sha256": "cb0f848e86dfaa1109cbe163b8890f6c84022759f94067f27289746365e7b726",
+      "record": "docs/decisions/sync-phase-report-2026-10-29.md",
       "specs": [
-        "docs/services/telegram-bot/education-sync-dispatch.md"
+        "docs/modules/synchronization/execution-artifact.md"
       ],
       "tests": [
-        "packages/telegram-notifications/application/education-sync-action-store.test.mjs",
-        "packages/telegram-notifications/application/education-sync-dispatch-store.test.mjs",
-        "packages/telegram-notifications/adapters/worker-loop.test.mjs",
+        "operator/run-report.test.mjs",
         "scripts/education-sync-dispatch.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь 22.10.2026 сообщил, что события МЭШ и действия поступают, но автоматическая синхронизация не запускается; требуется исправление цепочки запуска."
+        "evidence": "Постоянное требование родителя: каждый запуск заканчивается компактным отчётом всех фаз в чате без отдельного файла; текущий dispatch прямо требует нормальные safeguards навыка."
       }
     },
     "scripts/education.mjs": {
-      "sha256": "33136bf7091681859a6fda1351bca569f2ebbe1b5ac826750781795291627040",
-      "record": "docs/decisions/sync-task-routing-2026-10-23.md",
+      "sha256": "d8303af9ef47dcf65ce738b87c1da8dff119aa05860e46dac1fe97ca1651c831",
+      "record": "docs/decisions/sync-phase-report-2026-10-29.md",
       "specs": [
-        "docs/modules/synchronization/task-routing.md"
+        "docs/modules/synchronization/execution-artifact.md"
       ],
       "tests": [
-        "sync/task-route.test.mjs",
-        "sync/event-task-artifact.test.mjs",
-        "operator/route-plan.test.mjs"
+        "operator/run-report.test.mjs",
+        "scripts/education-sync-dispatch.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя23.10: ревизия инструкций и детерминированных инструментов синхронизации, расширение недостающих развилок."
+        "evidence": "Постоянное требование родителя: каждый запуск заканчивается компактным отчётом всех фаз в чате без отдельного файла; текущий dispatch прямо требует нормальные safeguards навыка."
       }
     },
     "scripts/ensure-book-upload-index.mjs": {
@@ -7787,6 +7784,21 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "01.11.2026 родитель прямо потребовал сворачивать все задания по умолчанию: читать название, статус и общую информацию без огромного раскрытого тела."
+      }
+    },
+    "operator/run-report.mjs": {
+      "sha256": "9bdd17d7a773333d4c49f7133738544262c78a46e69509a8cb0453a9d5e9465d",
+      "record": "docs/decisions/sync-phase-report-2026-10-29.md",
+      "specs": [
+        "docs/modules/synchronization/execution-artifact.md"
+      ],
+      "tests": [
+        "operator/run-report.test.mjs",
+        "scripts/education-sync-dispatch.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Постоянное требование родителя: каждый запуск заканчивается компактным отчётом всех фаз в чате без отдельного файла; текущий dispatch прямо требует нормальные safeguards навыка."
       }
     }
   }

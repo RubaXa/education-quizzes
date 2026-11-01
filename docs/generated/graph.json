@@ -2639,6 +2639,33 @@
       "path": "docs/decisions/student-review-step-2026-11-01.md"
     },
     {
+      "id": "decision.sync-phase-report-2026-10-29",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-10-29",
+      "updated": "2026-11-01",
+      "parent": "module.synchronization.execution-artifact",
+      "uses": [
+        "service.operator-cli"
+      ],
+      "consumers": [
+        "EducationSync operator"
+      ],
+      "code": [
+        "operator/run-report.mjs",
+        "scripts/education.mjs",
+        "scripts/education-sync-dispatch.mjs"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/sync-phase-report-2026-10-29.md"
+    },
+    {
       "id": "decision.sync-task-routing-2026-10-23",
       "status": "accepted",
       "implementation": "partial",
@@ -5486,6 +5513,20 @@
       "kind": "verification",
       "purpose": "Проверка receipt owner/path/permissions, pending/blocked аудита, предпросмотра и повторов",
       "consumer": "Vitest; разработчик"
+    },
+    {
+      "id": "file:operator/run-report.mjs",
+      "path": "operator/run-report.mjs",
+      "kind": "artifact",
+      "purpose": "Отдельный итог исполнения и каждой фазы в stdout/существующем claim без файла отчёта",
+      "consumer": "Education CLI; dispatch"
+    },
+    {
+      "id": "file:operator/run-report.test.mjs",
+      "path": "operator/run-report.test.mjs",
+      "kind": "verification",
+      "purpose": "Частичный МЭШ, независимая проверка работ, stdin и отсутствие файлов",
+      "consumer": "Vitest"
     },
     {
       "id": "file:package-lock.json",
@@ -12052,7 +12093,8 @@
         "manifest",
         "freshness",
         "lifecycle",
-        "acceptance"
+        "acceptance",
+        "run-report"
       ],
       "code": [
         "sync/event-task-artifact.mjs",
@@ -15240,6 +15282,11 @@
       "type": "uses"
     },
     {
+      "from": "decision.sync-phase-report-2026-10-29",
+      "to": "service.operator-cli",
+      "type": "uses"
+    },
+    {
       "from": "decision.teacher-choice-practice-2026-10-17",
       "to": "module.school-diary.day-page",
       "type": "uses"
@@ -16485,6 +16532,16 @@
       "type": "implements"
     },
     {
+      "from": "file:operator/run-report.mjs",
+      "to": "decision.sync-phase-report-2026-10-29",
+      "type": "implements"
+    },
+    {
+      "from": "file:operator/run-report.mjs",
+      "to": "module.synchronization.execution-artifact",
+      "type": "implements"
+    },
+    {
       "from": "file:package-lock.json",
       "to": "shared.toolchain",
       "type": "implements"
@@ -17451,7 +17508,17 @@
     },
     {
       "from": "file:scripts/education-sync-dispatch.mjs",
+      "to": "decision.sync-phase-report-2026-10-29",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/education-sync-dispatch.mjs",
       "to": "service.telegram-bot.education-sync-dispatch",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/education.mjs",
+      "to": "decision.sync-phase-report-2026-10-29",
       "type": "implements"
     },
     {
@@ -23068,6 +23135,16 @@
       "from": "module.synchronization.event-queue",
       "to": "shared.server-runtime",
       "type": "uses"
+    },
+    {
+      "from": "module.synchronization.execution-artifact",
+      "to": "decision.sync-phase-report-2026-10-29",
+      "type": "contains"
+    },
+    {
+      "from": "module.synchronization.execution-artifact",
+      "to": "file:operator/run-report.test.mjs",
+      "type": "verified-by"
     },
     {
       "from": "module.synchronization.execution-artifact",
