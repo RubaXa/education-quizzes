@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/quiz-runner-kit-audit-2026-11-01.md */
 /**
  * @see ../docs/services/web-app/README.md
  */
@@ -8,21 +9,17 @@ import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { getAuth } from 'firebase/auth'
 import { ArrowLeft, CircleHelp, ClipboardCopy, Clock3, RefreshCw, Send, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { CodeBlock } from '@/components/CodeBlock'
 import { ReadingCard, ThemeFrame, ThemeHero } from '@/components/SubjectTheme'
-import { QuizTextAnswer } from '@/components/QuizTextAnswer'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Progress } from '@/components/ui/progress'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { countAnswered, grade, summarize } from '@/lib/quiz'
 import { sharedQuestionTopic } from '@/lib/questionTopicPresentation'
 import { buildFollowUpPrompt } from '@/lib/followup'
 import { WriteQueue } from '@/lib/writeQueue'
 import { readCachedQuiz, readQuizDraft, rememberQuizStudent, wasQuizStudent, writeCachedQuiz, writeQuizDraft } from '@/lib/quizDraft'
 import { readLocalQuiz, writeLocalQuizAssignment, writeLocalQuizDraft } from '@/lib/quizLocalStore'
-import type { Answer, AnswerKey, Assignment, ManualReview, QuizQuestion, QuizVisual } from '@/lib/quiz'
+import type { Answer, AnswerKey, Assignment, ManualReview } from '@/lib/quiz'
 import type { BoardDetails } from '@/lib/store'
 import type { QuizOutcome } from '@/lib/watchQuizOutcome'
 import { loadPersonalProfile, readLastPersonalDashboardRoute, rememberPersonalDashboardRoute, restorePersonalSession } from '@/lib/personalAccess'
@@ -35,11 +32,12 @@ import ResultCard from './components/QuizResultCard'
 import { ResultBadge, ResultMeter, ResultPoints } from './components/ui/result'
 import UiKit from './UiKit'
 import { ConnectionInvite } from './components/ConnectionInvite'
-import EducationImage from './components/EducationImage'
 import QuizCard from './components/QuizCard'
 import { quizRoot, type QuizCardAttempt } from '@/lib/quizCardViewModel'
 import { reportUiError } from '@/lib/uiErrors'
 import { traceAccess } from '@/lib/browserAccessTrace'
+import QuestionCard from './components/QuizQuestionCard'
+import {wordForm} from './lib/wordForm'
 import './App.css'
 
 const EarlyDevelopmentPreview = import.meta.env.DEV ? lazy(() => import('./components/EarlyDevelopment')) : null
@@ -94,14 +92,6 @@ function describeError(error: unknown): string {
   return reportUiError(error, 'Данные страницы')
 }
 
-function wordForm(count: number, one: string, few: string, many: string): string {
-  const n = Math.abs(count) % 100
-  const last = n % 10
-  if (!Number.isInteger(count) || (n >= 11 && n <= 14)) return many
-  if (last === 1) return one
-  if (last >= 2 && last <= 4) return few
-  return many
-}
 
 /** @see ../docs/shared/design/README.md#shell
  *  @see ../docs/modules/school-diary/day-page.md#day-navigation
@@ -137,77 +127,6 @@ function ErrorCard({ message, onRetry }: { message: string; onRetry?: () => void
  * @see ../docs/modules/assessments/quizzes.md#quiz-runner
  * @see ../docs/modules/assessments/quizzes.md#question-copy
  */
-function QuestionCard({
-  question,
-  index,
-  answer,
-  onAnswer,
-  subject,
-  visual,
-  disabled = false,
-  showTopic = true,
-}: {
-  question: QuizQuestion
-  index: number
-  answer?: Answer
-  onAnswer: (value: Answer) => void
-  subject: string
-  visual?: QuizVisual
-  disabled?: boolean
-  showTopic?: boolean
-}) {
-  const optionList = question.options ?? []
-  const asString = typeof answer === 'string' ? answer : ''
-  const asArray = Array.isArray(answer) ? answer : []
-
-  return (
-    <Card className="question-card border-0 shadow-sm">
-      <CardHeader className="gap-3">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <Badge variant="secondary">Вопрос {index + 1}</Badge>
-          <span className="text-sm text-muted-foreground">{question.points} {wordForm(question.points, 'балл', 'балла', 'баллов')}</span>
-        </div>
-        <CardTitle className="text-xl leading-snug sm:text-2xl">{question.prompt}</CardTitle>
-        {showTopic && question.topic && <CardDescription>Тема: {question.topic}</CardDescription>}
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {question.code && <CodeBlock code={question.code} />}
-        {question.imageUrl && <EducationImage className="question-image" source={question.imageUrl} alt={question.imageAlt ?? 'Иллюстрация к вопросу'} aspectRatio="16 / 9" />}
-        {(question.kind === 'single' || question.kind === 'figure') && (
-          <RadioGroup value={asString} onValueChange={onAnswer} disabled={disabled} className="gap-3">
-            {optionList.map((option) => (
-              <label key={option.id} className="option-tile">
-                <RadioGroupItem value={option.id} aria-label={option.label} />
-                <span className="min-w-0 flex-1">
-                  {option.imageUrl && <EducationImage className="option-image" source={option.imageUrl} alt={option.imageAlt ?? option.label} aspectRatio="4 / 3" />}
-                  <span>{option.label}</span>
-                </span>
-              </label>
-            ))}
-          </RadioGroup>
-        )}
-        {question.kind === 'multiple' && (
-          <div className="space-y-3">
-            <p className="text-sm text-muted-foreground">Можно выбрать несколько вариантов.</p>
-            {optionList.map((option) => (
-              <label key={option.id} className="option-tile">
-                <Checkbox
-                  checked={asArray.includes(option.id)}
-                  disabled={disabled}
-                  onCheckedChange={(checked) => onAnswer(checked ? [...asArray, option.id] : asArray.filter((item) => item !== option.id))}
-                />
-                <span className="min-w-0 flex-1">{option.label}</span>
-              </label>
-            ))}
-          </div>
-        )}
-        {(question.kind === 'short' || question.kind === 'number' || question.kind === 'long') && (
-          <QuizTextAnswer kind={question.kind} value={asString} disabled={disabled} subject={subject} visual={visual} onAnswer={onAnswer} />
-        )}
-      </CardContent>
-    </Card>
-  )
-}
 
 /**
  * Собирает результат из ответов, ключа и доступной ручной проверки.

@@ -1,8 +1,10 @@
+/** @see ../../docs/decisions/quiz-runner-kit-audit-2026-11-01.md */
 import type { ReactNode } from 'react'
 import { BookOpen, Compass, MapPin, Sparkles } from 'lucide-react'
 import type { QuizReading, QuizVisual } from '@/lib/quiz'
 import { resolveVisual } from '@/lib/visual'
 import type { Scene } from '@/lib/visual'
+import {formatReviewObservation} from '@/lib/reviewProse'
 
 function SceneArt({ scene }: { scene: Scene }) {
   if (scene === 'city') return (
@@ -62,7 +64,7 @@ export function ThemeHero({ subject, visual, title, description, preview = false
         <div className="hero-topline"><span className="hero-kicker"><Sparkles size={15} />{resolved.eyebrow}</span>{preview && <span className="hero-preview">Предпросмотр · только чтение</span>}</div>
         <span className="subject-chip"><Compass size={15} />{subject}</span>
         <h1>{title}</h1>
-        {description && <p className="hero-description">{description}</p>}
+        {description && <p className="hero-description">{formatReviewObservation(description)}</p>}
         <div className="hero-caption"><MapPin size={17} />{resolved.caption}</div>
         {children && <div className="hero-meta">{children}</div>}
       </div>

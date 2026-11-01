@@ -1261,3 +1261,10 @@
 | [scripts/lesson-repetition.mjs](../scripts/lesson-repetition.mjs) | [Повторение урока](modules/assessments/lesson-repetition.md) | Read-only план по закрытому пакету доказательств | Оператор |
 | [docs/decisions/lesson-repetition-2026-11-01.md](decisions/lesson-repetition-2026-11-01.md) | [Повторение урока](modules/assessments/lesson-repetition.md) | Причина нового графа, роли и проверки | Оператор; разработчик |
 | [docs/modules/assessments/lesson-repetition.md](modules/assessments/lesson-repetition.md) | [Граф самопроверок](modules/assessments/assessment-decision-graph.md) | Общий контракт нового повторения, источников и сохранённой работы | Все предметы |
+
+| [src/components/QuizQuestionCard.tsx](../src/components/QuizQuestionCard.tsx) | [Самопроверки](modules/assessments/quizzes.md) | Общий экран вопроса, пример UI Kit и проверка мобильной геометрии | App; UI Kit; проверки |
+| [src/lib/wordForm.ts](../src/lib/wordForm.ts) | [Самопроверки](modules/assessments/quizzes.md) | Общий экран вопроса, пример UI Kit и проверка мобильной геометрии | App; UI Kit; проверки |
+| [src/ui-kit/QuizRunnerExample.tsx](../src/ui-kit/QuizRunnerExample.tsx) | [Самопроверки](modules/assessments/quizzes.md) | Общий экран вопроса, пример UI Kit и проверка мобильной геометрии | App; UI Kit; проверки |
+| [src/components/QuizQuestionCard.test.tsx](../src/components/QuizQuestionCard.test.tsx) | [Самопроверки](modules/assessments/quizzes.md) | Общий экран вопроса, пример UI Kit и проверка мобильной геометрии | App; UI Kit; проверки |
+| [e2e/quiz-runner.e2e.ts](../e2e/quiz-runner.e2e.ts) | [Самопроверки](modules/assessments/quizzes.md) | Общий экран вопроса, пример UI Kit и проверка мобильной геометрии | App; UI Kit; проверки |
+| [docs/decisions/quiz-runner-kit-audit-2026-11-01.md](decisions/quiz-runner-kit-audit-2026-11-01.md) | [Самопроверки](modules/assessments/quizzes.md) | Общий экран вопроса, пример UI Kit и проверка мобильной геометрии | App; UI Kit; проверки |

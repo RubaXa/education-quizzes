@@ -1,8 +1,10 @@
+/** @see ../../docs/decisions/quiz-runner-kit-audit-2026-11-01.md */
 /** @see ../../docs/decisions/collapsed-variant-status-2026-10-21.md */
 import { Fragment, useId, useState, type ReactNode } from 'react'
 import { ChevronDown, Clock3, Copy, ExternalLink, RotateCcw } from 'lucide-react'
 import { quizResultInput, quizAnswerCounts, quizHistoryNewestFirst, quizTimestamp, type QuizCardAttempt } from '@/lib/quizCardViewModel'
 import { resultPresentation } from '@/lib/resultPresentation'
+import {formatReviewObservation} from '@/lib/reviewProse'
 import { requestQuizFollowup, setQuizRequired } from '@/lib/store'
 import RequirementSwitch from './RequirementSwitch'
 import QuizAttemptReview from './QuizAttemptReview'
@@ -86,7 +88,7 @@ export default function QuizCard({ chain, parent, context = 'Самопрове�
   return <section className="day-quiz-lineage" id={id} aria-label={reading ? `Тест: ${reading.title}` : `Самопроверки: ${context}`}>
     <div className="day-quiz-lineage-head">{!headingProvided&&<strong>{reading?.title ?? (context === 'Самопроверка' ? context : `Самопроверка: ${context}`)}</strong>}<div className="day-quiz-lineage-meta"><span className="day-quiz-score-time">{!headingProvided&&<ResultBadge input={quizResultInput(latest)} showPoints className={`day-quiz-lineage-score ${view.status}`} />}{timeButton(latest)}</span>{latest.status === 'open' && parent && !placementOptional && <span className="day-quiz-requirement"><RequirementSwitch checked={required} disabled={savingRequirement} label={`Учитывать тест «${latest.title}» в семейном плане`} onChange={next => { setSavingRequirement(true); setRequirementError(''); void setQuizRequired(root.rootToken ?? root.token, latest.token, next).catch(cause => setRequirementError(cause instanceof Error ? cause.message : 'Не удалось сохранить выбор.')).finally(() => setSavingRequirement(false)) }} /></span>}</div></div>
     {openTimeToken === latest.token && <QuizTimeDetails test={reading ? { ...latest, title: reading.title } : latest} id={timePanelId(latest)} />}
-    <div className="day-quiz-lineage-current">{latest.status === 'submitted' && earlier.length > 0 && <small>Последний тест</small>}{reading ? <p className="day-quiz-theory">{reading.theory}</p> : <>{headingProvided!==latest.title&&<h3>{latest.title}</h3>}{latest.description && <p>{latest.description}</p>}</>}
+    <div className="day-quiz-lineage-current">{latest.status === 'submitted' && earlier.length > 0 && <small>Последний тест</small>}{reading ? <p className="day-quiz-theory">{reading.theory}</p> : <>{headingProvided!==latest.title&&<h3>{latest.title}</h3>}{latest.description && <p>{formatReviewObservation(latest.description)}</p>}</>}
       {assignment}
       <QuizProgress test={latest} />
       <div className="day-quiz-lineage-actions">{parent && <button type="button" className="day-quiz-copy" disabled={requesting || followupRequested || !allowFollowupRequest || !hasScore || latest.status !== 'submitted'} aria-label={followupRequested ? 'Новый тест запрошен' : 'Создать новый тест с учётом всех попыток'} title={followupRequested ? 'Запрос сохранён · ждём Education Sync' : !allowFollowupRequest ? 'У этой попытки уже есть продолжение' : !hasScore || latest.status !== 'submitted' ? 'Сначала нужно завершить и проверить текущий тест' : 'Создать новый тест с учётом всех попыток'} onClick={() => { setRequesting(true); setRequestError(''); void requestQuizFollowup(latest.token,latest.testId).then(() => setRequestedToken(latest.token)).catch(cause => setRequestError(cause instanceof Error ? cause.message : 'Не удалось отправить запрос.')).finally(() => setRequesting(false)) }}>{followupRequested || requesting ? <Clock3 size={17} aria-hidden="true" /> : <RotateCcw size={17} aria-hidden="true" />}</button>}

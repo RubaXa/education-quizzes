@@ -2297,6 +2297,39 @@
       "path": "docs/decisions/question-guidance-2026-10-19.md"
     },
     {
+      "id": "decision.quiz-runner-kit-audit-2026-11-01",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-01",
+      "updated": "2026-11-01",
+      "parent": "module.assessments",
+      "uses": [
+        "shared.design.ui-kit",
+        "module.assessments.quizzes"
+      ],
+      "consumers": [
+        "learner",
+        "parent"
+      ],
+      "code": [
+        "src/App.tsx",
+        "src/UiKit.tsx",
+        "src/components/QuizCard.tsx",
+        "src/components/SubjectTheme.tsx",
+        "src/components/QuizQuestionCard.tsx",
+        "src/lib/wordForm.ts",
+        "src/ui-kit/QuizRunnerExample.tsx"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/quiz-runner-kit-audit-2026-11-01.md"
+    },
+    {
       "id": "decision.released-stage-parity-2026-10-20",
       "status": "accepted",
       "implementation": "implemented",
@@ -5299,6 +5332,13 @@
       "kind": "artifact",
       "purpose": "Браузерные сценарии каталога и помощи по фотографиям на условных данных",
       "consumer": "Playwright; разработчик"
+    },
+    {
+      "id": "file:e2e/quiz-runner.e2e.ts",
+      "path": "e2e/quiz-runner.e2e.ts",
+      "kind": "artifact",
+      "purpose": "Общий экран вопроса, пример UI Kit и проверка мобильной геометрии",
+      "consumer": "App; UI Kit; проверки"
     },
     {
       "id": "file:e2e/review-conversation.e2e.ts",
@@ -8318,6 +8358,20 @@
       "consumer": "`src/App.tsx`; `src/DayPage.tsx`; UI Kit"
     },
     {
+      "id": "file:src/components/QuizQuestionCard.test.tsx",
+      "path": "src/components/QuizQuestionCard.test.tsx",
+      "kind": "verification",
+      "purpose": "Общий экран вопроса, пример UI Kit и проверка мобильной геометрии",
+      "consumer": "App; UI Kit; проверки"
+    },
+    {
+      "id": "file:src/components/QuizQuestionCard.tsx",
+      "path": "src/components/QuizQuestionCard.tsx",
+      "kind": "artifact",
+      "purpose": "Общий экран вопроса, пример UI Kit и проверка мобильной геометрии",
+      "consumer": "App; UI Kit; проверки"
+    },
+    {
       "id": "file:src/components/QuizResultCard.css",
       "path": "src/components/QuizResultCard.css",
       "kind": "artifact",
@@ -9788,6 +9842,13 @@
       "consumer": "`src/lib/useDayQuizOutcomes.ts`"
     },
     {
+      "id": "file:src/lib/wordForm.ts",
+      "path": "src/lib/wordForm.ts",
+      "kind": "artifact",
+      "purpose": "Общий экран вопроса, пример UI Kit и проверка мобильной геометрии",
+      "consumer": "App; UI Kit; проверки"
+    },
+    {
       "id": "file:src/lib/workReviewBrief.ts",
       "path": "src/lib/workReviewBrief.ts",
       "kind": "artifact",
@@ -9835,6 +9896,13 @@
       "kind": "artifact",
       "purpose": "Общие условные история и resolver для примеров",
       "consumer": "UI Kit"
+    },
+    {
+      "id": "file:src/ui-kit/QuizRunnerExample.tsx",
+      "path": "src/ui-kit/QuizRunnerExample.tsx",
+      "kind": "artifact",
+      "purpose": "Общий экран вопроса, пример UI Kit и проверка мобильной геометрии",
+      "consumer": "App; UI Kit; проверки"
     },
     {
       "id": "file:src/ui-kit/ReviewConversationExample.tsx",
@@ -10741,7 +10809,8 @@
         "время-каждой-попытки",
         "родительский-просмотр-и-право-ответа",
         "принятая-компактная-история-16102026",
-        "разбор-выполненной-программы"
+        "разбор-выполненной-программы",
+        "настоящий-экран-вопросов-в-каталоге"
       ],
       "path": "docs/modules/assessments/quizzes.md"
     },
@@ -14495,7 +14564,8 @@
         "игровой-урок",
         "иконки-файлов",
         "вложения-в-карточке-задания",
-        "история-олимпиад"
+        "история-олимпиад",
+        "настоящий-экран-вопросов-в-каталоге"
       ],
       "path": "docs/shared/design/ui-kit.md"
     },
@@ -15390,6 +15460,16 @@
     {
       "from": "decision.pwa-startup-recovery-2026-10-22",
       "to": "shared.design",
+      "type": "uses"
+    },
+    {
+      "from": "decision.quiz-runner-kit-audit-2026-11-01",
+      "to": "module.assessments.quizzes",
+      "type": "uses"
+    },
+    {
+      "from": "decision.quiz-runner-kit-audit-2026-11-01",
+      "to": "shared.design.ui-kit",
       "type": "uses"
     },
     {
@@ -16595,6 +16675,11 @@
     {
       "from": "file:e2e/olympiad-ui-kit.e2e.ts",
       "to": "shared.design.ui-kit",
+      "type": "implements"
+    },
+    {
+      "from": "file:e2e/quiz-runner.e2e.ts",
+      "to": "module.assessments.quizzes",
       "type": "implements"
     },
     {
@@ -18354,6 +18439,11 @@
     },
     {
       "from": "file:src/App.tsx",
+      "to": "decision.quiz-runner-kit-audit-2026-11-01",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/App.tsx",
       "to": "module.assessments.quizzes",
       "type": "implements"
     },
@@ -19299,6 +19389,11 @@
     },
     {
       "from": "file:src/components/QuizCard.tsx",
+      "to": "decision.quiz-runner-kit-audit-2026-11-01",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/QuizCard.tsx",
       "to": "module.assessments.quiz-chain-proposal",
       "type": "implements"
     },
@@ -19315,6 +19410,16 @@
     {
       "from": "file:src/components/QuizCard.tsx",
       "to": "module.reviews.card-generation-policy",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/QuizQuestionCard.tsx",
+      "to": "decision.quiz-runner-kit-audit-2026-11-01",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/QuizQuestionCard.tsx",
+      "to": "module.assessments.quizzes",
       "type": "implements"
     },
     {
@@ -19520,6 +19625,11 @@
     {
       "from": "file:src/components/StatusIcon.tsx",
       "to": "shared.design.statuses",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/SubjectTheme.tsx",
+      "to": "decision.quiz-runner-kit-audit-2026-11-01",
       "type": "implements"
     },
     {
@@ -20888,6 +20998,16 @@
       "type": "implements"
     },
     {
+      "from": "file:src/lib/wordForm.ts",
+      "to": "decision.quiz-runner-kit-audit-2026-11-01",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/wordForm.ts",
+      "to": "module.assessments.quizzes",
+      "type": "implements"
+    },
+    {
       "from": "file:src/lib/workReviewBrief.ts",
       "to": "decision.compact-review-rollout-2026-10-31",
       "type": "implements"
@@ -20920,6 +21040,16 @@
     {
       "from": "file:src/ui-kit/olympiadHistoryFixtures.ts",
       "to": "shared.design.ui-kit",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/ui-kit/QuizRunnerExample.tsx",
+      "to": "decision.quiz-runner-kit-audit-2026-11-01",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/ui-kit/QuizRunnerExample.tsx",
+      "to": "module.assessments.quizzes",
       "type": "implements"
     },
     {
@@ -20970,6 +21100,11 @@
     {
       "from": "file:src/UiKit.tsx",
       "to": "decision.personal-tutoring-2026-10-30",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/UiKit.tsx",
+      "to": "decision.quiz-runner-kit-audit-2026-11-01",
       "type": "implements"
     },
     {
@@ -21624,6 +21759,11 @@
     },
     {
       "from": "module.assessments.quizzes",
+      "to": "file:src/components/QuizQuestionCard.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.assessments.quizzes",
       "to": "file:src/components/QuizResultCard.test.tsx",
       "type": "verified-by"
     },
@@ -21715,6 +21855,11 @@
     {
       "from": "module.assessments",
       "to": "decision.program-explanation-2026-11-01",
+      "type": "contains"
+    },
+    {
+      "from": "module.assessments",
+      "to": "decision.quiz-runner-kit-audit-2026-11-01",
       "type": "contains"
     },
     {
