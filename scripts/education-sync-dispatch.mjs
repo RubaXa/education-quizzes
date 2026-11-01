@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/sync-phase-report-2026-10-29.md */
 /** @see ../docs/decisions/source-wait-generations-2026-10-22.md */
 /** @see ../docs/decisions/independent-action-dispatch-2026-10-21.md */
 import { createHash, randomUUID } from 'node:crypto'
@@ -10,6 +11,8 @@ import { createFirestoreSourceInventory } from '../packages/telegram-notificatio
 import { exportEventTaskManifest } from '../sync/event-task-export.mjs'
 
 /** @see ../docs/services/telegram-bot/education-sync-dispatch.md */
+import { finishDispatchReport } from '../operator/run-report.mjs'
+
 export async function main(args = process.argv.slice(2), { env = process.env, out = process.stdout,
   err = process.stderr, scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..'),
   createDb = createEducationFirestore, createStore = createFirestoreEducationSyncStore } = {}) {
@@ -47,14 +50,20 @@ export async function main(args = process.argv.slice(2), { env = process.env, ou
         : command === 'heartbeat'
           ? await store.heartbeatClaim({ requestId: values.request, tokenHash, now: new Date().toISOString() })
           : await store.failClaim({ requestId: values.request, tokenHash, now: new Date().toISOString(), retryAt: new Date(Date.now() + 60_000).toISOString() })
-      if (['completed', 'pending'].includes(result.status)) rmSync(resolve(root, '.local/education-sync-dispatch/claims', `${values.request}.json`), { force: true })
+      if (command !== 'heartbeat' && ['completed', 'pending'].includes(result.status)) {
+        result = { ...result, runReport: finishDispatchReport(root, values.request, result) }
+        rmSync(resolve(root, '.local/education-sync-dispatch/claims', `${values.request}.json`), { force: true })
+      }
     } else if (command === 'block' && validRequest(values.request) && typeof values['claim-file'] === 'string'
       && ['permission_required', 'source_unavailable', 'manual_review_required'].includes(values.reason)
       && Object.keys(values).length === 3) {
       const claim = readClaimFile(root, values['claim-file'], values.request)
       const tokenHash = createHash('sha256').update(claim.token).digest('hex')
       result = await store.blockClaim({ requestId: values.request, tokenHash, reasonCode: values.reason, now: new Date().toISOString() })
-      if (result.status === 'blocked') rmSync(resolve(root, '.local/education-sync-dispatch/claims', `${values.request}.json`), { force: true })
+      if (result.status === 'blocked') {
+        result = { ...result, runReport: finishDispatchReport(root, values.request, result) }
+        rmSync(resolve(root, '.local/education-sync-dispatch/claims', `${values.request}.json`), { force: true })
+      }
     } else if (command === 'resume' && validRequest(values.request) && Object.keys(values).length === 1) {
       result = await store.resumeBlocked({ requestId: values.request, now: new Date().toISOString() })
     } else throw new Error('usage_invalid')

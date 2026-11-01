@@ -58,7 +58,9 @@ describe('education sync dispatch CLI', () => {
       const claim = JSON.parse(readFileSync(claimPath, 'utf8'))
       expect(claim.token).toBeTruthy()
       out = output()
-      expect(await main(['complete', '--request', REQUEST, '--claim-file', claimPath], deps)).toBe(0)
+      expect(await main(['complete', '--request', REQUEST, '--claim-file', claimPath], { ...deps, out })).toBe(0)
+      const terminal = JSON.parse(out.value())
+      expect(terminal.runReport).toMatchObject({ lifecycle: 'finished', sourceCycleComplete: false, outcome: 'partial' })
       expect(store.completeClaim).toHaveBeenCalledWith(expect.objectContaining({ requestId: REQUEST, tokenHash: store.tokenHash }))
     } finally { rmSync(root, { recursive: true, force: true }) }
   })
