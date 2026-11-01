@@ -1,0 +1,20 @@
+/* @see ../../docs/modules/school-diary/day-page.md#task-disclosure */
+.edu-task-disclosure{min-width:0;border:1px solid var(--edu-card-border);border-radius:var(--edu-radius-card);background:var(--edu-surface);color:var(--edu-text-primary)}
+.edu-task-disclosure.day-task{padding:0}
+.edu-task-heading{display:grid;grid-template-columns:minmax(0,1fr) 20px;gap:5px 10px;align-items:start;list-style:none;cursor:pointer;padding:12px 14px;min-height:44px;box-sizing:border-box}
+.edu-task-heading::-webkit-details-marker{display:none}
+.edu-task-heading:focus-visible{outline:3px solid var(--edu-focus);outline-offset:2px;border-radius:var(--edu-radius-control)}
+.edu-task-heading .edu-task-title{font-size:16px;line-height:1.4;font-weight:700;min-width:0;overflow-wrap:anywhere;margin:0;color:var(--edu-text-primary)}
+.edu-task-chevron{margin-top:2px;color:var(--edu-text-secondary);transition:transform .2s}
+.edu-task-disclosure[open]>.edu-task-heading>.edu-task-chevron{transform:rotate(180deg)}
+.edu-task-summary-status,.edu-task-summary-meta{grid-column:1/-1;min-width:0;font-size:14px;line-height:1.4;overflow-wrap:anywhere}
+.edu-task-summary-meta{color:var(--edu-text-secondary)}
+.edu-task-disclosure .edu-task-summary-status .day-task-state{max-width:100%;min-width:0;box-sizing:border-box;padding:0;background:none;white-space:normal;font-size:14px;line-height:1.4;font-weight:600}
+.edu-task-summary-status .day-task-state.as-text{order:initial;flex-basis:auto}
+.edu-task-body{padding:0 14px 14px;min-width:0}
+.edu-task-disclosure[open]>.edu-task-heading{margin-bottom:6px}
+.edu-task-body>.day-task-content{min-width:0}
+.edu-task-body>.day-quiz-lineage{border:0;box-shadow:none;padding:0;margin:0;background:transparent}
+@media(prefers-reduced-motion:reduce){.edu-task-chevron{transition:none}}
+
+.edu-task-summary-status .edu-status-icon{flex-shrink:0}

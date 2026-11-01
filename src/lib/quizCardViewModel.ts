@@ -1,3 +1,4 @@
+import type {ResultInput} from './resultPresentation'
 import type { Assignment, QuestionResult } from './quiz'
 import { isCdzTask } from './dayStore'
 import type { DayTask, DayTestPlacement } from './dayStore'
@@ -13,6 +14,11 @@ export type QuizCardAttempt = {
   createdAt?: unknown; startedAt?: unknown; updatedAt?: unknown; submittedAt?: unknown;
   followupRequested?: boolean;
   familyOptional?: boolean; rootToken?: string;
+}
+
+export function quizResultInput(test: QuizCardAttempt): ResultInput {
+  return test.status === 'submitted' ? test.points == null || test.maxPoints == null ? {kind:'waiting'} : {kind:'score',points:test.points,maxPoints:test.maxPoints}
+    : {kind:'answers',answered:Math.min(test.answered,test.total),total:test.total}
 }
 
 /** Presentation order never mutates the causal chain or sorts by a late review update.

@@ -460,6 +460,7 @@ describe('day page: teacher sheet and linked self-check', () => {
     try {
       expect(view.host.querySelectorAll('.day-quiz-lineage')).toHaveLength(1)
       expect(view.host.querySelectorAll('.day-task')).toHaveLength(1)
+      expect(view.host.querySelectorAll('#day-task-mesh-diagrams')).toHaveLength(1)
       expect(view.host.querySelector('.day-task')?.textContent).toContain('Решить № 1–5 в тетради.')
       expect(view.host.querySelector('.day-task .day-upload input[type="file"]')).not.toBeNull()
     } finally { await view.cleanup() }
@@ -611,7 +612,7 @@ it.each([false, true])('keeps an audio-only listening task inside both day and q
  }
 })
 
-it.each([true, false])('shows all olympiad problems without opening a counter first, parent=%s', async parent => {
+it.each([true, false])('keeps olympiad groups closed on entry and reveals their unchanged tasks on request, parent=%s', async parent => {
   const source = page()
   const original = source.subjects[0].tasks[0]
   scene.page = { ...source, familyId: 'family', childId: 'child', subjects: [{ ...source.subjects[0], tasks: [{ ...original, optional: true, learningContext: { kind: 'olympiad', id: 'o1' } }] }], testPlacements: [] }
@@ -619,8 +620,10 @@ it.each([true, false])('shows all olympiad problems without opening a counter fi
   const host = document.createElement('div'); document.body.append(host); const root = createRoot(host)
   try {
     await act(async () => root.render(<DayPage token="role-day" parent={parent} headerReturnTarget={null} olympiadScope={{ familyId: 'family', childId: 'child', olympiadId: 'o1', taskId, testTokens: [] }} />))
-    expect(host.querySelector('.problem-group-toggle')?.getAttribute('aria-expanded')).toBe('true')
-    expect(host.querySelectorAll('.day-practice-variant[open]')).toHaveLength(2)
+    expect(host.querySelector('.problem-group-toggle')?.getAttribute('aria-expanded')).toBe('false')
+    await act(async()=>host.querySelector<HTMLButtonElement>('.problem-group-toggle')!.click())
+    expect(host.querySelectorAll('.day-practice-variant[open]')).toHaveLength(0)
+    await act(async()=>host.querySelector<HTMLElement>('.day-practice-variant > summary')!.click())
     expect(host.querySelectorAll('.day-problem-list [id]') .length).toBeGreaterThan(1)
     expect(host.textContent).toContain('Марки Ивана')
   } finally { await act(async () => root.unmount()); host.remove() }
@@ -799,4 +802,37 @@ it.each(['requested', 'pending'] as const)('names %s PDF work without calling it
     expect(view.host.textContent).not.toContain('Фото загружается')
     expect(view.host.textContent).not.toContain('Новое фото · ждёт проверки')
   } finally { await view.cleanup() }
+})
+
+it.each([false,true])('collapses every ordinary assignment on entry while keeping titles and exact statuses, parent=%s',async(parent)=>{
+ scene.page!.subjects=[{id:'math',name:'Математика',icon:'∑',materials:'',mesh:'Два назначения.',summary:'',tasks:[
+  {id:'fett',kind:'written',status:'unknown',title:'ФЕТТ: пройти отборочный тур на каникулах',detail:'Полное задание учителя.',source:'МЭШ'},
+  {id:'cdz',kind:'check',status:'unknown',title:'ЦДЗ: действия с обыкновенными и десятичными дробями',detail:'Выполнить ЦДЗ.',source:'МЭШ'},
+ ]}]
+ scene.page!.testPlacements=[];scene.page!.materialLinks={};scene.uploads=[];scene.reviews=[]
+ const view=await renderPage(parent)
+ try{
+  const cards=view.host.querySelectorAll<HTMLDetailsElement>('.edu-task-disclosure.day-task')
+  expect(cards).toHaveLength(2)
+  for(const card of cards){expect(card.tagName).toBe('DETAILS');expect(card.open).toBe(false);expect(card.querySelector(':scope > summary')?.textContent).toContain('Задание');expect(card.querySelector(':scope > summary .edu-task-title')?.textContent).toBeTruthy();expect(card.querySelector(':scope > summary .edu-task-summary-status')?.textContent).toBeTruthy()}
+  expect(cards[0].id).toBe('day-task-fett')
+  await act(async()=>cards[0].querySelector('summary')!.click());expect(cards[0].open).toBe(true)
+  await act(async()=>cards[0].querySelector('summary')!.click());expect(cards[0].open).toBe(false)
+ }finally{await view.cleanup()}
+})
+
+
+it.each(['ordinary','quiz'])('opens only the explicitly targeted %s assignment and respects a later manual close',async(kind)=>{
+ const tasks=kind==='ordinary'?[{id:'focus-task',kind:'written' as const,status:'unknown' as const,title:'Моё задание',detail:'Подробности',source:'МЭШ'}]:[{id:'focus-task',kind:'read' as const,status:'unknown' as const,title:'Прочитать параграф',detail:'Подробности',source:'МЭШ',testToken:'diagrams-test'}]
+ scene.page!.subjects=[{id:'math',name:'Математика',icon:'∑',materials:'',mesh:'Назначение.',summary:'',tasks}];scene.page!.materialLinks={};scene.page!.testPlacements=kind==='quiz'?[{token:'diagrams-test',subjectId:'math',taskId:'focus-task'}]:[];scene.uploads=[];scene.reviews=[]
+ sessionStorage.setItem('education-day-focus-task',JSON.stringify({dayToken:'student-token',taskId:kind==='quiz'?'quiz:diagrams-test':'focus-task'}))
+ const priorFrame=window.requestAnimationFrame,priorCancel=window.cancelAnimationFrame,priorScroll=HTMLElement.prototype.scrollIntoView
+ window.requestAnimationFrame=cb=>{cb(0);return 1};window.cancelAnimationFrame=()=>{};HTMLElement.prototype.scrollIntoView=()=>{}
+ const view=await renderPage(false)
+ try{
+  const card=view.host.querySelector<HTMLDetailsElement>('#day-task-focus-task')!
+  expect(card.tagName).toBe('DETAILS');expect(card.open).toBe(true)
+  await act(async()=>card.querySelector('summary')!.click());expect(card.open).toBe(false)
+  await act(async()=>view.root.render(<DayPage token="student-token" parent={false} headerReturnTarget={null}/>));expect(card.open).toBe(false)
+ }finally{await view.cleanup();window.requestAnimationFrame=priorFrame;window.cancelAnimationFrame=priorCancel;HTMLElement.prototype.scrollIntoView=priorScroll}
 })

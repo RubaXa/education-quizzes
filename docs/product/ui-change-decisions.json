@@ -2624,21 +2624,20 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "ff504c67efc6c4cd14bebaad98ac7b43837d53d15c2bb6d69f67493bdd0b362b",
-      "record": "docs/decisions/student-review-reply-2026-11-01.md",
+      "sha256": "e93f0c96686995d669af937892aa5a9bc083fbc91ee53d3c04e805b55aa98947",
+      "record": "docs/decisions/collapsed-task-cards-2026-11-01.md",
       "specs": [
-        "docs/shared/design/student-review-step.md",
-        "docs/modules/synchronization/event-queue.md"
+        "docs/modules/school-diary/day-page.md",
+        "docs/shared/design/components.md"
       ],
       "tests": [
-        "src/components/ReviewConversation.test.tsx",
-        "packages/education-presentation/review-reply.test.mjs",
-        "sync/help-response.test.mjs",
-        "scripts/firestore-rules-help-emulator.test.mjs"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/TaskDisclosure.test.tsx",
+        "src/components/QuizCard.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 родитель потребовал проверенный отклик и следующий шаг по ответу, «Непонятно» одним нажатием и текст для последующей обработки."
+        "evidence": "01.11.2026 родитель прямо потребовал сворачивать все задания по умолчанию: читать название, статус и общую информацию без огромного раскрытого тела."
       }
     },
     "src/UiKit.css": {
@@ -2660,20 +2659,20 @@
       }
     },
     "src/UiKit.tsx": {
-      "sha256": "bfcd24ae32a20c1714e0b97e32d3726168a7a89401d752a6548ab9fbc451a34f",
-      "record": "docs/decisions/student-review-step-2026-11-01.md",
+      "sha256": "3bf00d11ae83230c59c9684c369e61b4ead61ee71ee4e7c2c4f1bd487d578eb5",
+      "record": "docs/decisions/collapsed-task-cards-2026-11-01.md",
       "specs": [
-        "docs/shared/design/student-review-step.md",
-        "docs/shared/design/compact-review.md"
+        "docs/modules/school-diary/day-page.md",
+        "docs/shared/design/components.md"
       ],
       "tests": [
-        "src/components/ReviewActivity.test.tsx",
-        "packages/education-presentation/review-activity.test.mjs",
-        "storage/student-review-edit.test.mjs"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/TaskDisclosure.test.tsx",
+        "src/components/QuizCard.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 родитель прямо потребовал исправить ученическую часть всех разборов: понятная модель текущего шага, интерактив без ответа и служебных фраз; общие инструкции, UI Kit и проверка ученического вида."
+        "evidence": "01.11.2026 родитель прямо потребовал сворачивать все задания по умолчанию: читать название, статус и общую информацию без огромного раскрытого тела."
       }
     },
     "src/WeekendMathSlot.css": {
@@ -3538,20 +3537,20 @@
       }
     },
     "src/components/QuizCard.tsx": {
-      "sha256": "cfb403247ca574cdfa80cc487d9f02d8a6b2df8076629e4871e32606e09c1942",
-      "record": "docs/decisions/olympiad-quiz-theory-2026-10-28.md",
+      "sha256": "c34436ea89b4835c9a0431b2810b25a2b823bc682c6b5a8925a2b5c960a855a2",
+      "record": "docs/decisions/collapsed-task-cards-2026-11-01.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/school-diary/day-page.md",
+        "docs/shared/design/components.md"
       ],
       "tests": [
-        "src/components/QuizCard.test.tsx",
-        "src/lib/olympiadPracticeTheory.test.ts",
-        "src/DayPage.assignmentQuiz.integration.test.tsx"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/TaskDisclosure.test.tsx",
+        "src/components/QuizCard.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель попросил убрать повторяющиеся подписи и показать тему и объяснение перед олимпиадным тестом."
+        "evidence": "01.11.2026 родитель прямо потребовал сворачивать все задания по умолчанию: читать название, статус и общую информацию без огромного раскрытого тела."
       }
     },
     "src/components/QuizResultCard.tsx": {
@@ -4597,23 +4596,20 @@
       }
     },
     "src/lib/quizCardViewModel.ts": {
-      "sha256": "b7a012fb6fa5ad68c16dd8eac4772e29335b68bb069b61d135176029ae7de198",
-      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
+      "sha256": "e0c8028c428fe2a30cac43e52ca3051d737c6555ac7564af5602da069fb85a85",
+      "record": "docs/decisions/collapsed-task-cards-2026-11-01.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/modules/synchronization/education-pipeline.md"
+        "docs/modules/school-diary/day-page.md",
+        "docs/shared/design/components.md"
       ],
       "tests": [
-        "assessment/learning-context-backfill.test.mjs",
-        "day/family-assignment.test.mjs",
         "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/components/QuizCard.test.tsx",
-        "src/lib/educationEventProducers.test.ts",
-        "sync/event-task-artifact.test.mjs"
+        "src/components/TaskDisclosure.test.tsx",
+        "src/components/QuizCard.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо потребовал использовать общие уроки, семейные права, фотографии и синхронизацию Education для олимпиад."
+        "evidence": "01.11.2026 родитель прямо потребовал сворачивать все задания по умолчанию: читать название, статус и общую информацию без огромного раскрытого тела."
       }
     },
     "src/lib/quizCompletion.ts": {
@@ -7740,6 +7736,57 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "01.11.2026 родитель потребовал проверенный отклик и следующий шаг по ответу, «Непонятно» одним нажатием и текст для последующей обработки."
+      }
+    },
+    "src/components/TaskDisclosure.css": {
+      "sha256": "2012b0753275ee0a2c80ef2b01b6e8353b8c8bcb3c8b11788fb0151cbca9b7fa",
+      "record": "docs/decisions/collapsed-task-cards-2026-11-01.md",
+      "specs": [
+        "docs/modules/school-diary/day-page.md",
+        "docs/shared/design/components.md"
+      ],
+      "tests": [
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/TaskDisclosure.test.tsx",
+        "src/components/QuizCard.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "01.11.2026 родитель прямо потребовал сворачивать все задания по умолчанию: читать название, статус и общую информацию без огромного раскрытого тела."
+      }
+    },
+    "src/components/TaskDisclosure.tsx": {
+      "sha256": "7cb17f9ce8fd3dfec1e6a8d92e292cc4abb3e7aec3949209e6416cbb4581d0a7",
+      "record": "docs/decisions/collapsed-task-cards-2026-11-01.md",
+      "specs": [
+        "docs/modules/school-diary/day-page.md",
+        "docs/shared/design/components.md"
+      ],
+      "tests": [
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/TaskDisclosure.test.tsx",
+        "src/components/QuizCard.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "01.11.2026 родитель прямо потребовал сворачивать все задания по умолчанию: читать название, статус и общую информацию без огромного раскрытого тела."
+      }
+    },
+    "src/ui-kit/TaskDisclosureExample.tsx": {
+      "sha256": "e32bf9e6339826e797c16d1c093479105174812fa000d6468c440c932e07a698",
+      "record": "docs/decisions/collapsed-task-cards-2026-11-01.md",
+      "specs": [
+        "docs/modules/school-diary/day-page.md",
+        "docs/shared/design/components.md"
+      ],
+      "tests": [
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/TaskDisclosure.test.tsx",
+        "src/components/QuizCard.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "01.11.2026 родитель прямо потребовал сворачивать все задания по умолчанию: читать название, статус и общую информацию без огромного раскрытого тела."
       }
     }
   }
