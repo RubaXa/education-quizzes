@@ -741,18 +741,18 @@
       }
     },
     "packages/education-connect/lib/mesh.mjs": {
-      "sha256": "f605d5287d0e2964f47e1b47fe4f29e078ce65a4982ac59e47460a5d05e03ce3",
-      "record": "docs/decisions/local-connect-diagnostics-2026-11-01.md",
+      "sha256": "feee89d4d8a2b47077d6fc05ba1df8237e6efa08e26a70bed1572e94dc33d081",
+      "record": "docs/decisions/mesh-renewal-order-2026-11-01.md",
       "specs": [
         "docs/shared/server-runtime.md"
       ],
       "tests": [
-        "scripts/connect-diagnose.test.mjs",
-        "packages/education-connect/lib/login-diagnostics.test.mjs"
+        "packages/education-connect/lib/mesh-auth.test.mjs",
+        "packages/telegram-notifications/adapters/mesh-credentials.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель01.11 прямо потребовал локальный CLI через npm run для безопасного сбора диагностики подключения вместо npx-публикации."
+        "evidence": "Родитель01.11 потребовал исправить причину недоступности МЭШ; неверный приоритет продления обнаружен при расследовании нового отказа входа и исправляется по первичному контракту."
       }
     },
     "packages/education-connect/lib/network-retry.mjs": {

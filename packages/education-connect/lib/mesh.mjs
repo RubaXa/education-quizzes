@@ -1,3 +1,4 @@
+/** @see ../../../docs/decisions/mesh-renewal-order-2026-11-01.md */
 /** @see ../../../docs/decisions/local-connect-diagnostics-2026-11-01.md */
 /** @see ../../../docs/decisions/mesh-login-stages-2026-11-01.md */
 /** @see ../../../docs/decisions/mesh-auth-recovery-2026-11-01.md */
@@ -190,12 +191,23 @@ async function refreshToken(secret, telemetry = null, shutdownSignal = null) {
       body: new URLSearchParams(body),
     }, telemetry, shutdownSignal)
     await rejectAuth(response, 'oauth-refresh')
-    return response.ok ? response.json() : null
+    if (!response.ok) throw Object.assign(new Error('mesh_token_unavailable'), {code:'mesh_unavailable'})
+    return response.json()
   }
-  const mos = secret.refreshToken
-    ? await request({ grant_type: 'refresh_token', refresh_token: secret.refreshToken })
-    : await request({ grant_type: 'client_credentials', scope: 'openid profile' })
-  if (!mos?.access_token) return null
+  // In mos.ru this grant uses the already linked dynamic client/account, not an anonymous login.
+  let failure = null
+  let mos = null
+  try { mos = await request({ grant_type: 'client_credentials', scope: 'openid profile' }) }
+  catch (error) { if (shutdownSignal?.aborted) throw error; failure = error }
+  if (!mos?.access_token && failure?.oauthError !== 'invalid_client' && secret.refreshToken) {
+    const primaryFailure = failure
+    try { mos = await request({ grant_type: 'refresh_token', refresh_token: secret.refreshToken }); failure = null }
+    catch (error) {
+      if (shutdownSignal?.aborted) throw error
+      failure = primaryFailure && primaryFailure.code !== 'mesh_auth_required' ? primaryFailure : error
+    }
+  }
+  if (!mos?.access_token) { if (failure) throw failure; return null }
   const response = await meshFetch('https://school.mos.ru/v3/auth/sudir/auth', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

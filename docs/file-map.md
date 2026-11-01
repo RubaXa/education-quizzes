@@ -1280,3 +1280,5 @@
 | [scripts/connect-diagnose.mjs](../scripts/connect-diagnose.mjs) | [Общее серверное ядро](shared/server-runtime.md) | Локальный npm-вход подключения и безопасная терминальная диагностика | Родитель; оператор; Vitest |
 | [scripts/connect-diagnose.test.mjs](../scripts/connect-diagnose.test.mjs) | [Общее серверное ядро](shared/server-runtime.md) | Локальный npm-вход подключения и безопасная терминальная диагностика | Родитель; оператор; Vitest |
 | [docs/decisions/local-connect-diagnostics-2026-11-01.md](decisions/local-connect-diagnostics-2026-11-01.md) | [Общее серверное ядро](shared/server-runtime.md) | Локальный npm-вход подключения и безопасная терминальная диагностика | Родитель; оператор; Vitest |
+
+| [docs/decisions/mesh-renewal-order-2026-11-01.md](decisions/mesh-renewal-order-2026-11-01.md) | [Общее серверное ядро](shared/server-runtime.md) | Исправление ошибочного refresh-first по первичному контракту связанного клиента mos.ru | Connector; runtime; оператор |

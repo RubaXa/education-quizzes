@@ -1535,6 +1535,32 @@
       "path": "docs/decisions/mesh-login-stages-2026-11-01.md"
     },
     {
+      "id": "decision.mesh-renewal-order-2026-11-01",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-01",
+      "updated": "2026-11-01",
+      "parent": "module.school-diary",
+      "uses": [
+        "shared.server-runtime"
+      ],
+      "consumers": [
+        "Mesh connector",
+        "shared runtime"
+      ],
+      "code": [
+        "packages/education-connect/lib/mesh.mjs"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/mesh-renewal-order-2026-11-01.md"
+    },
+    {
       "id": "decision.method-guided-reviews-2026-10-31",
       "status": "accepted",
       "implementation": "implemented",
@@ -15330,6 +15356,11 @@
       "type": "uses"
     },
     {
+      "from": "decision.mesh-renewal-order-2026-11-01",
+      "to": "shared.server-runtime",
+      "type": "uses"
+    },
+    {
       "from": "decision.method-guided-reviews-2026-10-31",
       "to": "shared.design.compact-review",
       "type": "uses"
@@ -17137,6 +17168,11 @@
     {
       "from": "file:packages/education-connect/lib/mesh.mjs",
       "to": "decision.mesh-login-stages-2026-11-01",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-connect/lib/mesh.mjs",
+      "to": "decision.mesh-renewal-order-2026-11-01",
       "type": "implements"
     },
     {
@@ -23772,6 +23808,11 @@
     {
       "from": "module.school-diary",
       "to": "decision.mesh-login-stages-2026-11-01",
+      "type": "contains"
+    },
+    {
+      "from": "module.school-diary",
+      "to": "decision.mesh-renewal-order-2026-11-01",
       "type": "contains"
     },
     {

@@ -36,7 +36,9 @@ sections:
 
 ## Было → стало
 
-`packages/education-connect/lib/mesh.mjs` сначала применяет родительский refresh grant,
+`packages/education-connect/lib/mesh.mjs` первоначально применял refresh grant первым.
+Эта часть исправлена [решением о порядке продления](mesh-renewal-order-2026-11-01.md):
+client_credentials связанного клиента первым, refresh_token запасным. Остальная правка
 передаёт фиксированные безопасные code/stage/httpStatus/oauthError без сырого ответа.
 `packages/education-runtime/mesh-session.mjs` сохраняет авторизационную причину
 и ошибку записи токена, не подменяя их сетевой недоступностью.
