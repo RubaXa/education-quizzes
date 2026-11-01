@@ -62,20 +62,19 @@
       }
     },
     "assessment/decision-graph.mjs": {
-      "sha256": "f0189e1a894fa896d698cd6dae6c4ed91f6a523ee8b54723396648ff88bd114c",
-      "record": "docs/decisions/informatics-assessment-2026-11-01.md",
+      "sha256": "7eba1edf40393ca5158acf245812680fafa1934b941fcb6bd47154c6856b933b",
+      "record": "docs/decisions/lesson-repetition-2026-11-01.md",
       "specs": [
-        "docs/modules/assessments/assessment-decision-graph.md",
-        "docs/modules/synchronization/task-routing.md"
+        "docs/modules/assessments/lesson-repetition.md"
       ],
       "tests": [
-        "sync/task-route.test.mjs",
-        "assessment/decision-graph.test.mjs",
-        "day/placement-integrity.test.mjs"
+        "assessment/lesson-repetition.test.mjs",
+        "src/lib/homeworkStatus.test.ts",
+        "day/merge.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 родитель потребовал исправить маршрут информатики/труда и выпустить тематический тест с кодом для ребёнка."
+        "evidence": "Родитель01.11 потребовал общий детерминированный граф поиска прошлого урока и материалов, новый тест повторения и сохранение прежней письменной работы."
       }
     },
     "assessment/followup-contract.mjs": {
@@ -241,19 +240,19 @@
       }
     },
     "day/data-contract.mjs": {
-      "sha256": "30f5aea2d6517a01fad352a1e843a8e200616aacec686845bd12243a987da951",
-      "record": "docs/decisions/mixed-assignment-actions-2026-10-22.md",
+      "sha256": "a0df2774a4574c7d83cc9cde7ce067d92f78bf1511aed3142b346b252e6f83d7",
+      "record": "docs/decisions/lesson-repetition-2026-11-01.md",
       "specs": [
-        "docs/modules/synchronization/plan-generation.md",
-        "docs/modules/materials/material-clarification.md"
+        "docs/modules/assessments/lesson-repetition.md"
       ],
       "tests": [
-        "day/data-contract.test.mjs",
-        "day/mixed-assignment.test.mjs"
+        "assessment/lesson-repetition.test.mjs",
+        "src/lib/homeworkStatus.test.ts",
+        "day/merge.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 22.10.2026 прямо потребовал две независимые задачи для письменного упражнения и повторения правила, отдельное уточнение неизвестного материала и тест после подтверждения правила."
+        "evidence": "Родитель01.11 потребовал общий детерминированный граф поиска прошлого урока и материалов, новый тест повторения и сохранение прежней письменной работы."
       }
     },
     "day/family-source-graph.mjs": {
@@ -425,18 +424,19 @@
       }
     },
     "day/merge.mjs": {
-      "sha256": "5a722ec70b1d084b0ea92c2416ae62d184c21ba62d20891c93a305070b285e77",
-      "record": "docs/decisions/mixed-assignment-actions-2026-10-22.md",
+      "sha256": "998874337151563d4a9d0326dde1149801a07b3aef80c692491a353d307ed9d1",
+      "record": "docs/decisions/lesson-repetition-2026-11-01.md",
       "specs": [
-        "docs/modules/synchronization/plan-generation.md",
-        "docs/modules/materials/material-clarification.md"
+        "docs/modules/assessments/lesson-repetition.md"
       ],
       "tests": [
-        "day/mixed-assignment.test.mjs"
+        "assessment/lesson-repetition.test.mjs",
+        "src/lib/homeworkStatus.test.ts",
+        "day/merge.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 22.10.2026 прямо потребовал две независимые задачи для письменного упражнения и повторения правила, отдельное уточнение неизвестного материала и тест после подтверждения правила."
+        "evidence": "Родитель01.11 потребовал общий детерминированный граф поиска прошлого урока и материалов, новый тест повторения и сохранение прежней письменной работы."
       }
     },
     "day/owner-repair.mjs": {
@@ -2386,20 +2386,19 @@
       }
     },
     "scripts/sync-queue.mjs": {
-      "sha256": "f9a3172aaddd7efd17f34f7cf7e36b92482feb33f719ed58e2d61eaabc74dc25",
-      "record": "docs/decisions/informatics-assessment-2026-11-01.md",
+      "sha256": "a19ffdd3453e07a8edfbb2f74578b7bbce011ab75173a6a0ba9df21a5b08ff0a",
+      "record": "docs/decisions/lesson-repetition-2026-11-01.md",
       "specs": [
-        "docs/modules/assessments/assessment-decision-graph.md",
-        "docs/modules/synchronization/task-routing.md"
+        "docs/modules/assessments/lesson-repetition.md"
       ],
       "tests": [
-        "sync/task-route.test.mjs",
-        "assessment/decision-graph.test.mjs",
-        "day/placement-integrity.test.mjs"
+        "assessment/lesson-repetition.test.mjs",
+        "src/lib/homeworkStatus.test.ts",
+        "day/merge.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 родитель потребовал исправить маршрут информатики/труда и выпустить тематический тест с кодом для ребёнка."
+        "evidence": "Родитель01.11 потребовал общий детерминированный граф поиска прошлого урока и материалов, новый тест повторения и сохранение прежней письменной работы."
       }
     },
     "scripts/telegram-bot.mjs": {
@@ -4242,19 +4241,19 @@
       }
     },
     "src/lib/homeworkStatus.ts": {
-      "sha256": "19bad590e4375be120dbbd33415c222f978334d1b4d97324a8354e557e17ea03",
-      "record": "docs/decisions/source-completion-consistency-2026-11-01.md",
+      "sha256": "24281d7bd79092783d3dae1f01dddb1811b35e93ed6c37c6cbd3ac70c2850b7c",
+      "record": "docs/decisions/lesson-repetition-2026-11-01.md",
       "specs": [
-        "docs/modules/materials/material-clarification.md",
-        "docs/modules/assessments/assessment-decision-graph.md"
+        "docs/modules/assessments/lesson-repetition.md"
       ],
       "tests": [
+        "assessment/lesson-repetition.test.mjs",
         "src/lib/homeworkStatus.test.ts",
-        "day/placement-integrity.test.mjs"
+        "day/merge.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 dispatch требует полной проверки и исправления препятствий; родитель требует сохранять зачтённое и согласованность всего конвейера."
+        "evidence": "Родитель01.11 потребовал общий детерминированный граф поиска прошлого урока и материалов, новый тест повторения и сохранение прежней письменной работы."
       }
     },
     "src/lib/homeworkUpdateReceipt.ts": {
@@ -6063,20 +6062,19 @@
       }
     },
     "sync/task-route.mjs": {
-      "sha256": "11b6b8df378f03bf69dd028422166d56bfd43beef68315fadfa9e65e66fbe5f5",
-      "record": "docs/decisions/informatics-assessment-2026-11-01.md",
+      "sha256": "498b5d0eb28a991b093cf217e7c7804e540bbd7f023f28edb4344aba7bd03885",
+      "record": "docs/decisions/lesson-repetition-2026-11-01.md",
       "specs": [
-        "docs/modules/assessments/assessment-decision-graph.md",
-        "docs/modules/synchronization/task-routing.md"
+        "docs/modules/assessments/lesson-repetition.md"
       ],
       "tests": [
-        "sync/task-route.test.mjs",
-        "assessment/decision-graph.test.mjs",
-        "day/placement-integrity.test.mjs"
+        "assessment/lesson-repetition.test.mjs",
+        "src/lib/homeworkStatus.test.ts",
+        "day/merge.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 родитель потребовал исправить маршрут информатики/труда и выпустить тематический тест с кодом для ребёнка."
+        "evidence": "Родитель01.11 потребовал общий детерминированный граф поиска прошлого урока и материалов, новый тест повторения и сохранение прежней письменной работы."
       }
     },
     "operator/route-plan.mjs": {
@@ -7764,6 +7762,38 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Постоянное требование родителя: каждый запуск заканчивается компактным отчётом всех фаз в чате без отдельного файла; текущий dispatch прямо требует нормальные safeguards навыка."
+      }
+    },
+    "assessment/lesson-repetition.mjs": {
+      "sha256": "b8d8d1f808fe37736358be007c8f17dbde5cd19b388b7cb3ceda0aa25640f3cd",
+      "record": "docs/decisions/lesson-repetition-2026-11-01.md",
+      "specs": [
+        "docs/modules/assessments/lesson-repetition.md"
+      ],
+      "tests": [
+        "assessment/lesson-repetition.test.mjs",
+        "src/lib/homeworkStatus.test.ts",
+        "day/merge.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель01.11 потребовал общий детерминированный граф поиска прошлого урока и материалов, новый тест повторения и сохранение прежней письменной работы."
+      }
+    },
+    "scripts/lesson-repetition.mjs": {
+      "sha256": "3953e1d917c3f8131d476d6911f0313709dd017096e142c3679d2cfaaca2f4ba",
+      "record": "docs/decisions/lesson-repetition-2026-11-01.md",
+      "specs": [
+        "docs/modules/assessments/lesson-repetition.md"
+      ],
+      "tests": [
+        "assessment/lesson-repetition.test.mjs",
+        "src/lib/homeworkStatus.test.ts",
+        "day/merge.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель01.11 потребовал общий детерминированный граф поиска прошлого урока и материалов, новый тест повторения и сохранение прежней письменной работы."
       }
     }
   }

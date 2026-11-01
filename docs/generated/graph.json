@@ -1347,6 +1347,42 @@
       "path": "docs/decisions/ldd-copy-button-2026-10-19.md"
     },
     {
+      "id": "decision.lesson-repetition-2026-11-01",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-01",
+      "updated": "2026-11-01",
+      "parent": "module.assessments",
+      "uses": [
+        "module.assessments.lesson-repetition",
+        "module.synchronization.task-routing"
+      ],
+      "consumers": [
+        "EducationSync operator",
+        "learner",
+        "parent"
+      ],
+      "code": [
+        "assessment/lesson-repetition.mjs",
+        "assessment/lesson-repetition.d.mts",
+        "assessment/decision-graph.mjs",
+        "scripts/lesson-repetition.mjs",
+        "scripts/sync-queue.mjs",
+        "sync/task-route.mjs",
+        "day/data-contract.mjs",
+        "day/merge.mjs",
+        "src/lib/homeworkStatus.ts"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/lesson-repetition-2026-11-01.md"
+    },
+    {
       "id": "decision.mesh-calendar-date-scopes-2026-10-18",
       "status": "accepted",
       "implementation": "not-applicable",
@@ -4411,6 +4447,27 @@
       "consumer": "Vitest"
     },
     {
+      "id": "file:assessment/lesson-repetition.d.mts",
+      "path": "assessment/lesson-repetition.d.mts",
+      "kind": "artifact",
+      "purpose": "Типизированная граница общей модели",
+      "consumer": "TypeScript"
+    },
+    {
+      "id": "file:assessment/lesson-repetition.mjs",
+      "path": "assessment/lesson-repetition.mjs",
+      "kind": "artifact",
+      "purpose": "Выбор предыдущего урока по владельцу, покрытие частей и новый текущий тест",
+      "consumer": "Queue; CLI; day"
+    },
+    {
+      "id": "file:assessment/lesson-repetition.test.mjs",
+      "path": "assessment/lesson-repetition.test.mjs",
+      "kind": "verification",
+      "purpose": "Предметы, каникулы, чужой владелец, недостающие части и старый зачёт",
+      "consumer": "Vitest"
+    },
+    {
       "id": "file:assessment/question-copy.mjs",
       "path": "assessment/question-copy.mjs",
       "kind": "artifact",
@@ -7048,6 +7105,13 @@
       "kind": "verification",
       "purpose": "Проверяет безопасный отказ старого installer alias без запуска отдельного агента",
       "consumer": "Vitest"
+    },
+    {
+      "id": "file:scripts/lesson-repetition.mjs",
+      "path": "scripts/lesson-repetition.mjs",
+      "kind": "artifact",
+      "purpose": "Read-only план по закрытому пакету доказательств",
+      "consumer": "Оператор"
     },
     {
       "id": "file:scripts/lib/access-projection.mjs",
@@ -10564,6 +10628,33 @@
         "assessment/decision-graph.mjs"
       ],
       "path": "docs/modules/assessments/assessment-source-policy.md"
+    },
+    {
+      "id": "module.assessments.lesson-repetition",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-01",
+      "updated": "2026-11-01",
+      "parent": "module.assessments",
+      "uses": [
+        "module.assessments.assessment-decision-graph",
+        "module.synchronization.task-routing"
+      ],
+      "consumers": [
+        "EducationSync operator",
+        "quiz author"
+      ],
+      "code": [
+        "assessment/lesson-repetition.mjs",
+        "assessment/lesson-repetition.d.mts",
+        "scripts/lesson-repetition.mjs"
+      ],
+      "sections": [
+        "resolution",
+        "completion",
+        "tool"
+      ],
+      "path": "docs/modules/assessments/lesson-repetition.md"
     },
     {
       "id": "module.assessments.quiz-chain-proposal",
@@ -14992,6 +15083,16 @@
       "type": "uses"
     },
     {
+      "from": "decision.lesson-repetition-2026-11-01",
+      "to": "module.assessments.lesson-repetition",
+      "type": "uses"
+    },
+    {
+      "from": "decision.lesson-repetition-2026-11-01",
+      "to": "module.synchronization.task-routing",
+      "type": "uses"
+    },
+    {
       "from": "decision.mesh-calendar-date-scopes-2026-10-18",
       "to": "module.school-diary",
       "type": "uses"
@@ -15748,6 +15849,11 @@
     },
     {
       "from": "file:assessment/decision-graph.mjs",
+      "to": "decision.lesson-repetition-2026-11-01",
+      "type": "implements"
+    },
+    {
+      "from": "file:assessment/decision-graph.mjs",
       "to": "module.assessments.assessment-decision-graph",
       "type": "implements"
     },
@@ -15774,6 +15880,26 @@
     {
       "from": "file:assessment/learning-context.mjs",
       "to": "module.assessments.quizzes",
+      "type": "implements"
+    },
+    {
+      "from": "file:assessment/lesson-repetition.d.mts",
+      "to": "decision.lesson-repetition-2026-11-01",
+      "type": "implements"
+    },
+    {
+      "from": "file:assessment/lesson-repetition.d.mts",
+      "to": "module.assessments.lesson-repetition",
+      "type": "implements"
+    },
+    {
+      "from": "file:assessment/lesson-repetition.mjs",
+      "to": "decision.lesson-repetition-2026-11-01",
+      "type": "implements"
+    },
+    {
+      "from": "file:assessment/lesson-repetition.mjs",
+      "to": "module.assessments.lesson-repetition",
       "type": "implements"
     },
     {
@@ -15929,6 +16055,11 @@
     {
       "from": "file:day/dashboard-index.mjs",
       "to": "module.school-diary.day-page",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/data-contract.mjs",
+      "to": "decision.lesson-repetition-2026-11-01",
       "type": "implements"
     },
     {
@@ -16109,6 +16240,11 @@
     {
       "from": "file:day/merge.mjs",
       "to": "decision.day-merge-order-2026-10-22",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/merge.mjs",
+      "to": "decision.lesson-repetition-2026-11-01",
       "type": "implements"
     },
     {
@@ -17782,6 +17918,16 @@
       "type": "implements"
     },
     {
+      "from": "file:scripts/lesson-repetition.mjs",
+      "to": "decision.lesson-repetition-2026-11-01",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/lesson-repetition.mjs",
+      "to": "module.assessments.lesson-repetition",
+      "type": "implements"
+    },
+    {
       "from": "file:scripts/lib/access-projection.mjs",
       "to": "module.families",
       "type": "implements"
@@ -18114,6 +18260,11 @@
     {
       "from": "file:scripts/sync-queue.mjs",
       "to": "decision.informatics-assessment-2026-11-01",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/sync-queue.mjs",
+      "to": "decision.lesson-repetition-2026-11-01",
       "type": "implements"
     },
     {
@@ -20173,6 +20324,11 @@
     },
     {
       "from": "file:src/lib/homeworkStatus.ts",
+      "to": "decision.lesson-repetition-2026-11-01",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/homeworkStatus.ts",
       "to": "decision.source-completion-consistency-2026-11-01",
       "type": "implements"
     },
@@ -21283,6 +21439,11 @@
     },
     {
       "from": "file:sync/task-route.mjs",
+      "to": "decision.lesson-repetition-2026-11-01",
+      "type": "implements"
+    },
+    {
+      "from": "file:sync/task-route.mjs",
       "to": "decision.personal-tutoring-2026-10-30",
       "type": "implements"
     },
@@ -21364,6 +21525,21 @@
     {
       "from": "module.assessments.assessment-source-policy",
       "to": "module.assessments.assessment-decision-graph",
+      "type": "uses"
+    },
+    {
+      "from": "module.assessments.lesson-repetition",
+      "to": "file:assessment/lesson-repetition.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.assessments.lesson-repetition",
+      "to": "module.assessments.assessment-decision-graph",
+      "type": "uses"
+    },
+    {
+      "from": "module.assessments.lesson-repetition",
+      "to": "module.synchronization.task-routing",
       "type": "uses"
     },
     {
@@ -21533,6 +21709,11 @@
     },
     {
       "from": "module.assessments",
+      "to": "decision.lesson-repetition-2026-11-01",
+      "type": "contains"
+    },
+    {
+      "from": "module.assessments",
       "to": "decision.program-explanation-2026-11-01",
       "type": "contains"
     },
@@ -21544,6 +21725,11 @@
     {
       "from": "module.assessments",
       "to": "module.assessments.assessment-source-policy",
+      "type": "contains"
+    },
+    {
+      "from": "module.assessments",
+      "to": "module.assessments.lesson-repetition",
       "type": "contains"
     },
     {

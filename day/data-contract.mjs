@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/lesson-repetition-2026-11-01.md */
 /** @see ../docs/decisions/scoped-learner-flow-2026-10-21.md */
 /** @see ../docs/decisions/mesh-informational-entry-2026-10-21.md */
 /**
@@ -8,6 +9,7 @@ import { materialRequestErrors } from '../src/lib/materialRequest.ts'
 import { learnerFlowErrors } from './learner-flow.mjs'
 import { validSchoolCalendar } from './school-calendar.mjs'
 import { assertMixedEntry } from './mixed-assignment.mjs'
+import { repetitionErrors } from '../assessment/lesson-repetition.mjs'
 /** Runtime shape of the current Firestore projection. Optional additive fields are
  * accepted so older clients and already published documents keep working.
  * Cross-document edges are checked by placement-integrity.mjs.
@@ -35,6 +37,7 @@ export function dayPageShapeErrors(page) {
     for (const task of subject.tasks) {
       if (!object(task) || !text(task.id) || !text(task.title)) { errors.push('У задания нет ID или названия.'); continue }
       errors.push(...materialRequestErrors(task))
+      errors.push(...repetitionErrors(task.repetition))
       errors.push(...learnerFlowErrors(task))
       if (!['written', 'read', 'check'].includes(task.kind)) errors.push(`Неизвестный вид задания ${task.id}.`)
       if (!['verified', 'needs-fix', 'partial', 'unknown'].includes(task.status)) errors.push(`Неизвестный статус задания ${task.id}.`)

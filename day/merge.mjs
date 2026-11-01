@@ -1,5 +1,7 @@
+/** @see ../docs/decisions/lesson-repetition-2026-11-01.md */
 import { isExplicitCdzTask } from './homework-kind.mjs'
 import { canPublishSourceOnly } from './source-only.mjs'
+import { previousLessonReference } from '../assessment/lesson-repetition.mjs'
 
 /** @see ../docs/modules/synchronization/plan-generation.md#source-only-publication
  * @see ../docs/decisions/day-merge-order-2026-10-22.md
@@ -42,7 +44,7 @@ function mergeSubjects(existing = [], incoming = [], retiredTaskIds = new Set())
       const merged = sameCondition ? { ...old, ...task } : { ...task }
       if (task.materialRequest?.state === 'resolved' && task.instructionStatus?.state === 'reviewed' && !task.assessmentIntent) delete merged.assessmentIntent
       if (canPublishSourceOnly(task)) stripSourceOnlyEnrichment(merged)
-      merged.status = sameCondition && task.status === 'unknown' && old.status !== 'unknown' ? old.status : task.status
+      merged.status = sameCondition && !previousLessonReference(task) && task.status === 'unknown' && old.status !== 'unknown' ? old.status : task.status
       if (!isExplicitCdzTask(merged)) delete merged.platformResult
       return merged
     })

@@ -12,6 +12,11 @@ const page = (tasks, evidenceDayTokens = ['today']) => ({
 })
 
 describe('повторный выпуск страницы дня', () => {
+  it('preserves prior written credit but does not restore an old pass onto a new repetition',()=>{
+    const old=page([{...task('repeat','verified'),meshText:'задание прошлого урока'},task('written','verified')])
+    const incoming=page([{...task('repeat'),meshText:'задание прошлого урока'},task('written')])
+    expect(mergeDayPage(old,incoming).subjects[0].tasks.map(t=>t.status)).toEqual(['unknown','verified'])
+  })
   it('replaces stale audio only for current tasks while preserving pages and historical audio', () => {
     const image = { sourceType: 'textbook-page', url: 'https://disk.yandex.ru/d/page' }
     const oldAudio = { sourceType: 'audio', url: 'https://disk.yandex.ru/d/old-audio' }

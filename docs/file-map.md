@@ -1254,3 +1254,10 @@
 | [docs/decisions/source-completion-consistency-2026-11-01.md](decisions/source-completion-consistency-2026-11-01.md) | [Уточнение материалов](modules/materials/material-clarification.md) | Зачёт при source receipt и совместимость старых тематических связей | Ученик; родитель; оператор |
 
 | [docs/decisions/program-explanation-2026-11-01.md](decisions/program-explanation-2026-11-01.md) | [Тесты](modules/assessments/quizzes.md) | Уточнение родителя: объяснение исполнения вместо дополнительного ввода | Автор; разработчик |
+
+| [assessment/lesson-repetition.mjs](../assessment/lesson-repetition.mjs) | [Повторение урока](modules/assessments/lesson-repetition.md) | Выбор предыдущего урока по владельцу, покрытие частей и новый текущий тест | Queue; CLI; day |
+| [assessment/lesson-repetition.d.mts](../assessment/lesson-repetition.d.mts) | [Повторение урока](modules/assessments/lesson-repetition.md) | Типизированная граница общей модели | TypeScript |
+| [assessment/lesson-repetition.test.mjs](../assessment/lesson-repetition.test.mjs) | [Повторение урока](modules/assessments/lesson-repetition.md) | Предметы, каникулы, чужой владелец, недостающие части и старый зачёт | Vitest |
+| [scripts/lesson-repetition.mjs](../scripts/lesson-repetition.mjs) | [Повторение урока](modules/assessments/lesson-repetition.md) | Read-only план по закрытому пакету доказательств | Оператор |
+| [docs/decisions/lesson-repetition-2026-11-01.md](decisions/lesson-repetition-2026-11-01.md) | [Повторение урока](modules/assessments/lesson-repetition.md) | Причина нового графа, роли и проверки | Оператор; разработчик |
+| [docs/modules/assessments/lesson-repetition.md](modules/assessments/lesson-repetition.md) | [Граф самопроверок](modules/assessments/assessment-decision-graph.md) | Общий контракт нового повторения, источников и сохранённой работы | Все предметы |
