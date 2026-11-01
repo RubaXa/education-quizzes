@@ -1,3 +1,5 @@
+import {resolveReviewReplyStep, reviewReplyErrors, sameReviewValue} from '../../packages/education-presentation/review-reply.mjs'
+import type {ReviewReply} from '../../packages/education-presentation/review-reply.mjs'
 /** @see ../../docs/decisions/compact-review-rollout-2026-10-31.md */
 import { workFileContentType, maxWorkFileSize } from '../../storage/work-file-types.mjs'
 /** @see ../../docs/decisions/personal-tutoring-2026-10-30.md */
@@ -126,7 +128,7 @@ function taskConditionOnPage(page: DayPageData | undefined, taskId: string): str
   }
   return null
 }
-export type DayHelp = { id: string; taskId: string; revision: number; requestedAt?: unknown; requestKind?: 'condition' | 'start' | 'step' | 'check'; requestText?: string; photoUploadIds?: string[]; planRevision?: number; eventReceiptId?: string }
+export type DayHelp = { id: string; taskId: string; revision: number; requestedAt?: unknown; requestKind?: 'condition' | 'start' | 'step' | 'check'; requestText?: string; photoUploadIds?: string[]; planRevision?: number; eventReceiptId?: string; reviewReply?: ReviewReply }
 export type DayWorkReview = {
   correctedAt?: unknown;
   purpose?: 'source-material'; sourceAnalysis?: SourceAnalysis;
@@ -290,8 +292,11 @@ export function watchDayHelpHistory(studentToken: string, taskId: string, onChan
     onChange(snapshot.docs.map(item => ({ id: item.id, ...item.data() } as DayHelp)))
   }, onError)
 }
-export async function requestDayHelp(studentToken: string, taskId: string, revision: number, requestKind: NonNullable<DayHelp['requestKind']>, requestText: string, options?: { photoUploadIds: string[]; operationId: string }) {
+export async function requestDayHelp(studentToken: string, taskId: string, revision: number, requestKind: NonNullable<DayHelp['requestKind']>, requestText: string, options?: { photoUploadIds?: string[]; operationId: string; reviewReply?: ReviewReply }) {
   const photoUploadIds = options?.photoUploadIds
+  const reviewReply = options?.reviewReply
+  const immutable = Boolean(photoUploadIds || reviewReply)
+  if (reviewReply && (photoUploadIds || reviewReplyErrors(reviewReply).length || !/^[A-Za-z0-9-]{36}$/.test(options!.operationId))) throw new Error('Ответ изменился. Проверь запись и отправь снова.')
   if (photoUploadIds && (!photoUploadIds.length || new Set(photoUploadIds).size !== photoUploadIds.length || photoUploadIds.some(id => !/^[A-Za-z0-9_-]{20,80}$/.test(id)) || !/^[A-Za-z0-9-]{36}$/.test(options.operationId))) throw new Error('Выберите сохранённые фотографии задания и повторите отправку с тем же идентификатором.')
   const owner = await getDocFromServer(doc(db, 'dayOwners', studentToken))
   const { familyId, childId } = owner.data() ?? {}
@@ -309,36 +314,44 @@ export async function requestDayHelp(studentToken: string, taskId: string, revis
   const matches = (data: Record<string, unknown> | undefined) => data?.eventOperationId === input.operationId && data?.eventReceiptId === envelope.eventId
     && data?.revision === revision && data?.requestKind === requestKind && data?.requestText === sourceText
     && JSON.stringify(data?.photoUploadIds ?? null) === JSON.stringify(photoUploadIds ?? null)
-  if (photoUploadIds) {
+    && sameReviewValue(data?.reviewReply, reviewReply)
+  if (immutable) {
     const saved = await getDocFromServer(historyRef)
     if (saved.exists()) {
-      if (matches(saved.data())) return
+      if (matches(saved.data())) return envelope.eventId
       throw new Error('Этот запрос уже сохранён с другими данными.')
     }
-    for (let offset = 0; offset < photoUploadIds.length; offset += 20) {
-      const photos = await Promise.all(photoUploadIds.slice(offset, offset + 20).map(id => getDocFromServer(doc(db, 'dayUploads', studentToken, 'files', id))))
+    for (let offset = 0; offset < (photoUploadIds?.length ?? 0); offset += 20) {
+      const photos = await Promise.all(photoUploadIds!.slice(offset, offset + 20).map(id => getDocFromServer(doc(db, 'dayUploads', studentToken, 'files', id))))
       if (photos.some(photo => !photo.exists() || photo.data()?.taskId !== taskId || !['pending', 'reviewed'].includes(photo.data()?.status) || photo.data()?.storage?.state !== 'stored')) throw new Error('Дождитесь сохранения выбранных фотографий этого задания.')
     }
   }
   let planRevision: number | undefined
-  if (photoUploadIds) {
+  if (immutable) {
     const page = await getDocFromServer(doc(db, 'dayPages', studentToken))
     planRevision = page.data()?.planRevision
     if (!page.exists() || !Number.isInteger(planRevision) || !page.data()?.taskIds?.includes(taskId)) throw new Error('Версия задания изменилась. Обновите страницу.')
   }
+  if (reviewReply) {
+    const review = await getDocFromServer(doc(db, 'dayProgress', studentToken, 'items', taskId))
+    const guidance = reviewReply.sourceId === 'review' ? undefined : await getDocFromServer(doc(db, 'dayGuidance', studentToken, 'items', reviewReply.sourceId))
+    try { resolveReviewReplyStep(reviewReply, review.data(), guidance?.exists() ? {id:guidance.id,...guidance.data()} : undefined) }
+    catch { throw new Error('Разбор обновился. Открой новый шаг перед отправкой.') }
+  }
   const batch = writeBatch(db)
-  const request = { taskId, revision, requestKind, requestText: sourceText, ...(photoUploadIds ? { photoUploadIds, planRevision } : {}), requestedAt: serverTimestamp(), eventOperationId: input.operationId, eventReceiptId: envelope.eventId, eventProducerVersion: 1 }
+  const request = { taskId, revision, requestKind, requestText: sourceText, ...(photoUploadIds ? { photoUploadIds, planRevision } : {}), ...(reviewReply ? {reviewReply, planRevision} : {}), requestedAt: serverTimestamp(), eventOperationId: input.operationId, eventReceiptId: envelope.eventId, eventProducerVersion: 1 }
   batch.set(sourceRef, request)
-  if (photoUploadIds) batch.set(historyRef, request)
+  if (immutable) batch.set(historyRef, request)
   stagePreparedEducationEvent(batch, envelope)
   try { await batch.commit() }
   catch (cause) {
     try {
-      const committed = await getDocFromServer(photoUploadIds ? historyRef : sourceRef)
-      if (committed.exists() && matches(committed.data())) return
+      const committed = await getDocFromServer(immutable ? historyRef : sourceRef)
+      if (committed.exists() && matches(committed.data())) return envelope.eventId
     } catch { /* Preserve the original commit error when readback is unavailable. */ }
     throw cause
   }
+  return envelope.eventId
 }
 /** @see ../../docs/modules/materials/storage-privacy.md#upload-queue */
 export async function uploadDayPhoto(studentToken: string, taskId: string, file: File, uploadId: string = crypto.randomUUID(), visiblePage?: DayPageData) {

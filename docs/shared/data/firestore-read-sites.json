@@ -7826,7 +7826,7 @@
   {
     "id": "src/lib/dayGuidance.ts#onSnapshot#c8a37fb5eda8",
     "file": "src/lib/dayGuidance.ts",
-    "line": 31,
+    "line": 33,
     "api": "onSnapshot",
     "target": "collection(db, 'dayGuidance', studentToken, 'items')",
     "group": "client-day",
@@ -7838,7 +7838,7 @@
   {
     "id": "src/lib/dayGuidance.ts#getDocFromServer#5e1f861632cc",
     "file": "src/lib/dayGuidance.ts",
-    "line": 52,
+    "line": 54,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayTaskGuides', studentToken, 'items', taskId)",
     "group": "client-day",
@@ -7850,7 +7850,7 @@
   {
     "id": "src/lib/dayGuidance.ts#getDocFromServer#dd5edc4c0a6a",
     "file": "src/lib/dayGuidance.ts",
-    "line": 61,
+    "line": 63,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayOwners', studentToken)",
     "group": "client-day",
@@ -7862,7 +7862,7 @@
   {
     "id": "src/lib/dayGuidance.ts#getDocs#eca242a07afc",
     "file": "src/lib/dayGuidance.ts",
-    "line": 64,
+    "line": 66,
     "api": "getDocs",
     "target": "collection(db, 'families', familyId, 'members')",
     "group": "client-day",
@@ -7874,7 +7874,7 @@
   {
     "id": "src/lib/dayStore.ts#getDoc#6593dc56d36b",
     "file": "src/lib/dayStore.ts",
-    "line": 164,
+    "line": 166,
     "api": "getDoc",
     "target": "doc(db, 'dayPages', token)",
     "group": "client-day",
@@ -7886,7 +7886,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#1658e056615b",
     "file": "src/lib/dayStore.ts",
-    "line": 170,
+    "line": 172,
     "api": "onSnapshot",
     "target": "doc(db, 'dayPages', token)",
     "group": "client-day",
@@ -7898,7 +7898,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#c2b7cd8e3f9b",
     "file": "src/lib/dayStore.ts",
-    "line": 205,
+    "line": 207,
     "api": "onSnapshot",
     "target": "doc(db, 'families', familyId, 'children', childId, 'bookPages', ref)",
     "group": "client-day",
@@ -7910,7 +7910,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#b781e597a36b",
     "file": "src/lib/dayStore.ts",
-    "line": 222,
+    "line": 224,
     "api": "onSnapshot",
     "target": "collection(db, 'dayUploads', studentToken, 'files')",
     "group": "client-day",
@@ -7922,7 +7922,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#9c726eac32b0",
     "file": "src/lib/dayStore.ts",
-    "line": 246,
+    "line": 248,
     "api": "onSnapshot",
     "target": "collection(db, 'dayProgress', studentToken, 'items')",
     "group": "client-day",
@@ -7934,7 +7934,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#c6f7e46096c2",
     "file": "src/lib/dayStore.ts",
-    "line": 250,
+    "line": 252,
     "api": "onSnapshot",
     "target": "collection(db, 'dayReviewPrivate', studentToken, 'items')",
     "group": "client-day",
@@ -7946,7 +7946,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#592bd0712c2e",
     "file": "src/lib/dayStore.ts",
-    "line": 268,
+    "line": 270,
     "api": "onSnapshot",
     "target": "reference",
     "group": "client-day",
@@ -7958,7 +7958,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#d0e658ed1ab2",
     "file": "src/lib/dayStore.ts",
-    "line": 281,
+    "line": 283,
     "api": "onSnapshot",
     "target": "collection(db, 'dayHelp', studentToken, 'items')",
     "group": "client-day",
@@ -7970,7 +7970,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#a8f62002fde7",
     "file": "src/lib/dayStore.ts",
-    "line": 289,
+    "line": 291,
     "api": "onSnapshot",
     "target": "collection(db, 'dayHelp', studentToken, 'items', taskId, 'requests')",
     "group": "client-day",
@@ -7982,7 +7982,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#d8f08464ae53",
     "file": "src/lib/dayStore.ts",
-    "line": 296,
+    "line": 301,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayOwners', studentToken)",
     "group": "client-day",
@@ -7994,7 +7994,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#8976fa978048",
     "file": "src/lib/dayStore.ts",
-    "line": 313,
+    "line": 319,
     "api": "getDocFromServer",
     "target": "historyRef",
     "group": "client-day",
@@ -8006,7 +8006,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#0685a719664c",
     "file": "src/lib/dayStore.ts",
-    "line": 319,
+    "line": 325,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayUploads', studentToken, 'files', id)",
     "group": "client-day",
@@ -8018,7 +8018,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#705de0a8baee",
     "file": "src/lib/dayStore.ts",
-    "line": 325,
+    "line": 331,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayPages', studentToken)",
     "group": "client-day",
@@ -8028,21 +8028,45 @@
     "note": "Адресное чтение владельца дня, актуальной серверной страницы, существующей заявки либо receipt после неоднозначного commit. Проверено: свежая ревизия нужна вместо cache, существующая заявка предотвращает повторную запись; нет polling или чтения глобальной очереди."
   },
   {
-    "id": "src/lib/dayStore.ts#getDocFromServer#eeb8575870fd",
+    "id": "src/lib/dayStore.ts#getDocFromServer#fd8c8b58bd6d",
+    "file": "src/lib/dayStore.ts",
+    "line": 336,
+    "api": "getDocFromServer",
+    "target": "doc(db, 'dayProgress', studentToken, 'items', taskId)",
+    "group": "client-day",
+    "assessment": "justified",
+    "policy": "exact-current-review-reply",
+    "refresh": "explicit-send-and-transactional-publication",
+    "note": "Только владелец/задание текущего help.requested: проверка версии вопроса, источника и уже выданной помощи; retry читает точную неизменяемую квитанцию. Без сканирования семей и новых фоновых подписок."
+  },
+  {
+    "id": "src/lib/dayStore.ts#getDocFromServer#68f6846e2d98",
     "file": "src/lib/dayStore.ts",
     "line": 337,
     "api": "getDocFromServer",
-    "target": "photoUploadIds ? historyRef : sourceRef",
+    "target": "doc(db, 'dayGuidance', studentToken, 'items', reviewReply.sourceId)",
     "group": "client-day",
-    "assessment": "conditional",
-    "policy": "photo-action-server-guard-and-receipt-readback",
-    "refresh": "on help submission or ambiguous commit",
-    "note": "Адресная серверная проверка снимков, ревизии задачи и идемпотентности запроса; снимки читаются партиями до 20."
+    "assessment": "justified",
+    "policy": "exact-current-review-reply",
+    "refresh": "explicit-send-and-transactional-publication",
+    "note": "Только владелец/задание текущего help.requested: проверка версии вопроса, источника и уже выданной помощи; retry читает точную неизменяемую квитанцию. Без сканирования семей и новых фоновых подписок."
+  },
+  {
+    "id": "src/lib/dayStore.ts#getDocFromServer#2c2f801eef32",
+    "file": "src/lib/dayStore.ts",
+    "line": 349,
+    "api": "getDocFromServer",
+    "target": "immutable ? historyRef : sourceRef",
+    "group": "client-day",
+    "assessment": "justified",
+    "policy": "exact-current-review-reply",
+    "refresh": "explicit-send-and-transactional-publication",
+    "note": "Только владелец/задание текущего help.requested: проверка версии вопроса, источника и уже выданной помощи; retry читает точную неизменяемую квитанцию. Без сканирования семей и новых фоновых подписок."
   },
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#d8f08464ae53-2",
     "file": "src/lib/dayStore.ts",
-    "line": 353,
+    "line": 366,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayOwners', studentToken)",
     "group": "client-day",
@@ -8054,7 +8078,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#249d93879c40",
     "file": "src/lib/dayStore.ts",
-    "line": 361,
+    "line": 374,
     "api": "getDocFromServer",
     "target": "ref",
     "group": "client-day",
@@ -8066,7 +8090,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#705de0a8baee-2",
     "file": "src/lib/dayStore.ts",
-    "line": 384,
+    "line": 397,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayPages', studentToken)",
     "group": "client-day",
@@ -8078,7 +8102,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#249d93879c40-2",
     "file": "src/lib/dayStore.ts",
-    "line": 400,
+    "line": 413,
     "api": "getDocFromServer",
     "target": "ref",
     "group": "client-day",
@@ -8090,7 +8114,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#249d93879c40-3",
     "file": "src/lib/dayStore.ts",
-    "line": 412,
+    "line": 425,
     "api": "getDocFromServer",
     "target": "ref",
     "group": "client-day",
@@ -8102,7 +8126,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#d8f08464ae53-3",
     "file": "src/lib/dayStore.ts",
-    "line": 418,
+    "line": 431,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayOwners', studentToken)",
     "group": "client-day",
@@ -8114,7 +8138,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#249d93879c40-4",
     "file": "src/lib/dayStore.ts",
-    "line": 432,
+    "line": 445,
     "api": "getDocFromServer",
     "target": "ref",
     "group": "client-day",
@@ -8954,7 +8978,7 @@
   {
     "id": "sync/event-task-artifact.mjs#admin.get#b1c12cec0440",
     "file": "sync/event-task-artifact.mjs",
-    "line": 58,
+    "line": 59,
     "api": "admin.get",
     "target": "db.doc(event.sourceRef.documentPath)",
     "group": "operator-other",
@@ -8966,7 +8990,7 @@
   {
     "id": "sync/event-task-artifact.mjs#admin.get#c3c7bccf4565",
     "file": "sync/event-task-artifact.mjs",
-    "line": 64,
+    "line": 65,
     "api": "admin.get",
     "target": "db.doc(`${event.sourceRef.documentPath}/requests/${event.eventId}`)",
     "group": "operator-other",
@@ -8978,7 +9002,7 @@
   {
     "id": "sync/event-task-artifact.mjs#admin.get#3331e971078e",
     "file": "sync/event-task-artifact.mjs",
-    "line": 68,
+    "line": 69,
     "api": "admin.get",
     "target": "db.doc(`families/${event.familyId}`)",
     "group": "operator-other",
@@ -8990,7 +9014,7 @@
   {
     "id": "sync/event-task-artifact.mjs#admin.get#f9faf24e7446",
     "file": "sync/event-task-artifact.mjs",
-    "line": 68,
+    "line": 69,
     "api": "admin.get",
     "target": "db.doc(`families/${event.familyId}/children/${event.childId}`)",
     "group": "operator-other",
@@ -9002,7 +9026,7 @@
   {
     "id": "sync/event-task-artifact.mjs#admin.get#46c080246ca9",
     "file": "sync/event-task-artifact.mjs",
-    "line": 73,
+    "line": 74,
     "api": "admin.get",
     "target": "db.doc(`deviceSessions/${event.actor.uid}`)",
     "group": "operator-other",
@@ -9014,7 +9038,7 @@
   {
     "id": "sync/event-task-artifact.mjs#admin.get#4f585bd3f691",
     "file": "sync/event-task-artifact.mjs",
-    "line": 76,
+    "line": 77,
     "api": "admin.get",
     "target": "db.doc(`accessLinks/${token}`)",
     "group": "operator-other",
@@ -9026,7 +9050,7 @@
   {
     "id": "sync/event-task-artifact.mjs#admin.get#3fc8dabdced1",
     "file": "sync/event-task-artifact.mjs",
-    "line": 79,
+    "line": 80,
     "api": "admin.get",
     "target": "db.doc(`families/${event.familyId}/members/${personId}`)",
     "group": "operator-other",
@@ -9038,7 +9062,7 @@
   {
     "id": "sync/event-task-artifact.mjs#admin.get#0a9c38bec98f",
     "file": "sync/event-task-artifact.mjs",
-    "line": 88,
+    "line": 89,
     "api": "admin.get",
     "target": "db.doc(`dayOwners/${event.sourceRef.dayToken}`)",
     "group": "operator-other",
@@ -9050,7 +9074,7 @@
   {
     "id": "sync/event-task-artifact.mjs#admin.get#224e522b8786",
     "file": "sync/event-task-artifact.mjs",
-    "line": 91,
+    "line": 92,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${event.sourceRef.dayToken}`)",
     "group": "operator-other",
@@ -9062,7 +9086,7 @@
   {
     "id": "sync/event-task-artifact.mjs#admin.get#3d7f0f861d8e",
     "file": "sync/event-task-artifact.mjs",
-    "line": 103,
+    "line": 104,
     "api": "admin.get",
     "target": "db.doc(`dayReviewPrivate/${event.sourceRef.dayToken}/items/${taskId}`)",
     "group": "operator-other",
@@ -9074,7 +9098,7 @@
   {
     "id": "sync/event-task-artifact.mjs#admin.get#69fb8c989f12",
     "file": "sync/event-task-artifact.mjs",
-    "line": 104,
+    "line": 105,
     "api": "admin.get",
     "target": "db.doc(`dayTaskGuides/${event.sourceRef.dayToken}/items/${taskId}`)",
     "group": "operator-other",
@@ -9084,9 +9108,45 @@
     "note": "Один точный dayTaskGuides/dayToken/items/taskId после проверки владельца и задания; полный путь нужен оператору для сверки следующего объясняющего перехода, не отправляется ученику. Обновляется при создании артефакта события; новая подписка отсутствует."
   },
   {
-    "id": "sync/event-task-artifact.mjs#admin.get#c097ca978a4f",
+    "id": "sync/event-task-artifact.mjs#admin.get#0ecd4419432a",
+    "file": "sync/event-task-artifact.mjs",
+    "line": 114,
+    "api": "admin.get",
+    "target": "db.doc(`dayProgress/${event.sourceRef.dayToken}/items/${taskId}`)",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "exact-current-review-reply",
+    "refresh": "explicit-send-and-transactional-publication",
+    "note": "Только владелец/задание текущего help.requested: проверка версии вопроса, источника и уже выданной помощи; retry читает точную неизменяемую квитанцию. Без сканирования семей и новых фоновых подписок."
+  },
+  {
+    "id": "sync/event-task-artifact.mjs#admin.get#af8f2859361b",
+    "file": "sync/event-task-artifact.mjs",
+    "line": 116,
+    "api": "admin.get",
+    "target": "db.doc(`dayGuidance/${event.sourceRef.dayToken}/items/${sourceId}`)",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "exact-current-review-reply",
+    "refresh": "explicit-send-and-transactional-publication",
+    "note": "Только владелец/задание текущего help.requested: проверка версии вопроса, источника и уже выданной помощи; retry читает точную неизменяемую квитанцию. Без сканирования семей и новых фоновых подписок."
+  },
+  {
+    "id": "sync/event-task-artifact.mjs#admin.get#c6b8b573daa4",
     "file": "sync/event-task-artifact.mjs",
     "line": 119,
+    "api": "admin.get",
+    "target": "db.collection(`dayGuidance/${event.sourceRef.dayToken}/items`).where('taskId','==',taskId)",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "exact-current-review-reply",
+    "refresh": "explicit-send-and-transactional-publication",
+    "note": "Только владелец/задание текущего help.requested: проверка версии вопроса, источника и уже выданной помощи; retry читает точную неизменяемую квитанцию. Без сканирования семей и новых фоновых подписок."
+  },
+  {
+    "id": "sync/event-task-artifact.mjs#admin.get#c097ca978a4f",
+    "file": "sync/event-task-artifact.mjs",
+    "line": 132,
     "api": "admin.get",
     "target": "db.doc(`dayUploads/${event.sourceRef.dayToken}/files/${id}`)",
     "group": "operator-other",
@@ -9098,7 +9158,7 @@
   {
     "id": "sync/event-task-artifact.mjs#admin.get#555d00a595b4",
     "file": "sync/event-task-artifact.mjs",
-    "line": 140,
+    "line": 153,
     "api": "admin.get",
     "target": "db.doc(`answerKeys/${event.sourceRef.quizToken}`)",
     "group": "operator-other",
@@ -9110,7 +9170,7 @@
   {
     "id": "sync/event-task-artifact.mjs#admin.get#b21a38de531c",
     "file": "sync/event-task-artifact.mjs",
-    "line": 168,
+    "line": 181,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -9206,7 +9266,7 @@
   {
     "id": "sync/help-response.mjs#admin.get#2d269cb946c4",
     "file": "sync/help-response.mjs",
-    "line": 20,
+    "line": 26,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -9218,7 +9278,7 @@
   {
     "id": "sync/help-response.mjs#admin.get#2d269cb946c4-2",
     "file": "sync/help-response.mjs",
-    "line": 20,
+    "line": 26,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -9230,7 +9290,7 @@
   {
     "id": "sync/help-response.mjs#admin.get#2d269cb946c4-3",
     "file": "sync/help-response.mjs",
-    "line": 28,
+    "line": 34,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -9242,7 +9302,7 @@
   {
     "id": "sync/help-response.mjs#admin.get#2d269cb946c4-4",
     "file": "sync/help-response.mjs",
-    "line": 28,
+    "line": 34,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -9254,7 +9314,7 @@
   {
     "id": "sync/help-response.mjs#admin.get#2d269cb946c4-5",
     "file": "sync/help-response.mjs",
-    "line": 41,
+    "line": 47,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -9264,9 +9324,21 @@
     "note": "Проверка конкретного события, артефакта и задания в транзакции, затем адресный readback ответа и завершения; сканирования inbox нет."
   },
   {
+    "id": "sync/help-response.mjs#admin.get#2d269cb946c4-6",
+    "file": "sync/help-response.mjs",
+    "line": 47,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "exact-current-review-reply",
+    "refresh": "explicit-send-and-transactional-publication",
+    "note": "Только владелец/задание текущего help.requested: проверка версии вопроса, источника и уже выданной помощи; retry читает точную неизменяемую квитанцию. Без сканирования семей и новых фоновых подписок."
+  },
+  {
     "id": "sync/help-response.mjs#admin.get#53b1ad5df27f",
     "file": "sync/help-response.mjs",
-    "line": 53,
+    "line": 59,
     "api": "admin.get",
     "target": "db.doc(result.path)",
     "group": "operator-other",
@@ -9278,7 +9350,7 @@
   {
     "id": "sync/help-response.mjs#admin.get#4b34c125965d",
     "file": "sync/help-response.mjs",
-    "line": 53,
+    "line": 59,
     "api": "admin.get",
     "target": "db.doc(result.jobPath)",
     "group": "operator-other",

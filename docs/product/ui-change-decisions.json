@@ -2624,19 +2624,21 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "1e890578b7bf620b10181335249c9e70e561f00d266991de3c8d0f1c5eae76b0",
-      "record": "docs/decisions/student-review-step-2026-11-01.md",
+      "sha256": "ff504c67efc6c4cd14bebaad98ac7b43837d53d15c2bb6d69f67493bdd0b362b",
+      "record": "docs/decisions/student-review-reply-2026-11-01.md",
       "specs": [
         "docs/shared/design/student-review-step.md",
-        "docs/shared/design/compact-review.md"
+        "docs/modules/synchronization/event-queue.md"
       ],
       "tests": [
-        "src/components/LearnerFlow.test.tsx",
-        "src/components/ReviewActivity.test.tsx"
+        "src/components/ReviewConversation.test.tsx",
+        "packages/education-presentation/review-reply.test.mjs",
+        "sync/help-response.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 родитель прямо потребовал исправить ученическую часть всех разборов: понятная модель текущего шага, интерактив без ответа и служебных фраз; общие инструкции, UI Kit и проверка ученического вида."
+        "evidence": "01.11.2026 родитель потребовал проверенный отклик и следующий шаг по ответу, «Непонятно» одним нажатием и текст для последующей обработки."
       }
     },
     "src/UiKit.css": {
@@ -2696,23 +2698,21 @@
       }
     },
     "src/WeekendMathSlot.tsx": {
-      "sha256": "287d7f61d5db5e646dcd3e8068fd597016a6e8fc02d4e4f4e6296d25252818a3",
-      "record": "docs/decisions/canonical-attachment-controls-2026-10-31.md",
+      "sha256": "18106384b822c76ec7c765af08c0006006a396b32d6838af6e424e9b4d02ac79",
+      "record": "docs/decisions/student-review-reply-2026-11-01.md",
       "specs": [
-        "docs/shared/design/components.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/shared/design/student-review-step.md",
+        "docs/modules/synchronization/event-queue.md"
       ],
       "tests": [
-        "src/components/TaskWorkEvidence.test.tsx",
-        "src/components/WorkPhotoGallery.test.tsx",
-        "src/components/SolutionFiles.test.tsx",
-        "src/UiKit.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/components/LearningRoute.weekend.integration.test.tsx"
+        "src/components/ReviewConversation.test.tsx",
+        "packages/education-presentation/review-reply.test.mjs",
+        "sync/help-response.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель31.10.2026 указал,что скриншот отличается от реальных контролов,поручил перечитать спецификации/элементы,улучшить декомпозицию и обновить UI Kit без изобретения нового вида."
+        "evidence": "01.11.2026 родитель потребовал проверенный отклик и следующий шаг по ответу, «Непонятно» одним нажатием и текст для последующей обработки."
       }
     },
     "src/components/ArtifactAvatar.css": {
@@ -3480,25 +3480,21 @@
       }
     },
     "src/components/ProblemTaskCard.tsx": {
-      "sha256": "1f50bfdf46f6b2f78b7db01ab12842f59ae6412234a9357120c1dbf45f46f771",
-      "record": "docs/decisions/role-projection-diagnostics-2026-10-18.md",
+      "sha256": "94194e8bd27aa342afefa1b3d4f029f626ee65f9df65280e883e1ec1bcefdf23",
+      "record": "docs/decisions/student-review-reply-2026-11-01.md",
       "specs": [
-        "docs/modules/reviews/adaptive-problem-card.md",
-        "docs/modules/reviews/problem-card-design-decisions.md",
-        "docs/shared/design/README.md"
+        "docs/shared/design/student-review-step.md",
+        "docs/modules/synchronization/event-queue.md"
       ],
       "tests": [
-        "src/components/ProblemTaskCard.contract.test.tsx",
-        "src/components/ProblemStatement.provenance.test.tsx",
-        "src/components/ProblemCard.test.tsx"
+        "src/components/ReviewConversation.test.tsx",
+        "packages/education-presentation/review-reply.test.mjs",
+        "sync/help-response.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "Родитель 14.10.2026 после просмотра конкретного макета с видимым исходным кропом ответил «Да, стало лучше, очень лучше» и потребовал доделать этот вариант, убрав макетную родительскую кнопку загрузки фото."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "3ff34d4dc8e34d521d494ddc6509e53584a164b73dd0df23015a4e8d9aafeed3"
+        "status": "direct-request",
+        "evidence": "01.11.2026 родитель потребовал проверенный отклик и следующий шаг по ответу, «Непонятно» одним нажатием и текст для последующей обработки."
       }
     },
     "src/components/QuizAttemptReview.tsx": {
@@ -3753,24 +3749,21 @@
       }
     },
     "src/components/TaskGuidance.tsx": {
-      "sha256": "62ff51ad5ce28e99aa4424962ab0385ee331ec4b4f7c8c3d38586b25b5a2dc51",
-      "record": "docs/decisions/compact-review-rollout-2026-10-31.md",
+      "sha256": "c626f7fa20e8a7dafca74a50fd8335852a3a727368b8b2cf63bc0157798804d5",
+      "record": "docs/decisions/student-review-reply-2026-11-01.md",
       "specs": [
-        "docs/shared/design/compact-review.md",
-        "docs/shared/design/ui-kit.md",
-        "docs/modules/reviews/subject-aware-guidance.md"
+        "docs/shared/design/student-review-step.md",
+        "docs/modules/synchronization/event-queue.md"
       ],
       "tests": [
-        "src/components/WorkReview.compact.test.tsx",
-        "src/components/ReviewBrief.test.tsx",
-        "src/components/QuizResultCard.test.tsx",
-        "src/UiKit.test.tsx",
-        "storage/tutoring-decision.test.mjs",
-        "packages/education-presentation/review-content.test.mjs"
+        "src/components/ReviewConversation.test.tsx",
+        "packages/education-presentation/review-reply.test.mjs",
+        "sync/help-response.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "31.10 родитель одобрил конкретный компактный разбор: «Да, так уже лучше. Исправь подсказку, чтобы она не выдавала ответ заранее, и внедряй этот формат для всех разборов. Обнови инструкции, спецификации и UI Kit». Сохранение ролей, статусов и истории обязательно."
+        "status": "direct-request",
+        "evidence": "01.11.2026 родитель потребовал проверенный отклик и следующий шаг по ответу, «Непонятно» одним нажатием и текст для последующей обработки."
       }
     },
     "src/components/TelegramNotificationPreview.css": {
@@ -3841,20 +3834,21 @@
       }
     },
     "src/components/WorkReview.tsx": {
-      "sha256": "b0e12a68031f1ba8cfca410428a982d9041496647e563168395a98e377130168",
-      "record": "docs/decisions/student-review-step-2026-11-01.md",
+      "sha256": "0540e9a1c6986654f6212d3b2faba7248890d0e810dff383dad78d33aea314f6",
+      "record": "docs/decisions/student-review-reply-2026-11-01.md",
       "specs": [
         "docs/shared/design/student-review-step.md",
-        "docs/shared/design/compact-review.md"
+        "docs/modules/synchronization/event-queue.md"
       ],
       "tests": [
-        "src/components/ReviewActivity.test.tsx",
-        "packages/education-presentation/review-activity.test.mjs",
-        "storage/student-review-edit.test.mjs"
+        "src/components/ReviewConversation.test.tsx",
+        "packages/education-presentation/review-reply.test.mjs",
+        "sync/help-response.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 родитель прямо потребовал исправить ученическую часть всех разборов: понятная модель текущего шага, интерактив без ответа и служебных фраз; общие инструкции, UI Kit и проверка ученического вида."
+        "evidence": "01.11.2026 родитель потребовал проверенный отклик и следующий шаг по ответу, «Непонятно» одним нажатием и текст для последующей обработки."
       }
     },
     "src/components/ui/badge.tsx": {
@@ -4120,21 +4114,21 @@
       }
     },
     "src/lib/dayGuidance.ts": {
-      "sha256": "6f630ddab1f6246e52e27104d8bd3960b26ec9dd3c35f3cea9cdd2185a67071e",
-      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
+      "sha256": "a1b0d241948e508fd681bed1d1e2ebe2b3f0d55dd03b515fba18ee0c51219e02",
+      "record": "docs/decisions/student-review-reply-2026-11-01.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/modules/synchronization/education-pipeline.md"
+        "docs/shared/design/student-review-step.md",
+        "docs/modules/synchronization/event-queue.md"
       ],
       "tests": [
-        "src/components/OlympiadHome.integration.test.tsx",
-        "src/components/PhotoHelpPanel.integration.test.tsx",
-        "sync/event-task-artifact.test.mjs",
-        "sync/help-response.test.mjs"
+        "src/components/ReviewConversation.test.tsx",
+        "packages/education-presentation/review-reply.test.mjs",
+        "sync/help-response.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо поручил завершить общий каталог и выбор нескольких фото для помощи через существующую инфраструктуру и UI Kit с интеграционными проверками."
+        "evidence": "01.11.2026 родитель потребовал проверенный отклик и следующий шаг по ответу, «Непонятно» одним нажатием и текст для последующей обработки."
       }
     },
     "src/lib/dayMaterialRefs.ts": {
@@ -4160,20 +4154,21 @@
       }
     },
     "src/lib/dayStore.ts": {
-      "sha256": "c45fc6921f6675220c20f4c63d9feeeea53cbe5027d984b0f82fd32d6887d82c",
-      "record": "docs/decisions/student-review-step-2026-11-01.md",
+      "sha256": "7e75385dec380cafa6e33a42b07295517c57cef8619f182ec536700aa110a451",
+      "record": "docs/decisions/student-review-reply-2026-11-01.md",
       "specs": [
         "docs/shared/design/student-review-step.md",
-        "docs/shared/design/compact-review.md"
+        "docs/modules/synchronization/event-queue.md"
       ],
       "tests": [
-        "src/components/ReviewActivity.test.tsx",
-        "packages/education-presentation/review-activity.test.mjs",
-        "storage/student-review-edit.test.mjs"
+        "src/components/ReviewConversation.test.tsx",
+        "packages/education-presentation/review-reply.test.mjs",
+        "sync/help-response.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 родитель прямо потребовал исправить ученическую часть всех разборов: понятная модель текущего шага, интерактив без ответа и служебных фраз; общие инструкции, UI Kit и проверка ученического вида."
+        "evidence": "01.11.2026 родитель потребовал проверенный отклик и следующий шаг по ответу, «Непонятно» одним нажатием и текст для последующей обработки."
       }
     },
     "src/lib/educationEventProducer.ts": {
@@ -5382,20 +5377,21 @@
       }
     },
     "sync/event-task-artifact.mjs": {
-      "sha256": "5faa769ce2f36ac7694c3be10a8620b45a603c173f5de433fe88ed86b10d2f42",
-      "record": "docs/decisions/personal-tutoring-2026-10-30.md",
+      "sha256": "840879d134af972f114f2144fd3bfe50e6273f0cdb0f44f69bca24bcca2c3c0f",
+      "record": "docs/decisions/student-review-reply-2026-11-01.md",
       "specs": [
-        "docs/modules/reviews/subject-aware-guidance.md"
+        "docs/shared/design/student-review-step.md",
+        "docs/modules/synchronization/event-queue.md"
       ],
       "tests": [
-        "storage/tutoring-decision.test.mjs",
-        "storage/review-projection.test.mjs",
-        "sync/event-task-artifact.test.mjs",
-        "src/components/WorkReview.tutoring.test.tsx"
+        "src/components/ReviewConversation.test.tsx",
+        "packages/education-presentation/review-reply.test.mjs",
+        "sync/help-response.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель прямо поручил внедрить персональное объяснение каждой новой работы в основной автоматический конвейер, заменить шаблонные блоки обеих карточек и влить завершённый выпуск."
+        "evidence": "01.11.2026 родитель потребовал проверенный отклик и следующий шаг по ответу, «Непонятно» одним нажатием и текст для последующей обработки."
       }
     },
     "sync/event-task-export.mjs": {
@@ -6532,57 +6528,57 @@
       }
     },
     "scripts/help-response.mjs": {
-      "sha256": "44842c5fb83b8d6dba5f69c4ceac2c03168b77bbb22ad74b2de316fc29d0e28e",
-      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
+      "sha256": "707143cff38b1b0cac1162601081ccb248d7f0ad08e5ee9fbe42de0848d60d1a",
+      "record": "docs/decisions/student-review-reply-2026-11-01.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/modules/synchronization/education-pipeline.md"
+        "docs/shared/design/student-review-step.md",
+        "docs/modules/synchronization/event-queue.md"
       ],
       "tests": [
-        "src/components/OlympiadHome.integration.test.tsx",
-        "src/components/PhotoHelpPanel.integration.test.tsx",
-        "sync/event-task-artifact.test.mjs",
-        "sync/help-response.test.mjs"
+        "src/components/ReviewConversation.test.tsx",
+        "packages/education-presentation/review-reply.test.mjs",
+        "sync/help-response.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо поручил завершить общий каталог и выбор нескольких фото для помощи через существующую инфраструктуру и UI Kit с интеграционными проверками."
+        "evidence": "01.11.2026 родитель потребовал проверенный отклик и следующий шаг по ответу, «Непонятно» одним нажатием и текст для последующей обработки."
       }
     },
     "src/components/PhotoHelpPanel.tsx": {
-      "sha256": "7f7ba11e36a4cc3015a8501b334c9cb36753de097c129e017d472dd185aca2bd",
-      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
+      "sha256": "746132735fc0ea6ee4c967665cf2f471a05564cc0ae20a2a6593096638421ecb",
+      "record": "docs/decisions/student-review-reply-2026-11-01.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/modules/synchronization/education-pipeline.md"
+        "docs/shared/design/student-review-step.md",
+        "docs/modules/synchronization/event-queue.md"
       ],
       "tests": [
-        "src/components/OlympiadHome.integration.test.tsx",
-        "src/components/PhotoHelpPanel.integration.test.tsx",
-        "sync/event-task-artifact.test.mjs",
-        "sync/help-response.test.mjs"
+        "src/components/ReviewConversation.test.tsx",
+        "packages/education-presentation/review-reply.test.mjs",
+        "sync/help-response.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо поручил завершить общий каталог и выбор нескольких фото для помощи через существующую инфраструктуру и UI Kit с интеграционными проверками."
+        "evidence": "01.11.2026 родитель потребовал проверенный отклик и следующий шаг по ответу, «Непонятно» одним нажатием и текст для последующей обработки."
       }
     },
     "sync/help-response.mjs": {
-      "sha256": "aeb2b741e54a7df79a5bb48203b0b68a92e61eaf17548d40d7ed636510b5bc79",
-      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
+      "sha256": "db8982f2e3bc46f46f7e2fcd0d0b6c9650f2ee9ed6f68657ebc468668ed9cd36",
+      "record": "docs/decisions/student-review-reply-2026-11-01.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/modules/synchronization/education-pipeline.md"
+        "docs/shared/design/student-review-step.md",
+        "docs/modules/synchronization/event-queue.md"
       ],
       "tests": [
-        "src/components/OlympiadHome.integration.test.tsx",
-        "src/components/PhotoHelpPanel.integration.test.tsx",
-        "sync/event-task-artifact.test.mjs",
-        "sync/help-response.test.mjs"
+        "src/components/ReviewConversation.test.tsx",
+        "packages/education-presentation/review-reply.test.mjs",
+        "sync/help-response.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо поручил завершить общий каталог и выбор нескольких фото для помощи через существующую инфраструктуру и UI Kit с интеграционными проверками."
+        "evidence": "01.11.2026 родитель потребовал проверенный отклик и следующий шаг по ответу, «Непонятно» одним нажатием и текст для последующей обработки."
       }
     },
     "src/components/SharedTabs.tsx": {
@@ -7073,37 +7069,39 @@
       }
     },
     "src/components/ReviewBrief.tsx": {
-      "sha256": "1ac9104c39ac13ae889a23f68e7f749f76930314d662f231bcc92bfae296614f",
-      "record": "docs/decisions/student-review-step-2026-11-01.md",
+      "sha256": "f72da4d9cbe35572e2e69f0db31180d33c936753e9e6dc37845fdfb3088e95eb",
+      "record": "docs/decisions/student-review-reply-2026-11-01.md",
       "specs": [
         "docs/shared/design/student-review-step.md",
-        "docs/shared/design/compact-review.md"
+        "docs/modules/synchronization/event-queue.md"
       ],
       "tests": [
-        "src/components/ReviewActivity.test.tsx",
-        "packages/education-presentation/review-activity.test.mjs",
-        "storage/student-review-edit.test.mjs"
+        "src/components/ReviewConversation.test.tsx",
+        "packages/education-presentation/review-reply.test.mjs",
+        "sync/help-response.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 родитель прямо потребовал исправить ученическую часть всех разборов: понятная модель текущего шага, интерактив без ответа и служебных фраз; общие инструкции, UI Kit и проверка ученического вида."
+        "evidence": "01.11.2026 родитель потребовал проверенный отклик и следующий шаг по ответу, «Непонятно» одним нажатием и текст для последующей обработки."
       }
     },
     "src/components/ReviewBriefShowcase.tsx": {
-      "sha256": "6ede70c468351e27d70d489896a87e48373d93cea58ae9095ad07a8b85bb5ba3",
-      "record": "docs/decisions/student-review-step-2026-11-01.md",
+      "sha256": "2a00ab7c7da8c2a0b408ad0b201049b37204449d3f16f34dd734063877c02411",
+      "record": "docs/decisions/student-review-reply-2026-11-01.md",
       "specs": [
         "docs/shared/design/student-review-step.md",
-        "docs/shared/design/compact-review.md"
+        "docs/modules/synchronization/event-queue.md"
       ],
       "tests": [
-        "src/components/ReviewActivity.test.tsx",
-        "packages/education-presentation/review-activity.test.mjs",
-        "storage/student-review-edit.test.mjs"
+        "src/components/ReviewConversation.test.tsx",
+        "packages/education-presentation/review-reply.test.mjs",
+        "sync/help-response.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 родитель прямо потребовал исправить ученическую часть всех разборов: понятная модель текущего шага, интерактив без ответа и служебных фраз; общие инструкции, UI Kit и проверка ученического вида."
+        "evidence": "01.11.2026 родитель потребовал проверенный отклик и следующий шаг по ответу, «Непонятно» одним нажатием и текст для последующей обработки."
       }
     },
     "src/components/ReviewTypography.css": {
@@ -7586,37 +7584,39 @@
       }
     },
     "src/components/ReviewActivity.css": {
-      "sha256": "e7820502f8a670f6d77f336c1b38f0dbdf1b7a3e4653d666ac9df7d50b1cca50",
-      "record": "docs/decisions/student-review-step-2026-11-01.md",
+      "sha256": "5c615b97a66a784104763805d4d148863b00e0f0d89aaa9fcce7a19694d51990",
+      "record": "docs/decisions/student-review-reply-2026-11-01.md",
       "specs": [
         "docs/shared/design/student-review-step.md",
-        "docs/shared/design/compact-review.md"
+        "docs/modules/synchronization/event-queue.md"
       ],
       "tests": [
-        "src/components/ReviewActivity.test.tsx",
-        "packages/education-presentation/review-activity.test.mjs",
-        "storage/student-review-edit.test.mjs"
+        "src/components/ReviewConversation.test.tsx",
+        "packages/education-presentation/review-reply.test.mjs",
+        "sync/help-response.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 родитель прямо потребовал исправить ученическую часть всех разборов: понятная модель текущего шага, интерактив без ответа и служебных фраз; общие инструкции, UI Kit и проверка ученического вида."
+        "evidence": "01.11.2026 родитель потребовал проверенный отклик и следующий шаг по ответу, «Непонятно» одним нажатием и текст для последующей обработки."
       }
     },
     "src/components/ReviewActivity.tsx": {
-      "sha256": "8672636fd78a29e322c9656ff6176e410b4c2ec00944e942bb12a457da3ed91d",
-      "record": "docs/decisions/student-review-step-2026-11-01.md",
+      "sha256": "e26f638e19f3f1d055a76e9bfded29768e99c856fa811ccf0231aeae44908de0",
+      "record": "docs/decisions/student-review-reply-2026-11-01.md",
       "specs": [
         "docs/shared/design/student-review-step.md",
-        "docs/shared/design/compact-review.md"
+        "docs/modules/synchronization/event-queue.md"
       ],
       "tests": [
-        "src/components/ReviewActivity.test.tsx",
-        "packages/education-presentation/review-activity.test.mjs",
-        "storage/student-review-edit.test.mjs"
+        "src/components/ReviewConversation.test.tsx",
+        "packages/education-presentation/review-reply.test.mjs",
+        "sync/help-response.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 родитель прямо потребовал исправить ученическую часть всех разборов: понятная модель текущего шага, интерактив без ответа и служебных фраз; общие инструкции, UI Kit и проверка ученического вида."
+        "evidence": "01.11.2026 родитель потребовал проверенный отклик и следующий шаг по ответу, «Непонятно» одним нажатием и текст для последующей обработки."
       }
     },
     "src/lib/reviewStepExamples.ts": {
@@ -7651,6 +7651,96 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "01.11.2026 родитель прямо потребовал исправить ученическую часть всех разборов: понятная модель текущего шага, интерактив без ответа и служебных фраз; общие инструкции, UI Kit и проверка ученического вида."
+      }
+    },
+    "packages/education-presentation/review-reply.mjs": {
+      "sha256": "32fed1b7477bf809397694ed1d9f4a159df533a9356558bc68e9f9fed74099ee",
+      "record": "docs/decisions/student-review-reply-2026-11-01.md",
+      "specs": [
+        "docs/shared/design/student-review-step.md",
+        "docs/modules/synchronization/event-queue.md"
+      ],
+      "tests": [
+        "src/components/ReviewConversation.test.tsx",
+        "packages/education-presentation/review-reply.test.mjs",
+        "sync/help-response.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "01.11.2026 родитель потребовал проверенный отклик и следующий шаг по ответу, «Непонятно» одним нажатием и текст для последующей обработки."
+      }
+    },
+    "src/components/ReviewConversation.tsx": {
+      "sha256": "fdd76217d1deab9ac62933e45bda74c135ba06dbc827247c97a1c9823f05cd45",
+      "record": "docs/decisions/student-review-reply-2026-11-01.md",
+      "specs": [
+        "docs/shared/design/student-review-step.md",
+        "docs/modules/synchronization/event-queue.md"
+      ],
+      "tests": [
+        "src/components/ReviewConversation.test.tsx",
+        "packages/education-presentation/review-reply.test.mjs",
+        "sync/help-response.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "01.11.2026 родитель потребовал проверенный отклик и следующий шаг по ответу, «Непонятно» одним нажатием и текст для последующей обработки."
+      }
+    },
+    "src/components/ReviewReplyControls.tsx": {
+      "sha256": "9e3d1fe974492e288e8cc86e3a0b901dabac77c90f9b8fc478381d4d5741d8d0",
+      "record": "docs/decisions/student-review-reply-2026-11-01.md",
+      "specs": [
+        "docs/shared/design/student-review-step.md",
+        "docs/modules/synchronization/event-queue.md"
+      ],
+      "tests": [
+        "src/components/ReviewConversation.test.tsx",
+        "packages/education-presentation/review-reply.test.mjs",
+        "sync/help-response.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "01.11.2026 родитель потребовал проверенный отклик и следующий шаг по ответу, «Непонятно» одним нажатием и текст для последующей обработки."
+      }
+    },
+    "src/lib/reviewConversation.ts": {
+      "sha256": "aaadfb9eafda53d225981e9a9320fd7874325b53ef2d4766ce39299824c1edd7",
+      "record": "docs/decisions/student-review-reply-2026-11-01.md",
+      "specs": [
+        "docs/shared/design/student-review-step.md",
+        "docs/modules/synchronization/event-queue.md"
+      ],
+      "tests": [
+        "src/components/ReviewConversation.test.tsx",
+        "packages/education-presentation/review-reply.test.mjs",
+        "sync/help-response.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "01.11.2026 родитель потребовал проверенный отклик и следующий шаг по ответу, «Непонятно» одним нажатием и текст для последующей обработки."
+      }
+    },
+    "src/ui-kit/ReviewConversationExample.tsx": {
+      "sha256": "faf7bf172d984e49ee75e6123e1f568f365d354f3d5dac87c0bd7105b1978dca",
+      "record": "docs/decisions/student-review-reply-2026-11-01.md",
+      "specs": [
+        "docs/shared/design/student-review-step.md",
+        "docs/modules/synchronization/event-queue.md"
+      ],
+      "tests": [
+        "src/components/ReviewConversation.test.tsx",
+        "packages/education-presentation/review-reply.test.mjs",
+        "sync/help-response.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "01.11.2026 родитель потребовал проверенный отклик и следующий шаг по ответу, «Непонятно» одним нажатием и текст для последующей обработки."
       }
     }
   }

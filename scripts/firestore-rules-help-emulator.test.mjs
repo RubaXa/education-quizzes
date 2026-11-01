@@ -133,4 +133,43 @@ describe.skipIf(!enabled)('shared photo help rules emulator', () => {
     await expect(updateDoc(history, { requestText: 'changed' })).rejects.toMatchObject({ code: 'permission-denied' })
     await expect(setDoc(doc(db, `${sourcePath}/requests/${'b'.repeat(64)}`), { ...request, eventReceiptId: 'b'.repeat(64) })).rejects.toMatchObject({ code: 'permission-denied' })
   })
+  it('routes an answer/stuck without photos, returns a checked next step and protects every boundary', async()=>{
+    const activity={kind:'write',label:'Твоя связь',instruction:'Запиши вывод.',tokens:[{id:'own',text:'Вывод'}],frame:[{slotId:'own'}]}
+    const checkedAt=new Date('2026-11-01T12:00:00Z')
+    const review={taskId:'task',status:'partial',checkedAt,studentFeedback:{title:'Проверь связь',confirmed:'Первая связь есть.',focus:'Нужно отрицание.',question:'Что верно о сумме?',presentation:{version:1,activity}}}
+    await store.doc(`dayProgress/${day}/items/task`).set(review)
+    const send=async(reply,change={})=>{
+      const operationId=randomUUID(),sourcePath=`dayHelp/${day}/items/task`
+      const event=await createEducationEvent({eventType:'help.requested',familyId:family,childId:'c',source:'firestore',sourceRef:{kind:'help',documentPath:sourcePath,dayToken:day,taskId:'task'},operationId,actor:{type:'user',uid}},serverTimestamp())
+      const request={taskId:'task',revision:1,requestKind:reply.intent==='stuck'?'step':'check',requestText:'',planRevision:1,reviewReply:reply,requestedAt:serverTimestamp(),eventOperationId:operationId,eventReceiptId:event.eventId,eventProducerVersion:1,...change}
+      const batch=writeBatch(db);batch.set(doc(db,sourcePath),request);batch.set(doc(db,`${sourcePath}/requests/${event.eventId}`),request);batch.set(doc(db,`educationEvents/${event.eventId}`),event)
+      await batch.commit();return event.eventId
+    }
+    const reply={version:1,sourceId:'review',checkedAt,correctedAt:null,step:{question:review.studentFeedback.question,activity},intent:'answer',value:JSON.stringify({selected:[],groups:{},written:{own:'Мой вывод'}})}
+    for(const forged of [{...reply,step:{...reply.step,question:'Подмена'}},{...reply,checkedAt:new Date('2020-01-01')},{...reply,sourceId:`help-${'f'.repeat(64)}`}]) await expect(send(forged)).rejects.toMatchObject({code:'permission-denied'})
+    const eventId=await send(reply)
+    const event=(await store.doc(`educationEvents/${eventId}`).get()).data()
+    const artifact=await prepareEventTaskArtifact(store,event)
+    expect((await store.doc(artifact.artifactPath).get()).data().inputs.source.reviewReply.value).toBe(reply.value)
+    const jobPath=`operatorSyncJobs/${syncJobId('triage-help',family,'c',eventId)}`
+    await store.doc(jobPath).set({kind:'triage-help',familyId:family,childId:'c',eventId,sourceId:eventId,status:'queued',artifactPath:artifact.artifactPath,fingerprint:artifact.fingerprint})
+    const reviewResponse={outcome:'partial',message:'Ты учёл первую фразу. Проверь, что именно отрицается.',next:{title:'Сравни фразы',confirmed:'Первую связь сохраняем.',focus:'Осталась вторая фраза.',question:'Какое требование из неё следует?',presentation:{version:1,activity}}}
+    const args={eventId,artifactId:artifact.artifactId,reviewResponse,decision:{reason:'Проверена собственная запись ученика и точный закрытый критерий перехода.',semanticChecked:true,noAnswerChecked:true}}
+    expect(await publishHelpResponse(store,args)).toMatchObject({verified:true,unchanged:false})
+    expect(await publishHelpResponse(store,args)).toMatchObject({verified:true,unchanged:true})
+    const responseRef=doc(db,`dayGuidance/${day}/items/help-${eventId}`)
+    const response=(await getDoc(responseRef)).data()
+    expect(response.reviewResponse).toEqual(reviewResponse);expect(response.pedagogicalDecision).toBeUndefined()
+    await expect(updateDoc(responseRef,{reviewResponse:{outcome:'correct',message:'Подмена',complete:true}})).rejects.toMatchObject({code:'permission-denied'})
+    // The next response targets exactly the released model, and stuck needs no text.
+    await send({...reply,sourceId:`help-${eventId}`,intent:'stuck',step:{question:reviewResponse.next.question,activity},value:JSON.stringify({selected:[],groups:{},written:{}})})
+    await expect(send({...reply,sourceId:`help-${eventId}`})).rejects.toMatchObject({code:'permission-denied'})
+    // Client cannot replace a closed solution or act through a parent membership.
+    await expect(getDoc(doc(db,`dayReviewPrivate/${day}/items/task`))).rejects.toMatchObject({code:'permission-denied'})
+    await store.doc(`families/${family}/members/p`).update({role:'parent'})
+    await expect(send(reply)).rejects.toMatchObject({code:'permission-denied'})
+    await store.doc(`families/${family}/members/p`).update({role:'student'})
+    expect((await store.doc(`dayProgress/${day}/items/task`).get()).data().status).toBe('partial')
+  })
+
 })

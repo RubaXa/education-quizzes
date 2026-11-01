@@ -23,3 +23,11 @@
 .edu-step-result math{font-size:20px;color:var(--edu-review-ink);font-family:'Cambria Math','STIX Two Math',serif}
 
 .edu-step-chain{list-style:none;margin:8px 0 12px;padding:0;display:grid;gap:16px}.edu-step-chain li{position:relative;min-width:0;font-size:16px;line-height:1.4;padding:6px 0;border-bottom:1px solid var(--edu-review-line)}.edu-step-chain li>span{display:block;overflow-wrap:anywhere}.edu-step-chain svg{position:absolute;left:12px;bottom:-15px;width:17px;height:12px;stroke:var(--edu-review-accent);fill:none;stroke-width:1.5;transform:rotate(90deg)}
+
+.edu-step-reply{margin-top:10px}.edu-step-reply-buttons{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.edu-step-reply-buttons .edu-step-send{background:var(--edu-review-accent);color:white;border-color:var(--edu-review-accent)}
+.edu-step-reply summary,.edu-step-wait summary{font-size:16px;min-height:44px;display:list-item;align-content:center;cursor:pointer;color:var(--edu-review-accent)}
+.edu-step-reply label,.edu-step-wait label{display:grid;gap:6px;font-size:16px;line-height:1.4}
+.edu-step-reply textarea,.edu-step-wait textarea{width:100%;box-sizing:border-box;min-height:88px;font:inherit;font-size:16px;padding:8px;border:1px solid var(--edu-review-line);border-radius:var(--edu-radius-control);background:var(--edu-review-paper);color:var(--edu-review-ink)}
+.edu-step-feedback,.edu-step-wait{font-size:16px;line-height:1.45;margin:10px 0;padding:10px 12px;border-left:3px solid var(--edu-review-accent);background:var(--edu-surface);overflow-wrap:anywhere}
+.edu-step-feedback p,.edu-step-wait p{margin:4px 0}.edu-step-wait button{font:inherit;font-size:16px;min-height:44px;padding:8px 12px;background:var(--edu-review-paper);color:var(--edu-review-accent);border:1px solid var(--edu-review-line);border-radius:var(--edu-radius-control)}
+.edu-step-closed{font-size:16px;line-height:1.45}

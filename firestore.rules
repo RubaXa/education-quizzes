@@ -1059,15 +1059,39 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
+    function dayHelpStudent(studentToken) {
+      let owner = get(/databases/$(database)/documents/dayOwners/$(studentToken)).data;
+      let session = get(/databases/$(database)/documents/deviceSessions/$(request.auth.uid)).data;
+      let link = get(/databases/$(database)/documents/accessLinks/$(session.linkToken)).data;
+      let member = get(/databases/$(database)/documents/families/$(owner.familyId)/members/$(link.personId)).data;
+      return request.auth != null && link.active == true && member.active == true
+        && member.role == 'student' && member.childIds.hasAny([owner.childId]);
+    }
+
+    function validReviewReply(studentToken, taskId, reply) {
+      let review = get(/databases/$(database)/documents/dayProgress/$(studentToken)/items/$(taskId)).data;
+      let guidance = reply.sourceId == 'review' ? {} : get(/databases/$(database)/documents/dayGuidance/$(studentToken)/items/$(reply.sourceId)).data;
+      let feedback = reply.sourceId == 'review' ? review.studentFeedback : guidance.reviewResponse.next;
+      return reply.keys().hasOnly(['version', 'sourceId', 'checkedAt', 'correctedAt', 'step', 'intent', 'value'])
+        && reply.version == 1 && reply.intent in ['answer', 'stuck']
+        && reply.value is string && reply.value.size() <= 6000
+        && review.status in ['partial', 'needs-fix', 'cannot-assess']
+        && reply.checkedAt == review.get('checkedAt', null)
+        && reply.correctedAt == review.get('correctedAt', null)
+        && (reply.sourceId == 'review' || (reply.sourceId.matches('^help-[a-f0-9]{64}$')
+          && guidance.taskId == taskId
+          && guidance.reviewContext == {'checkedAt': reply.checkedAt, 'correctedAt': reply.correctedAt}))
+        && reply.step == {'question': feedback.question, 'activity': feedback.presentation.activity};
+    }
+
     // A learner can send one current help request per task. No answer key or
     // tutor response is client writable. A request is not a mastery verdict.
     match /dayHelp/{studentToken}/items/{taskId} {
       allow get, list: if dayUploadOwner(studentToken);
-      allow create, update: if dayUploadOwner(studentToken)
-        && get(memberPath(get(/databases/$(database)/documents/dayOwners/$(studentToken)).data.familyId)).data.role == 'student'
+      allow create, update: if dayHelpStudent(studentToken)
         && exists(/databases/$(database)/documents/dayPages/$(studentToken))
         && taskId in get(/databases/$(database)/documents/dayPages/$(studentToken)).data.taskIds
-        && request.resource.data.keys().hasOnly(['taskId', 'revision', 'requestedAt', 'requestKind', 'requestText', 'photoUploadIds', 'planRevision', 'eventOperationId', 'eventReceiptId', 'eventProducerVersion'])
+        && request.resource.data.keys().hasOnly(['taskId', 'revision', 'requestedAt', 'requestKind', 'requestText', 'photoUploadIds', 'planRevision', 'reviewReply', 'eventOperationId', 'eventReceiptId', 'eventProducerVersion'])
         && request.resource.data.keys().hasAll(['taskId', 'revision', 'requestedAt', 'requestKind', 'requestText'])
         && request.resource.data.taskId == taskId
         && request.resource.data.revision is int
@@ -1078,13 +1102,16 @@ service cloud.firestore {
         && request.resource.data.requestText.size() <= 800
         && (!('photoUploadIds' in request.resource.data) || (request.resource.data.photoUploadIds is list && request.resource.data.photoUploadIds.size() > 0
           && request.resource.data.planRevision == get(/databases/$(database)/documents/dayPages/$(studentToken)).data.planRevision))
+        && (!('reviewReply' in request.resource.data) || (!('photoUploadIds' in request.resource.data)
+          && request.resource.data.planRevision == get(/databases/$(database)/documents/dayPages/$(studentToken)).data.planRevision
+          && validReviewReply(studentToken, taskId, request.resource.data.reviewReply)))
         && request.resource.data.requestedAt == request.time
         && (resource == null || (resource.data.taskId == taskId
           && request.resource.data.revision >= resource.data.revision))
-        && legacyOrEducationEventReceipt('help.requested', request.resource.data.get('eventOperationId', 'legacy'), 'dayHelp/' + studentToken + '/items/' + taskId)
-        && (!(('photoUploadIds' in request.resource.data) || (resource != null && 'photoUploadIds' in resource.data))
-          || validEducationEventReceipt(request.resource.data, 'help.requested', request.resource.data.get('eventOperationId', 'legacy'), 'dayHelp/' + studentToken + '/items/' + taskId))
-        && (!('photoUploadIds' in request.resource.data) || (
+        && ((('photoUploadIds' in request.resource.data) || ('reviewReply' in request.resource.data) || (resource != null && 'photoUploadIds' in resource.data))
+          ? validEducationEventReceipt(request.resource.data, 'help.requested', request.resource.data.get('eventOperationId', 'legacy'), 'dayHelp/' + studentToken + '/items/' + taskId)
+          : legacyOrEducationEventReceipt('help.requested', request.resource.data.get('eventOperationId', 'legacy'), 'dayHelp/' + studentToken + '/items/' + taskId))
+        && (!(('photoUploadIds' in request.resource.data) || ('reviewReply' in request.resource.data)) || (
           existsAfter(/databases/$(database)/documents/dayHelp/$(studentToken)/items/$(taskId)/requests/$(request.resource.data.eventReceiptId))
           && getAfter(/databases/$(database)/documents/dayHelp/$(studentToken)/items/$(taskId)/requests/$(request.resource.data.eventReceiptId)).data == request.resource.data));
       allow delete: if false;
@@ -1093,8 +1120,7 @@ service cloud.firestore {
     // History is an immutable copy of the same atomically written request.
     match /dayHelp/{studentToken}/items/{taskId}/requests/{eventId} {
       allow get, list: if dayUploadOwner(studentToken);
-      allow create: if dayUploadOwner(studentToken)
-        && get(memberPath(get(/databases/$(database)/documents/dayOwners/$(studentToken)).data.familyId)).data.role == 'student'
+      allow create: if dayHelpStudent(studentToken)
         && eventId.matches('^[a-f0-9]{64}$')
         && request.resource.data.eventReceiptId == eventId
         && existsAfter(/databases/$(database)/documents/educationEvents/$(eventId))
@@ -1102,8 +1128,8 @@ service cloud.firestore {
         && getAfter(/databases/$(database)/documents/educationEvents/$(eventId)).data.sourceRef.documentPath == 'dayHelp/' + studentToken + '/items/' + taskId
         && request.resource.data.requestedAt == request.time
         && request.resource.data == getAfter(/databases/$(database)/documents/dayHelp/$(studentToken)/items/$(taskId)).data
-        && request.resource.data.photoUploadIds is list
-        && request.resource.data.photoUploadIds.size() > 0;
+        && (('photoUploadIds' in request.resource.data && request.resource.data.photoUploadIds is list
+          && request.resource.data.photoUploadIds.size() > 0) || 'reviewReply' in request.resource.data);
       allow update, delete: if false;
     }
 

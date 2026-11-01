@@ -13,6 +13,7 @@ import './ReviewTypography.css'
  * @see ../../docs/modules/reviews/subject-aware-guidance.md#data-contract
  * @see ../../docs/modules/reviews/problem-card-design-decisions.md#role-projection */
 export default function TaskGuidance({ items }: { items: DayGuidance[] }) {
+  items=items.filter(item=>!item.reviewResponse)
   if (!items.length) return null
   const byStage = new Map<string, DayGuidance[]>()
   for (const item of items) {

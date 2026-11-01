@@ -2563,6 +2563,32 @@
       "path": "docs/decisions/specification-lifecycle-2026-10-16.md"
     },
     {
+      "id": "decision.student-review-reply-2026-11-01",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-01",
+      "updated": "2026-11-01",
+      "parent": "shared.design.student-review-step",
+      "uses": [
+        "module.synchronization.event-queue",
+        "shared.access-and-privacy"
+      ],
+      "consumers": [
+        "learner",
+        "parent",
+        "Education operator"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/student-review-reply-2026-11-01.md"
+    },
+    {
       "id": "decision.student-review-step-2026-11-01",
       "status": "accepted",
       "implementation": "implemented",
@@ -5073,6 +5099,13 @@
       "consumer": "Playwright; разработчик"
     },
     {
+      "id": "file:e2e/review-conversation.e2e.ts",
+      "path": "e2e/review-conversation.e2e.ts",
+      "kind": "artifact",
+      "purpose": "Проверка перехода, адресной отправки и границы ученика",
+      "consumer": "Ученик; автор; UI Kit"
+    },
+    {
       "id": "file:e2e/solution-files.e2e.ts",
       "path": "e2e/solution-files.e2e.ts",
       "kind": "artifact",
@@ -5610,6 +5643,27 @@
       "kind": "verification",
       "purpose": "Отказ от закрытых вложенных полей и неподдерживаемых визуальных данных",
       "consumer": "CLI; клиент; UI Kit"
+    },
+    {
+      "id": "file:packages/education-presentation/review-reply.d.mts",
+      "path": "packages/education-presentation/review-reply.d.mts",
+      "kind": "artifact",
+      "purpose": "Общий протокол ответа, отклика и перехода текущего шага",
+      "consumer": "Ученик; автор; UI Kit"
+    },
+    {
+      "id": "file:packages/education-presentation/review-reply.mjs",
+      "path": "packages/education-presentation/review-reply.mjs",
+      "kind": "artifact",
+      "purpose": "Общий протокол ответа, отклика и перехода текущего шага",
+      "consumer": "Ученик; автор; UI Kit"
+    },
+    {
+      "id": "file:packages/education-presentation/review-reply.test.mjs",
+      "path": "packages/education-presentation/review-reply.test.mjs",
+      "kind": "verification",
+      "purpose": "Проверка перехода, адресной отправки и границы ученика",
+      "consumer": "Ученик; автор; UI Kit"
     },
     {
       "id": "file:packages/education-presentation/solution-blocks.d.mts",
@@ -6728,7 +6782,7 @@
       "id": "file:scripts/firestore-rules-help-emulator.test.mjs",
       "path": "scripts/firestore-rules-help-emulator.test.mjs",
       "kind": "verification",
-      "purpose": "Ролевые права и история фотозапросов в эмуляторе",
+      "purpose": "Ролевые права, ответы без фото, неизменяемая история и переход в эмуляторе",
       "consumer": "Vitest; эмулятор"
     },
     {
@@ -8132,11 +8186,32 @@
       "consumer": "Разбор; UI Kit; проверка"
     },
     {
+      "id": "file:src/components/ReviewConversation.test.tsx",
+      "path": "src/components/ReviewConversation.test.tsx",
+      "kind": "verification",
+      "purpose": "Проверка перехода, адресной отправки и границы ученика",
+      "consumer": "Ученик; автор; UI Kit"
+    },
+    {
+      "id": "file:src/components/ReviewConversation.tsx",
+      "path": "src/components/ReviewConversation.tsx",
+      "kind": "artifact",
+      "purpose": "Общий протокол ответа, отклика и перехода текущего шага",
+      "consumer": "Ученик; автор; UI Kit"
+    },
+    {
       "id": "file:src/components/ReviewProse.integration.test.tsx",
       "path": "src/components/ReviewProse.integration.test.tsx",
       "kind": "verification",
       "purpose": "Реальная карточка обеих ролей, legacy, preview/send и сохранение источников",
       "consumer": "Vitest"
+    },
+    {
+      "id": "file:src/components/ReviewReplyControls.tsx",
+      "path": "src/components/ReviewReplyControls.tsx",
+      "kind": "artifact",
+      "purpose": "Общий протокол ответа, отклика и перехода текущего шага",
+      "consumer": "Ученик; автор; UI Kit"
     },
     {
       "id": "file:src/components/ReviewTypography.css",
@@ -9231,6 +9306,13 @@
       "consumer": "Разбор; UI Kit; проверка"
     },
     {
+      "id": "file:src/lib/reviewConversation.ts",
+      "path": "src/lib/reviewConversation.ts",
+      "kind": "artifact",
+      "purpose": "Общий протокол ответа, отклика и перехода текущего шага",
+      "consumer": "Ученик; автор; UI Kit"
+    },
+    {
       "id": "file:src/lib/reviewPresentation.test.ts",
       "path": "src/lib/reviewPresentation.test.ts",
       "kind": "verification",
@@ -9502,6 +9584,13 @@
       "kind": "artifact",
       "purpose": "Общие условные история и resolver для примеров",
       "consumer": "UI Kit"
+    },
+    {
+      "id": "file:src/ui-kit/ReviewConversationExample.tsx",
+      "path": "src/ui-kit/ReviewConversationExample.tsx",
+      "kind": "artifact",
+      "purpose": "Общий протокол ответа, отклика и перехода текущего шага",
+      "consumer": "Ученик; автор; UI Kit"
     },
     {
       "id": "file:src/ui-kit/TaskAttachmentsExample.tsx",
@@ -10004,7 +10093,7 @@
       "id": "file:sync/help-response.mjs",
       "path": "sync/help-response.mjs",
       "kind": "artifact",
-      "purpose": "Публикация адресного ответа на запрос с проверкой снимка",
+      "purpose": "Проверенный отклик/следующий шаг или ответ по фото с проверкой источника",
       "consumer": "EducationSync; оператор"
     },
     {
@@ -14035,7 +14124,8 @@
         "текущий-шаг",
         "модель-и-действие",
         "граница-доступа",
-        "миграция-и-проверка"
+        "миграция-и-проверка",
+        "отправка-и-ответ"
       ],
       "path": "docs/shared/design/student-review-step.md"
     },
@@ -15056,6 +15146,16 @@
     {
       "from": "decision.specification-lifecycle",
       "to": "shared.specification-system",
+      "type": "uses"
+    },
+    {
+      "from": "decision.student-review-reply-2026-11-01",
+      "to": "module.synchronization.event-queue",
+      "type": "uses"
+    },
+    {
+      "from": "decision.student-review-reply-2026-11-01",
+      "to": "shared.access-and-privacy",
       "type": "uses"
     },
     {
@@ -16094,6 +16194,11 @@
       "type": "implements"
     },
     {
+      "from": "file:e2e/review-conversation.e2e.ts",
+      "to": "shared.design.student-review-step",
+      "type": "implements"
+    },
+    {
       "from": "file:e2e/solution-files.e2e.ts",
       "to": "shared.media-storage",
       "type": "implements"
@@ -16416,6 +16521,16 @@
     {
       "from": "file:packages/education-presentation/review-content.mjs",
       "to": "shared.design.compact-review",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-presentation/review-reply.d.mts",
+      "to": "shared.design.student-review-step",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-presentation/review-reply.mjs",
+      "to": "shared.design.student-review-step",
       "type": "implements"
     },
     {
@@ -18849,6 +18964,16 @@
       "type": "implements"
     },
     {
+      "from": "file:src/components/ReviewConversation.tsx",
+      "to": "shared.design.student-review-step",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ReviewReplyControls.tsx",
+      "to": "shared.design.student-review-step",
+      "type": "implements"
+    },
+    {
       "from": "file:src/components/ReviewTypography.css",
       "to": "decision.compact-review-rollout-2026-10-31",
       "type": "implements"
@@ -20059,6 +20184,11 @@
       "type": "implements"
     },
     {
+      "from": "file:src/lib/reviewConversation.ts",
+      "to": "shared.design.student-review-step",
+      "type": "implements"
+    },
+    {
       "from": "file:src/lib/reviewPresentation.ts",
       "to": "decision.photo-transfer-recovery-2026-10-22",
       "type": "implements"
@@ -20286,6 +20416,11 @@
     {
       "from": "file:src/ui-kit/olympiadHistoryFixtures.ts",
       "to": "shared.design.ui-kit",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/ui-kit/ReviewConversationExample.tsx",
+      "to": "shared.design.student-review-step",
       "type": "implements"
     },
     {
@@ -24885,6 +25020,11 @@
     },
     {
       "from": "shared.design.student-review-step",
+      "to": "decision.student-review-reply-2026-11-01",
+      "type": "contains"
+    },
+    {
+      "from": "shared.design.student-review-step",
       "to": "decision.student-review-step-2026-11-01",
       "type": "contains"
     },
@@ -24895,7 +25035,17 @@
     },
     {
       "from": "shared.design.student-review-step",
+      "to": "file:packages/education-presentation/review-reply.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "shared.design.student-review-step",
       "to": "file:src/components/ReviewActivity.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "shared.design.student-review-step",
+      "to": "file:src/components/ReviewConversation.test.tsx",
       "type": "verified-by"
     },
     {
