@@ -7491,7 +7491,7 @@
       "id": "file:src/components/LearnerFlow.tsx",
       "path": "src/components/LearnerFlow.tsx",
       "kind": "artifact",
-      "purpose": "Один вопрос/действие и два добровольных уровня опоры",
+      "purpose": "Один вопрос/действие; стартовый план по запросу после проверенной попытки",
       "consumer": "DayPage"
     },
     {
@@ -18151,6 +18151,11 @@
     {
       "from": "file:src/components/LearnerFlow.tsx",
       "to": "module.reviews.subject-aware-guidance",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/LearnerFlow.tsx",
+      "to": "shared.design.student-review-step",
       "type": "implements"
     },
     {

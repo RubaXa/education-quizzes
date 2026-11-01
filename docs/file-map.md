@@ -60,7 +60,7 @@
 | [docs/decisions/scoped-learner-flow-2026-10-21.md](decisions/scoped-learner-flow-2026-10-21.md) | [Публичная помощь](modules/reviews/subject-aware-guidance.md) | Основание scoped flow и сохранения mixed-source блока | Оператор; разработчик |
 | [day/learner-flow.mjs](../day/learner-flow.mjs) | [Публичная помощь](modules/reviews/subject-aware-guidance.md) | Строгая область подтверждённой части без ключа и снятия sourceOnly-блока | Publisher; контракт данных |
 | [day/learner-flow.test.mjs](../day/learner-flow.test.mjs) | [Публичная помощь](modules/reviews/subject-aware-guidance.md) | Mixed-source и запрет закрытых полей в публичном процессе | Vitest |
-| [src/components/LearnerFlow.tsx](../src/components/LearnerFlow.tsx) | [Публичная помощь](modules/reviews/subject-aware-guidance.md) | Один вопрос/действие и два добровольных уровня опоры | DayPage |
+| [src/components/LearnerFlow.tsx](../src/components/LearnerFlow.tsx) | [Текущий шаг](shared/design/student-review-step.md) | Один вопрос/действие; стартовый план по запросу после проверенной попытки | DayPage |
 | [src/components/LearnerFlow.css](../src/components/LearnerFlow.css) | [Публичная помощь](modules/reviews/subject-aware-guidance.md) | Общие токены и мобильная геометрия помощи | LearnerFlow |
 | [src/components/LearnerFlow.test.tsx](../src/components/LearnerFlow.test.tsx) | [Публичная помощь](modules/reviews/subject-aware-guidance.md) | Навигация без оценки и сброс раскрытий | Vitest |
 | [docs/decisions/queue-artifact-resolution-2026-10-20.md](decisions/queue-artifact-resolution-2026-10-20.md) | [Глобальная синхронизация](modules/synchronization/global-sync.md) | Основание исправления legacy-сверки артефактных задач | Оператор; разработчик |

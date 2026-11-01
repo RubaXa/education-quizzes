@@ -11,11 +11,12 @@ Object.assign(globalThis,{IS_REACT_ACT_ENVIRONMENT:true})
 const activity:ReviewActivityData={kind:'build',label:'Собери запись',instruction:'Нажимай на данные в выбранном порядке.',joiner:' + ',tokens:[{id:'a',text:'3'},{id:'b',text:'5'}]}
 it('lets the actual learner projection manipulate the current model without revealing a solution, scoring or writing',async()=>{
  const privateReview={id:'r',taskId:'t',status:'partial',studentFeedback:{title:'Объедини группы',confirmed:'Обе группы найдены.',focus:'Нужны все предметы.',question:'Сколько их всего?',presentation:{version:1,activity}},assessmentBasis:{requirement:'Closed condition',limitation:'Домашняя необязательная практика. Объём помощи неизвестен.'},tutoringPlan:{responseCriterion:'Closed answer 8'}}
- const projected=studentReviewProjection(privateReview) as DayWorkReview
+ const projected={...studentReviewProjection(privateReview),mathReasoning:{answer:'correct',argument:'incomplete'}} as DayWorkReview
  const before=JSON.stringify(projected),host=document.createElement('div');document.body.append(host);const root=createRoot(host)
  try{
   await act(async()=>root.render(<WorkReview review={projected} uploads={[]}/>))
   expect(host.querySelector('.edu-step')).not.toBeNull()
+  expect(host.querySelector('.edu-review-meta')).toBeNull()
   expect(host.textContent).not.toMatch(/Closed|необязательная|Объём помощи/)
   const buttons=()=>Array.from(host.querySelectorAll('button'))
   await act(async()=>buttons().find(b=>b.textContent==='5')!.click())

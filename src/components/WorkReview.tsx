@@ -86,7 +86,7 @@ export default function WorkReview({ review, uploads, accepted = false, canDecid
 
     {review?.status && <ReviewBrief data={{ ...workReviewBrief(review, {complete:accepted||familyDone,
       label:pending.length?'Предыдущая проверка':undefined,stateLabel:requiredActions.length?'Доработать по решению родителя':familyDone?(parent?`Готово по семейному плану · ${familyStages?.confirmed} из ${familyStages?.required}`:'Готово'):accepted?(parent?'Засчитано родителем':'Засчитано'):undefined}),
-      meta:review.mathReasoning?`${answer==='correct'?'Ответ верен':answer==='incorrect'?'Ответ неверен':'Ответ не установлен'} · ${argumentLabel}`:undefined }}>
+      meta:parent&&review.mathReasoning?`${answer==='correct'?'Ответ верен':answer==='incorrect'?'Ответ неверен':'Ответ не установлен'} · ${argumentLabel}`:undefined }}>
         {parent && !!review.requirementChecks?.length && <details className="edu-review-detail day-work-review-requirements"><summary>Проверка требований МЭШ</summary><section aria-label="Проверка требований МЭШ">
           <h4>Что задано в МЭШ и что видно на фото</h4>
           <p>Подтверждено {review.requirementChecks.filter((check) => check.result === 'confirmed').length} из {review.requirementChecks.length} обязательных пунктов. Невидимую часть не считаем ошибкой.</p>
