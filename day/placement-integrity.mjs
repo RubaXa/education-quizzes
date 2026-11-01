@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/source-completion-consistency-2026-11-01.md */
 /** @see ../docs/decisions/informatics-assessment-2026-11-01.md */
 import { assignmentShapeErrors, dayPageShapeErrors } from './data-contract.mjs'
 
@@ -18,7 +19,7 @@ export function placementIntegrityErrors(page) {
     if (!/^[A-Za-z0-9_-]{24,64}$/.test(token ?? '')) errors.push(`Некорректный токен теста у ${placement?.taskId ?? 'отдельного теста'}.`)
     if (byToken.has(token)) errors.push('Один токен теста указан дважды.')
     byToken.add(token)
-    if (placement.relatedTaskId) {
+    if (placement.relatedTaskId && placement.optional !== undefined) {
       const related = tasks.get(placement.relatedTaskId)
       if (placement.taskId || placement.optional !== true || !related || related.subjectId !== placement.subjectId
         || related.task.outputKind !== 'platform-result' || related.task.testToken) errors.push('Дополнительный тест платформы должен быть отдельным optional-пунктом того же предмета.')

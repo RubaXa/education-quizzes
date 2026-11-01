@@ -1,6 +1,7 @@
+/** @see ../../docs/decisions/source-completion-consistency-2026-11-01.md */
 /** @see ../../docs/decisions/collapsed-variant-status-2026-10-21.md */
 /** @see ../../docs/modules/materials/material-clarification.md */
-import { materialRequestView } from './materialRequest'
+import { materialRequestView, hasSourceReceipt } from './materialRequest'
 import { cdzResultLabel, isCdzTask, uploadMatchesTask } from './dayStore'
 import type { DayTask, DayUpload, DayWorkReview } from './dayStore'
 import { activeProcessing, workCoverageComplete } from './reviewPresentation'
@@ -93,7 +94,7 @@ export function lessonWorkItems(tasks: DayTask[], uploads: DayUpload[], reviews:
       const familyStageComplete = stageCompletion(review, decisions)?.complete ?? false
     const familyActions = requiredFamilyActions(review, decisions)
     const covered = workCoverageComplete(review) && !pending && !familyActions.length
-    const done = !familyActions.length && Boolean(readPassed || cdzPassed || familyStageComplete || review?.status === 'verified' || accepted || covered || !review && task.status === 'verified')
+    const done = !familyActions.length && Boolean(readPassed || cdzPassed || familyStageComplete || review?.status === 'verified' || accepted || covered || (!review || hasSourceReceipt(review)) && task.status === 'verified')
     const processing = activeProcessing(review, uploads.filter((upload) => uploadMatchesTask(upload, task.id)))
     const criterionPending = review?.assessmentBasis?.outcome === 'unresolved'
     const checking = !done && (pending || Boolean(processing && processing.phase !== 'paused') || (task.kind === 'read' || task.kind === 'check') && quiz?.state === 'checking')

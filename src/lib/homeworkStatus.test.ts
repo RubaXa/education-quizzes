@@ -96,3 +96,10 @@ describe('reviewed written work in the next-homework overview', () => {
       detail: 'Работа разобрана; основание неопределённости — в карточке.' })
   })
 })
+
+it('keeps separately verified work complete after its source request is resolved, without treating source receipt as completion', () => {
+ const task={id:'prior',kind:'check',title:'Прежнее задание',status:'verified',materialRequest:{id:'source',state:'resolved',resolvedTopic:'Прежнее задание',uploadIds:['photo'],question:'Какое задание было раньше?',photoPrompt:'Пришли запись задания.'}} as DayTask
+ const source={id:'prior',taskId:'prior',purpose:'source-material',sourceAnalysis:{requestId:'source',topic:'Прежнее задание',nextStep:'Проверено ранее.'}} as DayWorkReview
+ expect(lessonWorkItems([task],[],[source],[],{},{})).toMatchObject([{state:'done'}])
+ expect(lessonWorkItems([{...task,status:'unknown'}],[],[source],[],{},{})).toMatchObject([{state:'todo'}])
+})

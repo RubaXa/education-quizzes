@@ -43,3 +43,9 @@ it('keeps the external platform task separate from its optional supplementary te
  expect(placementIntegrityErrors({...p,testPlacements:[{...p.testPlacements[0],optional:false}]}).some(e=>e.includes('optional'))).toBe(true)
  expect(placementIntegrityErrors({...p,testPlacements:[{...p.testPlacements[0],relatedTaskId:'missing'}]}).some(e=>e.includes('optional'))).toBe(true)
 })
+
+it('preserves legacy relatedTaskId as a topical reference, without turning it into a platform self-check', () => {
+ const p=page();delete p.subjects[0].tasks[0].testToken;p.subjects[0].tasks[0].kind='written'
+ p.testPlacements=[{token:a,subjectId:'history',relatedTaskId:'mesh-7'}]
+ expect(placementIntegrityErrors(p)).toEqual([])
+})
