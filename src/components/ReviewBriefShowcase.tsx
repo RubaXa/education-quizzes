@@ -1,3 +1,4 @@
+import ReviewConversationExample from '@/ui-kit/ReviewConversationExample'
 /** @see ../../docs/decisions/review-readability-repair-2026-10-31.md */
 /** @see ../../docs/decisions/compact-review-rollout-2026-10-31.md */
 /** @see ../../docs/shared/design/compact-review.md#showcase */
@@ -30,6 +31,7 @@ export default function ReviewBriefShowcase() {
     <p>Один компонент: строка результата, точка внимания, предметная опора и один вопрос. Дополнительное пояснение открывается на месте.</p>
     {parent&&<><h3>Полный путь: метод и случаи</h3><p>Условные данные. Тот же родительский компонент, формулы и выбор случая; действий с семейными данными нет.</p><div style={{maxWidth:390}}><ParentTaskGuide guide={solutionGuideExample}/></div>
     <details style={{maxWidth:390}}><summary>Другие модели: сетка и граф</summary><SolutionBlocks blocks={solutionVisualExamples}/></details></>}
+    <ReviewConversationExample/>
     <h3>Разбор вопроса теста</h3><div style={{maxWidth:390}}><QuizResultCard index={0} result={{question:{id:'demo-question',kind:'short',prompt:'Назови единицу измерения длины.',points:1},answer:'минуты',points:0,guidance:{observation:'В ответе названа единица времени.',question:'Какую величину нужно измерить по условию?',source:{title:'Условный учебный источник',edition:'Пример UI Kit',section:'Величины',pages:'Условная страница',locator:'Таблица единиц'}}}} /></div>
   </section>
 }

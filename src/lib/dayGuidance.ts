@@ -12,6 +12,8 @@ export type DayGuidance = {
   text: string; guideRevision: number; actorPersonId: string; createdAt: unknown; sourceRequestEventId?: string;
   /** Present only for a parent-selected full reveal; contains one stage's public allowlisted fields. */
   revealContent?: DayGuidanceRevealContent;
+  reviewResponse?: import('../../packages/education-presentation/review-reply.mjs').ReviewResponse;
+  reviewContext?: {checkedAt:unknown;correctedAt:unknown};
 }
 
 function guidanceTime(item: DayGuidance) {

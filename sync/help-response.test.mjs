@@ -16,7 +16,11 @@ function fixture() {
     'dayPages/day': { kind: 'student', date: '2026-10-28', planRevision: 2, subjects: [{ name: 'Математика', tasks: [{ id: 'task', title: 'Задача' }] }] },
   }))
   const snapshot = path => ({ exists: rows.has(path), data: () => structuredClone(rows.get(path)) })
-  const db = { doc: path => ({ path, get: async () => snapshot(path) }), runTransaction: async fn => fn({ get: async ref => snapshot(ref.path),
+  const query=(path,key,value)=>{
+    const q={_query:()=>({docs:[...rows].filter(([p,d])=>p.startsWith(path+'/')&&!p.slice(path.length+1).includes('/')&&d[key]===value).map(([p])=>({id:p.split('/').at(-1),data:()=>structuredClone(rows.get(p))}))})}
+    return {...q,get:async()=>q._query()}
+  }
+  const db = { collection:path=>({where:(key,_op,value)=>query(path,key,value)}), doc: path => ({ path, get: async () => snapshot(path) }), runTransaction: async fn => fn({ get: async ref => ref._query?ref._query():snapshot(ref.path),
     create: (ref, value) => { if (rows.has(ref.path)) throw new Error('already-exists'); rows.set(ref.path, structuredClone(value)) },
     set: (ref, value) => rows.set(ref.path, structuredClone(value)), update: (ref, value) => rows.set(ref.path, { ...rows.get(ref.path), ...structuredClone(value) }) }) }
   return { db, rows }
@@ -51,4 +55,28 @@ describe('shared help response', () => {
       expect(rows.has(`dayGuidance/day/items/help-${eventId}`)).toBe(false)
     }
   })
+})
+
+
+describe('checked review reply publication',()=>{
+ for(const outcome of ['correct','partial','retry','stuck','clarify'])it(`publishes ${outcome} with one next step and keeps the original result`,async()=>{
+  const {db,rows}=fixture()
+  const activity={kind:'write',label:'Вывод',instruction:'Запиши свою мысль.',tokens:[{id:'own',text:'Твоя мысль'}],frame:[{slotId:'own'}]}
+  const review={taskId:'task',status:'partial',checkedAt:'2026-11-01',studentFeedback:{question:'Как связаны эти факты?',presentation:{version:1,activity}}}
+  const reply={version:1,sourceId:'review',checkedAt:review.checkedAt,correctedAt:null,step:{question:review.studentFeedback.question,activity},intent:outcome==='stuck'?'stuck':'answer',value:JSON.stringify({selected:[],groups:{},written:{own:'Моя мысль'}})}
+  const request={taskId:'task',revision:1,planRevision:2,eventReceiptId:eventId,reviewReply:reply,requestText:''}
+  rows.set('dayProgress/day/items/task',review);rows.set('dayHelp/day/items/task',request);rows.set(`dayHelp/day/items/task/requests/${eventId}`,request)
+  const before=structuredClone(review),artifact=await prepareEventTaskArtifact(db,event,{now})
+  const jobPath=`operatorSyncJobs/${syncJobId('triage-help','family','child',eventId)}`
+  rows.set(jobPath,{kind:'triage-help',familyId:'family',childId:'child',eventId,sourceId:eventId,status:'queued',artifactPath:artifact.artifactPath,fingerprint:artifact.fingerprint})
+  const reviewResponse={outcome,message:'Ты заметил первую связь. Проверим следующий переход.',next:{title:'Следующая связь',question:'Как можно проверить свой вывод?',presentation:{version:1,activity}}}
+  await expect(publishHelpResponse(db,{eventId,artifactId:artifact.artifactId,reviewResponse,now})).rejects.toThrow('help_response_pedagogy_invalid')
+  const decision={reason:'Проверены текущая запись ученика и критерий одного перехода, а не всего доказательства.',semanticChecked:true,noAnswerChecked:true}
+  expect(await publishHelpResponse(db,{eventId,artifactId:artifact.artifactId,reviewResponse,decision,now})).toMatchObject({verified:true})
+  const saved=rows.get(`dayGuidance/day/items/help-${eventId}`)
+  expect(saved.reviewResponse).toEqual(reviewResponse);expect(saved.reviewContext).toEqual({checkedAt:review.checkedAt,correctedAt:null})
+  expect(JSON.stringify(saved)).not.toMatch(/responseCriterion|pedagogicalDecision|semanticChecked|reason/)
+  expect(rows.get(jobPath).pedagogicalDecision.outcome).toBe(outcome)
+  expect(rows.get('dayProgress/day/items/task')).toEqual(before)
+ })
 })

@@ -11,7 +11,8 @@ import { activeProcessing, elapsedLabel, firstPendingUploadReceivedAt, processin
 import { ArtifactStatusGlyph } from './ArtifactAvatar'
 import StatusIcon from './StatusIcon'
 import RequirementSwitch from './RequirementSwitch'
-import ReviewBrief from './ReviewBrief'
+import ReviewConversation from './ReviewConversation'
+import type {ReviewConversationBinding} from './ReviewConversation'
 import { workReviewBrief } from '@/lib/workReviewBrief'
 import './WorkReview.css'
 import { formatReviewObservation, formatReviewProse } from '@/lib/reviewProse'
@@ -26,8 +27,8 @@ const itemLabels = { correct: 'Верно', partial: 'Частично верн�
  * @see ../../docs/modules/reviews/review-criteria-provenance.md
  * @see ../../docs/decisions/readable-review-prose-2026-10-18.md
  */
-export default function WorkReview({ review, uploads, accepted = false, canDecide = false, onDecision, decisions = [], onRequirementChoice, parent = false }: {
-  review?: DayWorkReview; uploads: DayUpload[]; accepted?: boolean; canDecide?: boolean; onDecision?: (action: 'accept' | 'reopen') => Promise<void>;
+export default function WorkReview({ review, uploads, accepted = false, canDecide = false, onDecision, decisions = [], onRequirementChoice, parent = false, conversation }: {
+  conversation?:ReviewConversationBinding; review?: DayWorkReview; uploads: DayUpload[]; accepted?: boolean; canDecide?: boolean; onDecision?: (action: 'accept' | 'reopen') => Promise<void>;
   decisions?: ParentCompletionEvent[]; onRequirementChoice?: (requirementId: string, action: 'require' | 'optional') => Promise<void>; parent?: boolean
 }) {
   const [saving, setSaving] = useState(false)
@@ -84,7 +85,7 @@ export default function WorkReview({ review, uploads, accepted = false, canDecid
       {!paused && <time aria-hidden="true">{elapsed}</time>}
     </div>}
 
-    {review?.status && <ReviewBrief data={{ ...workReviewBrief(review, {complete:accepted||familyDone,
+    {review?.status && <ReviewConversation key={`${review.id}:${JSON.stringify(review.checkedAt)}:${JSON.stringify(review.correctedAt)}`} review={review} binding={conversation} parent={parent} data={{ ...workReviewBrief(review, {complete:accepted||familyDone,
       label:pending.length?'Предыдущая проверка':undefined,stateLabel:requiredActions.length?'Доработать по решению родителя':familyDone?(parent?`Готово по семейному плану · ${familyStages?.confirmed} из ${familyStages?.required}`:'Готово'):accepted?(parent?'Засчитано родителем':'Засчитано'):undefined}),
       meta:parent&&review.mathReasoning?`${answer==='correct'?'Ответ верен':answer==='incorrect'?'Ответ неверен':'Ответ не установлен'} · ${argumentLabel}`:undefined }}>
         {parent && !!review.requirementChecks?.length && <details className="edu-review-detail day-work-review-requirements"><summary>Проверка требований МЭШ</summary><section aria-label="Проверка требований МЭШ">
@@ -128,6 +129,6 @@ export default function WorkReview({ review, uploads, accepted = false, canDecid
           {!canDecide && <small>{pending.length ? 'Сначала дождитесь проверки нового фото.' : 'Для решения откройте личную ссылку родителя.'}</small>}
           {decisionError && <small role="alert">{decisionError}</small>}
         </div>}
-    </ReviewBrief>}
+    </ReviewConversation>}
   </div>
 }

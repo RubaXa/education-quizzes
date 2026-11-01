@@ -5,6 +5,7 @@
 import { ChevronDown } from 'lucide-react'
 import StatusIcon from './StatusIcon'
 import ReviewActivity from './ReviewActivity'
+import type {ReviewReplyAction} from './ReviewReplyControls'
 import type {ReviewActivityData} from '../../packages/education-presentation/review-activity.mjs'
 import './ReviewBrief.css'
 import './ReviewVisual.css'
@@ -60,7 +61,7 @@ export function ReviewVisual({ visual }: { visual: ReviewVisualData }) {
 }
 
 /** Shared presentation: policy and authorized data are supplied by the owning adapter. */
-export default function ReviewBrief({ data,children,context }: { data: ReviewBriefData;children?:ReactNode;context?:ReactNode }) {
+export default function ReviewBrief({ data,children,context,reply,articleRef }: { data: ReviewBriefData;children?:ReactNode;context?:ReactNode;reply?:Omit<ReviewReplyAction,'canAnswer'>;articleRef?:import('react').Ref<HTMLElement> }) {
   const complete = data.status === 'verified'
   const overflow:string[]=[]
   const readable=(value:string|undefined,limit:number)=>{
@@ -71,7 +72,7 @@ export default function ReviewBrief({ data,children,context }: { data: ReviewBri
   const focus=!complete?readable(data.focus,reviewOverviewLimits.focus):undefined
   const bridge=!complete?readable(data.bridge,reviewOverviewLimits.bridge):undefined
   const details = [...(overflow.length?[{label:'Подробное пояснение',text:overflow.join('\n\n')}]:[]),...(data.details ?? (data.detail ? [data.detail] : []))]
-  return <article className="edu-review-brief" aria-label={data.label} data-review-state={data.status}>
+  return <article ref={articleRef} className="edu-review-brief" aria-label={data.label} data-review-state={data.status}>
     <header className="edu-review-header"><h3 className="edu-review-title">{data.label}</h3>
       <span className="edu-review-state">{data.stateLabel??({verified:'Зачтено',uncertain:'Уточняем',revise:'Есть правка',incorrect:'Нужна правка',waiting:'Ждёт проверки',skipped:'Без оценки',neutral:'Ориентир'}[data.status])}</span></header>
     {data.meta&&<p className="edu-review-copy edu-review-meta">{data.meta}</p>}
@@ -84,8 +85,8 @@ export default function ReviewBrief({ data,children,context }: { data: ReviewBri
       {focus && <p className="edu-review-copy edu-review-focus">{focus}</p>}
       {data.visual && !data.activity && <ReviewVisual visual={data.visual} />}
       {bridge && <p className="edu-review-copy edu-review-bridge">{bridge}</p>}
-      {data.question && <p className="edu-review-copy edu-review-question">{data.question}</p>}
-      {data.activity && <ReviewActivity key={data.id} activity={data.activity}/>}
+      {data.question && <p tabIndex={-1} className="edu-review-copy edu-review-question">{data.question}</p>}
+      {data.activity && <ReviewActivity key={data.id} activity={data.activity} reply={reply}/>}
     </>}
     {details.map((detail, index) => <details className="edu-review-detail" key={`${data.id}-${index}`}>
       <summary><span>{detail.label}</span><ChevronDown size={15} aria-hidden="true" /></summary>

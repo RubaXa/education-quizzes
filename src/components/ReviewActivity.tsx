@@ -3,6 +3,9 @@ import {createElement,useState} from 'react'
 import type {ReviewActivityData} from '../../packages/education-presentation/review-activity.mjs'
 import {projectReviewActivity} from '../../packages/education-presentation/review-activity.mjs'
 import './ReviewActivity.css'
+import ReviewReplyControls from './ReviewReplyControls'
+import type {ReviewReplyAction} from './ReviewReplyControls'
+import {reviewValueValid} from '../../packages/education-presentation/review-reply.mjs'
 
 function Diagram({diagram,selected,continuation=false}:{diagram:NonNullable<ReviewActivityData['diagram']>;selected:readonly string[];continuation?:boolean}){
  if(diagram.kind==='chain')return <ol className="edu-step-chain" aria-label={diagram.label}>{diagram.nodes.map((n,i)=><li key={i}><span>{n}</span>{(i<diagram.nodes.length-1||continuation)&&<svg viewBox="0 0 24 12" aria-hidden="true"><path d="M0 6h21m-5-5 5 5-5 5"/></svg>}</li>)}</ol>
@@ -15,7 +18,7 @@ function Diagram({diagram,selected,continuation=false}:{diagram:NonNullable<Revi
  </svg>
 }
 /** Local representation of the learner's own choices, never a grader. */
-function Activity({activity:a}:{activity:ReviewActivityData}){
+function Activity({activity:a,reply}:{activity:ReviewActivityData;reply?:Omit<ReviewReplyAction,'canAnswer'>}){
  const [selected,setSelected]=useState<string[]>([]),[groups,setGroups]=useState<Record<string,string>>({}),[written,setWritten]=useState<Record<string,string>>({})
  const tokens=new Map(a.tokens.map(t=>[t.id,t.text])),current=selected.map(id=>tokens.get(id))
  const changed=selected.length>0||Object.values(groups).some(Boolean)||Object.values(written).some(Boolean)
@@ -33,9 +36,10 @@ function Activity({activity:a}:{activity:ReviewActivityData}){
      :<><span>Ты выделил</span><output>{current.length?current.join(' · '):'Пока ничего'}</output></>}
   </div>}
   {changed&&<div className="edu-step-actions">{a.kind==='build'&&<button type="button" onClick={()=>setSelected(s=>s.slice(0,-1))}>Убрать последнюю</button>}<button type="button" onClick={()=>{setSelected([]);setGroups({});setWritten({})}}>Сбросить</button></div>}
+  {reply&&<ReviewReplyControls value={{selected,groups,written}} action={{...reply,canAnswer:reviewValueValid(a,{selected,groups,written})}}/>}
  </section>
 }
-export default function ReviewActivity({activity}:{activity:ReviewActivityData}){
+export default function ReviewActivity({activity,reply}:{activity:ReviewActivityData;reply?:Omit<ReviewReplyAction,'canAnswer'>}){
  const safe=projectReviewActivity(activity)
- return safe?<Activity key={JSON.stringify(safe)} activity={safe}/>:null
+ return safe?<Activity key={JSON.stringify(safe)} activity={safe} reply={reply}/>:null
 }
