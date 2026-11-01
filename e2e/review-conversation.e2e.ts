@@ -12,6 +12,7 @@ for(const width of[320,390,540])test(`reply feedback and next step ${width}px`,a
  await expect(review.locator('.edu-step-feedback')).toContainText('Ты нашёл сторону')
  await expect(review.locator('.edu-review-question')).toHaveText('Сколько раз общая сторона входила в сумму периметров до соединения?')
  await expect(review.getByRole('textbox')).toHaveValue('')
+ await expect(review.locator('.edu-step-diagram')).toBeVisible()
  await review.getByRole('button',{name:'Непонятно',exact:true}).click()
  await expect(review).toContainText('Вопрос отправлен')
  await review.getByText('Дополнить вопрос',{exact:true}).click()

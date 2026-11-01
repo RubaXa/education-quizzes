@@ -36,9 +36,12 @@ sections:
 следующий переход. Pending восстанавливается; ошибка не стирает ввод; retry имеет
 тот же operationId. Дополнение сохраняет исходное сообщение. Старый запоздавший
 отклик не обгоняет новый запрос того же шага. Версия проверки меняет корень диалога.
-Закрытый критерий не передаётся браузеру; транспорт не вычисляет вердикт из выбора.
+Следующий вопрос сохраняет нужный рисунок/схему через тот же diagram, а не требует
+искать опору в истории. Закрытый критерий не передаётся браузеру; транспорт не вычисляет вердикт из выбора.
 
 Затронутые файлы:
+- `packages/education-presentation/review-activity.mjs`
+- `packages/education-presentation/review-activity.test.mjs`
 - `e2e/review-conversation.e2e.ts`
 - `packages/education-presentation/review-reply.d.mts`
 - `packages/education-presentation/review-reply.mjs`
