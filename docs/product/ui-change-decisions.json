@@ -7550,20 +7550,19 @@
       }
     },
     "packages/education-presentation/review-activity.mjs": {
-      "sha256": "d7993b34af3af0eaeb9e47cf4f4a3006c788991f8b6671d63ac9fbc73fb52beb",
-      "record": "docs/decisions/student-review-step-2026-11-01.md",
+      "sha256": "5b7ef287521bc0c2c2f0d561a5999ea4e799707ee51a94968abca0b78f82242c",
+      "record": "docs/decisions/student-review-reply-2026-11-01.md",
       "specs": [
         "docs/shared/design/student-review-step.md",
-        "docs/shared/design/compact-review.md"
+        "docs/modules/synchronization/event-queue.md"
       ],
       "tests": [
-        "src/components/ReviewActivity.test.tsx",
         "packages/education-presentation/review-activity.test.mjs",
-        "storage/student-review-edit.test.mjs"
+        "src/components/ReviewConversation.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 родитель прямо потребовал исправить ученическую часть всех разборов: понятная модель текущего шага, интерактив без ответа и служебных фраз; общие инструкции, UI Kit и проверка ученического вида."
+        "evidence": "01.11.2026 родитель потребовал проверенный отклик и следующий шаг по ответу, «Непонятно» одним нажатием и текст для последующей обработки."
       }
     },
     "scripts/student-review.mjs": {

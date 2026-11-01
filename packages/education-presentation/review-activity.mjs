@@ -23,11 +23,11 @@ export function reviewActivityValid(a){
    if(d.segments!==undefined||d.rows!==undefined||d.columns!==undefined||d.cells!==undefined||!list(d.nodes,4,n=>text(n,120)))return false
   }else if(d.kind==='lines'){
    if(d.nodes!==undefined)return false
-   if(d.rows!==undefined||d.columns!==undefined||d.cells!==undefined||!list(d.segments,30,s=>object(s,['id','from','to','label'])&&ids.has(s.id)&&point(s.from)&&point(s.to)&&(s.label===undefined||text(s.label,20)))||!unique(d.segments))return false
+   if(d.rows!==undefined||d.columns!==undefined||d.cells!==undefined||!list(d.segments,30,s=>object(s,['id','from','to','label'])&&(a.kind==='write'?text(s.id,60):ids.has(s.id))&&point(s.from)&&point(s.to)&&(s.label===undefined||text(s.label,20)))||!unique(d.segments))return false
   }else if(d.kind==='grid'){
    if(d.nodes!==undefined)return false
    if(d.segments!==undefined||!Number.isInteger(d.rows)||d.rows<1||d.rows>12||!Number.isInteger(d.columns)||d.columns<1||d.columns>12
-    ||!list(d.cells,144,c=>object(c,['row','column','mark','tokenId'])&&Number.isInteger(c.row)&&c.row>=0&&c.row<d.rows&&Number.isInteger(c.column)&&c.column>=0&&c.column<d.columns&&['hit','miss','given'].includes(c.mark)&&(c.tokenId===undefined||ids.has(c.tokenId)))
+    ||!list(d.cells,144,c=>object(c,['row','column','mark','tokenId'])&&Number.isInteger(c.row)&&c.row>=0&&c.row<d.rows&&Number.isInteger(c.column)&&c.column>=0&&c.column<d.columns&&['hit','miss','given'].includes(c.mark)&&(c.tokenId===undefined||(a.kind==='write'?text(c.tokenId,60):ids.has(c.tokenId))))
     ||new Set(d.cells.map(c=>`${c.row}:${c.column}`)).size!==d.cells.length)return false
   }else return false
  }

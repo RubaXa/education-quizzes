@@ -40,6 +40,8 @@ sections:
 искать опору в истории. Закрытый критерий не передаётся браузеру; транспорт не вычисляет вердикт из выбора.
 
 Затронутые файлы:
+- `packages/education-presentation/review-activity.mjs`
+- `packages/education-presentation/review-activity.test.mjs`
 - `e2e/review-conversation.e2e.ts`
 - `packages/education-presentation/review-reply.d.mts`
 - `packages/education-presentation/review-reply.mjs`
