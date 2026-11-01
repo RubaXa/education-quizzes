@@ -1250,3 +1250,5 @@
 | [docs/decisions/sync-phase-report-2026-10-29.md](decisions/sync-phase-report-2026-10-29.md) | [Отчёт фаз](modules/synchronization/execution-artifact.md) | Решение семьи об итоговом отчёте в чате | Оператор |
 
 | [docs/decisions/informatics-assessment-2026-11-01.md](decisions/informatics-assessment-2026-11-01.md) | [Граф самопроверок](modules/assessments/assessment-decision-graph.md) | Программирование на уроке труда: причина, адаптер и проверка | Оператор; разработчик |
+
+| [docs/decisions/source-completion-consistency-2026-11-01.md](decisions/source-completion-consistency-2026-11-01.md) | [Уточнение материалов](modules/materials/material-clarification.md) | Зачёт при source receipt и совместимость старых тематических связей | Ученик; родитель; оператор |

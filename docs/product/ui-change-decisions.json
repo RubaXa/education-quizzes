@@ -476,20 +476,19 @@
       }
     },
     "day/placement-integrity.mjs": {
-      "sha256": "f7813a8dcd04d8c94d746341d99dd5117eaabce3e11e4bbb0575055e12e64d4e",
-      "record": "docs/decisions/informatics-assessment-2026-11-01.md",
+      "sha256": "e4146b9bce4d08dbc76bb84b935a51f1e89bad2fc00826d6ca35a69bcfe0a949",
+      "record": "docs/decisions/source-completion-consistency-2026-11-01.md",
       "specs": [
-        "docs/modules/assessments/assessment-decision-graph.md",
-        "docs/modules/synchronization/task-routing.md"
+        "docs/modules/materials/material-clarification.md",
+        "docs/modules/assessments/assessment-decision-graph.md"
       ],
       "tests": [
-        "sync/task-route.test.mjs",
-        "assessment/decision-graph.test.mjs",
+        "src/lib/homeworkStatus.test.ts",
         "day/placement-integrity.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 родитель потребовал исправить маршрут информатики/труда и выпустить тематический тест с кодом для ребёнка."
+        "evidence": "01.11.2026 dispatch требует полной проверки и исправления препятствий; родитель требует сохранять зачтённое и согласованность всего конвейера."
       }
     },
     "day/placement-repair.mjs": {
@@ -4249,23 +4248,19 @@
       }
     },
     "src/lib/homeworkStatus.ts": {
-      "sha256": "f9b9a8b81021da039775a122d0dbc130a65054f8ffb8f7c34789f90ef127d15f",
-      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
+      "sha256": "19bad590e4375be120dbbd33415c222f978334d1b4d97324a8354e557e17ea03",
+      "record": "docs/decisions/source-completion-consistency-2026-11-01.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/modules/synchronization/education-pipeline.md"
+        "docs/modules/materials/material-clarification.md",
+        "docs/modules/assessments/assessment-decision-graph.md"
       ],
       "tests": [
-        "assessment/learning-context-backfill.test.mjs",
-        "day/family-assignment.test.mjs",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/components/QuizCard.test.tsx",
-        "src/lib/educationEventProducers.test.ts",
-        "sync/event-task-artifact.test.mjs"
+        "src/lib/homeworkStatus.test.ts",
+        "day/placement-integrity.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь прямо потребовал использовать общие уроки, семейные права, фотографии и синхронизацию Education для олимпиад."
+        "evidence": "01.11.2026 dispatch требует полной проверки и исправления препятствий; родитель требует сохранять зачтённое и согласованность всего конвейера."
       }
     },
     "src/lib/homeworkUpdateReceipt.ts": {

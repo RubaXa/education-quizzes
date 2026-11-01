@@ -2546,6 +2546,33 @@
       "path": "docs/decisions/solution-file-uploads-2026-10-31.md"
     },
     {
+      "id": "decision.source-completion-consistency-2026-11-01",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-01",
+      "updated": "2026-11-01",
+      "parent": "module.materials.material-clarification",
+      "uses": [
+        "module.assessments.assessment-decision-graph"
+      ],
+      "consumers": [
+        "student",
+        "parent"
+      ],
+      "code": [
+        "src/lib/homeworkStatus.ts",
+        "day/placement-integrity.mjs"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/source-completion-consistency-2026-11-01.md"
+    },
+    {
       "id": "decision.source-wait-generations-2026-10-22",
       "status": "accepted",
       "implementation": "implemented",
@@ -15297,6 +15324,11 @@
       "type": "uses"
     },
     {
+      "from": "decision.source-completion-consistency-2026-11-01",
+      "to": "module.assessments.assessment-decision-graph",
+      "type": "uses"
+    },
+    {
       "from": "decision.specification-graph-migration",
       "to": "shared.specification-system",
       "type": "uses"
@@ -16119,6 +16151,11 @@
     {
       "from": "file:day/placement-integrity.mjs",
       "to": "decision.informatics-assessment-2026-11-01",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/placement-integrity.mjs",
+      "to": "decision.source-completion-consistency-2026-11-01",
       "type": "implements"
     },
     {
@@ -20073,6 +20110,11 @@
     },
     {
       "from": "file:src/lib/homeworkStatus.ts",
+      "to": "decision.source-completion-consistency-2026-11-01",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/homeworkStatus.ts",
       "to": "module.assessments.quizzes",
       "type": "implements"
     },
@@ -21810,6 +21852,11 @@
       "from": "module.materials.family-library",
       "to": "module.materials.storage-privacy",
       "type": "uses"
+    },
+    {
+      "from": "module.materials.material-clarification",
+      "to": "decision.source-completion-consistency-2026-11-01",
+      "type": "contains"
     },
     {
       "from": "module.materials.material-clarification",
