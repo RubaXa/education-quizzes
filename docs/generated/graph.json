@@ -1397,6 +1397,7 @@
         "operator"
       ],
       "code": [
+        "packages/education-connect/lib/prompts.mjs",
         "scripts/connect-diagnose.mjs",
         "packages/education-connect/bin/education-connect.mjs",
         "packages/education-connect/lib/mesh.mjs",
@@ -5945,8 +5946,15 @@
       "id": "file:packages/education-connect/lib/prompts.mjs",
       "path": "packages/education-connect/lib/prompts.mjs",
       "kind": "artifact",
-      "purpose": "Скрытый ввод пароля и SMS",
+      "purpose": "Скрытый ввод пароля и SMS, корректный Unicode Backspace и явная локальная проверка ввода",
       "consumer": "Пакет; `diary/cli.mjs`"
+    },
+    {
+      "id": "file:packages/education-connect/lib/prompts.test.mjs",
+      "path": "packages/education-connect/lib/prompts.test.mjs",
+      "kind": "verification",
+      "purpose": "Unicode Backspace, длина без секрета и явное экранированное начало пароля",
+      "consumer": "Vitest"
     },
     {
       "id": "file:packages/education-connect/package.json",
@@ -15317,6 +15325,11 @@
     },
     {
       "from": "decision.local-connect-diagnostics-2026-11-01",
+      "to": "file:packages/education-connect/lib/prompts.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "decision.local-connect-diagnostics-2026-11-01",
       "to": "shared.server-runtime",
       "type": "uses"
     },
@@ -17188,6 +17201,11 @@
     {
       "from": "file:packages/education-connect/lib/network-retry.mjs",
       "to": "module.synchronization.global-sync",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-connect/lib/prompts.mjs",
+      "to": "decision.local-connect-diagnostics-2026-11-01",
       "type": "implements"
     },
     {

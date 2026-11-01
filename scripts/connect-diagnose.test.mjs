@@ -16,3 +16,7 @@ it('runs the local connector with inherited TTY and diagnostic mode, without a s
 it('rejects malformed arguments before running the connector',()=>{
  const run=vi.fn();expect(main(['--invite','bad;command'],{run,write:()=>{},env:{}})).toBe(2);expect(run).not.toHaveBeenCalled()
 })
+it('supports input-only inspection without an invite, exposing the prefix only by explicit flag',()=>{
+ const run=vi.fn(()=>({status:0}));main(['--input-check','--show-password-prefix'],{run,write:()=>{},env:{}})
+ expect(run.mock.calls[0][1]).toEqual([expect.stringContaining('education-connect.mjs'),'--diagnose','--input-check','--show-password-prefix'])
+})
