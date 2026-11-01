@@ -1,3 +1,4 @@
+/** @see ../../../docs/decisions/mesh-auth-recovery-2026-11-01.md */
 import { authenticate } from 'mesh-diary/lib/auth.js'
 import { MeshAPI } from 'mesh-diary/lib/api.js'
 import { fetchMeshRead } from './network-retry.mjs'
@@ -151,6 +152,28 @@ export async function loginToMesh({ username, password, askSmsCode, chooseProfil
   }
 }
 
+/** Safe authorization diagnostics: never retain SDK URL, response body or credentials.
+ * @see ../../../docs/shared/server-runtime.md#авторизация-и-совместимость
+ */
+export function meshAuthDiagnostic(error) {
+  const httpStatus = Number(error?.httpStatus ?? String(error?.message ?? '').match(/^API (401|403):/)?.[1])
+  if (error?.code !== 'mesh_auth_required' && ![401, 403].includes(httpStatus)) return null
+  const stage = ['oauth-refresh', 'mesh-exchange', 'mesh-activation'].includes(error?.stage) ? error.stage : 'mesh-api'
+  const oauthError = ['invalid_client', 'invalid_grant', 'unauthorized_client', 'access_denied'].includes(error?.oauthError) ? error.oauthError : null
+  return { code: 'mesh_auth_required', stage, httpStatus: [400, 401, 403].includes(httpStatus) ? httpStatus : null, oauthError }
+}
+export function meshAuthFailure(error) {
+  const diagnostic = meshAuthDiagnostic(error)
+  return diagnostic ? Object.assign(new Error('AUTH_REQUIRED: требуется повторный вход в МЭШ'), diagnostic) : null
+}
+async function rejectAuth(response, stage) {
+  if (![400, 401, 403].includes(response.status)) return
+  let data
+  try { data = await response.clone().json() } catch { /* Never include untrusted response text. */ }
+  if (![401, 403].includes(response.status) && !['invalid_client', 'invalid_grant', 'unauthorized_client', 'access_denied'].includes(data?.error)) return
+  throw meshAuthFailure({ code: 'mesh_auth_required', httpStatus: response.status, stage, oauthError: data?.error })
+}
+
 async function refreshToken(secret, telemetry = null, shutdownSignal = null) {
   if (!secret.clientId || !secret.clientSecret) return null
   const authorization = `Basic ${Buffer.from(`${secret.clientId}:${secret.clientSecret}`).toString('base64')}`
@@ -160,18 +183,19 @@ async function refreshToken(secret, telemetry = null, shutdownSignal = null) {
       headers: { Authorization: authorization, 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams(body),
     }, telemetry, shutdownSignal)
+    await rejectAuth(response, 'oauth-refresh')
     return response.ok ? response.json() : null
   }
-  let mos = await request({ grant_type: 'client_credentials', scope: 'openid profile' })
-  if (!mos?.access_token && secret.refreshToken) {
-    mos = await request({ grant_type: 'refresh_token', refresh_token: secret.refreshToken })
-  }
+  const mos = secret.refreshToken
+    ? await request({ grant_type: 'refresh_token', refresh_token: secret.refreshToken })
+    : await request({ grant_type: 'client_credentials', scope: 'openid profile' })
   if (!mos?.access_token) return null
   const response = await meshFetch('https://school.mos.ru/v3/auth/sudir/auth', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ user_authentication_for_mobile_request: { mos_access_token: mos.access_token } }),
   }, telemetry, shutdownSignal)
+  await rejectAuth(response, 'mesh-exchange')
   if (!response.ok) return null
   const data = await response.json()
   const token = data.user_authentication_for_mobile_response?.mesh_access_token
@@ -179,6 +203,7 @@ async function refreshToken(secret, telemetry = null, shutdownSignal = null) {
   const activation = await meshFetch('https://dnevnik.mos.ru/acl/api/users/profile_info', {
     headers: { 'auth-token': token, 'partner-source-id': 'MOBILE', Accept: '*/*' },
   }, telemetry, shutdownSignal)
+  await rejectAuth(activation, 'mesh-activation')
   if (!activation.ok) return null
   return { token, refreshToken: mos.refresh_token || secret.refreshToken }
 }

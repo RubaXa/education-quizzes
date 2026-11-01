@@ -1,3 +1,4 @@
+/** @see ../../../docs/decisions/mesh-auth-recovery-2026-11-01.md */
 import { FieldPath } from '@google-cloud/firestore'
 import { dateWindow } from '../../../sync/project-plan.mjs'
 import { createFamilyGraphRepository } from '../../education-runtime/family-graph.mjs'
@@ -212,13 +213,13 @@ function safeErrorCode(error) {
   const code = error?.code
   const allowed = new Set(['unavailable', 'deadline-exceeded', 'resource-exhausted', 'permission-denied',
     'failed-precondition', 'aborted', 'cancelled', 'not-found', 'unauthenticated', 'internal',
-    'scope_unavailable', 'credentials_unavailable', 'credentials_mismatch', 'mesh_unavailable', 'mesh_incomplete',
+    'scope_unavailable', 'credentials_unavailable', 'credentials_mismatch', 'mesh_auth_required', 'mesh_unavailable', 'mesh_incomplete',
     'mesh_access_unverified', 'child_profile_unavailable', 'scope_changed', 'credential_refresh_invalid', 'credential_refresh_persist_failed'])
   return allowed.has(code) ? code : 'inventory_read_failed'
 }
 function safeMeshErrorCode(error) {
   const code = error?.code ?? error?.message
-  const allowed = new Set(['scope_unavailable', 'credentials_unavailable', 'credentials_mismatch', 'mesh_unavailable',
+  const allowed = new Set(['scope_unavailable', 'credentials_unavailable', 'credentials_mismatch', 'mesh_auth_required', 'mesh_unavailable',
     'mesh_incomplete', 'mesh_access_unverified', 'child_profile_unavailable', 'scope_changed',
     'credential_refresh_invalid', 'credential_refresh_persist_failed', 'source_grade_inventory_invalid'])
   return allowed.has(code) ? code : 'mesh_unavailable'

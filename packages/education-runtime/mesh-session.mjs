@@ -1,7 +1,8 @@
+/** @see ../../docs/decisions/mesh-auth-recovery-2026-11-01.md */
 /** Shared owner validation and per-child Mesh session lifecycle.
  * @see ../../docs/shared/server-runtime.md#авторизация-и-совместимость
  */
-import { MeshDiaryAdapter } from '../education-connect/lib/mesh.mjs'
+import { MeshDiaryAdapter, meshAuthFailure } from '../education-connect/lib/mesh.mjs'
 import { createMeshCredentialStore } from './credentials.mjs'
 import { isOwnedMeshAccount, isRegisteredMeshChild, meshChildIdentityId, meshParentAccountId, validRuntimeId } from './identity.mjs'
 
@@ -88,7 +89,10 @@ export function createMeshSessionService({ db, connectionsDir, legacyCodec = nul
       let profiles
       try {
         profiles = await span('mesh.session.profile_lookup', () => accountAdapter.api.getStudentProfiles(context.actorPersonId), telemetry)
-      } catch (error) { if (error?.code === 'account_lock_lost') throw error; throw safeError('mesh_unavailable') }
+      } catch (error) {
+        if (['credential_refresh_persist_failed', 'credential_refresh_invalid', 'account_lock_lost'].includes(error?.code)) throw error
+        throw meshAuthFailure(error) ?? safeError('mesh_unavailable')
+      }
       if (!Array.isArray(profiles)) throw safeError('mesh_unavailable')
       const selected = profiles.find((profile) => String(profile?.person_id ?? '') === scope.sourcePersonId)
       if (!selected?.id) throw safeError('child_profile_unavailable')
@@ -99,7 +103,7 @@ export function createMeshSessionService({ db, connectionsDir, legacyCodec = nul
       try { await span('mesh.session.verify_access', () => childAdapter.verifyAccess(), telemetry) }
       catch (error) {
         if (['credential_refresh_persist_failed', 'credential_refresh_invalid', 'account_lock_lost'].includes(error?.code)) throw error
-        throw safeError('mesh_access_unverified')
+        throw meshAuthFailure(error) ?? safeError('mesh_access_unverified')
       }
       const confirmed = await ownerContext(scope, adapterSignal)
       if (!confirmed || confirmed.actorPersonId !== context.actorPersonId) throw safeError('scope_changed')

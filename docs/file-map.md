@@ -1268,3 +1268,7 @@
 | [src/components/QuizQuestionCard.test.tsx](../src/components/QuizQuestionCard.test.tsx) | [Самопроверки](modules/assessments/quizzes.md) | Общий экран вопроса, пример UI Kit и проверка мобильной геометрии | App; UI Kit; проверки |
 | [e2e/quiz-runner.e2e.ts](../e2e/quiz-runner.e2e.ts) | [Самопроверки](modules/assessments/quizzes.md) | Общий экран вопроса, пример UI Kit и проверка мобильной геометрии | App; UI Kit; проверки |
 | [docs/decisions/quiz-runner-kit-audit-2026-11-01.md](decisions/quiz-runner-kit-audit-2026-11-01.md) | [Самопроверки](modules/assessments/quizzes.md) | Общий экран вопроса, пример UI Kit и проверка мобильной геометрии | App; UI Kit; проверки |
+
+| [packages/education-connect/lib/mesh-auth.test.mjs](../packages/education-connect/lib/mesh-auth.test.mjs) | [Общее серверное ядро](shared/server-runtime.md) | Отказ OAuth, безопасная диагностика, успешная ротация и повтор чтения | Vitest; Mesh session |
+
+| [docs/decisions/mesh-auth-recovery-2026-11-01.md](decisions/mesh-auth-recovery-2026-11-01.md) | [Общее серверное ядро](shared/server-runtime.md) | Отказ OAuth, безопасная диагностика и повторное подключение | Оператор; runtime |

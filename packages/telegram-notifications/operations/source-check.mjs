@@ -1,3 +1,4 @@
+/** @see ../../../docs/decisions/mesh-auth-recovery-2026-11-01.md */
 import { createHash } from 'node:crypto'
 
 /** @see ../../../docs/services/telegram-bot/operations.md */
@@ -8,7 +9,7 @@ export async function runMeshSourceCheck({ inventory, meshSource, telemetry = nu
   const blocked = new Map()
   const errorCodes = new Set(['unavailable', 'deadline-exceeded', 'resource-exhausted', 'permission-denied', 'failed-precondition',
     'aborted', 'cancelled', 'not-found', 'unauthenticated', 'internal', 'scope_unavailable', 'credentials_unavailable',
-    'credentials_mismatch', 'mesh_unavailable', 'mesh_incomplete', 'mesh_access_unverified', 'child_profile_unavailable',
+    'credentials_mismatch', 'mesh_auth_required', 'mesh_unavailable', 'mesh_incomplete', 'mesh_access_unverified', 'child_profile_unavailable',
     'scope_changed', 'credential_refresh_invalid', 'credential_refresh_persist_failed', 'source_grade_inventory_invalid',
     'inventory_read_failed', 'mesh_identity_unregistered', 'mesh_owner_unavailable', 'mesh_scope_unavailable'])
   const note = (code, count = 1) => {
@@ -92,7 +93,7 @@ function scopeDigest(scope) {
 }
 function safeKind(value) { return ['grades', 'schedule', 'homework'].includes(value) ? value : 'unknown' }
 function safeReason(value) {
-  const allowed = new Set(['scope_unavailable', 'credentials_unavailable', 'credentials_mismatch', 'mesh_unavailable', 'mesh_incomplete',
+  const allowed = new Set(['scope_unavailable', 'credentials_unavailable', 'credentials_mismatch', 'mesh_auth_required', 'mesh_unavailable', 'mesh_incomplete',
     'mesh_access_unverified', 'child_profile_unavailable', 'scope_changed', 'credential_refresh_invalid',
     'credential_refresh_persist_failed', 'invalid_observation_shape', 'required_collection_missing', 'invalid_grade_period',
     'invalid_grade_record', 'invalid_mark_record', 'invalid_schedule_record', 'schedule_id_missing', 'schedule_start_invalid',
