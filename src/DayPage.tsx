@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/linked-quiz-parent-guide-2026-11-01.md */
 import {ResultBadge} from './components/ui/result'
 import TaskDisclosure from './components/TaskDisclosure'
 import {reviewConversationFor} from './lib/reviewConversation'
@@ -545,7 +546,10 @@ export default function DayPage({ token, parent, headerReturnTarget, olympiadSco
             {subject.tasks.map((task, assignmentIndex) => {
               // A written task may also have a linked self-check. The test must
               // never replace the notebook submission and its photo action.
-              if (!task.problems?.length && (task.kind === 'read' || task.kind === 'check') && task.testToken && lineageByToken.has(task.testToken)) return null
+              if (!task.problems?.length && (task.kind === 'read' || task.kind === 'check') && task.testToken && lineageByToken.has(task.testToken)) {
+                const guide = parent ? taskGuides[task.id]?.guide : undefined
+                return guide ? <ParentTaskGuide key={task.id} guide={guide} review={reviews.find(item => item.taskId === task.id)} decisions={parentDecisions.events} /> : null
+              }
               const taskLinks = [...new Map([
                 ...(page.materialLinks?.[task.id] ?? []),
                 ...(page.taskPageRefs?.[task.id] ?? []).map((ref) => catalogPages[ref]).filter((link): link is DayMaterialLink => Boolean(link)),
