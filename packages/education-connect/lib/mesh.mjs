@@ -1,6 +1,8 @@
+/** @see ../../../docs/decisions/mesh-login-stages-2026-11-01.md */
 /** @see ../../../docs/decisions/mesh-auth-recovery-2026-11-01.md */
 import { authenticate } from 'mesh-diary/lib/auth.js'
 import { MeshAPI } from 'mesh-diary/lib/api.js'
+import { createLoginDiagnostics } from './login-diagnostics.mjs'
 import { fetchMeshRead } from './network-retry.mjs'
 
 const allowedHosts = new Set(['login.mos.ru', 'school.mos.ru', 'dnevnik.mos.ru'])
@@ -129,8 +131,10 @@ export function normalizeSubjectPeriods(subjects, date = new Intl.DateTimeFormat
 }
 
 /** @see ../../../docs/modules/school-diary/README.md#diary-adapter */
-export async function loginToMesh({ username, password, askSmsCode, chooseProfile }, { telemetry = null } = {}) {
-  const fetch = (url, options) => meshFetch(url, options, telemetry)
+export async function loginToMesh({ username, password, askSmsCode, chooseProfile, onProgress }, { telemetry = null } = {}) {
+  const diagnostic = createLoginDiagnostics((url, options) => meshFetch(url, options, telemetry), onProgress)
+  const fetch = diagnostic.fetch
+  try {
   const auth = await authenticate({ fetch, username, password, askSmsCode, onProgress: () => {} })
   if (!auth.token || !auth.personId) throw new Error('Вход прошёл, но профиль МЭШ не найден')
   const api = new MeshAPI({ token: auth.token, profileId: '0', fetch })
@@ -150,6 +154,7 @@ export async function loginToMesh({ username, password, askSmsCode, chooseProfil
     studentId: String(selected.id),
     profileName: childLabel(selected),
   }
+  } catch (error) { throw diagnostic.failure(error) }
 }
 
 /** Safe authorization diagnostics: never retain SDK URL, response body or credentials.

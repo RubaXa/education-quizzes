@@ -1,9 +1,11 @@
 #!/usr/bin/env node
+/** @see ../../../docs/decisions/mesh-login-stages-2026-11-01.md */
 import { stdout, stderr } from 'node:process'
 import { encryptHandoff } from '../lib/envelope.mjs'
 import { loadInvite, submitHandoff } from '../lib/handoff-store.mjs'
 import { loginToMesh, MeshDiaryAdapter } from '../lib/mesh.mjs'
-import { confirmPrompt, hiddenPrompt } from '../lib/prompts.mjs'
+import { formatLoginFailure, loginFailure } from '../lib/login-diagnostics.mjs'
+import { confirmPrompt, hiddenPrompt, visiblePrompt } from '../lib/prompts.mjs'
 
 /** @see ../../../docs/modules/school-diary/README.md#family-onboarding-research */
 async function main() {
@@ -16,19 +18,22 @@ async function main() {
   }
   const invite = await loadInvite(code)
   stdout.write('Подключение МЭШ. Логин, пароль и SMS вводятся только здесь и не отправляются в Education.\n')
-  const username = await hiddenPrompt('Логин mos.ru: ')
+  const username = await visiblePrompt('Логин mos.ru (виден при вводе): ')
   const password = await hiddenPrompt('Пароль mos.ru: ')
   if (!username || !password) throw new Error('Логин и пароль обязательны')
   stdout.write('Проверяем вход в МЭШ. При необходимости запросим SMS…\n')
   let profiles = []
   let secret = await loginToMesh({
-    username, password,
+    username, password, onProgress: (message) => stdout.write(`${message}\n`),
     askSmsCode: () => hiddenPrompt('Код из SMS: '),
     chooseProfile: (available) => { profiles = available; return 0 },
   })
   stdout.write('Сверяем роль взрослого и доступных детей…\n')
   const adapter = new MeshDiaryAdapter(secret, (updated) => { secret = updated })
-  await adapter.verifyAccess()
+  try { await adapter.verifyAccess() }
+  catch (error) {
+    throw loginFailure({stage:'profile',httpStatus:Number(String(error?.message ?? '').match(/^API (401|403):/)?.[1]),reason:'provider-rejected'})
+  }
   stdout.write(`Подтверждён родительский доступ. Доступные дети: ${profiles.map((item) => item.name).join(', ')}.\n`)
   stdout.write('После подключения оператор Education сможет повторно читать данные МЭШ этих детей до отзыва доступа.\n')
   if (!await confirmPrompt('Передать зашифрованный доступ оператору? Напишите «да»: ')) {
@@ -48,6 +53,8 @@ async function main() {
 }
 
 main().catch((error) => {
+  const diagnostic = formatLoginFailure(error)
+  if (diagnostic) { stderr.write(`${diagnostic}\n`); process.exitCode = 1; return }
   const safe = /^(Неверный код приглашения|Приглашение закрыто|Для входа нужен|Вход прерван|Логин и пароль обязательны|Слишком большой пакет подключения)/.test(String(error?.message))
   stderr.write(`${safe ? error.message : 'Подключение не завершилось. Проверьте приглашение и доступ к МЭШ.'}\n`)
   process.exitCode = 1

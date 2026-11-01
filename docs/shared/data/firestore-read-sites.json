@@ -9886,5 +9886,17 @@
     "policy": "exact-resumed-upload-dependencies",
     "refresh": "one upload deletion transaction",
     "note": "Точная query operatorSyncJobs.where(resumedByEventId == SHA исходного upload.confirmed). Возвращает в ожидание только processing/source-material-received того же family/child/day/task; не закрывает и не оценивает учебную работу. Новая подписка и глобальный scan отсутствуют."
+  },
+  {
+    "id": "packages/education-connect/lib/login-diagnostics.mjs#admin.get#6b635909312c",
+    "file": "packages/education-connect/lib/login-diagnostics.mjs",
+    "line": 57,
+    "api": "admin.get",
+    "target": "response.headers",
+    "group": "operator-other",
+    "assessment": "excluded",
+    "policy": "not-firestore",
+    "refresh": "none",
+    "note": "Headers.get читает content-type уже полученного HTTP-ответа МЭШ; это не чтение Firestore."
   }
 ]

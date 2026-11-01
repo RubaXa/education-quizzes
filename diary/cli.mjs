@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/** @see ../docs/decisions/mesh-login-stages-2026-11-01.md */
 /** @see ../docs/decisions/mesh-auth-recovery-2026-11-01.md */
 import { createInterface } from 'node:readline/promises'
 import { stdin, stdout } from 'node:process'
@@ -9,7 +10,8 @@ import { syncDiary } from './application/sync.mjs'
 import { lessonVisibility } from './application/lesson-visibility.mjs'
 import { downloadDayAttachments } from './attachments.mjs'
 import { meshAuthDiagnostic } from '../packages/education-connect/lib/mesh.mjs'
-import { hiddenPrompt } from '../packages/education-connect/lib/prompts.mjs'
+import { formatLoginFailure } from '../packages/education-connect/lib/login-diagnostics.mjs'
+import { hiddenPrompt, visiblePrompt } from '../packages/education-connect/lib/prompts.mjs'
 
 async function chooseProfile(profiles) {
   if (profiles.length === 1) return 0
@@ -36,10 +38,10 @@ async function main() {
     return
   }
   if (command === 'login') {
-    const username = await hiddenPrompt('Логин mos.ru (ввод скрыт): ')
+    const username = await visiblePrompt('Логин mos.ru (виден при вводе): ')
     const password = await hiddenPrompt('Пароль mos.ru (ввод скрыт): ')
     if (!username || !password) throw new Error('Логин и пароль обязательны')
-    const secret = await loginToMesh({ username, password, askSmsCode: () => hiddenPrompt('Код из SMS (ввод скрыт): '), chooseProfile })
+    const secret = await loginToMesh({ username, password, onProgress: (message) => stdout.write(`${message}\n`), askSmsCode: () => hiddenPrompt('Код из SMS (ввод скрыт): '), chooseProfile })
     const name = secret.profileName
     const { profileName: _profileName, ...stored } = secret
     writeJson(config.dataDir, 'secret.json', stored)
@@ -135,6 +137,8 @@ function printChanges(changes) {
 }
 
 main().catch((error) => {
+  const loginDiagnostic = formatLoginFailure(error)
+  if (loginDiagnostic) { console.error(loginDiagnostic); process.exitCode = 1; return }
   const diagnostic = meshAuthDiagnostic(error)
   if (diagnostic) {
     console.error(`МЭШ: ${diagnostic.stage}, HTTP ${diagnostic.httpStatus ?? 'неизвестно'}${diagnostic.oauthError ? `, ${diagnostic.oauthError}` : ''}. Нужно повторное подключение: npx education-connect --invite <одноразовый-код>. Пароль и SMS вводятся только в скрытых полях терминала.`)

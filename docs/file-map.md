@@ -1272,3 +1272,7 @@
 | [packages/education-connect/lib/mesh-auth.test.mjs](../packages/education-connect/lib/mesh-auth.test.mjs) | [Общее серверное ядро](shared/server-runtime.md) | Отказ OAuth, безопасная диагностика, успешная ротация и повтор чтения | Vitest; Mesh session |
 
 | [docs/decisions/mesh-auth-recovery-2026-11-01.md](decisions/mesh-auth-recovery-2026-11-01.md) | [Общее серверное ядро](shared/server-runtime.md) | Отказ OAuth, безопасная диагностика и повторное подключение | Оператор; runtime |
+
+| [packages/education-connect/lib/login-diagnostics.mjs](../packages/education-connect/lib/login-diagnostics.mjs) | [Общее серверное ядро](shared/server-runtime.md) | Безопасная диагностика этапов входа без секретов и сырых ответов | Connector; diary CLI; Vitest |
+| [packages/education-connect/lib/login-diagnostics.test.mjs](../packages/education-connect/lib/login-diagnostics.test.mjs) | [Общее серверное ядро](shared/server-runtime.md) | Безопасная диагностика этапов входа без секретов и сырых ответов | Connector; diary CLI; Vitest |
+| [docs/decisions/mesh-login-stages-2026-11-01.md](decisions/mesh-login-stages-2026-11-01.md) | [Общее серверное ядро](shared/server-runtime.md) | Безопасная диагностика этапов входа без секретов и сырых ответов | Connector; diary CLI; Vitest |

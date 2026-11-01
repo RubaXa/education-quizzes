@@ -688,22 +688,18 @@
       }
     },
     "packages/education-connect/bin/education-connect.mjs": {
-      "sha256": "e575185bbff7b2fa85f4321e76490c08fe5015ef44892714e9d984a3517c7637",
-      "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
+      "sha256": "2bcc2640b8c1ffeb5469e746c564f0bafb1fb8e8e0d796f8ca8d37411ebe7f97",
+      "record": "docs/decisions/mesh-login-stages-2026-11-01.md",
       "specs": [
-        "docs/shared/specification-system.md"
+        "docs/shared/server-runtime.md"
       ],
       "tests": [
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
+        "packages/education-connect/lib/login-diagnostics.test.mjs",
+        "packages/education-connect/lib/mesh-auth.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя 16.10.2026 внедрить согласованную структуру спецификаций, перенести ссылки в коде и проверить сохранность требований; изменение предметного поведения не выполнялось."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "6e2167cebe79860e15813570d49bc0adc6773037a8d47323b1acda4ec7f0ca05"
+        "evidence": "Родитель01.11 сообщил два неработающих входа, потребовал диагностику и понятный видимый ввод логина вместо скрытия."
       }
     },
     "packages/education-connect/lib/envelope.mjs": {
@@ -745,19 +741,18 @@
       }
     },
     "packages/education-connect/lib/mesh.mjs": {
-      "sha256": "f8c3cf08d861a637671b23dce621f11d3f3a64afd6188955da80e947c10823af",
-      "record": "docs/decisions/mesh-auth-recovery-2026-11-01.md",
+      "sha256": "fd9595a375e038d72c14b785eb9b2efd86f6df88a5d77227b416f720abd988ab",
+      "record": "docs/decisions/mesh-login-stages-2026-11-01.md",
       "specs": [
         "docs/shared/server-runtime.md"
       ],
       "tests": [
-        "packages/education-connect/lib/mesh-auth.test.mjs",
-        "packages/telegram-notifications/adapters/mesh-credentials.test.mjs",
-        "packages/telegram-notifications/adapters/source-mesh.test.mjs"
+        "packages/education-connect/lib/login-diagnostics.test.mjs",
+        "packages/education-connect/lib/mesh-auth.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель01.11 прямо потребовал найти и устранить причину недоступности МЭШ, проверить ЦДЗ и использовать штатный npx-пакет."
+        "evidence": "Родитель01.11 сообщил два неработающих входа, потребовал диагностику и понятный видимый ввод логина вместо скрытия."
       }
     },
     "packages/education-connect/lib/network-retry.mjs": {
@@ -775,22 +770,18 @@
       }
     },
     "packages/education-connect/lib/prompts.mjs": {
-      "sha256": "b88873d3eb94a8874f9869d8c34866f4c015ae62ca9ac870c4e47c241b95f1b2",
-      "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
+      "sha256": "7eeec6b015d4f2e1ed999ec56245f874655c7779f1de2be0ec0cf166d2cdf849",
+      "record": "docs/decisions/mesh-login-stages-2026-11-01.md",
       "specs": [
-        "docs/shared/specification-system.md"
+        "docs/shared/server-runtime.md"
       ],
       "tests": [
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
+        "packages/education-connect/lib/login-diagnostics.test.mjs",
+        "packages/education-connect/lib/mesh-auth.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя 16.10.2026 внедрить согласованную структуру спецификаций, перенести ссылки в коде и проверить сохранность требований; изменение предметного поведения не выполнялось."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "83835741857f376988794bff5373a9be9a2abe7a5cf753ee515c38df62238934"
+        "evidence": "Родитель01.11 сообщил два неработающих входа, потребовал диагностику и понятный видимый ввод логина вместо скрытия."
       }
     },
     "packages/education-events/envelope.mjs": {
@@ -7833,19 +7824,33 @@
       }
     },
     "diary/cli.mjs": {
-      "sha256": "ffa650b884ce4f7e7d09a50308febe0f154348fa22251559210fbda4ea81c3b3",
-      "record": "docs/decisions/mesh-auth-recovery-2026-11-01.md",
+      "sha256": "e68acbab2747de7d8fb1a3432e4cf9189f2a5a20cf95a9ac4a7cee96dc8e0f4c",
+      "record": "docs/decisions/mesh-login-stages-2026-11-01.md",
       "specs": [
         "docs/shared/server-runtime.md"
       ],
       "tests": [
-        "packages/education-connect/lib/mesh-auth.test.mjs",
-        "packages/telegram-notifications/adapters/mesh-credentials.test.mjs",
-        "packages/telegram-notifications/adapters/source-mesh.test.mjs"
+        "packages/education-connect/lib/login-diagnostics.test.mjs",
+        "packages/education-connect/lib/mesh-auth.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель01.11 прямо потребовал найти и устранить причину недоступности МЭШ, проверить ЦДЗ и использовать штатный npx-пакет."
+        "evidence": "Родитель01.11 сообщил два неработающих входа, потребовал диагностику и понятный видимый ввод логина вместо скрытия."
+      }
+    },
+    "packages/education-connect/lib/login-diagnostics.mjs": {
+      "sha256": "d91d3d36ab6022125843e6a94ad7eb0e01af1587318ecd70f96d4d55931dd808",
+      "record": "docs/decisions/mesh-login-stages-2026-11-01.md",
+      "specs": [
+        "docs/shared/server-runtime.md"
+      ],
+      "tests": [
+        "packages/education-connect/lib/login-diagnostics.test.mjs",
+        "packages/education-connect/lib/mesh-auth.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель01.11 сообщил два неработающих входа, потребовал диагностику и понятный видимый ввод логина вместо скрытия."
       }
     }
   }
