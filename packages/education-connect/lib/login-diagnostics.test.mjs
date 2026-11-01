@@ -38,3 +38,10 @@ it('never trusts provider or SDK text as a printable diagnostic',()=>{
  expect(formatLoginFailure(loginFailure({stage:'private',providerCode:'private',networkCode:'private',reason:'private'}))).not.toContain('private')
  expect(d.failure(Error('Вход прерван')).message).toBe('Вход прерван')
 })
+
+it('emits only the safe response status and normalized content type in diagnostic mode',async()=>{
+ const events=[];const d=createLoginDiagnostics(async()=>Response.json({client_id:'private',client_secret:'private'},{headers:{'content-type':'application/json; charset=utf-8'}}),()=>{},e=>events.push(e))
+ await d.fetch('https://login.mos.ru/sps/oauth/register?private',{})
+ expect(events).toEqual([{stage:'registration',httpStatus:200,contentType:'application/json'}])
+ expect(JSON.stringify(events)).not.toContain('private')
+})

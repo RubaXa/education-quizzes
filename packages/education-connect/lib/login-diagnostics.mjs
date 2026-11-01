@@ -1,3 +1,4 @@
+/** @see ../../../docs/decisions/local-connect-diagnostics-2026-11-01.md */
 /** @see ../../../docs/decisions/mesh-login-stages-2026-11-01.md */
 /** Safe local login stages; provider bodies and submitted credentials are never logged.
  * @see ../../../docs/shared/server-runtime.md#авторизация-и-совместимость
@@ -41,7 +42,7 @@ function stageFor(url) {
   if (path.endsWith('/sudir/auth')) return 'mesh-exchange'
   return 'profile'
 }
-export function createLoginDiagnostics(fetcher, onProgress = () => {}) {
+export function createLoginDiagnostics(fetcher, onProgress = () => {}, onDiagnostic = () => {}) {
   let stage = 'registration'
   return {
     async fetch(url, options) {
@@ -51,10 +52,13 @@ export function createLoginDiagnostics(fetcher, onProgress = () => {}) {
       let response
       try { response = await fetcher(url, options) }
       catch (error) { throw loginFailure({stage, reason:'network', networkCode:error?.cause?.code ?? error?.code}) }
+      const rawType = response.headers.get('content-type')?.split(';')[0]
+      const contentType = ['application/json','text/html','text/plain'].includes(rawType) ? rawType : 'other'
+      onDiagnostic({stage,httpStatus:response.status,contentType})
       // Redirects are part of the SMS/trust flow. Never print Location or OAuth query parameters.
       if (response.status >= 300 && response.status < 400 && ['sms','password'].includes(stage)) return response
       let payload
-      if (response.headers.get('content-type')?.includes('json')) {
+      if (contentType === 'application/json') {
         try { payload = await response.clone().json() } catch { /* Report the stage, not the raw parser error. */ }
       }
       const providerCode = payload?.error ?? payload?.errors?.[0]?.code

@@ -1,0 +1,21 @@
+#!/usr/bin/env node
+/** @see ../docs/decisions/local-connect-diagnostics-2026-11-01.md */
+/** @see ../docs/shared/server-runtime.md#авторизация-и-совместимость */
+import {spawnSync} from 'node:child_process'
+import {fileURLToPath,pathToFileURL} from 'node:url'
+import {existsSync} from 'node:fs'
+const entry = fileURLToPath(new URL('../packages/education-connect/bin/education-connect.mjs',import.meta.url))
+const usage='Использование: npm run connect:diagnose -- --invite <код>\nПроверка среды без входа: npm run connect:diagnose -- --check\n'
+export function main(args=process.argv.slice(2), {run=spawnSync,write=message=>process.stdout.write(message),env=process.env,cwd=process.cwd()}={}) {
+ if(args.includes('--help')){write(usage);return 0}
+ write(`Локальный Education Connect · Node ${process.version} · ${process.platform}\nРабочий каталог: ${cwd}\nПакет: ${entry}\n`)
+ write(`HTTP_PROXY/HTTPS_PROXY: ${env.HTTP_PROXY||env.HTTPS_PROXY||env.http_proxy||env.https_proxy?'задан':'нет'}; дополнительный CA: ${env.NODE_EXTRA_CA_CERTS?'задан':'нет'}\n`)
+ write('Диагностика выводится только в терминал. Логин виден; пароль и SMS скрыты.\n')
+ if(!existsSync(entry)){write('Ошибка: локальный пакет не найден.\n');return 1}
+ if(args.length===1&&args[0]==='--check'){write('Локальный пакет найден. Вход, регистрация устройства и передача доступа не запускались.\n');return 0}
+ if(args.length!==2||args[0]!=='--invite'||!/^[A-Za-z0-9_-]{43}$/.test(args[1])){write(usage);return 2}
+ const child=run(process.execPath,[entry,'--diagnose',...args],{stdio:'inherit',env,shell:false})
+ if(child.error){write('Не удалось запустить локальный пакет.\n');return 1}
+ return child.status??1
+}
+if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href)process.exitCode=main()
