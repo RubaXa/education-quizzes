@@ -220,7 +220,7 @@
 | [AGENTS.md](../AGENTS.md) | [Система компонентов](shared/design/components.md) | Короткие правила сохранения согласованных решений и поиска контрактов до правки | Агент Codex |
 | [ARCHITECTURE.md](../ARCHITECTURE.md) | [Продукт Education](product/README.md) | Карта приложений, модулей и правил зависимостей | Агент; разработчик |
 | [README.md](../README.md) | [Карта спецификаций](product/README.md) | Вход в репозиторий и команды | Разработчик; агент |
-| [assessment/decision-graph.mjs](../assessment/decision-graph.mjs) | [Граф самопроверок](modules/assessments/assessment-decision-graph.md) | Режимы, предметные матрицы, полнота слов по назначенным источникам и барьер ручной проверки | `quiz.mjs`; `sync-queue.mjs`; `sync-inbox.mjs` |
+| [assessment/decision-graph.mjs](../assessment/decision-graph.mjs) | [Граф самопроверок](modules/assessments/assessment-decision-graph.md) | Режимы, предметные матрицы, Python с листингами/исполнением, полнота слов и барьер ручной проверки | `quiz.mjs`; `sync-queue.mjs`; `sync-inbox.mjs` |
 | [assessment/decision-graph.test.mjs](../assessment/decision-graph.test.mjs) | [Словарный диктант](modules/assessments/assessment-decision-graph.md) | Проверка полного охвата упражнений, отбора слов, исправлений и формы связанного теста | Vitest; автор теста |
 | [assessment/followup-contract.mjs](../assessment/followup-contract.mjs) | [Зачёт и продолжение](modules/assessments/assessment-decision-graph.md) | Покрытие каждой ошибки, безопасная ревизия не начатого теста и исключение локальных доказательств из ключа/readback | `scripts/quiz.mjs` |
 | [assessment/followup-contract.test.mjs](../assessment/followup-contract.test.mjs) | [Зачёт и продолжение](modules/assessments/assessment-decision-graph.md) | Регрессия полного провала, покрытия ошибок и запрета переписывать начатую попытку | Vitest; выпуск |
@@ -1248,3 +1248,5 @@
 | [operator/run-report.mjs](../operator/run-report.mjs) | [Отчёт фаз](modules/synchronization/execution-artifact.md) | Отдельный итог исполнения и каждой фазы в stdout/существующем claim без файла отчёта | Education CLI; dispatch |
 | [operator/run-report.test.mjs](../operator/run-report.test.mjs) | [Отчёт фаз](modules/synchronization/execution-artifact.md) | Частичный МЭШ, независимая проверка работ, stdin и отсутствие файлов | Vitest |
 | [docs/decisions/sync-phase-report-2026-10-29.md](decisions/sync-phase-report-2026-10-29.md) | [Отчёт фаз](modules/synchronization/execution-artifact.md) | Решение семьи об итоговом отчёте в чате | Оператор |
+
+| [docs/decisions/informatics-assessment-2026-11-01.md](decisions/informatics-assessment-2026-11-01.md) | [Граф самопроверок](modules/assessments/assessment-decision-graph.md) | Программирование на уроке труда: причина, адаптер и проверка | Оператор; разработчик |

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { validateAssessmentPlan, validateVocabularySourceCoverage, vocabularyDictationWords } from './decision-graph.mjs'
+import { supplementalAssessmentPlacement, validateAssessmentPlan, validateVocabularySourceCoverage, vocabularyDictationWords } from './decision-graph.mjs'
 
 const words = ['tomatoes', 'rice', 'tea']
 const checked = (entries) => entries.map(([wordId, status]) => ({ wordId, status }))
@@ -65,4 +65,22 @@ it('does not invent prior mistakes or a missing baseline after a wholly perfect 
   const error = 'Нет слоя прежней ошибки или честной входной проверки.'
   expect(validateAssessmentPlan(plan, spec)).toContain(error)
   expect(validateAssessmentPlan({ ...plan, continuation: { strategy: 'consolidation' } }, spec)).not.toContain(error)
+})
+
+/** @see ../docs/modules/assessments/assessment-decision-graph.md#informatics */
+it('rejects a programming quiz without listings, independent code evidence or an open response', () => {
+ const base={subjectAdapter:'informatics',programming:{language:'python',languageEvidenceRef:'family-source',executionEvidenceRef:'checked-code'}}
+ const prefix='Информатика:'
+ expect(validateAssessmentPlan(base,{questions:[{id:'a',kind:'number',code:'print(2)'}]}).filter(e=>e.startsWith(prefix))).toEqual([])
+ expect(validateAssessmentPlan(base,{questions:[{id:'a',kind:'number'}]}).some(e=>e.includes('видимый листинг'))).toBe(true)
+ expect(validateAssessmentPlan({...base,programming:{}},{questions:[{id:'a',kind:'number',code:'print(2)'}]}).some(e=>e.includes('интерпретатором'))).toBe(true)
+ expect(validateAssessmentPlan(base,{questions:[{id:'a',kind:'single',code:'print(2)'}]}).some(e=>e.includes('самостоятельный ответ'))).toBe(true)
+})
+
+it('reuses a supplementary platform quiz without assigning its pass to the external work', () => {
+ const task={id:'platform',instructionStatus:{state:'reviewed'},assessmentIntent:{state:'confirmed'}}
+ const placement={relatedTaskId:'platform',optional:true,token:'quiz'}
+ expect(supplementalAssessmentPlacement(task,[placement])).toBe(placement)
+ expect(supplementalAssessmentPlacement({...task,assessmentIntent:undefined},[placement])).toBeUndefined()
+ expect(supplementalAssessmentPlacement(task,[{...placement,optional:false}])).toBeUndefined()
 })

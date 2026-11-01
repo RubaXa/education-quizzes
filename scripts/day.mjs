@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/informatics-assessment-2026-11-01.md */
 /** @see ../docs/decisions/olympiad-calendar-2026-10-31.md */
 /** @see ../docs/decisions/scoped-learner-flow-2026-10-21.md */
 /** @see ../docs/decisions/mesh-informational-entry-2026-10-21.md */
@@ -10,6 +11,7 @@
  */
 /** @see ../docs/modules/materials/material-clarification.md */
 /** @see ../docs/decisions/audio-library-2026-10-22.md#было--стало */
+import { supplementalAssessmentPlacement } from '../assessment/decision-graph.mjs'
 import { materialRequestErrors, openMaterialRequest } from '../src/lib/materialRequest.ts'
 import { parentGuideProseErrors, taskSupportProseErrors } from '../src/lib/reviewProse.ts'
 import { createHash, randomBytes } from 'node:crypto'
@@ -418,7 +420,7 @@ function validate(source, { allowUnchangedLegacyTeacherLinks = false } = {}) {
         if (intent.state === 'confirmed' && (task.instructionStatus?.state !== 'reviewed'
           || !['ordinary', 'control-diagnostic'].includes(intent.mode)
           || !intent.topic?.trim() || !intent.evidenceRef?.trim()
-          || task.kind === 'written' || task.outputKind === 'platform-result')) {
+          || task.kind === 'written' || task.outputKind === 'platform-result' && !supplementalAssessmentPlacement(task, source.testPlacements))) {
           fail(`У ${task.id} самопроверка требует сверенного вида, темы и источника; письменная работа и ЦДЗ не заменяются тестом.`)
         }
       }

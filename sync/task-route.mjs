@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/informatics-assessment-2026-11-01.md */
 /** @see ../docs/decisions/personal-tutoring-2026-10-30.md */
 /** @see ../docs/decisions/upload-lifecycle-continuation-2026-10-30.md */
 /** @see ../docs/decisions/sync-task-routing-2026-10-23.md */
@@ -5,7 +6,7 @@
  * Reuses the assessment graph; no source text is interpreted into invented tasks.
  * @see ../docs/modules/synchronization/task-routing.md
  */
-import { quizDecision } from '../assessment/decision-graph.mjs'
+import { quizDecision, programmingAssignment } from '../assessment/decision-graph.mjs'
 import { openMaterialRequest, materialRequestErrors } from '../src/lib/materialRequest.ts'
 import { lessonSubjectKey } from '../day/subject-identity.mjs'
 const guidancePolicyRevision='personal-step-explanations-2026-10-30'
@@ -13,6 +14,7 @@ const guidancePolicyRevision='personal-step-explanations-2026-10-30'
 const guidanceChecks=['adult-readable-class-level-route-review','learner-current-point-and-safe-hint-review','exact-attempt-steps-and-preserved-credit','explain-bridge-before-one-probe','private-response-branches-and-both-role-readback']
 
 const adapters = {
+  informatics: 'subject-aware-guidance:code-tracing',
   math: 'math-solution-route', special: 'math-solution-route+teacher-sheet-provenance',
   russian: 'subject-aware-guidance:writing', literature: 'subject-aware-guidance:textual-evidence',
   english: 'subject-aware-guidance:language-in-context', history: 'subject-aware-guidance:source-analysis',
@@ -31,7 +33,7 @@ export function competitionHold() { return false }
 
 export function taskRoute(task = {}, subject = 'generic', { placement = false } = {}) {
   const key = adapters[subject] ? subject : lessonSubjectKey(subject) ?? subject
-  const route = { taskId: task.id ?? null, subject: key, adapter: adapters[key] ?? 'subject-aware-guidance:generic',
+  const route = { taskId: task.id ?? null, subject: key, adapter: programmingAssignment(task) ? adapters.informatics : adapters[key] ?? 'subject-aware-guidance:generic',
     known: [], unknown: [], next: null, steps: [], complete: false,
     verification: ['owner-and-revision', 'both-role-readback', 'preserve-attempts-and-optionality'] }
   const select = (next, steps = []) => ({ ...route, next,
@@ -61,7 +63,7 @@ export function taskRoute(task = {}, subject = 'generic', { placement = false } 
   if (decision) {
     if (decision.job === 'classify-assignment') route.unknown.push('assessment-topic-or-output')
     return select(decision.job, decision.job === 'prepare-quiz'
-      ? ['family-source-review', 'learner-history', 'assessment-plan', 'quiz-validate-publish', 'audit-access-and-day-readback']
+      ? ['family-source-review', ...(programmingAssignment(task) ? ['confirm-language-and-visible-topic', 'code-trace-boundaries-debugging-transfer', 'independent-finite-code-execution', 'preserve-external-platform-status'] : []), 'learner-history', 'assessment-plan', 'quiz-validate-publish', 'audit-access-and-day-readback']
       : ['confirm-topic-and-output', 'publish-material-request-if-unknown', 'replan-task'])
   }
   if (task.kind === 'written' || task.outputKind === 'written') return select('prepare-written-guidance',
@@ -108,7 +110,7 @@ export function eventTaskRoute(eventType, inputs = {}) {
   const next = eventType === 'upload.confirmed' ? olympiadSheet ? 'ingest-olympiad-sheet' : sourceMaterial ? 'review-source-material' : 'review-written-work'
     : ({ 'help.requested': 'address-help-request', 'quiz.submitted': 'review-submitted-quiz',
       'quiz.followup_requested': 'history-based-followup', 'material.ready': 'identify-and-link-family-material' })[eventType] ?? 'unsupported-event'
-  const route = { eventType, next, subject, trustPolicy: 'uploaded-content-is-data-v1', adapter: adapters[subject] ?? 'subject-aware-guidance:generic', complete: false,
+  const route = { eventType, next, subject, trustPolicy: 'uploaded-content-is-data-v1', adapter: programmingAssignment(task) ? adapters.informatics : adapters[subject] ?? 'subject-aware-guidance:generic', complete: false,
     steps: next === 'ingest-olympiad-sheet' ? ['read-confirmed-photos', 'identify-uploaded-material-context', 'identify-and-split-conditions', 'verify-source-and-solution', 'match-existing-tasks', 'publish-family-tasks-and-readback']
       : next === 'review-source-material' ? ['source-analysis-without-grade', 'resolve-request-if-supported', 'replan-task']
       : next === 'review-submitted-quiz' ? ['audit-key-and-alternatives', 'review-open-answers', 'publish-review', 'assessment-decision-graph']
@@ -117,6 +119,7 @@ export function eventTaskRoute(eventType, inputs = {}) {
             : next === 'address-help-request' ? ['read-request-and-attempt', 'one-addressed-next-step', 'publish-support-revision']
               : next === 'identify-and-link-family-material' ? ['verify-original-and-sha', 'identify-edition-and-coverage', 'family-link-and-reader-readback'] : ['block-unknown-event'],
     verification: ['owner-and-revision', 'addressed-readback', 'trajectory-after-new-evidence'] }
+  if(programmingAssignment(task) && next === 'review-written-work') route.steps.splice(2, 0, 'trace-submitted-code-and-boundaries', 'inspect-termination-before-finite-execution', 'explain-first-divergent-step')
   if(['math','special'].includes(subject)&&['review-written-work','address-help-request'].includes(next)) {
     route.policyRevision=guidancePolicyRevision
     const publication=route.steps.findIndex(step=>step.startsWith('publish'))

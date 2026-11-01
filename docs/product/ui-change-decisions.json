@@ -62,31 +62,20 @@
       }
     },
     "assessment/decision-graph.mjs": {
-      "sha256": "a3322d3299bdfdadadb80b5755aa618798a89023c53ae84608016736653f18df",
-      "record": "docs/decisions/history-default-universal-request-2026-10-16.md",
+      "sha256": "f0189e1a894fa896d698cd6dae6c4ed91f6a523ee8b54723396648ff88bd114c",
+      "record": "docs/decisions/informatics-assessment-2026-11-01.md",
       "specs": [
-        "docs/modules/assessments/quiz-chain-proposal.md",
         "docs/modules/assessments/assessment-decision-graph.md",
-        "docs/modules/assessments/quizzes.md"
+        "docs/modules/synchronization/task-routing.md"
       ],
       "tests": [
-        "src/components/QuizCard.history.test.tsx",
-        "src/components/QuizCard.test.tsx",
-        "src/lib/homeworkStatus.test.ts",
-        "src/lib/store.optionalQuiz.test.ts",
-        "assessment/quiz-lineage.test.mjs"
+        "sync/task-route.test.mjs",
+        "assessment/decision-graph.test.mjs",
+        "day/placement-integrity.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 16.10.2026 прямо требует закрытую по умолчанию историю и универсальную кнопку нового теста, включая100%, с учётом всех предыдущих попыток по общей автоматической политике."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "d8d35129282fac06ab64c9d6f9cbc3a982c01ab831e0442568f5b3940dc04f18"
-      },
-      "specificationLifecycle": {
-        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
-        "previousSha256": "e592a7e61a949bdeb5fbe1d964bea2164c92cd5a78fbd3b3b55e6b46ca610257"
+        "evidence": "01.11.2026 родитель потребовал исправить маршрут информатики/труда и выпустить тематический тест с кодом для ребёнка."
       }
     },
     "assessment/followup-contract.mjs": {
@@ -202,20 +191,20 @@
       }
     },
     "day/build.mjs": {
-      "sha256": "9d0ee5b77605595ee5b3d9808551161014e17338df6ae0c6c03bf3008f5eee45",
-      "record": "docs/decisions/audio-library-2026-10-22.md",
+      "sha256": "a85559703241b2f42735f3960ef8ef512d7b8244fa8a54b61b43eb47a435fd22",
+      "record": "docs/decisions/informatics-assessment-2026-11-01.md",
       "specs": [
-        "docs/modules/materials/audio-library.md",
-        "docs/modules/materials/material-clarification.md",
-        "docs/modules/synchronization/plan-generation.md"
+        "docs/modules/assessments/assessment-decision-graph.md",
+        "docs/modules/synchronization/task-routing.md"
       ],
       "tests": [
-        "day/build-assignments.test.mjs",
-        "day/mixed-assignment.test.mjs"
+        "sync/task-route.test.mjs",
+        "assessment/decision-graph.test.mjs",
+        "day/placement-integrity.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос пользователя связывать аудио с точным заданием после анализа уточняющих материалов; выбор должен использовать подтверждённые материалы ребёнка и не смешивать письменную сдачу с тестом."
+        "evidence": "01.11.2026 родитель потребовал исправить маршрут информатики/труда и выпустить тематический тест с кодом для ребёнка."
       }
     },
     "day/card-policy.mjs": {
@@ -487,22 +476,20 @@
       }
     },
     "day/placement-integrity.mjs": {
-      "sha256": "d726d23d959111ca43ed4d3f7144822fd42fcfa47b4252886f479963307e9891",
-      "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
+      "sha256": "f7813a8dcd04d8c94d746341d99dd5117eaabce3e11e4bbb0575055e12e64d4e",
+      "record": "docs/decisions/informatics-assessment-2026-11-01.md",
       "specs": [
-        "docs/shared/specification-system.md"
+        "docs/modules/assessments/assessment-decision-graph.md",
+        "docs/modules/synchronization/task-routing.md"
       ],
       "tests": [
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
+        "sync/task-route.test.mjs",
+        "assessment/decision-graph.test.mjs",
+        "day/placement-integrity.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя 16.10.2026 внедрить согласованную структуру спецификаций, перенести ссылки в коде и проверить сохранность требований; изменение предметного поведения не выполнялось."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "b0eb26dcd46800939b58874a6321f908735aa3719c2b593d46a4a74c252c2631"
+        "evidence": "01.11.2026 родитель потребовал исправить маршрут информатики/труда и выпустить тематический тест с кодом для ребёнка."
       }
     },
     "day/placement-repair.mjs": {
@@ -561,22 +548,20 @@
       }
     },
     "day/subject-identity.mjs": {
-      "sha256": "048a9cbb2f8be7f7971255228b410fbec4ff87a9230c98e52b2c29087ae3b4fd",
-      "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
+      "sha256": "4a92c99e5b9eb34eae600fc7a8d65bc51a56bfe3bc968a55fb853e60fa082315",
+      "record": "docs/decisions/informatics-assessment-2026-11-01.md",
       "specs": [
-        "docs/shared/specification-system.md"
+        "docs/modules/assessments/assessment-decision-graph.md",
+        "docs/modules/synchronization/task-routing.md"
       ],
       "tests": [
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
+        "sync/task-route.test.mjs",
+        "assessment/decision-graph.test.mjs",
+        "day/placement-integrity.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя 16.10.2026 внедрить согласованную структуру спецификаций, перенести ссылки в коде и проверить сохранность требований; изменение предметного поведения не выполнялось."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "b304f3bf147a1d94a70aa5a2556afc3f6c2a9ea1b3d29d362111c813a44a77a3"
+        "evidence": "01.11.2026 родитель потребовал исправить маршрут информатики/труда и выпустить тематический тест с кодом для ребёнка."
       }
     },
     "diary/adapters/mesh.mjs": {
@@ -1931,7 +1916,7 @@
       }
     },
     "scripts/day.mjs": {
-      "sha256": "5bf364cf972c1d497c3178f264b765a28c5453d49aa5d682f1558398e8abebd4",
+      "sha256": "6a2617c4207a2b68dfd8c2ae01ce55fd4ee439951de9eb30a7f33083fb177619",
       "record": "docs/decisions/olympiad-calendar-2026-10-31.md",
       "specs": [
         "docs/modules/assessments/olympiad-preparation.md"
@@ -2254,24 +2239,20 @@
       }
     },
     "scripts/quiz.mjs": {
-      "sha256": "4b033307cb10813b09dd3df391ee9c99812d21ab3118c97235ba484ec5f9302d",
-      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
+      "sha256": "0b436022c06a4df1a4120d9f9fa5aa7f8478cf524fa790858fd9e378efa05a14",
+      "record": "docs/decisions/informatics-assessment-2026-11-01.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/modules/synchronization/education-pipeline.md"
+        "docs/modules/assessments/assessment-decision-graph.md",
+        "docs/modules/synchronization/task-routing.md"
       ],
       "tests": [
-        "assessment/learning-context-backfill.test.mjs",
-        "assessment/learning-context.test.mjs",
-        "day/family-assignment.test.mjs",
-        "day/dashboard-index.test.mjs",
-        "src/lib/homeworkStatus.test.ts",
-        "src/lib/educationEventProducers.test.ts",
-        "sync/event-task-artifact.test.mjs"
+        "sync/task-route.test.mjs",
+        "assessment/decision-graph.test.mjs",
+        "day/placement-integrity.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь 28.10 прямо потребовал общий механизм уроков, семейных прав, фотографий и синхронизации для олимпиад."
+        "evidence": "01.11.2026 родитель потребовал исправить маршрут информатики/труда и выпустить тематический тест с кодом для ребёнка."
       }
     },
     "scripts/release-note.mjs": {
@@ -2410,19 +2391,20 @@
       }
     },
     "scripts/sync-queue.mjs": {
-      "sha256": "9493f2b917454f328fa95992395070eb900b0f9cdd961124d402248b8c96e692",
-      "record": "docs/decisions/olympiad-family-screen-2026-10-27.md",
+      "sha256": "f9a3172aaddd7efd17f34f7cf7e36b92482feb33f719ed58e2d61eaabc74dc25",
+      "record": "docs/decisions/informatics-assessment-2026-11-01.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/modules/synchronization/education-pipeline.md"
+        "docs/modules/assessments/assessment-decision-graph.md",
+        "docs/modules/synchronization/task-routing.md"
       ],
       "tests": [
-        "sync/olympiad-help.test.mjs",
-        "sync/job-queue-fence.test.mjs"
+        "sync/task-route.test.mjs",
+        "assessment/decision-graph.test.mjs",
+        "day/placement-integrity.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь поручил подключить синхронизацию помощи олимпиады и проверять интеграцию без дополнительных согласований."
+        "evidence": "01.11.2026 родитель потребовал исправить маршрут информатики/труда и выпустить тематический тест с кодом для ребёнка."
       }
     },
     "scripts/telegram-bot.mjs": {
@@ -4150,21 +4132,20 @@
       }
     },
     "src/lib/dayStore.ts": {
-      "sha256": "7e75385dec380cafa6e33a42b07295517c57cef8619f182ec536700aa110a451",
-      "record": "docs/decisions/student-review-reply-2026-11-01.md",
+      "sha256": "053fccc7bc656c6eca57334c66cea9a95a185a6d01e41af91c5b88c0c4d0e997",
+      "record": "docs/decisions/informatics-assessment-2026-11-01.md",
       "specs": [
-        "docs/shared/design/student-review-step.md",
-        "docs/modules/synchronization/event-queue.md"
+        "docs/modules/assessments/assessment-decision-graph.md",
+        "docs/modules/synchronization/task-routing.md"
       ],
       "tests": [
-        "src/components/ReviewConversation.test.tsx",
-        "packages/education-presentation/review-reply.test.mjs",
-        "sync/help-response.test.mjs",
-        "scripts/firestore-rules-help-emulator.test.mjs"
+        "sync/task-route.test.mjs",
+        "assessment/decision-graph.test.mjs",
+        "day/placement-integrity.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 родитель потребовал проверенный отклик и следующий шаг по ответу, «Непонятно» одним нажатием и текст для последующей обработки."
+        "evidence": "01.11.2026 родитель потребовал исправить маршрут информатики/труда и выпустить тематический тест с кодом для ребёнка."
       }
     },
     "src/lib/educationEventProducer.ts": {
@@ -6095,20 +6076,20 @@
       }
     },
     "sync/task-route.mjs": {
-      "sha256": "bf7b72b104f8377cf8e315749954635529f8593c4524b2054038b50ae59699b6",
-      "record": "docs/decisions/personal-tutoring-2026-10-30.md",
+      "sha256": "11b6b8df378f03bf69dd028422166d56bfd43beef68315fadfa9e65e66fbe5f5",
+      "record": "docs/decisions/informatics-assessment-2026-11-01.md",
       "specs": [
-        "docs/modules/reviews/subject-aware-guidance.md"
+        "docs/modules/assessments/assessment-decision-graph.md",
+        "docs/modules/synchronization/task-routing.md"
       ],
       "tests": [
-        "storage/tutoring-decision.test.mjs",
-        "storage/review-projection.test.mjs",
-        "sync/event-task-artifact.test.mjs",
-        "src/components/WorkReview.tutoring.test.tsx"
+        "sync/task-route.test.mjs",
+        "assessment/decision-graph.test.mjs",
+        "day/placement-integrity.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель прямо поручил внедрить персональное объяснение каждой новой работы в основной автоматический конвейер, заменить шаблонные блоки обеих карточек и влить завершённый выпуск."
+        "evidence": "01.11.2026 родитель потребовал исправить маршрут информатики/труда и выпустить тематический тест с кодом для ребёнка."
       }
     },
     "operator/route-plan.mjs": {

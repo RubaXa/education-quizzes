@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/** @see ../docs/decisions/informatics-assessment-2026-11-01.md */
 /** @see ../docs/decisions/accepted-help-closure-2026-10-25.md */
 /** @see ../docs/decisions/sync-task-routing-2026-10-23.md */
 /** @see ../docs/modules/synchronization/task-routing.md */
@@ -11,7 +12,7 @@ import { Timestamp } from 'firebase-admin/firestore'
 import { operatorFirestore } from './lib/admin-firebase.mjs'
 import { dateWindow } from '../sync/project-plan.mjs'
 import { enqueueSyncJob, setSyncJob, syncFingerprint, syncJobId } from '../sync/job-queue.mjs'
-import { pendingManualQuestionIds, quizDecision } from '../assessment/decision-graph.mjs'
+import { pendingManualQuestionIds, quizDecision, supplementalAssessmentPlacement } from '../assessment/decision-graph.mjs'
 import { followupQueueSource } from '../assessment/quiz-lineage.mjs'
 import { taskRoute, taskRouteCandidates, syncRoutePlan } from '../sync/task-route.mjs'
 
@@ -108,7 +109,7 @@ async function discover() {
     const owner = ownerByToken.get(doc.id)
     if (!owner?.familyId || !owner?.childId) continue
     for (const subject of page.subjects ?? []) for (const task of subject.tasks ?? []) {
-      const placement = (page.testPlacements ?? []).some((item) => item.taskId === task.id)
+      const placement = (page.testPlacements ?? []).some((item) => item.taskId === task.id) || Boolean(supplementalAssessmentPlacement(task, page.testPlacements))
       taskRoutes.push({ familyId: owner.familyId, childId: owner.childId, date: page.targetDate,
         ...taskRoute(task, subject.id ?? subject.name, { placement }) })
       if (task.instructionStatus?.state === 'needs-review') {

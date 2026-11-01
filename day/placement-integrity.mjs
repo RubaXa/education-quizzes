@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/informatics-assessment-2026-11-01.md */
 import { assignmentShapeErrors, dayPageShapeErrors } from './data-contract.mjs'
 
 /** Deterministic graph checks for a staged/published day. An assignment document
@@ -17,6 +18,11 @@ export function placementIntegrityErrors(page) {
     if (!/^[A-Za-z0-9_-]{24,64}$/.test(token ?? '')) errors.push(`Некорректный токен теста у ${placement?.taskId ?? 'отдельного теста'}.`)
     if (byToken.has(token)) errors.push('Один токен теста указан дважды.')
     byToken.add(token)
+    if (placement.relatedTaskId) {
+      const related = tasks.get(placement.relatedTaskId)
+      if (placement.taskId || placement.optional !== true || !related || related.subjectId !== placement.subjectId
+        || related.task.outputKind !== 'platform-result' || related.task.testToken) errors.push('Дополнительный тест платформы должен быть отдельным optional-пунктом того же предмета.')
+    }
     if (!placement.taskId) continue
     const owner = tasks.get(placement.taskId)
     if (!owner) errors.push(`Тест ссылается на отсутствующее задание ${placement.taskId}.`)
