@@ -715,6 +715,31 @@
       "path": "docs/decisions/canonical-short-key-repair-2026-10-19.md"
     },
     {
+      "id": "decision.collapsed-task-cards-2026-11-01",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-01",
+      "updated": "2026-11-01",
+      "parent": "module.school-diary.day-page",
+      "uses": [
+        "shared.design.components",
+        "shared.design.ui-kit"
+      ],
+      "consumers": [
+        "learner",
+        "parent"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/collapsed-task-cards-2026-11-01.md"
+    },
+    {
       "id": "decision.collapsed-variant-status-2026-10-21",
       "status": "accepted",
       "implementation": "implemented",
@@ -5154,6 +5179,13 @@
       "consumer": "Education; разработчик"
     },
     {
+      "id": "file:e2e/task-disclosure.e2e.ts",
+      "path": "e2e/task-disclosure.e2e.ts",
+      "kind": "artifact",
+      "purpose": "Регрессии закрытого входа, ручного раскрытия и сохранения состояния",
+      "consumer": "Ученик; родитель; UI Kit"
+    },
+    {
       "id": "file:early-development/program.d.mts",
       "path": "early-development/program.d.mts",
       "kind": "artifact",
@@ -8346,6 +8378,27 @@
       "consumer": "День; dashboard"
     },
     {
+      "id": "file:src/components/TaskDisclosure.css",
+      "path": "src/components/TaskDisclosure.css",
+      "kind": "artifact",
+      "purpose": "Общая компактная оболочка назначения и рабочий пример",
+      "consumer": "Ученик; родитель; UI Kit"
+    },
+    {
+      "id": "file:src/components/TaskDisclosure.test.tsx",
+      "path": "src/components/TaskDisclosure.test.tsx",
+      "kind": "verification",
+      "purpose": "Регрессии закрытого входа, ручного раскрытия и сохранения состояния",
+      "consumer": "Ученик; родитель; UI Kit"
+    },
+    {
+      "id": "file:src/components/TaskDisclosure.tsx",
+      "path": "src/components/TaskDisclosure.tsx",
+      "kind": "artifact",
+      "purpose": "Общая компактная оболочка назначения и рабочий пример",
+      "consumer": "Ученик; родитель; UI Kit"
+    },
+    {
       "id": "file:src/components/TaskGuidance.css",
       "path": "src/components/TaskGuidance.css",
       "kind": "artifact",
@@ -9639,6 +9692,13 @@
       "kind": "artifact",
       "purpose": "Действующие композиции дня/выходного листа на локальных данных",
       "consumer": "Education; разработчик"
+    },
+    {
+      "id": "file:src/ui-kit/TaskDisclosureExample.tsx",
+      "path": "src/ui-kit/TaskDisclosureExample.tsx",
+      "kind": "artifact",
+      "purpose": "Общая компактная оболочка назначения и рабочий пример",
+      "consumer": "Ученик; родитель; UI Kit"
     },
     {
       "id": "file:src/UiKit.css",
@@ -11768,7 +11828,8 @@
         "несколько-страниц-одного-задания",
         "разбор-загруженной-работы",
         "уточнение-материала-ученика",
-        "информационные-записи-мэш"
+        "информационные-записи-мэш",
+        "task-disclosure"
       ],
       "path": "docs/modules/school-diary/day-page.md"
     },
@@ -14636,6 +14697,16 @@
       "type": "uses"
     },
     {
+      "from": "decision.collapsed-task-cards-2026-11-01",
+      "to": "shared.design.components",
+      "type": "uses"
+    },
+    {
+      "from": "decision.collapsed-task-cards-2026-11-01",
+      "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
       "from": "decision.collapsed-variant-status-2026-10-21",
       "to": "module.assignments",
       "type": "uses"
@@ -16258,6 +16329,11 @@
     {
       "from": "file:e2e/task-attachments.e2e.ts",
       "to": "shared.design.ui-kit",
+      "type": "implements"
+    },
+    {
+      "from": "file:e2e/task-disclosure.e2e.ts",
+      "to": "module.school-diary.day-page",
       "type": "implements"
     },
     {
@@ -19126,6 +19202,16 @@
       "type": "implements"
     },
     {
+      "from": "file:src/components/TaskDisclosure.css",
+      "to": "module.school-diary.day-page",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/TaskDisclosure.tsx",
+      "to": "module.school-diary.day-page",
+      "type": "implements"
+    },
+    {
       "from": "file:src/components/TaskGuidance.css",
       "to": "decision.released-stage-parity-2026-10-20",
       "type": "implements"
@@ -20493,6 +20579,11 @@
     {
       "from": "file:src/ui-kit/TaskAttachmentsExample.tsx",
       "to": "shared.design.ui-kit",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/ui-kit/TaskDisclosureExample.tsx",
+      "to": "module.school-diary.day-page",
       "type": "implements"
     },
     {
@@ -22687,6 +22778,11 @@
     },
     {
       "from": "module.school-diary.day-page",
+      "to": "decision.collapsed-task-cards-2026-11-01",
+      "type": "contains"
+    },
+    {
+      "from": "module.school-diary.day-page",
       "to": "decision.collapsed-variant-status-2026-10-21",
       "type": "contains"
     },
@@ -22713,6 +22809,11 @@
     {
       "from": "module.school-diary.day-page",
       "to": "file:src/components/PhotoUploadControl.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.school-diary.day-page",
+      "to": "file:src/components/TaskDisclosure.test.tsx",
       "type": "verified-by"
     },
     {

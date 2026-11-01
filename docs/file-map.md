@@ -1239,10 +1239,12 @@
 | [src/lib/reviewConversation.ts](../src/lib/reviewConversation.ts) | [Ответ и следующий шаг](shared/design/student-review-step.md) | Общий протокол ответа, отклика и перехода текущего шага | Ученик; автор; UI Kit |
 | [src/ui-kit/ReviewConversationExample.tsx](../src/ui-kit/ReviewConversationExample.tsx) | [Ответ и следующий шаг](shared/design/student-review-step.md) | Общий протокол ответа, отклика и перехода текущего шага | Ученик; автор; UI Kit |
 | [docs/decisions/student-review-reply-2026-11-01.md](decisions/student-review-reply-2026-11-01.md) | [Ответ и следующий шаг](shared/design/student-review-step.md) | Основание, роли и проверки нового диалога | Ученик; родитель; разработчик |
-
-
-| Файл | Спецификация | Назначение | Потребитель |
-|---|---|---|---|
+| [e2e/task-disclosure.e2e.ts](../e2e/task-disclosure.e2e.ts) | [Свёрнутые задания](modules/school-diary/day-page.md) | Регрессии закрытого входа, ручного раскрытия и сохранения состояния | Ученик; родитель; UI Kit |
+| [src/components/TaskDisclosure.css](../src/components/TaskDisclosure.css) | [Свёрнутые задания](modules/school-diary/day-page.md) | Общая компактная оболочка назначения и рабочий пример | Ученик; родитель; UI Kit |
+| [src/components/TaskDisclosure.test.tsx](../src/components/TaskDisclosure.test.tsx) | [Свёрнутые задания](modules/school-diary/day-page.md) | Регрессии закрытого входа, ручного раскрытия и сохранения состояния | Ученик; родитель; UI Kit |
+| [src/components/TaskDisclosure.tsx](../src/components/TaskDisclosure.tsx) | [Свёрнутые задания](modules/school-diary/day-page.md) | Общая компактная оболочка назначения и рабочий пример | Ученик; родитель; UI Kit |
+| [src/ui-kit/TaskDisclosureExample.tsx](../src/ui-kit/TaskDisclosureExample.tsx) | [Свёрнутые задания](modules/school-diary/day-page.md) | Общая компактная оболочка назначения и рабочий пример | Ученик; родитель; UI Kit |
+| [docs/decisions/collapsed-task-cards-2026-11-01.md](decisions/collapsed-task-cards-2026-11-01.md) | [Свёрнутые задания](modules/school-diary/day-page.md) | Общая компактная оболочка назначения и рабочий пример | Ученик; родитель; UI Kit |
 | [operator/run-report.mjs](../operator/run-report.mjs) | [Отчёт фаз](modules/synchronization/execution-artifact.md) | Отдельный итог исполнения и каждой фазы в stdout/существующем claim без файла отчёта | Education CLI; dispatch |
 | [operator/run-report.test.mjs](../operator/run-report.test.mjs) | [Отчёт фаз](modules/synchronization/execution-artifact.md) | Частичный МЭШ, независимая проверка работ, stdin и отсутствие файлов | Vitest |
 | [docs/decisions/sync-phase-report-2026-10-29.md](decisions/sync-phase-report-2026-10-29.md) | [Отчёт фаз](modules/synchronization/execution-artifact.md) | Решение семьи об итоговом отчёте в чате | Оператор |

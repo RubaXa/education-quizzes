@@ -1,3 +1,5 @@
+import {ResultBadge} from './components/ui/result'
+import TaskDisclosure from './components/TaskDisclosure'
 import {reviewConversationFor} from './lib/reviewConversation'
 import TaskWorkEvidence from '@/components/TaskWorkEvidence'
 import { workFilePresentation } from '../storage/work-file-types.mjs'
@@ -46,7 +48,7 @@ import LearnerFlow from '@/components/LearnerFlow'
 import PhotoUploadControl from '@/components/PhotoUploadControl'
 import QuizCard from '@/components/QuizCard'
 import { olympiadPracticeTheory } from '@/lib/olympiadPracticeTheory'
-import { findQuizPlacement, quizChain, quizTaskForPlacement, withQuizPlacements, type QuizCardAttempt } from '@/lib/quizCardViewModel'
+import { quizResultInput, findQuizPlacement, quizChain, quizTaskForPlacement, withQuizPlacements, type QuizCardAttempt } from '@/lib/quizCardViewModel'
 import { practiceVariantView } from '@/lib/practiceVariantViewModel'
 import { useDayEvidence } from '@/lib/useDayEvidence'
 import { useParentCompletions } from '@/lib/useParentCompletions'
@@ -75,7 +77,12 @@ function QuizLineageCard({ chain, parent, task, materialLinks = [], assignmentLa
   const materials = task && (task.steps?.length || readerLinks.length || otherLinks.length || materialLinks.some((link) => link.sourceType === 'audio')) ? <>{!!task.steps?.length && <ol className="day-task-steps">{task.steps.map((step, index) => <Instruction key={index} item={step} index={index} familyAssigned={Boolean(task.familyOrigin)} />)}</ol>}{materialLinks.filter((link) => link.sourceType === 'audio').map((link) => <AudioPlayer key={link.sourceRef || link.url} link={link} />)}{groupAdjacentMaterialPages(readerLinks).map((group) => <MaterialReader key={group[0].url} links={group} parent={parent} />)}{otherLinks.map((link) => <a key={link.url} href={link.url} target="_blank" rel="noopener noreferrer">{link.title} <ExternalLink size={13} aria-hidden="true" /></a>)}</> : undefined
   // @see ../docs/modules/school-diary/day-page.md#numbered-sheet-and-quiz
   // A numbered teacher sheet remains its own task beside the linked quiz.
-  return <QuizCard chain={chain} parent={parent} placementOptional={placementOptional} reading={reading} context={context} assignment={!separateAssignment && task && <>{assignmentLabel && <div className="day-task-assignment-heading">{assignmentLabel}</div>}<AssignmentBrief task={task} materialLinks={materialLinks} />{sourceEvidence}</>} materials={separateAssignment ? undefined : materials} id={task && !separateAssignment ? `day-task-${task.id}` : `day-quiz-${chain[0].token}`} />
+  const latest=chain.at(-1)
+  if(!latest)return null
+  const ownsAssignment=task&&!separateAssignment&&(task.kind==='read'||task.kind==='check')
+  const title=reading?.title ?? (ownsAssignment ? task!.title : latest.title)
+  const taskDomId=ownsAssignment ? `day-task-${task!.id}` : undefined
+  return <TaskDisclosure id={taskDomId??`day-quiz-${chain[0].token}`} title={title} status={<ResultBadge input={quizResultInput(latest)} showPoints className="day-quiz-lineage-score"/>} meta={`Самопроверка · вопросов: ${latest.total}`} assignmentLabel={ownsAssignment?assignmentLabel:undefined}><QuizCard chain={chain} parent={parent} placementOptional={placementOptional} reading={reading} context={context} assignment={!separateAssignment && task && <><AssignmentBrief task={task} materialLinks={materialLinks} />{sourceEvidence}</>} materials={separateAssignment ? undefined : materials} headingProvided={title} id={taskDomId?`day-quiz-${chain[0].token}`:undefined} /></TaskDisclosure>
 }
 
 /** @see ../docs/modules/school-diary/day-page.md#instruction-provenance
@@ -314,7 +321,10 @@ export default function DayPage({ token, parent, headerReturnTarget, olympiadSco
         : document.getElementById(focusTaskId) ?? document.getElementById(`day-task-${focusTaskId}`)
       if (!target) return
       if (target.closest('.day-subject-content[hidden], .problem-group-body[hidden]')) { focusHandled.current.settled = true; return }
-      if (target instanceof HTMLDetailsElement) target.open = true
+      if (!focusHandled.current.initial) {
+        let disclosure = target.closest('details')
+        while (disclosure) { disclosure.open = true; disclosure = disclosure.parentElement?.closest('details') ?? null }
+      }
       target.scrollIntoView({ behavior: 'auto', block: 'start' })
       target.classList.add('day-focused-task')
       focusHandled.current.initial = true
@@ -605,10 +615,11 @@ export default function DayPage({ token, parent, headerReturnTarget, olympiadSco
                   {(!task.competitionUntil || Date.now() > Date.parse(task.competitionUntil)) && <PhotoHelpPanel studentToken={studentToken} taskId={task.id} parent={parent} canRequest={!parent && helpRole === 'student'} canRead={helpRole === 'student' || helpRole === 'parent'} uploads={taskUploads} help={helpRequests.find(item => item.taskId === task.id)} guidance={guidance.filter(item => item.taskId === task.id)} gallery={selection => <WorkPhotoGallery taskTitle={task.title} studentToken={studentToken} uploads={taskUploadPresentation(uploads, task.id).owned} localPhotos={localTaskPhotos} review={review} now={statusNow} onRetry={queuePhotoUpload} onDelete={parent ? undefined : deletePhoto} selection={selection} />} />}
                 </ProblemCard>
               }
-              const taskCard = <article className={`day-task ${task.problems?.length ? 'has-problems' : ''} ${verified || workCovered ? 'done' : submitted ? 'submitted' : ''}`} id={`day-task-${task.id}`} key={task.id}>
-                {assignments.multiple && !task.problems?.length && <div className="day-task-assignment-heading">Задание {assignmentIndex + 1} из {assignments.total}</div>}
-                <div className="day-task-row">{!task.problems?.length && <span className={`day-task-state${state.length > 24 ? ' as-text' : ''} ${verified ? 'verified' : workCovered ? 'covered' : submitted ? 'partial' : taskStatus}`}><StatusIcon size={15} status={verified ? 'complete' : uploadingWork ? 'uploading' : processing ? 'processing' : newWork ? 'waiting' : workCovered ? 'unknown' : taskStatus === 'needs-fix' ? 'needs-fix' : taskStatus === 'partial' ? 'partial' : task.kind === 'read' && linkedTest?.answered ? 'started' : taskStatus === 'unknown' && (task.kind === 'read' || cdzTask) ? 'ready' : 'unknown'} />{state}</span>}{task.kind === 'written' && <span className="day-task-type">В тетради</span>}{task.dueDate && task.dueDate !== (task.lessonDate ?? page.targetDate) && <span className="day-task-type">Сдать к {dayMonth(task.dueDate)} · МЭШ</span>}{task.originDate && task.originDate !== page.targetDate && <span className="day-task-type">Осталось с {dayMonth(task.originDate)}</span>}</div>
-                {!task.problems?.length && <h3>{task.title}</h3>}{task.learnerOrigin && <span className="day-task-type">Добавлено учеником</span>}{[...(task.learnerOrigin ? [task.learnerOrigin] : []), ...(task.learnerSources ?? [])].map((source, index) => <LinkedWorkPhotos key={`${source.intakeTaskId}-${index}`} taskId={task.id} uploads={uploads} pages={[page, ...(evidencePages ?? [])]} source={source} number={olympiadScope?.number ?? 1} role={parent ? 'parent' : 'student'} />)}{(!task.problems?.length || !readerGroups.some((group) => group[0].sourceType === 'teacher-attachment')) && <AssignmentBrief task={task} materialLinks={taskLinks} compact={Boolean(task.problems?.length)} />}
+              const taskStatusBadge = <span className={`day-task-state${state.length > 24 ? ' as-text' : ''} ${verified ? 'verified' : workCovered ? 'covered' : submitted ? 'partial' : taskStatus}`}><StatusIcon size={15} status={verified ? 'complete' : uploadingWork ? 'uploading' : processing ? 'processing' : newWork ? 'waiting' : workCovered ? 'unknown' : taskStatus === 'needs-fix' ? 'needs-fix' : taskStatus === 'partial' ? 'partial' : task.kind === 'read' && linkedTest?.answered ? 'started' : taskStatus === 'unknown' && (task.kind === 'read' || cdzTask) ? 'ready' : 'unknown'} />{state}</span>
+              const taskMeta = [task.kind === 'written' ? 'В тетради' : null, task.dueDate && task.dueDate !== (task.lessonDate ?? page.targetDate) ? `Сдать к ${dayMonth(task.dueDate)} · МЭШ` : null, task.originDate && task.originDate !== page.targetDate ? `Осталось с ${dayMonth(task.originDate)}` : null].filter(Boolean).join(' · ')
+              const taskCard = <article className={`${task.problems?.length ? 'day-task has-problems' : 'day-task-content'} ${verified || workCovered ? 'done' : submitted ? 'submitted' : ''}`} id={task.problems?.length ? `day-task-${task.id}` : undefined} key={task.id}>
+                {task.problems?.length ? <div className="day-task-row">{task.kind === 'written' && <span className="day-task-type">В тетради</span>}{task.dueDate && task.dueDate !== (task.lessonDate ?? page.targetDate) && <span className="day-task-type">Сдать к {dayMonth(task.dueDate)} · МЭШ</span>}{task.originDate && task.originDate !== page.targetDate && <span className="day-task-type">Осталось с {dayMonth(task.originDate)}</span>}</div> : null}
+                {task.learnerOrigin && <span className="day-task-type">Добавлено учеником</span>}{[...(task.learnerOrigin ? [task.learnerOrigin] : []), ...(task.learnerSources ?? [])].map((source, index) => <LinkedWorkPhotos key={`${source.intakeTaskId}-${index}`} taskId={task.id} uploads={uploads} pages={[page, ...(evidencePages ?? [])]} source={source} number={olympiadScope?.number ?? 1} role={parent ? 'parent' : 'student'} />)}{(!task.problems?.length || !readerGroups.some((group) => group[0].sourceType === 'teacher-attachment')) && <AssignmentBrief task={task} materialLinks={taskLinks} compact={Boolean(task.problems?.length)} />}
                 {task.referenceDate && referencedItems.length > 0 && <div className="day-reference-results"><strong>Результаты ДЗ за {dayMonth(task.referenceDate)}</strong>{referencedItems.map((item) => <div className="day-reference-result" key={item.id}><span className={item.state === 'done' ? 'complete' : 'pending'}>{item.state === 'done' ? '✓' : '•'} {item.title}</span><small>{item.detail}</small></div>)}</div>}
                 {!parent && <TaskGuidance items={guidance.filter((item) => item.taskId === task.id && item.stageId !== 'help-response')} />}
                 {task.learnerFlow && <LearnerFlow key={`${task.id}:${JSON.stringify(task.learnerFlow)}:${JSON.stringify(review?.checkedAt??null)}`} flow={task.learnerFlow} reviewed={Boolean(review?.status)} />}
@@ -631,7 +642,7 @@ export default function DayPage({ token, parent, headerReturnTarget, olympiadSco
                     const variantLocalPending = localPhotos.filter(photo => variantProblems.some(problem => problem.id === photo.taskId) && !uploads.some(upload => upload.id === `${studentToken}:${photo.id}` && upload.status === 'reviewed')).length
                     const required = practiceRequired(task, variant.id, parentDecisions.events)
                     return <div className="day-practice-variant-shell" key={variant.id}>
-                      <details className="day-practice-variant" open={Boolean(olympiadScope) || variantProblems.some((problem) => problem.id === focusTaskId) || undefined}>
+                      <details className="day-practice-variant" open={variantProblems.some((problem) => problem.id === focusTaskId) || undefined}>
                         <summary><strong>{variant.title}</strong><PracticeVariantStatus problems={variantProblems} reviews={reviews} uploads={uploads} decisions={parentDecisions.events} localPendingCount={variantLocalPending} ready={evidenceReady && parentDecisions.ready} /><ChevronDown className="day-practice-variant-chevron" size={17} aria-hidden="true" /></summary>
                         <div className="day-practice-variant-problems">{variantProblems.map(renderProblem)}</div>
                       </details>
@@ -657,7 +668,7 @@ export default function DayPage({ token, parent, headerReturnTarget, olympiadSco
                   : <WorkPhotoGallery taskTitle={task.title} evidenceLabel={task.sourceIntake ? 'Фото условий' : task.materialRequest ? 'Материал для уточнения' : cdzTask ? 'Подтверждение ЦДЗ' : 'Фото работы'} studentToken={studentToken} uploads={taskUploadPresentation(uploads, task.id).owned} localPhotos={localTaskPhotos} review={review} now={statusNow} onRetry={queuePhotoUpload} onDelete={deletePhoto} />}<LinkedWorkPhotos taskId={task.id} uploads={uploads} pages={[page, ...(evidencePages ?? [])]} /></>}
                 {parent && <small className="day-source"><BookOpen size={14} /> {task.source}</small>}
               </article>
-              if (!task.problems?.length) return taskCard
+              if (!task.problems?.length) return <TaskDisclosure key={task.id} id={`day-task-${task.id}`} className={`day-task ${verified || workCovered ? 'done' : submitted ? 'submitted' : ''}`} title={task.title} status={taskStatusBadge} meta={taskMeta} assignmentLabel={assignments.multiple ? `Задание ${assignmentIndex + 1} из ${assignments.total}` : undefined}>{taskCard}</TaskDisclosure>
               /** @see ../docs/modules/school-diary/day-page.md#completed-problem-group */
               const requiredProblems = task.practiceVariants?.length ? task.problems.filter((problem) =>
                 problem.variantId && practiceRequired(task, problem.variantId, parentDecisions.events)) : task.problems
@@ -667,7 +678,7 @@ export default function DayPage({ token, parent, headerReturnTarget, olympiadSco
               const requiredLocalPendingCount = localPending.filter(photo => problemIds.has(photo.taskId)).length
               const sourceCount = new Set(taskLinks.filter((link) => link.sourceType === 'teacher-attachment').map((link) => link.url)).size
               const teacherChoice = task.practiceVariants?.length && task.practiceVariants.every(variant => variant.optionalByTeacher)
-              return <ProblemGroup key={task.id} id={task.id} title={task.practiceVariants?.length ? assignmentTitle(task, assignmentIndex, assignments.total).replace(/^Подготовиться к (?:самостоятельной|контрольной)(?: работе)?:/i, 'Подготовка:') : assignmentTitle(task, assignmentIndex, assignments.total)} subtitle={teacherChoice ? 'Реши сколько получится · по выбору учителя' : task.practiceVariants?.length ? `${task.practiceVariants.length} варианта из листа учителя` : undefined} problems={task.problems} requiredProblems={requiredProblems} numberLabel={teacherChoice ? `${task.problems.length} задач по выбору` : task.practiceVariants?.length ? `${task.practiceVariants.length} варианта` : undefined} uploads={uploads} reviews={reviews} decisions={parentDecisions.events} localPendingCount={localPendingCount} requiredLocalPendingCount={requiredLocalPendingCount} sourceCount={sourceCount} ready={evidenceReady && parentDecisions.ready} focusTaskId={focusTaskId} defaultOpen={Boolean(olympiadScope)}>{taskCard}</ProblemGroup>
+              return <ProblemGroup key={task.id} id={task.id} title={task.practiceVariants?.length ? assignmentTitle(task, assignmentIndex, assignments.total).replace(/^Подготовиться к (?:самостоятельной|контрольной)(?: работе)?:/i, 'Подготовка:') : assignmentTitle(task, assignmentIndex, assignments.total)} subtitle={teacherChoice ? 'Реши сколько получится · по выбору учителя' : task.practiceVariants?.length ? `${task.practiceVariants.length} варианта из листа учителя` : undefined} problems={task.problems} requiredProblems={requiredProblems} numberLabel={teacherChoice ? `${task.problems.length} задач по выбору` : task.practiceVariants?.length ? `${task.practiceVariants.length} варианта` : undefined} uploads={uploads} reviews={reviews} decisions={parentDecisions.events} localPendingCount={localPendingCount} requiredLocalPendingCount={requiredLocalPendingCount} sourceCount={sourceCount} ready={evidenceReady && parentDecisions.ready} focusTaskId={focusTaskId} defaultOpen={false}>{taskCard}</ProblemGroup>
             })}
             {olympiadScope?.quizTarget !== undefined ? olympiadScope.quizTarget && createPortal(standaloneCards, olympiadScope.quizTarget) : standaloneCards}</div>
           </div>

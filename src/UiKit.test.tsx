@@ -81,7 +81,8 @@ it('demonstrates one attachment and read-only references using the real shared c
 it('preserves grouped navigation and the shared grade average simulator',async()=>{
  document.body.append(host);root=createRoot(host);await act(async()=>root!.render(<UiKit/>))
  expect([...host.querySelectorAll('nav small')].map(node=>node.textContent)).toEqual(['Основы','Компоненты','Составные сценарии'])
- expect(host.querySelectorAll('nav button')).toHaveLength(18)
+ expect(host.querySelectorAll('nav button')).toHaveLength(19)
+ expect([...host.querySelectorAll('nav button')].map(n=>n.textContent)).toContain('Карточки заданий')
  expect([...host.querySelectorAll('nav button')].map(node=>node.textContent).join(' ')).toContain('История олимпиад')
  await act(async()=>[...host.querySelectorAll<HTMLButtonElement>('nav button')].find(button=>button.textContent==='Средний балл')!.click())
  const range=host.querySelector<HTMLInputElement>('input[type="range"]')!
