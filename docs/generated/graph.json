@@ -1512,6 +1512,7 @@
       ],
       "code": [
         "packages/education-connect/lib/http-trace.mjs",
+        "packages/education-connect/lib/login-diagnostics.mjs",
         "packages/education-connect/lib/mesh.mjs",
         "diary/login.mjs",
         "diary/cli.mjs"
@@ -17268,6 +17269,11 @@
     {
       "from": "file:packages/education-connect/lib/login-diagnostics.mjs",
       "to": "decision.local-connect-diagnostics-2026-11-01",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-connect/lib/login-diagnostics.mjs",
+      "to": "decision.mesh-http-trace-2026-11-02",
       "type": "implements"
     },
     {

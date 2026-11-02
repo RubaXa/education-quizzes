@@ -1,4 +1,5 @@
 /** @see ../../../docs/decisions/local-connect-diagnostics-2026-11-01.md */
+/** @see ../../../docs/decisions/mesh-http-trace-2026-11-02.md */
 /** @see ../../../docs/decisions/mesh-login-stages-2026-11-01.md */
 /** Safe local login stages; provider bodies and submitted credentials are never logged.
  * @see ../../../docs/shared/server-runtime.md#авторизация-и-совместимость
@@ -30,7 +31,7 @@ export function formatLoginFailure(error) {
   const safe = loginFailure(error)
   return `Не завершён этап «${labels[safe.stage]}»; ${[
     safe.httpStatus ? `HTTP ${safe.httpStatus}` : null, safe.providerCode, safe.networkCode, safe.reason,
-  ].filter(Boolean).join(' · ')}. Пароль, SMS и тело ответа не выводятся.`
+  ].filter(Boolean).join(' · ')}. Полные значения пароля, SMS и токенов не выводятся.`
 }
 function stageFor(url) {
   const path = new URL(url).pathname
