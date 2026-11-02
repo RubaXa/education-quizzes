@@ -146,3 +146,10 @@ action=do_not_trust. Поддержан именно этот DOM-контрак
 Live --resume02.11в15:56:48UTC безpassword/SMS прошёл callback и серверную проверку
 того же родителя/ребёнка, сохранил authMethodweb/verifiedAt/accountRoleparent.
 Это подтверждает текущий вход, но не длительность SSO или полный42-дневный сбор.
+
+Первый полный collect после входа выявил local credential_refresh_invalid:
+валидатор требовал stringvalue у всех cookies, хотя tough-cookie опускает value
+для пустой cookie, включая удалённые oauth cookies и пустой user_login.
+Разрешён отсутствующий value как штатное пустое значение сериализации;
+null/другие типы и чужие domains по-прежнему запрещены. Проверено на реальном
+CookieJarserialize/deserialize и в регрессионном тесте.

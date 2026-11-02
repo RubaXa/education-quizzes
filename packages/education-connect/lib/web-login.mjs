@@ -78,7 +78,7 @@ export function trustForm(text, address) {
 export function validWebSession(value) {
   return value && typeof value === 'object' && !Array.isArray(value) && Array.isArray(value.cookies)
     && value.cookies.length <= 100 && JSON.stringify(value).length <= 256 * 1024
-    && value.cookies.every(c => c && typeof c.key === 'string' && typeof c.value === 'string'
+    && value.cookies.every(c => c && typeof c.key === 'string' && (typeof c.value === 'string' || c.value === undefined)
       && typeof c.domain === 'string' && (hosts.has(c.domain.replace(/^\./, '')) || c.domain === 'mos.ru'))
 }
 
