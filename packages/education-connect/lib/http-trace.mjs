@@ -12,7 +12,8 @@ const publicKeys = new Set(['error', 'grant_type', 'software_id', 'device_type',
 const publicHeaders = new Set(['accept', 'content-type', 'content-length', 'content-encoding', 'accept-language',
   'user-agent', 'date', 'server', 'cache-control', 'pragma', 'expires', 'retry-after', 'x-request-id',
   'request-id', 'x-correlation-id', 'correlation-id', 'traceparent', 'x-trace-id', 'connection', 'vary',
-  'strict-transport-security', 'x-content-type-options', 'x-frame-options'])
+  'strict-transport-security', 'x-content-type-options', 'x-frame-options', 'accept-ch', 'critical-ch',
+  'front-end-https', 'transfer-encoding'])
 const errorCodes = new Set(['access_denied', 'invalid_client', 'invalid_grant', 'invalid_request', 'invalid_token', 'unauthorized_client', 'unsupported_grant_type', 'invalid_credentials', 'INVALID_PASSWORD', 'WRONG_PASSWORD', 'INVALID_SMS_CODE'])
 const genericDenied = 'The resource owner or authorization server denied the request.'
 
@@ -45,8 +46,25 @@ export function createHttpTrace(fetcher, { write = line => process.stdout.write(
     if (key === 'token_type') return ['Bearer', 'bearer'].includes(value) ? value : maskSecret(value)
     return maskSecret(value)
   }
+  function cookieView(line, response) {
+    const [pair, ...attributes] = line.split(';')
+    const at = pair.indexOf('=')
+    if (at < 1) return { name: '[некорректная cookie]', value: maskSecret(line) }
+    const result = { name: at < 0 ? pair.trim() : pair.slice(0, at).trim(), value: maskSecret(at < 0 ? '' : pair.slice(at + 1)) }
+    if (response) result.attributes = attributes.map(attribute => {
+      const at = attribute.indexOf('=')
+      const name = (at < 0 ? attribute : attribute.slice(0, at)).trim()
+      if (at < 0) return { name }
+      const value = attribute.slice(at + 1).trim()
+      return { name, value: ['path', 'domain', 'max-age', 'expires', 'samesite'].includes(name.toLowerCase()) ? value : maskSecret(value) }
+    })
+    return result
+  }
   function headersView(input) {
-    return Object.fromEntries([...new Headers(input)].map(([key, value]) => {
+    const headers = new Headers(input)
+    return Object.fromEntries([...headers].map(([key, value]) => {
+      if (key === 'set-cookie') return [key, headers.getSetCookie().map(line => cookieView(line, true))]
+      if (key === 'cookie') return [key, value.split(';').map(line => cookieView(line.trim(), false))]
       if (key === 'location') return [key, urlView(value)]
       if (key === 'authorization') {
         const [scheme, ...parts] = value.split(' ')
