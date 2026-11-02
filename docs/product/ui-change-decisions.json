@@ -7882,7 +7882,7 @@
       }
     },
     "packages/education-connect/lib/http-trace.mjs": {
-      "sha256": "3ae10241934da1ed3eb746e595817fcf41eb0334a3e662100a4237859877cdea",
+      "sha256": "3ba9f189232571c35b8068b2e05cf8c0956ee5de0ed00501b136f578c030c99a",
       "record": "docs/decisions/mesh-http-trace-2026-11-02.md",
       "specs": [
         "docs/modules/school-diary/README.md",
