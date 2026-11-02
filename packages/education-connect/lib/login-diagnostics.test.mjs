@@ -45,3 +45,25 @@ it('emits only the safe response status and normalized content type in diagnosti
  expect(events).toEqual([{stage:'registration',httpStatus:200,contentType:'application/json'}])
  expect(JSON.stringify(events)).not.toContain('private')
 })
+
+it('does not ask for credentials at all when registration is rejected',async()=>{
+ const readCredentials=vi.fn()
+ vi.stubGlobal('fetch',vi.fn().mockResolvedValue(Response.json({error:'access_denied'},{status:400})))
+ await expect(loginToMesh({readCredentials})).rejects.toMatchObject({stage:'registration',httpStatus:400})
+ expect(readCredentials).not.toHaveBeenCalled()
+})
+it('prompts once immediately before the password request and traces only masked entered credentials',async()=>{
+ const requests=[],events=[],readCredentials=vi.fn(async()=>({username:'user-private',password:'password-private'}))
+ vi.stubGlobal('fetch',vi.fn(async(url,opts)=>{
+  requests.push({url,body:opts.body})
+  if(String(url).endsWith('/oauth/register'))return Response.json({client_id:'client-private',client_secret:'secret-private'})
+  if(String(url).includes('/oauth/ae?'))return Response.json({items:[]})
+  return Response.json({error:'invalid_credentials'},{status:400})
+ }))
+ await expect(loginToMesh({readCredentials,trace:{write:x=>events.push(x)}})).rejects.toMatchObject({stage:'password'})
+ expect(readCredentials).toHaveBeenCalledTimes(1)
+ expect(requests).toHaveLength(3)
+ expect(JSON.parse(requests[2].body)).toMatchObject({login:'user-private',password:'password-private'})
+ expect(events.join('')).not.toMatch(/user-private|password-private|client-private|secret-private/)
+ expect(events.join('')).toContain('pa******** (длина: 16)')
+})

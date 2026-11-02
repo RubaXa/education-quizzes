@@ -1,3 +1,4 @@
+/** @see ../../../docs/decisions/mesh-http-trace-2026-11-02.md */
 /** @see ../../../docs/decisions/mesh-renewal-order-2026-11-01.md */
 /** @see ../../../docs/decisions/local-connect-diagnostics-2026-11-01.md */
 /** @see ../../../docs/decisions/mesh-login-stages-2026-11-01.md */
@@ -5,6 +6,7 @@
 import { authenticate } from 'mesh-diary/lib/auth.js'
 import { MeshAPI } from 'mesh-diary/lib/api.js'
 import { createLoginDiagnostics } from './login-diagnostics.mjs'
+import { createHttpTrace } from './http-trace.mjs'
 import { fetchMeshRead } from './network-retry.mjs'
 
 const allowedHosts = new Set(['login.mos.ru', 'school.mos.ru', 'dnevnik.mos.ru'])
@@ -21,14 +23,14 @@ function retryObserver(telemetry) {
   }
 }
 
-function meshFetch(url, options = {}, telemetry = null, shutdownSignal = null) {
+function meshFetch(url, options = {}, telemetry = null, shutdownSignal = null, trace = null) {
   const address = new URL(url)
   if (address.protocol !== 'https:' || !allowedHosts.has(address.hostname)) {
     throw new Error('МЭШ запросил неизвестный адрес')
   }
   const timeoutSignal = options.signal ?? AbortSignal.timeout(30_000)
   const signal = shutdownSignal ? AbortSignal.any([timeoutSignal, shutdownSignal]) : timeoutSignal
-  return fetchMeshRead(address, { ...options, signal }, { observer: retryObserver(telemetry) })
+  return fetchMeshRead(address, { ...options, signal }, { observer: retryObserver(telemetry), ...(trace ? { fetcher: trace.fetch } : {}) })
 }
 
 function childLabel(profile) {
@@ -133,9 +135,19 @@ export function normalizeSubjectPeriods(subjects, date = new Intl.DateTimeFormat
 }
 
 /** @see ../../../docs/modules/school-diary/README.md#diary-adapter */
-export async function loginToMesh({ username, password, askSmsCode, chooseProfile, onProgress, onDiagnostic }, { telemetry = null } = {}) {
-  const diagnostic = createLoginDiagnostics((url, options) => meshFetch(url, options, telemetry), onProgress, onDiagnostic)
-  const fetch = diagnostic.fetch
+export async function loginToMesh({ username, password, readCredentials, askSmsCode, chooseProfile, onProgress, onDiagnostic, trace = null }, { telemetry = null } = {}) {
+  const httpTrace = trace ? createHttpTrace(globalThis.fetch, trace) : null
+  const diagnostic = createLoginDiagnostics((url, options) => meshFetch(url, options, telemetry, null, httpTrace), onProgress, onDiagnostic)
+  let entered = null
+  const fetch = async (url, options) => {
+    if (readCredentials && new URL(url).pathname === '/sps/login/methods/headless/password') {
+      entered ??= await readCredentials()
+      if (!entered?.username || !entered?.password) throw new Error('Логин и пароль обязательны')
+      const body = JSON.parse(options.body)
+      options = { ...options, body: JSON.stringify({ ...body, login: entered.username, password: entered.password }) }
+    }
+    return diagnostic.fetch(url, options)
+  }
   try {
   const auth = await authenticate({ fetch, username, password, askSmsCode, onProgress: () => {} })
   if (!auth.token || !auth.personId) throw new Error('Вход прошёл, но профиль МЭШ не найден')
@@ -181,7 +193,7 @@ async function rejectAuth(response, stage) {
   throw meshAuthFailure({ code: 'mesh_auth_required', httpStatus: response.status, stage, oauthError: data?.error })
 }
 
-async function refreshToken(secret, telemetry = null, shutdownSignal = null) {
+async function refreshToken(secret, telemetry = null, shutdownSignal = null, trace = null) {
   if (!secret.clientId || !secret.clientSecret) return null
   const authorization = `Basic ${Buffer.from(`${secret.clientId}:${secret.clientSecret}`).toString('base64')}`
   const request = async (body) => {
@@ -189,7 +201,7 @@ async function refreshToken(secret, telemetry = null, shutdownSignal = null) {
       method: 'POST',
       headers: { Authorization: authorization, 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams(body),
-    }, telemetry, shutdownSignal)
+    }, telemetry, shutdownSignal, trace)
     await rejectAuth(response, 'oauth-refresh')
     if (!response.ok) throw Object.assign(new Error('mesh_token_unavailable'), {code:'mesh_unavailable'})
     return response.json()
@@ -212,7 +224,7 @@ async function refreshToken(secret, telemetry = null, shutdownSignal = null) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ user_authentication_for_mobile_request: { mos_access_token: mos.access_token } }),
-  }, telemetry, shutdownSignal)
+  }, telemetry, shutdownSignal, trace)
   await rejectAuth(response, 'mesh-exchange')
   if (!response.ok) return null
   const data = await response.json()
@@ -220,7 +232,7 @@ async function refreshToken(secret, telemetry = null, shutdownSignal = null) {
   if (!token) return null
   const activation = await meshFetch('https://dnevnik.mos.ru/acl/api/users/profile_info', {
     headers: { 'auth-token': token, 'partner-source-id': 'MOBILE', Accept: '*/*' },
-  }, telemetry, shutdownSignal)
+  }, telemetry, shutdownSignal, trace)
   await rejectAuth(activation, 'mesh-activation')
   if (!activation.ok) return null
   return { token, refreshToken: mos.refresh_token || secret.refreshToken }
@@ -228,20 +240,22 @@ async function refreshToken(secret, telemetry = null, shutdownSignal = null) {
 
 /** @see ../../../docs/modules/school-diary/README.md#diary-adapter */
 export class MeshDiaryAdapter {
-  constructor(secret, saveSecret, { telemetry = null, signal = null } = {}) {
+  constructor(secret, saveSecret, { telemetry = null, signal = null, trace = null } = {}) {
     this.secret = secret
     this.saveSecret = saveSecret
     this.telemetry = telemetry
     this.signal = signal
     this.scheduleCache = new Map()
+    const httpTrace = trace ? createHttpTrace(globalThis.fetch, trace) : null
+    this.httpTrace = httpTrace
     this.api = new MeshAPI({
       token: secret.token,
       studentId: secret.studentId,
       profileId: secret.profileId,
       personId: secret.personId,
-      fetch: (url, options) => meshFetch(url, options, this.telemetry, this.signal),
+      fetch: (url, options) => meshFetch(url, options, this.telemetry, this.signal, httpTrace),
       onUnauthorized: async () => {
-        const updated = await refreshToken(this.secret, this.telemetry, this.signal)
+        const updated = await refreshToken(this.secret, this.telemetry, this.signal, httpTrace)
         if (!updated) return null
         this.secret = { ...this.secret, ...updated }
         this.saveSecret(this.secret)
@@ -261,7 +275,7 @@ export class MeshDiaryAdapter {
 
     const response = await meshFetch('https://dnevnik.mos.ru/acl/api/users/profile_info', {
       headers: { 'auth-token': this.api.token, 'partner-source-id': 'MOBILE', Accept: '*/*' },
-    }, this.telemetry, this.signal)
+    }, this.telemetry, this.signal, this.httpTrace)
     if (!response.ok) throw new Error('ACCESS_NOT_VERIFIED: роль аккаунта не определена')
     const roles = await response.json()
     if (!Array.isArray(roles) || !roles.some((role) => role.type === 'ParentProfile')) {

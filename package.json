@@ -38,6 +38,7 @@
     "archive:local": "node scripts/archive-local.mjs",
     "education": "node scripts/education.mjs",
     "diary": "node diary/cli.mjs",
+    "mesh:login": "node diary/cli.mjs login",
     "grades:snapshot": "node scripts/grade-snapshot.mjs",
     "connect": "node scripts/connect.mjs",
     "family": "node scripts/family.mjs",

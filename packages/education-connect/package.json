@@ -15,7 +15,8 @@
     "lib/prompts.mjs",
     "README.md",
     "lib/network-retry.mjs",
-    "lib/login-diagnostics.mjs"
+    "lib/login-diagnostics.mjs",
+    "lib/http-trace.mjs"
   ],
   "engines": {
     "node": ">=20"
