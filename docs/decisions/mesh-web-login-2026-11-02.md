@@ -133,3 +133,16 @@ HTTPS URL, размер, разрешённые cookie domains и возраст
 заменяется только после прежней проверки роли, ребёнка и владельца. Отсутствующая
 или истёкшая сессия требует обычного пользовательского входа. Из mask-only трассы
 предыдущего завершённого процесса восстановить SSO невозможно.
+
+### Реальная кнопка подтверждения
+
+Сохранённый оригинал02.11 содержит form#decision POSTaskToTrust,
+input#action[name=action]hidden и button#agree[type=button]/button#disagree.
+Официальный https://login.mos.ru/sps/login/assets/javascripts/askToTrust.js
+при #agree записывает action=trust и отправляет #decision; при #disagree —
+action=do_not_trust. Поддержан именно этот DOM-контракт без исполненияJavaScript,
+с отдельным согласием пользователя. Произвольные type=button не поддерживаются.
+Регрессионная фикстура воспроизводит реальную структуру, а не прежнюю гипотезу.
+Live --resume02.11в15:56:48UTC безpassword/SMS прошёл callback и серверную проверку
+того же родителя/ребёнка, сохранил authMethodweb/verifiedAt/accountRoleparent.
+Это подтверждает текущий вход, но не длительность SSO или полный42-дневный сбор.

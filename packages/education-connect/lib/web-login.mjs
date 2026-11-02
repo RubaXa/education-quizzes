@@ -52,11 +52,20 @@ export function trustForm(text, address) {
     const controls = []
     const collect = node => { if (node !== form && node.tagName === 'form') return; controls.push(node); (node.childNodes || []).forEach(collect) }
     collect(form)
-    const buttons = controls.filter(n => n.tagName === 'button' && (!attrs(n).type || attrs(n).type === 'submit') || n.tagName === 'input' && attrs(n).type === 'submit')
+    // Official askToTrust.js sets #action=trust and submits #decision on #agree.
+    // Match that exact known DOM contract; never evaluate the supplied JavaScript.
+    const actionInputs = controls.filter(n => n.tagName === 'input' && attrs(n).id === 'action' && attrs(n).name === 'action' && attrs(n).type === 'hidden')
+    const scriptedDecision = a.id === 'decision' && method === 'POST' && actionInputs.length === 1
+      && controls.some(n => n.tagName === 'button' && attrs(n).id === 'disagree' && attrs(n).type === 'button' && textOf(n).trim() === 'Не доверять')
+    const buttons = controls.filter(n => n.tagName === 'button' && (!attrs(n).type || attrs(n).type === 'submit' || scriptedDecision && attrs(n).id === 'agree' && attrs(n).type === 'button') || n.tagName === 'input' && attrs(n).type === 'submit')
       .filter(n => !Object.hasOwn(attrs(n), 'disabled') && /^(?:да|доверять|доверять этому устройству|запомнить устройство)$/i.test((n.tagName === 'input' ? attrs(n).value : textOf(n)).trim()))
     if (buttons.length !== 1) continue
     const fields = controls.filter(n => n.tagName === 'input' && attrs(n).type === 'hidden' && attrs(n).name && !Object.hasOwn(attrs(n), 'disabled'))
       .map(n => [attrs(n).name, attrs(n).value || ''])
+    if (scriptedDecision && attrs(buttons[0]).id === 'agree') {
+      if (fields.filter(([name]) => name === 'action').length !== 1) continue
+      fields.find(([name]) => name === 'action')[1] = 'trust'
+    }
     const submit = attrs(buttons[0])
     if (submit.formaction || submit.formmethod) continue
     if (submit.name) fields.push([submit.name, submit.value || ''])

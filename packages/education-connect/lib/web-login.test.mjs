@@ -146,3 +146,8 @@ it('reports only masked form structure and rejects expired or malformed pending 
  await expect(authenticateWeb({fetch,resume:{}})).rejects.toMatchObject({stage:'trust'})
  expect(fetch).not.toHaveBeenCalled()
 })
+it('matches the real mos.ru decision form and its official askToTrust.js action',()=>{
+ const html='<form id="decision" action="/sps/login/ur/askToTrust" method="POST"><input id="action" name="action" type="hidden" value=""><button id="agree" type="button">Доверять</button><button id="disagree" type="button">Не доверять</button></form><script src="/sps/login/assets/javascripts/askToTrust.js"></script>'
+ expect(trustForm(html,'https://login.mos.ru/sps/login/ur/askToTrust')).toEqual({url:'https://login.mos.ru/sps/login/ur/askToTrust',method:'POST',body:'action=trust'})
+ expect(trustForm(html.replace('id="action"','id="unrelated"'),'https://login.mos.ru/sps/login/ur/askToTrust')).toBeNull()
+})
