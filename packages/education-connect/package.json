@@ -29,6 +29,7 @@
   "dependencies": {
     "tough-cookie": "6.0.2",
     "firebase": "12.19.0",
-    "mesh-diary": "https://codeload.github.com/voenniy/mesh-diary/tar.gz/319c44ff25a156dacd3afdf2773959db31ca29dc"
+    "mesh-diary": "https://codeload.github.com/voenniy/mesh-diary/tar.gz/319c44ff25a156dacd3afdf2773959db31ca29dc",
+    "parse5": "5.1.1"
   }
 }
