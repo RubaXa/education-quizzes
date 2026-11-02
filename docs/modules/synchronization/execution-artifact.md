@@ -107,3 +107,11 @@ reason,evidence[]. succeeded требует квитанцию; not-run треб
 фазу dispatch, возвращает lifecycle=finished,outcome,sourceCycleComplete и статусы
 фаз, затем штатно удаляет claim. Подтверждение очереди не подтверждает источники.
 Компактная таблица всех фаз показывается прямо в итоговом сообщении пользователю.
+
+Чистый захваченный Mesh-запрос без sendingActionThroughGeneration экспортируется
+как partial manifest: нулевые action-границы, sourceThroughGeneration текущего
+захвата и legacyCount=1. Он требует отдельного полного source workflow, а не
+означает no-work. readActionTasks не вызывается: ожидающие action-события не
+входят в такой пакет. Неизвестный kind, смешанный незафиксированный action-пакет,
+чужой/истёкший claim по-прежнему отвергаются. Финальная проверка подтверждает,
+что sendingGeneration и sendingKinds не изменились во время экспорта.

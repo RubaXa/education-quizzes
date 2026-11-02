@@ -220,7 +220,7 @@ function readFirebaseProject(root) {
   catch { return null }
 }
 function safeError(error) {
-  const known = new Set(['firestore_project_unavailable', 'usage_invalid', 'claim_file_invalid', 'claim_file_unavailable', 'event_not_eligible', 'event_owner_unverified',
+  const known = new Set(['education_sync_action_request_unclaimed', 'firestore_project_unavailable', 'usage_invalid', 'claim_file_invalid', 'claim_file_unavailable', 'event_not_eligible', 'event_owner_unverified',
     'task_manifest_unavailable', 'task_manifest_incomplete', 'task_manifest_invalid', 'task_manifest_cursor_invalid',
     'task_artifact_invalid', 'task_artifact_superseded', 'task_artifact_refresh_conflict', 'task_owner_mismatch',
     'task_owner_unavailable', 'task_source_missing', 'task_source_superseded', 'task_source_not_reviewable', 'task_context_missing'])

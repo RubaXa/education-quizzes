@@ -10676,7 +10676,7 @@
       "id": "file:sync/event-task-export.mjs",
       "path": "sync/event-task-export.mjs",
       "kind": "artifact",
-      "purpose": "Адресный закрытый пакет задачи с проверкой общего/action claim, точного диапазона и свежести",
+      "purpose": "Закрытый action-пакет либо явный Mesh-only manifest без чтения pending action; claim/range/freshness",
       "consumer": "Dispatcher; EducationSync"
     },
     {
@@ -10767,7 +10767,7 @@
       "id": "file:sync/project-audit.mjs",
       "path": "sync/project-audit.mjs",
       "kind": "artifact",
-      "purpose": "Валидация сохранённого run/window/owner и создание read-only publication receipt без завершения workflow",
+      "purpose": "Валидация run/window/owner, зарегистрированный legacy symlink и read-only receipt без завершения workflow",
       "consumer": "`scripts/sync-project.mjs`; operator CLI"
     },
     {

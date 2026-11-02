@@ -12,14 +12,18 @@ export async function exportEventTaskManifest(db, store, { root, requestId, toke
   const state = await store.read()
   const execution = resolveEducationSyncExecution(state, { requestId, tokenHash, now })
   if (!execution) throw new Error('claim_file_invalid')
-  if (!Number.isInteger(execution.actionThroughGeneration)) throw new Error('education_sync_action_request_unclaimed')
-  if (typeof store.readActionTasks !== 'function') throw new Error('task_manifest_unavailable')
+  const sourceOnly = !Number.isInteger(execution.actionThroughGeneration) && execution.scope === 'request'
+    && state.requestId === requestId && Number.isInteger(state.sendingGeneration)
+    && Array.isArray(state.sendingKinds) && state.sendingKinds.length === 1 && state.sendingKinds[0] === 'mesh'
+  if (!Number.isInteger(execution.actionThroughGeneration) && !sourceOnly) throw new Error('education_sync_action_request_unclaimed')
+  if (!sourceOnly && typeof store.readActionTasks !== 'function') throw new Error('task_manifest_unavailable')
   const directory = resolve(root, '.local/education-sync-dispatch/tasks', requestId)
   mkdirSync(directory, { recursive: true, mode: 0o700 })
   chmodSync(directory, 0o700)
   const pages = [], seenCursors = new Set()
-  let cursor = null, taskCount = 0, doneCount = 0, legacyCount = 0
+  let cursor = null, taskCount = 0, doneCount = 0, legacyCount = sourceOnly ? 1 : 0
   do {
+    if (sourceOnly) break // There is no claimed action range; never read pending action events.
     const page = await store.readActionTasks({ requestId, cursor, limit: 100, now })
     if (!page || !Array.isArray(page.tasks) || page.complete !== true || page.tasks.length > 100) throw new Error('task_manifest_incomplete')
     const tasks = []
@@ -84,11 +88,14 @@ export async function exportEventTaskManifest(db, store, { root, requestId, toke
   const finalState = await store.read()
   const finalExecution = resolveEducationSyncExecution(finalState, { requestId, tokenHash, now })
   if (!finalExecution || finalExecution.scope !== execution.scope
+    || sourceOnly && (finalState.sendingGeneration !== state.sendingGeneration
+      || JSON.stringify(finalState.sendingKinds) !== JSON.stringify(state.sendingKinds))
     || finalExecution.actionAfterGeneration !== execution.actionAfterGeneration
     || finalExecution.actionThroughGeneration !== execution.actionThroughGeneration) throw new Error('claim_file_invalid')
   const manifest = { schemaVersion: 1, requestId, createdAt: now, state: legacyCount ? 'partial' : taskCount ? 'ready' : 'no-work',
-    coverage: { actionAfterGeneration: execution.actionAfterGeneration ?? null,
-      actionThroughGeneration: execution.actionThroughGeneration ?? null },
+    coverage: { actionAfterGeneration: sourceOnly ? null : execution.actionAfterGeneration ?? null,
+      actionThroughGeneration: execution.actionThroughGeneration ?? null,
+      ...(sourceOnly ? { sourceThroughGeneration: state.sendingGeneration } : {}) },
     pages, taskCount, doneCount, legacyCount }
   const manifestPath = resolve(directory, 'manifest.json')
   writePrivate(manifestPath, manifest)

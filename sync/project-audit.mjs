@@ -8,11 +8,12 @@ const OWNER_ID = /^[A-Za-z0-9_-]{1,120}$/
 /** Accept this child's canonical source path or an explicitly owned legacy diary. */
 export function resolveProjectAuditSourcePath(job, { localDir, runDir, legacyOwner }) {
   const path = resolve(job?.sourceDir ?? '')
-  const realLocal = realpathSync(localDir)
   const realPath = realpathSync(path)
   const legacyPath = resolve(localDir, 'diary')
-  if (path === legacyPath && realPath === resolve(realLocal, 'diary')
-    && legacyOwner?.familyId === job?.familyId && legacyOwner?.childId === job?.childId) return path
+  // The released checkout intentionally links its registered legacy diary to
+  // the existing family workspace; resolve that one owned path, not owner paths.
+  if (path === legacyPath && legacyOwner?.familyId === job?.familyId
+    && legacyOwner?.childId === job?.childId) return path
   const realRun = realpathSync(runDir)
   const ownerDir = resolve(realRun, 'sources', job?.familyId ?? '', job?.childId ?? '')
   const expectedDiary = resolve(ownerDir, 'diary')

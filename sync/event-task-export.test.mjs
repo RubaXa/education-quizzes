@@ -65,8 +65,10 @@ describe('request scoped task export', () => {
     const { db, store, options, state } = await fixture()
     Object.assign(state, { requestId: 'mesh-request', status: 'running', sendingKinds: ['mesh'], sendingGeneration: 19,
       sendingActionAfterGeneration: 0, sendingActionThroughGeneration: null, actionAfterGeneration: 18, actionThroughGeneration: 43 })
-    await expect(exportEventTaskManifest(db, store, { ...options, requestId: 'mesh-request' }))
-      .rejects.toThrow('education_sync_action_request_unclaimed')
+    const result = await exportEventTaskManifest(db, store, { ...options, requestId: 'mesh-request' })
+    expect(result).toMatchObject({status:'partial',taskCount:0,legacyCount:1,pageCount:0})
+    const manifest=JSON.parse(readFileSync(result.manifestPath,'utf8'))
+    expect(manifest.coverage).toEqual({actionAfterGeneration:null,actionThroughGeneration:null,sourceThroughGeneration:19})
     expect(store.readActionTasks).not.toHaveBeenCalled()
   })
 
@@ -110,4 +112,14 @@ describe('request scoped task export', () => {
     expect(rows.get(updatedJob.artifactPath).inputs.source.questions[0].prompt).toBe('Уточнённое условие')
     expect([...rows.keys()].some((path) => path.includes('/artifactRevisions/'))).toBe(true)
   })
+})
+it('rejects an unclaimed mixed range and changed source generation without reading action tasks',async()=>{
+ const {db,store,options,state}=await fixture()
+ Object.assign(state,{sendingKinds:['mesh','action'],sendingGeneration:19,sendingActionThroughGeneration:null})
+ await expect(exportEventTaskManifest(db,store,options)).rejects.toThrow('education_sync_action_request_unclaimed')
+ expect(store.readActionTasks).not.toHaveBeenCalled()
+ state.sendingKinds=['mesh']
+ store.read.mockResolvedValueOnce(structuredClone(state)).mockResolvedValueOnce({...state,sendingGeneration:20})
+ await expect(exportEventTaskManifest(db,store,options)).rejects.toThrow('claim_file_invalid')
+ expect(store.readActionTasks).not.toHaveBeenCalled()
 })
