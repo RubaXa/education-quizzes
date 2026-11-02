@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/mesh-web-login-2026-11-02.md */
 /** Shared Mesh credentials and single-host advisory account lock.
  * @see ../../docs/shared/server-runtime.md#авторизация-и-совместимость
  */
@@ -6,6 +7,7 @@ import { chmodSync, mkdirSync, readFileSync, renameSync, unlinkSync, writeFileSy
 import { spawn } from 'node:child_process'
 import { createInterface } from 'node:readline'
 import { join } from 'node:path'
+import { validWebSession } from '../education-connect/lib/web-login.mjs'
 import { meshParentAccountId, validRuntimeId } from './identity.mjs'
 
 const lockProgram = String.raw`
@@ -117,7 +119,7 @@ export function createLegacyMeshCredentialCodec({ familyAccessPath, credentialsP
         if (typeof assertHeld !== 'function') throw safeError('account_lock_required')
         assertHeld()
         persistTokens({ file: credentialsPath, wrapper: null, credentials: current, updated, fs })
-        current = { ...credentials }
+        current = { ...current }
       } }
     },
   })
@@ -188,7 +190,9 @@ export function persistTokens({ file, wrapper, credentials, updated, fs = defaul
     || (updated.refreshToken !== undefined && updated.refreshToken !== null && typeof updated.refreshToken !== 'string')) {
     throw safeError('credential_refresh_invalid')
   }
+  if (updated.webSession !== undefined && (credentials.authMethod !== 'web' || !validWebSession(updated.webSession))) throw safeError('credential_refresh_invalid')
   const nextCredentials = { ...credentials, token: updated.token }
+  if (updated.webSession !== undefined) nextCredentials.webSession = JSON.parse(JSON.stringify(updated.webSession))
   if (updated.refreshToken !== undefined) nextCredentials.refreshToken = updated.refreshToken
   const next = wrapper ? { ...wrapper, credentials: nextCredentials } : nextCredentials
   const directory = file.slice(0, file.lastIndexOf('/'))

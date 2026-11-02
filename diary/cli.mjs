@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 /** @see ../docs/decisions/mesh-http-trace-2026-11-02.md */
+/** @see ../docs/decisions/mesh-web-login-2026-11-02.md */
 /** @see ../docs/decisions/mesh-login-stages-2026-11-01.md */
 /** @see ../docs/decisions/mesh-auth-recovery-2026-11-01.md */
 import { resolve } from 'node:path'
@@ -16,7 +17,7 @@ import { lessonVisibility } from './application/lesson-visibility.mjs'
 import { downloadDayAttachments } from './attachments.mjs'
 import { meshAuthDiagnostic } from '../packages/education-connect/lib/mesh.mjs'
 import { formatLoginFailure } from '../packages/education-connect/lib/login-diagnostics.mjs'
-import { hiddenPrompt, visiblePrompt, credentialInputSummary } from '../packages/education-connect/lib/prompts.mjs'
+import { hiddenPrompt, visiblePrompt, credentialInputSummary, confirmPrompt } from '../packages/education-connect/lib/prompts.mjs'
 
 async function chooseProfile(profiles) {
   if (profiles.length === 1) return 0
@@ -49,24 +50,29 @@ async function main() {
   }
   if (command === 'login') {
     if (args.includes('--help')) {
-      stdout.write('Прямой вход: npm run mesh:login -- --trace [--data-dir PATH] [--show-password-prefix]\nБез приглашений и передачи доступа в Firebase. Реальный запуск регистрирует клиент mos.ru.\n')
+      stdout.write('Прямой вход: npm run mesh:login -- --trace [--data-dir PATH] [--method web|mobile] [--show-password-prefix]\nПо умолчанию веб-клиент дневника, ввод телефона/email/СНИЛС и пароля перед запросами. Mobile отдельно регистрирует приложение.\n')
       return
     }
+    const methodAt = args.indexOf('--method')
+    const method = methodAt < 0 ? 'web' : args[methodAt + 1]
+    if (!['web', 'mobile'].includes(method)) throw new Error('Укажите --method web или --method mobile')
     const allowed = new Set(['--trace', '--show-password-prefix'])
-    const loginArgs = args.filter((_, i) => dirAt < 0 || (i !== dirAt && i !== dirAt + 1))
-    if (loginArgs.some(arg => !allowed.has(arg))) throw new Error('Укажите только --trace, --show-password-prefix или --data-dir PATH')
+    const loginArgs = args.filter((_, i) => (dirAt < 0 || (i !== dirAt && i !== dirAt + 1)) && (methodAt < 0 || (i !== methodAt && i !== methodAt + 1)))
+    if (loginArgs.some(arg => !allowed.has(arg))) throw new Error('Укажите только --trace, --show-password-prefix, --method web|mobile или --data-dir PATH')
     const tracing = args.includes('--trace')
     stdout.write('Прямой локальный вход в МЭШ через mos.ru. Инвайт и Firebase не используются.\n')
+    stdout.write(`Способ входа: ${method === 'web' ? 'веб-клиент дневника, без мобильной регистрации' : 'мобильный SDK с регистрацией приложения'}.\n`)
     stdout.write(`Локальное хранилище: ${config.dataDir}. Существующий доступ заменится только после проверки роли и ребёнка.\n`)
     if (tracing) {
       const require = createRequire(import.meta.url)
       stdout.write(`Node ${process.version}; SDK: ${require.resolve('mesh-diary/lib/auth.js')}\nHTTP-трасса: секреты показаны двумя символами и длиной; файлы логов не создаются.\n`)
     }
     const result = await localMeshLogin({
-      login: loginToMesh, Adapter: MeshDiaryAdapter, trace: tracing ? {} : null,
+      login: loginToMesh, Adapter: MeshDiaryAdapter, trace: tracing ? {} : null, method,
+      confirmTrust: () => confirmPrompt('mos.ru предлагает доверять этому входу. Подтвердить? Напишите «да»: '),
       expectedActorPersonId: readJson(config.dataDir, 'secret.json')?.actorPersonId,
       readCredentials: async () => {
-        const username = await visiblePrompt('Логин mos.ru (виден при вводе): ')
+        const username = await visiblePrompt('Логин mos.ru — телефон, email или СНИЛС (виден при вводе): ')
         const password = await hiddenPrompt('Пароль mos.ru (ввод скрыт): ')
         if (tracing || args.includes('--show-password-prefix')) stdout.write(credentialInputSummary(password, { showPrefix: args.includes('--show-password-prefix') }))
         return { username, password }

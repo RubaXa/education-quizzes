@@ -2,6 +2,11 @@
 
 | Файл | Спецификация | Назначение | Потребитель |
 |---|---|---|---|
+| [docs/decisions/mesh-web-login-2026-11-02.md](decisions/mesh-web-login-2026-11-02.md) | [School diary](modules/school-diary/README.md) | Прямой парольный веб-вход с CookieJar, SMS и проверкой владельца | Родитель; оператор; runtime |
+| [packages/education-connect/lib/web-login.mjs](../packages/education-connect/lib/web-login.mjs) | [Веб-вход МЭШ](decisions/mesh-web-login-2026-11-02.md) | HTTP-вход существующего клиента дневника и продление собственной SSO | Diary CLI; Mesh adapter |
+| [packages/education-connect/lib/web-login.test.mjs](../packages/education-connect/lib/web-login.test.mjs) | [Веб-вход МЭШ](decisions/mesh-web-login-2026-11-02.md) | Password/SMS/state/cookie boundaries и истечение SSO | Vitest |
+| [diary/login-pty.test.mjs](../diary/login-pty.test.mjs) | [Веб-вход МЭШ](decisions/mesh-web-login-2026-11-02.md) | Реальный TTY, порядок credentials/SMS и скрытие ввода | Vitest; Node24 |
+
 | [docs/decisions/mesh-http-trace-2026-11-02.md](decisions/mesh-http-trace-2026-11-02.md) | [School diary](modules/school-diary/README.md) | Прямой локальный вход и подробная маскированная HTTP-трасса | Родитель; оператор |
 | [packages/education-connect/lib/http-trace.mjs](../packages/education-connect/lib/http-trace.mjs) | [HTTP-трасса МЭШ](decisions/mesh-http-trace-2026-11-02.md) | Локальная корреляция запросов и ответов, маскирование секретов | Diary CLI; Vitest |
 | [packages/education-connect/lib/http-trace.test.mjs](../packages/education-connect/lib/http-trace.test.mjs) | [HTTP-трасса МЭШ](decisions/mesh-http-trace-2026-11-02.md) | Приватность трассы и неизменность транспорта | Vitest |

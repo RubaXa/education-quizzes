@@ -1,5 +1,6 @@
 /** Local, opt-in HTTP trace. No files and no changes to the actual request.
- * @see ../../../docs/decisions/mesh-http-trace-2026-11-02.md */
+ * @see ../../../docs/decisions/mesh-http-trace-2026-11-02.md
+ * @see ../../../docs/decisions/mesh-web-login-2026-11-02.md */
 import { randomUUID, createHash } from 'node:crypto'
 
 export function maskSecret(value) {
@@ -8,7 +9,7 @@ export function maskSecret(value) {
   return `${chars.length > 4 ? chars.slice(0, 2).join('') : ''}******** (длина: ${chars.length})`
 }
 const publicKeys = new Set(['error', 'grant_type', 'software_id', 'device_type', 'response_type', 'scope',
-  'access_type', 'display', 'code_challenge_method', 'expires_in', 'token_type'])
+  'access_type', 'display', 'code_challenge_method', 'expires_in', 'token_type', 'inquire', 'ttl', 'remain_attempts'])
 const publicHeaders = new Set(['accept', 'content-type', 'content-length', 'content-encoding', 'accept-language',
   'user-agent', 'date', 'server', 'cache-control', 'pragma', 'expires', 'retry-after', 'x-request-id',
   'request-id', 'x-correlation-id', 'correlation-id', 'traceparent', 'x-trace-id', 'connection', 'vary',
