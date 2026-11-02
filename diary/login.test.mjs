@@ -27,3 +27,11 @@ it('reads credentials before invoking the chosen login driver',async()=>{
  await localMeshLogin({login,Adapter,readCredentials:async()=>{order.push('credentials');return{username:'fixture-phone',password:'fixture-password'}},save:()=>{}})
  expect(order).toEqual(['credentials','login'])
 })
+
+it('resumes without asking for credentials and still verifies before saving',async()=>{
+ const readCredentials=vi.fn(),save=vi.fn(),resume={fixture:true},onTrustPage=vi.fn()
+ const login=vi.fn(async()=>({actorPersonId:'same-parent',token:'fixture'}))
+ class Adapter {async verifyAccess(){return{accountRole:'parent'}}}
+ await localMeshLogin({login,Adapter,readCredentials,save,resume,onTrustPage,expectedActorPersonId:'same-parent'})
+ expect(readCredentials).not.toHaveBeenCalled();expect(login).toHaveBeenCalledWith(expect.objectContaining({resume,onTrustPage}));expect(save).toHaveBeenCalledTimes(1)
+})

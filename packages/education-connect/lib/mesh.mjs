@@ -137,7 +137,7 @@ export function normalizeSubjectPeriods(subjects, date = new Intl.DateTimeFormat
 }
 
 /** @see ../../../docs/modules/school-diary/README.md#diary-adapter */
-export async function loginToMesh({ username, password, readCredentials, askSmsCode, chooseProfile, onProgress, onDiagnostic, trace = null, method = 'mobile', confirmTrust }, { telemetry = null } = {}) {
+export async function loginToMesh({ username, password, readCredentials, askSmsCode, chooseProfile, onProgress, onDiagnostic, trace = null, method = 'mobile', confirmTrust, onTrustPage, resume }, { telemetry = null } = {}) {
   const httpTrace = trace ? createHttpTrace(globalThis.fetch, trace) : null
   const diagnostic = createLoginDiagnostics((url, options) => meshFetch(url, options, telemetry, null, httpTrace), onProgress, onDiagnostic)
   let entered = null
@@ -152,7 +152,7 @@ export async function loginToMesh({ username, password, readCredentials, askSmsC
   }
   try {
   const auth = method === 'web'
-    ? await authenticateWeb({ fetch: (url, options) => meshFetch(url, options, telemetry, null, httpTrace), username, password, askSmsCode, confirmTrust, onProgress })
+    ? await authenticateWeb({ fetch: (url, options) => meshFetch(url, options, telemetry, null, httpTrace), username, password, askSmsCode, confirmTrust, onProgress, onTrustPage, resume })
     : await authenticate({ fetch, username, password, askSmsCode, onProgress: () => {} })
   if (!auth.token || !auth.personId) throw new Error('Вход прошёл, но профиль МЭШ не найден')
   const api = new MeshAPI({ token: auth.token, profileId: '0', fetch })

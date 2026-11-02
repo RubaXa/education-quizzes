@@ -2,7 +2,7 @@
 import { expect, it, vi } from 'vitest'
 import { createHash } from 'node:crypto'
 import { CookieJar } from 'tough-cookie'
-import { authenticateWeb, solveHashcash, validWebSession, trustForm } from './web-login.mjs'
+import { authenticateWeb, solveHashcash, validWebSession, trustForm, validPendingLogin, trustPageDiagnostic } from './web-login.mjs'
 const state='fixture-state', token=`eyJhbGciOiJub25lIn0.${Buffer.from(JSON.stringify({msh:'fixture-parent'})).toString('base64url')}.fixture`
 const authReply=()=>Response.json({inquire:'choose_one',items:[{inquire:'login_with_password',proofOfWork:'1:8:fixture::salt:'}]},{headers:{'set-cookie':'oauth_az=fixture-session; Path=/; Secure; HttpOnly'}})
 function fixture({sms=false,badState=false,external=false,denied=false}={}) {
@@ -122,4 +122,27 @@ it('a declined trust confirmation never submits the form',async()=>{
  const fetch=vi.fn(async(url,opts)=>url.includes('/password')?new Response('',{status:303,headers:{location:'/sps/login/ur/askToTrust'}}):url.includes('/askToTrust')?new Response('<form method="post"><button name="trust" value="true">Доверять</button></form>'):base(url,opts))
  await expect(authenticateWeb({fetch,username:'fixture',password:'fixture',confirmTrust:async()=>false,state})).rejects.toMatchObject({stage:'trust',reason:'interactive-required'})
  expect(fetch.mock.calls.filter(([url])=>url.includes('/askToTrust'))).toHaveLength(1)
+})
+
+it('captures an unsupported real-page shape and resumes its own session without password or SMS',async()=>{
+ const base=fixture().fetch,onTrustPage=vi.fn(),onProgress=vi.fn(),savedState='fixture-state-for-resume'
+ const fetch=vi.fn(async(url,opts)=>url.includes('/password')?new Response('',{status:303,headers:{location:'/sps/login/ur/askToTrust'}}):url.includes('/askToTrust')?new Response('<script>no execute</script><form method="post" action="/sps/login/ur/unknown"><input type="hidden" name="csrf" value="private-csrf"></form>'):base(url,opts))
+ await expect(authenticateWeb({fetch,username:'fixture',password:'fixture',state:savedState,onTrustPage,onProgress})).rejects.toMatchObject({stage:'trust',reason:'interactive-required'})
+ const pending=onTrustPage.mock.calls[0][0]
+ expect(validPendingLogin(pending)).toBe(true)
+ expect(validPendingLogin(pending,pending.createdAt+600000)).toBe(false)
+ expect(JSON.stringify(pending)).not.toContain('password')
+ expect(onProgress.mock.calls.map(c=>c[0]).join('')).not.toContain('private-csrf')
+ const nextFetch=vi.fn(async(url)=>url.includes('/askToTrust')?new Response('',{status:303,headers:{location:`https://school.mos.ru/v3/auth/sudir/callback?code=fixture&state=${savedState}`}}):new Response('',{status:302,headers:{location:'/diary','set-cookie':`auth_token=${token}; Secure; Path=/`}}))
+ const result=await authenticateWeb({fetch:nextFetch,resume:pending})
+ expect(result.authMethod).toBe('web')
+ expect(nextFetch.mock.calls[0][0]).toBe(pending.url)
+ expect(nextFetch.mock.calls.every(([,opts])=>opts.method==='GET')).toBe(true)
+})
+it('reports only masked form structure and rejects expired or malformed pending sessions before HTTP',async()=>{
+ const summary=JSON.stringify(trustPageDiagnostic('<form><input name="csrf" value="private-csrf"><button name="confirm" value="private-value">Accept</button></form>','https://login.mos.ru/sps/login/ur/askToTrust'))
+ expect(summary).toContain('csrf');expect(summary).not.toContain('private-csrf');expect(summary).not.toContain('private-value')
+ const fetch=vi.fn()
+ await expect(authenticateWeb({fetch,resume:{}})).rejects.toMatchObject({stage:'trust'})
+ expect(fetch).not.toHaveBeenCalled()
 })
