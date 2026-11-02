@@ -12,7 +12,7 @@
  * @see ../docs/decisions/pupil-vacations-2026-10-19.md
  */
 import { randomUUID } from 'node:crypto'
-import { existsSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, readdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { performance } from 'node:perf_hooks'
 import { Timestamp } from '@google-cloud/firestore'
@@ -154,7 +154,7 @@ async function status(target, runId, phase, extra = {}) {
   await statusRef(target).set({ runId, phase, updatedAt: Timestamp.now(), ...extra }, { merge: true })
 }
 async function auditPublishedDays(dir, dates, asOf, timing, target, { requireOwnedDashboards = false } = {}) {
-  const workspace = dirname(dir)
+  const workspace = dirname(realpathSync(dir))
   const links = readJson(workspace, 'day-links.json') ?? {}
   const dashboardTokens = readJson(workspace, 'day-dashboard-links.json') ?? {}
   const familyTaskSnapshot = await measure(timing, 'familyAssignmentAuditRead', () =>

@@ -124,3 +124,10 @@ Credentials общие для sync и worker: token refresh записывает
 `npm run sync:project -- audit --run RUNID` повторно читает публикацию того же сохранённого запуска и его frozen 42-дневного окна. Команда не запускает inventory, inbox, Mesh adapter или сбор; она сверяет run manifest, `checkedFrom`/`checkedThrough`, полный локальный снимок каждой даты и текущий `syncStatus.runId`. Путь исходников ограничен `.local/diary` с явным legacy owner или canonical `.local/project-sync/sources/{familyId}/{childId}/diary`; canonical путь проверяется через `realpath` и `context.json`. Владельца и роль обоих dashboard проверяют точно, а `syncStatus.runId` перечитывается перед сохранением результата.
 
 Адаптер проецирует полный dashboard index на даты manifest-окна; исторические записи за его пределами не являются отсутствующими датами текущего аудита. Публикационные расхождения по-прежнему считаются по всему замороженному окну, включая даты без ожидаемой записи. Отдельный receipt в закрытой `project-sync/audit-receipts/` сообщает `publication-verified`, `pending` или `blocked` и `pendingPublicationDates`. Это только результат сверки публикации: `publication-verified` не завершает workflow, не снимает блокировку источника и не закрывает reconcile-day. Полный source check всё равно требует штатного EducationSync. Ошибка/неполный снимок блокирует аудит; пустое `expectedByDate` допустимо для пустого календарного горизонта только после проверки 42 полных snapshot, и не создаёт фиктивные даты или карточки.
+
+Для явно зарегистрированного legacy diary выпущенный checkout может содержать
+символическую ссылку на прежнее семейное хранилище. После проверки familyId/childId
+аудит разрешает только точный localDir/diary, сохраняя путь манифеста; индексы и
+планы читаются рядом с реальным семейным diary, а не рядом с symlink checkout.
+Это не разрешает symlink в canonical per-owner источниках, чужого владельца или
+произвольный sourceDir. Снимки и секреты не копируются между checkout.

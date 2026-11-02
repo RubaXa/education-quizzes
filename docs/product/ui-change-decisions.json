@@ -1953,7 +1953,7 @@
       }
     },
     "scripts/education-sync-dispatch.mjs": {
-      "sha256": "cb0f848e86dfaa1109cbe163b8890f6c84022759f94067f27289746365e7b726",
+      "sha256": "c54c73471d6d5e501cf2ebc0e93c728ae69b72c86beba1ee18e6bd0b984c50f3",
       "record": "docs/decisions/sync-phase-report-2026-10-29.md",
       "specs": [
         "docs/modules/synchronization/execution-artifact.md"
@@ -2365,7 +2365,7 @@
       }
     },
     "scripts/sync-project.mjs": {
-      "sha256": "28ec724e1647a577e463a5dd567d2c7e553634e63550dea31f8a54095aa545fc",
+      "sha256": "26f078f44ec701d2e7d7f4d0687d58bb9dcb57527e90dd554837b3e2dc57b14c",
       "record": "docs/decisions/mesh-auth-recovery-2026-11-01.md",
       "specs": [
         "docs/shared/server-runtime.md"
@@ -5337,7 +5337,7 @@
       }
     },
     "sync/event-task-export.mjs": {
-      "sha256": "215676cbf6b74c707dad4804aacedacda40aa9cefbba4a9776a7ed749f32b5c5",
+      "sha256": "b232c2155186d0b6bec2e4eec86d7cc4483d021b8efb4003fcbcb33362ae9b9c",
       "record": "docs/decisions/independent-action-dispatch-2026-10-21.md",
       "specs": [
         "docs/services/telegram-bot/education-sync-dispatch.md",
@@ -5703,7 +5703,7 @@
       }
     },
     "sync/project-audit.mjs": {
-      "sha256": "dcaeb99378683eb3add6cdd7c57c31a22a02c5c15a7dc07b2b444fdc4f50fb42",
+      "sha256": "01cec0e6def59a909f07aa8219fdfafd861501bde3fe208b0f0e7c652d7ee4c0",
       "record": "docs/decisions/project-publication-audit-2026-10-21.md",
       "specs": [
         "docs/modules/synchronization/global-sync.md",

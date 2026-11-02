@@ -139,6 +139,12 @@ describe('read-only project publication audit', () => {
       expect(() => resolveProjectAuditSourcePath(legacy, { localDir, runDir,
         legacyOwner: { familyId: 'other', childId: owner.childId } })).toThrow(/не принадлежит владельцу/)
       expect(resolveProjectAuditSourcePath(legacy, { localDir, runDir, legacyOwner: owner })).toBe(legacy.sourceDir)
+      const familyDiary=resolve(root,'family-workspace','diary')
+      mkdirSync(familyDiary,{recursive:true})
+      rmSync(legacy.sourceDir,{recursive:true})
+      symlinkSync(familyDiary,legacy.sourceDir)
+      expect(resolveProjectAuditSourcePath(legacy,{localDir,runDir,legacyOwner:owner})).toBe(legacy.sourceDir)
+      expect(()=>resolveProjectAuditSourcePath(legacy,{localDir,runDir,legacyOwner:{familyId:'other',childId:owner.childId}})).toThrow(/не принадлежит владельцу/)
 
       writeFileSync(resolve(ownerDir, 'context.json'), JSON.stringify({ familyId: 'other', childId: owner.childId }))
       expect(() => resolveProjectAuditSourcePath(canonical, { localDir, runDir })).toThrow(/не принадлежит владельцу/)
